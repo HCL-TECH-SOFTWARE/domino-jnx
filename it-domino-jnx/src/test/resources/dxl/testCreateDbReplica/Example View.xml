@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    ==========================================================================
+    Copyright (C) 2019-2021 HCL ( http://www.hcl.com/ )
+                               All rights reserved.
+    ==========================================================================
+    Licensed under the  Apache License, Version 2.0  (the "License").  You may
+    not use this file except in compliance with the License.  You may obtain a
+    copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+
+    Unless  required  by applicable  law or  agreed  to  in writing,  software
+    distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+    WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+    License for the  specific language  governing permissions  and limitations
+    under the License.
+    ==========================================================================
+
+-->
+<view allowcustomizations="false" allownewdocuments="false"
+  altrowcolor="#efefef" bgcolor="white" boldunreadrows="false"
+  default="true" evaluateactions="false" extendlastcolumn="false"
+  gridcolor="white" gridstyle="solid" headerbgcolor="white"
+  headerlinecount="1" headers="beveled" hidemarginborder="false"
+  marginbgcolor="white" marginwidth="0px" name="Example View"
+  onopengoto="lastopened" onrefresh="displayindicator"
+  opencollapsed="false" publicaccess="false" rowlinecount="1"
+  rowspacing="1" showhierarchies="false" showinmenu="false"
+  showmargin="true" showresponsehierarchy="true" shrinkrows="false"
+  totalscolor="black" uniquekeys="false" unreadcolor="black"
+  unreadmarks="none" xmlns="http://www.lotus.com/dxl">
+  <code event="selection">
+    <formula>SELECT Form="Example Form"</formula>
+  </code>
+  <actionbar bgcolor="#d4d0c8" bordercolor="black">
+    <actionbuttonstyle bgcolor="#d4d0c8"/>
+    <font color="system" size="9pt"/>
+    <border style="solid" width="0px 0px 1px"/>
+    <action icon="30" title="Create\Example Form">
+      <code event="click">
+        <formula>@Command([Compose]; "Example Form")</formula>
+      </code>
+    </action>
+  </actionbar>
+  <column categorized="true" hidedetailrows="false"
+    itemname="Categories" resizable="false"
+    separatemultiplevalues="true" showaslinks="false" sort="ascending"
+    sortnoaccent="true" sortnocase="true" twisties="true" width="1.6250">
+    <font style="bold"/>
+    <columnheader>
+      <font size="9pt" style="bold"/>
+    </columnheader>
+  </column>
+  <sharedcolumnref name="Title">
+    <column hidedetailrows="false" itemname="$$Title" resizable="true"
+      separatemultiplevalues="false" showaslinks="false"
+      sortnoaccent="true" sortnocase="true" width="28.2500">
+      <columnheader title="Name">
+        <font size="9pt" style="bold"/>
+      </columnheader>
+    </column>
+  </sharedcolumnref>
+</view>

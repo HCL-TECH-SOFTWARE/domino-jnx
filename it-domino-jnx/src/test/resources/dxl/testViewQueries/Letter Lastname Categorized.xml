@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+
+    ==========================================================================
+    Copyright (C) 2019-2021 HCL ( http://www.hcl.com/ )
+                               All rights reserved.
+    ==========================================================================
+    Licensed under the  Apache License, Version 2.0  (the "License").  You may
+    not use this file except in compliance with the License.  You may obtain a
+    copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+
+    Unless  required  by applicable  law or  agreed  to  in writing,  software
+    distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+    WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+    License for the  specific language  governing permissions  and limitations
+    under the License.
+    ==========================================================================
+
+-->
+<view name='Letter Lastname Categorized' xmlns='http://www.lotus.com/dxl'
+ version='11.0' maintenanceversion='1.0' replicaid='C1258578003C7F26' showinmenu='false'
+ publicaccess='false' designerversion='8.5.3' unreadmarks='none' onopengoto='lastopened'
+ onrefresh='displayindicator' headers='beveled' opencollapsed='false' showresponsehierarchy='true'
+ showmargin='true' shrinkrows='false' extendlastcolumn='false' showhierarchies='false'
+ unreadcolor='black' rowlinecount='1' headerlinecount='1' rowspacing='1' bgcolor='white'
+ totalscolor='black' headerbgcolor='white' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='false' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false'>
+<noteinfo noteid='18e' unid='AF70D0C36F969B98C1258578003EE5E1' sequence='9'>
+<created><datetime dst='true'>20200530T132700,81+02</datetime></created>
+<modified><datetime dst='true'>20200603T005637,65+02</datetime></modified>
+<revised><datetime dst='true'>20200530T133633,20+02</datetime></revised>
+<lastaccessed><datetime dst='true'>20200603T005637,64+02</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20200603T005637,64+02</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Karsten Lehmann/O=Mindoo</name></updatedby>
+<wassignedby><name>CN=Karsten Lehmann/O=Mindoo</name></wassignedby><code event='selection'><formula
+>SELECT @All</formula></code><code event='form'><formula>"DefaultForm"</formula></code>
+<actionbar bgcolor='#f0f0f0' bordercolor='black'>
+<actionbuttonstyle bgcolor='#f0f0f0'/><font color='system'/><border style='solid'
+ width='0px 0px 1px'/>
+<action title='Categori_ze' showinbar='false' systemcommand='categorize'/>
+<action title='_Edit Document' showinbar='false' systemcommand='edit'/>
+<action title='_Send Document' showinbar='false' systemcommand='send'/>
+<action title='_Forward' showinbar='false' systemcommand='forward'/>
+<action title='_Move To Folder...' showinbar='false' systemcommand='movetofolder'/>
+<action title='_Remove From Folder' showinbar='false' systemcommand='removefromfolder'/>
+<action title='_Read' showinbar='false' systemcommand='markread'/>
+<action title='_Unread' showinbar='false' systemcommand='markunread'/>
+<action title='_Open in New Window' showinbar='false' systemcommand='openinnewwindow'/>
+<action title='_Print...' showinbar='false' systemcommand='print'/>
+<action title='_Delete' showinbar='false' systemcommand='delete'/>
+<action title='_Document Properties' showinbar='false' systemcommand='properties'/>
+<action title='C_ut' showinbar='false' systemcommand='cut'/>
+<action title='_Copy' showinbar='false' systemcommand='copy'/>
+<action title='Copy as Document _Link' showinbar='false' systemcommand='copyasdoclink'/>
+<action title='Copy as _Table' showinbar='false' systemcommand='copyastable'/>
+<action title='P_aste' showinbar='false' systemcommand='paste'/>
+<action title='_Open' showinbar='false' systemcommand='open'/>
+<action title='Bookmark' showinbar='false' systemcommand='bookmark'/></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='$0' width='15.6250'
+ resizable='true' separatemultiplevalues='true' sortnoaccent='true' sortnocase='true'
+ showaslinks='false' categorized='true' twisties='true'><columnheader><font
+ size='9pt' style='bold'/></columnheader><code event='value'><formula>@Left(Lastname;1)</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='Lastname' width='20.5000'
+ resizable='true' separatemultiplevalues='true' sortnoaccent='true' sortnocase='true'
+ showaslinks='false' categorized='true' twisties='true'><columnheader><font
+ size='9pt' style='bold'/></columnheader></column>
+<column sort='ascending' hidedetailrows='false' itemname='$1' width='31.1250'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><columnheader><font size='9pt' style='bold'/></columnheader><code
+ event='value'><formula>Firstname + " " + Lastname</formula></code></column>
+<column hidedetailrows='false' itemname='StreetAddress' width='19.7500' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='StreetAddress'><font size='9pt' style='bold'/></columnheader></column>
+<column hidedetailrows='false' itemname='City' width='20.2500' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='City'><font size='9pt' style='bold'/></columnheader></column>
+<column hidedetailrows='false' itemname='$3' width='10' resizable='true' separatemultiplevalues='false'
+ sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+><font size='9pt' style='bold'/></columnheader><code event='value'><formula
+>@DocNumber</formula></code></column></view>
+

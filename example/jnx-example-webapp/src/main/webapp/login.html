@@ -1,0 +1,62 @@
+<!--
+
+    ==========================================================================
+    Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+                               All rights reserved.
+    ==========================================================================
+    Licensed under the  Apache License, Version 2.0  (the "License").  You may
+    not use this file except in compliance with the License.  You may obtain a
+    copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+
+    Unless  required  by applicable  law or  agreed  to  in writing,  software
+    distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+    WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+    License for the  specific language  governing permissions  and limitations
+    under the License.
+    ==========================================================================
+
+-->
+<html>
+	<head>
+		<title>JNX Example App Login</title>
+		<style>
+			html {
+				background-image: linear-gradient(109.5deg, rgb(76, 221, 242) 11.2%, rgb(92, 121, 255) 91.1%);
+			}
+			body {
+				height: 100vh;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				padding: 0;
+				margin: 0;
+			}
+			form {
+				width: 20em;
+				text-align: center;
+				background: rgba(255, 255, 255, 0.5);
+				border-radius: 10px;
+				padding: 10px;
+				backdrop-filter: blur(5px);
+				text-align: center;
+				font-size: 18px;
+			}
+			form input {
+				display: block;
+				margin: 2em auto;
+				padding: 1em;
+			}
+			form input[type="text"], form input[type="password"] {
+				width: 100%;
+			}
+		</style>
+		
+	</head>
+	<body>
+		<form action="j_security_check" method="post">
+			<input name="j_username" type="text" placeholder="Username"/>
+			<input name="j_password" type="password" placeholder="Password"/>
+			<input type="submit" value="Log In"/>
+		</form>
+	</body>
+</html>

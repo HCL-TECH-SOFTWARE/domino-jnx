@@ -1,0 +1,143 @@
+/*
+ * ==========================================================================
+ * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ *                            All rights reserved.
+ * ==========================================================================
+ * Licensed under the  Apache License, Version 2.0  (the "License").  You may
+ * not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+ *
+ * Unless  required  by applicable  law or  agreed  to  in writing,  software
+ * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the  specific language  governing permissions  and limitations
+ * under the License.
+ * ==========================================================================
+ */
+package com.hcl.domino.commons.design;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import com.hcl.domino.commons.NotYetImplementedException;
+import com.hcl.domino.commons.design.view.DominoViewFormat;
+import com.hcl.domino.data.CollectionColumn;
+import com.hcl.domino.data.Document;
+import com.hcl.domino.data.DominoCollection;
+import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.DesignElement;
+import com.hcl.domino.design.format.ViewTableFormat;
+import com.hcl.domino.design.format.ViewTableFormat3;
+
+/**
+ * @param <T> the {@link DesignElement} interface implemented by the class
+ * @since 1.0.18
+ */
+public abstract class AbstractCollectionDesignElement<T extends CollectionDesignElement> extends AbstractNamedDesignElement<T> implements CollectionDesignElement {
+	private DominoViewFormat format;
+	
+	public AbstractCollectionDesignElement(Document doc) {
+		super(doc);
+	}
+
+	@Override
+	public CollectionDesignElement addColumn() {
+		throw new NotYetImplementedException();
+	}
+
+	@Override
+	public List<CollectionColumn> getColumns() {
+		return readViewFormat().getColumns();
+	}
+
+	@Override
+	public CollectionDesignElement removeColumn(CollectionColumn column) {
+		throw new NotYetImplementedException();
+	}
+
+	@Override
+	public CollectionDesignElement swapColumns(int a, int b) {
+		throw new NotYetImplementedException();
+	}
+
+	@Override
+	public CollectionDesignElement swapColumns(CollectionColumn a, CollectionColumn b) {
+		throw new NotYetImplementedException();
+	}
+
+	@Override
+	public DominoCollection getCollection() {
+		throw new NotYetImplementedException();
+	}
+	
+	@Override
+	public OnOpen getOnOpenUISetting() {
+		DominoViewFormat format = readViewFormat();
+		ViewTableFormat format1 = format.getAdapter(ViewTableFormat.class);
+		Set<ViewTableFormat.Flag> flags = format1.getFlags();
+		if(flags.contains(ViewTableFormat.Flag.GOTO_BOTTOM_ON_OPEN)) {
+			return OnOpen.GOTO_BOTTOM;
+		} else if(flags.contains(ViewTableFormat.Flag.GOTO_TOP_ON_OPEN)) {
+			return OnOpen.GOTO_TOP;
+		} else {
+			return OnOpen.GOTO_LAST_OPENED;
+		}
+	}
+
+	@Override
+	public OnRefresh getOnRefreshUISetting() {
+		DominoViewFormat format = readViewFormat();
+		ViewTableFormat format1 = format.getAdapter(ViewTableFormat.class);
+		Set<ViewTableFormat.Flag> flags = format1.getFlags();
+		// Auto-refresh is denoted by both flags being present
+		if(flags.contains(ViewTableFormat.Flag.GOTO_BOTTOM_ON_REFRESH) && flags.contains(ViewTableFormat.Flag.GOTO_TOP_ON_REFRESH)) {
+			return OnRefresh.REFRESH_DISPLAY;
+		} else if(flags.contains(ViewTableFormat.Flag.GOTO_BOTTOM_ON_REFRESH)) {
+			return OnRefresh.REFRESH_FROM_BOTTOM;
+		} else if(flags.contains(ViewTableFormat.Flag.GOTO_TOP_ON_REFRESH)) {
+			return OnRefresh.REFRESH_FROM_TOP;
+		} else {
+			return OnRefresh.DISPLAY_INDICATOR;
+		}
+	}
+
+	@Override
+	public CollectionDesignElement setOnRefreshUISetting(OnRefresh onRefreshUISetting) {
+		throw new NotYetImplementedException();
+	}
+	
+	@Override
+	public boolean isAllowCustomizations() {
+		DominoViewFormat format = readViewFormat();
+		ViewTableFormat3 format3 = format.getAdapter(ViewTableFormat3.class);
+		if(format3 == null) {
+			return false;
+		} else {
+			// It appears that this flag is inverted in practice
+			return !format3.getFlags().contains(ViewTableFormat3.Flag.AllowCustomizations);
+		}
+	}
+	
+	@Override
+	public Optional<String> getWebXPageAlternative() {
+		String val = getDocument().get(DesignConstants.XPAGE_ALTERNATE, String.class, null);
+		if(val == null || val.isEmpty()) {
+			return Optional.empty();
+		} else {
+			return Optional.of(val);
+		}
+	}
+
+	// *******************************************************************************
+	// * Internal utility methods
+	// *******************************************************************************
+	
+	private synchronized DominoViewFormat readViewFormat() {
+		if(this.format == null) {
+			Document doc = getDocument();
+			this.format = (DominoViewFormat)doc.getItemValue(DesignConstants.VIEW_VIEW_FORMAT_ITEM).get(0);
+		}
+		return format;
+	}
+}

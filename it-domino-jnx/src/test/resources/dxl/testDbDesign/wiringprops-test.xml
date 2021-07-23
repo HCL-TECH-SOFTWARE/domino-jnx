@@ -1,0 +1,19 @@
+<?xml version='1.0'?>
+<note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$TITLE'><text>wiringprops.wsdl</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$Flags'><text>34567C:Q</text></item>
+<item name='$FileSize' sign='true'><number>398</number></item>
+<item name='$FileData' sign='true'>
+<rawitemdata type='1'>
+YQAYAAAAAACOAQAAAQAAAAAAAAAAAAAAYACgAQAAjgGOAQAAAAAAAAAAPGRlZmluaXRpb25zIG5h
+bWU9IlByb3BlcnR5IEJyb2tlciBXU0RMIgp0YXJnZXROYW1lc3BhY2U9Imh0dHA6Ly9jb20ueW91
+cmNvbXBhbnkucHJvcGVydHlicm9rZXIiCnhtbG5zPSJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9y
+Zy93c2RsLyIKeG1sbnM6cG9ydGxldD0iaHR0cDovL3d3dy5pYm0uY29tL3dwcy9jMmEiCnhtbG5z
+OnNvYXA9Imh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzZGwvc29hcC8iCnhtbG5zOnRucz0i
+aHR0cDovL2NvbS55b3VyY29tcGFueS5wcm9wZXJ0eWJyb2tlciIKeG1sbnM6eHNpPSJodHRwOi8v
+d3d3LnczLm9yZy8yMDAxL1hNTFNjaGVtYS1pbnN0YW5jZSIKeG1sbnM6eHNkPSJodHRwOi8vd3d3
+LnczLm9yZy8yMDAxL1hNTFNjaGVtYSI+CjwvZGVmaW5pdGlvbnM+DQo=
+</rawitemdata></item>
+<item name='$FileNames' sign='true'><text>wiringprops.wsdl</text></item></note>
+

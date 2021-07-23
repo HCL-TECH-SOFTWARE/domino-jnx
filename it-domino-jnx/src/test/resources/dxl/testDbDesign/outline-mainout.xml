@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='utf-8'?>
+<outline name='MainOut' xmlns='http://www.lotus.com/dxl' version='12.0' publicaccess='false' designerversion='8.5.3'>
+	<outlineentry label='Formula Console' type='namedelementlink' hide='web'>
+		<imageref database='85257C43005FA915' name='tango/utilities-terminal.png' />
+		<namedelementlink type='form' name='FormulaConsole' />
+		<code event='hidewhen'>
+			<formula>!(@UserAccess(@DbName; [AccessLevel]) = "5":"6")</formula>
+		</code>
+	</outlineentry>
+	<outlineentry type='otherviews'>
+		<code event='hidewhen'>
+			<formula>@GetProfileField("Preferences"; "HiddenViews"; @UserName) = "Other Views"</formula>
+		</code>
+	</outlineentry>
+	<outlineentry label='Trash' type='namedelementlink'>
+		<imageref database='85257C43005FA915' name='tango/mail-mark-junk.png' />
+		<namedelementlink type='view' name='Trash' />
+	</outlineentry>
+	<outlineentry label='Other View...' type='action' hide='web' keepfocus='true'>
+		<code event='value'>
+			<formula>@SetTargetFrame("View");
+				@Command([ViewChange])</formula>
+		</code>
+		<code event='hidewhen'>
+			<formula>!(@UserAccess(@DbName; [AccessLevel]) = "5":"6") | @GetProfileField("Preferences"; "HiddenViews"; @UserName) = "Other View..."</formula>
+		</code>
+	</outlineentry>
+</outline>
+

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+
+    ==========================================================================
+    Copyright (C) 2019-2021 HCL ( http://www.hcl.com/ )
+                               All rights reserved.
+    ==========================================================================
+    Licensed under the  Apache License, Version 2.0  (the "License").  You may
+    not use this file except in compliance with the License.  You may obtain a
+    copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+
+    Unless  required  by applicable  law or  agreed  to  in writing,  software
+    distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+    WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+    License for the  specific language  governing permissions  and limitations
+    under the License.
+    ==========================================================================
+
+-->
+<view name="Conversion Docs" xmlns="http://www.lotus.com/dxl">
+	<code event="selection">
+		<formula>SELECT Form="Conversion Doc"</formula>
+	</code>
+	<column hidedetailrows="false" itemname="StringField" width="10" resizable="true" separatemultiplevalues="false" sortnoaccent="true" sortnocase="true" showaslinks="false">
+		<columnheader title="StringField">
+			<font size="9pt" style="bold" />
+		</columnheader>
+	</column>
+	<column hidedetailrows="false" itemname="NumberField" width="10" resizable="true" separatemultiplevalues="false" sortnoaccent="false" sortnocase="true" showaslinks="false">
+		<columnheader title="NumberField">
+			<font size="9pt" style="bold" />
+		</columnheader>
+	</column>
+	<column hidedetailrows="false" itemname="DateField" width="10" resizable="true" separatemultiplevalues="false" sortnoaccent="false" sortnocase="true" showaslinks="false">
+		<columnheader title="DateField">
+			<font size="9pt" style="bold" />
+		</columnheader>
+	</column>
+</view>

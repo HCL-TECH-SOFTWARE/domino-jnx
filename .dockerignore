@@ -1,0 +1,8 @@
+**/target
+docs
+.git
+
+**/*.trc
+**/*.dmp
+**/javacore.*
+**/core

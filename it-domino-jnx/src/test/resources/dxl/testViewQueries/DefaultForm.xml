@@ -1,0 +1,211 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+
+    ==========================================================================
+    Copyright (C) 2019-2021 HCL ( http://www.hcl.com/ )
+                               All rights reserved.
+    ==========================================================================
+    Licensed under the  Apache License, Version 2.0  (the "License").  You may
+    not use this file except in compliance with the License.  You may obtain a
+    copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+
+    Unless  required  by applicable  law or  agreed  to  in writing,  software
+    distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+    WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+    License for the  specific language  governing permissions  and limitations
+    under the License.
+    ==========================================================================
+
+-->
+<form name='Generic Default Form' alias='DefaultForm' xmlns='http://www.lotus.com/dxl'
+ version='11.0' maintenanceversion='1.0' replicaid='C1258578003C7F26' hide='web'
+ nocompose='true' noquery='true' publicaccess='false' designerversion='8.5.3'
+ default='true' renderpassthrough='true' nofieldindex='true'>
+<noteinfo noteid='17a' unid='FD14A2D3A2F2F0BBC1258578003E2103' sequence='2'>
+<created><datetime dst='true'>20200530T131836,83+02</datetime></created>
+<modified><datetime dst='true'>20200603T005637,19+02</datetime></modified>
+<revised><datetime dst='true'>20200530T131906,99+02</datetime></revised>
+<lastaccessed><datetime dst='true'>20200603T005637,18+02</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20200603T005637,18+02</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Karsten Lehmann/O=Mindoo</name></updatedby>
+<wassignedby><name>CN=Karsten Lehmann/O=Mindoo</name></wassignedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+</lotusscript></code><code event='declarations'><lotusscript>Const TYPE_DEFAULT = {MISC BINARY DATA,binary} ' use these settings for anything not explicitly listed below.
+
+Const TYPE_MATCH = {
+1084=ATTACHMENT,ignore
+1076=AUTHORS,name
+1024=DATETIME,default
+1090=EMBEDDEDOBJECT,ignore
+1536=FORMULA,default
+21=HTML,default
+1074=NAMES,name
+768=NUMBER,default
+1075=READERS,name
+1282=EMAIL HEADER,text
+1=RICHTEXT,richtext
+8=SIGNATURE,ignore
+1280=TEXT,text
+}
+
+Const NEWLINE = {
+}
+
+</lotusscript></code><code event='DescribeItem'><lotusscript>Function DescribeItem(item) As String
+	Dim pos As Long, strDisp$
+	pos = Instr(TYPE_MATCH, NEWLINE &amp; item.Type &amp; {=})
+	If pos = 0 Then
+		strDisp = TYPE_DEFAULT
+	Else
+		strDisp = Strleft(Strright(Mid$(TYPE_MATCH, pos), "="), NEWLINE)
+	End If
+	Dim strTypename$, strValueType$, strVal$, tmp
+	strTypename = Strleft(strDisp, ",")
+	strValueType = Mid$(strDisp, Len(strTypeName)+2)
+	Select Case strValueType
+	Case "text"
+		strVal = item.Text
+	Case "name"
+		tmp = item.Values
+		Forall x In tmp
+			x = AbbrName(x)
+		End Forall
+		strVal = Join(tmp, NEWLINE)
+	Case "richtext"
+		strVal = item.GetUnformattedText()
+	Case "ignore"
+		Exit Function ' returning blank, the signal to ignore the field.
+	Case "default"
+		strVal = item.Text
+	End Select
+	If Len(strVal) &gt; 255 Then
+		strVal = Left$(strVal, 252) + "..."
+	End If
+	DescribeItem = strTypeName &amp; ":" &amp; strVal
+End Function
+
+</lotusscript></code><code event='AbbrName'><lotusscript>Function AbbrName(Byval aname$) As String
+	Dim nnam As New NotesName(aname)
+	AbbrName = nnam.Abbreviated
+End Function</lotusscript></code></globals><code event='windowtitle'><formula
+>"Unknown Document"</formula></code><code event='options'><lotusscript>Option Declare
+
+</lotusscript></code><code event='queryopen'><lotusscript>Sub Queryopen(Source As Notesuidocument, Mode As Integer, Isnewdoc As Variant, Continue As Variant)
+	On Error Goto oops
+	Dim doc As NotesDocument
+	Dim rti As NotesRichTextItem
+	Dim descriptions List As String
+	Dim strTmp$
+	Dim fldCtr%
+	
+	Set doc = Source.Document
+	Forall item In doc.Items
+		strTmp = DescribeItem(item)
+		If Len(strTmp) Then
+			fldCtr = fldCtr + 1
+			If fldctr = 254 Then
+				descriptions("MORE ITEMS") = "...:..."
+				Exit Forall
+			Else		
+				descriptions(item.Name) = strTmp
+			End If
+		End If
+	End Forall
+	
+	If doc.HasItem("GDF_fields") Then
+		doc.RemoveItem("GDF_Fields")
+	End If
+	If doc.HasItem("GDF_form_d") Then
+		doc.RemoveItem("GDF_form_d")
+	End If
+	
+	Set rti = doc.CreateRichTextItem("GDF_Fields")
+	Dim rtable As NotesRichTextTable
+	Dim styles(2) As NotesRichTextParagraphStyle
+	Dim session As New NotesSession
+	Set styles(0) = session.CreateRichTextParagraphStyle()
+	Set styles(1) = session.CreateRichTextParagraphStyle()
+	Set styles(2) = session.CreateRichTextParagraphStyle()
+	styles(0).LeftMargin = 0
+	styles(0).FirstLineLeftMargin = 0
+	styles(0).RightMargin = RULER_ONE_INCH*2
+	styles(0).Alignment = ALIGN_RIGHT
+	styles(1).LeftMargin = 0
+	styles(1).FirstLineLeftMargin = 0
+	styles(1).RightMargin = RULER_ONE_INCH*1.5
+	styles(1).Alignment = ALIGN_CENTER
+	styles(2).LeftMargin = 0
+	styles(2).FirstLineLeftMargin = 0
+	styles(2).RightMargin = RULER_ONE_INCH*4
+	Call rti.AppendTable(fldCtr+1, 3, , , styles)
+	Dim ncolor As NotesColorObject
+	Dim rtnav As NotesRichTextNavigator
+	Set rtnav = rti.CreateNavigator
+	Set ncolor = session.CreateColorObject
+	Call ncolor.SetRGB(252, 252, 176)
+	Set rtable = rtnav.GetFirstElement(RTELEM_TYPE_TABLE)
+	rtable.Style = TABLESTYLE_TOP
+	rtable.SetColor ncolor
+	ncolor.NotesColor = COLOR_WHITE
+	rtable.SetAlternateColor ncolor
+	rtnav.FindFirstElement RTELEM_TYPE_TABLECELL
+	rti.BeginInsert rtnav
+	rti.AppendText "FIELD NAME"
+	rti.EndInsert
+	rtnav.FindNextElement RTELEM_TYPE_TABLECELL
+	rti.BeginInsert rtnav
+	rti.AppendText "DATATYPE"
+	rti.EndInsert
+	rtnav.FindNextElement RTELEM_TYPE_TABLECELL
+	rti.BeginInsert rtnav
+	rti.AppendText "VALUE"
+	rti.EndInsert
+	Forall desc In descriptions
+		rtnav.FindNextElement RTELEM_TYPE_TABLECELL
+		rti.BeginInsert rtnav
+		rti.AppendText Listtag(desc)
+		rti.EndInsert
+		rtnav.FindNextElement RTELEM_TYPE_TABLECELL
+		rti.BeginInsert rtnav
+		rti.AppendText Strleft(desc, ":")
+		rti.EndInsert
+		rtnav.FindNextElement RTELEM_TYPE_TABLECELL
+		rti.BeginInsert rtnav
+		rti.AppendText Strright(desc, ":")
+		rti.EndInsert
+	End Forall
+	On Error Resume Next
+	rti.Update
+	Exit Sub
+oops:
+	Msgbox "Error " &amp; Err &amp; " line " &amp; Erl &amp; ": " &amp; Error
+	Exit Sub
+End Sub</lotusscript></code>
+<body><richtext>
+<pardef id='1' spaceafter='1.5'/>
+<par def='1'><run><font size='14pt'/>The form name stored in the document is "</run><run
+><font size='14pt' color='green'/><field type='text' kind='computedfordisplay'
+ name='GDF_Form_d'><code event='defaultvalue'><formula>Form</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='14pt'/>".</run></par>
+<pardef id='2'/>
+<par def='2'><run><font size='14pt'/>Fields in this document:</run><run><font
+ size='12pt'/><field type='richtext' kind='computed' name='GDF_Fields'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAEAAAA=
+</compositedata></par>
+<pardef id='3' spaceafter='1.5' hide='notes web mobile'/>
+<par def='3'><run><font color='red'/>hidden: </run><run><font color='red'/><field
+ type='text' kind='computedfordisplay' name='SaveOptions'><code event='defaultvalue'><formula
+>"0"</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='10' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font color='red'/></run></par></richtext></body>
+<item name='$$ScriptName' summary='false' sign='true'><text>DefaultForm</text></item></form>
+

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="filter" xmlns="http://www.lotus.com/dxl">
+  <item name="$AssistType" sign="true">
+    <number>65412</number>
+  </item>
+  <item name="$AssistLastRun" sign="true">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="$AssistDocCount" sign="true">
+    <number>0</number>
+  </item>
+  <item name="$FlagsExt" sign="true">
+    <text/>
+  </item>
+  <item name="$AssistFlags" sign="true">
+    <text>s</text>
+  </item>
+  <item name="$MachineName" sign="true">
+    <text>CN=Arcturus/O=Frost</text>
+  </item>
+  <item name="$AssistTrigger" sign="true">
+    <text>1</text>
+  </item>
+  <item name="$AssistInfo" sign="true">
+    <rawitemdata type="11">
+AQABAAMAAwABAID8CgADAAAAAAAAAAAAAAD/////YYglAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+</rawitemdata>
+  </item>
+  <item name="$AssistQuery" sign="true">
+    <rawitemdata type="f">
+gQYAAAAA
+</rawitemdata>
+  </item>
+  <item name="$AssistAction" sign="true">
+    <rawitemdata type="10">
+gQKE/z4AAAAAADQANAAIABIAAQAFAG5vb29vAHsBAwAHAAwABQAJMFMwRQAAAAgAZgADAAcADAAG
+AAkwUkwxUw==
+</rawitemdata>
+  </item>
+  <item name="$AssistAction_Ex" sign="true">
+    <rawitemdata type="14">
+gQI=
+</rawitemdata>
+  </item>
+  <item name="$Restricted" sign="true">
+    <number>1</number>
+  </item>
+  <item name="$Flags">
+    <text>f3S</text>
+  </item>
+  <item name="$AssistRunInfo" summary="true">
+    <rawitemdata type="3">
+BgABAAAACADWBwAAAAAAAAUAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAe75GAPWGJYUqeVAAt4YlhQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUEsD
+BBQACAgIAG+AzlIAAAAAAAAAAAAAAAAnAAAAbG90dXMvZG9taW5vL2F4aXMvSmF2YUFnZW50UmVu
+YW1lZC5qYXZhVVAxbsMwDNwD5A832h2cBwQZ2qJLgXZounRkZcIRaouGSAcOAv+9suE2CgeJPN0d
+D+rJ/VDDaMUGrWrpfJCKRq/77cZ3vUS7f3pI+HbTD9+td3AtqeKVzvTYcLAPDtRxDR6NQ61YwCdS
+xnUWIdUqPIuv8S7G+kY+FOWNAFi8zCP+68iqXgJ0vQ9o2FawKPc5ddn4LMFSBFA+HP7kVRLntMUh
+99jtUHzJEOGkZjTCihNHLm+sCY7MnYqX0XFvcyQu7yNz1Ucf7Gjpdz8jOc5zTkuXzukXUEsHCEf1
+/WXVAAAAfQEAAFBLAQIUABQACAgIAG+AzlLKM2ceKQAAACkAAAAMAAAAAAAAAAAAAAAAAAAAAABm
+b28vQmFyLmphdmFQSwECFAAUAAgICABvgM5SR/X9ZdUAAAB9AQAAJwAAAAAAAAAAAAAAAABjAAAA
+bG90dXMvZG9taW5vL2F4aXMvSmF2YUFnZW50UmVuYW1lZC5qYXZhUEsFBgAAAAACAAIAjwAAAI0B
+AAAAAHOIQQCHhCWFr0Dnlj3Z7MkEWEEAh4QlhWas449WxF8w2m17AHqEJYXKr9q/TFFPwIteewB6
+hCWFKSVoov+vLhYAAFD4eoQlhYhOpLm+zKdZYkt7AHqEJYUB/7OchmAib6sMewB6hCWFpdDAkWGB
+tRbB7noAeoQlhedzcwzvg/FCswJ6AHqEJYXjxDycbsyWonHqeQB6hCWFXhTZ4j9ESvqU5nkAeoQl
+hV8ubM+bHKHSTd55AHqEJYXpT7FfixMOGfvaeQD/ry4WAADI9/M9mdbpgnkAeoQlhT6RLRBXgcFt
+DWl5AHqEJYUw4jZZ8zkBWZdleQB6hCWFxvVq0VEDeVikXnkAeoQlhVE6U9i/jPEuTFN5AHqEJYXh
+tVfAh9xy46pNeQB6hCWFdzSlkcHm5nGoSnkAeoQlhSMXwdQb5/3NQUJ5AHqEJYWWK2lA/68uFgAA
+QPd6hCWFj7GQe+R9MdylE3kAeoQlhctlfFcFosXkCg95AHqEJYWhB1lx0XiNfBbFeAB6hCWFGso1
+vedkeItwuXgAeoQlhV14FGLb88oYh7B4AHqEJYXUC5iTcsIdgq6reAB6hCWFjntC7MT0cPOStDzU
++n9WS6U2QgCHhCWFYhI8tk+8
+</rawitemdata>
+  </item>
+  <item name="$TITLE" sign="true">
+    <text>Scheduled Weekly Disabled|Scheduled Weekly Tuesday</text>
+  </item>
+  <item name="$AssistVersion">
+    <datetime dst="true">20210615T090023,66-04</datetime>
+  </item>
+</note>

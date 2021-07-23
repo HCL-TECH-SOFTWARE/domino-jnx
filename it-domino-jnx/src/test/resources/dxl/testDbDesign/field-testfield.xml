@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sharedfield name='testfield' xmlns='http://www.lotus.com/dxl' version='12.0' designerversion='8.5.3'>
+	<field type='text' kind='editable' name='testfield'>
+		<code event='defaultvalue'>
+			<formula>"hey"</formula>
+		</code>
+	</field>
+	<item name='$HTMLCode' sign='true'>
+		<rawitemdata type='1'>
+</rawitemdata>
+	</item>
+</sharedfield>
+

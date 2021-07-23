@@ -1,0 +1,3 @@
+com.hcl.domino.jna.internal.converters.TemporalAccessorDocumentValueConverter
+com.hcl.domino.jna.internal.converters.MimeDataDocumentValueConverter
+com.hcl.domino.jna.internal.converters.ByteBufferDocumentValueConverter

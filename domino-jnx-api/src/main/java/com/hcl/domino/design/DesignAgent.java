@@ -1,0 +1,216 @@
+/*
+ * ==========================================================================
+ * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ *                            All rights reserved.
+ * ==========================================================================
+ * Licensed under the  Apache License, Version 2.0  (the "License").  You may
+ * not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+ *
+ * Unless  required  by applicable  law or  agreed  to  in writing,  software
+ * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the  specific language  governing permissions  and limitations
+ * under the License.
+ * ==========================================================================
+ */
+package com.hcl.domino.design;
+
+import java.time.DayOfWeek;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.OptionalLong;
+
+import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.design.DesignElement.NamedDesignElement;
+import com.hcl.domino.design.agent.AgentContent;
+import com.hcl.domino.design.agent.AgentInterval;
+import com.hcl.domino.design.agent.AgentTrigger;
+
+/**
+ * Access to a database design. Search for design, database as constructor
+ * parameter
+ * 
+ * @author t.b.d
+ *
+ */
+public interface DesignAgent extends NamedDesignElement {
+	enum AgentLanguage {
+		LS, FORMULA, JAVA, IMPORTED_JAVA, SIMPLE_ACTION
+	}
+    
+    /**
+     * 
+     * @return the trigger type for the agent, or {@code AgentTrigger#NONE} if the agent
+     *       is unavailable
+     */
+    AgentTrigger getTrigger();
+    
+    /**
+	 * Language the agent is written using
+	 *
+	 * @return AgentLanguage
+	 */
+    AgentLanguage getAgentLanguage();
+
+    /**
+	 * Language the agent should parse as
+	 *
+	 * @param lang the agent language
+	 * @return this {@code Agent}
+	 */
+    DesignAgent initializeAgentLanguage(AgentLanguage lang);
+
+	/**
+	 * Gets the server to run on. This value will be one of:
+	 * 
+	 * <ul>
+	 *   <li>A server name when one is specified</li>
+	 *   <li>A user name when set to "Local"</li>
+	 *   <li>{@code "*"} when set to run on any server</li>
+	 *   <li>{@code ""} when set to prompt for a server name when enabled</li>
+	 * </ul>
+	 *
+	 * @return configured server run location
+	 */
+	String getRunLocation();
+
+	/**
+	 * Interval type for the agent
+	 *
+	 * @return the agent's interval type, or {@code AgentInterval#NONE} if not applicable
+	 */
+    AgentInterval getIntervalType();
+    
+    /**
+     * Retrieves the interval value for the agent. The meaning of this number depends on the value of
+     * {@link #getIntervalType()}:
+     * 
+     * <dl>
+     *   <dt>{@link AgentInterval#NONE NONE}</dt>
+     *   <dd>An empty value</dd>
+     *   
+     *   <dt>{@link AgentInterval#MINUTES MINUTES}</dt>
+     *   <dd>The interval between invocations in minutes</dd>
+     *   
+     *   <dt>{@link AgentInterval#DAYS DAYS}</dt>
+     *   <dd>The interval between invocations in days*</dd>
+     *   
+     *   <dt>{@link AgentInterval#WEEK WEEK}</dt>
+     *   <dd>The interval between invocations in weeks*</dd>
+     *   
+     *   <dt>{@link AgentInterval#MONTH MONTH}</dt>
+     *   <dd>The interval between invocations in months*</dd>
+     *   
+     *   <dt>{@link AgentInterval#EVENT}</dt>
+     *   <dd>An empty value</dd>
+     * </dl>
+     * 
+     * <p>Note: other than for {@link AgentInterval#MINUTES MINUTES}, the interval value is not expressible
+     * in Domino Designer and may not affect the behavior of the agent on the server.</p>
+     * 
+     * @return an {@link OptionalInt} describing the interval, or an empty one if it is not applicable
+     */
+    OptionalInt getInterval();
+
+	/**
+	 * Gets the earliest date that the agent is able to run, if applicable
+	 *
+	 * @return a {@link Optional} representing the start date as a {@link DominoDateTime}, or an empty
+	 *      one if this is not applicable
+	 */
+	Optional<DominoDateTime> getStartDate();
+
+	/**
+	 * Gets the last date that the agent is able to run, if applicable
+	 *
+	 * @return a {@link Optional} representing the end datte as a {@link DominoDateTime}, or an empty
+	 *      one if this is not applicable
+	 */
+	Optional<DominoDateTime> getEndDate();
+	
+	/**
+	 * Retrieves the local time of day when the agent should be run or start execution, if the
+	 * interval type is not {@link AgentInterval#NONE NONE} or {@link AgentInterval#EVENT EVENT}.
+	 * 
+	 * @return an {@link Optional} describing the local time to run, or an empty one if
+	 *      this value does not apply
+	 */
+	Optional<LocalTime> getRunLocalTime();
+	
+	/**
+	 * Retrieves the local time of day when the agent should no longer be executed. This only applies
+	 * when the interval type is {@link AgentInterval#MINUTES MINUTES}.
+	 * 
+	 * @return an {@link Optional} describing the local end time of execution, or an empty one if
+	 *      the agent interval is not {@link AgentInterval#MINUTES MINUTES}
+	 */
+	Optional<LocalTime> getRunEndLocalTime();
+	
+	/**
+	 * Retrieves the day of the week that the agent should run. This only applies when the interval type
+	 * is {@link AgentInterval#WEEK WEEK}.
+	 * 
+	 * 
+	 * @return an {@link Optional} describing the day of the week to execute, or an empty one if
+	 *      the agent interval is not {@link AgentInterval#WEEK WEEK}
+	 */
+	Optional<DayOfWeek> getRunDayOfWeek();
+	
+	/**
+	 * Retrieves the 1-based day of the month that the agent should run. This only applies when the interval
+	 * type is {@link AgentInterval#MONTH MONTH}.
+	 * 
+	 * @return an {@link OptionalInt} describing the day of the month to execute, or  an empty one if
+	 *      the agent interval is not {@link AgentInterval#MONTH MONTH}
+	 */
+	OptionalInt getRunDayOfMonth();
+
+	/**
+	 * Whether or not the agent runs on weekends, only relevant for DAILY or MORE_THAN_DAILY
+	 *
+	 * @return whether it runs on weekends. WEEKLY or MONTHLY returns true
+	 */
+	boolean isRunOnWeekends();
+
+	/**
+	 * Gets the last run log for the agent. If the agent has not run since last log, it is a blank String.
+	 *
+	 * @return String containing run log
+	 */
+	String getRunLog();
+
+	/**
+	 * Splits the run log into a String for each line
+	 *
+	 * @return List of run log messages
+	 */
+	List<String> getRunLogAsList();
+
+	/**
+	 * Analyses the last run log to work out the number of seconds for last run duration
+	 *
+	 * @return an {@link OptionalLong} describing the number of seconds between start and end
+	 *      of last run time, or an empty one if it has no run record
+	 */
+	OptionalLong getLastRunDuration();
+
+	/**
+	 * Analyses the last run log to work out if the last run exceeded the max run time for agents. Combine with
+	 * {@link #getLastRunDuration()} to work out what that max run time setting is.
+	 *
+	 * @return whether the last run time exceeded max run time for agents. If there is no run log, this will also be false
+	 */
+	boolean isLastRunExceededTimeLimit();
+	
+	/**
+	 * Retrieves the action content of the agent. The actual type of object depends on the
+	 * {@link AgentLanguage language} of the agent.
+	 * 
+	 * @return an {@link AgentContent} instance representing the content of the agent
+	 */
+	AgentContent getAgentContent();
+
+}

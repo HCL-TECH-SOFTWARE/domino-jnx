@@ -1,0 +1,25 @@
+<?xml version='1.0'?>
+<note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$TITLE'><text>testcomponent.component</text></item>
+<item name='$Flags'><text>345CgQ_</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$FileSize' sign='true'><number>781</number></item>
+<item name='$FileData' sign='true'>
+<rawitemdata type='1'>
+YQAYAAAAAAANAwAAAQAAAAAAAAAAAAAAYAAfAwAADQMOAwAAAAAAAAAAPFdpZGdldD4KICA8cGFn
+ZVR5cGU+MDwvcGFnZVR5cGU+CiAgPHR5cGU+MDwvdHlwZT4KICA8Z2VuZWRpdFBhZ2U+ZmFsc2U8
+L2dlbmVkaXRQYWdlPgogIDxhbGxvd0luc3RhbmNlQ29udGVudD50cnVlPC9hbGxvd0luc3RhbmNl
+Q29udGVudD4KICA8cmVzb3VyY2VzLz4KICA8cHVibGlzaGVkRXZlbnRzLz4KICA8cGF5bG9hZERl
+Zi8+CiAgPG1vZGVzPgogICAgPFdpZGdldE1vZGU+CiAgICAgIDxtb2RlX19pZD4wPC9tb2RlX19p
+ZD4KICAgICAgPHBhZ2VUeXBlPjA8L3BhZ2VUeXBlPgogICAgICA8dHlwZT4wPC90eXBlPgogICAg
+ICA8cGFnZT5Ib21lLnhzcDwvcGFnZT4KICAgIDwvV2lkZ2V0TW9kZT4KICAgIDxXaWRnZXRNb2Rl
+PgogICAgICA8bW9kZV9faWQ+MzwvbW9kZV9faWQ+CiAgICAgIDxwYWdlVHlwZT4wPC9wYWdlVHlw
+ZT4KICAgICAgPHR5cGU+MDwvdHlwZT4KICAgICAgPHBhZ2U+SG9tZS54c3A8L3BhZ2U+CiAgICA8
+L1dpZGdldE1vZGU+CiAgICA8V2lkZ2V0TW9kZT4KICAgICAgPG1vZGVfX2lkPjE8L21vZGVfX2lk
+PgogICAgICA8cGFnZVR5cGU+MDwvcGFnZVR5cGU+CiAgICAgIDx0eXBlPjA8L3R5cGU+CiAgICA8
+L1dpZGdldE1vZGU+CiAgICA8V2lkZ2V0TW9kZT4KICAgICAgPG1vZGVfX2lkPjI8L21vZGVfX2lk
+PgogICAgICA8cGFnZVR5cGU+MDwvcGFnZVR5cGU+CiAgICAgIDx0eXBlPjA8L3R5cGU+CiAgICA8
+L1dpZGdldE1vZGU+CiAgPC9tb2Rlcz4KICA8YXR0cmlidXRlcy8+CiAgPHBhcmFtZXRlcnMvPgog
+IDxwYXJhbVZhbHVlcy8+CjwvV2lkZ2V0PnA=
+</rawitemdata></item>
+<item name='$FileNames' sign='true'><text>testcomponent.component</text></item></note>

@@ -1,0 +1,66 @@
+<?xml version='1.0' encoding='utf-8'?>
+<page name='Navigation Header' xmlns='http://www.lotus.com/dxl' version='12.0' hide='mobile' publicaccess='false' designerversion='8.5.3' bgcolor='#b9c5d2'
+	renderpassthrough='true'>
+	<body>
+		<richtext>
+			<pardef id='1' leftmargin='0.9000in' />
+			<par def='1'>
+				<run>
+					<font size='4pt' />
+				</run>
+			</par>
+			<table leftmargin='0.9000in' widthtype='fixedleft' refwidth='9.9319in'>
+				<tablecolumn width='9.9319in' />
+				<tablerow>
+					<tablecell borderwidth='0px'>
+						<pardef id='2' keepwithnext='true' keeptogether='true' />
+						<par def='2'>
+							<run>
+								<font size='12pt' style='bold' />
+							</run>
+							<run>
+								<font size='12pt' style='bold' />
+								<computedtext>
+									<code event='value'>
+										<formula>@DbTitle</formula>
+									</code>
+								</computedtext>
+							</run>
+							<run>
+								<font size='12pt' style='bold' />
+							</run>
+						</par>
+						<par def='2'>
+							<run>
+								<font size='8pt' />
+								On
+							</run>
+							<run>
+								<font size='8pt' />
+								<computedtext>
+									<code event='value'>
+										<formula>server := @Name([Abbreviate]; @DbName[1]);
+											@If(server=""; "Local"; server)
+										</formula>
+									</code>
+								</computedtext>
+							</run>
+							<run>
+								<font size='8pt' />
+							</run>
+						</par>
+					</tablecell>
+				</tablerow>
+			</table>
+			<par def='1' />
+			<par def='1' />
+		</richtext>
+	</body>
+	<item name='OriginalModTime'>
+		<datetime>20061107T120130,82-05</datetime>
+	</item>
+	<item name='$$ScriptName' summary='false' sign='true'>
+		<text>Navigation Header</text>
+	</item>
+</page>
+

@@ -1,0 +1,71 @@
+/*
+ * ==========================================================================
+ * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ *                            All rights reserved.
+ * ==========================================================================
+ * Licensed under the  Apache License, Version 2.0  (the "License").  You may
+ * not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+ *
+ * Unless  required  by applicable  law or  agreed  to  in writing,  software
+ * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the  specific language  governing permissions  and limitations
+ * under the License.
+ * ==========================================================================
+ */
+package com.hcl.domino.richtext.conversion;
+
+import java.util.List;
+
+import com.hcl.domino.data.Attachment;
+import com.hcl.domino.richtext.RichTextWriter;
+import com.hcl.domino.richtext.records.RichTextRecord;
+
+public class AppendFileHotspotConversion implements IRichTextConversion {
+	private String m_attachmentProgrammaticName;
+	private String m_fileNameToDisplay;
+	
+	/**
+	 * Creates a new instance
+	 * 
+	 * @param attachmentProgrammaticName name returned by {@link Attachment#getFileName()}
+	 * @param fileNameToDisplay filename to display below the file icon, not necessarily the same as {@link Attachment#getFileName()}
+	 */
+	public AppendFileHotspotConversion(String attachmentProgrammaticName, String fileNameToDisplay) {
+		m_attachmentProgrammaticName = attachmentProgrammaticName;
+	}
+
+	/**
+	 * Creates a new instance
+	 * 
+	 * @param att attachment to add an icon for
+	 * @param fileNameToDisplay filename to display below the file icon, not necessarily the same as {@link Attachment#getFileName()}
+	 */
+	public AppendFileHotspotConversion(Attachment att, String fileNameToDisplay) {
+		m_attachmentProgrammaticName = att.getFileName();
+		m_fileNameToDisplay = fileNameToDisplay;
+	}
+
+	@Override
+	public void richTextNavigationStart() {
+	}
+
+	@Override
+	public void richTextNavigationEnd() {
+	}
+
+	@Override
+	public boolean isMatch(List<RichTextRecord<?>> nav) {
+		//always append
+		return true;
+	}
+
+	@Override
+	public void convert(List<RichTextRecord<?>> source, RichTextWriter target) {
+		//TODO provide another method to append file hotspots with less copy operations, e.g. by modifying the last item value of the last TYPE_COMPOSITE item or add another item if the hotspot would exceed the segment size
+		source.forEach(target::addRichTextRecord);
+		target.addAttachmentIcon(m_attachmentProgrammaticName, m_fileNameToDisplay);
+	}
+
+}

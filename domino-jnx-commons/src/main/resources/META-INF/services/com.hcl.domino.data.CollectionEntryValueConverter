@@ -1,0 +1,7 @@
+com.hcl.domino.commons.converters.PrimitiveArrayCollectionEntryValueConverter
+com.hcl.domino.commons.converters.ObjectArrayCollectionEntryValueConverter
+com.hcl.domino.commons.converters.BooleanCollectionEntryValueConverter
+com.hcl.domino.commons.converters.ByteCollectionEntryValueConverter
+com.hcl.domino.commons.converters.ShortCollectionEntryValueConverter
+com.hcl.domino.commons.converters.FloatCollectionEntryValueConverter
+com.hcl.domino.commons.converters.TemporalAccessorCollectionEntryValueConverter

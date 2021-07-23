@@ -1,0 +1,15 @@
+<?xml version='1.0'?>
+<agent name='Printer Agent' xmlns='http://www.lotus.com/dxl' version='12.0'
+ hide='v3' publicaccess='false' designerversion='8.5.3'>
+<designchange><datetime dst='true'>20210408T133152,92-04</datetime></designchange>
+<trigger type='actionsmenu'/>
+<documentset type='runonce'/><code event='options'><lotusscript>Option Public
+Option Declare
+
+
+</lotusscript></code><code event='initialize'><lotusscript>Sub Initialize
+	MsgBox "hi from printer agent"
+End Sub</lotusscript></code>
+<rundata processeddocs='0' exitcode='0'>
+<agentmodified><datetime dst='true'>20210408T133152,51-04</datetime></agentmodified></rundata></agent>
+

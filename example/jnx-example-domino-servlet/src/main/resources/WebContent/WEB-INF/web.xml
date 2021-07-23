@@ -1,0 +1,44 @@
+<!--
+
+    ==========================================================================
+    Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+                               All rights reserved.
+    ==========================================================================
+    Licensed under the  Apache License, Version 2.0  (the "License").  You may
+    not use this file except in compliance with the License.  You may obtain a
+    copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+
+    Unless  required  by applicable  law or  agreed  to  in writing,  software
+    distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+    WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+    License for the  specific language  governing permissions  and limitations
+    under the License.
+    ==========================================================================
+
+-->
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	version="2.5">
+
+	<display-name>Example Web App</display-name>
+
+	<servlet>
+		<servlet-name>ExampleServlet</servlet-name>
+		<servlet-class>com.hcl.domino.jnx.example.domino.servlet.ExampleServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ExampleServlet</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>DxlErrorServlet</servlet-name>
+		<servlet-class>com.hcl.domino.jnx.example.domino.servlet.DxlErrorServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DxlErrorServlet</servlet-name>
+		<url-pattern>/dxlerror</url-pattern>
+	</servlet-mapping>
+</web-app>

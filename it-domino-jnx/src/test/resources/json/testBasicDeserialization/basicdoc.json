@@ -1,0 +1,8 @@
+{
+	"form": "TestDocument",
+	"foo": "bar",
+	"bar": "baz",
+	"number": 1,
+	"void": null,
+	"bool": true
+}

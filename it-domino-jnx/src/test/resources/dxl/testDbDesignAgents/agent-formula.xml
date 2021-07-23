@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<agent name='formula agent' xmlns='http://www.lotus.com/dxl' version='12.0'
+ hide='v3' publicaccess='false' designerversion='8.5.3'>
+<designchange><datetime dst='true'>20210408T133314,57-04</datetime></designchange>
+<trigger type='actionsmenu'/>
+<documentset type='selected'/><code event='action'><formula>@StatusBar("hey");
+SELECT @All</formula></code>
+<rundata processeddocs='0' exitcode='0'>
+<agentmodified><datetime dst='true'>20210408T133314,60-04</datetime></agentmodified></rundata></agent>
+

@@ -1,0 +1,67 @@
+<?xml version='1.0'?>
+<!--
+
+    ==========================================================================
+    Copyright (C) 2019-2021 HCL ( http://www.hcl.com/ )
+                               All rights reserved.
+    ==========================================================================
+    Licensed under the  Apache License, Version 2.0  (the "License").  You may
+    not use this file except in compliance with the License.  You may obtain a
+    copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+
+    Unless  required  by applicable  law or  agreed  to  in writing,  software
+    distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+    WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+    License for the  specific language  governing permissions  and limitations
+    under the License.
+    ==========================================================================
+
+-->
+<note class='document' xmlns='http://www.lotus.com/dxl' version='11.0' replicaid='85257EF7006D0765'>
+<noteinfo noteid='57c2' unid='96DE510EB262D380852585B200471CB2' sequence='1'>
+<created><datetime dst='true'>20200727T085644,02-04</datetime></created>
+<modified><datetime dst='true'>20200727T085644,12-04</datetime></modified>
+<revised><datetime dst='true'>20200727T085644,11-04</datetime></revised>
+<lastaccessed><datetime dst='true'>20200727T085644,11-04</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20200727T085644,11-04</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=MTC</name><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<item name='Stylesheet'><text>-1</text></item>
+<item name='OnLinksbar'><text>No</text></item>
+<item name='LinksbarPosition'><number>22</number></item>
+<item name='OriginalModTime'><datetime dst='true'>20060511T150630,13-04</datetime></item>
+<item name='Form'><text>Page: Basic</text></item>
+<item name='$Fonts'>
+<rawitemdata type='1'>
+i/8oAAEABSZWZXJkYW5hAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+</rawitemdata></item>
+<item name='CustomHeader'><text>-1</text></item>
+<item name='CustomFooter'><text>-1</text></item>
+<item name='WebOptions'><text/></item>
+<item name='LocalStylesheet'>
+<rawitemdata type='1'>
+gv9aAAEAAAAAAAAAAAA/BkZyPwYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAACGAQAAAABUhwAAAAAAAAAAAAAAAAEAAAAEAAAAgwQBAIX/CAABAAAK
+</rawitemdata></item>
+<item name='LinksbarTitle'><text/></item>
+<item name='LinksbarHideWhen'><text/></item>
+<item name='WebQueryOpen'><text/></item>
+<item name='WebQuerySave'><text/></item>
+<item name='Body'>
+<rawitemdata type='1'>
+gv9aAAIAAwAAAAAAAACgBQAAoAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAQAAAACUhwAAAAAAAAAAAAAAAAEAAAAEAAAAgwQCAIX/IQAFAQAMUGxlYXNlIHNlbGVj
+dCBvbmUgb2YgdGhlIACF/xIABQEADGZvbGxvd2luZyCF/xAABQEADG9wdGlvbnM6gQKDBAIAhf8I
+AAUAAAyBAoMEAgDdBgAAhf+F/wgABQAEDNIIAQAAAP8A3gYAAIX/
+</rawitemdata></item>
+<item name='CreatedBy' names='true'><text>Jesse Gallagher</text></item>
+<item name='$$Creator' names='true'><text>Jesse Gallagher</text></item>
+<item name='ModifiedBy' names='true'><text>CN=Jesse Gallagher/O=IKSG</text></item>
+<item name='DateModified'><datetime>20200727</datetime></item>
+<item name='Title'><text>Welcome</text></item>
+<item name='ShortName'><text>Welcome-sans-linksbar_1</text></item>
+<item name='Site'><text/></item>
+<item name='language'><text>English</text></item>
+<item name='CustomStylesheet'><textlist><text>-1</text><text>Main sans linksbar</text></textlist></item>
+<item name='Authors' authors='true' names='true'><textlist><text>Jesse Gallagher</text><text
+>[Overseer]</text><text>[ProjectManager]</text><text>[GraphicDesigner]</text></textlist></item></note>
+

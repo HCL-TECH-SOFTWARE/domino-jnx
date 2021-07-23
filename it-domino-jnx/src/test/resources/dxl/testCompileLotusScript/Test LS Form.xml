@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    ==========================================================================
+    Copyright (C) 2019-2021 HCL ( http://www.hcl.com/ )
+                               All rights reserved.
+    ==========================================================================
+    Licensed under the  Apache License, Version 2.0  (the "License").  You may
+    not use this file except in compliance with the License.  You may obtain a
+    copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+
+    Unless  required  by applicable  law or  agreed  to  in writing,  software
+    distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+    WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+    License for the  specific language  governing permissions  and limitations
+    under the License.
+    ==========================================================================
+
+-->
+<note class="form" xmlns="http://www.lotus.com/dxl">
+  <item name="$HTMLCode" sign="true">
+    <rawitemdata type="1">
+X/8QAAIADwAHAAAAAAAAAA==
+</rawitemdata>
+  </item>
+  <item name="$TITLE">
+    <text>Test LS Form</text>
+  </item>
+  <item name="$Comment" sign="true">
+    <text/>
+  </item>
+  <item name="$Info" sign="true">
+    <rawitemdata type="1">
+hhgBAIAAAAAAgAAAAQABAP///wAQAAAA
+</rawitemdata>
+  </item>
+  <item name="$Flags">
+    <text/>
+  </item>
+  <item name="$Body" sign="true">
+    <rawitemdata type="1">
+gQKC/1oAAQAAAAAAAAAAAKAFAACgBQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAABAAAAAJSHAAAAAAAAAAAAAAAAAQAAAAQAAACDBAEAhf8IAAEAAAo=
+</rawitemdata>
+  </item>
+  <item name="$V5ACTIONS" sign="true">
+    <rawitemdata type="1">
+vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
+AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAC+/zgCAAACAAAAnwEAAAUAAAAAAAAASGVsbG90JysrTG90
+dXNTY3JpcHQgRGV2ZWxvcG1lbnQgRW52aXJvbm1lbnQ6Mjo1OihPcHRpb25zKTowOjY2CgonKytM
+b3R1c1NjcmlwdCBEZXZlbG9wbWVudCBFbnZpcm9ubWVudDoyOjU6KEZvcndhcmQpOjA6MQpEZWNs
+YXJlIFN1YiBDbGljayhTb3VyY2UgQXMgQnV0dG9uKQoKJysrTG90dXNTY3JpcHQgRGV2ZWxvcG1l
+bnQgRW52aXJvbm1lbnQ6Mjo1OihEZWNsYXJhdGlvbnMpOjA6MgoKJysrTG90dXNTY3JpcHQgRGV2
+ZWxvcG1lbnQgRW52aXJvbm1lbnQ6MjoyOkJpbmRFdmVudHM6MToxMjkKUHJpdmF0ZSBTdWIgQmlu
+ZEV2ZW50cyhCeXZhbCBPYmplY3RuYW1lXyBBcyBTdHJpbmcpCglTdGF0aWMgU291cmNlIEFzIEJV
+VFRPTgoJU2V0IFNvdXJjZSA9IEJpbmQoT2JqZWN0bmFtZV8pCglPbiBFdmVudCBDbGljayBGcm9t
+IFNvdXJjZSBDYWxsIENsaWNrCkVuZCBTdWIKCicrK0xvdHVzU2NyaXB0IERldmVsb3BtZW50IEVu
+dmlyb25tZW50OjI6MjpDbGljazoxOjEyClN1YiBDbGljayhTb3VyY2UgQXMgQnV0dG9uKQoJTXNn
+Ym94ICJoZWxsbyIKRW5kIFN1YgByX/8QAAEA1QACAAAAAAAAAA==
+</rawitemdata>
+  </item>
+</note>

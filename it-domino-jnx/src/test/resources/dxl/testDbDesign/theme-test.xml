@@ -1,0 +1,16 @@
+<?xml version='1.0'?>
+<note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$TITLE'><text>test.theme</text></item>
+<item name='$Flags'><text>34567Cg~`</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$FileSize' sign='true'><number>198</number></item>
+<item name='$FileData' sign='true'>
+<rawitemdata type='1'>
+YQAYAAAAAADGAAAAAQAAAAAAAAAAAAAAYADYAAAAxgDGAAAAAAAAAAAAPHRoZW1lIGV4dGVuZHM9
+IndlYnN0YW5kYXJkIiB4bWxuczp4c2k9Imh0dHA6Ly93d3cudzMub3JnLzIwMDEvWE1MU2NoZW1h
+LWluc3RhbmNlIiB4c2k6bm9OYW1lc3BhY2VTY2hlbWFMb2NhdGlvbj0icGxhdGZvcm06L3BsdWdp
+bi9jb20uaWJtLmRlc2lnbmVyLmRvbWluby5zdHlsZWtpdHMvc2NoZW1hL3N0eWxla2l0LnhzZCIg
+Pgo8L3RoZW1lPg0K
+</rawitemdata></item>
+<item name='$FileNames' sign='true'><text>test.theme</text></item></note>
+

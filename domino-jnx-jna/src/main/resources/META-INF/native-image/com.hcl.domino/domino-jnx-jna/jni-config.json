@@ -1,0 +1,397 @@
+[
+		{
+		"name": "com.sun.jna.Callback",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.CallbackReference",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+{
+  "name":"com.sun.jna.CallbackProxy",
+  "methods":[{"name":"callback","parameterTypes":["java.lang.Object[]"] }]
+},
+	{
+		"name": "com.sun.jna.CallbackReference$AttachOptions",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+{
+		"name": "com.sun.jna.FromNativeConverter",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.IntegerType",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.JNIEnv",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+{
+  "name":"com.sun.jna.Native",
+  "methods":[
+    {"name":"dispose","parameterTypes":[] }, 
+    {"name":"fromNative","parameterTypes":["com.sun.jna.FromNativeConverter","java.lang.Object","java.lang.reflect.Method"] }, 
+    {"name":"fromNative","parameterTypes":["java.lang.Class","java.lang.Object"] }, 
+    {"name":"fromNative","parameterTypes":["java.lang.reflect.Method","java.lang.Object"] }, 
+    {"name":"nativeType","parameterTypes":["java.lang.Class"] }, 
+    {"name":"toNative","parameterTypes":["com.sun.jna.ToNativeConverter","java.lang.Object"] }
+  ]
+},
+	{
+		"name": "com.sun.jna.Native$ffi_callback",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.NativeMapped",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+{
+  "name":"com.sun.jna.Pointer",
+  "fields":[{"name":"peer"}],
+  "methods":[{"name":"<init>","parameterTypes":["long"] }]
+},
+	{
+		"name": "com.sun.jna.PointerType",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.Structure",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.Structure$ByValue",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.Structure$FFIType",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.Structure$FFIType$size_t",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.Structure$FFIType$FFITypes",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.WString",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+{
+  "name":"java.lang.Object[]"
+},
+{
+  "name":"java.lang.UnsatisfiedLinkError",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
+},
+{
+  "name":"java.lang.Object",
+  "allDeclaredMethods":true,
+  "allPublicMethods":true
+},
+{
+		"name": "java.util.Vector",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Class",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.reflect.Method",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.nio.Buffer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.nio.ByteBuffer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.nio.CharBuffer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.nio.ShortBuffer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.nio.DoubleBuffer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.nio.FloatBuffer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.nio.IntBuffer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.nio.LongBuffer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Void",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Byte",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Character",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Short",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Integer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Long",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Double",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Float",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.String",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Boolean",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.Pointer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "sun.misc.Unsafe",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	
+	
+	
+	{
+		"name": "com.hcl.domino.jna.internal.capi.INotesCAPI",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.hcl.domino.jna.internal.structs.IntlFormatStruct",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	}
+]

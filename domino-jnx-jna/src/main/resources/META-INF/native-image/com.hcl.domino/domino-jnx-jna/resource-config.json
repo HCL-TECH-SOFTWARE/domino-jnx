@@ -1,0 +1,8 @@
+{
+	"resources": [
+		{ "pattern": ".*/libjnidispatch.*$" },
+		{ "pattern": ".*/com/hcl/domino/jna/internal/blank_dxl.xml$" },
+		{ "pattern": ".*/com/hcl/domino/jna/internal/mime.types$" },
+		{ "pattern": ".*/com/hcl/domino/jna/richtext/file-icon.gif$" }
+	]
+}

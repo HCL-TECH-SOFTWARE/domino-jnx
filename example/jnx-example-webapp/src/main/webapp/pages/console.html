@@ -1,0 +1,172 @@
+<!--
+
+    ==========================================================================
+    Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+                               All rights reserved.
+    ==========================================================================
+    Licensed under the  Apache License, Version 2.0  (the "License").  You may
+    not use this file except in compliance with the License.  You may obtain a
+    copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+
+    Unless  required  by applicable  law or  agreed  to  in writing,  software
+    distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+    WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+    License for the  specific language  governing permissions  and limitations
+    under the License.
+    ==========================================================================
+
+-->
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>JNX Webapp Console</title>
+		<style>
+			html, body {
+				padding: 0;
+				margin: 0;
+			}
+			body {
+				display: grid;
+				height: 100vh;
+				grid-template-areas: "server connect"
+				                     "output output"
+				                     "command command";
+				
+				grid-template-columns: auto 100px;
+				grid-template-rows: 50px auto 50px;
+			}
+			#server {
+				grid-area: server;
+			}
+			#output {
+				grid-area: output;
+				background-color: rgb(50, 50, 50);
+				color: white;
+				font-size: 12px;
+				font-family: "Consolas", monospace;
+				margin: 0;
+				overflow: auto;
+				white-space: pre-wrap;
+			}
+			#command {
+				grid-area: command;
+			}
+			#server, #command {
+				overflow: auto;
+				background-color: white;
+				color: black;
+				display: block;
+				font-size: 16px;
+				line-height: 16px;
+				padding: 20px;
+				margin: 0;
+				font-family: "Consolas", monospace;
+			}
+		</style>
+		<script>
+			function sendCommand() {
+				const cmd = document.getElementById("command").value;
+				const serverName = document.getElementById("server").value;
+				document.getElementById("command").value = "";
+				fetch("../api/console", {
+						method: "POST",
+						body: new URLSearchParams({
+							command: cmd,
+							serverName: serverName
+						})
+					})
+					.then(res => res.text())
+					.then(text => {
+						appendLogLine(text);
+					})
+				return false;
+			}
+			
+			function appendLogLine(line) {
+				const output = document.getElementById("output");
+				const entry = document.createElement("div");
+				entry.innerText = line;
+				output.appendChild(entry);
+				output.scrollTop = output.scrollHeight;
+			}
+			
+			let eventSource = null;
+			function connect() {
+				if(eventSource) {
+					eventSource.close();
+				}
+				const output = document.getElementById("output");
+				output.innerHTML = "";
+				
+				const serverName = document.getElementById("server").value;
+				eventSource = new EventSource("../api/console/" + encodeURIComponent(serverName));
+				
+				const dataBuf = [];
+				eventSource.addEventListener("logline",  (event) => {
+					const lineObj = JSON.parse(event.data);
+					if(lineObj.data.trim() != "") {
+						console.debug("Processing console data", lineObj);
+						// Chop off the trailing "\n"
+						const dataLine = lineObj.data.substring(0, lineObj.data.length-1);
+						if(dataLine.startsWith("<ct" && dataBuf.length != 0)) {
+							// Then the buffer is the result of a previous dropped stream and should be truncated
+							dataBuf.length = 0;
+						}
+						const xmlFragment = dataBuf.join("") + dataLine;
+						dataBuf.length = 0;
+						// Read the <ct> pseudo-XML elements
+						let index = xmlFragment.indexOf("<ct", 0);
+						let endIndex = -1;
+						const nodes = xmlFragment.split(/>\n[\r\n]*/);
+						console.l
+						nodes.forEach(fragment => {
+							if(!fragment.endsWith("</ct")) {
+								dataBuf.push(fragment);
+							} else {
+								const textIndex = fragment.indexOf(">");
+								const endIndex = fragment.lastIndexOf("</ct");
+								const text = fragment.substring(textIndex+1, endIndex);
+								appendLogLine(text);
+							}
+						})
+					}
+				});
+				eventSource.onerror = function (err) {
+					console.error("EventSource failed:", err);
+				};
+			}
+			
+			function fetchServers() {
+				fetch("../api/knownServers")
+					.then(res => res.json())
+					.then(servers => {
+						const serverslist = document.getElementById("knownservers");
+						servers.forEach(server => {
+							const option = document.createElement("option");
+							option.value = server;
+							serverslist.appendChild(option);
+						});
+					});
+			}
+			
+			window.addEventListener("load", () => {
+				fetchServers();
+				document.body.addEventListener("beforeunload", () => {
+					if(eventSource != null) {
+						eventSource.close();
+					}
+				})
+			});
+		</script>
+	</head>
+	<body>
+		<input id="server" placeholder="Server" onKeyPress="event.keyCode == 13 ? connect() : true" list="knownservers" />
+		<datalist id="knownservers"></datalist>
+		<button id="connect" onClick="connect()">Connect</button>
+	
+		<div id="output"></div>
+		
+		<input id="command" onKeyPress="event.keyCode == 13 ? sendCommand() : true" />
+	</body>
+</html>

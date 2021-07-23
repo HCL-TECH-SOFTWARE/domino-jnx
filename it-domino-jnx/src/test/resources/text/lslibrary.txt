@@ -1,0 +1,14 @@
+'++LotusScript Development Environment:2:5:(Options):0:74
+Option Public
+Option Declare
+
+
+'++LotusScript Development Environment:2:5:(Forward):0:1
+Declare Sub Initialize
+
+'++LotusScript Development Environment:2:5:(Declarations):0:2
+
+'++LotusScript Development Environment:2:2:Initialize:1:10
+Sub Initialize
+	MsgBox "hey"
+End Sub

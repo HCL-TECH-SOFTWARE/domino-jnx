@@ -1,0 +1,16 @@
+# Domino JNX
+
+Copyright 2019-2021 HCL
+
+The domino-jnx-commons module and project test suites contain the following third-party code:
+
+* Apache Commons Email, which is copyright 2001-2019 The Apache Software Foundation, is licensed under
+	the Apache License 2.0, and is available from https://commons.apache.org/proper/commons-email/
+	* See NOTICE-apachemail and LICENSE-apachemail.txt in the "legal" directory
+* Code derived from Domino JNA, which licensed under the Apache License 2.0 and is available from
+	https://github.com/klehmann/domino-jna, contributed by the original author
+	* See LICENSE-dominojna in the "legal" directory
+* Code derived from the OpenNTF Domino API, which is licensed under the Apache License 2.0 and is
+	available from https://github.com/OpenNTF/org.openntf.domino
+	* See NOTICE-oda.md LICENSE-oda in the "legal" directory. No code covered under that NOTICE
+		is present in this project

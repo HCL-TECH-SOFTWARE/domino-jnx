@@ -1,0 +1,850 @@
+[
+		{
+		"name": "java.util.Vector",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Class",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.reflect.Method",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.nio.Buffer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.nio.ByteBuffer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.nio.CharBuffer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.nio.ShortBuffer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.nio.DoubleBuffer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.nio.FloatBuffer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.nio.IntBuffer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.nio.LongBuffer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Void",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Byte",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Character",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Short",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Integer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Long",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Double",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Float",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.String",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "java.lang.Boolean",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.Pointer",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.internal.ReflectionUtils",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.Native",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.Native$ffi_callback",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.Structure",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.Structure$ByValue",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.Structure$ByReference",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.Structure$FFIType",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.Structure$FFIType$size_t",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.Structure$FFIType$FFITypes",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.Callback",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.CallbackReference",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.CallbackProxy",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.CallbackReference$DefaultCallbackProxy",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.CallbackReference$AttachOptions",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.WString",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.NativeMapped",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.IntegerType",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.PointerType",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.JNIEnv",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.FromNativeConverter",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.ptr.ShortByReference",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.ptr.IntByReference",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.ptr.LongByReference",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.ptr.ByteByReference",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.ptr.DoubleByReference",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.ptr.FloatByReference",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.ptr.NativeLongByReference",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.sun.jna.ptr.PointerByReference",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "sun.misc.Unsafe",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+{
+  "name":"com.sun.jna.CallbackProxy",
+  "methods":[{"name":"callback","parameterTypes":["java.lang.Object[]"] }]
+},
+{
+  "name":"java.lang.Object",
+  "allDeclaredMethods":true,
+  "allPublicMethods":true
+},
+{
+  "name":"java.lang.Throwable",
+  "methods":[{"name":"addSuppressed","parameterTypes":["java.lang.Throwable"] }]
+},
+{
+  "name":"java.lang.reflect.Method",
+  "methods":[
+    {"name":"isDefault","parameterTypes":[] }, 
+    {"name":"isVarArgs","parameterTypes":[] }
+  ]
+},
+{
+  "name":"java.nio.Buffer"
+},
+{
+  "name":"java.security.MessageDigestSpi"
+},
+{
+  "name":"sun.security.provider.NativePRNG",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.SHA",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"sun.security.provider.Sun",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+	{
+		"name": "com.hcl.domino.jna.internal.capi.INotesCAPI",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	{
+		"name": "com.hcl.domino.jna.internal.capi.NotesCAPI",
+		"allDeclaredConstructors": true,
+		"allPublicConstructors": true,
+		"allDeclaredMethods": true,
+		"allPublicMethods": true,
+		"allDeclaredFields": true,
+		"allPublicFields": true
+	},
+	
+	{ "name": "com.hcl.domino.jna.internal.gc.handles.DHANDLE64", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.gc.handles.DHANDLE64$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.gc.handles.DHANDLE64$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.gc.handles.HANDLE64$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.gc.handles.HANDLE64$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.LinuxNotesNamesListHeader64Struct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.LinuxNotesNamesListHeader64Struct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.LinuxNotesNamesListHeader64Struct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.DbOptionsStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.DbOptionsStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.DbOptionsStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.HtmlApi_UrlArgStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.HtmlApi_UrlArgStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.HtmlApi_UrlArgStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.HtmlApi_UrlTargetComponentStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.HtmlApi_UrlTargetComponentStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.HtmlApi_UrlTargetComponentStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.HtmlAPIReference32Struct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.HtmlAPIReference32Struct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.HtmlAPIReference32Struct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.HtmlAPIReference64Struct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.HtmlAPIReference64Struct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.HtmlAPIReference64Struct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.IntlFormatStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.IntlFormatStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.IntlFormatStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.LinuxNotesNamesListHeader64Struct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.LinuxNotesNamesListHeader64Struct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.LinuxNotesNamesListHeader64Struct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.MacNotesNamesListHeader64Struct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.MacNotesNamesListHeader64Struct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.MacNotesNamesListHeader64Struct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NIFFindByKeyContextStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NIFFindByKeyContextStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NIFFindByKeyContextStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NoteIdStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NoteIdStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NoteIdStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesBlockIdStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesBlockIdStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesBlockIdStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCDExt2FieldStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCDExt2FieldStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCDExt2FieldStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCDExtFieldStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCDExtFieldStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCDExtFieldStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCDFieldStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCDFieldStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCDFieldStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCDIdNameStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCDIdNameStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCDIdNameStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCDResourceStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCDResourceStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCDResourceStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCollateDescriptorStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCollateDescriptorStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCollateDescriptorStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCollationStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCollationStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCollationStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCollectionPositionStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCollectionPositionStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCollectionPositionStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCollectionStatsStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCollectionStatsStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCollectionStatsStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesColorValueStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesColorValueStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesColorValueStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCompoundStyleStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCompoundStyleStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesCompoundStyleStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesDbReplicaInfoStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesDbReplicaInfoStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesDbReplicaInfoStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesFileObjectStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesFileObjectStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesFileObjectStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesFontIDFieldsStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesFontIDFieldsStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesFontIDFieldsStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesFTIndexStatsStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesFTIndexStatsStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesFTIndexStatsStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesItemTableStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesItemTableStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesItemTableStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesItemValueTableStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesItemValueTableStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesItemValueTableStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesLSCompileErrorInfo", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesLSCompileErrorInfo$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesLSCompileErrorInfo$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesMIMEPartStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesMIMEPartStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesMIMEPartStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.NotesNamesListHeader32Struct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.NotesNamesListHeader32Struct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.NotesNamesListHeader32Struct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesNFMTStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesNFMTStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesNFMTStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesNumberPairStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesNumberPairStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesNumberPairStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesObjectDescriptorStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesObjectDescriptorStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesObjectDescriptorStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesOriginatorIdStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesOriginatorIdStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesOriginatorIdStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesRangeStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesRangeStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesRangeStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesReplicationHistorySummaryStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesReplicationHistorySummaryStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesReplicationHistorySummaryStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesRFC822ItemDescStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesRFC822ItemDescStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesRFC822ItemDescStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesSchedEntryExtStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesSchedEntryExtStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesSchedEntryExtStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesSchedEntryStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesSchedEntryStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesSchedEntryStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesScheduleListStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesScheduleListStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesScheduleListStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesScheduleStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesScheduleStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesScheduleStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesSSOTokenStruct32", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesSSOTokenStruct32$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesSSOTokenStruct32$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesSSOTokenStruct64", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesSSOTokenStruct64$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesSSOTokenStruct64$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesTableItemStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesTableItemStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesTableItemStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesTFMTStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesTFMTStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesTFMTStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesTimeDateStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesTimeDateStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesTimeDateStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesTimeStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesTimeStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesTimeStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewColumnFormat2Struct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewColumnFormat2Struct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewColumnFormat2Struct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewColumnFormat3Struct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewColumnFormat3Struct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewColumnFormat3Struct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewColumnFormat4Struct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewColumnFormat4Struct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewColumnFormat4Struct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewColumnFormat5Struct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewColumnFormat5Struct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewColumnFormat5Struct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewColumnFormatStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewColumnFormatStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewColumnFormatStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewFormatHeaderStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewFormatHeaderStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewFormatHeaderStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewTableFormat2Struct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewTableFormat2Struct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewTableFormat2Struct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewTableFormat4Struct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewTableFormat4Struct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewTableFormat4Struct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewTableFormat5Struct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewTableFormat5Struct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewTableFormat5Struct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewTableFormatStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewTableFormatStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesViewTableFormatStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.ReplExtensionsStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.ReplExtensionsStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.ReplExtensionsStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.ReplFileStatsStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.ReplFileStatsStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.ReplFileStatsStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.ReplServStatsStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.ReplServStatsStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.ReplServStatsStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.StringListStruct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.StringListStruct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.StringListStruct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.WinNotesNamesListHeader32Struct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.WinNotesNamesListHeader32Struct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.WinNotesNamesListHeader32Struct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.WinNotesNamesListHeader64Struct", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.WinNotesNamesListHeader64Struct$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.WinNotesNamesListHeader64Struct$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.WinNotesSSOTokenStruct32", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.WinNotesSSOTokenStruct32$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.WinNotesSSOTokenStruct32$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.WinNotesSSOTokenStruct64", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.WinNotesSSOTokenStruct64$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.WinNotesSSOTokenStruct64$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.ValueUnion", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.ValueUnion$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.ValueUnion$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableExt", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableExt$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableExt$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableLock", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableLock$ByValue", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	{ "name": "com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableLock$ByReference", "allDeclaredConstructors": true, "allPublicConstructors": true, "allDeclaredMethods": true, "allPublicMethods": true, "allDeclaredFields": true, "allPublicFields": true },
+	
+	{ "name": "com.sun.jna.win32.DLLCallback", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.sun.jna.CallbackProxy", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.sun.jna.CallbackReference$DefaultCallbackProxy", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.sun.jna.win32.StdCallLibrary$StdCallCallback", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$ABORTCHECKPROC", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$ACLENTRYENUMFUNC", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$ActionRoutinePtr", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$b32_CWFErrorProc", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$b32_NSFDbNamedObjectEnumPROC", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$b32_NSFGetAllFolderChangesCallback", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$b32_NSFNoteOpenCallback", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$b32_NSFObjectAllocCallback", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$b32_NSFObjectWriteCallback", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$b64_CWFErrorProc", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$b64_CWFErrorProc", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$b64_NSFDbNamedObjectEnumPROC", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$b64_NSFGetAllFolderChangesCallback", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$b64_NSFNoteOpenCallback", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$b64_NSFObjectAllocCallback", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$b64_NSFObjectWriteCallback", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$DESIGN_COLL_OPENCLOSE_PROC", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$FPMailNoteJitEx2CallBack", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$IdEnumerateProc", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$LogRestoreCallbackFunction", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$LSCOMPILEERRPROC", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$LSCompilerErrorProc", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$MQScanCallback", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$NIFFindByKeyProc", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$NoteExtractCallback", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$NSFFolderAddCallback", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$NSFGetNotesCallback", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$NSFPROFILEENUMPROC", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$NsfSearchProc", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$OSSIGPROC", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$STATTRAVERSEPROC", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$XML_READ_FUNCTION", "allDeclaredMethods": true, "allPublicMethods": true },
+	{ "name": "com.hcl.domino.jna.internal.callbacks.NotesCallbacks$XML_WRITE_FUNCTION", "allDeclaredMethods": true, "allPublicMethods": true }
+]

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="filter" xmlns="http://www.lotus.com/dxl">
+  <item name="$FlagsExt">
+    <text/>
+  </item>
+  <item name="$JavaCompilerSource">
+    <text>1.3</text>
+  </item>
+  <item name="$JavaCompilerTarget">
+    <text>1.2</text>
+  </item>
+  <item name="$TITLE" sign="true">
+    <text>java lib 3</text>
+  </item>
+  <item name="$Flags">
+    <text>sj34Q</text>
+  </item>
+  <item name="$PublicAccess" sign="true">
+    <text>1</text>
+  </item>
+  <item name="$AssistAction" sign="true">
+    <rawitemdata type="10">
+k/9OAA8ADQAfAAEAAAAAAAAASmF2YUFnZW50LmNsYXNzYzpcTm90ZXNcRGF0YSUlc291cmNlJSUu
+amFyACUlb2JqZWN0JSUuamFyAAAA
+</rawitemdata>
+  </item>
+  <item name="$FILE" seal="true" sign="true" summary="true">
+    <object>
+      <file compression="none" encoding="none" flags="sign"
+        hosttype="msdos" name="%%source%%.jar" size="170">
+        <created>
+          <datetime dst="true">20210618T151432,03-04</datetime>
+        </created>
+        <modified>
+          <datetime dst="true">20210618T151432,03-04</datetime>
+        </modified>
+        <filedata>
+UEsDBBQACAgIAM950lIAAAAAAAAAAAAAAAANAAAAVW50aXRsZWQuamF2YSsoTcrJTFZIzkksLlYI
+zSvJLMlJTVGoVuDlqlUAAFBLBwgHcw/nHgAAABwAAABQSwECFAAUAAgICADPedJSB3MP5x4AAAAc
+AAAADQAAAAAAAAAAAAAAAAAAAAAAVW50aXRsZWQuamF2YVBLBQYAAAAAAQABADsAAABZAAAAAAA=
+</filedata>
+      </file>
+    </object>
+  </item>
+  <item name="$FILE" seal="true" sign="true" summary="true">
+    <object>
+      <file compression="none" encoding="none" flags="sign"
+        hosttype="msdos" name="%%object%%.jar" size="253">
+        <created>
+          <datetime dst="true">20210618T151432,03-04</datetime>
+        </created>
+        <modified>
+          <datetime dst="true">20210618T151432,03-04</datetime>
+        </modified>
+        <filedata>
+UEsDBBQACAgIANB50lIAAAAAAAAAAAAAAAAOAAAAVW50aXRsZWQuY2xhc3M79W/XPgYGBj0GLnYG
+JkYGjtC8ksySnNQUdgYWRgaBrMSyRP2cxLx0ff+krNTkEkYGNpvMvMwSO0YGZg3NMEYGFuf8lFQu
+BmYGTh4GVgY2BkUGoAwDCDACIUiEkYEdyBME8xkYWLW2M3BsBCtgAABQSwcI6Qyb2G8AAAB7AAAA
+UEsBAhQAFAAICAgA0HnSUukMm9hvAAAAewAAAA4AAAAAAAAAAAAAAAAAAAAAAFVudGl0bGVkLmNs
+YXNzUEsFBgAAAAABAAEAPAAAAKsAAAAAAA==
+</filedata>
+      </file>
+    </object>
+  </item>
+</note>

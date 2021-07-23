@@ -1,0 +1,9 @@
+###############################################################################
+# Set default behavior to automatically normalize line endings.
+###############################################################################
+* text=auto
+*.sh text eol=lf
+
+# Manually specify for Gradle files, as they can be picky
+gradlew text eol=lf
+gradlew.bat text eol=crlf

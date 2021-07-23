@@ -1,0 +1,50 @@
+<?xml version='1.0'?>
+<!--
+
+    ==========================================================================
+    Copyright (C) 2019-2021 HCL ( http://www.hcl.com/ )
+                               All rights reserved.
+    ==========================================================================
+    Licensed under the  Apache License, Version 2.0  (the "License").  You may
+    not use this file except in compliance with the License.  You may obtain a
+    copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+
+    Unless  required  by applicable  law or  agreed  to  in writing,  software
+    distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+    WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+    License for the  specific language  governing permissions  and limitations
+    under the License.
+    ==========================================================================
+
+-->
+<note class='document' xmlns='http://www.lotus.com/dxl' version='11.0' replicaid='C12585B4004B6231'>
+<noteinfo noteid='8fa' unid='C12585B4004B62316B135DC8E8B5B740' sequence='1'>
+<created><datetime/></created>
+<modified><datetime dst='true'>20200729T154357,38+02</datetime></modified>
+<revised><datetime dst='true'>20190820T173028,80+02</datetime></revised>
+<lastaccessed><datetime dst='true'>20200729T154357,34+02</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20200729T154357,34+02</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Server1/O=Mindoo</name></updatedby>
+<item name='$ICAL_UPDATE_SEQUENCE' summary='false'><numberlist><number>1</number></numberlist></item>
+<item name='$ICAL_UPDATE_SEQUENCENUM' summary='false'><numberlist><number
+>1</number></numberlist></item>
+<item name='$ICAL_UPDATE_UPDATESEQ' summary='false'><numberlist><number>1</number></numberlist></item>
+<item name='$ICAL_UPDATE_ENTRYLIST' summary='false'><datetimelist><datetime
+/></datetimelist></item>
+<item name='$ICAL_UPDATE_DTSTAMP' summary='false'><datetimelist><datetime
+>20190820T153028,00+00</datetime></datetimelist></item>
+<item name='$REF' summary='true'>
+<rawitemdata type='4'>
+AQAxYksAtIUlwbwuNs2/jbuP
+</rawitemdata></item>
+<item name='$RefOptions'><text>1</text></item>
+<item name='ApptUNID'><text>2531C7CE4F8E6C628FBB8DBFCD362EBC</text></item>
+<item name='Form'><text>(ReplyNotice)</text></item>
+<item name='NoticeType'><text>0</text></item>
+<item name='ExcludeFromView'><textlist><text>D</text><text>A</text></textlist></item>
+<item name='Subject'><text>**** Calendaring and Scheduling Meta Data Doc - DO NOT MODIFY ****</text></item>
+<item name='$TUA' summary='true'>
+<rawitemdata type='4'>
+AgBibI5PzscxJbwuNs2/jbuPYmyOT87HMSW8LjbNv427jw==
+</rawitemdata></item></note>
+

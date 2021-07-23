@@ -1,0 +1,92 @@
+/*
+ * ==========================================================================
+ * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ *                            All rights reserved.
+ * ==========================================================================
+ * Licensed under the  Apache License, Version 2.0  (the "License").  You may
+ * not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+ *
+ * Unless  required  by applicable  law or  agreed  to  in writing,  software
+ * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the  specific language  governing permissions  and limitations
+ * under the License.
+ * ==========================================================================
+ */
+package com.hcl.domino.jnx.example.domino.servlet;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.hcl.domino.DominoClient;
+import com.hcl.domino.DominoClientBuilder;
+import com.hcl.domino.DominoProcess;
+import com.hcl.domino.data.Database;
+import com.hcl.domino.dxl.DxlImporter;
+
+/**
+ * This servlet is intended to generate and output an error during DXL import,
+ * which tests that Jakarta XML Binding 3.0 functions on Domino.
+ *  
+ * @author Jesse Gallagher
+ * @since 1.0.12
+ */
+public class DxlErrorServlet extends HttpServlet {
+	private static final long serialVersionUID = 1L;
+	
+	private DominoClient client;
+	
+	@Override
+	public void init(ServletConfig config) throws ServletException {
+		super.init(config);
+		
+		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+			System.setProperty("jnx.noinit", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+			System.setProperty("jnx.noterm", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+			return null;
+		});
+
+		this.client = DominoClientBuilder.newDominoClient().build();
+	}
+	
+	@Override
+	public void destroy() {
+		super.destroy();
+
+		this.client.close();
+	}
+	
+	@Override
+	protected void service(HttpServletRequest arg0, HttpServletResponse arg1) throws ServletException, IOException {
+		DominoProcess.get().initializeThread();
+		try {
+			super.service(arg0, arg1);
+		} finally {
+			DominoProcess.get().terminateThread();
+		}
+	}
+	
+	@Override
+	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+		resp.setContentType("text/plain"); //$NON-NLS-1$
+		try(PrintWriter w = resp.getWriter()) {
+			try {
+				Database names = client.openDatabase("names.nsf"); //$NON-NLS-1$
+				DxlImporter importer = client.createDxlImporter();
+				importer.importDxl("I am not valid DXL", names); //$NON-NLS-1$
+			} catch(Throwable t) {
+				t.printStackTrace(w);
+			}
+		}
+	}
+
+}

@@ -1,0 +1,24 @@
+<?xml version='1.0'?>
+<sharedactions xmlns='http://www.lotus.com/dxl' version='12.0'
+ hide='v3 v4strict' designerversion='8.5.3' maxid='4'>
+<action title='Edit' icon='5' hide='edit previewedit' id='1'><code event='click'><formula
+>@Command([EditDocument])</formula></code><code event='hidewhen'><formula
+>@ToNumber(@UserAccess(@DbName; [AccessLevel])) &lt; 4 &amp; !(@Name([Abbreviate]; @UserName)=@Author)</formula></code></action>
+<action title='Save' hide='preview read' id='2'><imageref name='tango/document-save.png'/><code
+ event='click'><formula>@If(
+	@ClientType="Web" | @IsValid; @Do(
+		@Command([FileSave]);
+		@Command([EditDocument])
+	);
+	""
+)</formula></code></action>
+<action title='Save and Close' hide='preview read' id='3'><imageref name='tango/system-log-out.png'/><code
+ event='click'><formula>@If(
+	@ClientType="Web" | @IsValid; @Do(
+		@Command([FileSave]);
+		@Command([FileCloseWindow])
+	);
+	""
+)</formula></code></action>
+<action title='Delete' icon='4' hide='edit previewedit' align='right' id='4'><code
+ event='click'><formula>@Command([EditClear])</formula></code></action></sharedactions>

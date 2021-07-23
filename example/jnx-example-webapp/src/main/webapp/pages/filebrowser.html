@@ -1,0 +1,220 @@
+<!--
+
+    ==========================================================================
+    Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+                               All rights reserved.
+    ==========================================================================
+    Licensed under the  Apache License, Version 2.0  (the "License").  You may
+    not use this file except in compliance with the License.  You may obtain a
+    copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+
+    Unless  required  by applicable  law or  agreed  to  in writing,  software
+    distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+    WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+    License for the  specific language  governing permissions  and limitations
+    under the License.
+    ==========================================================================
+
+-->
+<html>
+	<head>
+		<title>Server File Browser</title>
+		<link href="../style/app.css" rel="stylesheet">
+		<style>
+			html, body {
+				padding: 0;
+				margin: 0;
+			}
+			body {
+				display: grid;
+				height: 100vh;
+				grid-template-areas: "server server connect"
+				                     "folders files files";
+				
+				grid-template-columns: 15em auto 100px;
+				grid-template-rows: 50px auto;
+			}
+			#server {
+				grid-area: server;
+			}
+			#folders {
+				grid-area: folders;
+				background-color: rgb(50, 50, 50);
+				color: white;
+				margin: 0;
+				overflow: auto;
+				white-space: pre-wrap;
+			}
+			#server {
+				overflow: auto;
+				background-color: white;
+				color: black;
+				display: block;
+				font-size: 16px;
+				line-height: 16px;
+				padding: 20px;
+				margin: 0;
+				font-family: "Consolas", monospace;
+			}
+			
+			#folders {
+				overflow: auto;
+			}
+			#folders, #folders ol {
+				list-style: none;
+				padding-left: 0;
+			}
+			#folders li {
+				padding-left: 1.8em;
+				white-space: nowrap;
+				text-overflow: ellipsis;
+			}
+			#folders li a {
+				cursor: pointer;
+			}
+			#folders li a::before {
+				content: "\1f4c1";
+				padding-right: 0.5em;
+			}
+			#folders li details {
+				margin-left: -1em;
+			}
+			
+			#files {
+				grid-area: files;
+				overflow: auto;
+			}
+			#files table {
+				min-width: 100%;
+				border-collapse: collapse;
+			}
+			#files :is(td, th) {
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				max-width: 10em;
+				overflow: hidden;
+				padding: 0.1em;
+			}
+			#files thead th {
+				background-color: rgb(100, 100, 100);
+				color: white;
+			}
+			#files tbody tr:nth-child(even) {
+				background-color: #efefef;
+			}
+		</style>
+		<script>
+			function fetchServers() {
+				fetch("../api/knownServers")
+					.then(res => res.json())
+					.then(servers => {
+						const serverslist = document.getElementById("knownservers");
+						servers.forEach(server => {
+							const option = document.createElement("option");
+							option.value = server;
+							serverslist.appendChild(option);
+						});
+					});
+			}
+			
+			function appendEntry(ol, entry) {
+				switch(entry.type) {
+				case "DIR":
+					const li = ol.appendChild(document.createElement("li"));
+					li.classList.add(entry.type.toLowerCase());
+					
+					const dirChildren = entry.children.filter(entry => entry.type === "DIR");
+					let parent = li;
+					if(dirChildren.length > 0) {
+						const details = li.appendChild(document.createElement("details"));
+						details.open = true;
+						const summary = details.appendChild(document.createElement("summary"));
+						parent = summary;
+						
+						const children = details.appendChild(document.createElement("ol"));
+						dirChildren.forEach(child => appendEntry(children, child));
+					}
+					const a = parent.appendChild(document.createElement("a"));
+					a.innerText = entry.name;
+					
+					const fileChildren = entry.children.filter(entry => entry.type !== "DIR");
+					a.addEventListener("click", e => {
+						populateFiles(fileChildren);
+						e.preventDefault();
+					});
+					
+					break;
+				case "DB":
+					break;
+				}
+			}
+			
+			function list() {
+				const serverName = document.getElementById("server").value;
+				const url = new URL("../api/listFiles", document.location.href);
+				url.searchParams.set("serverName", serverName);
+				fetch(url)
+					.then(res => res.json())
+					.then(filetree => {
+						const output = document.getElementById("folders");
+						output.innerHTML = "";
+						
+						appendEntry(output, {
+							name: serverName,
+							type: "DIR",
+							children: filetree
+						});
+						
+						const fileChildren = filetree.filter(entry => entry.type !== "DIR");
+						populateFiles(fileChildren);
+					});
+			}
+			
+			function populateFiles(fileEntries) {
+				const tbody = document.getElementById("files").querySelector("tbody");
+				tbody.innerHTML = "";
+				
+				fileEntries.forEach(entry => {
+					const tr = tbody.appendChild(document.createElement("tr"));
+					
+					tr.appendChild(document.createElement("td")).innerText = entry.name;
+					tr.appendChild(document.createElement("td")).innerText = entry.title;
+					tr.appendChild(document.createElement("td")).innerText = entry.filePath;
+					tr.appendChild(document.createElement("td")).innerText = entry.properties["$DBVERSIONS"];
+					tr.appendChild(document.createElement("td")).innerText = entry.properties["$Length2"];
+					tr.appendChild(document.createElement("td")).innerText = entry.properties["$Length"];
+					tr.appendChild(document.createElement("td")).innerText = entry.template;
+				});
+			}
+			
+			window.addEventListener("load", () => {
+				fetchServers();
+			});
+		</script>
+	</head>
+	<body class="index">
+		<input id="server" placeholder="Server" onKeyPress="event.keyCode == 13 ? connect() : true" list="knownservers" />
+		<datalist id="knownservers"></datalist>
+		<button id="list" onClick="list()">List</button>
+	
+		<ol id="folders"></ol>
+		
+		<div id="files">
+			<table>
+				<thead>
+					<tr>
+						<th>File Name</th>
+						<th>Title</th>
+						<th>Physical Path</th>
+						<th>File Format</th>
+						<th>Logical Size</th>
+						<th>Physical Size</th>
+						<th>Template</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+	</body>
+</html>

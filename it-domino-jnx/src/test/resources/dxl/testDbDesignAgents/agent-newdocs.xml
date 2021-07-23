@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="filter" xmlns="http://www.lotus.com/dxl">
+  <item name="$AssistVersion">
+    <datetime dst="true">20210615T103442,17-04</datetime>
+  </item>
+  <item name="$TITLE" sign="true">
+    <text>new docs formula</text>
+  </item>
+  <item name="$AssistType" sign="true">
+    <number>65426</number>
+  </item>
+  <item name="$AssistLastRun" sign="true">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="$AssistDocCount" sign="true">
+    <number>0</number>
+  </item>
+  <item name="$Comment" sign="true">
+    <text/>
+  </item>
+  <item name="$FlagsExt" sign="true">
+    <text/>
+  </item>
+  <item name="$AssistFlags" sign="true">
+    <text>Es</text>
+  </item>
+  <item name="$AssistTrigger">
+    <text>4</text>
+  </item>
+  <item name="$AssistInfo" sign="true">
+    <rawitemdata type="11">
+AQAEAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+</rawitemdata>
+  </item>
+  <item name="$AssistQuery" sign="true">
+    <rawitemdata type="f">
+gQYAAAAA
+</rawitemdata>
+  </item>
+  <item name="$AssistAction" sign="true">
+    <rawitemdata type="10">
+gQKE/y4AAgAAACQAJAAIAA4AAQADAGJhcgADAAAACABmAAMABwAMAAYACTBSTDFT
+</rawitemdata>
+  </item>
+  <item name="$AssistAction_Ex" sign="true">
+    <rawitemdata type="14">
+gQI=
+</rawitemdata>
+  </item>
+  <item name="$Restricted" sign="true">
+    <number>1</number>
+  </item>
+  <item name="$Flags">
+    <text>f3</text>
+  </item>
+  <item name="$AssistRunInfo" summary="true">
+    <rawitemdata type="3">
+BgABAAAACABmCAAAAAAAAAUAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAA2RRQAPWGJYUqeVAAt4YlhQAAAAAAAAAAAAAAAAAAAAAAAAAA+w3kfrud
+baC+BshffRp65/FavkyB6n1/hGAp81klxyLQPYObD2pMtvfaeoWcYdGkr82YS6cH91amVWdkbAuf
+r/CAmEtr/mta4uxMvB5osxLa6apW4jiwgEkNRIpexHPcMWch+3Jqx+N0gQBK2XcgH/DdgiKtpXF/
+BFjH1VZ0EfGMQnD+o9MhLKX8uNHmkvSWxeZBXnJmrx3CBKGsrrufGMm89NdZIFzLrRIppRx41ZaT
+wtW1XM9HnVyhxW1nLthWLzrz9kucHWBLnwzVLaj2MpzwqjFXjuUHjPu+uOS9d5a9kLimmF5TgigP
+T6sZhWTNQ7yag6VpeXF6btsM+XTwetMeXMqZFyLi8cFwhLoI3wutbhLz3zx0++V+3L1+6xtLmdZu
+qLCdmXIi2efYW+e40wzqQBKT/33WL9DMK+FPKEHzynLZK+fYBqAXShsiZSOJ7rFjNRE03Z3Bu2tw
+ffw4FY8W0u9uuJKmj3RG4qTrWux28DSZvWousbI/TAbxBRPS4rwDAAMAHwAAAAAAAAAAAAAAAAAA
+AAAAAAAkRmlsZVNpemUAJEZpbGVEYXRhACRGaWxlTmFtZXMAaOKYShg6QeJXLRB5fJ6UfE5r9z9J
+7byNhFSgP8e0UYFplaNabhPzaKmF8PebGHquZ0/I4/q0DYaHPIZ1SvR3N48vSuJS1e09Obp0qItC
+6ZoPcJNOt3qBFKmQHCnmTKzIUYO+iz7KoSfg/b/DimYT/tG5BmbH1gnQgeT7LJZb0ycgZrpG2rfn
+P6Gi3/ab9eftW2DJLW3/f7c2czWGc5NkMlInI7IbwCBj5ns5tmKJSJ7zBmBTCGzVkYh9hkw7M4oc
+iyhc9rLio0OmcnxSqAStaxHE+w3kfrudbaC+BshffRp65/FavkyB6n1/hGAp81klxyLQPYObD2pM
+tvfaeoWcYdGkr82YS6cH91amVWdkbAufr/CAmEtr/mta4uxMvB5osxLa6apW4jiwgEkNRIpexHPc
+MWch+3Jqx+N0gQBK2XcgH/DdgiKtpXF/BFjH1VZ0EfGMQnD+o9MhLKX8uNHmkvSWxeZBXnJmrx3C
+BKGsrrufGMm89NdZIFzLrRIppRx41ZaTwtW1XM9HnVyhxW1nLthWLzrz9kucHWBLnwzVLaj2Mpzw
+qjFXjuUHjPu+uOS9d5a9kLimmF5TgigPT6sZhWTNQ7yag6VpeXF6btsM+XTwetMeXMqZFyLi8cFw
+hLoI3wutbhLz3zx0++V+3L1+
+</rawitemdata>
+  </item>
+</note>

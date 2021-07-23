@@ -1,0 +1,35 @@
+<?xml version='1.0'?>
+<note class='filter' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$FlagsExt'><text/></item>
+<item name='$JavaCompilerSource'><text>1.3</text></item>
+<item name='$JavaCompilerTarget'><text>1.2</text></item>
+<item name='$TITLE' sign='true'><text>java lib</text></item>
+<item name='$Flags'><text>sj34Q</text></item>
+<item name='$PublicAccess' sign='true'><text>1</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$AssistAction' sign='true'>
+<rawitemdata type='10'>
+k/9OAA8ADQAfAAEAAAAAAAAASmF2YUFnZW50LmNsYXNzYzpcTm90ZXNcRGF0YSUlc291cmNlJSUu
+amFyACUlb2JqZWN0JSUuamFyAAAA
+</rawitemdata></item>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='msdos'
+ compression='none' flags='sign' encoding='none' name='%%source%%.jar' size='169'>
+<created><datetime dst='true'>20210408T134444,97-04</datetime></created>
+<modified><datetime dst='true'>20210408T134444,97-04</datetime></modified><filedata
+>
+UEsDBBQACAgIAJZtiFIAAAAAAAAAAAAAAAANAAAAVW50aXRsZWQuamF2YSsoTcrJTFZIzkksLlYI
+zSvJLMlJTVGoVuDlqgUAUEsHCAhwNLgdAAAAGwAAAFBLAQIUABQACAgIAJZtiFIIcDS4HQAAABsA
+AAANAAAAAAAAAAAAAAAAAAAAAABVbnRpdGxlZC5qYXZhUEsFBgAAAAABAAEAOwAAAFgAAAAAAA==
+</filedata></file></object></item>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='msdos'
+ compression='none' flags='sign' encoding='none' name='%%object%%.jar' size='253'>
+<created><datetime dst='true'>20210408T134444,97-04</datetime></created>
+<modified><datetime dst='true'>20210408T134444,97-04</datetime></modified><filedata
+>
+UEsDBBQACAgIAJZtiFIAAAAAAAAAAAAAAAAOAAAAVW50aXRsZWQuY2xhc3M79W/XPgYGBj0GLnYG
+JkYGjtC8ksySnNQUdgYWRgaBrMSyRP2cxLx0ff+krNTkEkYGNpvMvMwSO0YGZg3NMEYGFuf8lFQu
+BmYGTh4GVgY2BkUGoAwDCDACIUiEkYEdyBME8xkYWLW2M3BsBCtgAABQSwcI6Qyb2G8AAAB7AAAA
+UEsBAhQAFAAICAgAlm2IUukMm9hvAAAAewAAAA4AAAAAAAAAAAAAAAAAAAAAAFVudGl0bGVkLmNs
+YXNzUEsFBgAAAAABAAEAPAAAAKsAAAAAAA==
+</filedata></file></object></item></note>
+

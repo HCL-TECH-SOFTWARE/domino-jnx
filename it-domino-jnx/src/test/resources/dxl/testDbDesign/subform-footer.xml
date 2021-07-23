@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='utf-8'?>
+<subform name='Footer' xmlns='http://www.lotus.com/dxl' version='12.0'
+ designerversion='8.5.2' renderpassthrough='true'>
+<globals><code event='options'><lotusscript>Option Public
+</lotusscript></code></globals><code event='querysave'><formula>FIELD ModifiedBy := @UserName;
+FIELD DateModified := @Today;
+""</formula></code>
+<body><richtext>
+<pardef id='1'/>
+<par def='1'/>
+<pardef id='2' align='right'/>
+<par def='2'><horizrule height='0.0201in' width='100%' use3dshading='false'
+ color='silver'/><run><font size='8pt' color='gray'/>Composed by </run><run
+><font size='8pt' color='gray'/><field showdelimiters='false' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='names' kind='computedwhencomposed' name='CreatedBy'><code
+ event='defaultvalue'><formula>@UserName</formula></code></field></run><run
+><font size='8pt' color='gray'/> on </run><run><font size='8pt' color='gray'/><field
+ type='datetime' kind='computed' name='DateComposed'><datetimeformat show='date'
+ date='yearmonthday' fourdigityearfor21stcentury='true' zone='never' dateformat='weekdaymonthdayyear'
+ dayformat='twodigitday' monthformat='twodigitmonth' yearformat='fourdigityear'
+ weekdayformat='shortname' dateseparator1=' ' dateseparator2='/' dateseparator3='/'
+ timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
+>@Date(@Created)</formula></code></field></run><run><font size='8pt' color='gray'/></run></par>
+<pardef id='3' align='right' hide='notes web mobile'/>
+<par def='3'><run><font size='8pt' color='gray'/></run><run><font size='8pt'
+ color='gray'/><field type='names' kind='editable' name='ModifiedBy'><code
+ event='defaultvalue'><formula>@UserName</formula></code></field></run><run
+><font color='gray'/></run><run><font size='8pt' color='gray'/><field type='datetime'
+ kind='editable' name='DateModified'><datetimeformat show='date' date='yearmonthday'
+ fourdigityearfor21stcentury='true' zone='never' dateformat='weekdaymonthdayyear'
+ dayformat='twodigitday' monthformat='twodigitmonth' yearformat='fourdigityear'
+ weekdayformat='shortname' dateseparator1=' ' dateseparator2='/' dateseparator3='/'
+ timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
+>@Today</formula></code></field></run></par>
+<pardef id='4' align='right'><code event='hidewhen'><formula>@IsNewDoc</formula></code></pardef>
+<par def='4'><run><font size='8pt' color='gray'/>Last modified by </run><run
+><font size='8pt' color='gray'/><field showdelimiters='false' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='names' kind='computedfordisplay' name='ModifiedByDisplay'><code
+ event='defaultvalue'><formula>ModifiedBy</formula></code></field></run><run
+><font size='8pt' color='gray'/> on </run><run><font size='8pt' color='gray'/><field
+ type='datetime' kind='computedfordisplay' name='DateModifiedDisplay'><datetimeformat
+ show='date' date='yearmonthday' fourdigityearfor21stcentury='true' zone='never'
+ dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
+>@Date(DateModified)</formula></code></field></run><run><font color='gray'/></run></par></richtext></body>
+<item name='OriginalModTime'><datetime dst='true'>20060710T091955,51-04</datetime></item>
+<item name='DateComposed_1' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='DateModified_1' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>Footer</text></item></subform>
+

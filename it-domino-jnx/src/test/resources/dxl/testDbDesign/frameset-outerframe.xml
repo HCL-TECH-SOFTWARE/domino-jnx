@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<frameset name='Outer Frame' xmlns='http://www.lotus.com/dxl' version='12.0' publicaccess='false' designerversion='8.5.2' columns='190px 80%' spacing='0px'
+	borderwidth='2px' bordercolor='#2f2f2f'>
+	<frame name='Nav' targetframe='NotesView'>
+		<namedelementlink type='frameset' name='Navigation Frame' />
+	</frame>
+	<frame name='NotesView' border3d='false' initialfocus='true'>
+		<namedelementlink type='view' name='All' />
+	</frame>
+</frameset>
+

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.hcl.domino</groupId>
+		<artifactId>domino-jnx</artifactId>
+		<version>1.0.28-SNAPSHOT</version>
+		<relativePath>../..</relativePath>
+	</parent>
+	<artifactId>jnx-example-gluon</artifactId>
+	<name>HCL Domino API Example Gluon Native App</name>
+
+	<properties>
+		<graal.version>21.2.0</graal.version>
+		<main.class>com.hcl.domino.example.gluon.Main</main.class>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>domino-jnx-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<!-- Implementation dependency must be present here and not in a profile, 
+			or it won't be included in the native image -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>domino-jnx-jna</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.openjfx</groupId>
+			<artifactId>javafx-controls</artifactId>
+			<version>16</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+
+				<executions>
+					<execution>
+						<id>bundle-manifest</id>
+						<phase>process-classes</phase>
+						<goals>
+							<goal>manifest</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.openjfx</groupId>
+				<artifactId>javafx-maven-plugin</artifactId>
+				<version>0.0.6</version>
+				<configuration>
+					<mainClass>${main.class}</mainClass>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>com.gluonhq</groupId>
+				<artifactId>client-maven-plugin</artifactId>
+				<version>0.1.42</version>
+				<configuration>
+					<target>${client.target}</target>
+					<mainClass>${main.class}</mainClass>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>desktop</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<properties>
+				<client.target>host</client.target>
+			</properties>
+		</profile>
+		<profile>
+			<id>ios</id>
+			<properties>
+				<client.target>ios</client.target>
+			</properties>
+		</profile>
+		<profile>
+			<id>android</id>
+			<properties>
+				<client.target>android</client.target>
+			</properties>
+		</profile>
+	</profiles>
+</project>

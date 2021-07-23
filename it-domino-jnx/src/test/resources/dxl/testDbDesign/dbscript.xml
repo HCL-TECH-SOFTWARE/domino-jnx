@@ -1,0 +1,11 @@
+<?xml version='1.0'?>
+<databasescript xmlns='http://www.lotus.com/dxl' version='12.0'
+ designerversion='8.5.3'>
+<code event='options'><lotusscript
+>Option Declare
+
+
+</lotusscript></code><code event='initialize'><lotusscript>Sub Initialize
+	Print "hey"
+End Sub</lotusscript></code></databasescript>
+

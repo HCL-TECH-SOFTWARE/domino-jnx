@@ -1,0 +1,117 @@
+<!--
+
+    ==========================================================================
+    Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+                               All rights reserved.
+    ==========================================================================
+    Licensed under the  Apache License, Version 2.0  (the "License").  You may
+    not use this file except in compliance with the License.  You may obtain a
+    copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+
+    Unless  required  by applicable  law or  agreed  to  in writing,  software
+    distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+    WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+    License for the  specific language  governing permissions  and limitations
+    under the License.
+    ==========================================================================
+
+-->
+<html>
+	<head>
+		<title>Server File Browser</title>
+		<link href="../style/app.css" rel="stylesheet">
+		<style>
+			html, body {
+				padding: 0;
+				margin: 0;
+			}
+			body {
+				display: grid;
+				height: 100vh;
+				grid-template-areas: "server server connect"
+				                     "files files files";
+				
+				grid-template-columns: 15em auto 100px;
+				grid-template-rows: 50px auto;
+			}
+			#database {
+				grid-area: server;
+			}
+			#database {
+				overflow: auto;
+				background-color: white;
+				color: black;
+				display: block;
+				font-size: 16px;
+				line-height: 16px;
+				padding: 20px;
+				margin: 0;
+				font-family: "Consolas", monospace;
+			}
+			
+			#files {
+				grid-area: files;
+				overflow: auto;
+			}
+			#files table {
+				min-width: 100%;
+				border-collapse: collapse;
+			}
+			#files :is(td, th) {
+				text-overflow: ellipsis;
+				white-space: nowrap;
+				max-width: 10em;
+				overflow: hidden;
+				padding: 0.1em;
+			}
+			#files thead th {
+				background-color: rgb(100, 100, 100);
+				color: white;
+			}
+			#files tbody tr:nth-child(even) {
+				background-color: #efefef;
+			}
+		</style>
+		<script>
+			function list() {
+				const database = document.getElementById("database").value;
+				const url = new URL("../api/collections/" + encodeURIComponent(database), document.location.href);
+				fetch(url)
+					.then(res => res.json())
+					.then(collections => {
+						const tbody = document.getElementById("files").querySelector("tbody");
+						tbody.innerHTML = "";
+						
+						collections.forEach(collection => {
+							const tr = tbody.appendChild(document.createElement("tr"));
+							
+							tr.appendChild(document.createElement("td")).innerText = collection.title;
+							tr.appendChild(document.createElement("td")).innerText = JSON.stringify(collection.aliases);
+							tr.appendChild(document.createElement("td")).innerText = collection.isfolder;
+							tr.appendChild(document.createElement("td")).innerText = collection.noteid;
+							
+						})
+					});
+			}
+		</script>
+	</head>
+	<body class="index">
+		<input id="database" placeholder="Database" onKeyPress="event.keyCode == 13 ? list() : true"/>
+		<button id="list" onClick="list()">List</button>
+		
+		<div id="files">
+			<table>
+				<thead>
+					<tr>
+						<th>Title</th>
+						<th>Aliases</th>
+						<th>Folder?</th>
+						<th>Note ID</th>
+					</tr>
+				</thead>
+				<tbody>
+				</tbody>
+			</table>
+		</div>
+	</body>
+</html>

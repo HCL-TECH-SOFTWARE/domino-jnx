@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='utf-8'?>
+<sharedcolumn name='testcol' xmlns='http://www.lotus.com/dxl' version='12.0' noreplace='true' designerversion='8.5.3'>
+	<column hidedetailrows='false' itemname='$0' width='10' resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'>
+		<columnheader title='#'>
+			<font size='9pt' style='bold' />
+		</columnheader>
+		<code event='value'>
+			<formula>@DocNumber</formula>
+		</code>
+	</column>
+</sharedcolumn>
+

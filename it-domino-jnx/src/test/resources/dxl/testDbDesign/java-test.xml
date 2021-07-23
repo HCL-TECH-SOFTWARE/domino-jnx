@@ -1,0 +1,24 @@
+<?xml version='1.0'?>
+<note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$Flags'><text>34567Cg~[</text></item>
+<item name='$TITLE'><text>test/test.java</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$FileSize' sign='true'><number>43</number></item>
+<item name='$FileData' sign='true'>
+<rawitemdata type='1'>
+YQAYAAAAAAArAAAAAQAAAAAAAAAAAAAAYAA9AAAAKwAsAAAAAAAAAAAAcGFja2FnZSB0ZXN0Ow0K
+DQpwdWJsaWMgY2xhc3MgdGVzdCB7DQoNCn0NCgA=
+</rawitemdata></item>
+<item name='$FileNames' sign='true'><text>test/test.java</text></item>
+<item name='$ClassIndexItem'><text>WEB-INF/classes/test/test.class</text></item>
+<item name='$ClassSize0' sign='true'><number>247</number></item>
+<item name='$ClassData0' sign='true'>
+<rawitemdata type='1'>
+YQAYAAAAAAD3AAAAAQAAAAAAAAAAAAAAYAAJAQAA9wD4AAAAAAAAAAAAyv66vgAAADQAEAcAAgEA
+CXRlc3QvdGVzdAcABAEAEGphdmEvbGFuZy9PYmplY3QBAAY8aW5pdD4BAAMoKVYBAARDb2RlCgAD
+AAkMAAUABgEAD0xpbmVOdW1iZXJUYWJsZQEAEkxvY2FsVmFyaWFibGVUYWJsZQEABHRoaXMBAAtM
+dGVzdC90ZXN0OwEAClNvdXJjZUZpbGUBAAl0ZXN0LmphdmEAIQABAAMAAAAAAAEAAQAFAAYAAQAH
+AAAALwABAAEAAAAFKrcACLEAAAACAAoAAAAGAAEAAAADAAsAAAAMAAEAAAAFAAwADQAAAAEADgAA
+AAIAD2M=
+</rawitemdata></item></note>
+

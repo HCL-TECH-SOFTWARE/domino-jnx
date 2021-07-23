@@ -1,0 +1,624 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.hcl.domino</groupId>
+	<artifactId>domino-jnx</artifactId>
+	<version>1.0.28-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>HCL Domino API Parent Project</name>
+	<description>Modern Java API for HCL Domino</description>
+
+	<inceptionYear>2019</inceptionYear>
+
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+		</license>
+	</licenses>
+
+	<organization>
+		<name>HCL America, Inc.</name>
+		<url>http://www.hcl.com/</url>
+	</organization>
+
+	<modules>
+		<module>domino-jnx-api</module>
+		<module>domino-jnx-commons</module>
+		<module>domino-jnx-console</module>
+		<module>domino-jnx-jna</module>
+		<module>domino-jnx-jsonb</module>
+		<module>domino-jnx-jakarta-security</module>
+		<module>domino-jnx-vertx-json</module>
+		<module>it-domino-jnx</module>
+
+		<!-- Example projects -->
+		<module>example/jnx-example-webapp</module>
+		<module>example/jnx-example-swt</module>
+		<module>example/jnx-example-runjava</module>
+		<module>example/jnx-example-domino-webapp-admin</module>
+		<module>example/jnx-example-graalvm-native</module>
+	</modules>
+
+	<!-- OpenNTF Repository for Domino access -->
+	<repositories>
+		<repository>
+			<id>artifactory.openntf.org</id>
+			<name>artifactory.openntf.org</name>
+			<url>https://artifactory.openntf.org/openntf</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+
+		<!-- HCLLabs internal repositories -->
+		<repository>
+			<id>JNX</id>
+			<url>https://pkgs.dev.azure.com/HCLLabs/fb2aa10e-fc82-4a7f-ada9-ebe4e35cb27f/_packaging/JNX/maven/v1</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+
+
+	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>artifactory.openntf.org</id>
+			<name>artifactory.openntf.org</name>
+			<url>https://artifactory.openntf.org/openntf</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<properties>
+
+		<!-- The docker repository -->
+		<docker.repository>docker.hcllabs.net</docker.repository>
+
+		<!-- Dependency Versions -->
+		<commons.io.version>2.11.0</commons.io.version>
+		<com.googlecode.concurrent.version>1.4.2</com.googlecode.concurrent.version>
+		<com.ibm.commons-version>9.0.0</com.ibm.commons-version>
+		<darvino.version>2.5.0</darvino.version>
+		<dockerfile-maven-version>1.4.13</dockerfile-maven-version>
+		<domino.jna.version>0.9.35</domino.jna.version>
+		<domino.version>12.0</domino.version>
+		<expiringmap.version>0.5.9</expiringmap.version>
+		<flexmark.pegdown.version>0.21.0</flexmark.pegdown.version>
+		<flexmark.version>0.62.2</flexmark.version>
+		<grpc.version>1.24.0</grpc.version>
+		<gson.version>2.8.5</gson.version>
+		<guava.version>29.0-jre</guava.version>
+		<ibm.commons.version>9.0.0</ibm.commons.version>
+		<icu4j.version>65.1</icu4j.version>
+		<jakarta.json.version>2.0.1</jakarta.json.version>
+		<jakarta.json.bind.version>2.0.0</jakarta.json.bind.version>
+		<jakarta.mail.version>2.0.1</jakarta.mail.version>
+		<jakarta.activation.version>2.0.1</jakarta.activation.version>
+		<java.version>1.8</java.version>
+		<javasimon.version>4.2.0</javasimon.version>
+		<joda.version>2.10</joda.version>
+		<junit.jupiter.version>5.8.0-M1</junit.jupiter.version>
+		<junit.platform.version>1.6.2</junit.platform.version>
+		<junit.version>4.12</junit.version>
+		<log4j.version>2.12.1</log4j.version>
+		<lorem.version>2.1</lorem.version>
+		<metadata-extractor-version>2.16.0</metadata-extractor-version>
+		<micrometer.version>1.3.5</micrometer.version>
+		<mockito.version>3.3.3</mockito.version>
+		<mustache.version>0.9.6</mustache.version>
+		<netty.ssl.version>2.0.31.Final</netty.ssl.version>
+		<net.java.dev.jna-version>5.8.0</net.java.dev.jna-version>
+		<org.eclipse.yasson.version>2.0.2</org.eclipse.yasson.version>
+		<plantuml.version>1.2020.14</plantuml.version>
+		<pmd.version>6.36.0</pmd.version>
+		<powermock.version>2.0.7</powermock.version>
+		<saxon.version>10.1</saxon.version>
+		<slf4j.version>1.7.28</slf4j.version>
+		<spotbugs.version>4.3.0</spotbugs.version>
+		<testcontainers.version>1.14.1</testcontainers.version>
+		<vertx.version>4.1.2</vertx.version>
+		<yaml.version>1.25</yaml.version>
+
+		<!-- Maven Versions -->
+		<maven.version>[3.6,)</maven.version>
+
+		<!-- Plugin Versions -->
+		<eclipse.plugin.version>2.10</eclipse.plugin.version>
+		<googleformatter.plugin.version>1.7.5</googleformatter.plugin.version>
+		<maven.checkstyle.version>3.1.1</maven.checkstyle.version>
+		<maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
+		<maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
+		<maven.failsave.plugin.version>3.0.0-M5</maven.failsave.plugin.version>
+		<maven.help.plugin.version>3.2.0</maven.help.plugin.version>
+		<maven.jacoco.plugin.version>0.8.5</maven.jacoco.plugin.version>
+		<maven.jar.plugin.version>3.2.0</maven.jar.plugin.version>
+		<maven.javadoc.plugin.version>3.2.0</maven.javadoc.plugin.version>
+		<maven.jxr.plugin.version>3.0.0</maven.jxr.plugin.version>
+		<maven.license.plugin.version>4.0.rc1</maven.license.plugin.version>
+		<maven.project.info.reports.plugin.version>3.0.0</maven.project.info.reports.plugin.version>
+		<maven.resources.plugin.version>3.1.0</maven.resources.plugin.version>
+		<maven.site.plugin.version>3.9.1</maven.site.plugin.version>
+		<maven.source.plugin.version>3.2.1</maven.source.plugin.version>
+		<maven.spotbugs.plugin>4.0.4</maven.spotbugs.plugin>
+		<maven.surefire.plugin.version>3.0.0-M5</maven.surefire.plugin.version>
+		<os.maven.plugin.version>1.6.2</os.maven.plugin.version>
+		<plantuml.plugin.version>1.5.1</plantuml.plugin.version>
+		<pmd.plugin.version>3.13.0</pmd.plugin.version>
+		<protobuf.maven.plugin.version>0.6.1</protobuf.maven.plugin.version>
+		<shade.version>3.2.4</shade.version>
+		<versions.maven.plugin.version>2.7</versions.maven.plugin.version>
+
+		<!-- Miscellaneous settings -->
+		<project.autorelease>true</project.autorelease>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<finalName>${project.artifactId}-${project.version}</finalName>
+
+		<!-- OSGi/Eclipse PDE support -->
+		<manifest-location>META-INF</manifest-location>
+		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+		<osgi.qualifier>${maven.build.timestamp}</osgi.qualifier>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+
+			<!-- Standard specs -->
+			<dependency>
+				<groupId>jakarta.activation</groupId>
+				<artifactId>jakarta.activation-api</artifactId>
+				<version>${jakarta.activation.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.mail</groupId>
+				<artifactId>jakarta.mail-api</artifactId>
+				<version>${jakarta.mail.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sun.mail</groupId>
+				<artifactId>jakarta.mail</artifactId>
+				<version>${jakarta.mail.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.json</groupId>
+				<artifactId>jakarta.json-api</artifactId>
+				<version>${jakarta.json.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.json.bind</groupId>
+				<artifactId>jakarta.json.bind-api</artifactId>
+				<version>${jakarta.json.bind.version}</version>
+			</dependency>
+			
+
+			<!-- Vert.x integration -->
+			<dependency>
+				<groupId>io.vertx</groupId>
+				<artifactId>vertx-core</artifactId>
+				<version>${vertx.version}</version>
+			</dependency>
+
+			<!-- Common tools -->
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>${commons.io.version}</version>
+			</dependency>
+
+			<!-- Testing -->
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-engine</artifactId>
+				<version>${junit.jupiter.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.junit.jupiter</groupId>
+				<artifactId>junit-jupiter-params</artifactId>
+				<version>${junit.jupiter.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build>
+		<extensions>
+			<extension>
+				<groupId>kr.motd.maven</groupId>
+				<artifactId>os-maven-plugin</artifactId>
+				<version>${os.maven.plugin.version}</version>
+			</extension>
+		</extensions>
+
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<version>${maven.enforcer.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>enforce-maven-and-java</id>
+						<goals>
+							<goal>enforce</goal>
+						</goals>
+						<configuration>
+							<rules>
+								<requireMavenVersion>
+									<version>${maven.version}</version>
+								</requireMavenVersion>
+								<requireJavaVersion>
+									<version>${java.version}</version>
+								</requireJavaVersion>
+							</rules>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<failOnError>true</failOnError>
+					<failOnWarnings>false</failOnWarnings>
+					<quiet>true</quiet>
+					<doclint>none</doclint>
+					<source>1.8</source>
+				</configuration>
+				<executions>
+					<execution>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+		</plugins>
+
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-eclipse-plugin</artifactId>
+					<version>${eclipse.plugin.version}</version>
+					<configuration>
+						<downloadSources>true</downloadSources>
+						<downloadJavadocs>true</downloadJavadocs>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>versions-maven-plugin</artifactId>
+					<version>${versions.maven.plugin.version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>${maven.jar.plugin.version}</version>
+					<configuration>
+						<archive>
+							<manifestFile>${manifest-location}/MANIFEST.MF</manifestFile>
+						</archive>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.felix</groupId>
+					<artifactId>maven-bundle-plugin</artifactId>
+					<version>5.1.1</version>
+					<extensions>true</extensions>
+					<configuration>
+						<manifestLocation>${manifest-location}</manifestLocation>
+						<excludeDependencies>true</excludeDependencies>
+						<supportedProjectTypes>
+							<supportedProjectType>jar</supportedProjectType>
+							<supportedProjectType>bundle</supportedProjectType>
+						</supportedProjectTypes>
+						<instructions>
+							<Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
+							<Automatic-Module-Name>${project.artifactId}</Automatic-Module-Name>
+							<_snapshot>${osgi.qualifier}</_snapshot>
+						</instructions>
+					</configuration>
+				</plugin>
+				<plugin>
+					<groupId>com.mycila</groupId>
+					<artifactId>license-maven-plugin</artifactId>
+					<version>${maven.license.plugin.version}</version>
+					<configuration>
+						<aggregate>true</aggregate>
+						<header>license-header.txt</header>
+						<excludes>
+							<exclude>**/pom.xml</exclude>
+							<exclude>**/README</exclude>
+							<exclude>**/src/test/resources/**</exclude>
+							<exclude>src/main/resources/**</exclude>
+							<exclude>LICENSE</exclude>
+							<exclude>NOTICE</exclude>
+							<exclude>**/node_modules/**</exclude>
+							<exclude>**/org/apache/**</exclude>
+							<exclude>legal/**</exclude>
+							<exclude>eclipse-java-google-style.xml</exclude>
+							<exclude>CodeCleanupSettings.xml</exclude>
+						</excludes>
+						<properties>
+							<owner>HCL America, Inc.</owner>
+							<copyrightYear>2021</copyrightYear>
+						</properties>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-source-plugin</artifactId>
+					<version>${maven.source.plugin.version}</version>
+					<executions>
+						<execution>
+							<id>attach-sources</id>
+							<goals>
+								<goal>jar</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<artifactId>maven-javadoc-plugin</artifactId>
+					<version>${maven.javadoc.plugin.version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.jacoco</groupId>
+					<artifactId>jacoco-maven-plugin</artifactId>
+					<version>${maven.jacoco.plugin.version}</version>
+
+					<executions>
+						<execution>
+							<goals>
+								<goal>prepare-agent</goal>
+							</goals>
+						</execution>
+						<execution>
+							<id>report</id>
+							<phase>prepare-package</phase>
+							<goals>
+								<goal>report</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-clean-plugin</artifactId>
+					<version>3.1.0</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-deploy-plugin</artifactId>
+					<version>3.0.0-M1</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-install-plugin</artifactId>
+					<version>3.0.0-M1</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-site-plugin</artifactId>
+					<version>${maven.site.plugin.version}</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${maven.compiler.plugin.version}</version>
+					<configuration>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-resources-plugin</artifactId>
+					<version>3.2.0</version>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${maven.surefire.plugin.version}</version>
+					<configuration>
+						<skip>true</skip>
+						<trimStackTrace>false</trimStackTrace>
+						<reuseForks>false</reuseForks>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-pmd-plugin</artifactId>
+					<version>${pmd.plugin.version}</version>
+					<configuration>
+						<linkXRef>true</linkXRef>
+						<targetJdk>${java.version}</targetJdk>
+					</configuration>
+					<dependencies>
+						<dependency>
+							<groupId>net.sourceforge.pmd</groupId>
+							<artifactId>pmd-core</artifactId>
+							<version>${pmd.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>net.sourceforge.pmd</groupId>
+							<artifactId>pmd-java</artifactId>
+							<version>${pmd.version}</version>
+						</dependency>
+						<dependency>
+							<groupId>net.sourceforge.pmd</groupId>
+							<artifactId>pmd-javascript</artifactId>
+							<version>${pmd.version}</version>
+						</dependency>
+					</dependencies>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-help-plugin</artifactId>
+					<version>${maven.help.plugin.version}</version>
+					<executions>
+						<execution>
+							<id>show-profiles</id>
+							<!-- <phase>process-resources</phase> -->
+							<goals>
+								<goal>active-profiles</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+			</plugins>
+		</pluginManagement>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+
+			<distributionManagement>
+				<!-- HCLLabls internal repository -->
+				<repository>
+					<uniqueVersion>false</uniqueVersion>
+					<id>JNX</id>
+					<name>HCL Labs Keep Repository</name>
+					<url>https://pkgs.dev.azure.com/HCLLabs/fb2aa10e-fc82-4a7f-ada9-ebe4e35cb27f/_packaging/JNX/maven/v1</url>
+					<layout>default</layout>
+				</repository>
+			</distributionManagement>
+		</profile>
+
+		<profile>
+			<id>iba</id>
+			<repositories>
+				<!-- IBA internal repositories-->
+				<repository>
+					<id>gitlab-maven</id>
+					<url>https://artifactory.xby.icdc.io/repository/maven-releases</url>
+					<releases>
+						<enabled>true</enabled>
+					</releases>
+					<snapshots>
+						<enabled>true</enabled>
+					</snapshots>
+				</repository>
+			</repositories>
+
+			<distributionManagement>
+				<!-- IBA internal repository -->
+				<repository>
+					<id>gitlab-maven</id>
+					<url>https://code.xby.icdc.io/api/v4/projects/10/packages/maven</url>
+				</repository>
+				<snapshotRepository>
+					<id>gitlab-maven</id>
+					<url>https://code.xby.icdc.io/api/v4/projects/10/packages/maven</url>
+				</snapshotRepository>
+			</distributionManagement>
+		</profile>
+
+		<profile>
+			<id>run-tests</id>
+
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-surefire-plugin</artifactId>
+							<version>${maven.surefire.plugin.version}</version>
+							<configuration>
+								<skip>false</skip>
+							</configuration>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+		<profile>
+			<id>notes-platform-repository</id>
+			<activation>
+				<property>
+					<name>notes-platform</name>
+				</property>
+			</activation>
+
+			<modules>
+				<module>example/jnx-example-domino-servlet</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>javadoc-java11</id>
+			<activation>
+				<jdk>[11,)</jdk>
+			</activation>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<configuration>
+							<javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>examples-java11</id>
+			<activation>
+				<jdk>[11,)</jdk>
+			</activation>
+
+			<modules>
+				<module>example/jnx-example-gluon</module>
+			</modules>
+		</profile>
+	</profiles>
+</project>

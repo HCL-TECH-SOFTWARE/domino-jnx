@@ -1,0 +1,7 @@
+<?xml version='1.0'?>
+<helpaboutdocument xmlns='http://www.lotus.com/dxl' version='12.0'
+ publicaccess='false' designerversion='8.5.3' default='true' renderpassthrough='true'>
+<body><richtext>
+<pardef id='1'/>
+<par def='1'>I'm about</par></richtext></body></helpaboutdocument>
+

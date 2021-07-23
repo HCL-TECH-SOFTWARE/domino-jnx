@@ -1,0 +1,50 @@
+<?xml version='1.0'?>
+<!--
+
+    ==========================================================================
+    Copyright (C) 2019-2021 HCL ( http://www.hcl.com/ )
+                               All rights reserved.
+    ==========================================================================
+    Licensed under the  Apache License, Version 2.0  (the "License").  You may
+    not use this file except in compliance with the License.  You may obtain a
+    copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+
+    Unless  required  by applicable  law or  agreed  to  in writing,  software
+    distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+    WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+    License for the  specific language  governing permissions  and limitations
+    under the License.
+    ==========================================================================
+
+-->
+<note class='document' xmlns='http://www.lotus.com/dxl' version='11.0' maintenanceversion='1.0'
+ replicaid='85257EF7006D0765'>
+<noteinfo noteid='57c6' unid='F41F9DD65559E93B852585B30059F787' sequence='2'>
+<created><datetime dst='true'>20200728T122240,71-04</datetime></created>
+<modified><datetime dst='true'>20200728T133538,64-04</datetime></modified>
+<revised><datetime dst='true'>20200728T133538,63-04</datetime></revised>
+<lastaccessed><datetime dst='true'>20200728T133538,63-04</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20200728T122322,12-04</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<revisions><datetime dst='true'>20200728T122322,12-04</datetime></revisions>
+<item name='Form'><text>Post</text></item>
+<item name='PostID'><text>F41F9DD65559E93B852585B30059F787</text></item>
+<item name='$$Creator' authors='true' names='true'><text>CN=Jesse Gallagher/O=IKSG</text></item>
+<item name='Posted'><datetime dst='true'>20200728T122240,08-04</datetime></item>
+<item name='$$Title'><text>CD Record test</text></item>
+<item name='Tags'><text/></item>
+<item name='Thread'><text/></item>
+<item name='Status'><text>Draft</text></item>
+<item name='Body'>
+<rawitemdata type='1'>
+gv9aAAEAAAAAAAAAAACgBQAAoAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAQAAAACUhwAAAAAAAAAAAAAAAAEAAAAEAAAAgwQBAIX/HAABAAAKVGhpcyBpcyBub3Jt
+YWwgdGV4dC6BAoMEAQCF/wgAAQAACoECgwQBAIX/HgAEAAAKVGhpcyBpcyBtb25vc3BhY2UgdGV4
+dIECgwQBAIX/CAABAAAKgQKDBAEAhf8mAAEDAApUaGlzIGlzIHNlcmlmIGl0YWxpYyBib2xkIHRl
+eHQ=
+</rawitemdata></item>
+<item name='name'><text>cd-record-test</text></item>
+<item name='Readers' names='true' readers='true'><textlist><text>CN=Jesse Gallagher/O=IKSG</text><text
+>[Admin]</text></textlist></item></note>
+
+

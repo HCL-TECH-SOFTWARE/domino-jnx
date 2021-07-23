@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<note class="filter" xmlns="http://www.lotus.com/dxl">
+  <item name="$FILE" seal="true" sign="true" summary="true">
+    <object>
+      <file compression="none" encoding="none" flags="sign"
+        hosttype="msdos" name="ImportedJavaAgentContent.class" size="205">
+        <created>
+          <datetime dst="true">20210617T140211,81-04</datetime>
+        </created>
+        <modified>
+          <datetime dst="true">20210617T140211,81-04</datetime>
+        </modified>
+        <filedata>
+yv66vgAAADQACQcAAgEANGNvbS9oY2wvZG9taW5vL2Rlc2lnbi9hZ2VudC9JbXBvcnRlZEphdmFB
+Z2VudENvbnRlbnQHAAQBABBqYXZhL2xhbmcvT2JqZWN0BwAGAQAoY29tL2hjbC9kb21pbm8vZGVz
+aWduL2FnZW50L0FnZW50Q29udGVudAEAClNvdXJjZUZpbGUBAB1JbXBvcnRlZEphdmFBZ2VudENv
+bnRlbnQuamF2YQYBAAEAAwABAAUAAAAAAAEABwAAAAIACA==
+</filedata>
+      </file>
+    </object>
+  </item>
+  <item name="$FILE" seal="true" sign="true" summary="true">
+    <object>
+      <file compression="none" encoding="none" flags="sign"
+        hosttype="msdos" name="JavaAgentContent.class" size="601">
+        <created>
+          <datetime dst="true">20210617T140211,81-04</datetime>
+        </created>
+        <modified>
+          <datetime dst="true">20210618T104217,66-04</datetime>
+        </modified>
+        <filedata>
+yv66vgAAADQAFgcAAgEALGNvbS9oY2wvZG9taW5vL2Rlc2lnbi9hZ2VudC9KYXZhQWdlbnRDb250
+ZW50BwAEAQAQamF2YS9sYW5nL09iamVjdAcABgEAKGNvbS9oY2wvZG9taW5vL2Rlc2lnbi9hZ2Vu
+dC9BZ2VudENvbnRlbnQBABBnZXRNYWluQ2xhc3NOYW1lAQAUKClMamF2YS9sYW5nL1N0cmluZzsB
+ABVnZXRDb2RlRmlsZXN5c3RlbVBhdGgBABdnZXRTb3VyY2VBdHRhY2htZW50TmFtZQEAF2dldE9i
+amVjdEF0dGFjaG1lbnROYW1lAQAaZ2V0UmVzb3VyY2VzQXR0YWNobWVudE5hbWUBABYoKUxqYXZh
+L3V0aWwvT3B0aW9uYWw7AQAJU2lnbmF0dXJlAQAqKClMamF2YS91dGlsL09wdGlvbmFsPExqYXZh
+L2xhbmcvU3RyaW5nOz47AQAPZ2V0RW1iZWRkZWRKYXJzAQASKClMamF2YS91dGlsL0xpc3Q7AQAm
+KClMamF2YS91dGlsL0xpc3Q8TGphdmEvbGFuZy9TdHJpbmc7PjsBABRnZXRTaGFyZWRMaWJyYXJ5
+TGlzdAEAClNvdXJjZUZpbGUBABVKYXZhQWdlbnRDb250ZW50LmphdmEGAQABAAMAAQAFAAAABwQB
+AAcACAAABAEACQAIAAAEAQAKAAgAAAQBAAsACAAABAEADAANAAEADgAAAAIADwQBABAAEQABAA4A
+AAACABIEAQATABEAAQAOAAAAAgASAAEAFAAAAAIAFQ==
+</filedata>
+      </file>
+    </object>
+  </item>
+  <item name="$FILE" seal="true" sign="true" summary="true">
+    <object>
+      <file compression="none" encoding="none" flags="sign"
+        hosttype="msdos" name="bar.txt" size="0">
+        <created>
+          <datetime dst="true">20210618T103951,14-04</datetime>
+        </created>
+        <modified>
+          <datetime dst="true">20210618T103951,14-04</datetime>
+        </modified>
+      </file>
+    </object>
+  </item>
+  <item name="$FILE" seal="true" sign="true" summary="true">
+    <object>
+      <file compression="none" encoding="none" flags="sign"
+        hosttype="msdos" name="foo.jar" size="424">
+        <created>
+          <datetime dst="true">20210618T100101,02-04</datetime>
+        </created>
+        <modified>
+          <datetime dst="true">20210618T100101,04-04</datetime>
+        </modified>
+        <filedata>
+UEsDBBQACAgIACBQ0lIAAAAAAAAAAAAAAAAJAAQATUVUQS1JTkYv/soAAAMAUEsHCAAAAAACAAAA
+AAAAAFBLAwQUAAgICAAgUNJSAAAAAAAAAAAAAAAAFAAAAE1FVEEtSU5GL01BTklGRVNULk1G803M
+y0xLLS7RDUstKs7Mz7NSMNQz4OVyLkpNLElN0XWqBAoARfQMDRU0HFPyC0r8C1LzvFy8NXm5eLkA
+UEsHCGqmpjE8AAAAPQAAAFBLAwQKAAAIAAAcUNJSAAAAAAAAAAAAAAAABwAAAGZvby50eHRQSwEC
+FAAUAAgICAAgUNJSAAAAAAIAAAAAAAAACQAEAAAAAAAAAAAAAAAAAAAATUVUQS1JTkYv/soAAFBL
+AQIUABQACAgIACBQ0lJqpqYxPAAAAD0AAAAUAAAAAAAAAAAAAAAAAD0AAABNRVRBLUlORi9NQU5J
+RkVTVC5NRlBLAQIKAAoAAAgAABxQ0lIAAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAAALsAAABmb28u
+dHh0UEsFBgAAAAADAAMAsgAAAOAAAAAAAA==
+</filedata>
+      </file>
+    </object>
+  </item>
+  <item name="$AssistVersion">
+    <datetime dst="true">20210618T110000,72-04</datetime>
+  </item>
+  <item name="$TITLE" sign="true">
+    <text>imported java agent</text>
+  </item>
+  <item name="$AssistType" sign="true">
+    <number>65427</number>
+  </item>
+  <item name="$AssistLastRun" sign="true">
+    <rawitemdata type="400">
+AAAAAAAAAAA=
+</rawitemdata>
+  </item>
+  <item name="$AssistDocCount" sign="true">
+    <number>0</number>
+  </item>
+  <item name="$FlagsExt" sign="true">
+    <text/>
+  </item>
+  <item name="$AssistFlags" sign="true">
+    <text>Es</text>
+  </item>
+  <item name="$AssistTrigger">
+    <text>4</text>
+  </item>
+  <item name="$AssistInfo" sign="true">
+    <rawitemdata type="11">
+AQAEAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+</rawitemdata>
+  </item>
+  <item name="$AssistQuery" sign="true">
+    <rawitemdata type="f">
+gQYAAAAA
+</rawitemdata>
+  </item>
+  <item name="$AssistAction" sign="true">
+    <rawitemdata type="10">
+gQKT/3oAHgADAEcAAAAAAAAAAABJbXBvcnRlZEphdmFBZ2VudENvbnRlbnQuY2xhc3NIOlxJbXBv
+cnRlZEphdmFBZ2VudENvbnRlbnQuY2xhc3MASmF2YUFnZW50Q29udGVudC5jbGFzcwBiYXIudHh0
+AGZvby5qYXIAAA==
+</rawitemdata>
+  </item>
+  <item name="$AssistAction_Ex" sign="true">
+    <rawitemdata type="14">
+gQI=
+</rawitemdata>
+  </item>
+  <item name="$Restricted" sign="true">
+    <number>1</number>
+  </item>
+  <item name="$Flags">
+    <text>f3J</text>
+  </item>
+  <item name="$AssistRunInfo" summary="true">
+    <rawitemdata type="3">
+BgABAAAACAD+EQAAAAAAAAUAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAACGZSAPiGJYUqeVAAt4YlhQAAAAAAAAAAAAAAAAAAAAAAAAAAyHXdMJiF
+PDsJzR0E4QTOmTo5bHYunsRlrh4pWySbsXJqm23PUGwD9SrjKlLwyeK16NqpyVHk3T3+NFZJfMq1
+mHRphoELu0/g0XlOJuUKqfZfkeitQnUXfvy6QtsVqvR2RCaFnET9YTOjOLs04ZnP9xEJcplchYf7
+kXmWrqhAxfBs6JYrEdrPamwOEVZNZrqcOTsf3L57EV1Qq6cx5WoMmhiQTkoBfr7vkghYUoxcjYWW
+TSUvqTiEmhaV1/3LzkMUGTRQj72zxMrBSJQtB4FNHBFtAtpppxEB2pS8b1Qmo/aVRA1pMsTpL5Li
+qoCLE3mGRKKvSKV0GPZiEsPu9ISbqPK1Sizt/4lw5liy6+kDAAMAHwAAAAAAAAAAAAAAAAAAAAAA
+AAAkRmlsZVNpemUAJEZpbGVEYXRhACRGaWxlTmFtZXMAvos+yqEn4P2/w4pmE/7RuQZmx9YJ0IHk
++yyWW9MnIGa6Rtq35z+hot/2m/Xn7VtgyS1t/3+3NnM1hnOTZDJSJyOyG8AgY+Z7ObZiiUie8wZg
+Uwhs1ZGIfYZMOzOKHIsoXPay4qNDpnJ8UqgErWsRxPsN5H67nW2gvgbIX30aeufxWr5Mgep9f4Rg
+KfNZJcci0D2Dmw9qTLb32nqFnGHRpK/NmEunB/dWplVnZGwLn6/wgJhLa/5rWuLsTLweaLMS2umq
+VuI4sIBJDUSKXsRz3DFnIftyasfjdIEAStl3IB/w3dKwkZ6DJtjYgX9MUPOkiOdSyMOaDYpq20u3
+kqRevJ/i1Ku553zt1Uk2gJ6EKBgCwPhSLef/jL3pw2SotNCXtGYwkPEv22FAD93AdsGkToZyTe8Q
+FdzlbEGMDRE7vT4XW+5auc6OXd71REpf2wCPVTEZ1ew4zvB3fYqNXaPO7RjRwnBwREOVR2ISLhYK
+7AyuLZ/2jLTl1pNqdvGk8yLZS5VmZr3erCj4qWSE84wKkFoJ9qKQP4b6fKXQeKVeGnaze+RHW3eY
+kSe7Gxji3upvt7aHs2W1JLnKaQhglnw+4gthf7hW9sJIaqMscthx2vdvbQocOTEWOvzAveN2gTNd
+vTX87arDfs50qr0vOYAJD/ppDAAMAJYAAAAAAAAAAAAAAAAAAAAAAAAAJFRJVExFACRBc3Npc3RU
+eXBlACRBc3Npc3RMYXN0UnVuACRBc3Npc3REb2NDb3VudAAkQ29tbWVudAAkRmxhZ3NFeHQAJEFz
+c2lzdEZsYWdzACRBc3Npc3RJ
+</rawitemdata>
+  </item>
+</note>

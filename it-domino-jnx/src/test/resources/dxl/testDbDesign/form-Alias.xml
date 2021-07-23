@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding='utf-8'?>
+<form name='Alias' xmlns='http://www.lotus.com/dxl' version='12.0'
+ hide='web' publicaccess='false' designerversion='8.5.3' renderpassthrough='true'>
+<code event='windowtitle'><formula
+>"Alias"</formula></code>
+<actionbar bgcolor='#d4d0c8' bordercolor='black'>
+<actionbuttonstyle bgcolor='#d4d0c8'/><font color='system'/><border style='solid'
+ width='0px 0px 1px'/>
+<action title='Delete' icon='4' hide='edit previewedit' align='right'><code
+ event='click'><formula>@Command([EditClear])</formula></code></action>
+<action title='Edit' icon='5' hide='edit previewedit'><code event='click'><formula
+>@Command([EditDocument])</formula></code><code event='hidewhen'><formula
+>@ToNumber(@UserAccess(@DbName; [AccessLevel])) &lt; 4 &amp; !(@Name([Abbreviate]; @UserName)=@Author)</formula></code></action>
+<action title='Save' hide='preview read'><imageref name='tango\document-save.gif'/><code
+ event='click'><formula>@If(
+	@ClientType="Web" | @IsValid; @Do(
+		@Command([FileSave]);
+		@Command([EditDocument])
+	);
+	""
+)</formula></code></action>
+<action title='Save and Close' hide='preview read'><imageref name='tango\system-log-out.gif'/><code
+ event='click'><formula>@If(
+	@ClientType="Web" | @IsValid; @Do(
+		@Command([FileSave]);
+		@Command([FileCloseWindow])
+	);
+	""
+)</formula></code></action></actionbar>
+<body><richtext>
+<pardef id='1'/>
+<par def='1'/>
+<par def='1'/>
+<table widthtype='fitmargins' colorstyle='left' bgcolor='#e1e1e1' altbgcolor='white'
+ rowspacing='0.0500in' columnspacing='0.0500in' refwidth='14.9688in'><tablecolumn
+ width='2in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='3' keepwithnext='true' keeptogether='true'/>
+<par def='3'>Host</par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='4' keepwithnext='true' keeptogether='true'/>
+<par def='4'><field type='text' allowmultivalues='true' kind='editable' name='Host'
+ listinputseparators='comma semicolon newline' listdisplayseparator='semicolon'
+ htmlid='host-id' htmlclass='host-class' htmlstyle='host: style' htmltitle='Name'
+ extrahtmlattrs='host="attr"'/><compositedata type='98' prevtype='65402' nexttype='222'
+ afterparcount='8' containertype='65418' aftercontainercount='2' afterbegincount='4'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='3'>From</par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='4'><run><font name='monospace'/><field type='text' kind='editable'
+ name='From' htmltitle='Name'/></run><compositedata type='98' prevtype='65402'
+ nexttype='222' afterparcount='7' containertype='65418' aftercontainercount='2'
+ afterbegincount='4'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='3'>To</par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='4'><run><font name='monospace'/><field type='text' kind='editable'
+ name='To' htmltitle='Owner'><code event='defaultvalue'><formula>@LowerCase(@ReplaceSubstring(Name; " ":"	":"'":"\""; "-"))</formula></code></field></run><compositedata
+ type='98' prevtype='65402' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='2' afterbegincount='4'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></tablecell></tablerow></table>
+<par def='1'/><subformref><code event='value'><formula>@If(@True; "Computed Target"; "Computed Target")</formula></code></subformref>
+<par def='1'/>
+<par def='1'/><subformref name='Footer'/>
+<pardef id='5' align='right'><code event='hidewhen'><formula>@IsNewDoc</formula></code></pardef>
+<par def='5'><field type='text' kind='computed' name='$$Title'><code event='defaultvalue'><formula
+>From + " -&gt; " + To</formula></code></field><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='8' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><field type='names' kind='computed' name='$$Creator'><code
+ event='defaultvalue'><formula>CreatedBy</formula></code></field></par></richtext></body>
+<item name='Date' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='Time' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='DateTime' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='$FormUsers'><text>[Admin]</text></item>
+<item name='$SubForm_RepIDs' sign='true'><textlist><text>0000000000000000</text><text
+>0000000000000000</text></textlist></item>
+<item name='$XPageAlt'><text>Project.xsp</text></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>Project</text></item>
+<item name='DateComposed' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='DateModified' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item></form>
+

@@ -1,0 +1,10 @@
+<?xml version='1.0' encoding='utf-8'?>
+<folder name='test folder' xmlns='http://www.lotus.com/dxl' version='12.0' showinmenu='false' noreplace='true' publicaccess='false' designerversion='8.5.3'
+	unreadmarks='none' onopengoto='lastopened' onrefresh='displayindicator' headers='beveled' opencollapsed='false' showresponsehierarchy='false' showmargin='false' shrinkrows='false'
+	extendlastcolumn='false' showhierarchies='false' unreadcolor='black' rowlinecount='1' headerlinecount='1' rowspacing='1' bgcolor='white' totalscolor='black' headerbgcolor='white'
+	boldunreadrows='false' evaluateactions='false' allownewdocuments='false' allowcustomizations='false' hidemarginborder='false' marginwidth='0px' marginbgcolor='white' uniquekeys='false'>
+	<column sort='descending' hidedetailrows='false' itemname='FirstName' width='10' resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'>
+		<columnheader title='First Name' />
+	</column>
+</folder>
+

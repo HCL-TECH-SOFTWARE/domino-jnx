@@ -1,0 +1,8 @@
+com.hcl.domino.commons.converters.PrimitiveArrayDocumentValueConverter
+com.hcl.domino.commons.converters.ObjectArrayDocumentValueConverter
+com.hcl.domino.commons.converters.BooleanDocumentValueConverter
+com.hcl.domino.commons.converters.ByteDocumentValueConverter
+com.hcl.domino.commons.converters.ShortDocumentValueConverter
+com.hcl.domino.commons.converters.FloatDocumentValueConverter
+com.hcl.domino.commons.converters.CharacterDocumentValueConverter
+com.hcl.domino.commons.converters.StructDocumentValueConverter

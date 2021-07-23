@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.hcl.domino</groupId>
+		<artifactId>domino-jnx</artifactId>
+		<version>1.0.28-SNAPSHOT</version>
+		<relativePath>../..</relativePath>
+	</parent>
+	<artifactId>jnx-example-webapp</artifactId>
+	<packaging>war</packaging>
+	<name>HCL Domino API Example Webapp</name>
+
+	<properties>
+		<liberty.env.Notes_ExecDirectory>${notes-program}</liberty.env.Notes_ExecDirectory>
+		<liberty.env.LD_LIBRARY_PATH>${notes-program}</liberty.env.LD_LIBRARY_PATH>
+		<liberty.env.DYLD_LIBRARY_PATH>${notes-program}</liberty.env.DYLD_LIBRARY_PATH>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>domino-jnx-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>domino-jnx-jsonb</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>domino-jnx-jakarta-security</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>jakarta.platform</groupId>
+			<artifactId>jakarta.jakartaee-api</artifactId>
+			<version>9.1.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>jakarta.mail</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>1.3.2</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>${project.artifactId}</finalName>
+
+		<plugins>
+			<plugin>
+				<groupId>io.openliberty.tools</groupId>
+				<artifactId>liberty-maven-plugin</artifactId>
+				<version>3.3.4</version>
+				<extensions>true</extensions>
+				<configuration>
+					<assemblyArtifact>
+						<groupId>io.openliberty.beta</groupId>
+						<artifactId>openliberty-runtime</artifactId>
+						<version>21.0.0.1-beta</version>
+					</assemblyArtifact>
+					<bootstrapProperties>
+						<httpPort>9680</httpPort>
+						<httpsPort>9643</httpsPort>
+						<exampleAppName>${project.build.finalName}</exampleAppName>
+					</bootstrapProperties>
+					<serverXmlFile>src/main/liberty/config/server.xml</serverXmlFile>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.3.1</version>
+
+				<configuration>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<profiles>
+		<profile>
+			<id>jna</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+
+			<dependencies>
+				<dependency>
+					<groupId>${project.groupId}</groupId>
+					<artifactId>domino-jnx-jna</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+			</dependencies>
+		</profile>
+	</profiles>
+</project>

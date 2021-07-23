@@ -1,0 +1,6 @@
+<?xml version='1.0'?>
+<dataconnection name='testconn' xmlns='http://www.lotus.com/dxl' version='12.0'
+ nocompose='true' designerversion='8.5.3' class='rdbms'
+ type='db2' database='heyhey' username='foo' password='$dc$261627' objectowner='foo'
+ objectname='bar' objecttype='table' blockkeyfieldupdates='true'>
+</dataconnection>

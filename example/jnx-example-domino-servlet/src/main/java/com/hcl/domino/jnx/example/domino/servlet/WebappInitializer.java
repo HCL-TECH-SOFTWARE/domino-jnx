@@ -1,0 +1,137 @@
+/*
+ * ==========================================================================
+ * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ *                            All rights reserved.
+ * ==========================================================================
+ * Licensed under the  Apache License, Version 2.0  (the "License").  You may
+ * not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+ *
+ * Unless  required  by applicable  law or  agreed  to  in writing,  software
+ * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the  specific language  governing permissions  and limitations
+ * under the License.
+ * ==========================================================================
+ */
+package com.hcl.domino.jnx.example.domino.servlet;
+
+import java.io.IOException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import javax.servlet.ServletException;
+
+import com.hcl.domino.DominoClient;
+import com.hcl.domino.DominoClientBuilder;
+import com.hcl.domino.DominoProcess;
+import com.hcl.domino.exception.ObjectDisposedException;
+import com.hcl.domino.mq.MessageQueue;
+import com.hcl.domino.server.ServerStatusLine;
+import com.ibm.designer.runtime.domino.adapter.ComponentModule;
+import com.ibm.designer.runtime.domino.adapter.HttpService;
+import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
+import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletRequestAdapter;
+import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdapter;
+import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
+
+public class WebappInitializer extends HttpService {
+	
+	public static final String MQ_NAME = "MQ$EXAMPLEAPP"; //$NON-NLS-1$
+	private DominoClient client;
+	private ExecutorService exec;
+	private MessageQueue mq;
+	private ServerStatusLine statusLine;
+	private int messageCount;
+
+	public WebappInitializer(LCDEnvironment env) {
+		super(env);
+		
+		try {
+			AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
+				System.setProperty("jnx.noinit", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+				System.setProperty("jnx.noterm", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+				return null;
+			});
+			
+			DominoProcess.get().initializeProcess(new String[0]);
+			this.client = DominoClientBuilder.newDominoClient().build();
+			this.exec = Executors.newCachedThreadPool(this.client.getThreadFactory());
+			this.exec.submit(() -> {
+				try {
+					this.statusLine = client.getServerAdmin().createServerStatusLine("ExampleApp");
+					this.statusLine.setLine("Waiting");
+					this.mq = client.getMessageQueues().createAndOpen(MQ_NAME, 0);
+					
+					System.out.println("JNX Example Webapp initialized. Use `tell exampleapp foo` to mirror messages");
+					
+					String message;
+					try {
+						while((message = this.mq.take()) != null) {
+							System.out.println("Received message " + message);
+							this.statusLine.setLine("Processed count: " + ++this.messageCount);
+						}
+					} catch (InterruptedException | ObjectDisposedException e) {
+						// This occurs during shutdown
+					}
+				} catch(Throwable t) {
+					t.printStackTrace();
+				}
+			});
+		} catch(Throwable t) {
+			t.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void refreshSettings() {
+		super.refreshSettings();
+	}
+	
+	@Override
+	public void destroyService() {
+		super.destroyService();
+		
+		try {
+			exec.submit(() -> {
+				try {
+					statusLine.close();
+					mq.close();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}).get();
+			this.exec.shutdownNow();
+			try {
+				this.exec.awaitTermination(1, TimeUnit.MINUTES);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			this.client.close();
+			DominoProcess.get().terminateProcess();
+		} catch(Throwable t) {
+			t.printStackTrace();
+		}
+	}
+
+	// *******************************************************************************
+	// * Stub service methods
+	// *******************************************************************************
+
+	@Override
+	public boolean doService(String arg0, String arg1, HttpSessionAdapter session, HttpServletRequestAdapter req,
+			HttpServletResponseAdapter resp) throws ServletException, IOException {
+		// NOP
+		return false;
+	}
+
+	@Override
+	public void getModules(List<ComponentModule> arg0) {
+		// NOP
+	}
+
+}
