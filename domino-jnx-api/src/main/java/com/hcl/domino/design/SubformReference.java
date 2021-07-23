@@ -18,37 +18,37 @@ package com.hcl.domino.design;
 
 /**
  * Represents a reference to a subform, either by name or by formula
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.24
  */
 public class SubformReference {
-	public enum Type {
-		EXPLICIT, FORMULA
-	}
-	
-	private final Type type;
-	private final String value;
-	
-	public SubformReference(Type type, String value) {
-		this.type = type;
-		this.value = value;
-	}
-	
-	/**
-	 * @return the type of the subform reference
-	 */
-	public Type getType() {
-		return type;
-	}
-	
-	/**
-	 * Retrieves the name or formula for the referenced subform, based on the value
-	 * of {@link #getType()}.
-	 * 
-	 * @return the name or formula for the referenced subform
-	 */
-	public String getValue() {
-		return value;
-	}
+  public enum Type {
+    EXPLICIT, FORMULA
+  }
+
+  private final Type type;
+  private final String value;
+
+  public SubformReference(final Type type, final String value) {
+    this.type = type;
+    this.value = value;
+  }
+
+  /**
+   * @return the type of the subform reference
+   */
+  public Type getType() {
+    return this.type;
+  }
+
+  /**
+   * Retrieves the name or formula for the referenced subform, based on the value
+   * of {@link #getType()}.
+   *
+   * @return the name or formula for the referenced subform
+   */
+  public String getValue() {
+    return this.value;
+  }
 }

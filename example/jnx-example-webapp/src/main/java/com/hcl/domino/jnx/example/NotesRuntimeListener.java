@@ -32,21 +32,21 @@ import jakarta.servlet.annotation.WebListener;
  */
 @WebListener
 public class NotesRuntimeListener implements ServletContextListener {
-	public static ExecutorService executor;
+  public static ExecutorService executor;
 
-	@Override
-	public void contextInitialized(ServletContextEvent sce) {
-		DominoProcess.get().initializeProcess(new String[0]);
-		executor = Executors.newCachedThreadPool(JNXThread::new);
-	}
+  @Override
+  public void contextDestroyed(final ServletContextEvent sce) {
+    NotesRuntimeListener.executor.shutdownNow();
+    try {
+      NotesRuntimeListener.executor.awaitTermination(1, TimeUnit.MINUTES);
+    } catch (final InterruptedException e) {
+    }
+    DominoProcess.get().terminateProcess();
+  }
 
-	@Override
-	public void contextDestroyed(ServletContextEvent sce) {
-		executor.shutdownNow();
-		try {
-			executor.awaitTermination(1, TimeUnit.MINUTES);
-		} catch (InterruptedException e) {
-		}
-		DominoProcess.get().terminateProcess();
-	}
+  @Override
+  public void contextInitialized(final ServletContextEvent sce) {
+    DominoProcess.get().initializeProcess(new String[0]);
+    NotesRuntimeListener.executor = Executors.newCachedThreadPool(JNXThread::new);
+  }
 }

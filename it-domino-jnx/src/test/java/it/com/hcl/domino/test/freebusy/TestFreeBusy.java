@@ -36,37 +36,36 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestFreeBusy extends AbstractNotesRuntimeTest {
-	public static final String FREEBUSY_USERS = "FREEBUSY_USERS"; //$NON-NLS-1$
+  public static final String FREEBUSY_USERS = "FREEBUSY_USERS"; //$NON-NLS-1$
 
-	@Test
-	@EnabledIfEnvironmentVariable(named = FREEBUSY_USERS, matches = ".+")
-	public void testFreeTimeSearch() {
-		String usersEnv = System.getenv(FREEBUSY_USERS);
-		
-		List<String> names = Arrays.asList(StringUtil.splitString(usersEnv, ','));
-		
-		DominoClient client = getClient();
-		TemporalAccessor from = Instant.now().minus(1, ChronoUnit.DAYS);
-		TemporalAccessor until = Instant.now().plus(3, ChronoUnit.DAYS);
-		
-		List<DominoDateRange> range = client.getFreeBusy().freeTimeSearch(null, null, false, from, until, 60, names);
-		System.out.println("Freetime received: " + range);
-	}
-	
-	@Test
-	@EnabledIfEnvironmentVariable(named = FREEBUSY_USERS, matches = ".+")
-	public void testReadSchedules() {
-		String usersEnv = System.getenv(FREEBUSY_USERS);
-		
-		List<String> names = Arrays.asList(StringUtil.splitString(usersEnv, ','));
-		
-		DominoClient client = getClient();
-		TemporalAccessor from = Instant.now().minus(1, ChronoUnit.DAYS);
-		TemporalAccessor until = Instant.now().plus(3, ChronoUnit.DAYS);
-		
-		Schedules schedules = client.getFreeBusy().retrieveSchedules(null, EnumSet.of(
-				ScheduleOptions.EACHPERSON
-				), from, until, names);
-		System.out.println("Schedules received: "+schedules);
-	}
+  @Test
+  @EnabledIfEnvironmentVariable(named = TestFreeBusy.FREEBUSY_USERS, matches = ".+")
+  public void testFreeTimeSearch() {
+    final String usersEnv = System.getenv(TestFreeBusy.FREEBUSY_USERS);
+
+    final List<String> names = Arrays.asList(StringUtil.splitString(usersEnv, ','));
+
+    final DominoClient client = this.getClient();
+    final TemporalAccessor from = Instant.now().minus(1, ChronoUnit.DAYS);
+    final TemporalAccessor until = Instant.now().plus(3, ChronoUnit.DAYS);
+
+    final List<DominoDateRange> range = client.getFreeBusy().freeTimeSearch(null, null, false, from, until, 60, names);
+    System.out.println("Freetime received: " + range);
+  }
+
+  @Test
+  @EnabledIfEnvironmentVariable(named = TestFreeBusy.FREEBUSY_USERS, matches = ".+")
+  public void testReadSchedules() {
+    final String usersEnv = System.getenv(TestFreeBusy.FREEBUSY_USERS);
+
+    final List<String> names = Arrays.asList(StringUtil.splitString(usersEnv, ','));
+
+    final DominoClient client = this.getClient();
+    final TemporalAccessor from = Instant.now().minus(1, ChronoUnit.DAYS);
+    final TemporalAccessor until = Instant.now().plus(3, ChronoUnit.DAYS);
+
+    final Schedules schedules = client.getFreeBusy().retrieveSchedules(null, EnumSet.of(
+        ScheduleOptions.EACHPERSON), from, until, names);
+    System.out.println("Schedules received: " + schedules);
+  }
 }

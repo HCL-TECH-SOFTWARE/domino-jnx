@@ -20,17 +20,19 @@ import com.hcl.domino.exception.FormulaCompilationException;
 import com.hcl.domino.misc.JNXServiceFinder;
 
 /**
- * This interface represents a service capable of compiling and decompiling formula
+ * This interface represents a service capable of compiling and decompiling
+ * formula
  * language code.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.15
  */
 public interface FormulaCompiler {
-	static FormulaCompiler get() {
-		return JNXServiceFinder.findRequiredService(FormulaCompiler.class, FormulaCompiler.class.getClassLoader());
-	}
-	
-	byte[] compile(String formula) throws FormulaCompilationException;
-	String decompile(byte[] compiledFormula);
+  static FormulaCompiler get() {
+    return JNXServiceFinder.findRequiredService(FormulaCompiler.class, FormulaCompiler.class.getClassLoader());
+  }
+
+  byte[] compile(String formula) throws FormulaCompilationException;
+
+  String decompile(byte[] compiledFormula);
 }

@@ -18,15 +18,15 @@ package com.hcl.domino.commons.design;
 
 /**
  * Contains Notes API constants used specifically for database design.
- * 
+ *
  * @since 1.0.18
  */
 public interface DesignConstants {
-	String DESIGNER_VERSION = "$DesignerVersion"; //$NON-NLS-1$
-	String DB_NEW_HTML = "$AllowPost8HTML"; //$NON-NLS-1$
-	
-	String VIEW_VIEW_FORMAT_ITEM = "$ViewFormat"; //$NON-NLS-1$
-	
-	String XPAGE_ALTERNATE = "$XPageAlt"; //$NON-NLS-1$
-	String XPAGE_ALTERNATE_CLIENT = "$XPageAltClient"; //$NON-NLS-1$
+  String DESIGNER_VERSION = "$DesignerVersion"; //$NON-NLS-1$
+  String DB_NEW_HTML = "$AllowPost8HTML"; //$NON-NLS-1$
+
+  String VIEW_VIEW_FORMAT_ITEM = "$ViewFormat"; //$NON-NLS-1$
+
+  String XPAGE_ALTERNATE = "$XPageAlt"; //$NON-NLS-1$
+  String XPAGE_ALTERNATE_CLIENT = "$XPageAltClient"; //$NON-NLS-1$
 }

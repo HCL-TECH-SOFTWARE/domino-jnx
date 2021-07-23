@@ -16,14 +16,11 @@
  */
 package com.hcl.domino.jna.test.utils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.time.temporal.ChronoField;
 import java.util.Date;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -36,30 +33,30 @@ import com.hcl.domino.jna.data.JNADominoDateTime;
 import com.hcl.domino.jna.test.AbstractJNARuntimeTest;
 
 public class TestNotesDateTimeUtils extends AbstractJNARuntimeTest {
-	// Tue Mar 17 13:39:40 EDT 2020
-	private static final long epochTime = 1584466780440l;
-	
-	public static class JavaUtilDatesProvider implements ArgumentsProvider {
-		@SuppressWarnings("deprecation")
-		@Override public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
-			return Stream.of(
-				new Date(epochTime),
-				new Date(1900-1900, 1-1, 1, 0, 0, 0),
-				new Date(1980-1900, 1-1, 1, 0, 0, 0)
-			).map(Arguments::of);
-		}
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(JavaUtilDatesProvider.class)
-	public void testRoundTripJavaUtilDateUtil(Date date) {
-		DominoDateTime dt = new JNADominoDateTime(date.getTime());
-		assertNotNull(dt);
-		assertEquals(date, Date.from(dt.toOffsetDateTime().toInstant()));
-		assertTrue(dt.toOffsetDateTime().get(ChronoField.YEAR) >= 1899);
+  public static class JavaUtilDatesProvider implements ArgumentsProvider {
+    @SuppressWarnings("deprecation")
+    @Override
+    public Stream<? extends Arguments> provideArguments(final ExtensionContext context) throws Exception {
+      return Stream.of(
+          new Date(TestNotesDateTimeUtils.epochTime),
+          new Date(1900 - 1900, 1 - 1, 1, 0, 0, 0),
+          new Date(1980 - 1900, 1 - 1, 1, 0, 0, 0)).map(Arguments::of);
+    }
+  }
 
-		DominoClient client = getClient();
-		DominoDateTime dt2 = client.createDateTime(date.toInstant());
-		assertEquals(dt, dt2);
-	}
+  // Tue Mar 17 13:39:40 EDT 2020
+  private static final long epochTime = 1584466780440l;
+
+  @ParameterizedTest
+  @ArgumentsSource(JavaUtilDatesProvider.class)
+  public void testRoundTripJavaUtilDateUtil(final Date date) {
+    final DominoDateTime dt = new JNADominoDateTime(date.getTime());
+    Assertions.assertNotNull(dt);
+    Assertions.assertEquals(date, Date.from(dt.toOffsetDateTime().toInstant()));
+    Assertions.assertTrue(dt.toOffsetDateTime().get(ChronoField.YEAR) >= 1899);
+
+    final DominoClient client = this.getClient();
+    final DominoDateTime dt2 = client.createDateTime(date.toInstant());
+    Assertions.assertEquals(dt, dt2);
+  }
 }

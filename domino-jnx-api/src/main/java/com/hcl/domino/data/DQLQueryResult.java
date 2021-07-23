@@ -20,29 +20,29 @@ import java.util.Optional;
 
 public abstract class DQLQueryResult implements DbQueryResult<DQLQueryResult> {
 
-	/**
-	 * Returns the DQL query string
-	 * 
-	 * @return DQL query
-	 */
-	public abstract String getQuery();
-	
-	@Override
-	public abstract Optional<IDTable> getNoteIds();
-	
-	/**
-	 * Returns the explain text if {@link DBQuery#EXPLAIN} was specified as
-	 * query option
-	 * 
-	 * @return explain text or empty string
-	 */
-	public abstract String getExplainText();
-	
-	/**
-	 * Returns the number of milliseconds it took to compute the result
-	 * 
-	 * @return duration
-	 */
-	public abstract long getDurationInMillis();
-	
+  /**
+   * Returns the number of milliseconds it took to compute the result
+   *
+   * @return duration
+   */
+  public abstract long getDurationInMillis();
+
+  /**
+   * Returns the explain text if {@link DBQuery#EXPLAIN} was specified as
+   * query option
+   *
+   * @return explain text or empty string
+   */
+  public abstract String getExplainText();
+
+  @Override
+  public abstract Optional<IDTable> getNoteIds();
+
+  /**
+   * Returns the DQL query string
+   *
+   * @return DQL query
+   */
+  public abstract String getQuery();
+
 }

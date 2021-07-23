@@ -32,31 +32,32 @@ import com.hcl.domino.richtext.process.GetImageResourceSizeProcessor;
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public abstract class AbstractNamedFileElement<T extends NamedFileElement> extends AbstractNamedDesignElement<T> implements NamedFileElement {
+public abstract class AbstractNamedFileElement<T extends NamedFileElement> extends AbstractNamedDesignElement<T>
+    implements NamedFileElement {
 
-	public AbstractNamedFileElement(Document doc) {
-		super(doc);
-	}
+  public AbstractNamedFileElement(final Document doc) {
+    super(doc);
+  }
 
-	@Override
-	public List<String> getFileNames() {
-		return getDocument().getAsList(NotesConstants.ITEM_NAME_FILE_NAMES, String.class, Collections.emptyList());
-	}
+  @Override
+  public InputStream getFileData() {
+    return GetFileResourceStreamProcessor.instance.apply(this.getDocument().getRichTextItem(NotesConstants.ITEM_NAME_FILE_DATA));
+  }
 
-	@Override
-	public InputStream getFileData() {
-		return GetFileResourceStreamProcessor.instance.apply(getDocument().getRichTextItem(NotesConstants.ITEM_NAME_FILE_DATA));
-	}
+  @Override
+  public DominoDateTime getFileModified() {
+    final Document doc = this.getDocument();
+    return doc.get(NotesConstants.ITEM_NAME_FILE_MODINFO, DominoDateTime.class, doc.getLastModified());
+  }
 
-	@Override
-	public long getFileSize() {
-		return GetImageResourceSizeProcessor.instance.apply(getDocument().getRichTextItem(NotesConstants.ITEM_NAME_IMAGE_DATA));
-	}
-	
-	@Override
-	public DominoDateTime getFileModified() {
-		Document doc = getDocument();
-		return doc.get(NotesConstants.ITEM_NAME_FILE_MODINFO, DominoDateTime.class, doc.getLastModified());
-	}
+  @Override
+  public List<String> getFileNames() {
+    return this.getDocument().getAsList(NotesConstants.ITEM_NAME_FILE_NAMES, String.class, Collections.emptyList());
+  }
+
+  @Override
+  public long getFileSize() {
+    return GetImageResourceSizeProcessor.instance.apply(this.getDocument().getRichTextItem(NotesConstants.ITEM_NAME_IMAGE_DATA));
+  }
 
 }

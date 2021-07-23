@@ -22,19 +22,21 @@ import com.hcl.domino.misc.INumberEnum;
  * @since 1.0.18
  */
 public enum DatabaseEncryptionState implements INumberEnum<Integer> {
-	UNENCRYPTED(0), ENCRYPTED(1), PENDING_ENCRYPTION(2);
-	
-	private final int value;
-	DatabaseEncryptionState(int value) {
-		this.value = value;
-	}
-	
-	@Override
-	public Integer getValue() {
-		return value;
-	}
-	@Override
-	public long getLongValue() {
-		return value;
-	}
+  UNENCRYPTED(0), ENCRYPTED(1), PENDING_ENCRYPTION(2);
+
+  private final int value;
+
+  DatabaseEncryptionState(final int value) {
+    this.value = value;
+  }
+
+  @Override
+  public long getLongValue() {
+    return this.value;
+  }
+
+  @Override
+  public Integer getValue() {
+    return this.value;
+  }
 }

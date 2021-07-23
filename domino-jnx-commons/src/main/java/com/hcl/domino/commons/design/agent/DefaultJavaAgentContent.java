@@ -28,76 +28,76 @@ import com.hcl.domino.design.agent.JavaAgentContent;
  * @since 1.0.24
  */
 public class DefaultJavaAgentContent implements JavaAgentContent {
-	private final String mainClassName;
-	private final String codeFilesystemPath;
-	private final Optional<String> sourceAttachmentName;
-	private final Optional<String> objectAttachmentName;
-	private final Optional<String> resourcesAttachmentName;
-	private final List<String> embeddedJars;
-	private final List<String> sharedLibraryList;
-	
-	public DefaultJavaAgentContent(String mainClassName, String codeFilesystemPath, List<String> javaClassFileList,
-			List<String> sharedLibraryList) {
-		this.mainClassName = mainClassName;
-		this.codeFilesystemPath = codeFilesystemPath;
-		
-		// javaClassFileList will be a list of attachment names
-		if(javaClassFileList.size() > 0) {
-			this.sourceAttachmentName = Optional.of(javaClassFileList.get(0));
-		} else {
-			this.sourceAttachmentName = Optional.empty();
-		}
-		if(javaClassFileList.size() > 1) {
-			this.objectAttachmentName = Optional.of(javaClassFileList.get(1));
-		} else {
-			this.objectAttachmentName = Optional.empty();
-		}
-		if(javaClassFileList.size() > 2) {
-			this.resourcesAttachmentName = Optional.of(javaClassFileList.get(2));
-		} else {
-			this.resourcesAttachmentName = Optional.empty();
-		}
-		if(javaClassFileList.size() > 3) {
-			this.embeddedJars = Collections.unmodifiableList(javaClassFileList.subList(3, javaClassFileList.size()));
-		} else {
-			this.embeddedJars = Collections.emptyList();
-		}
-		
-		this.sharedLibraryList = Collections.unmodifiableList(new ArrayList<>(sharedLibraryList));
-	}
+  private final String mainClassName;
+  private final String codeFilesystemPath;
+  private final Optional<String> sourceAttachmentName;
+  private final Optional<String> objectAttachmentName;
+  private final Optional<String> resourcesAttachmentName;
+  private final List<String> embeddedJars;
+  private final List<String> sharedLibraryList;
 
-	@Override
-	public String getMainClassName() {
-		return mainClassName;
-	}
+  public DefaultJavaAgentContent(final String mainClassName, final String codeFilesystemPath, final List<String> javaClassFileList,
+      final List<String> sharedLibraryList) {
+    this.mainClassName = mainClassName;
+    this.codeFilesystemPath = codeFilesystemPath;
 
-	@Override
-	public String getCodeFilesystemPath() {
-		return codeFilesystemPath;
-	}
+    // javaClassFileList will be a list of attachment names
+    if (javaClassFileList.size() > 0) {
+      this.sourceAttachmentName = Optional.of(javaClassFileList.get(0));
+    } else {
+      this.sourceAttachmentName = Optional.empty();
+    }
+    if (javaClassFileList.size() > 1) {
+      this.objectAttachmentName = Optional.of(javaClassFileList.get(1));
+    } else {
+      this.objectAttachmentName = Optional.empty();
+    }
+    if (javaClassFileList.size() > 2) {
+      this.resourcesAttachmentName = Optional.of(javaClassFileList.get(2));
+    } else {
+      this.resourcesAttachmentName = Optional.empty();
+    }
+    if (javaClassFileList.size() > 3) {
+      this.embeddedJars = Collections.unmodifiableList(javaClassFileList.subList(3, javaClassFileList.size()));
+    } else {
+      this.embeddedJars = Collections.emptyList();
+    }
 
-	@Override
-	public Optional<String> getSourceAttachmentName() {
-		return sourceAttachmentName;
-	}
+    this.sharedLibraryList = Collections.unmodifiableList(new ArrayList<>(sharedLibraryList));
+  }
 
-	@Override
-	public Optional<String> getObjectAttachmentName() {
-		return objectAttachmentName;
-	}
+  @Override
+  public String getCodeFilesystemPath() {
+    return this.codeFilesystemPath;
+  }
 
-	@Override
-	public Optional<String> getResourcesAttachmentName() {
-		return resourcesAttachmentName;
-	}
+  @Override
+  public List<String> getEmbeddedJars() {
+    return this.embeddedJars;
+  }
 
-	@Override
-	public List<String> getEmbeddedJars() {
-		return embeddedJars;
-	}
+  @Override
+  public String getMainClassName() {
+    return this.mainClassName;
+  }
 
-	@Override
-	public List<String> getSharedLibraryList() {
-		return sharedLibraryList;
-	}
+  @Override
+  public Optional<String> getObjectAttachmentName() {
+    return this.objectAttachmentName;
+  }
+
+  @Override
+  public Optional<String> getResourcesAttachmentName() {
+    return this.resourcesAttachmentName;
+  }
+
+  @Override
+  public List<String> getSharedLibraryList() {
+    return this.sharedLibraryList;
+  }
+
+  @Override
+  public Optional<String> getSourceAttachmentName() {
+    return this.sourceAttachmentName;
+  }
 }

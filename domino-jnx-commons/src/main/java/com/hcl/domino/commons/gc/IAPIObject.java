@@ -22,8 +22,9 @@ import com.hcl.domino.misc.DominoClientDescendant;
 @SuppressWarnings("rawtypes")
 public interface IAPIObject<ALLOCATIONSTYPE extends APIObjectAllocations> extends IAdaptable, DominoClientDescendant {
 
-	IAPIObject getParent();
-	
-	@Override IGCDominoClient getParentDominoClient();
-	
+  IAPIObject getParent();
+
+  @Override
+  IGCDominoClient getParentDominoClient();
+
 }

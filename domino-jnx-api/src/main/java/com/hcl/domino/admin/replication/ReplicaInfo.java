@@ -26,115 +26,118 @@ import com.hcl.domino.data.IAdaptable;
 
 public interface ReplicaInfo extends IAdaptable {
 
-	/**
-	 * Returns the database this replica info belongs to
-	 * 
-	 * @return parent database
-	 */
-	Database getParentDatabase();
-	
-	/**
-	 * Returns the replication ID which is same for all replica files
-	 * 
-	 * @return ID
-	 */
-	DominoDateTime getReplicaIDAsDate();
-	
-	/**
-	 * Sets the replication ID which is same for all replica files
-	 * 
-	 * @param newID new ID
-	 */
-	void setReplicaIDAsDate(TemporalAccessor newID);
-	
-	/**
-	 * Checks if the database design is hidden
-	 * 
-	 * @return true if hidden
-	 */
-	boolean isDesignHidden();
-	
-	/**
-	 * Automatic Replication Cutoff Interval (Days)
-	 * 
-	 * @return interval
-	 */
-	int getCutOffInterval();
-	
-	/**
-	 * Sets the Automatic Replication Cutoff Interval (Days)
-	 * 
-	 * @param interval (WORD)
-	 */
-	void setCutOffInterval(int interval);
-	
-	/**
-	 * Replication cutoff date
-	 * 
-	 * @return an {@link Optional} describing the cutoff date if set, or an empty one otherwise
-	 */
-	Optional<DominoDateTime> getCutOff();
-	
-	/**
-	 * Sets the new cutoff date
-	 * 
-	 * @param cutOff date
-	 */
-	void setCutOff(TemporalAccessor cutOff);
+  public enum Priority {
+    LOW, MEDIUM, HIGH
+  }
 
-	/**
-	 * Returns the replica ID as hex encoded string with 16 characters
-	 * 
-	 * @return replica id
-	 */
-	String getReplicaID();
-	
-	/**
-	 * Method to set the replica ID as hex encoded string with 16 characters
-	 * 
-	 * @param replicaId new replica id, either 16 characters of 8:8 format
-	 */
-	void setReplicaID(String replicaId);
-	
-	/**
-	 * Computes a new replica id and calls {@link #setReplicaID(String)}
-	 * 
-	 * @return the new replica id
-	 */
-	String setNewReplicaId();
+  /**
+   * Replication cutoff date
+   *
+   * @return an {@link Optional} describing the cutoff date if set, or an empty
+   *         one otherwise
+   */
+  Optional<DominoDateTime> getCutOff();
 
-	Set<ReplicationFlags> getReplicationFlags();
-	
-	/**
-	 * Returns true if a replication flag is set
-	 * 
-	 * @param flag flag
-	 * @return true if set
-	 */
-	boolean isReplicationFlagSet(ReplicationFlags flag);
-	
-	/**
-	 * Method to change a replication flag
-	 * 
-	 * @param flag flag to change
-	 * @param on new flag value (on or off)
-	 */
-	void setReplicationFlag(ReplicationFlags flag, boolean on);
-	
-	public enum Priority {LOW, MEDIUM, HIGH}
-	
-	/**
-	 * Reads the current replication priority
-	 * 
-	 * @return priority
-	 */
-	Priority getPriority();
-	
-	/**
-	 * Changes the replication priority
-	 * 
-	 * @param priority new priority
-	 */
-	void setPriority(Priority priority);
-	
+  /**
+   * Automatic Replication Cutoff Interval (Days)
+   *
+   * @return interval
+   */
+  int getCutOffInterval();
+
+  /**
+   * Returns the database this replica info belongs to
+   *
+   * @return parent database
+   */
+  Database getParentDatabase();
+
+  /**
+   * Reads the current replication priority
+   *
+   * @return priority
+   */
+  Priority getPriority();
+
+  /**
+   * Returns the replica ID as hex encoded string with 16 characters
+   *
+   * @return replica id
+   */
+  String getReplicaID();
+
+  /**
+   * Returns the replication ID which is same for all replica files
+   *
+   * @return ID
+   */
+  DominoDateTime getReplicaIDAsDate();
+
+  Set<ReplicationFlags> getReplicationFlags();
+
+  /**
+   * Checks if the database design is hidden
+   *
+   * @return true if hidden
+   */
+  boolean isDesignHidden();
+
+  /**
+   * Returns true if a replication flag is set
+   *
+   * @param flag flag
+   * @return true if set
+   */
+  boolean isReplicationFlagSet(ReplicationFlags flag);
+
+  /**
+   * Sets the new cutoff date
+   *
+   * @param cutOff date
+   */
+  void setCutOff(TemporalAccessor cutOff);
+
+  /**
+   * Sets the Automatic Replication Cutoff Interval (Days)
+   *
+   * @param interval (WORD)
+   */
+  void setCutOffInterval(int interval);
+
+  /**
+   * Computes a new replica id and calls {@link #setReplicaID(String)}
+   *
+   * @return the new replica id
+   */
+  String setNewReplicaId();
+
+  /**
+   * Changes the replication priority
+   *
+   * @param priority new priority
+   */
+  void setPriority(Priority priority);
+
+  /**
+   * Method to set the replica ID as hex encoded string with 16 characters
+   *
+   * @param replicaId new replica id, either 16 characters of 8:8 format
+   */
+  void setReplicaID(String replicaId);
+
+  /**
+   * Sets the replication ID which is same for all replica files
+   *
+   * @param newID new ID
+   */
+  void setReplicaIDAsDate(TemporalAccessor newID);
+
+  /**
+   * Method to change a replication flag
+   *
+   * @param flag flag to change
+   * @param on   new flag value (on or off)
+   */
+  void setReplicationFlag(ReplicationFlags flag, boolean on);
+
 }

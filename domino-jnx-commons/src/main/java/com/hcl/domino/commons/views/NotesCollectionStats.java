@@ -17,36 +17,37 @@
 package com.hcl.domino.commons.views;
 
 /**
- * If requested, this structure is returned by {@code DominoCollection#readEntries}
+ * If requested, this structure is returned by
+ * {@code DominoCollection#readEntries}
  * at the front of the returned information buffer.<br>
  * The structure describes statistics about the overall collection.
- * 
+ *
  * @author Karsten Lehmann
  */
 public class NotesCollectionStats {
-	private int m_topLevelEntries;
-	private int m_lastModifiedTime;
-	
-	public NotesCollectionStats(int topLevelEntries, int lastModifiedTime) {
-		m_topLevelEntries = topLevelEntries;
-		m_lastModifiedTime = lastModifiedTime;
-	}
-	
-	/**
-	 * # top level entries (level 0)
-	 * 
-	 * @return entries
-	 */
-	public int getTopLevelEntries() {
-		return m_topLevelEntries;
-	}
-	
-	/**
-	 * Currently not used in the C API
-	 * 
-	 * @return 0
-	 */
-	public int getLastModifiedTime() {
-		return m_lastModifiedTime;
-	}
+  private final int m_topLevelEntries;
+  private final int m_lastModifiedTime;
+
+  public NotesCollectionStats(final int topLevelEntries, final int lastModifiedTime) {
+    this.m_topLevelEntries = topLevelEntries;
+    this.m_lastModifiedTime = lastModifiedTime;
+  }
+
+  /**
+   * Currently not used in the C API
+   * 
+   * @return 0
+   */
+  public int getLastModifiedTime() {
+    return this.m_lastModifiedTime;
+  }
+
+  /**
+   * # top level entries (level 0)
+   * 
+   * @return entries
+   */
+  public int getTopLevelEntries() {
+    return this.m_topLevelEntries;
+  }
 }

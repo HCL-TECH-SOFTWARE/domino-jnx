@@ -31,63 +31,73 @@ import jakarta.mail.MessagingException;
  */
 public interface MimeWriter {
 
-	/**
-	 * Used to specify which part of the MIME content should be itemized into the document
-	 */
-	public enum WriteMimeDataType {
-		/** write the MIME header (e.g. Subject:, To: etc.) */
-		HEADERS,
-		/** write the MIME body parts */
-		BODY,
-		/** don't delete attachment during itemization. */
-		NO_DELETE_ATTACHMENTS
-	}
-	
-	/**
-	 * Writes the content of a {@link Message} to a document.
-	 * 
-	 * <p>Note: to write the body of the message, the document must be in a database where the current
-	 * user has at least Author rights.</p>
-	 * 
-	 * @param doc target document
-	 * @param itemName name of item used for the MIME data (e.g. "body")
-	 * @param mimeMessage MIME message to write
-	 * @param dataType itemize flags (write header, body or both)
-	 * @throws IOException in case of I/O errors
-	 * @throws MessagingException in case of errors accessing the {@link Message}
-	 */
-	void writeMime(Document doc, String itemName, Message mimeMessage, Set<WriteMimeDataType> dataType) throws IOException, MessagingException;
-	
-	/**
-	 * Writes raw MIME content to a document.
-	 * 
-	 * <p>Note: to write the body of the message, the document must be in a database where the current
-	 * user has at least Author rights.</p>
-	 * 
-	 * @param doc target document
-	 * @param itemName name of item used for the MIME data (e.g. "body")
-	 * @param reader reader used to read the MIME content
-	 * @param dataType itemize flags (write header, body or both)
-	 * @throws IOException in case of I/O errors
-	 */
-	void writeMime(Document doc, String itemName, Reader reader, Set<WriteMimeDataType> dataType) throws IOException;
-	
-	/**
-	 * Creates a new {@link RichTextMimeConversionSettings} with system default settings.
-	 * 
-	 * @return conversion settings
-	 */
-	RichTextMimeConversionSettings createRichTextMimeConversionSettings();
-	
-	/**
-	 * This function converts all rich text items (type {@link ItemDataType#TYPE_COMPOSITE}) in the
-	 * document to MIME items (type {@link ItemDataType#TYPE_MIME_PART}).<br>
-	 * <br>
-	 * It does not update the database; to update the database, save the document.<br>
-	 * 
-	 * @param doc document to convert
-	 * @param convertSettings settings to control the conversion process or null to use the system default
-	 */
-	void convertToMime(Document doc, RichTextMimeConversionSettings convertSettings);
-	
+  /**
+   * Used to specify which part of the MIME content should be itemized into the
+   * document
+   */
+  public enum WriteMimeDataType {
+    /** write the MIME header (e.g. Subject:, To: etc.) */
+    HEADERS,
+    /** write the MIME body parts */
+    BODY,
+    /** don't delete attachment during itemization. */
+    NO_DELETE_ATTACHMENTS
+  }
+
+  /**
+   * This function converts all rich text items (type
+   * {@link ItemDataType#TYPE_COMPOSITE}) in the
+   * document to MIME items (type {@link ItemDataType#TYPE_MIME_PART}).<br>
+   * <br>
+   * It does not update the database; to update the database, save the
+   * document.<br>
+   *
+   * @param doc             document to convert
+   * @param convertSettings settings to control the conversion process or null to
+   *                        use the system default
+   */
+  void convertToMime(Document doc, RichTextMimeConversionSettings convertSettings);
+
+  /**
+   * Creates a new {@link RichTextMimeConversionSettings} with system default
+   * settings.
+   *
+   * @return conversion settings
+   */
+  RichTextMimeConversionSettings createRichTextMimeConversionSettings();
+
+  /**
+   * Writes the content of a {@link Message} to a document.
+   * <p>
+   * Note: to write the body of the message, the document must be in a database
+   * where the current
+   * user has at least Author rights.
+   * </p>
+   *
+   * @param doc         target document
+   * @param itemName    name of item used for the MIME data (e.g. "body")
+   * @param mimeMessage MIME message to write
+   * @param dataType    itemize flags (write header, body or both)
+   * @throws IOException        in case of I/O errors
+   * @throws MessagingException in case of errors accessing the {@link Message}
+   */
+  void writeMime(Document doc, String itemName, Message mimeMessage, Set<WriteMimeDataType> dataType)
+      throws IOException, MessagingException;
+
+  /**
+   * Writes raw MIME content to a document.
+   * <p>
+   * Note: to write the body of the message, the document must be in a database
+   * where the current
+   * user has at least Author rights.
+   * </p>
+   *
+   * @param doc      target document
+   * @param itemName name of item used for the MIME data (e.g. "body")
+   * @param reader   reader used to read the MIME content
+   * @param dataType itemize flags (write header, body or both)
+   * @throws IOException in case of I/O errors
+   */
+  void writeMime(Document doc, String itemName, Reader reader, Set<WriteMimeDataType> dataType) throws IOException;
+
 }

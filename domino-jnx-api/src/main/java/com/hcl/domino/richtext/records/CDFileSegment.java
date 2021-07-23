@@ -25,50 +25,48 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.LSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.15
  */
-@StructureDefinition(
-	name="CDFILESEGMENT",
-	members={
-		@StructureMember(name="Header", type=LSIG.class),
-		@StructureMember(name="DataSize", type=short.class, unsigned=true),
-		@StructureMember(name="SegSize", type=short.class, unsigned=true),
-		@StructureMember(name="Flags", type=int.class),
-		@StructureMember(name="Reserved", type=int.class)
-	}
-)
+@StructureDefinition(name = "CDFILESEGMENT", members = {
+    @StructureMember(name = "Header", type = LSIG.class),
+    @StructureMember(name = "DataSize", type = short.class, unsigned = true),
+    @StructureMember(name = "SegSize", type = short.class, unsigned = true),
+    @StructureMember(name = "Flags", type = int.class),
+    @StructureMember(name = "Reserved", type = int.class)
+})
 public interface CDFileSegment extends RichTextRecord<LSIG> {
-	@StructureGetter("Header")
-	@Override
-	LSIG getHeader();
-	
-	@StructureGetter("DataSize")
-	int getDataSize();
-	@StructureSetter("DataSize")
-	CDFileSegment setDataSize(int dataSize);
-	
-	@StructureGetter("SegSize")
-	int getSegSize();
-	@StructureSetter("SegSize")
-	CDFileSegment setSegSize(int segSize);
-	
-	default byte[] getFileSegmentData() {
-		ByteBuffer buf = getVariableData();
-		int len = getDataSize();
-		byte[] data = new byte[len];
-		buf.get(data);
-		return data;
-	}
-	
-	default CDFileSegment setFileSegmentData(byte[] data) {
-		ByteBuffer buf = getVariableData();
-		buf.put(data);
-		int remaining = buf.remaining();
-		for(int i = 0; i < remaining; i++) {
-			buf.put((byte)0);
-		}
-		return this;
-	}
+  @StructureGetter("DataSize")
+  int getDataSize();
+
+  default byte[] getFileSegmentData() {
+    final ByteBuffer buf = this.getVariableData();
+    final int len = this.getDataSize();
+    final byte[] data = new byte[len];
+    buf.get(data);
+    return data;
+  }
+
+  @StructureGetter("Header")
+  @Override
+  LSIG getHeader();
+
+  @StructureGetter("SegSize")
+  int getSegSize();
+
+  @StructureSetter("DataSize")
+  CDFileSegment setDataSize(int dataSize);
+
+  default CDFileSegment setFileSegmentData(final byte[] data) {
+    final ByteBuffer buf = this.getVariableData();
+    buf.put(data);
+    final int remaining = buf.remaining();
+    for (int i = 0; i < remaining; i++) {
+      buf.put((byte) 0);
+    }
+    return this;
+  }
+
+  @StructureSetter("SegSize")
+  CDFileSegment setSegSize(int segSize);
 }

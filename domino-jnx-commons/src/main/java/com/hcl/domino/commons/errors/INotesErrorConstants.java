@@ -40,11 +40,11 @@ import com.hcl.domino.commons.errors.errorcodes.IXmlErr;
 
 /**
  * Notes/Domino R9 error codes and messages
- * 
+ *
  * @author Karsten Lehmann
  */
 public interface INotesErrorConstants extends IAgntsErr, IBsafeErr, IClErr, IDbdrvErr, IDirErr,
-IEventErr, IFtErr, IGlobalErr, IHtmlErr, IMailMiscErr, IMiscErr, INetErr, INifErr, INsfErr, IOdsErr,
-IOsErr, IRegErr, IRouteErr, ISecErr, ISrvErr, IXmlErr {
+    IEventErr, IFtErr, IGlobalErr, IHtmlErr, IMailMiscErr, IMiscErr, INetErr, INifErr, INsfErr, IOdsErr,
+    IOsErr, IRegErr, IRouteErr, ISecErr, ISrvErr, IXmlErr {
 
 }

@@ -16,25 +16,25 @@
  */
 package com.hcl.domino.jna.test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.Assertions;
 
 import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.security.Acl;
 
 @SuppressWarnings("nls")
 public class TestAclJna extends AbstractJNARuntimeTest {
-	
-//	@Test
-	public void testWriteAdminServer() throws Exception {
-		withTempDb((database) -> {
-			Acl acl=database.getACL();
-			
-			String newName=NotesNamingUtils.toCanonicalName("Server2/Mindoo");
-			
-			acl.setAdminServer(newName);
-			
-			assertEquals(newName, acl.getAdminServer(), "Changed admin server did not match the new name");
-		});
-	}
+
+  // @Test
+  public void testWriteAdminServer() throws Exception {
+    this.withTempDb(database -> {
+      final Acl acl = database.getACL();
+
+      final String newName = NotesNamingUtils.toCanonicalName("Server2/Mindoo");
+
+      acl.setAdminServer(newName);
+
+      Assertions.assertEquals(newName, acl.getAdminServer(), "Changed admin server did not match the new name");
+    });
+  }
 
 }

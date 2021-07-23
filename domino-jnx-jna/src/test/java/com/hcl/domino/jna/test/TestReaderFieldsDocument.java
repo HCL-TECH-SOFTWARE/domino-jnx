@@ -16,15 +16,13 @@
  */
 package com.hcl.domino.jna.test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
@@ -36,81 +34,81 @@ import com.hcl.domino.data.Item.ItemFlag;
 @SuppressWarnings("nls")
 public class TestReaderFieldsDocument extends AbstractJNARuntimeTest {
 
+  private boolean allItemsMatching(final List<Item> expected, final List<Item> actual) {
+    if (expected.size() != actual.size()) {
+      return false;
+    }
 
-	@Test
-	public void testHasReaderFields() throws IOException {
-		DominoClient client = getClient();
+    for (int i = 0; i < actual.size(); i++) {
+      if (!actual.get(i).getName().equals(expected.get(i).getName())) {
+        return false;
+      }
+    }
+    return true;
+  }
 
-		Database dbFakenames = client.openDatabase("", "log.nsf");
-		Document doc = dbFakenames.createDocument();
+  @Test
+  public void testGetAllReaderFields() throws IOException {
+    final DominoClient client = this.getClient();
 
-		{
-			doc.appendItemValue("rf_test_field", new HashSet<ItemFlag>(Arrays.asList(ItemFlag.READERS)), "anonymous");
-			
-			assertEquals(true, doc.hasReadersField(), "Testing for reader-field ok");
-		}
-	}
+    final Database dbFakenames = client.openDatabase("", "log.nsf");
+    final Document doc = dbFakenames.createDocument();
 
-	@Test
-	public void testHasNoReaderFields() throws IOException {
-		DominoClient client = getClient();
+    {
+      final ArrayList<Item> expectedFields = new ArrayList<>();
 
-		Database dbFakenames = client.openDatabase("", "log.nsf");
-		Document doc = dbFakenames.createDocument();
+      for (int i = 1; i <= 3; i++) {
+        doc.appendItemValue("test_field" + i, "just-a-field" + i);
+        doc.appendItemValue("rf_test_field" + i, new HashSet<>(Arrays.asList(ItemFlag.READERS)), "anonymous" + i);
 
-		{
-			doc.appendItemValue("test_field", "just-a-field");
-			
-			assertEquals(false, doc.hasReadersField(), "Testing for no reader-field ok");
-		}
-	}
-	
-	@Test
-	public void testGetAllReaderFields() throws IOException {
-		DominoClient client = getClient();
+        expectedFields.add(doc.getFirstItem("rf_test_field" + i).get());
+      }
 
-		Database dbFakenames = client.openDatabase("", "log.nsf");
-		Document doc = dbFakenames.createDocument();
+      Assertions.assertTrue(this.allItemsMatching(expectedFields, doc.getReadersFields()), "Reading all reader-fields ok");
+    }
+  }
 
-		{
-			ArrayList<Item> expectedFields = new ArrayList<Item>();
-			
-			for (int i=1;i<=3;i++) {
-				doc.appendItemValue("test_field"+i, "just-a-field"+i);
-				doc.appendItemValue("rf_test_field"+i, new HashSet<ItemFlag>(Arrays.asList(ItemFlag.READERS)), "anonymous"+i);
+  @Test
+  public void testGetAllReaderFieldsEmpty() throws IOException {
+    final DominoClient client = this.getClient();
 
-				expectedFields.add(doc.getFirstItem("rf_test_field"+i).get());
-			}
-			
-			assertTrue(allItemsMatching(expectedFields, doc.getReadersFields()), "Reading all reader-fields ok");
-		}
-	}
-	
-	@Test
-	public void testGetAllReaderFieldsEmpty() throws IOException {
-		DominoClient client = getClient();
+    final Database dbFakenames = client.openDatabase("", "log.nsf");
+    final Document doc = dbFakenames.createDocument();
 
-		Database dbFakenames = client.openDatabase("", "log.nsf");
-		Document doc = dbFakenames.createDocument();
+    {
+      for (int i = 1; i <= 3; i++) {
+        doc.appendItemValue("test_field" + i, "just-a-field" + i);
+      }
 
-		{
-			for (int i=1;i<=3;i++) {
-				doc.appendItemValue("test_field"+i, "just-a-field"+i);
-			}
-			
-			assertTrue(doc.getReadersFields().isEmpty(), "Reading empty list of reader-fields ok");
-		}
-	}
+      Assertions.assertTrue(doc.getReadersFields().isEmpty(), "Reading empty list of reader-fields ok");
+    }
+  }
 
-	private boolean allItemsMatching(List<Item> expected, List<Item> actual) {
-		if (expected.size()!=actual.size())
-			return false;
-		
-		for (int i=0;i<actual.size();i++) {
-			if (!actual.get(i).getName().equals(expected.get(i).getName())) {
-				return false;
-			}
-		}
-		return true;
-	}
+  @Test
+  public void testHasNoReaderFields() throws IOException {
+    final DominoClient client = this.getClient();
+
+    final Database dbFakenames = client.openDatabase("", "log.nsf");
+    final Document doc = dbFakenames.createDocument();
+
+    {
+      doc.appendItemValue("test_field", "just-a-field");
+
+      Assertions.assertEquals(false, doc.hasReadersField(), "Testing for no reader-field ok");
+    }
+  }
+
+  @Test
+  public void testHasReaderFields() throws IOException {
+    final DominoClient client = this.getClient();
+
+    final Database dbFakenames = client.openDatabase("", "log.nsf");
+    final Document doc = dbFakenames.createDocument();
+
+    {
+      doc.appendItemValue("rf_test_field", new HashSet<>(Arrays.asList(ItemFlag.READERS)), "anonymous");
+
+      Assertions.assertEquals(true, doc.hasReadersField(), "Testing for reader-field ok");
+    }
+  }
 }

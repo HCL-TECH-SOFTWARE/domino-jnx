@@ -17,67 +17,69 @@
 package com.hcl.domino.jnx.console.internal;
 
 /**
- * Implementation of a blocking list of objects with a max number of entries.<br>
- * Use {@link #pushObject(Object)} to insert entries at the start of the list and
- * {@link #popObject()} or {@link #popObjectNoWait()} to take entries from its end.
+ * Implementation of a blocking list of objects with a max number of
+ * entries.<br>
+ * Use {@link #pushObject(Object)} to insert entries at the start of the list
+ * and
+ * {@link #popObject()} or {@link #popObjectNoWait()} to take entries from its
+ * end.
  */
 public class ObjectStack {
-    static final int DEF_STACK_SIZE = 20;
-    static int curStackSize = 20;
-    private Object[] objectStore;
-    private int objectPtr = 0;
-    private Object retObject;
+  static final int DEF_STACK_SIZE = 20;
+  static int curStackSize = 20;
+  private final Object[] objectStore;
+  private int objectPtr = 0;
+  private Object retObject;
 
-    public ObjectStack() {
-        this(20);
-    }
+  public ObjectStack() {
+    this(20);
+  }
 
-    public ObjectStack(int n) {
-        if (n > 0) {
-            curStackSize = n;
-        }
-        this.objectStore = new Object[curStackSize];
+  public ObjectStack(final int n) {
+    if (n > 0) {
+      ObjectStack.curStackSize = n;
     }
+    this.objectStore = new Object[ObjectStack.curStackSize];
+  }
 
-    public synchronized void pushObject(Object object) throws InterruptedException {
-        int n = 0;
-        if (this.objectPtr >= curStackSize) {
-            this.wait();
-        }
-        if (this.objectPtr == 0) {
-            this.notify();
-        }
-        for (n = this.objectPtr; n > 0; --n) {
-            this.objectStore[n] = this.objectStore[n - 1];
-        }
-        this.objectStore[0] = object;
-        ++this.objectPtr;
+  public synchronized Object popObject() throws InterruptedException {
+    this.retObject = null;
+    if (this.objectPtr == 0) {
+      this.wait();
     }
+    if (this.objectPtr >= ObjectStack.curStackSize) {
+      this.notify();
+    }
+    this.retObject = this.objectStore[--this.objectPtr];
+    this.objectStore[this.objectPtr] = null;
+    return this.retObject;
+  }
 
-    public synchronized Object popObject() throws InterruptedException {
-        this.retObject = null;
-        if (this.objectPtr == 0) {
-            this.wait();
-        }
-        if (this.objectPtr >= curStackSize) {
-            this.notify();
-        }
-        this.retObject = this.objectStore[--this.objectPtr];
-        this.objectStore[this.objectPtr] = null;
-        return this.retObject;
+  public synchronized Object popObjectNoWait() throws InterruptedException {
+    this.retObject = null;
+    if (this.objectPtr == 0) {
+      return this.retObject;
     }
+    if (this.objectPtr >= ObjectStack.curStackSize) {
+      this.notify();
+    }
+    this.retObject = this.objectStore[--this.objectPtr];
+    this.objectStore[this.objectPtr] = null;
+    return this.retObject;
+  }
 
-    public synchronized Object popObjectNoWait() throws InterruptedException {
-        this.retObject = null;
-        if (this.objectPtr == 0) {
-            return this.retObject;
-        }
-        if (this.objectPtr >= curStackSize) {
-            this.notify();
-        }
-        this.retObject = this.objectStore[--this.objectPtr];
-        this.objectStore[this.objectPtr] = null;
-        return this.retObject;
+  public synchronized void pushObject(final Object object) throws InterruptedException {
+    int n = 0;
+    if (this.objectPtr >= ObjectStack.curStackSize) {
+      this.wait();
     }
+    if (this.objectPtr == 0) {
+      this.notify();
+    }
+    for (n = this.objectPtr; n > 0; --n) {
+      this.objectStore[n] = this.objectStore[n - 1];
+    }
+    this.objectStore[0] = object;
+    ++this.objectPtr;
+  }
 }
-

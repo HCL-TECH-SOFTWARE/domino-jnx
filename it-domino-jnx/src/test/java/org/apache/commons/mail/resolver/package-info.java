@@ -15,11 +15,12 @@
  * limitations under the License.
  */
 /**
- * Contains implementation classes to resolve data sources from the following locations:
+ * Contains implementation classes to resolve data sources from the following
+ * locations:
  * <ul>
- *   <li>class path</li>
- *   <li>file system</li>
- *   <li>URL</li>
+ * <li>class path</li>
+ * <li>file system</li>
+ * <li>URL</li>
  * </ul>
  */
 package org.apache.commons.mail.resolver;

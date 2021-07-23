@@ -21,11 +21,15 @@ package com.hcl.domino.design.action;
  * @since 1.0.24
  */
 public interface ReplyAction extends SimpleAction {
-	boolean isReplyToAll();
-	boolean isIncludeDocument();
-	boolean isSaveMailDocument();
-	boolean isNoAgentReply();
-	boolean isReplyOnce();
-	
-	String getBody();
+  String getBody();
+
+  boolean isIncludeDocument();
+
+  boolean isNoAgentReply();
+
+  boolean isReplyOnce();
+
+  boolean isReplyToAll();
+
+  boolean isSaveMailDocument();
 }

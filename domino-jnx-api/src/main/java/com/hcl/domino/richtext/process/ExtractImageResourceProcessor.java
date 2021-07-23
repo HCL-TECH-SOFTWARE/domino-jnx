@@ -26,38 +26,39 @@ import com.hcl.domino.richtext.records.CDImageSegment;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
 /**
- * Extracts the contents of a image-resource CD item (e.g. {@code $ImageData}) and writes
+ * Extracts the contents of a image-resource CD item (e.g. {@code $ImageData})
+ * and writes
  * the content to the provided {@link OutputStream}.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.15
  */
 public class ExtractImageResourceProcessor implements IRichTextProcessor<Void> {
 
-	private final OutputStream os;
-	
-	/**
-	 * Constructs an extraction processor to output to the provided stream.
-	 * 
-	 * @param os the non-null {@link OutputStream} to target
-	 */
-	public ExtractImageResourceProcessor(OutputStream os) {
-		this.os = Objects.requireNonNull(os, "OutputStream must not be null");
-	}
-	
-	@Override
-	public Void apply(List<RichTextRecord<?>> t) {
-		t.stream()
-			.filter(CDImageSegment.class::isInstance)
-			.map(CDImageSegment.class::cast)
-			.forEach(record -> {
-				try {
-					os.write(record.getImageSegmentData());
-				} catch (IOException e) {
-					throw new UncheckedIOException(e);
-				}
-			});
-		return null;
-	}
+  private final OutputStream os;
+
+  /**
+   * Constructs an extraction processor to output to the provided stream.
+   *
+   * @param os the non-null {@link OutputStream} to target
+   */
+  public ExtractImageResourceProcessor(final OutputStream os) {
+    this.os = Objects.requireNonNull(os, "OutputStream must not be null");
+  }
+
+  @Override
+  public Void apply(final List<RichTextRecord<?>> t) {
+    t.stream()
+        .filter(CDImageSegment.class::isInstance)
+        .map(CDImageSegment.class::cast)
+        .forEach(record -> {
+          try {
+            this.os.write(record.getImageSegmentData());
+          } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+          }
+        });
+    return null;
+  }
 
 }

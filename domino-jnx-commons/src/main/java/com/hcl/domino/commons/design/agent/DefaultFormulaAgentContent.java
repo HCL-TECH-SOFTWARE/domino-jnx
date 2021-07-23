@@ -24,22 +24,22 @@ import com.hcl.domino.design.agent.FormulaAgentContent;
  * @since 1.0.24
  */
 public class DefaultFormulaAgentContent implements FormulaAgentContent, RunFormulaAction {
-	private final DocumentAction action;
-	private final String formula;
-	
-	public DefaultFormulaAgentContent(DocumentAction action, String formula) {
-		this.action = action;
-		this.formula = formula;
-	}
-	
-	@Override
-	public DocumentAction getDocumentAction() {
-		return action;
-	}
+  private final DocumentAction action;
+  private final String formula;
 
-	@Override
-	public String getFormula() {
-		return formula;
-	}
+  public DefaultFormulaAgentContent(final DocumentAction action, final String formula) {
+    this.action = action;
+    this.formula = formula;
+  }
+
+  @Override
+  public DocumentAction getDocumentAction() {
+    return this.action;
+  }
+
+  @Override
+  public String getFormula() {
+    return this.formula;
+  }
 
 }

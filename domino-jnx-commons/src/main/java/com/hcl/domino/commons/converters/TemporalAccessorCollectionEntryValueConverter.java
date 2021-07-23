@@ -25,41 +25,44 @@ import com.hcl.domino.data.CollectionEntryValueConverter;
 import com.hcl.domino.data.DominoDateTime;
 
 /**
- * Supports reading generic {@link TemporalAccessor} objects from a collection entry
- * 
- * @author Jesse Gallagher
+ * Supports reading generic {@link TemporalAccessor} objects from a collection
+ * entry
  *
+ * @author Jesse Gallagher
  */
-public class TemporalAccessorCollectionEntryValueConverter extends AbstractTemporalAccessorConverter implements CollectionEntryValueConverter {
+public class TemporalAccessorCollectionEntryValueConverter extends AbstractTemporalAccessorConverter
+    implements CollectionEntryValueConverter {
 
-	@Override
-	public boolean supportsRead(Class<?> valueType) {
-		return supports(valueType);
-	}
+  @Override
+  public <T> T getValue(final CollectionEntry obj, final int index, final Class<T> valueType, final T defaultValue) {
+    final DominoDateTime result = obj.get(index, DominoDateTime.class, null);
+    return this.convert(result, valueType);
+  }
 
-	@Override
-	public <T> T getValue(CollectionEntry obj, String itemName, Class<T> valueType, T defaultValue) {
-		DominoDateTime result = obj.get(itemName, DominoDateTime.class, null);
-		return convert(result, valueType);
-	}
+  @Override
+  public <T> T getValue(final CollectionEntry obj, final String itemName, final Class<T> valueType, final T defaultValue) {
+    final DominoDateTime result = obj.get(itemName, DominoDateTime.class, null);
+    return this.convert(result, valueType);
+  }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> List<T> getValueAsList(CollectionEntry obj, String itemName, Class<T> valueType, List<T> defaultValue) {
-		List<DominoDateTime> result = obj.getAsList(itemName, DominoDateTime.class, null);
-		return result == null ? defaultValue : result.stream().map(dt -> (T)convert(dt, valueType)).collect(Collectors.toList());
-	}
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> List<T> getValueAsList(final CollectionEntry obj, final int index, final Class<T> valueType,
+      final List<T> defaultValue) {
+    final List<DominoDateTime> result = obj.getAsList(index, DominoDateTime.class, null);
+    return result == null ? defaultValue : result.stream().map(dt -> (T) this.convert(dt, valueType)).collect(Collectors.toList());
+  }
 
-	@Override
-	public <T> T getValue(CollectionEntry obj, int index, Class<T> valueType, T defaultValue) {
-		DominoDateTime result = obj.get(index, DominoDateTime.class, null);
-		return convert(result, valueType);
-	}
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> List<T> getValueAsList(final CollectionEntry obj, final String itemName, final Class<T> valueType,
+      final List<T> defaultValue) {
+    final List<DominoDateTime> result = obj.getAsList(itemName, DominoDateTime.class, null);
+    return result == null ? defaultValue : result.stream().map(dt -> (T) this.convert(dt, valueType)).collect(Collectors.toList());
+  }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> List<T> getValueAsList(CollectionEntry obj, int index, Class<T> valueType, List<T> defaultValue) {
-		List<DominoDateTime> result = obj.getAsList(index, DominoDateTime.class, null);
-		return result == null ? defaultValue : result.stream().map(dt -> (T)convert(dt, valueType)).collect(Collectors.toList());
-	}
+  @Override
+  public boolean supportsRead(final Class<?> valueType) {
+    return this.supports(valueType);
+  }
 }

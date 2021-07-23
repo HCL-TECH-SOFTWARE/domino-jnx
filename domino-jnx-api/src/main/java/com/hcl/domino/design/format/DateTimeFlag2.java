@@ -20,18 +20,22 @@ import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 
 public enum DateTimeFlag2 implements INumberEnum<Integer> {
-	/** Use the 4.X format structure instead of this 5.X format structure */
-	USE_TFMT(RichTextConstants.DT_USE_TFMT)
-	;
-	private final int value;
-	DateTimeFlag2(int value) { this.value = value; }
-	
-	@Override
-	public long getLongValue() {
-		return value;
-	}
-	@Override
-	public Integer getValue() {
-		return value;
-	}
+  /** Use the 4.X format structure instead of this 5.X format structure */
+  USE_TFMT(RichTextConstants.DT_USE_TFMT);
+
+  private final int value;
+
+  DateTimeFlag2(final int value) {
+    this.value = value;
+  }
+
+  @Override
+  public long getLongValue() {
+    return this.value;
+  }
+
+  @Override
+  public Integer getValue() {
+    return this.value;
+  }
 }

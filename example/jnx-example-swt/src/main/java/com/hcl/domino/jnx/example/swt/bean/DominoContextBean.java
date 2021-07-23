@@ -18,22 +18,22 @@ package com.hcl.domino.jnx.example.swt.bean;
 
 import java.util.concurrent.ExecutorService;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.inject.Produces;
-
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.jnx.example.swt.App;
 
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Produces;
+
 @ApplicationScoped
 public class DominoContextBean {
-	
-	@Produces
-	public DominoClient getClient() {
-		return App.client;
-	}
 
-	@Produces
-	public ExecutorService getExecutorService() {
-		return App.getExecutor();
-	}
+  @Produces
+  public DominoClient getClient() {
+    return App.client;
+  }
+
+  @Produces
+  public ExecutorService getExecutorService() {
+    return App.getExecutor();
+  }
 }

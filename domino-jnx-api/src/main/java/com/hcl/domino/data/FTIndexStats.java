@@ -17,52 +17,53 @@
 package com.hcl.domino.data;
 
 /**
- * This class contains statistics information that is returned when indexing a database for full
+ * This class contains statistics information that is returned when indexing a
+ * database for full
  * text searching capabilities with {@link Database#ftIndex(java.util.Set)}
- * 
+ *
  * @author Karsten Lehmann
  */
 public interface FTIndexStats {
-	/**
-	 * Returns the database server
-	 * 
-	 * @return server
-	 */
-	String getServer();
-	
-	/**
-	 * Returns the database filepath
-	 * 
-	 * @return filepath
-	 */
-	String getFilePath();
-	
-	/**
-	 * # of new documents
-	 * 
-	 * @return count
-	 */
-	int getDocsAdded();
-	
-	/**
-	 * # of revised documents
-	 * 
-	 * @return count
-	 */
-	int getDocsUpdated();
-	
-	/**
-	 * # of deleted documents
-	 * 
-	 * @return count
-	 */
-	int getDocsDeleted();
-	
-	/**
-	 * # of bytes indexed
-	 * 
-	 * @return bytes
-	 */
-	int getBytesIndexed();
-	
+  /**
+   * # of bytes indexed
+   *
+   * @return bytes
+   */
+  int getBytesIndexed();
+
+  /**
+   * # of new documents
+   *
+   * @return count
+   */
+  int getDocsAdded();
+
+  /**
+   * # of deleted documents
+   *
+   * @return count
+   */
+  int getDocsDeleted();
+
+  /**
+   * # of revised documents
+   *
+   * @return count
+   */
+  int getDocsUpdated();
+
+  /**
+   * Returns the database filepath
+   *
+   * @return filepath
+   */
+  String getFilePath();
+
+  /**
+   * Returns the database server
+   *
+   * @return server
+   */
+  String getServer();
+
 }

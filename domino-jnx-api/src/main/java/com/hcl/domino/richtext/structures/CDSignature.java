@@ -19,7 +19,7 @@ package com.hcl.domino.richtext.structures;
 /**
  * This is a non-structural interface describing common behavior for Composite
  * Data signature structures.
- * 
+ *
  * @param <S> The number type used for the signature
  * @param <L> The number type used for the length
  * @param <T> The {@link CDSignature} implementation type
@@ -27,9 +27,11 @@ package com.hcl.domino.richtext.structures;
  * @since 1.0.2
  */
 public interface CDSignature<S extends Number, L extends Number, T extends CDSignature<S, L, T>> extends MemoryStructure {
-	S getSignature();
-	T setSignature(S signature);
-	
-	L getLength();
-	T setLength(L length);
+  L getLength();
+
+  S getSignature();
+
+  T setLength(L length);
+
+  T setSignature(S signature);
 }

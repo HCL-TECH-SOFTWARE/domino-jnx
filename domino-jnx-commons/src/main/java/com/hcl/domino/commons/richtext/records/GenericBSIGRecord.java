@@ -23,23 +23,23 @@ import com.hcl.domino.richtext.structures.BSIG;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 
 public class GenericBSIGRecord extends AbstractCDRecord<BSIG> {
-	public GenericBSIGRecord(ByteBuffer data) {
-		this(data, null);
-	}
-	
-	public GenericBSIGRecord(ByteBuffer data, Class<? extends MemoryStructure> recordClass) {
-		super(data, recordClass);
-	}
-	
-	@Override
-	public BSIG getHeader() {
-		ByteBuffer buf = getData().slice();
-		buf.limit(2);
-		return MemoryStructureProxy.forStructure(BSIG.class, () -> buf.slice().order(ByteOrder.nativeOrder()));
-	}
-	
-	@Override
-	protected void _updateHeaderLength(long value) {
-		getHeader().setLength((short)value);
-	}
+  public GenericBSIGRecord(final ByteBuffer data) {
+    this(data, null);
+  }
+
+  public GenericBSIGRecord(final ByteBuffer data, final Class<? extends MemoryStructure> recordClass) {
+    super(data, recordClass);
+  }
+
+  @Override
+  protected void _updateHeaderLength(final long value) {
+    this.getHeader().setLength((short) value);
+  }
+
+  @Override
+  public BSIG getHeader() {
+    final ByteBuffer buf = this.getData().slice();
+    buf.limit(2);
+    return MemoryStructureProxy.forStructure(BSIG.class, () -> buf.slice().order(ByteOrder.nativeOrder()));
+  }
 }

@@ -19,10 +19,10 @@ package com.hcl.domino.design;
 /**
  * Access to a database design. Search for design, database as constructor
  * parameter
- * 
- * @author t.b.d
  *
+ * @author t.b.d
  */
-public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlternativeElement, DesignElement.XPageNotesAlternativeElement {
-    
+public interface Form
+    extends GenericFormOrSubform<Form>, DesignElement.XPageAlternativeElement, DesignElement.XPageNotesAlternativeElement {
+
 }

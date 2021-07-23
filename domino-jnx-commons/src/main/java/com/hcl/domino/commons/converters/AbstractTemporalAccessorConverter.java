@@ -32,28 +32,29 @@ import java.util.function.Predicate;
 import com.hcl.domino.data.DominoDateTime;
 
 public abstract class AbstractTemporalAccessorConverter {
-	private static final Map<Predicate<Class<?>>, Function<DominoDateTime, TemporalAccessor>> accessors = new HashMap<>();
-	static {
-		accessors.put(c -> c.equals(TemporalAccessor.class), dt -> dt);
-		accessors.put(c -> c.equals(Temporal.class), dt -> dt);
-		accessors.put(c -> ChronoLocalDate.class.isAssignableFrom(c), DominoDateTime::toLocalDate);
-		accessors.put(c -> LocalTime.class.isAssignableFrom(c), DominoDateTime::toLocalTime);
-		accessors.put(c -> ChronoLocalDateTime.class.isAssignableFrom(c), dt -> LocalDateTime.from(dt));
-		accessors.put(c -> OffsetDateTime.class.isAssignableFrom(c), DominoDateTime::toOffsetDateTime);
-		accessors.put(c -> Instant.class.isAssignableFrom(c), dt -> Instant.from(dt));
-	}
+  private static final Map<Predicate<Class<?>>, Function<DominoDateTime, TemporalAccessor>> accessors = new HashMap<>();
+  static {
+    AbstractTemporalAccessorConverter.accessors.put(c -> c.equals(TemporalAccessor.class), dt -> dt);
+    AbstractTemporalAccessorConverter.accessors.put(c -> c.equals(Temporal.class), dt -> dt);
+    AbstractTemporalAccessorConverter.accessors.put(c -> ChronoLocalDate.class.isAssignableFrom(c), DominoDateTime::toLocalDate);
+    AbstractTemporalAccessorConverter.accessors.put(c -> LocalTime.class.isAssignableFrom(c), DominoDateTime::toLocalTime);
+    AbstractTemporalAccessorConverter.accessors.put(c -> ChronoLocalDateTime.class.isAssignableFrom(c), LocalDateTime::from);
+    AbstractTemporalAccessorConverter.accessors.put(c -> OffsetDateTime.class.isAssignableFrom(c),
+        DominoDateTime::toOffsetDateTime);
+    AbstractTemporalAccessorConverter.accessors.put(c -> Instant.class.isAssignableFrom(c), Instant::from);
+  }
 
-	protected boolean supports(Class<?> clazz) {
-		return accessors.keySet().stream().anyMatch(p -> p.test(clazz));
-	}
-	
-	@SuppressWarnings("unchecked")
-	protected <T> T convert(DominoDateTime val, Class<?> clazz) {
-		return (T)accessors.entrySet()
-			.stream()
-			.filter(entry -> entry.getKey().test(clazz))
-			.findFirst()
-			.map(entry -> entry.getValue().apply(val))
-			.orElse(null);
-	}
+  @SuppressWarnings("unchecked")
+  protected <T> T convert(final DominoDateTime val, final Class<?> clazz) {
+    return (T) AbstractTemporalAccessorConverter.accessors.entrySet()
+        .stream()
+        .filter(entry -> entry.getKey().test(clazz))
+        .findFirst()
+        .map(entry -> entry.getValue().apply(val))
+        .orElse(null);
+  }
+
+  protected boolean supports(final Class<?> clazz) {
+    return AbstractTemporalAccessorConverter.accessors.keySet().stream().anyMatch(p -> p.test(clazz));
+  }
 }

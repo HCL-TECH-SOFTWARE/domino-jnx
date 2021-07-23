@@ -30,31 +30,31 @@ import com.hcl.domino.jnx.example.swt.dbtree.DatabaseTree;
 
 public class AppShell extends Shell {
 
-	private DatabaseTree databaseBrowser;
-	public static ResourceManager resourceManager;
+  public static ResourceManager resourceManager;
+  private final DatabaseTree databaseBrowser;
 
-	public AppShell(Display display) {
-		super(display, SWT.SHELL_TRIM);
-		
-		setText(App.APP_NAME);
-		setSize(1024, 768);
-		setLayout(new FillLayout(SWT.HORIZONTAL));
+  public AppShell(final Display display) {
+    super(display, SWT.SHELL_TRIM);
 
-		resourceManager = new LocalResourceManager(JFaceResources.getResources(), this);
-		
-		SashForm sashForm = new SashForm(this, SWT.NONE);
-	
-		databaseBrowser = new DatabaseTree(sashForm, resourceManager);
-		
-		Composite infoPane = new Composite(sashForm, SWT.NONE);
-		infoPane.setLayout(new FillLayout());
-		databaseBrowser.setTarget(infoPane);
+    this.setText(App.APP_NAME);
+    this.setSize(1024, 768);
+    this.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-		sashForm.setWeights(new int[] { 1, 3 });
-	}
+    AppShell.resourceManager = new LocalResourceManager(JFaceResources.getResources(), this);
 
-	@Override
-	protected void checkSubclass() {
-		// Disable the check that prevents subclassing of SWT components
-	}
+    final SashForm sashForm = new SashForm(this, SWT.NONE);
+
+    this.databaseBrowser = new DatabaseTree(sashForm, AppShell.resourceManager);
+
+    final Composite infoPane = new Composite(sashForm, SWT.NONE);
+    infoPane.setLayout(new FillLayout());
+    this.databaseBrowser.setTarget(infoPane);
+
+    sashForm.setWeights(1, 3);
+  }
+
+  @Override
+  protected void checkSubclass() {
+    // Disable the check that prevents subclassing of SWT components
+  }
 }

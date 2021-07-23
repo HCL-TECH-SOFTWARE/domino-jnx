@@ -22,31 +22,33 @@ import com.hcl.domino.richtext.records.CDImageHeader;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
 /**
- * Retrieves the size of the file stored in a image-resource CD item (e.g. {@code $ImageData}).
- * 
- * <p>This processing happens synchronously.</p>
- * 
+ * Retrieves the size of the file stored in a image-resource CD item (e.g.
+ * {@code $ImageData}).
+ * <p>
+ * This processing happens synchronously.
+ * </p>
+ *
  * @author Jesse Gallagher
  * @since 1.0.15
  */
 public class GetImageResourceSizeProcessor implements IRichTextProcessor<Long> {
-	public static final GetImageResourceSizeProcessor instance = new GetImageResourceSizeProcessor();
-	
-	/**
-	 * Constructs a new file-size extractor.
-	 */
-	public GetImageResourceSizeProcessor() {
-	}
+  public static final GetImageResourceSizeProcessor instance = new GetImageResourceSizeProcessor();
 
-	@Override
-	public Long apply(List<RichTextRecord<?>> t) {
-		long size = t.stream()
-			.filter(CDImageHeader.class::isInstance)
-			.map(CDImageHeader.class::cast)
-			.findFirst()
-			.map(CDImageHeader::getImageDataSize)
-			.orElseThrow(() -> new IllegalStateException("Could not find CDImageHeader segment"));
-		return size;
-	}
+  /**
+   * Constructs a new file-size extractor.
+   */
+  public GetImageResourceSizeProcessor() {
+  }
+
+  @Override
+  public Long apply(final List<RichTextRecord<?>> t) {
+    final long size = t.stream()
+        .filter(CDImageHeader.class::isInstance)
+        .map(CDImageHeader.class::cast)
+        .findFirst()
+        .map(CDImageHeader::getImageDataSize)
+        .orElseThrow(() -> new IllegalStateException("Could not find CDImageHeader segment"));
+    return size;
+  }
 
 }

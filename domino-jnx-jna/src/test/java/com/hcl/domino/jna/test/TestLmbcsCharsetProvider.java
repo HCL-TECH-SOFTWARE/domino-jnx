@@ -16,10 +16,9 @@
  */
 package com.hcl.domino.jna.test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.nio.charset.Charset;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
@@ -27,13 +26,13 @@ import com.hcl.domino.jna.internal.NotesStringUtils;
 
 @SuppressWarnings("nls")
 public class TestLmbcsCharsetProvider {
-	@ParameterizedTest
-	@ValueSource(strings={"Hello","EkranAlıntısı1.JPG"})
-	public void testAscii(String expected) {
-		Charset charset = Charset.forName("LMBCS-native");
-		byte[] encoded = expected.getBytes(charset);
-		assertEquals(expected, NotesStringUtils.fromLMBCS(encoded));
-		String decoded = new String(encoded, charset);
-		assertEquals(expected, decoded);
-	}
+  @ParameterizedTest
+  @ValueSource(strings = { "Hello", "EkranAlıntısı1.JPG" })
+  public void testAscii(final String expected) {
+    final Charset charset = Charset.forName("LMBCS-native");
+    final byte[] encoded = expected.getBytes(charset);
+    Assertions.assertEquals(expected, NotesStringUtils.fromLMBCS(encoded));
+    final String decoded = new String(encoded, charset);
+    Assertions.assertEquals(expected, decoded);
+  }
 }

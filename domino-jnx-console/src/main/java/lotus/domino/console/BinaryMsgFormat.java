@@ -24,66 +24,70 @@ import java.io.Serializable;
 /**
  * Extension of {@link MsgFormat} that contains binary data.<br>
  * <br>
- * Please note that it's important that this class keeps its Java package lotus.domino.console
+ * Please note that it's important that this class keeps its Java package
+ * lotus.domino.console
  * and internal structure because its read from the Domino server using
  * Java serialization.
  */
 @SuppressWarnings("serial")
 public class BinaryMsgFormat extends MsgFormat implements Serializable {
-    public byte[] bdata;
-    public String svcname;
+  /**
+  * 
+  */
+  private static final long serialVersionUID = 1L;
+  public byte[] bdata;
+  public String svcname;
 
-    public BinaryMsgFormat(String consoleId) {
-        this(consoleId, 0, (byte[])null, 0, MsgFormats[0]);
-    }
+  public BinaryMsgFormat(final String consoleId) {
+    this(consoleId, 0, (byte[]) null, 0, MsgFormat.MsgFormats[0]);
+  }
 
-    public void setData(byte[] bdata) {
-        this.setData(bdata, bdata == null ? 0 : bdata.length);
-    }
+  public BinaryMsgFormat(final String consoleId, final int length, final byte[] bdata) {
+    this(consoleId, length, bdata, 13, MsgFormat.MsgFormats[0]);
+  }
 
-    public void setData(byte[] bdata, int length) {
-        this.bdata = bdata;
-        this.length = length;
-        super.setData(null);
-    }
+  public BinaryMsgFormat(final String consoleId, final int length, final byte[] bdata, final int msgType) {
+    this(consoleId, length, bdata, msgType, MsgFormat.MsgFormats[0]);
+  }
 
-    public void setBData(String bdata) {
-        this.bdata = null;
-        super.setData(bdata);
-    }
+  public BinaryMsgFormat(final String consoleId, final int length, final byte[] bdata, final int msgType, final String msgFmt) {
+    super(consoleId, length, null, msgType, msgFmt);
+    this.bdata = bdata;
+    this.svcname = null;
+  }
 
-    public String svcname() {
-        return this.svcname;
-    }
+  public byte[] bdata() {
+    return this.bdata;
+  }
 
-    public void svcname(String svcname) {
-        this.svcname = svcname;
-    }
+  private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
+    in.defaultReadObject();
+  }
 
-    public byte[] bdata() {
-        return this.bdata;
-    }
+  public void setBData(final String bdata) {
+    this.bdata = null;
+    super.setData(bdata);
+  }
 
-    public BinaryMsgFormat(String consoleId, int length, byte[] bdata) {
-        this(consoleId, length, bdata, 13, MsgFormats[0]);
-    }
+  public void setData(final byte[] bdata) {
+    this.setData(bdata, bdata == null ? 0 : bdata.length);
+  }
 
-    public BinaryMsgFormat(String consoleId, int length, byte[] bdata, int msgType) {
-        this(consoleId, length, bdata, msgType, MsgFormats[0]);
-    }
+  public void setData(final byte[] bdata, final int length) {
+    this.bdata = bdata;
+    this.length = length;
+    super.setData(null);
+  }
 
-    public BinaryMsgFormat(String consoleId, int length, byte[] bdata, int msgType, String msgFmt) {
-        super(consoleId, length, null, msgType, msgFmt);
-        this.bdata = bdata;
-        this.svcname = null;
-    }
+  public String svcname() {
+    return this.svcname;
+  }
 
-    private void writeObject(ObjectOutputStream out) throws IOException {
-        out.defaultWriteObject();
-    }
+  public void svcname(final String svcname) {
+    this.svcname = svcname;
+  }
 
-    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-    }
+  private void writeObject(final ObjectOutputStream out) throws IOException {
+    out.defaultWriteObject();
+  }
 }
-

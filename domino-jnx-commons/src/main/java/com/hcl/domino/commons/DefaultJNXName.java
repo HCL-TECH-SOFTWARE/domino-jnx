@@ -27,105 +27,105 @@ import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.naming.Names;
 
 public class DefaultJNXName implements Name {
-	private String m_nameCanonical;
-	
-	public DefaultJNXName(String name) {
-		m_nameCanonical = Names.toCanonical(name);
-	}
-	
-	@Override
-	public List<String> getOrgUnits() {
-		List<String> orgUnits = new ArrayList<>();
-		
-		ReverseStringTokenizer st = new ReverseStringTokenizer(m_nameCanonical, "/"); //$NON-NLS-1$
+  private final String m_nameCanonical;
 
-		while (st.hasMoreTokens()) {
-			String currToken = st.nextToken();
-			if (StringUtil.startsWithIgnoreCase(currToken, "ou=")) { //$NON-NLS-1$
-				orgUnits.add(currToken.substring(3));
-			}
-		}
+  public DefaultJNXName(final String name) {
+    this.m_nameCanonical = Names.toCanonical(name);
+  }
 
-		return orgUnits;
-	}
+  @Override
+  public String getAbbreviated() {
+    return Names.toAbbreviated(this.m_nameCanonical);
+  }
 
-	@Override
-	public String getCommon() {
-		return Names.toCommon(m_nameCanonical);
-	}
+  @Override
+  public String getCanonical() {
+    return this.m_nameCanonical;
+  }
 
-	private String getOrgUnit(String name, int idx) {
-		ReverseStringTokenizer st = new ReverseStringTokenizer(m_nameCanonical, "/"); //$NON-NLS-1$
-		int currIdx=0;
-		while (st.hasMoreTokens()) {
-			String currToken = st.nextToken();
-			if (StringUtil.startsWithIgnoreCase(currToken, "ou=")) { //$NON-NLS-1$
-				currIdx++;
-				if (currIdx == idx) {
-					return currToken.substring(3);
-				}
-			}
-		}
-		return ""; //$NON-NLS-1$
-	}
-	
-	@Override
-	public String getOrgUnit1() {
-		return getOrgUnit(m_nameCanonical, 1);
-	}
+  @Override
+  public String getCommon() {
+    return Names.toCommon(this.m_nameCanonical);
+  }
 
-	@Override
-	public String getOrgUnit2() {
-		return getOrgUnit(m_nameCanonical, 2);
-	}
+  @Override
+  public String getCountry() {
+    final StringTokenizerExt st = new StringTokenizerExt(this.m_nameCanonical, "/"); //$NON-NLS-1$
+    while (st.hasMoreTokens()) {
+      final String currToken = st.nextToken();
+      if (StringUtil.startsWithIgnoreCase(currToken, "c=")) { //$NON-NLS-1$
+        return currToken.substring(2);
+      }
+    }
+    return ""; //$NON-NLS-1$
+  }
 
-	@Override
-	public String getOrgUnit3() {
-		return getOrgUnit(m_nameCanonical, 3);
-	}
+  @Override
+  public String getOrganisation() {
+    final StringTokenizerExt st = new StringTokenizerExt(this.m_nameCanonical, "/"); //$NON-NLS-1$
+    while (st.hasMoreTokens()) {
+      final String currToken = st.nextToken();
+      if (StringUtil.startsWithIgnoreCase(currToken, "o=")) { //$NON-NLS-1$
+        return currToken.substring(2);
+      }
+    }
+    return ""; //$NON-NLS-1$
+  }
 
-	@Override
-	public String getOrgUnit4() {
-		return getOrgUnit(m_nameCanonical, 4);
-	}
+  private String getOrgUnit(final String name, final int idx) {
+    final ReverseStringTokenizer st = new ReverseStringTokenizer(this.m_nameCanonical, "/"); //$NON-NLS-1$
+    int currIdx = 0;
+    while (st.hasMoreTokens()) {
+      final String currToken = st.nextToken();
+      if (StringUtil.startsWithIgnoreCase(currToken, "ou=")) { //$NON-NLS-1$
+        currIdx++;
+        if (currIdx == idx) {
+          return currToken.substring(3);
+        }
+      }
+    }
+    return ""; //$NON-NLS-1$
+  }
 
-	@Override
-	public String getOrganisation() {
-		StringTokenizerExt st = new StringTokenizerExt(m_nameCanonical, "/"); //$NON-NLS-1$
-		while (st.hasMoreTokens()) {
-			String currToken = st.nextToken();
-			if (StringUtil.startsWithIgnoreCase(currToken, "o=")) { //$NON-NLS-1$
-				return currToken.substring(2);
-			}
-		}
-		return ""; //$NON-NLS-1$
-	}
+  @Override
+  public String getOrgUnit1() {
+    return this.getOrgUnit(this.m_nameCanonical, 1);
+  }
 
-	@Override
-	public String getCountry() {
-		StringTokenizerExt st = new StringTokenizerExt(m_nameCanonical, "/"); //$NON-NLS-1$
-		while (st.hasMoreTokens()) {
-			String currToken = st.nextToken();
-			if (StringUtil.startsWithIgnoreCase(currToken, "c=")) { //$NON-NLS-1$
-				return currToken.substring(2);
-			}
-		}
-		return ""; //$NON-NLS-1$
-	}
+  @Override
+  public String getOrgUnit2() {
+    return this.getOrgUnit(this.m_nameCanonical, 2);
+  }
 
-	@Override
-	public String getAbbreviated() {
-		return Names.toAbbreviated(m_nameCanonical);
-	}
+  @Override
+  public String getOrgUnit3() {
+    return this.getOrgUnit(this.m_nameCanonical, 3);
+  }
 
-	@Override
-	public String getCanonical() {
-		return m_nameCanonical;
-	}
+  @Override
+  public String getOrgUnit4() {
+    return this.getOrgUnit(this.m_nameCanonical, 4);
+  }
 
-	@Override
-	public String toString() {
-		return MessageFormat.format("JNAName [name={0}]", m_nameCanonical); //$NON-NLS-1$
-	}
-	
+  @Override
+  public List<String> getOrgUnits() {
+    final List<String> orgUnits = new ArrayList<>();
+
+    final ReverseStringTokenizer st = new ReverseStringTokenizer(this.m_nameCanonical, "/"); //$NON-NLS-1$
+
+    while (st.hasMoreTokens()) {
+      final String currToken = st.nextToken();
+      if (StringUtil.startsWithIgnoreCase(currToken, "ou=")) { //$NON-NLS-1$
+        orgUnits.add(currToken.substring(3));
+      }
+    }
+
+    return orgUnits;
+  }
+
+  @Override
+  public String toString() {
+    return MessageFormat.format("JNAName [name={0}]", this.m_nameCanonical); //$NON-NLS-1$
+  }
+
 }

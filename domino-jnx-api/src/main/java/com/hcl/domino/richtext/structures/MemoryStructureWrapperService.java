@@ -21,26 +21,30 @@ import java.nio.ByteBuffer;
 import com.hcl.domino.misc.JNXServiceFinder;
 
 /**
- * This interface represents a service capable of wrapping {@link ByteBuffer}s into
+ * This interface represents a service capable of wrapping {@link ByteBuffer}s
+ * into
  * {@link MemoryStructure} instances in an implementation-specific way.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.15
  */
 public interface MemoryStructureWrapperService {
-	static MemoryStructureWrapperService get() {
-		return JNXServiceFinder.findRequiredService(MemoryStructureWrapperService.class, MemoryStructureWrapperService.class.getClassLoader());
-	}
-	
-	/**
-	 * Wraps the provided {@link ByteBuffer} into an instance of the provided structure class, without appending
-	 * it to the destination rich-text entity. This is useful in specific situations where variable data consists
-	 * of structured values.
-	 * 
-	 * @param <T> the type of structure contained in the data
-	 * @param structureClass a {@link Class} representing {@code <T>}
-	 * @param data the data to wrap
-	 * @return the newly-wrapped structure
-	 */
-	<T extends MemoryStructure> T wrapStructure(Class<T> structureClass, ByteBuffer data);
+  static MemoryStructureWrapperService get() {
+    return JNXServiceFinder.findRequiredService(MemoryStructureWrapperService.class,
+        MemoryStructureWrapperService.class.getClassLoader());
+  }
+
+  /**
+   * Wraps the provided {@link ByteBuffer} into an instance of the provided
+   * structure class, without appending
+   * it to the destination rich-text entity. This is useful in specific situations
+   * where variable data consists
+   * of structured values.
+   *
+   * @param <T>            the type of structure contained in the data
+   * @param structureClass a {@link Class} representing {@code <T>}
+   * @param data           the data to wrap
+   * @return the newly-wrapped structure
+   */
+  <T extends MemoryStructure> T wrapStructure(Class<T> structureClass, ByteBuffer data);
 }

@@ -24,100 +24,91 @@ import java.io.PrintWriter;
  * <p>
  * Adapted from FunctorException in Commons Collections.
  * <p>
- * Emulation support for nested exceptions has been removed in {@code Email 1.3},
+ * Emulation support for nested exceptions has been removed in
+ * {@code Email 1.3},
  * supported by JDK &ge; 1.4.
  *
  * @since 1.0
  */
 public class EmailException
-        extends Exception
-{
-    /** Serializable version identifier. */
-    private static final long serialVersionUID = 5550674499282474616L;
+    extends Exception {
+  /** Serializable version identifier. */
+  private static final long serialVersionUID = 5550674499282474616L;
 
-    /**
-     * Constructs a new {@code EmailException} with no
-     * detail message.
-     */
-    public EmailException()
-    {
-        super();
+  /**
+   * Constructs a new {@code EmailException} with no
+   * detail message.
+   */
+  public EmailException() {
+    super();
+  }
+
+  /**
+   * Constructs a new {@code EmailException} with specified
+   * detail message.
+   *
+   * @param msg the error message.
+   */
+  public EmailException(final String msg) {
+    super(msg);
+  }
+
+  /**
+   * Constructs a new {@code EmailException} with specified
+   * detail message and nested {@code Throwable} root cause.
+   *
+   * @param msg       the error message.
+   * @param rootCause the exception or error that caused this exception
+   *                  to be thrown.
+   */
+  public EmailException(final String msg, final Throwable rootCause) {
+    super(msg, rootCause);
+  }
+
+  /**
+   * Constructs a new {@code EmailException} with specified
+   * nested {@code Throwable} root cause.
+   *
+   * @param rootCause the exception or error that caused this exception
+   *                  to be thrown.
+   */
+  public EmailException(final Throwable rootCause) {
+    super(rootCause);
+  }
+
+  /**
+   * Prints the stack trace of this exception to the standard error stream.
+   */
+  @Override
+  public void printStackTrace() {
+    this.printStackTrace(System.err);
+  }
+
+  /**
+   * Prints the stack trace of this exception to the specified stream.
+   *
+   * @param out the {@code PrintStream} to use for output
+   */
+  @Override
+  public void printStackTrace(final PrintStream out) {
+    synchronized (out) {
+      final PrintWriter pw = new PrintWriter(out, false);
+      this.printStackTrace(pw);
+
+      // Flush the PrintWriter before it's GC'ed.
+      pw.flush();
     }
+  }
 
-    /**
-     * Constructs a new {@code EmailException} with specified
-     * detail message.
-     *
-     * @param msg  the error message.
-     */
-    public EmailException(final String msg)
-    {
-        super(msg);
+  /**
+   * Prints the stack trace of this exception to the specified writer.
+   *
+   * @param out the {@code PrintWriter} to use for output
+   */
+  @Override
+  public void printStackTrace(final PrintWriter out) {
+    synchronized (out) {
+      super.printStackTrace(out);
     }
-
-    /**
-     * Constructs a new {@code EmailException} with specified
-     * nested {@code Throwable} root cause.
-     *
-     * @param rootCause  the exception or error that caused this exception
-     *                   to be thrown.
-     */
-    public EmailException(final Throwable rootCause)
-    {
-        super(rootCause);
-    }
-
-    /**
-     * Constructs a new {@code EmailException} with specified
-     * detail message and nested {@code Throwable} root cause.
-     *
-     * @param msg  the error message.
-     * @param rootCause  the exception or error that caused this exception
-     *                   to be thrown.
-     */
-    public EmailException(final String msg, final Throwable rootCause)
-    {
-        super(msg, rootCause);
-    }
-
-    /**
-     * Prints the stack trace of this exception to the standard error stream.
-     */
-    @Override
-    public void printStackTrace()
-    {
-        printStackTrace(System.err);
-    }
-
-    /**
-     * Prints the stack trace of this exception to the specified stream.
-     *
-     * @param out  the {@code PrintStream} to use for output
-     */
-    @Override
-    public void printStackTrace(final PrintStream out)
-    {
-        synchronized (out)
-        {
-            final PrintWriter pw = new PrintWriter(out, false);
-            printStackTrace(pw);
-
-            // Flush the PrintWriter before it's GC'ed.
-            pw.flush();
-        }
-    }
-
-    /**
-     * Prints the stack trace of this exception to the specified writer.
-     *
-     * @param out  the {@code PrintWriter} to use for output
-     */
-    @Override
-    public void printStackTrace(final PrintWriter out)
-    {
-        synchronized (out)
-        {
-            super.printStackTrace(out);
-        }
-    }
+  }
 }

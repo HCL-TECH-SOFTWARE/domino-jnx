@@ -37,46 +37,50 @@ import jakarta.ws.rs.core.HttpHeaders;
 
 @ApplicationScoped
 public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
-	
-	@Inject
-	NotesDirectoryIdentityStore store;
 
-	@Override
-	public AuthenticationStatus validateRequest(HttpServletRequest request, HttpServletResponse response,
-			HttpMessageContext httpMessageContext) throws AuthenticationException {
-		
-		// Check Basic auth first
-		String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-		if(StringUtil.isNotEmpty(authHeader)) {
-			if(authHeader.startsWith("Basic ")) { //$NON-NLS-1$
-				String pair = new String(Base64.getUrlDecoder().decode(authHeader.substring("Basic ".length())), StandardCharsets.UTF_8); //$NON-NLS-1$
-				int colonIndex = pair.indexOf(':');
-				if(colonIndex > -1) {
-					String username = pair.substring(0, colonIndex);
-					String password = pair.substring(colonIndex+1);
-					return validateUser(username, password, httpMessageContext);
-				}
-			}
-		}
-		
-		// Check if we're POSTing to j_security_check
-		if("POST".equals(request.getMethod()) && ("/j_security_check".equals(request.getServletPath()) || "/j_security_check".equals(request.getPathInfo()))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			String username = request.getParameter("j_username"); //$NON-NLS-1$
-			String password = request.getParameter("j_password"); //$NON-NLS-1$
-			return validateUser(username, password, httpMessageContext);
-		}
-		
-		return httpMessageContext.doNothing();
-	}
-	
-	private AuthenticationStatus validateUser(String username, String password, HttpMessageContext httpMessageContext) {
-		CredentialValidationResult result = store.validate(new UsernamePasswordCredential(username, password));
-		if(result != null && result.getStatus() == Status.VALID) {
-			// Set the authentication session whether or not the context says it was requested
-			httpMessageContext.setRegisterSession(result.getCallerDn(), result.getCallerGroups());
-			return httpMessageContext.notifyContainerAboutLogin(result);
-		}
-		return AuthenticationStatus.SEND_FAILURE;
-	}
+  @Inject
+  NotesDirectoryIdentityStore store;
+
+  @Override
+  public AuthenticationStatus validateRequest(final HttpServletRequest request, final HttpServletResponse response,
+      final HttpMessageContext httpMessageContext) throws AuthenticationException {
+
+    // Check Basic auth first
+    final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+    if (StringUtil.isNotEmpty(authHeader)) {
+      if (authHeader.startsWith("Basic ")) { //$NON-NLS-1$
+        final String pair = new String(Base64.getUrlDecoder().decode(authHeader.substring("Basic ".length())), //$NON-NLS-1$
+            StandardCharsets.UTF_8);
+        final int colonIndex = pair.indexOf(':');
+        if (colonIndex > -1) {
+          final String username = pair.substring(0, colonIndex);
+          final String password = pair.substring(colonIndex + 1);
+          return this.validateUser(username, password, httpMessageContext);
+        }
+      }
+    }
+
+    // Check if we're POSTing to j_security_check
+    if ("POST".equals(request.getMethod()) //$NON-NLS-1$
+        && ("/j_security_check".equals(request.getServletPath()) || "/j_security_check".equals(request.getPathInfo()))) {  //$NON-NLS-1$ //$NON-NLS-2$
+      final String username = request.getParameter("j_username"); //$NON-NLS-1$
+      final String password = request.getParameter("j_password"); //$NON-NLS-1$
+      return this.validateUser(username, password, httpMessageContext);
+    }
+
+    return httpMessageContext.doNothing();
+  }
+
+  private AuthenticationStatus validateUser(final String username, final String password,
+      final HttpMessageContext httpMessageContext) {
+    final CredentialValidationResult result = this.store.validate(new UsernamePasswordCredential(username, password));
+    if (result != null && result.getStatus() == Status.VALID) {
+      // Set the authentication session whether or not the context says it was
+      // requested
+      httpMessageContext.setRegisterSession(result.getCallerDn(), result.getCallerGroups());
+      return httpMessageContext.notifyContainerAboutLogin(result);
+    }
+    return AuthenticationStatus.SEND_FAILURE;
+  }
 
 }

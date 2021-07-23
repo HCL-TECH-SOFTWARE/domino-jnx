@@ -25,28 +25,29 @@ import com.hcl.domino.server.ServerPingInfo;
  * @since 1.0.20
  */
 public class DefaultServerPingInfo implements ServerPingInfo {
-	private final Optional<Integer> availabilityIndex;
-	private final Optional<String> clusterName;
-	private final Optional<List<String>> clusterMembers;
-	
-	public DefaultServerPingInfo(Optional<Integer> availabilityIndex, Optional<String> clusterName, Optional<List<String>> clusterMembers) {
-		this.availabilityIndex = availabilityIndex;
-		this.clusterName = clusterName;
-		this.clusterMembers = clusterMembers;
-	}
+  private final Optional<Integer> availabilityIndex;
+  private final Optional<String> clusterName;
+  private final Optional<List<String>> clusterMembers;
 
-	@Override
-	public Optional<Integer> getAvailabilityIndex() {
-		return availabilityIndex;
-	}
-	
-	@Override
-	public Optional<String> getClusterName() {
-		return clusterName;
-	}
+  public DefaultServerPingInfo(final Optional<Integer> availabilityIndex, final Optional<String> clusterName,
+      final Optional<List<String>> clusterMembers) {
+    this.availabilityIndex = availabilityIndex;
+    this.clusterName = clusterName;
+    this.clusterMembers = clusterMembers;
+  }
 
-	@Override
-	public Optional<List<String>> getClusterMembers() {
-		return clusterMembers;
-	}
+  @Override
+  public Optional<Integer> getAvailabilityIndex() {
+    return this.availabilityIndex;
+  }
+
+  @Override
+  public Optional<List<String>> getClusterMembers() {
+    return this.clusterMembers;
+  }
+
+  @Override
+  public Optional<String> getClusterName() {
+    return this.clusterName;
+  }
 }

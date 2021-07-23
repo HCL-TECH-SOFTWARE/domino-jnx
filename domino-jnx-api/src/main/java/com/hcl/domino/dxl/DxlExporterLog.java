@@ -21,10 +21,11 @@ package com.hcl.domino.dxl;
  * @since 1.0.27
  */
 public interface DxlExporterLog {
-	interface DxlError {
-		int getId();
-		String getText();
-	}
-	
-	DxlError getError();
+  interface DxlError {
+    int getId();
+
+    String getText();
+  }
+
+  DxlError getError();
 }

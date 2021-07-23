@@ -20,7 +20,7 @@ import com.hcl.domino.design.DesignElement.NamedDesignElement;
 
 /**
  * Parent interface for script-library design elements.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.24
  */

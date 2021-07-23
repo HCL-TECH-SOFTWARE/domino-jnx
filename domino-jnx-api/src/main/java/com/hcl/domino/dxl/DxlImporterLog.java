@@ -23,21 +23,29 @@ import java.util.List;
  * @since 1.0.27
  */
 public interface DxlImporterLog {
-	interface DxlError {
-		int getId();
-		String getSource();
-		int getLine();
-		int getColumn();
-		String getText();
-	}
-	interface DxlFatalError {
-		String getSource();
-		int getLine();
-		int getColumn();
-		String getText();
-	}
-	
-	List<DxlFatalError> getFatalErrors();
-	
-	List<DxlError> getErrors();
+  interface DxlError {
+    int getColumn();
+
+    int getId();
+
+    int getLine();
+
+    String getSource();
+
+    String getText();
+  }
+
+  interface DxlFatalError {
+    int getColumn();
+
+    int getLine();
+
+    String getSource();
+
+    String getText();
+  }
+
+  List<DxlError> getErrors();
+
+  List<DxlFatalError> getFatalErrors();
 }

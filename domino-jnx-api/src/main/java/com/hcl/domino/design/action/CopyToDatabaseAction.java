@@ -21,6 +21,7 @@ package com.hcl.domino.design.action;
  * @since 1.0.24
  */
 public interface CopyToDatabaseAction extends SimpleAction {
-	String getServerName();
-	String getDatabaseName();
+  String getDatabaseName();
+
+  String getServerName();
 }

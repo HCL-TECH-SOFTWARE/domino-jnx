@@ -29,70 +29,76 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.WSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="CDACTIONMODIFYFIELD",
-	members={
-		@StructureMember(name="Header", type=WSIG.class),
-		@StructureMember(name="dwFlags", type=CDActionModifyField.Flag.class, bitfield=true),
-		@StructureMember(name="wFieldNameLen", type=short.class, unsigned=true),
-		@StructureMember(name="wValueLen", type=short.class, unsigned=true)
-	}
-)
+@StructureDefinition(name = "CDACTIONMODIFYFIELD", members = {
+    @StructureMember(name = "Header", type = WSIG.class),
+    @StructureMember(name = "dwFlags", type = CDActionModifyField.Flag.class, bitfield = true),
+    @StructureMember(name = "wFieldNameLen", type = short.class, unsigned = true),
+    @StructureMember(name = "wValueLen", type = short.class, unsigned = true)
+})
 public interface CDActionModifyField extends RichTextRecord<WSIG> {
-	enum Flag implements INumberEnum<Integer> {
-		/** Replace field value */
-		REPLACE(RichTextConstants.MODIFYFIELD_FLAG_REPLACE),
-		/** Append field value */
-		APPEND(RichTextConstants.MODIFYFIELD_FLAG_APPEND)
-		;
-		private final int value;
-		Flag(int value) { this.value = value; }
-		@Override
-		public Integer getValue() {
-			return value;
-		}
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-	}
-	
-	@StructureGetter("Header")
-	@Override
-	WSIG getHeader();
-	
-	@StructureGetter("dwFlags")
-	Set<Flag> getFlags();
-	@StructureSetter("dwFlags")
-	CDActionModifyField setFlags(Collection<Flag> flags);
-	
-	@StructureGetter("wFieldNameLen")
-	int getFieldNameLength();
-	@StructureSetter("wFieldNameLen")
-	CDActionModifyField setFieldNameLength(int len);
-	
-	@StructureGetter("wValueLen")
-	int getValueLength();
-	@StructureSetter("wValueLen")
-	CDActionModifyField setValueLength(int len);
-	
-	default String getFieldName() {
-		return StructureSupport.extractStringValue(this, 0, getFieldNameLength());
-	}
-	default CDActionModifyField setFieldName(String fieldName) {
-		StructureSupport.writeStringValue(this, 0, getFieldNameLength(), fieldName, this::setFieldNameLength);
-		return this;
-	}
-	
-	default String getValue() {
-		return StructureSupport.extractStringValue(this, getFieldNameLength(), getValueLength());
-	}
-	default CDActionModifyField setValue(String value) {
-		StructureSupport.writeStringValue(this, getFieldNameLength(), getValueLength(), value, this::setValueLength);
-		return this;
-	}
+  enum Flag implements INumberEnum<Integer> {
+    /** Replace field value */
+    REPLACE(RichTextConstants.MODIFYFIELD_FLAG_REPLACE),
+    /** Append field value */
+    APPEND(RichTextConstants.MODIFYFIELD_FLAG_APPEND);
+
+    private final int value;
+
+    Flag(final int value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Integer getValue() {
+      return this.value;
+    }
+  }
+
+  default String getFieldName() {
+    return StructureSupport.extractStringValue(this, 0, this.getFieldNameLength());
+  }
+
+  @StructureGetter("wFieldNameLen")
+  int getFieldNameLength();
+
+  @StructureGetter("dwFlags")
+  Set<Flag> getFlags();
+
+  @StructureGetter("Header")
+  @Override
+  WSIG getHeader();
+
+  default String getValue() {
+    return StructureSupport.extractStringValue(this, this.getFieldNameLength(), this.getValueLength());
+  }
+
+  @StructureGetter("wValueLen")
+  int getValueLength();
+
+  default CDActionModifyField setFieldName(final String fieldName) {
+    StructureSupport.writeStringValue(this, 0, this.getFieldNameLength(), fieldName, this::setFieldNameLength);
+    return this;
+  }
+
+  @StructureSetter("wFieldNameLen")
+  CDActionModifyField setFieldNameLength(int len);
+
+  @StructureSetter("dwFlags")
+  CDActionModifyField setFlags(Collection<Flag> flags);
+
+  default CDActionModifyField setValue(final String value) {
+    StructureSupport.writeStringValue(this, this.getFieldNameLength(), this.getValueLength(), value, this::setValueLength);
+    return this;
+  }
+
+  @StructureSetter("wValueLen")
+  CDActionModifyField setValueLength(int len);
 }

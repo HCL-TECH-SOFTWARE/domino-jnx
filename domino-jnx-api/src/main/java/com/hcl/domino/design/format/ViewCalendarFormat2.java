@@ -27,45 +27,43 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
 /**
  * @since 1.0.27
  */
-@StructureDefinition(
-	name="VIEW_CALENDAR_FORMAT2",
-	members={
-		@StructureMember(name="Signature", type=short.class),
-		@StructureMember(name="DayDateBkColor", type=ColorValue.class),
-		@StructureMember(name="NonMonthBkColor", type=ColorValue.class),
-		@StructureMember(name="NonMonthTextColor", type=ColorValue.class),
-		@StructureMember(name="DayDateColor", type=ColorValue.class),
-		@StructureMember(name="TimeSlotColor", type=ColorValue.class),
-		@StructureMember(name="HeaderColor", type=ColorValue.class),
-		@StructureMember(name="TodayRGBColor", type=ColorValue.class),
-		@StructureMember(name="WeekDayMonthFont", type=FontStyle.class),
-		@StructureMember(name="Spare", type=int[].class, length=3)
-	}
-)
+@StructureDefinition(name = "VIEW_CALENDAR_FORMAT2", members = {
+    @StructureMember(name = "Signature", type = short.class),
+    @StructureMember(name = "DayDateBkColor", type = ColorValue.class),
+    @StructureMember(name = "NonMonthBkColor", type = ColorValue.class),
+    @StructureMember(name = "NonMonthTextColor", type = ColorValue.class),
+    @StructureMember(name = "DayDateColor", type = ColorValue.class),
+    @StructureMember(name = "TimeSlotColor", type = ColorValue.class),
+    @StructureMember(name = "HeaderColor", type = ColorValue.class),
+    @StructureMember(name = "TodayRGBColor", type = ColorValue.class),
+    @StructureMember(name = "WeekDayMonthFont", type = FontStyle.class),
+    @StructureMember(name = "Spare", type = int[].class, length = 3)
+})
 public interface ViewCalendarFormat2 extends MemoryStructure {
-	@StructureGetter("Signature")
-	short getSignature();
-	@StructureSetter("Signature")
-	ViewCalendarFormat2 setSignature(short signature);
-	
-	@StructureGetter("DayDateBkColor")
-	ColorValue getDayDateBackgroundColor();
-	
-	@StructureGetter("NonMonthBkColor")
-	ColorValue getNonMonthBackgroundColor();
-	
-	@StructureGetter("DayDateColor")
-	ColorValue getDayDateColor();
-	
-	@StructureGetter("TimeSlotColor")
-	ColorValue getTimeSlotColor();
-	
-	@StructureGetter("HeaderColor")
-	ColorValue getHeaderColor();
-	
-	@StructureGetter("TodayRGBColor")
-	ColorValue getTodayColor();
-	
-	@StructureGetter("WeekDayMonthFont")
-	FontStyle getWeekDayMonthFont();
+  @StructureGetter("DayDateBkColor")
+  ColorValue getDayDateBackgroundColor();
+
+  @StructureGetter("DayDateColor")
+  ColorValue getDayDateColor();
+
+  @StructureGetter("HeaderColor")
+  ColorValue getHeaderColor();
+
+  @StructureGetter("NonMonthBkColor")
+  ColorValue getNonMonthBackgroundColor();
+
+  @StructureGetter("Signature")
+  short getSignature();
+
+  @StructureGetter("TimeSlotColor")
+  ColorValue getTimeSlotColor();
+
+  @StructureGetter("TodayRGBColor")
+  ColorValue getTodayColor();
+
+  @StructureGetter("WeekDayMonthFont")
+  FontStyle getWeekDayMonthFont();
+
+  @StructureSetter("Signature")
+  ViewCalendarFormat2 setSignature(short signature);
 }

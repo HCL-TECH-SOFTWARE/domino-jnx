@@ -16,42 +16,38 @@
  */
 package com.hcl.domino.commons.test.design;
 
-import static java.util.Arrays.asList;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
 import com.hcl.domino.commons.design.DesignUtil;
 
 @SuppressWarnings("nls")
 public class TestDesignUtil {
 
-	@Test
-	public void testTitleMatch() {
-		assertTrue(DesignUtil.matchesTitleValues("Foo", asList("Foo")));
-		assertTrue(DesignUtil.matchesTitleValues("Foo", asList("Foo|Bar")));
-		assertTrue(DesignUtil.matchesTitleValues("Foo", asList("(foo)")));
-		assertTrue(DesignUtil.matchesTitleValues("Foo", asList("Bar|Foo")));
-		assertTrue(DesignUtil.matchesTitleValues("Foo", asList("Bar", "Foo")));
-		assertTrue(DesignUtil.matchesTitleValues("Foo", asList("fOO")));
-		assertTrue(DesignUtil.matchesTitleValues("(Foo)", asList("fOO")));
-		assertTrue(DesignUtil.matchesTitleValues("Foo", asList("Bar|(Foo)|Baz")));
-		assertTrue(DesignUtil.matchesTitleValues("Foo", asList("Bar", "(Foo)", "Baz")));
-		assertFalse(DesignUtil.matchesTitleValues("Foo", asList("Food")));
-		assertFalse(DesignUtil.matchesTitleValues("Foo", asList("Bar")));
-		assertFalse(DesignUtil.matchesTitleValues("Foo", asList("Bar|(Food)|Baz")));
-		assertFalse(DesignUtil.matchesTitleValues("Foo", asList("Bar", "(Food)", "Baz")));
-	}
+  @Test
+  public void testTitleMatch() {
+    Assertions.assertTrue(DesignUtil.matchesTitleValues("Foo", Arrays.asList("Foo")));
+    Assertions.assertTrue(DesignUtil.matchesTitleValues("Foo", Arrays.asList("Foo|Bar")));
+    Assertions.assertTrue(DesignUtil.matchesTitleValues("Foo", Arrays.asList("(foo)")));
+    Assertions.assertTrue(DesignUtil.matchesTitleValues("Foo", Arrays.asList("Bar|Foo")));
+    Assertions.assertTrue(DesignUtil.matchesTitleValues("Foo", Arrays.asList("Bar", "Foo")));
+    Assertions.assertTrue(DesignUtil.matchesTitleValues("Foo", Arrays.asList("fOO")));
+    Assertions.assertTrue(DesignUtil.matchesTitleValues("(Foo)", Arrays.asList("fOO")));
+    Assertions.assertTrue(DesignUtil.matchesTitleValues("Foo", Arrays.asList("Bar|(Foo)|Baz")));
+    Assertions.assertTrue(DesignUtil.matchesTitleValues("Foo", Arrays.asList("Bar", "(Foo)", "Baz")));
+    Assertions.assertFalse(DesignUtil.matchesTitleValues("Foo", Arrays.asList("Food")));
+    Assertions.assertFalse(DesignUtil.matchesTitleValues("Foo", Arrays.asList("Bar")));
+    Assertions.assertFalse(DesignUtil.matchesTitleValues("Foo", Arrays.asList("Bar|(Food)|Baz")));
+    Assertions.assertFalse(DesignUtil.matchesTitleValues("Foo", Arrays.asList("Bar", "(Food)", "Baz")));
+  }
 
-	@Test
-	public void testToTitlesList() {
-		assertEquals(Arrays.asList("foo", "bar"), DesignUtil.toTitlesList(Arrays.asList("foo", "bar")));
-		assertEquals(Arrays.asList(""), DesignUtil.toTitlesList(null));
-		assertEquals(Arrays.asList("foo", "bar"), DesignUtil.toTitlesList(Arrays.asList("foo|bar")));
-		assertEquals(Arrays.asList("foo", "bar", "baz"), DesignUtil.toTitlesList(Arrays.asList("foo|bar", "baz")));
-	}
+  @Test
+  public void testToTitlesList() {
+    Assertions.assertEquals(Arrays.asList("foo", "bar"), DesignUtil.toTitlesList(Arrays.asList("foo", "bar")));
+    Assertions.assertEquals(Arrays.asList(""), DesignUtil.toTitlesList(null));
+    Assertions.assertEquals(Arrays.asList("foo", "bar"), DesignUtil.toTitlesList(Arrays.asList("foo|bar")));
+    Assertions.assertEquals(Arrays.asList("foo", "bar", "baz"), DesignUtil.toTitlesList(Arrays.asList("foo|bar", "baz")));
+  }
 }

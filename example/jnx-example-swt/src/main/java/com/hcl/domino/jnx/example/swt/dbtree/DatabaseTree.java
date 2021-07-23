@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 
-import jakarta.enterprise.inject.spi.CDI;
-
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ResourceManager;
 import org.eclipse.jface.viewers.TreeNode;
@@ -38,61 +36,62 @@ import org.eclipse.swt.widgets.Tree;
 
 import com.hcl.domino.jnx.example.swt.bean.DatabasesBean;
 
+import jakarta.enterprise.inject.spi.CDI;
+
 public class DatabaseTree extends Composite {
-	private TreeViewer databaseBrowser;
-	private ResourceManager resourceManager;
-	private Composite target;
+  private TreeViewer databaseBrowser;
+  private final ResourceManager resourceManager;
+  private Composite target;
 
-	public DatabaseTree(Composite parent, ResourceManager resourceManager) {
-		super(parent, SWT.NONE);
-		this.resourceManager = resourceManager;
-		setLayout(new FillLayout(SWT.HORIZONTAL));
-		
-		createChildren();
-		connectActions();
-	}
-	
-	@Override
-	protected void checkSubclass() {
-	}
-	
-	public void setTarget(Composite target) {
-		this.target = target;
-	}
+  public DatabaseTree(final Composite parent, final ResourceManager resourceManager) {
+    super(parent, SWT.NONE);
+    this.resourceManager = resourceManager;
+    this.setLayout(new FillLayout(SWT.HORIZONTAL));
 
-	private void createChildren() {
-		databaseBrowser = new TreeViewer(this, SWT.BORDER | SWT.FULL_SELECTION);
-		databaseBrowser.setContentProvider(new TreeNodeContentProvider());
-		databaseBrowser.setLabelProvider(new DatabaseTreeLabelProvider());
-		
-		Tree tree = databaseBrowser.getTree();
-		Font font = tree.getFont();
-		tree.setFont(resourceManager.createFont(FontDescriptor.createFrom(font.getFontData()[0].getName(), 10, SWT.NORMAL)));
-		tree.setLinesVisible(false);
-		
-		Collection<String> serverNames = new ArrayList<>();
-		serverNames.add(""); //$NON-NLS-1$
-		serverNames.addAll(CDI.current().select(DatabasesBean.class).get().getKnownServers());
-		databaseBrowser.setInput(
-			serverNames.stream()
-				.map(ServerTreeNode::new)
-				.toArray(TreeNode[]::new)
-		);
-	}
-	
-	private void connectActions() {
-		databaseBrowser.getTree().addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if(e.item != null) {
-					Object item = e.item.getData();
-					if(item instanceof DBListTreeNode) {
-						((DBListTreeNode)item).displayInfoPane(target);
-					}
-				} else {
-					Arrays.stream(target.getChildren()).forEach(Control::dispose);
-				}
-			}
-		});
-	}
+    this.createChildren();
+    this.connectActions();
+  }
+
+  @Override
+  protected void checkSubclass() {
+  }
+
+  private void connectActions() {
+    this.databaseBrowser.getTree().addSelectionListener(new SelectionAdapter() {
+      @Override
+      public void widgetSelected(final SelectionEvent e) {
+        if (e.item != null) {
+          final Object item = e.item.getData();
+          if (item instanceof DBListTreeNode) {
+            ((DBListTreeNode) item).displayInfoPane(DatabaseTree.this.target);
+          }
+        } else {
+          Arrays.stream(DatabaseTree.this.target.getChildren()).forEach(Control::dispose);
+        }
+      }
+    });
+  }
+
+  private void createChildren() {
+    this.databaseBrowser = new TreeViewer(this, SWT.BORDER | SWT.FULL_SELECTION);
+    this.databaseBrowser.setContentProvider(new TreeNodeContentProvider());
+    this.databaseBrowser.setLabelProvider(new DatabaseTreeLabelProvider());
+
+    final Tree tree = this.databaseBrowser.getTree();
+    final Font font = tree.getFont();
+    tree.setFont(this.resourceManager.createFont(FontDescriptor.createFrom(font.getFontData()[0].getName(), 10, SWT.NORMAL)));
+    tree.setLinesVisible(false);
+
+    final Collection<String> serverNames = new ArrayList<>();
+    serverNames.add(""); //$NON-NLS-1$
+    serverNames.addAll(CDI.current().select(DatabasesBean.class).get().getKnownServers());
+    this.databaseBrowser.setInput(
+        serverNames.stream()
+            .map(ServerTreeNode::new)
+            .toArray(TreeNode[]::new));
+  }
+
+  public void setTarget(final Composite target) {
+    this.target = target;
+  }
 }

@@ -44,86 +44,84 @@ import jakarta.json.bind.JsonbBuilder;
 
 @Path("console")
 public class ConsoleResource {
-	private static class SseConsoleHandler implements ConsoleHandler, AutoCloseable {
-		private final Sse sse;
-		private final SseBroadcaster sseBroadcaster;
-		private final long opened = System.currentTimeMillis();
-		private boolean shouldStop;
-		private DominoClient dominoClient;
-		private MessageQueue httpQueue;
-		
-		public SseConsoleHandler(Sse sse, SseBroadcaster sseBroadcaster) {
-			this.sse = sse;
-			this.sseBroadcaster = sseBroadcaster;
-			this.dominoClient = DominoClientBuilder.newDominoClient().build();
-			this.httpQueue = dominoClient.getMessageQueues().open("MQ$HTTP", false); //$NON-NLS-1$
-			
-			this.sseBroadcaster.onClose(sink -> this.close());
-		}
-		
-		@Override
-		public void close() {
-			this.shouldStop = true;
-			this.httpQueue.close();
-			this.dominoClient.close();
-		}
+  private static class SseConsoleHandler implements ConsoleHandler, AutoCloseable {
+    private final Sse sse;
+    private final SseBroadcaster sseBroadcaster;
+    private final long opened = System.currentTimeMillis();
+    private boolean shouldStop;
+    private final DominoClient dominoClient;
+    private final MessageQueue httpQueue;
 
-		@Override
-		public boolean shouldStop() {
-			if(httpQueue.isQuitPending()) {
-				return true;
-			}
-			if(this.shouldStop || Thread.currentThread().isInterrupted()) {
-				return true;
-			}
-			boolean timedOut = System.currentTimeMillis() > opened + TimeUnit.HOURS.toMillis(1);
-			if(timedOut) {
-				return true;
-			}
-			return false;
-		}
+    public SseConsoleHandler(final Sse sse, final SseBroadcaster sseBroadcaster) {
+      this.sse = sse;
+      this.sseBroadcaster = sseBroadcaster;
+      this.dominoClient = DominoClientBuilder.newDominoClient().build();
+      this.httpQueue = this.dominoClient.getMessageQueues().open("MQ$HTTP", false); //$NON-NLS-1$
 
-		@Override
-		public void messageReceived(IConsoleLine line) {
-			UUID eventId = UUID.randomUUID();
-			
-			String json = JsonbBuilder.create().toJson(line);
-			
-			this.sseBroadcaster.broadcast(sse.newEventBuilder()
-				.name("logline") //$NON-NLS-1$
-				.id(eventId.toString())
-				.mediaType(MediaType.APPLICATION_JSON_TYPE)
-				.data(String.class, json)
-				.reconnectDelay(250)
-				.build());
-		}
-		
-	}
+      this.sseBroadcaster.onClose(sink -> this.close());
+    }
 
-	@GET
-	@Produces(MediaType.SERVER_SENT_EVENTS)
-	public void getConsoleOutput(@Context SseEventSink sseEventSink, @Context Sse sse, @QueryParam("serverName") String serverName) throws InterruptedException, ExecutionException {
-		RestEasyServlet.instance.executor.submit(() -> {
-			try(SseBroadcaster broadcaster = sse.newBroadcaster(); SseConsoleHandler handler = new SseConsoleHandler(sse, broadcaster)) {
-				broadcaster.register(sseEventSink);
-				try(DominoClient dominoClient = DominoClientBuilder.newDominoClient().build()) {
-					dominoClient.getServerAdmin().openServerConsole(serverName, handler);
-				} catch(CancelException e) {
-					// Expected when shutting down
-				} catch(Throwable t) {
-					t.printStackTrace();
-				} finally {
-					sseEventSink.close();
-				}
-			}
-		}).get();
-	}
-	
-	@POST
-	@Produces(MediaType.TEXT_PLAIN)
-	public String sendCommand(@FormParam("serverName") String serverName, @FormParam("command") String command) throws InterruptedException, ExecutionException {
-		return RestEasyServlet.instance.executor.submit(() ->
-			RestEasyServlet.instance.dominoClient.getServerAdmin().sendConsoleCommand(serverName, command)
-		).get();
-	}
+    @Override
+    public void close() {
+      this.shouldStop = true;
+      this.httpQueue.close();
+      this.dominoClient.close();
+    }
+
+    @Override
+    public void messageReceived(final IConsoleLine line) {
+      final UUID eventId = UUID.randomUUID();
+
+      final String json = JsonbBuilder.create().toJson(line);
+
+      this.sseBroadcaster.broadcast(this.sse.newEventBuilder()
+          .name("logline") //$NON-NLS-1$
+          .id(eventId.toString())
+          .mediaType(MediaType.APPLICATION_JSON_TYPE)
+          .data(String.class, json)
+          .reconnectDelay(250)
+          .build());
+    }
+
+    @Override
+    public boolean shouldStop() {
+      if (this.httpQueue.isQuitPending() || this.shouldStop || Thread.currentThread().isInterrupted()) {
+        return true;
+      }
+      final boolean timedOut = System.currentTimeMillis() > this.opened + TimeUnit.HOURS.toMillis(1);
+      if (timedOut) {
+        return true;
+      }
+      return false;
+    }
+
+  }
+
+  @GET
+  @Produces(MediaType.SERVER_SENT_EVENTS)
+  public void getConsoleOutput(@Context final SseEventSink sseEventSink, @Context final Sse sse,
+      @QueryParam("serverName") final String serverName) throws InterruptedException, ExecutionException {
+    RestEasyServlet.instance.executor.submit(() -> {
+      try (SseBroadcaster broadcaster = sse.newBroadcaster(); SseConsoleHandler handler = new SseConsoleHandler(sse, broadcaster)) {
+        broadcaster.register(sseEventSink);
+        try (DominoClient dominoClient = DominoClientBuilder.newDominoClient().build()) {
+          dominoClient.getServerAdmin().openServerConsole(serverName, handler);
+        } catch (final CancelException e) {
+          // Expected when shutting down
+        } catch (final Throwable t) {
+          t.printStackTrace();
+        } finally {
+          sseEventSink.close();
+        }
+      }
+    }).get();
+  }
+
+  @POST
+  @Produces(MediaType.TEXT_PLAIN)
+  public String sendCommand(@FormParam("serverName") final String serverName, @FormParam("command") final String command)
+      throws InterruptedException, ExecutionException {
+    return RestEasyServlet.instance.executor
+        .submit(() -> RestEasyServlet.instance.dominoClient.getServerAdmin().sendConsoleCommand(serverName, command)).get();
+  }
 }

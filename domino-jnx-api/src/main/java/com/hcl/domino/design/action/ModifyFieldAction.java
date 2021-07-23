@@ -21,6 +21,7 @@ package com.hcl.domino.design.action;
  * @since 1.0.24
  */
 public interface ModifyFieldAction extends SimpleAction {
-	String getFieldName();
-	String getValue();
+  String getFieldName();
+
+  String getValue();
 }

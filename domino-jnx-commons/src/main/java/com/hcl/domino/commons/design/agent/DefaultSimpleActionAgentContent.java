@@ -29,15 +29,15 @@ import com.hcl.domino.design.agent.SimpleActionAgentContent;
  * @since 1.0.24
  */
 public class DefaultSimpleActionAgentContent implements SimpleActionAgentContent {
-	private final List<SimpleAction> actions;
-	
-	public DefaultSimpleActionAgentContent(Collection<SimpleAction> actions) {
-		this.actions = new ArrayList<>(actions);
-	}
+  private final List<SimpleAction> actions;
 
-	@Override
-	public List<SimpleAction> getActions() {
-		return Collections.unmodifiableList(actions);
-	}
+  public DefaultSimpleActionAgentContent(final Collection<SimpleAction> actions) {
+    this.actions = new ArrayList<>(actions);
+  }
+
+  @Override
+  public List<SimpleAction> getActions() {
+    return Collections.unmodifiableList(this.actions);
+  }
 
 }

@@ -24,36 +24,37 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.design.DesignElement.NamedDesignElement;
 import com.hcl.domino.misc.NotesConstants;
 
-public abstract class AbstractNamedDesignElement<T extends NamedDesignElement> extends AbstractDesignElement<T> implements NamedDesignElement {
+public abstract class AbstractNamedDesignElement<T extends NamedDesignElement> extends AbstractDesignElement<T>
+    implements NamedDesignElement {
 
-	public AbstractNamedDesignElement(Document doc) {
-		super(doc);
-	}
+  public AbstractNamedDesignElement(final Document doc) {
+    super(doc);
+  }
 
-	@Override
-	public String getTitle() {
-		String title = getDocument().getAsText(NotesConstants.FIELD_TITLE, '|');
-		int barIndex = title.indexOf('|');
-		if(barIndex < 0) {
-			return title;
-		} else {
-			return title.substring(0, barIndex);
-		}
-	}
+  @Override
+  public List<String> getAliases() {
+    final String title = this.getDocument().getAsText(NotesConstants.FIELD_TITLE, '|');
+    final int barIndex = title.indexOf('|');
+    if (barIndex < 0) {
+      return Collections.emptyList();
+    } else {
+      return Arrays.asList(title.substring(barIndex + 1).split("\\|")); //$NON-NLS-1$
+    }
+  }
 
-	@Override
-	public List<String> getAliases() {
-		String title = getDocument().getAsText(NotesConstants.FIELD_TITLE, '|');
-		int barIndex = title.indexOf('|');
-		if(barIndex < 0) {
-			return Collections.emptyList();
-		} else {
-			return Arrays.asList(title.substring(barIndex+1).split("\\|")); //$NON-NLS-1$
-		}
-	}
+  @Override
+  public String getTitle() {
+    final String title = this.getDocument().getAsText(NotesConstants.FIELD_TITLE, '|');
+    final int barIndex = title.indexOf('|');
+    if (barIndex < 0) {
+      return title;
+    } else {
+      return title.substring(0, barIndex);
+    }
+  }
 
-	@Override
-	public void setTitle(String... title) {
-		getDocument().replaceItemValue(NotesConstants.FIELD_TITLE, title);
-	}
+  @Override
+  public void setTitle(final String... title) {
+    this.getDocument().replaceItemValue(NotesConstants.FIELD_TITLE, title);
+  }
 }

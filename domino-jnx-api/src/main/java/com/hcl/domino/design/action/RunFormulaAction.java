@@ -23,5 +23,5 @@ import com.hcl.domino.design.agent.FormulaAgentContent;
  * @since 1.0.24
  */
 public interface RunFormulaAction extends SimpleAction, FormulaAgentContent {
-	
+
 }

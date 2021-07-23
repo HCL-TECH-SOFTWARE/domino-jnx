@@ -18,24 +18,24 @@ package com.hcl.domino.design.agent;
 
 /**
  * Represents the contents of a formula-type agent.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.24
  */
 public interface FormulaAgentContent extends AgentContent {
-	enum DocumentAction {
-		MODIFY,
-		CREATE,
-		SELECT
-	}
-	
-	/**
-	 * @return the document action performed by this agent
-	 */
-	DocumentAction getDocumentAction();
-	
-	/**
-	 * @return the agent formula script
-	 */
-	String getFormula();
+  enum DocumentAction {
+    MODIFY,
+    CREATE,
+    SELECT
+  }
+
+  /**
+   * @return the document action performed by this agent
+   */
+  DocumentAction getDocumentAction();
+
+  /**
+   * @return the agent formula script
+   */
+  String getFormula();
 }

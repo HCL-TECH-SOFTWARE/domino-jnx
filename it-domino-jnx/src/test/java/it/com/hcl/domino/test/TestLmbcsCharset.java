@@ -16,33 +16,33 @@
  */
 package it.com.hcl.domino.test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.nio.charset.Charset;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 @SuppressWarnings("nls")
 public class TestLmbcsCharset {
-	
-	@Test
-	public void testForNameLMBCS() {
-		Charset.forName("LMBCS");
-	}
-	@Test
-	public void testForNameLMBCSNative() {
-		Charset.forName("LMBCS-native");
-	}
-	
-	@ParameterizedTest
-	@ValueSource(strings={"Hello","EkranAlıntısı1.JPG"})
-	public void testRoundTrip(String expected) {
-		Charset charset = Charset.forName("LMBCS-native");
-		byte[] encoded = expected.getBytes(charset);
-		String decoded = new String(encoded, charset);
-		assertEquals(expected, decoded);
-	}
+
+  @Test
+  public void testForNameLMBCS() {
+    Charset.forName("LMBCS");
+  }
+
+  @Test
+  public void testForNameLMBCSNative() {
+    Charset.forName("LMBCS-native");
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = { "Hello", "EkranAlıntısı1.JPG" })
+  public void testRoundTrip(final String expected) {
+    final Charset charset = Charset.forName("LMBCS-native");
+    final byte[] encoded = expected.getBytes(charset);
+    final String decoded = new String(encoded, charset);
+    Assertions.assertEquals(expected, decoded);
+  }
 
 }

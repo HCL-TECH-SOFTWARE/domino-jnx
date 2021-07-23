@@ -19,24 +19,25 @@ package com.hcl.domino.exception;
 import com.hcl.domino.DominoException;
 
 /**
- * Represents error code 2276, "There was an error sending out notices to meeting participants."
+ * Represents error code 2276, "There was an error sending out notices to
+ * meeting participants."
  */
 public class ImplicitScheduleFailedException extends DominoException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public ImplicitScheduleFailedException(int id, String message) {
-		super(id, message);
-	}
+  public ImplicitScheduleFailedException(final int id, final String message) {
+    super(id, message);
+  }
 
-	public ImplicitScheduleFailedException(int id, String message, Throwable cause) {
-		super(id, message, cause);
-	}
+  public ImplicitScheduleFailedException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
+  }
 
-	public ImplicitScheduleFailedException(String msg) {
-		super(msg);
-	}
+  public ImplicitScheduleFailedException(final String msg) {
+    super(msg);
+  }
 
-	public ImplicitScheduleFailedException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public ImplicitScheduleFailedException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
 }

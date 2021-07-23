@@ -35,155 +35,153 @@ import com.hcl.domino.json.JsonSerializer;
 
 public abstract class AbstractJsonSerializer implements JsonSerializer {
 
-	protected Collection<String> skippedItemNames;
-	protected Collection<String> includedItemNames;
-	protected Collection<ItemDataType> excludedTypes;
-	protected boolean lowercaseProperties;
-	protected boolean includeMetadata;
-	
-	protected Collection<String> booleanItemNames = Collections.emptySet();
-	protected Collection<Object> booleanTrueValues = Collections.emptySet();
-	
-	protected DateRangeFormat dateRangeFormat = DateRangeFormat.ISO;
-	
-	/**
-	 * This map contains values set by {@link #richTextConvertOption(HtmlConvertOption, String)}.
-	 * When it is empty, the serializer should use the default behavior of
-	 * {@link HtmlConvertOption#XMLCompatibleHTML XMLCompatibleHTML=1}.
-	 * 
-	 * @since 1.0.27
-	 */
-	protected final Map<HtmlConvertOption, String> htmlConvertOptions = new LinkedHashMap<>();
-	
-	/**
-	 * This map contains processors set by {@link #customProcessor(String, BiFunction)}.
-	 * 
-	 * @since 1.0.28
-	 */
-	protected final Map<String, BiFunction<Document, String, Object>> customProcessors = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-	
-	@Override
-	public JsonSerializer excludeItems(Collection<String> skippedItemNames) {
-		if(skippedItemNames == null) {
-			this.skippedItemNames = Collections.emptySet();
-		} else {
-			this.skippedItemNames = JsonUtil.toInsensitiveSet(skippedItemNames);
-		}
-		return this;
-	}
+  /**
+   * Excludes some known-skippable items based on their name patterns, such as
+   * stored forms.
+   * 
+   * @param itemName the name of the item to check
+   * @return whether the item should be excluded from export
+   */
+  public static boolean isExcludedField(final String itemName) {
+    if (itemName == null || itemName.isEmpty() || itemName.toLowerCase().endsWith("_storedform") || itemName.toLowerCase().endsWith("_storedsubform")) { //$NON-NLS-1$
+      return true;
+    }
+    return false;
+  }
 
-	@Override
-	public JsonSerializer includeItems(Collection<String> includedItemNames) {
-		if(includedItemNames == null) {
-			this.includedItemNames = Collections.emptySet();
-		} else {
-			this.includedItemNames = JsonUtil.toInsensitiveSet(includedItemNames);
-		}
-		return this;
-	}
+  public static boolean matchesBooleanValues(final Object value, final Collection<Object> booleanTrueValues) {
+    if (booleanTrueValues == null || booleanTrueValues.isEmpty()) {
+      return false;
+    }
+    for (final Object trueValue : booleanTrueValues) {
+      if (value == trueValue) {
+        return true;
+      } else if (value instanceof Number && trueValue instanceof Number) {
+        // All Domino values will be Double, but provided values may not be
+        if (((Number) value).doubleValue() == ((Number) trueValue).doubleValue()) {
+          return true;
+        }
+      } else if (value instanceof CharSequence && trueValue instanceof Character) {
+        // Fudge the difference with chars and single-length strings
+        if (((CharSequence) trueValue).length() == 1 && ((CharSequence) trueValue).charAt(0) == (char) trueValue) {
+          return true;
+        }
+      } else if (Objects.equals(value, trueValue)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-	@Override
-	public JsonSerializer excludeTypes(Collection<ItemDataType> excludedTypes) {
-		if(excludedTypes == null) {
-			this.excludedTypes = Collections.emptySet();
-		} else {
-			this.excludedTypes = EnumSet.copyOf(excludedTypes);
-		}
-		return this;
-	}
+  protected Collection<String> skippedItemNames;
+  protected Collection<String> includedItemNames;
+  protected Collection<ItemDataType> excludedTypes;
 
-	@Override
-	public JsonSerializer lowercaseProperties(boolean lowercaseProperties) {
-		this.lowercaseProperties = lowercaseProperties;
-		return this;
-	}
+  protected boolean lowercaseProperties;
+  protected boolean includeMetadata;
 
-	@Override
-	public JsonSerializer includeMetadata(boolean includeMetadata) {
-		this.includeMetadata = includeMetadata;
-		return this;
-	}
-	
-	@Override
-	public JsonSerializer booleanItemNames(Collection<String> booleanItemNames) {
-		this.booleanItemNames = JsonUtil.toInsensitiveSet(booleanItemNames);
-		return this;
-	}
-	
-	@Override
-	public JsonSerializer booleanTrueValues(Collection<Object> trueValues) {
-		this.booleanTrueValues = trueValues == null ? Collections.emptySet() : new HashSet<>(trueValues);
-		return this;
-	}
-	
-	@Override
-	public JsonSerializer dateRangeFormat(DateRangeFormat format) {
-		this.dateRangeFormat = format == null ? DateRangeFormat.ISO : format;
-		return this;
-	}
-	
-	@Override
-	public JsonSerializer richTextConvertOption(HtmlConvertOption option, String value) {
-		this.htmlConvertOptions.put(option, value);
-		return this;
-	}
-	
-	@Override
-	public JsonSerializer customProcessor(String propName, BiFunction<Document, String, Object> processor) {
-		Objects.requireNonNull(propName, "propName cannot be null");
-		Objects.requireNonNull(processor, "processor cannot be null");
-		if(StringUtil.isEmpty(propName)) {
-			throw new IllegalArgumentException("propName cannot be null");
-		}
-		this.customProcessors.put(propName, processor);
-		return this;
-	}
-	
-	// *******************************************************************************
-	// * Internal utility methods
-	// *******************************************************************************
-	
-	/**
-	 * Excludes some known-skippable items based on their name patterns, such as
-	 * stored forms.
-	 * 
-	 * @param itemName the name of the item to check
-	 * @return whether the item should be excluded from export
-	 */
-	public static boolean isExcludedField(String itemName) {
-		if(itemName == null || itemName.isEmpty()) {
-			return true;
-		}
-		if(itemName.toLowerCase().endsWith("_storedform")) { //$NON-NLS-1$
-			return true;
-		}
-		if(itemName.toLowerCase().endsWith("_storedsubform")) { //$NON-NLS-1$
-			return true;
-		}
-		return false;
-	}
-	
-	public static boolean matchesBooleanValues(Object value, Collection<Object> booleanTrueValues) {
-		if(booleanTrueValues == null || booleanTrueValues.isEmpty()) {
-			return false;
-		}
-		for(Object trueValue : booleanTrueValues) {
-			if(value == trueValue) {
-				return true;
-			} else if(value instanceof Number && trueValue instanceof Number) {
-				// All Domino values will be Double, but provided values may not be
-				if(((Number)value).doubleValue() == ((Number)trueValue).doubleValue()) {
-					return true;
-				}
-			} else if(value instanceof CharSequence && trueValue instanceof Character) {
-				// Fudge the difference with chars and single-length strings
-				if(((CharSequence)trueValue).length() == 1 && ((CharSequence)trueValue).charAt(0) == (char)trueValue) {
-					return true;
-				}
-			} else if(Objects.equals(value, trueValue)) {
-				return true;
-			}
-		}
-		return false;
-	}
+  protected Collection<String> booleanItemNames = Collections.emptySet();
+
+  protected Collection<Object> booleanTrueValues = Collections.emptySet();
+
+  protected DateRangeFormat dateRangeFormat = DateRangeFormat.ISO;
+
+  /**
+   * This map contains values set by
+   * {@link #richTextConvertOption(HtmlConvertOption, String)}.
+   * When it is empty, the serializer should use the default behavior of
+   * {@link HtmlConvertOption#XMLCompatibleHTML XMLCompatibleHTML=1}.
+   * 
+   * @since 1.0.27
+   */
+  protected final Map<HtmlConvertOption, String> htmlConvertOptions = new LinkedHashMap<>();
+
+  /**
+   * This map contains processors set by
+   * {@link #customProcessor(String, BiFunction)}.
+   * 
+   * @since 1.0.28
+   */
+  protected final Map<String, BiFunction<Document, String, Object>> customProcessors = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+
+  @Override
+  public JsonSerializer booleanItemNames(final Collection<String> booleanItemNames) {
+    this.booleanItemNames = JsonUtil.toInsensitiveSet(booleanItemNames);
+    return this;
+  }
+
+  @Override
+  public JsonSerializer booleanTrueValues(final Collection<Object> trueValues) {
+    this.booleanTrueValues = trueValues == null ? Collections.emptySet() : new HashSet<>(trueValues);
+    return this;
+  }
+
+  @Override
+  public JsonSerializer customProcessor(final String propName, final BiFunction<Document, String, Object> processor) {
+    Objects.requireNonNull(propName, "propName cannot be null");
+    Objects.requireNonNull(processor, "processor cannot be null");
+    if (StringUtil.isEmpty(propName)) {
+      throw new IllegalArgumentException("propName cannot be null");
+    }
+    this.customProcessors.put(propName, processor);
+    return this;
+  }
+
+  @Override
+  public JsonSerializer dateRangeFormat(final DateRangeFormat format) {
+    this.dateRangeFormat = format == null ? DateRangeFormat.ISO : format;
+    return this;
+  }
+
+  @Override
+  public JsonSerializer excludeItems(final Collection<String> skippedItemNames) {
+    if (skippedItemNames == null) {
+      this.skippedItemNames = Collections.emptySet();
+    } else {
+      this.skippedItemNames = JsonUtil.toInsensitiveSet(skippedItemNames);
+    }
+    return this;
+  }
+
+  @Override
+  public JsonSerializer excludeTypes(final Collection<ItemDataType> excludedTypes) {
+    if (excludedTypes == null) {
+      this.excludedTypes = Collections.emptySet();
+    } else {
+      this.excludedTypes = EnumSet.copyOf(excludedTypes);
+    }
+    return this;
+  }
+
+  @Override
+  public JsonSerializer includeItems(final Collection<String> includedItemNames) {
+    if (includedItemNames == null) {
+      this.includedItemNames = Collections.emptySet();
+    } else {
+      this.includedItemNames = JsonUtil.toInsensitiveSet(includedItemNames);
+    }
+    return this;
+  }
+
+  @Override
+  public JsonSerializer includeMetadata(final boolean includeMetadata) {
+    this.includeMetadata = includeMetadata;
+    return this;
+  }
+
+  // *******************************************************************************
+  // * Internal utility methods
+  // *******************************************************************************
+
+  @Override
+  public JsonSerializer lowercaseProperties(final boolean lowercaseProperties) {
+    this.lowercaseProperties = lowercaseProperties;
+    return this;
+  }
+
+  @Override
+  public JsonSerializer richTextConvertOption(final HtmlConvertOption option, final String value) {
+    this.htmlConvertOptions.put(option, value);
+    return this;
+  }
 }

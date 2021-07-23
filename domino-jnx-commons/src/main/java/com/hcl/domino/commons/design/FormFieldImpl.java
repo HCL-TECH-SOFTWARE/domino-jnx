@@ -36,164 +36,165 @@ import com.hcl.domino.richtext.records.RichTextRecord;
  * @since 1.0.24
  */
 public class FormFieldImpl implements FormField {
-	private final Collection<RichTextRecord<?>> structs;
-	
-	public FormFieldImpl(Collection<RichTextRecord<?>> structs) {
-		this.structs = new ArrayList<>(Objects.requireNonNull(structs, "structs cannot be null"));
-	}
+  private final Collection<RichTextRecord<?>> structs;
 
-	@Override
-	public Optional<ItemDataType> getDataType() {
-		return structs.stream()
-			.filter(s -> s instanceof CDField)
-			.map(CDField.class::cast)
-			.findFirst()
-			.map(CDField::getFieldType);
-	}
+  public FormFieldImpl(final Collection<RichTextRecord<?>> structs) {
+    this.structs = new ArrayList<>(Objects.requireNonNull(structs, "structs cannot be null"));
+  }
 
-	@Override
-	public Optional<String> getDefaultValueFormula() {
-		return structs.stream()
-			.filter(s -> s instanceof CDField)
-			.map(CDField.class::cast)
-			.findFirst()
-			.map(CDField::getDefaultValueFormula);
-	}
+  @Override
+  public Optional<ItemDataType> getDataType() {
+    return this.structs.stream()
+        .filter(s -> s instanceof CDField)
+        .map(CDField.class::cast)
+        .findFirst()
+        .map(CDField::getFieldType);
+  }
 
-	@Override
-	public Optional<String> getInputTranslationFormula() {
-		return structs.stream()
-			.filter(s -> s instanceof CDField)
-			.map(CDField.class::cast)
-			.findFirst()
-			.map(CDField::getInputTranslationFormula);
-	}
+  @Override
+  public Optional<String> getDefaultValueFormula() {
+    return this.structs.stream()
+        .filter(s -> s instanceof CDField)
+        .map(CDField.class::cast)
+        .findFirst()
+        .map(CDField::getDefaultValueFormula);
+  }
 
-	@Override
-	public Optional<String> getInputValidityCheckFormula() {
-		return structs.stream()
-			.filter(s -> s instanceof CDField)
-			.map(CDField.class::cast)
-			.findFirst()
-			.map(CDField::getInputValidationFormula);
-	}
+  @Override
+  public String getDescription() {
+    return this.structs.stream()
+        .filter(s -> s instanceof CDField)
+        .map(CDField.class::cast)
+        .findFirst()
+        .map(CDField::getDescription)
+        .orElseThrow(() -> new IllegalStateException("Unable to find field description in field structs"));
+  }
 
-	@Override
-	public String getName() {
-		return structs.stream()
-			.filter(s -> s instanceof CDField)
-			.map(CDField.class::cast)
-			.findFirst()
-			.map(CDField::getName)
-			.orElseThrow(() -> new IllegalStateException("Unable to find field name in field structs"));
-	}
+  @Override
+  public String getHtmlClassName() {
+    return this.structs.stream()
+        .filter(s -> s instanceof CDIDName)
+        .map(CDIDName.class::cast)
+        .findFirst()
+        .map(CDIDName::getClassName)
+        .orElse(""); //$NON-NLS-1$
+  }
 
-	@Override
-	public String getDescription() {
-		return structs.stream()
-			.filter(s -> s instanceof CDField)
-			.map(CDField.class::cast)
-			.findFirst()
-			.map(CDField::getDescription)
-			.orElseThrow(() -> new IllegalStateException("Unable to find field description in field structs"));
-	}
+  @Override
+  public String getHtmlExtraAttr() {
+    return this.structs.stream()
+        .filter(s -> s instanceof CDIDName)
+        .map(CDIDName.class::cast)
+        .findFirst()
+        .map(CDIDName::getHTMLAttributes)
+        .orElse(""); //$NON-NLS-1$
+  }
 
-	@Override
-	public Optional<List<String>> getTextListValues() {
-		return structs.stream()
-			.filter(s -> s instanceof CDField)
-			.map(CDField.class::cast)
-			.findFirst()
-			.map(CDField::getTextValues)
-			.orElseThrow(() -> new IllegalStateException("Unable to find field values in field structs"));
-	}
+  @Override
+  public String getHtmlId() {
+    return this.structs.stream()
+        .filter(s -> s instanceof CDIDName)
+        .map(CDIDName.class::cast)
+        .findFirst()
+        .map(CDIDName::getID)
+        .orElse(""); //$NON-NLS-1$
+  }
 
-	@Override
-	public Optional<String> getKeywordFormula() {
-		return structs.stream()
-			.filter(s -> s instanceof CDField)
-			.map(CDField.class::cast)
-			.findFirst()
-			.map(CDField::getTextValueFormula)
-			.orElseThrow(() -> new IllegalStateException("Unable to find field values in field structs"));
-	}
+  @Override
+  public String getHtmlName() {
+    return this.structs.stream()
+        .filter(s -> s instanceof CDIDName)
+        .map(CDIDName.class::cast)
+        .findFirst()
+        .map(CDIDName::getName)
+        .orElse(""); //$NON-NLS-1$
+  }
 
-	@Override
-	public String getHtmlId() {
-		return structs.stream()
-			.filter(s -> s instanceof CDIDName)
-			.map(CDIDName.class::cast)
-			.findFirst()
-			.map(CDIDName::getID)
-			.orElse(""); //$NON-NLS-1$
-	}
+  @Override
+  public String getHtmlStyle() {
+    return this.structs.stream()
+        .filter(s -> s instanceof CDIDName)
+        .map(CDIDName.class::cast)
+        .findFirst()
+        .map(CDIDName::getStyle)
+        .orElse(""); //$NON-NLS-1$
+  }
 
-	@Override
-	public String getHtmlClassName() {
-		return structs.stream()
-			.filter(s -> s instanceof CDIDName)
-			.map(CDIDName.class::cast)
-			.findFirst()
-			.map(CDIDName::getClassName)
-			.orElse(""); //$NON-NLS-1$
-	}
+  @Override
+  public String getHtmlTitle() {
+    return this.structs.stream()
+        .filter(s -> s instanceof CDIDName)
+        .map(CDIDName.class::cast)
+        .findFirst()
+        .map(CDIDName::getTitle)
+        .orElse(""); //$NON-NLS-1$
+  }
 
-	@Override
-	public String getHtmlStyle() {
-		return structs.stream()
-			.filter(s -> s instanceof CDIDName)
-			.map(CDIDName.class::cast)
-			.findFirst()
-			.map(CDIDName::getStyle)
-			.orElse(""); //$NON-NLS-1$
-	}
+  @Override
+  public Optional<String> getInputTranslationFormula() {
+    return this.structs.stream()
+        .filter(s -> s instanceof CDField)
+        .map(CDField.class::cast)
+        .findFirst()
+        .map(CDField::getInputTranslationFormula);
+  }
 
-	@Override
-	public String getHtmlTitle() {
-		return structs.stream()
-			.filter(s -> s instanceof CDIDName)
-			.map(CDIDName.class::cast)
-			.findFirst()
-			.map(CDIDName::getTitle)
-			.orElse(""); //$NON-NLS-1$
-	}
+  @Override
+  public Optional<String> getInputValidityCheckFormula() {
+    return this.structs.stream()
+        .filter(s -> s instanceof CDField)
+        .map(CDField.class::cast)
+        .findFirst()
+        .map(CDField::getInputValidationFormula);
+  }
 
-	@Override
-	public String getHtmlExtraAttr() {
-		return structs.stream()
-			.filter(s -> s instanceof CDIDName)
-			.map(CDIDName.class::cast)
-			.findFirst()
-			.map(CDIDName::getHTMLAttributes)
-			.orElse(""); //$NON-NLS-1$
-	}
+  @Override
+  public Optional<String> getKeywordFormula() {
+    return this.structs.stream()
+        .filter(s -> s instanceof CDField)
+        .map(CDField.class::cast)
+        .findFirst()
+        .map(CDField::getTextValueFormula)
+        .orElseThrow(() -> new IllegalStateException("Unable to find field values in field structs"));
+  }
 
-	@Override
-	public String getHtmlName() {
-		return structs.stream()
-			.filter(s -> s instanceof CDIDName)
-			.map(CDIDName.class::cast)
-			.findFirst()
-			.map(CDIDName::getName)
-			.orElse(""); //$NON-NLS-1$
-	}
+  @Override
+  public FieldListDisplayDelimiter getListDispayDelimiter() {
+    return this.structs.stream()
+        .filter(s -> s instanceof CDField)
+        .map(CDField.class::cast)
+        .findFirst()
+        .map(CDField::getListDisplayDelimiter)
+        .orElseThrow(() -> new IllegalStateException("Unable to find field values in field structs"));
+  }
 
-	@Override
-	public FieldListDisplayDelimiter getListDispayDelimiter() {
-		return structs.stream()
-			.filter(s -> s instanceof CDField)
-			.map(CDField.class::cast)
-			.findFirst()
-			.map(CDField::getListDisplayDelimiter)
-			.orElseThrow(() -> new IllegalStateException("Unable to find field values in field structs"));
-	}
-	@Override
-	public Set<FieldListDelimiter> getListInputDelimiters() {
-		return structs.stream()
-			.filter(s -> s instanceof CDField)
-			.map(CDField.class::cast)
-			.findFirst()
-			.map(CDField::getListDelimiters)
-			.orElseThrow(() -> new IllegalStateException("Unable to find field values in field structs"));
-	}
+  @Override
+  public Set<FieldListDelimiter> getListInputDelimiters() {
+    return this.structs.stream()
+        .filter(s -> s instanceof CDField)
+        .map(CDField.class::cast)
+        .findFirst()
+        .map(CDField::getListDelimiters)
+        .orElseThrow(() -> new IllegalStateException("Unable to find field values in field structs"));
+  }
+
+  @Override
+  public String getName() {
+    return this.structs.stream()
+        .filter(s -> s instanceof CDField)
+        .map(CDField.class::cast)
+        .findFirst()
+        .map(CDField::getName)
+        .orElseThrow(() -> new IllegalStateException("Unable to find field name in field structs"));
+  }
+
+  @Override
+  public Optional<List<String>> getTextListValues() {
+    return this.structs.stream()
+        .filter(s -> s instanceof CDField)
+        .map(CDField.class::cast)
+        .findFirst()
+        .map(CDField::getTextValues)
+        .orElseThrow(() -> new IllegalStateException("Unable to find field values in field structs"));
+  }
 }

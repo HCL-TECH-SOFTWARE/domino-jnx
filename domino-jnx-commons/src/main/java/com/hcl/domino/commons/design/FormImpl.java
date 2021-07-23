@@ -23,32 +23,32 @@ import com.hcl.domino.design.Form;
 
 public class FormImpl extends AbstractFormOrSubform<Form> implements Form {
 
-	public FormImpl(Document doc) {
-		super(doc);
-	}
-	
-	@Override
-	public void initializeNewDesignNote() {
-		
-	}
-	
-	@Override
-	public Optional<String> getWebXPageAlternative() {
-		String val = getDocument().get(DesignConstants.XPAGE_ALTERNATE, String.class, null);
-		if(val == null || val.isEmpty()) {
-			return Optional.empty();
-		} else {
-			return Optional.of(val);
-		}
-	}
+  public FormImpl(final Document doc) {
+    super(doc);
+  }
 
-	@Override
-	public Optional<String> getNotesXPageAlternative() {
-		String val = getDocument().get(DesignConstants.XPAGE_ALTERNATE_CLIENT, String.class, null);
-		if(val == null || val.isEmpty()) {
-			return Optional.empty();
-		} else {
-			return Optional.of(val);
-		}
-	}
+  @Override
+  public Optional<String> getNotesXPageAlternative() {
+    final String val = this.getDocument().get(DesignConstants.XPAGE_ALTERNATE_CLIENT, String.class, null);
+    if (val == null || val.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.of(val);
+    }
+  }
+
+  @Override
+  public Optional<String> getWebXPageAlternative() {
+    final String val = this.getDocument().get(DesignConstants.XPAGE_ALTERNATE, String.class, null);
+    if (val == null || val.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.of(val);
+    }
+  }
+
+  @Override
+  public void initializeNewDesignNote() {
+
+  }
 }

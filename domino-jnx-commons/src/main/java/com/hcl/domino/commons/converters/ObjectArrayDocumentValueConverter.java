@@ -27,52 +27,54 @@ import com.hcl.domino.data.DocumentValueConverter;
 /**
  * {@link DocumentValueConverter} implementation that supports converting to
  * and from object array types.
- * 
+ *
  * @author Jesse Gallagher
  */
 public class ObjectArrayDocumentValueConverter implements DocumentValueConverter {
 
-	@Override
-	public boolean supportsRead(Class<?> valueType) {
-		return valueType.isArray() && !valueType.getComponentType().isPrimitive();
-	}
+  @Override
+  public <T> T getValue(final Document obj, final String itemName, final Class<T> valueType, final T defaultValue) {
+    final Class<?> type = valueType.getComponentType();
+    final List<?> val = obj.getAsList(itemName, type, null);
+    if (val == null) {
+      return defaultValue;
+    }
 
-	@Override
-	public boolean supportsWrite(Class<?> valueType, Object value) {
-		return valueType.isArray() && !valueType.getComponentType().isPrimitive();
-	}
+    @SuppressWarnings("unchecked")
+    final T result = (T) Array.newInstance(type, val.size());
+    for (int i = 0; i < val.size(); i++) {
+      Array.set(result, i, val.get(i));
+    }
+    return result;
+  }
 
-	@Override
-	public <T> T getValue(Document obj, String itemName, Class<T> valueType, T defaultValue) {
-		Class<?> type = valueType.getComponentType();
-		List<?> val = obj.getAsList(itemName, type, null);
-		if(val == null) {
-			return defaultValue;
-		}
-		
-		@SuppressWarnings("unchecked")
-		T result = (T)Array.newInstance(type, val.size());
-		for(int i = 0; i < val.size(); i++) {
-			Array.set(result, i, val.get(i));
-		}
-		return result;
-	}
+  @Override
+  public <T> List<T> getValueAsList(final Document obj, final String itemName, final Class<T> valueType,
+      final List<T> defaultValue) {
+    // This is a weird case, and this intentionally should return an e.g.
+    // List<Object[]>
+    return Arrays.asList(this.getValue(obj, itemName, valueType, null));
+  }
 
-	@Override
-	public <T> List<T> getValueAsList(Document obj, String itemName, Class<T> valueType, List<T> defaultValue) {
-		// This is a weird case, and this intentionally should return an e.g. List<Object[]>
-		return Arrays.asList(getValue(obj, itemName, valueType, null));
-	}
+  @Override
+  public <T> void setValue(final Document obj, final String itemName, final T newValue) {
+    // Pour it into a List
+    final int length = Array.getLength(newValue);
+    final List<Object> listVal = new ArrayList<>(length);
+    for (int i = 0; i < length; i++) {
+      listVal.add(Array.get(newValue, i));
+    }
+    obj.replaceItemValue(itemName, listVal);
+  }
 
-	@Override
-	public <T> void setValue(Document obj, String itemName, T newValue) {
-		// Pour it into a List
-		int length = Array.getLength(newValue);
-		List<Object> listVal = new ArrayList<>(length);
-		for(int i = 0; i < length; i++) {
-			listVal.add(Array.get(newValue, i));
-		}
-		obj.replaceItemValue(itemName, listVal);
-	}
+  @Override
+  public boolean supportsRead(final Class<?> valueType) {
+    return valueType.isArray() && !valueType.getComponentType().isPrimitive();
+  }
+
+  @Override
+  public boolean supportsWrite(final Class<?> valueType, final Object value) {
+    return valueType.isArray() && !valueType.getComponentType().isPrimitive();
+  }
 
 }

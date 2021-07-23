@@ -20,22 +20,22 @@ import java.util.ServiceLoader;
 
 /**
  * Implementations of this interface are loaded via {@link ServiceLoader}
- * in {@link CollectionEntry#get(String, Class, Object)} 
+ * in {@link CollectionEntry#get(String, Class, Object)}
  */
 public interface CollectionEntryValueConverter extends IndexedValueConverter<CollectionEntry> {
-	@Override
-	default boolean supportsWrite(Class<?> valueType, Object value) {
-		return false;
-	}
-	
-	@Override
-	default <T> void setValue(CollectionEntry obj, String itemName, T newValue) {
-		throw new UnsupportedOperationException();
-	}
-	
-	@Override
-	default <T> void setValue(CollectionEntry obj, int index, T newValue) {
-		throw new UnsupportedOperationException();
-	}
-	
+  @Override
+  default <T> void setValue(final CollectionEntry obj, final int index, final T newValue) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  default <T> void setValue(final CollectionEntry obj, final String itemName, final T newValue) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  default boolean supportsWrite(final Class<?> valueType, final Object value) {
+    return false;
+  }
+
 }

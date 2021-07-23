@@ -21,18 +21,22 @@ import java.util.Optional;
 
 /**
  * Represents the contents of a non-imported Java agent.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.24
  */
 public interface JavaAgentContent extends AgentContent {
-	String getMainClassName();
-	String getCodeFilesystemPath();
-	
-	Optional<String> getSourceAttachmentName();
-	Optional<String> getObjectAttachmentName();
-	Optional<String> getResourcesAttachmentName();
-	List<String> getEmbeddedJars();
-	
-	List<String> getSharedLibraryList();
+  String getCodeFilesystemPath();
+
+  List<String> getEmbeddedJars();
+
+  String getMainClassName();
+
+  Optional<String> getObjectAttachmentName();
+
+  Optional<String> getResourcesAttachmentName();
+
+  List<String> getSharedLibraryList();
+
+  Optional<String> getSourceAttachmentName();
 }

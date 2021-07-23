@@ -19,12 +19,12 @@ package com.hcl.domino.design;
 /**
  * Represents an element in a design that can be represented either as a static
  * string or a formula computation.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.24
  */
 public interface ComputableValue {
-	boolean isFormula();
-	
-	String getValue();
+  String getValue();
+
+  boolean isFormula();
 }

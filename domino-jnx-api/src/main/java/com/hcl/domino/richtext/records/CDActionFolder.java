@@ -29,56 +29,60 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.WSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="CDACTIONFOLDER",
-	members={
-		@StructureMember(name="Header", type=WSIG.class),
-		@StructureMember(name="dwFlags", type=CDActionFolder.Flag.class, bitfield=true),
-		@StructureMember(name="wFolderNameLen", type=short.class, unsigned=true),
-		@StructureMember(name="wSpare", type=short.class)
-	}
-)
+@StructureDefinition(name = "CDACTIONFOLDER", members = {
+    @StructureMember(name = "Header", type = WSIG.class),
+    @StructureMember(name = "dwFlags", type = CDActionFolder.Flag.class, bitfield = true),
+    @StructureMember(name = "wFolderNameLen", type = short.class, unsigned = true),
+    @StructureMember(name = "wSpare", type = short.class)
+})
 public interface CDActionFolder extends RichTextRecord<WSIG> {
-	enum Flag implements INumberEnum<Integer> {
-		/** Create new folder */
-		NEWFOLDER(RichTextConstants.ACTIONFOLDER_FLAG_NEWFOLDER),
-		/** Folder is private */
-		PRIVATEFOLDER(RichTextConstants.ACTIONFOLDER_FLAG_PRIVATEFOLDER)
-		;
-		private final int value;
-		Flag(int value) { this.value = value; }
-		@Override
-		public Integer getValue() {
-			return value;
-		}
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-	}
-	
-	@StructureGetter("Header")
-	@Override
-	WSIG getHeader();
-	
-	@StructureGetter("dwFlags")
-	Set<Flag> getFlags();
-	@StructureSetter("dwFlags")
-	CDActionFolder setFlags(Collection<Flag> flags);
-	
-	@StructureGetter("wFolderNameLen")
-	int getFolderNameLength();
-	@StructureSetter("wFolderNameLen")
-	CDActionFolder setFolderNameLength(int len);
-	
-	default String getFolderName() {
-		return StructureSupport.extractStringValue(this, 0, getFolderNameLength());
-	}
-	default CDActionFolder setFolderName(String folderName) {
-		return StructureSupport.writeStringValue(this, 0, getFolderNameLength(), folderName, this::setFolderNameLength);
-	}
+  enum Flag implements INumberEnum<Integer> {
+    /** Create new folder */
+    NEWFOLDER(RichTextConstants.ACTIONFOLDER_FLAG_NEWFOLDER),
+    /** Folder is private */
+    PRIVATEFOLDER(RichTextConstants.ACTIONFOLDER_FLAG_PRIVATEFOLDER);
+
+    private final int value;
+
+    Flag(final int value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Integer getValue() {
+      return this.value;
+    }
+  }
+
+  @StructureGetter("dwFlags")
+  Set<Flag> getFlags();
+
+  default String getFolderName() {
+    return StructureSupport.extractStringValue(this, 0, this.getFolderNameLength());
+  }
+
+  @StructureGetter("wFolderNameLen")
+  int getFolderNameLength();
+
+  @StructureGetter("Header")
+  @Override
+  WSIG getHeader();
+
+  @StructureSetter("dwFlags")
+  CDActionFolder setFlags(Collection<Flag> flags);
+
+  default CDActionFolder setFolderName(final String folderName) {
+    return StructureSupport.writeStringValue(this, 0, this.getFolderNameLength(), folderName, this::setFolderNameLength);
+  }
+
+  @StructureSetter("wFolderNameLen")
+  CDActionFolder setFolderNameLength(int len);
 }

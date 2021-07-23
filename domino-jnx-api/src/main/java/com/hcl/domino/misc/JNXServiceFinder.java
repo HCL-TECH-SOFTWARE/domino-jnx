@@ -25,51 +25,56 @@ import java.util.stream.StreamSupport;
 
 /**
  * Utility class to coordinate service loading for JNX.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.12
  */
 public enum JNXServiceFinder {
-	;
+  ;
 
-	/**
-	 * Finds services implementing the provided service class using the context classloader.
-	 * 
-	 * @param <T> the type of service to load
-	 * @param serviceClass a {@link Class} object representing {@code <T>}
-	 * @return a {@link Stream} of service implementations
-	 */
-	public static <T> Stream<T> findServices(Class<T> serviceClass) {
-		Iterable<T> services = AccessController.doPrivileged((PrivilegedAction<Iterable<T>>)() -> ServiceLoader.load(serviceClass));
-		return StreamSupport.stream(services.spliterator(), false);
-	}
-	
-	/**
-	 * Finds services implementing the provided service class using the provided classloader.
-	 * 
-	 * @param <T> the type of service to load
-	 * @param serviceClass a {@link Class} object representing {@code <T>}
-	 * @param cl the {@link ClassLoader} to use to load services
-	 * @return a {@link Stream} of service implementations
-	 */
-	public static <T> Stream<T> findServices(Class<T> serviceClass, ClassLoader cl) {
-		Iterable<T> services = AccessController.doPrivileged((PrivilegedAction<Iterable<T>>)() -> ServiceLoader.load(serviceClass, cl));
-		return StreamSupport.stream(services.spliterator(), false);
-	}
-	
-	/**
-	 * Finds a single implementation of the provided service class using the provided classloader,
-	 * throwing an exception if none can be found.
-	 * 
-	 * @param <T> the type of service to load
-	 * @param serviceClass a {@link Class} object representing {@code <T>}
-	 * @param cl the {@link ClassLoader} to use to load services
-	 * @return an instance of the provided service class
-	 * @throws IllegalStateException if no implementation can be found
-	 */
-	public static <T> T findRequiredService(Class<T> serviceClass, ClassLoader cl) {
-		return JNXServiceFinder.findServices(serviceClass, cl)
-			.findFirst()
-			.orElseThrow(() -> new IllegalStateException(MessageFormat.format("No implementation for {0} found", serviceClass)));
-	}
+  /**
+   * Finds a single implementation of the provided service class using the
+   * provided classloader,
+   * throwing an exception if none can be found.
+   *
+   * @param <T>          the type of service to load
+   * @param serviceClass a {@link Class} object representing {@code <T>}
+   * @param cl           the {@link ClassLoader} to use to load services
+   * @return an instance of the provided service class
+   * @throws IllegalStateException if no implementation can be found
+   */
+  public static <T> T findRequiredService(final Class<T> serviceClass, final ClassLoader cl) {
+    return JNXServiceFinder.findServices(serviceClass, cl)
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException(MessageFormat.format("No implementation for {0} found", serviceClass)));
+  }
+
+  /**
+   * Finds services implementing the provided service class using the context
+   * classloader.
+   *
+   * @param <T>          the type of service to load
+   * @param serviceClass a {@link Class} object representing {@code <T>}
+   * @return a {@link Stream} of service implementations
+   */
+  public static <T> Stream<T> findServices(final Class<T> serviceClass) {
+    final Iterable<T> services = AccessController
+        .doPrivileged((PrivilegedAction<Iterable<T>>) () -> ServiceLoader.load(serviceClass));
+    return StreamSupport.stream(services.spliterator(), false);
+  }
+
+  /**
+   * Finds services implementing the provided service class using the provided
+   * classloader.
+   *
+   * @param <T>          the type of service to load
+   * @param serviceClass a {@link Class} object representing {@code <T>}
+   * @param cl           the {@link ClassLoader} to use to load services
+   * @return a {@link Stream} of service implementations
+   */
+  public static <T> Stream<T> findServices(final Class<T> serviceClass, final ClassLoader cl) {
+    final Iterable<T> services = AccessController
+        .doPrivileged((PrivilegedAction<Iterable<T>>) () -> ServiceLoader.load(serviceClass, cl));
+    return StreamSupport.stream(services.spliterator(), false);
+  }
 }

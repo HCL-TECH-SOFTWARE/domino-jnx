@@ -16,10 +16,9 @@
  */
 package it.com.hcl.domino.test.vertx.json;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.Optional;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.jnx.vertx.json.service.VertxJsonSerializerFactory;
@@ -30,12 +29,12 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestVertxJsonSerialization extends AbstractNotesRuntimeTest {
-	@Test
-	public void testServiceRegistered() {
-		Optional<JsonSerializerFactory> fac = JNXServiceFinder.findServices(JsonSerializerFactory.class)
-			.filter(VertxJsonSerializerFactory.class::isInstance)
-			.findFirst();
-		assertTrue(fac.isPresent(), "VertxJsonSerializerFactory not registered");
-	}
+  @Test
+  public void testServiceRegistered() {
+    final Optional<JsonSerializerFactory> fac = JNXServiceFinder.findServices(JsonSerializerFactory.class)
+        .filter(VertxJsonSerializerFactory.class::isInstance)
+        .findFirst();
+    Assertions.assertTrue(fac.isPresent(), "VertxJsonSerializerFactory not registered");
+  }
 
 }

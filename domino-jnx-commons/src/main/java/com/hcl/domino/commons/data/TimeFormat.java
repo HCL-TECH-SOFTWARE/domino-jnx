@@ -21,35 +21,39 @@ import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.NotesConstants;
 
 /**
- * Specifies how to format the time part of a {@link DominoDateTime} to a string.
- * 
+ * Specifies how to format the time part of a {@link DominoDateTime} to a
+ * string.
+ *
  * @author Karsten Lehmann
  */
 public enum TimeFormat implements INumberEnum<Byte> {
-	
-	/** hour, minute, and second */
-	FULL(NotesConstants.TTFMT_FULL),
-	/** hour and minute */
-	PARTIAL(NotesConstants.TTFMT_PARTIAL),
-	/** hour */
-	HOUR(NotesConstants.TTFMT_HOUR),
-	/** hour, minute, second, hundredths (max resolution). This currently works only for time-to-text conversion! */
-	FULL_MAX(NotesConstants.TTFMT_FULL_MAX);
 
-	private byte m_val;
+  /** hour, minute, and second */
+  FULL(NotesConstants.TTFMT_FULL),
+  /** hour and minute */
+  PARTIAL(NotesConstants.TTFMT_PARTIAL),
+  /** hour */
+  HOUR(NotesConstants.TTFMT_HOUR),
+  /**
+   * hour, minute, second, hundredths (max resolution). This currently works only
+   * for time-to-text conversion!
+   */
+  FULL_MAX(NotesConstants.TTFMT_FULL_MAX);
 
-	TimeFormat(byte val) {
-		m_val = val;
-	}
+  private byte m_val;
 
-	@Override
-	public Byte getValue() {
-		return m_val;
-	}
+  TimeFormat(final byte val) {
+    this.m_val = val;
+  }
 
-	@Override
-	public long getLongValue() {
-		return m_val;
-	}
+  @Override
+  public long getLongValue() {
+    return this.m_val;
+  }
+
+  @Override
+  public Byte getValue() {
+    return this.m_val;
+  }
 
 }

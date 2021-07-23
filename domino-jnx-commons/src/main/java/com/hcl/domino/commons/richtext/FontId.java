@@ -17,14 +17,14 @@
 package com.hcl.domino.commons.richtext;
 
 public class FontId {
-	private int m_fontId;
+  private int m_fontId;
 
-	public int getFontId() {
-		return m_fontId;
-	}
+  public int getFontId() {
+    return this.m_fontId;
+  }
 
-	public void setFontId(int m_fontId) {
-		this.m_fontId = m_fontId;
-	}
-	
+  public void setFontId(final int m_fontId) {
+    this.m_fontId = m_fontId;
+  }
+
 }

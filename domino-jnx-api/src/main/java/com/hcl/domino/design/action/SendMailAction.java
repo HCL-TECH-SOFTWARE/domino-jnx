@@ -23,13 +23,19 @@ import com.hcl.domino.design.ComputableValue;
  * @since 1.0.24
  */
 public interface SendMailAction extends SimpleAction {
-	boolean isIncludeDocument();
-	boolean isIncludeDocLink();
-	boolean isSaveMailDocument();
-	
-	ComputableValue getTo();
-	ComputableValue getCc();
-	ComputableValue getBcc();
-	ComputableValue getSubject();
-	String getBody();
+  ComputableValue getBcc();
+
+  String getBody();
+
+  ComputableValue getCc();
+
+  ComputableValue getSubject();
+
+  ComputableValue getTo();
+
+  boolean isIncludeDocLink();
+
+  boolean isIncludeDocument();
+
+  boolean isSaveMailDocument();
 }

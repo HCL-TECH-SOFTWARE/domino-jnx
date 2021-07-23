@@ -19,109 +19,109 @@ package com.hcl.domino.richtext;
 import com.hcl.domino.data.IAdaptable;
 
 public interface TextStyle extends IAdaptable {
-	public enum Justify {
-		/** flush left, ragged right */
-		LEFT ((short) 0),
-		/** flush right, ragged left */
-		RIGHT((short) 1),
-		/** full block justification */
-		BLOCK((short) 2),
-		/** centered */
-		CENTER((short) 3),
-		/** no line wrapping AT ALL (except hard CRs) */
-		NONE((short) 4);
-		
-		private short m_constant;
-		
-		Justify(short constant) {
-			m_constant = constant;
-		}
-		
-		public short getConstant() {
-			return m_constant;
-		}
-	}
+  public enum Justify {
+    /** flush left, ragged right */
+    LEFT((short) 0),
+    /** flush right, ragged left */
+    RIGHT((short) 1),
+    /** full block justification */
+    BLOCK((short) 2),
+    /** centered */
+    CENTER((short) 3),
+    /** no line wrapping AT ALL (except hard CRs) */
+    NONE((short) 4);
 
-	String getName();
-	
-	TextStyle setAlign(Justify align);
+    private final short m_constant;
 
-	Justify getAlign();
-	
-	int getLineSpacing();
-	
-	TextStyle setLineSpacing(int spacing);
-	
-	int getParagraphSpacingBefore();
-	
-	TextStyle setParagraphSpacingBefore(int spacing);
-	
-	int getParagraphSpacingAfter();
-	
-	TextStyle setParagraphSpacingAfter(int spacing);
-	
-	double getLeftMargin();
-	
-	TextStyle setLeftMargin(double margin);
-	
-	double getRightMargin();
-	
-	TextStyle setRightMargin(double margin);
-	
-	double getFirstLineLeftMargin();
-	
-	TextStyle setFirstLineLeftMargin(double margin);
-	
-	int getTabsInTable();
-	
-	TextStyle setTabsInTable(int tabs);
-	
-	TextStyle setTabPositions(short[] tabPos);
-	
-	short[] getTabPositions();
-	
-	TextStyle setPaginateBefore(boolean b);
-	
-	boolean isPaginateBefore();
-	
-	TextStyle setKeepWithNext(boolean b);
-	
-	boolean isKeepWithNext();
-	
-	TextStyle setKeepTogether(boolean b);
-	
-	boolean isKeepTogether();
-	
-	TextStyle setHideReadOnly(boolean b);
-	
-	boolean isHideReadOnly();
-	
-	TextStyle setHideReadWrite(boolean b);
-	
-	boolean isHideReadWrite();
+    Justify(final short constant) {
+      this.m_constant = constant;
+    }
 
-	TextStyle setHideWhenPrinting(boolean b);
-	
-	boolean isHideWhenPrinting();
-	
-	TextStyle setHideWhenCopied(boolean b);
-	
-	boolean isHideWhenCopied();
-	
-	TextStyle setHideWhenPreviewed(boolean b);
-	
-	boolean isHideWhenEditedInPreview();
-	
-	TextStyle setHideWhenEditedInPreview(boolean b);
-	
-	boolean isHideWhenPreviewed();
-	
-	TextStyle setDisplayAsNumberedList(boolean b);
-	
-	boolean isDisplayAsNumberedList();
-	
-	TextStyle setDisplayAsBulletList(boolean b);
-	
-	boolean isDisplayAsBulletList();
-	
+    public short getConstant() {
+      return this.m_constant;
+    }
+  }
+
+  Justify getAlign();
+
+  double getFirstLineLeftMargin();
+
+  double getLeftMargin();
+
+  int getLineSpacing();
+
+  String getName();
+
+  int getParagraphSpacingAfter();
+
+  int getParagraphSpacingBefore();
+
+  double getRightMargin();
+
+  short[] getTabPositions();
+
+  int getTabsInTable();
+
+  boolean isDisplayAsBulletList();
+
+  boolean isDisplayAsNumberedList();
+
+  boolean isHideReadOnly();
+
+  boolean isHideReadWrite();
+
+  boolean isHideWhenCopied();
+
+  boolean isHideWhenEditedInPreview();
+
+  boolean isHideWhenPreviewed();
+
+  boolean isHideWhenPrinting();
+
+  boolean isKeepTogether();
+
+  boolean isKeepWithNext();
+
+  boolean isPaginateBefore();
+
+  TextStyle setAlign(Justify align);
+
+  TextStyle setDisplayAsBulletList(boolean b);
+
+  TextStyle setDisplayAsNumberedList(boolean b);
+
+  TextStyle setFirstLineLeftMargin(double margin);
+
+  TextStyle setHideReadOnly(boolean b);
+
+  TextStyle setHideReadWrite(boolean b);
+
+  TextStyle setHideWhenCopied(boolean b);
+
+  TextStyle setHideWhenEditedInPreview(boolean b);
+
+  TextStyle setHideWhenPreviewed(boolean b);
+
+  TextStyle setHideWhenPrinting(boolean b);
+
+  TextStyle setKeepTogether(boolean b);
+
+  TextStyle setKeepWithNext(boolean b);
+
+  TextStyle setLeftMargin(double margin);
+
+  TextStyle setLineSpacing(int spacing);
+
+  TextStyle setPaginateBefore(boolean b);
+
+  TextStyle setParagraphSpacingAfter(int spacing);
+
+  TextStyle setParagraphSpacingBefore(int spacing);
+
+  TextStyle setRightMargin(double margin);
+
+  TextStyle setTabPositions(short[] tabPos);
+
+  TextStyle setTabsInTable(int tabs);
+
 }

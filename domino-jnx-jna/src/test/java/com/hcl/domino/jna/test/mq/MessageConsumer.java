@@ -28,164 +28,165 @@ import com.hcl.domino.mq.MessageQueue;
 
 public class MessageConsumer extends AbstractMessageQueueRunner {
 
-	public static void main(String[] args) {
-		System.setProperty("jnx.noterm", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-		
-		String queueName = args[0];
-		int messageCount = Integer.parseInt(args[1]);
-		
-		boolean waitForQuitMsg=false;
-		if (args.length>2) {
-			waitForQuitMsg = Boolean.valueOf(args[2]).booleanValue();
-		}
-		boolean sendQuitMsg=false;
-		if (args.length>3) {
-			sendQuitMsg = Boolean.valueOf(args[3]).booleanValue();
-		}
+  public static void main(final String[] args) {
+    System.setProperty("jnx.noterm", "true"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		Pattern acceptorPattern=null;
-		if (args.length>4 && args[4].length()>0) {
-			acceptorPattern=Pattern.compile(args[4]);
-		}
-		
-		long maxUpTime = TimeUnit.MINUTES.toMillis(1);
-		if (args.length>5) {
-			maxUpTime=Long.parseLong(args[5]);
-		}
-		
-		final MessageConsumer consumer=new MessageConsumer(queueName, messageCount, waitForQuitMsg, sendQuitMsg, acceptorPattern);
-		
-		if (maxUpTime!=-1) {
-			final long fMaxUpTime=maxUpTime;
-			
-			Thread killThread=new Thread() {
-				@Override
-				public final void run() {
-					try {
-						Thread.sleep(fMaxUpTime);
-					}
-					catch (InterruptedException e) {
-						// ignored
-					}
-					
-					System.exit(2);
-				}
-			};
-			
-			killThread.start();
-		}
-		consumer.run();
+    final String queueName = args[0];
+    final int messageCount = Integer.parseInt(args[1]);
 
-		System.exit(consumer.hasError() ? -1 : 0);
-	}
-	
-	private String m_queueName;
-	private List<String> m_messages=new ArrayList<String>();
-	private boolean m_waitForQuitMsg=false;
-	private boolean m_sendQuitMsg=false;
-	private int m_messageCount;
-	private Pattern m_acceptorPattern;
-	
-	public MessageConsumer(String queueName, int messageCount, boolean waitForQuitMsg, boolean sendQuitMsg) {
-		this(queueName, messageCount, waitForQuitMsg, sendQuitMsg, (Pattern)null);
-	}
+    boolean waitForQuitMsg = false;
+    if (args.length > 2) {
+      waitForQuitMsg = Boolean.valueOf(args[2]).booleanValue();
+    }
+    boolean sendQuitMsg = false;
+    if (args.length > 3) {
+      sendQuitMsg = Boolean.valueOf(args[3]).booleanValue();
+    }
 
-	public MessageConsumer(String queueName, int messageCount, boolean waitForQuitMsg, boolean sendQuitMsg, String acceptorRegExPattern) throws PatternSyntaxException {
-		this(queueName, messageCount, waitForQuitMsg, sendQuitMsg, (acceptorRegExPattern!=null) ? Pattern.compile(acceptorRegExPattern) : (Pattern)null);
-	}
-	
-	public MessageConsumer(String queueName, int messageCount, boolean waitForQuitMsg, boolean sendQuitMsg, Pattern acceptorRegExPattern) {
-		m_queueName = queueName;
-		m_waitForQuitMsg = waitForQuitMsg;
-		m_sendQuitMsg = sendQuitMsg;
-		m_messageCount = messageCount;
-		
-		m_acceptorPattern = acceptorRegExPattern;
-	}
+    Pattern acceptorPattern = null;
+    if (args.length > 4 && args[4].length() > 0) {
+      acceptorPattern = Pattern.compile(args[4]);
+    }
 
-	public List<String> getMessages() {
-		return m_messages;
-	}
+    long maxUpTime = TimeUnit.MINUTES.toMillis(1);
+    if (args.length > 5) {
+      maxUpTime = Long.parseLong(args[5]);
+    }
 
-	@Override
-	protected void doRun() throws Exception {
-		DominoClient client = getClient();
-		
-		MessageQueue queue = client.getMessageQueues().open(m_queueName, false);
-		
-		try {
-			beforeAll(queue);
-			
-			while ((!m_waitForQuitMsg || !queue.isQuitPending()) && (m_messageCount<0 || m_messages.size()<m_messageCount)) {
-				beforePollMessage(queue);
-				
-				String msg=queue.poll(10, TimeUnit.MILLISECONDS);
-				
-				if (msg!=null) {
-					if (acceptsMessage(msg)) {
-						m_messages.add(msg);
-						printMessage(msg);
-					}
-				}
-				
-				afterPollMessage(queue, msg);
-				
-				try {
-					Thread.sleep((m_messageCount>0 && m_messages.size()<m_messageCount) ? 50 : 500);
-				}
-				catch (InterruptedException e) {
-					// ignored
-				}
-			}
-			
-			afterPollAllMessages(queue, m_messages);
-			
-			if (m_sendQuitMsg && !queue.isQuitPending()) {
-				queue.putQuitMsg();
-			}
-			
-			afterAll(queue);
-		}
-		finally {
-			if (queue!=null) {
-				queue.close();
-			}
-		}
-	}
-	
-	protected void printMessage(String message) {
-		System.out.println(message);
-	}
-	
-	protected void beforeAll(MessageQueue queue) {
-		// nothing
-	}
-	
-	protected void afterAll(MessageQueue queue) {
-		// nothing
-	}
-	
-	protected void beforePollMessage(MessageQueue queue) {
-		// nothing
-	}
-	
-	protected void afterPollMessage(MessageQueue queue, String msg) {
-		// nothing
-	}
-	
-	protected void afterPollAllMessages(MessageQueue queue, List<String> messages) {
-		// nothing
-	}
-	
-	@SuppressWarnings("nls")
-	protected boolean acceptsMessage(String message) throws Exception {
-		if  (m_acceptorPattern!=null) {
-			if (!m_acceptorPattern.matcher(message).matches()) {
-				throw new Exception(MessageFormat.format("Consumer: Invalid message received: ''{0}'' does not match ''{1}''", message,
-						m_acceptorPattern.pattern()));
-			}
-		}
-		
-		return true;
-	}
+    final MessageConsumer consumer = new MessageConsumer(queueName, messageCount, waitForQuitMsg, sendQuitMsg, acceptorPattern);
+
+    if (maxUpTime != -1) {
+      final long fMaxUpTime = maxUpTime;
+
+      final Thread killThread = new Thread() {
+        @Override
+        public final void run() {
+          try {
+            Thread.sleep(fMaxUpTime);
+          } catch (final InterruptedException e) {
+            // ignored
+          }
+
+          System.exit(2);
+        }
+      };
+
+      killThread.start();
+    }
+    consumer.run();
+
+    System.exit(consumer.hasError() ? -1 : 0);
+  }
+
+  private final String m_queueName;
+  private final List<String> m_messages = new ArrayList<>();
+  private boolean m_waitForQuitMsg = false;
+  private boolean m_sendQuitMsg = false;
+  private final int m_messageCount;
+  private final Pattern m_acceptorPattern;
+
+  public MessageConsumer(final String queueName, final int messageCount, final boolean waitForQuitMsg, final boolean sendQuitMsg) {
+    this(queueName, messageCount, waitForQuitMsg, sendQuitMsg, (Pattern) null);
+  }
+
+  public MessageConsumer(final String queueName, final int messageCount, final boolean waitForQuitMsg, final boolean sendQuitMsg,
+      final Pattern acceptorRegExPattern) {
+    this.m_queueName = queueName;
+    this.m_waitForQuitMsg = waitForQuitMsg;
+    this.m_sendQuitMsg = sendQuitMsg;
+    this.m_messageCount = messageCount;
+
+    this.m_acceptorPattern = acceptorRegExPattern;
+  }
+
+  public MessageConsumer(final String queueName, final int messageCount, final boolean waitForQuitMsg, final boolean sendQuitMsg,
+      final String acceptorRegExPattern) throws PatternSyntaxException {
+    this(queueName, messageCount, waitForQuitMsg, sendQuitMsg,
+        acceptorRegExPattern != null ? Pattern.compile(acceptorRegExPattern) : (Pattern) null);
+  }
+
+  @SuppressWarnings("nls")
+  protected boolean acceptsMessage(final String message) throws Exception {
+    if (this.m_acceptorPattern != null) {
+      if (!this.m_acceptorPattern.matcher(message).matches()) {
+        throw new Exception(MessageFormat.format("Consumer: Invalid message received: ''{0}'' does not match ''{1}''", message,
+            this.m_acceptorPattern.pattern()));
+      }
+    }
+
+    return true;
+  }
+
+  protected void afterAll(final MessageQueue queue) {
+    // nothing
+  }
+
+  protected void afterPollAllMessages(final MessageQueue queue, final List<String> messages) {
+    // nothing
+  }
+
+  protected void afterPollMessage(final MessageQueue queue, final String msg) {
+    // nothing
+  }
+
+  protected void beforeAll(final MessageQueue queue) {
+    // nothing
+  }
+
+  protected void beforePollMessage(final MessageQueue queue) {
+    // nothing
+  }
+
+  @Override
+  protected void doRun() throws Exception {
+    final DominoClient client = this.getClient();
+
+    final MessageQueue queue = client.getMessageQueues().open(this.m_queueName, false);
+
+    try {
+      this.beforeAll(queue);
+
+      while ((!this.m_waitForQuitMsg || !queue.isQuitPending())
+          && (this.m_messageCount < 0 || this.m_messages.size() < this.m_messageCount)) {
+        this.beforePollMessage(queue);
+
+        final String msg = queue.poll(10, TimeUnit.MILLISECONDS);
+
+        if (msg != null) {
+          if (this.acceptsMessage(msg)) {
+            this.m_messages.add(msg);
+            this.printMessage(msg);
+          }
+        }
+
+        this.afterPollMessage(queue, msg);
+
+        try {
+          Thread.sleep(this.m_messageCount > 0 && this.m_messages.size() < this.m_messageCount ? 50 : 500);
+        } catch (final InterruptedException e) {
+          // ignored
+        }
+      }
+
+      this.afterPollAllMessages(queue, this.m_messages);
+
+      if (this.m_sendQuitMsg && !queue.isQuitPending()) {
+        queue.putQuitMsg();
+      }
+
+      this.afterAll(queue);
+    } finally {
+      if (queue != null) {
+        queue.close();
+      }
+    }
+  }
+
+  public List<String> getMessages() {
+    return this.m_messages;
+  }
+
+  protected void printMessage(final String message) {
+    System.out.println(message);
+  }
 }

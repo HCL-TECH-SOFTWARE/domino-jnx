@@ -23,65 +23,62 @@ import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 
-@StructureDefinition(
-	name="UNIVERSALNOTEID",
-	members={
-		@StructureMember(name="File", type=OpaqueTimeDate.class),
-		@StructureMember(name="Note", type=OpaqueTimeDate.class)
-	}
-)
+@StructureDefinition(name = "UNIVERSALNOTEID", members = {
+    @StructureMember(name = "File", type = OpaqueTimeDate.class),
+    @StructureMember(name = "Note", type = OpaqueTimeDate.class)
+})
 public interface UNID extends MemoryStructure {
-	@StructureGetter("File")
-	OpaqueTimeDate getFile();
-	
-	@StructureGetter("Note")
-	OpaqueTimeDate getNote();
-	
-	/**
-	 * @return {@code true} if this UNID is a zero value; {@code false} otherwise
-	 */
-	default boolean isUnset() {
-		ByteBuffer data = getData();
-		long file = data.getLong();
-		long note = data.getLong();
-		return file == 0 && note == 0;
-	}
-	
-	/**
-	 * Computes the hex UNID from the OID data
-	 * 
-	 * @return UNID
-	 */
-	default String toUnidString() {
-		Formatter formatter = new Formatter();
-		ByteBuffer data = getData();
-		formatter.format("%016x", data.getLong()); //$NON-NLS-1$
-		formatter.format("%016x", data.getLong()); //$NON-NLS-1$
-		String unidStr = formatter.toString().toUpperCase();
-		formatter.close();
-		return unidStr;
-	}
-	
-	/**
-	 * Changes the internal value to a UNID formatted as string
-	 * 
-	 * @param unidStr UNID string
-	 * @return UNID a {@link UNID} object for the string
-	 */
-	default UNID setUnid(String unidStr) {
-		if (unidStr.length() != 32) {
-			throw new IllegalArgumentException("UNID is expected to have 32 characters");
-		}
-		
-		int fileInnards1 = (int) (Long.parseLong(unidStr.substring(0,8), 16) & 0xffffffff);
-		int fileInnards0 = (int) (Long.parseLong(unidStr.substring(8,16), 16) & 0xffffffff);
+  @StructureGetter("File")
+  OpaqueTimeDate getFile();
 
-		int noteInnards1 = (int) (Long.parseLong(unidStr.substring(16,24), 16) & 0xffffffff);
-		int noteInnards0 = (int) (Long.parseLong(unidStr.substring(24,32), 16) & 0xffffffff);
-		
-		getFile().setInnards(new int[] {fileInnards0, fileInnards1});
-		getNote().setInnards(new int[] {noteInnards0, noteInnards1});
-		
-		return this;
-	}
+  @StructureGetter("Note")
+  OpaqueTimeDate getNote();
+
+  /**
+   * @return {@code true} if this UNID is a zero value; {@code false} otherwise
+   */
+  default boolean isUnset() {
+    final ByteBuffer data = this.getData();
+    final long file = data.getLong();
+    final long note = data.getLong();
+    return file == 0 && note == 0;
+  }
+
+  /**
+   * Changes the internal value to a UNID formatted as string
+   *
+   * @param unidStr UNID string
+   * @return UNID a {@link UNID} object for the string
+   */
+  default UNID setUnid(final String unidStr) {
+    if (unidStr.length() != 32) {
+      throw new IllegalArgumentException("UNID is expected to have 32 characters");
+    }
+
+    final int fileInnards1 = (int) (Long.parseLong(unidStr.substring(0, 8), 16) & 0xffffffff);
+    final int fileInnards0 = (int) (Long.parseLong(unidStr.substring(8, 16), 16) & 0xffffffff);
+
+    final int noteInnards1 = (int) (Long.parseLong(unidStr.substring(16, 24), 16) & 0xffffffff);
+    final int noteInnards0 = (int) (Long.parseLong(unidStr.substring(24, 32), 16) & 0xffffffff);
+
+    this.getFile().setInnards(new int[] { fileInnards0, fileInnards1 });
+    this.getNote().setInnards(new int[] { noteInnards0, noteInnards1 });
+
+    return this;
+  }
+
+  /**
+   * Computes the hex UNID from the OID data
+   *
+   * @return UNID
+   */
+  default String toUnidString() {
+    final Formatter formatter = new Formatter();
+    final ByteBuffer data = this.getData();
+    formatter.format("%016x", data.getLong()); //$NON-NLS-1$
+    formatter.format("%016x", data.getLong()); //$NON-NLS-1$
+    final String unidStr = formatter.toString().toUpperCase();
+    formatter.close();
+    return unidStr;
+  }
 }

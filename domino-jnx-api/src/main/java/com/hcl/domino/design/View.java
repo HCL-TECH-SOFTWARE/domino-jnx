@@ -19,14 +19,13 @@ package com.hcl.domino.design;
 /**
  * Access to a database design. Search for design, database as constructor
  * parameter
- * 
- * @author t.b.d
  *
+ * @author t.b.d
  */
 public interface View extends CollectionDesignElement {
-    
-	String getSelectionFormula();
 
-	View setSelectionFormula(final String selectionFormula);
-    
+  String getSelectionFormula();
+
+  View setSelectionFormula(final String selectionFormula);
+
 }

@@ -20,11 +20,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public interface IMimeAttachment {
-	
-	String getFileName() throws IOException;
-	
-	String getContentType() throws IOException;
-	
-	InputStream getInputStream() throws IOException;
-	
+
+  String getContentType() throws IOException;
+
+  String getFileName() throws IOException;
+
+  InputStream getInputStream() throws IOException;
+
 }

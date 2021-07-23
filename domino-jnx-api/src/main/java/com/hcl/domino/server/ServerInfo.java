@@ -18,6 +18,7 @@ package com.hcl.domino.server;
 
 import java.util.List;
 import java.util.Optional;
+
 import com.hcl.domino.Name;
 import com.hcl.domino.security.ServerAclType;
 import com.hcl.domino.security.ServerEclType;
@@ -51,44 +52,49 @@ public interface ServerInfo {
    * Catch all for server info that doesn't have an ACL or ECL type available
    *
    * @param itemName the item name to look up
-   * @return an {@link Optional} describing the item value if available, or an empty
-   *       one if not
+   * @return an {@link Optional} describing the item value if available, or an
+   *         empty
+   *         one if not
    */
   Optional<List<Object>> getServerItem(final String itemName);
 
   /**
    * Checks if a given user has an ACL type access
    *
-   * @param aclType the ACL field to check
+   * @param aclType   the ACL field to check
    * @param notesName the name to check against the field
-   * @return {@link true} if the provided user has the requested access; {@code false} otherwise
+   * @return {@link true} if the provided user has the requested access;
+   *         {@code false} otherwise
    */
   boolean isAclMember(final ServerAclType aclType, final Name notesName);
 
   /**
    * Checks if a given user has an ACL type access
    *
-   * @param aclType the ACL field to check
+   * @param aclType         the ACL field to check
    * @param notesNameString the name to check against the field
-   * @return {@link true} if the provided user has the requested access; {@code false} otherwise
+   * @return {@link true} if the provided user has the requested access;
+   *         {@code false} otherwise
    */
   boolean isAclMember(final ServerAclType aclType, final String notesNameString);
 
   /**
    * Checks if a given user has an ECL type access
    *
-   * @param eclType the ECL field to check
+   * @param eclType   the ECL field to check
    * @param notesName the name to check against the field
-   * @return {@link true} if the provided user has the requested access; {@code false} otherwise
+   * @return {@link true} if the provided user has the requested access;
+   *         {@code false} otherwise
    */
   boolean isEclMember(final ServerEclType eclType, final Name notesName);
 
   /**
    * Checks if a given user has an ECL type access
    *
-   * @param eclType the ECL field to check
+   * @param eclType         the ECL field to check
    * @param notesNameString the name to check against the field
-   * @return {@link true} if the provided user has the requested access; {@code false} otherwise
+   * @return {@link true} if the provided user has the requested access;
+   *         {@code false} otherwise
    */
   boolean isEclMember(final ServerEclType eclType, final String notesNameString);
 }

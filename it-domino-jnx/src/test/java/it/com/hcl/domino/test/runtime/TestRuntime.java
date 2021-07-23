@@ -16,13 +16,10 @@
  */
 package it.com.hcl.domino.test.runtime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -33,78 +30,78 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestRuntime extends AbstractNotesRuntimeTest {
-	private DominoRuntime runtime;
-	
-	@BeforeEach
-	public void initDominoRuntime() {
-		this.runtime = getClient().getDominoRuntime();
-	}
-	
-	@Test
-	public void testProgramDirectory() {
-		Path program = runtime.getProgramDirectory().orElse(null);
-		assertNotNull(program);
-		assertTrue(Files.isDirectory(program));
-	}
-	
-	@Test
-	public void testDataDirectory() {
-		Path data = runtime.getDataDirectory().orElse(null);
-		assertNotNull(data);
-		assertTrue(Files.isDirectory(data));
-	}
-	
-	@Test
-	public void testViewRebuildDirectory() {
-		Path rebuild = runtime.getViewRebuildDirectory().orElse(null);
-		// May not be set
-		if(rebuild != null) {
-			assertTrue(Files.isDirectory(rebuild));
-		}
-	}
-	
-	@Test
-	public void testTempDirectory() {
-		Path temp = runtime.getTempDirectory().orElse(null);
-		assertTrue(Files.isDirectory(temp));
-	}
-	
-	@Test
-	@Disabled("Causes segfaults on macOS somehow")
-	public void testFerryString() {
-		String prop = getClass().getSimpleName() + "_string";
-		String val = String.valueOf("time is " + System.currentTimeMillis());
-		runtime.setProperty(prop, val);
-		try {
-			assertEquals(val, runtime.getPropertyString(prop));
-		} finally {
-			runtime.setProperty(prop, null);
-		}
-	}
-	
-	@Test
-	@Disabled("Causes segfaults on macOS somehow")
-	public void testFerryInt() {
-		String prop = getClass().getSimpleName() + "_int";
-		int val = Math.abs((int)System.currentTimeMillis() % 1000);
-		runtime.setProperty(prop, val);
-		try {
-			assertEquals(val, runtime.getPropertyInt(prop));
-		} finally {
-			runtime.setProperty(prop, null);
-		}
-	}
-	
-	@Test
-	@Disabled("Causes segfaults on macOS somehow")
-	public void testFerryConvertible() {
-		String prop = getClass().getSimpleName() + "_conv";
-		int val = Math.abs((int)System.currentTimeMillis() % 1000);
-		runtime.setProperty(prop, val);
-		try {
-			assertEquals(String.valueOf(val), runtime.getPropertyString(prop));
-		} finally {
-			runtime.setProperty(prop, null);
-		}
-	}
+  private DominoRuntime runtime;
+
+  @BeforeEach
+  public void initDominoRuntime() {
+    this.runtime = this.getClient().getDominoRuntime();
+  }
+
+  @Test
+  public void testDataDirectory() {
+    final Path data = this.runtime.getDataDirectory().orElse(null);
+    Assertions.assertNotNull(data);
+    Assertions.assertTrue(Files.isDirectory(data));
+  }
+
+  @Test
+  @Disabled("Causes segfaults on macOS somehow")
+  public void testFerryConvertible() {
+    final String prop = this.getClass().getSimpleName() + "_conv";
+    final int val = Math.abs((int) System.currentTimeMillis() % 1000);
+    this.runtime.setProperty(prop, val);
+    try {
+      Assertions.assertEquals(String.valueOf(val), this.runtime.getPropertyString(prop));
+    } finally {
+      this.runtime.setProperty(prop, null);
+    }
+  }
+
+  @Test
+  @Disabled("Causes segfaults on macOS somehow")
+  public void testFerryInt() {
+    final String prop = this.getClass().getSimpleName() + "_int";
+    final int val = Math.abs((int) System.currentTimeMillis() % 1000);
+    this.runtime.setProperty(prop, val);
+    try {
+      Assertions.assertEquals(val, this.runtime.getPropertyInt(prop));
+    } finally {
+      this.runtime.setProperty(prop, null);
+    }
+  }
+
+  @Test
+  @Disabled("Causes segfaults on macOS somehow")
+  public void testFerryString() {
+    final String prop = this.getClass().getSimpleName() + "_string";
+    final String val = String.valueOf("time is " + System.currentTimeMillis());
+    this.runtime.setProperty(prop, val);
+    try {
+      Assertions.assertEquals(val, this.runtime.getPropertyString(prop));
+    } finally {
+      this.runtime.setProperty(prop, null);
+    }
+  }
+
+  @Test
+  public void testProgramDirectory() {
+    final Path program = this.runtime.getProgramDirectory().orElse(null);
+    Assertions.assertNotNull(program);
+    Assertions.assertTrue(Files.isDirectory(program));
+  }
+
+  @Test
+  public void testTempDirectory() {
+    final Path temp = this.runtime.getTempDirectory().orElse(null);
+    Assertions.assertTrue(Files.isDirectory(temp));
+  }
+
+  @Test
+  public void testViewRebuildDirectory() {
+    final Path rebuild = this.runtime.getViewRebuildDirectory().orElse(null);
+    // May not be set
+    if (rebuild != null) {
+      Assertions.assertTrue(Files.isDirectory(rebuild));
+    }
+  }
 }

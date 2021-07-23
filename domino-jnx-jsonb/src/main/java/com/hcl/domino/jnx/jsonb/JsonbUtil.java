@@ -22,18 +22,18 @@ import java.util.Set;
 import java.util.TreeSet;
 
 enum JsonbUtil {
-	;
+  ;
 
-	static Set<String> toSet(Collection<String> names) {
-		if(names == null) {
-			return null;
-		} else {
-			Set<String> result = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
-			names.stream()
-				.filter(Objects::nonNull)
-				.forEach(result::add);
-			return result;
-		}
-	}
+  static Set<String> toSet(final Collection<String> names) {
+    if (names == null) {
+      return null;
+    } else {
+      final Set<String> result = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+      names.stream()
+          .filter(Objects::nonNull)
+          .forEach(result::add);
+      return result;
+    }
+  }
 
 }

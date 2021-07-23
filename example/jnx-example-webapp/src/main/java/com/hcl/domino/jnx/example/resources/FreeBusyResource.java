@@ -31,22 +31,21 @@ import jakarta.ws.rs.QueryParam;
 @Path("/freebusy")
 public class FreeBusyResource {
 
-	@GET
-	@Path("freeTimeSearch")
-	public Object freeTimeSearch(
-			@QueryParam("findFirstFit") boolean findFirstFit,
-			@QueryParam("from") String fromDate,
-			@QueryParam("until") String untilDate,
-			@QueryParam("duration") int duration,
-			@QueryParam("names") List<String> names
-		) throws IOException {
+  @GET
+  @Path("freeTimeSearch")
+  public Object freeTimeSearch(
+      @QueryParam("findFirstFit") final boolean findFirstFit,
+      @QueryParam("from") final String fromDate,
+      @QueryParam("until") final String untilDate,
+      @QueryParam("duration") final int duration,
+      @QueryParam("names") final List<String> names) throws IOException {
 
-		try (DominoClient client = DominoClientBuilder.newDominoClient().build()) {
-			TemporalAccessor from = DateTimeFormatter.ISO_INSTANT.parse(fromDate);
-			TemporalAccessor until = DateTimeFormatter.ISO_INSTANT.parse(untilDate);
+    try (DominoClient client = DominoClientBuilder.newDominoClient().build()) {
+      final TemporalAccessor from = DateTimeFormatter.ISO_INSTANT.parse(fromDate);
+      final TemporalAccessor until = DateTimeFormatter.ISO_INSTANT.parse(untilDate);
 
-			return client.getFreeBusy().freeTimeSearch(null, null, findFirstFit, from, until, duration, names);
-		}
-	}
+      return client.getFreeBusy().freeTimeSearch(null, null, findFirstFit, from, until, duration, names);
+    }
+  }
 
 }

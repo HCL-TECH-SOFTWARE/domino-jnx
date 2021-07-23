@@ -14,7 +14,7 @@
  * under the License.
  * ==========================================================================
  */
- package com.hcl.domino.freebusy;
+package com.hcl.domino.freebusy;
 
 import java.util.Optional;
 import java.util.Set;
@@ -22,26 +22,26 @@ import java.util.Set;
 import com.hcl.domino.data.DominoDateTime;
 
 public interface ScheduleEntry {
-	String getUnid();
-	
-	Optional<DominoDateTime> getFrom();
+  String getApptUnid();
 
-	Optional<DominoDateTime> getUntil();
-	
-	Set<ScheduleAttr> getAttributes();
-	
-	boolean hasAttribute(ScheduleAttr attr);
-	
-	String getApptUnid();
-	
-	boolean isPenciled();
-	
-	boolean isRepeatEvent();
-	
-	boolean isBusy();
-	
-	boolean isAppointment();
-	
-	boolean isNonWork();
-	
+  Set<ScheduleAttr> getAttributes();
+
+  Optional<DominoDateTime> getFrom();
+
+  String getUnid();
+
+  Optional<DominoDateTime> getUntil();
+
+  boolean hasAttribute(ScheduleAttr attr);
+
+  boolean isAppointment();
+
+  boolean isBusy();
+
+  boolean isNonWork();
+
+  boolean isPenciled();
+
+  boolean isRepeatEvent();
+
 }

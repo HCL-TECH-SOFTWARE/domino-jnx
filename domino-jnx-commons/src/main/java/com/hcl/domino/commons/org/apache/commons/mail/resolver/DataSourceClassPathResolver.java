@@ -29,117 +29,101 @@ import jakarta.mail.util.ByteArrayDataSource;
  * @since 1.3
  */
 @SuppressWarnings("nls")
-public class DataSourceClassPathResolver extends DataSourceBaseResolver
-{
-    /** the base string of the resource relative to the classpath when resolving relative paths */
-    private final String classPathBase;
+public class DataSourceClassPathResolver extends DataSourceBaseResolver {
+  /**
+   * the base string of the resource relative to the classpath when resolving
+   * relative paths
+   */
+  private final String classPathBase;
 
-    /**
-     * Constructor
-     */
-    public DataSourceClassPathResolver()
-    {
-        this.classPathBase = "/";
-    }
+  /**
+   * Constructor
+   */
+  public DataSourceClassPathResolver() {
+    this.classPathBase = "/";
+  }
 
-    /**
-     * Constructor.
-     *
-     * @param classPathBase a base class path
-     */
-    public DataSourceClassPathResolver(final String classPathBase)
-    {
-        this.classPathBase = classPathBase.endsWith("/") ? classPathBase : classPathBase + "/";
-    }
+  /**
+   * Constructor.
+   *
+   * @param classPathBase a base class path
+   */
+  public DataSourceClassPathResolver(final String classPathBase) {
+    this.classPathBase = classPathBase.endsWith("/") ? classPathBase : classPathBase + "/";
+  }
 
-    /**
-     * Constructor.
-     *
-     * @param classPathBase a base class path
-     * @param lenient shall we ignore resources not found or throw an exception?
-     */
-    public DataSourceClassPathResolver(final String classPathBase, final boolean lenient)
-    {
-        super(lenient);
-        this.classPathBase = classPathBase.endsWith("/") ? classPathBase : classPathBase + "/";
-    }
+  /**
+   * Constructor.
+   *
+   * @param classPathBase a base class path
+   * @param lenient       shall we ignore resources not found or throw an
+   *                      exception?
+   */
+  public DataSourceClassPathResolver(final String classPathBase, final boolean lenient) {
+    super(lenient);
+    this.classPathBase = classPathBase.endsWith("/") ? classPathBase : classPathBase + "/";
+  }
 
-    /**
-     * @return the classPathBase
-     */
-    public String getClassPathBase()
-    {
-        return classPathBase;
-    }
+  /**
+   * @return the classPathBase
+   */
+  public String getClassPathBase() {
+    return this.classPathBase;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public DataSource resolve(final String resourceLocation) throws IOException
-    {
-        return resolve(resourceLocation, isLenient());
-    }
+  /**
+   * Returns the resource name for a given resource location.
+   *
+   * @param resourceLocation the resource location
+   * @return {@link #getClassPathBase()} + {@code resourceLocation}
+   * @see #getClassPathBase()
+   */
+  private String getResourceName(final String resourceLocation) {
+    return (this.getClassPathBase() + resourceLocation).replaceAll("//", "/");
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public DataSource resolve(final String resourceLocation, final boolean isLenient) throws IOException
-    {
-        DataSource result = null;
+  /** {@inheritDoc} */
+  @Override
+  public DataSource resolve(final String resourceLocation) throws IOException {
+    return this.resolve(resourceLocation, this.isLenient());
+  }
 
-        try
-        {
-            if (!isCid(resourceLocation) && !isHttpUrl(resourceLocation))
-            {
-                final String mimeType = FileTypeMap.getDefaultFileTypeMap().getContentType(resourceLocation);
-                final String resourceName = getResourceName(resourceLocation);
-                final InputStream is = DataSourceClassPathResolver.class.getResourceAsStream(resourceName);
+  /** {@inheritDoc} */
+  @Override
+  public DataSource resolve(final String resourceLocation, final boolean isLenient) throws IOException {
+    DataSource result = null;
 
-                if (is != null)
-                {
-                    try
-                    {
-                        final ByteArrayDataSource ds = new ByteArrayDataSource(is, mimeType);
-                        // EMAIL-125: set the name of the DataSource to the normalized resource URL
-                        // similar to other DataSource implementations, e.g. FileDataSource, URLDataSource
-                        ds.setName(DataSourceClassPathResolver.class.getResource(resourceName).toString());
-                        result = ds;
-                    }
-                    finally
-                    {
-                        is.close();
-                    }
-                }
-                else
-                {
-                    if (isLenient)
-                    {
-                        return null;
-                    }
-                    throw new IOException("The following class path resource was not found : " + resourceLocation);
-                }
-            }
+    try {
+      if (!this.isCid(resourceLocation) && !this.isHttpUrl(resourceLocation)) {
+        final String mimeType = FileTypeMap.getDefaultFileTypeMap().getContentType(resourceLocation);
+        final String resourceName = this.getResourceName(resourceLocation);
+        final InputStream is = DataSourceClassPathResolver.class.getResourceAsStream(resourceName);
 
-
-            return result;
+        if (is != null) {
+          try {
+            final ByteArrayDataSource ds = new ByteArrayDataSource(is, mimeType);
+            // EMAIL-125: set the name of the DataSource to the normalized resource URL
+            // similar to other DataSource implementations, e.g. FileDataSource,
+            // URLDataSource
+            ds.setName(DataSourceClassPathResolver.class.getResource(resourceName).toString());
+            result = ds;
+          } finally {
+            is.close();
+          }
+        } else {
+          if (isLenient) {
+            return null;
+          }
+          throw new IOException("The following class path resource was not found : " + resourceLocation);
         }
-        catch (final IOException e)
-        {
-            if (isLenient)
-            {
-                return null;
-            }
-            throw e;
-        }
-    }
+      }
 
-    /**
-     * Returns the resource name for a given resource location.
-     *
-     * @param resourceLocation the resource location
-     * @return {@link #getClassPathBase()} + {@code resourceLocation}
-     * @see #getClassPathBase()
-     */
-    private String getResourceName(final String resourceLocation)
-    {
-        return (getClassPathBase() + resourceLocation).replaceAll("//", "/");
+      return result;
+    } catch (final IOException e) {
+      if (isLenient) {
+        return null;
+      }
+      throw e;
     }
+  }
 }

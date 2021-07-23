@@ -21,14 +21,11 @@ import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.structures.BSIG;
 
-@StructureDefinition(
-	name="CDHOTSPOTEND",
-	members={
-		@StructureMember(name="Header", type=BSIG.class)
-	}
-)
+@StructureDefinition(name = "CDHOTSPOTEND", members = {
+    @StructureMember(name = "Header", type = BSIG.class)
+})
 public interface CDHotspotEnd extends RichTextRecord<BSIG> {
-	@StructureGetter("Header")
-	@Override
-	BSIG getHeader();
+  @StructureGetter("Header")
+  @Override
+  BSIG getHeader();
 }

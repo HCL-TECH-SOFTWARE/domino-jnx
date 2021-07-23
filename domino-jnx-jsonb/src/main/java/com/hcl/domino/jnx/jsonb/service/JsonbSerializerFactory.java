@@ -25,9 +25,9 @@ import com.hcl.domino.json.JsonSerializerFactory;
  */
 public class JsonbSerializerFactory implements JsonSerializerFactory {
 
-	@Override
-	public JsonSerializer newSerializer() {
-		return new JsonbSerializer();
-	}
+  @Override
+  public JsonSerializer newSerializer() {
+    return new JsonbSerializer();
+  }
 
 }

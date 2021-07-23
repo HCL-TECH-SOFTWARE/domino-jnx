@@ -23,38 +23,37 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.LSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.15
  */
-@StructureDefinition(
-	name="CDFILEHEADER",
-	members={
-		@StructureMember(name="Header", type=LSIG.class),
-		@StructureMember(name="FileExtLen", type=short.class, unsigned=true),
-		@StructureMember(name="FileDataSize", type=int.class, unsigned=true),
-		@StructureMember(name="SegCount", type=int.class, unsigned=true),
-		@StructureMember(name="Flags", type=int.class),
-		@StructureMember(name="Reserved", type=int.class)
-	}
-)
+@StructureDefinition(name = "CDFILEHEADER", members = {
+    @StructureMember(name = "Header", type = LSIG.class),
+    @StructureMember(name = "FileExtLen", type = short.class, unsigned = true),
+    @StructureMember(name = "FileDataSize", type = int.class, unsigned = true),
+    @StructureMember(name = "SegCount", type = int.class, unsigned = true),
+    @StructureMember(name = "Flags", type = int.class),
+    @StructureMember(name = "Reserved", type = int.class)
+})
 public interface CDFileHeader extends RichTextRecord<LSIG> {
-	@StructureGetter("Header")
-	@Override
-	LSIG getHeader();
-	
-	@StructureGetter("FileExtLen")
-	int getFileExtLen();
-	@StructureSetter("FileExtLen")
-	CDFileHeader setFileExtLen(int fileExtLen);
-	
-	@StructureGetter("FileDataSize")
-	long getFileDataSize();
-	@StructureSetter("FileDataSize")
-	CDFileHeader setFileDataSize(long fileDataSize);
-	
-	@StructureGetter("SegCount")
-	long getSegCount();
-	@StructureSetter("SegCount")
-	CDFileHeader setSegCount(long segCount);
+  @StructureGetter("FileDataSize")
+  long getFileDataSize();
+
+  @StructureGetter("FileExtLen")
+  int getFileExtLen();
+
+  @StructureGetter("Header")
+  @Override
+  LSIG getHeader();
+
+  @StructureGetter("SegCount")
+  long getSegCount();
+
+  @StructureSetter("FileDataSize")
+  CDFileHeader setFileDataSize(long fileDataSize);
+
+  @StructureSetter("FileExtLen")
+  CDFileHeader setFileExtLen(int fileExtLen);
+
+  @StructureSetter("SegCount")
+  CDFileHeader setSegCount(long segCount);
 }

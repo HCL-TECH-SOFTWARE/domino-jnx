@@ -16,13 +16,6 @@
  */
 package it.com.hcl.domino.test.jakarta.json;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -33,6 +26,7 @@ import java.time.temporal.Temporal;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.data.Document;
@@ -50,134 +44,136 @@ import jakarta.json.bind.JsonbConfig;
 @SuppressWarnings("nls")
 public class TestJakartaJsonDeserialization extends AbstractNotesRuntimeTest {
 
-	@Test
-	public void testBasicDeserialization() throws Exception {
-		withTempDb(database -> {
-			Jsonb jsonb = JsonbBuilder.newBuilder()
-				.withConfig(
-					new JsonbConfig()
-						.withDeserializers(
-							DocumentJsonbDeserializer.newDeserializer(database)
-						)
-				).build();
-			
-			Document doc;
-			try(InputStream is = getClass().getResourceAsStream("/json/testBasicDeserialization/basicdoc.json")) {
-				doc = jsonb.fromJson(is, Document.class);
-			}
-			
-			assertNotEquals(null, doc, "doc should not be null");
-			assertEquals("TestDocument", doc.get("Form", String.class, null));
-			assertEquals("bar", doc.get("foo", String.class, null));
-			assertEquals("baz", doc.get("bar", String.class, null));
-			assertEquals(1, doc.get("Number", int.class, 0));
-			assertEquals(null, doc.get("void", String.class, null));
-			assertEquals(true, doc.get("bool", boolean.class, null));
-		});
-	}
-	
-	/**
-	 * Tests that date-like values are left as strings by default
-	 * @throws Exception if there is a problem running the test
-	 */
-	@Test
-	public void testNonDateDeserialization() throws Exception {
-		withTempDb(database -> {
-			Jsonb jsonb = JsonbBuilder.newBuilder()
-				.withConfig(
-					new JsonbConfig()
-						.withDeserializers(
-							DocumentJsonbDeserializer.newDeserializer(database)
-						)
-				).build();
-			
-			Document doc;
-			try(InputStream is = getClass().getResourceAsStream("/json/testBasicDeserialization/datejson.json")) {
-				doc = jsonb.fromJson(is, Document.class);
-			}
-			
-			assertNotEquals(null, doc, "doc should not be null");
-			assertEquals("TestDocument", doc.get("Form", String.class, null));
-			for(String itemName : Arrays.asList("date", "time", "datetime", "datetime_offset")) {
-				Item date = doc.getFirstItem(itemName).orElse(null);
-				assertNotNull(date, itemName + " field should not be null");
-				assertEquals(ItemDataType.TYPE_TEXT, date.getType());
-				assertFalse(StringUtil.isEmpty(date.get(String.class, null)), itemName + " value should not be empty");
-			}
-		});
-	}
-	
-	@Test
-	public void testDateDetection() throws Exception {
-		withTempDb(database -> {
-			Jsonb jsonb = JsonbBuilder.newBuilder()
-				.withConfig(
-					new JsonbConfig()
-						.withDeserializers(
-							DocumentJsonbDeserializer.newBuilder(database)
-								.detectDateTime(true)
-								.build()
-						)
-				).build();
-			
-			Document doc;
-			try(InputStream is = getClass().getResourceAsStream("/json/testBasicDeserialization/datejson.json")) {
-				doc = jsonb.fromJson(is, Document.class);
-			}
-			
-			assertNotEquals(null, doc, "doc should not be null");
-			assertEquals("TestDocument", doc.get("Form", String.class, null));
-			{
-				DominoDateTime date = doc.get("date", DominoDateTime.class, null);
-				assertNotEquals(null, date, "date field value should not be null");
-				Temporal temporal = date.toTemporal().orElse(null);
-				assertInstanceOf(LocalDate.class, temporal, "temporal version should be a LocalDate");
-				assertEquals(LocalDate.of(2020, 7, 10), temporal);
-			}
-			{
-				DominoDateTime time = doc.get("time", DominoDateTime.class, null);
-				assertNotEquals(null, time, "time field value should not be null");
-				Temporal temporal = time.toTemporal().orElse(null);
-				assertInstanceOf(LocalTime.class, temporal, "temporal version should be a LocalTime");
-				assertEquals(LocalTime.of(13, 47, 03), temporal);
-			}
-			{
-				DominoDateTime dt = doc.get("datetime", DominoDateTime.class, null);
-				assertNotEquals(null, dt, "datetime field value should not be null");
-				Temporal temporal = dt.toTemporal().orElse(null);
-				assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime, "temporal version should be an OffsetDateTime");
-				LocalDate date = LocalDate.of(2020, 7, 10);
-				LocalTime time = LocalTime.of(13, 47, 03);
-				assertEquals(OffsetDateTime.of(date, time, ZoneOffset.UTC), OffsetDateTime.from(temporal));
-			}
-			{
-				DominoDateTime dt = doc.get("datetime_offset", DominoDateTime.class, null);
-				assertNotEquals(null, dt, "datetime_offset field value should not be null");
-				Temporal temporal = dt.toTemporal().orElse(null);
-				assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime, "temporal version should be an OffsetDateTime");
-				LocalDate date = LocalDate.of(2020, 7, 10);
-				LocalTime time = LocalTime.of(13, 47, 03);
-				assertEquals(OffsetDateTime.of(date, time, ZoneOffset.ofHours(-5)), OffsetDateTime.from(temporal));
-			}
-			{
-				List<DominoDateTime> dts = doc.getAsList("datetimes", DominoDateTime.class, null);
-				assertNotEquals(null, dts, "datetimes field value should not be null");
-				{
-					Temporal temporal = dts.get(0).toTemporal().orElse(null);
-					assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime, "temporal version should be an OffsetDateTime");
-					LocalDate date = LocalDate.of(2020, 7, 10);
-					LocalTime time = LocalTime.of(13, 47, 03);
-					assertEquals(OffsetDateTime.of(date, time, ZoneOffset.UTC), OffsetDateTime.from(temporal));
-				}
-				{
-					Temporal temporal = dts.get(1).toTemporal().orElse(null);
-					assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime, "temporal version should be an OffsetDateTime");
-					LocalDate date = LocalDate.of(2020, 7, 10);
-					LocalTime time = LocalTime.of(13, 47, 03);
-					assertEquals(OffsetDateTime.of(date, time, ZoneOffset.ofHours(-5)), OffsetDateTime.from(temporal));
-				}
-			}
-		});
-	}
+  @Test
+  public void testBasicDeserialization() throws Exception {
+    this.withTempDb(database -> {
+      final Jsonb jsonb = JsonbBuilder.newBuilder()
+          .withConfig(
+              new JsonbConfig()
+                  .withDeserializers(
+                      DocumentJsonbDeserializer.newDeserializer(database)))
+          .build();
+
+      Document doc;
+      try (InputStream is = this.getClass().getResourceAsStream("/json/testBasicDeserialization/basicdoc.json")) {
+        doc = jsonb.fromJson(is, Document.class);
+      }
+
+      Assertions.assertNotEquals(null, doc, "doc should not be null");
+      Assertions.assertEquals("TestDocument", doc.get("Form", String.class, null));
+      Assertions.assertEquals("bar", doc.get("foo", String.class, null));
+      Assertions.assertEquals("baz", doc.get("bar", String.class, null));
+      Assertions.assertEquals(1, doc.get("Number", int.class, 0));
+      Assertions.assertEquals(null, doc.get("void", String.class, null));
+      Assertions.assertEquals(true, doc.get("bool", boolean.class, null));
+    });
+  }
+
+  @Test
+  public void testDateDetection() throws Exception {
+    this.withTempDb(database -> {
+      final Jsonb jsonb = JsonbBuilder.newBuilder()
+          .withConfig(
+              new JsonbConfig()
+                  .withDeserializers(
+                      DocumentJsonbDeserializer.newBuilder(database)
+                          .detectDateTime(true)
+                          .build()))
+          .build();
+
+      Document doc;
+      try (InputStream is = this.getClass().getResourceAsStream("/json/testBasicDeserialization/datejson.json")) {
+        doc = jsonb.fromJson(is, Document.class);
+      }
+
+      Assertions.assertNotEquals(null, doc, "doc should not be null");
+      Assertions.assertEquals("TestDocument", doc.get("Form", String.class, null));
+      {
+        final DominoDateTime date = doc.get("date", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, date, "date field value should not be null");
+        final Temporal temporal = date.toTemporal().orElse(null);
+        Assertions.assertInstanceOf(LocalDate.class, temporal, "temporal version should be a LocalDate");
+        Assertions.assertEquals(LocalDate.of(2020, 7, 10), temporal);
+      }
+      {
+        final DominoDateTime time = doc.get("time", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, time, "time field value should not be null");
+        final Temporal temporal = time.toTemporal().orElse(null);
+        Assertions.assertInstanceOf(LocalTime.class, temporal, "temporal version should be a LocalTime");
+        Assertions.assertEquals(LocalTime.of(13, 47, 03), temporal);
+      }
+      {
+        final DominoDateTime dt = doc.get("datetime", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, dt, "datetime field value should not be null");
+        final Temporal temporal = dt.toTemporal().orElse(null);
+        Assertions.assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime,
+            "temporal version should be an OffsetDateTime");
+        final LocalDate date = LocalDate.of(2020, 7, 10);
+        final LocalTime time = LocalTime.of(13, 47, 03);
+        Assertions.assertEquals(OffsetDateTime.of(date, time, ZoneOffset.UTC), OffsetDateTime.from(temporal));
+      }
+      {
+        final DominoDateTime dt = doc.get("datetime_offset", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, dt, "datetime_offset field value should not be null");
+        final Temporal temporal = dt.toTemporal().orElse(null);
+        Assertions.assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime,
+            "temporal version should be an OffsetDateTime");
+        final LocalDate date = LocalDate.of(2020, 7, 10);
+        final LocalTime time = LocalTime.of(13, 47, 03);
+        Assertions.assertEquals(OffsetDateTime.of(date, time, ZoneOffset.ofHours(-5)), OffsetDateTime.from(temporal));
+      }
+      {
+        final List<DominoDateTime> dts = doc.getAsList("datetimes", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, dts, "datetimes field value should not be null");
+        {
+          final Temporal temporal = dts.get(0).toTemporal().orElse(null);
+          Assertions.assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime,
+              "temporal version should be an OffsetDateTime");
+          final LocalDate date = LocalDate.of(2020, 7, 10);
+          final LocalTime time = LocalTime.of(13, 47, 03);
+          Assertions.assertEquals(OffsetDateTime.of(date, time, ZoneOffset.UTC), OffsetDateTime.from(temporal));
+        }
+        {
+          final Temporal temporal = dts.get(1).toTemporal().orElse(null);
+          Assertions.assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime,
+              "temporal version should be an OffsetDateTime");
+          final LocalDate date = LocalDate.of(2020, 7, 10);
+          final LocalTime time = LocalTime.of(13, 47, 03);
+          Assertions.assertEquals(OffsetDateTime.of(date, time, ZoneOffset.ofHours(-5)), OffsetDateTime.from(temporal));
+        }
+      }
+    });
+  }
+
+  /**
+   * Tests that date-like values are left as strings by default
+   *
+   * @throws Exception if there is a problem running the test
+   */
+  @Test
+  public void testNonDateDeserialization() throws Exception {
+    this.withTempDb(database -> {
+      final Jsonb jsonb = JsonbBuilder.newBuilder()
+          .withConfig(
+              new JsonbConfig()
+                  .withDeserializers(
+                      DocumentJsonbDeserializer.newDeserializer(database)))
+          .build();
+
+      Document doc;
+      try (InputStream is = this.getClass().getResourceAsStream("/json/testBasicDeserialization/datejson.json")) {
+        doc = jsonb.fromJson(is, Document.class);
+      }
+
+      Assertions.assertNotEquals(null, doc, "doc should not be null");
+      Assertions.assertEquals("TestDocument", doc.get("Form", String.class, null));
+      for (final String itemName : Arrays.asList("date", "time", "datetime", "datetime_offset")) {
+        final Item date = doc.getFirstItem(itemName).orElse(null);
+        Assertions.assertNotNull(date, itemName + " field should not be null");
+        Assertions.assertEquals(ItemDataType.TYPE_TEXT, date.getType());
+        Assertions.assertFalse(StringUtil.isEmpty(date.get(String.class, null)), itemName + " value should not be empty");
+      }
+    });
+  }
 
 }

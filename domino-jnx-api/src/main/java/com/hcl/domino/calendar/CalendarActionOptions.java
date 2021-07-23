@@ -19,42 +19,49 @@ package com.hcl.domino.calendar;
 import java.util.Collection;
 
 /**
- * {@link CalendarActionOptions} values are used to provide additional processing control to some
+ * {@link CalendarActionOptions} values are used to provide additional
+ * processing control to some
  * actions taken on Calendar notices and entries
- * 
- * Note: The values of these constants are the very same constants used by the C-API.
- * 
+ * Note: The values of these constants are the very same constants used by the
+ * C-API.
+ *
  * @author Karsten Lehmann
  */
 public enum CalendarActionOptions {
-	/** Indicates that a check should be performed when processing the action to determine 
-	* if an overwrite of invitee changes to the entry will occur. */
-	DO_OVERWRITE_CHECK(0x00000001),
-	
-	/** New in 9.01 release.  Used to indicate that current entry participants should be notified of changes
-	 * to the participant list in addition to those being added or removed. */
-	UPDATE_ALL_PARTICIPANTS(0x00000002);
+  /**
+   * Indicates that a check should be performed when processing the action to
+   * determine
+   * if an overwrite of invitee changes to the entry will occur.
+   */
+  DO_OVERWRITE_CHECK(0x00000001),
 
-	private int m_val;
-	
-	CalendarActionOptions(int val) {
-		m_val = val;
-	}
-	
-	public int getValue() {
-		return m_val;
-	}
-	
-	public static int toBitMask(Collection<CalendarActionOptions> findSet) {
-		int result = 0;
-		if (findSet!=null) {
-			for (CalendarActionOptions currFind : values()) {
-				if (findSet.contains(currFind)) {
-					result = result | currFind.getValue();
-				}
-			}
-		}
-		return result;
-	}
+  /**
+   * New in 9.01 release. Used to indicate that current entry participants should
+   * be notified of changes
+   * to the participant list in addition to those being added or removed.
+   */
+  UPDATE_ALL_PARTICIPANTS(0x00000002);
+
+  public static int toBitMask(final Collection<CalendarActionOptions> findSet) {
+    int result = 0;
+    if (findSet != null) {
+      for (final CalendarActionOptions currFind : CalendarActionOptions.values()) {
+        if (findSet.contains(currFind)) {
+          result = result | currFind.getValue();
+        }
+      }
+    }
+    return result;
+  }
+
+  private int m_val;
+
+  CalendarActionOptions(final int val) {
+    this.m_val = val;
+  }
+
+  public int getValue() {
+    return this.m_val;
+  }
 
 }

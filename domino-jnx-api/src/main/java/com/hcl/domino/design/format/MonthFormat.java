@@ -20,20 +20,25 @@ import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 
 public enum MonthFormat implements INumberEnum<Byte> {
-	M(RichTextConstants.DT_MFMT_M),
-	MM(RichTextConstants.DT_MFMT_MM),
-	MMM(RichTextConstants.DT_MFMT_MMM),
-	MMMM(RichTextConstants.DT_MFMT_MMMM),
-	;
-	private final byte value;
-	MonthFormat(byte value) { this.value = value; }
-	
-	@Override
-	public long getLongValue() {
-		return value;
-	}
-	@Override
-	public Byte getValue() {
-		return value;
-	}
+  M(RichTextConstants.DT_MFMT_M),
+  MM(RichTextConstants.DT_MFMT_MM),
+  MMM(RichTextConstants.DT_MFMT_MMM),
+  MMMM(RichTextConstants.DT_MFMT_MMMM),
+  ;
+
+  private final byte value;
+
+  MonthFormat(final byte value) {
+    this.value = value;
+  }
+
+  @Override
+  public long getLongValue() {
+    return this.value;
+  }
+
+  @Override
+  public Byte getValue() {
+    return this.value;
+  }
 }

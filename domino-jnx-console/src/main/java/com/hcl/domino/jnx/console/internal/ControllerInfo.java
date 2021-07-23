@@ -22,24 +22,23 @@ package com.hcl.domino.jnx.console.internal;
  * one connection per {@link DominoConsoleRunner}.
  */
 public class ControllerInfo {
-    private int index;
-    private String serverName;
+  private int index;
+  private String serverName;
 
-    void setIndex(int n) {
-        this.index = n;
-    }
+  int getIndex() {
+    return this.index;
+  }
 
-    int getIndex() {
-        return this.index;
-    }
+  String getServerName() {
+    return this.serverName;
+  }
 
-    void setServerName(String serverName) {
-        this.serverName = serverName;
-    }
+  void setIndex(final int n) {
+    this.index = n;
+  }
 
-    String getServerName() {
-        return this.serverName;
-    }
+  void setServerName(final String serverName) {
+    this.serverName = serverName;
+  }
 
 }
-

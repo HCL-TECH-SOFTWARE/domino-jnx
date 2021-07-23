@@ -19,27 +19,31 @@ package com.hcl.domino.commons.converters;
 import com.hcl.domino.data.DocumentValueConverter;
 
 /**
- * {@link DocumentValueConverter} implementation that supports converting boolean values
+ * {@link DocumentValueConverter} implementation that supports converting
+ * boolean values
  * to and from 0d and 1d.
- * 
+ *
  * @author Jesse Gallagher
  */
 public class FloatCollectionEntryValueConverter extends AbstractPrimitiveCollectionEntryValueConverter<Float> {
-	
-	@Override
-	protected Class<Float> getBoxedClass() {
-		return Float.class;
-	}
-	@Override
-	protected Class<?> getPrimitiveClass() {
-		return float.class;
-	}
-	@Override
-	protected Float convertFromDouble(double value) {
-		return (float)value;
-	}
-	@Override
-	protected double convertToDouble(Float value) {
-		return value;
-	}
+
+  @Override
+  protected Float convertFromDouble(final double value) {
+    return (float) value;
+  }
+
+  @Override
+  protected double convertToDouble(final Float value) {
+    return value;
+  }
+
+  @Override
+  protected Class<Float> getBoxedClass() {
+    return Float.class;
+  }
+
+  @Override
+  protected Class<?> getPrimitiveClass() {
+    return float.class;
+  }
 }

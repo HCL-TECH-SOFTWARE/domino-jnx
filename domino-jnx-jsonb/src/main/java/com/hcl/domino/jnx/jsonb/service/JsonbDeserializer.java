@@ -26,31 +26,31 @@ import jakarta.json.bind.JsonbConfig;
 
 public class JsonbDeserializer extends AbstractJsonDeserializer {
 
-	@Override
-	public Document fromJson(Object json) {
-		return fromJson(json.toString());
-	}
+  @Override
+  public Document fromJson(final Object json) {
+    return this.fromJson(json.toString());
+  }
 
-	@Override
-	public Document fromJson(String json) {
-		DocumentJsonbDeserializer.Builder builder;
-		if(targetDocument == null) {
-			builder = DocumentJsonbDeserializer.newBuilder(targetDatabase);
-		} else {
-			builder = DocumentJsonbDeserializer.newBuilder(targetDocument);
-		}
-		builder
-			.booleanValues(this.trueValue, this.falseValue)
-			.dateTimeItems(this.dateTimeItems)
-			.removeMissingItems(this.removeMissingItems)
-			.detectDateTime(this.detectDateTime)
-			.customProcessors(this.customProcessors);
-		
-		Jsonb jsonb = JsonbBuilder.newBuilder()
-			.withConfig(
-				new JsonbConfig().withDeserializers(builder.build())
-			).build();
-		return jsonb.fromJson(json, Document.class);
-	}
+  @Override
+  public Document fromJson(final String json) {
+    DocumentJsonbDeserializer.Builder builder;
+    if (this.targetDocument == null) {
+      builder = DocumentJsonbDeserializer.newBuilder(this.targetDatabase);
+    } else {
+      builder = DocumentJsonbDeserializer.newBuilder(this.targetDocument);
+    }
+    builder
+        .booleanValues(this.trueValue, this.falseValue)
+        .dateTimeItems(this.dateTimeItems)
+        .removeMissingItems(this.removeMissingItems)
+        .detectDateTime(this.detectDateTime)
+        .customProcessors(this.customProcessors);
+
+    final Jsonb jsonb = JsonbBuilder.newBuilder()
+        .withConfig(
+            new JsonbConfig().withDeserializers(builder.build()))
+        .build();
+    return jsonb.fromJson(json, Document.class);
+  }
 
 }

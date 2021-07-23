@@ -23,31 +23,32 @@ import com.hcl.domino.DominoClient;
 
 /**
  * Represents a collection of databases and the new "since" query time
- * returned from {@link DominoClient#getDatabasePaths(String, TemporalAccessor)}.
- * 
+ * returned from
+ * {@link DominoClient#getDatabasePaths(String, TemporalAccessor)}.
+ *
  * @author Jesse Gallagher
  */
 public class DatabaseChangePathList {
-	private final Collection<String> databasePaths;
-	private final TemporalAccessor nextSinceTime;
+  private final Collection<String> databasePaths;
+  private final TemporalAccessor nextSinceTime;
 
-	public DatabaseChangePathList(Collection<String> databasePaths, TemporalAccessor nextSinceTime) {
-		this.databasePaths = databasePaths;
-		this.nextSinceTime = nextSinceTime;
-	}
-	
-	/**
-	 * @return a {@link Collection} of server-relative database paths
-	 */
-	public Collection<String> getDatabasePaths() {
-		return databasePaths;
-	}
-	
-	/**
-	 * @return the next since time to pass to subsequent queries
-	 */
-	public TemporalAccessor getNextSinceTime() {
-		return nextSinceTime;
-	}
+  public DatabaseChangePathList(final Collection<String> databasePaths, final TemporalAccessor nextSinceTime) {
+    this.databasePaths = databasePaths;
+    this.nextSinceTime = nextSinceTime;
+  }
+
+  /**
+   * @return a {@link Collection} of server-relative database paths
+   */
+  public Collection<String> getDatabasePaths() {
+    return this.databasePaths;
+  }
+
+  /**
+   * @return the next since time to pass to subsequent queries
+   */
+  public TemporalAccessor getNextSinceTime() {
+    return this.nextSinceTime;
+  }
 
 }

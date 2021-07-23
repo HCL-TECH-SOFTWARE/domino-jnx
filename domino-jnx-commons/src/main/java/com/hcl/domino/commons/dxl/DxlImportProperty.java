@@ -20,74 +20,82 @@ import com.hcl.domino.misc.CNativeEnum;
 
 /**
  * Represents the {@code DXL_IMPORT_PROPERTY} enum from xml.h.
- * 
+ *
  * @author Jesse Gallagher
  */
 public enum DxlImportProperty implements CNativeEnum {
-	/**
-	 * WORD, Assign to value defined in DXLIMPORTOPTION
-	 */
-	ACLImportOption(1),
-	/**
-	 * WORD, Assign to value defined in DXLIMPORTOPTION
-	 */
-	DesignImportOption(2),
-	/**
-	 * WORD, Assign to value defined in DXLIMPORTOPTION
-	 */
-	DocumentsImportOption(3),
-	/**
-	 * BOOL, TRUE = create full text index, FALSE Do NOT create full text index
-	 */
-	CreateFullTextIndex(4),
-	/**
-	 * BOOL, TRUE = replace database properties, FALSE Do NOT replace database properties
-	 */
-	ReplaceDbProperties(5),
-	/**
-	 * Xml_Validation_Option, Values defined in Xml_Validation_Option
-	 */
-	InputValidationOption(6),
-	/**
-	 * BOOL, TRUE = skip replace/update ops if target DB and import DXL do not have same replicaid's [sic]
-	 * <br>FALSE = allow replace/update ops even if target DB
-	 */
-	ReplicaRequiredForReplaceOrUpdate(7),
-	/**
-	 * BOOL, TRUE = importer exits on first fatal error
-	 * <br>FALSE = importer continues even if fatal error found
-	 */
-	ExitOnFirstFatalError(8),
-	/**
-	 * WORD, Assign to value defined in DXLLOGOPTION. Specifies what to do if DXL contains an
-	 * unknown element or attribute
-	 */
-	UnknownTokenLogOption(9),
-	/**
-	 * char*(i)/MEMHANDLE(o)  LMBCS string to be added as comment to top of result log
-	 */
-	ResultLogComment(10),
-	/**
-	 * MEMHANDLE, (readonly) The result log from the last import
-	 */
-	ResultLog(11),
-	/**
-	 * HANDLE, (readonly) An IDTABLE listing the notes imported by the last import operation
-	 */
-	ImportedNoteList(12)
-	;
-	
-	int value;
-	DxlImportProperty(int value) {
-		this.value = value;
-	}
-	
-	@Override
-	public long getLongValue() {
-		return value;
-	}
-	@Override
-	public Integer getValue() {
-		return value;
-	}
+  /**
+   * WORD, Assign to value defined in DXLIMPORTOPTION
+   */
+  ACLImportOption(1),
+  /**
+   * WORD, Assign to value defined in DXLIMPORTOPTION
+   */
+  DesignImportOption(2),
+  /**
+   * WORD, Assign to value defined in DXLIMPORTOPTION
+   */
+  DocumentsImportOption(3),
+  /**
+   * BOOL, TRUE = create full text index, FALSE Do NOT create full text index
+   */
+  CreateFullTextIndex(4),
+  /**
+   * BOOL, TRUE = replace database properties, FALSE Do NOT replace database
+   * properties
+   */
+  ReplaceDbProperties(5),
+  /**
+   * Xml_Validation_Option, Values defined in Xml_Validation_Option
+   */
+  InputValidationOption(6),
+  /**
+   * BOOL, TRUE = skip replace/update ops if target DB and import DXL do not have
+   * same replicaid's [sic]
+   * <br>
+   * FALSE = allow replace/update ops even if target DB
+   */
+  ReplicaRequiredForReplaceOrUpdate(7),
+  /**
+   * BOOL, TRUE = importer exits on first fatal error
+   * <br>
+   * FALSE = importer continues even if fatal error found
+   */
+  ExitOnFirstFatalError(8),
+  /**
+   * WORD, Assign to value defined in DXLLOGOPTION. Specifies what to do if DXL
+   * contains an
+   * unknown element or attribute
+   */
+  UnknownTokenLogOption(9),
+  /**
+   * char*(i)/MEMHANDLE(o) LMBCS string to be added as comment to top of result
+   * log
+   */
+  ResultLogComment(10),
+  /**
+   * MEMHANDLE, (readonly) The result log from the last import
+   */
+  ResultLog(11),
+  /**
+   * HANDLE, (readonly) An IDTABLE listing the notes imported by the last import
+   * operation
+   */
+  ImportedNoteList(12);
+
+  int value;
+
+  DxlImportProperty(final int value) {
+    this.value = value;
+  }
+
+  @Override
+  public long getLongValue() {
+    return this.value;
+  }
+
+  @Override
+  public Integer getValue() {
+    return this.value;
+  }
 }

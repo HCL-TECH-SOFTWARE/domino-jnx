@@ -40,98 +40,99 @@ import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpServletResponseAdap
 import com.ibm.designer.runtime.domino.bootstrap.adapter.HttpSessionAdapter;
 
 public class WebappInitializer extends HttpService {
-	
-	public static final String MQ_NAME = "MQ$EXAMPLEAPP"; //$NON-NLS-1$
-	private DominoClient client;
-	private ExecutorService exec;
-	private MessageQueue mq;
-	private ServerStatusLine statusLine;
-	private int messageCount;
 
-	public WebappInitializer(LCDEnvironment env) {
-		super(env);
-		
-		try {
-			AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
-				System.setProperty("jnx.noinit", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-				System.setProperty("jnx.noterm", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-				return null;
-			});
-			
-			DominoProcess.get().initializeProcess(new String[0]);
-			this.client = DominoClientBuilder.newDominoClient().build();
-			this.exec = Executors.newCachedThreadPool(this.client.getThreadFactory());
-			this.exec.submit(() -> {
-				try {
-					this.statusLine = client.getServerAdmin().createServerStatusLine("ExampleApp");
-					this.statusLine.setLine("Waiting");
-					this.mq = client.getMessageQueues().createAndOpen(MQ_NAME, 0);
-					
-					System.out.println("JNX Example Webapp initialized. Use `tell exampleapp foo` to mirror messages");
-					
-					String message;
-					try {
-						while((message = this.mq.take()) != null) {
-							System.out.println("Received message " + message);
-							this.statusLine.setLine("Processed count: " + ++this.messageCount);
-						}
-					} catch (InterruptedException | ObjectDisposedException e) {
-						// This occurs during shutdown
-					}
-				} catch(Throwable t) {
-					t.printStackTrace();
-				}
-			});
-		} catch(Throwable t) {
-			t.printStackTrace();
-		}
-	}
-	
-	@Override
-	public void refreshSettings() {
-		super.refreshSettings();
-	}
-	
-	@Override
-	public void destroyService() {
-		super.destroyService();
-		
-		try {
-			exec.submit(() -> {
-				try {
-					statusLine.close();
-					mq.close();
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}).get();
-			this.exec.shutdownNow();
-			try {
-				this.exec.awaitTermination(1, TimeUnit.MINUTES);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			this.client.close();
-			DominoProcess.get().terminateProcess();
-		} catch(Throwable t) {
-			t.printStackTrace();
-		}
-	}
+  public static final String MQ_NAME = "MQ$EXAMPLEAPP"; //$NON-NLS-1$
+  private DominoClient client;
+  private ExecutorService exec;
+  private MessageQueue mq;
+  private ServerStatusLine statusLine;
+  private int messageCount;
 
-	// *******************************************************************************
-	// * Stub service methods
-	// *******************************************************************************
+  public WebappInitializer(final LCDEnvironment env) {
+    super(env);
 
-	@Override
-	public boolean doService(String arg0, String arg1, HttpSessionAdapter session, HttpServletRequestAdapter req,
-			HttpServletResponseAdapter resp) throws ServletException, IOException {
-		// NOP
-		return false;
-	}
+    try {
+      AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+        System.setProperty("jnx.noinit", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+        System.setProperty("jnx.noterm", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+        return null;
+      });
 
-	@Override
-	public void getModules(List<ComponentModule> arg0) {
-		// NOP
-	}
+      DominoProcess.get().initializeProcess(new String[0]);
+      this.client = DominoClientBuilder.newDominoClient().build();
+      this.exec = Executors.newCachedThreadPool(this.client.getThreadFactory());
+      this.exec.submit(() -> {
+        try {
+          this.statusLine = this.client.getServerAdmin().createServerStatusLine("ExampleApp");
+          this.statusLine.setLine("Waiting");
+          this.mq = this.client.getMessageQueues().createAndOpen(WebappInitializer.MQ_NAME, 0);
+
+          System.out.println("JNX Example Webapp initialized. Use `tell exampleapp foo` to mirror messages");
+
+          String message;
+          try {
+            while ((message = this.mq.take()) != null) {
+              System.out.println("Received message " + message);
+              this.statusLine.setLine("Processed count: " + ++this.messageCount);
+            }
+          } catch (InterruptedException | ObjectDisposedException e) {
+            // This occurs during shutdown
+          }
+        } catch (final Throwable t) {
+          t.printStackTrace();
+        }
+      });
+    } catch (final Throwable t) {
+      t.printStackTrace();
+    }
+  }
+
+  @Override
+  public void destroyService() {
+    super.destroyService();
+
+    try {
+      this.exec.submit(() -> {
+        try {
+          this.statusLine.close();
+          this.mq.close();
+        } catch (final Exception e) {
+          e.printStackTrace();
+        }
+      }).get();
+      this.exec.shutdownNow();
+      try {
+        this.exec.awaitTermination(1, TimeUnit.MINUTES);
+      } catch (final InterruptedException e) {
+        e.printStackTrace();
+      }
+      this.client.close();
+      DominoProcess.get().terminateProcess();
+    } catch (final Throwable t) {
+      t.printStackTrace();
+    }
+  }
+
+  @Override
+  public boolean doService(final String arg0, final String arg1, final HttpSessionAdapter session,
+      final HttpServletRequestAdapter req,
+      final HttpServletResponseAdapter resp) throws ServletException, IOException {
+    // NOP
+    return false;
+  }
+
+  // *******************************************************************************
+  // * Stub service methods
+  // *******************************************************************************
+
+  @Override
+  public void getModules(final List<ComponentModule> arg0) {
+    // NOP
+  }
+
+  @Override
+  public void refreshSettings() {
+    super.refreshSettings();
+  }
 
 }

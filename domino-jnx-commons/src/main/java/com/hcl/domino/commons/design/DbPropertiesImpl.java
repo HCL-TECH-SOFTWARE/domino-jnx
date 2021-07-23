@@ -21,25 +21,26 @@ import com.hcl.domino.design.DbProperties;
 
 public class DbPropertiesImpl extends AbstractDesignElement<DbProperties> implements DbProperties {
 
-	public DbPropertiesImpl(Document doc) {
-		super(doc);
-	}
+  public DbPropertiesImpl(final Document doc) {
+    super(doc);
+  }
 
-	@Override
-	public void initializeNewDesignNote() {
-		
-	}
+  @Override
+  public void initializeNewDesignNote() {
 
-	@Override
-	public boolean isGenerateEnhancedHtml() {
-		return "1".equals(getDocument().getAsText(DesignConstants.DB_NEW_HTML, ' ')); //$NON-NLS-1$
-	}
-	@Override
-	public void setGenerateEnhancedHtml(boolean generateEnhancedHtml) {
-		if(generateEnhancedHtml) {
-			getDocument().replaceItemValue(DesignConstants.DB_NEW_HTML, '1');
-		} else {
-			getDocument().removeItem(DesignConstants.DB_NEW_HTML);
-		}
-	}
+  }
+
+  @Override
+  public boolean isGenerateEnhancedHtml() {
+    return "1".equals(this.getDocument().getAsText(DesignConstants.DB_NEW_HTML, ' ')); //$NON-NLS-1$
+  }
+
+  @Override
+  public void setGenerateEnhancedHtml(final boolean generateEnhancedHtml) {
+    if (generateEnhancedHtml) {
+      this.getDocument().replaceItemValue(DesignConstants.DB_NEW_HTML, '1');
+    } else {
+      this.getDocument().removeItem(DesignConstants.DB_NEW_HTML);
+    }
+  }
 }

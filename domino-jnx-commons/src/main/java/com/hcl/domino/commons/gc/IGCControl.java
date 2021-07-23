@@ -18,16 +18,18 @@ package com.hcl.domino.commons.gc;
 
 public interface IGCControl {
 
-	public enum GCAction { FLUSH_REFQUEUE, NOOP }
-	
-	GCAction objectAllocated(IAPIObject<?> parent, IAPIObject<?> obj);
+  public enum GCAction {
+    FLUSH_REFQUEUE, NOOP
+  }
 
-	/**
-	 * Sets the max number of new API object allocations to flush the
-	 * reference queue
-	 * 
-	 * @param threshold threshold, 0 to not flush the reference queue at all
-	 */
-	void setThreshold(int threshold);
-	
+  GCAction objectAllocated(IAPIObject<?> parent, IAPIObject<?> obj);
+
+  /**
+   * Sets the max number of new API object allocations to flush the
+   * reference queue
+   * 
+   * @param threshold threshold, 0 to not flush the reference queue at all
+   */
+  void setThreshold(int threshold);
+
 }

@@ -20,26 +20,26 @@ import com.hcl.domino.DominoException;
 
 /**
  * Represents error code 549, "Document has been deleted"
- * 
+ *
  * @author Jesse Gallagher
  */
 public class DocumentDeletedException extends DominoException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public DocumentDeletedException(int id, String message) {
-		super(id, message);
-	}
+  public DocumentDeletedException(final int id, final String message) {
+    super(id, message);
+  }
 
-	public DocumentDeletedException(int id, String message, Throwable cause) {
-		super(id, message, cause);
-	}
+  public DocumentDeletedException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
+  }
 
-	public DocumentDeletedException(String msg) {
-		super(msg);
-	}
+  public DocumentDeletedException(final String msg) {
+    super(msg);
+  }
 
-	public DocumentDeletedException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public DocumentDeletedException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
 
 }

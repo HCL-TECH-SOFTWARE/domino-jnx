@@ -18,10 +18,9 @@ package com.hcl.domino.security;
 
 /**
  * A single entry of the database {@link Acl}
- *
  */
 public interface AclEntry extends AclAccess {
 
-	String getName();
-	
+  String getName();
+
 }

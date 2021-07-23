@@ -24,20 +24,22 @@ import java.lang.annotation.Target;
 
 /**
  * Defines an in-memory structure layout to be represented by an interface.
- * 
- * @author Jesse Gallagher
  *
+ * @author Jesse Gallagher
  */
 @Retention(RUNTIME)
 @Target(TYPE)
 public @interface StructureDefinition {
-	/**
-	 * @return the name of the structure in the C API
-	 */
-	String name();
-	StructureMember[] members();
-	/**
-	 * @return {@code true} if the member order should be reversed on big-endian systems
-	 */
-	boolean endianSensitive() default false;
+  /**
+   * @return {@code true} if the member order should be reversed on big-endian
+   *         systems
+   */
+  boolean endianSensitive() default false;
+
+  StructureMember[] members();
+
+  /**
+   * @return the name of the structure in the C API
+   */
+  String name();
 }

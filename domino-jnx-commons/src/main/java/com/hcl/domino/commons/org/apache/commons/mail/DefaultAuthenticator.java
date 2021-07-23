@@ -25,34 +25,31 @@ import jakarta.mail.PasswordAuthentication;
  *
  * @since 1.0
  */
-public class DefaultAuthenticator extends Authenticator
-{
-    /** Stores the login information for authentication. */
-    private final PasswordAuthentication authentication;
+public class DefaultAuthenticator extends Authenticator {
+  /** Stores the login information for authentication. */
+  private final PasswordAuthentication authentication;
 
-    /**
-     * Default constructor.
-     *
-     * @param userName user name to use when authentication is requested
-     * @param password password to use when authentication is requested
-     * @since 1.0
-     */
-    public DefaultAuthenticator(final String userName, final String password)
-    {
-        this.authentication = new PasswordAuthentication(userName, password);
-    }
+  /**
+   * Default constructor.
+   *
+   * @param userName user name to use when authentication is requested
+   * @param password password to use when authentication is requested
+   * @since 1.0
+   */
+  public DefaultAuthenticator(final String userName, final String password) {
+    this.authentication = new PasswordAuthentication(userName, password);
+  }
 
-    /**
-     * Gets the authentication object that will be used to login to the mail
-     * server.
-     *
-     * @return A {@code PasswordAuthentication} object containing the
-     *         login information.
-     * @since 1.0
-     */
-    @Override
-    protected PasswordAuthentication getPasswordAuthentication()
-    {
-        return this.authentication;
-    }
+  /**
+   * Gets the authentication object that will be used to login to the mail
+   * server.
+   *
+   * @return A {@code PasswordAuthentication} object containing the
+   *         login information.
+   * @since 1.0
+   */
+  @Override
+  protected PasswordAuthentication getPasswordAuthentication() {
+    return this.authentication;
+  }
 }

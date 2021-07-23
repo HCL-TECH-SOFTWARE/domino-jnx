@@ -25,61 +25,65 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentValueConverter;
 
 /**
- * Shared logic for {@link DocumentValueConverter} implementations that handle conversion
+ * Shared logic for {@link DocumentValueConverter} implementations that handle
+ * conversion
  * to and from Java primitive builtins.
- * 
+ *
  * @param <BOX> the boxed value that the subclass handles
  * @author Jesse Gallagher
  */
 public abstract class AbstractPrimitiveDocumentValueConverter<BOX> implements DocumentValueConverter {
 
+  protected abstract BOX convertFromDouble(double value);
 
-	@Override
-	public boolean supportsRead(Class<?> valueType) {
-		return getPrimitiveClass().equals(valueType) || getBoxedClass().equals(valueType);
-	}
+  protected abstract double convertToDouble(BOX value);
 
-	@Override
-	public boolean supportsWrite(Class<?> valueType, Object value) {
-		if(Iterable.class.isAssignableFrom(valueType)) {
-			Object firstVal = ((Iterable<?>)value).iterator().next();
-			return getBoxedClass().isInstance(firstVal);
-		} else {
-			return getPrimitiveClass().equals(valueType) || getBoxedClass().equals(valueType);
-		}
-	}
+  protected abstract Class<BOX> getBoxedClass();
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T getValue(Document obj, String itemName, Class<T> valueType, T defaultValue) {
-		double result = obj.get(itemName, Double.class, 0d);
-		return (T)convertFromDouble(result);
-	}
+  protected abstract Class<?> getPrimitiveClass();
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> List<T> getValueAsList(Document obj, String itemName, Class<T> valueType, List<T> defaultValue) {
-		return obj.getAsList(itemName, Double.class, new ArrayList<>()).stream()
-				.map(this::convertFromDouble)
-				.map(b -> (T)b)
-				.collect(Collectors.toList());
-	}
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T getValue(final Document obj, final String itemName, final Class<T> valueType, final T defaultValue) {
+    final double result = obj.get(itemName, Double.class, 0d);
+    return (T) this.convertFromDouble(result);
+  }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> void setValue(Document obj, String itemName, T newValue) {
-		if(newValue instanceof Iterable) {
-			List<Double> listVal = StreamSupport.stream(((Iterable<BOX>)newValue).spliterator(), false)
-				.map(this::convertToDouble)
-				.collect(Collectors.toList());
-			obj.replaceItemValue(itemName, listVal);;
-		} else {
-			obj.replaceItemValue(itemName, convertToDouble((BOX)newValue));
-		}
-	}
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> List<T> getValueAsList(final Document obj, final String itemName, final Class<T> valueType,
+      final List<T> defaultValue) {
+    return obj.getAsList(itemName, Double.class, new ArrayList<>()).stream()
+        .map(this::convertFromDouble)
+        .map(b -> (T) b)
+        .collect(Collectors.toList());
+  }
 
-	protected abstract Class<?> getPrimitiveClass();
-	protected abstract Class<BOX> getBoxedClass();
-	protected abstract BOX convertFromDouble(double value);
-	protected abstract double convertToDouble(BOX value);
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> void setValue(final Document obj, final String itemName, final T newValue) {
+    if (newValue instanceof Iterable) {
+      final List<Double> listVal = StreamSupport.stream(((Iterable<BOX>) newValue).spliterator(), false)
+          .map(this::convertToDouble)
+          .collect(Collectors.toList());
+      obj.replaceItemValue(itemName, listVal);
+    } else {
+      obj.replaceItemValue(itemName, this.convertToDouble((BOX) newValue));
+    }
+  }
+
+  @Override
+  public boolean supportsRead(final Class<?> valueType) {
+    return this.getPrimitiveClass().equals(valueType) || this.getBoxedClass().equals(valueType);
+  }
+
+  @Override
+  public boolean supportsWrite(final Class<?> valueType, final Object value) {
+    if (Iterable.class.isAssignableFrom(valueType)) {
+      final Object firstVal = ((Iterable<?>) value).iterator().next();
+      return this.getBoxedClass().isInstance(firstVal);
+    } else {
+      return this.getPrimitiveClass().equals(valueType) || this.getBoxedClass().equals(valueType);
+    }
+  }
 }

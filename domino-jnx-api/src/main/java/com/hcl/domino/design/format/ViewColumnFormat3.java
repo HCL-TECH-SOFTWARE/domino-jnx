@@ -28,181 +28,189 @@ import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 import com.hcl.domino.richtext.structures.TFMT;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="VIEW_COLUMN_FORMAT3",
-	members={
-		@StructureMember(name="Signature", type=short.class),
-		@StructureMember(name="DTPref", type=NumberPref.class),
-		@StructureMember(name="DTFlags", type=DateTimeFlag.class, bitfield=true),
-		@StructureMember(name="DTFlags2", type=DateTimeFlag2.class, bitfield=true),
-		@StructureMember(name="DTDOWFmt", type=WeekFormat.class),
-		@StructureMember(name="DTYearFmt", type=YearFormat.class),
-		@StructureMember(name="DTMonthFmt", type=MonthFormat.class),
-		@StructureMember(name="DTDayFmt", type=DayFormat.class),
-		@StructureMember(name="DTDsep1Len", type=byte.class, unsigned=true),
-		@StructureMember(name="DTDsep2Len", type=byte.class, unsigned=true),
-		@StructureMember(name="DTDsep3Len", type=byte.class, unsigned=true),
-		@StructureMember(name="DTTsepLen", type=byte.class, unsigned=true),
-		@StructureMember(name="DTDShow", type=DateShowFormat.class),
-		@StructureMember(name="DTDSpecial", type=DateShowSpecial.class),
-		@StructureMember(name="DTTShow", type=TimeShowFormat.class),
-		@StructureMember(name="DTTZone", type=TFMT.ZoneFormat.class),
-		@StructureMember(name="DatePreference", type=short.class),
-		@StructureMember(name="bUnused", type=byte.class),
-		@StructureMember(name="Unused", type=int.class)
-	}
-)
+@StructureDefinition(name = "VIEW_COLUMN_FORMAT3", members = {
+    @StructureMember(name = "Signature", type = short.class),
+    @StructureMember(name = "DTPref", type = NumberPref.class),
+    @StructureMember(name = "DTFlags", type = DateTimeFlag.class, bitfield = true),
+    @StructureMember(name = "DTFlags2", type = DateTimeFlag2.class, bitfield = true),
+    @StructureMember(name = "DTDOWFmt", type = WeekFormat.class),
+    @StructureMember(name = "DTYearFmt", type = YearFormat.class),
+    @StructureMember(name = "DTMonthFmt", type = MonthFormat.class),
+    @StructureMember(name = "DTDayFmt", type = DayFormat.class),
+    @StructureMember(name = "DTDsep1Len", type = byte.class, unsigned = true),
+    @StructureMember(name = "DTDsep2Len", type = byte.class, unsigned = true),
+    @StructureMember(name = "DTDsep3Len", type = byte.class, unsigned = true),
+    @StructureMember(name = "DTTsepLen", type = byte.class, unsigned = true),
+    @StructureMember(name = "DTDShow", type = DateShowFormat.class),
+    @StructureMember(name = "DTDSpecial", type = DateShowSpecial.class),
+    @StructureMember(name = "DTTShow", type = TimeShowFormat.class),
+    @StructureMember(name = "DTTZone", type = TFMT.ZoneFormat.class),
+    @StructureMember(name = "DatePreference", type = short.class),
+    @StructureMember(name = "bUnused", type = byte.class),
+    @StructureMember(name = "Unused", type = int.class)
+})
 public interface ViewColumnFormat3 extends ResizableMemoryStructure {
-	
-	@StructureGetter("Signature")
-	short getSignature();
-	@StructureSetter("Signature")
-	ViewColumnFormat3 setSignature(short signature);
 
-	@StructureGetter("DTPref")
-	NumberPref getDateTimePreference();
-	@StructureSetter("DTPref")
-	ViewColumnFormat3 setDateTimePreference(NumberPref pref);
-	
-	@StructureGetter("DTFlags")
-	Set<DateTimeFlag> getDateTimeFlags();
-	@StructureSetter("DTFlags")
-	ViewColumnFormat3 setDateTimeFlags(Collection<DateTimeFlag> flags);
-	
-	@StructureGetter("DTFlags2")
-	Set<DateTimeFlag2> getDateTimeFlags2();
-	@StructureSetter("DTFlags2")
-	ViewColumnFormat3 setDateTimeFlags2(Collection<DateTimeFlag2> flags);
-	
-	@StructureGetter("DTDOWFmt")
-	WeekFormat getDayOfWeekFormat();
-	@StructureSetter("DTDOWFmt")
-	ViewColumnFormat3 setDayOfWeekFormat(WeekFormat format);
-	
-	@StructureGetter("DTYearFmt")
-	YearFormat getYearFormat();
-	@StructureSetter("DTYearFmt")
-	ViewColumnFormat3 setYearFormat(YearFormat format);
-	
-	@StructureGetter("DTMonthFmt")
-	MonthFormat getMonthFormat();
-	@StructureSetter("DTMonthFmt")
-	ViewColumnFormat3 setMonthFormat(MonthFormat format);
-	
-	@StructureGetter("DTDayFmt")
-	DayFormat getDayFormat();
-	@StructureSetter("DTDayFmt")
-	ViewColumnFormat3 setDayFormat(DayFormat format);
-	
-	@StructureGetter("DTDsep1Len")
-	short getDateSeparator1Length();
-	@StructureSetter("DTDsep1Len")
-	ViewColumnFormat3 setDateSeparator1Length(short len);
-	
-	@StructureGetter("DTDsep2Len")
-	short getDateSeparator2Length();
-	@StructureSetter("DTDsep2Len")
-	ViewColumnFormat3 setDateSeparator2Length(short len);
-	
-	@StructureGetter("DTDsep3Len")
-	short getDateSeparator3Length();
-	@StructureSetter("DTDsep3Len")
-	ViewColumnFormat3 setDateSeparator3Length(short len);
-	
-	@StructureGetter("DTTsepLen")
-	short getTimeSeparatorLength();
-	@StructureSetter("DTTsepLen")
-	ViewColumnFormat3 setTimeSeparatorLength(short len);
-	
-	@StructureGetter("DTDShow")
-	DateShowFormat getDateShowFormat();
-	@StructureSetter("DTDShow")
-	ViewColumnFormat3 setDateShowFormat(DateShowFormat format);
-	
-	@StructureGetter("DTDSpecial")
-	DateShowSpecial getDateShowSpecial();
-	@StructureSetter("DTDSpecial")
-	ViewColumnFormat3 setDateShowSpecial(DateShowSpecial format);
-	
-	@StructureGetter("DTTShow")
-	TimeShowFormat getTimeShowFormat();
-	@StructureSetter("DTTShow")
-	ViewColumnFormat3 setTimeShowFormat(TimeShowFormat format);
-	
-	@StructureGetter("DTTZone")
-	TFMT.ZoneFormat getTimeZoneFormat();
-	@StructureSetter("DTTZone")
-	ViewColumnFormat3 setTimeZoneFormat(TFMT.ZoneFormat format);
-	
-	default String getDateSeparator1() {
-		return StructureSupport.extractStringValue(
-			this,
-			0,
-			getDateSeparator1Length()
-		);
-	}
-	default ViewColumnFormat3 setDateSeparator1(String sep) {
-		return StructureSupport.writeStringValueShort(
-			this,
-			0,
-			getDateSeparator1Length(),
-			sep,
-			this::setDateSeparator1Length
-		);
-	}
-	
-	default String getDateSeparator2() {
-		return StructureSupport.extractStringValue(
-			this,
-			getDateSeparator1Length(),
-			getDateSeparator2Length()
-		);
-	}
-	default ViewColumnFormat3 setDateSeparator2(String sep) {
-		return StructureSupport.writeStringValueShort(
-			this,
-			getDateSeparator1Length(),
-			getDateSeparator2Length(),
-			sep,
-			this::setDateSeparator2Length
-		);
-	}
-	
-	default String getDateSeparator3() {
-		return StructureSupport.extractStringValue(
-			this,
-			getDateSeparator1Length() + getDateSeparator2Length(),
-			getDateSeparator3Length()
-		);
-	}
-	default ViewColumnFormat3 setDateSeparator3(String sep) {
-		return StructureSupport.writeStringValueShort(
-			this,
-			getDateSeparator1Length() + getDateSeparator2Length(),
-			getDateSeparator3Length(),
-			sep,
-			this::setDateSeparator3Length
-		);
-	}
-	
-	default String getTimeSeparator() {
-		return StructureSupport.extractStringValue(
-			this,
-			getDateSeparator1Length() + getDateSeparator2Length() + getDateSeparator3Length(),
-			getTimeSeparatorLength()
-		);
-	}
-	default ViewColumnFormat3 setTimeSeparator(String sep) {
-		return StructureSupport.writeStringValueShort(
-			this,
-			getDateSeparator1Length() + getDateSeparator2Length() + getDateSeparator3Length(),
-			getTimeSeparatorLength(),
-			sep,
-			this::setTimeSeparatorLength
-		);
-	}
+  default String getDateSeparator1() {
+    return StructureSupport.extractStringValue(
+        this,
+        0,
+        this.getDateSeparator1Length());
+  }
+
+  @StructureGetter("DTDsep1Len")
+  short getDateSeparator1Length();
+
+  default String getDateSeparator2() {
+    return StructureSupport.extractStringValue(
+        this,
+        this.getDateSeparator1Length(),
+        this.getDateSeparator2Length());
+  }
+
+  @StructureGetter("DTDsep2Len")
+  short getDateSeparator2Length();
+
+  default String getDateSeparator3() {
+    return StructureSupport.extractStringValue(
+        this,
+        this.getDateSeparator1Length() + this.getDateSeparator2Length(),
+        this.getDateSeparator3Length());
+  }
+
+  @StructureGetter("DTDsep3Len")
+  short getDateSeparator3Length();
+
+  @StructureGetter("DTDShow")
+  DateShowFormat getDateShowFormat();
+
+  @StructureGetter("DTDSpecial")
+  DateShowSpecial getDateShowSpecial();
+
+  @StructureGetter("DTFlags")
+  Set<DateTimeFlag> getDateTimeFlags();
+
+  @StructureGetter("DTFlags2")
+  Set<DateTimeFlag2> getDateTimeFlags2();
+
+  @StructureGetter("DTPref")
+  NumberPref getDateTimePreference();
+
+  @StructureGetter("DTDayFmt")
+  DayFormat getDayFormat();
+
+  @StructureGetter("DTDOWFmt")
+  WeekFormat getDayOfWeekFormat();
+
+  @StructureGetter("DTMonthFmt")
+  MonthFormat getMonthFormat();
+
+  @StructureGetter("Signature")
+  short getSignature();
+
+  default String getTimeSeparator() {
+    return StructureSupport.extractStringValue(
+        this,
+        this.getDateSeparator1Length() + this.getDateSeparator2Length() + this.getDateSeparator3Length(),
+        this.getTimeSeparatorLength());
+  }
+
+  @StructureGetter("DTTsepLen")
+  short getTimeSeparatorLength();
+
+  @StructureGetter("DTTShow")
+  TimeShowFormat getTimeShowFormat();
+
+  @StructureGetter("DTTZone")
+  TFMT.ZoneFormat getTimeZoneFormat();
+
+  @StructureGetter("DTYearFmt")
+  YearFormat getYearFormat();
+
+  default ViewColumnFormat3 setDateSeparator1(final String sep) {
+    return StructureSupport.writeStringValueShort(
+        this,
+        0,
+        this.getDateSeparator1Length(),
+        sep,
+        this::setDateSeparator1Length);
+  }
+
+  @StructureSetter("DTDsep1Len")
+  ViewColumnFormat3 setDateSeparator1Length(short len);
+
+  default ViewColumnFormat3 setDateSeparator2(final String sep) {
+    return StructureSupport.writeStringValueShort(
+        this,
+        this.getDateSeparator1Length(),
+        this.getDateSeparator2Length(),
+        sep,
+        this::setDateSeparator2Length);
+  }
+
+  @StructureSetter("DTDsep2Len")
+  ViewColumnFormat3 setDateSeparator2Length(short len);
+
+  default ViewColumnFormat3 setDateSeparator3(final String sep) {
+    return StructureSupport.writeStringValueShort(
+        this,
+        this.getDateSeparator1Length() + this.getDateSeparator2Length(),
+        this.getDateSeparator3Length(),
+        sep,
+        this::setDateSeparator3Length);
+  }
+
+  @StructureSetter("DTDsep3Len")
+  ViewColumnFormat3 setDateSeparator3Length(short len);
+
+  @StructureSetter("DTDShow")
+  ViewColumnFormat3 setDateShowFormat(DateShowFormat format);
+
+  @StructureSetter("DTDSpecial")
+  ViewColumnFormat3 setDateShowSpecial(DateShowSpecial format);
+
+  @StructureSetter("DTFlags")
+  ViewColumnFormat3 setDateTimeFlags(Collection<DateTimeFlag> flags);
+
+  @StructureSetter("DTFlags2")
+  ViewColumnFormat3 setDateTimeFlags2(Collection<DateTimeFlag2> flags);
+
+  @StructureSetter("DTPref")
+  ViewColumnFormat3 setDateTimePreference(NumberPref pref);
+
+  @StructureSetter("DTDayFmt")
+  ViewColumnFormat3 setDayFormat(DayFormat format);
+
+  @StructureSetter("DTDOWFmt")
+  ViewColumnFormat3 setDayOfWeekFormat(WeekFormat format);
+
+  @StructureSetter("DTMonthFmt")
+  ViewColumnFormat3 setMonthFormat(MonthFormat format);
+
+  @StructureSetter("Signature")
+  ViewColumnFormat3 setSignature(short signature);
+
+  default ViewColumnFormat3 setTimeSeparator(final String sep) {
+    return StructureSupport.writeStringValueShort(
+        this,
+        this.getDateSeparator1Length() + this.getDateSeparator2Length() + this.getDateSeparator3Length(),
+        this.getTimeSeparatorLength(),
+        sep,
+        this::setTimeSeparatorLength);
+  }
+
+  @StructureSetter("DTTsepLen")
+  ViewColumnFormat3 setTimeSeparatorLength(short len);
+
+  @StructureSetter("DTTShow")
+  ViewColumnFormat3 setTimeShowFormat(TimeShowFormat format);
+
+  @StructureSetter("DTTZone")
+  ViewColumnFormat3 setTimeZoneFormat(TFMT.ZoneFormat format);
+
+  @StructureSetter("DTYearFmt")
+  ViewColumnFormat3 setYearFormat(YearFormat format);
 }

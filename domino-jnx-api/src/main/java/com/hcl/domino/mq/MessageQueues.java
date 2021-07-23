@@ -20,36 +20,41 @@ import com.hcl.domino.DominoException;
 
 /**
  * @author t.b.d
- *
  */
 public interface MessageQueues {
 
-	/**
-	 * Open a message queue, get a handle to it, and increment the queue's reference counter.
-	 * The handle is used by the functions that write to and read from the message queue.
-	 * 
-	 * @param queueName name of the queue that is to be opened
-	 * @param createOnFail true to create the queue if it doesn't exist
-	 * @return the message queue
-	 * @throws DominoException if the queue doesn't exist and {@code createOnFail} is {@code false} 
-	 */
-	MessageQueue open(String queueName, boolean createOnFail);
-	
-	/**
-	 * Method to test whether a queue with a specified name exists (tries to open the queue)
-	 * 
-	 * @param queueName queue name
-	 * @return true if queue exists
-	 */
-	boolean hasQueue(String queueName);
-	
-	/**
-	 * Create a message queue with the specified name.
-	 * 
-	 * @param queueName name to be assigned to the message queue
-	 * @param quota Maximum number of messages that the queue may contain. Set this to zero for the default maximum. The default maximum number of messages that the queue may contain is MAXWORD.
-	 * @return the message queue
-	 */
-	MessageQueue createAndOpen(String queueName, int quota);
-	
+  /**
+   * Create a message queue with the specified name.
+   *
+   * @param queueName name to be assigned to the message queue
+   * @param quota     Maximum number of messages that the queue may contain. Set
+   *                  this to zero for the default maximum. The default maximum
+   *                  number of messages that the queue may contain is MAXWORD.
+   * @return the message queue
+   */
+  MessageQueue createAndOpen(String queueName, int quota);
+
+  /**
+   * Method to test whether a queue with a specified name exists (tries to open
+   * the queue)
+   *
+   * @param queueName queue name
+   * @return true if queue exists
+   */
+  boolean hasQueue(String queueName);
+
+  /**
+   * Open a message queue, get a handle to it, and increment the queue's reference
+   * counter.
+   * The handle is used by the functions that write to and read from the message
+   * queue.
+   *
+   * @param queueName    name of the queue that is to be opened
+   * @param createOnFail true to create the queue if it doesn't exist
+   * @return the message queue
+   * @throws DominoException if the queue doesn't exist and {@code createOnFail}
+   *                         is {@code false}
+   */
+  MessageQueue open(String queueName, boolean createOnFail);
+
 }

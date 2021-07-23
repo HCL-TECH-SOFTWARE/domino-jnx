@@ -24,47 +24,47 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 
 public class GenericResizableMemoryStructure implements ResizableMemoryStructure {
-	private ByteBuffer data;
-	private final Class<? extends MemoryStructure> recordClass;
+  private ByteBuffer data;
+  private final Class<? extends MemoryStructure> recordClass;
 
-	public GenericResizableMemoryStructure(ByteBuffer data, Class<? extends MemoryStructure> recordClass) {
-		this.data = data;
-		this.recordClass = recordClass;
-	}
-	
-	@Override
-	public ByteBuffer getData() {
-		return data.duplicate().order(ByteOrder.nativeOrder());
-	}
-	
-	@Override
-	public ByteBuffer getVariableData() {
-		Class<?> sizeClass = this.recordClass == null ? getClass() : this.recordClass;
-		int structureSize = MemoryStructureProxy.sizeOf(sizeClass);
-		return ((ByteBuffer) getData().position(structureSize)).slice().order(ByteOrder.nativeOrder());
-	}
+  public GenericResizableMemoryStructure(final ByteBuffer data, final Class<? extends MemoryStructure> recordClass) {
+    this.data = data;
+    this.recordClass = recordClass;
+  }
 
-	@Override
-	public void resize(int size) {
-		if(size < 1) {
-			throw new IllegalArgumentException("New size must be greater than 0 bytes");
-		}
-		ByteBuffer newData = ByteBuffer.allocate(size);
-		int copySize = Math.min(size, data.capacity());
-		data.position(0);
-		data.limit(copySize);
-		newData.put(data);
-		newData.position(0);
-		this.data = newData;
-	}
-	
-	@Override
-	public void resizeVariableData(int size) {
-		if(size < 1) {
-			throw new IllegalArgumentException("New size must be greater than 0 bytes");
-		}
-		Class<?> sizeClass = this.recordClass == null ? getClass() : this.recordClass;
-		int totalSize = MemoryStructureProxy.sizeOf(sizeClass) + size;
-		resize(totalSize);
-	}
+  @Override
+  public ByteBuffer getData() {
+    return this.data.duplicate().order(ByteOrder.nativeOrder());
+  }
+
+  @Override
+  public ByteBuffer getVariableData() {
+    final Class<?> sizeClass = this.recordClass == null ? this.getClass() : this.recordClass;
+    final int structureSize = MemoryStructureProxy.sizeOf(sizeClass);
+    return ((ByteBuffer) this.getData().position(structureSize)).slice().order(ByteOrder.nativeOrder());
+  }
+
+  @Override
+  public void resize(final int size) {
+    if (size < 1) {
+      throw new IllegalArgumentException("New size must be greater than 0 bytes");
+    }
+    final ByteBuffer newData = ByteBuffer.allocate(size);
+    final int copySize = Math.min(size, this.data.capacity());
+    this.data.position(0);
+    this.data.limit(copySize);
+    newData.put(this.data);
+    newData.position(0);
+    this.data = newData;
+  }
+
+  @Override
+  public void resizeVariableData(final int size) {
+    if (size < 1) {
+      throw new IllegalArgumentException("New size must be greater than 0 bytes");
+    }
+    final Class<?> sizeClass = this.recordClass == null ? this.getClass() : this.recordClass;
+    final int totalSize = MemoryStructureProxy.sizeOf(sizeClass) + size;
+    this.resize(totalSize);
+  }
 }

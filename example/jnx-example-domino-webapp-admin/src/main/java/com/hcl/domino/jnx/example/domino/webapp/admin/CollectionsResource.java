@@ -22,36 +22,38 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-import com.hcl.domino.DominoClient;
-import com.hcl.domino.DominoClientBuilder;
-import com.hcl.domino.data.Database;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.hcl.domino.DominoClient;
+import com.hcl.domino.DominoClientBuilder;
+import com.hcl.domino.data.Database;
+
 @Path("collections")
 public class CollectionsResource {
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public List<Map<String, Object>> getCollections(@QueryParam("dbname") String dbName) throws InterruptedException, ExecutionException {
-		return RestEasyServlet.instance.executor.submit(() -> {
-			// Use a native client to avoid a crasher with DBs that don't exist (see Issue #96)
-			try(DominoClient client = DominoClientBuilder.newDominoClient().build()) {
-				Database database = client.openDatabase(dbName);
-				return database.getAllCollections()
-					.map(c -> {
-						Map<String, Object> result = new LinkedHashMap<>();
-						result.put("title", c.getTitle()); //$NON-NLS-1$
-						result.put("aliases", c.getAliases()); //$NON-NLS-1$
-						result.put("isfolder", c.isFolder()); //$NON-NLS-1$
-						result.put("noteid", c.getNoteID()); //$NON-NLS-1$
-						return result;
-					})
-					.collect(Collectors.toList());
-			}
-		}).get();
-	}
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public List<Map<String, Object>> getCollections(@QueryParam("dbname") final String dbName)
+      throws InterruptedException, ExecutionException {
+    return RestEasyServlet.instance.executor.submit(() -> {
+      // Use a native client to avoid a crasher with DBs that don't exist (see Issue
+      // #96)
+      try (DominoClient client = DominoClientBuilder.newDominoClient().build()) {
+        final Database database = client.openDatabase(dbName);
+        return database.getAllCollections()
+            .map(c -> {
+              final Map<String, Object> result = new LinkedHashMap<>();
+              result.put("title", c.getTitle()); //$NON-NLS-1$
+              result.put("aliases", c.getAliases()); //$NON-NLS-1$
+              result.put("isfolder", c.isFolder()); //$NON-NLS-1$
+              result.put("noteid", c.getNoteID()); //$NON-NLS-1$
+              return result;
+            })
+            .collect(Collectors.toList());
+      }
+    }).get();
+  }
 }

@@ -23,48 +23,49 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.BSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.15
  */
-@StructureDefinition(
-	name="CDIMAGEHEADER2",
-	members={
-		@StructureMember(name="Header", type=BSIG.class),
-		@StructureMember(name="ImageType", type=CDImageHeader.ImageType.class),
-		@StructureMember(name="ImageDataSize", type=int.class, unsigned=true),
-		@StructureMember(name="SegCount", type=int.class, unsigned=true),
-		@StructureMember(name="Flags", type=int.class),
-		@StructureMember(name="Reserved", type=int.class)
-	}
-)
+@StructureDefinition(name = "CDIMAGEHEADER2", members = {
+    @StructureMember(name = "Header", type = BSIG.class),
+    @StructureMember(name = "ImageType", type = CDImageHeader.ImageType.class),
+    @StructureMember(name = "ImageDataSize", type = int.class, unsigned = true),
+    @StructureMember(name = "SegCount", type = int.class, unsigned = true),
+    @StructureMember(name = "Flags", type = int.class),
+    @StructureMember(name = "Reserved", type = int.class)
+})
 public interface CDImageHeader2 extends RichTextRecord<BSIG> {
-	@StructureGetter("Header")
-	@Override
-	BSIG getHeader();
-	
-	@StructureGetter("ImageType")
-	CDImageHeader.ImageType getImageType();
-	@StructureSetter("ImageType")
-	CDImageHeader2 setImageType(CDImageHeader.ImageType imageType);
-	
-	@StructureGetter("ImageDataSize")
-	long getImageDataSize();
-	@StructureSetter("ImageDataSize")
-	CDImageHeader2 setImageDataSize(long imageDataSize);
-	
-	@StructureGetter("SegCount")
-	long getSegCount();
-	@StructureSetter("SegCount")
-	CDImageHeader2 setSegCount(long segCount);
-	
-	@StructureGetter("Flags")
-	int getFlags();
-	@StructureSetter("Flags")
-	CDImageHeader2 setFlags(int flags);
-	
-	@StructureGetter("Reserved")
-	int getReserved();
-	@StructureSetter("Reserved")
-	CDImageHeader2 setReserved(int reserved);
+  @StructureGetter("Flags")
+  int getFlags();
+
+  @StructureGetter("Header")
+  @Override
+  BSIG getHeader();
+
+  @StructureGetter("ImageDataSize")
+  long getImageDataSize();
+
+  @StructureGetter("ImageType")
+  CDImageHeader.ImageType getImageType();
+
+  @StructureGetter("Reserved")
+  int getReserved();
+
+  @StructureGetter("SegCount")
+  long getSegCount();
+
+  @StructureSetter("Flags")
+  CDImageHeader2 setFlags(int flags);
+
+  @StructureSetter("ImageDataSize")
+  CDImageHeader2 setImageDataSize(long imageDataSize);
+
+  @StructureSetter("ImageType")
+  CDImageHeader2 setImageType(CDImageHeader.ImageType imageType);
+
+  @StructureSetter("Reserved")
+  CDImageHeader2 setReserved(int reserved);
+
+  @StructureSetter("SegCount")
+  CDImageHeader2 setSegCount(long segCount);
 }

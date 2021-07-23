@@ -16,12 +16,9 @@
  */
 package it.com.hcl.domino.test.formula;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,32 +32,32 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestFormulaCompiler extends AbstractNotesRuntimeTest {
-	@Test
-	public void testServiceAvailable() {
-		assertNotNull(FormulaCompiler.get());
-	}
-	
-	public static class FormulasProvider implements ArgumentsProvider {
-		@Override public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
-			return Stream.of(
-				"Hello",
-				"Index>1"
-			)
-			.map(Arguments::of);
-		}
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(FormulasProvider.class)
-	public void testRoundTrip(String formula) {
-		FormulaCompiler compiler = FormulaCompiler.get();
-		
-		byte[] compiled = compiler.compile(formula);
-		assertNotNull(compiled);
-		assertFalse(compiled.length == 0);
-		
-		String decompiled = compiler.decompile(compiled);
-		assertNotNull(decompiled);
-		assertEquals(formula, decompiled);
-	}
+  public static class FormulasProvider implements ArgumentsProvider {
+    @Override
+    public Stream<? extends Arguments> provideArguments(final ExtensionContext context) throws Exception {
+      return Stream.of(
+          "Hello",
+          "Index>1")
+          .map(Arguments::of);
+    }
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(FormulasProvider.class)
+  public void testRoundTrip(final String formula) {
+    final FormulaCompiler compiler = FormulaCompiler.get();
+
+    final byte[] compiled = compiler.compile(formula);
+    Assertions.assertNotNull(compiled);
+    Assertions.assertFalse(compiled.length == 0);
+
+    final String decompiled = compiler.decompile(compiled);
+    Assertions.assertNotNull(decompiled);
+    Assertions.assertEquals(formula, decompiled);
+  }
+
+  @Test
+  public void testServiceAvailable() {
+    Assertions.assertNotNull(FormulaCompiler.get());
+  }
 }

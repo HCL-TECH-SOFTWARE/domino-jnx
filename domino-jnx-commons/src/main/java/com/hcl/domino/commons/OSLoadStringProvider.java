@@ -19,21 +19,22 @@ package com.hcl.domino.commons;
 import com.hcl.domino.misc.JNXServiceFinder;
 
 /**
- * This service interface provides an implementation-neutral mechanism for loading strings
+ * This service interface provides an implementation-neutral mechanism for
+ * loading strings
  * via {@code OSLoadString}.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.19
  */
 public interface OSLoadStringProvider {
-	/**
-	 * 
-	 * @return an implementation of {@code OSLoadStringProvider}
-	 * @throws IllegalStateException if the active API implementation does not provide one
-	 */
-	static OSLoadStringProvider get() {
-		return JNXServiceFinder.findRequiredService(OSLoadStringProvider.class, OSLoadStringProvider.class.getClassLoader());
-	}
-	
-	String loadString(int module, short status);
+  /**
+   * @return an implementation of {@code OSLoadStringProvider}
+   * @throws IllegalStateException if the active API implementation does not
+   *                               provide one
+   */
+  static OSLoadStringProvider get() {
+    return JNXServiceFinder.findRequiredService(OSLoadStringProvider.class, OSLoadStringProvider.class.getClassLoader());
+  }
+
+  String loadString(int module, short status);
 }

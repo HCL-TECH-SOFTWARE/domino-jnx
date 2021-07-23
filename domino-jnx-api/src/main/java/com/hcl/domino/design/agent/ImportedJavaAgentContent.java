@@ -20,13 +20,14 @@ import java.util.List;
 
 /**
  * Represents the contents of an imported Java agent.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.24
  */
 public interface ImportedJavaAgentContent extends AgentContent {
-	String getMainClassName();
-	String getCodeFilesystemPath();
+  String getCodeFilesystemPath();
 
-	List<String> getFileNameList();
+  List<String> getFileNameList();
+
+  String getMainClassName();
 }

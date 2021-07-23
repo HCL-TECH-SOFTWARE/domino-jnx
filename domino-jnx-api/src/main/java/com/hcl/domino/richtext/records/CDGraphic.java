@@ -29,79 +29,91 @@ import com.hcl.domino.richtext.structures.LSIG;
 import com.hcl.domino.richtext.structures.RectSize;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.15
  */
-@StructureDefinition(
-	name="CDGRAPHIC",
-	members={
-		@StructureMember(name="Header", type=LSIG.class),
-		@StructureMember(name="DestSize", type=RectSize.class),
-		@StructureMember(name="CropSize", type=RectSize.class),
-		@StructureMember(name="CropOffset", type=CropRect.class),
-		@StructureMember(name="fResize", type=short.class),
-		@StructureMember(name="Version", type=CDGraphic.Version.class),
-		@StructureMember(name="bFlags", type=CDGraphic.Flag.class, bitfield=true),
-		@StructureMember(name="wReserved", type=short.class)
-	}
-)
+@StructureDefinition(name = "CDGRAPHIC", members = {
+    @StructureMember(name = "Header", type = LSIG.class),
+    @StructureMember(name = "DestSize", type = RectSize.class),
+    @StructureMember(name = "CropSize", type = RectSize.class),
+    @StructureMember(name = "CropOffset", type = CropRect.class),
+    @StructureMember(name = "fResize", type = short.class),
+    @StructureMember(name = "Version", type = CDGraphic.Version.class),
+    @StructureMember(name = "bFlags", type = CDGraphic.Flag.class, bitfield = true),
+    @StructureMember(name = "wReserved", type = short.class)
+})
 public interface CDGraphic extends RichTextRecord<LSIG> {
-	enum Version implements INumberEnum<Byte> {
-		VERSION1((byte)0),
-		VERSION2((byte)1),
-		VERSION3((byte)2);
-		private final byte value;
-		Version(byte value) { this.value = value; }
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-		@Override
-		public Byte getValue() {
-			return value;
-		}
-	}
-	enum Flag implements INumberEnum<Byte> {
-		DESTSIZE_IS_PIXELS((byte)0x01),
-		SPANSLINES((byte)0x02);
-		private final byte value;
-		Flag(byte value) { this.value = value; }
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-		@Override
-		public Byte getValue() {
-			return value;
-		}
-	}
-	
-	@StructureGetter("Header")
-	@Override
-	LSIG getHeader();
-	
-	@StructureGetter("DestSize")
-	RectSize getDestSize();
-	
-	@StructureGetter("CropSize")
-	RectSize getCropSize();
-	
-	@StructureGetter("CropOffset")
-	CropRect getCropOffset();
-	
-	@StructureGetter("fResize")
-	short getResize();
-	@StructureSetter("fResize")
-	CDGraphic setResize(short resize);
-	
-	@StructureGetter("Version")
-	Version getVersion();
-	@StructureSetter("Version")
-	CDGraphic setVersion(Version version);
-	
-	@StructureGetter("bFlags")
-	Set<Flag> getFlags();
-	@StructureSetter("bFlags")
-	CDGraphic setFlags(Collection<Flag> flags);
+  enum Flag implements INumberEnum<Byte> {
+    DESTSIZE_IS_PIXELS((byte) 0x01),
+    SPANSLINES((byte) 0x02);
+
+    private final byte value;
+
+    Flag(final byte value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Byte getValue() {
+      return this.value;
+    }
+  }
+
+  enum Version implements INumberEnum<Byte> {
+    VERSION1((byte) 0),
+    VERSION2((byte) 1),
+    VERSION3((byte) 2);
+
+    private final byte value;
+
+    Version(final byte value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Byte getValue() {
+      return this.value;
+    }
+  }
+
+  @StructureGetter("CropOffset")
+  CropRect getCropOffset();
+
+  @StructureGetter("CropSize")
+  RectSize getCropSize();
+
+  @StructureGetter("DestSize")
+  RectSize getDestSize();
+
+  @StructureGetter("bFlags")
+  Set<Flag> getFlags();
+
+  @StructureGetter("Header")
+  @Override
+  LSIG getHeader();
+
+  @StructureGetter("fResize")
+  short getResize();
+
+  @StructureGetter("Version")
+  Version getVersion();
+
+  @StructureSetter("bFlags")
+  CDGraphic setFlags(Collection<Flag> flags);
+
+  @StructureSetter("fResize")
+  CDGraphic setResize(short resize);
+
+  @StructureSetter("Version")
+  CDGraphic setVersion(Version version);
 }

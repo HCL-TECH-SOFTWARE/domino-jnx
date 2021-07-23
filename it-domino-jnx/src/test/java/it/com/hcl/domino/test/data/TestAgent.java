@@ -24,19 +24,19 @@ import com.hcl.domino.data.Database;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
-public class TestAgent extends AbstractNotesRuntimeTest {	
-	public static final String ENV_SERVERAGENTDB = "ServerAgentDB"; //$NON-NLS-1$
-	public static final String ENV_SERVERAGENGNAME = "ServerAgentName"; //$NON-NLS-1$
-	
-	@Test
-	@EnabledIfEnvironmentVariable(named = ENV_SERVERAGENTDB, matches = ".+")
-	@EnabledIfEnvironmentVariable(named = ENV_SERVERAGENGNAME, matches = ".+")
-	public void testRunOnServer() {
-		String serverAgentDb = System.getenv(ENV_SERVERAGENTDB);
-		String serverAgentName = System.getenv(ENV_SERVERAGENGNAME);
-		
-		Database database = getClient().openDatabase(serverAgentDb);
-		Agent agent = database.getAgent(serverAgentName).get();
-		agent.runOnServer(false);
-	}
+public class TestAgent extends AbstractNotesRuntimeTest {
+  public static final String ENV_SERVERAGENTDB = "ServerAgentDB"; //$NON-NLS-1$
+  public static final String ENV_SERVERAGENGNAME = "ServerAgentName"; //$NON-NLS-1$
+
+  @Test
+  @EnabledIfEnvironmentVariable(named = TestAgent.ENV_SERVERAGENTDB, matches = ".+")
+  @EnabledIfEnvironmentVariable(named = TestAgent.ENV_SERVERAGENGNAME, matches = ".+")
+  public void testRunOnServer() {
+    final String serverAgentDb = System.getenv(TestAgent.ENV_SERVERAGENTDB);
+    final String serverAgentName = System.getenv(TestAgent.ENV_SERVERAGENGNAME);
+
+    final Database database = this.getClient().openDatabase(serverAgentDb);
+    final Agent agent = database.getAgent(serverAgentName).get();
+    agent.runOnServer(false);
+  }
 }

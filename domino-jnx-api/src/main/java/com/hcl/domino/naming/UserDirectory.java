@@ -22,48 +22,51 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * Represents access to the effective user directory for the provided server. This allows lookup of
- * user, server, and group names using the server's primary and secondary directories.
- * 
+ * Represents access to the effective user directory for the provided server.
+ * This allows lookup of
+ * user, server, and group names using the server's primary and secondary
+ * directories.
+ *
  * @author Jesse Gallagher
  * @since 1.0.2
  */
 public interface UserDirectory {
-	/**
-	 * Retrieves a collection of the Domino directory databases used
-	 * by this runtime or server.
-	 * 
-	 * @return a {@link Set} of Notes API paths
-	 */
-	Set<String> getDirectoryPaths();
-	
-	/** 
-	 * Queries the directory for the specified items from the first match for the user.
-	 * 
-	 * <p>This method is shorthand for using {@link #query()}.</p>
-	 * 
-	 * @param name the name of the user look up
-	 * @param items the item names to return
-	 * @return an {@link Optional} describing item names to value lists, or an empty one if there is no match
-	 * @since 1.0.17
-	 */
-	default Optional<Map<String, List<Object>>> lookupUserValue(String name, String... items) {
-		return query()
-			.names(name)
-			.items(items)
-			.stream()
-			.findFirst()
-			.map(queriedName ->
-				queriedName.stream()
-					.findFirst()
-					.orElse(null)
-			);
-	}
-	
-	/**
-	 * Initiates a query of the runtime or server's directory.
-	 * 
-	 * @return a {@link UserDirectoryQuery} builder
-	 */
-	UserDirectoryQuery query();
+  /**
+   * Retrieves a collection of the Domino directory databases used
+   * by this runtime or server.
+   *
+   * @return a {@link Set} of Notes API paths
+   */
+  Set<String> getDirectoryPaths();
+
+  /**
+   * Queries the directory for the specified items from the first match for the
+   * user.
+   * <p>
+   * This method is shorthand for using {@link #query()}.
+   * </p>
+   *
+   * @param name  the name of the user look up
+   * @param items the item names to return
+   * @return an {@link Optional} describing item names to value lists, or an empty
+   *         one if there is no match
+   * @since 1.0.17
+   */
+  default Optional<Map<String, List<Object>>> lookupUserValue(final String name, final String... items) {
+    return this.query()
+        .names(name)
+        .items(items)
+        .stream()
+        .findFirst()
+        .map(queriedName -> queriedName.stream()
+            .findFirst()
+            .orElse(null));
+  }
+
+  /**
+   * Initiates a query of the runtime or server's directory.
+   *
+   * @return a {@link UserDirectoryQuery} builder
+   */
+  UserDirectoryQuery query();
 }

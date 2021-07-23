@@ -24,33 +24,31 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.WSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="CDACTIONRUNAGENT",
-	members={
-		@StructureMember(name="Header", type=WSIG.class),
-		@StructureMember(name="dwFlags", type=int.class),
-		@StructureMember(name="wAgentNameLen", type=short.class, unsigned=true),
-		@StructureMember(name="wSpare", type=short.class)
-	}
-)
+@StructureDefinition(name = "CDACTIONRUNAGENT", members = {
+    @StructureMember(name = "Header", type = WSIG.class),
+    @StructureMember(name = "dwFlags", type = int.class),
+    @StructureMember(name = "wAgentNameLen", type = short.class, unsigned = true),
+    @StructureMember(name = "wSpare", type = short.class)
+})
 public interface CDActionRunAgent extends RichTextRecord<WSIG> {
-	@StructureGetter("Header")
-	@Override
-	WSIG getHeader();
-	
-	@StructureGetter("wAgentNameLen")
-	int getAgentNameLength();
-	@StructureSetter("wAgentNameLen")
-	CDActionRunAgent setAgentNameLength(int len);
-	
-	default String getAgentName() {
-		return StructureSupport.extractStringValue(this, 0, getAgentNameLength());
-	}
-	default CDActionRunAgent setAgentName(String agentName) {
-		return StructureSupport.writeStringValue(this, 0, getAgentNameLength(), agentName, this::setAgentNameLength);
-	}
+  default String getAgentName() {
+    return StructureSupport.extractStringValue(this, 0, this.getAgentNameLength());
+  }
+
+  @StructureGetter("wAgentNameLen")
+  int getAgentNameLength();
+
+  @StructureGetter("Header")
+  @Override
+  WSIG getHeader();
+
+  default CDActionRunAgent setAgentName(final String agentName) {
+    return StructureSupport.writeStringValue(this, 0, this.getAgentNameLength(), agentName, this::setAgentNameLength);
+  }
+
+  @StructureSetter("wAgentNameLen")
+  CDActionRunAgent setAgentNameLength(int len);
 }

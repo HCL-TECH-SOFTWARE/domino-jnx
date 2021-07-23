@@ -16,37 +16,37 @@
  */
 package com.hcl.domino.commons.data;
 
-import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.Document.SignatureData;
+import com.hcl.domino.data.DominoDateTime;
 
 /**
  * Container for note signature data
- * 
+ *
  * @author Karsten Lehmann
  */
 public class SignatureDataImpl implements SignatureData {
-	private DominoDateTime m_whenSigned;
-	private String m_signer;
-	private String m_certifier;
-	
-	public SignatureDataImpl(DominoDateTime whenSigned, String signer, String certifier) {
-		m_whenSigned = whenSigned;
-		m_signer = signer;
-		m_certifier = certifier;
-	}
-	
-	@Override
-	public DominoDateTime getWhenSigned() {
-		return m_whenSigned;
-	}
-	
-	@Override
-	public String getSigner() {
-		return m_signer;
-	}
-	
-	@Override
-	public String getCertifier() {
-		return m_certifier;
-	}
+  private final DominoDateTime m_whenSigned;
+  private final String m_signer;
+  private final String m_certifier;
+
+  public SignatureDataImpl(final DominoDateTime whenSigned, final String signer, final String certifier) {
+    this.m_whenSigned = whenSigned;
+    this.m_signer = signer;
+    this.m_certifier = certifier;
+  }
+
+  @Override
+  public String getCertifier() {
+    return this.m_certifier;
+  }
+
+  @Override
+  public String getSigner() {
+    return this.m_signer;
+  }
+
+  @Override
+  public DominoDateTime getWhenSigned() {
+    return this.m_whenSigned;
+  }
 }

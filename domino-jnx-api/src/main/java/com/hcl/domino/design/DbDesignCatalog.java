@@ -27,119 +27,125 @@ import com.hcl.domino.dbdirectory.DatabaseData;
  */
 public interface DbDesignCatalog {
 
-	/**
-	 * Scans the server data directory to find all databases that inherit their design
-	 * from the specified template
-	 * 
-	 * @param server server
-	 * @param templateName template name
-	 * @return list of databases
-	 */
-	List<DatabaseData> findAllDatabaseInheritingTemplate(String server, String templateName);
-	
-	/**
-	 * Fast scan of the server directory to get information about template inheritance
-	 * 
-	 * @param server server to scan
-	 * @param directory restrict scan to a subdirectory or use empty string to scan the whole server
-	 * @return scan result
-	 */
-	DatabaseDesignAnalysis scanTemplateInheritanceOnServer(String server, String directory);
-	
-	/**
-	 * Refresh the design of a database
-	 * 
-	 * @param db database
-	 * @param serverWithTemplate server containing the template
-	 */
-	void refreshDesign(Database db, String serverWithTemplate);
+  /**
+   * Result of the template inheritance scan
+   */
+  public interface DatabaseDesignAnalysis {
+    /**
+     * Returns all databases that have a value in the database property
+     * "Inherit design from master template"
+     *
+     * @return databases
+     */
+    List<DatabaseData> getAllDatabasesWithInheritedTemplate();
 
-	/**
-	 * Refresh the design of a database with advanced options
-	 * 
-	 * @param db database
-	 * @param serverWithTemplate server containing the template
-	 * @param force true to force operation, even if destination "up to date"
-	 * @param errIfTemplateNotFound true to return an error if the template is not found
-	 * @param breakHandler optional break handler to abort the operation (e.g. for graphical user interfaces) or null
-	 */
-	void refreshDesign(Database db, String serverWithTemplate, boolean force, boolean errIfTemplateNotFound,
-			DesignRefreshBreakHandler breakHandler);
+    /**
+     * Returns all the inherited template names that exist on the server
+     *
+     * @return inherited template names
+     */
+    Set<String> getAllInheritedTemplateNames();
 
-	public interface DesignRefreshBreakHandler {
-		
-		boolean shouldInterrupt();
-		
-	}
-	
-	/**
-	 * Result of the template inheritance scan
-	 */
-	public interface DatabaseDesignAnalysis {
-		/**
-		 * Returns the name of the scanned server
-		 * 
-		 * @return server
-		 */
-		String getServer();
-		
-		/**
-		 * Returns the scanned directory
-		 * 
-		 * @return directory or empty string if the whole server was scanned
-		 */
-		String getDirectory();
-		
-		/**
-		 * Returns all the template names that exist on the server
-		 * 
-		 * @return template names
-		 */
-		Set<String> getAllTemplateNames();
+    /**
+     * Returns all databases that have a value in the database property
+     * "Database file is a master template"
+     *
+     * @return databases
+     */
+    List<DatabaseData> getAllTemplateDatabases();
 
-		/**
-		 * Returns all the inherited template names that exist on the server
-		 * 
-		 * @return inherited template names
-		 */
-		Set<String> getAllInheritedTemplateNames();
+    /**
+     * Returns all the template names that exist on the server
+     *
+     * @return template names
+     */
+    Set<String> getAllTemplateNames();
 
-		/**
-		 * Returns all databases that have a value in the database property
-		 * "Database file is a master template"
-		 * 
-		 * @return databases
-		 */
-		List<DatabaseData> getAllTemplateDatabases();
+    /**
+     * Get all databases with the specified value in the database property
+     * "Inherit design from master template"
+     *
+     * @param templateName template name or empty string
+     * @return databases
+     */
+    List<DatabaseData> getDatabasesInheritingTemplate(String templateName);
 
-		/**
-		 * Returns all databases that have a value in the database property
-		 * "Inherit design from master template"
-		 * 
-		 * @return databases
-		 */
-		List<DatabaseData> getAllDatabasesWithInheritedTemplate();
-		
-		/**
-		 * Get all databases with the specified value in the database property
-		 * "Database file is a master template"
-		 * 
-		 * @param templateName template name or empty string
-		 * @return databases
-		 */
-		List<DatabaseData> getTemplateDatabases(String templateName);
+    /**
+     * Returns the scanned directory
+     *
+     * @return directory or empty string if the whole server was scanned
+     */
+    String getDirectory();
 
-		/**
-		 * Get all databases with the specified value in the database property
-		 * "Inherit design from master template"
-		 * 
-		 * @param templateName template name or empty string
-		 * @return databases
-		 */
-		List<DatabaseData> getDatabasesInheritingTemplate(String templateName);
+    /**
+     * Returns the name of the scanned server
+     *
+     * @return server
+     */
+    String getServer();
 
-	}
-	
-	DbDesign readDatabaseDesign(Database db);
-	
+    /**
+     * Get all databases with the specified value in the database property
+     * "Database file is a master template"
+     *
+     * @param templateName template name or empty string
+     * @return databases
+     */
+    List<DatabaseData> getTemplateDatabases(String templateName);
+
+  }
+
+  public interface DesignRefreshBreakHandler {
+
+    boolean shouldInterrupt();
+
+  }
+
+  /**
+   * Scans the server data directory to find all databases that inherit their
+   * design
+   * from the specified template
+   *
+   * @param server       server
+   * @param templateName template name
+   * @return list of databases
+   */
+  List<DatabaseData> findAllDatabaseInheritingTemplate(String server, String templateName);
+
+  DbDesign readDatabaseDesign(Database db);
+
+  /**
+   * Refresh the design of a database
+   *
+   * @param db                 database
+   * @param serverWithTemplate server containing the template
+   */
+  void refreshDesign(Database db, String serverWithTemplate);
+
+  /**
+   * Refresh the design of a database with advanced options
+   *
+   * @param db                    database
+   * @param serverWithTemplate    server containing the template
+   * @param force                 true to force operation, even if destination "up
+   *                              to date"
+   * @param errIfTemplateNotFound true to return an error if the template is not
+   *                              found
+   * @param breakHandler          optional break handler to abort the operation
+   *                              (e.g. for graphical user interfaces) or null
+   */
+  void refreshDesign(Database db, String serverWithTemplate, boolean force, boolean errIfTemplateNotFound,
+      DesignRefreshBreakHandler breakHandler);
+
+  /**
+   * Fast scan of the server directory to get information about template
+   * inheritance
+   *
+   * @param server    server to scan
+   * @param directory restrict scan to a subdirectory or use empty string to scan
+   *                  the whole server
+   * @return scan result
+   */
+  DatabaseDesignAnalysis scanTemplateInheritanceOnServer(String server, String directory);
+
 }

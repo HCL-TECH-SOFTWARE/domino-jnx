@@ -25,13 +25,13 @@ import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 
 public class DefaultMemoryStructureWrapperService implements MemoryStructureWrapperService {
-	@Override
-	public <T extends MemoryStructure> T wrapStructure(Class<T> structureClass, ByteBuffer data) {
-		if(ResizableMemoryStructure.class.isAssignableFrom(structureClass)) {
-			GenericResizableMemoryStructure struct = new GenericResizableMemoryStructure(data, structureClass);
-			return MemoryStructureProxy.forStructure(structureClass, struct);
-		} else {
-			return MemoryStructureProxy.forStructure(structureClass, () -> data.slice().order(ByteOrder.nativeOrder()));
-		}
-	}
+  @Override
+  public <T extends MemoryStructure> T wrapStructure(final Class<T> structureClass, final ByteBuffer data) {
+    if (ResizableMemoryStructure.class.isAssignableFrom(structureClass)) {
+      final GenericResizableMemoryStructure struct = new GenericResizableMemoryStructure(data, structureClass);
+      return MemoryStructureProxy.forStructure(structureClass, struct);
+    } else {
+      return MemoryStructureProxy.forStructure(structureClass, () -> data.slice().order(ByteOrder.nativeOrder()));
+    }
+  }
 }

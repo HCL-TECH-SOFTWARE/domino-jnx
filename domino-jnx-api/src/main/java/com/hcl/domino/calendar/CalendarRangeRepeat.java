@@ -17,30 +17,31 @@
 package com.hcl.domino.calendar;
 
 /**
- * Flags that control behavior of the calendar APIs that return iCalendar data for an entry or notice
- * 
- * Note: The values of these constants are the very same constants used by the C-API.
- * 
+ * Flags that control behavior of the calendar APIs that return iCalendar data
+ * for an entry or notice
+ * Note: The values of these constants are the very same constants used by the
+ * C-API.
+ *
  * @author Karsten Lehmann
  */
 public enum CalendarRangeRepeat {
-	/** Modifying just this instance */
-	CURRENT(0),
-	/** Modifying all instances */
-	ALL(1),
-	/** Modifying current + previous */
-	PREV(2),
-	/** Modifying current + future */
-	FUTURE(3);
-	
-	private int m_val;
-	
-	CalendarRangeRepeat(int val) {
-		m_val = val;
-	}
-	
-	public int getValue() {
-		return m_val;
-	}
+  /** Modifying just this instance */
+  CURRENT(0),
+  /** Modifying all instances */
+  ALL(1),
+  /** Modifying current + previous */
+  PREV(2),
+  /** Modifying current + future */
+  FUTURE(3);
+
+  private int m_val;
+
+  CalendarRangeRepeat(final int val) {
+    this.m_val = val;
+  }
+
+  public int getValue() {
+    return this.m_val;
+  }
 
 }

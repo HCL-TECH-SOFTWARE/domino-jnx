@@ -20,43 +20,45 @@ import com.hcl.domino.dxl.DxlExporterLog;
 
 /**
  * Representation of a DXL exporter log report.
- * 
+ *
  * @author Jesse Gallagher
  */
 public class DxlExporterLogImpl implements DxlExporterLog {
-	public static class DXLErrorImpl implements DxlExporterLog.DxlError {
-		private int id;
-		private String text;
-		
-		@Override
-		public int getId() {
-			return id;
-		}
-		public void setId(int id) {
-			this.id = id;
-		}
-		
-		@Override
-		public String getText() {
-			return text;
-		}
-		public void setText(String text) {
-			this.text = text;
-		}
-	}
-	
-	private DxlError error;
-	
-	public DxlExporterLogImpl(DxlError error) {
-		this.error = error;
-	}
-	
-	public void setError(DxlError error) {
-		this.error = error;
-	}
-	
-	@Override
-	public DxlError getError() {
-		return error;
-	}
+  public static class DXLErrorImpl implements DxlExporterLog.DxlError {
+    private int id;
+    private String text;
+
+    @Override
+    public int getId() {
+      return this.id;
+    }
+
+    @Override
+    public String getText() {
+      return this.text;
+    }
+
+    public void setId(final int id) {
+      this.id = id;
+    }
+
+    public void setText(final String text) {
+      this.text = text;
+    }
+  }
+
+  private DxlError error;
+
+  public DxlExporterLogImpl(final DxlError error) {
+    this.error = error;
+  }
+
+  @Override
+  public DxlError getError() {
+    return this.error;
+  }
+
+  public void setError(final DxlError error) {
+    this.error = error;
+  }
 }

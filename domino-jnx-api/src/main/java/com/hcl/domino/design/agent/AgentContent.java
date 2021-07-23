@@ -17,8 +17,9 @@
 package com.hcl.domino.design.agent;
 
 /**
- * Represents the content of an agent, such as LotusScript content or a Java project.
- * 
+ * Represents the content of an agent, such as LotusScript content or a Java
+ * project.
+ *
  * @author Jesse Gallagher
  * @since 1.0.24
  */

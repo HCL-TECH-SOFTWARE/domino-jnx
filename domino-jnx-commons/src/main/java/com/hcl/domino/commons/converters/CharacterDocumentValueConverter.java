@@ -25,63 +25,66 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentValueConverter;
 
 /**
- * Supports reading and writing {@code char} and {@link Character} values as single-element
+ * Supports reading and writing {@code char} and {@link Character} values as
+ * single-element
  * strings.
- * 
+ *
  * @since 1.0.18
  */
 public class CharacterDocumentValueConverter implements DocumentValueConverter {
 
-	@Override
-	public boolean supportsRead(Class<?> valueType) {
-		return Character.class.equals(valueType) || char.class.equals(valueType);
-	}
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T getValue(final Document obj, final String itemName, final Class<T> valueType, final T defaultValue) {
+    final String valString = obj.getAsText(itemName, ' ');
+    if (valString == null || valString.isEmpty()) {
+      return defaultValue;
+    } else {
+      return (T) Character.valueOf(valString.charAt(0));
+    }
+  }
 
-	@Override
-	public boolean supportsWrite(Class<?> valueType, Object value) {
-		if(Iterable.class.isAssignableFrom(valueType)) {
-			Object firstVal = ((Iterable<?>)value).iterator().next();
-			return Character.class.isInstance(firstVal);
-		} else {
-			return Character.class.equals(valueType) || char.class.equals(valueType);
-		}
-	}
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> List<T> getValueAsList(final Document obj, final String itemName, final Class<T> valueType,
+      final List<T> defaultValue) {
+    final String valString = obj.getAsText(itemName, ' ');
+    if (valString == null || valString.isEmpty()) {
+      return defaultValue;
+    } else {
+      final char[] chars = valString.toCharArray();
+      final List<Character> result = new ArrayList<>(chars.length);
+      for (final char c : chars) {
+        result.add(c);
+      }
+      return (List<T>) result;
+    }
+  }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T getValue(Document obj, String itemName, Class<T> valueType, T defaultValue) {
-		String valString = obj.getAsText(itemName, ' ');
-		if(valString == null || valString.isEmpty()) {
-			return defaultValue;
-		} else {
-			return (T)Character.valueOf(valString.charAt(0));
-		}
-	}
+  @Override
+  public <T> void setValue(final Document obj, final String itemName, final T newValue) {
+    if (newValue instanceof Iterable) {
+      final String newVal = StreamSupport.stream(((Iterable<?>) newValue).spliterator(), false)
+          .map(o -> o == null ? "" : o.toString()).collect(Collectors.joining()); //$NON-NLS-1$
+      obj.replaceItemValue(itemName, newVal);
+    } else {
+      obj.replaceItemValue(itemName, newValue == null ? "" : newValue.toString()); //$NON-NLS-1$
+    }
+  }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> List<T> getValueAsList(Document obj, String itemName, Class<T> valueType, List<T> defaultValue) {
-		String valString = obj.getAsText(itemName, ' ');
-		if(valString == null || valString.isEmpty()) {
-			return defaultValue;
-		} else {
-			char[] chars = valString.toCharArray();
-			List<Character> result = new ArrayList<>(chars.length);
-			for(char c : chars) {
-				result.add(c);
-			}
-			return (List<T>)result;
-		}
-	}
+  @Override
+  public boolean supportsRead(final Class<?> valueType) {
+    return Character.class.equals(valueType) || char.class.equals(valueType);
+  }
 
-	@Override
-	public <T> void setValue(Document obj, String itemName, T newValue) {
-		if(newValue instanceof Iterable) {
-			String newVal = StreamSupport.stream(((Iterable<?>) newValue).spliterator(), false).map(o -> o == null ? "" : o.toString()).collect(Collectors.joining()); //$NON-NLS-1$
-			obj.replaceItemValue(itemName, newVal);
-		} else {
-			obj.replaceItemValue(itemName, newValue == null ? "" : newValue.toString()); //$NON-NLS-1$
-		}
-	}
+  @Override
+  public boolean supportsWrite(final Class<?> valueType, final Object value) {
+    if (Iterable.class.isAssignableFrom(valueType)) {
+      final Object firstVal = ((Iterable<?>) value).iterator().next();
+      return Character.class.isInstance(firstVal);
+    } else {
+      return Character.class.equals(valueType) || char.class.equals(valueType);
+    }
+  }
 
 }

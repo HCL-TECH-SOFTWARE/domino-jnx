@@ -21,52 +21,51 @@ package com.hcl.domino.admin;
  */
 public interface IConsoleLine {
 
-	/**
-	 * Returns a sequential number of the message
-	 * 
-	 * @return sequential number
-	 */
-	int getMsgSeqNum();
+  String getAddName();
 
-	String getTimeStamp();
+  int getColor();
 
-	/**
-	 * Returns the name of the executable that was responsible for
-	 * writing the console line
-	 * 
-	 * @return executable name
-	 */
-	String getExecName();
+  /**
+   * Returns the text data of the console entry
+   *
+   * @return console text data
+   */
+  String getData();
 
-	/**
-	 * 
-	 * @return the PID of the task emitting the message
-	 */
-	int getPid();
+  /**
+   * Returns the name of the executable that was responsible for
+   * writing the console line
+   *
+   * @return executable name
+   */
+  String getExecName();
 
-	long getTid();
+  /**
+   * Returns a sequential number of the message
+   *
+   * @return sequential number
+   */
+  int getMsgSeqNum();
 
-	long getVTid();
+  /**
+   * @return the PID of the task emitting the message
+   */
+  int getPid();
 
-	int getStatus();
+  int getSeverity();
 
-	int getType();
+  int getStatus();
 
-	int getSeverity();
+  long getTid();
 
-	int getColor();
+  String getTimeStamp();
 
-	String getAddName();
+  int getType();
 
-	/**
-	 * Returns the text data of the console entry
-	 * 
-	 * @return console text data
-	 */
-	String getData();
+  long getVTid();
 
-	boolean isPasswordString();
+  boolean isPasswordString();
 
-	boolean isPromptString();
-	
+  boolean isPromptString();
+
 }

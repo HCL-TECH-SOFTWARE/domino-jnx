@@ -24,33 +24,31 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.WSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="CDACTIONLOTUSSCRIPT",
-	members={
-		@StructureMember(name="Header", type=WSIG.class),
-		@StructureMember(name="dwFlags", type=int.class),
-		@StructureMember(name="dwScriptLen", type=int.class, unsigned=true)
-	}
-)
+@StructureDefinition(name = "CDACTIONLOTUSSCRIPT", members = {
+    @StructureMember(name = "Header", type = WSIG.class),
+    @StructureMember(name = "dwFlags", type = int.class),
+    @StructureMember(name = "dwScriptLen", type = int.class, unsigned = true)
+})
 public interface CDActionLotusScript extends RichTextRecord<WSIG> {
-	@StructureGetter("Header")
-	@Override
-	WSIG getHeader();
-	
-	@StructureGetter("dwScriptLen")
-	long getScriptLength();
-	@StructureSetter("dwScriptLen")
-	CDActionLotusScript setScriptLength(long len);
-	
-	default String getScript() {
-		return StructureSupport.extractStringValue(this, 0, getScriptLength());
-	}
-	default CDActionLotusScript setScript(String script) {
-		StructureSupport.writeStringValue(this, 0, getScriptLength(), script, (long newVal) -> setScriptLength(newVal));
-		return this;
-	}
+  @StructureGetter("Header")
+  @Override
+  WSIG getHeader();
+
+  default String getScript() {
+    return StructureSupport.extractStringValue(this, 0, this.getScriptLength());
+  }
+
+  @StructureGetter("dwScriptLen")
+  long getScriptLength();
+
+  default CDActionLotusScript setScript(final String script) {
+    StructureSupport.writeStringValue(this, 0, this.getScriptLength(), script, (final long newVal) -> this.setScriptLength(newVal));
+    return this;
+  }
+
+  @StructureSetter("dwScriptLen")
+  CDActionLotusScript setScriptLength(long len);
 }

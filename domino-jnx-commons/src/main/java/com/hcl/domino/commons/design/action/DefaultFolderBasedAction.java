@@ -16,46 +16,46 @@
  */
 package com.hcl.domino.commons.design.action;
 
-import com.hcl.domino.design.action.FolderBasedAction;
-import com.hcl.domino.richtext.records.CDActionFolder;
-
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
+
+import com.hcl.domino.design.action.FolderBasedAction;
+import com.hcl.domino.richtext.records.CDActionFolder;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
 public class DefaultFolderBasedAction implements FolderBasedAction {
-	private final String folderName;
-	private final Set<CDActionFolder.Flag> flags;
-	private final Type type;
-	
-	public DefaultFolderBasedAction(String folderName, Collection<CDActionFolder.Flag> flags, Type type) {
-		this.folderName = folderName;
-		this.flags = EnumSet.copyOf(flags);
-		this.type = type;
-	}
+  private final String folderName;
+  private final Set<CDActionFolder.Flag> flags;
+  private final Type type;
 
-	@Override
-	public Type getType() {
-		return type;
-	}
+  public DefaultFolderBasedAction(final String folderName, final Collection<CDActionFolder.Flag> flags, final Type type) {
+    this.folderName = folderName;
+    this.flags = EnumSet.copyOf(flags);
+    this.type = type;
+  }
 
-	@Override
-	public boolean isCreateNewFolder() {
-		return flags.contains(CDActionFolder.Flag.NEWFOLDER);
-	}
+  @Override
+  public String getFolderName() {
+    return this.folderName;
+  }
 
-	@Override
-	public boolean isFolderPrivate() {
-		return flags.contains(CDActionFolder.Flag.PRIVATEFOLDER);
-	}
+  @Override
+  public Type getType() {
+    return this.type;
+  }
 
-	@Override
-	public String getFolderName() {
-		return folderName;
-	}
+  @Override
+  public boolean isCreateNewFolder() {
+    return this.flags.contains(CDActionFolder.Flag.NEWFOLDER);
+  }
+
+  @Override
+  public boolean isFolderPrivate() {
+    return this.flags.contains(CDActionFolder.Flag.PRIVATEFOLDER);
+  }
 
 }

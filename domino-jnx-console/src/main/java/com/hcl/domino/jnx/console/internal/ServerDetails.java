@@ -23,123 +23,123 @@ import com.hcl.domino.jnx.console.IServerDetails;
  * about a Domino server and its host OS.
  */
 public class ServerDetails implements IServerDetails {
-	private String serverName;
-	private String serverTitle;
-	private String clusterName;
-	private String hostName;
-	private String ipAddress;
-	private String domain;
-	private String serverVersion;
-	private String osName;
-	private boolean isAdminServer;
-	private boolean isDb2Server;
-	private int port;
-	
-	@Override
-	public boolean isAdminServer() {
-		return isAdminServer;
-	}
-	public void setAdminServer(boolean isAdminServer) {
-		this.isAdminServer = isAdminServer;
-	}
-	
-	@Override
-	public boolean isDb2Server() {
-		return isDb2Server;
-	}
-	
-	public void setDb2Server(boolean isDb2Server) {
-		this.isDb2Server = isDb2Server;
-	}
-	
-	@Override
-	public String getHostName() {
-		return hostName;
-	}
-	
-	public void setHostName(String hostName) {
-		this.hostName = hostName;
-	}
-	
-	@Override
-	public String getIpAddress() {
-		return ipAddress;
-	}
-	
-	public void setIpAddress(String ipAddress) {
-		this.ipAddress = ipAddress;
-	}
-	
-	@Override
-	public String getClusterName() {
-		return clusterName;
-	}
-	
-	public void setClusterName(String clusterName) {
-		this.clusterName = clusterName;
-	}
-	
-	@Override
-	public String getDomain() {
-		return domain;
-	}
-	
-	public void setDomain(String domain) {
-		this.domain = domain;
-	}
-	
-	@Override
-	public String getServerName() {
-		return serverName;
-	}
-	
-	public void setServerName(String serverName) {
-		this.serverName = serverName;
-	}
-	
-	@Override
-	public String getOSName() {
-		return osName;
-	}
-	
-	public void setOSName(String osType) {
-		this.osName = osType;
-	}
-	
-	@Override
-	public int getPort() {
-		return port;
-	}
-	
-	public void setPort(int port) {
-		this.port = port;
-	}
-	
-	@Override
-	public String getServerTitle() {
-		return serverTitle;
-	}
-	
-	public void setServerTitle(String serverTitle) {
-		this.serverTitle = serverTitle;
-	}
-	
-	@Override
-	public String getServerVersion() {
-		return serverVersion;
-	}
-	
-	public void setServerVersion(String serverVersion) {
-		this.serverVersion = serverVersion;
-	}
+  private String serverName;
+  private String serverTitle;
+  private String clusterName;
+  private String hostName;
+  private String ipAddress;
+  private String domain;
+  private String serverVersion;
+  private String osName;
+  private boolean isAdminServer;
+  private boolean isDb2Server;
+  private int port;
 
-	@Override
-	public String toString() {
-		return "ServerDetails [serverName=" + serverName + ", serverTitle=" + serverTitle + ", clusterName="
-				+ clusterName + ", hostName=" + hostName + ", ipAddress=" + ipAddress + ", domain=" + domain
-				+ ", serverVersion=" + serverVersion + ", osName=" + osName + ", isAdminServer=" + isAdminServer
-				+ ", isDb2Server=" + isDb2Server + ", port=" + port + "]";
-	}
-	
-	
+  @Override
+  public String getClusterName() {
+    return this.clusterName;
+  }
+
+  @Override
+  public String getDomain() {
+    return this.domain;
+  }
+
+  @Override
+  public String getHostName() {
+    return this.hostName;
+  }
+
+  @Override
+  public String getIpAddress() {
+    return this.ipAddress;
+  }
+
+  @Override
+  public String getOSName() {
+    return this.osName;
+  }
+
+  @Override
+  public int getPort() {
+    return this.port;
+  }
+
+  @Override
+  public String getServerName() {
+    return this.serverName;
+  }
+
+  @Override
+  public String getServerTitle() {
+    return this.serverTitle;
+  }
+
+  @Override
+  public String getServerVersion() {
+    return this.serverVersion;
+  }
+
+  @Override
+  public boolean isAdminServer() {
+    return this.isAdminServer;
+  }
+
+  @Override
+  public boolean isDb2Server() {
+    return this.isDb2Server;
+  }
+
+  public void setAdminServer(final boolean isAdminServer) {
+    this.isAdminServer = isAdminServer;
+  }
+
+  public void setClusterName(final String clusterName) {
+    this.clusterName = clusterName;
+  }
+
+  public void setDb2Server(final boolean isDb2Server) {
+    this.isDb2Server = isDb2Server;
+  }
+
+  public void setDomain(final String domain) {
+    this.domain = domain;
+  }
+
+  public void setHostName(final String hostName) {
+    this.hostName = hostName;
+  }
+
+  public void setIpAddress(final String ipAddress) {
+    this.ipAddress = ipAddress;
+  }
+
+  public void setOSName(final String osType) {
+    this.osName = osType;
+  }
+
+  public void setPort(final int port) {
+    this.port = port;
+  }
+
+  public void setServerName(final String serverName) {
+    this.serverName = serverName;
+  }
+
+  public void setServerTitle(final String serverTitle) {
+    this.serverTitle = serverTitle;
+  }
+
+  public void setServerVersion(final String serverVersion) {
+    this.serverVersion = serverVersion;
+  }
+
+  @Override
+  public String toString() {
+    return "ServerDetails [serverName=" + this.serverName + ", serverTitle=" + this.serverTitle + ", clusterName="
+        + this.clusterName + ", hostName=" + this.hostName + ", ipAddress=" + this.ipAddress + ", domain=" + this.domain
+        + ", serverVersion=" + this.serverVersion + ", osName=" + this.osName + ", isAdminServer=" + this.isAdminServer
+        + ", isDb2Server=" + this.isDb2Server + ", port=" + this.port + "]";
+  }
+
 }

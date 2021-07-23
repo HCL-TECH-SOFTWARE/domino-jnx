@@ -24,51 +24,63 @@ import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 
-@StructureDefinition(
-	name="VIEW_FORMAT_HEADER",
-	members={
-		@StructureMember(name="Version", type=ViewFormatHeader.Version.class),
-		@StructureMember(name="ViewStyle", type=ViewFormatHeader.ViewStyle.class)
-	}
-)
+@StructureDefinition(name = "VIEW_FORMAT_HEADER", members = {
+    @StructureMember(name = "Version", type = ViewFormatHeader.Version.class),
+    @StructureMember(name = "ViewStyle", type = ViewFormatHeader.ViewStyle.class)
+})
 public interface ViewFormatHeader extends MemoryStructure {
-	enum Version implements INumberEnum<Byte> {
-		VERSION1(ViewFormatConstants.VIEW_FORMAT_VERSION);
-		private final byte value;
-		private Version(byte value) { this.value = value; }
-		@Override
-		public Byte getValue() {
-			return value;
-		}
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-	}
-	enum ViewStyle implements INumberEnum<Byte> {
-		TABLE(ViewFormatConstants.VIEW_STYLE_TABLE),
-		DAY(ViewFormatConstants.VIEW_STYLE_DAY),
-		WEEK(ViewFormatConstants.VIEW_STYLE_WEEK),
-		MONTH(ViewFormatConstants.VIEW_STYLE_MONTH);
-		private final byte value;
-		private ViewStyle(byte value) { this.value = value; }
-		@Override
-		public Byte getValue() {
-			return value;
-		}
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-	}
-	
-	@StructureGetter("Version")
-	Version getVersion();
-	@StructureSetter("Version")
-	ViewFormatHeader setVersion(Version version);
-	
-	@StructureGetter("ViewStyle")
-	ViewStyle getViewStyle();
-	@StructureSetter("ViewStyle")
-	ViewFormatHeader setStyle(ViewStyle style);
+  enum Version implements INumberEnum<Byte> {
+    VERSION1(ViewFormatConstants.VIEW_FORMAT_VERSION);
+
+    private final byte value;
+
+    Version(final byte value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Byte getValue() {
+      return this.value;
+    }
+  }
+
+  enum ViewStyle implements INumberEnum<Byte> {
+    TABLE(ViewFormatConstants.VIEW_STYLE_TABLE),
+    DAY(ViewFormatConstants.VIEW_STYLE_DAY),
+    WEEK(ViewFormatConstants.VIEW_STYLE_WEEK),
+    MONTH(ViewFormatConstants.VIEW_STYLE_MONTH);
+
+    private final byte value;
+
+    ViewStyle(final byte value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Byte getValue() {
+      return this.value;
+    }
+  }
+
+  @StructureGetter("Version")
+  Version getVersion();
+
+  @StructureGetter("ViewStyle")
+  ViewStyle getViewStyle();
+
+  @StructureSetter("ViewStyle")
+  ViewFormatHeader setStyle(ViewStyle style);
+
+  @StructureSetter("Version")
+  ViewFormatHeader setVersion(Version version);
 }

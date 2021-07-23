@@ -16,11 +16,6 @@
  */
 package it.com.hcl.domino.test.queries;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
@@ -34,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
@@ -65,392 +61,398 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestLargeSummarySupport extends AbstractNotesRuntimeTest {
-	/** For 12.0.0, large item support requires an updated libnotes.so; set LARGEITEMFIX_INSTALLED="true" to
-	 * enable the large item tests */
-	public static final String LARGEITEMFIX_INSTALLED = "LARGEITEMFIX_INSTALLED"; //$NON-NLS-1$
+  public enum LargeDataLevel {
+    /** R10/R11 ODS supporting up to 16MB of summary data */
+    R11,
+    /** R12 ODS supporting large text items and search results */
+    R12
+  }
 
-	public enum LargeDataLevel {
-		/** R10/R11 ODS supporting up to 16MB of summary data */
-		R11,
-		/** R12 ODS supporting large text items and search results */
-		R12
-		}
-	
-	/**
-	 * Creates a R10 compatible temp db where the R11 C API can write
-	 * up to 16 MB of summary data per document or a R12 compatible
-	 * temp db with large item support
-	 * 
-	 * @param level type of database to return
-	 * @param c consumer
-	 * @throws Exception
-	 */
-	protected void withLargeDataEnabledTempDb(LargeDataLevel level, DatabaseConsumer c) throws Exception {
-		DominoClient client = getClient();
-		Path tempDest = Files.createTempFile(getClass().getName(), ".nsf"); //$NON-NLS-1$
-		Files.delete(tempDest);
-		DatabaseClass dbClass = level==LargeDataLevel.R11 ? DatabaseClass.V10NOTEFILE : DatabaseClass.V12NOTEFILE;
-		Database database = client.createDatabase(null, tempDest.toString(), false, true,
-				Encryption.None, dbClass);
-		//activate large summary support; on R12 databases, this auto-enables large item support as well
-		database.setOption(DatabaseOption.LARGE_BUCKETS_ENABLED, true);
-		database.close();
-		
-		//compact database to activate the large bucket / item support
-		client.compact(tempDest.toString(), EnumSet.of(CompactMode.NO_INPLACE));
-		database = client.openDatabase(tempDest.toString());
-		
-		assertNotNull(database);
-		try {
-			c.accept(database);
-		} finally {
-			database.close();
-			try {
-				client.deleteDatabase(null, tempDest.toString());
-			} catch(Throwable t) {
-				System.err.println("Unable to delete database " + tempDest + ": " + t);
-			}
-		}
-	}
-	
-	protected void withResourceDxl(LargeDataLevel level, String resDirPath, DatabaseConsumer c) throws Exception {
-		withLargeDataEnabledTempDb(level, database -> {
-			DxlImporter importer = getClient().createDxlImporter();
-			importer.setInputValidationOption(XMLValidationOption.NEVER);
-			importer.setDesignImportOption(DXLImportOption.REPLACE_ELSE_CREATE);
-			importer.setReplicaRequiredForReplaceOrUpdate(false);
-			getResourceFiles(resDirPath).stream()
-				.filter(Objects::nonNull)
-				.map(name -> PathUtil.concat("/", name, '/'))
-				.map(name ->
-					StringUtil.endsWithIgnoreCase(name, ".xml") ?
-						(InputStream)getClass().getResourceAsStream(name) :
-					StringUtil.endsWithIgnoreCase(name, ".xml.gz") ?
-						call(() -> new GZIPInputStream(getClass().getResourceAsStream(name))) :
-						null
-				)
-				.filter(Objects::nonNull)
-				.forEach(is -> {
-					try {
-						importer.importDxl(is, database);
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					} finally {
-						StreamUtil.close(is);
-					}
-				});
-			
-			//re-enable large summary support; gets reset by the DB icon DXL import
-			database.setOption(DatabaseOption.LARGE_BUCKETS_ENABLED, true);
-			c.accept(database);
-		});
-	}
+  /**
+   * For 12.0.0, large item support requires an updated libnotes.so; set
+   * LARGEITEMFIX_INSTALLED="true" to
+   * enable the large item tests
+   */
+  public static final String LARGEITEMFIX_INSTALLED = "LARGEITEMFIX_INSTALLED"; //$NON-NLS-1$
 
-	/**
-	 * Writes large text items into a document and reads them before/after saving and disposing the doc
-	 * 
-	 * @throws Exception in case of errors
-	 */
-	@Test
-	@EnabledIfEnvironmentVariable(named = LARGEITEMFIX_INSTALLED, matches = "true", disabledReason = "LARGEITEMFIX_INSTALLED not set to true")
-	public void testLargeSummarySupport() throws Exception {
-		withLargeDataEnabledTempDb(LargeDataLevel.R11, (db) -> {
-			
-			//and check if large summary are enabled
-			assertEquals(true, db.getOption(DatabaseOption.LARGE_BUCKETS_ENABLED));
+  /**
+   * Creates a document with a large summary buffer and tries to read it
+   * via NSF search (R11)
+   * 
+   * @throws Exception in case of errors
+   */
+  @Test
+  public void testDocumentSelectionWithLargeSummarySupport() throws Exception {
+    this.withLargeDataEnabledTempDb(LargeDataLevel.R11, db -> {
+      // write more summary data that Domino without large summary support can handle
+      final Document docLarge = db.createDocument();
+      final StringWriter writer = new StringWriter();
+      this.produceTestData(12000, writer);
 
-			Document docLarge = db.createDocument();
-			StringWriter writer = new StringWriter();
-			produceTestData(12000, writer);
-			
-			String sampleTxt = writer.toString();
-			
-			for (int i=0; i<10; i++) {
-				docLarge.replaceItemValue("textitem"+(i+1), sampleTxt); //$NON-NLS-1$
-				
-				String testTxt = docLarge.get("textitem"+(i+1), String.class, "");
-				assertEquals(sampleTxt.length(), testTxt.length());
-				assertEquals(sampleTxt, testTxt);
-			}
-			
-			docLarge.save();
-			
-			//close and reopen the document to test an issue 12.0.0 contained in note open code
-			int noteId = docLarge.getNoteID();
-			docLarge.autoClosable().close();
-			
-			docLarge = db.getDocumentById(noteId).get();
-			
-			for (int i=0; i<10; i++) {
-				System.out.println("Checking item textitem"+(i+1));
-				
-				String itemName = "textitem"+(i+1);
-				String testTxt = docLarge.get(itemName, String.class, "");
-				assertEquals(sampleTxt.length(), testTxt.length(), "length check of item "+itemName);
-				System.out.println("Length of written text ok: "+testTxt.length());
-				
-				for (int c=0; c<testTxt.length(); c++) {
-					char testTxtChar = testTxt.charAt(c);
-					char sampleTextChar = sampleTxt.charAt(c);
-					
-					if (testTxtChar != sampleTextChar) {
-						System.out.println("Mismatch at position "+c);
-						
-						int printStartPos = Math.max(0, c - 50);
-						int printEndPos = Math.min(testTxt.length(), c+51);
-						
-						System.out.println("Printing from "+printStartPos+" to "+printEndPos+":");
-						System.out.println("Content we wrote:");
-						System.out.println(sampleTxt.substring(printStartPos, printEndPos));
-						System.out.println("Content we read:");
-						System.out.println(testTxt.substring(printStartPos, printEndPos));
-						break;
-					}
-				}
-				assertTrue(sampleTxt.equals(testTxt), "Text is equal");
-			}
-		});
-	}
-	
-	/**
-	 * Tests NSF search support for large summary support in R11 (up to 16 MB
-	 * of summary data per doc)
-	 * 
-	 * @throws Exception in case of errors
-	 */
-	@Test
-	public void testNSFSearchWithLargeSummarySupport() throws Exception {
-		withLargeDataEnabledTempDb(LargeDataLevel.R11, (db) -> {
-			//write more summary data that Domino without large summary support can handle
-			Document docLarge = db.createDocument();
-			StringWriter writer = new StringWriter();
-			produceTestData(12000, writer);
-			
-			String sampleTxt = writer.toString();
-			
-			for (int i=1; i<=10; i++) {
-				docLarge.replaceItemValue("textitem"+i, sampleTxt); //$NON-NLS-1$
-			}
-			docLarge.replaceItemValue("Topic", "Test");
-			docLarge.save();
+      final String sampleTxt = writer.toString();
 
-			//Now run a formula search and tell Domino (NSFSearchExtended3) to return all
-			//what we have written. For Domino <12 this is unsupported in NSFSearchExtended3.
-			//Without any extra flags, it produces "Field is too large (32K) ..." for the large doc.
-			//Since we use the flag SEARCH1_LARGE_BUCKETS internally, we tell Domino that we can
-			//handle the exceeded summary buffer; in that case, we don't get summary data back
-			//from the search and need to open the document manually. All this is handled automatically
-			//in our formula search function so that developers don't have to care.
-			Map<String,String> computedValues = new HashMap<>();
-			for (int i=1; i<=10; i++) {
-				computedValues.put("textitem"+i, "");
-			}
+      for (int i = 1; i <= 10; i++) {
+        docLarge.replaceItemValue("textitem" + i, sampleTxt); //$NON-NLS-1$
+      }
+      docLarge.replaceItemValue("Topic", "Test");
+      docLarge.save();
 
-			List<CollectionEntry> entries = db
-			.queryFormula("Topic=\"Test\"", null, EnumSet.of(SearchFlag.SUMMARY), null,
-					EnumSet.of(DocumentClass.DATA))
-			.computeValues(computedValues)
-			.collectEntries();
-			
-			assertEquals(1, entries.size());
-			CollectionEntry entry = entries.get(0);
-			
-			//check if our data is complete
-			for (int i=1; i<=10; i++) {
-				assertEquals(sampleTxt, entry.get("textitem"+i, String.class, ""));
-			}
-			
-			//and check that non-existing items are returned as default value (here null)
-			assertNull(entry.get("otheritem", String.class, null));
-		});
-	}
-	
-	/**
-	 * Creates a document with a large summary buffer and tries to read it
-	 * via NSF search (R11)
-	 * 
-	 * @throws Exception in case of errors
-	 */
-	@Test
-	public void testDocumentSelectionWithLargeSummarySupport() throws Exception {
-		withLargeDataEnabledTempDb(LargeDataLevel.R11, (db) -> {
-			//write more summary data that Domino without large summary support can handle
-			Document docLarge = db.createDocument();
-			StringWriter writer = new StringWriter();
-			produceTestData(12000, writer);
-			
-			String sampleTxt = writer.toString();
-			
-			for (int i=1; i<=10; i++) {
-				docLarge.replaceItemValue("textitem"+i, sampleTxt); //$NON-NLS-1$
-			}
-			docLarge.replaceItemValue("Topic", "Test");
-			docLarge.save();
+      final IDTable docIds = db
+          .createDocumentSelection()
+          .select(SelectionType.DOCUMENTS)
+          .withSelectionFormula("Topic=\"Test\"")
+          .build();
 
-			IDTable docIds = db
-					.createDocumentSelection()
-					.select(SelectionType.DOCUMENTS)
-					.withSelectionFormula("Topic=\"Test\"")
-					.build();
-			
-			assertEquals(1, docIds.size());
-			assertEquals(docLarge.getNoteID(), docIds.iterator().next());
-		});
-	}
+      Assertions.assertEquals(1, docIds.size());
+      Assertions.assertEquals(docLarge.getNoteID(), docIds.iterator().next());
+    });
+  }
 
-	/**
-	 * 
-	 * 
-	 * @throws Exception in case of errors
-	 */
-	@Test
-	@EnabledIfEnvironmentVariable(named = LARGEITEMFIX_INSTALLED, matches = "true", disabledReason = "LARGEITEMFIX_INSTALLED not set to true")
-	public void testNSFSearchWithLargeItemResult() throws Exception {
-		// Check if we're running on V12 in the abstract first.
-		// This should avoid test trouble on at least V11 macOS
-		{
-			BuildVersionInfo buildVersion = getClient().getBuildVersion("");
-			if (buildVersion.getMajorVersion() < 12) {
-				//large item storage not supported by this API version
-				return;
-			}
-		}
+  /**
+   * Writes large items in a doc of an R12 database, reads them and compare both
+   * values.
+   * 
+   * @throws Exception in case of errors
+   */
+  @Test
+  @EnabledIfEnvironmentVariable(named = TestLargeSummarySupport.LARGEITEMFIX_INSTALLED, matches = "true", disabledReason = "LARGEITEMFIX_INSTALLED not set to true")
+  public void testLargeItemSupport() throws Exception {
+    // Check if we're running on V12 in the abstract first.
+    // This should avoid test trouble on at least V11 macOS
+    {
+      final BuildVersionInfo buildVersion = this.getClient().getBuildVersion("");
+      if (buildVersion.getMajorVersion() < 12) {
+        // large item storage not supported by this API version
+        return;
+      }
+    }
 
-		withLargeDataEnabledTempDb(LargeDataLevel.R12, (db) -> {
-			//check if NSF has R12 format
-			NSFVersionInfo version = db.getNSFVersionInfo();
-			assertTrue(version.getMajorVersion() >= 54);
-			
-			//and check if large summary and item support are enabled
-			assertEquals(true, db.getOption(DatabaseOption.LARGE_ITEMS_ENABLED));
-			assertEquals(true, db.getOption(DatabaseOption.LARGE_BUCKETS_ENABLED));
-			
-			Document docLarge = db.createDocument();
-			docLarge.replaceItemValue("Form", "Testform1");
-			
-			//now we can write up to 16 MB of summary data
-			StringWriter summaryTextWriter = new StringWriter();
-			produceTestData(1000000, summaryTextWriter);
-			String summaryText = summaryTextWriter.toString();
-			
-			for (int i=0; i<10; i++) {
-				docLarge.replaceItemValue("textitem"+(i+1), summaryText); //$NON-NLS-1$
-			}
-			
-			//and non-summary text items with up to 1 GB
-			StringWriter nonSummaryTextWriter = new StringWriter();
-			produceTestData(20000000, nonSummaryTextWriter);
-			String nonSummaryText = summaryTextWriter.toString();
-			
-			for (int i=0; i<10; i++) {
-				docLarge.replaceItemValue("nstextitem"+(i+1), EnumSet.noneOf(ItemFlag.class), nonSummaryText); //$NON-NLS-1$
-			}
+    this.withLargeDataEnabledTempDb(LargeDataLevel.R12, db -> {
+      // check if NSF has R12 format
+      final NSFVersionInfo version = db.getNSFVersionInfo();
+      Assertions.assertTrue(version.getMajorVersion() >= 54);
 
-			docLarge.save();
-			int noteId = docLarge.getNoteID();
-			docLarge.autoClosable().close();
-			docLarge = db.getDocumentById(noteId).get();
-			
-			Map<String,String> columnValues = new HashMap<>();
-			columnValues.put("form", "");
-			columnValues.put("textitem1", "");
-			List<Map<String, Object>> result =
-					db.queryDocuments()
-					.computeValues(columnValues)
-					.build(0, Integer.MAX_VALUE, 
-					new CollectionEntryProcessor<List<Map<String,Object>>>() {
+      // and check if large summary and item support are enabled
+      Assertions.assertEquals(true, db.getOption(DatabaseOption.LARGE_ITEMS_ENABLED));
+      Assertions.assertEquals(true, db.getOption(DatabaseOption.LARGE_BUCKETS_ENABLED));
 
-						@Override
-						public List<Map<String, Object>> start() {
-							return new ArrayList<>();
-						}
+      Document docLarge = db.createDocument();
 
-						@Override
-						public Action entryRead(List<Map<String, Object>> result, CollectionEntry entry) {
-							result.add(entry);
-							String itemVal = entry.get("textitem1", String.class, "");
-							
-							if (itemVal.length() == summaryText.length()) {
-								for (int i=0; i<itemVal.length(); i++) {
-									char itemValChar = itemVal.charAt(i);
-									char summaryTextChar = summaryText.charAt(i);
-									
-									if (itemValChar != summaryTextChar) {
-										System.out.println("First mismatch at position "+i);
-										break;
-									}
-								}
-							}
-							assertEquals(summaryText, itemVal);
-							return Action.Continue;
-						}
+      // now can write up to 16 MB of summary data
+      final StringWriter summaryTextWriter = new StringWriter();
+      this.produceTestData(1000000, summaryTextWriter);
+      final String summaryText = summaryTextWriter.toString();
 
-						@Override
-						public List<Map<String, Object>> end(List<Map<String, Object>> result) {
-							return result;
-						}
-			});
-			
-			assertEquals(1, result.size());
-		});
-	}
-	
-	/**
-	 * Writes large items in a doc of an R12 database, reads them and compare both values.
-	 * 
-	 * @throws Exception in case of errors
-	 */
-	@Test
-	@EnabledIfEnvironmentVariable(named = LARGEITEMFIX_INSTALLED, matches = "true", disabledReason = "LARGEITEMFIX_INSTALLED not set to true")
-	public void testLargeItemSupport() throws Exception {
-		// Check if we're running on V12 in the abstract first.
-		//   This should avoid test trouble on at least V11 macOS
-		{
-			BuildVersionInfo buildVersion = getClient().getBuildVersion("");
-			if (buildVersion.getMajorVersion() < 12) {
-				//large item storage not supported by this API version
-				return;
-			}
-		}
-		
-		withLargeDataEnabledTempDb(LargeDataLevel.R12, (db) -> {
-			//check if NSF has R12 format
-			NSFVersionInfo version = db.getNSFVersionInfo();
-			assertTrue(version.getMajorVersion() >= 54);
-			
-			//and check if large summary and item support are enabled
-			assertEquals(true, db.getOption(DatabaseOption.LARGE_ITEMS_ENABLED));
-			assertEquals(true, db.getOption(DatabaseOption.LARGE_BUCKETS_ENABLED));
-			
-			Document docLarge = db.createDocument();
-			
-			//now can write up to 16 MB of summary data
-			StringWriter summaryTextWriter = new StringWriter();
-			produceTestData(1000000, summaryTextWriter);
-			String summaryText = summaryTextWriter.toString();
-			
-			for (int i=0; i<10; i++) {
-				docLarge.replaceItemValue("textitem"+(i+1), summaryText); //$NON-NLS-1$
-			}
+      for (int i = 0; i < 10; i++) {
+        docLarge.replaceItemValue("textitem" + (i + 1), summaryText); //$NON-NLS-1$
+      }
 
-			//and non-summary text items with up to 1 GB
-			StringWriter nonSummaryTextWriter = new StringWriter();
-			produceTestData(20000000, nonSummaryTextWriter);
-			String nonSummaryText = summaryTextWriter.toString();
-			
-			for (int i=0; i<10; i++) {
-				docLarge.replaceItemValue("nstextitem"+(i+1), EnumSet.noneOf(ItemFlag.class), nonSummaryText); //$NON-NLS-1$
-			}
+      // and non-summary text items with up to 1 GB
+      final StringWriter nonSummaryTextWriter = new StringWriter();
+      this.produceTestData(20000000, nonSummaryTextWriter);
+      final String nonSummaryText = summaryTextWriter.toString();
 
-			docLarge.save();
-			int noteId = docLarge.getNoteID();
-			docLarge.autoClosable().close();
-			docLarge = db.getDocumentById(noteId).get();
-			
-			for (int i=0; i<10; i++) {
-				String testStr = docLarge.get("textitem"+(i+1), String.class, "");
-				assertEquals(summaryText, testStr);
-			}
-		});
-	}
+      for (int i = 0; i < 10; i++) {
+        docLarge.replaceItemValue("nstextitem" + (i + 1), EnumSet.noneOf(ItemFlag.class), nonSummaryText); //$NON-NLS-1$
+      }
+
+      docLarge.save();
+      final int noteId = docLarge.getNoteID();
+      docLarge.autoClosable().close();
+      docLarge = db.getDocumentById(noteId).get();
+
+      for (int i = 0; i < 10; i++) {
+        final String testStr = docLarge.get("textitem" + (i + 1), String.class, "");
+        Assertions.assertEquals(summaryText, testStr);
+      }
+    });
+  }
+
+  /**
+   * Writes large text items into a document and reads them before/after saving
+   * and disposing the doc
+   * 
+   * @throws Exception in case of errors
+   */
+  @Test
+  @EnabledIfEnvironmentVariable(named = TestLargeSummarySupport.LARGEITEMFIX_INSTALLED, matches = "true", disabledReason = "LARGEITEMFIX_INSTALLED not set to true")
+  public void testLargeSummarySupport() throws Exception {
+    this.withLargeDataEnabledTempDb(LargeDataLevel.R11, db -> {
+
+      // and check if large summary are enabled
+      Assertions.assertEquals(true, db.getOption(DatabaseOption.LARGE_BUCKETS_ENABLED));
+
+      Document docLarge = db.createDocument();
+      final StringWriter writer = new StringWriter();
+      this.produceTestData(12000, writer);
+
+      final String sampleTxt = writer.toString();
+
+      for (int i = 0; i < 10; i++) {
+        docLarge.replaceItemValue("textitem" + (i + 1), sampleTxt); //$NON-NLS-1$
+
+        final String testTxt = docLarge.get("textitem" + (i + 1), String.class, "");
+        Assertions.assertEquals(sampleTxt.length(), testTxt.length());
+        Assertions.assertEquals(sampleTxt, testTxt);
+      }
+
+      docLarge.save();
+
+      // close and reopen the document to test an issue 12.0.0 contained in note open
+      // code
+      final int noteId = docLarge.getNoteID();
+      docLarge.autoClosable().close();
+
+      docLarge = db.getDocumentById(noteId).get();
+
+      for (int i = 0; i < 10; i++) {
+        System.out.println("Checking item textitem" + (i + 1));
+
+        final String itemName = "textitem" + (i + 1);
+        final String testTxt = docLarge.get(itemName, String.class, "");
+        Assertions.assertEquals(sampleTxt.length(), testTxt.length(), "length check of item " + itemName);
+        System.out.println("Length of written text ok: " + testTxt.length());
+
+        for (int c = 0; c < testTxt.length(); c++) {
+          final char testTxtChar = testTxt.charAt(c);
+          final char sampleTextChar = sampleTxt.charAt(c);
+
+          if (testTxtChar != sampleTextChar) {
+            System.out.println("Mismatch at position " + c);
+
+            final int printStartPos = Math.max(0, c - 50);
+            final int printEndPos = Math.min(testTxt.length(), c + 51);
+
+            System.out.println("Printing from " + printStartPos + " to " + printEndPos + ":");
+            System.out.println("Content we wrote:");
+            System.out.println(sampleTxt.substring(printStartPos, printEndPos));
+            System.out.println("Content we read:");
+            System.out.println(testTxt.substring(printStartPos, printEndPos));
+            break;
+          }
+        }
+        Assertions.assertTrue(sampleTxt.equals(testTxt), "Text is equal");
+      }
+    });
+  }
+
+  /**
+   * @throws Exception in case of errors
+   */
+  @Test
+  @EnabledIfEnvironmentVariable(named = TestLargeSummarySupport.LARGEITEMFIX_INSTALLED, matches = "true", disabledReason = "LARGEITEMFIX_INSTALLED not set to true")
+  public void testNSFSearchWithLargeItemResult() throws Exception {
+    // Check if we're running on V12 in the abstract first.
+    // This should avoid test trouble on at least V11 macOS
+    {
+      final BuildVersionInfo buildVersion = this.getClient().getBuildVersion("");
+      if (buildVersion.getMajorVersion() < 12) {
+        // large item storage not supported by this API version
+        return;
+      }
+    }
+
+    this.withLargeDataEnabledTempDb(LargeDataLevel.R12, db -> {
+      // check if NSF has R12 format
+      final NSFVersionInfo version = db.getNSFVersionInfo();
+      Assertions.assertTrue(version.getMajorVersion() >= 54);
+
+      // and check if large summary and item support are enabled
+      Assertions.assertEquals(true, db.getOption(DatabaseOption.LARGE_ITEMS_ENABLED));
+      Assertions.assertEquals(true, db.getOption(DatabaseOption.LARGE_BUCKETS_ENABLED));
+
+      Document docLarge = db.createDocument();
+      docLarge.replaceItemValue("Form", "Testform1");
+
+      // now we can write up to 16 MB of summary data
+      final StringWriter summaryTextWriter = new StringWriter();
+      this.produceTestData(1000000, summaryTextWriter);
+      final String summaryText = summaryTextWriter.toString();
+
+      for (int i = 0; i < 10; i++) {
+        docLarge.replaceItemValue("textitem" + (i + 1), summaryText); //$NON-NLS-1$
+      }
+
+      // and non-summary text items with up to 1 GB
+      final StringWriter nonSummaryTextWriter = new StringWriter();
+      this.produceTestData(20000000, nonSummaryTextWriter);
+      final String nonSummaryText = summaryTextWriter.toString();
+
+      for (int i = 0; i < 10; i++) {
+        docLarge.replaceItemValue("nstextitem" + (i + 1), EnumSet.noneOf(ItemFlag.class), nonSummaryText); //$NON-NLS-1$
+      }
+
+      docLarge.save();
+      final int noteId = docLarge.getNoteID();
+      docLarge.autoClosable().close();
+      docLarge = db.getDocumentById(noteId).get();
+
+      final Map<String, String> columnValues = new HashMap<>();
+      columnValues.put("form", "");
+      columnValues.put("textitem1", "");
+      final List<Map<String, Object>> result = db.queryDocuments()
+          .computeValues(columnValues)
+          .build(0, Integer.MAX_VALUE,
+              new CollectionEntryProcessor<List<Map<String, Object>>>() {
+
+                @Override
+                public List<Map<String, Object>> end(final List<Map<String, Object>> result) {
+                  return result;
+                }
+
+                @Override
+                public Action entryRead(final List<Map<String, Object>> result, final CollectionEntry entry) {
+                  result.add(entry);
+                  final String itemVal = entry.get("textitem1", String.class, "");
+
+                  if (itemVal.length() == summaryText.length()) {
+                    for (int i = 0; i < itemVal.length(); i++) {
+                      final char itemValChar = itemVal.charAt(i);
+                      final char summaryTextChar = summaryText.charAt(i);
+
+                      if (itemValChar != summaryTextChar) {
+                        System.out.println("First mismatch at position " + i);
+                        break;
+                      }
+                    }
+                  }
+                  Assertions.assertEquals(summaryText, itemVal);
+                  return Action.Continue;
+                }
+
+                @Override
+                public List<Map<String, Object>> start() {
+                  return new ArrayList<>();
+                }
+              });
+
+      Assertions.assertEquals(1, result.size());
+    });
+  }
+
+  /**
+   * Tests NSF search support for large summary support in R11 (up to 16 MB
+   * of summary data per doc)
+   * 
+   * @throws Exception in case of errors
+   */
+  @Test
+  public void testNSFSearchWithLargeSummarySupport() throws Exception {
+    this.withLargeDataEnabledTempDb(LargeDataLevel.R11, db -> {
+      // write more summary data that Domino without large summary support can handle
+      final Document docLarge = db.createDocument();
+      final StringWriter writer = new StringWriter();
+      this.produceTestData(12000, writer);
+
+      final String sampleTxt = writer.toString();
+
+      for (int i = 1; i <= 10; i++) {
+        docLarge.replaceItemValue("textitem" + i, sampleTxt); //$NON-NLS-1$
+      }
+      docLarge.replaceItemValue("Topic", "Test");
+      docLarge.save();
+
+      // Now run a formula search and tell Domino (NSFSearchExtended3) to return all
+      // what we have written. For Domino <12 this is unsupported in
+      // NSFSearchExtended3.
+      // Without any extra flags, it produces "Field is too large (32K) ..." for the
+      // large doc.
+      // Since we use the flag SEARCH1_LARGE_BUCKETS internally, we tell Domino that
+      // we can
+      // handle the exceeded summary buffer; in that case, we don't get summary data
+      // back
+      // from the search and need to open the document manually. All this is handled
+      // automatically
+      // in our formula search function so that developers don't have to care.
+      final Map<String, String> computedValues = new HashMap<>();
+      for (int i = 1; i <= 10; i++) {
+        computedValues.put("textitem" + i, "");
+      }
+
+      final List<CollectionEntry> entries = db
+          .queryFormula("Topic=\"Test\"", null, EnumSet.of(SearchFlag.SUMMARY), null,
+              EnumSet.of(DocumentClass.DATA))
+          .computeValues(computedValues)
+          .collectEntries();
+
+      Assertions.assertEquals(1, entries.size());
+      final CollectionEntry entry = entries.get(0);
+
+      // check if our data is complete
+      for (int i = 1; i <= 10; i++) {
+        Assertions.assertEquals(sampleTxt, entry.get("textitem" + i, String.class, ""));
+      }
+
+      // and check that non-existing items are returned as default value (here null)
+      Assertions.assertNull(entry.get("otheritem", String.class, null));
+    });
+  }
+
+  /**
+   * Creates a R10 compatible temp db where the R11 C API can write
+   * up to 16 MB of summary data per document or a R12 compatible
+   * temp db with large item support
+   * 
+   * @param level type of database to return
+   * @param c     consumer
+   * @throws Exception
+   */
+  protected void withLargeDataEnabledTempDb(final LargeDataLevel level, final DatabaseConsumer c) throws Exception {
+    final DominoClient client = this.getClient();
+    final Path tempDest = Files.createTempFile(this.getClass().getName(), ".nsf"); //$NON-NLS-1$
+    Files.delete(tempDest);
+    final DatabaseClass dbClass = level == LargeDataLevel.R11 ? DatabaseClass.V10NOTEFILE : DatabaseClass.V12NOTEFILE;
+    Database database = client.createDatabase(null, tempDest.toString(), false, true,
+        Encryption.None, dbClass);
+    // activate large summary support; on R12 databases, this auto-enables large
+    // item support as well
+    database.setOption(DatabaseOption.LARGE_BUCKETS_ENABLED, true);
+    database.close();
+
+    // compact database to activate the large bucket / item support
+    client.compact(tempDest.toString(), EnumSet.of(CompactMode.NO_INPLACE));
+    database = client.openDatabase(tempDest.toString());
+
+    Assertions.assertNotNull(database);
+    try {
+      c.accept(database);
+    } finally {
+      database.close();
+      try {
+        client.deleteDatabase(null, tempDest.toString());
+      } catch (final Throwable t) {
+        System.err.println("Unable to delete database " + tempDest + ": " + t);
+      }
+    }
+  }
+
+  protected void withResourceDxl(final LargeDataLevel level, final String resDirPath, final DatabaseConsumer c) throws Exception {
+    this.withLargeDataEnabledTempDb(level, database -> {
+      final DxlImporter importer = this.getClient().createDxlImporter();
+      importer.setInputValidationOption(XMLValidationOption.NEVER);
+      importer.setDesignImportOption(DXLImportOption.REPLACE_ELSE_CREATE);
+      importer.setReplicaRequiredForReplaceOrUpdate(false);
+      AbstractNotesRuntimeTest.getResourceFiles(resDirPath).stream()
+          .filter(Objects::nonNull)
+          .map(name -> PathUtil.concat("/", name, '/'))
+          .map(name -> StringUtil.endsWithIgnoreCase(name, ".xml") ? (InputStream) this.getClass().getResourceAsStream(name)
+              : StringUtil.endsWithIgnoreCase(name, ".xml.gz")
+                  ? AbstractNotesRuntimeTest.call(() -> new GZIPInputStream(this.getClass().getResourceAsStream(name)))
+                  : null)
+          .filter(Objects::nonNull)
+          .forEach(is -> {
+            try {
+              importer.importDxl(is, database);
+            } catch (final IOException e) {
+              throw new RuntimeException(e);
+            } finally {
+              StreamUtil.close(is);
+            }
+          });
+
+      // re-enable large summary support; gets reset by the DB icon DXL import
+      database.setOption(DatabaseOption.LARGE_BUCKETS_ENABLED, true);
+      c.accept(database);
+    });
+  }
 }

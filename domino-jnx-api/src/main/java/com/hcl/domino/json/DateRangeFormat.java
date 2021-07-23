@@ -17,14 +17,16 @@
 package com.hcl.domino.json;
 
 public enum DateRangeFormat {
-	/**
-	 * Formats date/time ranges in ISO 8601 time interval format, with a {@code '/'} character
-	 * between the start and end values.
-	 */
-	ISO,
-	/**
-	 * Formats date/time ranges as a JSON object with {@value JsonSerializer#PROP_RANGE_FROM} and
-	 * {@value JsonSerializer#PROP_RANGE_TO} keys.
-	 */
-	OBJECT
+  /**
+   * Formats date/time ranges in ISO 8601 time interval format, with a {@code '/'}
+   * character
+   * between the start and end values.
+   */
+  ISO,
+  /**
+   * Formats date/time ranges as a JSON object with
+   * {@value JsonSerializer#PROP_RANGE_FROM} and
+   * {@value JsonSerializer#PROP_RANGE_TO} keys.
+   */
+  OBJECT
 }

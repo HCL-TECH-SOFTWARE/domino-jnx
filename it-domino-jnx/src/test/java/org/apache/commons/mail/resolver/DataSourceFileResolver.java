@@ -28,88 +28,78 @@ import jakarta.activation.FileDataSource;
  *
  * @since 1.3
  */
-public class DataSourceFileResolver extends DataSourceBaseResolver
-{
-    /** the base directory of the resource when resolving relative paths */
-    private final File baseDir;
+public class DataSourceFileResolver extends DataSourceBaseResolver {
+  /** the base directory of the resource when resolving relative paths */
+  private final File baseDir;
 
-    /**
-     * Constructor.
-     */
-    public DataSourceFileResolver()
-    {
-        baseDir = new File("."); //$NON-NLS-1$
-    }
+  /**
+   * Constructor.
+   */
+  public DataSourceFileResolver() {
+    this.baseDir = new File("."); //$NON-NLS-1$
+  }
 
-    /**
-     * Constructor.
-     *
-     * @param baseDir the base directory of the resource when resolving relative paths
-     */
-    public DataSourceFileResolver(final File baseDir)
-    {
-        this.baseDir = baseDir;
-    }
+  /**
+   * Constructor.
+   *
+   * @param baseDir the base directory of the resource when resolving relative
+   *                paths
+   */
+  public DataSourceFileResolver(final File baseDir) {
+    this.baseDir = baseDir;
+  }
 
-    /**
-     * Constructor.
-     *
-     * @param baseDir the base directory of the resource when resolving relative paths
-     * @param lenient shall we ignore resources not found or complain with an exception
-     */
-    public DataSourceFileResolver(final File baseDir, final boolean lenient)
-    {
-        super(lenient);
-        this.baseDir = baseDir;
-    }
+  /**
+   * Constructor.
+   *
+   * @param baseDir the base directory of the resource when resolving relative
+   *                paths
+   * @param lenient shall we ignore resources not found or complain with an
+   *                exception
+   */
+  public DataSourceFileResolver(final File baseDir, final boolean lenient) {
+    super(lenient);
+    this.baseDir = baseDir;
+  }
 
-    /**
-     * Get the base directory used for resolving relative resource locations.
-     *
-     * @return the baseUrl
-     */
-    public File getBaseDir()
-    {
-        return baseDir;
-    }
+  /**
+   * Get the base directory used for resolving relative resource locations.
+   *
+   * @return the baseUrl
+   */
+  public File getBaseDir() {
+    return this.baseDir;
+  }
 
-    /** {@inheritDoc} */
-    @Override
-    public DataSource resolve(final String resourceLocation) throws IOException
-    {
-        return resolve(resourceLocation, isLenient());
-    }
+  /** {@inheritDoc} */
+  @Override
+  public DataSource resolve(final String resourceLocation) throws IOException {
+    return this.resolve(resourceLocation, this.isLenient());
+  }
 
-    /** {@inheritDoc} */
-    @SuppressWarnings("nls")
-	@Override
-    public DataSource resolve(final String resourceLocation, final boolean isLenient) throws IOException
-    {
-        File file;
-        DataSource result = null;
+  /** {@inheritDoc} */
+  @SuppressWarnings("nls")
+  @Override
+  public DataSource resolve(final String resourceLocation, final boolean isLenient) throws IOException {
+    File file;
+    DataSource result = null;
 
-        if (!isCid(resourceLocation))
-        {
-            file = new File(resourceLocation);
+    if (!this.isCid(resourceLocation)) {
+      file = new File(resourceLocation);
 
-            if (!file.isAbsolute())
-            {
-                file = getBaseDir() != null ? new File(getBaseDir(), resourceLocation) : new File(resourceLocation);
-            }
+      if (!file.isAbsolute()) {
+        file = this.getBaseDir() != null ? new File(this.getBaseDir(), resourceLocation) : new File(resourceLocation);
+      }
 
-            if (file.exists())
-            {
-                result = new FileDataSource(file);
-            }
-            else
-            {
-                if (!isLenient)
-                {
-                    throw new IOException("Cant resolve the following file resource :" + file.getAbsolutePath());
-                }
-            }
+      if (file.exists()) {
+        result = new FileDataSource(file);
+      } else {
+        if (!isLenient) {
+          throw new IOException("Cant resolve the following file resource :" + file.getAbsolutePath());
         }
-
-        return result;
+      }
     }
+
+    return result;
+  }
 }

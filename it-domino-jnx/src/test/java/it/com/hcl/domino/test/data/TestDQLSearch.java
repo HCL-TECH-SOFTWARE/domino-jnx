@@ -16,50 +16,46 @@
  */
 package it.com.hcl.domino.test.data;
 
-import static com.hcl.domino.dql.DQL.item;
-import static com.hcl.domino.dql.DQL.or;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.EnumSet;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.data.DBQuery;
 import com.hcl.domino.data.DQLQueryResult;
 import com.hcl.domino.data.IDTable;
+import com.hcl.domino.dql.DQL;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDQLSearch extends AbstractNotesRuntimeTest {
 
-	@Test
-	public void testDQLSearch() throws Exception {
-		withTempDb((database) -> {
-			generateNABPersons(database, 500);
+  @Test
+  public void testDQLSearch() throws Exception {
+    this.withTempDb(database -> {
+      AbstractNotesRuntimeTest.generateNABPersons(database, 500);
 
-			{
-				DQLQueryResult result = database
-						.queryDQL(
-								or(
-										item("Firstname").isEqualTo("Alexa"),
-										item("Firstname").isEqualTo("Carlos")
-										),
-								EnumSet.of(DBQuery.EXPLAIN));
+      {
+        final DQLQueryResult result = database
+            .queryDQL(
+                DQL.or(
+                    DQL.item("Firstname").isEqualTo("Alexa"),
+                    DQL.item("Firstname").isEqualTo("Carlos")),
+                EnumSet.of(DBQuery.EXPLAIN));
 
-				String explainTxt = result.getExplainText();
+        final String explainTxt = result.getExplainText();
 
-				assertNotNull(explainTxt);
-				assertTrue(explainTxt.length() > 0);
+        Assertions.assertNotNull(explainTxt);
+        Assertions.assertTrue(explainTxt.length() > 0);
 
-				IDTable resultsTable = result.getNoteIds().get();
-				assertTrue(!resultsTable.isEmpty());
+        final IDTable resultsTable = result.getNoteIds().get();
+        Assertions.assertTrue(!resultsTable.isEmpty());
 
-//				System.out.println("explain: "+result.getExplainText());
-//				System.out.println("query result: "+result);
-			}
-		});
+        // System.out.println("explain: "+result.getExplainText());
+        // System.out.println("query result: "+result);
+      }
+    });
 
-	}
+  }
 }

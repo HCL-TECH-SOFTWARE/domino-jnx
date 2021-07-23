@@ -73,27 +73,26 @@ public enum ECLCapability {
   private int m_flag;
   private boolean m_isWorkstationECL;
 
-  ECLCapability(short flag, boolean isWorkstationACL) {
-    m_flag = flag & 0xffff;
-    m_isWorkstationECL = isWorkstationACL;
+  ECLCapability(final int flag) {
+    this.m_flag = flag;
+  }
+
+  ECLCapability(final short flag, final boolean isWorkstationACL) {
+    this.m_flag = flag & 0xffff;
+    this.m_isWorkstationECL = isWorkstationACL;
+  }
+
+  public int getValue() {
+    return this.m_flag;
   }
 
   /**
    * Method to check if the capability is only available in the Notes Client
-   * 
+   *
    * @return true if workstation ECL
    */
   public boolean isWorkstationECL() {
-    return m_isWorkstationECL;
+    return this.m_isWorkstationECL;
   }
-
-  ECLCapability(int flag) {
-    m_flag = flag;
-  }
-
-  public int getValue() {
-    return m_flag;
-  }
-
 
 }

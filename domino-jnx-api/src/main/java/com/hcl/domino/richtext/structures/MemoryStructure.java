@@ -20,13 +20,13 @@ import java.nio.ByteBuffer;
 
 /**
  * Represents an object that is backed by an in-memory byte structure.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.2
  */
 public interface MemoryStructure {
-	/**
-	 * @return the underlying data as a {@link ByteBuffer}
-	 */
-	ByteBuffer getData();
+  /**
+   * @return the underlying data as a {@link ByteBuffer}
+   */
+  ByteBuffer getData();
 }

@@ -16,50 +16,50 @@
  */
 package com.hcl.domino.commons.design.action;
 
-import com.hcl.domino.design.action.ReplyAction;
-import com.hcl.domino.richtext.records.CDActionReply.Flag;
-
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
 
+import com.hcl.domino.design.action.ReplyAction;
+import com.hcl.domino.richtext.records.CDActionReply.Flag;
+
 public class DefaultReplyAction implements ReplyAction {
-	private final Set<Flag> flags;
-	private final String body;
-	
-	public DefaultReplyAction(Collection<Flag> flags, String body) {
-		this.flags = EnumSet.copyOf(flags);
-		this.body = body;
-	}
+  private final Set<Flag> flags;
+  private final String body;
 
-	@Override
-	public boolean isReplyToAll() {
-		return flags.contains(Flag.REPLYTOALL);
-	}
+  public DefaultReplyAction(final Collection<Flag> flags, final String body) {
+    this.flags = EnumSet.copyOf(flags);
+    this.body = body;
+  }
 
-	@Override
-	public boolean isIncludeDocument() {
-		return flags.contains(Flag.INCLUDEDOC);
-	}
+  @Override
+  public String getBody() {
+    return this.body;
+  }
 
-	@Override
-	public boolean isSaveMailDocument() {
-		return flags.contains(Flag.SAVEMAIL);
-	}
+  @Override
+  public boolean isIncludeDocument() {
+    return this.flags.contains(Flag.INCLUDEDOC);
+  }
 
-	@Override
-	public boolean isNoAgentReply() {
-		return flags.contains(Flag.NOAGENTREPLY);
-	}
+  @Override
+  public boolean isNoAgentReply() {
+    return this.flags.contains(Flag.NOAGENTREPLY);
+  }
 
-	@Override
-	public boolean isReplyOnce() {
-		return flags.contains(Flag.REPLYONCE);
-	}
+  @Override
+  public boolean isReplyOnce() {
+    return this.flags.contains(Flag.REPLYONCE);
+  }
 
-	@Override
-	public String getBody() {
-		return body;
-	}
+  @Override
+  public boolean isReplyToAll() {
+    return this.flags.contains(Flag.REPLYTOALL);
+  }
+
+  @Override
+  public boolean isSaveMailDocument() {
+    return this.flags.contains(Flag.SAVEMAIL);
+  }
 
 }

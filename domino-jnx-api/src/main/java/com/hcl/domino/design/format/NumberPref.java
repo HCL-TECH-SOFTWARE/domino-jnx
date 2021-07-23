@@ -20,18 +20,22 @@ import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 
 public enum NumberPref implements INumberEnum<Byte> {
-	CLIENT(RichTextConstants.NPREF_CLIENT),
-	FIELD(RichTextConstants.NPREF_FIELD)
-	;
-	private final byte value;
-	NumberPref(byte value) { this.value = value; }
-	
-	@Override
-	public long getLongValue() {
-		return value;
-	}
-	@Override
-	public Byte getValue() {
-		return value;
-	}
+  CLIENT(RichTextConstants.NPREF_CLIENT),
+  FIELD(RichTextConstants.NPREF_FIELD);
+
+  private final byte value;
+
+  NumberPref(final byte value) {
+    this.value = value;
+  }
+
+  @Override
+  public long getLongValue() {
+    return this.value;
+  }
+
+  @Override
+  public Byte getValue() {
+    return this.value;
+  }
 }

@@ -26,122 +26,127 @@ import com.hcl.domino.design.format.FieldListDisplayDelimiter;
 
 /**
  * Information read for a field in the database design
- * 
+ *
  * @author Karsten Lehmann
  */
 public interface FormField {
 
-	/**
-	 * Returns the field data type
-	 * 
-	 * @return an {@link Optional} describing the data type, e.g. {@link ItemDataType#TYPE_TEXT},
-	 *      or an empty one if not in {@link ItemDataType#values()} (unlikely)
-	 */
-	Optional<ItemDataType> getDataType();
+  /**
+   * Returns the field data type
+   *
+   * @return an {@link Optional} describing the data type, e.g.
+   *         {@link ItemDataType#TYPE_TEXT},
+   *         or an empty one if not in {@link ItemDataType#values()} (unlikely)
+   */
+  Optional<ItemDataType> getDataType();
 
-	/**
-	 * Returns the decompiled default value formula or an empty value if not present
-	 * 
-	 * @return formula
-	 */
-	Optional<String> getDefaultValueFormula();
+  /**
+   * Returns the decompiled default value formula or an empty value if not present
+   *
+   * @return formula
+   */
+  Optional<String> getDefaultValueFormula();
 
-	/**
-	 * Returns the decompiled default input translation formula or an empty value if not present
-	 * 
-	 * @return formula
-	 */
-	Optional<String> getInputTranslationFormula();
+  /**
+   * Returns the content of "Help description" in the field properties
+   *
+   * @return description
+   */
+  String getDescription();
 
-	/**
-	 * Returns the decompiled input validation formula or an empty value if not present
-	 * 
-	 * @return formula
-	 */
-	Optional<String> getInputValidityCheckFormula();
+  /**
+   * Returns the HTML class name
+   *
+   * @return class name or empty string
+   */
+  String getHtmlClassName();
 
-	/**
-	 * Returns the name if the field
-	 * 
-	 * @return name
-	 */
-	String getName();
+  /**
+   * Returns additional HTML attributes
+   *
+   * @return attribute string or empty string
+   */
+  String getHtmlExtraAttr();
 
-	/**
-	 * Returns the content of "Help description" in the field properties
-	 * 
-	 * @return description
-	 */
-	String getDescription();
+  /**
+   * Returns the HTML element id
+   *
+   * @return id or empty string
+   */
+  String getHtmlId();
 
-	/**
-	 * If the field is a static textlist, this method returns the text list values
-	 * 
-	 * @return an {@link Optional} describing the text list values, or an empty one if that
-	 *      does not apply
-	 */
-	Optional<List<String>> getTextListValues();
+  /**
+   * Returns the HTML field name attribute
+   *
+   * @return name or empty string
+   */
+  String getHtmlName();
 
-	/**
-	 * If the field is a textlist computed by a formula, this method returns the formula
-	 * 
-	 * @return formula or an empty value if not set
-	 */
-	Optional<String> getKeywordFormula();
+  /**
+   * Returns the HTML style attribute string
+   *
+   * @return styles or empty string
+   */
+  String getHtmlStyle();
 
-	/**
-	 * Returns the HTML element id
-	 * 
-	 * @return id or empty string
-	 */
-	String getHtmlId();
+  /**
+   * Returns the HTML element title
+   *
+   * @return title or empty string
+   */
+  String getHtmlTitle();
 
-	/**
-	 * Returns the HTML class name
-	 * 
-	 * @return class name or empty string
-	 */
-	String getHtmlClassName();
+  /**
+   * Returns the decompiled default input translation formula or an empty value if
+   * not present
+   *
+   * @return formula
+   */
+  Optional<String> getInputTranslationFormula();
 
-	/**
-	 * Returns the HTML style attribute string
-	 * 
-	 * @return styles or empty string
-	 */
-	String getHtmlStyle();
+  /**
+   * Returns the decompiled input validation formula or an empty value if not
+   * present
+   *
+   * @return formula
+   */
+  Optional<String> getInputValidityCheckFormula();
 
-	/**
-	 * Returns the HTML element title
-	 * 
-	 * @return title or empty string
-	 */
-	String getHtmlTitle();
+  /**
+   * If the field is a textlist computed by a formula, this method returns the
+   * formula
+   *
+   * @return formula or an empty value if not set
+   */
+  Optional<String> getKeywordFormula();
 
-	/**
-	 * Returns additional HTML attributes
-	 * 
-	 * @return attribute string or empty string
-	 */
-	String getHtmlExtraAttr();
+  /**
+   * Returns the delimiter used when displaying multiple values.
+   *
+   * @return the {@link FieldListDisplayDelimiter} for this field
+   */
+  FieldListDisplayDelimiter getListDispayDelimiter();
 
-	/**
-	 * Returns the HTML field name attribute
-	 * 
-	 * @return name or empty string
-	 */
-	String getHtmlName();
+  /**
+   * Returns the selected delimiters for multiple values when the user enters.
+   *
+   * @return a {@link Set} of {@link FieldListDelimiter} values
+   */
+  Set<FieldListDelimiter> getListInputDelimiters();
 
-	/**
-	 * Returns the selected delimiters for multiple values when the user enters.
-	 * 
-	 * @return a {@link Set} of {@link FieldListDelimiter} values
-	 */
-	Set<FieldListDelimiter> getListInputDelimiters();
-	
-	/**
-	 * Returns the delimiter used when displaying multiple values.
-	 * 
-	 * @return the {@link FieldListDisplayDelimiter} for this field
-	 */
-	FieldListDisplayDelimiter getListDispayDelimiter();
+  /**
+   * Returns the name if the field
+   *
+   * @return name
+   */
+  String getName();
+
+  /**
+   * If the field is a static textlist, this method returns the text list values
+   *
+   * @return an {@link Optional} describing the text list values, or an empty one
+   *         if that
+   *         does not apply
+   */
+  Optional<List<String>> getTextListValues();
 }

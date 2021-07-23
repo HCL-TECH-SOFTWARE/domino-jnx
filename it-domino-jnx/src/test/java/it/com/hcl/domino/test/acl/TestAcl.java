@@ -16,11 +16,6 @@
  */
 package it.com.hcl.domino.test.acl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -28,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
@@ -41,106 +37,107 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 @SuppressWarnings("nls")
 public class TestAcl extends AbstractNotesRuntimeTest {
 
-	@Test
-	public void testUniformAccess() throws Exception {
-		withTempDb((database) -> {
-			Acl acl=database.getACL();
-			
-			boolean isUniformAccess=acl.isUniformAccess();
-			
-			acl.setUniformAccess(!isUniformAccess);
-			
-			assertEquals(!isUniformAccess, acl.isUniformAccess(), "ACL uniform access has not changed");
-			assertNotEquals(isUniformAccess, acl.isUniformAccess(), "ACL uniform access did not toggle");
-		});
-	}
-	
-	@Test
-	public void testReadAdminServer() throws Exception {
-		withTempDb((database) -> {
-			Acl acl=database.getACL();
-			
-			assertNotNull(acl.getAdminServer(), "Admin server was null");
-		});
-	}
-	
-	@Test
-	public void testLookupAccess() throws Exception {
-		withTempDb((database) -> {
-			DominoClient client = getClient();
-			
-			Acl acl=database.getACL();
-			
-			String name=client.getEffectiveUserName();
-			
-			AclAccess entry=acl.lookupAccess(name);
-			
-			assertNotNull(entry, "Access level could not be determined");
-		});
-	}
-	
-	@Test
-	public void testSave() throws Exception {
-		withTempDb((tempDb) -> {
-			String tempDbServer = tempDb.getServer();
-			String tempDbFilePath = tempDb.getAbsoluteFilePath();
-			
-			DominoClient client = getClient();
-			Acl acl=tempDb.getACL();
-			
-			// to verify if saving works, we will add some roles, save and close the database
-			// then we will re-open it and verify the level
-			List<String> newRoles=new ArrayList<String>();
-			for (int i=1;i<10;i++) {
-				newRoles.add("[role_"+i+"]");
-			
-				acl.addRole(newRoles.get(newRoles.size()-1));
-			}
-			
-			assertTrue(containsAll(newRoles, acl.getRoles()), "Didn't find all added ACL roles");
+  private boolean containsAll(final List<String> expected, final List<String> actual) {
+    if (expected.size() > actual.size()) {
+      return false;
+    }
 
-			// now this worked -> save, close, re-open
-			acl.save();
-			
-			//recycle all and recreate Domino client
-			client = reloadClient();
-			
-			Path tempDbPath2 = Files.createTempFile(getClass().getName(), ".nsf"); //$NON-NLS-1$
-			Files.delete(tempDbPath2);
-			
-			Database tempDb2 = client.createDatabaseFromTemplate(tempDbServer, tempDbFilePath,
-					"", tempDbPath2.toString(), Encryption.None);
-			
-			try {
-				acl=tempDb2.getACL();
-				
-				assertTrue(containsAll(newRoles, acl.getRoles()), "Didn't find all added ACL roles");
-			}
-			finally {
-				tempDb2.close();
-				try {
-					client.deleteDatabase(null, tempDbPath2.toString());
-				} catch(Throwable t) {
-					System.err.println("Unable to delete database " + tempDb2 + ": " + t);
-				}
-			}
+    final Set<String> allValues = new HashSet<>(actual);
 
-		});
+    for (final String element : expected) {
+      if (!allValues.contains(element)) {
+        return false;
+      }
+    }
+    return true;
+  }
 
-	}
-	
-	private boolean containsAll(List<String> expected, List<String> actual) {
-		if (expected.size()>actual.size())
-			return false;
-		
-		Set<String> allValues=new HashSet<String>(actual);
-		
-		for (int i=0;i<expected.size();i++) {
-			if (!allValues.contains(expected.get(i))) {
-				return false;
-			}
-		}
-		return true;
-	}
-	
+  @Test
+  public void testLookupAccess() throws Exception {
+    this.withTempDb(database -> {
+      final DominoClient client = this.getClient();
+
+      final Acl acl = database.getACL();
+
+      final String name = client.getEffectiveUserName();
+
+      final AclAccess entry = acl.lookupAccess(name);
+
+      Assertions.assertNotNull(entry, "Access level could not be determined");
+    });
+  }
+
+  @Test
+  public void testReadAdminServer() throws Exception {
+    this.withTempDb(database -> {
+      final Acl acl = database.getACL();
+
+      Assertions.assertNotNull(acl.getAdminServer(), "Admin server was null");
+    });
+  }
+
+  @Test
+  public void testSave() throws Exception {
+    this.withTempDb(tempDb -> {
+      final String tempDbServer = tempDb.getServer();
+      final String tempDbFilePath = tempDb.getAbsoluteFilePath();
+
+      DominoClient client = this.getClient();
+      Acl acl = tempDb.getACL();
+
+      // to verify if saving works, we will add some roles, save and close the
+      // database
+      // then we will re-open it and verify the level
+      final List<String> newRoles = new ArrayList<>();
+      for (int i = 1; i < 10; i++) {
+        newRoles.add("[role_" + i + "]");
+
+        acl.addRole(newRoles.get(newRoles.size() - 1));
+      }
+
+      Assertions.assertTrue(this.containsAll(newRoles, acl.getRoles()), "Didn't find all added ACL roles");
+
+      // now this worked -> save, close, re-open
+      acl.save();
+
+      // recycle all and recreate Domino client
+      client = this.reloadClient();
+
+      final Path tempDbPath2 = Files.createTempFile(this.getClass().getName(), ".nsf"); //$NON-NLS-1$
+      Files.delete(tempDbPath2);
+
+      final Database tempDb2 = client.createDatabaseFromTemplate(tempDbServer, tempDbFilePath,
+          "", tempDbPath2.toString(), Encryption.None);
+
+      try {
+        acl = tempDb2.getACL();
+
+        Assertions.assertTrue(this.containsAll(newRoles, acl.getRoles()), "Didn't find all added ACL roles");
+      } finally {
+        tempDb2.close();
+        try {
+          client.deleteDatabase(null, tempDbPath2.toString());
+        } catch (final Throwable t) {
+          System.err.println("Unable to delete database " + tempDb2 + ": " + t);
+        }
+      }
+
+    });
+
+  }
+
+  @Test
+  public void testUniformAccess() throws Exception {
+    this.withTempDb(database -> {
+      final Acl acl = database.getACL();
+
+      final boolean isUniformAccess = acl.isUniformAccess();
+
+      acl.setUniformAccess(!isUniformAccess);
+
+      Assertions.assertEquals(!isUniformAccess, acl.isUniformAccess(), "ACL uniform access has not changed");
+      Assertions.assertNotEquals(isUniformAccess, acl.isUniformAccess(), "ACL uniform access did not toggle");
+    });
+  }
+
 }

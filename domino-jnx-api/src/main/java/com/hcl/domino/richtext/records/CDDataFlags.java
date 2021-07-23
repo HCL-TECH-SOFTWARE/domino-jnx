@@ -27,70 +27,74 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.BSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="CDDATAFLAGS",
-	members={
-		@StructureMember(name="Header", type=BSIG.class),
-		@StructureMember(name="nFlags", type=short.class, unsigned=true),
-		@StructureMember(name="elemType", type=CDDataFlags.ElementType.class),
-		@StructureMember(name="dwReserved", type=int.class)
-	}
-)
+@StructureDefinition(name = "CDDATAFLAGS", members = {
+    @StructureMember(name = "Header", type = BSIG.class),
+    @StructureMember(name = "nFlags", type = short.class, unsigned = true),
+    @StructureMember(name = "elemType", type = CDDataFlags.ElementType.class),
+    @StructureMember(name = "dwReserved", type = int.class)
+})
 public interface CDDataFlags extends RichTextRecord<BSIG> {
-	enum ElementType implements INumberEnum<Short> {
-		SECTION(RichTextConstants.CD_SECTION_ELEMENT),
-		FIELDLIMIT(RichTextConstants.CD_FIELDLIMIT_ELEMENT),
-		BUTTONEX(RichTextConstants.CD_BUTTONEX_ELEMENT),
-		TABLECELL(RichTextConstants.CD_TABLECELL_ELEMENT)
-		;
-		private final short value;
-		ElementType(short value) { this.value = value; }
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-		@Override
-		public Short getValue() {
-			return value;
-		}
-	}
-	
-	@StructureGetter("Header")
-	@Override
-	BSIG getHeader();
-	
-	@StructureGetter("nFlags")
-	int getFlagCount();
-	@StructureSetter("nFlags")
-	CDDataFlags setFlagCount(int count);
-	
-	@StructureGetter("elemType")
-	ElementType getElementType();
-	@StructureSetter("elemType")
-	CDDataFlags setElementType(ElementType type);
-	
-	default int[] getFlags() {
-		ByteBuffer buf = getVariableData();
-		int[] result = new int[getFlagCount()];
-		for(int i = 0; i < result.length; i++) {
-			result[i] = buf.getInt();
-		}
-		return result;
-	}
-	default CDDataFlags setFlags(int[] flags) {
-		int[] storage = flags == null ? new int[0] : flags;
-		setFlagCount(storage.length);
-		
-		resizeVariableData(storage.length * 4);
-		ByteBuffer buf = getVariableData();
-		for(int elem : storage) {
-			buf.putInt(elem);
-		}
-		
-		return this;
-	}
+  enum ElementType implements INumberEnum<Short> {
+    SECTION(RichTextConstants.CD_SECTION_ELEMENT),
+    FIELDLIMIT(RichTextConstants.CD_FIELDLIMIT_ELEMENT),
+    BUTTONEX(RichTextConstants.CD_BUTTONEX_ELEMENT),
+    TABLECELL(RichTextConstants.CD_TABLECELL_ELEMENT);
+
+    private final short value;
+
+    ElementType(final short value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Short getValue() {
+      return this.value;
+    }
+  }
+
+  @StructureGetter("elemType")
+  ElementType getElementType();
+
+  @StructureGetter("nFlags")
+  int getFlagCount();
+
+  default int[] getFlags() {
+    final ByteBuffer buf = this.getVariableData();
+    final int[] result = new int[this.getFlagCount()];
+    for (int i = 0; i < result.length; i++) {
+      result[i] = buf.getInt();
+    }
+    return result;
+  }
+
+  @StructureGetter("Header")
+  @Override
+  BSIG getHeader();
+
+  @StructureSetter("elemType")
+  CDDataFlags setElementType(ElementType type);
+
+  @StructureSetter("nFlags")
+  CDDataFlags setFlagCount(int count);
+
+  default CDDataFlags setFlags(final int[] flags) {
+    final int[] storage = flags == null ? new int[0] : flags;
+    this.setFlagCount(storage.length);
+
+    this.resizeVariableData(storage.length * 4);
+    final ByteBuffer buf = this.getVariableData();
+    for (final int elem : storage) {
+      buf.putInt(elem);
+    }
+
+    return this;
+  }
 }

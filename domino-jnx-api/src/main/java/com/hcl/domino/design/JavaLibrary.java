@@ -23,5 +23,5 @@ import com.hcl.domino.design.agent.JavaAgentContent;
  * @since 1.0.24
  */
 public interface JavaLibrary extends ScriptLibrary {
-	JavaAgentContent getScriptContent();
+  JavaAgentContent getScriptContent();
 }

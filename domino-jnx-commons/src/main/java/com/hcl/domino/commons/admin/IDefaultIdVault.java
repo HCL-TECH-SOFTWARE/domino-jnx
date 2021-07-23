@@ -25,18 +25,19 @@ import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.misc.JNXServiceFinder;
 
 public interface IDefaultIdVault extends IdVault {
-	@SuppressWarnings("unchecked")
-	@Override
-	default UserId getUserIdWithToken(Object token, String serverName) {
-		return JNXServiceFinder.findServices(IdVaultTokenHandler.class)
-			.map(h -> (IdVaultTokenHandler<Object>)h)
-			.filter(handler -> handler.canProcess(token))
-			.map(handler -> handler.getUserId(token, serverName, this))
-			.filter(Optional::isPresent)
-			.findFirst()
-			.map(Optional::get)
-			.orElseThrow(() -> new UnsupportedOperationException(
-				MessageFormat.format("No {0} implementation found to handle token of type {1}", IdVaultTokenHandler.class.getSimpleName(), token == null ? "null" : token.getClass().getName()) //$NON-NLS-2$
-			));
-	}
+  @SuppressWarnings("unchecked")
+  @Override
+  default UserId getUserIdWithToken(final Object token, final String serverName) {
+    return JNXServiceFinder.findServices(IdVaultTokenHandler.class)
+        .map(h -> (IdVaultTokenHandler<Object>) h)
+        .filter(handler -> handler.canProcess(token))
+        .map(handler -> handler.getUserId(token, serverName, this))
+        .filter(Optional::isPresent)
+        .findFirst()
+        .map(Optional::get)
+        .orElseThrow(() -> new UnsupportedOperationException(
+            MessageFormat.format("No {0} implementation found to handle token of type {1}",
+                IdVaultTokenHandler.class.getSimpleName(), token == null ? "null" : token.getClass().getName()) //$NON-NLS-1$
+        ));
+  }
 }

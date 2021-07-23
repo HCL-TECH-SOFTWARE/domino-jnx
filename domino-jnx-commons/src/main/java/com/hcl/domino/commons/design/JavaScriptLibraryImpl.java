@@ -29,14 +29,15 @@ import com.hcl.domino.richtext.process.GetJavaScriptDataProcessor;
  */
 public class JavaScriptLibraryImpl extends AbstractScriptLibrary<JavaScriptLibrary> implements JavaScriptLibrary {
 
-	public JavaScriptLibraryImpl(Document doc) {
-		super(doc);
-	}
+  public JavaScriptLibraryImpl(final Document doc) {
+    super(doc);
+  }
 
-	@Override
-	public String getScript() {
-		// There appears to always be a trailing null
-		byte[] data = GetJavaScriptDataProcessor.instance.apply(getDocument().getRichTextItem(NotesConstants.JAVASCRIPTLIBRARY_CODE));
-		return new String(data, 0, data.length-1, Charset.forName("LMBCS")); //$NON-NLS-1$
-	}
+  @Override
+  public String getScript() {
+    // There appears to always be a trailing null
+    final byte[] data = GetJavaScriptDataProcessor.instance
+        .apply(this.getDocument().getRichTextItem(NotesConstants.JAVASCRIPTLIBRARY_CODE));
+    return new String(data, 0, data.length - 1, Charset.forName("LMBCS")); //$NON-NLS-1$
+  }
 }

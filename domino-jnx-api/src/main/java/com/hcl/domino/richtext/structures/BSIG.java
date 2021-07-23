@@ -21,25 +21,24 @@ import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 
-@StructureDefinition(
-	name="BSIG",
-	members={
-		@StructureMember(name="Signature", type=byte.class),
-		@StructureMember(name="Length", type=byte.class, unsigned=true)
-	}
-)
+@StructureDefinition(name = "BSIG", members = {
+    @StructureMember(name = "Signature", type = byte.class),
+    @StructureMember(name = "Length", type = byte.class, unsigned = true)
+})
 public interface BSIG extends CDSignature<Byte, Short, BSIG> {
-	@StructureGetter("Signature")
-	@Override
-	Byte getSignature();
-	@StructureSetter("Signature")
-	@Override
-	BSIG setSignature(Byte signature);
-	
-	@StructureGetter("Length")
-	@Override
-	Short getLength();
-	@StructureSetter("Length")
-	@Override
-	BSIG setLength(Short length);
+  @StructureGetter("Length")
+  @Override
+  Short getLength();
+
+  @StructureGetter("Signature")
+  @Override
+  Byte getSignature();
+
+  @StructureSetter("Length")
+  @Override
+  BSIG setLength(Short length);
+
+  @StructureSetter("Signature")
+  @Override
+  BSIG setSignature(Byte signature);
 }

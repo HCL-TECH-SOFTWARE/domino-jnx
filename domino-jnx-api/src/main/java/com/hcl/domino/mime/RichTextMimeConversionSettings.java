@@ -27,218 +27,263 @@ import com.hcl.domino.misc.INumberEnum;
  */
 public interface RichTextMimeConversionSettings extends IAdaptable {
 
-	/**
-	 * The function sets Conversion Controls configuration settings to their default values.
-	 * 
-	 * @return this instance
-	 */
-	RichTextMimeConversionSettings setDefaults();
-	
-	public enum AttachmentEncoding implements INumberEnum<Short> {
-		BASE64(1), QUOTEDPRINTABLE(2), UUENCODE(3), BINHEX40(4);
-		private final short value;
-		private AttachmentEncoding(int value) { this.value = (short)value; }
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-		@Override
-		public Short getValue() {
-			return value;
-		}
-	}
+  public enum AttachmentEncoding implements INumberEnum<Short> {
+    BASE64(1), QUOTEDPRINTABLE(2), UUENCODE(3), BINHEX40(4);
 
-	/**
-	 * The function returns the Conversions Controls 'attachment encoding' setting.
-	 * 
-	 * @return an {@link Optional} describing the attachment encoding, or an empty one
-	 *      if known return value
-	 */
-	Optional<AttachmentEncoding> getAttachmentEncoding();
-	
-	/**
-	 * The function sets the Conversions Controls 'attachment encoding' setting to the input value.<br>
-	 * 
-	 * @param encoding new encoding
-	 * @return this instance
-	 */
-	RichTextMimeConversionSettings setAttachmentEncoding(AttachmentEncoding encoding);
-	
-	/**
-	 * The function returns the Conversions Controls 'drop items' setting.
-	 * 
-	 * @return list of items to drop during export
-	 */
-	List<String> getDropItems();
-	
-	/**
-	 * The function sets the Conversions Controls 'drop items setting' setting to the input value,
-	 * a list of items to drop during export.
-	 * 
-	 * @param itemNames item names
-	 * @return this instance
-	 */
-	RichTextMimeConversionSettings setDropItems(List<String> itemNames);
-	
-	/**
-	 * The function returns the Conversions Controls 'keep tabs' setting.
-	 * 
-	 * @return true to keep tabs
-	 */
-	boolean isKeepTabs();
-	
-	/**
-	 * The function  sets the Conversions Controls 'keep tabs' setting to the input value.
-	 * 
-	 * @param b true to keep tabs
-	 * @return this instance
-	 */
-	RichTextMimeConversionSettings setKeepTabs(boolean b);
-	
-	/**
-	 * The function returns the Conversions Controls 'point size' setting.
-	 * 
-	 * @return point size
-	 */
-	int getPointSize();
-	
-	/**
-	 * The function sets the Conversions Controls 'point size' setting to the input value.
-	 * 
-	 * @param size new size, one of: 6, 8, 9, 10 (default), 12, 14, 18, 24
-	 * @return this instance
-	 */
-	RichTextMimeConversionSettings setPointSize(int size);
-	
-	public enum Typeface implements INumberEnum<Short> {
-		TIMESROMAN(0), HELVETICA(1), COURIER(2);
-		private final short value;
-		private Typeface(int value) { this.value = (short)value; }
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-		@Override
-		public Short getValue() {
-			return value;
-		}
-	}
+    private final short value;
 
-	/**
-	 * The function returns the Conversions Controls 'typeface' setting.
-	 * 
-	 * @return an {@link Optional} describing the typeface, or an empty one if we received
-	 *      an unknown value
-	 */
-	Optional<Typeface> getTypeface();
-	
-	/**
-	 * The function sets the Conversions Controls 'typeface' setting to the input value.
-	 * 
-	 * @param tf new typeface
-	 * @return this instance
-	 */
-	RichTextMimeConversionSettings setTypeface(Typeface tf);
-	
-	/**
-	 * The function returns the Conversions Controls 'add items setting' setting.
-	 * 
-	 * @return list of items to add during export
-	 */
-	List<String> getAddItems();
-	
-	/**
-	 * The function sets the Conversions Controls 'add items setting' setting to the input value.
-	 * 
-	 * @param itemNames item names, list of item names to preserve in msgs as they are exported (default is empty list)
-	 * @return this instance
-	 */
-	RichTextMimeConversionSettings setAddItems(List<String> itemNames);
-	
-	public enum MessageContentEncoding implements INumberEnum<Short> {
-		/** text/plain (w/o images and attachments)  */
-		TEXT_PLAIN_NO_IMAGES_ATTACHMENTS(0),
-		/** text/plain (w/images and attachments) */
-		TEXT_PLAIN_WITH_IMAGES_ATTACHMENTS(1),
-		/** text/html (w/images and attachments) */
-		TEXT_HTML_WITH_IMAGES_ATTACHMENTS(2),
-		/** multipart/alternative: text/plain and text/html (w/images and attachments) */
-		TEXT_PLAIN_AND_HTML_WITH_IMAGES_ATTACHMENTS(3);
-		private final short value;
-		private MessageContentEncoding(int value) { this.value = (short)value; }
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-		@Override
-		public Short getValue() {
-			return value;
-		}
-	}
-	
-	/**
-	 * The function returns the current Conversions Controls 'message content encoding' setting.
-	 * 
-	 * @return an {@link Optional} describing the encoding, or an empty one if unknown value received
-	 */
-	Optional<MessageContentEncoding> getMessageContentEncoding();
-	
-	/**
-	 * The function sets the Conversions Controls 'message content encoding' setting to the input value.
-	 * 
-	 * @param enc encoding
-	 * @return this instance
-	 */
-	RichTextMimeConversionSettings setMessageContentEncoding(MessageContentEncoding enc);
-	
-	public enum ReadReceipt implements INumberEnum<Short> {
-		/** Do not pass read receipt requests when importing or exporting */
-		DONT_PASS_READ_RECEIPT(0),
-		/** Support read receipt requests (as Return-Receipt-To when exporting) */
-		RETURN_RECEIPT_TO(1),
-		/** Support read receipt requests (as Disposition-Notification-To when exporting) */
-		DISPOSITION_NOTIFICATION_TO(2);
-		private final short value;
-		private ReadReceipt(int value) { this.value = (short)value; }
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-		@Override
-		public Short getValue() {
-			return value;
-		}
-	}
-	
-	/**
-	 * The function returns the Conversions Controls 'read receipt' setting.
-	 * 
-	 * @return an {@link Optional} describing the read receipt, or an empty one if we received
-	 *      an unknown value
-	 */
-	Optional<ReadReceipt> getReadReceipt();
-	
-	/**
-	 * The function sets the Conversions Controls read receipt setting to the input value
-	 * 
-	 * @param rc read receipt
-	 * @return this instance
-	 */
-	RichTextMimeConversionSettings setReadReceipt(ReadReceipt rc);
-	
-	/**
-	 * The function returns the Conversions Controls 'skip X-Notes-Item headers' setting.
-	 * 
-	 * @return if TRUE, don't export any headers named x-notes-item (default FALSE)
-	 */
-	boolean getSkipX();
-	
-	/**
-	 * The function sets the Conversions Controls 'skip X-Notes-Item headers' setting to the input value.
-	 * 
-	 * @param b if TRUE, don't export any headers named x-notes-item (default FALSE)
-	 * @return this instance
-	 */
-	RichTextMimeConversionSettings setSkipX(boolean b);
-	
+    AttachmentEncoding(final int value) {
+      this.value = (short) value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Short getValue() {
+      return this.value;
+    }
+  }
+
+  public enum MessageContentEncoding implements INumberEnum<Short> {
+    /** text/plain (w/o images and attachments) */
+    TEXT_PLAIN_NO_IMAGES_ATTACHMENTS(0),
+    /** text/plain (w/images and attachments) */
+    TEXT_PLAIN_WITH_IMAGES_ATTACHMENTS(1),
+    /** text/html (w/images and attachments) */
+    TEXT_HTML_WITH_IMAGES_ATTACHMENTS(2),
+    /**
+     * multipart/alternative: text/plain and text/html (w/images and attachments)
+     */
+    TEXT_PLAIN_AND_HTML_WITH_IMAGES_ATTACHMENTS(3);
+
+    private final short value;
+
+    MessageContentEncoding(final int value) {
+      this.value = (short) value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Short getValue() {
+      return this.value;
+    }
+  }
+
+  public enum ReadReceipt implements INumberEnum<Short> {
+    /** Do not pass read receipt requests when importing or exporting */
+    DONT_PASS_READ_RECEIPT(0),
+    /** Support read receipt requests (as Return-Receipt-To when exporting) */
+    RETURN_RECEIPT_TO(1),
+    /**
+     * Support read receipt requests (as Disposition-Notification-To when exporting)
+     */
+    DISPOSITION_NOTIFICATION_TO(2);
+
+    private final short value;
+
+    ReadReceipt(final int value) {
+      this.value = (short) value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Short getValue() {
+      return this.value;
+    }
+  }
+
+  public enum Typeface implements INumberEnum<Short> {
+    TIMESROMAN(0), HELVETICA(1), COURIER(2);
+
+    private final short value;
+
+    Typeface(final int value) {
+      this.value = (short) value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Short getValue() {
+      return this.value;
+    }
+  }
+
+  /**
+   * The function returns the Conversions Controls 'add items setting' setting.
+   *
+   * @return list of items to add during export
+   */
+  List<String> getAddItems();
+
+  /**
+   * The function returns the Conversions Controls 'attachment encoding' setting.
+   *
+   * @return an {@link Optional} describing the attachment encoding, or an empty
+   *         one
+   *         if known return value
+   */
+  Optional<AttachmentEncoding> getAttachmentEncoding();
+
+  /**
+   * The function returns the Conversions Controls 'drop items' setting.
+   *
+   * @return list of items to drop during export
+   */
+  List<String> getDropItems();
+
+  /**
+   * The function returns the current Conversions Controls 'message content
+   * encoding' setting.
+   *
+   * @return an {@link Optional} describing the encoding, or an empty one if
+   *         unknown value received
+   */
+  Optional<MessageContentEncoding> getMessageContentEncoding();
+
+  /**
+   * The function returns the Conversions Controls 'point size' setting.
+   *
+   * @return point size
+   */
+  int getPointSize();
+
+  /**
+   * The function returns the Conversions Controls 'read receipt' setting.
+   *
+   * @return an {@link Optional} describing the read receipt, or an empty one if
+   *         we received
+   *         an unknown value
+   */
+  Optional<ReadReceipt> getReadReceipt();
+
+  /**
+   * The function returns the Conversions Controls 'skip X-Notes-Item headers'
+   * setting.
+   *
+   * @return if TRUE, don't export any headers named x-notes-item (default FALSE)
+   */
+  boolean getSkipX();
+
+  /**
+   * The function returns the Conversions Controls 'typeface' setting.
+   *
+   * @return an {@link Optional} describing the typeface, or an empty one if we
+   *         received
+   *         an unknown value
+   */
+  Optional<Typeface> getTypeface();
+
+  /**
+   * The function returns the Conversions Controls 'keep tabs' setting.
+   *
+   * @return true to keep tabs
+   */
+  boolean isKeepTabs();
+
+  /**
+   * The function sets the Conversions Controls 'add items setting' setting to the
+   * input value.
+   *
+   * @param itemNames item names, list of item names to preserve in msgs as they
+   *                  are exported (default is empty list)
+   * @return this instance
+   */
+  RichTextMimeConversionSettings setAddItems(List<String> itemNames);
+
+  /**
+   * The function sets the Conversions Controls 'attachment encoding' setting to
+   * the input value.<br>
+   *
+   * @param encoding new encoding
+   * @return this instance
+   */
+  RichTextMimeConversionSettings setAttachmentEncoding(AttachmentEncoding encoding);
+
+  /**
+   * The function sets Conversion Controls configuration settings to their default
+   * values.
+   *
+   * @return this instance
+   */
+  RichTextMimeConversionSettings setDefaults();
+
+  /**
+   * The function sets the Conversions Controls 'drop items setting' setting to
+   * the input value,
+   * a list of items to drop during export.
+   *
+   * @param itemNames item names
+   * @return this instance
+   */
+  RichTextMimeConversionSettings setDropItems(List<String> itemNames);
+
+  /**
+   * The function sets the Conversions Controls 'keep tabs' setting to the input
+   * value.
+   *
+   * @param b true to keep tabs
+   * @return this instance
+   */
+  RichTextMimeConversionSettings setKeepTabs(boolean b);
+
+  /**
+   * The function sets the Conversions Controls 'message content encoding' setting
+   * to the input value.
+   *
+   * @param enc encoding
+   * @return this instance
+   */
+  RichTextMimeConversionSettings setMessageContentEncoding(MessageContentEncoding enc);
+
+  /**
+   * The function sets the Conversions Controls 'point size' setting to the input
+   * value.
+   *
+   * @param size new size, one of: 6, 8, 9, 10 (default), 12, 14, 18, 24
+   * @return this instance
+   */
+  RichTextMimeConversionSettings setPointSize(int size);
+
+  /**
+   * The function sets the Conversions Controls read receipt setting to the input
+   * value
+   *
+   * @param rc read receipt
+   * @return this instance
+   */
+  RichTextMimeConversionSettings setReadReceipt(ReadReceipt rc);
+
+  /**
+   * The function sets the Conversions Controls 'skip X-Notes-Item headers'
+   * setting to the input value.
+   *
+   * @param b if TRUE, don't export any headers named x-notes-item (default FALSE)
+   * @return this instance
+   */
+  RichTextMimeConversionSettings setSkipX(boolean b);
+
+  /**
+   * The function sets the Conversions Controls 'typeface' setting to the input
+   * value.
+   *
+   * @param tf new typeface
+   * @return this instance
+   */
+  RichTextMimeConversionSettings setTypeface(Typeface tf);
+
 }

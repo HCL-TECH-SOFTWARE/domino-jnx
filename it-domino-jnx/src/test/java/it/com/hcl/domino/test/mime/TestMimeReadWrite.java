@@ -16,11 +16,6 @@
  */
 package it.com.hcl.domino.test.mime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.Reader;
 import java.io.StringWriter;
 import java.net.URL;
@@ -38,6 +33,7 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.mail.EmailAttachment;
 import org.apache.commons.mail.HtmlEmail;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
@@ -68,291 +64,295 @@ import jakarta.mail.util.ByteArrayDataSource;
 
 @SuppressWarnings("nls")
 public class TestMimeReadWrite extends AbstractNotesRuntimeTest {
-	private static final String TEST_IMAGE_PATH = "/images/test-png-large.png";;
-	
-	@Test
-	public void testCreateMail() throws Exception {
-		DominoClient client = getClient();
+  private static final String TEST_IMAGE_PATH = "/images/test-png-large.png";
 
-		withTempDb(dbMail -> {
-			HtmlEmail mail = new HtmlEmail();
-			
-			//add some required fields required by Apache Commons Email
-			mail.setFrom("mr.sender@acme.com", "Mr. Sender");
-			mail.addTo("mr.receiver@acme.com", "Mr. Receiver");
-			mail.setHostName("acme.com");
-			
-			String subjectWrite = "Testmail";
-			mail.setSubject(subjectWrite);
-			mail.setCharset("UTF-8");
-	
-			//embed an online image
-			URL url = getClass().getResource(TEST_IMAGE_PATH);
-			assertNotNull(url, "Test image can be found");
-			
-			String cid = mail.embed(url, "Test icon");
-			  
-			int testAttSize = 50000;
-			byte[] testAttachmentData = produceTestData(testAttSize);
-			ByteArrayDataSource testAttachmentDataSource = new ByteArrayDataSource(testAttachmentData, "text/plain");
-			// add the attachment
-			mail.attach(testAttachmentDataSource, "testascii.txt", "A text ascii file", EmailAttachment.ATTACHMENT);
-			
-			//set text content as plaintext and HTML
-			String mailPlainTxt = "This is plain text";
-			String mailHtmlTxt = "<html><body>This is <b>formatted</b> text and an image:<br><img src=\"cid:"+cid+"\"></body></html>";
-			mail.setTextMsg(mailPlainTxt);
-			mail.setHtmlMsg(mailHtmlTxt);
-			
-			mail.buildMimeMessage();
-			MimeMessage mimeMsg = mail.getMimeMessage();
-	
-//			try {
-//				mimeMsg.writeTo(System.out);
-//			} catch (MessagingException e) {
-//				e.printStackTrace();
-//			}
-			
-			Document doc = dbMail.createDocument();
-			doc.replaceItemValue("Form", "Memo");
-			
-			MimeWriter mimeWriter = client.getMimeWriter();
-			try {
-				mimeWriter.writeMime(doc, null, mimeMsg, EnumSet.of(WriteMimeDataType.HEADERS, WriteMimeDataType.BODY));
-			} catch (MessagingException e) {
-				e.printStackTrace();
-			}
-	
-			//doc.save();
-	
-			{
-				Item subjectItem = doc.getFirstItem("Subject").orElse(null);
-				assertNotNull(subjectItem, "Subject should exist");
-				assertEquals(ItemDataType.TYPE_RFC822_TEXT, subjectItem.getType(), "Subject should be RFC822");
-				subjectItem.convertRFC822TextItem();
-				assertEquals(ItemDataType.TYPE_TEXT, subjectItem.getType(), "Subject is text after conversion");
-				String subjectRead = subjectItem.get(String.class, "");
-				assertEquals(subjectWrite, subjectRead, "Subject ok");
-			}
-	
-			{
-				Item postedDateItem = doc.getFirstItem("PostedDate").orElse(null);
-				assertNotNull(postedDateItem, "PostedDate should exist");
-				assertEquals(ItemDataType.TYPE_RFC822_TEXT, postedDateItem.getType(), "PostedDate should be RFC822");
-				postedDateItem.convertRFC822TextItem();
-				assertEquals(ItemDataType.TYPE_TIME, postedDateItem.getType(), "PostedDate is time after conversion");
-				OffsetDateTime postedDate = postedDateItem.get(OffsetDateTime.class, null);
-				assertNotNull(postedDate, "PostedDate not null");
-			}
-			
-			{
-				Item item = doc.getFirstItem("SendTo").orElse(null);
-				assertNotNull(item, "SendTo should exist");
-				assertEquals(ItemDataType.TYPE_RFC822_TEXT, item.getType(), "SendTo should be RFC822");
-				item.convertRFC822TextItem();
-				assertEquals(ItemDataType.TYPE_TEXT, item.getType(), "SendTo is text after conversion");
-				String read = item.get(String.class, "");
-				assertEquals("\"Mr. Receiver\" <mr.receiver@acme.com>", read, "SendTo ok");
-			}
-			
-			{
-				Item item = doc.getFirstItem("From").orElse(null);
-				assertNotNull(item, "From should exist");
-				assertEquals(ItemDataType.TYPE_RFC822_TEXT, item.getType(), "From should be RFC822");
-				item.convertRFC822TextItem();
-				assertEquals(ItemDataType.TYPE_TEXT, item.getType(), "From is text after conversion");
-				String read = item.get(String.class, "");
-				assertEquals("\"Mr. Sender\" <mr.sender@acme.com>", read, "From ok");
-			}
-	
-			{
-				Item bodyItem = doc.getFirstItem("Body").orElse(null);
-				assertNotNull(bodyItem, "Body should exist");
-				assertEquals(ItemDataType.TYPE_MIME_PART, bodyItem.getType(), "Body should be MIME");
-			}
-			
-			//now read the created mime content via writer and reader interface and compare both results
-			MimeReader mimeReader = client.getMimeReader();
-			
-			Set<ReadMimeDataType> readDataType = EnumSet.of(ReadMimeDataType.MIMEHEADERS, ReadMimeDataType.RFC822HEADERS);
-			
-			StringWriter rawMimeWriter = new StringWriter();
-			mimeReader.readMIME(doc, "body", readDataType, rawMimeWriter);
-			
-			StringWriter rawMimeWriterViaReader = new StringWriter();
-			char[] buffer = new char[2000];
-			int len;
-			
-			try (Reader reader = mimeReader.getMIMEReader(doc, "body", readDataType);) {
-				while ((len = reader.read(buffer)) > 0) {
-					rawMimeWriterViaReader.write(buffer, 0, len);
-				}
-			}
-			
-			String rawMimeWriterStr = rawMimeWriter.toString();
-			String rawMimeWriterViaReaderStr = rawMimeWriterViaReader.toString();
-			
-			assertTrue(rawMimeWriterStr.length() > 0);
+  private String filterXMIMETrackHeader(final String mime) {
+    // removes the X-MIMETrack header because it contains a timestamp that
+    // may differ between two MIME read operations
 
-			rawMimeWriterStr = filterXMIMETrackHeader(rawMimeWriterStr);
-			rawMimeWriterViaReaderStr = filterXMIMETrackHeader(rawMimeWriterViaReaderStr);
-			
-			if (!rawMimeWriterStr.equals(rawMimeWriterViaReaderStr)) {
-				System.out.println("MIME content differs!");
-				System.out.println("rawMimeWriterStr:\n"+rawMimeWriterStr.substring(0, 1000));
-				System.out.println("\n\nrawMimeWriterViaReaderStr:\n"+rawMimeWriterViaReaderStr.substring(0, 1000));
-			}
+    // rawMimeWriterStr:
+    // Date: Tue, 23 Jun 2020 23:48:48 +0200
+    // From: "Mr. Sender" <mr.sender@acme.com>
+    // To: "Mr. Receiver" <mr.receiver@acme.com>
+    // Message-ID: <1345610017.3.1592948928726@localhost>
+    // Subject: Testmail
+    // MIME-Version: 1.0
+    // X-MIMETrack: Itemize by java on Karsten Lehmann/Mindoo(Release 11.0.1|March
+    // 21, 2020) at
+    // 23/06/2020 23:48:48,
+    // Serialize by java on Karsten Lehmann/Mindoo(Release 11.0.1|March 21, 2020) at
+    // 23/06/2020 23:48:48,
+    // Serialize complete at 23/06/2020 23:48:48
+    // Content-Type: multipart/mixed;
+    // boundary="----=_Part_0_-683548016.1592948928686"
+    //
+    // ------=_Part_0_-683548016.1592948928686
+    // Content-Type: multipart/related;
+    // boundary="----=_Part_1_1100346248.1592948928686"
+    //
+    // ------=_Part_1_1100346248.1592948928686
+    // Content-Type: multipart/alternative;
+    // boundary="----=_Part_2_-6928260
+    //
+    //
+    // rawMimeWriterViaReaderStr:
+    // Date: Tue, 23 Jun 2020 23:48:48 +0200
+    // From: "Mr. Sender" <mr.sender@acme.com>
+    // To: "Mr. Receiver" <mr.receiver@acme.com>
+    // Message-ID: <1345610017.3.1592948928726@localhost>
+    // Subject: Testmail
+    // MIME-Version: 1.0
+    // X-MIMETrack: Itemize by java on Karsten Lehmann/Mindoo(Release 11.0.1|March
+    // 21, 2020) at
+    // 23/06/2020 23:48:48,
+    // Serialize by java on Karsten Lehmann/Mindoo(Release 11.0.1|March 21, 2020) at
+    // 23/06/2020 23:48:48,
+    // Serialize complete at 23/06/2020 23:48:48,
+    // Serialize by java on Karsten Lehmann/Mindoo(Release 11.0.1|March 21, 2020) at
+    // 23/06/2020 23:48:49,
+    // Serialize complete at 23/06/2020 23:48:49
+    // Content-Type: multipart/mixed;
+    // boundary="----=_Part_0_-683548016.1592948928686"
+    //
+    // ------=_Part_0_-683548016.1592948928686
+    // Content-Type: multipart/related;
+    // boundary="----=_
 
-			assertEquals(rawMimeWriterStr, rawMimeWriterViaReaderStr);
-		});
-	}
-	
-	private String filterXMIMETrackHeader(String mime) {
-		//removes the X-MIMETrack header because it contains a timestamp that
-		//may differ between two MIME read operations
-		
-//		rawMimeWriterStr:
-//			Date: Tue, 23 Jun 2020 23:48:48 +0200
-//			From: "Mr. Sender" <mr.sender@acme.com>
-//			To: "Mr. Receiver" <mr.receiver@acme.com>
-//			Message-ID: <1345610017.3.1592948928726@localhost>
-//			Subject: Testmail
-//			MIME-Version: 1.0
-//			X-MIMETrack: Itemize by java on Karsten Lehmann/Mindoo(Release 11.0.1|March 21, 2020) at
-//			 23/06/2020 23:48:48,
-//				Serialize by java on Karsten Lehmann/Mindoo(Release 11.0.1|March 21, 2020) at
-//			 23/06/2020 23:48:48,
-//				Serialize complete at 23/06/2020 23:48:48
-//			Content-Type: multipart/mixed; 
-//				boundary="----=_Part_0_-683548016.1592948928686"
-//
-//			------=_Part_0_-683548016.1592948928686
-//			Content-Type: multipart/related; 
-//				boundary="----=_Part_1_1100346248.1592948928686"
-//
-//			------=_Part_1_1100346248.1592948928686
-//			Content-Type: multipart/alternative; 
-//				boundary="----=_Part_2_-6928260
-//
-//
-//			rawMimeWriterViaReaderStr:
-//			Date: Tue, 23 Jun 2020 23:48:48 +0200
-//			From: "Mr. Sender" <mr.sender@acme.com>
-//			To: "Mr. Receiver" <mr.receiver@acme.com>
-//			Message-ID: <1345610017.3.1592948928726@localhost>
-//			Subject: Testmail
-//			MIME-Version: 1.0
-//			X-MIMETrack: Itemize by java on Karsten Lehmann/Mindoo(Release 11.0.1|March 21, 2020) at
-//			 23/06/2020 23:48:48,
-//				Serialize by java on Karsten Lehmann/Mindoo(Release 11.0.1|March 21, 2020) at
-//			 23/06/2020 23:48:48,
-//				Serialize complete at 23/06/2020 23:48:48,
-//				Serialize by java on Karsten Lehmann/Mindoo(Release 11.0.1|March 21, 2020) at
-//			 23/06/2020 23:48:49,
-//				Serialize complete at 23/06/2020 23:48:49
-//			Content-Type: multipart/mixed; 
-//				boundary="----=_Part_0_-683548016.1592948928686"
-//
-//			------=_Part_0_-683548016.1592948928686
-//			Content-Type: multipart/related; 
-//				boundary="----=_
+    final StringBuilder sb = new StringBuilder();
+    try (Scanner scanner = new Scanner(mime)) {
+      boolean inXMIMETrack = false;
 
-		StringBuilder sb = new StringBuilder();
-		try (Scanner scanner = new Scanner(mime)) {
-			boolean inXMIMETrack = false;
-			
-			while (scanner.hasNextLine()) {
-				String line = scanner.nextLine();
-				
-				if (line.startsWith("X-MIMETrack:")) {
-					inXMIMETrack = true; //skip header
-					continue;
-				}
-				else if (inXMIMETrack && (line.startsWith("\t") || line.startsWith(" "))) {
-					 //skip header line 2+x
-					continue;
-				}
-				
-				sb.append(line).append('\n');
-			}
-		}
-		
-		return sb.toString();
-	}
-	
-	@Test
-	public void testConvertAndOpenMimeItem() throws Exception {
-		withResourceDxl("/dxl/testConvertAndOpenMimeItem", database -> {
-			FormulaQueryResult result = database.queryFormula("$$TITLE='CD Record test'", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT));
-			Document doc = result.getDocuments().findFirst().orElseThrow(() -> new RuntimeException("Couldn't find 'CD Record test' post note"));
-			
-			MimeWriter w = database.getParentDominoClient().getMimeWriter();
-			w.convertToMime(doc,
-				w.createRichTextMimeConversionSettings()
-					.setMessageContentEncoding(MessageContentEncoding.TEXT_PLAIN_AND_HTML_WITH_IMAGES_ATTACHMENTS)
-			);
-			MimeMessage mime = database.getParentDominoClient().getMimeReader().readMIME(doc, "Body", EnumSet.allOf(MimeReader.ReadMimeDataType.class));
-			assertNotNull(mime);
-			assertTrue(mime.getContentType().startsWith("multipart/alternative"));
-			assertTrue(mime.getContent() instanceof MimeMultipart);
-			MimeMultipart content = (MimeMultipart)mime.getContent();
-			
-			BodyPart textPlain = content.getBodyPart(0);
-			assertTrue(textPlain.getContentType().startsWith("text/plain"));
-			assertTrue(String.valueOf(textPlain.getContent()).contains("This is monospace text"));
-			
-			BodyPart html = content.getBodyPart(1);
-			assertTrue(html.getContentType().startsWith("text/html"));
-			assertTrue(String.valueOf(html.getContent()).contains("<tt><font size=\"2\">This is monospace text</font></tt>"));
-		});
-	}
-	
-	@Test
-	public void testMultithreadRead() throws Exception {
-		ExecutorService exec = Executors.newCachedThreadPool(getClient().getThreadFactory());
-		IntStream.range(0, 20)
-			.mapToObj(iteration -> (Callable<String>)() -> {
-				Thread.currentThread().setName("testMultithreadRead thread " + iteration);
-				try(DominoClient client = DominoClientBuilder.newDominoClient().build()) {
-					Database names = client.openDatabase("names.nsf");
-					names.queryDocuments().forEachDocument(0, Integer.MAX_VALUE, (doc, loop) -> {
-						MimeWriter w = client.getMimeWriter();
-						w.convertToMime(doc,
-							w.createRichTextMimeConversionSettings()
-								.setMessageContentEncoding(MessageContentEncoding.TEXT_HTML_WITH_IMAGES_ATTACHMENTS)
-						);
-						
-						HtmlConversionResult html = client.getRichTextHtmlConverter()
-							.render(doc)
-							.option(HtmlConvertOption.DisablePassThruHTML, "1")
-							.convert();
-						html.getHtml();
-					});
-					return "finished iteration " + iteration;
-				}
-			})
-			.map(exec::submit)
-			.parallel()
-			.forEach(t -> {
-				try {
-					t.get();
-				} catch (InterruptedException | ExecutionException e) {
-					throw new RuntimeException(e);
-				}
-			});
-		
-		exec.shutdownNow();
-		exec.awaitTermination(2, TimeUnit.MINUTES);
-	}
-	
-	@Test
-	public void testMimeReadOnRichtextItem() throws Exception {
-		withTempDb((db) -> {
-			Document doc = db.createDocument();
-			try (RichTextWriter rtWriter = doc.createRichTextItem("Body");) {
-				rtWriter.addText("Hello.");
-			}
-			assertThrows(MimePartNotFoundException.class, () -> doc.get("body", MimeData.class, null));
-		});
-	}
+      while (scanner.hasNextLine()) {
+        final String line = scanner.nextLine();
+
+        if (line.startsWith("X-MIMETrack:")) {
+          inXMIMETrack = true; // skip header
+          continue;
+        } else if (inXMIMETrack && (line.startsWith("\t") || line.startsWith(" "))) {
+          // skip header line 2+x
+          continue;
+        }
+
+        sb.append(line).append('\n');
+      }
+    }
+
+    return sb.toString();
+  }
+
+  @Test
+  public void testConvertAndOpenMimeItem() throws Exception {
+    this.withResourceDxl("/dxl/testConvertAndOpenMimeItem", database -> {
+      final FormulaQueryResult result = database.queryFormula("$$TITLE='CD Record test'", null, Collections.emptySet(), null,
+          EnumSet.of(DocumentClass.DOCUMENT));
+      final Document doc = result.getDocuments().findFirst()
+          .orElseThrow(() -> new RuntimeException("Couldn't find 'CD Record test' post note"));
+
+      final MimeWriter w = database.getParentDominoClient().getMimeWriter();
+      w.convertToMime(doc,
+          w.createRichTextMimeConversionSettings()
+              .setMessageContentEncoding(MessageContentEncoding.TEXT_PLAIN_AND_HTML_WITH_IMAGES_ATTACHMENTS));
+      final MimeMessage mime = database.getParentDominoClient().getMimeReader().readMIME(doc, "Body",
+          EnumSet.allOf(MimeReader.ReadMimeDataType.class));
+      Assertions.assertNotNull(mime);
+      Assertions.assertTrue(mime.getContentType().startsWith("multipart/alternative"));
+      Assertions.assertTrue(mime.getContent() instanceof MimeMultipart);
+      final MimeMultipart content = (MimeMultipart) mime.getContent();
+
+      final BodyPart textPlain = content.getBodyPart(0);
+      Assertions.assertTrue(textPlain.getContentType().startsWith("text/plain"));
+      Assertions.assertTrue(String.valueOf(textPlain.getContent()).contains("This is monospace text"));
+
+      final BodyPart html = content.getBodyPart(1);
+      Assertions.assertTrue(html.getContentType().startsWith("text/html"));
+      Assertions.assertTrue(String.valueOf(html.getContent()).contains("<tt><font size=\"2\">This is monospace text</font></tt>"));
+    });
+  }
+
+  @Test
+  public void testCreateMail() throws Exception {
+    final DominoClient client = this.getClient();
+
+    this.withTempDb(dbMail -> {
+      final HtmlEmail mail = new HtmlEmail();
+
+      // add some required fields required by Apache Commons Email
+      mail.setFrom("mr.sender@acme.com", "Mr. Sender");
+      mail.addTo("mr.receiver@acme.com", "Mr. Receiver");
+      mail.setHostName("acme.com");
+
+      final String subjectWrite = "Testmail";
+      mail.setSubject(subjectWrite);
+      mail.setCharset("UTF-8");
+
+      // embed an online image
+      final URL url = this.getClass().getResource(TestMimeReadWrite.TEST_IMAGE_PATH);
+      Assertions.assertNotNull(url, "Test image can be found");
+
+      final String cid = mail.embed(url, "Test icon");
+
+      final int testAttSize = 50000;
+      final byte[] testAttachmentData = this.produceTestData(testAttSize);
+      final ByteArrayDataSource testAttachmentDataSource = new ByteArrayDataSource(testAttachmentData, "text/plain");
+      // add the attachment
+      mail.attach(testAttachmentDataSource, "testascii.txt", "A text ascii file", EmailAttachment.ATTACHMENT);
+
+      // set text content as plaintext and HTML
+      final String mailPlainTxt = "This is plain text";
+      final String mailHtmlTxt = "<html><body>This is <b>formatted</b> text and an image:<br><img src=\"cid:" + cid
+          + "\"></body></html>";
+      mail.setTextMsg(mailPlainTxt);
+      mail.setHtmlMsg(mailHtmlTxt);
+
+      mail.buildMimeMessage();
+      final MimeMessage mimeMsg = mail.getMimeMessage();
+
+      // try {
+      // mimeMsg.writeTo(System.out);
+      // } catch (MessagingException e) {
+      // e.printStackTrace();
+      // }
+
+      final Document doc = dbMail.createDocument();
+      doc.replaceItemValue("Form", "Memo");
+
+      final MimeWriter mimeWriter = client.getMimeWriter();
+      try {
+        mimeWriter.writeMime(doc, null, mimeMsg, EnumSet.of(WriteMimeDataType.HEADERS, WriteMimeDataType.BODY));
+      } catch (final MessagingException e) {
+        e.printStackTrace();
+      }
+
+      // doc.save();
+
+      {
+        final Item subjectItem = doc.getFirstItem("Subject").orElse(null);
+        Assertions.assertNotNull(subjectItem, "Subject should exist");
+        Assertions.assertEquals(ItemDataType.TYPE_RFC822_TEXT, subjectItem.getType(), "Subject should be RFC822");
+        subjectItem.convertRFC822TextItem();
+        Assertions.assertEquals(ItemDataType.TYPE_TEXT, subjectItem.getType(), "Subject is text after conversion");
+        final String subjectRead = subjectItem.get(String.class, "");
+        Assertions.assertEquals(subjectWrite, subjectRead, "Subject ok");
+      }
+
+      {
+        final Item postedDateItem = doc.getFirstItem("PostedDate").orElse(null);
+        Assertions.assertNotNull(postedDateItem, "PostedDate should exist");
+        Assertions.assertEquals(ItemDataType.TYPE_RFC822_TEXT, postedDateItem.getType(), "PostedDate should be RFC822");
+        postedDateItem.convertRFC822TextItem();
+        Assertions.assertEquals(ItemDataType.TYPE_TIME, postedDateItem.getType(), "PostedDate is time after conversion");
+        final OffsetDateTime postedDate = postedDateItem.get(OffsetDateTime.class, null);
+        Assertions.assertNotNull(postedDate, "PostedDate not null");
+      }
+
+      {
+        final Item item = doc.getFirstItem("SendTo").orElse(null);
+        Assertions.assertNotNull(item, "SendTo should exist");
+        Assertions.assertEquals(ItemDataType.TYPE_RFC822_TEXT, item.getType(), "SendTo should be RFC822");
+        item.convertRFC822TextItem();
+        Assertions.assertEquals(ItemDataType.TYPE_TEXT, item.getType(), "SendTo is text after conversion");
+        final String read = item.get(String.class, "");
+        Assertions.assertEquals("\"Mr. Receiver\" <mr.receiver@acme.com>", read, "SendTo ok");
+      }
+
+      {
+        final Item item = doc.getFirstItem("From").orElse(null);
+        Assertions.assertNotNull(item, "From should exist");
+        Assertions.assertEquals(ItemDataType.TYPE_RFC822_TEXT, item.getType(), "From should be RFC822");
+        item.convertRFC822TextItem();
+        Assertions.assertEquals(ItemDataType.TYPE_TEXT, item.getType(), "From is text after conversion");
+        final String read = item.get(String.class, "");
+        Assertions.assertEquals("\"Mr. Sender\" <mr.sender@acme.com>", read, "From ok");
+      }
+
+      {
+        final Item bodyItem = doc.getFirstItem("Body").orElse(null);
+        Assertions.assertNotNull(bodyItem, "Body should exist");
+        Assertions.assertEquals(ItemDataType.TYPE_MIME_PART, bodyItem.getType(), "Body should be MIME");
+      }
+
+      // now read the created mime content via writer and reader interface and compare
+      // both results
+      final MimeReader mimeReader = client.getMimeReader();
+
+      final Set<ReadMimeDataType> readDataType = EnumSet.of(ReadMimeDataType.MIMEHEADERS, ReadMimeDataType.RFC822HEADERS);
+
+      final StringWriter rawMimeWriter = new StringWriter();
+      mimeReader.readMIME(doc, "body", readDataType, rawMimeWriter);
+
+      final StringWriter rawMimeWriterViaReader = new StringWriter();
+      final char[] buffer = new char[2000];
+      int len;
+
+      try (Reader reader = mimeReader.getMIMEReader(doc, "body", readDataType);) {
+        while ((len = reader.read(buffer)) > 0) {
+          rawMimeWriterViaReader.write(buffer, 0, len);
+        }
+      }
+
+      String rawMimeWriterStr = rawMimeWriter.toString();
+      String rawMimeWriterViaReaderStr = rawMimeWriterViaReader.toString();
+
+      Assertions.assertTrue(rawMimeWriterStr.length() > 0);
+
+      rawMimeWriterStr = this.filterXMIMETrackHeader(rawMimeWriterStr);
+      rawMimeWriterViaReaderStr = this.filterXMIMETrackHeader(rawMimeWriterViaReaderStr);
+
+      if (!rawMimeWriterStr.equals(rawMimeWriterViaReaderStr)) {
+        System.out.println("MIME content differs!");
+        System.out.println("rawMimeWriterStr:\n" + rawMimeWriterStr.substring(0, 1000));
+        System.out.println("\n\nrawMimeWriterViaReaderStr:\n" + rawMimeWriterViaReaderStr.substring(0, 1000));
+      }
+
+      Assertions.assertEquals(rawMimeWriterStr, rawMimeWriterViaReaderStr);
+    });
+  }
+
+  @Test
+  public void testMimeReadOnRichtextItem() throws Exception {
+    this.withTempDb(db -> {
+      final Document doc = db.createDocument();
+      try (RichTextWriter rtWriter = doc.createRichTextItem("Body");) {
+        rtWriter.addText("Hello.");
+      }
+      Assertions.assertThrows(MimePartNotFoundException.class, () -> doc.get("body", MimeData.class, null));
+    });
+  }
+
+  @Test
+  public void testMultithreadRead() throws Exception {
+    final ExecutorService exec = Executors.newCachedThreadPool(this.getClient().getThreadFactory());
+    IntStream.range(0, 20)
+        .mapToObj(iteration -> (Callable<String>) () -> {
+          Thread.currentThread().setName("testMultithreadRead thread " + iteration);
+          try (DominoClient client = DominoClientBuilder.newDominoClient().build()) {
+            final Database names = client.openDatabase("names.nsf");
+            names.queryDocuments().forEachDocument(0, Integer.MAX_VALUE, (doc, loop) -> {
+              final MimeWriter w = client.getMimeWriter();
+              w.convertToMime(doc,
+                  w.createRichTextMimeConversionSettings()
+                      .setMessageContentEncoding(MessageContentEncoding.TEXT_HTML_WITH_IMAGES_ATTACHMENTS));
+
+              final HtmlConversionResult html = client.getRichTextHtmlConverter()
+                  .render(doc)
+                  .option(HtmlConvertOption.DisablePassThruHTML, "1")
+                  .convert();
+              html.getHtml();
+            });
+            return "finished iteration " + iteration;
+          }
+        })
+        .map(exec::submit)
+        .parallel()
+        .forEach(t -> {
+          try {
+            t.get();
+          } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+          }
+        });
+
+    exec.shutdownNow();
+    exec.awaitTermination(2, TimeUnit.MINUTES);
+  }
 }

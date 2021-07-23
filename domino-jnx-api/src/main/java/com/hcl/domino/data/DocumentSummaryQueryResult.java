@@ -17,13 +17,15 @@
 package com.hcl.domino.data;
 
 /**
- * Query result of {@link Database#queryDocuments()} and {@link Database#queryDocuments(java.util.Collection)}
+ * Query result of {@link Database#queryDocuments()} and
+ * {@link Database#queryDocuments(java.util.Collection)}
  * to run an operations on all or a subset of database documents.<br>
  * <br>
- * Use {@link #sort(DominoCollection)} to project the document note ids onto a {@link DominoCollection}
+ * Use {@link #sort(DominoCollection)} to project the document note ids onto a
+ * {@link DominoCollection}
  * to get them back sorted/filtered and {@link #computeValues(java.util.Map)} to
  * compute document values from summary items on the fly.
  */
 public interface DocumentSummaryQueryResult extends DbQueryResult<DocumentSummaryQueryResult> {
-	
+
 }

@@ -35,80 +35,80 @@ import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.DominoProcess;
 
 public class RestEasyServlet extends HttpServletDispatcher {
-	private static final long serialVersionUID = 1L;
-	
-	public static RestEasyServlet instance;
-	public DominoClient dominoClient;
-	public ExecutorService executor;
+  private static final long serialVersionUID = 1L;
 
-	@Override
-	public void init(ServletConfig servletConfig) throws ServletException {
-		instance = this;
-		
-		ClassLoader cl = Thread.currentThread().getContextClassLoader();
-		AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-			System.setProperty("jnx.noinit", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-			System.setProperty("jnx.noterm", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-			Thread.currentThread().setContextClassLoader(RestEasyServlet.class.getClassLoader());
-			return null;
-		});
-		try {
-			DominoProcess.get().initializeProcess(new String[0]);
-			this.dominoClient = DominoClientBuilder.newDominoClient().build();
-			this.executor = Executors.newCachedThreadPool(dominoClient.getThreadFactory());
-			
-			super.init(servletConfig);
-		} finally {
-			AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-				Thread.currentThread().setContextClassLoader(cl);
-				return null;
-			});
-		}
-	}
-	
-	@Override
-	public void destroy() {
-		this.executor.shutdownNow();
-		try {
-			this.executor.awaitTermination(1, TimeUnit.MINUTES);
-		} catch (InterruptedException e) {
-		}
-		this.dominoClient.close();
-	}
-	
-	@Override
-	protected void service(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse)
-			throws ServletException, IOException {
-		ClassLoader cl = Thread.currentThread().getContextClassLoader();
-		try {
-			AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-				Thread.currentThread().setContextClassLoader(RestEasyServlet.class.getClassLoader());
+  public static RestEasyServlet instance;
+  public DominoClient dominoClient;
+  public ExecutorService executor;
 
-				return null;
-			});
-		
-			httpServletResponse.setBufferSize(1);
+  @Override
+  public void destroy() {
+    this.executor.shutdownNow();
+    try {
+      this.executor.awaitTermination(1, TimeUnit.MINUTES);
+    } catch (final InterruptedException e) {
+    }
+    this.dominoClient.close();
+  }
 
-			super.service(httpServletRequest, httpServletResponse);
-		} catch(Exception e) {
-			// Look for a known case of blank XspCmdExceptions
-			Throwable t = e;
-			while(t != null && t.getCause() != null) {
-				t = t.getCause();
-			}
-			if(t.getClass().getName().equals("com.ibm.domino.xsp.bridge.http.exception.XspCmdException")) { //$NON-NLS-1$
-				if("HTTP: Internal error:".equals(String.valueOf(t.getMessage()).trim())) { //$NON-NLS-1$
-					// Ignore
-					return;
-				}
-			}
+  @Override
+  public void init(final ServletConfig servletConfig) throws ServletException {
+    RestEasyServlet.instance = this;
 
-			throw e;
-		} finally {
-			AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-				Thread.currentThread().setContextClassLoader(cl);
-				return null;
-			});
-		}
-	}
+    final ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+      System.setProperty("jnx.noinit", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+      System.setProperty("jnx.noterm", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+      Thread.currentThread().setContextClassLoader(RestEasyServlet.class.getClassLoader());
+      return null;
+    });
+    try {
+      DominoProcess.get().initializeProcess(new String[0]);
+      this.dominoClient = DominoClientBuilder.newDominoClient().build();
+      this.executor = Executors.newCachedThreadPool(this.dominoClient.getThreadFactory());
+
+      super.init(servletConfig);
+    } finally {
+      AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+        Thread.currentThread().setContextClassLoader(cl);
+        return null;
+      });
+    }
+  }
+
+  @Override
+  protected void service(final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse)
+      throws ServletException, IOException {
+    final ClassLoader cl = Thread.currentThread().getContextClassLoader();
+    try {
+      AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+        Thread.currentThread().setContextClassLoader(RestEasyServlet.class.getClassLoader());
+
+        return null;
+      });
+
+      httpServletResponse.setBufferSize(1);
+
+      super.service(httpServletRequest, httpServletResponse);
+    } catch (final Exception e) {
+      // Look for a known case of blank XspCmdExceptions
+      Throwable t = e;
+      while (t != null && t.getCause() != null) {
+        t = t.getCause();
+      }
+      if (t.getClass().getName().equals("com.ibm.domino.xsp.bridge.http.exception.XspCmdException")) { //$NON-NLS-1$
+        if ("HTTP: Internal error:".equals(String.valueOf(t.getMessage()).trim())) { //$NON-NLS-1$
+          // Ignore
+          return;
+        }
+      }
+
+      throw e;
+    } finally {
+      AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+        Thread.currentThread().setContextClassLoader(cl);
+        return null;
+      });
+    }
+  }
 }

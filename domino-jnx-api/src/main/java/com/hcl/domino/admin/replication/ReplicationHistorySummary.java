@@ -28,82 +28,81 @@ import com.hcl.domino.security.AclLevel;
  * One entry of the database replication history
  */
 public class ReplicationHistorySummary {
-	private DominoDateTime m_replicationTime;
-	private AclLevel m_accessLevel;
-	private Set<AclFlag> m_accessFlags;
-	private ReplicationDirection m_direction;
-	private String m_server;
-	private String m_filepath;
+  /**
+   * These values describe the direction member of the
+   * {@link ReplicationHistorySummary}
+   * entry (the direction of the replication in the replication history).
+   */
+  public enum ReplicationDirection implements INumberEnum<Short> {
 
-	/**
-	 * These values describe the direction member of the {@link ReplicationHistorySummary}
-	 * entry (the direction of the replication in the replication history). 
-	 */
-	public enum ReplicationDirection implements INumberEnum<Short> {
+    NEVER((short) 0),
+    SEND((short) 1),
+    RECEIVE((short) 2);
 
-		NEVER((short) 0),
-		SEND((short) 1),
-		RECEIVE((short) 2);
+    private Short m_value;
 
-		private Short m_value;
+    ReplicationDirection(final Short value) {
+      this.m_value = value;
+    }
 
-		ReplicationDirection(Short value) {
-			m_value = value;
-		}
+    @Override
+    public long getLongValue() {
+      return (long) this.m_value & 0xffff;
+    }
 
-		@Override
-		public Short getValue() {
-			return m_value;
-		}
+    @Override
+    public Short getValue() {
+      return this.m_value;
+    }
+  }
 
-		@Override
-		public long getLongValue() {
-			return (long) m_value & 0xffff;
-		}
-	}
+  private final DominoDateTime m_replicationTime;
+  private final AclLevel m_accessLevel;
+  private final Set<AclFlag> m_accessFlags;
+  private final ReplicationDirection m_direction;
+  private final String m_server;
 
-	
-	public ReplicationHistorySummary(DominoDateTime replicationTime, AclLevel accessLevel,
-			Set<AclFlag> accessFlags, ReplicationDirection direction, String server, String filePath) {
-		m_replicationTime = replicationTime;
-		m_accessLevel = accessLevel;
-		m_accessFlags = accessFlags;
-		m_direction = direction;
-		m_server = server;
-		m_filepath = filePath;
-	}
-	
-	public DominoDateTime getReplicationTime() {
-		return m_replicationTime;
-	}
-	
-	public AclLevel getAccessLevel() {
-		return m_accessLevel;
-	}
-	
-	public Set<AclFlag> getAccessFlags() {
-		return m_accessFlags;
-	}
-	
-	public ReplicationDirection getReplicationDirection() {
-		return m_direction;
-	}
+  private final String m_filepath;
 
-	public String getServer() {
-		return m_server;
-	}
-	
-	public String getFilePath() {
-		return m_filepath;
-	}
+  public ReplicationHistorySummary(final DominoDateTime replicationTime, final AclLevel accessLevel,
+      final Set<AclFlag> accessFlags, final ReplicationDirection direction, final String server, final String filePath) {
+    this.m_replicationTime = replicationTime;
+    this.m_accessLevel = accessLevel;
+    this.m_accessFlags = accessFlags;
+    this.m_direction = direction;
+    this.m_server = server;
+    this.m_filepath = filePath;
+  }
 
-	@Override
-	public String toString() {
-		return MessageFormat.format(
-			"ReplicationHistorySummary [server={0}, filepath={1}, replicationtime={2}, direction={3}, accesslevel={4}, accessflags={5}]", //$NON-NLS-1$
-			m_server, m_filepath, m_replicationTime, m_direction, m_accessLevel, m_accessFlags
-		);
-	}
+  public Set<AclFlag> getAccessFlags() {
+    return this.m_accessFlags;
+  }
 
-	
+  public AclLevel getAccessLevel() {
+    return this.m_accessLevel;
+  }
+
+  public String getFilePath() {
+    return this.m_filepath;
+  }
+
+  public ReplicationDirection getReplicationDirection() {
+    return this.m_direction;
+  }
+
+  public DominoDateTime getReplicationTime() {
+    return this.m_replicationTime;
+  }
+
+  public String getServer() {
+    return this.m_server;
+  }
+
+  @Override
+  public String toString() {
+    return MessageFormat.format(
+        "ReplicationHistorySummary [server={0}, filepath={1}, replicationtime={2}, direction={3}, accesslevel={4}, accessflags={5}]", //$NON-NLS-1$
+        this.m_server, this.m_filepath, this.m_replicationTime, this.m_direction, this.m_accessLevel, this.m_accessFlags);
+  }
+
 }

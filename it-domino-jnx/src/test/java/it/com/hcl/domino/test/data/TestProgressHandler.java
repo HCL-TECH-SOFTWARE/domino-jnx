@@ -16,12 +16,11 @@
  */
 package it.com.hcl.domino.test.data;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
@@ -33,41 +32,41 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestProgressHandler extends AbstractNotesRuntimeTest {
-	
-	@Test
-	public void testProgressHandler() throws Exception {
-		final int numDocs = 30;
 
-		withTempDb((database) -> {
-			generateNABPersons(database, numDocs);
+  @Test
+  public void testProgressHandler() throws Exception {
+    final int numDocs = 30;
 
-			DominoClient client = getClient();
+    this.withTempDb(database -> {
+      AbstractNotesRuntimeTest.generateNABPersons(database, numDocs);
 
-			Set<Long> progressEvents = new HashSet<>();
-			for (long i=1; i<=numDocs; i++) {
-				progressEvents.add(i);
-			}
+      final DominoClient client = this.getClient();
 
-			//run FT search on unindexed database which create a
-			//temp FT index for all documents
-			client.runWithProgress(() -> {
-				return database
-						.queryFTIndex("Lehmann", 0, EnumSet.of(FTQuery.NOINDEX),
-								database
-								.getAllNoteIds(EnumSet.of(DocumentClass.DATA), false),
-								0, 0);
-			}, new ProgressAdapter() {
+      final Set<Long> progressEvents = new HashSet<>();
+      for (long i = 1; i <= numDocs; i++) {
+        progressEvents.add(i);
+      }
 
-				@Override
-				public void setPos(long pos) {
-					progressEvents.remove(pos);
-				}
-			});
+      // run FT search on unindexed database which create a
+      // temp FT index for all documents
+      client.runWithProgress(() -> {
+        return database
+            .queryFTIndex("Lehmann", 0, EnumSet.of(FTQuery.NOINDEX),
+                database
+                    .getAllNoteIds(EnumSet.of(DocumentClass.DATA), false),
+                0, 0);
+      }, new ProgressAdapter() {
 
-			//check if we got all progress events
-			assertTrue(progressEvents.isEmpty());
-		});
+        @Override
+        public void setPos(final long pos) {
+          progressEvents.remove(pos);
+        }
+      });
 
-	}
-	
+      // check if we got all progress events
+      Assertions.assertTrue(progressEvents.isEmpty());
+    });
+
+  }
+
 }

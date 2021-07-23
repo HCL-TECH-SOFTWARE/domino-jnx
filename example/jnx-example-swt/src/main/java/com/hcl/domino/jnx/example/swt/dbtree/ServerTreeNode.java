@@ -18,8 +18,6 @@ package com.hcl.domino.jnx.example.swt.dbtree;
 
 import java.text.MessageFormat;
 
-import jakarta.enterprise.inject.spi.CDI;
-
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.TreeNode;
 import org.eclipse.swt.graphics.Image;
@@ -31,59 +29,62 @@ import com.hcl.domino.jnx.example.swt.AppShell;
 import com.hcl.domino.jnx.example.swt.bean.DatabasesBean;
 import com.hcl.domino.jnx.example.swt.info.ServerInfoPane;
 
+import jakarta.enterprise.inject.spi.CDI;
+
 public class ServerTreeNode extends DBListTreeNode {
-	private TreeNode[] children;
+  private TreeNode[] children;
 
-	public ServerTreeNode(String serverName) {
-		super(serverName);
-	}
+  public ServerTreeNode(final String serverName) {
+    super(serverName);
+  }
 
-	public String getServerName() {
-		return (String)getValue();
-	}
-	
-	@Override
-	public boolean hasChildren() {
-		return true;
-	}
-	
-	@Override
-	public String toString() {
-		return getServerName();
-	}
-	
-	@Override
-	public TreeNode[] getChildren() {
-		if(this.children == null) {
-			try {
-				DatabasesBean databasesBean = CDI.current().select(DatabasesBean.class).get();
-				return databasesBean.getDatabasePaths(getServerName()).stream()
-					.map(dbName -> new DatabaseTreeNode(getServerName(), dbName))
-					.toArray(TreeNode[]::new);
+  @Override
+  public void displayInfoPane(final Composite target) {
+    super.displayInfoPane(target);
 
-			} catch(Throwable t) {
-				Throwable c = t;
-				while(c.getCause() != null) {
-					c = c.getCause();
-				}
-				MessageDialog.openError(Display.getCurrent().getActiveShell(), "Unable to List Databases", MessageFormat.format("Encountered exception listing databases: {0}", c.getMessage()));
-				this.children = new TreeNode[0];
-			}
-		}
-		return this.children;
-	}
-	
-	@Override
-	public Image getImage() {
-		return AppShell.resourceManager.createImage(App.IMAGE_SERVER);
-	}
-	
-	@Override
-	public void displayInfoPane(Composite target) {
-		super.displayInfoPane(target);
-		
-		new ServerInfoPane(target, getServerName());
-		
-		target.layout();
-	}
+    new ServerInfoPane(target, this.getServerName());
+
+    target.layout();
+  }
+
+  @Override
+  public TreeNode[] getChildren() {
+    if (this.children == null) {
+      try {
+        final DatabasesBean databasesBean = CDI.current().select(DatabasesBean.class).get();
+        return databasesBean.getDatabasePaths(this.getServerName()).stream()
+            .map(dbName -> new DatabaseTreeNode(this.getServerName(), dbName))
+            .toArray(TreeNode[]::new);
+
+      } catch (final Throwable t) {
+        Throwable c = t;
+        while (c.getCause() != null) {
+          c = c.getCause();
+        }
+        MessageDialog.openError(Display.getCurrent().getActiveShell(), "Unable to List Databases",
+            MessageFormat.format("Encountered exception listing databases: {0}", c.getMessage()));
+        this.children = new TreeNode[0];
+      }
+    }
+    return this.children;
+  }
+
+  @Override
+  public Image getImage() {
+    return AppShell.resourceManager.createImage(App.IMAGE_SERVER);
+  }
+
+  public String getServerName() {
+    return (String) this.getValue();
+  }
+
+  @Override
+  public boolean hasChildren() {
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return this.getServerName();
+  }
 }

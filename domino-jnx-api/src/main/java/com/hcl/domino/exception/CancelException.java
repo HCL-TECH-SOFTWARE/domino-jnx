@@ -20,26 +20,26 @@ import com.hcl.domino.DominoException;
 
 /**
  * Represents error code 0x019D, "Operation stopped at your request"
- * 
+ *
  * @author Jesse Gallagher
  */
 public class CancelException extends DominoException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public CancelException(int id, String message) {
-		super(id, message);
-	}
+  public CancelException(final int id, final String message) {
+    super(id, message);
+  }
 
-	public CancelException(int id, String message, Throwable cause) {
-		super(id, message, cause);
-	}
+  public CancelException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
+  }
 
-	public CancelException(String msg) {
-		super(msg);
-	}
+  public CancelException(final String msg) {
+    super(msg);
+  }
 
-	public CancelException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public CancelException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
 
 }

@@ -1,3 +1,4 @@
+
 /*
  * ==========================================================================
  * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
@@ -23,41 +24,41 @@ import com.hcl.domino.server.ServerStatusLine;
 
 /**
  * Example RunJava task using only the JNX API.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.11
  */
 public class JNXRunJava extends RunJavaAddin {
-	
-	public static void main(String[] args) {
-		Thread t = new JNXRunJava();
-		t.start();
-		try {
-			t.join();
-		} catch (InterruptedException e) {
-			System.out.println("Interrupted - exiting");
-		}
-	}
-	
-	private int messageCount;
-	
-	public JNXRunJava() {
-		super("JNXRunJava");
-	}
-	
-	@Override
-	public void runAddin(DominoClient client, ServerStatusLine statusLine, MessageQueue queue) {
-		System.out.println("Hello from RunJava?");
-		System.out.println("I'm running as " + client.getEffectiveUserName());
-		
-		String message;
-		try {
-			while((message = queue.take()) != null) {
-				System.out.println("Received message " + message);
-				statusLine.setLine("Processed count: " + ++this.messageCount);
-			}
-		} catch (InterruptedException | ObjectDisposedException | QuitPendingException e) {
-			// This occurs during shutdown
-		}
-	}
+
+  public static void main(final String[] args) {
+    final Thread t = new JNXRunJava();
+    t.start();
+    try {
+      t.join();
+    } catch (final InterruptedException e) {
+      System.out.println("Interrupted - exiting");
+    }
+  }
+
+  private int messageCount;
+
+  public JNXRunJava() {
+    super("JNXRunJava");
+  }
+
+  @Override
+  public void runAddin(final DominoClient client, final ServerStatusLine statusLine, final MessageQueue queue) {
+    System.out.println("Hello from RunJava?");
+    System.out.println("I'm running as " + client.getEffectiveUserName());
+
+    String message;
+    try {
+      while ((message = queue.take()) != null) {
+        System.out.println("Received message " + message);
+        statusLine.setLine("Processed count: " + ++this.messageCount);
+      }
+    } catch (InterruptedException | ObjectDisposedException | QuitPendingException e) {
+      // This occurs during shutdown
+    }
+  }
 }

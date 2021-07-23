@@ -25,9 +25,9 @@ import com.hcl.domino.json.JsonDeserializerFactory;
  */
 public class JsonbDeserializerFactory implements JsonDeserializerFactory {
 
-	@Override
-	public JsonDeserializer newDeserializer() {
-		return new JsonbDeserializer();
-	}
+  @Override
+  public JsonDeserializer newDeserializer() {
+    return new JsonbDeserializer();
+  }
 
 }

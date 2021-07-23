@@ -36,57 +36,57 @@ import com.hcl.domino.dxl.DxlImporter;
 /**
  * This servlet is intended to generate and output an error during DXL import,
  * which tests that Jakarta XML Binding 3.0 functions on Domino.
- *  
+ * 
  * @author Jesse Gallagher
  * @since 1.0.12
  */
 public class DxlErrorServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-	
-	private DominoClient client;
-	
-	@Override
-	public void init(ServletConfig config) throws ServletException {
-		super.init(config);
-		
-		AccessController.doPrivileged((PrivilegedAction<Void>)() -> {
-			System.setProperty("jnx.noinit", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-			System.setProperty("jnx.noterm", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-			return null;
-		});
+  private static final long serialVersionUID = 1L;
 
-		this.client = DominoClientBuilder.newDominoClient().build();
-	}
-	
-	@Override
-	public void destroy() {
-		super.destroy();
+  private DominoClient client;
 
-		this.client.close();
-	}
-	
-	@Override
-	protected void service(HttpServletRequest arg0, HttpServletResponse arg1) throws ServletException, IOException {
-		DominoProcess.get().initializeThread();
-		try {
-			super.service(arg0, arg1);
-		} finally {
-			DominoProcess.get().terminateThread();
-		}
-	}
-	
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		resp.setContentType("text/plain"); //$NON-NLS-1$
-		try(PrintWriter w = resp.getWriter()) {
-			try {
-				Database names = client.openDatabase("names.nsf"); //$NON-NLS-1$
-				DxlImporter importer = client.createDxlImporter();
-				importer.importDxl("I am not valid DXL", names); //$NON-NLS-1$
-			} catch(Throwable t) {
-				t.printStackTrace(w);
-			}
-		}
-	}
+  @Override
+  public void destroy() {
+    super.destroy();
+
+    this.client.close();
+  }
+
+  @Override
+  protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+    resp.setContentType("text/plain"); //$NON-NLS-1$
+    try (PrintWriter w = resp.getWriter()) {
+      try {
+        final Database names = this.client.openDatabase("names.nsf"); //$NON-NLS-1$
+        final DxlImporter importer = this.client.createDxlImporter();
+        importer.importDxl("I am not valid DXL", names); //$NON-NLS-1$
+      } catch (final Throwable t) {
+        t.printStackTrace(w);
+      }
+    }
+  }
+
+  @Override
+  public void init(final ServletConfig config) throws ServletException {
+    super.init(config);
+
+    AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
+      System.setProperty("jnx.noinit", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+      System.setProperty("jnx.noterm", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+      return null;
+    });
+
+    this.client = DominoClientBuilder.newDominoClient().build();
+  }
+
+  @Override
+  protected void service(final HttpServletRequest arg0, final HttpServletResponse arg1) throws ServletException, IOException {
+    DominoProcess.get().initializeThread();
+    try {
+      super.service(arg0, arg1);
+    } finally {
+      DominoProcess.get().terminateThread();
+    }
+  }
 
 }

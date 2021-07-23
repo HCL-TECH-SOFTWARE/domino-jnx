@@ -30,129 +30,146 @@ import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="ODS_ASSISTSTRUCT",
-	members={
-		@StructureMember(name="wVersion", type=short.class, unsigned=true),
-		@StructureMember(name="wTriggerType", type=AgentTrigger.class),
-		@StructureMember(name="wSearchType", type=AssistStruct.Search.class),
-		@StructureMember(name="wIntervalType", type=AgentInterval.class),
-		@StructureMember(name="wInterval", type=short.class, unsigned=true),
-		@StructureMember(name="dwTime1", type=int.class),
-		@StructureMember(name="dwTime2", type=int.class),
-		@StructureMember(name="StartTime", type=OpaqueTimeDate.class),
-		@StructureMember(name="EndTime", type=OpaqueTimeDate.class),
-		@StructureMember(name="dwFlags", type=AssistStruct.Flag.class, bitfield=true),
-		@StructureMember(name="dwSpare", type=int[].class, length=16)
-	}
-)
+@StructureDefinition(name = "ODS_ASSISTSTRUCT", members = {
+    @StructureMember(name = "wVersion", type = short.class, unsigned = true),
+    @StructureMember(name = "wTriggerType", type = AgentTrigger.class),
+    @StructureMember(name = "wSearchType", type = AssistStruct.Search.class),
+    @StructureMember(name = "wIntervalType", type = AgentInterval.class),
+    @StructureMember(name = "wInterval", type = short.class, unsigned = true),
+    @StructureMember(name = "dwTime1", type = int.class),
+    @StructureMember(name = "dwTime2", type = int.class),
+    @StructureMember(name = "StartTime", type = OpaqueTimeDate.class),
+    @StructureMember(name = "EndTime", type = OpaqueTimeDate.class),
+    @StructureMember(name = "dwFlags", type = AssistStruct.Flag.class, bitfield = true),
+    @StructureMember(name = "dwSpare", type = int[].class, length = 16)
+})
 public interface AssistStruct extends ResizableMemoryStructure {
-	enum Search implements INumberEnum<Short> {
-		/** Unknown or unavailable  */
-		NONE(RichTextConstants.ASSISTSEARCH_TYPE_NONE),
-		/** All documents in database  */
-		ALL(RichTextConstants.ASSISTSEARCH_TYPE_ALL),
-		/** New documents since last run  */
-		NEW(RichTextConstants.ASSISTSEARCH_TYPE_NEW),
-		/** New or modified docs since last run  */
-		MODIFIED(RichTextConstants.ASSISTSEARCH_TYPE_MODIFIED),
-		/** Selected documents  */
-		SELECTED(RichTextConstants.ASSISTSEARCH_TYPE_SELECTED),
-		/** All documents in view  */
-		VIEW(RichTextConstants.ASSISTSEARCH_TYPE_VIEW),
-		/** All unread documents  */
-		UNREAD(RichTextConstants.ASSISTSEARCH_TYPE_UNREAD),
-		/** Prompt user  */
-		PROMPT(RichTextConstants.ASSISTSEARCH_TYPE_PROMPT),
-		/** Works on the selectable object  */
-		UI(RichTextConstants.ASSISTSEARCH_TYPE_UI)
-		;
-		private final short value;
-		Search(short value) { this.value = value; }
-		@Override
-		public Short getValue() {
-			return value;
-		}
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-	}
-	enum Flag implements INumberEnum<Integer> {
-		/** TRUE if manual assistant is hidden  */
-		HIDDEN(RichTextConstants.ASSISTODS_FLAG_HIDDEN),
-		/** Do not run on weekends  */
-		NOWEEKENDS(RichTextConstants.ASSISTODS_FLAG_NOWEEKENDS),
-		/** TRUE if storing highlights  */
-		STOREHIGHLIGHTS(RichTextConstants.ASSISTODS_FLAG_STOREHIGHLIGHTS),
-		/** TRUE if this is the V3-style mail and paste macro  */
-		MAILANDPASTE(RichTextConstants.ASSISTODS_FLAG_MAILANDPASTE),
-		/** TRUE if server to run on should be chosed when enabled  */
-		CHOOSEWHENENABLED(RichTextConstants.ASSISTODS_FLAG_CHOOSEWHENENABLED)
-		;
-		private final int value;
-		Flag(int value) { this.value = value; }
-		@Override
-		public Integer getValue() {
-			return value;
-		}
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-	}
-	
-	@StructureGetter("wVersion")
-	int getVersion();
-	@StructureSetter("wVersion")
-	AssistStruct setVersion(int version);
-	
-	@StructureGetter("wTriggerType")
-	AgentTrigger getTrigger();
-	@StructureSetter("wTriggerType")
-	AssistStruct setTrigger(AgentTrigger trigger);
-	
-	@StructureGetter("wSearchType")
-	Search getSearch();
-	@StructureSetter("wSearchType")
-	AssistStruct setSearch(Search search);
-	
-	@StructureGetter("wIntervalType")
-	AgentInterval getIntervalType();
-	@StructureSetter("wIntervalType")
-	AssistStruct setIntervalType(AgentInterval interval);
-	
-	@StructureGetter("wInterval")
-	int getInterval();
-	@StructureSetter("wInterval")
-	AssistStruct setInterval(int interval);
-	
-	@StructureGetter("dwTime1")
-	int getTime1();
-	@StructureSetter("dwTime1")
-	AssistStruct setTime1(int time1);
-	
-	@StructureGetter("dwTime2")
-	int getTime2();
-	@StructureSetter("dwTime2")
-	AssistStruct setTime2(int time2);
-	
-	@StructureGetter("StartTime")
-	DominoDateTime getStartDate();
-	@StructureSetter("StartTime")
-	AssistStruct setStartDate(DominoDateTime startDate);
-	
-	@StructureGetter("EndTime")
-	DominoDateTime getEndDate();
-	@StructureSetter("EndTime")
-	AssistStruct setEndDate(DominoDateTime endDate);
-	
-	@StructureGetter("dwFlags")
-	Set<Flag> getFlags();
-	@StructureSetter("dwFlags")
-	AssistStruct setFlags(Collection<Flag> flags);
+  enum Flag implements INumberEnum<Integer> {
+    /** TRUE if manual assistant is hidden */
+    HIDDEN(RichTextConstants.ASSISTODS_FLAG_HIDDEN),
+    /** Do not run on weekends */
+    NOWEEKENDS(RichTextConstants.ASSISTODS_FLAG_NOWEEKENDS),
+    /** TRUE if storing highlights */
+    STOREHIGHLIGHTS(RichTextConstants.ASSISTODS_FLAG_STOREHIGHLIGHTS),
+    /** TRUE if this is the V3-style mail and paste macro */
+    MAILANDPASTE(RichTextConstants.ASSISTODS_FLAG_MAILANDPASTE),
+    /** TRUE if server to run on should be chosed when enabled */
+    CHOOSEWHENENABLED(RichTextConstants.ASSISTODS_FLAG_CHOOSEWHENENABLED);
+
+    private final int value;
+
+    Flag(final int value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Integer getValue() {
+      return this.value;
+    }
+  }
+
+  enum Search implements INumberEnum<Short> {
+    /** Unknown or unavailable */
+    NONE(RichTextConstants.ASSISTSEARCH_TYPE_NONE),
+    /** All documents in database */
+    ALL(RichTextConstants.ASSISTSEARCH_TYPE_ALL),
+    /** New documents since last run */
+    NEW(RichTextConstants.ASSISTSEARCH_TYPE_NEW),
+    /** New or modified docs since last run */
+    MODIFIED(RichTextConstants.ASSISTSEARCH_TYPE_MODIFIED),
+    /** Selected documents */
+    SELECTED(RichTextConstants.ASSISTSEARCH_TYPE_SELECTED),
+    /** All documents in view */
+    VIEW(RichTextConstants.ASSISTSEARCH_TYPE_VIEW),
+    /** All unread documents */
+    UNREAD(RichTextConstants.ASSISTSEARCH_TYPE_UNREAD),
+    /** Prompt user */
+    PROMPT(RichTextConstants.ASSISTSEARCH_TYPE_PROMPT),
+    /** Works on the selectable object */
+    UI(RichTextConstants.ASSISTSEARCH_TYPE_UI);
+
+    private final short value;
+
+    Search(final short value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Short getValue() {
+      return this.value;
+    }
+  }
+
+  @StructureGetter("EndTime")
+  DominoDateTime getEndDate();
+
+  @StructureGetter("dwFlags")
+  Set<Flag> getFlags();
+
+  @StructureGetter("wInterval")
+  int getInterval();
+
+  @StructureGetter("wIntervalType")
+  AgentInterval getIntervalType();
+
+  @StructureGetter("wSearchType")
+  Search getSearch();
+
+  @StructureGetter("StartTime")
+  DominoDateTime getStartDate();
+
+  @StructureGetter("dwTime1")
+  int getTime1();
+
+  @StructureGetter("dwTime2")
+  int getTime2();
+
+  @StructureGetter("wTriggerType")
+  AgentTrigger getTrigger();
+
+  @StructureGetter("wVersion")
+  int getVersion();
+
+  @StructureSetter("EndTime")
+  AssistStruct setEndDate(DominoDateTime endDate);
+
+  @StructureSetter("dwFlags")
+  AssistStruct setFlags(Collection<Flag> flags);
+
+  @StructureSetter("wInterval")
+  AssistStruct setInterval(int interval);
+
+  @StructureSetter("wIntervalType")
+  AssistStruct setIntervalType(AgentInterval interval);
+
+  @StructureSetter("wSearchType")
+  AssistStruct setSearch(Search search);
+
+  @StructureSetter("StartTime")
+  AssistStruct setStartDate(DominoDateTime startDate);
+
+  @StructureSetter("dwTime1")
+  AssistStruct setTime1(int time1);
+
+  @StructureSetter("dwTime2")
+  AssistStruct setTime2(int time2);
+
+  @StructureSetter("wTriggerType")
+  AssistStruct setTrigger(AgentTrigger trigger);
+
+  @StructureSetter("wVersion")
+  AssistStruct setVersion(int version);
 }

@@ -23,22 +23,22 @@ import com.hcl.domino.design.ComputableValue;
  * @since 1.0.24
  */
 public class DefaultComputableValue implements ComputableValue {
-	private final String value;
-	private final boolean formula;
+  private final String value;
+  private final boolean formula;
 
-	public DefaultComputableValue(String value, boolean formula) {
-		this.value = value;
-		this.formula = formula;
-	}
+  public DefaultComputableValue(final String value, final boolean formula) {
+    this.value = value;
+    this.formula = formula;
+  }
 
-	@Override
-	public boolean isFormula() {
-		return formula;
-	}
+  @Override
+  public String getValue() {
+    return this.value;
+  }
 
-	@Override
-	public String getValue() {
-		return value;
-	}
+  @Override
+  public boolean isFormula() {
+    return this.formula;
+  }
 
 }

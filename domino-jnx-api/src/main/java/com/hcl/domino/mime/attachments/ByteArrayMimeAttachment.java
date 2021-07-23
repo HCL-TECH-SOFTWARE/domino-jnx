@@ -23,37 +23,37 @@ import java.io.InputStream;
 /**
  * Implementation of {@link IMimeAttachment} to use a byte array
  * as MIME attachment.
- * 
+ *
  * @author Karsten Lehmann
  */
 public class ByteArrayMimeAttachment implements IMimeAttachment {
-	private byte[] m_data;
-	private String m_fileName;
-	private String m_contentType;
+  private final byte[] m_data;
+  private final String m_fileName;
+  private final String m_contentType;
 
-	public ByteArrayMimeAttachment(byte[] data, String fileName) {
-		this(data, fileName, null);
-	}
-	
-	public ByteArrayMimeAttachment(byte[] data, String fileName, String contentType) {
-		m_data = data;
-		m_fileName = fileName;
-		m_contentType = contentType;
-	}
-	
-	@Override
-	public String getFileName() throws IOException {
-		return m_fileName;
-	}
+  public ByteArrayMimeAttachment(final byte[] data, final String fileName) {
+    this(data, fileName, null);
+  }
 
-	@Override
-	public String getContentType() throws IOException {
-		return m_contentType;
-	}
-	
-	@Override
-	public InputStream getInputStream() throws IOException {
-		return new ByteArrayInputStream(m_data);
-	}
+  public ByteArrayMimeAttachment(final byte[] data, final String fileName, final String contentType) {
+    this.m_data = data;
+    this.m_fileName = fileName;
+    this.m_contentType = contentType;
+  }
+
+  @Override
+  public String getContentType() throws IOException {
+    return this.m_contentType;
+  }
+
+  @Override
+  public String getFileName() throws IOException {
+    return this.m_fileName;
+  }
+
+  @Override
+  public InputStream getInputStream() throws IOException {
+    return new ByteArrayInputStream(this.m_data);
+  }
 
 }

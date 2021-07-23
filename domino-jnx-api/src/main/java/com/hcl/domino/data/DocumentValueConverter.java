@@ -20,7 +20,7 @@ import java.util.ServiceLoader;
 
 /**
  * Implementations of this interface are loaded via {@link ServiceLoader}
- * in {@link Document#get(String, Class, Object)} 
+ * in {@link Document#get(String, Class, Object)}
  */
 public interface DocumentValueConverter extends ValueConverter<Document> {
 

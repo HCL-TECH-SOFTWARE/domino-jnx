@@ -26,156 +26,156 @@ import java.util.Vector;
  * console API implementation
  */
 public class GroupMap {
-    public static int SERVER_GROUP = 0;
-    public static int PRIVATE_GROUP = 1;
-    public static int TEMP_GROUP = 2;
-    public static String PRIVATE_DOMAIN = "PrivateILI";
-    private static final Collator collate = Collator.getInstance(Locale.US);
-    
-    private String groupName;
-    private String domain;
-    private int groupType;
-    private Vector<String> servers;
+  public static int SERVER_GROUP = 0;
+  public static int PRIVATE_GROUP = 1;
+  public static int TEMP_GROUP = 2;
+  public static String PRIVATE_DOMAIN = "PrivateILI";
+  private static final Collator collate = Collator.getInstance(Locale.US);
 
-    public GroupMap() {
-        this("");
-    }
+  private String groupName;
+  private String domain;
+  private int groupType;
+  private final Vector<String> servers;
 
-    public GroupMap(String grpName) {
-        this(grpName, PRIVATE_GROUP);
-    }
+  public GroupMap() {
+    this("");
+  }
 
-    public GroupMap(String grpName, int groupType) {
-        this.groupName = grpName;
-        this.groupType = groupType;
-        this.servers = new Vector<>(5, 5);
-        this.domain = PRIVATE_DOMAIN;
-    }
+  public GroupMap(final String grpName) {
+    this(grpName, GroupMap.PRIVATE_GROUP);
+  }
 
-    public String getGroupName() {
-        return this.groupName;
-    }
+  public GroupMap(final String grpName, final int groupType) {
+    this.groupName = grpName;
+    this.groupType = groupType;
+    this.servers = new Vector<>(5, 5);
+    this.domain = GroupMap.PRIVATE_DOMAIN;
+  }
 
-    public String getDomain() {
-        return this.domain;
+  public void addMember(final String server) {
+    if (!this.servers.contains(server)) {
+      this.servers.add(server);
     }
+  }
 
-    public void setDomain(String string) {
-        this.domain = string;
+  public void addMembers(final Vector<String> servers) {
+    for (int i = 0; i < servers.size(); ++i) {
+      this.addMember(servers.elementAt(i));
     }
+  }
 
-    public String makeDomainGroupName() {
-        return this.groupName + "(" + this.domain + ")";
+  public void deleteMember(final String server) {
+    if (this.servers.contains(server)) {
+      this.servers.remove(server);
     }
+  }
 
-    public boolean isServerGroup() {
-        return this.groupType == SERVER_GROUP;
+  @Override
+  public boolean equals(final Object object) {
+    if (object == null) {
+      return false;
     }
+    final GroupMap groupMap = (GroupMap) object;
+    return GroupMap.collate.equals(this.groupName, groupMap.getGroupName())
+        && GroupMap.collate.equals(this.domain, groupMap.getDomain());
+  }
 
-    public boolean isPrivateGroup() {
-        return this.groupType == PRIVATE_GROUP;
-    }
+  public String getDomain() {
+    return this.domain;
+  }
 
-    public boolean isTempGroup() {
-        return this.groupType == TEMP_GROUP;
-    }
+  public String getGroupName() {
+    return this.groupName;
+  }
 
-    public void setGroupTypeServer() {
-        this.groupType = SERVER_GROUP;
-    }
+  public Vector<String> getMembers() {
+    return this.servers;
+  }
 
-    public void setGroupTypePrivate() {
-        this.groupType = PRIVATE_GROUP;
-    }
+  public Object[] getMembersAsArray() {
+    return this.servers.toArray();
+  }
 
-    public void setGroupTypeTemp() {
-        this.groupType = TEMP_GROUP;
-    }
+  public String getMembersAsString() {
+    final String string = this.servers.toString();
+    return string.substring(1, string.length() - 1);
+  }
 
-    public void deleteMember(String server) {
-        if (this.servers.contains(server)) {
-            this.servers.remove(server);
-        }
-    }
+  public boolean isPrivateGroup() {
+    return this.groupType == GroupMap.PRIVATE_GROUP;
+  }
 
-    public void addMember(String server) {
-        if (!this.servers.contains(server)) {
-            this.servers.add(server);
-        }
-    }
+  public boolean isServerGroup() {
+    return this.groupType == GroupMap.SERVER_GROUP;
+  }
 
-    public void addMembers(Vector<String> servers) {
-        for (int i = 0; i < servers.size(); ++i) {
-            this.addMember(servers.elementAt(i));
-        }
-    }
+  public boolean isTempGroup() {
+    return this.groupType == GroupMap.TEMP_GROUP;
+  }
 
-    public Vector<String> getMembers() {
-        return this.servers;
-    }
+  public String makeDomainGroupName() {
+    return this.groupName + "(" + this.domain + ")";
+  }
 
-    public Object[] getMembersAsArray() {
-        return this.servers.toArray();
+  public void readFromString(final String string) {
+    String string2;
+    final String string3 = ",";
+    final StringTokenizer stringTokenizer = new StringTokenizer(string, string3, true);
+    if (stringTokenizer.hasMoreTokens() && !(string2 = stringTokenizer.nextToken(string3).trim()).equals(string3)) {
+      this.groupName = string2;
+      if (stringTokenizer.hasMoreTokens()) {
+        stringTokenizer.nextToken();
+      }
     }
+    if (stringTokenizer.hasMoreTokens() && !(string2 = stringTokenizer.nextToken(string3).trim()).equals(string3)) {
+      this.domain = string2;
+      if (stringTokenizer.hasMoreTokens()) {
+        stringTokenizer.nextToken();
+      }
+    }
+    if (stringTokenizer.hasMoreTokens() && !(string2 = stringTokenizer.nextToken(string3).trim()).equals(string3)) {
+      this.groupType = Integer.parseInt(string2);
+      if (stringTokenizer.hasMoreTokens()) {
+        stringTokenizer.nextToken();
+      }
+    }
+    while (stringTokenizer.hasMoreTokens()) {
+      string2 = stringTokenizer.nextToken(string3).trim();
+      if (string2.equals(string3)) {
+        continue;
+      }
+      this.addMember(string2);
+    }
+  }
 
-    public String getMembersAsString() {
-        String string = this.servers.toString();
-        return string.substring(1, string.length() - 1);
-    }
+  public void setDomain(final String string) {
+    this.domain = string;
+  }
 
-    @Override
-	public boolean equals(Object object) {
-        if (object == null) {
-            return false;
-        }
-        GroupMap groupMap = (GroupMap)object;
-        return collate.equals(this.groupName, groupMap.getGroupName()) && collate.equals(this.domain, groupMap.getDomain());
-    }
+  public void setGroupTypePrivate() {
+    this.groupType = GroupMap.PRIVATE_GROUP;
+  }
 
-    @Override
-	public String toString() {
-        return this.groupName;
-    }
+  public void setGroupTypeServer() {
+    this.groupType = GroupMap.SERVER_GROUP;
+  }
 
-    public String writeToString() {
-        StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append(this.groupName + "," + (this.domain == null ? "" : this.domain) + "," + this.groupType);
-        for (int i = 0; i < this.servers.size(); ++i) {
-            stringBuffer.append("," + this.servers.elementAt(i));
-        }
-        return stringBuffer.toString();
-    }
+  public void setGroupTypeTemp() {
+    this.groupType = GroupMap.TEMP_GROUP;
+  }
 
-    public void readFromString(String string) {
-        String string2;
-        String string3 = ",";
-        StringTokenizer stringTokenizer = new StringTokenizer(string, string3, true);
-        if (stringTokenizer.hasMoreTokens() && !(string2 = stringTokenizer.nextToken(string3).trim()).equals(string3)) {
-            this.groupName = string2;
-            if (stringTokenizer.hasMoreTokens()) {
-                stringTokenizer.nextToken();
-            }
-        }
-        if (stringTokenizer.hasMoreTokens() && !(string2 = stringTokenizer.nextToken(string3).trim()).equals(string3)) {
-            this.domain = string2;
-            if (stringTokenizer.hasMoreTokens()) {
-                stringTokenizer.nextToken();
-            }
-        }
-        if (stringTokenizer.hasMoreTokens() && !(string2 = stringTokenizer.nextToken(string3).trim()).equals(string3)) {
-            this.groupType = Integer.parseInt(string2);
-            if (stringTokenizer.hasMoreTokens()) {
-                stringTokenizer.nextToken();
-            }
-        }
-        while (stringTokenizer.hasMoreTokens()) {
-            string2 = stringTokenizer.nextToken(string3).trim();
-            if (string2.equals(string3)) {
-				continue;
-			}
-            this.addMember(string2);
-        }
+  @Override
+  public String toString() {
+    return this.groupName;
+  }
+
+  public String writeToString() {
+    final StringBuffer stringBuffer = new StringBuffer();
+    stringBuffer.append(this.groupName + "," + (this.domain == null ? "" : this.domain) + "," + this.groupType);
+    for (int i = 0; i < this.servers.size(); ++i) {
+      stringBuffer.append("," + this.servers.elementAt(i));
     }
+    return stringBuffer.toString();
+  }
 
 }
-

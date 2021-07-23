@@ -25,54 +25,59 @@ import com.hcl.domino.data.CollectionEntryValueConverter;
 import com.hcl.domino.data.DocumentValueConverter;
 
 /**
- * Shared logic for {@link DocumentValueConverter} implementations that handle conversion
+ * Shared logic for {@link DocumentValueConverter} implementations that handle
+ * conversion
  * to and from Java primitive builtins.
- * 
+ *
  * @param <BOX> the boxed value that the subclass handles
  * @author Jesse Gallagher
  */
 public abstract class AbstractPrimitiveCollectionEntryValueConverter<BOX> implements CollectionEntryValueConverter {
 
+  protected abstract BOX convertFromDouble(double value);
 
-	@Override
-	public boolean supportsRead(Class<?> valueType) {
-		return getPrimitiveClass().equals(valueType) || getBoxedClass().equals(valueType);
-	}
+  protected abstract double convertToDouble(BOX value);
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T getValue(CollectionEntry obj, String itemName, Class<T> valueType, T defaultValue) {
-		double result = obj.get(itemName, Double.class, 0d);
-		return (T)convertFromDouble(result);
-	}
+  protected abstract Class<BOX> getBoxedClass();
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> List<T> getValueAsList(CollectionEntry obj, String itemName, Class<T> valueType, List<T> defaultValue) {
-		return obj.getAsList(itemName, Double.class, new ArrayList<>()).stream()
-				.map(this::convertFromDouble)
-				.map(b -> (T)b)
-				.collect(Collectors.toList());
-	}
+  protected abstract Class<?> getPrimitiveClass();
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T getValue(CollectionEntry obj, int index, Class<T> valueType, T defaultValue) {
-		double result = obj.get(index, Double.class, 0d);
-		return (T)convertFromDouble(result);
-	}
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T getValue(final CollectionEntry obj, final int index, final Class<T> valueType, final T defaultValue) {
+    final double result = obj.get(index, Double.class, 0d);
+    return (T) this.convertFromDouble(result);
+  }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> List<T> getValueAsList(CollectionEntry obj, int index, Class<T> valueType, List<T> defaultValue) {
-		return obj.getAsList(index, Double.class, new ArrayList<>()).stream()
-				.map(this::convertFromDouble)
-				.map(b -> (T)b)
-				.collect(Collectors.toList());
-	}
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T getValue(final CollectionEntry obj, final String itemName, final Class<T> valueType, final T defaultValue) {
+    final double result = obj.get(itemName, Double.class, 0d);
+    return (T) this.convertFromDouble(result);
+  }
 
-	protected abstract Class<?> getPrimitiveClass();
-	protected abstract Class<BOX> getBoxedClass();
-	protected abstract BOX convertFromDouble(double value);
-	protected abstract double convertToDouble(BOX value);
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> List<T> getValueAsList(final CollectionEntry obj, final int index, final Class<T> valueType,
+      final List<T> defaultValue) {
+    return obj.getAsList(index, Double.class, new ArrayList<>()).stream()
+        .map(this::convertFromDouble)
+        .map(b -> (T) b)
+        .collect(Collectors.toList());
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> List<T> getValueAsList(final CollectionEntry obj, final String itemName, final Class<T> valueType,
+      final List<T> defaultValue) {
+    return obj.getAsList(itemName, Double.class, new ArrayList<>()).stream()
+        .map(this::convertFromDouble)
+        .map(b -> (T) b)
+        .collect(Collectors.toList());
+  }
+
+  @Override
+  public boolean supportsRead(final Class<?> valueType) {
+    return this.getPrimitiveClass().equals(valueType) || this.getBoxedClass().equals(valueType);
+  }
 }

@@ -18,34 +18,35 @@ package com.hcl.domino.jnx.console;
 
 public interface IConsoleLine {
 
-	@Override String toString();
+  String getAddName();
 
-	int getMsgSeqNum();
+  int getColor();
 
-	String getTimeStamp();
+  String getData();
 
-	String getExecName();
+  String getExecName();
 
-	int getPid();
+  int getMsgSeqNum();
 
-	long getTid();
+  int getPid();
 
-	long getVTid();
+  int getSeverity();
 
-	int getStatus();
+  int getStatus();
 
-	int getType();
+  long getTid();
 
-	int getSeverity();
+  String getTimeStamp();
 
-	int getColor();
+  int getType();
 
-	String getAddName();
+  long getVTid();
 
-	String getData();
+  boolean isPasswordString();
 
-	boolean isPasswordString();
+  boolean isPromptString();
 
-	boolean isPromptString();
-	
+  @Override
+  String toString();
+
 }

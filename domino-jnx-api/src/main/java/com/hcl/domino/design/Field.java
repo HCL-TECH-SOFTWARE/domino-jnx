@@ -17,43 +17,44 @@
 package com.hcl.domino.design;
 
 public interface Field extends DesignElement {
-	public enum Type {
-		TEXT, DATETIME, NUMBER, DIALOGLIST, CHECKBOX, RADIOBUTTON, COMBOBOX, RICHTEXT, AUTHORS, NAMES, READERS, PASSWORD, FORMULA, TIMEZONE
-	}
+  public enum Kind {
+    COMPUTED, COMPUTEDFORDISPLAY, COMPUTEDWHENCOMPOSED, EDITABLE
+  }
 
-	public enum Kind {
-		COMPUTED, COMPUTEDFORDISPLAY, COMPUTEDWHENCOMPOSED, EDITABLE
-	}
+  public enum Type {
+    TEXT, DATETIME, NUMBER, DIALOGLIST, CHECKBOX, RADIOBUTTON, COMBOBOX, RICHTEXT, AUTHORS, NAMES, READERS, PASSWORD, FORMULA,
+    TIMEZONE
+  }
 
-	Type getFieldType();
+  String getDefaultValueFormula();
 
-	Field setFieldType(Type fieldType);
+  Type getFieldType();
 
-	Kind getKind();
+  Kind getKind();
 
-	Field setKind(Kind kind);
+  String getName();
 
-	String getName();
+  boolean isAllowMultiValues();
 
-	Field setName(String name);
+  boolean isProtected();
 
-	boolean isAllowMultiValues();
+  boolean isSeal();
 
-	Field setAllowMultiValues(boolean allowMultiValues);
+  boolean isSign();
 
-	boolean isProtected();
+  Field setAllowMultiValues(boolean allowMultiValues);
 
-	Field setProtected(boolean _protected);
+  Field setDefaultValueFormula(String defaultValueFormula);
 
-	boolean isSign();
+  Field setFieldType(Type fieldType);
 
-	Field setSign(boolean sign);
+  Field setKind(Kind kind);
 
-	boolean isSeal();
+  Field setName(String name);
 
-	Field setSeal(boolean seal);
+  Field setProtected(boolean _protected);
 
-	String getDefaultValueFormula();
+  Field setSeal(boolean seal);
 
-	Field setDefaultValueFormula(String defaultValueFormula);
+  Field setSign(boolean sign);
 }

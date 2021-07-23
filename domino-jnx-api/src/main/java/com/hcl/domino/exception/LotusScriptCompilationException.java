@@ -22,56 +22,58 @@ import com.hcl.domino.DominoException;
 
 /**
  * Specialized exception type for the contents of LSCOMPILE_ERR_INFO
+ *
  * @since 1.0.5
  */
 public class LotusScriptCompilationException extends DominoException {
-	private static final long serialVersionUID = 1L;
-	
-	private final String errorText;
-	private final String errorFile;
-	private final int version;
-	private final int line;
+  private static final long serialVersionUID = 1L;
 
-	public LotusScriptCompilationException(String errorText, String errorFile, int version, int line) {
-		super(toMessage(errorText, errorFile, version, line));
-		
-		this.errorText = errorText;
-		this.errorFile = errorFile;
-		this.version = version;
-		this.line = line;
-	}
+  private static String toMessage(final String errorText, final String errorFile, final int version, final int line) {
+    return MessageFormat.format("Line {0}: {1}", line, errorText);
+  }
 
-	/**
-	 * @return the human-readable description of the error
-	 */
-	public String getErrorText() {
-		return errorText;
-	}
-	
-	/**
-	 * @return the script file name, if applicable
-	 */
-	public String getErrorFile() {
-		return errorFile;
-	}
-	
-	/**
-	 * Retrieves the error version. The only known value currently is {@code 1}.
-	 * 
-	 * @return the error version
-	 */
-	public int getVersion() {
-		return version;
-	}
-	
-	/**
-	 * @return source line number, relative to the module containing the error
-	 */
-	public int getLine() {
-		return line;
-	}
-	
-	private static String toMessage(String errorText, String errorFile, int version, int line) {
-		return MessageFormat.format("Line {0}: {1}", line, errorText);
-	}
+  private final String errorText;
+  private final String errorFile;
+  private final int version;
+
+  private final int line;
+
+  public LotusScriptCompilationException(final String errorText, final String errorFile, final int version, final int line) {
+    super(LotusScriptCompilationException.toMessage(errorText, errorFile, version, line));
+
+    this.errorText = errorText;
+    this.errorFile = errorFile;
+    this.version = version;
+    this.line = line;
+  }
+
+  /**
+   * @return the script file name, if applicable
+   */
+  public String getErrorFile() {
+    return this.errorFile;
+  }
+
+  /**
+   * @return the human-readable description of the error
+   */
+  public String getErrorText() {
+    return this.errorText;
+  }
+
+  /**
+   * @return source line number, relative to the module containing the error
+   */
+  public int getLine() {
+    return this.line;
+  }
+
+  /**
+   * Retrieves the error version. The only known value currently is {@code 1}.
+   *
+   * @return the error version
+   */
+  public int getVersion() {
+    return this.version;
+  }
 }

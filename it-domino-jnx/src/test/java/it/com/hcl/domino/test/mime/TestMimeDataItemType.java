@@ -16,15 +16,11 @@
  */
 package it.com.hcl.domino.test.mime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
@@ -46,260 +42,258 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestMimeDataItemType extends AbstractNotesRuntimeTest {
-	private static final String TEST_IMAGE_PATH = "/images/test-png-large.png";;
+  private static final String TEST_IMAGE_PATH = "/images/test-png-large.png";
 
-	/**
-	 * We check how the API behaves when reading {@link MimeData} from
-	 * non MIME_PART items
-	 * 
-	 * @throws Exception in case of errors
-	 */
-	@Test
-	public void testReadInvalidMimeData() throws Exception {
-		withTempDb((db) -> {
-			DominoClient client = getClient();
+  /**
+   * We check how the API behaves when reading {@link MimeData} from
+   * non MIME_PART items
+   * 
+   * @throws Exception in case of errors
+   */
+  @Test
+  public void testReadInvalidMimeData() throws Exception {
+    this.withTempDb(db -> {
+      final DominoClient client = this.getClient();
 
-			Document doc = db.createDocument();
+      final Document doc = db.createDocument();
 
-			MimeData mimeData = doc.get("ItemDoesNotExist", MimeData.class, null);
-			assertNull(mimeData);
+      final MimeData mimeData = doc.get("ItemDoesNotExist", MimeData.class, null);
+      Assertions.assertNull(mimeData);
 
-			doc.replaceItemValue("TextItem", "Hello world.");
+      doc.replaceItemValue("TextItem", "Hello world.");
 
-			{
-				//using the MIME stream C API on a non MIME_PART item should throw an error
-				DominoException ex = null;
-				try {
-					doc.get("TextItem", MimeData.class, null);
-				}
-				catch (DominoException e) {
-					ex = e;
-				}
-				assertNotNull(ex);
-				assertTrue(ex.getId() == 1184); // "MIME part not found"
-			}
+      {
+        // using the MIME stream C API on a non MIME_PART item should throw an error
+        DominoException ex = null;
+        try {
+          doc.get("TextItem", MimeData.class, null);
+        } catch (final DominoException e) {
+          ex = e;
+        }
+        Assertions.assertNotNull(ex);
+        Assertions.assertTrue(ex.getId() == 1184); // "MIME part not found"
+      }
 
-			//now we create formatted richtext content
-			try (RichTextWriter rtWriter = doc.createRichTextItem("Body");) {
-				
-				rtWriter.addText("Hello World.",
-						rtWriter.createTextStyle("MyStyle").setAlign(Justify.RIGHT),
-						rtWriter.createFontStyle().setBold(true));
-			}
+      // now we create formatted richtext content
+      try (RichTextWriter rtWriter = doc.createRichTextItem("Body");) {
 
-			Item itm = doc.getFirstItem("Body").get();
-			//make sure it's richtext
-			assertEquals(itm.getType(), ItemDataType.TYPE_COMPOSITE);
+        rtWriter.addText("Hello World.",
+            rtWriter.createTextStyle("MyStyle").setAlign(Justify.RIGHT),
+            rtWriter.createFontStyle().setBold(true));
+      }
 
-			{
-				//should also throw an error, still no MIME_PART item
-				DominoException ex = null;
-				try {
-					doc.get("Body", MimeData.class, null);
-				}
-				catch (DominoException e) {
-					ex = e;
-				}
-				assertNotNull(ex);
-				assertTrue(ex.getId() == 1184); // "MIME part not found"
-			}
+      Item itm = doc.getFirstItem("Body").get();
+      // make sure it's richtext
+      Assertions.assertEquals(itm.getType(), ItemDataType.TYPE_COMPOSITE);
 
-			//now we convert the richtext item to mime
-			MimeWriter mimeWriter = client.getMimeWriter();
-			RichTextMimeConversionSettings convSettings = 
-					mimeWriter.createRichTextMimeConversionSettings().setDefaults()
-					.setMessageContentEncoding(MessageContentEncoding.TEXT_PLAIN_AND_HTML_WITH_IMAGES_ATTACHMENTS);
+      {
+        // should also throw an error, still no MIME_PART item
+        DominoException ex = null;
+        try {
+          doc.get("Body", MimeData.class, null);
+        } catch (final DominoException e) {
+          ex = e;
+        }
+        Assertions.assertNotNull(ex);
+        Assertions.assertTrue(ex.getId() == 1184); // "MIME part not found"
+      }
 
-			mimeWriter.convertToMime(doc, convSettings);
+      // now we convert the richtext item to mime
+      final MimeWriter mimeWriter = client.getMimeWriter();
+      final RichTextMimeConversionSettings convSettings = mimeWriter.createRichTextMimeConversionSettings().setDefaults()
+          .setMessageContentEncoding(MessageContentEncoding.TEXT_PLAIN_AND_HTML_WITH_IMAGES_ATTACHMENTS);
 
-			//make sure it's really MIME_PART
-			itm = doc.getFirstItem("Body").get();
-			assertEquals(itm.getType(), ItemDataType.TYPE_MIME_PART);
+      mimeWriter.convertToMime(doc, convSettings);
 
-			MimeData mimeDataFromRichText = doc.get("Body", MimeData.class, null);
-			assertNotNull(mimeDataFromRichText);
+      // make sure it's really MIME_PART
+      itm = doc.getFirstItem("Body").get();
+      Assertions.assertEquals(itm.getType(), ItemDataType.TYPE_MIME_PART);
 
-			// <html><body><div align="right"><font size="1" face="serif"><b>Hello World.</b></font></div></body></html>
-			String html = mimeDataFromRichText.getHtml();
-			//                                                                Hello World.
-			String text = mimeDataFromRichText.getPlainText();
+      final MimeData mimeDataFromRichText = doc.get("Body", MimeData.class, null);
+      Assertions.assertNotNull(mimeDataFromRichText);
 
-			assertTrue(html.length()>0);
-			assertTrue(text.length()>0);
-		});
-	}
+      // <html><body><div align="right"><font size="1" face="serif"><b>Hello
+      // World.</b></font></div></body></html>
+      final String html = mimeDataFromRichText.getHtml();
+      // Hello World.
+      final String text = mimeDataFromRichText.getPlainText();
 
-	@Test
-	public void testWriteReadMimeData() throws Exception {
-		withTempDb((db) -> {
-			//compose the MIME data to write:
-			MimeData writtenMimeData = new MimeData();
+      Assertions.assertTrue(html.length() > 0);
+      Assertions.assertTrue(text.length() > 0);
+    });
+  }
 
-			//embed an image via URL and remember its content id (cid)
-			URL url = getClass().getResource(TEST_IMAGE_PATH);
-			assertNotNull(url, "Test image can be found: "+TEST_IMAGE_PATH);
-			String cid = writtenMimeData.embed(new UrlMimeAttachment(url));
+  @Test
+  public void testWriteReadMimeData() throws Exception {
+    this.withTempDb(db -> {
+      // compose the MIME data to write:
+      final MimeData writtenMimeData = new MimeData();
 
-			//add the first test file
-			int writtenAttachment1Size = 50000;
-			byte[] writtenAttachment1Data = produceTestData(writtenAttachment1Size);
-			writtenMimeData.attach(new ByteArrayMimeAttachment(writtenAttachment1Data, "test.txt"));
+      // embed an image via URL and remember its content id (cid)
+      final URL url = this.getClass().getResource(TestMimeDataItemType.TEST_IMAGE_PATH);
+      Assertions.assertNotNull(url, "Test image can be found: " + TestMimeDataItemType.TEST_IMAGE_PATH);
+      final String cid = writtenMimeData.embed(new UrlMimeAttachment(url));
 
-			//and the second one
-			int writtenAttachment2Size = 20000;
-			byte[] writtenAttachment2Data = produceTestData(writtenAttachment2Size);
-			writtenMimeData.attach(new ByteArrayMimeAttachment(writtenAttachment2Data, "test2.txt"));
+      // add the first test file
+      final int writtenAttachment1Size = 50000;
+      final byte[] writtenAttachment1Data = this.produceTestData(writtenAttachment1Size);
+      writtenMimeData.attach(new ByteArrayMimeAttachment(writtenAttachment1Data, "test.txt"));
 
-			//set html (with link to embedded image) and alternative plaintext
-			String html = "<html><body>This is <b>formatted</b> text and an image:<br><img src=\"cid:"+cid+"\"></body></html>";
-			writtenMimeData.setHtml(html);
-			String plainText = "This is alternative plaintext";
-			writtenMimeData.setPlainText(plainText);
+      // and the second one
+      final int writtenAttachment2Size = 20000;
+      final byte[] writtenAttachment2Data = this.produceTestData(writtenAttachment2Size);
+      writtenMimeData.attach(new ByteArrayMimeAttachment(writtenAttachment2Data, "test2.txt"));
 
-			//and write it to a temp document
-			Document doc = db.createDocument();
-			doc.replaceItemValue("BodyMime", writtenMimeData);
+      // set html (with link to embedded image) and alternative plaintext
+      final String html = "<html><body>This is <b>formatted</b> text and an image:<br><img src=\"cid:" + cid + "\"></body></html>";
+      writtenMimeData.setHtml(html);
+      final String plainText = "This is alternative plaintext";
+      writtenMimeData.setPlainText(plainText);
 
-			//now read the MIME data and compare it with what we have just written
-			Optional<Item> itm = doc.getFirstItem("BodyMime");
-			assertTrue(itm.isPresent());
-			assertEquals(ItemDataType.TYPE_MIME_PART, itm.get().getType());
-			
-			MimeData checkMimeData = doc.get("BodyMime", MimeData.class, null);
-			assertNotNull(checkMimeData, "MIMEItemData not null");
+      // and write it to a temp document
+      final Document doc = db.createDocument();
+      doc.replaceItemValue("BodyMime", writtenMimeData);
 
-			String checkHtml = checkMimeData.getHtml();
-			assertEquals(html, checkHtml);
-			String checkPlainText = checkMimeData.getPlainText();
-			assertEquals(plainText, checkPlainText);
+      // now read the MIME data and compare it with what we have just written
+      final Optional<Item> itm = doc.getFirstItem("BodyMime");
+      Assertions.assertTrue(itm.isPresent());
+      Assertions.assertEquals(ItemDataType.TYPE_MIME_PART, itm.get().getType());
 
-			//check that no embed has been removed
-			for (String currWrittenCid : writtenMimeData.getContentIds()) {
-				IMimeAttachment checkEmbed = checkMimeData.getEmbed(currWrittenCid).orElse(null);
+      final MimeData checkMimeData = doc.get("BodyMime", MimeData.class, null);
+      Assertions.assertNotNull(checkMimeData, "MIMEItemData not null");
 
-				assertNotNull(checkEmbed, "Embed with cid "+currWrittenCid+" not null");
-			}
+      final String checkHtml = checkMimeData.getHtml();
+      Assertions.assertEquals(html, checkHtml);
+      final String checkPlainText = checkMimeData.getPlainText();
+      Assertions.assertEquals(plainText, checkPlainText);
 
-			//check that no embed has been added
-			for (String currCheckCid : checkMimeData.getContentIds()) {
-				IMimeAttachment currEmbed = writtenMimeData.getEmbed(currCheckCid).orElse(null);
+      // check that no embed has been removed
+      for (final String currWrittenCid : writtenMimeData.getContentIds()) {
+        final IMimeAttachment checkEmbed = checkMimeData.getEmbed(currWrittenCid).orElse(null);
 
-				assertNotNull(currEmbed, "Embed with cid "+currCheckCid+" not null");
-			}
+        Assertions.assertNotNull(checkEmbed, "Embed with cid " + currWrittenCid + " not null");
+      }
 
-			List<IMimeAttachment> writtenAttachments = writtenMimeData.getAttachments();
-			List<IMimeAttachment> checkAttachments = checkMimeData.getAttachments();
+      // check that no embed has been added
+      for (final String currCheckCid : checkMimeData.getContentIds()) {
+        final IMimeAttachment currEmbed = writtenMimeData.getEmbed(currCheckCid).orElse(null);
 
-			//check that no attachment has been removed
-			for (IMimeAttachment currAtt : writtenAttachments) {
-				String currFilename = currAtt.getFileName();
+        Assertions.assertNotNull(currEmbed, "Embed with cid " + currCheckCid + " not null");
+      }
 
-				IMimeAttachment checkAtt = null;
-				for (IMimeAttachment currCheckAtt : checkAttachments) {
-					if (currFilename.equals(currCheckAtt.getFileName())) {
-						checkAtt = currCheckAtt;
-						break;
-					}
-				}
+      final List<IMimeAttachment> writtenAttachments = writtenMimeData.getAttachments();
+      final List<IMimeAttachment> checkAttachments = checkMimeData.getAttachments();
 
-				assertNotNull(checkAtt, "file "+currFilename+" could be found");
-			}
+      // check that no attachment has been removed
+      for (final IMimeAttachment currAtt : writtenAttachments) {
+        final String currFilename = currAtt.getFileName();
 
-			//check that no attachment has been added
-			for (IMimeAttachment currCheckAtt : checkAttachments) {
-				String currFilename = currCheckAtt.getFileName();
+        IMimeAttachment checkAtt = null;
+        for (final IMimeAttachment currCheckAtt : checkAttachments) {
+          if (currFilename.equals(currCheckAtt.getFileName())) {
+            checkAtt = currCheckAtt;
+            break;
+          }
+        }
 
-				IMimeAttachment writtenAtt = null;
-				for (IMimeAttachment currWrittenAtt : writtenAttachments) {
-					if (currFilename.equals(currWrittenAtt.getFileName())) {
-						writtenAtt = currCheckAtt;
-						break;
-					}
-				}
+        Assertions.assertNotNull(checkAtt, "file " + currFilename + " could be found");
+      }
 
-				assertNotNull(writtenAtt, "file "+currFilename+" could be found");
-			}
-		});
+      // check that no attachment has been added
+      for (final IMimeAttachment currCheckAtt : checkAttachments) {
+        final String currFilename = currCheckAtt.getFileName();
 
-	}
+        IMimeAttachment writtenAtt = null;
+        for (final IMimeAttachment currWrittenAtt : writtenAttachments) {
+          if (currFilename.equals(currWrittenAtt.getFileName())) {
+            writtenAtt = currCheckAtt;
+            break;
+          }
+        }
 
-	@Test
-	public void testWriteReadMimeDataBasic() throws Exception {
-		withTempDb((db) -> {
-			//compose the MIME data to write:
-			MimeData writtenMimeData = new MimeData();
-			
-			//set html (with link to embedded image) and alternative plaintext
-			String html = "<html><body>This is <b>formatted</b> text and no image.</body></html>";
-			writtenMimeData.setHtml(html);
-			String plainText = "This is alternative plaintext";
-			writtenMimeData.setPlainText(plainText);
+        Assertions.assertNotNull(writtenAtt, "file " + currFilename + " could be found");
+      }
+    });
 
-			//and write it to a temp document
-			Document doc = db.createDocument();
-			doc.replaceItemValue("BodyMime", writtenMimeData);
+  }
 
-			//now read the MIME data and compare it with what we have just written
-			Optional<Item> itm = doc.getFirstItem("BodyMime");
-			assertTrue(itm.isPresent());
-			assertEquals(ItemDataType.TYPE_MIME_PART, itm.get().getType());
-			
-			MimeData checkMimeData = doc.get("BodyMime", MimeData.class, null);
-			assertNotNull(checkMimeData, "MIMEItemData not null");
+  @Test
+  public void testWriteReadMimeDataBasic() throws Exception {
+    this.withTempDb(db -> {
+      // compose the MIME data to write:
+      final MimeData writtenMimeData = new MimeData();
 
-			String checkHtml = checkMimeData.getHtml();
-			assertEquals(html, checkHtml);
-			String checkPlainText = checkMimeData.getPlainText();
-			assertEquals(plainText, checkPlainText);
+      // set html (with link to embedded image) and alternative plaintext
+      final String html = "<html><body>This is <b>formatted</b> text and no image.</body></html>";
+      writtenMimeData.setHtml(html);
+      final String plainText = "This is alternative plaintext";
+      writtenMimeData.setPlainText(plainText);
 
-			//check that no embed has been removed
-			for (String currWrittenCid : writtenMimeData.getContentIds()) {
-				IMimeAttachment checkEmbed = checkMimeData.getEmbed(currWrittenCid).orElse(null);
+      // and write it to a temp document
+      final Document doc = db.createDocument();
+      doc.replaceItemValue("BodyMime", writtenMimeData);
 
-				assertNotNull(checkEmbed, "Embed with cid "+currWrittenCid+" not null");
-			}
+      // now read the MIME data and compare it with what we have just written
+      final Optional<Item> itm = doc.getFirstItem("BodyMime");
+      Assertions.assertTrue(itm.isPresent());
+      Assertions.assertEquals(ItemDataType.TYPE_MIME_PART, itm.get().getType());
 
-			//check that no embed has been added
-			for (String currCheckCid : checkMimeData.getContentIds()) {
-				IMimeAttachment currEmbed = writtenMimeData.getEmbed(currCheckCid).orElse(null);
+      final MimeData checkMimeData = doc.get("BodyMime", MimeData.class, null);
+      Assertions.assertNotNull(checkMimeData, "MIMEItemData not null");
 
-				assertNotNull(currEmbed, "Embed with cid "+currCheckCid+" not null");
-			}
+      final String checkHtml = checkMimeData.getHtml();
+      Assertions.assertEquals(html, checkHtml);
+      final String checkPlainText = checkMimeData.getPlainText();
+      Assertions.assertEquals(plainText, checkPlainText);
 
-			List<IMimeAttachment> writtenAttachments = writtenMimeData.getAttachments();
-			List<IMimeAttachment> checkAttachments = checkMimeData.getAttachments();
+      // check that no embed has been removed
+      for (final String currWrittenCid : writtenMimeData.getContentIds()) {
+        final IMimeAttachment checkEmbed = checkMimeData.getEmbed(currWrittenCid).orElse(null);
 
-			//check that no attachment has been removed
-			for (IMimeAttachment currAtt : writtenAttachments) {
-				String currFilename = currAtt.getFileName();
+        Assertions.assertNotNull(checkEmbed, "Embed with cid " + currWrittenCid + " not null");
+      }
 
-				IMimeAttachment checkAtt = null;
-				for (IMimeAttachment currCheckAtt : checkAttachments) {
-					if (currFilename.equals(currCheckAtt.getFileName())) {
-						checkAtt = currCheckAtt;
-						break;
-					}
-				}
+      // check that no embed has been added
+      for (final String currCheckCid : checkMimeData.getContentIds()) {
+        final IMimeAttachment currEmbed = writtenMimeData.getEmbed(currCheckCid).orElse(null);
 
-				assertNotNull(checkAtt, "file "+currFilename+" could be found");
-			}
+        Assertions.assertNotNull(currEmbed, "Embed with cid " + currCheckCid + " not null");
+      }
 
-			//check that no attachment has been added
-			for (IMimeAttachment currCheckAtt : checkAttachments) {
-				String currFilename = currCheckAtt.getFileName();
+      final List<IMimeAttachment> writtenAttachments = writtenMimeData.getAttachments();
+      final List<IMimeAttachment> checkAttachments = checkMimeData.getAttachments();
 
-				IMimeAttachment writtenAtt = null;
-				for (IMimeAttachment currWrittenAtt : writtenAttachments) {
-					if (currFilename.equals(currWrittenAtt.getFileName())) {
-						writtenAtt = currCheckAtt;
-						break;
-					}
-				}
+      // check that no attachment has been removed
+      for (final IMimeAttachment currAtt : writtenAttachments) {
+        final String currFilename = currAtt.getFileName();
 
-				assertNotNull(writtenAtt, "file "+currFilename+" could be found");
-			}
-		});
+        IMimeAttachment checkAtt = null;
+        for (final IMimeAttachment currCheckAtt : checkAttachments) {
+          if (currFilename.equals(currCheckAtt.getFileName())) {
+            checkAtt = currCheckAtt;
+            break;
+          }
+        }
 
-	}
+        Assertions.assertNotNull(checkAtt, "file " + currFilename + " could be found");
+      }
+
+      // check that no attachment has been added
+      for (final IMimeAttachment currCheckAtt : checkAttachments) {
+        final String currFilename = currCheckAtt.getFileName();
+
+        IMimeAttachment writtenAtt = null;
+        for (final IMimeAttachment currWrittenAtt : writtenAttachments) {
+          if (currFilename.equals(currWrittenAtt.getFileName())) {
+            writtenAtt = currCheckAtt;
+            break;
+          }
+        }
+
+        Assertions.assertNotNull(writtenAtt, "file " + currFilename + " could be found");
+      }
+    });
+
+  }
 
 }

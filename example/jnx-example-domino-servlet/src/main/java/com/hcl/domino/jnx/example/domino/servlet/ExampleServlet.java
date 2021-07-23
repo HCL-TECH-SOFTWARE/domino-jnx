@@ -31,25 +31,24 @@ import com.hcl.domino.DominoProcess;
 import com.hcl.domino.DominoProcess.DominoThreadContext;
 
 public class ExampleServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
-	
-	@Override
-	public void init(ServletConfig config) throws ServletException {
-		super.init(config);
-		System.out.println("RootServlet init");
-	}
-	
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		resp.setContentType("text/plain"); //$NON-NLS-1$
-		try(ServletOutputStream os = resp.getOutputStream()) {
-			os.println("Hello.");
-			try(
-				DominoThreadContext ctx = DominoProcess.get().initializeThread();
-				DominoClient client = DominoClientBuilder.newDominoClient().build()
-			) {
-				os.println("Am I running on a server? " + client.isOnServer());
-			}
-		}
-	}
+  private static final long serialVersionUID = 1L;
+
+  @Override
+  protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+    resp.setContentType("text/plain"); //$NON-NLS-1$
+    try (ServletOutputStream os = resp.getOutputStream()) {
+      os.println("Hello.");
+      try (
+          DominoThreadContext ctx = DominoProcess.get().initializeThread();
+          DominoClient client = DominoClientBuilder.newDominoClient().build()) {
+        os.println("Am I running on a server? " + client.isOnServer());
+      }
+    }
+  }
+
+  @Override
+  public void init(final ServletConfig config) throws ServletException {
+    super.init(config);
+    System.out.println("RootServlet init");
+  }
 }

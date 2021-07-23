@@ -19,28 +19,29 @@ package com.hcl.domino.exception;
 import com.hcl.domino.DominoException;
 
 /**
- * Represents error code ERR_SERVER_RESTRICTED (0x09FD), "Access to this server has been restricted by the administrator"
- * 
+ * Represents error code ERR_SERVER_RESTRICTED (0x09FD), "Access to this server
+ * has been restricted by the administrator"
+ *
  * @author Jesse Gallagher
  * @since 1.0.20
  */
 public class ServerRestrictedException extends DominoException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public ServerRestrictedException(int id, String message) {
-		super(id, message);
-	}
+  public ServerRestrictedException(final int id, final String message) {
+    super(id, message);
+  }
 
-	public ServerRestrictedException(int id, String message, Throwable cause) {
-		super(id, message, cause);
-	}
+  public ServerRestrictedException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
+  }
 
-	public ServerRestrictedException(String msg) {
-		super(msg);
-	}
+  public ServerRestrictedException(final String msg) {
+    super(msg);
+  }
 
-	public ServerRestrictedException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public ServerRestrictedException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
 
 }

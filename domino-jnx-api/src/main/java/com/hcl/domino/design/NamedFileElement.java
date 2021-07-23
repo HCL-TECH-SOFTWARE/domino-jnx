@@ -23,21 +23,23 @@ import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.design.DesignElement.NamedDesignElement;
 
 /**
- * Represents common behavior for file-resource-esque design elements with "$FileData"
+ * Represents common behavior for file-resource-esque design elements with
+ * "$FileData"
  * and "$FileNames" or equivalent items.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.24
  */
 public interface NamedFileElement extends NamedDesignElement {
-	List<String> getFileNames();
-	
-	InputStream getFileData();
-	
-	long getFileSize();
-	
-	DominoDateTime getFileModified();
-	
-	String getMimeType();
-	String getCharsetName();
+  String getCharsetName();
+
+  InputStream getFileData();
+
+  DominoDateTime getFileModified();
+
+  List<String> getFileNames();
+
+  long getFileSize();
+
+  String getMimeType();
 }

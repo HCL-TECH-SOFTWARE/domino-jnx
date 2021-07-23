@@ -16,14 +16,6 @@
  */
 package it.com.hcl.domino.test.json;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -36,6 +28,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -56,402 +49,417 @@ import jakarta.json.Json;
 
 @SuppressWarnings("nls")
 public class TestJsonDeserialization extends AbstractNotesRuntimeTest {
-	@Test
-	public void testJsonDeserializationService() {
-		assertNotNull(JsonDeserializer.createDeserializer());
-	}
-	
-	public static class DeserializerProvider implements ArgumentsProvider {
-		@Override public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
-			return JNXServiceFinder.findServices(JsonDeserializerFactory.class)
-				.map(JsonDeserializerFactory::newDeserializer)
-				.map(Arguments::of);
-		}
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testDeserializeNewDocument(JsonDeserializer deserializer) throws Exception {
-		String json = "{\"foo\":\"bar\",\"bar\": 3}";
-		
-		withTempDb(database -> {
-			Document doc = deserializer.target(database)
-				.fromJson(json);
-			assertEquals("bar", doc.get("foo", String.class, null));
-			assertEquals(3, doc.get("bar", int.class, 0));
-		});
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testDeserializeExistingDocument(JsonDeserializer deserializer) throws Exception {
-		String json = "{\"foo\":\"bar\",\"bar\": 3}";
-		
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			doc.replaceItemValue("Form", "Hello");
-			deserializer.target(doc)
-				.fromJson(json);
-			assertEquals("bar", doc.get("foo", String.class, null));
-			assertEquals(3, doc.get("bar", int.class, 0));
-			assertEquals("Hello", doc.get("Form", String.class, null));
-		});
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testDeserializeExistingDocument2(JsonDeserializer deserializer) throws Exception {
-		String json = "{\"foo\":\"bar\",\"bar\": 3}";
-		
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			doc.replaceItemValue("Form", "Hello");
-			doc = deserializer.target(doc)
-				.fromJson(json);
-			assertEquals("bar", doc.get("foo", String.class, null));
-			assertEquals(3, doc.get("bar", int.class, 0));
-			assertEquals("Hello", doc.get("Form", String.class, null));
-		});
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testBooleanValues(JsonDeserializer deserializer) throws Exception {
-		String json = "{\"foo\":true,\"bar\": false}";
-		
-		withTempDb(database -> {
-			Document doc = deserializer.target(database)
-				.booleanValues("hi", "there")
-				.fromJson(json);
-			assertEquals("hi", doc.get("foo", String.class, null));
-			assertEquals("there", doc.get("bar", String.class, null));
-		});
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testDateTimeItems(JsonDeserializer deserializer) throws Exception {
-		String json = "{\"foo\":\"2020-01-01\",\"bar\": \"2020-02-02\"}";
-		
-		withTempDb(database -> {
-			Document doc = deserializer.target(database)
-				.dateTimeItems(Arrays.asList("Foo"))
-				.fromJson(json);
-			assertEquals(LocalDate.of(2020, 1, 1), doc.get("foo", LocalDate.class, null));
-			assertEquals("2020-02-02", doc.getItemValue("bar").get(0));
-		});
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testDateTimeItems2(JsonDeserializer deserializer) throws Exception {
-		String json = "{\"foo\":\"2020-01-01\",\"bar\": \"2020-02-02/2020-03-03\"}";
-		
-		withTempDb(database -> {
-			Document doc = deserializer.target(database)
-				.dateTimeItems(Arrays.asList("Foo", "Bar"))
-				.fromJson(json);
-			assertEquals(LocalDate.of(2020, 1, 1), doc.get("foo", LocalDate.class, null));
-			LocalDate start = LocalDate.of(2020, 2, 2);
-			LocalDate end = LocalDate.of(2020, 3, 3);
-			DominoDateRange range = database.getParentDominoClient().createDateRange(start, end);
-			assertEquals(range, doc.getItemValue("bar").get(0));
-		});
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testIllegalDateTimeItems(JsonDeserializer deserializer) throws Exception {
-		String json = "{\"foo\":\"hi\"}";
-		
-		withTempDb(database -> {
-			// This throws an IllegalStateException internally, but surfaces differently based on implementation
-			assertThrows(RuntimeException.class, () -> deserializer.target(database)
-				.dateTimeItems(Arrays.asList("Foo"))
-				.fromJson(json));
-		});
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testArrayValues(JsonDeserializer deserializer) throws Exception {
-		String json = "{\"foo\":[1, 2, 3],\"bar\": [\"hi\", \"there\"], \"baz\":[true, false, true]}";
-		
-		withTempDb(database -> {
-			Document doc = deserializer.target(database)
-				.booleanValues("hi", "there")
-				.fromJson(json);
-			assertEquals(Arrays.asList(1, 2, 3), doc.getAsList("foo", Integer.class, null));
-			assertEquals(Arrays.asList("hi", "there"), doc.getAsList("bar", String.class, null));
-			assertEquals(Arrays.asList("hi", "there", "hi"), doc.getAsList("baz", String.class, null));
-		});
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testMixedArrayValues(JsonDeserializer deserializer) throws Exception {
-		String json = "{\"foo\":[1, \"foo\", 3],\"bar\": [\"hi\", \"there\"], \"baz\":[true, false, true]}";
-		
-		withTempDb(database -> {
-			assertThrows(RuntimeException.class, () -> deserializer.target(database)
-				.booleanValues("hi", "there")
-				.fromJson(json));
-		});
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testIgnoreMeta(JsonDeserializer deserializer) throws Exception {
-		String json = "{\"foo\":true,\"bar\": false, \"@meta\": \"hi\"}";
-		
-		withTempDb(database -> {
-			Document doc = deserializer.target(database)
-				.booleanValues("hi", "there")
-				.fromJson(json);
-			assertEquals("hi", doc.get("foo", String.class, null));
-			assertEquals("there", doc.get("bar", String.class, null));
-			assertFalse(doc.hasItem("@meta"), "@meta item should have been removed");
-		});
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testRemoveItems(JsonDeserializer deserializer) throws Exception {
-		String json = "{\"foo\":\"hi\",\"bar\": \"there\"}";
-		
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			doc.replaceItemValue("Form", "Hello");
-			doc.replaceItemValue("Baz", "hi there");
-			doc.replaceItemValue("$SystemField", "tester");
-			deserializer.target(doc)
-				.removeMissingItems(true)
-				.fromJson(json);
-			assertEquals("hi", doc.get("foo", String.class, null));
-			assertEquals("there", doc.get("bar", String.class, null));
-			assertFalse(doc.hasItem("baz"), "Baz item should have been removed");
-			assertEquals("tester", doc.get("$SystemField", String.class, null));
-		});
-	}
+  public static class DeserializerProvider implements ArgumentsProvider {
+    @Override
+    public Stream<? extends Arguments> provideArguments(final ExtensionContext context) throws Exception {
+      return JNXServiceFinder.findServices(JsonDeserializerFactory.class)
+          .map(JsonDeserializerFactory::newDeserializer)
+          .map(Arguments::of);
+    }
+  }
 
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testDetectDateTime(JsonDeserializer deserializer) throws Exception {
-		String json = IOUtils.resourceToString("/json/testBasicDeserialization/datejson.json", StandardCharsets.UTF_8);
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			deserializer.target(doc)
-				.detectDateTime(true)
-				.fromJson(json);
-			
-			{
-				assertTrue(doc.hasItem("date"));
-				DominoDateTime date = doc.get("date", DominoDateTime.class, null);
-				assertNotEquals(null, date, "date field value should not be null");
-				Temporal temporal = date.toTemporal().orElse(null);
-				assertInstanceOf(LocalDate.class, temporal, "temporal version should be a LocalDate");
-				assertEquals(LocalDate.of(2020, 7, 10), temporal);
-			}
-			{
-				DominoDateTime time = doc.get("time", DominoDateTime.class, null);
-				assertNotEquals(null, time, "time field value should not be null");
-				Temporal temporal = time.toTemporal().orElse(null);
-				assertInstanceOf(LocalTime.class, temporal, "temporal version should be a LocalTime");
-				assertEquals(LocalTime.of(13, 47, 03), temporal);
-			}
-			{
-				DominoDateTime dt = doc.get("datetime", DominoDateTime.class, null);
-				assertNotEquals(null, dt, "datetime field value should not be null");
-				Temporal temporal = dt.toTemporal().orElse(null);
-				assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime, "temporal version should be an OffsetDateTime");
-				LocalDate date = LocalDate.of(2020, 7, 10);
-				LocalTime time = LocalTime.of(13, 47, 03);
-				assertEquals(OffsetDateTime.of(date, time, ZoneOffset.UTC), OffsetDateTime.from(temporal));
-			}
-			{
-				DominoDateTime dt = doc.get("datetime_offset", DominoDateTime.class, null);
-				assertNotEquals(null, dt, "datetime_offset field value should not be null");
-				Temporal temporal = dt.toTemporal().orElse(null);
-				assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime, "temporal version should be an OffsetDateTime");
-				LocalDate date = LocalDate.of(2020, 7, 10);
-				LocalTime time = LocalTime.of(13, 47, 03);
-				assertEquals(OffsetDateTime.of(date, time, ZoneOffset.ofHours(-5)), OffsetDateTime.from(temporal));
-			}
-			{
-				List<DominoDateTime> dts = doc.getAsList("datetimes", DominoDateTime.class, null);
-				assertNotEquals(null, dts, "datetimes field value should not be null");
-				{
-					Temporal temporal = dts.get(0).toTemporal().orElse(null);
-					assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime, "temporal version should be an OffsetDateTime");
-					LocalDate date = LocalDate.of(2020, 7, 10);
-					LocalTime time = LocalTime.of(13, 47, 03);
-					assertEquals(OffsetDateTime.of(date, time, ZoneOffset.UTC), OffsetDateTime.from(temporal));
-				}
-				{
-					Temporal temporal = dts.get(1).toTemporal().orElse(null);
-					assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime, "temporal version should be an OffsetDateTime");
-					LocalDate date = LocalDate.of(2020, 7, 10);
-					LocalTime time = LocalTime.of(13, 47, 03);
-					assertEquals(OffsetDateTime.of(date, time, ZoneOffset.ofHours(-5)), OffsetDateTime.from(temporal));
-				}
-			}
-		});
-	}
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testArrayValues(final JsonDeserializer deserializer) throws Exception {
+    final String json = "{\"foo\":[1, 2, 3],\"bar\": [\"hi\", \"there\"], \"baz\":[true, false, true]}";
 
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testSpecifyDateTime(JsonDeserializer deserializer) throws Exception {
-		String json = IOUtils.resourceToString("/json/testBasicDeserialization/datejson.json", StandardCharsets.UTF_8);
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			deserializer.target(doc)
-				.dateTimeItems(Arrays.asList("date", "time", "datetime", "datetime_offset", "datetimes"))
-				.fromJson(json);
-			
-			{
-				assertTrue(doc.hasItem("date"));
-				DominoDateTime date = doc.get("date", DominoDateTime.class, null);
-				assertNotEquals(null, date, "date field value should not be null");
-				Temporal temporal = date.toTemporal().orElse(null);
-				assertInstanceOf(LocalDate.class, temporal, "temporal version should be a LocalDate");
-				assertEquals(LocalDate.of(2020, 7, 10), temporal);
-			}
-			{
-				DominoDateTime time = doc.get("time", DominoDateTime.class, null);
-				assertNotEquals(null, time, "time field value should not be null");
-				Temporal temporal = time.toTemporal().orElse(null);
-				assertInstanceOf(LocalTime.class, temporal, "temporal version should be a LocalTime");
-				assertEquals(LocalTime.of(13, 47, 03), temporal);
-			}
-			{
-				DominoDateTime dt = doc.get("datetime", DominoDateTime.class, null);
-				assertNotEquals(null, dt, "datetime field value should not be null");
-				Temporal temporal = dt.toTemporal().orElse(null);
-				assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime, "temporal version should be an OffsetDateTime");
-				LocalDate date = LocalDate.of(2020, 7, 10);
-				LocalTime time = LocalTime.of(13, 47, 03);
-				assertEquals(OffsetDateTime.of(date, time, ZoneOffset.UTC), OffsetDateTime.from(temporal));
-			}
-			{
-				DominoDateTime dt = doc.get("datetime_offset", DominoDateTime.class, null);
-				assertNotEquals(null, dt, "datetime_offset field value should not be null");
-				Temporal temporal = dt.toTemporal().orElse(null);
-				assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime, "temporal version should be an OffsetDateTime");
-				LocalDate date = LocalDate.of(2020, 7, 10);
-				LocalTime time = LocalTime.of(13, 47, 03);
-				assertEquals(OffsetDateTime.of(date, time, ZoneOffset.ofHours(-5)), OffsetDateTime.from(temporal));
-			}
-			{
-				List<DominoDateTime> dts = doc.getAsList("datetimes", DominoDateTime.class, null);
-				assertNotEquals(null, dts, "datetimes field value should not be null");
-				{
-					Temporal temporal = dts.get(0).toTemporal().orElse(null);
-					assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime, "temporal version should be an OffsetDateTime");
-					LocalDate date = LocalDate.of(2020, 7, 10);
-					LocalTime time = LocalTime.of(13, 47, 03);
-					assertEquals(OffsetDateTime.of(date, time, ZoneOffset.UTC), OffsetDateTime.from(temporal));
-				}
-				{
-					Temporal temporal = dts.get(1).toTemporal().orElse(null);
-					assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime, "temporal version should be an OffsetDateTime");
-					LocalDate date = LocalDate.of(2020, 7, 10);
-					LocalTime time = LocalTime.of(13, 47, 03);
-					assertEquals(OffsetDateTime.of(date, time, ZoneOffset.ofHours(-5)), OffsetDateTime.from(temporal));
-				}
-			}
-		});
-	}
+    this.withTempDb(database -> {
+      final Document doc = deserializer.target(database)
+          .booleanValues("hi", "there")
+          .fromJson(json);
+      Assertions.assertEquals(Arrays.asList(1, 2, 3), doc.getAsList("foo", Integer.class, null));
+      Assertions.assertEquals(Arrays.asList("hi", "there"), doc.getAsList("bar", String.class, null));
+      Assertions.assertEquals(Arrays.asList("hi", "there", "hi"), doc.getAsList("baz", String.class, null));
+    });
+  }
 
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testSpecifyDateTimePartial(JsonDeserializer deserializer) throws Exception {
-		String json = IOUtils.resourceToString("/json/testBasicDeserialization/datejson.json", StandardCharsets.UTF_8);
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			deserializer.target(doc)
-				.dateTimeItems(Arrays.asList("date", "datetime_offset", "datetimes"))
-				.fromJson(json);
-			
-			{
-				assertTrue(doc.hasItem("date"));
-				DominoDateTime date = doc.get("date", DominoDateTime.class, null);
-				assertNotEquals(null, date, "date field value should not be null");
-				Temporal temporal = date.toTemporal().orElse(null);
-				assertInstanceOf(LocalDate.class, temporal, "temporal version should be a LocalDate");
-				assertEquals(LocalDate.of(2020, 7, 10), temporal);
-			}
-			{
-				assertTrue(doc.hasItem("time"));
-				assertEquals(ItemDataType.TYPE_TEXT, doc.getFirstItem("time").get().getType());
-				assertEquals("13:47:03", doc.get("time", String.class, null));
-			}
-			{
-				assertTrue(doc.hasItem("datetime"));
-				assertEquals(ItemDataType.TYPE_TEXT, doc.getFirstItem("datetime").get().getType());
-				assertEquals("2020-07-10T13:47:03Z", doc.get("datetime", String.class, null));
-			}
-			{
-				DominoDateTime dt = doc.get("datetime_offset", DominoDateTime.class, null);
-				assertNotEquals(null, dt, "datetime_offset field value should not be null");
-				Temporal temporal = dt.toTemporal().orElse(null);
-				assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime, "temporal version should be an OffsetDateTime");
-				LocalDate date = LocalDate.of(2020, 7, 10);
-				LocalTime time = LocalTime.of(13, 47, 03);
-				assertEquals(OffsetDateTime.of(date, time, ZoneOffset.ofHours(-5)), OffsetDateTime.from(temporal));
-			}
-			{
-				List<DominoDateTime> dts = doc.getAsList("datetimes", DominoDateTime.class, null);
-				assertNotEquals(null, dts, "datetimes field value should not be null");
-				{
-					Temporal temporal = dts.get(0).toTemporal().orElse(null);
-					assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime, "temporal version should be an OffsetDateTime");
-					LocalDate date = LocalDate.of(2020, 7, 10);
-					LocalTime time = LocalTime.of(13, 47, 03);
-					assertEquals(OffsetDateTime.of(date, time, ZoneOffset.UTC), OffsetDateTime.from(temporal));
-				}
-				{
-					Temporal temporal = dts.get(1).toTemporal().orElse(null);
-					assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime, "temporal version should be an OffsetDateTime");
-					LocalDate date = LocalDate.of(2020, 7, 10);
-					LocalTime time = LocalTime.of(13, 47, 03);
-					assertEquals(OffsetDateTime.of(date, time, ZoneOffset.ofHours(-5)), OffsetDateTime.from(temporal));
-				}
-			}
-		});
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testCustomProcessorNullProp(JsonDeserializer deserializerParam) {
-		assertThrows(NullPointerException.class, () -> deserializerParam.customProcessor(null, (val, item, doc) -> {}));
-	}
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testBooleanValues(final JsonDeserializer deserializer) throws Exception {
+    final String json = "{\"foo\":true,\"bar\": false}";
 
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testCustomProcessorEmptyProp(JsonDeserializer deserializerParam) {
-		assertThrows(IllegalArgumentException.class, () -> deserializerParam.customProcessor("", (val, item, doc) -> {}));
-	}
+    this.withTempDb(database -> {
+      final Document doc = deserializer.target(database)
+          .booleanValues("hi", "there")
+          .fromJson(json);
+      Assertions.assertEquals("hi", doc.get("foo", String.class, null));
+      Assertions.assertEquals("there", doc.get("bar", String.class, null));
+    });
+  }
 
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testCustomProcessorNullProcessor(JsonDeserializer deserializerParam) {
-		assertThrows(NullPointerException.class, () -> deserializerParam.customProcessor("someitem", null));
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(DeserializerProvider.class)
-	public void testCustomProcessor(JsonDeserializer deserializerParam) throws Exception {
-		deserializerParam.customProcessor("foo", (val, itemName, doc) -> doc.replaceItemValue("foo", "hey custom"));
-		String json = Json.createObjectBuilder()
-			.add("foo", "heh")
-			.build()
-			.toString();
-		
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			deserializerParam.target(doc)
-				.fromJson(json);
-			assertEquals("hey custom", doc.get("foo", String.class, null));
-		});
-	}
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testCustomProcessor(final JsonDeserializer deserializerParam) throws Exception {
+    deserializerParam.customProcessor("foo", (val, itemName, doc) -> doc.replaceItemValue("foo", "hey custom"));
+    final String json = Json.createObjectBuilder()
+        .add("foo", "heh")
+        .build()
+        .toString();
+
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      deserializerParam.target(doc)
+          .fromJson(json);
+      Assertions.assertEquals("hey custom", doc.get("foo", String.class, null));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testCustomProcessorEmptyProp(final JsonDeserializer deserializerParam) {
+    Assertions.assertThrows(IllegalArgumentException.class, () -> deserializerParam.customProcessor("", (val, item, doc) -> {
+    }));
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testCustomProcessorNullProcessor(final JsonDeserializer deserializerParam) {
+    Assertions.assertThrows(NullPointerException.class, () -> deserializerParam.customProcessor("someitem", null));
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testCustomProcessorNullProp(final JsonDeserializer deserializerParam) {
+    Assertions.assertThrows(NullPointerException.class, () -> deserializerParam.customProcessor(null, (val, item, doc) -> {
+    }));
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testDateTimeItems(final JsonDeserializer deserializer) throws Exception {
+    final String json = "{\"foo\":\"2020-01-01\",\"bar\": \"2020-02-02\"}";
+
+    this.withTempDb(database -> {
+      final Document doc = deserializer.target(database)
+          .dateTimeItems(Arrays.asList("Foo"))
+          .fromJson(json);
+      Assertions.assertEquals(LocalDate.of(2020, 1, 1), doc.get("foo", LocalDate.class, null));
+      Assertions.assertEquals("2020-02-02", doc.getItemValue("bar").get(0));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testDateTimeItems2(final JsonDeserializer deserializer) throws Exception {
+    final String json = "{\"foo\":\"2020-01-01\",\"bar\": \"2020-02-02/2020-03-03\"}";
+
+    this.withTempDb(database -> {
+      final Document doc = deserializer.target(database)
+          .dateTimeItems(Arrays.asList("Foo", "Bar"))
+          .fromJson(json);
+      Assertions.assertEquals(LocalDate.of(2020, 1, 1), doc.get("foo", LocalDate.class, null));
+      final LocalDate start = LocalDate.of(2020, 2, 2);
+      final LocalDate end = LocalDate.of(2020, 3, 3);
+      final DominoDateRange range = database.getParentDominoClient().createDateRange(start, end);
+      Assertions.assertEquals(range, doc.getItemValue("bar").get(0));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testDeserializeExistingDocument(final JsonDeserializer deserializer) throws Exception {
+    final String json = "{\"foo\":\"bar\",\"bar\": 3}";
+
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("Form", "Hello");
+      deserializer.target(doc)
+          .fromJson(json);
+      Assertions.assertEquals("bar", doc.get("foo", String.class, null));
+      Assertions.assertEquals(3, doc.get("bar", int.class, 0));
+      Assertions.assertEquals("Hello", doc.get("Form", String.class, null));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testDeserializeExistingDocument2(final JsonDeserializer deserializer) throws Exception {
+    final String json = "{\"foo\":\"bar\",\"bar\": 3}";
+
+    this.withTempDb(database -> {
+      Document doc = database.createDocument();
+      doc.replaceItemValue("Form", "Hello");
+      doc = deserializer.target(doc)
+          .fromJson(json);
+      Assertions.assertEquals("bar", doc.get("foo", String.class, null));
+      Assertions.assertEquals(3, doc.get("bar", int.class, 0));
+      Assertions.assertEquals("Hello", doc.get("Form", String.class, null));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testDeserializeNewDocument(final JsonDeserializer deserializer) throws Exception {
+    final String json = "{\"foo\":\"bar\",\"bar\": 3}";
+
+    this.withTempDb(database -> {
+      final Document doc = deserializer.target(database)
+          .fromJson(json);
+      Assertions.assertEquals("bar", doc.get("foo", String.class, null));
+      Assertions.assertEquals(3, doc.get("bar", int.class, 0));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testDetectDateTime(final JsonDeserializer deserializer) throws Exception {
+    final String json = IOUtils.resourceToString("/json/testBasicDeserialization/datejson.json", StandardCharsets.UTF_8);
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      deserializer.target(doc)
+          .detectDateTime(true)
+          .fromJson(json);
+
+      {
+        Assertions.assertTrue(doc.hasItem("date"));
+        final DominoDateTime date = doc.get("date", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, date, "date field value should not be null");
+        final Temporal temporal = date.toTemporal().orElse(null);
+        Assertions.assertInstanceOf(LocalDate.class, temporal, "temporal version should be a LocalDate");
+        Assertions.assertEquals(LocalDate.of(2020, 7, 10), temporal);
+      }
+      {
+        final DominoDateTime time = doc.get("time", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, time, "time field value should not be null");
+        final Temporal temporal = time.toTemporal().orElse(null);
+        Assertions.assertInstanceOf(LocalTime.class, temporal, "temporal version should be a LocalTime");
+        Assertions.assertEquals(LocalTime.of(13, 47, 03), temporal);
+      }
+      {
+        final DominoDateTime dt = doc.get("datetime", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, dt, "datetime field value should not be null");
+        final Temporal temporal = dt.toTemporal().orElse(null);
+        Assertions.assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime,
+            "temporal version should be an OffsetDateTime");
+        final LocalDate date = LocalDate.of(2020, 7, 10);
+        final LocalTime time = LocalTime.of(13, 47, 03);
+        Assertions.assertEquals(OffsetDateTime.of(date, time, ZoneOffset.UTC), OffsetDateTime.from(temporal));
+      }
+      {
+        final DominoDateTime dt = doc.get("datetime_offset", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, dt, "datetime_offset field value should not be null");
+        final Temporal temporal = dt.toTemporal().orElse(null);
+        Assertions.assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime,
+            "temporal version should be an OffsetDateTime");
+        final LocalDate date = LocalDate.of(2020, 7, 10);
+        final LocalTime time = LocalTime.of(13, 47, 03);
+        Assertions.assertEquals(OffsetDateTime.of(date, time, ZoneOffset.ofHours(-5)), OffsetDateTime.from(temporal));
+      }
+      {
+        final List<DominoDateTime> dts = doc.getAsList("datetimes", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, dts, "datetimes field value should not be null");
+        {
+          final Temporal temporal = dts.get(0).toTemporal().orElse(null);
+          Assertions.assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime,
+              "temporal version should be an OffsetDateTime");
+          final LocalDate date = LocalDate.of(2020, 7, 10);
+          final LocalTime time = LocalTime.of(13, 47, 03);
+          Assertions.assertEquals(OffsetDateTime.of(date, time, ZoneOffset.UTC), OffsetDateTime.from(temporal));
+        }
+        {
+          final Temporal temporal = dts.get(1).toTemporal().orElse(null);
+          Assertions.assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime,
+              "temporal version should be an OffsetDateTime");
+          final LocalDate date = LocalDate.of(2020, 7, 10);
+          final LocalTime time = LocalTime.of(13, 47, 03);
+          Assertions.assertEquals(OffsetDateTime.of(date, time, ZoneOffset.ofHours(-5)), OffsetDateTime.from(temporal));
+        }
+      }
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testIgnoreMeta(final JsonDeserializer deserializer) throws Exception {
+    final String json = "{\"foo\":true,\"bar\": false, \"@meta\": \"hi\"}";
+
+    this.withTempDb(database -> {
+      final Document doc = deserializer.target(database)
+          .booleanValues("hi", "there")
+          .fromJson(json);
+      Assertions.assertEquals("hi", doc.get("foo", String.class, null));
+      Assertions.assertEquals("there", doc.get("bar", String.class, null));
+      Assertions.assertFalse(doc.hasItem("@meta"), "@meta item should have been removed");
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testIllegalDateTimeItems(final JsonDeserializer deserializer) throws Exception {
+    final String json = "{\"foo\":\"hi\"}";
+
+    this.withTempDb(database -> {
+      // This throws an IllegalStateException internally, but surfaces differently
+      // based on implementation
+      Assertions.assertThrows(RuntimeException.class, () -> deserializer.target(database)
+          .dateTimeItems(Arrays.asList("Foo"))
+          .fromJson(json));
+    });
+  }
+
+  @Test
+  public void testJsonDeserializationService() {
+    Assertions.assertNotNull(JsonDeserializer.createDeserializer());
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testMixedArrayValues(final JsonDeserializer deserializer) throws Exception {
+    final String json = "{\"foo\":[1, \"foo\", 3],\"bar\": [\"hi\", \"there\"], \"baz\":[true, false, true]}";
+
+    this.withTempDb(database -> {
+      Assertions.assertThrows(RuntimeException.class, () -> deserializer.target(database)
+          .booleanValues("hi", "there")
+          .fromJson(json));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testRemoveItems(final JsonDeserializer deserializer) throws Exception {
+    final String json = "{\"foo\":\"hi\",\"bar\": \"there\"}";
+
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("Form", "Hello");
+      doc.replaceItemValue("Baz", "hi there");
+      doc.replaceItemValue("$SystemField", "tester");
+      deserializer.target(doc)
+          .removeMissingItems(true)
+          .fromJson(json);
+      Assertions.assertEquals("hi", doc.get("foo", String.class, null));
+      Assertions.assertEquals("there", doc.get("bar", String.class, null));
+      Assertions.assertFalse(doc.hasItem("baz"), "Baz item should have been removed");
+      Assertions.assertEquals("tester", doc.get("$SystemField", String.class, null));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testSpecifyDateTime(final JsonDeserializer deserializer) throws Exception {
+    final String json = IOUtils.resourceToString("/json/testBasicDeserialization/datejson.json", StandardCharsets.UTF_8);
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      deserializer.target(doc)
+          .dateTimeItems(Arrays.asList("date", "time", "datetime", "datetime_offset", "datetimes"))
+          .fromJson(json);
+
+      {
+        Assertions.assertTrue(doc.hasItem("date"));
+        final DominoDateTime date = doc.get("date", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, date, "date field value should not be null");
+        final Temporal temporal = date.toTemporal().orElse(null);
+        Assertions.assertInstanceOf(LocalDate.class, temporal, "temporal version should be a LocalDate");
+        Assertions.assertEquals(LocalDate.of(2020, 7, 10), temporal);
+      }
+      {
+        final DominoDateTime time = doc.get("time", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, time, "time field value should not be null");
+        final Temporal temporal = time.toTemporal().orElse(null);
+        Assertions.assertInstanceOf(LocalTime.class, temporal, "temporal version should be a LocalTime");
+        Assertions.assertEquals(LocalTime.of(13, 47, 03), temporal);
+      }
+      {
+        final DominoDateTime dt = doc.get("datetime", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, dt, "datetime field value should not be null");
+        final Temporal temporal = dt.toTemporal().orElse(null);
+        Assertions.assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime,
+            "temporal version should be an OffsetDateTime");
+        final LocalDate date = LocalDate.of(2020, 7, 10);
+        final LocalTime time = LocalTime.of(13, 47, 03);
+        Assertions.assertEquals(OffsetDateTime.of(date, time, ZoneOffset.UTC), OffsetDateTime.from(temporal));
+      }
+      {
+        final DominoDateTime dt = doc.get("datetime_offset", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, dt, "datetime_offset field value should not be null");
+        final Temporal temporal = dt.toTemporal().orElse(null);
+        Assertions.assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime,
+            "temporal version should be an OffsetDateTime");
+        final LocalDate date = LocalDate.of(2020, 7, 10);
+        final LocalTime time = LocalTime.of(13, 47, 03);
+        Assertions.assertEquals(OffsetDateTime.of(date, time, ZoneOffset.ofHours(-5)), OffsetDateTime.from(temporal));
+      }
+      {
+        final List<DominoDateTime> dts = doc.getAsList("datetimes", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, dts, "datetimes field value should not be null");
+        {
+          final Temporal temporal = dts.get(0).toTemporal().orElse(null);
+          Assertions.assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime,
+              "temporal version should be an OffsetDateTime");
+          final LocalDate date = LocalDate.of(2020, 7, 10);
+          final LocalTime time = LocalTime.of(13, 47, 03);
+          Assertions.assertEquals(OffsetDateTime.of(date, time, ZoneOffset.UTC), OffsetDateTime.from(temporal));
+        }
+        {
+          final Temporal temporal = dts.get(1).toTemporal().orElse(null);
+          Assertions.assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime,
+              "temporal version should be an OffsetDateTime");
+          final LocalDate date = LocalDate.of(2020, 7, 10);
+          final LocalTime time = LocalTime.of(13, 47, 03);
+          Assertions.assertEquals(OffsetDateTime.of(date, time, ZoneOffset.ofHours(-5)), OffsetDateTime.from(temporal));
+        }
+      }
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testSpecifyDateTimePartial(final JsonDeserializer deserializer) throws Exception {
+    final String json = IOUtils.resourceToString("/json/testBasicDeserialization/datejson.json", StandardCharsets.UTF_8);
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      deserializer.target(doc)
+          .dateTimeItems(Arrays.asList("date", "datetime_offset", "datetimes"))
+          .fromJson(json);
+
+      {
+        Assertions.assertTrue(doc.hasItem("date"));
+        final DominoDateTime date = doc.get("date", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, date, "date field value should not be null");
+        final Temporal temporal = date.toTemporal().orElse(null);
+        Assertions.assertInstanceOf(LocalDate.class, temporal, "temporal version should be a LocalDate");
+        Assertions.assertEquals(LocalDate.of(2020, 7, 10), temporal);
+      }
+      {
+        Assertions.assertTrue(doc.hasItem("time"));
+        Assertions.assertEquals(ItemDataType.TYPE_TEXT, doc.getFirstItem("time").get().getType());
+        Assertions.assertEquals("13:47:03", doc.get("time", String.class, null));
+      }
+      {
+        Assertions.assertTrue(doc.hasItem("datetime"));
+        Assertions.assertEquals(ItemDataType.TYPE_TEXT, doc.getFirstItem("datetime").get().getType());
+        Assertions.assertEquals("2020-07-10T13:47:03Z", doc.get("datetime", String.class, null));
+      }
+      {
+        final DominoDateTime dt = doc.get("datetime_offset", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, dt, "datetime_offset field value should not be null");
+        final Temporal temporal = dt.toTemporal().orElse(null);
+        Assertions.assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime,
+            "temporal version should be an OffsetDateTime");
+        final LocalDate date = LocalDate.of(2020, 7, 10);
+        final LocalTime time = LocalTime.of(13, 47, 03);
+        Assertions.assertEquals(OffsetDateTime.of(date, time, ZoneOffset.ofHours(-5)), OffsetDateTime.from(temporal));
+      }
+      {
+        final List<DominoDateTime> dts = doc.getAsList("datetimes", DominoDateTime.class, null);
+        Assertions.assertNotEquals(null, dts, "datetimes field value should not be null");
+        {
+          final Temporal temporal = dts.get(0).toTemporal().orElse(null);
+          Assertions.assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime,
+              "temporal version should be an OffsetDateTime");
+          final LocalDate date = LocalDate.of(2020, 7, 10);
+          final LocalTime time = LocalTime.of(13, 47, 03);
+          Assertions.assertEquals(OffsetDateTime.of(date, time, ZoneOffset.UTC), OffsetDateTime.from(temporal));
+        }
+        {
+          final Temporal temporal = dts.get(1).toTemporal().orElse(null);
+          Assertions.assertTrue(temporal instanceof OffsetDateTime || temporal instanceof ZonedDateTime,
+              "temporal version should be an OffsetDateTime");
+          final LocalDate date = LocalDate.of(2020, 7, 10);
+          final LocalTime time = LocalTime.of(13, 47, 03);
+          Assertions.assertEquals(OffsetDateTime.of(date, time, ZoneOffset.ofHours(-5)), OffsetDateTime.from(temporal));
+        }
+      }
+    });
+  }
 }

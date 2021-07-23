@@ -22,19 +22,16 @@ import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.15
  */
-@StructureDefinition(
-	name="LIST",
-	members={
-		@StructureMember(name="ListEntries", type=short.class, unsigned=true)
-	}
-)
+@StructureDefinition(name = "LIST", members = {
+    @StructureMember(name = "ListEntries", type = short.class, unsigned = true)
+})
 public interface ListStructure extends MemoryStructure {
-	@StructureGetter("ListEntries")
-	int getListEntries();
-	@StructureSetter("ListEntries")
-	ListStructure setListEntries(int listEntries);
+  @StructureGetter("ListEntries")
+  int getListEntries();
+
+  @StructureSetter("ListEntries")
+  ListStructure setListEntries(int listEntries);
 }

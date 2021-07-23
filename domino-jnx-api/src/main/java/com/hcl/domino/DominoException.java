@@ -14,65 +14,65 @@
  * under the License.
  * ==========================================================================
  */
- package com.hcl.domino;
+package com.hcl.domino;
 
 /**
  * Exception class for Notes C API errors
- * 
+ *
  * @author Karsten Lehmann
  */
 public class DominoException extends RuntimeException {
-	private static final long serialVersionUID = 2712910384246785374L;
-	private int m_id;
-	
-	/**
-	 * Creates a new instance
-	 * 
-	 * @param id error code received from Domino
-	 * @param message error message
-	 */
-	public DominoException(int id, String message) {
-		super(message);
-		m_id = id;
-	}
+  private static final long serialVersionUID = 2712910384246785374L;
+  private final int m_id;
 
-	/**
-	 * Created a new instance
-	 * 
-	 * @param id error code received from Domino
-	 * @param message error message
-	 * @param cause exception cause
-	 */
-	public DominoException(int id, String message, Throwable cause) {
-		super(message, cause);
-		m_id = id;
-	}
+  /**
+   * Creates a new instance
+   *
+   * @param id      error code received from Domino
+   * @param message error message
+   */
+  public DominoException(final int id, final String message) {
+    super(message);
+    this.m_id = id;
+  }
 
-	/**
-	 * Creates a new instance
-	 * 
-	 * @param msg error message
-	 */
-	public DominoException(String msg) {
-		this(0, msg);
-	}
-	
-	/**
-	 * Creates a new instance
-	 * 
-	 * @param msg error message
-	 * @param cause exception cause
-	 */
-	public DominoException(String msg, Throwable cause) {
-		this(0, msg, cause);
-	}
-	
-	/**
-	 * Returns the C API error code
-	 * 
-	 * @return code
-	 */
-	public int getId() {
-		return m_id;
-	}
+  /**
+   * Created a new instance
+   *
+   * @param id      error code received from Domino
+   * @param message error message
+   * @param cause   exception cause
+   */
+  public DominoException(final int id, final String message, final Throwable cause) {
+    super(message, cause);
+    this.m_id = id;
+  }
+
+  /**
+   * Creates a new instance
+   *
+   * @param msg error message
+   */
+  public DominoException(final String msg) {
+    this(0, msg);
+  }
+
+  /**
+   * Creates a new instance
+   *
+   * @param msg   error message
+   * @param cause exception cause
+   */
+  public DominoException(final String msg, final Throwable cause) {
+    this(0, msg, cause);
+  }
+
+  /**
+   * Returns the C API error code
+   *
+   * @return code
+   */
+  public int getId() {
+    return this.m_id;
+  }
 }

@@ -20,25 +20,30 @@ import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 
 public enum DateShowFormat implements INumberEnum<Byte> {
-	ALL(RichTextConstants.DT_DSHOW_ALL),
-	YM(RichTextConstants.DT_DSHOW_YM),
-	WMD(RichTextConstants.DT_DSHOW_WMD),
-	W(RichTextConstants.DT_DSHOW_W),
-	M(RichTextConstants.DT_DSHOW_M),
-	MD(RichTextConstants.DT_DSHOW_MD),
-	MDY(RichTextConstants.DT_DSHOW_MDY),
-	D(RichTextConstants.DT_DSHOW_D),
-	Y(RichTextConstants.DT_DSHOW_Y),
-	;
-	private final byte value;
-	DateShowFormat(byte value) { this.value = value; }
-	
-	@Override
-	public long getLongValue() {
-		return value;
-	}
-	@Override
-	public Byte getValue() {
-		return value;
-	}
+  ALL(RichTextConstants.DT_DSHOW_ALL),
+  YM(RichTextConstants.DT_DSHOW_YM),
+  WMD(RichTextConstants.DT_DSHOW_WMD),
+  W(RichTextConstants.DT_DSHOW_W),
+  M(RichTextConstants.DT_DSHOW_M),
+  MD(RichTextConstants.DT_DSHOW_MD),
+  MDY(RichTextConstants.DT_DSHOW_MDY),
+  D(RichTextConstants.DT_DSHOW_D),
+  Y(RichTextConstants.DT_DSHOW_Y),
+  ;
+
+  private final byte value;
+
+  DateShowFormat(final byte value) {
+    this.value = value;
+  }
+
+  @Override
+  public long getLongValue() {
+    return this.value;
+  }
+
+  @Override
+  public Byte getValue() {
+    return this.value;
+  }
 }

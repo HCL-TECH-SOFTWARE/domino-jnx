@@ -23,26 +23,26 @@ import java.util.Set;
  * Computed {@link Acl} access level of a user in a database
  */
 public interface AclAccess {
-	
-	/**
-	 * Returns the roles
-	 * 
-	 * @return roles or empty list
-	 */
-	List<String> getRoles();
-	
-	/**
-	 * Returns the access level
-	 * 
-	 * @return access level
-	 */
-	AclLevel getAclLevel();
-	
-	/**
-	 * Returns the access flags
-	 * 
-	 * @return flags
-	 */
-	Set<AclFlag> getAclFlags();
+
+  /**
+   * Returns the access flags
+   *
+   * @return flags
+   */
+  Set<AclFlag> getAclFlags();
+
+  /**
+   * Returns the access level
+   *
+   * @return access level
+   */
+  AclLevel getAclLevel();
+
+  /**
+   * Returns the roles
+   *
+   * @return roles or empty list
+   */
+  List<String> getRoles();
 
 }

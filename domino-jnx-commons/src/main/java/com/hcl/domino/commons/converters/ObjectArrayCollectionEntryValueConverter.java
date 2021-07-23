@@ -27,58 +27,62 @@ import com.hcl.domino.data.DocumentValueConverter;
 /**
  * {@link DocumentValueConverter} implementation that supports converting to
  * and from object array types.
- * 
+ *
  * @author Jesse Gallagher
  */
 public class ObjectArrayCollectionEntryValueConverter implements CollectionEntryValueConverter {
 
-	@Override
-	public boolean supportsRead(Class<?> valueType) {
-		return valueType.isArray() && !valueType.getComponentType().isPrimitive();
-	}
+  @Override
+  public <T> T getValue(final CollectionEntry obj, final int index, final Class<T> valueType, final T defaultValue) {
+    final Class<?> type = valueType.getComponentType();
+    final List<?> val = obj.getAsList(index, type, null);
+    if (val == null) {
+      return defaultValue;
+    }
 
-	@Override
-	public <T> T getValue(CollectionEntry obj, String itemName, Class<T> valueType, T defaultValue) {
-		Class<?> type = valueType.getComponentType();
-		List<?> val = obj.getAsList(itemName, type, null);
-		if(val == null) {
-			return defaultValue;
-		}
-		
-		@SuppressWarnings("unchecked")
-		T result = (T)Array.newInstance(type, val.size());
-		for(int i = 0; i < val.size(); i++) {
-			Array.set(result, i, val.get(i));
-		}
-		return result;
-	}
+    @SuppressWarnings("unchecked")
+    final T result = (T) Array.newInstance(type, val.size());
+    for (int i = 0; i < val.size(); i++) {
+      Array.set(result, i, val.get(i));
+    }
+    return result;
+  }
 
-	@Override
-	public <T> List<T> getValueAsList(CollectionEntry obj, String itemName, Class<T> valueType, List<T> defaultValue) {
-		// This is a weird case, and this intentionally should return an e.g. List<Object[]>
-		return Arrays.asList(getValue(obj, itemName, valueType, null));
-	}
-	
-	@Override
-	public <T> T getValue(CollectionEntry obj, int index, Class<T> valueType, T defaultValue) {
-		Class<?> type = valueType.getComponentType();
-		List<?> val = obj.getAsList(index, type, null);
-		if(val == null) {
-			return defaultValue;
-		}
-		
-		@SuppressWarnings("unchecked")
-		T result = (T)Array.newInstance(type, val.size());
-		for(int i = 0; i < val.size(); i++) {
-			Array.set(result, i, val.get(i));
-		}
-		return result;
-	}
-	
-	@Override
-	public <T> List<T> getValueAsList(CollectionEntry obj, int index, Class<T> valueType, List<T> defaultValue) {
-		// This is a weird case, and this intentionally should return an e.g. List<Object[]>
-		return Arrays.asList(getValue(obj, index, valueType, null));
-	}
+  @Override
+  public <T> T getValue(final CollectionEntry obj, final String itemName, final Class<T> valueType, final T defaultValue) {
+    final Class<?> type = valueType.getComponentType();
+    final List<?> val = obj.getAsList(itemName, type, null);
+    if (val == null) {
+      return defaultValue;
+    }
+
+    @SuppressWarnings("unchecked")
+    final T result = (T) Array.newInstance(type, val.size());
+    for (int i = 0; i < val.size(); i++) {
+      Array.set(result, i, val.get(i));
+    }
+    return result;
+  }
+
+  @Override
+  public <T> List<T> getValueAsList(final CollectionEntry obj, final int index, final Class<T> valueType,
+      final List<T> defaultValue) {
+    // This is a weird case, and this intentionally should return an e.g.
+    // List<Object[]>
+    return Arrays.asList(this.getValue(obj, index, valueType, null));
+  }
+
+  @Override
+  public <T> List<T> getValueAsList(final CollectionEntry obj, final String itemName, final Class<T> valueType,
+      final List<T> defaultValue) {
+    // This is a weird case, and this intentionally should return an e.g.
+    // List<Object[]>
+    return Arrays.asList(this.getValue(obj, itemName, valueType, null));
+  }
+
+  @Override
+  public boolean supportsRead(final Class<?> valueType) {
+    return valueType.isArray() && !valueType.getComponentType().isPrimitive();
+  }
 
 }

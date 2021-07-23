@@ -27,72 +27,79 @@ import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.15
  */
-@StructureDefinition(
-	name="COLOR_VALUE",
-	members={
-		@StructureMember(name="Flags", type=ColorValue.Flag.class, bitfield=true),
-		@StructureMember(name="Component1", type=byte.class, unsigned=true),
-		@StructureMember(name="Component2", type=byte.class, unsigned=true),
-		@StructureMember(name="Component3", type=byte.class, unsigned=true),
-		@StructureMember(name="Component4", type=byte.class, unsigned=true)
-	}
-)
+@StructureDefinition(name = "COLOR_VALUE", members = {
+    @StructureMember(name = "Flags", type = ColorValue.Flag.class, bitfield = true),
+    @StructureMember(name = "Component1", type = byte.class, unsigned = true),
+    @StructureMember(name = "Component2", type = byte.class, unsigned = true),
+    @StructureMember(name = "Component3", type = byte.class, unsigned = true),
+    @StructureMember(name = "Component4", type = byte.class, unsigned = true)
+})
 public interface ColorValue extends MemoryStructure {
-	enum Flag implements INumberEnum<Short> {
-		ISRGB(RichTextConstants.COLOR_VALUE_FLAGS_ISRGB),	/* Color space is RGB */
-		NOCOLOR(RichTextConstants.COLOR_VALUE_FLAGS_NOCOLOR),	/* This object has no color */
-		SYSTEMCOLOR(RichTextConstants.COLOR_VALUE_FLAGS_SYSTEMCOLOR),	/* Use system default color, ignore color here */
-		HASGRADIENT(RichTextConstants.COLOR_VALUE_FLAGS_HASGRADIENT),	/* This color has a gradient color that follows */
-		APPLICATION_MASK(RichTextConstants.COLOR_VALUE_FLAGS_APPLICATION_MASK),	/* upper 4 bits are reserved for application specific use */
+  enum Flag implements INumberEnum<Short> {
+    ISRGB(RichTextConstants.COLOR_VALUE_FLAGS_ISRGB), /* Color space is RGB */
+    NOCOLOR(RichTextConstants.COLOR_VALUE_FLAGS_NOCOLOR), /* This object has no color */
+    SYSTEMCOLOR(RichTextConstants.COLOR_VALUE_FLAGS_SYSTEMCOLOR), /* Use system default color, ignore color here */
+    HASGRADIENT(RichTextConstants.COLOR_VALUE_FLAGS_HASGRADIENT), /* This color has a gradient color that follows */
+    APPLICATION_MASK(
+        RichTextConstants.COLOR_VALUE_FLAGS_APPLICATION_MASK), /* upper 4 bits are reserved for application specific use */
 
-		RESERVED1(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED1),	/* reserved for user */
-		RESERVED2(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED2),	/* reserved for user */
-		RESERVED3(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED3),	/* reserved for user */
-		RESERVED4(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED4),	/* reserved for user */
-		;
-		private final short value;
-		Flag(short value) { this.value = value; }
-		
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-		@Override
-		public Short getValue() {
-			return value;
-		}
-	}
-	
-	@StructureGetter("Flags")
-	Set<Flag> getFlags();
-	@StructureSetter("Flags")
-	ColorValue setFlags(Collection<Flag> flags);
-	
-	@StructureGetter("Component1")
-	short getRed();
-	@StructureSetter("Component1")
-	ColorValue setRed(short red);
-	
-	@StructureGetter("Component2")
-	short getGreen();
-	@StructureSetter("Component2")
-	ColorValue setGreen(short green);
-	
-	@StructureGetter("Component3")
-	short getBlue();
-	@StructureSetter("Component3")
-	ColorValue setBlue(short blue);
-	
-	@StructureGetter("Component4")
-	short getComponent4();
-	@StructureSetter("Component4")
-	ColorValue setComponent4(short component4);
-	
-	default String toHexString() {
-		return String.format("%02d%02d%02d", getRed(), getGreen(), getBlue());
-	}
+    RESERVED1(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED1), /* reserved for user */
+    RESERVED2(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED2), /* reserved for user */
+    RESERVED3(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED3), /* reserved for user */
+    RESERVED4(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED4), /* reserved for user */
+    ;
+
+    private final short value;
+
+    Flag(final short value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Short getValue() {
+      return this.value;
+    }
+  }
+
+  @StructureGetter("Component3")
+  short getBlue();
+
+  @StructureGetter("Component4")
+  short getComponent4();
+
+  @StructureGetter("Flags")
+  Set<Flag> getFlags();
+
+  @StructureGetter("Component2")
+  short getGreen();
+
+  @StructureGetter("Component1")
+  short getRed();
+
+  @StructureSetter("Component3")
+  ColorValue setBlue(short blue);
+
+  @StructureSetter("Component4")
+  ColorValue setComponent4(short component4);
+
+  @StructureSetter("Flags")
+  ColorValue setFlags(Collection<Flag> flags);
+
+  @StructureSetter("Component2")
+  ColorValue setGreen(short green);
+
+  @StructureSetter("Component1")
+  ColorValue setRed(short red);
+
+  default String toHexString() {
+    return String.format("%02d%02d%02d", this.getRed(), this.getGreen(), this.getBlue());
+  }
 }

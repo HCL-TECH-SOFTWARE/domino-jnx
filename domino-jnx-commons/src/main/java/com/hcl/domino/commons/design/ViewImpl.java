@@ -25,23 +25,23 @@ import com.hcl.domino.design.View;
  */
 public class ViewImpl extends AbstractCollectionDesignElement<View> implements View {
 
-	public ViewImpl(Document doc) {
-		super(doc);
-	}
-	
-	@Override
-	public void initializeNewDesignNote() {
-		setFlags("Y"); //$NON-NLS-1$
-	}
+  public ViewImpl(final Document doc) {
+    super(doc);
+  }
 
-	@Override
-	public String getSelectionFormula() {
-		throw new NotYetImplementedException();
-	}
+  @Override
+  public String getSelectionFormula() {
+    throw new NotYetImplementedException();
+  }
 
-	@Override
-	public View setSelectionFormula(String selectionFormula) {
-		throw new NotYetImplementedException();
-	}
+  @Override
+  public void initializeNewDesignNote() {
+    this.setFlags("Y"); //$NON-NLS-1$
+  }
+
+  @Override
+  public View setSelectionFormula(final String selectionFormula) {
+    throw new NotYetImplementedException();
+  }
 
 }

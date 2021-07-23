@@ -34,27 +34,26 @@ import com.hcl.domino.richtext.records.RecordType.Area;
  */
 public class JavaLibraryImpl extends AbstractScriptLibrary<JavaLibrary> implements JavaLibrary {
 
-	public JavaLibraryImpl(Document doc) {
-		super(doc);
-	}
+  public JavaLibraryImpl(final Document doc) {
+    super(doc);
+  }
 
-	@Override
-	public JavaAgentContent getScriptContent() {
-		CDActionJavaAgent action = getDocument().getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION)
-			.stream()
-			.filter(CDActionJavaAgent.class::isInstance)
-			.map(CDActionJavaAgent.class::cast)
-			.findFirst()
-			.orElseThrow(() -> new IllegalStateException("Unable to find Java action data"));
-		return new DefaultJavaAgentContent(
-			action.getClassName(),
-			action.getCodePath(),
-			Arrays.stream(action.getFileList().split("\\n")) //$NON-NLS-1$
-				.filter(StringUtil::isNotEmpty)
-				.collect(Collectors.toList()),
-			Arrays.stream(action.getLibraryList().split("\\n")) //$NON-NLS-1$
-				.filter(StringUtil::isNotEmpty)
-				.collect(Collectors.toList())
-		);
-	}
+  @Override
+  public JavaAgentContent getScriptContent() {
+    final CDActionJavaAgent action = this.getDocument().getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION)
+        .stream()
+        .filter(CDActionJavaAgent.class::isInstance)
+        .map(CDActionJavaAgent.class::cast)
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("Unable to find Java action data"));
+    return new DefaultJavaAgentContent(
+        action.getClassName(),
+        action.getCodePath(),
+        Arrays.stream(action.getFileList().split("\\n")) //$NON-NLS-1$
+            .filter(StringUtil::isNotEmpty)
+            .collect(Collectors.toList()),
+        Arrays.stream(action.getLibraryList().split("\\n")) //$NON-NLS-1$
+            .filter(StringUtil::isNotEmpty)
+            .collect(Collectors.toList()));
+  }
 }

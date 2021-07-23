@@ -16,79 +16,80 @@
  */
 package com.hcl.domino.commons.data;
 
-import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.BuildVersionInfo;
+import com.hcl.domino.misc.NotesConstants;
 
 /**
  * @since 1.0.19
  */
 public class BuildVersionInfoImpl implements BuildVersionInfo {
-	/** Major version identifier */
-	private int majorVersion;
-	/** Minor version identifier */
-	private int minorVersion;
-	/** Maintenance Release identifier */
-	private int qmrNumber;
-	/** Maintenance Update identifier */
-	private int qmuNumber;
-	/** Hotfixes installed on machine */
-	private int hotfixNumber;
-	/** See BUILDVERFLAGS_xxx */
-	private int flags;
-	/** Fixpack version installed on machine */
-	private int fixpackNumber;
+  /** Major version identifier */
+  private final int majorVersion;
+  /** Minor version identifier */
+  private final int minorVersion;
+  /** Maintenance Release identifier */
+  private final int qmrNumber;
+  /** Maintenance Update identifier */
+  private final int qmuNumber;
+  /** Hotfixes installed on machine */
+  private final int hotfixNumber;
+  /** See BUILDVERFLAGS_xxx */
+  private final int flags;
+  /** Fixpack version installed on machine */
+  private final int fixpackNumber;
 
-	public BuildVersionInfoImpl(int majorVersion, int minorVersion, int qmrNumber, int qmuNumber, int hotfixNumber, int flags, int fixpackNumber) {
-		this.majorVersion = majorVersion;
-		this.minorVersion = minorVersion;
-		this.qmrNumber = qmrNumber;
-		this.qmuNumber = qmuNumber;
-		this.hotfixNumber = hotfixNumber;
-		this.flags = flags;
-		this.fixpackNumber = fixpackNumber;
-	}
-	
-	@Override
-	public int getMajorVersion() {
-		return majorVersion;
-	}
-	
-	@Override
-	public int getMinorVersion() {
-		return minorVersion;
-	}
-	
-	@Override
-	public int getQMRNumber() {
-		return qmrNumber;
-	}
-	
-	@Override
-	public int getQMUNumber() {
-		return qmuNumber;
-	}
-	
-	@Override
-	public int getHotfixNumber() {
-		return hotfixNumber;
-	}
-	
-	@Override
-	public int getFixpackNumber() {
-		return fixpackNumber;
-	}
-	
-	@Override
-	public boolean isNonProductionBuild() {
-		return (flags & NotesConstants.BLDVERFLAGS_NONPRODUCTION) == NotesConstants.BLDVERFLAGS_NONPRODUCTION;
-	}
+  public BuildVersionInfoImpl(final int majorVersion, final int minorVersion, final int qmrNumber, final int qmuNumber,
+      final int hotfixNumber, final int flags, final int fixpackNumber) {
+    this.majorVersion = majorVersion;
+    this.minorVersion = minorVersion;
+    this.qmrNumber = qmrNumber;
+    this.qmuNumber = qmuNumber;
+    this.hotfixNumber = hotfixNumber;
+    this.flags = flags;
+    this.fixpackNumber = fixpackNumber;
+  }
 
-	@Override
-	public String toString() {
-		return "BuildVersionInfoImpl [majorVersion=" + majorVersion + ", minorVersion=" + minorVersion + ", qmrNumber=" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				+ qmrNumber + ", qmuNumber=" + qmuNumber + ", hotfixNumber=" + hotfixNumber + ", isNonProdBuild=" + isNonProductionBuild() //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				+ ", fixpackNumber=" + fixpackNumber + "]"; //$NON-NLS-1$ //$NON-NLS-2$
-	}
+  @Override
+  public int getFixpackNumber() {
+    return this.fixpackNumber;
+  }
 
-	
+  @Override
+  public int getHotfixNumber() {
+    return this.hotfixNumber;
+  }
+
+  @Override
+  public int getMajorVersion() {
+    return this.majorVersion;
+  }
+
+  @Override
+  public int getMinorVersion() {
+    return this.minorVersion;
+  }
+
+  @Override
+  public int getQMRNumber() {
+    return this.qmrNumber;
+  }
+
+  @Override
+  public int getQMUNumber() {
+    return this.qmuNumber;
+  }
+
+  @Override
+  public boolean isNonProductionBuild() {
+    return (this.flags & NotesConstants.BLDVERFLAGS_NONPRODUCTION) == NotesConstants.BLDVERFLAGS_NONPRODUCTION;
+  }
+
+  @Override
+  public String toString() {
+    return "BuildVersionInfoImpl [majorVersion=" + this.majorVersion + ", minorVersion=" + this.minorVersion + ", qmrNumber=" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        + this.qmrNumber + ", qmuNumber=" + this.qmuNumber + ", hotfixNumber=" + this.hotfixNumber + ", isNonProdBuild=" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        + this.isNonProductionBuild()
+        + ", fixpackNumber=" + this.fixpackNumber + "]"; //$NON-NLS-1$ //$NON-NLS-2$
+  }
+
 }

@@ -32,26 +32,26 @@ import jakarta.ws.rs.core.MediaType;
 @Path("/serverinfo")
 public class ServerInfo {
 
-	@Inject
-	private DominoClient client;
+  @Inject
+  private DominoClient client;
 
-	@Inject
-	private HttpServletRequest req;
+  @Inject
+  private HttpServletRequest req;
 
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public Map<String, Object> get() {
-		Map<String, Object> result = new LinkedHashMap<>();
-		result.put("userName", client.getEffectiveUserName()); //$NON-NLS-1$
-		result.put("servletUser", req.getUserPrincipal().getName()); //$NON-NLS-1$
-		result.put("idUserName", client.getIDUserName()); //$NON-NLS-1$
-		result.put("isOnDomino", client.isOnServer()); //$NON-NLS-1$
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Map<String, Object> get() {
+    final Map<String, Object> result = new LinkedHashMap<>();
+    result.put("userName", this.client.getEffectiveUserName()); //$NON-NLS-1$
+    result.put("servletUser", this.req.getUserPrincipal().getName()); //$NON-NLS-1$
+    result.put("idUserName", this.client.getIDUserName()); //$NON-NLS-1$
+    result.put("isOnDomino", this.client.isOnServer()); //$NON-NLS-1$
 
-		DominoRuntime runtime = client.getDominoRuntime();
-		result.put("dataDirectory", runtime.getDataDirectory().toString()); //$NON-NLS-1$
-		result.put("programDirectory", runtime.getProgramDirectory().toString()); //$NON-NLS-1$
+    final DominoRuntime runtime = this.client.getDominoRuntime();
+    result.put("dataDirectory", runtime.getDataDirectory().toString()); //$NON-NLS-1$
+    result.put("programDirectory", runtime.getProgramDirectory().toString()); //$NON-NLS-1$
 
-		return result;
-	}
+    return result;
+  }
 
 }

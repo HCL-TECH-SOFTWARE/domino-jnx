@@ -19,14 +19,15 @@ package com.hcl.domino.security;
 /**
  * This service interface represents a provider that is able to process a token
  * that represents a potential user.
- * 
- * <p>Individual applications of token authentication (such as extracting from an ID
+ * <p>
+ * Individual applications of token authentication (such as extracting from an
+ * ID
  * Vault) are represented by sub-interfaces.
- * 
+ *
  * @param <T> the class consumed by this handler
  * @author Jesse Gallagher
  * @since 1.0.19
  */
 public interface UserTokenHandler<T> {
-	boolean canProcess(Object token);
+  boolean canProcess(Object token);
 }

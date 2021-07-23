@@ -23,129 +23,141 @@ import com.hcl.domino.dxl.DxlImporterLog;
 
 /**
  * Representation of a DXL importer log.
- * 
+ *
  * @author Jesse Gallagher
  */
 public class DxlImporterLogImpl implements DxlImporterLog {
-	public static class DxlErrorImpl implements DxlError {
-		private int id;
-		private String text;
-		private String source;
-		private int line;
-		private int column;
+  public static class DxlErrorImpl implements DxlError {
+    private int id;
+    private String text;
+    private String source;
+    private int line;
+    private int column;
 
-		@Override
-		public int getId() {
-			return id;
-		}
-		public void setId(int id) {
-			this.id = id;
-		}
-		
-		@Override
-		public String getText() {
-			return text;
-		}
-		public void setText(String text) {
-			this.text = text;
-		}
+    @Override
+    public int getColumn() {
+      return this.column;
+    }
 
-		@Override
-		public String getSource() {
-			return source;
-		}
-		public void setSource(String source) {
-			this.source = source;
-		}
+    @Override
+    public int getId() {
+      return this.id;
+    }
 
-		@Override
-		public int getLine() {
-			return line;
-		}
-		public void setLine(int line) {
-			this.line = line;
-		}
+    @Override
+    public int getLine() {
+      return this.line;
+    }
 
-		@Override
-		public int getColumn() {
-			return column;
-		}
-		public void setColumn(int column) {
-			this.column = column;
-		}
-		
-		@Override
-		public String toString() {
-			return MessageFormat.format("Error: id={0}: {1}", id, text); //$NON-NLS-1$
-		}
-	}
-	
-	public static class DxlFatalErrorImpl implements DxlFatalError {
-		private String source;
-		private int line;
-		private int column;
-		private String text;
-		
-		@Override
-		public String getSource() {
-			return source;
-		}
-		public void setSource(String source) {
-			this.source = source;
-		}
-		
-		@Override
-		public int getLine() {
-			return line;
-		}
-		public void setLine(int line) {
-			this.line = line;
-		}
-		
-		@Override
-		public int getColumn() {
-			return column;
-		}
-		public void setColumn(int column) {
-			this.column = column;
-		}
-		
-		@Override
-		public String getText() {
-			return text;
-		}
-		public void setText(String text) {
-			this.text = text;
-		}
-		
-		@Override
-		public String toString() {
-			return MessageFormat.format("Fatal Error: source={0}, line={1}, column={2}: {3}", source, line, column, text); //$NON-NLS-1$
-		}
-	}
+    @Override
+    public String getSource() {
+      return this.source;
+    }
 
-	private List<DxlFatalError> fatalErrors;
-	private List<DxlError> errors;
-	
-	public DxlImporterLogImpl(List<DxlError> errors, List<DxlFatalError> fatalErrors) {
-		this.errors = errors;
-		this.fatalErrors = fatalErrors;
-		
-	}
-	
-	@Override
-	public List<DxlFatalError> getFatalErrors() {
-		return fatalErrors;
-	}
-	public void setFatalErrors(List<DxlFatalError> fatalErrors) {
-		this.fatalErrors = fatalErrors;
-	}
-	
-	@Override
-	public List<DxlError> getErrors() {
-		return errors;
-	}
-	public void setErrors(List<DxlError> errors) {
-		this.errors = errors;
-	}
+    @Override
+    public String getText() {
+      return this.text;
+    }
+
+    public void setColumn(final int column) {
+      this.column = column;
+    }
+
+    public void setId(final int id) {
+      this.id = id;
+    }
+
+    public void setLine(final int line) {
+      this.line = line;
+    }
+
+    public void setSource(final String source) {
+      this.source = source;
+    }
+
+    public void setText(final String text) {
+      this.text = text;
+    }
+
+    @Override
+    public String toString() {
+      return MessageFormat.format("Error: id={0}: {1}", this.id, this.text); //$NON-NLS-1$
+    }
+  }
+
+  public static class DxlFatalErrorImpl implements DxlFatalError {
+    private String source;
+    private int line;
+    private int column;
+    private String text;
+
+    @Override
+    public int getColumn() {
+      return this.column;
+    }
+
+    @Override
+    public int getLine() {
+      return this.line;
+    }
+
+    @Override
+    public String getSource() {
+      return this.source;
+    }
+
+    @Override
+    public String getText() {
+      return this.text;
+    }
+
+    public void setColumn(final int column) {
+      this.column = column;
+    }
+
+    public void setLine(final int line) {
+      this.line = line;
+    }
+
+    public void setSource(final String source) {
+      this.source = source;
+    }
+
+    public void setText(final String text) {
+      this.text = text;
+    }
+
+    @Override
+    public String toString() {
+      return MessageFormat.format("Fatal Error: source={0}, line={1}, column={2}: {3}", this.source, this.line, this.column, //$NON-NLS-1$
+          this.text);
+    }
+  }
+
+  private List<DxlFatalError> fatalErrors;
+  private List<DxlError> errors;
+
+  public DxlImporterLogImpl(final List<DxlError> errors, final List<DxlFatalError> fatalErrors) {
+    this.errors = errors;
+    this.fatalErrors = fatalErrors;
+
+  }
+
+  @Override
+  public List<DxlError> getErrors() {
+    return this.errors;
+  }
+
+  @Override
+  public List<DxlFatalError> getFatalErrors() {
+    return this.fatalErrors;
+  }
+
+  public void setErrors(final List<DxlError> errors) {
+    this.errors = errors;
+  }
+
+  public void setFatalErrors(final List<DxlFatalError> fatalErrors) {
+    this.fatalErrors = fatalErrors;
+  }
 }

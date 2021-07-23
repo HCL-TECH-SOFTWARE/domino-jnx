@@ -27,93 +27,98 @@ import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 /**
  * Base interface for rich text records. We provide sub interfaces for
  * selected record types with extended functionality.
- * 
+ *
  * @param <T> the signature type of this record
  */
 @SuppressWarnings("rawtypes")
 public interface RichTextRecord<T extends CDSignature> extends ResizableMemoryStructure {
-	T getHeader();
+  /**
+   * Returns the total length of the CD record including the signature bytes
+   * containing the type and length
+   *
+   * @return length
+   */
+  default int getCDRecordLength() {
+    return this.getData().capacity();
+  }
 
-	/**
-	 * Returns a numeric type constant for the record
-	 * 
-	 * @return type
-	 */
-	default short getTypeValue() {
-		short typeAsShort = getData().getShort(0);
-		short highOrderByte = (short) (typeAsShort & 0xFF00);
-		switch (highOrderByte) {
-		case RichTextConstants.LONGRECORDLENGTH:      /* LSIG */
-		case RichTextConstants.WORDRECORDLENGTH:      /* WSIG */
-			return typeAsShort;
-		default:                    /* BSIG */
-			return (short)(typeAsShort & 0x00FF); /* Length not part of signature */
-		}
-	}
-	
-	/**
-	 * Returns the type of the record, if known.
-	 * 
-	 * @return a set of {@link RecordType} values that have the value {@link #getTypeValue()} (there may be duplicates like PABHIDE/VMTEXTBOX or ACTION/VMPOLYRGN)
-	 */
-	default Set<RecordType> getType() {
-		return RecordType.getRecordTypesForConstant(getTypeValue());
-	}
+  /**
+   * Returns the raw CD record data <b>including</b> the header signature
+   * (containing the type and length of the record)
+   *
+   * @return data with header
+   */
+  @Override
+  ByteBuffer getData();
 
-	/**
-	 * Returns the raw CD record data <b>without</b> the header signature (containing the type and length of the record)
-	 * 
-	 * @return data without header
-	 */
-	default ByteBuffer getDataWithoutHeader() {
-		ByteBuffer data = getData();
-		data.position(getRecordHeaderLength());
-		return data.slice().order(ByteOrder.nativeOrder());
-	}
+  /**
+   * Returns the raw CD record data <b>without</b> the header signature
+   * (containing the type and length of the record)
+   *
+   * @return data without header
+   */
+  default ByteBuffer getDataWithoutHeader() {
+    final ByteBuffer data = this.getData();
+    data.position(this.getRecordHeaderLength());
+    return data.slice().order(ByteOrder.nativeOrder());
+  }
 
-	/**
-	 * Returns the raw CD record data <b>including</b> the header signature (containing the type and length of the record)
-	 * 
-	 * @return data with header
-	 */
-	@Override
-	ByteBuffer getData();
+  T getHeader();
 
-	/**
-	 * Returns the size of the CD record payload (the data without the record header bytes)
-	 * 
-	 * @return payload length
-	 */
-	default int getPayloadLength() {
-		return getCDRecordLength()-getRecordHeaderLength();
-	}
-	
-	/**
-	 * Returns the total length of the CD record including the signature bytes
-	 * containing the type and length
-	 * 
-	 * @return length
-	 */
-	default int getCDRecordLength() {
-		return getData().capacity();
-	}
-	
-	/**
-	 * Returns the length of the signature bytes containing the record
-	 * type and total lengths at the beginning of {@link #getData()}
-	 * 
-	 * @return signature length
-	 */
-	default int getRecordHeaderLength() {
-		short typeAsShort = getData().getShort(0);
-		short highOrderByte = (short) (typeAsShort & 0xFF00);
-		switch (highOrderByte) {
-		case RichTextConstants.LONGRECORDLENGTH:      /* LSIG */
-			return 6;
-		case RichTextConstants.WORDRECORDLENGTH:      /* WSIG */
-			return 4;
-		default:                    /* BSIG */
-			return 2;
-		}
-	}
+  /**
+   * Returns the size of the CD record payload (the data without the record header
+   * bytes)
+   *
+   * @return payload length
+   */
+  default int getPayloadLength() {
+    return this.getCDRecordLength() - this.getRecordHeaderLength();
+  }
+
+  /**
+   * Returns the length of the signature bytes containing the record
+   * type and total lengths at the beginning of {@link #getData()}
+   *
+   * @return signature length
+   */
+  default int getRecordHeaderLength() {
+    final short typeAsShort = this.getData().getShort(0);
+    final short highOrderByte = (short) (typeAsShort & 0xFF00);
+    switch (highOrderByte) {
+      case RichTextConstants.LONGRECORDLENGTH: /* LSIG */
+        return 6;
+      case RichTextConstants.WORDRECORDLENGTH: /* WSIG */
+        return 4;
+      default: /* BSIG */
+        return 2;
+    }
+  }
+
+  /**
+   * Returns the type of the record, if known.
+   *
+   * @return a set of {@link RecordType} values that have the value
+   *         {@link #getTypeValue()} (there may be duplicates like
+   *         PABHIDE/VMTEXTBOX or ACTION/VMPOLYRGN)
+   */
+  default Set<RecordType> getType() {
+    return RecordType.getRecordTypesForConstant(this.getTypeValue());
+  }
+
+  /**
+   * Returns a numeric type constant for the record
+   *
+   * @return type
+   */
+  default short getTypeValue() {
+    final short typeAsShort = this.getData().getShort(0);
+    final short highOrderByte = (short) (typeAsShort & 0xFF00);
+    switch (highOrderByte) {
+      case RichTextConstants.LONGRECORDLENGTH: /* LSIG */
+      case RichTextConstants.WORDRECORDLENGTH: /* WSIG */
+        return typeAsShort;
+      default: /* BSIG */
+        return (short) (typeAsShort & 0x00FF); /* Length not part of signature */
+    }
+  }
 }

@@ -16,30 +16,28 @@
  */
 package com.hcl.domino.jna.test.utils;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.commons.util.DominoUtils;
 
 @SuppressWarnings("nls")
 public class TestDominoUtils {
-	@Test
-	public void testReplicaIds() {
-		assertTrue(DominoUtils.isReplicaId("12345678:12345678"));
-		assertTrue(DominoUtils.isReplicaId("1234567812345678"));
-		assertTrue(DominoUtils.isReplicaId("12345678:abcdefab"));
-		assertTrue(DominoUtils.isReplicaId("12345678ABCDEFAB"));
-		assertFalse(DominoUtils.isReplicaId("12345678x12345678"));
-		assertFalse(DominoUtils.isReplicaId("12345678:123456789"));
-		assertFalse(DominoUtils.isReplicaId("12345678123456789"));
-		assertFalse(DominoUtils.isReplicaId("12345678:1234567"));
-		assertFalse(DominoUtils.isReplicaId("123456781234567"));
-		assertFalse(DominoUtils.isReplicaId(null));
-		assertFalse(DominoUtils.isReplicaId(""));
-		assertFalse(DominoUtils.isReplicaId("foo"));
-		assertFalse(DominoUtils.isReplicaId("!!"));
-		assertFalse(DominoUtils.isReplicaId("foo!!12345678:12345678"));
-	}
+  @Test
+  public void testReplicaIds() {
+    Assertions.assertTrue(DominoUtils.isReplicaId("12345678:12345678"));
+    Assertions.assertTrue(DominoUtils.isReplicaId("1234567812345678"));
+    Assertions.assertTrue(DominoUtils.isReplicaId("12345678:abcdefab"));
+    Assertions.assertTrue(DominoUtils.isReplicaId("12345678ABCDEFAB"));
+    Assertions.assertFalse(DominoUtils.isReplicaId("12345678x12345678"));
+    Assertions.assertFalse(DominoUtils.isReplicaId("12345678:123456789"));
+    Assertions.assertFalse(DominoUtils.isReplicaId("12345678123456789"));
+    Assertions.assertFalse(DominoUtils.isReplicaId("12345678:1234567"));
+    Assertions.assertFalse(DominoUtils.isReplicaId("123456781234567"));
+    Assertions.assertFalse(DominoUtils.isReplicaId(null));
+    Assertions.assertFalse(DominoUtils.isReplicaId(""));
+    Assertions.assertFalse(DominoUtils.isReplicaId("foo"));
+    Assertions.assertFalse(DominoUtils.isReplicaId("!!"));
+    Assertions.assertFalse(DominoUtils.isReplicaId("foo!!12345678:12345678"));
+  }
 }

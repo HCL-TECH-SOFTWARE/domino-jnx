@@ -20,20 +20,25 @@ import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 
 public enum TimeShowFormat implements INumberEnum<Byte> {
-	H(RichTextConstants.DT_TSHOW_H),
-	HM(RichTextConstants.DT_TSHOW_HM),
-	HMS(RichTextConstants.DT_TSHOW_HMS),
-	ALL(RichTextConstants.DT_TSHOW_ALL),
-	;
-	private final byte value;
-	TimeShowFormat(byte value) { this.value = value; }
-	
-	@Override
-	public long getLongValue() {
-		return value;
-	}
-	@Override
-	public Byte getValue() {
-		return value;
-	}
+  H(RichTextConstants.DT_TSHOW_H),
+  HM(RichTextConstants.DT_TSHOW_HM),
+  HMS(RichTextConstants.DT_TSHOW_HMS),
+  ALL(RichTextConstants.DT_TSHOW_ALL),
+  ;
+
+  private final byte value;
+
+  TimeShowFormat(final byte value) {
+    this.value = value;
+  }
+
+  @Override
+  public long getLongValue() {
+    return this.value;
+  }
+
+  @Override
+  public Byte getValue() {
+    return this.value;
+  }
 }

@@ -20,20 +20,20 @@ import java.util.List;
 
 public interface DominoCollectionInfo extends IAdaptable {
 
-	Database getParent();
-	
-	String getTitle();
-	
-	List<String> getAliases();
-	
-	boolean isFolder();
-	
-	int getNoteID();
-	
-	String getComment();
-	
-	String getLanguage();
-	
-	DominoCollection openCollection();
-	
+  List<String> getAliases();
+
+  String getComment();
+
+  String getLanguage();
+
+  int getNoteID();
+
+  Database getParent();
+
+  String getTitle();
+
+  boolean isFolder();
+
+  DominoCollection openCollection();
+
 }

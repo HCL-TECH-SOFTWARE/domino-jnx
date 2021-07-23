@@ -24,21 +24,22 @@ import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.CDSignature;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 
-public abstract class AbstractCDRecord<T extends CDSignature<?, ?, ?>> extends GenericResizableMemoryStructure implements RichTextRecord<T> {
-	public AbstractCDRecord(ByteBuffer data, Class<? extends MemoryStructure> recordClass) {
-		super(data, recordClass);
-	}
+public abstract class AbstractCDRecord<T extends CDSignature<?, ?, ?>> extends GenericResizableMemoryStructure
+    implements RichTextRecord<T> {
+  public AbstractCDRecord(final ByteBuffer data, final Class<? extends MemoryStructure> recordClass) {
+    super(data, recordClass);
+  }
 
-	@Override
-	public void resize(int size) {
-		super.resize(size);
-		_updateHeaderLength(size);
-	}
-	
-	protected abstract void _updateHeaderLength(long value);
-	
-	@Override
-	public String toString() {
-		return super.toString() + " - " + RecordType.getRecordTypesForConstant(getTypeValue());
-	}
+  protected abstract void _updateHeaderLength(long value);
+
+  @Override
+  public void resize(final int size) {
+    super.resize(size);
+    this._updateHeaderLength(size);
+  }
+
+  @Override
+  public String toString() {
+    return super.toString() + " - " + RecordType.getRecordTypesForConstant(this.getTypeValue());
+  }
 }

@@ -27,37 +27,38 @@ import com.hcl.domino.richtext.records.CDFileSegment;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
 /**
- * Extracts the contents of a file-resource CD item (e.g. {@code $FileData}) as an
+ * Extracts the contents of a file-resource CD item (e.g. {@code $FileData}) as
+ * an
  * {@link InputStream}.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.24
  */
 public class GetFileResourceStreamProcessor implements IRichTextProcessor<InputStream> {
-	public static final GetFileResourceStreamProcessor instance = new GetFileResourceStreamProcessor();
+  public static final GetFileResourceStreamProcessor instance = new GetFileResourceStreamProcessor();
 
-	@Override
-	public InputStream apply(List<RichTextRecord<?>> t) {
-		// TODO don't pre-read all data
-		// TODO probably validate the CD stream
-		
-		byte[] data;
-		try(ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-			t.forEach(record -> {
-				if(record instanceof CDFileSegment) {
-					try {
-						os.write(((CDFileSegment)record).getFileSegmentData());
-					} catch (IOException e) {
-						throw new UncheckedIOException(e);
-					}
-				}
-			});
-			data = os.toByteArray();
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
-		
-		return new ByteArrayInputStream(data);
-	}
+  @Override
+  public InputStream apply(final List<RichTextRecord<?>> t) {
+    // TODO don't pre-read all data
+    // TODO probably validate the CD stream
+
+    byte[] data;
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      t.forEach(record -> {
+        if (record instanceof CDFileSegment) {
+          try {
+            os.write(((CDFileSegment) record).getFileSegmentData());
+          } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+          }
+        }
+      });
+      data = os.toByteArray();
+    } catch (final IOException e) {
+      throw new UncheckedIOException(e);
+    }
+
+    return new ByteArrayInputStream(data);
+  }
 
 }

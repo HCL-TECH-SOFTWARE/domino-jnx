@@ -29,55 +29,59 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.WSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="CDACTIONFORMULA",
-	members={
-		@StructureMember(name="Header", type=WSIG.class),
-		@StructureMember(name="dwFlags", type=CDActionFormula.Flag.class, bitfield=true),
-		@StructureMember(name="wFormulaLen", type=short.class, unsigned=true)
-	}
-)
+@StructureDefinition(name = "CDACTIONFORMULA", members = {
+    @StructureMember(name = "Header", type = WSIG.class),
+    @StructureMember(name = "dwFlags", type = CDActionFormula.Flag.class, bitfield = true),
+    @StructureMember(name = "wFormulaLen", type = short.class, unsigned = true)
+})
 public interface CDActionFormula extends RichTextRecord<WSIG> {
-	enum Flag implements INumberEnum<Integer> {
-		/** Select documents */
-		SELECTDOCS(RichTextConstants.ACTIONFORMULA_FLAG_SELECTDOCS),
-		/** Create a new copy before modifying */
-		NEWCOPY(RichTextConstants.ACTIONFORMULA_FLAG_NEWCOPY)
-		;
-		private final int value;
-		Flag(int value) { this.value = value; }
-		@Override
-		public Integer getValue() {
-			return value;
-		}
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-	}
-	
-	@StructureGetter("Header")
-	@Override
-	WSIG getHeader();
-	
-	@StructureGetter("dwFlags")
-	Set<Flag> getFlags();
-	@StructureSetter("dwFlags")
-	CDActionFormula setFlags(Collection<Flag> flags);
-	
-	@StructureGetter("wFormulaLen")
-	int getFormulaLength();
-	@StructureSetter("wFormulaLen")
-	CDActionFormula setFormulaLength(int len);
-	
-	default String getAction() {
-		return StructureSupport.extractCompiledFormula(this, 0, getFormulaLength());
-	}
-	default CDActionFormula setScript(String script) {
-		return StructureSupport.writeCompiledFormula(this, 0, getFormulaLength(), script, this::setFormulaLength);
-	}
+  enum Flag implements INumberEnum<Integer> {
+    /** Select documents */
+    SELECTDOCS(RichTextConstants.ACTIONFORMULA_FLAG_SELECTDOCS),
+    /** Create a new copy before modifying */
+    NEWCOPY(RichTextConstants.ACTIONFORMULA_FLAG_NEWCOPY);
+
+    private final int value;
+
+    Flag(final int value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Integer getValue() {
+      return this.value;
+    }
+  }
+
+  default String getAction() {
+    return StructureSupport.extractCompiledFormula(this, 0, this.getFormulaLength());
+  }
+
+  @StructureGetter("dwFlags")
+  Set<Flag> getFlags();
+
+  @StructureGetter("wFormulaLen")
+  int getFormulaLength();
+
+  @StructureGetter("Header")
+  @Override
+  WSIG getHeader();
+
+  @StructureSetter("dwFlags")
+  CDActionFormula setFlags(Collection<Flag> flags);
+
+  @StructureSetter("wFormulaLen")
+  CDActionFormula setFormulaLength(int len);
+
+  default CDActionFormula setScript(final String script) {
+    return StructureSupport.writeCompiledFormula(this, 0, this.getFormulaLength(), script, this::setFormulaLength);
+  }
 }

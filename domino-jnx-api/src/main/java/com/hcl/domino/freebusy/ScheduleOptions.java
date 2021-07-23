@@ -14,56 +14,56 @@
  * under the License.
  * ==========================================================================
  */
- package com.hcl.domino.freebusy;
+package com.hcl.domino.freebusy;
 
 import java.util.Collection;
 
 public enum ScheduleOptions {
-	
-	/** Return composite sched */
-	COMPOSITE(0x0001),
-	
-	/** Return each person's sched */
-	EACHPERSON(0x0002),
-	
-	/** Do only local lookup */
-	LOCAL(0x0004),
-	
-	/** force remote even if you are using workstation based email */
-	FORCEREMOTE(0x0020);
-	
-	private int m_val;
-	
-	ScheduleOptions(int val) {
-		m_val = val;
-	}
-	
-	public int getValue() {
-		return m_val;
-	}
-	
-	public static short toBitMask(Collection<ScheduleOptions> findSet) {
-		int result = 0;
-		if (findSet!=null) {
-			for (ScheduleOptions currFind : values()) {
-				if (findSet.contains(currFind)) {
-					result = result | currFind.getValue();
-				}
-			}
-		}
-		return (short) (result & 0xffff);
-	}
-	
-	public static int toBitMaskInt(Collection<ScheduleOptions> findSet) {
-		int result = 0;
-		if (findSet!=null) {
-			for (ScheduleOptions currFind : values()) {
-				if (findSet.contains(currFind)) {
-					result = result | currFind.getValue();
-				}
-			}
-		}
-		return result;
-	}
+
+  /** Return composite sched */
+  COMPOSITE(0x0001),
+
+  /** Return each person's sched */
+  EACHPERSON(0x0002),
+
+  /** Do only local lookup */
+  LOCAL(0x0004),
+
+  /** force remote even if you are using workstation based email */
+  FORCEREMOTE(0x0020);
+
+  public static short toBitMask(final Collection<ScheduleOptions> findSet) {
+    int result = 0;
+    if (findSet != null) {
+      for (final ScheduleOptions currFind : ScheduleOptions.values()) {
+        if (findSet.contains(currFind)) {
+          result = result | currFind.getValue();
+        }
+      }
+    }
+    return (short) (result & 0xffff);
+  }
+
+  public static int toBitMaskInt(final Collection<ScheduleOptions> findSet) {
+    int result = 0;
+    if (findSet != null) {
+      for (final ScheduleOptions currFind : ScheduleOptions.values()) {
+        if (findSet.contains(currFind)) {
+          result = result | currFind.getValue();
+        }
+      }
+    }
+    return result;
+  }
+
+  private int m_val;
+
+  ScheduleOptions(final int val) {
+    this.m_val = val;
+  }
+
+  public int getValue() {
+    return this.m_val;
+  }
 
 }

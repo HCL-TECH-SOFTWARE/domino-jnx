@@ -19,17 +19,17 @@ package com.hcl.domino.commons;
 /**
  * Temporary scaffolding exception to indicate methods or paths that
  * are still in need of implementation.
- * 
- * @author Jesse Gallagher
  *
+ * @author Jesse Gallagher
  */
 public class NotYetImplementedException extends RuntimeException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public NotYetImplementedException() {
-		super();
-	}
-	public NotYetImplementedException(String message) {
-		super(message);
-	}
+  public NotYetImplementedException() {
+    super();
+  }
+
+  public NotYetImplementedException(final String message) {
+    super(message);
+  }
 }

@@ -20,29 +20,30 @@ import com.hcl.domino.DominoException;
 
 /**
  * Represents error code 784, "Specified item is not present"
- * 
- * <p>This differs from {@link ItemNotFoundException} in that this arises from
- * NIF-based internal calls.</p>
- * 
+ * <p>
+ * This differs from {@link ItemNotFoundException} in that this arises from
+ * NIF-based internal calls.
+ * </p>
+ *
  * @author Jesse Gallagher
  */
 public class ItemNotPresentException extends DominoException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public ItemNotPresentException(int id, String message) {
-		super(id, message);
-	}
+  public ItemNotPresentException(final int id, final String message) {
+    super(id, message);
+  }
 
-	public ItemNotPresentException(int id, String message, Throwable cause) {
-		super(id, message, cause);
-	}
+  public ItemNotPresentException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
+  }
 
-	public ItemNotPresentException(String msg) {
-		super(msg);
-	}
+  public ItemNotPresentException(final String msg) {
+    super(msg);
+  }
 
-	public ItemNotPresentException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public ItemNotPresentException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
 
 }

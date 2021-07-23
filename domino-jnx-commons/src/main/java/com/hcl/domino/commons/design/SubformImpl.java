@@ -24,12 +24,12 @@ import com.hcl.domino.design.Subform;
  */
 public class SubformImpl extends AbstractFormOrSubform<Subform> implements Subform {
 
-	public SubformImpl(Document doc) {
-		super(doc);
-	}
+  public SubformImpl(final Document doc) {
+    super(doc);
+  }
 
-	@Override
-	public void initializeNewDesignNote() {
-		setFlags("CUAx3"); //$NON-NLS-1$
-	}
+  @Override
+  public void initializeNewDesignNote() {
+    this.setFlags("CUAx3"); //$NON-NLS-1$
+  }
 }

@@ -22,47 +22,48 @@ import java.util.Optional;
 import com.hcl.domino.data.Database.SearchMatch;
 
 public interface FormulaQueryResult extends DbQueryResult<FormulaQueryResult> {
-	
-	@Override Optional<IDTable> getNoteIds();
-	
-	/**
-	 * Returns detail infos about search matches like
-	 * modified dates, document classes and the UNID.
-	 * 
-	 * @return search matches
-	 */
-	List<SearchMatch> getMatches();
-	
-	/**
-	 * Returns detail infos about documents not matching
-	 * the search formula, if a <code>since</code> date/time
-	 * has been specified. Can be used to update external
-	 * indexes, e.g. remove a document from an external index
-	 * when it has matched the search formula before, but the
-	 * last doc change made it a no-match.
-	 * 
-	 * @return search non-matches
-	 */
-	List<SearchMatch> getNonMatches();
-	
-	/**
-	 * Returns detail infos about documents that got deleted
-	 * since the specified <code>since</code> date/time.
-	 * Can be used to update external
-	 * indexes, e.g. remove a document from an external index
-	 * when it got deleted in Domino.
-	 * 
-	 * @return deletions
-	 */
-	List<SearchMatch> getDeletions();
-	
-	/**
-	 * Same as {@link IDTable#getDateTime()} of the IDTable returned by
-	 * {@link #getNoteIds()}. Can be used for incremental database searches
-	 * if set as <code>since</code> value in the next search.
-	 * 
-	 * @return date/time of search
-	 */
-	DominoDateTime getUntil();
-	
+
+  /**
+   * Returns detail infos about documents that got deleted
+   * since the specified <code>since</code> date/time.
+   * Can be used to update external
+   * indexes, e.g. remove a document from an external index
+   * when it got deleted in Domino.
+   *
+   * @return deletions
+   */
+  List<SearchMatch> getDeletions();
+
+  /**
+   * Returns detail infos about search matches like
+   * modified dates, document classes and the UNID.
+   *
+   * @return search matches
+   */
+  List<SearchMatch> getMatches();
+
+  /**
+   * Returns detail infos about documents not matching
+   * the search formula, if a <code>since</code> date/time
+   * has been specified. Can be used to update external
+   * indexes, e.g. remove a document from an external index
+   * when it has matched the search formula before, but the
+   * last doc change made it a no-match.
+   *
+   * @return search non-matches
+   */
+  List<SearchMatch> getNonMatches();
+
+  @Override
+  Optional<IDTable> getNoteIds();
+
+  /**
+   * Same as {@link IDTable#getDateTime()} of the IDTable returned by
+   * {@link #getNoteIds()}. Can be used for incremental database searches
+   * if set as <code>since</code> value in the next search.
+   *
+   * @return date/time of search
+   */
+  DominoDateTime getUntil();
+
 }

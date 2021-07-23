@@ -20,16 +20,17 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.data.Document;
 
 /**
- * The exception is thrown in a {@link Document} when an item value is read that cannot (yet)
+ * The exception is thrown in a {@link Document} when an item value is read that
+ * cannot (yet)
  * be parsed.
- * 
+ *
  * @author Karsten Lehmann
  */
 public class UnsupportedItemValueError extends DominoException {
-	private static final long serialVersionUID = 3855708047676206228L;
+  private static final long serialVersionUID = 3855708047676206228L;
 
-	public UnsupportedItemValueError(String msg) {
-		super(0, msg);
-	}
-	
+  public UnsupportedItemValueError(final String msg) {
+    super(0, msg);
+  }
+
 }

@@ -17,8 +17,8 @@
 package com.hcl.domino.server;
 
 public interface ServerStatusLine extends AutoCloseable {
-	void setLine(String line);
-	
-	@Override
-	void close();
+  @Override
+  void close();
+
+  void setLine(String line);
 }

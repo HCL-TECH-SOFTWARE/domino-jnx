@@ -26,26 +26,26 @@ import com.hcl.domino.data.Database.EncryptionInfo;
  * @since 1.0.18
  */
 public class EncryptionInfoImpl implements EncryptionInfo {
-	private final Optional<DatabaseEncryptionState> state;
-	private final Optional<EncryptionStrength> strength;
-	
-	public EncryptionInfoImpl(Optional<DatabaseEncryptionState> state, Optional<EncryptionStrength> strength) {
-		this.state = state;
-		this.strength = strength;
-	}
+  private final Optional<DatabaseEncryptionState> state;
+  private final Optional<EncryptionStrength> strength;
 
-	@Override
-	public Optional<DatabaseEncryptionState> getState() {
-		return state;
-	}
+  public EncryptionInfoImpl(final Optional<DatabaseEncryptionState> state, final Optional<EncryptionStrength> strength) {
+    this.state = state;
+    this.strength = strength;
+  }
 
-	@Override
-	public Optional<EncryptionStrength> getStrength() {
-		return strength;
-	}
+  @Override
+  public Optional<DatabaseEncryptionState> getState() {
+    return this.state;
+  }
 
-	@Override
-	public String toString() {
-		return String.format("EncryptionInfoImpl [state=%s, strength=%s]", state, strength); //$NON-NLS-1$
-	}
+  @Override
+  public Optional<EncryptionStrength> getStrength() {
+    return this.strength;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("EncryptionInfoImpl [state=%s, strength=%s]", this.state, this.strength); //$NON-NLS-1$
+  }
 }

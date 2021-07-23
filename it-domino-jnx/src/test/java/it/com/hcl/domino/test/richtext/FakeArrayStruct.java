@@ -27,16 +27,13 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
  * This is a faux structure containing an array of FONTID structures to test
  * reading/writing inner array struct members.
  */
-@StructureDefinition(
-	name="FAUX",
-	members={
-		@StructureMember(name="FontIDs", type=FontStyle[].class, length=3)
-	}
-)
+@StructureDefinition(name = "FAUX", members = {
+    @StructureMember(name = "FontIDs", type = FontStyle[].class, length = 3)
+})
 public interface FakeArrayStruct extends MemoryStructure {
-	@StructureGetter("FontIDs")
-	FontStyle[] getFontStyles();
-	
-	@StructureSetter("FontIDs")
-	FakeArrayStruct setFontStyles(FontStyle[] fontStyles);
+  @StructureGetter("FontIDs")
+  FontStyle[] getFontStyles();
+
+  @StructureSetter("FontIDs")
+  FakeArrayStruct setFontStyles(FontStyle[] fontStyles);
 }

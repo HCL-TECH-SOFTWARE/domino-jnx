@@ -26,70 +26,78 @@ import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.15
  */
-@StructureDefinition(
-	name="LENGTH_VALUE",
-	members={
-		@StructureMember(name="Flags", type=LengthValue.Flag.class, bitfield=true),
-		@StructureMember(name="Length", type=double.class),
-		@StructureMember(name="Units", type=LengthValue.Unit.class),
-		@StructureMember(name="Reserved", type=byte.class)
-	}
-)
+@StructureDefinition(name = "LENGTH_VALUE", members = {
+    @StructureMember(name = "Flags", type = LengthValue.Flag.class, bitfield = true),
+    @StructureMember(name = "Length", type = double.class),
+    @StructureMember(name = "Units", type = LengthValue.Unit.class),
+    @StructureMember(name = "Reserved", type = byte.class)
+})
 public interface LengthValue extends MemoryStructure {
-	enum Flag implements INumberEnum<Short> {
-		AUTO(0x0001),
-		INHERIT(0x0002)
-		;
-		private final short value;
-		Flag(int value) { this.value = (short)value; }
-		
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-		@Override
-		public Short getValue() {
-			return value;
-		}
-	}
-	enum Unit implements INumberEnum<Byte> {
-		UNKNOWN(0),
-		TWIPS(1),
-		PIXELS(2),
-		PERCENT(3),
-		EMS(4),
-		EXS(5),
-		CHARS(6)
-		;
-		private final byte value;
-		Unit(int value) { this.value = (byte)value; }
-		
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-		@Override
-		public Byte getValue() {
-			return value;
-		}
-	}
-	
-	@StructureGetter("Flags")
-	Set<Flag> getFlags();
-	@StructureSetter("Flags")
-	LengthValue setFlags(Collection<Flag> flags);
-	
-	@StructureGetter("Length")
-	double getLength();
-	@StructureSetter("Length")
-	LengthValue setLength(double length);
-	
-	@StructureGetter("Units")
-	Unit getUnit();
-	@StructureSetter("Units")
-	LengthValue setUnit(Unit unit);
+  enum Flag implements INumberEnum<Short> {
+    AUTO(0x0001),
+    INHERIT(0x0002);
+
+    private final short value;
+
+    Flag(final int value) {
+      this.value = (short) value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Short getValue() {
+      return this.value;
+    }
+  }
+
+  enum Unit implements INumberEnum<Byte> {
+    UNKNOWN(0),
+    TWIPS(1),
+    PIXELS(2),
+    PERCENT(3),
+    EMS(4),
+    EXS(5),
+    CHARS(6);
+
+    private final byte value;
+
+    Unit(final int value) {
+      this.value = (byte) value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Byte getValue() {
+      return this.value;
+    }
+  }
+
+  @StructureGetter("Flags")
+  Set<Flag> getFlags();
+
+  @StructureGetter("Length")
+  double getLength();
+
+  @StructureGetter("Units")
+  Unit getUnit();
+
+  @StructureSetter("Flags")
+  LengthValue setFlags(Collection<Flag> flags);
+
+  @StructureSetter("Length")
+  LengthValue setLength(double length);
+
+  @StructureSetter("Units")
+  LengthValue setUnit(Unit unit);
 }

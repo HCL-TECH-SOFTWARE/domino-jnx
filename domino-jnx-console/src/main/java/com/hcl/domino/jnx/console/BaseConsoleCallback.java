@@ -25,57 +25,57 @@ import com.hcl.domino.jnx.console.internal.LoginSettings;
  * methods that are used less frequently.
  */
 public abstract class BaseConsoleCallback implements IConsoleCallback {
-	
-	@Override
-	public void dominoStatusReceived(DominoStatus status) {
-	}
-	
-	@Override
-	public abstract void consoleInitialized(IDominoServerController console);
 
-	@Override
-	public String passwordRequested(String msg, String title) {
-		return null;
-	}
+  @Override
+  public abstract void adminInfosReceived(List<String> serverAdministrators, List<String> restrictedAdministrators);
 
-	@Override
-	public <T> T showPrompt(String msg, String title, T[] options) {
-		return null;
-	}
+  @Override
+  public void closeOpenPasswordDialog() {
+  }
 
-	@Override
-	public void showMessageDialog(String msg, String title) {
-	}
+  @Override
+  public void closeOpenPrompt() {
+  }
 
-	@Override
-	public void closeOpenPasswordDialog() {
-	}
+  @Override
+  public abstract void consoleInitialized(IDominoServerController console);
 
-	@Override
-	public void closeOpenPrompt() {
-	}
+  @Override
+  public abstract void consoleMessageReceived(IConsoleLine line);
 
-	@Override
-	public void setStatusMessage(String msg) {
-	}
+  @Override
+  public void dominoStatusReceived(final DominoStatus status) {
+  }
 
-	@Override
-	public <T> T showInputDialog(String msg, String title, T[] values, T initialSelection) {
-		return null;
-	}
+  @Override
+  public String passwordRequested(final String msg, final String title) {
+    return null;
+  }
 
-	@Override
-	public boolean requestLoginSettings(LoginSettings loginSettings) {
-		return false;
-	}
+  @Override
+  public boolean requestLoginSettings(final LoginSettings loginSettings) {
+    return false;
+  }
 
-	@Override
-	public abstract void serverDetailsReceived(IServerDetails details);
+  @Override
+  public abstract void serverDetailsReceived(IServerDetails details);
 
-	@Override
-	public abstract void adminInfosReceived(List<String> serverAdministrators, List<String> restrictedAdministrators);
-	
-	@Override
-	public abstract void consoleMessageReceived(IConsoleLine line);
-	
+  @Override
+  public void setStatusMessage(final String msg) {
+  }
+
+  @Override
+  public <T> T showInputDialog(final String msg, final String title, final T[] values, final T initialSelection) {
+    return null;
+  }
+
+  @Override
+  public void showMessageDialog(final String msg, final String title) {
+  }
+
+  @Override
+  public <T> T showPrompt(final String msg, final String title, final T[] options) {
+    return null;
+  }
+
 }

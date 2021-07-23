@@ -24,6 +24,14 @@ import com.hcl.domino.data.DominoDateTime;
  */
 public interface FolderData extends DirEntry {
   /**
+   * Returns the length of a folder
+   *
+   * @return length
+   */
+  @Override
+  long getFileLength();
+
+  /**
    * Returns the name of the folder
    *
    * @return name
@@ -39,21 +47,13 @@ public interface FolderData extends DirEntry {
    */
   @Override
   String getFilePath();
-  
+
   /**
    * Returns the folder modification date
-   * 
+   *
    * @return modification date
    */
   @Override
   DominoDateTime getModified();
 
-  /**
-   * Returns the length of a folder
-   * 
-   * @return length
-   */
-  @Override
-  long getFileLength();
-  
 }

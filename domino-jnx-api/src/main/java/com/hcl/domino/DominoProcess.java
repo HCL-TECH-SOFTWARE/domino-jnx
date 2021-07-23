@@ -23,79 +23,94 @@ import com.hcl.domino.misc.JNXServiceFinder;
 /**
  * This service interface allows access to initialization and termination of
  * the Domino runtime for the process.
- * 
- * <p>This service is not guaranteed to be provided by every implementation.</p>
- * 
+ * <p>
+ * This service is not guaranteed to be provided by every implementation.
+ * </p>
+ *
  * @author Jesse Gallagher
  */
 public interface DominoProcess {
-	/**
-	 * 
-	 * @return an implementation of {@code DominoProcess}
-	 * @throws IllegalStateException if the active API implementation does not provide one
-	 */
-	static DominoProcess get() {
-		return JNXServiceFinder.findRequiredService(DominoProcess.class, DominoProcess.class.getClassLoader());
-	}
-	
-	/**
-	 * Initializes the Domino runtime for the process.
-	 * 
-	 * <p>In implementations that require it, this method should be called once per process,
-	 * before any other API operations.</p>
-	 * 
-	 * @param initArgs the arguments to pass to the initialization call
-	 */
-	void initializeProcess(String[] initArgs);
-	
-	/**
-	 * This function switches to the specified ID file and returns the user name associated with it.<br>
-	 * <br>
-	 * Multiple passwords are not supported.<br>
-	 * <br>
-	 * NOTE: This function should only be used in a C API stand alone application.
-	 * 
-	 * @param idPath path to the ID file that is to be switched to; if null/empty, we read the ID file path from the Notes.ini (KeyFileName)
-	 * @param password password of the ID file that is to be switched to
-	 * @param dontSetEnvVar  If specified, the notes.ini file (either ServerKeyFileName or KeyFileName) is modified to reflect the ID change.
-	 * @return user name, in the ID file that is to be switched to
-	 */
-	String switchToId(Path idPath, String password, boolean dontSetEnvVar);
-	
-	/**
-	 * Destroys the Domino runtime for the entire process.
-	 * 
-	 * <p>This method should be called only when all Domino operations are finished for the
-	 * running application.</p>
-	 */
-	void terminateProcess();
-	
-	/**
-	 * Initializes the current thread for Domino API use.
-	 * 
-	 * <p>Note: it is preferable to use threads spawned by {@link DominoClient#getThreadFactory()}.</p>
-	 * 
-	 * @return AutoCloseable to terminate thread, same as calling {@link #terminateThread()}
-	 */
-	DominoThreadContext initializeThread();
-	
-	/**
-	 * Terminates the current thread for Domino API use.
-	 * 
-	 * <p>Note: it is preferable to use threads spawned by {@link DominoClient#getThreadFactory()}.</p>
-	 */
-	void terminateThread();
-	
-	public interface DominoThreadContext extends AutoCloseable {
-		
-		/**
-		 * Closes this resource, relinquishing any underlying resources.
-		 * This method is invoked automatically on objects managed by the
-		 * {@code try}-with-resources statement.<br>
-		 * <br>
-		 * Calls {@link DominoProcess#terminateThread()} internally.
-		 */
-		@Override
-		void close();
-	}
+  public interface DominoThreadContext extends AutoCloseable {
+
+    /**
+     * Closes this resource, relinquishing any underlying resources.
+     * This method is invoked automatically on objects managed by the
+     * {@code try}-with-resources statement.<br>
+     * <br>
+     * Calls {@link DominoProcess#terminateThread()} internally.
+     */
+    @Override
+    void close();
+  }
+
+  /**
+   * @return an implementation of {@code DominoProcess}
+   * @throws IllegalStateException if the active API implementation does not
+   *                               provide one
+   */
+  static DominoProcess get() {
+    return JNXServiceFinder.findRequiredService(DominoProcess.class, DominoProcess.class.getClassLoader());
+  }
+
+  /**
+   * Initializes the Domino runtime for the process.
+   * <p>
+   * In implementations that require it, this method should be called once per
+   * process,
+   * before any other API operations.
+   * </p>
+   *
+   * @param initArgs the arguments to pass to the initialization call
+   */
+  void initializeProcess(String[] initArgs);
+
+  /**
+   * Initializes the current thread for Domino API use.
+   * <p>
+   * Note: it is preferable to use threads spawned by
+   * {@link DominoClient#getThreadFactory()}.
+   * </p>
+   *
+   * @return AutoCloseable to terminate thread, same as calling
+   *         {@link #terminateThread()}
+   */
+  DominoThreadContext initializeThread();
+
+  /**
+   * This function switches to the specified ID file and returns the user name
+   * associated with it.<br>
+   * <br>
+   * Multiple passwords are not supported.<br>
+   * <br>
+   * NOTE: This function should only be used in a C API stand alone application.
+   *
+   * @param idPath        path to the ID file that is to be switched to; if
+   *                      null/empty, we read the ID file path from the Notes.ini
+   *                      (KeyFileName)
+   * @param password      password of the ID file that is to be switched to
+   * @param dontSetEnvVar If specified, the notes.ini file (either
+   *                      ServerKeyFileName or KeyFileName) is modified to reflect
+   *                      the ID change.
+   * @return user name, in the ID file that is to be switched to
+   */
+  String switchToId(Path idPath, String password, boolean dontSetEnvVar);
+
+  /**
+   * Destroys the Domino runtime for the entire process.
+   * <p>
+   * This method should be called only when all Domino operations are finished for
+   * the
+   * running application.
+   * </p>
+   */
+  void terminateProcess();
+
+  /**
+   * Terminates the current thread for Domino API use.
+   * <p>
+   * Note: it is preferable to use threads spawned by
+   * {@link DominoClient#getThreadFactory()}.
+   * </p>
+   */
+  void terminateThread();
 }

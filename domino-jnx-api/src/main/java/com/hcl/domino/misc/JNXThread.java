@@ -21,39 +21,40 @@ import com.hcl.domino.DominoProcess.DominoThreadContext;
 
 /**
  * Thread subclass that runs with a thread initialized and terminated via
- * {@link DominoProcess#initializeThread()} and {@link DominoProcess#terminateThread()}.
- * 
+ * {@link DominoProcess#initializeThread()} and
+ * {@link DominoProcess#terminateThread()}.
+ *
  * @author Jesse Gallagher
  */
 public class JNXThread extends Thread {
-	private final Runnable target;
-	
-	public JNXThread() {
-		super();
-		this.target = null;
-	}
-	
-	public JNXThread(Runnable target) {
-		super(target, "Domino JNX Thread");
-		this.target = target;
-	}
-	
-	@Override
-	public final void run() {
-		try(DominoThreadContext ctx = DominoProcess.get().initializeThread()) {
-			if(this.target != null) {
-				super.run();
-			} else {
-				doRun();
-			}
-		}
-	}
-	
-	/**
-	 * This method can be overridden by subclasses to perform their actions within
-	 * the Notes-initialized environment.
-	 */
-	protected void doRun() {
-		
-	}
+  private final Runnable target;
+
+  public JNXThread() {
+    super();
+    this.target = null;
+  }
+
+  public JNXThread(final Runnable target) {
+    super(target, "Domino JNX Thread");
+    this.target = target;
+  }
+
+  /**
+   * This method can be overridden by subclasses to perform their actions within
+   * the Notes-initialized environment.
+   */
+  protected void doRun() {
+
+  }
+
+  @Override
+  public final void run() {
+    try (DominoThreadContext ctx = DominoProcess.get().initializeThread()) {
+      if (this.target != null) {
+        super.run();
+      } else {
+        this.doRun();
+      }
+    }
+  }
 }

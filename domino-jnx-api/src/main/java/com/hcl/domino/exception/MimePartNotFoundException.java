@@ -22,21 +22,21 @@ import com.hcl.domino.DominoException;
  * Represents error code 1184, "MIME part not found"
  */
 public class MimePartNotFoundException extends DominoException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public MimePartNotFoundException(int id, String message) {
-		super(id, message);
-	}
+  public MimePartNotFoundException(final int id, final String message) {
+    super(id, message);
+  }
 
-	public MimePartNotFoundException(int id, String message, Throwable cause) {
-		super(id, message, cause);
-	}
+  public MimePartNotFoundException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
+  }
 
-	public MimePartNotFoundException(String msg) {
-		super(msg);
-	}
+  public MimePartNotFoundException(final String msg) {
+    super(msg);
+  }
 
-	public MimePartNotFoundException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public MimePartNotFoundException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
 }

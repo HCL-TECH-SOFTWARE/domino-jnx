@@ -20,26 +20,31 @@ import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 
 public enum DateShowSpecial implements INumberEnum<Byte> {
-	/**  No special handling  */
-	NONE(RichTextConstants.DT_DSPEC_NONE),
-	/**  Use 'Today', 'Yesterday', 'Tomorrow', when possible  */
-	TODAY(RichTextConstants.DT_DSPEC_TODAY),
-	/**  Always display year on OUTPUT as 4 digit year  */
-	Y4(RichTextConstants.DT_DSPEC_Y4),
-	/**  Output 2 digit year for this century; use 4 digit year for other century  */
-	TWO_CURRENT_FOUR_OTHER(RichTextConstants.DT_DSPEC_21Y4),
-	/**  Display year when not the current year  */
-	CURYR(RichTextConstants.DT_DSPEC_CURYR),
-	;
-	private final byte value;
-	DateShowSpecial(byte value) { this.value = value; }
-	
-	@Override
-	public long getLongValue() {
-		return value;
-	}
-	@Override
-	public Byte getValue() {
-		return value;
-	}
+  /** No special handling */
+  NONE(RichTextConstants.DT_DSPEC_NONE),
+  /** Use 'Today', 'Yesterday', 'Tomorrow', when possible */
+  TODAY(RichTextConstants.DT_DSPEC_TODAY),
+  /** Always display year on OUTPUT as 4 digit year */
+  Y4(RichTextConstants.DT_DSPEC_Y4),
+  /** Output 2 digit year for this century; use 4 digit year for other century */
+  TWO_CURRENT_FOUR_OTHER(RichTextConstants.DT_DSPEC_21Y4),
+  /** Display year when not the current year */
+  CURYR(RichTextConstants.DT_DSPEC_CURYR),
+  ;
+
+  private final byte value;
+
+  DateShowSpecial(final byte value) {
+    this.value = value;
+  }
+
+  @Override
+  public long getLongValue() {
+    return this.value;
+  }
+
+  @Override
+  public Byte getValue() {
+    return this.value;
+  }
 }

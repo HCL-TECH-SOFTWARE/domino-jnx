@@ -20,34 +20,34 @@ import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
+import com.hcl.domino.DominoClient;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import com.hcl.domino.DominoClient;
-
 @ApplicationScoped
 public class DatabasesBean {
-	
-	@Inject
-	private DominoClient client;
-	
-	@Inject
-	private ExecutorService executor;
-	
-	public Collection<String> getKnownServers() {
-		try {
-			return executor.submit(() -> client.getKnownServers(null)).get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new RuntimeException(e);
-		}
-	}
 
-	public Collection<String> getDatabasePaths(String serverName) {
-		try {
-			return executor.submit(() -> client.getDatabasePaths(serverName, null).getDatabasePaths()).get();
-		} catch (InterruptedException | ExecutionException e) {
-			throw new RuntimeException(e);
-		}
-	}
+  @Inject
+  private DominoClient client;
+
+  @Inject
+  private ExecutorService executor;
+
+  public Collection<String> getDatabasePaths(final String serverName) {
+    try {
+      return this.executor.submit(() -> this.client.getDatabasePaths(serverName, null).getDatabasePaths()).get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public Collection<String> getKnownServers() {
+    try {
+      return this.executor.submit(() -> this.client.getKnownServers(null)).get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
 }

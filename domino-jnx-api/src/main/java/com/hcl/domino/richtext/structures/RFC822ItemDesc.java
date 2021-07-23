@@ -20,33 +20,30 @@ import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 
-@StructureDefinition(
-	name="RFC822ITEMDESC",
-	members={
-		@StructureMember(name="wVersion", type=short.class, unsigned=true),
-		@StructureMember(name="dwFlags", type=int.class),
-		@StructureMember(name="wNotesNativeLen", type=short.class, unsigned=true),
-		@StructureMember(name="w822NameLen", type=short.class, unsigned=true),
-		@StructureMember(name="w822DelimLen", type=short.class, unsigned=true),
-		@StructureMember(name="w822BodyLen", type=short.class, unsigned=true)
-	}
-)
+@StructureDefinition(name = "RFC822ITEMDESC", members = {
+    @StructureMember(name = "wVersion", type = short.class, unsigned = true),
+    @StructureMember(name = "dwFlags", type = int.class),
+    @StructureMember(name = "wNotesNativeLen", type = short.class, unsigned = true),
+    @StructureMember(name = "w822NameLen", type = short.class, unsigned = true),
+    @StructureMember(name = "w822DelimLen", type = short.class, unsigned = true),
+    @StructureMember(name = "w822BodyLen", type = short.class, unsigned = true)
+})
 public interface RFC822ItemDesc extends MemoryStructure {
-	@StructureGetter("wVersion")
-	int getVersion();
-	
-	@StructureGetter("dwFlags")
-	int getFlags();
-	
-	@StructureGetter("wNotesNativeLen")
-	int getNotesNativeLength();
-	
-	@StructureGetter("w822NameLen")
-	int getNameLength();
-	
-	@StructureGetter("w822DelimLen")
-	int getDelimiterLength();
-	
-	@StructureGetter("w822BodyLen")
-	int getBodyLength();
+  @StructureGetter("w822BodyLen")
+  int getBodyLength();
+
+  @StructureGetter("w822DelimLen")
+  int getDelimiterLength();
+
+  @StructureGetter("dwFlags")
+  int getFlags();
+
+  @StructureGetter("w822NameLen")
+  int getNameLength();
+
+  @StructureGetter("wNotesNativeLen")
+  int getNotesNativeLength();
+
+  @StructureGetter("wVersion")
+  int getVersion();
 }

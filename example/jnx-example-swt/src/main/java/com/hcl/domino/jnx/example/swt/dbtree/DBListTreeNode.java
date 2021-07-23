@@ -25,13 +25,13 @@ import org.eclipse.swt.widgets.Control;
 
 public abstract class DBListTreeNode extends TreeNode {
 
-	public DBListTreeNode(Object value) {
-		super(value);
-	}
+  public DBListTreeNode(final Object value) {
+    super(value);
+  }
 
-	public abstract Image getImage();
+  public void displayInfoPane(final Composite target) {
+    Arrays.stream(target.getChildren()).forEach(Control::dispose);
+  }
 
-	public void displayInfoPane(Composite target) {
-		Arrays.stream(target.getChildren()).forEach(Control::dispose);
-	}
+  public abstract Image getImage();
 }

@@ -19,27 +19,28 @@ package com.hcl.domino.exception;
 import com.hcl.domino.DominoException;
 
 /**
- * Represents error code 6408, "Wrong Password. (Passwords are case sensitive - be sure to use correct upper and lower case.)"
- * 
+ * Represents error code 6408, "Wrong Password. (Passwords are case sensitive -
+ * be sure to use correct upper and lower case.)"
+ *
  * @author Jesse Gallagher
  */
 public class BadPasswordException extends DominoException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public BadPasswordException(int id, String message) {
-		super(id, message);
-	}
+  public BadPasswordException(final int id, final String message) {
+    super(id, message);
+  }
 
-	public BadPasswordException(int id, String message, Throwable cause) {
-		super(id, message, cause);
-	}
+  public BadPasswordException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
+  }
 
-	public BadPasswordException(String msg) {
-		super(msg);
-	}
+  public BadPasswordException(final String msg) {
+    super(msg);
+  }
 
-	public BadPasswordException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public BadPasswordException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
 
 }

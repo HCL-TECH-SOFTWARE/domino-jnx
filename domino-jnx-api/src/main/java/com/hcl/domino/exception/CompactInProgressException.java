@@ -19,28 +19,29 @@ package com.hcl.domino.exception;
 import com.hcl.domino.DominoException;
 
 /**
- * Represents error code 0x02CC, "Database is being Compacted; Compact must finish before use."
- * 
+ * Represents error code 0x02CC, "Database is being Compacted; Compact must
+ * finish before use."
+ *
  * @author Jesse Gallagher
  * @since 1.0.21
  */
 public class CompactInProgressException extends DominoException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public CompactInProgressException(int id, String message) {
-		super(id, message);
-	}
+  public CompactInProgressException(final int id, final String message) {
+    super(id, message);
+  }
 
-	public CompactInProgressException(int id, String message, Throwable cause) {
-		super(id, message, cause);
-	}
+  public CompactInProgressException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
+  }
 
-	public CompactInProgressException(String msg) {
-		super(msg);
-	}
+  public CompactInProgressException(final String msg) {
+    super(msg);
+  }
 
-	public CompactInProgressException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public CompactInProgressException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
 
 }

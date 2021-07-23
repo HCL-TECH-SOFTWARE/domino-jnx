@@ -24,23 +24,28 @@ import com.hcl.domino.richtext.RichTextConstants;
  * @since 1.0.24
  */
 public enum AgentInterval implements INumberEnum<Short> {
-	/** Unknown  */
-	NONE(RichTextConstants.ASSISTINTERVAL_TYPE_NONE),
-	MINUTES(RichTextConstants.ASSISTINTERVAL_TYPE_MINUTES),
-	DAYS(RichTextConstants.ASSISTINTERVAL_TYPE_DAYS),
-	WEEK(RichTextConstants.ASSISTINTERVAL_TYPE_WEEK),
-	MONTH(RichTextConstants.ASSISTINTERVAL_TYPE_MONTH),
-	EVENT(RichTextConstants.ASSISTINTERVAL_TYPE_EVENT),
-	;
-	
-	private final short value;
-	AgentInterval(short value) { this.value = (short)value; }
-	@Override
-	public Short getValue() {
-		return value;
-	}
-	@Override
-	public long getLongValue() {
-		return value;
-	}
+  /** Unknown */
+  NONE(RichTextConstants.ASSISTINTERVAL_TYPE_NONE),
+  MINUTES(RichTextConstants.ASSISTINTERVAL_TYPE_MINUTES),
+  DAYS(RichTextConstants.ASSISTINTERVAL_TYPE_DAYS),
+  WEEK(RichTextConstants.ASSISTINTERVAL_TYPE_WEEK),
+  MONTH(RichTextConstants.ASSISTINTERVAL_TYPE_MONTH),
+  EVENT(RichTextConstants.ASSISTINTERVAL_TYPE_EVENT),
+  ;
+
+  private final short value;
+
+  AgentInterval(final short value) {
+    this.value = value;
+  }
+
+  @Override
+  public long getLongValue() {
+    return this.value;
+  }
+
+  @Override
+  public Short getValue() {
+    return this.value;
+  }
 }

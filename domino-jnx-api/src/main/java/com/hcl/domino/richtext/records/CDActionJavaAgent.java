@@ -24,116 +24,112 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.WSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="CDACTIONJAVAAGENT",
-	members={
-		@StructureMember(name="Header", type=WSIG.class),
-		@StructureMember(name="wClassNameLen", type=short.class, unsigned=true),
-		@StructureMember(name="wCodePathLen", type=short.class, unsigned=true),
-		@StructureMember(name="wFileListBytes", type=short.class, unsigned=true),
-		@StructureMember(name="wLibraryListBytes", type=short.class, unsigned=true),
-		@StructureMember(name="wSpare", type=short.class),
-		@StructureMember(name="dwSpare", type=int.class)
-	}
-)
+@StructureDefinition(name = "CDACTIONJAVAAGENT", members = {
+    @StructureMember(name = "Header", type = WSIG.class),
+    @StructureMember(name = "wClassNameLen", type = short.class, unsigned = true),
+    @StructureMember(name = "wCodePathLen", type = short.class, unsigned = true),
+    @StructureMember(name = "wFileListBytes", type = short.class, unsigned = true),
+    @StructureMember(name = "wLibraryListBytes", type = short.class, unsigned = true),
+    @StructureMember(name = "wSpare", type = short.class),
+    @StructureMember(name = "dwSpare", type = int.class)
+})
 public interface CDActionJavaAgent extends RichTextRecord<WSIG> {
-	@StructureGetter("Header")
-	@Override
-	WSIG getHeader();
-	
-	@StructureGetter("wClassNameLen")
-	int getClassNameLength();
-	@StructureSetter("wClassNameLen")
-	CDActionJavaAgent setClassNameLength(int len);
-	
-	@StructureGetter("wCodePathLen")
-	int getCodePathLength();
-	@StructureSetter("wCodePathLen")
-	CDActionJavaAgent setCodePathLength(int len);
-	
-	@StructureGetter("wFileListBytes")
-	int getFileListLength();
-	@StructureSetter("wFileListBytes")
-	CDActionJavaAgent setFileListLength(int len);
-	
-	@StructureGetter("wLibraryListBytes")
-	int getLibraryListLength();
-	@StructureSetter("wLibraryListBytes")
-	CDActionJavaAgent setLibraryListLength(int len);
-	
-	default String getClassName() {
-		return StructureSupport.extractStringValue(
-			this,
-			0,
-			getClassNameLength()
-		);
-	}
-	default CDActionJavaAgent setClassName(String className) {
-		StructureSupport.writeStringValue(
-			this,
-			0,
-			getClassNameLength(),
-			className,
-			this::setClassNameLength
-		);
-		return this;
-	}
-	
-	default String getCodePath() {
-		return StructureSupport.extractStringValue(
-			this,
-			getClassNameLength(),
-			getCodePathLength()
-		);
-	}
-	default CDActionJavaAgent setCodePath(String codePath) {
-		StructureSupport.writeStringValue(
-			this,
-			getClassNameLength(),
-			getCodePathLength(),
-			codePath,
-			this::setCodePathLength
-		);
-		return this;
-	}
-	
-	default String getFileList() {
-		return StructureSupport.extractStringValue(
-			this,
-			getClassNameLength() + getCodePathLength(),
-			getFileListLength()
-		);
-	}
-	default CDActionJavaAgent setFileList(String fileList) {
-		StructureSupport.writeStringValue(
-			this,
-			getClassNameLength() + getCodePathLength(),
-			getFileListLength(),
-			fileList,
-			this::setFileListLength
-		);
-		return this;
-	}
-	
-	default String getLibraryList() {
-		return StructureSupport.extractStringValue(
-			this,
-			getClassNameLength() + getCodePathLength() + getFileListLength(),
-			getLibraryListLength()
-		);
-	}
-	default CDActionJavaAgent setLibraryList(String libraryList) {
-		StructureSupport.writeStringValue(
-			this,
-			getClassNameLength() + getCodePathLength() + getFileListLength(),
-			getLibraryListLength(),
-			libraryList,
-			this::setLibraryListLength
-		);
-		return this;
-	}
+  default String getClassName() {
+    return StructureSupport.extractStringValue(
+        this,
+        0,
+        this.getClassNameLength());
+  }
+
+  @StructureGetter("wClassNameLen")
+  int getClassNameLength();
+
+  default String getCodePath() {
+    return StructureSupport.extractStringValue(
+        this,
+        this.getClassNameLength(),
+        this.getCodePathLength());
+  }
+
+  @StructureGetter("wCodePathLen")
+  int getCodePathLength();
+
+  default String getFileList() {
+    return StructureSupport.extractStringValue(
+        this,
+        this.getClassNameLength() + this.getCodePathLength(),
+        this.getFileListLength());
+  }
+
+  @StructureGetter("wFileListBytes")
+  int getFileListLength();
+
+  @StructureGetter("Header")
+  @Override
+  WSIG getHeader();
+
+  default String getLibraryList() {
+    return StructureSupport.extractStringValue(
+        this,
+        this.getClassNameLength() + this.getCodePathLength() + this.getFileListLength(),
+        this.getLibraryListLength());
+  }
+
+  @StructureGetter("wLibraryListBytes")
+  int getLibraryListLength();
+
+  default CDActionJavaAgent setClassName(final String className) {
+    StructureSupport.writeStringValue(
+        this,
+        0,
+        this.getClassNameLength(),
+        className,
+        this::setClassNameLength);
+    return this;
+  }
+
+  @StructureSetter("wClassNameLen")
+  CDActionJavaAgent setClassNameLength(int len);
+
+  default CDActionJavaAgent setCodePath(final String codePath) {
+    StructureSupport.writeStringValue(
+        this,
+        this.getClassNameLength(),
+        this.getCodePathLength(),
+        codePath,
+        this::setCodePathLength);
+    return this;
+  }
+
+  @StructureSetter("wCodePathLen")
+  CDActionJavaAgent setCodePathLength(int len);
+
+  default CDActionJavaAgent setFileList(final String fileList) {
+    StructureSupport.writeStringValue(
+        this,
+        this.getClassNameLength() + this.getCodePathLength(),
+        this.getFileListLength(),
+        fileList,
+        this::setFileListLength);
+    return this;
+  }
+
+  @StructureSetter("wFileListBytes")
+  CDActionJavaAgent setFileListLength(int len);
+
+  default CDActionJavaAgent setLibraryList(final String libraryList) {
+    StructureSupport.writeStringValue(
+        this,
+        this.getClassNameLength() + this.getCodePathLength() + this.getFileListLength(),
+        this.getLibraryListLength(),
+        libraryList,
+        this::setLibraryListLength);
+    return this;
+  }
+
+  @StructureSetter("wLibraryListBytes")
+  CDActionJavaAgent setLibraryListLength(int len);
 }

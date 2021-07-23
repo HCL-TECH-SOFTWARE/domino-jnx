@@ -26,55 +26,55 @@ import com.hcl.domino.data.IAdaptable;
  */
 public interface DirEntry extends IAdaptable {
 
-	/**
-	 * Returns the name of the scanned server
-	 * 
-	 * @return server
-	 */
-	String getServer();
+  /**
+   * Returns the length of a file
+   *
+   * @return length
+   */
+  long getFileLength();
 
-	/**
-	 * Returns a map of properties for the entry
-	 * 
-	 * @return data
-	 */
-	Map<String,Object> getProperties();
-	
-    /**
-     * Returns the complete relative path of the entry in the
-     * data directory
-     * 
-     * @return path
-     */
-	public String getFilePath();
-	
-    /**
-     * Returns the filename of the entry
-     * 
-     * @return filename
-     */
-	public String getFileName();
-	
-	/**
-	 * Returns the physical/absolute filepath of the entry in the scanned
-	 * directory
-	 * 
-	 * @return absolute path
-	 */
-	public String getPhysicalFilePath();
-	
-	/**
-	 * Returns the length of a file
-	 * 
-	 * @return length
-	 */
-	public long getFileLength();
+  /**
+   * Returns the filename of the entry
+   *
+   * @return filename
+   */
+  String getFileName();
 
-	/**
-	 * Returns the file modification date
-	 * 
-	 * @return modification date
-	 */
-	DominoDateTime getModified();
-	
+  /**
+   * Returns the complete relative path of the entry in the
+   * data directory
+   *
+   * @return path
+   */
+  String getFilePath();
+
+  /**
+   * Returns the file modification date
+   *
+   * @return modification date
+   */
+  DominoDateTime getModified();
+
+  /**
+   * Returns the physical/absolute filepath of the entry in the scanned
+   * directory
+   *
+   * @return absolute path
+   */
+  String getPhysicalFilePath();
+
+  /**
+   * Returns a map of properties for the entry
+   *
+   * @return data
+   */
+  Map<String, Object> getProperties();
+
+  /**
+   * Returns the name of the scanned server
+   *
+   * @return server
+   */
+  String getServer();
+
 }

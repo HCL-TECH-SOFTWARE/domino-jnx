@@ -21,9 +21,9 @@ package com.hcl.domino.design.action;
  * @since 1.0.24
  */
 public interface ReadMarksAction extends SimpleAction {
-	enum Type {
-		MARK_READ, MARK_UNREAD
-	}
-	
-	Type getType();
+  enum Type {
+    MARK_READ, MARK_UNREAD
+  }
+
+  Type getType();
 }

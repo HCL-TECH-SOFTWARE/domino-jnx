@@ -14,7 +14,7 @@
  * under the License.
  * ==========================================================================
  */
- package com.hcl.domino.data;
+package com.hcl.domino.data;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -27,66 +27,70 @@ import java.util.List;
  * source, such as view column values.
  */
 public interface IndexedTypedAccess {
-	
-	/**
-	 * @return the number of value entries available to read 
-	 */
-	int getIndexedValueCount();
-	
-	/**
-	 * Returns an item value converted to the specified data type.<br>
-	 * <br>
-	 * We currently support the following value types out of the box:<br>
-	 * <ul>
-	 * <li>{@link String}</li>
-	 * <li>{@link Integer}</li>
-	 * <li>{@link Long}</li>
-	 * <li>{@link Double}</li>
-	 * <li>{@link DominoDateTime}</li>
-	 * <li>{@link LocalDate}</li>
-	 * <li>{@link LocalTime}</li>
-	 * <li>{@link OffsetDateTime}</li>
-	 * <li>{@link TemporalAccessor} (returned as {@link DominoDateTime})</li>
-	 * </ul>
-	 * <br>
-	 * Additional value types are supported by implementing and registering
-	 * {@link DocumentValueConverter} as Java {@link java.util.ServiceLoader services}.
-	 * 
-	 * @param <T> type of return value
-	 * @param index the index of the value to retrieve
-	 * @param valueType class of return value
-	 * @param defaultValue default value returned of object does not contain property
-	 * @return return value
-	 * @throws IllegalArgumentException if the specified value type is unsupported
-	 */
-	<T> T get(int index, Class<T> valueType, T defaultValue);
-	
-	/**
-	 * Returns a list of item values converted to the specified data type.<br>
-	 * <br>
-	 * We currently support the following value types out of the box:<br>
-	 * <ul>
-	 * <li>{@link String}</li>
-	 * <li>{@link Integer}</li>
-	 * <li>{@link Long}</li>
-	 * <li>{@link Double}</li>
-	 * <li>{@link DominoDateTime}</li>
-	 * <li>{@link LocalDate}</li>
-	 * <li>{@link LocalTime}</li>
-	 * <li>{@link OffsetDateTime}</li>
-	 * <li>{@link TemporalAccessor} (returned as {@link DominoDateTime})</li>
-	 * </ul>
-	 * <br>
-	 * Additional value types are supported by implementing and registering
-	 * {@link DocumentValueConverter} as Java {@link java.util.ServiceLoader services}.
-	 * 
-	 * @param <T> type of return value
-	 * @param index the index of the value to retrieve
-	 * @param valueType class of return value
-	 * @param defaultValue default value returned of object does not contain property
-	 * @return value list
-	 * @throws IllegalArgumentException if the specified value type is unsupported
-	 */
-	<T> List<T> getAsList(int index, Class<T> valueType, List<T> defaultValue);
-	
+
+  /**
+   * Returns an item value converted to the specified data type.<br>
+   * <br>
+   * We currently support the following value types out of the box:<br>
+   * <ul>
+   * <li>{@link String}</li>
+   * <li>{@link Integer}</li>
+   * <li>{@link Long}</li>
+   * <li>{@link Double}</li>
+   * <li>{@link DominoDateTime}</li>
+   * <li>{@link LocalDate}</li>
+   * <li>{@link LocalTime}</li>
+   * <li>{@link OffsetDateTime}</li>
+   * <li>{@link TemporalAccessor} (returned as {@link DominoDateTime})</li>
+   * </ul>
+   * <br>
+   * Additional value types are supported by implementing and registering
+   * {@link DocumentValueConverter} as Java {@link java.util.ServiceLoader
+   * services}.
+   *
+   * @param <T>          type of return value
+   * @param index        the index of the value to retrieve
+   * @param valueType    class of return value
+   * @param defaultValue default value returned of object does not contain
+   *                     property
+   * @return return value
+   * @throws IllegalArgumentException if the specified value type is unsupported
+   */
+  <T> T get(int index, Class<T> valueType, T defaultValue);
+
+  /**
+   * Returns a list of item values converted to the specified data type.<br>
+   * <br>
+   * We currently support the following value types out of the box:<br>
+   * <ul>
+   * <li>{@link String}</li>
+   * <li>{@link Integer}</li>
+   * <li>{@link Long}</li>
+   * <li>{@link Double}</li>
+   * <li>{@link DominoDateTime}</li>
+   * <li>{@link LocalDate}</li>
+   * <li>{@link LocalTime}</li>
+   * <li>{@link OffsetDateTime}</li>
+   * <li>{@link TemporalAccessor} (returned as {@link DominoDateTime})</li>
+   * </ul>
+   * <br>
+   * Additional value types are supported by implementing and registering
+   * {@link DocumentValueConverter} as Java {@link java.util.ServiceLoader
+   * services}.
+   *
+   * @param <T>          type of return value
+   * @param index        the index of the value to retrieve
+   * @param valueType    class of return value
+   * @param defaultValue default value returned of object does not contain
+   *                     property
+   * @return value list
+   * @throws IllegalArgumentException if the specified value type is unsupported
+   */
+  <T> List<T> getAsList(int index, Class<T> valueType, List<T> defaultValue);
+
+  /**
+   * @return the number of value entries available to read
+   */
+  int getIndexedValueCount();
+
 }

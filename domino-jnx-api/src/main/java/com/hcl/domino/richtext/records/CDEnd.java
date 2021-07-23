@@ -23,30 +23,28 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.BSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.2
  */
-@StructureDefinition(
-	name="CDENDRECORD",
-	members={
-		@StructureMember(name="Header", type=BSIG.class),
-		@StructureMember(name="Version", type=short.class, unsigned=true),
-		@StructureMember(name="Signature", type=short.class)
-	}
-)
+@StructureDefinition(name = "CDENDRECORD", members = {
+    @StructureMember(name = "Header", type = BSIG.class),
+    @StructureMember(name = "Version", type = short.class, unsigned = true),
+    @StructureMember(name = "Signature", type = short.class)
+})
 public interface CDEnd extends RichTextRecord<BSIG> {
-	@StructureGetter("Header")
-	@Override
-	BSIG getHeader();
-	
-	@StructureGetter("Version")
-	int getVersion();
-	@StructureSetter("Version")
-	CDEnd setVersion(int version);
-	
-	@StructureGetter("Signature")
-	short getSignature();
-	@StructureSetter("Signature")
-	CDEnd setSignature(short signature);
+  @StructureGetter("Header")
+  @Override
+  BSIG getHeader();
+
+  @StructureGetter("Signature")
+  short getSignature();
+
+  @StructureGetter("Version")
+  int getVersion();
+
+  @StructureSetter("Signature")
+  CDEnd setSignature(short signature);
+
+  @StructureSetter("Version")
+  CDEnd setVersion(int version);
 }

@@ -23,38 +23,46 @@ import com.hcl.domino.DominoClient;
 
 /**
  * Contains information resulting from {@link DominoClient#pingServer}.
- * 
+ *
  * @since 1.0.20
  */
 public interface ServerPingInfo {
-	/**
-	 * Retrieves the server's availability index, if requested in the ping. The availability
-	 * index is an integer value from 1-100.
-	 * 
-	 * @return an {@link Optional} describing the availability index, or an empty one
-	 *      if this was not requested
-	 */
-	Optional<Integer> getAvailabilityIndex();
-	
-	/**
-	 * Retrieves the server's cluster name, if requested in the ping.
-	 * 
-	 * <p>If cluster information is requested but the server is not a member of a cluster, then
-	 * this will be an {@link Optional} describing an empty string.</p>
-	 * 
-	 * @return an {@link Optional} describing the server's cluster name, or an empty one
-	 *      if this was not requested
-	 */
-	Optional<String> getClusterName();
-	
-	/**
-	 * Retrieves the server's cluster members, if requested in the ping.
-	 * 
-	 * <p>If cluster information is requested but the server is not a member of a cluster, then
-	 * this will be an {@link Optional} describing an empty list.</p>
-	 * 
-	 * @return an {@link Optional} describing the server's cluster members as a {@link List}, or
-	 *      an empty one if this was not requested
-	 */
-	Optional<List<String>> getClusterMembers();
+  /**
+   * Retrieves the server's availability index, if requested in the ping. The
+   * availability
+   * index is an integer value from 1-100.
+   *
+   * @return an {@link Optional} describing the availability index, or an empty
+   *         one
+   *         if this was not requested
+   */
+  Optional<Integer> getAvailabilityIndex();
+
+  /**
+   * Retrieves the server's cluster members, if requested in the ping.
+   * <p>
+   * If cluster information is requested but the server is not a member of a
+   * cluster, then
+   * this will be an {@link Optional} describing an empty list.
+   * </p>
+   *
+   * @return an {@link Optional} describing the server's cluster members as a
+   *         {@link List}, or
+   *         an empty one if this was not requested
+   */
+  Optional<List<String>> getClusterMembers();
+
+  /**
+   * Retrieves the server's cluster name, if requested in the ping.
+   * <p>
+   * If cluster information is requested but the server is not a member of a
+   * cluster, then
+   * this will be an {@link Optional} describing an empty string.
+   * </p>
+   *
+   * @return an {@link Optional} describing the server's cluster name, or an empty
+   *         one
+   *         if this was not requested
+   */
+  Optional<String> getClusterName();
 }

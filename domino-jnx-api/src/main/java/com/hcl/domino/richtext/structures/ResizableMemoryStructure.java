@@ -21,34 +21,38 @@ import java.nio.ByteBuffer;
 /**
  * This sub-interface of {@link MemoryStructure} represents a structure that is
  * expected to have resizable variable data.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.15
  */
 public interface ResizableMemoryStructure extends MemoryStructure {
-	/**
-	 * Resizes the backing memory to the provided {@code size}.
-	 * 
-	 * @param size the new size in bytes
-	 */
-	void resize(int size);
-	
-	/**
-	 * Returns the portion of the data after the defined structure (e.g. the text portion of
-	 * a {@code CDTEXT} record).
-	 * 
-	 * <p>This byte buffer starts at the beginning of the variable data and has a length equal to the
-	 * variable data length.</p>
-	 * 
-	 * @return a {@link ByteBuffer} representing the variable-length data of the record
-	 */
-	ByteBuffer getVariableData();
-	
-	/**
-	 * Resizes the variable portion of this record to the provided {@code size}.
-	 * 
-	 * @param size the new size in bytes
-	 * @since 1.0.15
-	 */
-	void resizeVariableData(int size);
+  /**
+   * Returns the portion of the data after the defined structure (e.g. the text
+   * portion of
+   * a {@code CDTEXT} record).
+   * <p>
+   * This byte buffer starts at the beginning of the variable data and has a
+   * length equal to the
+   * variable data length.
+   * </p>
+   *
+   * @return a {@link ByteBuffer} representing the variable-length data of the
+   *         record
+   */
+  ByteBuffer getVariableData();
+
+  /**
+   * Resizes the backing memory to the provided {@code size}.
+   *
+   * @param size the new size in bytes
+   */
+  void resize(int size);
+
+  /**
+   * Resizes the variable portion of this record to the provided {@code size}.
+   *
+   * @param size the new size in bytes
+   * @since 1.0.15
+   */
+  void resizeVariableData(int size);
 }

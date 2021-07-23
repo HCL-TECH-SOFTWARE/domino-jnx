@@ -20,61 +20,60 @@ package com.hcl.domino.jnx.console.internal;
  * Utility class to contains OS type parsing and string utility functions
  */
 class ConsoleUtils {
-    public static final String COLON = ":";
+  public static final String COLON = ":";
 
-    public static int getOSType(String value) {
-        int n = 0;
-        if (value.regionMatches(true, 0, "Windows", 0, 7)) {
-            n = 0;
-        } else if (value.regionMatches(true, 0, "Linux", 0, 5)) {
-            n = 1;
-        } else if (value.regionMatches(true, 0, "AIX", 0, 3)) {
-            n = 2;
-        } else if (value.regionMatches(true, 0, "OS/400", 0, 6)) {
-            n = 3;
-        } else if (value.regionMatches(true, 0, "MAC", 0, 3)) {
-            n = 4;
-        } else {
-            System.out.println("WARN: Unsupported platform OS name: " + value);
-        }
-        return n;
+  private static String changeColonInSource(final String string, final boolean bl) {
+    int n;
+    final StringBuffer stringBuffer = new StringBuffer(256);
+    final String string2 = "&colon;";
+    final String string3 = ConsoleUtils.COLON;
+    final String string4 = bl ? string3 : string2;
+    final String string5 = bl ? string2 : string3;
+    int n2 = 0;
+    while ((n = string.indexOf(string4, n2)) != -1) {
+      stringBuffer.append(string.substring(n2, n));
+      stringBuffer.append(string5);
+      n2 = n + string4.length();
     }
+    if (n2 != string.length()) {
+      stringBuffer.append(string.substring(n2, string.length()));
+    }
+    return stringBuffer.toString();
+  }
 
-    public static void enableSocksProxy(String string, String string2) {
-    	//TODO changing global props might not be a good idea
-        System.getProperties().setProperty("socksProxyHost", string);
-        System.getProperties().setProperty("socksProxyPort", string2);
-        System.getProperties().setProperty("socksProxySet", "true");
-    }
+  public static String changeColonToNative(final String string) {
+    return ConsoleUtils.changeColonInSource(string, false);
+  }
 
-    public static void disableSocksProxy() {
-    	//TODO changing global props might not be a good idea
-        System.getProperties().remove("socksProxySet");
-        System.getProperties().remove("socksProxyHost");
-        System.getProperties().remove("socksProxyPort");
-    }
-    
-    public static String changeColonToNative(String string) {
-        return ConsoleUtils.changeColonInSource(string, false);
-    }
+  public static void disableSocksProxy() {
+    // TODO changing global props might not be a good idea
+    System.getProperties().remove("socksProxySet");
+    System.getProperties().remove("socksProxyHost");
+    System.getProperties().remove("socksProxyPort");
+  }
 
-    private static String changeColonInSource(String string, boolean bl) {
-        int n;
-        StringBuffer stringBuffer = new StringBuffer(256);
-        String string2 = "&colon;";
-        String string3 = COLON;
-        String string4 = bl ? string3 : string2;
-        String string5 = bl ? string2 : string3;
-        int n2 = 0;
-        while ((n = string.indexOf(string4, n2)) != -1) {
-            stringBuffer.append(string.substring(n2, n));
-            stringBuffer.append(string5);
-            n2 = n + string4.length();
-        }
-        if (n2 != string.length()) {
-            stringBuffer.append(string.substring(n2, string.length()));
-        }
-        return stringBuffer.toString();
+  public static void enableSocksProxy(final String string, final String string2) {
+    // TODO changing global props might not be a good idea
+    System.getProperties().setProperty("socksProxyHost", string);
+    System.getProperties().setProperty("socksProxyPort", string2);
+    System.getProperties().setProperty("socksProxySet", "true");
+  }
+
+  public static int getOSType(final String value) {
+    int n = 0;
+    if (value.regionMatches(true, 0, "Windows", 0, 7)) {
+      n = 0;
+    } else if (value.regionMatches(true, 0, "Linux", 0, 5)) {
+      n = 1;
+    } else if (value.regionMatches(true, 0, "AIX", 0, 3)) {
+      n = 2;
+    } else if (value.regionMatches(true, 0, "OS/400", 0, 6)) {
+      n = 3;
+    } else if (value.regionMatches(true, 0, "MAC", 0, 3)) {
+      n = 4;
+    } else {
+      System.out.println("WARN: Unsupported platform OS name: " + value);
     }
+    return n;
+  }
 }
-

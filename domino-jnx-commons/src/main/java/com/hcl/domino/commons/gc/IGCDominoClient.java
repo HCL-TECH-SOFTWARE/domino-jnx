@@ -20,25 +20,28 @@ import com.hcl.domino.DominoClient;
 import com.hcl.domino.commons.IDefaultDominoClient;
 
 /**
- * This interface represents a {@link DominoClient} implementation that, in addition to the behaviors
- * specified in {@link IDefaultDominoClient}, also acts as a root for automatic garbage collection.
+ * This interface represents a {@link DominoClient} implementation that, in
+ * addition to the behaviors
+ * specified in {@link IDefaultDominoClient}, also acts as a root for automatic
+ * garbage collection.
  *
  * @param <AT> the {@link APIObjectAllocations} type used by the implementation
  * @since 1.0.19
  */
 @SuppressWarnings("rawtypes")
-public interface IGCDominoClient<AT extends APIObjectAllocations> extends IDefaultDominoClient, IAPIObject<AT> {	
-	void markRegisteredForGC();
-	boolean isRegisteredForGC();
-	
-	boolean isAllowCrossThreadAccess();
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	default <T> T getAdapter(Class<T> clazz) {
-		if(clazz == IGCDominoClient.class) {
-			return (T)this;
-		}
-		return null;
-	}
+public interface IGCDominoClient<AT extends APIObjectAllocations> extends IDefaultDominoClient, IAPIObject<AT> {
+  @SuppressWarnings("unchecked")
+  @Override
+  default <T> T getAdapter(final Class<T> clazz) {
+    if (clazz == IGCDominoClient.class) {
+      return (T) this;
+    }
+    return null;
+  }
+
+  boolean isAllowCrossThreadAccess();
+
+  boolean isRegisteredForGC();
+
+  void markRegisteredForGC();
 }

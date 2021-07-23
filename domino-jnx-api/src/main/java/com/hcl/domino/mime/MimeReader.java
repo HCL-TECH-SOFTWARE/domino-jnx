@@ -30,40 +30,43 @@ import jakarta.mail.internet.MimeMessage;
  */
 public interface MimeReader {
 
-	/**
-	 * Used to specify which part of the document MIME content should be read
-	 */
-	public enum ReadMimeDataType { MIMEHEADERS, RFC822HEADERS }
+  /**
+   * Used to specify which part of the document MIME content should be read
+   */
+  public enum ReadMimeDataType {
+    MIMEHEADERS, RFC822HEADERS
+  }
 
-	/**
-	 * Reads MIME content from a document into a {@link Writer} in a streaming fashion.
-	 * 
-	 * @param doc document to read MIME
-	 * @param itemName name of item for the MIME content (e.g. "body")
-	 * @param dataType specifies with MIME data types should be read
-	 * @param targetWriter writer to receive the MIME content
-	 * @throws IOException in case of I/O errors writing into the {@link Writer}
-	 */
-	void readMIME(Document doc, String itemName, Set<ReadMimeDataType> dataType, Writer targetWriter) throws IOException;
+  /**
+   * Returns a {@link Reader} to read the MIME content
+   *
+   * @param doc      document to read MIME
+   * @param itemName name of item for the MIME content (e.g. "body")
+   * @param dataType specifies with MIME data types should be read
+   * @return reader
+   */
+  Reader getMIMEReader(Document doc, String itemName, Set<ReadMimeDataType> dataType);
 
-	/**
-	 * Reads MIME content from a document and returns it as a {@link MimeMessage}.
-	 * 
-	 * @param doc document to read MIME
-	 * @param itemName name of item for the MIME content (e.g. "body")
-	 * @param dataType specifies with MIME data types should be read
-	 * @return MIME message
-	 */
-	MimeMessage readMIME(Document doc, String itemName, Set<ReadMimeDataType> dataType);
+  /**
+   * Reads MIME content from a document and returns it as a {@link MimeMessage}.
+   *
+   * @param doc      document to read MIME
+   * @param itemName name of item for the MIME content (e.g. "body")
+   * @param dataType specifies with MIME data types should be read
+   * @return MIME message
+   */
+  MimeMessage readMIME(Document doc, String itemName, Set<ReadMimeDataType> dataType);
 
-	/**
-	 * Returns a {@link Reader} to read the MIME content
-	 * 
-	 * @param doc document to read MIME
-	 * @param itemName name of item for the MIME content (e.g. "body")
-	 * @param dataType specifies with MIME data types should be read
-	 * @return reader
-	 */
-	Reader getMIMEReader(Document doc, String itemName, Set<ReadMimeDataType> dataType);
-	
+  /**
+   * Reads MIME content from a document into a {@link Writer} in a streaming
+   * fashion.
+   *
+   * @param doc          document to read MIME
+   * @param itemName     name of item for the MIME content (e.g. "body")
+   * @param dataType     specifies with MIME data types should be read
+   * @param targetWriter writer to receive the MIME content
+   * @throws IOException in case of I/O errors writing into the {@link Writer}
+   */
+  void readMIME(Document doc, String itemName, Set<ReadMimeDataType> dataType, Writer targetWriter) throws IOException;
+
 }

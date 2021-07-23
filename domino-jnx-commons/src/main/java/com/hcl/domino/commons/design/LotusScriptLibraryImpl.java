@@ -28,17 +28,17 @@ import com.hcl.domino.misc.NotesConstants;
  */
 public class LotusScriptLibraryImpl extends AbstractScriptLibrary<LotusScriptLibrary> implements LotusScriptLibrary {
 
-	public LotusScriptLibraryImpl(Document doc) {
-		super(doc);
-	}
+  public LotusScriptLibraryImpl(final Document doc) {
+    super(doc);
+  }
 
-	@Override
-	public String getScript() {
-		// This must be stored in $ScriptLib items
-		return getDocument().allItems()
-			.filter(item -> NotesConstants.SCRIPTLIB_ITEM_NAME.equalsIgnoreCase(item.getName()))
-			.map(item -> item.getValue().get(0))
-			.map(String::valueOf)
-			.collect(Collectors.joining());
-	}
+  @Override
+  public String getScript() {
+    // This must be stored in $ScriptLib items
+    return this.getDocument().allItems()
+        .filter(item -> NotesConstants.SCRIPTLIB_ITEM_NAME.equalsIgnoreCase(item.getName()))
+        .map(item -> item.getValue().get(0))
+        .map(String::valueOf)
+        .collect(Collectors.joining());
+  }
 }

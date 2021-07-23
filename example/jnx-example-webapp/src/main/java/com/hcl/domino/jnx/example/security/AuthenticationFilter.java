@@ -32,36 +32,36 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebFilter(value="/*", asyncSupported=true)
+@WebFilter(value = "/*", asyncSupported = true)
 public class AuthenticationFilter implements Filter {
 
-	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
-			throws IOException, ServletException {
-		HttpServletRequest req = (HttpServletRequest) request;
-		HttpServletResponse resp = (HttpServletResponse) response;
+  @Override
+  public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
+      throws IOException, ServletException {
+    final HttpServletRequest req = (HttpServletRequest) request;
+    final HttpServletResponse resp = (HttpServletResponse) response;
 
-		if ("/j_security_check".equals(req.getServletPath()) || "/j_security_check".equals(req.getPathInfo())) { //$NON-NLS-1$ //$NON-NLS-2$
-			chain.doFilter(request, response);
-			return;
-		}
+    if ("/j_security_check".equals(req.getServletPath()) || "/j_security_check".equals(req.getPathInfo())) { //$NON-NLS-1$ //$NON-NLS-2$
+      chain.doFilter(request, response);
+      return;
+    }
 
-		Principal p = req.getUserPrincipal();
-		if (p == null || "anonymous".equalsIgnoreCase(p.getName())) { //$NON-NLS-1$
-			// No need to re-request login.html for this app
-			if ("/index.html".equals(req.getPathInfo())) { //$NON-NLS-1$
-				resp.sendRedirect("/"); //$NON-NLS-1$
-			}
+    final Principal p = req.getUserPrincipal();
+    if (p == null || "anonymous".equalsIgnoreCase(p.getName())) { //$NON-NLS-1$
+      // No need to re-request login.html for this app
+      if ("/index.html".equals(req.getPathInfo())) { //$NON-NLS-1$
+        resp.sendRedirect("/"); //$NON-NLS-1$
+      }
 
-			resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-			resp.setContentType("text/html"); //$NON-NLS-1$
-			resp.addCookie(new Cookie("WASReqURL", req.getRequestURI())); //$NON-NLS-1$
-			try (InputStream is = getClass().getResourceAsStream("/login.html")) { //$NON-NLS-1$
-				IOUtils.copy(is, resp.getOutputStream());
-			}
-		} else {
-			chain.doFilter(request, response);
-		}
-	}
+      resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      resp.setContentType("text/html"); //$NON-NLS-1$
+      resp.addCookie(new Cookie("WASReqURL", req.getRequestURI())); //$NON-NLS-1$
+      try (InputStream is = this.getClass().getResourceAsStream("/login.html")) { //$NON-NLS-1$
+        IOUtils.copy(is, resp.getOutputStream());
+      }
+    } else {
+      chain.doFilter(request, response);
+    }
+  }
 
 }

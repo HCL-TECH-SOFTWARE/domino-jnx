@@ -23,47 +23,48 @@ import com.hcl.domino.jnx.example.swt.App;
 import com.hcl.domino.jnx.example.swt.AppShell;
 
 public class DatabaseTreeNode extends DBListTreeNode {
-	private TreeNode[] children;
-	private final String serverName;
-	private final String databasePath;
+  private TreeNode[] children;
+  private final String serverName;
+  private final String databasePath;
 
-	public DatabaseTreeNode(String serverName, String databasePath) {
-		super(serverName+"!!"+databasePath); //$NON-NLS-1$
-		
-		this.serverName = serverName;
-		this.databasePath = databasePath;
-	}
+  public DatabaseTreeNode(final String serverName, final String databasePath) {
+    super(serverName + "!!" + databasePath); //$NON-NLS-1$
 
-	public String getDatabasePath() {
-		return databasePath;
-	}
-	public String getServerName() {
-		return serverName;
-	}
-	
-	@Override
-	public boolean hasChildren() {
-		return true;
-	}
-	
-	@Override
-	public String toString() {
-		return getDatabasePath();
-	}
+    this.serverName = serverName;
+    this.databasePath = databasePath;
+  }
 
-	@Override
-	public synchronized TreeNode[] getChildren() {
-		if(this.children == null) {
-			return new TreeNode[] {
-				new StoreTreeNode(serverName, databasePath, StoreTreeNode.Type.DESIGN),
-				new StoreTreeNode(serverName, databasePath, StoreTreeNode.Type.DATA)
-			};
-		}
-		return this.children;
-	}
-	
-	@Override
-	public Image getImage() {
-		return AppShell.resourceManager.createImage(App.IMAGE_DATABASE);
-	}
+  @Override
+  public synchronized TreeNode[] getChildren() {
+    if (this.children == null) {
+      return new TreeNode[] {
+          new StoreTreeNode(this.serverName, this.databasePath, StoreTreeNode.Type.DESIGN),
+          new StoreTreeNode(this.serverName, this.databasePath, StoreTreeNode.Type.DATA)
+      };
+    }
+    return this.children;
+  }
+
+  public String getDatabasePath() {
+    return this.databasePath;
+  }
+
+  @Override
+  public Image getImage() {
+    return AppShell.resourceManager.createImage(App.IMAGE_DATABASE);
+  }
+
+  public String getServerName() {
+    return this.serverName;
+  }
+
+  @Override
+  public boolean hasChildren() {
+    return true;
+  }
+
+  @Override
+  public String toString() {
+    return this.getDatabasePath();
+  }
 }

@@ -27,45 +27,47 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
 import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 
 /**
- * {@link DocumentValueConverter} implementation that allows reading items as instances of
+ * {@link DocumentValueConverter} implementation that allows reading items as
+ * instances of
  * {@link MemoryStructure} sub-interfaces.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.24
  */
 public class StructDocumentValueConverter implements DocumentValueConverter {
 
-	@Override
-	public boolean supportsRead(Class<?> valueType) {
-		return MemoryStructure.class.isAssignableFrom(valueType) && !MemoryStructure.class.equals(valueType);
-	}
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T getValue(final Document obj, final String itemName, final Class<T> valueType, final T defaultValue) {
+    ByteBuffer buf = obj.get(itemName, ByteBuffer.class, null);
+    if (buf == null) {
+      return defaultValue;
+    }
+    // Chop off the data type
+    buf.position(2);
+    buf = buf.slice().order(ByteOrder.nativeOrder());
+    return (T) MemoryStructureWrapperService.get().wrapStructure((Class<? extends MemoryStructure>) valueType, buf);
+  }
 
-	@Override
-	public boolean supportsWrite(Class<?> valueType, Object value) {
-		return false;
-	}
+  @Override
+  public <T> List<T> getValueAsList(final Document obj, final String itemName, final Class<T> valueType,
+      final List<T> defaultValue) {
+    throw new NotYetImplementedException();
+  }
 
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T getValue(Document obj, String itemName, Class<T> valueType, T defaultValue) {
-		ByteBuffer buf = obj.get(itemName, ByteBuffer.class, null);
-		if(buf == null) {
-			return defaultValue;
-		}
-		// Chop off the data type
-		buf.position(2);
-		buf = buf.slice().order(ByteOrder.nativeOrder());
-		return (T)MemoryStructureWrapperService.get().wrapStructure((Class<? extends MemoryStructure>)valueType, buf);
-	}
+  @Override
+  public <T> void setValue(final Document obj, final String itemName, final T newValue) {
+    throw new UnsupportedOperationException();
+  }
 
-	@Override
-	public <T> List<T> getValueAsList(Document obj, String itemName, Class<T> valueType, List<T> defaultValue) {
-		throw new NotYetImplementedException();
-	}
+  @Override
+  public boolean supportsRead(final Class<?> valueType) {
+    return MemoryStructure.class.isAssignableFrom(valueType) && !MemoryStructure.class.equals(valueType);
+  }
 
-	@Override
-	public <T> void setValue(Document obj, String itemName, T newValue) {
-		throw new UnsupportedOperationException();
-	}
+  @Override
+  public boolean supportsWrite(final Class<?> valueType, final Object value) {
+    return false;
+  }
 
 }

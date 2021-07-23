@@ -22,48 +22,49 @@ import java.io.OutputStream;
 /**
  * {@link OutputStream} implementation that delegates all calls to
  * two destination {@link OutputStream}s.
- * 
- * <p>Note: this class makes no guarantees about behavior if one destination
- * encounters an exception.</p>
- * 
+ * <p>
+ * Note: this class makes no guarantees about behavior if one destination
+ * encounters an exception.
+ * </p>
+ *
  * @author Jesse Gallagher
  */
 public class SplitterOutputStream extends OutputStream {
-	
-	private final OutputStream delegate1;
-	private final OutputStream delegate2;
-	
-	public SplitterOutputStream(OutputStream delegate1, OutputStream delegate2) {
-		this.delegate1 = delegate1;
-		this.delegate2 = delegate2;
-	}
 
-	@Override
-	public void write(byte[] b) throws IOException {
-		delegate1.write(b);
-		delegate2.write(b);
-	}
+  private final OutputStream delegate1;
+  private final OutputStream delegate2;
 
-	@Override
-	public void write(byte[] b, int off, int len) throws IOException {
-		delegate1.write(b, off, len);
-		delegate2.write(b, off, len);
-	}
+  public SplitterOutputStream(final OutputStream delegate1, final OutputStream delegate2) {
+    this.delegate1 = delegate1;
+    this.delegate2 = delegate2;
+  }
 
-	@Override
-	public void flush() throws IOException {
-		delegate1.flush();
-		delegate2.flush();
-	}
+  @Override
+  public void close() throws IOException {
+    this.delegate1.close();
+    this.delegate2.close();
+  }
 
-	@Override
-	public void close() throws IOException {
-		delegate1.close();
-		delegate2.close();
-	}
+  @Override
+  public void flush() throws IOException {
+    this.delegate1.flush();
+    this.delegate2.flush();
+  }
 
-	@Override
-	public void write(int b) throws IOException {
-		delegate1.write(b);
-	}
+  @Override
+  public void write(final byte[] b) throws IOException {
+    this.delegate1.write(b);
+    this.delegate2.write(b);
+  }
+
+  @Override
+  public void write(final byte[] b, final int off, final int len) throws IOException {
+    this.delegate1.write(b, off, len);
+    this.delegate2.write(b, off, len);
+  }
+
+  @Override
+  public void write(final int b) throws IOException {
+    this.delegate1.write(b);
+  }
 }

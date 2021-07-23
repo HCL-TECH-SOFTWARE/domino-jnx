@@ -23,23 +23,23 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
 import com.hcl.domino.richtext.structures.WSIG;
 
 public class GenericWSIGRecord extends AbstractCDRecord<WSIG> {
-	public GenericWSIGRecord(ByteBuffer data) {
-		this(data, null);
-	}
-	
-	public GenericWSIGRecord(ByteBuffer data, Class<? extends MemoryStructure> recordClass) {
-		super(data, recordClass);
-	}
-	
-	@Override
-	public WSIG getHeader() {
-		ByteBuffer buf = getData().slice();
-		buf.limit(6);
-		return MemoryStructureProxy.forStructure(WSIG.class, () -> buf.slice().order(ByteOrder.nativeOrder()));
-	}
-	
-	@Override
-	protected void _updateHeaderLength(long value) {
-		getHeader().setLength((int)value);
-	}
+  public GenericWSIGRecord(final ByteBuffer data) {
+    this(data, null);
+  }
+
+  public GenericWSIGRecord(final ByteBuffer data, final Class<? extends MemoryStructure> recordClass) {
+    super(data, recordClass);
+  }
+
+  @Override
+  protected void _updateHeaderLength(final long value) {
+    this.getHeader().setLength((int) value);
+  }
+
+  @Override
+  public WSIG getHeader() {
+    final ByteBuffer buf = this.getData().slice();
+    buf.limit(6);
+    return MemoryStructureProxy.forStructure(WSIG.class, () -> buf.slice().order(ByteOrder.nativeOrder()));
+  }
 }

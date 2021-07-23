@@ -16,10 +16,9 @@
  */
 package com.hcl.domino.jna.test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.io.IOException;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
@@ -29,21 +28,20 @@ import com.hcl.domino.data.Document;
 @SuppressWarnings("nls")
 public class TestDocGetAndSet extends AbstractJNARuntimeTest {
 
+  @Test
+  public void testArbitraryUsername() throws IOException {
+    final DominoClient client = this.getClient();
 
-	@Test
-	public void testArbitraryUsername() throws IOException {
-		DominoClient client = getClient();
+    final Database dbFakenames = client.openDatabase("", "log.nsf");
+    final Document doc = dbFakenames.createDocument();
 
-		Database dbFakenames = client.openDatabase("", "log.nsf");
-		Document doc = dbFakenames.createDocument();
+    {
+      final String val = "abcäöüß";
+      doc.replaceItemValue("str1", val);
+      final String testVal = doc.get("str1", String.class, "");
 
-		{
-			String val = "abcäöüß";
-			doc.replaceItemValue("str1", val);
-			String testVal = doc.get("str1", String.class, "");
-			
-			assertEquals(val, testVal, "Value read/write ok");
-		}
-		
-	}
+      Assertions.assertEquals(val, testVal, "Value read/write ok");
+    }
+
+  }
 }

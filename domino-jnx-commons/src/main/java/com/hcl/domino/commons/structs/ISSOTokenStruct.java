@@ -19,19 +19,19 @@ package com.hcl.domino.commons.structs;
 /**
  * Shared interface for SSOTokens of different memory alignments to
  * access handles.
- * 
+ *
  * @author Karsten Lehmann
  */
 public interface ISSOTokenStruct {
-	
-	int getNameHandle();
-	
-	int getDomainListHandle();
-	
-	short getNumDomains();
-	
-	int getSecureOnlyVal();
-	
-	int getDataHandle();
-	
+
+  int getDataHandle();
+
+  int getDomainListHandle();
+
+  int getNameHandle();
+
+  short getNumDomains();
+
+  int getSecureOnlyVal();
+
 }

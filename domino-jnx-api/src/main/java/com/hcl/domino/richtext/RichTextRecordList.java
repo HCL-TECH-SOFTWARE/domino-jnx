@@ -32,74 +32,78 @@ import com.hcl.domino.richtext.records.RichTextRecord;
 /**
  * This sub-interface of {@link List} represents an ordered collection of
  * {@link RichTextRecord}s.
- * 
+ *
  * @since 1.0.15
  */
 public interface RichTextRecordList extends List<RichTextRecord<?>> {
-	default <T> T process(IRichTextProcessor<T> processor) {
-		return processor.apply(this);
-	}
-	
-	/**
-	 * Retrieves the size of the file stored in a file-resource CD item (e.g. {@code $FileData}).
-	 * 
-	 * @return the size of the file resource in bytes
-	 */
-	default long getFileResourceSize() {
-		return process(new GetFileResourceSizeProcessor());
-	}
-	
-	/**
-	 * Extracts the contents of a file-resource CD item (e.g. {@code $FileData}) and writes
-	 * the content to the provided {@link OutputStream}.
-	 * 
-	 * @param os the target {@link OutputStream}
-	 */
-	default void extractFileResource(OutputStream os) {
-		process(new ExtractFileResourceProcessor(os));
-	}
-	
-	/**
-	 * Retrieves the size of the file stored in a image-resource CD item (e.g. {@code $ImageData}).
-	 * 
-	 * @return the size of the file resource in bytes
-	 */
-	default long getImageResourceSize() {
-		return process(new GetImageResourceSizeProcessor());
-	}
-	
-	/**
-	 * Extracts the contents of a image-resource CD item (e.g. {@code $ImageData}) and writes
-	 * the content to the provided {@link OutputStream}.
-	 * 
-	 * @param os the target {@link OutputStream}
-	 */
-	default void extractImageResource(OutputStream os) {
-		process(new ExtractImageResourceProcessor(os));
-	}
-	
-	/**
-	 * Extracts the contents of {@link CDText} CD item and writes the content
-	 * to the provided {@link Appendable}.
-	 * 
-	 * @param out the target {@link Appendable}
-	 * @since 1.0.20
-	 */
-	default void extractText(Appendable out) {
-		process(new ExtractTextProcessor(out));
-	}
-	
-	/**
-	 * Extracts the contents of {@link CDText} CD item and writes the content
-	 * to the provided {@link Appendable}.
-	 * 
-	 * @return text content
-	 * @since 1.0.20
-	 */
-	default String extractText() {
-		StringWriter writer = new StringWriter();
-		process(new ExtractTextProcessor(writer));
-		return writer.toString();
-	}
-	
+  /**
+   * Extracts the contents of a file-resource CD item (e.g. {@code $FileData}) and
+   * writes
+   * the content to the provided {@link OutputStream}.
+   *
+   * @param os the target {@link OutputStream}
+   */
+  default void extractFileResource(final OutputStream os) {
+    this.process(new ExtractFileResourceProcessor(os));
+  }
+
+  /**
+   * Extracts the contents of a image-resource CD item (e.g. {@code $ImageData})
+   * and writes
+   * the content to the provided {@link OutputStream}.
+   *
+   * @param os the target {@link OutputStream}
+   */
+  default void extractImageResource(final OutputStream os) {
+    this.process(new ExtractImageResourceProcessor(os));
+  }
+
+  /**
+   * Extracts the contents of {@link CDText} CD item and writes the content
+   * to the provided {@link Appendable}.
+   *
+   * @return text content
+   * @since 1.0.20
+   */
+  default String extractText() {
+    final StringWriter writer = new StringWriter();
+    this.process(new ExtractTextProcessor(writer));
+    return writer.toString();
+  }
+
+  /**
+   * Extracts the contents of {@link CDText} CD item and writes the content
+   * to the provided {@link Appendable}.
+   *
+   * @param out the target {@link Appendable}
+   * @since 1.0.20
+   */
+  default void extractText(final Appendable out) {
+    this.process(new ExtractTextProcessor(out));
+  }
+
+  /**
+   * Retrieves the size of the file stored in a file-resource CD item (e.g.
+   * {@code $FileData}).
+   *
+   * @return the size of the file resource in bytes
+   */
+  default long getFileResourceSize() {
+    return this.process(new GetFileResourceSizeProcessor());
+  }
+
+  /**
+   * Retrieves the size of the file stored in a image-resource CD item (e.g.
+   * {@code $ImageData}).
+   *
+   * @return the size of the file resource in bytes
+   */
+  default long getImageResourceSize() {
+    return this.process(new GetImageResourceSizeProcessor());
+  }
+
+  default <T> T process(final IRichTextProcessor<T> processor) {
+    return processor.apply(this);
+  }
+
 }

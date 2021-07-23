@@ -20,87 +20,87 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 
 /**
- * Thread to parse a list of administrative console infos like the server group or
+ * Thread to parse a list of administrative console infos like the server group
+ * or
  * server config.
  */
 class ParserThread extends Thread {
-	/** parse server information */
-    public static int PARSE_SRVR = 0;
-    /** parse group information */
-    public static int PARSE_GRPS = 1;
-    private int parseType;
-    private Vector<String> cmds;
-    private Vector<ServerMap> srvrsList;
-    private Vector<GroupMap> grpsList;
-    private DominoConsoleRunner dc;
-    private ServerMap sm;
-    private AdminDataParser parser;
+  /** parse server information */
+  public static int PARSE_SRVR = 0;
+  /** parse group information */
+  public static int PARSE_GRPS = 1;
+  private final int parseType;
+  private final Vector<String> cmds;
+  private final Vector<ServerMap> srvrsList;
+  private final Vector<GroupMap> grpsList;
+  private final DominoConsoleRunner dc;
+  private final ServerMap sm;
+  private final AdminDataParser parser;
 
-    public ParserThread(DominoConsoleRunner dominoConsole, ServerMap sm, Vector<String> cmds, int parseType) {
-        this.dc = dominoConsole;
-        this.sm = sm;
-        this.cmds = cmds;
-        this.parseType = parseType;
-        this.srvrsList = new Vector<>(20, 5);
-        this.grpsList = new Vector<>(10, 5);
-        parser = new AdminDataParser(dominoConsole);
-    }
+  public ParserThread(final DominoConsoleRunner dominoConsole, final ServerMap sm, final Vector<String> cmds, final int parseType) {
+    this.dc = dominoConsole;
+    this.sm = sm;
+    this.cmds = cmds;
+    this.parseType = parseType;
+    this.srvrsList = new Vector<>(20, 5);
+    this.grpsList = new Vector<>(10, 5);
+    this.parser = new AdminDataParser(dominoConsole);
+  }
 
-    @Override
-	public void run() {
-        boolean done = false;
-        while (!done) {
-            if (this.cmds.size() == 0) {
-                try {
-                    Thread.sleep(50L);
-                }
-                catch (InterruptedException interruptedException) {}
-                continue;
-            }
-            String currCmd = this.cmds.elementAt(0);
-            this.cmds.removeElementAt(0);
-            
-            StringTokenizer st = new StringTokenizer(currCmd, "\n");
-            while (!done && st.hasMoreTokens()) {
-                String currToken = st.nextToken();
-                if (this.parseType == PARSE_SRVR) {
-                    done = this.parser.parseServersAndGroups(this.srvrsList, this.grpsList, currToken);
-                    continue;
-                }
-                done = this.parser.parseGroup(this.grpsList, currToken);
-            }
-            if (!done) {
-            	continue;
-            }
-            
-            String msg = null;
-            boolean showInfo = false;
-            if (this.parseType == PARSE_SRVR) {
-            	//report collected server infos
-                this.dc.updateServerList(this.srvrsList);
-                if (this.grpsList.size() > 0) {
-                	//report collected groups
-                    this.dc.updateGroupList(this.grpsList);
-                }
-                if (this.srvrsList.size() == 1) {
-                    showInfo = false;
-                }
-                msg = DominoConsoleRunner.getResourceBundle().getString("msgRefreshSrvrs");
-            } else if (this.parseType == PARSE_GRPS) {
-                if (this.grpsList.size() > 0) {
-                	//report collected groups
-                    this.dc.updateGroupList(this.grpsList);
-                }
-                msg = DominoConsoleRunner.getResourceBundle().getString("msgRefreshGrps");
-            }
-            if (showInfo) {
-            	this.dc.reportMessageDialog(this.sm, msg, DominoConsoleRunner.getResourceBundle().getString("msgInfo"));
-            }
-            if (this.cmds.size() <= 0) {
-				continue;
-			}
-            done = false;
+  @Override
+  public void run() {
+    boolean done = false;
+    while (!done) {
+      if (this.cmds.size() == 0) {
+        try {
+          Thread.sleep(50L);
+        } catch (final InterruptedException interruptedException) {
         }
-    }
-}
+        continue;
+      }
+      final String currCmd = this.cmds.elementAt(0);
+      this.cmds.removeElementAt(0);
 
+      final StringTokenizer st = new StringTokenizer(currCmd, "\n");
+      while (!done && st.hasMoreTokens()) {
+        final String currToken = st.nextToken();
+        if (this.parseType == ParserThread.PARSE_SRVR) {
+          done = this.parser.parseServersAndGroups(this.srvrsList, this.grpsList, currToken);
+          continue;
+        }
+        done = this.parser.parseGroup(this.grpsList, currToken);
+      }
+      if (!done) {
+        continue;
+      }
+
+      String msg = null;
+      boolean showInfo = false;
+      if (this.parseType == ParserThread.PARSE_SRVR) {
+        // report collected server infos
+        this.dc.updateServerList(this.srvrsList);
+        if (this.grpsList.size() > 0) {
+          // report collected groups
+          this.dc.updateGroupList(this.grpsList);
+        }
+        if (this.srvrsList.size() == 1) {
+          showInfo = false;
+        }
+        msg = DominoConsoleRunner.getResourceBundle().getString("msgRefreshSrvrs");
+      } else if (this.parseType == ParserThread.PARSE_GRPS) {
+        if (this.grpsList.size() > 0) {
+          // report collected groups
+          this.dc.updateGroupList(this.grpsList);
+        }
+        msg = DominoConsoleRunner.getResourceBundle().getString("msgRefreshGrps");
+      }
+      if (showInfo) {
+        this.dc.reportMessageDialog(this.sm, msg, DominoConsoleRunner.getResourceBundle().getString("msgInfo"));
+      }
+      if (this.cmds.size() <= 0) {
+        continue;
+      }
+      done = false;
+    }
+  }
+}

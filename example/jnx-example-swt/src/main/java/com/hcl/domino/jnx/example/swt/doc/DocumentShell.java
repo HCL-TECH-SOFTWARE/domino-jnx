@@ -30,50 +30,52 @@ import org.eclipse.swt.widgets.Shell;
 import com.hcl.domino.jnx.example.swt.App;
 
 public class DocumentShell extends Shell {
-	private Listener closeListener = event -> {
-		if(isDisposed()) { return; }
-		if(getDisplay().getActiveShell() == this && event.stateMask == SWT.COMMAND && event.keyCode == 'w') {
-			close();
-		}
-	};
-	
-	public DocumentShell(Display display, String serverName, String databasePath, String unid) {
-		super(display);
-		
-		setText("Document " + unid + " - " + App.APP_NAME);
-		
-		setLayout(new GridLayout(1, false));
-		setSize(1024, 768);
-		
-		DocumentInfoPane docInfo = new DocumentInfoPane(this, serverName, databasePath, unid);
-		docInfo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-		
-		Composite actions = new Composite(this, SWT.NONE);
-		GridData actionBarData = new GridData(SWT.RIGHT, SWT.FILL, true, false, 1, 1);
-		actions.setLayoutData(actionBarData);
-		actions.setLayout(new RowLayout());
-		
-		Button cancel = new Button(actions, SWT.PUSH);
-		cancel.setText("Cancel");
-		RowData cancelData = new RowData();
-		cancelData.width = 100;
-		cancel.setLayoutData(cancelData);
-		cancel.setSize(100, cancel.getSize().y);
-		cancel.addListener(SWT.Selection, evt -> close());
-		
-		layout();
-		
-		display.addFilter(SWT.KeyDown, this.closeListener);
-	}
-	
-	@Override
-	protected void checkSubclass() {
-		
-	}
+  private final Listener closeListener = event -> {
+    if (this.isDisposed()) {
+      return;
+    }
+    if (this.getDisplay().getActiveShell() == this && event.stateMask == SWT.COMMAND && event.keyCode == 'w') {
+      this.close();
+    }
+  };
 
-	@Override
-	public void close() {
-		getDisplay().removeFilter(SWT.KeyDown, this.closeListener);
-		super.close();
-	}
+  public DocumentShell(final Display display, final String serverName, final String databasePath, final String unid) {
+    super(display);
+
+    this.setText("Document " + unid + " - " + App.APP_NAME);
+
+    this.setLayout(new GridLayout(1, false));
+    this.setSize(1024, 768);
+
+    final DocumentInfoPane docInfo = new DocumentInfoPane(this, serverName, databasePath, unid);
+    docInfo.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+
+    final Composite actions = new Composite(this, SWT.NONE);
+    final GridData actionBarData = new GridData(SWT.RIGHT, SWT.FILL, true, false, 1, 1);
+    actions.setLayoutData(actionBarData);
+    actions.setLayout(new RowLayout());
+
+    final Button cancel = new Button(actions, SWT.PUSH);
+    cancel.setText("Cancel");
+    final RowData cancelData = new RowData();
+    cancelData.width = 100;
+    cancel.setLayoutData(cancelData);
+    cancel.setSize(100, cancel.getSize().y);
+    cancel.addListener(SWT.Selection, evt -> this.close());
+
+    this.layout();
+
+    display.addFilter(SWT.KeyDown, this.closeListener);
+  }
+
+  @Override
+  protected void checkSubclass() {
+
+  }
+
+  @Override
+  public void close() {
+    this.getDisplay().removeFilter(SWT.KeyDown, this.closeListener);
+    super.close();
+  }
 }

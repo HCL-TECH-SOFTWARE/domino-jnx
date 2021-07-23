@@ -25,16 +25,17 @@ import java.lang.annotation.Target;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
 /**
- * Indicates that a method in a {@link RichTextRecord} interface method represents a 
+ * Indicates that a method in a {@link RichTextRecord} interface method
+ * represents a
  * setter for a member of a memory {@link StructureDefinition}.
- * 
+ *
  * @author Jesse Gallagher
  */
 @Retention(RUNTIME)
 @Target(METHOD)
 public @interface StructureSetter {
-	/**
-	 * @return the name of the member within the structure's definition
-	 */
-	String value();
+  /**
+   * @return the name of the member within the structure's definition
+   */
+  String value();
 }

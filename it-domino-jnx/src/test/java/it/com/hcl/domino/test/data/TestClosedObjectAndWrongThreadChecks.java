@@ -16,15 +16,13 @@
  */
 package it.com.hcl.domino.test.data;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
@@ -38,70 +36,68 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestClosedObjectAndWrongThreadChecks extends AbstractNotesRuntimeTest {
-	
-	@Override
-	protected boolean isRestrictThreadAccess() {
-		return true;
-	}
 
-	@Test
-	public void testInvalidStates() throws InterruptedException, ExecutionException {
-		AtomicReference<Database> dbRef = new AtomicReference<>();
-		AtomicReference<DominoCollection> viewRef = new AtomicReference<>();
-		AtomicReference<DominoClient> clientRef = new AtomicReference<>();
-		
-		try (DominoClient client = getClient();) {
-			clientRef.set(client);
-			Database db = client.openDatabase("pernames.ntf");
-			dbRef.set(db);
-			DominoCollection view = db.openCollection("People").get();
-			viewRef.set(view);
-			
-			//try to access the API object from a non-owner thread
-			Executor executor = Executors.newCachedThreadPool();
-			FutureTask<Class<? extends Exception>> task = new FutureTask<>(() -> {
-				DominoProcess.get().initializeThread();
-				try {
-					view.getAliases();
-					return null;
-				}
-				catch (Exception e) {
-					return e.getClass();
-				}
-				finally {
-					DominoProcess.get().terminateThread();
-				}
-			});
-			executor.execute(task);
-			
-			assertEquals(IllegalStateException.class, task.get());
+  @Override
+  protected boolean isRestrictThreadAccess() {
+    return true;
+  }
 
-		}
+  @Test
+  public void testInvalidStates() throws InterruptedException, ExecutionException {
+    final AtomicReference<Database> dbRef = new AtomicReference<>();
+    final AtomicReference<DominoCollection> viewRef = new AtomicReference<>();
+    final AtomicReference<DominoClient> clientRef = new AtomicReference<>();
 
-		//try to reuse the already closed DominoClient
-		assertThrows(ObjectDisposedException.class, ()-> {
-			Database db = clientRef.get().openDatabase("names.nsf");
-			DominoCollection view = db.openCollection("People").get();
-			view.getAliases();
-		});
-		
-		//try to access API objects of the already closed DominoClient
-		assertThrows(ObjectDisposedException.class, ()-> {
-			clientRef.get().openDatabase("names.nsf");
-		});
+    try (DominoClient client = this.getClient();) {
+      clientRef.set(client);
+      final Database db = client.openDatabase("pernames.ntf");
+      dbRef.set(db);
+      final DominoCollection view = db.openCollection("People").get();
+      viewRef.set(view);
 
-		assertThrows(ObjectDisposedException.class, ()-> {
-			dbRef.get().queryDQL(DQL.item("Form").in("Memo"));
-		});
+      // try to access the API object from a non-owner thread
+      final Executor executor = Executors.newCachedThreadPool();
+      final FutureTask<Class<? extends Exception>> task = new FutureTask<>(() -> {
+        DominoProcess.get().initializeThread();
+        try {
+          view.getAliases();
+          return null;
+        } catch (final Exception e) {
+          return e.getClass();
+        } finally {
+          DominoProcess.get().terminateThread();
+        }
+      });
+      executor.execute(task);
 
-		assertThrows(ObjectDisposedException.class, ()-> {
-			viewRef.get().getAliases();
-		});
+      Assertions.assertEquals(IllegalStateException.class, task.get());
 
-		assertThrows(ObjectDisposedException.class, ()-> {
-			viewRef.get().getAllIds(true, true);
-		});
+    }
 
-	}
+    // try to reuse the already closed DominoClient
+    Assertions.assertThrows(ObjectDisposedException.class, () -> {
+      final Database db = clientRef.get().openDatabase("names.nsf");
+      final DominoCollection view = db.openCollection("People").get();
+      view.getAliases();
+    });
+
+    // try to access API objects of the already closed DominoClient
+    Assertions.assertThrows(ObjectDisposedException.class, () -> {
+      clientRef.get().openDatabase("names.nsf");
+    });
+
+    Assertions.assertThrows(ObjectDisposedException.class, () -> {
+      dbRef.get().queryDQL(DQL.item("Form").in("Memo"));
+    });
+
+    Assertions.assertThrows(ObjectDisposedException.class, () -> {
+      viewRef.get().getAliases();
+    });
+
+    Assertions.assertThrows(ObjectDisposedException.class, () -> {
+      viewRef.get().getAllIds(true, true);
+    });
+
+  }
 
 }

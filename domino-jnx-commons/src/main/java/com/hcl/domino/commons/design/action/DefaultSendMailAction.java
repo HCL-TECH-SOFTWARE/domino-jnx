@@ -24,60 +24,61 @@ import com.hcl.domino.design.action.SendMailAction;
 import com.hcl.domino.richtext.records.CDActionSendMail.Flag;
 
 public class DefaultSendMailAction implements SendMailAction {
-	private final String to;
-	private final String cc;
-	private final String bcc;
-	private final String subject;
-	private final String body;
-	private final Set<Flag> flags;
+  private final String to;
+  private final String cc;
+  private final String bcc;
+  private final String subject;
+  private final String body;
+  private final Set<Flag> flags;
 
-	public DefaultSendMailAction(String to, String cc, String bcc, String subject, String body, Set<Flag> flags) {
-		this.to = to;
-		this.cc = cc;
-		this.bcc = bcc;
-		this.subject = subject;
-		this.body = body;
-		this.flags = flags;
-	}
-	
-	@Override
-	public boolean isIncludeDocument() {
-		return flags.contains(Flag.INCLUDEDOC);
-	}
+  public DefaultSendMailAction(final String to, final String cc, final String bcc, final String subject, final String body,
+      final Set<Flag> flags) {
+    this.to = to;
+    this.cc = cc;
+    this.bcc = bcc;
+    this.subject = subject;
+    this.body = body;
+    this.flags = flags;
+  }
 
-	@Override
-	public boolean isIncludeDocLink() {
-		return flags.contains(Flag.INCLUDELINK);
-	}
+  @Override
+  public ComputableValue getBcc() {
+    return new DefaultComputableValue(this.bcc, this.flags.contains(Flag.BCCFORMULA));
+  }
 
-	@Override
-	public boolean isSaveMailDocument() {
-		return flags.contains(Flag.SAVEMAIL);
-	}
+  @Override
+  public String getBody() {
+    return this.body;
+  }
 
-	@Override
-	public ComputableValue getTo() {
-		return new DefaultComputableValue(to, flags.contains(Flag.TOFORMULA));
-	}
+  @Override
+  public ComputableValue getCc() {
+    return new DefaultComputableValue(this.cc, this.flags.contains(Flag.CCFORMULA));
+  }
 
-	@Override
-	public ComputableValue getCc() {
-		return new DefaultComputableValue(cc, flags.contains(Flag.CCFORMULA));
-	}
+  @Override
+  public ComputableValue getSubject() {
+    return new DefaultComputableValue(this.subject, this.flags.contains(Flag.SUBJECTFORMULA));
+  }
 
-	@Override
-	public ComputableValue getBcc() {
-		return new DefaultComputableValue(bcc, flags.contains(Flag.BCCFORMULA));
-	}
+  @Override
+  public ComputableValue getTo() {
+    return new DefaultComputableValue(this.to, this.flags.contains(Flag.TOFORMULA));
+  }
 
-	@Override
-	public ComputableValue getSubject() {
-		return new DefaultComputableValue(subject, flags.contains(Flag.SUBJECTFORMULA));
-	}
+  @Override
+  public boolean isIncludeDocLink() {
+    return this.flags.contains(Flag.INCLUDELINK);
+  }
 
-	@Override
-	public String getBody() {
-		return body;
-	}
+  @Override
+  public boolean isIncludeDocument() {
+    return this.flags.contains(Flag.INCLUDEDOC);
+  }
+
+  @Override
+  public boolean isSaveMailDocument() {
+    return this.flags.contains(Flag.SAVEMAIL);
+  }
 
 }

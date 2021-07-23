@@ -22,19 +22,16 @@ import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="TIMEDATE",
-	members={
-		@StructureMember(name="Innards", type=int[].class, length=2)
-	}
-)
+@StructureDefinition(name = "TIMEDATE", members = {
+    @StructureMember(name = "Innards", type = int[].class, length = 2)
+})
 public interface OpaqueTimeDate extends MemoryStructure {
-	@StructureGetter("Innards")
-	int[] getInnards();
-	@StructureSetter("Innards")
-	OpaqueTimeDate setInnards(int[] innards);
+  @StructureGetter("Innards")
+  int[] getInnards();
+
+  @StructureSetter("Innards")
+  OpaqueTimeDate setInnards(int[] innards);
 }

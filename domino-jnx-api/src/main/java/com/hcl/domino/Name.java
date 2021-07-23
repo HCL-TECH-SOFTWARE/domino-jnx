@@ -22,88 +22,90 @@ import java.util.stream.Collectors;
 
 /**
  * Used to handle Domino usernames
- * 
+ *
  * @author t.b.d
  * @since 0.5.0
  */
 public interface Name {
 
-	/**
-	 * Retrieves the CN element of this name, without the "CN=" prefix"
-	 * 
-	 * @return common name format, e.g. John Doe, Jane Doe
-	 */
-	String getCommon();
+  /**
+   * Retrieves the abbreviated format of this name (without CN=, OU=, O= or C=)
+   *
+   * @return abbreviated format, e.g. John Doe/HR/MyOrg, Jane Doe/East/Sales/MyOrg
+   */
+  String getAbbreviated();
 
-	/**
-	 * Retrieves all OU elements of this name as a List
-	 * 
-	 * @return List of OU elements e.g. {East,Sales}
-	 */
-	default List<String> getOrgUnits() {
-		List<String> orgUnits = new ArrayList<>();
-		orgUnits.add(getOrgUnit1());
-		orgUnits.add(getOrgUnit2());
-		orgUnits.add(getOrgUnit3());
-		orgUnits.add(getOrgUnit4());
-		orgUnits = orgUnits.stream().filter(t -> t != null && t.length()>0).collect(Collectors.toList());
-		return orgUnits;
-	}
+  /**
+   * Retrieves the canonical format of this name (with CN=, OU= if applicable, O=,
+   * C= if available)
+   *
+   * @return canonical format, e.g. CN=John Doe/OU=HR/O=MyOrg/C=US, CN=Jane
+   *         Doe/OU=Sales/OU=East/O=MyOrg
+   */
+  String getCanonical();
 
-	/**
-	 * Retrieves the first OU element of this name
-	 * 
-	 * @return First OU element as string, e.g. East or empty string
-	 */
-	String getOrgUnit1();
+  /**
+   * Retrieves the CN element of this name, without the "CN=" prefix"
+   *
+   * @return common name format, e.g. John Doe, Jane Doe
+   */
+  String getCommon();
 
-	/**
-	 * Retrieves the second OU element of this name
-	 * 
-	 * @return Second OU element as string, e.g. Sales or empty string
-	 */
-	String getOrgUnit2();
+  /**
+   * Retrieves the C element of this name
+   *
+   * @return C element as string, e.g. US or empty string
+   */
+  String getCountry();
 
-	/**
-	 * Retrieves the third OU element of this name
-	 * 
-	 * @return Third OU element as string, e.g. Sales or empty string
-	 */
-	String getOrgUnit3();
+  /**
+   * Retrieves the O element of this name
+   *
+   * @return Third OU element as string, e.g. MyOrg, or empty string
+   */
+  String getOrganisation();
 
-	/**
-	 * Retrieves the fourth OU element of this name
-	 * 
-	 * @return Fourth OU element as string, e.g. Sales or empty string
-	 */
-	String getOrgUnit4();
+  /**
+   * Retrieves the first OU element of this name
+   *
+   * @return First OU element as string, e.g. East or empty string
+   */
+  String getOrgUnit1();
 
-	/**
-	 * Retrieves the O element of this name
-	 * 
-	 * @return Third OU element as string, e.g. MyOrg, or empty string
-	 */
-	String getOrganisation();
+  /**
+   * Retrieves the second OU element of this name
+   *
+   * @return Second OU element as string, e.g. Sales or empty string
+   */
+  String getOrgUnit2();
 
-	/**
-	 * Retrieves the C element of this name
-	 * 
-	 * @return C element as string, e.g. US or empty string
-	 */
-	String getCountry();
+  /**
+   * Retrieves the third OU element of this name
+   *
+   * @return Third OU element as string, e.g. Sales or empty string
+   */
+  String getOrgUnit3();
 
-	/**
-	 * Retrieves the abbreviated format of this name (without CN=, OU=, O= or C=)
-	 * 
-	 * @return abbreviated format, e.g. John Doe/HR/MyOrg, Jane Doe/East/Sales/MyOrg
-	 */
-	String getAbbreviated();
+  /**
+   * Retrieves the fourth OU element of this name
+   *
+   * @return Fourth OU element as string, e.g. Sales or empty string
+   */
+  String getOrgUnit4();
 
-	/**
-	 * Retrieves the canonical format of this name (with CN=, OU= if applicable, O=, C= if available)
-	 * 
-	 * @return canonical format, e.g. CN=John Doe/OU=HR/O=MyOrg/C=US, CN=Jane Doe/OU=Sales/OU=East/O=MyOrg
-	 */
-	String getCanonical();
+  /**
+   * Retrieves all OU elements of this name as a List
+   *
+   * @return List of OU elements e.g. {East,Sales}
+   */
+  default List<String> getOrgUnits() {
+    List<String> orgUnits = new ArrayList<>();
+    orgUnits.add(this.getOrgUnit1());
+    orgUnits.add(this.getOrgUnit2());
+    orgUnits.add(this.getOrgUnit3());
+    orgUnits.add(this.getOrgUnit4());
+    orgUnits = orgUnits.stream().filter(t -> t != null && t.length() > 0).collect(Collectors.toList());
+    return orgUnits;
+  }
 
 }

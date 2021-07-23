@@ -22,22 +22,22 @@ import com.hcl.domino.DominoException;
  * Represents error code 259, "File does not exist"
  */
 public class FileDoesNotExistException extends DominoException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public FileDoesNotExistException(int id, String message) {
-		super(id, message);
-	}
+  public FileDoesNotExistException(final int id, final String message) {
+    super(id, message);
+  }
 
-	public FileDoesNotExistException(int id, String message, Throwable cause) {
-		super(id, message, cause);
-	}
+  public FileDoesNotExistException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
+  }
 
-	public FileDoesNotExistException(String msg) {
-		super(msg);
-	}
+  public FileDoesNotExistException(final String msg) {
+    super(msg);
+  }
 
-	public FileDoesNotExistException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public FileDoesNotExistException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
 
 }

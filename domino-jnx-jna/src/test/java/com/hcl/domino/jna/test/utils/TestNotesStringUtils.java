@@ -16,11 +16,10 @@
  */
 package com.hcl.domino.jna.test.utils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -29,12 +28,12 @@ import com.sun.jna.Memory;
 @SuppressWarnings("nls")
 public class TestNotesStringUtils {
 
-	@Test
-	public void testStringListRoundTrip() {
-		List<String> strings = Arrays.asList("foo", "bar", "baz");
-		Memory mem = NotesStringUtils.toLMBCS(strings);
-		List<String> out = NotesStringUtils.fromLMBCSStringList(mem, strings.size());
-		assertEquals(strings, out);
-	}
+  @Test
+  public void testStringListRoundTrip() {
+    final List<String> strings = Arrays.asList("foo", "bar", "baz");
+    final Memory mem = NotesStringUtils.toLMBCS(strings);
+    final List<String> out = NotesStringUtils.fromLMBCSStringList(mem, strings.size());
+    Assertions.assertEquals(strings, out);
+  }
 
 }

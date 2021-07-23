@@ -23,74 +23,75 @@ import com.hcl.domino.richtext.records.CDActionNewsletter;
 import com.hcl.domino.richtext.records.CDActionNewsletter.Flag;
 
 public class DefaultSendNewsletterAction implements SendNewsletterAction {
-	private final String viewName;
-	private final String to;
-	private final String cc;
-	private final String bcc;
-	private final String subject;
-	private final String body;
-	private final long gatherThreshold;
-	private final Set<CDActionNewsletter.Flag> flags;
+  private final String viewName;
+  private final String to;
+  private final String cc;
+  private final String bcc;
+  private final String subject;
+  private final String body;
+  private final long gatherThreshold;
+  private final Set<CDActionNewsletter.Flag> flags;
 
-	public DefaultSendNewsletterAction(String viewName, String to, String cc, String bcc, String subject, String body, long gatherThreshold, Set<Flag> flags) {
-		this.viewName = viewName;
-		this.to = to;
-		this.cc = cc;
-		this.bcc = bcc;
-		this.subject = subject;
-		this.body = body;
-		this.gatherThreshold = gatherThreshold;
-		this.flags = flags;
-	}
+  public DefaultSendNewsletterAction(final String viewName, final String to, final String cc, final String bcc,
+      final String subject, final String body, final long gatherThreshold, final Set<Flag> flags) {
+    this.viewName = viewName;
+    this.to = to;
+    this.cc = cc;
+    this.bcc = bcc;
+    this.subject = subject;
+    this.body = body;
+    this.gatherThreshold = gatherThreshold;
+    this.flags = flags;
+  }
 
-	@Override
-	public boolean isIncludeSummary() {
-		return flags.contains(Flag.SUMMARY);
-	}
+  @Override
+  public String getBcc() {
+    return this.bcc;
+  }
 
-	@Override
-	public boolean isGatherDocuments() {
-		return flags.contains(Flag.GATHER);
-	}
+  @Override
+  public String getBody() {
+    return this.body;
+  }
 
-	@Override
-	public boolean isIncludeAllNotes() {
-		return flags.contains(Flag.INCLUDEALL);
-	}
+  @Override
+  public String getCc() {
+    return this.cc;
+  }
 
-	@Override
-	public long getGatherThreshold() {
-		return this.gatherThreshold;
-	}
+  @Override
+  public long getGatherThreshold() {
+    return this.gatherThreshold;
+  }
 
-	@Override
-	public String getViewName() {
-		return viewName;
-	}
+  @Override
+  public String getSubject() {
+    return this.subject;
+  }
 
-	@Override
-	public String getTo() {
-		return to;
-	}
+  @Override
+  public String getTo() {
+    return this.to;
+  }
 
-	@Override
-	public String getCc() {
-		return cc;
-	}
+  @Override
+  public String getViewName() {
+    return this.viewName;
+  }
 
-	@Override
-	public String getBcc() {
-		return bcc;
-	}
+  @Override
+  public boolean isGatherDocuments() {
+    return this.flags.contains(Flag.GATHER);
+  }
 
-	@Override
-	public String getSubject() {
-		return subject;
-	}
+  @Override
+  public boolean isIncludeAllNotes() {
+    return this.flags.contains(Flag.INCLUDEALL);
+  }
 
-	@Override
-	public String getBody() {
-		return body;
-	}
+  @Override
+  public boolean isIncludeSummary() {
+    return this.flags.contains(Flag.SUMMARY);
+  }
 
 }

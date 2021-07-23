@@ -16,11 +16,9 @@
  */
 package it.com.hcl.domino.test.queries;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.Set;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.data.Document;
@@ -31,38 +29,38 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDocumentSelection extends AbstractNotesRuntimeTest {
-	
-	@Test
-	public void testDocumentSelection() throws Exception {
-		withResourceDxl("/dxl/testHtmlRendering", (db) -> {
-			IDTable designElementNoteIds = db
-					.createDocumentSelection()
-					.selectAllDesignElements()
-					.build();
-			
-			assertFalse(designElementNoteIds.isEmpty());
-			
-			boolean hasForm = false;
-			boolean hasView = false;
-			
-			for (Integer currNoteId : designElementNoteIds) {
-//				System.out.println("Opening doc with noteid "+currNoteId);
-				
-				Document currDoc = db.getDocumentById(currNoteId).get();
-				Set<DocumentClass> docClass = currDoc.getDocumentClass();
-				if (docClass.contains(DocumentClass.FORM)) {
-					hasForm = true;
-				}
-				else if (docClass.contains(DocumentClass.VIEW)) {
-					hasView = true;
-				}
-				
-//				System.out.println("Class="+currDoc.getDocumentClass()+"\t$TITLE="+currDoc.get("$TITLE", String.class, ""));
-			}
-			
-			assertTrue(hasForm);
-			assertTrue(hasView);
-		});
-	}
-	
+
+  @Test
+  public void testDocumentSelection() throws Exception {
+    this.withResourceDxl("/dxl/testHtmlRendering", db -> {
+      final IDTable designElementNoteIds = db
+          .createDocumentSelection()
+          .selectAllDesignElements()
+          .build();
+
+      Assertions.assertFalse(designElementNoteIds.isEmpty());
+
+      boolean hasForm = false;
+      boolean hasView = false;
+
+      for (final Integer currNoteId : designElementNoteIds) {
+        // System.out.println("Opening doc with noteid "+currNoteId);
+
+        final Document currDoc = db.getDocumentById(currNoteId).get();
+        final Set<DocumentClass> docClass = currDoc.getDocumentClass();
+        if (docClass.contains(DocumentClass.FORM)) {
+          hasForm = true;
+        } else if (docClass.contains(DocumentClass.VIEW)) {
+          hasView = true;
+        }
+
+        // System.out.println("Class="+currDoc.getDocumentClass()+"\t$TITLE="+currDoc.get("$TITLE",
+        // String.class, ""));
+      }
+
+      Assertions.assertTrue(hasForm);
+      Assertions.assertTrue(hasView);
+    });
+  }
+
 }

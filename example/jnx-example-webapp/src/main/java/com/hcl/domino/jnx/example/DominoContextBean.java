@@ -26,12 +26,12 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequestScoped
 public class DominoContextBean {
 
-	@Inject
-	HttpServletRequest req;
+  @Inject
+  HttpServletRequest req;
 
-	@Produces
-	public DominoClient getClient() {
-		return (DominoClient) req.getAttribute(NotesRequestFilter.ATTRIBUTE_CLIENT);
-	}
+  @Produces
+  public DominoClient getClient() {
+    return (DominoClient) this.req.getAttribute(NotesRequestFilter.ATTRIBUTE_CLIENT);
+  }
 
 }

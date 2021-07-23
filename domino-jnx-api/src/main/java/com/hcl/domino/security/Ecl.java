@@ -28,47 +28,48 @@ import com.hcl.domino.data.Document;
  */
 public interface Ecl {
 
-	/**
-	 * Returns the names list for which we compute the ECL
-	 * 
-	 * @return names list
-	 */
-	UserNamesList getNamesList();
-	
-	/**
-	 * Reads the current capabilities
-	 * 
-	 * @return set of capabilities
-	 */
-	Set<ECLCapability> getCapabilities();
-	
-	/**
-	 * Returns true if ECL can be modified by the user
-	 * 
-	 * @return true if editable
-	 */
-	boolean isEditable();
-	
-	/**
-	 * Method to modify the ECL for "-No signature-" and add trusted capabilities 
-	 * 
-	 * @param type ECL type
-	 * @param capabilities capabilities to trust
-	 * @param sessionOnly true to not permanently change the ECL
-	 * @return new capabilities
-	 */
-	Set<ECLCapability> trustNoSignatureUser(ECLType type, Collection<ECLCapability> capabilities, boolean sessionOnly);
-	
-	/**
-	 * Method to modify the ECL for the signer of the specified document and add trusted
-	 * capabilities
-	 * 
-	 * @param doc signed document (we read $Signature internally)
-	 * @param type ECL type
-	 * @param capabilities capabilities to trust
-	 * @param sessionOnly true to not permanently change the ECL
-	 * @return new capabilities
-	 */
-	Set<ECLCapability> trustSignerOfDocument(Document doc, ECLType type, Collection<ECLCapability> capabilities, boolean sessionOnly);
-		
+  /**
+   * Reads the current capabilities
+   *
+   * @return set of capabilities
+   */
+  Set<ECLCapability> getCapabilities();
+
+  /**
+   * Returns the names list for which we compute the ECL
+   *
+   * @return names list
+   */
+  UserNamesList getNamesList();
+
+  /**
+   * Returns true if ECL can be modified by the user
+   *
+   * @return true if editable
+   */
+  boolean isEditable();
+
+  /**
+   * Method to modify the ECL for "-No signature-" and add trusted capabilities
+   *
+   * @param type         ECL type
+   * @param capabilities capabilities to trust
+   * @param sessionOnly  true to not permanently change the ECL
+   * @return new capabilities
+   */
+  Set<ECLCapability> trustNoSignatureUser(ECLType type, Collection<ECLCapability> capabilities, boolean sessionOnly);
+
+  /**
+   * Method to modify the ECL for the signer of the specified document and add
+   * trusted
+   * capabilities
+   *
+   * @param doc          signed document (we read $Signature internally)
+   * @param type         ECL type
+   * @param capabilities capabilities to trust
+   * @param sessionOnly  true to not permanently change the ECL
+   * @return new capabilities
+   */
+  Set<ECLCapability> trustSignerOfDocument(Document doc, ECLType type, Collection<ECLCapability> capabilities, boolean sessionOnly);
+
 }

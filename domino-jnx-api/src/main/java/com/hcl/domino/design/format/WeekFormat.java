@@ -20,20 +20,25 @@ import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 
 public enum WeekFormat implements INumberEnum<Byte> {
-	WWW(RichTextConstants.DT_WFMT_WWW),
-	WWWW(RichTextConstants.DT_WFMT_WWWW),
-	WWWP(RichTextConstants.DT_WFMT_WWWP),
-	WWWWP(RichTextConstants.DT_WFMT_WWWWP),
-	;
-	private final byte value;
-	WeekFormat(byte value) { this.value = value; }
-	
-	@Override
-	public long getLongValue() {
-		return value;
-	}
-	@Override
-	public Byte getValue() {
-		return value;
-	}
+  WWW(RichTextConstants.DT_WFMT_WWW),
+  WWWW(RichTextConstants.DT_WFMT_WWWW),
+  WWWP(RichTextConstants.DT_WFMT_WWWP),
+  WWWWP(RichTextConstants.DT_WFMT_WWWWP),
+  ;
+
+  private final byte value;
+
+  WeekFormat(final byte value) {
+    this.value = value;
+  }
+
+  @Override
+  public long getLongValue() {
+    return this.value;
+  }
+
+  @Override
+  public Byte getValue() {
+    return this.value;
+  }
 }

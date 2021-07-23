@@ -14,34 +14,34 @@
  * under the License.
  * ==========================================================================
  */
- package com.hcl.domino.freebusy;
+package com.hcl.domino.freebusy;
 
 public enum ScheduleAttr {
-	/** Used by gateways to return foreign UNIDs */
-	FOREIGNUNID(0x10),
-	/** Used by V5 C&amp;S to identify new repeating meetings */
-	REPEATEVENT(0x20),
+  /** Used by gateways to return foreign UNIDs */
+  FOREIGNUNID(0x10),
+  /** Used by V5 C&amp;S to identify new repeating meetings */
+  REPEATEVENT(0x20),
 
-	/* these are the entry type bits */
-	
-	/** Entry types that block off busy time. */
-	BUSY(0x08),
+  /* these are the entry type bits */
 
-	/** Entry types that don't block off busy time */
-	PENCILED(0x01),
+  /** Entry types that block off busy time. */
+  BUSY(0x08),
 
-	/* Entry types that block off busy time */
-	
-	APPT(0x08 + 0x00),
-	NONWORK(0x08 + 0x01);
-	
-	private int m_val;
-	
-	ScheduleAttr(int val) {
-		m_val = val;
-	}
-	
-	public int getValue() {
-		return m_val;
-	}
+  /** Entry types that don't block off busy time */
+  PENCILED(0x01),
+
+  /* Entry types that block off busy time */
+
+  APPT(0x08 + 0x00),
+  NONWORK(0x08 + 0x01);
+
+  private int m_val;
+
+  ScheduleAttr(final int val) {
+    this.m_val = val;
+  }
+
+  public int getValue() {
+    return this.m_val;
+  }
 }

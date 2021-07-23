@@ -26,30 +26,30 @@ import com.hcl.domino.design.agent.ImportedJavaAgentContent;
  * @since 1.0.24
  */
 public class DefaultImportedJavaAgentContent implements ImportedJavaAgentContent {
-	private final String mainClassName;
-	private final String codeFilesystemPath;
-	private final List<String> fileNameList;
-	
-	public DefaultImportedJavaAgentContent(String mainClassName, String codeFilesystemPath, List<String> fileNameList) {
-		this.mainClassName = mainClassName;
-		this.codeFilesystemPath = codeFilesystemPath;
-		this.fileNameList = new ArrayList<>(fileNameList);
-	}
+  private final String mainClassName;
+  private final String codeFilesystemPath;
+  private final List<String> fileNameList;
 
-	@Override
-	public String getMainClassName() {
-		return mainClassName;
-	}
+  public DefaultImportedJavaAgentContent(final String mainClassName, final String codeFilesystemPath,
+      final List<String> fileNameList) {
+    this.mainClassName = mainClassName;
+    this.codeFilesystemPath = codeFilesystemPath;
+    this.fileNameList = new ArrayList<>(fileNameList);
+  }
 
-	@Override
-	public String getCodeFilesystemPath() {
-		return codeFilesystemPath;
-	}
+  @Override
+  public String getCodeFilesystemPath() {
+    return this.codeFilesystemPath;
+  }
 
-	@Override
-	public List<String> getFileNameList() {
-		return fileNameList;
-	}
-	
-	
+  @Override
+  public List<String> getFileNameList() {
+    return this.fileNameList;
+  }
+
+  @Override
+  public String getMainClassName() {
+    return this.mainClassName;
+  }
+
 }

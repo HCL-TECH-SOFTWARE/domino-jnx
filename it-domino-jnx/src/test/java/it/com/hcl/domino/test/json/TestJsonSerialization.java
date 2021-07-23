@@ -16,13 +16,6 @@
  */
 package it.com.hcl.domino.test.json;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.StringReader;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -39,6 +32,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -68,601 +62,625 @@ import jakarta.json.stream.JsonParser;
 
 @SuppressWarnings("nls")
 public class TestJsonSerialization extends AbstractNotesRuntimeTest {
-	@Test
-	public void testJsonSerializationService() {
-		assertNotNull(JsonSerializer.createSerializer());
-	}
-	
-	public static class SerializerProvider implements ArgumentsProvider {
-		@Override public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
-			return JNXServiceFinder.findServices(JsonSerializerFactory.class)
-				.map(JsonSerializerFactory::newSerializer)
-				.map(Arguments::of);
-		}
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testSerializeDocument(JsonSerializer serializer) throws Exception {
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			doc.replaceItemValue("Foo", "Bar");
-			Object json = serializer.toJson(doc);
-			assertNotNull(json, "JSON result should not be null");
-			String jsonString = String.valueOf(json);
-			JsonParser parser = Json.createParser(new StringReader(jsonString));
-			parser.next();
-			JsonObject obj = parser.getObject();
-			assertEquals("Bar", obj.getString("Foo"));
-		});
-	}
+  public static class SerializerProvider implements ArgumentsProvider {
+    @Override
+    public Stream<? extends Arguments> provideArguments(final ExtensionContext context) throws Exception {
+      return JNXServiceFinder.findServices(JsonSerializerFactory.class)
+          .map(JsonSerializerFactory::newSerializer)
+          .map(Arguments::of);
+    }
+  }
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testSerializeDocumentLowercase(JsonSerializer serializer) throws Exception {
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			doc.replaceItemValue("Foo", "Bar");
-			Object json = serializer
-					.lowercaseProperties(true)
-					.toJson(doc);
-			assertNotNull(json, "JSON result should not be null");
-			String jsonString = String.valueOf(json);
-			JsonParser parser = Json.createParser(new StringReader(jsonString));
-			parser.next();
-			JsonObject obj = parser.getObject();
-			assertEquals("Bar", obj.getString("foo"));
-		});
-	}
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testCustomProcessorArray(final JsonSerializer serializerParam) throws Exception {
+    final Object[] expected = { "Foo", true, 123.4d };
+    serializerParam.customProcessor("Foo", (doc, itemName) -> Arrays.asList(expected));
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testVertxSerialization(JsonSerializer serializer) throws Exception {
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			doc.replaceItemValue("Foo", "bar");
-			doc.replaceItemValue("Bar", "baz");
-			
-			String jsonString = serializer.toJsonString(doc);
-			assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
-			JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-			assertNotEquals(null, json, "JSON object should not be null");
-			assertEquals("bar", json.getString("Foo"));
-			assertEquals("baz", json.getString("Bar"));
-			
-			assertFalse(json.containsKey("@meta"), "JSON should not contain a metadata object");
-		});
-	}
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("Foo", "Baz");
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testHtmlSerialization(JsonSerializer serializer) throws Exception {
-		withResourceDxl("/dxl/testJsonSerialization", database -> {
-			Document doc = database.queryFormula(" Form='Example' & Foo='Bar' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
-				.getDocuments()
-				.findFirst()
-				.get();
-			
-			String jsonString = serializer.toJsonString(doc);
-			assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
-			JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-			assertNotEquals(null, json, "JSON object should not be null");
-			assertEquals("Bar", json.getString("Foo"));
-			assertTrue(json.containsKey("Body"), "Body field should be present");
-			assertTrue(json.getString("Body").contains("d35f528e-8cfc-4d97-9078-428da6673f51"));
-			assertTrue(json.getString("Body").contains("<br />"));
-			assertFalse(json.getString("Body").contains("<br>"));
-		});
-	}
+      final String jsonString = serializerParam.toJsonString(doc);
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testHtmlSerializationCustomized(JsonSerializer serializer) throws Exception {
-		withResourceDxl("/dxl/testJsonSerialization", database -> {
-			Document doc = database.queryFormula(" Form='Example' & Foo='Bar' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
-				.getDocuments()
-				.findFirst()
-				.get();
-			
-			serializer.richTextConvertOption(HtmlConvertOption.XMLCompatibleHTML, "0");
-			
-			String jsonString = serializer.toJsonString(doc);
-			assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
-			JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-			assertNotEquals(null, json, "JSON object should not be null");
-			assertEquals("Bar", json.getString("Foo"));
-			assertTrue(json.containsKey("Body"), "Body field should be present");
-			assertTrue(json.getString("Body").contains("d35f528e-8cfc-4d97-9078-428da6673f51"));
-			assertFalse(json.getString("Body").contains("<br />"));
-			assertTrue(json.getString("Body").contains("<br>"));
-		});
-	}
-	
+      final JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testMimeSerialization(JsonSerializer serializer) throws Exception {
-		withResourceDxl("/dxl/testJsonSerialization", database -> {
-			int noteId = database.queryFormula(" Marker='testMimeSerialization' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
-				.getNoteIds()
-				.get()
-				.iterator()
-				.next();
-			Document doc = database.getDocumentById(noteId, EnumSet.of(OpenDocumentMode.CONVERT_RFC822_TO_TEXT_AND_TIME)).get();
-			
-			String jsonString = serializer.toJsonString(doc);
-			assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
-			JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-			assertNotEquals(null, json, "JSON object should not be null");
-			assertEquals("Bulk Mail", json.getString("X_MXTHUNDER_Group"));
-			assertTrue(json.containsKey("Body"), "Body field should be present");
-			assertTrue(json.getString("Body").contains("final hours extra"));
-		});
-	}
+      final JsonArray arr = obj.getJsonArray("Foo");
+      Assertions.assertEquals("Foo", arr.getString(0));
+      Assertions.assertEquals(true, arr.getBoolean(1));
+      Assertions.assertEquals(123.4d, arr.getJsonNumber(2).doubleValue());
+    });
+  }
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testMimeSerializationNoConvert(JsonSerializer serializer) throws Exception {
-		withResourceDxl("/dxl/testJsonSerialization", database -> {
-			Document doc = database.queryFormula(" Marker='testMimeSerialization' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
-				.getDocuments()
-				.findFirst()
-				.get();
-			
-			String jsonString = serializer.toJsonString(doc);
-			assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
-			JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-			assertNotEquals(null, json, "JSON object should not be null");
-			assertEquals("Bulk Mail", json.getString("X_MXTHUNDER_Group"));
-			assertEquals("<1407518313_SectionID-331186_HitID-1407517453669_SiteID-16268_EmailID-82837855_DB-34_SID-37@ss23.agm1.us>", json.getString("X_Track_ID"));
-			assertTrue(json.containsKey("Body"), "Body field should be present");
-			assertTrue(json.getString("Body").contains("final hours extra"));
-			assertTrue(json.containsKey("Received"));
-		});
-	}
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testCustomProcessorBoolean(final JsonSerializer serializerParam) throws Exception {
+    serializerParam.customProcessor("Foo", (doc, itemName) -> true);
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testExcludeItems(JsonSerializer serializerParam) throws Exception {
-		withResourceDxl("/dxl/testJsonSerialization", database -> {
-			Document doc = database.queryFormula(" Marker='testMimeSerialization' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
-				.getDocuments()
-				.findFirst()
-				.get();
-			
-			JsonSerializer serializer = serializerParam
-					.excludeItems(Arrays.asList("receiveD"));
-			
-			String jsonString = serializer.toJsonString(doc);
-			assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
-			JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-			assertNotEquals(null, json, "JSON object should not be null");
-			assertEquals("Bulk Mail", json.getString("X_MXTHUNDER_Group"));
-			assertEquals("<1407518313_SectionID-331186_HitID-1407517453669_SiteID-16268_EmailID-82837855_DB-34_SID-37@ss23.agm1.us>", json.getString("X_Track_ID"));
-			assertTrue(json.containsKey("Body"), "Body field should be present");
-			assertTrue(json.getString("Body").contains("final hours extra"));
-			
-			// Make sure the received field was excluded
-			assertFalse(json.containsKey("Received"));
-			assertEquals("Itemize by SMTP Server on Arcturus/Frost(Release 9.0.1FP1HF278 | June 16, 2014) at 08/08/2014 01:18:41 PM", json.getJsonArray("$MIMETrack").getString(0));
-		});
-	}
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("Foo", "Baz");
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testIncludeItems(JsonSerializer serializerParam) throws Exception {
-		withResourceDxl("/dxl/testJsonSerialization", database -> {
-			Document doc = database.queryFormula(" Marker='testMimeSerialization' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
-				.getDocuments()
-				.findFirst()
-				.get();
-			
-			JsonSerializer serializer = serializerParam
-					.includeItems(Arrays.asList("bOdy"));
-			
-			String jsonString = serializer.toJsonString(doc);
-			assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
-			JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-			assertNotEquals(null, json, "JSON object should not be null");
-			assertTrue(json.containsKey("Body"), "Body field should be present");
-			assertTrue(json.getString("Body").contains("final hours extra"));
-			
-			// Make sure the received field was excluded
-			assertFalse(json.containsKey("Received"));
-		});
-	}
+      final String jsonString = serializerParam.toJsonString(doc);
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testLowercaseItemNames(JsonSerializer serializerParam) throws Exception {
-		withResourceDxl("/dxl/testJsonSerialization", database -> {
-			Document doc = database.queryFormula(" Marker='testMimeSerialization' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
-				.getDocuments()
-				.findFirst()
-				.get();
-			
-			JsonSerializer serializer = serializerParam
-					.lowercaseProperties(true);
-			
-			String jsonString = serializer.toJsonString(doc);
-			assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
-			JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-			assertNotEquals(null, json, "JSON object should not be null");
-			assertEquals("Bulk Mail", json.getString("x_mxthunder_group"));
-			assertEquals("<1407518313_SectionID-331186_HitID-1407517453669_SiteID-16268_EmailID-82837855_DB-34_SID-37@ss23.agm1.us>", json.getString("x_track_id"));
-			assertTrue(json.containsKey("body"), "Body field should be present");
-			assertTrue(json.getString("body").contains("final hours extra"));
-			
-			assertFalse(json.containsKey("Received"));
-			assertTrue(json.containsKey("received"));
-		});
-	}
+      final JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertEquals(true, obj.getBoolean("Foo"));
+    });
+  }
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testExcludeTypes(JsonSerializer serializerParam) throws Exception {
-		withResourceDxl("/dxl/testJsonSerialization", database -> {
-			Document doc = database.queryFormula(" Marker='testMimeSerialization' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
-				.getDocuments()
-				.findFirst()
-				.get();
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testCustomProcessorDouble(final JsonSerializer serializerParam) throws Exception {
+    serializerParam.customProcessor("Foo", (doc, itemName) -> 123.4d);
 
-			JsonSerializer serializer = serializerParam
-					.excludeTypes(Arrays.asList(ItemDataType.TYPE_COMPOSITE, ItemDataType.TYPE_MIME_PART));
-			
-			String jsonString = serializer.toJsonString(doc);
-			assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
-			JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-			assertNotEquals(null, json, "JSON object should not be null");
-			assertEquals("Bulk Mail", json.getString("X_MXTHUNDER_Group"));
-			assertEquals("<1407518313_SectionID-331186_HitID-1407517453669_SiteID-16268_EmailID-82837855_DB-34_SID-37@ss23.agm1.us>", json.getString("X_Track_ID"));
-			assertFalse(json.containsKey("Body"), "Body field should not be present");
-		});
-	}
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("Foo", "Baz");
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testMetadata(JsonSerializer serializerParam) throws Exception {
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			doc.replaceItemValue("Foo", "bar");
-			doc.replaceItemValue("Bar", "baz");
-			doc.save();
-			
-			JsonSerializer serializer = serializerParam
-					.includeMetadata(true);
-			
-			String jsonString = serializer.toJsonString(doc);
-			assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
-			JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-			assertNotEquals(null, json, "JSON object should not be null");
-			assertEquals("bar", json.getString("Foo"));
-			assertEquals("baz", json.getString("Bar"));
-			
-			assertTrue(json.containsKey("@meta"), "JSON should contain a metadata object");
-			JsonObject meta = json.getJsonObject("@meta");
-			assertNotEquals(null, meta, "Metadata object should not be null");
-			assertEquals(doc.getNoteID(), meta.getInt(JsonSerializer.PROP_META_NOTEID));
-			assertEquals(doc.getUNID(), meta.getString(JsonSerializer.PROP_META_UNID));
-			TemporalAccessor cdate = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(meta.getString(JsonSerializer.PROP_META_CREATED));
-			assertEquals(doc.getCreated().toOffsetDateTime(), OffsetDateTime.from(cdate));
-			TemporalAccessor mdate = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(meta.getString(JsonSerializer.PROP_META_LASTMODIFIED));
-			assertEquals(doc.getLastModified().toOffsetDateTime(), OffsetDateTime.from(mdate));
-			TemporalAccessor adate = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(meta.getString(JsonSerializer.PROP_META_LASTACCESSED));
-			assertEquals(doc.getLastAccessed().toOffsetDateTime(), OffsetDateTime.from(adate));
-			TemporalAccessor fdate = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(meta.getString(JsonSerializer.PROP_META_LASTMODIFIEDINFILE));
-			assertEquals(doc.getModifiedInThisFile().toOffsetDateTime(), OffsetDateTime.from(fdate));
-			TemporalAccessor added = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(meta.getString(JsonSerializer.PROP_META_ADDEDTOFILE));
-			assertEquals(doc.getAddedToFile().toOffsetDateTime(), OffsetDateTime.from(added));
-			
-			JsonArray docClassArray = meta.getJsonArray(JsonSerializer.PROP_META_NOTECLASS);
-			Collection<DocumentClass> docClass = docClassArray.stream()
-					.map(JsonString.class::cast)
-					.map(JsonString::getString)
-					.map(DocumentClass::valueOf)
-					.collect(Collectors.toSet());
-			assertEquals(doc.getDocumentClass(), docClass);
-			
-		});
-	}
+      final String jsonString = serializerParam.toJsonString(doc);
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testExcludedDollarFonts(JsonSerializer serializerParam) throws Exception {
-		withResourceDxl("/dxl/testJsonSerialization", database -> {
-			Document doc = database.queryFormula(" Form='Page: Basic' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
-				.getDocuments()
-				.findFirst()
-				.get();
-			
-			JsonSerializer serializer = serializerParam
-					.lowercaseProperties(true);
-			
-			String jsonString = serializer.toJsonString(doc);
-			assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
-			JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-			assertNotEquals(null, json, "JSON object should not be null");
-			assertFalse(json.containsKey("$fonts"), "JSON should not contain $fonts item");
-		});
-	}
+      final JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertEquals(123.4d, obj.getJsonNumber("Foo").doubleValue());
+    });
+  }
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testForcedDollarFonts(JsonSerializer serializerParam) throws Exception {
-		withResourceDxl("/dxl/testJsonSerialization", database -> {
-			Document doc = database.queryFormula(" Form='Page: Basic' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
-				.getDocuments()
-				.findFirst()
-				.get();
-			
-			JsonSerializer serializer = serializerParam
-					.lowercaseProperties(true)
-					.includeItems(Arrays.asList("$Fonts"));
-			
-			String jsonString = serializer.toJsonString(doc);
-			assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
-			JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-			assertNotEquals(null, json, "JSON object should not be null");
-			assertTrue(json.containsKey("$fonts"), "JSON should contain $fonts item");
-		});
-	}
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testCustomProcessorEmptyProp(final JsonSerializer serializerParam) {
+    Assertions.assertThrows(IllegalArgumentException.class, () -> serializerParam.customProcessor("", (doc, item) -> null));
+  }
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testSerializeBooleans(JsonSerializer serializerParam) throws Exception {
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			doc.replaceItemValue("Foo", "Bar")
-				.replaceItemValue("NumberBool", 1)
-				.replaceItemValue("NumberBoolFalse", 0)
-				.replaceItemValue("YBool", "Y")
-				.replaceItemValue("YesBool", "Yes")
-				.replaceItemValue("YBoolFalse", "N");
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testCustomProcessorIllegalType(final JsonSerializer serializerParam) throws Exception {
+    serializerParam.customProcessor("Foo", (doc, itemName) -> new Object());
 
-			
-			JsonSerializer serializer = serializerParam
-					.booleanItemNames(Arrays.asList("NumberBool", "NumberBoolFalse", "YBool", "YesBool", "YBoolFalse", "FakeBool"))
-					.booleanTrueValues(Arrays.asList("Y", "Yes", 1));
-			
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("Foo", "Baz");
 
-			String jsonString = serializer.toJsonString(doc);
-			assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
-			JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-			assertNotEquals(null, json, "JSON object should not be null");
-			assertThrows(ClassCastException.class, () -> json.getBoolean("Foo"));
-			assertTrue(json.getBoolean("NumberBool"));
-			assertFalse(json.getBoolean("NumberBoolFalse"));
-			assertThrows(NullPointerException.class, () -> json.getBoolean("FakeBool"));
-			assertTrue(json.getBoolean("YBool"));
-			assertTrue(json.getBoolean("YesBool"));
-			assertFalse(json.getBoolean("YBoolFalse"));
-		});
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testDateRange(JsonSerializer serializerParam) throws Exception {
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			LocalDate today = LocalDate.now();
-			LocalDate tomorrow = LocalDate.now().plus(1, ChronoUnit.DAYS);
-			DominoDateRange range = database.getParentDominoClient().createDateRange(today, tomorrow);
-			doc.replaceItemValue("DateRange", range);
-			// Test this too while we're here
-			doc.get("DateRange", DominoDateRange.class, null);
-			doc.get("DateRange", DominoTimeType.class, null);
-			
-			JsonSerializer serializer = serializerParam;
-			
-			String jsonString = serializer.toJsonString(doc);
-			assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
-			JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-			assertNotEquals(null, json, "JSON object should not be null");
-			
-			String expected = DateTimeFormatter.ISO_LOCAL_DATE.format(today) + '/' + DateTimeFormatter.ISO_LOCAL_DATE.format(tomorrow);
-			assertEquals(expected, json.getString("DateRange"));
-		});
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testDateRangeArray(JsonSerializer serializerParam) throws Exception {
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			LocalDate today = LocalDate.now();
-			LocalDate tomorrow = LocalDate.now().plus(1, ChronoUnit.DAYS);
-			DominoDateRange range = database.getParentDominoClient().createDateRange(today, tomorrow);
-			doc.replaceItemValue("DateRange", Arrays.asList(range, range));
-			
-			JsonSerializer serializer = serializerParam;
-			
-			String jsonString = serializer.toJsonString(doc);
-			assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
-			JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-			assertNotEquals(null, json, "JSON object should not be null");
-			
-			String expected = DateTimeFormatter.ISO_LOCAL_DATE.format(today) + '/' + DateTimeFormatter.ISO_LOCAL_DATE.format(tomorrow);
-			List<String> found = json.getJsonArray("DateRange").stream()
-				.map(JsonString.class::cast)
-				.map(JsonString::getString)
-				.collect(Collectors.toList());
-			assertEquals(Arrays.asList(expected, expected), found);
-		});
-	}
-	
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testDateRangeObject(JsonSerializer serializerParam) throws Exception {
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			LocalDate today = LocalDate.now();
-			LocalDate tomorrow = LocalDate.now().plus(1, ChronoUnit.DAYS);
-			DominoDateRange range = database.getParentDominoClient().createDateRange(today, tomorrow);
-			doc.replaceItemValue("DateRange", range);
-			// Test this too while we're here
-			doc.get("DateRange", DominoDateRange.class, null);
-			doc.get("DateRange", DominoTimeType.class, null);
-			
-			JsonSerializer serializer = serializerParam
-				.dateRangeFormat(DateRangeFormat.OBJECT);
-			
-			String jsonString = serializer.toJsonString(doc);
-			assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
-			JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-			assertNotEquals(null, json, "JSON object should not be null");
-			
-			JsonObject expected = Json.createObjectBuilder()
-				.add("from", DateTimeFormatter.ISO_LOCAL_DATE.format(today))
-				.add("to", DateTimeFormatter.ISO_LOCAL_DATE.format(tomorrow))
-				.build();
-			JsonObject found = json.getJsonObject("DateRange");
-			assertEquals(expected, found);
-		});
-	}
+      Assertions.assertThrows(RuntimeException.class, () -> serializerParam.toJsonString(doc));
+    });
+  }
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testCustomProcessorNullProp(JsonSerializer serializerParam) {
-		assertThrows(NullPointerException.class, () -> serializerParam.customProcessor(null, (doc, item) -> null));
-	}
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testCustomProcessorInt(final JsonSerializer serializerParam) throws Exception {
+    serializerParam.customProcessor("Foo", (doc, itemName) -> 123);
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testCustomProcessorEmptyProp(JsonSerializer serializerParam) {
-		assertThrows(IllegalArgumentException.class, () -> serializerParam.customProcessor("", (doc, item) -> null));
-	}
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("Foo", "Baz");
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testCustomProcessorNullProcessor(JsonSerializer serializerParam) {
-		assertThrows(NullPointerException.class, () -> serializerParam.customProcessor("someitem", null));
-	}
+      final String jsonString = serializerParam.toJsonString(doc);
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testCustomProcessorString(JsonSerializer serializerParam) throws Exception {
-		serializerParam.customProcessor("Foo", (doc, itemName) -> "Bar");
-		
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			doc.replaceItemValue("Foo", "Baz");
-			
-			String jsonString = serializerParam.toJsonString(doc);
+      final JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertEquals(123d, obj.getJsonNumber("Foo").doubleValue());
+    });
+  }
 
-			JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
-			assertEquals("Bar", obj.getString("Foo"));
-		});
-	}
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testCustomProcessorNullProcessor(final JsonSerializer serializerParam) {
+    Assertions.assertThrows(NullPointerException.class, () -> serializerParam.customProcessor("someitem", null));
+  }
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testCustomProcessorBoolean(JsonSerializer serializerParam) throws Exception {
-		serializerParam.customProcessor("Foo", (doc, itemName) -> true);
-		
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			doc.replaceItemValue("Foo", "Baz");
-			
-			String jsonString = serializerParam.toJsonString(doc);
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testCustomProcessorNullProp(final JsonSerializer serializerParam) {
+    Assertions.assertThrows(NullPointerException.class, () -> serializerParam.customProcessor(null, (doc, item) -> null));
+  }
 
-			JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
-			assertEquals(true, obj.getBoolean("Foo"));
-		});
-	}
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testCustomProcessorObject(final JsonSerializer serializerParam) throws Exception {
+    final Map<String, Object> expected = new LinkedHashMap<>();
+    expected.put("a", "hello");
+    expected.put("b", 123.4d);
+    expected.put("c", true);
+    expected.put("d", Arrays.asList(1, 2, 3));
+    serializerParam.customProcessor("Foo", (doc, itemName) -> expected);
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testCustomProcessorDouble(JsonSerializer serializerParam) throws Exception {
-		serializerParam.customProcessor("Foo", (doc, itemName) -> 123.4d);
-		
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			doc.replaceItemValue("Foo", "Baz");
-			
-			String jsonString = serializerParam.toJsonString(doc);
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("Foo", "Baz");
 
-			JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
-			assertEquals(123.4d, obj.getJsonNumber("Foo").doubleValue());
-		});
-	}
+      final String jsonString = serializerParam.toJsonString(doc);
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testCustomProcessorInt(JsonSerializer serializerParam) throws Exception {
-		serializerParam.customProcessor("Foo", (doc, itemName) -> 123);
-		
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			doc.replaceItemValue("Foo", "Baz");
-			
-			String jsonString = serializerParam.toJsonString(doc);
+      final JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
+      final JsonObject innerObj = obj.getJsonObject("Foo");
+      Assertions.assertNotNull(innerObj);
+      Assertions.assertEquals("hello", innerObj.getString("a"));
+      Assertions.assertEquals(123.4d, innerObj.getJsonNumber("b").doubleValue());
+      Assertions.assertEquals(true, innerObj.getBoolean("c"));
+      final JsonArray dVal = innerObj.getJsonArray("d");
+      final List<?> expectedList = (List<?>) expected.get("d");
+      for (int i = 0; i < expectedList.size(); i++) {
+        Assertions.assertEquals(expectedList.get(i), dVal.getJsonNumber(i).intValue());
+      }
+    });
+  }
 
-			JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
-			assertEquals(123d, obj.getJsonNumber("Foo").doubleValue());
-		});
-	}
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testCustomProcessorString(final JsonSerializer serializerParam) throws Exception {
+    serializerParam.customProcessor("Foo", (doc, itemName) -> "Bar");
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testCustomProcessorArray(JsonSerializer serializerParam) throws Exception {
-		Object[] expected = { "Foo", true, 123.4d };
-		serializerParam.customProcessor("Foo", (doc, itemName) -> Arrays.asList(expected));
-		
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			doc.replaceItemValue("Foo", "Baz");
-			
-			String jsonString = serializerParam.toJsonString(doc);
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("Foo", "Baz");
 
-			JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
-			
-			JsonArray arr = obj.getJsonArray("Foo");
-			assertEquals("Foo", arr.getString(0));
-			assertEquals(true, arr.getBoolean(1));
-			assertEquals(123.4d, arr.getJsonNumber(2).doubleValue());
-		});
-	}
+      final String jsonString = serializerParam.toJsonString(doc);
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testCustomProcessorObject(JsonSerializer serializerParam) throws Exception {
-		Map<String, Object> expected = new LinkedHashMap<>();
-		expected.put("a", "hello");
-		expected.put("b", 123.4d);
-		expected.put("c", true);
-		expected.put("d", Arrays.asList(1, 2, 3));
-		serializerParam.customProcessor("Foo", (doc, itemName) -> expected);
-		
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			doc.replaceItemValue("Foo", "Baz");
-			
-			String jsonString = serializerParam.toJsonString(doc);
-			
-			JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
-			JsonObject innerObj = obj.getJsonObject("Foo");
-			assertNotNull(innerObj);
-			assertEquals("hello", innerObj.getString("a"));
-			assertEquals(123.4d, innerObj.getJsonNumber("b").doubleValue());
-			assertEquals(true, innerObj.getBoolean("c"));
-			JsonArray dVal = innerObj.getJsonArray("d");
-			List<?> expectedList = (List<?>)expected.get("d");
-			for(int i = 0; i < expectedList.size(); i++) {
-				assertEquals(expectedList.get(i), dVal.getJsonNumber(i).intValue());
-			}
-		});
-	}
+      final JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertEquals("Bar", obj.getString("Foo"));
+    });
+  }
 
-	@ParameterizedTest
-	@ArgumentsSource(SerializerProvider.class)
-	public void testCustomProcessorIllegalType(JsonSerializer serializerParam) throws Exception {
-		serializerParam.customProcessor("Foo", (doc, itemName) -> new Object());
-		
-		withTempDb(database -> {
-			Document doc = database.createDocument();
-			doc.replaceItemValue("Foo", "Baz");
-			
-			assertThrows(RuntimeException.class, () -> serializerParam.toJsonString(doc));
-		});
-	}
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testDateRange(final JsonSerializer serializerParam) throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      final LocalDate today = LocalDate.now();
+      final LocalDate tomorrow = LocalDate.now().plus(1, ChronoUnit.DAYS);
+      final DominoDateRange range = database.getParentDominoClient().createDateRange(today, tomorrow);
+      doc.replaceItemValue("DateRange", range);
+      // Test this too while we're here
+      doc.get("DateRange", DominoDateRange.class, null);
+      doc.get("DateRange", DominoTimeType.class, null);
+
+      final JsonSerializer serializer = serializerParam;
+
+      final String jsonString = serializer.toJsonString(doc);
+      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+
+      final String expected = DateTimeFormatter.ISO_LOCAL_DATE.format(today) + '/'
+          + DateTimeFormatter.ISO_LOCAL_DATE.format(tomorrow);
+      Assertions.assertEquals(expected, json.getString("DateRange"));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testDateRangeArray(final JsonSerializer serializerParam) throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      final LocalDate today = LocalDate.now();
+      final LocalDate tomorrow = LocalDate.now().plus(1, ChronoUnit.DAYS);
+      final DominoDateRange range = database.getParentDominoClient().createDateRange(today, tomorrow);
+      doc.replaceItemValue("DateRange", Arrays.asList(range, range));
+
+      final JsonSerializer serializer = serializerParam;
+
+      final String jsonString = serializer.toJsonString(doc);
+      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+
+      final String expected = DateTimeFormatter.ISO_LOCAL_DATE.format(today) + '/'
+          + DateTimeFormatter.ISO_LOCAL_DATE.format(tomorrow);
+      final List<String> found = json.getJsonArray("DateRange").stream()
+          .map(JsonString.class::cast)
+          .map(JsonString::getString)
+          .collect(Collectors.toList());
+      Assertions.assertEquals(Arrays.asList(expected, expected), found);
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testDateRangeObject(final JsonSerializer serializerParam) throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      final LocalDate today = LocalDate.now();
+      final LocalDate tomorrow = LocalDate.now().plus(1, ChronoUnit.DAYS);
+      final DominoDateRange range = database.getParentDominoClient().createDateRange(today, tomorrow);
+      doc.replaceItemValue("DateRange", range);
+      // Test this too while we're here
+      doc.get("DateRange", DominoDateRange.class, null);
+      doc.get("DateRange", DominoTimeType.class, null);
+
+      final JsonSerializer serializer = serializerParam
+          .dateRangeFormat(DateRangeFormat.OBJECT);
+
+      final String jsonString = serializer.toJsonString(doc);
+      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+
+      final JsonObject expected = Json.createObjectBuilder()
+          .add("from", DateTimeFormatter.ISO_LOCAL_DATE.format(today))
+          .add("to", DateTimeFormatter.ISO_LOCAL_DATE.format(tomorrow))
+          .build();
+      final JsonObject found = json.getJsonObject("DateRange");
+      Assertions.assertEquals(expected, found);
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testExcludedDollarFonts(final JsonSerializer serializerParam) throws Exception {
+    this.withResourceDxl("/dxl/testJsonSerialization", database -> {
+      final Document doc = database
+          .queryFormula(" Form='Page: Basic' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
+          .getDocuments()
+          .findFirst()
+          .get();
+
+      final JsonSerializer serializer = serializerParam
+          .lowercaseProperties(true);
+
+      final String jsonString = serializer.toJsonString(doc);
+      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+      Assertions.assertFalse(json.containsKey("$fonts"), "JSON should not contain $fonts item");
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testExcludeItems(final JsonSerializer serializerParam) throws Exception {
+    this.withResourceDxl("/dxl/testJsonSerialization", database -> {
+      final Document doc = database
+          .queryFormula(" Marker='testMimeSerialization' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
+          .getDocuments()
+          .findFirst()
+          .get();
+
+      final JsonSerializer serializer = serializerParam
+          .excludeItems(Arrays.asList("receiveD"));
+
+      final String jsonString = serializer.toJsonString(doc);
+      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+      Assertions.assertEquals("Bulk Mail", json.getString("X_MXTHUNDER_Group"));
+      Assertions.assertEquals(
+          "<1407518313_SectionID-331186_HitID-1407517453669_SiteID-16268_EmailID-82837855_DB-34_SID-37@ss23.agm1.us>",
+          json.getString("X_Track_ID"));
+      Assertions.assertTrue(json.containsKey("Body"), "Body field should be present");
+      Assertions.assertTrue(json.getString("Body").contains("final hours extra"));
+
+      // Make sure the received field was excluded
+      Assertions.assertFalse(json.containsKey("Received"));
+      Assertions.assertEquals(
+          "Itemize by SMTP Server on Arcturus/Frost(Release 9.0.1FP1HF278 | June 16, 2014) at 08/08/2014 01:18:41 PM",
+          json.getJsonArray("$MIMETrack").getString(0));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testExcludeTypes(final JsonSerializer serializerParam) throws Exception {
+    this.withResourceDxl("/dxl/testJsonSerialization", database -> {
+      final Document doc = database
+          .queryFormula(" Marker='testMimeSerialization' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
+          .getDocuments()
+          .findFirst()
+          .get();
+
+      final JsonSerializer serializer = serializerParam
+          .excludeTypes(Arrays.asList(ItemDataType.TYPE_COMPOSITE, ItemDataType.TYPE_MIME_PART));
+
+      final String jsonString = serializer.toJsonString(doc);
+      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+      Assertions.assertEquals("Bulk Mail", json.getString("X_MXTHUNDER_Group"));
+      Assertions.assertEquals(
+          "<1407518313_SectionID-331186_HitID-1407517453669_SiteID-16268_EmailID-82837855_DB-34_SID-37@ss23.agm1.us>",
+          json.getString("X_Track_ID"));
+      Assertions.assertFalse(json.containsKey("Body"), "Body field should not be present");
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testForcedDollarFonts(final JsonSerializer serializerParam) throws Exception {
+    this.withResourceDxl("/dxl/testJsonSerialization", database -> {
+      final Document doc = database
+          .queryFormula(" Form='Page: Basic' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
+          .getDocuments()
+          .findFirst()
+          .get();
+
+      final JsonSerializer serializer = serializerParam
+          .lowercaseProperties(true)
+          .includeItems(Arrays.asList("$Fonts"));
+
+      final String jsonString = serializer.toJsonString(doc);
+      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+      Assertions.assertTrue(json.containsKey("$fonts"), "JSON should contain $fonts item");
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testHtmlSerialization(final JsonSerializer serializer) throws Exception {
+    this.withResourceDxl("/dxl/testJsonSerialization", database -> {
+      final Document doc = database
+          .queryFormula(" Form='Example' & Foo='Bar' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
+          .getDocuments()
+          .findFirst()
+          .get();
+
+      final String jsonString = serializer.toJsonString(doc);
+      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+      Assertions.assertEquals("Bar", json.getString("Foo"));
+      Assertions.assertTrue(json.containsKey("Body"), "Body field should be present");
+      Assertions.assertTrue(json.getString("Body").contains("d35f528e-8cfc-4d97-9078-428da6673f51"));
+      Assertions.assertTrue(json.getString("Body").contains("<br />"));
+      Assertions.assertFalse(json.getString("Body").contains("<br>"));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testHtmlSerializationCustomized(final JsonSerializer serializer) throws Exception {
+    this.withResourceDxl("/dxl/testJsonSerialization", database -> {
+      final Document doc = database
+          .queryFormula(" Form='Example' & Foo='Bar' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
+          .getDocuments()
+          .findFirst()
+          .get();
+
+      serializer.richTextConvertOption(HtmlConvertOption.XMLCompatibleHTML, "0");
+
+      final String jsonString = serializer.toJsonString(doc);
+      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+      Assertions.assertEquals("Bar", json.getString("Foo"));
+      Assertions.assertTrue(json.containsKey("Body"), "Body field should be present");
+      Assertions.assertTrue(json.getString("Body").contains("d35f528e-8cfc-4d97-9078-428da6673f51"));
+      Assertions.assertFalse(json.getString("Body").contains("<br />"));
+      Assertions.assertTrue(json.getString("Body").contains("<br>"));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testIncludeItems(final JsonSerializer serializerParam) throws Exception {
+    this.withResourceDxl("/dxl/testJsonSerialization", database -> {
+      final Document doc = database
+          .queryFormula(" Marker='testMimeSerialization' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
+          .getDocuments()
+          .findFirst()
+          .get();
+
+      final JsonSerializer serializer = serializerParam
+          .includeItems(Arrays.asList("bOdy"));
+
+      final String jsonString = serializer.toJsonString(doc);
+      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+      Assertions.assertTrue(json.containsKey("Body"), "Body field should be present");
+      Assertions.assertTrue(json.getString("Body").contains("final hours extra"));
+
+      // Make sure the received field was excluded
+      Assertions.assertFalse(json.containsKey("Received"));
+    });
+  }
+
+  @Test
+  public void testJsonSerializationService() {
+    Assertions.assertNotNull(JsonSerializer.createSerializer());
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testLowercaseItemNames(final JsonSerializer serializerParam) throws Exception {
+    this.withResourceDxl("/dxl/testJsonSerialization", database -> {
+      final Document doc = database
+          .queryFormula(" Marker='testMimeSerialization' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
+          .getDocuments()
+          .findFirst()
+          .get();
+
+      final JsonSerializer serializer = serializerParam
+          .lowercaseProperties(true);
+
+      final String jsonString = serializer.toJsonString(doc);
+      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+      Assertions.assertEquals("Bulk Mail", json.getString("x_mxthunder_group"));
+      Assertions.assertEquals(
+          "<1407518313_SectionID-331186_HitID-1407517453669_SiteID-16268_EmailID-82837855_DB-34_SID-37@ss23.agm1.us>",
+          json.getString("x_track_id"));
+      Assertions.assertTrue(json.containsKey("body"), "Body field should be present");
+      Assertions.assertTrue(json.getString("body").contains("final hours extra"));
+
+      Assertions.assertFalse(json.containsKey("Received"));
+      Assertions.assertTrue(json.containsKey("received"));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testMetadata(final JsonSerializer serializerParam) throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("Foo", "bar");
+      doc.replaceItemValue("Bar", "baz");
+      doc.save();
+
+      final JsonSerializer serializer = serializerParam
+          .includeMetadata(true);
+
+      final String jsonString = serializer.toJsonString(doc);
+      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+      Assertions.assertEquals("bar", json.getString("Foo"));
+      Assertions.assertEquals("baz", json.getString("Bar"));
+
+      Assertions.assertTrue(json.containsKey("@meta"), "JSON should contain a metadata object");
+      final JsonObject meta = json.getJsonObject("@meta");
+      Assertions.assertNotEquals(null, meta, "Metadata object should not be null");
+      Assertions.assertEquals(doc.getNoteID(), meta.getInt(JsonSerializer.PROP_META_NOTEID));
+      Assertions.assertEquals(doc.getUNID(), meta.getString(JsonSerializer.PROP_META_UNID));
+      final TemporalAccessor cdate = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(meta.getString(JsonSerializer.PROP_META_CREATED));
+      Assertions.assertEquals(doc.getCreated().toOffsetDateTime(), OffsetDateTime.from(cdate));
+      final TemporalAccessor mdate = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+          .parse(meta.getString(JsonSerializer.PROP_META_LASTMODIFIED));
+      Assertions.assertEquals(doc.getLastModified().toOffsetDateTime(), OffsetDateTime.from(mdate));
+      final TemporalAccessor adate = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+          .parse(meta.getString(JsonSerializer.PROP_META_LASTACCESSED));
+      Assertions.assertEquals(doc.getLastAccessed().toOffsetDateTime(), OffsetDateTime.from(adate));
+      final TemporalAccessor fdate = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+          .parse(meta.getString(JsonSerializer.PROP_META_LASTMODIFIEDINFILE));
+      Assertions.assertEquals(doc.getModifiedInThisFile().toOffsetDateTime(), OffsetDateTime.from(fdate));
+      final TemporalAccessor added = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+          .parse(meta.getString(JsonSerializer.PROP_META_ADDEDTOFILE));
+      Assertions.assertEquals(doc.getAddedToFile().toOffsetDateTime(), OffsetDateTime.from(added));
+
+      final JsonArray docClassArray = meta.getJsonArray(JsonSerializer.PROP_META_NOTECLASS);
+      final Collection<DocumentClass> docClass = docClassArray.stream()
+          .map(JsonString.class::cast)
+          .map(JsonString::getString)
+          .map(DocumentClass::valueOf)
+          .collect(Collectors.toSet());
+      Assertions.assertEquals(doc.getDocumentClass(), docClass);
+
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testMimeSerialization(final JsonSerializer serializer) throws Exception {
+    this.withResourceDxl("/dxl/testJsonSerialization", database -> {
+      final int noteId = database
+          .queryFormula(" Marker='testMimeSerialization' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
+          .getNoteIds()
+          .get()
+          .iterator()
+          .next();
+      final Document doc = database.getDocumentById(noteId, EnumSet.of(OpenDocumentMode.CONVERT_RFC822_TO_TEXT_AND_TIME)).get();
+
+      final String jsonString = serializer.toJsonString(doc);
+      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+      Assertions.assertEquals("Bulk Mail", json.getString("X_MXTHUNDER_Group"));
+      Assertions.assertTrue(json.containsKey("Body"), "Body field should be present");
+      Assertions.assertTrue(json.getString("Body").contains("final hours extra"));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testMimeSerializationNoConvert(final JsonSerializer serializer) throws Exception {
+    this.withResourceDxl("/dxl/testJsonSerialization", database -> {
+      final Document doc = database
+          .queryFormula(" Marker='testMimeSerialization' ", null, Collections.emptySet(), null, EnumSet.of(DocumentClass.DOCUMENT))
+          .getDocuments()
+          .findFirst()
+          .get();
+
+      final String jsonString = serializer.toJsonString(doc);
+      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+      Assertions.assertEquals("Bulk Mail", json.getString("X_MXTHUNDER_Group"));
+      Assertions.assertEquals(
+          "<1407518313_SectionID-331186_HitID-1407517453669_SiteID-16268_EmailID-82837855_DB-34_SID-37@ss23.agm1.us>",
+          json.getString("X_Track_ID"));
+      Assertions.assertTrue(json.containsKey("Body"), "Body field should be present");
+      Assertions.assertTrue(json.getString("Body").contains("final hours extra"));
+      Assertions.assertTrue(json.containsKey("Received"));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testSerializeBooleans(final JsonSerializer serializerParam) throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("Foo", "Bar")
+          .replaceItemValue("NumberBool", 1)
+          .replaceItemValue("NumberBoolFalse", 0)
+          .replaceItemValue("YBool", "Y")
+          .replaceItemValue("YesBool", "Yes")
+          .replaceItemValue("YBoolFalse", "N");
+
+      final JsonSerializer serializer = serializerParam
+          .booleanItemNames(Arrays.asList("NumberBool", "NumberBoolFalse", "YBool", "YesBool", "YBoolFalse", "FakeBool"))
+          .booleanTrueValues(Arrays.asList("Y", "Yes", 1));
+
+      final String jsonString = serializer.toJsonString(doc);
+      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+      Assertions.assertThrows(ClassCastException.class, () -> json.getBoolean("Foo"));
+      Assertions.assertTrue(json.getBoolean("NumberBool"));
+      Assertions.assertFalse(json.getBoolean("NumberBoolFalse"));
+      Assertions.assertThrows(NullPointerException.class, () -> json.getBoolean("FakeBool"));
+      Assertions.assertTrue(json.getBoolean("YBool"));
+      Assertions.assertTrue(json.getBoolean("YesBool"));
+      Assertions.assertFalse(json.getBoolean("YBoolFalse"));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testSerializeDocument(final JsonSerializer serializer) throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("Foo", "Bar");
+      final Object json = serializer.toJson(doc);
+      Assertions.assertNotNull(json, "JSON result should not be null");
+      final String jsonString = String.valueOf(json);
+      final JsonParser parser = Json.createParser(new StringReader(jsonString));
+      parser.next();
+      final JsonObject obj = parser.getObject();
+      Assertions.assertEquals("Bar", obj.getString("Foo"));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testSerializeDocumentLowercase(final JsonSerializer serializer) throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("Foo", "Bar");
+      final Object json = serializer
+          .lowercaseProperties(true)
+          .toJson(doc);
+      Assertions.assertNotNull(json, "JSON result should not be null");
+      final String jsonString = String.valueOf(json);
+      final JsonParser parser = Json.createParser(new StringReader(jsonString));
+      parser.next();
+      final JsonObject obj = parser.getObject();
+      Assertions.assertEquals("Bar", obj.getString("foo"));
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testVertxSerialization(final JsonSerializer serializer) throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("Foo", "bar");
+      doc.replaceItemValue("Bar", "baz");
+
+      final String jsonString = serializer.toJsonString(doc);
+      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
+      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+      Assertions.assertEquals("bar", json.getString("Foo"));
+      Assertions.assertEquals("baz", json.getString("Bar"));
+
+      Assertions.assertFalse(json.containsKey("@meta"), "JSON should not contain a metadata object");
+    });
+  }
 }

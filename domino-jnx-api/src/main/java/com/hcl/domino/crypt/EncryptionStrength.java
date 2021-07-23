@@ -22,19 +22,21 @@ import com.hcl.domino.misc.INumberEnum;
  * @since 1.0.18
  */
 public enum EncryptionStrength implements INumberEnum<Integer> {
-	UNENCRYPTED(0), SIMPLE(1), MEDIUM(2), STRONG(3), AES128(4);
-	
-	private final int value;
-	EncryptionStrength(int value) {
-		this.value = value;
-	}
-	
-	@Override
-	public Integer getValue() {
-		return value;
-	}
-	@Override
-	public long getLongValue() {
-		return value;
-	}
+  UNENCRYPTED(0), SIMPLE(1), MEDIUM(2), STRONG(3), AES128(4);
+
+  private final int value;
+
+  EncryptionStrength(final int value) {
+    this.value = value;
+  }
+
+  @Override
+  public long getLongValue() {
+    return this.value;
+  }
+
+  @Override
+  public Integer getValue() {
+    return this.value;
+  }
 }

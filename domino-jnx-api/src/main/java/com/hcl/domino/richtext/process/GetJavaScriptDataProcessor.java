@@ -28,45 +28,46 @@ import com.hcl.domino.richtext.records.CDEvent;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
 /**
- * Extracts the contents of a JavaScript CD item (e.g. {@code $JavaScriptData}) as a
+ * Extracts the contents of a JavaScript CD item (e.g. {@code $JavaScriptData})
+ * as a
  * byte array.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.24
  */
 public class GetJavaScriptDataProcessor implements IRichTextProcessor<byte[]> {
-	public static final GetJavaScriptDataProcessor instance = new GetJavaScriptDataProcessor();
+  public static final GetJavaScriptDataProcessor instance = new GetJavaScriptDataProcessor();
 
-	@Override
-	public byte[] apply(List<RichTextRecord<?>> t) {
-		// TODO don't pre-read all data
-		// TODO probably validate the CD stream
-		
-		AtomicLong len = new AtomicLong();
-		try(ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-			t.forEach(record -> {
-				if(record instanceof CDEvent) {
-					len.set(((CDEvent)record).getActionLength());
-				} else if(record instanceof CDBlobPart) {
-					try {
-						byte[] partData = ((CDBlobPart)record).getBlobPartData();
-						int currentLen = os.size();
-						long remaining = len.get() - currentLen;
-						if(partData.length > remaining) {
-							// We must be at the end - only write the declared part
-							os.write(Arrays.copyOf(partData, (int)(len.get() - currentLen)));
-						} else {
-							os.write(partData);
-						}
-					} catch (IOException e) {
-						throw new UncheckedIOException(e);
-					}
-				}
-			});
-			return os.toByteArray();
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
-	}
+  @Override
+  public byte[] apply(final List<RichTextRecord<?>> t) {
+    // TODO don't pre-read all data
+    // TODO probably validate the CD stream
+
+    final AtomicLong len = new AtomicLong();
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      t.forEach(record -> {
+        if (record instanceof CDEvent) {
+          len.set(((CDEvent) record).getActionLength());
+        } else if (record instanceof CDBlobPart) {
+          try {
+            final byte[] partData = ((CDBlobPart) record).getBlobPartData();
+            final int currentLen = os.size();
+            final long remaining = len.get() - currentLen;
+            if (partData.length > remaining) {
+              // We must be at the end - only write the declared part
+              os.write(Arrays.copyOf(partData, (int) (len.get() - currentLen)));
+            } else {
+              os.write(partData);
+            }
+          } catch (final IOException e) {
+            throw new UncheckedIOException(e);
+          }
+        }
+      });
+      return os.toByteArray();
+    } catch (final IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
 
 }

@@ -17,11 +17,12 @@
 package com.hcl.domino.json;
 
 /**
- * This service interface allows for plugins to contribute {@link JsonSerializer} implementations.
- * 
+ * This service interface allows for plugins to contribute
+ * {@link JsonSerializer} implementations.
+ *
  * @author Jesse Gallagher
  * @since 1.0.7
  */
 public interface JsonSerializerFactory {
-	JsonSerializer newSerializer();
+  JsonSerializer newSerializer();
 }

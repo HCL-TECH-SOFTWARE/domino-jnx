@@ -19,28 +19,29 @@ package com.hcl.domino.exception;
 import com.hcl.domino.DominoException;
 
 /**
- * Represents error code ERR_SERVER_NOT_FOUND (0x0803), "Unable to find path to server[...]"
- * 
+ * Represents error code ERR_SERVER_NOT_FOUND (0x0803), "Unable to find path to
+ * server[...]"
+ *
  * @author Jesse Gallagher
  * @since 1.0.20
  */
 public class ServerNotFoundException extends DominoException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public ServerNotFoundException(int id, String message) {
-		super(id, message);
-	}
+  public ServerNotFoundException(final int id, final String message) {
+    super(id, message);
+  }
 
-	public ServerNotFoundException(int id, String message, Throwable cause) {
-		super(id, message, cause);
-	}
+  public ServerNotFoundException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
+  }
 
-	public ServerNotFoundException(String msg) {
-		super(msg);
-	}
+  public ServerNotFoundException(final String msg) {
+    super(msg);
+  }
 
-	public ServerNotFoundException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public ServerNotFoundException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
 
 }

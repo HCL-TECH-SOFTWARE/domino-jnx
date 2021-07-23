@@ -28,7 +28,6 @@ import java.util.Optional;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.OSLoadStringProvider;
 import com.hcl.domino.commons.errors.ErrorText;
-import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.errors.errorcodes.IAgntsErr;
 import com.hcl.domino.commons.errors.errorcodes.IBsafeErr;
 import com.hcl.domino.commons.errors.errorcodes.IClErr;
@@ -50,6 +49,8 @@ import com.hcl.domino.commons.errors.errorcodes.ISecErr;
 import com.hcl.domino.commons.errors.errorcodes.ISrvErr;
 import com.hcl.domino.commons.errors.errorcodes.IXmlErr;
 import com.hcl.domino.exception.BadPasswordException;
+import com.hcl.domino.exception.CancelException;
+import com.hcl.domino.exception.CompactInProgressException;
 import com.hcl.domino.exception.DocumentDeletedException;
 import com.hcl.domino.exception.EntryNotFoundInIndexException;
 import com.hcl.domino.exception.FileDoesNotExistException;
@@ -65,234 +66,242 @@ import com.hcl.domino.exception.ServerNotFoundException;
 import com.hcl.domino.exception.ServerRestrictedException;
 import com.hcl.domino.exception.ServerUnavailableException;
 import com.hcl.domino.misc.NotesConstants;
-import com.hcl.domino.exception.CancelException;
-import com.hcl.domino.exception.CompactInProgressException;
 
 /**
  * Utility class to work with errors coming out of C API method calls
- * 
+ *
  * @author Karsten Lehmann
  */
 public class NotesErrorUtils {
-	private static volatile Map<Short,String> staticTexts;
-	
-	/**
-	 * Checks a Notes C API result code for errors and throws a {@link DominoException} with
-	 * a proper error message if the specified result code is not 0.
-	 * 
-	 * @param result code
-	 * @throws DominoException if the result is not 0
-	 */
-	public static void checkResult(short result) {
-		checkResult(result, false);
-	}
-	
-	/**
-	 * Checks a Notes C API result code for errors and throws a {@link DominoException} with
-	 * a proper error message if the specified result code is not 0.
-	 * 
-	 * @param result code
-	 * @param staticTextsOnly true to not use the C API method to resolve the error code (e.g. for errors during C API initialization)
-	 * @throws DominoException if the result is not 0
-	 */
-	public static void checkResult(short result, boolean staticTextsOnly) {
-		if (result==0) {
-			return;
-		}
-		
-		Optional<DominoException> ex = toNotesError(result, staticTextsOnly);
-		if (!ex.isPresent()) {
-			return;
-		} else {
-			// Remove the stack trace elements for this and toNotesError
-			StackTraceElement[] stack = ex.get().getStackTrace();
-			ex.get().setStackTrace(Arrays.copyOfRange(stack, 2, stack.length));
-			throw ex.get();
-		}
-	}
+  private static volatile Map<Short, String> staticTexts;
 
-	/**
-	 * Converts an error code into a {@link DominoException}.
-	 * 
-	 * @param result error code
-	 * @return an {@link Optional} describing a newly-created instance of {@link DominoException} or a subclass,
-	 *      an empty one if {@code result} is 0
-	 */
-	public static Optional<DominoException> toNotesError(short result) {
-		return toNotesError(result, false);
-	}
-	
-	/**
-	 * Converts an error code into a {@link DominoException}.
-	 * 
-	 * @param result error code
-	 * @param staticTextsOnly true to not use the C API method to resolve the error code (e.g. for errors during C API initialization)
-	 * @return an {@link Optional} describing a newly-created instance of {@link DominoException} or a subclass,
-	 *      an empty one if {@code result} is 0
-	 */
-	public static Optional<DominoException> toNotesError(short result, boolean staticTextsOnly) {
-		short status = (short) (result & NotesConstants.ERR_MASK);
-		if (status==0) {
-			return Optional.empty();
-		}
-		
-		boolean isRemoteError = (result & NotesConstants.STS_REMOTE) == NotesConstants.STS_REMOTE;
-		
-		String message;
-		try {
-			message = errToString(status, staticTextsOnly);
-		}
-		catch (Throwable e) {
-			return Optional.of(new DominoException(result, "ERR "+status)); //$NON-NLS-1$
-		}
-		
-		int s = Short.toUnsignedInt(status);
-		String msg = MessageFormat.format(
-			"{0} (error code: 0x{1}, raw error with all flags: 0x{2})",
-			message,
-			Integer.toHexString(s)+(isRemoteError ? ", remote server error" : ""), //$NON-NLS-2$
-			Integer.toHexString(result)
-		);
-		
-		return toNotesError(result, msg);
-	}
-	
-	/**
-	 * Creates a {@link DominoException} or subclass based on the provided result code, while
-	 * using a customized message.
-	 * 
-	 * <p>If {@code message} is {@code null}, then this method will look up the message using
-	 * the internal Notes API, combined with some higher-level additional information.</p>
-	 * 
-	 * @param result the status code of the underlying error
-	 * @param message the message to include in the exception
-	 * @return an {@link Optional} describing a newly-created instance of {@link DominoException} or a subclass,
-	 *      an empty one if {@code result} is 0
-	 */
-	public static Optional<DominoException> toNotesError(short result, String message) {
-		short status = (short) (result & NotesConstants.ERR_MASK);
-		if (status==0) {
-			return Optional.empty();
-		}
-		
-		int s = Short.toUnsignedInt(status);
-		switch(s) {
-		case INotesErrorConstants.ERR_NOTE_DELETED:
-			return Optional.of(new DocumentDeletedException(s, message));
-		case INotesErrorConstants.ERR_ITEM_NOT_FOUND:
-			return Optional.of(new ItemNotFoundException(s, message));
-		case INotesErrorConstants.ERR_NOT_FOUND:
-			return Optional.of(new EntryNotFoundInIndexException(s, message));
-		case INotesErrorConstants.ERR_NO_SUCH_ITEM:
-			return Optional.of(new ItemNotPresentException(s, message));
-		case INotesErrorConstants.ERR_SECURE_BADPASSWORD:
-			return Optional.of(new BadPasswordException(s, message));
-		case INotesErrorConstants.ERR_NOEXIST:
-			return Optional.of(new FileDoesNotExistException(s, message));
-		case INotesErrorConstants.ERR_IMPLICIT_SCHED_FAILED:
-			return Optional.of(new ImplicitScheduleFailedException(s, message));
-		case INotesErrorConstants.ERR_MQ_QUITTING:
-			return Optional.of(new QuitPendingException(s, message));
-		case INsfErr.ERR_NOACCESS:
-			return Optional.of(new NotAuthorizedException(s, message));
-		case IOsErr.ERR_CANCEL:
-			return Optional.of(new CancelException(s, message));
-		case INotesErrorConstants.ERR_SERVER_UNAVAILABLE:
-			return Optional.of(new ServerUnavailableException(s, message));
-		case INotesErrorConstants.ERR_SERVER_RESTRICTED:
-			return Optional.of(new ServerRestrictedException(s, message));
-		case INotesErrorConstants.ERR_SERVER_NOT_FOUND:
-			return Optional.of(new ServerNotFoundException(s, message));
-		case INotesErrorConstants.ERR_FIXUP_NEEDED:
-			return Optional.of(new FixupNeededException(s, message));
-		case INotesErrorConstants.ERR_FIXUP_IN_PROGRESS:
-			return Optional.of(new FixupInProgressException(s, message));
-		case INotesErrorConstants.ERR_NSFOPENEXCLUSIVE:
-			return Optional.of(new CompactInProgressException(s, message));
-		case INotesErrorConstants.ERR_MISC_MIMEPART_NOT_FOUND:
-			return Optional.of(new MimePartNotFoundException(s, message));
-		default:
-			return Optional.of(new DominoException(s, message));
-		}
-	}
+  /**
+   * Checks a Notes C API result code for errors and throws a
+   * {@link DominoException} with
+   * a proper error message if the specified result code is not 0.
+   * 
+   * @param result code
+   * @throws DominoException if the result is not 0
+   */
+  public static void checkResult(final short result) {
+    NotesErrorUtils.checkResult(result, false);
+  }
 
-	/**
-	 * Converts a C API error code to an error message
-	 * 
-	 * @param err error code
-	 * @return error message
-	 */
-	public static String errToString(short err) {
-		return errToString(err, false);
-	}
-	
-	/**
-	 * Converts a C API error code to an error message
-	 * 
-	 * @param err error code
-	 * @param staticTextsOnly true to not use the C API method to resolve the error code (e.g. for errors during C API initialization)
-	 * @return error message
-	 */
-	public static String errToString(short err, boolean staticTextsOnly) {
-		if (err==0) {
-			return ""; //$NON-NLS-1$
-		}
-		
-		String message = staticTextsOnly ? "" : OSLoadStringProvider.get().loadString(0, err); //$NON-NLS-1$
-		if(StringUtil.isEmpty(message)) {
-			Map<Short,String> texts = getStaticTexts();
-			String errText = texts.get(err);
-			return StringUtil.toString(errText);
-		}
-		return message;
-	}
+  /**
+   * Checks a Notes C API result code for errors and throws a
+   * {@link DominoException} with
+   * a proper error message if the specified result code is not 0.
+   * 
+   * @param result          code
+   * @param staticTextsOnly true to not use the C API method to resolve the error
+   *                        code (e.g. for errors during C API initialization)
+   * @throws DominoException if the result is not 0
+   */
+  public static void checkResult(final short result, final boolean staticTextsOnly) {
+    if (result == 0) {
+      return;
+    }
 
-	private static Map<Short,String> getStaticTexts() {
-		if (staticTexts==null) {
-			staticTexts = AccessController.doPrivileged((PrivilegedAction<Map<Short,String>>) () -> {
-				Map<Short, String> texts = new HashMap<>();
+    final Optional<DominoException> ex = NotesErrorUtils.toNotesError(result, staticTextsOnly);
+    if (!ex.isPresent()) {
+      return;
+    } else {
+      // Remove the stack trace elements for this and toNotesError
+      final StackTraceElement[] stack = ex.get().getStackTrace();
+      ex.get().setStackTrace(Arrays.copyOfRange(stack, 2, stack.length));
+      throw ex.get();
+    }
+  }
 
-				Class<?>[] classes = new Class[] {
-						IAgntsErr.class,
-						IBsafeErr.class,
-						IClErr.class,
-						IDbdrvErr.class,
-						IDirErr.class,
-						IEventErr.class,
-						IFtErr.class,
-						IHtmlErr.class,
-						IMailMiscErr.class,
-						IMiscErr.class,
-						INetErr.class,
-						INifErr.class,
-						INsfErr.class,
-						IOdsErr.class,
-						IOsErr.class,
-						IRegErr.class,
-						IRouteErr.class,
-						ISecErr.class,
-						ISrvErr.class,
-						IXmlErr.class
-				};
+  /**
+   * Converts a C API error code to an error message
+   * 
+   * @param err error code
+   * @return error message
+   */
+  public static String errToString(final short err) {
+    return NotesErrorUtils.errToString(err, false);
+  }
 
-				for (Class<?> currClass : classes) {
-					Field[] fields = currClass.getFields();
-					for (Field currField : fields) {
-						ErrorText currTxt = currField.getAnnotation(ErrorText.class);
-						if (currTxt!=null) {
-							try {
-								short currCode = currField.getShort(currClass);
-								texts.put(currCode, currTxt.text());
-							} catch (IllegalArgumentException | IllegalAccessException e) {
-								continue;
-							}
-						}
-					}
-				}
+  /**
+   * Converts a C API error code to an error message
+   * 
+   * @param err             error code
+   * @param staticTextsOnly true to not use the C API method to resolve the error
+   *                        code (e.g. for errors during C API initialization)
+   * @return error message
+   */
+  public static String errToString(final short err, final boolean staticTextsOnly) {
+    if (err == 0) {
+      return ""; //$NON-NLS-1$
+    }
 
-				return texts;
-			});
-		}
-		return staticTexts;
-	}
+    final String message = staticTextsOnly ? "" : OSLoadStringProvider.get().loadString(0, err); //$NON-NLS-1$
+    if (StringUtil.isEmpty(message)) {
+      final Map<Short, String> texts = NotesErrorUtils.getStaticTexts();
+      final String errText = texts.get(err);
+      return StringUtil.toString(errText);
+    }
+    return message;
+  }
+
+  private static Map<Short, String> getStaticTexts() {
+    if (NotesErrorUtils.staticTexts == null) {
+      NotesErrorUtils.staticTexts = AccessController.doPrivileged((PrivilegedAction<Map<Short, String>>) () -> {
+        final Map<Short, String> texts = new HashMap<>();
+
+        final Class<?>[] classes = new Class[] {
+            IAgntsErr.class,
+            IBsafeErr.class,
+            IClErr.class,
+            IDbdrvErr.class,
+            IDirErr.class,
+            IEventErr.class,
+            IFtErr.class,
+            IHtmlErr.class,
+            IMailMiscErr.class,
+            IMiscErr.class,
+            INetErr.class,
+            INifErr.class,
+            INsfErr.class,
+            IOdsErr.class,
+            IOsErr.class,
+            IRegErr.class,
+            IRouteErr.class,
+            ISecErr.class,
+            ISrvErr.class,
+            IXmlErr.class
+        };
+
+        for (final Class<?> currClass : classes) {
+          final Field[] fields = currClass.getFields();
+          for (final Field currField : fields) {
+            final ErrorText currTxt = currField.getAnnotation(ErrorText.class);
+            if (currTxt != null) {
+              try {
+                final short currCode = currField.getShort(currClass);
+                texts.put(currCode, currTxt.text());
+              } catch (IllegalArgumentException | IllegalAccessException e) {
+                continue;
+              }
+            }
+          }
+        }
+
+        return texts;
+      });
+    }
+    return NotesErrorUtils.staticTexts;
+  }
+
+  /**
+   * Converts an error code into a {@link DominoException}.
+   * 
+   * @param result error code
+   * @return an {@link Optional} describing a newly-created instance of
+   *         {@link DominoException} or a subclass,
+   *         an empty one if {@code result} is 0
+   */
+  public static Optional<DominoException> toNotesError(final short result) {
+    return NotesErrorUtils.toNotesError(result, false);
+  }
+
+  /**
+   * Converts an error code into a {@link DominoException}.
+   * 
+   * @param result          error code
+   * @param staticTextsOnly true to not use the C API method to resolve the error
+   *                        code (e.g. for errors during C API initialization)
+   * @return an {@link Optional} describing a newly-created instance of
+   *         {@link DominoException} or a subclass,
+   *         an empty one if {@code result} is 0
+   */
+  public static Optional<DominoException> toNotesError(final short result, final boolean staticTextsOnly) {
+    final short status = (short) (result & NotesConstants.ERR_MASK);
+    if (status == 0) {
+      return Optional.empty();
+    }
+
+    final boolean isRemoteError = (result & NotesConstants.STS_REMOTE) == NotesConstants.STS_REMOTE;
+
+    String message;
+    try {
+      message = NotesErrorUtils.errToString(status, staticTextsOnly);
+    } catch (final Throwable e) {
+      return Optional.of(new DominoException(result, "ERR " + status)); //$NON-NLS-1$
+    }
+
+    final int s = Short.toUnsignedInt(status);
+    final String msg = MessageFormat.format(
+        "{0} (error code: 0x{1}, raw error with all flags: 0x{2})",
+        message,
+        Integer.toHexString(s) + (isRemoteError ? ", remote server error" : ""), //$NON-NLS-2$
+        Integer.toHexString(result));
+
+    return NotesErrorUtils.toNotesError(result, msg);
+  }
+
+  /**
+   * Creates a {@link DominoException} or subclass based on the provided result
+   * code, while
+   * using a customized message.
+   * <p>
+   * If {@code message} is {@code null}, then this method will look up the message
+   * using
+   * the internal Notes API, combined with some higher-level additional
+   * information.
+   * </p>
+   * 
+   * @param result  the status code of the underlying error
+   * @param message the message to include in the exception
+   * @return an {@link Optional} describing a newly-created instance of
+   *         {@link DominoException} or a subclass,
+   *         an empty one if {@code result} is 0
+   */
+  public static Optional<DominoException> toNotesError(final short result, final String message) {
+    final short status = (short) (result & NotesConstants.ERR_MASK);
+    if (status == 0) {
+      return Optional.empty();
+    }
+
+    final int s = Short.toUnsignedInt(status);
+    switch (s) {
+      case INsfErr.ERR_NOTE_DELETED:
+        return Optional.of(new DocumentDeletedException(s, message));
+      case INsfErr.ERR_ITEM_NOT_FOUND:
+        return Optional.of(new ItemNotFoundException(s, message));
+      case IMiscErr.ERR_NOT_FOUND:
+        return Optional.of(new EntryNotFoundInIndexException(s, message));
+      case INifErr.ERR_NO_SUCH_ITEM:
+        return Optional.of(new ItemNotPresentException(s, message));
+      case ISecErr.ERR_SECURE_BADPASSWORD:
+        return Optional.of(new BadPasswordException(s, message));
+      case IOsErr.ERR_NOEXIST:
+        return Optional.of(new FileDoesNotExistException(s, message));
+      case IMailMiscErr.ERR_IMPLICIT_SCHED_FAILED:
+        return Optional.of(new ImplicitScheduleFailedException(s, message));
+      case IMiscErr.ERR_MQ_QUITTING:
+        return Optional.of(new QuitPendingException(s, message));
+      case INsfErr.ERR_NOACCESS:
+        return Optional.of(new NotAuthorizedException(s, message));
+      case IOsErr.ERR_CANCEL:
+        return Optional.of(new CancelException(s, message));
+      case ISrvErr.ERR_SERVER_UNAVAILABLE:
+        return Optional.of(new ServerUnavailableException(s, message));
+      case ISrvErr.ERR_SERVER_RESTRICTED:
+        return Optional.of(new ServerRestrictedException(s, message));
+      case IClErr.ERR_SERVER_NOT_FOUND:
+        return Optional.of(new ServerNotFoundException(s, message));
+      case INsfErr.ERR_FIXUP_NEEDED:
+        return Optional.of(new FixupNeededException(s, message));
+      case INsfErr.ERR_FIXUP_IN_PROGRESS:
+        return Optional.of(new FixupInProgressException(s, message));
+      case INsfErr.ERR_NSFOPENEXCLUSIVE:
+        return Optional.of(new CompactInProgressException(s, message));
+      case IMiscErr.ERR_MISC_MIMEPART_NOT_FOUND:
+        return Optional.of(new MimePartNotFoundException(s, message));
+      default:
+        return Optional.of(new DominoException(s, message));
+    }
+  }
 }

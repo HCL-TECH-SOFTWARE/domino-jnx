@@ -19,16 +19,13 @@ package com.hcl.domino.data;
 /**
  * Defines any query/search that can happen against a database or a view/folder
  * Defines query method:
- * 
  * - DQL
  * - Formula
  * - FtSearch
  * - etc.
- * 
  * Used as parameter into a search function
- * 
- * @author t.b.d
  *
+ * @author t.b.d
  */
 public interface SearchQuery {
 

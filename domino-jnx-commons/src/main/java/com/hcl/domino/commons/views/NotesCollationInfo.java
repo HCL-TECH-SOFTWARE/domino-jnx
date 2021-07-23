@@ -22,43 +22,44 @@ import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.misc.NotesConstants;
 
 /**
- * Container object that provides access to the available sortings for a {@link DominoCollection}
- * 
+ * Container object that provides access to the available sortings for a
+ * {@link DominoCollection}
+ *
  * @author Karsten Lehmann
  */
 public class NotesCollationInfo {
-	public byte m_flags;
-	private List<NotesCollateDescriptor> m_collateDescriptors;
-	
-	public NotesCollationInfo(byte flags, List<NotesCollateDescriptor> descriptors) {
-		m_flags = flags;
-		m_collateDescriptors = descriptors;
-	}
-	
-	/**
-	 * Indicates unique keys. Used for ODBC Access: Generate unique keys in index.
-	 * 
-	 * @return true for unique keys
-	 */
-	public boolean isUnique() {
-		return (m_flags & NotesConstants.COLLATION_FLAG_UNIQUE) == NotesConstants.COLLATION_FLAG_UNIQUE;
-	}
+  public byte m_flags;
+  private final List<NotesCollateDescriptor> m_collateDescriptors;
 
-	/**
-	 * Flag to indicate only build on demand.
-	 * 
-	 * @return true for build on demand
-	 */
-	public boolean isBuildOnDemand() {
-		return (m_flags & NotesConstants.COLLATION_FLAG_BUILD_ON_DEMAND) == NotesConstants.COLLATION_FLAG_BUILD_ON_DEMAND;
-	}
+  public NotesCollationInfo(final byte flags, final List<NotesCollateDescriptor> descriptors) {
+    this.m_flags = flags;
+    this.m_collateDescriptors = descriptors;
+  }
 
-	/**
-	 * Returns the collate descriptors with the sortings used for this collation
-	 * 
-	 * @return descriptors
-	 */
-	public List<NotesCollateDescriptor> getDescriptors() {
-		return m_collateDescriptors;
-	}
+  /**
+   * Returns the collate descriptors with the sortings used for this collation
+   * 
+   * @return descriptors
+   */
+  public List<NotesCollateDescriptor> getDescriptors() {
+    return this.m_collateDescriptors;
+  }
+
+  /**
+   * Flag to indicate only build on demand.
+   * 
+   * @return true for build on demand
+   */
+  public boolean isBuildOnDemand() {
+    return (this.m_flags & NotesConstants.COLLATION_FLAG_BUILD_ON_DEMAND) == NotesConstants.COLLATION_FLAG_BUILD_ON_DEMAND;
+  }
+
+  /**
+   * Indicates unique keys. Used for ODBC Access: Generate unique keys in index.
+   * 
+   * @return true for unique keys
+   */
+  public boolean isUnique() {
+    return (this.m_flags & NotesConstants.COLLATION_FLAG_UNIQUE) == NotesConstants.COLLATION_FLAG_UNIQUE;
+  }
 }

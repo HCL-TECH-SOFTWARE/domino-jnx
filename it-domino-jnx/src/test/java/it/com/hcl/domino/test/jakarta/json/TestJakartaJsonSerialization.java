@@ -16,10 +16,9 @@
  */
 package it.com.hcl.domino.test.jakarta.json;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.Optional;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.jnx.jsonb.service.JsonbSerializerFactory;
@@ -30,11 +29,11 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestJakartaJsonSerialization extends AbstractNotesRuntimeTest {
-	@Test
-	public void testServiceRegistered() {
-		Optional<JsonSerializerFactory> fac = JNXServiceFinder.findServices(JsonSerializerFactory.class)
-			.filter(JsonbSerializerFactory.class::isInstance)
-			.findFirst();
-		assertTrue(fac.isPresent(), "JsonbSerializerFactory not registered");
-	}
+  @Test
+  public void testServiceRegistered() {
+    final Optional<JsonSerializerFactory> fac = JNXServiceFinder.findServices(JsonSerializerFactory.class)
+        .filter(JsonbSerializerFactory.class::isInstance)
+        .findFirst();
+    Assertions.assertTrue(fac.isPresent(), "JsonbSerializerFactory not registered");
+  }
 }

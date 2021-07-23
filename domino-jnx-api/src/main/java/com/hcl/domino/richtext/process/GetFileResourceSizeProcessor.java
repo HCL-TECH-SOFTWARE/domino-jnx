@@ -22,30 +22,32 @@ import com.hcl.domino.richtext.records.CDFileHeader;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
 /**
- * Retrieves the size of the file stored in a file-resource CD item (e.g. {@code $FileData}).
- * 
- * <p>This processing happens synchronously.</p>
- * 
+ * Retrieves the size of the file stored in a file-resource CD item (e.g.
+ * {@code $FileData}).
+ * <p>
+ * This processing happens synchronously.
+ * </p>
+ *
  * @author Jesse Gallagher
  * @since 1.0.15
  */
 public class GetFileResourceSizeProcessor implements IRichTextProcessor<Long> {
-	
-	/**
-	 * Constructs a new file-size extractor.
-	 */
-	public GetFileResourceSizeProcessor() {
-	}
 
-	@Override
-	public Long apply(List<RichTextRecord<?>> t) {
-		long size = t.stream()
-			.filter(CDFileHeader.class::isInstance)
-			.map(CDFileHeader.class::cast)
-			.findFirst()
-			.map(CDFileHeader::getFileDataSize)
-			.orElseThrow(() -> new IllegalStateException("Could not find CDFileHeader segment"));
-		return size;
-	}
+  /**
+   * Constructs a new file-size extractor.
+   */
+  public GetFileResourceSizeProcessor() {
+  }
+
+  @Override
+  public Long apply(final List<RichTextRecord<?>> t) {
+    final long size = t.stream()
+        .filter(CDFileHeader.class::isInstance)
+        .map(CDFileHeader.class::cast)
+        .findFirst()
+        .map(CDFileHeader::getFileDataSize)
+        .orElseThrow(() -> new IllegalStateException("Could not find CDFileHeader segment"));
+    return size;
+  }
 
 }

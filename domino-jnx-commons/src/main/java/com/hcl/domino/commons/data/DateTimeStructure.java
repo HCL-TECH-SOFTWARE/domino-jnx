@@ -21,37 +21,38 @@ import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.NotesConstants;
 
 /**
- * Specifies the structure of {@link DominoDateTime} value when converted to a string
- * 
+ * Specifies the structure of {@link DominoDateTime} value when converted to a
+ * string
+ *
  * @author Karsten Lehmann
  */
 public enum DateTimeStructure implements INumberEnum<Byte> {
-	
-	/** DATE */
-	DATE(NotesConstants.TSFMT_DATE),
-	/** TIME */
-	TIME(NotesConstants.TSFMT_TIME),
-	/** DATE TIME */
-	DATETIME(NotesConstants.TSFMT_DATETIME),
-	/** DATE TIME or TIME Today or TIME Yesterday */
-	CDATETIME(NotesConstants.TSFMT_CDATETIME),
-	/** DATE, Today or Yesterday */ 
-	CDATE(NotesConstants.TSFMT_CDATE);
-	
-	private byte m_val;
 
-	DateTimeStructure(byte val) {
-		m_val = val;
-	}
+  /** DATE */
+  DATE(NotesConstants.TSFMT_DATE),
+  /** TIME */
+  TIME(NotesConstants.TSFMT_TIME),
+  /** DATE TIME */
+  DATETIME(NotesConstants.TSFMT_DATETIME),
+  /** DATE TIME or TIME Today or TIME Yesterday */
+  CDATETIME(NotesConstants.TSFMT_CDATETIME),
+  /** DATE, Today or Yesterday */
+  CDATE(NotesConstants.TSFMT_CDATE);
 
-	@Override
-	public Byte getValue() {
-		return m_val;
-	}
+  private byte m_val;
 
-	@Override
-	public long getLongValue() {
-		return m_val;
-	}
+  DateTimeStructure(final byte val) {
+    this.m_val = val;
+  }
+
+  @Override
+  public long getLongValue() {
+    return this.m_val;
+  }
+
+  @Override
+  public Byte getValue() {
+    return this.m_val;
+  }
 
 }

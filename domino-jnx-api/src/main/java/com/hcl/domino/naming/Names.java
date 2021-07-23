@@ -26,64 +26,68 @@ import com.hcl.domino.misc.JNXServiceFinder;
  * implementation.
  */
 public interface Names {
-	
-	Name _createName(String name);
-	String _toAbbreviated(String name);
-	String _toCommon(String name);
-	String _toCanonical(String name);
-	boolean _equalNames(String name1, String name2);
-	UserNamesList _buildNamesList(DominoClient client, String name);
 
-	static Name createName(String name) {
-		Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
-		
-		return names._createName(name);
-	}
-	
-	
-	static String toAbbreviated(String name) {
-		Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
+  /**
+   * Generates a names list for the provided name based on the current
+   * environment.
+   *
+   * @param client a contextual client to use for the lookup
+   * @param name   the name to look up
+   * @return a {@link UserNamesList} object for the provided name
+   * @since 1.0.28
+   */
+  static UserNamesList buildNamesList(final DominoClient client, final String name) {
+    final Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
 
-		return names._toAbbreviated(name);
-	}
+    return names._buildNamesList(client, name);
+  }
 
+  static Name createName(final String name) {
+    final Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
 
-	static String toCommon(String name) {
-		Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
+    return names._createName(name);
+  }
 
-		return names._toCommon(name);
-	}
-	
-	static String toCanonical(String name) {
-		Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
+  /**
+   * Checks two Domino usernames for equality
+   *
+   * @param name1 first name
+   * @param name2 second name
+   * @return true if abbreviated names of both are equal, ignoring case
+   */
+  static boolean equalNames(final String name1, final String name2) {
+    final Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
 
-		return names._toCanonical(name);
-	}
+    return names._equalNames(name1, name2);
+  }
 
-	/**
-	 * Checks two Domino usernames for equality
-	 * 
-	 * @param name1 first name
-	 * @param name2 second name
-	 * @return true if abbreviated names of both are equal, ignoring case
-	 */
-	static boolean equalNames(String name1, String name2) {
-		Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
+  static String toAbbreviated(final String name) {
+    final Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
 
-		return names._equalNames(name1, name2);
-	}
-	
-	/**
-	 * Generates a names list for the provided name based on the current environment.
-	 * 
-	 * @param client a contextual client to use for the lookup
-	 * @param name the name to look up
-	 * @return a {@link UserNamesList} object for the provided name
-	 * @since 1.0.28
-	 */
-	static UserNamesList buildNamesList(DominoClient client, String name) {
-		Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
-		
-		return names._buildNamesList(client, name);
-	}
+    return names._toAbbreviated(name);
+  }
+
+  static String toCanonical(final String name) {
+    final Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
+
+    return names._toCanonical(name);
+  }
+
+  static String toCommon(final String name) {
+    final Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
+
+    return names._toCommon(name);
+  }
+
+  UserNamesList _buildNamesList(DominoClient client, String name);
+
+  Name _createName(String name);
+
+  boolean _equalNames(String name1, String name2);
+
+  String _toAbbreviated(String name);
+
+  String _toCanonical(String name);
+
+  String _toCommon(String name);
 }

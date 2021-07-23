@@ -20,25 +20,25 @@ import com.hcl.domino.dxl.DxlImporterLog;
 
 /**
  * Represents an error log from a failed DXL import.
- * 
+ *
  * @author Jesse Gallagher
  */
 public class DxlImportException extends RuntimeException {
-	private static final long serialVersionUID = 1L;
-	
-	private final DxlImporterLog log;
+  private static final long serialVersionUID = 1L;
 
-	public DxlImportException(String message, DxlImporterLog log) {
-		super(message);
-		this.log = log;
-	}
+  private final DxlImporterLog log;
 
-	/**
-	 * @return the full log from the import operation
-	 * @since 1.0.24
-	 */
-	public DxlImporterLog getLog() {
-		return log;
-	}
-	
+  public DxlImportException(final String message, final DxlImporterLog log) {
+    super(message);
+    this.log = log;
+  }
+
+  /**
+   * @return the full log from the import operation
+   * @since 1.0.24
+   */
+  public DxlImporterLog getLog() {
+    return this.log;
+  }
+
 }

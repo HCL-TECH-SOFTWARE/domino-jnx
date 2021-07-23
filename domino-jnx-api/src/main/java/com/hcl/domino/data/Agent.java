@@ -22,251 +22,254 @@ import java.util.Optional;
 
 /**
  * Details about the Agent
- * 
+ *
  * @author t.b.d.
  */
 public interface Agent {
-	
-	/**
-	 * Gets the agent's Name
-	 * 
-	 * @return agent's name, not null
-	 */
-	String getName();
 
-	/**
-	 * Gets any aliases for the agent. If there are no aliases, an empty List is
-	 * returned.
-	 * 
-	 * @return list of aliases
-	 */
-	List<String> getAliases();
+  public interface AgentRunContext {
 
-	/**
-	 * Database containing the agent
-	 * 
-	 * @return parent database in which the agent resides
-	 */
-	Database getParentDatabase();
+    /**
+     * Returns the Document for Session.DocumentContext as a {@link Document}
+     *
+     * @return document context
+     */
+    Optional<Document> getDocumentContext();
 
-	/**
-	 * Domino UNID of the agent's design element
-	 * 
-	 * @return 32 character hex string to retrieve the agent's design element
-	 */
-	String getUNID();
+    /**
+     * Returns the output writer used for Print statements during agent execution
+     *
+     * @return an {@link Optional} describing the target {@link Writer}, or an empty
+     *         one
+     *         if no writer has been set
+     */
+    Optional<Writer> getOutputWriter();
 
-	/**
-	 * NoteID location of the agent's design element, specific only for this replica
-	 * of the Database
-	 * 
-	 * @return int corresponding to the String note ID of format 000020FA
-	 */
-	int getNoteID();
+    /**
+     * Returns the note id for Session.ParameterDocId
+     *
+     * @return note id
+     */
+    int getParamDocId();
 
-	/**
-	 * Gets any comment the developer has assigned for the agent
-	 * 
-	 * @return comment, not null
-	 */
-	String getComment();
+    /**
+     * Returns the agent timeout
+     *
+     * @return timeout
+     */
+    int getTimeoutSeconds();
 
-	/**
-	 * Gets whether or not the agent is set to be run on a schedule and is enabled
-	 * 
-	 * @return true if the agent is scheduled and enabled
-	 */
-	boolean isEnabled();
+    /**
+     * Returns the Notes username e.g. to be used for evaluating @UserNamesList
+     *
+     * @return username
+     */
+    String getUsername();
 
-	/**
-	 * Gets whether or not the agent should run as the web user instead of the
-	 * signer
-	 * 
-	 * @return true if the agent should run as the web user
-	 */
-	boolean isRunAsWebUser();
+    /**
+     * Returns whether security should be checked
+     *
+     * @return true to check
+     */
+    boolean isCheckSecurity();
 
-	/**
-	 * The returned document is created when you save an agent, and it is stored in
-	 * the same database as the agent.<br>
-	 * The document replicates, but is not displayed in views.<br>
-	 * Each time you edit and re-save an agent, its saved data document is deleted
-	 * and a new, blank one is created. When you delete an agent, its saved data document is deleted.
-	 * 
-	 * @return an {@link Optional} describing the saved agent data, or an empty one if there is no saved data
-	 */
-	Optional<Document> getAgentSavedData();
-	
-	/**
-	 * Initializes the AgentRunContext in which the agent should run, for defining
-	 * settings like re-opening the database as the signer, which document the agent
-	 * should run on, timeouts etc.
-	 * 
-	 * @return AGentRunContext, ready to receive setters
-	 */
-	AgentRunContext createAgentContext();
+    /**
+     * Returns whether the DB should be reopened as agent signer
+     *
+     * @return true to reopen
+     */
+    boolean isReopenDbAsSigner();
 
-	/**
-	 * Runs the agent with the specific agent context
-	 * 
-	 * @param runCtx AgentRunContext that defines run settings
-	 */
-	void run(AgentRunContext runCtx);
+    /**
+     * Use this method to set the AGENT_SECURITY_ON flag:<br>
+     * <br>
+     * AGENT_SECURITY_ON:<br>
+     * Use this flag to tell the run context that when it runs an agent, you want it
+     * to check the privileges of the signer of that agent and apply them. For
+     * example, if the signer of the agent has "restricted" agent privileges, then
+     * the agent will be restricted. If you don't set this flag, all agents run as
+     * unrestricted.<br>
+     * <ul>
+     * <li>List of security checks enabled by this flag:</li>
+     * <li>Restricted/unrestricted agent</li>
+     * <li>Can create databases</li>
+     * <li>Is agent targeted to this machine</li>
+     * <li>Is user allowed to access this machine</li>
+     * <li>Can user run personal agents</li>
+     * </ul>
+     *
+     * @param checkSecurity true to check security, true by default
+     * @return this context object (for chained calls)
+     */
+    AgentRunContext setCheckSecurity(boolean checkSecurity);
 
-	/**
-	 * Runs the agent on the server
-	 * 
-	 * @param suppressPrintToConsole true to not write "Print" statements in the
-	 *                               agent code to the server console
-	 */
-	void runOnServer(boolean suppressPrintToConsole);
+    /**
+     * Sets the Document for Session.DocumentContext as a {@link Document}.<br>
+     * <br>
+     *
+     * @param doc document context, can be in-memory only (not
+     *            saved yet)
+     * @return this context object (for chained calls)
+     */
+    AgentRunContext setDocumentContext(Document doc);
 
-	/**
-	 * Runs the agent on the server
-	 * 
-	 * @param noteIdParamDoc         note id of parameter document
-	 * @param suppressPrintToConsole true to not write "Print" statements in the
-	 *                               agent code to the server console
-	 */
-	void runOnServer(int noteIdParamDoc, boolean suppressPrintToConsole);
+    /**
+     * If this method is used to set an output writer, we will collect the agent
+     * output produced during execution (e.g. via Print statements in LotusScript)
+     * and write it to the specified writer <b>when the agent execution is done</b>.
+     *
+     * @param writer output writer, null by default
+     * @return this context object (for chained calls)
+     */
+    AgentRunContext setOutputWriter(Writer writer);
 
-	public interface AgentRunContext {
+    /**
+     * Sets the note id for Session.ParameterDocId
+     *
+     * @param paramDocId note id, 0 by default
+     * @return this context object (for chained calls)
+     */
+    AgentRunContext setParamDocId(int paramDocId);
 
-		/**
-		 * Returns whether security should be checked
-		 * 
-		 * @return true to check
-		 */
-		boolean isCheckSecurity();
+    /**
+     * Use this method to set the AGENT_REOPEN_DB flag:<br>
+     * <br>
+     * AGENT_REOPEN_DB:<br>
+     * If AGENT_REOPEN_DB is set, the AgentRun call will reopen the agent's database
+     * with the privileges of the signer of the agent. If the flag is not set, the
+     * agent's "context" database will be open with the privileges of the current
+     * user (the current Notes id or the current Domino web user).
+     *
+     * @param reopenAsSigner true to reopen database, false by default
+     * @return this context object (for chained calls)
+     */
+    AgentRunContext setReopenDbAsSigner(boolean reopenAsSigner);
 
-		/**
-		 * Use this method to set the AGENT_SECURITY_ON flag:<br>
-		 * <br>
-		 * AGENT_SECURITY_ON:<br>
-		 * Use this flag to tell the run context that when it runs an agent, you want it
-		 * to check the privileges of the signer of that agent and apply them. For
-		 * example, if the signer of the agent has "restricted" agent privileges, then
-		 * the agent will be restricted. If you don't set this flag, all agents run as
-		 * unrestricted.<br>
-		 * <ul>
-		 * <li>List of security checks enabled by this flag:</li>
-		 * <li>Restricted/unrestricted agent</li>
-		 * <li>Can create databases</li>
-		 * <li>Is agent targeted to this machine</li>
-		 * <li>Is user allowed to access this machine</li>
-		 * <li>Can user run personal agents</li>
-		 * </ul>
-		 * 
-		 * @param checkSecurity true to check security, true by default
-		 * @return this context object (for chained calls)
-		 */
-		AgentRunContext setCheckSecurity(boolean checkSecurity);
+    /**
+     * Sets an execution timeout in seconds
+     *
+     * @param timeoutSeconds timeout in seconds, 0 by default
+     * @return this context object (for chained calls)
+     */
+    AgentRunContext setTimeoutSeconds(int timeoutSeconds);
 
-		/**
-		 * Returns whether the DB should be reopened as agent signer
-		 * 
-		 * @return true to reopen
-		 */
-		boolean isReopenDbAsSigner();
+    /**
+     * Sets the Notes username e.g. to be used for evaluating @UserNamesList.
+     * Unfortunately, this does not cover Session.EffectiveUserName. We still need
+     * to find a way to change this (when calling WebQueryOpen/Save agents
+     * manually), if there is any.
+     *
+     * @param sessionEffectiveName either in canonical or abbreviated format, null
+     *                             by default, which means Session.EffectiveUserName
+     *                             will be the agent signer
+     * @return this context object (for chained calls)
+     */
+    AgentRunContext setUsername(String sessionEffectiveName);
 
-		/**
-		 * Use this method to set the AGENT_REOPEN_DB flag:<br>
-		 * <br>
-		 * AGENT_REOPEN_DB:<br>
-		 * If AGENT_REOPEN_DB is set, the AgentRun call will reopen the agent's database
-		 * with the privileges of the signer of the agent. If the flag is not set, the
-		 * agent's "context" database will be open with the privileges of the current
-		 * user (the current Notes id or the current Domino web user).
-		 * 
-		 * @param reopenAsSigner true to reopen database, false by default
-		 * @return this context object (for chained calls)
-		 */
-		AgentRunContext setReopenDbAsSigner(boolean reopenAsSigner);
+  }
 
-		/**
-		 * Returns the output writer used for Print statements during agent execution
-		 * 
-		 * @return an {@link Optional} describing the target {@link Writer}, or an empty one
-		 * 		if no writer has been set
-		 */
-		Optional<Writer> getOutputWriter();
+  /**
+   * Initializes the AgentRunContext in which the agent should run, for defining
+   * settings like re-opening the database as the signer, which document the agent
+   * should run on, timeouts etc.
+   *
+   * @return AGentRunContext, ready to receive setters
+   */
+  AgentRunContext createAgentContext();
 
-		/**
-		 * If this method is used to set an output writer, we will collect the agent
-		 * output produced during execution (e.g. via Print statements in LotusScript)
-		 * and write it to the specified writer <b>when the agent execution is done</b>.
-		 * 
-		 * @param writer output writer, null by default
-		 * @return this context object (for chained calls)
-		 */
-		AgentRunContext setOutputWriter(Writer writer);
+  /**
+   * The returned document is created when you save an agent, and it is stored in
+   * the same database as the agent.<br>
+   * The document replicates, but is not displayed in views.<br>
+   * Each time you edit and re-save an agent, its saved data document is deleted
+   * and a new, blank one is created. When you delete an agent, its saved data
+   * document is deleted.
+   *
+   * @return an {@link Optional} describing the saved agent data, or an empty one
+   *         if there is no saved data
+   */
+  Optional<Document> getAgentSavedData();
 
-		/**
-		 * Returns the agent timeout
-		 * 
-		 * @return timeout
-		 */
-		int getTimeoutSeconds();
+  /**
+   * Gets any aliases for the agent. If there are no aliases, an empty List is
+   * returned.
+   *
+   * @return list of aliases
+   */
+  List<String> getAliases();
 
-		/**
-		 * Sets an execution timeout in seconds
-		 * 
-		 * @param timeoutSeconds timeout in seconds, 0 by default
-		 * @return this context object (for chained calls)
-		 */
-		AgentRunContext setTimeoutSeconds(int timeoutSeconds);
+  /**
+   * Gets any comment the developer has assigned for the agent
+   *
+   * @return comment, not null
+   */
+  String getComment();
 
-		/**
-		 * Returns the Document for Session.DocumentContext as a {@link Document}
-		 * 
-		 * @return document context
-		 */
-		Optional<Document> getDocumentContext();
+  /**
+   * Gets the agent's Name
+   *
+   * @return agent's name, not null
+   */
+  String getName();
 
-		/**
-		 * Sets the Document for Session.DocumentContext as a {@link Document}.<br>
-		 * <br>
-		 * 
-		 * @param doc document context, can be in-memory only (not
-		 *                              saved yet)
-		 * @return this context object (for chained calls)
-		 */
-		AgentRunContext setDocumentContext(Document doc);
+  /**
+   * NoteID location of the agent's design element, specific only for this replica
+   * of the Database
+   *
+   * @return int corresponding to the String note ID of format 000020FA
+   */
+  int getNoteID();
 
-		/**
-		 * Returns the note id for Session.ParameterDocId
-		 * 
-		 * @return note id
-		 */
-		int getParamDocId();
+  /**
+   * Database containing the agent
+   *
+   * @return parent database in which the agent resides
+   */
+  Database getParentDatabase();
 
-		/**
-		 * Sets the note id for Session.ParameterDocId
-		 * 
-		 * @param paramDocId note id, 0 by default
-		 * @return this context object (for chained calls)
-		 */
-		AgentRunContext setParamDocId(int paramDocId);
+  /**
+   * Domino UNID of the agent's design element
+   *
+   * @return 32 character hex string to retrieve the agent's design element
+   */
+  String getUNID();
 
-		/**
-		 * Returns the Notes username e.g. to be used for evaluating @UserNamesList
-		 * 
-		 * @return username
-		 */
-		String getUsername();
+  /**
+   * Gets whether or not the agent is set to be run on a schedule and is enabled
+   *
+   * @return true if the agent is scheduled and enabled
+   */
+  boolean isEnabled();
 
-		/**
-		 * Sets the Notes username e.g. to be used for evaluating @UserNamesList.
-		 * Unfortunately, this does not cover Session.EffectiveUserName. We still need
-		 * to find a way to change this (when calling WebQueryOpen/Save agents
-		 * manually), if there is any.
-		 * 
-		 * @param sessionEffectiveName either in canonical or abbreviated format, null
-		 *                             by default, which means Session.EffectiveUserName
-		 *                             will be the agent signer
-		 * @return this context object (for chained calls)
-		 */
-		AgentRunContext setUsername(String sessionEffectiveName);
+  /**
+   * Gets whether or not the agent should run as the web user instead of the
+   * signer
+   *
+   * @return true if the agent should run as the web user
+   */
+  boolean isRunAsWebUser();
 
-	}
+  /**
+   * Runs the agent with the specific agent context
+   *
+   * @param runCtx AgentRunContext that defines run settings
+   */
+  void run(AgentRunContext runCtx);
+
+  /**
+   * Runs the agent on the server
+   *
+   * @param suppressPrintToConsole true to not write "Print" statements in the
+   *                               agent code to the server console
+   */
+  void runOnServer(boolean suppressPrintToConsole);
+
+  /**
+   * Runs the agent on the server
+   *
+   * @param noteIdParamDoc         note id of parameter document
+   * @param suppressPrintToConsole true to not write "Print" statements in the
+   *                               agent code to the server console
+   */
+  void runOnServer(int noteIdParamDoc, boolean suppressPrintToConsole);
 }

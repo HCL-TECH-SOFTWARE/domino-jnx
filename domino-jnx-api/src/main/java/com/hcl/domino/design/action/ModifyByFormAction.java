@@ -24,6 +24,7 @@ import java.util.Map;
  * @since 1.0.24
  */
 public interface ModifyByFormAction extends SimpleAction {
-	String getFormName();
-	Map<String, List<String>> getModifications();
+  String getFormName();
+
+  Map<String, List<String>> getModifications();
 }

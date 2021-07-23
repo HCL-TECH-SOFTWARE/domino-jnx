@@ -25,67 +25,67 @@ import com.hcl.domino.mq.MessageQueue;
 /**
  * This base class can be extended to implement a server addin compatible
  * with {@code runjava}.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.11
  */
 public abstract class RunJavaAddin extends JNXThread {
-	
-	private final String addinName;
-	private final String queueName;
-	
-	/**
-	 * Initializes the addin with the provided name, which is also
-	 * used as the message-queue name.
-	 * 
-	 * @param addinName the name of the addin to show in the task list
-	 */
-	public RunJavaAddin(String addinName) {
-		this(addinName, addinName);
-	}
-	
-	/**
-	 * Initializes the addin with the provided name and message-queue name
-	 * 
-	 * @param addinName the name of the addin to show in the task list
-	 * @param queueName the name of the queue to create
-	 */
-	public RunJavaAddin(String addinName, String queueName) {
-		if(addinName == null || addinName.isEmpty()) {
-			throw new IllegalArgumentException("addinName cannot be empty");
-		}
-		if(queueName == null || queueName.isEmpty()) {
-			throw new IllegalArgumentException("queueName cannot be empty");
-		}
-		
-		this.addinName = addinName;
-		this.queueName = queueName;
-	}
-	
-	@Override
-	protected final void doRun() {
-		DominoProcess.get().initializeProcess(new String[0]);
-		try {
-			try(DominoClient client = DominoClientBuilder.newDominoClient().build()) {
-				try(ServerStatusLine line = client.getServerAdmin().createServerStatusLine(this.addinName)) {
-					line.setLine("Running");
-					try(MessageQueue queue = client.getMessageQueues().createAndOpen("MQ$" + this.queueName.toUpperCase(), 0)) { //$NON-NLS-1$
-						runAddin(client, line, queue);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		} finally {
-			DominoProcess.get().terminateProcess();
-		}
-		
-	}
-	
-	protected abstract void runAddin(DominoClient client, ServerStatusLine statusLine, MessageQueue queue);
-	
-	public void stopAddin() {
-		
-	}
+
+  private final String addinName;
+  private final String queueName;
+
+  /**
+   * Initializes the addin with the provided name, which is also
+   * used as the message-queue name.
+   *
+   * @param addinName the name of the addin to show in the task list
+   */
+  public RunJavaAddin(final String addinName) {
+    this(addinName, addinName);
+  }
+
+  /**
+   * Initializes the addin with the provided name and message-queue name
+   *
+   * @param addinName the name of the addin to show in the task list
+   * @param queueName the name of the queue to create
+   */
+  public RunJavaAddin(final String addinName, final String queueName) {
+    if (addinName == null || addinName.isEmpty()) {
+      throw new IllegalArgumentException("addinName cannot be empty");
+    }
+    if (queueName == null || queueName.isEmpty()) {
+      throw new IllegalArgumentException("queueName cannot be empty");
+    }
+
+    this.addinName = addinName;
+    this.queueName = queueName;
+  }
+
+  @Override
+  protected final void doRun() {
+    DominoProcess.get().initializeProcess(new String[0]);
+    try {
+      try (DominoClient client = DominoClientBuilder.newDominoClient().build()) {
+        try (ServerStatusLine line = client.getServerAdmin().createServerStatusLine(this.addinName)) {
+          line.setLine("Running");
+          try (MessageQueue queue = client.getMessageQueues().createAndOpen("MQ$" + this.queueName.toUpperCase(), 0)) { //$NON-NLS-1$
+            this.runAddin(client, line, queue);
+          } catch (final Exception e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    } finally {
+      DominoProcess.get().terminateProcess();
+    }
+
+  }
+
+  protected abstract void runAddin(DominoClient client, ServerStatusLine statusLine, MessageQueue queue);
+
+  public void stopAddin() {
+
+  }
 
 }

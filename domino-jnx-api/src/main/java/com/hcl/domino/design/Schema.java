@@ -17,10 +17,9 @@
 package com.hcl.domino.design;
 
 /**
- * 
  * Schema elements of a domino database
- * @author t.b.d
  *
+ * @author t.b.d
  */
 public interface Schema {
 

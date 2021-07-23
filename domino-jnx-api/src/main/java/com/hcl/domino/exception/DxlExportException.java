@@ -20,33 +20,33 @@ import com.hcl.domino.dxl.DxlExporterLog;
 
 /**
  * Represents an error log from a failed DXL export.
- * 
+ *
  * @author Jesse Gallagher
  */
 public class DxlExportException extends RuntimeException {
-	private static final long serialVersionUID = 1L;
-	
-	private final int errorId;
-	private final DxlExporterLog log;
+  private static final long serialVersionUID = 1L;
 
-	public DxlExportException(String message, int errorId, DxlExporterLog log) {
-		super(message);
-		this.errorId = errorId;
-		this.log = log;
-	}
-	
-	/**
-	 * @return the ID of the encountered DXL export error 
-	 */
-	public int getErrorId() {
-		return errorId;
-	}
+  private final int errorId;
+  private final DxlExporterLog log;
 
-	/**
-	 * @return the full log from the export operation
-	 * @since 1.0.24
-	 */
-	public DxlExporterLog getLog() {
-		return log;
-	}
+  public DxlExportException(final String message, final int errorId, final DxlExporterLog log) {
+    super(message);
+    this.errorId = errorId;
+    this.log = log;
+  }
+
+  /**
+   * @return the ID of the encountered DXL export error
+   */
+  public int getErrorId() {
+    return this.errorId;
+  }
+
+  /**
+   * @return the full log from the export operation
+   * @since 1.0.24
+   */
+  public DxlExporterLog getLog() {
+    return this.log;
+  }
 }

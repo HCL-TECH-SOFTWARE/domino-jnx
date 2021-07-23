@@ -21,28 +21,25 @@ package org.apache.commons.mail;
  * attachments.
  *
  * @since 1.0
-*/
-public class SimpleEmail extends Email
-{
-    /**
-     * Set the content of the mail.
-     *
-     * @param msg A String.
-     * @return An Email.
-     * @throws EmailException see jakarta.mail.internet.MimeBodyPart
-     *  for definitions
-     * @since 1.0
-     */
-    @SuppressWarnings("nls")
-	@Override
-    public Email setMsg(final String msg) throws EmailException
-    {
-        if (EmailUtils.isEmpty(msg))
-        {
-            throw new EmailException("Invalid message supplied");
-        }
-
-        setContent(msg, EmailConstants.TEXT_PLAIN);
-        return this;
+ */
+public class SimpleEmail extends Email {
+  /**
+   * Set the content of the mail.
+   *
+   * @param msg A String.
+   * @return An Email.
+   * @throws EmailException see jakarta.mail.internet.MimeBodyPart
+   *                        for definitions
+   * @since 1.0
+   */
+  @SuppressWarnings("nls")
+  @Override
+  public Email setMsg(final String msg) throws EmailException {
+    if (EmailUtils.isEmpty(msg)) {
+      throw new EmailException("Invalid message supplied");
     }
+
+    this.setContent(msg, EmailConstants.TEXT_PLAIN);
+    return this;
+  }
 }

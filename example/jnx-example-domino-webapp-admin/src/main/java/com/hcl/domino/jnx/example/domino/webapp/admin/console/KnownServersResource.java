@@ -27,12 +27,10 @@ import javax.ws.rs.core.MediaType;
 import com.hcl.domino.jnx.example.domino.webapp.admin.RestEasyServlet;
 
 @Path("knownServers")
-public class KnownServersResource {	
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<String> getServers() throws InterruptedException, ExecutionException {
-		return RestEasyServlet.instance.executor.submit(() ->
-			RestEasyServlet.instance.dominoClient.getKnownServers(null)
-		).get();
-	}
+public class KnownServersResource {
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Collection<String> getServers() throws InterruptedException, ExecutionException {
+    return RestEasyServlet.instance.executor.submit(() -> RestEasyServlet.instance.dominoClient.getKnownServers(null)).get();
+  }
 }

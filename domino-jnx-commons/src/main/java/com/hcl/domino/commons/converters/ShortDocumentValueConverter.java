@@ -19,27 +19,31 @@ package com.hcl.domino.commons.converters;
 import com.hcl.domino.data.DocumentValueConverter;
 
 /**
- * {@link DocumentValueConverter} implementation that supports converting boolean values
+ * {@link DocumentValueConverter} implementation that supports converting
+ * boolean values
  * to and from 0d and 1d.
- * 
+ *
  * @author Jesse Gallagher
  */
 public class ShortDocumentValueConverter extends AbstractPrimitiveDocumentValueConverter<Short> {
-	
-	@Override
-	protected Class<Short> getBoxedClass() {
-		return Short.class;
-	}
-	@Override
-	protected Class<?> getPrimitiveClass() {
-		return short.class;
-	}
-	@Override
-	protected Short convertFromDouble(double value) {
-		return (short)value;
-	}
-	@Override
-	protected double convertToDouble(Short value) {
-		return value;
-	}
+
+  @Override
+  protected Short convertFromDouble(final double value) {
+    return (short) value;
+  }
+
+  @Override
+  protected double convertToDouble(final Short value) {
+    return value;
+  }
+
+  @Override
+  protected Class<Short> getBoxedClass() {
+    return Short.class;
+  }
+
+  @Override
+  protected Class<?> getPrimitiveClass() {
+    return short.class;
+  }
 }

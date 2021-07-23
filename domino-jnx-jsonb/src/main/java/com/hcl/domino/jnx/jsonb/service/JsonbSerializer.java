@@ -25,29 +25,26 @@ import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
 
 public class JsonbSerializer extends AbstractJsonSerializer {
-	@Override
-	public Object toJson(Document doc) {
-		Jsonb jsonb = JsonbBuilder.newBuilder()
-			.withConfig(
-				new JsonbConfig()
-					.withSerializers(
-						DocumentJsonbSerializer.newBuilder()
-							.excludeItems(skippedItemNames)
-							.excludeTypes(excludedTypes)
-							.includeItems(includedItemNames)
-							.includeMetadata(includeMetadata)
-							.lowercaseProperties(lowercaseProperties)
-							.booleanItemNames(booleanItemNames)
-							.booleanTrueValues(booleanTrueValues)
-							.dateRangeFormat(dateRangeFormat)
-							.richTextHtmlOptions(htmlConvertOptions)
-							.customProcessors(customProcessors)
-							.build()
-					)
-			).build();
-		return jsonb.toJson(doc);
-	}
-
-	
+  @Override
+  public Object toJson(final Document doc) {
+    final Jsonb jsonb = JsonbBuilder.newBuilder()
+        .withConfig(
+            new JsonbConfig()
+                .withSerializers(
+                    DocumentJsonbSerializer.newBuilder()
+                        .excludeItems(this.skippedItemNames)
+                        .excludeTypes(this.excludedTypes)
+                        .includeItems(this.includedItemNames)
+                        .includeMetadata(this.includeMetadata)
+                        .lowercaseProperties(this.lowercaseProperties)
+                        .booleanItemNames(this.booleanItemNames)
+                        .booleanTrueValues(this.booleanTrueValues)
+                        .dateRangeFormat(this.dateRangeFormat)
+                        .richTextHtmlOptions(this.htmlConvertOptions)
+                        .customProcessors(this.customProcessors)
+                        .build()))
+        .build();
+    return jsonb.toJson(doc);
+  }
 
 }

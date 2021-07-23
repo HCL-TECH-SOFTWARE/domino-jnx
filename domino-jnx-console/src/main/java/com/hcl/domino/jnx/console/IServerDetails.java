@@ -22,26 +22,26 @@ package com.hcl.domino.jnx.console;
  */
 public interface IServerDetails {
 
-	boolean isAdminServer();
+  String getClusterName();
 
-	boolean isDb2Server();
+  String getDomain();
 
-	String getHostName();
+  String getHostName();
 
-	String getIpAddress();
+  String getIpAddress();
 
-	String getClusterName();
+  String getOSName();
 
-	String getDomain();
+  int getPort();
 
-	String getServerName();
+  String getServerName();
 
-	String getOSName();
+  String getServerTitle();
 
-	int getPort();
+  String getServerVersion();
 
-	String getServerTitle();
+  boolean isAdminServer();
 
-	String getServerVersion();
+  boolean isDb2Server();
 
 }

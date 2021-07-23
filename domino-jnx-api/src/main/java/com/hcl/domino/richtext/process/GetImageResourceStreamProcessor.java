@@ -27,38 +27,39 @@ import com.hcl.domino.richtext.records.CDImageSegment;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
 /**
- * Extracts the contents of a image-resource CD item (e.g. {@code $ImageData}) as an
+ * Extracts the contents of a image-resource CD item (e.g. {@code $ImageData})
+ * as an
  * {@link InputStream}.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.24
  */
 public class GetImageResourceStreamProcessor implements IRichTextProcessor<InputStream> {
-	public static final GetImageResourceStreamProcessor instance = new GetImageResourceStreamProcessor();
-	
-	@Override
-	public InputStream apply(List<RichTextRecord<?>> t) {
-		// TODO don't pre-read all data
-		// TODO probably validate the CD stream
+  public static final GetImageResourceStreamProcessor instance = new GetImageResourceStreamProcessor();
 
-		byte[] data;
-		try(ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-			t.stream()
-				.filter(CDImageSegment.class::isInstance)
-				.map(CDImageSegment.class::cast)
-				.forEach(record -> {
-					try {
-						os.write(record.getImageSegmentData());
-					} catch (IOException e) {
-						throw new UncheckedIOException(e);
-					}
-				});
-			data = os.toByteArray();
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
-		
-		return new ByteArrayInputStream(data);
-	}
+  @Override
+  public InputStream apply(final List<RichTextRecord<?>> t) {
+    // TODO don't pre-read all data
+    // TODO probably validate the CD stream
+
+    byte[] data;
+    try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
+      t.stream()
+          .filter(CDImageSegment.class::isInstance)
+          .map(CDImageSegment.class::cast)
+          .forEach(record -> {
+            try {
+              os.write(record.getImageSegmentData());
+            } catch (final IOException e) {
+              throw new UncheckedIOException(e);
+            }
+          });
+      data = os.toByteArray();
+    } catch (final IOException e) {
+      throw new UncheckedIOException(e);
+    }
+
+    return new ByteArrayInputStream(data);
+  }
 
 }

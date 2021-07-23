@@ -18,7 +18,7 @@ package com.hcl.domino.design;
 
 /**
  * Represents a Folder design element.
- * 
+ *
  * @author Jesse Gallagher
  */
 public interface Folder extends CollectionDesignElement {

@@ -23,37 +23,43 @@ import java.util.List;
  */
 public interface DbDirectory {
 
-	/**
-	 * Returns the content of the server directory at the top-level.
-	 * 
-	 * @param server server name, either abbreviated, canonical or common name
-	 * @return found file entries (either {@link FolderData} or {@link DatabaseData} instances)
-	 */
-	List<DirEntry> listFiles(String server);
-	
-	/**
-	 * Returns the content of a single directory on a Domino server
-	 * 
-	 * @param server server name, either abbreviated, canonical or common name
-	 * @param directory directory name or empty string for top-level directory
-	 * @return found file entries (either {@link FolderData} or {@link DatabaseData} instances)
-	 */
-	List<DirEntry> listFiles(String server, String directory);
-	
-	/**
-	 * Returns the content of a server directory, filtered via formula
-	 * 
-	 * @param server server to scan
-	 * @param directory directory name or empty string for top level directory
-	 * @param formula optional search formula to filter the returned entries, see {@link DirEntry#getProperties()} for available fields, e.g. $path="mydb.nsf" or @Word($info;@char(10);2)="db category name"
-	 * @return search result
-	 */
-	List<DirEntry> listFiles(String server, String directory, String formula);
-	
-	/**
-	 * With this method you can create a more advanced query for files on any Domino server
-	 * 
-	 * @return		query object to refine and perform the search
-	 */
-	DirectorySearchQuery query();
+  /**
+   * Returns the content of the server directory at the top-level.
+   *
+   * @param server server name, either abbreviated, canonical or common name
+   * @return found file entries (either {@link FolderData} or {@link DatabaseData}
+   *         instances)
+   */
+  List<DirEntry> listFiles(String server);
+
+  /**
+   * Returns the content of a single directory on a Domino server
+   *
+   * @param server    server name, either abbreviated, canonical or common name
+   * @param directory directory name or empty string for top-level directory
+   * @return found file entries (either {@link FolderData} or {@link DatabaseData}
+   *         instances)
+   */
+  List<DirEntry> listFiles(String server, String directory);
+
+  /**
+   * Returns the content of a server directory, filtered via formula
+   *
+   * @param server    server to scan
+   * @param directory directory name or empty string for top level directory
+   * @param formula   optional search formula to filter the returned entries, see
+   *                  {@link DirEntry#getProperties()} for available fields, e.g.
+   *                  $path="mydb.nsf" or @Word($info;@char(10);2)="db category
+   *                  name"
+   * @return search result
+   */
+  List<DirEntry> listFiles(String server, String directory, String formula);
+
+  /**
+   * With this method you can create a more advanced query for files on any Domino
+   * server
+   *
+   * @return query object to refine and perform the search
+   */
+  DirectorySearchQuery query();
 }

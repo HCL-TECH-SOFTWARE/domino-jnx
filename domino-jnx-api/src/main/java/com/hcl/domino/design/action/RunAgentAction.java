@@ -21,5 +21,5 @@ package com.hcl.domino.design.action;
  * @since 1.0.24
  */
 public interface RunAgentAction extends SimpleAction {
-	String getAgentName();
+  String getAgentName();
 }

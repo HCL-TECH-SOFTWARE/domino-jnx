@@ -35,43 +35,43 @@ import jakarta.security.enterprise.identitystore.IdentityStore;
 @ApplicationScoped
 public class NotesDirectoryIdentityStore implements IdentityStore {
 
-	@Override
-	public int priority() {
-		return 70;
-	}
+  @Override
+  public Set<String> getCallerGroups(final CredentialValidationResult validationResult) {
+    final String dn = validationResult.getCallerDn();
+    return this.getGroups(dn);
+  }
 
-	@Override
-	public Set<ValidationType> validationTypes() {
-		return DEFAULT_VALIDATION_TYPES;
-	}
+  private Set<String> getGroups(final String dn) {
+    try (DominoClient client = DominoClientBuilder.newDominoClient().asUser(dn).build()) {
+      // TODO filter out non-glob names
+      return new LinkedHashSet<>(client.getEffectiveUserNamesList(null).toList());
+    }
+  }
 
-	@Override
-	public CredentialValidationResult validate(Credential credential) {
-		return IdentityStore.super.validate(credential);
-	}
+  @Override
+  public int priority() {
+    return 70;
+  }
 
-	public CredentialValidationResult validate(UsernamePasswordCredential credential) {
-		try (DominoClient client = DominoClientBuilder.newDominoClient().build()) {
-			String dn = client.validateCredentials(null, credential.getCaller(), credential.getPasswordAsString());
-			return new CredentialValidationResult(null, dn, dn, dn, getGroups(dn));
-		} catch (NameNotFoundException e) {
-			return CredentialValidationResult.NOT_VALIDATED_RESULT;
-		} catch (AuthenticationException | AuthenticationNotSupportedException e) {
-			return CredentialValidationResult.INVALID_RESULT;
-		}
-	}
+  @Override
+  public CredentialValidationResult validate(final Credential credential) {
+    return IdentityStore.super.validate(credential);
+  }
 
-	@Override
-	public Set<String> getCallerGroups(CredentialValidationResult validationResult) {
-		String dn = validationResult.getCallerDn();
-		return getGroups(dn);
-	}
+  public CredentialValidationResult validate(final UsernamePasswordCredential credential) {
+    try (DominoClient client = DominoClientBuilder.newDominoClient().build()) {
+      final String dn = client.validateCredentials(null, credential.getCaller(), credential.getPasswordAsString());
+      return new CredentialValidationResult(null, dn, dn, dn, this.getGroups(dn));
+    } catch (final NameNotFoundException e) {
+      return CredentialValidationResult.NOT_VALIDATED_RESULT;
+    } catch (AuthenticationException | AuthenticationNotSupportedException e) {
+      return CredentialValidationResult.INVALID_RESULT;
+    }
+  }
 
-	private Set<String> getGroups(String dn) {
-		try (DominoClient client = DominoClientBuilder.newDominoClient().asUser(dn).build()) {
-			// TODO filter out non-glob names
-			return new LinkedHashSet<>(client.getEffectiveUserNamesList(null).toList());
-		}
-	}
+  @Override
+  public Set<ValidationType> validationTypes() {
+    return IdentityStore.DEFAULT_VALIDATION_TYPES;
+  }
 
 }

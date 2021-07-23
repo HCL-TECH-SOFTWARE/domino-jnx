@@ -19,27 +19,28 @@ package com.hcl.domino.exception;
 import com.hcl.domino.DominoException;
 
 /**
- * Represents error code 0x246, "You are not authorized to perform that operation"
- * 
+ * Represents error code 0x246, "You are not authorized to perform that
+ * operation"
+ *
  * @author Jesse Gallagher
  */
 public class NotAuthorizedException extends DominoException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public NotAuthorizedException(int id, String message) {
-		super(id, message);
-	}
+  public NotAuthorizedException(final int id, final String message) {
+    super(id, message);
+  }
 
-	public NotAuthorizedException(int id, String message, Throwable cause) {
-		super(id, message, cause);
-	}
+  public NotAuthorizedException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
+  }
 
-	public NotAuthorizedException(String msg) {
-		super(msg);
-	}
+  public NotAuthorizedException(final String msg) {
+    super(msg);
+  }
 
-	public NotAuthorizedException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public NotAuthorizedException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
 
 }

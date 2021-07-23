@@ -23,89 +23,90 @@ import com.hcl.domino.data.IAdaptable;
 
 /**
  * Interface to be used for data to be passed to calendar actions.
- * 
+ *
  * @author Tammo Riedinger
  */
 public interface CalendarActionData extends IAdaptable {
 
-	String getDelegateTo();
+  List<String> getAddNamesFYI();
 
-	/**
-	 * Sets the name of the delegated user if {@link CalendarProcess#DELEGATE} is used
-	 * 
-	 * @param delegateTo name either in abbreviated or canonical format
-	 * @return the modified instance
-	 */
-	CalendarActionData withDelegateTo(String delegateTo);
+  List<String> getAddNamesOptional();
 
-	Temporal getChangeToStart();
+  List<String> getAddNamesRequired();
 
-	/**
-	 * Sets the new start time for {@link CalendarProcess#COUNTER}
-	 * 
-	 * @param changeToStart new start time
-	 * @return the modified instance
-	 */
-	CalendarActionData withChangeToStart(Temporal changeToStart);
+  Temporal getChangeToEnd();
 
-	Temporal getChangeToEnd();
+  Temporal getChangeToStart();
 
-	/**
-	 * Sets the new end time for {@link CalendarProcess#COUNTER}
-	 * 
-	 * @param changeToEnd new end time
-	 * @return the modified instance
-	 */
-	CalendarActionData withChangeToEnd(Temporal changeToEnd);
+  String getDelegateTo();
 
-	boolean isKeepInformed();
+  List<String> getRemoveNames();
 
-	/**
-	 * Sets whether the users wants to be kept informed, e.g. when cancelling
-	 * an invivation via {@link CalendarProcess#CANCEL}
-	 * 
-	 * @param keepInformed true to be kept informed
-	 * @return the modified instance
-	 */
-	CalendarActionData withKeepInformed(boolean keepInformed);
+  boolean isKeepInformed();
 
-	List<String> getAddNamesRequired();
+  /**
+   * Sets a new list of FYI attendees
+   *
+   * @param addNamesFYI attendees, either in canonical or abbreviated format
+   * @return the modified instance
+   */
+  CalendarActionData withAddNamesFYI(String... addNamesFYI);
 
-	/**
-	 * Sets a new list of required attendees
-	 * 
-	 * @param addNamesReq attendees, either in canonical or abbreviated format
-	 * @return the modified instance
-	 */
-	CalendarActionData withAddNamesRequired(String... addNamesReq);
+  /**
+   * Sets a new list of optional attendees
+   *
+   * @param addNamesOpt attendees, either in canonical or abbreviated format
+   * @return the modified instance
+   */
+  CalendarActionData withAddNamesOptional(String... addNamesOpt);
 
-	List<String> getAddNamesOptional();
-	
-	/**
-	 * Sets a new list of optional attendees
-	 * 
-	 * @param addNamesOpt attendees, either in canonical or abbreviated format
-	 * @return the modified instance
-	 */
-	CalendarActionData withAddNamesOptional(String... addNamesOpt);
+  /**
+   * Sets a new list of required attendees
+   *
+   * @param addNamesReq attendees, either in canonical or abbreviated format
+   * @return the modified instance
+   */
+  CalendarActionData withAddNamesRequired(String... addNamesReq);
 
-	List<String> getAddNamesFYI();
+  /**
+   * Sets the new end time for {@link CalendarProcess#COUNTER}
+   *
+   * @param changeToEnd new end time
+   * @return the modified instance
+   */
+  CalendarActionData withChangeToEnd(Temporal changeToEnd);
 
-	/**
-	 * Sets a new list of FYI attendees
-	 * 
-	 * @param addNamesFYI attendees, either in canonical or abbreviated format
-	 * @return the modified instance
-	 */
-	CalendarActionData withAddNamesFYI(String... addNamesFYI);
+  /**
+   * Sets the new start time for {@link CalendarProcess#COUNTER}
+   *
+   * @param changeToStart new start time
+   * @return the modified instance
+   */
+  CalendarActionData withChangeToStart(Temporal changeToStart);
 
-	List<String> getRemoveNames();
+  /**
+   * Sets the name of the delegated user if {@link CalendarProcess#DELEGATE} is
+   * used
+   *
+   * @param delegateTo name either in abbreviated or canonical format
+   * @return the modified instance
+   */
+  CalendarActionData withDelegateTo(String delegateTo);
 
-	/**
-	 * Sets a new list of attendees to be removed
-	 * 
-	 * @param removeNames attendees, either in canonical or abbreviated format
-	 * @return the modified instance
-	 */
-	CalendarActionData withRemoveNames(String... removeNames);
+  /**
+   * Sets whether the users wants to be kept informed, e.g. when cancelling
+   * an invivation via {@link CalendarProcess#CANCEL}
+   *
+   * @param keepInformed true to be kept informed
+   * @return the modified instance
+   */
+  CalendarActionData withKeepInformed(boolean keepInformed);
+
+  /**
+   * Sets a new list of attendees to be removed
+   *
+   * @param removeNames attendees, either in canonical or abbreviated format
+   * @return the modified instance
+   */
+  CalendarActionData withRemoveNames(String... removeNames);
 }

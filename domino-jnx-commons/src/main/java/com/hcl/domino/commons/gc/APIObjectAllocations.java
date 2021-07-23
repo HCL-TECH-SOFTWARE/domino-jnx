@@ -24,104 +24,109 @@ import java.text.MessageFormat;
 import com.hcl.domino.exception.ObjectDisposedException;
 
 /**
- * Base class to collect all C API handles allocated by an {@link IAPIObject}.<br>
+ * Base class to collect all C API handles allocated by an
+ * {@link IAPIObject}.<br>
  * <br>
- * We decouple the C API handles from the actual API object that application code
+ * We decouple the C API handles from the actual API object that application
+ * code
  * uses to keep this information even if API objects get garbage collected by
  * Java.<br>
  * <br>
- * {@link APIObjectAllocations} are hashed in a parent/child in {@link CAPIGarbageCollector}
+ * {@link APIObjectAllocations} are hashed in a parent/child in
+ * {@link CAPIGarbageCollector}
  * and disposed when their linked {@link IAPIObject} is not referenced anymore.
- * 
- * @author Karsten Lehmann
  *
+ * @author Karsten Lehmann
  * @param <T> API object type
  */
 @SuppressWarnings("rawtypes")
 public abstract class APIObjectAllocations<T extends IAPIObject> extends PhantomReference<IAPIObject> {
-	private IGCDominoClient m_parentDominoClient;
-	private APIObjectAllocations m_parentAllocations;
-	private Thread m_ownerThread;
-	private WeakReference<T> m_apiObjectRef;
-	
-	/**
-	 * Creates a new instance
-	 * 
-	 * @param parentDominoClient parent Domino client
-	 * @param parentAllocations parent {@link APIObjectAllocations} used to dispose a whole tree structure
-	 * @param referent linked API object
-	 * @param queue reference queue from {@link CAPIGarbageCollector#getReferenceQueueForClient(IGCDominoClient)}
-	 */
-	public APIObjectAllocations(IGCDominoClient parentDominoClient, APIObjectAllocations parentAllocations,
-			T referent, ReferenceQueue<? super IAPIObject> queue) {
-		
-		super(referent, queue);
-		
-		m_parentDominoClient = parentDominoClient;
-		m_parentAllocations = parentAllocations;
-		m_ownerThread = Thread.currentThread();
-		m_apiObjectRef = new WeakReference<>(referent);
-	}
+  private final IGCDominoClient m_parentDominoClient;
+  private final APIObjectAllocations m_parentAllocations;
+  private final Thread m_ownerThread;
+  private final WeakReference<T> m_apiObjectRef;
 
-	/**
-	 * Returns the parent Domino Client that this allocations object
-	 * belongs to. When the Domino Client gets disposed, all assigned
-	 * {@link APIObjectAllocations} objects get disposed as well.
-	 * 
-	 * @return parent Domino client
-	 */
-	public IGCDominoClient getParentDominoClient() {
-		return m_parentDominoClient;
-	}
-	
-	/**
-	 * Returns the parent allocations object
-	 * 
-	 * @return parent allocations
-	 */
-	public APIObjectAllocations getParentAllocations() {
-		return m_parentAllocations;
-	}
-	
-	/**
-	 * Returns a {@link WeakReference} to the API object. This
-	 * method only returns a value as long as the API object
-	 * exists (has not been garbage collected)
-	 * 
-	 * @return API object or null
-	 */
-	public T getWeaklyReferencedAPIObject() {
-		return m_apiObjectRef.get();
-	}
-	
-	/**
-	 * Throws a {@link ObjectDisposedException} when the allocations already
-	 * have been disposed
-	 */
-	public void checkDisposed() {
-		if (!m_parentDominoClient.isAllowCrossThreadAccess()) {
-			//by default don't allow API object access across thread for safety reasons
-			Thread currentThread = Thread.currentThread();
-			if (m_ownerThread != currentThread) {
-				throw new IllegalStateException(MessageFormat.format("API object has been created in thread {0} and cannot be called from thread {1}.", m_ownerThread, currentThread));
-			}
-		}
-		
-		if (isDisposed()) {
-			throw new ObjectDisposedException(this);
-		}
-	}
-	
-	/**
-	 * Method to check if the allocations have been disposed
-	 * 
-	 * @return true if disposed
-	 */
-	public abstract boolean isDisposed();
-	
-	/**
-	 * Disposes the allocations. Does nothing if they are already disposed
-	 */
-	public abstract void dispose();
-	
+  /**
+   * Creates a new instance
+   * 
+   * @param parentDominoClient parent Domino client
+   * @param parentAllocations  parent {@link APIObjectAllocations} used to dispose
+   *                           a whole tree structure
+   * @param referent           linked API object
+   * @param queue              reference queue from
+   *                           {@link CAPIGarbageCollector#getReferenceQueueForClient(IGCDominoClient)}
+   */
+  public APIObjectAllocations(final IGCDominoClient parentDominoClient, final APIObjectAllocations parentAllocations,
+      final T referent, final ReferenceQueue<? super IAPIObject> queue) {
+
+    super(referent, queue);
+
+    this.m_parentDominoClient = parentDominoClient;
+    this.m_parentAllocations = parentAllocations;
+    this.m_ownerThread = Thread.currentThread();
+    this.m_apiObjectRef = new WeakReference<>(referent);
+  }
+
+  /**
+   * Throws a {@link ObjectDisposedException} when the allocations already
+   * have been disposed
+   */
+  public void checkDisposed() {
+    if (!this.m_parentDominoClient.isAllowCrossThreadAccess()) {
+      // by default don't allow API object access across thread for safety reasons
+      final Thread currentThread = Thread.currentThread();
+      if (this.m_ownerThread != currentThread) {
+        throw new IllegalStateException(MessageFormat.format(
+            "API object has been created in thread {0} and cannot be called from thread {1}.", this.m_ownerThread, currentThread));
+      }
+    }
+
+    if (this.isDisposed()) {
+      throw new ObjectDisposedException(this);
+    }
+  }
+
+  /**
+   * Disposes the allocations. Does nothing if they are already disposed
+   */
+  public abstract void dispose();
+
+  /**
+   * Returns the parent allocations object
+   * 
+   * @return parent allocations
+   */
+  public APIObjectAllocations getParentAllocations() {
+    return this.m_parentAllocations;
+  }
+
+  /**
+   * Returns the parent Domino Client that this allocations object
+   * belongs to. When the Domino Client gets disposed, all assigned
+   * {@link APIObjectAllocations} objects get disposed as well.
+   * 
+   * @return parent Domino client
+   */
+  public IGCDominoClient getParentDominoClient() {
+    return this.m_parentDominoClient;
+  }
+
+  /**
+   * Returns a {@link WeakReference} to the API object. This
+   * method only returns a value as long as the API object
+   * exists (has not been garbage collected)
+   * 
+   * @return API object or null
+   */
+  public T getWeaklyReferencedAPIObject() {
+    return this.m_apiObjectRef.get();
+  }
+
+  /**
+   * Method to check if the allocations have been disposed
+   * 
+   * @return true if disposed
+   */
+  public abstract boolean isDisposed();
+
 }

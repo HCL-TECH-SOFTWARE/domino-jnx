@@ -18,7 +18,7 @@ package com.hcl.domino.design;
 
 /**
  * Represents a File Resource design element.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.24
  */

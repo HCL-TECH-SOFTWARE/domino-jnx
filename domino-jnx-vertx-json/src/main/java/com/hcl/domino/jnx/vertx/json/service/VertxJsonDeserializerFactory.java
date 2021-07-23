@@ -25,9 +25,9 @@ import com.hcl.domino.json.JsonDeserializerFactory;
  */
 public class VertxJsonDeserializerFactory implements JsonDeserializerFactory {
 
-	@Override
-	public JsonDeserializer newDeserializer() {
-		return new VertxJsonDeserializer();
-	}
+  @Override
+  public JsonDeserializer newDeserializer() {
+    return new VertxJsonDeserializer();
+  }
 
 }

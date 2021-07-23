@@ -19,47 +19,53 @@ package com.hcl.domino.calendar;
 import java.util.Collection;
 
 /**
- * Flags that control behavior of the calendar APIs - Used when opening a document for calendar data.
- * 
- * Note: The values of these constants are the very same constants used by the C-API.
- * 
+ * Flags that control behavior of the calendar APIs - Used when opening a
+ * document for calendar data.
+ * Note: The values of these constants are the very same constants used by the
+ * C-API.
+ *
  * @author Karsten Lehmann
  */
 public enum CalendarDocumentOpen {
-	
-	/**
-	 * Used when getting a handle via CalOpenNoteHandle (Handy for read-only cases)<br>
-	 * When a specific instance of a recurring entry is requested, the underlying note may
-	 * represent multiple instances.<br>
-	 * <br>
-	 * Default behavior makes appropriate modifications so that the returned handle represents
-	 * a single instance (but this might cause notes to be created or modified as a side effect).<br>
-	 * <br>
-	 * Using {@link #HANDLE_NOSPLIT} will bypass any note creations or modifications and return a
-	 * note handle that may represent more than a single instance on the calendar.
-	 */
-	HANDLE_NOSPLIT(0x00000001);
-	
-	private int m_val;
-	
-	CalendarDocumentOpen(int val) {
-		m_val = val;
-	}
-	
-	public int getValue() {
-		return m_val;
-	}
-	
-	public static int toBitMask(Collection<CalendarDocumentOpen> findSet) {
-		int result = 0;
-		if (findSet!=null) {
-			for (CalendarDocumentOpen currFind : values()) {
-				if (findSet.contains(currFind)) {
-					result = result | currFind.getValue();
-				}
-			}
-		}
-		return result;
-	}
+
+  /**
+   * Used when getting a handle via CalOpenNoteHandle (Handy for read-only
+   * cases)<br>
+   * When a specific instance of a recurring entry is requested, the underlying
+   * note may
+   * represent multiple instances.<br>
+   * <br>
+   * Default behavior makes appropriate modifications so that the returned handle
+   * represents
+   * a single instance (but this might cause notes to be created or modified as a
+   * side effect).<br>
+   * <br>
+   * Using {@link #HANDLE_NOSPLIT} will bypass any note creations or modifications
+   * and return a
+   * note handle that may represent more than a single instance on the calendar.
+   */
+  HANDLE_NOSPLIT(0x00000001);
+
+  public static int toBitMask(final Collection<CalendarDocumentOpen> findSet) {
+    int result = 0;
+    if (findSet != null) {
+      for (final CalendarDocumentOpen currFind : CalendarDocumentOpen.values()) {
+        if (findSet.contains(currFind)) {
+          result = result | currFind.getValue();
+        }
+      }
+    }
+    return result;
+  }
+
+  private int m_val;
+
+  CalendarDocumentOpen(final int val) {
+    this.m_val = val;
+  }
+
+  public int getValue() {
+    return this.m_val;
+  }
 
 }

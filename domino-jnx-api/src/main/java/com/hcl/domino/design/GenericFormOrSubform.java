@@ -25,16 +25,16 @@ import com.hcl.domino.richtext.FormField;
  */
 public interface GenericFormOrSubform<T extends GenericFormOrSubform<T>> extends DesignElement.NamedDesignElement {
 
-    T addField();
+  T addField();
 
-    T removeField();
+  List<String> getExplicitSubformRecursive();
 
-    List<FormField> getFields();
+  List<FormField> getFields();
 
-    void swapFields(final int indexA, final int indexB);
+  List<SubformReference> getSubforms();
 
-    List<SubformReference> getSubforms();
+  T removeField();
 
-    List<String> getExplicitSubformRecursive();
-    
+  void swapFields(final int indexA, final int indexB);
+
 }

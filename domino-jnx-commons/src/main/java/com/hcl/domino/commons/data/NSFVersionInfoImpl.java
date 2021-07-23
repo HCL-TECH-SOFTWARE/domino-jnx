@@ -22,27 +22,27 @@ import com.hcl.domino.data.Database.NSFVersionInfo;
  * @since 1.0.19
  */
 public class NSFVersionInfoImpl implements NSFVersionInfo {
-	private int majorVersion;
-	private int minorVersion;
-	
-	public NSFVersionInfoImpl(int majorVersion, int minorVersion) {
-		this.majorVersion = majorVersion;
-		this.minorVersion = minorVersion;
-	}
-	
-	@Override
-	public int getMajorVersion() {
-		return this.majorVersion;
-	}
+  private final int majorVersion;
+  private final int minorVersion;
 
-	@Override
-	public int getMinorVersion() {
-		return this.minorVersion;
-	}
+  public NSFVersionInfoImpl(final int majorVersion, final int minorVersion) {
+    this.majorVersion = majorVersion;
+    this.minorVersion = minorVersion;
+  }
 
-	@Override
-	public String toString() {
-		return "NSFVersionInfoImpl [majorVersion=" + majorVersion + ", minorVersion=" + minorVersion + "]";
-	}
-	
+  @Override
+  public int getMajorVersion() {
+    return this.majorVersion;
+  }
+
+  @Override
+  public int getMinorVersion() {
+    return this.minorVersion;
+  }
+
+  @Override
+  public String toString() {
+    return "NSFVersionInfoImpl [majorVersion=" + this.majorVersion + ", minorVersion=" + this.minorVersion + "]";
+  }
+
 }

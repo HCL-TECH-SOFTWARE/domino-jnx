@@ -19,31 +19,32 @@ package com.hcl.domino.data;
 import java.text.MessageFormat;
 
 /**
- * Container for one FT search result entry, containing a note id and the search score (or 0 if
+ * Container for one FT search result entry, containing a note id and the search
+ * score (or 0 if
  * no scores have been collected).
- * 
+ *
  * @author Karsten Lehmann
  */
 public class NoteIdWithScore {
-	private int m_noteId;
-	private int m_score;
-	
-	public NoteIdWithScore(int noteId, int score) {
-		m_noteId = noteId;
-		m_score = score;
-	}
-	
-	public int getNoteId() {
-		return m_noteId;
-	}
-	
-	public int getScore() {
-		return m_score;
-	}
+  private final int m_noteId;
+  private final int m_score;
 
-	@Override
-	public String toString() {
-		return MessageFormat.format("NoteIdWithScore [noteId={0}, score={1}]", m_noteId, m_score); //$NON-NLS-1$
-	}
-	
+  public NoteIdWithScore(final int noteId, final int score) {
+    this.m_noteId = noteId;
+    this.m_score = score;
+  }
+
+  public int getNoteId() {
+    return this.m_noteId;
+  }
+
+  public int getScore() {
+    return this.m_score;
+  }
+
+  @Override
+  public String toString() {
+    return MessageFormat.format("NoteIdWithScore [noteId={0}, score={1}]", this.m_noteId, this.m_score); //$NON-NLS-1$
+  }
+
 }

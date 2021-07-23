@@ -42,751 +42,804 @@ import com.hcl.domino.richtext.structures.TFMT;
 import com.hcl.domino.richtext.structures.WSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="CDEXT2FIELD",
-	members={
-		@StructureMember(name="Header", type=WSIG.class),
-		@StructureMember(name="NumSymPref", type=NumberPref.class),
-		@StructureMember(name="NumSymFlags", type=byte.class, bitfield=true),
-		@StructureMember(name="DecimalSymLength", type=int.class, unsigned=true),
-		@StructureMember(name="MilliSepSymLength", type=int.class, unsigned=true),
-		@StructureMember(name="NegativeSymLength", type=int.class, unsigned=true),
-		@StructureMember(name="MilliGroupSize", type=short.class, unsigned=true),
-		@StructureMember(name="VerticalSpacing", type=short.class),
-		@StructureMember(name="HorizontalSpacing", type=short.class),
-		@StructureMember(name="Unused2", type=short.class),
-		@StructureMember(name="FirstFieldLimitType", type=short.class, unsigned=true),
-		@StructureMember(name="CurrencyPref", type=NumberPref.class),
-		@StructureMember(name="CurrencyType", type=CDExt2Field.CurrencyType.class),
-		@StructureMember(name="CurrencyFlags", type=CDExt2Field.CurrencyFlag.class, bitfield=true),
-		@StructureMember(name="CurrencySymLength", type=int.class, unsigned=true),
-		@StructureMember(name="ISOCountry", type=int.class, unsigned=true),
-		@StructureMember(name="ThumbnailImageWidth", type=short.class, unsigned=true),
-		@StructureMember(name="ThumbnailImageHeight", type=short.class, unsigned=true),
-		@StructureMember(name="wThumbnailImageFileNameLength", type=short.class, unsigned=true),
-		@StructureMember(name="wIMOnlineNameFormulaLen", type=short.class, unsigned=true),
-		@StructureMember(name="DTPref", type=NumberPref.class),
-		@StructureMember(name="DTFlags", type=DateTimeFlag.class, bitfield=true),
-		@StructureMember(name="DTFlags2", type=DateTimeFlag2.class, bitfield=true),
-		@StructureMember(name="DTDOWFmt", type=WeekFormat.class),
-		@StructureMember(name="DTYearFmt", type=YearFormat.class),
-		@StructureMember(name="DTMonthFmt", type=MonthFormat.class),
-		@StructureMember(name="DTDayFmt", type=DayFormat.class),
-		@StructureMember(name="DTDsep1Len", type=byte.class, unsigned=true),
-		@StructureMember(name="DTDsep2Len", type=byte.class, unsigned=true),
-		@StructureMember(name="DTDsep3Len", type=byte.class, unsigned=true),
-		@StructureMember(name="DTTsepLen", type=byte.class, unsigned=true),
-		@StructureMember(name="DTDShow", type=DateShowFormat.class),
-		@StructureMember(name="DTDSpecial", type=DateShowSpecial.class),
-		@StructureMember(name="DTTShow", type=TimeShowFormat.class),
-		@StructureMember(name="DTTZone", type=TFMT.ZoneFormat.class),
-		@StructureMember(name="Unused5", type=int.class),
-		@StructureMember(name="ECFlags", type=CDExt2Field.FormatFlag.class, bitfield=true),
-		@StructureMember(name="Unused612", type=byte.class),
-		@StructureMember(name="wCharacters", type=short.class, unsigned=true),
-		@StructureMember(name="wInputEnabledLen", type=short.class, unsigned=true),
-		@StructureMember(name="wIMGroupFormulaLen", type=short.class, unsigned=true)
-	}
-)
+@StructureDefinition(name = "CDEXT2FIELD", members = {
+    @StructureMember(name = "Header", type = WSIG.class),
+    @StructureMember(name = "NumSymPref", type = NumberPref.class),
+    @StructureMember(name = "NumSymFlags", type = byte.class, bitfield = true),
+    @StructureMember(name = "DecimalSymLength", type = int.class, unsigned = true),
+    @StructureMember(name = "MilliSepSymLength", type = int.class, unsigned = true),
+    @StructureMember(name = "NegativeSymLength", type = int.class, unsigned = true),
+    @StructureMember(name = "MilliGroupSize", type = short.class, unsigned = true),
+    @StructureMember(name = "VerticalSpacing", type = short.class),
+    @StructureMember(name = "HorizontalSpacing", type = short.class),
+    @StructureMember(name = "Unused2", type = short.class),
+    @StructureMember(name = "FirstFieldLimitType", type = short.class, unsigned = true),
+    @StructureMember(name = "CurrencyPref", type = NumberPref.class),
+    @StructureMember(name = "CurrencyType", type = CDExt2Field.CurrencyType.class),
+    @StructureMember(name = "CurrencyFlags", type = CDExt2Field.CurrencyFlag.class, bitfield = true),
+    @StructureMember(name = "CurrencySymLength", type = int.class, unsigned = true),
+    @StructureMember(name = "ISOCountry", type = int.class, unsigned = true),
+    @StructureMember(name = "ThumbnailImageWidth", type = short.class, unsigned = true),
+    @StructureMember(name = "ThumbnailImageHeight", type = short.class, unsigned = true),
+    @StructureMember(name = "wThumbnailImageFileNameLength", type = short.class, unsigned = true),
+    @StructureMember(name = "wIMOnlineNameFormulaLen", type = short.class, unsigned = true),
+    @StructureMember(name = "DTPref", type = NumberPref.class),
+    @StructureMember(name = "DTFlags", type = DateTimeFlag.class, bitfield = true),
+    @StructureMember(name = "DTFlags2", type = DateTimeFlag2.class, bitfield = true),
+    @StructureMember(name = "DTDOWFmt", type = WeekFormat.class),
+    @StructureMember(name = "DTYearFmt", type = YearFormat.class),
+    @StructureMember(name = "DTMonthFmt", type = MonthFormat.class),
+    @StructureMember(name = "DTDayFmt", type = DayFormat.class),
+    @StructureMember(name = "DTDsep1Len", type = byte.class, unsigned = true),
+    @StructureMember(name = "DTDsep2Len", type = byte.class, unsigned = true),
+    @StructureMember(name = "DTDsep3Len", type = byte.class, unsigned = true),
+    @StructureMember(name = "DTTsepLen", type = byte.class, unsigned = true),
+    @StructureMember(name = "DTDShow", type = DateShowFormat.class),
+    @StructureMember(name = "DTDSpecial", type = DateShowSpecial.class),
+    @StructureMember(name = "DTTShow", type = TimeShowFormat.class),
+    @StructureMember(name = "DTTZone", type = TFMT.ZoneFormat.class),
+    @StructureMember(name = "Unused5", type = int.class),
+    @StructureMember(name = "ECFlags", type = CDExt2Field.FormatFlag.class, bitfield = true),
+    @StructureMember(name = "Unused612", type = byte.class),
+    @StructureMember(name = "wCharacters", type = short.class, unsigned = true),
+    @StructureMember(name = "wInputEnabledLen", type = short.class, unsigned = true),
+    @StructureMember(name = "wIMGroupFormulaLen", type = short.class, unsigned = true)
+})
 public interface CDExt2Field extends RichTextRecord<WSIG> {
-	enum CurrencyType implements INumberEnum<Byte> {
-		COMMON(RichTextConstants.NCURFMT_COMMON),
-		CUSTOM(RichTextConstants.NCURFMT_CUSTOM),
-		;
-		private final byte value;
-		CurrencyType(byte value) { this.value = value; }
-		
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-		@Override
-		public Byte getValue() {
-			return value;
-		}
-	}
-	enum CurrencyFlag implements INumberEnum<Byte> {
-		SYMFOLLOWS((byte)RichTextConstants.NCURFMT_SYMFOLLOWS),
-		USESPACES((byte)RichTextConstants.NCURFMT_USESPACES),
-		ISOSYMUSED((byte)RichTextConstants.NCURFMT_ISOSYMUSED),
-		;
-		private final byte value;
-		CurrencyFlag(byte value) { this.value = value; }
-		
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-		@Override
-		public Byte getValue() {
-			return value;
-		}
-	}
-	enum FormatFlag implements INumberEnum<Byte> {
-		PROPORTIONAL((byte)RichTextConstants.EC_FLAG_WIDTH_PROPORTIONAL)
-		;
-		private final byte value;
-		FormatFlag(byte value) { this.value = value; }
-		
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-		@Override
-		public Byte getValue() {
-			return value;
-		}
-	}
-	
-	@StructureGetter("Header")
-	@Override
-	WSIG getHeader();
-	
-	@StructureGetter("NumSymPref")
-	NumberPref getNumberSymbolPreference();
-	@StructureSetter("NumSymPref")
-	CDExt2Field setNumberSymbolPreference(NumberPref pref);
-	
-	@StructureGetter("DecimalSymLength")
-	long getDecimalSymbolLength();
-	@StructureSetter("DecimalSymLength")
-	CDExt2Field setDecimalSymbolLength(long len);
-	
-	@StructureGetter("MilliSepSymLength")
-	long getMilliSeparatorLength();
-	@StructureSetter("MilliSepSymLength")
-	CDExt2Field setMilliSeparatorLength(long len);
-	
-	@StructureGetter("NegativeSymLength")
-	long getNegativeSymbolLength();
-	@StructureSetter("NegativeSymLength")
-	CDExt2Field setNegativeSymbolLength(long len);
-	
-	@StructureGetter("MilliGroupSize")
-	int getMilliGroupSize();
-	@StructureSetter("MilliGroupSize")
-	CDExt2Field setMilliGroupSize(int size);
-	
-	@StructureGetter("VerticalSpacing")
-	short getVerticalSpacing();
-	@StructureSetter("VerticalSpacing")
-	CDExt2Field setVerticalSpacing(short spacing);
-	
-	@StructureGetter("HorizontalSpacing")
-	short getHorizontalSpacing();
-	@StructureSetter("HorizontalSpacing")
-	CDExt2Field setHorizontalSpacing(short spacing);
-	
-	@StructureGetter("CurrencyPref")
-	NumberPref getCurrencyPreference();
-	@StructureSetter("CurrencyPref")
-	CDExt2Field setCurrencyPreference(NumberPref pref);
-	
-	@StructureGetter("CurrencyType")
-	CurrencyType getCurrencyType();
-	@StructureSetter("CurrencyType")
-	CDExt2Field setCurrencyType(CurrencyType type);
-	
-	@StructureGetter("CurrencyFlags")
-	Set<CurrencyFlag> getCurrencyFlags();
-	@StructureSetter("CurrencyFlags")
-	CDExt2Field setCurrencyFlags(Collection<CurrencyFlag> flags);
-	
-	@StructureGetter("CurrencySymLength")
-	long getCurrencySymbolLength();
-	@StructureSetter("CurrencySymLength")
-	CDExt2Field setCurrencySymbolLength(long len);
-	
-	@StructureGetter("ISOCountry")
-	long getISOCountry();
-	@StructureSetter("ISOCountry")
-	CDExt2Field setISOCountry(long countryCode);
-	
-	@StructureGetter("ThumbnailImageWidth")
-	int getThumbnailImageWidth();
-	@StructureSetter("ThumbnailImageWidth")
-	CDExt2Field setThumbnailImageWidth(int width);
-	
-	@StructureGetter("ThumbnailImageHeight")
-	int getThumbnailImageHeight();
-	@StructureSetter("ThumbnailImageHeight")
-	CDExt2Field setThumbnailImageHeight(int height);
-	
-	@StructureGetter("wThumbnailImageFileNameLength")
-	int getThumbnailImageFileNameLength();
-	@StructureSetter("wThumbnailImageFileNameLength")
-	CDExt2Field setThumbnailImageFileNameLength(int len);
-	
-	@StructureGetter("wIMOnlineNameFormulaLen")
-	int getIMOnlineNameFormulaLength();
-	@StructureSetter("wIMOnlineNameFormulaLen")
-	CDExt2Field setIMOnlineNameFormulaLength(int len);
-	
-	@StructureGetter("DTPref")
-	NumberPref getDateTimePreference();
-	@StructureSetter("DTPref")
-	CDExt2Field setDateTimePreference(NumberPref pref);
-	
-	@StructureGetter("DTFlags")
-	Set<DateTimeFlag> getDateTimeFlags();
-	@StructureSetter("DTFlags")
-	CDExt2Field setDateTimeFlags(Collection<DateTimeFlag> flags);
-	
-	@StructureGetter("DTFlags2")
-	Set<DateTimeFlag2> getDateTimeFlags2();
-	@StructureSetter("DTFlags2")
-	CDExt2Field setDateTimeFlags2(Collection<DateTimeFlag2> flags);
-	
-	@StructureGetter("DTDOWFmt")
-	WeekFormat getDayOfWeekFormat();
-	@StructureSetter("DTDOWFmt")
-	CDExt2Field setDayOfWeekFormat(WeekFormat format);
-	
-	@StructureGetter("DTYearFmt")
-	YearFormat getYearFormat();
-	@StructureSetter("DTYearFmt")
-	CDExt2Field setYearFormat(YearFormat format);
-	
-	@StructureGetter("DTMonthFmt")
-	MonthFormat getMonthFormat();
-	@StructureSetter("DTMonthFmt")
-	CDExt2Field setMonthFormat(MonthFormat format);
-	
-	@StructureGetter("DTDayFmt")
-	DayFormat getDayFormat();
-	@StructureSetter("DTDayFmt")
-	CDExt2Field setDayFormat(DayFormat format);
-	
-	@StructureGetter("DTDsep1Len")
-	short getDateSeparator1Length();
-	@StructureSetter("DTDsep1Len")
-	CDExt2Field setDateSeparator1Length(short len);
-	
-	@StructureGetter("DTDsep2Len")
-	short getDateSeparator2Length();
-	@StructureSetter("DTDsep2Len")
-	CDExt2Field setDateSeparator2Length(short len);
-	
-	@StructureGetter("DTDsep3Len")
-	short getDateSeparator3Length();
-	@StructureSetter("DTDsep3Len")
-	CDExt2Field setDateSeparator3Length(short len);
-	
-	@StructureGetter("DTTsepLen")
-	short getTimeSeparatorLength();
-	@StructureSetter("DTTsepLen")
-	CDExt2Field setTimeSeparatorLength(short len);
-	
-	@StructureGetter("DTDShow")
-	DateShowFormat getDateShowFormat();
-	@StructureSetter("DTDShow")
-	CDExt2Field setDateShowFormat(DateShowFormat format);
-	
-	@StructureGetter("DTDSpecial")
-	DateShowSpecial getDateShowSpecial();
-	@StructureSetter("DTDSpecial")
-	CDExt2Field setDateShowSpecial(DateShowSpecial format);
-	
-	@StructureGetter("DTTShow")
-	TimeShowFormat getTimeShowFormat();
-	@StructureSetter("DTTShow")
-	CDExt2Field setTimeShowFormat(TimeShowFormat format);
-	
-	@StructureGetter("DTTZone")
-	TFMT.ZoneFormat getTimeZoneFormat();
-	@StructureSetter("DTTZone")
-	CDExt2Field setTimeZoneFormat(TFMT.ZoneFormat format);
-	
-	@StructureGetter("ECFlags")
-	Set<FormatFlag> getFormatFlags();
-	@StructureSetter("ECFlags")
-	CDExt2Field setFormatFlags(Collection<FormatFlag> flags);
-	
-	@StructureGetter("wCharacters")
-	int getProportionalWidthCharacters();
-	@StructureSetter("wCharacters")
-	CDExt2Field setProportionalWidthCharacters(int characters);
-	
-	@StructureGetter("wInputEnabledLen")
-	int getInputEnabledFormulaLength();
-	@StructureSetter("wInputEnabledLen")
-	CDExt2Field setInputEnabledFormulaLength(int len);
-	
-	@StructureGetter("wIMGroupFormulaLen")
-	int getIMGroupFormulaLength();
-	@StructureSetter("wIMGroupFormulaLen")
-	CDExt2Field setIMGroupFormulaLength(int len);
-	
-	default String getDecimalSymbol() {
-		int len = (int)getDecimalSymbolLength();
-		if(len == 0) {
-			return ""; //$NON-NLS-1$
-		}
-		
-		ByteBuffer buf = getVariableData();
-		byte[] lmbcs = new byte[len];
-		buf.get(lmbcs);
-		return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
-	}
-	default CDExt2Field setDecimalSymbol(String symbol) {
-		int currentLen = (int)getDecimalSymbolLength();
-		ByteBuffer buf = getVariableData();
-		int postLen = buf.remaining() - currentLen;
+  enum CurrencyFlag implements INumberEnum<Byte> {
+    SYMFOLLOWS((byte) RichTextConstants.NCURFMT_SYMFOLLOWS),
+    USESPACES((byte) RichTextConstants.NCURFMT_USESPACES),
+    ISOSYMUSED((byte) RichTextConstants.NCURFMT_ISOSYMUSED),
+    ;
 
-		buf.position(currentLen);
-		byte[] postData = new byte[postLen];
-		buf.get(postData);
-		
-		byte[] lmbcs = symbol == null ? new byte[0] : symbol.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
-		setDecimalSymbolLength(lmbcs.length);
-		int newLen = lmbcs.length + postLen;
-		resizeVariableData(newLen);
-		buf = getVariableData();
-		buf.put(lmbcs);
-		buf.put(postData);
-		
-		return this;
-	}
+    private final byte value;
 
-	default String getMilliSeparator() {
-		int len = (int)getMilliSeparatorLength();
-		if(len == 0) {
-			return ""; //$NON-NLS-1$
-		}
-		
-		int preLen = (int)getDecimalSymbolLength();
-		
-		ByteBuffer buf = getVariableData();
-		buf.position(preLen);
-		byte[] lmbcs = new byte[len];
-		buf.get(lmbcs);
-		return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
-	}
-	default CDExt2Field setMilliSeparator(String sep) {
-		int preLen = (int)getDecimalSymbolLength();
-		int currentLen = (int)getMilliSeparatorLength();
-		ByteBuffer buf = getVariableData();
-		int postLen = buf.remaining() - currentLen - preLen;
+    CurrencyFlag(final byte value) {
+      this.value = value;
+    }
 
-		buf.position(preLen + currentLen);
-		byte[] postData = new byte[postLen];
-		buf.get(postData);
-		
-		byte[] lmbcs = sep == null ? new byte[0] : sep.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
-		setMilliSeparatorLength(lmbcs.length);
-		int newLen = preLen + lmbcs.length + postLen;
-		resizeVariableData(newLen);
-		buf = getVariableData();
-		buf.position(preLen);
-		buf.put(lmbcs);
-		buf.put(postData);
-		
-		return this;
-	}
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
 
-	default String getNegativeSymbol() {
-		int len = (int)getNegativeSymbolLength();
-		if(len == 0) {
-			return ""; //$NON-NLS-1$
-		}
-		
-		int preLen = (int)(getDecimalSymbolLength() + getMilliSeparatorLength());
-		
-		ByteBuffer buf = getVariableData();
-		buf.position(preLen);
-		byte[] lmbcs = new byte[len];
-		buf.get(lmbcs);
-		return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
-	}
-	default CDExt2Field setNegativeSymbol(String symbol) {
-		int preLen = (int)(getDecimalSymbolLength() + getMilliSeparatorLength());
-		int currentLen = (int)getNegativeSymbolLength();
-		ByteBuffer buf = getVariableData();
-		int postLen = buf.remaining() - currentLen - preLen;
+    @Override
+    public Byte getValue() {
+      return this.value;
+    }
+  }
 
-		buf.position(preLen + currentLen);
-		byte[] postData = new byte[postLen];
-		buf.get(postData);
-		
-		byte[] lmbcs = symbol == null ? new byte[0] : symbol.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
-		setNegativeSymbolLength(lmbcs.length);
-		int newLen = preLen + lmbcs.length + postLen;
-		resizeVariableData(newLen);
-		buf = getVariableData();
-		buf.position(preLen);
-		buf.put(lmbcs);
-		buf.put(postData);
-		
-		return this;
-	}
+  enum CurrencyType implements INumberEnum<Byte> {
+    COMMON(RichTextConstants.NCURFMT_COMMON),
+    CUSTOM(RichTextConstants.NCURFMT_CUSTOM),
+    ;
 
-	default String getCurrencySymbol() {
-		int len = (int)getCurrencySymbolLength();
-		if(len == 0) {
-			return ""; //$NON-NLS-1$
-		}
-		
-		int preLen = (int)(getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength());
-		
-		ByteBuffer buf = getVariableData();
-		buf.position(preLen);
-		byte[] lmbcs = new byte[len];
-		buf.get(lmbcs);
-		return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
-	}
-	default CDExt2Field setCurrencySymbol(String symbol) {
-		int preLen = (int)(getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength());
-		int currentLen = (int)getCurrencySymbolLength();
-		ByteBuffer buf = getVariableData();
-		int postLen = buf.remaining() - currentLen - preLen;
+    private final byte value;
 
-		buf.position(preLen + currentLen);
-		byte[] postData = new byte[postLen];
-		buf.get(postData);
-		
-		byte[] lmbcs = symbol == null ? new byte[0] : symbol.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
-		setCurrencySymbolLength(lmbcs.length);
-		int newLen = preLen + lmbcs.length + postLen;
-		resizeVariableData(newLen);
-		buf = getVariableData();
-		buf.position(preLen);
-		buf.put(lmbcs);
-		buf.put(postData);
-		
-		return this;
-	}
+    CurrencyType(final byte value) {
+      this.value = value;
+    }
 
-	default String getThumbnailImageFileName() {
-		int len = (int)getThumbnailImageFileNameLength();
-		if(len == 0) {
-			return ""; //$NON-NLS-1$
-		}
-		
-		int preLen = (int)(getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength() + getCurrencySymbolLength());
-		
-		ByteBuffer buf = getVariableData();
-		buf.position(preLen);
-		byte[] lmbcs = new byte[len];
-		buf.get(lmbcs);
-		return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
-	}
-	default CDExt2Field setThumbnailImageFileName(String fileName) {
-		int preLen = (int)(getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength() + getCurrencySymbolLength());
-		int currentLen = (int)getThumbnailImageFileNameLength();
-		ByteBuffer buf = getVariableData();
-		int postLen = buf.remaining() - currentLen - preLen;
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
 
-		buf.position(preLen + currentLen);
-		byte[] postData = new byte[postLen];
-		buf.get(postData);
-		
-		byte[] lmbcs = fileName == null ? new byte[0] : fileName.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
-		setThumbnailImageFileNameLength(lmbcs.length);
-		int newLen = preLen + lmbcs.length + postLen;
-		resizeVariableData(newLen);
-		buf = getVariableData();
-		buf.position(preLen);
-		buf.put(lmbcs);
-		buf.put(postData);
-		
-		return this;
-	}
+    @Override
+    public Byte getValue() {
+      return this.value;
+    }
+  }
 
-	default String getIMOnlineNameFormula() {
-		int len = (int)getIMOnlineNameFormulaLength();
-		if(len == 0) {
-			return ""; //$NON-NLS-1$
-		}
-		
-		int preLen = (int)(getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength() + getCurrencySymbolLength() + getThumbnailImageFileNameLength());
-		
-		ByteBuffer buf = getVariableData();
-		buf.position(preLen);
-		byte[] compiled = new byte[len];
-		buf.get(compiled);
-		return FormulaCompiler.get().decompile(compiled);
-	}
-	default CDExt2Field setIMOnlineNameFormula(String formula) {
-		int preLen = (int)(getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength() + getCurrencySymbolLength() + getThumbnailImageFileNameLength());
-		int currentLen = (int)getIMOnlineNameFormulaLength();
-		ByteBuffer buf = getVariableData();
-		int postLen = buf.remaining() - currentLen - preLen;
+  enum FormatFlag implements INumberEnum<Byte> {
+    PROPORTIONAL((byte) RichTextConstants.EC_FLAG_WIDTH_PROPORTIONAL);
 
-		buf.position(preLen + currentLen);
-		byte[] postData = new byte[postLen];
-		buf.get(postData);
-		
-		byte[] compiled = FormulaCompiler.get().compile(formula);
-		setIMOnlineNameFormulaLength(compiled.length);
-		int newLen = preLen + compiled.length + postLen;
-		resizeVariableData(newLen);
-		buf = getVariableData();
-		buf.position(preLen);
-		buf.put(compiled);
-		buf.put(postData);
-		
-		return this;
-	}
+    private final byte value;
 
-	default String getDateSeparator1() {
-		int len = (int)getDateSeparator1Length();
-		if(len == 0) {
-			return ""; //$NON-NLS-1$
-		}
-		
-		int preLen = (int)(
-			getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength() + getCurrencySymbolLength() + getThumbnailImageFileNameLength()
-			+ getIMOnlineNameFormulaLength()
-		);
-		
-		ByteBuffer buf = getVariableData();
-		buf.position(preLen);
-		byte[] lmbcs = new byte[len];
-		buf.get(lmbcs);
-		return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
-	}
-	default CDExt2Field setDateSeparator1(String sep) {
-		int preLen = (int)(
-			getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength() + getCurrencySymbolLength() + getThumbnailImageFileNameLength()
-			+ getIMOnlineNameFormulaLength()
-		);
-		int currentLen = (int)getDateSeparator1Length();
-		ByteBuffer buf = getVariableData();
-		int postLen = buf.remaining() - currentLen - preLen;
+    FormatFlag(final byte value) {
+      this.value = value;
+    }
 
-		buf.position(preLen + currentLen);
-		byte[] postData = new byte[postLen];
-		buf.get(postData);
-		
-		byte[] compiled = sep == null ? new byte[0] : sep.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
-		setDateSeparator1Length((short)compiled.length);
-		int newLen = preLen + compiled.length + postLen;
-		resizeVariableData(newLen);
-		buf = getVariableData();
-		buf.position(preLen);
-		buf.put(compiled);
-		buf.put(postData);
-		
-		return this;
-	}
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
 
-	default String getDateSeparator2() {
-		int len = (int)getDateSeparator2Length();
-		if(len == 0) {
-			return ""; //$NON-NLS-1$
-		}
-		
-		int preLen = (int)(
-			getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength() + getCurrencySymbolLength() + getThumbnailImageFileNameLength()
-			+ getIMOnlineNameFormulaLength() + getDateSeparator1Length()
-		);
-		
-		ByteBuffer buf = getVariableData();
-		buf.position(preLen);
-		byte[] lmbcs = new byte[len];
-		buf.get(lmbcs);
-		return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
-	}
-	default CDExt2Field setDateSeparator2(String sep) {
-		int preLen = (int)(
-			getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength() + getCurrencySymbolLength() + getThumbnailImageFileNameLength()
-			+ getIMOnlineNameFormulaLength() + getDateSeparator1Length()
-		);
-		int currentLen = (int)getDateSeparator2Length();
-		ByteBuffer buf = getVariableData();
-		int postLen = buf.remaining() - currentLen - preLen;
+    @Override
+    public Byte getValue() {
+      return this.value;
+    }
+  }
 
-		buf.position(preLen + currentLen);
-		byte[] postData = new byte[postLen];
-		buf.get(postData);
-		
-		byte[] compiled = sep == null ? new byte[0] : sep.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
-		setDateSeparator2Length((short)compiled.length);
-		int newLen = preLen + compiled.length + postLen;
-		resizeVariableData(newLen);
-		buf = getVariableData();
-		buf.position(preLen);
-		buf.put(compiled);
-		buf.put(postData);
-		
-		return this;
-	}
+  @StructureGetter("CurrencyFlags")
+  Set<CurrencyFlag> getCurrencyFlags();
 
-	default String getDateSeparator3() {
-		int len = (int)getDateSeparator3Length();
-		if(len == 0) {
-			return ""; //$NON-NLS-1$
-		}
-		
-		int preLen = (int)(
-			getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength() + getCurrencySymbolLength() + getThumbnailImageFileNameLength()
-			+ getIMOnlineNameFormulaLength() + getDateSeparator1Length() + getDateSeparator2Length()
-		);
-		
-		ByteBuffer buf = getVariableData();
-		buf.position(preLen);
-		byte[] lmbcs = new byte[len];
-		buf.get(lmbcs);
-		return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
-	}
-	default CDExt2Field setDateSeparator3(String sep) {
-		int preLen = (int)(
-			getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength() + getCurrencySymbolLength() + getThumbnailImageFileNameLength()
-			+ getIMOnlineNameFormulaLength() + getDateSeparator1Length() + getDateSeparator2Length()
-		);
-		int currentLen = (int)getDateSeparator3Length();
-		ByteBuffer buf = getVariableData();
-		int postLen = buf.remaining() - currentLen - preLen;
+  @StructureGetter("CurrencyPref")
+  NumberPref getCurrencyPreference();
 
-		buf.position(preLen + currentLen);
-		byte[] postData = new byte[postLen];
-		buf.get(postData);
-		
-		byte[] compiled = sep == null ? new byte[0] : sep.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
-		setDateSeparator3Length((short)compiled.length);
-		int newLen = preLen + compiled.length + postLen;
-		resizeVariableData(newLen);
-		buf = getVariableData();
-		buf.position(preLen);
-		buf.put(compiled);
-		buf.put(postData);
-		
-		return this;
-	}
+  default String getCurrencySymbol() {
+    final int len = (int) this.getCurrencySymbolLength();
+    if (len == 0) {
+      return ""; //$NON-NLS-1$
+    }
 
-	default String getTimeSeparator() {
-		int len = (int)getTimeSeparatorLength();
-		if(len == 0) {
-			return ""; //$NON-NLS-1$
-		}
-		
-		int preLen = (int)(
-			getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength() + getCurrencySymbolLength() + getThumbnailImageFileNameLength()
-			+ getIMOnlineNameFormulaLength() + getDateSeparator1Length() + getDateSeparator2Length() + getDateSeparator3Length()
-		);
-		
-		ByteBuffer buf = getVariableData();
-		buf.position(preLen);
-		byte[] lmbcs = new byte[len];
-		buf.get(lmbcs);
-		return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
-	}
-	default CDExt2Field setTimeSeparator(String sep) {
-		int preLen = (int)(
-			getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength() + getCurrencySymbolLength() + getThumbnailImageFileNameLength()
-			+ getIMOnlineNameFormulaLength() + getDateSeparator1Length() + getDateSeparator2Length() + getDateSeparator3Length()
-		);
-		int currentLen = (int)getTimeSeparatorLength();
-		ByteBuffer buf = getVariableData();
-		int postLen = buf.remaining() - currentLen - preLen;
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength());
 
-		buf.position(preLen + currentLen);
-		byte[] postData = new byte[postLen];
-		buf.get(postData);
-		
-		byte[] compiled = sep == null ? new byte[0] : sep.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
-		setTimeSeparatorLength((short)compiled.length);
-		int newLen = preLen + compiled.length + postLen;
-		resizeVariableData(newLen);
-		buf = getVariableData();
-		buf.position(preLen);
-		buf.put(compiled);
-		buf.put(postData);
-		
-		return this;
-	}
+    final ByteBuffer buf = this.getVariableData();
+    buf.position(preLen);
+    final byte[] lmbcs = new byte[len];
+    buf.get(lmbcs);
+    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+  }
 
-	default String getInputEnabledFormula() {
-		int len = (int)getInputEnabledFormulaLength();
-		if(len == 0) {
-			return ""; //$NON-NLS-1$
-		}
+  @StructureGetter("CurrencySymLength")
+  long getCurrencySymbolLength();
 
-		int preLen = (int)(
-			getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength() + getCurrencySymbolLength()
-			+ getThumbnailImageFileNameLength() + getDateSeparator1Length() + getDateSeparator2Length()
-			+ getDateSeparator3Length() + getTimeSeparatorLength() + getIMOnlineNameFormulaLength()
-		);
-		
-		ByteBuffer buf = getVariableData();
-		buf.position(preLen);
-		byte[] compiled = new byte[len];
-		buf.get(compiled);
-		return FormulaCompiler.get().decompile(compiled);
-	}
-	default CDExt2Field setInputEnabledFormula(String formula) {
-		int preLen = (int)(
-			getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength() + getCurrencySymbolLength()
-			+ getThumbnailImageFileNameLength() + getDateSeparator1Length() + getDateSeparator2Length()
-			+ getDateSeparator3Length() + getTimeSeparatorLength() + getIMOnlineNameFormulaLength()
-		);
-		int currentLen = (int)getInputEnabledFormulaLength();
-		ByteBuffer buf = getVariableData();
-		int postLen = buf.remaining() - currentLen - preLen;
+  @StructureGetter("CurrencyType")
+  CurrencyType getCurrencyType();
 
-		buf.position(preLen + currentLen);
-		byte[] postData = new byte[postLen];
-		buf.get(postData);
-		
-		byte[] compiled = FormulaCompiler.get().compile(formula);
-		setInputEnabledFormulaLength(compiled.length);
-		int newLen = preLen + compiled.length + postLen;
-		resizeVariableData(newLen);
-		buf = getVariableData();
-		buf.position(preLen);
-		buf.put(compiled);
-		buf.put(postData);
-		
-		return this;
-	}
+  default String getDateSeparator1() {
+    final int len = this.getDateSeparator1Length();
+    if (len == 0) {
+      return ""; //$NON-NLS-1$
+    }
 
-	default String getIMGroupFormula() {
-		int len = (int)getIMGroupFormulaLength();
-		if(len == 0) {
-			return ""; //$NON-NLS-1$
-		}
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
+        + this.getCurrencySymbolLength() + this.getThumbnailImageFileNameLength()
+        + this.getIMOnlineNameFormulaLength());
 
-		int preLen = (int)(
-			getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength() + getCurrencySymbolLength()
-			+ getThumbnailImageFileNameLength() + getDateSeparator1Length() + getDateSeparator2Length()
-			+ getDateSeparator3Length() + getTimeSeparatorLength() + getIMOnlineNameFormulaLength()
-			+ getInputEnabledFormulaLength()
-		);
-		
-		ByteBuffer buf = getVariableData();
-		buf.position(preLen);
-		byte[] compiled = new byte[len];
-		buf.get(compiled);
-		return FormulaCompiler.get().decompile(compiled);
-	}
-	default CDExt2Field setIMGroupFormula(String formula) {
-		int preLen = (int)(
-				getDecimalSymbolLength() + getMilliSeparatorLength() + getNegativeSymbolLength() + getCurrencySymbolLength()
-				+ getThumbnailImageFileNameLength() + getDateSeparator1Length() + getDateSeparator2Length()
-				+ getDateSeparator3Length() + getTimeSeparatorLength() + getIMOnlineNameFormulaLength()
-				+ getInputEnabledFormulaLength()
-			);
-		int currentLen = (int)getIMGroupFormulaLength();
-		ByteBuffer buf = getVariableData();
-		int postLen = buf.remaining() - currentLen - preLen;
+    final ByteBuffer buf = this.getVariableData();
+    buf.position(preLen);
+    final byte[] lmbcs = new byte[len];
+    buf.get(lmbcs);
+    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+  }
 
-		buf.position(preLen + currentLen);
-		byte[] postData = new byte[postLen];
-		buf.get(postData);
-		
-		byte[] compiled = FormulaCompiler.get().compile(formula);
-		setIMGroupFormulaLength(compiled.length);
-		int newLen = preLen + compiled.length + postLen;
-		resizeVariableData(newLen);
-		buf = getVariableData();
-		buf.position(preLen);
-		buf.put(compiled);
-		buf.put(postData);
-		
-		return this;
-	}
+  @StructureGetter("DTDsep1Len")
+  short getDateSeparator1Length();
+
+  default String getDateSeparator2() {
+    final int len = this.getDateSeparator2Length();
+    if (len == 0) {
+      return ""; //$NON-NLS-1$
+    }
+
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
+        + this.getCurrencySymbolLength() + this.getThumbnailImageFileNameLength()
+        + this.getIMOnlineNameFormulaLength() + this.getDateSeparator1Length());
+
+    final ByteBuffer buf = this.getVariableData();
+    buf.position(preLen);
+    final byte[] lmbcs = new byte[len];
+    buf.get(lmbcs);
+    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+  }
+
+  @StructureGetter("DTDsep2Len")
+  short getDateSeparator2Length();
+
+  default String getDateSeparator3() {
+    final int len = this.getDateSeparator3Length();
+    if (len == 0) {
+      return ""; //$NON-NLS-1$
+    }
+
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
+        + this.getCurrencySymbolLength() + this.getThumbnailImageFileNameLength()
+        + this.getIMOnlineNameFormulaLength() + this.getDateSeparator1Length() + this.getDateSeparator2Length());
+
+    final ByteBuffer buf = this.getVariableData();
+    buf.position(preLen);
+    final byte[] lmbcs = new byte[len];
+    buf.get(lmbcs);
+    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+  }
+
+  @StructureGetter("DTDsep3Len")
+  short getDateSeparator3Length();
+
+  @StructureGetter("DTDShow")
+  DateShowFormat getDateShowFormat();
+
+  @StructureGetter("DTDSpecial")
+  DateShowSpecial getDateShowSpecial();
+
+  @StructureGetter("DTFlags")
+  Set<DateTimeFlag> getDateTimeFlags();
+
+  @StructureGetter("DTFlags2")
+  Set<DateTimeFlag2> getDateTimeFlags2();
+
+  @StructureGetter("DTPref")
+  NumberPref getDateTimePreference();
+
+  @StructureGetter("DTDayFmt")
+  DayFormat getDayFormat();
+
+  @StructureGetter("DTDOWFmt")
+  WeekFormat getDayOfWeekFormat();
+
+  default String getDecimalSymbol() {
+    final int len = (int) this.getDecimalSymbolLength();
+    if (len == 0) {
+      return ""; //$NON-NLS-1$
+    }
+
+    final ByteBuffer buf = this.getVariableData();
+    final byte[] lmbcs = new byte[len];
+    buf.get(lmbcs);
+    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+  }
+
+  @StructureGetter("DecimalSymLength")
+  long getDecimalSymbolLength();
+
+  @StructureGetter("ECFlags")
+  Set<FormatFlag> getFormatFlags();
+
+  @StructureGetter("Header")
+  @Override
+  WSIG getHeader();
+
+  @StructureGetter("HorizontalSpacing")
+  short getHorizontalSpacing();
+
+  default String getIMGroupFormula() {
+    final int len = this.getIMGroupFormulaLength();
+    if (len == 0) {
+      return ""; //$NON-NLS-1$
+    }
+
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
+        + this.getCurrencySymbolLength()
+        + this.getThumbnailImageFileNameLength() + this.getDateSeparator1Length() + this.getDateSeparator2Length()
+        + this.getDateSeparator3Length() + this.getTimeSeparatorLength() + this.getIMOnlineNameFormulaLength()
+        + this.getInputEnabledFormulaLength());
+
+    final ByteBuffer buf = this.getVariableData();
+    buf.position(preLen);
+    final byte[] compiled = new byte[len];
+    buf.get(compiled);
+    return FormulaCompiler.get().decompile(compiled);
+  }
+
+  @StructureGetter("wIMGroupFormulaLen")
+  int getIMGroupFormulaLength();
+
+  default String getIMOnlineNameFormula() {
+    final int len = this.getIMOnlineNameFormulaLength();
+    if (len == 0) {
+      return ""; //$NON-NLS-1$
+    }
+
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
+        + this.getCurrencySymbolLength() + this.getThumbnailImageFileNameLength());
+
+    final ByteBuffer buf = this.getVariableData();
+    buf.position(preLen);
+    final byte[] compiled = new byte[len];
+    buf.get(compiled);
+    return FormulaCompiler.get().decompile(compiled);
+  }
+
+  @StructureGetter("wIMOnlineNameFormulaLen")
+  int getIMOnlineNameFormulaLength();
+
+  default String getInputEnabledFormula() {
+    final int len = this.getInputEnabledFormulaLength();
+    if (len == 0) {
+      return ""; //$NON-NLS-1$
+    }
+
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
+        + this.getCurrencySymbolLength()
+        + this.getThumbnailImageFileNameLength() + this.getDateSeparator1Length() + this.getDateSeparator2Length()
+        + this.getDateSeparator3Length() + this.getTimeSeparatorLength() + this.getIMOnlineNameFormulaLength());
+
+    final ByteBuffer buf = this.getVariableData();
+    buf.position(preLen);
+    final byte[] compiled = new byte[len];
+    buf.get(compiled);
+    return FormulaCompiler.get().decompile(compiled);
+  }
+
+  @StructureGetter("wInputEnabledLen")
+  int getInputEnabledFormulaLength();
+
+  @StructureGetter("ISOCountry")
+  long getISOCountry();
+
+  @StructureGetter("MilliGroupSize")
+  int getMilliGroupSize();
+
+  default String getMilliSeparator() {
+    final int len = (int) this.getMilliSeparatorLength();
+    if (len == 0) {
+      return ""; //$NON-NLS-1$
+    }
+
+    final int preLen = (int) this.getDecimalSymbolLength();
+
+    final ByteBuffer buf = this.getVariableData();
+    buf.position(preLen);
+    final byte[] lmbcs = new byte[len];
+    buf.get(lmbcs);
+    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+  }
+
+  @StructureGetter("MilliSepSymLength")
+  long getMilliSeparatorLength();
+
+  @StructureGetter("DTMonthFmt")
+  MonthFormat getMonthFormat();
+
+  default String getNegativeSymbol() {
+    final int len = (int) this.getNegativeSymbolLength();
+    if (len == 0) {
+      return ""; //$NON-NLS-1$
+    }
+
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength());
+
+    final ByteBuffer buf = this.getVariableData();
+    buf.position(preLen);
+    final byte[] lmbcs = new byte[len];
+    buf.get(lmbcs);
+    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+  }
+
+  @StructureGetter("NegativeSymLength")
+  long getNegativeSymbolLength();
+
+  @StructureGetter("NumSymPref")
+  NumberPref getNumberSymbolPreference();
+
+  @StructureGetter("wCharacters")
+  int getProportionalWidthCharacters();
+
+  default String getThumbnailImageFileName() {
+    final int len = this.getThumbnailImageFileNameLength();
+    if (len == 0) {
+      return ""; //$NON-NLS-1$
+    }
+
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
+        + this.getCurrencySymbolLength());
+
+    final ByteBuffer buf = this.getVariableData();
+    buf.position(preLen);
+    final byte[] lmbcs = new byte[len];
+    buf.get(lmbcs);
+    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+  }
+
+  @StructureGetter("wThumbnailImageFileNameLength")
+  int getThumbnailImageFileNameLength();
+
+  @StructureGetter("ThumbnailImageHeight")
+  int getThumbnailImageHeight();
+
+  @StructureGetter("ThumbnailImageWidth")
+  int getThumbnailImageWidth();
+
+  default String getTimeSeparator() {
+    final int len = this.getTimeSeparatorLength();
+    if (len == 0) {
+      return ""; //$NON-NLS-1$
+    }
+
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
+        + this.getCurrencySymbolLength() + this.getThumbnailImageFileNameLength()
+        + this.getIMOnlineNameFormulaLength() + this.getDateSeparator1Length() + this.getDateSeparator2Length()
+        + this.getDateSeparator3Length());
+
+    final ByteBuffer buf = this.getVariableData();
+    buf.position(preLen);
+    final byte[] lmbcs = new byte[len];
+    buf.get(lmbcs);
+    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+  }
+
+  @StructureGetter("DTTsepLen")
+  short getTimeSeparatorLength();
+
+  @StructureGetter("DTTShow")
+  TimeShowFormat getTimeShowFormat();
+
+  @StructureGetter("DTTZone")
+  TFMT.ZoneFormat getTimeZoneFormat();
+
+  @StructureGetter("VerticalSpacing")
+  short getVerticalSpacing();
+
+  @StructureGetter("DTYearFmt")
+  YearFormat getYearFormat();
+
+  @StructureSetter("CurrencyFlags")
+  CDExt2Field setCurrencyFlags(Collection<CurrencyFlag> flags);
+
+  @StructureSetter("CurrencyPref")
+  CDExt2Field setCurrencyPreference(NumberPref pref);
+
+  default CDExt2Field setCurrencySymbol(final String symbol) {
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength());
+    final int currentLen = (int) this.getCurrencySymbolLength();
+    ByteBuffer buf = this.getVariableData();
+    final int postLen = buf.remaining() - currentLen - preLen;
+
+    buf.position(preLen + currentLen);
+    final byte[] postData = new byte[postLen];
+    buf.get(postData);
+
+    final byte[] lmbcs = symbol == null ? new byte[0] : symbol.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    this.setCurrencySymbolLength(lmbcs.length);
+    final int newLen = preLen + lmbcs.length + postLen;
+    this.resizeVariableData(newLen);
+    buf = this.getVariableData();
+    buf.position(preLen);
+    buf.put(lmbcs);
+    buf.put(postData);
+
+    return this;
+  }
+
+  @StructureSetter("CurrencySymLength")
+  CDExt2Field setCurrencySymbolLength(long len);
+
+  @StructureSetter("CurrencyType")
+  CDExt2Field setCurrencyType(CurrencyType type);
+
+  default CDExt2Field setDateSeparator1(final String sep) {
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
+        + this.getCurrencySymbolLength() + this.getThumbnailImageFileNameLength()
+        + this.getIMOnlineNameFormulaLength());
+    final int currentLen = this.getDateSeparator1Length();
+    ByteBuffer buf = this.getVariableData();
+    final int postLen = buf.remaining() - currentLen - preLen;
+
+    buf.position(preLen + currentLen);
+    final byte[] postData = new byte[postLen];
+    buf.get(postData);
+
+    final byte[] compiled = sep == null ? new byte[0] : sep.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    this.setDateSeparator1Length((short) compiled.length);
+    final int newLen = preLen + compiled.length + postLen;
+    this.resizeVariableData(newLen);
+    buf = this.getVariableData();
+    buf.position(preLen);
+    buf.put(compiled);
+    buf.put(postData);
+
+    return this;
+  }
+
+  @StructureSetter("DTDsep1Len")
+  CDExt2Field setDateSeparator1Length(short len);
+
+  default CDExt2Field setDateSeparator2(final String sep) {
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
+        + this.getCurrencySymbolLength() + this.getThumbnailImageFileNameLength()
+        + this.getIMOnlineNameFormulaLength() + this.getDateSeparator1Length());
+    final int currentLen = this.getDateSeparator2Length();
+    ByteBuffer buf = this.getVariableData();
+    final int postLen = buf.remaining() - currentLen - preLen;
+
+    buf.position(preLen + currentLen);
+    final byte[] postData = new byte[postLen];
+    buf.get(postData);
+
+    final byte[] compiled = sep == null ? new byte[0] : sep.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    this.setDateSeparator2Length((short) compiled.length);
+    final int newLen = preLen + compiled.length + postLen;
+    this.resizeVariableData(newLen);
+    buf = this.getVariableData();
+    buf.position(preLen);
+    buf.put(compiled);
+    buf.put(postData);
+
+    return this;
+  }
+
+  @StructureSetter("DTDsep2Len")
+  CDExt2Field setDateSeparator2Length(short len);
+
+  default CDExt2Field setDateSeparator3(final String sep) {
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
+        + this.getCurrencySymbolLength() + this.getThumbnailImageFileNameLength()
+        + this.getIMOnlineNameFormulaLength() + this.getDateSeparator1Length() + this.getDateSeparator2Length());
+    final int currentLen = this.getDateSeparator3Length();
+    ByteBuffer buf = this.getVariableData();
+    final int postLen = buf.remaining() - currentLen - preLen;
+
+    buf.position(preLen + currentLen);
+    final byte[] postData = new byte[postLen];
+    buf.get(postData);
+
+    final byte[] compiled = sep == null ? new byte[0] : sep.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    this.setDateSeparator3Length((short) compiled.length);
+    final int newLen = preLen + compiled.length + postLen;
+    this.resizeVariableData(newLen);
+    buf = this.getVariableData();
+    buf.position(preLen);
+    buf.put(compiled);
+    buf.put(postData);
+
+    return this;
+  }
+
+  @StructureSetter("DTDsep3Len")
+  CDExt2Field setDateSeparator3Length(short len);
+
+  @StructureSetter("DTDShow")
+  CDExt2Field setDateShowFormat(DateShowFormat format);
+
+  @StructureSetter("DTDSpecial")
+  CDExt2Field setDateShowSpecial(DateShowSpecial format);
+
+  @StructureSetter("DTFlags")
+  CDExt2Field setDateTimeFlags(Collection<DateTimeFlag> flags);
+
+  @StructureSetter("DTFlags2")
+  CDExt2Field setDateTimeFlags2(Collection<DateTimeFlag2> flags);
+
+  @StructureSetter("DTPref")
+  CDExt2Field setDateTimePreference(NumberPref pref);
+
+  @StructureSetter("DTDayFmt")
+  CDExt2Field setDayFormat(DayFormat format);
+
+  @StructureSetter("DTDOWFmt")
+  CDExt2Field setDayOfWeekFormat(WeekFormat format);
+
+  default CDExt2Field setDecimalSymbol(final String symbol) {
+    final int currentLen = (int) this.getDecimalSymbolLength();
+    ByteBuffer buf = this.getVariableData();
+    final int postLen = buf.remaining() - currentLen;
+
+    buf.position(currentLen);
+    final byte[] postData = new byte[postLen];
+    buf.get(postData);
+
+    final byte[] lmbcs = symbol == null ? new byte[0] : symbol.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    this.setDecimalSymbolLength(lmbcs.length);
+    final int newLen = lmbcs.length + postLen;
+    this.resizeVariableData(newLen);
+    buf = this.getVariableData();
+    buf.put(lmbcs);
+    buf.put(postData);
+
+    return this;
+  }
+
+  @StructureSetter("DecimalSymLength")
+  CDExt2Field setDecimalSymbolLength(long len);
+
+  @StructureSetter("ECFlags")
+  CDExt2Field setFormatFlags(Collection<FormatFlag> flags);
+
+  @StructureSetter("HorizontalSpacing")
+  CDExt2Field setHorizontalSpacing(short spacing);
+
+  default CDExt2Field setIMGroupFormula(final String formula) {
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
+        + this.getCurrencySymbolLength()
+        + this.getThumbnailImageFileNameLength() + this.getDateSeparator1Length() + this.getDateSeparator2Length()
+        + this.getDateSeparator3Length() + this.getTimeSeparatorLength() + this.getIMOnlineNameFormulaLength()
+        + this.getInputEnabledFormulaLength());
+    final int currentLen = this.getIMGroupFormulaLength();
+    ByteBuffer buf = this.getVariableData();
+    final int postLen = buf.remaining() - currentLen - preLen;
+
+    buf.position(preLen + currentLen);
+    final byte[] postData = new byte[postLen];
+    buf.get(postData);
+
+    final byte[] compiled = FormulaCompiler.get().compile(formula);
+    this.setIMGroupFormulaLength(compiled.length);
+    final int newLen = preLen + compiled.length + postLen;
+    this.resizeVariableData(newLen);
+    buf = this.getVariableData();
+    buf.position(preLen);
+    buf.put(compiled);
+    buf.put(postData);
+
+    return this;
+  }
+
+  @StructureSetter("wIMGroupFormulaLen")
+  CDExt2Field setIMGroupFormulaLength(int len);
+
+  default CDExt2Field setIMOnlineNameFormula(final String formula) {
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
+        + this.getCurrencySymbolLength() + this.getThumbnailImageFileNameLength());
+    final int currentLen = this.getIMOnlineNameFormulaLength();
+    ByteBuffer buf = this.getVariableData();
+    final int postLen = buf.remaining() - currentLen - preLen;
+
+    buf.position(preLen + currentLen);
+    final byte[] postData = new byte[postLen];
+    buf.get(postData);
+
+    final byte[] compiled = FormulaCompiler.get().compile(formula);
+    this.setIMOnlineNameFormulaLength(compiled.length);
+    final int newLen = preLen + compiled.length + postLen;
+    this.resizeVariableData(newLen);
+    buf = this.getVariableData();
+    buf.position(preLen);
+    buf.put(compiled);
+    buf.put(postData);
+
+    return this;
+  }
+
+  @StructureSetter("wIMOnlineNameFormulaLen")
+  CDExt2Field setIMOnlineNameFormulaLength(int len);
+
+  default CDExt2Field setInputEnabledFormula(final String formula) {
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
+        + this.getCurrencySymbolLength()
+        + this.getThumbnailImageFileNameLength() + this.getDateSeparator1Length() + this.getDateSeparator2Length()
+        + this.getDateSeparator3Length() + this.getTimeSeparatorLength() + this.getIMOnlineNameFormulaLength());
+    final int currentLen = this.getInputEnabledFormulaLength();
+    ByteBuffer buf = this.getVariableData();
+    final int postLen = buf.remaining() - currentLen - preLen;
+
+    buf.position(preLen + currentLen);
+    final byte[] postData = new byte[postLen];
+    buf.get(postData);
+
+    final byte[] compiled = FormulaCompiler.get().compile(formula);
+    this.setInputEnabledFormulaLength(compiled.length);
+    final int newLen = preLen + compiled.length + postLen;
+    this.resizeVariableData(newLen);
+    buf = this.getVariableData();
+    buf.position(preLen);
+    buf.put(compiled);
+    buf.put(postData);
+
+    return this;
+  }
+
+  @StructureSetter("wInputEnabledLen")
+  CDExt2Field setInputEnabledFormulaLength(int len);
+
+  @StructureSetter("ISOCountry")
+  CDExt2Field setISOCountry(long countryCode);
+
+  @StructureSetter("MilliGroupSize")
+  CDExt2Field setMilliGroupSize(int size);
+
+  default CDExt2Field setMilliSeparator(final String sep) {
+    final int preLen = (int) this.getDecimalSymbolLength();
+    final int currentLen = (int) this.getMilliSeparatorLength();
+    ByteBuffer buf = this.getVariableData();
+    final int postLen = buf.remaining() - currentLen - preLen;
+
+    buf.position(preLen + currentLen);
+    final byte[] postData = new byte[postLen];
+    buf.get(postData);
+
+    final byte[] lmbcs = sep == null ? new byte[0] : sep.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    this.setMilliSeparatorLength(lmbcs.length);
+    final int newLen = preLen + lmbcs.length + postLen;
+    this.resizeVariableData(newLen);
+    buf = this.getVariableData();
+    buf.position(preLen);
+    buf.put(lmbcs);
+    buf.put(postData);
+
+    return this;
+  }
+
+  @StructureSetter("MilliSepSymLength")
+  CDExt2Field setMilliSeparatorLength(long len);
+
+  @StructureSetter("DTMonthFmt")
+  CDExt2Field setMonthFormat(MonthFormat format);
+
+  default CDExt2Field setNegativeSymbol(final String symbol) {
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength());
+    final int currentLen = (int) this.getNegativeSymbolLength();
+    ByteBuffer buf = this.getVariableData();
+    final int postLen = buf.remaining() - currentLen - preLen;
+
+    buf.position(preLen + currentLen);
+    final byte[] postData = new byte[postLen];
+    buf.get(postData);
+
+    final byte[] lmbcs = symbol == null ? new byte[0] : symbol.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    this.setNegativeSymbolLength(lmbcs.length);
+    final int newLen = preLen + lmbcs.length + postLen;
+    this.resizeVariableData(newLen);
+    buf = this.getVariableData();
+    buf.position(preLen);
+    buf.put(lmbcs);
+    buf.put(postData);
+
+    return this;
+  }
+
+  @StructureSetter("NegativeSymLength")
+  CDExt2Field setNegativeSymbolLength(long len);
+
+  @StructureSetter("NumSymPref")
+  CDExt2Field setNumberSymbolPreference(NumberPref pref);
+
+  @StructureSetter("wCharacters")
+  CDExt2Field setProportionalWidthCharacters(int characters);
+
+  default CDExt2Field setThumbnailImageFileName(final String fileName) {
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
+        + this.getCurrencySymbolLength());
+    final int currentLen = this.getThumbnailImageFileNameLength();
+    ByteBuffer buf = this.getVariableData();
+    final int postLen = buf.remaining() - currentLen - preLen;
+
+    buf.position(preLen + currentLen);
+    final byte[] postData = new byte[postLen];
+    buf.get(postData);
+
+    final byte[] lmbcs = fileName == null ? new byte[0] : fileName.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    this.setThumbnailImageFileNameLength(lmbcs.length);
+    final int newLen = preLen + lmbcs.length + postLen;
+    this.resizeVariableData(newLen);
+    buf = this.getVariableData();
+    buf.position(preLen);
+    buf.put(lmbcs);
+    buf.put(postData);
+
+    return this;
+  }
+
+  @StructureSetter("wThumbnailImageFileNameLength")
+  CDExt2Field setThumbnailImageFileNameLength(int len);
+
+  @StructureSetter("ThumbnailImageHeight")
+  CDExt2Field setThumbnailImageHeight(int height);
+
+  @StructureSetter("ThumbnailImageWidth")
+  CDExt2Field setThumbnailImageWidth(int width);
+
+  default CDExt2Field setTimeSeparator(final String sep) {
+    final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
+        + this.getCurrencySymbolLength() + this.getThumbnailImageFileNameLength()
+        + this.getIMOnlineNameFormulaLength() + this.getDateSeparator1Length() + this.getDateSeparator2Length()
+        + this.getDateSeparator3Length());
+    final int currentLen = this.getTimeSeparatorLength();
+    ByteBuffer buf = this.getVariableData();
+    final int postLen = buf.remaining() - currentLen - preLen;
+
+    buf.position(preLen + currentLen);
+    final byte[] postData = new byte[postLen];
+    buf.get(postData);
+
+    final byte[] compiled = sep == null ? new byte[0] : sep.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    this.setTimeSeparatorLength((short) compiled.length);
+    final int newLen = preLen + compiled.length + postLen;
+    this.resizeVariableData(newLen);
+    buf = this.getVariableData();
+    buf.position(preLen);
+    buf.put(compiled);
+    buf.put(postData);
+
+    return this;
+  }
+
+  @StructureSetter("DTTsepLen")
+  CDExt2Field setTimeSeparatorLength(short len);
+
+  @StructureSetter("DTTShow")
+  CDExt2Field setTimeShowFormat(TimeShowFormat format);
+
+  @StructureSetter("DTTZone")
+  CDExt2Field setTimeZoneFormat(TFMT.ZoneFormat format);
+
+  @StructureSetter("VerticalSpacing")
+  CDExt2Field setVerticalSpacing(short spacing);
+
+  @StructureSetter("DTYearFmt")
+  CDExt2Field setYearFormat(YearFormat format);
 }

@@ -16,8 +16,6 @@
  */
 package com.hcl.domino.jna.test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +26,7 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
@@ -40,82 +39,85 @@ import com.hcl.domino.jna.data.JNADominoDateTime;
 @SuppressWarnings("nls")
 public class TestAttachments extends AbstractJNARuntimeTest {
 
-	private byte[] produceTestData(int size) {
-		byte[] data = new byte[size];
-		
-		int offset = 0;
-		
-		while (offset < size) {
-			for (char c='A'; c<='Z' && offset<size; c++) {
-				data[offset++] = (byte) (c & 0xff);
-			}
-		}
-		
-		return data;
-	}
-	@Test
-	public void testAttachFile() throws IOException {
-		DominoClient client = getClient();
+  private byte[] produceTestData(final int size) {
+    final byte[] data = new byte[size];
 
-		Database dbTest = client.openDatabase("", "log.nsf");
-		Document doc = dbTest.createDocument();
+    int offset = 0;
 
-		Instant fileCreated = Instant.now().minus(2, ChronoUnit.HOURS);
-		Instant fileModified = Instant.now().minus(1, ChronoUnit.HOURS);
-		
-		final int testDataSize = 1000000;
-		
-		byte[] dataWrittenToFile = produceTestData(testDataSize);
-		
-		Attachment att = doc.attachFile("file.txt", fileCreated, fileModified,
-				new IAttachmentProducer() {
+    while (offset < size) {
+      for (char c = 'A'; c <= 'Z' && offset < size; c++) {
+        data[offset++] = (byte) (c & 0xff);
+      }
+    }
 
-			@Override
-			public long getSizeEstimation() {
-				return testDataSize;
-			}
+    return data;
+  }
 
-			@Override
-			public void produceAttachment(OutputStream out) throws IOException {
-				out.write(dataWrittenToFile);
-			}
-			
-		});
-		
-		AtomicInteger attCount = new AtomicInteger();
-		AtomicBoolean attFound = new AtomicBoolean();
-		
-		doc.forEachAttachment((currAtt, loop) -> {
-			attCount.incrementAndGet();
-			
-			if (currAtt.getFileName().equals(att.getFileName())) {
-				attFound.set(Boolean.TRUE);
-			}
-		});
-		assertTrue(attFound.get(), "Attachment found in forEach loop");
-		assertEquals(attCount.get(), 1, "Number of attachment in forEach loop ok");
-		
-		assertNotNull(att, "Created attachment could be found");
-		assertEquals(att.getFileSize(), testDataSize, "Created attachment has the right size");
-		assertEquals(JNADominoDateTime.from(att.getFileCreated()), JNADominoDateTime.from(fileCreated), "Created attachment has the right creation date");
-		assertEquals(JNADominoDateTime.from(att.getFileModified()), JNADominoDateTime.from(fileModified), "Created attachment has the right modified date");
-		
-		ByteArrayOutputStream bOut = new ByteArrayOutputStream();
-		byte[] buffer = new byte[4096];
-		int len;
-		
-		try (InputStream in = att.getInputStream();) {
-			while ((len = in.read(buffer))>0) {
-				bOut.write(buffer, 0, len);
-			}
-		}
-		
-		byte[] dataFromFromFile = bOut.toByteArray();
-		assertTrue(Arrays.equals(dataWrittenToFile, dataFromFromFile), "Attachment content is correct");
-		
-		att.deleteFromDocument();
-		
-		Attachment attAfterDeletion = doc.getAttachment(att.getFileName()).orElse(null);
-		assertNull(attAfterDeletion, "Attachment has been deleted");
-	}
+  @Test
+  public void testAttachFile() throws IOException {
+    final DominoClient client = this.getClient();
+
+    final Database dbTest = client.openDatabase("", "log.nsf");
+    final Document doc = dbTest.createDocument();
+
+    final Instant fileCreated = Instant.now().minus(2, ChronoUnit.HOURS);
+    final Instant fileModified = Instant.now().minus(1, ChronoUnit.HOURS);
+
+    final int testDataSize = 1000000;
+
+    final byte[] dataWrittenToFile = this.produceTestData(testDataSize);
+
+    final Attachment att = doc.attachFile("file.txt", fileCreated, fileModified,
+        new IAttachmentProducer() {
+
+          @Override
+          public long getSizeEstimation() {
+            return testDataSize;
+          }
+
+          @Override
+          public void produceAttachment(final OutputStream out) throws IOException {
+            out.write(dataWrittenToFile);
+          }
+
+        });
+
+    final AtomicInteger attCount = new AtomicInteger();
+    final AtomicBoolean attFound = new AtomicBoolean();
+
+    doc.forEachAttachment((currAtt, loop) -> {
+      attCount.incrementAndGet();
+
+      if (currAtt.getFileName().equals(att.getFileName())) {
+        attFound.set(Boolean.TRUE);
+      }
+    });
+    Assertions.assertTrue(attFound.get(), "Attachment found in forEach loop");
+    Assertions.assertEquals(attCount.get(), 1, "Number of attachment in forEach loop ok");
+
+    Assertions.assertNotNull(att, "Created attachment could be found");
+    Assertions.assertEquals(att.getFileSize(), testDataSize, "Created attachment has the right size");
+    Assertions.assertEquals(JNADominoDateTime.from(att.getFileCreated()), JNADominoDateTime.from(fileCreated),
+        "Created attachment has the right creation date");
+    Assertions.assertEquals(JNADominoDateTime.from(att.getFileModified()), JNADominoDateTime.from(fileModified),
+        "Created attachment has the right modified date");
+
+    final ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+    final byte[] buffer = new byte[4096];
+    int len;
+
+    try (InputStream in = att.getInputStream();) {
+      while ((len = in.read(buffer)) > 0) {
+        bOut.write(buffer, 0, len);
+      }
+    }
+
+    final byte[] dataFromFromFile = bOut.toByteArray();
+    Assertions.assertTrue(Arrays.equals(dataWrittenToFile, dataFromFromFile), "Attachment content is correct");
+
+    att.deleteFromDocument();
+
+    final Attachment attAfterDeletion = doc.getAttachment(att.getFileName()).orElse(null);
+    Assertions.assertNull(attAfterDeletion, "Attachment has been deleted");
+  }
 }

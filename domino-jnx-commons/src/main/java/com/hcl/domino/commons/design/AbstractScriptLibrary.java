@@ -21,15 +21,13 @@ import com.hcl.domino.design.ScriptLibrary;
 
 public class AbstractScriptLibrary<T extends ScriptLibrary> extends AbstractNamedDesignElement<T> implements ScriptLibrary {
 
-	public AbstractScriptLibrary(Document doc) {
-		super(doc);
-	}
+  public AbstractScriptLibrary(final Document doc) {
+    super(doc);
+  }
 
-	@Override
-	public void initializeNewDesignNote() {
-		
-	}
+  @Override
+  public void initializeNewDesignNote() {
 
-
+  }
 
 }

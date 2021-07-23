@@ -14,7 +14,7 @@
  * under the License.
  * ==========================================================================
  */
- package com.hcl.domino.freebusy;
+package com.hcl.domino.freebusy;
 
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -22,7 +22,7 @@ import java.util.stream.StreamSupport;
 import com.hcl.domino.data.IAdaptable;
 
 public interface Schedules extends IAdaptable, Iterable<Schedule> {
-	default Stream<Schedule> stream() {
-        return StreamSupport.stream(spliterator(), false);
-    }
+  default Stream<Schedule> stream() {
+    return StreamSupport.stream(this.spliterator(), false);
+  }
 }

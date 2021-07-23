@@ -24,102 +24,102 @@ import java.util.List;
  */
 public interface Formula {
 
-	/**
-	 * Returns the formula string that was used to compile this {@link Formula}
-	 * object
-	 * 
-	 * @return formula string
-	 */
-	String getFormula();
-	
-	/**
-	 * Evaluates the formula in the current environment (client/server)
-	 * 
-	 * @return the return values of the formula as a {@link List}
-	 */
-	List<Object> evaluate();
+  /**
+   * Formula computation result
+   */
+  public interface FormulaExecutionResult {
 
-	/**
-	 * Evaluates the formula and converts the result to a string
-	 * 
-	 * @return result
-	 */
-	String evaluateAsString();
+    /**
+     * Returns the result
+     *
+     * @return result, e.g. List with String or {@link DominoDateTime}
+     */
+    List<Object> getValue();
 
-	/**
-	 * Evaluates the formula and converts the result to a number
-	 * 
-	 * @param defaultValue default value to be returned of result is not a number
-	 * @return result
-	 */
-	Double evaluateAsNumber(Double defaultValue);
+    /**
+     * Returns true if the formula has modified the document
+     *
+     * @return true if modified
+     */
+    boolean isDocModified();
 
-	/**
-	 * Runs a formula on a document
-	 * 
-	 * @param doc the document context
-	 * @return result, e.g. List with String or {@link DominoDateTime}
-	 */
-	List<Object> evaluate(Document doc);
+    /**
+     * Returns true if the formula matches the current document
+     *
+     * @return true if match
+     */
+    boolean matchesFormula();
 
-	/**
-	 * Runs a formula on a document and converts the result to a string
-	 * 
-	 * @param doc document
-	 * @return result
-	 */
-	String evaluateAsString(Document doc);
+    /**
+     * Returns true if the formula triggered a @DeleteDocument function
+     *
+     * @return true if deletion is requested
+     */
+    boolean shouldBeDeleted();
 
-	/**
-	 * Runs a formula on a document and converts the result to a number
-	 * 
-	 * @param doc document
-	 * @param defaultValue default value to be returned of result is not a number
-	 * @return result
-	 */
-	Double evaluateAsNumber(Document doc, Double defaultValue);
+  }
 
-	/**
-	 * Formula execution that returns more information about the computation
-	 * result
-	 * 
-	 * @param doc document
-	 * @return result
-	 */
-	FormulaExecutionResult evaluateExt(Document doc);
-	
-	/**
-	 * Formula computation result
-	 */
-	public interface FormulaExecutionResult {
-		
-		/**
-		 * Returns the result
-		 * 
-		 * @return result, e.g. List with String or {@link DominoDateTime}
-		 */
-		List<Object> getValue();
+  /**
+   * Evaluates the formula in the current environment (client/server)
+   *
+   * @return the return values of the formula as a {@link List}
+   */
+  List<Object> evaluate();
 
-		/**
-		 * Returns true if the formula matches the current document
-		 * 
-		 * @return true if match
-		 */
-		boolean matchesFormula();
-		
-		/**
-		 * Returns true if the formula triggered a @DeleteDocument function
-		 * 
-		 * @return true if deletion is requested
-		 */
-		boolean shouldBeDeleted();
-		
-		/**
-		 * Returns true if the formula has modified the document
-		 * 
-		 * @return true if modified
-		 */
-		boolean isDocModified();
-		
-	}
+  /**
+   * Runs a formula on a document
+   *
+   * @param doc the document context
+   * @return result, e.g. List with String or {@link DominoDateTime}
+   */
+  List<Object> evaluate(Document doc);
+
+  /**
+   * Runs a formula on a document and converts the result to a number
+   *
+   * @param doc          document
+   * @param defaultValue default value to be returned of result is not a number
+   * @return result
+   */
+  Double evaluateAsNumber(Document doc, Double defaultValue);
+
+  /**
+   * Evaluates the formula and converts the result to a number
+   *
+   * @param defaultValue default value to be returned of result is not a number
+   * @return result
+   */
+  Double evaluateAsNumber(Double defaultValue);
+
+  /**
+   * Evaluates the formula and converts the result to a string
+   *
+   * @return result
+   */
+  String evaluateAsString();
+
+  /**
+   * Runs a formula on a document and converts the result to a string
+   *
+   * @param doc document
+   * @return result
+   */
+  String evaluateAsString(Document doc);
+
+  /**
+   * Formula execution that returns more information about the computation
+   * result
+   *
+   * @param doc document
+   * @return result
+   */
+  FormulaExecutionResult evaluateExt(Document doc);
+
+  /**
+   * Returns the formula string that was used to compile this {@link Formula}
+   * object
+   *
+   * @return formula string
+   */
+  String getFormula();
 }

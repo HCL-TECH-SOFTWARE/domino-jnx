@@ -25,87 +25,89 @@ import com.hcl.domino.data.Document;
 
 /**
  * Access to forms, views, resources read/write
- * 
- * @author t.b.d
  *
+ * @author t.b.d
  */
 public interface DesignElement {
-	interface NamedDesignElement extends DesignElement {
-		String getTitle();
-		List<String> getAliases();
-		
-		/**
-		 * Sets the title of the design element.
-		 * 
-		 * @param title the new element title and any aliases
-		 */
-		void setTitle(String... title);
-	}
-	/**
-	 * This mixin interface describes a design element element that has
-	 * "display XPage instead" capabilities for web viewers.
-	 * 
-	 * @author Jesse Gallagher
-	 * @since 1.0.27
-	 */
-	interface XPageAlternativeElement {
-		Optional<String> getWebXPageAlternative();
-	}
-	/**
-	 * This mixin interface describes a design element element that has
-	 * "display XPage instead" capabilities for Notes viewers.
-	 * 
-	 * @author Jesse Gallagher
-	 * @since 1.0.27
-	 */
-	interface XPageNotesAlternativeElement {
-		Optional<String> getNotesXPageAlternative();
-	}
+  interface NamedDesignElement extends DesignElement {
+    List<String> getAliases();
 
-    boolean isProhibitRefresh();
+    String getTitle();
 
-    void setProhibitRefresh(boolean prohibitRefresh);
-
-    boolean isHideFromWeb();
-
-    void setHideFromWeb(boolean hideFromWeb);
-
-    boolean isHideFromNotes();
-
-    void setHideFromNotes(boolean hideFromNotes);
-
-    boolean isHideFromMobile();
-
-    void setHideFromMobile(boolean hideFromMobile);
-    
     /**
-     * @return the comment assigned to the design element
-     * @since 1.0.24
+     * Sets the title of the design element.
+     *
+     * @param title the new element title and any aliases
      */
-    String getComment();
-    
-    /**
-     * Sets a comment for the design element
-     * 
-     * @param comment the comment to set
-     * @since 1.0.24
-     */
-    void setComment(String comment);
+    void setTitle(String... title);
+  }
 
-    void sign();
-    
-    void sign(UserId id);
-    
-    boolean save();
+  /**
+   * This mixin interface describes a design element element that has
+   * "display XPage instead" capabilities for web viewers.
+   *
+   * @author Jesse Gallagher
+   * @since 1.0.27
+   */
+  interface XPageAlternativeElement {
+    Optional<String> getWebXPageAlternative();
+  }
 
-    Collection<String> getItemNames();
+  /**
+   * This mixin interface describes a design element element that has
+   * "display XPage instead" capabilities for Notes viewers.
+   *
+   * @author Jesse Gallagher
+   * @since 1.0.27
+   */
+  interface XPageNotesAlternativeElement {
+    Optional<String> getNotesXPageAlternative();
+  }
 
-    String getDesignerVersion();
-    
-    /**
-     * @return the document underlying this design element
-     * @since 1.0.18
-     */
-    Document getDocument();
+  /**
+   * @return the comment assigned to the design element
+   * @since 1.0.24
+   */
+  String getComment();
+
+  String getDesignerVersion();
+
+  /**
+   * @return the document underlying this design element
+   * @since 1.0.18
+   */
+  Document getDocument();
+
+  Collection<String> getItemNames();
+
+  boolean isHideFromMobile();
+
+  boolean isHideFromNotes();
+
+  boolean isHideFromWeb();
+
+  boolean isProhibitRefresh();
+
+  boolean save();
+
+  /**
+   * Sets a comment for the design element
+   *
+   * @param comment the comment to set
+   * @since 1.0.24
+   */
+  void setComment(String comment);
+
+  void setHideFromMobile(boolean hideFromMobile);
+
+  void setHideFromNotes(boolean hideFromNotes);
+
+  void setHideFromWeb(boolean hideFromWeb);
+
+  void setProhibitRefresh(boolean prohibitRefresh);
+
+  void sign();
+
+  void sign(UserId id);
 
 }

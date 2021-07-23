@@ -24,13 +24,13 @@ import com.hcl.domino.design.Folder;
  */
 public class FolderImpl extends AbstractCollectionDesignElement<Folder> implements Folder {
 
-	public FolderImpl(Document doc) {
-		super(doc);
-	}
-	
-	@Override
-	public void initializeNewDesignNote() {
-		setFlags("F3Y"); //$NON-NLS-1$
-	}
+  public FolderImpl(final Document doc) {
+    super(doc);
+  }
+
+  @Override
+  public void initializeNewDesignNote() {
+    this.setFlags("F3Y"); //$NON-NLS-1$
+  }
 
 }

@@ -25,36 +25,37 @@ import com.hcl.domino.data.CollectionColumn;
  */
 public interface CollectionDesignElement extends DesignElement.NamedDesignElement, DesignElement.XPageAlternativeElement {
 
-	public enum OnOpen {
-		GOTO_LAST_OPENED,
-		GOTO_TOP,
-		GOTO_BOTTOM
-	}
-    public enum OnRefresh {
-		DISPLAY_INDICATOR,
-		REFRESH_DISPLAY,
-		REFRESH_FROM_TOP,
-		REFRESH_FROM_BOTTOM
-	}
+  public enum OnOpen {
+    GOTO_LAST_OPENED,
+    GOTO_TOP,
+    GOTO_BOTTOM
+  }
 
-	CollectionDesignElement addColumn();
+  public enum OnRefresh {
+    DISPLAY_INDICATOR,
+    REFRESH_DISPLAY,
+    REFRESH_FROM_TOP,
+    REFRESH_FROM_BOTTOM
+  }
 
-	List<CollectionColumn> getColumns();
+  CollectionDesignElement addColumn();
 
-	CollectionDesignElement removeColumn(CollectionColumn column);
+  com.hcl.domino.data.DominoCollection getCollection();
 
-	CollectionDesignElement swapColumns(int a, int b);
+  List<CollectionColumn> getColumns();
 
-	CollectionDesignElement swapColumns(CollectionColumn a, CollectionColumn b);
+  OnOpen getOnOpenUISetting();
 
-	com.hcl.domino.data.DominoCollection getCollection();
+  OnRefresh getOnRefreshUISetting();
 
-	OnOpen getOnOpenUISetting();
-	
-	OnRefresh getOnRefreshUISetting();
+  boolean isAllowCustomizations();
 
-	CollectionDesignElement setOnRefreshUISetting(OnRefresh onRefreshUISetting);
-	
-	boolean isAllowCustomizations();
-    
+  CollectionDesignElement removeColumn(CollectionColumn column);
+
+  CollectionDesignElement setOnRefreshUISetting(OnRefresh onRefreshUISetting);
+
+  CollectionDesignElement swapColumns(CollectionColumn a, CollectionColumn b);
+
+  CollectionDesignElement swapColumns(int a, int b);
+
 }

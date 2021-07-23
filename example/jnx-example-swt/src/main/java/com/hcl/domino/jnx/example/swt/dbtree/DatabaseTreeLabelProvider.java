@@ -24,27 +24,27 @@ import org.eclipse.swt.graphics.Image;
 
 public class DatabaseTreeLabelProvider extends LabelProvider implements ILabelProvider, ITableColorProvider {
 
-	@Override
-	public String getText(Object element) {
-		return String.valueOf(element);
-	}
-	
-	@Override
-	public Image getImage(Object element) {
-		if(element instanceof DBListTreeNode) {
-			return ((DBListTreeNode)element).getImage();
-		}
-		return super.getImage(element);
-	}
-	
-	@Override
-	public Color getBackground(Object var1, int var2) {
-		return null;
-	}
+  @Override
+  public Color getBackground(final Object var1, final int var2) {
+    return null;
+  }
 
-	@Override
-	public Color getForeground(Object var1, int var2) {
-		return null;
-	}
+  @Override
+  public Color getForeground(final Object var1, final int var2) {
+    return null;
+  }
+
+  @Override
+  public Image getImage(final Object element) {
+    if (element instanceof DBListTreeNode) {
+      return ((DBListTreeNode) element).getImage();
+    }
+    return super.getImage(element);
+  }
+
+  @Override
+  public String getText(final Object element) {
+    return String.valueOf(element);
+  }
 
 }

@@ -25,77 +25,86 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.LSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.2
  */
-@StructureDefinition(
-	name="CDIMAGEHEADER",
-	members={
-		@StructureMember(name="Header", type=LSIG.class),
-		@StructureMember(name="ImageType", type=CDImageHeader.ImageType.class),
-		@StructureMember(name="Width", type=short.class, unsigned=true),
-		@StructureMember(name="Height", type=short.class, unsigned=true),
-		@StructureMember(name="ImageDataSize", type=int.class, unsigned=true),
-		@StructureMember(name="SegCount", type=int.class, unsigned=true),
-		@StructureMember(name="Flags", type=int.class),
-		@StructureMember(name="Reserved", type=int.class)
-	}
-)
+@StructureDefinition(name = "CDIMAGEHEADER", members = {
+    @StructureMember(name = "Header", type = LSIG.class),
+    @StructureMember(name = "ImageType", type = CDImageHeader.ImageType.class),
+    @StructureMember(name = "Width", type = short.class, unsigned = true),
+    @StructureMember(name = "Height", type = short.class, unsigned = true),
+    @StructureMember(name = "ImageDataSize", type = int.class, unsigned = true),
+    @StructureMember(name = "SegCount", type = int.class, unsigned = true),
+    @StructureMember(name = "Flags", type = int.class),
+    @StructureMember(name = "Reserved", type = int.class)
+})
 public interface CDImageHeader extends RichTextRecord<LSIG> {
-	enum ImageType implements INumberEnum<Short> {
-		GIF(RichTextConstants.CDIMAGETYPE_GIF),
-		JPEG(RichTextConstants.CDIMAGETYPE_JPEG),
-		BMP(RichTextConstants.CDIMAGETYPE_BMP),
-		PNG(RichTextConstants.CDIMAGETYPE_PNG);
-		private short value;
-		ImageType(short value) { this.value = value; }
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-		@Override
-		public Short getValue() {
-			return value;
-		}
-	}
-	
-	@StructureGetter("Header")
-	@Override
-	LSIG getHeader();
-	
-	@StructureGetter("ImageType")
-	ImageType getImageType();
-	@StructureSetter("ImageType")
-	CDImageHeader setImageType(ImageType imageType);
-	
-	@StructureGetter("Width")
-	int getWidth();
-	@StructureSetter("Width")
-	CDImageHeader setWidth(int width);
-	
-	@StructureGetter("Height")
-	int getHeight();
-	@StructureSetter("Height")
-	CDImageHeader setHeight(int height);
-	
-	@StructureGetter("ImageDataSize")
-	long getImageDataSize();
-	@StructureSetter("ImageDataSize")
-	CDImageHeader setImageDataSize(long imageDataSize);
-	
-	@StructureGetter("SegCount")
-	long getSegCount();
-	@StructureSetter("SegCount")
-	CDImageHeader setSegCount(long segCount);
-	
-	@StructureGetter("Flags")
-	int getFlags();
-	@StructureSetter("Flags")
-	CDImageHeader setFlags(int flags);
-	
-	@StructureGetter("Reserved")
-	int getReserved();
-	@StructureSetter("Reserved")
-	CDImageHeader setReserved(int reserved);
+  enum ImageType implements INumberEnum<Short> {
+    GIF(RichTextConstants.CDIMAGETYPE_GIF),
+    JPEG(RichTextConstants.CDIMAGETYPE_JPEG),
+    BMP(RichTextConstants.CDIMAGETYPE_BMP),
+    PNG(RichTextConstants.CDIMAGETYPE_PNG);
+
+    private final short value;
+
+    ImageType(final short value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Short getValue() {
+      return this.value;
+    }
+  }
+
+  @StructureGetter("Flags")
+  int getFlags();
+
+  @StructureGetter("Header")
+  @Override
+  LSIG getHeader();
+
+  @StructureGetter("Height")
+  int getHeight();
+
+  @StructureGetter("ImageDataSize")
+  long getImageDataSize();
+
+  @StructureGetter("ImageType")
+  ImageType getImageType();
+
+  @StructureGetter("Reserved")
+  int getReserved();
+
+  @StructureGetter("SegCount")
+  long getSegCount();
+
+  @StructureGetter("Width")
+  int getWidth();
+
+  @StructureSetter("Flags")
+  CDImageHeader setFlags(int flags);
+
+  @StructureSetter("Height")
+  CDImageHeader setHeight(int height);
+
+  @StructureSetter("ImageDataSize")
+  CDImageHeader setImageDataSize(long imageDataSize);
+
+  @StructureSetter("ImageType")
+  CDImageHeader setImageType(ImageType imageType);
+
+  @StructureSetter("Reserved")
+  CDImageHeader setReserved(int reserved);
+
+  @StructureSetter("SegCount")
+  CDImageHeader setSegCount(long segCount);
+
+  @StructureSetter("Width")
+  CDImageHeader setWidth(int width);
 }

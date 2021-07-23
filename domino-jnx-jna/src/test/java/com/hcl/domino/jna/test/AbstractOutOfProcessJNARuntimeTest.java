@@ -17,5 +17,5 @@
 package com.hcl.domino.jna.test;
 
 public class AbstractOutOfProcessJNARuntimeTest extends AbstractJNARuntimeTest {
-	
+
 }

@@ -20,64 +20,63 @@ package com.hcl.domino.jnx.console.internal;
  * Container for a console command
  */
 public class CommandMap {
-    private String cmd;
-    private byte[] data;
-    private String dest;
-    private boolean group;
-    private int type;
-    private int indx;
+  private String cmd;
+  private byte[] data;
+  private String dest;
+  private boolean group;
+  private int type;
+  private int indx;
 
-    void setCommand(String cmd) {
-        this.cmd = cmd;
-    }
+  String getCommand() {
+    return this.cmd;
+  }
 
-    String getCommand() {
-        return this.cmd;
-    }
+  byte[] getData() {
+    return this.data;
+  }
 
-    void setData(byte[] data) {
-        this.data = data;
-    }
+  String getDestination() {
+    return this.dest;
+  }
 
-    byte[] getData() {
-        return this.data;
-    }
+  int getIndex() {
+    return this.indx;
+  }
 
-    void setDestination(String dest) {
-        this.dest = dest;
-    }
+  int getType() {
+    return this.type;
+  }
 
-    String getDestination() {
-        return this.dest;
-    }
+  boolean isGroup() {
+    return this.group;
+  }
 
-    void setGroup(boolean b) {
-        this.group = b;
-    }
+  void setCommand(final String cmd) {
+    this.cmd = cmd;
+  }
 
-    boolean isGroup() {
-        return this.group;
-    }
+  void setData(final byte[] data) {
+    this.data = data;
+  }
 
-    void setType(int type) {
-        this.type = type;
-    }
+  void setData(final byte[] data, final int len) {
+    this.data = new byte[len];
+    System.arraycopy(data, 0, this.data, 0, len);
+  }
 
-    int getType() {
-        return this.type;
-    }
+  void setDestination(final String dest) {
+    this.dest = dest;
+  }
 
-    void setIndex(int n) {
-        this.indx = n;
-    }
+  void setGroup(final boolean b) {
+    this.group = b;
+  }
 
-    int getIndex() {
-        return this.indx;
-    }
+  void setIndex(final int n) {
+    this.indx = n;
+  }
 
-    void setData(byte[] data, int len) {
-        this.data = new byte[len];
-        System.arraycopy(data, 0, this.data, 0, len);
-    }
+  void setType(final int type) {
+    this.type = type;
+  }
 }
-

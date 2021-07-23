@@ -23,87 +23,79 @@ import com.hcl.domino.commons.org.apache.commons.mail.DataSourceResolver;
 import jakarta.activation.DataSource;
 
 /**
- * A composite data source resolver. It allows to resolve data sources coming from
+ * A composite data source resolver. It allows to resolve data sources coming
+ * from
  * multiple locations such as the classpath, the file system or an URL.
  *
  * @since 1.3
  */
 @SuppressWarnings("nls")
-public class DataSourceCompositeResolver extends DataSourceBaseResolver
-{
-    /** the list of resolvers */
-    private final DataSourceResolver[] dataSourceResolvers;
+public class DataSourceCompositeResolver extends DataSourceBaseResolver {
+  /** the list of resolvers */
+  private final DataSourceResolver[] dataSourceResolvers;
 
-    /**
-     * Constructor.
-     *
-     * @param dataSourceResolvers a list of of resolvers being used
-     */
-    public DataSourceCompositeResolver(final DataSourceResolver[] dataSourceResolvers)
-    {
-        this.dataSourceResolvers = new DataSourceResolver[dataSourceResolvers.length];
-        System.arraycopy(dataSourceResolvers, 0, this.dataSourceResolvers, 0, dataSourceResolvers.length);
+  /**
+   * Constructor.
+   *
+   * @param dataSourceResolvers a list of of resolvers being used
+   */
+  public DataSourceCompositeResolver(final DataSourceResolver[] dataSourceResolvers) {
+    this.dataSourceResolvers = new DataSourceResolver[dataSourceResolvers.length];
+    System.arraycopy(dataSourceResolvers, 0, this.dataSourceResolvers, 0, dataSourceResolvers.length);
+  }
+
+  /**
+   * Constructor.
+   *
+   * @param dataSourceResolvers a list of of resolvers being used
+   * @param isLenient           shall we ignore resources not found or throw an
+   *                            exception?
+   */
+  public DataSourceCompositeResolver(final DataSourceResolver[] dataSourceResolvers, final boolean isLenient) {
+    super(isLenient);
+    this.dataSourceResolvers = new DataSourceResolver[dataSourceResolvers.length];
+    System.arraycopy(dataSourceResolvers, 0, this.dataSourceResolvers, 0, dataSourceResolvers.length);
+  }
+
+  /**
+   * Get the underlying data source resolvers.
+   *
+   * @return underlying data source resolvers
+   */
+  public DataSourceResolver[] getDataSourceResolvers() {
+    // clone the internal array to prevent external modification (see EMAIL-116)
+    final DataSourceResolver[] resolvers = new DataSourceResolver[this.dataSourceResolvers.length];
+    System.arraycopy(this.dataSourceResolvers, 0, resolvers, 0, this.dataSourceResolvers.length);
+    return resolvers;
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public DataSource resolve(final String resourceLocation) throws IOException {
+    final DataSource result = this.resolve(resourceLocation, true);
+
+    if (this.isLenient() || result != null) {
+      return result;
+    }
+    throw new IOException("The following resource was not found : " + resourceLocation);
+
+  }
+
+  /** {@inheritDoc} */
+  @Override
+  public DataSource resolve(final String resourceLocation, final boolean isLenient) throws IOException {
+    for (int i = 0; i < this.getDataSourceResolvers().length; i++) {
+      final DataSourceResolver dataSourceResolver = this.getDataSourceResolvers()[i];
+      final DataSource dataSource = dataSourceResolver.resolve(resourceLocation, isLenient);
+
+      if (dataSource != null) {
+        return dataSource;
+      }
     }
 
-    /**
-     * Constructor.
-     *
-     * @param dataSourceResolvers a list of of resolvers being used
-     * @param isLenient shall we ignore resources not found or throw an exception?
-     */
-    public DataSourceCompositeResolver(final DataSourceResolver[] dataSourceResolvers, final boolean isLenient)
-    {
-        super(isLenient);
-        this.dataSourceResolvers = new DataSourceResolver[dataSourceResolvers.length];
-        System.arraycopy(dataSourceResolvers, 0, this.dataSourceResolvers, 0, dataSourceResolvers.length);
+    if (isLenient) {
+      return null;
     }
-
-    /**
-     * Get the underlying data source resolvers.
-     *
-     * @return underlying data source resolvers
-     */
-    public DataSourceResolver[] getDataSourceResolvers()
-    {
-        // clone the internal array to prevent external modification (see EMAIL-116)
-        final DataSourceResolver[] resolvers = new DataSourceResolver[dataSourceResolvers.length];
-        System.arraycopy(dataSourceResolvers, 0, resolvers, 0, dataSourceResolvers.length);
-        return resolvers;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public DataSource resolve(final String resourceLocation) throws IOException
-    {
-        final DataSource result = resolve(resourceLocation, true);
-
-        if (isLenient() || result != null)
-        {
-            return result;
-        }
-        throw new IOException("The following resource was not found : " + resourceLocation);
-
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public DataSource resolve(final String resourceLocation, final boolean isLenient) throws IOException
-    {
-        for (int i = 0; i < getDataSourceResolvers().length; i++)
-        {
-            final DataSourceResolver dataSourceResolver = getDataSourceResolvers()[i];
-            final DataSource dataSource = dataSourceResolver.resolve(resourceLocation, isLenient);
-
-            if (dataSource != null)
-            {
-                return dataSource;
-            }
-        }
-
-        if (isLenient)
-        {
-            return null;
-        }
-        throw new IOException("The following resource was not found : " + resourceLocation);
-    }
+    throw new IOException("The following resource was not found : " + resourceLocation);
+  }
 }

@@ -28,22 +28,22 @@ import com.hcl.domino.design.action.ModifyByFormAction;
  * @since 1.0.24
  */
 public class DefaultModifyByFormAction implements ModifyByFormAction {
-	private final String formName;
-	private final Map<String, List<String>> modifications;
-	
-	public DefaultModifyByFormAction(String formName, Map<String, List<String>> modifications) {
-		this.formName = formName;
-		this.modifications = new LinkedHashMap<>(modifications);
-	}
+  private final String formName;
+  private final Map<String, List<String>> modifications;
 
-	@Override
-	public String getFormName() {
-		return formName;
-	}
+  public DefaultModifyByFormAction(final String formName, final Map<String, List<String>> modifications) {
+    this.formName = formName;
+    this.modifications = new LinkedHashMap<>(modifications);
+  }
 
-	@Override
-	public Map<String, List<String>> getModifications() {
-		return Collections.unmodifiableMap(modifications);
-	}
+  @Override
+  public String getFormName() {
+    return this.formName;
+  }
+
+  @Override
+  public Map<String, List<String>> getModifications() {
+    return Collections.unmodifiableMap(this.modifications);
+  }
 
 }

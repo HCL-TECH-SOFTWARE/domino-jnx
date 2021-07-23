@@ -24,29 +24,35 @@ import com.hcl.domino.security.UserTokenHandler;
  * This service interface represents a provider that is able to process a token
  * supplied to {@link IdVault#getUserIdWithToken(Object, String)} and retrieve
  * a {@link UserId} implementation.
- * 
+ *
  * @param <T> the class consumed by this handler
  * @author Jesse Gallagher
  * @since 1.0.19
  */
 public interface IdVaultTokenHandler<T> extends UserTokenHandler<T> {
-	/**
-	 * Processes the provided token object to look up a {@link UserId} representation.
-	 * 
-	 * <p>This method is potentially called when {@link #canProcess(Object)} returns {@code true}
-	 * and should either:</p>
-	 * 
-	 * <ol>
-	 *   <li>Return an {@code Optional} describing a user ID if found,</li>
-	 *   <li>Return an empty optional if the token was processable but no matching user exists (e.g. if
-	 *     this object represents one of many potential directories), or</li>
-	 *   <li>Throw an exception if the token was invalid or otherwise unprocessable.</li>
-	 * </ol>
-	 * 
-	 * @param token the token to process
-	 * @param serverName the name of the server to look up on (may be ignored by implementations)
-	 * @param contextIdVault the {@link IdVault} instance calling the method
-	 * @return an {@link Optional} describing a {@link UserId}, or an empty one if a matching user cannot be located
-	 */
-	Optional<UserId> getUserId(T token, String serverName, IdVault contextIdVault);
+  /**
+   * Processes the provided token object to look up a {@link UserId}
+   * representation.
+   * <p>
+   * This method is potentially called when {@link #canProcess(Object)} returns
+   * {@code true}
+   * and should either:
+   * </p>
+   * <ol>
+   * <li>Return an {@code Optional} describing a user ID if found,</li>
+   * <li>Return an empty optional if the token was processable but no matching
+   * user exists (e.g. if
+   * this object represents one of many potential directories), or</li>
+   * <li>Throw an exception if the token was invalid or otherwise
+   * unprocessable.</li>
+   * </ol>
+   *
+   * @param token          the token to process
+   * @param serverName     the name of the server to look up on (may be ignored by
+   *                       implementations)
+   * @param contextIdVault the {@link IdVault} instance calling the method
+   * @return an {@link Optional} describing a {@link UserId}, or an empty one if a
+   *         matching user cannot be located
+   */
+  Optional<UserId> getUserId(T token, String serverName, IdVault contextIdVault);
 }

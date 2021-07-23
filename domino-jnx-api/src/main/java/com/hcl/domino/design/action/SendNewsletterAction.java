@@ -21,17 +21,23 @@ package com.hcl.domino.design.action;
  * @since 1.0.24
  */
 public interface SendNewsletterAction extends SimpleAction {
-	boolean isIncludeSummary();
-	boolean isGatherDocuments();
-	boolean isIncludeAllNotes();
-	
-	long getGatherThreshold();
-	
-	String getViewName();
-	
-	String getTo();
-	String getCc();
-	String getBcc();
-	String getSubject();
-	String getBody();
+  String getBcc();
+
+  String getBody();
+
+  String getCc();
+
+  long getGatherThreshold();
+
+  String getSubject();
+
+  String getTo();
+
+  String getViewName();
+
+  boolean isGatherDocuments();
+
+  boolean isIncludeAllNotes();
+
+  boolean isIncludeSummary();
 }

@@ -25,57 +25,55 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.LSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.2
  */
-@StructureDefinition(
-	name="CDIMAGESEGMENT",
-	members={
-		@StructureMember(name="Header", type=LSIG.class),
-		@StructureMember(name="DataSize", type=short.class, unsigned=true),
-		@StructureMember(name="SegSize", type=short.class, unsigned=true)
-	}
-)
+@StructureDefinition(name = "CDIMAGESEGMENT", members = {
+    @StructureMember(name = "Header", type = LSIG.class),
+    @StructureMember(name = "DataSize", type = short.class, unsigned = true),
+    @StructureMember(name = "SegSize", type = short.class, unsigned = true)
+})
 public interface CDImageSegment extends RichTextRecord<LSIG> {
-	@StructureGetter("Header")
-	@Override
-	LSIG getHeader();
-	
-	@StructureGetter("DataSize")
-	int getDataSize();
-	@StructureSetter("DataSize")
-	CDImageSegment setDataSize(int dataSize);
-	
-	@StructureGetter("SegSize")
-	int getSegSize();
-	@StructureSetter("SegSize")
-	CDImageSegment setSegSize(int segSize);
-	
-	/**
-	 * Returns the raw data of this image segment
-	 * 
-	 * @return the image segment data as a byte array
-	 */
-	default byte[] getImageSegmentData() {
-		ByteBuffer buf = getVariableData();
-		int len = getDataSize();
-		byte[] result = new byte[len];
-		buf.get(result);
-		return result;
-	}
-	
-	default CDImageSegment setImageSegmentData(byte[] data) {
-		return setImageSegmentData(data, data.length);
-	}
-	
-	default CDImageSegment setImageSegmentData(byte[] data, int len) {
-		ByteBuffer buf = getVariableData();
-		buf.put(data, 0, len);
-		int remaining = buf.remaining();
-		for(int i = 0; i < remaining; i++) {
-			buf.put((byte)0);
-		}
-		return this;
-	}
+  @StructureGetter("DataSize")
+  int getDataSize();
+
+  @StructureGetter("Header")
+  @Override
+  LSIG getHeader();
+
+  /**
+   * Returns the raw data of this image segment
+   *
+   * @return the image segment data as a byte array
+   */
+  default byte[] getImageSegmentData() {
+    final ByteBuffer buf = this.getVariableData();
+    final int len = this.getDataSize();
+    final byte[] result = new byte[len];
+    buf.get(result);
+    return result;
+  }
+
+  @StructureGetter("SegSize")
+  int getSegSize();
+
+  @StructureSetter("DataSize")
+  CDImageSegment setDataSize(int dataSize);
+
+  default CDImageSegment setImageSegmentData(final byte[] data) {
+    return this.setImageSegmentData(data, data.length);
+  }
+
+  default CDImageSegment setImageSegmentData(final byte[] data, final int len) {
+    final ByteBuffer buf = this.getVariableData();
+    buf.put(data, 0, len);
+    final int remaining = buf.remaining();
+    for (int i = 0; i < remaining; i++) {
+      buf.put((byte) 0);
+    }
+    return this;
+  }
+
+  @StructureSetter("SegSize")
+  CDImageSegment setSegSize(int segSize);
 }

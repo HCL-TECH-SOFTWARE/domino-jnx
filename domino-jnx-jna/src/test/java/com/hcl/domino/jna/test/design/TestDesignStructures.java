@@ -16,11 +16,10 @@
  */
 package com.hcl.domino.jna.test.design;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
@@ -30,46 +29,48 @@ import com.hcl.domino.misc.ViewFormatConstants;
 
 @SuppressWarnings("nls")
 public class TestDesignStructures {
-	@Test
-	public void testViewColumnFormat() {
-		ByteBuffer data;
-		{
-			ViewColumnFormat format = MemoryStructureProxy.newStructure(ViewColumnFormat.class, 0);
-			format.setSignature(ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE);
-			format.setFlags(EnumSet.of(ViewColumnFormat.Flag.Hidden));
-			format.setFlags2(EnumSet.of(ViewColumnFormat.Flag2.ShowValuesAsLinks));
-			format.setAlignment(ViewColumnFormat.Alignment.CENTER);
-			format.setTotalType(ViewColumnFormat.StatType.AVG_PER_ENTRY);
-			format.setHeaderAlignment(ViewColumnFormat.Alignment.RIGHT);
-			format.setHeaderReadingOrder(ReadingOrder.LTR);
-			format.setReadingOrder(ReadingOrder.LTR);
-			
-			assertEquals(EnumSet.of(ViewColumnFormat.Flag2.ShowValuesAsLinks), format.getFlags2());
-			assertEquals(ViewColumnFormat.Alignment.CENTER, format.getAlignment());
-			assertEquals(ViewColumnFormat.StatType.AVG_PER_ENTRY, format.getTotalType());
-			assertEquals(ViewColumnFormat.Alignment.RIGHT, format.getHeaderAlignment());
-			assertEquals(ViewColumnFormat.ReadingOrder.LTR, format.getHeaderReadingOrder());
-			assertEquals(ViewColumnFormat.ReadingOrder.LTR, format.getReadingOrder());
-			
-			format.setFlags2(EnumSet.of(ViewColumnFormat.Flag2.SecondResortPermute, ViewColumnFormat.Flag2.SecondResortCategorized));
-			format.setAlignment(ViewColumnFormat.Alignment.RIGHT);
-			format.setTotalType(ViewColumnFormat.StatType.PCT_PARENT);
-			format.setHeaderAlignment(ViewColumnFormat.Alignment.CENTER);
-			format.setReadingOrder(ViewColumnFormat.ReadingOrder.RTL);
-			format.setTitle("hello");
-			
-			data = format.getData();
-		}
-		{
-			ViewColumnFormat format = MemoryStructureProxy.forStructure(ViewColumnFormat.class, () -> data);
-			assertEquals(ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE, format.getSignature());
-			assertEquals(EnumSet.of(ViewColumnFormat.Flag.Hidden), format.getFlags());
-			assertEquals(EnumSet.of(ViewColumnFormat.Flag2.SecondResortPermute, ViewColumnFormat.Flag2.SecondResortCategorized), format.getFlags2());
-			assertEquals(ViewColumnFormat.Alignment.RIGHT, format.getAlignment());
-			assertEquals(ViewColumnFormat.StatType.PCT_PARENT, format.getTotalType());
-			assertEquals(ViewColumnFormat.Alignment.CENTER, format.getHeaderAlignment());
-			assertEquals(ViewColumnFormat.ReadingOrder.RTL, format.getReadingOrder());
-			assertEquals("hello", format.getTitle());
-		}
-	}
+  @Test
+  public void testViewColumnFormat() {
+    ByteBuffer data;
+    {
+      final ViewColumnFormat format = MemoryStructureProxy.newStructure(ViewColumnFormat.class, 0);
+      format.setSignature(ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE);
+      format.setFlags(EnumSet.of(ViewColumnFormat.Flag.Hidden));
+      format.setFlags2(EnumSet.of(ViewColumnFormat.Flag2.ShowValuesAsLinks));
+      format.setAlignment(ViewColumnFormat.Alignment.CENTER);
+      format.setTotalType(ViewColumnFormat.StatType.AVG_PER_ENTRY);
+      format.setHeaderAlignment(ViewColumnFormat.Alignment.RIGHT);
+      format.setHeaderReadingOrder(ReadingOrder.LTR);
+      format.setReadingOrder(ReadingOrder.LTR);
+
+      Assertions.assertEquals(EnumSet.of(ViewColumnFormat.Flag2.ShowValuesAsLinks), format.getFlags2());
+      Assertions.assertEquals(ViewColumnFormat.Alignment.CENTER, format.getAlignment());
+      Assertions.assertEquals(ViewColumnFormat.StatType.AVG_PER_ENTRY, format.getTotalType());
+      Assertions.assertEquals(ViewColumnFormat.Alignment.RIGHT, format.getHeaderAlignment());
+      Assertions.assertEquals(ViewColumnFormat.ReadingOrder.LTR, format.getHeaderReadingOrder());
+      Assertions.assertEquals(ViewColumnFormat.ReadingOrder.LTR, format.getReadingOrder());
+
+      format.setFlags2(EnumSet.of(ViewColumnFormat.Flag2.SecondResortPermute, ViewColumnFormat.Flag2.SecondResortCategorized));
+      format.setAlignment(ViewColumnFormat.Alignment.RIGHT);
+      format.setTotalType(ViewColumnFormat.StatType.PCT_PARENT);
+      format.setHeaderAlignment(ViewColumnFormat.Alignment.CENTER);
+      format.setReadingOrder(ViewColumnFormat.ReadingOrder.RTL);
+      format.setTitle("hello");
+
+      data = format.getData();
+    }
+    {
+      final ViewColumnFormat format = MemoryStructureProxy.forStructure(ViewColumnFormat.class, () -> data);
+      Assertions.assertEquals(ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE, format.getSignature());
+      Assertions.assertEquals(EnumSet.of(ViewColumnFormat.Flag.Hidden), format.getFlags());
+      Assertions.assertEquals(
+          EnumSet.of(ViewColumnFormat.Flag2.SecondResortPermute, ViewColumnFormat.Flag2.SecondResortCategorized),
+          format.getFlags2());
+      Assertions.assertEquals(ViewColumnFormat.Alignment.RIGHT, format.getAlignment());
+      Assertions.assertEquals(ViewColumnFormat.StatType.PCT_PARENT, format.getTotalType());
+      Assertions.assertEquals(ViewColumnFormat.Alignment.CENTER, format.getHeaderAlignment());
+      Assertions.assertEquals(ViewColumnFormat.ReadingOrder.RTL, format.getReadingOrder());
+      Assertions.assertEquals("hello", format.getTitle());
+    }
+  }
 }

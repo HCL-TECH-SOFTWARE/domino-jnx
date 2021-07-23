@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
-import jakarta.enterprise.inject.spi.CDI;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
@@ -36,59 +34,60 @@ import com.hcl.domino.data.Item;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.jnx.example.swt.info.AbstractInfoPane;
 
+import jakarta.enterprise.inject.spi.CDI;
 import jakarta.json.bind.Jsonb;
 
 public class DocumentInfoPane extends AbstractInfoPane {
 
-	private Text editor;
-	
-	public DocumentInfoPane(Composite parent, String serverName, String databasePath, String unid) {
-		super(parent, unid);
-		
-		info("UNID", unid); //$NON-NLS-1$
-		ExecutorService exec = CDI.current().select(ExecutorService.class).get();
-		
-		try {
-			@SuppressWarnings("unchecked")
-			List<String> categories = exec.submit(() -> {
-				DominoClient client = CDI.current().select(DominoClient.class).get();
-				Database database = client.openDatabase(serverName, databasePath);
-				Document doc = database.getDocumentByUNID(unid).get();
-				Item catItem = doc.getFirstItem("Categories").orElse(null); //$NON-NLS-1$
-				
-				if(catItem != null && (catItem.getType() == ItemDataType.TYPE_TEXT || catItem.getType() == ItemDataType.TYPE_TEXT_LIST)) {
-					return catItem.getAsList(String.class, Collections.emptyList());
-				} else {
-					return Collections.EMPTY_LIST;
-				}
-			}).get();
-			
-			info("Categories", categories);
-			
-			editor = new Text(this, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.WRAP | SWT.BORDER);
-			editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
-			// TODO pick a non-named font - https://stackoverflow.com/questions/221568/swt-os-agnostic-way-to-get-monospaced-font
-			editor.setFont(new Font(parent.getDisplay(), "Consolas", 12, SWT.NORMAL)); //$NON-NLS-1$
-			
-			
-			Jsonb jsonb = CDI.current().select(Jsonb.class).get();
-			String json = exec.submit(() -> {
-				DominoClient client = CDI.current().select(DominoClient.class).get();
-				Database database = client.openDatabase(serverName, databasePath);
-				Document doc = database.getDocumentByUNID(unid).get();
-				return jsonb.toJson(doc);
-			}).get();
-			editor.setText(json);
-			layout();
-			
-			editor.clearSelection();
-		} catch(ExecutionException | InterruptedException e) {
-			throw new RuntimeException(e);
-		}
-	}
+  private Text editor;
 
-	public String getJsonString() {
-		return editor.getText();
-	}
-	
+  public DocumentInfoPane(final Composite parent, final String serverName, final String databasePath, final String unid) {
+    super(parent, unid);
+
+    this.info("UNID", unid); //$NON-NLS-1$
+    final ExecutorService exec = CDI.current().select(ExecutorService.class).get();
+
+    try {
+      @SuppressWarnings("unchecked")
+      final List<String> categories = exec.submit(() -> {
+        final DominoClient client = CDI.current().select(DominoClient.class).get();
+        final Database database = client.openDatabase(serverName, databasePath);
+        final Document doc = database.getDocumentByUNID(unid).get();
+        final Item catItem = doc.getFirstItem("Categories").orElse(null); //$NON-NLS-1$
+
+        if (catItem != null && (catItem.getType() == ItemDataType.TYPE_TEXT || catItem.getType() == ItemDataType.TYPE_TEXT_LIST)) {
+          return catItem.getAsList(String.class, Collections.emptyList());
+        } else {
+          return Collections.EMPTY_LIST;
+        }
+      }).get();
+
+      this.info("Categories", categories);
+
+      this.editor = new Text(this, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.WRAP | SWT.BORDER);
+      this.editor.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+      // TODO pick a non-named font -
+      // https://stackoverflow.com/questions/221568/swt-os-agnostic-way-to-get-monospaced-font
+      this.editor.setFont(new Font(parent.getDisplay(), "Consolas", 12, SWT.NORMAL)); //$NON-NLS-1$
+
+      final Jsonb jsonb = CDI.current().select(Jsonb.class).get();
+      final String json = exec.submit(() -> {
+        final DominoClient client = CDI.current().select(DominoClient.class).get();
+        final Database database = client.openDatabase(serverName, databasePath);
+        final Document doc = database.getDocumentByUNID(unid).get();
+        return jsonb.toJson(doc);
+      }).get();
+      this.editor.setText(json);
+      this.layout();
+
+      this.editor.clearSelection();
+    } catch (ExecutionException | InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public String getJsonString() {
+    return this.editor.getText();
+  }
+
 }

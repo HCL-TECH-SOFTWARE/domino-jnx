@@ -26,18 +26,18 @@ import com.hcl.domino.data.IAdaptable;
  */
 public interface UserNamesList extends Iterable<String>, IAdaptable {
 
-	/**
-	 * Returns the first value of the list
-	 * 
-	 * @return primary name
-	 */
-	String getPrimaryName();
-	
-	/**
-	 * Returns the names contained in this names list
-	 * 
-	 * @return names
-	 */
-	List<String> toList();
-	
+  /**
+   * Returns the first value of the list
+   *
+   * @return primary name
+   */
+  String getPrimaryName();
+
+  /**
+   * Returns the names contained in this names list
+   *
+   * @return names
+   */
+  List<String> toList();
+
 }

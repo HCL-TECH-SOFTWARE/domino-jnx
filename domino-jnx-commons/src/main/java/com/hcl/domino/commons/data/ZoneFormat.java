@@ -21,33 +21,34 @@ import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.NotesConstants;
 
 /**
- * Specifies how to format the timezone part of a {@link DominoDateTime} to a string.
- * 
+ * Specifies how to format the timezone part of a {@link DominoDateTime} to a
+ * string.
+ *
  * @author Karsten Lehmann
  */
 public enum ZoneFormat implements INumberEnum<Byte> {
-	
-	/** all times converted to THIS zone */
-	NEVER(NotesConstants.TZFMT_NEVER),
-	/** show only when outside this zone */
-	SOMETIMES(NotesConstants.TZFMT_SOMETIMES),
-	/** show on all times, regardless */
-	ALWAYS(NotesConstants.TZFMT_ALWAYS);
 
-	private byte m_val;
+  /** all times converted to THIS zone */
+  NEVER(NotesConstants.TZFMT_NEVER),
+  /** show only when outside this zone */
+  SOMETIMES(NotesConstants.TZFMT_SOMETIMES),
+  /** show on all times, regardless */
+  ALWAYS(NotesConstants.TZFMT_ALWAYS);
 
-	ZoneFormat(byte val) {
-		m_val = val;
-	}
+  private byte m_val;
 
-	@Override
-	public Byte getValue() {
-		return m_val;
-	}
+  ZoneFormat(final byte val) {
+    this.m_val = val;
+  }
 
-	@Override
-	public long getLongValue() {
-		return m_val;
-	}
+  @Override
+  public long getLongValue() {
+    return this.m_val;
+  }
+
+  @Override
+  public Byte getValue() {
+    return this.m_val;
+  }
 
 }

@@ -20,8 +20,6 @@ import java.text.MessageFormat;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
-import jakarta.enterprise.inject.spi.CDI;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
@@ -31,33 +29,35 @@ import com.hcl.domino.data.Database;
 import com.hcl.domino.jnx.example.swt.dbtree.DocumentList;
 import com.hcl.domino.jnx.example.swt.dbtree.StoreTreeNode;
 
+import jakarta.enterprise.inject.spi.CDI;
+
 public class StoreInfoPane extends AbstractInfoPane {
 
-	private final String serverName;
-	private final String databasePath;
-	private final StoreTreeNode.Type type;
-	
-	public StoreInfoPane(Composite parent, String serverName, String databasePath, StoreTreeNode.Type type) {
-		super(parent, MessageFormat.format("Store: {0}!!{1} {2}", serverName, databasePath, type));
-		this.serverName = serverName;
-		this.databasePath = databasePath;
-		this.type = type;
-		
-		createChildren();
-	}
-	
-	protected void createChildren() {
-		try {
-			int noteCount = CDI.current().select(ExecutorService.class).get().submit(() -> {
-				Database database = CDI.current().select(DominoClient.class).get().openDatabase(serverName, databasePath);
-				return database.getModifiedNoteIds(type.getDocumentClass(), null, false).size();
-			}).get();
-			info("Note Count", noteCount);
-			
-			DocumentList docList = new DocumentList(this, serverName, databasePath, type);
-			docList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
-		} catch (InterruptedException | ExecutionException e) {
-			throw new RuntimeException(e);
-		}
-	}
+  private final String serverName;
+  private final String databasePath;
+  private final StoreTreeNode.Type type;
+
+  public StoreInfoPane(final Composite parent, final String serverName, final String databasePath, final StoreTreeNode.Type type) {
+    super(parent, MessageFormat.format("Store: {0}!!{1} {2}", serverName, databasePath, type));
+    this.serverName = serverName;
+    this.databasePath = databasePath;
+    this.type = type;
+
+    this.createChildren();
+  }
+
+  protected void createChildren() {
+    try {
+      final int noteCount = CDI.current().select(ExecutorService.class).get().submit(() -> {
+        final Database database = CDI.current().select(DominoClient.class).get().openDatabase(this.serverName, this.databasePath);
+        return database.getModifiedNoteIds(this.type.getDocumentClass(), null, false).size();
+      }).get();
+      this.info("Note Count", noteCount);
+
+      final DocumentList docList = new DocumentList(this, this.serverName, this.databasePath, this.type);
+      docList.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException(e);
+    }
+  }
 }

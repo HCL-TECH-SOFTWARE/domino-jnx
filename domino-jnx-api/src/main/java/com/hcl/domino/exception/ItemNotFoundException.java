@@ -20,26 +20,26 @@ import com.hcl.domino.DominoException;
 
 /**
  * Represents error code 546, "Note item not found"
- * 
+ *
  * @author Jesse Gallagher
  */
 public class ItemNotFoundException extends DominoException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public ItemNotFoundException(int id, String message) {
-		super(id, message);
-	}
+  public ItemNotFoundException(final int id, final String message) {
+    super(id, message);
+  }
 
-	public ItemNotFoundException(int id, String message, Throwable cause) {
-		super(id, message, cause);
-	}
+  public ItemNotFoundException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
+  }
 
-	public ItemNotFoundException(String msg) {
-		super(msg);
-	}
+  public ItemNotFoundException(final String msg) {
+    super(msg);
+  }
 
-	public ItemNotFoundException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public ItemNotFoundException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
 
 }

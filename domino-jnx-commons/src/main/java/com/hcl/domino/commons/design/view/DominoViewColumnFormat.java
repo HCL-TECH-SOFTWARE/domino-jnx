@@ -16,11 +16,8 @@
  */
 package com.hcl.domino.commons.design.view;
 
-import java.util.Arrays;
 import java.util.Objects;
-import java.util.Set;
 
-import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.design.format.ViewColumnFormat;
@@ -37,201 +34,202 @@ import com.hcl.domino.richtext.records.CDResource;
  * @since 1.0.27
  */
 public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
-	private final int index;
-	private int columnValuesIndex;
-	private ViewColumnFormat format1;
-	private ViewColumnFormat2 format2;
-	private ViewColumnFormat3 format3;
-	private ViewColumnFormat4 format4;
-	private ViewColumnFormat5 format5;
-	private ViewColumnFormat6 format6;
-	private byte[] hideWhenFormula;
-	private CDResource twistie;
-	private String sharedColumnName;
-	
-	public DominoViewColumnFormat(int index) {
-		this.index = index;
-	}
+  private final int index;
+  private int columnValuesIndex;
+  private ViewColumnFormat format1;
+  private ViewColumnFormat2 format2;
+  private ViewColumnFormat3 format3;
+  private ViewColumnFormat4 format4;
+  private ViewColumnFormat5 format5;
+  private ViewColumnFormat6 format6;
+  private byte[] hideWhenFormula;
+  private CDResource twistie;
+  private String sharedColumnName;
 
-	@Override
-	public String getItemName() {
-		return getFormat1().getItemName();
-	}
+  public DominoViewColumnFormat(final int index) {
+    this.index = index;
+  }
 
-	@Override
-	public String getTitle() {
-		return getFormat1().getTitle();
-	}
-	
-	@Override
-	public int getPosition() {
-		return this.index;
-	}
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T getAdapter(final Class<T> clazz) {
+    if (ViewColumnFormat.class == clazz) {
+      return (T) this.format1;
+    } else if (ViewColumnFormat2.class == clazz) {
+      return (T) this.format2;
+    } else if (ViewColumnFormat3.class == clazz) {
+      return (T) this.format3;
+    } else if (ViewColumnFormat4.class == clazz) {
+      return (T) this.format4;
+    } else if (ViewColumnFormat5.class == clazz) {
+      return (T) this.format5;
+    } else if (ViewColumnFormat6.class == clazz) {
+      return (T) this.format6;
+    }
+    return null;
+  }
 
-	@Override
-	public int getColumnValuesIndex() {
-		return this.columnValuesIndex;
-	}
+  @Override
+  public int getColumnValuesIndex() {
+    return this.columnValuesIndex;
+  }
 
-	@Override
-	public boolean isConstant() {
-		return getFormat1().getConstantValueLength() > 0;
-	}
+  @Override
+  public int getDisplayWidth() {
+    return this.getFormat1().getDisplayWidth();
+  }
 
-	@Override
-	public String getFormula() {
-		return getFormat1().getFormula();
-	}
-	
-	@Override
-	public SortConfiguration getSortConfiguration() {
-		return new SortConfigurationImpl(this);
-	}
+  private ViewColumnFormat getFormat1() {
+    return Objects.requireNonNull(this.format1, "VIEW_COLUMN_FORMAT not read");
+  }
 
-	@Override
-	public boolean isHidden() {
-		return getFormat1().getFlags().contains(ViewColumnFormat.Flag.Hidden);
-	}
+  private ViewColumnFormat2 getFormat2() {
+    return Objects.requireNonNull(this.format2, "VIEW_COLUMN_FORMAT2 not read");
+  }
 
-	@Override
-	public boolean isResponse() {
-		return getFormat1().getFlags().contains(ViewColumnFormat.Flag.Response);
-	}
+  @Override
+  public String getFormula() {
+    return this.getFormat1().getFormula();
+  }
 
-	@Override
-	public boolean isIcon() {
-		return getFormat1().getFlags().contains(ViewColumnFormat.Flag.Icon);
-	}
+  @Override
+  public String getHideWhenFormula() {
+    final byte[] compiled = this.hideWhenFormula;
+    if (compiled == null || compiled.length == 0) {
+      return ""; //$NON-NLS-1$
+    } else {
+      return FormulaCompiler.get().decompile(compiled);
+    }
+  }
 
-	@Override
-	public boolean isResize() {
-		return !getFormat1().getFlags().contains(ViewColumnFormat.Flag.NoResize);
-	}
+  @Override
+  public String getItemName() {
+    return this.getFormat1().getItemName();
+  }
 
-	@Override
-	public boolean isShowTwistie() {
-		return getFormat1().getFlags().contains(ViewColumnFormat.Flag.Twistie);
-	}
-	
-	@Override
-	public boolean isUseHideWhen() {
-		return getFormat2().getFlags().contains(ViewColumnFormat2.Flag3.HideWhenFormula);
-	}
-	
-	@Override
-	public String getHideWhenFormula() {
-		byte[] compiled = this.hideWhenFormula;
-		if(compiled == null || compiled.length == 0) {
-			return ""; //$NON-NLS-1$
-		} else {
-			return FormulaCompiler.get().decompile(compiled);
-		}
-	}
-	
-	@Override
-	public TotalType getTotalType() {
-		switch(getFormat1().getTotalType()) {
-		case AVG_PER_CHILD:
-			return TotalType.AveragePerSubcategory;
-		case AVG_PER_ENTRY:
-			return TotalType.Average;
-		case PCT_OVERALL:
-			return TotalType.Percent;
-		case PCT_PARENT:
-			return TotalType.PercentOfParentCategory;
-		case TOTAL:
-			return TotalType.Total;
-		case NONE:
-		default:
-			return TotalType.None;
-		}
-	}
-	
-	@Override
-	public ViewColumnFormat.ListDelimiter getListDisplayDelimiter() {
-		return getFormat1().getListDelimiter();
-	}
+  @Override
+  public ViewColumnFormat.ListDelimiter getListDisplayDelimiter() {
+    return this.getFormat1().getListDelimiter();
+  }
 
-	@Override
-	public boolean isHideDetailRows() {
-		return getFormat1().getFlags().contains(ViewColumnFormat.Flag.HideDetail);
-	}
-	
-	@Override
-	public int getDisplayWidth() {
-		return getFormat1().getDisplayWidth();
-	}
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T getAdapter(Class<T> clazz) {
-		if(ViewColumnFormat.class == clazz) {
-			return (T)this.format1;
-		} else if(ViewColumnFormat2.class == clazz) {
-			return (T)this.format2;
-		} else if(ViewColumnFormat3.class == clazz) {
-			return (T)this.format3;
-		} else if(ViewColumnFormat4.class == clazz) {
-			return (T)this.format4;
-		} else if(ViewColumnFormat5.class == clazz) {
-			return (T)this.format5;
-		} else if(ViewColumnFormat6.class == clazz) {
-			return (T)this.format6;
-		}
-		return null;
-	}
-	
-	// *******************************************************************************
-	// * Format-reader hooks
-	// *******************************************************************************
-	
-	public void read(ViewColumnFormat format1) {
-		this.format1 = format1;
-	}
-	
-	public void read(ViewColumnFormat2 format2) {
-		this.format2 = format2;
-	}
-	
-	public void read(ViewColumnFormat3 format3) {
-		this.format3 = format3;
-	}
-	
-	public void read(ViewColumnFormat4 format4) {
-		this.format4 = format4;
-	}
-	
-	public void read(ViewColumnFormat5 format5) {
-		this.format5 = format5;
-	}
-	
-	public void read(ViewColumnFormat6 format6) {
-		this.format6 = format6;
-	}
-	
-	public void readColumnValuesIndex(int columnValuesIndex) {
-		this.columnValuesIndex = columnValuesIndex;
-	}
-	
-	public void readHideWhenFormula(byte[] formula) {
-		this.hideWhenFormula = formula;
-	}
-	
-	public void readTwistie(CDResource resource) {
-		this.twistie = resource;
-	}
-	
-	public void readSharedColumnName(String name) {
-		this.sharedColumnName = name;
-	}
-	// *******************************************************************************
-	// * Internal implementation utilities
-	// *******************************************************************************
-	
-	private ViewColumnFormat getFormat1() {
-		return Objects.requireNonNull(this.format1, "VIEW_COLUMN_FORMAT not read");
-	}
-	private ViewColumnFormat2 getFormat2() {
-		return Objects.requireNonNull(this.format2, "VIEW_COLUMN_FORMAT2 not read");
-	}
+  @Override
+  public int getPosition() {
+    return this.index;
+  }
+
+  @Override
+  public SortConfiguration getSortConfiguration() {
+    return new SortConfigurationImpl(this);
+  }
+
+  @Override
+  public String getTitle() {
+    return this.getFormat1().getTitle();
+  }
+
+  @Override
+  public TotalType getTotalType() {
+    switch (this.getFormat1().getTotalType()) {
+      case AVG_PER_CHILD:
+        return TotalType.AveragePerSubcategory;
+      case AVG_PER_ENTRY:
+        return TotalType.Average;
+      case PCT_OVERALL:
+        return TotalType.Percent;
+      case PCT_PARENT:
+        return TotalType.PercentOfParentCategory;
+      case TOTAL:
+        return TotalType.Total;
+      case NONE:
+      default:
+        return TotalType.None;
+    }
+  }
+
+  @Override
+  public boolean isConstant() {
+    return this.getFormat1().getConstantValueLength() > 0;
+  }
+
+  @Override
+  public boolean isHidden() {
+    return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.Hidden);
+  }
+
+  @Override
+  public boolean isHideDetailRows() {
+    return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.HideDetail);
+  }
+
+  @Override
+  public boolean isIcon() {
+    return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.Icon);
+  }
+
+  @Override
+  public boolean isResize() {
+    return !this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.NoResize);
+  }
+
+  @Override
+  public boolean isResponse() {
+    return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.Response);
+  }
+
+  // *******************************************************************************
+  // * Format-reader hooks
+  // *******************************************************************************
+
+  @Override
+  public boolean isShowTwistie() {
+    return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.Twistie);
+  }
+
+  @Override
+  public boolean isUseHideWhen() {
+    return this.getFormat2().getFlags().contains(ViewColumnFormat2.Flag3.HideWhenFormula);
+  }
+
+  public void read(final ViewColumnFormat format1) {
+    this.format1 = format1;
+  }
+
+  public void read(final ViewColumnFormat2 format2) {
+    this.format2 = format2;
+  }
+
+  public void read(final ViewColumnFormat3 format3) {
+    this.format3 = format3;
+  }
+
+  public void read(final ViewColumnFormat4 format4) {
+    this.format4 = format4;
+  }
+
+  public void read(final ViewColumnFormat5 format5) {
+    this.format5 = format5;
+  }
+
+  public void read(final ViewColumnFormat6 format6) {
+    this.format6 = format6;
+  }
+
+  public void readColumnValuesIndex(final int columnValuesIndex) {
+    this.columnValuesIndex = columnValuesIndex;
+  }
+
+  public void readHideWhenFormula(final byte[] formula) {
+    this.hideWhenFormula = formula;
+  }
+
+  public void readSharedColumnName(final String name) {
+    this.sharedColumnName = name;
+  }
+
+  // *******************************************************************************
+  // * Internal implementation utilities
+  // *******************************************************************************
+  public void readTwistie(final CDResource resource) {
+    this.twistie = resource;
+  }
 }

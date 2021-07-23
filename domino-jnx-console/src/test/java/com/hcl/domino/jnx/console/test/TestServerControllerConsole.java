@@ -29,102 +29,101 @@ import com.hcl.domino.jnx.console.IServerDetails;
 
 public class TestServerControllerConsole {
 
-	@Test
-	public void testConsole() {
-		try {
-			IDominoConsoleCreator consoleCreator = new DominoConsoleCreator();
-			
-			String adminUser = System.getenv("CONSOLE_USER");
-			String adminPassword = System.getenv("CONSOLE_PASSWORD");
-			String hostName = System.getenv("CONSOLE_HOSTNAME");
-			String portStr = System.getenv("CONSOLE_PORT");
-			if (portStr==null) {
-				portStr = "2050";
-			}
-			int portInt = Integer.parseInt(portStr);
-			
-			if (hostName==null || hostName.length()==0) {
-				//properties not configured, so stop test
-				return;
-			}
-			
-			long t0 = System.currentTimeMillis();
+  @Test
+  public void testConsole() {
+    try {
+      final IDominoConsoleCreator consoleCreator = new DominoConsoleCreator();
 
-			consoleCreator.openDominoConsole(hostName, portInt,
-					adminUser, adminPassword, new BaseConsoleCallback() {
+      final String adminUser = System.getenv("CONSOLE_USER");
+      final String adminPassword = System.getenv("CONSOLE_PASSWORD");
+      final String hostName = System.getenv("CONSOLE_HOSTNAME");
+      String portStr = System.getenv("CONSOLE_PORT");
+      if (portStr == null) {
+        portStr = "2050";
+      }
+      final int portInt = Integer.parseInt(portStr);
 
-				@Override
-				public String passwordRequested(String msg, String title) {
-					//return server.ID password if server is currently starting up
-					//and requires one
-//					String serverPwd = System.getenv("CONSOLE_SERVERPWD");
-//					return serverPwd;
-					return null;
-				}
+      if (hostName == null || hostName.length() == 0) {
+        // properties not configured, so stop test
+        return;
+      }
 
-				@Override
-				public boolean shouldDisconnect() {
-					long t1 = System.currentTimeMillis();
-					//stop console after 5 seconds
-					return (t1 - t0) > 5*1000;
-				}
+      final long t0 = System.currentTimeMillis();
 
-				@Override
-				public void consoleMessageReceived(IConsoleLine line) {
-					System.out.println(line);
-				}
+      consoleCreator.openDominoConsole(hostName, portInt,
+          adminUser, adminPassword, new BaseConsoleCallback() {
 
-				@Override
-				public void setStatusMessage(String msg) {
-					System.out.println(msg);
-				}
+            @Override
+            public void adminInfosReceived(final List<String> serverAdministrators,
+                final List<String> restrictedAdministrators) {
 
-				@Override
-				public void showMessageDialog(String msg, String title) {
-					System.out.println(title + " - " + msg);
-				}
+              System.out.println(
+                  "Server admins: " + serverAdministrators + "\n" +
+                      "Restricted admins: " + restrictedAdministrators);
+            }
 
-				@Override
-				public void dominoStatusReceived(DominoStatus status) {
-					System.out.println("Domino server status: "+status);
-				}
-				
-				@Override
-				public void consoleInitialized(IDominoServerController ctrl) {
-					System.out.println("Console initialized");
-					
-//					ctrl.sendCommand("help");
-//					ctrl.requestAdminInfos();
-//					ctrl.sendCommand("#show users");
-//					ctrl.sendCommand("#show processes");
-//					ctrl.sendBroadcastMessage("Hello World");
-//					ctrl.sendCommand("$ dir ..\\*.nsf");
-//					ctrl.sendCommand("#kill domino");
-//					ctrl.sendCommand("#start domino");
-//					ctrl.startServer();
-					ctrl.sendCommand("help");
-				}
-				
-				@Override
-				public void serverDetailsReceived(IServerDetails details) {
-					System.out.println("Domino and OS details:\n"+details);
-				}
+            @Override
+            public void consoleInitialized(final IDominoServerController ctrl) {
+              System.out.println("Console initialized");
 
-				@Override
-				public void adminInfosReceived(List<String> serverAdministrators,
-						List<String> restrictedAdministrators) {
-					
-					System.out.println(
-							"Server admins: " + serverAdministrators + "\n"+
-							"Restricted admins: " + restrictedAdministrators);
-				}
-			});
+              // ctrl.sendCommand("help");
+              // ctrl.requestAdminInfos();
+              // ctrl.sendCommand("#show users");
+              // ctrl.sendCommand("#show processes");
+              // ctrl.sendBroadcastMessage("Hello World");
+              // ctrl.sendCommand("$ dir ..\\*.nsf");
+              // ctrl.sendCommand("#kill domino");
+              // ctrl.sendCommand("#start domino");
+              // ctrl.startServer();
+              ctrl.sendCommand("help");
+            }
 
-			System.out.println("Domino console closed.");
-		
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+            @Override
+            public void consoleMessageReceived(final IConsoleLine line) {
+              System.out.println(line);
+            }
+
+            @Override
+            public void dominoStatusReceived(final DominoStatus status) {
+              System.out.println("Domino server status: " + status);
+            }
+
+            @Override
+            public String passwordRequested(final String msg, final String title) {
+              // return server.ID password if server is currently starting up
+              // and requires one
+              // String serverPwd = System.getenv("CONSOLE_SERVERPWD");
+              // return serverPwd;
+              return null;
+            }
+
+            @Override
+            public void serverDetailsReceived(final IServerDetails details) {
+              System.out.println("Domino and OS details:\n" + details);
+            }
+
+            @Override
+            public void setStatusMessage(final String msg) {
+              System.out.println(msg);
+            }
+
+            @Override
+            public boolean shouldDisconnect() {
+              final long t1 = System.currentTimeMillis();
+              // stop console after 5 seconds
+              return t1 - t0 > 5 * 1000;
+            }
+
+            @Override
+            public void showMessageDialog(final String msg, final String title) {
+              System.out.println(title + " - " + msg);
+            }
+          });
+
+      System.out.println("Domino console closed.");
+
+    } catch (final Exception e) {
+      e.printStackTrace();
+    }
+  }
 }

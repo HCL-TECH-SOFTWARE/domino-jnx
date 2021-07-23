@@ -14,35 +14,37 @@
  * under the License.
  * ==========================================================================
  */
- package com.hcl.domino.misc;
+package com.hcl.domino.misc;
 
 import java.text.MessageFormat;
 
 /**
  * A class to hold a reference to another object, for use with inner classes.
- * 
+ *
  * @param <T> the type of object contained in the reference
  * @author Jesse Gallagher
  */
 public class Ref<T> {
-	private T m_obj;
-	
-	public Ref() {
-		
-	}
-	public Ref(T obj) {
-		this.m_obj = obj;
-	}
-	
-	public T get() {
-		return m_obj;
-	}
-	public void set(T obj) {
-		this.m_obj = obj;
-	}
-	
-	@Override
-	public String toString() {
-		return MessageFormat.format("[{0}: {1}]", getClass().getSimpleName(), m_obj); //$NON-NLS-1$
-	}
+  private T m_obj;
+
+  public Ref() {
+
+  }
+
+  public Ref(final T obj) {
+    this.m_obj = obj;
+  }
+
+  public T get() {
+    return this.m_obj;
+  }
+
+  public void set(final T obj) {
+    this.m_obj = obj;
+  }
+
+  @Override
+  public String toString() {
+    return MessageFormat.format("[{0}: {1}]", this.getClass().getSimpleName(), this.m_obj); //$NON-NLS-1$
+  }
 }

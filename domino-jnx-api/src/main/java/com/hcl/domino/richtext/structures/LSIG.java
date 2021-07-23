@@ -21,25 +21,24 @@ import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 
-@StructureDefinition(
-	name="LSIG",
-	members={
-		@StructureMember(name="Signature", type=short.class),
-		@StructureMember(name="Length", type=int.class, unsigned=true)
-	}
-)
+@StructureDefinition(name = "LSIG", members = {
+    @StructureMember(name = "Signature", type = short.class),
+    @StructureMember(name = "Length", type = int.class, unsigned = true)
+})
 public interface LSIG extends CDSignature<Short, Long, LSIG> {
-	@StructureGetter("Signature")
-	@Override
-	Short getSignature();
-	@StructureSetter("Signature")
-	@Override
-	LSIG setSignature(Short signature);
-	
-	@StructureGetter("Length")
-	@Override
-	Long getLength();
-	@StructureSetter("Length")
-	@Override
-	LSIG setLength(Long length);
+  @StructureGetter("Length")
+  @Override
+  Long getLength();
+
+  @StructureGetter("Signature")
+  @Override
+  Short getSignature();
+
+  @StructureSetter("Length")
+  @Override
+  LSIG setLength(Long length);
+
+  @StructureSetter("Signature")
+  @Override
+  LSIG setSignature(Short signature);
 }

@@ -21,9 +21,9 @@ import com.hcl.domino.json.JsonSerializerFactory;
 
 public class VertxJsonSerializerFactory implements JsonSerializerFactory {
 
-	@Override
-	public JsonSerializer newSerializer() {
-		return new VertxJsonSerializer();
-	}
+  @Override
+  public JsonSerializer newSerializer() {
+    return new VertxJsonSerializer();
+  }
 
 }

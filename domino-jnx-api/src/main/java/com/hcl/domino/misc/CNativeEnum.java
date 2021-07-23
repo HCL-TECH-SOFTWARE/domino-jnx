@@ -19,7 +19,7 @@ package com.hcl.domino.misc;
 /**
  * Specialized variant of {@link INumberEnum} that refers to a
  * C {@code enum} using the native size.
- * 
+ *
  * @author Jesse Gallagher
  */
 public interface CNativeEnum extends INumberEnum<Integer> {

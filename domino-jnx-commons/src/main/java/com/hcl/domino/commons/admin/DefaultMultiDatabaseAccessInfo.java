@@ -27,39 +27,37 @@ import com.hcl.domino.misc.Pair;
 import com.hcl.domino.security.AclAccess;
 
 public class DefaultMultiDatabaseAccessInfo implements MultiDatabaseAccessInfo {
-	private String m_server;
-	private UserNamesList m_user;
-	private List<Pair<DatabaseData, AclAccess>> m_pairs;
-	
-	public DefaultMultiDatabaseAccessInfo(String server, UserNamesList user,
-			List<Pair<DatabaseData, AclAccess>> pairs) {
-		m_server = server;
-		m_user = user;
-		m_pairs = pairs;
-	}
+  private final String m_server;
+  private final UserNamesList m_user;
+  private final List<Pair<DatabaseData, AclAccess>> m_pairs;
 
-	@Override
-	public String getServer() {
-		return m_server;
-	}
-	
-	@Override
-	public UserNamesList getUser() {
-		return m_user;
-	}
-	
-	@Override
-	public Stream<Pair<DatabaseData, AclAccess>> allEntries() {
-		return m_pairs.stream();
-	}
+  public DefaultMultiDatabaseAccessInfo(final String server, final UserNamesList user,
+      final List<Pair<DatabaseData, AclAccess>> pairs) {
+    this.m_server = server;
+    this.m_user = user;
+    this.m_pairs = pairs;
+  }
 
-	@Override
-	public String toString() {
-		return MessageFormat.format(
-			"JNAMultiDatabaseAccessInfo [server={0}, user= {1}, count={2}]", //$NON-NLS-1$
-			m_server, m_user.getPrimaryName(), m_pairs.size()
-		);
-	}
-	
-	
+  @Override
+  public Stream<Pair<DatabaseData, AclAccess>> allEntries() {
+    return this.m_pairs.stream();
+  }
+
+  @Override
+  public String getServer() {
+    return this.m_server;
+  }
+
+  @Override
+  public UserNamesList getUser() {
+    return this.m_user;
+  }
+
+  @Override
+  public String toString() {
+    return MessageFormat.format(
+        "JNAMultiDatabaseAccessInfo [server={0}, user= {1}, count={2}]", //$NON-NLS-1$
+        this.m_server, this.m_user.getPrimaryName(), this.m_pairs.size());
+  }
+
 }

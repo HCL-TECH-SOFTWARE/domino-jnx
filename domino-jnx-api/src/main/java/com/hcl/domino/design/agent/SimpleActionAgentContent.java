@@ -22,10 +22,10 @@ import com.hcl.domino.design.action.SimpleAction;
 
 /**
  * Represents the contents of a Simple Action agent.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.24
  */
 public interface SimpleActionAgentContent extends AgentContent {
-	List<SimpleAction> getActions();
+  List<SimpleAction> getActions();
 }

@@ -16,12 +16,6 @@
  */
 package it.com.hcl.domino.test.design;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -32,13 +26,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.CollectionColumn;
-import com.hcl.domino.data.Database;
 import com.hcl.domino.data.CollectionColumn.TotalType;
+import com.hcl.domino.data.Database;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.Folder;
@@ -50,302 +45,304 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
-	public static final int EXPECTED_IMPORT_VIEWS = 5;
-	public static final int EXPECTED_IMPORT_FOLDERS = 1;
-	
-	private static String dbPath;
-	private Database database;
-	
-	@BeforeEach
-	public void initDesignDb() throws IOException, URISyntaxException {
-		if(database == null) {
-			DominoClient client = getClient();
-			if(dbPath == null) {
-				database = createTempDb(client);
-				dbPath = database.getAbsoluteFilePath();
-				populateResourceDxl("/dxl/testDbDesignCollections", database);
-			} else {
-				database = client.openDatabase("", dbPath);
-			}
-		}
-	}
-	
-	@AfterAll
-	public static void termDesignDb() {
-		try {
-			Files.deleteIfExists(Paths.get(dbPath));
-		} catch(Throwable t) {
-			System.err.println("Unable to delete database " + dbPath + ": " + t);
-		}
-	}
-	
-	@Test
-	public void testFoldersAndViews() {
-		DbDesign dbDesign = database.getDesign();
-		Collection<CollectionDesignElement> collections = dbDesign.getCollections().collect(Collectors.toList());
-		assertEquals(EXPECTED_IMPORT_VIEWS + EXPECTED_IMPORT_FOLDERS + 1, collections.size());
-		
-		{
-			CollectionDesignElement view = collections.stream().filter(v -> "test view".equals(v.getTitle())).findFirst().orElse(null);
-			assertNotNull(view);
-			
-			view = dbDesign.getCollection("test view").orElse(null);
-			assertNotNull(view);
-			assertInstanceOf(View.class, view);
-			assertEquals("test view", view.getTitle());
-		}
-		{
-			CollectionDesignElement view = collections.stream().filter(v -> "test folder".equals(v.getTitle())).findFirst().orElse(null);
-			assertNotNull(view);
-			
-			view = dbDesign.getCollection("test folder").orElse(null);
-			assertNotNull(view);
-			assertInstanceOf(Folder.class, view);
-			assertEquals("test folder", view.getTitle());
-		}
-	}
-	
-	@Test
-	public void testViews() {
-		DbDesign dbDesign = database.getDesign();
-		Collection<CollectionDesignElement> collections = dbDesign.getViews().collect(Collectors.toList());
-		assertEquals(EXPECTED_IMPORT_VIEWS+ 1, collections.size());
-		
-		{
-			CollectionDesignElement view = collections.stream().filter(v -> "test view".equals(v.getTitle())).findFirst().orElse(null);
-			assertNotNull(view);
-			
-			view = dbDesign.getCollection("test view").orElse(null);
-			assertNotNull(view);
-			assertInstanceOf(View.class, view);
-			assertEquals("test view", view.getTitle());
-			assertEquals("8.5.3", view.getDesignerVersion());
-			
-			{
-				assertTrue(view.isProhibitRefresh());
-				view.setProhibitRefresh(false);
-				assertFalse(view.isProhibitRefresh());
-				view.setProhibitRefresh(true);
-				assertTrue(view.isProhibitRefresh());
-			}
-			
-			{
-				assertFalse(view.isHideFromWeb());
-				view.setHideFromWeb(true);
-				assertTrue(view.isHideFromWeb());
-				view.setHideFromWeb(false);
-				assertFalse(view.isHideFromWeb());
-			}
-			{
-				assertFalse(view.isHideFromNotes());
-				view.setHideFromNotes(true);
-				assertTrue(view.isHideFromNotes());
-				view.setHideFromNotes(false);
-				assertFalse(view.isHideFromNotes());
-			}
-			{
-				assertFalse(view.isHideFromMobile());
-				view.setHideFromMobile(true);
-				assertTrue(view.isHideFromMobile());
-				view.setHideFromMobile(false);
-				assertFalse(view.isHideFromMobile());
-			}
-		}
-	}
-	
-	@Test
-	public void testFolders() {
-		DbDesign dbDesign = database.getDesign();
-		Collection<CollectionDesignElement> collections = dbDesign.getFolders().collect(Collectors.toList());
-		assertEquals(EXPECTED_IMPORT_FOLDERS, collections.size());
-		
-		{
-			CollectionDesignElement view = collections.stream().filter(v -> "test folder".equals(v.getTitle())).findFirst().orElse(null);
-			assertNotNull(view);
-			
-			view = dbDesign.getCollection("test folder").orElse(null);
-			assertNotNull(view);
-			assertInstanceOf(Folder.class, view);
-			assertEquals("test folder", view.getTitle());
-		}
-	}
-	
-	@Test
-	public void testExampleView() {
-		DbDesign dbDesign = database.getDesign();
-		View view = dbDesign.getView("Example View").get();
-		assertTrue(view.isAllowCustomizations());
-		assertEquals(CollectionDesignElement.OnOpen.GOTO_TOP, view.getOnOpenUISetting());
-		assertEquals(CollectionDesignElement.OnRefresh.REFRESH_DISPLAY, view.getOnRefreshUISetting());
-		
-		List<CollectionColumn> columns = view.getColumns();
-		assertEquals(12, columns.size());
-		{
-			CollectionColumn column = columns.get(0);
-			assertEquals("Form", column.getTitle());
-			assertEquals("Form", column.getItemName());
-			assertEquals("", column.getFormula());
-			assertFalse(column.isConstant());
-			assertEquals(188, column.getDisplayWidth());
-			assertEquals(ViewColumnFormat.ListDelimiter.SEMICOLON, column.getListDisplayDelimiter());
-			assertEquals(TotalType.None, column.getTotalType());
-			
-			CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
-			assertTrue(sortConfig.isCategory());
-			assertTrue(sortConfig.isSorted());
-			assertTrue(sortConfig.isSortPermuted());
-			assertFalse(sortConfig.getResortToViewUnid().isPresent());
-		}
-		{
-			CollectionColumn column = columns.get(1);
-			assertEquals("Size", column.getTitle());
-			assertEquals("$2", column.getItemName());
-			assertEquals("@AttachmentLengths", column.getFormula());
-			assertFalse(column.isConstant());
-			assertEquals(ViewColumnFormat.ListDelimiter.SPACE, column.getListDisplayDelimiter());
-			assertEquals(TotalType.Total, column.getTotalType());
-			
-			
-			CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
-			assertFalse(sortConfig.isCategory());
-			assertFalse(sortConfig.isSorted());
-			assertFalse(sortConfig.isSortPermuted());
-			assertTrue(sortConfig.isResortToView());
-			assertEquals("F7FAC064F4062A4885257BBE006FA09B", sortConfig.getResortToViewUnid().get());
-		}
-		{
-			CollectionColumn column = columns.get(2);
-			assertEquals("Created", column.getTitle());
-			assertEquals("$3", column.getItemName());
-			assertEquals("@Created", column.getFormula());
-			assertFalse(column.isConstant());
-			assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
-			assertEquals(TotalType.Average, column.getTotalType());
+  public static final int EXPECTED_IMPORT_VIEWS = 5;
+  public static final int EXPECTED_IMPORT_FOLDERS = 1;
 
-			CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
-			assertFalse(sortConfig.isCategory());
-			assertFalse(sortConfig.isSorted());
-			assertFalse(sortConfig.isSortPermuted());
-			assertFalse(sortConfig.isResortToView());
-			assertTrue(sortConfig.isResortAscending() && sortConfig.isResortDescending());
-			assertTrue(sortConfig.isDeferResortIndexing());
-			assertFalse(sortConfig.getResortToViewUnid().isPresent());
-		}
-		{
-			CollectionColumn column = columns.get(3);
-			assertEquals("Modified", column.getTitle());
-			assertEquals(ViewColumnFormat.ListDelimiter.COMMA, column.getListDisplayDelimiter());
-			assertEquals(TotalType.AveragePerSubcategory, column.getTotalType());
-		}
-		{
-			CollectionColumn column = columns.get(4);
-			assertEquals("Static Value!", column.getTitle());
-			assertFalse(column.isUseHideWhen());
-			assertEquals("SecretHideWhen", column.getHideWhenFormula());
-			assertEquals(ViewColumnFormat.ListDelimiter.NEWLINE, column.getListDisplayDelimiter());
-			assertEquals(TotalType.PercentOfParentCategory, column.getTotalType());
-		}
-		{
-			CollectionColumn column = columns.get(5);
-			assertEquals("#", column.getTitle());
-			assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
-			assertEquals(TotalType.None, column.getTotalType());
-		}
-		{
-			CollectionColumn column = columns.get(6);
-			assertEquals("I am test col 2", column.getTitle());
-			assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
-			assertEquals(TotalType.None, column.getTotalType());
-		}
-		{
-			CollectionColumn column = columns.get(7);
-			assertEquals("Names Guy", column.getTitle());
-			assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
-			assertEquals(TotalType.Percent, column.getTotalType());
-		}
-		{
-			CollectionColumn column = columns.get(8);
-			assertEquals("Names Guy 2", column.getTitle());
-			assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
-			assertEquals(TotalType.None, column.getTotalType());
-		}
-		{
-			CollectionColumn column = columns.get(9);
-			assertEquals("I am test col 2", column.getTitle());
-			assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
-			assertEquals(TotalType.None, column.getTotalType());
-		}
-		{
-			CollectionColumn column = columns.get(10);
-			assertEquals("Hidden Guy", column.getTitle());
-			assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
-			assertEquals(TotalType.None, column.getTotalType());
-		}
-		{
-			CollectionColumn column = columns.get(11);
-			assertEquals("Column of constant value", column.getTitle());
-			assertTrue(column.isConstant());
-			assertEquals("\"hello\"", column.getFormula());
-			assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
-			assertEquals(TotalType.None, column.getTotalType());
-		}
-		
-	}
-	
-	@Test
-	public void testExampleView2() {
-		DbDesign dbDesign = database.getDesign();
-		View view = dbDesign.getView("Example View 2").get();
-		assertFalse(view.isAllowCustomizations());
-		assertEquals(CollectionDesignElement.OnOpen.GOTO_LAST_OPENED, view.getOnOpenUISetting());
-		assertEquals(CollectionDesignElement.OnRefresh.DISPLAY_INDICATOR, view.getOnRefreshUISetting());
-	}
-	
-	@Test
-	public void testExampleView3() {
-		DbDesign dbDesign = database.getDesign();
-		View view = dbDesign.getView("Example View 3").get();
-		assertFalse(view.isAllowCustomizations());
-		assertEquals(CollectionDesignElement.OnOpen.GOTO_BOTTOM, view.getOnOpenUISetting());
-		assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_TOP, view.getOnRefreshUISetting());
-	}
-	
-	@Test
-	public void testExampleView4() {
-		DbDesign dbDesign = database.getDesign();
-		View view = dbDesign.getView("Example View 4").get();
-		assertFalse(view.isAllowCustomizations());
-		assertEquals(CollectionDesignElement.OnOpen.GOTO_LAST_OPENED, view.getOnOpenUISetting());
-		assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_BOTTOM, view.getOnRefreshUISetting());
-	}
-	
-	/**
-	 * Iterates over all views and folders in mail12.ntf (if present) to test for exceptions in
-	 * view-format reading
-	 */
-	@Test
-	public void testIterateMailNtf() {
-		DominoClient client = getClient();
-		Database database;
-		try {
-			database = client.openDatabase("mail12.ntf");
-		} catch(FileDoesNotExistException e) {
-			// That's fine - not on 12, so skip the test
-			return;
-		}
-		
-		database.getDesign()
-			.getCollections()
-			.forEach(collection -> {
-				String title = collection.getTitle();
-				try {
-					collection.getColumns().forEach(col -> {
-						@SuppressWarnings("unused")
-						String colName = col.getItemName();
-					});
-				} catch(Throwable t) {
-					throw new RuntimeException(MessageFormat.format("Encountered exception in view \"{0}\"", title), t);
-				}
-			});
-	}
+  private static String dbPath;
+
+  @AfterAll
+  public static void termDesignDb() {
+    try {
+      Files.deleteIfExists(Paths.get(TestDbDesignCollections.dbPath));
+    } catch (final Throwable t) {
+      System.err.println("Unable to delete database " + TestDbDesignCollections.dbPath + ": " + t);
+    }
+  }
+
+  private Database database;
+
+  @BeforeEach
+  public void initDesignDb() throws IOException, URISyntaxException {
+    if (this.database == null) {
+      final DominoClient client = this.getClient();
+      if (TestDbDesignCollections.dbPath == null) {
+        this.database = AbstractNotesRuntimeTest.createTempDb(client);
+        TestDbDesignCollections.dbPath = this.database.getAbsoluteFilePath();
+        AbstractNotesRuntimeTest.populateResourceDxl("/dxl/testDbDesignCollections", this.database);
+      } else {
+        this.database = client.openDatabase("", TestDbDesignCollections.dbPath);
+      }
+    }
+  }
+
+  @Test
+  public void testExampleView() {
+    final DbDesign dbDesign = this.database.getDesign();
+    final View view = dbDesign.getView("Example View").get();
+    Assertions.assertTrue(view.isAllowCustomizations());
+    Assertions.assertEquals(CollectionDesignElement.OnOpen.GOTO_TOP, view.getOnOpenUISetting());
+    Assertions.assertEquals(CollectionDesignElement.OnRefresh.REFRESH_DISPLAY, view.getOnRefreshUISetting());
+
+    final List<CollectionColumn> columns = view.getColumns();
+    Assertions.assertEquals(12, columns.size());
+    {
+      final CollectionColumn column = columns.get(0);
+      Assertions.assertEquals("Form", column.getTitle());
+      Assertions.assertEquals("Form", column.getItemName());
+      Assertions.assertEquals("", column.getFormula());
+      Assertions.assertFalse(column.isConstant());
+      Assertions.assertEquals(188, column.getDisplayWidth());
+      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.SEMICOLON, column.getListDisplayDelimiter());
+      Assertions.assertEquals(TotalType.None, column.getTotalType());
+
+      final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
+      Assertions.assertTrue(sortConfig.isCategory());
+      Assertions.assertTrue(sortConfig.isSorted());
+      Assertions.assertTrue(sortConfig.isSortPermuted());
+      Assertions.assertFalse(sortConfig.getResortToViewUnid().isPresent());
+    }
+    {
+      final CollectionColumn column = columns.get(1);
+      Assertions.assertEquals("Size", column.getTitle());
+      Assertions.assertEquals("$2", column.getItemName());
+      Assertions.assertEquals("@AttachmentLengths", column.getFormula());
+      Assertions.assertFalse(column.isConstant());
+      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.SPACE, column.getListDisplayDelimiter());
+      Assertions.assertEquals(TotalType.Total, column.getTotalType());
+
+      final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
+      Assertions.assertFalse(sortConfig.isCategory());
+      Assertions.assertFalse(sortConfig.isSorted());
+      Assertions.assertFalse(sortConfig.isSortPermuted());
+      Assertions.assertTrue(sortConfig.isResortToView());
+      Assertions.assertEquals("F7FAC064F4062A4885257BBE006FA09B", sortConfig.getResortToViewUnid().get());
+    }
+    {
+      final CollectionColumn column = columns.get(2);
+      Assertions.assertEquals("Created", column.getTitle());
+      Assertions.assertEquals("$3", column.getItemName());
+      Assertions.assertEquals("@Created", column.getFormula());
+      Assertions.assertFalse(column.isConstant());
+      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      Assertions.assertEquals(TotalType.Average, column.getTotalType());
+
+      final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
+      Assertions.assertFalse(sortConfig.isCategory());
+      Assertions.assertFalse(sortConfig.isSorted());
+      Assertions.assertFalse(sortConfig.isSortPermuted());
+      Assertions.assertFalse(sortConfig.isResortToView());
+      Assertions.assertTrue(sortConfig.isResortAscending() && sortConfig.isResortDescending());
+      Assertions.assertTrue(sortConfig.isDeferResortIndexing());
+      Assertions.assertFalse(sortConfig.getResortToViewUnid().isPresent());
+    }
+    {
+      final CollectionColumn column = columns.get(3);
+      Assertions.assertEquals("Modified", column.getTitle());
+      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.COMMA, column.getListDisplayDelimiter());
+      Assertions.assertEquals(TotalType.AveragePerSubcategory, column.getTotalType());
+    }
+    {
+      final CollectionColumn column = columns.get(4);
+      Assertions.assertEquals("Static Value!", column.getTitle());
+      Assertions.assertFalse(column.isUseHideWhen());
+      Assertions.assertEquals("SecretHideWhen", column.getHideWhenFormula());
+      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NEWLINE, column.getListDisplayDelimiter());
+      Assertions.assertEquals(TotalType.PercentOfParentCategory, column.getTotalType());
+    }
+    {
+      final CollectionColumn column = columns.get(5);
+      Assertions.assertEquals("#", column.getTitle());
+      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      Assertions.assertEquals(TotalType.None, column.getTotalType());
+    }
+    {
+      final CollectionColumn column = columns.get(6);
+      Assertions.assertEquals("I am test col 2", column.getTitle());
+      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      Assertions.assertEquals(TotalType.None, column.getTotalType());
+    }
+    {
+      final CollectionColumn column = columns.get(7);
+      Assertions.assertEquals("Names Guy", column.getTitle());
+      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      Assertions.assertEquals(TotalType.Percent, column.getTotalType());
+    }
+    {
+      final CollectionColumn column = columns.get(8);
+      Assertions.assertEquals("Names Guy 2", column.getTitle());
+      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      Assertions.assertEquals(TotalType.None, column.getTotalType());
+    }
+    {
+      final CollectionColumn column = columns.get(9);
+      Assertions.assertEquals("I am test col 2", column.getTitle());
+      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      Assertions.assertEquals(TotalType.None, column.getTotalType());
+    }
+    {
+      final CollectionColumn column = columns.get(10);
+      Assertions.assertEquals("Hidden Guy", column.getTitle());
+      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      Assertions.assertEquals(TotalType.None, column.getTotalType());
+    }
+    {
+      final CollectionColumn column = columns.get(11);
+      Assertions.assertEquals("Column of constant value", column.getTitle());
+      Assertions.assertTrue(column.isConstant());
+      Assertions.assertEquals("\"hello\"", column.getFormula());
+      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      Assertions.assertEquals(TotalType.None, column.getTotalType());
+    }
+
+  }
+
+  @Test
+  public void testExampleView2() {
+    final DbDesign dbDesign = this.database.getDesign();
+    final View view = dbDesign.getView("Example View 2").get();
+    Assertions.assertFalse(view.isAllowCustomizations());
+    Assertions.assertEquals(CollectionDesignElement.OnOpen.GOTO_LAST_OPENED, view.getOnOpenUISetting());
+    Assertions.assertEquals(CollectionDesignElement.OnRefresh.DISPLAY_INDICATOR, view.getOnRefreshUISetting());
+  }
+
+  @Test
+  public void testExampleView3() {
+    final DbDesign dbDesign = this.database.getDesign();
+    final View view = dbDesign.getView("Example View 3").get();
+    Assertions.assertFalse(view.isAllowCustomizations());
+    Assertions.assertEquals(CollectionDesignElement.OnOpen.GOTO_BOTTOM, view.getOnOpenUISetting());
+    Assertions.assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_TOP, view.getOnRefreshUISetting());
+  }
+
+  @Test
+  public void testExampleView4() {
+    final DbDesign dbDesign = this.database.getDesign();
+    final View view = dbDesign.getView("Example View 4").get();
+    Assertions.assertFalse(view.isAllowCustomizations());
+    Assertions.assertEquals(CollectionDesignElement.OnOpen.GOTO_LAST_OPENED, view.getOnOpenUISetting());
+    Assertions.assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_BOTTOM, view.getOnRefreshUISetting());
+  }
+
+  @Test
+  public void testFolders() {
+    final DbDesign dbDesign = this.database.getDesign();
+    final Collection<CollectionDesignElement> collections = dbDesign.getFolders().collect(Collectors.toList());
+    Assertions.assertEquals(TestDbDesignCollections.EXPECTED_IMPORT_FOLDERS, collections.size());
+
+    {
+      CollectionDesignElement view = collections.stream().filter(v -> "test folder".equals(v.getTitle())).findFirst().orElse(null);
+      Assertions.assertNotNull(view);
+
+      view = dbDesign.getCollection("test folder").orElse(null);
+      Assertions.assertNotNull(view);
+      Assertions.assertInstanceOf(Folder.class, view);
+      Assertions.assertEquals("test folder", view.getTitle());
+    }
+  }
+
+  @Test
+  public void testFoldersAndViews() {
+    final DbDesign dbDesign = this.database.getDesign();
+    final Collection<CollectionDesignElement> collections = dbDesign.getCollections().collect(Collectors.toList());
+    Assertions.assertEquals(TestDbDesignCollections.EXPECTED_IMPORT_VIEWS + TestDbDesignCollections.EXPECTED_IMPORT_FOLDERS + 1,
+        collections.size());
+
+    {
+      CollectionDesignElement view = collections.stream().filter(v -> "test view".equals(v.getTitle())).findFirst().orElse(null);
+      Assertions.assertNotNull(view);
+
+      view = dbDesign.getCollection("test view").orElse(null);
+      Assertions.assertNotNull(view);
+      Assertions.assertInstanceOf(View.class, view);
+      Assertions.assertEquals("test view", view.getTitle());
+    }
+    {
+      CollectionDesignElement view = collections.stream().filter(v -> "test folder".equals(v.getTitle())).findFirst().orElse(null);
+      Assertions.assertNotNull(view);
+
+      view = dbDesign.getCollection("test folder").orElse(null);
+      Assertions.assertNotNull(view);
+      Assertions.assertInstanceOf(Folder.class, view);
+      Assertions.assertEquals("test folder", view.getTitle());
+    }
+  }
+
+  /**
+   * Iterates over all views and folders in mail12.ntf (if present) to test for
+   * exceptions in
+   * view-format reading
+   */
+  @Test
+  public void testIterateMailNtf() {
+    final DominoClient client = this.getClient();
+    Database database;
+    try {
+      database = client.openDatabase("mail12.ntf");
+    } catch (final FileDoesNotExistException e) {
+      // That's fine - not on 12, so skip the test
+      return;
+    }
+
+    database.getDesign()
+        .getCollections()
+        .forEach(collection -> {
+          final String title = collection.getTitle();
+          try {
+            collection.getColumns().forEach(col -> {
+              @SuppressWarnings("unused")
+              final String colName = col.getItemName();
+            });
+          } catch (final Throwable t) {
+            throw new RuntimeException(MessageFormat.format("Encountered exception in view \"{0}\"", title), t);
+          }
+        });
+  }
+
+  @Test
+  public void testViews() {
+    final DbDesign dbDesign = this.database.getDesign();
+    final Collection<CollectionDesignElement> collections = dbDesign.getViews().collect(Collectors.toList());
+    Assertions.assertEquals(TestDbDesignCollections.EXPECTED_IMPORT_VIEWS + 1, collections.size());
+
+    {
+      CollectionDesignElement view = collections.stream().filter(v -> "test view".equals(v.getTitle())).findFirst().orElse(null);
+      Assertions.assertNotNull(view);
+
+      view = dbDesign.getCollection("test view").orElse(null);
+      Assertions.assertNotNull(view);
+      Assertions.assertInstanceOf(View.class, view);
+      Assertions.assertEquals("test view", view.getTitle());
+      Assertions.assertEquals("8.5.3", view.getDesignerVersion());
+
+      {
+        Assertions.assertTrue(view.isProhibitRefresh());
+        view.setProhibitRefresh(false);
+        Assertions.assertFalse(view.isProhibitRefresh());
+        view.setProhibitRefresh(true);
+        Assertions.assertTrue(view.isProhibitRefresh());
+      }
+
+      {
+        Assertions.assertFalse(view.isHideFromWeb());
+        view.setHideFromWeb(true);
+        Assertions.assertTrue(view.isHideFromWeb());
+        view.setHideFromWeb(false);
+        Assertions.assertFalse(view.isHideFromWeb());
+      }
+      {
+        Assertions.assertFalse(view.isHideFromNotes());
+        view.setHideFromNotes(true);
+        Assertions.assertTrue(view.isHideFromNotes());
+        view.setHideFromNotes(false);
+        Assertions.assertFalse(view.isHideFromNotes());
+      }
+      {
+        Assertions.assertFalse(view.isHideFromMobile());
+        view.setHideFromMobile(true);
+        Assertions.assertTrue(view.isHideFromMobile());
+        view.setHideFromMobile(false);
+        Assertions.assertFalse(view.isHideFromMobile());
+      }
+    }
+  }
 }

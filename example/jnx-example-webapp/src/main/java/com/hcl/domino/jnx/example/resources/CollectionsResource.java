@@ -34,26 +34,27 @@ import jakarta.ws.rs.core.MediaType;
 
 @Path("collections")
 public class CollectionsResource {
-	@Inject
-	DominoClient client;
-	
-	@GET
-	@Path("{dbName}")
-	@Produces(MediaType.APPLICATION_JSON)
-	public List<Map<String, Object>> getCollections(@PathParam("dbName") String dbName) {
-		// Use a native client to avoid a crasher with DBs that don't exist (see Issue #96)
-		try(DominoClient client = DominoClientBuilder.newDominoClient().build()) {
-			Database database = client.openDatabase(dbName);
-			return database.getAllCollections()
-				.map(c -> {
-					Map<String, Object> result = new LinkedHashMap<>();
-					result.put("title", c.getTitle()); //$NON-NLS-1$
-					result.put("aliases", c.getAliases()); //$NON-NLS-1$
-					result.put("isfolder", c.isFolder()); //$NON-NLS-1$
-					result.put("noteid", c.getNoteID()); //$NON-NLS-1$
-					return result;
-				})
-				.collect(Collectors.toList());
-		}
-	}
+  @Inject
+  DominoClient client;
+
+  @GET
+  @Path("{dbName}")
+  @Produces(MediaType.APPLICATION_JSON)
+  public List<Map<String, Object>> getCollections(@PathParam("dbName") final String dbName) {
+    // Use a native client to avoid a crasher with DBs that don't exist (see Issue
+    // #96)
+    try (DominoClient client = DominoClientBuilder.newDominoClient().build()) {
+      final Database database = client.openDatabase(dbName);
+      return database.getAllCollections()
+          .map(c -> {
+            final Map<String, Object> result = new LinkedHashMap<>();
+            result.put("title", c.getTitle()); //$NON-NLS-1$
+            result.put("aliases", c.getAliases()); //$NON-NLS-1$
+            result.put("isfolder", c.isFolder()); //$NON-NLS-1$
+            result.put("noteid", c.getNoteID()); //$NON-NLS-1$
+            return result;
+          })
+          .collect(Collectors.toList());
+    }
+  }
 }

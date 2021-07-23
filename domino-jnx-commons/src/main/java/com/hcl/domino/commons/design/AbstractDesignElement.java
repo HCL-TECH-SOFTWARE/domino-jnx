@@ -28,117 +28,119 @@ import com.hcl.domino.misc.NotesConstants;
  * @since 1.0.18
  */
 public abstract class AbstractDesignElement<T extends DesignElement> implements DesignElement {
-	private final Document doc;
-	
-	public AbstractDesignElement(Document doc) {
-		this.doc = doc;
-	}
+  private final Document doc;
 
-	@Override
-	public boolean isProhibitRefresh() {
-		return getFlags().contains(NotesConstants.DESIGN_FLAG_PRESERVE);
-	}
+  public AbstractDesignElement(final Document doc) {
+    this.doc = doc;
+  }
 
-	@Override
-	public void setProhibitRefresh(boolean prohibitRefresh) {
-		setFlag(NotesConstants.DESIGN_FLAG_PRESERVE, prohibitRefresh);
-	}
+  @Override
+  public String getComment() {
+    return this.doc.getAsText(NotesConstants.FILTER_COMMENT_ITEM, ' ');
+  }
 
-	@Override
-	public boolean isHideFromWeb() {
-		return getFlags().contains(NotesConstants.DESIGN_FLAG_HIDE_FROM_WEB);
-	}
+  @Override
+  public String getDesignerVersion() {
+    return this.doc.getAsText(DesignConstants.DESIGNER_VERSION, ' ');
+  }
 
-	@Override
-	public void setHideFromWeb(boolean hideFromWeb) {
-		setFlag(NotesConstants.DESIGN_FLAG_HIDE_FROM_WEB, hideFromWeb);
-	}
+  @Override
+  public Document getDocument() {
+    return this.doc;
+  }
 
-	@Override
-	public boolean isHideFromNotes() {
-		return getFlags().contains(NotesConstants.DESIGN_FLAG_HIDE_FROM_NOTES);
-	}
+  public String getFlags() {
+    return this.getDocument().getAsText(NotesConstants.DESIGN_FLAGS, ' ');
+  }
 
-	@Override
-	public void setHideFromNotes(boolean hideFromNotes) {
-		setFlag(NotesConstants.DESIGN_FLAG_HIDE_FROM_NOTES, hideFromNotes);
-	}
+  @Override
+  public Collection<String> getItemNames() {
+    return this.doc.getItemNames();
+  }
 
-	@Override
-	public boolean isHideFromMobile() {
-		return getFlags().contains(NotesConstants.DESIGN_FLAG_HIDE_FROM_MOBILE);
-	}
+  /**
+   * Initializes the default values for a newly-created design note, such as
+   * {@code "$Flags"}.
+   */
+  public abstract void initializeNewDesignNote();
 
-	@Override
-	public void setHideFromMobile(boolean hideFromMobile) {
-		setFlag(NotesConstants.DESIGN_FLAG_HIDE_FROM_MOBILE, hideFromMobile);
-	}
+  @Override
+  public boolean isHideFromMobile() {
+    return this.getFlags().contains(NotesConstants.DESIGN_FLAG_HIDE_FROM_MOBILE);
+  }
 
-	@Override
-	public void sign() {
-		doc.sign();
-	}
+  @Override
+  public boolean isHideFromNotes() {
+    return this.getFlags().contains(NotesConstants.DESIGN_FLAG_HIDE_FROM_NOTES);
+  }
 
-	@Override
-	public void sign(UserId id) {
-		doc.sign(id, true);
-	}
+  @Override
+  public boolean isHideFromWeb() {
+    return this.getFlags().contains(NotesConstants.DESIGN_FLAG_HIDE_FROM_WEB);
+  }
 
-	@Override
-	public boolean save() {
-		doc.save();
-		// TODO figure out if this should do something else or if the method signature should change
-		return true;
-	}
+  @Override
+  public boolean isProhibitRefresh() {
+    return this.getFlags().contains(NotesConstants.DESIGN_FLAG_PRESERVE);
+  }
 
-	@Override
-	public Collection<String> getItemNames() {
-		return doc.getItemNames();
-	}
+  @Override
+  public boolean save() {
+    this.doc.save();
+    // TODO figure out if this should do something else or if the method signature
+    // should change
+    return true;
+  }
 
-	@Override
-	public String getDesignerVersion() {
-		return doc.getAsText(DesignConstants.DESIGNER_VERSION, ' ');
-	}
-	
-	@Override
-	public String getComment() {
-		return doc.getAsText(NotesConstants.FILTER_COMMENT_ITEM, ' ');
-	}
-	
-	@Override
-	public void setComment(String comment) {
-		doc.replaceItemValue(NotesConstants.FILTER_COMMENT_ITEM, comment);
-	}
-	
-	@Override
-	public Document getDocument() {
-		return doc;
-	}
-	
-	// *******************************************************************************
-	// * Implementation utility methods
-	// *******************************************************************************
-	
-	public String getFlags() {
-		return getDocument().getAsText(NotesConstants.DESIGN_FLAGS, ' ');
-	}
-	
-	public void setFlags(String flags) {
-		getDocument().replaceItemValue(NotesConstants.DESIGN_FLAGS, flags);
-	}
-	
-	public void setFlag(String flagConstant, boolean value) {
-		String flags = getFlags();
-		if(value && !flags.contains(flagConstant)) {
-			setFlags(flags + flagConstant);
-		} else if(!value && flags.contains(flagConstant)) {
-			setFlags(flags.replace(flagConstant, "")); //$NON-NLS-1$
-		}
-	}
-	
-	/**
-	 * Initializes the default values for a newly-created design note, such as {@code "$Flags"}.
-	 */
-	public abstract void initializeNewDesignNote();
+  @Override
+  public void setComment(final String comment) {
+    this.doc.replaceItemValue(NotesConstants.FILTER_COMMENT_ITEM, comment);
+  }
+
+  public void setFlag(final String flagConstant, final boolean value) {
+    final String flags = this.getFlags();
+    if (value && !flags.contains(flagConstant)) {
+      this.setFlags(flags + flagConstant);
+    } else if (!value && flags.contains(flagConstant)) {
+      this.setFlags(flags.replace(flagConstant, "")); //$NON-NLS-1$
+    }
+  }
+
+  public void setFlags(final String flags) {
+    this.getDocument().replaceItemValue(NotesConstants.DESIGN_FLAGS, flags);
+  }
+
+  @Override
+  public void setHideFromMobile(final boolean hideFromMobile) {
+    this.setFlag(NotesConstants.DESIGN_FLAG_HIDE_FROM_MOBILE, hideFromMobile);
+  }
+
+  @Override
+  public void setHideFromNotes(final boolean hideFromNotes) {
+    this.setFlag(NotesConstants.DESIGN_FLAG_HIDE_FROM_NOTES, hideFromNotes);
+  }
+
+  // *******************************************************************************
+  // * Implementation utility methods
+  // *******************************************************************************
+
+  @Override
+  public void setHideFromWeb(final boolean hideFromWeb) {
+    this.setFlag(NotesConstants.DESIGN_FLAG_HIDE_FROM_WEB, hideFromWeb);
+  }
+
+  @Override
+  public void setProhibitRefresh(final boolean prohibitRefresh) {
+    this.setFlag(NotesConstants.DESIGN_FLAG_PRESERVE, prohibitRefresh);
+  }
+
+  @Override
+  public void sign() {
+    this.doc.sign();
+  }
+
+  @Override
+  public void sign(final UserId id) {
+    this.doc.sign(id, true);
+  }
 }

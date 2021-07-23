@@ -14,21 +14,20 @@
  * under the License.
  * ==========================================================================
  */
- package com.hcl.domino.data;
+package com.hcl.domino.data;
 
 /**
  * Interface to access internal object structures and get adapter classes
  */
 public interface IAdaptable {
 
-	/**
-	 * Method to get an adapter for a class
-	 * 
-	 * @param <T> adapter type
-	 * 
-	 * @param clazz class
-	 * @return adapter or null if not supported
-	 */
-	<T> T getAdapter(Class<T> clazz);
-	
+  /**
+   * Method to get an adapter for a class
+   *
+   * @param <T>   adapter type
+   * @param clazz class
+   * @return adapter or null if not supported
+   */
+  <T> T getAdapter(Class<T> clazz);
+
 }

@@ -20,27 +20,27 @@ import com.hcl.domino.DominoException;
 
 /**
  * Represents error code 0x466, "Quit is pending on the Message Queue"
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.11
  */
 public class QuitPendingException extends DominoException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public QuitPendingException(int id, String message) {
-		super(id, message);
-	}
+  public QuitPendingException(final int id, final String message) {
+    super(id, message);
+  }
 
-	public QuitPendingException(int id, String message, Throwable cause) {
-		super(id, message, cause);
-	}
+  public QuitPendingException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
+  }
 
-	public QuitPendingException(String msg) {
-		super(msg);
-	}
+  public QuitPendingException(final String msg) {
+    super(msg);
+  }
 
-	public QuitPendingException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public QuitPendingException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
 
 }

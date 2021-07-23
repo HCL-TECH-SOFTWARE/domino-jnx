@@ -21,18 +21,19 @@ import java.util.List;
 import com.hcl.domino.misc.JNXServiceFinder;
 
 /**
- * This service interface represents an implementation-contributed service that is able to decode
+ * This service interface represents an implementation-contributed service that
+ * is able to decode
  * item-type data from native memory
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.24
  */
 public interface NativeItemCoder {
-	static NativeItemCoder get() {
-		return JNXServiceFinder.findRequiredService(NativeItemCoder.class, NativeItemCoder.class.getClassLoader());
-	}
-	
-	List<String> decodeStringList(byte[] buf);
-	
-	byte[] encodeStringList(List<String> values);
+  static NativeItemCoder get() {
+    return JNXServiceFinder.findRequiredService(NativeItemCoder.class, NativeItemCoder.class.getClassLoader());
+  }
+
+  List<String> decodeStringList(byte[] buf);
+
+  byte[] encodeStringList(List<String> values);
 }

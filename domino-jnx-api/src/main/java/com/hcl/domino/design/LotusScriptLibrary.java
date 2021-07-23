@@ -21,5 +21,5 @@ package com.hcl.domino.design;
  * @since 1.0.24
  */
 public interface LotusScriptLibrary extends ScriptLibrary {
-	String getScript();
+  String getScript();
 }

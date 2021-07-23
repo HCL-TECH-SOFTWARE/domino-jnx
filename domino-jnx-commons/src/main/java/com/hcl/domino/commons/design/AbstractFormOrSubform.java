@@ -16,8 +16,6 @@
  */
 package com.hcl.domino.commons.design;
 
-import static com.hcl.domino.misc.NotesConstants.ITEM_NAME_TEMPLATE;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,6 +28,7 @@ import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.GenericFormOrSubform;
 import com.hcl.domino.design.SubformReference;
+import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.FormField;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.records.CDBegin;
@@ -47,145 +46,148 @@ import com.hcl.domino.richtext.records.CDIDName;
 import com.hcl.domino.richtext.records.CDKeyword;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
-public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> extends AbstractNamedDesignElement<T> implements GenericFormOrSubform<T> {
+public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> extends AbstractNamedDesignElement<T>
+    implements GenericFormOrSubform<T> {
 
-	public AbstractFormOrSubform(Document doc) {
-		super(doc);
-	}
+  public AbstractFormOrSubform(final Document doc) {
+    super(doc);
+  }
 
-	@Override
-	public T addField() {
-		throw new NotYetImplementedException();
-	}
+  @Override
+  public T addField() {
+    throw new NotYetImplementedException();
+  }
 
-	@Override
-	public T removeField() {
-		throw new NotYetImplementedException();
-	}
+  private void flushField(final Deque<RichTextRecord<?>> structs, final List<FormField> result) {
+    if (structs != null && !structs.isEmpty()) {
+      // Make sure there's a CDField
+      final boolean foundField = structs.stream().anyMatch(s -> s instanceof CDField);
+      if (foundField) {
+        result.add(new FormFieldImpl(structs));
+      }
+      structs.clear();
+    }
+  }
 
-	@Override
-	public List<FormField> getFields() {
-		List<FormField> result = new ArrayList<>();
-		Deque<RichTextRecord<?>> fieldStructs = new ArrayDeque<>();
-		
-		Document doc = getDocument();
-		if(doc.hasItem(ITEM_NAME_TEMPLATE)) {
-			AtomicBoolean foundFieldBegin = new AtomicBoolean();
-			doc.getRichTextItem(ITEM_NAME_TEMPLATE).forEach(record -> {
-				if(record instanceof CDBegin) {
-					// Check to see if it's the start of a field
-					CDBegin begin = (CDBegin)record;
-					if(begin.getSignature() == RichTextConstants.SIG_CD_FIELD || begin.getSignature() == RichTextConstants.SIG_CD_EMBEDDEDCTL) {
-						foundFieldBegin.set(true);
-					}
-				} else if(record instanceof CDField) {
-					fieldStructs.add(record);
-				} else if(record instanceof CDFieldHint) {
-					fieldStructs.add(record);
-				} else if(record instanceof CDExtField) {
-					fieldStructs.add(record);
-				} else if(record instanceof CDExt2Field) {
-					fieldStructs.add(record);
-				} else if(record instanceof CDIDName) {
-					fieldStructs.add(record);
-				} else if(record instanceof CDColor) {
-					// Don't close fields on COLOR
-				} else if(record instanceof CDDataFlags) {
-					if(foundFieldBegin.get()) {
-						fieldStructs.add(record);
-					} else if(!fieldStructs.isEmpty() && !foundFieldBegin.get()) {
-						flushField(fieldStructs, result);
-					}
-				} else if(record instanceof CDKeyword) {
-					fieldStructs.add(record);
-				} else if(record instanceof CDEmbeddedControl) {
-					fieldStructs.add(record);
-				} else if(record instanceof CDEnd) {
-					// Check to see if it's ending an open field
-					CDEnd end = (CDEnd)record;
-					if(end.getSignature() == RichTextConstants.SIG_CD_FIELD || end.getSignature() == RichTextConstants.SIG_CD_EMBEDDEDCTL) {
-						flushField(fieldStructs, result);
-						foundFieldBegin.set(false);
-					}
-				} else if (record instanceof CDHotspotBegin) {
-					// First, flush any queued field structs, in the case of pre-R5 fields
-					if (!fieldStructs.isEmpty() && !foundFieldBegin.get()) {
-						flushField(fieldStructs, result);
-					}
-					
-					CDHotspotBegin hotspot = (CDHotspotBegin)record;
-					if(hotspot.getHotspotType() == CDHotspotBegin.Type.BUNDLE || hotspot.getHotspotType() == CDHotspotBegin.Type.V4_SECTION) {
-						// TODO add code if we want to handle sections here
-					}
-					// TODO check for subforms here if we decide we want to recurse field lookups
-				} else if(record instanceof CDHotspotEnd) {
-					// First, flush any queued field structs, in the case of pre-R5 fields
-					if (!fieldStructs.isEmpty() && !foundFieldBegin.get()) {
-						flushField(fieldStructs, result);
-					}
-					
-					// TODO add code if we want to handle sections here
-				} else {
-					// First, flush any queued field structs, in the case of pre-R5 fields
-					if (!fieldStructs.isEmpty() && !foundFieldBegin.get()) {
-						flushField(fieldStructs, result);
-					}
-					
-					// Ignore other record types
-				}
-			});
-			
-			if(!fieldStructs.isEmpty()) {
-				flushField(fieldStructs, result);
-			}
-		}
-		
-		return result;
-	}
+  @Override
+  public List<String> getExplicitSubformRecursive() {
+    throw new NotYetImplementedException();
+  }
 
-	@Override
-	public void swapFields(int indexA, int indexB) {
-		throw new NotYetImplementedException();
-	}
+  @Override
+  public List<FormField> getFields() {
+    final List<FormField> result = new ArrayList<>();
+    final Deque<RichTextRecord<?>> fieldStructs = new ArrayDeque<>();
 
-	@Override
-	public List<SubformReference> getSubforms() {
-		Document doc = getDocument();
-		if(doc.hasItem(ITEM_NAME_TEMPLATE)) {
-			return doc.getRichTextItem(ITEM_NAME_TEMPLATE).stream()
-				.filter(CDHotspotBegin.class::isInstance)
-				.map(CDHotspotBegin.class::cast)
-				.filter(hotspot -> hotspot.getHotspotType() == CDHotspotBegin.Type.SUBFORM)
-				.map(hotspot -> {
-					if(hotspot.getFlags().contains(CDHotspotBegin.Flag.FORMULA)) {
-						return new SubformReference(SubformReference.Type.FORMULA, hotspot.getSubformValue());
-					} else {
-						return new SubformReference(SubformReference.Type.EXPLICIT, hotspot.getSubformValue());
-					}
-				})
-				.collect(Collectors.toList());
-		} else {
-			return Collections.emptyList();
-		}
-	}
+    final Document doc = this.getDocument();
+    if (doc.hasItem(NotesConstants.ITEM_NAME_TEMPLATE)) {
+      final AtomicBoolean foundFieldBegin = new AtomicBoolean();
+      doc.getRichTextItem(NotesConstants.ITEM_NAME_TEMPLATE).forEach(record -> {
+        if (record instanceof CDBegin) {
+          // Check to see if it's the start of a field
+          final CDBegin begin = (CDBegin) record;
+          if (begin.getSignature() == RichTextConstants.SIG_CD_FIELD
+              || begin.getSignature() == RichTextConstants.SIG_CD_EMBEDDEDCTL) {
+            foundFieldBegin.set(true);
+          }
+        } else if (record instanceof CDField) {
+          fieldStructs.add(record);
+        } else if (record instanceof CDFieldHint) {
+          fieldStructs.add(record);
+        } else if (record instanceof CDExtField) {
+          fieldStructs.add(record);
+        } else if (record instanceof CDExt2Field) {
+          fieldStructs.add(record);
+        } else if (record instanceof CDIDName) {
+          fieldStructs.add(record);
+        } else if (record instanceof CDColor) {
+          // Don't close fields on COLOR
+        } else if (record instanceof CDDataFlags) {
+          if (foundFieldBegin.get()) {
+            fieldStructs.add(record);
+          } else if (!fieldStructs.isEmpty() && !foundFieldBegin.get()) {
+            this.flushField(fieldStructs, result);
+          }
+        } else if (record instanceof CDKeyword) {
+          fieldStructs.add(record);
+        } else if (record instanceof CDEmbeddedControl) {
+          fieldStructs.add(record);
+        } else if (record instanceof CDEnd) {
+          // Check to see if it's ending an open field
+          final CDEnd end = (CDEnd) record;
+          if (end.getSignature() == RichTextConstants.SIG_CD_FIELD || end.getSignature() == RichTextConstants.SIG_CD_EMBEDDEDCTL) {
+            this.flushField(fieldStructs, result);
+            foundFieldBegin.set(false);
+          }
+        } else if (record instanceof CDHotspotBegin) {
+          // First, flush any queued field structs, in the case of pre-R5 fields
+          if (!fieldStructs.isEmpty() && !foundFieldBegin.get()) {
+            this.flushField(fieldStructs, result);
+          }
 
-	@Override
-	public List<String> getExplicitSubformRecursive() {
-		throw new NotYetImplementedException();
-	}
+          final CDHotspotBegin hotspot = (CDHotspotBegin) record;
+          if (hotspot.getHotspotType() == CDHotspotBegin.Type.BUNDLE
+              || hotspot.getHotspotType() == CDHotspotBegin.Type.V4_SECTION) {
+            // TODO add code if we want to handle sections here
+          }
+          // TODO check for subforms here if we decide we want to recurse field lookups
+        } else if (record instanceof CDHotspotEnd) {
+          // First, flush any queued field structs, in the case of pre-R5 fields
+          if (!fieldStructs.isEmpty() && !foundFieldBegin.get()) {
+            this.flushField(fieldStructs, result);
+          }
 
-	// *******************************************************************************
-	// * Implementation utilities
-	// *******************************************************************************
-	
-	private void flushField(Deque<RichTextRecord<?>> structs, List<FormField> result) {
-		if(structs != null && !structs.isEmpty()) {
-			// Make sure there's a CDField
-			boolean foundField = structs.stream().anyMatch(s -> s instanceof CDField);
-			if(foundField) {
-				result.add(new FormFieldImpl(structs));
-			}
-			structs.clear();
-		}
-	}
+          // TODO add code if we want to handle sections here
+        } else {
+          // First, flush any queued field structs, in the case of pre-R5 fields
+          if (!fieldStructs.isEmpty() && !foundFieldBegin.get()) {
+            this.flushField(fieldStructs, result);
+          }
+
+          // Ignore other record types
+        }
+      });
+
+      if (!fieldStructs.isEmpty()) {
+        this.flushField(fieldStructs, result);
+      }
+    }
+
+    return result;
+  }
+
+  @Override
+  public List<SubformReference> getSubforms() {
+    final Document doc = this.getDocument();
+    if (doc.hasItem(NotesConstants.ITEM_NAME_TEMPLATE)) {
+      return doc.getRichTextItem(NotesConstants.ITEM_NAME_TEMPLATE).stream()
+          .filter(CDHotspotBegin.class::isInstance)
+          .map(CDHotspotBegin.class::cast)
+          .filter(hotspot -> hotspot.getHotspotType() == CDHotspotBegin.Type.SUBFORM)
+          .map(hotspot -> {
+            if (hotspot.getFlags().contains(CDHotspotBegin.Flag.FORMULA)) {
+              return new SubformReference(SubformReference.Type.FORMULA, hotspot.getSubformValue());
+            } else {
+              return new SubformReference(SubformReference.Type.EXPLICIT, hotspot.getSubformValue());
+            }
+          })
+          .collect(Collectors.toList());
+    } else {
+      return Collections.emptyList();
+    }
+  }
+
+  @Override
+  public T removeField() {
+    throw new NotYetImplementedException();
+  }
+
+  // *******************************************************************************
+  // * Implementation utilities
+  // *******************************************************************************
+
+  @Override
+  public void swapFields(final int indexA, final int indexB) {
+    throw new NotYetImplementedException();
+  }
 }

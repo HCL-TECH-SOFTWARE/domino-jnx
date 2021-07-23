@@ -20,53 +20,53 @@ package com.hcl.domino;
  * Version information about local or remote environments
  */
 public interface BuildVersionInfo {
-	/**
-	 * Returns the major version identifier
-	 * 
-	 * @return identifier
-	 */
-	public int getMajorVersion();
-	
-	/**
-	 * Returns the minor version identifier
-	 * 
-	 * @return identifier
-	 */
-	public int getMinorVersion();
-	
-	/**
-	 * Returns the Maintenance Release identifier
-	 * 
-	 * @return identifier
-	 */
-	public int getQMRNumber();
-	
-	/**
-	 * Returns the Maintenance Update identifier
-	 * 
-	 * @return identifier
-	 */
-	public int getQMUNumber();
-	
-	/**
-	 * Returns the Hotfixes installed on machine
-	 * 
-	 * @return hotfixes
-	 */
-	public int getHotfixNumber();
-	
-	/**
-	 * Returns the Fixpack/feature version installed on machine
-	 * 
-	 * @return fixpack/feature version
-	 */
-	public int getFixpackNumber();
-	
-	/**
-	 * Returns whether this is a non-production style build (internal only)
-	 * 
-	 * @return true if non-production build
-	 */
-	public boolean isNonProductionBuild();
-	
+  /**
+   * Returns the Fixpack/feature version installed on machine
+   *
+   * @return fixpack/feature version
+   */
+  int getFixpackNumber();
+
+  /**
+   * Returns the Hotfixes installed on machine
+   *
+   * @return hotfixes
+   */
+  int getHotfixNumber();
+
+  /**
+   * Returns the major version identifier
+   *
+   * @return identifier
+   */
+  int getMajorVersion();
+
+  /**
+   * Returns the minor version identifier
+   *
+   * @return identifier
+   */
+  int getMinorVersion();
+
+  /**
+   * Returns the Maintenance Release identifier
+   *
+   * @return identifier
+   */
+  int getQMRNumber();
+
+  /**
+   * Returns the Maintenance Update identifier
+   *
+   * @return identifier
+   */
+  int getQMUNumber();
+
+  /**
+   * Returns whether this is a non-production style build (internal only)
+   *
+   * @return true if non-production build
+   */
+  boolean isNonProductionBuild();
+
 }

@@ -29,68 +29,75 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.WSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="CDACTIONDBCOPY",
-	members={
-		@StructureMember(name="Header", type=WSIG.class),
-		@StructureMember(name="dwFlags", type=CDActionDBCopy.Flag.class, bitfield=true),
-		@StructureMember(name="wServerLen", type=short.class, unsigned=true),
-		@StructureMember(name="wDatabaseLen", type=short.class, unsigned=true)
-	}
-)
+@StructureDefinition(name = "CDACTIONDBCOPY", members = {
+    @StructureMember(name = "Header", type = WSIG.class),
+    @StructureMember(name = "dwFlags", type = CDActionDBCopy.Flag.class, bitfield = true),
+    @StructureMember(name = "wServerLen", type = short.class, unsigned = true),
+    @StructureMember(name = "wDatabaseLen", type = short.class, unsigned = true)
+})
 public interface CDActionDBCopy extends RichTextRecord<WSIG> {
-	enum Flag implements INumberEnum<Integer> {
-		/** Remove document from original database */
-		MOVE(RichTextConstants.ACTIONDBCOPY_FLAG_MOVE)
-		;
-		private final int value;
-		Flag(int value) { this.value = value; }
-		@Override
-		public Integer getValue() {
-			return value;
-		}
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-	}
-	
-	@StructureGetter("Header")
-	@Override
-	WSIG getHeader();
-	
-	@StructureGetter("dwFlags")
-	Set<Flag> getFlags();
-	@StructureSetter("dwFlags")
-	CDActionDBCopy setFlags(Collection<Flag> flags);
-	
-	@StructureGetter("wServerLen")
-	int getServerNameLength();
-	@StructureSetter("wServerLen")
-	CDActionDBCopy setServerNameLength(int len);
-	
-	@StructureGetter("wDatabaseLen")
-	int getDatabaseNameLength();
-	@StructureSetter("wDatabaseLen")
-	CDActionDBCopy setDatabaseNameLength(int len);
-	
-	default String getServerName() {
-		return StructureSupport.extractStringValue(this, 0, getServerNameLength());
-	}
-	default CDActionDBCopy setServerName(String serverName) {
-		StructureSupport.writeStringValue(this, 0, getServerNameLength(), serverName, this::setServerNameLength);
-		return this;
-	}
-	
-	default String getDatabaseName() {
-		return StructureSupport.extractStringValue(this, getServerNameLength(), getDatabaseNameLength());
-	}
-	default CDActionDBCopy setDatabaseName(String databaseName) {
-		StructureSupport.writeStringValue(this, getServerNameLength(), getDatabaseNameLength(), databaseName, this::setDatabaseNameLength);
-		return this;
-	}
+  enum Flag implements INumberEnum<Integer> {
+    /** Remove document from original database */
+    MOVE(RichTextConstants.ACTIONDBCOPY_FLAG_MOVE);
+
+    private final int value;
+
+    Flag(final int value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Integer getValue() {
+      return this.value;
+    }
+  }
+
+  default String getDatabaseName() {
+    return StructureSupport.extractStringValue(this, this.getServerNameLength(), this.getDatabaseNameLength());
+  }
+
+  @StructureGetter("wDatabaseLen")
+  int getDatabaseNameLength();
+
+  @StructureGetter("dwFlags")
+  Set<Flag> getFlags();
+
+  @StructureGetter("Header")
+  @Override
+  WSIG getHeader();
+
+  default String getServerName() {
+    return StructureSupport.extractStringValue(this, 0, this.getServerNameLength());
+  }
+
+  @StructureGetter("wServerLen")
+  int getServerNameLength();
+
+  default CDActionDBCopy setDatabaseName(final String databaseName) {
+    StructureSupport.writeStringValue(this, this.getServerNameLength(), this.getDatabaseNameLength(), databaseName,
+        this::setDatabaseNameLength);
+    return this;
+  }
+
+  @StructureSetter("wDatabaseLen")
+  CDActionDBCopy setDatabaseNameLength(int len);
+
+  @StructureSetter("dwFlags")
+  CDActionDBCopy setFlags(Collection<Flag> flags);
+
+  default CDActionDBCopy setServerName(final String serverName) {
+    StructureSupport.writeStringValue(this, 0, this.getServerNameLength(), serverName, this::setServerNameLength);
+    return this;
+  }
+
+  @StructureSetter("wServerLen")
+  CDActionDBCopy setServerNameLength(int len);
 }

@@ -19,16 +19,18 @@ package com.hcl.domino.commons.structs;
 import java.text.MessageFormat;
 
 /**
- * Specialized variant of {@link IllegalArgumentException} that specifically signals
- * that an array loaded by a struct is the wrong size based on another struct member.
- * 
+ * Specialized variant of {@link IllegalArgumentException} that specifically
+ * signals
+ * that an array loaded by a struct is the wrong size based on another struct
+ * member.
+ *
  * @author Jesse Gallagher
  * @since 1.0.11
  */
 public class WrongArraySizeException extends IllegalArgumentException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public WrongArraySizeException(String memberName) {
-		super(MessageFormat.format("Wrong array size: {0}", memberName));
-	}
+  public WrongArraySizeException(final String memberName) {
+    super(MessageFormat.format("Wrong array size: {0}", memberName));
+  }
 }

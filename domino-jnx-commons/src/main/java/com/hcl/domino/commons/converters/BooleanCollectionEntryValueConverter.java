@@ -19,28 +19,32 @@ package com.hcl.domino.commons.converters;
 import com.hcl.domino.data.DocumentValueConverter;
 
 /**
- * {@link DocumentValueConverter} implementation that supports converting boolean values
+ * {@link DocumentValueConverter} implementation that supports converting
+ * boolean values
  * to and from 0d and 1d.
- * 
+ *
  * @author Jesse Gallagher
  */
 public class BooleanCollectionEntryValueConverter extends AbstractPrimitiveCollectionEntryValueConverter<Boolean> {
-	
-	@Override
-	protected Class<Boolean> getBoxedClass() {
-		return Boolean.class;
-	}
-	@Override
-	protected Class<?> getPrimitiveClass() {
-		return boolean.class;
-	}
-	@Override
-	protected Boolean convertFromDouble(double value) {
-		// Do C-style "anything not 0 is true"
-		return value != 0d;
-	}
-	@Override
-	protected double convertToDouble(Boolean value) {
-		return value ? 1d : 0d;
-	}
+
+  @Override
+  protected Boolean convertFromDouble(final double value) {
+    // Do C-style "anything not 0 is true"
+    return value != 0d;
+  }
+
+  @Override
+  protected double convertToDouble(final Boolean value) {
+    return value ? 1d : 0d;
+  }
+
+  @Override
+  protected Class<Boolean> getBoxedClass() {
+    return Boolean.class;
+  }
+
+  @Override
+  protected Class<?> getPrimitiveClass() {
+    return boolean.class;
+  }
 }

@@ -26,28 +26,26 @@ import com.hcl.domino.jnx.example.domino.webapp.admin.console.ConsoleResource;
 import com.hcl.domino.jnx.example.domino.webapp.admin.console.KnownServersResource;
 
 public class ApiApplication extends Application {
-	@Override
-	public Set<Class<?>> getClasses() {
-		return new HashSet<>(Arrays.asList(
-			HelloWorldResource.class,
-			CollectionsResource.class
-		));
-	}
-	
-	@Override
-	public Set<Object> getSingletons() {
-		BasicCorsFilter cors = new BasicCorsFilter();
-		cors.getAllowedOrigins().add("*"); //$NON-NLS-1$
-		cors.setAllowedHeaders("origin, content-type, accept, authorization, x-requested-with"); //$NON-NLS-1$
-		cors.setAllowedMethods("GET, POST, PUT, DELETE, OPTIONS, HEAD"); //$NON-NLS-1$
-		cors.setCorsMaxAge(1209600);
+  @Override
+  public Set<Class<?>> getClasses() {
+    return new HashSet<>(Arrays.asList(
+        HelloWorldResource.class,
+        CollectionsResource.class));
+  }
 
-		return new HashSet<>(Arrays.asList(
-			cors,
-			new ConsoleResource(),
-			new KnownServersResource(),
-			new JsonbMessageBodyWriter(),
-			new GenericExceptionMapper()
-		));
-	}
+  @Override
+  public Set<Object> getSingletons() {
+    final BasicCorsFilter cors = new BasicCorsFilter();
+    cors.getAllowedOrigins().add("*"); //$NON-NLS-1$
+    cors.setAllowedHeaders("origin, content-type, accept, authorization, x-requested-with"); //$NON-NLS-1$
+    cors.setAllowedMethods("GET, POST, PUT, DELETE, OPTIONS, HEAD"); //$NON-NLS-1$
+    cors.setCorsMaxAge(1209600);
+
+    return new HashSet<>(Arrays.asList(
+        cors,
+        new ConsoleResource(),
+        new KnownServersResource(),
+        new JsonbMessageBodyWriter(),
+        new GenericExceptionMapper()));
+  }
 }

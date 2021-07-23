@@ -22,18 +22,17 @@ import com.hcl.domino.DominoProcess;
 import com.hcl.domino.DominoProcess.DominoThreadContext;
 
 public class Main {
-	public static void main(String[] args) {
-		DominoProcess.get().initializeProcess(args);
-		try {
-			try(
-				DominoThreadContext ctx = DominoProcess.get().initializeThread();
-				DominoClient client = DominoClientBuilder.newDominoClient().build();
-			) {
-				
-				System.out.println("Hello from GraalVM Native, running as " + client.getEffectiveUserName());
-			}
-		} finally {
-			DominoProcess.get().terminateProcess();
-		}
-	}
+  public static void main(final String[] args) {
+    DominoProcess.get().initializeProcess(args);
+    try {
+      try (
+          DominoThreadContext ctx = DominoProcess.get().initializeThread();
+          DominoClient client = DominoClientBuilder.newDominoClient().build();) {
+
+        System.out.println("Hello from GraalVM Native, running as " + client.getEffectiveUserName());
+      }
+    } finally {
+      DominoProcess.get().terminateProcess();
+    }
+  }
 }

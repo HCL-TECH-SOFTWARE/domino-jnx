@@ -28,12 +28,12 @@ import jakarta.ws.rs.core.MediaType;
 
 @Path("knownServers")
 public class KnownServersResource {
-	@Inject
-	private DominoClient dominoClient;
-	
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<String> getServers() {
-		return dominoClient.getKnownServers(null);
-	}
+  @Inject
+  private DominoClient dominoClient;
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Collection<String> getServers() {
+    return this.dominoClient.getKnownServers(null);
+  }
 }

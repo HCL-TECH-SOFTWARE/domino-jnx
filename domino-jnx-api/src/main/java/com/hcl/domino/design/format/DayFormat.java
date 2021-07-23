@@ -20,18 +20,22 @@ import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 
 public enum DayFormat implements INumberEnum<Byte> {
-	D(RichTextConstants.DT_DFMT_D),
-	DD(RichTextConstants.DT_DFMT_DD)
-	;
-	private final byte value;
-	DayFormat(byte value) { this.value = value; }
-	
-	@Override
-	public long getLongValue() {
-		return value;
-	}
-	@Override
-	public Byte getValue() {
-		return value;
-	}
+  D(RichTextConstants.DT_DFMT_D),
+  DD(RichTextConstants.DT_DFMT_DD);
+
+  private final byte value;
+
+  DayFormat(final byte value) {
+    this.value = value;
+  }
+
+  @Override
+  public long getLongValue() {
+    return this.value;
+  }
+
+  @Override
+  public Byte getValue() {
+    return this.value;
+  }
 }

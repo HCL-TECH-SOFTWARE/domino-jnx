@@ -25,126 +25,130 @@ import com.hcl.domino.richtext.records.RichTextRecord;
 
 public interface RichtextNavigator extends IAdaptable {
 
-	/**
-	 * Navigates to the first record in the richtext item
-	 * 
-	 * @return true if there is a first record
-	 */
-	boolean gotoFirst();
-	
-	/**
-	 * Navigates to the last record
-	 * 
-	 * @return true if there is data to read
-	 */
-	boolean gotoLast();
-	
-	/**
-	 * Navigates to the next record in the richtext item
-	 * 
-	 * @return true if there is a next record
-	 */
-	boolean gotoNext();
-	
-	/**
-	 * Navigates to the previous record in the richtext item
-	 * 
-	 * @return true if there is a previous record
-	 */
-	boolean gotoPrev();
-	
-	/**
-	 * Checks whether the navigator contains any CD records
-	 * 
-	 * @return true if empty
-	 */
-	boolean isEmpty();
-	
-	/**
-	 * Method to check if there is a next record
-	 * 
-	 * @return true if there is data to read
-	 */
-	boolean hasNext();
+  public interface RichtextPosition {
 
-	/**
-	 * Method to check if there is a previous CD record
-	 * 
-	 * @return true if there is data to read
-	 */
-	boolean hasPrev();
+    /**
+     * Can be used to compare this position with another one
+     * 
+     * @param obj other position
+     * @return true if equal
+     */
+    @Override
+    boolean equals(Object obj);
 
-	/**
-	 * Returns the current navigation position in the
-	 * richtext. Use {@link #restorePosition(RichtextPosition)}
-	 * to return to this position.
-	 * 
-	 * @return position
-	 */
-	RichtextPosition getCurrentPosition();
-	
-	/**
-	 * Restores the current position to a previous one received
-	 * via {@link #getCurrentPosition()}
-	 * 
-	 * @param pos new position
-	 */
-	void restorePosition(RichtextPosition pos);
-	
-	/**
-	 * Returns info about the currently focused richtext record
-	 * 
-	 * @return record
-	 */
-	RichTextRecord<?> getCurrentRecord();
-	
-	/**
-	 * Returns a read-only buffer to access the CD record data (CD record header BSIG/WSIG/LSIG is not part of
-	 * the returned data)
-	 * 
-	 * @return data buffer with length {@link #getCurrentRecordDataLength()}
-	 */
-	ByteBuffer getCurrentRecordData();
-	
-	/**
-	 * Returns a read-only buffer to access the CD record data (CD record header BSIG/WSIG/LSIG is included
-	 * in the returned data)
-	 * 
-	 * @return data buffer with length {@link #getCurrentRecordDataLength()}
-	 */
-	ByteBuffer getCurrentRecordDataWithHeader();
+    /**
+     * Return a hashcode that can be used to hash the position
+     * across items and documents
+     * 
+     * @return hashcode
+     */
+    @Override
+    int hashCode();
+  }
 
-	int getCurrentRecordHeaderLength();
-	
-	short getCurrentRecordTypeConstant();
-	
-	int getCurrentRecordDataLength();
-	
-	int getCurrentRecordTotalLength();
-	
-	void copyCurrentRecordTo(RichTextWriter ct);
-	
-	public interface RichtextPosition {
-	
-		/**
-		 * Can be used to compare this position with another one
-		 * 
-		 * @param obj other position
-		 * @return true if equal
-		 */
-		@Override boolean equals(Object obj);
+  void copyCurrentRecordTo(RichTextWriter ct);
 
-		/**
-		 * Return a hashcode that can be used to hash the position
-		 * across items and documents
-		 * 
-		 * @return hashcode
-		 */
-		@Override int hashCode();
-	}
+  /**
+   * Returns the current navigation position in the
+   * richtext. Use {@link #restorePosition(RichtextPosition)}
+   * to return to this position.
+   * 
+   * @return position
+   */
+  RichtextPosition getCurrentPosition();
 
-	Document getParentDocument();
+  /**
+   * Returns info about the currently focused richtext record
+   * 
+   * @return record
+   */
+  RichTextRecord<?> getCurrentRecord();
 
-	String getItemName();
-	
+  /**
+   * Returns a read-only buffer to access the CD record data (CD record header
+   * BSIG/WSIG/LSIG is not part of
+   * the returned data)
+   * 
+   * @return data buffer with length {@link #getCurrentRecordDataLength()}
+   */
+  ByteBuffer getCurrentRecordData();
+
+  int getCurrentRecordDataLength();
+
+  /**
+   * Returns a read-only buffer to access the CD record data (CD record header
+   * BSIG/WSIG/LSIG is included
+   * in the returned data)
+   * 
+   * @return data buffer with length {@link #getCurrentRecordDataLength()}
+   */
+  ByteBuffer getCurrentRecordDataWithHeader();
+
+  int getCurrentRecordHeaderLength();
+
+  int getCurrentRecordTotalLength();
+
+  short getCurrentRecordTypeConstant();
+
+  String getItemName();
+
+  Document getParentDocument();
+
+  /**
+   * Navigates to the first record in the richtext item
+   * 
+   * @return true if there is a first record
+   */
+  boolean gotoFirst();
+
+  /**
+   * Navigates to the last record
+   * 
+   * @return true if there is data to read
+   */
+  boolean gotoLast();
+
+  /**
+   * Navigates to the next record in the richtext item
+   * 
+   * @return true if there is a next record
+   */
+  boolean gotoNext();
+
+  /**
+   * Navigates to the previous record in the richtext item
+   * 
+   * @return true if there is a previous record
+   */
+  boolean gotoPrev();
+
+  /**
+   * Method to check if there is a next record
+   * 
+   * @return true if there is data to read
+   */
+  boolean hasNext();
+
+  /**
+   * Method to check if there is a previous CD record
+   * 
+   * @return true if there is data to read
+   */
+  boolean hasPrev();
+
+  /**
+   * Checks whether the navigator contains any CD records
+   * 
+   * @return true if empty
+   */
+  boolean isEmpty();
+
+  /**
+   * Restores the current position to a previous one received
+   * via {@link #getCurrentPosition()}
+   * 
+   * @param pos new position
+   */
+  void restorePosition(RichtextPosition pos);
+
 }

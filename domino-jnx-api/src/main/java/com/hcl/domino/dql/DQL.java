@@ -14,9 +14,10 @@
  * under the License.
  * ==========================================================================
  */
- package com.hcl.domino.dql;
+package com.hcl.domino.dql;
 
 import java.text.DateFormat;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
@@ -27,8 +28,6 @@ import java.util.Objects;
 import java.util.TimeZone;
 
 import com.hcl.domino.data.DominoDateTime;
-
-import static java.text.MessageFormat.format;
 
 /**
  * Utility class to programmatically compose syntactically correct
@@ -41,7 +40,8 @@ import static java.text.MessageFormat.format;
  * <code>
  * import static com.hcl.domino.dql.DQL.*;
  * </code>
- * <br><br>
+ * <br>
+ * <br>
  * to import all static methods of this class.<br>
  * Then you can use methods like {@link #item(String)}, {@link #in(String...)},
  * {@link #inAll(String...)} or {@link #view(String)}
@@ -54,928 +54,906 @@ import static java.text.MessageFormat.format;
  * );<br>
  * </code>
  * <br>
- * To see the resulting DQL query string, simple call {@link DQLTerm#toString()}.
+ * To see the resulting DQL query string, simple call
+ * {@link DQLTerm#toString()}.
  */
 public class DQL {
-	/**
-	 * Use this method to filter for documents with a specific item
-	 * value
-	 * 
-	 * @param itemName item name
-	 * @return object to define the item value and relation (e.g. isEqual to)
-	 */
-	public static NamedItem item(String itemName) {
-		return new NamedItem(itemName);
-	}
-	
-	/**
-	 * Use this method to filter for documents with a specific view
-	 * column value
-	 * 
-	 * @param viewName view name
-	 * @return object to define which column to filter
-	 */
-	public static NamedView view(String viewName) {
-		return new NamedView(viewName);
-	}
-	
-	/**
-	 * Creates a search term to find documents that exist in at least
-	 * one of the specified views.
-	 * 
-	 * @param views view names (V10.0 does not support alias names)
-	 * @return DQL term
-	 */
-	public static InViewsOrFoldersTerm in(String...views) {
-		return new InViewsOrFoldersTerm(views, false);
-	}
-	
-	/**
-	 * Creates a search term to find documents that exist in multiple
-	 * views
-	 * 
-	 * @param views view names (V10.0 does not support alias names)
-	 * @return DQL term
-	 */
-	public static InViewsOrFoldersTerm inAll(String... views) {
-		return new InViewsOrFoldersTerm(views, true);
-	}
-	
-	/**
-	 * Base class for a variety of DQL search terms
-	 */
-	public static abstract class DQLTerm {
-		
-		/**
-		 * Returns the term content as DQL query
-		 * 
-		 * @return DQL
-		 */
-		@Override
-		public abstract String toString();
-	}
-	
-	public static class InViewsOrFoldersTerm extends DQLTerm {
-		private String[] m_viewNames;
-		private boolean m_matchAll;
-		
-		private String m_toString;
-		
-		private InViewsOrFoldersTerm(String[] viewNames, boolean matchAll) {
-			m_viewNames = viewNames;
-			m_matchAll = matchAll;
-		}
-		
-		@Override
-		public String toString() {
-			if (m_toString==null) {
-				StringBuilder sb = new StringBuilder();
-				sb.append("in "); //$NON-NLS-1$
-				if (m_matchAll) {
-					sb.append("all "); //$NON-NLS-1$
-				}
-				sb.append("("); //$NON-NLS-1$
-				
-				for (int i=0; i<m_viewNames.length; i++) {
-					if (i>0) {
-						sb.append(", "); //$NON-NLS-1$
-					}
-					sb.append("'"); //$NON-NLS-1$
-					sb.append(escapeViewName(m_viewNames[i]));
-					sb.append("'"); //$NON-NLS-1$
-				}
-				sb.append(")"); //$NON-NLS-1$
-				m_toString = sb.toString();
-			}
-			return m_toString;
-		}
-	}
-	
-	public static class NamedView {
-		private String m_viewName;
-		
-		private NamedView(String viewName) {
-			m_viewName = viewName;
-		}
-		
-		public String getViewName() {
-			return m_viewName;
-		}
-		
-		/**
-		 * Method to define the column for which we want to
-		 * filter the value
-		 * 
-		 * @param columnName view column name
-		 * @return object to define the column value and relation (e.g. isEqualTo)
-		 */
-		public NamedViewColumn column(String columnName) {
-			return new NamedViewColumn(this, columnName);
-		}
-		
-		@Override
-		public String toString() {
-			return m_viewName;
-		}
-		
-	}
-	
-	public static class NamedViewColumn extends Subject {
-		private NamedView m_view;
-		private String m_columnName;
-		
-		private String m_toString;
-		
-		private NamedViewColumn(NamedView view, String columnName) {
-			m_view = view;
-			m_columnName = columnName;
-		}
-		
-		public String getColumnName() {
-			return m_columnName;
-		}
-		
-		@Override
-		public String toString() {
-			if (m_toString==null) {
-				m_toString = format("''{0}''.{1}", escapeViewName(m_view.getViewName()), escapeColumnName(m_columnName)); //$NON-NLS-1$
-			}
-			return m_toString;
-		}
-	}
-	
-	private enum TermRelation {
-		EQUAL("="), //$NON-NLS-1$
-		LESSTHAN("<"), //$NON-NLS-1$
-		LESSTHANOREQUAL("<="), //$NON-NLS-1$
-		GREATERTHAN(">"), //$NON-NLS-1$
-		GREATERTHANOREQUAL(">="), //$NON-NLS-1$
-		IN("in"), //$NON-NLS-1$
-		INALL("in all"), //$NON-NLS-1$
-		CONTAINS("contains"); //$NON-NLS-1$
-		
-		private String m_val;
-		
-		TermRelation(String val) {
-			m_val = val;
-		}
-		
-		public String getValue() {
-			return m_val;
-		}
-	};
-		
-	private enum SpecialValueType {
-		MODIFIEDINTHISFLE("@ModifiedInThisFile"), //$NON-NLS-1$
-		DOCUMENTUNIQUEID("@DocumentUniqueID"), //$NON-NLS-1$
-		CREATED("@Created"); //$NON-NLS-1$
-	
-		private String m_value;
-		
-		SpecialValueType(String value) {
-			m_value = value;
-		}
-		
-		public String getValue() {
-			return m_value;
-		}
-	};
-	
-	/**
-	 * Returns a DQL term that matches all documents
-	 * 
-	 * @return term
-	 */
-	public static DQLTerm all() {
-		return new AllTerm();
-	}
-	
-	/**
-	 * Returns a DQL term to run a FT search on the whole note with one or multiple search words.
-	 * 
-	 * @param values search words with optional wildcards like Lehm* or Lehman?
-	 * @return term
-	 * 
-	 * @since Domino R11
-	 */
-	public static DQLTerm contains(String...values) {
-		return new NoteContainsTerm(false, values);
-	}
+  public static class AllTerm extends DQLTerm {
 
-	/**
-	 * Returns a DQL term to run a FT search on the whole note with one or multiple search words.<br>
-	 * All search words must exist in the note for it to be a match.
-	 * 
-	 * @param values search words with optional wildcards like Lehm* or Lehman?
-	 * @return term
-	 * 
-	 * @since Domino R11
-	 */
-	public static DQLTerm containsAll(String...values) {
-		return new NoteContainsTerm(true, values);
-	}
-
-	/**
-	 * Returns a DQL term to do an AND operation on multiple other terms
-	 * 
-	 * @param terms terms for AND operation
-	 * @return AND term
-	 */
-	public static DQLTerm and(DQLTerm... terms) {
-		return new AndTerm(terms);
-	}
-	
-	/**
-	 * Returns a DQL term to do an OR operation on multiple other terms
-	 * 
-	 * @param terms terms for OR operation
-	 * @return OR term
-	 */
-	public static DQLTerm or(DQLTerm... terms) {
-		return new OrTerm(terms);
-	}
-	
-	/**
-	 * Returns a DQL term to negate the specified term
-	 * 
-	 * @param term term to negate
-	 * @return negated term
-	 */
-	public static DQLTerm not(DQLTerm term) {
-		return new NotTerm(term);
-	}
-	
-	public static class AllTerm extends DQLTerm {
-
-		@Override
-		public String toString() {
-			return "@all"; //$NON-NLS-1$
-		}
-	}
-	
-	public static class NoteContainsTerm extends DQLTerm {
-		private boolean m_containsAll;
-		private String[] m_values;
-		private String m_toString;
-		
-		public NoteContainsTerm(boolean containsAll, String... values) {
-			m_containsAll = containsAll;
-			m_values = values;
-		}
-		
-		@Override
-		public String toString() {
-			if (m_toString==null) {
-				StringBuilder sb = new StringBuilder();
-				
-				sb.append("contains "); //$NON-NLS-1$
-				
-				if (m_containsAll) {
-					sb.append("all "); //$NON-NLS-1$
-				}
-				
-				sb.append("("); //$NON-NLS-1$
-
-				for (int i=0; i<m_values.length; i++) {
-					if (i>0) {
-						sb.append(", "); //$NON-NLS-1$
-					}
-					sb.append("'"); //$NON-NLS-1$
-					sb.append(escapeStringValue(m_values[i]));
-					sb.append("'"); //$NON-NLS-1$
-				}
-				
-				sb.append(")"); //$NON-NLS-1$
-				m_toString = sb.toString();
-			}
-			return m_toString;
-		}
-	}
-	
-	public static class NotTerm extends DQLTerm {
-		private DQLTerm m_term;
-		
-		private String m_toString;
-		
-		private NotTerm(DQLTerm term) {
-			m_term = term;
-		}
-		
-		@Override
-		public String toString() {
-			if (m_toString==null) {
-				if (m_term instanceof AndTerm || m_term instanceof OrTerm) {
-					m_toString = format("not ({0})", m_term.toString()); //$NON-NLS-1$
-				}
-				else {
-					m_toString = format("not {0}", m_term.toString()); //$NON-NLS-1$
-				}
-			}
-			return m_toString;
-		}
-	}
-	
-	public static class AndTerm extends DQLTerm {
-		private DQLTerm[] m_terms;
-		private String m_toString;
-		
-		private AndTerm(DQLTerm[] terms) {
-			if (terms==null) {
-				throw new IllegalArgumentException("And arguments value is null");
-			}
-			if (terms.length==0) {
-				throw new IllegalArgumentException("And arguments value is empty");
-			}
-			m_terms = terms;
-		}
-		
-		@Override
-		public String toString() {
-			if (m_terms.length == 1) {
-				return m_terms[0].toString();
-			}
-			
-			if (m_toString==null){
-				StringBuilder sb = new StringBuilder();
-				for (int i=0; i<m_terms.length; i++) {
-					if (i>0) {
-						sb.append(" and "); //$NON-NLS-1$
-					}
-					
-					if (m_terms[i] instanceof OrTerm) {
-						sb.append("("); //$NON-NLS-1$
-						sb.append(m_terms[i].toString());
-						sb.append(")"); //$NON-NLS-1$
-					}
-					else if (m_terms[i] instanceof AndTerm) {
-						sb.append(m_terms[i].toString());
-					}
-					else {
-						sb.append(m_terms[i]);
-					}
-				}
-				
-				m_toString = sb.toString();
-			}
-			return m_toString;
-		}
-	}
-	
-	public static class OrTerm extends DQLTerm {
-		private DQLTerm[] m_terms;
-		private String m_toString;
-		
-		private OrTerm(DQLTerm[] terms) {
-			if (terms==null) {
-				throw new IllegalArgumentException("Or arguments value is null");
-			}
-			if (terms.length==0) {
-				throw new IllegalArgumentException("Or arguments value is empty");
-			}
-			m_terms = terms;
-		}
-		
-		@Override
-		public String toString() {
-			if (m_terms.length == 1) {
-				return m_terms[0].toString();
-			}
-			
-			if (m_toString==null) {
-				StringBuilder sb = new StringBuilder();
-				for (int i=0; i<m_terms.length; i++) {
-					if (i>0) {
-						sb.append(" or "); //$NON-NLS-1$
-					}
-					
-					if (m_terms[i] instanceof OrTerm) {
-						sb.append(m_terms[i].toString());
-					}
-					else if (m_terms[i] instanceof AndTerm) {
-//						sb.append("(");
-						sb.append(m_terms[i].toString());
-//						sb.append(")");
-					}
-					else {
-						sb.append(m_terms[i]);
-					}
-				}
-				m_toString = sb.toString();
-			}
-			return m_toString;
-		}
-
-	}
-	
-	/**
-	 * Use this method to filter by @ModifiedInThisFile value
-	 * 
-	 * @return object to define a date value and relation (e.g. isGreaterThan / isLess)
-	 */
-	public static SpecialValue modifiedInThisFile() {
-		return new SpecialValue(SpecialValueType.MODIFIEDINTHISFLE);
-	}
-
-	/**
-	 * Use this method to filter by @DocumentUniqueId value
-	 * 
-	 * @return object to define the UNID and isEqual relation
-	 */
-	public static SpecialValue documentUniqueId() {
-		return new SpecialValue(SpecialValueType.DOCUMENTUNIQUEID);
-	}
-
-	/**
-	 * Use this method to filter by @Created value
-	 * 
-	 * @return object to define the creation date to compare with and relation (e.g. isGreaterThan)
-	 */
-	public static SpecialValue created() {
-		return new SpecialValue(SpecialValueType.CREATED);
-	}
-
-	public static class SpecialValue extends NamedItem {
-		private SpecialValueType m_type;
-		
-		private SpecialValue(SpecialValueType type) {
-			super(type.getValue());
-			m_type = type;
-		}
-		
-		public SpecialValueType getType() {
-			return m_type;
-		}
-		
-		@Override
-		public String toString() {
-			return m_type.getValue();
-		}
-	}
-	
-	private static class Subject {
-		public ValueComparisonTerm isEqualTo(String strVal) {
-			return new ValueComparisonTerm(this, TermRelation.EQUAL, strVal);
-		}
-		
-		public ValueComparisonTerm isLessThan(String strVal) {
-			return new ValueComparisonTerm(this, TermRelation.LESSTHAN, strVal);
-		}
-
-		public ValueComparisonTerm isLessThanOrEqual(String strVal) {
-			return new ValueComparisonTerm(this, TermRelation.LESSTHANOREQUAL, strVal);
-		}
-
-		public ValueComparisonTerm isGreaterThan(String strVal) {
-			return new ValueComparisonTerm(this, TermRelation.GREATERTHAN, strVal);
-		}
-
-		public ValueComparisonTerm isGreaterThanOrEqual(String strVal) {
-			return new ValueComparisonTerm(this, TermRelation.GREATERTHANOREQUAL, strVal);
-		}
-
-		public ValueComparisonTerm isEqualTo(int numVal) {
-			return new ValueComparisonTerm(this, TermRelation.EQUAL, Integer.valueOf(numVal));
-		}
-
-		public ValueComparisonTerm isLessThan(int numVal) {
-			return new ValueComparisonTerm(this, TermRelation.LESSTHAN, Integer.valueOf(numVal));
-		}
-
-		public ValueComparisonTerm isLessThanOrEqual(int numVal) {
-			return new ValueComparisonTerm(this, TermRelation.LESSTHANOREQUAL, Integer.valueOf(numVal));
-		}
-
-		public ValueComparisonTerm isGreaterThan(int numVal) {
-			return new ValueComparisonTerm(this, TermRelation.GREATERTHAN, Integer.valueOf(numVal));
-		}
-
-		public ValueComparisonTerm isGreaterThanOrEqual(int numVal) {
-			return new ValueComparisonTerm(this, TermRelation.GREATERTHANOREQUAL, Integer.valueOf(numVal));
-		}
-
-		public ValueComparisonTerm isEqualTo(double numVal) {
-			return new ValueComparisonTerm(this, TermRelation.EQUAL, Double.valueOf(numVal));
-		}
-
-		public ValueComparisonTerm isLessThan(double numVal) {
-			return new ValueComparisonTerm(this, TermRelation.LESSTHAN, Double.valueOf(numVal));
-		}
-
-		public ValueComparisonTerm isLessThanOrEqual(double numVal) {
-			return new ValueComparisonTerm(this, TermRelation.LESSTHANOREQUAL, Double.valueOf(numVal));
-		}
-
-		public ValueComparisonTerm isGreaterThan(double numVal) {
-			return new ValueComparisonTerm(this, TermRelation.GREATERTHAN, Double.valueOf(numVal));
-		}
-
-		public ValueComparisonTerm isGreaterThanOrEqual(double numVal) {
-			return new ValueComparisonTerm(this, TermRelation.GREATERTHANOREQUAL, Double.valueOf(numVal));
-		}
-
-		/**
-		 * Returns a DQL term to run a FT search on the value of an item with one or multiple search words.
-		 * 
-		 * @param searchWords search words with optional wildcards like Lehm* or Lehman?
-		 * @return term
-		 * 
-		 * @since Domino R11
-		 */
-		public ValueContainsTerm contains(String... searchWords) {
-			return new ValueContainsTerm(this, false, searchWords);
-		}
-
-		/**
-		 * Returns a DQL term to run a FT search on the value of an item with one or multiple search words.<br>
-		 * All search words must exist in the note for it to be a match.
-		 * 
-		 * @param searchWords search words with optional wildcards like Lehm* or Lehman?
-		 * @return term
-		 * 
-		 * @since Domino R11
-		 */
-		public ValueContainsTerm containsAll(String... searchWords) {
-			return new ValueContainsTerm(this, true, searchWords);
-		}
-
-		public <T> ValueComparisonTerm in(Collection<T> values, Class<T> clazz) {
-			if (Integer.class == clazz) {
-				int[] valuesArr = new int[values.size()];
-				int idx = 0;
-				for (T currVal : values) {
-					valuesArr[idx++] = ((Number) currVal).intValue();
-				}
-				return in(valuesArr);
-			}
-			else if (Double.class ==clazz) {
-				double[] valuesArr = new double[values.size()];
-				int idx = 0;
-				for (T currVal : values) {
-					valuesArr[idx++] = ((Number)currVal).doubleValue();
-				}
-				return in(valuesArr);
-			}
-			else if (String.class == clazz) {
-				String[] valuesArr = new String[values.size()];
-				int idx = 0;
-				for (T currVal : values) {
-					valuesArr[idx++] = (String) currVal;
-				}
-				return in(valuesArr);
-			}
-			else {
-				throw new IllegalArgumentException(format("Unsupported class type: {0}. Try Integer, Double or String.", clazz.getName()));
-			}
-		}
-		
-		public ValueComparisonTerm in(String... strValues) {
-			Objects.requireNonNull(strValues, "Values list cannot be null");
-			if (strValues.length==0) {
-				throw new IllegalArgumentException("Values list cannot be empty");
-			}
-			
-			return new ValueComparisonTerm(this, TermRelation.IN, strValues);
-		}
-		
-		public ValueComparisonTerm in(int... intValues) {
-			Objects.requireNonNull(intValues, "Values list cannot be null");
-			if (intValues.length==0) {
-				throw new IllegalArgumentException("Values list cannot be empty");
-			}
-			
-			return new ValueComparisonTerm(this, TermRelation.IN, intValues);
-		}
-		
-		public ValueComparisonTerm in(double... dblValues) {
-			Objects.requireNonNull(dblValues, "Values list cannot be null");
-			if (dblValues.length==0) {
-				throw new IllegalArgumentException("Values list cannot be empty");
-			}
-			
-			return new ValueComparisonTerm(this, TermRelation.IN, dblValues);
-		}
-		
-		public ValueComparisonTerm isEqualTo(Date dtVal) {
-			return new ValueComparisonTerm(this, TermRelation.EQUAL, dtVal);
-		}
-		
-		public ValueComparisonTerm isLessThan(Date dtVal) {
-			return new ValueComparisonTerm(this, TermRelation.LESSTHAN, dtVal);
-		}
-
-		public ValueComparisonTerm isLessThanOrEqual(Date dtVal) {
-			return new ValueComparisonTerm(this, TermRelation.LESSTHANOREQUAL, dtVal);
-		}
-
-		public ValueComparisonTerm isGreaterThanOrEqual(Date dtVal) {
-			return new ValueComparisonTerm(this, TermRelation.GREATERTHANOREQUAL, dtVal);
-		}
-
-		public ValueComparisonTerm isGreaterThan(Date dtVal) {
-			return new ValueComparisonTerm(this, TermRelation.GREATERTHAN, dtVal);
-		}
-
-		public ValueComparisonTerm isEqualTo(TemporalAccessor tdVal) {
-			return new ValueComparisonTerm(this, TermRelation.EQUAL, tdVal);
-		}
-		
-		public ValueComparisonTerm isLessThan(TemporalAccessor tdVal) {
-			return new ValueComparisonTerm(this, TermRelation.LESSTHAN, tdVal);
-		}
-
-		public ValueComparisonTerm isLessThanOrEqual(TemporalAccessor tdVal) {
-			return new ValueComparisonTerm(this, TermRelation.LESSTHANOREQUAL, tdVal);
-		}
-
-		public ValueComparisonTerm isGreaterThanOrEqual(TemporalAccessor tdVal) {
-			return new ValueComparisonTerm(this, TermRelation.GREATERTHANOREQUAL, tdVal);
-		}
-
-		public ValueComparisonTerm isGreaterThan(TemporalAccessor tdVal) {
-			return new ValueComparisonTerm(this, TermRelation.GREATERTHAN, tdVal);
-		}
-
-	}
-	
-	public static class NamedItem extends Subject {
-		private String m_itemName;
-		
-		private NamedItem(String itemName) {
-			m_itemName = itemName;
-		}
-		
-		public String getName() {
-			return m_itemName;
-		}
-
-		@Override
-		public String toString() {
-			return escapeItemName(m_itemName);
-		}
-	}
-	
-	public static class ValueContainsTerm extends DQLTerm {
-		private Subject m_subject;
-		private boolean m_containsAll;
-		private String[] m_values;
-		
-		private String m_toString;
-		
-		private ValueContainsTerm(Subject item, boolean containsAll, String[] values) {
-			m_subject = item;
-			m_containsAll = containsAll;
-			m_values = values;
-		}
-		
-		@Override
-		public String toString() {
-			if (m_toString==null) {
-				StringBuilder sb = new StringBuilder();
-				
-				sb.append(m_subject.toString());
-				
-				sb.append(" contains "); //$NON-NLS-1$
-				
-				if (m_containsAll) {
-					sb.append("all "); //$NON-NLS-1$
-				}
-				
-				sb.append("("); //$NON-NLS-1$
-
-				for (int i=0; i<m_values.length; i++) {
-					if (i>0) {
-						sb.append(", "); //$NON-NLS-1$
-					}
-					sb.append("'"); //$NON-NLS-1$
-					sb.append(escapeStringValue(m_values[i]));
-					sb.append("'"); //$NON-NLS-1$
-				}
-				
-				sb.append(")"); //$NON-NLS-1$
-
-				m_toString = sb.toString();
-			}
-			return m_toString;
-		}
-	}
-	
-	public static class ValueComparisonTerm extends DQLTerm {
-		private Subject m_subject;
-		private TermRelation m_relation;
-		private Object m_value;
-		
-		private String m_toString;
-		
-		private ValueComparisonTerm(Subject item, TermRelation relation, Object value) {
-			m_subject = item;
-			m_relation = relation;
-			m_value = value;
-		}
-		
-		@Override
-		public String toString() {
-			if (m_toString==null) {
-				StringBuilder sb = new StringBuilder();
-				
-				sb.append(m_subject.toString());
-				
-				sb.append(" "); //$NON-NLS-1$
-				sb.append(m_relation.getValue());
-				sb.append(" "); //$NON-NLS-1$
-				
-				if (m_relation == TermRelation.IN) {
-					sb.append("("); //$NON-NLS-1$
-				}
-
-				if (m_value instanceof String[]) {
-					String[] strValues = (String[]) m_value;
-					for (int i=0; i<strValues.length; i++) {
-						if (i>0) {
-							sb.append(", "); //$NON-NLS-1$
-						}
-						sb.append("'"); //$NON-NLS-1$
-						sb.append(escapeStringValue(strValues[i]));
-						sb.append("'"); //$NON-NLS-1$
-					}
-				}
-				else if (m_value instanceof int[]) {
-					int[] intValues = (int[]) m_value;
-					
-					for (int i=0; i<intValues.length; i++) {
-						if (i>0) {
-							sb.append(", "); //$NON-NLS-1$
-						}
-						sb.append(Integer.toString(intValues[i]));
-					}
-				}
-				else if (m_value instanceof double[]) {
-					double[] dblValues = (double[]) m_value;
-					
-					for (int i=0; i<dblValues.length; i++) {
-						if (i>0) {
-							sb.append(", "); //$NON-NLS-1$
-						}
-						sb.append(formatDoubleValue(dblValues[i]));
-					}
-				}
-				else if (m_value instanceof Date[]) {
-					Date[] dateValues = (Date[]) m_value;
-					
-					for (int i=0; i<dateValues.length; i++) {
-						if (i>0) {
-							sb.append(", "); //$NON-NLS-1$
-						}
-						sb.append(formatDateValue(dateValues[i]));
-					}
-				}
-				else if (m_value instanceof DominoDateTime[]) {
-					DominoDateTime[] tdValues = (DominoDateTime[]) m_value;
-					
-					for (int i=0; i<tdValues.length; i++) {
-						if (i>0) {
-							sb.append(", "); //$NON-NLS-1$
-						}
-						sb.append(formatDominoDateTimeValue(tdValues[i]));
-					}
-				}
-				else if (m_value instanceof String) {
-					sb
-					.append("'") //$NON-NLS-1$
-					.append(escapeStringValue((String) m_value))
-					.append("'"); //$NON-NLS-1$
-				}
-				else if (m_value instanceof Integer) {
-					sb.append(m_value);
-				}
-				else if (m_value instanceof Double) {
-					sb.append(formatDoubleValue(((Double)m_value)));
-				}
-				else if (m_value instanceof Date) {
-					sb.append(formatDateValue((Date) m_value));
-				}
-				else if (m_value instanceof DominoDateTime) {
-					sb.append(formatDominoDateTimeValue((DominoDateTime) m_value));
-				}
-				else {
-					throw new IllegalArgumentException(format("Unknown value found: {0} (type={1})", m_value, (m_value==null ? "null" : m_value.getClass().getName()))); //$NON-NLS-2$
-				}
-				
-				if (m_relation == TermRelation.IN) {
-					sb.append(")"); //$NON-NLS-1$
-				}
-
-				m_toString = sb.toString();
-			}
-			return m_toString;
-		}
-	}
-	
-	private static String escapeItemName(String itemName) {
-		if (itemName.contains(" ")) { //$NON-NLS-1$
-			throw new IllegalArgumentException(format("Unexpected whitespace found in item name: {0}", itemName));
-		}
-		if (itemName.contains("'")) { //$NON-NLS-1$
-			throw new IllegalArgumentException(format("Unexpected quote character in item name: {0}", itemName));
-		}
-		if (itemName.contains("\"")) { //$NON-NLS-1$
-			throw new IllegalArgumentException(format("Unexpected quote character in item name: {0}", itemName));
-		}
-		
-		return itemName;
-	}
-	
-	private static String escapeViewName(String viewName) {
-		if (viewName.contains("'")) { //$NON-NLS-1$
-			throw new IllegalArgumentException(format("Unexpected quote character in view name: {0}", viewName));
-		}
-		if (viewName.contains("\"")) { //$NON-NLS-1$
-			throw new IllegalArgumentException(format("Unexpected quote character in view name: {0}", viewName));
-		}
-		return viewName.replace("\\", "\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-	
-	private static String escapeColumnName(String columnName) {
-		if (columnName.contains(" ")) { //$NON-NLS-1$
-			throw new IllegalArgumentException(format("Unexpected whitespace found in view name: {0}", columnName));
-		}
-		if (columnName.contains("'")) { //$NON-NLS-1$
-			throw new IllegalArgumentException(format("Unexpected quote character in view name: {0}", columnName));
-		}
-		if (columnName.contains("\"")) { //$NON-NLS-1$
-			throw new IllegalArgumentException(format("Unexpected quote character in view name: {0}", columnName));
-		}
-		return columnName.replace("\\", "\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-	
-	private static String escapeStringValue(String strVal) {
-		if (strVal.contains("\n")) { //$NON-NLS-1$
-			throw new IllegalArgumentException(format("Unexpected newline character in string value: {0}", strVal));
-		}
-		
-		return strVal
-				.replace("'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-	
-	private static String formatDoubleValue(double dblValue) {
-		return Double.toString(dblValue);
-	}
-	
-    private static ThreadLocal<DateFormat> RFC3339_PATTERN_DATETIME = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")); //$NON-NLS-1$
-    private static ThreadLocal<DateFormat> RFC3339_PATTERN_DATE = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd")); //$NON-NLS-1$
-    private static ThreadLocal<DateFormat> RFC3339_PATTERN_TIME = ThreadLocal.withInitial(()-> new SimpleDateFormat("HH:mm:ss")); //$NON-NLS-1$
-    
-    private static String toRFC3339(Date dt) {
-    	StringBuilder sb = new StringBuilder();
-    	sb.append(RFC3339_PATTERN_DATETIME.get().format(dt));
-    	
-        Calendar cal = new GregorianCalendar();
-        cal.setTime(dt);
-        cal.setTimeZone(TimeZone.getDefault());
-        
-        int offsetMillis = cal.get(Calendar.ZONE_OFFSET)+cal.get(Calendar.DST_OFFSET);
-        int offsetHours = Math.abs(offsetMillis/(1000*60*60));
-        int offsetMinutes = Math.abs((offsetMillis/(1000*60))%60);
-
-        if (offsetMillis==0) {
-            sb.append("Z"); //$NON-NLS-1$
-        }
-        else {
-            sb.append((offsetMillis>0) ? "+" : "-"); //$NON-NLS-1$ //$NON-NLS-2$
-            if (offsetHours<10) {
-            	sb.append("0"); //$NON-NLS-1$
-            }
-            sb.append(offsetHours);
-            sb.append(":"); //$NON-NLS-1$
-            if (offsetMinutes<10) {
-            	sb.append("0"); //$NON-NLS-1$
-            }
-            sb.append(offsetMinutes);
-        } 
- 
-        return sb.toString(); 
+    @Override
+    public String toString() {
+      return "@all"; //$NON-NLS-1$
     }
-    
-	private static String formatDateValue(Date dateValue) {
-		return format("@dt(''{0}'')", toRFC3339(dateValue)); //$NON-NLS-1$
-	}
-	
-	private static String formatDominoDateTimeValue(DominoDateTime tdValue) {
-		if (tdValue.hasDate()) {
-			if (tdValue.hasTime()) {
-				return formatDateValue(Date.from(tdValue.toOffsetDateTime().toInstant()));
-			}
-			else {
-				return RFC3339_PATTERN_DATE.get().format(Date.from(tdValue.toOffsetDateTime().toInstant()));
-			}
-		}
-		else {
-			if (tdValue.hasTime()) {
-				return RFC3339_PATTERN_TIME.get().format(Date.from(tdValue.toOffsetDateTime().toInstant()));
-			}
-			else {
-				throw new IllegalArgumentException("DominoDateTime has no date and no time");
-			}
-		}
-	}
+  }
+
+  public static class AndTerm extends DQLTerm {
+    private final DQLTerm[] m_terms;
+    private String m_toString;
+
+    private AndTerm(final DQLTerm[] terms) {
+      if (terms == null) {
+        throw new IllegalArgumentException("And arguments value is null");
+      }
+      if (terms.length == 0) {
+        throw new IllegalArgumentException("And arguments value is empty");
+      }
+      this.m_terms = terms;
+    }
+
+    @Override
+    public String toString() {
+      if (this.m_terms.length == 1) {
+        return this.m_terms[0].toString();
+      }
+
+      if (this.m_toString == null) {
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < this.m_terms.length; i++) {
+          if (i > 0) {
+            sb.append(" and "); //$NON-NLS-1$
+          }
+
+          if (this.m_terms[i] instanceof OrTerm) {
+            sb.append("("); //$NON-NLS-1$
+            sb.append(this.m_terms[i].toString());
+            sb.append(")"); //$NON-NLS-1$
+          } else if (this.m_terms[i] instanceof AndTerm) {
+            sb.append(this.m_terms[i].toString());
+          } else {
+            sb.append(this.m_terms[i]);
+          }
+        }
+
+        this.m_toString = sb.toString();
+      }
+      return this.m_toString;
+    }
+  }
+
+  /**
+   * Base class for a variety of DQL search terms
+   */
+  public static abstract class DQLTerm {
+
+    /**
+     * Returns the term content as DQL query
+     *
+     * @return DQL
+     */
+    @Override
+    public abstract String toString();
+  }
+
+  public static class InViewsOrFoldersTerm extends DQLTerm {
+    private final String[] m_viewNames;
+    private final boolean m_matchAll;
+
+    private String m_toString;
+
+    private InViewsOrFoldersTerm(final String[] viewNames, final boolean matchAll) {
+      this.m_viewNames = viewNames;
+      this.m_matchAll = matchAll;
+    }
+
+    @Override
+    public String toString() {
+      if (this.m_toString == null) {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("in "); //$NON-NLS-1$
+        if (this.m_matchAll) {
+          sb.append("all "); //$NON-NLS-1$
+        }
+        sb.append("("); //$NON-NLS-1$
+
+        for (int i = 0; i < this.m_viewNames.length; i++) {
+          if (i > 0) {
+            sb.append(", "); //$NON-NLS-1$
+          }
+          sb.append("'"); //$NON-NLS-1$
+          sb.append(DQL.escapeViewName(this.m_viewNames[i]));
+          sb.append("'"); //$NON-NLS-1$
+        }
+        sb.append(")"); //$NON-NLS-1$
+        this.m_toString = sb.toString();
+      }
+      return this.m_toString;
+    }
+  }
+
+  public static class NamedItem extends Subject {
+    private final String m_itemName;
+
+    private NamedItem(final String itemName) {
+      this.m_itemName = itemName;
+    }
+
+    public String getName() {
+      return this.m_itemName;
+    }
+
+    @Override
+    public String toString() {
+      return DQL.escapeItemName(this.m_itemName);
+    }
+  }
+
+  public static class NamedView {
+    private final String m_viewName;
+
+    private NamedView(final String viewName) {
+      this.m_viewName = viewName;
+    }
+
+    /**
+     * Method to define the column for which we want to
+     * filter the value
+     *
+     * @param columnName view column name
+     * @return object to define the column value and relation (e.g. isEqualTo)
+     */
+    public NamedViewColumn column(final String columnName) {
+      return new NamedViewColumn(this, columnName);
+    }
+
+    public String getViewName() {
+      return this.m_viewName;
+    }
+
+    @Override
+    public String toString() {
+      return this.m_viewName;
+    }
+
+  }
+
+  public static class NamedViewColumn extends Subject {
+    private final NamedView m_view;
+    private final String m_columnName;
+
+    private String m_toString;
+
+    private NamedViewColumn(final NamedView view, final String columnName) {
+      this.m_view = view;
+      this.m_columnName = columnName;
+    }
+
+    public String getColumnName() {
+      return this.m_columnName;
+    }
+
+    @Override
+    public String toString() {
+      if (this.m_toString == null) {
+        this.m_toString = MessageFormat.format("''{0}''.{1}", DQL.escapeViewName(this.m_view.getViewName()), //$NON-NLS-1$
+            DQL.escapeColumnName(this.m_columnName));
+      }
+      return this.m_toString;
+    }
+  }
+
+  public static class NoteContainsTerm extends DQLTerm {
+    private final boolean m_containsAll;
+    private final String[] m_values;
+    private String m_toString;
+
+    public NoteContainsTerm(final boolean containsAll, final String... values) {
+      this.m_containsAll = containsAll;
+      this.m_values = values;
+    }
+
+    @Override
+    public String toString() {
+      if (this.m_toString == null) {
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append("contains "); //$NON-NLS-1$
+
+        if (this.m_containsAll) {
+          sb.append("all "); //$NON-NLS-1$
+        }
+
+        sb.append("("); //$NON-NLS-1$
+
+        for (int i = 0; i < this.m_values.length; i++) {
+          if (i > 0) {
+            sb.append(", "); //$NON-NLS-1$
+          }
+          sb.append("'"); //$NON-NLS-1$
+          sb.append(DQL.escapeStringValue(this.m_values[i]));
+          sb.append("'"); //$NON-NLS-1$
+        }
+
+        sb.append(")"); //$NON-NLS-1$
+        this.m_toString = sb.toString();
+      }
+      return this.m_toString;
+    }
+  }
+
+  public static class NotTerm extends DQLTerm {
+    private final DQLTerm m_term;
+
+    private String m_toString;
+
+    private NotTerm(final DQLTerm term) {
+      this.m_term = term;
+    }
+
+    @Override
+    public String toString() {
+      if (this.m_toString == null) {
+        if (this.m_term instanceof AndTerm || this.m_term instanceof OrTerm) {
+          this.m_toString = MessageFormat.format("not ({0})", this.m_term.toString()); //$NON-NLS-1$
+        } else {
+          this.m_toString = MessageFormat.format("not {0}", this.m_term.toString()); //$NON-NLS-1$
+        }
+      }
+      return this.m_toString;
+    }
+  }
+
+  public static class OrTerm extends DQLTerm {
+    private final DQLTerm[] m_terms;
+    private String m_toString;
+
+    private OrTerm(final DQLTerm[] terms) {
+      if (terms == null) {
+        throw new IllegalArgumentException("Or arguments value is null");
+      }
+      if (terms.length == 0) {
+        throw new IllegalArgumentException("Or arguments value is empty");
+      }
+      this.m_terms = terms;
+    }
+
+    @Override
+    public String toString() {
+      if (this.m_terms.length == 1) {
+        return this.m_terms[0].toString();
+      }
+
+      if (this.m_toString == null) {
+        final StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < this.m_terms.length; i++) {
+          if (i > 0) {
+            sb.append(" or "); //$NON-NLS-1$
+          }
+
+          if (this.m_terms[i] instanceof OrTerm) {
+            sb.append(this.m_terms[i].toString());
+          } else if (this.m_terms[i] instanceof AndTerm) {
+            // sb.append("(");
+            sb.append(this.m_terms[i].toString());
+            // sb.append(")");
+          } else {
+            sb.append(this.m_terms[i]);
+          }
+        }
+        this.m_toString = sb.toString();
+      }
+      return this.m_toString;
+    }
+
+  }
+
+  public static class SpecialValue extends NamedItem {
+    private final SpecialValueType m_type;
+
+    private SpecialValue(final SpecialValueType type) {
+      super(type.getValue());
+      this.m_type = type;
+    }
+
+    public SpecialValueType getType() {
+      return this.m_type;
+    }
+
+    @Override
+    public String toString() {
+      return this.m_type.getValue();
+    }
+  }
+
+  private enum SpecialValueType {
+    MODIFIEDINTHISFLE("@ModifiedInThisFile"), //$NON-NLS-1$
+    DOCUMENTUNIQUEID("@DocumentUniqueID"), //$NON-NLS-1$
+    CREATED("@Created"); //$NON-NLS-1$
+
+    private final String m_value;
+
+    SpecialValueType(final String value) {
+      this.m_value = value;
+    }
+
+    public String getValue() {
+      return this.m_value;
+    }
+  }
+
+  private static class Subject {
+    /**
+     * Returns a DQL term to run a FT search on the value of an item with one or
+     * multiple search words.
+     *
+     * @param searchWords search words with optional wildcards like Lehm* or Lehman?
+     * @return term
+     * @since Domino R11
+     */
+    public ValueContainsTerm contains(final String... searchWords) {
+      return new ValueContainsTerm(this, false, searchWords);
+    }
+
+    /**
+     * Returns a DQL term to run a FT search on the value of an item with one or
+     * multiple search words.<br>
+     * All search words must exist in the note for it to be a match.
+     *
+     * @param searchWords search words with optional wildcards like Lehm* or Lehman?
+     * @return term
+     * @since Domino R11
+     */
+    public ValueContainsTerm containsAll(final String... searchWords) {
+      return new ValueContainsTerm(this, true, searchWords);
+    }
+
+    public <T> ValueComparisonTerm in(final Collection<T> values, final Class<T> clazz) {
+      if (Integer.class == clazz) {
+        final int[] valuesArr = new int[values.size()];
+        int idx = 0;
+        for (final T currVal : values) {
+          valuesArr[idx++] = ((Number) currVal).intValue();
+        }
+        return this.in(valuesArr);
+      } else if (Double.class == clazz) {
+        final double[] valuesArr = new double[values.size()];
+        int idx = 0;
+        for (final T currVal : values) {
+          valuesArr[idx++] = ((Number) currVal).doubleValue();
+        }
+        return this.in(valuesArr);
+      } else if (String.class == clazz) {
+        final String[] valuesArr = new String[values.size()];
+        int idx = 0;
+        for (final T currVal : values) {
+          valuesArr[idx++] = (String) currVal;
+        }
+        return this.in(valuesArr);
+      } else {
+        throw new IllegalArgumentException(
+            MessageFormat.format("Unsupported class type: {0}. Try Integer, Double or String.", clazz.getName()));
+      }
+    }
+
+    public ValueComparisonTerm in(final double... dblValues) {
+      Objects.requireNonNull(dblValues, "Values list cannot be null");
+      if (dblValues.length == 0) {
+        throw new IllegalArgumentException("Values list cannot be empty");
+      }
+
+      return new ValueComparisonTerm(this, TermRelation.IN, dblValues);
+    }
+
+    public ValueComparisonTerm in(final int... intValues) {
+      Objects.requireNonNull(intValues, "Values list cannot be null");
+      if (intValues.length == 0) {
+        throw new IllegalArgumentException("Values list cannot be empty");
+      }
+
+      return new ValueComparisonTerm(this, TermRelation.IN, intValues);
+    }
+
+    public ValueComparisonTerm in(final String... strValues) {
+      Objects.requireNonNull(strValues, "Values list cannot be null");
+      if (strValues.length == 0) {
+        throw new IllegalArgumentException("Values list cannot be empty");
+      }
+
+      return new ValueComparisonTerm(this, TermRelation.IN, strValues);
+    }
+
+    public ValueComparisonTerm isEqualTo(final Date dtVal) {
+      return new ValueComparisonTerm(this, TermRelation.EQUAL, dtVal);
+    }
+
+    public ValueComparisonTerm isEqualTo(final double numVal) {
+      return new ValueComparisonTerm(this, TermRelation.EQUAL, Double.valueOf(numVal));
+    }
+
+    public ValueComparisonTerm isEqualTo(final int numVal) {
+      return new ValueComparisonTerm(this, TermRelation.EQUAL, Integer.valueOf(numVal));
+    }
+
+    public ValueComparisonTerm isEqualTo(final String strVal) {
+      return new ValueComparisonTerm(this, TermRelation.EQUAL, strVal);
+    }
+
+    public ValueComparisonTerm isEqualTo(final TemporalAccessor tdVal) {
+      return new ValueComparisonTerm(this, TermRelation.EQUAL, tdVal);
+    }
+
+    public ValueComparisonTerm isGreaterThan(final Date dtVal) {
+      return new ValueComparisonTerm(this, TermRelation.GREATERTHAN, dtVal);
+    }
+
+    public ValueComparisonTerm isGreaterThan(final double numVal) {
+      return new ValueComparisonTerm(this, TermRelation.GREATERTHAN, Double.valueOf(numVal));
+    }
+
+    public ValueComparisonTerm isGreaterThan(final int numVal) {
+      return new ValueComparisonTerm(this, TermRelation.GREATERTHAN, Integer.valueOf(numVal));
+    }
+
+    public ValueComparisonTerm isGreaterThan(final String strVal) {
+      return new ValueComparisonTerm(this, TermRelation.GREATERTHAN, strVal);
+    }
+
+    public ValueComparisonTerm isGreaterThan(final TemporalAccessor tdVal) {
+      return new ValueComparisonTerm(this, TermRelation.GREATERTHAN, tdVal);
+    }
+
+    public ValueComparisonTerm isGreaterThanOrEqual(final Date dtVal) {
+      return new ValueComparisonTerm(this, TermRelation.GREATERTHANOREQUAL, dtVal);
+    }
+
+    public ValueComparisonTerm isGreaterThanOrEqual(final double numVal) {
+      return new ValueComparisonTerm(this, TermRelation.GREATERTHANOREQUAL, Double.valueOf(numVal));
+    }
+
+    public ValueComparisonTerm isGreaterThanOrEqual(final int numVal) {
+      return new ValueComparisonTerm(this, TermRelation.GREATERTHANOREQUAL, Integer.valueOf(numVal));
+    }
+
+    public ValueComparisonTerm isGreaterThanOrEqual(final String strVal) {
+      return new ValueComparisonTerm(this, TermRelation.GREATERTHANOREQUAL, strVal);
+    }
+
+    public ValueComparisonTerm isGreaterThanOrEqual(final TemporalAccessor tdVal) {
+      return new ValueComparisonTerm(this, TermRelation.GREATERTHANOREQUAL, tdVal);
+    }
+
+    public ValueComparisonTerm isLessThan(final Date dtVal) {
+      return new ValueComparisonTerm(this, TermRelation.LESSTHAN, dtVal);
+    }
+
+    public ValueComparisonTerm isLessThan(final double numVal) {
+      return new ValueComparisonTerm(this, TermRelation.LESSTHAN, Double.valueOf(numVal));
+    }
+
+    public ValueComparisonTerm isLessThan(final int numVal) {
+      return new ValueComparisonTerm(this, TermRelation.LESSTHAN, Integer.valueOf(numVal));
+    }
+
+    public ValueComparisonTerm isLessThan(final String strVal) {
+      return new ValueComparisonTerm(this, TermRelation.LESSTHAN, strVal);
+    }
+
+    public ValueComparisonTerm isLessThan(final TemporalAccessor tdVal) {
+      return new ValueComparisonTerm(this, TermRelation.LESSTHAN, tdVal);
+    }
+
+    public ValueComparisonTerm isLessThanOrEqual(final Date dtVal) {
+      return new ValueComparisonTerm(this, TermRelation.LESSTHANOREQUAL, dtVal);
+    }
+
+    public ValueComparisonTerm isLessThanOrEqual(final double numVal) {
+      return new ValueComparisonTerm(this, TermRelation.LESSTHANOREQUAL, Double.valueOf(numVal));
+    }
+
+    public ValueComparisonTerm isLessThanOrEqual(final int numVal) {
+      return new ValueComparisonTerm(this, TermRelation.LESSTHANOREQUAL, Integer.valueOf(numVal));
+    }
+
+    public ValueComparisonTerm isLessThanOrEqual(final String strVal) {
+      return new ValueComparisonTerm(this, TermRelation.LESSTHANOREQUAL, strVal);
+    }
+
+    public ValueComparisonTerm isLessThanOrEqual(final TemporalAccessor tdVal) {
+      return new ValueComparisonTerm(this, TermRelation.LESSTHANOREQUAL, tdVal);
+    }
+
+  }
+
+  private enum TermRelation {
+    EQUAL("="), //$NON-NLS-1$
+    LESSTHAN("<"), //$NON-NLS-1$
+    LESSTHANOREQUAL("<="), //$NON-NLS-1$
+    GREATERTHAN(">"), //$NON-NLS-1$
+    GREATERTHANOREQUAL(">="), //$NON-NLS-1$
+    IN("in"), //$NON-NLS-1$
+    INALL("in all"), //$NON-NLS-1$
+    CONTAINS("contains"); //$NON-NLS-1$
+
+    private final String m_val;
+
+    TermRelation(final String val) {
+      this.m_val = val;
+    }
+
+    public String getValue() {
+      return this.m_val;
+    }
+  }
+
+  public static class ValueComparisonTerm extends DQLTerm {
+    private final Subject m_subject;
+    private final TermRelation m_relation;
+    private final Object m_value;
+
+    private String m_toString;
+
+    private ValueComparisonTerm(final Subject item, final TermRelation relation, final Object value) {
+      this.m_subject = item;
+      this.m_relation = relation;
+      this.m_value = value;
+    }
+
+    @Override
+    public String toString() {
+      if (this.m_toString == null) {
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append(this.m_subject.toString());
+
+        sb.append(" "); //$NON-NLS-1$
+        sb.append(this.m_relation.getValue());
+        sb.append(" "); //$NON-NLS-1$
+
+        if (this.m_relation == TermRelation.IN) {
+          sb.append("("); //$NON-NLS-1$
+        }
+
+        if (this.m_value instanceof String[]) {
+          final String[] strValues = (String[]) this.m_value;
+          for (int i = 0; i < strValues.length; i++) {
+            if (i > 0) {
+              sb.append(", "); //$NON-NLS-1$
+            }
+            sb.append("'"); //$NON-NLS-1$
+            sb.append(DQL.escapeStringValue(strValues[i]));
+            sb.append("'"); //$NON-NLS-1$
+          }
+        } else if (this.m_value instanceof int[]) {
+          final int[] intValues = (int[]) this.m_value;
+
+          for (int i = 0; i < intValues.length; i++) {
+            if (i > 0) {
+              sb.append(", "); //$NON-NLS-1$
+            }
+            sb.append(Integer.toString(intValues[i]));
+          }
+        } else if (this.m_value instanceof double[]) {
+          final double[] dblValues = (double[]) this.m_value;
+
+          for (int i = 0; i < dblValues.length; i++) {
+            if (i > 0) {
+              sb.append(", "); //$NON-NLS-1$
+            }
+            sb.append(DQL.formatDoubleValue(dblValues[i]));
+          }
+        } else if (this.m_value instanceof Date[]) {
+          final Date[] dateValues = (Date[]) this.m_value;
+
+          for (int i = 0; i < dateValues.length; i++) {
+            if (i > 0) {
+              sb.append(", "); //$NON-NLS-1$
+            }
+            sb.append(DQL.formatDateValue(dateValues[i]));
+          }
+        } else if (this.m_value instanceof DominoDateTime[]) {
+          final DominoDateTime[] tdValues = (DominoDateTime[]) this.m_value;
+
+          for (int i = 0; i < tdValues.length; i++) {
+            if (i > 0) {
+              sb.append(", "); //$NON-NLS-1$
+            }
+            sb.append(DQL.formatDominoDateTimeValue(tdValues[i]));
+          }
+        } else if (this.m_value instanceof String) {
+          sb
+              .append("'") //$NON-NLS-1$
+              .append(DQL.escapeStringValue((String) this.m_value))
+              .append("'"); //$NON-NLS-1$
+        } else if (this.m_value instanceof Integer) {
+          sb.append(this.m_value);
+        } else if (this.m_value instanceof Double) {
+          sb.append(DQL.formatDoubleValue((Double) this.m_value));
+        } else if (this.m_value instanceof Date) {
+          sb.append(DQL.formatDateValue((Date) this.m_value));
+        } else if (this.m_value instanceof DominoDateTime) {
+          sb.append(DQL.formatDominoDateTimeValue((DominoDateTime) this.m_value));
+        } else {
+          throw new IllegalArgumentException(MessageFormat.format("Unknown value found: {0} (type={1})", this.m_value,
+              this.m_value == null ? "null" : this.m_value.getClass().getName())); //$NON-NLS-1$
+        }
+
+        if (this.m_relation == TermRelation.IN) {
+          sb.append(")"); //$NON-NLS-1$
+        }
+
+        this.m_toString = sb.toString();
+      }
+      return this.m_toString;
+    }
+  }
+
+  public static class ValueContainsTerm extends DQLTerm {
+    private final Subject m_subject;
+    private final boolean m_containsAll;
+    private final String[] m_values;
+
+    private String m_toString;
+
+    private ValueContainsTerm(final Subject item, final boolean containsAll, final String[] values) {
+      this.m_subject = item;
+      this.m_containsAll = containsAll;
+      this.m_values = values;
+    }
+
+    @Override
+    public String toString() {
+      if (this.m_toString == null) {
+        final StringBuilder sb = new StringBuilder();
+
+        sb.append(this.m_subject.toString());
+
+        sb.append(" contains "); //$NON-NLS-1$
+
+        if (this.m_containsAll) {
+          sb.append("all "); //$NON-NLS-1$
+        }
+
+        sb.append("("); //$NON-NLS-1$
+
+        for (int i = 0; i < this.m_values.length; i++) {
+          if (i > 0) {
+            sb.append(", "); //$NON-NLS-1$
+          }
+          sb.append("'"); //$NON-NLS-1$
+          sb.append(DQL.escapeStringValue(this.m_values[i]));
+          sb.append("'"); //$NON-NLS-1$
+        }
+
+        sb.append(")"); //$NON-NLS-1$
+
+        this.m_toString = sb.toString();
+      }
+      return this.m_toString;
+    }
+  }
+
+  private static ThreadLocal<DateFormat> RFC3339_PATTERN_DATETIME = ThreadLocal
+      .withInitial(() -> new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")); //$NON-NLS-1$
+
+  private static ThreadLocal<DateFormat> RFC3339_PATTERN_DATE = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd")); //$NON-NLS-1$
+
+  private static ThreadLocal<DateFormat> RFC3339_PATTERN_TIME = ThreadLocal.withInitial(() -> new SimpleDateFormat("HH:mm:ss")); //$NON-NLS-1$
+
+  /**
+   * Returns a DQL term that matches all documents
+   *
+   * @return term
+   */
+  public static DQLTerm all() {
+    return new AllTerm();
+  }
+
+  /**
+   * Returns a DQL term to do an AND operation on multiple other terms
+   *
+   * @param terms terms for AND operation
+   * @return AND term
+   */
+  public static DQLTerm and(final DQLTerm... terms) {
+    return new AndTerm(terms);
+  }
+
+  /**
+   * Returns a DQL term to run a FT search on the whole note with one or multiple
+   * search words.
+   *
+   * @param values search words with optional wildcards like Lehm* or Lehman?
+   * @return term
+   * @since Domino R11
+   */
+  public static DQLTerm contains(final String... values) {
+    return new NoteContainsTerm(false, values);
+  }
+
+  /**
+   * Returns a DQL term to run a FT search on the whole note with one or multiple
+   * search words.<br>
+   * All search words must exist in the note for it to be a match.
+   *
+   * @param values search words with optional wildcards like Lehm* or Lehman?
+   * @return term
+   * @since Domino R11
+   */
+  public static DQLTerm containsAll(final String... values) {
+    return new NoteContainsTerm(true, values);
+  }
+
+  /**
+   * Use this method to filter by @Created value
+   *
+   * @return object to define the creation date to compare with and relation (e.g.
+   *         isGreaterThan)
+   */
+  public static SpecialValue created() {
+    return new SpecialValue(SpecialValueType.CREATED);
+  }
+
+  /**
+   * Use this method to filter by @DocumentUniqueId value
+   *
+   * @return object to define the UNID and isEqual relation
+   */
+  public static SpecialValue documentUniqueId() {
+    return new SpecialValue(SpecialValueType.DOCUMENTUNIQUEID);
+  }
+
+  private static String escapeColumnName(final String columnName) {
+    if (columnName.contains(" ")) { //$NON-NLS-1$
+      throw new IllegalArgumentException(MessageFormat.format("Unexpected whitespace found in view name: {0}", columnName));
+    }
+    if (columnName.contains("'") || columnName.contains("\"")) { //$NON-NLS-1$
+      throw new IllegalArgumentException(MessageFormat.format("Unexpected quote character in view name: {0}", columnName));
+    }
+    return columnName.replace("\\", "\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
+  }
+
+  private static String escapeItemName(final String itemName) {
+    if (itemName.contains(" ")) { //$NON-NLS-1$
+      throw new IllegalArgumentException(MessageFormat.format("Unexpected whitespace found in item name: {0}", itemName));
+    }
+    if (itemName.contains("'") || itemName.contains("\"")) { //$NON-NLS-1$
+      throw new IllegalArgumentException(MessageFormat.format("Unexpected quote character in item name: {0}", itemName));
+    }
+
+    return itemName;
+  }
+
+  private static String escapeStringValue(final String strVal) {
+    if (strVal.contains("\n")) { //$NON-NLS-1$
+      throw new IllegalArgumentException(MessageFormat.format("Unexpected newline character in string value: {0}", strVal));
+    }
+
+    return strVal
+        .replace("'", "''"); //$NON-NLS-1$ //$NON-NLS-2$
+  }
+
+  private static String escapeViewName(final String viewName) {
+    if (viewName.contains("'") || viewName.contains("\"")) { //$NON-NLS-1$
+      throw new IllegalArgumentException(MessageFormat.format("Unexpected quote character in view name: {0}", viewName));
+    }
+    return viewName.replace("\\", "\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
+  }
+
+  private static String formatDateValue(final Date dateValue) {
+    return MessageFormat.format("@dt(''{0}'')", DQL.toRFC3339(dateValue)); //$NON-NLS-1$
+  }
+
+  private static String formatDominoDateTimeValue(final DominoDateTime tdValue) {
+    if (tdValue.hasDate()) {
+      if (tdValue.hasTime()) {
+        return DQL.formatDateValue(Date.from(tdValue.toOffsetDateTime().toInstant()));
+      } else {
+        return DQL.RFC3339_PATTERN_DATE.get().format(Date.from(tdValue.toOffsetDateTime().toInstant()));
+      }
+    } else {
+      if (tdValue.hasTime()) {
+        return DQL.RFC3339_PATTERN_TIME.get().format(Date.from(tdValue.toOffsetDateTime().toInstant()));
+      } else {
+        throw new IllegalArgumentException("DominoDateTime has no date and no time");
+      }
+    }
+  }
+
+  private static String formatDoubleValue(final double dblValue) {
+    return Double.toString(dblValue);
+  }
+
+  /**
+   * Creates a search term to find documents that exist in at least
+   * one of the specified views.
+   *
+   * @param views view names (V10.0 does not support alias names)
+   * @return DQL term
+   */
+  public static InViewsOrFoldersTerm in(final String... views) {
+    return new InViewsOrFoldersTerm(views, false);
+  }
+
+  /**
+   * Creates a search term to find documents that exist in multiple
+   * views
+   *
+   * @param views view names (V10.0 does not support alias names)
+   * @return DQL term
+   */
+  public static InViewsOrFoldersTerm inAll(final String... views) {
+    return new InViewsOrFoldersTerm(views, true);
+  }
+
+  /**
+   * Use this method to filter for documents with a specific item
+   * value
+   *
+   * @param itemName item name
+   * @return object to define the item value and relation (e.g. isEqual to)
+   */
+  public static NamedItem item(final String itemName) {
+    return new NamedItem(itemName);
+  }
+
+  /**
+   * Use this method to filter by @ModifiedInThisFile value
+   *
+   * @return object to define a date value and relation (e.g. isGreaterThan /
+   *         isLess)
+   */
+  public static SpecialValue modifiedInThisFile() {
+    return new SpecialValue(SpecialValueType.MODIFIEDINTHISFLE);
+  }
+
+  /**
+   * Returns a DQL term to negate the specified term
+   *
+   * @param term term to negate
+   * @return negated term
+   */
+  public static DQLTerm not(final DQLTerm term) {
+    return new NotTerm(term);
+  }
+
+  /**
+   * Returns a DQL term to do an OR operation on multiple other terms
+   *
+   * @param terms terms for OR operation
+   * @return OR term
+   */
+  public static DQLTerm or(final DQLTerm... terms) {
+    return new OrTerm(terms);
+  }
+
+  private static String toRFC3339(final Date dt) {
+    final StringBuilder sb = new StringBuilder();
+    sb.append(DQL.RFC3339_PATTERN_DATETIME.get().format(dt));
+
+    final Calendar cal = new GregorianCalendar();
+    cal.setTime(dt);
+    cal.setTimeZone(TimeZone.getDefault());
+
+    final int offsetMillis = cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET);
+    final int offsetHours = Math.abs(offsetMillis / (1000 * 60 * 60));
+    final int offsetMinutes = Math.abs(offsetMillis / (1000 * 60) % 60);
+
+    if (offsetMillis == 0) {
+      sb.append("Z"); //$NON-NLS-1$
+    } else {
+      sb.append(offsetMillis > 0 ? "+" : "-"); //$NON-NLS-1$ //$NON-NLS-2$
+      if (offsetHours < 10) {
+        sb.append("0"); //$NON-NLS-1$
+      }
+      sb.append(offsetHours);
+      sb.append(":"); //$NON-NLS-1$
+      if (offsetMinutes < 10) {
+        sb.append("0"); //$NON-NLS-1$
+      }
+      sb.append(offsetMinutes);
+    }
+
+    return sb.toString();
+  }
+
+  /**
+   * Use this method to filter for documents with a specific view
+   * column value
+   *
+   * @param viewName view name
+   * @return object to define which column to filter
+   */
+  public static NamedView view(final String viewName) {
+    return new NamedView(viewName);
+  }
 
 }

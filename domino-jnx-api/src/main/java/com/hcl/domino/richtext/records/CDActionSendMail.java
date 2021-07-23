@@ -29,285 +29,285 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.WSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="CDACTIONSENDMAIL",
-	members={
-		@StructureMember(name="Header", type=WSIG.class),
-		@StructureMember(name="dwFlags", type=CDActionSendMail.Flag.class, bitfield=true),
-		@StructureMember(name="wFieldLen", type=short[].class, length=RichTextConstants.ACTIONSENDMAIL_FIELDCOUNT)
-	}
-)
+@StructureDefinition(name = "CDACTIONSENDMAIL", members = {
+    @StructureMember(name = "Header", type = WSIG.class),
+    @StructureMember(name = "dwFlags", type = CDActionSendMail.Flag.class, bitfield = true),
+    @StructureMember(name = "wFieldLen", type = short[].class, length = RichTextConstants.ACTIONSENDMAIL_FIELDCOUNT)
+})
 public interface CDActionSendMail extends RichTextRecord<WSIG> {
-	enum Flag implements INumberEnum<Integer> {
-		/** Include matching document  */
-		INCLUDEDOC(RichTextConstants.ACTIONSENDMAIL_FLAG_INCLUDEDOC),
-		/** Include doclink to document  */
-		INCLUDELINK(RichTextConstants.ACTIONSENDMAIL_FLAG_INCLUDELINK),
-		/** save copy  */
-		SAVEMAIL(RichTextConstants.ACTIONSENDMAIL_FLAG_SAVEMAIL),
-		/** To field is a formula  */
-		TOFORMULA(RichTextConstants.ACTIONSENDMAIL_FLAG_TOFORMULA),
-		/** cc field is a formula  */
-		CCFORMULA(RichTextConstants.ACTIONSENDMAIL_FLAG_CCFORMULA),
-		/** bcc field is a formula  */
-		BCCFORMULA(RichTextConstants.ACTIONSENDMAIL_FLAG_BCCFORMULA),
-		/** Subject field is a formula  */
-		SUBJECTFORMULA(RichTextConstants.ACTIONSENDMAIL_FLAG_SUBJECTFORMULA),
-		;
-		private final int value;
-		Flag(int value) { this.value = value; }
-		@Override
-		public Integer getValue() {
-			return value;
-		}
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-	}
-	
-	@StructureGetter("Header")
-	@Override
-	WSIG getHeader();
-	
-	@StructureGetter("dwFlags")
-	Set<Flag> getFlags();
-	@StructureSetter("dwFlags")
-	CDActionSendMail setFlags(Collection<Flag> flags);
-	
-	@StructureGetter("wFieldLen")
-	short[] getFieldLengthsRaw();
-	@StructureSetter("wFieldLen")
-	CDActionSendMail setFieldLengthsRaw(short[] lengths);
-	
-	default int getToLength() {
-		return Short.toUnsignedInt(getFieldLengthsRaw()[RichTextConstants.ACTIONSENDMAIL_TOFIELD]);
-	}
-	default CDActionSendMail setToLength(int len) {
-		short[] lengths = getFieldLengthsRaw();
-		lengths[RichTextConstants.ACTIONSENDMAIL_TOFIELD] = (short)len;
-		setFieldLengthsRaw(lengths);
-		return this;
-	}
+  enum Flag implements INumberEnum<Integer> {
+    /** Include matching document */
+    INCLUDEDOC(RichTextConstants.ACTIONSENDMAIL_FLAG_INCLUDEDOC),
+    /** Include doclink to document */
+    INCLUDELINK(RichTextConstants.ACTIONSENDMAIL_FLAG_INCLUDELINK),
+    /** save copy */
+    SAVEMAIL(RichTextConstants.ACTIONSENDMAIL_FLAG_SAVEMAIL),
+    /** To field is a formula */
+    TOFORMULA(RichTextConstants.ACTIONSENDMAIL_FLAG_TOFORMULA),
+    /** cc field is a formula */
+    CCFORMULA(RichTextConstants.ACTIONSENDMAIL_FLAG_CCFORMULA),
+    /** bcc field is a formula */
+    BCCFORMULA(RichTextConstants.ACTIONSENDMAIL_FLAG_BCCFORMULA),
+    /** Subject field is a formula */
+    SUBJECTFORMULA(RichTextConstants.ACTIONSENDMAIL_FLAG_SUBJECTFORMULA),
+    ;
 
-	default int getCcLength() {
-		return Short.toUnsignedInt(getFieldLengthsRaw()[RichTextConstants.ACTIONSENDMAIL_CCFIELD]);
-	}
-	default CDActionSendMail setCcLength(int len) {
-		short[] lengths = getFieldLengthsRaw();
-		lengths[RichTextConstants.ACTIONSENDMAIL_CCFIELD] = (short)len;
-		setFieldLengthsRaw(lengths);
-		return this;
-	}
+    private final int value;
 
-	default int getBccLength() {
-		return Short.toUnsignedInt(getFieldLengthsRaw()[RichTextConstants.ACTIONSENDMAIL_BCCFIELD]);
-	}
-	default CDActionSendMail setBccLength(int len) {
-		short[] lengths = getFieldLengthsRaw();
-		lengths[RichTextConstants.ACTIONSENDMAIL_BCCFIELD] = (short)len;
-		setFieldLengthsRaw(lengths);
-		return this;
-	}
+    Flag(final int value) {
+      this.value = value;
+    }
 
-	default int getSubjectLength() {
-		return Short.toUnsignedInt(getFieldLengthsRaw()[RichTextConstants.ACTIONSENDMAIL_SUBJECTFIELD]);
-	}
-	default CDActionSendMail setSubjectLength(int len) {
-		short[] lengths = getFieldLengthsRaw();
-		lengths[RichTextConstants.ACTIONSENDMAIL_SUBJECTFIELD] = (short)len;
-		setFieldLengthsRaw(lengths);
-		return this;
-	}
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
 
-	default int getBodyLength() {
-		return Short.toUnsignedInt(getFieldLengthsRaw()[RichTextConstants.ACTIONSENDMAIL_BODYFIELD]);
-	}
-	default CDActionSendMail setBodyLength(int len) {
-		short[] lengths = getFieldLengthsRaw();
-		lengths[RichTextConstants.ACTIONSENDMAIL_BODYFIELD] = (short)len;
-		setFieldLengthsRaw(lengths);
-		return this;
-	}
-	
-	default String getTo() {
-		if(getFlags().contains(Flag.TOFORMULA)) {
-			return StructureSupport.extractCompiledFormula(
-				this,
-				0,
-				getToLength()
-			);
-		} else {
-			return StructureSupport.extractStringValueUnpacked(
-				this,
-				0,
-				getToLength()
-			);
-		}
-	}
-	default CDActionSendMail setTo(String value) {
-		Set<Flag> flags = getFlags();
-		flags.remove(Flag.TOFORMULA);
-		setFlags(flags);
-		return StructureSupport.writeStringValueUnpacked(
-			this,
-			0,
-			getToLength(),
-			value,
-			this::setToLength
-		);
-	}
-	default CDActionSendMail setToFormula(String value) {
-		Set<Flag> flags = getFlags();
-		flags.add(Flag.TOFORMULA);
-		setFlags(flags);
-		return StructureSupport.writeCompiledFormula(
-			this,
-			0,
-			getToLength(),
-			value,
-			this::setToLength
-		);
-	}
-	
-	default String getCc() {
-		if(getFlags().contains(Flag.CCFORMULA)) {
-			return StructureSupport.extractCompiledFormula(
-				this,
-				getToLength(),
-				getCcLength()
-			);
-		} else {
-			return StructureSupport.extractStringValueUnpacked(
-				this,
-				getToLength(),
-				getCcLength()
-			);
-		}
-	}
-	default CDActionSendMail setCc(String value) {
-		Set<Flag> flags = getFlags();
-		flags.remove(Flag.CCFORMULA);
-		setFlags(flags);
-		return StructureSupport.writeStringValueUnpacked(
-			this,
-			getToLength(),
-			getCcLength(),
-			value,
-			this::setCcLength
-		);
-	}
-	default CDActionSendMail setCcFormula(String value) {
-		Set<Flag> flags = getFlags();
-		flags.add(Flag.CCFORMULA);
-		setFlags(flags);
-		return StructureSupport.writeCompiledFormula(
-			this,
-			getToLength(),
-			getCcLength(),
-			value,
-			this::setCcLength
-		);
-	}
-	
-	default String getBcc() {
-		if(getFlags().contains(Flag.BCCFORMULA)) {
-			return StructureSupport.extractCompiledFormula(
-				this,
-				getToLength() + getCcLength(),
-				getBccLength()
-			);
-		} else {
-			return StructureSupport.extractStringValueUnpacked(
-				this,
-				getToLength() + getCcLength(),
-				getBccLength()
-			);
-		}
-	}
-	default CDActionSendMail setBcc(String value) {
-		Set<Flag> flags = getFlags();
-		flags.remove(Flag.BCCFORMULA);
-		setFlags(flags);
-		return StructureSupport.writeStringValueUnpacked(
-			this,
-			getToLength() + getCcLength(),
-			getBccLength(),
-			value,
-			this::setBccLength
-		);
-	}
-	default CDActionSendMail setBccFormula(String value) {
-		Set<Flag> flags = getFlags();
-		flags.remove(Flag.BCCFORMULA);
-		setFlags(flags);
-		return StructureSupport.writeCompiledFormula(
-			this,
-			getToLength() + getCcLength(),
-			getBccLength(),
-			value,
-			this::setBccLength
-		);
-	}
-	
-	default String getSubject() {
-		if(getFlags().contains(Flag.SUBJECTFORMULA)) {
-			return StructureSupport.extractCompiledFormula(
-				this,
-				getToLength() + getCcLength() + getBccLength(),
-				getSubjectLength()
-			);
-		} else {
-			return StructureSupport.extractStringValueUnpacked(
-				this,
-				getToLength() + getCcLength() + getBccLength(),
-				getSubjectLength()
-			);
-		}
-	}
-	default CDActionSendMail setSubject(String value) {
-		Set<Flag> flags = getFlags();
-		flags.remove(Flag.SUBJECTFORMULA);
-		setFlags(flags);
-		return StructureSupport.writeStringValueUnpacked(
-			this,
-			getToLength() + getCcLength() + getBccLength(),
-			getSubjectLength(),
-			value,
-			this::setSubjectLength
-		);
-	}
-	default CDActionSendMail setSubjectFormula(String value) {
-		Set<Flag> flags = getFlags();
-		flags.add(Flag.SUBJECTFORMULA);
-		setFlags(flags);
-		return StructureSupport.writeCompiledFormula(
-			this,
-			getToLength() + getCcLength() + getBccLength(),
-			getSubjectLength(),
-			value,
-			this::setSubjectLength
-		);
-	}
-	
-	default String getBody() {
-		return StructureSupport.extractStringValueUnpacked(
-			this,
-			getToLength() + getCcLength() + getBccLength() + getSubjectLength(),
-			getBodyLength()
-		);
-	}
-	default CDActionSendMail setBody(String value) {
-		return StructureSupport.writeStringValueUnpacked(
-			this,
-			getToLength() + getCcLength() + getBccLength() + getSubjectLength(),
-			getBodyLength(),
-			value,
-			this::setBodyLength
-		);
-	}
+    @Override
+    public Integer getValue() {
+      return this.value;
+    }
+  }
+
+  default String getBcc() {
+    if (this.getFlags().contains(Flag.BCCFORMULA)) {
+      return StructureSupport.extractCompiledFormula(
+          this,
+          this.getToLength() + this.getCcLength(),
+          this.getBccLength());
+    } else {
+      return StructureSupport.extractStringValueUnpacked(
+          this,
+          this.getToLength() + this.getCcLength(),
+          this.getBccLength());
+    }
+  }
+
+  default int getBccLength() {
+    return Short.toUnsignedInt(this.getFieldLengthsRaw()[RichTextConstants.ACTIONSENDMAIL_BCCFIELD]);
+  }
+
+  default String getBody() {
+    return StructureSupport.extractStringValueUnpacked(
+        this,
+        this.getToLength() + this.getCcLength() + this.getBccLength() + this.getSubjectLength(),
+        this.getBodyLength());
+  }
+
+  default int getBodyLength() {
+    return Short.toUnsignedInt(this.getFieldLengthsRaw()[RichTextConstants.ACTIONSENDMAIL_BODYFIELD]);
+  }
+
+  default String getCc() {
+    if (this.getFlags().contains(Flag.CCFORMULA)) {
+      return StructureSupport.extractCompiledFormula(
+          this,
+          this.getToLength(),
+          this.getCcLength());
+    } else {
+      return StructureSupport.extractStringValueUnpacked(
+          this,
+          this.getToLength(),
+          this.getCcLength());
+    }
+  }
+
+  default int getCcLength() {
+    return Short.toUnsignedInt(this.getFieldLengthsRaw()[RichTextConstants.ACTIONSENDMAIL_CCFIELD]);
+  }
+
+  @StructureGetter("wFieldLen")
+  short[] getFieldLengthsRaw();
+
+  @StructureGetter("dwFlags")
+  Set<Flag> getFlags();
+
+  @StructureGetter("Header")
+  @Override
+  WSIG getHeader();
+
+  default String getSubject() {
+    if (this.getFlags().contains(Flag.SUBJECTFORMULA)) {
+      return StructureSupport.extractCompiledFormula(
+          this,
+          this.getToLength() + this.getCcLength() + this.getBccLength(),
+          this.getSubjectLength());
+    } else {
+      return StructureSupport.extractStringValueUnpacked(
+          this,
+          this.getToLength() + this.getCcLength() + this.getBccLength(),
+          this.getSubjectLength());
+    }
+  }
+
+  default int getSubjectLength() {
+    return Short.toUnsignedInt(this.getFieldLengthsRaw()[RichTextConstants.ACTIONSENDMAIL_SUBJECTFIELD]);
+  }
+
+  default String getTo() {
+    if (this.getFlags().contains(Flag.TOFORMULA)) {
+      return StructureSupport.extractCompiledFormula(
+          this,
+          0,
+          this.getToLength());
+    } else {
+      return StructureSupport.extractStringValueUnpacked(
+          this,
+          0,
+          this.getToLength());
+    }
+  }
+
+  default int getToLength() {
+    return Short.toUnsignedInt(this.getFieldLengthsRaw()[RichTextConstants.ACTIONSENDMAIL_TOFIELD]);
+  }
+
+  default CDActionSendMail setBcc(final String value) {
+    final Set<Flag> flags = this.getFlags();
+    flags.remove(Flag.BCCFORMULA);
+    this.setFlags(flags);
+    return StructureSupport.writeStringValueUnpacked(
+        this,
+        this.getToLength() + this.getCcLength(),
+        this.getBccLength(),
+        value,
+        this::setBccLength);
+  }
+
+  default CDActionSendMail setBccFormula(final String value) {
+    final Set<Flag> flags = this.getFlags();
+    flags.remove(Flag.BCCFORMULA);
+    this.setFlags(flags);
+    return StructureSupport.writeCompiledFormula(
+        this,
+        this.getToLength() + this.getCcLength(),
+        this.getBccLength(),
+        value,
+        this::setBccLength);
+  }
+
+  default CDActionSendMail setBccLength(final int len) {
+    final short[] lengths = this.getFieldLengthsRaw();
+    lengths[RichTextConstants.ACTIONSENDMAIL_BCCFIELD] = (short) len;
+    this.setFieldLengthsRaw(lengths);
+    return this;
+  }
+
+  default CDActionSendMail setBody(final String value) {
+    return StructureSupport.writeStringValueUnpacked(
+        this,
+        this.getToLength() + this.getCcLength() + this.getBccLength() + this.getSubjectLength(),
+        this.getBodyLength(),
+        value,
+        this::setBodyLength);
+  }
+
+  default CDActionSendMail setBodyLength(final int len) {
+    final short[] lengths = this.getFieldLengthsRaw();
+    lengths[RichTextConstants.ACTIONSENDMAIL_BODYFIELD] = (short) len;
+    this.setFieldLengthsRaw(lengths);
+    return this;
+  }
+
+  default CDActionSendMail setCc(final String value) {
+    final Set<Flag> flags = this.getFlags();
+    flags.remove(Flag.CCFORMULA);
+    this.setFlags(flags);
+    return StructureSupport.writeStringValueUnpacked(
+        this,
+        this.getToLength(),
+        this.getCcLength(),
+        value,
+        this::setCcLength);
+  }
+
+  default CDActionSendMail setCcFormula(final String value) {
+    final Set<Flag> flags = this.getFlags();
+    flags.add(Flag.CCFORMULA);
+    this.setFlags(flags);
+    return StructureSupport.writeCompiledFormula(
+        this,
+        this.getToLength(),
+        this.getCcLength(),
+        value,
+        this::setCcLength);
+  }
+
+  default CDActionSendMail setCcLength(final int len) {
+    final short[] lengths = this.getFieldLengthsRaw();
+    lengths[RichTextConstants.ACTIONSENDMAIL_CCFIELD] = (short) len;
+    this.setFieldLengthsRaw(lengths);
+    return this;
+  }
+
+  @StructureSetter("wFieldLen")
+  CDActionSendMail setFieldLengthsRaw(short[] lengths);
+
+  @StructureSetter("dwFlags")
+  CDActionSendMail setFlags(Collection<Flag> flags);
+
+  default CDActionSendMail setSubject(final String value) {
+    final Set<Flag> flags = this.getFlags();
+    flags.remove(Flag.SUBJECTFORMULA);
+    this.setFlags(flags);
+    return StructureSupport.writeStringValueUnpacked(
+        this,
+        this.getToLength() + this.getCcLength() + this.getBccLength(),
+        this.getSubjectLength(),
+        value,
+        this::setSubjectLength);
+  }
+
+  default CDActionSendMail setSubjectFormula(final String value) {
+    final Set<Flag> flags = this.getFlags();
+    flags.add(Flag.SUBJECTFORMULA);
+    this.setFlags(flags);
+    return StructureSupport.writeCompiledFormula(
+        this,
+        this.getToLength() + this.getCcLength() + this.getBccLength(),
+        this.getSubjectLength(),
+        value,
+        this::setSubjectLength);
+  }
+
+  default CDActionSendMail setSubjectLength(final int len) {
+    final short[] lengths = this.getFieldLengthsRaw();
+    lengths[RichTextConstants.ACTIONSENDMAIL_SUBJECTFIELD] = (short) len;
+    this.setFieldLengthsRaw(lengths);
+    return this;
+  }
+
+  default CDActionSendMail setTo(final String value) {
+    final Set<Flag> flags = this.getFlags();
+    flags.remove(Flag.TOFORMULA);
+    this.setFlags(flags);
+    return StructureSupport.writeStringValueUnpacked(
+        this,
+        0,
+        this.getToLength(),
+        value,
+        this::setToLength);
+  }
+
+  default CDActionSendMail setToFormula(final String value) {
+    final Set<Flag> flags = this.getFlags();
+    flags.add(Flag.TOFORMULA);
+    this.setFlags(flags);
+    return StructureSupport.writeCompiledFormula(
+        this,
+        0,
+        this.getToLength(),
+        value,
+        this::setToLength);
+  }
+
+  default CDActionSendMail setToLength(final int len) {
+    final short[] lengths = this.getFieldLengthsRaw();
+    lengths[RichTextConstants.ACTIONSENDMAIL_TOFIELD] = (short) len;
+    this.setFieldLengthsRaw(lengths);
+    return this;
+  }
 }

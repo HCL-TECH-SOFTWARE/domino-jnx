@@ -16,11 +16,9 @@
  */
 package it.com.hcl.domino.test.data;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.Collections;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.data.Document;
@@ -31,54 +29,54 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 @SuppressWarnings("nls")
 public class TestUnreadMarks extends AbstractNotesRuntimeTest {
 
-	@Test
-	public void testUnreadMarks() throws Exception {
-		withTempDb((database) -> {
-			String userName = "CN=John Doe/O=ACME";
+  @Test
+  public void testUnreadMarks() throws Exception {
+    this.withTempDb(database -> {
+      final String userName = "CN=John Doe/O=ACME";
 
-			Document doc = database.createDocument();
-			doc.save();
-			
-			int noteId = doc.getNoteID();
-			System.out.println("Document note id: "+noteId);
-			
-			assertTrue(doc.isUnread(userName));
-			assertTrue(database.isDocumentUnread(userName, noteId));
-			
-			
-			{
-				IDTable unreadTable = database.getUnreadDocumentTable(userName, true, true).get();
-				assertTrue(unreadTable.contains(doc.getNoteID()));
-			}
+      final Document doc = database.createDocument();
+      doc.save();
 
-			//mark doc read
-			database.updateUnreadDocumentTable(userName, Collections.singleton(doc.getNoteID()), null);
+      final int noteId = doc.getNoteID();
+      System.out.println("Document note id: " + noteId);
 
-			{
-				assertFalse(database.isDocumentUnread(userName, noteId));
-				assertFalse(doc.isUnread(userName));
-				
-				IDTable unreadTable = database.getUnreadDocumentTable(userName, true, true).get();
-				assertFalse(unreadTable.contains(doc.getNoteID()));
-			}
+      Assertions.assertTrue(doc.isUnread(userName));
+      Assertions.assertTrue(database.isDocumentUnread(userName, noteId));
 
-			//mark doc unread again
-			database.updateUnreadDocumentTable(userName, null, Collections.singleton(doc.getNoteID()));
+      {
+        final IDTable unreadTable = database.getUnreadDocumentTable(userName, true, true).get();
+        Assertions.assertTrue(unreadTable.contains(doc.getNoteID()));
+      }
 
-			assertTrue(database.isDocumentUnread(userName, noteId));
-			assertTrue(doc.isUnread(userName));
+      // mark doc read
+      database.updateUnreadDocumentTable(userName, Collections.singleton(doc.getNoteID()), null);
 
+      {
+        Assertions.assertFalse(database.isDocumentUnread(userName, noteId));
+        Assertions.assertFalse(doc.isUnread(userName));
 
-			//TODO the following code fails; check if MARK_READ is working at all in local DBs
-			
-			//and now change the unread state when opening the doc
-//			Document doc2 = database.getDocumentById(noteId, EnumSet.of(OpenDocumentMode.MARK_READ));
-//			doc2.save();
-//			
-//			assertFalse(doc2.isUnread(userName));
-//			assertFalse(doc.isUnread(userName));
-//			assertFalse(database.isDocumentUnread(userName, noteId));
+        final IDTable unreadTable = database.getUnreadDocumentTable(userName, true, true).get();
+        Assertions.assertFalse(unreadTable.contains(doc.getNoteID()));
+      }
 
-		});
-	}
+      // mark doc unread again
+      database.updateUnreadDocumentTable(userName, null, Collections.singleton(doc.getNoteID()));
+
+      Assertions.assertTrue(database.isDocumentUnread(userName, noteId));
+      Assertions.assertTrue(doc.isUnread(userName));
+
+      // TODO the following code fails; check if MARK_READ is working at all in local
+      // DBs
+
+      // and now change the unread state when opening the doc
+      // Document doc2 = database.getDocumentById(noteId,
+      // EnumSet.of(OpenDocumentMode.MARK_READ));
+      // doc2.save();
+      //
+      // assertFalse(doc2.isUnread(userName));
+      // assertFalse(doc.isUnread(userName));
+      // assertFalse(database.isDocumentUnread(userName, noteId));
+
+    });
+  }
 }

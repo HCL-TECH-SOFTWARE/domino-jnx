@@ -34,110 +34,111 @@ import com.hcl.domino.design.format.ViewTableFormat3;
  * @param <T> the {@link DesignElement} interface implemented by the class
  * @since 1.0.18
  */
-public abstract class AbstractCollectionDesignElement<T extends CollectionDesignElement> extends AbstractNamedDesignElement<T> implements CollectionDesignElement {
-	private DominoViewFormat format;
-	
-	public AbstractCollectionDesignElement(Document doc) {
-		super(doc);
-	}
+public abstract class AbstractCollectionDesignElement<T extends CollectionDesignElement> extends AbstractNamedDesignElement<T>
+    implements CollectionDesignElement {
+  private DominoViewFormat format;
 
-	@Override
-	public CollectionDesignElement addColumn() {
-		throw new NotYetImplementedException();
-	}
+  public AbstractCollectionDesignElement(final Document doc) {
+    super(doc);
+  }
 
-	@Override
-	public List<CollectionColumn> getColumns() {
-		return readViewFormat().getColumns();
-	}
+  @Override
+  public CollectionDesignElement addColumn() {
+    throw new NotYetImplementedException();
+  }
 
-	@Override
-	public CollectionDesignElement removeColumn(CollectionColumn column) {
-		throw new NotYetImplementedException();
-	}
+  @Override
+  public DominoCollection getCollection() {
+    throw new NotYetImplementedException();
+  }
 
-	@Override
-	public CollectionDesignElement swapColumns(int a, int b) {
-		throw new NotYetImplementedException();
-	}
+  @Override
+  public List<CollectionColumn> getColumns() {
+    return this.readViewFormat().getColumns();
+  }
 
-	@Override
-	public CollectionDesignElement swapColumns(CollectionColumn a, CollectionColumn b) {
-		throw new NotYetImplementedException();
-	}
+  @Override
+  public OnOpen getOnOpenUISetting() {
+    final DominoViewFormat format = this.readViewFormat();
+    final ViewTableFormat format1 = format.getAdapter(ViewTableFormat.class);
+    final Set<ViewTableFormat.Flag> flags = format1.getFlags();
+    if (flags.contains(ViewTableFormat.Flag.GOTO_BOTTOM_ON_OPEN)) {
+      return OnOpen.GOTO_BOTTOM;
+    } else if (flags.contains(ViewTableFormat.Flag.GOTO_TOP_ON_OPEN)) {
+      return OnOpen.GOTO_TOP;
+    } else {
+      return OnOpen.GOTO_LAST_OPENED;
+    }
+  }
 
-	@Override
-	public DominoCollection getCollection() {
-		throw new NotYetImplementedException();
-	}
-	
-	@Override
-	public OnOpen getOnOpenUISetting() {
-		DominoViewFormat format = readViewFormat();
-		ViewTableFormat format1 = format.getAdapter(ViewTableFormat.class);
-		Set<ViewTableFormat.Flag> flags = format1.getFlags();
-		if(flags.contains(ViewTableFormat.Flag.GOTO_BOTTOM_ON_OPEN)) {
-			return OnOpen.GOTO_BOTTOM;
-		} else if(flags.contains(ViewTableFormat.Flag.GOTO_TOP_ON_OPEN)) {
-			return OnOpen.GOTO_TOP;
-		} else {
-			return OnOpen.GOTO_LAST_OPENED;
-		}
-	}
+  @Override
+  public OnRefresh getOnRefreshUISetting() {
+    final DominoViewFormat format = this.readViewFormat();
+    final ViewTableFormat format1 = format.getAdapter(ViewTableFormat.class);
+    final Set<ViewTableFormat.Flag> flags = format1.getFlags();
+    // Auto-refresh is denoted by both flags being present
+    if (flags.contains(ViewTableFormat.Flag.GOTO_BOTTOM_ON_REFRESH) && flags.contains(ViewTableFormat.Flag.GOTO_TOP_ON_REFRESH)) {
+      return OnRefresh.REFRESH_DISPLAY;
+    } else if (flags.contains(ViewTableFormat.Flag.GOTO_BOTTOM_ON_REFRESH)) {
+      return OnRefresh.REFRESH_FROM_BOTTOM;
+    } else if (flags.contains(ViewTableFormat.Flag.GOTO_TOP_ON_REFRESH)) {
+      return OnRefresh.REFRESH_FROM_TOP;
+    } else {
+      return OnRefresh.DISPLAY_INDICATOR;
+    }
+  }
 
-	@Override
-	public OnRefresh getOnRefreshUISetting() {
-		DominoViewFormat format = readViewFormat();
-		ViewTableFormat format1 = format.getAdapter(ViewTableFormat.class);
-		Set<ViewTableFormat.Flag> flags = format1.getFlags();
-		// Auto-refresh is denoted by both flags being present
-		if(flags.contains(ViewTableFormat.Flag.GOTO_BOTTOM_ON_REFRESH) && flags.contains(ViewTableFormat.Flag.GOTO_TOP_ON_REFRESH)) {
-			return OnRefresh.REFRESH_DISPLAY;
-		} else if(flags.contains(ViewTableFormat.Flag.GOTO_BOTTOM_ON_REFRESH)) {
-			return OnRefresh.REFRESH_FROM_BOTTOM;
-		} else if(flags.contains(ViewTableFormat.Flag.GOTO_TOP_ON_REFRESH)) {
-			return OnRefresh.REFRESH_FROM_TOP;
-		} else {
-			return OnRefresh.DISPLAY_INDICATOR;
-		}
-	}
+  @Override
+  public Optional<String> getWebXPageAlternative() {
+    final String val = this.getDocument().get(DesignConstants.XPAGE_ALTERNATE, String.class, null);
+    if (val == null || val.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.of(val);
+    }
+  }
 
-	@Override
-	public CollectionDesignElement setOnRefreshUISetting(OnRefresh onRefreshUISetting) {
-		throw new NotYetImplementedException();
-	}
-	
-	@Override
-	public boolean isAllowCustomizations() {
-		DominoViewFormat format = readViewFormat();
-		ViewTableFormat3 format3 = format.getAdapter(ViewTableFormat3.class);
-		if(format3 == null) {
-			return false;
-		} else {
-			// It appears that this flag is inverted in practice
-			return !format3.getFlags().contains(ViewTableFormat3.Flag.AllowCustomizations);
-		}
-	}
-	
-	@Override
-	public Optional<String> getWebXPageAlternative() {
-		String val = getDocument().get(DesignConstants.XPAGE_ALTERNATE, String.class, null);
-		if(val == null || val.isEmpty()) {
-			return Optional.empty();
-		} else {
-			return Optional.of(val);
-		}
-	}
+  @Override
+  public boolean isAllowCustomizations() {
+    final DominoViewFormat format = this.readViewFormat();
+    final ViewTableFormat3 format3 = format.getAdapter(ViewTableFormat3.class);
+    if (format3 == null) {
+      return false;
+    } else {
+      // It appears that this flag is inverted in practice
+      return !format3.getFlags().contains(ViewTableFormat3.Flag.AllowCustomizations);
+    }
+  }
 
-	// *******************************************************************************
-	// * Internal utility methods
-	// *******************************************************************************
-	
-	private synchronized DominoViewFormat readViewFormat() {
-		if(this.format == null) {
-			Document doc = getDocument();
-			this.format = (DominoViewFormat)doc.getItemValue(DesignConstants.VIEW_VIEW_FORMAT_ITEM).get(0);
-		}
-		return format;
-	}
+  private synchronized DominoViewFormat readViewFormat() {
+    if (this.format == null) {
+      final Document doc = this.getDocument();
+      this.format = (DominoViewFormat) doc.getItemValue(DesignConstants.VIEW_VIEW_FORMAT_ITEM).get(0);
+    }
+    return this.format;
+  }
+
+  @Override
+  public CollectionDesignElement removeColumn(final CollectionColumn column) {
+    throw new NotYetImplementedException();
+  }
+
+  @Override
+  public CollectionDesignElement setOnRefreshUISetting(final OnRefresh onRefreshUISetting) {
+    throw new NotYetImplementedException();
+  }
+
+  @Override
+  public CollectionDesignElement swapColumns(final CollectionColumn a, final CollectionColumn b) {
+    throw new NotYetImplementedException();
+  }
+
+  // *******************************************************************************
+  // * Internal utility methods
+  // *******************************************************************************
+
+  @Override
+  public CollectionDesignElement swapColumns(final int a, final int b) {
+    throw new NotYetImplementedException();
+  }
 }

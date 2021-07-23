@@ -22,37 +22,37 @@ import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.15
  */
-@StructureDefinition(
-	name="CROPRECT",
-	members={
-		@StructureMember(name="top", type=short.class, unsigned=true),
-		@StructureMember(name="left", type=short.class, unsigned=true),
-		@StructureMember(name="right", type=short.class, unsigned=true),
-		@StructureMember(name="bottom", type=short.class, unsigned=true)
-	}
-)
+@StructureDefinition(name = "CROPRECT", members = {
+    @StructureMember(name = "top", type = short.class, unsigned = true),
+    @StructureMember(name = "left", type = short.class, unsigned = true),
+    @StructureMember(name = "right", type = short.class, unsigned = true),
+    @StructureMember(name = "bottom", type = short.class, unsigned = true)
+})
 public interface CropRect extends MemoryStructure {
-	@StructureGetter("top")
-	int getTop();
-	@StructureSetter("top")
-	CropRect setTop(int top);
-	
-	@StructureGetter("left")
-	int getLeft();
-	@StructureSetter("left")
-	CropRect setLeft(int left);
-	
-	@StructureGetter("right")
-	int getRight();
-	@StructureSetter("right")
-	CropRect setRight(int right);
-	
-	@StructureGetter("bottom")
-	int getBottom();
-	@StructureSetter("bottom")
-	CropRect setBottom(int bottom);
+  @StructureGetter("bottom")
+  int getBottom();
+
+  @StructureGetter("left")
+  int getLeft();
+
+  @StructureGetter("right")
+  int getRight();
+
+  @StructureGetter("top")
+  int getTop();
+
+  @StructureSetter("bottom")
+  CropRect setBottom(int bottom);
+
+  @StructureSetter("left")
+  CropRect setLeft(int left);
+
+  @StructureSetter("right")
+  CropRect setRight(int right);
+
+  @StructureSetter("top")
+  CropRect setTop(int top);
 }

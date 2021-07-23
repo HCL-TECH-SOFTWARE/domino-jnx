@@ -21,12 +21,15 @@ package com.hcl.domino.design.action;
  * @since 1.0.24
  */
 public interface FolderBasedAction extends SimpleAction {
-	enum Type {
-		MOVE, COPY, REMOVE
-	}
-	
-	Type getType();
-	boolean isCreateNewFolder();
-	boolean isFolderPrivate();
-	String getFolderName();
+  enum Type {
+    MOVE, COPY, REMOVE
+  }
+
+  String getFolderName();
+
+  Type getType();
+
+  boolean isCreateNewFolder();
+
+  boolean isFolderPrivate();
 }

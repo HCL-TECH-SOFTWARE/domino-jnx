@@ -23,22 +23,18 @@ import com.hcl.domino.richtext.structures.BSIG;
 import com.hcl.domino.richtext.structures.ColorValue;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="CDCOLOR",
-	members={
-		@StructureMember(name="Header", type=BSIG.class),
-		@StructureMember(name="Color", type=ColorValue.class)
-	}
-)
+@StructureDefinition(name = "CDCOLOR", members = {
+    @StructureMember(name = "Header", type = BSIG.class),
+    @StructureMember(name = "Color", type = ColorValue.class)
+})
 public interface CDColor extends RichTextRecord<BSIG> {
-	@StructureGetter("Header")
-	@Override
-	BSIG getHeader();
-	
-	@StructureGetter("Color")
-	ColorValue getColor();
+  @StructureGetter("Color")
+  ColorValue getColor();
+
+  @StructureGetter("Header")
+  @Override
+  BSIG getHeader();
 }

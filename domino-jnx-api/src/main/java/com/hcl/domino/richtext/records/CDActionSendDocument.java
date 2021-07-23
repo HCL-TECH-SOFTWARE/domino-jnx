@@ -22,19 +22,15 @@ import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.structures.BSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="CDACTIONSENDDOCUMENT",
-	members={
-		@StructureMember(name="Header", type=BSIG.class),
-		@StructureMember(name="dwFlags", type=int.class)
-	}
-)
+@StructureDefinition(name = "CDACTIONSENDDOCUMENT", members = {
+    @StructureMember(name = "Header", type = BSIG.class),
+    @StructureMember(name = "dwFlags", type = int.class)
+})
 public interface CDActionSendDocument extends RichTextRecord<BSIG> {
-	@StructureGetter("Header")
-	@Override
-	BSIG getHeader();
+  @StructureGetter("Header")
+  @Override
+  BSIG getHeader();
 }

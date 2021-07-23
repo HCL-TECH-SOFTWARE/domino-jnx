@@ -34,151 +34,151 @@ import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
 public class DefaultRichTextList extends AbstractList<RichTextRecord<?>> implements RichTextRecordList {
-	private class RichTextIterator implements ListIterator<RichTextRecord<?>> {
-		private int index;
-		
-		public RichTextIterator(int index) {
-			this.index = index;
-		}
+  private class RichTextIterator implements ListIterator<RichTextRecord<?>> {
+    private int index;
 
-		@Override
-		public boolean hasNext() {
-			// If we already hit the end, use that
-			if(size > -1 && this.index >= size) {
-				return false;
-			}
-			fillTo(index);
-			return index < cache.size();
-		}
+    public RichTextIterator(final int index) {
+      this.index = index;
+    }
 
-		@Override
-		public RichTextRecord<?> next() {
-			RichTextRecord<?> r = DefaultRichTextList.this.get(this.index);
-			this.index++;
-			return r;
-		}
+    @Override
+    public void add(final RichTextRecord<?> e) {
+      DefaultRichTextList.this.add(this.index, e);
+    }
 
-		@Override
-		public boolean hasPrevious() {
-			return index >= 0;
-		}
+    @Override
+    public boolean hasNext() {
+      // If we already hit the end, use that
+      if (DefaultRichTextList.this.size > -1 && this.index >= DefaultRichTextList.this.size) {
+        return false;
+      }
+      DefaultRichTextList.this.fillTo(this.index);
+      return this.index < DefaultRichTextList.this.cache.size();
+    }
 
-		@Override
-		public RichTextRecord<?> previous() {
-			this.index--;
-			return DefaultRichTextList.this.get(this.index);
-		}
+    @Override
+    public boolean hasPrevious() {
+      return this.index >= 0;
+    }
 
-		@Override
-		public int nextIndex() {
-			return this.index;
-		}
+    @Override
+    public RichTextRecord<?> next() {
+      final RichTextRecord<?> r = DefaultRichTextList.this.get(this.index);
+      this.index++;
+      return r;
+    }
 
-		@Override
-		public int previousIndex() {
-			return this.index-1;
-		}
+    @Override
+    public int nextIndex() {
+      return this.index;
+    }
 
-		@Override
-		public void remove() {
-			DefaultRichTextList.this.remove(this.index);
-		}
+    @Override
+    public RichTextRecord<?> previous() {
+      this.index--;
+      return DefaultRichTextList.this.get(this.index);
+    }
 
-		@Override
-		public void set(RichTextRecord<?> e) {
-			DefaultRichTextList.this.set(this.index, e);
-		}
+    @Override
+    public int previousIndex() {
+      return this.index - 1;
+    }
 
-		@Override
-		public void add(RichTextRecord<?> e) {
-			DefaultRichTextList.this.add(this.index, e);
-		}
-		
-	}
-	
-	private final RichtextNavigator nav;
-	private final List<RichtextPosition> cache = new ArrayList<>();
-	private int size = -1;
-	private final RecordType.Area area;
-	
-	public DefaultRichTextList(RichtextNavigator nav, RecordType.Area area) {
-		this.nav = Objects.requireNonNull(nav, "nav cannot be null");
-		this.area = area;
-	}
+    @Override
+    public void remove() {
+      DefaultRichTextList.this.remove(this.index);
+    }
 
-	@Override
-	public RichTextRecord<?> get(int index) {
-		fillTo(index);
-		if(index >= cache.size()) {
-			throw new IndexOutOfBoundsException(MessageFormat.format("Index: {0}, Size: {1}", index, size));
-		}
-		RichtextPosition cur = nav.getCurrentPosition();
-		try {
-			nav.restorePosition(cache.get(index));
-			RichTextRecord<?> record = nav.getCurrentRecord();
-			if(area != null && record instanceof AbstractCDRecord) {
-				RecordType type = Stream.of(area, RecordType.Area.RESERVED_INTERNAL)
-					.map(a -> RecordType.getRecordTypeForConstant(record.getTypeValue(), a))
-					.filter(Objects::nonNull)
-					.findFirst()
-					.orElse(null);
-				if(type != null) {
-					Class<? extends RichTextRecord<?>> encapsulation = type.getEncapsulation();
-					if(encapsulation != null) {
-						return RichTextUtil.reencapsulateRecord((AbstractCDRecord<?>)record, encapsulation);
-					}
-				}
-			}
-			return record;
-		} finally {
-			nav.restorePosition(cur);
-		}
-	}
+    @Override
+    public void set(final RichTextRecord<?> e) {
+      DefaultRichTextList.this.set(this.index, e);
+    }
 
-	@Override
-	public int size() {
-		if(this.size == -1) {
-			fillTo(Integer.MAX_VALUE);
-		}
-		
-		return this.size;
-	}
-	
-	@Override
-	public ListIterator<RichTextRecord<?>> listIterator(int index) {
-		return new RichTextIterator(index);
-	}
-	
-	@Override
-	public Iterator<RichTextRecord<?>> iterator() {
-		return listIterator(0);
-	}
-	
-	@Override
-	public Spliterator<RichTextRecord<?>> spliterator() {
-		return Spliterators.spliteratorUnknownSize(iterator(), Spliterator.ORDERED);
-	}
-	
-	@Override
-	public boolean isEmpty() {
-		fillTo(0);
-		return cache.isEmpty();
-	}
-	
-	private void fillTo(int index) {
-		while(cache.size() <= index) {
-			boolean moved;
-			if(cache.size() == 0) {
-				moved = nav.gotoFirst();
-			} else {
-				moved = nav.gotoNext();
-			}
-			if(!moved) {
-				// Then we hit the end - mark it and end
-				this.size = cache.size();
-				return;
-			}
-			cache.add(nav.getCurrentPosition());
-		}
-	}
+  }
+
+  private final RichtextNavigator nav;
+  private final List<RichtextPosition> cache = new ArrayList<>();
+  private int size = -1;
+  private final RecordType.Area area;
+
+  public DefaultRichTextList(final RichtextNavigator nav, final RecordType.Area area) {
+    this.nav = Objects.requireNonNull(nav, "nav cannot be null");
+    this.area = area;
+  }
+
+  private void fillTo(final int index) {
+    while (this.cache.size() <= index) {
+      boolean moved;
+      if (this.cache.size() == 0) {
+        moved = this.nav.gotoFirst();
+      } else {
+        moved = this.nav.gotoNext();
+      }
+      if (!moved) {
+        // Then we hit the end - mark it and end
+        this.size = this.cache.size();
+        return;
+      }
+      this.cache.add(this.nav.getCurrentPosition());
+    }
+  }
+
+  @Override
+  public RichTextRecord<?> get(final int index) {
+    this.fillTo(index);
+    if (index >= this.cache.size()) {
+      throw new IndexOutOfBoundsException(MessageFormat.format("Index: {0}, Size: {1}", index, this.size));
+    }
+    final RichtextPosition cur = this.nav.getCurrentPosition();
+    try {
+      this.nav.restorePosition(this.cache.get(index));
+      final RichTextRecord<?> record = this.nav.getCurrentRecord();
+      if (this.area != null && record instanceof AbstractCDRecord) {
+        final RecordType type = Stream.of(this.area, RecordType.Area.RESERVED_INTERNAL)
+            .map(a -> RecordType.getRecordTypeForConstant(record.getTypeValue(), a))
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+        if (type != null) {
+          final Class<? extends RichTextRecord<?>> encapsulation = type.getEncapsulation();
+          if (encapsulation != null) {
+            return RichTextUtil.reencapsulateRecord((AbstractCDRecord<?>) record, encapsulation);
+          }
+        }
+      }
+      return record;
+    } finally {
+      this.nav.restorePosition(cur);
+    }
+  }
+
+  @Override
+  public boolean isEmpty() {
+    this.fillTo(0);
+    return this.cache.isEmpty();
+  }
+
+  @Override
+  public Iterator<RichTextRecord<?>> iterator() {
+    return this.listIterator(0);
+  }
+
+  @Override
+  public ListIterator<RichTextRecord<?>> listIterator(final int index) {
+    return new RichTextIterator(index);
+  }
+
+  @Override
+  public int size() {
+    if (this.size == -1) {
+      this.fillTo(Integer.MAX_VALUE);
+    }
+
+    return this.size;
+  }
+
+  @Override
+  public Spliterator<RichTextRecord<?>> spliterator() {
+    return Spliterators.spliteratorUnknownSize(this.iterator(), Spliterator.ORDERED);
+  }
 }

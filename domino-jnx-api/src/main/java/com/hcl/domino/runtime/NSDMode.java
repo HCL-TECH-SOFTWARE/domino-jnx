@@ -21,31 +21,30 @@ import com.hcl.domino.misc.INumberEnum;
 /**
  * Enumeration of the available ways to run NSD.
  */
-public enum NSDMode implements INumberEnum<Short>{
-	RUN_ALL((short) 0x1000),
-	RUN_CLEANUPSCRIPT_ONLY((short) 0x1),
-	RUN_NSD_ONLY((short) 0x2),
-	DONT_RUN_ANYTHING((short) 0x4),
-	SHUTDOWN_HANG((short) 0x8),
-	PANIC_DIRECT((short) 0x10),
-	RUN_QOS_NSD((short) 0x20),
-	NSD_AUTOMONITOR((short) 0x40);
+public enum NSDMode implements INumberEnum<Short> {
+  RUN_ALL((short) 0x1000),
+  RUN_CLEANUPSCRIPT_ONLY((short) 0x1),
+  RUN_NSD_ONLY((short) 0x2),
+  DONT_RUN_ANYTHING((short) 0x4),
+  SHUTDOWN_HANG((short) 0x8),
+  PANIC_DIRECT((short) 0x10),
+  RUN_QOS_NSD((short) 0x20),
+  NSD_AUTOMONITOR((short) 0x40);
 
-	private short m_value;
-	
-	NSDMode(short value) {
-		m_value = value;
-	}
-	
-	@Override
-	public Short getValue() {
-		return m_value;
-	}
+  private short m_value;
 
-	@Override
-	public long getLongValue() {
-		return m_value & 0xffff;
-	}
-	
-	
+  NSDMode(final short value) {
+    this.m_value = value;
+  }
+
+  @Override
+  public long getLongValue() {
+    return this.m_value & 0xffff;
+  }
+
+  @Override
+  public Short getValue() {
+    return this.m_value;
+  }
+
 }

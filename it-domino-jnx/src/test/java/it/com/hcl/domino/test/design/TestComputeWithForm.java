@@ -16,9 +16,6 @@
  */
 package it.com.hcl.domino.test.design;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -33,134 +30,116 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.logging.Level;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
-import com.hcl.domino.DominoException;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.Document.ComputeWithFormAction;
-import com.hcl.domino.data.Document.ComputeWithFormCallback;
-import com.hcl.domino.data.Document.ComputeWithFormPhase;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.dxl.DxlExporter;
-import com.hcl.domino.richtext.FormField;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestComputeWithForm extends AbstractNotesRuntimeTest {
 
-	@Test
-	public void exportForm() throws Exception {
-		boolean exportForm = "true".equalsIgnoreCase(System.getProperty("jnx.cwftest.exportform"));
-		if(!exportForm) {
-			if(log.isLoggable(Level.FINE)) {
-				log.fine(MessageFormat.format("Skipping {0}#exportform; set -Djnx.cwftest.exportform=true to execute", getClass().getSimpleName()));
-			}
-			return;
-		}
+  @Test
+  public void exportForm() throws Exception {
+    final boolean exportForm = "true".equalsIgnoreCase(System.getProperty("jnx.cwftest.exportform"));
+    if (!exportForm) {
+      if (this.log.isLoggable(Level.FINE)) {
+        this.log.fine(MessageFormat.format("Skipping {0}#exportform; set -Djnx.cwftest.exportform=true to execute",
+            this.getClass().getSimpleName()));
+      }
+      return;
+    }
 
-		DominoClient client = getClient();
-		Database db = client.openDatabase("", "jnx/cwftest.nsf");
+    final DominoClient client = this.getClient();
+    final Database db = client.openDatabase("", "jnx/cwftest.nsf");
 
-		DxlExporter dxlExporter = client.createDxlExporter();
+    final DxlExporter dxlExporter = client.createDxlExporter();
 
-		Path exportDir = Paths.get("src/test/resources/dxl/testComputeWithForm").toAbsolutePath();
-		Files.createDirectories(exportDir);
+    final Path exportDir = Paths.get("src/test/resources/dxl/testComputeWithForm").toAbsolutePath();
+    Files.createDirectories(exportDir);
 
-		db.queryFormula("@IsMember(\"Person\";$TITLE)", null,
-				EnumSet.of(SearchFlag.SUMMARY), null, EnumSet.of(DocumentClass.FORM))
-		.forEachDocument(0, Integer.MAX_VALUE, (doc, loop) -> {
-			Path outFilePath = exportDir.resolve("Person.xml");
+    db.queryFormula("@IsMember(\"Person\";$TITLE)", null,
+        EnumSet.of(SearchFlag.SUMMARY), null, EnumSet.of(DocumentClass.FORM))
+        .forEachDocument(0, Integer.MAX_VALUE, (doc, loop) -> {
+          final Path outFilePath = exportDir.resolve("Person.xml");
 
-			try (OutputStream fOut = Files.newOutputStream(outFilePath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-				dxlExporter.exportDocument(doc, fOut);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		});
-	}
+          try (OutputStream fOut = Files.newOutputStream(outFilePath, StandardOpenOption.CREATE,
+              StandardOpenOption.TRUNCATE_EXISTING)) {
+            dxlExporter.exportDocument(doc, fOut);
+          } catch (final IOException e) {
+            e.printStackTrace();
+          }
+        });
+  }
 
-	@Test
-	public void testCWF() throws Exception {
-		//we import a form with three fields, "firstname", "lastname" (both with validation formula
-		//that checks if the field is empty) and "defaulttest" that computes a default value
-		withResourceDxl("/dxl/testComputeWithForm", database -> {
-			Document doc = database.createDocument();
-			doc.replaceItemValue("Form", "Person");
+  @Test
+  public void testCWF() throws Exception {
+    // we import a form with three fields, "firstname", "lastname" (both with
+    // validation formula
+    // that checks if the field is empty) and "defaulttest" that computes a default
+    // value
+    this.withResourceDxl("/dxl/testComputeWithForm", database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("Form", "Person");
 
-			{
-				List<String> expectedErrorTexts = Arrays.asList(
-						"Firstname is missing",
-						"Lastname is missing"
-						);
+      {
+        final List<String> expectedErrorTexts = Arrays.asList(
+            "Firstname is missing",
+            "Lastname is missing");
 
-				Set<String> errorFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        final Set<String> errorFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
-				doc.computeWithForm(false, new ComputeWithFormCallback() {
+        doc.computeWithForm(false, (fieldInfo, phase, errorTxt, status) -> {
 
-					@Override
-					public ComputeWithFormAction errorRaised(FormField fieldInfo, ComputeWithFormPhase phase,
-							String errorTxt,
-							DominoException status) {
-						
-						errorFields.add(fieldInfo.getName());
+      errorFields.add(fieldInfo.getName());
 
-						assertTrue(expectedErrorTexts.contains(errorTxt));
-						return ComputeWithFormAction.NEXT_FIELD;
-					}
-				});
+      Assertions.assertTrue(expectedErrorTexts.contains(errorTxt));
+      return ComputeWithFormAction.NEXT_FIELD;
+     });
 
-				assertEquals(2, errorFields.size());
-				assertTrue(errorFields.contains("firstname"));
-				assertTrue(errorFields.contains("lastname"));
-				assertTrue(!"".equals(doc.get("defaulttest", String.class, "")));
-			}
+        Assertions.assertEquals(2, errorFields.size());
+        Assertions.assertTrue(errorFields.contains("firstname"));
+        Assertions.assertTrue(errorFields.contains("lastname"));
+        Assertions.assertTrue(!"".equals(doc.get("defaulttest", String.class, "")));
+      }
 
-			doc.replaceItemValue("firstname", "John");
+      doc.replaceItemValue("firstname", "John");
 
-			{
-				Set<String> errorFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+      {
+        final Set<String> errorFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
-				doc.computeWithForm(false, new ComputeWithFormCallback() {
+        doc.computeWithForm(false, (fieldInfo, phase, errorTxt, status) -> {
 
-					@Override
-					public ComputeWithFormAction errorRaised(FormField fieldInfo, ComputeWithFormPhase phase,
-							String errorTxt,
-							DominoException status) {
+      errorFields.add(fieldInfo.getName());
 
-						errorFields.add(fieldInfo.getName());
+      return ComputeWithFormAction.NEXT_FIELD;
+     });
 
-						return ComputeWithFormAction.NEXT_FIELD;
-					}
-				});
+        Assertions.assertEquals(1, errorFields.size());
+        Assertions.assertTrue(errorFields.contains("lastname"));
+      }
 
-				assertEquals(1, errorFields.size());
-				assertTrue(errorFields.contains("lastname"));
-			}
+      doc.replaceItemValue("lastname", "Doe");
 
-			doc.replaceItemValue("lastname", "Doe");
+      {
+        final Set<String> errorFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
-			{
-				Set<String> errorFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+        doc.computeWithForm(false, (fieldInfo, phase, errorTxt, status) -> {
+      errorFields.add(fieldInfo.getName());
 
-				doc.computeWithForm(false, new ComputeWithFormCallback() {
+      return ComputeWithFormAction.NEXT_FIELD;
+     });
 
-					@Override
-					public ComputeWithFormAction errorRaised(FormField fieldInfo, ComputeWithFormPhase phase,
-							String errorTxt,
-							DominoException status) {
-						errorFields.add(fieldInfo.getName());
-
-						return ComputeWithFormAction.NEXT_FIELD;
-					}
-				});
-
-				assertEquals(0, errorFields.size());
-			}
-		});
-	}
+        Assertions.assertEquals(0, errorFields.size());
+      }
+    });
+  }
 
 }

@@ -18,8 +18,9 @@ package com.hcl.domino.data;
 
 public interface AutoCloseableDocument extends Document, AutoCloseable {
 
-	public boolean isClosed();
-	
-	public void close();
-	
+  @Override
+  void close();
+
+  boolean isClosed();
+
 }

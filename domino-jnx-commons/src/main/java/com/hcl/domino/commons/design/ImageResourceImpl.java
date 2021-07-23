@@ -27,64 +27,64 @@ import com.hcl.domino.richtext.process.GetImageResourceStreamProcessor;
 
 public class ImageResourceImpl extends AbstractNamedFileElement<ImageResource> implements ImageResource {
 
-	public ImageResourceImpl(Document doc) {
-		super(doc);
-	}
+  public ImageResourceImpl(final Document doc) {
+    super(doc);
+  }
 
-	@Override
-	public void initializeNewDesignNote() {
-		// TODO Auto-generated method stub
+  @Override
+  public String getCharsetName() {
+    return this.getDocument().get(NotesConstants.ITEM_NAME_FILE_MIMECHARSET, String.class, ""); //$NON-NLS-1$
+  }
 
-	}
+  @Override
+  public InputStream getFileData() {
+    return GetImageResourceStreamProcessor.instance.apply(this.getDocument().getRichTextItem(NotesConstants.ITEM_NAME_IMAGE_DATA));
+  }
 
-	@Override
-	public String getMimeType() {
-		return getDocument().get(NotesConstants.ITEM_NAME_FILE_MIMETYPE, String.class, ""); //$NON-NLS-1$
-	}
+  @Override
+  public List<String> getFileNames() {
+    return this.getDocument().getAsList(NotesConstants.ITEM_NAME_IMAGE_NAMES, String.class, Collections.emptyList());
+  }
 
-	@Override
-	public String getCharsetName() {
-		return getDocument().get(NotesConstants.ITEM_NAME_FILE_MIMECHARSET, String.class, ""); //$NON-NLS-1$
-	}
+  @Override
+  public int getImagesAcross() {
+    return this.getDocument().get(NotesConstants.ITEM_NAME_IMAGES_WIDE, int.class, 1);
+  }
 
-	@Override
-	public InputStream getFileData() {
-		return GetImageResourceStreamProcessor.instance.apply(getDocument().getRichTextItem(NotesConstants.ITEM_NAME_IMAGE_DATA));
-	}
-	
-	@Override
-	public List<String> getFileNames() {
-		return getDocument().getAsList(NotesConstants.ITEM_NAME_IMAGE_NAMES, String.class, Collections.emptyList());
-	}
+  @Override
+  public int getImagesDown() {
+    return this.getDocument().get(NotesConstants.ITEM_NAME_IMAGES_HIGH, int.class, 1);
+  }
 
-	@Override
-	public boolean isColorizeGrays() {
-		return getDocument().get(NotesConstants.ITEM_NAME_IMAGES_COLORIZE, int.class, 0) == 1;
-	}
+  @Override
+  public String getMimeType() {
+    return this.getDocument().get(NotesConstants.ITEM_NAME_FILE_MIMETYPE, String.class, ""); //$NON-NLS-1$
+  }
 
-	@Override
-	public boolean isWebCompatible() {
-		return getDocument().get(NotesConstants.ITEM_NAME_IMAGES_WEB_BROWSER_COMPATIBLE, int.class, 0) == 1;
-	}
+  @Override
+  public void initializeNewDesignNote() {
+    // TODO Auto-generated method stub
 
-	@Override
-	public boolean isMarkedForReplace() {
-		return getFlags().contains("$"); //$NON-NLS-1$
-	}
+  }
 
-	@Override
-	public boolean isWebReadOnly() {
-		return getFlags().contains("&"); //$NON-NLS-1$
-	}
+  @Override
+  public boolean isColorizeGrays() {
+    return this.getDocument().get(NotesConstants.ITEM_NAME_IMAGES_COLORIZE, int.class, 0) == 1;
+  }
 
-	@Override
-	public int getImagesAcross() {
-		return getDocument().get(NotesConstants.ITEM_NAME_IMAGES_WIDE, int.class, 1);
-	}
+  @Override
+  public boolean isMarkedForReplace() {
+    return this.getFlags().contains("$"); //$NON-NLS-1$
+  }
 
-	@Override
-	public int getImagesDown() {
-		return getDocument().get(NotesConstants.ITEM_NAME_IMAGES_HIGH, int.class, 1);
-	}
+  @Override
+  public boolean isWebCompatible() {
+    return this.getDocument().get(NotesConstants.ITEM_NAME_IMAGES_WEB_BROWSER_COMPATIBLE, int.class, 0) == 1;
+  }
+
+  @Override
+  public boolean isWebReadOnly() {
+    return this.getFlags().contains("&"); //$NON-NLS-1$
+  }
 
 }

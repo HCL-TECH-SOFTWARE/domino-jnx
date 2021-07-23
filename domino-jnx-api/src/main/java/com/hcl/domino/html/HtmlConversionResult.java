@@ -21,25 +21,26 @@ import java.util.List;
 import com.hcl.domino.data.IAdaptable;
 
 /**
- * Container for a rich text &rarr; HTML conversion result, returning the HTML source code and information
+ * Container for a rich text &rarr; HTML conversion result, returning the HTML
+ * source code and information
  * about contained references to external targets (e.g. links / images)
- * 
+ *
  * @author Karsten Lehmann
  */
 public interface HtmlConversionResult extends IAdaptable {
 
-	/**
-	 * Returns the HTML code of the conversion result
-	 * 
-	 * @return html
-	 */
-	String getHtml();
-	
-	/**
-	 * Gives access to all embedded images
-	 * 
-	 * @return images
-	 */
-	List<EmbeddedImage> getImages();
+  /**
+   * Returns the HTML code of the conversion result
+   *
+   * @return html
+   */
+  String getHtml();
+
+  /**
+   * Gives access to all embedded images
+   *
+   * @return images
+   */
+  List<EmbeddedImage> getImages();
 
 }

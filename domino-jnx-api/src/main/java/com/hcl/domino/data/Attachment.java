@@ -22,142 +22,141 @@ import java.nio.file.Path;
 
 /**
  * Attachment in a Document
- * 
+ *
  * @author t.b.d.
  * @since 0.5.0
- *
  */
 public interface Attachment {
 
-	/**
-	 * Enum for method of compression. Typically, modern applications should support
-	 * LZ1
-	 *
-	 */
-	public enum Compression {
+  /**
+   * Enum for method of compression. Typically, modern applications should support
+   * LZ1
+   */
+  public enum Compression {
 
-		/** no compression */
-		NONE(0),
-		/** huffman encoding for compression */
-		HUFF(1),
-		/** LZ1 compression */
-		LZ1(2),
-		/** Huffman compression even if server supports LZ1 */
-		RECOMPRESS_HUFF(3);
+    /** no compression */
+    NONE(0),
+    /** huffman encoding for compression */
+    HUFF(1),
+    /** LZ1 compression */
+    LZ1(2),
+    /** Huffman compression even if server supports LZ1 */
+    RECOMPRESS_HUFF(3);
 
-		private int m_val;
+    private final int m_val;
 
-		Compression(int val) {
-			m_val = val;
-		}
+    Compression(final int val) {
+      this.m_val = val;
+    }
 
-		public int getValue() {
-			return m_val;
-		}
+    public int getValue() {
+      return this.m_val;
+    }
 
-	}
+  }
 
-	/**
-	 * Gets the filename for the attachment
-	 * 
-	 * @return filename, not null
-	 */
-	String getFileName();
+  /**
+   * Callback class to read the streamed attachment data
+   */
+  @FunctionalInterface
+  public interface IDataCallback {
+    public enum Action {
+      Continue, Stop
+    }
 
-	/**
-	 * Gets the compression type for the attachment
-	 * 
-	 * @return compression enum
-	 */
-	Compression getCompression();
+    /**
+     * Implement this method to receive attachment data
+     *
+     * @param data data
+     * @return action, either Continue or Stop
+     */
+    Action read(byte[] data);
+  }
 
-	/**
-	 * Gets the filesize of the attachment
-	 * 
-	 * @return filesize in bytes
-	 */
-	long getFileSize();
+  /**
+   * Deletes an attached file item from a note and also deallocates the disk space
+   * used to store the attached file in the database.
+   */
+  void deleteFromDocument();
 
-	/**
-	 * Gets the created datetime of the attachment.
-	 * 
-	 * TODO: Is the datetime it was attached, or the original created datetime of the file?
-	 * 
-	 * @return datetime the file was initially created
-	 */
-	DominoDateTime getFileCreated();
+  /**
+   * Writes the attachment data to a designated path.
+   * <p>
+   * Implementation note: using a local filesystem path is more efficient
+   * than using a path from an abstracted provider.
+   * </p>
+   *
+   * @param targetFilePath the file path of the file to write
+   * @throws IOException in case of I/O errors
+   */
+  void extract(Path targetFilePath) throws IOException;
 
-	/**
-	 * Gets the modified datetime of the attachment
-	 * 
-	 * @return the modified datetime of the attachment
-	 */
-	DominoDateTime getFileModified();
+  /**
+   * Gets the compression type for the attachment
+   *
+   * @return compression enum
+   */
+  Compression getCompression();
 
-	/**
-	 * Method to access the binary attachment data beginning at an offset in the
-	 * file. The method is only supported when the attachment has no compression.
-	 * Otherwise we will throw an {@link UnsupportedOperationException}.
-	 * 
-	 * @param callback callback is called with streamed data
-	 * @param offset   offset to start reading
-	 */
-	void readData(final IDataCallback callback, int offset);
+  /**
+   * Gets the created datetime of the attachment.
+   * TODO: Is the datetime it was attached, or the original created datetime of
+   * the file?
+   *
+   * @return datetime the file was initially created
+   */
+  DominoDateTime getFileCreated();
 
-	/**
-	 * Method to access the binary attachment data
-	 * 
-	 * @param callback callback is called with streamed data
-	 */
-	void readData(final IDataCallback callback);
+  /**
+   * Gets the modified datetime of the attachment
+   *
+   * @return the modified datetime of the attachment
+   */
+  DominoDateTime getFileModified();
 
-	/**
-	 * Deletes an attached file item from a note and also deallocates the disk space
-	 * used to store the attached file in the database.
-	 */
-	void deleteFromDocument();
+  /**
+   * Gets the filename for the attachment
+   *
+   * @return filename, not null
+   */
+  String getFileName();
 
-	/**
-	 * Returns the parent document of this attachment
-	 * 
-	 * @return document
-	 */
-	Document getParent();
+  /**
+   * Gets the filesize of the attachment
+   *
+   * @return filesize in bytes
+   */
+  long getFileSize();
 
-	/**
-	 * Writes the attachment data to a designated path.
-	 * 
-	 * <p>Implementation note: using a local filesystem path is more efficient
-	 * than using a path from an abstracted provider.</p>
-	 * 
-	 * @param targetFilePath the file path of the file to write
-	 * @throws IOException in case of I/O errors
-	 */
-	void extract(Path targetFilePath) throws IOException;
-	
-	/**
-	 * Retrieves an input stream to access the data of the attachment.
-	 * 
-	 * @return a new {@link InputStream} for the attachment data
-	 * @throws IOException  in case of I/O errors
-	 */
-	InputStream getInputStream() throws IOException;
+  /**
+   * Retrieves an input stream to access the data of the attachment.
+   *
+   * @return a new {@link InputStream} for the attachment data
+   * @throws IOException in case of I/O errors
+   */
+  InputStream getInputStream() throws IOException;
 
-	/**
-	 * Callback class to read the streamed attachment data
-	 */
-	@FunctionalInterface
-	public interface IDataCallback {
-		public enum Action {
-			Continue, Stop
-		};
+  /**
+   * Returns the parent document of this attachment
+   *
+   * @return document
+   */
+  Document getParent();
 
-		/**
-		 * Implement this method to receive attachment data
-		 * 
-		 * @param data data
-		 * @return action, either Continue or Stop
-		 */
-		Action read(byte[] data);
-	}
+  /**
+   * Method to access the binary attachment data
+   *
+   * @param callback callback is called with streamed data
+   */
+  void readData(final IDataCallback callback);
+
+  /**
+   * Method to access the binary attachment data beginning at an offset in the
+   * file. The method is only supported when the attachment has no compression.
+   * Otherwise we will throw an {@link UnsupportedOperationException}.
+   *
+   * @param callback callback is called with streamed data
+   * @param offset   offset to start reading
+   */
+  void readData(final IDataCallback callback, int offset);
 }

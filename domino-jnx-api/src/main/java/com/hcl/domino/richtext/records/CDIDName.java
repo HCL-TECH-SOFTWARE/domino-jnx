@@ -24,163 +24,161 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.WSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="CDIDNAME",
-	members={
-		@StructureMember(name="Header", type=WSIG.class),
-		@StructureMember(name="Length", type=short.class, unsigned=true),
-		@StructureMember(name="wClassLen", type=short.class, unsigned=true),
-		@StructureMember(name="wStyleLen", type=short.class, unsigned=true),
-		@StructureMember(name="wTitleLen", type=short.class, unsigned=true),
-		@StructureMember(name="wExtraLen", type=short.class, unsigned=true),
-		@StructureMember(name="wNameLen", type=short.class, unsigned=true),
-		@StructureMember(name="reserved", type=byte[].class, length=10)
-	}
-)
+@StructureDefinition(name = "CDIDNAME", members = {
+    @StructureMember(name = "Header", type = WSIG.class),
+    @StructureMember(name = "Length", type = short.class, unsigned = true),
+    @StructureMember(name = "wClassLen", type = short.class, unsigned = true),
+    @StructureMember(name = "wStyleLen", type = short.class, unsigned = true),
+    @StructureMember(name = "wTitleLen", type = short.class, unsigned = true),
+    @StructureMember(name = "wExtraLen", type = short.class, unsigned = true),
+    @StructureMember(name = "wNameLen", type = short.class, unsigned = true),
+    @StructureMember(name = "reserved", type = byte[].class, length = 10)
+})
 public interface CDIDName extends RichTextRecord<WSIG> {
-	@StructureGetter("Header")
-	@Override
-	WSIG getHeader();
-	
-	@StructureGetter("Length")
-	int getIDLength();
-	@StructureSetter("Length")
-	CDIDName setIDLength(int length);
-	
-	@StructureGetter("wClassLen")
-	int getClassNameLength();
-	@StructureSetter("wClassLen")
-	CDIDName setClassNameLength(int length);
-	
-	@StructureGetter("wStyleLen")
-	int getStyleLength();
-	@StructureSetter("wStyleLen")
-	CDIDName setStyleLength(int length);
-	
-	@StructureGetter("wTitleLen")
-	int getTitleLength();
-	@StructureSetter("wTitleLen")
-	CDIDName setTitleLength(int length);
-	
-	@StructureGetter("wExtraLen")
-	int getHTMLAttributesLength();
-	@StructureSetter("wExtraLen")
-	CDIDName setHTMLAttributesLength(int length);
-	
-	@StructureGetter("wNameLen")
-	int getNameLength();
-	@StructureSetter("wNameLen")
-	CDIDName setNameLength(int length);
-	
-	default String getID() {
-		return StructureSupport.extractStringValue(
-			this,
-			0,
-			getIDLength()
-		);
-	}
-	default CDIDName setID(String id) {
-		StructureSupport.writeStringValue(
-			this,
-			0,
-			getIDLength(),
-			id,
-			this::setIDLength
-		);
-		return this;
-	}
+  default String getClassName() {
+    return StructureSupport.extractStringValue(
+        this,
+        this.getIDLength(),
+        this.getClassNameLength());
+  }
 
-	default String getClassName() {
-		return StructureSupport.extractStringValue(
-			this,
-			getIDLength(),
-			getClassNameLength()
-		);
-	}
-	default CDIDName setClassName(String className) {
-		StructureSupport.writeStringValue(
-			this,
-			getIDLength(),
-			getClassNameLength(),
-			className,
-			this::setClassNameLength
-		);
-		return this;
-	}
+  @StructureGetter("wClassLen")
+  int getClassNameLength();
 
-	default String getStyle() {
-		return StructureSupport.extractStringValue(
-			this,
-			getIDLength() + getClassNameLength(),
-			getStyleLength()
-		);
-	}
-	default CDIDName setStyle(String style) {
-		StructureSupport.writeStringValue(
-			this,
-			getIDLength() + getClassNameLength(),
-			getStyleLength(),
-			style,
-			this::setStyleLength
-		);
-		return this;
-	}
+  @StructureGetter("Header")
+  @Override
+  WSIG getHeader();
 
-	default String getTitle() {
-		return StructureSupport.extractStringValue(
-			this,
-			getIDLength() + getClassNameLength() + getStyleLength(),
-			getTitleLength()
-		);
-	}
-	default CDIDName setTitle(String title) {
-		StructureSupport.writeStringValue(
-			this,
-			getIDLength() + getClassNameLength() + getStyleLength(),
-			getTitleLength(),
-			title,
-			this::setTitleLength
-		);
-		return this;
-	}
+  default String getHTMLAttributes() {
+    return StructureSupport.extractStringValue(
+        this,
+        this.getIDLength() + this.getClassNameLength() + this.getStyleLength() + this.getTitleLength(),
+        this.getHTMLAttributesLength());
+  }
 
-	default String getHTMLAttributes() {
-		return StructureSupport.extractStringValue(
-			this,
-			getIDLength() + getClassNameLength() + getStyleLength() + getTitleLength(),
-			getHTMLAttributesLength()
-		);
-	}
-	default CDIDName setHTMLAttributes(String attrs) {
-		StructureSupport.writeStringValue(
-			this,
-			getIDLength() + getClassNameLength() + getStyleLength() + getTitleLength(),
-			getHTMLAttributesLength(),
-			attrs,
-			this::setHTMLAttributesLength
-		);
-		return this;
-	}
+  @StructureGetter("wExtraLen")
+  int getHTMLAttributesLength();
 
-	default String getName() {
-		return StructureSupport.extractStringValue(
-			this,
-			getIDLength() + getClassNameLength() + getStyleLength() + getTitleLength() + getHTMLAttributesLength(),
-			getNameLength()
-		);
-	}
-	default CDIDName setName(String name) {
-		StructureSupport.writeStringValue(
-			this,
-			getIDLength() + getClassNameLength() + getStyleLength() + getTitleLength() + getHTMLAttributesLength(),
-			getNameLength(),
-			name,
-			this::setNameLength
-		);
-		return this;
-	}
+  default String getID() {
+    return StructureSupport.extractStringValue(
+        this,
+        0,
+        this.getIDLength());
+  }
+
+  @StructureGetter("Length")
+  int getIDLength();
+
+  default String getName() {
+    return StructureSupport.extractStringValue(
+        this,
+        this.getIDLength() + this.getClassNameLength() + this.getStyleLength() + this.getTitleLength()
+            + this.getHTMLAttributesLength(),
+        this.getNameLength());
+  }
+
+  @StructureGetter("wNameLen")
+  int getNameLength();
+
+  default String getStyle() {
+    return StructureSupport.extractStringValue(
+        this,
+        this.getIDLength() + this.getClassNameLength(),
+        this.getStyleLength());
+  }
+
+  @StructureGetter("wStyleLen")
+  int getStyleLength();
+
+  default String getTitle() {
+    return StructureSupport.extractStringValue(
+        this,
+        this.getIDLength() + this.getClassNameLength() + this.getStyleLength(),
+        this.getTitleLength());
+  }
+
+  @StructureGetter("wTitleLen")
+  int getTitleLength();
+
+  default CDIDName setClassName(final String className) {
+    StructureSupport.writeStringValue(
+        this,
+        this.getIDLength(),
+        this.getClassNameLength(),
+        className,
+        this::setClassNameLength);
+    return this;
+  }
+
+  @StructureSetter("wClassLen")
+  CDIDName setClassNameLength(int length);
+
+  default CDIDName setHTMLAttributes(final String attrs) {
+    StructureSupport.writeStringValue(
+        this,
+        this.getIDLength() + this.getClassNameLength() + this.getStyleLength() + this.getTitleLength(),
+        this.getHTMLAttributesLength(),
+        attrs,
+        this::setHTMLAttributesLength);
+    return this;
+  }
+
+  @StructureSetter("wExtraLen")
+  CDIDName setHTMLAttributesLength(int length);
+
+  default CDIDName setID(final String id) {
+    StructureSupport.writeStringValue(
+        this,
+        0,
+        this.getIDLength(),
+        id,
+        this::setIDLength);
+    return this;
+  }
+
+  @StructureSetter("Length")
+  CDIDName setIDLength(int length);
+
+  default CDIDName setName(final String name) {
+    StructureSupport.writeStringValue(
+        this,
+        this.getIDLength() + this.getClassNameLength() + this.getStyleLength() + this.getTitleLength()
+            + this.getHTMLAttributesLength(),
+        this.getNameLength(),
+        name,
+        this::setNameLength);
+    return this;
+  }
+
+  @StructureSetter("wNameLen")
+  CDIDName setNameLength(int length);
+
+  default CDIDName setStyle(final String style) {
+    StructureSupport.writeStringValue(
+        this,
+        this.getIDLength() + this.getClassNameLength(),
+        this.getStyleLength(),
+        style,
+        this::setStyleLength);
+    return this;
+  }
+
+  @StructureSetter("wStyleLen")
+  CDIDName setStyleLength(int length);
+
+  default CDIDName setTitle(final String title) {
+    StructureSupport.writeStringValue(
+        this,
+        this.getIDLength() + this.getClassNameLength() + this.getStyleLength(),
+        this.getTitleLength(),
+        title,
+        this::setTitleLength);
+    return this;
+  }
+
+  @StructureSetter("wTitleLen")
+  CDIDName setTitleLength(int length);
 }

@@ -22,11 +22,11 @@ import com.ibm.designer.runtime.domino.adapter.LCDEnvironment;
 
 public class WebappInitializerFactory implements IServiceFactory {
 
-	@Override
-	public HttpService[] getServices(LCDEnvironment env) {
-		return new HttpService[] {
-			new WebappInitializer(env)
-		};
-	}
+  @Override
+  public HttpService[] getServices(final LCDEnvironment env) {
+    return new HttpService[] {
+        new WebappInitializer(env)
+    };
+  }
 
 }

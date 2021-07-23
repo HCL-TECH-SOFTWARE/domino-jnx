@@ -14,7 +14,7 @@
  * under the License.
  * ==========================================================================
  */
- package com.hcl.domino.admin.idvault;
+package com.hcl.domino.admin.idvault;
 
 import java.nio.file.Path;
 
@@ -22,18 +22,18 @@ import com.hcl.domino.data.IAdaptable;
 
 public interface UserId extends IAdaptable {
 
-	/**
-	 * Returns the Domino username of the ID
-	 * 
-	 * @return username
-	 */
-	String getUsername();
+  /**
+   * Returns the Domino username of the ID
+   *
+   * @return username
+   */
+  String getUsername();
 
-	/**
-	 * Writes a safe copy of the ID to disk
-	 * 
-	 * @param targetFilePath filepath to write the safe.id
-	 */
-	void makeSafeCopy(Path targetFilePath);
+  /**
+   * Writes a safe copy of the ID to disk
+   *
+   * @param targetFilePath filepath to write the safe.id
+   */
+  void makeSafeCopy(Path targetFilePath);
 
 }

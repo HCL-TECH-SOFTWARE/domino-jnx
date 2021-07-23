@@ -29,47 +29,62 @@ import com.hcl.domino.misc.INumberEnum;
  * indexing options.
  */
 public enum FTIndex implements INumberEnum<Short> {
-	/** Forces re-indexing the database from scratch. This option is useful if the indexing
-	 * options for the database are being changed. */
-	REINDEX(0x0002),
-	/** Build case sensitive index */
-	CASE_SENSITIVE(0x0004),
-	/** Build an index that includes word variants (stems). This allows searching to include word variants.
-	 * A full text search index built with the Notes user interface, is automatically stemmed. */
-	STEM_INDEX(0x0008),
-	/** Build index with word, sentence, and paragraph index break option which allows a search for
-	 * words within a sentence or paragraph. */
-	INDEX_SENTENCE_PARAGRAPH_BREAKS(0x0010),
-	/** Optimize index (e.g. for CDROM) (Not used) */
-	OPTIMIZE(0x0020),
-	/** Index Attachments */
-	INDEX_ATTACHED_FILES(0x0040),
-	/** Index Encrypted Fields */
-	ENCRYPTED_FIELDS(0x0080),
-	/** Use the index options that are in database. If the database has never been indexed, use the
-	 * default indexing options. Database indexing options include the Stop Word File name, case
-	 * sensitivity, the PSW option, reindexing, and the stem index. Note that the stem index will
-	 * be set if {@link #AUTOOPTIONS} is used. */
-	AUTOOPTIONS(0x0100),
-	/** Index summary data only */
-	SUMMARY_ONLY(0x0200),
-	/** Index all attachments including BINARY formats */
-	USE_CONVERSION_FILTERS_FOR_FILES(0x1000);
+  /**
+   * Forces re-indexing the database from scratch. This option is useful if the
+   * indexing
+   * options for the database are being changed.
+   */
+  REINDEX(0x0002),
+  /** Build case sensitive index */
+  CASE_SENSITIVE(0x0004),
+  /**
+   * Build an index that includes word variants (stems). This allows searching to
+   * include word variants.
+   * A full text search index built with the Notes user interface, is
+   * automatically stemmed.
+   */
+  STEM_INDEX(0x0008),
+  /**
+   * Build index with word, sentence, and paragraph index break option which
+   * allows a search for
+   * words within a sentence or paragraph.
+   */
+  INDEX_SENTENCE_PARAGRAPH_BREAKS(0x0010),
+  /** Optimize index (e.g. for CDROM) (Not used) */
+  OPTIMIZE(0x0020),
+  /** Index Attachments */
+  INDEX_ATTACHED_FILES(0x0040),
+  /** Index Encrypted Fields */
+  ENCRYPTED_FIELDS(0x0080),
+  /**
+   * Use the index options that are in database. If the database has never been
+   * indexed, use the
+   * default indexing options. Database indexing options include the Stop Word
+   * File name, case
+   * sensitivity, the PSW option, reindexing, and the stem index. Note that the
+   * stem index will
+   * be set if {@link #AUTOOPTIONS} is used.
+   */
+  AUTOOPTIONS(0x0100),
+  /** Index summary data only */
+  SUMMARY_ONLY(0x0200),
+  /** Index all attachments including BINARY formats */
+  USE_CONVERSION_FILTERS_FOR_FILES(0x1000);
 
-	private Short m_val;
-	
-	FTIndex(int val) {
-		m_val = (short) (val & 0xffff);
-	}
-	
-	@Override
-	public Short getValue() {
-		return m_val;
-	}
-	
-	@Override
-	public long getLongValue() {
-		return m_val;
-	}
-	
+  private Short m_val;
+
+  FTIndex(final int val) {
+    this.m_val = (short) (val & 0xffff);
+  }
+
+  @Override
+  public long getLongValue() {
+    return this.m_val;
+  }
+
+  @Override
+  public Short getValue() {
+    return this.m_val;
+  }
+
 }

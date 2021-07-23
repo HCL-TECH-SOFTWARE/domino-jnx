@@ -22,27 +22,27 @@ import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 
-@StructureDefinition(
-	name="VIEW_TABLE_FORMAT4",
-	members={
-		@StructureMember(name="Length", type=short.class, unsigned=true),
-		@StructureMember(name="Flags", type=int.class),
-		@StructureMember(name="RepeatType", type=short.class)
-	}
-)
+@StructureDefinition(name = "VIEW_TABLE_FORMAT4", members = {
+    @StructureMember(name = "Length", type = short.class, unsigned = true),
+    @StructureMember(name = "Flags", type = int.class),
+    @StructureMember(name = "RepeatType", type = short.class)
+})
 public interface ViewTableFormat4 extends MemoryStructure {
-	@StructureGetter("Length")
-	int getLength();
-	@StructureSetter("Length")
-	ViewTableFormat4 setLength(int len);
-	
-	@StructureGetter("Flags")
-	int getFlagsRaw();
-	@StructureSetter("Flags")
-	ViewTableFormat4 setFlagsRaw(int flags);
-	
-	@StructureGetter("RepeatType")
-	short getRepeatTypeRaw();
-	@StructureSetter("RepeatType")
-	ViewTableFormat4 setRepeatTypeRaw(short type);
+  @StructureGetter("Flags")
+  int getFlagsRaw();
+
+  @StructureGetter("Length")
+  int getLength();
+
+  @StructureGetter("RepeatType")
+  short getRepeatTypeRaw();
+
+  @StructureSetter("Flags")
+  ViewTableFormat4 setFlagsRaw(int flags);
+
+  @StructureSetter("Length")
+  ViewTableFormat4 setLength(int len);
+
+  @StructureSetter("RepeatType")
+  ViewTableFormat4 setRepeatTypeRaw(short type);
 }

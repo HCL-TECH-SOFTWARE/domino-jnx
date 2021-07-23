@@ -19,27 +19,26 @@ package com.hcl.domino.commons.design.action;
 import com.hcl.domino.design.action.ModifyFieldAction;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
 public class DefaultModifyFieldAction implements ModifyFieldAction {
-	private final String fieldName;
-	private final String value;
-	
-	public DefaultModifyFieldAction(String fieldName, String value) {
-		this.fieldName = fieldName;
-		this.value = value;
-	}
+  private final String fieldName;
+  private final String value;
 
-	@Override
-	public String getFieldName() {
-		return fieldName;
-	}
+  public DefaultModifyFieldAction(final String fieldName, final String value) {
+    this.fieldName = fieldName;
+    this.value = value;
+  }
 
-	@Override
-	public String getValue() {
-		return value;
-	}
+  @Override
+  public String getFieldName() {
+    return this.fieldName;
+  }
+
+  @Override
+  public String getValue() {
+    return this.value;
+  }
 
 }

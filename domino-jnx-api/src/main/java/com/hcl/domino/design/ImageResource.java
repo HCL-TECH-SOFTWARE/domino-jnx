@@ -16,20 +16,26 @@
  */
 package com.hcl.domino.design;
 
-import java.io.InputStream;
 import java.util.List;
 
 import com.hcl.domino.data.DominoDateTime;
 
 public interface ImageResource extends NamedFileElement {
-	List<String> getFileNames();
-	DominoDateTime getFileModified();
-	
-	boolean isColorizeGrays();
-	boolean isWebCompatible();
-	boolean isMarkedForReplace();
-	boolean isWebReadOnly();
-	
-	int getImagesAcross();
-	int getImagesDown();
+  @Override
+  DominoDateTime getFileModified();
+
+  @Override
+  List<String> getFileNames();
+
+  int getImagesAcross();
+
+  int getImagesDown();
+
+  boolean isColorizeGrays();
+
+  boolean isMarkedForReplace();
+
+  boolean isWebCompatible();
+
+  boolean isWebReadOnly();
 }

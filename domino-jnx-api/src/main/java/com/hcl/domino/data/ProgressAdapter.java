@@ -20,36 +20,36 @@ import com.hcl.domino.DominoClient.IProgressListener;
 
 public class ProgressAdapter implements IProgressListener {
 
-	@Override
-	public void begin() {
-	}
+  @Override
+  public void begin() {
+  }
 
-	@Override
-	public void end() {
-	}
+  @Override
+  public void end() {
+  }
 
-	@Override
-	public void setRange(long range) {
-	}
+  @Override
+  public void setBytePos(final long pos) {
+  }
 
-	@Override
-	public void setText(String str) {
-	}
+  @Override
+  public void setByteRange(final long range) {
+  }
 
-	@Override
-	public void setPos(long pos) {
-	}
+  @Override
+  public void setDeltaPos(final long pos) {
+  }
 
-	@Override
-	public void setDeltaPos(long pos) {
-	}
+  @Override
+  public void setPos(final long pos) {
+  }
 
-	@Override
-	public void setByteRange(long range) {
-	}
+  @Override
+  public void setRange(final long range) {
+  }
 
-	@Override
-	public void setBytePos(long pos) {
-	}
+  @Override
+  public void setText(final String str) {
+  }
 
 }

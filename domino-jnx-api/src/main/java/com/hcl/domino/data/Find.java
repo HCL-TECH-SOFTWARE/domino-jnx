@@ -21,120 +21,147 @@ import java.util.Set;
 /**
  * These flags are used by {@link DominoCollection#getAllIdsByKey(Set, Object)}
  * to control how the
- * collection is searched for the key. The flags, {@link #PARTIAL}, {@link #CASE_INSENSITIVE},
- * and {@link #ACCENT_INSENSITIVE} should only be used for character data, since a
+ * collection is searched for the key. The flags, {@link #PARTIAL},
+ * {@link #CASE_INSENSITIVE},
+ * and {@link #ACCENT_INSENSITIVE} should only be used for character data, since
+ * a
  * "partial number" or "partial date" is not well defined.<br>
  * <br>
- * The {@link #LESS_THAN} and {@link #GREATER_THAN} flags refer to the way the sorted
+ * The {@link #LESS_THAN} and {@link #GREATER_THAN} flags refer to the way the
+ * sorted
  * column keys are ordered and displayed, not the way they compare with each
- * other. {@link #LESS_THAN} means "find the entry before" and {@link #GREATER_THAN} 
+ * other. {@link #LESS_THAN} means "find the entry before" and
+ * {@link #GREATER_THAN}
  * means "find the entry after" a desired key. The {@link #LESS_THAN} and
  * {@link #GREATER_THAN} flags will result in success if at least one key that
  * is less than or greater than the specified key, respectively, is found.<br>
  * <br>
- * If a {@link #FIRST_EQUAL} or {@link #LAST_EQUAL} comparison is specified and the
+ * If a {@link #FIRST_EQUAL} or {@link #LAST_EQUAL} comparison is specified and
+ * the
  * number of matches is requested to be returned, then the number of entries
  * which match the specified key will be returned. If a {@link #LESS_THAN} or
- * {@link #GREATER_THAN} comparison is specified, then the number of matching 
+ * {@link #GREATER_THAN} comparison is specified, then the number of matching
  * entries cannot be requested.
  */
 public enum Find {
-	/** Match only the initial characters ("T" matches "Tim", "i" does
-	 * not match "Tim"). If multiple keys are used, a partial match is done on
-	 * each of the keys in the order that they are specified. A partial match
-	 * must be found for all specified keys in order for a particular entry
-	 * to be considered a successful match. */
-	PARTIAL(0x0001),
-	
-	/** Case insensitive ("tim" matches "Tim") */
-	CASE_INSENSITIVE(0x0002),
-	
-	/** Search disregards diacritical marks. */
-	ACCENT_INSENSITIVE(0x0008),
-	
-	/** If key is not found, update collection and search again */
-	UPDATE_IF_NOT_FOUND(0x0020),
+  /**
+   * Match only the initial characters ("T" matches "Tim", "i" does
+   * not match "Tim"). If multiple keys are used, a partial match is done on
+   * each of the keys in the order that they are specified. A partial match
+   * must be found for all specified keys in order for a particular entry
+   * to be considered a successful match.
+   */
+  PARTIAL(0x0001),
 
-	/* At most one of the following four flags should be specified */
-	
-	/** Find last entry less than the key value. (Specify no more than one of:
-	 * LESS_THAN, FIRST_EQUAL, LAST_EQUAL, GREATER_THAN) */
-	LESS_THAN(0x0040),
-	
-	/** Find first entry equal to the key value (if more than one). This flag
-	 * is the default. (Specify no more than one of: LESS_THAN, FIRST_EQUAL,
-	 * LAST_EQUAL, GREATER_THAN) */
-	FIRST_EQUAL(0x0000),
-	/** Find last entry equal to the key value (if more than one). (Specify no
-	 * more than one of: LESS_THAN, FIRST_EQUAL, LAST_EQUAL, GREATER_THAN) */
-	LAST_EQUAL(0x0080),
-	
-	/** Find first entry greater than the key value. (Specify no more than one of:
-	 * LESS_THAN, FIRST_EQUAL, LAST_EQUAL, GREATER_THAN) */
-	GREATER_THAN(0x00C0),
-	
-	/** Qualifies LESS_THAN and GREATER_THAN to mean LESS_THAN_OR_EQUAL and GREATER_THAN_OR_EQUAL */
-	EQUAL(0x0800),
-	
-	/** Overlapping ranges match, and values within a range match. This symbol is
-	 * valid for fields of type TYPE_TIME_RANGE and TYPE_NUMBER_RANGE. Therefore
-	 * it should only be used with NIFFindByKey. */
-	RANGE_OVERLAP(0x0100),
-	
-	/** Use the case and accent sensitivity flags specified in the view */
-	VIEW_SENSITIVE(0x00010000),
-	
-	/** Limit number of matches returned */
-	LIMIT_MATCHES(0x00040000),
-	
-	/** Search key is a category with leaf entry
-    so match the leaf as well (eg. ibm\atlanta\joe blow */
-	MATCH_CATEGORYANDLEAF(0x00080000),
-	
-	/** Search key is a category only and if no match then match on the leaf. */
-	MATCH_CATEGORYORLEAF(0x00100000),
-	
-	/** Return only entries which hNames would disallow (requires full access set) */
-	MATCH_PRIVATE_ONLY(0x00200000),
-	
-	/** If the collection needs it, call NIFUpdateCollection prior to find (NIFFindByKeyExtended2 only */
-	REFRESH_FIRST(0x00800000);
+  /** Case insensitive ("tim" matches "Tim") */
+  CASE_INSENSITIVE(0x0002),
 
-	private int m_val;
-	
-	Find(int val) {
-		m_val = val;
-	}
-	
-	public int getValue() {
-		return m_val;
-	}
-	
-	public static short toBitMask(Set<Find> findSet) {
-		int result = 0;
-		if (findSet!=null) {
-			for (Find currFind : values()) {
-				if (findSet.contains(currFind)) {
-					result = result | currFind.getValue();
-				}
-			}
-		}
-		return (short) (result & 0xffff);
-	}
-	
-	public static int toBitMaskInt(Set<Find> findSet) {
-		int result = 0;
-		if (findSet!=null) {
-			for (Find currFind : values()) {
-				if (findSet.contains(currFind)) {
-					result = result | currFind.getValue();
-				}
-			}
-		}
-		return result;
-	}
-	
-	/** Bitmask of the comparison flags defined above */
-	public static short FIND_COMPARE_MASK = 0x08C0;
+  /** Search disregards diacritical marks. */
+  ACCENT_INSENSITIVE(0x0008),
+
+  /** If key is not found, update collection and search again */
+  UPDATE_IF_NOT_FOUND(0x0020),
+
+  /* At most one of the following four flags should be specified */
+
+  /**
+   * Find last entry less than the key value. (Specify no more than one of:
+   * LESS_THAN, FIRST_EQUAL, LAST_EQUAL, GREATER_THAN)
+   */
+  LESS_THAN(0x0040),
+
+  /**
+   * Find first entry equal to the key value (if more than one). This flag
+   * is the default. (Specify no more than one of: LESS_THAN, FIRST_EQUAL,
+   * LAST_EQUAL, GREATER_THAN)
+   */
+  FIRST_EQUAL(0x0000),
+  /**
+   * Find last entry equal to the key value (if more than one). (Specify no
+   * more than one of: LESS_THAN, FIRST_EQUAL, LAST_EQUAL, GREATER_THAN)
+   */
+  LAST_EQUAL(0x0080),
+
+  /**
+   * Find first entry greater than the key value. (Specify no more than one of:
+   * LESS_THAN, FIRST_EQUAL, LAST_EQUAL, GREATER_THAN)
+   */
+  GREATER_THAN(0x00C0),
+
+  /**
+   * Qualifies LESS_THAN and GREATER_THAN to mean LESS_THAN_OR_EQUAL and
+   * GREATER_THAN_OR_EQUAL
+   */
+  EQUAL(0x0800),
+
+  /**
+   * Overlapping ranges match, and values within a range match. This symbol is
+   * valid for fields of type TYPE_TIME_RANGE and TYPE_NUMBER_RANGE. Therefore
+   * it should only be used with NIFFindByKey.
+   */
+  RANGE_OVERLAP(0x0100),
+
+  /** Use the case and accent sensitivity flags specified in the view */
+  VIEW_SENSITIVE(0x00010000),
+
+  /** Limit number of matches returned */
+  LIMIT_MATCHES(0x00040000),
+
+  /**
+   * Search key is a category with leaf entry
+   * so match the leaf as well (eg. ibm\atlanta\joe blow
+   */
+  MATCH_CATEGORYANDLEAF(0x00080000),
+
+  /** Search key is a category only and if no match then match on the leaf. */
+  MATCH_CATEGORYORLEAF(0x00100000),
+
+  /**
+   * Return only entries which hNames would disallow (requires full access set)
+   */
+  MATCH_PRIVATE_ONLY(0x00200000),
+
+  /**
+   * If the collection needs it, call NIFUpdateCollection prior to find
+   * (NIFFindByKeyExtended2 only
+   */
+  REFRESH_FIRST(0x00800000);
+
+  /** Bitmask of the comparison flags defined above */
+  public static short FIND_COMPARE_MASK = 0x08C0;
+
+  public static short toBitMask(final Set<Find> findSet) {
+    int result = 0;
+    if (findSet != null) {
+      for (final Find currFind : Find.values()) {
+        if (findSet.contains(currFind)) {
+          result = result | currFind.getValue();
+        }
+      }
+    }
+    return (short) (result & 0xffff);
+  }
+
+  public static int toBitMaskInt(final Set<Find> findSet) {
+    int result = 0;
+    if (findSet != null) {
+      for (final Find currFind : Find.values()) {
+        if (findSet.contains(currFind)) {
+          result = result | currFind.getValue();
+        }
+      }
+    }
+    return result;
+  }
+
+  private int m_val;
+
+  Find(final int val) {
+    this.m_val = val;
+  }
+
+  public int getValue() {
+    return this.m_val;
+  }
 
 }

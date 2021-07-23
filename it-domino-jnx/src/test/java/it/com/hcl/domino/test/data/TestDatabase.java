@@ -16,13 +16,6 @@
  */
 package it.com.hcl.domino.test.data;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
@@ -45,6 +39,7 @@ import com.hcl.domino.UserNamesList;
 import com.hcl.domino.crypt.DatabaseEncryptionState;
 import com.hcl.domino.crypt.EncryptionStrength;
 import com.hcl.domino.data.Database;
+import com.hcl.domino.data.DominoCollectionInfo;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.html.HtmlConversionResult;
 import com.hcl.domino.html.HtmlConvertOption;
@@ -58,267 +53,259 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDatabase extends AbstractNotesRuntimeTest {
-	private static final Logger log = Logger.getLogger(TestDatabase.class.getName());
+  private static final Logger log = Logger.getLogger(TestDatabase.class.getName());
 
-	public static final String DATABASE_LOCALENC_PATH = "DATABASE_LOCALENC_PATH";
-	
-	@Test
-	public void testOpenNamesNsf() {
-		DominoClient client = getClient();
-		Database names = client.openDatabase("names.nsf");
-		Optional<UserNamesList> namesList = names.getNamesList();
-		assertTrue(!namesList.isPresent());
-		
-		assertFalse(StringUtil.isEmpty(names.getTitle()));
-		assertFalse(StringUtil.isEmpty(names.getAbsoluteFilePath()));
-		assertFalse(StringUtil.isEmpty(names.getRelativeFilePath()));
-		assertFalse(StringUtil.isEmpty(names.getReplicaID()));
-		
-		Ref<DominoDateTime> retDataModified = new Ref<>();
-		Ref<DominoDateTime> retNonDataModified = new Ref<>();
-		names.getModifiedTime(retDataModified, retNonDataModified);
-		assertNotNull(retDataModified.get());
-		assertNotNull(retNonDataModified.get());
-	}
-	
-	@Test
-	public void testNamesNsfAcl() {
-		DominoClient client = getClient();
-		Database names = client.openDatabase("names.nsf");
-		Acl acl = names.getACL();
-		assertNotNull(acl);
-	}
-	
-	@Test
-	public void testCreateDelete() throws IOException {
-		DominoClient client = getClient();
-		Path tempDest = Files.createTempFile(getClass().getName(), ".nsf");
-		Files.delete(tempDest);
-		Database database = client.createDatabase(null, tempDest.toString(), false, false, Encryption.None);
-		assertNotNull(database);
-		database.close();
-		client.deleteDatabase(null, tempDest.toString());
-	}
-	
-	@Test
-	public void testCreateDeleteWithDesignInit() throws IOException {
-		DominoClient client = getClient();
-		Path tempDest = Files.createTempFile(getClass().getName(), ".nsf");
-		Files.delete(tempDest);
-		Database database = client.createDatabase(null, tempDest.toString(), false, true, Encryption.None);
-		assertNotNull(database);
-		try {
-			AtomicBoolean hasViews = new AtomicBoolean();
+  public static final String DATABASE_LOCALENC_PATH = "DATABASE_LOCALENC_PATH";
 
-			database.forEachCollection((colInfo, loop) -> {
-				hasViews.set(Boolean.TRUE);
-			});
-			assertTrue(hasViews.get());
-		}
-		finally {
-			database.close();
-			client.deleteDatabase(null, tempDest.toString());
-		}
-	}
-	
-	@Test
-	public void testCreateDbFromTemplate() throws IOException {
-		DominoClient client = getClient();
-		Path tempDest = Files.createTempFile(getClass().getName(), ".nsf");
-		Files.delete(tempDest);
-		
-		String sourceServerName = "";
-		String sourceFilePath = "pernames.ntf";
-		
-		Database templateDb = client.openDatabase(sourceServerName, sourceFilePath);
-		String templateDbReplicaId = templateDb.getReplicaID();
-		
-		Set<String> viewNamesInTemplate = templateDb
-				.getAllCollections()
-				.map((colInfo) -> {
-					return colInfo.getTitle();
-				})
-				.collect(Collectors.toSet());
+  @Test
+  public void testCreateDbFromTemplate() throws IOException {
+    final DominoClient client = this.getClient();
+    final Path tempDest = Files.createTempFile(this.getClass().getName(), ".nsf");
+    Files.delete(tempDest);
 
-		String templateName = templateDb.getTemplateName();
-		//use absolute filepath here, because the pernames.ntf is located in the
-		//SharedDataDirectory location configured in the Notes.ini.
-		//Unfortunately, NSFDbCreateAndCopyExtended which we need to use to
-		//create the new DB from the template does not support resolving relative
-		//database paths in this shared folder
-		sourceFilePath = templateDb.getAbsoluteFilePath();
-		templateDb.close();
-		
-		Database database = client.createDatabaseFromTemplate(sourceServerName, sourceFilePath,
-				null, tempDest.toString(), Encryption.None);
-		assertNotNull(database);
-		
-		try {
-			assertNotEquals(templateDbReplicaId, database.getReplicaID());
+    final String sourceServerName = "";
+    String sourceFilePath = "pernames.ntf";
 
-			String designTemplateName = database.getDesignTemplateName();
-			assertEquals(designTemplateName, templateName);
-			
-			//compare views between template and created DB
-			Set<String> viewNamesInNewDb = database
-					.getAllCollections()
-					.map((colInfo) -> {
-						return colInfo.getTitle();
-					})
-					.collect(Collectors.toSet());
+    final Database templateDb = client.openDatabase(sourceServerName, sourceFilePath);
+    final String templateDbReplicaId = templateDb.getReplicaID();
 
-			assertTrue(!viewNamesInNewDb.isEmpty());
+    final Set<String> viewNamesInTemplate = templateDb
+        .getAllCollections()
+        .map(DominoCollectionInfo::getTitle)
+        .collect(Collectors.toSet());
 
-			assertEquals(viewNamesInTemplate, viewNamesInNewDb);
-		}
-		finally {
-			database.close();
-			client.deleteDatabase(null, tempDest.toString());
-		}
-	}
-	
-	@Test
-	public void testCreateDbReplica() throws Exception {
-		DominoClient client = getClient();
-		
-		withResourceDxl("/dxl/testCreateDbReplica", testDb -> {
-			String dbNamesReplicaId = testDb.getReplicaID();
-			String testDbPath = testDb.getAbsoluteFilePath();
-			testDb.close();
-			
-			Path tempDest = Files.createTempFile(getClass().getName(), ".nsf");
-			Files.delete(tempDest);
-			
-			Database database = client.createDatabaseReplica("", testDbPath,
-					"", tempDest.toString(), Encryption.None);
-			assertNotNull(database);
-			try {
-				assertEquals(dbNamesReplicaId, database.getReplicaID());
-				
-				AtomicBoolean hasViews = new AtomicBoolean();
+    final String templateName = templateDb.getTemplateName();
+    // use absolute filepath here, because the pernames.ntf is located in the
+    // SharedDataDirectory location configured in the Notes.ini.
+    // Unfortunately, NSFDbCreateAndCopyExtended which we need to use to
+    // create the new DB from the template does not support resolving relative
+    // database paths in this shared folder
+    sourceFilePath = templateDb.getAbsoluteFilePath();
+    templateDb.close();
 
-				database.forEachCollection((colInfo, loop) -> {
-					hasViews.set(Boolean.TRUE);
-					loop.stop();
-				});
-				assertTrue(hasViews.get());
-			}
-			finally {
-				database.close();
-				client.deleteDatabase(null, tempDest.toString());
-			}
-		});
-		
-	}
-	
-	@Test
-	public void testCreateDbReplicaLocalNames() throws Exception {
-		DominoClient client = getClient();
-		
-		Database testDb = client.openDatabase("names.nsf");
-		String dbNamesReplicaId = testDb.getReplicaID();
-		String testDbPath = testDb.getAbsoluteFilePath();
-		testDb.close();
-		
-		Path tempDest = Files.createTempFile(getClass().getName(), ".nsf");
-		Files.delete(tempDest);
-		
-		Database database = client.createDatabaseReplica("", testDbPath,
-				"", tempDest.toString(), Encryption.None);
-		assertNotNull(database);
-		try {
-			assertEquals(dbNamesReplicaId, database.getReplicaID());
-			
-			AtomicBoolean hasViews = new AtomicBoolean();
+    final Database database = client.createDatabaseFromTemplate(sourceServerName, sourceFilePath,
+        null, tempDest.toString(), Encryption.None);
+    Assertions.assertNotNull(database);
 
-			database.forEachCollection((colInfo, loop) -> {
-				hasViews.set(Boolean.TRUE);
-				loop.stop();
-			});
-			assertTrue(hasViews.get());
-		}
-		finally {
-			database.close();
-			client.deleteDatabase(null, tempDest.toString());
-		}
-		
-	}
-	
-	@Test
-	public void testMultiOpen() throws Exception {
-		DominoClient client = getClient();
-		
-		ExecutorService exec = Executors.newFixedThreadPool(50, client.getThreadFactory());
-		for(int i = 0; i < 50; i++) {
-			final int j = i;
-			exec.submit(() -> {
-				Database names = client.openDatabase("doclbs7.ntf"); // Likely to be in Shared
-				names.queryDocuments().forEachDocument(0, Integer.MAX_VALUE, (doc, loop) -> {
-					MimeWriter w = client.getMimeWriter();
-					w.convertToMime(doc,
-						w.createRichTextMimeConversionSettings()
-							.setMessageContentEncoding(MessageContentEncoding.TEXT_HTML_WITH_IMAGES_ATTACHMENTS)
-					);
-					
-					HtmlConversionResult html = client.getRichTextHtmlConverter()
-						.render(doc)
-						.option(HtmlConvertOption.DisablePassThruHTML, "1")
-						.convert();
-					
-					try {
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					
-					log.info(j + " - " + html);
-				});
-			});
-		}
-		exec.shutdown();
-		exec.awaitTermination(10, TimeUnit.SECONDS);
-	}
-	
-	@Test
-	public void testMultiOpenNonexistent() throws Exception {
-		DominoClient client = getClient();
-		
-		ExecutorService exec = Executors.newFixedThreadPool(50, client.getThreadFactory());
-		for(int i = 0; i < 50; i++) {
-			exec.submit(() -> {
-				assertThrows(DominoException.class, () -> client.openDatabase("aaabbbbbcccccssssssddddd.nsf")); // Not too likely to exist
-			});
-		}
-		exec.shutdown();
-		exec.awaitTermination(10, TimeUnit.SECONDS);
-	}
-	
-	@Test
-	@EnabledIfEnvironmentVariable(named = DATABASE_LOCALENC_PATH, matches = ".+")
-	public void testLocalEncryption() throws Exception {
-		String localencpath = System.getenv(DATABASE_LOCALENC_PATH);
-		DominoClient client = getClient();
-		
-		Database localenc = client.openDatabase(localencpath);
-		assertNotNull(localenc);
-		assertTrue(localenc.isLocallyEncrypted());
-		
-		Database.EncryptionInfo info = localenc.getLocalEncryptionInfo();
-		assertNotNull(info);
-		assertEquals(DatabaseEncryptionState.ENCRYPTED, info.getState().orElse(null));
-		assertEquals(EncryptionStrength.AES128, info.getStrength().orElse(null));
-	}
-	
-	@Test
-	public void testEffectiveAccess() throws Exception {
-		DominoClient client = getClient();
-		
-		Database names = client.openDatabase("names.nsf");
-		assertNotNull(names);
-		
-		Database.AccessInfo info = names.getEffectiveAccessInfo();
-		assertNotNull(info);
-		assertNotNull(info.getAclLevel());
-		assertNotNull(info.getAclFlags());
-	}
+    try {
+      Assertions.assertNotEquals(templateDbReplicaId, database.getReplicaID());
+
+      final String designTemplateName = database.getDesignTemplateName();
+      Assertions.assertEquals(designTemplateName, templateName);
+
+      // compare views between template and created DB
+      final Set<String> viewNamesInNewDb = database
+          .getAllCollections()
+          .map(DominoCollectionInfo::getTitle)
+          .collect(Collectors.toSet());
+
+      Assertions.assertTrue(!viewNamesInNewDb.isEmpty());
+
+      Assertions.assertEquals(viewNamesInTemplate, viewNamesInNewDb);
+    } finally {
+      database.close();
+      client.deleteDatabase(null, tempDest.toString());
+    }
+  }
+
+  @Test
+  public void testCreateDbReplica() throws Exception {
+    final DominoClient client = this.getClient();
+
+    this.withResourceDxl("/dxl/testCreateDbReplica", testDb -> {
+      final String dbNamesReplicaId = testDb.getReplicaID();
+      final String testDbPath = testDb.getAbsoluteFilePath();
+      testDb.close();
+
+      final Path tempDest = Files.createTempFile(this.getClass().getName(), ".nsf");
+      Files.delete(tempDest);
+
+      final Database database = client.createDatabaseReplica("", testDbPath,
+          "", tempDest.toString(), Encryption.None);
+      Assertions.assertNotNull(database);
+      try {
+        Assertions.assertEquals(dbNamesReplicaId, database.getReplicaID());
+
+        final AtomicBoolean hasViews = new AtomicBoolean();
+
+        database.forEachCollection((colInfo, loop) -> {
+          hasViews.set(Boolean.TRUE);
+          loop.stop();
+        });
+        Assertions.assertTrue(hasViews.get());
+      } finally {
+        database.close();
+        client.deleteDatabase(null, tempDest.toString());
+      }
+    });
+
+  }
+
+  @Test
+  public void testCreateDbReplicaLocalNames() throws Exception {
+    final DominoClient client = this.getClient();
+
+    final Database testDb = client.openDatabase("names.nsf");
+    final String dbNamesReplicaId = testDb.getReplicaID();
+    final String testDbPath = testDb.getAbsoluteFilePath();
+    testDb.close();
+
+    final Path tempDest = Files.createTempFile(this.getClass().getName(), ".nsf");
+    Files.delete(tempDest);
+
+    final Database database = client.createDatabaseReplica("", testDbPath,
+        "", tempDest.toString(), Encryption.None);
+    Assertions.assertNotNull(database);
+    try {
+      Assertions.assertEquals(dbNamesReplicaId, database.getReplicaID());
+
+      final AtomicBoolean hasViews = new AtomicBoolean();
+
+      database.forEachCollection((colInfo, loop) -> {
+        hasViews.set(Boolean.TRUE);
+        loop.stop();
+      });
+      Assertions.assertTrue(hasViews.get());
+    } finally {
+      database.close();
+      client.deleteDatabase(null, tempDest.toString());
+    }
+
+  }
+
+  @Test
+  public void testCreateDelete() throws IOException {
+    final DominoClient client = this.getClient();
+    final Path tempDest = Files.createTempFile(this.getClass().getName(), ".nsf");
+    Files.delete(tempDest);
+    final Database database = client.createDatabase(null, tempDest.toString(), false, false, Encryption.None);
+    Assertions.assertNotNull(database);
+    database.close();
+    client.deleteDatabase(null, tempDest.toString());
+  }
+
+  @Test
+  public void testCreateDeleteWithDesignInit() throws IOException {
+    final DominoClient client = this.getClient();
+    final Path tempDest = Files.createTempFile(this.getClass().getName(), ".nsf");
+    Files.delete(tempDest);
+    final Database database = client.createDatabase(null, tempDest.toString(), false, true, Encryption.None);
+    Assertions.assertNotNull(database);
+    try {
+      final AtomicBoolean hasViews = new AtomicBoolean();
+
+      database.forEachCollection((colInfo, loop) -> {
+        hasViews.set(Boolean.TRUE);
+      });
+      Assertions.assertTrue(hasViews.get());
+    } finally {
+      database.close();
+      client.deleteDatabase(null, tempDest.toString());
+    }
+  }
+
+  @Test
+  public void testEffectiveAccess() throws Exception {
+    final DominoClient client = this.getClient();
+
+    final Database names = client.openDatabase("names.nsf");
+    Assertions.assertNotNull(names);
+
+    final Database.AccessInfo info = names.getEffectiveAccessInfo();
+    Assertions.assertNotNull(info);
+    Assertions.assertNotNull(info.getAclLevel());
+    Assertions.assertNotNull(info.getAclFlags());
+  }
+
+  @Test
+  @EnabledIfEnvironmentVariable(named = TestDatabase.DATABASE_LOCALENC_PATH, matches = ".+")
+  public void testLocalEncryption() throws Exception {
+    final String localencpath = System.getenv(TestDatabase.DATABASE_LOCALENC_PATH);
+    final DominoClient client = this.getClient();
+
+    final Database localenc = client.openDatabase(localencpath);
+    Assertions.assertNotNull(localenc);
+    Assertions.assertTrue(localenc.isLocallyEncrypted());
+
+    final Database.EncryptionInfo info = localenc.getLocalEncryptionInfo();
+    Assertions.assertNotNull(info);
+    Assertions.assertEquals(DatabaseEncryptionState.ENCRYPTED, info.getState().orElse(null));
+    Assertions.assertEquals(EncryptionStrength.AES128, info.getStrength().orElse(null));
+  }
+
+  @Test
+  public void testMultiOpen() throws Exception {
+    final DominoClient client = this.getClient();
+
+    final ExecutorService exec = Executors.newFixedThreadPool(50, client.getThreadFactory());
+    for (int i = 0; i < 50; i++) {
+      final int j = i;
+      exec.submit(() -> {
+        final Database names = client.openDatabase("doclbs7.ntf"); // Likely to be in Shared
+        names.queryDocuments().forEachDocument(0, Integer.MAX_VALUE, (doc, loop) -> {
+          final MimeWriter w = client.getMimeWriter();
+          w.convertToMime(doc,
+              w.createRichTextMimeConversionSettings()
+                  .setMessageContentEncoding(MessageContentEncoding.TEXT_HTML_WITH_IMAGES_ATTACHMENTS));
+
+          final HtmlConversionResult html = client.getRichTextHtmlConverter()
+              .render(doc)
+              .option(HtmlConvertOption.DisablePassThruHTML, "1")
+              .convert();
+
+          try {
+            Thread.sleep(5000);
+          } catch (final InterruptedException e) {
+            e.printStackTrace();
+          }
+
+          TestDatabase.log.info(j + " - " + html);
+        });
+      });
+    }
+    exec.shutdown();
+    exec.awaitTermination(10, TimeUnit.SECONDS);
+  }
+
+  @Test
+  public void testMultiOpenNonexistent() throws Exception {
+    final DominoClient client = this.getClient();
+
+    final ExecutorService exec = Executors.newFixedThreadPool(50, client.getThreadFactory());
+    for (int i = 0; i < 50; i++) {
+      exec.submit(() -> {
+        Assertions.assertThrows(DominoException.class, () -> client.openDatabase("aaabbbbbcccccssssssddddd.nsf")); // Not too likely
+                                                                                                                   // to exist
+      });
+    }
+    exec.shutdown();
+    exec.awaitTermination(10, TimeUnit.SECONDS);
+  }
+
+  @Test
+  public void testNamesNsfAcl() {
+    final DominoClient client = this.getClient();
+    final Database names = client.openDatabase("names.nsf");
+    final Acl acl = names.getACL();
+    Assertions.assertNotNull(acl);
+  }
+
+  @Test
+  public void testOpenNamesNsf() {
+    final DominoClient client = this.getClient();
+    final Database names = client.openDatabase("names.nsf");
+    final Optional<UserNamesList> namesList = names.getNamesList();
+    Assertions.assertTrue(!namesList.isPresent());
+
+    Assertions.assertFalse(StringUtil.isEmpty(names.getTitle()));
+    Assertions.assertFalse(StringUtil.isEmpty(names.getAbsoluteFilePath()));
+    Assertions.assertFalse(StringUtil.isEmpty(names.getRelativeFilePath()));
+    Assertions.assertFalse(StringUtil.isEmpty(names.getReplicaID()));
+
+    final Ref<DominoDateTime> retDataModified = new Ref<>();
+    final Ref<DominoDateTime> retNonDataModified = new Ref<>();
+    names.getModifiedTime(retDataModified, retNonDataModified);
+    Assertions.assertNotNull(retDataModified.get());
+    Assertions.assertNotNull(retNonDataModified.get());
+  }
 }

@@ -16,33 +16,35 @@
  */
 package com.hcl.domino.commons.org.apache.commons.mail;
 
-import jakarta.activation.DataSource;
 import java.io.IOException;
+
+import jakarta.activation.DataSource;
 
 /**
  * Creates a {@code DataSource} based on an URL.
  *
  * @since 1.3
  */
-public interface DataSourceResolver
-{
-    /**
-     * Resolves the given resource location to a {@code DataSource}.
-     *
-     * @param resourceLocation the location of the resource
-     * @return the {@code DataSource}
-     * @throws IOException the resource was not found
-     */
-    DataSource resolve(final String resourceLocation) throws IOException;
+public interface DataSourceResolver {
+  /**
+   * Resolves the given resource location to a {@code DataSource}.
+   *
+   * @param resourceLocation the location of the resource
+   * @return the {@code DataSource}
+   * @throws IOException the resource was not found
+   */
+  DataSource resolve(final String resourceLocation) throws IOException;
 
-    /**
-     * Resolves the given resource location to a {@code DataSource}.
-     *
-     * @param resourceLocation the location of the resource
-     * @param isLenient shall we ignore resources not found or complain with an exception?
-     * @return the data source containing the resource or null if the resource was not found in lenient mode
-     * @throws IOException resolving the resource failed
-     */
-    DataSource resolve(final String resourceLocation, final boolean isLenient)
-        throws IOException;
+  /**
+   * Resolves the given resource location to a {@code DataSource}.
+   *
+   * @param resourceLocation the location of the resource
+   * @param isLenient        shall we ignore resources not found or complain with
+   *                         an exception?
+   * @return the data source containing the resource or null if the resource was
+   *         not found in lenient mode
+   * @throws IOException resolving the resource failed
+   */
+  DataSource resolve(final String resourceLocation, final boolean isLenient)
+      throws IOException;
 }

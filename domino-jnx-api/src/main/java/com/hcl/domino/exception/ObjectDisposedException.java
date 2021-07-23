@@ -23,35 +23,34 @@ import com.hcl.domino.DominoException;
 /**
  * Exception used to indicate an implementation-specific state of a backend
  * object having been exposed when access is attempted.
- * 
- * @author Jesse Gallagher
  *
+ * @author Jesse Gallagher
  */
 public class ObjectDisposedException extends DominoException {
-	private static final long serialVersionUID = 1L;
-	
-	public ObjectDisposedException() {
-		this((Object)null);
-	}
-	
-	public ObjectDisposedException(Object obj) {
-		this(0, MessageFormat.format("{0} is already disposed", obj == null ? "Object" : obj.getClass().getSimpleName()));
-	}
+  private static final long serialVersionUID = 1L;
 
-	public ObjectDisposedException(int status, String message) {
-		super(status, message);
-	}
+  public ObjectDisposedException() {
+    this((Object) null);
+  }
 
-	public ObjectDisposedException(int status, String message, Throwable cause) {
-		super(status, message, cause);
-	}
+  public ObjectDisposedException(final int status, final String message) {
+    super(status, message);
+  }
 
-	public ObjectDisposedException(String msg) {
-		super(msg);
-	}
+  public ObjectDisposedException(final int status, final String message, final Throwable cause) {
+    super(status, message, cause);
+  }
 
-	public ObjectDisposedException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public ObjectDisposedException(final Object obj) {
+    this(0, MessageFormat.format("{0} is already disposed", obj == null ? "Object" : obj.getClass().getSimpleName()));
+  }
+
+  public ObjectDisposedException(final String msg) {
+    super(msg);
+  }
+
+  public ObjectDisposedException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
 
 }

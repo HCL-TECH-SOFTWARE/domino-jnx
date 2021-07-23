@@ -20,22 +20,26 @@ import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 
 public enum FieldListDisplayDelimiter implements INumberEnum<Short> {
-	SPACE(RichTextConstants.LDDELIM_SPACE),
+  SPACE(RichTextConstants.LDDELIM_SPACE),
 
-	COMMA(RichTextConstants.LDDELIM_COMMA),
-	SEMICOLON(RichTextConstants.LDDELIM_SEMICOLON),
-	NEWLINE(RichTextConstants.LDDELIM_NEWLINE),
-	BLANKLINE(RichTextConstants.LDDELIM_BLANKLINE)
-	;
-	private final short value;
-	FieldListDisplayDelimiter(short value) { this.value = value; }
-	
-	@Override
-	public long getLongValue() {
-		return value;
-	}
-	@Override
-	public Short getValue() {
-		return value;
-	}
+  COMMA(RichTextConstants.LDDELIM_COMMA),
+  SEMICOLON(RichTextConstants.LDDELIM_SEMICOLON),
+  NEWLINE(RichTextConstants.LDDELIM_NEWLINE),
+  BLANKLINE(RichTextConstants.LDDELIM_BLANKLINE);
+
+  private final short value;
+
+  FieldListDisplayDelimiter(final short value) {
+    this.value = value;
+  }
+
+  @Override
+  public long getLongValue() {
+    return this.value;
+  }
+
+  @Override
+  public Short getValue() {
+    return this.value;
+  }
 }

@@ -14,15 +14,15 @@
  * under the License.
  * ==========================================================================
  */
- package com.hcl.domino.data;
+package com.hcl.domino.data;
 
 /**
  * A {@link DominoDateRange} represents a range of dates and times.
  */
 public interface DominoDateRange extends DominoTimeType {
-	
-	DominoDateTime getStartDateTime();
-	
-	DominoDateTime getEndDateTime();
-	
+
+  DominoDateTime getEndDateTime();
+
+  DominoDateTime getStartDateTime();
+
 }

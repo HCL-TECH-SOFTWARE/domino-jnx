@@ -30,65 +30,72 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.WSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="CDFIELDHINT",
-	members={
-		@StructureMember(name="Header", type=WSIG.class),
-		@StructureMember(name="HintTextLength", type=short.class, unsigned=true),
-		@StructureMember(name="Flags", type=CDFieldHint.Flag.class, bitfield=true),
-		@StructureMember(name="Spare", type=short.class),
-		@StructureMember(name="Spare2", type=short.class)
-	}
-)
+@StructureDefinition(name = "CDFIELDHINT", members = {
+    @StructureMember(name = "Header", type = WSIG.class),
+    @StructureMember(name = "HintTextLength", type = short.class, unsigned = true),
+    @StructureMember(name = "Flags", type = CDFieldHint.Flag.class, bitfield = true),
+    @StructureMember(name = "Spare", type = short.class),
+    @StructureMember(name = "Spare2", type = short.class)
+})
 public interface CDFieldHint extends RichTextRecord<WSIG> {
-	enum Flag implements INumberEnum<Short> {
-		/** CDFIELDHINT record contains hint information for limited object types in a Rich Text Lite field. */
-		LIMITED(RichTextConstants.FIELDHINT_LIMITED),
-		;
-		private final short value;
-		Flag(short value) { this.value = value; }
-		
-		@Override
-		public long getLongValue() {
-			return value;
-		}
-		@Override
-		public Short getValue() {
-			return value;
-		}
-	}
-	
-	@StructureGetter("Header")
-	@Override
-	WSIG getHeader();
-	
-	@StructureGetter("HintTextLength")
-	int getHintTextLength();
-	@StructureSetter("HintTextLength")
-	CDFieldHint setHintTextLength(int len);
-	
-	@StructureGetter("Flags")
-	Set<Flag> getFlags();
-	@StructureSetter("Flags")
-	CDFieldHint setFlags(Collection<Flag> flags);
-	
-	default String getHintText() {
-		ByteBuffer buf = getVariableData();
-		int len = getHintTextLength();
-		byte[] lmbcs = new byte[len];
-		buf.get(lmbcs);
-		return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
-	}
-	default CDFieldHint setHintText(String text) {
-		byte[] lmbcs = text == null ? new byte[0] : text.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
-		setHintTextLength(lmbcs.length);
-		resizeVariableData(lmbcs.length);
-		ByteBuffer buf = getVariableData();
-		buf.put(lmbcs);
-		return this;
-	}
+  enum Flag implements INumberEnum<Short> {
+    /**
+     * CDFIELDHINT record contains hint information for limited object types in a
+     * Rich Text Lite field.
+     */
+    LIMITED(RichTextConstants.FIELDHINT_LIMITED),
+    ;
+
+    private final short value;
+
+    Flag(final short value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Short getValue() {
+      return this.value;
+    }
+  }
+
+  @StructureGetter("Flags")
+  Set<Flag> getFlags();
+
+  @StructureGetter("Header")
+  @Override
+  WSIG getHeader();
+
+  default String getHintText() {
+    final ByteBuffer buf = this.getVariableData();
+    final int len = this.getHintTextLength();
+    final byte[] lmbcs = new byte[len];
+    buf.get(lmbcs);
+    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+  }
+
+  @StructureGetter("HintTextLength")
+  int getHintTextLength();
+
+  @StructureSetter("Flags")
+  CDFieldHint setFlags(Collection<Flag> flags);
+
+  default CDFieldHint setHintText(final String text) {
+    final byte[] lmbcs = text == null ? new byte[0] : text.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    this.setHintTextLength(lmbcs.length);
+    this.resizeVariableData(lmbcs.length);
+    final ByteBuffer buf = this.getVariableData();
+    buf.put(lmbcs);
+    return this;
+  }
+
+  @StructureSetter("HintTextLength")
+  CDFieldHint setHintTextLength(int len);
 }

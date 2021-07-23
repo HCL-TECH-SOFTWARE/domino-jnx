@@ -16,12 +16,6 @@
  */
 package it.com.hcl.domino.test.data;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-
 import java.time.Instant;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -32,6 +26,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
@@ -60,272 +55,275 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 @SuppressWarnings("nls")
 public class TestReplicationUtils extends AbstractNotesRuntimeTest {
 
-	private void debug(Object msg) {
-//		System.out.println(msg);
-	}
+  private void debug(final Object msg) {
+    // System.out.println(msg);
+  }
 
-//	@Test
-	public void testReplicationHistory() throws Exception {
-		DominoClient client = getClient();
-		Replication replication = client.getReplication();
-		Database db = client.openDatabase("fakenames.nsf");
-		List<ReplicationHistorySummary> history = replication.getReplicationHistory(db, EnumSet.of(ReplicationHistoryFlags.SORT_BY_DATE));
-		for (ReplicationHistorySummary currEntry : history) {
-			System.out.println(currEntry);
-		}
-	}
-	
-	@Test
-	public void testReplicationInfo() throws Exception {
-		withTempDb((database) -> {
-			DominoClient client = getClient();
-			Replication replication = client.getReplication();
-			
-			ReplicaInfo replicaInfo = replication.getReplicaInfo(database);
-			
-			assertEquals(Priority.MEDIUM, replicaInfo.getPriority());
+  /**
+   * This test uses Replication.getDocuments(...) to get a stream of documents
+   * with
+   * changes since a specified sequence numbers.
+   * 
+   * @throws Exception in case of errors
+   */
+  @Test
+  public void testGetDocuments() throws Exception {
+    this.withTempDb(database -> {
+      final DominoClient client = this.getClient();
+      final Replication replication = client.getReplication();
 
-			debug(replicaInfo);
+      int nrOfDocs = 40;
 
-			//check defaults for new database
-			assertEquals(Priority.MEDIUM, replicaInfo.getPriority());
-			assertNull(replicaInfo.getCutOff().orElse(null));
-			assertEquals(90, replicaInfo.getCutOffInterval());
-			
-			//modify replica info
-			
-			Priority newPrio = Priority.HIGH;
-			Instant newCutOff = Instant.now().minus(1, ChronoUnit.DAYS).with(ChronoField.MILLI_OF_SECOND, 0);
-			int newCutOffInterval = 35;
+      final List<Pair<String, Integer>> unidsAndNoteIds = AbstractNotesRuntimeTest.generateNABPersons(database, nrOfDocs);
 
-			replicaInfo.setPriority(newPrio);
-			replicaInfo.setCutOff(newCutOff);
-			replicaInfo.setCutOffInterval(newCutOffInterval);
-			
-			//compare the changes
-			assertEquals(newPrio, replicaInfo.getPriority());
-			assertEquals(newCutOffInterval, replicaInfo.getCutOffInterval());
-			assertNotNull(replicaInfo.getCutOff().orElse(null));
-			assertEquals(newCutOff, replicaInfo.getCutOff().get().toOffsetDateTime().toInstant());
-			
-			String oldReplId = replicaInfo.getReplicaID();
-			assertNotNull(oldReplId);
-			assertNotEquals("", oldReplId);
-			
-			String newReplId = replicaInfo.setNewReplicaId();
-			assertEquals(newReplId, replicaInfo.getReplicaID());
-			
-			replication.setReplicaInfo(database, replicaInfo);
-			
-			//reload replica info
-			ReplicaInfo replicaInfoChanged = replication.getReplicaInfo(database);
-			debug(replicaInfoChanged);
+      // add a bogus first entry to check if a load error is returned
+      unidsAndNoteIds.add(0, new Pair<>("012345678901234567890123456789012", 1000200));
 
-			assertEquals(newPrio, replicaInfoChanged.getPriority());
-			assertEquals(newCutOffInterval, replicaInfoChanged.getCutOffInterval());
-			assertNotNull(replicaInfoChanged.getCutOff().orElse(null));
-			assertEquals(newCutOff, replicaInfoChanged.getCutOff().get().toOffsetDateTime().toInstant());
-			assertEquals(newReplId, replicaInfo.getReplicaID());
-		});
-	}
-	
-	/**
-	 * This test uses Replication.getDocuments(...) to get a stream of documents with
-	 * changes since a specified sequence numbers.
-	 * 
-	 * @throws Exception in case of errors
-	 */
-	@Test
-	public void testGetDocuments() throws Exception {
-		withTempDb((database) -> {
-			DominoClient client = getClient();
-			Replication replication = client.getReplication();
-			
-			int nrOfDocs = 40;
-			
-			List<Pair<String,Integer>> unidsAndNoteIds = generateNABPersons(database, nrOfDocs);
-			
-			//add a bogus first entry to check if a load error is returned
-			unidsAndNoteIds.add(0, new Pair<>("012345678901234567890123456789012", 1000200));
-			
-			nrOfDocs = unidsAndNoteIds.size();
-			
-			List<Integer> noteIds = unidsAndNoteIds.stream().map((pair) -> {return pair.getValue2();}).collect(Collectors.toList());
-			int[] noteIdsArr = new int[noteIds.size()];
-			for (int i=0; i<nrOfDocs; i++) {
-				noteIdsArr[i] = noteIds.get(i).intValue();
-			}
-			List<String> unids = unidsAndNoteIds.stream().map((pair) -> {return pair.getValue1();}).collect(Collectors.toList());
-			
-			@SuppressWarnings("unchecked")
-			Set<OpenDocumentMode>[] docOpenFlags = new Set[nrOfDocs];
-			for (int i=0; i<nrOfDocs; i++) {
-				docOpenFlags[i] = EnumSet.noneOf(OpenDocumentMode.class);
-			}
+      nrOfDocs = unidsAndNoteIds.size();
 
-			Set<GetDocumentsMode> controlFlags = EnumSet.of(GetDocumentsMode.PRESERVE_ORDER,
-					GetDocumentsMode.SEND_OBJECTS,
-					GetDocumentsMode.GET_FOLDER_ADDS);
+      final List<Integer> noteIds = unidsAndNoteIds.stream().map((pair) -> {
+        return pair.getValue2();
+      }).collect(Collectors.toList());
+      final int[] noteIdsArr = new int[noteIds.size()];
+      for (int i = 0; i < nrOfDocs; i++) {
+        noteIdsArr[i] = noteIds.get(i).intValue();
+      }
+      final List<String> unids = unidsAndNoteIds.stream().map((pair) -> {
+        return pair.getValue1();
+      }).collect(Collectors.toList());
 
-			int[] seqNumAfterCreation = new int[nrOfDocs];
-			
-			//collect the initial sequence numbers (probably 1)
-			for (int i=1; i<nrOfDocs; i++) {
-				Document doc = database.getDocumentById(noteIds.get(i)).get();
-				seqNumAfterCreation[i] = doc.getSequenceNumber();
-			}
-			
-			{
-				// use [0, 0, ...] as sequence numbers to get all doc items
-				int[] sinceSeqNumArr = new int[nrOfDocs];
+      @SuppressWarnings("unchecked")
+      final Set<OpenDocumentMode>[] docOpenFlags = new Set[nrOfDocs];
+      for (int i = 0; i < nrOfDocs; i++) {
+        docOpenFlags[i] = EnumSet.noneOf(OpenDocumentMode.class);
+      }
 
-				Database objectDb = null;
+      final Set<GetDocumentsMode> controlFlags = EnumSet.of(GetDocumentsMode.PRESERVE_ORDER,
+          GetDocumentsMode.SEND_OBJECTS,
+          GetDocumentsMode.GET_FOLDER_ADDS);
 
-				IGetDocumentsCallback getDocumentsCallback = totalSize -> {
-					debug("gettingDocuments: "+totalSize);
-					
-					return Action.CONTINUE;
-				};
+      final int[] seqNumAfterCreation = new int[nrOfDocs];
 
-				AtomicInteger receivedDocCount = new AtomicInteger();
-				
-				IDocumentOpenCallback docOpenCallback = (doc, noteId, status) -> {
-					assertEquals(noteIds.get(receivedDocCount.get()), noteId);
-					
-					if (receivedDocCount.get() == 0) {
-						//check for bogus entry
-						assertNull(doc);
-						assertEquals(551, status.get().getId());
-					}
-					else {
-						assertNotNull(doc);
-						assertFalse(status.isPresent());
-						assertEquals(unids.get(receivedDocCount.get()), doc.getUNID());
-						
-						//check if doc contains all items with type
-						Item itm = doc.getFirstItem("Lastname").orElse(null);
-						assertEquals(ItemDataType.TYPE_TEXT, itm.getType());
-						
-						Item itm2 = doc.getFirstItem("NewField").orElse(null);
-						assertNull(itm2);
-					}
-					
-					debug("documentOpened: "+doc+", noteId="+noteId+", status="+status);
-					
-					receivedDocCount.incrementAndGet();
-					
-					return Action.CONTINUE;
-				};
-				
-				IObjectAllocCallback objectAllocCallback = (doc, oldRRV, status, objectSize) -> {
-					debug("objectAllocated: doc="+doc+", oldRRV="+oldRRV+", status="+status+", objectSize="+objectSize);
+      // collect the initial sequence numbers (probably 1)
+      for (int i = 1; i < nrOfDocs; i++) {
+        final Document doc = database.getDocumentById(noteIds.get(i)).get();
+        seqNumAfterCreation[i] = doc.getSequenceNumber();
+      }
 
-					return Action.CONTINUE;
-				};
-				
-				IObjectWriteCallback objectWriteCallback = (doc, oldRRV, status, buffer, bufferSize) -> {
-					debug("objectChunkWritten: doc="+doc+", oldRRV="+oldRRV+", status="+status+", buffersize="+bufferSize);
+      {
+        // use [0, 0, ...] as sequence numbers to get all doc items
+        final int[] sinceSeqNumArr = new int[nrOfDocs];
 
-					return Action.CONTINUE;
-				};
-				
-				DominoDateTime folderSinceTime = null;
-				
-				IFolderAddCallback folderAddCallback = unid -> {
-					debug("addedToFolder: unid="+unid);
-					
-					return Action.CONTINUE;
-				};
-				
-				replication.getDocuments(database, noteIdsArr, docOpenFlags, sinceSeqNumArr, controlFlags,
-						objectDb, getDocumentsCallback, docOpenCallback, objectAllocCallback,
-						objectWriteCallback, folderSinceTime, folderAddCallback);
-				
-			}
+        final Database objectDb = null;
 
-			debug("Modifying all documents");
-			
-			for (int i=1; i<nrOfDocs; i++) {
-				Document doc = database.getDocumentById(noteIds.get(i)).get();
-				doc.replaceItemValue("NewField", "123");
-				//bumps the doc sequence number
-				doc.save();
-			}
-			
-			//now lets run the read operation again but this time we just
-			//want to know which items have changed since creating the documents
-			
-			debug("Fetching diff from creation with sequence numbers: "+Arrays.toString(seqNumAfterCreation));
+        final IGetDocumentsCallback getDocumentsCallback = totalSize -> {
+          this.debug("gettingDocuments: " + totalSize);
 
-			{
-				//first run, use seqNum = 0 to get full documents
-				int[] sinceSeqNumArr = seqNumAfterCreation;
+          return Action.CONTINUE;
+        };
 
-				Database objectDb = null;
+        final AtomicInteger receivedDocCount = new AtomicInteger();
 
-				IGetDocumentsCallback getDocumentsCallback = totalSize -> {
-					debug("gettingDocuments: "+totalSize);
-					
-					return Action.CONTINUE;
-				};
+        final IDocumentOpenCallback docOpenCallback = (doc, noteId, status) -> {
+          Assertions.assertEquals(noteIds.get(receivedDocCount.get()), noteId);
 
-				AtomicInteger receivedDocCount = new AtomicInteger();
-				
-				IDocumentOpenCallback docOpenCallback = (doc, noteId, status) -> {
-					assertEquals(noteIds.get(receivedDocCount.get()), noteId);
-					
-					if (receivedDocCount.get() == 0) {
-						//check for bogus entry
-						assertNull(doc);
-						assertEquals(551, status.get().getId());
-					}
-					else {
-						assertNotNull(doc);
-						assertFalse(status.isPresent());
-						assertEquals(unids.get(receivedDocCount.get()), doc.getUNID());
-					
-						//the doc is expected to just contain TYPE_UNAVAILABLE typed
-						//items for items that have not changed since the specified sequence number
-						Item itm = doc.getFirstItem("Lastname").orElse(null);
-						assertEquals(ItemDataType.TYPE_UNAVAILABLE, itm.getType());
+          if (receivedDocCount.get() == 0) {
+            // check for bogus entry
+            Assertions.assertNull(doc);
+            Assertions.assertEquals(551, status.get().getId());
+          } else {
+            Assertions.assertNotNull(doc);
+            Assertions.assertFalse(status.isPresent());
+            Assertions.assertEquals(unids.get(receivedDocCount.get()), doc.getUNID());
 
-						Item itm2 = doc.getFirstItem("NewField").orElse(null);
-						assertEquals(ItemDataType.TYPE_TEXT, itm2.getType());
-					}
-					
-					debug("documentOpened: "+doc+", noteId="+noteId+", status="+status);
-					
-					receivedDocCount.incrementAndGet();
-					
-					return Action.CONTINUE;
-				};
-				
-				IObjectAllocCallback objectAllocCallback = (doc, oldRRV, status, objectSize) -> {
-					debug("objectAllocated: doc="+doc+", oldRRV="+oldRRV+", status="+status+", objectSize="+objectSize);
+            // check if doc contains all items with type
+            final Item itm = doc.getFirstItem("Lastname").orElse(null);
+            Assertions.assertEquals(ItemDataType.TYPE_TEXT, itm.getType());
 
-					return Action.CONTINUE;
-				};
-				
-				IObjectWriteCallback objectWriteCallback = (doc, oldRRV, status, buffer, bufferSize) -> {
-					debug("objectChunkWritten: doc="+doc+", oldRRV="+oldRRV+", status="+status+", buffersize="+bufferSize);
+            final Item itm2 = doc.getFirstItem("NewField").orElse(null);
+            Assertions.assertNull(itm2);
+          }
 
-					return Action.CONTINUE;
-				};
-				
-				DominoDateTime folderSinceTime = null;
-				
-				IFolderAddCallback folderAddCallback = unid -> {
-					debug("addedToFolder: unid="+unid);
-					
-					return Action.CONTINUE;
-				};
-				
-				replication.getDocuments(database, noteIdsArr, docOpenFlags, sinceSeqNumArr, controlFlags,
-						objectDb, getDocumentsCallback, docOpenCallback, objectAllocCallback,
-						objectWriteCallback, folderSinceTime, folderAddCallback);
+          this.debug("documentOpened: " + doc + ", noteId=" + noteId + ", status=" + status);
 
-			}
-		}
-		);
-	}
+          receivedDocCount.incrementAndGet();
+
+          return Action.CONTINUE;
+        };
+
+        final IObjectAllocCallback objectAllocCallback = (doc, oldRRV, status, objectSize) -> {
+          this.debug("objectAllocated: doc=" + doc + ", oldRRV=" + oldRRV + ", status=" + status + ", objectSize=" + objectSize);
+
+          return Action.CONTINUE;
+        };
+
+        final IObjectWriteCallback objectWriteCallback = (doc, oldRRV, status, buffer, bufferSize) -> {
+          this.debug("objectChunkWritten: doc=" + doc + ", oldRRV=" + oldRRV + ", status=" + status + ", buffersize=" + bufferSize);
+
+          return Action.CONTINUE;
+        };
+
+        final DominoDateTime folderSinceTime = null;
+
+        final IFolderAddCallback folderAddCallback = unid -> {
+          this.debug("addedToFolder: unid=" + unid);
+
+          return Action.CONTINUE;
+        };
+
+        replication.getDocuments(database, noteIdsArr, docOpenFlags, sinceSeqNumArr, controlFlags,
+            objectDb, getDocumentsCallback, docOpenCallback, objectAllocCallback,
+            objectWriteCallback, folderSinceTime, folderAddCallback);
+
+      }
+
+      this.debug("Modifying all documents");
+
+      for (int i = 1; i < nrOfDocs; i++) {
+        final Document doc = database.getDocumentById(noteIds.get(i)).get();
+        doc.replaceItemValue("NewField", "123");
+        // bumps the doc sequence number
+        doc.save();
+      }
+
+      // now lets run the read operation again but this time we just
+      // want to know which items have changed since creating the documents
+
+      this.debug("Fetching diff from creation with sequence numbers: " + Arrays.toString(seqNumAfterCreation));
+
+      {
+        // first run, use seqNum = 0 to get full documents
+        final int[] sinceSeqNumArr = seqNumAfterCreation;
+
+        final Database objectDb = null;
+
+        final IGetDocumentsCallback getDocumentsCallback = totalSize -> {
+          this.debug("gettingDocuments: " + totalSize);
+
+          return Action.CONTINUE;
+        };
+
+        final AtomicInteger receivedDocCount = new AtomicInteger();
+
+        final IDocumentOpenCallback docOpenCallback = (doc, noteId, status) -> {
+          Assertions.assertEquals(noteIds.get(receivedDocCount.get()), noteId);
+
+          if (receivedDocCount.get() == 0) {
+            // check for bogus entry
+            Assertions.assertNull(doc);
+            Assertions.assertEquals(551, status.get().getId());
+          } else {
+            Assertions.assertNotNull(doc);
+            Assertions.assertFalse(status.isPresent());
+            Assertions.assertEquals(unids.get(receivedDocCount.get()), doc.getUNID());
+
+            // the doc is expected to just contain TYPE_UNAVAILABLE typed
+            // items for items that have not changed since the specified sequence number
+            final Item itm = doc.getFirstItem("Lastname").orElse(null);
+            Assertions.assertEquals(ItemDataType.TYPE_UNAVAILABLE, itm.getType());
+
+            final Item itm2 = doc.getFirstItem("NewField").orElse(null);
+            Assertions.assertEquals(ItemDataType.TYPE_TEXT, itm2.getType());
+          }
+
+          this.debug("documentOpened: " + doc + ", noteId=" + noteId + ", status=" + status);
+
+          receivedDocCount.incrementAndGet();
+
+          return Action.CONTINUE;
+        };
+
+        final IObjectAllocCallback objectAllocCallback = (doc, oldRRV, status, objectSize) -> {
+          this.debug("objectAllocated: doc=" + doc + ", oldRRV=" + oldRRV + ", status=" + status + ", objectSize=" + objectSize);
+
+          return Action.CONTINUE;
+        };
+
+        final IObjectWriteCallback objectWriteCallback = (doc, oldRRV, status, buffer, bufferSize) -> {
+          this.debug("objectChunkWritten: doc=" + doc + ", oldRRV=" + oldRRV + ", status=" + status + ", buffersize=" + bufferSize);
+
+          return Action.CONTINUE;
+        };
+
+        final DominoDateTime folderSinceTime = null;
+
+        final IFolderAddCallback folderAddCallback = unid -> {
+          this.debug("addedToFolder: unid=" + unid);
+
+          return Action.CONTINUE;
+        };
+
+        replication.getDocuments(database, noteIdsArr, docOpenFlags, sinceSeqNumArr, controlFlags,
+            objectDb, getDocumentsCallback, docOpenCallback, objectAllocCallback,
+            objectWriteCallback, folderSinceTime, folderAddCallback);
+
+      }
+    });
+  }
+
+  // @Test
+  public void testReplicationHistory() throws Exception {
+    final DominoClient client = this.getClient();
+    final Replication replication = client.getReplication();
+    final Database db = client.openDatabase("fakenames.nsf");
+    final List<ReplicationHistorySummary> history = replication.getReplicationHistory(db,
+        EnumSet.of(ReplicationHistoryFlags.SORT_BY_DATE));
+    for (final ReplicationHistorySummary currEntry : history) {
+      System.out.println(currEntry);
+    }
+  }
+
+  @Test
+  public void testReplicationInfo() throws Exception {
+    this.withTempDb(database -> {
+      final DominoClient client = this.getClient();
+      final Replication replication = client.getReplication();
+
+      final ReplicaInfo replicaInfo = replication.getReplicaInfo(database);
+
+      Assertions.assertEquals(Priority.MEDIUM, replicaInfo.getPriority());
+
+      this.debug(replicaInfo);
+
+      // check defaults for new database
+      Assertions.assertEquals(Priority.MEDIUM, replicaInfo.getPriority());
+      Assertions.assertNull(replicaInfo.getCutOff().orElse(null));
+      Assertions.assertEquals(90, replicaInfo.getCutOffInterval());
+
+      // modify replica info
+
+      final Priority newPrio = Priority.HIGH;
+      final Instant newCutOff = Instant.now().minus(1, ChronoUnit.DAYS).with(ChronoField.MILLI_OF_SECOND, 0);
+      final int newCutOffInterval = 35;
+
+      replicaInfo.setPriority(newPrio);
+      replicaInfo.setCutOff(newCutOff);
+      replicaInfo.setCutOffInterval(newCutOffInterval);
+
+      // compare the changes
+      Assertions.assertEquals(newPrio, replicaInfo.getPriority());
+      Assertions.assertEquals(newCutOffInterval, replicaInfo.getCutOffInterval());
+      Assertions.assertNotNull(replicaInfo.getCutOff().orElse(null));
+      Assertions.assertEquals(newCutOff, replicaInfo.getCutOff().get().toOffsetDateTime().toInstant());
+
+      final String oldReplId = replicaInfo.getReplicaID();
+      Assertions.assertNotNull(oldReplId);
+      Assertions.assertNotEquals("", oldReplId);
+
+      final String newReplId = replicaInfo.setNewReplicaId();
+      Assertions.assertEquals(newReplId, replicaInfo.getReplicaID());
+
+      replication.setReplicaInfo(database, replicaInfo);
+
+      // reload replica info
+      final ReplicaInfo replicaInfoChanged = replication.getReplicaInfo(database);
+      this.debug(replicaInfoChanged);
+
+      Assertions.assertEquals(newPrio, replicaInfoChanged.getPriority());
+      Assertions.assertEquals(newCutOffInterval, replicaInfoChanged.getCutOffInterval());
+      Assertions.assertNotNull(replicaInfoChanged.getCutOff().orElse(null));
+      Assertions.assertEquals(newCutOff, replicaInfoChanged.getCutOff().get().toOffsetDateTime().toInstant());
+      Assertions.assertEquals(newReplId, replicaInfo.getReplicaID());
+    });
+  }
 }

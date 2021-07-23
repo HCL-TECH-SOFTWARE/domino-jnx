@@ -16,10 +16,9 @@
  */
 package it.com.hcl.domino.test.data;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.util.NavigableMap;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.data.ItemDataType;
@@ -28,30 +27,30 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 /**
  * Tests if the item definition table can be read and is not empty
- * 
+ *
  * @author Karsten Lehmann
  */
 @SuppressWarnings("nls")
 public class TestItemDefinitionTable extends AbstractNotesRuntimeTest {
-	
-	@Test
-	public void testItemDefTable() throws Exception {
-		withTempDb((tempDb -> {
-			NavigableMap<String,ItemDataType> itemDefTable = tempDb.getItemDefinitionTable();
-			
-			final String[] itemNamesToCheck = {
-					"$DesignVersion",
-					"$designversion",
-					"$flags",
-					"$formula",
-					"$formulaclass",
-					"$updatedby"
-			};
-			
-			for (String currItemName : itemNamesToCheck) {
-				assertTrue(itemDefTable.containsKey(currItemName), "item exists in table: "+currItemName);
-			}
-		}));
-		
-	}
+
+  @Test
+  public void testItemDefTable() throws Exception {
+    this.withTempDb(tempDb -> {
+      final NavigableMap<String, ItemDataType> itemDefTable = tempDb.getItemDefinitionTable();
+
+      final String[] itemNamesToCheck = {
+          "$DesignVersion",
+          "$designversion",
+          "$flags",
+          "$formula",
+          "$formulaclass",
+          "$updatedby"
+      };
+
+      for (final String currItemName : itemNamesToCheck) {
+        Assertions.assertTrue(itemDefTable.containsKey(currItemName), "item exists in table: " + currItemName);
+      }
+    });
+
+  }
 }

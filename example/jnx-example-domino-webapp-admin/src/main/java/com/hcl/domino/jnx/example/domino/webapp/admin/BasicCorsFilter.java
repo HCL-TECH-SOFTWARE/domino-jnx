@@ -30,170 +30,168 @@ import javax.ws.rs.core.Response;
 
 @PreMatching
 public class BasicCorsFilter implements ContainerRequestFilter, ContainerResponseFilter {
-	public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin"; //$NON-NLS-1$
-	public static final String ACCESS_CONTROL_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials"; //$NON-NLS-1$
-	public static final String ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods"; //$NON-NLS-1$
-	public static final String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers"; //$NON-NLS-1$
-	public static final String ACCESS_CONTROL_MAX_AGE = "Access-Control-Max-Age"; //$NON-NLS-1$
-	public static final String ORIGIN = "Origin"; //$NON-NLS-1$
-	public static final String ACCESS_CONTROL_REQUEST_METHOD = "Access-Control-Request-Method"; //$NON-NLS-1$
-	public static final String ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers"; //$NON-NLS-1$
-	public static final String ACCESS_CONTROL_REQUEST_HEADERS = "Access-Control-Request-Headers"; //$NON-NLS-1$
-	public static final String VARY = "Vary"; //$NON-NLS-1$
+  public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin"; //$NON-NLS-1$
+  public static final String ACCESS_CONTROL_ALLOW_CREDENTIALS = "Access-Control-Allow-Credentials"; //$NON-NLS-1$
+  public static final String ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods"; //$NON-NLS-1$
+  public static final String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers"; //$NON-NLS-1$
+  public static final String ACCESS_CONTROL_MAX_AGE = "Access-Control-Max-Age"; //$NON-NLS-1$
+  public static final String ORIGIN = "Origin"; //$NON-NLS-1$
+  public static final String ACCESS_CONTROL_REQUEST_METHOD = "Access-Control-Request-Method"; //$NON-NLS-1$
+  public static final String ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers"; //$NON-NLS-1$
+  public static final String ACCESS_CONTROL_REQUEST_HEADERS = "Access-Control-Request-Headers"; //$NON-NLS-1$
+  public static final String VARY = "Vary"; //$NON-NLS-1$
 
-	protected boolean allowCredentials = true;
-	protected String allowedMethods;
-	protected String allowedHeaders;
-	protected String exposedHeaders;
-	protected int corsMaxAge = -1;
-	protected Set<String> allowedOrigins = new HashSet<>();
+  protected boolean allowCredentials = true;
+  protected String allowedMethods;
+  protected String allowedHeaders;
+  protected String exposedHeaders;
+  protected int corsMaxAge = -1;
+  protected Set<String> allowedOrigins = new HashSet<>();
 
-	/**
-	 * Put "*" if you want to accept all origins.
-	 *
-	 * @return allowed origins
-	 */
-	public Set<String> getAllowedOrigins() {
-		return allowedOrigins;
-	}
+  protected void checkOrigin(final ContainerRequestContext requestContext, final String origin) {
+    if (!this.allowedOrigins.contains("*") && !this.allowedOrigins.contains(origin)) { //$NON-NLS-1$
+      requestContext.setProperty("cors.failure", true); //$NON-NLS-1$
+      throw new ForbiddenException("Forbidden"); //$NON-NLS-1$
+    }
+  }
 
-	/**
-	 * Defaults to true.
-	 *
-	 * @return allow credentials
-	 */
-	public boolean isAllowCredentials() {
-		return allowCredentials;
-	}
+  @Override
+  public void filter(final ContainerRequestContext requestContext) throws IOException {
+    final String origin = requestContext.getHeaderString(BasicCorsFilter.ORIGIN);
+    if (origin == null) {
+      return;
+    }
+    if (requestContext.getMethod().equalsIgnoreCase("OPTIONS")) { //$NON-NLS-1$
+      this.preflight(origin, requestContext);
+    } else {
+      this.checkOrigin(requestContext, origin);
+    }
+  }
 
-	public void setAllowCredentials(final boolean allowCredentials) {
-		this.allowCredentials = allowCredentials;
-	}
+  @Override
+  public void filter(final ContainerRequestContext requestContext, final ContainerResponseContext responseContext)
+      throws IOException {
+    final String origin = requestContext.getHeaderString(BasicCorsFilter.ORIGIN);
+    if (origin == null || requestContext.getMethod().equalsIgnoreCase("OPTIONS") //$NON-NLS-1$
+        || requestContext.getProperty("cors.failure") != null) { //$NON-NLS-1$
+      // don't do anything if origin is null, its an OPTIONS request, or cors.failure
+      // is set
+      return;
+    }
+    responseContext.getHeaders().putSingle(BasicCorsFilter.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
+    responseContext.getHeaders().putSingle(BasicCorsFilter.VARY, BasicCorsFilter.ORIGIN);
+    if (this.allowCredentials) {
+      responseContext.getHeaders().putSingle(BasicCorsFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true"); //$NON-NLS-1$
+    }
 
-	/**
-	 * Will allow all by default.
-	 *
-	 * @return allowed methods
-	 */
-	public String getAllowedMethods() {
-		return allowedMethods;
-	}
+    if (this.exposedHeaders != null) {
+      responseContext.getHeaders().putSingle(BasicCorsFilter.ACCESS_CONTROL_EXPOSE_HEADERS, this.exposedHeaders);
+    }
+  }
 
-	/**
-	 * Will allow all by default comma delimited string for
-	 * Access-Control-Allow-Methods.
-	 *
-	 * @param allowedMethods allowed methods
-	 */
-	public void setAllowedMethods(final String allowedMethods) {
-		this.allowedMethods = allowedMethods;
-	}
+  public String getAllowedHeaders() {
+    return this.allowedHeaders;
+  }
 
-	public String getAllowedHeaders() {
-		return allowedHeaders;
-	}
+  /**
+   * Will allow all by default.
+   *
+   * @return allowed methods
+   */
+  public String getAllowedMethods() {
+    return this.allowedMethods;
+  }
 
-	/**
-	 * Will allow all by default comma delimited string for
-	 * Access-Control-Allow-Headers.
-	 *
-	 * @param allowedHeaders allowed headers
-	 */
-	public void setAllowedHeaders(final String allowedHeaders) {
-		this.allowedHeaders = allowedHeaders;
-	}
+  /**
+   * Put "*" if you want to accept all origins.
+   *
+   * @return allowed origins
+   */
+  public Set<String> getAllowedOrigins() {
+    return this.allowedOrigins;
+  }
 
-	public int getCorsMaxAge() {
-		return corsMaxAge;
-	}
+  public int getCorsMaxAge() {
+    return this.corsMaxAge;
+  }
 
-	public void setCorsMaxAge(final int corsMaxAge) {
-		this.corsMaxAge = corsMaxAge;
-	}
+  public String getExposedHeaders() {
+    return this.exposedHeaders;
+  }
 
-	public String getExposedHeaders() {
-		return exposedHeaders;
-	}
+  /**
+   * Defaults to true.
+   *
+   * @return allow credentials
+   */
+  public boolean isAllowCredentials() {
+    return this.allowCredentials;
+  }
 
-	/**
-	 * Comma delimited list.
-	 *
-	 * @param exposedHeaders exposed headers
-	 */
-	public void setExposedHeaders(final String exposedHeaders) {
-		this.exposedHeaders = exposedHeaders;
-	}
+  protected void preflight(final String origin, final ContainerRequestContext requestContext) throws IOException {
+    this.checkOrigin(requestContext, origin);
 
-	@Override
-	public void filter(final ContainerRequestContext requestContext) throws IOException {
-		String origin = requestContext.getHeaderString(ORIGIN);
-		if (origin == null) {
-			return;
-		}
-		if (requestContext.getMethod().equalsIgnoreCase("OPTIONS")) { //$NON-NLS-1$
-			preflight(origin, requestContext);
-		} else {
-			checkOrigin(requestContext, origin);
-		}
-	}
+    final Response.ResponseBuilder builder = Response.ok();
+    builder.header(BasicCorsFilter.ACCESS_CONTROL_ALLOW_ORIGIN, origin);
+    builder.header(BasicCorsFilter.VARY, BasicCorsFilter.ORIGIN);
+    if (this.allowCredentials) {
+      builder.header(BasicCorsFilter.ACCESS_CONTROL_ALLOW_CREDENTIALS, "true"); //$NON-NLS-1$
+    }
+    String requestMethods = requestContext.getHeaderString(BasicCorsFilter.ACCESS_CONTROL_REQUEST_METHOD);
+    if (requestMethods != null) {
+      if (this.allowedMethods != null) {
+        requestMethods = this.allowedMethods;
+      }
+      builder.header(BasicCorsFilter.ACCESS_CONTROL_ALLOW_METHODS, requestMethods);
+    }
+    String allowHeaders = requestContext.getHeaderString(BasicCorsFilter.ACCESS_CONTROL_REQUEST_HEADERS);
+    if (allowHeaders != null) {
+      if (this.allowedHeaders != null) {
+        allowHeaders = this.allowedHeaders;
+      }
+      builder.header(BasicCorsFilter.ACCESS_CONTROL_ALLOW_HEADERS, allowHeaders);
+    }
+    if (this.corsMaxAge > -1) {
+      builder.header(BasicCorsFilter.ACCESS_CONTROL_MAX_AGE, this.corsMaxAge);
+    }
+    requestContext.abortWith(builder.build());
 
-	@Override
-	public void filter(final ContainerRequestContext requestContext, final ContainerResponseContext responseContext)
-			throws IOException {
-		String origin = requestContext.getHeaderString(ORIGIN);
-		if (origin == null || requestContext.getMethod().equalsIgnoreCase("OPTIONS") //$NON-NLS-1$
-				|| requestContext.getProperty("cors.failure") != null) { //$NON-NLS-1$
-			// don't do anything if origin is null, its an OPTIONS request, or cors.failure
-			// is set
-			return;
-		}
-		responseContext.getHeaders().putSingle(ACCESS_CONTROL_ALLOW_ORIGIN, origin);
-		responseContext.getHeaders().putSingle(VARY, ORIGIN);
-		if (allowCredentials)
-		 {
-			responseContext.getHeaders().putSingle(ACCESS_CONTROL_ALLOW_CREDENTIALS, "true"); //$NON-NLS-1$
-		}
+  }
 
-		if (exposedHeaders != null) {
-			responseContext.getHeaders().putSingle(ACCESS_CONTROL_EXPOSE_HEADERS, exposedHeaders);
-		}
-	}
+  public void setAllowCredentials(final boolean allowCredentials) {
+    this.allowCredentials = allowCredentials;
+  }
 
-	protected void preflight(final String origin, final ContainerRequestContext requestContext) throws IOException {
-		checkOrigin(requestContext, origin);
+  /**
+   * Will allow all by default comma delimited string for
+   * Access-Control-Allow-Headers.
+   *
+   * @param allowedHeaders allowed headers
+   */
+  public void setAllowedHeaders(final String allowedHeaders) {
+    this.allowedHeaders = allowedHeaders;
+  }
 
-		Response.ResponseBuilder builder = Response.ok();
-		builder.header(ACCESS_CONTROL_ALLOW_ORIGIN, origin);
-		builder.header(VARY, ORIGIN);
-		if (allowCredentials)
-		 {
-			builder.header(ACCESS_CONTROL_ALLOW_CREDENTIALS, "true"); //$NON-NLS-1$
-		}
-		String requestMethods = requestContext.getHeaderString(ACCESS_CONTROL_REQUEST_METHOD);
-		if (requestMethods != null) {
-			if (allowedMethods != null) {
-				requestMethods = this.allowedMethods;
-			}
-			builder.header(ACCESS_CONTROL_ALLOW_METHODS, requestMethods);
-		}
-		String allowHeaders = requestContext.getHeaderString(ACCESS_CONTROL_REQUEST_HEADERS);
-		if (allowHeaders != null) {
-			if (allowedHeaders != null) {
-				allowHeaders = this.allowedHeaders;
-			}
-			builder.header(ACCESS_CONTROL_ALLOW_HEADERS, allowHeaders);
-		}
-		if (corsMaxAge > -1) {
-			builder.header(ACCESS_CONTROL_MAX_AGE, corsMaxAge);
-		}
-		requestContext.abortWith(builder.build());
+  /**
+   * Will allow all by default comma delimited string for
+   * Access-Control-Allow-Methods.
+   *
+   * @param allowedMethods allowed methods
+   */
+  public void setAllowedMethods(final String allowedMethods) {
+    this.allowedMethods = allowedMethods;
+  }
 
-	}
+  public void setCorsMaxAge(final int corsMaxAge) {
+    this.corsMaxAge = corsMaxAge;
+  }
 
-	protected void checkOrigin(final ContainerRequestContext requestContext, final String origin) {
-		if (!allowedOrigins.contains("*") && !allowedOrigins.contains(origin)) { //$NON-NLS-1$
-			requestContext.setProperty("cors.failure", true); //$NON-NLS-1$
-			throw new ForbiddenException("Forbidden"); //$NON-NLS-1$
-		}
-	}
+  /**
+   * Comma delimited list.
+   *
+   * @param exposedHeaders exposed headers
+   */
+  public void setExposedHeaders(final String exposedHeaders) {
+    this.exposedHeaders = exposedHeaders;
+  }
 }

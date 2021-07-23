@@ -29,55 +29,52 @@ import com.hcl.domino.richtext.structures.WSIG;
 /**
  * Rich text record of type CDTEXT
  */
-@StructureDefinition(
-	name="CDTEXT",
-	members={
-		@StructureMember(name="Header", type=WSIG.class),
-		@StructureMember(name="FontID", type=FontStyle.class)
-	}
-)
+@StructureDefinition(name = "CDTEXT", members = {
+    @StructureMember(name = "Header", type = WSIG.class),
+    @StructureMember(name = "FontID", type = FontStyle.class)
+})
 public interface CDText extends RichTextRecord<WSIG> {
-	
-	@StructureGetter("Header")
-	@Override
-	WSIG getHeader();
 
-	/**
-	 * Returns the text stored in the text record
-	 * 
-	 * @return text
-	 */
-	default String getText() {
-		ByteBuffer buf = getVariableData();
-		int len = buf.remaining();
-		byte[] lmbcs = new byte[len];
-		buf.get(lmbcs);
-		return new String(lmbcs, Charset.forName("LMBCS-native")); //$NON-NLS-1$
-	}
-	
-	/**
-	 * Sets the text for this record.
-	 * 
-	 * @param text the new text to set
-	 * @return this record
-	 */
-	default CDText setText(String text) {
-		byte[] lmbcs = text.getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$
-		resizeVariableData(lmbcs.length);
-		ByteBuffer buf = getVariableData();
-		buf.put(lmbcs);
-		return this;
-	}
+  @StructureGetter("Header")
+  @Override
+  WSIG getHeader();
 
-	/**
-	 * Returns the font style of the text
-	 * 
-	 * @return style
-	 */
-	@StructureGetter("FontID")
-	FontStyle getStyle();
-	
-	@StructureSetter("FontID")
-	CDText setStyle(FontStyle style);
-	
+  /**
+   * Returns the font style of the text
+   *
+   * @return style
+   */
+  @StructureGetter("FontID")
+  FontStyle getStyle();
+
+  /**
+   * Returns the text stored in the text record
+   *
+   * @return text
+   */
+  default String getText() {
+    final ByteBuffer buf = this.getVariableData();
+    final int len = buf.remaining();
+    final byte[] lmbcs = new byte[len];
+    buf.get(lmbcs);
+    return new String(lmbcs, Charset.forName("LMBCS-native")); //$NON-NLS-1$
+  }
+
+  @StructureSetter("FontID")
+  CDText setStyle(FontStyle style);
+
+  /**
+   * Sets the text for this record.
+   *
+   * @param text the new text to set
+   * @return this record
+   */
+  default CDText setText(final String text) {
+    final byte[] lmbcs = text.getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$
+    this.resizeVariableData(lmbcs.length);
+    final ByteBuffer buf = this.getVariableData();
+    buf.put(lmbcs);
+    return this;
+  }
+
 }

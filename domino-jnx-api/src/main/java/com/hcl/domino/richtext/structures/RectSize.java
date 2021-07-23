@@ -22,25 +22,23 @@ import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.15
  */
-@StructureDefinition(
-	name="RECTSIZE",
-	members={
-		@StructureMember(name="width", type=short.class, unsigned=true),
-		@StructureMember(name="height", type=short.class, unsigned=true)
-	}
-)
+@StructureDefinition(name = "RECTSIZE", members = {
+    @StructureMember(name = "width", type = short.class, unsigned = true),
+    @StructureMember(name = "height", type = short.class, unsigned = true)
+})
 public interface RectSize extends MemoryStructure {
-	@StructureGetter("width")
-	int getWidth();
-	@StructureSetter("width")
-	RectSize setWidth(int width);
-	
-	@StructureGetter("height")
-	int getHeight();
-	@StructureSetter("height")
-	RectSize setHeight(int height);
+  @StructureGetter("height")
+  int getHeight();
+
+  @StructureGetter("width")
+  int getWidth();
+
+  @StructureSetter("height")
+  RectSize setHeight(int height);
+
+  @StructureSetter("width")
+  RectSize setWidth(int width);
 }

@@ -17,19 +17,20 @@
 package com.hcl.domino.misc;
 
 /**
- * This interface describes an enum that is backed by a C-style numeric value enum.
- * 
+ * This interface describes an enum that is backed by a C-style numeric value
+ * enum.
+ *
  * @param <T> the boxed primitive type that backs this enum
  * @author Jesse Gallagher
  */
 public interface INumberEnum<T extends Number> {
-	/**
-	 * @return the C-level value of the enum 
-	 */
-	T getValue();
+  /**
+   * @return the C-level value of the enum as a <code>long</code>
+   */
+  long getLongValue();
 
-	/**
-	 * @return the C-level value of the enum as a <code>long</code>
-	 */
-	long getLongValue();
+  /**
+   * @return the C-level value of the enum
+   */
+  T getValue();
 }

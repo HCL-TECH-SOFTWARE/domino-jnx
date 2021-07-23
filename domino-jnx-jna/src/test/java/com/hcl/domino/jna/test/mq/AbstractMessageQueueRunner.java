@@ -23,39 +23,38 @@ import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.test.AbstractJNARuntimeTest;
 
 public abstract class AbstractMessageQueueRunner extends AbstractJNARuntimeTest implements Runnable {
-	private boolean m_hasError=false;
-	
-	public final void run() {
-		try {
-			initRuntime(false);
-			
-			initClient();
+  private boolean m_hasError = false;
 
-			doRun();
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			
-			m_hasError=true;
-		}
-		finally {
-			try {
-				termClient();
-			} catch (IOException e) {
-				e.printStackTrace();
-				
-				m_hasError=true;
-			}
-			
-			if(!DominoUtils.isNoTerm()) {
-				NotesCAPI.get().NotesTerm();
-			}
-		}
-	}
-	
-	protected boolean hasError() {
-		return m_hasError;
-	}
-	
-	protected abstract void doRun() throws Exception;
+  protected abstract void doRun() throws Exception;
+
+  protected boolean hasError() {
+    return this.m_hasError;
+  }
+
+  @Override
+  public final void run() {
+    try {
+      AbstractJNARuntimeTest.initRuntime(false);
+
+      this.initClient();
+
+      this.doRun();
+    } catch (final Exception e) {
+      e.printStackTrace();
+
+      this.m_hasError = true;
+    } finally {
+      try {
+        this.termClient();
+      } catch (final IOException e) {
+        e.printStackTrace();
+
+        this.m_hasError = true;
+      }
+
+      if (!DominoUtils.isNoTerm()) {
+        NotesCAPI.get().NotesTerm();
+      }
+    }
+  }
 }

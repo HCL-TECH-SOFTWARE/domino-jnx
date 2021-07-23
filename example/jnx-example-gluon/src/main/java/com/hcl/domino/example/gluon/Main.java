@@ -33,42 +33,42 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class Main extends Application {
-	private static final ExecutorService exec = Executors.newCachedThreadPool(JNXThread::new);
-	
-	@Override
-	public void start(Stage stage) throws Exception {
-		String javaVersion = System.getProperty("java.version"); //$NON-NLS-1$
-		String javafxVersion = System.getProperty("javafx.version"); //$NON-NLS-1$
+  private static final ExecutorService exec = Executors.newCachedThreadPool(JNXThread::new);
 
-		String notesUser = exec.submit(() -> {
-			try(DominoClient client = DominoClientBuilder.newDominoClient().build()) {
-				return client.getIDUserName();
-			}
-		}).get();
-		
-		Label notesUserLabel = new Label("Notes uer: " + notesUser);
-		Label javaVersionLabel = new Label("Java version: " + javaVersion);
-		Label javaFxVersionLabel = new Label("JavaFX version: " + javafxVersion);
+  public static void main(final String[] args) {
+    DominoProcess.get().initializeProcess(args);
+    try {
+      Application.launch(args);
+    } finally {
+      Main.exec.shutdownNow();
+      try {
+        Main.exec.awaitTermination(1, TimeUnit.MINUTES);
+      } catch (final InterruptedException e) {
+        e.printStackTrace();
+      }
+      DominoProcess.get().terminateProcess();
+    }
+  }
 
-		VBox root = new VBox(30, notesUserLabel, javaVersionLabel, javaFxVersionLabel);
-		root.setAlignment(Pos.CENTER);
-		Scene scene = new Scene(root, 640, 480);
-		stage.setScene(scene);
-		stage.show();
-	}
+  @Override
+  public void start(final Stage stage) throws Exception {
+    final String javaVersion = System.getProperty("java.version"); //$NON-NLS-1$
+    final String javafxVersion = System.getProperty("javafx.version"); //$NON-NLS-1$
 
-	public static void main(String[] args) {
-		DominoProcess.get().initializeProcess(args);
-		try {
-			launch(args);
-		} finally {
-			exec.shutdownNow();
-			try {
-				exec.awaitTermination(1, TimeUnit.MINUTES);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			DominoProcess.get().terminateProcess();
-		}
-	}
+    final String notesUser = Main.exec.submit(() -> {
+      try (DominoClient client = DominoClientBuilder.newDominoClient().build()) {
+        return client.getIDUserName();
+      }
+    }).get();
+
+    final Label notesUserLabel = new Label("Notes uer: " + notesUser);
+    final Label javaVersionLabel = new Label("Java version: " + javaVersion);
+    final Label javaFxVersionLabel = new Label("JavaFX version: " + javafxVersion);
+
+    final VBox root = new VBox(30, notesUserLabel, javaVersionLabel, javaFxVersionLabel);
+    root.setAlignment(Pos.CENTER);
+    final Scene scene = new Scene(root, 640, 480);
+    stage.setScene(scene);
+    stage.show();
+  }
 }

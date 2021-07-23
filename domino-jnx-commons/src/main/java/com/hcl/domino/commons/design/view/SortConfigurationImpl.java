@@ -30,90 +30,92 @@ import com.hcl.domino.richtext.structures.UNID;
  * @since 1.0.27
  */
 public class SortConfigurationImpl implements SortConfiguration {
-	private final DominoViewColumnFormat format;
-	
-	public SortConfigurationImpl(DominoViewColumnFormat format) {
-		this.format = format;
-	}
+  private final DominoViewColumnFormat format;
 
-	@Override
-	public boolean isResortToView() {
-		return getFormat1().getFlags().contains(ViewColumnFormat.Flag.ResortToView);
-	}
+  public SortConfigurationImpl(final DominoViewColumnFormat format) {
+    this.format = format;
+  }
 
-	@Override
-	public boolean isSecondaryResort() {
-		return getFormat1().getFlags().contains(ViewColumnFormat.Flag.SecondResort);
-	}
+  private ViewColumnFormat getFormat1() {
+    return Objects.requireNonNull(this.format.getAdapter(ViewColumnFormat.class), "VIEW_COLUMN_FORMAT not read");
+  }
 
-	@Override
-	public boolean isSecondaryResortDescending() {
-		return getFormat1().getFlags().contains(ViewColumnFormat.Flag.SecondResortDescending);
-	}
+  private ViewColumnFormat2 getFormat2() {
+    return Objects.requireNonNull(this.format.getAdapter(ViewColumnFormat2.class), "VIEW_COLUMN_FORMAT2 not read");
+  }
 
-	@Override
-	public boolean isSortPermuted() {
-		return getFormat1().getFlags2().contains(ViewColumnFormat.Flag2.SortPermute);
-	}
+  private Optional<ViewColumnFormat6> getFormat6() {
+    return Optional.ofNullable(this.format.getAdapter(ViewColumnFormat6.class));
+  }
 
-	@Override
-	public boolean isResortAscending() {
-		return getFormat1().getFlags().contains(ViewColumnFormat.Flag.ResortAscending);
-	}
+  @Override
+  public Optional<String> getResortToViewUnid() {
+    final UNID unid = this.getFormat2().getResortToViewUNID();
+    if (unid.isUnset()) {
+      return Optional.empty();
+    } else {
+      return Optional.of(unid.toUnidString());
+    }
+  }
 
-	@Override
-	public boolean isResortDescending() {
-		return getFormat1().getFlags().contains(ViewColumnFormat.Flag.ResortDescending);
-	}
+  @Override
+  public int getSecondResortColumnIndex() {
+    return this.getFormat2().getSecondResortColumnIndex();
+  }
 
-	@Override
-	public Optional<String> getResortToViewUnid() {
-		UNID unid = getFormat2().getResortToViewUNID();
-		if(unid.isUnset()) {
-			return Optional.empty();
-		} else {
-			return Optional.of(unid.toUnidString());
-		}
-	}
+  @Override
+  public boolean isCategory() {
+    return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.SortCategorize);
+  }
 
-	@Override
-	public int getSecondResortColumnIndex() {
-		return getFormat2().getSecondResortColumnIndex();
-	}
+  @Override
+  public boolean isDeferResortIndexing() {
+    return this.getFormat6()
+        .map(fmt -> fmt.getFlags().contains(ViewColumnFormat6.Flag.BuildCollationOnDemand))
+        .orElse(false);
+  }
 
-	@Override
-	public boolean isSorted() {
-		return getFormat1().getFlags().contains(ViewColumnFormat.Flag.Sort);
-	}
+  @Override
+  public boolean isResortAscending() {
+    return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.ResortAscending);
+  }
 
-	@Override
-	public boolean isCategory() {
-		return getFormat1().getFlags().contains(ViewColumnFormat.Flag.SortCategorize);
-	}
+  @Override
+  public boolean isResortDescending() {
+    return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.ResortDescending);
+  }
 
-	@Override
-	public boolean isSortedDescending() {
-		return getFormat1().getFlags().contains(ViewColumnFormat.Flag.SortDescending);
-	}
+  @Override
+  public boolean isResortToView() {
+    return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.ResortToView);
+  }
 
-	@Override
-	public boolean isDeferResortIndexing() {
-		return getFormat6()
-			.map(fmt -> fmt.getFlags().contains(ViewColumnFormat6.Flag.BuildCollationOnDemand))
-			.orElse(false);
-	}
-	
-	// *******************************************************************************
-	// * Internal implementation methods
-	// *******************************************************************************
-	
-	private ViewColumnFormat getFormat1() {
-		return Objects.requireNonNull(this.format.getAdapter(ViewColumnFormat.class), "VIEW_COLUMN_FORMAT not read");
-	}
-	private ViewColumnFormat2 getFormat2() {
-		return Objects.requireNonNull(this.format.getAdapter(ViewColumnFormat2.class), "VIEW_COLUMN_FORMAT2 not read");
-	}
-	private Optional<ViewColumnFormat6> getFormat6() {
-		return Optional.ofNullable(this.format.getAdapter(ViewColumnFormat6.class));
-	}
+  @Override
+  public boolean isSecondaryResort() {
+    return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.SecondResort);
+  }
+
+  @Override
+  public boolean isSecondaryResortDescending() {
+    return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.SecondResortDescending);
+  }
+
+  // *******************************************************************************
+  // * Internal implementation methods
+  // *******************************************************************************
+
+  @Override
+  public boolean isSorted() {
+    return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.Sort);
+  }
+
+  @Override
+  public boolean isSortedDescending() {
+    return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.SortDescending);
+  }
+
+  @Override
+  public boolean isSortPermuted() {
+    return this.getFormat1().getFlags2().contains(ViewColumnFormat.Flag2.SortPermute);
+  }
 }

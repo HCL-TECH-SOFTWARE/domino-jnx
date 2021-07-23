@@ -23,69 +23,62 @@ import com.hcl.domino.commons.org.apache.commons.mail.DataSourceResolver;
  *
  * @since 1.3
  */
-public abstract class DataSourceBaseResolver implements DataSourceResolver
-{
-    /** shall we ignore resources not found or complain with an exception */
-    private final boolean lenient;
+public abstract class DataSourceBaseResolver implements DataSourceResolver {
+  /** shall we ignore resources not found or complain with an exception */
+  private final boolean lenient;
 
-    /**
-     * Constructor.
-     */
-    public DataSourceBaseResolver()
-    {
-        this.lenient = false;
-    }
+  /**
+   * Constructor.
+   */
+  public DataSourceBaseResolver() {
+    this.lenient = false;
+  }
 
-    /**
-     * Constructor.
-     *
-     * @param lenient shall we ignore resources not found or throw an exception?
-     */
-    public DataSourceBaseResolver(final boolean lenient)
-    {
-        this.lenient = lenient;
-    }
+  /**
+   * Constructor.
+   *
+   * @param lenient shall we ignore resources not found or throw an exception?
+   */
+  public DataSourceBaseResolver(final boolean lenient) {
+    this.lenient = lenient;
+  }
 
-    /**
-     * Shall we ignore resources not found or throw an exception?
-     *
-     * @return the lenient flag
-     */
-    public boolean isLenient()
-    {
-        return lenient;
-    }
+  /**
+   * Is this a content id?
+   *
+   * @param resourceLocation the resource location
+   * @return true if it is a CID
+   */
+  protected boolean isCid(final String resourceLocation) {
+    return resourceLocation.startsWith("cid:"); //$NON-NLS-1$
+  }
 
-    /**
-     * Is this a content id?
-     *
-     * @param resourceLocation the resource location
-     * @return true if it is a CID
-     */
-    protected boolean isCid(final String resourceLocation)
-    {
-        return resourceLocation.startsWith("cid:"); //$NON-NLS-1$
-    }
+  /**
+   * Is this a file URL?
+   *
+   * @param urlString the URL string
+   * @return true if it is a file URL
+   */
+  protected boolean isFileUrl(final String urlString) {
+    return urlString.startsWith("file:/"); //$NON-NLS-1$
+  }
 
-    /**
-     * Is this a file URL?
-     *
-     * @param urlString the URL string
-     * @return true if it is a file URL
-     */
-    protected boolean isFileUrl(final String urlString)
-    {
-        return urlString.startsWith("file:/"); //$NON-NLS-1$
-    }
+  /**
+   * Is this a HTTP/HTTPS URL?
+   *
+   * @param urlString the URL string
+   * @return true if it is a HTTP/HTTPS URL
+   */
+  protected boolean isHttpUrl(final String urlString) {
+    return urlString.startsWith("http://") || urlString.startsWith("https://"); //$NON-NLS-1$ //$NON-NLS-2$
+  }
 
-    /**
-     * Is this a HTTP/HTTPS URL?
-     *
-     * @param urlString the URL string
-     * @return true if it is a HTTP/HTTPS URL
-     */
-    protected boolean isHttpUrl(final String urlString)
-    {
-        return urlString.startsWith("http://") || urlString.startsWith("https://"); //$NON-NLS-1$ //$NON-NLS-2$
-    }
+  /**
+   * Shall we ignore resources not found or throw an exception?
+   *
+   * @return the lenient flag
+   */
+  public boolean isLenient() {
+    return this.lenient;
+  }
 }

@@ -19,15 +19,15 @@ package com.hcl.domino.misc;
 import com.hcl.domino.DominoClient;
 
 /**
- * Indicates that an object is a descenant of a {@link DominoClient} and can retrieve
+ * Indicates that an object is a descenant of a {@link DominoClient} and can
+ * retrieve
  * its ancestor.
- * 
+ *
  * @author Jesse Gallagher
  */
 public interface DominoClientDescendant {
-	/**
-	 * 
-	 * @return the ancestor {@link DominoClient} of this object
-	 */
-	DominoClient getParentDominoClient();
+  /**
+   * @return the ancestor {@link DominoClient} of this object
+   */
+  DominoClient getParentDominoClient();
 }

@@ -25,76 +25,80 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Text;
 
 public enum SwtUtil {
-	;
+  ;
 
-	public static String loadData(String key) {
-		Preferences jPrefs = Preferences.userNodeForPackage(App.class);
-		String result = jPrefs.get(key, ""); //$NON-NLS-1$
-		return result;
-	}
-	public static boolean loadDataBoolean(String key) {
-		Preferences jPrefs = Preferences.userNodeForPackage(App.class);
-		return jPrefs.getBoolean(key, false);
-	}
-	public static void saveData(String key, String data) {
-		Preferences jPrefs = Preferences.userNodeForPackage(App.class);
-		jPrefs.put(key, data);
-	}
-	public static void saveData(String key, boolean data) {
-		Preferences jPrefs = Preferences.userNodeForPackage(App.class);
-		jPrefs.putBoolean(key, data);
-	}
+  public static void bindCheckbox(final String key, final Button button) {
+    button.setSelection(SwtUtil.loadDataBoolean(key));
+    button.addSelectionListener(new SelectionAdapter() {
+      @Override
+      public void widgetSelected(final SelectionEvent e) {
+        SwtUtil.saveData(key, button.getSelection());
+      }
+    });
+  }
 
-	public static void bindInput(final String key, final Text text) {
-		text.setText(loadData(key));
-		text.addModifyListener(e -> saveData(key, text.getText()));
-		GridData data = new GridData();
-		data.grabExcessHorizontalSpace = true;
-		data.widthHint = 300;
-		text.setLayoutData(data);
-	}
+  public static void bindInput(final String key, final Text text) {
+    text.setText(SwtUtil.loadData(key));
+    text.addModifyListener(e -> SwtUtil.saveData(key, text.getText()));
+    final GridData data = new GridData();
+    data.grabExcessHorizontalSpace = true;
+    data.widthHint = 300;
+    text.setLayoutData(data);
+  }
 
-	public static void bindCheckbox(String key, final Button button) {
-		button.setSelection(loadDataBoolean(key));
-		button.addSelectionListener(new SelectionAdapter() {
-			@Override public void widgetSelected(SelectionEvent e) {
-				saveData(key, button.getSelection());
-			}
-		});
-	}
+  public static boolean isMac() {
+    return SwtUtil.isMacx86() || SwtUtil.isMacx64();
+  }
 
-	public static boolean isMacx86() {
-		try {
-			String os = System.getProperty("os.name"); //$NON-NLS-1$
-			if(os.contains("Mac OS X")) { //$NON-NLS-1$
-				String arch = System.getProperty("os.arch"); //$NON-NLS-1$
-				if(arch.contains("x86") && !arch.contains("x86_64")) { //$NON-NLS-1$ //$NON-NLS-2$
-					return true;
-				}
-			}
-		} catch(Exception ex) {
-			ex.printStackTrace();
-		}
-		return false;
-	}
+  public static boolean isMacx64() {
+    try {
+      final String os = System.getProperty("os.name"); //$NON-NLS-1$
+      if (os.contains("Mac OS X")) { //$NON-NLS-1$
+        final String arch = System.getProperty("os.arch"); //$NON-NLS-1$
+        if (arch.contains("x86_64")) { //$NON-NLS-1$
+          return true;
+        }
+      }
+    } catch (final Exception ex) {
+      ex.printStackTrace();
+    }
+    return false;
+  }
 
-	public static boolean isMacx64() {
-		try {
-			String os = System.getProperty("os.name"); //$NON-NLS-1$
-			if(os.contains("Mac OS X")) { //$NON-NLS-1$
-				String arch = System.getProperty("os.arch"); //$NON-NLS-1$
-				if(arch.contains("x86_64")) { //$NON-NLS-1$
-					return true;
-				}
-			}
-		} catch(Exception ex) {
-			ex.printStackTrace();
-		}
-		return false;
-	}
+  public static boolean isMacx86() {
+    try {
+      final String os = System.getProperty("os.name"); //$NON-NLS-1$
+      if (os.contains("Mac OS X")) { //$NON-NLS-1$
+        final String arch = System.getProperty("os.arch"); //$NON-NLS-1$
+        if (arch.contains("x86") && !arch.contains("x86_64")) { //$NON-NLS-1$ //$NON-NLS-2$
+          return true;
+        }
+      }
+    } catch (final Exception ex) {
+      ex.printStackTrace();
+    }
+    return false;
+  }
 
-	public static boolean isMac() {
-		return isMacx86() || isMacx64();
-	}
+  public static String loadData(final String key) {
+    final Preferences jPrefs = Preferences.userNodeForPackage(App.class);
+    final String result = jPrefs.get(key, ""); //$NON-NLS-1$
+    return result;
+  }
+
+  public static boolean loadDataBoolean(final String key) {
+    final Preferences jPrefs = Preferences.userNodeForPackage(App.class);
+    return jPrefs.getBoolean(key, false);
+  }
+
+  public static void saveData(final String key, final boolean data) {
+    final Preferences jPrefs = Preferences.userNodeForPackage(App.class);
+    jPrefs.putBoolean(key, data);
+  }
+
+  public static void saveData(final String key, final String data) {
+    final Preferences jPrefs = Preferences.userNodeForPackage(App.class);
+    jPrefs.put(key, data);
+  }
 
 }

@@ -30,19 +30,21 @@ import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 
 public class JsonbMessageBodyWriter implements MessageBodyWriter<Object> {
-	
-	private final Jsonb jsonb = JsonbBuilder.create();
 
-	@Override
-	public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-		return mediaType.isCompatible(MediaType.APPLICATION_JSON_TYPE) && !String.class.equals(type);
-	}
+  private final Jsonb jsonb = JsonbBuilder.create();
 
-	@Override
-	public void writeTo(Object t, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType,
-			MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream)
-			throws IOException, WebApplicationException {
-		jsonb.toJson(t, entityStream);
-	}
+  @Override
+  public boolean isWriteable(final Class<?> type, final Type genericType, final Annotation[] annotations,
+      final MediaType mediaType) {
+    return mediaType.isCompatible(MediaType.APPLICATION_JSON_TYPE) && !String.class.equals(type);
+  }
+
+  @Override
+  public void writeTo(final Object t, final Class<?> type, final Type genericType, final Annotation[] annotations,
+      final MediaType mediaType,
+      final MultivaluedMap<String, Object> httpHeaders, final OutputStream entityStream)
+      throws IOException, WebApplicationException {
+    this.jsonb.toJson(t, entityStream);
+  }
 
 }

@@ -21,67 +21,59 @@ import java.util.Objects;
 
 /**
  * Container class for a generic pair of two values
- * 
- * @author Karsten Lehmann
  *
+ * @author Karsten Lehmann
  * @param <V1> type of value 1
  * @param <V2> type of value 2
  */
-public class Pair<V1,V2> {
-	private V1 value1;
-	private V2 value2;
-	
-	public Pair(V1 key, V2 value)  {
-		this.value1 = key;
-		this.value2 = value;
-	}
-	
-	public V1 getValue1() {
-		return value1;
-	}
-	
-	public void setValue1(V1 value) {
-		this.value1 = value;
-	}
-	
-	public V2 getValue2() {
-		return value2;
-	}
-	
-	public void setValue2(V2 value) {
-		this.value2 = value;
-	}
+public class Pair<V1, V2> {
+  private V1 value1;
+  private V2 value2;
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(value1, value2);
-	}
+  public Pair(final V1 key, final V2 value) {
+    this.value1 = key;
+    this.value2 = value;
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (getClass() != obj.getClass()) {
-			return false;
-		}
-		Pair<?, ?> other = (Pair<?, ?>) obj;
-		if (!Objects.equals(value1, other.value1)) {
-			return false;
-		}
-		if (!Objects.equals(value2, other.value2)) {
-			return false;
-		}
-		return true;
-	}
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || this.getClass() != obj.getClass()) {
+      return false;
+    }
+    final Pair<?, ?> other = (Pair<?, ?>) obj;
+    if (!Objects.equals(this.value1, other.value1) || !Objects.equals(this.value2, other.value2)) {
+      return false;
+    }
+    return true;
+  }
 
-	@Override
-	public String toString() {
-		return MessageFormat.format("Pair [value1={0}, value2={1}]", value1, value2); //$NON-NLS-1$
-	}
-	
-	
+  public V1 getValue1() {
+    return this.value1;
+  }
+
+  public V2 getValue2() {
+    return this.value2;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.value1, this.value2);
+  }
+
+  public void setValue1(final V1 value) {
+    this.value1 = value;
+  }
+
+  public void setValue2(final V2 value) {
+    this.value2 = value;
+  }
+
+  @Override
+  public String toString() {
+    return MessageFormat.format("Pair [value1={0}, value2={1}]", this.value1, this.value2); //$NON-NLS-1$
+  }
+
 }

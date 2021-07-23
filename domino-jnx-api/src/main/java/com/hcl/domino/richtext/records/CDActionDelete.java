@@ -22,19 +22,15 @@ import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.structures.BSIG;
 
 /**
- * 
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(
-	name="CDACTIONDELETE",
-	members={
-		@StructureMember(name="Header", type=BSIG.class),
-		@StructureMember(name="dwFlags", type=int.class)
-	}
-)
+@StructureDefinition(name = "CDACTIONDELETE", members = {
+    @StructureMember(name = "Header", type = BSIG.class),
+    @StructureMember(name = "dwFlags", type = int.class)
+})
 public interface CDActionDelete extends RichTextRecord<BSIG> {
-	@StructureGetter("Header")
-	@Override
-	BSIG getHeader();
+  @StructureGetter("Header")
+  @Override
+  BSIG getHeader();
 }

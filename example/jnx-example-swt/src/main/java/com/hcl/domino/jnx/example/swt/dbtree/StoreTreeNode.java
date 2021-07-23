@@ -28,64 +28,64 @@ import com.hcl.domino.jnx.example.swt.AppShell;
 import com.hcl.domino.jnx.example.swt.info.StoreInfoPane;
 
 public class StoreTreeNode extends DBListTreeNode {
-	public enum Type {
-		DATA(EnumSet.of(DocumentClass.DATA)),
-		DESIGN(EnumSet.of(DocumentClass.ALLNONDATA));
-		
-		private final Set<DocumentClass> documentClass;
-		
-		private Type(Set<DocumentClass> documentClass) {
-			this.documentClass = documentClass;
-		}
-		
-		public Set<DocumentClass> getDocumentClass() {
-			return documentClass;
-		}
-	}
-	
-	private final Type type;
-	private final String serverName;
-	private final String databasePath;
+  public enum Type {
+    DATA(EnumSet.of(DocumentClass.DATA)),
+    DESIGN(EnumSet.of(DocumentClass.ALLNONDATA));
 
-	public StoreTreeNode(String serverName, String databasePath, Type type) {
-		super(serverName+databasePath+type);
-		
-		this.serverName = serverName;
-		this.databasePath = databasePath;
-		this.type = type;
-	}
-	
-	public Type getType() {
-		return type;
-	}
-	
-	public String getDatabasePath() {
-		return databasePath;
-	}
-	
-	@Override
-	public String toString() {
-		return getType().name();
-	}
+    private final Set<DocumentClass> documentClass;
 
-	@Override
-	public Image getImage() {
-		switch(getType()) {
-		case DESIGN:
-			return AppShell.resourceManager.createImage(App.IMAGE_STORE_LOCAL);
-		case DATA:
-		default:
-			return AppShell.resourceManager.createImage(App.IMAGE_STORE);
-		}
-	}
-	
-	@Override
-	public void displayInfoPane(Composite target) {
-		super.displayInfoPane(target);
-		
-		new StoreInfoPane(target, serverName, databasePath, getType());
-		
-		target.layout();
-	}
+    Type(final Set<DocumentClass> documentClass) {
+      this.documentClass = documentClass;
+    }
+
+    public Set<DocumentClass> getDocumentClass() {
+      return this.documentClass;
+    }
+  }
+
+  private final Type type;
+  private final String serverName;
+  private final String databasePath;
+
+  public StoreTreeNode(final String serverName, final String databasePath, final Type type) {
+    super(serverName + databasePath + type);
+
+    this.serverName = serverName;
+    this.databasePath = databasePath;
+    this.type = type;
+  }
+
+  @Override
+  public void displayInfoPane(final Composite target) {
+    super.displayInfoPane(target);
+
+    new StoreInfoPane(target, this.serverName, this.databasePath, this.getType());
+
+    target.layout();
+  }
+
+  public String getDatabasePath() {
+    return this.databasePath;
+  }
+
+  @Override
+  public Image getImage() {
+    switch (this.getType()) {
+      case DESIGN:
+        return AppShell.resourceManager.createImage(App.IMAGE_STORE_LOCAL);
+      case DATA:
+      default:
+        return AppShell.resourceManager.createImage(App.IMAGE_STORE);
+    }
+  }
+
+  public Type getType() {
+    return this.type;
+  }
+
+  @Override
+  public String toString() {
+    return this.getType().name();
+  }
 
 }

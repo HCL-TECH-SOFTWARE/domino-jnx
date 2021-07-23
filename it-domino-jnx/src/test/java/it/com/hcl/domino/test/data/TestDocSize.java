@@ -16,12 +16,11 @@
  */
 package it.com.hcl.domino.test.data;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.Instant;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.data.Document;
@@ -32,37 +31,37 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 @SuppressWarnings("nls")
 public class TestDocSize extends AbstractNotesRuntimeTest {
 
-	@Test
-	public void testDocSize() throws Exception {
-		withTempDb((database) -> {
-			Document doc = database.createDocument();
-			doc.replaceItemValue("item1", "itemvalue1");
-			int size1 = doc.size();
-			assertTrue(size1>0);
+  @Test
+  public void testDocSize() throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("item1", "itemvalue1");
+      final int size1 = doc.size();
+      Assertions.assertTrue(size1 > 0);
 
-			doc.replaceItemValue("item2", "itemvalue2");
-			int size2 = doc.size();
-			assertTrue(size2>size1);
+      doc.replaceItemValue("item2", "itemvalue2");
+      final int size2 = doc.size();
+      Assertions.assertTrue(size2 > size1);
 
-			doc.attachFile("myfilename1", 
-			Instant.now(), Instant.now(), new IAttachmentProducer() {
+      doc.attachFile("myfilename1",
+          Instant.now(), Instant.now(), new IAttachmentProducer() {
 
-				@Override
-				public long getSizeEstimation() {
-					return -1;
-				}
+            @Override
+            public long getSizeEstimation() {
+              return -1;
+            }
 
-				@Override
-				public void produceAttachment(OutputStream out) throws IOException {
-					out.write("test123".getBytes());
-				}
-				
-			});
-			
-			int size3 = doc.size();
-			assertTrue(size3>size2);
-		});
-		
-	}
-	
+            @Override
+            public void produceAttachment(final OutputStream out) throws IOException {
+              out.write("test123".getBytes());
+            }
+
+          });
+
+      final int size3 = doc.size();
+      Assertions.assertTrue(size3 > size2);
+    });
+
+  }
+
 }

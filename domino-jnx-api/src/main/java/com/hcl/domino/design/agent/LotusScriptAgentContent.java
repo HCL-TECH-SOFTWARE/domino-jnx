@@ -18,10 +18,10 @@ package com.hcl.domino.design.agent;
 
 /**
  * Represents the contents of a LotusScript-type agent.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.24
  */
 public interface LotusScriptAgentContent extends AgentContent {
-	String getScript();
+  String getScript();
 }

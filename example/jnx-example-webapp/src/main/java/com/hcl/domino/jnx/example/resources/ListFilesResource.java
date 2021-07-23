@@ -37,117 +37,124 @@ import jakarta.ws.rs.core.MediaType;
 
 @Path("listFiles")
 public class ListFilesResource {
-	@Inject
-	private DominoClient client;
-	
-	@GET
-	@Produces(MediaType.APPLICATION_JSON)
-	public Collection<Node> get(
-		@QueryParam("serverName") String serverName
-	) {
-		Node rootNode = new Node(""); //$NON-NLS-1$
-		client.openDbDirectory()
-			.query()
-			.withServer(serverName)
-			.withFileTypes(EnumSet.of(FileType.RECURSE, FileType.DBREPL))
-			.withFlags(EnumSet.noneOf(SearchFlag.class))
-			.stream()
-			.forEach(entry -> add(rootNode, entry));
-		return rootNode.children;
-	}
-	
-	public static enum NodeType {
-		DB, DIR
-	}
-	public static class Node {
-		private final String name;
-		private final String title;
-		private final NodeType type;
-		private final String filePath;
-		private final String template;
-		private final Map<String, Object> properties;
-		private Collection<Node> children = new TreeSet<>(Comparator.comparing(Node::getName));
-		
-		public Node(String name) {
-			this.name = name;
-			this.type = NodeType.DIR;
-			this.title = null;
-			this.filePath = null;
-			this.properties = null;
-			this.template = null;
-		}
-		public Node(DirEntry dirEntry) {
-			this.name = dirEntry.getFileName();
-			this.type = NodeType.DB;
-			String info = (String)dirEntry.getProperties().get("$Info"); //$NON-NLS-1$
-			String title = ""; //$NON-NLS-1$
-			String template = ""; //$NON-NLS-1$
-			StringTokenizer tokenizer = new StringTokenizer(info, "\n"); //$NON-NLS-1$
-			if(tokenizer.hasMoreTokens()) {
-				title = tokenizer.nextToken();
-			}
-			if(tokenizer.hasMoreTokens()) {
-				template = tokenizer.nextToken();
-				if(template.startsWith("#")) { //$NON-NLS-1$
-					template = template.substring(2);
-				} else {
-					template = ""; //$NON-NLS-1$
-				}
-			}
-			this.title = title;
-			this.template = template;
-			this.filePath = dirEntry.getPhysicalFilePath();
-			this.properties = dirEntry.getProperties();
-		}
-		
-		public String getName() {
-			return name;
-		}
-		public NodeType getType() {
-			return type;
-		}
-		public String getTitle() {
-			return title;
-		}
-		public String getFilePath() {
-			return filePath;
-		}
-		public String getTemplate() {
-			return template;
-		}
-		public Map<String, Object> getProperties() {
-			return properties;
-		}
-		public Collection<Node> getChildren() {
-			return children;
-		}
-	}
-	
-	public static void add(Node rootNode, DirEntry dirEntry) {
-		String normalizedName = String.valueOf(dirEntry.getProperties().get("$Path")).replace('\\', '/'); //$NON-NLS-1$
-		Node target = rootNode;
-		String[] parts = normalizedName.split("\\/"); //$NON-NLS-1$
-		for(int i = 0; i < parts.length-1; i++) {
-			int fi = i;
-			Node searching = target;
-			target = searching.children.stream()
-				.filter(n -> n.name.equals(parts[fi]))
-				.findFirst()
-				.orElseGet(() -> {
-					Node newNode = new Node(parts[fi]);
-					searching.children.add(newNode);
-					return newNode;
-				});
-		}
-		
-		String title = (String)dirEntry.getProperties().get("$Info"); //$NON-NLS-1$
-		if(title != null && !title.isEmpty()) {
-			int lineIndex = title.indexOf('\n');
-			if(lineIndex > 0) {
-				title = title.substring(0, lineIndex);
-			}
-		}
-		
-		target.children.add(new Node(dirEntry));
-	}
+  public static class Node {
+    private final String name;
+    private final String title;
+    private final NodeType type;
+    private final String filePath;
+    private final String template;
+    private final Map<String, Object> properties;
+    private final Collection<Node> children = new TreeSet<>(Comparator.comparing(Node::getName));
+
+    public Node(final DirEntry dirEntry) {
+      this.name = dirEntry.getFileName();
+      this.type = NodeType.DB;
+      final String info = (String) dirEntry.getProperties().get("$Info"); //$NON-NLS-1$
+      String title = ""; //$NON-NLS-1$
+      String template = ""; //$NON-NLS-1$
+      final StringTokenizer tokenizer = new StringTokenizer(info, "\n"); //$NON-NLS-1$
+      if (tokenizer.hasMoreTokens()) {
+        title = tokenizer.nextToken();
+      }
+      if (tokenizer.hasMoreTokens()) {
+        template = tokenizer.nextToken();
+        if (template.startsWith("#")) { //$NON-NLS-1$
+          template = template.substring(2);
+        } else {
+          template = ""; //$NON-NLS-1$
+        }
+      }
+      this.title = title;
+      this.template = template;
+      this.filePath = dirEntry.getPhysicalFilePath();
+      this.properties = dirEntry.getProperties();
+    }
+
+    public Node(final String name) {
+      this.name = name;
+      this.type = NodeType.DIR;
+      this.title = null;
+      this.filePath = null;
+      this.properties = null;
+      this.template = null;
+    }
+
+    public Collection<Node> getChildren() {
+      return this.children;
+    }
+
+    public String getFilePath() {
+      return this.filePath;
+    }
+
+    public String getName() {
+      return this.name;
+    }
+
+    public Map<String, Object> getProperties() {
+      return this.properties;
+    }
+
+    public String getTemplate() {
+      return this.template;
+    }
+
+    public String getTitle() {
+      return this.title;
+    }
+
+    public NodeType getType() {
+      return this.type;
+    }
+  }
+
+  public enum NodeType {
+    DB, DIR
+  }
+
+  public static void add(final Node rootNode, final DirEntry dirEntry) {
+    final String normalizedName = String.valueOf(dirEntry.getProperties().get("$Path")).replace('\\', '/'); //$NON-NLS-1$
+    Node target = rootNode;
+    final String[] parts = normalizedName.split("\\/"); //$NON-NLS-1$
+    for (int i = 0; i < parts.length - 1; i++) {
+      final int fi = i;
+      final Node searching = target;
+      target = searching.children.stream()
+          .filter(n -> n.name.equals(parts[fi]))
+          .findFirst()
+          .orElseGet(() -> {
+            final Node newNode = new Node(parts[fi]);
+            searching.children.add(newNode);
+            return newNode;
+          });
+    }
+
+    String title = (String) dirEntry.getProperties().get("$Info"); //$NON-NLS-1$
+    if (title != null && !title.isEmpty()) {
+      final int lineIndex = title.indexOf('\n');
+      if (lineIndex > 0) {
+        title = title.substring(0, lineIndex);
+      }
+    }
+
+    target.children.add(new Node(dirEntry));
+  }
+
+  @Inject
+  private DominoClient client;
+
+  @GET
+  @Produces(MediaType.APPLICATION_JSON)
+  public Collection<Node> get(
+      @QueryParam("serverName") final String serverName) {
+    final Node rootNode = new Node(""); //$NON-NLS-1$
+    this.client.openDbDirectory()
+        .query()
+        .withServer(serverName)
+        .withFileTypes(EnumSet.of(FileType.RECURSE, FileType.DBREPL))
+        .withFlags(EnumSet.noneOf(SearchFlag.class))
+        .stream()
+        .forEach(entry -> ListFilesResource.add(rootNode, entry));
+    return rootNode.children;
+  }
 }

@@ -24,5 +24,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface ErrorText {
-	public String text() default "";
+  public String text() default "";
 }

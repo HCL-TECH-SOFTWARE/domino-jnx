@@ -19,28 +19,29 @@ package com.hcl.domino.exception;
 import com.hcl.domino.DominoException;
 
 /**
- * Represents error code 0x03B6, "This database cannot be opened because a consistency check of it is needed."
- * 
+ * Represents error code 0x03B6, "This database cannot be opened because a
+ * consistency check of it is needed."
+ *
  * @author Jesse Gallagher
  * @since 1.0.21
  */
 public class FixupInProgressException extends DominoException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public FixupInProgressException(int id, String message) {
-		super(id, message);
-	}
+  public FixupInProgressException(final int id, final String message) {
+    super(id, message);
+  }
 
-	public FixupInProgressException(int id, String message, Throwable cause) {
-		super(id, message, cause);
-	}
+  public FixupInProgressException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
+  }
 
-	public FixupInProgressException(String msg) {
-		super(msg);
-	}
+  public FixupInProgressException(final String msg) {
+    super(msg);
+  }
 
-	public FixupInProgressException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public FixupInProgressException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
 
 }

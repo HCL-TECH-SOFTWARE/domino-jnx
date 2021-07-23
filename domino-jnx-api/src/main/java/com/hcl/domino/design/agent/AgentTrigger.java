@@ -20,33 +20,38 @@ import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 
 public enum AgentTrigger implements INumberEnum<Short> {
-	/** Unknown or unavailable  */
-	NONE(RichTextConstants.ASSISTTRIGGER_TYPE_NONE),
-	/** According to time schedule  */
-	SCHEDULED(RichTextConstants.ASSISTTRIGGER_TYPE_SCHEDULED),
-	/** When new mail delivered  */
-	NEWMAIL(RichTextConstants.ASSISTTRIGGER_TYPE_NEWMAIL),
-	/** When documents pasted into database  */
-	PASTED(RichTextConstants.ASSISTTRIGGER_TYPE_PASTED),
-	/** Manually executed  */
-	MANUAL(RichTextConstants.ASSISTTRIGGER_TYPE_MANUAL),
-	/** When doc is updated  */
-	DOCUPDATE(RichTextConstants.ASSISTTRIGGER_TYPE_DOCUPDATE),
-	/** Synchronous new mail agent executed by router  */
-	SYNCHNEWMAIL(RichTextConstants.ASSISTTRIGGER_TYPE_SYNCHNEWMAIL),
-	/** When an server event executes  */
-	EVENT(RichTextConstants.ASSISTTRIGGER_TYPE_EVENT),
-	/** On server start  */
-	SERVERSTART(RichTextConstants.ASSISTTRIGGER_TYPE_SERVERSTART)
-	;
-	private final short value;
-	AgentTrigger(int value) { this.value = (short)value; }
-	@Override
-	public Short getValue() {
-		return value;
-	}
-	@Override
-	public long getLongValue() {
-		return value;
-	}
+  /** Unknown or unavailable */
+  NONE(RichTextConstants.ASSISTTRIGGER_TYPE_NONE),
+  /** According to time schedule */
+  SCHEDULED(RichTextConstants.ASSISTTRIGGER_TYPE_SCHEDULED),
+  /** When new mail delivered */
+  NEWMAIL(RichTextConstants.ASSISTTRIGGER_TYPE_NEWMAIL),
+  /** When documents pasted into database */
+  PASTED(RichTextConstants.ASSISTTRIGGER_TYPE_PASTED),
+  /** Manually executed */
+  MANUAL(RichTextConstants.ASSISTTRIGGER_TYPE_MANUAL),
+  /** When doc is updated */
+  DOCUPDATE(RichTextConstants.ASSISTTRIGGER_TYPE_DOCUPDATE),
+  /** Synchronous new mail agent executed by router */
+  SYNCHNEWMAIL(RichTextConstants.ASSISTTRIGGER_TYPE_SYNCHNEWMAIL),
+  /** When an server event executes */
+  EVENT(RichTextConstants.ASSISTTRIGGER_TYPE_EVENT),
+  /** On server start */
+  SERVERSTART(RichTextConstants.ASSISTTRIGGER_TYPE_SERVERSTART);
+
+  private final short value;
+
+  AgentTrigger(final int value) {
+    this.value = (short) value;
+  }
+
+  @Override
+  public long getLongValue() {
+    return this.value;
+  }
+
+  @Override
+  public Short getValue() {
+    return this.value;
+  }
 }

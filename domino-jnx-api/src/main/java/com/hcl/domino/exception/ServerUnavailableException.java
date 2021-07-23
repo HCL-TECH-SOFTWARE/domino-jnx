@@ -19,28 +19,29 @@ package com.hcl.domino.exception;
 import com.hcl.domino.DominoException;
 
 /**
- * Represents error code ERR_SERVER_UNAVAILABLE (0x0803), "Unable to find path to server[...]"
- * 
+ * Represents error code ERR_SERVER_UNAVAILABLE (0x0803), "Unable to find path
+ * to server[...]"
+ *
  * @author Jesse Gallagher
  * @since 1.0.20
  */
 public class ServerUnavailableException extends DominoException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public ServerUnavailableException(int id, String message) {
-		super(id, message);
-	}
+  public ServerUnavailableException(final int id, final String message) {
+    super(id, message);
+  }
 
-	public ServerUnavailableException(int id, String message, Throwable cause) {
-		super(id, message, cause);
-	}
+  public ServerUnavailableException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
+  }
 
-	public ServerUnavailableException(String msg) {
-		super(msg);
-	}
+  public ServerUnavailableException(final String msg) {
+    super(msg);
+  }
 
-	public ServerUnavailableException(String msg, Throwable cause) {
-		super(msg, cause);
-	}
+  public ServerUnavailableException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
 
 }

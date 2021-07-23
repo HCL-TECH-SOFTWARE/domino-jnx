@@ -16,12 +16,11 @@
  */
 package com.hcl.domino.jnx.example.swt.bean;
 
+import com.hcl.domino.jnx.jsonb.DocumentJsonbSerializer;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
-
-import com.hcl.domino.jnx.jsonb.DocumentJsonbSerializer;
-
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import jakarta.json.bind.JsonbConfig;
@@ -29,22 +28,21 @@ import jakarta.json.bind.JsonbConfig;
 @ApplicationScoped
 public class JsonbBean {
 
-	private Jsonb jsonb;
-	
-	@PostConstruct
-	public void init() {
-		jsonb = JsonbBuilder.newBuilder()
-			.withConfig(
-				new JsonbConfig()
-					.withSerializers(DocumentJsonbSerializer.newSerializer())
-					.withFormatting(true)
-			)
-			.build();
-	}
-	
-	@Produces
-	public Jsonb getJsonb() {
-		return jsonb;
-	}
+  private Jsonb jsonb;
+
+  @Produces
+  public Jsonb getJsonb() {
+    return this.jsonb;
+  }
+
+  @PostConstruct
+  public void init() {
+    this.jsonb = JsonbBuilder.newBuilder()
+        .withConfig(
+            new JsonbConfig()
+                .withSerializers(DocumentJsonbSerializer.newSerializer())
+                .withFormatting(true))
+        .build();
+  }
 
 }

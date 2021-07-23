@@ -29,26 +29,26 @@ import com.hcl.domino.security.AclLevel;
  * @since 1.0.18
  */
 public class AccessInfoImpl implements AccessInfo {
-	private final AclLevel aclLevel;
-	private final Set<AclFlag> aclFlags;
-	
-	public AccessInfoImpl(AclLevel aclLevel, Collection<AclFlag> aclFlags) {
-		this.aclLevel = aclLevel;
-		this.aclFlags = aclFlags == null ? Collections.emptySet() : Collections.unmodifiableSet(EnumSet.copyOf(aclFlags));
-	}
+  private final AclLevel aclLevel;
+  private final Set<AclFlag> aclFlags;
 
-	@Override
-	public AclLevel getAclLevel() {
-		return aclLevel;
-	}
+  public AccessInfoImpl(final AclLevel aclLevel, final Collection<AclFlag> aclFlags) {
+    this.aclLevel = aclLevel;
+    this.aclFlags = aclFlags == null ? Collections.emptySet() : Collections.unmodifiableSet(EnumSet.copyOf(aclFlags));
+  }
 
-	@Override
-	public Set<AclFlag> getAclFlags() {
-		return aclFlags;
-	}
+  @Override
+  public Set<AclFlag> getAclFlags() {
+    return this.aclFlags;
+  }
 
-	@Override
-	public String toString() {
-		return String.format("AccessInfoImpl [aclLevel=%s, aclFlags=%s]", aclLevel, aclFlags); //$NON-NLS-1$
-	}
+  @Override
+  public AclLevel getAclLevel() {
+    return this.aclLevel;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("AccessInfoImpl [aclLevel=%s, aclFlags=%s]", this.aclLevel, this.aclFlags); //$NON-NLS-1$
+  }
 }

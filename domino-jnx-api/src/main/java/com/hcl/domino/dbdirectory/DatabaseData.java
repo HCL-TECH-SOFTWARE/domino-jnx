@@ -25,85 +25,89 @@ import com.hcl.domino.data.DominoDateTime;
  * parsed data of databases.
  */
 public interface DatabaseData extends DirEntry {
-	
-	/**
-	 * Returns the database title
-	 * 
-	 * @return title
-	 */
-	String getTitle();
 
-	/**
-	 * Returns the filename of the database
-	 * 
-	 * @return filename
-	 */
-	String getFileName();
+  /**
+   * Returns the database category
+   *
+   * @return category or empty string
+   */
+  String getCategory();
 
-	/**
-	 * Returns the complete relative path of the database in the data directory
-	 * 
-	 * @return path
-	 */
-	String getFilePath();
+  /**
+   * Returns the database creation date
+   *
+   * @return creation date
+   */
+  DominoDateTime getCreated();
 
-	/**
-	 * Returns the database creation date
-	 * 
-	 * @return creation date
-	 */
-	DominoDateTime getCreated();
+  /**
+   * Returns the date of the last design change
+   *
+   * @return design modified date
+   */
+  DominoDateTime getDesignModifiedDate();
 
-	/**
-	 * Returns the database modification date
-	 * 
-	 * @return modification date
-	 */
-	@Override
-	DominoDateTime getModified();
+  /**
+   * Returns the filename of the database
+   *
+   * @return filename
+   */
+  @Override
+  String getFileName();
 
-	/**
-	 * Returns the date of the last fixup
-	 * 
-	 * @return an {@link Optional} describing the last fixup time, or an empty one if
-	 *      no history is present
-	 */
-	Optional<DominoDateTime> getLastFixup();
-	
-	/**
-	 * Returns the date of the last compact
-	 * 
-	 * @return an {@link Optional} describing the last compact time, or an empty one if
-	 *      no history is present
-	 */
-	Optional<DominoDateTime> getLastCompact();
-	
-	/**
-	 * Returns the date of the last design change
-	 * 
-	 * @return design modified date
-	 */
-	DominoDateTime getDesignModifiedDate();
-	
-	/**
-	 * Returns the database category
-	 * 
-	 * @return category or empty string
-	 */
-	String getCategory();
-	
-	/**
-	 * Returns the template name
-	 * 
-	 * @return template name if this database is a template, empty string otherwise
-	 */
-	String getTemplateName();
-	
-	/**
-	 * Returns the name of the template that this database inherits its design from
-	 * 
-	 * @return inherit template name or empty string
-	 */
-	String getInheritTemplateName();
-	
+  /**
+   * Returns the complete relative path of the database in the data directory
+   *
+   * @return path
+   */
+  @Override
+  String getFilePath();
+
+  /**
+   * Returns the name of the template that this database inherits its design from
+   *
+   * @return inherit template name or empty string
+   */
+  String getInheritTemplateName();
+
+  /**
+   * Returns the date of the last compact
+   *
+   * @return an {@link Optional} describing the last compact time, or an empty one
+   *         if
+   *         no history is present
+   */
+  Optional<DominoDateTime> getLastCompact();
+
+  /**
+   * Returns the date of the last fixup
+   *
+   * @return an {@link Optional} describing the last fixup time, or an empty one
+   *         if
+   *         no history is present
+   */
+  Optional<DominoDateTime> getLastFixup();
+
+  /**
+   * Returns the database modification date
+   *
+   * @return modification date
+   */
+  @Override
+  DominoDateTime getModified();
+
+  /**
+   * Returns the template name
+   *
+   * @return template name if this database is a template, empty string otherwise
+   */
+  String getTemplateName();
+
+  /**
+   * Returns the database title
+   *
+   * @return title
+   */
+  String getTitle();
+
 }

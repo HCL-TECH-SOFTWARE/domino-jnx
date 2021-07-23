@@ -24,123 +24,126 @@ import java.util.Collection;
 import com.hcl.domino.data.Database.Action;
 
 /**
- * Interface gives access to referenced embedded images in the HTML conversion of rich text
+ * Interface gives access to referenced embedded images in the HTML conversion
+ * of rich text
  */
 public interface EmbeddedImage {
-	
-	/**
-	 * Returns the name of the item that contains this image. Use the values of<br>
-	 * <ul>
-	 * <li>{@link #getItemName()}</li>
-	 * <li>{@link #getItemOffset()}</li>
-	 * <li>{@link #getItemIndex()}</li>
-	 * <li>{@link #getOptions()}</li>
-	 * </ul>
-	 * to locate the data for this image in the document via {@link RichTextHTMLConverter#readEmbeddedImage}.
-	 * 
-	 * @return item name
-	 */
-	String getItemName();
 
-	/**
-	 * Returns the item offset. Use the values of<br>
-	 * <ul>
-	 * <li>{@link #getItemName()}</li>
-	 * <li>{@link #getItemOffset()}</li>
-	 * <li>{@link #getItemIndex()}</li>
-	 * <li>{@link #getOptions()}</li>
-	 * </ul>
-	 * to locate the data for this image in the document.
-	 * 
-	 * @return item offset
-	 */
-	int getItemOffset();
-	
-	/**
-	 * Returns the item index. Use the values of<br>
-	 * <ul>
-	 * <li>{@link #getItemName()}</li>
-	 * <li>{@link #getItemOffset()}</li>
-	 * <li>{@link #getItemIndex()}</li>
-	 * <li>{@link #getOptions()}</li>
-	 * </ul>
-	 * to locate the data for this image in the document.
-	 * 
-	 * @return item index
-	 */
-	int getItemIndex();
-	
-	/**
-	 * Use the HTML convert options used to render this embedded image. Use the values of<br>
-	 * <ul>
-	 * <li>{@link #getItemName()}</li>
-	 * <li>{@link #getItemOffset()}</li>
-	 * <li>{@link #getItemIndex()}</li>
-	 * <li>{@link #getOptions()}</li>
-	 * </ul>
-	 * to locate the data for this image in the document.
-	 * 
-	 * @return convert options
-	 */
-	Collection<String> getOptions();
+  /**
+   * Callback interface that receives data of embedded images
+   */
+  public interface HTMLImageReader {
 
-	/**
-	 * Returns img tag URL (src attribute value), can be used for string replacement
-	 * if the image is stored locally on disk
-	 * 
-	 * @return relative image URL
-	 */
-	String getImageSrcAttr();
-	
-	/**
-	 * Method to directly access the image data without storing it to disk
-	 * 
-	 * @param callback callback to receive data
-	 */
-	void readImage(HTMLImageReader callback);
-	
-	/**
-	 * Convenience method to write the whole image to a file
-	 * 
-	 * @param filePath image filepath
-	 * @throws IOException on case of I/O errors
-	 */
-	void writeImage(Path filePath) throws IOException;
+    /**
+     * Implement this method to receive element data
+     *
+     * @param data data
+     * @return action, either Continue or Stop
+     */
+    Action read(byte[] data);
 
-	/**
-	 * Convenience method to write the whole image to an output stream
-	 * 
-	 * @param out stream
-	 * @throws IOException on case of I/O errors
-	 */
-	void writeImage(OutputStream out) throws IOException;
+    /**
+     * Reports the size of the image
+     *
+     * @param size size
+     * @return return how many bytes to skip before reading
+     */
+    int setSize(int size);
+  }
 
-	/**
-	 * Returns the image format, either "gif" or "jpg"
-	 * 
-	 * @return format
-	 */
-	String getFormat();
-	
-	/**
-	 * Callback interface that receives data of embedded images
-	 */
-	public interface HTMLImageReader {
-		
-		/**
-		 * Reports the size of the image
-		 * 
-		 * @param size size
-		 * @return return how many bytes to skip before reading
-		 */
-		int setSize(int size);
-		
-		/**
-		 * Implement this method to receive element data
-		 * 
-		 * @param data data
-		 * @return action, either Continue or Stop
-		 */
-		Action read(byte[] data);
-	}
+  /**
+   * Returns the image format, either "gif" or "jpg"
+   *
+   * @return format
+   */
+  String getFormat();
+
+  /**
+   * Returns img tag URL (src attribute value), can be used for string replacement
+   * if the image is stored locally on disk
+   *
+   * @return relative image URL
+   */
+  String getImageSrcAttr();
+
+  /**
+   * Returns the item index. Use the values of<br>
+   * <ul>
+   * <li>{@link #getItemName()}</li>
+   * <li>{@link #getItemOffset()}</li>
+   * <li>{@link #getItemIndex()}</li>
+   * <li>{@link #getOptions()}</li>
+   * </ul>
+   * to locate the data for this image in the document.
+   *
+   * @return item index
+   */
+  int getItemIndex();
+
+  /**
+   * Returns the name of the item that contains this image. Use the values of<br>
+   * <ul>
+   * <li>{@link #getItemName()}</li>
+   * <li>{@link #getItemOffset()}</li>
+   * <li>{@link #getItemIndex()}</li>
+   * <li>{@link #getOptions()}</li>
+   * </ul>
+   * to locate the data for this image in the document via
+   * {@link RichTextHTMLConverter#readEmbeddedImage}.
+   *
+   * @return item name
+   */
+  String getItemName();
+
+  /**
+   * Returns the item offset. Use the values of<br>
+   * <ul>
+   * <li>{@link #getItemName()}</li>
+   * <li>{@link #getItemOffset()}</li>
+   * <li>{@link #getItemIndex()}</li>
+   * <li>{@link #getOptions()}</li>
+   * </ul>
+   * to locate the data for this image in the document.
+   *
+   * @return item offset
+   */
+  int getItemOffset();
+
+  /**
+   * Use the HTML convert options used to render this embedded image. Use the
+   * values of<br>
+   * <ul>
+   * <li>{@link #getItemName()}</li>
+   * <li>{@link #getItemOffset()}</li>
+   * <li>{@link #getItemIndex()}</li>
+   * <li>{@link #getOptions()}</li>
+   * </ul>
+   * to locate the data for this image in the document.
+   *
+   * @return convert options
+   */
+  Collection<String> getOptions();
+
+  /**
+   * Method to directly access the image data without storing it to disk
+   *
+   * @param callback callback to receive data
+   */
+  void readImage(HTMLImageReader callback);
+
+  /**
+   * Convenience method to write the whole image to an output stream
+   *
+   * @param out stream
+   * @throws IOException on case of I/O errors
+   */
+  void writeImage(OutputStream out) throws IOException;
+
+  /**
+   * Convenience method to write the whole image to a file
+   *
+   * @param filePath image filepath
+   * @throws IOException on case of I/O errors
+   */
+  void writeImage(Path filePath) throws IOException;
 }

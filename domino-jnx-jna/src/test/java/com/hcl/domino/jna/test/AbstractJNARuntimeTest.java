@@ -16,8 +16,6 @@
  */
 package com.hcl.domino.jna.test;
 
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +34,7 @@ import java.util.jar.JarFile;
 import java.util.zip.GZIPInputStream;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -56,184 +55,180 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @SuppressWarnings("nls")
 @SuppressFBWarnings("UI_INHERITANCE_UNSAFE_GETRESOURCE")
 public abstract class AbstractJNARuntimeTest {
-	private static ThreadLocal<DominoClient> threadClient = new ThreadLocal<>();
+  @FunctionalInterface
+  protected interface DatabaseConsumer {
+    void accept(Database database) throws Exception;
+  }
 
-	private static boolean initialized = false;
-	
-	public DominoClient getClient() {
-		return threadClient.get();
-	}
-	
-	public DominoClient reloadClient() throws IOException {
-		if (threadClient.get() != null) {
-			threadClient.get().close();
-			
-			threadClient.set(DominoClientBuilder.newDominoClient().build());
-		}
-		else {
-			threadClient.set(DominoClientBuilder.newDominoClient().build());
-		}
-		
-		return getClient();
-	}
-	
-	@BeforeAll
-	public static void initRuntime() {
-		if(!initialized) {
-			initialized = true;
-			initRuntime(true);
-		}
-	}
-	
-	public static void initRuntime(boolean addShutdownHook) {
-		String notesProgramDir = System.getenv("Notes_ExecDirectory");
-		String notesIniPath = System.getenv("NotesINI");
-		if (StringUtil.isNotEmpty(notesProgramDir)) {
-			String[] initArgs = new String[] {
-					notesProgramDir,
-					StringUtil.isEmpty(notesIniPath) ? "" : ("=" + notesIniPath) //$NON-NLS-1$ 
-			};
-			
-			DominoProcess.get().initializeProcess(initArgs);
-		} else {
-			throw new IllegalStateException("Unable to locate Notes runtime");
-		}
+  private static ThreadLocal<DominoClient> threadClient = new ThreadLocal<>();
 
-		//prevent ID password prompt
-		String idFilePath = System.getenv("Notes_IDPath");
-		String idPassword = System.getenv("Notes_IDPassword");
-		if (!StringUtil.isEmpty(idPassword)) {
-			DominoProcess.get().switchToId(StringUtil.isEmpty(idFilePath) ? null : Paths.get(idFilePath), idPassword, true);
-		}
+  private static boolean initialized = false;
 
-		if(addShutdownHook) {
-			Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-				DominoProcess.get().terminateProcess();
-			}));
-		}
-	}
+  private static <T> T call(final Callable<T> callable) {
+    try {
+      return callable.call();
+    } catch (final RuntimeException e) {
+      throw e;
+    } catch (final Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
 
-	@BeforeEach
-	public void initClient() throws IOException {
-		if (threadClient.get() == null) {
-			DominoProcess.get().initializeThread();
-			threadClient.set(DominoClientBuilder.newDominoClient().build());
-		}
-	}
+  private static List<String> getResourceFiles(final String path) throws IOException {
+    final List<String> result = new ArrayList<>();
+    final File jarFile = new File(AbstractJNARuntimeTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 
-	@AfterEach
-	public void termClient() throws IOException {
-		if(threadClient.get() != null) {
-			threadClient.get().close();
-			threadClient.set(null);
-			DominoProcess.get().terminateThread();
-		}
-	}
-	
-	@FunctionalInterface
-	protected static interface DatabaseConsumer {
-		void accept(Database database) throws Exception;
-	}
-	
-	protected void withTempDb(DatabaseConsumer c) throws Exception {
-		DominoClient client = getClient();
-		Path tempDest = Files.createTempFile(getClass().getName(), ".nsf"); //$NON-NLS-1$
-		Files.delete(tempDest);
-		Database database = client.createDatabase(null, tempDest.toString(), false, true, Encryption.None);
-		assertNotEquals(null, database);
-		try {
-			c.accept(database);
-		} finally {
-			database.close();
-			try {
-				client.deleteDatabase(null, tempDest.toString());
-			} catch(Throwable t) {
-				System.err.println("Unable to delete database " + tempDest + ": " + t);
-			}
-		}
-	}
-	
-	protected void withResourceDxl(String resDirPath, DatabaseConsumer c) throws Exception {
-		withTempDb(database -> {
-			DxlImporter importer = getClient().createDxlImporter();
-			importer.setInputValidationOption(XMLValidationOption.NEVER);
-			importer.setDesignImportOption(DXLImportOption.REPLACE_ELSE_CREATE);
-			importer.setReplicaRequiredForReplaceOrUpdate(false);
-			getResourceFiles(resDirPath).stream()
-				.filter(Objects::nonNull)
-				.map(name -> PathUtil.concat("/", name, '/'))
-				.map(name ->
-					StringUtil.endsWithIgnoreCase(name, ".xml") ?
-						(InputStream)getClass().getResourceAsStream(name) :
-					StringUtil.endsWithIgnoreCase(name, ".xml.gz") ?
-						call(() -> new GZIPInputStream(getClass().getResourceAsStream(name))) :
-						null
-				)
-				.filter(Objects::nonNull)
-				.forEach(is -> {
-					try {
-						importer.importDxl(is, database);
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					} finally {
-						StreamUtil.close(is);
-					}
-				});
-			
-			c.accept(database);
-		});
-	}
-	
-	private static List<String> getResourceFiles(final String path) throws IOException {
-		List<String> result = new ArrayList<>();
-		final File jarFile = new File(AbstractJNARuntimeTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+    if (jarFile.isFile()) { // Run with JAR file
+      final JarFile jar = new JarFile(jarFile);
+      final Enumeration<JarEntry> entries = jar.entries(); // gives ALL entries in jar
+      while (entries.hasMoreElements()) {
+        final String name = entries.nextElement().getName();
+        if (name.startsWith(path + "/")) { // filter according to the path
+          result.add(name);
+        }
+      }
+      jar.close();
+    } else if (jarFile.isDirectory()) {
+      final File subDir = new File(jarFile, path);
+      if (subDir != null && subDir.exists()) {
+        final String[] paths = subDir.list();
+        if (paths != null) {
+          for (final String name : paths) {
+            result.add(path + "/" + name);
+          }
+        }
+      }
+    } else { // Run with IDE
+      final URL url = AbstractJNARuntimeTest.class.getResource("/" + path);
+      if (url != null) {
+        try {
+          final File apps = new File(url.toURI());
+          final File[] files = apps.listFiles();
+          if (files != null) {
+            for (final File app : files) {
+              result.add(app.getPath());
+            }
+          }
+        } catch (final URISyntaxException ex) {
+          // never happens
+        }
+      }
+    }
+    return result;
+  }
 
-		if (jarFile.isFile()) { // Run with JAR file
-			final JarFile jar = new JarFile(jarFile);
-			final Enumeration<JarEntry> entries = jar.entries(); //gives ALL entries in jar
-			while (entries.hasMoreElements()) {
-				final String name = entries.nextElement().getName();
-				if (name.startsWith(path + "/")) { //filter according to the path
-					result.add(name);
-				}
-			}
-			jar.close();
-		} else if(jarFile.isDirectory()) {
-			File subDir = new File(jarFile, path);
-			if(subDir != null && subDir.exists()) {
-				String[] paths = subDir.list();
-				if(paths != null) {
-					for(String name : paths) {
-						result.add(path + "/" + name);
-					}
-				}
-			}
-		} else { // Run with IDE
-			final URL url = AbstractJNARuntimeTest.class.getResource("/" + path);
-			if (url != null) {
-				try {
-					final File apps = new File(url.toURI());
-					File[] files = apps.listFiles();
-					if(files != null) {
-						for (File app : files) {
-							result.add(app.getPath());
-						}
-					}
-				} catch (URISyntaxException ex) {
-					// never happens
-				}
-			}
-		}
-		return result;
-	}
-	
-	private static <T> T call(final Callable<T> callable) {
-		try {
-			return callable.call();
-		} catch(RuntimeException e) {
-			throw e;
-		} catch(Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
+  @BeforeAll
+  public static void initRuntime() {
+    if (!AbstractJNARuntimeTest.initialized) {
+      AbstractJNARuntimeTest.initialized = true;
+      AbstractJNARuntimeTest.initRuntime(true);
+    }
+  }
+
+  public static void initRuntime(final boolean addShutdownHook) {
+    final String notesProgramDir = System.getenv("Notes_ExecDirectory");
+    final String notesIniPath = System.getenv("NotesINI");
+    if (StringUtil.isNotEmpty(notesProgramDir)) {
+      final String[] initArgs = new String[] {
+          notesProgramDir,
+          StringUtil.isEmpty(notesIniPath) ? "" : "=" + notesIniPath //$NON-NLS-1$
+      };
+
+      DominoProcess.get().initializeProcess(initArgs);
+    } else {
+      throw new IllegalStateException("Unable to locate Notes runtime");
+    }
+
+    // prevent ID password prompt
+    final String idFilePath = System.getenv("Notes_IDPath");
+    final String idPassword = System.getenv("Notes_IDPassword");
+    if (!StringUtil.isEmpty(idPassword)) {
+      DominoProcess.get().switchToId(StringUtil.isEmpty(idFilePath) ? null : Paths.get(idFilePath), idPassword, true);
+    }
+
+    if (addShutdownHook) {
+      Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+        DominoProcess.get().terminateProcess();
+      }));
+    }
+  }
+
+  public DominoClient getClient() {
+    return AbstractJNARuntimeTest.threadClient.get();
+  }
+
+  @BeforeEach
+  public void initClient() throws IOException {
+    if (AbstractJNARuntimeTest.threadClient.get() == null) {
+      DominoProcess.get().initializeThread();
+      AbstractJNARuntimeTest.threadClient.set(DominoClientBuilder.newDominoClient().build());
+    }
+  }
+
+  public DominoClient reloadClient() throws IOException {
+    if (AbstractJNARuntimeTest.threadClient.get() != null) {
+      AbstractJNARuntimeTest.threadClient.get().close();
+
+      AbstractJNARuntimeTest.threadClient.set(DominoClientBuilder.newDominoClient().build());
+    } else {
+      AbstractJNARuntimeTest.threadClient.set(DominoClientBuilder.newDominoClient().build());
+    }
+
+    return this.getClient();
+  }
+
+  @AfterEach
+  public void termClient() throws IOException {
+    if (AbstractJNARuntimeTest.threadClient.get() != null) {
+      AbstractJNARuntimeTest.threadClient.get().close();
+      AbstractJNARuntimeTest.threadClient.set(null);
+      DominoProcess.get().terminateThread();
+    }
+  }
+
+  protected void withResourceDxl(final String resDirPath, final DatabaseConsumer c) throws Exception {
+    this.withTempDb(database -> {
+      final DxlImporter importer = this.getClient().createDxlImporter();
+      importer.setInputValidationOption(XMLValidationOption.NEVER);
+      importer.setDesignImportOption(DXLImportOption.REPLACE_ELSE_CREATE);
+      importer.setReplicaRequiredForReplaceOrUpdate(false);
+      AbstractJNARuntimeTest.getResourceFiles(resDirPath).stream()
+          .filter(Objects::nonNull)
+          .map(name -> PathUtil.concat("/", name, '/'))
+          .map(name -> StringUtil.endsWithIgnoreCase(name, ".xml") ? (InputStream) this.getClass().getResourceAsStream(name)
+              : StringUtil.endsWithIgnoreCase(name, ".xml.gz")
+                  ? AbstractJNARuntimeTest.call(() -> new GZIPInputStream(this.getClass().getResourceAsStream(name)))
+                  : null)
+          .filter(Objects::nonNull)
+          .forEach(is -> {
+            try {
+              importer.importDxl(is, database);
+            } catch (final IOException e) {
+              throw new RuntimeException(e);
+            } finally {
+              StreamUtil.close(is);
+            }
+          });
+
+      c.accept(database);
+    });
+  }
+
+  protected void withTempDb(final DatabaseConsumer c) throws Exception {
+    final DominoClient client = this.getClient();
+    final Path tempDest = Files.createTempFile(this.getClass().getName(), ".nsf"); //$NON-NLS-1$
+    Files.delete(tempDest);
+    final Database database = client.createDatabase(null, tempDest.toString(), false, true, Encryption.None);
+    Assertions.assertNotEquals(null, database);
+    try {
+      c.accept(database);
+    } finally {
+      database.close();
+      try {
+        client.deleteDatabase(null, tempDest.toString());
+      } catch (final Throwable t) {
+        System.err.println("Unable to delete database " + tempDest + ": " + t);
+      }
+    }
+  }
 }

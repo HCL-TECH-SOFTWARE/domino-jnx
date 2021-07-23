@@ -21,15 +21,16 @@ import java.text.MessageFormat;
 /**
  * Exception used to indicate that a JNX object of one implementation was passed
  * to an incompatible implementation object.
- * 
+ *
  * @author Jesse Gallagher
  * @since 1.0.11
  */
 public class IncompatibleImplementationException extends IllegalArgumentException {
-	private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-	public IncompatibleImplementationException(Object actual, Class<?> expected) {
-		super(MessageFormat.format("{0} is not a {1}", actual == null ? "null" : actual.getClass().getSimpleName(), expected.getClass().getName())); //$NON-NLS-2$
-	}
+  public IncompatibleImplementationException(final Object actual, final Class<?> expected) {
+    super(MessageFormat.format("{0} is not a {1}", actual == null ? "null" : actual.getClass().getSimpleName(), //$NON-NLS-2$
+        expected.getClass().getName()));
+  }
 
 }
