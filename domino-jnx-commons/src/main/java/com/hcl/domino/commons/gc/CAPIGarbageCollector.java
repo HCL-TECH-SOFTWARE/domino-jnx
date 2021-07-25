@@ -255,7 +255,7 @@ public class CAPIGarbageCollector {
    * 
    * @param client domino client
    */
-  public static void dispose(final IGCDominoClient client) {
+  public static void dispose(final IGCDominoClient<?> client) {
     final APIObjectAllocations clientAllocations = client.getAdapter(APIObjectAllocations.class);
     CAPIGarbageCollector.dispose(client, clientAllocations, 0);
   }
