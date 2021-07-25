@@ -5,6 +5,7 @@
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
 		<version>1.0.28-SNAPSHOT</version>
+		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>it-domino-jnx</artifactId>
 	<name>HCL Domino API Integration Tests</name>

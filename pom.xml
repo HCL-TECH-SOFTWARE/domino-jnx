@@ -27,10 +27,13 @@
 		<module>domino-jnx-commons</module>
 		<module>domino-jnx-console</module>
 		<module>domino-jnx-jna</module>
-		<module>domino-jnx-jsonb</module>
-		<module>domino-jnx-jakarta-security</module>
-		<module>domino-jnx-vertx-json</module>
-		<module>it-domino-jnx</module>
+		
+		<module>integration/domino-jnx-jsonb</module>
+		<module>integration/domino-jnx-jakarta-security</module>
+		<module>integration/domino-jnx-vertx-json</module>
+		<module>integration/domino-jnx-lsxbeshim</module>
+		
+		<module>test/it-domino-jnx</module>
 
 		<!-- Example projects -->
 		<module>example/jnx-example-webapp</module>
