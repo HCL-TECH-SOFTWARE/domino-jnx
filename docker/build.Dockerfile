@@ -59,14 +59,16 @@ COPY domino-jnx-api/pom.xml /tmpbuild/domino-jnx-api/
 COPY domino-jnx-commons/pom.xml /tmpbuild/domino-jnx-commons/
 COPY domino-jnx-console/pom.xml /tmpbuild/domino-jnx-console/
 COPY domino-jnx-jna/pom.xml /tmpbuild/domino-jnx-jna/
-COPY domino-jnx-jakarta-security/pom.xml /tmpbuild/domino-jnx-jakarta-security/
-COPY domino-jnx-jsonb/pom.xml /tmpbuild/domino-jnx-jsonb/
-COPY domino-jnx-vertx-json/pom.xml /tmpbuild/domino-jnx-vertx-json/
+COPY integration/domino-jnx-jakarta-security/pom.xml /tmpbuild/integration/domino-jnx-jakarta-security/
+COPY integration/domino-jnx-jsonb/pom.xml /tmpbuild/integration/domino-jnx-jsonb/
+COPY integration/domino-jnx-vertx-json/pom.xml /tmpbuild/integration/domino-jnx-vertx-json/
+COPY integration/domino-jnx-lsxbeshim/pom.xml /tmpbuild/integration/domino-jnx-lsxbeshim/
 COPY example/jnx-example-swt/pom.xml /tmpbuild/example/jnx-example-swt/
 COPY example/jnx-example-webapp/pom.xml /tmpbuild/example/jnx-example-webapp/
 COPY example/jnx-example-runjava/pom.xml /tmpbuild/example/jnx-example-runjava/
 COPY example/jnx-example-domino-webapp-admin/pom.xml /tmpbuild/example/jnx-example-domino-webapp-admin/
-COPY it-domino-jnx/pom.xml /tmpbuild/it-domino-jnx/
+COPY example/jnx-example-graalvm-native/pom.xml /tmpbuild/example/jnx-example-graalvm-native/
+COPY test/it-domino-jnx/pom.xml /tmpbuild/test/it-domino-jnx/
 RUN mvn -f /tmpbuild/pom.xml de.qaware.maven:go-offline-maven-plugin:1.2.5:resolve-dependencies
 
 RUN chmod -R 777 /root
