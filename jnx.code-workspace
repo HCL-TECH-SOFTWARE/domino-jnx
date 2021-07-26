@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "interactive",
+		"java.format.settings.url": "/eclipse-java-google-style.xml",
+		"java.format.settings.profile": "GoogleStyle",
+		"plantuml.diagramsRoot": "dos/flows",
+		"plantuml.exportFormat": "png",
+		"plantuml.exportOutDir": "docs/flows",
+		"plantuml.exportSubFolder": false
+	}
+}
