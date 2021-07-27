@@ -17,7 +17,7 @@
 package com.hcl.domino.mime;
 
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
 import java.util.Set;
 
 import com.hcl.domino.data.Document;
@@ -88,16 +88,15 @@ public interface MimeWriter {
    * Writes raw MIME content to a document.
    * <p>
    * Note: to write the body of the message, the document must be in a database
-   * where the current
-   * user has at least Author rights.
+   * where the current user has at least Author rights.
    * </p>
    *
    * @param doc      target document
    * @param itemName name of item used for the MIME data (e.g. "body")
-   * @param reader   reader used to read the MIME content
+   * @param in   stream used to read the MIME content
    * @param dataType itemize flags (write header, body or both)
    * @throws IOException in case of I/O errors
    */
-  void writeMime(Document doc, String itemName, Reader reader, Set<WriteMimeDataType> dataType) throws IOException;
+  void writeMime(Document doc, String itemName, InputStream in, Set<WriteMimeDataType> dataType) throws IOException;
 
 }

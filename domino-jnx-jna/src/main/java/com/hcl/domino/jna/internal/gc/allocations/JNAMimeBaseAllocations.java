@@ -17,7 +17,7 @@
 package com.hcl.domino.jna.internal.gc.allocations;
 
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
 import java.lang.ref.ReferenceQueue;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,14 +29,14 @@ import com.hcl.domino.jna.mime.JNAMimeBase;
 
 public class JNAMimeBaseAllocations extends APIObjectAllocations<JNAMimeBase> {
 	private boolean m_disposed;
-	private List<Reader> m_openMimeReaders;
+	private List<InputStream> m_openMimeInputStreams;
 	
 	@SuppressWarnings("rawtypes")
 	public JNAMimeBaseAllocations(IGCDominoClient parentDominoClient, APIObjectAllocations parentAllocations,
 			JNAMimeBase referent, ReferenceQueue<? super IAPIObject> queue) {
 		super(parentDominoClient, parentAllocations, referent, queue);
 		
-		m_openMimeReaders = new ArrayList<>();
+		m_openMimeInputStreams = new ArrayList<>();
 	}
 
 	@Override
@@ -50,29 +50,29 @@ public class JNAMimeBaseAllocations extends APIObjectAllocations<JNAMimeBase> {
 			return;
 		}
 		
-		if (!m_openMimeReaders.isEmpty()) {
+		if (!m_openMimeInputStreams.isEmpty()) {
 			//copy list of readers, .close() changes m_openMimeReaders
-			List<Reader> readersCopy = new ArrayList<>(m_openMimeReaders);
+			List<InputStream> inputStreamsCopy = new ArrayList<>(m_openMimeInputStreams);
 			
-			for (Reader currReader : readersCopy) {
+			for (InputStream currIn : inputStreamsCopy) {
 				try {
-					currReader.close();
+					currIn.close();
 				} catch (IOException e) {
 					//
 				}
 			}
-			m_openMimeReaders.clear();
+			m_openMimeInputStreams.clear();
 		}
 		
 		m_disposed = true;
 	}
 
-	public void registerReader(Reader reader) {
-		m_openMimeReaders.add(reader);
+	public void registerStream(InputStream in) {
+		m_openMimeInputStreams.add(in);
 	}
 	
-	public void unregisterReader(Reader reader) {
-		m_openMimeReaders.remove(reader);
+	public void unregisterStream(InputStream in) {
+		m_openMimeInputStreams.remove(in);
 	}
 
 }

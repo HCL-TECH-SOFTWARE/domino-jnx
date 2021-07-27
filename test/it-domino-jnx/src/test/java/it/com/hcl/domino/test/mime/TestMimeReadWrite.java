@@ -16,13 +16,12 @@
  */
 package it.com.hcl.domino.test.mime;
 
-import java.io.Reader;
-import java.io.StringWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.net.URL;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -65,80 +64,6 @@ import jakarta.mail.util.ByteArrayDataSource;
 @SuppressWarnings("nls")
 public class TestMimeReadWrite extends AbstractNotesRuntimeTest {
   private static final String TEST_IMAGE_PATH = "/images/test-png-large.png";
-
-  private String filterXMIMETrackHeader(final String mime) {
-    // removes the X-MIMETrack header because it contains a timestamp that
-    // may differ between two MIME read operations
-
-    // rawMimeWriterStr:
-    // Date: Tue, 23 Jun 2020 23:48:48 +0200
-    // From: "Mr. Sender" <mr.sender@acme.com>
-    // To: "Mr. Receiver" <mr.receiver@acme.com>
-    // Message-ID: <1345610017.3.1592948928726@localhost>
-    // Subject: Testmail
-    // MIME-Version: 1.0
-    // X-MIMETrack: Itemize by java on Karsten Lehmann/Mindoo(Release 11.0.1|March
-    // 21, 2020) at
-    // 23/06/2020 23:48:48,
-    // Serialize by java on Karsten Lehmann/Mindoo(Release 11.0.1|March 21, 2020) at
-    // 23/06/2020 23:48:48,
-    // Serialize complete at 23/06/2020 23:48:48
-    // Content-Type: multipart/mixed;
-    // boundary="----=_Part_0_-683548016.1592948928686"
-    //
-    // ------=_Part_0_-683548016.1592948928686
-    // Content-Type: multipart/related;
-    // boundary="----=_Part_1_1100346248.1592948928686"
-    //
-    // ------=_Part_1_1100346248.1592948928686
-    // Content-Type: multipart/alternative;
-    // boundary="----=_Part_2_-6928260
-    //
-    //
-    // rawMimeWriterViaReaderStr:
-    // Date: Tue, 23 Jun 2020 23:48:48 +0200
-    // From: "Mr. Sender" <mr.sender@acme.com>
-    // To: "Mr. Receiver" <mr.receiver@acme.com>
-    // Message-ID: <1345610017.3.1592948928726@localhost>
-    // Subject: Testmail
-    // MIME-Version: 1.0
-    // X-MIMETrack: Itemize by java on Karsten Lehmann/Mindoo(Release 11.0.1|March
-    // 21, 2020) at
-    // 23/06/2020 23:48:48,
-    // Serialize by java on Karsten Lehmann/Mindoo(Release 11.0.1|March 21, 2020) at
-    // 23/06/2020 23:48:48,
-    // Serialize complete at 23/06/2020 23:48:48,
-    // Serialize by java on Karsten Lehmann/Mindoo(Release 11.0.1|March 21, 2020) at
-    // 23/06/2020 23:48:49,
-    // Serialize complete at 23/06/2020 23:48:49
-    // Content-Type: multipart/mixed;
-    // boundary="----=_Part_0_-683548016.1592948928686"
-    //
-    // ------=_Part_0_-683548016.1592948928686
-    // Content-Type: multipart/related;
-    // boundary="----=_
-
-    final StringBuilder sb = new StringBuilder();
-    try (Scanner scanner = new Scanner(mime)) {
-      boolean inXMIMETrack = false;
-
-      while (scanner.hasNextLine()) {
-        final String line = scanner.nextLine();
-
-        if (line.startsWith("X-MIMETrack:")) {
-          inXMIMETrack = true; // skip header
-          continue;
-        } else if (inXMIMETrack && (line.startsWith("\t") || line.startsWith(" "))) {
-          // skip header line 2+x
-          continue;
-        }
-
-        sb.append(line).append('\n');
-      }
-    }
-
-    return sb.toString();
-  }
 
   @Test
   public void testConvertAndOpenMimeItem() throws Exception {
@@ -207,12 +132,6 @@ public class TestMimeReadWrite extends AbstractNotesRuntimeTest {
       mail.buildMimeMessage();
       final MimeMessage mimeMsg = mail.getMimeMessage();
 
-      // try {
-      // mimeMsg.writeTo(System.out);
-      // } catch (MessagingException e) {
-      // e.printStackTrace();
-      // }
-
       final Document doc = dbMail.createDocument();
       doc.replaceItemValue("Form", "Memo");
 
@@ -271,40 +190,32 @@ public class TestMimeReadWrite extends AbstractNotesRuntimeTest {
         Assertions.assertEquals(ItemDataType.TYPE_MIME_PART, bodyItem.getType(), "Body should be MIME");
       }
 
-      // now read the created mime content via writer and reader interface and compare
-      // both results
+      // now read the created mime content via OutputStream and InputStream interface and compare both results
       final MimeReader mimeReader = client.getMimeReader();
 
       final Set<ReadMimeDataType> readDataType = EnumSet.of(ReadMimeDataType.MIMEHEADERS, ReadMimeDataType.RFC822HEADERS);
 
-      final StringWriter rawMimeWriter = new StringWriter();
-      mimeReader.readMIME(doc, "body", readDataType, rawMimeWriter);
+      final ByteArrayOutputStream rawMimeOut = new ByteArrayOutputStream();
+      mimeReader.readMIME(doc, "body", readDataType, rawMimeOut);
 
-      final StringWriter rawMimeWriterViaReader = new StringWriter();
-      final char[] buffer = new char[2000];
+      Assertions.assertTrue(rawMimeOut.size() > 0);
+
+      final ByteArrayOutputStream rawMimeOutViaInputStream = new ByteArrayOutputStream();
+      final byte[] buffer = new byte[2000];
       int len;
 
-      try (Reader reader = mimeReader.getMIMEReader(doc, "body", readDataType);) {
-        while ((len = reader.read(buffer)) > 0) {
-          rawMimeWriterViaReader.write(buffer, 0, len);
+      try (InputStream in = mimeReader.readMIMEAsStream(doc, "body", readDataType);) {
+        while ((len = in.read(buffer)) > 0) {
+          rawMimeOutViaInputStream.write(buffer, 0, len);
         }
       }
 
-      String rawMimeWriterStr = rawMimeWriter.toString();
-      String rawMimeWriterViaReaderStr = rawMimeWriterViaReader.toString();
+      Assertions.assertTrue(rawMimeOutViaInputStream.size() > 0);
 
-      Assertions.assertTrue(rawMimeWriterStr.length() > 0);
-
-      rawMimeWriterStr = this.filterXMIMETrackHeader(rawMimeWriterStr);
-      rawMimeWriterViaReaderStr = this.filterXMIMETrackHeader(rawMimeWriterViaReaderStr);
-
-      if (!rawMimeWriterStr.equals(rawMimeWriterViaReaderStr)) {
-        System.out.println("MIME content differs!");
-        System.out.println("rawMimeWriterStr:\n" + rawMimeWriterStr.substring(0, 1000));
-        System.out.println("\n\nrawMimeWriterViaReaderStr:\n" + rawMimeWriterViaReaderStr.substring(0, 1000));
-      }
-
-      Assertions.assertEquals(rawMimeWriterStr, rawMimeWriterViaReaderStr);
+      byte[] rawMimeOutArr = rawMimeOut.toByteArray();
+      byte[] rawMimeOutViaInputStreamArr = rawMimeOutViaInputStream.toByteArray();
+      
+      Assertions.assertArrayEquals(rawMimeOutArr, rawMimeOutViaInputStreamArr);
     });
   }
 
@@ -328,16 +239,19 @@ public class TestMimeReadWrite extends AbstractNotesRuntimeTest {
           try (DominoClient client = DominoClientBuilder.newDominoClient().build()) {
             final Database names = client.openDatabase("names.nsf");
             names.queryDocuments().forEachDocument(0, Integer.MAX_VALUE, (doc, loop) -> {
-              final MimeWriter w = client.getMimeWriter();
-              w.convertToMime(doc,
-                  w.createRichTextMimeConversionSettings()
-                      .setMessageContentEncoding(MessageContentEncoding.TEXT_HTML_WITH_IMAGES_ATTACHMENTS));
+            	//skip any encrypted document, unable to render those without decryption
+            	if (!doc.isEncrypted()) {
+                    final MimeWriter w = client.getMimeWriter();
+                    w.convertToMime(doc,
+                        w.createRichTextMimeConversionSettings()
+                            .setMessageContentEncoding(MessageContentEncoding.TEXT_HTML_WITH_IMAGES_ATTACHMENTS));
 
-              final HtmlConversionResult html = client.getRichTextHtmlConverter()
-                  .render(doc)
-                  .option(HtmlConvertOption.DisablePassThruHTML, "1")
-                  .convert();
-              html.getHtml();
+                    final HtmlConversionResult html = client.getRichTextHtmlConverter()
+                        .render(doc)
+                        .option(HtmlConvertOption.DisablePassThruHTML, "1")
+                        .convert();
+                    html.getHtml();
+            	}
             });
             return "finished iteration " + iteration;
           }
