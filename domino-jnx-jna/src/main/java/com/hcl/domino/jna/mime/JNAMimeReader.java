@@ -17,14 +17,15 @@
 package com.hcl.domino.jna.mime;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedWriter;
+import java.io.BufferedOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
@@ -70,7 +71,7 @@ public class JNAMimeReader extends JNAMimeBase implements MimeReader {
 	}
 
 	@Override
-	public void readMIME(Document doc, String itemName, Set<ReadMimeDataType> dataType, Writer targetWriter) throws IOException {
+	public void readMIME(Document doc, String itemName, Set<ReadMimeDataType> dataType, OutputStream targetOut) throws IOException {
 		if (!(doc instanceof JNADocument)) {
 			throw new IncompatibleImplementationException(doc, JNADocument.class);
 		}
@@ -105,8 +106,8 @@ public class JNAMimeReader extends JNAMimeBase implements MimeReader {
 					
 					int len = puiDataLen.getValue();
 					if (len > 0) {
-						String txt = NotesStringUtils.fromLMBCS(pchData, len);
-						targetWriter.write(txt);
+						byte[] data = pchData.getByteArray(0, len);
+						targetOut.write(data);
 					}
 					else {
 						break;
@@ -150,8 +151,8 @@ public class JNAMimeReader extends JNAMimeBase implements MimeReader {
 				//use a temp file to not store the MIME content twice in memory (raw + parsed)
 				tmpFile = Files.createTempFile("dominojna_mime_", ".tmp"); //$NON-NLS-1$ //$NON-NLS-2$
 				
-				try (BufferedWriter writer = Files.newBufferedWriter(tmpFile, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-					readMIME(jnaDoc, itemName, dataType, writer);
+				try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(tmpFile.toFile()))) {
+					readMIME(jnaDoc, itemName, dataType, out);
 				}
 				
 				try (InputStream fIn = Files.newInputStream(tmpFile);
@@ -195,10 +196,10 @@ public class JNAMimeReader extends JNAMimeBase implements MimeReader {
 	}
 	
 	@Override
-	public Reader getMIMEReader(Document doc, String itemName, Set<ReadMimeDataType> dataType) {
-		MIMEReader reader = new MIMEReader(doc, itemName, dataType, 2000);
-		getAllocations().registerReader(reader);
-		return reader;
+	public InputStream readMIMEAsStream(Document doc, String itemName, Set<ReadMimeDataType> dataType) {
+		MIMEInputStream in = new MIMEInputStream(doc, itemName, dataType, 2000);
+		getAllocations().registerStream(in);
+		return in;
 	}
 
 	/**
@@ -206,25 +207,27 @@ public class JNAMimeReader extends JNAMimeBase implements MimeReader {
 	 * 
 	 * @author Karsten Lehmann
 	 */
-	private class MIMEReader extends Reader {
+	private class MIMEInputStream extends InputStream {
 		private Document m_doc;
 		private String m_itemName;
 		private Set<ReadMimeDataType> m_dataType;
-		private int m_maxBufferSize;
 		private Pointer m_mimeStreamPtr;
-		private StringBuilder m_buffer;
 		private boolean m_closed;
+
+		private byte[] m_buffer;
+		private int m_bufferPos;
+		private int m_leftInBuffer;
+
 		
-		public MIMEReader(Document doc, String itemName, Set<ReadMimeDataType> dataType,
-				int maxBufferSize) {
+		public MIMEInputStream(Document doc, String itemName, Set<ReadMimeDataType> dataType,
+				int bufSize) {
 			m_doc = doc;
 			m_itemName = itemName;
 			m_dataType = dataType;
-			if (maxBufferSize<=0) {
-				throw new IllegalArgumentException(MessageFormat.format("Max buffer size must be greater than 0: {0}", maxBufferSize));
+			if (bufSize<=0) {
+				throw new IllegalArgumentException(MessageFormat.format("Buffer size must be greater than 0: {0}", bufSize));
 			}
-			m_maxBufferSize = maxBufferSize;
-			m_buffer = new StringBuilder();
+			m_buffer = new byte[bufSize];
 		}
 		
 		private void init() {
@@ -252,62 +255,98 @@ public class JNAMimeReader extends JNAMimeBase implements MimeReader {
 			m_mimeStreamPtr = createMimeStream(jnaDoc, itemNameMem, dwOpenFlags);
 		}
 		
-		public synchronized int readFromBuffer() throws IOException {
-			checkClosed();
-			init();
-			
-			if (m_buffer.length() == 0) {
-				DisposableMemory pchData = new DisposableMemory(m_maxBufferSize);
-				try {
-					IntByReference puiDataLen = new IntByReference();
-					
-					int resultAsInt = NotesCAPI.get().MIMEStreamRead(pchData,
-							puiDataLen, m_maxBufferSize, m_mimeStreamPtr);
-					
-					if (resultAsInt == NotesConstants.MIME_STREAM_IO) {
-						throw new DominoException("I/O error reading MIMEStream");
-					}
-					
-					int len = puiDataLen.getValue();
-					if (len > 0) {
-						String txt = NotesStringUtils.fromLMBCS(pchData, len);
-						m_buffer.append(txt);
-					}
-					else {
-						return -1;
-					}
-				}
-				finally {
-					pchData.dispose();
-				}
-			}
-			
-			char c = m_buffer.charAt(0);
-			m_buffer.deleteCharAt(0);
-			return c;
+		@Override
+		public int read(byte[] b) throws IOException {
+			 return read(b, 0, b.length);
 		}
 		
 		@Override
-		public int read(char[] cbuf, int off, int len) throws IOException {
-			for (int i=0; i<len; i++) {
-				int c = readFromBuffer();
-				
-				if (c==-1) {
-					if (i==0) {
-						return -1;
-					}
-					else {
-						return i;
-					}
+		public int read(byte[] b, int off, int len) throws IOException {
+			if (b == null) {
+	            throw new NullPointerException();
+	        } else if (off < 0 || len < 0 || len > b.length - off) {
+	            throw new IndexOutOfBoundsException();
+	        } else if (len == 0) {
+	            return 0;
+	        }
+
+	        int c = read();
+	        if (c == -1) {
+	            return -1;
+	        }
+	        b[off] = (byte)c;
+
+	        int i = 1;
+	        try {
+	            for (; i < len ; i++) {
+	                c = read();
+	                if (c == -1) {
+	                    break;
+	                }
+	                b[off + i] = (byte)c;
+	            }
+	        } catch (IOException ee) {
+	        }
+	        return i;
+		}
+		
+		@Override
+		public int read() throws IOException {
+			if (m_leftInBuffer == 0) {
+				//end reached, read more data
+				int read = readInto(m_buffer);
+				if (read==-1 || read==0) {
+					return -1;
 				}
-				else {
-					cbuf[off + i] = (char) c;
-				}
+				m_leftInBuffer = read;
+				m_bufferPos = 0;
 			}
 			
-			return len;
+			byte b = m_buffer[m_bufferPos++];
+			m_leftInBuffer--;
+			return (int) (b & 0xff);
 		}
 
+		/**
+		 * This function copies the MIME stream content into a {@link Writer}.
+		 * 
+		 * @param buffer buffer to receive the MIME stream data
+		 * @param maxBufferSize max characters to read from the stream into the appendable
+		 * @return number of bytes read or -1 for EOF
+		 * @throws IOException in case of MIME stream I/O errors
+		 */
+		public int readInto(byte[] buffer) throws IOException {
+			checkClosed();
+			init();
+
+			int maxBufferSize = buffer.length;
+			DisposableMemory pchData = new DisposableMemory(maxBufferSize);
+			try {
+				IntByReference puiDataLen = new IntByReference();
+				puiDataLen.setValue(0);
+				
+				int resultAsInt = NotesCAPI.get().MIMEStreamRead(pchData,
+						puiDataLen, m_buffer.length, m_mimeStreamPtr);
+				
+				if (resultAsInt == NotesConstants.MIME_STREAM_IO) {
+					throw new DominoException("I/O error reading MIMEStream");
+				}
+
+				int len = puiDataLen.getValue();
+				if (len > 0) {
+					pchData.read(0, buffer, 0, len);
+					return len;
+				}
+				else {
+					return -1;
+				}
+			}
+			finally {
+				pchData.dispose();
+			}
+		}
+		
+		
 		private void checkClosed() {
 			if (m_closed) {
 				throw new IllegalStateException("Reader is already closed");
@@ -324,7 +363,7 @@ public class JNAMimeReader extends JNAMimeBase implements MimeReader {
 			disposeMimeStream(m_mimeStreamPtr);
 			m_mimeStreamPtr = null;
 			
-			getAllocations().unregisterReader(this);
+			getAllocations().unregisterStream(this);
 		}
 		
 	}

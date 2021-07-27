@@ -17,7 +17,8 @@
 package com.hcl.domino.mime;
 
 import java.io.IOException;
-import java.io.Reader;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Writer;
 import java.util.Set;
 
@@ -38,14 +39,14 @@ public interface MimeReader {
   }
 
   /**
-   * Returns a {@link Reader} to read the MIME content
+   * Returns an {@link InputStream} to read the MIME content
    *
    * @param doc      document to read MIME
    * @param itemName name of item for the MIME content (e.g. "body")
    * @param dataType specifies with MIME data types should be read
-   * @return reader
+   * @return stream
    */
-  Reader getMIMEReader(Document doc, String itemName, Set<ReadMimeDataType> dataType);
+  InputStream readMIMEAsStream(Document doc, String itemName, Set<ReadMimeDataType> dataType);
 
   /**
    * Reads MIME content from a document and returns it as a {@link MimeMessage}.
@@ -58,15 +59,15 @@ public interface MimeReader {
   MimeMessage readMIME(Document doc, String itemName, Set<ReadMimeDataType> dataType);
 
   /**
-   * Reads MIME content from a document into a {@link Writer} in a streaming
+   * Reads MIME content from a document into an {@link OutputStream} in a streaming
    * fashion.
    *
    * @param doc          document to read MIME
    * @param itemName     name of item for the MIME content (e.g. "body")
    * @param dataType     specifies with MIME data types should be read
-   * @param targetWriter writer to receive the MIME content
+   * @param targetOut stream to receive the MIME content
    * @throws IOException in case of I/O errors writing into the {@link Writer}
    */
-  void readMIME(Document doc, String itemName, Set<ReadMimeDataType> dataType, Writer targetWriter) throws IOException;
+  void readMIME(Document doc, String itemName, Set<ReadMimeDataType> dataType, OutputStream targetOut) throws IOException;
 
 }

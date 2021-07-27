@@ -17,8 +17,8 @@
 package com.hcl.domino.jna.mime;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Reader;
 import java.text.MessageFormat;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -236,20 +236,20 @@ public class JNAMimeWriter extends JNAMimeBase implements MimeWriter {
 	}
 
 	@Override
-	public void writeMime(Document doc, String itemName, Reader reader, Set<WriteMimeDataType> dataType) throws IOException {
+	public void writeMime(Document doc, String itemName, InputStream in, Set<WriteMimeDataType> dataType) throws IOException {
 		IOException[] ioEx = new IOException[1];
 		
 		writeMime(doc, itemName, (mimeStreamPtr) -> {
 
-			char[] buffer = new char[60000];
+			byte[] buffer = new byte[60000];
 			int len;
 
+			DisposableMemory bufferMem = new DisposableMemory(buffer.length);
 			try {
-				while ((len=reader.read(buffer))>0) {
-					String txt = new String(buffer, 0, len);
-					Memory txtMem = NotesStringUtils.toLMBCS(txt, false, false);
+				while ((len=in.read(buffer))>0) {
+					bufferMem.write(0, buffer,0, len);
 
-					int resultAsInt = NotesCAPI.get().MIMEStreamWrite(txtMem, (short) (txtMem.size() & 0xffff), mimeStreamPtr);
+					int resultAsInt = NotesCAPI.get().MIMEStreamWrite(bufferMem, len, mimeStreamPtr);
 
 					if (resultAsInt == NotesConstants.MIME_STREAM_IO) {
 						throw new IOException("I/O error received during MIME stream operation");
@@ -259,6 +259,9 @@ public class JNAMimeWriter extends JNAMimeBase implements MimeWriter {
 			catch (IOException e) {
 				ioEx[0] = e;
 				return;
+			}
+			finally {
+				bufferMem.dispose();
 			}
 		}, dataType);
 
