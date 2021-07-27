@@ -56,18 +56,20 @@ RUN chmod -R 777 /local/notesdata
 # Bring in the dependencies to the local Maven repo
 RUN mkdir /build/
 COPY pom.xml /build/
-COPY domino-jnx-api/pom.xml /build/domino-jnx-api/
-COPY domino-jnx-commons/pom.xml /build/domino-jnx-commons/
-COPY domino-jnx-console/pom.xml /build/domino-jnx-console/
-COPY domino-jnx-jna/pom.xml /build/domino-jnx-jna/
-COPY domino-jnx-jakarta-security/pom.xml /build/domino-jnx-jakarta-security/
-COPY domino-jnx-jsonb/pom.xml /build/domino-jnx-jsonb/
-COPY domino-jnx-vertx-json/pom.xml /build/domino-jnx-vertx-json/
-COPY example/jnx-example-swt/pom.xml /build/example/jnx-example-swt/
-COPY example/jnx-example-webapp/pom.xml /build/example/jnx-example-webapp/
-COPY example/jnx-example-runjava/pom.xml /build/example/jnx-example-runjava/
-COPY example/jnx-example-domino-webapp-admin/pom.xml /build/example/jnx-example-domino-webapp-admin/
-COPY it-domino-jnx/pom.xml /build/it-domino-jnx/
+COPY domino-jnx-api/pom.xml /tmpbuild/domino-jnx-api/
+COPY domino-jnx-commons/pom.xml /tmpbuild/domino-jnx-commons/
+COPY domino-jnx-console/pom.xml /tmpbuild/domino-jnx-console/
+COPY domino-jnx-jna/pom.xml /tmpbuild/domino-jnx-jna/
+COPY integration/domino-jnx-jakarta-security/pom.xml /tmpbuild/integration/domino-jnx-jakarta-security/
+COPY integration/domino-jnx-jsonb/pom.xml /tmpbuild/integration/domino-jnx-jsonb/
+COPY integration/domino-jnx-vertx-json/pom.xml /tmpbuild/integration/domino-jnx-vertx-json/
+COPY integration/domino-jnx-lsxbeshim/pom.xml /tmpbuild/integration/domino-jnx-lsxbeshim/
+COPY example/jnx-example-swt/pom.xml /tmpbuild/example/jnx-example-swt/
+COPY example/jnx-example-webapp/pom.xml /tmpbuild/example/jnx-example-webapp/
+COPY example/jnx-example-runjava/pom.xml /tmpbuild/example/jnx-example-runjava/
+COPY example/jnx-example-domino-webapp-admin/pom.xml /tmpbuild/example/jnx-example-domino-webapp-admin/
+COPY example/jnx-example-graalvm-native/pom.xml /tmpbuild/example/jnx-example-graalvm-native/
+COPY test/it-domino-jnx/pom.xml /tmpbuild/test/it-domino-jnx/
 RUN chmod -R 777 /build/
 RUN mvn -f /build/pom.xml de.qaware.maven:go-offline-maven-plugin:1.2.5:resolve-dependencies
 

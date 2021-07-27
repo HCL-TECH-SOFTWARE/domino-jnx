@@ -5,6 +5,7 @@
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
 		<version>1.0.28-SNAPSHOT</version>
+		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>domino-jnx-vertx-json</artifactId>
 	<name>HCL Domino API Vert.x JSON Integration</name>

@@ -5,9 +5,10 @@
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
 		<version>1.0.28-SNAPSHOT</version>
+		<relativePath>../..</relativePath>
 	</parent>
-	<artifactId>domino-jnx-jakarta-security</artifactId>
-	<name>HCL Domino API Jakarta Security Adapter</name>
+	<artifactId>domino-jnx-jsonb</artifactId>
+	<name>HCL Domino API JSON-B Integration</name>
 
 	<dependencies>
 		<dependency>
@@ -16,16 +17,28 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>jakarta.security.enterprise</groupId>
-			<artifactId>jakarta.security.enterprise-api</artifactId>
-			<version>2.0.0</version>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>domino-jnx-commons</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>jakarta.json</groupId>
+			<artifactId>jakarta.json-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>jakarta.enterprise</groupId>
-			<artifactId>jakarta.enterprise.cdi-api</artifactId>
-			<version>3.0.0</version>
+			<groupId>jakarta.json.bind</groupId>
+			<artifactId>jakarta.json.bind-api</artifactId>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.sun.mail</groupId>
+			<artifactId>jakarta.mail</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -37,8 +50,8 @@
 
 				<configuration>
 					<instructions>
-						<Bundle-SymbolicName>com.hcl.domino.jnx.jakarta.security</Bundle-SymbolicName>
-						<Automatic-Module-Name>com.hcl.domino.jnx.jakarta.security</Automatic-Module-Name>
+						<Bundle-SymbolicName>com.hcl.domino.jnx.jsonb</Bundle-SymbolicName>
+						<Automatic-Module-Name>com.hcl.domino.jnx.jsonb</Automatic-Module-Name>
 					</instructions>
 				</configuration>
 
