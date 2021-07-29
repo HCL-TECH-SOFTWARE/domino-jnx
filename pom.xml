@@ -359,7 +359,7 @@
 					<version>${maven.license.plugin.version}</version>
 					<configuration>
 						<aggregate>true</aggregate>
-						<header>license-header.txt</header>
+						<header>header.txt</header>
 						<excludes>
 							<exclude>**/pom.xml</exclude>
 							<exclude>**/README</exclude>
@@ -367,6 +367,8 @@
 							<exclude>src/main/resources/**</exclude>
 							<exclude>LICENSE</exclude>
 							<exclude>NOTICE</exclude>
+                            <exclude>CODE_OF_CONDUCT.md</exclude>
+                            <exclude>CONTRIBUTING.md</exclude>
 							<exclude>**/node_modules/**</exclude>
 							<exclude>**/org/apache/**</exclude>
 							<exclude>legal/**</exclude>
