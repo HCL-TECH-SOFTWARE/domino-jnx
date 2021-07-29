@@ -16,6 +16,12 @@
  */
 package it.com.hcl.domino.test.design;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -26,7 +32,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +50,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
-  public static final int EXPECTED_IMPORT_VIEWS = 5;
+  public static final int EXPECTED_IMPORT_VIEWS = 7;
   public static final int EXPECTED_IMPORT_FOLDERS = 1;
 
   private static String dbPath;
@@ -79,119 +84,119 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
   public void testExampleView() {
     final DbDesign dbDesign = this.database.getDesign();
     final View view = dbDesign.getView("Example View").get();
-    Assertions.assertTrue(view.isAllowCustomizations());
-    Assertions.assertEquals(CollectionDesignElement.OnOpen.GOTO_TOP, view.getOnOpenUISetting());
-    Assertions.assertEquals(CollectionDesignElement.OnRefresh.REFRESH_DISPLAY, view.getOnRefreshUISetting());
+    assertTrue(view.isAllowCustomizations());
+    assertEquals(CollectionDesignElement.OnOpen.GOTO_TOP, view.getOnOpenUISetting());
+    assertEquals(CollectionDesignElement.OnRefresh.REFRESH_DISPLAY, view.getOnRefreshUISetting());
 
     final List<CollectionColumn> columns = view.getColumns();
-    Assertions.assertEquals(12, columns.size());
+    assertEquals(12, columns.size());
     {
       final CollectionColumn column = columns.get(0);
-      Assertions.assertEquals("Form", column.getTitle());
-      Assertions.assertEquals("Form", column.getItemName());
-      Assertions.assertEquals("", column.getFormula());
-      Assertions.assertFalse(column.isConstant());
-      Assertions.assertEquals(188, column.getDisplayWidth());
-      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.SEMICOLON, column.getListDisplayDelimiter());
-      Assertions.assertEquals(TotalType.None, column.getTotalType());
+      assertEquals("Form", column.getTitle());
+      assertEquals("Form", column.getItemName());
+      assertEquals("", column.getFormula());
+      assertFalse(column.isConstant());
+      assertEquals(188, column.getDisplayWidth());
+      assertEquals(ViewColumnFormat.ListDelimiter.SEMICOLON, column.getListDisplayDelimiter());
+      assertEquals(TotalType.None, column.getTotalType());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
-      Assertions.assertTrue(sortConfig.isCategory());
-      Assertions.assertTrue(sortConfig.isSorted());
-      Assertions.assertTrue(sortConfig.isSortPermuted());
-      Assertions.assertFalse(sortConfig.getResortToViewUnid().isPresent());
+      assertTrue(sortConfig.isCategory());
+      assertTrue(sortConfig.isSorted());
+      assertTrue(sortConfig.isSortPermuted());
+      assertFalse(sortConfig.getResortToViewUnid().isPresent());
     }
     {
       final CollectionColumn column = columns.get(1);
-      Assertions.assertEquals("Size", column.getTitle());
-      Assertions.assertEquals("$2", column.getItemName());
-      Assertions.assertEquals("@AttachmentLengths", column.getFormula());
-      Assertions.assertFalse(column.isConstant());
-      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.SPACE, column.getListDisplayDelimiter());
-      Assertions.assertEquals(TotalType.Total, column.getTotalType());
+      assertEquals("Size", column.getTitle());
+      assertEquals("$2", column.getItemName());
+      assertEquals("@AttachmentLengths", column.getFormula());
+      assertFalse(column.isConstant());
+      assertEquals(ViewColumnFormat.ListDelimiter.SPACE, column.getListDisplayDelimiter());
+      assertEquals(TotalType.Total, column.getTotalType());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
-      Assertions.assertFalse(sortConfig.isCategory());
-      Assertions.assertFalse(sortConfig.isSorted());
-      Assertions.assertFalse(sortConfig.isSortPermuted());
-      Assertions.assertTrue(sortConfig.isResortToView());
-      Assertions.assertEquals("F7FAC064F4062A4885257BBE006FA09B", sortConfig.getResortToViewUnid().get());
+      assertFalse(sortConfig.isCategory());
+      assertFalse(sortConfig.isSorted());
+      assertFalse(sortConfig.isSortPermuted());
+      assertTrue(sortConfig.isResortToView());
+      assertEquals("F7FAC064F4062A4885257BBE006FA09B", sortConfig.getResortToViewUnid().get());
     }
     {
       final CollectionColumn column = columns.get(2);
-      Assertions.assertEquals("Created", column.getTitle());
-      Assertions.assertEquals("$3", column.getItemName());
-      Assertions.assertEquals("@Created", column.getFormula());
-      Assertions.assertFalse(column.isConstant());
-      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
-      Assertions.assertEquals(TotalType.Average, column.getTotalType());
+      assertEquals("Created", column.getTitle());
+      assertEquals("$3", column.getItemName());
+      assertEquals("@Created", column.getFormula());
+      assertFalse(column.isConstant());
+      assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      assertEquals(TotalType.Average, column.getTotalType());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
-      Assertions.assertFalse(sortConfig.isCategory());
-      Assertions.assertFalse(sortConfig.isSorted());
-      Assertions.assertFalse(sortConfig.isSortPermuted());
-      Assertions.assertFalse(sortConfig.isResortToView());
-      Assertions.assertTrue(sortConfig.isResortAscending() && sortConfig.isResortDescending());
-      Assertions.assertTrue(sortConfig.isDeferResortIndexing());
-      Assertions.assertFalse(sortConfig.getResortToViewUnid().isPresent());
+      assertFalse(sortConfig.isCategory());
+      assertFalse(sortConfig.isSorted());
+      assertFalse(sortConfig.isSortPermuted());
+      assertFalse(sortConfig.isResortToView());
+      assertTrue(sortConfig.isResortAscending() && sortConfig.isResortDescending());
+      assertTrue(sortConfig.isDeferResortIndexing());
+      assertFalse(sortConfig.getResortToViewUnid().isPresent());
     }
     {
       final CollectionColumn column = columns.get(3);
-      Assertions.assertEquals("Modified", column.getTitle());
-      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.COMMA, column.getListDisplayDelimiter());
-      Assertions.assertEquals(TotalType.AveragePerSubcategory, column.getTotalType());
+      assertEquals("Modified", column.getTitle());
+      assertEquals(ViewColumnFormat.ListDelimiter.COMMA, column.getListDisplayDelimiter());
+      assertEquals(TotalType.AveragePerSubcategory, column.getTotalType());
     }
     {
       final CollectionColumn column = columns.get(4);
-      Assertions.assertEquals("Static Value!", column.getTitle());
-      Assertions.assertFalse(column.isUseHideWhen());
-      Assertions.assertEquals("SecretHideWhen", column.getHideWhenFormula());
-      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NEWLINE, column.getListDisplayDelimiter());
-      Assertions.assertEquals(TotalType.PercentOfParentCategory, column.getTotalType());
+      assertEquals("Static Value!", column.getTitle());
+      assertFalse(column.isUseHideWhen());
+      assertEquals("SecretHideWhen", column.getHideWhenFormula());
+      assertEquals(ViewColumnFormat.ListDelimiter.NEWLINE, column.getListDisplayDelimiter());
+      assertEquals(TotalType.PercentOfParentCategory, column.getTotalType());
     }
     {
       final CollectionColumn column = columns.get(5);
-      Assertions.assertEquals("#", column.getTitle());
-      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
-      Assertions.assertEquals(TotalType.None, column.getTotalType());
+      assertEquals("#", column.getTitle());
+      assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      assertEquals(TotalType.None, column.getTotalType());
     }
     {
       final CollectionColumn column = columns.get(6);
-      Assertions.assertEquals("I am test col 2", column.getTitle());
-      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
-      Assertions.assertEquals(TotalType.None, column.getTotalType());
+      assertEquals("I am test col 2", column.getTitle());
+      assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      assertEquals(TotalType.None, column.getTotalType());
     }
     {
       final CollectionColumn column = columns.get(7);
-      Assertions.assertEquals("Names Guy", column.getTitle());
-      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
-      Assertions.assertEquals(TotalType.Percent, column.getTotalType());
+      assertEquals("Names Guy", column.getTitle());
+      assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      assertEquals(TotalType.Percent, column.getTotalType());
     }
     {
       final CollectionColumn column = columns.get(8);
-      Assertions.assertEquals("Names Guy 2", column.getTitle());
-      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
-      Assertions.assertEquals(TotalType.None, column.getTotalType());
+      assertEquals("Names Guy 2", column.getTitle());
+      assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      assertEquals(TotalType.None, column.getTotalType());
     }
     {
       final CollectionColumn column = columns.get(9);
-      Assertions.assertEquals("I am test col 2", column.getTitle());
-      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
-      Assertions.assertEquals(TotalType.None, column.getTotalType());
+      assertEquals("I am test col 2", column.getTitle());
+      assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      assertEquals(TotalType.None, column.getTotalType());
     }
     {
       final CollectionColumn column = columns.get(10);
-      Assertions.assertEquals("Hidden Guy", column.getTitle());
-      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
-      Assertions.assertEquals(TotalType.None, column.getTotalType());
+      assertEquals("Hidden Guy", column.getTitle());
+      assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      assertEquals(TotalType.None, column.getTotalType());
     }
     {
       final CollectionColumn column = columns.get(11);
-      Assertions.assertEquals("Column of constant value", column.getTitle());
-      Assertions.assertTrue(column.isConstant());
-      Assertions.assertEquals("\"hello\"", column.getFormula());
-      Assertions.assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
-      Assertions.assertEquals(TotalType.None, column.getTotalType());
+      assertEquals("Column of constant value", column.getTitle());
+      assertTrue(column.isConstant());
+      assertEquals("\"hello\"", column.getFormula());
+      assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      assertEquals(TotalType.None, column.getTotalType());
     }
 
   }
@@ -200,43 +205,43 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
   public void testExampleView2() {
     final DbDesign dbDesign = this.database.getDesign();
     final View view = dbDesign.getView("Example View 2").get();
-    Assertions.assertFalse(view.isAllowCustomizations());
-    Assertions.assertEquals(CollectionDesignElement.OnOpen.GOTO_LAST_OPENED, view.getOnOpenUISetting());
-    Assertions.assertEquals(CollectionDesignElement.OnRefresh.DISPLAY_INDICATOR, view.getOnRefreshUISetting());
+    assertFalse(view.isAllowCustomizations());
+    assertEquals(CollectionDesignElement.OnOpen.GOTO_LAST_OPENED, view.getOnOpenUISetting());
+    assertEquals(CollectionDesignElement.OnRefresh.DISPLAY_INDICATOR, view.getOnRefreshUISetting());
   }
 
   @Test
   public void testExampleView3() {
     final DbDesign dbDesign = this.database.getDesign();
     final View view = dbDesign.getView("Example View 3").get();
-    Assertions.assertFalse(view.isAllowCustomizations());
-    Assertions.assertEquals(CollectionDesignElement.OnOpen.GOTO_BOTTOM, view.getOnOpenUISetting());
-    Assertions.assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_TOP, view.getOnRefreshUISetting());
+    assertFalse(view.isAllowCustomizations());
+    assertEquals(CollectionDesignElement.OnOpen.GOTO_BOTTOM, view.getOnOpenUISetting());
+    assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_TOP, view.getOnRefreshUISetting());
   }
 
   @Test
   public void testExampleView4() {
     final DbDesign dbDesign = this.database.getDesign();
     final View view = dbDesign.getView("Example View 4").get();
-    Assertions.assertFalse(view.isAllowCustomizations());
-    Assertions.assertEquals(CollectionDesignElement.OnOpen.GOTO_LAST_OPENED, view.getOnOpenUISetting());
-    Assertions.assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_BOTTOM, view.getOnRefreshUISetting());
+    assertFalse(view.isAllowCustomizations());
+    assertEquals(CollectionDesignElement.OnOpen.GOTO_LAST_OPENED, view.getOnOpenUISetting());
+    assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_BOTTOM, view.getOnRefreshUISetting());
   }
 
   @Test
   public void testFolders() {
     final DbDesign dbDesign = this.database.getDesign();
     final Collection<CollectionDesignElement> collections = dbDesign.getFolders().collect(Collectors.toList());
-    Assertions.assertEquals(TestDbDesignCollections.EXPECTED_IMPORT_FOLDERS, collections.size());
+    assertEquals(TestDbDesignCollections.EXPECTED_IMPORT_FOLDERS, collections.size());
 
     {
       CollectionDesignElement view = collections.stream().filter(v -> "test folder".equals(v.getTitle())).findFirst().orElse(null);
-      Assertions.assertNotNull(view);
+      assertNotNull(view);
 
       view = dbDesign.getCollection("test folder").orElse(null);
-      Assertions.assertNotNull(view);
-      Assertions.assertInstanceOf(Folder.class, view);
-      Assertions.assertEquals("test folder", view.getTitle());
+      assertNotNull(view);
+      assertInstanceOf(Folder.class, view);
+      assertEquals("test folder", view.getTitle());
     }
   }
 
@@ -244,26 +249,26 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
   public void testFoldersAndViews() {
     final DbDesign dbDesign = this.database.getDesign();
     final Collection<CollectionDesignElement> collections = dbDesign.getCollections().collect(Collectors.toList());
-    Assertions.assertEquals(TestDbDesignCollections.EXPECTED_IMPORT_VIEWS + TestDbDesignCollections.EXPECTED_IMPORT_FOLDERS + 1,
+    assertEquals(TestDbDesignCollections.EXPECTED_IMPORT_VIEWS + TestDbDesignCollections.EXPECTED_IMPORT_FOLDERS + 1,
         collections.size());
 
     {
       CollectionDesignElement view = collections.stream().filter(v -> "test view".equals(v.getTitle())).findFirst().orElse(null);
-      Assertions.assertNotNull(view);
+      assertNotNull(view);
 
       view = dbDesign.getCollection("test view").orElse(null);
-      Assertions.assertNotNull(view);
-      Assertions.assertInstanceOf(View.class, view);
-      Assertions.assertEquals("test view", view.getTitle());
+      assertNotNull(view);
+      assertInstanceOf(View.class, view);
+      assertEquals("test view", view.getTitle());
     }
     {
       CollectionDesignElement view = collections.stream().filter(v -> "test folder".equals(v.getTitle())).findFirst().orElse(null);
-      Assertions.assertNotNull(view);
+      assertNotNull(view);
 
       view = dbDesign.getCollection("test folder").orElse(null);
-      Assertions.assertNotNull(view);
-      Assertions.assertInstanceOf(Folder.class, view);
-      Assertions.assertEquals("test folder", view.getTitle());
+      assertNotNull(view);
+      assertInstanceOf(Folder.class, view);
+      assertEquals("test folder", view.getTitle());
     }
   }
 
@@ -302,47 +307,194 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
   public void testViews() {
     final DbDesign dbDesign = this.database.getDesign();
     final Collection<CollectionDesignElement> collections = dbDesign.getViews().collect(Collectors.toList());
-    Assertions.assertEquals(TestDbDesignCollections.EXPECTED_IMPORT_VIEWS + 1, collections.size());
+    assertEquals(TestDbDesignCollections.EXPECTED_IMPORT_VIEWS + 1, collections.size());
 
     {
       CollectionDesignElement view = collections.stream().filter(v -> "test view".equals(v.getTitle())).findFirst().orElse(null);
-      Assertions.assertNotNull(view);
+      assertNotNull(view);
 
       view = dbDesign.getCollection("test view").orElse(null);
-      Assertions.assertNotNull(view);
-      Assertions.assertInstanceOf(View.class, view);
-      Assertions.assertEquals("test view", view.getTitle());
-      Assertions.assertEquals("8.5.3", view.getDesignerVersion());
+      assertNotNull(view);
+      assertInstanceOf(View.class, view);
+      assertEquals("test view", view.getTitle());
+      assertEquals("8.5.3", view.getDesignerVersion());
 
       {
-        Assertions.assertTrue(view.isProhibitRefresh());
+        assertTrue(view.isProhibitRefresh());
         view.setProhibitRefresh(false);
-        Assertions.assertFalse(view.isProhibitRefresh());
+        assertFalse(view.isProhibitRefresh());
         view.setProhibitRefresh(true);
-        Assertions.assertTrue(view.isProhibitRefresh());
+        assertTrue(view.isProhibitRefresh());
       }
 
       {
-        Assertions.assertFalse(view.isHideFromWeb());
+        assertFalse(view.isHideFromWeb());
         view.setHideFromWeb(true);
-        Assertions.assertTrue(view.isHideFromWeb());
+        assertTrue(view.isHideFromWeb());
         view.setHideFromWeb(false);
-        Assertions.assertFalse(view.isHideFromWeb());
+        assertFalse(view.isHideFromWeb());
       }
       {
-        Assertions.assertFalse(view.isHideFromNotes());
+        assertFalse(view.isHideFromNotes());
         view.setHideFromNotes(true);
-        Assertions.assertTrue(view.isHideFromNotes());
+        assertTrue(view.isHideFromNotes());
         view.setHideFromNotes(false);
-        Assertions.assertFalse(view.isHideFromNotes());
+        assertFalse(view.isHideFromNotes());
       }
       {
-        Assertions.assertFalse(view.isHideFromMobile());
+        assertFalse(view.isHideFromMobile());
         view.setHideFromMobile(true);
-        Assertions.assertTrue(view.isHideFromMobile());
+        assertTrue(view.isHideFromMobile());
         view.setHideFromMobile(false);
-        Assertions.assertFalse(view.isHideFromMobile());
+        assertFalse(view.isHideFromMobile());
       }
     }
+  }
+  
+  @Test
+  public void testDeletedSharedColumnView() {
+    DbDesign design = this.database.getDesign();
+    View view = design.getView("Shared Column Deletion View").get();
+    List<CollectionColumn> columns = view.getColumns();
+    assertEquals(6, columns.size());
+    {
+      CollectionColumn col = columns.get(0);
+      assertEquals("Shared Col to Delete", col.getTitle());
+      assertEquals("@NoteID + \"ghost column\"", col.getFormula());
+      assertFalse(col.isSharedColumn());
+      assertFalse(col.getSharedColumnName().isPresent());
+      assertFalse(col.isNameColumn());
+      assertFalse(col.getOnlinePresenceNameColumn().isPresent());
+    }
+    {
+      CollectionColumn col = columns.get(1);
+      assertEquals("Real col", col.getTitle());
+      assertEquals("@DocNumber", col.getFormula());
+      assertFalse(col.isSharedColumn());
+      assertFalse(col.getSharedColumnName().isPresent());
+      assertTrue(col.isNameColumn());
+      assertTrue(col.getOnlinePresenceNameColumn().isPresent());
+      assertEquals("SomeOnlineCol", col.getOnlinePresenceNameColumn().get());
+    }
+    {
+      CollectionColumn col = columns.get(2);
+      assertEquals("#", col.getTitle());
+      assertEquals("@DocNumber", col.getFormula());
+      assertTrue(col.isSharedColumn());
+      assertTrue(col.getSharedColumnName().isPresent());
+      assertEquals("testcol", col.getSharedColumnName().get());
+      assertFalse(col.isNameColumn());
+      assertFalse(col.getOnlinePresenceNameColumn().isPresent());
+    }
+    {
+      CollectionColumn col = columns.get(3);
+      assertEquals("Shared Col to Delete", col.getTitle());
+      assertEquals("@NoteID + \"ghost column\"", col.getFormula());
+      assertFalse(col.isSharedColumn());
+      assertFalse(col.getSharedColumnName().isPresent());
+      assertFalse(col.isNameColumn());
+      assertFalse(col.getOnlinePresenceNameColumn().isPresent());
+    }
+    {
+      CollectionColumn col = columns.get(4);
+      assertEquals("Real col 2", col.getTitle());
+      assertEquals("@NoteID + \"I am real col 2\"", col.getFormula());
+      assertFalse(col.isSharedColumn());
+      assertFalse(col.getSharedColumnName().isPresent());
+      assertFalse(col.isNameColumn());
+      assertFalse(col.getOnlinePresenceNameColumn().isPresent());
+    }
+    {
+      CollectionColumn col = columns.get(5);
+      assertEquals("I am test col 2", col.getTitle());
+      assertEquals("Foo", col.getItemName());
+      assertTrue(col.isSharedColumn());
+      assertTrue(col.getSharedColumnName().isPresent());
+      assertEquals("testcol2", col.getSharedColumnName().get());
+      assertFalse(col.isNameColumn());
+      assertFalse(col.getOnlinePresenceNameColumn().isPresent());
+    }
+  }
+
+  @Test
+  public void testDeletedSharedColumnView2() {
+    DbDesign design = this.database.getDesign();
+    View view = design.getView("Shared Column Deletion View 2").get();
+    List<CollectionColumn> columns = view.getColumns();
+    assertEquals(6, columns.size());
+    {
+      CollectionColumn col = columns.get(0);
+      assertEquals("Shared Col to Delete", col.getTitle());
+      assertEquals("@NoteID + \"ghost column\"", col.getFormula());
+      assertFalse(col.isSharedColumn());
+      assertFalse(col.getSharedColumnName().isPresent());
+      assertFalse(col.isNameColumn());
+      assertFalse(col.getOnlinePresenceNameColumn().isPresent());
+    }
+    {
+      CollectionColumn col = columns.get(1);
+      assertEquals("Real col", col.getTitle());
+      assertEquals("@DocNumber", col.getFormula());
+      assertFalse(col.isSharedColumn());
+      assertFalse(col.getSharedColumnName().isPresent());
+      assertFalse(col.isNameColumn());
+      assertFalse(col.getOnlinePresenceNameColumn().isPresent());
+    }
+    {
+      CollectionColumn col = columns.get(2);
+      assertEquals("#", col.getTitle());
+      assertEquals("@DocNumber", col.getFormula());
+      assertTrue(col.isSharedColumn());
+      assertTrue(col.getSharedColumnName().isPresent());
+      assertEquals("testcol", col.getSharedColumnName().get());
+      assertFalse(col.isNameColumn());
+      assertFalse(col.getOnlinePresenceNameColumn().isPresent());
+    }
+    {
+      CollectionColumn col = columns.get(3);
+      assertEquals("Shared Col to Delete", col.getTitle());
+      assertEquals("@NoteID + \"ghost column\"", col.getFormula());
+      assertFalse(col.isSharedColumn());
+      assertFalse(col.getSharedColumnName().isPresent());
+      assertFalse(col.isNameColumn());
+      assertFalse(col.getOnlinePresenceNameColumn().isPresent());
+    }
+    {
+      CollectionColumn col = columns.get(4);
+      assertEquals("Real col 2", col.getTitle());
+      assertEquals("@NoteID + \"I am real col 2\"", col.getFormula());
+      assertFalse(col.isSharedColumn());
+      assertFalse(col.getSharedColumnName().isPresent());
+      assertFalse(col.isNameColumn());
+      assertFalse(col.getOnlinePresenceNameColumn().isPresent());
+    }
+    {
+      CollectionColumn col = columns.get(5);
+      assertEquals("I am test col 2", col.getTitle());
+      assertEquals("Foo", col.getItemName());
+      assertTrue(col.isSharedColumn());
+      assertTrue(col.getSharedColumnName().isPresent());
+      assertEquals("testcol2", col.getSharedColumnName().get());
+      assertFalse(col.isNameColumn());
+      assertFalse(col.getOnlinePresenceNameColumn().isPresent());
+    }
+  }
+  
+  @Test
+  public void testMail12NtfByCategory() {
+    final DominoClient client = this.getClient();
+    Database database;
+    try {
+      database = client.openDatabase("mail12.ntf");
+    } catch (final FileDoesNotExistException e) {
+      // That's fine - not on 12, so skip the test
+      return;
+    }
+    
+    DbDesign design = database.getDesign();
+    View byCategory = design.getView("$ByCategory").get();
+    byCategory.getColumns().forEach(col -> {
+      System.out.println("read col " + col.getItemName());
+    });
   }
 }

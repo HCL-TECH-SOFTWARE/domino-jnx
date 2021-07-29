@@ -17,6 +17,7 @@
 package com.hcl.domino.commons.design.view;
 
 import java.util.Objects;
+import java.util.Optional;
 
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.IAdaptable;
@@ -77,14 +78,6 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   @Override
   public int getDisplayWidth() {
     return this.getFormat1().getDisplayWidth();
-  }
-
-  private ViewColumnFormat getFormat1() {
-    return Objects.requireNonNull(this.format1, "VIEW_COLUMN_FORMAT not read");
-  }
-
-  private ViewColumnFormat2 getFormat2() {
-    return Objects.requireNonNull(this.format2, "VIEW_COLUMN_FORMAT2 not read");
   }
 
   @Override
@@ -175,10 +168,11 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   public boolean isResponse() {
     return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.Response);
   }
-
-  // *******************************************************************************
-  // * Format-reader hooks
-  // *******************************************************************************
+  
+  @Override
+  public boolean isSharedColumn() {
+    return this.getFormat2().getFlags().contains(ViewColumnFormat2.Flag3.IsSharedColumn);
+  }
 
   @Override
   public boolean isShowTwistie() {
@@ -189,6 +183,28 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   public boolean isUseHideWhen() {
     return this.getFormat2().getFlags().contains(ViewColumnFormat2.Flag3.HideWhenFormula);
   }
+  
+  @Override
+  public Optional<String> getSharedColumnName() {
+    return Optional.ofNullable(this.sharedColumnName);
+  }
+  
+  @Override
+  public boolean isNameColumn() {
+    return getFormat5()
+      .map(fmt -> fmt.getFlags().contains(ViewColumnFormat5.Flag.IS_NAME))
+      .orElse(false);
+  }
+  
+  @Override
+  public Optional<String> getOnlinePresenceNameColumn() {
+    return getFormat5()
+      .map(fmt -> fmt.getDnColumnName());
+  }
+
+  // *******************************************************************************
+  // * Format-reader hooks
+  // *******************************************************************************
 
   public void read(final ViewColumnFormat format1) {
     this.format1 = format1;
@@ -225,11 +241,24 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   public void readSharedColumnName(final String name) {
     this.sharedColumnName = name;
   }
+  
+  public void readTwistie(final CDResource resource) {
+    this.twistie = resource;
+  }
 
   // *******************************************************************************
   // * Internal implementation utilities
   // *******************************************************************************
-  public void readTwistie(final CDResource resource) {
-    this.twistie = resource;
+
+  private ViewColumnFormat getFormat1() {
+    return Objects.requireNonNull(this.format1, "VIEW_COLUMN_FORMAT not read");
+  }
+
+  private ViewColumnFormat2 getFormat2() {
+    return Objects.requireNonNull(this.format2, "VIEW_COLUMN_FORMAT2 not read");
+  }
+  
+  private Optional<ViewColumnFormat5> getFormat5() {
+    return Optional.ofNullable(this.format5);
   }
 }

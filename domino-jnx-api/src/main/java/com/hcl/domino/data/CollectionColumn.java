@@ -131,9 +131,39 @@ public interface CollectionColumn {
   boolean isShowTwistie();
 
   /**
-   * @return {@link true} if the column's hide-when formula should be used;
+   * @return {@code true} if the column's hide-when formula should be used;
    *         {@code false} otherwise
    * @since 1.0.27
    */
   boolean isUseHideWhen();
+  
+  /**
+   * @return {@code true} if the column is defined by a shared column;
+   *         {@code false} otherwise
+   * @since 1.0.29
+   */
+  boolean isSharedColumn();
+  
+  /**
+   * @return an {@link Optional} describing the name of the shared-column
+   *         design element that defines this column, or an empty one if
+   *         this column is not a shared column
+   * @since 1.0.29
+   */
+  Optional<String> getSharedColumnName();
+  
+  /**
+   * @return {@code true} if this column is marked as containing a name
+   *         value; {@code false} otherwise
+   * @since 1.0.29
+   */
+  boolean isNameColumn();
+  
+  /**
+   * @return an {@link Optional} describing the name of the column containing
+   *         the distinguished name to use for online presence, or an empty
+   *         one if this is not specified
+   * @since 1.0.29
+   */
+  Optional<String> getOnlinePresenceNameColumn();
 }
