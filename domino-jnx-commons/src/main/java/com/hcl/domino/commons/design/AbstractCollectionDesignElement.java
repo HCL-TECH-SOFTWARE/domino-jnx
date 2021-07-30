@@ -183,6 +183,17 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   public boolean isShowInViewMenu() {
     return !getDocument().getAsText(NotesConstants.DESIGN_FLAGS , ' ').contains(NotesConstants.DESIGN_FLAG_NO_MENU);
   }
+  
+  @Override
+  public boolean isEvaluateActionsOnDocumentChange() {
+    final DominoViewFormat format = this.readViewFormat();
+    final ViewTableFormat3 format3 = format.getAdapter(ViewTableFormat3.class);
+    if (format3 == null) {
+      return false;
+    } else {
+      return format3.getFlags().contains(ViewTableFormat3.Flag.EvaluateActionsHideWhen);
+    }
+  }
 
   // *******************************************************************************
   // * Internal utility methods

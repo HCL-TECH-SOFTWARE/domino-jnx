@@ -121,4 +121,14 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.32
    */
   boolean isShowInViewMenu();
+  
+  /**
+   * Determines whether computed attributes of action-bar actions should be evaluated each
+   * time the user changes document selection.
+   * 
+   * @return {@code true} if actions should be re-evaluated;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   */
+  boolean isEvaluateActionsOnDocumentChange();
 }
