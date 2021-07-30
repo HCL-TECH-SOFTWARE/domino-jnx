@@ -63,6 +63,13 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
 
   CollectionDesignElement swapColumns(int a, int b);
   
+  /**
+   * Retrieves the style of the collection - namely, whether it is displayed in
+   * "outline" format or as a calendar.
+   * 
+   * @return the overall visual style of the collection as a {@link Style} instance
+   * @since 1.0.32
+   */
   Style getStyle();
 
 }
