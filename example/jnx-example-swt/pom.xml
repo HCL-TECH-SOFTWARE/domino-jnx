@@ -4,12 +4,12 @@
 	<parent>
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
-		<version>1.0.29-SNAPSHOT</version>
+		<version>1.0.32-SNAPSHOT</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>jnx-example-swt</artifactId>
 	<name>HCL Domino API Example SWT Application</name>
-	
+
 	<properties>
 		<swt.version>3.116.0</swt.version>
 	</properties>

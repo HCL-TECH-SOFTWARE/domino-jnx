@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.hcl.domino</groupId>
 	<artifactId>domino-jnx</artifactId>
-	<version>1.0.29-SNAPSHOT</version>
+	<version>1.0.32-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>HCL Domino API Parent Project</name>
@@ -27,12 +27,12 @@
 		<module>domino-jnx-commons</module>
 		<module>domino-jnx-console</module>
 		<module>domino-jnx-jna</module>
-		
+
 		<module>integration/domino-jnx-jsonb</module>
 		<module>integration/domino-jnx-jakarta-security</module>
 		<module>integration/domino-jnx-vertx-json</module>
 		<module>integration/domino-jnx-lsxbeshim</module>
-		
+
 		<module>test/it-domino-jnx</module>
 
 		<!-- Example projects -->
@@ -207,7 +207,7 @@
 				<artifactId>jakarta.json.bind-api</artifactId>
 				<version>${jakarta.json.bind.version}</version>
 			</dependency>
-			
+
 
 			<!-- Vert.x integration -->
 			<dependency>
@@ -367,8 +367,8 @@
 							<exclude>src/main/resources/**</exclude>
 							<exclude>LICENSE</exclude>
 							<exclude>NOTICE</exclude>
-                            <exclude>CODE_OF_CONDUCT.md</exclude>
-                            <exclude>CONTRIBUTING.md</exclude>
+							<exclude>CODE_OF_CONDUCT.md</exclude>
+							<exclude>CONTRIBUTING.md</exclude>
 							<exclude>**/node_modules/**</exclude>
 							<exclude>**/org/apache/**</exclude>
 							<exclude>legal/**</exclude>
