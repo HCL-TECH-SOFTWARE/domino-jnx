@@ -28,6 +28,7 @@ import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.DesignElement;
+import com.hcl.domino.design.format.ViewCalendarFormat;
 import com.hcl.domino.design.format.ViewTableFormat;
 import com.hcl.domino.design.format.ViewTableFormat3;
 import com.hcl.domino.misc.DominoEnumUtil;
@@ -142,6 +143,11 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       return DominoEnumUtil.valueOf(ClassicThemeBehavior.class, themeSetting)
         .orElse(ClassicThemeBehavior.USE_DATABASE_SETTING);
     }
+  }
+  
+  @Override
+  public Style getStyle() {
+    return format.getAdapter(ViewCalendarFormat.class) == null ? Style.STANDARD_OUTLINE : Style.CALENDAR;
   }
 
   // *******************************************************************************

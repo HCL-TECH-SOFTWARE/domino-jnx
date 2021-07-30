@@ -90,6 +90,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(CollectionDesignElement.OnOpen.GOTO_TOP, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.REFRESH_DISPLAY, view.getOnRefreshUISetting());
     assertEquals(DesignElement.ClassicThemeBehavior.USE_DATABASE_SETTING, view.getClassicThemeBehavior());
+    assertEquals(CollectionDesignElement.Style.STANDARD_OUTLINE, view.getStyle());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -215,6 +216,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(CollectionDesignElement.OnOpen.GOTO_LAST_OPENED, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.DISPLAY_INDICATOR, view.getOnRefreshUISetting());
     assertEquals(DesignElement.ClassicThemeBehavior.DONT_INHERIT_FROM_OS, view.getClassicThemeBehavior());
+    assertEquals(CollectionDesignElement.Style.STANDARD_OUTLINE, view.getStyle());
   }
 
   @Test

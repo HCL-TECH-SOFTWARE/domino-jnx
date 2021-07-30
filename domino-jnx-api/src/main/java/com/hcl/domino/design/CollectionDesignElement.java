@@ -38,6 +38,10 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
     REFRESH_FROM_TOP,
     REFRESH_FROM_BOTTOM
   }
+  
+  public enum Style {
+    STANDARD_OUTLINE, CALENDAR
+  }
 
   CollectionDesignElement addColumn();
 
@@ -58,5 +62,7 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
   CollectionDesignElement swapColumns(CollectionColumn a, CollectionColumn b);
 
   CollectionDesignElement swapColumns(int a, int b);
+  
+  Style getStyle();
 
 }
