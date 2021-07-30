@@ -24,6 +24,7 @@ import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DesignConstants;
@@ -148,6 +149,11 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   @Override
   public Style getStyle() {
     return format.getAdapter(ViewCalendarFormat.class) == null ? Style.STANDARD_OUTLINE : Style.CALENDAR;
+  }
+  
+  @Override
+  public boolean isDefaultCollection() {
+    return getDocument().getDocumentClass().contains(DocumentClass.DEFAULT);
   }
 
   // *******************************************************************************

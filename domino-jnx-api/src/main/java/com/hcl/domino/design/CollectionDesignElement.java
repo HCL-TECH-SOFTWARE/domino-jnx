@@ -72,4 +72,13 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    */
   Style getStyle();
 
+  /**
+   * Determines whether the view or folder is marked as the default to display on
+   * database open.
+   * 
+   * @return {@code true} if the collection is marked as the default on DB open;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   */
+  boolean isDefaultCollection();
 }

@@ -52,7 +52,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
-  public static final int EXPECTED_IMPORT_VIEWS = 7;
+  public static final int EXPECTED_IMPORT_VIEWS = 8;
   public static final int EXPECTED_IMPORT_FOLDERS = 1;
 
   private static String dbPath;
@@ -91,6 +91,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(CollectionDesignElement.OnRefresh.REFRESH_DISPLAY, view.getOnRefreshUISetting());
     assertEquals(DesignElement.ClassicThemeBehavior.USE_DATABASE_SETTING, view.getClassicThemeBehavior());
     assertEquals(CollectionDesignElement.Style.STANDARD_OUTLINE, view.getStyle());
+    assertFalse(view.isDefaultCollection());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -217,6 +218,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(CollectionDesignElement.OnRefresh.DISPLAY_INDICATOR, view.getOnRefreshUISetting());
     assertEquals(DesignElement.ClassicThemeBehavior.DONT_INHERIT_FROM_OS, view.getClassicThemeBehavior());
     assertEquals(CollectionDesignElement.Style.STANDARD_OUTLINE, view.getStyle());
+    assertFalse(view.isDefaultCollection());
   }
 
   @Test
@@ -227,6 +229,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(CollectionDesignElement.OnOpen.GOTO_BOTTOM, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_TOP, view.getOnRefreshUISetting());
     assertEquals(DesignElement.ClassicThemeBehavior.INHERIT_FROM_OS, view.getClassicThemeBehavior());
+    assertFalse(view.isDefaultCollection());
   }
 
   @Test
@@ -236,6 +239,15 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isAllowCustomizations());
     assertEquals(CollectionDesignElement.OnOpen.GOTO_LAST_OPENED, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_BOTTOM, view.getOnRefreshUISetting());
+    assertFalse(view.isDefaultCollection());
+  }
+  
+  @Test
+  public void testAllView() {
+    final DbDesign dbDesign = this.database.getDesign();
+    final View view = dbDesign.getView("All").get();
+    assertFalse(view.isAllowCustomizations());
+    assertTrue(view.isDefaultCollection());
   }
 
   @Test
