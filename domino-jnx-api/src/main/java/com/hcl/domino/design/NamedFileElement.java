@@ -24,8 +24,7 @@ import com.hcl.domino.design.DesignElement.NamedDesignElement;
 
 /**
  * Represents common behavior for file-resource-esque design elements with
- * "$FileData"
- * and "$FileNames" or equivalent items.
+ * "$FileData" and "$FileNames" or equivalent items.
  *
  * @author Jesse Gallagher
  * @since 1.0.24
