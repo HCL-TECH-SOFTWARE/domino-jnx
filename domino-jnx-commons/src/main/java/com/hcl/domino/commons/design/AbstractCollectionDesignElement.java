@@ -149,7 +149,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public Style getStyle() {
-    return format.getAdapter(ViewCalendarFormat.class) == null ? Style.STANDARD_OUTLINE : Style.CALENDAR;
+    return readViewFormat().getAdapter(ViewCalendarFormat.class) == null ? Style.STANDARD_OUTLINE : Style.CALENDAR;
   }
   
   @Override
@@ -160,6 +160,14 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   @Override
   public boolean isDefaultCollectionDesign() {
     return getDocument().getAsText(NotesConstants.DESIGN_FLAGS , ' ').contains(NotesConstants.DESIGN_FLAG_DEFAULT_DESIGN);
+  }
+  
+  @Override
+  public boolean isCollapseAllOnFirstOpen() {
+    return readViewFormat()
+        .getAdapter(ViewTableFormat.class)
+        .getFlags()
+        .contains(ViewTableFormat.Flag.COLLAPSED);
   }
 
   // *******************************************************************************

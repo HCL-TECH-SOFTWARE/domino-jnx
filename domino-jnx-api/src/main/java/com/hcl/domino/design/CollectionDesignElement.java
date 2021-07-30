@@ -91,4 +91,14 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.32
    */
   boolean isDefaultCollectionDesign();
+  
+  /**
+   * Determines whether all non-leaf entries should be collapsed when the user first
+   * opens the database.
+   * 
+   * @return {@code true} if non-leaf entries should be collapsed by default;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   */
+  boolean isCollapseAllOnFirstOpen();
 }

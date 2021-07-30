@@ -93,6 +93,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(CollectionDesignElement.Style.STANDARD_OUTLINE, view.getStyle());
     assertFalse(view.isDefaultCollection());
     assertFalse(view.isDefaultCollectionDesign());
+    assertFalse(view.isCollapseAllOnFirstOpen());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -221,6 +222,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(CollectionDesignElement.Style.STANDARD_OUTLINE, view.getStyle());
     assertFalse(view.isDefaultCollection());
     assertTrue(view.isDefaultCollectionDesign());
+    assertTrue(view.isCollapseAllOnFirstOpen());
   }
 
   @Test
@@ -233,6 +235,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(DesignElement.ClassicThemeBehavior.INHERIT_FROM_OS, view.getClassicThemeBehavior());
     assertFalse(view.isDefaultCollection());
     assertFalse(view.isDefaultCollectionDesign());
+    assertFalse(view.isCollapseAllOnFirstOpen());
   }
 
   @Test
