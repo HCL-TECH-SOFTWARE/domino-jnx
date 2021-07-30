@@ -27,6 +27,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,6 +42,7 @@ import com.hcl.domino.data.CollectionColumn.TotalType;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DbDesign;
+import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.format.ViewColumnFormat;
@@ -87,6 +89,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(view.isAllowCustomizations());
     assertEquals(CollectionDesignElement.OnOpen.GOTO_TOP, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.REFRESH_DISPLAY, view.getOnRefreshUISetting());
+    assertEquals(DesignElement.ClassicThemeBehavior.USE_DATABASE_SETTING, view.getClassicThemeBehavior());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -205,9 +208,13 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
   public void testExampleView2() {
     final DbDesign dbDesign = this.database.getDesign();
     final View view = dbDesign.getView("Example View 2").get();
+    assertEquals("Example View 2", view.getTitle());
+    assertEquals(Arrays.asList("test alias for view 2", "other alias"), view.getAliases());
+    assertEquals("I am a comment'", view.getComment());
     assertFalse(view.isAllowCustomizations());
     assertEquals(CollectionDesignElement.OnOpen.GOTO_LAST_OPENED, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.DISPLAY_INDICATOR, view.getOnRefreshUISetting());
+    assertEquals(DesignElement.ClassicThemeBehavior.DONT_INHERIT_FROM_OS, view.getClassicThemeBehavior());
   }
 
   @Test
@@ -217,6 +224,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isAllowCustomizations());
     assertEquals(CollectionDesignElement.OnOpen.GOTO_BOTTOM, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_TOP, view.getOnRefreshUISetting());
+    assertEquals(DesignElement.ClassicThemeBehavior.INHERIT_FROM_OS, view.getClassicThemeBehavior());
   }
 
   @Test

@@ -162,4 +162,10 @@ public interface ViewTableFormat3 extends MemoryStructure {
 
   @StructureSetter("wViewMarginTopUnder")
   ViewTableFormat3 setViewMarginTopUnder(int margin);
+  
+  @StructureGetter("wThemeSetting")
+  short getThemeSetting();
+  
+  @StructureSetter("wThemeSetting")
+  ViewTableFormat3 setThemeSetting(short themeSetting);
 }

@@ -18,6 +18,7 @@ package com.hcl.domino.commons.design;
 
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.DbProperties;
+import com.hcl.domino.design.DesignConstants;
 
 public class DbPropertiesImpl extends AbstractDesignElement<DbProperties> implements DbProperties {
 

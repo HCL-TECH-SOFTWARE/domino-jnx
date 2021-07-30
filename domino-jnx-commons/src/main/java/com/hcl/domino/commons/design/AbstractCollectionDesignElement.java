@@ -26,9 +26,11 @@ import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.format.ViewTableFormat;
 import com.hcl.domino.design.format.ViewTableFormat3;
+import com.hcl.domino.misc.DominoEnumUtil;
 
 /**
  * @param <T> the {@link DesignElement} interface implemented by the class
@@ -110,14 +112,6 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
   }
 
-  private synchronized DominoViewFormat readViewFormat() {
-    if (this.format == null) {
-      final Document doc = this.getDocument();
-      this.format = (DominoViewFormat) doc.getItemValue(DesignConstants.VIEW_VIEW_FORMAT_ITEM).get(0);
-    }
-    return this.format;
-  }
-
   @Override
   public CollectionDesignElement removeColumn(final CollectionColumn column) {
     throw new NotYetImplementedException();
@@ -133,12 +127,32 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     throw new NotYetImplementedException();
   }
 
+  @Override
+  public CollectionDesignElement swapColumns(final int a, final int b) {
+    throw new NotYetImplementedException();
+  }
+  
+  @Override
+  public ClassicThemeBehavior getClassicThemeBehavior() {
+    final ViewTableFormat3 format3 = format.getAdapter(ViewTableFormat3.class);
+    if(format3 == null) {
+      return ClassicThemeBehavior.USE_DATABASE_SETTING;
+    } else {
+      byte themeSetting = (byte)format3.getThemeSetting();
+      return DominoEnumUtil.valueOf(ClassicThemeBehavior.class, themeSetting)
+        .orElse(ClassicThemeBehavior.USE_DATABASE_SETTING);
+    }
+  }
+
   // *******************************************************************************
   // * Internal utility methods
   // *******************************************************************************
 
-  @Override
-  public CollectionDesignElement swapColumns(final int a, final int b) {
-    throw new NotYetImplementedException();
+  private synchronized DominoViewFormat readViewFormat() {
+    if (this.format == null) {
+      final Document doc = this.getDocument();
+      this.format = (DominoViewFormat) doc.getItemValue(DesignConstants.VIEW_VIEW_FORMAT_ITEM).get(0);
+    }
+    return this.format;
   }
 }

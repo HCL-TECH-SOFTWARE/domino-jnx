@@ -23,7 +23,8 @@ import com.hcl.domino.data.CollectionColumn;
 /**
  * Describes a collection design element, i.e. a view or folder
  */
-public interface CollectionDesignElement extends DesignElement.NamedDesignElement, DesignElement.XPageAlternativeElement {
+public interface CollectionDesignElement extends DesignElement.NamedDesignElement, DesignElement.XPageAlternativeElement,
+  DesignElement.ThemeableClassicElement {
 
   public enum OnOpen {
     GOTO_LAST_OPENED,
