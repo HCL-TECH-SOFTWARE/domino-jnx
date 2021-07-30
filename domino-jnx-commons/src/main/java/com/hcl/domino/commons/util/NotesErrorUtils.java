@@ -65,6 +65,7 @@ import com.hcl.domino.exception.QuitPendingException;
 import com.hcl.domino.exception.ServerNotFoundException;
 import com.hcl.domino.exception.ServerRestrictedException;
 import com.hcl.domino.exception.ServerUnavailableException;
+import com.hcl.domino.exception.SpecialObjectCannotBeLocatedException;
 import com.hcl.domino.misc.NotesConstants;
 
 /**
@@ -300,6 +301,8 @@ public class NotesErrorUtils {
         return Optional.of(new CompactInProgressException(s, message));
       case IMiscErr.ERR_MISC_MIMEPART_NOT_FOUND:
         return Optional.of(new MimePartNotFoundException(s, message));
+      case INsfErr.ERR_SPECIAL_ID:
+        return Optional.of(new SpecialObjectCannotBeLocatedException(s, message));
       default:
         return Optional.of(new DominoException(s, message));
     }
