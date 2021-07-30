@@ -42,6 +42,23 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
   public enum Style {
     STANDARD_OUTLINE, CALENDAR
   }
+  
+  /**
+   * Represents settings related to view/folder display when used inside of
+   * a composite application in the Notes Standard client.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  interface CompositeAppSettings {
+    boolean isHideColumnHeader();
+    boolean isShowPartialHierarchies();
+    boolean isShowSwitcher();
+    boolean isShowTabNavigator();
+    String getViewers();
+    String getThreadView();
+    boolean isAllowConversationMode();
+  }
 
   CollectionDesignElement addColumn();
 
@@ -141,4 +158,13 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.32
    */
   boolean isCreateDocumentsAtViewLevel();
+  
+  /**
+   * Retrieves an object that provides a view onto this collections settings for use in
+   * Composite Applications.
+   * 
+   * @return a {@link CompositeAppSettings} instance
+   * @since 1.0.32
+   */
+  CompositeAppSettings getCompositeAppSettings();
 }

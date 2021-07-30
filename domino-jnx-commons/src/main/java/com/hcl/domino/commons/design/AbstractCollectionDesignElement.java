@@ -205,6 +205,11 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       return format3.getFlags().contains(ViewTableFormat3.Flag.AllowCreateNewDoc);
     }
   }
+  
+  @Override
+  public CompositeAppSettings getCompositeAppSettings() {
+    return new DefaultCompositeAppSettings();
+  }
 
   // *******************************************************************************
   // * Internal utility methods
@@ -216,5 +221,62 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       this.format = (DominoViewFormat) doc.getItemValue(DesignConstants.VIEW_VIEW_FORMAT_ITEM).get(0);
     }
     return this.format;
+  }
+  
+  private Optional<ViewTableFormat3> getFormat3() {
+    final DominoViewFormat format = this.readViewFormat();
+    final ViewTableFormat3 format3 = format.getAdapter(ViewTableFormat3.class);
+    if (format3 == null) {
+      return Optional.empty();
+    } else {
+      return Optional.of(format3);
+    }
+  }
+  
+  private class DefaultCompositeAppSettings implements CompositeAppSettings {
+
+    @Override
+    public boolean isHideColumnHeader() {
+      return getFormat3()
+          .map(format3 -> format3.getFlags().contains(ViewTableFormat3.Flag.HideColumnHeader))
+          .orElse(false);
+    }
+
+    @Override
+    public boolean isShowPartialHierarchies() {
+      ViewTableFormat format = readViewFormat().getAdapter(ViewTableFormat.class);
+      return format.getFlags2().contains(ViewTableFormat.Flag2.SHOW_PARTIAL_THREADS);
+    }
+
+    @Override
+    public boolean isShowSwitcher() {
+      return getFormat3()
+          .map(format3 -> format3.getFlags().contains(ViewTableFormat3.Flag.ShowVerticalHorizontalSwitcher))
+          .orElse(false);
+    }
+
+    @Override
+    public boolean isShowTabNavigator() {
+      return getFormat3()
+        .map(format3 -> format3.getFlags().contains(ViewTableFormat3.Flag.ShowTabNavigator))
+        .orElse(false);
+    }
+
+    @Override
+    public String getViewers() {
+      return getDocument().getAsText(DesignConstants.VIEW_VIEWERS_ITEM, ' ');
+    }
+
+    @Override
+    public String getThreadView() {
+      return getDocument().getAsText(DesignConstants.VIEW_THREADVIEW_ITEM, ' ');
+    }
+
+    @Override
+    public boolean isAllowConversationMode() {
+      ViewTableFormat format = readViewFormat().getAdapter(ViewTableFormat.class);
+      return format.getFlags2().contains(ViewTableFormat.Flag2.PARTIAL_FLATINDEX);
+    }
+    
   }
 }

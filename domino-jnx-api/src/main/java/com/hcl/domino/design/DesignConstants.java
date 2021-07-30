@@ -35,4 +35,13 @@ public interface DesignConstants {
   byte THEME_DEFAULT = 0;
   byte THEME_ENABLE = 1;
   byte THEME_DISABLE = 2;
+  
+  /**
+   * Non-documented item for Hannover "viewers" property.
+   */
+  String VIEW_VIEWERS_ITEM = "$Viewers"; //$NON-NLS-1$
+  /**
+   * Non-documented item for Hannover "thread view" property.
+   */
+  String VIEW_THREADVIEW_ITEM = "$ThreadView"; //$NON-NLS-1$
 }

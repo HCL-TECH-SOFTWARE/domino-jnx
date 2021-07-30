@@ -98,6 +98,16 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isShowInViewMenu());
     assertTrue(view.isEvaluateActionsOnDocumentChange());
     assertFalse(view.isCreateDocumentsAtViewLevel());
+    
+    CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
+    assertNotNull(comp);
+    assertTrue(comp.isHideColumnHeader());
+    assertFalse(comp.isShowPartialHierarchies());
+    assertTrue(comp.isShowSwitcher());
+    assertFalse(comp.isShowTabNavigator());
+    assertEquals("viewers1", comp.getViewers());
+    assertEquals("Trash", comp.getThreadView());
+    assertFalse(comp.isAllowConversationMode());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -231,6 +241,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isShowInViewMenu());
     assertFalse(view.isEvaluateActionsOnDocumentChange());
     assertTrue(view.isCreateDocumentsAtViewLevel());
+    
+    CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
+    assertNotNull(comp);
+    assertFalse(comp.isHideColumnHeader());
+    assertFalse(comp.isShowPartialHierarchies());
+    assertTrue(comp.isShowSwitcher());
+    assertFalse(comp.isShowTabNavigator());
+    assertFalse(comp.isAllowConversationMode());
   }
 
   @Test
@@ -264,6 +282,16 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals("1", view.getFormulaClass());
     view.setFormulaClass("2");
     assertEquals("2", view.getFormulaClass());
+    
+    CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
+    assertNotNull(comp);
+    assertTrue(comp.isHideColumnHeader());
+    assertTrue(comp.isShowPartialHierarchies());
+    assertFalse(comp.isShowSwitcher());
+    assertTrue(comp.isShowTabNavigator());
+    assertEquals("foo,bar", comp.getViewers());
+    assertEquals("test alias", comp.getThreadView());
+    assertTrue(comp.isAllowConversationMode());
   }
   
   @Test
