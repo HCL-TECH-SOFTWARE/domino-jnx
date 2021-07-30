@@ -4428,4 +4428,16 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			return Optional.of(userNamesList);
 		}
 	}
+
+  @Override
+  public int getSpecialNoteId(DocumentClass documentClass) {
+    Objects.requireNonNull(documentClass, "documentClass cannot be null");
+    
+    IntByReference retNoteID = new IntByReference();
+    short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
+      return NotesCAPI.get().NSFDbGetSpecialNoteID(hDbByVal, (short)(NotesConstants.SPECIAL_ID_NOTE | documentClass.getValue()), retNoteID);
+    });
+    NotesErrorUtils.checkResult(result);
+    return retNoteID.getValue();
+  }
 }

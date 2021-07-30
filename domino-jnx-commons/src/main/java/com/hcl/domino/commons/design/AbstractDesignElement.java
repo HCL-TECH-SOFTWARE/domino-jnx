@@ -20,6 +20,7 @@ import java.util.Collection;
 
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.misc.NotesConstants;
 

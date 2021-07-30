@@ -27,6 +27,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,6 +42,7 @@ import com.hcl.domino.data.CollectionColumn.TotalType;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DbDesign;
+import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.format.ViewColumnFormat;
@@ -50,7 +52,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
-  public static final int EXPECTED_IMPORT_VIEWS = 7;
+  public static final int EXPECTED_IMPORT_VIEWS = 8;
   public static final int EXPECTED_IMPORT_FOLDERS = 1;
 
   private static String dbPath;
@@ -87,6 +89,9 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(view.isAllowCustomizations());
     assertEquals(CollectionDesignElement.OnOpen.GOTO_TOP, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.REFRESH_DISPLAY, view.getOnRefreshUISetting());
+    assertEquals(DesignElement.ClassicThemeBehavior.USE_DATABASE_SETTING, view.getClassicThemeBehavior());
+    assertEquals(CollectionDesignElement.Style.STANDARD_OUTLINE, view.getStyle());
+    assertFalse(view.isDefaultCollection());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -205,9 +210,15 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
   public void testExampleView2() {
     final DbDesign dbDesign = this.database.getDesign();
     final View view = dbDesign.getView("Example View 2").get();
+    assertEquals("Example View 2", view.getTitle());
+    assertEquals(Arrays.asList("test alias for view 2", "other alias"), view.getAliases());
+    assertEquals("I am a comment'", view.getComment());
     assertFalse(view.isAllowCustomizations());
     assertEquals(CollectionDesignElement.OnOpen.GOTO_LAST_OPENED, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.DISPLAY_INDICATOR, view.getOnRefreshUISetting());
+    assertEquals(DesignElement.ClassicThemeBehavior.DONT_INHERIT_FROM_OS, view.getClassicThemeBehavior());
+    assertEquals(CollectionDesignElement.Style.STANDARD_OUTLINE, view.getStyle());
+    assertFalse(view.isDefaultCollection());
   }
 
   @Test
@@ -217,6 +228,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isAllowCustomizations());
     assertEquals(CollectionDesignElement.OnOpen.GOTO_BOTTOM, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_TOP, view.getOnRefreshUISetting());
+    assertEquals(DesignElement.ClassicThemeBehavior.INHERIT_FROM_OS, view.getClassicThemeBehavior());
+    assertFalse(view.isDefaultCollection());
   }
 
   @Test
@@ -226,6 +239,19 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isAllowCustomizations());
     assertEquals(CollectionDesignElement.OnOpen.GOTO_LAST_OPENED, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_BOTTOM, view.getOnRefreshUISetting());
+    assertFalse(view.isDefaultCollection());
+    
+    assertEquals("1", view.getFormulaClass());
+    view.setFormulaClass("2");
+    assertEquals("2", view.getFormulaClass());
+  }
+  
+  @Test
+  public void testAllView() {
+    final DbDesign dbDesign = this.database.getDesign();
+    final View view = dbDesign.getView("All").get();
+    assertFalse(view.isAllowCustomizations());
+    assertTrue(view.isDefaultCollection());
   }
 
   @Test

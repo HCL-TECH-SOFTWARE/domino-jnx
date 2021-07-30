@@ -23,7 +23,8 @@ import com.hcl.domino.data.CollectionColumn;
 /**
  * Describes a collection design element, i.e. a view or folder
  */
-public interface CollectionDesignElement extends DesignElement.NamedDesignElement, DesignElement.XPageAlternativeElement {
+public interface CollectionDesignElement extends DesignElement.NamedDesignElement, DesignElement.XPageAlternativeElement,
+  DesignElement.ThemeableClassicElement {
 
   public enum OnOpen {
     GOTO_LAST_OPENED,
@@ -36,6 +37,10 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
     REFRESH_DISPLAY,
     REFRESH_FROM_TOP,
     REFRESH_FROM_BOTTOM
+  }
+  
+  public enum Style {
+    STANDARD_OUTLINE, CALENDAR
   }
 
   CollectionDesignElement addColumn();
@@ -57,5 +62,23 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
   CollectionDesignElement swapColumns(CollectionColumn a, CollectionColumn b);
 
   CollectionDesignElement swapColumns(int a, int b);
+  
+  /**
+   * Retrieves the style of the collection - namely, whether it is displayed in
+   * "outline" format or as a calendar.
+   * 
+   * @return the overall visual style of the collection as a {@link Style} instance
+   * @since 1.0.32
+   */
+  Style getStyle();
 
+  /**
+   * Determines whether the view or folder is marked as the default to display on
+   * database open.
+   * 
+   * @return {@code true} if the collection is marked as the default on DB open;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   */
+  boolean isDefaultCollection();
 }

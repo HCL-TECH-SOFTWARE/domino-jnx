@@ -1,11 +1,7 @@
 <?xml version='1.0'?>
-<note class='view' xmlns='http://www.lotus.com/dxl' version='12.0'>
-<item name='$FormatNote' summary='true'>
-<rawitemdata type='4'>
-AQBuMhl/nsbLLkkiVQC+eyWF
-</rawitemdata></item>
+<note default='true' class='view' xmlns='http://www.lotus.com/dxl' version='12.0'>
 <item name='$FormulaClass' sign='true'><text>1</text></item>
-<item name='$TITLE' sign='true'><text>Example View 3</text></item>
+<item name='$TITLE' sign='true'><text>All</text></item>
 <item name='$Index' sign='true'><text/></item>
 <item name='$Formula' summary='true' sign='true'><formula compiled='true'>
 XgACAAwAAgAkMp8AAwACAAwAAgAkM2kAAwACAAwAAgAkNKQAAwAFACwAJwAGAAQAAgACAAIACQAE
@@ -17,7 +13,7 @@ BgAAAABE
 </rawitemdata></item>
 <item name='$ViewFormat' summary='true' sign='true'>
 <rawitemdata type='5'>
-AQAFAAIAyFAAAFZDAAACAAEACgAKAFAAAQAACgAAAAAAAAAAAAICAAAAVkMAAAQABAAAAAAAUAAB
+AQAFAAIAiEAAAFZDAAACAAEACgAKAFAAAQAACgAAAAAAAAAAAAICAAAAVkMAAAQABAAAAAAAUAAB
 AAAKAAAAAAAAAAAAAgIAAABWQwAAAgAEAA4AAABQAAEAAAoAAAABEAAAAAACAgAAAFZDAAACAAcA
 DgAAAHoAAQAACgAAAAAAAAAAAAICAAAAVkMAAAIACAAOAAAAeAABAAAKAAAAAAAAAAAAAgIAAAAk
 MCMKAAAACACSAAMAAQUBAAQAf0Ew/0Zvcm1Gb3JtJDJTaXplDgACAAwAAgAkMp8AAwAkM0NyZWF0
@@ -31,7 +27,6 @@ AAQAAAAAAP//AAAAAAAAAAAAAAAAAABCABEAAAABAP///wABAO/v7wABAP///wAAAAAAAAAAAAEA
 AAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAuLCQA
 </rawitemdata></item>
 <item name='$Comment' sign='true'><text/></item>
-<item name='$Flags'><text>PY</text></item>
 <item name='$DesignerVersion'><text>8.5.3</text></item>
 <item name='$V5ACTIONS' sign='true'>
 <rawitemdata type='1'>
@@ -39,4 +34,5 @@ vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
 AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAA=
-</rawitemdata></item></note>
+</rawitemdata></item>
+<item name='$Flags'><text>Y</text></item></note>

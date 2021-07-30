@@ -40,6 +40,7 @@ import com.hcl.domino.dql.DQL;
 import com.hcl.domino.dql.DQL.DQLTerm;
 import com.hcl.domino.dql.QueryResultsProcessor;
 import com.hcl.domino.exception.DocumentDeletedException;
+import com.hcl.domino.exception.SpecialObjectCannotBeLocatedException;
 import com.hcl.domino.misc.DominoClientDescendant;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.Loop;
@@ -1705,4 +1706,16 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
   void updateUnreadDocumentTable(String userName, Set<Integer> noteIdToMarkRead,
       Set<Integer> noteIdsToMarkUnread);
 
+  /**
+   * Looks up the note ID of the special note of the provided type. The meaning of
+   * "special" depends on the {@link DocumentClass} value provided.
+   * 
+   * @param documentClass the type of note to look up
+   * @return the ID of the special note
+   * @since 1.0.32
+   * @throws NullPointerException if {@code documentClass} is {@code null}
+   * @throws SpecialObjectCannotBeLocatedException if there is no special ID
+   *         corresponding to {@code documentClass}
+   */
+  int getSpecialNoteId(DocumentClass documentClass);
 }

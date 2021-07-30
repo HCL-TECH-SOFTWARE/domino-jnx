@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.misc.INumberEnum;
 
 /**
  * Access to forms, views, resources read/write
@@ -62,6 +63,45 @@ public interface DesignElement {
    */
   interface XPageNotesAlternativeElement {
     Optional<String> getNotesXPageAlternative();
+  }
+  
+  /**
+   * This mixin interface describes a non-XPages design element that can
+   * have a setting for NSF-level theme behavior.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  interface ThemeableClassicElement {
+    ClassicThemeBehavior getClassicThemeBehavior();
+  }
+  
+  /**
+   * This enum describes the options available for elements conforming to
+   * {@link ThemeableClassicElement}.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  enum ClassicThemeBehavior implements INumberEnum<Byte> {
+    USE_DATABASE_SETTING(DesignConstants.THEME_DEFAULT),
+    INHERIT_FROM_OS(DesignConstants.THEME_ENABLE),
+    DONT_INHERIT_FROM_OS(DesignConstants.THEME_DISABLE);
+    
+    private final byte value;
+    private ClassicThemeBehavior(byte value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return value;
+    }
+
+    @Override
+    public Byte getValue() {
+      return value;
+    }
   }
 
   /**

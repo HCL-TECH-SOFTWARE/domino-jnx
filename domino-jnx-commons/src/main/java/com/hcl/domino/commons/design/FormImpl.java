@@ -19,6 +19,7 @@ package com.hcl.domino.commons.design;
 import java.util.Optional;
 
 import com.hcl.domino.data.Document;
+import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.Form;
 
 public class FormImpl extends AbstractFormOrSubform<Form> implements Form {
