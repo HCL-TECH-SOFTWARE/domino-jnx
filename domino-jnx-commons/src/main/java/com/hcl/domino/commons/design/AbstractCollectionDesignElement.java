@@ -169,6 +169,20 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
         .getFlags()
         .contains(ViewTableFormat.Flag.COLLAPSED);
   }
+  
+  @Override
+  public boolean isShowResponseDocumentsInHierarchy() {
+    // NB: This method reflects Designer's UI, which is inverted from the actual storage
+    return !readViewFormat()
+        .getAdapter(ViewTableFormat.class)
+        .getFlags()
+        .contains(ViewTableFormat.Flag.FLATINDEX);
+  }
+  
+  @Override
+  public boolean isShowInViewMenu() {
+    return !getDocument().getAsText(NotesConstants.DESIGN_FLAGS , ' ').contains(NotesConstants.DESIGN_FLAG_NO_MENU);
+  }
 
   // *******************************************************************************
   // * Internal utility methods

@@ -101,4 +101,24 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.32
    */
   boolean isCollapseAllOnFirstOpen();
+  
+  /**
+   * Determines whether response documents selected by the view will be indexed in
+   * a hierarchy beneath their parents.
+   * 
+   * @return {@code true} if response documents should be beneath their parents;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   */
+  boolean isShowResponseDocumentsInHierarchy();
+  
+  /**
+   * Determines whether the view or folder should be shown in the client View menu
+   * as its own entry.
+   * 
+   * @return {@code true} if the collection should appear in the View menu;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   */
+  boolean isShowInViewMenu();
 }

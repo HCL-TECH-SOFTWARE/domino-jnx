@@ -94,6 +94,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isDefaultCollection());
     assertFalse(view.isDefaultCollectionDesign());
     assertFalse(view.isCollapseAllOnFirstOpen());
+    assertTrue(view.isShowResponseDocumentsInHierarchy());
+    assertFalse(view.isShowInViewMenu());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -223,6 +225,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isDefaultCollection());
     assertTrue(view.isDefaultCollectionDesign());
     assertTrue(view.isCollapseAllOnFirstOpen());
+    assertTrue(view.isShowResponseDocumentsInHierarchy());
+    assertFalse(view.isShowInViewMenu());
   }
 
   @Test
@@ -236,6 +240,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isDefaultCollection());
     assertFalse(view.isDefaultCollectionDesign());
     assertFalse(view.isCollapseAllOnFirstOpen());
+    assertFalse(view.isShowResponseDocumentsInHierarchy());
+    assertFalse(view.isShowInViewMenu());
   }
 
   @Test
@@ -247,6 +253,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_BOTTOM, view.getOnRefreshUISetting());
     assertFalse(view.isDefaultCollection());
     assertFalse(view.isDefaultCollectionDesign());
+    assertTrue(view.isShowInViewMenu());
     
     assertEquals("1", view.getFormulaClass());
     view.setFormulaClass("2");
