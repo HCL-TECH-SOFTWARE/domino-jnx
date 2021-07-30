@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
-		<version>1.0.29-SNAPSHOT</version>
+		<version>1.0.31</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>domino-jnx-lsxbeshim</artifactId>
@@ -25,7 +25,7 @@
 			<groupId>jakarta.xml.rpc</groupId>
 			<artifactId>jakarta.xml.rpc-api</artifactId>
 			<version>1.1.4</version>
-<!-- 			<scope>provided</scope> -->
+			<!-- 			<scope>provided</scope> -->
 		</dependency>
 	</dependencies>
 

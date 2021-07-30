@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
-		<version>1.0.29-SNAPSHOT</version>
+		<version>1.0.31</version>
 	</parent>
 	<artifactId>domino-jnx-console</artifactId>
 	<name>HCL Domino API Server Controller Connector</name>
