@@ -73,7 +73,7 @@ public interface ViewTableFormat3 extends MemoryStructure {
     /** Hannover Java Views */
     AllowThreadGathering(ViewFormatConstants.VTF3_M_AllowThreadGathering),
     /** Hannover Java Views */
-    DisableHideJaveView(ViewFormatConstants.VTF3_M_DisableHideJaveView),
+    DisableHideJavaView(ViewFormatConstants.VTF3_M_DisableHideJaveView),
     /** Hannover */
     HideColumnHeader(ViewFormatConstants.VTF3_M_HideColumnHeader);
 
