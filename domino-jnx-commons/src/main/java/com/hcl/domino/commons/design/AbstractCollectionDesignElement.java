@@ -33,6 +33,7 @@ import com.hcl.domino.design.format.ViewCalendarFormat;
 import com.hcl.domino.design.format.ViewTableFormat;
 import com.hcl.domino.design.format.ViewTableFormat3;
 import com.hcl.domino.misc.DominoEnumUtil;
+import com.hcl.domino.misc.NotesConstants;
 
 /**
  * @param <T> the {@link DesignElement} interface implemented by the class
@@ -154,6 +155,11 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   @Override
   public boolean isDefaultCollection() {
     return getDocument().getDocumentClass().contains(DocumentClass.DEFAULT);
+  }
+  
+  @Override
+  public boolean isDefaultCollectionDesign() {
+    return getDocument().getAsText(NotesConstants.DESIGN_FLAGS , ' ').contains(NotesConstants.DESIGN_FLAG_DEFAULT_DESIGN);
   }
 
   // *******************************************************************************

@@ -81,4 +81,14 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.32
    */
   boolean isDefaultCollection();
+  
+  /**
+   * Determines whether the view or folder is marked as the default design for new
+   * views and folders in the database.
+   * 
+   * @return {@code true} if the collection is marked as the default for design;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   */
+  boolean isDefaultCollectionDesign();
 }
