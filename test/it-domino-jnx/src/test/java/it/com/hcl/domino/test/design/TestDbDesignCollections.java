@@ -240,6 +240,10 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(CollectionDesignElement.OnOpen.GOTO_LAST_OPENED, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_BOTTOM, view.getOnRefreshUISetting());
     assertFalse(view.isDefaultCollection());
+    
+    assertEquals("1", view.getFormulaClass());
+    view.setFormulaClass("2");
+    assertEquals("2", view.getFormulaClass());
   }
   
   @Test

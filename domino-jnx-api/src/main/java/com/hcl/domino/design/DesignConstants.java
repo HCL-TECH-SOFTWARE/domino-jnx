@@ -30,6 +30,8 @@ public interface DesignConstants {
   String XPAGE_ALTERNATE = "$XPageAlt"; //$NON-NLS-1$
   String XPAGE_ALTERNATE_CLIENT = "$XPageAltClient"; //$NON-NLS-1$
   
+  String VIEW_CLASSES_ITEM = "$FormulaClass"; //$NON-NLS-1$
+  
   byte THEME_DEFAULT = 0;
   byte THEME_ENABLE = 1;
   byte THEME_DISABLE = 2;

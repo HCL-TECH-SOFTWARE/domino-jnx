@@ -28,4 +28,22 @@ public interface View extends CollectionDesignElement {
 
   View setSelectionFormula(final String selectionFormula);
 
+  /**
+   * Retrieves the "formula class" value, a special indicator used by the indexer
+   * to select note types.
+   * 
+   * @return the formula-class value for this view
+   * @since 1.0.32
+   */
+  String getFormulaClass();
+  
+  /**
+   * Sets the "formula class" value, a special indicator used by the indexer
+   * to select note types.
+   * 
+   * @param formulaClass the formula-class value to set for this view
+   * @return this view
+   * @since 1.0.32
+   */
+  View setFormulaClass(String formulaClass);
 }

@@ -18,6 +18,7 @@ package com.hcl.domino.commons.design;
 
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.View;
 
 /**
@@ -44,4 +45,14 @@ public class ViewImpl extends AbstractCollectionDesignElement<View> implements V
     throw new NotYetImplementedException();
   }
 
+  @Override
+  public View setFormulaClass(String formulaClass) {
+    getDocument().replaceItemValue(DesignConstants.VIEW_CLASSES_ITEM, formulaClass);
+    return this;
+  }
+  
+  @Override
+  public String getFormulaClass() {
+    return getDocument().getAsText(DesignConstants.VIEW_CLASSES_ITEM, ' ');
+  }
 }
