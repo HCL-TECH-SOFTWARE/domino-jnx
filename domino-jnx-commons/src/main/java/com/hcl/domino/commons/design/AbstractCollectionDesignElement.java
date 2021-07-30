@@ -194,6 +194,17 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       return format3.getFlags().contains(ViewTableFormat3.Flag.EvaluateActionsHideWhen);
     }
   }
+  
+  @Override
+  public boolean isCreateDocumentsAtViewLevel() {
+    final DominoViewFormat format = this.readViewFormat();
+    final ViewTableFormat3 format3 = format.getAdapter(ViewTableFormat3.class);
+    if (format3 == null) {
+      return false;
+    } else {
+      return format3.getFlags().contains(ViewTableFormat3.Flag.AllowCreateNewDoc);
+    }
+  }
 
   // *******************************************************************************
   // * Internal utility methods

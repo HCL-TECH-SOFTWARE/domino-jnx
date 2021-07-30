@@ -131,4 +131,14 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.32
    */
   boolean isEvaluateActionsOnDocumentChange();
+  
+  /**
+   * Determines whether the view or folder is configured to allow the user to create new
+   * documents within the displayed table.
+   * 
+   * @return {@code true} if the user can create new documents within the view;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   */
+  boolean isCreateDocumentsAtViewLevel();
 }

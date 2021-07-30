@@ -97,6 +97,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(view.isShowResponseDocumentsInHierarchy());
     assertFalse(view.isShowInViewMenu());
     assertTrue(view.isEvaluateActionsOnDocumentChange());
+    assertFalse(view.isCreateDocumentsAtViewLevel());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -229,6 +230,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(view.isShowResponseDocumentsInHierarchy());
     assertFalse(view.isShowInViewMenu());
     assertFalse(view.isEvaluateActionsOnDocumentChange());
+    assertTrue(view.isCreateDocumentsAtViewLevel());
   }
 
   @Test
