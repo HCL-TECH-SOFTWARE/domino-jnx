@@ -175,5 +175,14 @@ public interface DesignElement {
   void sign();
 
   void sign(UserId id);
+  
+  /**
+   * Determines whether the design element should be accessible to
+   * sub-Reader users with Public Access rights.
+   * 
+   * @return {@code true} if the element should allow public acces;
+   *         {@code false} otherwise
+   */
+  boolean isAllowPublicAccess();
 
 }

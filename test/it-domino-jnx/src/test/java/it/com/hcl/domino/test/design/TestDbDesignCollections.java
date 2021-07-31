@@ -107,6 +107,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(view.isEvaluateActionsOnDocumentChange());
     assertFalse(view.isCreateDocumentsAtViewLevel());
     assertEquals("Home_1.xsp", view.getWebXPageAlternative().get());
+    assertFalse(view.isAllowPublicAccess());
     
     CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
     assertNotNull(comp);
@@ -337,6 +338,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isEvaluateActionsOnDocumentChange());
     assertTrue(view.isCreateDocumentsAtViewLevel());
     assertFalse(view.getWebXPageAlternative().isPresent());
+    assertTrue(view.isAllowPublicAccess());
     
     CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
     assertNotNull(comp);
@@ -453,6 +455,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isShowInViewMenu());
     assertFalse(view.isEvaluateActionsOnDocumentChange());
     assertFalse(view.getWebXPageAlternative().isPresent());
+    assertFalse(view.isAllowPublicAccess());
     
     DisplaySettings disp = view.getDisplaySettings();
     assertNotNull(disp);
@@ -558,6 +561,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(view.isShowInViewMenu());
     assertFalse(view.isEvaluateActionsOnDocumentChange());
     assertFalse(view.getWebXPageAlternative().isPresent());
+    assertFalse(view.isAllowPublicAccess());
     
     assertEquals("1", view.getFormulaClass());
     view.setFormulaClass("2");
