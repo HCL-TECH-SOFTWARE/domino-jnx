@@ -17,7 +17,6 @@
 package com.hcl.domino.commons.design;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +38,6 @@ import com.hcl.domino.design.format.ViewTableFormat;
 import com.hcl.domino.design.format.ViewTableFormat2;
 import com.hcl.domino.design.format.ViewTableFormat3;
 import com.hcl.domino.design.format.ViewTableFormat4;
-import com.hcl.domino.design.format.ViewTableFormat5;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.records.CDResource;
