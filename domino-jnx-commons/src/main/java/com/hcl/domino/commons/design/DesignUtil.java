@@ -436,4 +436,18 @@ public enum DesignUtil {
     result.setBlue((short)0);
     return result;
   }
+  
+  /**
+   * Returns a new in-memory black color structure.
+   * 
+   * @return a new {@link ColorValue} structure
+   * @since 1.0.32
+   */
+  public static ColorValue blackColor() {
+    ColorValue result = MemoryStructureProxy.newStructure(ColorValue.class, 0);
+    result.setRed((short)0);
+    result.setGreen((short)0);
+    result.setBlue((short)0);
+    return result;
+  }
 }

@@ -29,20 +29,20 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
     @StructureMember(name = "RepeatType", type = ImageRepeatMode.class)
 })
 public interface ViewTableFormat4 extends MemoryStructure {
-  @StructureGetter("Flags")
-  int getFlagsRaw();
-
   @StructureGetter("Length")
   int getLength();
 
-  @StructureGetter("RepeatType")
-  ImageRepeatMode getRepeatType();
+  @StructureSetter("Length")
+  ViewTableFormat4 setLength(int len);
 
   @StructureSetter("Flags")
   ViewTableFormat4 setFlagsRaw(int flags);
 
-  @StructureSetter("Length")
-  ViewTableFormat4 setLength(int len);
+  @StructureGetter("Flags")
+  int getFlagsRaw();
+
+  @StructureGetter("RepeatType")
+  ImageRepeatMode getRepeatType();
 
   @StructureSetter("RepeatType")
   ViewTableFormat4 setRepeatType(ImageRepeatMode type);

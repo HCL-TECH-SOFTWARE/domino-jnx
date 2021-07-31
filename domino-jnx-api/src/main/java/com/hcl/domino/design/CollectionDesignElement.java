@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.hcl.domino.data.CollectionColumn;
+import com.hcl.domino.design.format.ViewLineSpacing;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
 
@@ -158,6 +159,81 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      * @return the number of lines to display the headers
      */
     int getHeaderLines();
+    
+    /**
+     * Retrieves the number of lines used to display each row in a view or folder.
+     * 
+     * @return the number of lines to display rows
+     */
+    int getRowLines();
+    
+    /**
+     * Retrieves the line-spacing mode used for each row in a view or folder.
+     * 
+     * @return a {@link ViewLineSpacing} instance for the row spacing mode
+     */
+    ViewLineSpacing getLineSpacing();
+    
+    /**
+     * Determines whether the view or folder should shrink rows to fit the actual content
+     * when smaller than the rows specified in {@link #getRowLines()}.
+     * 
+     * @return {@code true} if view display should shrink rows to fit;
+     *         {@code false} otherwise
+     */
+    boolean isShrinkRowsToContent();
+    
+    /**
+     * Determines whether empty categories (e.g. those where the only entries are hidden
+     * due to reader-field restrictions) should be hidden when displayed.
+     * 
+     * @return {@code true} if the collection will hide empty categories on display;
+     *         {@code false} otherwise
+     */
+    // TODO determine whether this also affects API access and consider moving to the top level if so
+    boolean isHideEmptyCategories();
+    
+    /**
+     * Determines whether view icons should be colorized when displayed.
+     * 
+     * @return {@code true} if view icons should be colorized;
+     *         {@code false} otherwise
+     */
+    boolean isColorizeViewIcons();
+    
+    /**
+     * Retrieves the color used for text in unread-document rows in Notes 5.
+     * 
+     * @return a {@link ColorValue} representing the unread-document color
+     */
+    ColorValue getUnreadColor();
+    
+    /**
+     * Determines whether unread-document rows should use bold text in Notes
+     * 6 and newer.
+     * 
+     * @return {@code true} if unread-document rows use bold text;
+     *         {@code false} otherwise
+     */
+    boolean isUnreadBold();
+    
+    /**
+     * Determines whether the unread-document color should be suppressed in
+     * Notes 6 and newer.
+     * 
+     * <p>Note: this is referred to as "transparent" in Domino Designer.</p>
+     * 
+     * @return {@code true} if R6 and above should ignore the unread color;
+     *         {@code false} otherwise
+     */
+    boolean isSuppressUnreadColorInR6();
+    
+    /**
+     * Retrieves the color used for total-row text.
+     * 
+     * @return a {@link ColorValue} representing the total-row color
+     */
+    ColorValue getColumnTotalColor();
   }
 
   CollectionDesignElement addColumn();

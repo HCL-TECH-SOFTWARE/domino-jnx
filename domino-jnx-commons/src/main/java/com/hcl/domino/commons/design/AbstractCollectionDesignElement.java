@@ -16,6 +16,9 @@
  */
 package com.hcl.domino.commons.design;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -31,10 +34,12 @@ import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.format.ViewCalendarFormat;
+import com.hcl.domino.design.format.ViewLineSpacing;
 import com.hcl.domino.design.format.ViewTableFormat;
 import com.hcl.domino.design.format.ViewTableFormat2;
 import com.hcl.domino.design.format.ViewTableFormat3;
 import com.hcl.domino.design.format.ViewTableFormat4;
+import com.hcl.domino.design.format.ViewTableFormat5;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.records.CDResource;
@@ -263,6 +268,11 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
   }
   
+  private Set<String> getIndexDispositionOptions() {
+    String index = getDocument().getAsText(DesignConstants.VIEW_INDEX_ITEM, '/');
+    return new HashSet<>(Arrays.asList(index.split("/"))); //$NON-NLS-1$
+  }
+  
   private class DefaultCompositeAppSettings implements CompositeAppSettings {
 
     @Override
@@ -394,6 +404,66 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       return getFormat2()
         .map(ViewTableFormat2::getHeaderLineCount)
         .orElse((short)1);
+    }
+
+    @Override
+    public int getRowLines() {
+      return getFormat2()
+        .map(ViewTableFormat2::getLineCount)
+        .orElse((short)1);
+    }
+
+    @Override
+    public ViewLineSpacing getLineSpacing() {
+      return getFormat2()
+        .map(ViewTableFormat2::getSpacing)
+        .orElse(ViewLineSpacing.SINGLE_SPACE);
+    }
+
+    @Override
+    public boolean isShrinkRowsToContent() {
+      Set<ViewTableFormat.Flag> flags = readViewFormat().getAdapter(ViewTableFormat.class).getFlags();
+      return flags.contains(ViewTableFormat.Flag.VARIABLE_LINE_COUNT);
+    }
+
+    @Override
+    public boolean isHideEmptyCategories() {
+      return getIndexDispositionOptions().contains(DesignConstants.INDEXDISPOSITION_HIDEEMPTYCATEGORIES);
+    }
+
+    @Override
+    public boolean isColorizeViewIcons() {
+      Set<ViewTableFormat.Flag2> flags2 = readViewFormat().getAdapter(ViewTableFormat.class).getFlags2();
+      return flags2.contains(ViewTableFormat.Flag2.COLORIZE_ICONS);
+    }
+
+    @Override
+    public ColorValue getUnreadColor() {
+      return getFormat3()
+        .map(ViewTableFormat3::getUnreadColor)
+        .orElseGet(DesignUtil::blackColor);
+    }
+
+    @Override
+    public boolean isUnreadBold() {
+      return getFormat3()
+          .map(format -> {
+            Set<ViewTableFormat3.Flag> flags = format.getFlags();
+            return flags.contains(ViewTableFormat3.Flag.BoldUnreadRows);
+          })
+          .orElse(false);
+    }
+
+    @Override
+    public boolean isSuppressUnreadColorInR6() {
+      return false;
+    }
+
+    @Override
+    public ColorValue getColumnTotalColor() {
+      return getFormat3()
+          .map(ViewTableFormat3::getTotalsColor)
+          .orElseGet(DesignUtil::blackColor);
     }
     
   }

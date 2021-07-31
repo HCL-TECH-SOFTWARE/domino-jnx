@@ -49,6 +49,7 @@ import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.format.ViewColumnFormat;
+import com.hcl.domino.design.format.ViewLineSpacing;
 import com.hcl.domino.exception.FileDoesNotExistException;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
@@ -139,6 +140,25 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(255, headerColor.getRed());
     assertEquals(255, headerColor.getGreen());
     assertEquals(255, headerColor.getBlue());
+    
+    assertEquals(5, disp.getRowLines());
+    assertEquals(ViewLineSpacing.ONE_POINT_25_SPACE, disp.getLineSpacing());
+    assertTrue(disp.isShrinkRowsToContent());
+    assertTrue(disp.isHideEmptyCategories());
+    assertFalse(disp.isColorizeViewIcons());
+    
+    ColorValue unreadColor = disp.getUnreadColor();
+    assertEquals(0, unreadColor.getRed());
+    assertEquals(0, unreadColor.getGreen());
+    assertEquals(0, unreadColor.getBlue());
+    
+    assertTrue(disp.isUnreadBold());
+    assertFalse(disp.isSuppressUnreadColorInR6());
+    
+    ColorValue totalColor = disp.getColumnTotalColor();
+    assertEquals(192, totalColor.getRed());
+    assertEquals(98, totalColor.getGreen());
+    assertEquals(255, totalColor.getBlue());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -308,6 +328,25 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(255, headerColor.getRed());
     assertEquals(159, headerColor.getGreen());
     assertEquals(255, headerColor.getBlue());
+    
+    assertEquals(1, disp.getRowLines());
+    assertEquals(ViewLineSpacing.SINGLE_SPACE, disp.getLineSpacing());
+    assertFalse(disp.isShrinkRowsToContent());
+    assertFalse(disp.isHideEmptyCategories());
+    assertTrue(disp.isColorizeViewIcons());
+    
+    ColorValue unreadColor = disp.getUnreadColor();
+    assertEquals(0, unreadColor.getRed());
+    assertEquals(0, unreadColor.getGreen());
+    assertEquals(255, unreadColor.getBlue());
+    
+    assertTrue(disp.isUnreadBold());
+    assertFalse(disp.isSuppressUnreadColorInR6());
+    
+    ColorValue totalColor = disp.getColumnTotalColor();
+    assertEquals(255, totalColor.getRed());
+    assertEquals(0, totalColor.getGreen());
+    assertEquals(128, totalColor.getBlue());
   }
 
   @Test
@@ -354,6 +393,25 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(225, headerColor.getRed());
     assertEquals(225, headerColor.getGreen());
     assertEquals(64, headerColor.getBlue());
+    
+    assertEquals(1, disp.getRowLines());
+    assertEquals(ViewLineSpacing.SINGLE_SPACE, disp.getLineSpacing());
+    assertFalse(disp.isShrinkRowsToContent());
+    assertFalse(disp.isHideEmptyCategories());
+    assertFalse(disp.isColorizeViewIcons());
+    
+    ColorValue unreadColor = disp.getUnreadColor();
+    assertEquals(255, unreadColor.getRed());
+    assertEquals(0, unreadColor.getGreen());
+    assertEquals(0, unreadColor.getBlue());
+    
+    assertTrue(disp.isUnreadBold());
+    assertFalse(disp.isSuppressUnreadColorInR6());
+    
+    ColorValue totalColor = disp.getColumnTotalColor();
+    assertEquals(0, totalColor.getRed());
+    assertEquals(0, totalColor.getGreen());
+    assertEquals(0, totalColor.getBlue());
   }
 
   @Test
@@ -411,6 +469,25 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(255, headerColor.getRed());
     assertEquals(255, headerColor.getGreen());
     assertEquals(255, headerColor.getBlue());
+    
+    assertEquals(6, disp.getRowLines());
+    assertEquals(ViewLineSpacing.ONE_POINT_75_SPACE, disp.getLineSpacing());
+    assertFalse(disp.isShrinkRowsToContent());
+    assertFalse(disp.isHideEmptyCategories());
+    assertFalse(disp.isColorizeViewIcons());
+    
+    ColorValue unreadColor = disp.getUnreadColor();
+    assertEquals(255, unreadColor.getRed());
+    assertEquals(0, unreadColor.getGreen());
+    assertEquals(0, unreadColor.getBlue());
+    
+    assertFalse(disp.isUnreadBold());
+    assertFalse(disp.isSuppressUnreadColorInR6());
+    
+    ColorValue totalColor = disp.getColumnTotalColor();
+    assertEquals(0, totalColor.getRed());
+    assertEquals(0, totalColor.getGreen());
+    assertEquals(0, totalColor.getBlue());
   }
   
   @Test

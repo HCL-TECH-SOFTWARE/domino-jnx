@@ -31,6 +31,8 @@ public interface DesignConstants {
   String XPAGE_ALTERNATE_CLIENT = "$XPageAltClient"; //$NON-NLS-1$
   
   String VIEW_CLASSES_ITEM = "$FormulaClass"; //$NON-NLS-1$
+  /** Index disposition options */
+  String VIEW_INDEX_ITEM = "$Index"; //$NON-NLS-1$
   
   byte THEME_DEFAULT = 0;
   byte THEME_ENABLE = 1;
@@ -44,4 +46,10 @@ public interface DesignConstants {
    * Non-documented item for Hannover "thread view" property.
    */
   String VIEW_THREADVIEW_ITEM = "$ThreadView"; //$NON-NLS-1$
+  
+  /**
+   * Non-documented flag used in the "/"-separated {@value #VIEW_INDEX_ITEM} item
+   * to indicate that the view should hide empty categories.
+   */
+  String INDEXDISPOSITION_HIDEEMPTYCATEGORIES = "C"; //$NON-NLS-1$
 }
