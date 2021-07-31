@@ -416,9 +416,9 @@ public enum DesignUtil {
    */
   public static ColorValue whiteColor() {
     ColorValue result = MemoryStructureProxy.newStructure(ColorValue.class, 0);
-    result.setRed((short)0);
-    result.setGreen((short)0);
-    result.setBlue((short)0);
+    result.setRed((short)255);
+    result.setGreen((short)255);
+    result.setBlue((short)255);
     return result;
   }
   
