@@ -33,4 +33,10 @@ public interface ViewTableFormat5 extends MemoryStructure {
 
   @StructureSetter("Length")
   ViewTableFormat5 setLength(int len);
+
+  @StructureSetter("Flags")
+  ViewTableFormat5 setFlagsRaw(int flags);
+
+  @StructureGetter("Flags")
+  int getFlagsRaw();
 }

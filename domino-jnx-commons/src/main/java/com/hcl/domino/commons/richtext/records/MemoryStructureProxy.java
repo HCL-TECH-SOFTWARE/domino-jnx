@@ -352,7 +352,7 @@ public class MemoryStructureProxy implements InvocationHandler {
 
     if (byte.class.equals(type) || Byte.class.equals(type)) {
       if (unsigned) {
-        return (buf, offset) -> (short) (buf.get(offset) & 0xFFFF);
+        return (buf, offset) -> (short) Byte.toUnsignedInt(buf.get(offset));
       } else {
         return ByteBuffer::get;
       }
@@ -361,7 +361,7 @@ public class MemoryStructureProxy implements InvocationHandler {
         return (buf, offset) -> {
           final short[] result = new short[length];
           for (int i = 0; i < length; i++) {
-            result[i] = (short) (buf.get(offset + i) & 0xFFFF);
+            result[i] = (short) Byte.toUnsignedInt(buf.get(offset + i));
           }
           return result;
         };

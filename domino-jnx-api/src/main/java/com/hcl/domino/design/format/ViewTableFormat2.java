@@ -39,7 +39,7 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
     @StructureMember(name = "AlternateBackgroundColor", type = short.class),
     @StructureMember(name = "wSig", type = ViewTableFormat2.FormatSignature.class),
     @StructureMember(name = "LineCount", type = byte.class, unsigned = true),
-    @StructureMember(name = "Spacing", type = ViewTableFormat2.Spacing.class),
+    @StructureMember(name = "Spacing", type = ViewLineSpacing.class),
     @StructureMember(name = "BackgroundColorExt", type = short.class),
     @StructureMember(name = "HeaderLineCount", type = byte.class, unsigned = true),
     @StructureMember(name = "Flags1", type = ViewTableFormat2.Flag.class, bitfield = true),
@@ -88,30 +88,6 @@ public interface ViewTableFormat2 extends MemoryStructure {
     }
   }
 
-  enum Spacing implements INumberEnum<Byte> {
-    SINGLE_SPACE(ViewFormatConstants.VIEW_TABLE_SINGLE_SPACE),
-    ONE_POINT_25_SPACE(ViewFormatConstants.VIEW_TABLE_ONE_POINT_25_SPACE),
-    ONE_POINT_50_SPACE(ViewFormatConstants.VIEW_TABLE_ONE_POINT_50_SPACE),
-    ONE_POINT_75_SPACE(ViewFormatConstants.VIEW_TABLE_ONE_POINT_75_SPACE),
-    DOUBLE_SPACE(ViewFormatConstants.VIEW_TABLE_DOUBLE_SPACE);
-
-    private final byte value;
-
-    Spacing(final byte value) {
-      this.value = value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Byte getValue() {
-      return this.value;
-    }
-  }
-
   @StructureGetter("AlternateBackgroundColor")
   short getAlternateBackgroundColor();
 
@@ -140,7 +116,7 @@ public interface ViewTableFormat2 extends MemoryStructure {
   FormatSignature getSignature();
 
   @StructureGetter("Spacing")
-  Spacing getSpacing();
+  ViewLineSpacing getSpacing();
 
   @StructureGetter("TitleFont")
   FontStyle getTitleFont();
@@ -182,7 +158,7 @@ public interface ViewTableFormat2 extends MemoryStructure {
   ViewTableFormat2 setSignature(FormatSignature sig);
 
   @StructureSetter("Spacing")
-  ViewTableFormat2 setSpacing(Spacing spacing);
+  ViewTableFormat2 setSpacing(ViewLineSpacing spacing);
 
   @StructureSetter("V2BorderColor")
   ViewTableFormat2 setV2BorderColor(short color);

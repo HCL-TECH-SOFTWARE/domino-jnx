@@ -102,6 +102,10 @@ public class DominoViewFormat implements IAdaptable {
   public boolean isGotoTopOnOpen() {
     return this.getFlags1().contains(ViewTableFormat.Flag.GOTO_TOP_ON_OPEN);
   }
+  
+  public CDResource getBackgroundResource() {
+    return backgroundResource;
+  }
 
   // *******************************************************************************
   // * Format-reader hooks

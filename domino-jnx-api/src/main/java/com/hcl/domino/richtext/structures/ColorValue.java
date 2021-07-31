@@ -43,9 +43,6 @@ public interface ColorValue extends MemoryStructure {
     NOCOLOR(RichTextConstants.COLOR_VALUE_FLAGS_NOCOLOR), /* This object has no color */
     SYSTEMCOLOR(RichTextConstants.COLOR_VALUE_FLAGS_SYSTEMCOLOR), /* Use system default color, ignore color here */
     HASGRADIENT(RichTextConstants.COLOR_VALUE_FLAGS_HASGRADIENT), /* This color has a gradient color that follows */
-    APPLICATION_MASK(
-        RichTextConstants.COLOR_VALUE_FLAGS_APPLICATION_MASK), /* upper 4 bits are reserved for application specific use */
-
     RESERVED1(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED1), /* reserved for user */
     RESERVED2(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED2), /* reserved for user */
     RESERVED3(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED3), /* reserved for user */
@@ -100,6 +97,6 @@ public interface ColorValue extends MemoryStructure {
   ColorValue setRed(short red);
 
   default String toHexString() {
-    return String.format("%02d%02d%02d", this.getRed(), this.getGreen(), this.getBlue());
+    return String.format("%02X%02X%02X", this.getRed(), this.getGreen(), this.getBlue()); //$NON-NLS-1$
   }
 }

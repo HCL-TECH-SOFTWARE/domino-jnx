@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.design.format;
 
+import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -25,24 +26,24 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
 @StructureDefinition(name = "VIEW_TABLE_FORMAT4", members = {
     @StructureMember(name = "Length", type = short.class, unsigned = true),
     @StructureMember(name = "Flags", type = int.class),
-    @StructureMember(name = "RepeatType", type = short.class)
+    @StructureMember(name = "RepeatType", type = ImageRepeatMode.class)
 })
 public interface ViewTableFormat4 extends MemoryStructure {
-  @StructureGetter("Flags")
-  int getFlagsRaw();
-
   @StructureGetter("Length")
   int getLength();
-
-  @StructureGetter("RepeatType")
-  short getRepeatTypeRaw();
-
-  @StructureSetter("Flags")
-  ViewTableFormat4 setFlagsRaw(int flags);
 
   @StructureSetter("Length")
   ViewTableFormat4 setLength(int len);
 
+  @StructureSetter("Flags")
+  ViewTableFormat4 setFlagsRaw(int flags);
+
+  @StructureGetter("Flags")
+  int getFlagsRaw();
+
+  @StructureGetter("RepeatType")
+  ImageRepeatMode getRepeatType();
+
   @StructureSetter("RepeatType")
-  ViewTableFormat4 setRepeatTypeRaw(short type);
+  ViewTableFormat4 setRepeatType(ImageRepeatMode type);
 }

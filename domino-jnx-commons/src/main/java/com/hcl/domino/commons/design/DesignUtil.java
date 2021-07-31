@@ -19,6 +19,7 @@ package com.hcl.domino.commons.design;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import java.util.StringTokenizer;
 import java.util.function.Function;
 
 import com.hcl.domino.commons.NotYetImplementedException;
+import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
@@ -42,6 +44,7 @@ import com.hcl.domino.design.ScriptLibrary;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.View;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.richtext.structures.ColorValue;
 
 /**
  * @since 1.0.18
@@ -402,6 +405,49 @@ public enum DesignUtil {
         result.add(tokenizer.nextToken());
       }
     }
+    return result;
+  }
+  
+  /**
+   * Returns a new in-memory white color structure.
+   * 
+   * @return a new {@link ColorValue} structure
+   * @since 1.0.32
+   */
+  public static ColorValue whiteColor() {
+    ColorValue result = MemoryStructureProxy.newStructure(ColorValue.class, 0);
+    result.setRed((short)255);
+    result.setGreen((short)255);
+    result.setBlue((short)255);
+    return result;
+  }
+  
+  /**
+   * Returns a new in-memory "no color" color structure.
+   * 
+   * @return a new {@link ColorValue} structure
+   * @since 1.0.32
+   */
+  public static ColorValue noColor() {
+    ColorValue result = MemoryStructureProxy.newStructure(ColorValue.class, 0);
+    result.setFlags(EnumSet.of(ColorValue.Flag.NOCOLOR));
+    result.setRed((short)0);
+    result.setGreen((short)0);
+    result.setBlue((short)0);
+    return result;
+  }
+  
+  /**
+   * Returns a new in-memory black color structure.
+   * 
+   * @return a new {@link ColorValue} structure
+   * @since 1.0.32
+   */
+  public static ColorValue blackColor() {
+    ColorValue result = MemoryStructureProxy.newStructure(ColorValue.class, 0);
+    result.setRed((short)0);
+    result.setGreen((short)0);
+    result.setBlue((short)0);
     return result;
   }
 }

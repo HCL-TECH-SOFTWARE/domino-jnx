@@ -30,6 +30,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterAll;
@@ -41,12 +42,18 @@ import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.CollectionColumn.TotalType;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.CollectionDesignElement.DisplaySettings;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignElement;
+import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Folder;
+import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.format.ViewColumnFormat;
+import com.hcl.domino.design.format.ViewLineSpacing;
 import com.hcl.domino.exception.FileDoesNotExistException;
+import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.structures.ColorValue;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
@@ -92,6 +99,84 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(DesignElement.ClassicThemeBehavior.USE_DATABASE_SETTING, view.getClassicThemeBehavior());
     assertEquals(CollectionDesignElement.Style.STANDARD_OUTLINE, view.getStyle());
     assertFalse(view.isDefaultCollection());
+    assertFalse(view.isDefaultCollectionDesign());
+    assertFalse(view.isCollapseAllOnFirstOpen());
+    assertTrue(view.isShowResponseDocumentsInHierarchy());
+    assertFalse(view.isShowInViewMenu());
+    assertTrue(view.isEvaluateActionsOnDocumentChange());
+    assertFalse(view.isCreateDocumentsAtViewLevel());
+    
+    CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
+    assertNotNull(comp);
+    assertTrue(comp.isHideColumnHeader());
+    assertFalse(comp.isShowPartialHierarchies());
+    assertTrue(comp.isShowSwitcher());
+    assertFalse(comp.isShowTabNavigator());
+    assertEquals("viewers1", comp.getViewers());
+    assertEquals("Trash", comp.getThreadView());
+    assertFalse(comp.isAllowConversationMode());
+    
+    CollectionDesignElement.DisplaySettings disp = view.getDisplaySettings();
+    ColorValue background = disp.getBackgroundColor();
+    assertEquals(255, background.getRed());
+    assertEquals(255, background.getGreen());
+    assertEquals(255, background.getBlue());
+    assertTrue(disp.isUseAlternateRowColor());
+    
+    Optional<CDResource> backgroundImage = disp.getBackgroundImage();
+    assertTrue(backgroundImage.isPresent());
+    assertTrue(backgroundImage.get().getFlags().contains(CDResource.Flag.FORMULA));
+    assertEquals("\"hey.png\"", backgroundImage.get().getNamedElementFormula());
+    
+    assertEquals(ImageRepeatMode.SIZE_TO_FIT, disp.getBackgroundImageRepeatMode());
+    
+    assertEquals(CollectionDesignElement.GridStyle.SOLID, disp.getGridStyle());
+    ColorValue gridColor = disp.getGridColor();
+    assertEquals(255, gridColor.getRed());
+    assertEquals(255, gridColor.getGreen());
+    assertEquals(255, gridColor.getBlue());
+    
+    assertEquals(CollectionDesignElement.HeaderStyle.BEVELED, disp.getHeaderStyle());
+    assertEquals(2, disp.getHeaderLines());
+    ColorValue headerColor = disp.getHeaderColor();
+    assertEquals(255, headerColor.getRed());
+    assertEquals(255, headerColor.getGreen());
+    assertEquals(255, headerColor.getBlue());
+    
+    assertEquals(5, disp.getRowLines());
+    assertEquals(ViewLineSpacing.ONE_POINT_25_SPACE, disp.getLineSpacing());
+    assertTrue(disp.isShrinkRowsToContent());
+    assertTrue(disp.isHideEmptyCategories());
+    assertFalse(disp.isColorizeViewIcons());
+    
+    ColorValue unreadColor = disp.getUnreadColor();
+    assertEquals(0, unreadColor.getRed());
+    assertEquals(0, unreadColor.getGreen());
+    assertEquals(0, unreadColor.getBlue());
+    assertFalse(unreadColor.getFlags().contains(ColorValue.Flag.NOCOLOR));
+    
+    assertTrue(disp.isUnreadBold());
+    
+    ColorValue totalColor = disp.getColumnTotalColor();
+    assertEquals(192, totalColor.getRed());
+    assertEquals(98, totalColor.getGreen());
+    assertEquals(255, totalColor.getBlue());
+    
+    assertTrue(disp.isShowSelectionMargin());
+    assertFalse(disp.isHideSelectionMarginBorder());
+    assertTrue(disp.isExtendLastColumnToWindowWidth());
+    
+    EdgeWidths margin = disp.getMargin();
+    assertEquals(1, margin.getTop());
+    assertEquals(2, margin.getLeft());
+    assertEquals(3, margin.getRight());
+    assertEquals(4, margin.getBottom());
+    assertEquals(5, disp.getBelowHeaderMargin());
+    
+    ColorValue marginColor = disp.getMarginColor();
+    assertEquals(255, marginColor.getRed());
+    assertEquals(255, marginColor.getGreen());
+    assertEquals(255, marginColor.getBlue());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -219,6 +304,84 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(DesignElement.ClassicThemeBehavior.DONT_INHERIT_FROM_OS, view.getClassicThemeBehavior());
     assertEquals(CollectionDesignElement.Style.STANDARD_OUTLINE, view.getStyle());
     assertFalse(view.isDefaultCollection());
+    assertTrue(view.isDefaultCollectionDesign());
+    assertTrue(view.isCollapseAllOnFirstOpen());
+    assertTrue(view.isShowResponseDocumentsInHierarchy());
+    assertFalse(view.isShowInViewMenu());
+    assertFalse(view.isEvaluateActionsOnDocumentChange());
+    assertTrue(view.isCreateDocumentsAtViewLevel());
+    
+    CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
+    assertNotNull(comp);
+    assertFalse(comp.isHideColumnHeader());
+    assertFalse(comp.isShowPartialHierarchies());
+    assertTrue(comp.isShowSwitcher());
+    assertFalse(comp.isShowTabNavigator());
+    assertFalse(comp.isAllowConversationMode());
+    
+    DisplaySettings disp = view.getDisplaySettings();
+    assertNotNull(disp);
+    
+    ColorValue background = disp.getBackgroundColor();
+    assertEquals(0, background.getRed());
+    assertEquals(255, background.getGreen());
+    assertEquals(255, background.getBlue());
+
+    assertTrue(disp.isUseAlternateRowColor());
+    ColorValue altBackground = disp.getAlternateRowColor();
+    assertEquals(192, altBackground.getRed());
+    assertEquals(192, altBackground.getGreen());
+    assertEquals(192, altBackground.getBlue());
+    
+    assertEquals(ImageRepeatMode.ONCE, disp.getBackgroundImageRepeatMode());
+    
+    assertEquals(CollectionDesignElement.GridStyle.DOTS, disp.getGridStyle());
+    ColorValue gridColor = disp.getGridColor();
+    assertEquals(191, gridColor.getRed());
+    assertEquals(191, gridColor.getGreen());
+    assertEquals(255, gridColor.getBlue());
+
+    assertEquals(CollectionDesignElement.HeaderStyle.FLAT, disp.getHeaderStyle());
+    assertEquals(1, disp.getHeaderLines());
+    ColorValue headerColor = disp.getHeaderColor();
+    assertEquals(255, headerColor.getRed());
+    assertEquals(159, headerColor.getGreen());
+    assertEquals(255, headerColor.getBlue());
+    
+    assertEquals(1, disp.getRowLines());
+    assertEquals(ViewLineSpacing.SINGLE_SPACE, disp.getLineSpacing());
+    assertFalse(disp.isShrinkRowsToContent());
+    assertFalse(disp.isHideEmptyCategories());
+    assertTrue(disp.isColorizeViewIcons());
+    
+    ColorValue unreadColor = disp.getUnreadColor();
+    assertEquals(0, unreadColor.getRed());
+    assertEquals(0, unreadColor.getGreen());
+    assertEquals(255, unreadColor.getBlue());
+    assertFalse(unreadColor.getFlags().contains(ColorValue.Flag.NOCOLOR));
+    
+    assertTrue(disp.isUnreadBold());
+    
+    ColorValue totalColor = disp.getColumnTotalColor();
+    assertEquals(255, totalColor.getRed());
+    assertEquals(0, totalColor.getGreen());
+    assertEquals(128, totalColor.getBlue());
+    
+    assertTrue(disp.isShowSelectionMargin());
+    assertFalse(disp.isHideSelectionMarginBorder());
+    assertTrue(disp.isExtendLastColumnToWindowWidth());
+    
+    EdgeWidths margin = disp.getMargin();
+    assertEquals(2, margin.getTop());
+    assertEquals(2, margin.getLeft());
+    assertEquals(10, margin.getRight());
+    assertEquals(5, margin.getBottom());
+    assertEquals(2, disp.getBelowHeaderMargin());
+    
+    ColorValue marginColor = disp.getMarginColor();
+    assertEquals(130, marginColor.getRed());
+    assertEquals(66, marginColor.getGreen());
+    assertEquals(255, marginColor.getBlue());
   }
 
   @Test
@@ -230,6 +393,77 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_TOP, view.getOnRefreshUISetting());
     assertEquals(DesignElement.ClassicThemeBehavior.INHERIT_FROM_OS, view.getClassicThemeBehavior());
     assertFalse(view.isDefaultCollection());
+    assertFalse(view.isDefaultCollectionDesign());
+    assertFalse(view.isCollapseAllOnFirstOpen());
+    assertFalse(view.isShowResponseDocumentsInHierarchy());
+    assertFalse(view.isShowInViewMenu());
+    assertFalse(view.isEvaluateActionsOnDocumentChange());
+    
+    DisplaySettings disp = view.getDisplaySettings();
+    assertNotNull(disp);
+    
+    ColorValue background = disp.getBackgroundColor();
+    assertEquals(255, background.getRed());
+    assertEquals(255, background.getGreen());
+    assertEquals(255, background.getBlue());
+
+    assertTrue(disp.isUseAlternateRowColor());
+    ColorValue altBackground = disp.getAlternateRowColor();
+    assertEquals(239, altBackground.getRed());
+    assertEquals(239, altBackground.getGreen());
+    assertEquals(239, altBackground.getBlue());
+    
+    Optional<CDResource> backgroundImage = disp.getBackgroundImage();
+    assertFalse(backgroundImage.isPresent());
+    assertEquals(ImageRepeatMode.ONCE, disp.getBackgroundImageRepeatMode());
+    
+    assertEquals(CollectionDesignElement.GridStyle.SOLID, disp.getGridStyle());
+    ColorValue gridColor = disp.getGridColor();
+    assertEquals(255, gridColor.getRed());
+    assertEquals(95, gridColor.getGreen());
+    assertEquals(255, gridColor.getBlue());
+
+    assertEquals(CollectionDesignElement.HeaderStyle.SIMPLE, disp.getHeaderStyle());
+    assertEquals(4, disp.getHeaderLines());
+    ColorValue headerColor = disp.getHeaderColor();
+    assertEquals(225, headerColor.getRed());
+    assertEquals(225, headerColor.getGreen());
+    assertEquals(64, headerColor.getBlue());
+    
+    assertEquals(1, disp.getRowLines());
+    assertEquals(ViewLineSpacing.SINGLE_SPACE, disp.getLineSpacing());
+    assertFalse(disp.isShrinkRowsToContent());
+    assertFalse(disp.isHideEmptyCategories());
+    assertFalse(disp.isColorizeViewIcons());
+    
+    ColorValue unreadColor = disp.getUnreadColor();
+    assertEquals(255, unreadColor.getRed());
+    assertEquals(0, unreadColor.getGreen());
+    assertEquals(0, unreadColor.getBlue());
+    assertTrue(unreadColor.getFlags().contains(ColorValue.Flag.NOCOLOR));
+    
+    assertTrue(disp.isUnreadBold());
+    
+    ColorValue totalColor = disp.getColumnTotalColor();
+    assertEquals(0, totalColor.getRed());
+    assertEquals(0, totalColor.getGreen());
+    assertEquals(0, totalColor.getBlue());
+    
+    assertTrue(disp.isShowSelectionMargin());
+    assertTrue(disp.isHideSelectionMarginBorder());
+    assertTrue(disp.isExtendLastColumnToWindowWidth());
+    
+    EdgeWidths margin = disp.getMargin();
+    assertEquals(0, margin.getTop());
+    assertEquals(0, margin.getLeft());
+    assertEquals(0, margin.getRight());
+    assertEquals(0, margin.getBottom());
+    assertEquals(0, disp.getBelowHeaderMargin());
+    
+    ColorValue marginColor = disp.getMarginColor();
+    assertEquals(255, marginColor.getRed());
+    assertEquals(255, marginColor.getGreen());
+    assertEquals(255, marginColor.getBlue());
   }
 
   @Test
@@ -240,10 +474,89 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(CollectionDesignElement.OnOpen.GOTO_LAST_OPENED, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_BOTTOM, view.getOnRefreshUISetting());
     assertFalse(view.isDefaultCollection());
+    assertFalse(view.isDefaultCollectionDesign());
+    assertTrue(view.isShowInViewMenu());
+    assertFalse(view.isEvaluateActionsOnDocumentChange());
     
     assertEquals("1", view.getFormulaClass());
     view.setFormulaClass("2");
     assertEquals("2", view.getFormulaClass());
+    
+    CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
+    assertNotNull(comp);
+    assertTrue(comp.isHideColumnHeader());
+    assertTrue(comp.isShowPartialHierarchies());
+    assertFalse(comp.isShowSwitcher());
+    assertTrue(comp.isShowTabNavigator());
+    assertEquals("foo,bar", comp.getViewers());
+    assertEquals("test alias", comp.getThreadView());
+    assertTrue(comp.isAllowConversationMode());
+    
+    DisplaySettings disp = view.getDisplaySettings();
+    assertNotNull(disp);
+    
+    ColorValue background = disp.getBackgroundColor();
+    assertEquals(255, background.getRed());
+    assertEquals(255, background.getGreen());
+    assertEquals(255, background.getBlue());
+
+    assertTrue(disp.isUseAlternateRowColor());
+    ColorValue altBackground = disp.getAlternateRowColor();
+    assertEquals(239, altBackground.getRed());
+    assertEquals(239, altBackground.getGreen());
+    assertEquals(239, altBackground.getBlue());
+    
+    Optional<CDResource> backgroundImage = disp.getBackgroundImage();
+    assertEquals("Untitled.gif", backgroundImage.get().getNamedElement());
+    assertEquals(ImageRepeatMode.HORIZONTAL, disp.getBackgroundImageRepeatMode());
+    
+    assertEquals(CollectionDesignElement.GridStyle.NONE, disp.getGridStyle());
+    ColorValue gridColor = disp.getGridColor();
+    assertEquals(255, gridColor.getRed());
+    assertEquals(255, gridColor.getGreen());
+    assertEquals(255, gridColor.getBlue());
+
+    assertEquals(CollectionDesignElement.HeaderStyle.NONE, disp.getHeaderStyle());
+    assertEquals(1, disp.getHeaderLines());
+    ColorValue headerColor = disp.getHeaderColor();
+    assertEquals(255, headerColor.getRed());
+    assertEquals(255, headerColor.getGreen());
+    assertEquals(255, headerColor.getBlue());
+    
+    assertEquals(6, disp.getRowLines());
+    assertEquals(ViewLineSpacing.ONE_POINT_75_SPACE, disp.getLineSpacing());
+    assertFalse(disp.isShrinkRowsToContent());
+    assertFalse(disp.isHideEmptyCategories());
+    assertFalse(disp.isColorizeViewIcons());
+    
+    ColorValue unreadColor = disp.getUnreadColor();
+    assertEquals(255, unreadColor.getRed());
+    assertEquals(0, unreadColor.getGreen());
+    assertEquals(0, unreadColor.getBlue());
+    assertFalse(unreadColor.getFlags().contains(ColorValue.Flag.NOCOLOR));
+    
+    assertFalse(disp.isUnreadBold());
+    
+    ColorValue totalColor = disp.getColumnTotalColor();
+    assertEquals(0, totalColor.getRed());
+    assertEquals(0, totalColor.getGreen());
+    assertEquals(0, totalColor.getBlue());
+    
+    assertFalse(disp.isShowSelectionMargin());
+    assertFalse(disp.isHideSelectionMarginBorder());
+    assertFalse(disp.isExtendLastColumnToWindowWidth());
+    
+    EdgeWidths margin = disp.getMargin();
+    assertEquals(0, margin.getTop());
+    assertEquals(0, margin.getLeft());
+    assertEquals(0, margin.getRight());
+    assertEquals(0, margin.getBottom());
+    assertEquals(0, disp.getBelowHeaderMargin());
+    
+    ColorValue marginColor = disp.getMarginColor();
+    assertEquals(255, marginColor.getRed());
+    assertEquals(255, marginColor.getGreen());
+    assertEquals(255, marginColor.getBlue());
   }
   
   @Test
