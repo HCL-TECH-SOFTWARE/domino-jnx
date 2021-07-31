@@ -71,6 +71,16 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
   }
   
   /**
+   * Represents the options for how to display unread marks in the view or folder.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  public enum UnreadMarksMode {
+    NONE, DOCUMENTS_ONLY, ALL
+  }
+  
+  /**
    * Represents settings related to view/folder display when used inside of
    * a composite application in the Notes Standard client.
    * 
@@ -406,4 +416,12 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.32
    */
   DisplaySettings getDisplaySettings();
+  
+  /**
+   * Retrieves the mode to display unread marks in the view or folder.
+   * 
+   * @return an {@link UnreadMarksMode} instance representing the configured mode
+   * @since 1.0.32
+   */
+  UnreadMarksMode getUnreadMarksMode();
 }

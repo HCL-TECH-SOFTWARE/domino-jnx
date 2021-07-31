@@ -180,6 +180,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     
     assertFalse(view.getAutoFrameFrameset().isPresent());
     assertFalse(view.getAutoFrameTarget().isPresent());
+    
+    assertEquals(CollectionDesignElement.UnreadMarksMode.NONE, view.getUnreadMarksMode());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -391,6 +393,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals("Outer Frame", view.getAutoFrameFrameset().get());
     assertTrue(view.getAutoFrameTarget().isPresent());
     assertEquals("NotesView", view.getAutoFrameTarget().get());
+    
+    assertEquals(CollectionDesignElement.UnreadMarksMode.DOCUMENTS_ONLY, view.getUnreadMarksMode());
   }
 
   @Test
@@ -477,6 +481,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     
     assertFalse(view.getAutoFrameFrameset().isPresent());
     assertFalse(view.getAutoFrameTarget().isPresent());
+    
+    assertEquals(CollectionDesignElement.UnreadMarksMode.ALL, view.getUnreadMarksMode());
   }
 
   @Test
@@ -574,6 +580,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     
     assertFalse(view.getAutoFrameFrameset().isPresent());
     assertFalse(view.getAutoFrameTarget().isPresent());
+    
+    assertEquals(CollectionDesignElement.UnreadMarksMode.NONE, view.getUnreadMarksMode());
   }
   
   @Test

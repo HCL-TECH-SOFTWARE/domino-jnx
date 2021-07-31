@@ -224,6 +224,18 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   public DisplaySettings getDisplaySettings() {
     return new DefaultDisplaySettings();
   }
+  
+  @Override
+  public UnreadMarksMode getUnreadMarksMode() {
+    Set<ViewTableFormat.Flag> flags = getFormat1().getFlags();
+    if(flags.contains(ViewTableFormat.Flag.DISP_ALLUNREAD)) {
+      return UnreadMarksMode.ALL;
+    } else if(flags.contains(ViewTableFormat.Flag.DISP_UNREADDOCS)) {
+      return UnreadMarksMode.DOCUMENTS_ONLY;
+    } else {
+      return UnreadMarksMode.NONE;
+    }
+  }
 
   // *******************************************************************************
   // * Internal utility methods
@@ -235,6 +247,10 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       this.format = (DominoViewFormat) doc.getItemValue(DesignConstants.VIEW_VIEW_FORMAT_ITEM).get(0);
     }
     return this.format;
+  }
+  
+  private ViewTableFormat getFormat1() {
+    return readViewFormat().getAdapter(ViewTableFormat.class);
   }
   
   private Optional<ViewTableFormat2> getFormat2() {
