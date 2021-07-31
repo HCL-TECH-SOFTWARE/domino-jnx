@@ -18,17 +18,19 @@ package com.hcl.domino.design;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.design.format.ViewLineSpacing;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
+import com.hcl.domino.security.AclLevel;
 
 /**
  * Describes a collection design element, i.e. a view or folder
  */
 public interface CollectionDesignElement extends DesignElement.NamedDesignElement, DesignElement.XPageAlternativeElement,
-  DesignElement.ThemeableClassicElement {
+  DesignElement.ThemeableClassicElement, DesignElement.AutoFrameElement {
 
   public enum OnOpen {
     GOTO_LAST_OPENED,
@@ -68,6 +70,36 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    */
   public enum HeaderStyle {
     NONE, FLAT, SIMPLE, BEVELED
+  }
+  
+  /**
+   * Represents the options for how to display unread marks in the view or folder.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  public enum UnreadMarksMode {
+    NONE, DOCUMENTS_ONLY, ALL
+  }
+  
+  /**
+   * Represents the options for how the view or folder index should be updated.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  public enum IndexRefreshMode {
+    AUTO_AFTER_FIRST_USE, AUTO, MANUAL, AUTO_AT_MOST_EVERY
+  }
+  
+  /**
+   * Represents the options for how the view or folder index should be discarded.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  public enum IndexDiscardMode {
+    INACTIVE_45_DAYS, AFTER_EACH_USE, INACTIVE_FOR
   }
   
   /**
@@ -290,6 +322,147 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     ColorValue getMarginColor();
   }
+  
+  /**
+   * Represents settings related to the indexing rules of the view or folder.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  interface IndexSettings {
+    /**
+     * Retrieves the index refresh mode.
+     * 
+     * @return a {@link IndexRefreshMode} instance for the view or folder
+     */
+    IndexRefreshMode getRefreshMode();
+    
+    /**
+     * Retrieves the "refresh at most X seconds" value.
+     * 
+     * <p><strong>Note:</strong> Domino Designer represents this value as hours, not
+     * seconds. However, as the value is stored in seconds, that is how it is represented
+     * here.</p>
+     * 
+     * @return an {@link OptionalInt} describing the "at most every" second count,
+     *         or an empty one if the collection uses a different mode
+     * @see IndexRefreshMode#AUTO_AT_MOST_EVERY
+     */
+    OptionalInt getRefreshMaxIntervalSeconds();
+    
+    /**
+     * Retrieves the index discard mode.
+     * 
+     * @return a {@link IndexDiscardMode} instance for the view or folder
+     */
+    IndexDiscardMode getDiscardMode();
+    
+    /**
+     * Retrieves the "discard if inactive for X hours" value.
+     * 
+     * <p><strong>Note:</strong> Domino Designer represents this value as days, not
+     * hours. However, as the value is stored in hours, that is how it is represented
+     * here.</p>
+     * 
+     * @return an {@link OptionalInt} describing the "if inactive for" hour count,
+     *         or an empty one if the collection uses a different mode
+     * @see IndexDiscardMode#INACTIVE_FOR
+     */
+    OptionalInt getDiscardAfterHours();
+    
+    /**
+     * Determines whether the initial index build should be restricted to an ID
+     * with {@link AclLevel#DESIGNER Designer} or
+     * {@link AclLevel#MANAGER Manager} access.
+     * 
+     * @return whether initial index building is restricted
+     */
+    boolean isRestrictInitialBuildToDesigner();
+    
+    /**
+     * Determines whether the indexer should limit entries to one per unique collation
+     * key.
+     * 
+     * @return {@code true} if the indexer should enforce unique entry keys;
+     *         {@code false} otherwise
+     */
+    boolean isGenerateUniqueKeysInIndex();
+    
+    /**
+     * Determines whether index updates should be included in the server transaction
+     * log.
+     * 
+     * @return {@code true} if updates should be included in the transaction log;
+     *         {@code false} otherwise
+     */
+    boolean isIncludeUpdatesInTransactionLog();
+  }
+  
+  /**
+   * Represents settings related to the rendering of the view or folder when rendered
+   * using the classic web renderer.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  interface WebRenderingSettings {
+    /**
+     * Determines whether the collection contents should be treated as raw HTML, without
+     * rendering surrounding controls.
+     * 
+     * @return {@code true} if the collection contents should be treated as HTML;
+     *         {@code false} otherwise
+     */
+    boolean isTreatAsHtml();
+    
+    /**
+     * Determines whether the collection should be rendered using a Java applet instead of
+     * HTML-based controls.
+     * 
+     * @return {@code true} if the collection should be rendered using a Java applet;
+     *         {@code false} otherwise
+     */
+    boolean isUseJavaApplet();
+    
+    /**
+     * Determines whether the collection should include selection checkboxes when rendered
+     * using HTML controls.
+     * 
+     * @return {@code true} if the collection should allow selection;
+     *         {@code false} otherwise
+     */
+    boolean isAllowSelection();
+    
+    /**
+     * Retrieves the color used for active links when using HTML controls.
+     * 
+     * @return a {@link ColorValue} representing the active link color
+     */
+    ColorValue getActiveLinkColor();
+    
+    /**
+     * Retrieves the color used for unvisited links when using HTML controls.
+     * 
+     * @return a {@link ColorValue} representing the unvisited link color
+     */
+    ColorValue getUnvisitedLinkColor();
+    
+    /**
+     * Retrieves the color used for visited links when using HTML controls.
+     * 
+     * @return a {@link ColorValue} representing the visited link color
+     */
+    ColorValue getVisitedLinkColor();
+    
+    /**
+     * Determines whether the collection should allow web crawler indexing
+     * using HTML controls.
+     * 
+     * @return {@code true} if the collection should allow crawler indexing;
+     *         {@code false} otherwise
+     */
+    boolean isAllowWebCrawlerIndexing();
+  }
 
   CollectionDesignElement addColumn();
 
@@ -406,4 +579,46 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.32
    */
   DisplaySettings getDisplaySettings();
+  
+  /**
+   * Retrieves the mode to display unread marks in the view or folder.
+   * 
+   * @return an {@link UnreadMarksMode} instance representing the configured mode
+   * @since 1.0.32
+   */
+  UnreadMarksMode getUnreadMarksMode();
+  
+  /**
+   * Retrieves an object that provides a view onto this collection's indexing settings.
+   * 
+   * @return a {@link IndexOptions} instance
+   * @since 1.0.32
+   */
+  IndexSettings getIndexSettings();
+  
+  /**
+   * Retrieves an object that provides a view onto this collection's web rendering
+   * settings.
+   * 
+   * @return a {@link WebRenderingSettings} instance
+   * @since 1.0.32
+   */
+  WebRenderingSettings getWebRenderingSettings();
+  
+  /**
+   * Determines whether the collection allows Domino Data Service (DAS) operations.
+   * 
+   * @return {@code true} if this collection should be accessible via DAS;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   */
+  boolean isAllowDominoDataService();
+  
+  /**
+   * Retrives a list of names allowed to read this view or folder.
+   * 
+   * @return a {@link List} of string usernames, groups, and roles
+   * @since 1.0.32
+   */
+  List<String> getReaders();
 }

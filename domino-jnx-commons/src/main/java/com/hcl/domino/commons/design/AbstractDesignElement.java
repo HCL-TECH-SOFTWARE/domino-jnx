@@ -50,20 +50,16 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
     return this.doc;
   }
 
-  public String getFlags() {
-    return this.getDocument().getAsText(NotesConstants.DESIGN_FLAGS, ' ');
-  }
-
   @Override
   public Collection<String> getItemNames() {
     return this.doc.getItemNames();
   }
-
-  /**
-   * Initializes the default values for a newly-created design note, such as
-   * {@code "$Flags"}.
-   */
-  public abstract void initializeNewDesignNote();
+  
+  @Override
+  public boolean isAllowPublicAccess() {
+    String pubAccess = getDocument().getAsText(NotesConstants.FIELD_PUBLICACCESS, ' ');
+    return NotesConstants.FIELD_PUBLICACCESS_ENABLED.equals(pubAccess);
+  }
 
   @Override
   public boolean isHideFromMobile() {
@@ -98,19 +94,6 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
     this.doc.replaceItemValue(NotesConstants.FILTER_COMMENT_ITEM, comment);
   }
 
-  public void setFlag(final String flagConstant, final boolean value) {
-    final String flags = this.getFlags();
-    if (value && !flags.contains(flagConstant)) {
-      this.setFlags(flags + flagConstant);
-    } else if (!value && flags.contains(flagConstant)) {
-      this.setFlags(flags.replace(flagConstant, "")); //$NON-NLS-1$
-    }
-  }
-
-  public void setFlags(final String flags) {
-    this.getDocument().replaceItemValue(NotesConstants.DESIGN_FLAGS, flags);
-  }
-
   @Override
   public void setHideFromMobile(final boolean hideFromMobile) {
     this.setFlag(NotesConstants.DESIGN_FLAG_HIDE_FROM_MOBILE, hideFromMobile);
@@ -120,10 +103,6 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   public void setHideFromNotes(final boolean hideFromNotes) {
     this.setFlag(NotesConstants.DESIGN_FLAG_HIDE_FROM_NOTES, hideFromNotes);
   }
-
-  // *******************************************************************************
-  // * Implementation utility methods
-  // *******************************************************************************
 
   @Override
   public void setHideFromWeb(final boolean hideFromWeb) {
@@ -143,5 +122,32 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   @Override
   public void sign(final UserId id) {
     this.doc.sign(id, true);
+  }
+
+  // *******************************************************************************
+  // * Implementation utility methods
+  // *******************************************************************************
+
+  /**
+   * Initializes the default values for a newly-created design note, such as
+   * {@code "$Flags"}.
+   */
+  public abstract void initializeNewDesignNote();
+
+  public void setFlag(final String flagConstant, final boolean value) {
+    final String flags = this.getFlags();
+    if (value && !flags.contains(flagConstant)) {
+      this.setFlags(flags + flagConstant);
+    } else if (!value && flags.contains(flagConstant)) {
+      this.setFlags(flags.replace(flagConstant, "")); //$NON-NLS-1$
+    }
+  }
+
+  public String getFlags() {
+    return this.getDocument().getAsText(NotesConstants.DESIGN_FLAGS, ' ');
+  }
+
+  public void setFlags(final String flags) {
+    this.getDocument().replaceItemValue(NotesConstants.DESIGN_FLAGS, flags);
   }
 }

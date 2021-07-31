@@ -152,7 +152,7 @@ public enum RecordType {
   /** This CD record defines the properties of a caption for a grapic record. */
   CAPTION(RichTextConstants.SIG_CD_CAPTION, 1, CDCaption.class),
   /** Color properties to various HTML Links. */
-  LINKCOLORS(RichTextConstants.SIG_CD_LINKCOLORS, 1),
+  LINKCOLORS(RichTextConstants.SIG_CD_LINKCOLORS, 1, CDLinkColors.class),
   TABLECELL_HREF(RichTextConstants.SIG_CD_TABLECELL_HREF, 1),
   /**
    * This CD record defines the Action Bar attributes. It is an extension of the

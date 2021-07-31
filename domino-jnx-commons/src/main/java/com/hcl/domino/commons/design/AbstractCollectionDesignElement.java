@@ -17,13 +17,16 @@
 package com.hcl.domino.commons.design;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
+import com.hcl.domino.commons.views.NotesCollationInfo;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
@@ -41,6 +44,7 @@ import com.hcl.domino.design.format.ViewTableFormat3;
 import com.hcl.domino.design.format.ViewTableFormat4;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.richtext.records.CDLinkColors;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
 
@@ -49,7 +53,7 @@ import com.hcl.domino.richtext.structures.ColorValue;
  * @since 1.0.18
  */
 public abstract class AbstractCollectionDesignElement<T extends CollectionDesignElement> extends AbstractNamedDesignElement<T>
-    implements CollectionDesignElement {
+    implements CollectionDesignElement, IDefaultAutoFrameElement {
   private DominoViewFormat format;
 
   public AbstractCollectionDesignElement(final Document doc) {
@@ -224,6 +228,38 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   public DisplaySettings getDisplaySettings() {
     return new DefaultDisplaySettings();
   }
+  
+  @Override
+  public UnreadMarksMode getUnreadMarksMode() {
+    Set<ViewTableFormat.Flag> flags = getFormat1().getFlags();
+    if(flags.contains(ViewTableFormat.Flag.DISP_ALLUNREAD)) {
+      return UnreadMarksMode.ALL;
+    } else if(flags.contains(ViewTableFormat.Flag.DISP_UNREADDOCS)) {
+      return UnreadMarksMode.DOCUMENTS_ONLY;
+    } else {
+      return UnreadMarksMode.NONE;
+    }
+  }
+  
+  @Override
+  public IndexSettings getIndexSettings() {
+    return new DefaultIndexSettings();
+  }
+  
+  @Override
+  public WebRenderingSettings getWebRenderingSettings() {
+    return new DefaultWebRenderingSettings();
+  }
+  
+  @Override
+  public boolean isAllowDominoDataService() {
+    return getWebFlags().contains(DesignConstants.WEBFLAG_NOTE_RESTAPIALLOWED);
+  }
+  
+  @Override
+  public List<String> getReaders() {
+    return getDocument().getAsList(NotesConstants.DESIGN_READERS, String.class, Collections.emptyList());
+  }
 
   // *******************************************************************************
   // * Internal utility methods
@@ -235,6 +271,10 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       this.format = (DominoViewFormat) doc.getItemValue(DesignConstants.VIEW_VIEW_FORMAT_ITEM).get(0);
     }
     return this.format;
+  }
+  
+  private ViewTableFormat getFormat1() {
+    return readViewFormat().getAdapter(ViewTableFormat.class);
   }
   
   private Optional<ViewTableFormat2> getFormat2() {
@@ -270,6 +310,18 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   private Set<String> getIndexDispositionOptions() {
     String index = getDocument().getAsText(DesignConstants.VIEW_INDEX_ITEM, '/');
     return new HashSet<>(Arrays.asList(index.split("/"))); //$NON-NLS-1$
+  }
+  
+  private Optional<NotesCollationInfo> getCollationInfo() {
+    Document doc = getDocument();
+    if(!doc.hasItem(DesignConstants.VIEW_COLLATION_ITEM)) {
+      return Optional.empty();
+    }
+    return Optional.of((NotesCollationInfo)doc.getItemValue(DesignConstants.VIEW_COLLATION_ITEM).get(0));
+  }
+  
+  private String getWebFlags() {
+    return getDocument().getAsText(DesignConstants.ITEM_NAME_WEBFLAGS, ' ');
   }
   
   private class DefaultCompositeAppSettings implements CompositeAppSettings {
@@ -325,7 +377,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       // TODO investigate pre-V5 background colors
       return getFormat3()
         .map(ViewTableFormat3::getBackgroundColor)
-        .orElseGet(DesignUtil::whiteColor);
+        .orElseGet(DesignColors::whiteColor);
     }
 
     @Override
@@ -333,7 +385,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       // TODO investigate pre-V5 background colors
       return getFormat3()
         .map(ViewTableFormat3::getAlternateBackgroundColor)
-        .orElseGet(DesignUtil::noColor);
+        .orElseGet(DesignColors::noColor);
     }
     
     @Override
@@ -378,7 +430,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public ColorValue getGridColor() {
       return getFormat3()
         .map(ViewTableFormat3::getGridColor)
-        .orElseGet(DesignUtil::noColor);
+        .orElseGet(DesignColors::noColor);
     }
 
     @Override
@@ -401,7 +453,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public ColorValue getHeaderColor() {
       return getFormat3()
         .map(ViewTableFormat3::getHeaderBackgroundColor)
-        .orElseGet(DesignUtil::noColor);
+        .orElseGet(DesignColors::noColor);
     }
 
     @Override
@@ -446,7 +498,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public ColorValue getUnreadColor() {
       return getFormat3()
         .map(ViewTableFormat3::getUnreadColor)
-        .orElseGet(DesignUtil::blackColor);
+        .orElseGet(DesignColors::blackColor);
     }
 
     @Override
@@ -463,7 +515,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public ColorValue getColumnTotalColor() {
       return getFormat3()
           .map(ViewTableFormat3::getTotalsColor)
-          .orElseGet(DesignUtil::blackColor);
+          .orElseGet(DesignColors::blackColor);
     }
 
     @Override
@@ -502,9 +554,8 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public ColorValue getMarginColor() {
       return getFormat3()
         .map(ViewTableFormat3::getMarginBackgroundColor)
-        .orElseGet(DesignUtil::whiteColor);
+        .orElseGet(DesignColors::whiteColor);
     }
-    
   }
   
   private class DefaultEdgeWidths implements EdgeWidths {
@@ -534,6 +585,148 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       return getFormat3()
         .map(ViewTableFormat3::getViewMarginBottom)
         .orElse(0);
+    }
+  }
+  
+  private class DefaultIndexSettings implements IndexSettings {
+
+    @Override
+    public IndexRefreshMode getRefreshMode() {
+      Set<String> indexOptions = getIndexDispositionOptions();
+      if(indexOptions.contains(DesignConstants.INDEXDISPOSITION_REFRESHMANUAL)) {
+        return IndexRefreshMode.MANUAL;
+      } else if(indexOptions.contains(DesignConstants.INDEXDISPOSITION_REFRESHAUTO)) {
+        return IndexRefreshMode.AUTO;
+      } else if(indexOptions.stream().anyMatch(o -> o.startsWith(DesignConstants.INDEXDISPOSITION_REFRESHAUTOATMOST))) {
+        return IndexRefreshMode.AUTO_AT_MOST_EVERY;
+      } else {
+        return IndexRefreshMode.AUTO_AFTER_FIRST_USE;
+      }
+    }
+
+    @Override
+    public OptionalInt getRefreshMaxIntervalSeconds() {
+      Set<String> indexOptions = getIndexDispositionOptions();
+      for(String opt : indexOptions) {
+        if(opt.startsWith(DesignConstants.INDEXDISPOSITION_REFRESHAUTOATMOST)) {
+          return OptionalInt.of(Integer.parseInt(opt.substring(2)));
+        }
+      }
+      return OptionalInt.empty();
+    }
+
+    @Override
+    public IndexDiscardMode getDiscardMode() {
+      Set<String> indexOptions = getIndexDispositionOptions();
+      if(indexOptions.contains(DesignConstants.INDEXDISPOSITION_DISCARDEACHUSE)) {
+        return IndexDiscardMode.AFTER_EACH_USE;
+      } else if(indexOptions.stream().anyMatch(o -> o.startsWith(DesignConstants.INDEXDISPOSITION_DISCARDINACTIVEFOR))) {
+        return IndexDiscardMode.INACTIVE_FOR;
+      } else {
+        return IndexDiscardMode.INACTIVE_45_DAYS;
+      }
+    }
+
+    @Override
+    public OptionalInt getDiscardAfterHours() {
+      Set<String> indexOptions = getIndexDispositionOptions();
+      for(String opt : indexOptions) {
+        if(opt.startsWith(DesignConstants.INDEXDISPOSITION_DISCARDINACTIVEFOR)) {
+          return OptionalInt.of(Integer.parseInt(opt.substring(2)));
+        }
+      }
+      return OptionalInt.empty();
+    }
+
+    @Override
+    public boolean isRestrictInitialBuildToDesigner() {
+      return getIndexDispositionOptions().contains(DesignConstants.INDEXDISPOSITION_RESTRICTTODESIGNER);
+    }
+
+    @Override
+    public boolean isGenerateUniqueKeysInIndex() {
+      // TODO see if this is actually specified primarily here, as the rest of the item is derived
+      // I suspect this is stored in $Collation only, in the COLLATION structure
+      return getCollationInfo()
+        .map(NotesCollationInfo::isUnique)
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isIncludeUpdatesInTransactionLog() {
+      String logUpdates = getDocument().get(DesignConstants.FIELD_LOGVIEWUPDATES, String.class, null);
+      return DesignConstants.FIELD_LOGVIEWUPDATES_ENABLED.equals(logUpdates);
+    } 
+  }
+  
+  private class DefaultWebRenderingSettings implements WebRenderingSettings {
+
+    @Override
+    public boolean isTreatAsHtml() {
+      return getFormat2()
+        .map(ViewTableFormat2::getFlags)
+        .map(flags -> flags.contains(ViewTableFormat2.Flag.HTML_PASSTHRU))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isUseJavaApplet() {
+      return getWebFlags().contains(DesignConstants.WEBFLAG_NOTE_USEAPPLET_INBROWSER);
+    }
+
+    @Override
+    public boolean isAllowSelection() {
+      return getWebFlags().contains(DesignConstants.WEBFLAG_NOTE_ALLOW_DOC_SELECTIONS);
+    }
+
+    @Override
+    public ColorValue getActiveLinkColor() {
+      Document doc = getDocument();
+      if(!doc.hasItem(DesignConstants.ITEM_NAME_HTMLCODE)) {
+        return DesignColors.defaultActiveLink();
+      }
+      return getDocument().getRichTextItem(DesignConstants.ITEM_NAME_HTMLCODE)
+        .stream()
+        .filter(CDLinkColors.class::isInstance)
+        .map(CDLinkColors.class::cast)
+        .findFirst()
+        .map(CDLinkColors::getActiveColor)
+        .orElseGet(DesignColors::defaultActiveLink);
+    }
+
+    @Override
+    public ColorValue getUnvisitedLinkColor() {
+      Document doc = getDocument();
+      if(!doc.hasItem(DesignConstants.ITEM_NAME_HTMLCODE)) {
+        return DesignColors.defaultUnvisitedLink();
+      }
+      return getDocument().getRichTextItem(DesignConstants.ITEM_NAME_HTMLCODE)
+        .stream()
+        .filter(CDLinkColors.class::isInstance)
+        .map(CDLinkColors.class::cast)
+        .findFirst()
+        .map(CDLinkColors::getUnvisitedColor)
+        .orElseGet(DesignColors::defaultUnvisitedLink);
+    }
+
+    @Override
+    public ColorValue getVisitedLinkColor() {
+      Document doc = getDocument();
+      if(!doc.hasItem(DesignConstants.ITEM_NAME_HTMLCODE)) {
+        return DesignColors.defaultVisitedLink();
+      }
+      return getDocument().getRichTextItem(DesignConstants.ITEM_NAME_HTMLCODE)
+        .stream()
+        .filter(CDLinkColors.class::isInstance)
+        .map(CDLinkColors.class::cast)
+        .findFirst()
+        .map(CDLinkColors::getVisitedColor)
+        .orElseGet(DesignColors::defaultVisitedLink);
+    }
+
+    @Override
+    public boolean isAllowWebCrawlerIndexing() {
+      return getWebFlags().contains(DesignConstants.WEBFLAG_NOTE_CRAWLABLE);
     }
     
   }

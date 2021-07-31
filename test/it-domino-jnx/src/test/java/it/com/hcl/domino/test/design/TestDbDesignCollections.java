@@ -29,8 +29,10 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterAll;
@@ -54,6 +56,10 @@ import com.hcl.domino.design.format.ViewLineSpacing;
 import com.hcl.domino.exception.FileDoesNotExistException;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
+import com.hcl.domino.security.Acl;
+import com.hcl.domino.security.AclEntry;
+import com.hcl.domino.security.AclFlag;
+import com.hcl.domino.security.AclLevel;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
@@ -81,6 +87,16 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       final DominoClient client = this.getClient();
       if (TestDbDesignCollections.dbPath == null) {
         this.database = AbstractNotesRuntimeTest.createTempDb(client);
+        
+        Acl acl = this.database.getACL();
+        Optional<AclEntry> entry = acl.getEntry(client.getEffectiveUserName());
+        if(entry.isPresent()) {
+          acl.updateEntry(client.getEffectiveUserName(), null, null, Arrays.asList("[Admin]"), null);
+        } else {
+          acl.addEntry(client.getEffectiveUserName(), AclLevel.MANAGER, Arrays.asList("[Admin]"), EnumSet.allOf(AclFlag.class));
+        }
+        acl.save();
+        
         TestDbDesignCollections.dbPath = this.database.getAbsoluteFilePath();
         AbstractNotesRuntimeTest.populateResourceDxl("/dxl/testDbDesignCollections", this.database);
       } else {
@@ -105,6 +121,9 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isShowInViewMenu());
     assertTrue(view.isEvaluateActionsOnDocumentChange());
     assertFalse(view.isCreateDocumentsAtViewLevel());
+    assertEquals("Home_1.xsp", view.getWebXPageAlternative().get());
+    assertFalse(view.isAllowPublicAccess());
+    assertEquals(Arrays.asList("[Admin]"), view.getReaders());
     
     CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
     assertNotNull(comp);
@@ -177,6 +196,30 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(255, marginColor.getRed());
     assertEquals(255, marginColor.getGreen());
     assertEquals(255, marginColor.getBlue());
+    
+    assertFalse(view.getAutoFrameFrameset().isPresent());
+    assertFalse(view.getAutoFrameTarget().isPresent());
+    
+    assertEquals(CollectionDesignElement.UnreadMarksMode.NONE, view.getUnreadMarksMode());
+    
+    CollectionDesignElement.IndexSettings index = view.getIndexSettings();
+    assertEquals(CollectionDesignElement.IndexRefreshMode.AUTO_AT_MOST_EVERY, index.getRefreshMode());
+    assertEquals(TimeUnit.HOURS.toSeconds(3), index.getRefreshMaxIntervalSeconds().getAsInt());
+    assertEquals(CollectionDesignElement.IndexDiscardMode.INACTIVE_FOR, index.getDiscardMode());
+    assertEquals(TimeUnit.DAYS.toHours(7), index.getDiscardAfterHours().getAsInt());
+    assertFalse(index.isRestrictInitialBuildToDesigner());
+    assertTrue(index.isGenerateUniqueKeysInIndex());
+    assertFalse(index.isIncludeUpdatesInTransactionLog());
+    
+    CollectionDesignElement.WebRenderingSettings web = view.getWebRenderingSettings();
+    assertFalse(web.isTreatAsHtml());
+    assertFalse(web.isUseJavaApplet());
+    assertFalse(web.isAllowSelection());
+    assertColorEquals(web.getActiveLinkColor(), 255, 0, 0);
+    assertColorEquals(web.getUnvisitedLinkColor(), 0, 0, 255);
+    assertColorEquals(web.getVisitedLinkColor(), 128, 0, 128);
+    assertFalse(web.isAllowWebCrawlerIndexing());
+    assertFalse(view.isAllowDominoDataService());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -310,6 +353,9 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isShowInViewMenu());
     assertFalse(view.isEvaluateActionsOnDocumentChange());
     assertTrue(view.isCreateDocumentsAtViewLevel());
+    assertFalse(view.getWebXPageAlternative().isPresent());
+    assertTrue(view.isAllowPublicAccess());
+    assertTrue(view.getReaders().isEmpty());
     
     CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
     assertNotNull(comp);
@@ -382,6 +428,33 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(130, marginColor.getRed());
     assertEquals(66, marginColor.getGreen());
     assertEquals(255, marginColor.getBlue());
+
+    
+    assertTrue(view.getAutoFrameFrameset().isPresent());
+    assertEquals("Outer Frame", view.getAutoFrameFrameset().get());
+    assertTrue(view.getAutoFrameTarget().isPresent());
+    assertEquals("NotesView", view.getAutoFrameTarget().get());
+    
+    assertEquals(CollectionDesignElement.UnreadMarksMode.DOCUMENTS_ONLY, view.getUnreadMarksMode());
+    
+    CollectionDesignElement.IndexSettings index = view.getIndexSettings();
+    assertEquals(CollectionDesignElement.IndexRefreshMode.AUTO_AFTER_FIRST_USE, index.getRefreshMode());
+    assertFalse(index.getRefreshMaxIntervalSeconds().isPresent());
+    assertEquals(CollectionDesignElement.IndexDiscardMode.INACTIVE_45_DAYS, index.getDiscardMode());
+    assertFalse(index.getDiscardAfterHours().isPresent());
+    assertFalse(index.isRestrictInitialBuildToDesigner());
+    assertTrue(index.isGenerateUniqueKeysInIndex());
+    assertFalse(index.isIncludeUpdatesInTransactionLog());
+    
+    CollectionDesignElement.WebRenderingSettings web = view.getWebRenderingSettings();
+    assertFalse(web.isTreatAsHtml());
+    assertFalse(web.isUseJavaApplet());
+    assertTrue(web.isAllowSelection());
+    assertColorEquals(web.getActiveLinkColor(), 0, 98, 225);
+    assertColorEquals(web.getUnvisitedLinkColor(), 255, 64, 64);
+    assertColorEquals(web.getVisitedLinkColor(), 255, 159, 255);
+    assertFalse(web.isAllowWebCrawlerIndexing());
+    assertTrue(view.isAllowDominoDataService());
   }
 
   @Test
@@ -398,6 +471,9 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isShowResponseDocumentsInHierarchy());
     assertFalse(view.isShowInViewMenu());
     assertFalse(view.isEvaluateActionsOnDocumentChange());
+    assertFalse(view.getWebXPageAlternative().isPresent());
+    assertFalse(view.isAllowPublicAccess());
+    assertTrue(view.getReaders().isEmpty());
     
     DisplaySettings disp = view.getDisplaySettings();
     assertNotNull(disp);
@@ -464,6 +540,31 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(255, marginColor.getRed());
     assertEquals(255, marginColor.getGreen());
     assertEquals(255, marginColor.getBlue());
+
+    
+    assertFalse(view.getAutoFrameFrameset().isPresent());
+    assertFalse(view.getAutoFrameTarget().isPresent());
+    
+    assertEquals(CollectionDesignElement.UnreadMarksMode.ALL, view.getUnreadMarksMode());
+    
+    CollectionDesignElement.IndexSettings index = view.getIndexSettings();
+    assertEquals(CollectionDesignElement.IndexRefreshMode.AUTO, index.getRefreshMode());
+    assertFalse(index.getRefreshMaxIntervalSeconds().isPresent());
+    assertEquals(CollectionDesignElement.IndexDiscardMode.INACTIVE_FOR, index.getDiscardMode());
+    assertEquals(TimeUnit.DAYS.toHours(19), index.getDiscardAfterHours().getAsInt());
+    assertTrue(index.isRestrictInitialBuildToDesigner());
+    assertFalse(index.isGenerateUniqueKeysInIndex());
+    assertFalse(index.isIncludeUpdatesInTransactionLog());
+    
+    CollectionDesignElement.WebRenderingSettings web = view.getWebRenderingSettings();
+    assertTrue(web.isTreatAsHtml());
+    assertFalse(web.isUseJavaApplet());
+    assertFalse(web.isAllowSelection());
+    assertColorEquals(web.getActiveLinkColor(), 255, 0, 0);
+    assertColorEquals(web.getUnvisitedLinkColor(), 0, 0, 255);
+    assertColorEquals(web.getVisitedLinkColor(), 128, 0, 128);
+    assertFalse(web.isAllowWebCrawlerIndexing());
+    assertFalse(view.isAllowDominoDataService());
   }
 
   @Test
@@ -477,6 +578,9 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isDefaultCollectionDesign());
     assertTrue(view.isShowInViewMenu());
     assertFalse(view.isEvaluateActionsOnDocumentChange());
+    assertFalse(view.getWebXPageAlternative().isPresent());
+    assertFalse(view.isAllowPublicAccess());
+    assertTrue(view.getReaders().isEmpty());
     
     assertEquals("1", view.getFormulaClass());
     view.setFormulaClass("2");
@@ -557,6 +661,31 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(255, marginColor.getRed());
     assertEquals(255, marginColor.getGreen());
     assertEquals(255, marginColor.getBlue());
+
+    
+    assertFalse(view.getAutoFrameFrameset().isPresent());
+    assertFalse(view.getAutoFrameTarget().isPresent());
+    
+    assertEquals(CollectionDesignElement.UnreadMarksMode.NONE, view.getUnreadMarksMode());
+    
+    CollectionDesignElement.IndexSettings index = view.getIndexSettings();
+    assertEquals(CollectionDesignElement.IndexRefreshMode.MANUAL, index.getRefreshMode());
+    assertFalse(index.getRefreshMaxIntervalSeconds().isPresent());
+    assertEquals(CollectionDesignElement.IndexDiscardMode.AFTER_EACH_USE, index.getDiscardMode());
+    assertFalse(index.getDiscardAfterHours().isPresent());
+    assertFalse(index.isRestrictInitialBuildToDesigner());
+    assertFalse(index.isGenerateUniqueKeysInIndex());
+    assertTrue(index.isIncludeUpdatesInTransactionLog());
+    
+    CollectionDesignElement.WebRenderingSettings web = view.getWebRenderingSettings();
+    assertFalse(web.isTreatAsHtml());
+    assertTrue(web.isUseJavaApplet());
+    assertFalse(web.isAllowSelection());
+    assertColorEquals(web.getActiveLinkColor(), 255, 0, 0);
+    assertColorEquals(web.getUnvisitedLinkColor(), 0, 255, 0);
+    assertColorEquals(web.getVisitedLinkColor(), 128, 0, 128);
+    assertTrue(web.isAllowWebCrawlerIndexing());
+    assertFalse(view.isAllowDominoDataService());
   }
   
   @Test
@@ -835,5 +964,12 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     byCategory.getColumns().forEach(col -> {
       System.out.println("read col " + col.getItemName());
     });
+  }
+  
+  private void assertColorEquals(ColorValue color, int red, int green, int blue) {
+    assertNotNull(color);
+    assertEquals(red, color.getRed());
+    assertEquals(green, color.getGreen());
+    assertEquals(blue, color.getBlue());
   }
 }

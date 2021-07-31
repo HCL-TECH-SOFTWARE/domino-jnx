@@ -4518,4 +4518,13 @@ public interface NotesConstants extends ViewFormatConstants {
   byte NIF_STAT_PCT_PARENT = 4;
   /** Total / # descendants in parent's index (all levels below parent) */
   byte NIF_STAT_AVG_PER_ENTRY = 5;
+  
+  /** Reader List role name for public users */
+  String FIELD_PUBLICROLE = "$P"; //$NON-NLS-1$
+  /** Note has public access if ACL_FLAG_PUBLICREADER is set. */
+  String FIELD_PUBLICACCESS = "$PublicAccess"; //$NON-NLS-1$
+  /** Form Note has public access if ACL_FLAG_PUBLICREADER is set. */
+  String FORM_FIELD_PUBLICACCESS = "$FormPublicAccess"; //$NON-NLS-1$
+  String FIELD_PUBLICACCESS_ENABLED = "1"; //$NON-NLS-1$
+  String DESIGN_READERS = "$Readers"; //$NON-NLS-1$
 }
