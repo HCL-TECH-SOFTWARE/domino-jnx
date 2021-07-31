@@ -29,6 +29,7 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -55,6 +56,10 @@ import com.hcl.domino.design.format.ViewLineSpacing;
 import com.hcl.domino.exception.FileDoesNotExistException;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
+import com.hcl.domino.security.Acl;
+import com.hcl.domino.security.AclEntry;
+import com.hcl.domino.security.AclFlag;
+import com.hcl.domino.security.AclLevel;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
@@ -82,6 +87,16 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       final DominoClient client = this.getClient();
       if (TestDbDesignCollections.dbPath == null) {
         this.database = AbstractNotesRuntimeTest.createTempDb(client);
+        
+        Acl acl = this.database.getACL();
+        Optional<AclEntry> entry = acl.getEntry(client.getEffectiveUserName());
+        if(entry.isPresent()) {
+          acl.updateEntry(client.getEffectiveUserName(), null, null, Arrays.asList("[Admin]"), null);
+        } else {
+          acl.addEntry(client.getEffectiveUserName(), AclLevel.MANAGER, Arrays.asList("[Admin]"), EnumSet.allOf(AclFlag.class));
+        }
+        acl.save();
+        
         TestDbDesignCollections.dbPath = this.database.getAbsoluteFilePath();
         AbstractNotesRuntimeTest.populateResourceDxl("/dxl/testDbDesignCollections", this.database);
       } else {
@@ -108,6 +123,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isCreateDocumentsAtViewLevel());
     assertEquals("Home_1.xsp", view.getWebXPageAlternative().get());
     assertFalse(view.isAllowPublicAccess());
+    assertEquals(Arrays.asList("[Admin]"), view.getReaders());
     
     CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
     assertNotNull(comp);
@@ -339,6 +355,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(view.isCreateDocumentsAtViewLevel());
     assertFalse(view.getWebXPageAlternative().isPresent());
     assertTrue(view.isAllowPublicAccess());
+    assertTrue(view.getReaders().isEmpty());
     
     CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
     assertNotNull(comp);
@@ -456,6 +473,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isEvaluateActionsOnDocumentChange());
     assertFalse(view.getWebXPageAlternative().isPresent());
     assertFalse(view.isAllowPublicAccess());
+    assertTrue(view.getReaders().isEmpty());
     
     DisplaySettings disp = view.getDisplaySettings();
     assertNotNull(disp);
@@ -562,6 +580,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isEvaluateActionsOnDocumentChange());
     assertFalse(view.getWebXPageAlternative().isPresent());
     assertFalse(view.isAllowPublicAccess());
+    assertTrue(view.getReaders().isEmpty());
     
     assertEquals("1", view.getFormulaClass());
     view.setFormulaClass("2");

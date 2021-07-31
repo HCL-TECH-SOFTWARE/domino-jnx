@@ -610,6 +610,15 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * 
    * @return {@code true} if this collection should be accessible via DAS;
    *         {@code false} otherwise
+   * @since 1.0.32
    */
   boolean isAllowDominoDataService();
+  
+  /**
+   * Retrives a list of names allowed to read this view or folder.
+   * 
+   * @return a {@link List} of string usernames, groups, and roles
+   * @since 1.0.32
+   */
+  List<String> getReaders();
 }

@@ -17,6 +17,7 @@
 package com.hcl.domino.commons.design;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -253,6 +254,11 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   @Override
   public boolean isAllowDominoDataService() {
     return getWebFlags().contains(DesignConstants.WEBFLAG_NOTE_RESTAPIALLOWED);
+  }
+  
+  @Override
+  public List<String> getReaders() {
+    return getDocument().getAsList(NotesConstants.DESIGN_READERS, String.class, Collections.emptyList());
   }
 
   // *******************************************************************************

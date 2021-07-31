@@ -4526,4 +4526,5 @@ public interface NotesConstants extends ViewFormatConstants {
   /** Form Note has public access if ACL_FLAG_PUBLICREADER is set. */
   String FORM_FIELD_PUBLICACCESS = "$FormPublicAccess"; //$NON-NLS-1$
   String FIELD_PUBLICACCESS_ENABLED = "1"; //$NON-NLS-1$
+  String DESIGN_READERS = "$Readers"; //$NON-NLS-1$
 }
