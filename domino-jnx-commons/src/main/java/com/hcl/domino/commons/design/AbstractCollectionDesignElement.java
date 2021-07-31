@@ -43,6 +43,7 @@ import com.hcl.domino.design.format.ViewTableFormat3;
 import com.hcl.domino.design.format.ViewTableFormat4;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.richtext.records.CDLinkColors;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
 
@@ -243,6 +244,16 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   public IndexSettings getIndexSettings() {
     return new DefaultIndexSettings();
   }
+  
+  @Override
+  public WebRenderingSettings getWebRenderingSettings() {
+    return new DefaultWebRenderingSettings();
+  }
+  
+  @Override
+  public boolean isAllowDominoDataService() {
+    return getWebFlags().contains(DesignConstants.WEBFLAG_NOTE_RESTAPIALLOWED);
+  }
 
   // *******************************************************************************
   // * Internal utility methods
@@ -303,6 +314,10 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     return Optional.of((NotesCollationInfo)doc.getItemValue(DesignConstants.VIEW_COLLATION_ITEM).get(0));
   }
   
+  private String getWebFlags() {
+    return getDocument().getAsText(DesignConstants.ITEM_NAME_WEBFLAGS, ' ');
+  }
+  
   private class DefaultCompositeAppSettings implements CompositeAppSettings {
 
     @Override
@@ -356,7 +371,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       // TODO investigate pre-V5 background colors
       return getFormat3()
         .map(ViewTableFormat3::getBackgroundColor)
-        .orElseGet(DesignUtil::whiteColor);
+        .orElseGet(DesignColors::whiteColor);
     }
 
     @Override
@@ -364,7 +379,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       // TODO investigate pre-V5 background colors
       return getFormat3()
         .map(ViewTableFormat3::getAlternateBackgroundColor)
-        .orElseGet(DesignUtil::noColor);
+        .orElseGet(DesignColors::noColor);
     }
     
     @Override
@@ -409,7 +424,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public ColorValue getGridColor() {
       return getFormat3()
         .map(ViewTableFormat3::getGridColor)
-        .orElseGet(DesignUtil::noColor);
+        .orElseGet(DesignColors::noColor);
     }
 
     @Override
@@ -432,7 +447,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public ColorValue getHeaderColor() {
       return getFormat3()
         .map(ViewTableFormat3::getHeaderBackgroundColor)
-        .orElseGet(DesignUtil::noColor);
+        .orElseGet(DesignColors::noColor);
     }
 
     @Override
@@ -477,7 +492,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public ColorValue getUnreadColor() {
       return getFormat3()
         .map(ViewTableFormat3::getUnreadColor)
-        .orElseGet(DesignUtil::blackColor);
+        .orElseGet(DesignColors::blackColor);
     }
 
     @Override
@@ -494,7 +509,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public ColorValue getColumnTotalColor() {
       return getFormat3()
           .map(ViewTableFormat3::getTotalsColor)
-          .orElseGet(DesignUtil::blackColor);
+          .orElseGet(DesignColors::blackColor);
     }
 
     @Override
@@ -533,7 +548,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public ColorValue getMarginColor() {
       return getFormat3()
         .map(ViewTableFormat3::getMarginBackgroundColor)
-        .orElseGet(DesignUtil::whiteColor);
+        .orElseGet(DesignColors::whiteColor);
     }
   }
   
@@ -635,6 +650,77 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public boolean isIncludeUpdatesInTransactionLog() {
       String logUpdates = getDocument().get(DesignConstants.FIELD_LOGVIEWUPDATES, String.class, null);
       return DesignConstants.FIELD_LOGVIEWUPDATES_ENABLED.equals(logUpdates);
+    } 
+  }
+  
+  private class DefaultWebRenderingSettings implements WebRenderingSettings {
+
+    @Override
+    public boolean isTreatAsHtml() {
+      return getFormat2()
+        .map(ViewTableFormat2::getFlags)
+        .map(flags -> flags.contains(ViewTableFormat2.Flag.HTML_PASSTHRU))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isUseJavaApplet() {
+      return getWebFlags().contains(DesignConstants.WEBFLAG_NOTE_USEAPPLET_INBROWSER);
+    }
+
+    @Override
+    public boolean isAllowSelection() {
+      return getWebFlags().contains(DesignConstants.WEBFLAG_NOTE_ALLOW_DOC_SELECTIONS);
+    }
+
+    @Override
+    public ColorValue getActiveLinkColor() {
+      Document doc = getDocument();
+      if(!doc.hasItem(DesignConstants.ITEM_NAME_HTMLCODE)) {
+        return DesignColors.defaultActiveLink();
+      }
+      return getDocument().getRichTextItem(DesignConstants.ITEM_NAME_HTMLCODE)
+        .stream()
+        .filter(CDLinkColors.class::isInstance)
+        .map(CDLinkColors.class::cast)
+        .findFirst()
+        .map(CDLinkColors::getActiveColor)
+        .orElseGet(DesignColors::defaultActiveLink);
+    }
+
+    @Override
+    public ColorValue getUnvisitedLinkColor() {
+      Document doc = getDocument();
+      if(!doc.hasItem(DesignConstants.ITEM_NAME_HTMLCODE)) {
+        return DesignColors.defaultUnvisitedLink();
+      }
+      return getDocument().getRichTextItem(DesignConstants.ITEM_NAME_HTMLCODE)
+        .stream()
+        .filter(CDLinkColors.class::isInstance)
+        .map(CDLinkColors.class::cast)
+        .findFirst()
+        .map(CDLinkColors::getUnvisitedColor)
+        .orElseGet(DesignColors::defaultUnvisitedLink);
+    }
+
+    @Override
+    public ColorValue getVisitedLinkColor() {
+      Document doc = getDocument();
+      if(!doc.hasItem(DesignConstants.ITEM_NAME_HTMLCODE)) {
+        return DesignColors.defaultVisitedLink();
+      }
+      return getDocument().getRichTextItem(DesignConstants.ITEM_NAME_HTMLCODE)
+        .stream()
+        .filter(CDLinkColors.class::isInstance)
+        .map(CDLinkColors.class::cast)
+        .findFirst()
+        .map(CDLinkColors::getVisitedColor)
+        .orElseGet(DesignColors::defaultVisitedLink);
+    }
+
+    @Override
+    public boolean isAllowWebCrawlerIndexing() {
+      return getWebFlags().contains(DesignConstants.WEBFLAG_NOTE_CRAWLABLE);
     }
     
   }

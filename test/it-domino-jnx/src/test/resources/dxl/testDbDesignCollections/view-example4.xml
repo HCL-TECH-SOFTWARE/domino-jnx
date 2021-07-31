@@ -36,7 +36,12 @@ AAAAAAABAAAAAAAAAAAAAAAAAAAAAAAALiwkAA==
 <item name='$Viewers'><text>foo,bar</text></item>
 <item name='$ThreadView'><text>test alias</text></item>
 <item name='$Flags'><text>P</text></item>
+<item name='$WebFlags'><text>BC</text></item>
 <item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$HTMLCode' summary='true'>
+<rawitemdata type='1'>
+d/8qAAAAAAABAAD/AAABAP8AAAABAIAAgAAAAAAAAAAAAAAAAAAAAAAA
+</rawitemdata></item>
 <item name='$V5ACTIONS' sign='true'>
 <rawitemdata type='1'>
 vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA

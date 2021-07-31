@@ -193,6 +193,16 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(index.isRestrictInitialBuildToDesigner());
     assertTrue(index.isGenerateUniqueKeysInIndex());
     assertFalse(index.isIncludeUpdatesInTransactionLog());
+    
+    CollectionDesignElement.WebRenderingSettings web = view.getWebRenderingSettings();
+    assertFalse(web.isTreatAsHtml());
+    assertFalse(web.isUseJavaApplet());
+    assertFalse(web.isAllowSelection());
+    assertColorEquals(web.getActiveLinkColor(), 255, 0, 0);
+    assertColorEquals(web.getUnvisitedLinkColor(), 0, 0, 255);
+    assertColorEquals(web.getVisitedLinkColor(), 128, 0, 128);
+    assertFalse(web.isAllowWebCrawlerIndexing());
+    assertFalse(view.isAllowDominoDataService());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -416,6 +426,16 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(index.isRestrictInitialBuildToDesigner());
     assertTrue(index.isGenerateUniqueKeysInIndex());
     assertFalse(index.isIncludeUpdatesInTransactionLog());
+    
+    CollectionDesignElement.WebRenderingSettings web = view.getWebRenderingSettings();
+    assertFalse(web.isTreatAsHtml());
+    assertFalse(web.isUseJavaApplet());
+    assertTrue(web.isAllowSelection());
+    assertColorEquals(web.getActiveLinkColor(), 0, 98, 225);
+    assertColorEquals(web.getUnvisitedLinkColor(), 255, 64, 64);
+    assertColorEquals(web.getVisitedLinkColor(), 255, 159, 255);
+    assertFalse(web.isAllowWebCrawlerIndexing());
+    assertTrue(view.isAllowDominoDataService());
   }
 
   @Test
@@ -514,6 +534,16 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(index.isRestrictInitialBuildToDesigner());
     assertFalse(index.isGenerateUniqueKeysInIndex());
     assertFalse(index.isIncludeUpdatesInTransactionLog());
+    
+    CollectionDesignElement.WebRenderingSettings web = view.getWebRenderingSettings();
+    assertTrue(web.isTreatAsHtml());
+    assertFalse(web.isUseJavaApplet());
+    assertFalse(web.isAllowSelection());
+    assertColorEquals(web.getActiveLinkColor(), 255, 0, 0);
+    assertColorEquals(web.getUnvisitedLinkColor(), 0, 0, 255);
+    assertColorEquals(web.getVisitedLinkColor(), 128, 0, 128);
+    assertFalse(web.isAllowWebCrawlerIndexing());
+    assertFalse(view.isAllowDominoDataService());
   }
 
   @Test
@@ -623,6 +653,16 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(index.isRestrictInitialBuildToDesigner());
     assertFalse(index.isGenerateUniqueKeysInIndex());
     assertTrue(index.isIncludeUpdatesInTransactionLog());
+    
+    CollectionDesignElement.WebRenderingSettings web = view.getWebRenderingSettings();
+    assertFalse(web.isTreatAsHtml());
+    assertTrue(web.isUseJavaApplet());
+    assertFalse(web.isAllowSelection());
+    assertColorEquals(web.getActiveLinkColor(), 255, 0, 0);
+    assertColorEquals(web.getUnvisitedLinkColor(), 0, 255, 0);
+    assertColorEquals(web.getVisitedLinkColor(), 128, 0, 128);
+    assertTrue(web.isAllowWebCrawlerIndexing());
+    assertFalse(view.isAllowDominoDataService());
   }
   
   @Test
@@ -901,5 +941,12 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     byCategory.getColumns().forEach(col -> {
       System.out.println("read col " + col.getItemName());
     });
+  }
+  
+  private void assertColorEquals(ColorValue color, int red, int green, int blue) {
+    assertNotNull(color);
+    assertEquals(red, color.getRed());
+    assertEquals(green, color.getGreen());
+    assertEquals(blue, color.getBlue());
   }
 }

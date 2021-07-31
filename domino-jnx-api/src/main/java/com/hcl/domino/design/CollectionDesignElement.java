@@ -397,6 +397,72 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     boolean isIncludeUpdatesInTransactionLog();
   }
+  
+  /**
+   * Represents settings related to the rendering of the view or folder when rendered
+   * using the classic web renderer.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  interface WebRenderingSettings {
+    /**
+     * Determines whether the collection contents should be treated as raw HTML, without
+     * rendering surrounding controls.
+     * 
+     * @return {@code true} if the collection contents should be treated as HTML;
+     *         {@code false} otherwise
+     */
+    boolean isTreatAsHtml();
+    
+    /**
+     * Determines whether the collection should be rendered using a Java applet instead of
+     * HTML-based controls.
+     * 
+     * @return {@code true} if the collection should be rendered using a Java applet;
+     *         {@code false} otherwise
+     */
+    boolean isUseJavaApplet();
+    
+    /**
+     * Determines whether the collection should include selection checkboxes when rendered
+     * using HTML controls.
+     * 
+     * @return {@code true} if the collection should allow selection;
+     *         {@code false} otherwise
+     */
+    boolean isAllowSelection();
+    
+    /**
+     * Retrieves the color used for active links when using HTML controls.
+     * 
+     * @return a {@link ColorValue} representing the active link color
+     */
+    ColorValue getActiveLinkColor();
+    
+    /**
+     * Retrieves the color used for unvisited links when using HTML controls.
+     * 
+     * @return a {@link ColorValue} representing the unvisited link color
+     */
+    ColorValue getUnvisitedLinkColor();
+    
+    /**
+     * Retrieves the color used for visited links when using HTML controls.
+     * 
+     * @return a {@link ColorValue} representing the visited link color
+     */
+    ColorValue getVisitedLinkColor();
+    
+    /**
+     * Determines whether the collection should allow web crawler indexing
+     * using HTML controls.
+     * 
+     * @return {@code true} if the collection should allow crawler indexing;
+     *         {@code false} otherwise
+     */
+    boolean isAllowWebCrawlerIndexing();
+  }
 
   CollectionDesignElement addColumn();
 
@@ -529,4 +595,21 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.32
    */
   IndexSettings getIndexSettings();
+  
+  /**
+   * Retrieves an object that provides a view onto this collection's web rendering
+   * settings.
+   * 
+   * @return a {@link WebRenderingSettings} instance
+   * @since 1.0.32
+   */
+  WebRenderingSettings getWebRenderingSettings();
+  
+  /**
+   * Determines whether the collection allows Domino Data Service (DAS) operations.
+   * 
+   * @return {@code true} if this collection should be accessible via DAS;
+   *         {@code false} otherwise
+   */
+  boolean isAllowDominoDataService();
 }

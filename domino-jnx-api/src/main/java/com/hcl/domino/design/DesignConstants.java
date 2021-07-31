@@ -39,8 +39,29 @@ public interface DesignConstants {
   String FIELD_LOGVIEWUPDATES = "$LogViewUpdates"; //$NON-NLS-1$
   String FIELD_LOGVIEWUPDATES_ENABLED = "1"; //$NON-NLS-1$
   
+  /** Web related flags for form or document */
+  String ITEM_NAME_WEBFLAGS = "$WebFlags"; //$NON-NLS-1$
+  /** use appropriate applet when serving to browser */
+  String WEBFLAG_NOTE_USEAPPLET_INBROWSER = "B"; //$NON-NLS-1$
+  /** treat this document or form as plain HTML, do not convert styled text to HTML */
+  String WEBFLAG_NOTE_IS_HTML = "H"; //$NON-NLS-1$
+  /** optimization for web server: this note contains an embedded view */
+  String WEBFLAG_NOTE_CONTAINS_VIEW = "V"; //$NON-NLS-1$
+  /** gen'd HTML for all fields */
+  String WEBFLAG_NOTE_HTML_ALL_FLDS = "F"; //$NON-NLS-1$
+  /** Generate {@code <FORM>} tag */
+  String WEBFLAG_NOTE_CONTAINS_JSBUTTON = "J"; //$NON-NLS-1$
+  String WEBFLAG_NOTE_ALLOW_DOC_SELECTIONS = "S"; //$NON-NLS-1$
+  /** use JS control to render the view (reuse deployable) */
+  String WEBFLAG_NOTE_USEJSCTL_INBROWSER = "D"; //$NON-NLS-1$
+  /** this view can be crawled */
+  String WEBFLAG_NOTE_CRAWLABLE = "C"; //$NON-NLS-1$
+  /** this view is accessible to rest api */
+  String WEBFLAG_NOTE_RESTAPIALLOWED = "A"; //$NON-NLS-1$
+  
   /** frameset used to open form */
   String ITEM_NAME_FRAMEINFO = "$FrameInfo"; //$NON-NLS-1$
+  String ITEM_NAME_HTMLCODE = "$HTMLCode"; //$NON-NLS-1$
   
   byte THEME_DEFAULT = 0;
   byte THEME_ENABLE = 1;
