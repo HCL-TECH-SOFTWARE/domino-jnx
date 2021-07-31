@@ -31,6 +31,7 @@ import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.DesignElement;
+import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.format.ViewCalendarFormat;
 import com.hcl.domino.design.format.ViewLineSpacing;
@@ -483,6 +484,56 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public boolean isExtendLastColumnToWindowWidth() {
       ViewTableFormat format = readViewFormat().getAdapter(ViewTableFormat.class);
       return format.getFlags().contains(ViewTableFormat.Flag.EXTEND_LAST_COLUMN);
+    }
+
+    @Override
+    public EdgeWidths getMargin() {
+      return new DefaultEdgeWidths();
+    }
+
+    @Override
+    public int getBelowHeaderMargin() {
+      return getFormat3()
+        .map(ViewTableFormat3::getViewMarginTopUnder)
+        .orElse(0);
+    }
+
+    @Override
+    public ColorValue getMarginColor() {
+      return getFormat3()
+        .map(ViewTableFormat3::getMarginBackgroundColor)
+        .orElseGet(DesignUtil::whiteColor);
+    }
+    
+  }
+  
+  private class DefaultEdgeWidths implements EdgeWidths {
+    @Override
+    public int getTop() {
+      return getFormat3()
+        .map(ViewTableFormat3::getViewMarginTop)
+        .orElse(0);
+    }
+
+    @Override
+    public int getLeft() {
+      return getFormat3()
+        .map(ViewTableFormat3::getViewMarginLeft)
+        .orElse(0);
+    }
+
+    @Override
+    public int getRight() {
+      return getFormat3()
+        .map(ViewTableFormat3::getViewMarginRight)
+        .orElse(0);
+    }
+
+    @Override
+    public int getBottom() {
+      return getFormat3()
+        .map(ViewTableFormat3::getViewMarginBottom)
+        .orElse(0);
     }
     
   }

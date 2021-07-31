@@ -45,6 +45,7 @@ import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.CollectionDesignElement.DisplaySettings;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignElement;
+import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.View;
@@ -164,6 +165,18 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(disp.isShowSelectionMargin());
     assertFalse(disp.isHideSelectionMarginBorder());
     assertTrue(disp.isExtendLastColumnToWindowWidth());
+    
+    EdgeWidths margin = disp.getMargin();
+    assertEquals(1, margin.getTop());
+    assertEquals(2, margin.getLeft());
+    assertEquals(3, margin.getRight());
+    assertEquals(4, margin.getBottom());
+    assertEquals(5, disp.getBelowHeaderMargin());
+    
+    ColorValue marginColor = disp.getMarginColor();
+    assertEquals(255, marginColor.getRed());
+    assertEquals(255, marginColor.getGreen());
+    assertEquals(255, marginColor.getBlue());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -357,6 +370,18 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(disp.isShowSelectionMargin());
     assertFalse(disp.isHideSelectionMarginBorder());
     assertTrue(disp.isExtendLastColumnToWindowWidth());
+    
+    EdgeWidths margin = disp.getMargin();
+    assertEquals(2, margin.getTop());
+    assertEquals(2, margin.getLeft());
+    assertEquals(10, margin.getRight());
+    assertEquals(5, margin.getBottom());
+    assertEquals(2, disp.getBelowHeaderMargin());
+    
+    ColorValue marginColor = disp.getMarginColor();
+    assertEquals(130, marginColor.getRed());
+    assertEquals(66, marginColor.getGreen());
+    assertEquals(255, marginColor.getBlue());
   }
 
   @Test
@@ -427,6 +452,18 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(disp.isShowSelectionMargin());
     assertTrue(disp.isHideSelectionMarginBorder());
     assertTrue(disp.isExtendLastColumnToWindowWidth());
+    
+    EdgeWidths margin = disp.getMargin();
+    assertEquals(0, margin.getTop());
+    assertEquals(0, margin.getLeft());
+    assertEquals(0, margin.getRight());
+    assertEquals(0, margin.getBottom());
+    assertEquals(0, disp.getBelowHeaderMargin());
+    
+    ColorValue marginColor = disp.getMarginColor();
+    assertEquals(255, marginColor.getRed());
+    assertEquals(255, marginColor.getGreen());
+    assertEquals(255, marginColor.getBlue());
   }
 
   @Test
@@ -508,6 +545,18 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(disp.isShowSelectionMargin());
     assertFalse(disp.isHideSelectionMarginBorder());
     assertFalse(disp.isExtendLastColumnToWindowWidth());
+    
+    EdgeWidths margin = disp.getMargin();
+    assertEquals(0, margin.getTop());
+    assertEquals(0, margin.getLeft());
+    assertEquals(0, margin.getRight());
+    assertEquals(0, margin.getBottom());
+    assertEquals(0, disp.getBelowHeaderMargin());
+    
+    ColorValue marginColor = disp.getMarginColor();
+    assertEquals(255, marginColor.getRed());
+    assertEquals(255, marginColor.getGreen());
+    assertEquals(255, marginColor.getBlue());
   }
   
   @Test

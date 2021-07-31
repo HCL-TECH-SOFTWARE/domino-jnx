@@ -265,6 +265,30 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      *         {@code false} otherwise
      */
     boolean isExtendLastColumnToWindowWidth();
+    
+    /**
+     * Retrieves an object representing the top, left, right, and bottom margins around
+     * the edge of the view or folder.
+     * 
+     * @return an {@link EdgeWidths} instance representing the margins
+     * @see #getBelowHeaderMargin()
+     */
+    EdgeWidths getMargin();
+    
+    /**
+     * Retrieves the setting for the margin below the view or folder header.
+     * 
+     * @return the size of the header below the view or folder header
+     * @see #getMargin()
+     */
+    int getBelowHeaderMargin();
+    
+    /**
+     * Retrieves the color used for the view or folder margin.
+     * 
+     * @return a {@link ColorValue} representing the view or folder margin
+     */
+    ColorValue getMarginColor();
   }
 
   CollectionDesignElement addColumn();
