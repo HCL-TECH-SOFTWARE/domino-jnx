@@ -327,6 +327,33 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
         .map(ViewTableFormat4::getRepeatType)
         .orElse(ImageRepeatMode.ONCE);
     }
+
+    @Override
+    public GridStyle getGridStyle() {
+      Optional<ViewTableFormat3> format3 = getFormat3();
+      if(!format3.isPresent()) {
+        return GridStyle.NONE;
+      }
+      Set<ViewTableFormat3.Flag> flags = format3.get().getFlags();
+      if(flags.contains(ViewTableFormat3.Flag.GridStyleSolid)) {
+        return GridStyle.SOLID;
+      } else if(flags.contains(ViewTableFormat3.Flag.GridStyleDash)) {
+        return GridStyle.DASHED;
+      } else if(flags.contains(ViewTableFormat3.Flag.GridStyleDot)) {
+        return GridStyle.DOTS;
+      } else if(flags.contains(ViewTableFormat3.Flag.GridStyleDashDot)) {
+        return GridStyle.DASHES_AND_DOTS;
+      } else {
+        return GridStyle.NONE;
+      }
+    }
+
+    @Override
+    public ColorValue getGridColor() {
+      return getFormat3()
+        .map(ViewTableFormat3::getGridColor)
+        .orElseGet(DesignUtil::noColor);
+    }
     
   }
 }

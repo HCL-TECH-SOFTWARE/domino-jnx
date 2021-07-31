@@ -126,6 +126,12 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals("\"hey.png\"", backgroundImage.get().getNamedElementFormula());
     
     assertEquals(ImageRepeatMode.SIZE_TO_FIT, disp.getBackgroundImageRepeatMode());
+    
+    assertEquals(CollectionDesignElement.GridStyle.SOLID, disp.getGridStyle());
+    ColorValue gridColor = disp.getGridColor();
+    assertEquals(255, gridColor.getRed());
+    assertEquals(255, gridColor.getGreen());
+    assertEquals(255, gridColor.getBlue());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -273,15 +279,22 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     
     ColorValue background = disp.getBackgroundColor();
     assertEquals(0, background.getRed());
-    assertEquals(255, background.getBlue());
     assertEquals(255, background.getGreen());
+    assertEquals(255, background.getBlue());
     
     ColorValue altBackground = disp.getAlternateRowColor();
     assertEquals(192, altBackground.getRed());
-    assertEquals(192, altBackground.getBlue());
     assertEquals(192, altBackground.getGreen());
+    assertEquals(192, altBackground.getBlue());
     
     assertEquals(ImageRepeatMode.ONCE, disp.getBackgroundImageRepeatMode());
+    
+    assertEquals(CollectionDesignElement.GridStyle.DOTS, disp.getGridStyle());
+    ColorValue gridColor = disp.getGridColor();
+    assertEquals(191, gridColor.getRed());
+    assertEquals(191, gridColor.getGreen());
+    assertEquals(255, gridColor.getBlue());
+    
   }
 
   @Test
@@ -304,16 +317,23 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     
     ColorValue background = disp.getBackgroundColor();
     assertEquals(255, background.getRed());
-    assertEquals(255, background.getBlue());
     assertEquals(255, background.getGreen());
+    assertEquals(255, background.getBlue());
     
     ColorValue altBackground = disp.getAlternateRowColor();
     assertEquals(239, altBackground.getRed());
-    assertEquals(239, altBackground.getBlue());
     assertEquals(239, altBackground.getGreen());
+    assertEquals(239, altBackground.getBlue());
     
     Optional<CDResource> backgroundImage = disp.getBackgroundImage();
     assertFalse(backgroundImage.isPresent());
+    assertEquals(ImageRepeatMode.ONCE, disp.getBackgroundImageRepeatMode());
+    
+    assertEquals(CollectionDesignElement.GridStyle.SOLID, disp.getGridStyle());
+    ColorValue gridColor = disp.getGridColor();
+    assertEquals(255, gridColor.getRed());
+    assertEquals(95, gridColor.getGreen());
+    assertEquals(255, gridColor.getBlue());
   }
 
   @Test
@@ -347,17 +367,23 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     
     ColorValue background = disp.getBackgroundColor();
     assertEquals(255, background.getRed());
-    assertEquals(255, background.getBlue());
     assertEquals(255, background.getGreen());
+    assertEquals(255, background.getBlue());
     
     ColorValue altBackground = disp.getAlternateRowColor();
     assertEquals(239, altBackground.getRed());
-    assertEquals(239, altBackground.getBlue());
     assertEquals(239, altBackground.getGreen());
+    assertEquals(239, altBackground.getBlue());
     
     Optional<CDResource> backgroundImage = disp.getBackgroundImage();
     assertEquals("Untitled.gif", backgroundImage.get().getNamedElement());
     assertEquals(ImageRepeatMode.HORIZONTAL, disp.getBackgroundImageRepeatMode());
+    
+    assertEquals(CollectionDesignElement.GridStyle.NONE, disp.getGridStyle());
+    ColorValue gridColor = disp.getGridColor();
+    assertEquals(255, gridColor.getRed());
+    assertEquals(255, gridColor.getGreen());
+    assertEquals(255, gridColor.getBlue());
   }
   
   @Test

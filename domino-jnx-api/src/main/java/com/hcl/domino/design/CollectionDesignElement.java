@@ -47,6 +47,16 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
   }
   
   /**
+   * Represents the options for the displayed grid on a outline-format view.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  public enum GridStyle {
+    NONE, SOLID, DASHED, DOTS, DASHES_AND_DOTS
+  }
+  
+  /**
    * Represents settings related to view/folder display when used inside of
    * a composite application in the Notes Standard client.
    * 
@@ -87,10 +97,30 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
     /**
      * Retrieves the background image for the collection, if specified.
      * 
-     * @return
+     * @return an {@link Optional} describing the background image, if this
+     *         has been specified; an empty one otherwise
      */
     Optional<CDResource> getBackgroundImage();
+    /**
+     * Retrieves the repeat mode for the background image.
+     * 
+     * @return an {@link ImageRepeatMode} for the background image
+     */
     ImageRepeatMode getBackgroundImageRepeatMode();
+    
+    /**
+     * Retrieves the specified grid style for the view.
+     * 
+     * @return a {@link GridStyle} instance for the view
+     */
+    GridStyle getGridStyle();
+    
+    /**
+     * Retrieves the color used for the grid.
+     * 
+     * @return a {@link ColorValue} representing the color of the grid
+     */
+    ColorValue getGridColor();
   }
 
   CollectionDesignElement addColumn();
