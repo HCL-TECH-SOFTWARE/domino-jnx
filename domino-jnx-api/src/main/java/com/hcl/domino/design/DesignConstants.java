@@ -33,6 +33,11 @@ public interface DesignConstants {
   String VIEW_CLASSES_ITEM = "$FormulaClass"; //$NON-NLS-1$
   /** Index disposition options */
   String VIEW_INDEX_ITEM = "$Index"; //$NON-NLS-1$
+  /** Collation buffer */
+  String VIEW_COLLATION_ITEM = "$Collation"; //$NON-NLS-1$
+  /** NIF will log all incremental view updates */
+  String FIELD_LOGVIEWUPDATES = "$LogViewUpdates"; //$NON-NLS-1$
+  String FIELD_LOGVIEWUPDATES_ENABLED = "1"; //$NON-NLS-1$
   
   /** frameset used to open form */
   String ITEM_NAME_FRAMEINFO = "$FrameInfo"; //$NON-NLS-1$
@@ -55,4 +60,39 @@ public interface DesignConstants {
    * to indicate that the view should hide empty categories.
    */
   String INDEXDISPOSITION_HIDEEMPTYCATEGORIES = "C"; //$NON-NLS-1$
+  /**
+   * Non-documented entry used in the "/"-separated {@value #VIEW_INDEX_ITEM} item
+   * to indicate that the view should be refreshed at most every X seconds.
+   * 
+   * <p>In that item, this value is followed by "=" and then the number of seconds.</p>
+   */
+  String INDEXDISPOSITION_REFRESHAUTOATMOST = "R"; //$NON-NLS-1$
+  /**
+   * Non-documented entry used in the "/"-separated {@value #VIEW_INDEX_ITEM} item
+   * to indicate that the view should be refreshed automatically.
+   */
+  String INDEXDISPOSITION_REFRESHAUTO = "O"; //$NON-NLS-1$
+  /**
+   * Non-documented entry used in the "/"-separated {@value #VIEW_INDEX_ITEM} item
+   * to indicate that the view should be refreshed manually.
+   */
+  String INDEXDISPOSITION_REFRESHMANUAL = "M"; //$NON-NLS-1$
+  /**
+   * Non-documented entry used in the "/"-separated {@value #VIEW_INDEX_ITEM} item
+   * to indicate that the view index should be discarded if inactive for X hours.
+   * 
+   * <p>In that item, this value is followed by "=" and then the number of hours.</p>
+   */
+  String INDEXDISPOSITION_DISCARDINACTIVEFOR = "P"; //$NON-NLS-1$
+  /**
+   * Non-documented entry used in the "/"-separated {@value #VIEW_INDEX_ITEM} item
+   * to indicate that the view index should be discarded after each use.
+   */
+  String INDEXDISPOSITION_DISCARDEACHUSE = "T"; //$NON-NLS-1$
+  /**
+   * Non-documented entry used in the "/"-separated {@value #VIEW_INDEX_ITEM} item
+   * to indicate that the initial index building should be restricted to Designer-
+   * or Manager-level users.
+   */
+  String INDEXDISPOSITION_RESTRICTTODESIGNER = "B"; //$NON-NLS-1$
 }

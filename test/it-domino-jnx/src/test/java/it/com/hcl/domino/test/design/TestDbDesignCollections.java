@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterAll;
@@ -182,6 +183,15 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.getAutoFrameTarget().isPresent());
     
     assertEquals(CollectionDesignElement.UnreadMarksMode.NONE, view.getUnreadMarksMode());
+    
+    CollectionDesignElement.IndexSettings index = view.getIndexSettings();
+    assertEquals(CollectionDesignElement.IndexRefreshMode.AUTO_AT_MOST_EVERY, index.getRefreshMode());
+    assertEquals(TimeUnit.HOURS.toSeconds(3), index.getRefreshMaxIntervalSeconds().getAsInt());
+    assertEquals(CollectionDesignElement.IndexDiscardMode.INACTIVE_FOR, index.getDiscardMode());
+    assertEquals(TimeUnit.DAYS.toHours(7), index.getDiscardAfterHours().getAsInt());
+    assertFalse(index.isRestrictInitialBuildToDesigner());
+    assertTrue(index.isGenerateUniqueKeysInIndex());
+    assertFalse(index.isIncludeUpdatesInTransactionLog());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -395,6 +405,15 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals("NotesView", view.getAutoFrameTarget().get());
     
     assertEquals(CollectionDesignElement.UnreadMarksMode.DOCUMENTS_ONLY, view.getUnreadMarksMode());
+    
+    CollectionDesignElement.IndexSettings index = view.getIndexSettings();
+    assertEquals(CollectionDesignElement.IndexRefreshMode.AUTO_AFTER_FIRST_USE, index.getRefreshMode());
+    assertFalse(index.getRefreshMaxIntervalSeconds().isPresent());
+    assertEquals(CollectionDesignElement.IndexDiscardMode.INACTIVE_45_DAYS, index.getDiscardMode());
+    assertFalse(index.getDiscardAfterHours().isPresent());
+    assertFalse(index.isRestrictInitialBuildToDesigner());
+    assertTrue(index.isGenerateUniqueKeysInIndex());
+    assertFalse(index.isIncludeUpdatesInTransactionLog());
   }
 
   @Test
@@ -483,6 +502,15 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.getAutoFrameTarget().isPresent());
     
     assertEquals(CollectionDesignElement.UnreadMarksMode.ALL, view.getUnreadMarksMode());
+    
+    CollectionDesignElement.IndexSettings index = view.getIndexSettings();
+    assertEquals(CollectionDesignElement.IndexRefreshMode.AUTO, index.getRefreshMode());
+    assertFalse(index.getRefreshMaxIntervalSeconds().isPresent());
+    assertEquals(CollectionDesignElement.IndexDiscardMode.INACTIVE_FOR, index.getDiscardMode());
+    assertEquals(TimeUnit.DAYS.toHours(19), index.getDiscardAfterHours().getAsInt());
+    assertTrue(index.isRestrictInitialBuildToDesigner());
+    assertFalse(index.isGenerateUniqueKeysInIndex());
+    assertFalse(index.isIncludeUpdatesInTransactionLog());
   }
 
   @Test
@@ -582,6 +610,15 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.getAutoFrameTarget().isPresent());
     
     assertEquals(CollectionDesignElement.UnreadMarksMode.NONE, view.getUnreadMarksMode());
+    
+    CollectionDesignElement.IndexSettings index = view.getIndexSettings();
+    assertEquals(CollectionDesignElement.IndexRefreshMode.MANUAL, index.getRefreshMode());
+    assertFalse(index.getRefreshMaxIntervalSeconds().isPresent());
+    assertEquals(CollectionDesignElement.IndexDiscardMode.AFTER_EACH_USE, index.getDiscardMode());
+    assertFalse(index.getDiscardAfterHours().isPresent());
+    assertFalse(index.isRestrictInitialBuildToDesigner());
+    assertFalse(index.isGenerateUniqueKeysInIndex());
+    assertTrue(index.isIncludeUpdatesInTransactionLog());
   }
   
   @Test

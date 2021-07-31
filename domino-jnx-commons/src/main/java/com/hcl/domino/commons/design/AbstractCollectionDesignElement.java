@@ -20,10 +20,12 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
+import com.hcl.domino.commons.views.NotesCollationInfo;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
@@ -236,6 +238,11 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       return UnreadMarksMode.NONE;
     }
   }
+  
+  @Override
+  public IndexSettings getIndexSettings() {
+    return new DefaultIndexSettings();
+  }
 
   // *******************************************************************************
   // * Internal utility methods
@@ -286,6 +293,14 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   private Set<String> getIndexDispositionOptions() {
     String index = getDocument().getAsText(DesignConstants.VIEW_INDEX_ITEM, '/');
     return new HashSet<>(Arrays.asList(index.split("/"))); //$NON-NLS-1$
+  }
+  
+  private Optional<NotesCollationInfo> getCollationInfo() {
+    Document doc = getDocument();
+    if(!doc.hasItem(DesignConstants.VIEW_COLLATION_ITEM)) {
+      return Optional.empty();
+    }
+    return Optional.of((NotesCollationInfo)doc.getItemValue(DesignConstants.VIEW_COLLATION_ITEM).get(0));
   }
   
   private class DefaultCompositeAppSettings implements CompositeAppSettings {
@@ -520,7 +535,6 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
         .map(ViewTableFormat3::getMarginBackgroundColor)
         .orElseGet(DesignUtil::whiteColor);
     }
-    
   }
   
   private class DefaultEdgeWidths implements EdgeWidths {
@@ -550,6 +564,77 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       return getFormat3()
         .map(ViewTableFormat3::getViewMarginBottom)
         .orElse(0);
+    }
+  }
+  
+  private class DefaultIndexSettings implements IndexSettings {
+
+    @Override
+    public IndexRefreshMode getRefreshMode() {
+      Set<String> indexOptions = getIndexDispositionOptions();
+      if(indexOptions.contains(DesignConstants.INDEXDISPOSITION_REFRESHMANUAL)) {
+        return IndexRefreshMode.MANUAL;
+      } else if(indexOptions.contains(DesignConstants.INDEXDISPOSITION_REFRESHAUTO)) {
+        return IndexRefreshMode.AUTO;
+      } else if(indexOptions.stream().anyMatch(o -> o.startsWith(DesignConstants.INDEXDISPOSITION_REFRESHAUTOATMOST))) {
+        return IndexRefreshMode.AUTO_AT_MOST_EVERY;
+      } else {
+        return IndexRefreshMode.AUTO_AFTER_FIRST_USE;
+      }
+    }
+
+    @Override
+    public OptionalInt getRefreshMaxIntervalSeconds() {
+      Set<String> indexOptions = getIndexDispositionOptions();
+      for(String opt : indexOptions) {
+        if(opt.startsWith(DesignConstants.INDEXDISPOSITION_REFRESHAUTOATMOST)) {
+          return OptionalInt.of(Integer.parseInt(opt.substring(2)));
+        }
+      }
+      return OptionalInt.empty();
+    }
+
+    @Override
+    public IndexDiscardMode getDiscardMode() {
+      Set<String> indexOptions = getIndexDispositionOptions();
+      if(indexOptions.contains(DesignConstants.INDEXDISPOSITION_DISCARDEACHUSE)) {
+        return IndexDiscardMode.AFTER_EACH_USE;
+      } else if(indexOptions.stream().anyMatch(o -> o.startsWith(DesignConstants.INDEXDISPOSITION_DISCARDINACTIVEFOR))) {
+        return IndexDiscardMode.INACTIVE_FOR;
+      } else {
+        return IndexDiscardMode.INACTIVE_45_DAYS;
+      }
+    }
+
+    @Override
+    public OptionalInt getDiscardAfterHours() {
+      Set<String> indexOptions = getIndexDispositionOptions();
+      for(String opt : indexOptions) {
+        if(opt.startsWith(DesignConstants.INDEXDISPOSITION_DISCARDINACTIVEFOR)) {
+          return OptionalInt.of(Integer.parseInt(opt.substring(2)));
+        }
+      }
+      return OptionalInt.empty();
+    }
+
+    @Override
+    public boolean isRestrictInitialBuildToDesigner() {
+      return getIndexDispositionOptions().contains(DesignConstants.INDEXDISPOSITION_RESTRICTTODESIGNER);
+    }
+
+    @Override
+    public boolean isGenerateUniqueKeysInIndex() {
+      // TODO see if this is actually specified primarily here, as the rest of the item is derived
+      // I suspect this is stored in $Collation only, in the COLLATION structure
+      return getCollationInfo()
+        .map(NotesCollationInfo::isUnique)
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isIncludeUpdatesInTransactionLog() {
+      String logUpdates = getDocument().get(DesignConstants.FIELD_LOGVIEWUPDATES, String.class, null);
+      return DesignConstants.FIELD_LOGVIEWUPDATES_ENABLED.equals(logUpdates);
     }
     
   }

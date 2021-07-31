@@ -8,7 +8,7 @@ AQBuMhl/nsbLLkkiVQC+eyWF
 <item name='$TITLE' sign='true'><text>Example View|test alias</text></item>
 <item name='$ColumnProfileDoc' sign='true'><text>hello</text></item>
 <item name='$ColumnFormatExtItem' sign='true'><text>$3</text></item>
-<item name='$Index' sign='true'><text>/R=10800/C</text></item>
+<item name='$Index' sign='true'><text>/P=168/R=10800/C</text></item>
 <item name='$Formula' summary='true' sign='true'><formula compiled='true'>
 EgECAAwAAgAkMqAAAwACAAwAAgAkM2kAAwACAAwAAgAkNKQAAwACABIAAgAkNQEAAwBoZXkAAwAC
 ACAAAgAkOQIABAAAAAAAAAAFAAYAQXV0aG9ytAIDAAIAIgACACQ4AgAEAAAAAAAAAAUABwBBdXRo

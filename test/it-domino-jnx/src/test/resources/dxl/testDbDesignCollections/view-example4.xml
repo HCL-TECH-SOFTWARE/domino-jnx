@@ -6,6 +6,7 @@ AQBuMhl/nsbLLkkiVQC+eyWF
 </rawitemdata></item>
 <item name='$FormulaClass' sign='true'><text>1</text></item>
 <item name='$TITLE' sign='true'><text>Example View 4</text></item>
+<item name='$LogViewUpdates'><text>1</text></item>
 <item name='$Index' sign='true'><text>/T/M</text></item>
 <item name='$Formula' summary='true' sign='true'><formula compiled='true'>
 ZAACAAwAAgAkMp8AAwACAAwAAgAkM2kAAwACAAwAAgAkNKQAAwAFADIALQAHAAQAAgACAAIACQAE
