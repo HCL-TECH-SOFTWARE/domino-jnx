@@ -120,6 +120,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(255, background.getRed());
     assertEquals(255, background.getGreen());
     assertEquals(255, background.getBlue());
+    assertTrue(disp.isUseAlternateRowColor());
     
     Optional<CDResource> backgroundImage = disp.getBackgroundImage();
     assertTrue(backgroundImage.isPresent());
@@ -151,14 +152,18 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(0, unreadColor.getRed());
     assertEquals(0, unreadColor.getGreen());
     assertEquals(0, unreadColor.getBlue());
+    assertFalse(unreadColor.getFlags().contains(ColorValue.Flag.NOCOLOR));
     
     assertTrue(disp.isUnreadBold());
-    assertFalse(disp.isSuppressUnreadColorInR6());
     
     ColorValue totalColor = disp.getColumnTotalColor();
     assertEquals(192, totalColor.getRed());
     assertEquals(98, totalColor.getGreen());
     assertEquals(255, totalColor.getBlue());
+    
+    assertTrue(disp.isShowSelectionMargin());
+    assertFalse(disp.isHideSelectionMarginBorder());
+    assertTrue(disp.isExtendLastColumnToWindowWidth());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -308,7 +313,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(0, background.getRed());
     assertEquals(255, background.getGreen());
     assertEquals(255, background.getBlue());
-    
+
+    assertTrue(disp.isUseAlternateRowColor());
     ColorValue altBackground = disp.getAlternateRowColor();
     assertEquals(192, altBackground.getRed());
     assertEquals(192, altBackground.getGreen());
@@ -339,14 +345,18 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(0, unreadColor.getRed());
     assertEquals(0, unreadColor.getGreen());
     assertEquals(255, unreadColor.getBlue());
+    assertFalse(unreadColor.getFlags().contains(ColorValue.Flag.NOCOLOR));
     
     assertTrue(disp.isUnreadBold());
-    assertFalse(disp.isSuppressUnreadColorInR6());
     
     ColorValue totalColor = disp.getColumnTotalColor();
     assertEquals(255, totalColor.getRed());
     assertEquals(0, totalColor.getGreen());
     assertEquals(128, totalColor.getBlue());
+    
+    assertTrue(disp.isShowSelectionMargin());
+    assertFalse(disp.isHideSelectionMarginBorder());
+    assertTrue(disp.isExtendLastColumnToWindowWidth());
   }
 
   @Test
@@ -371,7 +381,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(255, background.getRed());
     assertEquals(255, background.getGreen());
     assertEquals(255, background.getBlue());
-    
+
+    assertTrue(disp.isUseAlternateRowColor());
     ColorValue altBackground = disp.getAlternateRowColor();
     assertEquals(239, altBackground.getRed());
     assertEquals(239, altBackground.getGreen());
@@ -404,14 +415,18 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(255, unreadColor.getRed());
     assertEquals(0, unreadColor.getGreen());
     assertEquals(0, unreadColor.getBlue());
+    assertTrue(unreadColor.getFlags().contains(ColorValue.Flag.NOCOLOR));
     
     assertTrue(disp.isUnreadBold());
-    assertFalse(disp.isSuppressUnreadColorInR6());
     
     ColorValue totalColor = disp.getColumnTotalColor();
     assertEquals(0, totalColor.getRed());
     assertEquals(0, totalColor.getGreen());
     assertEquals(0, totalColor.getBlue());
+    
+    assertTrue(disp.isShowSelectionMargin());
+    assertTrue(disp.isHideSelectionMarginBorder());
+    assertTrue(disp.isExtendLastColumnToWindowWidth());
   }
 
   @Test
@@ -447,7 +462,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(255, background.getRed());
     assertEquals(255, background.getGreen());
     assertEquals(255, background.getBlue());
-    
+
+    assertTrue(disp.isUseAlternateRowColor());
     ColorValue altBackground = disp.getAlternateRowColor();
     assertEquals(239, altBackground.getRed());
     assertEquals(239, altBackground.getGreen());
@@ -480,14 +496,18 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(255, unreadColor.getRed());
     assertEquals(0, unreadColor.getGreen());
     assertEquals(0, unreadColor.getBlue());
+    assertFalse(unreadColor.getFlags().contains(ColorValue.Flag.NOCOLOR));
     
     assertFalse(disp.isUnreadBold());
-    assertFalse(disp.isSuppressUnreadColorInR6());
     
     ColorValue totalColor = disp.getColumnTotalColor();
     assertEquals(0, totalColor.getRed());
     assertEquals(0, totalColor.getGreen());
     assertEquals(0, totalColor.getBlue());
+    
+    assertFalse(disp.isShowSelectionMargin());
+    assertFalse(disp.isHideSelectionMarginBorder());
+    assertFalse(disp.isExtendLastColumnToWindowWidth());
   }
   
   @Test

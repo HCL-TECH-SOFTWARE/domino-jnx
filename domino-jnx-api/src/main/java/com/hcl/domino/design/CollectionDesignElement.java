@@ -108,6 +108,15 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      *         alternating rows
      */
     ColorValue getAlternateRowColor();
+    
+    /**
+     * Determines whether the value of {@link #getAlternateRowColor()} is used.
+     * 
+     * @return {@code true} if the alternating row color is used;
+     *         {@code false} otherwise
+     */
+    boolean isUseAlternateRowColor();
+    
     /**
      * Retrieves the background image for the collection, if specified.
      * 
@@ -204,6 +213,9 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
     /**
      * Retrieves the color used for text in unread-document rows in Notes 5.
      * 
+     * <p>The Domino Designer property "Transparent" corresponds to this color
+     * value having the {@link ColorValue.Flag#NOCOLOR NOCOLOR} flag set.</p>
+     * 
      * @return a {@link ColorValue} representing the unread-document color
      */
     ColorValue getUnreadColor();
@@ -218,22 +230,41 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
     boolean isUnreadBold();
     
     /**
-     * Determines whether the unread-document color should be suppressed in
-     * Notes 6 and newer.
-     * 
-     * <p>Note: this is referred to as "transparent" in Domino Designer.</p>
-     * 
-     * @return {@code true} if R6 and above should ignore the unread color;
-     *         {@code false} otherwise
-     */
-    boolean isSuppressUnreadColorInR6();
-    
-    /**
      * Retrieves the color used for total-row text.
      * 
      * @return a {@link ColorValue} representing the total-row color
      */
     ColorValue getColumnTotalColor();
+    
+    /**
+     * Determines whether the view or folder should be displayed with a margin for
+     * selection and unread marks.
+     * 
+     * @return {@code true} if the view or folder should have a selection margin;
+     *         {@code false} otherwise
+     */
+    boolean isShowSelectionMargin();
+    
+    /**
+     * Determines whether, when {@link #isShowSelectionMargin()} is {@code true}, the
+     * border between the margin and body should be hidden.
+     * 
+     * @return {@code true} if the selection margin border should be hidden;
+     *         {@code false} otherwise
+     */
+    boolean isHideSelectionMarginBorder();
+    
+    /**
+     * Determines whether the last column in the view or folder should be extended to
+     * take any remaining window width.
+     * 
+     * <p>When any column has the "extend to use available window width" property set,
+     * this setting applies instead to the first such column.</p>
+     * 
+     * @return {@code true} whether the last column should use remaining window width;
+     *         {@code false} otherwise
+     */
+    boolean isExtendLastColumnToWindowWidth();
   }
 
   CollectionDesignElement addColumn();

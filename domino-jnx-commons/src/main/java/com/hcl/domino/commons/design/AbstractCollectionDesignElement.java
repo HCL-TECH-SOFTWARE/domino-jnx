@@ -334,6 +334,12 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
         .map(ViewTableFormat3::getAlternateBackgroundColor)
         .orElseGet(DesignUtil::noColor);
     }
+    
+    @Override
+    public boolean isUseAlternateRowColor() {
+      ViewTableFormat format = readViewFormat().getAdapter(ViewTableFormat.class);
+      return format.getFlags().contains(ViewTableFormat.Flag.ALTERNATE_ROW_COLORING);
+    }
 
     @Override
     public Optional<CDResource> getBackgroundImage() {
@@ -453,15 +459,30 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
-    public boolean isSuppressUnreadColorInR6() {
-      return false;
-    }
-
-    @Override
     public ColorValue getColumnTotalColor() {
       return getFormat3()
           .map(ViewTableFormat3::getTotalsColor)
           .orElseGet(DesignUtil::blackColor);
+    }
+
+    @Override
+    public boolean isShowSelectionMargin() {
+      ViewTableFormat format = readViewFormat().getAdapter(ViewTableFormat.class);
+      return !format.getFlags().contains(ViewTableFormat.Flag.HIDE_LEFT_MARGIN);
+    }
+
+    @Override
+    public boolean isHideSelectionMarginBorder() {
+      return getFormat3()
+        .map(ViewTableFormat3::getFlags)
+        .map(flags -> flags.contains(ViewTableFormat3.Flag.HideLeftMarginBorder))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isExtendLastColumnToWindowWidth() {
+      ViewTableFormat format = readViewFormat().getAdapter(ViewTableFormat.class);
+      return format.getFlags().contains(ViewTableFormat.Flag.EXTEND_LAST_COLUMN);
     }
     
   }
