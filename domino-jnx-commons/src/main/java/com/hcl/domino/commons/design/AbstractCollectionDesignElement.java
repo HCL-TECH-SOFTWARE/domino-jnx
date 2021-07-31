@@ -32,6 +32,7 @@ import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.format.ViewCalendarFormat;
 import com.hcl.domino.design.format.ViewTableFormat;
+import com.hcl.domino.design.format.ViewTableFormat2;
 import com.hcl.domino.design.format.ViewTableFormat3;
 import com.hcl.domino.design.format.ViewTableFormat4;
 import com.hcl.domino.misc.DominoEnumUtil;
@@ -232,6 +233,16 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     return this.format;
   }
   
+  private Optional<ViewTableFormat2> getFormat2() {
+    final DominoViewFormat format = this.readViewFormat();
+    final ViewTableFormat2 format2 = format.getAdapter(ViewTableFormat2.class);
+    if (format2 == null) {
+      return Optional.empty();
+    } else {
+      return Optional.of(format2);
+    }
+  }
+  
   private Optional<ViewTableFormat3> getFormat3() {
     final DominoViewFormat format = this.readViewFormat();
     final ViewTableFormat3 format3 = format.getAdapter(ViewTableFormat3.class);
@@ -353,6 +364,36 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       return getFormat3()
         .map(ViewTableFormat3::getGridColor)
         .orElseGet(DesignUtil::noColor);
+    }
+
+    @Override
+    public HeaderStyle getHeaderStyle() {
+      ViewTableFormat format = readViewFormat().getAdapter(ViewTableFormat.class);
+      Set<ViewTableFormat.Flag> flags = format.getFlags();
+      Set<ViewTableFormat.Flag2> flags2 = format.getFlags2();
+      if(flags.contains(ViewTableFormat.Flag.SIMPLE_HEADINGS)) {
+        return HeaderStyle.SIMPLE;
+      } else if(flags.contains(ViewTableFormat.Flag.HIDE_HEADINGS)) {
+        return HeaderStyle.NONE;
+      } else if(flags2.contains(ViewTableFormat.Flag2.FLAT_HEADINGS)) {
+        return HeaderStyle.FLAT;
+      } else {
+        return HeaderStyle.BEVELED;
+      }
+    }
+
+    @Override
+    public ColorValue getHeaderColor() {
+      return getFormat3()
+        .map(ViewTableFormat3::getHeaderBackgroundColor)
+        .orElseGet(DesignUtil::noColor);
+    }
+
+    @Override
+    public int getHeaderLines() {
+      return getFormat2()
+        .map(ViewTableFormat2::getHeaderLineCount)
+        .orElse((short)1);
     }
     
   }

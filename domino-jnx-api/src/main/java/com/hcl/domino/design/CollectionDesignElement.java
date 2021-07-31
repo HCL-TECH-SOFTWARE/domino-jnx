@@ -47,13 +47,26 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
   }
   
   /**
-   * Represents the options for the displayed grid on a outline-format view.
+   * Represents the options for the displayed grid in a outline-format view or
+   * folder.
    * 
    * @author Jesse Gallagher
    * @since 1.0.32
    */
   public enum GridStyle {
     NONE, SOLID, DASHED, DOTS, DASHES_AND_DOTS
+  }
+  
+  /**
+   * Represents the options for displaying the column headers in an outline-format
+   * view or folder.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   *
+   */
+  public enum HeaderStyle {
+    NONE, FLAT, SIMPLE, BEVELED
   }
   
   /**
@@ -109,9 +122,9 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
     ImageRepeatMode getBackgroundImageRepeatMode();
     
     /**
-     * Retrieves the specified grid style for the view.
+     * Retrieves the specified grid style for the view or folder.
      * 
-     * @return a {@link GridStyle} instance for the view
+     * @return a {@link GridStyle} instance for the collection
      */
     GridStyle getGridStyle();
     
@@ -121,6 +134,30 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      * @return a {@link ColorValue} representing the color of the grid
      */
     ColorValue getGridColor();
+    
+    /**
+     * Retrieves the specified header display style for table-format views and
+     * folders.
+     * 
+     * @return a {@link HeaderStyle} instance for the collection
+     */
+    HeaderStyle getHeaderStyle();
+    
+    /**
+     * Retrieves the specified header display color for table-format views and
+     * folders.
+     * 
+     * @return a {@link ColorValue} instance for the header color
+     */
+    ColorValue getHeaderColor();
+    
+    /**
+     * Retrieves the number of lines used to display the header in table-format
+     * views and folders.
+     * 
+     * @return the number of lines to display the headers
+     */
+    int getHeaderLines();
   }
 
   CollectionDesignElement addColumn();

@@ -132,6 +132,13 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(255, gridColor.getRed());
     assertEquals(255, gridColor.getGreen());
     assertEquals(255, gridColor.getBlue());
+    
+    assertEquals(CollectionDesignElement.HeaderStyle.BEVELED, disp.getHeaderStyle());
+    assertEquals(2, disp.getHeaderLines());
+    ColorValue headerColor = disp.getHeaderColor();
+    assertEquals(255, headerColor.getRed());
+    assertEquals(255, headerColor.getGreen());
+    assertEquals(255, headerColor.getBlue());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -294,7 +301,13 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(191, gridColor.getRed());
     assertEquals(191, gridColor.getGreen());
     assertEquals(255, gridColor.getBlue());
-    
+
+    assertEquals(CollectionDesignElement.HeaderStyle.FLAT, disp.getHeaderStyle());
+    assertEquals(1, disp.getHeaderLines());
+    ColorValue headerColor = disp.getHeaderColor();
+    assertEquals(255, headerColor.getRed());
+    assertEquals(159, headerColor.getGreen());
+    assertEquals(255, headerColor.getBlue());
   }
 
   @Test
@@ -334,6 +347,13 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(255, gridColor.getRed());
     assertEquals(95, gridColor.getGreen());
     assertEquals(255, gridColor.getBlue());
+
+    assertEquals(CollectionDesignElement.HeaderStyle.SIMPLE, disp.getHeaderStyle());
+    assertEquals(4, disp.getHeaderLines());
+    ColorValue headerColor = disp.getHeaderColor();
+    assertEquals(225, headerColor.getRed());
+    assertEquals(225, headerColor.getGreen());
+    assertEquals(64, headerColor.getBlue());
   }
 
   @Test
@@ -384,6 +404,13 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(255, gridColor.getRed());
     assertEquals(255, gridColor.getGreen());
     assertEquals(255, gridColor.getBlue());
+
+    assertEquals(CollectionDesignElement.HeaderStyle.NONE, disp.getHeaderStyle());
+    assertEquals(1, disp.getHeaderLines());
+    ColorValue headerColor = disp.getHeaderColor();
+    assertEquals(255, headerColor.getRed());
+    assertEquals(255, headerColor.getGreen());
+    assertEquals(255, headerColor.getBlue());
   }
   
   @Test
