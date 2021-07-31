@@ -97,6 +97,6 @@ public interface ColorValue extends MemoryStructure {
   ColorValue setRed(short red);
 
   default String toHexString() {
-    return String.format("%02d%02d%02d", this.getRed(), this.getGreen(), this.getBlue());
+    return String.format("%02X%02X%02X", this.getRed(), this.getGreen(), this.getBlue()); //$NON-NLS-1$
   }
 }
