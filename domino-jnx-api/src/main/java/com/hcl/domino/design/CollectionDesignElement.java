@@ -17,8 +17,11 @@
 package com.hcl.domino.design;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.hcl.domino.data.CollectionColumn;
+import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.structures.ColorValue;
 
 /**
  * Describes a collection design element, i.e. a view or folder
@@ -58,6 +61,36 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
     String getViewers();
     String getThreadView();
     boolean isAllowConversationMode();
+  }
+  
+  /**
+   * Represents settings related to the visual view/folder display, including
+   * coloration and sizing behavior.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  interface DisplaySettings {
+    /**
+     * Retrieves the primary background color of the collection.
+     * 
+     * @return a {@link ColorValue} representing the background color
+     */
+    ColorValue getBackgroundColor();
+    /**
+     * Retrieves the background color for alternating rows.
+     * 
+     * @return a {@link ColorValue} representing the background color for
+     *         alternating rows
+     */
+    ColorValue getAlternateRowColor();
+    /**
+     * Retrieves the background image for the collection, if specified.
+     * 
+     * @return
+     */
+    Optional<CDResource> getBackgroundImage();
+    ImageRepeatMode getBackgroundImageRepeatMode();
   }
 
   CollectionDesignElement addColumn();
@@ -160,11 +193,19 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
   boolean isCreateDocumentsAtViewLevel();
   
   /**
-   * Retrieves an object that provides a view onto this collections settings for use in
+   * Retrieves an object that provides a view onto this collection's settings for use in
    * Composite Applications.
    * 
    * @return a {@link CompositeAppSettings} instance
    * @since 1.0.32
    */
   CompositeAppSettings getCompositeAppSettings();
+  
+  /**
+   * Retrieves an object that provides a view onto this collection's display settings.
+   * 
+   * @return a {@link DisplaySettings} instance
+   * @since 1.0.32
+   */
+  DisplaySettings getDisplaySettings();
 }

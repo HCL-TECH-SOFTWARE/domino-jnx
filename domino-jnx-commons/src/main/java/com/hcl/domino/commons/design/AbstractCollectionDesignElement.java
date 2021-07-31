@@ -29,11 +29,15 @@ import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.DesignElement;
+import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.format.ViewCalendarFormat;
 import com.hcl.domino.design.format.ViewTableFormat;
 import com.hcl.domino.design.format.ViewTableFormat3;
+import com.hcl.domino.design.format.ViewTableFormat4;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.structures.ColorValue;
 
 /**
  * @param <T> the {@link DesignElement} interface implemented by the class
@@ -210,6 +214,11 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   public CompositeAppSettings getCompositeAppSettings() {
     return new DefaultCompositeAppSettings();
   }
+  
+  @Override
+  public DisplaySettings getDisplaySettings() {
+    return new DefaultDisplaySettings();
+  }
 
   // *******************************************************************************
   // * Internal utility methods
@@ -230,6 +239,16 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       return Optional.empty();
     } else {
       return Optional.of(format3);
+    }
+  }
+  
+  private Optional<ViewTableFormat4> getFormat4() {
+    final DominoViewFormat format = this.readViewFormat();
+    final ViewTableFormat4 format4 = format.getAdapter(ViewTableFormat4.class);
+    if (format4 == null) {
+      return Optional.empty();
+    } else {
+      return Optional.of(format4);
     }
   }
   
@@ -276,6 +295,37 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public boolean isAllowConversationMode() {
       ViewTableFormat format = readViewFormat().getAdapter(ViewTableFormat.class);
       return format.getFlags2().contains(ViewTableFormat.Flag2.PARTIAL_FLATINDEX);
+    }
+  }
+  
+  private class DefaultDisplaySettings implements DisplaySettings {
+
+    @Override
+    public ColorValue getBackgroundColor() {
+      // TODO investigate pre-V5 background colors
+      return getFormat3()
+        .map(ViewTableFormat3::getBackgroundColor)
+        .orElseGet(DesignUtil::whiteColor);
+    }
+
+    @Override
+    public ColorValue getAlternateRowColor() {
+      // TODO investigate pre-V5 background colors
+      return getFormat3()
+        .map(ViewTableFormat3::getAlternateBackgroundColor)
+        .orElseGet(DesignUtil::noColor);
+    }
+
+    @Override
+    public Optional<CDResource> getBackgroundImage() {
+      return Optional.ofNullable(readViewFormat().getBackgroundResource());
+    }
+
+    @Override
+    public ImageRepeatMode getBackgroundImageRepeatMode() {
+      return getFormat4()
+        .map(ViewTableFormat4::getRepeatType)
+        .orElse(ImageRepeatMode.ONCE);
     }
     
   }

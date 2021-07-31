@@ -43,9 +43,6 @@ public interface ColorValue extends MemoryStructure {
     NOCOLOR(RichTextConstants.COLOR_VALUE_FLAGS_NOCOLOR), /* This object has no color */
     SYSTEMCOLOR(RichTextConstants.COLOR_VALUE_FLAGS_SYSTEMCOLOR), /* Use system default color, ignore color here */
     HASGRADIENT(RichTextConstants.COLOR_VALUE_FLAGS_HASGRADIENT), /* This color has a gradient color that follows */
-    APPLICATION_MASK(
-        RichTextConstants.COLOR_VALUE_FLAGS_APPLICATION_MASK), /* upper 4 bits are reserved for application specific use */
-
     RESERVED1(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED1), /* reserved for user */
     RESERVED2(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED2), /* reserved for user */
     RESERVED3(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED3), /* reserved for user */

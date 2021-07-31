@@ -30,6 +30,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterAll;
@@ -41,12 +42,16 @@ import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.CollectionColumn.TotalType;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.CollectionDesignElement.DisplaySettings;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.Folder;
+import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.exception.FileDoesNotExistException;
+import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.structures.ColorValue;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
@@ -108,6 +113,19 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals("viewers1", comp.getViewers());
     assertEquals("Trash", comp.getThreadView());
     assertFalse(comp.isAllowConversationMode());
+    
+    CollectionDesignElement.DisplaySettings disp = view.getDisplaySettings();
+    ColorValue background = disp.getBackgroundColor();
+    assertEquals(255, background.getRed());
+    assertEquals(255, background.getGreen());
+    assertEquals(255, background.getBlue());
+    
+    Optional<CDResource> backgroundImage = disp.getBackgroundImage();
+    assertTrue(backgroundImage.isPresent());
+    assertTrue(backgroundImage.get().getFlags().contains(CDResource.Flag.FORMULA));
+    assertEquals("\"hey.png\"", backgroundImage.get().getNamedElementFormula());
+    
+    assertEquals(ImageRepeatMode.SIZE_TO_FIT, disp.getBackgroundImageRepeatMode());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -249,6 +267,21 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(comp.isShowSwitcher());
     assertFalse(comp.isShowTabNavigator());
     assertFalse(comp.isAllowConversationMode());
+    
+    DisplaySettings disp = view.getDisplaySettings();
+    assertNotNull(disp);
+    
+    ColorValue background = disp.getBackgroundColor();
+    assertEquals(0, background.getRed());
+    assertEquals(255, background.getBlue());
+    assertEquals(255, background.getGreen());
+    
+    ColorValue altBackground = disp.getAlternateRowColor();
+    assertEquals(192, altBackground.getRed());
+    assertEquals(192, altBackground.getBlue());
+    assertEquals(192, altBackground.getGreen());
+    
+    assertEquals(ImageRepeatMode.ONCE, disp.getBackgroundImageRepeatMode());
   }
 
   @Test
@@ -265,6 +298,22 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isShowResponseDocumentsInHierarchy());
     assertFalse(view.isShowInViewMenu());
     assertFalse(view.isEvaluateActionsOnDocumentChange());
+    
+    DisplaySettings disp = view.getDisplaySettings();
+    assertNotNull(disp);
+    
+    ColorValue background = disp.getBackgroundColor();
+    assertEquals(255, background.getRed());
+    assertEquals(255, background.getBlue());
+    assertEquals(255, background.getGreen());
+    
+    ColorValue altBackground = disp.getAlternateRowColor();
+    assertEquals(239, altBackground.getRed());
+    assertEquals(239, altBackground.getBlue());
+    assertEquals(239, altBackground.getGreen());
+    
+    Optional<CDResource> backgroundImage = disp.getBackgroundImage();
+    assertFalse(backgroundImage.isPresent());
   }
 
   @Test
@@ -292,6 +341,23 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals("foo,bar", comp.getViewers());
     assertEquals("test alias", comp.getThreadView());
     assertTrue(comp.isAllowConversationMode());
+    
+    DisplaySettings disp = view.getDisplaySettings();
+    assertNotNull(disp);
+    
+    ColorValue background = disp.getBackgroundColor();
+    assertEquals(255, background.getRed());
+    assertEquals(255, background.getBlue());
+    assertEquals(255, background.getGreen());
+    
+    ColorValue altBackground = disp.getAlternateRowColor();
+    assertEquals(239, altBackground.getRed());
+    assertEquals(239, altBackground.getBlue());
+    assertEquals(239, altBackground.getGreen());
+    
+    Optional<CDResource> backgroundImage = disp.getBackgroundImage();
+    assertEquals("Untitled.gif", backgroundImage.get().getNamedElement());
+    assertEquals(ImageRepeatMode.HORIZONTAL, disp.getBackgroundImageRepeatMode());
   }
   
   @Test
