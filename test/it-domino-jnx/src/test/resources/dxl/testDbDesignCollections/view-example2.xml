@@ -37,6 +37,8 @@ AAAA/wABAP8AgAABAAIAAAAAAAgAAAAAAAEAWUMAARAAAAABAAAAAQAAAAAAAAAAAAAAAAAAAAAA
 AAAAAQAAAAAAAAAAAAAAAAAAAAAAAC4sJAcAdGVzdGNvbAA=
 </rawitemdata></item>
 <item name='$Comment' sign='true'><text>I am a comment'</text></item>
+<item name='$FrameInfo' sign='true'><textlist><text>Outer Frame</text><text
+>NotesView</text></textlist></item>
 <item name='$Flags'><text>PYd</text></item>
 <item name='$WebFlags'><text>C</text></item>
 <item name='$DesignerVersion'><text>8.5.3</text></item>

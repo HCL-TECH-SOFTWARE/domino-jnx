@@ -177,6 +177,9 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(255, marginColor.getRed());
     assertEquals(255, marginColor.getGreen());
     assertEquals(255, marginColor.getBlue());
+    
+    assertFalse(view.getAutoFrameFrameset().isPresent());
+    assertFalse(view.getAutoFrameTarget().isPresent());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -382,6 +385,12 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(130, marginColor.getRed());
     assertEquals(66, marginColor.getGreen());
     assertEquals(255, marginColor.getBlue());
+
+    
+    assertTrue(view.getAutoFrameFrameset().isPresent());
+    assertEquals("Outer Frame", view.getAutoFrameFrameset().get());
+    assertTrue(view.getAutoFrameTarget().isPresent());
+    assertEquals("NotesView", view.getAutoFrameTarget().get());
   }
 
   @Test
@@ -464,6 +473,10 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(255, marginColor.getRed());
     assertEquals(255, marginColor.getGreen());
     assertEquals(255, marginColor.getBlue());
+
+    
+    assertFalse(view.getAutoFrameFrameset().isPresent());
+    assertFalse(view.getAutoFrameTarget().isPresent());
   }
 
   @Test
@@ -557,6 +570,10 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(255, marginColor.getRed());
     assertEquals(255, marginColor.getGreen());
     assertEquals(255, marginColor.getBlue());
+
+    
+    assertFalse(view.getAutoFrameFrameset().isPresent());
+    assertFalse(view.getAutoFrameTarget().isPresent());
   }
   
   @Test

@@ -34,6 +34,9 @@ public interface DesignConstants {
   /** Index disposition options */
   String VIEW_INDEX_ITEM = "$Index"; //$NON-NLS-1$
   
+  /** frameset used to open form */
+  String ITEM_NAME_FRAMEINFO = "$FrameInfo"; //$NON-NLS-1$
+  
   byte THEME_DEFAULT = 0;
   byte THEME_ENABLE = 1;
   byte THEME_DISABLE = 2;

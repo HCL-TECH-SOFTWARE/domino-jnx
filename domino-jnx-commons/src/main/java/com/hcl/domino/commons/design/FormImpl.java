@@ -22,7 +22,7 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.Form;
 
-public class FormImpl extends AbstractFormOrSubform<Form> implements Form {
+public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefaultAutoFrameElement {
 
   public FormImpl(final Document doc) {
     super(doc);

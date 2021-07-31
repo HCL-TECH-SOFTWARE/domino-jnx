@@ -28,7 +28,7 @@ import com.hcl.domino.richtext.structures.ColorValue;
  * Describes a collection design element, i.e. a view or folder
  */
 public interface CollectionDesignElement extends DesignElement.NamedDesignElement, DesignElement.XPageAlternativeElement,
-  DesignElement.ThemeableClassicElement {
+  DesignElement.ThemeableClassicElement, DesignElement.AutoFrameElement {
 
   public enum OnOpen {
     GOTO_LAST_OPENED,

@@ -49,7 +49,7 @@ import com.hcl.domino.richtext.structures.ColorValue;
  * @since 1.0.18
  */
 public abstract class AbstractCollectionDesignElement<T extends CollectionDesignElement> extends AbstractNamedDesignElement<T>
-    implements CollectionDesignElement {
+    implements CollectionDesignElement, IDefaultAutoFrameElement {
   private DominoViewFormat format;
 
   public AbstractCollectionDesignElement(final Document doc) {

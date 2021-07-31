@@ -77,6 +77,32 @@ public interface DesignElement {
   }
   
   /**
+   * This mixin interface describes design elements that have "Auto Frame"
+   * behavior available.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  interface AutoFrameElement {
+    /**
+     * Retrieves the name of the frameset used for "Auto Frame" behavior in the
+     * Notes client, if specified.
+     * 
+     * @return an {@link Optional} describing the auto-frame frameset name, or
+     *         an empty one if this is unspecified
+     */
+    Optional<String> getAutoFrameFrameset();
+    /**
+     * Retrieves the target frame ID used for "Auto Frame" behavior in the
+     * Notes client, if specified.
+     * 
+     * @return an {@link Optional} describing the auto-frame target frame, or
+     *         an empty one if this is unspecified
+     */
+    Optional<String> getAutoFrameTarget();
+  }
+  
+  /**
    * This enum describes the options available for elements conforming to
    * {@link ThemeableClassicElement}.
    * 

@@ -17,12 +17,9 @@
 package com.hcl.domino.design;
 
 /**
- * Access to a database design. Search for design, database as constructor
- * parameter
- *
- * @author t.b.d
+ * Represents a Form design element in a database
  */
-public interface Form
-    extends GenericFormOrSubform<Form>, DesignElement.XPageAlternativeElement, DesignElement.XPageNotesAlternativeElement {
+public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlternativeElement,
+  DesignElement.XPageNotesAlternativeElement, DesignElement.AutoFrameElement {
 
 }
