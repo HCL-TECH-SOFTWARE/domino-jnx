@@ -3,7 +3,10 @@ package com.hcl.domino.commons.design;
 import java.util.EnumSet;
 
 import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
+import com.hcl.domino.data.FontAttribute;
+import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.richtext.structures.ColorValue;
+import com.hcl.domino.richtext.structures.FontStyle;
 
 /**
  * Provides generator methods to create common stock {@link ColorValue} values
@@ -12,7 +15,7 @@ import com.hcl.domino.richtext.structures.ColorValue;
  * @author Jesse Gallagher
  * @since 1.0.32
  */
-public enum DesignColors {
+public enum DesignColorsAndFonts {
   ;
 
   /**
@@ -100,6 +103,21 @@ public enum DesignColors {
     result.setRed((short)128);
     result.setGreen((short)0);
     result.setBlue((short)128);
+    return result;
+  }
+  
+  /**
+   * Returns a new in-memory font structure representing the default font settings
+   * for a new view/folder column.
+   * 
+   * @return a new {@link FontStyle} structure
+   * @since 1.0.32
+   */
+  public static FontStyle viewHeaderFont() {
+    FontStyle result = MemoryStructureProxy.newStructure(FontStyle.class, 0);
+    result.setStandardFont(StandardFonts.SWISS);
+    result.setPointSize(9);
+    result.setAttributes(EnumSet.of(FontAttribute.BOLD));
     return result;
   }
 }

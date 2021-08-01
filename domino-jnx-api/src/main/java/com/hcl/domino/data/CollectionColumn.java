@@ -252,4 +252,14 @@ public interface CollectionColumn {
    * @since 1.0.32
    */
   NotesFont getRowFont();
+  
+  /**
+   * Retrieves the font information for the column header.
+   * 
+   * @return a {@link NotesFont} instance
+   * @since 1.0.32
+   */
+  NotesFont getHeaderFont();
+  
+  
 }

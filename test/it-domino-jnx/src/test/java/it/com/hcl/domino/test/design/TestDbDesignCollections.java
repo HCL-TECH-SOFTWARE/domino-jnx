@@ -260,11 +260,21 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals("Untitled.gif", twistie.get().getNamedElement());
       assertFalse(twistie.get().getFlags().contains(CDResource.Flag.FORMULA));
       
-      NotesFont font = column.getRowFont();
-      assertFalse(font.getStandardFont().isPresent());
-      assertEquals("Courier New", font.getFontName().get());
-      assertEquals(10, font.getPointSize());
-      assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.STRIKEOUT), font.getAttributes());
+      {
+        NotesFont font = column.getRowFont();
+        assertFalse(font.getStandardFont().isPresent());
+        assertEquals("Courier New", font.getFontName().get());
+        assertEquals(10, font.getPointSize());
+        assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.STRIKEOUT), font.getAttributes());
+      }
+      {
+        NotesFont font = column.getHeaderFont();
+        assertFalse(font.getStandardFont().isPresent());
+        assertEquals("Georgia", font.getFontName().get());
+        assertEquals(9, font.getPointSize());
+        assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.BOLD, FontAttribute.ITALIC), font.getAttributes());
+      }
+      
     }
     {
       final CollectionColumn column = columns.get(1);
@@ -294,11 +304,20 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       Optional<CDResource> twistie = column.getTwistieImage();
       assertFalse(twistie.isPresent());
       
-      NotesFont font = column.getRowFont();
-      assertEquals(StandardFonts.SWISS, font.getStandardFont().get());
-      assertFalse(font.getFontName().isPresent());
-      assertEquals(10, font.getPointSize());
-      assertEquals(EnumSet.noneOf(FontAttribute.class), font.getAttributes());
+      {
+        NotesFont font = column.getRowFont();
+        assertEquals(StandardFonts.SWISS, font.getStandardFont().get());
+        assertFalse(font.getFontName().isPresent());
+        assertEquals(10, font.getPointSize());
+        assertEquals(EnumSet.noneOf(FontAttribute.class), font.getAttributes());
+      }
+      {
+        NotesFont font = column.getHeaderFont();
+        assertEquals(StandardFonts.SWISS, font.getStandardFont().get());
+        assertFalse(font.getFontName().isPresent());
+        assertEquals(9, font.getPointSize());
+        assertEquals(EnumSet.of(FontAttribute.BOLD), font.getAttributes());
+      }
     }
     {
       final CollectionColumn column = columns.get(2);
