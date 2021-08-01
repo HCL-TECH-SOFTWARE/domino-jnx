@@ -67,6 +67,9 @@ public interface DesignConstants {
   String VIEW_COLUMN_FORMAT_ITEM = "$ColumnFormatItem"; //$NON-NLS-1$
   String VIEW_COLUMN_FORMAT_EXT_ITEM = "$ColumnFormatExtItem"; //$NON-NLS-1$
   
+  /** font table */
+  String ITEM_NAME_FONTS = "$Fonts"; //$NON-NLS-1$
+  
   byte THEME_DEFAULT = 0;
   byte THEME_ENABLE = 1;
   byte THEME_DISABLE = 2;

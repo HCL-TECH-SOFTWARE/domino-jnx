@@ -244,4 +244,12 @@ public interface CollectionColumn {
    * @since 1.0.32
    */
   boolean isHideTitle();
+  
+  /**
+   * Retrieves the font information for entry rows in this column.
+   * 
+   * @return a {@link NotesFont} instance
+   * @since 1.0.32
+   */
+  NotesFont getRowFont();
 }

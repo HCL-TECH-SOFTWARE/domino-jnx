@@ -44,7 +44,9 @@ import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.Document.IAttachmentProducer;
 import com.hcl.domino.data.DocumentClass;
+import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.FormulaQueryResult;
+import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.TextStyle.Justify;
 import com.hcl.domino.richtext.conversion.RemoveAttachmentIconConversion;
@@ -62,7 +64,6 @@ import com.hcl.domino.richtext.records.CDText;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.FontStyle;
-import com.hcl.domino.richtext.structures.FontStyle.StandardFonts;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
@@ -129,13 +130,13 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
         final CDText normalText = (CDText) rt.get(0);
         Assertions.assertEquals("This is normal text. and then some", normalText.getText());
         FontStyle style = normalText.getStyle();
-        Assertions.assertEquals(FontStyle.StandardFonts.SWISS, style.getFontFace());
+        Assertions.assertEquals(StandardFonts.SWISS, style.getFontFace());
         Assertions.assertTrue(style.getAttributes().isEmpty(), "Text should have no attributes");
 
         style.setBold(true)
             .setPointSize(24)
             .setSub(true);
-        Assertions.assertEquals(EnumSet.of(FontStyle.Attribute.BOLD, FontStyle.Attribute.SUB), style.getAttributes(),
+        Assertions.assertEquals(EnumSet.of(FontAttribute.BOLD, FontAttribute.SUB), style.getAttributes(),
             "Text should now be bold and subscript");
         Assertions.assertEquals(24, style.getPointSize(), "Point size should be 24");
 
@@ -143,10 +144,10 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
         style.setItalic(true)
             .setPointSize(22)
             .setSuper(true)
-            .setFontFace(StandardFonts.USERINTERFACE);
+            .setStandardFont(StandardFonts.USERINTERFACE);
         normalText.setStyle(style);
         style = normalText.getStyle();
-        Assertions.assertEquals(EnumSet.of(FontStyle.Attribute.ITALIC, FontStyle.Attribute.SUPER), style.getAttributes(),
+        Assertions.assertEquals(EnumSet.of(FontAttribute.ITALIC, FontAttribute.SUPER), style.getAttributes(),
             "Text should now be italic and superscript");
         style.setExtrude(true);
         Assertions.assertEquals(22, style.getPointSize(), "Point size should be 22");
@@ -157,7 +158,7 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
         final CDText monospaceText = (CDText) rt.get(2);
         Assertions.assertEquals("This is monospace text and then some", monospaceText.getText());
         final FontStyle style = monospaceText.getStyle();
-        Assertions.assertEquals(FontStyle.StandardFonts.TYPEWRITER, style.getFontFace());
+        Assertions.assertEquals(StandardFonts.TYPEWRITER, style.getFontFace());
         Assertions.assertTrue(style.getAttributes().isEmpty(), "Text should have no attributes");
       }
 
@@ -165,8 +166,8 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
         final CDText serifText = (CDText) rt.get(4);
         Assertions.assertEquals("This is serif italic bold text and then some", serifText.getText());
         final FontStyle style = serifText.getStyle();
-        Assertions.assertEquals(FontStyle.StandardFonts.SWISS, style.getFontFace());
-        Assertions.assertEquals(EnumSet.of(FontStyle.Attribute.BOLD, FontStyle.Attribute.ITALIC), style.getAttributes(),
+        Assertions.assertEquals(StandardFonts.SWISS, style.getFontFace());
+        Assertions.assertEquals(EnumSet.of(FontAttribute.BOLD, FontAttribute.ITALIC), style.getAttributes(),
             "Text should be bold and italic");
       }
     });
@@ -188,13 +189,13 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
         final CDText normalText = (CDText) rt.get(0);
         Assertions.assertEquals("This is normal text.", normalText.getText());
         FontStyle style = normalText.getStyle();
-        Assertions.assertEquals(FontStyle.StandardFonts.SWISS, style.getFontFace());
+        Assertions.assertEquals(StandardFonts.SWISS, style.getFontFace());
         Assertions.assertTrue(style.getAttributes().isEmpty(), "Text should have no attributes");
 
         style.setBold(true)
             .setPointSize(24)
             .setSub(true);
-        Assertions.assertEquals(EnumSet.of(FontStyle.Attribute.BOLD, FontStyle.Attribute.SUB), style.getAttributes(),
+        Assertions.assertEquals(EnumSet.of(FontAttribute.BOLD, FontAttribute.SUB), style.getAttributes(),
             "Text should now be bold and subscript");
         Assertions.assertEquals(24, style.getPointSize(), "Point size should be 24");
 
@@ -202,10 +203,10 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
         style.setItalic(true)
             .setPointSize(22)
             .setSuper(true)
-            .setFontFace(StandardFonts.USERINTERFACE);
+            .setStandardFont(StandardFonts.USERINTERFACE);
         normalText.setStyle(style);
         style = normalText.getStyle();
-        Assertions.assertEquals(EnumSet.of(FontStyle.Attribute.ITALIC, FontStyle.Attribute.SUPER), style.getAttributes(),
+        Assertions.assertEquals(EnumSet.of(FontAttribute.ITALIC, FontAttribute.SUPER), style.getAttributes(),
             "Text should now be italic and superscript");
         style.setExtrude(true);
         Assertions.assertEquals(22, style.getPointSize(), "Point size should be 22");
@@ -216,7 +217,7 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
         final CDText monospaceText = (CDText) rt.get(2);
         Assertions.assertEquals("This is monospace text", monospaceText.getText());
         final FontStyle style = monospaceText.getStyle();
-        Assertions.assertEquals(FontStyle.StandardFonts.TYPEWRITER, style.getFontFace());
+        Assertions.assertEquals(StandardFonts.TYPEWRITER, style.getFontFace());
         Assertions.assertTrue(style.getAttributes().isEmpty(), "Text should have no attributes");
       }
 
@@ -224,8 +225,8 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
         final CDText serifText = (CDText) rt.get(4);
         Assertions.assertEquals("This is serif italic bold text", serifText.getText());
         final FontStyle style = serifText.getStyle();
-        Assertions.assertEquals(FontStyle.StandardFonts.SWISS, style.getFontFace());
-        Assertions.assertEquals(EnumSet.of(FontStyle.Attribute.BOLD, FontStyle.Attribute.ITALIC), style.getAttributes(),
+        Assertions.assertEquals(StandardFonts.SWISS, style.getFontFace());
+        Assertions.assertEquals(EnumSet.of(FontAttribute.BOLD, FontAttribute.ITALIC), style.getAttributes(),
             "Text should be bold and italic");
       }
     });

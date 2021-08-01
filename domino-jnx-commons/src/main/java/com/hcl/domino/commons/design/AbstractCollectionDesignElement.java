@@ -26,6 +26,7 @@ import java.util.OptionalInt;
 import java.util.Set;
 
 import com.hcl.domino.commons.NotYetImplementedException;
+import com.hcl.domino.commons.design.view.DominoViewColumnFormat;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.NotesCollationInfo;
@@ -287,6 +288,10 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     if (this.format == null) {
       final Document doc = this.getDocument();
       this.format = (DominoViewFormat) doc.getItemValue(DesignConstants.VIEW_VIEW_FORMAT_ITEM).get(0);
+      this.format.getColumns()
+        .stream()
+        .map(DominoViewColumnFormat.class::cast)
+        .forEach(col -> col.setParent(this));
     }
     return this.format;
   }

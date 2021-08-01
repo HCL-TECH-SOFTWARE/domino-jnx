@@ -16,12 +16,21 @@
  */
 package com.hcl.domino.commons.design.view;
 
+import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionColumn;
+import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.IAdaptable;
+import com.hcl.domino.data.NotesFont;
+import com.hcl.domino.data.StandardFonts;
+import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.ViewColumnFormat2;
 import com.hcl.domino.design.format.ViewColumnFormat3;
@@ -36,6 +45,7 @@ import com.hcl.domino.richtext.records.CDResource;
  * @since 1.0.27
  */
 public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
+  private CollectionDesignElement parent;
   private final int index;
   private int columnValuesIndex;
   private ViewColumnFormat format1;
@@ -260,6 +270,11 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
       .map(flags -> flags.contains(ViewColumnFormat2.Flag3.HideColumnTitle))
       .orElse(false);
   }
+  
+  @Override
+  public NotesFont getRowFont() {
+    return new ViewNotesFont();
+  }
 
   // *******************************************************************************
   // * Format-reader hooks
@@ -308,6 +323,17 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   public void readHiddenTitle(String title) {
     this.hiddenTitle = title;
   }
+  
+  /**
+   * Sets the internal parent reference for this column object, as used by
+   * some methods. Does not change any value in the actual column definition.
+   * 
+   * @param parent the {@link CollectionDesignElement} to set as the parent
+   * @since 1.0.32
+   */
+  public void setParent(CollectionDesignElement parent) {
+    this.parent = parent;
+  }
 
   // *******************************************************************************
   // * Internal implementation utilities
@@ -327,5 +353,49 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   
   private Optional<ViewColumnFormat6> getFormat6() {
     return Optional.ofNullable(this.format6);
+  }
+  
+  private class ViewNotesFont implements NotesFont {
+
+    @Override
+    public Set<FontAttribute> getAttributes() {
+      return format1.getFontStyle().getAttributes();
+    }
+
+    @Override
+    public int getPointSize() {
+      return format1.getFontStyle().getPointSize();
+    }
+
+    @Override
+    public Optional<StandardFonts> getStandardFont() {
+      Optional<StandardFonts> font = format1.getFontStyle().getStandardFont();
+      if(font.isPresent() && font.get() != StandardFonts.CUSTOMFONT) {
+        return font;
+      } else {
+        return Optional.empty();
+      }
+    }
+
+    @Override
+    public Optional<String> getFontName() {
+      Optional<StandardFonts> font = format1.getFontStyle().getStandardFont();
+      if(font.isPresent() && font.get() != StandardFonts.CUSTOMFONT) {
+        return Optional.empty();
+      }
+      // Then look up the font by column index in the parent.
+      // These are stored as three-element tuples where the first element matches the numeric value
+      //   of FontStyle#getFontFace
+      int faceId = Byte.toUnsignedInt(format1.getFontStyle().getFontFace());
+      List<String> fontTable = parent.getDocument().getAsList(DesignConstants.ITEM_NAME_FONTS, String.class, Collections.emptyList());
+      for(int i = 0; i < fontTable.size(); i += 3) {
+        if(String.valueOf(faceId).equals(fontTable.get(i))) {
+          // Then we have a match. The font name will be the third value
+          return Optional.of(fontTable.get(i+2));
+        }
+      }
+      throw new IllegalStateException(MessageFormat.format("Unable to find font name in list {0}", fontTable));
+    }
+    
   }
 }

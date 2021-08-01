@@ -44,6 +44,9 @@ import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.CollectionColumn.TotalType;
 import com.hcl.domino.data.Database;
+import com.hcl.domino.data.FontAttribute;
+import com.hcl.domino.data.NotesFont;
+import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.CollectionDesignElement.DisplaySettings;
 import com.hcl.domino.design.DbDesign;
@@ -256,6 +259,12 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertTrue(twistie.isPresent());
       assertEquals("Untitled.gif", twistie.get().getNamedElement());
       assertFalse(twistie.get().getFlags().contains(CDResource.Flag.FORMULA));
+      
+      NotesFont font = column.getRowFont();
+      assertFalse(font.getStandardFont().isPresent());
+      assertEquals("Courier New", font.getFontName().get());
+      assertEquals(10, font.getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.STRIKEOUT), font.getAttributes());
     }
     {
       final CollectionColumn column = columns.get(1);
@@ -284,6 +293,12 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isShowTwistie());
       Optional<CDResource> twistie = column.getTwistieImage();
       assertFalse(twistie.isPresent());
+      
+      NotesFont font = column.getRowFont();
+      assertEquals(StandardFonts.SWISS, font.getStandardFont().get());
+      assertFalse(font.getFontName().isPresent());
+      assertEquals(10, font.getPointSize());
+      assertEquals(EnumSet.noneOf(FontAttribute.class), font.getAttributes());
     }
     {
       final CollectionColumn column = columns.get(2);
@@ -309,6 +324,12 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertTrue(sortConfig.isResortAscending() && sortConfig.isResortDescending());
       assertTrue(sortConfig.isDeferResortIndexing());
       assertFalse(sortConfig.getResortToViewUnid().isPresent());
+      
+      NotesFont font = column.getRowFont();
+      assertFalse(font.getStandardFont().isPresent());
+      assertEquals("Consolas", font.getFontName().get());
+      assertEquals(14, font.getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.STRIKEOUT), font.getAttributes());
     }
     {
       final CollectionColumn column = columns.get(3);
@@ -319,6 +340,12 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isIcon());
       assertFalse(column.isColor());
       assertFalse(column.isHideTitle());
+      
+      NotesFont font = column.getRowFont();
+      assertEquals(StandardFonts.UNICODE, font.getStandardFont().get());
+      assertFalse(font.getFontName().isPresent());
+      assertEquals(11, font.getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.ITALIC), font.getAttributes());
     }
     {
       final CollectionColumn column = columns.get(4);

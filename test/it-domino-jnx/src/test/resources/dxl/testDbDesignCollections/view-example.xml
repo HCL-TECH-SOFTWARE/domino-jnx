@@ -6,13 +6,6 @@ AQBuMhl/nsbLLkkiVQC+eyWF
 </rawitemdata></item>
 <item name='$FormulaClass' sign='true'><text>1</text></item>
 <item name='$Readers' sign='true' readers='true'><text>[Admin]</text></item>
-<item name='$V5ACTIONS' sign='true'>
-<rawitemdata type='1'>
-vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
-AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAA=
-</rawitemdata></item>
 <item name='$TITLE' sign='true'><text>Example View|test alias</text></item>
 <item name='$ColumnProfileDoc' sign='true'><text>hello</text></item>
 <item name='$ColumnFormatExtItem' sign='true'><textlist><text>$3</text><text
@@ -49,11 +42,20 @@ DwABAABEgGYAAAACACQ0
 <item name='$Totals' sign='true'><textlist><text>0</text><text>1</text><text
 >5</text><text>2</text><text>4</text><text>0</text><text>3</text><text>0</text><text
 >0</text><text>0</text></textlist></item>
+<item name='$Fonts' sign='true'><textlist><text>5</text><text>53</text><text
+>Courier New</text><text>6</text><text>53</text><text>Consolas</text><text
+>7</text><text>22</text><text>Georgia</text></textlist></item>
+<item name='$Comment' sign='true'><text/></item>
+<item name='$Viewers'><text>viewers1</text></item>
+<item name='$ThreadView'><text>Trash</text></item>
+<item name='$XPageAlt'><text>Home_1.xsp</text></item>
+<item name='$Flags'><text>PY</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
 <item name='$ViewFormat' sign='true'>
 <rawitemdata type='5'>
 AQAMAAsAqHgAAFZDAxYEAAQAAAAAALwABQycCgAhAAAAAAAAAAICAAAwVkMgCAIABAAOAAAAUAAB
-AAAKBAAAARAAAAAAAgIAABBWQ4ADAgAHAA4AAAB8AAEAAAoUIAAACAAAAAACAgAAAFZDAAECAAgA
-DgAAAHgAAQCcCggAAAAAAAQBAAICAAAgVkMBAAIAAAAUAAAAUAABAAAKEAAAAAgAAAAAAgIAAEBW
+AAAKBAAAARAAAAAAAgIAABBWQ4ADAgAHAA4AAAB8AAYMBw4WIAAACAAAAAACAgAAAFZDAAECAAgA
+DgAAAHgAAgKcCwgAAAAAAAQBAAICAAAgVkMBAAIAAAAUAAAAUAABAAAKEAAAAAgAAAAAAgIAAEBW
 QwAAAgABAAoACgBQAAEAAAoAAAAAAAAAAAACAgAAAFZDAAADAAAAAAAAAFAAAQAACgAAAAAAAAAA
 AAICAAAAVkMQBAIACQAsAAAAUAABAAAKDAAAAAAAAAAAAgIAAABWQwAAAgALAC4AAABQAAEAAAoA
 AAAAAAAAAAACAgAAAFZDAAADAAAAAAAAAFAAAQAACgAAAAAAAAAAAAICAAAAVkNAAAkACgAAAAAA
@@ -64,7 +66,7 @@ AAIADAACACQ0pAADACQ1FAACABIAAgAkNQEAAwBoZXkAAwAkNiMKAAAACACSAAMAAQUBAAQAf0Ew
 UwAkOE5hbWVzIEd1eSAyLgACACIAAgAkOAIABAAAAAAAAAAFAAcAQXV0aG9ycwC0AgMABwAKAAMA
 CTRTAEZvb1NvbWVGaWVsZEhpZGRlbiBHdXkkMTBDb2x1bW4gb2YgY29uc3RhbnQgdmFsdWUYAAIA
 FgADACQxMAABAAUAaGVsbG8AAwABBQEABQBoZWxsbyYAAQAAAAEBAAkBAAAKAQFbCgAAPwCtKwUB
-AQACAQAAAAAAAAAAV0MGBwAJAAAAAAAAAAAAAAAAAAAAAAEAEgAAAC4A//8AAAAAAAAAAAAAAAAA
+AQACAQAAAAAAAAAAV0MHBwAJAAAAAAAAAAAAAAAAAAAAAAEAEgAAAC4A//8AAAAAAAAAAAAAAAAA
 AFdDAQEACUgqBvRkwPr3m6BvAL57JYUAAMQAAAAAAP//AAAAAAAAAAAAAAAAAABXQwEBAAkAAAAA
 AAAAAAAAAAAAAAAAAACMgSgAAAD//wAAAAAAAAAAAAAAAAAAV0MBAQYJAAAAAAAAAAAAAAAAAAAA
 AAAAxAAAAAAA//8AAAAAAAAAAAAAAAAAAFdDAQUACQAAAAAAAAAAAAAAAAAAAAAAAOaQGgAAAP//
@@ -101,11 +103,10 @@ AAAAbmFtZXM9InRoaXMiYUNgAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAbmFtZXM9InRoaXMiAAAA
 AA==
 </rawitemdata></item>
-<item name='$Fonts' sign='true'><textlist><text>5</text><text>53</text><text
->Courier New</text><text>6</text><text>22</text><text>Georgia</text></textlist></item>
-<item name='$Comment' sign='true'><text/></item>
-<item name='$Viewers'><text>viewers1</text></item>
-<item name='$ThreadView'><text>Trash</text></item>
-<item name='$XPageAlt'><text>Home_1.xsp</text></item>
-<item name='$Flags'><text>PY</text></item>
-<item name='$DesignerVersion'><text>8.5.3</text></item></note>
+<item name='$V5ACTIONS' sign='true'>
+<rawitemdata type='1'>
+vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
+AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAA=
+</rawitemdata></item></note>
