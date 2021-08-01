@@ -171,7 +171,10 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   
   @Override
   public boolean isSharedColumn() {
-    return this.getFormat2().getFlags().contains(ViewColumnFormat2.Flag3.IsSharedColumn);
+    return this.getFormat2()
+      .map(ViewColumnFormat2::getFlags)
+      .map(flags -> flags.contains(ViewColumnFormat2.Flag3.IsSharedColumn))
+      .orElse(false);
   }
 
   @Override
@@ -181,7 +184,10 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
 
   @Override
   public boolean isUseHideWhen() {
-    return this.getFormat2().getFlags().contains(ViewColumnFormat2.Flag3.HideWhenFormula);
+    return this.getFormat2()
+      .map(ViewColumnFormat2::getFlags)
+      .map(flags -> flags.contains(ViewColumnFormat2.Flag3.HideWhenFormula))
+      .orElse(false);
   }
   
   @Override
@@ -205,6 +211,14 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   @Override
   public Optional<CDResource> getTwistieImage() {
     return Optional.ofNullable(this.twistie);
+  }
+  
+  @Override
+  public boolean isUserEditable() {
+    return getFormat2()
+      .map(ViewColumnFormat2::getFlags)
+      .map(flags -> flags.contains(ViewColumnFormat2.Flag3.IsColumnEditable))
+      .orElse(false);
   }
 
   // *******************************************************************************
@@ -259,8 +273,8 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
     return Objects.requireNonNull(this.format1, "VIEW_COLUMN_FORMAT not read");
   }
 
-  private ViewColumnFormat2 getFormat2() {
-    return Objects.requireNonNull(this.format2, "VIEW_COLUMN_FORMAT2 not read");
+  private Optional<ViewColumnFormat2> getFormat2() {
+    return Optional.ofNullable(this.format2);
   }
   
   private Optional<ViewColumnFormat5> getFormat5() {

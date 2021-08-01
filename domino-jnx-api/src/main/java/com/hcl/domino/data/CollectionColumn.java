@@ -197,4 +197,12 @@ public interface CollectionColumn {
    * @return 1.0.32
    */
   Optional<CDResource> getTwistieImage();
+  
+  /**
+   * Determines whether the column is marked as being user-editable.
+   * 
+   * @return {@code true} if the column is user-editable;
+   *         {@code false} otherwise
+   */
+  boolean isUserEditable();
 }

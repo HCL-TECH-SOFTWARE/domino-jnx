@@ -235,6 +235,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertTrue(column.isResizable());
       assertFalse(column.isResponsesOnly());
       assertFalse(column.isIcon());
+      assertFalse(column.isUserEditable());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertTrue(sortConfig.isCategory());
@@ -259,6 +260,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertTrue(column.isResizable());
       assertFalse(column.isResponsesOnly());
       assertFalse(column.isIcon());
+      assertFalse(column.isUserEditable());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertFalse(sortConfig.isCategory());
@@ -282,6 +284,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isResizable());
       assertFalse(column.isResponsesOnly());
       assertFalse(column.isIcon());
+      assertTrue(column.isUserEditable());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertFalse(sortConfig.isCategory());
