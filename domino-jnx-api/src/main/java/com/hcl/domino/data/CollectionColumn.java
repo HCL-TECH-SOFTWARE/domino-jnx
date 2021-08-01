@@ -18,6 +18,7 @@ package com.hcl.domino.data;
 
 import java.util.Optional;
 
+import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.richtext.records.CDResource;
 
@@ -216,4 +217,15 @@ public interface CollectionColumn {
    * @since 1.0.32
    */
   boolean isColor();
+  
+  /**
+   * Determines whether the column represents a color value definable by the user
+   * via a profile document.
+   * 
+   * @return {@code true} if this column is a user-definable color column;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   * @see CollectionDesignElement#getColumnProfileDocName()
+   */
+  boolean isUserDefinableColor();
 }

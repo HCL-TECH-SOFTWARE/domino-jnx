@@ -19,6 +19,7 @@ package com.hcl.domino.commons.design;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -26,6 +27,7 @@ import java.util.Set;
 
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
+import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.NotesCollationInfo;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.Document;
@@ -259,6 +261,22 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   @Override
   public List<String> getReaders() {
     return getDocument().getAsList(NotesConstants.DESIGN_READERS, String.class, Collections.emptyList());
+  }
+  
+  @Override
+  public Optional<String> getColumnProfileDocName() {
+    String name = getDocument().getAsText(DesignConstants.VIEW_COLUMN_PROFILE_DOC, ' ');
+    if(StringUtil.isEmpty(name)) {
+      return Optional.empty();
+    } else {
+      return Optional.of(name);
+    }
+  }
+  
+  @Override
+  public Set<String> getUserDefinableNonFallbackColumns() {
+    // TODO see if this is truly defined here, as opposed to this being just derived data from column settings
+    return new LinkedHashSet<>(getDocument().getAsList(DesignConstants.VIEW_COLUMN_FORMAT_ITEM, String.class, Collections.emptyList()));
   }
 
   // *******************************************************************************

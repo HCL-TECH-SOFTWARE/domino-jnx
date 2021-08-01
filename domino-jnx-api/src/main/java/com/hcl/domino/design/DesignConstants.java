@@ -63,6 +63,10 @@ public interface DesignConstants {
   String ITEM_NAME_FRAMEINFO = "$FrameInfo"; //$NON-NLS-1$
   String ITEM_NAME_HTMLCODE = "$HTMLCode"; //$NON-NLS-1$
   
+  String VIEW_COLUMN_PROFILE_DOC = "$ColumnProfileDoc"; //$NON-NLS-1$
+  String VIEW_COLUMN_FORMAT_ITEM = "$ColumnFormatItem"; //$NON-NLS-1$
+  String VIEW_COLUMN_FORMAT_EXT_ITEM = "$ColumnFormatExtItem"; //$NON-NLS-1$
+  
   byte THEME_DEFAULT = 0;
   byte THEME_ENABLE = 1;
   byte THEME_DISABLE = 2;

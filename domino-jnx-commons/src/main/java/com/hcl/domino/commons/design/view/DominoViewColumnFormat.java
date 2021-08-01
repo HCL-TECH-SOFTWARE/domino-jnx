@@ -228,6 +228,24 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
       .map(flags -> flags.contains(ViewColumnFormat2.Flag3.Color))
       .orElse(false);
   }
+  
+  @Override
+  public boolean isUserDefinableColor() {
+    boolean setInVcf2 = getFormat2()
+        .map(ViewColumnFormat2::getFlags)
+        .map(flags -> {
+          return flags;
+        })
+        .map(flags -> flags.contains(ViewColumnFormat2.Flag3.UserDefinableColor))
+        .orElse(false);
+    if(setInVcf2) {
+      return true;
+    }
+    return getFormat6()
+      .map(ViewColumnFormat6::getFlags)
+      .map(flags -> flags.contains(ViewColumnFormat6.Flag.UserDefinableExtended))
+      .orElse(false);
+  }
 
   // *******************************************************************************
   // * Format-reader hooks
@@ -287,5 +305,9 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   
   private Optional<ViewColumnFormat5> getFormat5() {
     return Optional.ofNullable(this.format5);
+  }
+  
+  private Optional<ViewColumnFormat6> getFormat6() {
+    return Optional.ofNullable(this.format6);
   }
 }

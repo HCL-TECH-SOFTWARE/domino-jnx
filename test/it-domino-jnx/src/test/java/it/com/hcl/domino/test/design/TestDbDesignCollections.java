@@ -29,6 +29,7 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -220,6 +221,9 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertColorEquals(web.getVisitedLinkColor(), 128, 0, 128);
     assertFalse(web.isAllowWebCrawlerIndexing());
     assertFalse(view.isAllowDominoDataService());
+    
+    assertEquals("hello", view.getColumnProfileDocName().get());
+    assertEquals(Collections.singleton("$9"), view.getUserDefinableNonFallbackColumns());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -237,6 +241,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isIcon());
       assertFalse(column.isUserEditable());
       assertFalse(column.isColor());
+      assertFalse(column.isUserDefinableColor());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertTrue(sortConfig.isCategory());
@@ -263,6 +268,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isIcon());
       assertFalse(column.isUserEditable());
       assertFalse(column.isColor());
+      assertFalse(column.isUserDefinableColor());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertFalse(sortConfig.isCategory());
@@ -288,6 +294,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isIcon());
       assertTrue(column.isUserEditable());
       assertFalse(column.isColor());
+      assertTrue(column.isUserDefinableColor());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertFalse(sortConfig.isCategory());
@@ -412,6 +419,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.getWebXPageAlternative().isPresent());
     assertTrue(view.isAllowPublicAccess());
     assertTrue(view.getReaders().isEmpty());
+    assertFalse(view.getColumnProfileDocName().isPresent());
+    assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
     
     CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
     assertNotNull(comp);
@@ -530,6 +539,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.getWebXPageAlternative().isPresent());
     assertFalse(view.isAllowPublicAccess());
     assertTrue(view.getReaders().isEmpty());
+    assertFalse(view.getColumnProfileDocName().isPresent());
+    assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
     
     DisplaySettings disp = view.getDisplaySettings();
     assertNotNull(disp);
@@ -637,6 +648,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.getWebXPageAlternative().isPresent());
     assertFalse(view.isAllowPublicAccess());
     assertTrue(view.getReaders().isEmpty());
+    assertFalse(view.getColumnProfileDocName().isPresent());
+    assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
     
     assertEquals("1", view.getFormulaClass());
     view.setFormulaClass("2");
