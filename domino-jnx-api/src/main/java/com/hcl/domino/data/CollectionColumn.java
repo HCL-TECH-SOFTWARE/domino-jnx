@@ -123,6 +123,13 @@ public interface CollectionColumn {
 
   boolean isHideDetailRows();
 
+  /**
+   * Determines whether the column's values should be shown as icons, either
+   * as indexed values to stock icons or string names of image resources.
+   * 
+   * @return {@code true} if the column's values represent icons;
+   *         {@code false} otherwise
+   */
   boolean isIcon();
 
   /**
