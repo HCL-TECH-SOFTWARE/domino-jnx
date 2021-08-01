@@ -165,7 +165,7 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   }
 
   @Override
-  public boolean isResponse() {
+  public boolean isResponsesOnly() {
     return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.Response);
   }
   

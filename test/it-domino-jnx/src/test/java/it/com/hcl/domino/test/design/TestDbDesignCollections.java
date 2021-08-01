@@ -233,6 +233,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals(ViewColumnFormat.ListDelimiter.SEMICOLON, column.getListDisplayDelimiter());
       assertEquals(TotalType.None, column.getTotalType());
       assertTrue(column.isResizable());
+      assertFalse(column.isResponsesOnly());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertTrue(sortConfig.isCategory());
@@ -255,6 +256,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals(ViewColumnFormat.ListDelimiter.SPACE, column.getListDisplayDelimiter());
       assertEquals(TotalType.Total, column.getTotalType());
       assertTrue(column.isResizable());
+      assertFalse(column.isResponsesOnly());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertFalse(sortConfig.isCategory());
@@ -276,6 +278,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.Average, column.getTotalType());
       assertFalse(column.isResizable());
+      assertFalse(column.isResponsesOnly());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertFalse(sortConfig.isCategory());
@@ -291,6 +294,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals("Modified", column.getTitle());
       assertEquals(ViewColumnFormat.ListDelimiter.COMMA, column.getListDisplayDelimiter());
       assertEquals(TotalType.AveragePerSubcategory, column.getTotalType());
+      assertFalse(column.isResponsesOnly());
     }
     {
       final CollectionColumn column = columns.get(4);
@@ -299,24 +303,28 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals("SecretHideWhen", column.getHideWhenFormula());
       assertEquals(ViewColumnFormat.ListDelimiter.NEWLINE, column.getListDisplayDelimiter());
       assertEquals(TotalType.PercentOfParentCategory, column.getTotalType());
+      assertFalse(column.isResponsesOnly());
     }
     {
       final CollectionColumn column = columns.get(5);
       assertEquals("#", column.getTitle());
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.None, column.getTotalType());
+      assertFalse(column.isResponsesOnly());
     }
     {
       final CollectionColumn column = columns.get(6);
       assertEquals("I am test col 2", column.getTitle());
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.None, column.getTotalType());
+      assertFalse(column.isResponsesOnly());
     }
     {
       final CollectionColumn column = columns.get(7);
       assertEquals("Names Guy", column.getTitle());
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.Percent, column.getTotalType());
+      assertTrue(column.isResponsesOnly());
 
       assertTrue(column.isShowTwistie());
       Optional<CDResource> twistie = column.getTwistieImage();

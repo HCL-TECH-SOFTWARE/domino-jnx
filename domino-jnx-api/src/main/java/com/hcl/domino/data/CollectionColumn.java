@@ -133,7 +133,13 @@ public interface CollectionColumn {
    */
   boolean isResizable();
 
-  boolean isResponse();
+  /**
+   * Determines whether the column should be evaluated for response documents only.
+   * 
+   * @return {@code true} if this column should apply to response documents only;
+   *         {@code false} otherwise
+   */
+  boolean isResponsesOnly();
 
   boolean isShowTwistie();
 
