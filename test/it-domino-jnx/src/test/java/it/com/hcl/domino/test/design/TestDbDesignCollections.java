@@ -243,6 +243,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isColor());
       assertFalse(column.isUserDefinableColor());
       assertFalse(column.isHideTitle());
+      assertFalse(column.isHideDetailRows());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertTrue(sortConfig.isCategory());
@@ -271,6 +272,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isColor());
       assertFalse(column.isUserDefinableColor());
       assertFalse(column.isHideTitle());
+      assertTrue(column.isHideDetailRows());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertFalse(sortConfig.isCategory());

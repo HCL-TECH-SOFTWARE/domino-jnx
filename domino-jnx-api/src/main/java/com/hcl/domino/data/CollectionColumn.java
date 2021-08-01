@@ -122,6 +122,12 @@ public interface CollectionColumn {
 
   boolean isHidden();
 
+  /**
+   * Determines whether a column's non-total rows should be hidden.
+   * 
+   * @return {@code true} if a column's non-total rows should be hidden;
+   *         {@code false} otherwise
+   */
   boolean isHideDetailRows();
 
   /**
