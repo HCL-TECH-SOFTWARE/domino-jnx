@@ -203,6 +203,17 @@ public interface CollectionColumn {
    * 
    * @return {@code true} if the column is user-editable;
    *         {@code false} otherwise
+   * @since 1.0.32
    */
   boolean isUserEditable();
+  
+  /**
+   * Determines whether the column's values should be treated as specifying the
+   * color for subsequent columns.
+   * 
+   * @return {@code true} if this column's values represent color;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   */
+  boolean isColor();
 }

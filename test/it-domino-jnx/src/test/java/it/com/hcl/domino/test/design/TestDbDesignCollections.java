@@ -236,6 +236,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isResponsesOnly());
       assertFalse(column.isIcon());
       assertFalse(column.isUserEditable());
+      assertFalse(column.isColor());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertTrue(sortConfig.isCategory());
@@ -261,6 +262,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isResponsesOnly());
       assertFalse(column.isIcon());
       assertFalse(column.isUserEditable());
+      assertFalse(column.isColor());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertFalse(sortConfig.isCategory());
@@ -285,6 +287,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isResponsesOnly());
       assertFalse(column.isIcon());
       assertTrue(column.isUserEditable());
+      assertFalse(column.isColor());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertFalse(sortConfig.isCategory());
@@ -302,6 +305,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals(TotalType.AveragePerSubcategory, column.getTotalType());
       assertFalse(column.isResponsesOnly());
       assertFalse(column.isIcon());
+      assertFalse(column.isColor());
     }
     {
       final CollectionColumn column = columns.get(4);
@@ -312,6 +316,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals(TotalType.PercentOfParentCategory, column.getTotalType());
       assertFalse(column.isResponsesOnly());
       assertFalse(column.isIcon());
+      assertTrue(column.isColor());
     }
     {
       final CollectionColumn column = columns.get(5);

@@ -220,6 +220,14 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
       .map(flags -> flags.contains(ViewColumnFormat2.Flag3.IsColumnEditable))
       .orElse(false);
   }
+  
+  @Override
+  public boolean isColor() {
+    return getFormat2()
+      .map(ViewColumnFormat2::getFlags)
+      .map(flags -> flags.contains(ViewColumnFormat2.Flag3.Color))
+      .orElse(false);
+  }
 
   // *******************************************************************************
   // * Format-reader hooks
