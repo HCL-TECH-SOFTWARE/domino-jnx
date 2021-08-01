@@ -81,7 +81,7 @@ public interface Collation extends ResizableMemoryStructure {
   @StructureSetter("Flags")
   Collation setFlags(Collection<Flag> flags);
 
-  @StructureGetter("Signature")
+  @StructureGetter("signature")
   byte getSignature();
 
   @StructureSetter("signature")
