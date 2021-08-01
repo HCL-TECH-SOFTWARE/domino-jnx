@@ -19,6 +19,7 @@ package com.hcl.domino.commons.design.view;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.design.format.ViewColumnFormat;
@@ -46,6 +47,7 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   private byte[] hideWhenFormula;
   private CDResource twistie;
   private String sharedColumnName;
+  private String hiddenTitle;
 
   public DominoViewColumnFormat(final int index) {
     this.index = index;
@@ -117,7 +119,11 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
 
   @Override
   public String getTitle() {
-    return this.getFormat1().getTitle();
+    if(this.isHideTitle()) {
+      return StringUtil.toString(this.hiddenTitle);
+    } else {
+      return this.getFormat1().getTitle();
+    }
   }
 
   @Override
@@ -246,6 +252,14 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
       .map(flags -> flags.contains(ViewColumnFormat6.Flag.UserDefinableExtended))
       .orElse(false);
   }
+  
+  @Override
+  public boolean isHideTitle() {
+    return getFormat2()
+      .map(ViewColumnFormat2::getFlags)
+      .map(flags -> flags.contains(ViewColumnFormat2.Flag3.HideColumnTitle))
+      .orElse(false);
+  }
 
   // *******************************************************************************
   // * Format-reader hooks
@@ -289,6 +303,10 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   
   public void readTwistie(final CDResource resource) {
     this.twistie = resource;
+  }
+  
+  public void readHiddenTitle(String title) {
+    this.hiddenTitle = title;
   }
 
   // *******************************************************************************

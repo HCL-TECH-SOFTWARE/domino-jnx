@@ -242,6 +242,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isUserEditable());
       assertFalse(column.isColor());
       assertFalse(column.isUserDefinableColor());
+      assertFalse(column.isHideTitle());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertTrue(sortConfig.isCategory());
@@ -269,6 +270,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isUserEditable());
       assertFalse(column.isColor());
       assertFalse(column.isUserDefinableColor());
+      assertFalse(column.isHideTitle());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertFalse(sortConfig.isCategory());
@@ -295,6 +297,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertTrue(column.isUserEditable());
       assertFalse(column.isColor());
       assertTrue(column.isUserDefinableColor());
+      assertFalse(column.isHideTitle());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertFalse(sortConfig.isCategory());
@@ -313,6 +316,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isResponsesOnly());
       assertFalse(column.isIcon());
       assertFalse(column.isColor());
+      assertFalse(column.isHideTitle());
     }
     {
       final CollectionColumn column = columns.get(4);
@@ -324,6 +328,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isResponsesOnly());
       assertFalse(column.isIcon());
       assertTrue(column.isColor());
+      assertTrue(column.isHideTitle());
     }
     {
       final CollectionColumn column = columns.get(5);
@@ -332,6 +337,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals(TotalType.None, column.getTotalType());
       assertFalse(column.isResponsesOnly());
       assertFalse(column.isIcon());
+      assertTrue(column.isSharedColumn());
+      assertEquals("testcol", column.getSharedColumnName().get());
     }
     {
       final CollectionColumn column = columns.get(6);
@@ -340,6 +347,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals(TotalType.None, column.getTotalType());
       assertFalse(column.isResponsesOnly());
       assertFalse(column.isIcon());
+      assertTrue(column.isSharedColumn());
+      assertEquals("testcol2", column.getSharedColumnName().get());
     }
     {
       final CollectionColumn column = columns.get(7);
@@ -373,6 +382,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.None, column.getTotalType());
       assertFalse(column.isIcon());
+      assertTrue(column.isSharedColumn());
+      assertEquals("testcol2", column.getSharedColumnName().get());
     }
     {
       final CollectionColumn column = columns.get(10);

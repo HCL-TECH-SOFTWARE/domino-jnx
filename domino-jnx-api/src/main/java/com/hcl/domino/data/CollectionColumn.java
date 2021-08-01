@@ -226,6 +226,16 @@ public interface CollectionColumn {
    *         {@code false} otherwise
    * @since 1.0.32
    * @see CollectionDesignElement#getColumnProfileDocName()
+   * @see CollectionDesignElement#getUserDefinableNonFallbackColumns()
    */
   boolean isUserDefinableColor();
+  
+  /**
+   * Determines whether the column title should be hidden even when it is specified.
+   * 
+   * @return {@code true} if the column title should be hidden;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   */
+  boolean isHideTitle();
 }
