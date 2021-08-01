@@ -201,6 +201,11 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
     return getFormat5()
       .map(fmt -> fmt.getDnColumnName());
   }
+  
+  @Override
+  public Optional<CDResource> getTwistieImage() {
+    return Optional.ofNullable(this.twistie);
+  }
 
   // *******************************************************************************
   // * Format-reader hooks

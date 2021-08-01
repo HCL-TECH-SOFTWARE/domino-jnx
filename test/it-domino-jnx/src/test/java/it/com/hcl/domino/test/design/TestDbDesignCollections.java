@@ -238,6 +238,12 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertTrue(sortConfig.isSorted());
       assertTrue(sortConfig.isSortPermuted());
       assertFalse(sortConfig.getResortToViewUnid().isPresent());
+
+      assertTrue(column.isShowTwistie());
+      Optional<CDResource> twistie = column.getTwistieImage();
+      assertTrue(twistie.isPresent());
+      assertEquals("Untitled.gif", twistie.get().getNamedElement());
+      assertFalse(twistie.get().getFlags().contains(CDResource.Flag.FORMULA));
     }
     {
       final CollectionColumn column = columns.get(1);
@@ -254,6 +260,10 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(sortConfig.isSortPermuted());
       assertTrue(sortConfig.isResortToView());
       assertEquals("F7FAC064F4062A4885257BBE006FA09B", sortConfig.getResortToViewUnid().get());
+
+      assertFalse(column.isShowTwistie());
+      Optional<CDResource> twistie = column.getTwistieImage();
+      assertFalse(twistie.isPresent());
     }
     {
       final CollectionColumn column = columns.get(2);
@@ -304,12 +314,23 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals("Names Guy", column.getTitle());
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.Percent, column.getTotalType());
+
+      assertTrue(column.isShowTwistie());
+      Optional<CDResource> twistie = column.getTwistieImage();
+      assertTrue(twistie.isPresent());
+      assertEquals("tango/utilities-terminal.png", twistie.get().getNamedElement());
     }
     {
       final CollectionColumn column = columns.get(8);
       assertEquals("Names Guy 2", column.getTitle());
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.None, column.getTotalType());
+
+      // Not enabled, but present
+      assertFalse(column.isShowTwistie());
+      Optional<CDResource> twistie = column.getTwistieImage();
+      assertTrue(twistie.isPresent());
+      assertEquals("Untitled 2.gif", twistie.get().getNamedElement());
     }
     {
       final CollectionColumn column = columns.get(9);
@@ -330,6 +351,11 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals("\"hello\"", column.getFormula());
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.None, column.getTotalType());
+      
+      Optional<CDResource> twistie = column.getTwistieImage();
+      assertTrue(twistie.isPresent());
+      assertTrue(twistie.get().getFlags().contains(CDResource.Flag.FORMULA));
+      assertEquals("\"foo.png\"", twistie.get().getNamedElementFormula());
     }
 
   }

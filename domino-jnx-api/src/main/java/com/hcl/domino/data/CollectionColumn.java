@@ -19,6 +19,7 @@ package com.hcl.domino.data;
 import java.util.Optional;
 
 import com.hcl.domino.design.format.ViewColumnFormat;
+import com.hcl.domino.richtext.records.CDResource;
 
 public interface CollectionColumn {
   interface SortConfiguration {
@@ -166,4 +167,15 @@ public interface CollectionColumn {
    * @since 1.0.29
    */
   Optional<String> getOnlinePresenceNameColumn();
+  
+  /**
+   * Retrieves the image resource used for the expand/collapse twistie, if
+   * configured.
+   * 
+   * <p>Note: this may return a value even when the twistie is not enabled.
+   * Use {@link #isShowTwistie()} to determine whether this value is used.</p>
+   * 
+   * @return 1.0.32
+   */
+  Optional<CDResource> getTwistieImage();
 }
