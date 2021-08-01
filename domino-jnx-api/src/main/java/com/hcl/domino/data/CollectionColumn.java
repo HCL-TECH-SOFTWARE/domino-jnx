@@ -125,7 +125,13 @@ public interface CollectionColumn {
 
   boolean isIcon();
 
-  boolean isResize();
+  /**
+   * Determines whether the column should be resizable by the user in the UI.
+   * 
+   * @return {@code true} if the column is user-resizable;
+   *         {@code false} otherwise
+   */
+  boolean isResizable();
 
   boolean isResponse();
 

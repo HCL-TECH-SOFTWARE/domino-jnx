@@ -232,6 +232,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals(188, column.getDisplayWidth());
       assertEquals(ViewColumnFormat.ListDelimiter.SEMICOLON, column.getListDisplayDelimiter());
       assertEquals(TotalType.None, column.getTotalType());
+      assertTrue(column.isResizable());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertTrue(sortConfig.isCategory());
@@ -253,6 +254,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isConstant());
       assertEquals(ViewColumnFormat.ListDelimiter.SPACE, column.getListDisplayDelimiter());
       assertEquals(TotalType.Total, column.getTotalType());
+      assertTrue(column.isResizable());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertFalse(sortConfig.isCategory());
@@ -273,6 +275,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isConstant());
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.Average, column.getTotalType());
+      assertFalse(column.isResizable());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertFalse(sortConfig.isCategory());

@@ -160,7 +160,7 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   }
 
   @Override
-  public boolean isResize() {
+  public boolean isResizable() {
     return !this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.NoResize);
   }
 
