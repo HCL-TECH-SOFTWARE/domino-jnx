@@ -97,7 +97,7 @@ public interface FontStyle extends MemoryStructure {
   byte getFontFace();
 
   @StructureSetter("Face")
-  FontStyle setFontFace(short font);
+  FontStyle setFontFace(byte font);
 
   @StructureGetter("PointSize")
   short getPointSize();
