@@ -29,6 +29,7 @@ import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +44,9 @@ import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.CollectionColumn.TotalType;
 import com.hcl.domino.data.Database;
+import com.hcl.domino.data.FontAttribute;
+import com.hcl.domino.data.NotesFont;
+import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.CollectionDesignElement.DisplaySettings;
 import com.hcl.domino.design.DbDesign;
@@ -220,6 +224,9 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertColorEquals(web.getVisitedLinkColor(), 128, 0, 128);
     assertFalse(web.isAllowWebCrawlerIndexing());
     assertFalse(view.isAllowDominoDataService());
+    
+    assertEquals("hello", view.getColumnProfileDocName().get());
+    assertEquals(Collections.singleton("$9"), view.getUserDefinableNonFallbackColumns());
 
     final List<CollectionColumn> columns = view.getColumns();
     assertEquals(12, columns.size());
@@ -232,12 +239,42 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals(188, column.getDisplayWidth());
       assertEquals(ViewColumnFormat.ListDelimiter.SEMICOLON, column.getListDisplayDelimiter());
       assertEquals(TotalType.None, column.getTotalType());
+      assertTrue(column.isResizable());
+      assertFalse(column.isResponsesOnly());
+      assertFalse(column.isIcon());
+      assertFalse(column.isUserEditable());
+      assertFalse(column.isColor());
+      assertFalse(column.isUserDefinableColor());
+      assertFalse(column.isHideTitle());
+      assertFalse(column.isHideDetailRows());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertTrue(sortConfig.isCategory());
       assertTrue(sortConfig.isSorted());
       assertTrue(sortConfig.isSortPermuted());
       assertFalse(sortConfig.getResortToViewUnid().isPresent());
+
+      assertTrue(column.isShowTwistie());
+      Optional<CDResource> twistie = column.getTwistieImage();
+      assertTrue(twistie.isPresent());
+      assertEquals("Untitled.gif", twistie.get().getNamedElement());
+      assertFalse(twistie.get().getFlags().contains(CDResource.Flag.FORMULA));
+      
+      {
+        NotesFont font = column.getRowFont();
+        assertFalse(font.getStandardFont().isPresent());
+        assertEquals("Courier New", font.getFontName().get());
+        assertEquals(10, font.getPointSize());
+        assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.STRIKEOUT), font.getAttributes());
+      }
+      {
+        NotesFont font = column.getHeaderFont();
+        assertFalse(font.getStandardFont().isPresent());
+        assertEquals("Georgia", font.getFontName().get());
+        assertEquals(9, font.getPointSize());
+        assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.BOLD, FontAttribute.ITALIC), font.getAttributes());
+      }
+      
     }
     {
       final CollectionColumn column = columns.get(1);
@@ -247,6 +284,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isConstant());
       assertEquals(ViewColumnFormat.ListDelimiter.SPACE, column.getListDisplayDelimiter());
       assertEquals(TotalType.Total, column.getTotalType());
+      assertTrue(column.isResizable());
+      assertFalse(column.isResponsesOnly());
+      assertFalse(column.isIcon());
+      assertFalse(column.isUserEditable());
+      assertFalse(column.isColor());
+      assertFalse(column.isUserDefinableColor());
+      assertFalse(column.isHideTitle());
+      assertTrue(column.isHideDetailRows());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertFalse(sortConfig.isCategory());
@@ -254,6 +299,25 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(sortConfig.isSortPermuted());
       assertTrue(sortConfig.isResortToView());
       assertEquals("F7FAC064F4062A4885257BBE006FA09B", sortConfig.getResortToViewUnid().get());
+
+      assertFalse(column.isShowTwistie());
+      Optional<CDResource> twistie = column.getTwistieImage();
+      assertFalse(twistie.isPresent());
+      
+      {
+        NotesFont font = column.getRowFont();
+        assertEquals(StandardFonts.SWISS, font.getStandardFont().get());
+        assertFalse(font.getFontName().isPresent());
+        assertEquals(10, font.getPointSize());
+        assertEquals(EnumSet.noneOf(FontAttribute.class), font.getAttributes());
+      }
+      {
+        NotesFont font = column.getHeaderFont();
+        assertEquals(StandardFonts.SWISS, font.getStandardFont().get());
+        assertFalse(font.getFontName().isPresent());
+        assertEquals(9, font.getPointSize());
+        assertEquals(EnumSet.of(FontAttribute.BOLD), font.getAttributes());
+      }
     }
     {
       final CollectionColumn column = columns.get(2);
@@ -263,6 +327,13 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isConstant());
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.Average, column.getTotalType());
+      assertFalse(column.isResizable());
+      assertFalse(column.isResponsesOnly());
+      assertFalse(column.isIcon());
+      assertTrue(column.isUserEditable());
+      assertFalse(column.isColor());
+      assertTrue(column.isUserDefinableColor());
+      assertFalse(column.isHideTitle());
 
       final CollectionColumn.SortConfiguration sortConfig = column.getSortConfiguration();
       assertFalse(sortConfig.isCategory());
@@ -272,12 +343,28 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertTrue(sortConfig.isResortAscending() && sortConfig.isResortDescending());
       assertTrue(sortConfig.isDeferResortIndexing());
       assertFalse(sortConfig.getResortToViewUnid().isPresent());
+      
+      NotesFont font = column.getRowFont();
+      assertFalse(font.getStandardFont().isPresent());
+      assertEquals("Consolas", font.getFontName().get());
+      assertEquals(14, font.getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.STRIKEOUT), font.getAttributes());
     }
     {
       final CollectionColumn column = columns.get(3);
       assertEquals("Modified", column.getTitle());
       assertEquals(ViewColumnFormat.ListDelimiter.COMMA, column.getListDisplayDelimiter());
       assertEquals(TotalType.AveragePerSubcategory, column.getTotalType());
+      assertFalse(column.isResponsesOnly());
+      assertFalse(column.isIcon());
+      assertFalse(column.isColor());
+      assertFalse(column.isHideTitle());
+      
+      NotesFont font = column.getRowFont();
+      assertEquals(StandardFonts.UNICODE, font.getStandardFont().get());
+      assertFalse(font.getFontName().isPresent());
+      assertEquals(11, font.getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.ITALIC), font.getAttributes());
     }
     {
       final CollectionColumn column = columns.get(4);
@@ -286,42 +373,72 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals("SecretHideWhen", column.getHideWhenFormula());
       assertEquals(ViewColumnFormat.ListDelimiter.NEWLINE, column.getListDisplayDelimiter());
       assertEquals(TotalType.PercentOfParentCategory, column.getTotalType());
+      assertFalse(column.isResponsesOnly());
+      assertFalse(column.isIcon());
+      assertTrue(column.isColor());
+      assertTrue(column.isHideTitle());
     }
     {
       final CollectionColumn column = columns.get(5);
       assertEquals("#", column.getTitle());
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.None, column.getTotalType());
+      assertFalse(column.isResponsesOnly());
+      assertFalse(column.isIcon());
+      assertTrue(column.isSharedColumn());
+      assertEquals("testcol", column.getSharedColumnName().get());
     }
     {
       final CollectionColumn column = columns.get(6);
       assertEquals("I am test col 2", column.getTitle());
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.None, column.getTotalType());
+      assertFalse(column.isResponsesOnly());
+      assertFalse(column.isIcon());
+      assertTrue(column.isSharedColumn());
+      assertEquals("testcol2", column.getSharedColumnName().get());
     }
     {
       final CollectionColumn column = columns.get(7);
       assertEquals("Names Guy", column.getTitle());
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.Percent, column.getTotalType());
+      assertTrue(column.isResponsesOnly());
+      assertFalse(column.isIcon());
+
+      assertTrue(column.isShowTwistie());
+      Optional<CDResource> twistie = column.getTwistieImage();
+      assertTrue(twistie.isPresent());
+      assertEquals("tango/utilities-terminal.png", twistie.get().getNamedElement());
     }
     {
       final CollectionColumn column = columns.get(8);
       assertEquals("Names Guy 2", column.getTitle());
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.None, column.getTotalType());
+      assertFalse(column.isIcon());
+
+      // Not enabled, but present
+      assertFalse(column.isShowTwistie());
+      Optional<CDResource> twistie = column.getTwistieImage();
+      assertTrue(twistie.isPresent());
+      assertEquals("Untitled 2.gif", twistie.get().getNamedElement());
     }
     {
       final CollectionColumn column = columns.get(9);
       assertEquals("I am test col 2", column.getTitle());
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.None, column.getTotalType());
+      assertFalse(column.isIcon());
+      assertTrue(column.isSharedColumn());
+      assertEquals("testcol2", column.getSharedColumnName().get());
     }
     {
       final CollectionColumn column = columns.get(10);
       assertEquals("Hidden Guy", column.getTitle());
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.None, column.getTotalType());
+      assertTrue(column.isIcon());
     }
     {
       final CollectionColumn column = columns.get(11);
@@ -330,6 +447,11 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals("\"hello\"", column.getFormula());
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.None, column.getTotalType());
+      
+      Optional<CDResource> twistie = column.getTwistieImage();
+      assertTrue(twistie.isPresent());
+      assertTrue(twistie.get().getFlags().contains(CDResource.Flag.FORMULA));
+      assertEquals("\"foo.png\"", twistie.get().getNamedElementFormula());
     }
 
   }
@@ -356,6 +478,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.getWebXPageAlternative().isPresent());
     assertTrue(view.isAllowPublicAccess());
     assertTrue(view.getReaders().isEmpty());
+    assertFalse(view.getColumnProfileDocName().isPresent());
+    assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
     
     CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
     assertNotNull(comp);
@@ -474,6 +598,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.getWebXPageAlternative().isPresent());
     assertFalse(view.isAllowPublicAccess());
     assertTrue(view.getReaders().isEmpty());
+    assertFalse(view.getColumnProfileDocName().isPresent());
+    assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
     
     DisplaySettings disp = view.getDisplaySettings();
     assertNotNull(disp);
@@ -581,6 +707,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.getWebXPageAlternative().isPresent());
     assertFalse(view.isAllowPublicAccess());
     assertTrue(view.getReaders().isEmpty());
+    assertFalse(view.getColumnProfileDocName().isPresent());
+    assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
     
     assertEquals("1", view.getFormulaClass());
     view.setFormulaClass("2");

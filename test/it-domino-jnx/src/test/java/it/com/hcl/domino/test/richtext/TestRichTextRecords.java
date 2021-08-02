@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.design.format.DateShowFormat;
 import com.hcl.domino.design.format.DateShowSpecial;
 import com.hcl.domino.design.format.DateTimeFlag;
@@ -72,10 +73,9 @@ import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
-import com.hcl.domino.richtext.structures.AssistFieldStruct.ActionByField;
 import com.hcl.domino.richtext.structures.FontStyle;
+import com.hcl.domino.richtext.structures.AssistFieldStruct.ActionByField;
 import com.hcl.domino.richtext.structures.FontStyle.StandardColors;
-import com.hcl.domino.richtext.structures.FontStyle.StandardFonts;
 import com.hcl.domino.richtext.structures.LengthValue;
 import com.hcl.domino.richtext.structures.NFMT;
 import com.hcl.domino.richtext.structures.TFMT;
@@ -97,7 +97,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           actionBar.setBorderStyle(CDActionBar.BorderStyle.ABS);
           actionBar.setFlags(EnumSet.of(CDActionBar.Flag.ABSOLUTE_HEIGHT, CDActionBar.Flag.BTNBCK_IMGRSRC));
           actionBar.setShareId(17);
-          actionBar.getFontStyle().setFontFace(StandardFonts.TYPEWRITER);
+          actionBar.getFontStyle().setStandardFont(StandardFonts.TYPEWRITER);
           actionBar.setButtonHeight(3);
           actionBar.setHeightSpacing(4);
         });
@@ -114,7 +114,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           actionBarExt.setButtonWidth(31);
           actionBarExt.setButtonInternalMargin(32);
           actionBarExt.setFlags(EnumSet.of(CDActionBarExt.Flag.WIDTH_STYLE_VALID));
-          actionBarExt.getFontStyle().setFontFace(StandardFonts.UNICODE);
+          actionBarExt.getFontStyle().setStandardFont(StandardFonts.UNICODE);
           actionBarExt.getHeight().setUnit(LengthValue.Unit.EMS);
           actionBarExt.getHeight().setLength(5.5);
         });
@@ -644,7 +644,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         });
         rtWriter.addRichTextRecord(CDText.class, text -> {
           text.getStyle().setBold(true);
-          text.getStyle().setFontFace(StandardFonts.TYPEWRITER);
+          text.getStyle().setStandardFont(StandardFonts.TYPEWRITER);
         });
         rtWriter.addRichTextRecord(CDImageHeader.class, header -> {
           header.setHeight(600)

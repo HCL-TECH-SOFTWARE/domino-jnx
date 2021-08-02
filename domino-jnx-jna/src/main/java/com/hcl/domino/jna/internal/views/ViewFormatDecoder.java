@@ -267,26 +267,41 @@ public class ViewFormatDecoder {
 			}
 		}
 		
+		// Hidden titles follow as WORD-prefixed P-strings
+		for(int i = 0; i < format1.getColumnCount(); i++) {
+      DominoViewColumnFormat col = columns.get(i);
+      if(col.isHideTitle()) {
+        int titleLen = Short.toUnsignedInt(data.getShort());
+        byte[] lmbcs = new byte[titleLen];
+        data.get(lmbcs);
+        String title = new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+        col.readHiddenTitle(title);
+      }
+    }
+    
+    if(data.remaining() < 2) {
+      return result;
+    }
+		
 		// Shared-column aliases follow as WORD-prefixed P-strings
 		for(int i = 0; i < format1.getColumnCount(); i++) {
 			DominoViewColumnFormat col = columns.get(i);
-			if(col.isSharedColumn()) {
-		    int aliasLen = Short.toUnsignedInt(data.getShort());
-				byte[] lmbcs = new byte[aliasLen];
-				data.get(lmbcs);
-				String alias = new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
-				col.readSharedColumnName(alias);
-			}
+      if(col.isSharedColumn()) {
+        int aliasLen = Short.toUnsignedInt(data.getShort());
+        byte[] lmbcs = new byte[aliasLen];
+        data.get(lmbcs);
+        String alias = new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+        col.readSharedColumnName(alias);
+      }
 		}
 		
 		if(data.remaining() < 2) {
       return result;
     }
 		
-		// It appears that columns may have "ghost" names here from when they _used_ to be
-		//   shared columns
-		// TODO figure out if this will need to be somehow interpolated with the above when
-		//   a true shared column followed a former one
+		// TODO figure out where these ghost bits come from. I'd thought they were "ghost" shared-column names, but
+		//      it turns out they were instead hidden column titles. It seems in practice (test data and mail12.ntf) that
+		//      they're all 0, so the below algorithm "works" to move past them
 		while(data.remaining() > 1 && data.getShort(data.position()) != ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE6) {
 			int ghostSharedColLen = Short.toUnsignedInt(data.getShort());
 			data.position(data.position()+ghostSharedColLen);
@@ -319,6 +334,7 @@ public class ViewFormatDecoder {
 		}
 		
 		// It seems like it ends with a terminating 0 byte - possibly for padding to hit a WORD boundary
+		// TODO figure out why where are sometimes > 1 bytes remaining (observed up to 6 in mail12.ntf)
 		
 		return result;
 	}

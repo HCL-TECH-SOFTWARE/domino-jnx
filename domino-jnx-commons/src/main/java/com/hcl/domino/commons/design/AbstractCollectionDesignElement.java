@@ -19,13 +19,16 @@ package com.hcl.domino.commons.design;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 
 import com.hcl.domino.commons.NotYetImplementedException;
+import com.hcl.domino.commons.design.view.DominoViewColumnFormat;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
+import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.NotesCollationInfo;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.Document;
@@ -260,6 +263,22 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   public List<String> getReaders() {
     return getDocument().getAsList(NotesConstants.DESIGN_READERS, String.class, Collections.emptyList());
   }
+  
+  @Override
+  public Optional<String> getColumnProfileDocName() {
+    String name = getDocument().getAsText(DesignConstants.VIEW_COLUMN_PROFILE_DOC, ' ');
+    if(StringUtil.isEmpty(name)) {
+      return Optional.empty();
+    } else {
+      return Optional.of(name);
+    }
+  }
+  
+  @Override
+  public Set<String> getUserDefinableNonFallbackColumns() {
+    // TODO see if this is truly defined here, as opposed to this being just derived data from column settings
+    return new LinkedHashSet<>(getDocument().getAsList(DesignConstants.VIEW_COLUMN_FORMAT_ITEM, String.class, Collections.emptyList()));
+  }
 
   // *******************************************************************************
   // * Internal utility methods
@@ -269,6 +288,10 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     if (this.format == null) {
       final Document doc = this.getDocument();
       this.format = (DominoViewFormat) doc.getItemValue(DesignConstants.VIEW_VIEW_FORMAT_ITEM).get(0);
+      this.format.getColumns()
+        .stream()
+        .map(DominoViewColumnFormat.class::cast)
+        .forEach(col -> col.setParent(this));
     }
     return this.format;
   }
@@ -377,7 +400,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       // TODO investigate pre-V5 background colors
       return getFormat3()
         .map(ViewTableFormat3::getBackgroundColor)
-        .orElseGet(DesignColors::whiteColor);
+        .orElseGet(DesignColorsAndFonts::whiteColor);
     }
 
     @Override
@@ -385,7 +408,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       // TODO investigate pre-V5 background colors
       return getFormat3()
         .map(ViewTableFormat3::getAlternateBackgroundColor)
-        .orElseGet(DesignColors::noColor);
+        .orElseGet(DesignColorsAndFonts::noColor);
     }
     
     @Override
@@ -430,7 +453,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public ColorValue getGridColor() {
       return getFormat3()
         .map(ViewTableFormat3::getGridColor)
-        .orElseGet(DesignColors::noColor);
+        .orElseGet(DesignColorsAndFonts::noColor);
     }
 
     @Override
@@ -453,7 +476,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public ColorValue getHeaderColor() {
       return getFormat3()
         .map(ViewTableFormat3::getHeaderBackgroundColor)
-        .orElseGet(DesignColors::noColor);
+        .orElseGet(DesignColorsAndFonts::noColor);
     }
 
     @Override
@@ -498,7 +521,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public ColorValue getUnreadColor() {
       return getFormat3()
         .map(ViewTableFormat3::getUnreadColor)
-        .orElseGet(DesignColors::blackColor);
+        .orElseGet(DesignColorsAndFonts::blackColor);
     }
 
     @Override
@@ -515,7 +538,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public ColorValue getColumnTotalColor() {
       return getFormat3()
           .map(ViewTableFormat3::getTotalsColor)
-          .orElseGet(DesignColors::blackColor);
+          .orElseGet(DesignColorsAndFonts::blackColor);
     }
 
     @Override
@@ -554,7 +577,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public ColorValue getMarginColor() {
       return getFormat3()
         .map(ViewTableFormat3::getMarginBackgroundColor)
-        .orElseGet(DesignColors::whiteColor);
+        .orElseGet(DesignColorsAndFonts::whiteColor);
     }
   }
   
@@ -683,7 +706,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public ColorValue getActiveLinkColor() {
       Document doc = getDocument();
       if(!doc.hasItem(DesignConstants.ITEM_NAME_HTMLCODE)) {
-        return DesignColors.defaultActiveLink();
+        return DesignColorsAndFonts.defaultActiveLink();
       }
       return getDocument().getRichTextItem(DesignConstants.ITEM_NAME_HTMLCODE)
         .stream()
@@ -691,14 +714,14 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
         .map(CDLinkColors.class::cast)
         .findFirst()
         .map(CDLinkColors::getActiveColor)
-        .orElseGet(DesignColors::defaultActiveLink);
+        .orElseGet(DesignColorsAndFonts::defaultActiveLink);
     }
 
     @Override
     public ColorValue getUnvisitedLinkColor() {
       Document doc = getDocument();
       if(!doc.hasItem(DesignConstants.ITEM_NAME_HTMLCODE)) {
-        return DesignColors.defaultUnvisitedLink();
+        return DesignColorsAndFonts.defaultUnvisitedLink();
       }
       return getDocument().getRichTextItem(DesignConstants.ITEM_NAME_HTMLCODE)
         .stream()
@@ -706,14 +729,14 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
         .map(CDLinkColors.class::cast)
         .findFirst()
         .map(CDLinkColors::getUnvisitedColor)
-        .orElseGet(DesignColors::defaultUnvisitedLink);
+        .orElseGet(DesignColorsAndFonts::defaultUnvisitedLink);
     }
 
     @Override
     public ColorValue getVisitedLinkColor() {
       Document doc = getDocument();
       if(!doc.hasItem(DesignConstants.ITEM_NAME_HTMLCODE)) {
-        return DesignColors.defaultVisitedLink();
+        return DesignColorsAndFonts.defaultVisitedLink();
       }
       return getDocument().getRichTextItem(DesignConstants.ITEM_NAME_HTMLCODE)
         .stream()
@@ -721,7 +744,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
         .map(CDLinkColors.class::cast)
         .findFirst()
         .map(CDLinkColors::getVisitedColor)
-        .orElseGet(DesignColors::defaultVisitedLink);
+        .orElseGet(DesignColorsAndFonts::defaultVisitedLink);
     }
 
     @Override

@@ -19,6 +19,7 @@ package com.hcl.domino.design;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.Set;
 
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.design.format.ViewLineSpacing;
@@ -615,10 +616,30 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
   boolean isAllowDominoDataService();
   
   /**
-   * Retrives a list of names allowed to read this view or folder.
+   * Retrieves a list of names allowed to read this view or folder.
    * 
    * @return a {@link List} of string usernames, groups, and roles
    * @since 1.0.32
    */
   List<String> getReaders();
+  
+  /**
+   * Retrieves the name of the profile document used to define the colors for user-
+   * definable color columns, if set.
+   * 
+   * @return an {@link Optional} describing the color profile-document name, or an
+   *         empty one if this is not set
+   * @since 1.0.32
+   * @see CollectionColumn#isUserDefinableColor()
+   */
+  Optional<String> getColumnProfileDocName();
+  
+  /**
+   * Retrieves the programmatic names of columns set as user-definable color columns
+   * and with "use column formula as backup" disabled.
+   * 
+   * @return a {@link Set} of column programmatic names
+   * @since 1.0.32
+   */
+  Set<String> getUserDefinableNonFallbackColumns();
 }

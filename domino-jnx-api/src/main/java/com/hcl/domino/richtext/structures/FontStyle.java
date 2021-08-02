@@ -16,51 +16,30 @@
  */
 package com.hcl.domino.richtext.structures;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
+import com.hcl.domino.data.FontAttribute;
+import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 
-@StructureDefinition(name = "FONTID", endianSensitive = true, members = {
-    @StructureMember(name = "Face", type = FontStyle.StandardFonts.class),
-    @StructureMember(name = "Attrib", type = FontStyle.Attribute.class, bitfield = true),
+@StructureDefinition(
+  name = "FONTID",
+  endianSensitive = true,
+  members = {
+    @StructureMember(name = "Face", type = byte.class),
+    @StructureMember(name = "Attrib", type = FontAttribute.class, bitfield = true),
     @StructureMember(name = "Color", type = FontStyle.StandardColors.class),
     @StructureMember(name = "PointSize", type = byte.class, unsigned = true)
-})
-public interface FontStyle extends MemoryStructure {
-  public enum Attribute implements INumberEnum<Byte> {
-    BOLD((byte) 0x01),
-    ITALIC((byte) 0x02),
-    UNDERLINE((byte) 0x04),
-    STRIKEOUT((byte) 0x08),
-    SUPER((byte) 0x10),
-    SUB((byte) 0x20),
-    EFFECT((byte) 0x80),
-    SHADOW((byte) 0x80),
-    EMBOSS((byte) 0x90),
-    EXTRUDE((byte) 0xa0);
-
-    private final byte value;
-
-    Attribute(final byte value) {
-      this.value = value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Byte getValue() {
-      return this.value;
-    }
   }
-
+)
+public interface FontStyle extends MemoryStructure {
   /**
    * These symbols are used to specify text color, graphic color and background
    * color in a variety of C API structures.
@@ -102,154 +81,133 @@ public interface FontStyle extends MemoryStructure {
     }
   }
 
-  /**
-   * These symbols define the standard type faces.
-   * The Face member of the {@link FontStyle} may be either one of these standard
-   * font faces,
-   * or a font ID resolved by a font table.
-   */
-  public enum StandardFonts implements INumberEnum<Byte> {
-    /** (e.g. Times Roman family) */
-    ROMAN(0),
-    /** (e.g. Helv family) */
-    SWISS(1),
-    /** (e.g. Monotype Sans WT) */
-    UNICODE(2),
-    /** (e.g. Arial */
-    USERINTERFACE(3),
-    /** (e.g. Courier family) */
-    TYPEWRITER(4),
-    /**
-     * returned if font is not in the standard table; cannot be set via
-     * {@link FontStyle#setFontFace(StandardFonts)}
-     */
-    CUSTOMFONT((byte) 255);
-
-    private final byte m_face;
-
-    StandardFonts(final int face) {
-      this.m_face = (byte) (face & 0xff);
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.m_face;
-    }
-
-    @Override
-    public Byte getValue() {
-      return this.m_face;
-    }
-  }
-
   @StructureGetter("Attrib")
-  Set<Attribute> getAttributes();
+  Set<FontAttribute> getAttributes();
+
+  @StructureSetter("Attrib")
+  FontStyle setAttributes(Collection<FontAttribute> attributes);
 
   @StructureGetter("Color")
   StandardColors getColor();
 
+  @StructureSetter("Color")
+  FontStyle setColor(StandardColors color);
+
   @StructureGetter("Face")
-  StandardFonts getFontFace();
+  byte getFontFace();
+
+  @StructureSetter("Face")
+  FontStyle setFontFace(byte font);
 
   @StructureGetter("PointSize")
   short getPointSize();
 
+  @StructureSetter("PointSize")
+  FontStyle setPointSize(int size);
+  
+  /**
+   * Retrieves the {@link StandardFont} value corresponding to
+   * {@link #getFontFace()}. When this value is empty, then the font is a custom
+   * font that is defined in a mechanism specific to different areas of storage.
+   * 
+   * @return an {@link Optional} describing the {@link StandardFont} specified,
+   *         or an empty one if the value is not a standard font
+   */
+  default Optional<StandardFonts> getStandardFont() {
+    short fontId = getFontFace();
+    return Arrays.stream(StandardFonts.values())
+      .filter(f -> Byte.toUnsignedInt(f.getValue()) == fontId)
+      .findFirst();
+  }
+  
+  default FontStyle setStandardFont(StandardFonts font) {
+    return setFontFace(font == null ? StandardFonts.SWISS.getValue() : font.getValue());
+  }
+
   default boolean isBold() {
-    return this.getAttributes().contains(Attribute.BOLD);
+    return this.getAttributes().contains(FontAttribute.BOLD);
   }
 
   default boolean isExtrude() {
-    return this.getAttributes().contains(Attribute.EXTRUDE);
+    return this.getAttributes().contains(FontAttribute.EXTRUDE);
   }
 
   default boolean isItalic() {
-    return this.getAttributes().contains(Attribute.ITALIC);
+    return this.getAttributes().contains(FontAttribute.ITALIC);
   }
 
   default boolean isShadow() {
-    return this.getAttributes().contains(Attribute.SHADOW);
+    return this.getAttributes().contains(FontAttribute.SHADOW);
   }
 
   default boolean isStrikeout() {
-    return this.getAttributes().contains(Attribute.STRIKEOUT);
+    return this.getAttributes().contains(FontAttribute.STRIKEOUT);
   }
 
   default boolean isSub() {
-    return this.getAttributes().contains(Attribute.SUB);
+    return this.getAttributes().contains(FontAttribute.SUB);
   }
 
   default boolean isSuper() {
-    return this.getAttributes().contains(Attribute.SUPER);
+    return this.getAttributes().contains(FontAttribute.SUPER);
   }
 
   default boolean isUnderline() {
-    return this.getAttributes().contains(Attribute.UNDERLINE);
+    return this.getAttributes().contains(FontAttribute.UNDERLINE);
   }
-
-  @StructureSetter("Attrib")
-  FontStyle setAttributes(Collection<Attribute> attributes);
 
   default FontStyle setBold(final boolean b) {
-    final Set<Attribute> style = this.getAttributes();
-    style.add(Attribute.BOLD);
+    final Set<FontAttribute> style = this.getAttributes();
+    style.add(FontAttribute.BOLD);
     this.setAttributes(style);
     return this;
   }
-
-  @StructureSetter("Color")
-  FontStyle setColor(StandardColors color);
 
   default FontStyle setExtrude(final boolean b) {
-    final Set<Attribute> style = this.getAttributes();
-    style.add(Attribute.EXTRUDE);
+    final Set<FontAttribute> style = this.getAttributes();
+    style.add(FontAttribute.EXTRUDE);
     this.setAttributes(style);
     return this;
   }
-
-  @StructureSetter("Face")
-  FontStyle setFontFace(StandardFonts font);
 
   default FontStyle setItalic(final boolean b) {
-    final Set<Attribute> style = this.getAttributes();
-    style.add(Attribute.ITALIC);
+    final Set<FontAttribute> style = this.getAttributes();
+    style.add(FontAttribute.ITALIC);
     this.setAttributes(style);
     return this;
   }
 
-  @StructureSetter("PointSize")
-  FontStyle setPointSize(int size);
-
   default FontStyle setShadow(final boolean b) {
-    final Set<Attribute> style = this.getAttributes();
-    style.add(Attribute.SHADOW);
+    final Set<FontAttribute> style = this.getAttributes();
+    style.add(FontAttribute.SHADOW);
     this.setAttributes(style);
     return this;
   }
 
   default FontStyle setStrikeout(final boolean b) {
-    final Set<Attribute> style = this.getAttributes();
-    style.add(Attribute.STRIKEOUT);
+    final Set<FontAttribute> style = this.getAttributes();
+    style.add(FontAttribute.STRIKEOUT);
     this.setAttributes(style);
     return this;
   }
 
   default FontStyle setSub(final boolean b) {
-    final Set<Attribute> style = this.getAttributes();
-    style.add(Attribute.SUB);
+    final Set<FontAttribute> style = this.getAttributes();
+    style.add(FontAttribute.SUB);
     this.setAttributes(style);
     return this;
   }
 
   default FontStyle setSuper(final boolean b) {
-    final Set<Attribute> style = this.getAttributes();
-    style.add(Attribute.SUPER);
+    final Set<FontAttribute> style = this.getAttributes();
+    style.add(FontAttribute.SUPER);
     this.setAttributes(style);
     return this;
   }
 
   default FontStyle setUnderline(final boolean b) {
-    final Set<Attribute> style = this.getAttributes();
-    style.add(Attribute.UNDERLINE);
+    final Set<FontAttribute> style = this.getAttributes();
+    style.add(FontAttribute.UNDERLINE);
     this.setAttributes(style);
     return this;
   }

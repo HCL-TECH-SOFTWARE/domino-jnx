@@ -19,8 +19,12 @@ package com.hcl.domino.commons.design.view;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.hcl.domino.commons.design.DesignColorsAndFonts;
+import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.IAdaptable;
+import com.hcl.domino.data.NotesFont;
+import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.ViewColumnFormat2;
 import com.hcl.domino.design.format.ViewColumnFormat3;
@@ -29,12 +33,14 @@ import com.hcl.domino.design.format.ViewColumnFormat5;
 import com.hcl.domino.design.format.ViewColumnFormat6;
 import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.structures.FontStyle;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.27
  */
 public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
+  private CollectionDesignElement parent;
   private final int index;
   private int columnValuesIndex;
   private ViewColumnFormat format1;
@@ -46,6 +52,7 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   private byte[] hideWhenFormula;
   private CDResource twistie;
   private String sharedColumnName;
+  private String hiddenTitle;
 
   public DominoViewColumnFormat(final int index) {
     this.index = index;
@@ -117,7 +124,11 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
 
   @Override
   public String getTitle() {
-    return this.getFormat1().getTitle();
+    if(this.isHideTitle()) {
+      return StringUtil.toString(this.hiddenTitle);
+    } else {
+      return this.getFormat1().getTitle();
+    }
   }
 
   @Override
@@ -160,18 +171,21 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   }
 
   @Override
-  public boolean isResize() {
+  public boolean isResizable() {
     return !this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.NoResize);
   }
 
   @Override
-  public boolean isResponse() {
+  public boolean isResponsesOnly() {
     return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.Response);
   }
   
   @Override
   public boolean isSharedColumn() {
-    return this.getFormat2().getFlags().contains(ViewColumnFormat2.Flag3.IsSharedColumn);
+    return this.getFormat2()
+      .map(ViewColumnFormat2::getFlags)
+      .map(flags -> flags.contains(ViewColumnFormat2.Flag3.IsSharedColumn))
+      .orElse(false);
   }
 
   @Override
@@ -181,7 +195,10 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
 
   @Override
   public boolean isUseHideWhen() {
-    return this.getFormat2().getFlags().contains(ViewColumnFormat2.Flag3.HideWhenFormula);
+    return this.getFormat2()
+      .map(ViewColumnFormat2::getFlags)
+      .map(flags -> flags.contains(ViewColumnFormat2.Flag3.HideWhenFormula))
+      .orElse(false);
   }
   
   @Override
@@ -200,6 +217,66 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   public Optional<String> getOnlinePresenceNameColumn() {
     return getFormat5()
       .map(fmt -> fmt.getDnColumnName());
+  }
+  
+  @Override
+  public Optional<CDResource> getTwistieImage() {
+    return Optional.ofNullable(this.twistie);
+  }
+  
+  @Override
+  public boolean isUserEditable() {
+    return getFormat2()
+      .map(ViewColumnFormat2::getFlags)
+      .map(flags -> flags.contains(ViewColumnFormat2.Flag3.IsColumnEditable))
+      .orElse(false);
+  }
+  
+  @Override
+  public boolean isColor() {
+    return getFormat2()
+      .map(ViewColumnFormat2::getFlags)
+      .map(flags -> flags.contains(ViewColumnFormat2.Flag3.Color))
+      .orElse(false);
+  }
+  
+  @Override
+  public boolean isUserDefinableColor() {
+    boolean setInVcf2 = getFormat2()
+        .map(ViewColumnFormat2::getFlags)
+        .map(flags -> {
+          return flags;
+        })
+        .map(flags -> flags.contains(ViewColumnFormat2.Flag3.UserDefinableColor))
+        .orElse(false);
+    if(setInVcf2) {
+      return true;
+    }
+    return getFormat6()
+      .map(ViewColumnFormat6::getFlags)
+      .map(flags -> flags.contains(ViewColumnFormat6.Flag.UserDefinableExtended))
+      .orElse(false);
+  }
+  
+  @Override
+  public boolean isHideTitle() {
+    return getFormat2()
+      .map(ViewColumnFormat2::getFlags)
+      .map(flags -> flags.contains(ViewColumnFormat2.Flag3.HideColumnTitle))
+      .orElse(false);
+  }
+  
+  @Override
+  public NotesFont getRowFont() {
+    return new TextFontItemNotesFont(this.parent.getDocument(), format1.getFontStyle());
+  }
+  
+  @Override
+  public NotesFont getHeaderFont() {
+    FontStyle style = getFormat2()
+      .map(ViewColumnFormat2::getHeaderFontStyle)
+      .orElseGet(DesignColorsAndFonts::viewHeaderFont);
+    return new TextFontItemNotesFont(this.parent.getDocument(), style);
   }
 
   // *******************************************************************************
@@ -245,6 +322,21 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   public void readTwistie(final CDResource resource) {
     this.twistie = resource;
   }
+  
+  public void readHiddenTitle(String title) {
+    this.hiddenTitle = title;
+  }
+  
+  /**
+   * Sets the internal parent reference for this column object, as used by
+   * some methods. Does not change any value in the actual column definition.
+   * 
+   * @param parent the {@link CollectionDesignElement} to set as the parent
+   * @since 1.0.32
+   */
+  public void setParent(CollectionDesignElement parent) {
+    this.parent = parent;
+  }
 
   // *******************************************************************************
   // * Internal implementation utilities
@@ -254,11 +346,15 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
     return Objects.requireNonNull(this.format1, "VIEW_COLUMN_FORMAT not read");
   }
 
-  private ViewColumnFormat2 getFormat2() {
-    return Objects.requireNonNull(this.format2, "VIEW_COLUMN_FORMAT2 not read");
+  private Optional<ViewColumnFormat2> getFormat2() {
+    return Optional.ofNullable(this.format2);
   }
   
   private Optional<ViewColumnFormat5> getFormat5() {
     return Optional.ofNullable(this.format5);
+  }
+  
+  private Optional<ViewColumnFormat6> getFormat6() {
+    return Optional.ofNullable(this.format6);
   }
 }

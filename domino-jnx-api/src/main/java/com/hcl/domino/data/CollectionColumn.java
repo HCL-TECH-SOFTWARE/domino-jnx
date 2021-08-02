@@ -18,7 +18,9 @@ package com.hcl.domino.data;
 
 import java.util.Optional;
 
+import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.format.ViewColumnFormat;
+import com.hcl.domino.richtext.records.CDResource;
 
 public interface CollectionColumn {
   interface SortConfiguration {
@@ -120,13 +122,38 @@ public interface CollectionColumn {
 
   boolean isHidden();
 
+  /**
+   * Determines whether a column's non-total rows should be hidden.
+   * 
+   * @return {@code true} if a column's non-total rows should be hidden;
+   *         {@code false} otherwise
+   */
   boolean isHideDetailRows();
 
+  /**
+   * Determines whether the column's values should be shown as icons, either
+   * as indexed values to stock icons or string names of image resources.
+   * 
+   * @return {@code true} if the column's values represent icons;
+   *         {@code false} otherwise
+   */
   boolean isIcon();
 
-  boolean isResize();
+  /**
+   * Determines whether the column should be resizable by the user in the UI.
+   * 
+   * @return {@code true} if the column is user-resizable;
+   *         {@code false} otherwise
+   */
+  boolean isResizable();
 
-  boolean isResponse();
+  /**
+   * Determines whether the column should be evaluated for response documents only.
+   * 
+   * @return {@code true} if this column should apply to response documents only;
+   *         {@code false} otherwise
+   */
+  boolean isResponsesOnly();
 
   boolean isShowTwistie();
 
@@ -166,4 +193,73 @@ public interface CollectionColumn {
    * @since 1.0.29
    */
   Optional<String> getOnlinePresenceNameColumn();
+  
+  /**
+   * Retrieves the image resource used for the expand/collapse twistie, if
+   * configured.
+   * 
+   * <p>Note: this may return a value even when the twistie is not enabled.
+   * Use {@link #isShowTwistie()} to determine whether this value is used.</p>
+   * 
+   * @return 1.0.32
+   */
+  Optional<CDResource> getTwistieImage();
+  
+  /**
+   * Determines whether the column is marked as being user-editable.
+   * 
+   * @return {@code true} if the column is user-editable;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   */
+  boolean isUserEditable();
+  
+  /**
+   * Determines whether the column's values should be treated as specifying the
+   * color for subsequent columns.
+   * 
+   * @return {@code true} if this column's values represent color;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   */
+  boolean isColor();
+  
+  /**
+   * Determines whether the column represents a color value definable by the user
+   * via a profile document.
+   * 
+   * @return {@code true} if this column is a user-definable color column;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   * @see CollectionDesignElement#getColumnProfileDocName()
+   * @see CollectionDesignElement#getUserDefinableNonFallbackColumns()
+   */
+  boolean isUserDefinableColor();
+  
+  /**
+   * Determines whether the column title should be hidden even when it is specified.
+   * 
+   * @return {@code true} if the column title should be hidden;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   */
+  boolean isHideTitle();
+  
+  /**
+   * Retrieves the font information for entry rows in this column.
+   * 
+   * @return a {@link NotesFont} instance
+   * @since 1.0.32
+   */
+  NotesFont getRowFont();
+  
+  /**
+   * Retrieves the font information for the column header.
+   * 
+   * @return a {@link NotesFont} instance
+   * @since 1.0.32
+   */
+  NotesFont getHeaderFont();
+  
+  
 }
