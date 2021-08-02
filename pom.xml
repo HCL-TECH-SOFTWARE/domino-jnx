@@ -57,19 +57,6 @@
 			</snapshots>
 		</repository>
 
-		<!-- HCLLabs internal repositories -->
-		<repository>
-			<id>JNX</id>
-			<url>https://pkgs.dev.azure.com/HCLLabs/fb2aa10e-fc82-4a7f-ada9-ebe4e35cb27f/_packaging/JNX/maven/v1</url>
-			<releases>
-				<enabled>true</enabled>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-
-
 	</repositories>
 	<pluginRepositories>
 		<pluginRepository>
@@ -85,10 +72,21 @@
 		</pluginRepository>
 	</pluginRepositories>
 
+	<distributionManagement>
+		<snapshotRepository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>ossrh</id>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
+
 	<properties>
 
 		<!-- The docker repository -->
-		<docker.repository>docker.hcllabs.net</docker.repository>
+		<docker.repository>hub.docker.com</docker.repository>
 
 		<!-- Dependency Versions -->
 		<commons.io.version>2.11.0</commons.io.version>
@@ -272,36 +270,15 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
+				<groupId>org.sonatype.plugins</groupId>
+				<artifactId>nexus-staging-maven-plugin</artifactId>
+				<version>1.6.7</version>
+				<extensions>true</extensions>
 				<configuration>
-					<failOnError>true</failOnError>
-					<failOnWarnings>false</failOnWarnings>
-					<quiet>true</quiet>
-					<doclint>none</doclint>
-					<source>1.8</source>
+					<serverId>ossrh</serverId>
+					<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+					<autoReleaseAfterClose>false</autoReleaseAfterClose>
 				</configuration>
-				<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 
 		</plugins>
@@ -521,53 +498,6 @@
 
 	<profiles>
 		<profile>
-			<id>default</id>
-			<activation>
-				<activeByDefault>true</activeByDefault>
-			</activation>
-
-			<distributionManagement>
-				<!-- HCLLabls internal repository -->
-				<repository>
-					<uniqueVersion>false</uniqueVersion>
-					<id>JNX</id>
-					<name>HCL Labs Keep Repository</name>
-					<url>https://pkgs.dev.azure.com/HCLLabs/fb2aa10e-fc82-4a7f-ada9-ebe4e35cb27f/_packaging/JNX/maven/v1</url>
-					<layout>default</layout>
-				</repository>
-			</distributionManagement>
-		</profile>
-
-		<profile>
-			<id>iba</id>
-			<repositories>
-				<!-- IBA internal repositories-->
-				<repository>
-					<id>gitlab-maven</id>
-					<url>https://artifactory.xby.icdc.io/repository/maven-releases</url>
-					<releases>
-						<enabled>true</enabled>
-					</releases>
-					<snapshots>
-						<enabled>true</enabled>
-					</snapshots>
-				</repository>
-			</repositories>
-
-			<distributionManagement>
-				<!-- IBA internal repository -->
-				<repository>
-					<id>gitlab-maven</id>
-					<url>https://code.xby.icdc.io/api/v4/projects/10/packages/maven</url>
-				</repository>
-				<snapshotRepository>
-					<id>gitlab-maven</id>
-					<url>https://code.xby.icdc.io/api/v4/projects/10/packages/maven</url>
-				</snapshotRepository>
-			</distributionManagement>
-		</profile>
-
-		<profile>
 			<id>run-tests</id>
 
 			<build>
@@ -597,6 +527,7 @@
 				<module>example/jnx-example-domino-servlet</module>
 			</modules>
 		</profile>
+
 		<profile>
 			<id>javadoc-java11</id>
 			<activation>
@@ -624,6 +555,66 @@
 			<modules>
 				<module>example/jnx-example-gluon</module>
 			</modules>
+		</profile>
+		<!-- Deployment profile (required so these plugins are only used when deploying) -->
+		<profile>
+			<id>deploy</id>
+			<build>
+				<plugins>
+					<!-- Source plugin -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-source-plugin</artifactId>
+						<version>2.4</version>
+						<executions>
+							<execution>
+								<id>attach-sources</id>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!-- Javadoc plugin -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-javadoc-plugin</artifactId>
+						<version>2.10.4</version>
+						<executions>
+							<execution>
+								<id>attach-javadocs</id>
+								<goals>
+									<goal>jar</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+					<!-- GPG plugin -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
+						<executions>
+							<execution>
+								<id>sign-artifacts</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+								<configuration>
+									<!-- Prevent `gpg` from using pinentry programs -->
+									<gpgArguments>
+										<arg>--pinentry-mode</arg>
+										<arg>loopback</arg>
+									</gpgArguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 	</profiles>
 </project>
