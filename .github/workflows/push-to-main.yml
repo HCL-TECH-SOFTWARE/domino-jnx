@@ -48,6 +48,6 @@ jobs:
           MAVEN_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
         run: |
-          mvn --batch-mode \
+          mvn --batch-mode -P deploy \
             -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} \
             clean deploy
