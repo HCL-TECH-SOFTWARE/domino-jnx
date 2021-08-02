@@ -247,8 +247,6 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
    *
    * @param uniqueFileName  the internal unique name of the file attachment
    * @param displayFileName the display name of the file attachment
-   * @param appendNulls     whether this method should append null bytes after
-   *                        each name
    * @return this record
    */
   default CDHotspotBegin setFileNames(final String uniqueFileName, final String displayFileName) {

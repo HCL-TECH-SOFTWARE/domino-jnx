@@ -52,7 +52,7 @@ public interface NFMT extends MemoryStructure {
      */
     PERCENT(RichTextConstants.NATTR_PERCENT),
     /**
-     * Numbers can have a varying number of decimal places (applies to Decimal &
+     * Numbers can have a varying number of decimal places (applies to Decimal &amp;
      * Percent only).
      */
     VARYING(RichTextConstants.NATTR_VARYING),
