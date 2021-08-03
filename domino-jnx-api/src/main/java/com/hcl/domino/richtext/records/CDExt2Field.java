@@ -58,8 +58,8 @@ import com.hcl.domino.richtext.structures.WSIG;
     @StructureMember(name = "Unused2", type = short.class),
     @StructureMember(name = "FirstFieldLimitType", type = short.class, unsigned = true),
     @StructureMember(name = "CurrencyPref", type = NumberPref.class),
-    @StructureMember(name = "CurrencyType", type = CDExt2Field.CurrencyType.class),
-    @StructureMember(name = "CurrencyFlags", type = CDExt2Field.CurrencyFlag.class, bitfield = true),
+    @StructureMember(name = "CurrencyType", type = CurrencyType.class),
+    @StructureMember(name = "CurrencyFlags", type = CurrencyFlag.class, bitfield = true),
     @StructureMember(name = "CurrencySymLength", type = int.class, unsigned = true),
     @StructureMember(name = "ISOCountry", type = int.class, unsigned = true),
     @StructureMember(name = "ThumbnailImageWidth", type = short.class, unsigned = true),
@@ -89,51 +89,6 @@ import com.hcl.domino.richtext.structures.WSIG;
     @StructureMember(name = "wIMGroupFormulaLen", type = short.class, unsigned = true)
 })
 public interface CDExt2Field extends RichTextRecord<WSIG> {
-  enum CurrencyFlag implements INumberEnum<Byte> {
-    SYMFOLLOWS((byte) RichTextConstants.NCURFMT_SYMFOLLOWS),
-    USESPACES((byte) RichTextConstants.NCURFMT_USESPACES),
-    ISOSYMUSED((byte) RichTextConstants.NCURFMT_ISOSYMUSED),
-    ;
-
-    private final byte value;
-
-    CurrencyFlag(final byte value) {
-      this.value = value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Byte getValue() {
-      return this.value;
-    }
-  }
-
-  enum CurrencyType implements INumberEnum<Byte> {
-    COMMON(RichTextConstants.NCURFMT_COMMON),
-    CUSTOM(RichTextConstants.NCURFMT_CUSTOM),
-    ;
-
-    private final byte value;
-
-    CurrencyType(final byte value) {
-      this.value = value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Byte getValue() {
-      return this.value;
-    }
-  }
-
   enum FormatFlag implements INumberEnum<Byte> {
     PROPORTIONAL((byte) RichTextConstants.EC_FLAG_WIDTH_PROPORTIONAL);
 

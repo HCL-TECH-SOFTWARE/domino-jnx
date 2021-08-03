@@ -19,6 +19,7 @@ package com.hcl.domino.data;
 import java.util.Optional;
 
 import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.format.NumberDisplayFormat;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
@@ -52,6 +53,128 @@ public interface CollectionColumn {
     boolean isSortedDescending();
 
     boolean isSortPermuted();
+  }
+  
+  /**
+   * Represents the formatting options for this column when it contains a numeric
+   * value.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  interface NumberSettings {
+    /**
+     * Retrieves the format used to display numerical values.
+     * 
+     * @return a {@link NumberDisplayFormat} instance
+     */
+    NumberDisplayFormat getFormat();
+    
+    /**
+     * Determines whether the column should display numbers with varying decimal
+     * places instead of using the value from {@link #getFixedDecimalPlaces()}.
+     * 
+     * @return {@code true} if number values should be displayed with varying decimal
+     *         places; {@code false} otherwise
+     */
+    boolean isVaryingDecimal();
+    
+    /**
+     * Retrieves the number of places to display for decimal values when appropriate
+     * and {@link #isVaryingDecimal()} is {@code false}.
+     * 
+     * @return the fixed decimal length
+     */
+    int getFixedDecimalPlaces();
+    
+    /**
+     * Determines whether numbers should be displayed with custom symbols defined here
+     * instead of what the client has configured.
+     * 
+     * @return {@code true} if column settings for symbols and separators should
+     *         override client settings; {@code false} otherwise
+     */
+    boolean isOverrideClientLocale();
+    
+    /**
+     * Retrieves the decimal symbol to use when {@link #isOverrideClientLocale()} is
+     * {@code true}.
+     * 
+     * @return the column-specific decimal symbol
+     */
+    String getDecimalSymbol();
+    
+    /**
+     * Retrieves the thousands separator to use when {@link #isOverrideClientLocale()}
+     * is {@code true}.
+     * 
+     * @return the column-specific thousands separator
+     */
+    String getThousandsSeparator();
+    
+    /**
+     * Determines whether negative values in this column should be displayed with
+     * parentheses when negative instead of with a negation symbol.
+     * 
+     * @return {@code true} to use parentheses around negative values;
+     *         {@code false} to use the default behavior
+     */
+    boolean isUseParenthesesWhenNegative();
+    
+    /**
+     * Determines whether thousands groups should be punctuated when displayed.
+     * 
+     * @return {@code true} to add punctuation for displayed thousands;
+     *         {@code false} to use the default behavior
+     */
+    boolean isPunctuateThousands();
+    
+    /**
+     * Retrieves the ISO code for currency values in this column to use when
+     * {@link #getFormat()} is {@link NumberDisplayFormat#CURRENCY CURRENCY} and
+     * {@link #isOverrideClientLocale()} is {@code true}.
+     * 
+     * @return an ISO currency code
+     */
+    long getCurrencyIsoCode();
+    
+    /**
+     * Determines whether values in the column should be displayed with a custom
+     * currency symbol when {@link #getFormat()} is
+     * {@link NumberDisplayFormat#CURRENCY CURRENCY} and
+     * {@link #isOverrideClientLocale()} is {@code true}.
+     * 
+     * @return whether to use a custom currency symbol
+     */
+    boolean isUseCustomCurrencySymbol();
+    
+    /**
+     * Retrieves the currency symbol to use when {@link #getFormat()} is
+     * {@link NumberDisplayFormat#CURRENCY CURRENCY},
+     * {@link #isOverrideClientLocale()} is {@code true}, and
+     * {@link #isUseCustomCurrencySymbol()} is {@code true}.
+     * 
+     * @return the column-specific currency symbol
+     */
+    String getCurrencySymbol();
+    
+    /**
+     * Determines whether the currency symbol specified in {@link #getCurrencySymbol()}
+     * should be appended to the end of the number instead of affixed to the start.
+     * 
+     * @return {@code true} if the currency symbol in use should be postfixed;
+     *         {@code false} otherwise
+     */
+    boolean isCurrencySymbolPostfix();
+    
+    /**
+     * Determines whether the currency display should use a space in between the number
+     * and the currency symbol.
+     * 
+     * @return {@code true} if currency display should include a space next to the number;
+     *         {@code false} otherwise
+     */
+    boolean isUseSpaceNextToNumber();
   }
 
   enum TotalType {
@@ -278,4 +401,12 @@ public interface CollectionColumn {
    */
   ColorValue getHeaderFontColor();
   
+  /**
+   * Retrieves a view of the column's settings to use when displaying number
+   * values.
+   * 
+   * @return a {@link NumberSettings} instance
+   * @since 1.0.32
+   */
+  NumberSettings getNumberSettings();
 }

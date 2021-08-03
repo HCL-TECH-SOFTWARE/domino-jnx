@@ -30,12 +30,15 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(name = "NFMT", members = {
+@StructureDefinition(
+  name = "NFMT",
+  members = {
     @StructureMember(name = "Digits", type = byte.class, unsigned = true),
     @StructureMember(name = "Format", type = NFMT.Format.class),
     @StructureMember(name = "Attributes", type = NFMT.Attribute.class, bitfield = true),
     @StructureMember(name = "Unused", type = byte.class)
-})
+  }
+ )
 public interface NFMT extends MemoryStructure {
   enum Attribute implements INumberEnum<Byte> {
     /** The number will be punctuated by the appropriate separator character. */

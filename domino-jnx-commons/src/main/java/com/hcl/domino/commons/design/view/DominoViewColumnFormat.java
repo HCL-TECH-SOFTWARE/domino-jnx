@@ -20,11 +20,14 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.hcl.domino.commons.design.DesignColorsAndFonts;
+import com.hcl.domino.commons.util.DumpUtil;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.data.NotesFont;
 import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.format.NumberDisplayFormat;
+import com.hcl.domino.design.format.NumberPref;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.ViewColumnFormat2;
 import com.hcl.domino.design.format.ViewColumnFormat3;
@@ -33,8 +36,11 @@ import com.hcl.domino.design.format.ViewColumnFormat5;
 import com.hcl.domino.design.format.ViewColumnFormat6;
 import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.records.CurrencyFlag;
+import com.hcl.domino.richtext.records.CurrencyType;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FontStyle;
+import com.hcl.domino.richtext.structures.NFMT;
 
 /**
  * @author Jesse Gallagher
@@ -293,6 +299,11 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
       .map(ViewColumnFormat2::getHeaderFontColor)
       .orElseGet(DesignColorsAndFonts::blackColor);
   }
+  
+  @Override
+  public NumberSettings getNumberSettings() {
+    return new DefaultNumberSettings();
+  }
 
   // *******************************************************************************
   // * Format-reader hooks
@@ -365,11 +376,133 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
     return Optional.ofNullable(this.format2);
   }
   
+  private Optional<ViewColumnFormat4> getFormat4() {
+    return Optional.ofNullable(this.format4);
+  }
+  
   private Optional<ViewColumnFormat5> getFormat5() {
     return Optional.ofNullable(this.format5);
   }
   
   private Optional<ViewColumnFormat6> getFormat6() {
     return Optional.ofNullable(this.format6);
+  }
+  
+  private class DefaultNumberSettings implements NumberSettings {
+
+    @Override
+    public NumberDisplayFormat getFormat() {
+      return getFormat4()
+        .map(format4 -> {
+          switch(format4.getNumberFormat().getFormat()) {
+            case BYTES:
+              // In practice, this is identified by attributes below
+              return NumberDisplayFormat.BYTES;
+            case CURRENCY:
+              return NumberDisplayFormat.CURRENCY;
+            case SCIENTIFIC:
+              return NumberDisplayFormat.SCIENTIFIC;
+            case FIXED:
+            case GENERAL:
+            default:
+              if(format4.getNumberFormat().getAttributes().contains(NFMT.Attribute.BYTES)) {
+                return NumberDisplayFormat.BYTES;
+              } else if(format4.getNumberFormat().getAttributes().contains(NFMT.Attribute.PERCENT)) {
+                return NumberDisplayFormat.PERCENT;
+              } else {
+                return NumberDisplayFormat.DECIMAL;
+              }
+          }
+        })
+        .orElse(NumberDisplayFormat.DECIMAL);
+    }
+
+    @Override
+    public boolean isVaryingDecimal() {
+      return getFormat4()
+        .map(format4 -> format4.getNumberFormat().getAttributes().contains(NFMT.Attribute.VARYING))
+        .orElse(false);
+    }
+
+    @Override
+    public int getFixedDecimalPlaces() {
+      return getFormat4()
+        .map(format4 -> (int)format4.getNumberFormat().getDigits())
+        .orElse(0);
+    }
+
+    @Override
+    public boolean isOverrideClientLocale() {
+      return getFormat4()
+        .map(format4 -> format4.getNumberSymbolPreference() == NumberPref.FIELD)
+        .orElse(false);
+    }
+
+    @Override
+    public String getDecimalSymbol() {
+      // TODO determine whether the default here should change for non-US locales
+      return getFormat4()
+        .map(format4 -> format4.getDecimalSymbol())
+        .orElse("."); //$NON-NLS-1$
+    }
+
+    @Override
+    public String getThousandsSeparator() {
+      // TODO determine whether the default here should change for non-US locales
+      return getFormat4()
+        .map(format4 -> format4.getMilliSeparator())
+        .orElse(","); //$NON-NLS-1$
+    }
+
+    @Override
+    public boolean isUseParenthesesWhenNegative() {
+      return getFormat4()
+        .map(format4 -> format4.getNumberFormat().getAttributes().contains(NFMT.Attribute.PARENS))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isPunctuateThousands() {
+      return getFormat4()
+        .map(format4 -> format4.getNumberFormat().getAttributes().contains(NFMT.Attribute.PUNCTUATED))
+        .orElse(false);
+    }
+
+    @Override
+    public long getCurrencyIsoCode() {
+      return getFormat4()
+        .map(format4 -> format4.getISOCountry())
+        .orElse(0l);
+    }
+
+    @Override
+    public boolean isUseCustomCurrencySymbol() {
+      return getFormat4()
+        .map(format4 -> format4.getCurrencyType() == CurrencyType.CUSTOM)
+        .orElse(false);
+    }
+
+    @Override
+    public String getCurrencySymbol() {
+      // TODO determine whether the default here should change for non-US locales
+      return getFormat4()
+        .map(format4 -> format4.getCurrencySymbol())
+        .orElse("$"); //$NON-NLS-1$
+    }
+
+    @Override
+    public boolean isCurrencySymbolPostfix() {
+      return getFormat4()
+        .map(format4 -> format4.getCurrencyFlags().contains(CurrencyFlag.SYMFOLLOWS))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isUseSpaceNextToNumber() {
+      return getFormat4()
+        .map(format4 -> format4.getCurrencyFlags().contains(CurrencyFlag.USESPACES))
+        .orElse(false);
+    }
+    
   }
 }

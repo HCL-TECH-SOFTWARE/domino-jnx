@@ -55,6 +55,7 @@ import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.View;
+import com.hcl.domino.design.format.NumberDisplayFormat;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.ViewLineSpacing;
 import com.hcl.domino.exception.FileDoesNotExistException;
@@ -278,6 +279,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
 //        assertColorEquals(column.getHeaderFontColor(), 0, 255, 0);
       }
       
+      {
+        CollectionColumn.NumberSettings numbers = column.getNumberSettings();
+        assertEquals(NumberDisplayFormat.DECIMAL, numbers.getFormat());
+        assertTrue(numbers.isVaryingDecimal());
+        assertFalse(numbers.isOverrideClientLocale());
+        assertFalse(numbers.isUseParenthesesWhenNegative());
+        assertFalse(numbers.isPunctuateThousands());
+      }
     }
     {
       final CollectionColumn column = columns.get(1);
@@ -321,6 +330,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertEquals(9, font.getPointSize());
         assertEquals(EnumSet.of(FontAttribute.BOLD), font.getAttributes());
       }
+      
+      {
+        CollectionColumn.NumberSettings numbers = column.getNumberSettings();
+        assertEquals(NumberDisplayFormat.BYTES, numbers.getFormat());
+        assertFalse(numbers.isOverrideClientLocale());
+        assertFalse(numbers.isUseParenthesesWhenNegative());
+        assertFalse(numbers.isPunctuateThousands());
+      }
     }
     {
       final CollectionColumn column = columns.get(2);
@@ -355,6 +372,17 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       
 //      assertColorEquals(column.getRowFontColor(), 0, 255, 255);
 //      assertColorEquals(column.getHeaderFontColor(), 0, 0, 0);
+      
+      {
+        CollectionColumn.NumberSettings numbers = column.getNumberSettings();
+        assertEquals(NumberDisplayFormat.SCIENTIFIC, numbers.getFormat());
+        assertEquals(3, numbers.getFixedDecimalPlaces());
+        assertTrue(numbers.isOverrideClientLocale());
+        assertEquals("-", numbers.getDecimalSymbol());
+        assertEquals("%", numbers.getThousandsSeparator());
+        assertTrue(numbers.isUseParenthesesWhenNegative());
+        assertFalse(numbers.isPunctuateThousands());
+      }
     }
     {
       final CollectionColumn column = columns.get(3);
@@ -374,6 +402,15 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       
 //      assertColorEquals(column.getRowFontColor(), 224, 0, 224);
 //      assertColorEquals(column.getHeaderFontColor(), 255, 255, 0);
+      
+      {
+        CollectionColumn.NumberSettings numbers = column.getNumberSettings();
+        assertEquals(NumberDisplayFormat.PERCENT, numbers.getFormat());
+        assertTrue(numbers.isVaryingDecimal());
+        assertFalse(numbers.isOverrideClientLocale());
+        assertFalse(numbers.isUseParenthesesWhenNegative());
+        assertTrue(numbers.isPunctuateThousands());
+      }
     }
     {
       final CollectionColumn column = columns.get(4);
@@ -386,6 +423,21 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isIcon());
       assertTrue(column.isColor());
       assertTrue(column.isHideTitle());
+      
+      {
+        CollectionColumn.NumberSettings numbers = column.getNumberSettings();
+        assertEquals(NumberDisplayFormat.CURRENCY, numbers.getFormat());
+        assertEquals(0, numbers.getFixedDecimalPlaces());
+        assertTrue(numbers.isOverrideClientLocale());
+        assertEquals(".", numbers.getDecimalSymbol());
+        assertEquals(",", numbers.getThousandsSeparator());
+        assertFalse(numbers.isUseParenthesesWhenNegative());
+        assertFalse(numbers.isPunctuateThousands());
+        assertEquals("€", numbers.getCurrencySymbol());
+        assertFalse(numbers.isUseCustomCurrencySymbol());
+        assertFalse(numbers.isCurrencySymbolPostfix());
+        assertFalse(numbers.isUseSpaceNextToNumber());
+      }
     }
     {
       final CollectionColumn column = columns.get(5);
@@ -419,6 +471,21 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       Optional<CDResource> twistie = column.getTwistieImage();
       assertTrue(twistie.isPresent());
       assertEquals("tango/utilities-terminal.png", twistie.get().getNamedElement());
+      
+      {
+        CollectionColumn.NumberSettings numbers = column.getNumberSettings();
+        assertEquals(NumberDisplayFormat.CURRENCY, numbers.getFormat());
+        assertEquals(0, numbers.getFixedDecimalPlaces());
+        assertTrue(numbers.isOverrideClientLocale());
+        assertEquals(".", numbers.getDecimalSymbol());
+        assertEquals(",", numbers.getThousandsSeparator());
+        assertFalse(numbers.isUseParenthesesWhenNegative());
+        assertFalse(numbers.isPunctuateThousands());
+        assertEquals("gg", numbers.getCurrencySymbol());
+        assertTrue(numbers.isUseCustomCurrencySymbol());
+        assertTrue(numbers.isCurrencySymbolPostfix());
+        assertFalse(numbers.isUseSpaceNextToNumber());
+      }
     }
     {
       final CollectionColumn column = columns.get(8);
