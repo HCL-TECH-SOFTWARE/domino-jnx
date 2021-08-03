@@ -4397,9 +4397,9 @@ public interface NotesConstants extends ViewFormatConstants {
   int DIRENTRY_TYPE_DOMINO_POLICY_SYMPHONY_SETTINGS = 26;
   /** Directory entry type for a Domino Policy Connections Setting */
   int DIRENTRY_TYPE_DOMINO_POLICY_CONNECTIONS_SETTINGS = 27;
-  /** < Directory entry type for a Domino Account */
+  /** Directory entry type for a Domino Account */
   int DIRENTRY_TYPE_DOMINO_ACCOUNT = 28;
-  /** < Directory entry type for a NamedObjectID ECL */
+  /** Directory entry type for a NamedObjectID ECL */
   int DIRENTRY_TYPE_DOMINO_ECL = 29;
   /** Directory entry type for a Domino Policy Archive Desktop Setting */
   int DIRENTRY_TYPE_DOMINO_POLICY_ARCHIVE_CRITERIA_SETTINGS = 30;

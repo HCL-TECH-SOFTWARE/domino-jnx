@@ -63,7 +63,7 @@ public interface ServerInfo {
    *
    * @param aclType   the ACL field to check
    * @param notesName the name to check against the field
-   * @return {@link true} if the provided user has the requested access;
+   * @return {@code true} if the provided user has the requested access;
    *         {@code false} otherwise
    */
   boolean isAclMember(final ServerAclType aclType, final Name notesName);
@@ -73,7 +73,7 @@ public interface ServerInfo {
    *
    * @param aclType         the ACL field to check
    * @param notesNameString the name to check against the field
-   * @return {@link true} if the provided user has the requested access;
+   * @return {@code true} if the provided user has the requested access;
    *         {@code false} otherwise
    */
   boolean isAclMember(final ServerAclType aclType, final String notesNameString);
@@ -83,7 +83,7 @@ public interface ServerInfo {
    *
    * @param eclType   the ECL field to check
    * @param notesName the name to check against the field
-   * @return {@link true} if the provided user has the requested access;
+   * @return {@code true} if the provided user has the requested access;
    *         {@code false} otherwise
    */
   boolean isEclMember(final ServerEclType eclType, final Name notesName);
@@ -93,7 +93,7 @@ public interface ServerInfo {
    *
    * @param eclType         the ECL field to check
    * @param notesNameString the name to check against the field
-   * @return {@link true} if the provided user has the requested access;
+   * @return {@code true} if the provided user has the requested access;
    *         {@code false} otherwise
    */
   boolean isEclMember(final ServerEclType eclType, final String notesNameString);

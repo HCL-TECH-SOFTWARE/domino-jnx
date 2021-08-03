@@ -85,7 +85,7 @@ public abstract class BaseAPIObject<AT extends APIObjectAllocations> implements 
 
   /**
    * Returns the allocations object created in
-   * {@link #createAllocations(JNADominoClient, APIObjectAllocations, ReferenceQueue)}
+   * {@link #createAllocations(IGCDominoClient, APIObjectAllocations, ReferenceQueue)}
    * 
    * @return allocations
    */

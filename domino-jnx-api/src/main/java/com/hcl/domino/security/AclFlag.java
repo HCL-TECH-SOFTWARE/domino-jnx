@@ -32,8 +32,7 @@ import com.hcl.domino.misc.INumberEnum;
  * irrelevant and are unpredictable.<br>
  * <br>
  * <br>
- * <table summary="The table depicts which Access Level Modifier Flags are
- * applicable to the Access Levels" width="100%" border="1" cellspacing="0">
+ * <table>
  * <caption>The table depicts which Access Level Modifier Flags
  * ({@link AclFlag}) are applicable to the Access Levels
  * ({@link AclLevel})</caption>

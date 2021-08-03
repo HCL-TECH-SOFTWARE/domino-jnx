@@ -164,7 +164,7 @@ public interface QueryResultsProcessor {
    * field values with formulas specified via addFormula calls, and returns JSON
    * output.<br>
    * <br>
-   * The JSON syntax produced by {@lin QueryResultsProcessor} execution conforms
+   * The JSON syntax produced by {@link QueryResultsProcessor} execution conforms
    * to JSON RFC 8259.<br>
    * All results are output under the “StreamedResults” top element key. For
    * categorized results,
@@ -187,7 +187,7 @@ public interface QueryResultsProcessor {
    * field values with formulas specified via addFormula calls, and returns JSON
    * output.<br>
    * <br>
-   * The JSON syntax produced by {@lin QueryResultsProcessor} execution conforms
+   * The JSON syntax produced by {@link QueryResultsProcessor} execution conforms
    * to JSON RFC 8259.<br>
    * All results are output under the “StreamedResults” top element key. For
    * categorized results,

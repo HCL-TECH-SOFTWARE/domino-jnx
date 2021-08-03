@@ -75,7 +75,7 @@ public interface CDField extends RichTextRecord<WSIG> {
     READERS(RichTextConstants.FREADERS),
     /** Field contains a section */
     SECTION(RichTextConstants.FSECTION),
-    /** can be assumed to be clear in memory, V3 & later */
+    /** can be assumed to be clear in memory, V3 &amp; later */
     SPARE3(RichTextConstants.FSPARE3),
     /** IF CLEAR, CLEAR AS ABOVE */
     V3FAB(RichTextConstants.FV3FAB),
