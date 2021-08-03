@@ -9,6 +9,7 @@
 	<description>Modern Java API for HCL Domino</description>
 
 	<inceptionYear>2019</inceptionYear>
+	<url>https://opensource.hcltechsw.com/domino-jnx</url>
 
 	<licenses>
 		<license>
@@ -21,6 +22,21 @@
 		<name>HCL America, Inc.</name>
 		<url>http://www.hcl.com/</url>
 	</organization>
+
+	<scm>
+		<connection>scm:git:git@github.com:HCL-TECH-SOFTWARE/domino-jnx.git</connection>
+		<developerConnection>scm:git:git@github.com:HCL-TECH-SOFTWARE/domino-jnx.git</developerConnection>
+		<url>https://github.com/HCL-TECH-SOFTWARE/domino-jnx.git</url>
+	</scm>
+
+	<developers>
+		<developer>
+			<name>HCL Software OSPO</name>
+			<roles>
+				<role>Owner</role>
+			</roles>
+		</developer>
+	</developers>
 
 	<modules>
 		<module>domino-jnx-api</module>

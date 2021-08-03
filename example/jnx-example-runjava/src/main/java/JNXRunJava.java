@@ -1,5 +1,5 @@
 
-/*
+/**
  * ==========================================================================
  * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
@@ -30,22 +30,33 @@ import com.hcl.domino.server.ServerStatusLine;
  */
 public class JNXRunJava extends RunJavaAddin {
 
+  /**
+   * Standard entry point for manual calls, not actually used when running
+   * 
+   * @param args - ignored
+   */
   public static void main(final String[] args) {
     final Thread t = new JNXRunJava();
     t.start();
     try {
       t.join();
     } catch (final InterruptedException e) {
-      System.out.println("Interrupted - exiting");
+      System.out.printf("Interrupted - exiting (%s) %n", e);
     }
   }
 
   private int messageCount;
 
+  /**
+   * Default constructor, relies on superclass
+   */
   public JNXRunJava() {
     super("JNXRunJava");
   }
 
+  /**
+   * Sample add-in code
+   */
   @Override
   public void runAddin(final DominoClient client, final ServerStatusLine statusLine, final MessageQueue queue) {
     System.out.println("Hello from RunJava?");
@@ -59,6 +70,7 @@ public class JNXRunJava extends RunJavaAddin {
       }
     } catch (InterruptedException | ObjectDisposedException | QuitPendingException e) {
       // This occurs during shutdown
+      e.printStackTrace();
     }
   }
 }
