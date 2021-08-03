@@ -18,7 +18,6 @@ package com.hcl.domino.jna;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.ref.ReferenceQueue;
 
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
@@ -87,10 +86,12 @@ public abstract class BaseJNAAPIObject<AT extends APIObjectAllocations> extends 
 
 	/**
 	 * Returns the allocations object created in
-	 * {@link JNADominoClient#createAllocations()}
-	 * {@link APIObjectAllocations#createAllocations()}
-	 * {@link ReferenceQueue#createAllocations()}
-	 * 
+	 * <ul>
+	 * <li>JNADominoClient#createAllocations</li>
+	 * <li>APIObjectAllocations#createAllocations</li>
+	 * <li>ReferenceQueue#createAllocations</li>
+	 * </ul>
+	 *
 	 * @return allocations
 	 */
 	@Override
