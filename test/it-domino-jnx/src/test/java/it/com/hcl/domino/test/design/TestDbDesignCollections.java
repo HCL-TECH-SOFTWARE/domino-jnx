@@ -266,6 +266,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertEquals("Courier New", font.getFontName().get());
         assertEquals(10, font.getPointSize());
         assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.STRIKEOUT), font.getAttributes());
+        
+//        assertColorEquals(column.getRowFontColor(), 226, 159, 222);
       }
       {
         NotesFont font = column.getHeaderFont();
@@ -273,6 +275,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertEquals("Georgia", font.getFontName().get());
         assertEquals(9, font.getPointSize());
         assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.BOLD, FontAttribute.ITALIC), font.getAttributes());
+//        assertColorEquals(column.getHeaderFontColor(), 0, 255, 0);
       }
       
     }
@@ -349,6 +352,9 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals("Consolas", font.getFontName().get());
       assertEquals(14, font.getPointSize());
       assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.STRIKEOUT), font.getAttributes());
+      
+//      assertColorEquals(column.getRowFontColor(), 0, 255, 255);
+//      assertColorEquals(column.getHeaderFontColor(), 0, 0, 0);
     }
     {
       final CollectionColumn column = columns.get(3);
@@ -365,6 +371,9 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(font.getFontName().isPresent());
       assertEquals(11, font.getPointSize());
       assertEquals(EnumSet.of(FontAttribute.ITALIC), font.getAttributes());
+      
+//      assertColorEquals(column.getRowFontColor(), 224, 0, 224);
+//      assertColorEquals(column.getHeaderFontColor(), 255, 255, 0);
     }
     {
       final CollectionColumn column = columns.get(4);

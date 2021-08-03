@@ -33,6 +33,7 @@ import com.hcl.domino.design.format.ViewColumnFormat5;
 import com.hcl.domino.design.format.ViewColumnFormat6;
 import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FontStyle;
 
 /**
@@ -277,6 +278,20 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
       .map(ViewColumnFormat2::getHeaderFontStyle)
       .orElseGet(DesignColorsAndFonts::viewHeaderFont);
     return new TextFontItemNotesFont(this.parent.getDocument(), style);
+  }
+  
+  @Override
+  public ColorValue getRowFontColor() {
+    return getFormat2()
+      .map(ViewColumnFormat2::getColumnColor)
+      .orElseGet(DesignColorsAndFonts::blackColor);
+  }
+  
+  @Override
+  public ColorValue getHeaderFontColor() {
+    return getFormat2()
+      .map(ViewColumnFormat2::getHeaderFontColor)
+      .orElseGet(DesignColorsAndFonts::blackColor);
   }
 
   // *******************************************************************************

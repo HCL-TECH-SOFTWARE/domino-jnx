@@ -21,6 +21,7 @@ import java.util.Optional;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.structures.ColorValue;
 
 public interface CollectionColumn {
   interface SortConfiguration {
@@ -254,6 +255,14 @@ public interface CollectionColumn {
   NotesFont getRowFont();
   
   /**
+   * Retrieves the color for entry rows in this column.
+   * 
+   * @return a {@link ColorValue} instance
+   * @since 1.0.32
+   */
+  ColorValue getRowFontColor();
+  
+  /**
    * Retrieves the font information for the column header.
    * 
    * @return a {@link NotesFont} instance
@@ -261,5 +270,12 @@ public interface CollectionColumn {
    */
   NotesFont getHeaderFont();
   
+  /**
+   * Retrieves the font color for the column header.
+   * 
+   * @return a {@link NotesFont} instance
+   * @since 1.0.32
+   */
+  ColorValue getHeaderFontColor();
   
 }
