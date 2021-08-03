@@ -701,7 +701,7 @@ public class InnardsConverter {
    * Converts the provided 10-millisecond "ticks" value to a {@link LocalTime}.
    * 
    * @param ticks a positive integer of 10-millisecond "ticks" since midnight
-   * @return a {@LocalTime} object representing the value
+   * @return a {@link LocalTime} object representing the value
    * @since 1.0.24
    */
   public static LocalTime ticksToLocalTime(final long ticks) {

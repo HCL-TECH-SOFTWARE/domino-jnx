@@ -34,10 +34,20 @@ jobs:
         id: project
         run: echo ::set-output name=version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 
-      - name: Release Maven package
+      - name: Install gpg secret key
+        id: install-secret-key
+        run: |
+          cat <(echo -e "${{ secrets.GPG_PRIVATE_KEY }}") | gpg --batch --import
+          gpg --list-secret-keys --keyid-format LONG
+
+      - name: Release Maven package to Central
+        id: publish-to-central
         # Only publish on develop when the version does end on -SNAPSHOT
         if: ${{ !endsWith(steps.project.outputs.version, '-SNAPSHOT') }}
-        run: mvn --batch-mode deploy
         env:
           MAVEN_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+        run: |
+          mvn --batch-mode -P deploy \
+            -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} \
+            clean deploy

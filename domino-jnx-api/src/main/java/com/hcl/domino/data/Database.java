@@ -1101,6 +1101,7 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
    * releases of Domino or Notes:<br>
    * <br>
    * <table>
+   * <caption>The table ODS levels corresponding to Domino releases</caption>
    * <tr>
    * <th>Domino or Notes Software Releases</th>
    * <th>Major Version Numbers That Can Be Accessed</th>

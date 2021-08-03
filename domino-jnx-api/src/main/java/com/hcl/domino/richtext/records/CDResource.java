@@ -63,7 +63,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
     USEHINTFIRST(RichTextConstants.CDRESOURCE_FLAGS_USEHINTFIRST),
     /**
      * the type's data is a canned image file (data/domino/icons/[*].gif) valid for
-     * _TYPE_URL && _CLASS_IMAGE only
+     * {@code _TYPE_URL && _CLASS_IMAGE} only
      */
     CANNEDIMAGE(RichTextConstants.CDRESOURCE_FLAGS_CANNEDIMAGE),
     /*	NOTE: _PRIVATE_DATABASE and _PRIVATE_DESKTOP are mutually exclusive. */

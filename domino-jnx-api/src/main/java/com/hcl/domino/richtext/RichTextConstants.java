@@ -448,7 +448,7 @@ public interface RichTextConstants {
   short FREADERS = 0x0010;
   /** Field contains a section */
   short FSECTION = 0x0020;
-  /** can be assumed to be clear in memory, V3 & later */
+  /** can be assumed to be clear in memory, V3 &amp; later */
   short FSPARE3 = 0x0040;
   /** IF CLEAR, CLEAR AS ABOVE */
   short FV3FAB = 0x0080;
@@ -917,7 +917,7 @@ public interface RichTextConstants {
   int CDRESOURCE_FLAGS_USEHINTFIRST = 0x00000008;
   /**
    * the type's data is a canned image file (data/domino/icons/[*].gif) valid for
-   * _TYPE_URL && _CLASS_IMAGE only
+   * {@code _TYPE_URL && _CLASS_IMAGE only}
    */
   int CDRESOURCE_FLAGS_CANNEDIMAGE = 0x00000010;
   /*	NOTE: _PRIVATE_DATABASE and _PRIVATE_DESKTOP are mutually exclusive. */
