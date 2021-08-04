@@ -130,7 +130,7 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
         final CDText normalText = (CDText) rt.get(0);
         Assertions.assertEquals("This is normal text. and then some", normalText.getText());
         FontStyle style = normalText.getStyle();
-        Assertions.assertEquals(StandardFonts.SWISS, style.getFontFace());
+        Assertions.assertEquals(StandardFonts.SWISS, style.getStandardFont().get());
         Assertions.assertTrue(style.getAttributes().isEmpty(), "Text should have no attributes");
 
         style.setBold(true)
@@ -151,14 +151,14 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
             "Text should now be italic and superscript");
         style.setExtrude(true);
         Assertions.assertEquals(22, style.getPointSize(), "Point size should be 22");
-        Assertions.assertEquals(StandardFonts.USERINTERFACE, style.getFontFace(), "Font should be USERINTERFACE");
+        Assertions.assertEquals(StandardFonts.USERINTERFACE, style.getStandardFont().get(), "Font should be USERINTERFACE");
       }
 
       {
         final CDText monospaceText = (CDText) rt.get(2);
         Assertions.assertEquals("This is monospace text and then some", monospaceText.getText());
         final FontStyle style = monospaceText.getStyle();
-        Assertions.assertEquals(StandardFonts.TYPEWRITER, style.getFontFace());
+        Assertions.assertEquals(StandardFonts.TYPEWRITER, style.getStandardFont().get());
         Assertions.assertTrue(style.getAttributes().isEmpty(), "Text should have no attributes");
       }
 
@@ -166,7 +166,7 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
         final CDText serifText = (CDText) rt.get(4);
         Assertions.assertEquals("This is serif italic bold text and then some", serifText.getText());
         final FontStyle style = serifText.getStyle();
-        Assertions.assertEquals(StandardFonts.SWISS, style.getFontFace());
+        Assertions.assertEquals(StandardFonts.SWISS, style.getStandardFont().get());
         Assertions.assertEquals(EnumSet.of(FontAttribute.BOLD, FontAttribute.ITALIC), style.getAttributes(),
             "Text should be bold and italic");
       }
@@ -189,7 +189,7 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
         final CDText normalText = (CDText) rt.get(0);
         Assertions.assertEquals("This is normal text.", normalText.getText());
         FontStyle style = normalText.getStyle();
-        Assertions.assertEquals(StandardFonts.SWISS, style.getFontFace());
+        Assertions.assertEquals(StandardFonts.SWISS, style.getStandardFont().get());
         Assertions.assertTrue(style.getAttributes().isEmpty(), "Text should have no attributes");
 
         style.setBold(true)
@@ -210,14 +210,14 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
             "Text should now be italic and superscript");
         style.setExtrude(true);
         Assertions.assertEquals(22, style.getPointSize(), "Point size should be 22");
-        Assertions.assertEquals(StandardFonts.USERINTERFACE, style.getFontFace(), "Font should be USERINTERFACE");
+        Assertions.assertEquals(StandardFonts.USERINTERFACE, style.getStandardFont().get(), "Font should be USERINTERFACE");
       }
 
       {
         final CDText monospaceText = (CDText) rt.get(2);
         Assertions.assertEquals("This is monospace text", monospaceText.getText());
         final FontStyle style = monospaceText.getStyle();
-        Assertions.assertEquals(StandardFonts.TYPEWRITER, style.getFontFace());
+        Assertions.assertEquals(StandardFonts.TYPEWRITER, style.getStandardFont().get());
         Assertions.assertTrue(style.getAttributes().isEmpty(), "Text should have no attributes");
       }
 
@@ -225,7 +225,7 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
         final CDText serifText = (CDText) rt.get(4);
         Assertions.assertEquals("This is serif italic bold text", serifText.getText());
         final FontStyle style = serifText.getStyle();
-        Assertions.assertEquals(StandardFonts.SWISS, style.getFontFace());
+        Assertions.assertEquals(StandardFonts.SWISS, style.getStandardFont().get());
         Assertions.assertEquals(EnumSet.of(FontAttribute.BOLD, FontAttribute.ITALIC), style.getAttributes(),
             "Text should be bold and italic");
       }
