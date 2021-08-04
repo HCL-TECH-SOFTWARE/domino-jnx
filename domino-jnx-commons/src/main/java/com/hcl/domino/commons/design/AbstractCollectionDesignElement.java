@@ -70,7 +70,8 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
   @Override
   public DominoCollection getCollection() {
-    throw new NotYetImplementedException();
+//    throw new NotYetImplementedException();
+    return null;
   }
 
   @Override
