@@ -58,6 +58,7 @@ import com.hcl.domino.data.CollectionSearchQuery;
 import com.hcl.domino.data.CollectionSearchQuery.CollectionEntryProcessor;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.Action;
+import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoDateTime;
@@ -412,7 +413,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		checkDisposed();
 		
 		JNADocument note = getViewNote();
-		List<?> formulaObj = note.getItemValue("$FORMULA"); //$NON-NLS-1$
+		List<?> formulaObj = note.getItemValue(DesignConstants.VIEW_FORMULA_ITEM);
 		String formula = formulaObj!=null && !formulaObj.isEmpty() ? formulaObj.get(0).toString() : ""; //$NON-NLS-1$
 		return formula;
 	}

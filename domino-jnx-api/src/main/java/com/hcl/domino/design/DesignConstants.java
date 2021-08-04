@@ -30,6 +30,7 @@ public interface DesignConstants {
   String XPAGE_ALTERNATE = "$XPageAlt"; //$NON-NLS-1$
   String XPAGE_ALTERNATE_CLIENT = "$XPageAltClient"; //$NON-NLS-1$
   
+  String VIEW_FORMULA_ITEM = "$Formula"; //$NON-NLS-1$
   String VIEW_CLASSES_ITEM = "$FormulaClass"; //$NON-NLS-1$
   /** Index disposition options */
   String VIEW_INDEX_ITEM = "$Index"; //$NON-NLS-1$

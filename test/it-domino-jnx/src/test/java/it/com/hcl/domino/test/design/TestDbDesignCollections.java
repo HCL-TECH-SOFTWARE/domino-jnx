@@ -129,6 +129,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals("Home_1.xsp", view.getWebXPageAlternative().get());
     assertFalse(view.isAllowPublicAccess());
     assertEquals(Arrays.asList("[Admin]"), view.getReaders());
+    assertEquals("SELECT @Like(Form; \"Foo\") & IsComplexView=1", view.getSelectionFormula());
     
     CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
     assertNotNull(comp);
@@ -556,6 +557,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(view.getReaders().isEmpty());
     assertFalse(view.getColumnProfileDocName().isPresent());
     assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
+    // This view uses Simple Searched, but this formula is stored as residual
+    assertEquals("SELECT ((Form = \"Alias\") | (Form = \"Content\") | (Form = \"foo\") | (Form = \"bar\"))", view.getSelectionFormula());
     
     CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
     assertNotNull(comp);
@@ -676,6 +679,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(view.getReaders().isEmpty());
     assertFalse(view.getColumnProfileDocName().isPresent());
     assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
+    assertEquals("SELECT @All", view.getSelectionFormula());
     
     DisplaySettings disp = view.getDisplaySettings();
     assertNotNull(disp);
@@ -785,6 +789,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(view.getReaders().isEmpty());
     assertFalse(view.getColumnProfileDocName().isPresent());
     assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
+    assertEquals("SELECT @All", view.getSelectionFormula());
     
     assertEquals("1", view.getFormulaClass());
     view.setFormulaClass("2");

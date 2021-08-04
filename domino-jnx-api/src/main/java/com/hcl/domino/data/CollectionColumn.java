@@ -176,6 +176,50 @@ public interface CollectionColumn {
      */
     boolean isUseSpaceNextToNumber();
   }
+  
+  /**
+   * Represents the formatting options for this column when it contains a date/time
+   * value.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  interface DateTimeSettings {
+    /**
+     * Determines whether dates and times should be displayed with custom symbols
+     * defined here instead of what the client has configured.
+     * 
+     * @return {@code true} if column settings for dates and times should
+     *         override client settings; {@code false} otherwise
+     */
+    boolean isOverrideClientLocale();
+    
+    /**
+     * Determines whether dates, when shown, should be displayed in abbreviated format.
+     * 
+     * <p>This setting overrides all other date/time settings.</p>
+     * 
+     * @return {@code true} if dates should be shown in abbreviated format;
+     *         {@code false} otherwise
+     */
+    boolean isDisplayAbbreviatedDate();
+    
+    /**
+     * Determines whether the date portion of a date/time value should be displayed.
+     * 
+     * @return {@code true} if date portions of date/time values should be displayed;
+     *         {@code false} otherwise
+     */
+    boolean isDisplayDate();
+    
+    /**
+     * Determines whether the time portion of a date/time value should be displayed.
+     * 
+     * @return {@code true} if time portions of date/time values should be displayed;
+     *         {@code false} otherwise
+     */
+    boolean isDisplayTime();
+  }
 
   enum TotalType {
     None, Total, Average, AveragePerSubcategory,

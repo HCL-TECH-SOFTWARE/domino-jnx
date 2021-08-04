@@ -86,6 +86,7 @@ import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.Item;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.exception.LotusScriptCompilationException;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
@@ -507,7 +508,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			return Arrays.asList((Object) viewFormatInfo);
 		}
 		else if (dataTypeAsInt == ItemDataType.TYPE_FORMULA.getValue()) {
-			boolean isSelectionFormula = "$FORMULA".equalsIgnoreCase(itemName) && getDocumentClass().contains(DocumentClass.VIEW); //$NON-NLS-1$
+			boolean isSelectionFormula = DesignConstants.VIEW_FORMULA_ITEM.equalsIgnoreCase(itemName) && getDocumentClass().contains(DocumentClass.VIEW);
 			
 			DHANDLE.ByReference rethFormulaText = DHANDLE.newInstanceByReference();
 			ShortByReference retFormulaTextLength = new ShortByReference();
