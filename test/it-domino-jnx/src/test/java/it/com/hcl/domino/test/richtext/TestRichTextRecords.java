@@ -144,7 +144,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       Assertions.assertEquals(31, actionBarExt.getButtonWidth());
       Assertions.assertEquals(32, actionBarExt.getButtonInternalMargin());
       Assertions.assertEquals(EnumSet.of(CDActionBarExt.Flag.WIDTH_STYLE_VALID), actionBarExt.getFlags());
-      Assertions.assertEquals(StandardFonts.UNICODE, actionBarExt.getFontStyle().getFontFace());
+      Assertions.assertEquals(StandardFonts.UNICODE, actionBarExt.getFontStyle().getStandardFont().get());
       Assertions.assertEquals(LengthValue.Unit.EMS, actionBarExt.getHeight().getUnit());
       Assertions.assertEquals(5.5, actionBarExt.getHeight().getLength());
     });
@@ -669,7 +669,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         Assertions.assertEquals(8, body.get(1).getHeader().getLength().intValue());
         Assertions.assertEquals(8, body.get(1).getData().capacity());
         Assertions.assertTrue(text.getStyle().isBold());
-        Assertions.assertEquals(StandardFonts.TYPEWRITER, text.getStyle().getFontFace());
+        Assertions.assertEquals(StandardFonts.TYPEWRITER, text.getStyle().getStandardFont().get());
       }
       {
         Assertions.assertInstanceOf(CDImageHeader.class, body.get(2));
