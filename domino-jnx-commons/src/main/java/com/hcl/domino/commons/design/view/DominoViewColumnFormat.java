@@ -16,24 +16,37 @@
  */
 package com.hcl.domino.commons.design.view;
 
+import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import com.hcl.domino.commons.design.DesignColorsAndFonts;
-import com.hcl.domino.commons.util.DumpUtil;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.data.NotesFont;
 import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.format.CalendarType;
+import com.hcl.domino.design.format.DateComponentOrder;
+import com.hcl.domino.design.format.DateShowFormat;
+import com.hcl.domino.design.format.DateShowSpecial;
+import com.hcl.domino.design.format.DateTimeFlag;
+import com.hcl.domino.design.format.DateTimeFlag2;
+import com.hcl.domino.design.format.DayFormat;
+import com.hcl.domino.design.format.MonthFormat;
 import com.hcl.domino.design.format.NumberDisplayFormat;
 import com.hcl.domino.design.format.NumberPref;
+import com.hcl.domino.design.format.TimeShowFormat;
+import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.ViewColumnFormat2;
 import com.hcl.domino.design.format.ViewColumnFormat3;
 import com.hcl.domino.design.format.ViewColumnFormat4;
 import com.hcl.domino.design.format.ViewColumnFormat5;
 import com.hcl.domino.design.format.ViewColumnFormat6;
+import com.hcl.domino.design.format.WeekFormat;
+import com.hcl.domino.design.format.YearFormat;
 import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.CurrencyFlag;
@@ -304,6 +317,11 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   public NumberSettings getNumberSettings() {
     return new DefaultNumberSettings();
   }
+  
+  @Override
+  public DateTimeSettings getDateTimeSettings() {
+    return new DefaultDateTimeSettings();
+  }
 
   // *******************************************************************************
   // * Format-reader hooks
@@ -376,6 +394,10 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
     return Optional.ofNullable(this.format2);
   }
   
+  private Optional<ViewColumnFormat3> getFormat3() {
+    return Optional.ofNullable(this.format3);
+  }
+  
   private Optional<ViewColumnFormat4> getFormat4() {
     return Optional.ofNullable(this.format4);
   }
@@ -421,7 +443,7 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
     public boolean isVaryingDecimal() {
       return getFormat4()
         .map(format4 -> format4.getNumberFormat().getAttributes().contains(NFMT.Attribute.VARYING))
-        .orElse(false);
+        .orElse(true);
     }
 
     @Override
@@ -502,6 +524,146 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
       return getFormat4()
         .map(format4 -> format4.getCurrencyFlags().contains(CurrencyFlag.USESPACES))
         .orElse(false);
+    }
+  }
+  
+  private class DefaultDateTimeSettings implements DateTimeSettings {
+    @Override
+    public boolean isOverrideClientLocale() {
+      return getFormat3()
+        .map(format3 -> format3.getDateTimePreference() == NumberPref.FIELD)
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isDisplayAbbreviatedDate() {
+      return getFormat3()
+        .map(format3 -> format3.getDateTimeFlags().contains(DateTimeFlag.SHOWABBREV))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isDisplayDate() {
+      return getFormat3()
+        .map(format3 -> format3.getDateTimeFlags().contains(DateTimeFlag.SHOWDATE))
+        .orElse(true);
+    }
+
+    @Override
+    public DateShowFormat getDateShowFormat() {
+      return getFormat3()
+        .map(format3 -> format3.getDateShowFormat())
+        .orElse(DateShowFormat.MDY);
+    }
+
+    @Override
+    public Set<DateShowSpecial> getDateShowBehavior() {
+      return getFormat3()
+        .map(format3 -> format3.getDateShowSpecial())
+        .orElseGet(() -> EnumSet.of(DateShowSpecial.SHOW_21ST_4DIGIT));
+    }
+
+    @Override
+    public CalendarType getCalendarType() {
+      return getFormat3()
+        .map(ViewColumnFormat3::getDateTimeFlags2)
+        .map(flags -> flags.contains(DateTimeFlag2.USE_HIJRI_CALENDAR) ? CalendarType.HIJRI : CalendarType.GREGORIAN)
+        .orElse(CalendarType.GREGORIAN);
+    }
+
+    @Override
+    public DateComponentOrder getDateComponentOrder() {
+      return getFormat3()
+        .map(ViewColumnFormat3::getDateComponentOrder)
+        .orElse(DateComponentOrder.WMDY);
+    }
+
+    @Override
+    public String getCustomDateSeparator1() {
+      // TODO determine whether the default here should change for non-US locales
+      return getFormat3()
+        .map(ViewColumnFormat3::getDateSeparator1)
+        .orElse(" "); //$NON-NLS-1$
+    }
+
+    @Override
+    public String getCustomDateSeparator2() {
+      // TODO determine whether the default here should change for non-US locales
+      return getFormat3()
+        .map(ViewColumnFormat3::getDateSeparator2)
+        .orElse("/"); //$NON-NLS-1$
+    }
+
+    @Override
+    public String getCustomDateSeparator3() {
+      // TODO determine whether the default here should change for non-US locales
+      return getFormat3()
+        .map(ViewColumnFormat3::getDateSeparator3)
+        .orElse("/"); //$NON-NLS-1$
+    }
+
+    @Override
+    public DayFormat getDayFormat() {
+      return getFormat3()
+        .map(ViewColumnFormat3::getDayFormat)
+        .orElse(DayFormat.DD);
+    }
+
+    @Override
+    public MonthFormat getMonthFormat() {
+      return getFormat3()
+        .map(ViewColumnFormat3::getMonthFormat)
+        .orElse(MonthFormat.MM);
+    }
+
+    @Override
+    public YearFormat getYearFormat() {
+      return getFormat3()
+        .map(ViewColumnFormat3::getYearFormat)
+        .orElse(YearFormat.YYYY);
+    }
+
+    @Override
+    public WeekFormat getWeekdayFormat() {
+      return getFormat3()
+        .map(ViewColumnFormat3::getDayOfWeekFormat)
+        .orElse(WeekFormat.WWW);
+    }
+
+    @Override
+    public boolean isDisplayTime() {
+      return getFormat3()
+        .map(format3 -> format3.getDateTimeFlags().contains(DateTimeFlag.SHOWTIME))
+        .orElse(true);
+    }
+
+    @Override
+    public TimeShowFormat getTimeShowFormat() {
+      return getFormat3()
+        .map(ViewColumnFormat3::getTimeShowFormat)
+        .orElse(TimeShowFormat.HMS);
+    }
+
+    @Override
+    public TimeZoneFormat getTimeZoneFormat() {
+      return getFormat3()
+        .map(ViewColumnFormat3::getTimeZoneFormat)
+        .orElse(TimeZoneFormat.NEVER);
+    }
+
+    @Override
+    public boolean isTime24HourFormat() {
+      return getFormat3()
+        .map(format3 -> format3.getDateTimeFlags().contains(DateTimeFlag.TWENTYFOURHOUR))
+        .orElse(true);
+    }
+
+    @Override
+    public String getCustomTimeSeparator() {
+      // TODO determine whether the default here should change for non-US locales
+      return getFormat3()
+        .map(format3 -> format3.getTimeSeparator())
+        .orElse(":"); //$NON-NLS-1$
     }
     
   }

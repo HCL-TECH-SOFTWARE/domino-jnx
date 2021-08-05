@@ -41,6 +41,7 @@ import com.hcl.domino.design.format.FieldListDisplayDelimiter;
 import com.hcl.domino.design.format.MonthFormat;
 import com.hcl.domino.design.format.NumberPref;
 import com.hcl.domino.design.format.TimeShowFormat;
+import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.design.format.WeekFormat;
 import com.hcl.domino.design.format.YearFormat;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -368,7 +369,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           field.setDateSeparator3("__");
           field.setTimeSeparator("??");
           field.setDateShowFormat(DateShowFormat.MDY);
-          field.setDateShowSpecial(DateShowSpecial.TWO_CURRENT_FOUR_OTHER);
+          field.setDateShowSpecial(EnumSet.of(DateShowSpecial.SHOW_21ST_4DIGIT));
           field.setTimeShowFormat(TimeShowFormat.HM);
           field.setFormatFlags(EnumSet.of(CDExt2Field.FormatFlag.PROPORTIONAL));
           field.setProportionalWidthCharacters(16);
@@ -406,7 +407,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       Assertions.assertEquals("__", field.getDateSeparator3());
       Assertions.assertEquals("??", field.getTimeSeparator());
       Assertions.assertEquals(DateShowFormat.MDY, field.getDateShowFormat());
-      Assertions.assertEquals(DateShowSpecial.TWO_CURRENT_FOUR_OTHER, field.getDateShowSpecial());
+      Assertions.assertEquals(EnumSet.of(DateShowSpecial.SHOW_21ST_4DIGIT), field.getDateShowSpecial());
       Assertions.assertEquals(TimeShowFormat.HM, field.getTimeShowFormat());
       Assertions.assertEquals(EnumSet.of(CDExt2Field.FormatFlag.PROPORTIONAL), field.getFormatFlags());
       Assertions.assertEquals(16, field.getProportionalWidthCharacters());
@@ -459,7 +460,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           field.getTimeFormat().setDateFormat(TFMT.DateFormat.CPARTIAL4);
           field.getTimeFormat().setTimeFormat(TFMT.TimeFormat.HOUR);
           field.getTimeFormat().setTimeStructure(TFMT.TimeStructure.CDATETIME);
-          field.getTimeFormat().setZoneFormat(TFMT.ZoneFormat.SOMETIMES);
+          field.getTimeFormat().setZoneFormat(TimeZoneFormat.SOMETIMES);
 
           field.setDefaultValueFormula("\"hi\"");
           field.setInputTranslationFormula("@ThisValue+\"hi\"");
@@ -487,7 +488,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       Assertions.assertEquals(TFMT.DateFormat.CPARTIAL4, timeFormat.getDateFormat());
       Assertions.assertEquals(TFMT.TimeFormat.HOUR, timeFormat.getTimeFormat());
       Assertions.assertEquals(TFMT.TimeStructure.CDATETIME, timeFormat.getTimeStructure());
-      Assertions.assertEquals(TFMT.ZoneFormat.SOMETIMES, timeFormat.getZoneFormat());
+      Assertions.assertEquals(TimeZoneFormat.SOMETIMES, timeFormat.getZoneFormat());
 
       Assertions.assertEquals("\"hi\"", field.getDefaultValueFormula());
       Assertions.assertEquals("@ThisValue+\"hi\"", field.getInputTranslationFormula());
@@ -517,7 +518,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           field.getTimeFormat().setDateFormat(TFMT.DateFormat.CPARTIAL4);
           field.getTimeFormat().setTimeFormat(TFMT.TimeFormat.HOUR);
           field.getTimeFormat().setTimeStructure(TFMT.TimeStructure.CDATETIME);
-          field.getTimeFormat().setZoneFormat(TFMT.ZoneFormat.SOMETIMES);
+          field.getTimeFormat().setZoneFormat(TimeZoneFormat.SOMETIMES);
 
           field.setDefaultValueFormula("\"hi\"");
           field.setInputTranslationFormula("@ThisValue+\"hi\"");
@@ -545,7 +546,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       Assertions.assertEquals(TFMT.DateFormat.CPARTIAL4, timeFormat.getDateFormat());
       Assertions.assertEquals(TFMT.TimeFormat.HOUR, timeFormat.getTimeFormat());
       Assertions.assertEquals(TFMT.TimeStructure.CDATETIME, timeFormat.getTimeStructure());
-      Assertions.assertEquals(TFMT.ZoneFormat.SOMETIMES, timeFormat.getZoneFormat());
+      Assertions.assertEquals(TimeZoneFormat.SOMETIMES, timeFormat.getZoneFormat());
 
       Assertions.assertEquals("\"hi\"", field.getDefaultValueFormula());
       Assertions.assertEquals("@ThisValue+\"hi\"", field.getInputTranslationFormula());

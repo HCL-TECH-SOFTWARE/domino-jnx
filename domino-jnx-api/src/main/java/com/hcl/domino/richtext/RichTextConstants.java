@@ -610,6 +610,11 @@ public interface RichTextConstants {
 
   /** Use the 4.X format structure instead of this 5.X format structure */
   int DT_USE_TFMT = 0x0001;
+  /**
+   * Non-documented flag indicating that display should use the Hijri calendar
+   * instead of Gregorian.
+   */
+  int DT_USE_HIJRI_CALENDAR = 0x0010;
 
   /* DTYearFmt values (do not change - these values are also stored on disk!) */
 

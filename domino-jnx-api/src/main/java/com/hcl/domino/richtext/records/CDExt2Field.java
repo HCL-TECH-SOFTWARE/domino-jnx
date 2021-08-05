@@ -29,6 +29,7 @@ import com.hcl.domino.design.format.DayFormat;
 import com.hcl.domino.design.format.MonthFormat;
 import com.hcl.domino.design.format.NumberPref;
 import com.hcl.domino.design.format.TimeShowFormat;
+import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.design.format.WeekFormat;
 import com.hcl.domino.design.format.YearFormat;
 import com.hcl.domino.formula.FormulaCompiler;
@@ -38,7 +39,6 @@ import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
-import com.hcl.domino.richtext.structures.TFMT;
 import com.hcl.domino.richtext.structures.WSIG;
 
 /**
@@ -78,9 +78,9 @@ import com.hcl.domino.richtext.structures.WSIG;
     @StructureMember(name = "DTDsep3Len", type = byte.class, unsigned = true),
     @StructureMember(name = "DTTsepLen", type = byte.class, unsigned = true),
     @StructureMember(name = "DTDShow", type = DateShowFormat.class),
-    @StructureMember(name = "DTDSpecial", type = DateShowSpecial.class),
+    @StructureMember(name = "DTDSpecial", type = DateShowSpecial.class, bitfield = true),
     @StructureMember(name = "DTTShow", type = TimeShowFormat.class),
-    @StructureMember(name = "DTTZone", type = TFMT.ZoneFormat.class),
+    @StructureMember(name = "DTTZone", type = TimeZoneFormat.class),
     @StructureMember(name = "Unused5", type = int.class),
     @StructureMember(name = "ECFlags", type = CDExt2Field.FormatFlag.class, bitfield = true),
     @StructureMember(name = "Unused612", type = byte.class),
@@ -200,7 +200,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   DateShowFormat getDateShowFormat();
 
   @StructureGetter("DTDSpecial")
-  DateShowSpecial getDateShowSpecial();
+  Set<DateShowSpecial> getDateShowSpecial();
 
   @StructureGetter("DTFlags")
   Set<DateTimeFlag> getDateTimeFlags();
@@ -405,7 +405,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   TimeShowFormat getTimeShowFormat();
 
   @StructureGetter("DTTZone")
-  TFMT.ZoneFormat getTimeZoneFormat();
+  TimeZoneFormat getTimeZoneFormat();
 
   @StructureGetter("VerticalSpacing")
   short getVerticalSpacing();
@@ -532,7 +532,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   CDExt2Field setDateShowFormat(DateShowFormat format);
 
   @StructureSetter("DTDSpecial")
-  CDExt2Field setDateShowSpecial(DateShowSpecial format);
+  CDExt2Field setDateShowSpecial(Collection<DateShowSpecial> format);
 
   @StructureSetter("DTFlags")
   CDExt2Field setDateTimeFlags(Collection<DateTimeFlag> flags);
@@ -790,7 +790,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   CDExt2Field setTimeShowFormat(TimeShowFormat format);
 
   @StructureSetter("DTTZone")
-  CDExt2Field setTimeZoneFormat(TFMT.ZoneFormat format);
+  CDExt2Field setTimeZoneFormat(TimeZoneFormat format);
 
   @StructureSetter("VerticalSpacing")
   CDExt2Field setVerticalSpacing(short spacing);

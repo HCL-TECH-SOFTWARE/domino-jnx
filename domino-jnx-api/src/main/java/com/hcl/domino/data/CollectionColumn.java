@@ -17,10 +17,21 @@
 package com.hcl.domino.data;
 
 import java.util.Optional;
+import java.util.Set;
 
 import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.format.CalendarType;
+import com.hcl.domino.design.format.DateComponentOrder;
+import com.hcl.domino.design.format.DateShowFormat;
+import com.hcl.domino.design.format.DateShowSpecial;
+import com.hcl.domino.design.format.DayFormat;
+import com.hcl.domino.design.format.MonthFormat;
 import com.hcl.domino.design.format.NumberDisplayFormat;
+import com.hcl.domino.design.format.TimeShowFormat;
+import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.design.format.ViewColumnFormat;
+import com.hcl.domino.design.format.WeekFormat;
+import com.hcl.domino.design.format.YearFormat;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
 
@@ -213,12 +224,133 @@ public interface CollectionColumn {
     boolean isDisplayDate();
     
     /**
+     * Determines which components of a date value should be shown when {@link #isDisplayDate()}
+     * is {@code true}.
+     * 
+     * @return a {@link DateShowFormat} instance
+     */
+    DateShowFormat getDateShowFormat();
+    
+    /**
+     * Determines the special behaviors enabled for displaying dates when
+     * {@link #isDisplayDate()} is {@code true}.
+     * 
+     * @return a {@link Set} of {@link DateShowSpecial} instances
+     */
+    Set<DateShowSpecial> getDateShowBehavior();
+    
+    /**
+     * Determines the calendar type to use when for displaying dates when
+     * {@link #isDisplayDate()} is {@code true}.
+     * 
+     * @return a {@link CalendarType} instance
+     */
+    CalendarType getCalendarType();
+    
+    /**
+     * Determines the display order of date components when {@link #isDisplayDate()}
+     * is {@code true}.
+     * 
+     * @return a {@link DateComponentOrder} instance
+     */
+    DateComponentOrder getDateComponentOrder();
+    
+    /**
+     * Retrieves the first separator to use when displaying dates when {@link #isDisplayDate()}
+     * and {@link #isOverrideClientLocale()} are {@code true}.
+     * 
+     * @return the first date separator
+     */
+    String getCustomDateSeparator1();
+    
+    /**
+     * Retrieves the second separator to use when displaying dates when {@link #isDisplayDate()}
+     * and {@link #isOverrideClientLocale()} are {@code true}.
+     * 
+     * @return the second date separator
+     */
+    String getCustomDateSeparator2();
+    
+    /**
+     * Retrieves the third separator to use when displaying dates when {@link #isDisplayDate()}
+     * and {@link #isOverrideClientLocale()} are {@code true}.
+     * 
+     * @return the third date separator
+     */
+    String getCustomDateSeparator3();
+    
+    /**
+     * Retrieves the day format to use when when {@link #isDisplayDate()}
+     * and {@link #isOverrideClientLocale()} are {@code true}.
+     * 
+     * @return a {@link DayFormat} instance
+     */
+    DayFormat getDayFormat();
+    
+    /**
+     * Retrieves the month format to use when when {@link #isDisplayDate()}
+     * and {@link #isOverrideClientLocale()} are {@code true}.
+     * 
+     * @return a {@link MonthFormat} instance
+     */
+    MonthFormat getMonthFormat();
+    
+    /**
+     * Retrieves the year format to use when when {@link #isDisplayDate()}
+     * and {@link #isOverrideClientLocale()} are {@code true}.
+     * 
+     * @return a {@link YearFormat} instance
+     */
+    YearFormat getYearFormat();
+    
+    /**
+     * Retrieves the weekday format to use when when {@link #isDisplayDate()}
+     * and {@link #isOverrideClientLocale()} are {@code true}.
+     * 
+     * @return a {@link WeekFormat} instance
+     */
+    WeekFormat getWeekdayFormat();
+    
+    /**
      * Determines whether the time portion of a date/time value should be displayed.
      * 
      * @return {@code true} if time portions of date/time values should be displayed;
      *         {@code false} otherwise
      */
     boolean isDisplayTime();
+    
+    /**
+     * Determines which components of a time value should be shown when {@link #isDisplayTime()}
+     * is {@code true}.
+     * 
+     * @return a {@link TimeShowFormat} instance
+     */
+    TimeShowFormat getTimeShowFormat();
+    
+    /**
+     * Determines the format for displaying the time zone or adjusting the time to local when
+     * {@link #isDisplayTime()} is {@code true}.
+     * 
+     * @return a {@link TimeZoneFormat} instance
+     */
+    TimeZoneFormat getTimeZoneFormat();
+    
+    /**
+     * Determines whether time values should be shown in 24-hour format regardless of the user's
+     * locale when {@link #isDisplayTime()} and {@link #isOverrideClientLocale()} are {@code true}.
+     * 
+     * @return {@code true} if times should be shown in 24-hour format;
+     *         {@code false} otherwise
+     */
+    boolean isTime24HourFormat();
+    
+    /**
+     * Retrieves the separator to use when displaying times when {@link #isDisplayTime()} and
+     * {@link #isOverrideClientLocale()} are {@code true}.
+     * 
+     * @return the time separator
+     */
+    String getCustomTimeSeparator();
   }
 
   enum TotalType {
@@ -453,4 +585,13 @@ public interface CollectionColumn {
    * @since 1.0.32
    */
   NumberSettings getNumberSettings();
+  
+  /**
+   * Retrieves a view of the column's settings to use when displaying date/time
+   * values.
+   * 
+   * @return a {@link DateTimeSettings} instance
+   * @since 1.0.32
+   */
+  DateTimeSettings getDateTimeSettings();
 }

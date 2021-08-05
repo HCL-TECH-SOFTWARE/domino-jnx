@@ -55,9 +55,19 @@ import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.View;
+import com.hcl.domino.design.format.CalendarType;
+import com.hcl.domino.design.format.DateComponentOrder;
+import com.hcl.domino.design.format.DateShowFormat;
+import com.hcl.domino.design.format.DateShowSpecial;
+import com.hcl.domino.design.format.DayFormat;
+import com.hcl.domino.design.format.MonthFormat;
 import com.hcl.domino.design.format.NumberDisplayFormat;
+import com.hcl.domino.design.format.TimeShowFormat;
+import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.ViewLineSpacing;
+import com.hcl.domino.design.format.WeekFormat;
+import com.hcl.domino.design.format.YearFormat;
 import com.hcl.domino.exception.FileDoesNotExistException;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
@@ -288,6 +298,21 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertFalse(numbers.isUseParenthesesWhenNegative());
         assertFalse(numbers.isPunctuateThousands());
       }
+      
+      {
+        CollectionColumn.DateTimeSettings dateTime = column.getDateTimeSettings();
+        assertFalse(dateTime.isOverrideClientLocale());
+        assertFalse(dateTime.isDisplayAbbreviatedDate());
+        
+        assertTrue(dateTime.isDisplayDate());
+        assertEquals(DateShowFormat.MDY, dateTime.getDateShowFormat());
+        assertEquals(EnumSet.of(DateShowSpecial.SHOW_21ST_4DIGIT), dateTime.getDateShowBehavior());
+        assertEquals(CalendarType.GREGORIAN, dateTime.getCalendarType());
+        
+        assertTrue(dateTime.isDisplayTime());
+        assertEquals(TimeShowFormat.HMS, dateTime.getTimeShowFormat());
+        assertEquals(TimeZoneFormat.NEVER, dateTime.getTimeZoneFormat());
+      }
     }
     {
       final CollectionColumn column = columns.get(1);
@@ -339,6 +364,18 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertFalse(numbers.isUseParenthesesWhenNegative());
         assertFalse(numbers.isPunctuateThousands());
       }
+      
+      {
+        CollectionColumn.DateTimeSettings dateTime = column.getDateTimeSettings();
+        assertFalse(dateTime.isOverrideClientLocale());
+        assertFalse(dateTime.isDisplayAbbreviatedDate());
+        
+        assertFalse(dateTime.isDisplayDate());
+        
+        assertTrue(dateTime.isDisplayTime());
+        assertEquals(TimeShowFormat.HM, dateTime.getTimeShowFormat());
+        assertEquals(TimeZoneFormat.ALWAYS, dateTime.getTimeZoneFormat());
+      }
     }
     {
       final CollectionColumn column = columns.get(2);
@@ -384,6 +421,19 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertTrue(numbers.isUseParenthesesWhenNegative());
         assertFalse(numbers.isPunctuateThousands());
       }
+      
+      {
+        CollectionColumn.DateTimeSettings dateTime = column.getDateTimeSettings();
+        assertFalse(dateTime.isOverrideClientLocale());
+        assertFalse(dateTime.isDisplayAbbreviatedDate());
+        
+        assertTrue(dateTime.isDisplayDate());
+        assertEquals(DateShowFormat.Y, dateTime.getDateShowFormat());
+        assertEquals(EnumSet.of(DateShowSpecial.CURYR, DateShowSpecial.TODAY, DateShowSpecial.Y4), dateTime.getDateShowBehavior());
+        assertEquals(CalendarType.GREGORIAN, dateTime.getCalendarType());
+        
+        assertFalse(dateTime.isDisplayTime());
+      }
     }
     {
       final CollectionColumn column = columns.get(3);
@@ -412,6 +462,31 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertFalse(numbers.isUseParenthesesWhenNegative());
         assertTrue(numbers.isPunctuateThousands());
       }
+      
+      {
+        CollectionColumn.DateTimeSettings dateTime = column.getDateTimeSettings();
+        assertTrue(dateTime.isOverrideClientLocale());
+        assertFalse(dateTime.isDisplayAbbreviatedDate());
+        
+        assertTrue(dateTime.isDisplayDate());
+        assertEquals(DateShowFormat.W, dateTime.getDateShowFormat());
+        assertEquals(EnumSet.of(DateShowSpecial.Y4, DateShowSpecial.SHOW_21ST_4DIGIT), dateTime.getDateShowBehavior());
+        assertEquals(CalendarType.GREGORIAN, dateTime.getCalendarType());
+        assertEquals(DateComponentOrder.WMDY, dateTime.getDateComponentOrder());
+        assertEquals(" ", dateTime.getCustomDateSeparator1());
+        assertEquals("/", dateTime.getCustomDateSeparator2());
+        assertEquals("-", dateTime.getCustomDateSeparator3());
+        assertEquals(DayFormat.D, dateTime.getDayFormat());
+        assertEquals(MonthFormat.MMMM, dateTime.getMonthFormat());
+        assertEquals(YearFormat.YY, dateTime.getYearFormat());
+        assertEquals(WeekFormat.WWWWP, dateTime.getWeekdayFormat());
+        
+        assertTrue(dateTime.isDisplayTime());
+        assertEquals(TimeShowFormat.HM, dateTime.getTimeShowFormat());
+        assertEquals(TimeZoneFormat.SOMETIMES, dateTime.getTimeZoneFormat());
+        assertTrue(dateTime.isTime24HourFormat());
+        assertEquals("_", dateTime.getCustomTimeSeparator());
+      }
     }
     {
       final CollectionColumn column = columns.get(4);
@@ -439,6 +514,11 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertFalse(numbers.isCurrencySymbolPostfix());
         assertFalse(numbers.isUseSpaceNextToNumber());
       }
+      
+      {
+        CollectionColumn.DateTimeSettings dateTime = column.getDateTimeSettings();
+        assertTrue(dateTime.isDisplayAbbreviatedDate());
+      }
     }
     {
       final CollectionColumn column = columns.get(5);
@@ -449,6 +529,32 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isIcon());
       assertTrue(column.isSharedColumn());
       assertEquals("testcol", column.getSharedColumnName().get());
+
+      // This column does not have numbers settings specified, and should use the defaults
+      {
+        CollectionColumn.NumberSettings numbers = column.getNumberSettings();
+        assertEquals(NumberDisplayFormat.DECIMAL, numbers.getFormat());
+        assertTrue(numbers.isVaryingDecimal());
+        assertFalse(numbers.isOverrideClientLocale());
+        assertFalse(numbers.isUseParenthesesWhenNegative());
+        assertFalse(numbers.isPunctuateThousands());
+      }
+      
+      // This column does not have date/time settings specified, and should use the defaults
+      {
+        CollectionColumn.DateTimeSettings dateTime = column.getDateTimeSettings();
+        assertFalse(dateTime.isOverrideClientLocale());
+        assertFalse(dateTime.isDisplayAbbreviatedDate());
+        
+        assertTrue(dateTime.isDisplayDate());
+        assertEquals(DateShowFormat.MDY, dateTime.getDateShowFormat());
+        assertEquals(EnumSet.of(DateShowSpecial.SHOW_21ST_4DIGIT), dateTime.getDateShowBehavior());
+        assertEquals(CalendarType.GREGORIAN, dateTime.getCalendarType());
+        
+        assertTrue(dateTime.isDisplayTime());
+        assertEquals(TimeShowFormat.HMS, dateTime.getTimeShowFormat());
+        assertEquals(TimeZoneFormat.NEVER, dateTime.getTimeZoneFormat());
+      }
     }
     {
       final CollectionColumn column = columns.get(6);
@@ -486,6 +592,29 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertTrue(numbers.isUseCustomCurrencySymbol());
         assertTrue(numbers.isCurrencySymbolPostfix());
         assertFalse(numbers.isUseSpaceNextToNumber());
+      }
+      
+      {
+        CollectionColumn.DateTimeSettings dateTime = column.getDateTimeSettings();
+        assertTrue(dateTime.isOverrideClientLocale());
+        assertFalse(dateTime.isDisplayAbbreviatedDate());
+        
+        assertTrue(dateTime.isDisplayDate());
+        assertEquals(DateShowFormat.MDY, dateTime.getDateShowFormat());
+        assertEquals(CalendarType.HIJRI, dateTime.getCalendarType());
+        assertEquals(DateComponentOrder.WDMY, dateTime.getDateComponentOrder());
+        assertEquals(" ", dateTime.getCustomDateSeparator1());
+        assertEquals("/", dateTime.getCustomDateSeparator2());
+        assertEquals("/", dateTime.getCustomDateSeparator3());
+        assertEquals(DayFormat.DD, dateTime.getDayFormat());
+        assertEquals(MonthFormat.MM, dateTime.getMonthFormat());
+        assertEquals(WeekFormat.WWW, dateTime.getWeekdayFormat());
+        
+        assertTrue(dateTime.isDisplayTime());
+        assertEquals(TimeShowFormat.HMS, dateTime.getTimeShowFormat());
+        assertEquals(TimeZoneFormat.NEVER, dateTime.getTimeZoneFormat());
+        assertFalse(dateTime.isTime24HourFormat());
+        assertEquals(":", dateTime.getCustomTimeSeparator());
       }
     }
     {
