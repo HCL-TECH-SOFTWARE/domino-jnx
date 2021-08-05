@@ -50,7 +50,7 @@ public interface DesignElement {
    * @author Jesse Gallagher
    * @since 1.0.27
    */
-  interface XPageAlternativeElement {
+  interface XPageAlternativeElement extends DesignElement {
     Optional<String> getWebXPageAlternative();
   }
 
@@ -61,7 +61,7 @@ public interface DesignElement {
    * @author Jesse Gallagher
    * @since 1.0.27
    */
-  interface XPageNotesAlternativeElement {
+  interface XPageNotesAlternativeElement extends DesignElement {
     Optional<String> getNotesXPageAlternative();
   }
   
@@ -72,7 +72,7 @@ public interface DesignElement {
    * @author Jesse Gallagher
    * @since 1.0.32
    */
-  interface ThemeableClassicElement {
+  interface ThemeableClassicElement extends DesignElement {
     ClassicThemeBehavior getClassicThemeBehavior();
   }
   
@@ -83,7 +83,7 @@ public interface DesignElement {
    * @author Jesse Gallagher
    * @since 1.0.32
    */
-  interface AutoFrameElement {
+  interface AutoFrameElement extends DesignElement {
     /**
      * Retrieves the name of the frameset used for "Auto Frame" behavior in the
      * Notes client, if specified.
