@@ -61,7 +61,9 @@ import com.hcl.domino.design.format.DateShowFormat;
 import com.hcl.domino.design.format.DateShowSpecial;
 import com.hcl.domino.design.format.DayFormat;
 import com.hcl.domino.design.format.MonthFormat;
+import com.hcl.domino.design.format.NarrowViewPosition;
 import com.hcl.domino.design.format.NumberDisplayFormat;
+import com.hcl.domino.design.format.TileViewerPosition;
 import com.hcl.domino.design.format.TimeShowFormat;
 import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.design.format.ViewColumnFormat;
@@ -329,6 +331,15 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isExtendToWindowWidth());
       assertEquals("", column.getExtraAttributes());
       assertTrue(column.isShowAsLinks());
+      
+      {
+        CollectionColumn.CompositeApplicationSettings compApp = column.getCompositeApplicationSettings();
+        assertEquals(NarrowViewPosition.KEEP_ON_TOP, compApp.getNarrowViewPosition());
+        assertTrue(compApp.isJustifySecondRow());
+        assertEquals(TileViewerPosition.TOP, compApp.getTileViewerPosition());
+        assertEquals(1, compApp.getTileLineNumber());
+        assertEquals("testprop", compApp.getCompositeProperty());
+      }
     }
     {
       final CollectionColumn column = columns.get(1);
@@ -400,6 +411,15 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isExtendToWindowWidth());
       assertEquals("", column.getExtraAttributes());
       assertFalse(column.isShowAsLinks());
+      
+      {
+        CollectionColumn.CompositeApplicationSettings compApp = column.getCompositeApplicationSettings();
+        assertEquals(NarrowViewPosition.WRAP, compApp.getNarrowViewPosition());
+        assertEquals(3, compApp.getSequenceNumber());
+        assertEquals(TileViewerPosition.BOTTOM, compApp.getTileViewerPosition());
+        assertEquals(1, compApp.getTileLineNumber());
+        assertEquals("", compApp.getCompositeProperty());
+      }
     }
     {
       final CollectionColumn column = columns.get(2);
@@ -474,6 +494,15 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isExtendToWindowWidth());
       assertEquals("foo=\"barss\"", column.getExtraAttributes());
       assertTrue(column.isShowAsLinks());
+      
+      {
+        CollectionColumn.CompositeApplicationSettings compApp = column.getCompositeApplicationSettings();
+        assertEquals(NarrowViewPosition.HIDE, compApp.getNarrowViewPosition());
+        assertEquals(5, compApp.getSequenceNumber());
+        assertEquals(TileViewerPosition.HIDE, compApp.getTileViewerPosition());
+        assertEquals(3, compApp.getTileLineNumber());
+        assertEquals("", compApp.getCompositeProperty());
+      }
     }
     {
       final CollectionColumn column = columns.get(3);

@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.commons.design.DesignColorsAndFonts;
+import com.hcl.domino.commons.util.DumpUtil;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.IAdaptable;
@@ -35,8 +36,10 @@ import com.hcl.domino.design.format.DateTimeFlag;
 import com.hcl.domino.design.format.DateTimeFlag2;
 import com.hcl.domino.design.format.DayFormat;
 import com.hcl.domino.design.format.MonthFormat;
+import com.hcl.domino.design.format.NarrowViewPosition;
 import com.hcl.domino.design.format.NumberDisplayFormat;
 import com.hcl.domino.design.format.NumberPref;
+import com.hcl.domino.design.format.TileViewerPosition;
 import com.hcl.domino.design.format.TimeShowFormat;
 import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.design.format.ViewColumnFormat;
@@ -384,6 +387,11 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   @Override
   public NamesSettings getNamesSettings() {
     return new DefaultNamesSettings();
+  }
+  
+  @Override
+  public CompositeApplicationSettings getCompositeApplicationSettings() {
+    return new DefaultCompositeApplicationSettings();
   }
 
   // *******************************************************************************
@@ -769,6 +777,53 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
           }
         })
         .orElse(OnlinePresenceOrientation.TOP);
+    }
+  }
+  
+  private class DefaultCompositeApplicationSettings implements CompositeApplicationSettings {
+
+    @Override
+    public NarrowViewPosition getNarrowViewPosition() {
+      return getFormat6()
+        .map(ViewColumnFormat6::getIfViewIsNarrowDo)
+        .orElse(NarrowViewPosition.KEEP_ON_TOP);
+    }
+
+    @Override
+    public boolean isJustifySecondRow() {
+      return getFormat6()
+        .map(ViewColumnFormat6::getFlags)
+        .map(flags -> flags.contains(ViewColumnFormat6.Flag.BeginWrapUnder))
+        .orElse(false);
+    }
+
+    @Override
+    public int getSequenceNumber() {
+      return getFormat6()
+        .map(ViewColumnFormat6::getSequenceNumber)
+        .orElse(0);
+    }
+
+    @Override
+    public TileViewerPosition getTileViewerPosition() {
+      return getFormat6()
+        .map(ViewColumnFormat6::getTileViewer)
+        .orElse(TileViewerPosition.TOP);
+    }
+
+    @Override
+    public int getTileLineNumber() {
+      return getFormat6()
+        .map(ViewColumnFormat6::getLineNumber)
+        .map(index -> index == 0 ? 1 : index)
+        .orElse(1);
+    }
+
+    @Override
+    public String getCompositeProperty() {
+      return getFormat6()
+        .map(ViewColumnFormat6::getPublishFieldName)
+        .orElse(""); //$NON-NLS-1$
     }
   }
 }

@@ -26,7 +26,9 @@ import com.hcl.domino.design.format.DateShowFormat;
 import com.hcl.domino.design.format.DateShowSpecial;
 import com.hcl.domino.design.format.DayFormat;
 import com.hcl.domino.design.format.MonthFormat;
+import com.hcl.domino.design.format.NarrowViewPosition;
 import com.hcl.domino.design.format.NumberDisplayFormat;
+import com.hcl.domino.design.format.TileViewerPosition;
 import com.hcl.domino.design.format.TimeShowFormat;
 import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.design.format.ViewColumnFormat;
@@ -395,6 +397,61 @@ public interface CollectionColumn {
      */
     OnlinePresenceOrientation getPresenceIconOrientation();
   }
+  
+  /**
+   * Represents display options for this column when it is displayed within a
+   * Composite Application.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  interface CompositeApplicationSettings {
+    /**
+     * Retrieves the positioning behavior when the view is considered narrow.
+     * 
+     * @return a {@link NarrowViewPosition} instance
+     */
+    NarrowViewPosition getNarrowViewPosition();
+    
+    /**
+     * Determines whether the second row under this column should be justified when
+     * {@link #getNarrowViewPosition()} is {@link NarrowViewPosition#KEEP_ON_TOP KEEP_ON_TOP}.
+     * 
+     * @return {@code true} if the second row should be justified;
+     *         {@code false} otherwise
+     */
+    boolean isJustifySecondRow();
+    
+    /**
+     * Retrieves the value sequence number used when {@link #getNarrowViewPosition()} is
+     * {@link NarrowViewPosition#WRAP WRAP} or {@link NarrowViewPosition#HIDE HIDE}.
+     * 
+     * @return the sequence number for displaying column data in narrow views
+     */
+    int getSequenceNumber();
+    
+    /**
+     * Retrieves the positioning behavior when the view is presented in the Tile Viewer.
+     * 
+     * @return a {@link TileViewerPosition} instance
+     */
+    TileViewerPosition getTileViewerPosition();
+    
+    /**
+     * Retrieves the column index for displaying this column when the view is presented in
+     * the Tile Viewer.
+     * 
+     * @return the display index for Tile Viewer mode
+     */
+    int getTileLineNumber();
+    
+    /**
+     * Retrieves the composite property that this field is published as.
+     * 
+     * @return the composite property name
+     */
+    String getCompositeProperty();
+  }
 
   enum TotalType {
     None, Total, Average, AveragePerSubcategory,
@@ -411,7 +468,7 @@ public interface CollectionColumn {
   enum OnlinePresenceOrientation {
     TOP, MIDDLE, BOTTOM
   }
-
+  
   int getColumnValuesIndex();
 
   /**
@@ -704,4 +761,13 @@ public interface CollectionColumn {
    * @since 1.0.32
    */
   NamesSettings getNamesSettings();
+  
+  /**
+   * Retrieves a view of the column's settings to use when the view is displayed
+   * in a Composite Application.
+   * 
+   * @return a {@link CompositeApplicationSettings} instance
+   * @since 1.0.32
+   */
+  CompositeApplicationSettings getCompositeApplicationSettings();
 }
