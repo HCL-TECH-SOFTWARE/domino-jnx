@@ -22,7 +22,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.commons.design.DesignColorsAndFonts;
-import com.hcl.domino.commons.util.DumpUtil;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.IAdaptable;
