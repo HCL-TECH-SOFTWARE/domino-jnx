@@ -431,6 +431,14 @@ public interface CollectionColumn {
    * @since 1.0.28
    */
   int getDisplayWidth();
+  
+  /**
+   * Retrieves the custom attributes set on this column.
+   * 
+   * @return the attributes string for the column
+   * @since 1.0.32
+   */
+  String getExtraAttributes();
 
   String getFormula();
 
@@ -473,8 +481,38 @@ public interface CollectionColumn {
   TotalType getTotalType();
 
   boolean isConstant();
+  
+  /**
+   * Determines whether the column should be extended to use available
+   * window width, regardless of whether it is the last in the view or folder.
+   * 
+   * @return {@code true} if this column should be extended to the window width;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   */
+  boolean isExtendToWindowWidth();
 
   boolean isHidden();
+  
+  /**
+   * Determines whether the column should be hidden from mobile clients
+   * specifically.
+   * 
+   * @return {@code true} if the column should be hidden from mobile clients;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   */
+  boolean isHiddenFromMobile();
+  
+  /**
+   * Determines whether column should be hidden from Notes clients below
+   * version 6.
+   * 
+   * @return {@code true} if the column should be hidden from pre-V6 clients;
+   *         {@code false} otherwise
+   * @since 1.0.32
+   */
+  boolean isHiddenInPreV6();
 
   /**
    * Determines whether a column's non-total rows should be hidden.
@@ -508,6 +546,15 @@ public interface CollectionColumn {
    *         {@code false} otherwise
    */
   boolean isResponsesOnly();
+  
+  /**
+   * Determines whether this column is marked as being displayed as links when rendered
+   * on the web.
+   * 
+   * @return {@code true} if column values should be shown as links on the web;
+   *         {@code false} otherwise
+   */
+  boolean isShowAsLinks();
 
   boolean isShowTwistie();
 

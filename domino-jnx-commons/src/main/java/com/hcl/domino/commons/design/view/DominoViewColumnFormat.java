@@ -106,6 +106,13 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   public int getDisplayWidth() {
     return this.getFormat1().getDisplayWidth();
   }
+  
+  @Override
+  public String getExtraAttributes() {
+    return getFormat6()
+      .map(ViewColumnFormat6::getAttributes)
+      .orElse(""); //$NON-NLS-1$
+  }
 
   @Override
   public String getFormula() {
@@ -174,10 +181,56 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   public boolean isConstant() {
     return this.getFormat1().getConstantValueLength() > 0;
   }
+  
+  @Override
+  public boolean isExtendToWindowWidth() {
+    return getFormat6()
+      .map(ViewColumnFormat6::getFlags)
+      .map(flags -> flags.contains(ViewColumnFormat6.Flag.ExtendColWidthToAvailWindowWidth))
+      .orElse(false);
+  }
 
   @Override
   public boolean isHidden() {
-    return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.Hidden);
+    if(this.format1.getFlags().contains(ViewColumnFormat.Flag.Hidden)) {
+      // Then we need to look for further details
+      return this.getFormat2()
+        .map(format2 -> {
+          Set<ViewColumnFormat2.HiddenFlag> hiddenFlags = format2.getCustomHiddenFlags();
+          if(hiddenFlags.contains(ViewColumnFormat2.HiddenFlag.NormalView)) {
+            // Then it's asserted as hidden here
+            return true;
+          } else if(format2.getFlags().contains(ViewColumnFormat2.Flag3.HideWhenFormula)) {
+            // Then it's marked as hidden but only by hide-when
+            return false;
+          } else if(format2.getFlags().contains(ViewColumnFormat2.Flag3.HideInR5)) {
+            // Then it's specially marked as only being hidden in older releases
+            return false;
+          }
+          // If there's no special indicator, then the original Hidden flag holds sway
+          return true;
+        })
+        // If there's no VCF2, it's outright hidden
+        .orElse(true);
+    } else {
+      return false;
+    }
+  }
+  
+  @Override
+  public boolean isHiddenFromMobile() {
+    return getFormat2()
+      .map(ViewColumnFormat2::getCustomHiddenFlags)
+      .map(flags -> flags.contains(ViewColumnFormat2.HiddenFlag.MOBILE))
+      .orElse(false);
+  }
+  
+  @Override
+  public boolean isHiddenInPreV6() {
+    return getFormat2()
+      .map(ViewColumnFormat2::getFlags)
+      .map(flags -> flags.contains(ViewColumnFormat2.Flag3.HideInR5))
+      .orElse(false);
   }
 
   @Override
@@ -206,6 +259,11 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
       .map(ViewColumnFormat2::getFlags)
       .map(flags -> flags.contains(ViewColumnFormat2.Flag3.IsSharedColumn))
       .orElse(false);
+  }
+  
+  @Override
+  public boolean isShowAsLinks() {
+    return this.getFormat1().getFlags2().contains(ViewColumnFormat.Flag2.ShowValuesAsLinks);
   }
 
   @Override

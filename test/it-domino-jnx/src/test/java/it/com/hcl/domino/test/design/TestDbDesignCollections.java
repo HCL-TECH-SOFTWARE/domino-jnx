@@ -321,6 +321,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertFalse(names.isShowOnlineStatus());
         assertFalse(names.getNameColumnName().isPresent());
       }
+      
+      assertFalse(column.isHidden());
+      assertFalse(column.isHiddenFromMobile());
+      assertEquals("", column.getHideWhenFormula());
+      assertFalse(column.isHiddenInPreV6());
+      assertFalse(column.isExtendToWindowWidth());
+      assertEquals("", column.getExtraAttributes());
+      assertTrue(column.isShowAsLinks());
     }
     {
       final CollectionColumn column = columns.get(1);
@@ -384,6 +392,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertEquals(TimeShowFormat.HM, dateTime.getTimeShowFormat());
         assertEquals(TimeZoneFormat.ALWAYS, dateTime.getTimeZoneFormat());
       }
+      
+      assertFalse(column.isHidden());
+      assertTrue(column.isHiddenFromMobile());
+      assertEquals("", column.getHideWhenFormula());
+      assertFalse(column.isHiddenInPreV6());
+      assertFalse(column.isExtendToWindowWidth());
+      assertEquals("", column.getExtraAttributes());
+      assertFalse(column.isShowAsLinks());
     }
     {
       final CollectionColumn column = columns.get(2);
@@ -450,6 +466,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertFalse(names.getNameColumnName().isPresent());
         assertEquals(CollectionColumn.OnlinePresenceOrientation.TOP, names.getPresenceIconOrientation());
       }
+      
+      assertFalse(column.isHidden());
+      assertFalse(column.isHiddenFromMobile());
+      assertEquals("\"hey\" = \"there\"", column.getHideWhenFormula());
+      assertTrue(column.isHiddenInPreV6());
+      assertFalse(column.isExtendToWindowWidth());
+      assertEquals("foo=\"barss\"", column.getExtraAttributes());
+      assertTrue(column.isShowAsLinks());
     }
     {
       final CollectionColumn column = columns.get(3);
@@ -503,6 +527,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertTrue(dateTime.isTime24HourFormat());
         assertEquals("_", dateTime.getCustomTimeSeparator());
       }
+      
+      assertFalse(column.isHidden());
+      assertFalse(column.isHiddenFromMobile());
+      assertEquals("", column.getHideWhenFormula());
+      assertFalse(column.isHiddenInPreV6());
+      assertTrue(column.isExtendToWindowWidth());
+      assertEquals("", column.getExtraAttributes());
+      assertFalse(column.isShowAsLinks());
     }
     {
       final CollectionColumn column = columns.get(4);
@@ -581,6 +613,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isIcon());
       assertTrue(column.isSharedColumn());
       assertEquals("testcol2", column.getSharedColumnName().get());
+      
+      assertFalse(column.isHidden());
+      assertFalse(column.isHiddenFromMobile());
+      assertEquals("", column.getHideWhenFormula());
+      assertFalse(column.isHiddenInPreV6());
+      assertFalse(column.isExtendToWindowWidth());
+      assertEquals("", column.getExtraAttributes());
+      assertFalse(column.isShowAsLinks());
     }
     {
       final CollectionColumn column = columns.get(7);
@@ -640,6 +680,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertEquals("foobarnamesfield", names.getNameColumnName().get());
         assertEquals(CollectionColumn.OnlinePresenceOrientation.MIDDLE, names.getPresenceIconOrientation());
       }
+      
+      assertFalse(column.isHidden());
+      assertFalse(column.isHiddenFromMobile());
+      assertEquals("@ClientType=\"Notes\"", column.getHideWhenFormula());
+      assertFalse(column.isHiddenInPreV6());
+      assertFalse(column.isExtendToWindowWidth());
+      assertEquals("names=\"this\"", column.getExtraAttributes());
+      assertFalse(column.isShowAsLinks());
     }
     {
       final CollectionColumn column = columns.get(8);
@@ -677,6 +725,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.None, column.getTotalType());
       assertTrue(column.isIcon());
+      
+      assertTrue(column.isHidden());
+      assertFalse(column.isHiddenFromMobile());
+      assertEquals("", column.getHideWhenFormula());
+      assertFalse(column.isHiddenInPreV6());
+      assertFalse(column.isExtendToWindowWidth());
+      assertEquals("", column.getExtraAttributes());
+      assertFalse(column.isShowAsLinks());
     }
     {
       final CollectionColumn column = columns.get(11);
