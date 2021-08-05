@@ -322,6 +322,11 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   public DateTimeSettings getDateTimeSettings() {
     return new DefaultDateTimeSettings();
   }
+  
+  @Override
+  public NamesSettings getNamesSettings() {
+    return new DefaultNamesSettings();
+  }
 
   // *******************************************************************************
   // * Format-reader hooks
@@ -665,6 +670,47 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
         .map(format3 -> format3.getTimeSeparator())
         .orElse(":"); //$NON-NLS-1$
     }
-    
+  }
+  
+  private class DefaultNamesSettings implements NamesSettings {
+
+    @Override
+    public boolean isNamesValue() {
+      return getFormat5()
+        .map(ViewColumnFormat5::getFlags)
+        .map(flags -> flags.contains(ViewColumnFormat5.Flag.IS_NAME))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isShowOnlineStatus() {
+      return getFormat5()
+        .map(ViewColumnFormat5::getFlags)
+        .map(flags -> flags.contains(ViewColumnFormat5.Flag.SHOW_IM_STATUS))
+        .orElse(false);
+    }
+
+    @Override
+    public Optional<String> getNameColumnName() {
+      return getFormat5()
+        .map(ViewColumnFormat5::getDnColumnName)
+        .flatMap(name -> name.isEmpty() ? Optional.empty() : Optional.of(name));
+    }
+
+    @Override
+    public OnlinePresenceOrientation getPresenceIconOrientation() {
+      return getFormat5()
+        .map(ViewColumnFormat5::getFlags)
+        .map(flags -> {
+          if(flags.contains(ViewColumnFormat5.Flag.VERT_ORIENT_BOTTOM)) {
+            return OnlinePresenceOrientation.BOTTOM;
+          } else if(flags.contains(ViewColumnFormat5.Flag.VERT_ORIENT_MID)) {
+            return OnlinePresenceOrientation.MIDDLE;
+          } else {
+            return OnlinePresenceOrientation.TOP;
+          }
+        })
+        .orElse(OnlinePresenceOrientation.TOP);
+    }
   }
 }

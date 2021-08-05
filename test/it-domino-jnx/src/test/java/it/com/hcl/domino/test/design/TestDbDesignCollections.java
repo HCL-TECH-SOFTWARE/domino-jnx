@@ -313,6 +313,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertEquals(TimeShowFormat.HMS, dateTime.getTimeShowFormat());
         assertEquals(TimeZoneFormat.NEVER, dateTime.getTimeZoneFormat());
       }
+      
+      // No values are specified for this column, so it should use the defaults
+      {
+        CollectionColumn.NamesSettings names = column.getNamesSettings();
+        assertFalse(names.isNamesValue());
+        assertFalse(names.isShowOnlineStatus());
+        assertFalse(names.getNameColumnName().isPresent());
+      }
     }
     {
       final CollectionColumn column = columns.get(1);
@@ -433,6 +441,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertEquals(CalendarType.GREGORIAN, dateTime.getCalendarType());
         
         assertFalse(dateTime.isDisplayTime());
+      }
+      
+      {
+        CollectionColumn.NamesSettings names = column.getNamesSettings();
+        assertFalse(names.isNamesValue());
+        assertTrue(names.isShowOnlineStatus());
+        assertFalse(names.getNameColumnName().isPresent());
+        assertEquals(CollectionColumn.OnlinePresenceOrientation.TOP, names.getPresenceIconOrientation());
       }
     }
     {
@@ -616,6 +632,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertFalse(dateTime.isTime24HourFormat());
         assertEquals(":", dateTime.getCustomTimeSeparator());
       }
+      
+      {
+        CollectionColumn.NamesSettings names = column.getNamesSettings();
+        assertTrue(names.isNamesValue());
+        assertTrue(names.isShowOnlineStatus());
+        assertEquals("foobarnamesfield", names.getNameColumnName().get());
+        assertEquals(CollectionColumn.OnlinePresenceOrientation.MIDDLE, names.getPresenceIconOrientation());
+      }
     }
     {
       final CollectionColumn column = columns.get(8);
@@ -629,6 +653,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       Optional<CDResource> twistie = column.getTwistieImage();
       assertTrue(twistie.isPresent());
       assertEquals("Untitled 2.gif", twistie.get().getNamedElement());
+      
+      {
+        CollectionColumn.NamesSettings names = column.getNamesSettings();
+        assertFalse(names.isNamesValue());
+        assertTrue(names.isShowOnlineStatus());
+        assertEquals("othernamesfield", names.getNameColumnName().get());
+        assertEquals(CollectionColumn.OnlinePresenceOrientation.BOTTOM, names.getPresenceIconOrientation());
+      }
     }
     {
       final CollectionColumn column = columns.get(9);

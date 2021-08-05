@@ -352,10 +352,64 @@ public interface CollectionColumn {
      */
     String getCustomTimeSeparator();
   }
+  
+  /**
+   * Represents the formatting options for this column when it contains a name
+   * value.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  interface NamesSettings {
+    /**
+     * Determines whether text values in the column should be treated as names.
+     * 
+     * @return {@code true} if column text values should be considered names;
+     *         {@code false} otherwise
+     */
+    boolean isNamesValue();
+    
+    /**
+     * Determines whether the column should display online-presence information
+     * when available.
+     * 
+     * @return {@code true} if available online-presence information should be displayed;
+     *         {@code false} otherwise
+     */
+    boolean isShowOnlineStatus();
+    
+    /**
+     * Retrieves the item name of the column that contains the online-presence
+     * name, if not this one.
+     * 
+     * @return an {@link Optional} describing the item name of the column containing
+     *         the online-presence name, or an empty one if this is not specified
+     */
+    Optional<String> getNameColumnName();
+    
+    /**
+     * Retrieves the orientation of the online-presence icon when {@link #isShowOnlineStatus()}
+     * is {@code true}.
+     * 
+     * @return an {@link OnlinePresenceOrientation} instance
+     */
+    OnlinePresenceOrientation getPresenceIconOrientation();
+  }
 
   enum TotalType {
     None, Total, Average, AveragePerSubcategory,
     PercentOfParentCategory, Percent
+  }
+  
+  /**
+   * Represents the orientation of the icon for columns that display online-
+   * presence information.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  enum OnlinePresenceOrientation {
+    TOP, MIDDLE, BOTTOM
   }
 
   int getColumnValuesIndex();
@@ -594,4 +648,13 @@ public interface CollectionColumn {
    * @since 1.0.32
    */
   DateTimeSettings getDateTimeSettings();
+  
+  /**
+   * Retrieves a view of the column's settings to use when displaying names
+   * values.
+   * 
+   * @return a {@link NamesSettings} instance
+   * @since 1.0.32
+   */
+  NamesSettings getNamesSettings();
 }
