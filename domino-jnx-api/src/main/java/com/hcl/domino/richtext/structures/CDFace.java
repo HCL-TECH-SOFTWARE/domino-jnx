@@ -14,25 +14,50 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.richtext.records;
+package com.hcl.domino.richtext.structures;
 
+import java.nio.charset.Charset;
+
+import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
-import com.hcl.domino.richtext.structures.BSIG;
+import com.hcl.domino.richtext.annotation.StructureSetter;
 
 /**
+ * 
  * @author Jesse Gallagher
- * @since 1.0.24
+ * @since 1.0.32
  */
 @StructureDefinition(
-  name = "CDACTIONHEADER",
+  name = "RFC822ITEMDESC",
   members = {
-    @StructureMember(name = "Header", type = BSIG.class)
+    @StructureMember(name = "Face", type = byte.class, unsigned = true),
+    @StructureMember(name = "Family", type = byte.class),
+    @StructureMember(name = "Name", type=byte[].class, length = RichTextConstants.MAXFACESIZE)
   }
 )
-public interface CDActionHeader extends RichTextRecord<BSIG> {
-  @StructureGetter("Header")
-  @Override
-  BSIG getHeader();
+public interface CDFace extends MemoryStructure {
+  @StructureGetter("Face")
+  short getFace();
+  
+  @StructureSetter("Face")
+  CDFace setFace(short face);
+  
+  @StructureGetter("Name")
+  byte[] getNameRaw();
+  
+  @StructureSetter("Name")
+  CDFace setNameRaw(byte[] name);
+  
+  default String getName() {
+    int firstNull = 0;
+    byte[] name = getNameRaw();
+    for(firstNull = 0; firstNull < RichTextConstants.MAXFACESIZE; firstNull++) {
+      if(name[firstNull] == '\0') {
+        break;
+      }
+    }
+    return new String(getNameRaw(), 0, firstNull, Charset.forName("LMBCS")); //$NON-NLS-1$
+  }
 }

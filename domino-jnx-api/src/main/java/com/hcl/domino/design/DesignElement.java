@@ -72,7 +72,7 @@ public interface DesignElement {
    * @author Jesse Gallagher
    * @since 1.0.32
    */
-  interface ThemeableClassicElement extends DesignElement {
+  interface ThemeableClassicElement {
     ClassicThemeBehavior getClassicThemeBehavior();
   }
   
@@ -100,6 +100,24 @@ public interface DesignElement {
      *         an empty one if this is unspecified
      */
     Optional<String> getAutoFrameTarget();
+  }
+  
+  /**
+   * This mixin interfaces describes design elements that have an action bar
+   * displayed across the top.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  interface ActionBarElement extends DesignElement {
+    /**
+     * Retrieves a view onto this design element's action bar and the associated
+     * actions.
+     * 
+     * @return an {@link ActionBar} instance
+     * @since 1.0.32
+     */
+    ActionBar getActionBar();
   }
   
   /**

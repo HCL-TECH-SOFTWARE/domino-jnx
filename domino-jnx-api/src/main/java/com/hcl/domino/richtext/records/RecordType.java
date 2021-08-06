@@ -138,7 +138,7 @@ public enum RecordType {
    * form note and/or a document.
    */
   TEXTPROPERTIESTABLE(RichTextConstants.SIG_CD_TEXTPROPERTIESTABLE, 1),
-  HREF2(RichTextConstants.SIG_CD_HREF2, 1),
+  HREF2(RichTextConstants.SIG_CD_HREF2, 1, CDResource.class),
   BACKGROUNDCOLOR(RichTextConstants.SIG_CD_BACKGROUNDCOLOR, 1),
   /**
    * This CD Record gives information pertaining to shared resources and/or shared
@@ -517,7 +517,7 @@ public enum RecordType {
    * CDBEGINRECORD and a CDENDRECORD record with CD record signature
    * CDPRETABLEBEGIN.
    */
-  BORDERINFO(RichTextConstants.SIG_CD_BORDERINFO, 1),
+  BORDERINFO(RichTextConstants.SIG_CD_BORDERINFO, 1, CDBorderInfo.class),
   /**
    * This CD record defines an embedded element of type 'group scheduler'.<br>
    * It is preceded by a CDHOTSPOTBEGIN and a CDPLACEHOLDER. The CD record,
@@ -560,7 +560,7 @@ public enum RecordType {
    * side image MAP.
    */
   AREAELEMENT(RichTextConstants.SIG_CD_AREAELEMENT, 3),
-  HREF(RichTextConstants.SIG_CD_HREF, 3),
+  HREF(RichTextConstants.SIG_CD_HREF, new int[] { 1, 3 }, CDResource.class),
   HTML_ALTTEXT(RichTextConstants.SIG_CD_HTML_ALTTEXT, 3),
   /**
    * Structure which defines simple actions, formulas or LotusScript for an image
@@ -599,7 +599,7 @@ public enum RecordType {
    * using
    * fonts other than those defined in FONT_FACE_xxx.
    */
-  FONTTABLE(RichTextConstants.SIG_CD_FONTTABLE, 4),
+  FONTTABLE(RichTextConstants.SIG_CD_FONTTABLE, 4, CDFontTable.class),
   LINK(RichTextConstants.SIG_CD_LINK, 4),
   LINKEXPORT(RichTextConstants.SIG_CD_LINKEXPORT, 4),
   /**
@@ -852,8 +852,10 @@ public enum RecordType {
   static {
     RecordType.m_recordsByConstant = new HashMap<>();
     for (final RecordType currType : RecordType.values()) {
-      final String key = currType.getConstant() + "|" + currType.getArea(); //$NON-NLS-1$
-      RecordType.m_recordsByConstant.put(key, currType);
+      for(int area : currType.getArea()) {
+        final String key = currType.getConstant() + "|" + area; //$NON-NLS-1$
+        RecordType.m_recordsByConstant.put(key, currType);
+      }
     }
   }
 
@@ -927,7 +929,7 @@ public enum RecordType {
     return types;
   }
 
-  private int m_area;
+  private int[] m_area;
 
   private short m_val;
 
@@ -938,12 +940,16 @@ public enum RecordType {
   }
 
   RecordType(final short val, final int area, final Class<? extends RichTextRecord<?>> encapsulation) {
+    this(val, new int[] { area }, encapsulation);
+  }
+  
+  RecordType(short val, int[] area, Class<? extends RichTextRecord<?>> encapsulation) {
     this.m_val = val;
     this.m_area = area;
     this.m_encapsulation = encapsulation;
   }
 
-  public int getArea() {
+  public int[] getArea() {
     return this.m_area;
   }
 

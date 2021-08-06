@@ -34,6 +34,21 @@ public enum DesignColorsAndFonts {
   }
 
   /**
+   * Returns a new in-memory "system color" color structure.
+   * 
+   * @return a new {@link ColorValue} structure
+   * @since 1.0.32
+   */
+  public static ColorValue systemColor() {
+    ColorValue result = MemoryStructureProxy.newStructure(ColorValue.class, 0);
+    result.setFlags(EnumSet.of(ColorValue.Flag.SYSTEMCOLOR));
+    result.setRed((short)0);
+    result.setGreen((short)0);
+    result.setBlue((short)0);
+    return result;
+  }
+
+  /**
    * Returns a new in-memory white color structure.
    * 
    * @return a new {@link ColorValue} structure
@@ -117,6 +132,21 @@ public enum DesignColorsAndFonts {
     FontStyle result = MemoryStructureProxy.newStructure(FontStyle.class, 0);
     result.setStandardFont(StandardFonts.SWISS);
     result.setPointSize(9);
+    result.setAttributes(EnumSet.of(FontAttribute.BOLD));
+    return result;
+  }
+  
+  /**
+   * Returns a new in-memory font structure representing the default font settings
+   * for most Notes situations.
+   * 
+   * @return a new {@link FontStyle} structure
+   * @since 1.0.32
+   */
+  public static FontStyle defaultFont() {
+    FontStyle result = MemoryStructureProxy.newStructure(FontStyle.class, 0);
+    result.setStandardFont(StandardFonts.SWISS);
+    result.setPointSize(10);
     result.setAttributes(EnumSet.of(FontAttribute.BOLD));
     return result;
   }

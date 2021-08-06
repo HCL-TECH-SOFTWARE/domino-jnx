@@ -47,14 +47,23 @@ import com.hcl.domino.data.Database;
 import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.NotesFont;
 import com.hcl.domino.data.StandardFonts;
+import com.hcl.domino.design.ActionBar;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.CollectionDesignElement.DisplaySettings;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignElement;
+import com.hcl.domino.design.DesignElement.ClassicThemeBehavior;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.View;
+import com.hcl.domino.design.ActionBar.ButtonHeightMode;
+import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
+import com.hcl.domino.design.format.ActionBarTextAlignment;
+import com.hcl.domino.design.format.ActionButtonHeightMode;
+import com.hcl.domino.design.format.ActionWidthMode;
+import com.hcl.domino.design.format.BorderStyle;
+import com.hcl.domino.design.format.ButtonBorderDisplay;
 import com.hcl.domino.design.format.CalendarType;
 import com.hcl.domino.design.format.DateComponentOrder;
 import com.hcl.domino.design.format.DateShowFormat;
@@ -82,7 +91,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
-  public static final int EXPECTED_IMPORT_VIEWS = 8;
+  public static final int EXPECTED_IMPORT_VIEWS = 9;
   public static final int EXPECTED_IMPORT_FOLDERS = 1;
 
   private static String dbPath;
@@ -1420,6 +1429,90 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       System.out.println("read col " + col.getItemName());
     });
   }
+  
+  @Test
+  public void testActionView() {
+    DbDesign design = this.database.getDesign();
+    View view = design.getView("Action View").get();
+    
+    ActionBar actions = view.getActionBar();
+    
+    assertEquals(ActionBar.Alignment.RIGHT, actions.getAlignment());
+    assertTrue(actions.isUseJavaApplet());
+    assertTrue(actions.isShowDefaultItemsInContextMenu());
+    
+    assertEquals(ActionButtonHeightMode.EXS, actions.getHeightMode());
+    assertEquals(5.167, actions.getHeightSpec());
+    {
+      NotesFont heightFont = actions.getHeightSizingFont();
+      assertFalse(heightFont.getStandardFont().isPresent());
+      assertEquals("Calibri", heightFont.getFontName().get());
+      assertEquals(14, heightFont.getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.ITALIC), heightFont.getAttributes());
+    }
+    
+    assertColorEquals(actions.getBackgroundColor(), 255, 159, 255);
+    {
+      CDResource background = actions.getBackgroundImage().get();
+      assertEquals("Untitled.gif", background.getNamedElement());
+    }
+    assertEquals(ActionBarBackgroundRepeat.CENTER_TILE, actions.getBackgroundImageRepeatMode());
+    assertEquals(ClassicThemeBehavior.DONT_INHERIT_FROM_OS, actions.getClassicThemeBehavior());
+    
+    assertEquals(BorderStyle.DOUBLE, actions.getBorderStyle());
+    assertColorEquals(actions.getBorderColor(), 97, 129, 255);
+    assertTrue(actions.isUseDropShadow());
+    assertEquals(4, actions.getDropShadowWidth());
+    {
+      EdgeWidths inside = actions.getInsideMargins();
+      assertEquals(5, inside.getTop());
+      assertEquals(6, inside.getLeft());
+      assertEquals(2, inside.getRight());
+      assertEquals(24, inside.getBottom());
+    }
+    {
+      EdgeWidths thickness = actions.getBorderWidths();
+      assertEquals(1, thickness.getTop());
+      assertEquals(2, thickness.getLeft());
+      assertEquals(3, thickness.getRight());
+      assertEquals(4, thickness.getBottom());
+    }
+    {
+      EdgeWidths outside = actions.getOutsideMargins();
+      assertEquals(5, outside.getTop());
+      assertEquals(6, outside.getLeft());
+      assertEquals(7, outside.getRight());
+      assertEquals(8, outside.getBottom());
+    }
+    
+    assertEquals(ButtonHeightMode.FIXED_SIZE, actions.getButtonHeightMode());
+    assertEquals(17, actions.getButtonHeightSpec());
+    assertEquals(ActionWidthMode.BACKGROUND, actions.getButtonWidthMode());
+    assertTrue(actions.isFixedSizeButtonMargin());
+    assertEquals(6, actions.getButtonVerticalMarginSize());
+    assertEquals(ButtonBorderDisplay.ONMOUSEOVER, actions.getButtonBorderMode());
+    assertEquals(ActionBarTextAlignment.CENTER, actions.getButtonTextAlignment());
+    assertEquals(2, actions.getButtonInternalMarginSize());
+    assertTrue(actions.isAlwaysShowDropDowns());
+    
+    assertColorEquals(actions.getButtonBackgroundColor(), 255, 129, 0);
+    {
+      CDResource buttonBackground = actions.getButtonBackgroundImage().get();
+      assertEquals("Untitled 2.gif", buttonBackground.getNamedElement());
+    }
+    
+    {
+      NotesFont font = actions.getFont();
+      assertEquals("Courier New", font.getFontName().get());
+      assertEquals(18, font.getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.UNDERLINE), font.getAttributes());
+    }
+    assertColorEquals(actions.getFontColor(), 0, 0, 255);
+  }
+  
+  // *******************************************************************************
+  // * Shared utility methods
+  // *******************************************************************************
   
   private void assertColorEquals(ColorValue color, int red, int green, int blue) {
     assertNotNull(color);

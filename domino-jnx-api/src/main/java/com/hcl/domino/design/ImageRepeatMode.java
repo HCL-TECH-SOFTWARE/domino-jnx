@@ -14,7 +14,8 @@ public enum ImageRepeatMode implements INumberEnum<Short> {
   HORIZONTAL((short)3),
   TILE((short)4),
   SIZE_TO_FIT((short)5),
-  CENTER((short)6);
+  CENTER((short)6),
+  CENTER_BASED_TILING((short)7);
   private final short value;
   private ImageRepeatMode(short value) {
     this.value = value;

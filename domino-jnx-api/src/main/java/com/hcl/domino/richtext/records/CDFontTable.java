@@ -14,28 +14,33 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design;
+package com.hcl.domino.richtext.records;
 
-import java.util.List;
-
-import com.hcl.domino.richtext.FormField;
+import com.hcl.domino.richtext.annotation.StructureDefinition;
+import com.hcl.domino.richtext.annotation.StructureGetter;
+import com.hcl.domino.richtext.annotation.StructureMember;
+import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.structures.WSIG;
 
 /**
- * @param <T> the more-specific interface
+ * @author Jesse Gallagher
+ * @since 1.0.32
  */
-public interface GenericFormOrSubform<T extends GenericFormOrSubform<T>> extends DesignElement.NamedDesignElement,
-  DesignElement.ActionBarElement {
-
-  T addField();
-
-  List<String> getExplicitSubformRecursive();
-
-  List<FormField> getFields();
-
-  List<SubformReference> getSubforms();
-
-  T removeField();
-
-  void swapFields(final int indexA, final int indexB);
-
+@StructureDefinition(
+  name = "CDFONTTABLE",
+  members = {
+    @StructureMember(name = "Header", type = WSIG.class),
+    @StructureMember(name = "Fonts", type = short.class, unsigned = true)
+  }
+)
+public interface CDFontTable extends RichTextRecord<WSIG> {
+  @StructureGetter("Header")
+  @Override
+  WSIG getHeader();
+  
+  @StructureGetter("Fonts")
+  int getFontCount();
+  
+  @StructureSetter("Fonts")
+  CDFontTable setFontCount(int fonts);
 }

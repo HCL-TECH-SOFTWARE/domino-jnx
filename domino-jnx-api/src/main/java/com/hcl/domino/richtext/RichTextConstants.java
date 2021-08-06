@@ -1011,4 +1011,56 @@ public interface RichTextConstants {
    */
   short CDRESOURCE_CLASS_PORTFOLIO = 21;
   short CDRESOURCE_CLASS_OUTLINE = 22;
+
+  short CDBORDERSTYLE_NONE = 0;
+  short CDBORDERSTYLE_SOLID = 1;
+  short CDBORDERSTYLE_DOUBLE = 2;
+  short CDBORDERSTYLE_INSET = 3;
+  short CDBORDERSTYLE_OUTSET = 4;
+  short CDBORDERSTYLE_RIDGE = 5;
+  short CDBORDERSTYLE_GROOVE = 6;
+  short CDBORDERSTYLE_DOTTED = 7;
+  short CDBORDERSTYLE_DASHED = 8;
+  short CDBORDERSTYLE_PICTURE = 9;
+  short CDBORDERSTYLE_GRAPHIC = 10;
+  
+  short CDBORDER_FLAGS_DROP_SHADOW = 0x0001;
+  
+  /** Width is calculated based on text length and image width */
+  byte ACTIONBAR_BUTTON_WIDTH_DEFAULT = 0;
+  /** Width is at least button background image width or wider if needed to fit text and image */
+  byte ACTIONBAR_BUTTON_WIDTH_BACKGROUND = 1;
+  /** Width is set to value in wBtnWidthAbsolute */
+  byte ACTIONBAR_BUTTON_WIDTH_ABSOLUTE = 2;
+  
+  short ACTION_SET_3D_ONMOUSEOVER = 0;
+  short ACTION_SET_3D_ALWAYS = 1;
+  short ACTION_SET_3D_NEVER = 2;
+  short ACTION_SET_3D_NOTES = 3;
+  
+  short ACTIONBAR_BACKGROUND_REPEATONCE = 1;
+  short ACTIONBAR_BACKGROUND_REPEATVERT = 2;
+  short ACTIONBAR_BACKGROUND_REPEATHORIZ = 3;
+  short ACTIONBAR_BACKGROUND_TILE = 4;
+  short ACTIONBAR_BACKGROUND_CENTER_TILE = 5;
+  short ACTIONBAR_BACKGROUND_REPEATSIZE = 6;
+  short ACTIONBAR_BACKGROUND_REPEATCENTER = 7;
+  
+  byte ACTIONBAR_BUTTON_TEXT_LEFT = 0;
+  byte ACTIONBAR_BUTTON_TEXT_CENTER = 1;
+  byte ACTIONBAR_BUTTON_TEXT_RIGHT = 2;
+  
+  int ACTIONBAREXT_WIDTH_STYLE_VALID_FLAG = 0x00000001;
+
+  /** set when "auto" or "inherit" is set */
+  short CDLENGTH_UNITS_UNKNOWN = 0;
+  short CDLENGTH_UNITS_TWIPS = 1;
+  short CDLENGTH_UNITS_PIXELS = 2;
+  short CDLENGTH_UNITS_PERCENT = 3;
+  short CDLENGTH_UNITS_EMS = 4;
+  short CDLENGTH_UNITS_EXS = 5;
+  /** average width of a character based on the font */
+  short CDLENGTH_UNITS_CHARS = 6;
+  
+  int MAXFACESIZE = 32;
 }

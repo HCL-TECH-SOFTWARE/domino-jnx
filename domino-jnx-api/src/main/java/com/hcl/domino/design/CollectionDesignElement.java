@@ -31,7 +31,7 @@ import com.hcl.domino.security.AclLevel;
  * Describes a collection design element, i.e. a view or folder
  */
 public interface CollectionDesignElement extends DesignElement.NamedDesignElement, DesignElement.XPageAlternativeElement,
-  DesignElement.ThemeableClassicElement, DesignElement.AutoFrameElement {
+  DesignElement.ThemeableClassicElement, DesignElement.AutoFrameElement, DesignElement.ActionBarElement {
 
   public enum OnOpen {
     GOTO_LAST_OPENED,

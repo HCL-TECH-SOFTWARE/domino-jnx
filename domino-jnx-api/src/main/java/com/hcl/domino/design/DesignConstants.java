@@ -124,4 +124,7 @@ public interface DesignConstants {
    * or Manager-level users.
    */
   String INDEXDISPOSITION_RESTRICTTODESIGNER = "B"; //$NON-NLS-1$
+  
+  String ACTION_ITEM = "$ACTIONS"; //$NON-NLS-1$
+  String V5ACTION_ITEM = "$V5ACTIONS"; //$NON-NLS-1$
 }

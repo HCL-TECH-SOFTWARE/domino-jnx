@@ -56,7 +56,7 @@ import com.hcl.domino.richtext.structures.ColorValue;
  * @since 1.0.18
  */
 public abstract class AbstractCollectionDesignElement<T extends CollectionDesignElement> extends AbstractNamedDesignElement<T>
-    implements CollectionDesignElement, IDefaultAutoFrameElement {
+    implements CollectionDesignElement, IDefaultAutoFrameElement, IDefaultActionBarElement {
   private DominoViewFormat format;
 
   public AbstractCollectionDesignElement(final Document doc) {
@@ -564,7 +564,12 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
     @Override
     public EdgeWidths getMargin() {
-      return new DefaultEdgeWidths();
+      return new LambdaEdgeWidths(
+        () -> getFormat3().map(ViewTableFormat3::getViewMarginTop).orElse(0),
+        () -> getFormat3().map(ViewTableFormat3::getViewMarginLeft).orElse(0),
+        () -> getFormat3().map(ViewTableFormat3::getViewMarginRight).orElse(0),
+        () -> getFormat3().map(ViewTableFormat3::getViewMarginBottom).orElse(0)
+      );
     }
 
     @Override
@@ -579,36 +584,6 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       return getFormat3()
         .map(ViewTableFormat3::getMarginBackgroundColor)
         .orElseGet(DesignColorsAndFonts::whiteColor);
-    }
-  }
-  
-  private class DefaultEdgeWidths implements EdgeWidths {
-    @Override
-    public int getTop() {
-      return getFormat3()
-        .map(ViewTableFormat3::getViewMarginTop)
-        .orElse(0);
-    }
-
-    @Override
-    public int getLeft() {
-      return getFormat3()
-        .map(ViewTableFormat3::getViewMarginLeft)
-        .orElse(0);
-    }
-
-    @Override
-    public int getRight() {
-      return getFormat3()
-        .map(ViewTableFormat3::getViewMarginRight)
-        .orElse(0);
-    }
-
-    @Override
-    public int getBottom() {
-      return getFormat3()
-        .map(ViewTableFormat3::getViewMarginBottom)
-        .orElse(0);
     }
   }
   
