@@ -33,7 +33,9 @@ import com.hcl.domino.richtext.structures.LSIG;
  * @author Jesse Gallagher
  * @since 1.0.15
  */
-@StructureDefinition(name = "CDACTION", members = {
+@StructureDefinition(
+  name = "CDACTION",
+  members = {
     @StructureMember(name = "Header", type = LSIG.class),
     @StructureMember(name = "Type", type = CDAction.Type.class),
     @StructureMember(name = "IconIndex", type = short.class, unsigned = true),
@@ -41,7 +43,8 @@ import com.hcl.domino.richtext.structures.LSIG;
     @StructureMember(name = "TitleLen", type = short.class, unsigned = true),
     @StructureMember(name = "FormulaLen", type = short.class, unsigned = true),
     @StructureMember(name = "ShareId", type = int.class)
-})
+  }
+)
 public interface CDAction extends RichTextRecord<LSIG> {
   enum Flag implements INumberEnum<Integer> {
     SHOW_IN_MENU(0x00000001),

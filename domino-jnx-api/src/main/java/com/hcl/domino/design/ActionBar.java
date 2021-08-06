@@ -1,5 +1,6 @@
 package com.hcl.domino.design;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.hcl.domino.data.NotesFont;
@@ -263,4 +264,11 @@ public interface ActionBar extends DesignElement.ThemeableClassicElement {
    * @return a {@link ColorValue} instance
    */
   ColorValue getFontColor();
+  
+  /**
+   * Retrieves the actions from the bar, in declaration order.
+   *  
+   * @return a {@link List} of the actions in the bar
+   */
+  List<ActionBarAction> getActions();
 }

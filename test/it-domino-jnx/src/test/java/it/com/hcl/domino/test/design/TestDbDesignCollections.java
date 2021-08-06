@@ -58,7 +58,9 @@ import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.ActionBar.ButtonHeightMode;
+import com.hcl.domino.design.ActionBarAction;
 import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
+import com.hcl.domino.design.format.ActionBarControlType;
 import com.hcl.domino.design.format.ActionBarTextAlignment;
 import com.hcl.domino.design.format.ActionButtonHeightMode;
 import com.hcl.domino.design.format.ActionWidthMode;
@@ -69,6 +71,7 @@ import com.hcl.domino.design.format.DateComponentOrder;
 import com.hcl.domino.design.format.DateShowFormat;
 import com.hcl.domino.design.format.DateShowSpecial;
 import com.hcl.domino.design.format.DayFormat;
+import com.hcl.domino.design.format.HideFromDevice;
 import com.hcl.domino.design.format.MonthFormat;
 import com.hcl.domino.design.format.NarrowViewPosition;
 import com.hcl.domino.design.format.NumberDisplayFormat;
@@ -1508,6 +1511,45 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals(EnumSet.of(FontAttribute.UNDERLINE), font.getAttributes());
     }
     assertColorEquals(actions.getFontColor(), 0, 0, 255);
+    
+    
+    
+    List<ActionBarAction> actionList = actions.getActions();
+    assertEquals(10, actionList.size());
+    {
+      ActionBarAction action = actionList.get(0);
+      assertEquals(2, action.getSharedActionIndex().getAsLong());
+    }
+    {
+      ActionBarAction action = actionList.get(1);
+      assertEquals(3, action.getSharedActionIndex().getAsLong());
+    }
+    {
+      ActionBarAction action = actionList.get(2);
+      assertEquals("Formula Action", action.getName());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertEquals("NotesView", action.getTargetFrame().get());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIconOnlyInActionBar());
+      assertTrue(action.isDisplayIconOnRight());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInMobileActions());
+      assertFalse(action.isIncludeInMobileSwipeLeft());
+      assertFalse(action.isIncludeInMobileSwipeRight());
+      assertFalse(action.isIncludeInContextMenu());
+      assertEquals(ActionBarAction.IconType.NOTES, action.getIconType());
+      assertEquals(68, action.getNotesIconIndex());
+      
+      assertEquals(EnumSet.of(HideFromDevice.WEB, HideFromDevice.MOBILE), action.getHideFromDevices());
+      assertEquals("@False", action.getHideWhenFormula().get());
+      
+      assertFalse(action.isPublishWithOle());
+      assertFalse(action.isCloseOleWhenChosen());
+      assertFalse(action.isBringDocumentToFrontInOle());
+      assertEquals("testAction", action.getCompositeActionName().get());
+      assertEquals("some program use", action.getProgrammaticUseText());
+    }
   }
   
   // *******************************************************************************

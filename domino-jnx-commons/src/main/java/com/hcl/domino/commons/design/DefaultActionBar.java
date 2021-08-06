@@ -1,12 +1,15 @@
 package com.hcl.domino.commons.design;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.NotesFont;
 import com.hcl.domino.design.ActionBar;
+import com.hcl.domino.design.ActionBarAction;
 import com.hcl.domino.design.DesignElement.ClassicThemeBehavior;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
@@ -16,6 +19,7 @@ import com.hcl.domino.design.format.ActionWidthMode;
 import com.hcl.domino.design.format.BorderStyle;
 import com.hcl.domino.design.format.ButtonBorderDisplay;
 import com.hcl.domino.richtext.RichTextRecordList;
+import com.hcl.domino.richtext.records.CDAction;
 import com.hcl.domino.richtext.records.CDActionBar;
 import com.hcl.domino.richtext.records.CDActionBarExt;
 import com.hcl.domino.richtext.records.CDBorderInfo;
@@ -331,6 +335,31 @@ public class DefaultActionBar implements ActionBar {
     return getActionBarExtRecord()
       .map(CDActionBarExt::getFontColor)
       .orElseGet(DesignColorsAndFonts::blackColor);
+  }
+  
+  public List<ActionBarAction> getActions() {
+    List<ActionBarAction> result = new ArrayList<>();
+    List<RichTextRecord<?>> stash = new ArrayList<>();
+    for(RichTextRecord<?> record : getRichTextItem()) {
+      if(record instanceof CDAction) {
+        // Then it's the start of a new action. Flush the old stash if needed
+        if(!stash.isEmpty()) {
+          result.add(new DefaultActionBarAction(new ArrayList<>(stash)));
+          stash.clear();
+        }
+        stash.add(record);
+      } else {
+        // For any other type, add it to the stash if we have an open action
+        if(!stash.isEmpty()) {
+          stash.add(record);
+        } 
+      }
+    }
+    // Process the entries for the final action
+    if(!stash.isEmpty()) {
+      result.add(new DefaultActionBarAction(new ArrayList<>(stash)));
+    }
+    return result;
   }
   
   // *******************************************************************************

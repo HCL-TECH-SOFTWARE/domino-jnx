@@ -1063,4 +1063,11 @@ public interface RichTextConstants {
   short CDLENGTH_UNITS_CHARS = 6;
   
   int MAXFACESIZE = 32;
+  
+  short ACTION_CONTROL_TYPE_BUTTON = 0;
+  short ACTION_CONTROL_TYPE_CHECKBOX = 1;
+  short ACTION_CONTROL_TYPE_MENU_SEPARATOR = 2;
+  
+  /** Flag in CDTARGET for formula target */
+  short FLAG_TARGET_IS_FORMULA = 0x0001;
 }

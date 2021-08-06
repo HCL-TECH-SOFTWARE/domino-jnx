@@ -548,7 +548,7 @@ public enum RecordType {
    * The CDTARGET structure specifies the target (ie: the frame) where a resource
    * link hotspot is to be displayed.
    */
-  TARGET(RichTextConstants.SIG_CD_TARGET, 3),
+  TARGET(RichTextConstants.SIG_CD_TARGET, new int[] { 1, 3 }, CDTarget.class),
   /**
    * Part of a client side image MAP which describes each region in an image and
    * indicates the
