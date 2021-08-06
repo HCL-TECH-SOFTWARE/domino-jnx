@@ -44,6 +44,15 @@ public interface ActionBarAction {
   Optional<String> getLabelFormula();
   
   /**
+   * Retrieves the formula for the displayed label of the action's grouping parent
+   * button, if specified.
+   * 
+   * @return an {@link Optional} describing the parent label formula, or an empty one
+   *         if this is not specified
+   */
+  Optional<String> getParentLabelFormula();
+  
+  /**
    * Retrieves the target frame for applicable action behaviors.
    * 
    * @return an {@link Optional} describing the target frame, or an empty one
@@ -85,13 +94,13 @@ public interface ActionBarAction {
   boolean isIconOnlyInActionBar();
   
   /**
-   * Determines whether the action should be included in the left grouping
+   * Determines whether the action should be included in the right-side grouping
    * when displayed in the action bar.
    * 
-   * @return {@code true} if the action should be left-aligned when displayed
+   * @return {@code true} if the action should be right-aligned when displayed
    *         in the bar; {@code false} otherwise
    */
-  boolean isLeftAlignedInActionBar();
+  boolean isRightAlignedInActionBar();
   
   /**
    * Determines whether the action should be included in the "Actions" menu in
@@ -235,4 +244,13 @@ public interface ActionBarAction {
    *         or an empty one if it is not
    */
   OptionalLong getSharedActionIndex();
+  
+  /**
+   * Determines whether the drop-down menu containing this action should be displayed as a
+   * split button, when this action is the first in the menu.
+   * 
+   * @return {@code true} to display the containing menu as a split button;
+   *         {@code false} otherwise
+   */
+  boolean isDisplayAsSplitButton();
 }

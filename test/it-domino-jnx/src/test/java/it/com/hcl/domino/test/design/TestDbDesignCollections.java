@@ -1550,6 +1550,31 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals("testAction", action.getCompositeActionName().get());
       assertEquals("some program use", action.getProgrammaticUseText());
     }
+    {
+      ActionBarAction action = actionList.get(3);
+      assertEquals("Action Group Right\\Sub-Action 1", action.getName());
+      assertEquals("\"Sub-Action\"", action.getLabelFormula().get());
+      assertEquals("\"Right group action\"", action.getParentLabelFormula().get());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.CHECKBOX, action.getDisplayType());
+      assertEquals("SomeField", action.getCheckboxFormula().get());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIconOnlyInActionBar());
+      assertTrue(action.isDisplayIconOnRight());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInContextMenu());
+      assertEquals(ActionBarAction.IconType.NOTES, action.getIconType());
+      assertEquals(4, action.getNotesIconIndex());
+      
+      assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
+      assertFalse(action.getHideWhenFormula().isPresent());
+      
+      assertFalse(action.isPublishWithOle());
+      assertFalse(action.isCloseOleWhenChosen());
+      assertFalse(action.isBringDocumentToFrontInOle());
+      assertFalse(action.getCompositeActionName().isPresent());
+      assertEquals("", action.getProgrammaticUseText());
+    }
   }
   
   // *******************************************************************************
