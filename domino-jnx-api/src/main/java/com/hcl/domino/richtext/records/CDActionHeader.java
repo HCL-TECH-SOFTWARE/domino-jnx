@@ -25,9 +25,12 @@ import com.hcl.domino.richtext.structures.BSIG;
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(name = "CDACTIONHEADER", members = {
+@StructureDefinition(
+  name = "CDACTIONHEADER",
+  members = {
     @StructureMember(name = "Header", type = BSIG.class)
-})
+  }
+)
 public interface CDActionHeader extends RichTextRecord<BSIG> {
   @StructureGetter("Header")
   @Override

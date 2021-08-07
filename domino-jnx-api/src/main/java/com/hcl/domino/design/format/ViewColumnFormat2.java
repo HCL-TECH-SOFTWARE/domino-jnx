@@ -35,7 +35,9 @@ import com.hcl.domino.richtext.structures.UNID;
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(name = "VIEW_COLUMN_FORMAT2", members = {
+@StructureDefinition(
+  name = "VIEW_COLUMN_FORMAT2",
+  members = {
     @StructureMember(name = "Signature", type = short.class),
     @StructureMember(name = "HeaderFontID", type = FontStyle.class),
     @StructureMember(name = "ResortToViewUNID", type = UNID.class),
@@ -47,7 +49,8 @@ import com.hcl.domino.richtext.structures.UNID;
     @StructureMember(name = "wCustomHiddenFlags", type = ViewColumnFormat2.HiddenFlag.class, bitfield = true),
     @StructureMember(name = "ColumnColor", type = ColorValue.class),
     @StructureMember(name = "HeaderFontColor", type = ColorValue.class),
-})
+  }
+)
 public interface ViewColumnFormat2 extends ResizableMemoryStructure {
   enum Flag3 implements INumberEnum<Short> {
     FlatInV5(NotesConstants.VCF3_M_FlatInV5),

@@ -39,9 +39,7 @@ public enum DateTimeFlag implements INumberEnum<Integer> {
   /** Date element order: Day-of-week, Month, Day, Year */
   STYLE_MDY(RichTextConstants.DT_STYLE_MDY),
   /** Date element order: Day-of-week, Day, Month, Year */
-  STYLE_DMY(RichTextConstants.DT_STYLE_DMY),
-  /** This is where we store the style value in DTFlags */
-  STYLE_MSK(RichTextConstants.DT_STYLE_MSK);
+  STYLE_DMY(RichTextConstants.DT_STYLE_DMY);
 
   private final int value;
 

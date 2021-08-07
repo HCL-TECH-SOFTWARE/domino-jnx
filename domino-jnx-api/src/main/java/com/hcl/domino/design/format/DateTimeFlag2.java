@@ -21,7 +21,9 @@ import com.hcl.domino.richtext.RichTextConstants;
 
 public enum DateTimeFlag2 implements INumberEnum<Integer> {
   /** Use the 4.X format structure instead of this 5.X format structure */
-  USE_TFMT(RichTextConstants.DT_USE_TFMT);
+  USE_TFMT(RichTextConstants.DT_USE_TFMT),
+  /** Display dates using the Hijri calendar instead of Gregorian */
+  USE_HIJRI_CALENDAR(RichTextConstants.DT_USE_HIJRI_CALENDAR);
 
   private final int value;
 

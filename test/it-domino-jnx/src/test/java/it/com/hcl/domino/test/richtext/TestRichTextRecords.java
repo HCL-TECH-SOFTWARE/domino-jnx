@@ -16,6 +16,10 @@
  */
 package it.com.hcl.domino.test.richtext;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -31,6 +35,10 @@ import org.junit.jupiter.api.Test;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.StandardFonts;
+import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
+import com.hcl.domino.design.format.ActionBarTextAlignment;
+import com.hcl.domino.design.format.ActionWidthMode;
+import com.hcl.domino.design.format.ButtonBorderDisplay;
 import com.hcl.domino.design.format.DateShowFormat;
 import com.hcl.domino.design.format.DateShowSpecial;
 import com.hcl.domino.design.format.DateTimeFlag;
@@ -38,9 +46,11 @@ import com.hcl.domino.design.format.DateTimeFlag2;
 import com.hcl.domino.design.format.DayFormat;
 import com.hcl.domino.design.format.FieldListDelimiter;
 import com.hcl.domino.design.format.FieldListDisplayDelimiter;
+import com.hcl.domino.design.format.LengthUnit;
 import com.hcl.domino.design.format.MonthFormat;
 import com.hcl.domino.design.format.NumberPref;
 import com.hcl.domino.design.format.TimeShowFormat;
+import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.design.format.WeekFormat;
 import com.hcl.domino.design.format.YearFormat;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -55,8 +65,6 @@ import com.hcl.domino.richtext.records.CDColor;
 import com.hcl.domino.richtext.records.CDDataFlags;
 import com.hcl.domino.richtext.records.CDEmbeddedControl;
 import com.hcl.domino.richtext.records.CDExt2Field;
-import com.hcl.domino.richtext.records.CDExt2Field.CurrencyFlag;
-import com.hcl.domino.richtext.records.CDExt2Field.CurrencyType;
 import com.hcl.domino.richtext.records.CDExtField;
 import com.hcl.domino.richtext.records.CDExtField.HelperType;
 import com.hcl.domino.richtext.records.CDField;
@@ -69,6 +77,8 @@ import com.hcl.domino.richtext.records.CDImageSegment;
 import com.hcl.domino.richtext.records.CDKeyword;
 import com.hcl.domino.richtext.records.CDParagraph;
 import com.hcl.domino.richtext.records.CDText;
+import com.hcl.domino.richtext.records.CurrencyFlag;
+import com.hcl.domino.richtext.records.CurrencyType;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
@@ -76,7 +86,6 @@ import com.hcl.domino.richtext.structures.AssistFieldStruct;
 import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.AssistFieldStruct.ActionByField;
 import com.hcl.domino.richtext.structures.FontStyle.StandardColors;
-import com.hcl.domino.richtext.structures.LengthValue;
 import com.hcl.domino.richtext.structures.NFMT;
 import com.hcl.domino.richtext.structures.TFMT;
 
@@ -106,47 +115,47 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           actionBarExt.getLineColor().setBlue((short) 2);
           actionBarExt.getFontColor().setBlue((short) 3);
           actionBarExt.getButtonColor().setBlue((short) 4);
-          actionBarExt.setBorderDisplay(CDActionBarExt.BorderDisplay.NOTES);
+          actionBarExt.setBorderDisplay(ButtonBorderDisplay.NOTES);
           actionBarExt.setAppletHeight(30);
-          actionBarExt.setBackgroundRepeat(CDActionBarExt.BackgroundRepeat.REPEATHORIZ);
-          actionBarExt.setWidthStyle(CDActionBarExt.WidthStyle.BACKGROUND);
-          actionBarExt.setTextJustify(CDActionBarExt.TextJustify.RIGHT);
+          actionBarExt.setBackgroundRepeat(ActionBarBackgroundRepeat.REPEATHORIZ);
+          actionBarExt.setWidthStyle(ActionWidthMode.BACKGROUND);
+          actionBarExt.setTextJustify(ActionBarTextAlignment.RIGHT);
           actionBarExt.setButtonWidth(31);
           actionBarExt.setButtonInternalMargin(32);
           actionBarExt.setFlags(EnumSet.of(CDActionBarExt.Flag.WIDTH_STYLE_VALID));
           actionBarExt.getFontStyle().setStandardFont(StandardFonts.UNICODE);
-          actionBarExt.getHeight().setUnit(LengthValue.Unit.EMS);
+          actionBarExt.getHeight().setUnit(LengthUnit.EMS);
           actionBarExt.getHeight().setLength(5.5);
         });
       }
 
       final RichTextRecordList body = doc.getRichTextItem("Body");
       final CDActionBar actionBar = (CDActionBar) body.get(0);
-      Assertions.assertEquals(1, actionBar.getBackgroundColor());
-      Assertions.assertEquals(2, actionBar.getLineColor());
-      Assertions.assertEquals(CDActionBar.LineStyle.TRIPLE, actionBar.getLineStyle());
-      Assertions.assertEquals(CDActionBar.BorderStyle.ABS, actionBar.getBorderStyle());
-      Assertions.assertEquals(EnumSet.of(CDActionBar.Flag.ABSOLUTE_HEIGHT, CDActionBar.Flag.BTNBCK_IMGRSRC), actionBar.getFlags());
-      Assertions.assertEquals(17, actionBar.getShareId());
-      Assertions.assertEquals(3, actionBar.getButtonHeight());
-      Assertions.assertEquals(4, actionBar.getHeightSpacing());
+      assertEquals(1, actionBar.getBackgroundColor());
+      assertEquals(2, actionBar.getLineColor());
+      assertEquals(CDActionBar.LineStyle.TRIPLE, actionBar.getLineStyle());
+      assertEquals(CDActionBar.BorderStyle.ABS, actionBar.getBorderStyle());
+      assertEquals(EnumSet.of(CDActionBar.Flag.ABSOLUTE_HEIGHT, CDActionBar.Flag.BTNBCK_IMGRSRC), actionBar.getFlags());
+      assertEquals(17, actionBar.getShareId());
+      assertEquals(3, actionBar.getButtonHeight());
+      assertEquals(4, actionBar.getHeightSpacing());
 
       final CDActionBarExt actionBarExt = (CDActionBarExt) body.get(1);
-      Assertions.assertEquals(1, actionBarExt.getBackgroundColor().getBlue());
-      Assertions.assertEquals(2, actionBarExt.getLineColor().getBlue());
-      Assertions.assertEquals(3, actionBarExt.getFontColor().getBlue());
-      Assertions.assertEquals(4, actionBarExt.getButtonColor().getBlue());
-      Assertions.assertEquals(CDActionBarExt.BorderDisplay.NOTES, actionBarExt.getBorderDisplay());
-      Assertions.assertEquals(30, actionBarExt.getAppletHeight());
-      Assertions.assertEquals(CDActionBarExt.BackgroundRepeat.REPEATHORIZ, actionBarExt.getBackgroundRepeat());
-      Assertions.assertEquals(CDActionBarExt.WidthStyle.BACKGROUND, actionBarExt.getWidthStyle());
-      Assertions.assertEquals(CDActionBarExt.TextJustify.RIGHT, actionBarExt.getTextJustify());
-      Assertions.assertEquals(31, actionBarExt.getButtonWidth());
-      Assertions.assertEquals(32, actionBarExt.getButtonInternalMargin());
-      Assertions.assertEquals(EnumSet.of(CDActionBarExt.Flag.WIDTH_STYLE_VALID), actionBarExt.getFlags());
-      Assertions.assertEquals(StandardFonts.UNICODE, actionBarExt.getFontStyle().getFontFace());
-      Assertions.assertEquals(LengthValue.Unit.EMS, actionBarExt.getHeight().getUnit());
-      Assertions.assertEquals(5.5, actionBarExt.getHeight().getLength());
+      assertEquals(1, actionBarExt.getBackgroundColor().getBlue());
+      assertEquals(2, actionBarExt.getLineColor().getBlue());
+      assertEquals(3, actionBarExt.getFontColor().getBlue());
+      assertEquals(4, actionBarExt.getButtonColor().getBlue());
+      assertEquals(ButtonBorderDisplay.NOTES, actionBarExt.getBorderDisplay());
+      assertEquals(30, actionBarExt.getAppletHeight());
+      assertEquals(ActionBarBackgroundRepeat.REPEATHORIZ, actionBarExt.getBackgroundRepeat());
+      assertEquals(ActionWidthMode.BACKGROUND, actionBarExt.getWidthStyle());
+      assertEquals(ActionBarTextAlignment.RIGHT, actionBarExt.getTextJustify());
+      assertEquals(31, actionBarExt.getButtonWidth());
+      assertEquals(32, actionBarExt.getButtonInternalMargin());
+      assertEquals(EnumSet.of(CDActionBarExt.Flag.WIDTH_STYLE_VALID), actionBarExt.getFlags());
+      assertEquals(StandardFonts.UNICODE, actionBarExt.getFontStyle().getStandardFont().get());
+      assertEquals(LengthUnit.EMS, actionBarExt.getHeight().getUnit());
+      assertEquals(5.5, actionBarExt.getHeight().getLength());
     });
   }
 
@@ -164,12 +173,12 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDAction action = (CDAction) doc.getRichTextItem("Body").get(0);
-      Assertions.assertEquals(CDAction.Type.RUN_FORMULA, action.getActionType());
-      Assertions.assertEquals(EnumSet.of(CDAction.Flag.ALIGN_ICON_RIGHT, CDAction.Flag.HIDE_FROM_MOBILE), action.getFlags());
-      Assertions.assertEquals("Hello there", action.getTitle());
-      Assertions.assertEquals("Index>1", action.getHideWhenFormula());
-      Assertions.assertEquals("@Command([AdminRemoteConsole])", action.getActionFormula());
-      Assertions.assertThrows(UnsupportedOperationException.class, action::getActionLotusScript);
+      assertEquals(CDAction.Type.RUN_FORMULA, action.getActionType());
+      assertEquals(EnumSet.of(CDAction.Flag.ALIGN_ICON_RIGHT, CDAction.Flag.HIDE_FROM_MOBILE), action.getFlags());
+      assertEquals("Hello there", action.getTitle());
+      assertEquals("Index>1", action.getHideWhenFormula());
+      assertEquals("@Command([AdminRemoteConsole])", action.getActionFormula());
+      assertThrows(UnsupportedOperationException.class, action::getActionLotusScript);
     });
   }
 
@@ -187,12 +196,12 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDAction action = (CDAction) doc.getRichTextItem("Body").get(0);
-      Assertions.assertEquals(CDAction.Type.RUN_SCRIPT, action.getActionType());
-      Assertions.assertEquals(EnumSet.of(CDAction.Flag.ALIGN_ICON_RIGHT, CDAction.Flag.HIDE_FROM_MOBILE), action.getFlags());
-      Assertions.assertEquals("Hello there from LotusScript", action.getTitle());
-      Assertions.assertEquals("Index>1", action.getHideWhenFormula());
-      Assertions.assertEquals("MsgBox | I am a bad language |", action.getActionLotusScript());
-      Assertions.assertThrows(UnsupportedOperationException.class, action::getActionFormula);
+      assertEquals(CDAction.Type.RUN_SCRIPT, action.getActionType());
+      assertEquals(EnumSet.of(CDAction.Flag.ALIGN_ICON_RIGHT, CDAction.Flag.HIDE_FROM_MOBILE), action.getFlags());
+      assertEquals("Hello there from LotusScript", action.getTitle());
+      assertEquals("Index>1", action.getHideWhenFormula());
+      assertEquals("MsgBox | I am a bad language |", action.getActionLotusScript());
+      assertThrows(UnsupportedOperationException.class, action::getActionFormula);
     });
   }
 
@@ -203,19 +212,19 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
         final AssistFieldStruct assistField = rtWriter.createStructure(AssistFieldStruct.class, 0);
         assistField.setOperatorRaw((short) 2);
-        Assertions.assertEquals(AssistFieldStruct.ActionByField.APPEND, assistField.getActionOperator());
-        Assertions.assertEquals(AssistFieldStruct.QueryByField.LESS, assistField.getQueryOperator());
+        assertEquals(AssistFieldStruct.ActionByField.APPEND, assistField.getActionOperator());
+        assertEquals(AssistFieldStruct.QueryByField.LESS, assistField.getQueryOperator());
 
         assistField.setActionOperator(AssistFieldStruct.ActionByField.REMOVE);
-        Assertions.assertEquals(AssistFieldStruct.ActionByField.REMOVE, assistField.getActionOperator());
+        assertEquals(AssistFieldStruct.ActionByField.REMOVE, assistField.getActionOperator());
         assistField.setQueryOperator(AssistFieldStruct.QueryByField.DOESNOTCONTAIN);
-        Assertions.assertEquals(AssistFieldStruct.QueryByField.DOESNOTCONTAIN, assistField.getQueryOperator());
+        assertEquals(AssistFieldStruct.QueryByField.DOESNOTCONTAIN, assistField.getQueryOperator());
 
         assistField.setFieldName("foo");
-        Assertions.assertEquals("foo", assistField.getFieldName());
+        assertEquals("foo", assistField.getFieldName());
         assistField.setValues(Arrays.asList("bar", "baz", "ness"));
-        Assertions.assertEquals("foo", assistField.getFieldName());
-        Assertions.assertEquals(Arrays.asList("bar", "baz", "ness"), assistField.getValues());
+        assertEquals("foo", assistField.getFieldName());
+        assertEquals(Arrays.asList("bar", "baz", "ness"), assistField.getValues());
       }
     });
   }
@@ -231,8 +240,8 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDHotspotBegin begin = (CDHotspotBegin) doc.getRichTextItem("Body").get(0);
-      Assertions.assertEquals("foo.txt", begin.getUniqueFileName());
-      Assertions.assertEquals("bar.txt", begin.getDisplayFileName());
+      assertEquals("foo.txt", begin.getUniqueFileName());
+      assertEquals("bar.txt", begin.getDisplayFileName());
     });
   }
 
@@ -255,16 +264,16 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
 
       final RichTextRecordList body = doc.getRichTextItem("Body", Area.TYPE_ACTION);
       final CDActionByForm actionByForm = (CDActionByForm) body.get(0);
-      Assertions.assertEquals(2, actionByForm.getFieldCount());
-      Assertions.assertEquals("FakeForm", actionByForm.getFormName());
+      assertEquals(2, actionByForm.getFieldCount());
+      assertEquals("FakeForm", actionByForm.getFormName());
 
       final List<AssistFieldStruct> assistFields = actionByForm.getAssistFields();
-      Assertions.assertNotNull(assistFields);
-      Assertions.assertEquals(2, assistFields.size());
-      Assertions.assertEquals("Foo", assistFields.get(0).getFieldName());
-      Assertions.assertEquals(ActionByField.REPLACE, assistFields.get(0).getActionOperator());
-      Assertions.assertEquals("Bar", assistFields.get(1).getFieldName());
-      Assertions.assertEquals(ActionByField.APPEND, assistFields.get(1).getActionOperator());
+      assertNotNull(assistFields);
+      assertEquals(2, assistFields.size());
+      assertEquals("Foo", assistFields.get(0).getFieldName());
+      assertEquals(ActionByField.REPLACE, assistFields.get(0).getActionOperator());
+      assertEquals("Bar", assistFields.get(1).getFieldName());
+      assertEquals(ActionByField.APPEND, assistFields.get(1).getActionOperator());
     });
   }
 
@@ -281,9 +290,9 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDColor color = (CDColor) doc.getRichTextItem("Body").get(0);
-      Assertions.assertEquals((short) 1, color.getColor().getRed());
-      Assertions.assertEquals((short) 2, color.getColor().getGreen());
-      Assertions.assertEquals((short) 3, color.getColor().getBlue());
+      assertEquals((short) 1, color.getColor().getRed());
+      assertEquals((short) 2, color.getColor().getGreen());
+      assertEquals((short) 3, color.getColor().getBlue());
     });
   }
 
@@ -299,7 +308,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDDataFlags flags = (CDDataFlags) doc.getRichTextItem("Body").get(0);
-      Assertions.assertEquals(4, flags.getFlagCount());
+      assertEquals(4, flags.getFlagCount());
       Assertions.assertArrayEquals(new int[] { 0x00000000, 0x000010000, 0x10000000, 0xFFFFFFFF }, flags.getFlags());
     });
   }
@@ -322,15 +331,15 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDEmbeddedControl control = (CDEmbeddedControl) doc.getRichTextItem("Body").get(0);
-      Assertions.assertEquals(CDEmbeddedControl.Type.COMBO, control.getControlType());
-      Assertions.assertEquals(EnumSet.of(CDEmbeddedControl.Flag.DIALOGUNITS, CDEmbeddedControl.Flag.POSITION_HEIGHT),
+      assertEquals(CDEmbeddedControl.Type.COMBO, control.getControlType());
+      assertEquals(EnumSet.of(CDEmbeddedControl.Flag.DIALOGUNITS, CDEmbeddedControl.Flag.POSITION_HEIGHT),
           control.getFlags());
-      Assertions.assertEquals(480, control.getHeight());
-      Assertions.assertEquals(640, control.getWidth());
+      assertEquals(480, control.getHeight());
+      assertEquals(640, control.getWidth());
       Assertions.assertTrue(control.getStyle().contains(CDEmbeddedControl.Style.EDITCOMBO));
-      Assertions.assertEquals(CDEmbeddedControl.Version.VERSION1, control.getVersion());
-      Assertions.assertEquals(80, control.getPercentage());
-      Assertions.assertEquals(255, control.getMaxChars());
+      assertEquals(CDEmbeddedControl.Version.VERSION1, control.getVersion());
+      assertEquals(80, control.getPercentage());
+      assertEquals(255, control.getMaxChars());
     });
   }
 
@@ -368,7 +377,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           field.setDateSeparator3("__");
           field.setTimeSeparator("??");
           field.setDateShowFormat(DateShowFormat.MDY);
-          field.setDateShowSpecial(DateShowSpecial.TWO_CURRENT_FOUR_OTHER);
+          field.setDateShowSpecial(EnumSet.of(DateShowSpecial.SHOW_21ST_4DIGIT));
           field.setTimeShowFormat(TimeShowFormat.HM);
           field.setFormatFlags(EnumSet.of(CDExt2Field.FormatFlag.PROPORTIONAL));
           field.setProportionalWidthCharacters(16);
@@ -378,40 +387,40 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDExt2Field field = (CDExt2Field) doc.getRichTextItem("Body").get(0);
-      Assertions.assertEquals(NumberPref.FIELD, field.getNumberSymbolPreference());
-      Assertions.assertEquals("..", field.getDecimalSymbol());
-      Assertions.assertEquals(",,", field.getMilliSeparator());
-      Assertions.assertEquals("--", field.getNegativeSymbol());
-      Assertions.assertEquals(4, field.getMilliGroupSize());
-      Assertions.assertEquals((short) -3, field.getVerticalSpacing());
-      Assertions.assertEquals((short) -4, field.getHorizontalSpacing());
-      Assertions.assertEquals(NumberPref.FIELD, field.getCurrencyPreference());
-      Assertions.assertEquals(CurrencyType.CUSTOM, field.getCurrencyType());
-      Assertions.assertEquals(EnumSet.of(CurrencyFlag.SYMFOLLOWS), field.getCurrencyFlags());
-      Assertions.assertEquals("$$", field.getCurrencySymbol());
-      Assertions.assertEquals(4, field.getISOCountry());
-      Assertions.assertEquals(640, field.getThumbnailImageWidth());
-      Assertions.assertEquals(480, field.getThumbnailImageHeight());
-      Assertions.assertEquals("foo.png", field.getThumbnailImageFileName());
-      Assertions.assertEquals("\"foo fooson\"", field.getIMOnlineNameFormula());
-      Assertions.assertEquals(NumberPref.FIELD, field.getDateTimePreference());
-      Assertions.assertEquals(EnumSet.of(DateTimeFlag.SHOWDATE, DateTimeFlag.SHOWTIME), field.getDateTimeFlags());
-      Assertions.assertEquals(EnumSet.of(DateTimeFlag2.USE_TFMT), field.getDateTimeFlags2());
-      Assertions.assertEquals(WeekFormat.WWWW, field.getDayOfWeekFormat());
-      Assertions.assertEquals(YearFormat.GGEE, field.getYearFormat());
-      Assertions.assertEquals(MonthFormat.MMM, field.getMonthFormat());
-      Assertions.assertEquals(DayFormat.DD, field.getDayFormat());
-      Assertions.assertEquals("//", field.getDateSeparator1());
-      Assertions.assertEquals("\\\\", field.getDateSeparator2());
-      Assertions.assertEquals("__", field.getDateSeparator3());
-      Assertions.assertEquals("??", field.getTimeSeparator());
-      Assertions.assertEquals(DateShowFormat.MDY, field.getDateShowFormat());
-      Assertions.assertEquals(DateShowSpecial.TWO_CURRENT_FOUR_OTHER, field.getDateShowSpecial());
-      Assertions.assertEquals(TimeShowFormat.HM, field.getTimeShowFormat());
-      Assertions.assertEquals(EnumSet.of(CDExt2Field.FormatFlag.PROPORTIONAL), field.getFormatFlags());
-      Assertions.assertEquals(16, field.getProportionalWidthCharacters());
-      Assertions.assertEquals("@False + @True", field.getInputEnabledFormula());
-      Assertions.assertEquals("\"some group\"", field.getIMGroupFormula());
+      assertEquals(NumberPref.FIELD, field.getNumberSymbolPreference());
+      assertEquals("..", field.getDecimalSymbol());
+      assertEquals(",,", field.getMilliSeparator());
+      assertEquals("--", field.getNegativeSymbol());
+      assertEquals(4, field.getMilliGroupSize());
+      assertEquals((short) -3, field.getVerticalSpacing());
+      assertEquals((short) -4, field.getHorizontalSpacing());
+      assertEquals(NumberPref.FIELD, field.getCurrencyPreference());
+      assertEquals(CurrencyType.CUSTOM, field.getCurrencyType());
+      assertEquals(EnumSet.of(CurrencyFlag.SYMFOLLOWS), field.getCurrencyFlags());
+      assertEquals("$$", field.getCurrencySymbol());
+      assertEquals(4, field.getISOCountry());
+      assertEquals(640, field.getThumbnailImageWidth());
+      assertEquals(480, field.getThumbnailImageHeight());
+      assertEquals("foo.png", field.getThumbnailImageFileName());
+      assertEquals("\"foo fooson\"", field.getIMOnlineNameFormula());
+      assertEquals(NumberPref.FIELD, field.getDateTimePreference());
+      assertEquals(EnumSet.of(DateTimeFlag.SHOWDATE, DateTimeFlag.SHOWTIME), field.getDateTimeFlags());
+      assertEquals(EnumSet.of(DateTimeFlag2.USE_TFMT), field.getDateTimeFlags2());
+      assertEquals(WeekFormat.WWWW, field.getDayOfWeekFormat());
+      assertEquals(YearFormat.GGEE, field.getYearFormat());
+      assertEquals(MonthFormat.MMM, field.getMonthFormat());
+      assertEquals(DayFormat.DD, field.getDayFormat());
+      assertEquals("//", field.getDateSeparator1());
+      assertEquals("\\\\", field.getDateSeparator2());
+      assertEquals("__", field.getDateSeparator3());
+      assertEquals("??", field.getTimeSeparator());
+      assertEquals(DateShowFormat.MDY, field.getDateShowFormat());
+      assertEquals(EnumSet.of(DateShowSpecial.SHOW_21ST_4DIGIT), field.getDateShowSpecial());
+      assertEquals(TimeShowFormat.HM, field.getTimeShowFormat());
+      assertEquals(EnumSet.of(CDExt2Field.FormatFlag.PROPORTIONAL), field.getFormatFlags());
+      assertEquals(16, field.getProportionalWidthCharacters());
+      assertEquals("@False + @True", field.getInputEnabledFormula());
+      assertEquals("\"some group\"", field.getIMGroupFormula());
     });
   }
 
@@ -432,12 +441,12 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
 
       final CDExtField extField = (CDExtField) doc.getRichTextItem("Body").get(0);
       // KEYWORD_FRAME_3D is 0x00000000 and so comes along for the ride
-      Assertions.assertEquals(EnumSet.of(CDExtField.Flag.KWHINKYMINKY, CDExtField.Flag.KEYWORD_FRAME_3D), extField.getFlags1());
-      Assertions.assertEquals(EnumSet.of(CDExtField.Flag2.CONTROL, CDExtField.Flag2.ALLOWTABBINGOUT), extField.getFlags2());
-      Assertions.assertEquals(HelperType.VIEWDLG, extField.getHelperType());
-      Assertions.assertEquals("foo.nsf", extField.getEntryDBName());
-      Assertions.assertEquals("Some view", extField.getEntryViewName());
-      Assertions.assertEquals(6, extField.getEntryColumnNumber());
+      assertEquals(EnumSet.of(CDExtField.Flag.KWHINKYMINKY, CDExtField.Flag.KEYWORD_FRAME_3D), extField.getFlags1());
+      assertEquals(EnumSet.of(CDExtField.Flag2.CONTROL, CDExtField.Flag2.ALLOWTABBINGOUT), extField.getFlags2());
+      assertEquals(HelperType.VIEWDLG, extField.getHelperType());
+      assertEquals("foo.nsf", extField.getEntryDBName());
+      assertEquals("Some view", extField.getEntryViewName());
+      assertEquals(6, extField.getEntryColumnNumber());
     });
   }
 
@@ -459,7 +468,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           field.getTimeFormat().setDateFormat(TFMT.DateFormat.CPARTIAL4);
           field.getTimeFormat().setTimeFormat(TFMT.TimeFormat.HOUR);
           field.getTimeFormat().setTimeStructure(TFMT.TimeStructure.CDATETIME);
-          field.getTimeFormat().setZoneFormat(TFMT.ZoneFormat.SOMETIMES);
+          field.getTimeFormat().setZoneFormat(TimeZoneFormat.SOMETIMES);
 
           field.setDefaultValueFormula("\"hi\"");
           field.setInputTranslationFormula("@ThisValue+\"hi\"");
@@ -471,31 +480,31 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDField field = (CDField) doc.getRichTextItem("Body").get(0);
-      Assertions.assertEquals(ItemDataType.TYPE_TEXT, field.getFieldType());
+      assertEquals(ItemDataType.TYPE_TEXT, field.getFieldType());
       // KEYWORDS_UI_STANDARD is 0x0000 and thus always shows up
-      Assertions.assertEquals(EnumSet.of(CDField.Flag.COMPUTED, CDField.Flag.PROTECTED, CDField.Flag.KEYWORDS_UI_STANDARD),
+      assertEquals(EnumSet.of(CDField.Flag.COMPUTED, CDField.Flag.PROTECTED, CDField.Flag.KEYWORDS_UI_STANDARD),
           field.getFlags());
-      Assertions.assertEquals(FieldListDisplayDelimiter.NEWLINE, field.getListDisplayDelimiter());
-      Assertions.assertEquals(EnumSet.of(FieldListDelimiter.NEWLINE, FieldListDelimiter.SEMICOLON), field.getListDelimiters());
+      assertEquals(FieldListDisplayDelimiter.NEWLINE, field.getListDisplayDelimiter());
+      assertEquals(EnumSet.of(FieldListDelimiter.NEWLINE, FieldListDelimiter.SEMICOLON), field.getListDelimiters());
 
       final NFMT numberFormat = field.getNumberFormat();
-      Assertions.assertEquals(EnumSet.of(NFMT.Attribute.PARENS), numberFormat.getAttributes());
-      Assertions.assertEquals((short) 4, numberFormat.getDigits());
-      Assertions.assertEquals(NFMT.Format.CURRENCY, numberFormat.getFormat());
+      assertEquals(EnumSet.of(NFMT.Attribute.PARENS), numberFormat.getAttributes());
+      assertEquals((short) 4, numberFormat.getDigits());
+      assertEquals(NFMT.Format.CURRENCY, numberFormat.getFormat());
 
       final TFMT timeFormat = field.getTimeFormat();
-      Assertions.assertEquals(TFMT.DateFormat.CPARTIAL4, timeFormat.getDateFormat());
-      Assertions.assertEquals(TFMT.TimeFormat.HOUR, timeFormat.getTimeFormat());
-      Assertions.assertEquals(TFMT.TimeStructure.CDATETIME, timeFormat.getTimeStructure());
-      Assertions.assertEquals(TFMT.ZoneFormat.SOMETIMES, timeFormat.getZoneFormat());
+      assertEquals(TFMT.DateFormat.CPARTIAL4, timeFormat.getDateFormat());
+      assertEquals(TFMT.TimeFormat.HOUR, timeFormat.getTimeFormat());
+      assertEquals(TFMT.TimeStructure.CDATETIME, timeFormat.getTimeStructure());
+      assertEquals(TimeZoneFormat.SOMETIMES, timeFormat.getZoneFormat());
 
-      Assertions.assertEquals("\"hi\"", field.getDefaultValueFormula());
-      Assertions.assertEquals("@ThisValue+\"hi\"", field.getInputTranslationFormula());
-      Assertions.assertEquals("@If(a; @Success; @Failure(\"nooo\"))", field.getInputValidationFormula());
-      Assertions.assertEquals("Test Description", field.getDescription());
-      Assertions.assertEquals(Arrays.asList("foo", "bar"), field.getTextValues().get());
+      assertEquals("\"hi\"", field.getDefaultValueFormula());
+      assertEquals("@ThisValue+\"hi\"", field.getInputTranslationFormula());
+      assertEquals("@If(a; @Success; @Failure(\"nooo\"))", field.getInputValidationFormula());
+      assertEquals("Test Description", field.getDescription());
+      assertEquals(Arrays.asList("foo", "bar"), field.getTextValues().get());
       Assertions.assertFalse(field.getTextValueFormula().isPresent());
-      Assertions.assertEquals("TextField", field.getName());
+      assertEquals("TextField", field.getName());
     });
   }
 
@@ -517,7 +526,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           field.getTimeFormat().setDateFormat(TFMT.DateFormat.CPARTIAL4);
           field.getTimeFormat().setTimeFormat(TFMT.TimeFormat.HOUR);
           field.getTimeFormat().setTimeStructure(TFMT.TimeStructure.CDATETIME);
-          field.getTimeFormat().setZoneFormat(TFMT.ZoneFormat.SOMETIMES);
+          field.getTimeFormat().setZoneFormat(TimeZoneFormat.SOMETIMES);
 
           field.setDefaultValueFormula("\"hi\"");
           field.setInputTranslationFormula("@ThisValue+\"hi\"");
@@ -529,31 +538,31 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDField field = (CDField) doc.getRichTextItem("Body").get(0);
-      Assertions.assertEquals(ItemDataType.TYPE_TEXT, field.getFieldType());
+      assertEquals(ItemDataType.TYPE_TEXT, field.getFieldType());
       // KEYWORDS_UI_STANDARD is 0x0000 and thus always shows up
-      Assertions.assertEquals(EnumSet.of(CDField.Flag.COMPUTED, CDField.Flag.PROTECTED, CDField.Flag.KEYWORDS_UI_STANDARD),
+      assertEquals(EnumSet.of(CDField.Flag.COMPUTED, CDField.Flag.PROTECTED, CDField.Flag.KEYWORDS_UI_STANDARD),
           field.getFlags());
-      Assertions.assertEquals(FieldListDisplayDelimiter.NEWLINE, field.getListDisplayDelimiter());
-      Assertions.assertEquals(EnumSet.of(FieldListDelimiter.NEWLINE, FieldListDelimiter.SEMICOLON), field.getListDelimiters());
+      assertEquals(FieldListDisplayDelimiter.NEWLINE, field.getListDisplayDelimiter());
+      assertEquals(EnumSet.of(FieldListDelimiter.NEWLINE, FieldListDelimiter.SEMICOLON), field.getListDelimiters());
 
       final NFMT numberFormat = field.getNumberFormat();
-      Assertions.assertEquals(EnumSet.of(NFMT.Attribute.PARENS), numberFormat.getAttributes());
-      Assertions.assertEquals((short) 4, numberFormat.getDigits());
-      Assertions.assertEquals(NFMT.Format.CURRENCY, numberFormat.getFormat());
+      assertEquals(EnumSet.of(NFMT.Attribute.PARENS), numberFormat.getAttributes());
+      assertEquals((short) 4, numberFormat.getDigits());
+      assertEquals(NFMT.Format.CURRENCY, numberFormat.getFormat());
 
       final TFMT timeFormat = field.getTimeFormat();
-      Assertions.assertEquals(TFMT.DateFormat.CPARTIAL4, timeFormat.getDateFormat());
-      Assertions.assertEquals(TFMT.TimeFormat.HOUR, timeFormat.getTimeFormat());
-      Assertions.assertEquals(TFMT.TimeStructure.CDATETIME, timeFormat.getTimeStructure());
-      Assertions.assertEquals(TFMT.ZoneFormat.SOMETIMES, timeFormat.getZoneFormat());
+      assertEquals(TFMT.DateFormat.CPARTIAL4, timeFormat.getDateFormat());
+      assertEquals(TFMT.TimeFormat.HOUR, timeFormat.getTimeFormat());
+      assertEquals(TFMT.TimeStructure.CDATETIME, timeFormat.getTimeStructure());
+      assertEquals(TimeZoneFormat.SOMETIMES, timeFormat.getZoneFormat());
 
-      Assertions.assertEquals("\"hi\"", field.getDefaultValueFormula());
-      Assertions.assertEquals("@ThisValue+\"hi\"", field.getInputTranslationFormula());
-      Assertions.assertEquals("@If(a; @Success; @Failure(\"nooo\"))", field.getInputValidationFormula());
-      Assertions.assertEquals("Test Description", field.getDescription());
+      assertEquals("\"hi\"", field.getDefaultValueFormula());
+      assertEquals("@ThisValue+\"hi\"", field.getInputTranslationFormula());
+      assertEquals("@If(a; @Success; @Failure(\"nooo\"))", field.getInputValidationFormula());
+      assertEquals("Test Description", field.getDescription());
       Assertions.assertFalse(field.getTextValues().isPresent());
-      Assertions.assertEquals("\"foo\":\"bar\"", field.getTextValueFormula().get());
-      Assertions.assertEquals("TextField", field.getName());
+      assertEquals("\"foo\":\"bar\"", field.getTextValueFormula().get());
+      assertEquals("TextField", field.getName());
     });
   }
 
@@ -568,8 +577,8 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDFieldHint fieldHint = (CDFieldHint) doc.getRichTextItem("Body").get(0);
-      Assertions.assertEquals(EnumSet.noneOf(CDFieldHint.Flag.class), fieldHint.getFlags());
-      Assertions.assertEquals("foo bar", fieldHint.getHintText());
+      assertEquals(EnumSet.noneOf(CDFieldHint.Flag.class), fieldHint.getFlags());
+      assertEquals("foo bar", fieldHint.getHintText());
     });
   }
 
@@ -585,8 +594,8 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDFieldHint fieldHint = (CDFieldHint) doc.getRichTextItem("Body").get(0);
-      Assertions.assertEquals(EnumSet.of(CDFieldHint.Flag.LIMITED), fieldHint.getFlags());
-      Assertions.assertEquals("pictures", fieldHint.getHintText());
+      assertEquals(EnumSet.of(CDFieldHint.Flag.LIMITED), fieldHint.getFlags());
+      assertEquals("pictures", fieldHint.getHintText());
     });
   }
 
@@ -606,12 +615,12 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDIDName name = (CDIDName) doc.getRichTextItem("Body").get(0);
-      Assertions.assertEquals("foo", name.getID());
-      Assertions.assertEquals("bar baz", name.getClassName());
-      Assertions.assertEquals("border-left: 0", name.getStyle());
-      Assertions.assertEquals("I am a title", name.getTitle());
-      Assertions.assertEquals("border=\"0\"", name.getHTMLAttributes());
-      Assertions.assertEquals("foo-name", name.getName());
+      assertEquals("foo", name.getID());
+      assertEquals("bar baz", name.getClassName());
+      assertEquals("border-left: 0", name.getStyle());
+      assertEquals("I am a title", name.getTitle());
+      assertEquals("border=\"0\"", name.getHTMLAttributes());
+      assertEquals("foo-name", name.getName());
     });
   }
 
@@ -628,10 +637,10 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
 
       Assertions.assertInstanceOf(CDKeyword.class, doc.getRichTextItem("Body").get(0));
       final CDKeyword keyword = (CDKeyword) doc.getRichTextItem("Body").get(0);
-      Assertions.assertEquals(EnumSet.of(CDKeyword.Flag.FRAME_3D, CDKeyword.Flag.KEYWORD_RTL), keyword.getFlags());
-      Assertions.assertEquals(3, keyword.getKeywordCount());
-      Assertions.assertEquals(Arrays.asList("foo", "bar", "baz"), keyword.getKeywords());
-      Assertions.assertEquals(Arrays.asList(true, false, true), keyword.getEnabledStates());
+      assertEquals(EnumSet.of(CDKeyword.Flag.FRAME_3D, CDKeyword.Flag.KEYWORD_RTL), keyword.getFlags());
+      assertEquals(3, keyword.getKeywordCount());
+      assertEquals(Arrays.asList("foo", "bar", "baz"), keyword.getKeywords());
+      assertEquals(Arrays.asList(true, false, true), keyword.getEnabledStates());
     });
   }
 
@@ -656,30 +665,30 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final List<RichTextRecord<?>> body = doc.getRichTextItem("Body");
-      Assertions.assertEquals(3, body.size());
+      assertEquals(3, body.size());
 
       {
         Assertions.assertInstanceOf(CDParagraph.class, body.get(0), "Unexpected first record " + body.get(0));
-        Assertions.assertEquals(2, body.get(0).getHeader().getLength().intValue());
-        Assertions.assertEquals(2, body.get(0).getData().capacity());
+        assertEquals(2, body.get(0).getHeader().getLength().intValue());
+        assertEquals(2, body.get(0).getData().capacity());
       }
       {
         Assertions.assertInstanceOf(CDText.class, body.get(1));
         final CDText text = (CDText) body.get(1);
-        Assertions.assertEquals(8, body.get(1).getHeader().getLength().intValue());
-        Assertions.assertEquals(8, body.get(1).getData().capacity());
+        assertEquals(8, body.get(1).getHeader().getLength().intValue());
+        assertEquals(8, body.get(1).getData().capacity());
         Assertions.assertTrue(text.getStyle().isBold());
-        Assertions.assertEquals(StandardFonts.TYPEWRITER, text.getStyle().getFontFace());
+        assertEquals(StandardFonts.TYPEWRITER, text.getStyle().getStandardFont().get());
       }
       {
         Assertions.assertInstanceOf(CDImageHeader.class, body.get(2));
         final CDImageHeader header = (CDImageHeader) body.get(2);
-        Assertions.assertEquals(28, header.getData().capacity());
-        Assertions.assertEquals(800, header.getWidth());
-        Assertions.assertEquals(600, header.getHeight());
-        Assertions.assertEquals(2048, header.getImageDataSize());
-        Assertions.assertEquals(2, header.getSegCount());
-        Assertions.assertEquals(ImageType.PNG, header.getImageType());
+        assertEquals(28, header.getData().capacity());
+        assertEquals(800, header.getWidth());
+        assertEquals(600, header.getHeight());
+        assertEquals(2048, header.getImageDataSize());
+        assertEquals(2, header.getSegCount());
+        assertEquals(ImageType.PNG, header.getImageType());
       }
     });
   }
@@ -756,16 +765,16 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         // Test manipulating the default array
         {
           final FakeArrayStruct fakeArray = rtWriter.createStructure(FakeArrayStruct.class, 0);
-          Assertions.assertNotNull(fakeArray.getFontStyles());
-          Assertions.assertEquals(3, fakeArray.getFontStyles().length);
+          assertNotNull(fakeArray.getFontStyles());
+          assertEquals(3, fakeArray.getFontStyles().length);
 
           fakeArray.getFontStyles()[0].setColor(StandardColors.DKBLUE);
           fakeArray.getFontStyles()[1].setColor(StandardColors.DKMAGENTA);
           fakeArray.getFontStyles()[2].setColor(StandardColors.DKGREEN);
 
-          Assertions.assertEquals(StandardColors.DKBLUE, fakeArray.getFontStyles()[0].getColor());
-          Assertions.assertEquals(StandardColors.DKMAGENTA, fakeArray.getFontStyles()[1].getColor());
-          Assertions.assertEquals(StandardColors.DKGREEN, fakeArray.getFontStyles()[2].getColor());
+          assertEquals(StandardColors.DKBLUE, fakeArray.getFontStyles()[0].getColor());
+          assertEquals(StandardColors.DKMAGENTA, fakeArray.getFontStyles()[1].getColor());
+          assertEquals(StandardColors.DKGREEN, fakeArray.getFontStyles()[2].getColor());
         }
 
         // Test writing an accurately-sized array back
@@ -782,16 +791,16 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           };
           fakeArray.setFontStyles(styles);
 
-          Assertions.assertEquals(StandardColors.CYAN, fakeArray.getFontStyles()[0].getColor());
-          Assertions.assertEquals(StandardColors.DKYELLOW, fakeArray.getFontStyles()[1].getColor());
-          Assertions.assertEquals(StandardColors.MAGENTA, fakeArray.getFontStyles()[2].getColor());
+          assertEquals(StandardColors.CYAN, fakeArray.getFontStyles()[0].getColor());
+          assertEquals(StandardColors.DKYELLOW, fakeArray.getFontStyles()[1].getColor());
+          assertEquals(StandardColors.MAGENTA, fakeArray.getFontStyles()[2].getColor());
         }
 
         // Test writing incorrectly-sized arrays back
         {
           final FakeArrayStruct fakeArray = rtWriter.createStructure(FakeArrayStruct.class, 0);
-          Assertions.assertThrows(IllegalArgumentException.class, () -> fakeArray.setFontStyles(new FontStyle[1]));
-          Assertions.assertThrows(IllegalArgumentException.class, () -> fakeArray.setFontStyles(new FontStyle[4]));
+          assertThrows(IllegalArgumentException.class, () -> fakeArray.setFontStyles(new FontStyle[1]));
+          assertThrows(IllegalArgumentException.class, () -> fakeArray.setFontStyles(new FontStyle[4]));
         }
       }
     });
@@ -809,7 +818,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final List<RichTextRecord<?>> body = doc.getRichTextItem("Body");
-      Assertions.assertEquals(1, body.size());
+      assertEquals(1, body.size());
 
       {
         Assertions.assertTrue(body.get(0) instanceof CDBlobPart);

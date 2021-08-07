@@ -61,7 +61,7 @@ public interface IdVault {
     PASSWORD_SHAREABLE(0x0008),
 
     /**
-     * ID file has an extra that descibes special password features (eg, 128 bit
+     * ID file has an extra that describes special password features (eg, 128 bit
      * key)
      */
     PASSWORD_EXTRA(0x0200),

@@ -24,9 +24,8 @@ import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
-import com.hcl.domino.richtext.records.CDExt2Field;
-import com.hcl.domino.richtext.records.CDExt2Field.CurrencyFlag;
-import com.hcl.domino.richtext.records.CDExt2Field.CurrencyType;
+import com.hcl.domino.richtext.records.CurrencyFlag;
+import com.hcl.domino.richtext.records.CurrencyType;
 import com.hcl.domino.richtext.structures.NFMT;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 
@@ -34,7 +33,9 @@ import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-@StructureDefinition(name = "VIEW_COLUMN_FORMAT4", members = {
+@StructureDefinition(
+  name = "VIEW_COLUMN_FORMAT4",
+  members = {
     @StructureMember(name = "Signature", type = short.class),
     @StructureMember(name = "NumberFormat", type = NFMT.class),
     @StructureMember(name = "NumSymPref", type = NumberPref.class),
@@ -46,82 +47,98 @@ import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
     @StructureMember(name = "Unused1", type = int.class),
     @StructureMember(name = "Unused2", type = int.class),
     @StructureMember(name = "CurrencyPref", type = NumberPref.class),
-    @StructureMember(name = "CurrencyType", type = CDExt2Field.CurrencyType.class),
-    @StructureMember(name = "CurrencyFlags", type = CDExt2Field.CurrencyFlag.class, bitfield = true),
+    @StructureMember(name = "CurrencyType", type = CurrencyType.class),
+    @StructureMember(name = "CurrencyFlags", type = CurrencyFlag.class, bitfield = true),
     @StructureMember(name = "CurrencySymLength", type = int.class, unsigned = true),
     @StructureMember(name = "ISOCountry", type = int.class, unsigned = true),
     @StructureMember(name = "NumberPreference", type = short.class),
     @StructureMember(name = "bUnused", type = byte.class),
     @StructureMember(name = "Unused3", type = int.class),
     @StructureMember(name = "Unused4", type = int.class),
-})
+  }
+)
 public interface ViewColumnFormat4 extends ResizableMemoryStructure {
 
   @StructureGetter("CurrencyFlags")
   Set<CurrencyFlag> getCurrencyFlags();
 
+  @StructureSetter("CurrencyFlags")
+  ViewColumnFormat4 setCurrencyFlags(Collection<CurrencyFlag> flags);
+
   @StructureGetter("CurrencyPref")
   NumberPref getCurrencyPreference();
+
+  @StructureSetter("CurrencyPref")
+  ViewColumnFormat4 setCurrencyPreference(NumberPref pref);
+
+  @StructureGetter("CurrencySymLength")
+  long getCurrencySymbolLength();
+
+  @StructureSetter("CurrencySymLength")
+  ViewColumnFormat4 setCurrencySymbolLength(long len);
+
+  @StructureGetter("CurrencyType")
+  CurrencyType getCurrencyType();
+
+  @StructureSetter("CurrencyType")
+  ViewColumnFormat4 setCurrencyType(CurrencyType type);
+
+  @StructureGetter("DecimalSymLength")
+  long getDecimalSymbolLength();
+
+  @StructureSetter("DecimalSymLength")
+  ViewColumnFormat4 setDecimalSymbolLength(long len);
+
+  @StructureGetter("ISOCountry")
+  long getISOCountry();
+
+  @StructureSetter("ISOCountry")
+  ViewColumnFormat4 setISOCountry(long countryCode);
+
+  @StructureGetter("MilliGroupSize")
+  int getMilliGroupSize();
+
+  @StructureSetter("MilliGroupSize")
+  ViewColumnFormat4 setMilliGroupSize(int size);
+
+  @StructureGetter("MilliSepSymLength")
+  long getMilliSeparatorLength();
+
+  @StructureSetter("MilliSepSymLength")
+  ViewColumnFormat4 setMilliSeparatorLength(long len);
+
+  @StructureGetter("NegativeSymLength")
+  long getNegativeSymbolLength();
+
+  @StructureSetter("NegativeSymLength")
+  ViewColumnFormat4 setNegativeSymbolLength(long len);
+
+  @StructureGetter("NumberFormat")
+  NFMT getNumberFormat();
+  
+  @StructureGetter("NumberPreference")
+  short getNumberPreference();
+  
+  @StructureGetter("NumSymFlags")
+  byte getNumberSymbolFlags();
+
+  @StructureGetter("NumSymPref")
+  NumberPref getNumberSymbolPreference();
+
+  @StructureSetter("NumSymPref")
+  ViewColumnFormat4 setNumberSymbolPreference(NumberPref pref);
+
+  @StructureGetter("Signature")
+  short getSignature();
+
+  @StructureSetter("Signature")
+  ViewColumnFormat4 setSignature(short signature);
 
   default String getCurrencySymbol() {
     return StructureSupport.extractStringValue(this,
         this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength(),
         this.getCurrencySymbolLength());
   }
-
-  @StructureGetter("CurrencySymLength")
-  long getCurrencySymbolLength();
-
-  @StructureGetter("CurrencyType")
-  CurrencyType getCurrencyType();
-
-  default String getDecimalSymbol() {
-    return StructureSupport.extractStringValue(this,
-        0,
-        this.getDecimalSymbolLength());
-  }
-
-  @StructureGetter("DecimalSymLength")
-  long getDecimalSymbolLength();
-
-  @StructureGetter("ISOCountry")
-  long getISOCountry();
-
-  @StructureGetter("MilliGroupSize")
-  int getMilliGroupSize();
-
-  default String getMilliSeparator() {
-    return StructureSupport.extractStringValue(this,
-        this.getDecimalSymbolLength(),
-        this.getMilliSeparatorLength());
-  }
-
-  @StructureGetter("MilliSepSymLength")
-  long getMilliSeparatorLength();
-
-  default String getNegativeSymbol() {
-    return StructureSupport.extractStringValue(this,
-        this.getDecimalSymbolLength() + this.getMilliSeparatorLength(),
-        this.getNegativeSymbolLength());
-  }
-
-  @StructureGetter("NegativeSymLength")
-  long getNegativeSymbolLength();
-
-  @StructureGetter("NumberFormat")
-  NFMT getNumberFormat();
-
-  @StructureGetter("NumSymPref")
-  NumberPref getNumberSymbolPreference();
-
-  @StructureGetter("Signature")
-  short getSignature();
-
-  @StructureSetter("CurrencyFlags")
-  ViewColumnFormat4 setCurrencyFlags(Collection<CurrencyFlag> flags);
-
-  @StructureSetter("CurrencyPref")
-  ViewColumnFormat4 setCurrencyPreference(NumberPref pref);
 
   default ViewColumnFormat4 setCurrencySymbol(final String sym) {
     return StructureSupport.writeStringValue(
@@ -132,12 +149,12 @@ public interface ViewColumnFormat4 extends ResizableMemoryStructure {
         this::setCurrencySymbolLength);
   }
 
-  @StructureSetter("CurrencySymLength")
-  ViewColumnFormat4 setCurrencySymbolLength(long len);
-
-  @StructureSetter("CurrencyType")
-  ViewColumnFormat4 setCurrencyType(CurrencyType type);
-
+  default String getDecimalSymbol() {
+    return StructureSupport.extractStringValue(this,
+        0,
+        this.getDecimalSymbolLength());
+  }
+  
   default ViewColumnFormat4 setDecimalSymbol(final String symbol) {
     return StructureSupport.writeStringValue(
         this,
@@ -147,14 +164,11 @@ public interface ViewColumnFormat4 extends ResizableMemoryStructure {
         this::setDecimalSymbolLength);
   }
 
-  @StructureSetter("DecimalSymLength")
-  ViewColumnFormat4 setDecimalSymbolLength(long len);
-
-  @StructureSetter("ISOCountry")
-  ViewColumnFormat4 setISOCountry(long countryCode);
-
-  @StructureSetter("MilliGroupSize")
-  ViewColumnFormat4 setMilliGroupSize(int size);
+  default String getMilliSeparator() {
+    return StructureSupport.extractStringValue(this,
+        this.getDecimalSymbolLength(),
+        this.getMilliSeparatorLength());
+  }
 
   default ViewColumnFormat4 setMilliSeparator(final String sep) {
     return StructureSupport.writeStringValue(
@@ -165,8 +179,11 @@ public interface ViewColumnFormat4 extends ResizableMemoryStructure {
         this::setMilliSeparatorLength);
   }
 
-  @StructureSetter("MilliSepSymLength")
-  ViewColumnFormat4 setMilliSeparatorLength(long len);
+  default String getNegativeSymbol() {
+    return StructureSupport.extractStringValue(this,
+        this.getDecimalSymbolLength() + this.getMilliSeparatorLength(),
+        this.getNegativeSymbolLength());
+  }
 
   default ViewColumnFormat4 setNegativeSymbol(final String sym) {
     return StructureSupport.writeStringValue(
@@ -176,13 +193,4 @@ public interface ViewColumnFormat4 extends ResizableMemoryStructure {
         sym,
         this::setNegativeSymbolLength);
   }
-
-  @StructureSetter("NegativeSymLength")
-  ViewColumnFormat4 setNegativeSymbolLength(long len);
-
-  @StructureSetter("NumSymPref")
-  ViewColumnFormat4 setNumberSymbolPreference(NumberPref pref);
-
-  @StructureSetter("Signature")
-  ViewColumnFormat4 setSignature(short signature);
 }
