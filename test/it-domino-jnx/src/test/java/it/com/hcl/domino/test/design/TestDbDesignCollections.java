@@ -1515,7 +1515,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     
     
     List<ActionBarAction> actionList = actions.getActions();
-    assertEquals(10, actionList.size());
+    assertEquals(12, actionList.size());
     {
       ActionBarAction action = actionList.get(0);
       assertEquals(2, action.getSharedActionIndex().getAsLong());
@@ -1532,16 +1532,18 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIconOnlyInActionBar());
-      assertTrue(action.isDisplayIconOnRight());
+      assertFalse(action.isLeftAlignedInActionBar());
       assertTrue(action.isIncludeInActionMenu());
-      assertFalse(action.isIncludeInMobileActions());
-      assertFalse(action.isIncludeInMobileSwipeLeft());
-      assertFalse(action.isIncludeInMobileSwipeRight());
+      assertTrue(action.isIncludeInMobileActions());
+//      assertTrue(action.isIncludeInMobileSwipeLeft());
+//      assertFalse(action.isIncludeInMobileSwipeRight());
       assertFalse(action.isIncludeInContextMenu());
       assertEquals(ActionBarAction.IconType.NOTES, action.getIconType());
       assertEquals(68, action.getNotesIconIndex());
+      assertTrue(action.isDisplayIconOnRight());
       
       assertEquals(EnumSet.of(HideFromDevice.WEB, HideFromDevice.MOBILE), action.getHideFromDevices());
+      assertTrue(action.isUseHideWhenFormula());
       assertEquals("@False", action.getHideWhenFormula().get());
       
       assertFalse(action.isPublishWithOle());
@@ -1552,21 +1554,174 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     }
     {
       ActionBarAction action = actionList.get(3);
+      assertEquals("Mobile Left", action.getName());
+//      assertTrue(action.isIncludeInMobileSwipeLeft());
+//      assertFalse(action.isIncludeInMobileSwipeRight());
+    }
+    {
+      ActionBarAction action = actionList.get(4);
+      assertEquals("Mobile Right", action.getName());
+//      assertFalse(action.isIncludeInMobileSwipeLeft());
+//      assertTrue(action.isIncludeInMobileSwipeRight());
+    }
+    {
+      ActionBarAction action = actionList.get(5);
       assertEquals("Action Group Right\\Sub-Action 1", action.getName());
       assertEquals("\"Sub-Action\"", action.getLabelFormula().get());
       assertEquals("\"Right group action\"", action.getParentLabelFormula().get());
       assertFalse(action.getTargetFrame().isPresent());
       assertEquals(ActionBarControlType.CHECKBOX, action.getDisplayType());
       assertEquals("SomeField", action.getCheckboxFormula().get());
-      assertTrue(action.isIncludeInActionMenu());
-      assertFalse(action.isIconOnlyInActionBar());
-      assertTrue(action.isDisplayIconOnRight());
+      assertTrue(action.isIncludeInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInContextMenu());
       assertEquals(ActionBarAction.IconType.NOTES, action.getIconType());
       assertEquals(4, action.getNotesIconIndex());
+      assertFalse(action.isDisplayIconOnRight());
+      assertTrue(action.isDisplayAsSplitButton());
       
       assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
+      assertFalse(action.isUseHideWhenFormula());
+      assertFalse(action.getHideWhenFormula().isPresent());
+      
+      assertFalse(action.isPublishWithOle());
+      assertFalse(action.isCloseOleWhenChosen());
+      assertFalse(action.isBringDocumentToFrontInOle());
+      assertFalse(action.getCompositeActionName().isPresent());
+      assertEquals("", action.getProgrammaticUseText());
+    }
+    {
+      ActionBarAction action = actionList.get(6);
+      assertEquals("Action Group Right\\", action.getName());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.MENU_SEPARATOR, action.getDisplayType());
+      assertTrue(action.isIncludeInActionBar());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInContextMenu());
+      
+      assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
+      assertFalse(action.isUseHideWhenFormula());
+      assertFalse(action.getHideWhenFormula().isPresent());
+      
+      assertFalse(action.isPublishWithOle());
+      assertFalse(action.isCloseOleWhenChosen());
+      assertFalse(action.isBringDocumentToFrontInOle());
+      assertFalse(action.getCompositeActionName().isPresent());
+      assertEquals("", action.getProgrammaticUseText());
+    }
+    {
+      ActionBarAction action = actionList.get(7);
+      assertEquals("Action Group Right\\Sub-Action 2", action.getName());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertTrue(action.isIncludeInActionBar());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInContextMenu());
+      
+      assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
+      assertFalse(action.isUseHideWhenFormula());
+      assertFalse(action.getHideWhenFormula().isPresent());
+      
+      assertFalse(action.isPublishWithOle());
+      assertFalse(action.isCloseOleWhenChosen());
+      assertFalse(action.isBringDocumentToFrontInOle());
+      assertFalse(action.getCompositeActionName().isPresent());
+      assertEquals("", action.getProgrammaticUseText());
+    }
+    {
+      ActionBarAction action = actionList.get(8);
+      assertEquals("Menu Action", action.getName());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertFalse(action.isIncludeInActionBar());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInMobileActions());
+//      assertTrue(action.isIncludeInMobileSwipeLeft());
+//      assertFalse(action.isIncludeInMobileSwipeRight());
+      assertTrue(action.isIncludeInContextMenu());
+      assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
+      
+      assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
+      assertFalse(action.isUseHideWhenFormula());
+      assertFalse(action.getHideWhenFormula().isPresent());
+      
+      assertFalse(action.isPublishWithOle());
+      assertTrue(action.isCloseOleWhenChosen());
+      assertFalse(action.isBringDocumentToFrontInOle());
+      assertFalse(action.getCompositeActionName().isPresent());
+      assertEquals("", action.getProgrammaticUseText());
+    }
+    {
+      ActionBarAction action = actionList.get(9);
+      assertEquals("Mobile Guy", action.getName());
+      assertEquals("\"I'm going mobile\"", action.getLabelFormula().get());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertFalse(action.isIncludeInActionBar());
+      assertFalse(action.isIncludeInActionMenu());
+      assertTrue(action.isIncludeInMobileActions());
+//      assertTrue(action.isIncludeInMobileSwipeLeft());
+//      assertTrue(action.isIncludeInMobileSwipeRight());
+      assertFalse(action.isIncludeInContextMenu());
+      assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
+      
+      assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
+      assertFalse(action.isUseHideWhenFormula());
+      assertEquals("dsfd", action.getHideWhenFormula().get());
+      
+      assertFalse(action.isPublishWithOle());
+      assertFalse(action.isCloseOleWhenChosen());
+      assertFalse(action.isBringDocumentToFrontInOle());
+      assertFalse(action.getCompositeActionName().isPresent());
+      assertEquals("", action.getProgrammaticUseText());
+    }
+    {
+      ActionBarAction action = actionList.get(10);
+      assertEquals("LotusScript Action", action.getName());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertTrue(action.isIncludeInActionBar());
+      assertTrue(action.isIconOnlyInActionBar());
+      assertTrue(action.isLeftAlignedInActionBar());
+      assertFalse(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInMobileActions());
+//      assertFalse(action.isIncludeInMobileSwipeLeft());
+//      assertTrue(action.isIncludeInMobileSwipeRight());
+      assertFalse(action.isIncludeInContextMenu());
+      assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
+      
+      assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
+      assertFalse(action.isUseHideWhenFormula());
+      assertFalse(action.getHideWhenFormula().isPresent());
+      
+      assertTrue(action.isPublishWithOle());
+      assertFalse(action.isCloseOleWhenChosen());
+      assertTrue(action.isBringDocumentToFrontInOle());
+      assertFalse(action.getCompositeActionName().isPresent());
+      assertEquals("", action.getProgrammaticUseText());
+    }
+    {
+      ActionBarAction action = actionList.get(11);
+      assertEquals("JS Action", action.getName());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertTrue(action.isIncludeInActionBar());
+      assertFalse(action.isIconOnlyInActionBar());
+      assertFalse(action.isLeftAlignedInActionBar());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInMobileActions());
+//      assertFalse(action.isIncludeInMobileSwipeLeft());
+//      assertFalse(action.isIncludeInMobileSwipeRight());
+      assertFalse(action.isIncludeInContextMenu());
+      assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
+      
+      assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
+      assertFalse(action.isUseHideWhenFormula());
       assertFalse(action.getHideWhenFormula().isPresent());
       
       assertFalse(action.isPublishWithOle());

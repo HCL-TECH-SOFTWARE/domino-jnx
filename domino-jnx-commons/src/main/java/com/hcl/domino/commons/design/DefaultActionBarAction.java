@@ -1,5 +1,6 @@
 package com.hcl.domino.commons.design;
 
+import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -11,6 +12,7 @@ import com.hcl.domino.design.format.ActionBarControlType;
 import com.hcl.domino.design.format.HideFromDevice;
 import com.hcl.domino.richtext.records.CDAction;
 import com.hcl.domino.richtext.records.CDActionExt;
+import com.hcl.domino.richtext.records.CDEventEntry;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.CDTarget;
 import com.hcl.domino.richtext.records.RichTextRecord;
@@ -88,13 +90,13 @@ public class DefaultActionBarAction implements ActionBarAction {
 
   @Override
   public boolean isIconOnlyInActionBar() {
-    // TODO Auto-generated method stub
-    return false;
+    return getActionRecord().getFlags().contains(CDAction.Flag.TEXT_ONLY_IN_MENU);
   }
 
   @Override
-  public boolean isRightAlignedInActionBar() {
-    return getActionRecord().getFlags().contains(CDAction.Flag.ALIGN_ICON_RIGHT);
+  public boolean isLeftAlignedInActionBar() {
+    // This appears to be flipped in meaning from the constant's name
+    return getActionRecord().getFlags().contains(CDAction.Flag.BUTTON_TO_RIGHT);
   }
 
   @Override
@@ -104,19 +106,22 @@ public class DefaultActionBarAction implements ActionBarAction {
 
   @Override
   public boolean isIncludeInMobileActions() {
-    // TODO Auto-generated method stub
-    return false;
+    ByteBuffer data = getActionRecord().getData();
+    data.position(6 + 2 + 2);
+    int flags = data.getInt();
+    // Speculative flag to indicate include-in-mobile-menu
+    return (flags & 0x80000000) != 0;
   }
 
   @Override
   public boolean isIncludeInMobileSwipeLeft() {
-    // TODO Auto-generated method stub
+    // TODO figure out where this is stored, as it seems to not be in CDACTION (Issue #52)
     return false;
   }
 
   @Override
   public boolean isIncludeInMobileSwipeRight() {
-    // TODO Auto-generated method stub
+    // TODO figure out where this is stored, as it seems to not be in CDACTION (Issue #52)
     return false;
   }
 
@@ -172,41 +177,51 @@ public class DefaultActionBarAction implements ActionBarAction {
     }
     return result;
   }
+  
+  @Override
+  public boolean isUseHideWhenFormula() {
+    return !getActionRecord().getFlags().contains(CDAction.Flag.NO_FORMULA);
+  }
 
   @Override
   public Optional<String> getHideWhenFormula() {
-    // TODO Auto-generated method stub
-    return null;
+    String hideWhen = getActionRecord().getHideWhenFormula();
+    if(hideWhen.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.of(hideWhen);
+    }
   }
 
   @Override
   public boolean isPublishWithOle() {
-    // TODO Auto-generated method stub
-    return false;
+    return getActionRecord().getFlags().contains(CDAction.Flag.SHOW_ON_OLE_LAUNCH);
   }
 
   @Override
   public boolean isCloseOleWhenChosen() {
-    // TODO Auto-generated method stub
-    return false;
+    return getActionRecord().getFlags().contains(CDAction.Flag.OLE_CLOSE_WHEN_CHOSEN);
   }
 
   @Override
   public boolean isBringDocumentToFrontInOle() {
-    // TODO Auto-generated method stub
-    return false;
+    return getActionRecord().getFlags().contains(CDAction.Flag.OLE_DOC_WINDOW_TO_FRONT);
   }
 
   @Override
   public Optional<String> getCompositeActionName() {
-    // TODO Auto-generated method stub
-    return null;
+    return getActionExtRecord()
+      .flatMap(actionExt -> {
+        String compAction = actionExt.getCompActionId();
+        return compAction.isEmpty() ? Optional.empty() : Optional.of(compAction);
+      });
   }
 
   @Override
   public String getProgrammaticUseText() {
-    // TODO Auto-generated method stub
-    return null;
+    return getActionExtRecord()
+      .map(CDActionExt::getProgrammaticUseText)
+      .orElse(""); //$NON-NLS-1$
   }
 
   @Override
@@ -221,8 +236,7 @@ public class DefaultActionBarAction implements ActionBarAction {
   
   @Override
   public boolean isDisplayAsSplitButton() {
-    // TODO Auto-generated method stub
-    return false;
+    return getActionRecord().getFlags().contains(CDAction.Flag.MAKE_SPLIT_BUTTON);
   }
 
   // *******************************************************************************
@@ -248,6 +262,13 @@ public class DefaultActionBarAction implements ActionBarAction {
     return records.stream()
       .filter(CDTarget.class::isInstance)
       .map(CDTarget.class::cast)
+      .findFirst();
+  }
+  
+  private Optional<CDEventEntry> getEventEntryRecord() {
+    return records.stream()
+      .filter(CDEventEntry.class::isInstance)
+      .map(CDEventEntry.class::cast)
       .findFirst();
   }
 }

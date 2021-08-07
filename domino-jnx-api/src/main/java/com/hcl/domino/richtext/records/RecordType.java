@@ -71,8 +71,8 @@ public enum RecordType {
    * may not
    * be present in the $Body item of the form note
    */
-  ACTIONEXT(RichTextConstants.SIG_CD_ACTIONEXT, 1),
-  EVENT_LANGUAGE_ENTRY(RichTextConstants.SIG_CD_EVENT_LANGUAGE_ENTRY, 1),
+  ACTIONEXT(RichTextConstants.SIG_CD_ACTIONEXT, 1, CDActionExt.class),
+  EVENT_LANGUAGE_ENTRY(RichTextConstants.SIG_CD_EVENT_LANGUAGE_ENTRY, 1, CDEventEntry.class),
   /**
    * This structure defines the file segment data of a Cascading Style Sheet (CSS)
    * and

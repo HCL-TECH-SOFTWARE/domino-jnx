@@ -94,13 +94,13 @@ public interface ActionBarAction {
   boolean isIconOnlyInActionBar();
   
   /**
-   * Determines whether the action should be included in the right-side grouping
+   * Determines whether the action should be included in the left-side grouping
    * when displayed in the action bar.
    * 
-   * @return {@code true} if the action should be right-aligned when displayed
+   * @return {@code true} if the action should be left-aligned when displayed
    *         in the bar; {@code false} otherwise
    */
-  boolean isRightAlignedInActionBar();
+  boolean isLeftAlignedInActionBar();
   
   /**
    * Determines whether the action should be included in the "Actions" menu in
@@ -186,6 +186,14 @@ public interface ActionBarAction {
    * @return a {@link Set} of {@link HideFromDevice} instances
    */
   Set<HideFromDevice> getHideFromDevices();
+  
+  /**
+   * Determines whether the action's hide-when formula should be evaluated when present.
+   * 
+   * @return {@code true} if the hide-when formula is enabled;
+   *         {@code false} otherwise
+   */
+  boolean isUseHideWhenFormula();
   
   /**
    * Retrieves the hide-when formula for this action, if set.

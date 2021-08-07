@@ -1070,4 +1070,57 @@ public interface RichTextConstants {
   
   /** Flag in CDTARGET for formula target */
   short FLAG_TARGET_IS_FORMULA = 0x0001;
+  
+  short PLATFORM_TYPE_CLIENT_ODS = 1;
+  short PLATFORM_TYPE_WEB_ODS = 2;
+  
+
+  short HTML_EVENT_ONCLICK = 1;
+  short HTML_EVENT_ONDBLCLICK = 2;
+  short HTML_EVENT_ONMOUSEDOWN = 3;
+  short HTML_EVENT_ONMOUSEUP = 4;
+  short HTML_EVENT_ONMOUSEOVER = 5;
+  short HTML_EVENT_ONMOUSEMOVE = 6;
+  short HTML_EVENT_ONMOUSEOUT = 7;
+  short HTML_EVENT_ONKEYPRESS = 8;
+  short HTML_EVENT_ONKEYDOWN = 9;
+  short HTML_EVENT_ONKEYUP = 10;
+  short HTML_EVENT_ONFOCUS = 11;
+  short HTML_EVENT_ONBLUR = 12;
+  short HTML_EVENT_ONLOAD = 13;
+  short HTML_EVENT_ONUNLOAD = 14;
+  short HTML_EVENT_HEADER = 15;
+  short HTML_EVENT_ONSUBMIT = 16;
+  short HTML_EVENT_ONRESET = 17;
+  short HTML_EVENT_ONCHANGE = 18;
+  short HTML_EVENT_ONERROR = 19;
+  short HTML_EVENT_ONHELP = 20;
+  short HTML_EVENT_ONSELECT = 21;
+  /** This isn't really an event */
+  short HTML_EVENT_LIBRARY = 22;
+  
+  short ACTION_FORMULA = 0;
+  short ACTION_CANNED_ACTION = 1;
+  short ACTION_LOTUS_SCRIPT = 2;
+  short ACTION_MISC = 3;
+  short ACTION_COLLECTION_RULE = 4;
+  short ACTION_JAVA_FILE = 5;
+  short ACTION_JAVA = 6;
+  short ACTION_JAVASCRIPT = 7;
+  /** Use same JavaScript for both client and web */
+  short ACTION_JAVASCRIPT_COMMON = 8;
+  short ACTION_UNUSED = 9;
+  /** fullpack search on 12/10/00 showed no use of this */
+  short ACTION_SECTION_EDIT = 10;
+  short ACTION_NULL = 11;
+  /** Obj properties (initially for OLE properties) */
+  short ACTION_PROPERTIES = 12;
+  /** The code is JSP code */
+  short ACTION_JSP = 13;
+  /** The code is HTML */
+  short ACTION_HTML = 14;
+  /** The end of the 'real' types */
+  short ACTION_MAX = 15;
+  short ACTION_OTHER = 98;
+  short ACTION_UNKNOWN = 99;
 }

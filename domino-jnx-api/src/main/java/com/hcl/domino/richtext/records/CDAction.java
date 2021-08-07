@@ -23,6 +23,7 @@ import java.util.Set;
 
 import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.misc.INumberEnum;
+import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -201,14 +202,11 @@ public interface CDAction extends RichTextRecord<LSIG> {
    * @return the decompiled hide-when formula for this action
    */
   default String getHideWhenFormula() {
-    final int titleLen = this.getTitleLength();
-    final int actionLen = this.getActionLength();
-    final int hideWhenLen = this.getHideWhenFormulaLength();
-    final ByteBuffer buf = this.getVariableData();
-    buf.position(titleLen + actionLen);
-    final byte[] compiled = new byte[hideWhenLen];
-    buf.get(compiled);
-    return FormulaCompiler.get().decompile(compiled);
+    return StructureSupport.extractCompiledFormula(
+      this,
+      getTitleLength() + getActionLength(),
+      getHideWhenFormulaLength()
+    );
   }
 
   @StructureGetter("FormulaLen")
