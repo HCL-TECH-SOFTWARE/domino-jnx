@@ -115,14 +115,18 @@ public class DefaultActionBarAction implements ActionBarAction {
 
   @Override
   public boolean isIncludeInMobileSwipeLeft() {
-    // TODO figure out where this is stored, as it seems to not be in CDACTION (Issue #52)
-    return false;
+    return getActionExtRecord()
+      .map(CDActionExt::getFlags)
+      .map(flags -> flags.contains(CDActionExt.Flag.INCLUDE_IN_SWIPE_LEFT))
+      .orElse(false);
   }
 
   @Override
   public boolean isIncludeInMobileSwipeRight() {
-    // TODO figure out where this is stored, as it seems to not be in CDACTION (Issue #52)
-    return false;
+    return getActionExtRecord()
+        .map(CDActionExt::getFlags)
+        .map(flags -> flags.contains(CDActionExt.Flag.INCLUDE_IN_SWIPE_RIGHT))
+        .orElse(false);
   }
 
   @Override

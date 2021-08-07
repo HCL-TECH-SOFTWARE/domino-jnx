@@ -1535,8 +1535,6 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(action.isLeftAlignedInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertTrue(action.isIncludeInMobileActions());
-//      assertTrue(action.isIncludeInMobileSwipeLeft());
-//      assertFalse(action.isIncludeInMobileSwipeRight());
       assertFalse(action.isIncludeInContextMenu());
       assertEquals(ActionBarAction.IconType.NOTES, action.getIconType());
       assertEquals(68, action.getNotesIconIndex());
@@ -1555,14 +1553,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     {
       ActionBarAction action = actionList.get(3);
       assertEquals("Mobile Left", action.getName());
-//      assertTrue(action.isIncludeInMobileSwipeLeft());
-//      assertFalse(action.isIncludeInMobileSwipeRight());
+      assertTrue(action.isIncludeInMobileSwipeLeft());
+      assertFalse(action.isIncludeInMobileSwipeRight());
     }
     {
       ActionBarAction action = actionList.get(4);
       assertEquals("Mobile Right", action.getName());
-//      assertFalse(action.isIncludeInMobileSwipeLeft());
-//      assertTrue(action.isIncludeInMobileSwipeRight());
+      assertFalse(action.isIncludeInMobileSwipeLeft());
+      assertTrue(action.isIncludeInMobileSwipeRight());
     }
     {
       ActionBarAction action = actionList.get(5);
@@ -1639,8 +1637,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(action.isIncludeInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInMobileActions());
-//      assertTrue(action.isIncludeInMobileSwipeLeft());
-//      assertFalse(action.isIncludeInMobileSwipeRight());
+      assertFalse(action.isIncludeInMobileSwipeLeft());
+      assertFalse(action.isIncludeInMobileSwipeRight());
       assertTrue(action.isIncludeInContextMenu());
       assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
       
@@ -1663,8 +1661,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(action.isIncludeInActionBar());
       assertFalse(action.isIncludeInActionMenu());
       assertTrue(action.isIncludeInMobileActions());
-//      assertTrue(action.isIncludeInMobileSwipeLeft());
-//      assertTrue(action.isIncludeInMobileSwipeRight());
+      assertTrue(action.isIncludeInMobileSwipeLeft());
+      assertTrue(action.isIncludeInMobileSwipeRight());
       assertFalse(action.isIncludeInContextMenu());
       assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
       

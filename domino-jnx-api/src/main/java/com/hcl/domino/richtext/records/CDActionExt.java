@@ -16,7 +16,11 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.util.Collection;
+import java.util.Set;
+
 import com.hcl.domino.design.format.ActionBarControlType;
+import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
@@ -32,7 +36,7 @@ import com.hcl.domino.richtext.structures.WSIG;
   name = "CDACTIONEXT",
   members = {
     @StructureMember(name = "Header", type = WSIG.class),
-    @StructureMember(name = "dwFlags", type = int.class),
+    @StructureMember(name = "dwFlags", type = CDActionExt.Flag.class, bitfield = true),
     @StructureMember(name = "wControlType", type = ActionBarControlType.class),
     @StructureMember(name = "wControlFormulaLen", type = short.class, unsigned = true),
     @StructureMember(name = "wLabelFormulaLen", type = short.class, unsigned = true),
@@ -43,9 +47,34 @@ import com.hcl.domino.richtext.structures.WSIG;
   }
 )
 public interface CDActionExt extends RichTextRecord<WSIG> {
+  enum Flag implements INumberEnum<Integer> {
+    INCLUDE_IN_SWIPE_LEFT(0x00000001),
+    INCLUDE_IN_SWIPE_RIGHT(0x00000002);
+    private final int value;
+    private Flag(int value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return value;
+    }
+
+    @Override
+    public Integer getValue() {
+      return value;
+    }
+  }
+  
   @StructureGetter("Header")
   @Override
   WSIG getHeader();
+  
+  @StructureGetter("dwFlags")
+  Set<Flag> getFlags();
+  
+  @StructureSetter("dwFlags")
+  CDActionExt setFlags(Collection<Flag> flags);
   
   @StructureGetter("wControlType")
   ActionBarControlType getControlType();
