@@ -22,6 +22,7 @@ import java.util.Set;
 import com.hcl.domino.design.format.ActionBarControlType;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.StructureSupport;
+import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -48,8 +49,8 @@ import com.hcl.domino.richtext.structures.WSIG;
 )
 public interface CDActionExt extends RichTextRecord<WSIG> {
   enum Flag implements INumberEnum<Integer> {
-    INCLUDE_IN_SWIPE_LEFT(0x00000001),
-    INCLUDE_IN_SWIPE_RIGHT(0x00000002);
+    INCLUDE_IN_SWIPE_LEFT(RichTextConstants.ACTIONEXT_INCLUDE_IN_SWIPE_LEFT),
+    INCLUDE_IN_SWIPE_RIGHT(RichTextConstants.ACTIONEXT_INCLUDE_IN_SWIPE_RIGHT);
     private final int value;
     private Flag(int value) {
       this.value = value;

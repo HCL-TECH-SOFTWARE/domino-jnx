@@ -106,11 +106,7 @@ public class DefaultActionBarAction implements ActionBarAction {
 
   @Override
   public boolean isIncludeInMobileActions() {
-    ByteBuffer data = getActionRecord().getData();
-    data.position(6 + 2 + 2);
-    int flags = data.getInt();
-    // Speculative flag to indicate include-in-mobile-menu
-    return (flags & 0x80000000) != 0;
+    return getActionRecord().getFlags().contains(CDAction.Flag.SHOW_IN_MOBILE_ACTIONS);
   }
 
   @Override

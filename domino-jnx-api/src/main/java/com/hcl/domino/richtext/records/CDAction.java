@@ -24,6 +24,7 @@ import java.util.Set;
 import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.StructureSupport;
+import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -48,32 +49,31 @@ import com.hcl.domino.richtext.structures.LSIG;
 )
 public interface CDAction extends RichTextRecord<LSIG> {
   enum Flag implements INumberEnum<Integer> {
-    SHOW_IN_MENU(0x00000001),
-    SHOW_IN_BAR(0x00000002),
-    SHOW_WHEN_PREVIEWING(0x00000004),
-    SHOW_WHEN_READING(0x00000008),
-
-    SHOW_WHEN_EDITING(0x00000010),
-    SHOW_ON_OLE_LAUNCH(0x00000020),
-    OLE_CLOSE_WHEN_CHOSEN(0x00000040),
-    NO_FORMULA(0x00000080),
-    SHOW_WHEN_PREVEDITING(0x00000100),
-
-    OLE_DOC_WINDOW_TO_FRONT(0x00001000),
-    HIDE_FROM_NOTES(0x00002000),
-    HIDE_FROM_WEB(0x00004000),
-    READING_ORDER_RTL(0x00008000),
-    SHARED(0x00010000), /* action is shared*/
-    MODIFIED(0x00020000), /* action has been modified (not saved on disk) */
-    ALWAYS_SHARED(0x00040000), /* flag not saved on disk */
-    ALIGN_ICON_RIGHT(0x00080000),
-    IMAGE_RESOURCE_ICON(0x00100000),
-    FRAME_TARGET(0x00400000),
-    TEXT_ONLY_IN_MENU(0x00800000),
-    BUTTON_TO_RIGHT(0x01000000), /* Show button on opposite side from action bar direction */
-    HIDE_FROM_MOBILE(0x04000000), /* action is hidden from mobile */
-    SHOW_IN_POPUPMENU(0x10000000),
-    MAKE_SPLIT_BUTTON(0x20000000); /* LI: 4602.02, Provide support for "Split button" for java action bar */
+    SHOW_IN_MENU(RichTextConstants.ACTION_SHOW_IN_MENU),
+    SHOW_IN_BAR(RichTextConstants.ACTION_SHOW_IN_BAR),
+    SHOW_WHEN_PREVIEWING(RichTextConstants.ACTION_SHOW_WHEN_PREVIEWING),
+    SHOW_WHEN_READING(RichTextConstants.ACTION_SHOW_WHEN_READING),
+    SHOW_WHEN_EDITING(RichTextConstants.ACTION_SHOW_WHEN_EDITING),
+    SHOW_ON_OLE_LAUNCH(RichTextConstants.ACTION_SHOW_ON_OLE_LAUNCH),
+    OLE_CLOSE_WHEN_CHOSEN(RichTextConstants.ACTION_OLE_CLOSE_WHEN_CHOSEN),
+    NO_FORMULA(RichTextConstants.ACTION_NO_FORMULA),
+    SHOW_WHEN_PREVEDITING(RichTextConstants.ACTION_SHOW_WHEN_PREVEDITING),
+    OLE_DOC_WINDOW_TO_FRONT(RichTextConstants.ACTION_OLE_DOC_WINDOW_TO_FRONT),
+    HIDE_FROM_NOTES(RichTextConstants.ACTION_HIDE_FROM_NOTES),
+    HIDE_FROM_WEB(RichTextConstants.ACTION_HIDE_FROM_WEB),
+    READING_ORDER_RTL(RichTextConstants.ACTION_READING_ORDER_RTL),
+    SHARED(RichTextConstants.ACTION_SHARED),
+    MODIFIED(RichTextConstants.ACTION_MODIFIED),
+    ALWAYS_SHARED(RichTextConstants.ACTION_ALWAYS_SHARED),
+    ALIGN_ICON_RIGHT(RichTextConstants.ACTION_ALIGN_ICON_RIGHT),
+    IMAGE_RESOURCE_ICON(RichTextConstants.ACTION_IMAGE_RESOURCE_ICON),
+    FRAME_TARGET(RichTextConstants.ACTION_FRAME_TARGET),
+    TEXT_ONLY_IN_MENU(RichTextConstants.ACTION_TEXT_ONLY_IN_MENU),
+    BUTTON_TO_RIGHT(RichTextConstants.ACTION_BUTTON_TO_RIGHT),
+    HIDE_FROM_MOBILE(RichTextConstants.ACTION_HIDE_FROM_MOBILE),
+    SHOW_IN_POPUPMENU(RichTextConstants.ACTION_SHOW_IN_POPUPMENU),
+    MAKE_SPLIT_BUTTON(RichTextConstants.ACTION_MAKE_SPLIT_BUTTON),
+    SHOW_IN_MOBILE_ACTIONS(RichTextConstants.ACTION_SHOW_IN_MOBILE_ACTIONS);
 
     private final int value;
 

@@ -1123,4 +1123,54 @@ public interface RichTextConstants {
   short ACTION_MAX = 15;
   short ACTION_OTHER = 98;
   short ACTION_UNKNOWN = 99;
+  
+
+  int ACTION_SHOW_IN_MENU = 0x00000001;
+  int ACTION_SHOW_IN_BAR = 0x00000002;
+  int ACTION_SHOW_WHEN_PREVIEWING = 0x00000004;
+  int ACTION_SHOW_WHEN_READING = 0x00000008;
+  int ACTION_SHOW_WHEN_EDITING = 0x00000010;
+  int ACTION_SHOW_ON_OLE_LAUNCH = 0x00000020;
+  int ACTION_OLE_CLOSE_WHEN_CHOSEN = 0x00000040;
+  int ACTION_NO_FORMULA = 0x00000080;
+  int ACTION_SHOW_WHEN_PREVEDITING = 0x00000100;
+  int ACTION_OLE_DOC_WINDOW_TO_FRONT = 0x00001000;
+  int ACTION_HIDE_FROM_NOTES = 0x00002000;
+  int ACTION_HIDE_FROM_WEB = 0x00004000;
+  int ACTION_READING_ORDER_RTL = 0x00008000;
+  /** action is shared */
+  int ACTION_SHARED = 0x00010000;
+  /** action has been modified (not saved on disk) */
+  int ACTION_MODIFIED = 0x00020000;
+  /** flag not saved on disk */
+  int ACTION_ALWAYS_SHARED = 0x00040000;
+  int ACTION_ALIGN_ICON_RIGHT = 0x00080000;
+  int ACTION_IMAGE_RESOURCE_ICON = 0x00100000;
+  int ACTION_FRAME_TARGET = 0x00400000;
+  int ACTION_TEXT_ONLY_IN_MENU = 0x00800000;
+  /** Show button on opposite side from action bar direction */
+  int ACTION_BUTTON_TO_RIGHT = 0x01000000;
+  /** action is hidden from mobile */
+  int ACTION_HIDE_FROM_MOBILE = 0x04000000;
+  int ACTION_SHOW_IN_POPUPMENU = 0x10000000;
+  /** LI: 4602.02, Provide support for "Split button" for java action bar */
+  int ACTION_MAKE_SPLIT_BUTTON = 0x20000000;
+  /**
+   * Non-documented (and speculatively-named) flag indicating that the action should be
+   * included in the mobile-specific actions menu.
+   */
+  int ACTION_SHOW_IN_MOBILE_ACTIONS = 0x80000000;
+  
+  int ACTION_ODS_FLAG_MASK = 0xF5F9F1FF; 
+  
+  /**
+   * Non-documented (and speculatively-named) flag used in CDACTIONEXT.dwFlags to indicate
+   * that the action should be included in the "swipe left" actions on mobile devices.
+   */
+  int ACTIONEXT_INCLUDE_IN_SWIPE_LEFT = 0x00000001;
+  /**
+   * Non-documented (and speculatively-named) flag used in CDACTIONEXT.dwFlags to indicate
+   * that the action should be included in the "swipe right" actions on mobile devices.
+   */
+  int ACTIONEXT_INCLUDE_IN_SWIPE_RIGHT = 0x00000002;
 }
