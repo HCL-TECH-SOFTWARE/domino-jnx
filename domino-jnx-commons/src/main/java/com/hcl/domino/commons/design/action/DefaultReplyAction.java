@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
 
-import com.hcl.domino.design.action.ReplyAction;
+import com.hcl.domino.design.simpleaction.ReplyAction;
 import com.hcl.domino.richtext.records.CDActionReply.Flag;
 
 public class DefaultReplyAction implements ReplyAction {

@@ -14,12 +14,14 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.action;
+package com.hcl.domino.design.simpleaction;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface DeleteDocumentAction extends SimpleAction {
+public interface ModifyFieldAction extends SimpleAction {
+  String getFieldName();
 
+  String getValue();
 }

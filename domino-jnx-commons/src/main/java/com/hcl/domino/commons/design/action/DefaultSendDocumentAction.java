@@ -16,7 +16,7 @@
  */
 package com.hcl.domino.commons.design.action;
 
-import com.hcl.domino.design.action.SendDocumentAction;
+import com.hcl.domino.design.simpleaction.SendDocumentAction;
 
 /**
  * @author Jesse Gallagher

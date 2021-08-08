@@ -14,14 +14,28 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.action;
+package com.hcl.domino.design.simpleaction;
 
-import com.hcl.domino.design.agent.FormulaAgentContent;
+import com.hcl.domino.design.ComputableValue;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface RunFormulaAction extends SimpleAction, FormulaAgentContent {
+public interface SendMailAction extends SimpleAction {
+  ComputableValue getBcc();
 
+  String getBody();
+
+  ComputableValue getCc();
+
+  ComputableValue getSubject();
+
+  ComputableValue getTo();
+
+  boolean isIncludeDocLink();
+
+  boolean isIncludeDocument();
+
+  boolean isSaveMailDocument();
 }
