@@ -53,12 +53,12 @@ import com.hcl.domino.design.CollectionDesignElement.DisplaySettings;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.DesignElement.ClassicThemeBehavior;
+import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.ActionBar.ButtonHeightMode;
-import com.hcl.domino.design.ActionBarAction;
 import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
 import com.hcl.domino.design.format.ActionBarControlType;
 import com.hcl.domino.design.format.ActionBarTextAlignment;
@@ -1515,10 +1515,12 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     
     
     List<ActionBarAction> actionList = actions.getActions();
-    assertEquals(12, actionList.size());
+    assertEquals(13, actionList.size());
     {
       ActionBarAction action = actionList.get(0);
       assertEquals(2, action.getSharedActionIndex().getAsLong());
+      assertEquals("Save", action.getName());
+      
     }
     {
       ActionBarAction action = actionList.get(1);

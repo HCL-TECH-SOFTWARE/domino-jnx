@@ -1,4 +1,4 @@
-package com.hcl.domino.design;
+package com.hcl.domino.design.action;
 
 import java.util.Optional;
 import java.util.OptionalLong;
