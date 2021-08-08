@@ -25,6 +25,26 @@ public interface ActionBarAction {
   enum IconType {
     NONE, NOTES, CUSTOM
   }
+  /**
+   * Represents the types of code that can be used to write actions.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  enum ActionLanguage {
+    /** Formula language expressions */
+    FORMULA,
+    /** One or more simple (canned) actions, such as "Send Document" */
+    SIMPLE_ACTION,
+    /** Structured LotusScript code */
+    LOTUSSCRIPT,
+    /** JavaScript code for web clients */
+    JAVASCRIPT,
+    /** JavaScript code for both Notes and web clients */
+    COMMON_JAVASCRIPT,
+    /** Stock system actions, such as "Categorize" */
+    SYSTEM_COMMAND
+  }
   
   /**
    * Retrieves the name of the action.
@@ -34,6 +54,16 @@ public interface ActionBarAction {
    * @return the action name
    */
   String getName();
+  
+  /**
+   * Retrieves the language the action is written in.
+   * 
+   * <p>Note: {@link ActionBarControlType#MENU_SEPARATOR separator} actions report
+   * {@link ActionLanguage#FORMULA} for this value, despite retaining no code.</p>
+   * 
+   * @return a {@link ActionLanguage} instance
+   */
+  ActionLanguage getActionLanguage();
   
   /**
    * Retrieves the formula for a displayed label, if specified.
@@ -261,4 +291,16 @@ public interface ActionBarAction {
    *         {@code false} otherwise
    */
   boolean isDisplayAsSplitButton();
+  
+  /**
+   * Retrieves the action content of the action. The actual type of object depends
+   * on the {@link #getActionLanguage() language} of the agent.
+   * 
+   * <p>Actions that have no associated content, such as menu separators, will return
+   * an instance of {@link FormulaActionContent} with an empty script.</p>
+   *
+   * @return an {@link ActionContent} instance representing the content of the
+   *         action
+   */
+  ActionContent getActionContent();
 }

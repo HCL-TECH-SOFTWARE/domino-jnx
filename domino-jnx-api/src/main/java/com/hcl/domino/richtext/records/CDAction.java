@@ -91,15 +91,17 @@ public interface CDAction extends RichTextRecord<LSIG> {
       return this.value;
     }
   }
-
-  enum Type implements INumberEnum<Short> {
-    RUN_FORMULA(1),
-    RUN_SCRIPT(2),
-    RUN_AGENT(3),
-    OLDSYS_COMMAND(4),
-    SYS_COMMAND(5),
-    PLACEHOLDER(6),
-    RUN_JAVASCRIPT(7);
+  /**
+   * Represents the available language types for an action bar action.
+   */
+  public enum Type implements INumberEnum<Short> {
+    RUN_FORMULA(RichTextConstants.ACTION_RUN_FORMULA),
+    RUN_SCRIPT(RichTextConstants.ACTION_RUN_SCRIPT),
+    RUN_AGENT(RichTextConstants.ACTION_RUN_AGENT),
+    OLDSYS_COMMAND(RichTextConstants.ACTION_OLDSYS_COMMAND),
+    SYS_COMMAND(RichTextConstants.ACTION_SYS_COMMAND),
+    PLACEHOLDER(RichTextConstants.ACTION_PLACEHOLDER),
+    RUN_JAVASCRIPT(RichTextConstants.ACTION_RUN_JAVASCRIPT);
 
     private final short value;
 
@@ -119,11 +121,14 @@ public interface CDAction extends RichTextRecord<LSIG> {
   }
 
   default byte[] getActionData() {
-    final int titleLen = this.getTitleLength();
+    
+    int titleLen = this.getTitleLength();
+    titleLen += titleLen % 2;
+    int hideWhenLen = getHideWhenFormulaLength();
     final int actionLen = this.getActionLength();
 
     final ByteBuffer buf = this.getVariableData();
-    buf.position(buf.position() + titleLen);
+    buf.position(buf.position() + titleLen + hideWhenLen);
     final byte[] result = new byte[actionLen];
     buf.get(result);
     return result;
@@ -140,15 +145,18 @@ public interface CDAction extends RichTextRecord<LSIG> {
     if (this.getActionType() != Type.RUN_FORMULA) {
       throw new UnsupportedOperationException("Unable to retrieve formula data for a non-formula action");
     }
-    final byte[] compiledFormula = this.getActionData();
-    return FormulaCompiler.get().decompile(compiledFormula);
+    int titleLen = getTitleLength();
+    return StructureSupport.extractCompiledFormula(
+      this,
+      titleLen + (titleLen % 2),
+      getActionLength()
+    );
   }
 
   default int getActionLength() {
     int titleLen = this.getTitleLength();
     titleLen += titleLen % 2;
     int hideWhenLen = this.getHideWhenFormulaLength();
-    hideWhenLen += hideWhenLen % 2;
     return this.getHeader().getLength().intValue() - 22 // sizeOf(CDACTION)
         - titleLen
         - hideWhenLen;
@@ -202,9 +210,10 @@ public interface CDAction extends RichTextRecord<LSIG> {
    * @return the decompiled hide-when formula for this action
    */
   default String getHideWhenFormula() {
+    int titleLen = getTitleLength();
     return StructureSupport.extractCompiledFormula(
       this,
-      getTitleLength() + getActionLength(),
+      getTitleLength() + (titleLen % 2) + getActionLength(),
       getHideWhenFormulaLength()
     );
   }
@@ -311,7 +320,7 @@ public interface CDAction extends RichTextRecord<LSIG> {
     final int actionLen = this.getActionLength();
 
     final byte[] compiled = FormulaCompiler.get().compile(formula);
-    final int hideWhenLen = compiled.length + compiled.length % 2;
+    final int hideWhenLen = compiled.length;
     this.setHideWhenFormulaLength(hideWhenLen);
     this.resizeVariableData(titleLen + actionLen + compiled.length);
 
