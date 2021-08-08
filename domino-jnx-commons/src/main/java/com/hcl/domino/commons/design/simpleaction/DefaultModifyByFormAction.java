@@ -14,31 +14,36 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.commons.design.action;
+package com.hcl.domino.commons.design.simpleaction;
 
-import com.hcl.domino.design.simpleaction.CopyToDatabaseAction;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.hcl.domino.design.simpleaction.ModifyByFormAction;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public class DefaultCopyToDatabaseAction implements CopyToDatabaseAction {
-  private final String serverName;
-  private final String databaseName;
+public class DefaultModifyByFormAction implements ModifyByFormAction {
+  private final String formName;
+  private final Map<String, List<String>> modifications;
 
-  public DefaultCopyToDatabaseAction(final String serverName, final String databaseName) {
-    this.serverName = serverName;
-    this.databaseName = databaseName;
+  public DefaultModifyByFormAction(final String formName, final Map<String, List<String>> modifications) {
+    this.formName = formName;
+    this.modifications = new LinkedHashMap<>(modifications);
   }
 
   @Override
-  public String getDatabaseName() {
-    return this.databaseName;
+  public String getFormName() {
+    return this.formName;
   }
 
   @Override
-  public String getServerName() {
-    return this.serverName;
+  public Map<String, List<String>> getModifications() {
+    return Collections.unmodifiableMap(this.modifications);
   }
 
 }

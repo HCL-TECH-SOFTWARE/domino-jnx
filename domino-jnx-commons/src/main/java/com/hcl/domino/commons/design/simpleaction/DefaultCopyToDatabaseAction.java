@@ -14,14 +14,31 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.commons.design.action;
+package com.hcl.domino.commons.design.simpleaction;
 
-import com.hcl.domino.design.simpleaction.DeleteDocumentAction;
+import com.hcl.domino.design.simpleaction.CopyToDatabaseAction;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public class DefaultDeleteDocumentAction implements DeleteDocumentAction {
+public class DefaultCopyToDatabaseAction implements CopyToDatabaseAction {
+  private final String serverName;
+  private final String databaseName;
+
+  public DefaultCopyToDatabaseAction(final String serverName, final String databaseName) {
+    this.serverName = serverName;
+    this.databaseName = databaseName;
+  }
+
+  @Override
+  public String getDatabaseName() {
+    return this.databaseName;
+  }
+
+  @Override
+  public String getServerName() {
+    return this.serverName;
+  }
 
 }
