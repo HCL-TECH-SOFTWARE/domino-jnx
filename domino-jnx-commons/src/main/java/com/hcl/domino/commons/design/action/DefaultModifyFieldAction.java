@@ -16,7 +16,7 @@
  */
 package com.hcl.domino.commons.design.action;
 
-import com.hcl.domino.design.action.ModifyFieldAction;
+import com.hcl.domino.design.simpleaction.ModifyFieldAction;
 
 /**
  * @author Jesse Gallagher

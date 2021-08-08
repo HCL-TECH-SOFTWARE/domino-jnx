@@ -18,7 +18,7 @@ package com.hcl.domino.design.agent;
 
 import java.util.List;
 
-import com.hcl.domino.design.action.SimpleAction;
+import com.hcl.domino.design.simpleaction.SimpleAction;
 
 /**
  * Represents the contents of a Simple Action agent.

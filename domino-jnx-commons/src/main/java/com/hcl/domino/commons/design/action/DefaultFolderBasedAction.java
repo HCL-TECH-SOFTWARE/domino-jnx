@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
 
-import com.hcl.domino.design.action.FolderBasedAction;
+import com.hcl.domino.design.simpleaction.FolderBasedAction;
 import com.hcl.domino.richtext.records.CDActionFolder;
 
 /**
