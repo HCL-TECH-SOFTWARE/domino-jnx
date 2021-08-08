@@ -48,17 +48,20 @@ import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.NotesFont;
 import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.design.ActionBar;
+import com.hcl.domino.design.ActionBar.ButtonHeightMode;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.CollectionDesignElement.DisplaySettings;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.DesignElement.ClassicThemeBehavior;
-import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.View;
-import com.hcl.domino.design.ActionBar.ButtonHeightMode;
+import com.hcl.domino.design.action.ActionBarAction;
+import com.hcl.domino.design.action.ActionContent;
+import com.hcl.domino.design.action.FormulaActionContent;
+import com.hcl.domino.design.action.SimpleActionActionContent;
 import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
 import com.hcl.domino.design.format.ActionBarControlType;
 import com.hcl.domino.design.format.ActionBarTextAlignment;
@@ -82,6 +85,10 @@ import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.ViewLineSpacing;
 import com.hcl.domino.design.format.WeekFormat;
 import com.hcl.domino.design.format.YearFormat;
+import com.hcl.domino.design.simpleaction.ModifyFieldAction;
+import com.hcl.domino.design.simpleaction.ReadMarksAction;
+import com.hcl.domino.design.simpleaction.SendDocumentAction;
+import com.hcl.domino.design.simpleaction.SimpleAction;
 import com.hcl.domino.exception.FileDoesNotExistException;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
@@ -1515,20 +1522,21 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     
     
     List<ActionBarAction> actionList = actions.getActions();
-    assertEquals(13, actionList.size());
+    assertEquals(14, actionList.size());
     {
       ActionBarAction action = actionList.get(0);
       assertEquals(2, action.getSharedActionIndex().getAsLong());
       assertEquals("Save", action.getName());
-      
     }
     {
       ActionBarAction action = actionList.get(1);
       assertEquals(3, action.getSharedActionIndex().getAsLong());
+      assertEquals("Save and Close", action.getName());
     }
     {
       ActionBarAction action = actionList.get(2);
       assertEquals("Formula Action", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.FORMULA, action.getActionLanguage());
       assertFalse(action.getLabelFormula().isPresent());
       assertEquals("NotesView", action.getTargetFrame().get());
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
@@ -1551,22 +1559,37 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(action.isBringDocumentToFrontInOle());
       assertEquals("testAction", action.getCompositeActionName().get());
       assertEquals("some program use", action.getProgrammaticUseText());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(FormulaActionContent.class, content);
+      assertEquals("@StatusBar(\"I am formula action\")", ((FormulaActionContent)content).getFormula());
     }
     {
       ActionBarAction action = actionList.get(3);
       assertEquals("Mobile Left", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.FORMULA, action.getActionLanguage());
       assertTrue(action.isIncludeInMobileSwipeLeft());
       assertFalse(action.isIncludeInMobileSwipeRight());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(FormulaActionContent.class, content);
+      assertEquals("@StatusBar(\"hi\")", ((FormulaActionContent)content).getFormula());
     }
     {
       ActionBarAction action = actionList.get(4);
       assertEquals("Mobile Right", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.FORMULA, action.getActionLanguage());
       assertFalse(action.isIncludeInMobileSwipeLeft());
       assertTrue(action.isIncludeInMobileSwipeRight());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(FormulaActionContent.class, content);
+      assertEquals("@StatusBar(\"hi\")", ((FormulaActionContent)content).getFormula());
     }
     {
       ActionBarAction action = actionList.get(5);
       assertEquals("Action Group Right\\Sub-Action 1", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.FORMULA, action.getActionLanguage());
       assertEquals("\"Sub-Action\"", action.getLabelFormula().get());
       assertEquals("\"Right group action\"", action.getParentLabelFormula().get());
       assertFalse(action.getTargetFrame().isPresent());
@@ -1589,6 +1612,10 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(FormulaActionContent.class, content);
+      assertEquals("@SetField(\"SomeField\"; 0)", ((FormulaActionContent)content).getFormula());
     }
     {
       ActionBarAction action = actionList.get(6);
@@ -1613,6 +1640,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     {
       ActionBarAction action = actionList.get(7);
       assertEquals("Action Group Right\\Sub-Action 2", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.SIMPLE_ACTION, action.getActionLanguage());
       assertFalse(action.getLabelFormula().isPresent());
       assertFalse(action.getTargetFrame().isPresent());
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
@@ -1629,10 +1657,31 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(SimpleActionActionContent.class, content);
+      List<SimpleAction> simpleActions = ((SimpleActionActionContent)content).getActions();
+      assertEquals(3, simpleActions.size());
+      {
+        SimpleAction action0 = simpleActions.get(0);
+        assertInstanceOf(SendDocumentAction.class, action0);
+      }
+      {
+        SimpleAction action1 = simpleActions.get(1);
+        assertInstanceOf(ModifyFieldAction.class, action1);
+        assertEquals("Body", ((ModifyFieldAction)action1).getFieldName());
+        assertEquals("hey", ((ModifyFieldAction)action1).getValue());
+      }
+      {
+        SimpleAction action2 = simpleActions.get(2);
+        assertInstanceOf(ReadMarksAction.class, action2);
+        assertEquals(ReadMarksAction.Type.MARK_READ, ((ReadMarksAction)action2).getType());
+      }
     }
     {
       ActionBarAction action = actionList.get(8);
       assertEquals("Menu Action", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.SIMPLE_ACTION, action.getActionLanguage());
       assertFalse(action.getLabelFormula().isPresent());
       assertFalse(action.getTargetFrame().isPresent());
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
@@ -1653,10 +1702,20 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(SimpleActionActionContent.class, content);
+      List<SimpleAction> simpleActions = ((SimpleActionActionContent)content).getActions();
+      assertEquals(1, simpleActions.size());
+      {
+        SimpleAction action0 = simpleActions.get(0);
+        assertInstanceOf(SendDocumentAction.class, action0);
+      }
     }
     {
       ActionBarAction action = actionList.get(9);
       assertEquals("Mobile Guy", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.FORMULA, action.getActionLanguage());
       assertEquals("\"I'm going mobile\"", action.getLabelFormula().get());
       assertFalse(action.getTargetFrame().isPresent());
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
@@ -1677,10 +1736,15 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(FormulaActionContent.class, content);
+      assertEquals("@StatusBar(\"Mobile status bar?\")", ((FormulaActionContent)content).getFormula());
     }
     {
       ActionBarAction action = actionList.get(10);
       assertEquals("LotusScript Action", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.LOTUSSCRIPT, action.getActionLanguage());
       assertFalse(action.getLabelFormula().isPresent());
       assertFalse(action.getTargetFrame().isPresent());
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
@@ -1707,6 +1771,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     {
       ActionBarAction action = actionList.get(11);
       assertEquals("JS Action", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.JAVASCRIPT, action.getActionLanguage());
       assertFalse(action.getLabelFormula().isPresent());
       assertFalse(action.getTargetFrame().isPresent());
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
@@ -1729,6 +1794,37 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
+    }
+    {
+      ActionBarAction action = actionList.get(12);
+      assertEquals("JS Action 2", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.COMMON_JAVASCRIPT, action.getActionLanguage());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertTrue(action.isIncludeInActionBar());
+      assertFalse(action.isIconOnlyInActionBar());
+      assertFalse(action.isLeftAlignedInActionBar());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInMobileActions());
+//      assertFalse(action.isIncludeInMobileSwipeLeft());
+//      assertFalse(action.isIncludeInMobileSwipeRight());
+      assertFalse(action.isIncludeInContextMenu());
+      assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
+      
+      assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
+      assertFalse(action.isUseHideWhenFormula());
+      assertFalse(action.getHideWhenFormula().isPresent());
+      
+      assertFalse(action.isPublishWithOle());
+      assertFalse(action.isCloseOleWhenChosen());
+      assertFalse(action.isBringDocumentToFrontInOle());
+      assertFalse(action.getCompositeActionName().isPresent());
+      assertEquals("", action.getProgrammaticUseText());
+    }
+    {
+      ActionBarAction action = actionList.get(13);
+      assertEquals(ActionBarAction.ActionLanguage.SYSTEM_COMMAND, action.getActionLanguage());
     }
   }
   
