@@ -16,8 +16,8 @@
  */
 package com.hcl.domino.commons.design.agent;
 
-import com.hcl.domino.design.action.RunFormulaAction;
 import com.hcl.domino.design.agent.FormulaAgentContent;
+import com.hcl.domino.design.simpleaction.RunFormulaAction;
 
 /**
  * @author Jesse Gallagher

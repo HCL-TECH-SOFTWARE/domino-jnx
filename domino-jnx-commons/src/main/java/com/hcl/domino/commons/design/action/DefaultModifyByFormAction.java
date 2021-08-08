@@ -21,7 +21,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.hcl.domino.design.action.ModifyByFormAction;
+import com.hcl.domino.design.simpleaction.ModifyByFormAction;
 
 /**
  * @author Jesse Gallagher

@@ -16,7 +16,7 @@
  */
 package com.hcl.domino.commons.design.action;
 
-import com.hcl.domino.design.action.CopyToDatabaseAction;
+import com.hcl.domino.design.simpleaction.CopyToDatabaseAction;
 
 /**
  * @author Jesse Gallagher

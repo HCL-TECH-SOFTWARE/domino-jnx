@@ -18,7 +18,7 @@ package com.hcl.domino.commons.design.action;
 
 import java.util.Set;
 
-import com.hcl.domino.design.action.SendNewsletterAction;
+import com.hcl.domino.design.simpleaction.SendNewsletterAction;
 import com.hcl.domino.richtext.records.CDActionNewsletter;
 import com.hcl.domino.richtext.records.CDActionNewsletter.Flag;
 

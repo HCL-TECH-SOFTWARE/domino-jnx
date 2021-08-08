@@ -20,7 +20,7 @@ import java.util.Set;
 
 import com.hcl.domino.commons.design.DefaultComputableValue;
 import com.hcl.domino.design.ComputableValue;
-import com.hcl.domino.design.action.SendMailAction;
+import com.hcl.domino.design.simpleaction.SendMailAction;
 import com.hcl.domino.richtext.records.CDActionSendMail.Flag;
 
 public class DefaultSendMailAction implements SendMailAction {

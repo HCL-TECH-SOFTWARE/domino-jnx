@@ -16,7 +16,7 @@
  */
 package com.hcl.domino.commons.design.action;
 
-import com.hcl.domino.design.action.DeleteDocumentAction;
+import com.hcl.domino.design.simpleaction.DeleteDocumentAction;
 
 /**
  * @author Jesse Gallagher

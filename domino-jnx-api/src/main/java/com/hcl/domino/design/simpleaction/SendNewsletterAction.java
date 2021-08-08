@@ -14,14 +14,30 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.action;
+package com.hcl.domino.design.simpleaction;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface ModifyFieldAction extends SimpleAction {
-  String getFieldName();
+public interface SendNewsletterAction extends SimpleAction {
+  String getBcc();
 
-  String getValue();
+  String getBody();
+
+  String getCc();
+
+  long getGatherThreshold();
+
+  String getSubject();
+
+  String getTo();
+
+  String getViewName();
+
+  boolean isGatherDocuments();
+
+  boolean isIncludeAllNotes();
+
+  boolean isIncludeSummary();
 }

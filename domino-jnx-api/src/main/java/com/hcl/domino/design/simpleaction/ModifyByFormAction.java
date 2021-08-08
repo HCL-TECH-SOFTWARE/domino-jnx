@@ -14,28 +14,17 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.action;
+package com.hcl.domino.design.simpleaction;
 
-import com.hcl.domino.design.ComputableValue;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface SendMailAction extends SimpleAction {
-  ComputableValue getBcc();
+public interface ModifyByFormAction extends SimpleAction {
+  String getFormName();
 
-  String getBody();
-
-  ComputableValue getCc();
-
-  ComputableValue getSubject();
-
-  ComputableValue getTo();
-
-  boolean isIncludeDocLink();
-
-  boolean isIncludeDocument();
-
-  boolean isSaveMailDocument();
+  Map<String, List<String>> getModifications();
 }
