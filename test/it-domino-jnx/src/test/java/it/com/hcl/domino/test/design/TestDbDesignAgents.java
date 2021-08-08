@@ -391,11 +391,11 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     }
     {
       final ReadMarksAction action = (ReadMarksAction) actions.get(6);
-      Assertions.assertEquals(ReadMarksAction.Type.MARK_UNREAD, action.getType());
+      Assertions.assertEquals(ReadMarksAction.Type.MARK_READ, action.getType());
     }
     {
       final ReadMarksAction action = (ReadMarksAction) actions.get(7);
-      Assertions.assertEquals(ReadMarksAction.Type.MARK_READ, action.getType());
+      Assertions.assertEquals(ReadMarksAction.Type.MARK_UNREAD, action.getType());
     }
     {
       final ModifyByFormAction action = (ModifyByFormAction) actions.get(8);
