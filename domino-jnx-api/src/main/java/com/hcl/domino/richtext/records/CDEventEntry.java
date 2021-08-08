@@ -32,7 +32,7 @@ import com.hcl.domino.richtext.structures.WSIG;
  * @since 1.0.32
  */
 @StructureDefinition(
-  name = "CDCAPTION",
+  name = "CDEVENTENTRY",
   members = {
     @StructureMember(name = "Header", type = WSIG.class),
     @StructureMember(name = "wPlatform", type = CDEventEntry.Platform.class),
@@ -45,7 +45,7 @@ import com.hcl.domino.richtext.structures.WSIG;
 public interface CDEventEntry extends RichTextRecord<WSIG> {
   enum Platform implements INumberEnum<Short> {
     CLIENT(RichTextConstants.PLATFORM_TYPE_CLIENT_ODS),
-    WEB(RichTextConstants.PLATFORM_TYPE_CLIENT_ODS);
+    WEB(RichTextConstants.PLATFORM_TYPE_WEB_ODS);
 
     private final short value;
 
