@@ -14,36 +14,48 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.commons.design.action;
+package com.hcl.domino.commons.design.simpleaction;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Set;
 
-import com.hcl.domino.design.simpleaction.ModifyByFormAction;
+import com.hcl.domino.design.simpleaction.FolderBasedAction;
+import com.hcl.domino.richtext.records.CDActionFolder;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public class DefaultModifyByFormAction implements ModifyByFormAction {
-  private final String formName;
-  private final Map<String, List<String>> modifications;
+public class DefaultFolderBasedAction implements FolderBasedAction {
+  private final String folderName;
+  private final Set<CDActionFolder.Flag> flags;
+  private final Type type;
 
-  public DefaultModifyByFormAction(final String formName, final Map<String, List<String>> modifications) {
-    this.formName = formName;
-    this.modifications = new LinkedHashMap<>(modifications);
+  public DefaultFolderBasedAction(final String folderName, final Collection<CDActionFolder.Flag> flags, final Type type) {
+    this.folderName = folderName;
+    this.flags = EnumSet.copyOf(flags);
+    this.type = type;
   }
 
   @Override
-  public String getFormName() {
-    return this.formName;
+  public String getFolderName() {
+    return this.folderName;
   }
 
   @Override
-  public Map<String, List<String>> getModifications() {
-    return Collections.unmodifiableMap(this.modifications);
+  public Type getType() {
+    return this.type;
+  }
+
+  @Override
+  public boolean isCreateNewFolder() {
+    return this.flags.contains(CDActionFolder.Flag.NEWFOLDER);
+  }
+
+  @Override
+  public boolean isFolderPrivate() {
+    return this.flags.contains(CDActionFolder.Flag.PRIVATEFOLDER);
   }
 
 }

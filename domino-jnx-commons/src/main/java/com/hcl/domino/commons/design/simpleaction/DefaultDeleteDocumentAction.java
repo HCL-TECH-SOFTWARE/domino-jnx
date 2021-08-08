@@ -14,31 +14,14 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.commons.design.action;
+package com.hcl.domino.commons.design.simpleaction;
 
-import com.hcl.domino.design.simpleaction.ModifyFieldAction;
+import com.hcl.domino.design.simpleaction.DeleteDocumentAction;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public class DefaultModifyFieldAction implements ModifyFieldAction {
-  private final String fieldName;
-  private final String value;
-
-  public DefaultModifyFieldAction(final String fieldName, final String value) {
-    this.fieldName = fieldName;
-    this.value = value;
-  }
-
-  @Override
-  public String getFieldName() {
-    return this.fieldName;
-  }
-
-  @Override
-  public String getValue() {
-    return this.value;
-  }
+public class DefaultDeleteDocumentAction implements DeleteDocumentAction {
 
 }

@@ -14,7 +14,7 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.commons.design.action;
+package com.hcl.domino.commons.design.simpleaction;
 
 import com.hcl.domino.design.simpleaction.SendDocumentAction;
 
