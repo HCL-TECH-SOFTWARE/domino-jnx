@@ -588,8 +588,7 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
 
   /**
    * Retrieves a list of databases on the target server, optionally restricted to
-   * those modified
-   * since a given time.
+   * those modified since a given time.
    *
    * @param serverName    the server to query, or {@code null} for local
    * @param modifiedSince the start time of the query, or {@code null} for all
