@@ -14,52 +14,48 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.commons.design.action;
+package com.hcl.domino.commons.design.simpleaction;
 
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
 
-import com.hcl.domino.design.action.ReplyAction;
-import com.hcl.domino.richtext.records.CDActionReply.Flag;
+import com.hcl.domino.design.simpleaction.FolderBasedAction;
+import com.hcl.domino.richtext.records.CDActionFolder;
 
-public class DefaultReplyAction implements ReplyAction {
-  private final Set<Flag> flags;
-  private final String body;
+/**
+ * @author Jesse Gallagher
+ * @since 1.0.24
+ */
+public class DefaultFolderBasedAction implements FolderBasedAction {
+  private final String folderName;
+  private final Set<CDActionFolder.Flag> flags;
+  private final Type type;
 
-  public DefaultReplyAction(final Collection<Flag> flags, final String body) {
+  public DefaultFolderBasedAction(final String folderName, final Collection<CDActionFolder.Flag> flags, final Type type) {
+    this.folderName = folderName;
     this.flags = EnumSet.copyOf(flags);
-    this.body = body;
+    this.type = type;
   }
 
   @Override
-  public String getBody() {
-    return this.body;
+  public String getFolderName() {
+    return this.folderName;
   }
 
   @Override
-  public boolean isIncludeDocument() {
-    return this.flags.contains(Flag.INCLUDEDOC);
+  public Type getType() {
+    return this.type;
   }
 
   @Override
-  public boolean isNoAgentReply() {
-    return this.flags.contains(Flag.NOAGENTREPLY);
+  public boolean isCreateNewFolder() {
+    return this.flags.contains(CDActionFolder.Flag.NEWFOLDER);
   }
 
   @Override
-  public boolean isReplyOnce() {
-    return this.flags.contains(Flag.REPLYONCE);
-  }
-
-  @Override
-  public boolean isReplyToAll() {
-    return this.flags.contains(Flag.REPLYTOALL);
-  }
-
-  @Override
-  public boolean isSaveMailDocument() {
-    return this.flags.contains(Flag.SAVEMAIL);
+  public boolean isFolderPrivate() {
+    return this.flags.contains(CDActionFolder.Flag.PRIVATEFOLDER);
   }
 
 }

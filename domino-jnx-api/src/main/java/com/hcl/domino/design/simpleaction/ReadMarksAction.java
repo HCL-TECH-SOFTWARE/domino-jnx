@@ -14,28 +14,16 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.action;
-
-import com.hcl.domino.design.ComputableValue;
+package com.hcl.domino.design.simpleaction;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface SendMailAction extends SimpleAction {
-  ComputableValue getBcc();
+public interface ReadMarksAction extends SimpleAction {
+  enum Type {
+    MARK_READ, MARK_UNREAD
+  }
 
-  String getBody();
-
-  ComputableValue getCc();
-
-  ComputableValue getSubject();
-
-  ComputableValue getTo();
-
-  boolean isIncludeDocLink();
-
-  boolean isIncludeDocument();
-
-  boolean isSaveMailDocument();
+  Type getType();
 }

@@ -14,16 +14,22 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.action;
+package com.hcl.domino.design.simpleaction;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface ReadMarksAction extends SimpleAction {
-  enum Type {
-    MARK_READ, MARK_UNREAD
-  }
+public interface ReplyAction extends SimpleAction {
+  String getBody();
 
-  Type getType();
+  boolean isIncludeDocument();
+
+  boolean isNoAgentReply();
+
+  boolean isReplyOnce();
+
+  boolean isReplyToAll();
+
+  boolean isSaveMailDocument();
 }

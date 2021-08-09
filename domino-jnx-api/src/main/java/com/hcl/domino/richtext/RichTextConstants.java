@@ -227,6 +227,12 @@ public interface RichTextConstants {
   short SIG_ACTION_FORMULAONLY = 146 | RichTextConstants.WORDRECORDLENGTH;
   short SIG_ACTION_JAVAAGENT = 147 | RichTextConstants.WORDRECORDLENGTH;
   short SIG_ACTION_JAVA = 148 | RichTextConstants.WORDRECORDLENGTH;
+  
+  /**
+   * Speculative (and speculatively-named) prefix for a four-byte record that precedes
+   * the CDACTION* records in a "Simple Actions"-type CDACTION record's data area.
+   */
+  short SIG_UNIDENTIFIED_CDACTION_PREFIX = 16 | RichTextConstants.BYTERECORDLENGTH;
 
   /* Signatures for items of type TYPE_VIEWMAP_DATASET */
 
@@ -1173,4 +1179,12 @@ public interface RichTextConstants {
    * that the action should be included in the "swipe right" actions on mobile devices.
    */
   int ACTIONEXT_INCLUDE_IN_SWIPE_RIGHT = 0x00000002;
+
+  short ACTION_RUN_FORMULA = 1;
+  short ACTION_RUN_SCRIPT = 2;
+  short ACTION_RUN_AGENT = 3;
+  short ACTION_OLDSYS_COMMAND = 4;
+  short ACTION_SYS_COMMAND = 5;
+  short ACTION_PLACEHOLDER = 6;
+  short ACTION_RUN_JAVASCRIPT = 7;
 }

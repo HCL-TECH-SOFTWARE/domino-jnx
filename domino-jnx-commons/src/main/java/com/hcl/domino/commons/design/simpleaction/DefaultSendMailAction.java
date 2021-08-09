@@ -14,39 +14,36 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.commons.design.action;
+package com.hcl.domino.commons.design.simpleaction;
 
 import java.util.Set;
 
-import com.hcl.domino.design.action.SendNewsletterAction;
-import com.hcl.domino.richtext.records.CDActionNewsletter;
-import com.hcl.domino.richtext.records.CDActionNewsletter.Flag;
+import com.hcl.domino.commons.design.DefaultComputableValue;
+import com.hcl.domino.design.ComputableValue;
+import com.hcl.domino.design.simpleaction.SendMailAction;
+import com.hcl.domino.richtext.records.CDActionSendMail.Flag;
 
-public class DefaultSendNewsletterAction implements SendNewsletterAction {
-  private final String viewName;
+public class DefaultSendMailAction implements SendMailAction {
   private final String to;
   private final String cc;
   private final String bcc;
   private final String subject;
   private final String body;
-  private final long gatherThreshold;
-  private final Set<CDActionNewsletter.Flag> flags;
+  private final Set<Flag> flags;
 
-  public DefaultSendNewsletterAction(final String viewName, final String to, final String cc, final String bcc,
-      final String subject, final String body, final long gatherThreshold, final Set<Flag> flags) {
-    this.viewName = viewName;
+  public DefaultSendMailAction(final String to, final String cc, final String bcc, final String subject, final String body,
+      final Set<Flag> flags) {
     this.to = to;
     this.cc = cc;
     this.bcc = bcc;
     this.subject = subject;
     this.body = body;
-    this.gatherThreshold = gatherThreshold;
     this.flags = flags;
   }
 
   @Override
-  public String getBcc() {
-    return this.bcc;
+  public ComputableValue getBcc() {
+    return new DefaultComputableValue(this.bcc, this.flags.contains(Flag.BCCFORMULA));
   }
 
   @Override
@@ -55,43 +52,33 @@ public class DefaultSendNewsletterAction implements SendNewsletterAction {
   }
 
   @Override
-  public String getCc() {
-    return this.cc;
+  public ComputableValue getCc() {
+    return new DefaultComputableValue(this.cc, this.flags.contains(Flag.CCFORMULA));
   }
 
   @Override
-  public long getGatherThreshold() {
-    return this.gatherThreshold;
+  public ComputableValue getSubject() {
+    return new DefaultComputableValue(this.subject, this.flags.contains(Flag.SUBJECTFORMULA));
   }
 
   @Override
-  public String getSubject() {
-    return this.subject;
+  public ComputableValue getTo() {
+    return new DefaultComputableValue(this.to, this.flags.contains(Flag.TOFORMULA));
   }
 
   @Override
-  public String getTo() {
-    return this.to;
+  public boolean isIncludeDocLink() {
+    return this.flags.contains(Flag.INCLUDELINK);
   }
 
   @Override
-  public String getViewName() {
-    return this.viewName;
+  public boolean isIncludeDocument() {
+    return this.flags.contains(Flag.INCLUDEDOC);
   }
 
   @Override
-  public boolean isGatherDocuments() {
-    return this.flags.contains(Flag.GATHER);
-  }
-
-  @Override
-  public boolean isIncludeAllNotes() {
-    return this.flags.contains(Flag.INCLUDEALL);
-  }
-
-  @Override
-  public boolean isIncludeSummary() {
-    return this.flags.contains(Flag.SUMMARY);
+  public boolean isSaveMailDocument() {
+    return this.flags.contains(Flag.SAVEMAIL);
   }
 
 }

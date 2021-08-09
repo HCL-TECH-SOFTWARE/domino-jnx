@@ -14,36 +14,12 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.commons.design.action;
-
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-
-import com.hcl.domino.design.action.ModifyByFormAction;
+package com.hcl.domino.design.simpleaction;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public class DefaultModifyByFormAction implements ModifyByFormAction {
-  private final String formName;
-  private final Map<String, List<String>> modifications;
-
-  public DefaultModifyByFormAction(final String formName, final Map<String, List<String>> modifications) {
-    this.formName = formName;
-    this.modifications = new LinkedHashMap<>(modifications);
-  }
-
-  @Override
-  public String getFormName() {
-    return this.formName;
-  }
-
-  @Override
-  public Map<String, List<String>> getModifications() {
-    return Collections.unmodifiableMap(this.modifications);
-  }
+public interface SimpleAction {
 
 }

@@ -14,12 +14,14 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.action;
+package com.hcl.domino.design.simpleaction;
+
+import com.hcl.domino.design.agent.FormulaAgentContent;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface SimpleAction {
+public interface RunFormulaAction extends SimpleAction, FormulaAgentContent {
 
 }

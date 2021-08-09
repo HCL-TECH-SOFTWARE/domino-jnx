@@ -14,48 +14,52 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.commons.design.action;
+package com.hcl.domino.commons.design.simpleaction;
 
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Set;
 
-import com.hcl.domino.design.action.FolderBasedAction;
-import com.hcl.domino.richtext.records.CDActionFolder;
+import com.hcl.domino.design.simpleaction.ReplyAction;
+import com.hcl.domino.richtext.records.CDActionReply.Flag;
 
-/**
- * @author Jesse Gallagher
- * @since 1.0.24
- */
-public class DefaultFolderBasedAction implements FolderBasedAction {
-  private final String folderName;
-  private final Set<CDActionFolder.Flag> flags;
-  private final Type type;
+public class DefaultReplyAction implements ReplyAction {
+  private final Set<Flag> flags;
+  private final String body;
 
-  public DefaultFolderBasedAction(final String folderName, final Collection<CDActionFolder.Flag> flags, final Type type) {
-    this.folderName = folderName;
+  public DefaultReplyAction(final Collection<Flag> flags, final String body) {
     this.flags = EnumSet.copyOf(flags);
-    this.type = type;
+    this.body = body;
   }
 
   @Override
-  public String getFolderName() {
-    return this.folderName;
+  public String getBody() {
+    return this.body;
   }
 
   @Override
-  public Type getType() {
-    return this.type;
+  public boolean isIncludeDocument() {
+    return this.flags.contains(Flag.INCLUDEDOC);
   }
 
   @Override
-  public boolean isCreateNewFolder() {
-    return this.flags.contains(CDActionFolder.Flag.NEWFOLDER);
+  public boolean isNoAgentReply() {
+    return this.flags.contains(Flag.NOAGENTREPLY);
   }
 
   @Override
-  public boolean isFolderPrivate() {
-    return this.flags.contains(CDActionFolder.Flag.PRIVATEFOLDER);
+  public boolean isReplyOnce() {
+    return this.flags.contains(Flag.REPLYONCE);
+  }
+
+  @Override
+  public boolean isReplyToAll() {
+    return this.flags.contains(Flag.REPLYTOALL);
+  }
+
+  @Override
+  public boolean isSaveMailDocument() {
+    return this.flags.contains(Flag.SAVEMAIL);
   }
 
 }

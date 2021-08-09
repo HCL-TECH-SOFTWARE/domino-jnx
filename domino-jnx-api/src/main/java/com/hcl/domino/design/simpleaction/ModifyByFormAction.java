@@ -14,14 +14,17 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.commons.design.action;
+package com.hcl.domino.design.simpleaction;
 
-import com.hcl.domino.design.action.DeleteDocumentAction;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public class DefaultDeleteDocumentAction implements DeleteDocumentAction {
+public interface ModifyByFormAction extends SimpleAction {
+  String getFormName();
 
+  Map<String, List<String>> getModifications();
 }

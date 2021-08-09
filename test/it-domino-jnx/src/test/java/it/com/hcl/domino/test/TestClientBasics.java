@@ -16,6 +16,9 @@
  */
 package it.com.hcl.domino.test;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -36,6 +39,7 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.UserNamesList;
 import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.data.Database;
+import com.hcl.domino.data.ModificationTimePair;
 import com.hcl.domino.exception.ServerNotFoundException;
 import com.hcl.domino.server.ServerPingInfo;
 import com.ibm.commons.util.StringUtil;
@@ -214,5 +218,17 @@ public class TestClientBasics extends AbstractNotesRuntimeTest {
     client.close();
 
     Assertions.assertThrows(DominoException.class, (Executable) () -> db.getACL(), "Did not throw exception when using database of closed DominoClient");
+  }
+  
+  @Test
+  public void testDbModificationTimes() throws IOException {
+    try(DominoClient client = DominoClientBuilder.newDominoClient().build()) {
+      ModificationTimePair pair = client.getDatabaseModificationTimes("names.nsf");
+      assertNotNull(pair);
+      assertNotNull(pair.getDataModified());
+      assertTrue(pair.getDataModified().isValid());
+      assertNotNull(pair.getNonDataModified());
+      assertTrue(pair.getNonDataModified().isValid());
+    }
   }
 }

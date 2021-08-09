@@ -14,30 +14,22 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.action;
+package com.hcl.domino.design.simpleaction;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface SendNewsletterAction extends SimpleAction {
-  String getBcc();
+public interface FolderBasedAction extends SimpleAction {
+  enum Type {
+    MOVE, COPY, REMOVE
+  }
 
-  String getBody();
+  String getFolderName();
 
-  String getCc();
+  Type getType();
 
-  long getGatherThreshold();
+  boolean isCreateNewFolder();
 
-  String getSubject();
-
-  String getTo();
-
-  String getViewName();
-
-  boolean isGatherDocuments();
-
-  boolean isIncludeAllNotes();
-
-  boolean isIncludeSummary();
+  boolean isFolderPrivate();
 }

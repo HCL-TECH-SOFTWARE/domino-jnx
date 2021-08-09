@@ -21,7 +21,6 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Set;
 
-import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -91,15 +90,17 @@ public interface CDAction extends RichTextRecord<LSIG> {
       return this.value;
     }
   }
-
-  enum Type implements INumberEnum<Short> {
-    RUN_FORMULA(1),
-    RUN_SCRIPT(2),
-    RUN_AGENT(3),
-    OLDSYS_COMMAND(4),
-    SYS_COMMAND(5),
-    PLACEHOLDER(6),
-    RUN_JAVASCRIPT(7);
+  /**
+   * Represents the available language types for an action bar action.
+   */
+  public enum Type implements INumberEnum<Short> {
+    RUN_FORMULA(RichTextConstants.ACTION_RUN_FORMULA),
+    RUN_SCRIPT(RichTextConstants.ACTION_RUN_SCRIPT),
+    RUN_AGENT(RichTextConstants.ACTION_RUN_AGENT),
+    OLDSYS_COMMAND(RichTextConstants.ACTION_OLDSYS_COMMAND),
+    SYS_COMMAND(RichTextConstants.ACTION_SYS_COMMAND),
+    PLACEHOLDER(RichTextConstants.ACTION_PLACEHOLDER),
+    RUN_JAVASCRIPT(RichTextConstants.ACTION_RUN_JAVASCRIPT);
 
     private final short value;
 
@@ -118,76 +119,8 @@ public interface CDAction extends RichTextRecord<LSIG> {
     }
   }
 
-  default byte[] getActionData() {
-    final int titleLen = this.getTitleLength();
-    final int actionLen = this.getActionLength();
-
-    final ByteBuffer buf = this.getVariableData();
-    buf.position(buf.position() + titleLen);
-    final byte[] result = new byte[actionLen];
-    buf.get(result);
-    return result;
-  }
-
-  /**
-   * Retrieves the formula for this action as a string.
-   *
-   * @return the decompiled formula for this action
-   * @throws UnsupportedOperationException if the action's type is not
-   *                                       {@link Type#RUN_FORMULA}
-   */
-  default String getActionFormula() {
-    if (this.getActionType() != Type.RUN_FORMULA) {
-      throw new UnsupportedOperationException("Unable to retrieve formula data for a non-formula action");
-    }
-    final byte[] compiledFormula = this.getActionData();
-    return FormulaCompiler.get().decompile(compiledFormula);
-  }
-
-  default int getActionLength() {
-    int titleLen = this.getTitleLength();
-    titleLen += titleLen % 2;
-    int hideWhenLen = this.getHideWhenFormulaLength();
-    hideWhenLen += hideWhenLen % 2;
-    return this.getHeader().getLength().intValue() - 22 // sizeOf(CDACTION)
-        - titleLen
-        - hideWhenLen;
-  }
-
-  /**
-   * Retrieves the LotusScript for this action as a string.
-   *
-   * @return the LotusScript for this action
-   * @throws UnsupportedOperationException if the action's type is not
-   *                                       {@link Type#RUN_SCRIPT}
-   */
-  default String getActionLotusScript() {
-    if (this.getActionType() != Type.RUN_SCRIPT) {
-      throw new UnsupportedOperationException("Unable to retrieve script data for a non-LotusScript action");
-    }
-    final byte[] scriptData = this.getActionData();
-    return new String(scriptData, Charset.forName("LMBCS-native")); //$NON-NLS-1$
-  }
-
   @StructureGetter("Type")
   Type getActionType();
-
-  /**
-   * Retrieves the compiled hide-when formula for this action as a byte array.
-   *
-   * @return the compiled hide-when formula for this action
-   */
-  default byte[] getCompiledHideWhenFormula() {
-    final int titleLen = this.getTitleLength();
-    final int actionLen = this.getActionLength();
-    final int hideWhenLen = this.getHideWhenFormulaLength();
-
-    final ByteBuffer buf = this.getVariableData();
-    buf.position(buf.position() + titleLen + actionLen);
-    final byte[] result = new byte[hideWhenLen];
-    buf.get(result);
-    return result;
-  }
 
   @StructureGetter("Flags")
   Set<Flag> getFlags();
@@ -195,19 +128,6 @@ public interface CDAction extends RichTextRecord<LSIG> {
   @StructureGetter("Header")
   @Override
   LSIG getHeader();
-
-  /**
-   * Retrieves the hide-when formula for this action as a string.
-   *
-   * @return the decompiled hide-when formula for this action
-   */
-  default String getHideWhenFormula() {
-    return StructureSupport.extractCompiledFormula(
-      this,
-      getTitleLength() + getActionLength(),
-      getHideWhenFormulaLength()
-    );
-  }
 
   @StructureGetter("FormulaLen")
   int getHideWhenFormulaLength();
@@ -218,68 +138,8 @@ public interface CDAction extends RichTextRecord<LSIG> {
   @StructureGetter("ShareId")
   int getShareId();
 
-  default String getTitle() {
-    final ByteBuffer buf = this.getVariableData();
-    final int len = this.getTitleLength();
-    if (len == 0) {
-      return ""; //$NON-NLS-1$
-    }
-    final byte[] lmbcs = new byte[len];
-    buf.get(lmbcs);
-    if (lmbcs[lmbcs.length - 1] == 0) {
-      // This is an optional padding byte
-      return new String(lmbcs, 0, lmbcs.length - 1, Charset.forName("LMBCS-native")); //$NON-NLS-1$
-    } else {
-      return new String(lmbcs, Charset.forName("LMBCS-native")); //$NON-NLS-1$
-    }
-  }
-
   @StructureGetter("TitleLen")
   int getTitleLength();
-
-  default CDAction setActionData(final byte[] actionData) {
-    final int titleLen = this.getTitleLength();
-    final int hideWhenLen = this.getHideWhenFormulaLength();
-    final byte[] hideWhenData = this.getCompiledHideWhenFormula();
-
-    this.resizeVariableData(titleLen + actionData.length + hideWhenLen);
-    final ByteBuffer buf = this.getVariableData();
-    buf.position(titleLen);
-    buf.put(actionData);
-    buf.put(hideWhenData);
-
-    return this;
-  }
-
-  /**
-   * Sets the action's code to the provided formula language string. This method
-   * has the side effect
-   * of setting the action type to {@link Type#RUN_FORMULA}.
-   *
-   * @param formula the formula-language string to set
-   * @return this action
-   */
-  default CDAction setActionFormula(final String formula) {
-    final byte[] actionData = formula == null ? new byte[0] : FormulaCompiler.get().compile(formula);
-    this.setActionType(Type.RUN_FORMULA);
-    return this.setActionData(actionData);
-  }
-
-  /**
-   * Sets the action's code to the provided LotusScript string. This method has
-   * the side effect
-   * of setting the action type to {@link Type#RUN_SCRIPT}.
-   *
-   * @param script the LotusScript string to set
-   * @return this action
-   */
-  default CDAction setActionLotusScript(final String script) {
-    // TODO sanity check to throw an exception if the script can't fit - that
-    // rollover should be handled in RichTextWriter
-    final byte[] actionData = script == null ? new byte[0] : script.getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$
-    this.setActionType(Type.RUN_SCRIPT);
-    return this.setActionData(actionData);
-  }
 
   /**
    * Sets the type for this action.
@@ -300,28 +160,6 @@ public interface CDAction extends RichTextRecord<LSIG> {
   @StructureSetter("Flags")
   CDAction setFlags(Collection<Flag> flags);
 
-  /**
-   * Sets the action's hide-when formula to the provided string.
-   *
-   * @param formula the formula-language string to set
-   * @return this action
-   */
-  default CDAction setHideWhenFormula(final String formula) {
-    final int titleLen = this.getTitleLength();
-    final int actionLen = this.getActionLength();
-
-    final byte[] compiled = FormulaCompiler.get().compile(formula);
-    final int hideWhenLen = compiled.length + compiled.length % 2;
-    this.setHideWhenFormulaLength(hideWhenLen);
-    this.resizeVariableData(titleLen + actionLen + compiled.length);
-
-    final ByteBuffer buf = this.getVariableData();
-    buf.position(titleLen + actionLen);
-    buf.put(compiled);
-
-    return this;
-  }
-
   @StructureSetter("FormulaLen")
   CDAction setHideWhenFormulaLength(int formulaLength);
 
@@ -332,6 +170,34 @@ public interface CDAction extends RichTextRecord<LSIG> {
 
   @StructureSetter("ShareId")
   CDAction setShareId(int shareId);
+
+  @StructureSetter("TitleLen")
+  CDAction setTitleLength(int titleLength);
+
+  default int getActionLength() {
+    int titleLen = this.getTitleLength();
+    titleLen += titleLen % 2;
+    int hideWhenLen = this.getHideWhenFormulaLength();
+    return this.getHeader().getLength().intValue() - 22 // sizeOf(CDACTION)
+        - titleLen
+        - hideWhenLen;
+  }
+
+  default String getTitle() {
+    final ByteBuffer buf = this.getVariableData();
+    final int len = this.getTitleLength();
+    if (len == 0) {
+      return ""; //$NON-NLS-1$
+    }
+    final byte[] lmbcs = new byte[len];
+    buf.get(lmbcs);
+    if (lmbcs[lmbcs.length - 1] == 0) {
+      // This is an optional padding byte
+      return new String(lmbcs, 0, lmbcs.length - 1, Charset.forName("LMBCS-native")); //$NON-NLS-1$
+    } else {
+      return new String(lmbcs, Charset.forName("LMBCS-native")); //$NON-NLS-1$
+    }
+  }
 
   default CDAction setTitle(final String title) {
     final byte[] lmbcs = title == null ? new byte[0] : title.getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$
@@ -353,6 +219,148 @@ public interface CDAction extends RichTextRecord<LSIG> {
     return this;
   }
 
-  @StructureSetter("TitleLen")
-  CDAction setTitleLength(int titleLength);
+  default byte[] getActionData() {
+    int titleLen = this.getTitleLength();
+    titleLen += titleLen % 2;
+    final int actionLen = this.getActionLength();
+
+    final ByteBuffer buf = this.getVariableData();
+    buf.position(buf.position() + titleLen);
+    final byte[] result = new byte[actionLen];
+    buf.get(result);
+    return result;
+  }
+
+  /**
+   * Retrieves the formula for this action as a string.
+   *
+   * @return the decompiled formula for this action
+   * @throws UnsupportedOperationException if the action's type is not
+   *                                       {@link Type#RUN_FORMULA}
+   */
+  default String getActionFormula() {
+    if (this.getActionType() != Type.RUN_FORMULA) {
+      throw new UnsupportedOperationException("Unable to retrieve formula data for a non-formula action");
+    }
+    int titleLen = getTitleLength();
+    return StructureSupport.extractCompiledFormula(
+      this,
+      titleLen + (titleLen % 2),
+      getActionLength()
+    );
+  }
+
+  /**
+   * Sets the action's code to the provided formula language string. This method
+   * has the side effect
+   * of setting the action type to {@link Type#RUN_FORMULA}.
+   *
+   * @param formula the formula-language string to set
+   * @return this action
+   */
+  default CDAction setActionFormula(final String formula) {
+    this.setActionType(Type.RUN_FORMULA);
+    int titleLen = getTitleLength();
+    titleLen += titleLen % 2;
+    return StructureSupport.writeCompiledFormula(
+      this,
+      titleLen,
+      getActionLength(),
+      formula,
+      (int lmbcsLen) -> {}
+    );
+  }
+
+  /**
+   * Sets the action's code to the provided LotusScript string. This method has
+   * the side effect
+   * of setting the action type to {@link Type#RUN_SCRIPT}.
+   *
+   * @param script the LotusScript string to set
+   * @return this action
+   */
+  default CDAction setActionLotusScript(final String script) {
+    // TODO sanity check to throw an exception if the script can't fit - that
+    // rollover should be handled in RichTextWriter
+    this.setActionType(Type.RUN_SCRIPT);
+    int titleLen = getTitleLength();
+    titleLen += titleLen % 2;
+    return StructureSupport.writeStringValue(
+      this,
+      titleLen,
+      getActionLength(),
+      script,
+      (int lmbcsLen) -> {}
+    );
+  }
+
+  /**
+   * Retrieves the LotusScript for this action as a string.
+   *
+   * @return the LotusScript for this action
+   * @throws UnsupportedOperationException if the action's type is not
+   *                                       {@link Type#RUN_SCRIPT}
+   */
+  default String getActionLotusScript() {
+    if (this.getActionType() != Type.RUN_SCRIPT) {
+      throw new UnsupportedOperationException("Unable to retrieve script data for a non-LotusScript action");
+    }
+    int titleLen = getTitleLength();
+    titleLen += titleLen % 2;
+    return StructureSupport.extractStringValue(
+      this,
+      titleLen,
+      getActionLength()
+    );
+  }
+
+  /**
+   * Retrieves the hide-when formula for this action as a string.
+   *
+   * @return the decompiled hide-when formula for this action
+   */
+  default String getHideWhenFormula() {
+    int titleLen = getTitleLength();
+    return StructureSupport.extractCompiledFormula(
+      this,
+      getTitleLength() + (titleLen % 2) + getActionLength(),
+      getHideWhenFormulaLength()
+    );
+  }
+
+  /**
+   * Sets the action's hide-when formula to the provided string.
+   *
+   * @param formula the formula-language string to set
+   * @return this action
+   */
+  default CDAction setHideWhenFormula(final String formula) {
+    this.setActionType(Type.RUN_FORMULA);
+    int titleLen = getTitleLength();
+    titleLen += titleLen % 2;
+    return StructureSupport.writeCompiledFormula(
+      this,
+      titleLen + getActionLength(),
+      getHideWhenFormulaLength(),
+      formula,
+      this::setHideWhenFormulaLength
+    );
+  }
+
+  /**
+   * Retrieves the compiled hide-when formula for this action as a byte array.
+   *
+   * @return the compiled hide-when formula for this action
+   */
+  default byte[] getCompiledHideWhenFormula() {
+    final int titleLen = this.getTitleLength();
+    final int actionLen = this.getActionLength();
+    final int hideWhenLen = this.getHideWhenFormulaLength();
+
+    final ByteBuffer buf = this.getVariableData();
+    buf.position(buf.position() + titleLen + actionLen);
+    final byte[] result = new byte[hideWhenLen];
+    buf.get(result);
+    return result;
+  }
 }

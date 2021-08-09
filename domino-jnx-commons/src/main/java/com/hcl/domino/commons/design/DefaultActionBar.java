@@ -6,11 +6,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.hcl.domino.commons.design.action.DefaultActionBarAction;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.NotesFont;
 import com.hcl.domino.design.ActionBar;
-import com.hcl.domino.design.ActionBarAction;
 import com.hcl.domino.design.DesignElement.ClassicThemeBehavior;
+import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
 import com.hcl.domino.design.format.ActionBarTextAlignment;

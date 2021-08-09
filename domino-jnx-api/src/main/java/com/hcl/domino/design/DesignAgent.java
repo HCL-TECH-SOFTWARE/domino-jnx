@@ -53,7 +53,7 @@ public interface DesignAgent extends NamedDesignElement {
   /**
    * Language the agent is written using
    *
-   * @return AgentLanguage
+   * @return an {@link AgentLanguage} instance
    */
   AgentLanguage getAgentLanguage();
 

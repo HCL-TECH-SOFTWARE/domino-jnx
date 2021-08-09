@@ -14,12 +14,14 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.action;
+package com.hcl.domino.commons.design.simpleaction;
+
+import com.hcl.domino.design.simpleaction.DeleteDocumentAction;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface DeleteDocumentAction extends SimpleAction {
+public class DefaultDeleteDocumentAction implements DeleteDocumentAction {
 
 }

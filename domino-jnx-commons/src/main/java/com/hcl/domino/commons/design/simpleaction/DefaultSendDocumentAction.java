@@ -14,17 +14,14 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.action;
+package com.hcl.domino.commons.design.simpleaction;
 
-import java.util.List;
-import java.util.Map;
+import com.hcl.domino.design.simpleaction.SendDocumentAction;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface ModifyByFormAction extends SimpleAction {
-  String getFormName();
+public class DefaultSendDocumentAction implements SendDocumentAction {
 
-  Map<String, List<String>> getModifications();
 }

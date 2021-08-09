@@ -14,31 +14,14 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.commons.design.action;
-
-import com.hcl.domino.design.action.CopyToDatabaseAction;
+package com.hcl.domino.design.simpleaction;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public class DefaultCopyToDatabaseAction implements CopyToDatabaseAction {
-  private final String serverName;
-  private final String databaseName;
+public interface CopyToDatabaseAction extends SimpleAction {
+  String getDatabaseName();
 
-  public DefaultCopyToDatabaseAction(final String serverName, final String databaseName) {
-    this.serverName = serverName;
-    this.databaseName = databaseName;
-  }
-
-  @Override
-  public String getDatabaseName() {
-    return this.databaseName;
-  }
-
-  @Override
-  public String getServerName() {
-    return this.serverName;
-  }
-
+  String getServerName();
 }

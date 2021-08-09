@@ -14,22 +14,14 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.action;
+package com.hcl.domino.design.simpleaction;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface FolderBasedAction extends SimpleAction {
-  enum Type {
-    MOVE, COPY, REMOVE
-  }
+public interface ModifyFieldAction extends SimpleAction {
+  String getFieldName();
 
-  String getFolderName();
-
-  Type getType();
-
-  boolean isCreateNewFolder();
-
-  boolean isFolderPrivate();
+  String getValue();
 }

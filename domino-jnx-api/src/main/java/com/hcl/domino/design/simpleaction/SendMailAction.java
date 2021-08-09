@@ -14,22 +14,28 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.action;
+package com.hcl.domino.design.simpleaction;
+
+import com.hcl.domino.design.ComputableValue;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface ReplyAction extends SimpleAction {
+public interface SendMailAction extends SimpleAction {
+  ComputableValue getBcc();
+
   String getBody();
 
+  ComputableValue getCc();
+
+  ComputableValue getSubject();
+
+  ComputableValue getTo();
+
+  boolean isIncludeDocLink();
+
   boolean isIncludeDocument();
-
-  boolean isNoAgentReply();
-
-  boolean isReplyOnce();
-
-  boolean isReplyToAll();
 
   boolean isSaveMailDocument();
 }

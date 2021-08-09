@@ -1,20 +1,26 @@
-package com.hcl.domino.commons.design;
+package com.hcl.domino.commons.design.action;
 
-import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.Set;
 
-import com.hcl.domino.design.ActionBarAction;
+import com.hcl.domino.commons.design.DesignUtil;
+import com.hcl.domino.commons.richtext.RichTextUtil;
+import com.hcl.domino.design.action.ActionBarAction;
+import com.hcl.domino.design.action.ActionContent;
+import com.hcl.domino.design.action.FormulaActionContent;
+import com.hcl.domino.design.action.SimpleActionActionContent;
 import com.hcl.domino.design.format.ActionBarControlType;
 import com.hcl.domino.design.format.HideFromDevice;
+import com.hcl.domino.design.simpleaction.SimpleAction;
 import com.hcl.domino.richtext.records.CDAction;
 import com.hcl.domino.richtext.records.CDActionExt;
 import com.hcl.domino.richtext.records.CDEventEntry;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.CDTarget;
+import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
 /**
@@ -34,6 +40,35 @@ public class DefaultActionBarAction implements ActionBarAction {
   @Override
   public String getName() {
     return getActionRecord().getTitle();
+  }
+  
+  @Override
+  public ActionLanguage getActionLanguage() {
+    switch(getActionRecord().getActionType()) {
+      case RUN_FORMULA:
+        return ActionLanguage.FORMULA;
+      case RUN_JAVASCRIPT:
+        // Check to see if the JS is common between client and web
+        return records.stream()
+          .filter(CDEventEntry.class::isInstance)
+          .map(CDEventEntry.class::cast)
+          .filter(entry -> entry.getActionType() == CDEventEntry.ActionType.JAVASCRIPT_COMMON)
+          .findFirst()
+          .map(entry -> ActionLanguage.COMMON_JAVASCRIPT)
+          .orElse(ActionLanguage.JAVASCRIPT);
+      case RUN_SCRIPT:
+        return ActionLanguage.LOTUSSCRIPT;
+      case PLACEHOLDER:
+        // TODO figure out this thing's deal - it seems not used in practice
+        return ActionLanguage.FORMULA;
+      case SYS_COMMAND:
+      case OLDSYS_COMMAND:
+        return ActionLanguage.SYSTEM_COMMAND;
+      case RUN_AGENT:
+      default:
+        // More investigation needed
+        return ActionLanguage.SIMPLE_ACTION;
+    }
   }
 
   @Override
@@ -238,6 +273,25 @@ public class DefaultActionBarAction implements ActionBarAction {
   public boolean isDisplayAsSplitButton() {
     return getActionRecord().getFlags().contains(CDAction.Flag.MAKE_SPLIT_BUTTON);
   }
+  
+  @Override
+  public ActionContent getActionContent() {
+    switch(getActionLanguage()) {
+      case SIMPLE_ACTION:
+        List<RichTextRecord<?>> simpleActionRecords = RichTextUtil.readMemoryRecords(getActionRecord().getActionData(), RecordType.Area.TYPE_ACTION);
+        List<SimpleAction> simpleActions = DesignUtil.toSimpleActions(simpleActionRecords);
+        return (SimpleActionActionContent)() -> simpleActions;
+      case LOTUSSCRIPT:
+        return null;
+      case JAVASCRIPT:
+        return null;
+      case COMMON_JAVASCRIPT:
+        return null;
+      case FORMULA:
+      default:
+        return (FormulaActionContent)() -> getActionRecord().getActionFormula();
+    }
+  }
 
   // *******************************************************************************
   // * Internal implementation methods
@@ -262,13 +316,6 @@ public class DefaultActionBarAction implements ActionBarAction {
     return records.stream()
       .filter(CDTarget.class::isInstance)
       .map(CDTarget.class::cast)
-      .findFirst();
-  }
-  
-  private Optional<CDEventEntry> getEventEntryRecord() {
-    return records.stream()
-      .filter(CDEventEntry.class::isInstance)
-      .map(CDEventEntry.class::cast)
       .findFirst();
   }
 }

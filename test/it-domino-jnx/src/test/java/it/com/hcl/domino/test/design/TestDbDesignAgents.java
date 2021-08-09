@@ -46,24 +46,24 @@ import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.DesignAgent.AgentLanguage;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.View;
-import com.hcl.domino.design.action.CopyToDatabaseAction;
-import com.hcl.domino.design.action.DeleteDocumentAction;
-import com.hcl.domino.design.action.FolderBasedAction;
-import com.hcl.domino.design.action.ModifyByFormAction;
-import com.hcl.domino.design.action.ModifyFieldAction;
-import com.hcl.domino.design.action.ReadMarksAction;
-import com.hcl.domino.design.action.ReplyAction;
-import com.hcl.domino.design.action.RunAgentAction;
-import com.hcl.domino.design.action.RunFormulaAction;
-import com.hcl.domino.design.action.SendDocumentAction;
-import com.hcl.domino.design.action.SendMailAction;
-import com.hcl.domino.design.action.SendNewsletterAction;
-import com.hcl.domino.design.action.SimpleAction;
 import com.hcl.domino.design.agent.AgentContent;
 import com.hcl.domino.design.agent.AgentInterval;
 import com.hcl.domino.design.agent.AgentTrigger;
 import com.hcl.domino.design.agent.FormulaAgentContent;
 import com.hcl.domino.design.agent.FormulaAgentContent.DocumentAction;
+import com.hcl.domino.design.simpleaction.CopyToDatabaseAction;
+import com.hcl.domino.design.simpleaction.DeleteDocumentAction;
+import com.hcl.domino.design.simpleaction.FolderBasedAction;
+import com.hcl.domino.design.simpleaction.ModifyByFormAction;
+import com.hcl.domino.design.simpleaction.ModifyFieldAction;
+import com.hcl.domino.design.simpleaction.ReadMarksAction;
+import com.hcl.domino.design.simpleaction.ReplyAction;
+import com.hcl.domino.design.simpleaction.RunAgentAction;
+import com.hcl.domino.design.simpleaction.RunFormulaAction;
+import com.hcl.domino.design.simpleaction.SendDocumentAction;
+import com.hcl.domino.design.simpleaction.SendMailAction;
+import com.hcl.domino.design.simpleaction.SendNewsletterAction;
+import com.hcl.domino.design.simpleaction.SimpleAction;
 import com.hcl.domino.design.agent.ImportedJavaAgentContent;
 import com.hcl.domino.design.agent.JavaAgentContent;
 import com.hcl.domino.design.agent.LotusScriptAgentContent;
@@ -391,11 +391,11 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     }
     {
       final ReadMarksAction action = (ReadMarksAction) actions.get(6);
-      Assertions.assertEquals(ReadMarksAction.Type.MARK_UNREAD, action.getType());
+      Assertions.assertEquals(ReadMarksAction.Type.MARK_READ, action.getType());
     }
     {
       final ReadMarksAction action = (ReadMarksAction) actions.get(7);
-      Assertions.assertEquals(ReadMarksAction.Type.MARK_READ, action.getType());
+      Assertions.assertEquals(ReadMarksAction.Type.MARK_UNREAD, action.getType());
     }
     {
       final ModifyByFormAction action = (ModifyByFormAction) actions.get(8);
