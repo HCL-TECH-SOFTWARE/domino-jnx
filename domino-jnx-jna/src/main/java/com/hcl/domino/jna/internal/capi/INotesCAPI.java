@@ -1237,8 +1237,14 @@ public interface INotesCAPI extends Library {
             NotesTimeDateStruct.ByReference retUntil, 		/* oldest modified/created value in this set.  */
             IntByReference retmhArray	/* Array of DB_MODIFIED_INFO_ELEMENTS */
             );
+	
+	short NSFDbModifiedTimeByName(
+	  Memory DbName,
+	  NotesTimeDateStruct.ByReference retDataModified,
+	  NotesTimeDateStruct.ByReference retNonDataModified
+	);
 
-    short NIFUpdateFilters (DHANDLE.ByValue hCollection, short ModifyFlags);
+  short NIFUpdateFilters (DHANDLE.ByValue hCollection, short ModifyFlags);
 
 	short NIFLocateNote (DHANDLE.ByValue hCollection, NotesCollectionPositionStruct indexPos, int noteID);
 

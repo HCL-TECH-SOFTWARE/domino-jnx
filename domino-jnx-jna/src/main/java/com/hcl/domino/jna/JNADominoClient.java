@@ -55,6 +55,7 @@ import com.hcl.domino.admin.replication.Replication;
 import com.hcl.domino.calendar.Calendaring;
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.constants.CopyDatabase;
+import com.hcl.domino.commons.data.DefaultModificationTimePair;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.CAPIGarbageCollector;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -75,6 +76,7 @@ import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.DominoUniversalNoteId;
 import com.hcl.domino.data.Formula;
 import com.hcl.domino.data.IAdaptable;
+import com.hcl.domino.data.ModificationTimePair;
 import com.hcl.domino.dbdirectory.DbDirectory;
 import com.hcl.domino.dxl.DxlExporter;
 import com.hcl.domino.dxl.DxlImporter;
@@ -1266,7 +1268,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     short result = NotesCAPI.get().NSFDbCompactExtended4(pathnameMem, options1,
         options2, timeLimit, null, null, null);
 
-    NotesErrorUtils.checkResult(result);
+    checkResult(result);
   }
 
   @Override
@@ -1280,7 +1282,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     IntByReference pLoadIndex = retrieveLoadIndex ? new IntByReference() : null;
     DHANDLE.ByReference phList = retrieveClusterInfo ? DHANDLE.newInstanceByReference() : null;
 
-    NotesErrorUtils.checkResult(NotesCAPI.get().NSPingServer(serverNameLmbcs, pLoadIndex, phList));
+    checkResult(NotesCAPI.get().NSPingServer(serverNameLmbcs, pLoadIndex, phList));
 
     Optional<Integer> loadIndex =
         retrieveLoadIndex ? Optional.of(pLoadIndex.getValue()) : Optional.empty();
@@ -1331,5 +1333,19 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   @Override
   public Optional<DominoException> resolveErrorCode(int code) {
     return NotesErrorUtils.toNotesError((short) (code & 0xffff));
+  }
+  
+  @Override
+  public ModificationTimePair getDatabaseModificationTimes(String dbPath) {
+    Memory pDbPath = NotesStringUtils.toLMBCS(dbPath, true);
+    NotesTimeDateStruct.ByReference retDataModifiedStruct = NotesTimeDateStruct.newInstanceByReference();
+    NotesTimeDateStruct.ByReference retNonDataModifiedStruct = NotesTimeDateStruct.newInstanceByReference();
+    
+    checkResult(NotesCAPI.get().NSFDbModifiedTimeByName(pDbPath, retDataModifiedStruct, retNonDataModifiedStruct));
+    
+    DominoDateTime dataModified = new JNADominoDateTime(retDataModifiedStruct.Innards);
+    DominoDateTime nonDataModified = new JNADominoDateTime(retNonDataModifiedStruct.Innards);
+    
+    return new DefaultModificationTimePair(dataModified, nonDataModified);
   }
 }
