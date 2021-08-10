@@ -210,7 +210,7 @@ public enum RecordType {
    * and specifies which
    * CDPABDEFINITION is used as the format for the paragraph.
    */
-  PABREFERENCE(RichTextConstants.SIG_CD_PABREFERENCE, 1),
+  PABREFERENCE(RichTextConstants.SIG_CD_PABREFERENCE, 1, CDPabReference.class),
   /** This structure defines the start of a run of text in a rich-text field. */
   TEXT(RichTextConstants.SIG_CD_TEXT, 1, CDText.class),
   XML(RichTextConstants.SIG_CD_XML, 1),
@@ -703,7 +703,7 @@ public enum RecordType {
    * This record contains the "Hide When" formula for a paragraph attributes
    * block.
    */
-  PABHIDE(RichTextConstants.SIG_CD_PABHIDE, 4),
+  PABHIDE(RichTextConstants.SIG_CD_PABHIDE, 4, CDPabHide.class),
   PABFORMREF(RichTextConstants.SIG_CD_PABFORMREF, 4),
   /**
    * The designer of a form or view may define custom actions for that form or

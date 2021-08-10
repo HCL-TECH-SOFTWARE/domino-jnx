@@ -165,7 +165,11 @@ public enum StructureSupport {
   public static <T extends ResizableMemoryStructure> T writeCompiledFormula(final T struct, final int preLen, final int currentLen,
       final String formula, final IntConsumer sizeWriter) {
     return StructureSupport.writeCompiledFormula(struct, preLen, currentLen, formula,
-        (final long newLen) -> sizeWriter.accept((int) newLen));
+    		(final long newLen) -> {
+    			if (sizeWriter!=null) {
+    				sizeWriter.accept((int) newLen);
+    			}
+    		});
   }
 
   public static <T extends ResizableMemoryStructure> T writeCompiledFormula(final T struct, final long preLen,
