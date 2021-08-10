@@ -37,7 +37,7 @@ import com.hcl.domino.richtext.structures.WSIG;
   members = {
     @StructureMember(name = "Header", type = WSIG.class),
     @StructureMember(name = "TargetLength", type = short.class, unsigned = true),
-    @StructureMember(name = "Flags", type = short.class),
+    @StructureMember(name = "Flags", type = CDTarget.Flag.class, bitfield = true),
     @StructureMember(name = "Reserved", type = int.class)
   }
 )
