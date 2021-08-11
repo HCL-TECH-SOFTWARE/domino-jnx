@@ -148,6 +148,7 @@
 		<testcontainers.version>1.14.1</testcontainers.version>
 		<vertx.version>4.1.2</vertx.version>
 		<yaml.version>1.25</yaml.version>
+		<jackson.version>2.11.4</jackson.version>
 
 		<!-- Maven Versions -->
 		<maven.version>[3.6,)</maven.version>
@@ -222,6 +223,27 @@
 				<version>${jakarta.json.bind.version}</version>
 			</dependency>
 
+			<!-- jackson -->
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-annotations</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.datatype</groupId>
+				<artifactId>jackson-datatype-jdk8</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
 
 			<!-- Vert.x integration -->
 			<dependency>
