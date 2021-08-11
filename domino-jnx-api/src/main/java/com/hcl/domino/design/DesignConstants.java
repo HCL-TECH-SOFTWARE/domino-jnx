@@ -127,4 +127,24 @@ public interface DesignConstants {
   
   String ACTION_ITEM = "$ACTIONS"; //$NON-NLS-1$
   String V5ACTION_ITEM = "$V5ACTIONS"; //$NON-NLS-1$
+  
+  short ACTION_SYS_CMD_CATEGORIZE     = 0x7c4e;
+  short ACTION_SYS_CMD_EDIT       =   0x0a02;
+  short ACTION_SYS_CMD_SEND       =   0x0a03;
+  short ACTION_SYS_CMD_FORWARD      =   0x0a04;
+  short ACTION_SYS_CMD_MOVE_TO_FOLDER   = 0x7c3d;
+  short ACTION_SYS_CMD_REMOVE_FROM_FOLDER = 0x7c3e;
+  short ACTION_SYS_CMD_MARK_SEL_READ    = 0x7c5e;
+  short ACTION_SYS_CMD_MARK_SEL_UNREAD  =   0x7c6e;
+  short ACTION_SYS_CMD_OPEN_SELECTED_NEWWND = 0x7c7e;
+  short ACTION_SYS_CMD_FILE_PRINT     = 0x7c8e;
+  short ACTION_SYS_CMD_DELETE       = 0x7c9e;
+  short ACTION_SYS_CMD_INFOBOX      =   0x7cae;
+  short ACTION_SYS_CMD_CUT        =   0x7cbe;
+  short ACTION_SYS_CMD_COPY       =   0x7cce;
+  short ACTION_SYS_CMD_COPY_LINK_DOC    = 0x7cde;
+  short ACTION_SYS_CMD_COPY_VIEW_TABLE  =   0x7cee;
+  short ACTION_SYS_CMD_PASTE        = 0x7cfe  ;
+  short ACTION_SYS_CMD_OPEN_SELECTED    = 0x7d0e;
+  short ACTION_SYS_CMD_BOOKMARK     =   0x7d1e;
 }

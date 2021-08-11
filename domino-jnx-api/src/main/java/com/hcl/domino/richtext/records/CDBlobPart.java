@@ -28,29 +28,19 @@ import com.hcl.domino.richtext.structures.WSIG;
  * @author Jesse Gallagher
  * @since 1.0.15
  */
-@StructureDefinition(name = "CDBLOBPART", members = {
+@StructureDefinition(
+  name = "CDBLOBPART",
+  members = {
     @StructureMember(name = "Header", type = WSIG.class),
     @StructureMember(name = "OwnerSig", type = short.class),
     @StructureMember(name = "Length", type = short.class, unsigned = true),
     @StructureMember(name = "BlobMax", type = short.class, unsigned = true),
     @StructureMember(name = "Reserved", type = byte[].class, length = 8)
-})
+  }
+)
 public interface CDBlobPart extends RichTextRecord<WSIG> {
   @StructureGetter("BlobMax")
   int getBlobMax();
-
-  /**
-   * Returns the raw data of this blob part
-   *
-   * @return the blob part data as a byte array
-   */
-  default byte[] getBlobPartData() {
-    final ByteBuffer buf = this.getVariableData();
-    final int len = this.getLength();
-    final byte[] result = new byte[len];
-    buf.get(result);
-    return result;
-  }
 
   @StructureGetter("Header")
   @Override
@@ -68,16 +58,6 @@ public interface CDBlobPart extends RichTextRecord<WSIG> {
   @StructureSetter("BlobMax")
   CDBlobPart setBlobMax(int blobMax);
 
-  default CDBlobPart setBlobPartData(final byte[] data) {
-    final ByteBuffer buf = this.getVariableData();
-    buf.put(data);
-    final int remaining = buf.remaining();
-    for (int i = 0; i < remaining; i++) {
-      buf.put((byte) 0);
-    }
-    return this;
-  }
-
   @StructureSetter("Length")
   CDBlobPart setLength(int length);
 
@@ -86,4 +66,28 @@ public interface CDBlobPart extends RichTextRecord<WSIG> {
 
   @StructureSetter("Reserved")
   CDBlobPart setReserved(byte[] reserved);
+
+  /**
+   * Returns the raw data of this blob part
+   *
+   * @return the blob part data as a byte array
+   */
+  default byte[] getBlobPartData() {
+    final ByteBuffer buf = this.getVariableData();
+    final int len = this.getLength();
+    final byte[] result = new byte[len];
+    buf.get(result);
+    return result;
+  }
+
+  default CDBlobPart setBlobPartData(final byte[] data) {
+    final ByteBuffer buf = this.getVariableData();
+    buf.put(data);
+    final int remaining = buf.remaining();
+    for (int i = 0; i < remaining; i++) {
+      buf.put((byte) 0);
+    }
+    setLength(data.length);
+    return this;
+  }
 }
