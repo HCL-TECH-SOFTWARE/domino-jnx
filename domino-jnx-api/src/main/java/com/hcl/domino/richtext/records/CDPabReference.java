@@ -20,6 +20,5 @@ public interface CDPabReference extends RichTextRecord<BSIG> {
 	  int getPabId();
 	  
 	  @StructureSetter("PABID")
-	  CDPabHide setPabId(int id);
-
+	  CDPabReference setPabId(int id);
 }
