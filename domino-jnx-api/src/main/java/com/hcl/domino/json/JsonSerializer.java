@@ -222,6 +222,15 @@ public interface JsonSerializer {
    * @return an implementation-dependent JSON object
    */
   Object toJson(Document doc);
+  
+  /**
+   * Serializes the provided Object as a JSON object using the implementation's
+   * native JSON type.
+   *
+   * @param value the Object to serialize
+   * @return an implementation-dependent JSON object
+   */
+  Object toJson(Object value);
 
   /**
    * Serializes the provided document as a JSON string.
