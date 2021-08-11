@@ -46,5 +46,11 @@ public class JsonbSerializer extends AbstractJsonSerializer {
         .build();
     return jsonb.toJson(doc);
   }
+  
+  @Override
+  public Object toJson(final Object value) {
+    //TODO  add jsonb implementation of Object to Json
+    return new Object();
+  }
 
 }
