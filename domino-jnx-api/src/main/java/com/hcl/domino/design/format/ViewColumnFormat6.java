@@ -38,11 +38,11 @@ import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
     @StructureMember(name = "dwLength", type = short.class, unsigned = true),
     @StructureMember(name = "dwFlags6", type = ViewColumnFormat6.Flag.class, bitfield = true),
     @StructureMember(name = "SequenceNumber", type = short.class, unsigned = true),
-    @StructureMember(name = "IfViewIsNarrowDo", type = short.class),
+    @StructureMember(name = "IfViewIsNarrowDo", type = NarrowViewPosition.class),
     @StructureMember(name = "wAttributesLength", type = short.class, unsigned = true),
     @StructureMember(name = "wPubFieldLength", type = short.class, unsigned = true),
     @StructureMember(name = "LineNumber", type = short.class, unsigned = true),
-    @StructureMember(name = "TileViewer", type = short.class),
+    @StructureMember(name = "TileViewer", type = TileViewerPosition.class),
     @StructureMember(name = "dwReserved", type = int[].class, length = 16),
 })
 public interface ViewColumnFormat6 extends ResizableMemoryStructure {
@@ -73,44 +73,65 @@ public interface ViewColumnFormat6 extends ResizableMemoryStructure {
     }
   }
 
+  @StructureGetter("Signature")
+  short getSignature();
+
+  @StructureSetter("Signature")
+  ViewColumnFormat6 setSignature(short signature);
+
+  @StructureGetter("dwLength")
+  int getLength();
+
+  @StructureSetter("dwLength")
+  ViewColumnFormat6 setLength(int length);
+
+  @StructureGetter("dwFlags6")
+  Set<Flag> getFlags();
+
+  @StructureSetter("dwFlags6")
+  ViewColumnFormat6 setFlags(Collection<Flag> flags);
+
+  @StructureGetter("SequenceNumber")
+  int getSequenceNumber();
+
+  @StructureSetter("SequenceNumber")
+  ViewColumnFormat6 setSequenceNumber(int length);
+
+  @StructureGetter("IfViewIsNarrowDo")
+  NarrowViewPosition getIfViewIsNarrowDo();
+
+  @StructureSetter("IfViewIsNarrowDo")
+  ViewColumnFormat6 setIfViewIsNarrowDo(NarrowViewPosition ifDo);
+
+  @StructureGetter("wAttributesLength")
+  int getAttributesLength();
+
+  @StructureSetter("wAttributesLength")
+  ViewColumnFormat6 setAttributesLength(int len);
+
+  @StructureGetter("wPubFieldLength")
+  int getPublishFieldNameLength();
+
+  @StructureSetter("wPubFieldLength")
+  ViewColumnFormat6 setPublishFieldNameLength(int len);
+
+  @StructureGetter("LineNumber")
+  int getLineNumber();
+
+  @StructureSetter("LineNumber")
+  ViewColumnFormat6 setLineNumber(int lineNo);
+
+  @StructureGetter("TileViewer")
+  TileViewerPosition getTileViewer();
+
+  @StructureSetter("TileViewer")
+  ViewColumnFormat6 setTileViewer(TileViewerPosition tileViewer);
+
   default String getAttributes() {
     return StructureSupport.extractStringValue(this,
         0,
         this.getAttributesLength());
   }
-
-  @StructureGetter("wAttributesLength")
-  int getAttributesLength();
-
-  @StructureGetter("dwFlags6")
-  Set<Flag> getFlags();
-
-  @StructureGetter("IfViewIsNarrowDo")
-  short getIfViewIsNarrowDo();
-
-  @StructureGetter("dwLength")
-  int getLength();
-
-  @StructureGetter("LineNumber")
-  int getLineNumber();
-
-  default String getPublishFieldName() {
-    return StructureSupport.extractStringValue(this,
-        this.getAttributesLength(),
-        this.getPublishFieldNameLength());
-  }
-
-  @StructureGetter("wPubFieldLength")
-  int getPublishFieldNameLength();
-
-  @StructureGetter("SequenceNumber")
-  int getSequenceNumber();
-
-  @StructureGetter("Signature")
-  short getSignature();
-
-  @StructureGetter("TileViewer")
-  short getTileViewer();
 
   default ViewColumnFormat6 setAttributes(final String attributes) {
     return StructureSupport.writeStringValue(
@@ -124,20 +145,11 @@ public interface ViewColumnFormat6 extends ResizableMemoryStructure {
         });
   }
 
-  @StructureSetter("wAttributesLength")
-  ViewColumnFormat6 setAttributesLength(int len);
-
-  @StructureSetter("dwFlags6")
-  ViewColumnFormat6 setFlags(Collection<Flag> flags);
-
-  @StructureSetter("IfViewIsNarrowDo")
-  ViewColumnFormat6 setIfViewIsNarrowDo(short ifDo);
-
-  @StructureSetter("dwLength")
-  ViewColumnFormat6 setLength(int length);
-
-  @StructureSetter("LineNumber")
-  ViewColumnFormat6 setLineNumber(int lineNo);
+  default String getPublishFieldName() {
+    return StructureSupport.extractStringValue(this,
+        this.getAttributesLength(),
+        this.getPublishFieldNameLength());
+  }
 
   default ViewColumnFormat6 setPublishFieldName(final String name) {
     return StructureSupport.writeStringValue(
@@ -150,16 +162,4 @@ public interface ViewColumnFormat6 extends ResizableMemoryStructure {
           this.setPublishFieldNameLength(newLen);
         });
   }
-
-  @StructureSetter("wPubFieldLength")
-  ViewColumnFormat6 setPublishFieldNameLength(int len);
-
-  @StructureSetter("SequenceNumber")
-  ViewColumnFormat6 setSequenceNumber(int length);
-
-  @StructureSetter("Signature")
-  ViewColumnFormat6 setSignature(short signature);
-
-  @StructureSetter("TileViewer")
-  ViewColumnFormat6 setTileViewer(short tileViewer);
 }

@@ -50,6 +50,7 @@ import com.hcl.domino.data.Formula;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.data.ModificationTimePair;
 import com.hcl.domino.dbdirectory.DbDirectory;
 import com.hcl.domino.dxl.DxlExporter;
 import com.hcl.domino.dxl.DxlImporter;
@@ -585,11 +586,23 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    * @return instance of {@link Calendaring}
    */
   Calendaring getCalendaring();
+  
+  /**
+   * Retrieves the data and non-data modification times for the given database by path,
+   * without opening the database.
+   * 
+   * <p>The path in {@code dbPath} must be a path within the current runtime's data
+   * directory.</p>
+   * 
+   * @param dbPath a data-relative path to a database
+   * @return a {@link ModificationTimePair} instance
+   * @since 1.0.32
+   */
+  ModificationTimePair getDatabaseModificationTimes(String dbPath);
 
   /**
    * Retrieves a list of databases on the target server, optionally restricted to
-   * those modified
-   * since a given time.
+   * those modified since a given time.
    *
    * @param serverName    the server to query, or {@code null} for local
    * @param modifiedSince the start time of the query, or {@code null} for all

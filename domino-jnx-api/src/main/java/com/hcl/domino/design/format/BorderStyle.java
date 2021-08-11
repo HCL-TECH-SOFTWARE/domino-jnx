@@ -1,0 +1,41 @@
+package com.hcl.domino.design.format;
+
+import com.hcl.domino.misc.INumberEnum;
+import com.hcl.domino.richtext.RichTextConstants;
+
+/**
+ * Represents border style options for action bars and other elements.
+ * 
+ * @author Jesse Gallagher
+ * @since 1.0.32
+ */
+public enum BorderStyle implements INumberEnum<Short> {
+  NONE(RichTextConstants.CDBORDERSTYLE_NONE),
+  SOLID(RichTextConstants.CDBORDERSTYLE_SOLID),
+  DOUBLE(RichTextConstants.CDBORDERSTYLE_DOUBLE),
+  INSET(RichTextConstants.CDBORDERSTYLE_INSET),
+  OUTSET(RichTextConstants.CDBORDERSTYLE_OUTSET),
+  RIDGE(RichTextConstants.CDBORDERSTYLE_RIDGE),
+  GROOVE(RichTextConstants.CDBORDERSTYLE_GROOVE),
+  DOTTED(RichTextConstants.CDBORDERSTYLE_DOTTED),
+  DASHED(RichTextConstants.CDBORDERSTYLE_DASHED),
+  PICTURE(RichTextConstants.CDBORDERSTYLE_PICTURE),
+  GRAPHIC(RichTextConstants.CDBORDERSTYLE_GRAPHIC)
+  ;
+  
+  private final short value;
+  
+  private BorderStyle(short value) {
+    this.value = value;
+  }
+
+  @Override
+  public long getLongValue() {
+    return value;
+  }
+
+  @Override
+  public Short getValue() {
+    return value;
+  }
+}

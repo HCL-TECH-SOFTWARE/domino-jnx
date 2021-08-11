@@ -16,8 +16,10 @@
  */
 package com.hcl.domino.commons.design.view;
 
+import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import com.hcl.domino.commons.design.DesignColorsAndFonts;
 import com.hcl.domino.commons.util.StringUtil;
@@ -25,15 +27,35 @@ import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.data.NotesFont;
 import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.format.CalendarType;
+import com.hcl.domino.design.format.DateComponentOrder;
+import com.hcl.domino.design.format.DateShowFormat;
+import com.hcl.domino.design.format.DateShowSpecial;
+import com.hcl.domino.design.format.DateTimeFlag;
+import com.hcl.domino.design.format.DateTimeFlag2;
+import com.hcl.domino.design.format.DayFormat;
+import com.hcl.domino.design.format.MonthFormat;
+import com.hcl.domino.design.format.NarrowViewPosition;
+import com.hcl.domino.design.format.NumberDisplayFormat;
+import com.hcl.domino.design.format.NumberPref;
+import com.hcl.domino.design.format.TileViewerPosition;
+import com.hcl.domino.design.format.TimeShowFormat;
+import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.ViewColumnFormat2;
 import com.hcl.domino.design.format.ViewColumnFormat3;
 import com.hcl.domino.design.format.ViewColumnFormat4;
 import com.hcl.domino.design.format.ViewColumnFormat5;
 import com.hcl.domino.design.format.ViewColumnFormat6;
+import com.hcl.domino.design.format.WeekFormat;
+import com.hcl.domino.design.format.YearFormat;
 import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.records.CurrencyFlag;
+import com.hcl.domino.richtext.records.CurrencyType;
+import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FontStyle;
+import com.hcl.domino.richtext.structures.NFMT;
 
 /**
  * @author Jesse Gallagher
@@ -85,6 +107,13 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   @Override
   public int getDisplayWidth() {
     return this.getFormat1().getDisplayWidth();
+  }
+  
+  @Override
+  public String getExtraAttributes() {
+    return getFormat6()
+      .map(ViewColumnFormat6::getAttributes)
+      .orElse(""); //$NON-NLS-1$
   }
 
   @Override
@@ -154,10 +183,56 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   public boolean isConstant() {
     return this.getFormat1().getConstantValueLength() > 0;
   }
+  
+  @Override
+  public boolean isExtendToWindowWidth() {
+    return getFormat6()
+      .map(ViewColumnFormat6::getFlags)
+      .map(flags -> flags.contains(ViewColumnFormat6.Flag.ExtendColWidthToAvailWindowWidth))
+      .orElse(false);
+  }
 
   @Override
   public boolean isHidden() {
-    return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.Hidden);
+    if(this.format1.getFlags().contains(ViewColumnFormat.Flag.Hidden)) {
+      // Then we need to look for further details
+      return this.getFormat2()
+        .map(format2 -> {
+          Set<ViewColumnFormat2.HiddenFlag> hiddenFlags = format2.getCustomHiddenFlags();
+          if(hiddenFlags.contains(ViewColumnFormat2.HiddenFlag.NormalView)) {
+            // Then it's asserted as hidden here
+            return true;
+          } else if(format2.getFlags().contains(ViewColumnFormat2.Flag3.HideWhenFormula)) {
+            // Then it's marked as hidden but only by hide-when
+            return false;
+          } else if(format2.getFlags().contains(ViewColumnFormat2.Flag3.HideInR5)) {
+            // Then it's specially marked as only being hidden in older releases
+            return false;
+          }
+          // If there's no special indicator, then the original Hidden flag holds sway
+          return true;
+        })
+        // If there's no VCF2, it's outright hidden
+        .orElse(true);
+    } else {
+      return false;
+    }
+  }
+  
+  @Override
+  public boolean isHiddenFromMobile() {
+    return getFormat2()
+      .map(ViewColumnFormat2::getCustomHiddenFlags)
+      .map(flags -> flags.contains(ViewColumnFormat2.HiddenFlag.MOBILE))
+      .orElse(false);
+  }
+  
+  @Override
+  public boolean isHiddenInPreV6() {
+    return getFormat2()
+      .map(ViewColumnFormat2::getFlags)
+      .map(flags -> flags.contains(ViewColumnFormat2.Flag3.HideInR5))
+      .orElse(false);
   }
 
   @Override
@@ -186,6 +261,11 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
       .map(ViewColumnFormat2::getFlags)
       .map(flags -> flags.contains(ViewColumnFormat2.Flag3.IsSharedColumn))
       .orElse(false);
+  }
+  
+  @Override
+  public boolean isShowAsLinks() {
+    return this.getFormat1().getFlags2().contains(ViewColumnFormat.Flag2.ShowValuesAsLinks);
   }
 
   @Override
@@ -278,6 +358,40 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
       .orElseGet(DesignColorsAndFonts::viewHeaderFont);
     return new TextFontItemNotesFont(this.parent.getDocument(), style);
   }
+  
+  @Override
+  public ColorValue getRowFontColor() {
+    return getFormat2()
+      .map(ViewColumnFormat2::getColumnColor)
+      .orElseGet(DesignColorsAndFonts::blackColor);
+  }
+  
+  @Override
+  public ColorValue getHeaderFontColor() {
+    return getFormat2()
+      .map(ViewColumnFormat2::getHeaderFontColor)
+      .orElseGet(DesignColorsAndFonts::blackColor);
+  }
+  
+  @Override
+  public NumberSettings getNumberSettings() {
+    return new DefaultNumberSettings();
+  }
+  
+  @Override
+  public DateTimeSettings getDateTimeSettings() {
+    return new DefaultDateTimeSettings();
+  }
+  
+  @Override
+  public NamesSettings getNamesSettings() {
+    return new DefaultNamesSettings();
+  }
+  
+  @Override
+  public CompositeApplicationSettings getCompositeApplicationSettings() {
+    return new DefaultCompositeApplicationSettings();
+  }
 
   // *******************************************************************************
   // * Format-reader hooks
@@ -350,11 +464,365 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
     return Optional.ofNullable(this.format2);
   }
   
+  private Optional<ViewColumnFormat3> getFormat3() {
+    return Optional.ofNullable(this.format3);
+  }
+  
+  private Optional<ViewColumnFormat4> getFormat4() {
+    return Optional.ofNullable(this.format4);
+  }
+  
   private Optional<ViewColumnFormat5> getFormat5() {
     return Optional.ofNullable(this.format5);
   }
   
   private Optional<ViewColumnFormat6> getFormat6() {
     return Optional.ofNullable(this.format6);
+  }
+  
+  private class DefaultNumberSettings implements NumberSettings {
+
+    @Override
+    public NumberDisplayFormat getFormat() {
+      return getFormat4()
+        .map(format4 -> {
+          switch(format4.getNumberFormat().getFormat()) {
+            case BYTES:
+              // In practice, this is identified by attributes below
+              return NumberDisplayFormat.BYTES;
+            case CURRENCY:
+              return NumberDisplayFormat.CURRENCY;
+            case SCIENTIFIC:
+              return NumberDisplayFormat.SCIENTIFIC;
+            case FIXED:
+            case GENERAL:
+            default:
+              if(format4.getNumberFormat().getAttributes().contains(NFMT.Attribute.BYTES)) {
+                return NumberDisplayFormat.BYTES;
+              } else if(format4.getNumberFormat().getAttributes().contains(NFMT.Attribute.PERCENT)) {
+                return NumberDisplayFormat.PERCENT;
+              } else {
+                return NumberDisplayFormat.DECIMAL;
+              }
+          }
+        })
+        .orElse(NumberDisplayFormat.DECIMAL);
+    }
+
+    @Override
+    public boolean isVaryingDecimal() {
+      return getFormat4()
+        .map(format4 -> format4.getNumberFormat().getAttributes().contains(NFMT.Attribute.VARYING))
+        .orElse(true);
+    }
+
+    @Override
+    public int getFixedDecimalPlaces() {
+      return getFormat4()
+        .map(format4 -> (int)format4.getNumberFormat().getDigits())
+        .orElse(0);
+    }
+
+    @Override
+    public boolean isOverrideClientLocale() {
+      return getFormat4()
+        .map(format4 -> format4.getNumberSymbolPreference() == NumberPref.FIELD)
+        .orElse(false);
+    }
+
+    @Override
+    public String getDecimalSymbol() {
+      // TODO determine whether the default here should change for non-US locales
+      return getFormat4()
+        .map(format4 -> format4.getDecimalSymbol())
+        .orElse("."); //$NON-NLS-1$
+    }
+
+    @Override
+    public String getThousandsSeparator() {
+      // TODO determine whether the default here should change for non-US locales
+      return getFormat4()
+        .map(format4 -> format4.getMilliSeparator())
+        .orElse(","); //$NON-NLS-1$
+    }
+
+    @Override
+    public boolean isUseParenthesesWhenNegative() {
+      return getFormat4()
+        .map(format4 -> format4.getNumberFormat().getAttributes().contains(NFMT.Attribute.PARENS))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isPunctuateThousands() {
+      return getFormat4()
+        .map(format4 -> format4.getNumberFormat().getAttributes().contains(NFMT.Attribute.PUNCTUATED))
+        .orElse(false);
+    }
+
+    @Override
+    public long getCurrencyIsoCode() {
+      return getFormat4()
+        .map(format4 -> format4.getISOCountry())
+        .orElse(0l);
+    }
+
+    @Override
+    public boolean isUseCustomCurrencySymbol() {
+      return getFormat4()
+        .map(format4 -> format4.getCurrencyType() == CurrencyType.CUSTOM)
+        .orElse(false);
+    }
+
+    @Override
+    public String getCurrencySymbol() {
+      // TODO determine whether the default here should change for non-US locales
+      return getFormat4()
+        .map(format4 -> format4.getCurrencySymbol())
+        .orElse("$"); //$NON-NLS-1$
+    }
+
+    @Override
+    public boolean isCurrencySymbolPostfix() {
+      return getFormat4()
+        .map(format4 -> format4.getCurrencyFlags().contains(CurrencyFlag.SYMFOLLOWS))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isUseSpaceNextToNumber() {
+      return getFormat4()
+        .map(format4 -> format4.getCurrencyFlags().contains(CurrencyFlag.USESPACES))
+        .orElse(false);
+    }
+  }
+  
+  private class DefaultDateTimeSettings implements DateTimeSettings {
+    @Override
+    public boolean isOverrideClientLocale() {
+      return getFormat3()
+        .map(format3 -> format3.getDateTimePreference() == NumberPref.FIELD)
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isDisplayAbbreviatedDate() {
+      return getFormat3()
+        .map(format3 -> format3.getDateTimeFlags().contains(DateTimeFlag.SHOWABBREV))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isDisplayDate() {
+      return getFormat3()
+        .map(format3 -> format3.getDateTimeFlags().contains(DateTimeFlag.SHOWDATE))
+        .orElse(true);
+    }
+
+    @Override
+    public DateShowFormat getDateShowFormat() {
+      return getFormat3()
+        .map(format3 -> format3.getDateShowFormat())
+        .orElse(DateShowFormat.MDY);
+    }
+
+    @Override
+    public Set<DateShowSpecial> getDateShowBehavior() {
+      return getFormat3()
+        .map(format3 -> format3.getDateShowSpecial())
+        .orElseGet(() -> EnumSet.of(DateShowSpecial.SHOW_21ST_4DIGIT));
+    }
+
+    @Override
+    public CalendarType getCalendarType() {
+      return getFormat3()
+        .map(ViewColumnFormat3::getDateTimeFlags2)
+        .map(flags -> flags.contains(DateTimeFlag2.USE_HIJRI_CALENDAR) ? CalendarType.HIJRI : CalendarType.GREGORIAN)
+        .orElse(CalendarType.GREGORIAN);
+    }
+
+    @Override
+    public DateComponentOrder getDateComponentOrder() {
+      return getFormat3()
+        .map(ViewColumnFormat3::getDateComponentOrder)
+        .orElse(DateComponentOrder.WMDY);
+    }
+
+    @Override
+    public String getCustomDateSeparator1() {
+      // TODO determine whether the default here should change for non-US locales
+      return getFormat3()
+        .map(ViewColumnFormat3::getDateSeparator1)
+        .orElse(" "); //$NON-NLS-1$
+    }
+
+    @Override
+    public String getCustomDateSeparator2() {
+      // TODO determine whether the default here should change for non-US locales
+      return getFormat3()
+        .map(ViewColumnFormat3::getDateSeparator2)
+        .orElse("/"); //$NON-NLS-1$
+    }
+
+    @Override
+    public String getCustomDateSeparator3() {
+      // TODO determine whether the default here should change for non-US locales
+      return getFormat3()
+        .map(ViewColumnFormat3::getDateSeparator3)
+        .orElse("/"); //$NON-NLS-1$
+    }
+
+    @Override
+    public DayFormat getDayFormat() {
+      return getFormat3()
+        .map(ViewColumnFormat3::getDayFormat)
+        .orElse(DayFormat.DD);
+    }
+
+    @Override
+    public MonthFormat getMonthFormat() {
+      return getFormat3()
+        .map(ViewColumnFormat3::getMonthFormat)
+        .orElse(MonthFormat.MM);
+    }
+
+    @Override
+    public YearFormat getYearFormat() {
+      return getFormat3()
+        .map(ViewColumnFormat3::getYearFormat)
+        .orElse(YearFormat.YYYY);
+    }
+
+    @Override
+    public WeekFormat getWeekdayFormat() {
+      return getFormat3()
+        .map(ViewColumnFormat3::getDayOfWeekFormat)
+        .orElse(WeekFormat.WWW);
+    }
+
+    @Override
+    public boolean isDisplayTime() {
+      return getFormat3()
+        .map(format3 -> format3.getDateTimeFlags().contains(DateTimeFlag.SHOWTIME))
+        .orElse(true);
+    }
+
+    @Override
+    public TimeShowFormat getTimeShowFormat() {
+      return getFormat3()
+        .map(ViewColumnFormat3::getTimeShowFormat)
+        .orElse(TimeShowFormat.HMS);
+    }
+
+    @Override
+    public TimeZoneFormat getTimeZoneFormat() {
+      return getFormat3()
+        .map(ViewColumnFormat3::getTimeZoneFormat)
+        .orElse(TimeZoneFormat.NEVER);
+    }
+
+    @Override
+    public boolean isTime24HourFormat() {
+      return getFormat3()
+        .map(format3 -> format3.getDateTimeFlags().contains(DateTimeFlag.TWENTYFOURHOUR))
+        .orElse(true);
+    }
+
+    @Override
+    public String getCustomTimeSeparator() {
+      // TODO determine whether the default here should change for non-US locales
+      return getFormat3()
+        .map(format3 -> format3.getTimeSeparator())
+        .orElse(":"); //$NON-NLS-1$
+    }
+  }
+  
+  private class DefaultNamesSettings implements NamesSettings {
+
+    @Override
+    public boolean isNamesValue() {
+      return getFormat5()
+        .map(ViewColumnFormat5::getFlags)
+        .map(flags -> flags.contains(ViewColumnFormat5.Flag.IS_NAME))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isShowOnlineStatus() {
+      return getFormat5()
+        .map(ViewColumnFormat5::getFlags)
+        .map(flags -> flags.contains(ViewColumnFormat5.Flag.SHOW_IM_STATUS))
+        .orElse(false);
+    }
+
+    @Override
+    public Optional<String> getNameColumnName() {
+      return getFormat5()
+        .map(ViewColumnFormat5::getDnColumnName)
+        .flatMap(name -> name.isEmpty() ? Optional.empty() : Optional.of(name));
+    }
+
+    @Override
+    public OnlinePresenceOrientation getPresenceIconOrientation() {
+      return getFormat5()
+        .map(ViewColumnFormat5::getFlags)
+        .map(flags -> {
+          if(flags.contains(ViewColumnFormat5.Flag.VERT_ORIENT_BOTTOM)) {
+            return OnlinePresenceOrientation.BOTTOM;
+          } else if(flags.contains(ViewColumnFormat5.Flag.VERT_ORIENT_MID)) {
+            return OnlinePresenceOrientation.MIDDLE;
+          } else {
+            return OnlinePresenceOrientation.TOP;
+          }
+        })
+        .orElse(OnlinePresenceOrientation.TOP);
+    }
+  }
+  
+  private class DefaultCompositeApplicationSettings implements CompositeApplicationSettings {
+
+    @Override
+    public NarrowViewPosition getNarrowViewPosition() {
+      return getFormat6()
+        .map(ViewColumnFormat6::getIfViewIsNarrowDo)
+        .orElse(NarrowViewPosition.KEEP_ON_TOP);
+    }
+
+    @Override
+    public boolean isJustifySecondRow() {
+      return getFormat6()
+        .map(ViewColumnFormat6::getFlags)
+        .map(flags -> flags.contains(ViewColumnFormat6.Flag.BeginWrapUnder))
+        .orElse(false);
+    }
+
+    @Override
+    public int getSequenceNumber() {
+      return getFormat6()
+        .map(ViewColumnFormat6::getSequenceNumber)
+        .orElse(0);
+    }
+
+    @Override
+    public TileViewerPosition getTileViewerPosition() {
+      return getFormat6()
+        .map(ViewColumnFormat6::getTileViewer)
+        .orElse(TileViewerPosition.TOP);
+    }
+
+    @Override
+    public int getTileLineNumber() {
+      return getFormat6()
+        .map(ViewColumnFormat6::getLineNumber)
+        .map(index -> index == 0 ? 1 : index)
+        .orElse(1);
+    }
+
+    @Override
+    public String getCompositeProperty() {
+      return getFormat6()
+        .map(ViewColumnFormat6::getPublishFieldName)
+        .orElse(""); //$NON-NLS-1$
+    }
   }
 }

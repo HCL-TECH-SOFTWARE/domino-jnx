@@ -23,7 +23,7 @@ import java.util.List;
 import com.hcl.domino.commons.views.CollateType;
 import com.hcl.domino.commons.views.NotesCollateDescriptor;
 import com.hcl.domino.commons.views.NotesCollationInfo;
-import com.hcl.domino.jna.internal.DumpUtil;
+import com.hcl.domino.jna.internal.JNADumpUtil;
 import com.hcl.domino.jna.internal.JNANotesConstants;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.structs.NotesCollateDescriptorStruct;
@@ -51,7 +51,7 @@ public class CollationDecoder {
 
 		//sanity check that the signature byte is at the right position
 		if (NotesConstants.COLLATION_SIGNATURE != collationStruct.signature) {
-			throw new AssertionError(MessageFormat.format("Collation signature byte is not correct.\nMem dump:\n{0}", DumpUtil.dumpAsAscii(dataPtr, JNANotesConstants.notesCollationSize)));
+			throw new AssertionError(MessageFormat.format("Collation signature byte is not correct.\nMem dump:\n{0}", JNADumpUtil.dumpAsAscii(dataPtr, JNANotesConstants.notesCollationSize)));
 		}
 		
 		List<NotesCollateDescriptor> collateDescriptors = new ArrayList<>();
@@ -74,13 +74,13 @@ public class CollationDecoder {
 			catch (IllegalArgumentException e) {
 				throw new AssertionError(MessageFormat.format(
 					"Collation structure invalid, collate type {0} unknown for column #{1}.\nMem dump:\n{2}",
-					descStruct.keytype, i, DumpUtil.dumpAsAscii(dataPtr, JNANotesConstants.notesCollationSize + (items * JNANotesConstants.notesCollateDescriptorSize))
+					descStruct.keytype, i, JNADumpUtil.dumpAsAscii(dataPtr, JNANotesConstants.notesCollationSize + (items * JNANotesConstants.notesCollateDescriptorSize))
 				));
 			}
 			
 			//sanity check that the signature byte is at the right position
 			if (NotesConstants.COLLATE_DESCRIPTOR_SIGNATURE != descStruct.signature) {
-				throw new AssertionError(MessageFormat.format("Descriptor signature byte is not correct.\nMem dump:\n{0}", DumpUtil.dumpAsAscii(dataPtr, JNANotesConstants.notesCollationSize + (items * JNANotesConstants.notesCollateDescriptorSize))));
+				throw new AssertionError(MessageFormat.format("Descriptor signature byte is not correct.\nMem dump:\n{0}", JNADumpUtil.dumpAsAscii(dataPtr, JNANotesConstants.notesCollationSize + (items * JNANotesConstants.notesCollateDescriptorSize))));
 			}
 			
 			int currTextBufferOffset = descStruct.NameOffset & 0xffff;

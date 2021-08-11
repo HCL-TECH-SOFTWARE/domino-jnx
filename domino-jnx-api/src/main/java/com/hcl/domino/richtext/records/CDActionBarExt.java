@@ -19,7 +19,13 @@ package com.hcl.domino.richtext.records;
 import java.util.Collection;
 import java.util.Set;
 
+import com.hcl.domino.design.DesignElement.ClassicThemeBehavior;
+import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
+import com.hcl.domino.design.format.ActionBarTextAlignment;
+import com.hcl.domino.design.format.ActionWidthMode;
+import com.hcl.domino.design.format.ButtonBorderDisplay;
 import com.hcl.domino.misc.INumberEnum;
+import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -33,76 +39,32 @@ import com.hcl.domino.richtext.structures.WSIG;
  * @author Jesse Gallagher
  * @since 1.0.15
  */
-@StructureDefinition(name = "CDACTIONBAREXT", members = {
+@StructureDefinition(
+  name = "CDACTIONBAREXT",
+  members = {
     @StructureMember(name = "Header", type = WSIG.class),
     @StructureMember(name = "BackColor", type = ColorValue.class),
     @StructureMember(name = "LineColor", type = ColorValue.class),
     @StructureMember(name = "FontColor", type = ColorValue.class),
     @StructureMember(name = "ButtonColor", type = ColorValue.class),
-    @StructureMember(name = "BtnBorderDisplay", type = CDActionBarExt.BorderDisplay.class),
+    @StructureMember(name = "BtnBorderDisplay", type = ButtonBorderDisplay.class),
     @StructureMember(name = "wAppletHeight", type = short.class, unsigned = true),
-    @StructureMember(name = "wBarBackgroundRepeat", type = CDActionBarExt.BackgroundRepeat.class),
-    @StructureMember(name = "BtnWidthStyle", type = CDActionBarExt.WidthStyle.class),
-    @StructureMember(name = "BtnTextJustify", type = CDActionBarExt.TextJustify.class),
+    @StructureMember(name = "wBarBackgroundRepeat", type = ActionBarBackgroundRepeat.class),
+    @StructureMember(name = "BtnWidthStyle", type = ActionWidthMode.class),
+    @StructureMember(name = "BtnTextJustify", type = ActionBarTextAlignment.class),
     @StructureMember(name = "wBtnWidthAbsolute", type = short.class, unsigned = true),
     @StructureMember(name = "wBtnInternalMargin", type = short.class, unsigned = true),
     @StructureMember(name = "dwFlags", type = CDActionBarExt.Flag.class, bitfield = true),
     @StructureMember(name = "barFontID", type = FontStyle.class),
     @StructureMember(name = "barHeight", type = LengthValue.class),
-    @StructureMember(name = "Spare", type = int[].class, length = 12)
-})
+    @StructureMember(name = "wThemeSetting", type = ClassicThemeBehavior.class),
+    @StructureMember(name = "wSpare", type = short.class),
+    @StructureMember(name = "Spare", type = int[].class, length = 11)
+  }
+)
 public interface CDActionBarExt extends RichTextRecord<WSIG> {
-  enum BackgroundRepeat implements INumberEnum<Short> {
-    REPEATONCE(1),
-    REPEATVERT(2),
-    REPEATHORIZ(3),
-    TILE(4),
-    CENTER_TILE(5),
-    REPEATSIZE(6),
-    REPEATCENTER(7);
-
-    private final short value;
-
-    BackgroundRepeat(final int value) {
-      this.value = (short) value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Short getValue() {
-      return this.value;
-    }
-  }
-
-  enum BorderDisplay implements INumberEnum<Short> {
-    ONMOUSEOVER(0),
-    ALWAYS(1),
-    NEVER(2),
-    NOTES(3);
-
-    private final short value;
-
-    BorderDisplay(final int value) {
-      this.value = (short) value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Short getValue() {
-      return this.value;
-    }
-  }
-
   enum Flag implements INumberEnum<Integer> {
-    WIDTH_STYLE_VALID(0x00000001);
+    WIDTH_STYLE_VALID(RichTextConstants.ACTIONBAREXT_WIDTH_STYLE_VALID_FLAG);
 
     private final int value;
 
@@ -121,123 +83,79 @@ public interface CDActionBarExt extends RichTextRecord<WSIG> {
     }
   }
 
-  enum TextJustify implements INumberEnum<Byte> {
-    LEFT(0),
-    CENTER(1),
-    RIGHT(2);
-
-    private final byte value;
-
-    TextJustify(final int value) {
-      this.value = (byte) value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Byte getValue() {
-      return this.value;
-    }
-  }
-
-  enum WidthStyle implements INumberEnum<Byte> {
-    /** Width is calculated based on text length and image width */
-    DEFAULT(0),
-    /**
-     * Width is at least button background image width or wider if needed to fit
-     * text and image.
-     */
-    BACKGROUND(1),
-    /** Width is set to value in wBtnWidthAbsolute */
-    ABSOLUTE(2);
-
-    private final byte value;
-
-    WidthStyle(final int value) {
-      this.value = (byte) value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Byte getValue() {
-      return this.value;
-    }
-  }
-
-  @StructureGetter("wAppletHeight")
-  int getAppletHeight();
-
-  @StructureGetter("BackColor")
-  ColorValue getBackgroundColor();
-
-  @StructureGetter("wBarBackgroundRepeat")
-  BackgroundRepeat getBackgroundRepeat();
-
-  @StructureGetter("BtnBorderDisplay")
-  BorderDisplay getBorderDisplay();
-
-  @StructureGetter("ButtonColor")
-  ColorValue getButtonColor();
-
-  @StructureGetter("wBtnInternalMargin")
-  int getButtonInternalMargin();
-
-  @StructureGetter("wBtnWidthAbsolute")
-  int getButtonWidth();
-
-  @StructureGetter("dwFlags")
-  Set<Flag> getFlags();
-
-  @StructureGetter("FontColor")
-  ColorValue getFontColor();
-
-  @StructureGetter("barFontID")
-  FontStyle getFontStyle();
-
   @StructureGetter("Header")
   @Override
   WSIG getHeader();
 
-  @StructureGetter("barHeight")
-  LengthValue getHeight();
+  @StructureGetter("BackColor")
+  ColorValue getBackgroundColor();
 
   @StructureGetter("LineColor")
   ColorValue getLineColor();
 
-  @StructureGetter("BtnTextJustify")
-  TextJustify getTextJustify();
+  @StructureGetter("FontColor")
+  ColorValue getFontColor();
 
-  @StructureGetter("BtnWidthStyle")
-  WidthStyle getWidthStyle();
+  @StructureGetter("ButtonColor")
+  ColorValue getButtonColor();
+
+  @StructureGetter("BtnBorderDisplay")
+  ButtonBorderDisplay getBorderDisplay();
+
+  @StructureSetter("BtnBorderDisplay")
+  CDActionBarExt setBorderDisplay(ButtonBorderDisplay borderDisplay);
+
+  @StructureGetter("wAppletHeight")
+  int getAppletHeight();
 
   @StructureSetter("wAppletHeight")
   CDActionBarExt setAppletHeight(int appletHeight);
 
+  @StructureGetter("wBarBackgroundRepeat")
+  ActionBarBackgroundRepeat getBackgroundRepeat();
+
   @StructureSetter("wBarBackgroundRepeat")
-  CDActionBarExt setBackgroundRepeat(BackgroundRepeat backgroundRepeat);
+  CDActionBarExt setBackgroundRepeat(ActionBarBackgroundRepeat backgroundRepeat);
 
-  @StructureSetter("BtnBorderDisplay")
-  CDActionBarExt setBorderDisplay(BorderDisplay borderDisplay);
+  @StructureGetter("BtnWidthStyle")
+  ActionWidthMode getWidthStyle();
 
-  @StructureSetter("wBtnInternalMargin")
-  CDActionBarExt setButtonInternalMargin(int internalMargin);
+  @StructureSetter("BtnWidthStyle")
+  CDActionBarExt setWidthStyle(ActionWidthMode widthStyle);
+
+  @StructureGetter("BtnTextJustify")
+  ActionBarTextAlignment getTextJustify();
+
+  @StructureSetter("BtnTextJustify")
+  CDActionBarExt setTextJustify(ActionBarTextAlignment textJustify);
+
+  @StructureGetter("wBtnWidthAbsolute")
+  int getButtonWidth();
 
   @StructureSetter("wBtnWidthAbsolute")
   CDActionBarExt setButtonWidth(int buttonWidth);
 
+  @StructureGetter("wBtnInternalMargin")
+  int getButtonInternalMargin();
+
+  @StructureSetter("wBtnInternalMargin")
+  CDActionBarExt setButtonInternalMargin(int internalMargin);
+
+  @StructureGetter("dwFlags")
+  Set<Flag> getFlags();
+
   @StructureSetter("dwFlags")
   CDActionBarExt setFlags(Collection<Flag> flags);
 
-  @StructureSetter("BtnTextJustify")
-  CDActionBarExt setTextJustify(TextJustify textJustify);
+  @StructureGetter("barFontID")
+  FontStyle getFontStyle();
 
-  @StructureSetter("BtnWidthStyle")
-  CDActionBarExt setWidthStyle(WidthStyle widthStyle);
+  @StructureGetter("barHeight")
+  LengthValue getHeight();
+  
+  @StructureGetter("wThemeSetting")
+  ClassicThemeBehavior getThemeSetting();
+  
+  @StructureSetter("wThemeSetting")
+  CDActionBarExt setThemeSetting(ClassicThemeBehavior setting);
 }

@@ -47,7 +47,7 @@ import com.hcl.domino.richtext.records.CDKeyword;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
 public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> extends AbstractNamedDesignElement<T>
-    implements GenericFormOrSubform<T> {
+    implements GenericFormOrSubform<T>, IDefaultActionBarElement {
 
   public AbstractFormOrSubform(final Document doc) {
     super(doc);
@@ -56,17 +56,6 @@ public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> e
   @Override
   public T addField() {
     throw new NotYetImplementedException();
-  }
-
-  private void flushField(final Deque<RichTextRecord<?>> structs, final List<FormField> result) {
-    if (structs != null && !structs.isEmpty()) {
-      // Make sure there's a CDField
-      final boolean foundField = structs.stream().anyMatch(s -> s instanceof CDField);
-      if (foundField) {
-        result.add(new FormFieldImpl(structs));
-      }
-      structs.clear();
-    }
   }
 
   @Override
@@ -182,12 +171,23 @@ public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> e
     throw new NotYetImplementedException();
   }
 
+  @Override
+  public void swapFields(final int indexA, final int indexB) {
+    throw new NotYetImplementedException();
+  }
+
   // *******************************************************************************
   // * Implementation utilities
   // *******************************************************************************
 
-  @Override
-  public void swapFields(final int indexA, final int indexB) {
-    throw new NotYetImplementedException();
+  private void flushField(final Deque<RichTextRecord<?>> structs, final List<FormField> result) {
+    if (structs != null && !structs.isEmpty()) {
+      // Make sure there's a CDField
+      final boolean foundField = structs.stream().anyMatch(s -> s instanceof CDField);
+      if (foundField) {
+        result.add(new FormFieldImpl(structs));
+      }
+      structs.clear();
+    }
   }
 }

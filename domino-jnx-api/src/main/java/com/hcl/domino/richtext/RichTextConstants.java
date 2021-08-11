@@ -227,6 +227,12 @@ public interface RichTextConstants {
   short SIG_ACTION_FORMULAONLY = 146 | RichTextConstants.WORDRECORDLENGTH;
   short SIG_ACTION_JAVAAGENT = 147 | RichTextConstants.WORDRECORDLENGTH;
   short SIG_ACTION_JAVA = 148 | RichTextConstants.WORDRECORDLENGTH;
+  
+  /**
+   * Speculative (and speculatively-named) prefix for a four-byte record that precedes
+   * the CDACTION* records in a "Simple Actions"-type CDACTION record's data area.
+   */
+  short SIG_UNIDENTIFIED_CDACTION_PREFIX = 16 | RichTextConstants.BYTERECORDLENGTH;
 
   /* Signatures for items of type TYPE_VIEWMAP_DATASET */
 
@@ -610,6 +616,11 @@ public interface RichTextConstants {
 
   /** Use the 4.X format structure instead of this 5.X format structure */
   int DT_USE_TFMT = 0x0001;
+  /**
+   * Non-documented flag indicating that display should use the Hijri calendar
+   * instead of Gregorian.
+   */
+  int DT_USE_HIJRI_CALENDAR = 0x0010;
 
   /* DTYearFmt values (do not change - these values are also stored on disk!) */
 
@@ -1006,4 +1017,174 @@ public interface RichTextConstants {
    */
   short CDRESOURCE_CLASS_PORTFOLIO = 21;
   short CDRESOURCE_CLASS_OUTLINE = 22;
+
+  short CDBORDERSTYLE_NONE = 0;
+  short CDBORDERSTYLE_SOLID = 1;
+  short CDBORDERSTYLE_DOUBLE = 2;
+  short CDBORDERSTYLE_INSET = 3;
+  short CDBORDERSTYLE_OUTSET = 4;
+  short CDBORDERSTYLE_RIDGE = 5;
+  short CDBORDERSTYLE_GROOVE = 6;
+  short CDBORDERSTYLE_DOTTED = 7;
+  short CDBORDERSTYLE_DASHED = 8;
+  short CDBORDERSTYLE_PICTURE = 9;
+  short CDBORDERSTYLE_GRAPHIC = 10;
+  
+  short CDBORDER_FLAGS_DROP_SHADOW = 0x0001;
+  
+  /** Width is calculated based on text length and image width */
+  byte ACTIONBAR_BUTTON_WIDTH_DEFAULT = 0;
+  /** Width is at least button background image width or wider if needed to fit text and image */
+  byte ACTIONBAR_BUTTON_WIDTH_BACKGROUND = 1;
+  /** Width is set to value in wBtnWidthAbsolute */
+  byte ACTIONBAR_BUTTON_WIDTH_ABSOLUTE = 2;
+  
+  short ACTION_SET_3D_ONMOUSEOVER = 0;
+  short ACTION_SET_3D_ALWAYS = 1;
+  short ACTION_SET_3D_NEVER = 2;
+  short ACTION_SET_3D_NOTES = 3;
+  
+  short ACTIONBAR_BACKGROUND_REPEATONCE = 1;
+  short ACTIONBAR_BACKGROUND_REPEATVERT = 2;
+  short ACTIONBAR_BACKGROUND_REPEATHORIZ = 3;
+  short ACTIONBAR_BACKGROUND_TILE = 4;
+  short ACTIONBAR_BACKGROUND_CENTER_TILE = 5;
+  short ACTIONBAR_BACKGROUND_REPEATSIZE = 6;
+  short ACTIONBAR_BACKGROUND_REPEATCENTER = 7;
+  
+  byte ACTIONBAR_BUTTON_TEXT_LEFT = 0;
+  byte ACTIONBAR_BUTTON_TEXT_CENTER = 1;
+  byte ACTIONBAR_BUTTON_TEXT_RIGHT = 2;
+  
+  int ACTIONBAREXT_WIDTH_STYLE_VALID_FLAG = 0x00000001;
+
+  /** set when "auto" or "inherit" is set */
+  short CDLENGTH_UNITS_UNKNOWN = 0;
+  short CDLENGTH_UNITS_TWIPS = 1;
+  short CDLENGTH_UNITS_PIXELS = 2;
+  short CDLENGTH_UNITS_PERCENT = 3;
+  short CDLENGTH_UNITS_EMS = 4;
+  short CDLENGTH_UNITS_EXS = 5;
+  /** average width of a character based on the font */
+  short CDLENGTH_UNITS_CHARS = 6;
+  
+  int MAXFACESIZE = 32;
+  
+  short ACTION_CONTROL_TYPE_BUTTON = 0;
+  short ACTION_CONTROL_TYPE_CHECKBOX = 1;
+  short ACTION_CONTROL_TYPE_MENU_SEPARATOR = 2;
+  
+  /** Flag in CDTARGET for formula target */
+  short FLAG_TARGET_IS_FORMULA = 0x0001;
+  
+  short PLATFORM_TYPE_CLIENT_ODS = 1;
+  short PLATFORM_TYPE_WEB_ODS = 2;
+  
+
+  short HTML_EVENT_ONCLICK = 1;
+  short HTML_EVENT_ONDBLCLICK = 2;
+  short HTML_EVENT_ONMOUSEDOWN = 3;
+  short HTML_EVENT_ONMOUSEUP = 4;
+  short HTML_EVENT_ONMOUSEOVER = 5;
+  short HTML_EVENT_ONMOUSEMOVE = 6;
+  short HTML_EVENT_ONMOUSEOUT = 7;
+  short HTML_EVENT_ONKEYPRESS = 8;
+  short HTML_EVENT_ONKEYDOWN = 9;
+  short HTML_EVENT_ONKEYUP = 10;
+  short HTML_EVENT_ONFOCUS = 11;
+  short HTML_EVENT_ONBLUR = 12;
+  short HTML_EVENT_ONLOAD = 13;
+  short HTML_EVENT_ONUNLOAD = 14;
+  short HTML_EVENT_HEADER = 15;
+  short HTML_EVENT_ONSUBMIT = 16;
+  short HTML_EVENT_ONRESET = 17;
+  short HTML_EVENT_ONCHANGE = 18;
+  short HTML_EVENT_ONERROR = 19;
+  short HTML_EVENT_ONHELP = 20;
+  short HTML_EVENT_ONSELECT = 21;
+  /** This isn't really an event */
+  short HTML_EVENT_LIBRARY = 22;
+  
+  short ACTION_FORMULA = 0;
+  short ACTION_CANNED_ACTION = 1;
+  short ACTION_LOTUS_SCRIPT = 2;
+  short ACTION_MISC = 3;
+  short ACTION_COLLECTION_RULE = 4;
+  short ACTION_JAVA_FILE = 5;
+  short ACTION_JAVA = 6;
+  short ACTION_JAVASCRIPT = 7;
+  /** Use same JavaScript for both client and web */
+  short ACTION_JAVASCRIPT_COMMON = 8;
+  short ACTION_UNUSED = 9;
+  /** fullpack search on 12/10/00 showed no use of this */
+  short ACTION_SECTION_EDIT = 10;
+  short ACTION_NULL = 11;
+  /** Obj properties (initially for OLE properties) */
+  short ACTION_PROPERTIES = 12;
+  /** The code is JSP code */
+  short ACTION_JSP = 13;
+  /** The code is HTML */
+  short ACTION_HTML = 14;
+  /** The end of the 'real' types */
+  short ACTION_MAX = 15;
+  short ACTION_OTHER = 98;
+  short ACTION_UNKNOWN = 99;
+  
+
+  int ACTION_SHOW_IN_MENU = 0x00000001;
+  int ACTION_SHOW_IN_BAR = 0x00000002;
+  int ACTION_SHOW_WHEN_PREVIEWING = 0x00000004;
+  int ACTION_SHOW_WHEN_READING = 0x00000008;
+  int ACTION_SHOW_WHEN_EDITING = 0x00000010;
+  int ACTION_SHOW_ON_OLE_LAUNCH = 0x00000020;
+  int ACTION_OLE_CLOSE_WHEN_CHOSEN = 0x00000040;
+  int ACTION_NO_FORMULA = 0x00000080;
+  int ACTION_SHOW_WHEN_PREVEDITING = 0x00000100;
+  int ACTION_OLE_DOC_WINDOW_TO_FRONT = 0x00001000;
+  int ACTION_HIDE_FROM_NOTES = 0x00002000;
+  int ACTION_HIDE_FROM_WEB = 0x00004000;
+  int ACTION_READING_ORDER_RTL = 0x00008000;
+  /** action is shared */
+  int ACTION_SHARED = 0x00010000;
+  /** action has been modified (not saved on disk) */
+  int ACTION_MODIFIED = 0x00020000;
+  /** flag not saved on disk */
+  int ACTION_ALWAYS_SHARED = 0x00040000;
+  int ACTION_ALIGN_ICON_RIGHT = 0x00080000;
+  int ACTION_IMAGE_RESOURCE_ICON = 0x00100000;
+  int ACTION_FRAME_TARGET = 0x00400000;
+  int ACTION_TEXT_ONLY_IN_MENU = 0x00800000;
+  /** Show button on opposite side from action bar direction */
+  int ACTION_BUTTON_TO_RIGHT = 0x01000000;
+  /** action is hidden from mobile */
+  int ACTION_HIDE_FROM_MOBILE = 0x04000000;
+  int ACTION_SHOW_IN_POPUPMENU = 0x10000000;
+  /** LI: 4602.02, Provide support for "Split button" for java action bar */
+  int ACTION_MAKE_SPLIT_BUTTON = 0x20000000;
+  /**
+   * Non-documented (and speculatively-named) flag indicating that the action should be
+   * included in the mobile-specific actions menu.
+   */
+  int ACTION_SHOW_IN_MOBILE_ACTIONS = 0x80000000;
+  
+  int ACTION_ODS_FLAG_MASK = 0xF5F9F1FF; 
+  
+  /**
+   * Non-documented (and speculatively-named) flag used in CDACTIONEXT.dwFlags to indicate
+   * that the action should be included in the "swipe left" actions on mobile devices.
+   */
+  int ACTIONEXT_INCLUDE_IN_SWIPE_LEFT = 0x00000001;
+  /**
+   * Non-documented (and speculatively-named) flag used in CDACTIONEXT.dwFlags to indicate
+   * that the action should be included in the "swipe right" actions on mobile devices.
+   */
+  int ACTIONEXT_INCLUDE_IN_SWIPE_RIGHT = 0x00000002;
+
+  short ACTION_RUN_FORMULA = 1;
+  short ACTION_RUN_SCRIPT = 2;
+  short ACTION_RUN_AGENT = 3;
+  short ACTION_OLDSYS_COMMAND = 4;
+  short ACTION_SYS_COMMAND = 5;
+  short ACTION_PLACEHOLDER = 6;
+  short ACTION_RUN_JAVASCRIPT = 7;
 }

@@ -19,6 +19,7 @@ package com.hcl.domino.richtext.structures;
 import java.util.Collection;
 import java.util.Set;
 
+import com.hcl.domino.design.format.LengthUnit;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
@@ -32,7 +33,7 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 @StructureDefinition(name = "LENGTH_VALUE", members = {
     @StructureMember(name = "Flags", type = LengthValue.Flag.class, bitfield = true),
     @StructureMember(name = "Length", type = double.class),
-    @StructureMember(name = "Units", type = LengthValue.Unit.class),
+    @StructureMember(name = "Units", type = LengthUnit.class),
     @StructureMember(name = "Reserved", type = byte.class)
 })
 public interface LengthValue extends MemoryStructure {
@@ -57,32 +58,6 @@ public interface LengthValue extends MemoryStructure {
     }
   }
 
-  enum Unit implements INumberEnum<Byte> {
-    UNKNOWN(0),
-    TWIPS(1),
-    PIXELS(2),
-    PERCENT(3),
-    EMS(4),
-    EXS(5),
-    CHARS(6);
-
-    private final byte value;
-
-    Unit(final int value) {
-      this.value = (byte) value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Byte getValue() {
-      return this.value;
-    }
-  }
-
   @StructureGetter("Flags")
   Set<Flag> getFlags();
 
@@ -90,7 +65,7 @@ public interface LengthValue extends MemoryStructure {
   double getLength();
 
   @StructureGetter("Units")
-  Unit getUnit();
+  LengthUnit getUnit();
 
   @StructureSetter("Flags")
   LengthValue setFlags(Collection<Flag> flags);
@@ -99,5 +74,5 @@ public interface LengthValue extends MemoryStructure {
   LengthValue setLength(double length);
 
   @StructureSetter("Units")
-  LengthValue setUnit(Unit unit);
+  LengthValue setUnit(LengthUnit unit);
 }

@@ -29,6 +29,7 @@ import com.hcl.domino.design.format.DayFormat;
 import com.hcl.domino.design.format.MonthFormat;
 import com.hcl.domino.design.format.NumberPref;
 import com.hcl.domino.design.format.TimeShowFormat;
+import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.design.format.WeekFormat;
 import com.hcl.domino.design.format.YearFormat;
 import com.hcl.domino.formula.FormulaCompiler;
@@ -38,7 +39,6 @@ import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
-import com.hcl.domino.richtext.structures.TFMT;
 import com.hcl.domino.richtext.structures.WSIG;
 
 /**
@@ -58,8 +58,8 @@ import com.hcl.domino.richtext.structures.WSIG;
     @StructureMember(name = "Unused2", type = short.class),
     @StructureMember(name = "FirstFieldLimitType", type = short.class, unsigned = true),
     @StructureMember(name = "CurrencyPref", type = NumberPref.class),
-    @StructureMember(name = "CurrencyType", type = CDExt2Field.CurrencyType.class),
-    @StructureMember(name = "CurrencyFlags", type = CDExt2Field.CurrencyFlag.class, bitfield = true),
+    @StructureMember(name = "CurrencyType", type = CurrencyType.class),
+    @StructureMember(name = "CurrencyFlags", type = CurrencyFlag.class, bitfield = true),
     @StructureMember(name = "CurrencySymLength", type = int.class, unsigned = true),
     @StructureMember(name = "ISOCountry", type = int.class, unsigned = true),
     @StructureMember(name = "ThumbnailImageWidth", type = short.class, unsigned = true),
@@ -78,9 +78,9 @@ import com.hcl.domino.richtext.structures.WSIG;
     @StructureMember(name = "DTDsep3Len", type = byte.class, unsigned = true),
     @StructureMember(name = "DTTsepLen", type = byte.class, unsigned = true),
     @StructureMember(name = "DTDShow", type = DateShowFormat.class),
-    @StructureMember(name = "DTDSpecial", type = DateShowSpecial.class),
+    @StructureMember(name = "DTDSpecial", type = DateShowSpecial.class, bitfield = true),
     @StructureMember(name = "DTTShow", type = TimeShowFormat.class),
-    @StructureMember(name = "DTTZone", type = TFMT.ZoneFormat.class),
+    @StructureMember(name = "DTTZone", type = TimeZoneFormat.class),
     @StructureMember(name = "Unused5", type = int.class),
     @StructureMember(name = "ECFlags", type = CDExt2Field.FormatFlag.class, bitfield = true),
     @StructureMember(name = "Unused612", type = byte.class),
@@ -89,51 +89,6 @@ import com.hcl.domino.richtext.structures.WSIG;
     @StructureMember(name = "wIMGroupFormulaLen", type = short.class, unsigned = true)
 })
 public interface CDExt2Field extends RichTextRecord<WSIG> {
-  enum CurrencyFlag implements INumberEnum<Byte> {
-    SYMFOLLOWS((byte) RichTextConstants.NCURFMT_SYMFOLLOWS),
-    USESPACES((byte) RichTextConstants.NCURFMT_USESPACES),
-    ISOSYMUSED((byte) RichTextConstants.NCURFMT_ISOSYMUSED),
-    ;
-
-    private final byte value;
-
-    CurrencyFlag(final byte value) {
-      this.value = value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Byte getValue() {
-      return this.value;
-    }
-  }
-
-  enum CurrencyType implements INumberEnum<Byte> {
-    COMMON(RichTextConstants.NCURFMT_COMMON),
-    CUSTOM(RichTextConstants.NCURFMT_CUSTOM),
-    ;
-
-    private final byte value;
-
-    CurrencyType(final byte value) {
-      this.value = value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Byte getValue() {
-      return this.value;
-    }
-  }
-
   enum FormatFlag implements INumberEnum<Byte> {
     PROPORTIONAL((byte) RichTextConstants.EC_FLAG_WIDTH_PROPORTIONAL);
 
@@ -245,7 +200,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   DateShowFormat getDateShowFormat();
 
   @StructureGetter("DTDSpecial")
-  DateShowSpecial getDateShowSpecial();
+  Set<DateShowSpecial> getDateShowSpecial();
 
   @StructureGetter("DTFlags")
   Set<DateTimeFlag> getDateTimeFlags();
@@ -450,7 +405,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   TimeShowFormat getTimeShowFormat();
 
   @StructureGetter("DTTZone")
-  TFMT.ZoneFormat getTimeZoneFormat();
+  TimeZoneFormat getTimeZoneFormat();
 
   @StructureGetter("VerticalSpacing")
   short getVerticalSpacing();
@@ -577,7 +532,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   CDExt2Field setDateShowFormat(DateShowFormat format);
 
   @StructureSetter("DTDSpecial")
-  CDExt2Field setDateShowSpecial(DateShowSpecial format);
+  CDExt2Field setDateShowSpecial(Collection<DateShowSpecial> format);
 
   @StructureSetter("DTFlags")
   CDExt2Field setDateTimeFlags(Collection<DateTimeFlag> flags);
@@ -835,7 +790,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   CDExt2Field setTimeShowFormat(TimeShowFormat format);
 
   @StructureSetter("DTTZone")
-  CDExt2Field setTimeZoneFormat(TFMT.ZoneFormat format);
+  CDExt2Field setTimeZoneFormat(TimeZoneFormat format);
 
   @StructureSetter("VerticalSpacing")
   CDExt2Field setVerticalSpacing(short spacing);

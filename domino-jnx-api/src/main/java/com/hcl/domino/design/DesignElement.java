@@ -50,7 +50,7 @@ public interface DesignElement {
    * @author Jesse Gallagher
    * @since 1.0.27
    */
-  interface XPageAlternativeElement {
+  interface XPageAlternativeElement extends DesignElement {
     Optional<String> getWebXPageAlternative();
   }
 
@@ -61,7 +61,7 @@ public interface DesignElement {
    * @author Jesse Gallagher
    * @since 1.0.27
    */
-  interface XPageNotesAlternativeElement {
+  interface XPageNotesAlternativeElement extends DesignElement {
     Optional<String> getNotesXPageAlternative();
   }
   
@@ -83,7 +83,7 @@ public interface DesignElement {
    * @author Jesse Gallagher
    * @since 1.0.32
    */
-  interface AutoFrameElement {
+  interface AutoFrameElement extends DesignElement {
     /**
      * Retrieves the name of the frameset used for "Auto Frame" behavior in the
      * Notes client, if specified.
@@ -100,6 +100,24 @@ public interface DesignElement {
      *         an empty one if this is unspecified
      */
     Optional<String> getAutoFrameTarget();
+  }
+  
+  /**
+   * This mixin interfaces describes design elements that have an action bar
+   * displayed across the top.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.32
+   */
+  interface ActionBarElement extends DesignElement {
+    /**
+     * Retrieves a view onto this design element's action bar and the associated
+     * actions.
+     * 
+     * @return an {@link ActionBar} instance
+     * @since 1.0.32
+     */
+    ActionBar getActionBar();
   }
   
   /**

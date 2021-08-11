@@ -31,7 +31,9 @@ import com.hcl.domino.richtext.structures.FontStyle;
  * @author Jesse Gallagher
  * @since 1.0.15
  */
-@StructureDefinition(name = "CDACTIONBAR", members = {
+@StructureDefinition(
+  name = "CDACTIONBAR",
+  members = {
     @StructureMember(name = "Header", type = BSIG.class),
     @StructureMember(name = "BackColor", type = short.class, unsigned = true),
     @StructureMember(name = "LineColor", type = short.class, unsigned = true),
@@ -43,8 +45,14 @@ import com.hcl.domino.richtext.structures.FontStyle;
     @StructureMember(name = "FontID", type = FontStyle.class),
     @StructureMember(name = "BtnHeight", type = short.class, unsigned = true),
     @StructureMember(name = "HeightSpc", type = short.class, unsigned = true)
-})
+  }
+)
 public interface CDActionBar extends RichTextRecord<BSIG> {
+  /**
+   * Represents options in the deprecated action-bar border styles.
+   * 
+   * @author Jesse Gallagher
+   */
   enum BorderStyle implements INumberEnum<Short> {
     NONE(0),
     MAX(1),

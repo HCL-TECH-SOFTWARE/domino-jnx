@@ -47,16 +47,48 @@ import com.hcl.domino.data.Database;
 import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.NotesFont;
 import com.hcl.domino.data.StandardFonts;
+import com.hcl.domino.design.ActionBar;
+import com.hcl.domino.design.ActionBar.ButtonHeightMode;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.CollectionDesignElement.DisplaySettings;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignElement;
+import com.hcl.domino.design.DesignElement.ClassicThemeBehavior;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.View;
+import com.hcl.domino.design.action.ActionBarAction;
+import com.hcl.domino.design.action.ActionContent;
+import com.hcl.domino.design.action.FormulaActionContent;
+import com.hcl.domino.design.action.SimpleActionActionContent;
+import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
+import com.hcl.domino.design.format.ActionBarControlType;
+import com.hcl.domino.design.format.ActionBarTextAlignment;
+import com.hcl.domino.design.format.ActionButtonHeightMode;
+import com.hcl.domino.design.format.ActionWidthMode;
+import com.hcl.domino.design.format.BorderStyle;
+import com.hcl.domino.design.format.ButtonBorderDisplay;
+import com.hcl.domino.design.format.CalendarType;
+import com.hcl.domino.design.format.DateComponentOrder;
+import com.hcl.domino.design.format.DateShowFormat;
+import com.hcl.domino.design.format.DateShowSpecial;
+import com.hcl.domino.design.format.DayFormat;
+import com.hcl.domino.design.format.HideFromDevice;
+import com.hcl.domino.design.format.MonthFormat;
+import com.hcl.domino.design.format.NarrowViewPosition;
+import com.hcl.domino.design.format.NumberDisplayFormat;
+import com.hcl.domino.design.format.TileViewerPosition;
+import com.hcl.domino.design.format.TimeShowFormat;
+import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.ViewLineSpacing;
+import com.hcl.domino.design.format.WeekFormat;
+import com.hcl.domino.design.format.YearFormat;
+import com.hcl.domino.design.simpleaction.ModifyFieldAction;
+import com.hcl.domino.design.simpleaction.ReadMarksAction;
+import com.hcl.domino.design.simpleaction.SendDocumentAction;
+import com.hcl.domino.design.simpleaction.SimpleAction;
 import com.hcl.domino.exception.FileDoesNotExistException;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
@@ -69,7 +101,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
-  public static final int EXPECTED_IMPORT_VIEWS = 8;
+  public static final int EXPECTED_IMPORT_VIEWS = 9;
   public static final int EXPECTED_IMPORT_FOLDERS = 1;
 
   private static String dbPath;
@@ -128,6 +160,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals("Home_1.xsp", view.getWebXPageAlternative().get());
     assertFalse(view.isAllowPublicAccess());
     assertEquals(Arrays.asList("[Admin]"), view.getReaders());
+    assertEquals("SELECT @Like(Form; \"Foo\") & IsComplexView=1", view.getSelectionFormula());
     
     CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
     assertNotNull(comp);
@@ -266,6 +299,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertEquals("Courier New", font.getFontName().get());
         assertEquals(10, font.getPointSize());
         assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.STRIKEOUT), font.getAttributes());
+        
+//        assertColorEquals(column.getRowFontColor(), 226, 159, 222);
       }
       {
         NotesFont font = column.getHeaderFont();
@@ -273,8 +308,57 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertEquals("Georgia", font.getFontName().get());
         assertEquals(9, font.getPointSize());
         assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.BOLD, FontAttribute.ITALIC), font.getAttributes());
+//        assertColorEquals(column.getHeaderFontColor(), 0, 255, 0);
       }
       
+      {
+        CollectionColumn.NumberSettings numbers = column.getNumberSettings();
+        assertEquals(NumberDisplayFormat.DECIMAL, numbers.getFormat());
+        assertTrue(numbers.isVaryingDecimal());
+        assertFalse(numbers.isOverrideClientLocale());
+        assertFalse(numbers.isUseParenthesesWhenNegative());
+        assertFalse(numbers.isPunctuateThousands());
+      }
+      
+      {
+        CollectionColumn.DateTimeSettings dateTime = column.getDateTimeSettings();
+        assertFalse(dateTime.isOverrideClientLocale());
+        assertFalse(dateTime.isDisplayAbbreviatedDate());
+        
+        assertTrue(dateTime.isDisplayDate());
+        assertEquals(DateShowFormat.MDY, dateTime.getDateShowFormat());
+        assertEquals(EnumSet.of(DateShowSpecial.SHOW_21ST_4DIGIT), dateTime.getDateShowBehavior());
+        assertEquals(CalendarType.GREGORIAN, dateTime.getCalendarType());
+        
+        assertTrue(dateTime.isDisplayTime());
+        assertEquals(TimeShowFormat.HMS, dateTime.getTimeShowFormat());
+        assertEquals(TimeZoneFormat.NEVER, dateTime.getTimeZoneFormat());
+      }
+      
+      // No values are specified for this column, so it should use the defaults
+      {
+        CollectionColumn.NamesSettings names = column.getNamesSettings();
+        assertFalse(names.isNamesValue());
+        assertFalse(names.isShowOnlineStatus());
+        assertFalse(names.getNameColumnName().isPresent());
+      }
+      
+      assertFalse(column.isHidden());
+      assertFalse(column.isHiddenFromMobile());
+      assertEquals("", column.getHideWhenFormula());
+      assertFalse(column.isHiddenInPreV6());
+      assertFalse(column.isExtendToWindowWidth());
+      assertEquals("", column.getExtraAttributes());
+      assertTrue(column.isShowAsLinks());
+      
+      {
+        CollectionColumn.CompositeApplicationSettings compApp = column.getCompositeApplicationSettings();
+        assertEquals(NarrowViewPosition.KEEP_ON_TOP, compApp.getNarrowViewPosition());
+        assertTrue(compApp.isJustifySecondRow());
+        assertEquals(TileViewerPosition.TOP, compApp.getTileViewerPosition());
+        assertEquals(1, compApp.getTileLineNumber());
+        assertEquals("testprop", compApp.getCompositeProperty());
+      }
     }
     {
       final CollectionColumn column = columns.get(1);
@@ -318,6 +402,43 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertEquals(9, font.getPointSize());
         assertEquals(EnumSet.of(FontAttribute.BOLD), font.getAttributes());
       }
+      
+      {
+        CollectionColumn.NumberSettings numbers = column.getNumberSettings();
+        assertEquals(NumberDisplayFormat.BYTES, numbers.getFormat());
+        assertFalse(numbers.isOverrideClientLocale());
+        assertFalse(numbers.isUseParenthesesWhenNegative());
+        assertFalse(numbers.isPunctuateThousands());
+      }
+      
+      {
+        CollectionColumn.DateTimeSettings dateTime = column.getDateTimeSettings();
+        assertFalse(dateTime.isOverrideClientLocale());
+        assertFalse(dateTime.isDisplayAbbreviatedDate());
+        
+        assertFalse(dateTime.isDisplayDate());
+        
+        assertTrue(dateTime.isDisplayTime());
+        assertEquals(TimeShowFormat.HM, dateTime.getTimeShowFormat());
+        assertEquals(TimeZoneFormat.ALWAYS, dateTime.getTimeZoneFormat());
+      }
+      
+      assertFalse(column.isHidden());
+      assertTrue(column.isHiddenFromMobile());
+      assertEquals("", column.getHideWhenFormula());
+      assertFalse(column.isHiddenInPreV6());
+      assertFalse(column.isExtendToWindowWidth());
+      assertEquals("", column.getExtraAttributes());
+      assertFalse(column.isShowAsLinks());
+      
+      {
+        CollectionColumn.CompositeApplicationSettings compApp = column.getCompositeApplicationSettings();
+        assertEquals(NarrowViewPosition.WRAP, compApp.getNarrowViewPosition());
+        assertEquals(3, compApp.getSequenceNumber());
+        assertEquals(TileViewerPosition.BOTTOM, compApp.getTileViewerPosition());
+        assertEquals(1, compApp.getTileLineNumber());
+        assertEquals("", compApp.getCompositeProperty());
+      }
     }
     {
       final CollectionColumn column = columns.get(2);
@@ -349,6 +470,58 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals("Consolas", font.getFontName().get());
       assertEquals(14, font.getPointSize());
       assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.STRIKEOUT), font.getAttributes());
+      
+//      assertColorEquals(column.getRowFontColor(), 0, 255, 255);
+//      assertColorEquals(column.getHeaderFontColor(), 0, 0, 0);
+      
+      {
+        CollectionColumn.NumberSettings numbers = column.getNumberSettings();
+        assertEquals(NumberDisplayFormat.SCIENTIFIC, numbers.getFormat());
+        assertEquals(3, numbers.getFixedDecimalPlaces());
+        assertTrue(numbers.isOverrideClientLocale());
+        assertEquals("-", numbers.getDecimalSymbol());
+        assertEquals("%", numbers.getThousandsSeparator());
+        assertTrue(numbers.isUseParenthesesWhenNegative());
+        assertFalse(numbers.isPunctuateThousands());
+      }
+      
+      {
+        CollectionColumn.DateTimeSettings dateTime = column.getDateTimeSettings();
+        assertFalse(dateTime.isOverrideClientLocale());
+        assertFalse(dateTime.isDisplayAbbreviatedDate());
+        
+        assertTrue(dateTime.isDisplayDate());
+        assertEquals(DateShowFormat.Y, dateTime.getDateShowFormat());
+        assertEquals(EnumSet.of(DateShowSpecial.CURYR, DateShowSpecial.TODAY, DateShowSpecial.Y4), dateTime.getDateShowBehavior());
+        assertEquals(CalendarType.GREGORIAN, dateTime.getCalendarType());
+        
+        assertFalse(dateTime.isDisplayTime());
+      }
+      
+      {
+        CollectionColumn.NamesSettings names = column.getNamesSettings();
+        assertFalse(names.isNamesValue());
+        assertTrue(names.isShowOnlineStatus());
+        assertFalse(names.getNameColumnName().isPresent());
+        assertEquals(CollectionColumn.OnlinePresenceOrientation.TOP, names.getPresenceIconOrientation());
+      }
+      
+      assertFalse(column.isHidden());
+      assertFalse(column.isHiddenFromMobile());
+      assertEquals("\"hey\" = \"there\"", column.getHideWhenFormula());
+      assertTrue(column.isHiddenInPreV6());
+      assertFalse(column.isExtendToWindowWidth());
+      assertEquals("foo=\"barss\"", column.getExtraAttributes());
+      assertTrue(column.isShowAsLinks());
+      
+      {
+        CollectionColumn.CompositeApplicationSettings compApp = column.getCompositeApplicationSettings();
+        assertEquals(NarrowViewPosition.HIDE, compApp.getNarrowViewPosition());
+        assertEquals(5, compApp.getSequenceNumber());
+        assertEquals(TileViewerPosition.HIDE, compApp.getTileViewerPosition());
+        assertEquals(3, compApp.getTileLineNumber());
+        assertEquals("", compApp.getCompositeProperty());
+      }
     }
     {
       final CollectionColumn column = columns.get(3);
@@ -365,6 +538,51 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(font.getFontName().isPresent());
       assertEquals(11, font.getPointSize());
       assertEquals(EnumSet.of(FontAttribute.ITALIC), font.getAttributes());
+      
+//      assertColorEquals(column.getRowFontColor(), 224, 0, 224);
+//      assertColorEquals(column.getHeaderFontColor(), 255, 255, 0);
+      
+      {
+        CollectionColumn.NumberSettings numbers = column.getNumberSettings();
+        assertEquals(NumberDisplayFormat.PERCENT, numbers.getFormat());
+        assertTrue(numbers.isVaryingDecimal());
+        assertFalse(numbers.isOverrideClientLocale());
+        assertFalse(numbers.isUseParenthesesWhenNegative());
+        assertTrue(numbers.isPunctuateThousands());
+      }
+      
+      {
+        CollectionColumn.DateTimeSettings dateTime = column.getDateTimeSettings();
+        assertTrue(dateTime.isOverrideClientLocale());
+        assertFalse(dateTime.isDisplayAbbreviatedDate());
+        
+        assertTrue(dateTime.isDisplayDate());
+        assertEquals(DateShowFormat.W, dateTime.getDateShowFormat());
+        assertEquals(EnumSet.of(DateShowSpecial.Y4, DateShowSpecial.SHOW_21ST_4DIGIT), dateTime.getDateShowBehavior());
+        assertEquals(CalendarType.GREGORIAN, dateTime.getCalendarType());
+        assertEquals(DateComponentOrder.WMDY, dateTime.getDateComponentOrder());
+        assertEquals(" ", dateTime.getCustomDateSeparator1());
+        assertEquals("/", dateTime.getCustomDateSeparator2());
+        assertEquals("-", dateTime.getCustomDateSeparator3());
+        assertEquals(DayFormat.D, dateTime.getDayFormat());
+        assertEquals(MonthFormat.MMMM, dateTime.getMonthFormat());
+        assertEquals(YearFormat.YY, dateTime.getYearFormat());
+        assertEquals(WeekFormat.WWWWP, dateTime.getWeekdayFormat());
+        
+        assertTrue(dateTime.isDisplayTime());
+        assertEquals(TimeShowFormat.HM, dateTime.getTimeShowFormat());
+        assertEquals(TimeZoneFormat.SOMETIMES, dateTime.getTimeZoneFormat());
+        assertTrue(dateTime.isTime24HourFormat());
+        assertEquals("_", dateTime.getCustomTimeSeparator());
+      }
+      
+      assertFalse(column.isHidden());
+      assertFalse(column.isHiddenFromMobile());
+      assertEquals("", column.getHideWhenFormula());
+      assertFalse(column.isHiddenInPreV6());
+      assertTrue(column.isExtendToWindowWidth());
+      assertEquals("", column.getExtraAttributes());
+      assertFalse(column.isShowAsLinks());
     }
     {
       final CollectionColumn column = columns.get(4);
@@ -377,6 +595,26 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isIcon());
       assertTrue(column.isColor());
       assertTrue(column.isHideTitle());
+      
+      {
+        CollectionColumn.NumberSettings numbers = column.getNumberSettings();
+        assertEquals(NumberDisplayFormat.CURRENCY, numbers.getFormat());
+        assertEquals(0, numbers.getFixedDecimalPlaces());
+        assertTrue(numbers.isOverrideClientLocale());
+        assertEquals(".", numbers.getDecimalSymbol());
+        assertEquals(",", numbers.getThousandsSeparator());
+        assertFalse(numbers.isUseParenthesesWhenNegative());
+        assertFalse(numbers.isPunctuateThousands());
+        assertEquals("€", numbers.getCurrencySymbol());
+        assertFalse(numbers.isUseCustomCurrencySymbol());
+        assertFalse(numbers.isCurrencySymbolPostfix());
+        assertFalse(numbers.isUseSpaceNextToNumber());
+      }
+      
+      {
+        CollectionColumn.DateTimeSettings dateTime = column.getDateTimeSettings();
+        assertTrue(dateTime.isDisplayAbbreviatedDate());
+      }
     }
     {
       final CollectionColumn column = columns.get(5);
@@ -387,6 +625,32 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isIcon());
       assertTrue(column.isSharedColumn());
       assertEquals("testcol", column.getSharedColumnName().get());
+
+      // This column does not have numbers settings specified, and should use the defaults
+      {
+        CollectionColumn.NumberSettings numbers = column.getNumberSettings();
+        assertEquals(NumberDisplayFormat.DECIMAL, numbers.getFormat());
+        assertTrue(numbers.isVaryingDecimal());
+        assertFalse(numbers.isOverrideClientLocale());
+        assertFalse(numbers.isUseParenthesesWhenNegative());
+        assertFalse(numbers.isPunctuateThousands());
+      }
+      
+      // This column does not have date/time settings specified, and should use the defaults
+      {
+        CollectionColumn.DateTimeSettings dateTime = column.getDateTimeSettings();
+        assertFalse(dateTime.isOverrideClientLocale());
+        assertFalse(dateTime.isDisplayAbbreviatedDate());
+        
+        assertTrue(dateTime.isDisplayDate());
+        assertEquals(DateShowFormat.MDY, dateTime.getDateShowFormat());
+        assertEquals(EnumSet.of(DateShowSpecial.SHOW_21ST_4DIGIT), dateTime.getDateShowBehavior());
+        assertEquals(CalendarType.GREGORIAN, dateTime.getCalendarType());
+        
+        assertTrue(dateTime.isDisplayTime());
+        assertEquals(TimeShowFormat.HMS, dateTime.getTimeShowFormat());
+        assertEquals(TimeZoneFormat.NEVER, dateTime.getTimeZoneFormat());
+      }
     }
     {
       final CollectionColumn column = columns.get(6);
@@ -397,6 +661,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isIcon());
       assertTrue(column.isSharedColumn());
       assertEquals("testcol2", column.getSharedColumnName().get());
+      
+      assertFalse(column.isHidden());
+      assertFalse(column.isHiddenFromMobile());
+      assertEquals("", column.getHideWhenFormula());
+      assertFalse(column.isHiddenInPreV6());
+      assertFalse(column.isExtendToWindowWidth());
+      assertEquals("", column.getExtraAttributes());
+      assertFalse(column.isShowAsLinks());
     }
     {
       final CollectionColumn column = columns.get(7);
@@ -410,6 +682,60 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       Optional<CDResource> twistie = column.getTwistieImage();
       assertTrue(twistie.isPresent());
       assertEquals("tango/utilities-terminal.png", twistie.get().getNamedElement());
+      
+      {
+        CollectionColumn.NumberSettings numbers = column.getNumberSettings();
+        assertEquals(NumberDisplayFormat.CURRENCY, numbers.getFormat());
+        assertEquals(0, numbers.getFixedDecimalPlaces());
+        assertTrue(numbers.isOverrideClientLocale());
+        assertEquals(".", numbers.getDecimalSymbol());
+        assertEquals(",", numbers.getThousandsSeparator());
+        assertFalse(numbers.isUseParenthesesWhenNegative());
+        assertFalse(numbers.isPunctuateThousands());
+        assertEquals("gg", numbers.getCurrencySymbol());
+        assertTrue(numbers.isUseCustomCurrencySymbol());
+        assertTrue(numbers.isCurrencySymbolPostfix());
+        assertFalse(numbers.isUseSpaceNextToNumber());
+      }
+      
+      {
+        CollectionColumn.DateTimeSettings dateTime = column.getDateTimeSettings();
+        assertTrue(dateTime.isOverrideClientLocale());
+        assertFalse(dateTime.isDisplayAbbreviatedDate());
+        
+        assertTrue(dateTime.isDisplayDate());
+        assertEquals(DateShowFormat.MDY, dateTime.getDateShowFormat());
+        assertEquals(CalendarType.HIJRI, dateTime.getCalendarType());
+        assertEquals(DateComponentOrder.WDMY, dateTime.getDateComponentOrder());
+        assertEquals(" ", dateTime.getCustomDateSeparator1());
+        assertEquals("/", dateTime.getCustomDateSeparator2());
+        assertEquals("/", dateTime.getCustomDateSeparator3());
+        assertEquals(DayFormat.DD, dateTime.getDayFormat());
+        assertEquals(MonthFormat.MM, dateTime.getMonthFormat());
+        assertEquals(WeekFormat.WWW, dateTime.getWeekdayFormat());
+        
+        assertTrue(dateTime.isDisplayTime());
+        assertEquals(TimeShowFormat.HMS, dateTime.getTimeShowFormat());
+        assertEquals(TimeZoneFormat.NEVER, dateTime.getTimeZoneFormat());
+        assertFalse(dateTime.isTime24HourFormat());
+        assertEquals(":", dateTime.getCustomTimeSeparator());
+      }
+      
+      {
+        CollectionColumn.NamesSettings names = column.getNamesSettings();
+        assertTrue(names.isNamesValue());
+        assertTrue(names.isShowOnlineStatus());
+        assertEquals("foobarnamesfield", names.getNameColumnName().get());
+        assertEquals(CollectionColumn.OnlinePresenceOrientation.MIDDLE, names.getPresenceIconOrientation());
+      }
+      
+      assertFalse(column.isHidden());
+      assertFalse(column.isHiddenFromMobile());
+      assertEquals("@ClientType=\"Notes\"", column.getHideWhenFormula());
+      assertFalse(column.isHiddenInPreV6());
+      assertFalse(column.isExtendToWindowWidth());
+      assertEquals("names=\"this\"", column.getExtraAttributes());
+      assertFalse(column.isShowAsLinks());
     }
     {
       final CollectionColumn column = columns.get(8);
@@ -423,6 +749,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       Optional<CDResource> twistie = column.getTwistieImage();
       assertTrue(twistie.isPresent());
       assertEquals("Untitled 2.gif", twistie.get().getNamedElement());
+      
+      {
+        CollectionColumn.NamesSettings names = column.getNamesSettings();
+        assertFalse(names.isNamesValue());
+        assertTrue(names.isShowOnlineStatus());
+        assertEquals("othernamesfield", names.getNameColumnName().get());
+        assertEquals(CollectionColumn.OnlinePresenceOrientation.BOTTOM, names.getPresenceIconOrientation());
+      }
     }
     {
       final CollectionColumn column = columns.get(9);
@@ -439,6 +773,14 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
       assertEquals(TotalType.None, column.getTotalType());
       assertTrue(column.isIcon());
+      
+      assertTrue(column.isHidden());
+      assertFalse(column.isHiddenFromMobile());
+      assertEquals("", column.getHideWhenFormula());
+      assertFalse(column.isHiddenInPreV6());
+      assertFalse(column.isExtendToWindowWidth());
+      assertEquals("", column.getExtraAttributes());
+      assertFalse(column.isShowAsLinks());
     }
     {
       final CollectionColumn column = columns.get(11);
@@ -480,6 +822,8 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(view.getReaders().isEmpty());
     assertFalse(view.getColumnProfileDocName().isPresent());
     assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
+    // This view uses Simple Searched, but this formula is stored as residual
+    assertEquals("SELECT ((Form = \"Alias\") | (Form = \"Content\") | (Form = \"foo\") | (Form = \"bar\"))", view.getSelectionFormula());
     
     CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
     assertNotNull(comp);
@@ -600,6 +944,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(view.getReaders().isEmpty());
     assertFalse(view.getColumnProfileDocName().isPresent());
     assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
+    assertEquals("SELECT @All", view.getSelectionFormula());
     
     DisplaySettings disp = view.getDisplaySettings();
     assertNotNull(disp);
@@ -709,6 +1054,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(view.getReaders().isEmpty());
     assertFalse(view.getColumnProfileDocName().isPresent());
     assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
+    assertEquals("SELECT @All", view.getSelectionFormula());
     
     assertEquals("1", view.getFormulaClass());
     view.setFormulaClass("2");
@@ -1093,6 +1439,398 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       System.out.println("read col " + col.getItemName());
     });
   }
+  
+  @Test
+  public void testActionView() {
+    DbDesign design = this.database.getDesign();
+    View view = design.getView("Action View").get();
+    
+    ActionBar actions = view.getActionBar();
+    
+    assertEquals(ActionBar.Alignment.RIGHT, actions.getAlignment());
+    assertTrue(actions.isUseJavaApplet());
+    assertTrue(actions.isShowDefaultItemsInContextMenu());
+    
+    assertEquals(ActionButtonHeightMode.EXS, actions.getHeightMode());
+    assertEquals(5.167, actions.getHeightSpec());
+    {
+      NotesFont heightFont = actions.getHeightSizingFont();
+      assertFalse(heightFont.getStandardFont().isPresent());
+      assertEquals("Calibri", heightFont.getFontName().get());
+      assertEquals(14, heightFont.getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.ITALIC), heightFont.getAttributes());
+    }
+    
+    assertColorEquals(actions.getBackgroundColor(), 255, 159, 255);
+    {
+      CDResource background = actions.getBackgroundImage().get();
+      assertEquals("Untitled.gif", background.getNamedElement());
+    }
+    assertEquals(ActionBarBackgroundRepeat.CENTER_TILE, actions.getBackgroundImageRepeatMode());
+    assertEquals(ClassicThemeBehavior.DONT_INHERIT_FROM_OS, actions.getClassicThemeBehavior());
+    
+    assertEquals(BorderStyle.DOUBLE, actions.getBorderStyle());
+    assertColorEquals(actions.getBorderColor(), 97, 129, 255);
+    assertTrue(actions.isUseDropShadow());
+    assertEquals(4, actions.getDropShadowWidth());
+    {
+      EdgeWidths inside = actions.getInsideMargins();
+      assertEquals(5, inside.getTop());
+      assertEquals(6, inside.getLeft());
+      assertEquals(2, inside.getRight());
+      assertEquals(24, inside.getBottom());
+    }
+    {
+      EdgeWidths thickness = actions.getBorderWidths();
+      assertEquals(1, thickness.getTop());
+      assertEquals(2, thickness.getLeft());
+      assertEquals(3, thickness.getRight());
+      assertEquals(4, thickness.getBottom());
+    }
+    {
+      EdgeWidths outside = actions.getOutsideMargins();
+      assertEquals(5, outside.getTop());
+      assertEquals(6, outside.getLeft());
+      assertEquals(7, outside.getRight());
+      assertEquals(8, outside.getBottom());
+    }
+    
+    assertEquals(ButtonHeightMode.FIXED_SIZE, actions.getButtonHeightMode());
+    assertEquals(17, actions.getButtonHeightSpec());
+    assertEquals(ActionWidthMode.BACKGROUND, actions.getButtonWidthMode());
+    assertTrue(actions.isFixedSizeButtonMargin());
+    assertEquals(6, actions.getButtonVerticalMarginSize());
+    assertEquals(ButtonBorderDisplay.ONMOUSEOVER, actions.getButtonBorderMode());
+    assertEquals(ActionBarTextAlignment.CENTER, actions.getButtonTextAlignment());
+    assertEquals(2, actions.getButtonInternalMarginSize());
+    assertTrue(actions.isAlwaysShowDropDowns());
+    
+    assertColorEquals(actions.getButtonBackgroundColor(), 255, 129, 0);
+    {
+      CDResource buttonBackground = actions.getButtonBackgroundImage().get();
+      assertEquals("Untitled 2.gif", buttonBackground.getNamedElement());
+    }
+    
+    {
+      NotesFont font = actions.getFont();
+      assertEquals("Courier New", font.getFontName().get());
+      assertEquals(18, font.getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.UNDERLINE), font.getAttributes());
+    }
+    assertColorEquals(actions.getFontColor(), 0, 0, 255);
+    
+    
+    
+    List<ActionBarAction> actionList = actions.getActions();
+    assertEquals(14, actionList.size());
+    {
+      ActionBarAction action = actionList.get(0);
+      assertEquals(2, action.getSharedActionIndex().getAsLong());
+      assertEquals("Save", action.getName());
+    }
+    {
+      ActionBarAction action = actionList.get(1);
+      assertEquals(3, action.getSharedActionIndex().getAsLong());
+      assertEquals("Save and Close", action.getName());
+    }
+    {
+      ActionBarAction action = actionList.get(2);
+      assertEquals("Formula Action", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.FORMULA, action.getActionLanguage());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertEquals("NotesView", action.getTargetFrame().get());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIconOnlyInActionBar());
+      assertFalse(action.isLeftAlignedInActionBar());
+      assertTrue(action.isIncludeInActionMenu());
+      assertTrue(action.isIncludeInMobileActions());
+      assertFalse(action.isIncludeInContextMenu());
+      assertEquals(ActionBarAction.IconType.NOTES, action.getIconType());
+      assertEquals(68, action.getNotesIconIndex());
+      assertTrue(action.isDisplayIconOnRight());
+      
+      assertEquals(EnumSet.of(HideFromDevice.WEB, HideFromDevice.MOBILE), action.getHideFromDevices());
+      assertTrue(action.isUseHideWhenFormula());
+      assertEquals("@False", action.getHideWhenFormula().get());
+      
+      assertFalse(action.isPublishWithOle());
+      assertFalse(action.isCloseOleWhenChosen());
+      assertFalse(action.isBringDocumentToFrontInOle());
+      assertEquals("testAction", action.getCompositeActionName().get());
+      assertEquals("some program use", action.getProgrammaticUseText());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(FormulaActionContent.class, content);
+      assertEquals("@StatusBar(\"I am formula action\")", ((FormulaActionContent)content).getFormula());
+    }
+    {
+      ActionBarAction action = actionList.get(3);
+      assertEquals("Mobile Left", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.FORMULA, action.getActionLanguage());
+      assertTrue(action.isIncludeInMobileSwipeLeft());
+      assertFalse(action.isIncludeInMobileSwipeRight());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(FormulaActionContent.class, content);
+      assertEquals("@StatusBar(\"hi\")", ((FormulaActionContent)content).getFormula());
+    }
+    {
+      ActionBarAction action = actionList.get(4);
+      assertEquals("Mobile Right", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.FORMULA, action.getActionLanguage());
+      assertFalse(action.isIncludeInMobileSwipeLeft());
+      assertTrue(action.isIncludeInMobileSwipeRight());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(FormulaActionContent.class, content);
+      assertEquals("@StatusBar(\"hi\")", ((FormulaActionContent)content).getFormula());
+    }
+    {
+      ActionBarAction action = actionList.get(5);
+      assertEquals("Action Group Right\\Sub-Action 1", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.FORMULA, action.getActionLanguage());
+      assertEquals("\"Sub-Action\"", action.getLabelFormula().get());
+      assertEquals("\"Right group action\"", action.getParentLabelFormula().get());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.CHECKBOX, action.getDisplayType());
+      assertEquals("SomeField", action.getCheckboxFormula().get());
+      assertTrue(action.isIncludeInActionBar());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInContextMenu());
+      assertEquals(ActionBarAction.IconType.NOTES, action.getIconType());
+      assertEquals(4, action.getNotesIconIndex());
+      assertFalse(action.isDisplayIconOnRight());
+      assertTrue(action.isDisplayAsSplitButton());
+      
+      assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
+      assertFalse(action.isUseHideWhenFormula());
+      assertFalse(action.getHideWhenFormula().isPresent());
+      
+      assertFalse(action.isPublishWithOle());
+      assertFalse(action.isCloseOleWhenChosen());
+      assertFalse(action.isBringDocumentToFrontInOle());
+      assertFalse(action.getCompositeActionName().isPresent());
+      assertEquals("", action.getProgrammaticUseText());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(FormulaActionContent.class, content);
+      assertEquals("@SetField(\"SomeField\"; 0)", ((FormulaActionContent)content).getFormula());
+    }
+    {
+      ActionBarAction action = actionList.get(6);
+      assertEquals("Action Group Right\\", action.getName());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.MENU_SEPARATOR, action.getDisplayType());
+      assertTrue(action.isIncludeInActionBar());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInContextMenu());
+      
+      assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
+      assertFalse(action.isUseHideWhenFormula());
+      assertFalse(action.getHideWhenFormula().isPresent());
+      
+      assertFalse(action.isPublishWithOle());
+      assertFalse(action.isCloseOleWhenChosen());
+      assertFalse(action.isBringDocumentToFrontInOle());
+      assertFalse(action.getCompositeActionName().isPresent());
+      assertEquals("", action.getProgrammaticUseText());
+    }
+    {
+      ActionBarAction action = actionList.get(7);
+      assertEquals("Action Group Right\\Sub-Action 2", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.SIMPLE_ACTION, action.getActionLanguage());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertTrue(action.isIncludeInActionBar());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInContextMenu());
+      
+      assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
+      assertFalse(action.isUseHideWhenFormula());
+      assertFalse(action.getHideWhenFormula().isPresent());
+      
+      assertFalse(action.isPublishWithOle());
+      assertFalse(action.isCloseOleWhenChosen());
+      assertFalse(action.isBringDocumentToFrontInOle());
+      assertFalse(action.getCompositeActionName().isPresent());
+      assertEquals("", action.getProgrammaticUseText());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(SimpleActionActionContent.class, content);
+      List<SimpleAction> simpleActions = ((SimpleActionActionContent)content).getActions();
+      assertEquals(3, simpleActions.size());
+      {
+        SimpleAction action0 = simpleActions.get(0);
+        assertInstanceOf(SendDocumentAction.class, action0);
+      }
+      {
+        SimpleAction action1 = simpleActions.get(1);
+        assertInstanceOf(ModifyFieldAction.class, action1);
+        assertEquals("Body", ((ModifyFieldAction)action1).getFieldName());
+        assertEquals("hey", ((ModifyFieldAction)action1).getValue());
+      }
+      {
+        SimpleAction action2 = simpleActions.get(2);
+        assertInstanceOf(ReadMarksAction.class, action2);
+        assertEquals(ReadMarksAction.Type.MARK_READ, ((ReadMarksAction)action2).getType());
+      }
+    }
+    {
+      ActionBarAction action = actionList.get(8);
+      assertEquals("Menu Action", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.SIMPLE_ACTION, action.getActionLanguage());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertFalse(action.isIncludeInActionBar());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInMobileActions());
+      assertFalse(action.isIncludeInMobileSwipeLeft());
+      assertFalse(action.isIncludeInMobileSwipeRight());
+      assertTrue(action.isIncludeInContextMenu());
+      assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
+      
+      assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
+      assertFalse(action.isUseHideWhenFormula());
+      assertFalse(action.getHideWhenFormula().isPresent());
+      
+      assertFalse(action.isPublishWithOle());
+      assertTrue(action.isCloseOleWhenChosen());
+      assertFalse(action.isBringDocumentToFrontInOle());
+      assertFalse(action.getCompositeActionName().isPresent());
+      assertEquals("", action.getProgrammaticUseText());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(SimpleActionActionContent.class, content);
+      List<SimpleAction> simpleActions = ((SimpleActionActionContent)content).getActions();
+      assertEquals(1, simpleActions.size());
+      {
+        SimpleAction action0 = simpleActions.get(0);
+        assertInstanceOf(SendDocumentAction.class, action0);
+      }
+    }
+    {
+      ActionBarAction action = actionList.get(9);
+      assertEquals("Mobile Guy", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.FORMULA, action.getActionLanguage());
+      assertEquals("\"I'm going mobile\"", action.getLabelFormula().get());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertFalse(action.isIncludeInActionBar());
+      assertFalse(action.isIncludeInActionMenu());
+      assertTrue(action.isIncludeInMobileActions());
+      assertTrue(action.isIncludeInMobileSwipeLeft());
+      assertTrue(action.isIncludeInMobileSwipeRight());
+      assertFalse(action.isIncludeInContextMenu());
+      assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
+      
+      assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
+      assertFalse(action.isUseHideWhenFormula());
+      assertEquals("dsfd", action.getHideWhenFormula().get());
+      
+      assertFalse(action.isPublishWithOle());
+      assertFalse(action.isCloseOleWhenChosen());
+      assertFalse(action.isBringDocumentToFrontInOle());
+      assertFalse(action.getCompositeActionName().isPresent());
+      assertEquals("", action.getProgrammaticUseText());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(FormulaActionContent.class, content);
+      assertEquals("@StatusBar(\"Mobile status bar?\")", ((FormulaActionContent)content).getFormula());
+    }
+    {
+      ActionBarAction action = actionList.get(10);
+      assertEquals("LotusScript Action", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.LOTUSSCRIPT, action.getActionLanguage());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertTrue(action.isIncludeInActionBar());
+      assertTrue(action.isIconOnlyInActionBar());
+      assertTrue(action.isLeftAlignedInActionBar());
+      assertFalse(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInMobileActions());
+//      assertFalse(action.isIncludeInMobileSwipeLeft());
+//      assertTrue(action.isIncludeInMobileSwipeRight());
+      assertFalse(action.isIncludeInContextMenu());
+      assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
+      
+      assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
+      assertFalse(action.isUseHideWhenFormula());
+      assertFalse(action.getHideWhenFormula().isPresent());
+      
+      assertTrue(action.isPublishWithOle());
+      assertFalse(action.isCloseOleWhenChosen());
+      assertTrue(action.isBringDocumentToFrontInOle());
+      assertFalse(action.getCompositeActionName().isPresent());
+      assertEquals("", action.getProgrammaticUseText());
+    }
+    {
+      ActionBarAction action = actionList.get(11);
+      assertEquals("JS Action", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.JAVASCRIPT, action.getActionLanguage());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertTrue(action.isIncludeInActionBar());
+      assertFalse(action.isIconOnlyInActionBar());
+      assertFalse(action.isLeftAlignedInActionBar());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInMobileActions());
+//      assertFalse(action.isIncludeInMobileSwipeLeft());
+//      assertFalse(action.isIncludeInMobileSwipeRight());
+      assertFalse(action.isIncludeInContextMenu());
+      assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
+      
+      assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
+      assertFalse(action.isUseHideWhenFormula());
+      assertFalse(action.getHideWhenFormula().isPresent());
+      
+      assertFalse(action.isPublishWithOle());
+      assertFalse(action.isCloseOleWhenChosen());
+      assertFalse(action.isBringDocumentToFrontInOle());
+      assertFalse(action.getCompositeActionName().isPresent());
+      assertEquals("", action.getProgrammaticUseText());
+    }
+    {
+      ActionBarAction action = actionList.get(12);
+      assertEquals("JS Action 2", action.getName());
+      assertEquals(ActionBarAction.ActionLanguage.COMMON_JAVASCRIPT, action.getActionLanguage());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertTrue(action.isIncludeInActionBar());
+      assertFalse(action.isIconOnlyInActionBar());
+      assertFalse(action.isLeftAlignedInActionBar());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInMobileActions());
+//      assertFalse(action.isIncludeInMobileSwipeLeft());
+//      assertFalse(action.isIncludeInMobileSwipeRight());
+      assertFalse(action.isIncludeInContextMenu());
+      assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
+      
+      assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
+      assertFalse(action.isUseHideWhenFormula());
+      assertFalse(action.getHideWhenFormula().isPresent());
+      
+      assertFalse(action.isPublishWithOle());
+      assertFalse(action.isCloseOleWhenChosen());
+      assertFalse(action.isBringDocumentToFrontInOle());
+      assertFalse(action.getCompositeActionName().isPresent());
+      assertEquals("", action.getProgrammaticUseText());
+    }
+    {
+      ActionBarAction action = actionList.get(13);
+      assertEquals(ActionBarAction.ActionLanguage.SYSTEM_COMMAND, action.getActionLanguage());
+    }
+  }
+  
+  // *******************************************************************************
+  // * Shared utility methods
+  // *******************************************************************************
   
   private void assertColorEquals(ColorValue color, int red, int green, int blue) {
     assertNotNull(color);

@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.richtext.structures;
 
+import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -30,7 +31,7 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 @StructureDefinition(name = "TFMT", members = {
     @StructureMember(name = "Date", type = TFMT.DateFormat.class),
     @StructureMember(name = "Time", type = TFMT.TimeFormat.class),
-    @StructureMember(name = "Zone", type = TFMT.ZoneFormat.class),
+    @StructureMember(name = "Zone", type = TimeZoneFormat.class),
     @StructureMember(name = "Structure", type = TFMT.TimeStructure.class)
 })
 public interface TFMT extends MemoryStructure {
@@ -119,31 +120,6 @@ public interface TFMT extends MemoryStructure {
     }
   }
 
-  enum ZoneFormat implements INumberEnum<Byte> {
-    /** all times converted to THIS zone */
-    NEVER(RichTextConstants.TZFMT_NEVER),
-    /** show only when outside this zone */
-    SOMETIMES(RichTextConstants.TZFMT_SOMETIMES),
-    /** show on all times, regardless */
-    ALWAYS(RichTextConstants.TZFMT_ALWAYS);
-
-    private final byte value;
-
-    ZoneFormat(final byte value) {
-      this.value = value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Byte getValue() {
-      return this.value;
-    }
-  }
-
   @StructureGetter("Date")
   DateFormat getDateFormat();
 
@@ -154,7 +130,7 @@ public interface TFMT extends MemoryStructure {
   TimeStructure getTimeStructure();
 
   @StructureGetter("Zone")
-  ZoneFormat getZoneFormat();
+  TimeZoneFormat getZoneFormat();
 
   @StructureSetter("Date")
   TFMT setDateFormat(DateFormat format);
@@ -166,5 +142,5 @@ public interface TFMT extends MemoryStructure {
   TFMT setTimeStructure(TimeStructure structure);
 
   @StructureSetter("Zone")
-  TFMT setZoneFormat(ZoneFormat format);
+  TFMT setZoneFormat(TimeZoneFormat format);
 }

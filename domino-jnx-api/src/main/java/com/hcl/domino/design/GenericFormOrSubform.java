@@ -23,7 +23,8 @@ import com.hcl.domino.richtext.FormField;
 /**
  * @param <T> the more-specific interface
  */
-public interface GenericFormOrSubform<T extends GenericFormOrSubform<T>> extends DesignElement.NamedDesignElement {
+public interface GenericFormOrSubform<T extends GenericFormOrSubform<T>> extends DesignElement.NamedDesignElement,
+  DesignElement.ActionBarElement {
 
   T addField();
 

@@ -32,7 +32,9 @@ import com.hcl.domino.richtext.structures.WSIG;
  * @author Jesse Gallagher
  * @since 1.0.27
  */
-@StructureDefinition(name = "CDRESOURCE", members = {
+@StructureDefinition(
+  name = "CDRESOURCE",
+  members = {
     @StructureMember(name = "Header", type = WSIG.class),
     @StructureMember(name = "Flags", type = CDResource.Flag.class, bitfield = true),
     @StructureMember(name = "Type", type = CDResource.Type.class),
@@ -41,7 +43,8 @@ import com.hcl.domino.richtext.structures.WSIG;
     @StructureMember(name = "ServerHintLength", type = short.class, unsigned = true),
     @StructureMember(name = "FileHintLength", type = short.class, unsigned = true),
     @StructureMember(name = "Reserved", type = byte[].class, length = 8)
-})
+  }
+)
 public interface CDResource extends RichTextRecord<WSIG> {
   enum Flag implements INumberEnum<Integer> {
     /** the type's data is a formula valid for _TYPE_URL and _TYPE_NAMEDELEMENT */

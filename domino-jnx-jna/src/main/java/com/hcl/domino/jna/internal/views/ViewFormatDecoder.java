@@ -36,10 +36,12 @@ import com.hcl.domino.design.format.ViewTableFormat;
 import com.hcl.domino.design.format.ViewTableFormat2;
 import com.hcl.domino.design.format.ViewTableFormat3;
 import com.hcl.domino.design.format.ViewTableFormat4;
+import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.misc.ViewFormatConstants;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.MemoryStructure;
+import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -341,15 +343,6 @@ public class ViewFormatDecoder {
 	
 	@SuppressWarnings("unused")
   private static <T extends MemoryStructure> T readMemory(PointerByReference ppData, short odsType, Class<T> struct) {
-		// TODO determine if any architectures need ODSReadMemory. On x64 macOS, it seems harmful.
-		//    Docs just say "Intel", but long predate x64. On Windows, it says it should be harmless, but
-		//    care has to be taken on "UNIX", which is everything else.
-		//    Additionally, not all structures here have ODS numbers
-		
-		// ODSReadMemory cariant
-//		Memory mem = new Memory(MemoryStructureProxy.sizeOf(struct));
-//		NotesCAPI.get().ODSReadMemory(ppData, odsType, mem, (short)1);
-//		return MemoryStructureProxy.forStructure(struct, () -> mem.getByteBuffer(0, mem.size()));
 		
 		// Straight-read variant
 		T result = MemoryStructureProxy.newStructure(struct, 0);
@@ -358,6 +351,19 @@ public class ViewFormatDecoder {
 		ppData.setValue(ppData.getValue().share(len));
 		
 		return result;
+	}
+
+  @SuppressWarnings("unused")
+	private static <T extends MemoryStructure> T odsReadMemory(Pointer data, short odsType, Class<T> struct) {
+    // TODO determine if any architectures need ODSReadMemory. On x64 macOS, it seems harmful.
+    //    Docs just say "Intel", but long predate x64. On Windows, it says it should be harmless, but
+    //    care has to be taken on "UNIX", which is everything else.
+    //    Additionally, not all structures here have ODS numbers
+	  PointerByReference ppData = new PointerByReference(data);
+    Memory mem = new Memory(MemoryStructureProxy.sizeOf(struct));
+    NotesCAPI.get().ODSReadMemory(ppData, odsType, mem, (short)1);
+    return MemoryStructureProxy.forStructure(struct, () -> mem.getByteBuffer(0, mem.size()));
+	  
 	}
 	
 	/**

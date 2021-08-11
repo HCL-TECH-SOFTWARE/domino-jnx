@@ -71,8 +71,8 @@ public enum RecordType {
    * may not
    * be present in the $Body item of the form note
    */
-  ACTIONEXT(RichTextConstants.SIG_CD_ACTIONEXT, 1),
-  EVENT_LANGUAGE_ENTRY(RichTextConstants.SIG_CD_EVENT_LANGUAGE_ENTRY, 1),
+  ACTIONEXT(RichTextConstants.SIG_CD_ACTIONEXT, 1, CDActionExt.class),
+  EVENT_LANGUAGE_ENTRY(RichTextConstants.SIG_CD_EVENT_LANGUAGE_ENTRY, 1, CDEventEntry.class),
   /**
    * This structure defines the file segment data of a Cascading Style Sheet (CSS)
    * and
@@ -99,8 +99,8 @@ public enum RecordType {
    */
   BACKGROUNDPROPERTIES(RichTextConstants.SIG_CD_BACKGROUNDPROPERTIES, 1),
   EMBEDEXTRA_INFO(RichTextConstants.SIG_CD_EMBEDEXTRA_INFO, 1),
-  CLIENT_BLOBPART(RichTextConstants.SIG_CD_CLIENT_BLOBPART, 1),
-  CLIENT_EVENT(RichTextConstants.SIG_CD_CLIENT_EVENT, 1),
+  CLIENT_BLOBPART(RichTextConstants.SIG_CD_CLIENT_BLOBPART, 1, CDBlobPart.class),
+  CLIENT_EVENT(RichTextConstants.SIG_CD_CLIENT_EVENT, 1, CDEvent.class),
   BORDERINFO_HS(RichTextConstants.SIG_CD_BORDERINFO_HS, 1),
   LARGE_PARAGRAPH(RichTextConstants.SIG_CD_LARGE_PARAGRAPH, 1),
   EXT_EMBEDDEDSCHED(RichTextConstants.SIG_CD_EXT_EMBEDDEDSCHED, 1),
@@ -138,7 +138,7 @@ public enum RecordType {
    * form note and/or a document.
    */
   TEXTPROPERTIESTABLE(RichTextConstants.SIG_CD_TEXTPROPERTIESTABLE, 1),
-  HREF2(RichTextConstants.SIG_CD_HREF2, 1),
+  HREF2(RichTextConstants.SIG_CD_HREF2, 1, CDResource.class),
   BACKGROUNDCOLOR(RichTextConstants.SIG_CD_BACKGROUNDCOLOR, 1),
   /**
    * This CD Record gives information pertaining to shared resources and/or shared
@@ -210,7 +210,7 @@ public enum RecordType {
    * and specifies which
    * CDPABDEFINITION is used as the format for the paragraph.
    */
-  PABREFERENCE(RichTextConstants.SIG_CD_PABREFERENCE, 1),
+  PABREFERENCE(RichTextConstants.SIG_CD_PABREFERENCE, 1, CDPabReference.class),
   /** This structure defines the start of a run of text in a rich-text field. */
   TEXT(RichTextConstants.SIG_CD_TEXT, 1, CDText.class),
   XML(RichTextConstants.SIG_CD_XML, 1),
@@ -517,7 +517,7 @@ public enum RecordType {
    * CDBEGINRECORD and a CDENDRECORD record with CD record signature
    * CDPRETABLEBEGIN.
    */
-  BORDERINFO(RichTextConstants.SIG_CD_BORDERINFO, 1),
+  BORDERINFO(RichTextConstants.SIG_CD_BORDERINFO, 1, CDBorderInfo.class),
   /**
    * This CD record defines an embedded element of type 'group scheduler'.<br>
    * It is preceded by a CDHOTSPOTBEGIN and a CDPLACEHOLDER. The CD record,
@@ -548,7 +548,7 @@ public enum RecordType {
    * The CDTARGET structure specifies the target (ie: the frame) where a resource
    * link hotspot is to be displayed.
    */
-  TARGET(RichTextConstants.SIG_CD_TARGET, 3),
+  TARGET(RichTextConstants.SIG_CD_TARGET, new int[] { 1, 3 }, CDTarget.class),
   /**
    * Part of a client side image MAP which describes each region in an image and
    * indicates the
@@ -560,7 +560,7 @@ public enum RecordType {
    * side image MAP.
    */
   AREAELEMENT(RichTextConstants.SIG_CD_AREAELEMENT, 3),
-  HREF(RichTextConstants.SIG_CD_HREF, 3),
+  HREF(RichTextConstants.SIG_CD_HREF, new int[] { 1, 3 }, CDResource.class),
   HTML_ALTTEXT(RichTextConstants.SIG_CD_HTML_ALTTEXT, 3),
   /**
    * Structure which defines simple actions, formulas or LotusScript for an image
@@ -599,7 +599,7 @@ public enum RecordType {
    * using
    * fonts other than those defined in FONT_FACE_xxx.
    */
-  FONTTABLE(RichTextConstants.SIG_CD_FONTTABLE, 4),
+  FONTTABLE(RichTextConstants.SIG_CD_FONTTABLE, 4, CDFontTable.class),
   LINK(RichTextConstants.SIG_CD_LINK, 4),
   LINKEXPORT(RichTextConstants.SIG_CD_LINKEXPORT, 4),
   /**
@@ -703,7 +703,7 @@ public enum RecordType {
    * This record contains the "Hide When" formula for a paragraph attributes
    * block.
    */
-  PABHIDE(RichTextConstants.SIG_CD_PABHIDE, 4),
+  PABHIDE(RichTextConstants.SIG_CD_PABHIDE, 4, CDPabHide.class),
   PABFORMREF(RichTextConstants.SIG_CD_PABFORMREF, 4),
   /**
    * The designer of a form or view may define custom actions for that form or
@@ -826,7 +826,13 @@ public enum RecordType {
   ACTION_SENDDOCUMENT(RichTextConstants.SIG_ACTION_SENDDOCUMENT, 7, CDActionSendDocument.class),
   ACTION_FORMULAONLY(RichTextConstants.SIG_ACTION_FORMULAONLY, 7),
   ACTION_JAVAAGENT(RichTextConstants.SIG_ACTION_JAVAAGENT, 7, CDActionJavaAgent.class),
-  ACTION_JAVA(RichTextConstants.SIG_ACTION_JAVA, 7);
+  ACTION_JAVA(RichTextConstants.SIG_ACTION_JAVA, 7),
+  
+  /**
+   * This record was seen via observation only when reading the contents of a CDACTION
+   * "Simple Actions" record
+   */
+  UNIDENTIFIED_CDACTION_PREFIX(RichTextConstants.SIG_UNIDENTIFIED_CDACTION_PREFIX, 7);
 
   public enum Area {
     /** Signatures for Composite Records in items of data type COMPOSITE */
@@ -852,8 +858,10 @@ public enum RecordType {
   static {
     RecordType.m_recordsByConstant = new HashMap<>();
     for (final RecordType currType : RecordType.values()) {
-      final String key = currType.getConstant() + "|" + currType.getArea(); //$NON-NLS-1$
-      RecordType.m_recordsByConstant.put(key, currType);
+      for(int area : currType.getArea()) {
+        final String key = currType.getConstant() + "|" + area; //$NON-NLS-1$
+        RecordType.m_recordsByConstant.put(key, currType);
+      }
     }
   }
 
@@ -927,7 +935,7 @@ public enum RecordType {
     return types;
   }
 
-  private int m_area;
+  private int[] m_area;
 
   private short m_val;
 
@@ -938,12 +946,16 @@ public enum RecordType {
   }
 
   RecordType(final short val, final int area, final Class<? extends RichTextRecord<?>> encapsulation) {
+    this(val, new int[] { area }, encapsulation);
+  }
+  
+  RecordType(short val, int[] area, Class<? extends RichTextRecord<?>> encapsulation) {
     this.m_val = val;
     this.m_area = area;
     this.m_encapsulation = encapsulation;
   }
 
-  public int getArea() {
+  public int[] getArea() {
     return this.m_area;
   }
 

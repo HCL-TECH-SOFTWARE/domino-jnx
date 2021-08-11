@@ -32,7 +32,7 @@ public class ViewImpl extends AbstractCollectionDesignElement<View> implements V
 
   @Override
   public String getSelectionFormula() {
-    throw new NotYetImplementedException();
+    return getDocument().get(DesignConstants.VIEW_FORMULA_ITEM, String.class, ""); //$NON-NLS-1$
   }
 
   @Override
