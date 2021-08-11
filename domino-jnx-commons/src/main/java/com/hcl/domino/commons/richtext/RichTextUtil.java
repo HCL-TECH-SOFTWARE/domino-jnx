@@ -34,6 +34,7 @@ import com.hcl.domino.commons.richtext.records.GenericBSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericLSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericWSIGRecord;
 import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
+import com.hcl.domino.design.format.HtmlEventId;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.CDBlobPart;
@@ -241,7 +242,7 @@ public enum RichTextUtil {
 
     final int paddedLength = fileLength + 1; // Make sure there's at least one \0 at the end
     w.addRichTextRecord(CDEvent.class, event -> {
-      event.setEventType(CDEvent.EventType.LIBRARY);
+      event.setEventType(HtmlEventId.LIBRARY);
       event.setActionType(libraryType);
       event.setActionLength(paddedLength + paddedLength % 2);
     });
