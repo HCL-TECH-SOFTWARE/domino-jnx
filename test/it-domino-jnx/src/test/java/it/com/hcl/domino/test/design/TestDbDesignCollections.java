@@ -107,7 +107,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
-  public static final int EXPECTED_IMPORT_VIEWS = 9;
+  public static final int EXPECTED_IMPORT_VIEWS = 10;
   public static final int EXPECTED_IMPORT_FOLDERS = 1;
 
   private static String dbPath;
@@ -1969,6 +1969,16 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       actual = actual.substring(0, actual.length()-1);
       assertEquals(expected, actual);
     }
+  }
+  
+  @Test
+  public void testEmptyActions() {
+    DbDesign design = this.database.getDesign();
+    View view = design.getView("Empty V5Actions").get();
+    
+    ActionBar actions = view.getActionBar();
+    assertEquals(0, actions.getActions().size());
+    assertEquals(ActionBar.Alignment.LEFT, actions.getAlignment());
   }
   
   // *******************************************************************************

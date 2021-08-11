@@ -1,7 +1,7 @@
 package com.hcl.domino.commons.design;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -56,7 +56,7 @@ public class DefaultActionBar implements ActionBar {
 
   @Override
   public Alignment getAlignment() {
-    if(getActionBarRecord().getFlags().contains(CDActionBar.Flag.ALIGN_RIGHT)) {
+    if(getActionBarFlags().contains(CDActionBar.Flag.ALIGN_RIGHT)) {
       return Alignment.RIGHT;
     } else {
       return Alignment.LEFT;
@@ -65,12 +65,12 @@ public class DefaultActionBar implements ActionBar {
 
   @Override
   public boolean isUseJavaApplet() {
-    return getActionBarRecord().getFlags().contains(CDActionBar.Flag.USE_APPLET);
+    return getActionBarFlags().contains(CDActionBar.Flag.USE_APPLET);
   }
 
   @Override
   public boolean isShowDefaultItemsInContextMenu() {
-    return !getActionBarRecord().getFlags().contains(CDActionBar.Flag.SUPPRESS_SYS_POPUPS);
+    return !getActionBarFlags().contains(CDActionBar.Flag.SUPPRESS_SYS_POPUPS);
   }
 
   @Override
@@ -216,7 +216,7 @@ public class DefaultActionBar implements ActionBar {
 
   @Override
   public ButtonHeightMode getButtonHeightMode() {
-    Set<CDActionBar.Flag> flags = getActionBarRecord().getFlags();
+    Set<CDActionBar.Flag> flags = getActionBarFlags();
     if(flags.contains(CDActionBar.Flag.SET_HEIGHT)) {
       if(flags.contains(CDActionBar.Flag.ABSOLUTE_HEIGHT)) {
         return ButtonHeightMode.FIXED_SIZE;
@@ -232,12 +232,14 @@ public class DefaultActionBar implements ActionBar {
 
   @Override
   public int getButtonHeightSpec() {
-    return getActionBarRecord().getButtonHeight();
+    return getActionBarRecord()
+      .map(CDActionBar::getButtonHeight)
+      .orElse(0);
   }
 
   @Override
   public ActionWidthMode getButtonWidthMode() {
-    Set<CDActionBar.Flag> flags = getActionBarRecord().getFlags();
+    Set<CDActionBar.Flag> flags = getActionBarFlags();
     if(flags.contains(CDActionBar.Flag.SET_WIDTH)) {
       if(flags.contains(CDActionBar.Flag.BACKGROUND_WIDTH)) {
         return ActionWidthMode.BACKGROUND;
@@ -266,7 +268,9 @@ public class DefaultActionBar implements ActionBar {
 
   @Override
   public int getButtonVerticalMarginSize() {
-    return getActionBarRecord().getHeightSpacing();
+    return getActionBarRecord()
+      .map(CDActionBar::getHeightSpacing)
+      .orElse(0);
   }
   
   @Override
@@ -292,7 +296,7 @@ public class DefaultActionBar implements ActionBar {
 
   @Override
   public boolean isAlwaysShowDropDowns() {
-    return getActionBarRecord().getFlags().contains(CDActionBar.Flag.SHOW_HINKY_ALWAYS);
+    return getActionBarFlags().contains(CDActionBar.Flag.SHOW_HINKY_ALWAYS);
   }
 
   @Override
@@ -327,7 +331,9 @@ public class DefaultActionBar implements ActionBar {
   @Override
   public NotesFont getFont() {
     CDFontTable fontTable = getFontTable().orElse(null);
-    FontStyle fontStyle = getActionBarRecord().getFontStyle();
+    FontStyle fontStyle = getActionBarRecord()
+      .map(CDActionBar::getFontStyle)
+      .orElseGet(DesignColorsAndFonts::defaultFont);
     return new FontTableNotesFont(fontStyle, fontTable);
   }
   
@@ -371,13 +377,18 @@ public class DefaultActionBar implements ActionBar {
     return doc.getRichTextItem(itemName);
   }
 
-  private CDActionBar getActionBarRecord() {
+  private Optional<CDActionBar> getActionBarRecord() {
     return getRichTextItem()
       .stream()
       .filter(CDActionBar.class::isInstance)
       .map(CDActionBar.class::cast)
-      .findFirst()
-      .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Unable to locate CDACTIONBAR record in item \"{0}\"", itemName)));
+      .findFirst();
+  }
+  
+  private Set<CDActionBar.Flag> getActionBarFlags() {
+    return getActionBarRecord()
+      .map(CDActionBar::getFlags)
+      .orElseGet(Collections::emptySet);
   }
 
   private Optional<CDActionBarExt> getActionBarExtRecord() {
