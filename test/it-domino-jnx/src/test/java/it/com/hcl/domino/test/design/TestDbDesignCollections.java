@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
@@ -36,6 +37,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,7 +63,10 @@ import com.hcl.domino.design.View;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionContent;
 import com.hcl.domino.design.action.FormulaActionContent;
+import com.hcl.domino.design.action.JavaScriptActionContent;
+import com.hcl.domino.design.action.LotusScriptActionContent;
 import com.hcl.domino.design.action.SimpleActionActionContent;
+import com.hcl.domino.design.action.SystemActionContent;
 import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
 import com.hcl.domino.design.format.ActionBarControlType;
 import com.hcl.domino.design.format.ActionBarTextAlignment;
@@ -75,6 +80,7 @@ import com.hcl.domino.design.format.DateShowFormat;
 import com.hcl.domino.design.format.DateShowSpecial;
 import com.hcl.domino.design.format.DayFormat;
 import com.hcl.domino.design.format.HideFromDevice;
+import com.hcl.domino.design.format.HtmlEventId;
 import com.hcl.domino.design.format.MonthFormat;
 import com.hcl.domino.design.format.NarrowViewPosition;
 import com.hcl.domino.design.format.NumberDisplayFormat;
@@ -923,6 +929,10 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertColorEquals(web.getVisitedLinkColor(), 255, 159, 255);
     assertFalse(web.isAllowWebCrawlerIndexing());
     assertTrue(view.isAllowDominoDataService());
+    
+    ActionBar actionBar = view.getActionBar();
+    assertNotNull(actionBar);
+    assertEquals(0, actionBar.getActions().size());
   }
 
   @Test
@@ -1436,12 +1446,12 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     DbDesign design = database.getDesign();
     View byCategory = design.getView("$ByCategory").get();
     byCategory.getColumns().forEach(col -> {
-      System.out.println("read col " + col.getItemName());
+      
     });
   }
   
   @Test
-  public void testActionView() {
+  public void testActionView() throws IOException {
     DbDesign design = this.database.getDesign();
     View view = design.getView("Action View").get();
     
@@ -1522,7 +1532,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     
     
     List<ActionBarAction> actionList = actions.getActions();
-    assertEquals(14, actionList.size());
+    assertEquals(16, actionList.size());
     {
       ActionBarAction action = actionList.get(0);
       assertEquals(2, action.getSharedActionIndex().getAsLong());
@@ -1767,6 +1777,11 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertTrue(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(LotusScriptActionContent.class, content);
+      String expected = IOUtils.resourceToString("/text/testDbDesignCollections/shortls.txt", StandardCharsets.UTF_8);
+      assertEquals(expected, ((LotusScriptActionContent)content).getScript());
     }
     {
       ActionBarAction action = actionList.get(11);
@@ -1794,6 +1809,56 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
+      
+      {
+        ActionContent content = action.getActionContent();
+        assertInstanceOf(JavaScriptActionContent.class, content);
+        Collection<JavaScriptActionContent.ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
+        assertTrue(
+          events.stream().anyMatch(event -> {
+            if(event.getEventId() == HtmlEventId.ONCLICK) {
+              if(event.isClient()) {
+                if("window.alert(\"you poor soul, using JavaScript actions in a view\")\n".equals(event.getScript())) {
+                  return true;
+                }
+              }
+            }
+            return false;
+          })
+        );
+        assertTrue(
+          events.stream().anyMatch(event -> {
+            if(event.getEventId() == HtmlEventId.ONCLICK) {
+              if(!event.isClient()) {
+                if("alert(\"I'm on the web\")\n".equals(event.getScript())) {
+                  return true;
+                }
+              }
+            }
+            return false;
+          })
+        );
+        assertTrue(
+          events.stream().anyMatch(event -> {
+            if(event.getEventId() == HtmlEventId.ONMOUSEDOWN) {
+              if("console.log(\"is there a console in Notes JS actions?\")\n".equals(event.getScript())) {
+                return true;
+              }
+            }
+            return false;
+          })
+        );
+        assertTrue(
+          events.stream().anyMatch(event -> {
+            if(event.getEventId() == HtmlEventId.ONMOUSEOVER) {
+              if("alert(\"wait, do onMouseOver actions work? No; this is web-only\")\n".equals(event.getScript())) {
+                return true;
+              }
+            }
+            return false;
+          })
+        );
+      }
     }
     {
       ActionBarAction action = actionList.get(12);
@@ -1821,10 +1886,88 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
+
+      {
+        ActionContent content = action.getActionContent();
+        assertInstanceOf(JavaScriptActionContent.class, content);
+        Collection<JavaScriptActionContent.ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
+        assertTrue(
+          events.stream().anyMatch(event -> {
+            if(event.getEventId() == HtmlEventId.ONCLICK) {
+              if(event.isClient()) {
+                if("window.alert(\"this is the common part\")\n".equals(event.getScript())) {
+                  return true;
+                }
+              }
+            }
+            return false;
+          })
+        );
+        assertTrue(
+          events.stream().anyMatch(event -> {
+            if(event.getEventId() == HtmlEventId.ONCLICK) {
+              if(!event.isClient()) {
+                if("window.alert(\"this is the common part\")\n".equals(event.getScript())) {
+                  return true;
+                }
+              }
+            }
+            return false;
+          })
+        );
+        assertTrue(
+          events.stream().anyMatch(event -> {
+            if(event.getEventId() == HtmlEventId.ONMOUSEDOWN) {
+              if("console.log(\"is there a console in Notes JS actions?\")\n".equals(event.getScript())) {
+                return true;
+              }
+            }
+            return false;
+          })
+        );
+        assertTrue(
+          events.stream().anyMatch(event -> {
+            if(event.getEventId() == HtmlEventId.ONMOUSEOVER) {
+              if("alert(\"wait, do onMouseOver actions work?\")\n".equals(event.getScript())) {
+                return true;
+              }
+            }
+            return false;
+          })
+        );
+      }
     }
     {
       ActionBarAction action = actionList.get(13);
       assertEquals(ActionBarAction.ActionLanguage.SYSTEM_COMMAND, action.getActionLanguage());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(SystemActionContent.class, content);
+      assertEquals(SystemActionContent.SystemAction.CATEGORIZE, ((SystemActionContent)content).getAction());
+    }
+    {
+      ActionBarAction action = actionList.get(14);
+      assertEquals("Long LotusScript", action.getName());
+
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(LotusScriptActionContent.class, content);
+      String expected = IOUtils.resourceToString("/text/testDbDesignCollections/longls.txt", StandardCharsets.UTF_8);
+      assertEquals(expected, ((LotusScriptActionContent)content).getScript());
+    }
+    {
+      ActionBarAction action = actionList.get(15);
+      assertEquals("Long JavaScript", action.getName());
+
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(JavaScriptActionContent.class, content);
+      Collection<JavaScriptActionContent.ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
+      assertEquals(1, events.size());
+      JavaScriptActionContent.ScriptEvent event = events.stream().findFirst().get();
+      String expected = IOUtils.resourceToString("/text/testDbDesignCollections/longjs.js", StandardCharsets.UTF_8).replace('\n', '\r');
+      String actual = event.getScript();
+      // Chomp the last line-ending character for consistency
+      actual = actual.substring(0, actual.length()-1);
+      assertEquals(expected, actual);
     }
   }
   
