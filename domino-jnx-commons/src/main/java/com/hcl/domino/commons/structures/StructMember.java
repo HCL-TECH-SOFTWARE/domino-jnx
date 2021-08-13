@@ -4,6 +4,8 @@ import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.function.BiFunction;
 
+import com.hcl.domino.misc.INumberEnum;
+
 class StructMember {
   private final String name;
   final int offset;
@@ -18,12 +20,21 @@ class StructMember {
       final int length) {
     this.name = name;
     this.offset = offset;
-    this.type = clazz;
     this.unsigned = unsigned;
     this.length = length;
     this.bitfield = bitfield;
-    this.reader = MemoryStructureProxy.reader(clazz, unsigned, bitfield, length);
-    this.writer = MemoryStructureProxy.writer(clazz, unsigned, bitfield, length);
+    this.type = (Class<?>)clazz;
+    
+    // Unwrap INumberEnum types to their underlying numbers for readers and writers
+    Class<?> structuralType;
+    if(INumberEnum.class.isAssignableFrom(clazz)) {
+      structuralType = MemoryStructureUtil.getNumberType(clazz);
+    } else {
+      structuralType = (Class<?>)clazz;
+    }
+    
+    this.reader = MemoryStructureProxy.reader(structuralType, unsigned, bitfield, length);
+    this.writer = MemoryStructureProxy.writer(structuralType, unsigned, bitfield, length);
   }
 
   @Override
