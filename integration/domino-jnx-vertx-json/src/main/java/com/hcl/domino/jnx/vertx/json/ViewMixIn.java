@@ -11,6 +11,8 @@ import com.hcl.domino.data.DominoCollection;
  * @since 1.0.32
  */
 public abstract class ViewMixIn {
+  
 	@JsonIgnore abstract DominoCollection getCollection();
 	@JsonSerialize(using = DocumentToUnidSerializer.class) abstract Document getDocument();
+	
 }
