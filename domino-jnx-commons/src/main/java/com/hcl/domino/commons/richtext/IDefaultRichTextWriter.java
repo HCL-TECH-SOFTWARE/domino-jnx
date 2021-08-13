@@ -26,7 +26,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.hcl.domino.DominoException;
-import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
@@ -257,9 +257,9 @@ public interface IDefaultRichTextWriter extends RichTextWriter {
   default <T extends RichTextRecord<?>> RichTextWriter addRichTextRecord(final Class<T> recordClass, final int variableDataLength,
       final Consumer<T> processor) {
     final RecordType type = RecordType.forEncapsulationClass(recordClass);
-    final T record = MemoryStructureProxy.newStructure(recordClass, variableDataLength);
+    final T record = MemoryStructureUtil.newStructure(recordClass, variableDataLength);
     record.getHeader().setSignature(type.getConstant());
-    record.getHeader().setLength(MemoryStructureProxy.sizeOf(recordClass) + variableDataLength);
+    record.getHeader().setLength(MemoryStructureUtil.sizeOf(recordClass) + variableDataLength);
 
     processor.accept(record);
 
@@ -278,9 +278,9 @@ public interface IDefaultRichTextWriter extends RichTextWriter {
   default <T extends RichTextRecord<?>> RichTextWriter addRichTextRecord(final RecordType recordType, final int variableDataLength,
       final Consumer<T> processor) {
     final Class<T> recordClass = (Class<T>) recordType.getEncapsulation();
-    final T record = MemoryStructureProxy.newStructure(recordClass, variableDataLength);
+    final T record = MemoryStructureUtil.newStructure(recordClass, variableDataLength);
     record.getHeader().setSignature(recordType.getConstant());
-    record.getHeader().setLength(MemoryStructureProxy.sizeOf(recordClass) + variableDataLength);
+    record.getHeader().setLength(MemoryStructureUtil.sizeOf(recordClass) + variableDataLength);
 
     processor.accept(record);
 
@@ -301,11 +301,11 @@ public interface IDefaultRichTextWriter extends RichTextWriter {
 
   @Override
   default FontStyle createFontStyle() {
-    return MemoryStructureProxy.newStructure(FontStyle.class, 0);
+    return MemoryStructureUtil.newStructure(FontStyle.class, 0);
   }
 
   @Override
   default <T extends MemoryStructure> T createStructure(final Class<T> structureClass, final int variableDataLength) {
-    return MemoryStructureProxy.newStructure(structureClass, variableDataLength);
+    return MemoryStructureUtil.newStructure(structureClass, variableDataLength);
   }
 }
