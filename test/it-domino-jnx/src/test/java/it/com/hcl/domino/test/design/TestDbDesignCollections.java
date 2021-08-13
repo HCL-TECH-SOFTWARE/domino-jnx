@@ -188,7 +188,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     Optional<CDResource> backgroundImage = disp.getBackgroundImage();
     assertTrue(backgroundImage.isPresent());
     assertTrue(backgroundImage.get().getFlags().contains(CDResource.Flag.FORMULA));
-    assertEquals("\"hey.png\"", backgroundImage.get().getNamedElementFormula());
+    assertEquals("\"hey.png\"", backgroundImage.get().getNamedElementFormula().get());
     
     assertEquals(ImageRepeatMode.SIZE_TO_FIT, disp.getBackgroundImageRepeatMode());
     
@@ -296,7 +296,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertTrue(column.isShowTwistie());
       Optional<CDResource> twistie = column.getTwistieImage();
       assertTrue(twistie.isPresent());
-      assertEquals("Untitled.gif", twistie.get().getNamedElement());
+      assertEquals("Untitled.gif", twistie.get().getNamedElement().get());
       assertFalse(twistie.get().getFlags().contains(CDResource.Flag.FORMULA));
       
       {
@@ -687,7 +687,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertTrue(column.isShowTwistie());
       Optional<CDResource> twistie = column.getTwistieImage();
       assertTrue(twistie.isPresent());
-      assertEquals("tango/utilities-terminal.png", twistie.get().getNamedElement());
+      assertEquals("tango/utilities-terminal.png", twistie.get().getNamedElement().get());
       
       {
         CollectionColumn.NumberSettings numbers = column.getNumberSettings();
@@ -754,7 +754,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertFalse(column.isShowTwistie());
       Optional<CDResource> twistie = column.getTwistieImage();
       assertTrue(twistie.isPresent());
-      assertEquals("Untitled 2.gif", twistie.get().getNamedElement());
+      assertEquals("Untitled 2.gif", twistie.get().getNamedElement().get());
       
       {
         CollectionColumn.NamesSettings names = column.getNamesSettings();
@@ -799,7 +799,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       Optional<CDResource> twistie = column.getTwistieImage();
       assertTrue(twistie.isPresent());
       assertTrue(twistie.get().getFlags().contains(CDResource.Flag.FORMULA));
-      assertEquals("\"foo.png\"", twistie.get().getNamedElementFormula());
+      assertEquals("\"foo.png\"", twistie.get().getNamedElementFormula().get());
     }
 
   }
@@ -1095,7 +1095,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertEquals(239, altBackground.getBlue());
     
     Optional<CDResource> backgroundImage = disp.getBackgroundImage();
-    assertEquals("Untitled.gif", backgroundImage.get().getNamedElement());
+    assertEquals("Untitled.gif", backgroundImage.get().getNamedElement().get());
     assertEquals(ImageRepeatMode.HORIZONTAL, disp.getBackgroundImageRepeatMode());
     
     assertEquals(CollectionDesignElement.GridStyle.NONE, disp.getGridStyle());
@@ -1474,7 +1474,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertColorEquals(actions.getBackgroundColor(), 255, 159, 255);
     {
       CDResource background = actions.getBackgroundImage().get();
-      assertEquals("Untitled.gif", background.getNamedElement());
+      assertEquals("Untitled.gif", background.getNamedElement().get());
     }
     assertEquals(ActionBarBackgroundRepeat.CENTER_TILE, actions.getBackgroundImageRepeatMode());
     assertEquals(ClassicThemeBehavior.DONT_INHERIT_FROM_OS, actions.getClassicThemeBehavior());
@@ -1518,7 +1518,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertColorEquals(actions.getButtonBackgroundColor(), 255, 129, 0);
     {
       CDResource buttonBackground = actions.getButtonBackgroundImage().get();
-      assertEquals("Untitled 2.gif", buttonBackground.getNamedElement());
+      assertEquals("Untitled 2.gif", buttonBackground.getNamedElement().get());
     }
     
     {
