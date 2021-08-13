@@ -93,6 +93,7 @@ import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.NoteIdWithScore;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
+import com.hcl.domino.design.RichTextBuilder;
 import com.hcl.domino.dql.DQL.DQLTerm;
 import com.hcl.domino.dql.QueryResultsProcessor;
 import com.hcl.domino.exception.DocumentDeletedException;
@@ -130,6 +131,7 @@ import com.hcl.domino.jna.internal.structs.NotesOriginatorIdStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
 import com.hcl.domino.jna.internal.views.JNADominoCollectionInfo;
+import com.hcl.domino.jna.richtext.JNARichTextBuilder;
 import com.hcl.domino.jna.utils.JNADominoUtils;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.Loop;
@@ -4440,4 +4442,11 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     NotesErrorUtils.checkResult(result);
     return retNoteID.getValue();
   }
+  
+	
+	@Override
+	public RichTextBuilder getRichTextBuilder() {
+		return new JNARichTextBuilder(this);
+	}
+
 }
