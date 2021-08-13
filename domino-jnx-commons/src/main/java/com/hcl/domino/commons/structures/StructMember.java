@@ -12,6 +12,7 @@ class StructMember {
   final int length;
   final BiFunction<ByteBuffer, Integer, Object> reader;
   final TriConsumer<ByteBuffer, Integer, Object> writer;
+  final boolean bitfield;
 
   public StructMember(final String name, final int offset, final Class<?> clazz, final boolean unsigned, final boolean bitfield,
       final int length) {
@@ -20,6 +21,7 @@ class StructMember {
     this.type = clazz;
     this.unsigned = unsigned;
     this.length = length;
+    this.bitfield = bitfield;
     this.reader = MemoryStructureProxy.reader(clazz, unsigned, bitfield, length);
     this.writer = MemoryStructureProxy.writer(clazz, unsigned, bitfield, length);
   }

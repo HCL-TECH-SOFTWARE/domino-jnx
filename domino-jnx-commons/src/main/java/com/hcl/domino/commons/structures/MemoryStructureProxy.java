@@ -101,10 +101,7 @@ public class MemoryStructureProxy implements InvocationHandler {
         return (buf, offset) -> {
           final Number val = (Number) MemoryStructureProxy.reader(numberClass, unsigned, false, length).apply(buf, offset);
           final Optional<?> opt = DominoEnumUtil.valueOf((Class) type, val.longValue());
-          if (!opt.isPresent()) {
-            throw new NoSuchElementException(MessageFormat.format("Unable to find {0} value for {1}", type.getName(), val));
-          }
-          return opt.get();
+          return opt;
         };
       }
     }
@@ -423,8 +420,7 @@ public class MemoryStructureProxy implements InvocationHandler {
           // requested as an enum
           final Number val = (Number) member.reader.apply(buf, member.offset);
           @SuppressWarnings("unchecked")
-          final Optional<? extends INumberEnum<?>> result = DominoEnumUtil
-              .valueOf((Class<? extends INumberEnum<?>>) thisMethod.getReturnType(), val);
+          final Optional<? extends INumberEnum<?>> result = DominoEnumUtil.valueOf((Class<? extends INumberEnum<?>>) thisMethod.getReturnType(), val);
           return result.orElse(null);
         } else if (member.type.isPrimitive() && Collection.class.isAssignableFrom(thisMethod.getReturnType())) {
           // Same as above, but for enum collections. TestStructAnnotations in core
@@ -438,6 +434,17 @@ public class MemoryStructureProxy implements InvocationHandler {
         } else if (member.type.equals(OpaqueTimeDate.class) && DominoDateTime.class.equals(thisMethod.getReturnType())) {
           final OpaqueTimeDate dt = (OpaqueTimeDate) member.reader.apply(buf, member.offset);
           return new DefaultDominoDateTime(dt.getInnards());
+        } else if(INumberEnum.class.isAssignableFrom(member.type) && !member.bitfield) {
+          // TODO make this actually do the enum lookup
+          Optional<?> opt = (Optional<?>)member.reader.apply(buf, member.offset);
+          if(MemoryStructureUtil.isOptionalOf(thisMethod.getGenericReturnType(), member.type)) {
+            // Pass through the optional result
+            return opt;
+          } else {
+            // Then unwrap the Optional coming from the reader
+            return opt
+                .orElseThrow(() -> new NoSuchElementException(MessageFormat.format("Unable to find {0} value", member.type.getName())));
+          }
         } else {
           return member.reader.apply(buf, member.offset);
         }
