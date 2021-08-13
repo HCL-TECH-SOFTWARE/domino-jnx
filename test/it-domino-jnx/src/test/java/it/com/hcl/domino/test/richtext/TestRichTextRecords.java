@@ -158,6 +158,23 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       assertEquals(5.5, actionBarExt.getHeight().getLength());
     });
   }
+  
+  @Test
+  public void testActionBarExt() throws Exception {
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      try(RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+        rtWriter.addRichTextRecord(CDActionBarExt.class, action -> {
+          action.setBackgroundRepeatRaw((short)12);
+          action.setBackgroundRepeat(ActionBarBackgroundRepeat.REPEATHORIZ);
+        });
+      }
+      
+      CDActionBarExt action = (CDActionBarExt)doc.getRichTextItem("Body").get(0);
+      assertEquals(ActionBarBackgroundRepeat.REPEATHORIZ, action.getBackgroundRepeat().get());
+      assertEquals(ActionBarBackgroundRepeat.REPEATHORIZ.getValue(), action.getBackgroundRepeatRaw());
+    });
+  }
 
   @Test
   public void testActionFormula() throws Exception {

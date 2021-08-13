@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
 
 import com.hcl.domino.commons.NotYetImplementedException;
@@ -86,26 +87,9 @@ public class MemoryStructureProxy implements InvocationHandler {
    * @return a {@link BiFunction} that can be applied to a {@link ByteBuffer} and
    *         offset
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({ "unchecked" })
   static BiFunction<ByteBuffer, Integer, Object> reader(final Class<?> type, final boolean unsigned, final boolean bitfield,
       final int length) {
-    if (INumberEnum.class.isAssignableFrom(type)) {
-      final Class<?> numberClass = MemoryStructureUtil.getNumberType(type);
-
-      if (bitfield) {
-        return (buf, offset) -> {
-          final Number val = (Number) MemoryStructureProxy.reader(numberClass, unsigned, false, length).apply(buf, offset);
-          return DominoEnumUtil.valuesOf((Class) type, val.longValue());
-        };
-      } else {
-        return (buf, offset) -> {
-          final Number val = (Number) MemoryStructureProxy.reader(numberClass, unsigned, false, length).apply(buf, offset);
-          final Optional<?> opt = DominoEnumUtil.valueOf((Class) type, val.longValue());
-          return opt;
-        };
-      }
-    }
-
     if (byte.class.equals(type) || Byte.class.equals(type)) {
       if (unsigned) {
         return (buf, offset) -> (short) Byte.toUnsignedInt(buf.get(offset));
@@ -246,33 +230,8 @@ public class MemoryStructureProxy implements InvocationHandler {
    * @return a {@link BiFunction} that can be applied to a {@link ByteBuffer} and
    *         offset
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
   static TriConsumer<ByteBuffer, Integer, Object> writer(final Class<?> type, final boolean unsigned,
       final boolean bitfield, final int length) {
-    if (INumberEnum.class.isAssignableFrom(type)) {
-      final Class<?> numberClass = MemoryStructureUtil.getNumberType(type);
-
-      if (bitfield) {
-        return (buf, offset, newVal) -> {
-          // It's possible that the setter sets a single value or a collection
-          if (Collection.class.isInstance(newVal)) {
-            // Assume newVal is a Collection of enums
-            final Number numVal = newVal == null ? 0 : DominoEnumUtil.toBitField((Class) type, (Collection) newVal);
-            MemoryStructureProxy.writer(numberClass, unsigned, false, length).accept(buf, offset, numVal);
-          } else {
-            // Assume it's a single enum
-            final Number numVal = newVal == null ? 0 : ((INumberEnum) newVal).getValue();
-            MemoryStructureProxy.writer(numberClass, unsigned, false, length).accept(buf, offset, numVal);
-          }
-        };
-      } else {
-        return (buf, offset, newVal) -> {
-          final Number numVal = newVal == null ? 0 : ((INumberEnum) newVal).getValue();
-          MemoryStructureProxy.writer(numberClass, unsigned, false, length).accept(buf, offset, numVal);
-        };
-      }
-    }
-
     if (byte.class.equals(type) || Byte.class.equals(type)) {
       return (buf, offset, newVal) -> buf.put(offset, ((Number) newVal).byteValue());
     } else if (byte[].class.equals(type)) {
@@ -434,16 +393,26 @@ public class MemoryStructureProxy implements InvocationHandler {
         } else if (member.type.equals(OpaqueTimeDate.class) && DominoDateTime.class.equals(thisMethod.getReturnType())) {
           final OpaqueTimeDate dt = (OpaqueTimeDate) member.reader.apply(buf, member.offset);
           return new DefaultDominoDateTime(dt.getInnards());
-        } else if(INumberEnum.class.isAssignableFrom(member.type) && !member.bitfield) {
-          // TODO make this actually do the enum lookup
-          Optional<?> opt = (Optional<?>)member.reader.apply(buf, member.offset);
-          if(MemoryStructureUtil.isOptionalOf(thisMethod.getGenericReturnType(), member.type)) {
-            // Pass through the optional result
-            return opt;
+        } else if(INumberEnum.class.isAssignableFrom(member.type)) {
+          Number val = (Number)member.reader.apply(buf, member.offset);
+          if(thisMethod.getReturnType().isPrimitive()) {
+            // Return the number directly
+            return val;
+          } else if(member.bitfield) {
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            Set<?> result = DominoEnumUtil.valuesOf((Class)member.type, val.longValue());
+            return result;
           } else {
-            // Then unwrap the Optional coming from the reader
-            return opt
-                .orElseThrow(() -> new NoSuchElementException(MessageFormat.format("Unable to find {0} value", member.type.getName())));
+            @SuppressWarnings("unchecked")
+            Optional<?> opt = DominoEnumUtil.valueOf((Class<? extends INumberEnum<?>>)member.type, val.longValue());
+            if(MemoryStructureUtil.isOptionalOf(thisMethod.getGenericReturnType(), member.type)) {
+              // Pass through the optional result
+              return opt;
+            } else {
+              // Then unwrap the Optional coming from the reader
+              return opt
+                  .orElseThrow(() -> new NoSuchElementException(MessageFormat.format("Unable to find {0} value for {1}", member.type.getName(), val)));
+            }
           }
         } else {
           return member.reader.apply(buf, member.offset);
@@ -455,15 +424,41 @@ public class MemoryStructureProxy implements InvocationHandler {
       final StructMember member = struct.setterMap.get(thisMethod);
       if (member != null) {
         final ByteBuffer buf = this.record.getData();
-        if (member.type.isPrimitive() && INumberEnum.class.isAssignableFrom(thisMethod.getParameterTypes()[0])) {
+        Class<?> paramType = thisMethod.getParameterTypes()[0];
+        if (member.type.isPrimitive() && INumberEnum.class.isAssignableFrom(paramType)) {
           // Handle the case where a member declared as a primitive is nonetheless set as
           // an enum
           final Object newVal = args[0];
           final Number val = newVal == null ? 0 : ((INumberEnum<?>) newVal).getValue();
           member.writer.accept(buf, member.offset, val);
-        } else if (member.type.equals(OpaqueTimeDate.class) && DominoDateTime.class.equals(thisMethod.getParameterTypes()[0])) {
+        } else if (member.type.equals(OpaqueTimeDate.class) && DominoDateTime.class.equals(paramType)) {
           final int[] innards = ((DominoDateTime) args[0]).getAdapter(int[].class);
           member.writer.accept(buf, member.offset, innards);
+        } else if(INumberEnum.class.isAssignableFrom(member.type) && paramType.isPrimitive()) {
+          // Handle the case where a member declared as an enum is set as a primitive
+          member.writer.accept(buf, member.offset, args[0]);
+        } else if(INumberEnum.class.isAssignableFrom(member.type)) {
+          final Object newVal = args[0];
+          Number numVal;
+          if(member.bitfield) {
+            // It's possible that the setter sets a single value or a collection
+            if (Collection.class.isInstance(newVal)) {
+              // Assume newVal is a Collection of enums
+              @SuppressWarnings({ "rawtypes", "unchecked" })
+              Number result = newVal == null ? 0 : DominoEnumUtil.toBitField((Class) member.type, (Collection) newVal);
+              numVal = result;
+            } else {
+              // Assume it's a single enum
+              @SuppressWarnings("rawtypes")
+              Number result = newVal == null ? 0 : ((INumberEnum) newVal).getValue();
+              numVal = result;
+            }
+          } else {
+            @SuppressWarnings("rawtypes")
+            Number result = newVal == null ? 0 : ((INumberEnum) newVal).getValue();
+            numVal = result;
+          }
+          member.writer.accept(buf, member.offset, numVal);
         } else {
           member.writer.accept(buf, member.offset, args[0]);
         }
