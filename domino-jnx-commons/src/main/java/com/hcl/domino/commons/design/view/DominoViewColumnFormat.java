@@ -710,7 +710,7 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
     @Override
     public TimeShowFormat getTimeShowFormat() {
       return getFormat3()
-        .map(ViewColumnFormat3::getTimeShowFormat)
+        .flatMap(ViewColumnFormat3::getTimeShowFormat)
         .orElse(TimeShowFormat.HMS);
     }
 
