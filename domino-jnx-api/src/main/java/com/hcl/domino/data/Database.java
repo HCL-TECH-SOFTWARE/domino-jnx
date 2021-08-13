@@ -36,6 +36,7 @@ import com.hcl.domino.crypt.DatabaseEncryptionState;
 import com.hcl.domino.crypt.EncryptionStrength;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.design.DbDesign;
+import com.hcl.domino.design.RichTextBuilder;
 import com.hcl.domino.dql.DQL;
 import com.hcl.domino.dql.DQL.DQLTerm;
 import com.hcl.domino.dql.QueryResultsProcessor;
@@ -1719,4 +1720,13 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
    *         corresponding to {@code documentClass}
    */
   int getSpecialNoteId(DocumentClass documentClass);
+  
+
+  /**
+   * Returns a builder to compose richtext (both normal and design richtext) by combining existing pieces
+   * 
+   * @return richtext builder
+   */
+  RichTextBuilder getRichTextBuilder();
+
 }
