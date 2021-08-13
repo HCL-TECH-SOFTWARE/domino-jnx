@@ -2,6 +2,7 @@ package com.hcl.domino.commons.structures;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.security.AccessController;
@@ -10,6 +11,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.richtext.records.GenericBSIGRecord;
@@ -254,5 +256,32 @@ public enum MemoryStructureUtil {
       }
       return false;
     }
+  }
+  
+  /**
+   * Determines whether the provided method return type is an {@link Optional} representing a class
+   * either equal to or compatible with {@code desiredClass}.
+   * 
+   * @param returnType the method return type to check
+   * @param desiredClass the target class to check for
+   * @return {@code true} if the return type is a compatible {@code Optional};
+   *         {@code false} otherwise
+   */
+  public static boolean isOptionalOf(Type returnType, Class<?> desiredClass) {
+    if(!(returnType instanceof ParameterizedType)) {
+      return false;
+    }
+    
+    ParameterizedType t = (ParameterizedType)returnType;
+    if(!Optional.class.isAssignableFrom((Class<?>)t.getRawType())) {
+      return false;
+    }
+    Type paramType = t.getActualTypeArguments()[0];
+    if(paramType instanceof Class && desiredClass.isAssignableFrom((Class<?>)paramType)) {
+      // Then we're good
+      return true;
+    }
+    
+    return false;
   }
 }

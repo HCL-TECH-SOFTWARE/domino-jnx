@@ -156,7 +156,7 @@ public interface CDActionBarExt extends RichTextRecord<WSIG> {
   LengthValue getHeight();
   
   @StructureGetter("wThemeSetting")
-  ClassicThemeBehavior getThemeSetting();
+  Optional<ClassicThemeBehavior> getThemeSetting();
   
   @StructureSetter("wThemeSetting")
   CDActionBarExt setThemeSetting(ClassicThemeBehavior setting);
