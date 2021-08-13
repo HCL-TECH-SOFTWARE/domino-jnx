@@ -50,7 +50,7 @@ public class DefaultActionBar implements ActionBar {
   @Override
   public ClassicThemeBehavior getClassicThemeBehavior() {
     return getActionBarExtRecord()
-      .map(CDActionBarExt::getThemeSetting)
+      .flatMap(CDActionBarExt::getThemeSetting)
       .orElse(ClassicThemeBehavior.USE_DATABASE_SETTING);
   }
 
