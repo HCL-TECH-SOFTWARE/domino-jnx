@@ -35,44 +35,6 @@ import com.hcl.domino.json.JsonSerializer;
 
 public abstract class AbstractJsonSerializer implements JsonSerializer {
 
-  /**
-   * Excludes some known-skippable items based on their name patterns, such as
-   * stored forms.
-   * 
-   * @param itemName the name of the item to check
-   * @return whether the item should be excluded from export
-   */
-  public static boolean isExcludedField(final String itemName) {
-    if (itemName == null || itemName.isEmpty() || itemName.toLowerCase().endsWith("_storedform") || itemName.toLowerCase().endsWith("_storedsubform")) { //$NON-NLS-1$
-      return true;
-    }
-    return false;
-  }
-
-  public static boolean matchesBooleanValues(final Object value, final Collection<Object> booleanTrueValues) {
-    if (booleanTrueValues == null || booleanTrueValues.isEmpty()) {
-      return false;
-    }
-    for (final Object trueValue : booleanTrueValues) {
-      if (value == trueValue) {
-        return true;
-      } else if (value instanceof Number && trueValue instanceof Number) {
-        // All Domino values will be Double, but provided values may not be
-        if (((Number) value).doubleValue() == ((Number) trueValue).doubleValue()) {
-          return true;
-        }
-      } else if (value instanceof CharSequence && trueValue instanceof Character) {
-        // Fudge the difference with chars and single-length strings
-        if (((CharSequence) trueValue).length() == 1 && ((CharSequence) trueValue).charAt(0) == (char) trueValue) {
-          return true;
-        }
-      } else if (Objects.equals(value, trueValue)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   protected Collection<String> skippedItemNames;
   protected Collection<String> includedItemNames;
   protected Collection<ItemDataType> excludedTypes;
@@ -169,10 +131,6 @@ public abstract class AbstractJsonSerializer implements JsonSerializer {
     return this;
   }
 
-  // *******************************************************************************
-  // * Internal utility methods
-  // *******************************************************************************
-
   @Override
   public JsonSerializer lowercaseProperties(final boolean lowercaseProperties) {
     this.lowercaseProperties = lowercaseProperties;
@@ -183,5 +141,47 @@ public abstract class AbstractJsonSerializer implements JsonSerializer {
   public JsonSerializer richTextConvertOption(final HtmlConvertOption option, final String value) {
     this.htmlConvertOptions.put(option, value);
     return this;
+  }
+
+  // *******************************************************************************
+  // * Internal utility methods
+  // *******************************************************************************
+
+  /**
+   * Excludes some known-skippable items based on their name patterns, such as
+   * stored forms.
+   * 
+   * @param itemName the name of the item to check
+   * @return whether the item should be excluded from export
+   */
+  public static boolean isExcludedField(final String itemName) {
+    if (itemName == null || itemName.isEmpty() || itemName.toLowerCase().endsWith("_storedform") || itemName.toLowerCase().endsWith("_storedsubform")) { //$NON-NLS-1$
+      return true;
+    }
+    return false;
+  }
+
+  public static boolean matchesBooleanValues(final Object value, final Collection<Object> booleanTrueValues) {
+    if (booleanTrueValues == null || booleanTrueValues.isEmpty()) {
+      return false;
+    }
+    for (final Object trueValue : booleanTrueValues) {
+      if (value == trueValue) {
+        return true;
+      } else if (value instanceof Number && trueValue instanceof Number) {
+        // All Domino values will be Double, but provided values may not be
+        if (((Number) value).doubleValue() == ((Number) trueValue).doubleValue()) {
+          return true;
+        }
+      } else if (value instanceof CharSequence && trueValue instanceof Character) {
+        // Fudge the difference with chars and single-length strings
+        if (((CharSequence) trueValue).length() == 1 && ((CharSequence) trueValue).charAt(0) == (char) trueValue) {
+          return true;
+        }
+      } else if (Objects.equals(value, trueValue)) {
+        return true;
+      }
+    }
+    return false;
   }
 }

@@ -92,4 +92,4 @@ The `TestDatabase#testLocalEncryption` test case looks for a database-path varia
 The `TestServerInfo` tests look for server and admin info in two environemnt variables:
 
 - `SERVER_INFO_SERVER` should contain the name of a server to query
-- `SERVER_INFO_ADMINISTRATOR` should contian a name that is expected to exist in the Administrators field of that server's doc
+- `SERVER_INFO_ADMINISTRATOR` should contain a name that is expected to exist in the Administrators field of that server's doc

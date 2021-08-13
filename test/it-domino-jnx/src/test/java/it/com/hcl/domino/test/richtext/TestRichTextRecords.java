@@ -147,7 +147,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       assertEquals(4, actionBarExt.getButtonColor().getBlue());
       assertEquals(ButtonBorderDisplay.NOTES, actionBarExt.getBorderDisplay());
       assertEquals(30, actionBarExt.getAppletHeight());
-      assertEquals(ActionBarBackgroundRepeat.REPEATHORIZ, actionBarExt.getBackgroundRepeat());
+      assertEquals(ActionBarBackgroundRepeat.REPEATHORIZ, actionBarExt.getBackgroundRepeat().get());
       assertEquals(ActionWidthMode.BACKGROUND, actionBarExt.getWidthStyle());
       assertEquals(ActionBarTextAlignment.RIGHT, actionBarExt.getTextJustify());
       assertEquals(31, actionBarExt.getButtonWidth());

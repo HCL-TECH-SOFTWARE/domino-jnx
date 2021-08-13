@@ -17,6 +17,7 @@
 package com.hcl.domino.richtext.records;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.misc.INumberEnum;
@@ -235,17 +236,20 @@ public interface CDResource extends RichTextRecord<WSIG> {
    * {@link Type#NOTELINK}.
    * </p>
    *
-   * @return the anchor name, or a blank string if it is not set
-   * @throws IllegalStateException when the type is not {@link Type#NOTELINK}
+   * @return an {@link Optional} describing the anchor name, or
+   *         an empty one if this is not a note-link element
    */
-  default String getLinkAnchorName() {
+  default Optional<String> getLinkAnchorName() {
     if (this.getResourceType() != Type.NOTELINK) {
-      throw new IllegalStateException("Cannot extract an anchor name from a non-NOTELINK resource");
+      return Optional.empty();
     }
-    return StructureSupport.extractStringValue(
+    return Optional.of(
+      StructureSupport.extractStringValue(
         this,
         this.getServerHintLength() + this.getFileHintLength(),
-        this.getLength1());
+        this.getLength1()
+      )
+    );
   }
 
   /**
@@ -255,21 +259,23 @@ public interface CDResource extends RichTextRecord<WSIG> {
    * {@link Type#NAMEDELEMENT}.
    * </p>
    *
-   * @return the name of the referenced element
-   * @throws IllegalStateException when the type is not {@link Type#NAMEDELEMENT}
-   *                               or if the value is a formula
+   * @return an {@link Optional} describing the name of the referenced element,
+   *         or an empty one if this is not a named element
    */
-  default String getNamedElement() {
+  default Optional<String> getNamedElement() {
     if (this.getResourceType() != Type.NAMEDELEMENT) {
-      throw new IllegalStateException("Cannot extract a name from a non-named-element resource");
+      return Optional.empty();
     }
     if (this.getFlags().contains(Flag.FORMULA)) {
-      throw new IllegalStateException("Cannot extract a string for a formula-type reference");
+      return Optional.empty();
     }
-    return StructureSupport.extractStringValue(
+    return Optional.of(
+      StructureSupport.extractStringValue(
         this,
         this.getServerHintLength() + this.getFileHintLength() + 8, // for replica ID
-        this.getLength1());
+        this.getLength1()
+      )
+    );
   }
 
   /**
@@ -280,21 +286,23 @@ public interface CDResource extends RichTextRecord<WSIG> {
    * {@link Type#NAMEDELEMENT}.
    * </p>
    *
-   * @return the name of the referenced element
-   * @throws IllegalStateException when the type is not {@link Type#NAMEDELEMENT}
-   *                               or if the value is a formula
+   * @return an {@link Optional} describing the formula for the name of the referenced
+   *         element, or an optional one if this is not a formula-based named element
    */
-  default String getNamedElementFormula() {
+  default Optional<String> getNamedElementFormula() {
     if (this.getResourceType() != Type.NAMEDELEMENT) {
-      throw new IllegalStateException("Cannot extract a name from a non-named-element resource");
+      return Optional.empty();
     }
     if (!this.getFlags().contains(Flag.FORMULA)) {
-      throw new IllegalStateException("Cannot extract a formula for a non-formula-type reference");
+      return Optional.empty();
     }
-    return StructureSupport.extractCompiledFormula(
+    return Optional.of(
+      StructureSupport.extractCompiledFormula(
         this,
         this.getServerHintLength() + this.getFileHintLength() + 8, // for replica ID
-        this.getLength1());
+        this.getLength1()
+      )
+    );
   }
 
   @StructureGetter("ResourceClass")
@@ -302,13 +310,6 @@ public interface CDResource extends RichTextRecord<WSIG> {
 
   @StructureGetter("Type")
   Type getResourceType();
-
-  default String getServerHint() {
-    return StructureSupport.extractStringValue(
-        this,
-        0,
-        this.getServerHintLength());
-  }
 
   @StructureGetter("ServerHintLength")
   int getServerHintLength();
@@ -319,17 +320,20 @@ public interface CDResource extends RichTextRecord<WSIG> {
    * Note: this only applies when {@link #getResourceType()} is {@link Type#URL}.
    * </p>
    *
-   * @return the URL to the referenced value
-   * @throws IllegalStateException when the type is not {@link Type#URL}
+   * @return an {@link Optional} describing the URL to the referenced value,
+   *         or an empty one if this is not a URL element
    */
-  default String getUrl() {
+  default Optional<String> getUrl() {
     if (this.getResourceType() != Type.URL) {
-      throw new IllegalStateException("Cannot extract a URL from a non-URL resource");
+      return Optional.empty();
     }
-    return StructureSupport.extractStringValue(
+    return Optional.of(
+      StructureSupport.extractStringValue(
         this,
         this.getServerHintLength() + this.getFileHintLength(),
-        this.getLength1());
+        this.getLength1()
+      )
+    );
   }
 
   default CDResource setFileHint(final String hint) {
@@ -367,4 +371,11 @@ public interface CDResource extends RichTextRecord<WSIG> {
 
   @StructureSetter("ServerHintLength")
   CDResource setServerHintLength(int length);
+
+  default String getServerHint() {
+    return StructureSupport.extractStringValue(
+        this,
+        0,
+        this.getServerHintLength());
+  }
 }
