@@ -58,7 +58,7 @@ import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.richtext.IDefaultRichTextWriter;
 import com.hcl.domino.commons.richtext.DefaultRichTextList;
 import com.hcl.domino.commons.richtext.RichTextUtil;
-import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Attachment;
@@ -199,7 +199,7 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 	}
 
 	private int getFontId(byte face, byte attrib, byte color, byte pointSize) {
-		FontStyle fontIdStruct = MemoryStructureProxy.newStructure(FontStyle.class, 0);
+		FontStyle fontIdStruct = MemoryStructureUtil.newStructure(FontStyle.class, 0);
 		fontIdStruct.setStandardFont(DominoEnumUtil.valueOf(StandardFonts.class, face).orElse(StandardFonts.SWISS));
 		fontIdStruct.setAttributes(DominoEnumUtil.valuesOf(FontAttribute.class, attrib));
 		fontIdStruct.setColor(DominoEnumUtil.valueOf(StandardColors.class, color).orElse(StandardColors.BLACK));

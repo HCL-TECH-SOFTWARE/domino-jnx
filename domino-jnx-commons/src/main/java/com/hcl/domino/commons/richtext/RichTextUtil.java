@@ -33,7 +33,7 @@ import com.hcl.domino.commons.richtext.records.AbstractCDRecord;
 import com.hcl.domino.commons.richtext.records.GenericBSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericLSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericWSIGRecord;
-import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.design.format.HtmlEventId;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
@@ -96,11 +96,11 @@ public enum RichTextUtil {
   public static RichTextRecord<?> reencapsulateRecord(final AbstractCDRecord<?> record,
       final Class<? extends RichTextRecord<?>> encapsulationClass) {
     if (record instanceof GenericBSIGRecord) {
-      return MemoryStructureProxy.forStructure(encapsulationClass, new GenericBSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericBSIGRecord(record.getData(), encapsulationClass));
     } else if (record instanceof GenericWSIGRecord) {
-      return MemoryStructureProxy.forStructure(encapsulationClass, new GenericWSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericWSIGRecord(record.getData(), encapsulationClass));
     } else if (record instanceof GenericLSIGRecord) {
-      return MemoryStructureProxy.forStructure(encapsulationClass, new GenericLSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericLSIGRecord(record.getData(), encapsulationClass));
     } else {
       throw new IllegalArgumentException(
           MessageFormat.format("Unable to determine encapsulation for {0}", record.getClass().getName()));
