@@ -145,13 +145,14 @@ public class DefaultActionBar implements ActionBar {
       }
     }
     
-    throw new IllegalStateException("Unable to find bar background image resource");
+    // Though it's set as having a resource, we didn't find it, which is fine
+    return Optional.empty();
   }
 
   @Override
   public ActionBarBackgroundRepeat getBackgroundImageRepeatMode() {
     return getActionBarExtRecord()
-      .map(CDActionBarExt::getBackgroundRepeat)
+      .flatMap(CDActionBarExt::getBackgroundRepeat)
       .orElse(ActionBarBackgroundRepeat.REPEATONCE);
   }
 
@@ -324,8 +325,9 @@ public class DefaultActionBar implements ActionBar {
         return Optional.of((CDResource)record);
       }
     }
-    
-    throw new IllegalStateException("Unable to find button background image resource");
+
+    // Though it's set as having a resource, we didn't find it, which is fine
+    return Optional.empty();
   }
 
   @Override
