@@ -263,7 +263,8 @@ public abstract class AbstractDbDesign implements DbDesign {
     return this.getDesignElements(CollectionDesignElement.class);
   }
 
-  protected Database getDatabase() {
+  @Override
+  public Database getDatabase() {
     return this.database;
   }
 
