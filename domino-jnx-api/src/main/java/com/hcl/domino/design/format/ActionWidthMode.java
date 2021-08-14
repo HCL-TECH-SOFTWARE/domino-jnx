@@ -16,7 +16,7 @@ public enum ActionWidthMode implements INumberEnum<Byte> {
    * text and image.
    */
   BACKGROUND(1),
-  /** Width is set to value in the stucture */
+  /** Width is set to value in the structure */
   ABSOLUTE(2);
 
   private final byte value;
