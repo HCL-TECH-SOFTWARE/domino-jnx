@@ -106,7 +106,7 @@ import com.hcl.domino.security.AclLevel;
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
-public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
+public class TestDbDesignCollections extends AbstractDesignTest {
   public static final int EXPECTED_IMPORT_VIEWS = 10;
   public static final int EXPECTED_IMPORT_FOLDERS = 1;
 
@@ -1979,16 +1979,5 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     ActionBar actions = view.getActionBar();
     assertEquals(0, actions.getActions().size());
     assertEquals(ActionBar.Alignment.LEFT, actions.getAlignment());
-  }
-  
-  // *******************************************************************************
-  // * Shared utility methods
-  // *******************************************************************************
-  
-  private void assertColorEquals(ColorValue color, int red, int green, int blue) {
-    assertNotNull(color);
-    assertEquals(red, color.getRed());
-    assertEquals(green, color.getGreen());
-    assertEquals(blue, color.getBlue());
   }
 }

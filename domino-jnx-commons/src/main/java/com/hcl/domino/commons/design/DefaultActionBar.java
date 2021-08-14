@@ -261,9 +261,9 @@ public class DefaultActionBar implements ActionBar {
 
   @Override
   public boolean isFixedSizeButtonMargin() {
-    return getActionBarExtRecord()
-      .map(CDActionBarExt::getFlags)
-      .map(flags -> flags.contains(CDActionBarExt.Flag.WIDTH_STYLE_VALID))
+    return getActionBarRecord()
+      .map(CDActionBar::getFlags)
+      .map(flags -> flags.contains(CDActionBar.Flag.SET_PADDING))
       .orElse(false);
   }
 
