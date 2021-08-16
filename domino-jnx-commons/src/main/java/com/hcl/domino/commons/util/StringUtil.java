@@ -19,6 +19,10 @@ package com.hcl.domino.commons.util;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class StringUtil {
 
@@ -311,5 +315,49 @@ public class StringUtil {
    */
   public static String wWord(final String[] strArr, final int pos) {
     return StringUtil.getNth(strArr, pos - 1);
+  }
+
+  /**
+   * Replaces occurrences of text in a String
+   * 
+   * @param txt old text
+   * @param from old value
+   * @param to new value
+   * @param caseInsensitive true for case insensitive match
+   * @return new text
+   */
+  public static String replaceAllMatches(String txt, String from, String to, boolean caseInsensitive) {
+	  String currTxt = txt;
+
+	  StringBuffer sb = new StringBuffer();
+	  String fromQuote = Pattern.quote(from);
+	  Pattern fromPattern = caseInsensitive ? Pattern.compile(fromQuote, Pattern.CASE_INSENSITIVE) : Pattern.compile(fromQuote);
+
+	  Matcher m = fromPattern.matcher(currTxt);
+	  while (m.find()) {
+		  m.appendReplacement(sb, to);
+	  }
+	  m.appendTail(sb);
+	  currTxt = sb.toString();
+	  sb.setLength(0);
+	  
+	  return currTxt;
+  }
+
+  /**
+   * Replaces occurrences of text in a String
+   * 
+   * @param txt old text
+   * @param replacements map with old and new values
+   * @param caseInsensitive true for case insensitive match
+   * @return new text
+   */
+  public static String replaceAllMatches(String txt, Map<String,String> replacements, boolean caseInsensitive) {
+	  String currTxt = txt;
+
+	  for (Entry<String,String> currEntry : replacements.entrySet()) {
+		  currTxt = replaceAllMatches(currTxt, currEntry.getKey(), currEntry.getValue(), caseInsensitive);
+	  }
+	  return currTxt;
   }
 }
