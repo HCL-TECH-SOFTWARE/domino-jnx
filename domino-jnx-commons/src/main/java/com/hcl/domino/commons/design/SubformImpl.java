@@ -18,6 +18,7 @@ package com.hcl.domino.commons.design;
 
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.Subform;
+import com.hcl.domino.misc.NotesConstants;
 
 /**
  * @since 1.0.18
@@ -32,4 +33,16 @@ public class SubformImpl extends AbstractFormOrSubform<Subform> implements Subfo
   public void initializeNewDesignNote() {
     this.setFlags("CUAx3"); //$NON-NLS-1$
   }
+
+  @Override
+  public boolean isIncludeInInsertSubformDialog() {
+    return getFlags().contains(NotesConstants.DESIGN_FLAG_ADD);
+  }
+
+  @Override
+  public boolean isIncludeInNewFormDialog() {
+    return getFlags().contains(NotesConstants.DESIGN_FLAG_NEW);
+  }
+  
+  
 }

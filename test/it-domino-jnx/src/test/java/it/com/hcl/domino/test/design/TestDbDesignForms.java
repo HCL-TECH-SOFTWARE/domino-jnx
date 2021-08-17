@@ -32,6 +32,7 @@ import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignElement.ClassicThemeBehavior;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Form;
+import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionContent;
 import com.hcl.domino.design.action.FormulaActionContent;
@@ -636,5 +637,27 @@ public class TestDbDesignForms extends AbstractDesignTest {
     Form form = design.getForm("Default Form").get();
     
     assertTrue(form.isDefaultForm());
+  }
+
+  @Test
+  public void testFooterSubform() throws IOException {
+    DbDesign design = this.database.getDesign();
+    Subform subform = design.getSubform("Footer").get();
+    
+    assertTrue(subform.isIncludeInInsertSubformDialog());
+    assertFalse(subform.isIncludeInNewFormDialog());
+    assertTrue(subform.isRenderPassThroughHtmlInClient());
+    assertTrue(subform.isIncludeFieldsInIndex());
+  }
+
+  @Test
+  public void testComputedTargetSubform() throws IOException {
+    DbDesign design = this.database.getDesign();
+    Subform subform = design.getSubform("Computed Target").get();
+    
+    assertFalse(subform.isIncludeInInsertSubformDialog());
+    assertTrue(subform.isIncludeInNewFormDialog());
+    assertFalse(subform.isRenderPassThroughHtmlInClient());
+    assertFalse(subform.isIncludeFieldsInIndex());
   }
 }
