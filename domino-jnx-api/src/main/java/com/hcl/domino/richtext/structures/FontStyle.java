@@ -22,8 +22,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.data.FontAttribute;
+import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
-import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -35,52 +35,11 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
   members = {
     @StructureMember(name = "Face", type = byte.class),
     @StructureMember(name = "Attrib", type = FontAttribute.class, bitfield = true),
-    @StructureMember(name = "Color", type = FontStyle.StandardColors.class),
+    @StructureMember(name = "Color", type = StandardColors.class),
     @StructureMember(name = "PointSize", type = byte.class, unsigned = true)
   }
 )
 public interface FontStyle extends MemoryStructure {
-  /**
-   * These symbols are used to specify text color, graphic color and background
-   * color in a variety of C API structures.
-   *
-   * @author Karsten Lehmann
-   */
-  public enum StandardColors implements INumberEnum<Byte> {
-    BLACK(0),
-    WHITE(1),
-    RED(2),
-    GREEN(3),
-    BLUE(4),
-    MAGENTA(5),
-    YELLOW(6),
-    CYAN(7),
-    DKRED(8),
-    DKGREEN(9),
-    DKBLUE(10),
-    DKMAGENTA(11),
-    DKYELLOW(12),
-    DKCYAN(13),
-    GRAY(14),
-    LTGRAY(15);
-
-    private final byte m_color;
-
-    StandardColors(final int colorIdx) {
-      this.m_color = (byte) (colorIdx & 0xff);
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.m_color;
-    }
-
-    @Override
-    public Byte getValue() {
-      return this.m_color;
-    }
-  }
-
   @StructureGetter("Attrib")
   Set<FontAttribute> getAttributes();
 
