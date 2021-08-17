@@ -590,7 +590,7 @@ public enum RecordType {
    * of
    * documents created with that form.
    */
-  DOCUMENT(RichTextConstants.SIG_CD_DOCUMENT, 4),
+  DOCUMENT(RichTextConstants.SIG_CD_DOCUMENT, 4, CDDocument.class),
   METAFILE(RichTextConstants.SIG_CD_METAFILE, 4),
   BITMAP(RichTextConstants.SIG_CD_BITMAP, 4),
   /**
