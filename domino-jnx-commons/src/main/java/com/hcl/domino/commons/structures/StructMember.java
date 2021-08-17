@@ -33,8 +33,8 @@ class StructMember {
       structuralType = (Class<?>)clazz;
     }
     
-    this.reader = MemoryStructureProxy.reader(structuralType, unsigned, bitfield, length);
-    this.writer = MemoryStructureProxy.writer(structuralType, unsigned, bitfield, length);
+    this.reader = MemoryStructureProxy.reader(structuralType, unsigned, length);
+    this.writer = MemoryStructureProxy.writer(structuralType, unsigned, length);
   }
 
   @Override
