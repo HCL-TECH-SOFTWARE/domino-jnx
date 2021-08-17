@@ -37,6 +37,7 @@ public interface Subform extends GenericFormOrSubform<Subform> {
    * 
    * @return {@code true} if the subform should be included in the "New
    *         Form..." list; {@code false} otherwise
+   * @since 1.0.33
    */
   boolean isIncludeInNewFormDialog();
 }
