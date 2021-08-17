@@ -648,6 +648,19 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertFalse(subform.isIncludeInNewFormDialog());
     assertTrue(subform.isRenderPassThroughHtmlInClient());
     assertTrue(subform.isIncludeFieldsInIndex());
+    
+    assertTrue(subform.isAllowPublicAccess());
+    
+    ActionBar actions = subform.getActionBar();
+    List<ActionBarAction> actionList = actions.getActions();
+    assertEquals(1, actionList.size());
+    {
+      ActionBarAction action = actionList.get(0);
+      assertEquals("Footer Action", action.getName());
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(FormulaActionContent.class, content);
+      assertEquals("@StatusBar(\"hello.\")", ((FormulaActionContent)content).getFormula());
+    }
   }
 
   @Test
