@@ -4527,4 +4527,9 @@ public interface NotesConstants extends ViewFormatConstants {
   String FORM_FIELD_PUBLICACCESS = "$FormPublicAccess"; //$NON-NLS-1$
   String FIELD_PUBLICACCESS_ENABLED = "1"; //$NON-NLS-1$
   String DESIGN_READERS = "$Readers"; //$NON-NLS-1$
+  
+  String ITEM_CONFLICT_ACTION = "$ConflictAction"; //$NON-NLS-1$
+  String CONFLICT_AUTOMERGE = "1"; //$NON-NLS-1$
+  String CONFLICT_NONE = "2"; //$NON-NLS-1$
+  String CONFLICT_BEST_MERGE = "3"; //$NON-NLS-1$
 }
