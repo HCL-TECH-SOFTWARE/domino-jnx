@@ -31,6 +31,7 @@ import java.security.PrivilegedAction;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -82,14 +83,12 @@ public class MemoryStructureProxy implements InvocationHandler {
    * 
    * @param type     the number or enum value type to read
    * @param unsigned whether the number value is unsigned
-   * @param bitfield whether the value should be considered a flag-style bitfield
    * @param length   the length of an array-type value
    * @return a {@link BiFunction} that can be applied to a {@link ByteBuffer} and
    *         offset
    */
   @SuppressWarnings({ "unchecked" })
-  static BiFunction<ByteBuffer, Integer, Object> reader(final Class<?> type, final boolean unsigned, final boolean bitfield,
-      final int length) {
+  static BiFunction<ByteBuffer, Integer, Object> reader(final Class<?> type, final boolean unsigned, final int length) {
     if (byte.class.equals(type) || Byte.class.equals(type)) {
       if (unsigned) {
         return (buf, offset) -> (short) Byte.toUnsignedInt(buf.get(offset));
@@ -225,13 +224,12 @@ public class MemoryStructureProxy implements InvocationHandler {
    * 
    * @param type     the number or enum value type to read
    * @param unsigned whether the number value is unsigned
-   * @param bitfield whether the structure member is a flags-type bitfield
    * @param length   the length of the array-type member
    * @return a {@link BiFunction} that can be applied to a {@link ByteBuffer} and
    *         offset
    */
   static TriConsumer<ByteBuffer, Integer, Object> writer(final Class<?> type, final boolean unsigned,
-      final boolean bitfield, final int length) {
+      final int length) {
     if (byte.class.equals(type) || Byte.class.equals(type)) {
       return (buf, offset, newVal) -> buf.put(offset, ((Number) newVal).byteValue());
     } else if (byte[].class.equals(type)) {
@@ -441,17 +439,23 @@ public class MemoryStructureProxy implements InvocationHandler {
           final Object newVal = args[0];
           Number numVal;
           if(member.bitfield) {
+            // Read the existing value and preserve possible undocumented flags
+            Number existing = (Number)member.reader.apply(buf, member.offset);
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            Number antimask = ~(DominoEnumUtil.toBitField((Class)member.type, EnumSet.allOf((Class)member.type)).longValue());
+            long savedMask = existing.longValue() & antimask.longValue();
+            
             // It's possible that the setter sets a single value or a collection
             if (Collection.class.isInstance(newVal)) {
               // Assume newVal is a Collection of enums
               @SuppressWarnings({ "rawtypes", "unchecked" })
               Number result = newVal == null ? 0 : DominoEnumUtil.toBitField((Class) member.type, (Collection) newVal);
-              numVal = result;
+              numVal = result.longValue() | savedMask;
             } else {
               // Assume it's a single enum
               @SuppressWarnings("rawtypes")
               Number result = newVal == null ? 0 : ((INumberEnum) newVal).getValue();
-              numVal = result;
+              numVal = result.longValue() | savedMask;
             }
           } else {
             @SuppressWarnings("rawtypes")
