@@ -19,7 +19,6 @@ package com.hcl.domino.commons.design;
 import java.util.Optional;
 import java.util.Set;
 
-import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.design.DesignConstants;
