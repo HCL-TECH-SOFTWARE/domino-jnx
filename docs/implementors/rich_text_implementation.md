@@ -53,6 +53,16 @@ Implementation notes:
 - Array components can have their size expressed via the `length` property of `@StructureMember` and should have their `type` be the array form of their numeric or structure type, such as `short[].class` and `FontStyle[].class`
 - The proxy implementation class, `MemoryStructureProxy`, has special support for `DominoDateTime` values in getters and setters when the member type is `OpaqueTimeDate`
 
+For defining the structures, some common Notes types correspond in size to:
+
+- DWORD = int
+- WORD = short
+- char = char
+- DBID = TIMEDATE = OpaqueTimeDate (an existing JNX-specific structure corresponding to TIMEDATE)
+- DBHANDLE = HANDLE = int
+- BOOL = int
+- NOTEHANDLE = DHANDLE = HANDLE = int
+
 ### Getters and Setters
 
 Getters and setters should be annotated with `@StructureGetter` and `@StructureSetter` and should have types that match those defined in the `@StructureMember` annotation.
