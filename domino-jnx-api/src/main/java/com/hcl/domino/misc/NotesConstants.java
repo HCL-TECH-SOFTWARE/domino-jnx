@@ -4500,6 +4500,9 @@ public interface NotesConstants extends ViewFormatConstants {
   String SCRIPTLIB_OBJECT = "$ScriptLib_O"; //$NON-NLS-1$
   String JAVASCRIPTLIBRARY_CODE = "$JavaScriptLibrary"; //$NON-NLS-1$
   String SERVER_JAVASCRIPTLIBRARY_CODE = "$ServerJavaScriptLibrary"; //$NON-NLS-1$
+  
+  /* Outline sitemap */
+  String OUTLINE_SITEMAP_LIST = "$SiteMapList";
 
   String VIEW_COMMENT_ITEM = "$Comment"; //$NON-NLS-1$
   String FILTER_COMMENT_ITEM = "$Comment"; //$NON-NLS-1$

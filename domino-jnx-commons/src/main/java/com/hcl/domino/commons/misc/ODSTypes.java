@@ -18,6 +18,7 @@ package com.hcl.domino.commons.misc;
 
 public interface ODSTypes {
   short _LIST = 13;
+  short _OUTLINE_FORMAT = 26;
   short _OBJECT_DESCRIPTOR = 27;
   short _VIEW_TABLE_FORMAT = 29;
   short _VIEW_COLUMN_FORMAT = 30;

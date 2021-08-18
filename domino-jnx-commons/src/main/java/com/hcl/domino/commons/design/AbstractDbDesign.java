@@ -43,6 +43,7 @@ import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageResource;
+import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.ScriptLibrary;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.View;
@@ -381,6 +382,16 @@ public abstract class AbstractDbDesign implements DbDesign {
   @Override
   public Stream<View> getViews() {
     return this.getDesignElements(View.class);
+  }
+  
+  @Override
+  public Optional<Outline> getOutline(final String name) {
+    return this.getDesignElementByName(Outline.class, name);
+  }
+
+  @Override
+  public Stream<Outline> getOutlines() {
+    return this.getDesignElements(Outline.class);
   }
 
   @SuppressWarnings("unchecked")

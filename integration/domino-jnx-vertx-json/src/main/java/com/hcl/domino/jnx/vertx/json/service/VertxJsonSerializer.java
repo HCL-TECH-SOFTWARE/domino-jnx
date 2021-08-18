@@ -41,6 +41,7 @@ import com.hcl.domino.data.DominoDateRange;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.DominoTimeType;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.View;
 import com.hcl.domino.exception.EntryNotFoundInIndexException;
 import com.hcl.domino.exception.ItemNotFoundException;
@@ -50,6 +51,7 @@ import com.hcl.domino.html.RichTextHTMLConverter;
 import com.hcl.domino.jnx.vertx.json.DefaultActionBarActionMixIn;
 import com.hcl.domino.jnx.vertx.json.DefaultActionBarMixIn;
 import com.hcl.domino.jnx.vertx.json.MemoryStructureMixIn;
+import com.hcl.domino.jnx.vertx.json.OutlineMixIn;
 import com.hcl.domino.jnx.vertx.json.ResizableMemoryStructureMixIn;
 import com.hcl.domino.jnx.vertx.json.RichTextRecordMixIn;
 import com.hcl.domino.jnx.vertx.json.ViewMixIn;
@@ -68,6 +70,7 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
   public VertxJsonSerializer() {
     //add custom mixin classes for json serialization
     io.vertx.core.json.jackson.DatabindCodec.prettyMapper().setSerializationInclusion(Include.NON_EMPTY);
+    io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(Outline.class, OutlineMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(View.class, ViewMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(MemoryStructure.class, MemoryStructureMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(RichTextRecord.class, RichTextRecordMixIn.class);

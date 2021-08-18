@@ -55,6 +55,7 @@ import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageResource;
+import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.ScriptLibrary;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.View;
@@ -115,6 +116,9 @@ public enum DesignUtil {
 
   private static final Map<Class<? extends DesignElement>, DesignMapping<? extends DesignElement, ? extends AbstractDesignElement<?>>> mappings = new HashMap<>();
   static {
+    DesignUtil.mappings.put(Outline.class,
+        new DesignMapping<>(DocumentClass.FILTER, NotesConstants.DFLAGPAT_SITEMAP,
+            OutlineImpl::new));
     DesignUtil.mappings.put(View.class,
         new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_VIEW_ALL_VERSIONS, ViewImpl::new));
     DesignUtil.mappings.put(Folder.class,
