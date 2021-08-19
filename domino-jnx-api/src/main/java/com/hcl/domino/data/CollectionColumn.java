@@ -712,28 +712,12 @@ public interface CollectionColumn {
   NotesFont getRowFont();
   
   /**
-   * Retrieves the color for entry rows in this column.
-   * 
-   * @return a {@link ColorValue} instance
-   * @since 1.0.32
-   */
-  ColorValue getRowFontColor();
-  
-  /**
    * Retrieves the font information for the column header.
    * 
    * @return a {@link NotesFont} instance
    * @since 1.0.32
    */
   NotesFont getHeaderFont();
-  
-  /**
-   * Retrieves the font color for the column header.
-   * 
-   * @return a {@link NotesFont} instance
-   * @since 1.0.32
-   */
-  ColorValue getHeaderFontColor();
   
   /**
    * Retrieves a view of the column's settings to use when displaying number
