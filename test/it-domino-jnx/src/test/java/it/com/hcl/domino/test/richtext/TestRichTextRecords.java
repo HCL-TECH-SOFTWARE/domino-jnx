@@ -787,13 +787,13 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           assertNotNull(fakeArray.getFontStyles());
           assertEquals(3, fakeArray.getFontStyles().length);
 
-          fakeArray.getFontStyles()[0].setColor(StandardColors.DKBLUE);
-          fakeArray.getFontStyles()[1].setColor(StandardColors.DKMAGENTA);
-          fakeArray.getFontStyles()[2].setColor(StandardColors.DKGREEN);
+          fakeArray.getFontStyles()[0].setColor(StandardColors.DarkBlue);
+          fakeArray.getFontStyles()[1].setColor(StandardColors.DarkMagenta);
+          fakeArray.getFontStyles()[2].setColor(StandardColors.DarkGreen);
 
-          assertEquals(StandardColors.DKBLUE, fakeArray.getFontStyles()[0].getColor());
-          assertEquals(StandardColors.DKMAGENTA, fakeArray.getFontStyles()[1].getColor());
-          assertEquals(StandardColors.DKGREEN, fakeArray.getFontStyles()[2].getColor());
+          assertEquals(StandardColors.DarkBlue, fakeArray.getFontStyles()[0].getColor().get());
+          assertEquals(StandardColors.DarkMagenta, fakeArray.getFontStyles()[1].getColor().get());
+          assertEquals(StandardColors.DarkGreen, fakeArray.getFontStyles()[2].getColor().get());
         }
 
         // Test writing an accurately-sized array back
@@ -802,17 +802,17 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
 
           final FontStyle[] styles = {
               rtWriter.createStructure(FontStyle.class, 0)
-                  .setColor(StandardColors.CYAN),
+                  .setColor(StandardColors.Cyan),
               rtWriter.createStructure(FontStyle.class, 0)
-                  .setColor(StandardColors.DKYELLOW),
+                  .setColor(StandardColors.DarkYellow),
               rtWriter.createStructure(FontStyle.class, 0)
-                  .setColor(StandardColors.MAGENTA)
+                  .setColor(StandardColors.Magenta)
           };
           fakeArray.setFontStyles(styles);
 
-          assertEquals(StandardColors.CYAN, fakeArray.getFontStyles()[0].getColor());
-          assertEquals(StandardColors.DKYELLOW, fakeArray.getFontStyles()[1].getColor());
-          assertEquals(StandardColors.MAGENTA, fakeArray.getFontStyles()[2].getColor());
+          assertEquals(StandardColors.Cyan, fakeArray.getFontStyles()[0].getColor().get());
+          assertEquals(StandardColors.DarkYellow, fakeArray.getFontStyles()[1].getColor().get());
+          assertEquals(StandardColors.Magenta, fakeArray.getFontStyles()[2].getColor().get());
         }
 
         // Test writing incorrectly-sized arrays back
