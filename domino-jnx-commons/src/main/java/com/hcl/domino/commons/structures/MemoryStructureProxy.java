@@ -388,6 +388,14 @@ public class MemoryStructureProxy implements InvocationHandler {
           @SuppressWarnings("unchecked")
           final Object result = DominoEnumUtil.valuesOf(enumType, val.longValue());
           return result;
+        } else if(member.type.isPrimitive() && MemoryStructureUtil.isOptionalOf(thisMethod.getGenericReturnType(), INumberEnum.class)) {
+          // Same as above, but for Optionals of single enums
+          final Number val = (Number) member.reader.apply(buf, member.offset);
+          @SuppressWarnings("rawtypes")
+          final Class enumType = (Class) ((ParameterizedType) thisMethod.getGenericReturnType()).getActualTypeArguments()[0];
+          @SuppressWarnings("unchecked")
+          final Optional<? extends INumberEnum<?>> result = DominoEnumUtil.valueOf((Class<? extends INumberEnum<?>>) enumType, val);
+          return result;
         } else if (member.type.equals(OpaqueTimeDate.class) && DominoDateTime.class.equals(thisMethod.getReturnType())) {
           final OpaqueTimeDate dt = (OpaqueTimeDate) member.reader.apply(buf, member.offset);
           return new DefaultDominoDateTime(dt.getInnards());
