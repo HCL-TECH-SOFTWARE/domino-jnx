@@ -344,10 +344,6 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     return Optional.of((NotesCollationInfo)doc.getItemValue(DesignConstants.VIEW_COLLATION_ITEM).get(0));
   }
   
-  private String getWebFlags() {
-    return getDocument().getAsText(DesignConstants.ITEM_NAME_WEBFLAGS, ' ');
-  }
-  
   private class DefaultCompositeAppSettings implements CompositeAppSettings {
 
     @Override
