@@ -125,7 +125,7 @@ public enum RecordType {
    * This CD Record gives information pertaining to data connection resource
    * information in a field or form.
    */
-  DECSFIELD(RichTextConstants.SIG_CD_DECSFIELD, 1),
+  DECSFIELD(RichTextConstants.SIG_CD_DECSFIELD, 1, CDDECSField.class),
   SPAN_END(RichTextConstants.SIG_CD_SPAN_END, 1),
   SPAN_BEGIN(RichTextConstants.SIG_CD_SPAN_BEGIN, 1),
   /**

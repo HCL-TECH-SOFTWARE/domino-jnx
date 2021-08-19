@@ -24,7 +24,11 @@ import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.richtext.records.CDDECSField;
 import com.hcl.domino.richtext.records.CDDocument;
+import com.hcl.domino.richtext.records.CDField;
+import com.hcl.domino.richtext.records.CDLinkColors;
+import com.hcl.domino.richtext.structures.ColorValue;
 
 public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefaultAutoFrameElement {
 
@@ -172,6 +176,174 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
       return ConflictBehavior.MERGE_NO_CONFLICTS;
     default:
       return ConflictBehavior.CREATE_CONFLICTS;
+    }
+  }
+
+  @Override
+  public boolean isInheritSelectedDocumentValues() {
+    return getDocumentFlags().contains(CDDocument.Flag.REFERENCE);
+  }
+
+  @Override
+  public Optional<InheritanceBehavior> getSelectedDocumentInheritanceBehavior() {
+    Set<CDDocument.Flag2> flags = getDocumentFlags2();
+    if(flags.contains(CDDocument.Flag2.INCLUDEREF)) {
+      return Optional.of(new DefaultInheritanceBehavior());
+    } else {
+      return Optional.empty();
+    }
+  }
+
+  @Override
+  public boolean isAutomaticallyEnableEditMode() {
+    return getDocumentFlags2().contains(CDDocument.Flag2.EDITONOPEN);
+  }
+
+  @Override
+  public ContextPaneBehavior getContextPaneBehavior() {
+    Set<CDDocument.Flag2> flags = getDocumentFlags2();
+    if(!flags.contains(CDDocument.Flag2.OPENCNTXT)) {
+      return ContextPaneBehavior.NONE;
+    } else if(flags.contains(CDDocument.Flag2.CNTXTPARENT)) {
+      return ContextPaneBehavior.PARENT;
+    } else {
+      return ContextPaneBehavior.DOCLINK;
+    }
+  }
+
+  @Override
+  public boolean isShowMailDialogOnClose() {
+    return getDocumentFlags().contains(CDDocument.Flag.MAIL);
+  }
+
+  @Override
+  public WebRenderingSettings getWebRenderingSettings() {
+    return new DefaultWebRenderingSettings();
+  }
+
+  @Override
+  public Optional<String> getDefaultDataConnectionName() {
+    return getDecsField().map(CDDECSField::getDcrName);
+  }
+
+  @Override
+  public Optional<String> getDefaultDataConnectionObject() {
+    return getDecsField().map(CDDECSField::getMetadataName);
+  }
+  
+  // *******************************************************************************
+  // * Internal implementation utilities
+  // *******************************************************************************
+  
+  private Optional<CDDECSField> getDecsField() {
+    Document doc = getDocument();
+    if(doc.hasItem(DesignConstants.ITEM_NAME_DEFAULTDECSINFO)) {
+      return doc.getRichTextItem(DesignConstants.ITEM_NAME_DEFAULTDECSINFO)
+        .stream()
+        .filter(CDDECSField.class::isInstance)
+        .map(CDDECSField.class::cast)
+        .findFirst();
+    } else {
+      return Optional.empty();
+    }
+  }
+  
+  private class DefaultInheritanceBehavior implements InheritanceBehavior {
+    
+    @Override
+    public String getTargetField() {
+      // NB: the field name is not always actually stored in the CDDOCUMENT
+      //   record. In this case, we'll have to see if inheritance is on at all
+      //   and, if so, find the first field in the Body
+      return getDocumentRecord()
+        .map(CDDocument::getInheritanceFieldName)
+        .flatMap(name -> {
+          if(name.isEmpty()) {
+            // Look up the first field in the body
+            return getFormBodyItem()
+              .stream()
+              .filter(CDField.class::isInstance)
+              .map(CDField.class::cast)
+              .map(CDField::getName)
+              .findFirst();
+          } else {
+            return Optional.of(name);
+          }
+        })
+        .orElse(""); //$NON-NLS-1$
+    }
+
+    @Override
+    public InheritanceFieldType getType() {
+      Set<CDDocument.Flag2> flags = getDocumentFlags2();
+      if(flags.contains(CDDocument.Flag2.RENDCOLLAPSE)) {
+        return InheritanceFieldType.COLLAPSIBLE_RICH_TEXT;
+      } else if(flags.contains(CDDocument.Flag2.RENDERREF)) {
+        return InheritanceFieldType.RICH_TEXT;
+      } else {
+        return InheritanceFieldType.LINK;
+      }
+    }
+  }
+  
+  private class DefaultWebRenderingSettings implements WebRenderingSettings {
+
+    @Override
+    public boolean isRenderRichContentOnWeb() {
+      return !getWebFlags().contains(NotesConstants.WEBFLAG_NOTE_IS_HTML);
+    }
+
+    @Override
+    public Optional<String> getWebMimeType() {
+      if(isRenderRichContentOnWeb()) {
+        return Optional.empty();
+      } else {
+        return Optional.of(getDocument().getAsText(NotesConstants.ITEM_NAME_FILE_MIMETYPE, ' '));
+      }
+    }
+
+    @Override
+    public Optional<String> getWebCharset() {
+      String charset = getDocument().getAsText(NotesConstants.ITEM_NAME_FILE_MIMECHARSET, ' ');
+      return charset.isEmpty() ? Optional.empty() : Optional.of(charset);
+    }
+
+    @Override
+    public boolean isGenerateHtmlForAllFields() {
+      return getWebFlags().contains(NotesConstants.WEBFLAG_NOTE_HTML_ALL_FLDS);
+    }
+
+    @Override
+    public ColorValue getActiveLinkColor() {
+      return getHtmlCodeItem()
+        .stream()
+        .filter(CDLinkColors.class::isInstance)
+        .map(CDLinkColors.class::cast)
+        .findFirst()
+        .map(CDLinkColors::getActiveColor)
+        .orElseGet(DesignColorsAndFonts::defaultActiveLink);
+    }
+
+    @Override
+    public ColorValue getUnvisitedLinkColor() {
+      return getHtmlCodeItem()
+        .stream()
+        .filter(CDLinkColors.class::isInstance)
+        .map(CDLinkColors.class::cast)
+        .findFirst()
+        .map(CDLinkColors::getUnvisitedColor)
+        .orElseGet(DesignColorsAndFonts::defaultUnvisitedLink);
+    }
+
+    @Override
+    public ColorValue getVisitedLinkColor() {
+      return getHtmlCodeItem()
+        .stream()
+        .filter(CDLinkColors.class::isInstance)
+        .map(CDLinkColors.class::cast)
+        .findFirst()
+        .map(CDLinkColors::getVisitedColor)
+        .orElseGet(DesignColorsAndFonts::defaultVisitedLink);
     }
   }
 }
