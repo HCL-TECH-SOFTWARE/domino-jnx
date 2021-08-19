@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
-import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.StructureSupport;
@@ -269,12 +268,6 @@ public interface CDDocument extends RichTextRecord<BSIG> {
   
   @StructureSetter("PaperColorExt")
   CDDocument setPaperColorRaw(int paperColor);
-  
-  @StructureGetter("PaperColorExt")
-  Optional<StandardColors> getPaperColor();
-  
-  @StructureSetter("PaperColorExt")
-  CDDocument setPaperColor(StandardColors paperColor);
   
   @StructureGetter("PaperColorValue")
   ColorValue getPaperColorValue();
