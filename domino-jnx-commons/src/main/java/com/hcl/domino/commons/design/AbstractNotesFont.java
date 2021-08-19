@@ -5,6 +5,7 @@ import java.util.Set;
 
 import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.NotesFont;
+import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.richtext.structures.FontStyle;
 
@@ -54,6 +55,11 @@ public abstract class AbstractNotesFont implements NotesFont {
     //   of FontStyle#getFontFace
     int faceId = Byte.toUnsignedInt(fontStyle.getFontFace());
     return Optional.of(lookUpFaceID(faceId));
+  }
+  
+  @Override
+  public Optional<StandardColors> getStandardColor() {
+    return fontStyle.getColor();
   }
   
   /**

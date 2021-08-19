@@ -202,7 +202,7 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 		FontStyle fontIdStruct = MemoryStructureUtil.newStructure(FontStyle.class, 0);
 		fontIdStruct.setStandardFont(DominoEnumUtil.valueOf(StandardFonts.class, face).orElse(StandardFonts.SWISS));
 		fontIdStruct.setAttributes(DominoEnumUtil.valuesOf(FontAttribute.class, attrib));
-		fontIdStruct.setColor(DominoEnumUtil.valueOf(StandardColors.class, color).orElse(StandardColors.BLACK));
+		fontIdStruct.setColor(DominoEnumUtil.valueOf(StandardColors.class, color).orElse(StandardColors.Black));
 		fontIdStruct.setPointSize(pointSize);
 
 		int fontId = fontIdStruct.getData().getInt(0);
