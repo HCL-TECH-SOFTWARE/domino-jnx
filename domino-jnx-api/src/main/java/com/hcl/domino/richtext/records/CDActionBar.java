@@ -146,6 +146,9 @@ public interface CDActionBar extends RichTextRecord<BSIG> {
 
   @StructureGetter("dwFlags")
   Set<Flag> getFlags();
+  
+  @StructureGetter("dwFlags")
+  int getFlagsRaw();
 
   @StructureGetter("FontID")
   FontStyle getFontStyle();
@@ -177,6 +180,9 @@ public interface CDActionBar extends RichTextRecord<BSIG> {
 
   @StructureSetter("dwFlags")
   CDActionBar setFlags(Collection<Flag> flags);
+  
+  @StructureSetter("dwFlags")
+  CDActionBar setFlagsRaw(int flags);
 
   @StructureSetter("HeightSpc")
   CDActionBar setHeightSpacing(int heightSpacing);

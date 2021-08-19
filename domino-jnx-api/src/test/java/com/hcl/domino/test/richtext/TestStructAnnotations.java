@@ -29,6 +29,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -144,6 +145,22 @@ public class TestStructAnnotations {
 		
 		if(isEnumCompatible(structType, methodType)) {
 			return true;
+		}
+		// Check for Optional enum return types
+		if(methodType instanceof ParameterizedType) {
+		  ParameterizedType pType = (ParameterizedType)methodType;
+		  if(Optional.class.isAssignableFrom((Class<?>)pType.getRawType())) {
+		    Type paramType = pType.getActualTypeArguments()[0];
+		    if(paramType instanceof Class && INumberEnum.class.isAssignableFrom((Class<?>)paramType)) {
+		      return isEnumCompatible(structType, paramType);
+		    }
+		  }
+		}
+		// Check for primitives returned for enum types
+		if(INumberEnum.class.isAssignableFrom(structType)) {
+		  if(methodType instanceof Class && ((Class<?>)methodType).isPrimitive()) {
+		    return true;
+		  }
 		}
 		
 		// Known special support for DominoDateTime

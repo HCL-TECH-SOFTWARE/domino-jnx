@@ -2,7 +2,7 @@ package com.hcl.domino.commons.design;
 
 import java.util.EnumSet;
 
-import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.richtext.structures.ColorValue;
@@ -25,7 +25,7 @@ public enum DesignColorsAndFonts {
    * @since 1.0.32
    */
   public static ColorValue noColor() {
-    ColorValue result = MemoryStructureProxy.newStructure(ColorValue.class, 0);
+    ColorValue result = MemoryStructureUtil.newStructure(ColorValue.class, 0);
     result.setFlags(EnumSet.of(ColorValue.Flag.NOCOLOR));
     result.setRed((short)0);
     result.setGreen((short)0);
@@ -40,7 +40,7 @@ public enum DesignColorsAndFonts {
    * @since 1.0.32
    */
   public static ColorValue systemColor() {
-    ColorValue result = MemoryStructureProxy.newStructure(ColorValue.class, 0);
+    ColorValue result = MemoryStructureUtil.newStructure(ColorValue.class, 0);
     result.setFlags(EnumSet.of(ColorValue.Flag.SYSTEMCOLOR));
     result.setRed((short)0);
     result.setGreen((short)0);
@@ -55,7 +55,7 @@ public enum DesignColorsAndFonts {
    * @since 1.0.32
    */
   public static ColorValue whiteColor() {
-    ColorValue result = MemoryStructureProxy.newStructure(ColorValue.class, 0);
+    ColorValue result = MemoryStructureUtil.newStructure(ColorValue.class, 0);
     result.setRed((short)255);
     result.setGreen((short)255);
     result.setBlue((short)255);
@@ -69,7 +69,7 @@ public enum DesignColorsAndFonts {
    * @since 1.0.32
    */
   public static ColorValue blackColor() {
-    ColorValue result = MemoryStructureProxy.newStructure(ColorValue.class, 0);
+    ColorValue result = MemoryStructureUtil.newStructure(ColorValue.class, 0);
     result.setRed((short)0);
     result.setGreen((short)0);
     result.setBlue((short)0);
@@ -84,7 +84,7 @@ public enum DesignColorsAndFonts {
    * @since 1.0.32
    */
   public static ColorValue defaultActiveLink() {
-    ColorValue result = MemoryStructureProxy.newStructure(ColorValue.class, 0);
+    ColorValue result = MemoryStructureUtil.newStructure(ColorValue.class, 0);
     result.setRed((short)255);
     result.setGreen((short)0);
     result.setBlue((short)0);
@@ -99,7 +99,7 @@ public enum DesignColorsAndFonts {
    * @since 1.0.32
    */
   public static ColorValue defaultUnvisitedLink() {
-    ColorValue result = MemoryStructureProxy.newStructure(ColorValue.class, 0);
+    ColorValue result = MemoryStructureUtil.newStructure(ColorValue.class, 0);
     result.setRed((short)0);
     result.setGreen((short)0);
     result.setBlue((short)255);
@@ -114,7 +114,7 @@ public enum DesignColorsAndFonts {
    * @since 1.0.32
    */
   public static ColorValue defaultVisitedLink() {
-    ColorValue result = MemoryStructureProxy.newStructure(ColorValue.class, 0);
+    ColorValue result = MemoryStructureUtil.newStructure(ColorValue.class, 0);
     result.setRed((short)128);
     result.setGreen((short)0);
     result.setBlue((short)128);
@@ -129,7 +129,7 @@ public enum DesignColorsAndFonts {
    * @since 1.0.32
    */
   public static FontStyle viewHeaderFont() {
-    FontStyle result = MemoryStructureProxy.newStructure(FontStyle.class, 0);
+    FontStyle result = MemoryStructureUtil.newStructure(FontStyle.class, 0);
     result.setStandardFont(StandardFonts.SWISS);
     result.setPointSize(9);
     result.setAttributes(EnumSet.of(FontAttribute.BOLD));
@@ -144,7 +144,7 @@ public enum DesignColorsAndFonts {
    * @since 1.0.32
    */
   public static FontStyle defaultFont() {
-    FontStyle result = MemoryStructureProxy.newStructure(FontStyle.class, 0);
+    FontStyle result = MemoryStructureUtil.newStructure(FontStyle.class, 0);
     result.setStandardFont(StandardFonts.SWISS);
     result.setPointSize(10);
     result.setAttributes(EnumSet.of(FontAttribute.BOLD));

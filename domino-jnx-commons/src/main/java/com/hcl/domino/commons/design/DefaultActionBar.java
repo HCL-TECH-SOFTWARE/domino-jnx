@@ -50,7 +50,7 @@ public class DefaultActionBar implements ActionBar {
   @Override
   public ClassicThemeBehavior getClassicThemeBehavior() {
     return getActionBarExtRecord()
-      .map(CDActionBarExt::getThemeSetting)
+      .flatMap(CDActionBarExt::getThemeSetting)
       .orElse(ClassicThemeBehavior.USE_DATABASE_SETTING);
   }
 
@@ -261,9 +261,9 @@ public class DefaultActionBar implements ActionBar {
 
   @Override
   public boolean isFixedSizeButtonMargin() {
-    return getActionBarExtRecord()
-      .map(CDActionBarExt::getFlags)
-      .map(flags -> flags.contains(CDActionBarExt.Flag.WIDTH_STYLE_VALID))
+    return getActionBarRecord()
+      .map(CDActionBar::getFlags)
+      .map(flags -> flags.contains(CDActionBar.Flag.SET_PADDING))
       .orElse(false);
   }
 

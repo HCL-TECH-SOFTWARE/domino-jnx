@@ -19,7 +19,7 @@ package com.hcl.domino.commons.richtext.structures;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 
@@ -40,7 +40,7 @@ public class GenericResizableMemoryStructure implements ResizableMemoryStructure
   @Override
   public ByteBuffer getVariableData() {
     final Class<?> sizeClass = this.recordClass == null ? this.getClass() : this.recordClass;
-    final int structureSize = MemoryStructureProxy.sizeOf(sizeClass);
+    final int structureSize = MemoryStructureUtil.sizeOf(sizeClass);
     return ((ByteBuffer) this.getData().position(structureSize)).slice().order(ByteOrder.nativeOrder());
   }
 
@@ -64,7 +64,7 @@ public class GenericResizableMemoryStructure implements ResizableMemoryStructure
       throw new IllegalArgumentException("New size must be greater than 0 bytes");
     }
     final Class<?> sizeClass = this.recordClass == null ? this.getClass() : this.recordClass;
-    final int totalSize = MemoryStructureProxy.sizeOf(sizeClass) + size;
+    final int totalSize = MemoryStructureUtil.sizeOf(sizeClass) + size;
     this.resize(totalSize);
   }
 }

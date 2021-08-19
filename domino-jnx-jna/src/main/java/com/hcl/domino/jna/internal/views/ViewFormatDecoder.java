@@ -25,7 +25,7 @@ import java.util.List;
 import com.hcl.domino.commons.design.view.DominoViewColumnFormat;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
 import com.hcl.domino.commons.misc.ODSTypes;
-import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.ViewColumnFormat2;
 import com.hcl.domino.design.format.ViewColumnFormat3;
@@ -72,7 +72,7 @@ public class ViewFormatDecoder {
 		int columnValuesIndex = 0;
 		// Always present
 		{
-			int vcfSize = MemoryStructureProxy.sizeOf(ViewColumnFormat.class);
+			int vcfSize = MemoryStructureUtil.sizeOf(ViewColumnFormat.class);
 			ByteBuffer pPackedData = data.duplicate().order(ByteOrder.nativeOrder());
 			pPackedData.position(pPackedData.position()+(vcfSize * format1.getColumnCount()));
 			
@@ -82,7 +82,7 @@ public class ViewFormatDecoder {
 				
 				// Find the actual size with variable data and re-read
 				int varSize = tempCol.getItemNameLength() + tempCol.getTitleLength() + tempCol.getFormulaLength() + tempCol.getConstantValueLength();
-				ViewColumnFormat fullCol = MemoryStructureProxy.newStructure(ViewColumnFormat.class, varSize);
+				ViewColumnFormat fullCol = MemoryStructureUtil.newStructure(ViewColumnFormat.class, varSize);
 				ByteBuffer fullColData = fullCol.getData();
 				// Write the ODS value first
 				fullColData.put(tempCol.getData());
@@ -106,7 +106,7 @@ public class ViewFormatDecoder {
 			data.position(pPackedData.position());
 		}
 
-    int vtf2size = MemoryStructureProxy.sizeOf(ViewTableFormat2.class);
+    int vtf2size = MemoryStructureUtil.sizeOf(ViewTableFormat2.class);
     if(data.remaining() < vtf2size) {
       return result;
     }
@@ -129,7 +129,7 @@ public class ViewFormatDecoder {
 			columns.get(i).read(col);
 		}
 
-    int vtf3size = MemoryStructureProxy.sizeOf(ViewTableFormat3.class);
+    int vtf3size = MemoryStructureUtil.sizeOf(ViewTableFormat3.class);
     if(data.remaining() < vtf3size) {
       return result;
     }
@@ -152,14 +152,14 @@ public class ViewFormatDecoder {
 			int twistieLen = fmt.getTwistieResourceLength();
 			if(twistieLen > 0) {
 			  ByteBuffer buf = readBuffer(data, twistieLen);
-				CDResource res = MemoryStructureProxy.newStructure(CDResource.class, twistieLen - MemoryStructureProxy.sizeOf(CDResource.class));
+				CDResource res = MemoryStructureUtil.newStructure(CDResource.class, twistieLen - MemoryStructureUtil.sizeOf(CDResource.class));
 				res.getData().put(buf);
 				col.readTwistie(res);
 			}
 		}
 		
 		// Followed by VIEW_TABLE_FORMAT4 data
-    int vtf4size = MemoryStructureProxy.sizeOf(ViewTableFormat4.class);
+    int vtf4size = MemoryStructureUtil.sizeOf(ViewTableFormat4.class);
     if(data.remaining() < vtf4size) {
       return result;
     }
@@ -170,7 +170,7 @@ public class ViewFormatDecoder {
     data.position(data.position() + Math.max(0, format4len-vtf4size));
 		
 		// Background resource link
-    int cdresLen = MemoryStructureProxy.sizeOf(CDResource.class);
+    int cdresLen = MemoryStructureUtil.sizeOf(CDResource.class);
     if(data.remaining() < 2) {
       return result;
     }
@@ -178,12 +178,12 @@ public class ViewFormatDecoder {
 		CDResource backgroundRes = null;
 		if(data.hasRemaining() && sig == RichTextConstants.SIG_CD_HREF) {
 			// Retrieve the fixed structure to determine the full length of the record
-		  ByteBuffer tempBuf = subBuffer(data, MemoryStructureProxy.sizeOf(CDResource.class));
-			CDResource res = MemoryStructureProxy.forStructure(CDResource.class, () -> tempBuf);
+		  ByteBuffer tempBuf = subBuffer(data, MemoryStructureUtil.sizeOf(CDResource.class));
+			CDResource res = MemoryStructureUtil.forStructure(CDResource.class, () -> tempBuf);
 			int len = res.getHeader().getLength();
 			
 			ByteBuffer buf = readBuffer(data, len);
-			backgroundRes = MemoryStructureProxy.newStructure(CDResource.class, len - cdresLen);
+			backgroundRes = MemoryStructureUtil.newStructure(CDResource.class, len - cdresLen);
 			backgroundRes.getData().put(buf);
 			result.readBackgroundResource(backgroundRes);
 		}
@@ -200,9 +200,9 @@ public class ViewFormatDecoder {
 			ViewColumnFormat2 fmt = col.getAdapter(ViewColumnFormat2.class);
 			if(fmt.getFlags().contains(ViewColumnFormat2.Flag3.ExtDate)) {
 				
-				int len = MemoryStructureProxy.sizeOf(ViewColumnFormat3.class);
+				int len = MemoryStructureUtil.sizeOf(ViewColumnFormat3.class);
 				ByteBuffer tempBuf = subBuffer(data, len);
-				ViewColumnFormat3 tempCol = MemoryStructureProxy.forStructure(ViewColumnFormat3.class, () -> tempBuf);
+				ViewColumnFormat3 tempCol = MemoryStructureUtil.forStructure(ViewColumnFormat3.class, () -> tempBuf);
 				if(tempCol.getSignature() != ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE3) {
 					throw new IllegalStateException("Encountered unexpected signature when looking for VIEW_COLUMN_FORMAT3: 0x" + Integer.toHexString(tempCol.getSignature()));
 				}
@@ -211,7 +211,7 @@ public class ViewFormatDecoder {
 				int varLen = tempCol.getDateSeparator1Length() + tempCol.getDateSeparator2Length() + tempCol.getDateSeparator3Length()
 					+ tempCol.getTimeSeparatorLength();
 				ByteBuffer buf = readBuffer(data, len+varLen);
-				ViewColumnFormat3 col3 = MemoryStructureProxy.newStructure(ViewColumnFormat3.class, varLen);
+				ViewColumnFormat3 col3 = MemoryStructureUtil.newStructure(ViewColumnFormat3.class, varLen);
 				col3.getData().put(buf);
 				col.read(col3);
 			}
@@ -227,9 +227,9 @@ public class ViewFormatDecoder {
 			ViewColumnFormat2 fmt = col.getAdapter(ViewColumnFormat2.class);
 			if(fmt.getFlags().contains(ViewColumnFormat2.Flag3.NumberFormat)) {
 				
-				int len = MemoryStructureProxy.sizeOf(ViewColumnFormat4.class);
+				int len = MemoryStructureUtil.sizeOf(ViewColumnFormat4.class);
 				ByteBuffer tempBuf = subBuffer(data, len);
-				ViewColumnFormat4 tempCol = MemoryStructureProxy.forStructure(ViewColumnFormat4.class, () -> tempBuf);
+				ViewColumnFormat4 tempCol = MemoryStructureUtil.forStructure(ViewColumnFormat4.class, () -> tempBuf);
 				if(tempCol.getSignature() != ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE4) {
 					throw new IllegalStateException("Encountered unexpected signature when looking for VIEW_COLUMN_FORMAT4: 0x" + Integer.toHexString(tempCol.getSignature()));
 				}
@@ -238,7 +238,7 @@ public class ViewFormatDecoder {
 				long varLen = tempCol.getCurrencySymbolLength() + tempCol.getDecimalSymbolLength() + tempCol.getMilliSeparatorLength()
 					+ tempCol.getNegativeSymbolLength();
         ByteBuffer buf = readBuffer(data, len+varLen);
-				ViewColumnFormat4 col4 = MemoryStructureProxy.newStructure(ViewColumnFormat4.class, (int)varLen);
+				ViewColumnFormat4 col4 = MemoryStructureUtil.newStructure(ViewColumnFormat4.class, (int)varLen);
 				col4.getData().put(buf);
 				col.read(col4);
 			}
@@ -253,9 +253,9 @@ public class ViewFormatDecoder {
 			DominoViewColumnFormat col = columns.get(i);
 			ViewColumnFormat2 fmt = col.getAdapter(ViewColumnFormat2.class);
 			if(fmt.getFlags().contains(ViewColumnFormat2.Flag3.NamesFormat)) {
-				int len = MemoryStructureProxy.sizeOf(ViewColumnFormat5.class);
+				int len = MemoryStructureUtil.sizeOf(ViewColumnFormat5.class);
         ByteBuffer tempBuf = subBuffer(data, len);
-				ViewColumnFormat5 tempCol = MemoryStructureProxy.forStructure(ViewColumnFormat5.class, () -> tempBuf);
+				ViewColumnFormat5 tempCol = MemoryStructureUtil.forStructure(ViewColumnFormat5.class, () -> tempBuf);
 				if(tempCol.getSignature() != ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE5) {
 					throw new IllegalStateException("Encountered unexpected signature when looking for VIEW_COLUMN_FORMAT5: 0x" + Integer.toHexString(tempCol.getSignature()));
 				}
@@ -263,7 +263,7 @@ public class ViewFormatDecoder {
 				// Re-read with variable data
 				int totalLen = tempCol.getLength();
         ByteBuffer buf = readBuffer(data, totalLen);
-				ViewColumnFormat5 col5 = MemoryStructureProxy.newStructure(ViewColumnFormat5.class, totalLen - MemoryStructureProxy.sizeOf(ViewColumnFormat5.class));
+				ViewColumnFormat5 col5 = MemoryStructureUtil.newStructure(ViewColumnFormat5.class, totalLen - MemoryStructureUtil.sizeOf(ViewColumnFormat5.class));
 				col5.getData().put(buf);
 				col.read(col5);
 			}
@@ -318,10 +318,10 @@ public class ViewFormatDecoder {
 			DominoViewColumnFormat col = columns.get(i);
 			ViewColumnFormat2 fmt = col.getAdapter(ViewColumnFormat2.class);
 			if(fmt.getFlags().contains(ViewColumnFormat2.Flag3.ExtendedViewColFmt6)) {
-				int len = MemoryStructureProxy.sizeOf(ViewColumnFormat6.class);
+				int len = MemoryStructureUtil.sizeOf(ViewColumnFormat6.class);
 				
         ByteBuffer tempBuf = subBuffer(data, len);
-				ViewColumnFormat6 tempCol = MemoryStructureProxy.forStructure(ViewColumnFormat6.class, () -> tempBuf);
+				ViewColumnFormat6 tempCol = MemoryStructureUtil.forStructure(ViewColumnFormat6.class, () -> tempBuf);
 				if(tempCol.getSignature() != ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE6) {
 					throw new IllegalStateException("Encountered unexpected signature when looking for VIEW_COLUMN_FORMAT6: 0x" + Integer.toHexString(tempCol.getSignature()));
 				}
@@ -329,7 +329,7 @@ public class ViewFormatDecoder {
 				// Re-read with variable data
 				int totalLen = tempCol.getLength();
         ByteBuffer buf = readBuffer(data, totalLen);
-				ViewColumnFormat6 col6 = MemoryStructureProxy.newStructure(ViewColumnFormat6.class, totalLen - MemoryStructureProxy.sizeOf(ViewColumnFormat6.class));
+				ViewColumnFormat6 col6 = MemoryStructureUtil.newStructure(ViewColumnFormat6.class, totalLen - MemoryStructureUtil.sizeOf(ViewColumnFormat6.class));
 				col6.getData().put(buf);
 				col.read(col6);
 			}
@@ -345,8 +345,8 @@ public class ViewFormatDecoder {
   private static <T extends MemoryStructure> T readMemory(PointerByReference ppData, short odsType, Class<T> struct) {
 		
 		// Straight-read variant
-		T result = MemoryStructureProxy.newStructure(struct, 0);
-		int len = MemoryStructureProxy.sizeOf(struct);
+		T result = MemoryStructureUtil.newStructure(struct, 0);
+		int len = MemoryStructureUtil.sizeOf(struct);
 		result.getData().put(ppData.getValue().getByteBuffer(0, len));
 		ppData.setValue(ppData.getValue().share(len));
 		
@@ -360,9 +360,9 @@ public class ViewFormatDecoder {
     //    care has to be taken on "UNIX", which is everything else.
     //    Additionally, not all structures here have ODS numbers
 	  PointerByReference ppData = new PointerByReference(data);
-    Memory mem = new Memory(MemoryStructureProxy.sizeOf(struct));
+    Memory mem = new Memory(MemoryStructureUtil.sizeOf(struct));
     NotesCAPI.get().ODSReadMemory(ppData, odsType, mem, (short)1);
-    return MemoryStructureProxy.forStructure(struct, () -> mem.getByteBuffer(0, mem.size()));
+    return MemoryStructureUtil.forStructure(struct, () -> mem.getByteBuffer(0, mem.size()));
 	  
 	}
 	
@@ -376,8 +376,8 @@ public class ViewFormatDecoder {
 	 * @return the read structure
 	 */
 	private static <T extends MemoryStructure> T readMemory(ByteBuffer data, short odsType, Class<T> struct) {
-	  T result = MemoryStructureProxy.newStructure(struct, 0);
-    int len = MemoryStructureProxy.sizeOf(struct);
+	  T result = MemoryStructureUtil.newStructure(struct, 0);
+    int len = MemoryStructureUtil.sizeOf(struct);
     byte[] bytes = new byte[len];
     data.get(bytes);
     result.getData().put(bytes);
