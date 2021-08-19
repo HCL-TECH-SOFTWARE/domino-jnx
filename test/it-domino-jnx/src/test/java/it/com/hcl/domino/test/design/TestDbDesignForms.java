@@ -62,7 +62,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignForms extends AbstractDesignTest {
-  public static final int EXPECTED_IMPORT_FORMS = 4;
+  public static final int EXPECTED_IMPORT_FORMS = 5;
   public static final int EXPECTED_IMPORT_SUBFORMS = 2;
 
   private static String dbPath;
@@ -609,7 +609,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
     Form form = design.getForm("Test LS Form").get();
     
     assertEquals(Form.Type.RESPONSE_TO_RESPONSE, form.getType());
-    assertEquals(Form.MenuInclusion.CREATE_OTHER, form.getMenuInclusionMode());
+    assertEquals(Form.MenuInclusion.NONE, form.getMenuInclusionMode());
     assertFalse(form.isIncludeInSearchBuilder());
     assertTrue(form.isIncludeInPrint());
     
@@ -629,6 +629,28 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertTrue(form.isAllowAutosave());
     
     assertEquals(Form.ConflictBehavior.MERGE_CONFLICTS, form.getConflictBehavior());
+    
+    
+    assertTrue(form.isInheritSelectedDocumentValues());
+    Form.InheritanceBehavior inheritance = form.getSelectedDocumentInheritanceBehavior().get();
+    assertEquals("TargetBody", inheritance.getTargetField());
+    assertEquals(Form.InheritanceFieldType.COLLAPSIBLE_RICH_TEXT, inheritance.getType());
+    
+    assertTrue(form.isAutomaticallyEnableEditMode());
+    assertEquals(Form.ContextPaneBehavior.PARENT, form.getContextPaneBehavior());
+    
+    assertTrue(form.isShowMailDialogOnClose());
+    
+    Form.WebRenderingSettings web = form.getWebRenderingSettings();
+    assertFalse(web.isRenderRichContentOnWeb());
+    assertEquals("", web.getWebMimeType().get());
+    assertEquals("Windows-1252", web.getWebCharset().get());
+    assertColorEquals(web.getActiveLinkColor(), 0, 96, 160);
+    assertColorEquals(web.getUnvisitedLinkColor(), 255, 192, 182);
+    assertColorEquals(web.getVisitedLinkColor(), 159, 159, 224);
+    
+    assertEquals("testconn", form.getDefaultDataConnectionName().get());
+    assertEquals("foo", form.getDefaultDataConnectionObject().get());
   }
 
   @Test
@@ -637,6 +659,25 @@ public class TestDbDesignForms extends AbstractDesignTest {
     Form form = design.getForm("Default Form").get();
     
     assertTrue(form.isDefaultForm());
+
+    Form.WebRenderingSettings web = form.getWebRenderingSettings();
+    assertTrue(web.isRenderRichContentOnWeb());
+    assertFalse(web.getWebMimeType().isPresent());
+    assertFalse(web.getWebCharset().isPresent());
+    
+    assertFalse(form.getDefaultDataConnectionName().isPresent());
+    assertFalse(form.getDefaultDataConnectionObject().isPresent());
+  }
+
+  @Test
+  public void testOtherTypeForm() throws IOException {
+    DbDesign design = this.database.getDesign();
+    Form form = design.getForm("Other Type Form").get();
+
+    Form.WebRenderingSettings web = form.getWebRenderingSettings();
+    assertFalse(web.isRenderRichContentOnWeb());
+    assertEquals("text/css", web.getWebMimeType().get());
+    assertFalse(web.getWebCharset().isPresent());
   }
 
   @Test
