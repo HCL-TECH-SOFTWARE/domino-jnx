@@ -26,6 +26,12 @@ On all systems, you should set the `java.library.path` Java property to point to
 java -jar Foo.jar -Djava.library.path="/Applications/HCL Notes.app/Contents/MacOS"
 ```
 
+Additionally, it may sometimes be necessary to also set `jna.library.path`. This requirement was observed on Windows when using a path with a space in it. For example:
+
+```sh
+java -jar Foo.jar -Djna.library.path="D:\Program Files\HCL\Domino" -Djava.library.path="D:\Program Files\HCL\Domino"
+```
+
 ### Environment Variables
 
 This applies to Linux and macOS, but usually not Windows, which picks up a lot of contextual information from, presumably, the registry.
