@@ -1,13 +1,18 @@
-package com.hcl.domino.richtext.conversion;
+package com.hcl.domino.commons.richtext.conversion;
 
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
+import com.hcl.domino.commons.util.DumpUtil;
+import com.hcl.domino.commons.util.TriConsumer;
 import com.hcl.domino.richtext.RichTextWriter;
+import com.hcl.domino.richtext.conversion.IRichTextConversion;
 import com.hcl.domino.richtext.records.CDText;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.structures.FontStyle;
 
 /**
  * Richtext conversion that scans the text content of a richtext item
@@ -37,7 +42,7 @@ import com.hcl.domino.richtext.records.RichTextRecord;
  */
 public class PatternBasedTextReplacementConversion implements IRichTextConversion {
 	private Pattern pattern;
-	private BiConsumer<Matcher, RichTextWriter> consumer;
+	private TriConsumer<Matcher, FontStyle, RichTextWriter> consumer;
 	
 	/**
 	 * Creates a new instance
@@ -45,7 +50,7 @@ public class PatternBasedTextReplacementConversion implements IRichTextConversio
 	 * @param pattern search pattern
 	 * @param consumer consumer to produce new content
 	 */
-	public PatternBasedTextReplacementConversion(Pattern pattern, BiConsumer<Matcher, RichTextWriter> consumer) {
+	public PatternBasedTextReplacementConversion(Pattern pattern, TriConsumer<Matcher, FontStyle, RichTextWriter> consumer) {
 		this.pattern = pattern;
 		this.consumer = consumer;
 	}
@@ -88,21 +93,31 @@ public class PatternBasedTextReplacementConversion implements IRichTextConversio
 		        	if (startIdx>currIdx) {
 		        		String preTxt = txt.substring(currIdx, startIdx);
 		        		if (preTxt.length()>0) {
-			        		target.addText(preTxt);
+			        		CDText preTxtRecord = MemoryStructureUtil.newStructure(CDText.class, 0);
+			        		preTxtRecord.setStyle(txtRecord.getStyle());
+			        		preTxtRecord.setText(preTxt);
+			        		//add CDText WSIG
+			        		preTxtRecord.getData().put((byte) 0x85).put((byte) 0xff);
+			        		target.addRichTextRecord(preTxtRecord);
 		        		}
 		        	}
 		        	
 		        	currIdx = endIdx;
 		        	
 		        	//consumer receives regexp matcher and writes to the target
-		        	this.consumer.accept(matcher, target);
+		        	this.consumer.accept(matcher, txtRecord.getStyle(), target);
 		        }
 				
 		        //write remaining txt until the end
 		        if (currIdx < txt.length()) {
 		        	String postTxt = txt.substring(currIdx, txt.length());
 		        	if (postTxt.length()>0) {
-		        		target.addText(postTxt);
+		        		CDText postTxtRecord = MemoryStructureUtil.newStructure(CDText.class, 0);
+		        		postTxtRecord.setStyle(txtRecord.getStyle());
+		        		postTxtRecord.setText(postTxt);
+		        		//add CDText WSIG
+		        		postTxtRecord.getData().put((byte) 0x85).put((byte) 0xff);
+		        		target.addRichTextRecord(postTxtRecord);
 		        	}
 		        }
 			}
