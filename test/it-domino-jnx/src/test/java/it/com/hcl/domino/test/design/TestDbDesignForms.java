@@ -29,8 +29,8 @@ import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.design.ActionBar;
 import com.hcl.domino.design.ActionBar.ButtonHeightMode;
+import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.DbDesign;
-import com.hcl.domino.design.DesignElement.ClassicThemeBehavior;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageRepeatMode;
@@ -53,6 +53,8 @@ import com.hcl.domino.design.format.BorderStyle;
 import com.hcl.domino.design.format.ButtonBorderDisplay;
 import com.hcl.domino.design.format.HideFromDevice;
 import com.hcl.domino.design.format.HtmlEventId;
+import com.hcl.domino.design.frameset.FrameScrollStyle;
+import com.hcl.domino.design.frameset.FrameSizingType;
 import com.hcl.domino.design.simpleaction.ModifyFieldAction;
 import com.hcl.domino.design.simpleaction.ReadMarksAction;
 import com.hcl.domino.design.simpleaction.SendDocumentAction;
@@ -689,6 +691,18 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertFalse(background.isUserCustomizable());
     assertEquals(ImageRepeatMode.HORIZONTAL, background.getBackgroundImageRepeatMode());
     assertEquals(ClassicThemeBehavior.INHERIT_FROM_OS, form.getClassicThemeBehavior());
+    
+    {
+      Form.HeaderFrameSettings headerFrame = form.getHeaderFrameSettings();
+      assertTrue(headerFrame.isUseHeader());
+      assertEquals(4, headerFrame.getHeaderSize().getAsInt());
+      assertEquals(FrameSizingType.PERCENTAGE, headerFrame.getHeaderSizingType().get());
+      assertEquals(FrameScrollStyle.AUTO, headerFrame.getScrollStyle().get());
+      assertFalse(headerFrame.isAllowResizing());
+      assertEquals(5, headerFrame.getBorderWidth().getAsInt());
+      assertColorEquals(headerFrame.getBorderColor().get(), 97, 129, 255);
+      assertTrue(headerFrame.isUse3DShading());
+    }
   }
 
   @Test
@@ -718,6 +732,18 @@ public class TestDbDesignForms extends AbstractDesignTest {
     
     Form.AutoLaunchSettings auto = form.getAutoLaunchSettings();
     assertEquals(AutoLaunchType.DOCLINK, auto.getType());
+
+    {
+      Form.HeaderFrameSettings headerFrame = form.getHeaderFrameSettings();
+      assertTrue(headerFrame.isUseHeader());
+      assertEquals(100, headerFrame.getHeaderSize().getAsInt());
+      assertEquals(FrameSizingType.PIXELS, headerFrame.getHeaderSizingType().get());
+      assertEquals(FrameScrollStyle.NEVER, headerFrame.getScrollStyle().get());
+      assertTrue(headerFrame.isAllowResizing());
+      assertEquals(1, headerFrame.getBorderWidth().getAsInt());
+      assertColorEquals(headerFrame.getBorderColor().get(), 0, 0, 0);
+      assertFalse(headerFrame.isUse3DShading());
+    }
   }
 
   @Test
@@ -744,6 +770,16 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertTrue(background.isUserCustomizable());
     assertEquals(ImageRepeatMode.TILE, background.getBackgroundImageRepeatMode());
     assertEquals(ClassicThemeBehavior.DONT_INHERIT_FROM_OS, form.getClassicThemeBehavior());
+
+    {
+      Form.HeaderFrameSettings headerFrame = form.getHeaderFrameSettings();
+      assertFalse(headerFrame.isUseHeader());
+      assertFalse(headerFrame.getBorderColor().isPresent());
+      assertFalse(headerFrame.getBorderWidth().isPresent());
+      assertFalse(headerFrame.getHeaderSize().isPresent());
+      assertFalse(headerFrame.getHeaderSizingType().isPresent());
+      assertFalse(headerFrame.getScrollStyle().isPresent());
+    }
   }
 
   @Test

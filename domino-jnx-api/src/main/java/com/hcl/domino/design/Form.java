@@ -17,12 +17,15 @@
 package com.hcl.domino.design;
 
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 
 import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.design.form.AutoLaunchHideWhen;
 import com.hcl.domino.design.form.AutoLaunchType;
 import com.hcl.domino.design.form.AutoLaunchWhen;
+import com.hcl.domino.design.frameset.FrameScrollStyle;
+import com.hcl.domino.design.frameset.FrameSizingType;
 import com.hcl.domino.richtext.NotesBitmap;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
@@ -32,47 +35,6 @@ import com.hcl.domino.richtext.structures.ColorValue;
  */
 public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlternativeElement,
   DesignElement.XPageNotesAlternativeElement, DesignElement.AutoFrameElement, DesignElement.ThemeableClassicElement {
-
-  /**
-   * Represents the type of document the UI should create when using this
-   * form.
-   * 
-   * @author Jesse Gallagher
-   * @since 1.0.33
-   */
-  enum Type {
-    DOCUMENT, RESPONSE, RESPONSE_TO_RESPONSE
-  }
-  
-  /**
-   * Represents the modes for menu inclusion for the form in the UI.
-   * 
-   * @author Jesse Gallagher
-   * @since 1.0.33
-   */
-  enum MenuInclusion {
-    NONE, CREATE, CREATE_OTHER
-  }
-  
-  /**
-   * Represents the modes for version handling in the form.
-   * 
-   * @author Jesse Gallagher
-   * @since 1.0.33
-   */
-  enum VersioningBehavior {
-    NONE, NEW_AS_RESPONSES, PRIOR_AS_RESPONSES, NEW_AS_SIBLINGS
-  }
-  
-  /**
-   * Represents the modes for conflict handling in the form..
-   * 
-   * @author Jesse Gallagher
-   * @since 1.0.33
-   */
-  enum ConflictBehavior {
-    CREATE_CONFLICTS, MERGE_CONFLICTS, MERGE_NO_CONFLICTS, DO_NOT_CREATE_CONFLICTS
-  }
   
   /**
    * Represents the settings for inheritance of the entire selected document
@@ -307,6 +269,122 @@ public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlt
      * @return an {@link ImageRepeatMode} for the background image
      */
     ImageRepeatMode getBackgroundImageRepeatMode();
+  }
+  
+  /**
+   * Represents settings related to the in-form (non-print) header frame.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.34
+   */
+  interface HeaderFrameSettings {
+    /**
+     * Determines whether the form uses a header frame at the top of the body area.
+     * 
+     * @return {@code true} to use a header frame region in the body;
+     *         {@code false} otherwise
+     */
+    boolean isUseHeader();
+    
+    /**
+     * Determines the sizing method for the header, if enabled.
+     * 
+     * @return an {@link Optional} describing a {@link FrameSizingType} instance for the
+     *         header, or an empty one if the header is not enabled
+     */
+    Optional<FrameSizingType> getHeaderSizingType();
+    
+    /**
+     * Determines the size of the header, if enabled.
+     * 
+     * <p>The meaning of this number is determined by {@link #getHeaderSizingType()}.
+     * 
+     * @return an {@link OptionalInt} describing the pixel or percentage size of the header,
+     *         or an empty one if the header is not enabled
+     */
+    OptionalInt getHeaderSize();
+    
+    /**
+     * Determines the scrolling behavior of the header, if enabled.
+     * 
+     * @return an {@link Optional} describing a {@link FrameScrollStyle} instance for the
+     *         header, or an empty one if the header is not enabled
+     */
+    Optional<FrameScrollStyle> getScrollStyle();
+    
+    /**
+     * Determines whether header resizing is enabled when the header itself is enabled.
+     * 
+     * @return {@code true} if the header is user-resizable;
+     *         {@code false} otherwise
+     */
+    boolean isAllowResizing();
+    
+    /**
+     * Determines the width, in pixels, of the border when the header is enabled.
+     * 
+     * @return an {@link OptionalInt} describing the pixel size of the border,
+     *         or an empty one if the header is not enabled
+     */
+    OptionalInt getBorderWidth();
+    
+    /**
+     * Determines the color of the border when the header is enabled.
+     * 
+     * @return an {@link Optional} describing the {@link ColorValue} of the border,
+     *         or an empty one if the header is not enabled
+     */
+    Optional<ColorValue> getBorderColor();
+    
+    /**
+     * Determines whether the header border should use 3D shading when the header
+     * is enabled.
+     * 
+     * @return {@code true} if the header border should use 3D shading when shown;
+     *         {@code false} otherwise
+     */
+    boolean isUse3DShading();
+  }
+
+  /**
+   * Represents the type of document the UI should create when using this
+   * form.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.33
+   */
+  enum Type {
+    DOCUMENT, RESPONSE, RESPONSE_TO_RESPONSE
+  }
+  
+  /**
+   * Represents the modes for menu inclusion for the form in the UI.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.33
+   */
+  enum MenuInclusion {
+    NONE, CREATE, CREATE_OTHER
+  }
+  
+  /**
+   * Represents the modes for version handling in the form.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.33
+   */
+  enum VersioningBehavior {
+    NONE, NEW_AS_RESPONSES, PRIOR_AS_RESPONSES, NEW_AS_SIBLINGS
+  }
+  
+  /**
+   * Represents the modes for conflict handling in the form..
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.33
+   */
+  enum ConflictBehavior {
+    CREATE_CONFLICTS, MERGE_CONFLICTS, MERGE_NO_CONFLICTS, DO_NOT_CREATE_CONFLICTS
   }
   
   /**
@@ -571,4 +649,13 @@ public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlt
    * @since 1.0.34
    */
   BackgroundSettings getBackgroundSettings();
+  
+  /**
+   * Retrieves an object that provides a view onto the settings for the in-form (non-print)
+   * header frame of the form.
+   * 
+   * @return a {@link HeaderFrameSettings} instance
+   * @since 1.0.34
+   */
+  HeaderFrameSettings getHeaderFrameSettings();
 }

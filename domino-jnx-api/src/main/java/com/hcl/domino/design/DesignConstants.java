@@ -310,4 +310,60 @@ public interface DesignConstants {
   String BACKGROUNDGRAPHIC_REPEAT_BOTH = "4"; //$NON-NLS-1$
   String BACKGROUNDGRAPHIC_REPEAT_SIZE = "5"; //$NON-NLS-1$
   String BACKGROUNDGRAPHIC_REPEAT_CENTER = "6"; //$NON-NLS-1$
+  
+  short FRAMESETHEADER_VERSION = 2;
+  
+  /**  Set if BorderEnable is specified  */
+  int fFSBorderEnable = 0x00000001;
+  /**  Set if FrameBorderWidth is specified  */
+  int fFSFrameBorderDims = 0x00000004;
+  /**  Set if FrameSpacingWidth is specified  */
+  int fFSFrameSpacingDims = 0x00000008;
+  /**  Set if FrameBorderColor is specified  */
+  int fFSFrameBorderColor = 0x00000040;
+  
+  /**  Attribute is expressed as pixels  */
+  short PIXELS_LengthType = 1;
+  /**  Attribute is expressed as a percentage  */
+  short PERCENTAGE_LengthType = 2;
+  /**  Attribute is expressed as relative  */
+  short RELATIVE_LengthType = 3;
+  
+  /**  Set if BorderEnable is specified  */
+  int fFRBorderEnable = 0x00000001;
+  /**  Set if MarginWidth is specified  */
+  int fFRMarginWidth = 0x00000002;
+  /**  Set if MarginHeight is specified  */
+  int fFRMarginHeight = 0x00000004;
+  /**  Set if FrameBorderColor is specified  */
+  int fFRFrameBorderColor = 0x00000008;
+  /**  Set if ScrollBarStyle is specified  */
+  int fFRScrolling = 0x00000010;
+  /**  Set if this frame has a notes only border */
+  int fFRNotesOnlyBorder = 0x00000020;
+  /**  Set if this fram want arrows shown in Notes */
+  int fFRNotesOnlyArrows = 0x00000040;
+  /**  Open value specified for Border caption is in percent. */
+  int fFRNotesOpenPercent = 0x00000080;
+  /**  if set, set initial focus to this frame  */
+  int fFRNotesInitialFocus = 0x00000100;
+  /**  Set if this fram caption reading order is Right-To-Left */
+  int fFRNotesReadingOrder = 0x00000200;
+  
+  short fFRNotesBorder = (short)0x8000;
+  short fFRNotesBorderFontAndColor = 0x4000;
+  short fFRNotesBorderCaption = 0x2000;
+  short fFRNotesCaptionFontName = 0x1000;
+  /**  set this if frame has a sequence set other than the default 0  */
+  short fFRSequence = 0x0800;
+  
+  /**  SCROLLING = ALWAYS  */
+  short ALWAYS_ScrollStyle = 1;
+  /**  SCROLLING = NEVER  */
+  short NEVER_ScrollStyle = 2;
+  /**  SCROLLING = AUTO  */
+  short AUTO_ScrollStyle = 3;
+  
+  String ITEM_NAME_HEADERAREA = "$HeaderArea"; //$NON-NLS-1$
+  String ITEM_NAME_REGIONFRAMESET = "$RegionFrameset"; //$NON-NLS-1$
 }

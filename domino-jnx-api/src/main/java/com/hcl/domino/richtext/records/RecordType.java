@@ -536,11 +536,11 @@ public enum RecordType {
   /* Signatures for Frameset CD records */
 
   /** Beginning header record to both a CDFRAMESET and CDFRAME record. */
-  FRAMESETHEADER(RichTextConstants.SIG_CD_FRAMESETHEADER, 2),
+  FRAMESETHEADER(RichTextConstants.SIG_CD_FRAMESETHEADER, 2, CDFramesetHeader.class),
   /** Used to specify an HTML FRAMESET element */
-  FRAMESET(RichTextConstants.SIG_CD_FRAMESET, 2),
+  FRAMESET(RichTextConstants.SIG_CD_FRAMESET, 2, CDFrameset.class),
   /** Used to specify an HTML FRAME element */
-  FRAME(RichTextConstants.SIG_CD_FRAME, 2),
+  FRAME(RichTextConstants.SIG_CD_FRAME, 2, CDFrame.class),
 
   /* Signature for Target Frame info on a link */
 

@@ -34,6 +34,7 @@ import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoCollection;
+import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.DesignElement;

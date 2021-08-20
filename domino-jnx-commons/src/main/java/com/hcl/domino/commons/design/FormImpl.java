@@ -18,18 +18,23 @@ package com.hcl.domino.commons.design;
 
 import java.util.Collections;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import com.hcl.domino.commons.richtext.DefaultNotesBitmap;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.StandardColors;
+import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.form.AutoLaunchHideWhen;
 import com.hcl.domino.design.form.AutoLaunchType;
 import com.hcl.domino.design.form.AutoLaunchWhen;
+import com.hcl.domino.design.frameset.FrameScrollStyle;
+import com.hcl.domino.design.frameset.FrameSizingType;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.NotesBitmap;
@@ -38,11 +43,13 @@ import com.hcl.domino.richtext.records.CDDECSField;
 import com.hcl.domino.richtext.records.CDDocAutoLaunch;
 import com.hcl.domino.richtext.records.CDDocument;
 import com.hcl.domino.richtext.records.CDField;
+import com.hcl.domino.richtext.records.CDFrame;
 import com.hcl.domino.richtext.records.CDGraphic;
 import com.hcl.domino.richtext.records.CDLinkColors;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.structures.ColorValue;
+import com.hcl.domino.richtext.structures.FramesetLength;
 
 public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefaultAutoFrameElement {
 
@@ -266,6 +273,11 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
       .orElse(ClassicThemeBehavior.USE_DATABASE_SETTING);
   }
   
+  @Override
+  public HeaderFrameSettings getHeaderFrameSettings() {
+    return new DefaultHeaderFrameSettings();
+  }
+  
   // *******************************************************************************
   // * Internal implementation utilities
   // *******************************************************************************
@@ -291,6 +303,15 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
         .filter(CDDocAutoLaunch.class::isInstance)
         .map(CDDocAutoLaunch.class::cast)
         .findFirst();
+    } else {
+      return Optional.empty();
+    }
+  }
+  
+  private Optional<DominoFramesetFormat> getRegionFrameset() {
+    Document doc = getDocument();
+    if(doc.hasItem(DesignConstants.ITEM_NAME_REGIONFRAMESET)) {
+      return Optional.of(new DominoFramesetFormat(doc.getRichTextItem(DesignConstants.ITEM_NAME_REGIONFRAMESET, Area.FRAMESETS)));
     } else {
       return Optional.empty();
     }
@@ -538,6 +559,106 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
       String repeatVal = getDocument().getAsText(DesignConstants.ITEM_NAME_BACKGROUNDGRAPHIC_REPEAT, ' ');
       return DominoEnumUtil.valueOfString(ImageRepeatMode.class, repeatVal)
         .orElse(ImageRepeatMode.TILE);
+    }
+  }
+  
+  private class DefaultHeaderFrameSettings implements HeaderFrameSettings {
+
+    @Override
+    public boolean isUseHeader() {
+      return getDocument().get(DesignConstants.ITEM_NAME_HEADERAREA, int.class, 0) == 1;
+    }
+    
+
+    // This frameset will have two frames, the first of which is the header
+
+    @Override
+    public Optional<FrameSizingType> getHeaderSizingType() {
+      if(isUseHeader()) {
+        return getRegionFrameset()
+          .flatMap(DominoFramesetFormat::getFramesetRecord)
+          .map(rec -> rec.getLengths().stream())
+          .flatMap(Stream::findFirst)
+          .map(FramesetLength::getType);
+      } else {
+        return Optional.empty();
+      }
+    }
+
+    @Override
+    public OptionalInt getHeaderSize() {
+      if(isUseHeader()) {
+        return getRegionFrameset()
+          .flatMap(DominoFramesetFormat::getFramesetRecord)
+          .map(rec -> rec.getLengths().stream())
+          .flatMap(Stream::findFirst)
+          .map(len -> OptionalInt.of(len.getValue()))
+          .orElseGet(OptionalInt::empty);
+      } else {
+        return OptionalInt.empty();
+      }
+    }
+
+    @Override
+    public Optional<FrameScrollStyle> getScrollStyle() {
+      if(isUseHeader()) {
+        return getRegionFrameset()
+          .map(DominoFramesetFormat::getFrameRecords)
+          .flatMap(Stream::findFirst)
+          .map(CDFrame::getScrollBarStyle);
+      } else {
+        return Optional.empty();
+      }
+    }
+
+    @Override
+    public boolean isAllowResizing() {
+      if(isUseHeader()) {
+        return getRegionFrameset()
+          .map(DominoFramesetFormat::getFrameRecords)
+          .flatMap(Stream::findFirst)
+          .map(rec -> rec.getNoResize() != 1)
+          .orElse(true);
+      } else {
+        return true;
+      }
+    }
+
+    @Override
+    public OptionalInt getBorderWidth() {
+      if(isUseHeader()) {
+        return getRegionFrameset()
+          .flatMap(DominoFramesetFormat::getFramesetRecord)
+          .map(rec -> OptionalInt.of(rec.getFrameBorderWidth()))
+          .orElseGet(OptionalInt::empty);
+      } else {
+        return OptionalInt.empty();
+      }
+    }
+
+    @Override
+    public Optional<ColorValue> getBorderColor() {
+      if(isUseHeader()) {
+        return getRegionFrameset()
+          .map(DominoFramesetFormat::getFrameRecords)
+          .flatMap(Stream::findFirst)
+          .map(CDFrame::getFrameBorderColor);
+      } else {
+        return Optional.empty();
+      }
+    }
+
+    @Override
+    public boolean isUse3DShading() {
+      if(isUseHeader()) {
+        return getRegionFrameset()
+          .map(DominoFramesetFormat::getFrameRecords)
+          .flatMap(Stream::findFirst)
+          .map(rec -> rec.getBorderEnable() == 1)
+          .orElse(true);
+      } else {
+        return true;
+      }
     }
     
   }
