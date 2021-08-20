@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.commons.design;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
@@ -23,11 +24,16 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.Form;
+import com.hcl.domino.design.form.AutoLaunchHideWhen;
+import com.hcl.domino.design.form.AutoLaunchType;
+import com.hcl.domino.design.form.AutoLaunchWhen;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.records.CDDECSField;
+import com.hcl.domino.richtext.records.CDDocAutoLaunch;
 import com.hcl.domino.richtext.records.CDDocument;
 import com.hcl.domino.richtext.records.CDField;
 import com.hcl.domino.richtext.records.CDLinkColors;
+import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.structures.ColorValue;
 
 public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefaultAutoFrameElement {
@@ -231,6 +237,11 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
     return getDecsField().map(CDDECSField::getMetadataName);
   }
   
+  @Override
+  public AutoLaunchSettings getAutoLaunchSettings() {
+    return new DefaultAutoLaunchSettings();
+  }
+  
   // *******************************************************************************
   // * Internal implementation utilities
   // *******************************************************************************
@@ -242,6 +253,19 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
         .stream()
         .filter(CDDECSField.class::isInstance)
         .map(CDDECSField.class::cast)
+        .findFirst();
+    } else {
+      return Optional.empty();
+    }
+  }
+  
+  private Optional<CDDocAutoLaunch> getAutoLaunchRecord() {
+    Document doc = getDocument();
+    if(doc.hasItem(DesignConstants.FORM_AUTOLAUNCH_ITEM)) {
+      return doc.getRichTextItem(DesignConstants.FORM_AUTOLAUNCH_ITEM, Area.RESERVED_INTERNAL)
+        .stream()
+        .filter(CDDocAutoLaunch.class::isInstance)
+        .map(CDDocAutoLaunch.class::cast)
         .findFirst();
     } else {
       return Optional.empty();
@@ -344,6 +368,78 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
         .findFirst()
         .map(CDLinkColors::getVisitedColor)
         .orElseGet(DesignColorsAndFonts::defaultVisitedLink);
+    }
+  }
+  
+  private class DefaultAutoLaunchSettings implements AutoLaunchSettings {
+
+    @Override
+    public AutoLaunchType getType() {
+      return getAutoLaunchRecord()
+        .map(CDDocAutoLaunch::getObjectType)
+        .orElse(AutoLaunchType.NONE);
+    }
+
+    @Override
+    public Optional<String> getOleType() {
+      return getAutoLaunchRecord()
+        .flatMap(rec -> {
+          if(rec.getObjectType() == AutoLaunchType.OLE_CLASS) {
+            return Optional.of(rec.getOleObjClass().toGuidString());
+          } else {
+            return Optional.empty();
+          }
+        });
+    }
+
+    @Override
+    public boolean isLaunchInPlace() {
+      return getAutoLaunchRecord()
+        .map(CDDocAutoLaunch::getOleFlags)
+        .map(flags -> flags.contains(CDDocAutoLaunch.OleFlag.EDIT_INPLACE))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isPresentDocumentAsModal() {
+      return getAutoLaunchRecord()
+        .map(CDDocAutoLaunch::getOleFlags)
+        .map(flags -> flags.contains(CDDocAutoLaunch.OleFlag.MODAL_WINDOW))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isCreateObjectInFirstRichTextField() {
+      return getAutoLaunchRecord()
+        .map(CDDocAutoLaunch::getCopyToFieldFlags)
+        .map(flags -> flags.contains(CDDocAutoLaunch.CopyToFieldFlag.COPY_FIRST))
+        .orElse(false);
+    }
+
+    @Override
+    public Optional<String> getTargetRichTextField() {
+      return getAutoLaunchRecord()
+        .flatMap(rec -> {
+          if(rec.getCopyToFieldFlags().contains(CDDocAutoLaunch.CopyToFieldFlag.COPY_NAMED)) {
+            return Optional.of(rec.getFieldName());
+          } else {
+            return Optional.empty();
+          }
+        });
+    }
+
+    @Override
+    public Set<AutoLaunchWhen> getLaunchWhen() {
+      return getAutoLaunchRecord()
+        .map(CDDocAutoLaunch::getLaunchWhenFlags)
+        .orElseGet(Collections::emptySet);
+    }
+
+    @Override
+    public Set<AutoLaunchHideWhen> getHideWhen() {
+      return getAutoLaunchRecord()
+        .map(CDDocAutoLaunch::getHideWhenFlags)
+        .orElseGet(Collections::emptySet);
     }
   }
 }

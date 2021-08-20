@@ -725,7 +725,7 @@ public enum RecordType {
    * Most of the information contained in this structure refers to OLE
    * autolaunching behaviors.
    */
-  DOCAUTOLAUNCH(RichTextConstants.SIG_CD_DOCAUTOLAUNCH, 4),
+  DOCAUTOLAUNCH(RichTextConstants.SIG_CD_DOCAUTOLAUNCH, 4, CDDocAutoLaunch.class),
   /**
    * A graphical element in a layout region of a form is defined by a
    * CDLAYOUTGRAPHIC record.<br>

@@ -17,7 +17,11 @@
 package com.hcl.domino.design;
 
 import java.util.Optional;
+import java.util.Set;
 
+import com.hcl.domino.design.form.AutoLaunchHideWhen;
+import com.hcl.domino.design.form.AutoLaunchType;
+import com.hcl.domino.design.form.AutoLaunchWhen;
 import com.hcl.domino.richtext.structures.ColorValue;
 
 /**
@@ -77,6 +81,83 @@ public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlt
   interface InheritanceSettings {
     String getTargetField();
     InheritanceFieldType getType();
+  }
+  
+  /**
+   * Represents the settings for object auto-launch when opening a document with the
+   * form in the client UI.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.34
+   */
+  interface AutoLaunchSettings {
+    /**
+     * Determines the auto-launch type for this form.
+     * 
+     * @return a {@link AutoLaunchType} instance
+     */
+    AutoLaunchType getType();
+    
+    /**
+     * Retrieves the OLE GUID of the object class to launch when {@link #getType()} is
+     * {@link AutoLaunchType#OLE_CLASS}.
+     * 
+     * @return an {@link Optional} describing the OLE object type to create, or
+     *         an empty one if this is not applicable
+     */
+    Optional<String> getOleType();
+    
+    /**
+     * Determines whether the auto-launched object is launched in-place or in its own
+     * window when auto-launch is enabled and {@link #isPresentDocumentAsModal()} is
+     * {@code false}.
+     * 
+     * @return {@code true} to launch the object in-place when applicable;
+     *         {@code false} otherwise
+     */
+    boolean isLaunchInPlace();
+    
+    /**
+     * Determines whether to present the document as a modal dialog when auto-launching.
+     * 
+     * @return {@code true} to launch the document as a modal;
+     *         {@code false} otherwise
+     */
+    boolean isPresentDocumentAsModal();
+    
+    /**
+     * Determines whether to create the auto-launch object in the first rich text field.
+     * 
+     * @return {@code true} if the object will use the first RT field on the form;
+     *         {@code false} otherwise
+     */
+    boolean isCreateObjectInFirstRichTextField();
+    
+    /**
+     * Determines the target rich text field for the object, if {@link #getType()} is an
+     * applicable type, {@link #isCreateObjectInFirstRichTextField()} is {@code false},
+     * and a field is specified.
+     * 
+     * @return an {@link Optional} describing the target rich text field, or an empty one
+     *         if this is not applicable or the field is not specified
+     */
+    Optional<String> getTargetRichTextField();
+    
+    /**
+     * Determines the conditions for launching an object when {@link #getType()} is an
+     * applicable type.
+     * 
+     * @return a {@link Set} of {@link AutoLaunchWhen} instances
+     */
+    Set<AutoLaunchWhen> getLaunchWhen();
+    
+    /**
+     * Determines the conditions for hiding an object when {@link #getHideWhen()} is an
+     * applicable type.
+     * 
+     * @return a {@link Set} of {@link AutoLaunchHideWhen} instances
+     */
+    Set<AutoLaunchHideWhen> getHideWhen();
   }
   
   /**
@@ -397,4 +478,13 @@ public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlt
    * @since 1.0.33
    */
   Optional<String> getDefaultDataConnectionObject();
+  
+  /**
+   * Retrieves an object that provides a view onto this form's auto-launch
+   * settings.
+   * 
+   * @return a {@link AutoLaunchSettings} instance
+   * @since 1.0.34
+   */
+  AutoLaunchSettings getAutoLaunchSettings();
 }

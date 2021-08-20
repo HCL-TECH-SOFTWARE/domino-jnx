@@ -7,9 +7,13 @@
 X/8QAAIADwAHAAAAAAAAAA==
 </rawitemdata></item>
 <item name='$TITLE'><text>Other Type Form</text></item>
+<item name='$AUTOLAUNCH' sign='true'>
+<rawitemdata type='1'>
+v/8yABAAAAAEAAAABAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+</rawitemdata></item>
 <item name='$Info' sign='true'>
 <rawitemdata type='1'>
-hhgBAIAAAAAAgAAAAQABAP///wAQAAAA
+hhgBAIAEAAAAgAAAAQABAP///wAQAAAA
 </rawitemdata></item>
 <item name='$Flags'><text/></item>
 <item name='$MimeType'><text>text/css</text></item>

@@ -237,4 +237,61 @@ public interface DesignConstants {
   
   short FDECS_KEY_FIELD = 0x0001;
   short FDECS_STORE_LOCALLY = 0x0002;
+  
+  /**
+   * Name of a form autolaunch item.  This optional item is created when
+   * designing a Notes form using the auto launch options.
+   */
+  String FORM_AUTOLAUNCH_ITEM = "$AUTOLAUNCH"; //$NON-NLS-1$
+  
+  /**
+   * Name of an OLE object item.  One of these is created for every
+   * OLE embedded object that exists in a Notes document.  This item
+   * is used to access OLE objects witout having to parse the
+   * Rich Text item within the document to find an OLE CD record
+   */
+  String OLE_OBJECT_ITEM = "$OLEOBJINFO"; //$NON-NLS-1$
+
+  /* Autolaunch Object type flags */
+  int AUTOLAUNCH_OBJTYPE_NONE = 0x00000000;
+  /**  OLE Class ID (GUID)  */
+  int AUTOLAUNCH_OBJTYPE_OLE_CLASS = 0x00000001;
+  /**  First OLE Object  */
+  int AUTOLAUNCH_OBJTYPE_OLEOBJ = 0x00000002;
+  /**  First Notes doclink  */
+  int AUTOLAUNCH_OBJTYPE_DOCLINK = 0x00000004;
+  /**  First Attachment  */
+  int AUTOLAUNCH_OBJTYPE_ATTACH = 0x00000008;
+  /**  AutoLaunch the url in the URL field  */
+  int AUTOLAUNCH_OBJTYPE_URL = 0x00000010;
+  
+  /*  Hide-when flags */
+  /*  Hide when opening flags  */
+  int HIDE_OPEN_CREATE = 0x00000001;
+  int HIDE_OPEN_EDIT = 0x00000002;
+  int HIDE_OPEN_READ = 0x00000004;
+  /*  Hide when closing flags  */
+  int HIDE_CLOSE_CREATE = 0x00000008;
+  int HIDE_CLOSE_EDIT = 0x00000010;
+  int HIDE_CLOSE_READ = 0x00000020;
+  
+  /*  Launch-when flags */
+  int LAUNCH_WHEN_CREATE = 0x00000001;
+  int LAUNCH_WHEN_EDIT = 0x00000002;
+  int LAUNCH_WHEN_READ = 0x00000004;
+  
+  /* OLE Flags */
+
+  int OLE_EDIT_INPLACE = 0x00000001;
+  int OLE_MODAL_WINDOW = 0x00000002;
+  int OLE_ADV_OPTIONS = 0x00000004;
+  
+  /* Field Location Flags */
+
+  /** Don't copy obj to any field (V3 compatible) */
+  int FIELD_COPY_NONE = 0x00000001;
+  /** Copy obj to named rich text field */
+  int FIELD_COPY_NAMED = 0x00000004;
+  /** Copy obj to first rich text field */
+  int FIELD_COPY_FIRST = 0x00000002;
 }

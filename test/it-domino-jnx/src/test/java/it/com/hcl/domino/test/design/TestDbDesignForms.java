@@ -40,6 +40,9 @@ import com.hcl.domino.design.action.JavaScriptActionContent;
 import com.hcl.domino.design.action.LotusScriptActionContent;
 import com.hcl.domino.design.action.SimpleActionActionContent;
 import com.hcl.domino.design.action.SystemActionContent;
+import com.hcl.domino.design.form.AutoLaunchHideWhen;
+import com.hcl.domino.design.form.AutoLaunchType;
+import com.hcl.domino.design.form.AutoLaunchWhen;
 import com.hcl.domino.design.format.ActionBarControlType;
 import com.hcl.domino.design.format.ActionBarTextAlignment;
 import com.hcl.domino.design.format.ActionButtonHeightMode;
@@ -62,7 +65,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignForms extends AbstractDesignTest {
-  public static final int EXPECTED_IMPORT_FORMS = 5;
+  public static final int EXPECTED_IMPORT_FORMS = 6;
   public static final int EXPECTED_IMPORT_SUBFORMS = 2;
 
   private static String dbPath;
@@ -601,6 +604,9 @@ public class TestDbDesignForms extends AbstractDesignTest {
       actual = actual.substring(0, actual.length()-1);
       assertEquals(expected, actual);
     }
+
+    Form.AutoLaunchSettings auto = form.getAutoLaunchSettings();
+    assertEquals(AutoLaunchType.NONE, auto.getType());
   }
 
   @Test
@@ -652,9 +658,27 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertEquals("testconn", form.getDefaultDataConnectionName().get());
     assertEquals("foo", form.getDefaultDataConnectionObject().get());
     
-    
+
+    Form.AutoLaunchSettings auto = form.getAutoLaunchSettings();
+    assertEquals(AutoLaunchType.OLE_CLASS, auto.getType());
+    assertEquals("D3E34B21-9D75-101A-8C3D-00AA001A1652", auto.getOleType().get().toUpperCase());
+    assertFalse(auto.isLaunchInPlace());
+    assertTrue(auto.isPresentDocumentAsModal());
+    assertTrue(auto.isCreateObjectInFirstRichTextField());
+    assertEquals(EnumSet.of(AutoLaunchWhen.CREATE, AutoLaunchWhen.READ), auto.getLaunchWhen());
+    assertEquals(EnumSet.of(AutoLaunchHideWhen.OPEN_READ, AutoLaunchHideWhen.CLOSE_READ), auto.getHideWhen());
     assertEquals("Outer Frame", form.getAutoFrameFrameset().get());
     assertEquals("Nav", form.getAutoFrameTarget().get());
+  }
+
+  @Test
+  public void testLsForm2() throws IOException {
+    DbDesign design = this.database.getDesign();
+    Form form = design.getForm("Test LS Form 2").get();
+    
+    Form.AutoLaunchSettings auto = form.getAutoLaunchSettings();
+    assertEquals(AutoLaunchType.OLEOBJ, auto.getType());
+    assertEquals("RTItem", auto.getTargetRichTextField().get());
   }
 
   @Test
@@ -671,6 +695,9 @@ public class TestDbDesignForms extends AbstractDesignTest {
     
     assertFalse(form.getDefaultDataConnectionName().isPresent());
     assertFalse(form.getDefaultDataConnectionObject().isPresent());
+    
+    Form.AutoLaunchSettings auto = form.getAutoLaunchSettings();
+    assertEquals(AutoLaunchType.DOCLINK, auto.getType());
   }
 
   @Test
@@ -682,6 +709,9 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertFalse(web.isRenderRichContentOnWeb());
     assertEquals("text/css", web.getWebMimeType().get());
     assertFalse(web.getWebCharset().isPresent());
+    
+    Form.AutoLaunchSettings auto = form.getAutoLaunchSettings();
+    assertEquals(AutoLaunchType.URL, auto.getType());
   }
 
   @Test
