@@ -25,6 +25,7 @@ import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.NotesFont;
+import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.design.ActionBar;
 import com.hcl.domino.design.ActionBar.ButtonHeightMode;
@@ -32,6 +33,7 @@ import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignElement.ClassicThemeBehavior;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Form;
+import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionContent;
@@ -55,6 +57,8 @@ import com.hcl.domino.design.simpleaction.ModifyFieldAction;
 import com.hcl.domino.design.simpleaction.ReadMarksAction;
 import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.richtext.NotesBitmap;
+import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclEntry;
@@ -669,6 +673,22 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertEquals(EnumSet.of(AutoLaunchHideWhen.OPEN_READ, AutoLaunchHideWhen.CLOSE_READ), auto.getHideWhen());
     assertEquals("Outer Frame", form.getAutoFrameFrameset().get());
     assertEquals("Nav", form.getAutoFrameTarget().get());
+    
+    Form.BackgroundSettings background = form.getBackgroundSettings();
+    assertEquals(StandardColors.DustyViolet, background.getStandardBackgroundColor().get());
+    assertColorEquals(background.getBackgroundColor(), 224, 129, 255);
+    NotesBitmap image = background.getBackgroundImage().get();
+    assertEquals(39, image.getSize().getWidth());
+    assertEquals(31, image.getSize().getHeight());
+    assertEquals(8, image.getBitsPerPixel());
+    assertEquals(1, image.getSamplesPerPixel());
+    assertEquals(8, image.getBitsPerSample());
+    assertFalse(background.getBackgroundImageResource().isPresent());
+    assertTrue(background.isHideGraphicInDesignMode());
+    assertTrue(background.isHideGraphicOn4BitColor());
+    assertFalse(background.isUserCustomizable());
+    assertEquals(ImageRepeatMode.HORIZONTAL, background.getBackgroundImageRepeatMode());
+    assertEquals(ClassicThemeBehavior.INHERIT_FROM_OS, form.getClassicThemeBehavior());
   }
 
   @Test
@@ -712,6 +732,18 @@ public class TestDbDesignForms extends AbstractDesignTest {
     
     Form.AutoLaunchSettings auto = form.getAutoLaunchSettings();
     assertEquals(AutoLaunchType.URL, auto.getType());
+    
+    Form.BackgroundSettings background = form.getBackgroundSettings();
+    assertEquals(StandardColors.White, background.getStandardBackgroundColor().get());
+    assertColorEquals(background.getBackgroundColor(), 255, 255, 255);
+    assertFalse(background.getBackgroundImage().isPresent());
+    CDResource image = background.getBackgroundImageResource().get();
+    assertEquals("Untitled 3.gif", image.getNamedElement().get());
+    assertFalse(background.isHideGraphicInDesignMode());
+    assertFalse(background.isHideGraphicOn4BitColor());
+    assertTrue(background.isUserCustomizable());
+    assertEquals(ImageRepeatMode.TILE, background.getBackgroundImageRepeatMode());
+    assertEquals(ClassicThemeBehavior.DONT_INHERIT_FROM_OS, form.getClassicThemeBehavior());
   }
 
   @Test

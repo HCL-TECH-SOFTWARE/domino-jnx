@@ -231,7 +231,7 @@ public enum RecordType {
    * stored as a single
    * plane (some graphics devices support multiple planes).
    */
-  BITMAPHEADER(RichTextConstants.SIG_CD_BITMAPHEADER, 1),
+  BITMAPHEADER(RichTextConstants.SIG_CD_BITMAPHEADER, 1, CDBitmapHeader.class),
   /**
    * The bitmap data is divided into segments to optimize data storage within
    * Domino.<br>

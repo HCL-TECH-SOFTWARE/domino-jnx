@@ -19,16 +19,19 @@ package com.hcl.domino.design;
 import java.util.Optional;
 import java.util.Set;
 
+import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.design.form.AutoLaunchHideWhen;
 import com.hcl.domino.design.form.AutoLaunchType;
 import com.hcl.domino.design.form.AutoLaunchWhen;
+import com.hcl.domino.richtext.NotesBitmap;
+import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
 
 /**
  * Represents a Form design element in a database
  */
 public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlternativeElement,
-  DesignElement.XPageNotesAlternativeElement, DesignElement.AutoFrameElement {
+  DesignElement.XPageNotesAlternativeElement, DesignElement.AutoFrameElement, DesignElement.ThemeableClassicElement {
 
   /**
    * Represents the type of document the UI should create when using this
@@ -161,26 +164,6 @@ public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlt
   }
   
   /**
-   * Represents the modes for storing an inherited document in a rich-text field.
-   * 
-   * @author Jesse Gallagher
-   * @since 1.0.33
-   */
-  enum InheritanceFieldType {
-    LINK, COLLAPSIBLE_RICH_TEXT, RICH_TEXT
-  }
-  
-  /**
-   * Represents behaviors for showing a context pane on document open.
-   * 
-   * @author Jesse Gallagher
-   * @since 1.0.33
-   */
-  enum ContextPaneBehavior {
-    NONE, DOCLINK, PARENT
-  }
-  
-  /**
    * Represents settings related to the rendering of the form when rendered
    * using the classic web renderer.
    * 
@@ -251,6 +234,99 @@ public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlt
      * @return a {@link ColorValue} representing the visited link color
      */
     ColorValue getVisitedLinkColor();
+  }
+  
+  /**
+   * Represents settings related to the form background ("paper") color, image,
+   * and behavior.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.34
+   */
+  interface BackgroundSettings {
+    /**
+     * Retrieves the background color as a standard Notes UI color if it is set as such.
+     * 
+     * @return an {@link Optional} describing the {@link StandardColors} instance for the background
+     *         color, or an empty one if the color is non-standard
+     */
+    Optional<StandardColors> getStandardBackgroundColor();
+    
+    /**
+     * Retrieves the background color as a color value.
+     * 
+     * @return a {@link ColorValue} instance
+     */
+    ColorValue getBackgroundColor();
+    
+    /**
+     * Retrieves the image resource reference used for the background image, if set as such.
+     * 
+     * @return an {@link Optional} describing the background image resource, or an empty one if
+     *         the background is not an image resource
+     */
+    Optional<CDResource> getBackgroundImageResource();
+    
+    /**
+     * Retrieves the image used for the background, if set as such.
+     * 
+     * @return an {@link Optional} describing a {@link NotesBitmap}, or an empty one if the
+     *         background is not a pasted image
+     */
+    Optional<NotesBitmap> getBackgroundImage();
+    
+    /**
+     * Determines whether the background image, if present, should be hidden when editing the form
+     * in design mode.
+     * 
+     * @return {@code true} if the background image should be hidden during design;
+     *         {@code false} otherwise
+     */
+    boolean isHideGraphicInDesignMode();
+    
+    /**
+     * Determines whether the background image, if present, should be hidden when the form is viewed
+     * on a 16-color screen.
+     * 
+     * @return {@code true} if the background image should be hidden on 4-bit-color displays;
+     *         {@code false} otherwise
+     */
+    boolean isHideGraphicOn4BitColor();
+    
+    /**
+     * Determines whether the background display properties can be overridden by the user.
+     * 
+     * @return {@code true} if the display properties are user-customizable;
+     *         {@code false} otherwise
+     */
+    boolean isUserCustomizable();
+    
+    /**
+     * Retrieves the repeat mode for the background image.
+     * 
+     * @return an {@link ImageRepeatMode} for the background image
+     */
+    ImageRepeatMode getBackgroundImageRepeatMode();
+  }
+  
+  /**
+   * Represents the modes for storing an inherited document in a rich-text field.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.33
+   */
+  enum InheritanceFieldType {
+    LINK, COLLAPSIBLE_RICH_TEXT, RICH_TEXT
+  }
+  
+  /**
+   * Represents behaviors for showing a context pane on document open.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.33
+   */
+  enum ContextPaneBehavior {
+    NONE, DOCLINK, PARENT
   }
   
   /**
@@ -480,11 +556,19 @@ public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlt
   Optional<String> getDefaultDataConnectionObject();
   
   /**
-   * Retrieves an object that provides a view onto this form's auto-launch
-   * settings.
+   * Retrieves an object that provides a view onto this form's auto-launch settings.
    * 
    * @return a {@link AutoLaunchSettings} instance
    * @since 1.0.34
    */
   AutoLaunchSettings getAutoLaunchSettings();
+  
+  /**
+   * Retrieves an object that provides a view onto this form's background image and color
+   * settings.
+   * 
+   * @return a {@link BackgroundSettings} instance
+   * @since 1.0.34
+   */
+  BackgroundSettings getBackgroundSettings();
 }

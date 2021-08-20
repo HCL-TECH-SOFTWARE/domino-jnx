@@ -20,19 +20,27 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
+import com.hcl.domino.commons.richtext.DefaultNotesBitmap;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
+import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.Form;
+import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.form.AutoLaunchHideWhen;
 import com.hcl.domino.design.form.AutoLaunchType;
 import com.hcl.domino.design.form.AutoLaunchWhen;
+import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.richtext.NotesBitmap;
+import com.hcl.domino.richtext.RichTextRecordList;
 import com.hcl.domino.richtext.records.CDDECSField;
 import com.hcl.domino.richtext.records.CDDocAutoLaunch;
 import com.hcl.domino.richtext.records.CDDocument;
 import com.hcl.domino.richtext.records.CDField;
+import com.hcl.domino.richtext.records.CDGraphic;
 import com.hcl.domino.richtext.records.CDLinkColors;
+import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.structures.ColorValue;
 
@@ -194,7 +202,7 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
   public Optional<InheritanceSettings> getSelectedDocumentInheritanceBehavior() {
     Set<CDDocument.Flag2> flags = getDocumentFlags2();
     if(flags.contains(CDDocument.Flag2.INCLUDEREF)) {
-      return Optional.of(new DefaultInheritanceBehavior());
+      return Optional.of(new DefaultInheritanceSettings());
     } else {
       return Optional.empty();
     }
@@ -242,6 +250,22 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
     return new DefaultAutoLaunchSettings();
   }
   
+  @Override
+  public BackgroundSettings getBackgroundSettings() {
+    return new DefaultBackgroundSettings();
+  }
+  
+  @Override
+  public ClassicThemeBehavior getClassicThemeBehavior() {
+    return getDocumentRecord()
+      .flatMap(rec -> {
+        short flags = rec.getFlags3Raw();
+        byte themeVal = (byte)((flags & DesignConstants.TPL_FLAG_THEMESETTING) >> DesignConstants.TPL_SHIFT_THEMESETTING);
+        return DominoEnumUtil.valueOf(ClassicThemeBehavior.class, themeVal);
+      })
+      .orElse(ClassicThemeBehavior.USE_DATABASE_SETTING);
+  }
+  
   // *******************************************************************************
   // * Internal implementation utilities
   // *******************************************************************************
@@ -272,7 +296,7 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
     }
   }
   
-  private class DefaultInheritanceBehavior implements InheritanceSettings {
+  private class DefaultInheritanceSettings implements InheritanceSettings {
     
     @Override
     public String getTargetField() {
@@ -441,5 +465,80 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
         .map(CDDocAutoLaunch::getHideWhenFlags)
         .orElseGet(Collections::emptySet);
     }
+  }
+  
+  private class DefaultBackgroundSettings implements BackgroundSettings {
+
+    @Override
+    public Optional<StandardColors> getStandardBackgroundColor() {
+      return getDocumentRecord()
+        .flatMap(CDDocument::getPaperColor);
+    }
+
+    @Override
+    public ColorValue getBackgroundColor() {
+      return getDocumentRecord()
+        .map(CDDocument::getPaperColorValue)
+        .orElseGet(DesignColorsAndFonts::whiteColor);
+    }
+
+    @Override
+    public Optional<CDResource> getBackgroundImageResource() {
+      Document doc = getDocument();
+      if(doc.hasItem(DesignConstants.ITEM_NAME_BACKGROUNDGRAPHICR5)) {
+        return doc.getRichTextItem(DesignConstants.ITEM_NAME_BACKGROUNDGRAPHICR5)
+          .stream()
+          .filter(CDResource.class::isInstance)
+          .map(CDResource.class::cast)
+          .findFirst();
+      } else {
+        return Optional.empty();
+      }
+    }
+
+    @Override
+    public Optional<NotesBitmap> getBackgroundImage() {
+      Document doc = getDocument();
+      if(doc.hasItem(DesignConstants.ITEM_NAME_BACKGROUNDGRAPHICR5)) {
+        RichTextRecordList item = doc.getRichTextItem(DesignConstants.ITEM_NAME_BACKGROUNDGRAPHICR5);
+        if(!item.isEmpty() && item.get(0) instanceof CDGraphic) {
+          return Optional.of(new DefaultNotesBitmap(item));
+        } else {
+          return Optional.empty();
+        }
+      } else {
+        return Optional.empty();
+      }
+    }
+
+    @Override
+    public boolean isHideGraphicInDesignMode() {
+      return getDocumentRecord()
+        .map(CDDocument::getFlags2)
+        .map(flags -> flags.contains(CDDocument.Flag2.HIDEBKGRAPHIC))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isHideGraphicOn4BitColor() {
+      return getDocumentRecord()
+        .map(CDDocument::getFlags)
+        // Though this flag looks unrelated, it's set when setting this value in Designer
+        .map(flags -> flags.contains(CDDocument.Flag.SHOW_WINDOW_READ))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isUserCustomizable() {
+      return !DesignConstants.RESTRICTBK_FLAG_NOOVERRIDE.equals(getDocument().getAsText(DesignConstants.ITEM_NAME_RESTRICTBKOVERRIDE, ' '));
+    }
+
+    @Override
+    public ImageRepeatMode getBackgroundImageRepeatMode() {
+      String repeatVal = getDocument().getAsText(DesignConstants.ITEM_NAME_BACKGROUNDGRAPHIC_REPEAT, ' ');
+      return DominoEnumUtil.valueOfString(ImageRepeatMode.class, repeatVal)
+        .orElse(ImageRepeatMode.TILE);
+    }
+    
   }
 }

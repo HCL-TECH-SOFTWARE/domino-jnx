@@ -25,12 +25,15 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
  * @author Jesse Gallagher
  * @since 1.0.15
  */
-@StructureDefinition(name = "CROPRECT", members = {
+@StructureDefinition(
+  name = "CROPRECT",
+  members = {
     @StructureMember(name = "top", type = short.class, unsigned = true),
     @StructureMember(name = "left", type = short.class, unsigned = true),
     @StructureMember(name = "right", type = short.class, unsigned = true),
     @StructureMember(name = "bottom", type = short.class, unsigned = true)
-})
+  }
+)
 public interface CropRect extends MemoryStructure {
   @StructureGetter("bottom")
   int getBottom();

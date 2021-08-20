@@ -1187,4 +1187,15 @@ public interface RichTextConstants {
   short ACTION_SYS_COMMAND = 5;
   short ACTION_PLACEHOLDER = 6;
   short ACTION_RUN_JAVASCRIPT = 7;
+
+  /** Bitmap Uses > 16 colors or > 4 grey scale levels */
+  short CDBITMAP_FLAG_REQUIRES_PALETTE = 1;
+  /**
+   * Initialized by import code for "first time" importing of bitmaps
+   * from clipboard or file, to tell Notes that it should compute whether
+   * or not to use a color palette or not.  All imports and API programs
+   * should initially set this bit to let the Editor compute whether it
+   * needs the palette or not.
+   */
+  short CDBITMAP_FLAG_COMPUTE_PALETTE = 2;
 }

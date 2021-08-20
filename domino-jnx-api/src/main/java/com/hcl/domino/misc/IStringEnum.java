@@ -14,39 +14,19 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.richtext.structures;
-
-import com.hcl.domino.richtext.RectangleSize;
-import com.hcl.domino.richtext.annotation.StructureDefinition;
-import com.hcl.domino.richtext.annotation.StructureGetter;
-import com.hcl.domino.richtext.annotation.StructureMember;
-import com.hcl.domino.richtext.annotation.StructureSetter;
+package com.hcl.domino.misc;
 
 /**
+ * This interface describes an enum that is backed by a collection of related
+ * string constants.
+ *
  * @author Jesse Gallagher
- * @since 1.0.15
+ * @since 1.0.34
  */
-@StructureDefinition(
-  name = "RECTSIZE",
-  members = {
-    @StructureMember(name = "width", type = short.class, unsigned = true),
-    @StructureMember(name = "height", type = short.class, unsigned = true)
-  }
-)
-public interface RectSize extends MemoryStructure, RectangleSize {
-  @StructureGetter("height")
-  @Override
-  int getHeight();
+public interface IStringEnum {
 
-  @StructureGetter("width")
-  @Override
-  int getWidth();
-
-  @StructureSetter("height")
-  @Override
-  RectSize setHeight(int height);
-
-  @StructureSetter("width")
-  @Override
-  RectSize setWidth(int width);
+  /**
+   * @return the string value of the enum; may be {@code null}
+   */
+  String getStringValue();
 }
