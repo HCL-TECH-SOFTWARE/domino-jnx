@@ -45,6 +45,7 @@ import com.hcl.domino.richtext.records.CDDocument;
 import com.hcl.domino.richtext.records.CDField;
 import com.hcl.domino.richtext.records.CDFrame;
 import com.hcl.domino.richtext.records.CDGraphic;
+import com.hcl.domino.richtext.records.CDHeader;
 import com.hcl.domino.richtext.records.CDLinkColors;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.RecordType.Area;
@@ -276,6 +277,11 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
   @Override
   public HeaderFrameSettings getHeaderFrameSettings() {
     return new DefaultHeaderFrameSettings();
+  }
+  
+  @Override
+  public PrintSettings getPrintSettings() {
+    return new DefaultPrintSettings();
   }
   
   // *******************************************************************************
@@ -660,6 +666,41 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
         return true;
       }
     }
-    
+  }
+  
+  private class DefaultPrintSettings implements PrintSettings {
+
+    @Override
+    public boolean isPrintHeaderAndFooterOnFirstPage() {
+      return !getDocument().getAsText(DesignConstants.ITEM_NAME_HFFLAGS, ' ').contains(DesignConstants.HFFLAGS_NOPRINTONFIRSTPAGE);
+    }
+
+    @Override
+    public Optional<CDHeader> getPrintHeader() {
+      Document doc = getDocument();
+      if(doc.hasItem(DesignConstants.ITEM_NAME_HEADER)) {
+        return doc.getRichTextItem(DesignConstants.ITEM_NAME_HEADER)
+          .stream()
+          .filter(CDHeader.class::isInstance)
+          .map(CDHeader.class::cast)
+          .findFirst();
+      } else {
+        return Optional.empty();
+      }
+    }
+
+    @Override
+    public Optional<CDHeader> getPrintFooter() {
+      Document doc = getDocument();
+      if(doc.hasItem(DesignConstants.ITEM_NAME_FOOTER)) {
+        return doc.getRichTextItem(DesignConstants.ITEM_NAME_FOOTER)
+          .stream()
+          .filter(CDHeader.class::isInstance)
+          .map(CDHeader.class::cast)
+          .findFirst();
+      } else {
+        return Optional.empty();
+      }
+    }
   }
 }

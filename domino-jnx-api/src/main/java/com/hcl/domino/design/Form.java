@@ -27,6 +27,7 @@ import com.hcl.domino.design.form.AutoLaunchWhen;
 import com.hcl.domino.design.frameset.FrameScrollStyle;
 import com.hcl.domino.design.frameset.FrameSizingType;
 import com.hcl.domino.richtext.NotesBitmap;
+import com.hcl.domino.richtext.records.CDHeader;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
 
@@ -345,6 +346,40 @@ public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlt
      */
     boolean isUse3DShading();
   }
+  
+  /**
+   * Represents printing settings for the form.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.34
+   */
+  interface PrintSettings {
+    
+    /**
+     * Determines whether the header and/or footer, if specified, should be printed on
+     * the first page of print output.
+     * 
+     * @return {@code true} to print the header and footer on the first printed page;
+     *         {@code false} to omit them
+     */
+    boolean isPrintHeaderAndFooterOnFirstPage();
+
+    /**
+     * Retrieves the print header content, if specified.
+     * 
+     * @return an {@link Optional} describing a {@link CDHeader} object, or an empty one
+     *         if a print header is not specified
+     */
+    Optional<CDHeader> getPrintHeader();
+    
+    /**
+     * Retrieves the print footer content, if specified.
+     * 
+     * @return an {@link Optional} describing a {@link CDHeader} object, or an empty one
+     *         if a print footer is not specified
+     */
+    Optional<CDHeader> getPrintFooter();
+  }
 
   /**
    * Represents the type of document the UI should create when using this
@@ -658,4 +693,12 @@ public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlt
    * @since 1.0.34
    */
   HeaderFrameSettings getHeaderFrameSettings();
+  
+  /**
+   * Retrieves an object that provides a view onto the settings for printing the form.
+   * 
+   * @return a {@link PrintSettings} instance
+   * @since 1.0.34
+   */
+  PrintSettings getPrintSettings();
 }

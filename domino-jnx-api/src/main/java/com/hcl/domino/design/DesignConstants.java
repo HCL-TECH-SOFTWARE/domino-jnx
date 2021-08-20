@@ -366,4 +366,15 @@ public interface DesignConstants {
   
   String ITEM_NAME_HEADERAREA = "$HeaderArea"; //$NON-NLS-1$
   String ITEM_NAME_REGIONFRAMESET = "$RegionFrameset"; //$NON-NLS-1$
+  
+  /** print page header */
+  String ITEM_NAME_HEADER = "$Header"; //$NON-NLS-1$
+  /** print page footer */
+  String ITEM_NAME_FOOTER = "$Footer"; //$NON-NLS-1$
+  /** header/footer flags */
+  String ITEM_NAME_HFFLAGS = "$HFFlags"; //$NON-NLS-1$
+  /** suppress printing header/footer on first page */
+  String HFFLAGS_NOPRINTONFIRSTPAGE = "1"; //$NON-NLS-1$
+  /** header/footer is RTL */
+  String HFFLAGS_DIRECTION_RTL = "R"; //$NON-NLS-1$
 }

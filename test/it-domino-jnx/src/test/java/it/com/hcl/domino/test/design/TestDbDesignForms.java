@@ -22,6 +22,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.NotesFont;
@@ -60,6 +61,7 @@ import com.hcl.domino.design.simpleaction.ReadMarksAction;
 import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
 import com.hcl.domino.richtext.NotesBitmap;
+import com.hcl.domino.richtext.records.CDHeader;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.security.Acl;
@@ -703,6 +705,24 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertColorEquals(headerFrame.getBorderColor().get(), 97, 129, 255);
       assertTrue(headerFrame.isUse3DShading());
     }
+    
+    {
+      Form.PrintSettings print = form.getPrintSettings();
+      assertFalse(print.isPrintHeaderAndFooterOnFirstPage());
+      
+      CDHeader header = print.getPrintHeader().get();
+      assertEquals("Courier New", header.getFontName());
+      assertEquals(36, header.getFontStyle().getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.UNDERLINE), header.getFontStyle().getAttributes());
+      assertEquals("I am header text", header.getText());
+      
+      CDHeader footer = print.getPrintFooter().get();
+      assertEquals("Default Monospace", footer.getFontName());
+      assertEquals(StandardFonts.ROMAN, footer.getFontStyle().getStandardFont().get());
+      assertEquals(18, footer.getFontStyle().getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.ITALIC), footer.getFontStyle().getAttributes());
+      assertEquals("I am footer text", footer.getText());
+    }
   }
 
   @Test
@@ -743,6 +763,20 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(1, headerFrame.getBorderWidth().getAsInt());
       assertColorEquals(headerFrame.getBorderColor().get(), 0, 0, 0);
       assertFalse(headerFrame.isUse3DShading());
+    }
+    
+    {
+      Form.PrintSettings print = form.getPrintSettings();
+      assertTrue(print.isPrintHeaderAndFooterOnFirstPage());
+      
+      CDHeader header = print.getPrintHeader().get();
+      assertEquals("default form header print", header.getText());
+      assertEquals("Default Sans Serif", header.getFontName());
+      assertEquals(StandardFonts.SWISS, header.getFontStyle().getStandardFont().get());
+      assertEquals(9, header.getFontStyle().getPointSize());
+      assertEquals(EnumSet.noneOf(FontAttribute.class), header.getFontStyle().getAttributes());
+      
+      assertFalse(print.getPrintFooter().isPresent());
     }
   }
 

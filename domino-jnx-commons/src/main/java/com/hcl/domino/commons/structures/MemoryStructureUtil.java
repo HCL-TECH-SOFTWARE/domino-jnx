@@ -140,7 +140,7 @@ public enum MemoryStructureUtil {
           });
   
           final Class<?> type = member.type();
-          final int size = sizeOf(type);
+          final int size = sizeOf(type) * member.length();
           final StructMember mem = new StructMember(member.name(), offset, type, member.unsigned(), member.bitfield(),
               member.length());
           result.add(mem, getters, setters, synthSetters);

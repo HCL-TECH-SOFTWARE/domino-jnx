@@ -215,7 +215,7 @@ public enum RecordType {
   TEXT(RichTextConstants.SIG_CD_TEXT, 1, CDText.class),
   XML(RichTextConstants.SIG_CD_XML, 1),
   /** Contains the header or footer used in a document. */
-  HEADER(RichTextConstants.SIG_CD_HEADER, 1),
+  HEADER(RichTextConstants.SIG_CD_HEADER, 1, CDHeader.class),
   /**
    * This structure is used to create a document link in a rich text field.<br>
    * It contains all the information necessary to open the specified document from
