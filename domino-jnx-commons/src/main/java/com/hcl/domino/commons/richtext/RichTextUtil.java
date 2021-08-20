@@ -19,17 +19,22 @@ package com.hcl.domino.commons.richtext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
+import java.util.function.Function;
 
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.richtext.records.AbstractCDRecord;
 import com.hcl.domino.commons.richtext.records.GenericBSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericLSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericWSIGRecord;
-import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
+import com.hcl.domino.design.format.HtmlEventId;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.CDBlobPart;
@@ -38,6 +43,7 @@ import com.hcl.domino.richtext.records.CDGraphic;
 import com.hcl.domino.richtext.records.CDImageHeader;
 import com.hcl.domino.richtext.records.CDImageHeader2;
 import com.hcl.domino.richtext.records.CDImageSegment;
+import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
 /**
@@ -90,11 +96,11 @@ public enum RichTextUtil {
   public static RichTextRecord<?> reencapsulateRecord(final AbstractCDRecord<?> record,
       final Class<? extends RichTextRecord<?>> encapsulationClass) {
     if (record instanceof GenericBSIGRecord) {
-      return MemoryStructureProxy.forStructure(encapsulationClass, new GenericBSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericBSIGRecord(record.getData(), encapsulationClass));
     } else if (record instanceof GenericWSIGRecord) {
-      return MemoryStructureProxy.forStructure(encapsulationClass, new GenericWSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericWSIGRecord(record.getData(), encapsulationClass));
     } else if (record instanceof GenericLSIGRecord) {
-      return MemoryStructureProxy.forStructure(encapsulationClass, new GenericLSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericLSIGRecord(record.getData(), encapsulationClass));
     } else {
       throw new IllegalArgumentException(
           MessageFormat.format("Unable to determine encapsulation for {0}", record.getClass().getName()));
@@ -236,7 +242,7 @@ public enum RichTextUtil {
 
     final int paddedLength = fileLength + 1; // Make sure there's at least one \0 at the end
     w.addRichTextRecord(CDEvent.class, event -> {
-      event.setEventType(CDEvent.EventType.LIBRARY);
+      event.setEventType(HtmlEventId.LIBRARY);
       event.setActionType(libraryType);
       event.setActionLength(paddedLength + paddedLength % 2);
     });
@@ -253,5 +259,74 @@ public enum RichTextUtil {
         part.setBlobPartData(segData);
       });
     }
+  }
+  
+  /**
+   * Reads the provided byte array to provide a {@link List} of encapsulated
+   * rich text records.
+   * 
+   * <p>It is expected that the buffer starts with a type WORD - almost definitely
+   * {@code TYPE_ACTION} ({@code 0x0010}), but this value will be ignored to avoid
+   * ODS bugs described in the C API examples.</p>
+   * 
+   * @param data the in-memory composite data to parse
+   * @param area the {@link RecordType.Area} type to use to interpret signatures
+   * @return a {@link List} of {@link RichTextRecord} instances
+   */
+  public static List<RichTextRecord<?>> readMemoryRecords(byte[] data, RecordType.Area area) {
+    // Each record begins with one of three headers: BSIG, WSIG, or LSIG
+    // WSIG: identifiable by 0xFF in the high-order byte
+    // LSIG: identifiable by 0x00 in the high-order byte
+    // BSIG: anything else
+    
+    List<RichTextRecord<?>> result = new ArrayList<>();
+    ByteBuffer buf = ByteBuffer.wrap(data);
+    
+    // Read and discard the type WORD
+    buf.getShort();
+    
+    while(buf.hasRemaining()) {
+      ByteBuffer recordData = buf.slice().order(ByteOrder.LITTLE_ENDIAN);
+      
+      byte byte1 = recordData.get(0);
+      byte byte2 = recordData.get(1);
+      short constant;
+      int length;
+      Function<ByteBuffer, AbstractCDRecord<?>> genericProvider;
+      if((byte2 & 0xFF) == 0xFF) {
+        // Then it's a WSIG, two WORD values
+        constant = (short)(byte1 | 0xFF00);
+        length = Short.toUnsignedInt(recordData.getShort(2));
+        genericProvider = GenericWSIGRecord::new;
+      } else if(byte2 == 0) {
+        // Then it's an LSIG, which zeros the high-order byte
+        constant = (short)(byte1 & 0x00FF);
+        // Length is a DWORD following the initial WORD
+        ByteBuffer sliced = recordData.slice().order(ByteOrder.LITTLE_ENDIAN);
+        sliced.position(2);
+        length = sliced.getInt();
+        genericProvider = GenericLSIGRecord::new;
+      } else {
+        // Then it's a BSIG, with the length in the high-order byte
+        constant = (short)(byte1 & 0xFF);
+        length = byte2 & 0xFF;
+        genericProvider = GenericBSIGRecord::new;
+      }
+      recordData.limit(length);
+
+      RecordType type = RecordType.getRecordTypeForConstant(constant, area);
+      AbstractCDRecord<?> record = genericProvider.apply(recordData);
+      Class<? extends RichTextRecord<?>> encapsulation = type.getEncapsulation();
+      if(encapsulation == null) {
+        result.add(record);
+      } else {
+        result.add(reencapsulateRecord(record, encapsulation));
+      }
+      
+      // These are always stored at WORD boundaries
+      buf.position(buf.position() + length + (length % 2));
+    }
+    
+    return result;
   }
 }

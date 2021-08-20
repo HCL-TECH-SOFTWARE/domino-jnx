@@ -19,6 +19,7 @@ package com.hcl.domino.richtext.records;
 import java.util.Collection;
 import java.util.Set;
 
+import com.hcl.domino.design.format.HtmlEventId;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
@@ -33,7 +34,7 @@ import com.hcl.domino.richtext.structures.WSIG;
 @StructureDefinition(name = "CDEVENT", members = {
     @StructureMember(name = "Header", type = WSIG.class),
     @StructureMember(name = "Flags", type = CDEvent.EventFlag.class, bitfield = true),
-    @StructureMember(name = "EventType", type = CDEvent.EventType.class),
+    @StructureMember(name = "EventType", type = HtmlEventId.class),
     @StructureMember(name = "ActionType", type = CDEvent.ActionType.class),
     @StructureMember(name = "ActionLength", type = int.class, unsigned = true),
     @StructureMember(name = "SignatureLength", type = short.class, unsigned = true),
@@ -83,48 +84,6 @@ public interface CDEvent extends RichTextRecord<WSIG> {
     }
   }
 
-  enum EventType implements INumberEnum<Short> {
-    ONCLICK((short) 1),
-    ONDBLCLICK((short) 2),
-    ONMOUSEDOWN((short) 3),
-    ONMOUSEUP((short) 4),
-    ONMOUSEOVER((short) 5),
-    ONMOUSEMOVE((short) 6),
-    ONMOUSEOUT((short) 7),
-    ONKEYPRESS((short) 8),
-    ONKEYDOWN((short) 9),
-    ONKEYUP((short) 10),
-    ONFOCUS((short) 11),
-    ONBLUR((short) 12),
-    ONLOAD((short) 13),
-    ONUNLOAD((short) 14),
-    HEADER((short) 15),
-    ONSUBMIT((short) 16),
-    ONRESET((short) 17),
-    ONCHANGE((short) 18),
-    ONERROR((short) 19),
-    ONHELP((short) 20),
-    ONSELECT((short) 21),
-    /** This isn't really an event */
-    LIBRARY((short) 22);
-
-    private final short value;
-
-    EventType(final short value) {
-      this.value = value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Short getValue() {
-      return this.value;
-    }
-  }
-
   @StructureGetter("ActionLength")
   long getActionLength();
 
@@ -132,7 +91,7 @@ public interface CDEvent extends RichTextRecord<WSIG> {
   ActionType getActionType();
 
   @StructureGetter("EventType")
-  EventType getEventType();
+  HtmlEventId getEventType();
 
   @StructureGetter("Flags")
   Set<EventFlag> getFlags();
@@ -151,7 +110,7 @@ public interface CDEvent extends RichTextRecord<WSIG> {
   CDEvent setActionType(ActionType actionType);
 
   @StructureSetter("EventType")
-  CDEvent setEventType(EventType eventType);
+  CDEvent setEventType(HtmlEventId eventType);
 
   @StructureSetter("Flags")
   CDEvent setFlags(Collection<EventFlag> flags);

@@ -21,19 +21,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.GenericFormOrSubform;
 import com.hcl.domino.design.SubformReference;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.FormField;
 import com.hcl.domino.richtext.RichTextConstants;
+import com.hcl.domino.richtext.RichTextRecordList;
 import com.hcl.domino.richtext.records.CDBegin;
 import com.hcl.domino.richtext.records.CDColor;
 import com.hcl.domino.richtext.records.CDDataFlags;
+import com.hcl.domino.richtext.records.CDDocument;
 import com.hcl.domino.richtext.records.CDEmbeddedControl;
 import com.hcl.domino.richtext.records.CDEnd;
 import com.hcl.domino.richtext.records.CDExt2Field;
@@ -45,6 +50,7 @@ import com.hcl.domino.richtext.records.CDHotspotEnd;
 import com.hcl.domino.richtext.records.CDIDName;
 import com.hcl.domino.richtext.records.CDKeyword;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.records.RecordType.Area;
 
 public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> extends AbstractNamedDesignElement<T>
     implements GenericFormOrSubform<T>, IDefaultActionBarElement {
@@ -175,6 +181,16 @@ public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> e
   public void swapFields(final int indexA, final int indexB) {
     throw new NotYetImplementedException();
   }
+  
+  @Override
+  public boolean isIncludeFieldsInIndex() {
+    return !getDocumentFlags3().contains(CDDocument.Flag3.NOADDFIELDNAMESTOINDEX);
+  }
+  
+  @Override
+  public boolean isRenderPassThroughHtmlInClient() {
+    return getDocumentFlags3().contains(CDDocument.Flag3.RENDERPASSTHROUGH);
+  }
 
   // *******************************************************************************
   // * Implementation utilities
@@ -189,5 +205,47 @@ public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> e
       }
       structs.clear();
     }
+  }
+  
+  protected RichTextRecordList getFormBodyItem() {
+    return getDocument().getRichTextItem(NotesConstants.ITEM_NAME_TEMPLATE);
+  }
+  
+  protected RichTextRecordList getHtmlCodeItem() {
+    return getDocument().getRichTextItem(DesignConstants.ITEM_NAME_HTMLCODE);
+  }
+  
+  protected Optional<CDDocument> getDocumentRecord() {
+    return getDocument().getRichTextItem(NotesConstants.ITEM_NAME_DOCUMENT, Area.RESERVED_INTERNAL)
+      .stream()
+      .filter(CDDocument.class::isInstance)
+      .map(CDDocument.class::cast)
+      .findFirst();
+  }
+  
+  protected Set<CDDocument.Flag> getDocumentFlags() {
+    return getDocumentRecord()
+      .map(CDDocument::getFlags)
+      .orElseGet(Collections::emptySet);
+  }
+  
+  // Later components of CDDOCUMENT were potentially invalid in ancient builds, so check this flag
+  
+  protected Set<CDDocument.Flag2> getDocumentFlags2() {
+    if(!getDocumentFlags().contains(CDDocument.Flag.SPARESOK)) {
+      return Collections.emptySet();
+    }
+    return getDocumentRecord()
+      .map(CDDocument::getFlags2)
+      .orElseGet(Collections::emptySet);
+  }
+  
+  protected Set<CDDocument.Flag3> getDocumentFlags3() {
+    if(!getDocumentFlags().contains(CDDocument.Flag.SPARESOK)) {
+      return Collections.emptySet();
+    }
+    return getDocumentRecord()
+      .map(CDDocument::getFlags3)
+      .orElseGet(Collections::emptySet);
   }
 }

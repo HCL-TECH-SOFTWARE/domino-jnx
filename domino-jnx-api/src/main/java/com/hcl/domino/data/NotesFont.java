@@ -43,4 +43,13 @@ public interface NotesFont {
    */
   Optional<String> getFontName();
   
+  /**
+   * Retrieves the color from the standard palette specified, if using one.
+   * 
+   * @return an {@link Optional} describing the {@link StandardColors} value,
+   *         or an emoty one if this uses a non-standard color
+   * @since 1.0.34
+   */
+  Optional<StandardColors> getStandardColor();
+  
 }

@@ -78,12 +78,23 @@ public class DumpUtil {
    * with cols = 8 and size = buf.remaining().
    * 
    * @param buf byte buffer
-   * @param size number of bytes to read
    * @return memory dump
    * @since 1.0.32
    */
   public static String dumpAsAscii(ByteBuffer buf) {
     return dumpAsAscii(buf, buf.remaining());
+  }
+  
+  /**
+   * Reads byte array content and produces a String with hex codes and character data in case the memory contains
+   * bytes in ascii range. Calls {@link #dumpAsAscii(ByteBuffer, int, int)} with cols = 8 and size = data.length.
+   * 
+   * @param data byte array
+   * @return memory dump
+   * @since 1.0.32
+   */
+  public static String dumpAsAscii(byte[] data) {
+    return dumpAsAscii(ByteBuffer.wrap(data));
   }
   
   /**

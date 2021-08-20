@@ -17,6 +17,7 @@
 package com.hcl.domino.design.format;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.misc.DominoEnumUtil;
@@ -49,7 +50,7 @@ import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
     @StructureMember(name = "DTTsepLen", type = byte.class, unsigned = true),
     @StructureMember(name = "DTDShow", type = DateShowFormat.class),
     @StructureMember(name = "DTDSpecial", type = DateShowSpecial.class, bitfield = true),
-    @StructureMember(name = "DTTShow", type = TimeShowFormat.class),
+    @StructureMember(name = "DTTShow", type = byte.class),
     @StructureMember(name = "DTTZone", type = TimeZoneFormat.class),
     @StructureMember(name = "DatePreference", type = short.class),
     @StructureMember(name = "bUnused", type = byte.class),
@@ -142,10 +143,17 @@ public interface ViewColumnFormat3 extends ResizableMemoryStructure {
   ViewColumnFormat3 setDateShowSpecial(Collection<DateShowSpecial> format);
 
   @StructureGetter("DTTShow")
-  TimeShowFormat getTimeShowFormat();
+  byte getTimeShowFormatRaw();
 
   @StructureSetter("DTTShow")
-  ViewColumnFormat3 setTimeShowFormat(TimeShowFormat format);
+  ViewColumnFormat3 setTimeShowFormatRaw(byte format);
+  
+  default Optional<TimeShowFormat> getTimeShowFormat() {
+    return DominoEnumUtil.valueOf(TimeShowFormat.class, getTimeShowFormatRaw());
+  }
+  default ViewColumnFormat3 setTimeShowFormat(TimeShowFormat format) {
+    return setTimeShowFormatRaw(format == null ? 0 : format.getValue());
+  }
 
   @StructureGetter("DTTZone")
   TimeZoneFormat getTimeZoneFormat();

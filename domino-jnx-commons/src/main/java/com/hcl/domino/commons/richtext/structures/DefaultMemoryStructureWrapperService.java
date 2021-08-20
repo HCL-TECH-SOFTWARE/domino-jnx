@@ -19,7 +19,7 @@ package com.hcl.domino.commons.richtext.structures;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
@@ -29,9 +29,9 @@ public class DefaultMemoryStructureWrapperService implements MemoryStructureWrap
   public <T extends MemoryStructure> T wrapStructure(final Class<T> structureClass, final ByteBuffer data) {
     if (ResizableMemoryStructure.class.isAssignableFrom(structureClass)) {
       final GenericResizableMemoryStructure struct = new GenericResizableMemoryStructure(data, structureClass);
-      return MemoryStructureProxy.forStructure(structureClass, struct);
+      return MemoryStructureUtil.forStructure(structureClass, struct);
     } else {
-      return MemoryStructureProxy.forStructure(structureClass, () -> data.slice().order(ByteOrder.nativeOrder()));
+      return MemoryStructureUtil.forStructure(structureClass, () -> data.slice().order(ByteOrder.nativeOrder()));
     }
   }
 }

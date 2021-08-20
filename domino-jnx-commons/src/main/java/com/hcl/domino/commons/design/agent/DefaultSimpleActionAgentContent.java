@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import com.hcl.domino.design.action.SimpleAction;
 import com.hcl.domino.design.agent.SimpleActionAgentContent;
+import com.hcl.domino.design.simpleaction.SimpleAction;
 
 /**
  * @author Jesse Gallagher

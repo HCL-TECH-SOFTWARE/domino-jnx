@@ -18,6 +18,7 @@ package com.hcl.domino.richtext.records;
 
 import java.util.Optional;
 
+import com.hcl.domino.design.format.HtmlEventId;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -32,7 +33,7 @@ import com.hcl.domino.richtext.structures.WSIG;
  * @since 1.0.32
  */
 @StructureDefinition(
-  name = "CDCAPTION",
+  name = "CDEVENTENTRY",
   members = {
     @StructureMember(name = "Header", type = WSIG.class),
     @StructureMember(name = "wPlatform", type = CDEventEntry.Platform.class),
@@ -45,52 +46,11 @@ import com.hcl.domino.richtext.structures.WSIG;
 public interface CDEventEntry extends RichTextRecord<WSIG> {
   enum Platform implements INumberEnum<Short> {
     CLIENT(RichTextConstants.PLATFORM_TYPE_CLIENT_ODS),
-    WEB(RichTextConstants.PLATFORM_TYPE_CLIENT_ODS);
+    WEB(RichTextConstants.PLATFORM_TYPE_WEB_ODS);
 
     private final short value;
 
     Platform(final short value) {
-      this.value = value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Short getValue() {
-      return this.value;
-    }
-  }
-  
-  enum HtmlEventId implements INumberEnum<Short> {
-    ONCLICK(RichTextConstants.HTML_EVENT_ONCLICK),
-    ONDBLCLICK(RichTextConstants.HTML_EVENT_ONDBLCLICK),
-    ONMOUSEDOWN(RichTextConstants.HTML_EVENT_ONMOUSEDOWN),
-    ONMOUSEUP(RichTextConstants.HTML_EVENT_ONMOUSEUP),
-    ONMOUSEOVER(RichTextConstants.HTML_EVENT_ONMOUSEOVER),
-    ONMOUSEMOVE(RichTextConstants.HTML_EVENT_ONMOUSEMOVE),
-    ONMOUSEOUT(RichTextConstants.HTML_EVENT_ONMOUSEOUT),
-    ONKEYPRESS(RichTextConstants.HTML_EVENT_ONKEYPRESS),
-    ONKEYDOWN(RichTextConstants.HTML_EVENT_ONKEYDOWN),
-    ONKEYUP(RichTextConstants.HTML_EVENT_ONKEYUP),
-    ONFOCUS(RichTextConstants.HTML_EVENT_ONFOCUS),
-    ONBLUR(RichTextConstants.HTML_EVENT_ONBLUR),
-    ONLOAD(RichTextConstants.HTML_EVENT_ONLOAD),
-    ONUNLOAD(RichTextConstants.HTML_EVENT_ONUNLOAD),
-    HEADER(RichTextConstants.HTML_EVENT_HEADER),
-    ONSUBMIT(RichTextConstants.HTML_EVENT_ONSUBMIT),
-    ONRESET(RichTextConstants.HTML_EVENT_ONRESET),
-    ONCHANGE(RichTextConstants.HTML_EVENT_ONCHANGE),
-    ONERROR(RichTextConstants.HTML_EVENT_ONERROR),
-    ONHELP(RichTextConstants.HTML_EVENT_ONHELP),
-    ONSELECT(RichTextConstants.HTML_EVENT_ONSELECT),
-    LIBRARY(RichTextConstants.HTML_EVENT_LIBRARY);
-
-    private final short value;
-
-    HtmlEventId(final short value) {
       this.value = value;
     }
 

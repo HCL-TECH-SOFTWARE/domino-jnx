@@ -19,6 +19,7 @@ package com.hcl.domino.commons.richtext.records;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 import com.hcl.domino.richtext.structures.WSIG;
 
@@ -40,6 +41,6 @@ public class GenericWSIGRecord extends AbstractCDRecord<WSIG> {
   public WSIG getHeader() {
     final ByteBuffer buf = this.getData().slice();
     buf.limit(6);
-    return MemoryStructureProxy.forStructure(WSIG.class, () -> buf.slice().order(ByteOrder.nativeOrder()));
+    return MemoryStructureUtil.forStructure(WSIG.class, () -> buf.slice().order(ByteOrder.nativeOrder()));
   }
 }

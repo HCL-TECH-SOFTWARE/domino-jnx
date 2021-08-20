@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.hcl.domino.data.NotesFont;
+import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
 import com.hcl.domino.design.format.ActionBarTextAlignment;
 import com.hcl.domino.design.format.ActionButtonHeightMode;

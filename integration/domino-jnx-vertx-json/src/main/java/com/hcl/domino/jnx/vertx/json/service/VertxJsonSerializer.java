@@ -28,7 +28,11 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.design.DefaultActionBar;
+import com.hcl.domino.commons.design.action.DefaultActionBarAction;
 import com.hcl.domino.commons.json.AbstractJsonSerializer;
 import com.hcl.domino.commons.json.JsonUtil;
 import com.hcl.domino.data.Document;
@@ -37,20 +41,52 @@ import com.hcl.domino.data.DominoDateRange;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.DominoTimeType;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.design.View;
 import com.hcl.domino.exception.EntryNotFoundInIndexException;
 import com.hcl.domino.exception.ItemNotFoundException;
 import com.hcl.domino.html.HtmlConversionResult;
 import com.hcl.domino.html.HtmlConvertOption;
 import com.hcl.domino.html.RichTextHTMLConverter;
+import com.hcl.domino.jnx.vertx.json.DefaultActionBarActionMixIn;
+import com.hcl.domino.jnx.vertx.json.DefaultActionBarMixIn;
+import com.hcl.domino.jnx.vertx.json.MemoryStructureMixIn;
+import com.hcl.domino.jnx.vertx.json.ResizableMemoryStructureMixIn;
+import com.hcl.domino.jnx.vertx.json.RichTextRecordMixIn;
+import com.hcl.domino.jnx.vertx.json.ViewMixIn;
 import com.hcl.domino.json.JsonSerializer;
 import com.hcl.domino.mime.MimeReader.ReadMimeDataType;
+import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.structures.MemoryStructure;
+import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 
 import io.vertx.core.json.JsonObject;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 
 public class VertxJsonSerializer extends AbstractJsonSerializer {
+  
+  public VertxJsonSerializer() {
+    //add custom mixin classes for json serialization
+    io.vertx.core.json.jackson.DatabindCodec.prettyMapper().setSerializationInclusion(Include.NON_EMPTY);
+    io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(View.class, ViewMixIn.class);
+    io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(MemoryStructure.class, MemoryStructureMixIn.class);
+    io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(RichTextRecord.class, RichTextRecordMixIn.class);
+    io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(ResizableMemoryStructure.class, ResizableMemoryStructureMixIn.class);
+    io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(DefaultActionBar.class, DefaultActionBarMixIn.class);
+    io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(DefaultActionBarAction.class, DefaultActionBarActionMixIn.class);
+    io.vertx.core.json.jackson.DatabindCodec.mapper().registerModule(new Jdk8Module());
+  }
 
+  /**
+   * Json serialization of Objects with vertx ObjectMapper
+   *
+   * @since 1.0.32
+   */
+  @Override
+  public JsonObject toJson(final Object value) {
+	  return JsonObject.mapFrom(value);
+  }
+  
   @Override
   public JsonObject toJson(final Document doc) {
     final JsonObject result = new JsonObject();

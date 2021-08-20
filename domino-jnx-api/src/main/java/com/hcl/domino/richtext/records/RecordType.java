@@ -99,8 +99,8 @@ public enum RecordType {
    */
   BACKGROUNDPROPERTIES(RichTextConstants.SIG_CD_BACKGROUNDPROPERTIES, 1),
   EMBEDEXTRA_INFO(RichTextConstants.SIG_CD_EMBEDEXTRA_INFO, 1),
-  CLIENT_BLOBPART(RichTextConstants.SIG_CD_CLIENT_BLOBPART, 1),
-  CLIENT_EVENT(RichTextConstants.SIG_CD_CLIENT_EVENT, 1),
+  CLIENT_BLOBPART(RichTextConstants.SIG_CD_CLIENT_BLOBPART, 1, CDBlobPart.class),
+  CLIENT_EVENT(RichTextConstants.SIG_CD_CLIENT_EVENT, 1, CDEvent.class),
   BORDERINFO_HS(RichTextConstants.SIG_CD_BORDERINFO_HS, 1),
   LARGE_PARAGRAPH(RichTextConstants.SIG_CD_LARGE_PARAGRAPH, 1),
   EXT_EMBEDDEDSCHED(RichTextConstants.SIG_CD_EXT_EMBEDDEDSCHED, 1),
@@ -125,7 +125,7 @@ public enum RecordType {
    * This CD Record gives information pertaining to data connection resource
    * information in a field or form.
    */
-  DECSFIELD(RichTextConstants.SIG_CD_DECSFIELD, 1),
+  DECSFIELD(RichTextConstants.SIG_CD_DECSFIELD, 1, CDDECSField.class),
   SPAN_END(RichTextConstants.SIG_CD_SPAN_END, 1),
   SPAN_BEGIN(RichTextConstants.SIG_CD_SPAN_BEGIN, 1),
   /**
@@ -590,7 +590,7 @@ public enum RecordType {
    * of
    * documents created with that form.
    */
-  DOCUMENT(RichTextConstants.SIG_CD_DOCUMENT, 4),
+  DOCUMENT(RichTextConstants.SIG_CD_DOCUMENT, 4, CDDocument.class),
   METAFILE(RichTextConstants.SIG_CD_METAFILE, 4),
   BITMAP(RichTextConstants.SIG_CD_BITMAP, 4),
   /**
@@ -826,7 +826,13 @@ public enum RecordType {
   ACTION_SENDDOCUMENT(RichTextConstants.SIG_ACTION_SENDDOCUMENT, 7, CDActionSendDocument.class),
   ACTION_FORMULAONLY(RichTextConstants.SIG_ACTION_FORMULAONLY, 7),
   ACTION_JAVAAGENT(RichTextConstants.SIG_ACTION_JAVAAGENT, 7, CDActionJavaAgent.class),
-  ACTION_JAVA(RichTextConstants.SIG_ACTION_JAVA, 7);
+  ACTION_JAVA(RichTextConstants.SIG_ACTION_JAVA, 7),
+  
+  /**
+   * This record was seen via observation only when reading the contents of a CDACTION
+   * "Simple Actions" record
+   */
+  UNIDENTIFIED_CDACTION_PREFIX(RichTextConstants.SIG_UNIDENTIFIED_CDACTION_PREFIX, 7);
 
   public enum Area {
     /** Signatures for Composite Records in items of data type COMPOSITE */

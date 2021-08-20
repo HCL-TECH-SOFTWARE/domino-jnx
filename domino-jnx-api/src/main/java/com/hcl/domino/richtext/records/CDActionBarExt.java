@@ -17,6 +17,7 @@
 package com.hcl.domino.richtext.records;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.design.DesignElement.ClassicThemeBehavior;
@@ -112,10 +113,16 @@ public interface CDActionBarExt extends RichTextRecord<WSIG> {
   CDActionBarExt setAppletHeight(int appletHeight);
 
   @StructureGetter("wBarBackgroundRepeat")
-  ActionBarBackgroundRepeat getBackgroundRepeat();
+  short getBackgroundRepeatRaw();
 
   @StructureSetter("wBarBackgroundRepeat")
-  CDActionBarExt setBackgroundRepeat(ActionBarBackgroundRepeat backgroundRepeat);
+  CDActionBarExt setBackgroundRepeatRaw(short backgroundRepeat);
+  
+  @StructureGetter("wBarBackgroundRepeat")
+  Optional<ActionBarBackgroundRepeat> getBackgroundRepeat();
+
+  @StructureSetter("wBarBackgroundRepeat")
+  CDActionBarExt setBackgroundRepeat(ActionBarBackgroundRepeat repeat);
 
   @StructureGetter("BtnWidthStyle")
   ActionWidthMode getWidthStyle();
@@ -154,7 +161,7 @@ public interface CDActionBarExt extends RichTextRecord<WSIG> {
   LengthValue getHeight();
   
   @StructureGetter("wThemeSetting")
-  ClassicThemeBehavior getThemeSetting();
+  Optional<ClassicThemeBehavior> getThemeSetting();
   
   @StructureSetter("wThemeSetting")
   CDActionBarExt setThemeSetting(ClassicThemeBehavior setting);

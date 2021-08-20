@@ -58,13 +58,14 @@ import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.richtext.IDefaultRichTextWriter;
 import com.hcl.domino.commons.richtext.DefaultRichTextList;
 import com.hcl.domino.commons.richtext.RichTextUtil;
-import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.exception.IncompatibleImplementationException;
 import com.hcl.domino.exception.ObjectDisposedException;
@@ -100,7 +101,6 @@ import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FontStyle;
-import com.hcl.domino.richtext.structures.FontStyle.StandardColors;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -199,10 +199,10 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 	}
 
 	private int getFontId(byte face, byte attrib, byte color, byte pointSize) {
-		FontStyle fontIdStruct = MemoryStructureProxy.newStructure(FontStyle.class, 0);
+		FontStyle fontIdStruct = MemoryStructureUtil.newStructure(FontStyle.class, 0);
 		fontIdStruct.setStandardFont(DominoEnumUtil.valueOf(StandardFonts.class, face).orElse(StandardFonts.SWISS));
 		fontIdStruct.setAttributes(DominoEnumUtil.valuesOf(FontAttribute.class, attrib));
-		fontIdStruct.setColor(DominoEnumUtil.valueOf(StandardColors.class, color).orElse(StandardColors.BLACK));
+		fontIdStruct.setColor(DominoEnumUtil.valueOf(StandardColors.class, color).orElse(StandardColors.Black));
 		fontIdStruct.setPointSize(pointSize);
 
 		int fontId = fontIdStruct.getData().getInt(0);

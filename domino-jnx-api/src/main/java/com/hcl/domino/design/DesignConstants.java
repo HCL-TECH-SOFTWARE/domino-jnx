@@ -127,4 +127,114 @@ public interface DesignConstants {
   
   String ACTION_ITEM = "$ACTIONS"; //$NON-NLS-1$
   String V5ACTION_ITEM = "$V5ACTIONS"; //$NON-NLS-1$
+  
+  short ACTION_SYS_CMD_CATEGORIZE     = 0x7c4e;
+  short ACTION_SYS_CMD_EDIT       =   0x0a02;
+  short ACTION_SYS_CMD_SEND       =   0x0a03;
+  short ACTION_SYS_CMD_FORWARD      =   0x0a04;
+  short ACTION_SYS_CMD_MOVE_TO_FOLDER   = 0x7c3d;
+  short ACTION_SYS_CMD_REMOVE_FROM_FOLDER = 0x7c3e;
+  short ACTION_SYS_CMD_MARK_SEL_READ    = 0x7c5e;
+  short ACTION_SYS_CMD_MARK_SEL_UNREAD  =   0x7c6e;
+  short ACTION_SYS_CMD_OPEN_SELECTED_NEWWND = 0x7c7e;
+  short ACTION_SYS_CMD_FILE_PRINT     = 0x7c8e;
+  short ACTION_SYS_CMD_DELETE       = 0x7c9e;
+  short ACTION_SYS_CMD_INFOBOX      =   0x7cae;
+  short ACTION_SYS_CMD_CUT        =   0x7cbe;
+  short ACTION_SYS_CMD_COPY       =   0x7cce;
+  short ACTION_SYS_CMD_COPY_LINK_DOC    = 0x7cde;
+  short ACTION_SYS_CMD_COPY_VIEW_TABLE  =   0x7cee;
+  short ACTION_SYS_CMD_PASTE        = 0x7cfe  ;
+  short ACTION_SYS_CMD_OPEN_SELECTED    = 0x7d0e;
+  short ACTION_SYS_CMD_BOOKMARK     =   0x7d1e;
+  
+  /**  Use Reference Note  */
+  short TPL_FLAG_REFERENCE = 0x0001;
+  /**  Mail during DocSave  */
+  short TPL_FLAG_MAIL = 0x0002;
+  /**  Add note ref. to "reference note"  */
+  short TPL_FLAG_NOTEREF = 0x0004;
+  /**  Add note ref. to main parent of "reference note"  */
+  short TPL_FLAG_NOTEREF_MAIN = 0x0008;
+  /**  Recalc when leaving fields  */
+  short TPL_FLAG_RECALC = 0x0010;
+  /**  Store form item in with note  */
+  short TPL_FLAG_BOILERPLATE = 0x0020;
+  /**  Use foreground color to paint  */
+  short TPL_FLAG_FGCOLOR = 0x0040;
+  /**  Spare DWORDs have been zeroed  */
+  short TPL_FLAG_SPARESOK = 0x0080;
+  /**  Activate OLE objects when composing a new doc  */
+  short TPL_FLAG_ACTIVATE_OBJECT_COMP = 0x0100; 
+  /**  Activate OLE objects when editing an existing doc  */
+  short TPL_FLAG_ACTIVATE_OBJECT_EDIT = 0x0200; 
+  /**  Activate OLE objects when reading an existing doc  */
+  short TPL_FLAG_ACTIVATE_OBJECT_READ = 0x0400; 
+  /**  Show Editor window if TPL_FLAG_ACTIVATE_OBJECT_COMPOSE  */
+  short TPL_FLAG_SHOW_WINDOW_COMPOSE = 0x0800;
+  /**  Show Editor window if TPL_FLAG_ACTIVATE_OBJECT_EDIT  */
+  short TPL_FLAG_SHOW_WINDOW_EDIT = 0x1000;
+  /**  Show Editor window if TPL_FLAG_ACTIVATE_OBJECT_READ  */
+  short TPL_FLAG_SHOW_WINDOW_READ = 0x2000;
+  /**  V3 Updates become responses  */
+  short TPL_FLAG_UPDATE_RESPONSE = 0x4000;
+  /**  V3 Updates become parents  */
+  short TPL_FLAG_UPDATE_PARENT = (short)0x8000;
+    /* for FormFlags2 */
+  /**  insert copy of ref note  */
+  short TPL_FLAG_INCLUDEREF = 0x0001;
+  /**  render ref (else it's a doclink)  */
+  short TPL_FLAG_RENDERREF = 0x0002;
+  /**  render it collapsed?  */
+  short TPL_FLAG_RENDCOLLAPSE = 0x0004;
+  /**  edit mode on open  */
+  short TPL_FLAG_EDITONOPEN = 0x0008;
+  /**  open context panes  */
+  short TPL_FLAG_OPENCNTXT = 0x0010;
+  /**  context pane is parent  */
+  short TPL_FLAG_CNTXTPARENT = 0x0020;
+  /**  manual versioning  */
+  short TPL_FLAG_MANVCREATE = 0x0040;
+  /**  V4 versioning - updates are sibblings  */
+  short TPL_FLAG_UPDATE_SIBLING = 0x0080;
+  /**  V4 Anonymous form  */
+  short TPL_FLAG_ANONYMOUS = 0x0100;
+  /**  Doclink dive into same window  */
+  short TPL_FLAG_NAVIG_DOCLINK_IN_PLACE = 0x0200;
+  /**  InterNotes special form  */
+  short TPL_FLAG_INTERNOTES = 0x0400;
+  /**  Disable FX for this doc */
+  short TPL_FLAG_DISABLE_FX = 0x0800;
+  /**  Disable menus for this DOC  */
+  short TPL_FLAG_NOMENUS = 0x1000;
+  /**  check display before displaying background  */
+  short TPL_FLAG_CHECKDISPLAY = 0x2000;
+  /**  This is a Right To Left Form  */
+  short TPL_FLAG_FORMISRTL = 0x4000;
+  /**  hide background graphic in design mode  */
+  short TPL_FLAG_HIDEBKGRAPHIC = (short)0x8000;
+    /* for FormFlags3 */
+  /**  editor resizes header area to contents  */
+  short TPL_FLAG_RESIZEHEADER = 0x0001;
+  /**  No initial focus to any object on a form or page */
+  short TPL_FLAG_NOINITIALFOCUS = 0x0002;
+  /**  Sign this document when it gets saved  */
+  short TPL_FLAG_SIGNWHENSAVED = 0x0004;
+  /**  No focus when doing F6 or tabbing.  */
+  short TPL_FLAG_NOFOCUSWHENF6 = 0x0008;
+  /**  Render pass through HTML in the client.  */
+  short TPL_FLAG_RENDERPASSTHROUGH = 0x0010;
+  /**  Don't automatically add form fields to field index  */
+  short TPL_FLAG_NOADDFIELDNAMESTOINDEX = 0x0020;
+  /**  Autosave Documents created using this form  */
+  short TPL_FLAG_CANAUTOSAVE = 0x0040;
+  /**  2 bits to reflect three possible settings.  */
+  short TPL_FLAG_THEMESETTING = 0x0180;
+  /**  shift right this many bits to get the theme setting into the low-order bits.  */
+  short TPL_SHIFT_THEMESETTING = 7;
+  
+  String ITEM_NAME_DEFAULTDECSINFO = "$DefaultDECSInfo"; //$NON-NLS-1$
+  
+  short FDECS_KEY_FIELD = 0x0001;
+  short FDECS_STORE_LOCALLY = 0x0002;
 }
