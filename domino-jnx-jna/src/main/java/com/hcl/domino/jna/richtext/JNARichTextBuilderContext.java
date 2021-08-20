@@ -16,6 +16,8 @@ import java.util.stream.Stream;
 
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.design.DesignUtil;
+import com.hcl.domino.commons.richtext.conversion.PatternBasedTextReplacementConversion;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
@@ -25,7 +27,7 @@ import com.hcl.domino.design.RichTextBuilder;
 import com.hcl.domino.design.RichTextBuilder.RichTextBuilderContext;
 import com.hcl.domino.design.RichTextBuilder.RichTextBuilderOperation;
 import com.hcl.domino.richtext.RichTextWriter;
-import com.hcl.domino.richtext.conversion.PatternBasedTextReplacementConversion;
+import com.hcl.domino.richtext.records.CDText;
 
 /**
  * Abstract base implementation of {@link RichtextBuilderContext}
@@ -94,7 +96,7 @@ public abstract class JNARichTextBuilderContext<O> implements RichTextBuilderCon
 
 			PatternBasedTextReplacementConversion rtConv =
 					new PatternBasedTextReplacementConversion(pattern,
-							(matcher,rtWriter) -> {
+							(matcher, fontStyle, rtWriter) -> {
 								Object newContent = labelFct.apply(matcher);
 								if (newContent==null) {
 									newContent = "";
@@ -103,7 +105,12 @@ public abstract class JNARichTextBuilderContext<O> implements RichTextBuilderCon
 								if (newContent instanceof String) {
 									String newContentStr = (String) newContent;
 									if (newContentStr.length()>0) {
-										rtWriter.addText(newContentStr);
+						        		CDText newContentTxtRecord = MemoryStructureUtil.newStructure(CDText.class, 0);
+						        		newContentTxtRecord.setStyle(fontStyle);
+						        		newContentTxtRecord.setText(newContentStr);
+						        		//add CDText WSIG
+						        		newContentTxtRecord.getData().put((byte) 0x85).put((byte) 0xff);
+						        		rtWriter.addRichTextRecord(newContentTxtRecord);
 									}
 								}
 								else if (newContent instanceof RichTextBuilderContext<?>) {
