@@ -133,7 +133,7 @@ public class RenameFieldsOperation implements RichTextBuilderOperation {
 			if (!StringUtil.isEmpty(oldLSCode)) {
 				//and replace all field name occurrences in the LS code (if code for one field references another one)
 				String newLSCode = StringUtil.replaceAllMatches(oldLSCode, newFieldNames, true);
-				doc.replaceItemValue("$$"+currNewField, EnumSet.of(ItemFlag.SIGNED), newLSCode);
+				doc.replaceItemValue("$$"+currNewField, EnumSet.of(ItemFlag.SIGNED, ItemFlag.KEEPLINEBREAKS), newLSCode);
 				doc.removeItem("$$"+currOldField);
 				
 				//rename field placeholder item
