@@ -651,6 +651,10 @@ public class TestDbDesignForms extends AbstractDesignTest {
     
     assertEquals("testconn", form.getDefaultDataConnectionName().get());
     assertEquals("foo", form.getDefaultDataConnectionObject().get());
+    
+    
+    assertEquals("Outer Frame", form.getAutoFrameFrameset().get());
+    assertEquals("Nav", form.getAutoFrameTarget().get());
   }
 
   @Test
