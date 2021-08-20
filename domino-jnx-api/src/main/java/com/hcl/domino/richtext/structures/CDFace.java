@@ -30,7 +30,7 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
  * @since 1.0.32
  */
 @StructureDefinition(
-  name = "RFC822ITEMDESC",
+  name = "CDFACE",
   members = {
     @StructureMember(name = "Face", type = byte.class, unsigned = true),
     @StructureMember(name = "Family", type = byte.class),

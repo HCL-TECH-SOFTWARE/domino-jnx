@@ -33,7 +33,7 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
  * @since 1.0.34
  */
 @StructureDefinition(
-  name = "BSIG",
+  name = "OLE_GUID",
   members = {
     @StructureMember(name = "Data1", type = int.class),
     @StructureMember(name = "Data2", type = short.class),
