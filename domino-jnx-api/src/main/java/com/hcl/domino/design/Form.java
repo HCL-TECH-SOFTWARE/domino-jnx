@@ -74,7 +74,7 @@ public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlt
    * @author Jesse Gallagher
    * @since 1.0.33
    */
-  interface InheritanceBehavior {
+  interface InheritanceSettings {
     String getTargetField();
     InheritanceFieldType getType();
   }
@@ -339,7 +339,7 @@ public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlt
    *         newly-created documents, or an empty one if they should not be
    * @since 1.0.33
    */
-  Optional<InheritanceBehavior> getSelectedDocumentInheritanceBehavior();
+  Optional<InheritanceSettings> getSelectedDocumentInheritanceBehavior();
   
   /**
    * Determines whether existing documents opened with this form should begin in edit mode.

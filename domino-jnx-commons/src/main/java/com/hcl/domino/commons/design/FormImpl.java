@@ -185,7 +185,7 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
   }
 
   @Override
-  public Optional<InheritanceBehavior> getSelectedDocumentInheritanceBehavior() {
+  public Optional<InheritanceSettings> getSelectedDocumentInheritanceBehavior() {
     Set<CDDocument.Flag2> flags = getDocumentFlags2();
     if(flags.contains(CDDocument.Flag2.INCLUDEREF)) {
       return Optional.of(new DefaultInheritanceBehavior());
@@ -248,7 +248,7 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
     }
   }
   
-  private class DefaultInheritanceBehavior implements InheritanceBehavior {
+  private class DefaultInheritanceBehavior implements InheritanceSettings {
     
     @Override
     public String getTargetField() {

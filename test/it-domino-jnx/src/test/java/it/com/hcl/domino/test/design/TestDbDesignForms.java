@@ -632,7 +632,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
     
     
     assertTrue(form.isInheritSelectedDocumentValues());
-    Form.InheritanceBehavior inheritance = form.getSelectedDocumentInheritanceBehavior().get();
+    Form.InheritanceSettings inheritance = form.getSelectedDocumentInheritanceBehavior().get();
     assertEquals("TargetBody", inheritance.getTargetField());
     assertEquals(Form.InheritanceFieldType.COLLAPSIBLE_RICH_TEXT, inheritance.getType());
     
