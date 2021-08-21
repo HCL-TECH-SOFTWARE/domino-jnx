@@ -17,7 +17,6 @@
 package com.hcl.domino.richtext.records;
 
 import java.nio.charset.Charset;
-import java.util.Arrays;
 
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -51,7 +50,7 @@ public interface CDHeader extends RichTextRecord<WSIG> {
   byte[] getFontNameRaw();
   
   @StructureSetter("FontName")
-  CDHeader setFontNameRaw(char[] fontName);
+  CDHeader setFontNameRaw(byte[] fontName);
   
   @StructureGetter("Font")
   FontStyle getFontStyle();

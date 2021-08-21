@@ -98,7 +98,7 @@ public interface CDFrameset extends RichTextRecord<WSIG> {
   byte getBorderEnable();
   
   @StructureSetter("BorderEnable")
-  byte setBorderEnable(byte borderEnable);
+  CDFrameset setBorderEnable(byte borderEnable);
   
   @StructureGetter("FrameBorderWidth")
   int getFrameBorderWidth();
