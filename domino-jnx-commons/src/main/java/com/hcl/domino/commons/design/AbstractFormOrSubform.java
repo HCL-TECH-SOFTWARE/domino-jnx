@@ -161,9 +161,9 @@ public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> e
           .filter(hotspot -> hotspot.getHotspotType() == CDHotspotBegin.Type.SUBFORM)
           .map(hotspot -> {
             if (hotspot.getFlags().contains(CDHotspotBegin.Flag.FORMULA)) {
-              return new SubformReference(SubformReference.Type.FORMULA, hotspot.getSubformValue());
+              return new SubformReference(SubformReference.Type.FORMULA, hotspot.getSubformValue().get());
             } else {
-              return new SubformReference(SubformReference.Type.EXPLICIT, hotspot.getSubformValue());
+              return new SubformReference(SubformReference.Type.EXPLICIT, hotspot.getSubformValue().get());
             }
           })
           .collect(Collectors.toList());
@@ -190,6 +190,16 @@ public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> e
   @Override
   public boolean isRenderPassThroughHtmlInClient() {
     return getDocumentFlags3().contains(CDDocument.Flag3.RENDERPASSTHROUGH);
+  }
+  
+  @Override
+  public List<?> getBody() {
+    Document doc = getDocument();
+    if(doc.hasItem(NotesConstants.ITEM_NAME_TEMPLATE)) {
+      return doc.getRichTextItem(NotesConstants.ITEM_NAME_TEMPLATE);
+    } else {
+      return Collections.emptyList();
+    }
   }
 
   // *******************************************************************************

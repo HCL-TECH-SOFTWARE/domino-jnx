@@ -1,7 +1,5 @@
 package com.hcl.domino.richtext;
 
-import com.hcl.domino.richtext.structures.RectSize;
-
 /**
  * Represents a Notes-style bitmap stored in rich-text structures.
  * 

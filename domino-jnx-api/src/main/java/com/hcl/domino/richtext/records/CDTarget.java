@@ -17,6 +17,7 @@
 package com.hcl.domino.richtext.records;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.misc.INumberEnum;
@@ -77,11 +78,23 @@ public interface CDTarget extends RichTextRecord<WSIG> {
   @StructureSetter("Flags")
   CDTarget setFlags(Collection<Flag> flags);
   
-  default String getTargetString() {
-    return StructureSupport.extractStringValue(
-      this,
-      0,
-      getTargetLength()
+  /**
+   * Retrieves the plain-text string of the target name when {@link #getFlags()}
+   * does not contain {@link Flag#IS_FORMULA}.
+   * 
+   * @return an {@link Optional} describing the target string name, or an empty
+   *         one if it is stored as a formula
+   */
+  default Optional<String> getTargetString() {
+    if(getFlags().contains(Flag.IS_FORMULA)) {
+      return Optional.empty();
+    }
+    return Optional.of(
+      StructureSupport.extractStringValue(
+        this,
+        0,
+        getTargetLength()
+      )
     );
   }
   
@@ -95,12 +108,24 @@ public interface CDTarget extends RichTextRecord<WSIG> {
     );
   }
   
-  default String getTargetFormula() {
-    return StructureSupport.extractCompiledFormula(
+  /**
+   * Retrieves the plain-text string of the target name when {@link #getFlags()}
+   * contains {@link Flag#IS_FORMULA}.
+   * 
+   * @return an {@link Optional} describing the target string formula, or an empty
+   *         one if it is stored as a string
+   */
+  default Optional<String> getTargetFormula() {
+    if(!getFlags().contains(Flag.IS_FORMULA)) {
+      return Optional.empty();
+    }
+    return Optional.of(
+      StructureSupport.extractCompiledFormula(
         this,
         0,
         getTargetLength()
-      );
+      )
+    );
   }
   
   default CDTarget setTargetFormula(String target) {

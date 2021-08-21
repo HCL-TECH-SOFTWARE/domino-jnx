@@ -18,8 +18,8 @@ package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.misc.INumberEnum;
@@ -138,7 +138,58 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
   @StructureGetter("DataLength")
   int getDataLength();
 
-  default String getDisplayFileName() {
+  @StructureGetter("Flags")
+  Set<Flag> getFlags();
+
+  @StructureGetter("Header")
+  @Override
+  WSIG getHeader();
+
+  @StructureGetter("Type")
+  Type getHotspotType();
+
+  /**
+   * Retrieves the subform name or formula for a {@link Type#SUBFORM SUBFORM}-type
+   * hotspot.
+   *
+   * @return an {@link Optional} describing the string name or formula, or an empty
+   *         one if that does not apply
+   * @throws IllegalStateException if the type is not {@link Type#SUBFORM}
+   */
+  default Optional<String> getSubformValue() {
+    if (this.getHotspotType() != Type.SUBFORM) {
+      return Optional.empty();
+    }
+    if (this.getFlags().contains(Flag.FORMULA)) {
+      return Optional.of(
+        StructureSupport.extractCompiledFormula(
+          this,
+          0,
+          this.getDataLength()
+        )
+      );
+    } else {
+      return Optional.of(
+        StructureSupport.extractStringValue(
+          this,
+          0,
+          this.getDataLength() - 1 // null terminated
+        )
+      );
+    }
+  }
+
+  /**
+   * Returns the display file name for a {@link Type#FILE FILE}-type hotspot.
+   * 
+   * @return an {@link Optional} describing the display file name, or an empty
+   *         one if this is not applicable
+   */
+  default Optional<String> getDisplayFileName() {
+    if(getHotspotType() != Type.FILE) {
+      return Optional.empty();
+    }
+    
     final ByteBuffer buf = this.getVariableData().duplicate();
     int pos = buf.position();
     int nullIndex = pos;
@@ -168,46 +219,20 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
 
     final byte[] lmbcs = new byte[nullIndex - pos];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return Optional.of(new String(lmbcs, Charset.forName("LMBCS"))); //$NON-NLS-1$
   }
-
-  @StructureGetter("Flags")
-  Set<Flag> getFlags();
-
-  @StructureGetter("Header")
-  @Override
-  WSIG getHeader();
-
-  @StructureGetter("Type")
-  Type getHotspotType();
 
   /**
-   * Retrieves the subform name or formula for a {@link Type#SUBFORM SUBFORM}-type
-   * hotspot.
-   *
-   * @return a string name or formula
-   * @throws IllegalStateException if the type is not {@link Type#SUBFORM}
+   * Returns the unique file name for a {@link Type#FILE FILE}-type hotspot.
+   * 
+   * @return an {@link Optional} describing the unique file name, or an empty
+   *         one if this is not applicable
    */
-  default String getSubformValue() {
-    if (this.getHotspotType() != Type.SUBFORM) {
-      throw new IllegalStateException(
-          MessageFormat.format("Cannot retrieve the subform name for a hotspot of type {0}", this.getHotspotType()));
+  default Optional<String> getUniqueFileName() {
+    if(getHotspotType() != Type.FILE) {
+      return Optional.empty();
     }
-    if (this.getFlags().contains(Flag.FORMULA)) {
-      return StructureSupport.extractCompiledFormula(
-          this,
-          0,
-          this.getDataLength());
-    } else {
-      return StructureSupport.extractStringValue(
-          this,
-          0,
-          this.getDataLength() - 1 // null terminated
-      );
-    }
-  }
-
-  default String getUniqueFileName() {
+    
     final ByteBuffer buf = this.getVariableData();
     final int pos = buf.position();
     int nullIndex = pos;
@@ -225,7 +250,7 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
 
     final byte[] lmbcs = new byte[nullIndex - pos];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return Optional.of(new String(lmbcs, Charset.forName("LMBCS"))); //$NON-NLS-1$
   }
 
   @StructureSetter("DataLength")

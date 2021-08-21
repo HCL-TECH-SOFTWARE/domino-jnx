@@ -3,12 +3,14 @@ package com.hcl.domino.commons.richtext;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
+import com.hcl.domino.commons.design.DesignColorsAndFonts;
 import com.hcl.domino.richtext.NotesBitmap;
 import com.hcl.domino.richtext.RectangleSize;
 import com.hcl.domino.richtext.records.CDBitmapHeader;
+import com.hcl.domino.richtext.records.CDGraphic;
 import com.hcl.domino.richtext.records.RichTextRecord;
-import com.hcl.domino.richtext.structures.RectSize;
 
 /**
  * Default implementation of {@link NotesBitmap} that derives its data
@@ -25,8 +27,16 @@ public class DefaultNotesBitmap implements NotesBitmap {
   }
 
   @Override
-  public RectSize getDestinationSize() {
-    return getBitmapHeader().getDest();
+  public RectangleSize getDestinationSize() {
+    return getBitmapHeader()
+      .map(CDBitmapHeader::getDest)
+      .map(RectangleSize.class::cast)
+      .orElseGet(() ->
+        getGraphic()
+          .map(CDGraphic::getDestSize)
+          .map(RectangleSize.class::cast)
+          .orElseGet(DesignColorsAndFonts::zeroPixelRectangle)
+      );
   }
 
   @Override
@@ -35,52 +45,82 @@ public class DefaultNotesBitmap implements NotesBitmap {
       
       @Override
       public RectangleSize setWidth(int width) {
-        getBitmapHeader().setWidth(width);
+        Optional<CDBitmapHeader> header = getBitmapHeader();
+        if(header.isPresent()) {
+          header.get().setWidth(width);
+        }
         return this;
       }
       
       @Override
       public RectangleSize setHeight(int height) {
-        getBitmapHeader().setHeight(height);
+        Optional<CDBitmapHeader> header = getBitmapHeader();
+        if(header.isPresent()) {
+          header.get().setHeight(height);
+        }
         return this;
       }
       
       @Override
       public int getWidth() {
-        return getBitmapHeader().getWidth();
+        return getBitmapHeader()
+          .map(CDBitmapHeader::getWidth)
+          .orElseGet(() -> 
+            getGraphic()
+              .map(graphic -> graphic.getDestSize().getWidth())
+              .orElse(0)
+          );
       }
       
       @Override
       public int getHeight() {
-        return getBitmapHeader().getHeight();
+        return getBitmapHeader()
+          .map(CDBitmapHeader::getHeight)
+          .orElseGet(() -> 
+            getGraphic()
+              .map(graphic -> graphic.getDestSize().getHeight())
+              .orElse(0)
+          );
       }
     };
   }
 
   @Override
   public int getBitsPerPixel() {
-    return getBitmapHeader().getBitsPerPixel();
+    return getBitmapHeader()
+      .map(CDBitmapHeader::getBitsPerPixel)
+      .orElse(0);
   }
 
   @Override
   public int getSamplesPerPixel() {
-    return getBitmapHeader().getSamplesPerPixel();
+    return getBitmapHeader()
+      .map(CDBitmapHeader::getSamplesPerPixel)
+      .orElse(0);
   }
 
   @Override
   public int getBitsPerSample() {
-    return getBitmapHeader().getBitsPerSample();
+    return getBitmapHeader()
+      .map(CDBitmapHeader::getBitsPerSample)
+      .orElse(0);
   }
 
   // *******************************************************************************
   // * Internal implementation utilities
   // *******************************************************************************
   
-  private CDBitmapHeader getBitmapHeader() {
+  private Optional<CDBitmapHeader> getBitmapHeader() {
     return records.stream()
       .filter(CDBitmapHeader.class::isInstance)
       .map(CDBitmapHeader.class::cast)
-      .findFirst()
-      .orElseThrow(() -> new IllegalStateException("Cannot find CDBITMAPHEADER"));
+      .findFirst();
+  }
+  
+  private Optional<CDGraphic> getGraphic() {
+    return records.stream()
+      .filter(CDGraphic.class::isInstance)
+      .map(CDGraphic.class::cast)
+      .findFirst();
   }
 }

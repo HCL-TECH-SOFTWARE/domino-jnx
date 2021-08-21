@@ -254,13 +254,14 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       final Document doc = database.createDocument();
       try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
         rtWriter.addRichTextRecord(CDHotspotBegin.class, begin -> {
+          begin.setHotspotType(CDHotspotBegin.Type.FILE);
           begin.setFileNames("foo.txt", "bar.txt");
         });
       }
 
       final CDHotspotBegin begin = (CDHotspotBegin) doc.getRichTextItem("Body").get(0);
-      assertEquals("foo.txt", begin.getUniqueFileName());
-      assertEquals("bar.txt", begin.getDisplayFileName());
+      assertEquals("foo.txt", begin.getUniqueFileName().get());
+      assertEquals("bar.txt", begin.getDisplayFileName().get());
     });
   }
 
@@ -406,7 +407,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDExt2Field field = (CDExt2Field) doc.getRichTextItem("Body").get(0);
-      assertEquals(NumberPref.FIELD, field.getNumberSymbolPreference());
+      assertEquals(NumberPref.FIELD, field.getNumberSymbolPreference().get());
       assertEquals("..", field.getDecimalSymbol());
       assertEquals(",,", field.getMilliSeparator());
       assertEquals("--", field.getNegativeSymbol());
@@ -422,20 +423,20 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       assertEquals(480, field.getThumbnailImageHeight());
       assertEquals("foo.png", field.getThumbnailImageFileName());
       assertEquals("\"foo fooson\"", field.getIMOnlineNameFormula());
-      assertEquals(NumberPref.FIELD, field.getDateTimePreference());
+      assertEquals(NumberPref.FIELD, field.getDateTimePreference().get());
       assertEquals(EnumSet.of(DateTimeFlag.SHOWDATE, DateTimeFlag.SHOWTIME), field.getDateTimeFlags());
       assertEquals(EnumSet.of(DateTimeFlag2.USE_TFMT), field.getDateTimeFlags2());
-      assertEquals(WeekFormat.WWWW, field.getDayOfWeekFormat());
-      assertEquals(YearFormat.GGEE, field.getYearFormat());
-      assertEquals(MonthFormat.MMM, field.getMonthFormat());
-      assertEquals(DayFormat.DD, field.getDayFormat());
+      assertEquals(WeekFormat.WWWW, field.getDayOfWeekFormat().get());
+      assertEquals(YearFormat.GGEE, field.getYearFormat().get());
+      assertEquals(MonthFormat.MMM, field.getMonthFormat().get());
+      assertEquals(DayFormat.DD, field.getDayFormat().get());
       assertEquals("//", field.getDateSeparator1());
       assertEquals("\\\\", field.getDateSeparator2());
       assertEquals("__", field.getDateSeparator3());
       assertEquals("??", field.getTimeSeparator());
-      assertEquals(DateShowFormat.MDY, field.getDateShowFormat());
+      assertEquals(DateShowFormat.MDY, field.getDateShowFormat().get());
       assertEquals(EnumSet.of(DateShowSpecial.SHOW_21ST_4DIGIT), field.getDateShowSpecial());
-      assertEquals(TimeShowFormat.HM, field.getTimeShowFormat());
+      assertEquals(TimeShowFormat.HM, field.getTimeShowFormat().get());
       assertEquals(EnumSet.of(CDExt2Field.FormatFlag.PROPORTIONAL), field.getFormatFlags());
       assertEquals(16, field.getProportionalWidthCharacters());
       assertEquals("@False + @True", field.getInputEnabledFormula());
