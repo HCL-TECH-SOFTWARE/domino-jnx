@@ -104,6 +104,8 @@ public interface AssistFieldStruct extends MemoryStructure {
 }
 ```
 
+Embedded structure members (such as `COLOR_VALUE`/`ColorValue`) should not have a setter specified: since they permanently exist in memory, API users should use the getter for the structure and then use the setters on the structure itself.
+
 #### Optionals
 
 Getters for `INumberEnum` types can return an `Optional` of that type, to handle cases where the underlying value doesn't line up with any of the known values. This can be useful in general, but is particularly useful when none of the enum values are `0`: this allows for the getter method toi avoid an exception when called with uninitialized data.
@@ -140,6 +142,19 @@ public interface FontStyle extends MemoryStructure {
   default boolean isUnderline() {
     return getAttributes().contains(Attribute.UNDERLINE);
   }
+}
+```
+
+### Fixed-Size String Members
+
+Some structures, such as `CDFACE`, contain fixed-length `char[]` members instead of variable-length strings. These members should be represented in Java as `byte[]` values of the same length as in the structure. The `StructureSupport.readLmbcsValue` method can be used to read the value without the padding nulls. For example:
+
+```java
+@StructureGetter("Name")
+byte[] getNameRaw();
+    
+default String getName() {
+  return StructureSupport.readLmbcsValue(getNameRaw());
 }
 ```
 
