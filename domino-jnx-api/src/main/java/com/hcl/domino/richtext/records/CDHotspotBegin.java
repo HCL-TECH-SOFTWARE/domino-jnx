@@ -24,6 +24,7 @@ import java.util.Set;
 
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.StructureSupport;
+import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
@@ -37,7 +38,7 @@ import com.hcl.domino.richtext.structures.WSIG;
  */
 @StructureDefinition(name = "CDHOTSPOTBEGIN", members = {
     @StructureMember(name = "Header", type = WSIG.class),
-    @StructureMember(name = "Type", type = CDHotspotBegin.Type.class),
+    @StructureMember(name = "Type", type = HotspotType.class),
     @StructureMember(name = "Flags", type = CDHotspotBegin.Flag.class, bitfield = true),
     @StructureMember(name = "DataLength", type = short.class, unsigned = true)
 })
@@ -92,49 +93,6 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
     }
   }
 
-  enum Type implements INumberEnum<Short> {
-    POPUP(RichTextConstants.HOTSPOTREC_TYPE_POPUP),
-    HOTREGION(RichTextConstants.HOTSPOTREC_TYPE_HOTREGION),
-    BUTTON(RichTextConstants.HOTSPOTREC_TYPE_BUTTON),
-    FILE(RichTextConstants.HOTSPOTREC_TYPE_FILE),
-    SECTION(RichTextConstants.HOTSPOTREC_TYPE_SECTION),
-    ANY(RichTextConstants.HOTSPOTREC_TYPE_ANY),
-    HOTLINK(RichTextConstants.HOTSPOTREC_TYPE_HOTLINK),
-    BUNDLE(RichTextConstants.HOTSPOTREC_TYPE_BUNDLE),
-    V4_SECTION(RichTextConstants.HOTSPOTREC_TYPE_V4_SECTION),
-    SUBFORM(RichTextConstants.HOTSPOTREC_TYPE_SUBFORM),
-    ACTIVEOBJECT(RichTextConstants.HOTSPOTREC_TYPE_ACTIVEOBJECT),
-    OLERICHTEXT(RichTextConstants.HOTSPOTREC_TYPE_OLERICHTEXT),
-    EMBEDDEDVIEW(RichTextConstants.HOTSPOTREC_TYPE_EMBEDDEDVIEW),
-    EMBEDDEDFPANE(RichTextConstants.HOTSPOTREC_TYPE_EMBEDDEDFPANE),
-    EMBEDDEDNAV(RichTextConstants.HOTSPOTREC_TYPE_EMBEDDEDNAV),
-    MOUSEOVER(RichTextConstants.HOTSPOTREC_TYPE_MOUSEOVER),
-    FILEUPLOAD(RichTextConstants.HOTSPOTREC_TYPE_FILEUPLOAD),
-    EMBEDDEDOUTLINE(RichTextConstants.HOTSPOTREC_TYPE_EMBEDDEDOUTLINE),
-    EMBEDDEDCTL(RichTextConstants.HOTSPOTREC_TYPE_EMBEDDEDCTL),
-    EMBEDDEDCALENDARCTL(RichTextConstants.HOTSPOTREC_TYPE_EMBEDDEDCALENDARCTL),
-    EMBEDDEDSCHEDCTL(RichTextConstants.HOTSPOTREC_TYPE_EMBEDDEDSCHEDCTL),
-    RCLINK(RichTextConstants.HOTSPOTREC_TYPE_RCLINK),
-    EMBEDDEDEDITCTL(RichTextConstants.HOTSPOTREC_TYPE_EMBEDDEDEDITCTL),
-    CONTACTLISTCTL(RichTextConstants.HOTSPOTREC_TYPE_CONTACTLISTCTL);
-
-    private final short value;
-
-    Type(final short value) {
-      this.value = value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Short getValue() {
-      return this.value;
-    }
-  }
-
   @StructureGetter("DataLength")
   int getDataLength();
 
@@ -146,18 +104,18 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
   WSIG getHeader();
 
   @StructureGetter("Type")
-  Type getHotspotType();
+  HotspotType getHotspotType();
 
   /**
-   * Retrieves the subform name or formula for a {@link Type#SUBFORM SUBFORM}-type
+   * Retrieves the subform name or formula for a {@link HotspotType#SUBFORM SUBFORM}-type
    * hotspot.
    *
    * @return an {@link Optional} describing the string name or formula, or an empty
    *         one if that does not apply
-   * @throws IllegalStateException if the type is not {@link Type#SUBFORM}
+   * @throws IllegalStateException if the type is not {@link HotspotType#SUBFORM}
    */
   default Optional<String> getSubformValue() {
-    if (this.getHotspotType() != Type.SUBFORM) {
+    if (this.getHotspotType() != HotspotType.SUBFORM) {
       return Optional.empty();
     }
     if (this.getFlags().contains(Flag.FORMULA)) {
@@ -180,13 +138,13 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
   }
 
   /**
-   * Returns the display file name for a {@link Type#FILE FILE}-type hotspot.
+   * Returns the display file name for a {@link HotspotType#FILE FILE}-type hotspot.
    * 
    * @return an {@link Optional} describing the display file name, or an empty
    *         one if this is not applicable
    */
   default Optional<String> getDisplayFileName() {
-    if(getHotspotType() != Type.FILE) {
+    if(getHotspotType() != HotspotType.FILE) {
       return Optional.empty();
     }
     
@@ -223,13 +181,13 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
   }
 
   /**
-   * Returns the unique file name for a {@link Type#FILE FILE}-type hotspot.
+   * Returns the unique file name for a {@link HotspotType#FILE FILE}-type hotspot.
    * 
    * @return an {@link Optional} describing the unique file name, or an empty
    *         one if this is not applicable
    */
   default Optional<String> getUniqueFileName() {
-    if(getHotspotType() != Type.FILE) {
+    if(getHotspotType() != HotspotType.FILE) {
       return Optional.empty();
     }
     
@@ -263,7 +221,7 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
    * both names and null
    * terminators for each.
    * <p>
-   * This is for use when the hotspot type is {@link Type#FILE}.
+   * This is for use when the hotspot type is {@link HotspotType#FILE}.
    * </p>
    * <p>
    * This method also sets the {@code DataLength} property to the appropriate
@@ -289,7 +247,7 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
    * specified, the added
    * null values.
    * <p>
-   * This is for use when the hotspot type is {@link Type#FILE}.
+   * This is for use when the hotspot type is {@link HotspotType#FILE}.
    * </p>
    *
    * @param uniqueFileName  the internal unique name of the file attachment
@@ -319,5 +277,5 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
   CDHotspotBegin setFlags(Collection<Flag> flags);
 
   @StructureSetter("Type")
-  CDHotspotBegin setHotspotType(Type type);
+  CDHotspotBegin setHotspotType(HotspotType type);
 }

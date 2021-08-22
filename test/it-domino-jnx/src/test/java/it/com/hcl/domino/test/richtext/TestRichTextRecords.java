@@ -56,6 +56,7 @@ import com.hcl.domino.design.format.TimeShowFormat;
 import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.design.format.WeekFormat;
 import com.hcl.domino.design.format.YearFormat;
+import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextRecordList;
 import com.hcl.domino.richtext.RichTextWriter;
@@ -254,7 +255,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       final Document doc = database.createDocument();
       try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
         rtWriter.addRichTextRecord(CDHotspotBegin.class, begin -> {
-          begin.setHotspotType(CDHotspotBegin.Type.FILE);
+          begin.setHotspotType(HotspotType.FILE);
           begin.setFileNames("foo.txt", "bar.txt");
         });
       }

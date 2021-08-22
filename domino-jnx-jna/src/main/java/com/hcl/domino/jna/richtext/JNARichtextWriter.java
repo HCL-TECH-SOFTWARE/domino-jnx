@@ -88,6 +88,7 @@ import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.RichTextRecordList;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.TextStyle;
@@ -561,7 +562,7 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 		m_hasData=true;
 
 		addRichTextRecord(CDHotspotBegin.class, hotspotBegin -> {
-			hotspotBegin.setHotspotType(CDHotspotBegin.Type.FILE);
+			hotspotBegin.setHotspotType(HotspotType.FILE);
 			hotspotBegin.setFlags(EnumSet.of(CDHotspotBegin.Flag.NOBORDER));
 			
 			hotspotBegin.setFileNames(attachmentProgrammaticName, filenameToDisplay);

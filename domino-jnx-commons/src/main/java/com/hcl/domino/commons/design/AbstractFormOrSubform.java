@@ -33,6 +33,7 @@ import com.hcl.domino.design.GenericFormOrSubform;
 import com.hcl.domino.design.SubformReference;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.FormField;
+import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextRecordList;
 import com.hcl.domino.richtext.records.CDBegin;
@@ -121,8 +122,8 @@ public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> e
           }
 
           final CDHotspotBegin hotspot = (CDHotspotBegin) record;
-          if (hotspot.getHotspotType() == CDHotspotBegin.Type.BUNDLE
-              || hotspot.getHotspotType() == CDHotspotBegin.Type.V4_SECTION) {
+          if (hotspot.getHotspotType() == HotspotType.BUNDLE
+              || hotspot.getHotspotType() == HotspotType.V4_SECTION) {
             // TODO add code if we want to handle sections here
           }
           // TODO check for subforms here if we decide we want to recurse field lookups
@@ -158,7 +159,7 @@ public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> e
       return doc.getRichTextItem(NotesConstants.ITEM_NAME_TEMPLATE).stream()
           .filter(CDHotspotBegin.class::isInstance)
           .map(CDHotspotBegin.class::cast)
-          .filter(hotspot -> hotspot.getHotspotType() == CDHotspotBegin.Type.SUBFORM)
+          .filter(hotspot -> hotspot.getHotspotType() == HotspotType.SUBFORM)
           .map(hotspot -> {
             if (hotspot.getFlags().contains(CDHotspotBegin.Flag.FORMULA)) {
               return new SubformReference(SubformReference.Type.FORMULA, hotspot.getSubformValue().get());

@@ -69,9 +69,7 @@ public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
     Database names = getClient().openDatabase(dbName);
     names.getDesign()
       .getForms()
-      .forEach(form -> {
-        serializer.toJson(form);
-      });
+      .forEach(serializer::toJson);
   }
   
   @ParameterizedTest

@@ -13,16 +13,22 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import com.hcl.domino.DominoClient;
-import com.hcl.domino.commons.structures.MemoryStructureUtil;
+import com.hcl.domino.commons.richtext.records.GenericBSIGRecord;
+import com.hcl.domino.commons.richtext.records.GenericLSIGRecord;
+import com.hcl.domino.commons.richtext.records.GenericWSIGRecord;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.NotesFont;
@@ -60,9 +66,12 @@ import com.hcl.domino.design.simpleaction.ModifyFieldAction;
 import com.hcl.domino.design.simpleaction.ReadMarksAction;
 import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.jnx.vertx.json.service.VertxJsonSerializer;
 import com.hcl.domino.richtext.NotesBitmap;
 import com.hcl.domino.richtext.records.CDHeader;
 import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.records.RecordType;
+import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclEntry;
@@ -849,5 +858,37 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertTrue(subform.isIncludeInNewFormDialog());
     assertFalse(subform.isRenderPassThroughHtmlInClient());
     assertFalse(subform.isIncludeFieldsInIndex());
+  }
+  
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "pernames.ntf",
+    "bookmark.ntf",
+    "log.ntf",
+    "mailbox.ntf",
+    "roamingdata.ntf",
+    "autosave.ntf",
+    "doclbs7.ntf",
+    "headline.ntf",
+    "busytime.ntf"
+  })
+  public void testStockFormUnknownRecords(String dbName) {
+    Set<RecordType> types = new HashSet<>();
+    Database names = getClient().openDatabase(dbName);
+    names.getDesign()
+      .getForms()
+      .map(Form::getBody)
+      .flatMap(List::stream)
+      .forEach(rec -> {
+        if(rec instanceof GenericBSIGRecord) {
+          types.addAll(((RichTextRecord<?>)rec).getType());
+        } else if(rec instanceof GenericWSIGRecord) {
+          types.addAll(((RichTextRecord<?>)rec).getType());
+        } else if(rec instanceof GenericLSIGRecord) {
+          types.addAll(((RichTextRecord<?>)rec).getType());
+        }
+      });
+    
+    System.out.println("found: " + types);
   }
 }
