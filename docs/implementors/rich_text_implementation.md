@@ -110,13 +110,27 @@ Embedded structure members (such as `COLOR_VALUE`/`ColorValue`) should not have 
 
 Getters for `INumberEnum` types can return an `Optional` of that type, to handle cases where the underlying value doesn't line up with any of the known values. This can be useful in general, but is particularly useful when none of the enum values are `0`: this allows for the getter method toi avoid an exception when called with uninitialized data.
 
+#### Bitfield Flags
+
+Fields representing bit fields of flags should be marked as `bitfield = true` in their `@StructureMember` definition. Getters and setters for these types of fields should be designed to return `Set` and accept `Collection`, respectively. For example:
+
+```java
+@StructureGetter("Flags")
+Set<Flag> getFlags();
+  
+@StructureSetter("Flags")
+CDLayoutText setFlags(Collection<Flag> flags);
+```
+
 #### Mixing Primitives and Enums
 
 `INumberEnum` values and their primitive equivalents can generally be mixed freely for getters and setters. For example, a struct member defined as a primitive can have a getter that returns a compatible `INumberEnum` value, and vice-versa. This can be useful for fields that are likely to contain errant or undocumented values.
 
 #### Undocumented Flags in Bitfields
 
-When setting a `Collection` of `INumberEnum` values to a struct member marked as a `bitfield`, `MemoryStructureProxy` will preserve any bits that are set but are not represented by an enum constant. For example, if the enums only represent values `0x0001`, `0x0010`, and `0x0100` but the existing value in the structre is `0x1111`, then setting an empty collection will store `0x1000`.
+When setting a `Collection` of `INumberEnum` values to a struct member marked as a `bitfield`, `MemoryStructureProxy` will preserve any bits that are set but are not represented by an enum constant. For example, if the enums only represent values `0x0001`, `0x0010`, and `0x0100` but the existing value in the structure is `0x1111`, then setting an empty collection will store `0x1000`.
+
+This also applies when a struct member that is otherwise a bitfield value contains a masked component that is a distinct type of value. Such values should be set and retrieved with independent default methods (see below).
 
 ### Default Methods
 
