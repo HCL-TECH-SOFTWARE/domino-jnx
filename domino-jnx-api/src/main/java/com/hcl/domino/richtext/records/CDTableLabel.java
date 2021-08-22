@@ -33,7 +33,7 @@ import com.hcl.domino.richtext.structures.WSIG;
  * @since 1.0.34
  */
 @StructureDefinition(
-  name = "CDTABLEEND",
+  name = "CDTABLELABEL",
   members = {
     @StructureMember(name = "Header", type = WSIG.class),
     @StructureMember(name = "Label", type = byte[].class, length = 128),

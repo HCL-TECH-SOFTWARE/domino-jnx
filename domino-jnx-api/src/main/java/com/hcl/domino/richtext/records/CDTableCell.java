@@ -47,7 +47,7 @@ import com.hcl.domino.richtext.structures.BSIG;
     @StructureMember(name = "v42Border", type = short.class),
     @StructureMember(name = "RowSpan", type = byte.class, unsigned = true),
     @StructureMember(name = "ColumnSpan", type = byte.class, unsigned = true),
-    @StructureMember(name = "BackgroundColor", type = short.class, unsigned = true)
+    @StructureMember(name = "BackgroundColor", type = short.class)
   }
 )
 public interface CDTableCell extends RichTextRecord<BSIG> {
