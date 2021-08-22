@@ -16,19 +16,41 @@
  */
 package com.hcl.domino.commons.design;
 
+import java.util.Collections;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
+import java.util.stream.Stream;
 
+import com.hcl.domino.commons.richtext.DefaultNotesBitmap;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
+import com.hcl.domino.data.StandardColors;
+import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.Form;
+import com.hcl.domino.design.ImageRepeatMode;
+import com.hcl.domino.design.form.AutoLaunchHideWhen;
+import com.hcl.domino.design.form.AutoLaunchType;
+import com.hcl.domino.design.form.AutoLaunchWhen;
+import com.hcl.domino.design.frameset.FrameScrollStyle;
+import com.hcl.domino.design.frameset.FrameSizingType;
+import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.richtext.NotesBitmap;
+import com.hcl.domino.richtext.RichTextRecordList;
 import com.hcl.domino.richtext.records.CDDECSField;
+import com.hcl.domino.richtext.records.CDDocAutoLaunch;
 import com.hcl.domino.richtext.records.CDDocument;
 import com.hcl.domino.richtext.records.CDField;
+import com.hcl.domino.richtext.records.CDFrame;
+import com.hcl.domino.richtext.records.CDGraphic;
+import com.hcl.domino.richtext.records.CDHeader;
 import com.hcl.domino.richtext.records.CDLinkColors;
+import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.structures.ColorValue;
+import com.hcl.domino.richtext.structures.FramesetLength;
 
 public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefaultAutoFrameElement {
 
@@ -185,10 +207,10 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
   }
 
   @Override
-  public Optional<InheritanceBehavior> getSelectedDocumentInheritanceBehavior() {
+  public Optional<InheritanceSettings> getSelectedDocumentInheritanceBehavior() {
     Set<CDDocument.Flag2> flags = getDocumentFlags2();
     if(flags.contains(CDDocument.Flag2.INCLUDEREF)) {
-      return Optional.of(new DefaultInheritanceBehavior());
+      return Optional.of(new DefaultInheritanceSettings());
     } else {
       return Optional.empty();
     }
@@ -231,6 +253,37 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
     return getDecsField().map(CDDECSField::getMetadataName);
   }
   
+  @Override
+  public AutoLaunchSettings getAutoLaunchSettings() {
+    return new DefaultAutoLaunchSettings();
+  }
+  
+  @Override
+  public BackgroundSettings getBackgroundSettings() {
+    return new DefaultBackgroundSettings();
+  }
+  
+  @Override
+  public ClassicThemeBehavior getClassicThemeBehavior() {
+    return getDocumentRecord()
+      .flatMap(rec -> {
+        short flags = rec.getFlags3Raw();
+        byte themeVal = (byte)((flags & DesignConstants.TPL_FLAG_THEMESETTING) >> DesignConstants.TPL_SHIFT_THEMESETTING);
+        return DominoEnumUtil.valueOf(ClassicThemeBehavior.class, themeVal);
+      })
+      .orElse(ClassicThemeBehavior.USE_DATABASE_SETTING);
+  }
+  
+  @Override
+  public HeaderFrameSettings getHeaderFrameSettings() {
+    return new DefaultHeaderFrameSettings();
+  }
+  
+  @Override
+  public PrintSettings getPrintSettings() {
+    return new DefaultPrintSettings();
+  }
+  
   // *******************************************************************************
   // * Internal implementation utilities
   // *******************************************************************************
@@ -248,7 +301,29 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
     }
   }
   
-  private class DefaultInheritanceBehavior implements InheritanceBehavior {
+  private Optional<CDDocAutoLaunch> getAutoLaunchRecord() {
+    Document doc = getDocument();
+    if(doc.hasItem(DesignConstants.FORM_AUTOLAUNCH_ITEM)) {
+      return doc.getRichTextItem(DesignConstants.FORM_AUTOLAUNCH_ITEM, Area.RESERVED_INTERNAL)
+        .stream()
+        .filter(CDDocAutoLaunch.class::isInstance)
+        .map(CDDocAutoLaunch.class::cast)
+        .findFirst();
+    } else {
+      return Optional.empty();
+    }
+  }
+  
+  private Optional<DominoFramesetFormat> getRegionFrameset() {
+    Document doc = getDocument();
+    if(doc.hasItem(DesignConstants.ITEM_NAME_REGIONFRAMESET)) {
+      return Optional.of(new DominoFramesetFormat(doc.getRichTextItem(DesignConstants.ITEM_NAME_REGIONFRAMESET, Area.FRAMESETS)));
+    } else {
+      return Optional.empty();
+    }
+  }
+  
+  private class DefaultInheritanceSettings implements InheritanceSettings {
     
     @Override
     public String getTargetField() {
@@ -344,6 +419,288 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
         .findFirst()
         .map(CDLinkColors::getVisitedColor)
         .orElseGet(DesignColorsAndFonts::defaultVisitedLink);
+    }
+  }
+  
+  private class DefaultAutoLaunchSettings implements AutoLaunchSettings {
+
+    @Override
+    public AutoLaunchType getType() {
+      return getAutoLaunchRecord()
+        .map(CDDocAutoLaunch::getObjectType)
+        .orElse(AutoLaunchType.NONE);
+    }
+
+    @Override
+    public Optional<String> getOleType() {
+      return getAutoLaunchRecord()
+        .flatMap(rec -> {
+          if(rec.getObjectType() == AutoLaunchType.OLE_CLASS) {
+            return Optional.of(rec.getOleObjClass().toGuidString());
+          } else {
+            return Optional.empty();
+          }
+        });
+    }
+
+    @Override
+    public boolean isLaunchInPlace() {
+      return getAutoLaunchRecord()
+        .map(CDDocAutoLaunch::getOleFlags)
+        .map(flags -> flags.contains(CDDocAutoLaunch.OleFlag.EDIT_INPLACE))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isPresentDocumentAsModal() {
+      return getAutoLaunchRecord()
+        .map(CDDocAutoLaunch::getOleFlags)
+        .map(flags -> flags.contains(CDDocAutoLaunch.OleFlag.MODAL_WINDOW))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isCreateObjectInFirstRichTextField() {
+      return getAutoLaunchRecord()
+        .map(CDDocAutoLaunch::getCopyToFieldFlags)
+        .map(flags -> flags.contains(CDDocAutoLaunch.CopyToFieldFlag.COPY_FIRST))
+        .orElse(false);
+    }
+
+    @Override
+    public Optional<String> getTargetRichTextField() {
+      return getAutoLaunchRecord()
+        .flatMap(rec -> {
+          if(rec.getCopyToFieldFlags().contains(CDDocAutoLaunch.CopyToFieldFlag.COPY_NAMED)) {
+            return Optional.of(rec.getFieldName());
+          } else {
+            return Optional.empty();
+          }
+        });
+    }
+
+    @Override
+    public Set<AutoLaunchWhen> getLaunchWhen() {
+      return getAutoLaunchRecord()
+        .map(CDDocAutoLaunch::getLaunchWhenFlags)
+        .orElseGet(Collections::emptySet);
+    }
+
+    @Override
+    public Set<AutoLaunchHideWhen> getHideWhen() {
+      return getAutoLaunchRecord()
+        .map(CDDocAutoLaunch::getHideWhenFlags)
+        .orElseGet(Collections::emptySet);
+    }
+  }
+  
+  private class DefaultBackgroundSettings implements BackgroundSettings {
+
+    @Override
+    public Optional<StandardColors> getStandardBackgroundColor() {
+      return getDocumentRecord()
+        .flatMap(CDDocument::getPaperColor);
+    }
+
+    @Override
+    public ColorValue getBackgroundColor() {
+      return getDocumentRecord()
+        .map(CDDocument::getPaperColorValue)
+        .orElseGet(DesignColorsAndFonts::whiteColor);
+    }
+
+    @Override
+    public Optional<CDResource> getBackgroundImageResource() {
+      Document doc = getDocument();
+      if(doc.hasItem(DesignConstants.ITEM_NAME_BACKGROUNDGRAPHICR5)) {
+        return doc.getRichTextItem(DesignConstants.ITEM_NAME_BACKGROUNDGRAPHICR5)
+          .stream()
+          .filter(CDResource.class::isInstance)
+          .map(CDResource.class::cast)
+          .findFirst();
+      } else {
+        return Optional.empty();
+      }
+    }
+
+    @Override
+    public Optional<NotesBitmap> getBackgroundImage() {
+      Document doc = getDocument();
+      if(doc.hasItem(DesignConstants.ITEM_NAME_BACKGROUNDGRAPHICR5)) {
+        RichTextRecordList item = doc.getRichTextItem(DesignConstants.ITEM_NAME_BACKGROUNDGRAPHICR5);
+        if(!item.isEmpty() && item.get(0) instanceof CDGraphic) {
+          return Optional.of(new DefaultNotesBitmap(item));
+        } else {
+          return Optional.empty();
+        }
+      } else {
+        return Optional.empty();
+      }
+    }
+
+    @Override
+    public boolean isHideGraphicInDesignMode() {
+      return getDocumentRecord()
+        .map(CDDocument::getFlags2)
+        .map(flags -> flags.contains(CDDocument.Flag2.HIDEBKGRAPHIC))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isHideGraphicOn4BitColor() {
+      return getDocumentRecord()
+        .map(CDDocument::getFlags)
+        // Though this flag looks unrelated, it's set when setting this value in Designer
+        .map(flags -> flags.contains(CDDocument.Flag.SHOW_WINDOW_READ))
+        .orElse(false);
+    }
+
+    @Override
+    public boolean isUserCustomizable() {
+      return !DesignConstants.RESTRICTBK_FLAG_NOOVERRIDE.equals(getDocument().getAsText(DesignConstants.ITEM_NAME_RESTRICTBKOVERRIDE, ' '));
+    }
+
+    @Override
+    public ImageRepeatMode getBackgroundImageRepeatMode() {
+      String repeatVal = getDocument().getAsText(DesignConstants.ITEM_NAME_BACKGROUNDGRAPHIC_REPEAT, ' ');
+      return DominoEnumUtil.valueOfString(ImageRepeatMode.class, repeatVal)
+        .orElse(ImageRepeatMode.TILE);
+    }
+  }
+  
+  private class DefaultHeaderFrameSettings implements HeaderFrameSettings {
+
+    @Override
+    public boolean isUseHeader() {
+      return getDocument().get(DesignConstants.ITEM_NAME_HEADERAREA, int.class, 0) == 1;
+    }
+    
+
+    // This frameset will have two frames, the first of which is the header
+
+    @Override
+    public Optional<FrameSizingType> getHeaderSizingType() {
+      if(isUseHeader()) {
+        return getRegionFrameset()
+          .flatMap(DominoFramesetFormat::getFramesetRecord)
+          .map(rec -> rec.getLengths().stream())
+          .flatMap(Stream::findFirst)
+          .map(FramesetLength::getType);
+      } else {
+        return Optional.empty();
+      }
+    }
+
+    @Override
+    public OptionalInt getHeaderSize() {
+      if(isUseHeader()) {
+        return getRegionFrameset()
+          .flatMap(DominoFramesetFormat::getFramesetRecord)
+          .map(rec -> rec.getLengths().stream())
+          .flatMap(Stream::findFirst)
+          .map(len -> OptionalInt.of(len.getValue()))
+          .orElseGet(OptionalInt::empty);
+      } else {
+        return OptionalInt.empty();
+      }
+    }
+
+    @Override
+    public Optional<FrameScrollStyle> getScrollStyle() {
+      if(isUseHeader()) {
+        return getRegionFrameset()
+          .map(DominoFramesetFormat::getFrameRecords)
+          .flatMap(Stream::findFirst)
+          .map(CDFrame::getScrollBarStyle);
+      } else {
+        return Optional.empty();
+      }
+    }
+
+    @Override
+    public boolean isAllowResizing() {
+      if(isUseHeader()) {
+        return getRegionFrameset()
+          .map(DominoFramesetFormat::getFrameRecords)
+          .flatMap(Stream::findFirst)
+          .map(rec -> rec.getNoResize() != 1)
+          .orElse(true);
+      } else {
+        return true;
+      }
+    }
+
+    @Override
+    public OptionalInt getBorderWidth() {
+      if(isUseHeader()) {
+        return getRegionFrameset()
+          .flatMap(DominoFramesetFormat::getFramesetRecord)
+          .map(rec -> OptionalInt.of(rec.getFrameBorderWidth()))
+          .orElseGet(OptionalInt::empty);
+      } else {
+        return OptionalInt.empty();
+      }
+    }
+
+    @Override
+    public Optional<ColorValue> getBorderColor() {
+      if(isUseHeader()) {
+        return getRegionFrameset()
+          .map(DominoFramesetFormat::getFrameRecords)
+          .flatMap(Stream::findFirst)
+          .map(CDFrame::getFrameBorderColor);
+      } else {
+        return Optional.empty();
+      }
+    }
+
+    @Override
+    public boolean isUse3DShading() {
+      if(isUseHeader()) {
+        return getRegionFrameset()
+          .map(DominoFramesetFormat::getFrameRecords)
+          .flatMap(Stream::findFirst)
+          .map(rec -> rec.getBorderEnable() == 1)
+          .orElse(true);
+      } else {
+        return true;
+      }
+    }
+  }
+  
+  private class DefaultPrintSettings implements PrintSettings {
+
+    @Override
+    public boolean isPrintHeaderAndFooterOnFirstPage() {
+      return !getDocument().getAsText(DesignConstants.ITEM_NAME_HFFLAGS, ' ').contains(DesignConstants.HFFLAGS_NOPRINTONFIRSTPAGE);
+    }
+
+    @Override
+    public Optional<CDHeader> getPrintHeader() {
+      Document doc = getDocument();
+      if(doc.hasItem(DesignConstants.ITEM_NAME_HEADER)) {
+        return doc.getRichTextItem(DesignConstants.ITEM_NAME_HEADER)
+          .stream()
+          .filter(CDHeader.class::isInstance)
+          .map(CDHeader.class::cast)
+          .findFirst();
+      } else {
+        return Optional.empty();
+      }
+    }
+
+    @Override
+    public Optional<CDHeader> getPrintFooter() {
+      Document doc = getDocument();
+      if(doc.hasItem(DesignConstants.ITEM_NAME_FOOTER)) {
+        return doc.getRichTextItem(DesignConstants.ITEM_NAME_FOOTER)
+          .stream()
+          .filter(CDHeader.class::isInstance)
+          .map(CDHeader.class::cast)
+          .findFirst();
+      } else {
+        return Optional.empty();
+      }
     }
   }
 }

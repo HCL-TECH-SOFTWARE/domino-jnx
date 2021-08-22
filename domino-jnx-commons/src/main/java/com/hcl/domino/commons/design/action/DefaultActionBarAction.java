@@ -107,7 +107,7 @@ public class DefaultActionBarAction implements ActionBarAction {
   public Optional<String> getTargetFrame() {
     return getTargetRecord()
       .flatMap(target -> {
-        String frame = target.getTargetString();
+        String frame = target.getTargetString().get();
         return frame.isEmpty() ? Optional.empty() : Optional.of(frame);
       });
   }

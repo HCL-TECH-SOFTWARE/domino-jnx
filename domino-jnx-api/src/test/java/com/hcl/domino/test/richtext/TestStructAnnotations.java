@@ -26,10 +26,13 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -57,6 +60,7 @@ import com.hcl.domino.richtext.structures.OpaqueTimeDate;
  */
 @SuppressWarnings("nls")
 public class TestStructAnnotations {
+  private static final Set<String> structNames = Collections.synchronizedSet(new TreeSet<>(String.CASE_INSENSITIVE_ORDER));
 	
 	public static class StructClassesProvider implements ArgumentsProvider {
 		@Override
@@ -80,7 +84,10 @@ public class TestStructAnnotations {
 		
 		// Overall structure name must be set
 		StructureDefinition def = c.getAnnotation(StructureDefinition.class);
-		assertFalse(isEmpty(def.name()), "Struct name cannot be empty");
+		String structName = def.name();
+		assertFalse(isEmpty(structName), "Struct name cannot be empty");
+		assertFalse(structNames.contains(structName), "Struct name must be unique");
+		structNames.add(structName);
 		
 		// Must have members and all members must have a unique name
 		StructureMember[] members = def.members();

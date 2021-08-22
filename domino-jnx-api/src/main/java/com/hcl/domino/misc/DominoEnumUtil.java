@@ -18,6 +18,7 @@ package com.hcl.domino.misc;
 
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -213,5 +214,26 @@ public enum DominoEnumUtil {
       }
     }
     return result;
+  }
+  
+  /**
+   * Given a Domino string-style enum, returns the enum constant for the provided string.
+   *
+   * @param <T>   the string-backed enum type
+   * @param clazz the string-backed enum class
+   * @param value the value to convert
+   * @return an {@link Optional} describing the corresponding enum value, or an
+   *         empty one if none match
+   */
+  public static <T extends Enum<T> & IStringEnum> Optional<T> valueOfString(Class<T> clazz, String value) {
+    if(value == null) {
+      return Optional.empty();
+    }
+    for(T enumVal : clazz.getEnumConstants()) {
+      if(Objects.equals(value, enumVal.getStringValue())) {
+        return Optional.of(enumVal);
+      }
+    }
+    return Optional.empty();
   }
 }

@@ -11,6 +11,6 @@ public abstract class RichTextRecordMixIn {
   @JsonIgnore abstract ByteBuffer getDataWithoutHeader();
   @JsonIgnore abstract int getPayloadLength();
   @JsonIgnore abstract int getRecordHeaderLength();
-  @JsonIgnore abstract Set<RecordType> getType();
+  abstract Set<RecordType> getType();
   @JsonIgnore abstract short getTypeValue();
 }

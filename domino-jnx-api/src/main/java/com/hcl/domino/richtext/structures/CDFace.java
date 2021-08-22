@@ -16,8 +16,7 @@
  */
 package com.hcl.domino.richtext.structures;
 
-import java.nio.charset.Charset;
-
+import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
@@ -30,7 +29,7 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
  * @since 1.0.32
  */
 @StructureDefinition(
-  name = "RFC822ITEMDESC",
+  name = "CDFACE",
   members = {
     @StructureMember(name = "Face", type = byte.class, unsigned = true),
     @StructureMember(name = "Family", type = byte.class),
@@ -51,13 +50,6 @@ public interface CDFace extends MemoryStructure {
   CDFace setNameRaw(byte[] name);
   
   default String getName() {
-    int firstNull = 0;
-    byte[] name = getNameRaw();
-    for(firstNull = 0; firstNull < RichTextConstants.MAXFACESIZE; firstNull++) {
-      if(name[firstNull] == '\0') {
-        break;
-      }
-    }
-    return new String(getNameRaw(), 0, firstNull, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return StructureSupport.readLmbcsValue(getNameRaw());
   }
 }

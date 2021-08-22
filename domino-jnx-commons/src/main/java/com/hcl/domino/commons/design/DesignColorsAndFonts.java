@@ -5,6 +5,7 @@ import java.util.EnumSet;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.StandardFonts;
+import com.hcl.domino.richtext.RectangleSize;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FontStyle;
 
@@ -149,5 +150,40 @@ public enum DesignColorsAndFonts {
     result.setPointSize(10);
     result.setAttributes(EnumSet.of(FontAttribute.BOLD));
     return result;
+  }
+  
+  /**
+   * Return a new, memory-only rectangle set to zero pixel dimentions.
+   * 
+   * @return a new {@link RectangleSize} object
+   * @since 1.0.34
+   */
+  public static RectangleSize zeroPixelRectangle() {
+    return new RectangleSize() {
+      private int width = 0;
+      private int height;
+      
+      @Override
+      public RectangleSize setWidth(int width) {
+        this.width = width;
+        return this;
+      }
+      
+      @Override
+      public RectangleSize setHeight(int height) {
+        this.height = height;
+        return this;
+      }
+      
+      @Override
+      public int getWidth() {
+        return width;
+      }
+      
+      @Override
+      public int getHeight() {
+        return height;
+      }
+    };
   }
 }

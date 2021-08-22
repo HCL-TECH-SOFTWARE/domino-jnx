@@ -104,6 +104,34 @@ public interface AssistFieldStruct extends MemoryStructure {
 }
 ```
 
+Embedded structure members (such as `COLOR_VALUE`/`ColorValue`) should not have a setter specified: since they permanently exist in memory, API users should use the getter for the structure and then use the setters on the structure itself.
+
+#### Optionals
+
+Getters for `INumberEnum` types can return an `Optional` of that type, to handle cases where the underlying value doesn't line up with any of the known values. This can be useful in general, but is particularly useful when none of the enum values are `0`: this allows for the getter method toi avoid an exception when called with uninitialized data.
+
+#### Bitfield Flags
+
+Fields representing bit fields of flags should be marked as `bitfield = true` in their `@StructureMember` definition. Getters and setters for these types of fields should be designed to return `Set` and accept `Collection`, respectively. For example:
+
+```java
+@StructureGetter("Flags")
+Set<Flag> getFlags();
+  
+@StructureSetter("Flags")
+CDLayoutText setFlags(Collection<Flag> flags);
+```
+
+#### Mixing Primitives and Enums
+
+`INumberEnum` values and their primitive equivalents can generally be mixed freely for getters and setters. For example, a struct member defined as a primitive can have a getter that returns a compatible `INumberEnum` value, and vice-versa. This can be useful for fields that are likely to contain errant or undocumented values.
+
+#### Undocumented Flags in Bitfields
+
+When setting a `Collection` of `INumberEnum` values to a struct member marked as a `bitfield`, `MemoryStructureProxy` will preserve any bits that are set but are not represented by an enum constant. For example, if the enums only represent values `0x0001`, `0x0010`, and `0x0100` but the existing value in the structure is `0x1111`, then setting an empty collection will store `0x1000`.
+
+This also applies when a struct member that is otherwise a bitfield value contains a masked component that is a distinct type of value. Such values should be set and retrieved with independent default methods (see below).
+
 ### Default Methods
 
 Default methods in interfaces are supported to allow for specialized operations. For example:
@@ -131,9 +159,58 @@ public interface FontStyle extends MemoryStructure {
 }
 ```
 
-### Variable Data
+### Fixed-Size String Members
 
-Variable data after the fixed-size `struct` can be accessed by calling `getVariableData()` on the structure interface. For example, to read the text value of `CDTEXT`:
+Some structures, such as `CDFACE`, contain fixed-length `char[]` members instead of variable-length strings. These members should be represented in Java as `byte[]` values of the same length as in the structure. The `StructureSupport.readLmbcsValue` method can be used to read the value without the padding nulls. For example:
+
+```java
+@StructureGetter("Name")
+byte[] getNameRaw();
+    
+default String getName() {
+  return StructureSupport.readLmbcsValue(getNameRaw());
+}
+```
+
+### String and Formula Variable Data
+
+When the variable data of a structure (that is, contents beyond the defined fields) contains strings or compiled formula expressions, this can be accessed in a consistent way using `StructureSupport`, which contains methods for reading and writing these data types.
+
+To read a string or formula, pass the object itself, the offset into the variable data, and the length of the data to read. For example:
+
+```java
+default String getFileHint() {
+  return StructureSupport.extractStringValue(
+    this,
+    this.getServerHintLength(), // The total of all variable elements before this one
+    this.getFileHintLength()    // the length of this element
+  );
+}
+```
+
+To write a new value, pass the above information, plus the new value and then a callback to write the value to a structure field. For example:
+
+```java
+default CDResource setFileHint(final String hint) {
+  return StructureSupport.writeStringValue(
+    this,
+    this.getServerHintLength(),
+    this.getFileHintLength(),
+    hint,
+    this::setFileHintLength     // Most structures have a specific member that houses this value
+  );
+}
+```
+
+Not all variable data has a special length member. In that case, you can pass in a no-op function for the last parameter, such as `(int len) -> {}`.
+
+These writer methods will resize the memory of the record, creating a new copy in memory.
+
+When working on Composite Data records, the writer methods will automatically update the `Length` field of the record's header.
+
+### Generic Variable Data
+
+Variable data after the fixed-size `struct` can be accessed by calling `getVariableData()` on the structure interface. For example, to read the text value of `CDTEXT` without using `StructureSupport`:
 
 ```java
 // ...

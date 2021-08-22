@@ -13,25 +13,35 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import com.hcl.domino.DominoClient;
+import com.hcl.domino.commons.richtext.records.GenericBSIGRecord;
+import com.hcl.domino.commons.richtext.records.GenericLSIGRecord;
+import com.hcl.domino.commons.richtext.records.GenericWSIGRecord;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.NotesFont;
+import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.design.ActionBar;
 import com.hcl.domino.design.ActionBar.ButtonHeightMode;
+import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.DbDesign;
-import com.hcl.domino.design.DesignElement.ClassicThemeBehavior;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Form;
+import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionContent;
@@ -40,6 +50,9 @@ import com.hcl.domino.design.action.JavaScriptActionContent;
 import com.hcl.domino.design.action.LotusScriptActionContent;
 import com.hcl.domino.design.action.SimpleActionActionContent;
 import com.hcl.domino.design.action.SystemActionContent;
+import com.hcl.domino.design.form.AutoLaunchHideWhen;
+import com.hcl.domino.design.form.AutoLaunchType;
+import com.hcl.domino.design.form.AutoLaunchWhen;
 import com.hcl.domino.design.format.ActionBarControlType;
 import com.hcl.domino.design.format.ActionBarTextAlignment;
 import com.hcl.domino.design.format.ActionButtonHeightMode;
@@ -48,10 +61,17 @@ import com.hcl.domino.design.format.BorderStyle;
 import com.hcl.domino.design.format.ButtonBorderDisplay;
 import com.hcl.domino.design.format.HideFromDevice;
 import com.hcl.domino.design.format.HtmlEventId;
+import com.hcl.domino.design.frameset.FrameScrollStyle;
+import com.hcl.domino.design.frameset.FrameSizingType;
 import com.hcl.domino.design.simpleaction.ModifyFieldAction;
 import com.hcl.domino.design.simpleaction.ReadMarksAction;
 import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.richtext.NotesBitmap;
+import com.hcl.domino.richtext.records.CDHeader;
+import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.records.RecordType;
+import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclEntry;
@@ -62,7 +82,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignForms extends AbstractDesignTest {
-  public static final int EXPECTED_IMPORT_FORMS = 5;
+  public static final int EXPECTED_IMPORT_FORMS = 6;
   public static final int EXPECTED_IMPORT_SUBFORMS = 2;
 
   private static String dbPath;
@@ -601,6 +621,9 @@ public class TestDbDesignForms extends AbstractDesignTest {
       actual = actual.substring(0, actual.length()-1);
       assertEquals(expected, actual);
     }
+
+    Form.AutoLaunchSettings auto = form.getAutoLaunchSettings();
+    assertEquals(AutoLaunchType.NONE, auto.getType());
   }
 
   @Test
@@ -632,7 +655,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
     
     
     assertTrue(form.isInheritSelectedDocumentValues());
-    Form.InheritanceBehavior inheritance = form.getSelectedDocumentInheritanceBehavior().get();
+    Form.InheritanceSettings inheritance = form.getSelectedDocumentInheritanceBehavior().get();
     assertEquals("TargetBody", inheritance.getTargetField());
     assertEquals(Form.InheritanceFieldType.COLLAPSIBLE_RICH_TEXT, inheritance.getType());
     
@@ -652,9 +675,73 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertEquals("testconn", form.getDefaultDataConnectionName().get());
     assertEquals("foo", form.getDefaultDataConnectionObject().get());
     
-    
+
+    Form.AutoLaunchSettings auto = form.getAutoLaunchSettings();
+    assertEquals(AutoLaunchType.OLE_CLASS, auto.getType());
+    assertEquals("D3E34B21-9D75-101A-8C3D-00AA001A1652", auto.getOleType().get().toUpperCase());
+    assertFalse(auto.isLaunchInPlace());
+    assertTrue(auto.isPresentDocumentAsModal());
+    assertTrue(auto.isCreateObjectInFirstRichTextField());
+    assertEquals(EnumSet.of(AutoLaunchWhen.CREATE, AutoLaunchWhen.READ), auto.getLaunchWhen());
+    assertEquals(EnumSet.of(AutoLaunchHideWhen.OPEN_READ, AutoLaunchHideWhen.CLOSE_READ), auto.getHideWhen());
     assertEquals("Outer Frame", form.getAutoFrameFrameset().get());
     assertEquals("Nav", form.getAutoFrameTarget().get());
+    
+    Form.BackgroundSettings background = form.getBackgroundSettings();
+    assertEquals(StandardColors.DustyViolet, background.getStandardBackgroundColor().get());
+    assertColorEquals(background.getBackgroundColor(), 224, 129, 255);
+    NotesBitmap image = background.getBackgroundImage().get();
+    assertEquals(39, image.getSize().getWidth());
+    assertEquals(31, image.getSize().getHeight());
+    assertEquals(8, image.getBitsPerPixel());
+    assertEquals(1, image.getSamplesPerPixel());
+    assertEquals(8, image.getBitsPerSample());
+    assertFalse(background.getBackgroundImageResource().isPresent());
+    assertTrue(background.isHideGraphicInDesignMode());
+    assertTrue(background.isHideGraphicOn4BitColor());
+    assertFalse(background.isUserCustomizable());
+    assertEquals(ImageRepeatMode.HORIZONTAL, background.getBackgroundImageRepeatMode());
+    assertEquals(ClassicThemeBehavior.INHERIT_FROM_OS, form.getClassicThemeBehavior());
+    
+    {
+      Form.HeaderFrameSettings headerFrame = form.getHeaderFrameSettings();
+      assertTrue(headerFrame.isUseHeader());
+      assertEquals(4, headerFrame.getHeaderSize().getAsInt());
+      assertEquals(FrameSizingType.PERCENTAGE, headerFrame.getHeaderSizingType().get());
+      assertEquals(FrameScrollStyle.AUTO, headerFrame.getScrollStyle().get());
+      assertFalse(headerFrame.isAllowResizing());
+      assertEquals(5, headerFrame.getBorderWidth().getAsInt());
+      assertColorEquals(headerFrame.getBorderColor().get(), 97, 129, 255);
+      assertTrue(headerFrame.isUse3DShading());
+    }
+    
+    {
+      Form.PrintSettings print = form.getPrintSettings();
+      assertFalse(print.isPrintHeaderAndFooterOnFirstPage());
+      
+      CDHeader header = print.getPrintHeader().get();
+      assertEquals("Courier New", header.getFontName());
+      assertEquals(36, header.getFontStyle().getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.UNDERLINE), header.getFontStyle().getAttributes());
+      assertEquals("I am header text", header.getText());
+      
+      CDHeader footer = print.getPrintFooter().get();
+      assertEquals("Default Monospace", footer.getFontName());
+      assertEquals(StandardFonts.ROMAN, footer.getFontStyle().getStandardFont().get());
+      assertEquals(18, footer.getFontStyle().getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.ITALIC), footer.getFontStyle().getAttributes());
+      assertEquals("I am footer text", footer.getText());
+    }
+  }
+
+  @Test
+  public void testLsForm2() throws IOException {
+    DbDesign design = this.database.getDesign();
+    Form form = design.getForm("Test LS Form 2").get();
+    
+    Form.AutoLaunchSettings auto = form.getAutoLaunchSettings();
+    assertEquals(AutoLaunchType.OLEOBJ, auto.getType());
+    assertEquals("RTItem", auto.getTargetRichTextField().get());
   }
 
   @Test
@@ -671,6 +758,35 @@ public class TestDbDesignForms extends AbstractDesignTest {
     
     assertFalse(form.getDefaultDataConnectionName().isPresent());
     assertFalse(form.getDefaultDataConnectionObject().isPresent());
+    
+    Form.AutoLaunchSettings auto = form.getAutoLaunchSettings();
+    assertEquals(AutoLaunchType.DOCLINK, auto.getType());
+
+    {
+      Form.HeaderFrameSettings headerFrame = form.getHeaderFrameSettings();
+      assertTrue(headerFrame.isUseHeader());
+      assertEquals(100, headerFrame.getHeaderSize().getAsInt());
+      assertEquals(FrameSizingType.PIXELS, headerFrame.getHeaderSizingType().get());
+      assertEquals(FrameScrollStyle.NEVER, headerFrame.getScrollStyle().get());
+      assertTrue(headerFrame.isAllowResizing());
+      assertEquals(1, headerFrame.getBorderWidth().getAsInt());
+      assertColorEquals(headerFrame.getBorderColor().get(), 0, 0, 0);
+      assertFalse(headerFrame.isUse3DShading());
+    }
+    
+    {
+      Form.PrintSettings print = form.getPrintSettings();
+      assertTrue(print.isPrintHeaderAndFooterOnFirstPage());
+      
+      CDHeader header = print.getPrintHeader().get();
+      assertEquals("default form header print", header.getText());
+      assertEquals("Default Sans Serif", header.getFontName());
+      assertEquals(StandardFonts.SWISS, header.getFontStyle().getStandardFont().get());
+      assertEquals(9, header.getFontStyle().getPointSize());
+      assertEquals(EnumSet.noneOf(FontAttribute.class), header.getFontStyle().getAttributes());
+      
+      assertFalse(print.getPrintFooter().isPresent());
+    }
   }
 
   @Test
@@ -682,6 +798,31 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertFalse(web.isRenderRichContentOnWeb());
     assertEquals("text/css", web.getWebMimeType().get());
     assertFalse(web.getWebCharset().isPresent());
+    
+    Form.AutoLaunchSettings auto = form.getAutoLaunchSettings();
+    assertEquals(AutoLaunchType.URL, auto.getType());
+    
+    Form.BackgroundSettings background = form.getBackgroundSettings();
+    assertEquals(StandardColors.White, background.getStandardBackgroundColor().get());
+    assertColorEquals(background.getBackgroundColor(), 255, 255, 255);
+    assertFalse(background.getBackgroundImage().isPresent());
+    CDResource image = background.getBackgroundImageResource().get();
+    assertEquals("Untitled 3.gif", image.getNamedElement().get());
+    assertFalse(background.isHideGraphicInDesignMode());
+    assertFalse(background.isHideGraphicOn4BitColor());
+    assertTrue(background.isUserCustomizable());
+    assertEquals(ImageRepeatMode.TILE, background.getBackgroundImageRepeatMode());
+    assertEquals(ClassicThemeBehavior.DONT_INHERIT_FROM_OS, form.getClassicThemeBehavior());
+
+    {
+      Form.HeaderFrameSettings headerFrame = form.getHeaderFrameSettings();
+      assertFalse(headerFrame.isUseHeader());
+      assertFalse(headerFrame.getBorderColor().isPresent());
+      assertFalse(headerFrame.getBorderWidth().isPresent());
+      assertFalse(headerFrame.getHeaderSize().isPresent());
+      assertFalse(headerFrame.getHeaderSizingType().isPresent());
+      assertFalse(headerFrame.getScrollStyle().isPresent());
+    }
   }
 
   @Test
@@ -717,5 +858,38 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertTrue(subform.isIncludeInNewFormDialog());
     assertFalse(subform.isRenderPassThroughHtmlInClient());
     assertFalse(subform.isIncludeFieldsInIndex());
+  }
+  
+  @ParameterizedTest
+  @ValueSource(strings = {
+    "pernames.ntf",
+    "bookmark.ntf",
+    "log.ntf",
+    "mailbox.ntf",
+    "roamingdata.ntf",
+    "autosave.ntf",
+    "doclbs7.ntf",
+    "headline.ntf",
+    "busytime.ntf"
+  })
+  @Disabled
+  public void testStockFormUnknownRecords(String dbName) {
+    Set<RecordType> types = new HashSet<>();
+    Database names = getClient().openDatabase(dbName);
+    names.getDesign()
+      .getForms()
+      .map(Form::getBody)
+      .flatMap(List::stream)
+      .forEach(rec -> {
+        if(rec instanceof GenericBSIGRecord) {
+          types.addAll(((RichTextRecord<?>)rec).getType());
+        } else if(rec instanceof GenericWSIGRecord) {
+          types.addAll(((RichTextRecord<?>)rec).getType());
+        } else if(rec instanceof GenericLSIGRecord) {
+          types.addAll(((RichTextRecord<?>)rec).getType());
+        }
+      });
+    
+    System.out.println("found: " + types);
   }
 }

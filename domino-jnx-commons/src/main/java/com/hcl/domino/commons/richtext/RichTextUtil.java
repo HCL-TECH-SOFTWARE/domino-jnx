@@ -66,20 +66,31 @@ public enum RichTextUtil {
    * @return a {@link RichTextRecord} implementation wrapping the data
    */
   public static AbstractCDRecord<?> encapsulateRecord(final short signature, final ByteBuffer data) {
-    AbstractCDRecord<?> record;
-    final short highOrderByte = (short) (signature & 0xFF00);
-    switch (highOrderByte) {
-      case RichTextConstants.LONGRECORDLENGTH: /* LSIG */
-        record = new GenericLSIGRecord(data);
-        break;
-      case RichTextConstants.WORDRECORDLENGTH: /* WSIG */
-        record = new GenericWSIGRecord(data);
-        break;
-      default: /* BSIG */
-        record = new GenericBSIGRecord(data);
+    ByteBuffer recordData = data.slice().order(ByteOrder.LITTLE_ENDIAN);
+    
+    byte byte1 = recordData.get(0);
+    byte byte2 = recordData.get(1);
+    int length;
+    Function<ByteBuffer, AbstractCDRecord<?>> genericProvider;
+    if((byte2 & 0xFF) == 0xFF) {
+      // Then it's a WSIG, two WORD values
+      length = Short.toUnsignedInt(recordData.getShort(2));
+      genericProvider = GenericWSIGRecord::new;
+    } else if(byte2 == 0) {
+      // Then it's an LSIG, which zeros the high-order byte
+      // Length is a DWORD following the initial WORD
+      ByteBuffer sliced = recordData.slice().order(ByteOrder.LITTLE_ENDIAN);
+      sliced.position(2);
+      length = sliced.getInt();
+      genericProvider = GenericLSIGRecord::new;
+    } else {
+      // Then it's a BSIG, with the length in the high-order byte
+      length = byte2 & 0xFF;
+      genericProvider = GenericBSIGRecord::new;
     }
+    recordData.limit(length);
 
-    return record;
+    return genericProvider.apply(recordData);
   }
 
   /**

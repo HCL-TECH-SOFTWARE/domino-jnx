@@ -20,7 +20,9 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
+import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.design.DesignConstants;
+import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -278,6 +280,12 @@ public interface CDDocument extends RichTextRecord<BSIG> {
   @StructureSetter("FormFlags3")
   CDDocument setFlags3(Collection<Flag3> flags);
   
+  @StructureGetter("FormFlags3")
+  short getFlags3Raw();
+  
+  @StructureSetter("FormFlags3")
+  CDDocument setFlags3Raw(short flags);
+  
   default String getInheritanceFieldName() {
     return StructureSupport.extractStringValue(
       this,
@@ -314,5 +322,14 @@ public interface CDDocument extends RichTextRecord<BSIG> {
       fieldName,
       (int len) -> {}
     );
+  }
+  
+  default Optional<StandardColors> getPaperColor() {
+    return DominoEnumUtil.valueOf(StandardColors.class, getPaperColorRaw());
+  }
+  
+  default CDDocument setPaperColor(StandardColors color) {
+    setPaperColorRaw(color == null ? 0 : color.getValue());
+    return this;
   }
 }

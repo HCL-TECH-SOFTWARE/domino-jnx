@@ -1187,4 +1187,223 @@ public interface RichTextConstants {
   short ACTION_SYS_COMMAND = 5;
   short ACTION_PLACEHOLDER = 6;
   short ACTION_RUN_JAVASCRIPT = 7;
+
+  /** Bitmap Uses > 16 colors or > 4 grey scale levels */
+  short CDBITMAP_FLAG_REQUIRES_PALETTE = 1;
+  /**
+   * Initialized by import code for "first time" importing of bitmaps
+   * from clipboard or file, to tell Notes that it should compute whether
+   * or not to use a color palette or not.  All imports and API programs
+   * should initially set this bit to let the Editor compute whether it
+   * needs the palette or not.
+   */
+  short CDBITMAP_FLAG_COMPUTE_PALETTE = 2;
+  
+  byte CDTC_S_Left   = 0;
+  byte CDTC_M_Left   = 0x03;
+  byte CDTC_S_Right  = 2;
+  byte CDTC_M_Right  = 0x0c;
+  byte CDTC_S_Top    = 4;
+  byte CDTC_M_Top    = 0x30;
+  byte CDTC_S_Bottom = 6;
+  byte CDTC_M_Bottom = (byte)0xc0;
+  byte TABLE_BORDER_NONE = 0;
+  byte TABLE_BORDER_SINGLE = 1;
+  byte TABLE_BORDER_DOUBLE = 2;
+  
+  /**  True if background color  */
+  byte CDTABLECELL_USE_BKGCOLOR = 0x01;
+  /**  True if version 4.2 or after  */
+  byte CDTABLECELL_USE_V42BORDERS = 0x02;
+  /**  True if cell is spanned  */
+  byte CDTABLECELL_INVISIBLEH = 0x04;
+  /**  True if cell is spanned  */
+  byte CDTABLECELL_INVISIBLEV = 0x08;
+  /**  True if gradient color  */
+  byte CDTABLECELL_USE_GRADIENT = 0x10;
+  /**  True if contents centered vertically  */
+  byte CDTABLECELL_VALIGNCENTER = 0x20;
+  /**  True if gradient should go left to right  */
+  byte CDTABLECELL_GRADIENT_LTR = 0x40;
+  /**  True if contents bottomed vertically  */
+  byte CDTABLECELL_VALIGNBOTTOM = (byte)0x80;
+  
+  short CDTC_S_V42_Left = 0;
+  short CDTC_M_V42_Left = 0x000f;
+  short CDTC_S_V42_Right = 4;
+  short CDTC_M_V42_Right = 0x00f0;
+  short CDTC_S_V42_Top = 8;
+  short CDTC_M_V42_Top = 0x0f00;
+  short CDTC_S_V42_Bottom = 12;
+  short CDTC_M_V42_Bottom = (short)0xf000;
+  
+  /* more table cell flags stored via a CDTABLECELLDATAFLAGS record */
+  int CDTABLECELL_COLUMN_HEADER = 0x00000001;
+  int CDTABLECELL_ROW_HEADER    = 0x00000002;
+  
+  /**  True if automatic cell width calculation  */
+  int CDPRETABLE_AUTO_CELL_WIDTH = 0x00000001;
+  int CDPRETABLE_DONTWRAP = 0x00000002;
+  int CDPRETABLE_DROPSHADOW = 0x00000004;
+  int CDPRETABLE_FIELDDRIVEN = 0x00000008;
+  int CDPRETABLE_V4SPACING = 0x00000010;
+  int CDPRETABLE_USEBORDERCOLOR = 0x00000020;
+  /**  True if the table width equal to window width  */
+  int CDPRETABLE_WIDTHSAMEASWINDOW = 0x00000040;
+  /**  True if field driven table should also show tabs  */
+  int CDPRETABLE_SHOWTABS = 0x00000080;
+  int CDPRETABLE_SHOWTABSONLEFT = 0x00000100;
+  int CDPRETABLE_SHOWTABSONBOTTOM = 0x00000200;
+  int CDPRETABLE_SHOWTABSONRIGHT = 0x00000400;
+  
+
+  byte CDTABLEVIEWER_ONCLICK = 1;
+  byte CDTABLEVIEWER_ONLOADTIMER = 2;
+  byte CDTABLEVIEWER_ONLOADCYCLEONCE = 3;
+  byte CDTABLEVIEWER_TABS = 4;
+  byte CDTABLEVIEWER_FIELDDRIVEN = 5;
+  byte CDTABLEVIEWER_CYCLEONCE = 6;
+  byte CDTABLEVIEWER_CAPTIONS = 8;
+  byte CDTABLEVIEWER_LAST = 8;
+  
+  int MAXTABS = 20;
+  
+  byte TAB_LEFT        = 0; /* default - flush left starting at tab pos. */
+  byte TAB_RIGHT       = 1; /* text is right justified before tab pos. */
+  byte TAB_DECIMAL     = 2; /* text is placed so that decimal point is aligned with tab pos. */
+  byte TAB_CENTER      = 3; /* text is centered around tab pos. */
+  byte TAB_DEFAULT     = TAB_LEFT;
+  
+  /**  True if automatic cell width calculation  */
+  short CDTABLE_AUTO_CELL_WIDTH = 0x0001;
+  /**  True if the table was created in v4  */
+  short CDTABLE_V4_BORDERS = 0x0002;
+  /**  True if the table uses embossed borders  */
+  short CDTABLE_3D_BORDER_EMBOSS = 0x0004;
+  /**  True if the table uses extruded borders  */
+  short CDTABLE_3D_BORDER_EXTRUDE = 0x0008;
+  /**  True if the table reading order is right to left  */
+  short CDTABLE_BIDI_RTLTABLE = 0x0010;
+  /**  True if the table alignment is right  */
+  short CDTABLE_ALIGNED_RIGHT = 0x0020;
+  /**  True if the table is collapsible to one row  */
+  short CDTABLE_COLLAPSIBLE = 0x0040;
+  short CDTABLE_LEFTTOP = 0x0080;
+  short CDTABLE_TOP = 0x0100;
+  short CDTABLE_LEFT = 0x0200;
+  short CDTABLE_ALTERNATINGCOLS = 0x0400;
+  short CDTABLE_ALTERNATINGROWS = 0x0800;
+  short CDTABLE_RIGHTTOP = 0x2000;
+  short CDTABLE_RIGHT = 0x4000;
+  /**  all styles on means solid color */
+  short CDTABLE_SOLID = 0x6f80;
+  short CDTABLE_TEMPLATEBITS = 0x6f80;
+  /**  True if the table alignment is center  */
+  short CDTABLE_ALIGNED_CENTER = 0x1000;
+  /**  True if the table rows text flows cell to cell  */
+  short CDTABLE_TEXTFLOWS = (short)0x8000;
+
+  int LAYOUT_FLAG_SHOWBORDER = 0x00000001;
+  int LAYOUT_FLAG_SHOWGRID = 0x00000002;
+  int LAYOUT_FLAG_SNAPTOGRID = 0x00000004;
+  int LAYOUT_FLAG_3DSTYLE = 0x00000008;
+  int LAYOUT_FLAG_RTL = 0x00000010;
+  int LAYOUT_FLAG_DONTWRAP = 0x00000020;
+  
+
+  int PLACEHOLDER_FLAG_FITTOWINDOW = 0x00000001;
+  int PLACEHOLDER_FLAG_DRAWBACKGROUND = 0x00000002;
+  int PLACEHOLDER_FLAG_USEPERCENTAGE = 0x00000004;
+  int PLACEHOLDER_FLAG_SCROLLBARS = 0x00000008;
+  int PLACEHOLDER_FLAG_CONTENTSONLY = 0x00000010;
+  int PLACEHOLDER_FLAG_ALIGNCENTER = 0x00000020;
+  int PLACEHOLDER_FLAG_ALIGNRIGHT = 0x00000040;
+  int PLACEHOLDER_FLAG_FITTOWINDOWHEIGHT = 0x00000080;
+  int PLACEHOLDER_FLAG_TILEIMAGE = 0x00000100;
+  int PLACEHOLDER_FLAG_DISPLAYHORZ = 0x00000200;
+  int PLACEHOLDER_FLAG_DONTEXPANDSELECTIONS = 0x00000400;
+  int PLACEHOLDER_FLAG_EXPANDCURRENT = 0x00000800;
+  int PLACEHOLDER_FLAG_FITCONTENTSWIDTH = 0x00001000;
+  int PLACEHOLDER_FLAG_FIXEDWIDTH = 0x00002000;
+  int PLACEHOLDER_FLAG_FIXEDHEIGHT = 0x00004000;
+  int PLACEHOLDER_FLAG_FITCONTENTS = 0x00008000;
+  int PLACEHOLDER_FLAG_PROP_WIDTH = 0x00010000;
+  int PLACEHOLDER_FLAG_PROP_BOTH = 0x00020000;
+  int PLACEHOLDER_FLAG_SCROLLERS = 0x00040000;
+  
+  short PLACEHOLDER_ALIGN_LEFT = 0;
+  short PLACEHOLDER_ALIGN_CENTER = 1;
+  short PLACEHOLDER_ALIGN_RIGHT = 2;
+  
+  short CDTABLELABEL_ROWLABEL = 0x0001;
+  short CDTABLELABEL_TABLABEL = 0x0002;
+  
+  int BARREC_DISABLED_FOR_NON_EDITORS   = 1;
+  int BARREC_EXPANDED                   = 2;
+  int BARREC_PREVIEW                    = 4;
+  int BARREC_BORDER_INVISIBLE           = 0x1000;
+  int BARREC_ISFORMULA                  = 0x2000;
+  int BARREC_HIDE_EXPANDED              = 0x4000;
+  int BARREC_POSTREPLYSECTION           = 0x8000;
+  
+  int BARREC_INTENDED       = 0x1000000;
+  int BARREC_HAS_COLOR      = 0x4000000;
+  
+  /** This constant represents the 28 used as a magic number for shifting to read BARREC border values */
+  int BARREC_BORDER_SHIFT         = 28;
+  
+  int BARREC_BORDER_MASK          = 0x70000000;
+  int BARREC_BORDER_SHADOW        = 0;
+  int BARREC_BORDER_NONE          = 1;
+  int BARREC_BORDER_SINGLE        = 2;
+  int BARREC_BORDER_DOUBLE        = 3;
+  int BARREC_BORDER_TRIPLE        = 4;
+  int BARREC_BORDER_TWOLINE       = 5;
+  int BARREC_BORDER_WINDOWCAPTION = 6;
+  int BARREC_BORDER_OTHER         = 7;
+  int BARREC_BORDER_GRADIENT      = 7;
+  int BARREC_BORDER_TAB           = 8;
+  int BARREC_BORDER_DIAG          = 9;
+  int BARREC_BORDER_DUOCOLOR      = 10;
+
+  int BARREC_INDENTED = 0x80000000;
+  
+  byte REPEAT_UNKNOWN  = 0;
+  byte REPEAT_ONCE     = 1;
+  byte REPEAT_VERT     = 2;
+  byte REPEAT_HORIZ    = 3;
+  byte REPEAT_BOTH     = 4;
+  byte REPEAT_SIZE     = 5;
+  byte REPEAT_CENTER   = 6;
+  
+  short BUTTON_UNUSED = 0x0000;
+  short BUTTON_RUNFLAG_SCRIPT = 0x0001;
+  short BUTTON_RUNFLAG_NOWRAP = 0x0002;
+  short BUTTON_ODS_MASK = 0x7F02;
+  short BUTTON_RUNFLAG_RTL = 0x0100;
+  short BUTTON_RUNFLAG_FIXED = 0x0200;
+  short BUTTON_RUNFLAG_MINIMUM = 0x0400;
+  short BUTTON_RUNFLAG_CONTENT = 0x0800;
+  short BUTTON_RUNFLAG_PROPORTIONAL = 0x4000;
+  /**  button has focus   */
+  short BUTTON_FOCUS_ON = (short)0x8000;
+  
+  short BUTTON_RUNFLAG_WIDTH_MASK = (BUTTON_RUNFLAG_FIXED | BUTTON_RUNFLAG_MINIMUM | BUTTON_RUNFLAG_CONTENT | BUTTON_RUNFLAG_PROPORTIONAL);
+
+  short BUTTON_EDGE_ROUNDED = 0x1000;
+  short BUTTON_EDGE_SQUARE = 0x2000;
+  
+  int MAXREGIONNAME = 35;
+  
+
+  int LAYOUT_TEXT_FLAG_TRANS = 0x10000000;
+  int LAYOUT_TEXT_FLAG_LEFT = 0x00000000;
+  int LAYOUT_TEXT_FLAG_CENTER = 0x20000000;
+  int LAYOUT_TEXT_FLAG_RIGHT = 0x40000000;
+  int LAYOUT_TEXT_FLAG_ALIGN_MASK = 0x60000000;
+  int LAYOUT_TEXT_FLAG_VCENTER = 0x80000000;
+  int LAYOUT_TEXT_FLAG_LTR = 0x01000000;
+  int LAYOUT_TEXT_FLAG_RTL = 0x02000000;
+  int LAYOUT_TEXT_FLAG_RO_MASK = 0x03000000;
+  int LAYOUT_TEXT_FLAGS_MASK = 0xF0000000;
 }

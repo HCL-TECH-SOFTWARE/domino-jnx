@@ -375,4 +375,23 @@ public enum StructureSupport {
 
     return struct;
   }
+  
+  /**
+   * Reads an LMBCS string from a byte array, such as those of fixed-size struct members.
+   * 
+   * <p>This method handles reading only up to the first null value.</p>
+   * 
+   * @param lmbcs the fixed-size array containing the string
+   * @return the read value
+   * @since 1.0.34
+   */
+  public static String readLmbcsValue(byte[] lmbcs) {
+    int firstNull = 0;
+    for(firstNull = 0; firstNull < lmbcs.length; firstNull++) {
+      if(lmbcs[firstNull] == '\0') {
+        break;
+      }
+    }
+    return new String(lmbcs, 0, firstNull, Charset.forName("LMBCS")); //$NON-NLS-1$
+  }
 }

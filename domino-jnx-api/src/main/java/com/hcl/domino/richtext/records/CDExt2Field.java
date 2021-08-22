@@ -19,6 +19,7 @@ package com.hcl.domino.richtext.records;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.design.format.DateShowFormat;
@@ -34,6 +35,7 @@ import com.hcl.domino.design.format.WeekFormat;
 import com.hcl.domino.design.format.YearFormat;
 import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.misc.INumberEnum;
+import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
@@ -197,7 +199,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   short getDateSeparator3Length();
 
   @StructureGetter("DTDShow")
-  DateShowFormat getDateShowFormat();
+  Optional<DateShowFormat> getDateShowFormat();
 
   @StructureGetter("DTDSpecial")
   Set<DateShowSpecial> getDateShowSpecial();
@@ -209,13 +211,13 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   Set<DateTimeFlag2> getDateTimeFlags2();
 
   @StructureGetter("DTPref")
-  NumberPref getDateTimePreference();
+  Optional<NumberPref> getDateTimePreference();
 
   @StructureGetter("DTDayFmt")
-  DayFormat getDayFormat();
+  Optional<DayFormat> getDayFormat();
 
   @StructureGetter("DTDOWFmt")
-  WeekFormat getDayOfWeekFormat();
+  Optional<WeekFormat> getDayOfWeekFormat();
 
   default String getDecimalSymbol() {
     final int len = (int) this.getDecimalSymbolLength();
@@ -243,22 +245,28 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   short getHorizontalSpacing();
 
   default String getIMGroupFormula() {
-    final int len = this.getIMGroupFormulaLength();
-    if (len == 0) {
-      return ""; //$NON-NLS-1$
-    }
-
     final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
-        + this.getCurrencySymbolLength()
-        + this.getThumbnailImageFileNameLength() + this.getDateSeparator1Length() + this.getDateSeparator2Length()
-        + this.getDateSeparator3Length() + this.getTimeSeparatorLength() + this.getIMOnlineNameFormulaLength()
-        + this.getInputEnabledFormulaLength());
-
-    final ByteBuffer buf = this.getVariableData();
-    buf.position(preLen);
-    final byte[] compiled = new byte[len];
-    buf.get(compiled);
-    return FormulaCompiler.get().decompile(compiled);
+      + this.getCurrencySymbolLength()
+      + this.getThumbnailImageFileNameLength() + this.getDateSeparator1Length() + this.getDateSeparator2Length()
+      + this.getDateSeparator3Length() + this.getTimeSeparatorLength() + this.getIMOnlineNameFormulaLength()
+      + this.getInputEnabledFormulaLength());
+    
+    // This appears to actually be stored as a string
+    return StructureSupport.extractStringValue(
+      this,
+      preLen,
+      getIMGroupFormulaLength()
+    );
+//    final int len = this.getIMGroupFormulaLength();
+//    if (len == 0) {
+//      return ""; //$NON-NLS-1$
+//    }
+//
+//    final ByteBuffer buf = this.getVariableData();
+//    buf.position(preLen);
+//    final byte[] compiled = new byte[len];
+//    buf.get(compiled);
+//    return FormulaCompiler.get().decompile(compiled);
   }
 
   @StructureGetter("wIMGroupFormulaLen")
@@ -329,7 +337,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   long getMilliSeparatorLength();
 
   @StructureGetter("DTMonthFmt")
-  MonthFormat getMonthFormat();
+  Optional<MonthFormat> getMonthFormat();
 
   default String getNegativeSymbol() {
     final int len = (int) this.getNegativeSymbolLength();
@@ -350,7 +358,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   long getNegativeSymbolLength();
 
   @StructureGetter("NumSymPref")
-  NumberPref getNumberSymbolPreference();
+  Optional<NumberPref> getNumberSymbolPreference();
 
   @StructureGetter("wCharacters")
   int getProportionalWidthCharacters();
@@ -402,16 +410,16 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   short getTimeSeparatorLength();
 
   @StructureGetter("DTTShow")
-  TimeShowFormat getTimeShowFormat();
+  Optional<TimeShowFormat> getTimeShowFormat();
 
   @StructureGetter("DTTZone")
-  TimeZoneFormat getTimeZoneFormat();
+  Optional<TimeZoneFormat> getTimeZoneFormat();
 
   @StructureGetter("VerticalSpacing")
   short getVerticalSpacing();
 
   @StructureGetter("DTYearFmt")
-  YearFormat getYearFormat();
+  Optional<YearFormat> getYearFormat();
 
   @StructureSetter("CurrencyFlags")
   CDExt2Field setCurrencyFlags(Collection<CurrencyFlag> flags);
@@ -584,24 +592,33 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
         + this.getThumbnailImageFileNameLength() + this.getDateSeparator1Length() + this.getDateSeparator2Length()
         + this.getDateSeparator3Length() + this.getTimeSeparatorLength() + this.getIMOnlineNameFormulaLength()
         + this.getInputEnabledFormulaLength());
-    final int currentLen = this.getIMGroupFormulaLength();
-    ByteBuffer buf = this.getVariableData();
-    final int postLen = buf.remaining() - currentLen - preLen;
 
-    buf.position(preLen + currentLen);
-    final byte[] postData = new byte[postLen];
-    buf.get(postData);
-
-    final byte[] compiled = FormulaCompiler.get().compile(formula);
-    this.setIMGroupFormulaLength(compiled.length);
-    final int newLen = preLen + compiled.length + postLen;
-    this.resizeVariableData(newLen);
-    buf = this.getVariableData();
-    buf.position(preLen);
-    buf.put(compiled);
-    buf.put(postData);
-
-    return this;
+    // This appears to actually be stored as a string
+    return StructureSupport.writeStringValue(
+      this,
+      preLen,
+      getIMGroupFormulaLength(),
+      formula,
+      this::setIMGroupFormulaLength
+    );
+//    final int currentLen = this.getIMGroupFormulaLength();
+//    ByteBuffer buf = this.getVariableData();
+//    final int postLen = buf.remaining() - currentLen - preLen;
+//
+//    buf.position(preLen + currentLen);
+//    final byte[] postData = new byte[postLen];
+//    buf.get(postData);
+//
+//    final byte[] compiled = FormulaCompiler.get().compile(formula);
+//    this.setIMGroupFormulaLength(compiled.length);
+//    final int newLen = preLen + compiled.length + postLen;
+//    this.resizeVariableData(newLen);
+//    buf = this.getVariableData();
+//    buf.position(preLen);
+//    buf.put(compiled);
+//    buf.put(postData);
+//
+//    return this;
   }
 
   @StructureSetter("wIMGroupFormulaLen")

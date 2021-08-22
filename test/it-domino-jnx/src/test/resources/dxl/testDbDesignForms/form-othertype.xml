@@ -2,14 +2,24 @@
 <note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
 <item name='$Fields'><text>ComputedSubformField</text></item>
 <item name='$Comment' sign='true'><text/></item>
+<item name='$BackgroundR5'>
+<rawitemdata type='1'>
+3QYBAJkAmQAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAH0AHAAAAAEADAAfAAAAAAAAAAAAAAAA
+AAAAAAD2/zAAAAAAAAMAEwAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAVW50aXRsZWQgMy5naWbeBgEA
+mQA=
+</rawitemdata></item>
 <item name='$HTMLCode' sign='true'>
 <rawitemdata type='1'>
 X/8QAAIADwAHAAAAAAAAAA==
 </rawitemdata></item>
 <item name='$TITLE'><text>Other Type Form</text></item>
+<item name='$AUTOLAUNCH' sign='true'>
+<rawitemdata type='1'>
+v/8yABAAAAAEAAAABAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+</rawitemdata></item>
 <item name='$Info' sign='true'>
 <rawitemdata type='1'>
-hhgBAIAAAAAAgAAAAQABAP///wAQAAAA
+hhgBAIAEAAAAAAAAAQABAP///wAQAQAA
 </rawitemdata></item>
 <item name='$Flags'><text/></item>
 <item name='$MimeType'><text>text/css</text></item>

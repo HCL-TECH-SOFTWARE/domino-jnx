@@ -12,7 +12,7 @@ import com.hcl.domino.data.DominoCollection;
  */
 public abstract class ViewMixIn {
   
-	@JsonIgnore abstract DominoCollection getCollection();
-	@JsonSerialize(using = DocumentToUnidSerializer.class) abstract Document getDocument();
-	
+  @JsonIgnore abstract DominoCollection getCollection();
+  @JsonSerialize(using = DocumentToUnidSerializer.class) abstract Document getDocument();
+  
 }

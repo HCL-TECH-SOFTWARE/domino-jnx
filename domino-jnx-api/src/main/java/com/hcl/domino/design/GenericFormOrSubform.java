@@ -56,4 +56,12 @@ public interface GenericFormOrSubform<T extends GenericFormOrSubform<T>> extends
    * @since 1.0.33
    */
   boolean isIncludeFieldsInIndex();
+  
+  /**
+   * Retrieves the body of the form or subform as a list of rich-text entities.
+   * 
+   * @return a {@link List} of rich-text entities
+   * @since 1.0.34
+   */
+  List<?> getBody();
 }
