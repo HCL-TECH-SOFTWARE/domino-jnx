@@ -1,6 +1,6 @@
 # Garbage Collection
 
-The Commons package (`domino-jnx-commons`) contains capabilities to handle freeing back-end Domino references (such as handles and Notes-API-managed pointers) by way of `PhantomReference`s tracked by `com.hcl.domino.commons.gc.CAPIGarbageCollector`, as used by the JNA implementation. Each GC-participating API object, when created, registers itself there and keeps track of an `APIObjectAllocations` subclass instance (the phantom reference), which in turn keep tracks of native entities and provides a `dipose()` implementation that closes open handles and otherwise discards the backing memory.
+The Commons package (`domino-jnx-commons`) contains capabilities to handle freeing back-end Domino references (such as handles and Notes-API-managed pointers) by way of `PhantomReference`s tracked by `com.hcl.domino.commons.gc.CAPIGarbageCollector`, as used by the JNA implementation. Each GC-participating API object, when created, registers itself there and keeps track of an `APIObjectAllocations` subclass instance (the phantom reference), which in turn keep tracks of native entities and provides a `dispose()` implementation that closes open handles and otherwise discards the backing memory.
 
 For example, the `JNAIDTableAllocations` (which backs `JNAIDTable`) has a `HANDLE` property:
 
