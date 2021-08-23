@@ -24,7 +24,7 @@ import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 
 /**
- * View Map (Navigator) Button Defaults
+ * View Map (Navigator) Line Defaults
  * @author artcnot
  * @since 1.0.15
  */
@@ -42,8 +42,8 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
   }
 )
 public interface ViewmapLineDefaults extends MemoryStructure {
-  @StructureGetter("ViewmapHighlightDefaults")
-  ViewmapHighlightDefaults getViewmapHighlightDefaults();
+  @StructureGetter("Highlight")
+  ViewmapHighlightDefaults getHighlight();
 
   @StructureGetter("LineColor")
   short getLineColor();
@@ -66,8 +66,8 @@ public interface ViewmapLineDefaults extends MemoryStructure {
   @StructureGetter("FontID")
   FontStyle getFontID();
 
-  @StructureSetter("ViewmapHighlightDefaults")
-  ViewmapLineDefaults setViewmapHighlightDefaults(ViewmapHighlightDefaults highlight);
+  @StructureSetter("Highlight")
+  ViewmapLineDefaults setHighlight(ViewmapHighlightDefaults highlight);
 
   @StructureSetter("LineColor")
   ViewmapLineDefaults setbHighlightTouch(short lineColor);

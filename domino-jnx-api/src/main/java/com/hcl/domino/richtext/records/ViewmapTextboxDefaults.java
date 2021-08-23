@@ -42,8 +42,8 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
   }
 )
 public interface ViewmapTextboxDefaults extends MemoryStructure {
-  @StructureGetter("ViewmapHighlightDefaults")
-  ViewmapHighlightDefaults getViewmapHighlightDefaults();
+  @StructureGetter("Highlight")
+  ViewmapHighlightDefaults getHighlight();
 
   @StructureGetter("LineColor")
   short getLineColor();
@@ -66,8 +66,8 @@ public interface ViewmapTextboxDefaults extends MemoryStructure {
   @StructureGetter("FontID")
   FontStyle getFontID();
 
-  @StructureSetter("ViewmapHighlightDefaults")
-  ViewmapTextboxDefaults setViewmapHighlightDefaults(ViewmapHighlightDefaults highlight);
+  @StructureSetter("Highlight")
+  ViewmapTextboxDefaults setHighlight(ViewmapHighlightDefaults highlight);
 
   @StructureSetter("LineColor")
   ViewmapTextboxDefaults setbHighlightTouch(short lineColor);

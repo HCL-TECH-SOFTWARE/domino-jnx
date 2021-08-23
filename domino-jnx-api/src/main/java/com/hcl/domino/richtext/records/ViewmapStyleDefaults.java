@@ -39,40 +39,40 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
   }
 )
 public interface ViewmapStyleDefaults extends MemoryStructure {
-  @StructureGetter("ViewmapShapeDefaults")
-  ViewmapShapeDefaults getViewmapShapeDefaults();
+  @StructureGetter("Shapes")
+  ViewmapShapeDefaults getShapes();
 
-  @StructureGetter("ViewmapLineDefaults")
-  ViewmapLineDefaults getViewmapLineDefaults();
+  @StructureGetter("Lines")
+  ViewmapLineDefaults getLines();
 
-  @StructureGetter("ViewmapRegionDefaults")
-  ViewmapRegionDefaults getViewmapRegionDefaults();
+  @StructureGetter("Regions")
+  ViewmapRegionDefaults getRegions();
 
-  @StructureGetter("ViewmapButtonDefaults")
-  ViewmapButtonDefaults getViewmapButtonDefaults();
+  @StructureGetter("Buttons")
+  ViewmapButtonDefaults getButtons();
 
-  @StructureGetter("ViewmapBitmapDefaults")
-  ViewmapBitmapDefaults getViewmapBitmapDefaults();
+  @StructureGetter("Bitmaps")
+  ViewmapBitmapDefaults getBitmaps();
 
-  @StructureGetter("ViewmapTextboxDefaults")
-  ViewmapTextboxDefaults getViewmapTextboxDefaults();
+  @StructureGetter("TextBoxes")
+  ViewmapTextboxDefaults getTextBoxes();
 
-  @StructureSetter("ViewmapShapeDefaults")
-  ViewmapStyleDefaults setViewmapShapeDefaults(ViewmapShapeDefaults type);
+  @StructureSetter("Shapes")
+  ViewmapStyleDefaults setShapes(ViewmapShapeDefaults type);
 
-  @StructureSetter("ViewmapLineDefaults")
-  ViewmapStyleDefaults setViewmapLineDefaults(ViewmapLineDefaults type);
+  @StructureSetter("Lines")
+  ViewmapStyleDefaults setLines(ViewmapLineDefaults type);
 
-  @StructureSetter("ViewmapRegionDefaults")
-  ViewmapStyleDefaults setViewmapRegionDefaults(ViewmapRegionDefaults type);
+  @StructureSetter("Regions")
+  ViewmapStyleDefaults setRegions(ViewmapRegionDefaults type);
 
-  @StructureSetter("ViewmapButtonDefaults")
-  ViewmapStyleDefaults setViewmapButtonDefaults(ViewmapButtonDefaults type);
+  @StructureSetter("Buttons")
+  ViewmapStyleDefaults setButtons(ViewmapButtonDefaults type);
 
-  @StructureSetter("ViewmapBitmapDefaults")
-  ViewmapStyleDefaults setViewmapBitmapDefaults(ViewmapBitmapDefaults type);
+  @StructureSetter("Bitmaps")
+  ViewmapStyleDefaults setBitmaps(ViewmapBitmapDefaults type);
 
-  @StructureSetter("ViewmapTextboxDefaults")
-  ViewmapStyleDefaults setTextboxes(ViewmapTextboxDefaults type);
+  @StructureSetter("TextBoxes")
+  ViewmapStyleDefaults setTextBoxes(ViewmapTextboxDefaults type);
 
 }

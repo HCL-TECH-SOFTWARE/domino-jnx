@@ -34,9 +34,9 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
   }
 )
 public interface ViewmapBitmapDefaults extends MemoryStructure {
-  @StructureGetter("ViewmapHighlightDefaults")
-  ViewmapHighlightDefaults getViewmapHighlightDefaults();
+  @StructureGetter("Highlight")
+  ViewmapHighlightDefaults getHighlight();
 
-  @StructureSetter("ViewmapHighlightDefaults")
-  ViewmapBitmapDefaults setViewmapHighlightDefaults(ViewmapHighlightDefaults highlight);
+  @StructureSetter("Highlight")
+  ViewmapBitmapDefaults setHighlight(ViewmapHighlightDefaults highlight);
 }

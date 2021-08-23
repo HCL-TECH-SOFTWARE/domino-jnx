@@ -104,10 +104,7 @@ public interface ViewmapDatasetRecord extends RichTextRecord<WSIG> {
   ColorValue getBGColorValue();
 
   @StructureGetter("Spare")
-  short[] getSpare();
-
-  @StructureSetter("Header")
-  ViewmapDatasetRecord setHeader(int header);
+  int[] getSpare();
 
   @StructureSetter("Version")
   ViewmapDatasetRecord setVersion(int version);

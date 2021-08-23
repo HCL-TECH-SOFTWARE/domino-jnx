@@ -42,8 +42,8 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
   }
 )
 public interface ViewmapButtonDefaults extends MemoryStructure {
-  @StructureGetter("ViewmapHighlightDefaults")
-  ViewmapHighlightDefaults getViewmapHighlightDefaults();
+  @StructureGetter("Highlight")
+  ViewmapHighlightDefaults getHighlight();
 
   @StructureGetter("LineColor")
   short getLineColor();
@@ -66,8 +66,8 @@ public interface ViewmapButtonDefaults extends MemoryStructure {
   @StructureGetter("FontID")
   FontStyle getFontID();
 
-  @StructureSetter("ViewmapHighlightDefaults")
-  ViewmapButtonDefaults setViewmapHighlightDefaults(ViewmapHighlightDefaults highlight);
+  @StructureSetter("Highlight")
+  ViewmapButtonDefaults setHighlight(ViewmapHighlightDefaults highlight);
 
   @StructureSetter("LineColor")
   ViewmapButtonDefaults setbHighlightTouch(short lineColor);
