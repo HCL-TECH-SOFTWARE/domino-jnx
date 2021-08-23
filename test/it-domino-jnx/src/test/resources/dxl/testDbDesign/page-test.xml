@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='utf-8'?>
+<note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$Comment' sign='true'><text/></item>
+<item name='$HTMLCode' sign='true'>
+<rawitemdata type='1'>
+d/8qAAAAAAABACGB/wABAP8AAAABAIAAgAAAAAAAAAAAAAAAAAAAAAAAX/8QAAIADwAHAAAAAAAA
+AA==
+</rawitemdata></item>
+<item name='$TITLE'><text>Test Page</text></item>
+<item name='$Info' sign='true'>
+<rawitemdata type='1'>
+hhgBAIAAAAAAgAAAAQABAP///wAKAAAA
+</rawitemdata></item>
+<item name='$WindowTitle' sign='true'><formula>"I am the title"</formula></item>
+<item name='$Flags'><text>C34WQ</text></item>
+<item name='$WebFlags'><text>V</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>Test Page</text></item>
+<item name='$Body' sign='true'>
+<rawitemdata type='1'>
+gQKC/1oAAQAAAAAAAAAAAKAFAACgBQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAABAAAAAJSHAAAAAAAAAAAAAAAAAQAAAAQAAACDBAEAhf8IAAEAAAqBAoMEAQCF/xoA
+AQAACkkgYW0gcGFnZSBjb250ZW50LoECgwQBAIX/CAABAAAKgQKDBAEAhf8IAAEAAArdBgAArf9x
+/yYAAAAAAAMAAgAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAQWxsAK3/EAATAAgAAAAEAEFsbADq/z4A
+EwAIRAAAsBNACwEAAAoAAAAAAAAAAAEAAAoBAAAKAAAFAP///wABAAAAAAAAAAAAAAAAAAAAAAAA
+AO3/IAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAArgLeBgAArgCF/wgAAQAACg==
+</rawitemdata></item>
+<item name='$V5ACTIONS' sign='true'>
+<rawitemdata type='1'>
+vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
+AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAC+/0AAAAABAAAAnwEAAAYAAAAAAAAAZnNkZmZkJAAKAAQA
+AAASAAEAAwBoZXkA+wFJAQMABwAMAAUACTBTMEUA
+</rawitemdata></item></note>
+

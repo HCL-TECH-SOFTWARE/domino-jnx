@@ -43,6 +43,7 @@ import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageResource;
+import com.hcl.domino.design.Page;
 import com.hcl.domino.design.ScriptLibrary;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.View;
@@ -367,6 +368,16 @@ public abstract class AbstractDbDesign implements DbDesign {
   @Override
   public Stream<Subform> getSubforms() {
     return this.getDesignElements(Subform.class);
+  }
+  
+  @Override
+  public Optional<Page> getPage(String name) {
+    return this.getDesignElementByName(Page.class, name);
+  }
+  
+  @Override
+  public Stream<Page> getPages() {
+    return this.getDesignElements(Page.class);
   }
 
   // *******************************************************************************

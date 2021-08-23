@@ -16,6 +16,11 @@
  */
 package it.com.hcl.domino.test.design;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -38,6 +43,7 @@ import org.junit.jupiter.api.Test;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.design.ActionBar;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DbProperties;
@@ -45,20 +51,25 @@ import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageResource;
+import com.hcl.domino.design.Page;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.SubformReference;
 import com.hcl.domino.design.View;
+import com.hcl.domino.design.action.ActionBarAction;
+import com.hcl.domino.design.action.ActionContent;
+import com.hcl.domino.design.action.FormulaActionContent;
 import com.hcl.domino.design.format.FieldListDelimiter;
 import com.hcl.domino.design.format.FieldListDisplayDelimiter;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.FormField;
 import com.hcl.domino.richtext.process.GetImageResourceSizeProcessor;
+import com.hcl.domino.richtext.records.CDText;
 import com.ibm.commons.util.io.StreamUtil;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
-public class TestDbDesign extends AbstractNotesRuntimeTest {
+public class TestDbDesign extends AbstractDesignTest {
   private static String dbPath;
 
   @AfterAll
@@ -136,7 +147,7 @@ public class TestDbDesign extends AbstractNotesRuntimeTest {
       {
         final Form element = design.getForm("other title").orElse(null);
         Assertions.assertNotNull(element);
-        Assertions.assertTrue(element.isHideFromMobile());
+        assertTrue(element.isHideFromMobile());
       }
     });
   }
@@ -185,11 +196,11 @@ public class TestDbDesign extends AbstractNotesRuntimeTest {
     final DbProperties props = dbDesign.getDatabaseProperties();
     Assertions.assertNotNull(props);
 
-    Assertions.assertFalse(props.isGenerateEnhancedHtml());
+    assertFalse(props.isGenerateEnhancedHtml());
     props.setGenerateEnhancedHtml(true);
-    Assertions.assertTrue(props.isGenerateEnhancedHtml());
+    assertTrue(props.isGenerateEnhancedHtml());
     props.setGenerateEnhancedHtml(false);
-    Assertions.assertFalse(props.isGenerateEnhancedHtml());
+    assertFalse(props.isGenerateEnhancedHtml());
   }
 
   @Test
@@ -249,9 +260,9 @@ public class TestDbDesign extends AbstractNotesRuntimeTest {
     final List<FileResource> resources = dbDesign.getFileResources().collect(Collectors.toList());
     Assertions.assertEquals(3, resources.size());
 
-    Assertions.assertTrue(resources.stream().anyMatch(res -> Arrays.asList("file.css").equals(res.getFileNames())));
-    Assertions.assertTrue(resources.stream().anyMatch(res -> Arrays.asList("test.txt").equals(res.getFileNames())));
-    Assertions.assertTrue(resources.stream().anyMatch(res -> Arrays.asList("largels.txt").equals(res.getFileNames())));
+    assertTrue(resources.stream().anyMatch(res -> Arrays.asList("file.css").equals(res.getFileNames())));
+    assertTrue(resources.stream().anyMatch(res -> Arrays.asList("test.txt").equals(res.getFileNames())));
+    assertTrue(resources.stream().anyMatch(res -> Arrays.asList("largels.txt").equals(res.getFileNames())));
   }
 
   @Test
@@ -374,13 +385,13 @@ public class TestDbDesign extends AbstractNotesRuntimeTest {
     final List<ImageResource> resources = dbDesign.getImageResources().collect(Collectors.toList());
     Assertions.assertEquals(2, resources.size());
 
-    Assertions.assertTrue(resources.stream().anyMatch(res -> Arrays.asList("Untitled.gif").equals(res.getFileNames())));
+    assertTrue(resources.stream().anyMatch(res -> Arrays.asList("Untitled.gif").equals(res.getFileNames())));
     // The copied image resource is known to be broken, as an effect of a Designer
     // bug. That leaves it as useful
     // test data, but not for this check
     // assertTrue(resources.stream().anyMatch(res -> Arrays.asList("Untitled
     // 2.gif").equals(res.getFileNames())));
-    Assertions.assertTrue(resources.stream().anyMatch(res -> "Untitled.gif".equals(res.getTitle())));
+    assertTrue(resources.stream().anyMatch(res -> "Untitled.gif".equals(res.getTitle())));
   }
 
   @Test
@@ -389,8 +400,8 @@ public class TestDbDesign extends AbstractNotesRuntimeTest {
     final ImageResource res = dbDesign.getImageResource("Untitled.gif").get();
     Assertions.assertEquals("Untitled.gif", res.getTitle());
     Assertions.assertEquals("image/gif", res.getMimeType());
-    Assertions.assertFalse(res.isWebReadOnly());
-    Assertions.assertFalse(res.isWebCompatible());
+    assertFalse(res.isWebReadOnly());
+    assertFalse(res.isWebCompatible());
     Assertions.assertEquals(1, res.getImagesDown());
     Assertions.assertEquals(1, res.getImagesAcross());
     Assertions.assertEquals(890, res.getFileSize());
@@ -412,8 +423,8 @@ public class TestDbDesign extends AbstractNotesRuntimeTest {
     final ImageResource res = dbDesign.getImageResource("Untitled 2.gif").get();
     Assertions.assertEquals("Untitled 2.gif", res.getTitle());
     Assertions.assertEquals("image/gif", res.getMimeType());
-    Assertions.assertTrue(res.isWebReadOnly());
-    Assertions.assertTrue(res.isWebCompatible());
+    assertTrue(res.isWebReadOnly());
+    assertTrue(res.isWebCompatible());
     Assertions.assertEquals(2, res.getImagesDown());
     Assertions.assertEquals(4, res.getImagesAcross());
 
@@ -476,34 +487,84 @@ public class TestDbDesign extends AbstractNotesRuntimeTest {
       Assertions.assertEquals("8.5.3", view.getDesignerVersion());
 
       {
-        Assertions.assertTrue(view.isProhibitRefresh());
+        assertTrue(view.isProhibitRefresh());
         view.setProhibitRefresh(false);
-        Assertions.assertFalse(view.isProhibitRefresh());
+        assertFalse(view.isProhibitRefresh());
         view.setProhibitRefresh(true);
-        Assertions.assertTrue(view.isProhibitRefresh());
+        assertTrue(view.isProhibitRefresh());
       }
 
       {
-        Assertions.assertFalse(view.isHideFromWeb());
+        assertFalse(view.isHideFromWeb());
         view.setHideFromWeb(true);
-        Assertions.assertTrue(view.isHideFromWeb());
+        assertTrue(view.isHideFromWeb());
         view.setHideFromWeb(false);
-        Assertions.assertFalse(view.isHideFromWeb());
+        assertFalse(view.isHideFromWeb());
       }
       {
-        Assertions.assertFalse(view.isHideFromNotes());
+        assertFalse(view.isHideFromNotes());
         view.setHideFromNotes(true);
-        Assertions.assertTrue(view.isHideFromNotes());
+        assertTrue(view.isHideFromNotes());
         view.setHideFromNotes(false);
-        Assertions.assertFalse(view.isHideFromNotes());
+        assertFalse(view.isHideFromNotes());
       }
       {
-        Assertions.assertFalse(view.isHideFromMobile());
+        assertFalse(view.isHideFromMobile());
         view.setHideFromMobile(true);
-        Assertions.assertTrue(view.isHideFromMobile());
+        assertTrue(view.isHideFromMobile());
         view.setHideFromMobile(false);
-        Assertions.assertFalse(view.isHideFromMobile());
+        assertFalse(view.isHideFromMobile());
       }
+    }
+  }
+  
+  @Test
+  public void testPages() {
+    DbDesign design = database.getDesign();
+    
+    List<Page> pages = design.getPages().collect(Collectors.toList());
+    assertEquals(2, pages.size());
+    assertTrue(pages.stream().anyMatch(p -> "Navigation Header".equals(p.getTitle())));
+    assertTrue(pages.stream().anyMatch(p -> "Test Page".equals(p.getTitle())));
+  }
+  
+  @Test
+  public void testTestPage() {
+    DbDesign design = database.getDesign();
+    
+    Page page = design.getPage("Test Page").get();
+    assertEquals("Test Page", page.getTitle());
+    
+    List<?> body = page.getBody();
+    assertTrue(
+      body.stream()
+        .filter(CDText.class::isInstance)
+        .map(CDText.class::cast)
+        .anyMatch(t -> "I am page content.".equals(t.getText()))
+    );
+    
+    assertFalse(page.isUseInitialFocus());
+    assertFalse(page.isFocusOnF6());
+    assertFalse(page.isRenderPassThroughHtmlInClient());
+    
+    Page.WebRenderingSettings web = page.getWebRenderingSettings();
+    assertTrue(web.isRenderRichContentOnWeb());
+    assertFalse(web.getWebMimeType().isPresent());
+    assertFalse(web.getWebCharset().isPresent());
+    assertColorEquals(web.getActiveLinkColor(), 255, 0, 0);
+    assertColorEquals(web.getUnvisitedLinkColor(), 33, 129, 255);
+    assertColorEquals(web.getVisitedLinkColor(), 128, 0, 128);
+    
+    ActionBar actions = page.getActionBar();
+    List<ActionBarAction> actionList = actions.getActions();
+    assertEquals(1, actionList.size());
+    {
+      ActionBarAction action = actionList.get(0);
+      assertEquals("fsdffd", action.getName());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(FormulaActionContent.class, content);
+      assertEquals("@StatusBar(\"hey\")", ((FormulaActionContent)content).getFormula());
     }
   }
 }

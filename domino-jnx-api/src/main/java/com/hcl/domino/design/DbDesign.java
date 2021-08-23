@@ -260,6 +260,23 @@ public interface DbDesign {
    */
   Stream<Form> getForms();
 
+
+  /**
+   * Retrieves the named page.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link Page},
+   *         or an empty {@code Optional} if no such element exists
+   */
+  Optional<Page> getPage(String name);
+
+  /**
+   * Retrieves all pages in the database.
+   *
+   * @return a {@link Stream} of {@link Page}s
+   */
+  Stream<Page> getPages();
+
   /**
    * Retrieves the named image resource.
    *

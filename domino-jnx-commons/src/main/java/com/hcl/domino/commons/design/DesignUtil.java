@@ -55,6 +55,7 @@ import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageResource;
+import com.hcl.domino.design.Page;
 import com.hcl.domino.design.ScriptLibrary;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.View;
@@ -185,6 +186,9 @@ public enum DesignUtil {
     DesignUtil.mappings.put(ImageResource.class,
         new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_IMAGE_RESOURCE,
             ImageResourceImpl::new));
+    DesignUtil.mappings.put(Page.class,
+        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_WEBPAGE, PageImpl::new)
+    );
   }
 
   /**
