@@ -39,6 +39,8 @@ public interface CDImageHeader extends RichTextRecord {
   }
 )
 public interface FontStyle extends MemoryStructure {
+  // ...
+}
 ```
 
 
@@ -46,11 +48,11 @@ public interface FontStyle extends MemoryStructure {
 Implementation notes:
 
 - The order of the `@StructureMember` definitions must match exactly the order within the structure and must cover all data in order to get accurate offsets and data size
-- `type` can be a numeric type, an enumeration that implements `INumberEnum`, or another `MemoryStructure` interface
+- `type` can be a numeric primitive type, an enumeration that implements `INumberEnum`, or another `MemoryStructure` interface
 - When `unsinged` is `true`, the specified type should be the Java primitive that matches the physical size of the struct member. For example, a value that is represented as a non-bitfield `WORD` would be denoted here as `type=short.class, unsigned=true`. Accessor methods, though, should use the "upgraded" type, as described below
-- The `name` value for both `@StructureDefinition` is currently only for developer reference
-- Bitfield/flags-tyle fields can be denoted with `bitfield=true`, and can then be accessed in getters with `Set<EnumClass>` and setters with `Collection<EnumClass>` and subclasses
+- The `name` value for both `@StructureDefinition` is currently only for developer reference, but must nonetheless be unique
 - Array components can have their size expressed via the `length` property of `@StructureMember` and should have their `type` be the array form of their numeric or structure type, such as `short[].class` and `FontStyle[].class`
+    - There are cases in the Notes API where there will fields marked as single-element arrays, like `WORD[1]`. In this case, it's just a bit less hassle to represent them as scalars and not arrays. They're also usually unused/reserved values, so the distinction doesn't programmatically matter
 - The proxy implementation class, `MemoryStructureProxy`, has special support for `DominoDateTime` values in getters and setters when the member type is `OpaqueTimeDate`
 
 For defining the structures, some common Notes types correspond in size to:
@@ -80,11 +82,13 @@ public interface FontStyle extends MemoryStructure {
 }
 ```
 
-Accessor methods for numeric values that are unsigned in C should use a primitive type one level "upgraded" in Java. For example, if the member is defined as `type=short.class, unsigned=true`, then the getter and setter methods should use `int`. This doesn't apply when the underlying member is a "bitfield" or "type" member and not treated as an actual number.
+Accessor methods for numeric values that are unsigned in C should use a primitive type one level "upgraded" in Java. For example, if the member is defined as `type=short.class, unsigned=true`, then the getter and setter methods should use `int`. This doesn't apply when the underlying member is a "bitfield" or enumerated value and not treated as an actual number.
 
-Setters can either return the object itself or be declared as `void`. Multiple methods can reference the same struct member, as needed.
+Multiple methods can reference the same struct member, as needed.
 
-Struct setters can also use `INumberEnum` values are parameters are return values when the struct members are declared as a compatible primitive type. For example:
+Setters must return the object itself.
+
+Struct setters can also use `INumberEnum` values as parameters when the struct members are declared as a compatible primitive type. For example:
 
 ```java
 @StructureDefinition(
@@ -108,7 +112,7 @@ Embedded structure members (such as `COLOR_VALUE`/`ColorValue`) should not have 
 
 #### Optionals
 
-Getters for `INumberEnum` types can return an `Optional` of that type, to handle cases where the underlying value doesn't line up with any of the known values. This can be useful in general, but is particularly useful when none of the enum values are `0`: this allows for the getter method toi avoid an exception when called with uninitialized data.
+Getters for `INumberEnum` types can return an `Optional` of that type, to handle cases where the underlying value doesn't line up with any of the known values. This can be useful in general, but is particularly useful when none of the enum values are `0`: this allows for the getter method to avoid an exception when called with uninitialized data.
 
 #### Bitfield Flags
 
@@ -221,10 +225,12 @@ public interface CDText extends RichTextRecord {
     int len = buf.remaining();
     byte[] lmbcs = new byte[len];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS-native")); //$NON-NLS-1$
+    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
   }
 }
 ```
+
+(Note: this specific case is now better done with `StructureSupport`, but other cases require specialized processing of this sort)
 
 This example also demonstrates the use of the LMBCS charset provider, which allows for implementation-neutral handling of LMBCS text.
 
@@ -250,7 +256,7 @@ Note that it is important to set any secondary length values in the structure to
 
 ## Implementation
 
-The implementation is based around the `MemoryStructureProxy` class, which uses Java's `java.lang.reflect.Proxy` capability to create objects with dynamic implementations of the methods defined in structure interfaces.
+The implementation is based around the `MemoryStructureProxy` class, which uses Java's `java.lang.reflect.Proxy` capability to create objects with dynamic implementations of the methods defined in structure interfaces. The `MemoryStructureUtil` class contains static methods supporting proxy implementations and allowing for creating new ones.
 
 The `forStructure(Class<I extends MemoryStructure> subtype, MemoryStructure structure)` static method creates a proxy instance to wrap the provided structure implementation, which will generally be either a lambda returning a `ByteBuffer` (for simple implementations) or an instance of `AbstractCDRecord`.
 
