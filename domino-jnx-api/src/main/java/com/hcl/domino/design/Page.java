@@ -10,7 +10,7 @@ import com.hcl.domino.richtext.structures.ColorValue;
  * @author Jesse Gallagher
  * @since 1.0.34
  */
-public interface Page extends GenericPageElement<Page>, DesignElement.ThemeableClassicElement, DesignElement.AutoFrameElement {
+public interface Page extends GenericPageElement.ScriptablePageElement<Page>, DesignElement.ThemeableClassicElement, DesignElement.AutoFrameElement {
   /**
    * Represents settings related to the rendering of the page when rendered
    * using the classic web renderer.

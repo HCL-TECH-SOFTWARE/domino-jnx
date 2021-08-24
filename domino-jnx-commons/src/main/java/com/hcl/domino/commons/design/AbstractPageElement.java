@@ -17,7 +17,7 @@ import com.hcl.domino.richtext.records.CDDocument;
 import com.hcl.domino.richtext.records.RecordType.Area;
 
 public abstract class AbstractPageElement<T extends GenericPageElement<T>> extends AbstractNamedDesignElement<T>
-  implements GenericPageElement<T>, IDefaultActionBarElement {
+  implements GenericPageElement.ScriptablePageElement<T>, IDefaultActionBarElement {
 
   public AbstractPageElement(Document doc) {
     super(doc);
@@ -41,6 +41,15 @@ public abstract class AbstractPageElement<T extends GenericPageElement<T>> exten
   @Override
   public Collection<ScriptEvent> getJavaScriptEvents() {
     return RichTextUtil.readJavaScriptEvents(getHtmlCodeItem());
+  }
+  
+  @Override
+  public String getLotusScript() {
+    StringBuilder result = new StringBuilder();
+    getDocument().forEachItem(NotesConstants.FORM_SCRIPT_ITEM_NAME, (item, loop) -> {
+      result.append(item.get(String.class, "")); //$NON-NLS-1$
+    });
+    return result.toString();
   }
 
   // *******************************************************************************

@@ -11,7 +11,32 @@ import com.hcl.domino.design.action.ScriptEvent;
  * @author Jesse Gallagher
  * @since 1.0.34
  */
-public interface GenericPageElement<T extends GenericPageElement<T>> extends DesignElement.NamedDesignElement, DesignElement.ActionBarElement {
+public interface GenericPageElement<T extends GenericPageElement<T>> extends DesignElement.NamedDesignElement {
+  /**
+   * This specialization of {@link GenericPageElement} represents elements
+   * that can have action bar entries and page scripts.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.34
+   */
+  interface ScriptablePageElement<T extends GenericPageElement<T>> extends GenericPageElement<T>, DesignElement.ActionBarElement {
+    /**
+     * Retrieves a collection of the JavaScript events associated with the form or page.
+     *  
+     * @return a {@link Collection} of {@link ScriptEvent} instances
+     * @since 1.0.34
+     */
+    Collection<ScriptEvent> getJavaScriptEvents();
+    
+    /**
+     * Retrieves the element-global LotusScript associated with the form or page.
+     * 
+     * @return a {@link String} representing the IDE-formatted LotusScript for the element
+     * @since 1.0.34
+     */
+    String getLotusScript();
+  }
+  
   /**
    * Retrieves the body of the form or subform as a list of rich-text entities.
    * 
@@ -29,12 +54,4 @@ public interface GenericPageElement<T extends GenericPageElement<T>> extends Des
    * @since 1.0.33
    */
   boolean isRenderPassThroughHtmlInClient();
-  
-  /**
-   * Retrieves a collection of the JavaScript events associated with the form or page.
-   *  
-   * @return a {@link Collection} of {@link ScriptEvent} instances
-   * @since 1.0.34
-   */
-  Collection<ScriptEvent> getJavaScriptEvents();
 }

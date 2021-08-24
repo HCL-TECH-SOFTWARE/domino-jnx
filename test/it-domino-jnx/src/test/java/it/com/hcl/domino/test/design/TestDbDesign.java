@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.OffsetDateTime;
@@ -531,7 +532,7 @@ public class TestDbDesign extends AbstractDesignTest {
   }
   
   @Test
-  public void testTestPage() {
+  public void testTestPage() throws IOException {
     DbDesign design = database.getDesign();
     
     Page page = design.getPage("Test Page").get();
@@ -596,5 +597,8 @@ public class TestDbDesign extends AbstractDesignTest {
       events.stream()
         .anyMatch(evt -> "alert(\"I am on dbl click\")\n".equals(evt.getScript()))
     );
+    
+    String lsExpected = IOUtils.resourceToString("/text/testDbDesign/testPageLs.txt", StandardCharsets.UTF_8);
+    assertEquals(lsExpected, page.getLotusScript());
   }
 }

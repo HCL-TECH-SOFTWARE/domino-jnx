@@ -25,7 +25,7 @@ import com.hcl.domino.richtext.FormField;
  * 
  * @param <T> the more-specific interface
  */
-public interface GenericFormOrSubform<T extends GenericFormOrSubform<T>> extends GenericPageElement<T> {
+public interface GenericFormOrSubform<T extends GenericFormOrSubform<T>> extends GenericPageElement.ScriptablePageElement<T> {
 
   T addField();
 
