@@ -379,6 +379,24 @@ public interface DbDesign {
   Optional<UsingDocument> getUsingDocument();
 
   /**
+   * Retrieves the named shared field.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link SharedField}, or an empty one if
+   *         no such view exists
+   * @since 1.0.34
+   */
+  Optional<SharedField> getSharedField(String name);
+
+  /**
+   * Retrieves all shared fields in the database
+   *
+   * @return a {@link Stream} of {@link SharedField}s
+   * @since 1.0.34
+   */
+  Stream<SharedField> getSharedFields();
+
+  /**
    * Queries all design elements in the database by the provided formula and
    * restricted
    * to the provided type.

@@ -25,12 +25,7 @@ public abstract class AbstractPageElement<T extends GenericPageElement<T>> exten
   
   @Override
   public List<?> getBody() {
-    Document doc = getDocument();
-    if(doc.hasItem(NotesConstants.ITEM_NAME_TEMPLATE)) {
-      return doc.getRichTextItem(NotesConstants.ITEM_NAME_TEMPLATE);
-    } else {
-      return Collections.emptyList();
-    }
+    return DesignUtil.encapsulateRichTextBody(getDocument(), NotesConstants.ITEM_NAME_TEMPLATE);
   }
 
   @Override

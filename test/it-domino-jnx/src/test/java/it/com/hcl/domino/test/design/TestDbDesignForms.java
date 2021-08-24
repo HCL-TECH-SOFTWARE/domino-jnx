@@ -28,9 +28,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -99,7 +101,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignForms extends AbstractDesignTest {
-  public static final int EXPECTED_IMPORT_FORMS = 6;
+  public static final int EXPECTED_IMPORT_FORMS = 7;
   public static final int EXPECTED_IMPORT_SUBFORMS = 2;
 
   private static String dbPath;
@@ -882,6 +884,17 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertTrue(subform.isIncludeInNewFormDialog());
     assertFalse(subform.isRenderPassThroughHtmlInClient());
     assertFalse(subform.isIncludeFieldsInIndex());
+  }
+
+  @Test
+  public void testInherForm() throws IOException {
+    DbDesign design = this.database.getDesign();
+    Form form = design.getForm("Test Inher").get();
+    
+    Map<String, String> ls = form.getFieldLotusScript();
+    assertEquals(Collections.singleton("SomeField"), ls.keySet());
+    String expected = IOUtils.resourceToString("/text/testDbDesignForms/inherSomeField.txt", StandardCharsets.UTF_8);
+    assertEquals(expected, ls.get("SomeField"));
   }
   
   @ParameterizedTest

@@ -377,4 +377,6 @@ public interface DesignConstants {
   String HFFLAGS_NOPRINTONFIRSTPAGE = "1"; //$NON-NLS-1$
   /** header/footer is RTL */
   String HFFLAGS_DIRECTION_RTL = "R"; //$NON-NLS-1$
+  
+  String ITEM_NAME_FIELDS = "$Fields";
 }

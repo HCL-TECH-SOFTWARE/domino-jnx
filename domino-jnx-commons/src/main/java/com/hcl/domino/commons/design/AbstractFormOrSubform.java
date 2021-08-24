@@ -21,11 +21,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.GenericFormOrSubform;
 import com.hcl.domino.design.SubformReference;
 import com.hcl.domino.misc.NotesConstants;
@@ -181,6 +184,23 @@ public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> e
   @Override
   public boolean isIncludeFieldsInIndex() {
     return !getDocumentFlags3().contains(CDDocument.Flag3.NOADDFIELDNAMESTOINDEX);
+  }
+  
+  @Override
+  public Map<String, String> getFieldLotusScript() {
+    Document doc = getDocument();
+    return doc.getAsList(DesignConstants.ITEM_NAME_FIELDS, String.class, Collections.emptyList())
+      .stream()
+      .collect(Collectors.toMap(
+        Function.identity(),
+        itemName -> {
+          StringBuilder r = new StringBuilder();
+          getDocument().forEachItem("$$" + itemName, (item, loop) -> { //$NON-NLS-1$
+            r.append(item.get(String.class, "")); //$NON-NLS-1$
+          });
+          return r.toString();
+        }
+      ));
   }
 
   // *******************************************************************************

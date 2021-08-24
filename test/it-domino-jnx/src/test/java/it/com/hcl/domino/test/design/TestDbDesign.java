@@ -54,6 +54,7 @@ import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.design.Page;
+import com.hcl.domino.design.SharedField;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.SubformReference;
 import com.hcl.domino.design.UsingDocument;
@@ -67,6 +68,7 @@ import com.hcl.domino.design.format.FieldListDisplayDelimiter;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.FormField;
 import com.hcl.domino.richtext.process.GetImageResourceSizeProcessor;
+import com.hcl.domino.richtext.records.CDField;
 import com.hcl.domino.richtext.records.CDText;
 import com.ibm.commons.util.io.StreamUtil;
 
@@ -628,6 +630,33 @@ public class TestDbDesign extends AbstractDesignTest {
         .filter(CDText.class::isInstance)
         .map(CDText.class::cast)
         .anyMatch(text -> "I'm using".equals(text.getText()))
+    );
+  }
+  
+  @Test
+  public void testSharedFields() {
+    DbDesign design = database.getDesign();
+    
+    List<SharedField> fields = design.getSharedFields().collect(Collectors.toList());
+    assertEquals(2, fields.size());
+    assertTrue(fields.stream().anyMatch(field -> "testfield".equals(field.getTitle())));
+    assertTrue(fields.stream().anyMatch(field -> "testfield2".equals(field.getTitle())));
+  }
+  
+  @Test
+  public void testSharedField2() throws IOException {
+    DbDesign design = database.getDesign();
+    
+    SharedField field = design.getSharedField("testfield2").get();
+    String expected = IOUtils.resourceToString("/text/testDbDesign/testfield2ls.txt", StandardCharsets.UTF_8).replace('\r', '\n');
+    assertEquals(expected, field.getLotusScript().replace('\r', '\n'));
+    
+    assertTrue(
+      field.getFieldBody()
+        .stream()
+        .filter(CDField.class::isInstance)
+        .map(CDField.class::cast)
+        .anyMatch(f -> "@If(@False; @Success; @Failure(\"nooo\"))".equals(f.getInputValidationFormula()))
     );
   }
 }

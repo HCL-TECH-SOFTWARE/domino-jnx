@@ -46,6 +46,7 @@ import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.design.ScriptLibrary;
+import com.hcl.domino.design.SharedField;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
@@ -337,6 +338,25 @@ public abstract class AbstractDbDesign implements DbDesign {
     } catch(SpecialObjectCannotBeLocatedException e) {
       return Optional.empty();
     }
+  }
+
+  @Override
+  public Optional<SharedField> getSharedField(final String name) {
+    // NB: it appears that looking up shared fields using NIFFindDesignNoteExt is unreliable in practice,
+    //     so query from the design collction here
+    DesignMapping<SharedField, ?> mapping = DesignUtil.getDesignMapping(SharedField.class);
+    return this.findDesignNotes(mapping.getNoteClass(), mapping.getFlagsPattern())
+      .filter(entry -> DesignUtil.matchesTitleValues(name, entry.getTitles()))
+      .map(entry -> this.database.getDocumentById(entry.noteId))
+      .findFirst()
+      .map(Optional::get)
+      .map(mapping.getConstructor()::apply)
+      .map(SharedField.class::cast);
+  }
+
+  @Override
+  public Stream<SharedField> getSharedFields() {
+    return this.getDesignElements(SharedField.class);
   }
 
   @SuppressWarnings("unchecked")

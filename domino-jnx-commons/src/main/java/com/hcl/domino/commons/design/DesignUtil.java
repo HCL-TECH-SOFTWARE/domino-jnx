@@ -58,6 +58,7 @@ import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.design.ScriptLibrary;
+import com.hcl.domino.design.SharedField;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
@@ -193,6 +194,7 @@ public enum DesignUtil {
     );
     DesignUtil.mappings.put(AboutDocument.class, new DesignMapping<>(DocumentClass.INFO, "", AboutDocumentImpl::new)); //$NON-NLS-1$
     DesignUtil.mappings.put(UsingDocument.class, new DesignMapping<>(DocumentClass.HELP_INDEX, "", UsingDocumentImpl::new)); //$NON-NLS-1$
+    DesignUtil.mappings.put(SharedField.class, new DesignMapping<>(DocumentClass.FIELD, "", SharedFieldImpl::new)); //$NON-NLS-1$
   }
 
   /**
@@ -216,7 +218,7 @@ public enum DesignUtil {
       case ACL:
         throw new NotYetImplementedException();
       case FIELD:
-        throw new NotYetImplementedException();
+        return new SharedFieldImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
       case FILTER:
         return new AgentImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
       case FORM:
@@ -425,8 +427,7 @@ public enum DesignUtil {
 
   /**
    * Converts the provided $TITLE values - which may be multi-value or
-   * pipe-separated -
-   * info a standardized list of titles and aliases.
+   * pipe-separated - info a standardized list of titles and aliases.
    * 
    * @param values the item or entry values to standardize
    * @return a {@link List} of title and alias values
@@ -543,5 +544,19 @@ public enum DesignUtil {
       })
       .filter(Objects::nonNull)
       .collect(Collectors.toList());
+  }
+  
+  /**
+   * Processes a rich-text item on the provided document to encapsulate it into a
+   * stream of higher-level representations when possible, mixed with direct
+   * rich-text records when un-handled.
+   * 
+   * @param doc the document containing the rich text
+   * @param itemName the item name to process
+   * @return a {@link List} of encapsulated objects and/or {@link RichTextRecord}s
+   * @since 1.0.34
+   */
+  public static List<?> encapsulateRichTextBody(Document doc, String itemName) {
+    return doc.getRichTextItem(itemName);
   }
 }

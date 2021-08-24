@@ -17,6 +17,7 @@
 package com.hcl.domino.design;
 
 import java.util.List;
+import java.util.Map;
 
 import com.hcl.domino.richtext.FormField;
 
@@ -47,4 +48,12 @@ public interface GenericFormOrSubform<T extends GenericFormOrSubform<T>> extends
    * @since 1.0.33
    */
   boolean isIncludeFieldsInIndex();
+  
+  /**
+   * Retrieves the LotusScript code associated with each field on the form.
+   * 
+   * @return a {@link Map} of field names to IDE-format LotusScript blocks
+   * @since 1.0.34
+   */
+  Map<String, String> getFieldLotusScript();
 }
