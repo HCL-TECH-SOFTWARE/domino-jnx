@@ -1,7 +1,16 @@
-<?xml version='1.0'?>
-<helpusingdocument xmlns='http://www.lotus.com/dxl' version='12.0'
- publicaccess='false' designerversion='8.5.3' default='true' renderpassthrough='true'>
-<body><richtext>
-<pardef id='1'/>
-<par def='1'>I'm using</par></richtext></body></helpusingdocument>
-
+<?xml version='1.0' encoding='utf-8'?>
+<note default='true' class='helpusingdocument' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$HTMLCode' sign='true'>
+<rawitemdata type='1'>
+</rawitemdata></item>
+<item name='$Info' sign='true'>
+<rawitemdata type='1'>
+hhgBAIAAAAAAgAAAAQABAP///wAQAAAA
+</rawitemdata></item>
+<item name='$Flags'><text/></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$Body' sign='true'>
+<rawitemdata type='1'>
+gQKC/1oAAQAAAAAAAAAAAKAFAACgBQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAABAAAAAJSHAAAAAAAAAAAAAAAAAQAAAAQAAACDBAEAhf8RAAEAAApJJ20gdXNpbmcA
+</rawitemdata></item></note>

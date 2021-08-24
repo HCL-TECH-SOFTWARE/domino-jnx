@@ -359,6 +359,24 @@ public interface DbDesign {
    * @since 1.0.27
    */
   Stream<View> getViews();
+  
+  /**
+   * Retrieves the "About Application" document for the database, if it exists.
+   * 
+   * @return an {@link Optional} describing the {@link AboutDocument} for the database,
+   *         or an empty one if none has been created
+   * @since 1.0.34
+   */
+  Optional<AboutDocument> getAboutDocument();
+  
+  /**
+   * Retrieves the "Using" document for the database, if it exists.
+   * 
+   * @return an {@link Optional} describing the {@link UsingDocument} for the database,
+   *         or an empty one if none has been created
+   * @since 1.0.34
+   */
+  Optional<UsingDocument> getUsingDocument();
 
   /**
    * Queries all design elements in the database by the provided formula and

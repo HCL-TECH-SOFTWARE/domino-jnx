@@ -44,6 +44,7 @@ import org.junit.jupiter.api.Test;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.design.AboutDocument;
 import com.hcl.domino.design.ActionBar;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DbDesign;
@@ -55,6 +56,7 @@ import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.SubformReference;
+import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionContent;
@@ -599,5 +601,33 @@ public class TestDbDesign extends AbstractDesignTest {
     
     String lsExpected = IOUtils.resourceToString("/text/testDbDesign/testPageLs.txt", StandardCharsets.UTF_8);
     assertEquals(lsExpected, page.getLotusScript());
+  }
+  
+  @Test
+  public void testAboutDocument() {
+    DbDesign design = database.getDesign();
+    
+    AboutDocument about = design.getAboutDocument().get();
+    assertTrue(
+      about.getBody()
+        .stream()
+        .filter(CDText.class::isInstance)
+        .map(CDText.class::cast)
+        .anyMatch(text -> "I'm about".equals(text.getText()))
+    );
+  }
+  
+  @Test
+  public void testUsingDocument() {
+    DbDesign design = database.getDesign();
+    
+    UsingDocument using = design.getUsingDocument().get();
+    assertTrue(
+      using.getBody()
+        .stream()
+        .filter(CDText.class::isInstance)
+        .map(CDText.class::cast)
+        .anyMatch(text -> "I'm using".equals(text.getText()))
+    );
   }
 }
