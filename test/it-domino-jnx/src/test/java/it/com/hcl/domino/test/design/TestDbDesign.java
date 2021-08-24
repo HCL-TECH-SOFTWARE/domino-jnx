@@ -62,7 +62,6 @@ import com.hcl.domino.design.action.FormulaActionContent;
 import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.design.format.FieldListDelimiter;
 import com.hcl.domino.design.format.FieldListDisplayDelimiter;
-import com.hcl.domino.design.format.HtmlEventId;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.FormField;
 import com.hcl.domino.richtext.process.GetImageResourceSizeProcessor;
