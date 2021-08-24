@@ -58,8 +58,10 @@ import com.hcl.domino.design.View;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionContent;
 import com.hcl.domino.design.action.FormulaActionContent;
+import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.design.format.FieldListDelimiter;
 import com.hcl.domino.design.format.FieldListDisplayDelimiter;
+import com.hcl.domino.design.format.HtmlEventId;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.FormField;
 import com.hcl.domino.richtext.process.GetImageResourceSizeProcessor;
@@ -566,5 +568,33 @@ public class TestDbDesign extends AbstractDesignTest {
       assertInstanceOf(FormulaActionContent.class, content);
       assertEquals("@StatusBar(\"hey\")", ((FormulaActionContent)content).getFormula());
     }
+    
+    Collection<ScriptEvent> events = page.getJavaScriptEvents();
+    assertEquals(5, events.size());
+    
+    assertTrue(
+      events.stream()
+        .filter(evt -> evt.isClient())
+        .anyMatch(evt -> "/* I am the Notes JS header */\n".equals(evt.getScript()))
+    );
+    assertTrue(
+      events.stream()
+        .filter(evt -> !evt.isClient())
+        .anyMatch(evt -> "/* I am the web JS header */\n".equals(evt.getScript()))
+    );
+    assertTrue(
+      events.stream()
+        .filter(evt -> evt.isClient())
+        .anyMatch(evt -> "/* I'm in-common help */\n".equals(evt.getScript()))
+    );
+    assertTrue(
+      events.stream()
+        .filter(evt -> !evt.isClient())
+        .anyMatch(evt -> "/* I'm in-common help */\n".equals(evt.getScript()))
+    );
+    assertTrue(
+      events.stream()
+        .anyMatch(evt -> "alert(\"I am on dbl click\")\n".equals(evt.getScript()))
+    );
   }
 }

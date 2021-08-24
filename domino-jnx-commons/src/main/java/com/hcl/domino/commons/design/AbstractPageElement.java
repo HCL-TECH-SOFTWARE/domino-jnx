@@ -1,13 +1,16 @@
 package com.hcl.domino.commons.design;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.GenericPageElement;
+import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextRecordList;
 import com.hcl.domino.richtext.records.CDDocument;
@@ -33,6 +36,11 @@ public abstract class AbstractPageElement<T extends GenericPageElement<T>> exten
   @Override
   public boolean isRenderPassThroughHtmlInClient() {
     return getDocumentFlags3().contains(CDDocument.Flag3.RENDERPASSTHROUGH);
+  }
+  
+  @Override
+  public Collection<ScriptEvent> getJavaScriptEvents() {
+    return RichTextUtil.readJavaScriptEvents(getHtmlCodeItem());
   }
 
   // *******************************************************************************

@@ -29,16 +29,19 @@ import java.util.List;
 import java.util.function.Function;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.design.action.DefaultJavaScriptEvent;
 import com.hcl.domino.commons.richtext.records.AbstractCDRecord;
 import com.hcl.domino.commons.richtext.records.GenericBSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericLSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericWSIGRecord;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
+import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.design.format.HtmlEventId;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.CDBlobPart;
 import com.hcl.domino.richtext.records.CDEvent;
+import com.hcl.domino.richtext.records.CDEventEntry;
 import com.hcl.domino.richtext.records.CDGraphic;
 import com.hcl.domino.richtext.records.CDImageHeader;
 import com.hcl.domino.richtext.records.CDImageHeader2;
@@ -339,5 +342,51 @@ public enum RichTextUtil {
     }
     
     return result;
+  }
+  
+  /**
+   * Processes the provided CD record stream and reads JavaScript events into objects.
+   * 
+   * @param records a {@link List} of {@link RichTextRecord}s to process
+   * @return a {@link List} of encapsulated {@link ScriptEvent}s
+   * @since 1.0.34
+   */
+  public static List<ScriptEvent> readJavaScriptEvents(List<RichTextRecord<?>> records) {
+    List<ScriptEvent> events = new ArrayList<>();
+    // This is formatted as a series of CDEVENT records followed by CDBLOBPARTs
+    // Client ones are distinguished by using SIG_CD_CLIENT_EVENT and SIG_CD_CLIENT_BLOBPART
+    HtmlEventId currentEvent = null;
+    boolean currentClient = false;
+    StringBuilder currentScript = new StringBuilder();
+    long currentLength = 0;
+    for(RichTextRecord<?> record : records) {
+      if(record instanceof CDEvent) {
+        // Start of a new event - flush any existing value and start a new one
+        if(currentEvent != null) {
+          events.add(new DefaultJavaScriptEvent(currentEvent, currentClient, currentScript.toString()));
+          currentScript.setLength(0);
+          currentLength = 0;
+        }
+        
+        currentEvent = ((CDEvent)record).getEventType();
+        currentClient = ((CDEvent)record).getHeader().getSignature() == RichTextConstants.SIG_CD_CLIENT_EVENT;
+        currentLength = ((CDEvent)record).getActionLength();
+      }
+      if(record instanceof CDBlobPart) {
+        // The length stored here may be longer than the actual action length if it's to fit a WORD boundary
+        long byteCount = Math.min(((CDBlobPart)record).getLength(), currentLength);
+        byte[] data = ((CDBlobPart)record).getBlobPartData();
+        currentScript.append(new String(data, 0, (int)byteCount, Charset.forName("LMBCS"))); //$NON-NLS-1$
+        currentLength -= byteCount;
+      }
+      if(record instanceof CDEventEntry) {
+        // These are present for each permutation, but have unclear use when the above handles it all
+      }
+    }
+    // Finish any laggards
+    if(currentEvent != null) {
+      events.add(new DefaultJavaScriptEvent(currentEvent, currentClient, currentScript.toString()));
+    }
+    return events;
   }
 }

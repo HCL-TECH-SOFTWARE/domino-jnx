@@ -1,49 +1,5 @@
 <?xml version='1.0' encoding='utf-8'?>
-<subform name='Footer' xmlns='http://www.lotus.com/dxl' version='12.0'
- designerversion='8.5.2' renderpassthrough='true'>
-<globals><code event='options'><lotusscript>Option Public
-</lotusscript></code></globals><code event='querysave'><formula>FIELD ModifiedBy := @UserName;
-FIELD DateModified := @Today;
-""</formula></code>
-<body><richtext>
-<pardef id='1'/>
-<par def='1'/>
-<pardef id='2' align='right'/>
-<par def='2'><horizrule height='0.0201in' width='100%' use3dshading='false'
- color='silver'/><run><font size='8pt' color='gray'/>Composed by </run><run
-><font size='8pt' color='gray'/><field showdelimiters='false' lookupeachchar='false'
- lookupaddressonrefresh='false' type='names' kind='computedwhencomposed' name='CreatedBy'><code
- event='defaultvalue'><formula>@UserName</formula></code></field></run><run
-><font size='8pt' color='gray'/> on </run><run><font size='8pt' color='gray'/><field
- type='datetime' kind='computed' name='DateComposed'><datetimeformat show='date'
- date='yearmonthday' fourdigityearfor21stcentury='true' zone='never' dateformat='weekdaymonthdayyear'
- dayformat='twodigitday' monthformat='twodigitmonth' yearformat='fourdigityear'
- weekdayformat='shortname' dateseparator1=' ' dateseparator2='/' dateseparator3='/'
- timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
->@Date(@Created)</formula></code></field></run><run><font size='8pt' color='gray'/></run></par>
-<pardef id='3' align='right' hide='notes web mobile'/>
-<par def='3'><run><font size='8pt' color='gray'/></run><run><font size='8pt'
- color='gray'/><field type='names' kind='editable' name='ModifiedBy'><code
- event='defaultvalue'><formula>@UserName</formula></code></field></run><run
-><font color='gray'/></run><run><font size='8pt' color='gray'/><field type='datetime'
- kind='editable' name='DateModified'><datetimeformat show='date' date='yearmonthday'
- fourdigityearfor21stcentury='true' zone='never' dateformat='weekdaymonthdayyear'
- dayformat='twodigitday' monthformat='twodigitmonth' yearformat='fourdigityear'
- weekdayformat='shortname' dateseparator1=' ' dateseparator2='/' dateseparator3='/'
- timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
->@Today</formula></code></field></run></par>
-<pardef id='4' align='right'><code event='hidewhen'><formula>@IsNewDoc</formula></code></pardef>
-<par def='4'><run><font size='8pt' color='gray'/>Last modified by </run><run
-><font size='8pt' color='gray'/><field showdelimiters='false' lookupeachchar='false'
- lookupaddressonrefresh='false' type='names' kind='computedfordisplay' name='ModifiedByDisplay'><code
- event='defaultvalue'><formula>ModifiedBy</formula></code></field></run><run
-><font size='8pt' color='gray'/> on </run><run><font size='8pt' color='gray'/><field
- type='datetime' kind='computedfordisplay' name='DateModifiedDisplay'><datetimeformat
- show='date' date='yearmonthday' fourdigityearfor21stcentury='true' zone='never'
- dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
- yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
- dateseparator3='/' timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
->@Date(DateModified)</formula></code></field></run><run><font color='gray'/></run></par></richtext></body>
+<note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
 <item name='OriginalModTime'><datetime dst='true'>20060710T091955,51-04</datetime></item>
 <item name='DateComposed_1' summary='false'>
 <rawitemdata type='400'>
@@ -53,5 +9,102 @@ AAAAAAAAAAA=
 <rawitemdata type='400'>
 AAAAAAAAAAA=
 </rawitemdata></item>
-<item name='$$ScriptName' summary='false' sign='true'><text>Footer</text></item></subform>
+<item name='$HTMLCode' sign='true'>
+<rawitemdata type='1'>
++f8gAAAAAAAUAAQAFwAAAAAAAAAAAAAAAAAAAAAAAADc/yoA+f8YACBOAAAAAAAAAAAvKiBJJ20g
+c3ViZm9ybSBoZWxwICovAABf/xAAAQDQAAAAAAAAAAAAX/8QAAIADwAHAAAAAAAAAF//EAACABQA
+BwAAAAAAAAA=
+</rawitemdata></item>
+<item name='$TITLE'><text>Footer</text></item>
+<item name='$Info' sign='true'>
+<rawitemdata type='1'>
+hhgBAIAAAAAAgAAAAQABAP///wAQAAAA
+</rawitemdata></item>
+<item name='$Flags'><text>CUAx3</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$Script' summary='false' sign='true'><text>'++LotusScript Development Environment:2:5:(Options):0:74
+Option Public
+'++LotusScript Development Environment:2:5:(Forward):0:1
 
+'++LotusScript Development Environment:2:5:(Declarations):0:2
+
+<break/></text></item>
+<item name='$$Script_O' sign='true'>
+<rawitemdata type='14'>
+AQAAAkxTT0IDABQIZW4AAAQAAAADAAAAAAAEAIgAAAAAAAAAAAAAAAAAAAAkAP//GAA4AP////8A
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAEABQBMb3R1cyBQcm9kdWN0AAAAVjAuMAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAwAAAAAAAAAEAAAAiAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAA
+AAMAAABXMzJJJAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAwCMAAAAAABUAAkAKgAxADYAMgAxADAAOAAxADgAAABsAAMATgBFAFcAAACAAAYARABFAEwA
+RQBUAEUAAAAAAP//CgBJAE4ASQBUAEkAQQBMAEkAWgBFAAAAAAD//wkAVABFAFIATQBJAE4AQQBU
+AEUAAAD//wYATwBCAEoARQBDAFQAAAAAAP//AAAAAAAABQAIAAAAAABtwokdBAAHAAAAAAAdAAAC
+AAAAEQAQAAAAAAD//wEAAwADAAAABQAKAAAA
+</rawitemdata></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>Footer</text></item>
+<item name='$$FormAction6' sign='true'><formula>FIELD ModifiedBy := @UserName;
+FIELD DateModified := @Today;
+""</formula></item>
+<item name='CreatedBy' placeholder='true'>
+<rawitemdata type='0'>
+</rawitemdata></item>
+<item name='DateComposed' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='ModifiedBy' placeholder='true'>
+<rawitemdata type='0'>
+</rawitemdata></item>
+<item name='DateModified' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='$Fields'><textlist><text>DateModified</text><text>ModifiedBy</text><text
+>DateComposed</text><text>CreatedBy</text></textlist></item>
+<item name='$Body' sign='true'>
+<rawitemdata type='1'>
+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
+</rawitemdata></item>
+<item name='$V5ACTIONS' sign='true'>
+<rawitemdata type='1'>
+vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
+AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAC+/0oAAAABAAAAnwEAAA0AAAAAAAAARm9vdGVyIEFjdGlv
+bgAmAAoABAAAABQAAQAGAGhlbGxvLvsBSQEDAAcADAAFAAkwUzBFAA==
+</rawitemdata></item>
+<item name='$PublicAccess'><text>1</text></item></note>

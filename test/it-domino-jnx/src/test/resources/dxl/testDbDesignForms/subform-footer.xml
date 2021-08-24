@@ -1,4 +1,4 @@
-<?xml version='1.0'?>
+<?xml version='1.0' encoding='utf-8'?>
 <note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
 <item name='OriginalModTime'><datetime dst='true'>20060710T091955,51-04</datetime></item>
 <item name='DateComposed_1' summary='false'>
@@ -11,7 +11,9 @@ AAAAAAAAAAA=
 </rawitemdata></item>
 <item name='$HTMLCode' sign='true'>
 <rawitemdata type='1'>
-X/8QAAEA0AAAAAAAAAAAAF//EAACAA8ABwAAAAAAAAA=
++f8gAAAAAAAUAAQAFwAAAAAAAAAAAAAAAAAAAAAAAADc/yoA+f8YACBOAAAAAAAAAAAvKiBJJ20g
+c3ViZm9ybSBoZWxwICovAABf/xAAAQDQAAAAAAAAAAAAX/8QAAIADwAHAAAAAAAAAF//EAACABQA
+BwAAAAAAAAA=
 </rawitemdata></item>
 <item name='$TITLE'><text>Footer</text></item>
 <item name='$Info' sign='true'>

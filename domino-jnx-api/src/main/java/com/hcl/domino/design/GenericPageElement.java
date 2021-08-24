@@ -1,6 +1,9 @@
 package com.hcl.domino.design;
 
+import java.util.Collection;
 import java.util.List;
+
+import com.hcl.domino.design.action.ScriptEvent;
 
 /**
  * Represents properties common between Forms, Subforms, and Pages.
@@ -26,4 +29,12 @@ public interface GenericPageElement<T extends GenericPageElement<T>> extends Des
    * @since 1.0.33
    */
   boolean isRenderPassThroughHtmlInClient();
+  
+  /**
+   * Retrieves a collection of the JavaScript events associated with the form or page.
+   *  
+   * @return a {@link Collection} of {@link ScriptEvent} instances
+   * @since 1.0.34
+   */
+  Collection<ScriptEvent> getJavaScriptEvents();
 }

@@ -64,6 +64,7 @@ import com.hcl.domino.design.action.ActionContent;
 import com.hcl.domino.design.action.FormulaActionContent;
 import com.hcl.domino.design.action.JavaScriptActionContent;
 import com.hcl.domino.design.action.LotusScriptActionContent;
+import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.design.action.SimpleActionActionContent;
 import com.hcl.domino.design.action.SystemActionContent;
 import com.hcl.domino.design.form.AutoLaunchHideWhen;
@@ -481,7 +482,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
       {
         ActionContent content = action.getActionContent();
         assertInstanceOf(JavaScriptActionContent.class, content);
-        Collection<JavaScriptActionContent.ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
+        Collection<ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
         assertTrue(
           events.stream().anyMatch(event -> {
             if(event.getEventId() == HtmlEventId.ONCLICK) {
@@ -558,7 +559,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
       {
         ActionContent content = action.getActionContent();
         assertInstanceOf(JavaScriptActionContent.class, content);
-        Collection<JavaScriptActionContent.ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
+        Collection<ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
         assertTrue(
           events.stream().anyMatch(event -> {
             if(event.getEventId() == HtmlEventId.ONCLICK) {
@@ -628,9 +629,9 @@ public class TestDbDesignForms extends AbstractDesignTest {
 
       ActionContent content = action.getActionContent();
       assertInstanceOf(JavaScriptActionContent.class, content);
-      Collection<JavaScriptActionContent.ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
+      Collection<ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
       assertEquals(1, events.size());
-      JavaScriptActionContent.ScriptEvent event = events.stream().findFirst().get();
+      ScriptEvent event = events.stream().findFirst().get();
       String expected = IOUtils.resourceToString("/text/testDbDesignCollections/longjs.js", StandardCharsets.UTF_8).replace('\n', '\r');
       String actual = event.getScript();
       // Chomp the last line-ending character for consistency
@@ -863,6 +864,13 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertInstanceOf(FormulaActionContent.class, content);
       assertEquals("@StatusBar(\"hello.\")", ((FormulaActionContent)content).getFormula());
     }
+    
+    Collection<ScriptEvent> events = subform.getJavaScriptEvents();
+    assertEquals(1, events.size());
+    ScriptEvent evt = events.iterator().next();
+    assertEquals(HtmlEventId.ONHELP, evt.getEventId());
+    assertFalse(evt.isClient());
+    assertEquals("/* I'm subform help */\n", evt.getScript());
   }
 
   @Test
