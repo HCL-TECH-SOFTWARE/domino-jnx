@@ -133,8 +133,6 @@ public interface DesignElement {
    */
   Document getDocument();
 
-  Collection<String> getItemNames();
-
   boolean isHideFromMobile();
 
   boolean isHideFromNotes();

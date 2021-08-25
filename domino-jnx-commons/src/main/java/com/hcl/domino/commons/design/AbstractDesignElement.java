@@ -16,8 +16,6 @@
  */
 package com.hcl.domino.commons.design;
 
-import java.util.Collection;
-
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.DesignConstants;
@@ -48,11 +46,6 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   @Override
   public Document getDocument() {
     return this.doc;
-  }
-
-  @Override
-  public Collection<String> getItemNames() {
-    return this.doc.getItemNames();
   }
   
   @Override
