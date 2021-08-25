@@ -167,7 +167,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     assertFalse(view.isCreateDocumentsAtViewLevel());
     assertEquals("Home_1.xsp", view.getWebXPageAlternative().get());
     assertFalse(view.isAllowPublicAccess());
-    assertEquals(Arrays.asList("[Admin]"), view.getReaders());
+    assertEquals(Arrays.asList("[Admin]"), view.getReaders().get());
     assertEquals("SELECT @Like(Form; \"Foo\") & IsComplexView=1", view.getSelectionFormula());
     
     CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
@@ -826,7 +826,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     assertTrue(view.isCreateDocumentsAtViewLevel());
     assertFalse(view.getWebXPageAlternative().isPresent());
     assertTrue(view.isAllowPublicAccess());
-    assertTrue(view.getReaders().isEmpty());
+    assertFalse(view.getReaders().isPresent());
     assertFalse(view.getColumnProfileDocName().isPresent());
     assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
     // This view uses Simple Searched, but this formula is stored as residual
@@ -952,7 +952,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     assertFalse(view.isEvaluateActionsOnDocumentChange());
     assertFalse(view.getWebXPageAlternative().isPresent());
     assertFalse(view.isAllowPublicAccess());
-    assertTrue(view.getReaders().isEmpty());
+    assertFalse(view.getReaders().isPresent());
     assertFalse(view.getColumnProfileDocName().isPresent());
     assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
     assertEquals("SELECT @All", view.getSelectionFormula());
@@ -1062,7 +1062,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     assertFalse(view.isEvaluateActionsOnDocumentChange());
     assertFalse(view.getWebXPageAlternative().isPresent());
     assertFalse(view.isAllowPublicAccess());
-    assertTrue(view.getReaders().isEmpty());
+    assertFalse(view.getReaders().isPresent());
     assertFalse(view.getColumnProfileDocName().isPresent());
     assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
     assertEquals("SELECT @All", view.getSelectionFormula());

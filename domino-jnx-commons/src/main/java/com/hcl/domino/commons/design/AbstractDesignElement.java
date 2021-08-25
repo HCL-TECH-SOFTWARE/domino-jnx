@@ -140,6 +140,10 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
     return this.getDocument().getAsText(NotesConstants.DESIGN_FLAGS, ' ');
   }
 
+  public String getFlagsExt() {
+    return this.getDocument().getAsText(NotesConstants.DESIGN_FLAGS_EXTENDED, ' ');
+  }
+
   public void setFlags(final String flags) {
     this.getDocument().replaceItemValue(NotesConstants.DESIGN_FLAGS, flags);
   }

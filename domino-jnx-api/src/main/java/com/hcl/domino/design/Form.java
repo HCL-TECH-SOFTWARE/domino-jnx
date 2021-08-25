@@ -35,7 +35,8 @@ import com.hcl.domino.richtext.structures.ColorValue;
  * Represents a Form design element in a database
  */
 public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlternativeElement,
-  DesignElement.XPageNotesAlternativeElement, DesignElement.AutoFrameElement, DesignElement.ThemeableClassicElement {
+  DesignElement.XPageNotesAlternativeElement, DesignElement.AutoFrameElement, DesignElement.ThemeableClassicElement,
+  DesignElement.ReadersRestrictedElement {
   
   /**
    * Represents the settings for inheritance of the entire selected document

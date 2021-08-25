@@ -387,4 +387,28 @@ public interface DesignConstants {
   String ITEM_NAME_WEBQUERYOPEN = "$WEBQueryOpen"; //$NON-NLS-1$
   String ITEM_NAME_APPHELPFORMULA = "$AppHelpFormula"; //$NON-NLS-1$
   String ITEM_NAME_STYLESHEETLIST = "$StyleSheetList"; //$NON-NLS-1$
+
+  String ASSIST_FLAGS_ITEM     = "$AssistFlags"; //$NON-NLS-1$
+  String ASSIST_FLAGS_ITEM2    = "$AssistFlags2"; //$NON-NLS-1$
+  String ASSIST_FLAG_ENABLED   = "E"; //$NON-NLS-1$
+  String ASSIST_FLAG_DISABLED  = "D"; //$NON-NLS-1$
+  String ASSIST_FLAG_NEWCOPY   = "N"; //$NON-NLS-1$
+  String ASSIST_FLAG_HIDDEN    = "H"; //$NON-NLS-1$
+  String ASSIST_FLAG_PRIVATE   = "P"; //$NON-NLS-1$
+  String ASSIST_FLAG_THREAD    = "T"; //$NON-NLS-1$
+  String ASSIST_FLAG_ALLOW_REMOTE_DEBUGGING = "R"; //$NON-NLS-1$
+  String ASSIST_FLAG_ALLOW_UNSECURE_LS_LIBS = "L"; //$NON-NLS-1$
+  String ASSIST_FLAG_AGENT_RUNASWEBUSER = "u"; //$NON-NLS-1$
+  String ASSIST_FLAG_AGENT_RUNASSIGNER  = "s"; //$NON-NLS-1$
+  String ASSIST_RESTRICTED = "$Restricted"; //$NON-NLS-1$
+
+  /** base value for restricted */
+  int ASSIST_RESTRICTED_RESTRICTED = 0x00000001;
+  /** base value for unrestricted */
+  int ASSIST_RESTRICTED_UNRESTRICTED = 0x00000000;
+  /** unrestricted (low bit of zero, plus fulladmin) */
+  int ASSIST_RESTRICTED_FULLADMIN = 0x00000002;
+  
+  /** profile code running in this note */
+  String DESIGN_FLAGEXT_PROFILE = "F"; //$NON-NLS-1$
 }

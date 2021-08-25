@@ -52,7 +52,7 @@ import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FramesetLength;
 
-public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefaultAutoFrameElement {
+public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefaultAutoFrameElement, IDefaultReadersRestrictedElement {
 
   public FormImpl(final Document doc) {
     super(doc);

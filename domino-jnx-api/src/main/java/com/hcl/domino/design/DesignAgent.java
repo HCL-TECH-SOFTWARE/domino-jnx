@@ -35,9 +35,14 @@ import com.hcl.domino.design.agent.AgentTrigger;
  *
  * @author t.b.d
  */
-public interface DesignAgent extends NamedDesignElement {
+public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRestrictedElement {
   enum AgentLanguage {
     LS, FORMULA, JAVA, IMPORTED_JAVA, SIMPLE_ACTION
+  }
+  enum SecurityLevel {
+    RESTRICTED,
+    UNRESTRICTED,
+    UNRESTRICTED_FULLADMIN
   }
 
   /**
@@ -229,4 +234,95 @@ public interface DesignAgent extends NamedDesignElement {
    */
   boolean isRunOnWeekends();
 
+  /**
+   * Determines whether the agent should be run as the web user when accessed via
+   * URL.
+   * 
+   * @return {@code true} if the agent should run as the current web user when
+   *         accessed via URL; {@code false} to run as the signer or the on-behalf-
+   *         of user
+   * @since 1.0.35
+   */
+  boolean isRunAsWebUser();
+  
+  /**
+   * Retrieves the name of the user to run the agent on behalf of, if set.
+   * 
+   * @return an {@link Optional} describing the on-behalf-of user, or an empty one
+   *         if this is unset
+   * @since 1.0.35
+   */
+  Optional<String> getOnBehalfOfUser();
+  
+  /**
+   * Determines the security level to enforce when running this agent.
+   * 
+   * @return a {@link SecurityLevel} instance
+   * @since 1.0.35
+   */
+  SecurityLevel getSecurityLevel();
+  
+  /**
+   * Determines whether the agent should store highlights when run.
+   * 
+   * @return {@code true} if the agent should store highlights;
+   *         {@code false} otherwise
+   * @since 1.0.35
+   */
+  boolean isStoreHighlights();
+  
+  /**
+   * Determines whether the agent search should be stored in the search bar menu.
+   * 
+   * @return {@code true} if the search should be stored;
+   *         {@code false} otherwise
+   * @since 1.0.35
+   */
+  boolean isStoreSearch();
+  
+  /**
+   * Determines whether profiling should be enabled for this agent.
+   * 
+   * @return {@code true} if profiling is enabled;
+   *         {@code false} otherwise
+   * @since 1.0.35
+   */
+  boolean isProfilingEnabled();
+  
+  /**
+   * Determines whether remote debugging should be enabled for this agent.
+   * 
+   * @return {@code true} if remote debugging is enabled;
+   *         {@code false} otherwise
+   * @since 1.0.35
+   */
+  boolean isAllowRemoteDebugging();
+  
+  /**
+   * Determines whether the agent is private to the user or not.
+   * 
+   * @return {@code true} if the agent is private;
+   *         {@code false} if it is normally accessible
+   * @since 1.0.35
+   */
+  boolean isPrivate();
+  
+  /**
+   * Determines whether the agent should run in a background thread when invoked
+   * from the client.
+   * 
+   * @return {@code true} to run in a background thread;
+   *         {@code false} otherwise
+   * @since 1.0.35
+   */
+  boolean isRunInBackgroundInClient();
+  
+  /**
+   * Determines whether the agent is enabled to run according to its schedule or trigger.
+   * 
+   * @return {@code true} if the agent is enabled;
+   *         {@code false} otherwise
+   * @since 1.0.35
+   */
+  boolean isEnabled();
 }
