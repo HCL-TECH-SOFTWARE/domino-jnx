@@ -38,4 +38,30 @@ public interface GenericFormOrSubform<T extends GenericFormOrSubform<T>> extends
 
   void swapFields(final int indexA, final int indexB);
 
+  /**
+   * Determines whether pass-through-HTML text in the form or subform should
+   * be rendered in the Notes client.
+   * 
+   * @return {@code true} to attempt to render pass-through-HTML in the client;
+   *         {@code false} to display it as HTML markup
+   * @since 1.0.33
+   */
+  boolean isRenderPassThroughHtmlInClient();
+  
+  /**
+   * Determines whether fields on this form or subform should be included in the database's field index.
+   * 
+   * @return {@code true} if fields on this form or subform should be added to the index;
+   *         {@code false} otherwise
+   * @since 1.0.33
+   */
+  boolean isIncludeFieldsInIndex();
+  
+  /**
+   * Retrieves the body of the form or subform as a list of rich-text entities.
+   * 
+   * @return a {@link List} of rich-text entities
+   * @since 1.0.34
+   */
+  List<?> getBody();
 }

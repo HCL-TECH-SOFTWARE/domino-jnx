@@ -359,14 +359,23 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
     return new TextFontItemNotesFont(this.parent.getDocument(), style);
   }
   
-  @Override
+  /**
+   * @return a {@link ColorValue} for the row font color
+   * @deprecated through this reflects a value stored in this structure, it appears
+   *             to be always 0 in practice
+   */
   public ColorValue getRowFontColor() {
     return getFormat2()
       .map(ViewColumnFormat2::getColumnColor)
       .orElseGet(DesignColorsAndFonts::blackColor);
   }
   
-  @Override
+  /**
+   * @return a {@link ColorValue} for the header font color
+   * @deprecated through this reflects a value stored in this structure, it appears
+   *             to be always 0 in practice
+   */
+  @Deprecated
   public ColorValue getHeaderFontColor() {
     return getFormat2()
       .map(ViewColumnFormat2::getHeaderFontColor)

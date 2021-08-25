@@ -34,6 +34,7 @@ import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoCollection;
+import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.DesignElement;
@@ -342,10 +343,6 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       return Optional.empty();
     }
     return Optional.of((NotesCollationInfo)doc.getItemValue(DesignConstants.VIEW_COLLATION_ITEM).get(0));
-  }
-  
-  private String getWebFlags() {
-    return getDocument().getAsText(DesignConstants.ITEM_NAME_WEBFLAGS, ' ');
   }
   
   private class DefaultCompositeAppSettings implements CompositeAppSettings {

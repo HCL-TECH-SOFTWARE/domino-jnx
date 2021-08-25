@@ -17,6 +17,7 @@
 package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
+import java.util.Optional;
 
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -61,7 +62,7 @@ public interface CDDataFlags extends RichTextRecord<BSIG> {
   }
 
   @StructureGetter("elemType")
-  ElementType getElementType();
+  Optional<ElementType> getElementType();
 
   @StructureGetter("nFlags")
   int getFlagCount();
@@ -70,6 +71,10 @@ public interface CDDataFlags extends RichTextRecord<BSIG> {
     final ByteBuffer buf = this.getVariableData();
     final int[] result = new int[this.getFlagCount()];
     for (int i = 0; i < result.length; i++) {
+      // Account for corrupt data observed in bookmark.ntf
+      if(buf.remaining() < 4) {
+        break;
+      }
       result[i] = buf.getInt();
     }
     return result;

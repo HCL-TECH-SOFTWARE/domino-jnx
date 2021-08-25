@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.richtext.structures;
 
+import com.hcl.domino.richtext.RectangleSize;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -25,20 +26,27 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
  * @author Jesse Gallagher
  * @since 1.0.15
  */
-@StructureDefinition(name = "RECTSIZE", members = {
+@StructureDefinition(
+  name = "RECTSIZE",
+  members = {
     @StructureMember(name = "width", type = short.class, unsigned = true),
     @StructureMember(name = "height", type = short.class, unsigned = true)
-})
-public interface RectSize extends MemoryStructure {
+  }
+)
+public interface RectSize extends MemoryStructure, RectangleSize {
   @StructureGetter("height")
+  @Override
   int getHeight();
 
   @StructureGetter("width")
+  @Override
   int getWidth();
 
   @StructureSetter("height")
+  @Override
   RectSize setHeight(int height);
 
   @StructureSetter("width")
+  @Override
   RectSize setWidth(int width);
 }

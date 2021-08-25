@@ -33,7 +33,7 @@ import com.hcl.domino.commons.richtext.records.AbstractCDRecord;
 import com.hcl.domino.commons.richtext.records.GenericBSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericLSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericWSIGRecord;
-import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.design.format.HtmlEventId;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
@@ -66,20 +66,31 @@ public enum RichTextUtil {
    * @return a {@link RichTextRecord} implementation wrapping the data
    */
   public static AbstractCDRecord<?> encapsulateRecord(final short signature, final ByteBuffer data) {
-    AbstractCDRecord<?> record;
-    final short highOrderByte = (short) (signature & 0xFF00);
-    switch (highOrderByte) {
-      case RichTextConstants.LONGRECORDLENGTH: /* LSIG */
-        record = new GenericLSIGRecord(data);
-        break;
-      case RichTextConstants.WORDRECORDLENGTH: /* WSIG */
-        record = new GenericWSIGRecord(data);
-        break;
-      default: /* BSIG */
-        record = new GenericBSIGRecord(data);
+    ByteBuffer recordData = data.slice().order(ByteOrder.LITTLE_ENDIAN);
+    
+    byte byte1 = recordData.get(0);
+    byte byte2 = recordData.get(1);
+    int length;
+    Function<ByteBuffer, AbstractCDRecord<?>> genericProvider;
+    if((byte2 & 0xFF) == 0xFF) {
+      // Then it's a WSIG, two WORD values
+      length = Short.toUnsignedInt(recordData.getShort(2));
+      genericProvider = GenericWSIGRecord::new;
+    } else if(byte2 == 0) {
+      // Then it's an LSIG, which zeros the high-order byte
+      // Length is a DWORD following the initial WORD
+      ByteBuffer sliced = recordData.slice().order(ByteOrder.LITTLE_ENDIAN);
+      sliced.position(2);
+      length = sliced.getInt();
+      genericProvider = GenericLSIGRecord::new;
+    } else {
+      // Then it's a BSIG, with the length in the high-order byte
+      length = byte2 & 0xFF;
+      genericProvider = GenericBSIGRecord::new;
     }
+    recordData.limit(length);
 
-    return record;
+    return genericProvider.apply(recordData);
   }
 
   /**
@@ -96,11 +107,11 @@ public enum RichTextUtil {
   public static RichTextRecord<?> reencapsulateRecord(final AbstractCDRecord<?> record,
       final Class<? extends RichTextRecord<?>> encapsulationClass) {
     if (record instanceof GenericBSIGRecord) {
-      return MemoryStructureProxy.forStructure(encapsulationClass, new GenericBSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericBSIGRecord(record.getData(), encapsulationClass));
     } else if (record instanceof GenericWSIGRecord) {
-      return MemoryStructureProxy.forStructure(encapsulationClass, new GenericWSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericWSIGRecord(record.getData(), encapsulationClass));
     } else if (record instanceof GenericLSIGRecord) {
-      return MemoryStructureProxy.forStructure(encapsulationClass, new GenericLSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericLSIGRecord(record.getData(), encapsulationClass));
     } else {
       throw new IllegalArgumentException(
           MessageFormat.format("Unable to determine encapsulation for {0}", record.getClass().getName()));

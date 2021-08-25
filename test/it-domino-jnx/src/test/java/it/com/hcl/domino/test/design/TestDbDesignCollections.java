@@ -48,14 +48,14 @@ import com.hcl.domino.data.CollectionColumn.TotalType;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.NotesFont;
+import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.design.ActionBar;
 import com.hcl.domino.design.ActionBar.ButtonHeightMode;
+import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.CollectionDesignElement.DisplaySettings;
 import com.hcl.domino.design.DbDesign;
-import com.hcl.domino.design.DesignElement;
-import com.hcl.domino.design.DesignElement.ClassicThemeBehavior;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
@@ -106,7 +106,7 @@ import com.hcl.domino.security.AclLevel;
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
-public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
+public class TestDbDesignCollections extends AbstractDesignTest {
   public static final int EXPECTED_IMPORT_VIEWS = 10;
   public static final int EXPECTED_IMPORT_FOLDERS = 1;
 
@@ -154,7 +154,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertTrue(view.isAllowCustomizations());
     assertEquals(CollectionDesignElement.OnOpen.GOTO_TOP, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.REFRESH_DISPLAY, view.getOnRefreshUISetting());
-    assertEquals(DesignElement.ClassicThemeBehavior.USE_DATABASE_SETTING, view.getClassicThemeBehavior());
+    assertEquals(ClassicThemeBehavior.USE_DATABASE_SETTING, view.getClassicThemeBehavior());
     assertEquals(CollectionDesignElement.Style.STANDARD_OUTLINE, view.getStyle());
     assertFalse(view.isDefaultCollection());
     assertFalse(view.isDefaultCollectionDesign());
@@ -305,8 +305,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertEquals("Courier New", font.getFontName().get());
         assertEquals(10, font.getPointSize());
         assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.STRIKEOUT), font.getAttributes());
-        
-//        assertColorEquals(column.getRowFontColor(), 226, 159, 222);
+        assertEquals(StandardColors.LightMauve, font.getStandardColor().get());
       }
       {
         NotesFont font = column.getHeaderFont();
@@ -314,7 +313,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertEquals("Georgia", font.getFontName().get());
         assertEquals(9, font.getPointSize());
         assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.BOLD, FontAttribute.ITALIC), font.getAttributes());
-//        assertColorEquals(column.getHeaderFontColor(), 0, 255, 0);
+        assertEquals(StandardColors.Green, font.getStandardColor().get());
       }
       
       {
@@ -400,6 +399,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertFalse(font.getFontName().isPresent());
         assertEquals(10, font.getPointSize());
         assertEquals(EnumSet.noneOf(FontAttribute.class), font.getAttributes());
+        assertEquals(StandardColors.Black, font.getStandardColor().get());
       }
       {
         NotesFont font = column.getHeaderFont();
@@ -407,6 +407,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
         assertFalse(font.getFontName().isPresent());
         assertEquals(9, font.getPointSize());
         assertEquals(EnumSet.of(FontAttribute.BOLD), font.getAttributes());
+        assertEquals(StandardColors.AtlanticGray, font.getStandardColor().get());
       }
       
       {
@@ -476,9 +477,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
       assertEquals("Consolas", font.getFontName().get());
       assertEquals(14, font.getPointSize());
       assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.STRIKEOUT), font.getAttributes());
-      
-//      assertColorEquals(column.getRowFontColor(), 0, 255, 255);
-//      assertColorEquals(column.getHeaderFontColor(), 0, 0, 0);
+      assertEquals(StandardColors.Cyan, font.getStandardColor().get());
       
       {
         CollectionColumn.NumberSettings numbers = column.getNumberSettings();
@@ -814,7 +813,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isAllowCustomizations());
     assertEquals(CollectionDesignElement.OnOpen.GOTO_LAST_OPENED, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.DISPLAY_INDICATOR, view.getOnRefreshUISetting());
-    assertEquals(DesignElement.ClassicThemeBehavior.DONT_INHERIT_FROM_OS, view.getClassicThemeBehavior());
+    assertEquals(ClassicThemeBehavior.DONT_INHERIT_FROM_OS, view.getClassicThemeBehavior());
     assertEquals(CollectionDesignElement.Style.STANDARD_OUTLINE, view.getStyle());
     assertFalse(view.isDefaultCollection());
     assertTrue(view.isDefaultCollectionDesign());
@@ -942,7 +941,7 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     assertFalse(view.isAllowCustomizations());
     assertEquals(CollectionDesignElement.OnOpen.GOTO_BOTTOM, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_TOP, view.getOnRefreshUISetting());
-    assertEquals(DesignElement.ClassicThemeBehavior.INHERIT_FROM_OS, view.getClassicThemeBehavior());
+    assertEquals(ClassicThemeBehavior.INHERIT_FROM_OS, view.getClassicThemeBehavior());
     assertFalse(view.isDefaultCollection());
     assertFalse(view.isDefaultCollectionDesign());
     assertFalse(view.isCollapseAllOnFirstOpen());
@@ -1979,16 +1978,5 @@ public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
     ActionBar actions = view.getActionBar();
     assertEquals(0, actions.getActions().size());
     assertEquals(ActionBar.Alignment.LEFT, actions.getAlignment());
-  }
-  
-  // *******************************************************************************
-  // * Shared utility methods
-  // *******************************************************************************
-  
-  private void assertColorEquals(ColorValue color, int red, int green, int blue) {
-    assertNotNull(color);
-    assertEquals(red, color.getRed());
-    assertEquals(green, color.getGreen());
-    assertEquals(blue, color.getBlue());
   }
 }

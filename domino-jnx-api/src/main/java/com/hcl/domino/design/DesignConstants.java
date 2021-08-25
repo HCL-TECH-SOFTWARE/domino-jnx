@@ -147,4 +147,234 @@ public interface DesignConstants {
   short ACTION_SYS_CMD_PASTE        = 0x7cfe  ;
   short ACTION_SYS_CMD_OPEN_SELECTED    = 0x7d0e;
   short ACTION_SYS_CMD_BOOKMARK     =   0x7d1e;
+  
+  /**  Use Reference Note  */
+  short TPL_FLAG_REFERENCE = 0x0001;
+  /**  Mail during DocSave  */
+  short TPL_FLAG_MAIL = 0x0002;
+  /**  Add note ref. to "reference note"  */
+  short TPL_FLAG_NOTEREF = 0x0004;
+  /**  Add note ref. to main parent of "reference note"  */
+  short TPL_FLAG_NOTEREF_MAIN = 0x0008;
+  /**  Recalc when leaving fields  */
+  short TPL_FLAG_RECALC = 0x0010;
+  /**  Store form item in with note  */
+  short TPL_FLAG_BOILERPLATE = 0x0020;
+  /**  Use foreground color to paint  */
+  short TPL_FLAG_FGCOLOR = 0x0040;
+  /**  Spare DWORDs have been zeroed  */
+  short TPL_FLAG_SPARESOK = 0x0080;
+  /**  Activate OLE objects when composing a new doc  */
+  short TPL_FLAG_ACTIVATE_OBJECT_COMP = 0x0100; 
+  /**  Activate OLE objects when editing an existing doc  */
+  short TPL_FLAG_ACTIVATE_OBJECT_EDIT = 0x0200; 
+  /**  Activate OLE objects when reading an existing doc  */
+  short TPL_FLAG_ACTIVATE_OBJECT_READ = 0x0400; 
+  /**  Show Editor window if TPL_FLAG_ACTIVATE_OBJECT_COMPOSE  */
+  short TPL_FLAG_SHOW_WINDOW_COMPOSE = 0x0800;
+  /**  Show Editor window if TPL_FLAG_ACTIVATE_OBJECT_EDIT  */
+  short TPL_FLAG_SHOW_WINDOW_EDIT = 0x1000;
+  /**  Show Editor window if TPL_FLAG_ACTIVATE_OBJECT_READ  */
+  short TPL_FLAG_SHOW_WINDOW_READ = 0x2000;
+  /**  V3 Updates become responses  */
+  short TPL_FLAG_UPDATE_RESPONSE = 0x4000;
+  /**  V3 Updates become parents  */
+  short TPL_FLAG_UPDATE_PARENT = (short)0x8000;
+    /* for FormFlags2 */
+  /**  insert copy of ref note  */
+  short TPL_FLAG_INCLUDEREF = 0x0001;
+  /**  render ref (else it's a doclink)  */
+  short TPL_FLAG_RENDERREF = 0x0002;
+  /**  render it collapsed?  */
+  short TPL_FLAG_RENDCOLLAPSE = 0x0004;
+  /**  edit mode on open  */
+  short TPL_FLAG_EDITONOPEN = 0x0008;
+  /**  open context panes  */
+  short TPL_FLAG_OPENCNTXT = 0x0010;
+  /**  context pane is parent  */
+  short TPL_FLAG_CNTXTPARENT = 0x0020;
+  /**  manual versioning  */
+  short TPL_FLAG_MANVCREATE = 0x0040;
+  /**  V4 versioning - updates are sibblings  */
+  short TPL_FLAG_UPDATE_SIBLING = 0x0080;
+  /**  V4 Anonymous form  */
+  short TPL_FLAG_ANONYMOUS = 0x0100;
+  /**  Doclink dive into same window  */
+  short TPL_FLAG_NAVIG_DOCLINK_IN_PLACE = 0x0200;
+  /**  InterNotes special form  */
+  short TPL_FLAG_INTERNOTES = 0x0400;
+  /**  Disable FX for this doc */
+  short TPL_FLAG_DISABLE_FX = 0x0800;
+  /**  Disable menus for this DOC  */
+  short TPL_FLAG_NOMENUS = 0x1000;
+  /**  check display before displaying background  */
+  short TPL_FLAG_CHECKDISPLAY = 0x2000;
+  /**  This is a Right To Left Form  */
+  short TPL_FLAG_FORMISRTL = 0x4000;
+  /**  hide background graphic in design mode  */
+  short TPL_FLAG_HIDEBKGRAPHIC = (short)0x8000;
+    /* for FormFlags3 */
+  /**  editor resizes header area to contents  */
+  short TPL_FLAG_RESIZEHEADER = 0x0001;
+  /**  No initial focus to any object on a form or page */
+  short TPL_FLAG_NOINITIALFOCUS = 0x0002;
+  /**  Sign this document when it gets saved  */
+  short TPL_FLAG_SIGNWHENSAVED = 0x0004;
+  /**  No focus when doing F6 or tabbing.  */
+  short TPL_FLAG_NOFOCUSWHENF6 = 0x0008;
+  /**  Render pass through HTML in the client.  */
+  short TPL_FLAG_RENDERPASSTHROUGH = 0x0010;
+  /**  Don't automatically add form fields to field index  */
+  short TPL_FLAG_NOADDFIELDNAMESTOINDEX = 0x0020;
+  /**  Autosave Documents created using this form  */
+  short TPL_FLAG_CANAUTOSAVE = 0x0040;
+  /**  2 bits to reflect three possible settings.  */
+  short TPL_FLAG_THEMESETTING = 0x0180;
+  /**  shift right this many bits to get the theme setting into the low-order bits.  */
+  short TPL_SHIFT_THEMESETTING = 7;
+  
+  String ITEM_NAME_DEFAULTDECSINFO = "$DefaultDECSInfo"; //$NON-NLS-1$
+  
+  short FDECS_KEY_FIELD = 0x0001;
+  short FDECS_STORE_LOCALLY = 0x0002;
+  
+  /**
+   * Name of a form autolaunch item.  This optional item is created when
+   * designing a Notes form using the auto launch options.
+   */
+  String FORM_AUTOLAUNCH_ITEM = "$AUTOLAUNCH"; //$NON-NLS-1$
+  
+  /**
+   * Name of an OLE object item.  One of these is created for every
+   * OLE embedded object that exists in a Notes document.  This item
+   * is used to access OLE objects witout having to parse the
+   * Rich Text item within the document to find an OLE CD record
+   */
+  String OLE_OBJECT_ITEM = "$OLEOBJINFO"; //$NON-NLS-1$
+
+  /* Autolaunch Object type flags */
+  int AUTOLAUNCH_OBJTYPE_NONE = 0x00000000;
+  /**  OLE Class ID (GUID)  */
+  int AUTOLAUNCH_OBJTYPE_OLE_CLASS = 0x00000001;
+  /**  First OLE Object  */
+  int AUTOLAUNCH_OBJTYPE_OLEOBJ = 0x00000002;
+  /**  First Notes doclink  */
+  int AUTOLAUNCH_OBJTYPE_DOCLINK = 0x00000004;
+  /**  First Attachment  */
+  int AUTOLAUNCH_OBJTYPE_ATTACH = 0x00000008;
+  /**  AutoLaunch the url in the URL field  */
+  int AUTOLAUNCH_OBJTYPE_URL = 0x00000010;
+  
+  /*  Hide-when flags */
+  /*  Hide when opening flags  */
+  int HIDE_OPEN_CREATE = 0x00000001;
+  int HIDE_OPEN_EDIT = 0x00000002;
+  int HIDE_OPEN_READ = 0x00000004;
+  /*  Hide when closing flags  */
+  int HIDE_CLOSE_CREATE = 0x00000008;
+  int HIDE_CLOSE_EDIT = 0x00000010;
+  int HIDE_CLOSE_READ = 0x00000020;
+  
+  /*  Launch-when flags */
+  int LAUNCH_WHEN_CREATE = 0x00000001;
+  int LAUNCH_WHEN_EDIT = 0x00000002;
+  int LAUNCH_WHEN_READ = 0x00000004;
+  
+  /* OLE Flags */
+
+  int OLE_EDIT_INPLACE = 0x00000001;
+  int OLE_MODAL_WINDOW = 0x00000002;
+  int OLE_ADV_OPTIONS = 0x00000004;
+  
+  /* Field Location Flags */
+
+  /** Don't copy obj to any field (V3 compatible) */
+  int FIELD_COPY_NONE = 0x00000001;
+  /** Copy obj to named rich text field */
+  int FIELD_COPY_NAMED = 0x00000004;
+  /** Copy obj to first rich text field */
+  int FIELD_COPY_FIRST = 0x00000002;
+  
+  String ITEM_NAME_BACKGROUNDGRAPHICR5 = "$BackgroundR5"; //$NON-NLS-1$
+  
+  String ITEM_NAME_RESTRICTBKOVERRIDE = "$NoBackgroundOverride"; //$NON-NLS-1$
+  String RESTRICTBK_FLAG_NOOVERRIDE = "1"; //$NON-NLS-1$
+  
+  String ITEM_NAME_BACKGROUNDGRAPHIC_REPEAT = "$BackgroundRepeat"; //$NON-NLS-1$
+  String ITEM_NAME_BACKGROUNDGRAPHIC_REPEATBODY = "$BackgroundRepeatBody"; //$NON-NLS-1$
+  String ITEM_NAME_USER_BACKGROUNDGRAPHIC_REPEAT = "$UserBackgroundRepeat"; //$NON-NLS-1$
+  String ITEM_NAME_USER_BACKGROUNDGRAPHIC_REPEATBODY = "$UserBackgroundRepeatBody"; //$NON-NLS-1$
+  String BACKGROUNDGRAPHIC_REPEAT_ONCE = "1"; //$NON-NLS-1$
+  String BACKGROUNDGRAPHIC_REPEAT_VERT = "2"; //$NON-NLS-1$
+  String BACKGROUNDGRAPHIC_REPEAT_HORIZ = "3"; //$NON-NLS-1$
+  String BACKGROUNDGRAPHIC_REPEAT_BOTH = "4"; //$NON-NLS-1$
+  String BACKGROUNDGRAPHIC_REPEAT_SIZE = "5"; //$NON-NLS-1$
+  String BACKGROUNDGRAPHIC_REPEAT_CENTER = "6"; //$NON-NLS-1$
+  
+  short FRAMESETHEADER_VERSION = 2;
+  
+  /**  Set if BorderEnable is specified  */
+  int fFSBorderEnable = 0x00000001;
+  /**  Set if FrameBorderWidth is specified  */
+  int fFSFrameBorderDims = 0x00000004;
+  /**  Set if FrameSpacingWidth is specified  */
+  int fFSFrameSpacingDims = 0x00000008;
+  /**  Set if FrameBorderColor is specified  */
+  int fFSFrameBorderColor = 0x00000040;
+  
+  /**  Attribute is expressed as pixels  */
+  short PIXELS_LengthType = 1;
+  /**  Attribute is expressed as a percentage  */
+  short PERCENTAGE_LengthType = 2;
+  /**  Attribute is expressed as relative  */
+  short RELATIVE_LengthType = 3;
+  
+  /**  Set if BorderEnable is specified  */
+  int fFRBorderEnable = 0x00000001;
+  /**  Set if MarginWidth is specified  */
+  int fFRMarginWidth = 0x00000002;
+  /**  Set if MarginHeight is specified  */
+  int fFRMarginHeight = 0x00000004;
+  /**  Set if FrameBorderColor is specified  */
+  int fFRFrameBorderColor = 0x00000008;
+  /**  Set if ScrollBarStyle is specified  */
+  int fFRScrolling = 0x00000010;
+  /**  Set if this frame has a notes only border */
+  int fFRNotesOnlyBorder = 0x00000020;
+  /**  Set if this fram want arrows shown in Notes */
+  int fFRNotesOnlyArrows = 0x00000040;
+  /**  Open value specified for Border caption is in percent. */
+  int fFRNotesOpenPercent = 0x00000080;
+  /**  if set, set initial focus to this frame  */
+  int fFRNotesInitialFocus = 0x00000100;
+  /**  Set if this fram caption reading order is Right-To-Left */
+  int fFRNotesReadingOrder = 0x00000200;
+  
+  short fFRNotesBorder = (short)0x8000;
+  short fFRNotesBorderFontAndColor = 0x4000;
+  short fFRNotesBorderCaption = 0x2000;
+  short fFRNotesCaptionFontName = 0x1000;
+  /**  set this if frame has a sequence set other than the default 0  */
+  short fFRSequence = 0x0800;
+  
+  /**  SCROLLING = ALWAYS  */
+  short ALWAYS_ScrollStyle = 1;
+  /**  SCROLLING = NEVER  */
+  short NEVER_ScrollStyle = 2;
+  /**  SCROLLING = AUTO  */
+  short AUTO_ScrollStyle = 3;
+  
+  String ITEM_NAME_HEADERAREA = "$HeaderArea"; //$NON-NLS-1$
+  String ITEM_NAME_REGIONFRAMESET = "$RegionFrameset"; //$NON-NLS-1$
+  
+  /** print page header */
+  String ITEM_NAME_HEADER = "$Header"; //$NON-NLS-1$
+  /** print page footer */
+  String ITEM_NAME_FOOTER = "$Footer"; //$NON-NLS-1$
+  /** header/footer flags */
+  String ITEM_NAME_HFFLAGS = "$HFFlags"; //$NON-NLS-1$
+  /** suppress printing header/footer on first page */
+  String HFFLAGS_NOPRINTONFIRSTPAGE = "1"; //$NON-NLS-1$
+  /** header/footer is RTL */
+  String HFFLAGS_DIRECTION_RTL = "R"; //$NON-NLS-1$
 }
