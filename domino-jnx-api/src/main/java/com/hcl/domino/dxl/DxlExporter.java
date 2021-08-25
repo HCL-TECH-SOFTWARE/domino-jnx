@@ -19,6 +19,7 @@ package com.hcl.domino.dxl;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -180,6 +181,22 @@ public interface DxlExporter {
   void exportDatabase(final Database db, final Writer out) throws IOException;
 
   /**
+   * Exports an entire database into XML format and returns the string.
+   * 
+   * @param doc the document to export
+   * @return the exported DXL
+   * @throws IOException in case of I/O errors
+   * @since 1.0.34
+   */
+  default String exportDatabase(Database db) throws IOException {
+    try(StringWriter w = new StringWriter()) {
+      exportDatabase(db, w);
+      w.flush();
+      return w.toString();
+    }
+  }
+
+  /**
    * Export a single document into XML format.
    *
    * @param doc document to export
@@ -200,6 +217,22 @@ public interface DxlExporter {
    * @throws IOException in case of I/O errors
    */
   void exportDocument(Document doc, Writer out) throws IOException;
+  
+  /**
+   * Exports a single document into XML format and returns the string.
+   * 
+   * @param doc the document to export
+   * @return the exported DXL
+   * @throws IOException in case of I/O errors
+   * @since 1.0.34
+   */
+  default String exportDocument(Document doc) throws IOException {
+    try(StringWriter w = new StringWriter()) {
+      exportDocument(doc, w);
+      w.flush();
+      return w.toString();
+    }
+  }
 
   boolean exportErrorWasLogged();
 

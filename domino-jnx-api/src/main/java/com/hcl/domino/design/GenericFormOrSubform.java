@@ -17,14 +17,16 @@
 package com.hcl.domino.design;
 
 import java.util.List;
+import java.util.Map;
 
 import com.hcl.domino.richtext.FormField;
 
 /**
+ * Represents properties common between Forms and Subforms.
+ * 
  * @param <T> the more-specific interface
  */
-public interface GenericFormOrSubform<T extends GenericFormOrSubform<T>> extends DesignElement.NamedDesignElement,
-  DesignElement.ActionBarElement {
+public interface GenericFormOrSubform<T extends GenericFormOrSubform<T>> extends GenericPageElement.ScriptablePageElement<T> {
 
   T addField();
 
@@ -37,16 +39,6 @@ public interface GenericFormOrSubform<T extends GenericFormOrSubform<T>> extends
   T removeField();
 
   void swapFields(final int indexA, final int indexB);
-
-  /**
-   * Determines whether pass-through-HTML text in the form or subform should
-   * be rendered in the Notes client.
-   * 
-   * @return {@code true} to attempt to render pass-through-HTML in the client;
-   *         {@code false} to display it as HTML markup
-   * @since 1.0.33
-   */
-  boolean isRenderPassThroughHtmlInClient();
   
   /**
    * Determines whether fields on this form or subform should be included in the database's field index.
@@ -58,10 +50,10 @@ public interface GenericFormOrSubform<T extends GenericFormOrSubform<T>> extends
   boolean isIncludeFieldsInIndex();
   
   /**
-   * Retrieves the body of the form or subform as a list of rich-text entities.
+   * Retrieves the LotusScript code associated with each field on the form.
    * 
-   * @return a {@link List} of rich-text entities
+   * @return a {@link Map} of field names to IDE-format LotusScript blocks
    * @since 1.0.34
    */
-  List<?> getBody();
+  Map<String, String> getFieldLotusScript();
 }

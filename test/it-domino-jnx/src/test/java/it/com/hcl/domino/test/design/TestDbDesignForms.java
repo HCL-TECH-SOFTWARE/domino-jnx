@@ -28,9 +28,11 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -62,8 +64,10 @@ import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionContent;
 import com.hcl.domino.design.action.FormulaActionContent;
+import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.action.JavaScriptActionContent;
 import com.hcl.domino.design.action.LotusScriptActionContent;
+import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.design.action.SimpleActionActionContent;
 import com.hcl.domino.design.action.SystemActionContent;
 import com.hcl.domino.design.form.AutoLaunchHideWhen;
@@ -76,7 +80,6 @@ import com.hcl.domino.design.format.ActionWidthMode;
 import com.hcl.domino.design.format.BorderStyle;
 import com.hcl.domino.design.format.ButtonBorderDisplay;
 import com.hcl.domino.design.format.HideFromDevice;
-import com.hcl.domino.design.format.HtmlEventId;
 import com.hcl.domino.design.frameset.FrameScrollStyle;
 import com.hcl.domino.design.frameset.FrameSizingType;
 import com.hcl.domino.design.simpleaction.ModifyFieldAction;
@@ -98,7 +101,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignForms extends AbstractDesignTest {
-  public static final int EXPECTED_IMPORT_FORMS = 6;
+  public static final int EXPECTED_IMPORT_FORMS = 7;
   public static final int EXPECTED_IMPORT_SUBFORMS = 2;
 
   private static String dbPath;
@@ -481,10 +484,10 @@ public class TestDbDesignForms extends AbstractDesignTest {
       {
         ActionContent content = action.getActionContent();
         assertInstanceOf(JavaScriptActionContent.class, content);
-        Collection<JavaScriptActionContent.ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
+        Collection<ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONCLICK) {
+            if(event.getEventId() == EventId.ONCLICK) {
               if(event.isClient()) {
                 if("window.alert(\"you poor soul, using JavaScript actions in a view\")\n".equals(event.getScript())) {
                   return true;
@@ -496,7 +499,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONCLICK) {
+            if(event.getEventId() == EventId.ONCLICK) {
               if(!event.isClient()) {
                 if("alert(\"I'm on the web\")\n".equals(event.getScript())) {
                   return true;
@@ -508,7 +511,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONMOUSEDOWN) {
+            if(event.getEventId() == EventId.ONMOUSEDOWN) {
               if("console.log(\"is there a console in Notes JS actions?\")\n".equals(event.getScript())) {
                 return true;
               }
@@ -518,7 +521,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONMOUSEOVER) {
+            if(event.getEventId() == EventId.ONMOUSEOVER) {
               if("alert(\"wait, do onMouseOver actions work? No; this is web-only\")\n".equals(event.getScript())) {
                 return true;
               }
@@ -558,10 +561,10 @@ public class TestDbDesignForms extends AbstractDesignTest {
       {
         ActionContent content = action.getActionContent();
         assertInstanceOf(JavaScriptActionContent.class, content);
-        Collection<JavaScriptActionContent.ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
+        Collection<ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONCLICK) {
+            if(event.getEventId() == EventId.ONCLICK) {
               if(event.isClient()) {
                 if("window.alert(\"this is the common part\")\n".equals(event.getScript())) {
                   return true;
@@ -573,7 +576,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONCLICK) {
+            if(event.getEventId() == EventId.ONCLICK) {
               if(!event.isClient()) {
                 if("window.alert(\"this is the common part\")\n".equals(event.getScript())) {
                   return true;
@@ -585,7 +588,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONMOUSEDOWN) {
+            if(event.getEventId() == EventId.ONMOUSEDOWN) {
               if("console.log(\"is there a console in Notes JS actions?\")\n".equals(event.getScript())) {
                 return true;
               }
@@ -595,7 +598,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONMOUSEOVER) {
+            if(event.getEventId() == EventId.ONMOUSEOVER) {
               if("alert(\"wait, do onMouseOver actions work?\")\n".equals(event.getScript())) {
                 return true;
               }
@@ -628,9 +631,9 @@ public class TestDbDesignForms extends AbstractDesignTest {
 
       ActionContent content = action.getActionContent();
       assertInstanceOf(JavaScriptActionContent.class, content);
-      Collection<JavaScriptActionContent.ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
+      Collection<ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
       assertEquals(1, events.size());
-      JavaScriptActionContent.ScriptEvent event = events.stream().findFirst().get();
+      ScriptEvent event = events.stream().findFirst().get();
       String expected = IOUtils.resourceToString("/text/testDbDesignCollections/longjs.js", StandardCharsets.UTF_8).replace('\n', '\r');
       String actual = event.getScript();
       // Chomp the last line-ending character for consistency
@@ -863,6 +866,13 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertInstanceOf(FormulaActionContent.class, content);
       assertEquals("@StatusBar(\"hello.\")", ((FormulaActionContent)content).getFormula());
     }
+    
+    Collection<ScriptEvent> events = subform.getJavaScriptEvents();
+    assertEquals(1, events.size());
+    ScriptEvent evt = events.iterator().next();
+    assertEquals(EventId.ONHELP, evt.getEventId());
+    assertFalse(evt.isClient());
+    assertEquals("/* I'm subform help */\n", evt.getScript());
   }
 
   @Test
@@ -874,6 +884,43 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertTrue(subform.isIncludeInNewFormDialog());
     assertFalse(subform.isRenderPassThroughHtmlInClient());
     assertFalse(subform.isIncludeFieldsInIndex());
+  }
+
+  @Test
+  public void testInherForm() throws IOException {
+    DbDesign design = this.database.getDesign();
+    Form form = design.getForm("Test Inher").get();
+    
+    Map<String, String> ls = form.getFieldLotusScript();
+    assertEquals(Collections.singleton("SomeField"), ls.keySet());
+    String expected = IOUtils.resourceToString("/text/testDbDesignForms/inherSomeField.txt", StandardCharsets.UTF_8);
+    assertEquals(expected, ls.get("SomeField"));
+    
+    {
+      List<CDResource> stylesheets = form.getIncludedStyleSheets();
+      assertEquals(1, stylesheets.size());
+      CDResource sheet = stylesheets.get(0);
+      assertEquals("style.css", sheet.getNamedElement().get());
+    }
+    assertEquals("\"I am HTML head\"", form.getHtmlHeadContentFormula().get());
+    assertEquals("\"I am HTML body\"", form.getHtmlBodyAttributesFormula().get());
+    assertEquals("@StatusBar(\"I am webqueryopen\")", form.getWebQueryOpenFormula().get());
+    assertEquals("@StatusBar(\"I am webquerysave\")", form.getWebQuerySaveFormula().get());
+    assertEquals("\"I am target frame\"", form.getTargetFrameFormula().get());
+    
+    Map<EventId, String> formulas = form.getFormulaEvents();
+    assertEquals("@StatusBar(\"I am queryopen\")", formulas.get(EventId.CLIENT_FORM_QUERYOPEN));
+    assertEquals("@StatusBar(\"I am postopen\")", formulas.get(EventId.CLIENT_FORM_POSTOPEN));
+    assertEquals("@StatusBar(\"I am querymodechange\")", formulas.get(EventId.CLIENT_FORM_QUERYMODE));
+    assertEquals("@StatusBar(\"I am postmodechange\")", formulas.get(EventId.CLIENT_FORM_POSTMODE));
+    assertEquals("@StatusBar(\"I am queryrecalc\")", formulas.get(EventId.CLIENT_FORM_QUERYRECALC));
+    assertEquals("@StatusBar(\"I am postrecalc\")", formulas.get(EventId.CLIENT_FORM_POSTRECALC));
+    assertEquals("@StatusBar(\"I am querysave\")", formulas.get(EventId.CLIENT_FORM_QUERYSAVE));
+    assertEquals("@StatusBar(\"I am postsave\")", formulas.get(EventId.CLIENT_FORM_POSTSAVE));
+    assertEquals("@StatusBar(\"I am querysend\")", formulas.get(EventId.CLIENT_FORM_QUERYSEND));
+    assertEquals("@StatusBar(\"I am postsend\")", formulas.get(EventId.CLIENT_FORM_POSTSEND));
+    assertEquals("@StatusBar(\"I am queryclose\")", formulas.get(EventId.CLIENT_FORM_QUERYCLOSE));
+    assertEquals("@StatusBar(\"I am onsize\")", formulas.get(EventId.CLIENT_FORM_ONSIZE));
   }
   
   @ParameterizedTest

@@ -17,11 +17,13 @@
 package com.hcl.domino.design;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 
 import com.hcl.domino.data.CollectionColumn;
+import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.format.ViewLineSpacing;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
@@ -642,4 +644,56 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.32
    */
   Set<String> getUserDefinableNonFallbackColumns();
+  
+  /**
+   * Retrieves the form formula for the view or folder, if specified.
+   * 
+   * @return an {@link Optional} describing the collection's form formula, or an empty
+   *         one if this is not specified
+   * @since 1.0.34
+   */
+  Optional<String> getFormFormula();
+  
+  /**
+   * Retrieves the help-request formula for the view or folder, if specified.
+   * 
+   * @return an {@link Optional} describing the collection's help-request formula, or
+   *         an empty one if this is not specified
+   * @since 1.0.34
+   */
+  Optional<String> getHelpRequestFormula();
+  
+  /**
+   * Retrieves the single-click target-frame formula for the view or folder, if specified.
+   * 
+   * @return an {@link Optional} describing the collection's single-click target-frame
+   *         formula, or an empty one if this is not specified
+   * @since 1.0.34
+   */
+  Optional<String> getSingleClickTargetFrameFormula();
+  
+  /**
+   * Retrieves the double-click target-frame formula for the view or folder, if specified.
+   * 
+   * @return an {@link Optional} describing the collection's double-click target-frame
+   *         formula, or an empty one if this is not specified
+   * @since 1.0.34
+   */
+  Optional<String> getDoubleClickTargetFrameFormula();
+
+  /**
+   * Retrieves the formulas for UI events that are specified for this view or folder.
+   * 
+   * @return a {@link Map} of {@link EventId} instances to corresponding formulas
+   * @since 1.0.34
+   */
+  Map<EventId, String> getFormulaEvents();
+  
+  /**
+   * Retrieves the element-global LotusScript associated with the view or folder.
+   * 
+   * @return a {@link String} representing the IDE-formatted LotusScript for the element
+   * @since 1.0.34
+   */
+  String getLotusScript();
 }

@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.hcl.domino.misc.INumberEnum;
+import com.hcl.domino.misc.NotesConstants;
 
 /**
  * These bit masks define the types of notes in a database. The bit masks may be
@@ -30,69 +31,64 @@ import com.hcl.domino.misc.INumberEnum;
 public enum DocumentClass implements INumberEnum<Short> {
 
   /** old name for document note */
-  DATA((short) 0x0001),
+  DATA(NotesConstants.NOTE_CLASS_DATA),
 
   /** document note */
-  DOCUMENT((short) 0x0001),
+  DOCUMENT(NotesConstants.NOTE_CLASS_DOCUMENT),
 
   /** notefile info (help-about) note */
-  INFO((short) 0x0002),
+  INFO(NotesConstants.NOTE_CLASS_INFO),
 
   /** form note */
-  FORM((short) 0x0004),
+  FORM(NotesConstants.NOTE_CLASS_FORM),
 
   /** view note */
-  VIEW((short) 0x0008),
+  VIEW(NotesConstants.NOTE_CLASS_VIEW),
 
   /** icon note */
-  ICON((short) 0x0010),
+  ICON(NotesConstants.NOTE_CLASS_ICON),
 
   /** design note collection */
-  DESIGNCOLLECTION((short) 0x0020),
+  DESIGNCOLLECTION(NotesConstants.NOTE_CLASS_DESIGN),
 
   /** acl note */
-  ACL((short) 0x0040),
+  ACL(NotesConstants.NOTE_CLASS_ACL),
 
   /** Notes product help index note */
-  HELP_INDEX((short) 0x0080),
+  HELP_INDEX(NotesConstants.NOTE_CLASS_HELP_INDEX),
 
   /** designer's help note */
-  HELP((short) 0x0100),
+  HELP(NotesConstants.NOTE_CLASS_HELP),
 
   /** filter note */
-  FILTER((short) 0x0200),
+  FILTER(NotesConstants.NOTE_CLASS_FILTER),
 
   /** field note */
-  FIELD((short) 0x0400),
+  FIELD(NotesConstants.NOTE_CLASS_FIELD),
 
   /** replication formula */
-  REPLFORMULA((short) 0x0800),
+  REPLFORMULA(NotesConstants.NOTE_CLASS_REPLFORMULA),
 
   /** Private design note, use $PrivateDesign view to locate/classify */
-  PRIVATE((short) 0x1000),
+  PRIVATE(NotesConstants.NOTE_CLASS_PRIVATE),
 
   /** MODIFIER - default version of each */
-  DEFAULT((short) (0x8000 & 0xffff)),
+  DEFAULT(NotesConstants.NOTE_CLASS_DEFAULT),
 
   /** marker included in deletion stubs found in a query result */
-  NOTIFYDELETION((short) (0x8000 & 0xffff)),
+  NOTIFYDELETION(NotesConstants.NOTE_CLASS_NOTIFYDELETION),
 
   /** all note types */
-  ALL((short) 0x7fff),
+  ALL(NotesConstants.NOTE_CLASS_ALL),
 
   /** all non-data notes */
-  ALLNONDATA((short) 0x7ffe),
+  ALLNONDATA(NotesConstants.NOTE_CLASS_ALLNONDATA),
 
   /** no notes */
-  NONE((short) 0x0000),
+  NONE(NotesConstants.NOTE_CLASS_NONE),
 
   /** Define symbol for those note classes that allow only one such in a file */
-  SINGLE_INSTANCE((short) (0x0020 /* DESIGN */ |
-      0x0040 /* ACL */ |
-      0x0002 /* INFO */ |
-      0x0010 /* ICON */ |
-      0x0080 /* HELP_INDEX */
-  ));
+  SINGLE_INSTANCE(NotesConstants.NOTE_CLASS_SINGLE_INSTANCE);
 
   private static Map<Short, DocumentClass> classesByValue = new HashMap<>();
   static {
@@ -125,7 +121,7 @@ public enum DocumentClass implements INumberEnum<Short> {
 
   @Override
   public long getLongValue() {
-    return this.m_val & 0xffff;
+    return Short.toUnsignedLong(this.m_val);
   }
 
   @Override

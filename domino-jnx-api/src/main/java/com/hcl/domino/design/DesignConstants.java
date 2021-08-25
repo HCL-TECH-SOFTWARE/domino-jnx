@@ -377,4 +377,14 @@ public interface DesignConstants {
   String HFFLAGS_NOPRINTONFIRSTPAGE = "1"; //$NON-NLS-1$
   /** header/footer is RTL */
   String HFFLAGS_DIRECTION_RTL = "R"; //$NON-NLS-1$
+  
+  String ITEM_NAME_FIELDS = "$Fields"; //$NON-NLS-1$
+  
+  String ITEM_NAME_WINDOWTITLE = "$WindowTitle"; //$NON-NLS-1$
+  String ITEM_NAME_HTMLHEADTAG = "$HTMLHeadTag"; //$NON-NLS-1$
+  String ITEM_NAME_HTMLBODYTAG = "$HTMLBodyTag"; //$NON-NLS-1$
+  String ITEM_NAME_WEBQUERYSAVE = "$WEBQuerySave"; //$NON-NLS-1$
+  String ITEM_NAME_WEBQUERYOPEN = "$WEBQueryOpen"; //$NON-NLS-1$
+  String ITEM_NAME_APPHELPFORMULA = "$AppHelpFormula"; //$NON-NLS-1$
+  String ITEM_NAME_STYLESHEETLIST = "$StyleSheetList"; //$NON-NLS-1$
 }

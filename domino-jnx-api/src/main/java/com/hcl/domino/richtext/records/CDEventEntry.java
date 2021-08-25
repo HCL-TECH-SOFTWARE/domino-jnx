@@ -18,7 +18,7 @@ package com.hcl.domino.richtext.records;
 
 import java.util.Optional;
 
-import com.hcl.domino.design.format.HtmlEventId;
+import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -127,11 +127,11 @@ public interface CDEventEntry extends RichTextRecord<WSIG> {
   /**
    * Retrieves the HTML-type event for this action, if appropriate.
    * 
-   * @return an {@link Optional} describing the {@link HtmlEventId} corresponding
+   * @return an {@link Optional} describing the {@link EventId} corresponding
    *         to the value of {@link #getEventId()}, or an empty one if it does
    *         not correspond to any
    */
-  default Optional<HtmlEventId> getHtmlEventId() {
-    return DominoEnumUtil.valueOf(HtmlEventId.class, getEventId());
+  default Optional<EventId> getHtmlEventId() {
+    return DominoEnumUtil.valueOf(EventId.class, getEventId());
   }
 }

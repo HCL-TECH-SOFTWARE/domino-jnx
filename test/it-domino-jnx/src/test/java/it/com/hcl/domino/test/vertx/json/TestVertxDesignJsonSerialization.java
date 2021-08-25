@@ -63,7 +63,7 @@ public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
     
     withResourceDxl("/dxl/testDbDesignForms", database -> {
       Form form = database.getDesign().getForm("Test LS Form").get();
-      serializer.toJson(form);
+      System.out.println(serializer.toJson(form));
     });
   }
   
