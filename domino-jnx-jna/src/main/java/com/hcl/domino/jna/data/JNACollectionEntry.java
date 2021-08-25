@@ -37,6 +37,7 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.ReadMask;
 import com.hcl.domino.data.CollectionEntry;
@@ -46,7 +47,6 @@ import com.hcl.domino.data.Database.DocInfo;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoDateTime;
-import com.hcl.domino.jna.internal.AbstractTypedAccess;
 import com.hcl.domino.jna.internal.LMBCSString;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.misc.DominoEnumUtil;
@@ -1277,4 +1277,13 @@ public class JNACollectionEntry implements CollectionEntry {
 		return m_typedAccess.getAsList(index, valueType, defaultValue);
 	}
 	
+	@Override
+	public <T> Optional<T> getOptional(String itemName, Class<T> valueType) {
+	  return m_typedAccess.getOptional(itemName, valueType);
+	}
+	
+	@Override
+	public <T> Optional<List<T>> getAsListOptional(String itemName, Class<T> valueType) {
+	  return m_typedAccess.getAsListOptional(itemName, valueType);
+	}
 }
