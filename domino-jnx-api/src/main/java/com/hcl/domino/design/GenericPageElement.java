@@ -45,6 +45,7 @@ public interface GenericPageElement<T extends GenericPageElement<T>> extends Des
      * 
      * @return an {@link Optional} describing the window-title formula if present,
      *         or an empty one if this has not been specified
+     * @since 1.0.34
      */
     Optional<String> getWindowTitleFormula();
     
@@ -53,6 +54,7 @@ public interface GenericPageElement<T extends GenericPageElement<T>> extends Des
      * 
      * @return an {@link Optional} describing the target-frame formula if present,
      *         or an empty one if this has not been specified
+     * @since 1.0.34
      */
     Optional<String> getTargetFrameFormula();
     
@@ -61,6 +63,7 @@ public interface GenericPageElement<T extends GenericPageElement<T>> extends Des
      * 
      * @return an {@link Optional} describing the HTML head content formula if present,
      *         or an empty one if this has not been specified
+     * @since 1.0.34
      */
     Optional<String> getHtmlHeadContentFormula();
     
@@ -69,6 +72,7 @@ public interface GenericPageElement<T extends GenericPageElement<T>> extends Des
      * 
      * @return an {@link Optional} describing the HTML body attributes formula if present,
      *         or an empty one if this has not been specified
+     * @since 1.0.34
      */
     Optional<String> getHtmlBodyAttributesFormula();
     
@@ -76,6 +80,7 @@ public interface GenericPageElement<T extends GenericPageElement<T>> extends Des
      * Retrieves a list of stylesheet references included in the HTML head.
      * 
      * @return a {@link List} of {@link CDResource} objects
+     * @since 1.0.34
      */
     List<CDResource> getIncludedStyleSheets();
     
@@ -83,6 +88,7 @@ public interface GenericPageElement<T extends GenericPageElement<T>> extends Des
      * Retrieves the formulas for UI events that are specified for this form or page.
      * 
      * @return a {@link Map} of {@link EventId} instances to corresponding formulas
+     * @since 1.0.34
      */
     Map<EventId, String> getFormulaEvents();
   }

@@ -4542,4 +4542,9 @@ public interface NotesConstants extends ViewFormatConstants {
   String WEBFLAG_NOTE_USEJSCTL_INBROWSER = "D"; //$NON-NLS-1$
   String WEBFLAG_NOTE_CRAWLABLE = "C"; //$NON-NLS-1$
   String WEBFLAG_NOTE_RESTAPIALLOWED = "A"; //$NON-NLS-1$
+  
+  String VIEW_SCRIPT_NAME = "$ViewScript"; //$NON-NLS-1$
+  /** Formula for view script event */
+  String VIEW_ACTION_ITEM_NAME = "$ViewAction"; //$NON-NLS-1$
+  String VIEW_FORM_FORMULA_ITEM = "$FormFormula"; //$NON-NLS-1$
 }

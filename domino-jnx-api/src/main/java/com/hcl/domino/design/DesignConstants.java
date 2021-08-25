@@ -385,5 +385,6 @@ public interface DesignConstants {
   String ITEM_NAME_HTMLBODYTAG = "$HTMLBodyTag"; //$NON-NLS-1$
   String ITEM_NAME_WEBQUERYSAVE = "$WEBQuerySave"; //$NON-NLS-1$
   String ITEM_NAME_WEBQUERYOPEN = "$WEBQueryOpen"; //$NON-NLS-1$
+  String ITEM_NAME_APPHELPFORMULA = "$AppHelpFormula"; //$NON-NLS-1$
   String ITEM_NAME_STYLESHEETLIST = "$StyleSheetList"; //$NON-NLS-1$
 }
