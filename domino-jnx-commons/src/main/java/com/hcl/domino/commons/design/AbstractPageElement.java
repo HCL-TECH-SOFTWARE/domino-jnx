@@ -1,19 +1,26 @@
 package com.hcl.domino.commons.design;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.GenericPageElement;
+import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextRecordList;
 import com.hcl.domino.richtext.records.CDDocument;
+import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.records.CDTarget;
 import com.hcl.domino.richtext.records.RecordType.Area;
 
 public abstract class AbstractPageElement<T extends GenericPageElement<T>> extends AbstractNamedDesignElement<T>
@@ -45,6 +52,66 @@ public abstract class AbstractPageElement<T extends GenericPageElement<T>> exten
       result.append(item.get(String.class, "")); //$NON-NLS-1$
     });
     return result.toString();
+  }
+  
+  @Override
+  public Optional<String> getWindowTitleFormula() {
+    Document doc = getDocument();
+    if(doc.hasItem(DesignConstants.ITEM_NAME_WINDOWTITLE)) {
+      return Optional.of(doc.get(DesignConstants.ITEM_NAME_WINDOWTITLE, String.class, "")); //$NON-NLS-1$
+    } else {
+      return Optional.empty();
+    }
+  }
+  
+  @Override
+  public Optional<String> getTargetFrameFormula() {
+    return getHtmlCodeItem().stream()
+      .filter(CDTarget.class::isInstance)
+      .map(CDTarget.class::cast)
+      .findFirst()
+      .flatMap(target -> target.getFlags().contains(CDTarget.Flag.IS_FORMULA) ? target.getTargetFormula() : target.getTargetString());
+  }
+  
+  @Override
+  public Optional<String> getHtmlBodyAttributesFormula() {
+    Document doc = getDocument();
+    if(doc.hasItem(DesignConstants.ITEM_NAME_HTMLBODYTAG)) {
+      return Optional.of(doc.get(DesignConstants.ITEM_NAME_HTMLBODYTAG, String.class, "")); //$NON-NLS-1$
+    } else {
+      return Optional.empty();
+    }
+  }
+  
+  @Override
+  public Optional<String> getHtmlHeadContentFormula() {
+    Document doc = getDocument();
+    if(doc.hasItem(DesignConstants.ITEM_NAME_HTMLHEADTAG)) {
+      return Optional.of(doc.get(DesignConstants.ITEM_NAME_HTMLHEADTAG, String.class, "")); //$NON-NLS-1$
+    } else {
+      return Optional.empty();
+    }
+  }
+  
+  @Override
+  public List<CDResource> getIncludedStyleSheets() {
+    return getDocument().getRichTextItem(DesignConstants.ITEM_NAME_STYLESHEETLIST)
+      .stream()
+      .filter(CDResource.class::isInstance)
+      .map(CDResource.class::cast)
+      .collect(Collectors.toList());
+  }
+  
+  @Override
+  public Map<EventId, String> getFormulaEvents() {
+    Document doc = getDocument();
+    return Arrays.stream(EventId.values())
+      .filter(id -> id.getItemName() != null)
+      .filter(id -> doc.hasItem(id.getItemName()))
+      .collect(Collectors.toMap(
+        Function.identity(),
+        id -> doc.get(id.getItemName(), String.class, "") //$NON-NLS-1$
+      ));
   }
 
   // *******************************************************************************

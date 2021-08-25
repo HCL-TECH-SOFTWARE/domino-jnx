@@ -2,8 +2,12 @@ package com.hcl.domino.design;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
+import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.action.ScriptEvent;
+import com.hcl.domino.richtext.records.CDResource;
 
 /**
  * Represents properties common between Forms, Subforms, and Pages.
@@ -35,6 +39,52 @@ public interface GenericPageElement<T extends GenericPageElement<T>> extends Des
      * @since 1.0.34
      */
     String getLotusScript();
+    
+    /**
+     * Retrieves the window-title formula for the form or page, if specified.
+     * 
+     * @return an {@link Optional} describing the window-title formula if present,
+     *         or an empty one if this has not been specified
+     */
+    Optional<String> getWindowTitleFormula();
+    
+    /**
+     * Retrieves the target-frame formula for the form or page, if specified.
+     * 
+     * @return an {@link Optional} describing the target-frame formula if present,
+     *         or an empty one if this has not been specified
+     */
+    Optional<String> getTargetFrameFormula();
+    
+    /**
+     * Retrieves the HTML head content formula for the form or page, if specified.
+     * 
+     * @return an {@link Optional} describing the HTML head content formula if present,
+     *         or an empty one if this has not been specified
+     */
+    Optional<String> getHtmlHeadContentFormula();
+    
+    /**
+     * Retrieves the HTML body attributes formula for the form or page, if specified.
+     * 
+     * @return an {@link Optional} describing the HTML body attributes formula if present,
+     *         or an empty one if this has not been specified
+     */
+    Optional<String> getHtmlBodyAttributesFormula();
+    
+    /**
+     * Retrieves a list of stylesheet references included in the HTML head.
+     * 
+     * @return a {@link List} of {@link CDResource} objects
+     */
+    List<CDResource> getIncludedStyleSheets();
+    
+    /**
+     * Retrieves the formulas for UI events that are specified for this form or page.
+     * 
+     * @return a {@link Map} of {@link EventId} instances to corresponding formulas
+     */
+    Map<EventId, String> getFormulaEvents();
   }
   
   /**

@@ -63,6 +63,7 @@ import com.hcl.domino.design.View;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionContent;
 import com.hcl.domino.design.action.FormulaActionContent;
+import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.action.JavaScriptActionContent;
 import com.hcl.domino.design.action.LotusScriptActionContent;
 import com.hcl.domino.design.action.ScriptEvent;
@@ -81,7 +82,6 @@ import com.hcl.domino.design.format.DateShowFormat;
 import com.hcl.domino.design.format.DateShowSpecial;
 import com.hcl.domino.design.format.DayFormat;
 import com.hcl.domino.design.format.HideFromDevice;
-import com.hcl.domino.design.format.HtmlEventId;
 import com.hcl.domino.design.format.MonthFormat;
 import com.hcl.domino.design.format.NarrowViewPosition;
 import com.hcl.domino.design.format.NumberDisplayFormat;
@@ -1816,7 +1816,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         Collection<ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONCLICK) {
+            if(event.getEventId() == EventId.ONCLICK) {
               if(event.isClient()) {
                 if("window.alert(\"you poor soul, using JavaScript actions in a view\")\n".equals(event.getScript())) {
                   return true;
@@ -1828,7 +1828,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONCLICK) {
+            if(event.getEventId() == EventId.ONCLICK) {
               if(!event.isClient()) {
                 if("alert(\"I'm on the web\")\n".equals(event.getScript())) {
                   return true;
@@ -1840,7 +1840,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONMOUSEDOWN) {
+            if(event.getEventId() == EventId.ONMOUSEDOWN) {
               if("console.log(\"is there a console in Notes JS actions?\")\n".equals(event.getScript())) {
                 return true;
               }
@@ -1850,7 +1850,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONMOUSEOVER) {
+            if(event.getEventId() == EventId.ONMOUSEOVER) {
               if("alert(\"wait, do onMouseOver actions work? No; this is web-only\")\n".equals(event.getScript())) {
                 return true;
               }
@@ -1893,7 +1893,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         Collection<ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONCLICK) {
+            if(event.getEventId() == EventId.ONCLICK) {
               if(event.isClient()) {
                 if("window.alert(\"this is the common part\")\n".equals(event.getScript())) {
                   return true;
@@ -1905,7 +1905,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONCLICK) {
+            if(event.getEventId() == EventId.ONCLICK) {
               if(!event.isClient()) {
                 if("window.alert(\"this is the common part\")\n".equals(event.getScript())) {
                   return true;
@@ -1917,7 +1917,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONMOUSEDOWN) {
+            if(event.getEventId() == EventId.ONMOUSEDOWN) {
               if("console.log(\"is there a console in Notes JS actions?\")\n".equals(event.getScript())) {
                 return true;
               }
@@ -1927,7 +1927,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONMOUSEOVER) {
+            if(event.getEventId() == EventId.ONMOUSEOVER) {
               if("alert(\"wait, do onMouseOver actions work?\")\n".equals(event.getScript())) {
                 return true;
               }

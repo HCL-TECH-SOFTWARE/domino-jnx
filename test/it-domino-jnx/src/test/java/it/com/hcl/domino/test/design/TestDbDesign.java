@@ -33,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -61,6 +62,7 @@ import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionContent;
+import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.action.FormulaActionContent;
 import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.design.format.FieldListDelimiter;
@@ -603,6 +605,10 @@ public class TestDbDesign extends AbstractDesignTest {
     
     String lsExpected = IOUtils.resourceToString("/text/testDbDesign/testPageLs.txt", StandardCharsets.UTF_8);
     assertEquals(lsExpected, page.getLotusScript());
+    
+    Map<EventId, String> formulas = page.getFormulaEvents();
+    assertEquals(1, formulas.size());
+    assertEquals("@StatusBar(\"I am page postopen\")", formulas.get(EventId.CLIENT_FORM_POSTOPEN));
   }
   
   @Test

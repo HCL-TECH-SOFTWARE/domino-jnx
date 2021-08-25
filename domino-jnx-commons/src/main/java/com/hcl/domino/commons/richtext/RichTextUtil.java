@@ -35,8 +35,8 @@ import com.hcl.domino.commons.richtext.records.GenericBSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericLSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericWSIGRecord;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
+import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.action.ScriptEvent;
-import com.hcl.domino.design.format.HtmlEventId;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.CDBlobPart;
@@ -256,7 +256,7 @@ public enum RichTextUtil {
 
     final int paddedLength = fileLength + 1; // Make sure there's at least one \0 at the end
     w.addRichTextRecord(CDEvent.class, event -> {
-      event.setEventType(HtmlEventId.LIBRARY);
+      event.setEventType(EventId.LIBRARY);
       event.setActionType(libraryType);
       event.setActionLength(paddedLength + paddedLength % 2);
     });
@@ -355,7 +355,7 @@ public enum RichTextUtil {
     List<ScriptEvent> events = new ArrayList<>();
     // This is formatted as a series of CDEVENT records followed by CDBLOBPARTs
     // Client ones are distinguished by using SIG_CD_CLIENT_EVENT and SIG_CD_CLIENT_BLOBPART
-    HtmlEventId currentEvent = null;
+    EventId currentEvent = null;
     boolean currentClient = false;
     StringBuilder currentScript = new StringBuilder();
     long currentLength = 0;

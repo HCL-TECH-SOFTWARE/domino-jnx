@@ -1,7 +1,5 @@
 package com.hcl.domino.design.action;
 
-import com.hcl.domino.design.format.HtmlEventId;
-
 /**
  * Represents an individual event/code definition.
  * 
@@ -9,7 +7,7 @@ import com.hcl.domino.design.format.HtmlEventId;
  * @since 1.0.32
  */
 public interface ScriptEvent {
-  HtmlEventId getEventId();
+  EventId getEventId();
   String getScript();
   /**
    * Determines if the event runs in the Notes client or on the web.

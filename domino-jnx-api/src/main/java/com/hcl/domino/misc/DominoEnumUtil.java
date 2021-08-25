@@ -76,9 +76,11 @@ public enum DominoEnumUtil {
    */
   public static <N extends Number, T extends Enum<T> & INumberEnum<N>> Optional<T> valueOf(final Class<T> clazz, final int value) {
     for (final T enumVal : clazz.getEnumConstants()) {
-      final long enumValue = enumVal.getLongValue();
-      if (enumValue == value) {
-        return Optional.of(enumVal);
+      if(!enumVal.isSkipInLookup()) {
+        final long enumValue = enumVal.getLongValue();
+        if (enumValue == value) {
+          return Optional.of(enumVal);
+        }
       }
     }
     return Optional.empty();
@@ -97,9 +99,11 @@ public enum DominoEnumUtil {
    */
   public static <N extends Number, T extends Enum<T> & INumberEnum<N>> Optional<T> valueOf(final Class<T> clazz, final long value) {
     for (final T enumVal : clazz.getEnumConstants()) {
-      final long enumValue = enumVal.getLongValue();
-      if (enumValue == value) {
-        return Optional.of(enumVal);
+      if(!enumVal.isSkipInLookup()) {
+        final long enumValue = enumVal.getLongValue();
+        if (enumValue == value) {
+          return Optional.of(enumVal);
+        }
       }
     }
     return Optional.empty();
@@ -117,9 +121,11 @@ public enum DominoEnumUtil {
    */
   public static <T extends INumberEnum<?>> Optional<T> valueOf(final Class<T> clazz, final Number value) {
     for (final T enumVal : clazz.getEnumConstants()) {
-      final long enumValue = enumVal.getLongValue();
-      if (enumValue == value.longValue()) {
-        return Optional.of(enumVal);
+      if(!enumVal.isSkipInLookup()) {
+        final long enumValue = enumVal.getLongValue();
+        if (enumValue == value.longValue()) {
+          return Optional.of(enumVal);
+        }
       }
     }
     return Optional.empty();
@@ -139,9 +145,11 @@ public enum DominoEnumUtil {
   public static <N extends Number, T extends Enum<T> & INumberEnum<N>> Optional<T> valueOf(final Class<T> clazz,
       final short value) {
     for (final T enumVal : clazz.getEnumConstants()) {
-      final long enumValue = enumVal.getLongValue();
-      if (enumValue == value) {
-        return Optional.of(enumVal);
+      if(!enumVal.isSkipInLookup()) {
+        final long enumValue = enumVal.getLongValue();
+        if (enumValue == value) {
+          return Optional.of(enumVal);
+        }
       }
     }
     return Optional.empty();
@@ -162,9 +170,11 @@ public enum DominoEnumUtil {
     final EnumSet<T> result = EnumSet.noneOf(clazz);
     final long val = value;
     for (final T enumVal : clazz.getEnumConstants()) {
-      final long enumValue = enumVal.getLongValue();
-      if ((val & enumValue) == enumValue) {
-        result.add(enumVal);
+      if(!enumVal.isSkipInLookup()) {
+        final long enumValue = enumVal.getLongValue();
+        if ((val & enumValue) == enumValue) {
+          result.add(enumVal);
+        }
       }
     }
     return result;
@@ -184,9 +194,11 @@ public enum DominoEnumUtil {
   public static <N extends Number, T extends Enum<T> & INumberEnum<N>> EnumSet<T> valuesOf(final Class<T> clazz, final long value) {
     final EnumSet<T> result = EnumSet.noneOf(clazz);
     for (final T enumVal : clazz.getEnumConstants()) {
-      final long enumValue = enumVal.getLongValue();
-      if ((value & enumValue) == enumValue) {
-        result.add(enumVal);
+      if(!enumVal.isSkipInLookup()) {
+        final long enumValue = enumVal.getLongValue();
+        if ((value & enumValue) == enumValue) {
+          result.add(enumVal);
+        }
       }
     }
     return result;
@@ -208,9 +220,11 @@ public enum DominoEnumUtil {
     final EnumSet<T> result = EnumSet.noneOf(clazz);
     final long val = value;
     for (final T enumVal : clazz.getEnumConstants()) {
-      final long enumValue = enumVal.getLongValue();
-      if ((val & enumValue) == enumValue) {
-        result.add(enumVal);
+      if(!enumVal.isSkipInLookup()) {
+        final long enumValue = enumVal.getLongValue();
+        if ((val & enumValue) == enumValue) {
+          result.add(enumVal);
+        }
       }
     }
     return result;
