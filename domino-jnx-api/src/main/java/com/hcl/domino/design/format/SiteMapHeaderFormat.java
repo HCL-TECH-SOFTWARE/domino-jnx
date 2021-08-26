@@ -1,6 +1,5 @@
 package com.hcl.domino.design.format;
 
-import java.nio.ByteBuffer;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;

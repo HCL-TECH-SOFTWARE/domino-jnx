@@ -1,6 +1,9 @@
 package com.hcl.domino.commons.design;
 
+import java.util.List;
+import com.hcl.domino.commons.design.outline.DominoOutlineFormat;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.Outline;
 
@@ -9,10 +12,10 @@ public class OutlineImpl extends AbstractNamedDesignElement<Outline> implements 
   public OutlineImpl(Document doc) {
     super(doc);
   }
-
+  
   @Override
-  public String getSitemapList() {
-    return getDocument().get(DesignConstants.OUTLINE_SITEMAPLIST_ITEM, String.class, "");
+  public List<IAdaptable> getSitemapList() {
+    return ((DominoOutlineFormat) getDocument().getItemValue(DesignConstants.OUTLINE_SITEMAPLIST_ITEM).get(0)).getOutlineEntries();
   }
 
   @Override

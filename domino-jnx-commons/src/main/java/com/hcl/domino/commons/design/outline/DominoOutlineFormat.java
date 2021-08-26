@@ -6,18 +6,18 @@ import com.hcl.domino.data.IAdaptable;
 
 public class DominoOutlineFormat implements IAdaptable {
   
-  private final List<String> titles = new ArrayList<>();
+  private final List<IAdaptable> outlineEntries = new ArrayList();
 
   @Override
   public <T> T getAdapter(Class<T> clazz) {
     return null;
   }
 
-  public List<String> getTitles() {
-    return this.titles;
+  public List<IAdaptable> getOutlineEntries() {
+    return this.outlineEntries;
   }
   
-  public void addTitle(String title) {
-    this.titles.add(title);
+  public void addOutlineEntry(DominoOutlineEntry outlineEntry) {
+    this.outlineEntries.add(outlineEntry);
   }
 }

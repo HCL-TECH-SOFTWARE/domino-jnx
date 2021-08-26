@@ -626,7 +626,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		}
 		else if (dataTypeAsInt == ItemDataType.TYPE_OUTLINE_FORMAT.getValue()) {
 		  DominoOutlineFormat outlineFormatInfo = OutlineFormatDecoder.decodeOutlineFormat(valueDataPtr,  valueDataLength);
-          return Arrays.asList((Object) outlineFormatInfo.getTitles());
+          return Arrays.asList((Object) outlineFormatInfo);
         }
 		else {
 			throw new DominoException(format("Data type for value of item {0} is currently unsupported: {1}", itemName, dataTypeAsInt));

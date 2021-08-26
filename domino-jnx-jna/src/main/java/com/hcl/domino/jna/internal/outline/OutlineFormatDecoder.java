@@ -1,19 +1,20 @@
 package com.hcl.domino.jna.internal.outline;
 
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
+import java.util.List;
+import com.hcl.domino.commons.design.outline.DominoOutlineEntry;
 import com.hcl.domino.commons.design.outline.DominoOutlineFormat;
 import com.hcl.domino.commons.misc.ODSTypes;
-import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
+import com.hcl.domino.commons.richtext.RichTextUtil;
+import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.format.SiteMapEntry;
 import com.hcl.domino.design.format.SiteMapHeaderFormat;
 import com.hcl.domino.design.format.SiteMapOutlineHeader;
-import com.hcl.domino.jna.internal.capi.NotesCAPI;
-import com.hcl.domino.richtext.structures.MemoryStructure;
-import com.sun.jna.Memory;
+import com.hcl.domino.jna.internal.MemoryUtils;
+import com.hcl.domino.richtext.records.RecordType;
+import com.hcl.domino.richtext.records.RichTextRecord;
 import com.sun.jna.Pointer;
-import com.sun.jna.ptr.PointerByReference;
 
 public class OutlineFormatDecoder {
   
@@ -21,102 +22,154 @@ public class OutlineFormatDecoder {
     
     DominoOutlineFormat result = new DominoOutlineFormat();
     ByteBuffer data = dataPtr.getByteBuffer(0, valueLength);
-    SiteMapHeaderFormat header = readMemory(data, ODSTypes._OUTLINE_FORMAT, SiteMapHeaderFormat.class);
+    SiteMapHeaderFormat header = MemoryUtils.readMemory(data, ODSTypes._OUTLINE_FORMAT, SiteMapHeaderFormat.class);
     short items = header.getItems();
     short numEntries = header.getEntries();
-    
-    SiteMapOutlineHeader outlineHeader = readMemory(data, ODSTypes._OUTLINE_FORMAT, SiteMapOutlineHeader.class);
+//    byte  majorVersionByte = header.getMajorVersion();
+//    byte  minorVersionByte = header.getMinorVersion();
+//    short majorVersion = (short)majorVersionByte;
+//    short minorVersion = (short)minorVersionByte;
+
+    SiteMapOutlineHeader outlineHeader = MemoryUtils.readMemory(data, ODSTypes._OUTLINE_FORMAT, SiteMapOutlineHeader.class);
     int flags = outlineHeader.getFlags();
     
     short[] itemEntries = new short[items];
     for (int i=0; i<items; i++) {
-      itemEntries[i] = readBuffer(data, 2).getShort();
+      itemEntries[i] = MemoryUtils.readBuffer(data, 2).getShort();
     }
     for (int i=0; i<items; i++) {
       for (int j=0; j<itemEntries[i]; j++) {
 
-        SiteMapEntry sitemapEntry = readMemory(data, ODSTypes._OUTLINE_FORMAT, SiteMapEntry.class);
+        DominoOutlineEntry outlineEntry = new DominoOutlineEntry();
+        SiteMapEntry sitemapEntry = MemoryUtils.readMemory(data, ODSTypes._OUTLINE_FORMAT, SiteMapEntry.class);
         int fixedSize  = sitemapEntry.getEntryFixedSize();
         short varSize  = sitemapEntry.getEntryVarSize();
+        //int entryFlags = sitemapEntry.getEntryFlags();
         int id = sitemapEntry.getId();
         short titleSize =  sitemapEntry.getTitleSize();
         short aliasSize  = sitemapEntry.getAliasSize();
-        short entryType = sitemapEntry.getEntryType();
-        short entryClass = sitemapEntry.getEntryClass();
+        short entryTypeVal = sitemapEntry.getEntryType();
+        short entryClassVal = sitemapEntry.getEntryClass();
         short entryDesignType = sitemapEntry.getEntryDesignType();
         short imageSize  = sitemapEntry.getImagesSize();
         short popupSize = sitemapEntry.getPopupSize();
         short onclickSize = sitemapEntry.getOnClickSize();
         short sourceSize = sitemapEntry.getSourceSize();
+        short targetFrameSize = sitemapEntry.getTargetFrameSize();
+        short hideWhenSize = sitemapEntry.getHideWhenSize();
+        short preferredServerSize = sitemapEntry.getPreferredServerSize();
+        short toolbarManagerSize = sitemapEntry.getToolbarManagerSize();
+        short toolbarEntrySize = sitemapEntry.getToolbarEntrySize();
         
-        //for now just read title
-        String title = StandardCharsets.UTF_8.decode(readBuffer(data, titleSize)).toString();
-        result.addTitle(title);
+        outlineEntry.setFlags(sitemapEntry.getEntryFlags());
+        outlineEntry.setResourceDesignType(sitemapEntry.getEntryDesignType());
+        outlineEntry.setLevel(sitemapEntry.getLevel());
+        outlineEntry.setResourceTypeFromRaw(sitemapEntry.getEntryType());
+        outlineEntry.setResourceClassFromRaw(sitemapEntry.getEntryClass());
+        
+        //read variable data
+        if (titleSize > 0) {
+          titleSize = recalculateDataSize(readVariableDataDatatype(data), titleSize, data);
+          //String title = new String(getBufferBytes(data, titleSize), Charset.forName("LMBCS"));
+          outlineEntry.setTitle(new String(MemoryUtils.getBufferBytes(data, titleSize), Charset.forName("LMBCS")));
+        }
+
+        if (onclickSize > 0) {
+          short onclickDataDatatype = readVariableDataDatatype(data);
+          onclickSize = recalculateDataSize(onclickDataDatatype, onclickSize, data);
+          ByteBuffer onclickdata = MemoryUtils.readBuffer(data, onclickSize);
+          byte[] onclickdataBytes = new byte[onclickSize];
+          onclickdata.get(onclickdataBytes, 0, onclickSize);
+          List<RichTextRecord<?>> onclickData =  null;
+          if (onclickDataDatatype == ItemDataType.TYPE_COMPOSITE.getValue()) {
+            onclickData = RichTextUtil.readMemoryRecords(onclickdataBytes, RecordType.Area.RESERVED_INTERNAL);
+          }
+          outlineEntry.setOnclickData(onclickData);
+        }
+        
+        if (imageSize > 0) {
+          short imageDataDatatype = readVariableDataDatatype(data);
+          imageSize = recalculateDataSize(imageDataDatatype, imageSize, data);
+          ByteBuffer imagedata = MemoryUtils.readBuffer(data, imageSize);
+          byte[] imagedataBytes = new byte[imageSize];
+          imagedata.get(imagedataBytes, 0, imageSize);
+          List<RichTextRecord<?>> imageData =  null;
+          if (imageDataDatatype == ItemDataType.TYPE_COMPOSITE.getValue()) {
+            imageData = RichTextUtil.readMemoryRecords(imagedataBytes, RecordType.Area.RESERVED_INTERNAL);
+          }
+          outlineEntry.setImageData(imageData);
+        }
+        
+        if (targetFrameSize > 0) {
+          targetFrameSize = recalculateDataSize(readVariableDataDatatype(data), targetFrameSize, data);
+          outlineEntry.setTargetFrame(new String(MemoryUtils.getBufferBytes(data, targetFrameSize), Charset.forName("LMBCS")));
+        }
+        
+        if (hideWhenSize > 0) {
+          hideWhenSize = recalculateDataSize(readVariableDataDatatype(data), hideWhenSize, data);
+          outlineEntry.setHideWhenData(new String(MemoryUtils.getBufferBytes(data, hideWhenSize), Charset.forName("LMBCS")));
+        }
+        
+        if (aliasSize > 0) {
+          aliasSize = recalculateDataSize(readVariableDataDatatype(data), aliasSize, data);
+          outlineEntry.setAlias(new String(MemoryUtils.getBufferBytes(data, aliasSize), Charset.forName("LMBCS")));
+        }
+        
+        if (sourceSize > 0) {
+          sourceSize = recalculateDataSize(readVariableDataDatatype(data), sourceSize, data);
+          outlineEntry.setSourceData(new String(MemoryUtils.getBufferBytes(data, sourceSize), Charset.forName("LMBCS")));
+        }
+        
+        if (preferredServerSize > 0) {
+          preferredServerSize = recalculateDataSize(readVariableDataDatatype(data), preferredServerSize, data);
+          outlineEntry.setPreferredServer(new String(MemoryUtils.getBufferBytes(data, preferredServerSize), Charset.forName("LMBCS")));
+        }
+
+        //if (majorVersion == 1 && minorVersion > 3) {
+        if (toolbarManagerSize > 0) {
+          toolbarManagerSize = recalculateDataSize(readVariableDataDatatype(data), toolbarManagerSize, data);
+          outlineEntry.setToolbarManager(new String(MemoryUtils.getBufferBytes(data, toolbarManagerSize), Charset.forName("LMBCS")));
+        }
+
+        if (toolbarEntrySize > 0) {
+          toolbarEntrySize = recalculateDataSize(readVariableDataDatatype(data), toolbarEntrySize, data);
+          outlineEntry.setToolbarEntry(new String(MemoryUtils.getBufferBytes(data, toolbarEntrySize), Charset.forName("LMBCS")));
+        }
+        //}
+
+        //if (majorVersion == 1 && minorVersion >= 6) {
+        if (popupSize > 0) {
+          popupSize = recalculateDataSize(readVariableDataDatatype(data), popupSize, data);
+          outlineEntry.setPopup(new String(MemoryUtils.getBufferBytes(data, popupSize), Charset.forName("LMBCS")));
+        }
+        //}
+        
+        result.addOutlineEntry(outlineEntry);
        
         //skip rest of variable size for now
-        int  skipVarSize  = varSize - title.length();
-        readBuffer(data, skipVarSize);
+        int  skipVarSize  = varSize - (titleSize + onclickSize + imageSize + targetFrameSize + hideWhenSize + aliasSize + sourceSize + preferredServerSize + toolbarManagerSize + toolbarEntrySize +popupSize ) ;
+        MemoryUtils.readBuffer(data, skipVarSize);
       }
     }
-    
-    
-    
         
     return  result;
   }
   
-  @SuppressWarnings("unused")
-  private static <T extends MemoryStructure> T readMemory(PointerByReference ppData, short odsType, Class<T> struct) {
-        
-        // Straight-read variant
-        T result = MemoryStructureProxy.newStructure(struct, 0);
-        int len = MemoryStructureProxy.sizeOf(struct);
-        result.getData().put(ppData.getValue().getByteBuffer(0, len));
-        ppData.setValue(ppData.getValue().share(len));
-        
-        return result;
-    }
-
-  @SuppressWarnings("unused")
-    private static <T extends MemoryStructure> T odsReadMemory(Pointer data, short odsType, Class<T> struct) {
-    // TODO determine if any architectures need ODSReadMemory. On x64 macOS, it seems harmful.
-    //    Docs just say "Intel", but long predate x64. On Windows, it says it should be harmless, but
-    //    care has to be taken on "UNIX", which is everything else.
-    //    Additionally, not all structures here have ODS numbers
-      PointerByReference ppData = new PointerByReference(data);
-    Memory mem = new Memory(MemoryStructureProxy.sizeOf(struct));
-    NotesCAPI.get().ODSReadMemory(ppData, odsType, mem, (short)1);
-    return MemoryStructureProxy.forStructure(struct, () -> mem.getByteBuffer(0, mem.size()));
-      
+  private static short  recalculateDataSize(short dataType, short datasize, ByteBuffer buf)  {
+    short retVal = datasize;
+    if (dataType == ItemDataType.TYPE_FORMULA.getValue()) {
+      retVal = (short) (datasize - 2);
+      buf.position(buf.position()+2);
     }
     
-    /**
-     * Reads a structure from the provided ByteBuffer, incrementing its position the size of the struct.
-     * 
-     * @param <T> the class of structure to read
-     * @param data the containing data buffer
-     * @param odsType the ODS type, or {@code -1} if not known
-     * @param struct a {@link Class} represening {@code <T>}
-     * @return the read structure
-     */
-    private static <T extends MemoryStructure> T readMemory(ByteBuffer data, short odsType, Class<T> struct) {
-      T result = MemoryStructureProxy.newStructure(struct, 0);
-    int len = MemoryStructureProxy.sizeOf(struct);
-    byte[] bytes = new byte[len];
-    data.get(bytes);
-    result.getData().put(bytes);
-    return result;
-    }
-    
-    private static ByteBuffer readBuffer(ByteBuffer buf, long len) {
-      ByteBuffer result = subBuffer(buf, (int)len);
-      buf.position(buf.position()+(int)len);
-      return result;
-    }
-    private static ByteBuffer subBuffer(ByteBuffer buf, int len) {
-      ByteBuffer tempBuf = buf.slice().order(ByteOrder.nativeOrder());
-    tempBuf.limit(len);
-    return tempBuf;
-    }
+    return retVal;
+  }
+  
+  private static short readVariableDataDatatype(ByteBuffer buf) {
+    ByteBuffer result = MemoryUtils.subBuffer(buf, 2);
+    return result.getShort();
+  }
+  
+  
 
 }
