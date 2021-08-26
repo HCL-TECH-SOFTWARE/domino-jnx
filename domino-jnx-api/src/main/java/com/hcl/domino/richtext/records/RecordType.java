@@ -484,7 +484,7 @@ public enum RecordType {
    * It is preceded by a CDHOTSPOTBEGIN and a CDPLACEHOLDER.<br>
    * The CD record, CDPLACEHOLDER, further defines the CDEMBEDDEDOUTLINE.
    */
-  EMBEDDEDOUTLINE(RichTextConstants.SIG_CD_EMBEDDEDOUTLINE, 1),
+  EMBEDDEDOUTLINE(RichTextConstants.SIG_CD_EMBEDDEDOUTLINE, 1, CDEmbeddedOutline.class),
   /**
    * This CD Record describes a view as an embedded element.<br>
    * A CDEMBEDDEDVIEW record will be preceded by a CDPLACEHOLDER record.<br>

@@ -68,6 +68,7 @@ import com.hcl.domino.richtext.records.CDBlobPart;
 import com.hcl.domino.richtext.records.CDColor;
 import com.hcl.domino.richtext.records.CDDataFlags;
 import com.hcl.domino.richtext.records.CDEmbeddedControl;
+import com.hcl.domino.richtext.records.CDEmbeddedOutline;
 import com.hcl.domino.richtext.records.CDExt2Field;
 import com.hcl.domino.richtext.records.CDExtField;
 import com.hcl.domino.richtext.records.CDExtField.HelperType;
@@ -844,6 +845,30 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       {
         assertTrue(body.get(0) instanceof CDBlobPart);
         assertArrayEquals(array, ((CDBlobPart) body.get(0)).getReserved());
+      }
+    });
+  }
+
+  @Test
+  public void testWriteEnumArray() throws Exception {
+    this.withTempDb(database -> {
+      final CDEmbeddedOutline.Repeat[] array = new CDEmbeddedOutline.Repeat[] {
+        CDEmbeddedOutline.Repeat.SIZE_TO_FIT, CDEmbeddedOutline.Repeat.ONCE,
+        CDEmbeddedOutline.Repeat.SIZE_TO_FIT, CDEmbeddedOutline.Repeat.HORIZONTAL
+      };
+      final Document doc = database.createDocument();
+      try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+        rtWriter.addRichTextRecord(CDEmbeddedOutline.class, outline -> {
+          outline.setBackgroundRepeatModes(array);
+        });
+      }
+
+      final List<RichTextRecord<?>> body = doc.getRichTextItem("Body");
+      assertEquals(1, body.size());
+
+      {
+        assertTrue(body.get(0) instanceof CDEmbeddedOutline);
+        assertArrayEquals(array, ((CDEmbeddedOutline) body.get(0)).getBackgroundRepeatModes());
       }
     });
   }

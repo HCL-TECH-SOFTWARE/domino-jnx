@@ -16,6 +16,7 @@
  */
 package it.com.hcl.domino.test.design;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -70,6 +71,7 @@ import com.hcl.domino.design.format.FieldListDisplayDelimiter;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.FormField;
 import com.hcl.domino.richtext.process.GetImageResourceSizeProcessor;
+import com.hcl.domino.richtext.records.CDEmbeddedOutline;
 import com.hcl.domino.richtext.records.CDField;
 import com.hcl.domino.richtext.records.CDText;
 import com.ibm.commons.util.io.StreamUtil;
@@ -609,6 +611,40 @@ public class TestDbDesign extends AbstractDesignTest {
     Map<EventId, String> formulas = page.getFormulaEvents();
     assertEquals(1, formulas.size());
     assertEquals("@StatusBar(\"I am page postopen\")", formulas.get(EventId.CLIENT_FORM_POSTOPEN));
+    
+    CDEmbeddedOutline outline = page.getBody()
+      .stream()
+      .filter(CDEmbeddedOutline.class::isInstance)
+      .map(CDEmbeddedOutline.class::cast)
+      .findFirst()
+      .get();
+    assertEquals(
+      EnumSet.of(
+        CDEmbeddedOutline.Flag.SHOWTWISTIE, CDEmbeddedOutline.Flag.TREE_STYLE, CDEmbeddedOutline.Flag.HASNAME,
+        CDEmbeddedOutline.Flag.HASTARGETFRAME, CDEmbeddedOutline.Flag.EXPAND_SAVED,
+        CDEmbeddedOutline.Flag.HASROOTNAME
+      ),
+      outline.getFlags()
+    );
+    assertEquals(288, outline.getSubLevelHorizontalOffset());
+    assertColorEquals(outline.getSelectionFontColors()[0], 0, 0, 0);
+    assertColorEquals(outline.getSelectionFontColors()[1], 130, 193, 104);
+    assertColorEquals(outline.getSelectionFontColors()[2], 0, 193, 194);
+    assertColorEquals(outline.getNormalFontColors()[0], 0, 0, 0);
+    assertColorEquals(outline.getNormalFontColors()[1], 127, 255, 127);
+    assertColorEquals(outline.getNormalFontColors()[2], 0, 0, 0);
+    
+    assertArrayEquals(
+      new CDEmbeddedOutline.Repeat[] {
+        CDEmbeddedOutline.Repeat.SIZE_TO_FIT, CDEmbeddedOutline.Repeat.ONCE,
+        CDEmbeddedOutline.Repeat.SIZE_TO_FIT, CDEmbeddedOutline.Repeat.HORIZONTAL
+      },
+      outline.getBackgroundRepeatModes()
+    );
+    
+    assertEquals("i am name", outline.getName());
+    assertEquals("i am target", outline.getTargetFrame());
+    assertEquals("i am root", outline.getRootEntry());
   }
   
   @Test

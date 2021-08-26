@@ -16,7 +16,9 @@
  */
 package com.hcl.domino.richtext;
 
-public interface RichTextConstants {
+import com.hcl.domino.constants.EditOds;
+
+public interface RichTextConstants extends EditOds {
 
   short LONGRECORDLENGTH = 0x0000;
   short WORDRECORDLENGTH = (short) (0xff00 & 0xffff);

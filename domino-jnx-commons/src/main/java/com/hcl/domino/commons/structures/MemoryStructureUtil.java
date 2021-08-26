@@ -171,8 +171,7 @@ public enum MemoryStructureUtil {
 
   /**
    * Retrieves the {@link Number} subclass for the provided {@link INumberEnum}
-   * implementation
-   * class.
+   * implementation class.
    * 
    * @param type the {@link INumberEnum} class object
    * @return the {@link Number} contained by the enum
@@ -187,6 +186,36 @@ public enum MemoryStructureUtil {
         .findFirst()
         .orElseThrow(() -> new IllegalStateException("Unable to find INumberEnum interface"));
     return (Class<? extends Number>) inumtype.getActualTypeArguments()[0];
+  }
+
+  /**
+   * Retrieves numerical array class for the provided {@link INumberEnum}
+   * array implementation class.
+   * 
+   * @param type the {@link INumberEnum} class object
+   * @return the array class equivalent to the enum
+   * @since 1.0.35
+   */
+  public static Class<?> getNumberArrayType(final Class<?> type) {
+    Class<?> component = type.getComponentType();
+    // Guaranteed to have an interface like INumberEnum<Integer>
+    final ParameterizedType inumtype = Arrays.stream(component.getGenericInterfaces())
+        .filter(t -> t instanceof ParameterizedType)
+        .map(ParameterizedType.class::cast)
+        .filter(t -> INumberEnum.class.equals(t.getRawType()))
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("Unable to find INumberEnum interface"));
+    Class<?> numType = (Class<?>)inumtype.getActualTypeArguments()[0];
+    
+    if(Byte.class.equals(numType)) {
+      return byte[].class;
+    } else if(Short.class.equals(numType)) {
+      return short[].class;
+    } else if(Integer.class.equals(numType)) {
+      return int[].class;
+    } else {
+      return long[].class;
+    }
   }
 
   /**

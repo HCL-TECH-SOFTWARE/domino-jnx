@@ -935,7 +935,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
     "headline.ntf",
     "busytime.ntf"
   })
-  @Disabled
+//  @Disabled
   public void testStockFormUnknownRecords(String dbName) {
     Set<RecordType> types = new HashSet<>();
     Database names = getClient().openDatabase(dbName);

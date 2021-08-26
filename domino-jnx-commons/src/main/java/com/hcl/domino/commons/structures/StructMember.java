@@ -45,6 +45,8 @@ class StructMember {
     Class<?> structuralType;
     if(INumberEnum.class.isAssignableFrom(clazz)) {
       structuralType = MemoryStructureUtil.getNumberType(clazz);
+    } else if(clazz.isArray() && INumberEnum.class.isAssignableFrom(clazz.getComponentType())) {
+      structuralType = MemoryStructureUtil.getNumberArrayType(clazz);
     } else {
       structuralType = (Class<?>)clazz;
     }
