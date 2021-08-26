@@ -33,7 +33,8 @@ import com.hcl.domino.security.AclLevel;
  * Describes a collection design element, i.e. a view or folder
  */
 public interface CollectionDesignElement extends DesignElement.NamedDesignElement, DesignElement.XPageAlternativeElement,
-  DesignElement.ThemeableClassicElement, DesignElement.AutoFrameElement, DesignElement.ActionBarElement {
+  DesignElement.ThemeableClassicElement, DesignElement.AutoFrameElement, DesignElement.ActionBarElement,
+  DesignElement.ReadersRestrictedElement {
 
   public enum OnOpen {
     GOTO_LAST_OPENED,
@@ -616,14 +617,6 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.32
    */
   boolean isAllowDominoDataService();
-  
-  /**
-   * Retrieves a list of names allowed to read this view or folder.
-   * 
-   * @return a {@link List} of string usernames, groups, and roles
-   * @since 1.0.32
-   */
-  List<String> getReaders();
   
   /**
    * Retrieves the name of the profile document used to define the colors for user-

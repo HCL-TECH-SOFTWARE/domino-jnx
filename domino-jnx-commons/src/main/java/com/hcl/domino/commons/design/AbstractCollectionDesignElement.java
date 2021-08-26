@@ -63,8 +63,9 @@ import com.hcl.domino.richtext.structures.ColorValue;
  * @param <T> the {@link DesignElement} interface implemented by the class
  * @since 1.0.18
  */
-public abstract class AbstractCollectionDesignElement<T extends CollectionDesignElement> extends AbstractNamedDesignElement<T>
-    implements CollectionDesignElement, IDefaultAutoFrameElement, IDefaultActionBarElement {
+public abstract class AbstractCollectionDesignElement<T extends CollectionDesignElement> extends AbstractDesignElement<T>
+    implements CollectionDesignElement, IDefaultAutoFrameElement, IDefaultActionBarElement, IDefaultReadersRestrictedElement,
+    IDefaultNamedDesignElement {
   private DominoViewFormat format;
 
   public AbstractCollectionDesignElement(final Document doc) {
@@ -266,11 +267,6 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   @Override
   public boolean isAllowDominoDataService() {
     return getWebFlags().contains(DesignConstants.WEBFLAG_NOTE_RESTAPIALLOWED);
-  }
-  
-  @Override
-  public List<String> getReaders() {
-    return getDocument().getAsList(NotesConstants.DESIGN_READERS, String.class, Collections.emptyList());
   }
   
   @Override

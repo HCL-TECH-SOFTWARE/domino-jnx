@@ -16,7 +16,6 @@
  */
 package com.hcl.domino.design;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -102,7 +101,7 @@ public interface DesignElement {
   }
   
   /**
-   * This mixin interfaces describes design elements that have an action bar
+   * This mixin interface describes design elements that have an action bar
    * displayed across the top.
    * 
    * @author Jesse Gallagher
@@ -120,6 +119,24 @@ public interface DesignElement {
   }
   
   /**
+   * This mixin interface describes design elements that can be restricted to specific
+   * names and roles.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.35
+   */
+  interface ReadersRestrictedElement extends DesignElement {
+    /**
+     * Retrieves the list of users, groups, and roles allowed to access this design element.
+     * 
+     * @return an {@link Optional} describing the list of reader names, or an empty one
+     *         if this element is not reader-restricted
+     * @since 1.0.35
+     */
+    Optional<List<String>> getReaders();
+  }
+  
+  /**
    * @return the comment assigned to the design element
    * @since 1.0.24
    */
@@ -132,8 +149,6 @@ public interface DesignElement {
    * @since 1.0.18
    */
   Document getDocument();
-
-  Collection<String> getItemNames();
 
   boolean isHideFromMobile();
 

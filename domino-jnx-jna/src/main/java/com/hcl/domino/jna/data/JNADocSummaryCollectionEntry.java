@@ -28,12 +28,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.TypedAccess;
-import com.hcl.domino.jna.internal.AbstractTypedAccess;
 
 /**
  * Implementation of {@link CollectionEntry} that has been read
@@ -299,5 +299,14 @@ public class JNADocSummaryCollectionEntry implements CollectionEntry {
 		return defaultValue;
 	}
 
+	@Override
+	public <T> Optional<T> getOptional(String itemName, Class<T> valueType) {
+	  return m_typedAccess.getOptional(itemName, valueType);
+	}
+	
+	@Override
+	public <T> Optional<List<T>> getAsListOptional(String itemName, Class<T> valueType) {
+	  return m_typedAccess.getAsListOptional(itemName, valueType);
+	}
 	
 }

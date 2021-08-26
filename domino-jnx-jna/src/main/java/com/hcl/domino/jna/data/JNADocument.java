@@ -51,6 +51,7 @@ import java.util.stream.Stream;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.commons.constants.UpdateNote;
+import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.data.SignatureDataImpl;
 import com.hcl.domino.commons.design.FormFieldImpl;
 import com.hcl.domino.commons.design.outline.DominoOutlineFormat;
@@ -93,7 +94,6 @@ import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.data.JNADatabaseObjectProducer.ObjectInfo;
-import com.hcl.domino.jna.internal.AbstractTypedAccess;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.ItemDecoder;
 import com.hcl.domino.jna.internal.JNANotesConstants;
@@ -3086,6 +3086,16 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	@Override
 	public <T> List<T> getAsList(String itemName, Class<T> valueType, List<T> defaultValue) {
 		return m_typedAccess.getAsList(itemName, valueType, defaultValue);
+	}
+	
+	@Override
+	public <T> Optional<T> getOptional(String itemName, Class<T> valueType) {
+	  return m_typedAccess.getOptional(itemName, valueType);
+	}
+	
+	@Override
+	public <T> Optional<List<T>> getAsListOptional(String itemName, Class<T> valueType) {
+	  return m_typedAccess.getAsListOptional(itemName, valueType);
 	}
 	
 	private String[] parseProfileAndUserName() {

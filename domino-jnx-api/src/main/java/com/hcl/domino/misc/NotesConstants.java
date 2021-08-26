@@ -670,6 +670,7 @@ public interface NotesConstants extends ViewFormatConstants {
    */
   String DFLAGPAT_FILE_RESOURCE = "(+g-~K[];`,_*"; //$NON-NLS-1$
   String DESIGN_FLAGS = "$Flags"; //$NON-NLS-1$
+  String DESIGN_FLAGS_EXTENDED = "$FlagsExt"; //$NON-NLS-1$
   /** FORM: Indicates that a subform is in the add subform list */
   String DESIGN_FLAG_ADD = "A"; //$NON-NLS-1$
   /** VIEW: Indicates that a view is an antifolder view */

@@ -1,10 +1,56 @@
-<?xml version='1.0' encoding='utf-8'?>
-<agent name='formula agent' xmlns='http://www.lotus.com/dxl' version='12.0'
- hide='v3' publicaccess='false' designerversion='8.5.3'>
-<designchange><datetime dst='true'>20210408T133314,57-04</datetime></designchange>
-<trigger type='actionsmenu'/>
-<documentset type='selected'/><code event='action'><formula>@StatusBar("hey");
-SELECT @All</formula></code>
-<rundata processeddocs='0' exitcode='0'>
-<agentmodified><datetime dst='true'>20210408T133314,60-04</datetime></agentmodified></rundata></agent>
-
+<?xml version='1.0'?>
+<note class='filter' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$AssistVersion'><datetime dst='true'>20210825T134921,66-04</datetime></item>
+<item name='$TITLE' sign='true'><text>formula agent</text></item>
+<item name='$AssistType' sign='true'><number>65412</number></item>
+<item name='$AssistLastRun' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='$AssistDocCount' sign='true'><number>0</number></item>
+<item name='$FlagsExt' sign='true'><text/></item>
+<item name='$AssistFlags' sign='true'><text>ETs</text></item>
+<item name='$AssistTrigger'><text>4</text></item>
+<item name='$AssistInfo' sign='true'>
+<rawitemdata type='11'>
+AQAEAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+</rawitemdata></item>
+<item name='$AssistQuery' sign='true'>
+<rawitemdata type='f'>
+gQYAAAAA
+</rawitemdata></item>
+<item name='$AssistAction' sign='true'>
+<rawitemdata type='10'>
+gQKE/0IAAAAAADgAOAAKAAQACAASAAEAAwBoZXkA+wFJAQMABwAMAAUACTBTMEUAAAAIAGYAAwAH
+AAwABgAJMFJMMVM=
+</rawitemdata></item>
+<item name='$AssistAction_Ex' sign='true'>
+<rawitemdata type='14'>
+gQI=
+</rawitemdata></item>
+<item name='$Restricted' sign='true'><number>1</number></item>
+<item name='$Flags'><text>f3</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$AssistRunInfo' summary='true'>
+<rawitemdata type='3'>
+BgABAAAACADGFQAAAAAAAAUAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAJudhADyHJYUqeVAAt4YlhQAAAAAAAAAAAAAAAAAAAAAAAAAASU1FB9YE
+FA4PKe38mjMAAAL/SURBVDjLrZNLaFxlHMV//++7984jk5mMyTROsM3LTJsUR5NSW+lmWqhWJXZT
+ugwtg7VFCFLTnQaMUMRENykW6sKiu+ImLfioGhANpliCixS0WmLSxjYxmWSScZ733s9N60JBN57t
+4ZzDgXOE/8Drw0Pt0Vh0jxLzPhAGlnxfjp4ZGv4WwPo38ejYSJtSZgpMrL//aDDRtEUFguHKe+ff
+fhd48h8Go2NvKkCB2SnCERFz+sSLr4TL5TKWZWGMQSkVr6+P1V/88PyJYwOnLsj9pJQocwEjP4iY
+4/f9VDY7GHJrNe26Lq5bo6mpmdnZmVpLy7avrn55ZfuxgVMdMjo2klTKfPr0wcPpq19McPKl0+L7
+Pqurv+M4AWzbplDYpFDYANHc/GnWzWSeYeLKpcurK6vHlQgnga2BgCOt29qlWq1SLpeZm/uFu3cX
+KZWKWJbN7TsLbGysceDAs/ratW/8tdzKC8BBhZhD2exg1HEcKpUKk5OfYNs2HR1dlEp/YIxh8bcF
+mhq3kOrqoVwuibZt54nHd2ulzBtKYJeA5ThBMplDBINhZmamiUSipNO7iMXipB/rY8eOnVSrVX68
+eQPbttn7VAZAW3WReorFghFRYozBGEOhsMH09Nd0d6cJhyNsbuZZXLzN3PwterrTtCQfwfieAeos
+EbWktU56nkFrTVdXN/n8Gisry3/1n5qaJBKJ0N7aQSwa4969O7iuZ4BGy/f970VUfyhki+f5NDcn
+0VqTSvXgeS6e5yIizM/P4Xkey8tL9Pbu5vr175RvJGs5jtN56eOPFhpi8VZRShofakJrTShUhzEe
+oVAd+/btp1AokMut0Nb2KPF4nLlffxaM3LK01uPFYqmhXCoOPv/ckYTj2M5nn0+YRKLZBJygWlvP
+US6VWF/P0de3l2i0gfFzZ/F9Gc/nN27IgxmPvTPylogZ6Ovdk0gmt9LZmUJELGMMtVqFSqXCBxfP
+AeB5cvjM0PBlAPnbebYj7FdiXgYeBhoA/YA3Rs4OvTr8Gv8n/gR4pzJ61cRDUQAAAABJRU5ErkJg
+ggAEAAAUAEAqElUA+NpTotA5AQAAQDwAAGAl6Axr1AQAV4jmgVWODwNZBqTYaAGQBk9JbwDg379/
+AKRqibJK0FlIVg5olaMjqHDApJI4AOBJDyNy3syhmyHqAlEAYAT6BKOBgQQqDCExdK9BgAABCgAY
+EKixWkgkIFAgAJr+Taj1xxqz
+</rawitemdata></item></note>
