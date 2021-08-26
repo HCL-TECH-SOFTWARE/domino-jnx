@@ -63,7 +63,7 @@ import com.hcl.domino.commons.mime.MimePartOptions;
 import com.hcl.domino.commons.mime.NotesMIMEPart;
 import com.hcl.domino.commons.mime.NotesMIMEPart.PartType;
 import com.hcl.domino.commons.richtext.DefaultRichTextList;
-import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.ListUtil;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.commons.util.NotesErrorUtils;
@@ -596,7 +596,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		else if (dataTypeAsInt == ItemDataType.TYPE_RFC822_TEXT.getValue()) {
 			// Read in the byte data and delegate to InternetHeaders
 			ByteBuffer buf = valueDataPtr.getByteBuffer(0, valueDataLength);
-			RFC822ItemDesc itemDesc = MemoryStructureProxy.forStructure(RFC822ItemDesc.class, () -> buf);
+			RFC822ItemDesc itemDesc = MemoryStructureUtil.forStructure(RFC822ItemDesc.class, () -> buf);
 			int bodyOffset = 14;
 			
 			// Skip over NotesNative value
@@ -3982,8 +3982,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 
 	private static FormField readFormField(Pointer pCDField) {
-		ByteBuffer cdBuf = pCDField.getByteBuffer(0, MemoryStructureProxy.sizeOf(CDField.class));
-		CDField cdFieldStruct = MemoryStructureProxy.forStructure(CDField.class, () -> cdBuf);
+		ByteBuffer cdBuf = pCDField.getByteBuffer(0, MemoryStructureUtil.sizeOf(CDField.class));
+		CDField cdFieldStruct = MemoryStructureUtil.forStructure(CDField.class, () -> cdBuf);
 		// Re-read with the now-known length
 		ByteBuffer cdBuf2 = pCDField.getByteBuffer(0, cdFieldStruct.getHeader().getLength());
 		cdFieldStruct = MemoryStructureWrapperService.get().wrapStructure(CDField.class, cdBuf2);

@@ -4530,4 +4530,24 @@ public interface NotesConstants extends ViewFormatConstants {
   String FORM_FIELD_PUBLICACCESS = "$FormPublicAccess"; //$NON-NLS-1$
   String FIELD_PUBLICACCESS_ENABLED = "1"; //$NON-NLS-1$
   String DESIGN_READERS = "$Readers"; //$NON-NLS-1$
+  
+  String ITEM_CONFLICT_ACTION = "$ConflictAction"; //$NON-NLS-1$
+  String CONFLICT_AUTOMERGE = "1"; //$NON-NLS-1$
+  String CONFLICT_NONE = "2"; //$NON-NLS-1$
+  String CONFLICT_BEST_MERGE = "3"; //$NON-NLS-1$
+  
+  String ITEM_NAME_WEBFLAGS = "$WebFlags"; //$NON-NLS-1$
+  String WEBFLAG_NOTE_IS_HTML = "H"; //$NON-NLS-1$
+  String WEBFLAG_NOTE_CONTAINS_VIEW = "V"; //$NON-NLS-1$
+  String WEBFLAG_NOTE_HTML_ALL_FLDS = "F"; //$NON-NLS-1$
+  String WEBFLAG_NOTE_CONTAINS_JSBUTTON = "J"; //$NON-NLS-1$
+  String WEBFLAG_NOTE_ALLOW_DOC_SELECTIONS = "S"; //$NON-NLS-1$
+  String WEBFLAG_NOTE_USEJSCTL_INBROWSER = "D"; //$NON-NLS-1$
+  String WEBFLAG_NOTE_CRAWLABLE = "C"; //$NON-NLS-1$
+  String WEBFLAG_NOTE_RESTAPIALLOWED = "A"; //$NON-NLS-1$
+  
+  String VIEW_SCRIPT_NAME = "$ViewScript"; //$NON-NLS-1$
+  /** Formula for view script event */
+  String VIEW_ACTION_ITEM_NAME = "$ViewAction"; //$NON-NLS-1$
+  String VIEW_FORM_FORMULA_ITEM = "$FormFormula"; //$NON-NLS-1$
 }

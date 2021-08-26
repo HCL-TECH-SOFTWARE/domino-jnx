@@ -14,7 +14,7 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.commons.richtext.records;
+package com.hcl.domino.commons.structures;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
@@ -29,111 +29,44 @@ import java.nio.ByteOrder;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiFunction;
-import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.data.DefaultDominoDateTime;
-import com.hcl.domino.commons.richtext.structures.GenericResizableMemoryStructure;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
-import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
-import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
-import com.hcl.domino.richtext.records.RichTextRecord;
-import com.hcl.domino.richtext.structures.BSIG;
-import com.hcl.domino.richtext.structures.CDSignature;
-import com.hcl.domino.richtext.structures.LSIG;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 import com.hcl.domino.richtext.structures.OpaqueTimeDate;
-import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
-import com.hcl.domino.richtext.structures.WSIG;
 
 /**
  * {@link InvocationHandler} for {@link MemoryStructure} sub-interfaces.
+ * 
  * <p>
  * This implementation looks for {@link StructureGetter} annotations on called
- * methods and, when found, handles
- * invocations by reading values from the record's data buffer, converting as
- * appropriate.
+ * methods and, when found, handles invocations by reading values from the
+ * record's data buffer, converting as appropriate.
  * </p>
  * <p>
  * This mechanism handles getters for signed and unsigned integer number types,
- * as well as scalar
- * {@link INumberEnum} types.
+ * as well as scalar {@link INumberEnum} types.
  * </p>
  *
  * @author Jesse Gallagher
  * @since 1.0.2
  */
 public class MemoryStructureProxy implements InvocationHandler {
-  private static class StructMember {
-    private final String name;
-    private final int offset;
-    private final Class<?> type;
-    private final boolean unsigned;
-    private final int length;
-    private final BiFunction<ByteBuffer, Integer, Object> reader;
-    private final TriConsumer<ByteBuffer, Integer, Object> writer;
-
-    public StructMember(final String name, final int offset, final Class<?> clazz, final boolean unsigned, final boolean bitfield,
-        final int length) {
-      this.name = name;
-      this.offset = offset;
-      this.type = clazz;
-      this.unsigned = unsigned;
-      this.length = length;
-      this.reader = MemoryStructureProxy.reader(clazz, unsigned, bitfield, length);
-      this.writer = MemoryStructureProxy.writer(clazz, unsigned, bitfield, length);
-    }
-
-    @Override
-    public String toString() {
-      return MessageFormat.format("StructMember [name={0}, offset={1}, type={2}, unsigned={3}, length={4}]", this.name, this.offset, //$NON-NLS-1$
-          this.type, this.unsigned, this.length);
-    }
-  }
-
-  private static class StructureMap {
-    final List<StructMember> members = new ArrayList<>();
-    final Map<Method, StructMember> getterMap = new HashMap<>();
-    final Map<Method, StructMember> setterMap = new HashMap<>();
-    final Map<Method, Method> synthSetterMap = new HashMap<>();
-
-    void add(final StructMember member, final List<Method> getters, final List<Method> setters,
-        final Map<Method, Method> synthSetters) {
-      this.members.add(member);
-      getters.forEach(m -> this.getterMap.put(m, member));
-      setters.forEach(m -> {
-        this.setterMap.put(m, member);
-      });
-      this.synthSetterMap.putAll(synthSetters);
-    }
-
-    int size() {
-      return this.members.stream()
-          .mapToInt(m -> MemoryStructureProxy.sizeOf(m.type) * m.length)
-          .sum();
-    }
-  }
-
-  @FunctionalInterface
-  private interface TriConsumer<A, B, C> {
-    void accept(A a, B b, C c);
-  }
-
-  private static final Map<Class<? extends MemoryStructure>, StructureMap> structureMap = Collections
+  static final Map<Class<? extends MemoryStructure>, StructureMap> structureMap = Collections
       .synchronizedMap(new HashMap<>());
 
   private static final boolean JAVA_8;
@@ -144,212 +77,18 @@ public class MemoryStructureProxy implements InvocationHandler {
   }
 
   /**
-   * Generates a new proxy object backed by the provided {@link MemoryStructure}
-   * implementation.
-   * 
-   * @param <I>       the {@link MemoryStructure} sub-interface to proxy
-   * @param subtype   a class representing {@code I}
-   * @param structure the implementation structure
-   * @return a new proxy object
-   */
-  @SuppressWarnings("unchecked")
-  public static final <I extends MemoryStructure> I forStructure(final Class<I> subtype, final MemoryStructure structure) {
-    if (structure instanceof ResizableMemoryStructure) {
-      return (I) java.lang.reflect.Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-          new Class<?>[] { subtype }, new MemoryStructureProxy(structure, subtype));
-    } else {
-      // Always wrap in a resizable structure to account for variable data
-      return MemoryStructureProxy.forStructure(subtype,
-          new GenericResizableMemoryStructure(structure.getData().slice().order(ByteOrder.nativeOrder()), subtype));
-    }
-  }
-
-  /**
-   * Generates a structure map for the provided {@link MemoryStructure} class,
-   * reading in all
-   * {@link StructMember}-annotated methods to determine their types, sizes, and
-   * offsets.
-   * 
-   * @param clazz the structure class to analyze
-   * @return a {@link Map} of getter methods to implementing structure members
-   */
-  private static StructureMap generateStructureMap(final Class<? extends MemoryStructure> clazz) {
-    return AccessController.doPrivileged((PrivilegedAction<StructureMap>) () -> {
-      final StructureMap result = new StructureMap();
-
-      final StructureDefinition def = clazz.getAnnotation(StructureDefinition.class);
-      if (def != null) {
-        final List<Method> methods = Arrays.asList(clazz.getDeclaredMethods());
-
-        int offset = 0;
-        for (final StructureMember member : def.members()) {
-          final List<Method> getters = methods.stream()
-              .filter(m -> {
-                final StructureGetter ann = m.getAnnotation(StructureGetter.class);
-                if (ann == null) {
-                  return false;
-                }
-                return ann.value().equals(member.name());
-              })
-              .collect(Collectors.toList());
-
-          final List<Method> setters = methods.stream()
-              .filter(m -> {
-                final StructureSetter ann = m.getAnnotation(StructureSetter.class);
-                if (ann == null) {
-                  return false;
-                }
-                return ann.value().equals(member.name());
-              })
-              .filter(m -> !m.isSynthetic())
-              .collect(Collectors.toList());
-          final Map<Method, Method> synthSetters = new HashMap<>();
-          setters.forEach(setter -> {
-            final Method synthSetter = methods.stream()
-                .filter(Method::isSynthetic)
-                .filter(m -> m.getName().equals(setter.getName()))
-                .filter(m -> m.getParameterCount() == setter.getParameterCount())
-                .filter(m -> {
-                  final Class<?>[] thisParams = m.getParameterTypes();
-                  final Class<?>[] setParams = setter.getParameterTypes();
-                  for (int i = 0; i < thisParams.length; i++) {
-                    if (!thisParams[i].isAssignableFrom(setParams[i])) {
-                      return false;
-                    }
-                  }
-                  return true;
-                })
-                .findFirst()
-                .orElse(null);
-            if (synthSetter != null) {
-              synthSetters.put(synthSetter, setter);
-            }
-          });
-
-          final Class<?> type = member.type();
-          final int size = MemoryStructureProxy.sizeOf(type);
-          final StructMember mem = new StructMember(member.name(), offset, type, member.unsigned(), member.bitfield(),
-              member.length());
-          result.add(mem, getters, setters, synthSetters);
-
-          offset += size;
-        }
-      }
-
-      return result;
-    });
-  }
-
-  /**
-   * Retrieves the {@link Number} subclass for the provided {@link INumberEnum}
-   * implementation
-   * class.
-   * 
-   * @param type the {@link INumberEnum} class object
-   * @return the {@link Number} contained by the enum
-   */
-  @SuppressWarnings("unchecked")
-  private static Class<? extends Number> getNumberType(final Class<?> type) {
-    // Guaranteed to have an interface like INumberEnum<Integer>
-    final ParameterizedType inumtype = Arrays.stream(type.getGenericInterfaces())
-        .filter(t -> t instanceof ParameterizedType)
-        .map(ParameterizedType.class::cast)
-        .filter(t -> INumberEnum.class.equals(t.getRawType()))
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException("Unable to find INumberEnum interface"));
-    return (Class<? extends Number>) inumtype.getActualTypeArguments()[0];
-  }
-
-  @SuppressWarnings("unchecked")
-  private static boolean isInLineage(final Method thisMethod, final Class<? extends MemoryStructure> encapsulated) {
-    if (thisMethod.getDeclaringClass().equals(encapsulated)) {
-      return true;
-    } else {
-      final Class<?> sup = encapsulated.getInterfaces()[0];
-      if (sup != null && !sup.equals(MemoryStructure.class) && MemoryStructure.class.isAssignableFrom(sup)) {
-        return MemoryStructureProxy.isInLineage(thisMethod, (Class<? extends MemoryStructure>) sup);
-      }
-      return false;
-    }
-  }
-
-  /**
-   * Generates a new proxy object backed by a newly-allocated memory
-   * {@link ByteBuffer}.
-   * 
-   * @param <I>                the {@link MemoryStructure} sub-interface to proxy
-   * @param subtype            a class representing {@code I}
-   * @param variableDataLength the amount of additional space, in bytes, to
-   *                           allocate after the structure
-   * @return a new proxy object
-   */
-  public static final <I extends MemoryStructure> I newStructure(final Class<I> subtype, final int variableDataLength) {
-    final StructureMap struct = MemoryStructureProxy.structureMap.computeIfAbsent(subtype,
-        MemoryStructureProxy::generateStructureMap);
-    final ByteBuffer buf = ByteBuffer.allocate(struct.size() + variableDataLength);
-    // Special handling for CD records and resizable types
-    if (RichTextRecord.class.isAssignableFrom(subtype)) {
-      // The subtype is then known to implement RichTextRecord<...> with a given SIG
-      // type
-      @SuppressWarnings("unchecked")
-      final Class<? extends CDSignature<?, ?, ?>> sigType = Arrays.stream(subtype.getGenericInterfaces())
-          .filter(ParameterizedType.class::isInstance)
-          .map(ParameterizedType.class::cast)
-          .filter(t -> RichTextRecord.class.equals(t.getRawType()))
-          .map(t -> (Class<? extends CDSignature<?, ?, ?>>) t.getActualTypeArguments()[0])
-          .findFirst()
-          .orElseThrow(() -> new IllegalStateException("Could not find CDSignature type for " + subtype.toString()));
-      if (BSIG.class.isAssignableFrom(sigType)) {
-        return MemoryStructureProxy.forStructure(subtype, new GenericBSIGRecord(buf, subtype));
-      } else if (WSIG.class.isAssignableFrom(sigType)) {
-        return MemoryStructureProxy.forStructure(subtype, new GenericWSIGRecord(buf, subtype));
-      } else if (LSIG.class.isAssignableFrom(sigType)) {
-        return MemoryStructureProxy.forStructure(subtype, new GenericLSIGRecord(buf, subtype));
-      } else {
-        // This can intentionally fall through, since it shouldn't happen
-      }
-    } else if (ResizableMemoryStructure.class.isAssignableFrom(subtype)) {
-      return MemoryStructureProxy.forStructure(subtype,
-          new GenericResizableMemoryStructure(buf.slice().order(ByteOrder.nativeOrder()), subtype));
-    }
-    return MemoryStructureProxy.forStructure(subtype, () -> buf.slice().order(ByteOrder.nativeOrder()));
-  }
-
-  /**
    * Generates a reading {@link BiFunction} that reads the provided number or enum
    * type from
    * a byte buffer, taking into account whether the number type is unsigned in C.
    * 
    * @param type     the number or enum value type to read
    * @param unsigned whether the number value is unsigned
-   * @param bitfield whether the value should be considered a flag-style bitfield
    * @param length   the length of an array-type value
    * @return a {@link BiFunction} that can be applied to a {@link ByteBuffer} and
    *         offset
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  private static BiFunction<ByteBuffer, Integer, Object> reader(final Class<?> type, final boolean unsigned, final boolean bitfield,
-      final int length) {
-    if (INumberEnum.class.isAssignableFrom(type)) {
-      final Class<?> numberClass = MemoryStructureProxy.getNumberType(type);
-
-      if (bitfield) {
-        return (buf, offset) -> {
-          final Number val = (Number) MemoryStructureProxy.reader(numberClass, unsigned, false, length).apply(buf, offset);
-          return DominoEnumUtil.valuesOf((Class) type, val.longValue());
-        };
-      } else {
-        return (buf, offset) -> {
-          final Number val = (Number) MemoryStructureProxy.reader(numberClass, unsigned, false, length).apply(buf, offset);
-          final Optional<?> opt = DominoEnumUtil.valueOf((Class) type, val.longValue());
-          if (!opt.isPresent()) {
-            throw new NoSuchElementException(MessageFormat.format("Unable to find {0} value for {1}", type.getName(), val));
-          }
-          return opt.get();
-        };
-      }
-    }
-
+  @SuppressWarnings({ "unchecked" })
+  static BiFunction<ByteBuffer, Integer, Object> reader(final Class<?> type, final boolean unsigned, final int length) {
     if (byte.class.equals(type) || Byte.class.equals(type)) {
       if (unsigned) {
         return (buf, offset) -> (short) Byte.toUnsignedInt(buf.get(offset));
@@ -454,62 +193,25 @@ public class MemoryStructureProxy implements InvocationHandler {
       return (buf, offset) -> {
         final ByteBuffer b = buf.slice().order(ByteOrder.nativeOrder());
         b.position(offset);
-        b.limit(offset + MemoryStructureProxy.sizeOf(type));
+        b.limit(offset + MemoryStructureUtil.sizeOf(type));
         final ByteBuffer subBuffer = b.slice().order(ByteOrder.nativeOrder());
-        return MemoryStructureProxy.forStructure((Class<? extends MemoryStructure>) type, () -> subBuffer);
+        return MemoryStructureUtil.forStructure((Class<? extends MemoryStructure>) type, () -> subBuffer);
       };
     } else if (type.isArray() && MemoryStructure.class.isAssignableFrom(type.getComponentType())) {
       return (buf, offset) -> {
         final ByteBuffer b = buf.slice().order(ByteOrder.nativeOrder());
 
-        final int structSize = MemoryStructureProxy.sizeOf(type.getComponentType());
+        final int structSize = MemoryStructureUtil.sizeOf(type.getComponentType());
         final Object resultArray = Array.newInstance(type.getComponentType(), length);
         for (int i = 0; i < length; i++) {
           b.position(offset + i * structSize);
           b.limit(b.position() + structSize);
           final ByteBuffer subBuffer = b.slice().order(ByteOrder.nativeOrder());
           Array.set(resultArray, i,
-              MemoryStructureProxy.forStructure((Class<? extends MemoryStructure>) type.getComponentType(), () -> subBuffer));
+              MemoryStructureUtil.forStructure((Class<? extends MemoryStructure>) type.getComponentType(), () -> subBuffer));
         }
         return resultArray;
       };
-    } else {
-      throw new IllegalArgumentException("Cannot handle struct member type: " + type.getName());
-    }
-  }
-
-  /**
-   * Retrieves the expected size of the provided number or enum type in the
-   * C-side structure.
-   * 
-   * @param type the number or {@link INumberEnum} type
-   * @return the size in bytes of the type
-   */
-  public static int sizeOf(final Class<?> type) {
-    if (type.isArray()) {
-      return MemoryStructureProxy.sizeOf(type.getComponentType());
-    }
-    if (INumberEnum.class.isAssignableFrom(type)) {
-      final Class<?> numberClass = MemoryStructureProxy.getNumberType(type);
-      return MemoryStructureProxy.sizeOf(numberClass);
-    }
-    if (MemoryStructure.class.isAssignableFrom(type)) {
-      @SuppressWarnings("unchecked")
-      final StructureMap struct = MemoryStructureProxy.structureMap.computeIfAbsent((Class<? extends MemoryStructure>) type,
-          MemoryStructureProxy::generateStructureMap);
-      return struct.size();
-    }
-
-    if (byte.class.equals(type) || Byte.class.equals(type)) {
-      return 1;
-    } else if (short.class.equals(type) || Short.class.equals(type)) {
-      return 2;
-    } else if (int.class.equals(type) || Integer.class.equals(type)) {
-      return 4;
-    } else if (long.class.equals(type) || Long.class.equals(type)) {
-      return 8;
-    } else if (double.class.equals(type) || Double.class.equals(type)) {
-      return 8;
     } else {
       throw new IllegalArgumentException("Cannot handle struct member type: " + type.getName());
     }
@@ -522,38 +224,12 @@ public class MemoryStructureProxy implements InvocationHandler {
    * 
    * @param type     the number or enum value type to read
    * @param unsigned whether the number value is unsigned
-   * @param bitfield whether the structure member is a flags-type bitfield
    * @param length   the length of the array-type member
    * @return a {@link BiFunction} that can be applied to a {@link ByteBuffer} and
    *         offset
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  private static TriConsumer<ByteBuffer, Integer, Object> writer(final Class<?> type, final boolean unsigned,
-      final boolean bitfield, final int length) {
-    if (INumberEnum.class.isAssignableFrom(type)) {
-      final Class<?> numberClass = MemoryStructureProxy.getNumberType(type);
-
-      if (bitfield) {
-        return (buf, offset, newVal) -> {
-          // It's possible that the setter sets a single value or a collection
-          if (Collection.class.isInstance(newVal)) {
-            // Assume newVal is a Collection of enums
-            final Number numVal = newVal == null ? 0 : DominoEnumUtil.toBitField((Class) type, (Collection) newVal);
-            MemoryStructureProxy.writer(numberClass, unsigned, false, length).accept(buf, offset, numVal);
-          } else {
-            // Assume it's a single enum
-            final Number numVal = newVal == null ? 0 : ((INumberEnum) newVal).getValue();
-            MemoryStructureProxy.writer(numberClass, unsigned, false, length).accept(buf, offset, numVal);
-          }
-        };
-      } else {
-        return (buf, offset, newVal) -> {
-          final Number numVal = newVal == null ? 0 : ((INumberEnum) newVal).getValue();
-          MemoryStructureProxy.writer(numberClass, unsigned, false, length).accept(buf, offset, numVal);
-        };
-      }
-    }
-
+  static TriConsumer<ByteBuffer, Integer, Object> writer(final Class<?> type, final boolean unsigned,
+      final int length) {
     if (byte.class.equals(type) || Byte.class.equals(type)) {
       return (buf, offset, newVal) -> buf.put(offset, ((Number) newVal).byteValue());
     } else if (byte[].class.equals(type)) {
@@ -690,7 +366,7 @@ public class MemoryStructureProxy implements InvocationHandler {
   @Override
   public Object invoke(final Object self, final Method thisMethod, final Object[] args) throws Throwable {
     final StructureMap struct = MemoryStructureProxy.structureMap.computeIfAbsent(this.encapsulated,
-        MemoryStructureProxy::generateStructureMap);
+        MemoryStructureUtil::generateStructureMap);
 
     if (thisMethod.isAnnotationPresent(StructureGetter.class)) {
       final StructMember member = struct.getterMap.get(thisMethod);
@@ -701,8 +377,7 @@ public class MemoryStructureProxy implements InvocationHandler {
           // requested as an enum
           final Number val = (Number) member.reader.apply(buf, member.offset);
           @SuppressWarnings("unchecked")
-          final Optional<? extends INumberEnum<?>> result = DominoEnumUtil
-              .valueOf((Class<? extends INumberEnum<?>>) thisMethod.getReturnType(), val);
+          final Optional<? extends INumberEnum<?>> result = DominoEnumUtil.valueOf((Class<? extends INumberEnum<?>>) thisMethod.getReturnType(), val);
           return result.orElse(null);
         } else if (member.type.isPrimitive() && Collection.class.isAssignableFrom(thisMethod.getReturnType())) {
           // Same as above, but for enum collections. TestStructAnnotations in core
@@ -713,9 +388,38 @@ public class MemoryStructureProxy implements InvocationHandler {
           @SuppressWarnings("unchecked")
           final Object result = DominoEnumUtil.valuesOf(enumType, val.longValue());
           return result;
+        } else if(member.type.isPrimitive() && MemoryStructureUtil.isOptionalOf(thisMethod.getGenericReturnType(), INumberEnum.class)) {
+          // Same as above, but for Optionals of single enums
+          final Number val = (Number) member.reader.apply(buf, member.offset);
+          @SuppressWarnings("rawtypes")
+          final Class enumType = (Class) ((ParameterizedType) thisMethod.getGenericReturnType()).getActualTypeArguments()[0];
+          @SuppressWarnings("unchecked")
+          final Optional<? extends INumberEnum<?>> result = DominoEnumUtil.valueOf((Class<? extends INumberEnum<?>>) enumType, val);
+          return result;
         } else if (member.type.equals(OpaqueTimeDate.class) && DominoDateTime.class.equals(thisMethod.getReturnType())) {
           final OpaqueTimeDate dt = (OpaqueTimeDate) member.reader.apply(buf, member.offset);
           return new DefaultDominoDateTime(dt.getInnards());
+        } else if(INumberEnum.class.isAssignableFrom(member.type)) {
+          Number val = (Number)member.reader.apply(buf, member.offset);
+          if(thisMethod.getReturnType().isPrimitive()) {
+            // Return the number directly
+            return val;
+          } else if(member.bitfield) {
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            Set<?> result = DominoEnumUtil.valuesOf((Class)member.type, val.longValue());
+            return result;
+          } else {
+            @SuppressWarnings("unchecked")
+            Optional<?> opt = DominoEnumUtil.valueOf((Class<? extends INumberEnum<?>>)member.type, val.longValue());
+            if(MemoryStructureUtil.isOptionalOf(thisMethod.getGenericReturnType(), member.type)) {
+              // Pass through the optional result
+              return opt;
+            } else {
+              // Then unwrap the Optional coming from the reader
+              return opt
+                  .orElseThrow(() -> new NoSuchElementException(MessageFormat.format("Unable to find {0} value for {1}", member.type.getName(), val)));
+            }
+          }
         } else {
           return member.reader.apply(buf, member.offset);
         }
@@ -726,15 +430,47 @@ public class MemoryStructureProxy implements InvocationHandler {
       final StructMember member = struct.setterMap.get(thisMethod);
       if (member != null) {
         final ByteBuffer buf = this.record.getData();
-        if (member.type.isPrimitive() && INumberEnum.class.isAssignableFrom(thisMethod.getParameterTypes()[0])) {
+        Class<?> paramType = thisMethod.getParameterTypes()[0];
+        if (member.type.isPrimitive() && INumberEnum.class.isAssignableFrom(paramType)) {
           // Handle the case where a member declared as a primitive is nonetheless set as
           // an enum
           final Object newVal = args[0];
           final Number val = newVal == null ? 0 : ((INumberEnum<?>) newVal).getValue();
           member.writer.accept(buf, member.offset, val);
-        } else if (member.type.equals(OpaqueTimeDate.class) && DominoDateTime.class.equals(thisMethod.getParameterTypes()[0])) {
+        } else if (member.type.equals(OpaqueTimeDate.class) && DominoDateTime.class.equals(paramType)) {
           final int[] innards = ((DominoDateTime) args[0]).getAdapter(int[].class);
           member.writer.accept(buf, member.offset, innards);
+        } else if(INumberEnum.class.isAssignableFrom(member.type) && paramType.isPrimitive()) {
+          // Handle the case where a member declared as an enum is set as a primitive
+          member.writer.accept(buf, member.offset, args[0]);
+        } else if(INumberEnum.class.isAssignableFrom(member.type)) {
+          final Object newVal = args[0];
+          Number numVal;
+          if(member.bitfield) {
+            // Read the existing value and preserve possible undocumented flags
+            Number existing = (Number)member.reader.apply(buf, member.offset);
+            @SuppressWarnings({ "unchecked", "rawtypes" })
+            Number antimask = ~(DominoEnumUtil.toBitField((Class)member.type, EnumSet.allOf((Class)member.type)).longValue());
+            long savedMask = existing.longValue() & antimask.longValue();
+            
+            // It's possible that the setter sets a single value or a collection
+            if (Collection.class.isInstance(newVal)) {
+              // Assume newVal is a Collection of enums
+              @SuppressWarnings({ "rawtypes", "unchecked" })
+              Number result = newVal == null ? 0 : DominoEnumUtil.toBitField((Class) member.type, (Collection) newVal);
+              numVal = result.longValue() | savedMask;
+            } else {
+              // Assume it's a single enum
+              @SuppressWarnings("rawtypes")
+              Number result = newVal == null ? 0 : ((INumberEnum) newVal).getValue();
+              numVal = result.longValue() | savedMask;
+            }
+          } else {
+            @SuppressWarnings("rawtypes")
+            Number result = newVal == null ? 0 : ((INumberEnum) newVal).getValue();
+            numVal = result;
+          }
+          member.writer.accept(buf, member.offset, numVal);
         } else {
           member.writer.accept(buf, member.offset, args[0]);
         }
@@ -755,7 +491,7 @@ public class MemoryStructureProxy implements InvocationHandler {
       return this.invoke(self, synthMember, args);
     }
 
-    if (MemoryStructureProxy.isInLineage(thisMethod, this.encapsulated)) {
+    if (MemoryStructureUtil.isInLineage(thisMethod, this.encapsulated)) {
       if (thisMethod.isDefault()) {
         return this.invokeDefault(self, thisMethod, args);
       }

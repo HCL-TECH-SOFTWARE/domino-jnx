@@ -24,12 +24,17 @@ import java.util.concurrent.TimeUnit;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
 
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.DominoProcess;
+import com.hcl.domino.jnx.example.swt.exporter.DXLShell;
 
 import jakarta.enterprise.inject.se.SeContainer;
 import jakarta.enterprise.inject.se.SeContainerInitializer;
@@ -91,7 +96,28 @@ public class App {
                 .findFirst()
                 .ifPresent(item -> item.addListener(SWT.Selection, e -> App.openAbout()));
           }
+          
+          
+          Menu menuBar = new Menu(shell, SWT.BAR);
+          Menu appMenu = new Menu(menuBar);
+          MenuItem appItem = new MenuItem(menuBar, SWT.CASCADE);
+          appItem.setText("Apps");
+          appItem.setMenu(appMenu);
+          
+          MenuItem dxlItem = new MenuItem(appMenu, SWT.NONE);
+          dxlItem.setText("DXL Exporter");
+          dxlItem.addSelectionListener(new SelectionAdapter() {
+            public void widgetSelected(SelectionEvent e) {
+              Shell dxl = new DXLShell(display);
+              dxl.open();
+              dxl.layout();
+              dxl.setFocus();
+            }
+          });
 
+          shell.setMenuBar(menuBar);
+          
+          
           shell.open();
           shell.layout();
           shell.setFocus();

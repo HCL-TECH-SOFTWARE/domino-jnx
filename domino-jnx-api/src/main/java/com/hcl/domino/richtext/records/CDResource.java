@@ -211,9 +211,10 @@ public interface CDResource extends RichTextRecord<WSIG> {
 
   default String getFileHint() {
     return StructureSupport.extractStringValue(
-        this,
-        this.getServerHintLength(),
-        this.getFileHintLength());
+      this,
+      this.getServerHintLength(),
+      this.getFileHintLength()
+    );
   }
 
   @StructureGetter("FileHintLength")
@@ -306,7 +307,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
   }
 
   @StructureGetter("ResourceClass")
-  ResourceClass getResourceClass();
+  Optional<ResourceClass> getResourceClass();
 
   @StructureGetter("Type")
   Type getResourceType();
@@ -338,11 +339,12 @@ public interface CDResource extends RichTextRecord<WSIG> {
 
   default CDResource setFileHint(final String hint) {
     return StructureSupport.writeStringValue(
-        this,
-        this.getServerHintLength(),
-        this.getFileHintLength(),
-        hint,
-        this::setFileHintLength);
+      this,
+      this.getServerHintLength(),
+      this.getFileHintLength(),
+      hint,
+      this::setFileHintLength
+    );
   }
 
   @StructureSetter("FileHintLength")
@@ -362,11 +364,12 @@ public interface CDResource extends RichTextRecord<WSIG> {
 
   default CDResource setServerHint(final String hint) {
     return StructureSupport.writeStringValue(
-        this,
-        0,
-        this.getServerHintLength(),
-        hint,
-        this::setServerHintLength);
+      this,
+      0,
+      this.getServerHintLength(),
+      hint,
+      this::setServerHintLength
+    );
   }
 
   @StructureSetter("ServerHintLength")
@@ -374,8 +377,9 @@ public interface CDResource extends RichTextRecord<WSIG> {
 
   default String getServerHint() {
     return StructureSupport.extractStringValue(
-        this,
-        0,
-        this.getServerHintLength());
+      this,
+      0,
+      this.getServerHintLength()
+    );
   }
 }

@@ -150,4 +150,8 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   public void setFlags(final String flags) {
     this.getDocument().replaceItemValue(NotesConstants.DESIGN_FLAGS, flags);
   }
+  
+  public String getWebFlags() {
+    return getDocument().getAsText(NotesConstants.ITEM_NAME_WEBFLAGS, ' ');
+  }
 }

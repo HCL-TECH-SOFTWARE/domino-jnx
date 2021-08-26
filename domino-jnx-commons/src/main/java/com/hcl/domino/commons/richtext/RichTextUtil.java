@@ -29,16 +29,19 @@ import java.util.List;
 import java.util.function.Function;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.design.action.DefaultJavaScriptEvent;
 import com.hcl.domino.commons.richtext.records.AbstractCDRecord;
 import com.hcl.domino.commons.richtext.records.GenericBSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericLSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericWSIGRecord;
-import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
-import com.hcl.domino.design.format.HtmlEventId;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
+import com.hcl.domino.design.action.EventId;
+import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.CDBlobPart;
 import com.hcl.domino.richtext.records.CDEvent;
+import com.hcl.domino.richtext.records.CDEventEntry;
 import com.hcl.domino.richtext.records.CDGraphic;
 import com.hcl.domino.richtext.records.CDImageHeader;
 import com.hcl.domino.richtext.records.CDImageHeader2;
@@ -66,20 +69,31 @@ public enum RichTextUtil {
    * @return a {@link RichTextRecord} implementation wrapping the data
    */
   public static AbstractCDRecord<?> encapsulateRecord(final short signature, final ByteBuffer data) {
-    AbstractCDRecord<?> record;
-    final short highOrderByte = (short) (signature & 0xFF00);
-    switch (highOrderByte) {
-      case RichTextConstants.LONGRECORDLENGTH: /* LSIG */
-        record = new GenericLSIGRecord(data);
-        break;
-      case RichTextConstants.WORDRECORDLENGTH: /* WSIG */
-        record = new GenericWSIGRecord(data);
-        break;
-      default: /* BSIG */
-        record = new GenericBSIGRecord(data);
+    ByteBuffer recordData = data.slice().order(ByteOrder.LITTLE_ENDIAN);
+    
+    byte byte1 = recordData.get(0);
+    byte byte2 = recordData.get(1);
+    int length;
+    Function<ByteBuffer, AbstractCDRecord<?>> genericProvider;
+    if((byte2 & 0xFF) == 0xFF) {
+      // Then it's a WSIG, two WORD values
+      length = Short.toUnsignedInt(recordData.getShort(2));
+      genericProvider = GenericWSIGRecord::new;
+    } else if(byte2 == 0) {
+      // Then it's an LSIG, which zeros the high-order byte
+      // Length is a DWORD following the initial WORD
+      ByteBuffer sliced = recordData.slice().order(ByteOrder.LITTLE_ENDIAN);
+      sliced.position(2);
+      length = sliced.getInt();
+      genericProvider = GenericLSIGRecord::new;
+    } else {
+      // Then it's a BSIG, with the length in the high-order byte
+      length = byte2 & 0xFF;
+      genericProvider = GenericBSIGRecord::new;
     }
+    recordData.limit(length);
 
-    return record;
+    return genericProvider.apply(recordData);
   }
 
   /**
@@ -96,11 +110,11 @@ public enum RichTextUtil {
   public static RichTextRecord<?> reencapsulateRecord(final AbstractCDRecord<?> record,
       final Class<? extends RichTextRecord<?>> encapsulationClass) {
     if (record instanceof GenericBSIGRecord) {
-      return MemoryStructureProxy.forStructure(encapsulationClass, new GenericBSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericBSIGRecord(record.getData(), encapsulationClass));
     } else if (record instanceof GenericWSIGRecord) {
-      return MemoryStructureProxy.forStructure(encapsulationClass, new GenericWSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericWSIGRecord(record.getData(), encapsulationClass));
     } else if (record instanceof GenericLSIGRecord) {
-      return MemoryStructureProxy.forStructure(encapsulationClass, new GenericLSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericLSIGRecord(record.getData(), encapsulationClass));
     } else {
       throw new IllegalArgumentException(
           MessageFormat.format("Unable to determine encapsulation for {0}", record.getClass().getName()));
@@ -242,7 +256,7 @@ public enum RichTextUtil {
 
     final int paddedLength = fileLength + 1; // Make sure there's at least one \0 at the end
     w.addRichTextRecord(CDEvent.class, event -> {
-      event.setEventType(HtmlEventId.LIBRARY);
+      event.setEventType(EventId.LIBRARY);
       event.setActionType(libraryType);
       event.setActionLength(paddedLength + paddedLength % 2);
     });
@@ -328,5 +342,51 @@ public enum RichTextUtil {
     }
     
     return result;
+  }
+  
+  /**
+   * Processes the provided CD record stream and reads JavaScript events into objects.
+   * 
+   * @param records a {@link List} of {@link RichTextRecord}s to process
+   * @return a {@link List} of encapsulated {@link ScriptEvent}s
+   * @since 1.0.34
+   */
+  public static List<ScriptEvent> readJavaScriptEvents(List<RichTextRecord<?>> records) {
+    List<ScriptEvent> events = new ArrayList<>();
+    // This is formatted as a series of CDEVENT records followed by CDBLOBPARTs
+    // Client ones are distinguished by using SIG_CD_CLIENT_EVENT and SIG_CD_CLIENT_BLOBPART
+    EventId currentEvent = null;
+    boolean currentClient = false;
+    StringBuilder currentScript = new StringBuilder();
+    long currentLength = 0;
+    for(RichTextRecord<?> record : records) {
+      if(record instanceof CDEvent) {
+        // Start of a new event - flush any existing value and start a new one
+        if(currentEvent != null) {
+          events.add(new DefaultJavaScriptEvent(currentEvent, currentClient, currentScript.toString()));
+          currentScript.setLength(0);
+          currentLength = 0;
+        }
+        
+        currentEvent = ((CDEvent)record).getEventType();
+        currentClient = ((CDEvent)record).getHeader().getSignature() == RichTextConstants.SIG_CD_CLIENT_EVENT;
+        currentLength = ((CDEvent)record).getActionLength();
+      }
+      if(record instanceof CDBlobPart) {
+        // The length stored here may be longer than the actual action length if it's to fit a WORD boundary
+        long byteCount = Math.min(((CDBlobPart)record).getLength(), currentLength);
+        byte[] data = ((CDBlobPart)record).getBlobPartData();
+        currentScript.append(new String(data, 0, (int)byteCount, Charset.forName("LMBCS"))); //$NON-NLS-1$
+        currentLength -= byteCount;
+      }
+      if(record instanceof CDEventEntry) {
+        // These are present for each permutation, but have unclear use when the above handles it all
+      }
+    }
+    // Finish any laggards
+    if(currentEvent != null) {
+      events.add(new DefaultJavaScriptEvent(currentEvent, currentClient, currentScript.toString()));
+    }
+    return events;
   }
 }

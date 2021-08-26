@@ -19,6 +19,7 @@ package com.hcl.domino.commons.richtext.records;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.richtext.structures.BSIG;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 
@@ -40,6 +41,6 @@ public class GenericBSIGRecord extends AbstractCDRecord<BSIG> {
   public BSIG getHeader() {
     final ByteBuffer buf = this.getData().slice();
     buf.limit(2);
-    return MemoryStructureProxy.forStructure(BSIG.class, () -> buf.slice().order(ByteOrder.nativeOrder()));
+    return MemoryStructureUtil.forStructure(BSIG.class, () -> buf.slice().order(ByteOrder.nativeOrder()));
   }
 }

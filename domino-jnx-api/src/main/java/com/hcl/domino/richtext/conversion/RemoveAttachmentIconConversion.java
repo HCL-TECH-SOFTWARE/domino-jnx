@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import com.hcl.domino.data.Attachment;
+import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.CDBegin;
@@ -159,8 +160,8 @@ public class RemoveAttachmentIconConversion implements IRichTextConversion {
             record = iter.next();
             // check what is next
             if (record instanceof CDHotspotBegin) {
-              if (((CDHotspotBegin) record).getHotspotType() == CDHotspotBegin.Type.FILE) {
-                final String uniqueFileName = ((CDHotspotBegin) record).getUniqueFileName();
+              if (((CDHotspotBegin) record).getHotspotType() == HotspotType.FILE) {
+                final String uniqueFileName = ((CDHotspotBegin) record).getUniqueFileName().get();
                 if (uniqueFileName.equalsIgnoreCase(this.m_attachmentFileName)) {
                   return iter.previousIndex();
                 }

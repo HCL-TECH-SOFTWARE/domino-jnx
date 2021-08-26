@@ -260,6 +260,23 @@ public interface DbDesign {
    */
   Stream<Form> getForms();
 
+
+  /**
+   * Retrieves the named page.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link Page},
+   *         or an empty {@code Optional} if no such element exists
+   */
+  Optional<Page> getPage(String name);
+
+  /**
+   * Retrieves all pages in the database.
+   *
+   * @return a {@link Stream} of {@link Page}s
+   */
+  Stream<Page> getPages();
+
   /**
    * Retrieves the named image resource.
    *
@@ -361,6 +378,42 @@ public interface DbDesign {
    * @since 1.0.27
    */
   Stream<Outline> getOutlines();
+
+  /*
+   * Retrieves the "About Application" document for the database, if it exists.
+   * 
+   * @return an {@link Optional} describing the {@link AboutDocument} for the database,
+   *         or an empty one if none has been created
+   * @since 1.0.34
+   */
+  Optional<AboutDocument> getAboutDocument();
+  
+  /**
+   * Retrieves the "Using" document for the database, if it exists.
+   * 
+   * @return an {@link Optional} describing the {@link UsingDocument} for the database,
+   *         or an empty one if none has been created
+   * @since 1.0.34
+   */
+  Optional<UsingDocument> getUsingDocument();
+
+  /**
+   * Retrieves the named shared field.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link SharedField}, or an empty one if
+   *         no such view exists
+   * @since 1.0.34
+   */
+  Optional<SharedField> getSharedField(String name);
+
+  /**
+   * Retrieves all shared fields in the database
+   *
+   * @return a {@link Stream} of {@link SharedField}s
+   * @since 1.0.34
+   */
+  Stream<SharedField> getSharedFields();
 
   /**
    * Queries all design elements in the database by the provided formula and

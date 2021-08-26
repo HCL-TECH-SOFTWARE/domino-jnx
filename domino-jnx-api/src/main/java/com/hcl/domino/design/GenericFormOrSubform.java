@@ -17,14 +17,16 @@
 package com.hcl.domino.design;
 
 import java.util.List;
+import java.util.Map;
 
 import com.hcl.domino.richtext.FormField;
 
 /**
+ * Represents properties common between Forms and Subforms.
+ * 
  * @param <T> the more-specific interface
  */
-public interface GenericFormOrSubform<T extends GenericFormOrSubform<T>> extends DesignElement.NamedDesignElement,
-  DesignElement.ActionBarElement {
+public interface GenericFormOrSubform<T extends GenericFormOrSubform<T>> extends GenericPageElement.ScriptablePageElement<T> {
 
   T addField();
 
@@ -37,5 +39,21 @@ public interface GenericFormOrSubform<T extends GenericFormOrSubform<T>> extends
   T removeField();
 
   void swapFields(final int indexA, final int indexB);
-
+  
+  /**
+   * Determines whether fields on this form or subform should be included in the database's field index.
+   * 
+   * @return {@code true} if fields on this form or subform should be added to the index;
+   *         {@code false} otherwise
+   * @since 1.0.33
+   */
+  boolean isIncludeFieldsInIndex();
+  
+  /**
+   * Retrieves the LotusScript code associated with each field on the form.
+   * 
+   * @return a {@link Map} of field names to IDE-format LotusScript blocks
+   * @since 1.0.34
+   */
+  Map<String, String> getFieldLotusScript();
 }

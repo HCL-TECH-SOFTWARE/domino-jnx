@@ -22,7 +22,7 @@ import java.util.EnumSet;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.ViewColumnFormat.ReadingOrder;
 import com.hcl.domino.misc.ViewFormatConstants;
@@ -33,7 +33,7 @@ public class TestDesignStructures {
   public void testViewColumnFormat() {
     ByteBuffer data;
     {
-      final ViewColumnFormat format = MemoryStructureProxy.newStructure(ViewColumnFormat.class, 0);
+      final ViewColumnFormat format = MemoryStructureUtil.newStructure(ViewColumnFormat.class, 0);
       format.setSignature(ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE);
       format.setFlags(EnumSet.of(ViewColumnFormat.Flag.Hidden));
       format.setFlags2(EnumSet.of(ViewColumnFormat.Flag2.ShowValuesAsLinks));
@@ -60,7 +60,7 @@ public class TestDesignStructures {
       data = format.getData();
     }
     {
-      final ViewColumnFormat format = MemoryStructureProxy.forStructure(ViewColumnFormat.class, () -> data);
+      final ViewColumnFormat format = MemoryStructureUtil.forStructure(ViewColumnFormat.class, () -> data);
       Assertions.assertEquals(ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE, format.getSignature());
       Assertions.assertEquals(EnumSet.of(ViewColumnFormat.Flag.Hidden), format.getFlags());
       Assertions.assertEquals(
