@@ -23,8 +23,8 @@ import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.CDTarget;
 import com.hcl.domino.richtext.records.RecordType.Area;
 
-public abstract class AbstractPageElement<T extends GenericPageElement<T>> extends AbstractNamedDesignElement<T>
-  implements GenericPageElement.ScriptablePageElement<T>, IDefaultActionBarElement {
+public abstract class AbstractPageElement<T extends GenericPageElement<T>> extends AbstractDesignElement<T>
+  implements GenericPageElement.ScriptablePageElement<T>, IDefaultActionBarElement, IDefaultNamedDesignElement {
 
   public AbstractPageElement(Document doc) {
     super(doc);

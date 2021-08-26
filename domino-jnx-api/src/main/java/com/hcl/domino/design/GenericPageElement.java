@@ -15,7 +15,7 @@ import com.hcl.domino.richtext.records.CDResource;
  * @author Jesse Gallagher
  * @since 1.0.34
  */
-public interface GenericPageElement<T extends GenericPageElement<T>> extends DesignElement.NamedDesignElement {
+public interface GenericPageElement<T extends GenericPageElement<T>> extends DesignElement {
   /**
    * This specialization of {@link GenericPageElement} represents elements
    * that can have action bar entries and page scripts.

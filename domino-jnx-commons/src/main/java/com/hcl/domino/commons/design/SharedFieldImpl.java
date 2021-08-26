@@ -6,7 +6,7 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.design.SharedField;
 import com.hcl.domino.misc.NotesConstants;
 
-public class SharedFieldImpl extends AbstractNamedDesignElement<SharedField> implements SharedField {
+public class SharedFieldImpl extends AbstractDesignElement<SharedField> implements SharedField, IDefaultNamedDesignElement {
 
   public SharedFieldImpl(Document doc) {
     super(doc);

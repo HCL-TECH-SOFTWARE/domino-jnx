@@ -7,7 +7,7 @@ import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.Outline;
 
-public class OutlineImpl extends AbstractNamedDesignElement<Outline> implements Outline {
+public class OutlineImpl extends AbstractDesignElement<Outline> implements Outline, IDefaultNamedDesignElement {
 
   public OutlineImpl(Document doc) {
     super(doc);
@@ -25,7 +25,7 @@ public class OutlineImpl extends AbstractNamedDesignElement<Outline> implements 
 
   @Override
   public void initializeNewDesignNote() {
-    this.setFlags("m");
+    this.setFlags("m"); //$NON-NLS-1$
   }
 
 }

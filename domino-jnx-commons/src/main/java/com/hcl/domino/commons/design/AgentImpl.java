@@ -57,7 +57,8 @@ import com.hcl.domino.richtext.structures.AssistStruct;
 /**
  * @since 1.0.18
  */
-public class AgentImpl extends AbstractNamedDesignElement<DesignAgent> implements DesignAgent, IDefaultReadersRestrictedElement {
+public class AgentImpl extends AbstractDesignElement<DesignAgent> implements DesignAgent, IDefaultReadersRestrictedElement,
+  IDefaultNamedDesignElement {
 
   public AgentImpl(final Document doc) {
     super(doc);
