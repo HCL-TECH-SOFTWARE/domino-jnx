@@ -68,6 +68,9 @@ public interface DesignConstants {
   String VIEW_COLUMN_FORMAT_ITEM = "$ColumnFormatItem"; //$NON-NLS-1$
   String VIEW_COLUMN_FORMAT_EXT_ITEM = "$ColumnFormatExtItem"; //$NON-NLS-1$
   
+  /* Outline entry list */
+  String OUTLINE_SITEMAPLIST_ITEM = "$SiteMapList"; //$NON-NLS-1$
+  
   /** font table */
   String ITEM_NAME_FONTS = "$Fonts"; //$NON-NLS-1$
   

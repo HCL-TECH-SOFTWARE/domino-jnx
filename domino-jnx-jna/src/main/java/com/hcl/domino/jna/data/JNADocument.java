@@ -54,6 +54,7 @@ import com.hcl.domino.commons.constants.UpdateNote;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.data.SignatureDataImpl;
 import com.hcl.domino.commons.design.FormFieldImpl;
+import com.hcl.domino.commons.design.outline.DominoOutlineFormat;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.errors.UnsupportedItemValueError;
@@ -108,6 +109,7 @@ import com.hcl.domino.jna.internal.gc.handles.DHANDLE32;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE64;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
+import com.hcl.domino.jna.internal.outline.OutlineFormatDecoder;
 import com.hcl.domino.jna.internal.richtext.JNARichtextNavigator;
 import com.hcl.domino.jna.internal.structs.NotesBlockIdStruct;
 import com.hcl.domino.jna.internal.structs.NotesFileObjectStruct;
@@ -394,6 +396,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		else if (dataTypeAsInt == ItemDataType.TYPE_COMPOSITE.getValue()) {
 			supportedType = true;
 		}
+		else if (dataTypeAsInt == ItemDataType.TYPE_OUTLINE_FORMAT.getValue()) {
+          supportedType = true;
+        }
 		
 		if (!supportedType) {
 			throw new DominoException(format("Data type for value of item {0} is currently unsupported: {1}", itemName, dataTypeAsInt));
@@ -619,6 +624,10 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			List<Object> result = (List<Object>)(List<?>)getRichTextItem(itemName);
 			return result;
 		}
+		else if (dataTypeAsInt == ItemDataType.TYPE_OUTLINE_FORMAT.getValue()) {
+		  DominoOutlineFormat outlineFormatInfo = OutlineFormatDecoder.decodeOutlineFormat(valueDataPtr,  valueDataLength);
+          return Arrays.asList((Object) outlineFormatInfo);
+        }
 		else {
 			throw new DominoException(format("Data type for value of item {0} is currently unsupported: {1}", itemName, dataTypeAsInt));
 		}

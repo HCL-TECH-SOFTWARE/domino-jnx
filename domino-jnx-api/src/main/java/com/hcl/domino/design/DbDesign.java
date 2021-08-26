@@ -361,6 +361,25 @@ public interface DbDesign {
   Stream<View> getViews();
   
   /**
+   * Retrieves the named Outl;ine.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link Outline}, or an empty one if
+   *         no such Outline
+   *         exists
+   * @since 1.0.27
+   */
+  Optional<Outline> getOutline(String name);
+
+  /**
+   * Retrieves all Outlines in the database
+   *
+   * @return a {@link Stream} of {@link Outline}s
+   * @since 1.0.27
+   */
+  Stream<Outline> getOutlines();
+
+  /*
    * Retrieves the "About Application" document for the database, if it exists.
    * 
    * @return an {@link Optional} describing the {@link AboutDocument} for the database,

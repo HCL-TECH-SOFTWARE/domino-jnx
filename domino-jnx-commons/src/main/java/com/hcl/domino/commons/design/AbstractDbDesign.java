@@ -44,6 +44,7 @@ import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageResource;
+import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.design.ScriptLibrary;
 import com.hcl.domino.design.SharedField;
@@ -319,6 +320,15 @@ public abstract class AbstractDbDesign implements DbDesign {
   }
   
   @Override
+  public Optional<Outline> getOutline(final String name) {
+    return this.getDesignElementByName(Outline.class, name);
+  }
+
+  @Override
+  public Stream<Outline> getOutlines() {
+    return this.getDesignElements(Outline.class);
+  }
+  
   public Optional<AboutDocument> getAboutDocument() {
     try {
       return database.getDocumentById(NotesConstants.NOTE_ID_SPECIAL | NotesConstants.NOTE_CLASS_INFO)
