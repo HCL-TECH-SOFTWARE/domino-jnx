@@ -2,7 +2,7 @@ package com.hcl.domino.jna.internal;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import com.hcl.domino.commons.richtext.records.MemoryStructureProxy;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 import com.sun.jna.Memory;
@@ -16,8 +16,8 @@ public enum MemoryUtils {
   public static <T extends MemoryStructure> T readMemory(PointerByReference ppData, short odsType, Class<T> struct) {
 
     // Straight-read variant
-    T result = MemoryStructureProxy.newStructure(struct, 0);
-    int len = MemoryStructureProxy.sizeOf(struct);
+    T result = MemoryStructureUtil.newStructure(struct, 0);
+    int len = MemoryStructureUtil.sizeOf(struct);
     result.getData().put(ppData.getValue().getByteBuffer(0, len));
     ppData.setValue(ppData.getValue().share(len));
 
@@ -31,9 +31,9 @@ public enum MemoryUtils {
     //    care has to be taken on "UNIX", which is everything else.
     //    Additionally, not all structures here have ODS numbers
     PointerByReference ppData = new PointerByReference(data);
-    Memory mem = new Memory(MemoryStructureProxy.sizeOf(struct));
+    Memory mem = new Memory(MemoryStructureUtil.sizeOf(struct));
     NotesCAPI.get().ODSReadMemory(ppData, odsType, mem, (short)1);
-    return MemoryStructureProxy.forStructure(struct, () -> mem.getByteBuffer(0, mem.size()));
+    return MemoryStructureUtil.forStructure(struct, () -> mem.getByteBuffer(0, mem.size()));
 
   }
 
@@ -47,8 +47,8 @@ public enum MemoryUtils {
    * @return the read structure
    */
   public static <T extends MemoryStructure> T readMemory(ByteBuffer data, short odsType, Class<T> struct) {
-    T result = MemoryStructureProxy.newStructure(struct, 0);
-    int len = MemoryStructureProxy.sizeOf(struct);
+    T result = MemoryStructureUtil.newStructure(struct, 0);
+    int len = MemoryStructureUtil.sizeOf(struct);
     byte[] bytes = new byte[len];
     data.get(bytes);
     result.getData().put(bytes);
