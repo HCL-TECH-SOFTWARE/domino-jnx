@@ -1,4 +1,4 @@
-package com.hcl.domino.commons.design;
+package com.hcl.domino.commons.design.action;
 
 import java.util.HashSet;
 import java.util.List;
@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.Set;
 
-import com.hcl.domino.design.ActionBarAction;
+import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.format.ActionBarControlType;
 import com.hcl.domino.design.format.HideFromDevice;
 import com.hcl.domino.richtext.records.CDAction;

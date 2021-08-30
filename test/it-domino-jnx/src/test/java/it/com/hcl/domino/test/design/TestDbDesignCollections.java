@@ -24,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
@@ -37,7 +36,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,26 +46,19 @@ import com.hcl.domino.data.CollectionColumn.TotalType;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.NotesFont;
-import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.design.ActionBar;
-import com.hcl.domino.design.ActionBar.ButtonHeightMode;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.CollectionDesignElement.DisplaySettings;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.DesignElement.ClassicThemeBehavior;
+import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.View;
-import com.hcl.domino.design.action.ActionBarAction;
-import com.hcl.domino.design.action.ActionContent;
-import com.hcl.domino.design.action.FormulaActionContent;
-import com.hcl.domino.design.action.JavaScriptActionContent;
-import com.hcl.domino.design.action.LotusScriptActionContent;
-import com.hcl.domino.design.action.SimpleActionActionContent;
-import com.hcl.domino.design.action.SystemActionContent;
+import com.hcl.domino.design.ActionBar.ButtonHeightMode;
 import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
 import com.hcl.domino.design.format.ActionBarControlType;
 import com.hcl.domino.design.format.ActionBarTextAlignment;
@@ -81,7 +72,6 @@ import com.hcl.domino.design.format.DateShowFormat;
 import com.hcl.domino.design.format.DateShowSpecial;
 import com.hcl.domino.design.format.DayFormat;
 import com.hcl.domino.design.format.HideFromDevice;
-import com.hcl.domino.design.format.HtmlEventId;
 import com.hcl.domino.design.format.MonthFormat;
 import com.hcl.domino.design.format.NarrowViewPosition;
 import com.hcl.domino.design.format.NumberDisplayFormat;
@@ -92,10 +82,6 @@ import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.ViewLineSpacing;
 import com.hcl.domino.design.format.WeekFormat;
 import com.hcl.domino.design.format.YearFormat;
-import com.hcl.domino.design.simpleaction.ModifyFieldAction;
-import com.hcl.domino.design.simpleaction.ReadMarksAction;
-import com.hcl.domino.design.simpleaction.SendDocumentAction;
-import com.hcl.domino.design.simpleaction.SimpleAction;
 import com.hcl.domino.exception.FileDoesNotExistException;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
@@ -107,8 +93,8 @@ import com.hcl.domino.security.AclLevel;
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
-public class TestDbDesignCollections extends AbstractDesignTest {
-  public static final int EXPECTED_IMPORT_VIEWS = 10;
+public class TestDbDesignCollections extends AbstractNotesRuntimeTest {
+  public static final int EXPECTED_IMPORT_VIEWS = 9;
   public static final int EXPECTED_IMPORT_FOLDERS = 1;
 
   private static String dbPath;
@@ -189,7 +175,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     Optional<CDResource> backgroundImage = disp.getBackgroundImage();
     assertTrue(backgroundImage.isPresent());
     assertTrue(backgroundImage.get().getFlags().contains(CDResource.Flag.FORMULA));
-    assertEquals("\"hey.png\"", backgroundImage.get().getNamedElementFormula().get());
+    assertEquals("\"hey.png\"", backgroundImage.get().getNamedElementFormula());
     
     assertEquals(ImageRepeatMode.SIZE_TO_FIT, disp.getBackgroundImageRepeatMode());
     
@@ -297,7 +283,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertTrue(column.isShowTwistie());
       Optional<CDResource> twistie = column.getTwistieImage();
       assertTrue(twistie.isPresent());
-      assertEquals("Untitled.gif", twistie.get().getNamedElement().get());
+      assertEquals("Untitled.gif", twistie.get().getNamedElement());
       assertFalse(twistie.get().getFlags().contains(CDResource.Flag.FORMULA));
       
       {
@@ -306,7 +292,8 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         assertEquals("Courier New", font.getFontName().get());
         assertEquals(10, font.getPointSize());
         assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.STRIKEOUT), font.getAttributes());
-        assertEquals(StandardColors.LightMauve, font.getStandardColor().get());
+        
+//        assertColorEquals(column.getRowFontColor(), 226, 159, 222);
       }
       {
         NotesFont font = column.getHeaderFont();
@@ -314,7 +301,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         assertEquals("Georgia", font.getFontName().get());
         assertEquals(9, font.getPointSize());
         assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.BOLD, FontAttribute.ITALIC), font.getAttributes());
-        assertEquals(StandardColors.Green, font.getStandardColor().get());
+//        assertColorEquals(column.getHeaderFontColor(), 0, 255, 0);
       }
       
       {
@@ -400,7 +387,6 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         assertFalse(font.getFontName().isPresent());
         assertEquals(10, font.getPointSize());
         assertEquals(EnumSet.noneOf(FontAttribute.class), font.getAttributes());
-        assertEquals(StandardColors.Black, font.getStandardColor().get());
       }
       {
         NotesFont font = column.getHeaderFont();
@@ -408,7 +394,6 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         assertFalse(font.getFontName().isPresent());
         assertEquals(9, font.getPointSize());
         assertEquals(EnumSet.of(FontAttribute.BOLD), font.getAttributes());
-        assertEquals(StandardColors.AtlanticGray, font.getStandardColor().get());
       }
       
       {
@@ -478,7 +463,9 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertEquals("Consolas", font.getFontName().get());
       assertEquals(14, font.getPointSize());
       assertEquals(EnumSet.of(FontAttribute.UNDERLINE, FontAttribute.STRIKEOUT), font.getAttributes());
-      assertEquals(StandardColors.Cyan, font.getStandardColor().get());
+      
+//      assertColorEquals(column.getRowFontColor(), 0, 255, 255);
+//      assertColorEquals(column.getHeaderFontColor(), 0, 0, 0);
       
       {
         CollectionColumn.NumberSettings numbers = column.getNumberSettings();
@@ -687,7 +674,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertTrue(column.isShowTwistie());
       Optional<CDResource> twistie = column.getTwistieImage();
       assertTrue(twistie.isPresent());
-      assertEquals("tango/utilities-terminal.png", twistie.get().getNamedElement().get());
+      assertEquals("tango/utilities-terminal.png", twistie.get().getNamedElement());
       
       {
         CollectionColumn.NumberSettings numbers = column.getNumberSettings();
@@ -754,7 +741,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertFalse(column.isShowTwistie());
       Optional<CDResource> twistie = column.getTwistieImage();
       assertTrue(twistie.isPresent());
-      assertEquals("Untitled 2.gif", twistie.get().getNamedElement().get());
+      assertEquals("Untitled 2.gif", twistie.get().getNamedElement());
       
       {
         CollectionColumn.NamesSettings names = column.getNamesSettings();
@@ -799,7 +786,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       Optional<CDResource> twistie = column.getTwistieImage();
       assertTrue(twistie.isPresent());
       assertTrue(twistie.get().getFlags().contains(CDResource.Flag.FORMULA));
-      assertEquals("\"foo.png\"", twistie.get().getNamedElementFormula().get());
+      assertEquals("\"foo.png\"", twistie.get().getNamedElementFormula());
     }
 
   }
@@ -929,10 +916,6 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     assertColorEquals(web.getVisitedLinkColor(), 255, 159, 255);
     assertFalse(web.isAllowWebCrawlerIndexing());
     assertTrue(view.isAllowDominoDataService());
-    
-    ActionBar actionBar = view.getActionBar();
-    assertNotNull(actionBar);
-    assertEquals(0, actionBar.getActions().size());
   }
 
   @Test
@@ -1095,7 +1078,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     assertEquals(239, altBackground.getBlue());
     
     Optional<CDResource> backgroundImage = disp.getBackgroundImage();
-    assertEquals("Untitled.gif", backgroundImage.get().getNamedElement().get());
+    assertEquals("Untitled.gif", backgroundImage.get().getNamedElement());
     assertEquals(ImageRepeatMode.HORIZONTAL, disp.getBackgroundImageRepeatMode());
     
     assertEquals(CollectionDesignElement.GridStyle.NONE, disp.getGridStyle());
@@ -1446,12 +1429,12 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     DbDesign design = database.getDesign();
     View byCategory = design.getView("$ByCategory").get();
     byCategory.getColumns().forEach(col -> {
-      
+      System.out.println("read col " + col.getItemName());
     });
   }
   
   @Test
-  public void testActionView() throws IOException {
+  public void testActionView() {
     DbDesign design = this.database.getDesign();
     View view = design.getView("Action View").get();
     
@@ -1474,7 +1457,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     assertColorEquals(actions.getBackgroundColor(), 255, 159, 255);
     {
       CDResource background = actions.getBackgroundImage().get();
-      assertEquals("Untitled.gif", background.getNamedElement().get());
+      assertEquals("Untitled.gif", background.getNamedElement());
     }
     assertEquals(ActionBarBackgroundRepeat.CENTER_TILE, actions.getBackgroundImageRepeatMode());
     assertEquals(ClassicThemeBehavior.DONT_INHERIT_FROM_OS, actions.getClassicThemeBehavior());
@@ -1518,7 +1501,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     assertColorEquals(actions.getButtonBackgroundColor(), 255, 129, 0);
     {
       CDResource buttonBackground = actions.getButtonBackgroundImage().get();
-      assertEquals("Untitled 2.gif", buttonBackground.getNamedElement().get());
+      assertEquals("Untitled 2.gif", buttonBackground.getNamedElement());
     }
     
     {
@@ -1532,21 +1515,20 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     
     
     List<ActionBarAction> actionList = actions.getActions();
-    assertEquals(16, actionList.size());
+    assertEquals(13, actionList.size());
     {
       ActionBarAction action = actionList.get(0);
       assertEquals(2, action.getSharedActionIndex().getAsLong());
       assertEquals("Save", action.getName());
+      
     }
     {
       ActionBarAction action = actionList.get(1);
       assertEquals(3, action.getSharedActionIndex().getAsLong());
-      assertEquals("Save and Close", action.getName());
     }
     {
       ActionBarAction action = actionList.get(2);
       assertEquals("Formula Action", action.getName());
-      assertEquals(ActionBarAction.ActionLanguage.FORMULA, action.getActionLanguage());
       assertFalse(action.getLabelFormula().isPresent());
       assertEquals("NotesView", action.getTargetFrame().get());
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
@@ -1569,37 +1551,22 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertFalse(action.isBringDocumentToFrontInOle());
       assertEquals("testAction", action.getCompositeActionName().get());
       assertEquals("some program use", action.getProgrammaticUseText());
-      
-      ActionContent content = action.getActionContent();
-      assertInstanceOf(FormulaActionContent.class, content);
-      assertEquals("@StatusBar(\"I am formula action\")", ((FormulaActionContent)content).getFormula());
     }
     {
       ActionBarAction action = actionList.get(3);
       assertEquals("Mobile Left", action.getName());
-      assertEquals(ActionBarAction.ActionLanguage.FORMULA, action.getActionLanguage());
       assertTrue(action.isIncludeInMobileSwipeLeft());
       assertFalse(action.isIncludeInMobileSwipeRight());
-      
-      ActionContent content = action.getActionContent();
-      assertInstanceOf(FormulaActionContent.class, content);
-      assertEquals("@StatusBar(\"hi\")", ((FormulaActionContent)content).getFormula());
     }
     {
       ActionBarAction action = actionList.get(4);
       assertEquals("Mobile Right", action.getName());
-      assertEquals(ActionBarAction.ActionLanguage.FORMULA, action.getActionLanguage());
       assertFalse(action.isIncludeInMobileSwipeLeft());
       assertTrue(action.isIncludeInMobileSwipeRight());
-      
-      ActionContent content = action.getActionContent();
-      assertInstanceOf(FormulaActionContent.class, content);
-      assertEquals("@StatusBar(\"hi\")", ((FormulaActionContent)content).getFormula());
     }
     {
       ActionBarAction action = actionList.get(5);
       assertEquals("Action Group Right\\Sub-Action 1", action.getName());
-      assertEquals(ActionBarAction.ActionLanguage.FORMULA, action.getActionLanguage());
       assertEquals("\"Sub-Action\"", action.getLabelFormula().get());
       assertEquals("\"Right group action\"", action.getParentLabelFormula().get());
       assertFalse(action.getTargetFrame().isPresent());
@@ -1622,10 +1589,6 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertFalse(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
-      
-      ActionContent content = action.getActionContent();
-      assertInstanceOf(FormulaActionContent.class, content);
-      assertEquals("@SetField(\"SomeField\"; 0)", ((FormulaActionContent)content).getFormula());
     }
     {
       ActionBarAction action = actionList.get(6);
@@ -1650,7 +1613,6 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     {
       ActionBarAction action = actionList.get(7);
       assertEquals("Action Group Right\\Sub-Action 2", action.getName());
-      assertEquals(ActionBarAction.ActionLanguage.SIMPLE_ACTION, action.getActionLanguage());
       assertFalse(action.getLabelFormula().isPresent());
       assertFalse(action.getTargetFrame().isPresent());
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
@@ -1667,31 +1629,10 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertFalse(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
-      
-      ActionContent content = action.getActionContent();
-      assertInstanceOf(SimpleActionActionContent.class, content);
-      List<SimpleAction> simpleActions = ((SimpleActionActionContent)content).getActions();
-      assertEquals(3, simpleActions.size());
-      {
-        SimpleAction action0 = simpleActions.get(0);
-        assertInstanceOf(SendDocumentAction.class, action0);
-      }
-      {
-        SimpleAction action1 = simpleActions.get(1);
-        assertInstanceOf(ModifyFieldAction.class, action1);
-        assertEquals("Body", ((ModifyFieldAction)action1).getFieldName());
-        assertEquals("hey", ((ModifyFieldAction)action1).getValue());
-      }
-      {
-        SimpleAction action2 = simpleActions.get(2);
-        assertInstanceOf(ReadMarksAction.class, action2);
-        assertEquals(ReadMarksAction.Type.MARK_READ, ((ReadMarksAction)action2).getType());
-      }
     }
     {
       ActionBarAction action = actionList.get(8);
       assertEquals("Menu Action", action.getName());
-      assertEquals(ActionBarAction.ActionLanguage.SIMPLE_ACTION, action.getActionLanguage());
       assertFalse(action.getLabelFormula().isPresent());
       assertFalse(action.getTargetFrame().isPresent());
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
@@ -1712,20 +1653,10 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertFalse(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
-      
-      ActionContent content = action.getActionContent();
-      assertInstanceOf(SimpleActionActionContent.class, content);
-      List<SimpleAction> simpleActions = ((SimpleActionActionContent)content).getActions();
-      assertEquals(1, simpleActions.size());
-      {
-        SimpleAction action0 = simpleActions.get(0);
-        assertInstanceOf(SendDocumentAction.class, action0);
-      }
     }
     {
       ActionBarAction action = actionList.get(9);
       assertEquals("Mobile Guy", action.getName());
-      assertEquals(ActionBarAction.ActionLanguage.FORMULA, action.getActionLanguage());
       assertEquals("\"I'm going mobile\"", action.getLabelFormula().get());
       assertFalse(action.getTargetFrame().isPresent());
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
@@ -1746,15 +1677,10 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertFalse(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
-      
-      ActionContent content = action.getActionContent();
-      assertInstanceOf(FormulaActionContent.class, content);
-      assertEquals("@StatusBar(\"Mobile status bar?\")", ((FormulaActionContent)content).getFormula());
     }
     {
       ActionBarAction action = actionList.get(10);
       assertEquals("LotusScript Action", action.getName());
-      assertEquals(ActionBarAction.ActionLanguage.LOTUSSCRIPT, action.getActionLanguage());
       assertFalse(action.getLabelFormula().isPresent());
       assertFalse(action.getTargetFrame().isPresent());
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
@@ -1777,16 +1703,10 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertTrue(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
-      
-      ActionContent content = action.getActionContent();
-      assertInstanceOf(LotusScriptActionContent.class, content);
-      String expected = IOUtils.resourceToString("/text/testDbDesignCollections/shortls.txt", StandardCharsets.UTF_8);
-      assertEquals(expected, ((LotusScriptActionContent)content).getScript());
     }
     {
       ActionBarAction action = actionList.get(11);
       assertEquals("JS Action", action.getName());
-      assertEquals(ActionBarAction.ActionLanguage.JAVASCRIPT, action.getActionLanguage());
       assertFalse(action.getLabelFormula().isPresent());
       assertFalse(action.getTargetFrame().isPresent());
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
@@ -1809,175 +1729,17 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertFalse(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
-      
-      {
-        ActionContent content = action.getActionContent();
-        assertInstanceOf(JavaScriptActionContent.class, content);
-        Collection<JavaScriptActionContent.ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
-        assertTrue(
-          events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONCLICK) {
-              if(event.isClient()) {
-                if("window.alert(\"you poor soul, using JavaScript actions in a view\")\n".equals(event.getScript())) {
-                  return true;
-                }
-              }
-            }
-            return false;
-          })
-        );
-        assertTrue(
-          events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONCLICK) {
-              if(!event.isClient()) {
-                if("alert(\"I'm on the web\")\n".equals(event.getScript())) {
-                  return true;
-                }
-              }
-            }
-            return false;
-          })
-        );
-        assertTrue(
-          events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONMOUSEDOWN) {
-              if("console.log(\"is there a console in Notes JS actions?\")\n".equals(event.getScript())) {
-                return true;
-              }
-            }
-            return false;
-          })
-        );
-        assertTrue(
-          events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONMOUSEOVER) {
-              if("alert(\"wait, do onMouseOver actions work? No; this is web-only\")\n".equals(event.getScript())) {
-                return true;
-              }
-            }
-            return false;
-          })
-        );
-      }
-    }
-    {
-      ActionBarAction action = actionList.get(12);
-      assertEquals("JS Action 2", action.getName());
-      assertEquals(ActionBarAction.ActionLanguage.COMMON_JAVASCRIPT, action.getActionLanguage());
-      assertFalse(action.getLabelFormula().isPresent());
-      assertFalse(action.getTargetFrame().isPresent());
-      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
-      assertTrue(action.isIncludeInActionBar());
-      assertFalse(action.isIconOnlyInActionBar());
-      assertFalse(action.isLeftAlignedInActionBar());
-      assertTrue(action.isIncludeInActionMenu());
-      assertFalse(action.isIncludeInMobileActions());
-//      assertFalse(action.isIncludeInMobileSwipeLeft());
-//      assertFalse(action.isIncludeInMobileSwipeRight());
-      assertFalse(action.isIncludeInContextMenu());
-      assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
-      
-      assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
-      assertFalse(action.isUseHideWhenFormula());
-      assertFalse(action.getHideWhenFormula().isPresent());
-      
-      assertFalse(action.isPublishWithOle());
-      assertFalse(action.isCloseOleWhenChosen());
-      assertFalse(action.isBringDocumentToFrontInOle());
-      assertFalse(action.getCompositeActionName().isPresent());
-      assertEquals("", action.getProgrammaticUseText());
-
-      {
-        ActionContent content = action.getActionContent();
-        assertInstanceOf(JavaScriptActionContent.class, content);
-        Collection<JavaScriptActionContent.ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
-        assertTrue(
-          events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONCLICK) {
-              if(event.isClient()) {
-                if("window.alert(\"this is the common part\")\n".equals(event.getScript())) {
-                  return true;
-                }
-              }
-            }
-            return false;
-          })
-        );
-        assertTrue(
-          events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONCLICK) {
-              if(!event.isClient()) {
-                if("window.alert(\"this is the common part\")\n".equals(event.getScript())) {
-                  return true;
-                }
-              }
-            }
-            return false;
-          })
-        );
-        assertTrue(
-          events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONMOUSEDOWN) {
-              if("console.log(\"is there a console in Notes JS actions?\")\n".equals(event.getScript())) {
-                return true;
-              }
-            }
-            return false;
-          })
-        );
-        assertTrue(
-          events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONMOUSEOVER) {
-              if("alert(\"wait, do onMouseOver actions work?\")\n".equals(event.getScript())) {
-                return true;
-              }
-            }
-            return false;
-          })
-        );
-      }
-    }
-    {
-      ActionBarAction action = actionList.get(13);
-      assertEquals(ActionBarAction.ActionLanguage.SYSTEM_COMMAND, action.getActionLanguage());
-      
-      ActionContent content = action.getActionContent();
-      assertInstanceOf(SystemActionContent.class, content);
-      assertEquals(SystemActionContent.SystemAction.CATEGORIZE, ((SystemActionContent)content).getAction());
-    }
-    {
-      ActionBarAction action = actionList.get(14);
-      assertEquals("Long LotusScript", action.getName());
-
-      ActionContent content = action.getActionContent();
-      assertInstanceOf(LotusScriptActionContent.class, content);
-      String expected = IOUtils.resourceToString("/text/testDbDesignCollections/longls.txt", StandardCharsets.UTF_8);
-      assertEquals(expected, ((LotusScriptActionContent)content).getScript());
-    }
-    {
-      ActionBarAction action = actionList.get(15);
-      assertEquals("Long JavaScript", action.getName());
-
-      ActionContent content = action.getActionContent();
-      assertInstanceOf(JavaScriptActionContent.class, content);
-      Collection<JavaScriptActionContent.ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
-      assertEquals(1, events.size());
-      JavaScriptActionContent.ScriptEvent event = events.stream().findFirst().get();
-      String expected = IOUtils.resourceToString("/text/testDbDesignCollections/longjs.js", StandardCharsets.UTF_8).replace('\n', '\r');
-      String actual = event.getScript();
-      // Chomp the last line-ending character for consistency
-      actual = actual.substring(0, actual.length()-1);
-      assertEquals(expected, actual);
     }
   }
   
-  @Test
-  public void testEmptyActions() {
-    DbDesign design = this.database.getDesign();
-    View view = design.getView("Empty V5Actions").get();
-    
-    ActionBar actions = view.getActionBar();
-    assertEquals(0, actions.getActions().size());
-    assertEquals(ActionBar.Alignment.LEFT, actions.getAlignment());
+  // *******************************************************************************
+  // * Shared utility methods
+  // *******************************************************************************
+  
+  private void assertColorEquals(ColorValue color, int red, int green, int blue) {
+    assertNotNull(color);
+    assertEquals(red, color.getRed());
+    assertEquals(green, color.getGreen());
+    assertEquals(blue, color.getBlue());
   }
 }
