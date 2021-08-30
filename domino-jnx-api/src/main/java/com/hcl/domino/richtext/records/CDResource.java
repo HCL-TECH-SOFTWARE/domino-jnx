@@ -355,29 +355,38 @@ public interface CDResource extends RichTextRecord<WSIG> {
       )
     );
   }
-
+  
   /**
-   * Retrieves the formula for the name of the element referenced by this
-   * resource.
-   * <p>
-   * Note: this only applies when {@link #getResourceType()} is
-   * {@link Type#NAMEDELEMENT}.
-   * </p>
+   * Retrieves the formula for this resource, when {@link #getFlags()} contains
+   * {@link Flag#FORMULA}.
+   * 
+   * <p>The meaning of this formula depends on the value of
+   * {@link #getResourceType()}:</p>
+   * 
+   * <ul>
+   *   <li>For resources of type {@link Type#NAMEDELEMENT NAMEDELEMENT} or
+   *       {@link Type#URL URL}, this value represents the formula for a string
+   *       of the element name or URL.</li>
+   *   <li>For resources of type {@link Type#ACTION ACTION}, this represents the
+   *       executable script of the action.</li>
+   * </ul>
    *
    * @return an {@link Optional} describing the formula for the name of the referenced
-   *         element, or an optional one if this is not a formula-based named element
+   *         element, or an optional one if this is not a formula-based element
    */
-  default Optional<String> getNamedElementFormula() {
-    if (this.getResourceType() != Type.NAMEDELEMENT) {
-      return Optional.empty();
-    }
+  default Optional<String> getResourceFormula() {
     if (!this.getFlags().contains(Flag.FORMULA)) {
       return Optional.empty();
+    }
+    int preLen = getServerHintLength() + getFileHintLength();
+    if(getResourceType() == Type.NAMEDELEMENT) {
+      // Expect the replica ID
+      preLen += 8;
     }
     return Optional.of(
       StructureSupport.extractCompiledFormula(
         this,
-        this.getServerHintLength() + this.getFileHintLength() + 8, // for replica ID
+        preLen,
         this.getLength1()
       )
     );
