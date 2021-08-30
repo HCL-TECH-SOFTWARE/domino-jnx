@@ -25,6 +25,7 @@ import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
 import com.hcl.domino.design.format.ActionBarTextAlignment;
 import com.hcl.domino.design.format.ActionWidthMode;
 import com.hcl.domino.design.format.ButtonBorderDisplay;
+import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -50,7 +51,7 @@ import com.hcl.domino.richtext.structures.WSIG;
     @StructureMember(name = "ButtonColor", type = ColorValue.class),
     @StructureMember(name = "BtnBorderDisplay", type = ButtonBorderDisplay.class),
     @StructureMember(name = "wAppletHeight", type = short.class, unsigned = true),
-    @StructureMember(name = "wBarBackgroundRepeat", type = ActionBarBackgroundRepeat.class),
+    @StructureMember(name = "wBarBackgroundRepeat", type = short.class),
     @StructureMember(name = "BtnWidthStyle", type = ActionWidthMode.class),
     @StructureMember(name = "BtnTextJustify", type = ActionBarTextAlignment.class),
     @StructureMember(name = "wBtnWidthAbsolute", type = short.class, unsigned = true),
@@ -117,12 +118,6 @@ public interface CDActionBarExt extends RichTextRecord<WSIG> {
 
   @StructureSetter("wBarBackgroundRepeat")
   CDActionBarExt setBackgroundRepeatRaw(short backgroundRepeat);
-  
-  @StructureGetter("wBarBackgroundRepeat")
-  Optional<ActionBarBackgroundRepeat> getBackgroundRepeat();
-
-  @StructureSetter("wBarBackgroundRepeat")
-  CDActionBarExt setBackgroundRepeat(ActionBarBackgroundRepeat repeat);
 
   @StructureGetter("BtnWidthStyle")
   ActionWidthMode getWidthStyle();
@@ -161,8 +156,15 @@ public interface CDActionBarExt extends RichTextRecord<WSIG> {
   LengthValue getHeight();
   
   @StructureGetter("wThemeSetting")
-  Optional<ClassicThemeBehavior> getThemeSetting();
+  ClassicThemeBehavior getThemeSetting();
   
   @StructureSetter("wThemeSetting")
   CDActionBarExt setThemeSetting(ClassicThemeBehavior setting);
+  
+  default Optional<ActionBarBackgroundRepeat> getBackgroundRepeat() {
+    return DominoEnumUtil.valueOf(ActionBarBackgroundRepeat.class, getBackgroundRepeatRaw());
+  }
+  default CDActionBarExt setBackgroundRepeat(ActionBarBackgroundRepeat repeat) {
+    return setBackgroundRepeatRaw(repeat == null ? 0 : repeat.getValue());
+  }
 }
