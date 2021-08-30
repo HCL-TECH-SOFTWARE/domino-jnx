@@ -7,3 +7,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public abstract class MemoryStructureMixIn {
   @JsonIgnore abstract ByteBuffer getData();
 }
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+public abstract class MemoryStructureMixIn {
+  
+  @JsonIgnore abstract ByteBuffer getData();
+
+}
