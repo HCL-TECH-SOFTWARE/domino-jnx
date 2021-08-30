@@ -32,7 +32,6 @@ import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignElement.ClassicThemeBehavior;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Form;
-import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionContent;
 import com.hcl.domino.design.action.FormulaActionContent;
@@ -62,8 +61,8 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignForms extends AbstractDesignTest {
-  public static final int EXPECTED_IMPORT_FORMS = 5;
-  public static final int EXPECTED_IMPORT_SUBFORMS = 2;
+  public static final int EXPECTED_IMPORT_FORMS = 1;
+  public static final int EXPECTED_IMPORT_SUBFORMS = 0;
 
   private static String dbPath;
 
@@ -603,119 +602,4 @@ public class TestDbDesignForms extends AbstractDesignTest {
     }
   }
 
-  @Test
-  public void testLsForm() throws IOException {
-    DbDesign design = this.database.getDesign();
-    Form form = design.getForm("Test LS Form").get();
-    
-    assertEquals(Form.Type.RESPONSE_TO_RESPONSE, form.getType());
-    assertEquals(Form.MenuInclusion.NONE, form.getMenuInclusionMode());
-    assertFalse(form.isIncludeInSearchBuilder());
-    assertTrue(form.isIncludeInPrint());
-    
-    assertEquals(Form.VersioningBehavior.NEW_AS_RESPONSES, form.getVersioningBehavior());
-    assertFalse(form.isVersionCreationAutomatic());
-    
-    assertFalse(form.isDefaultForm());
-    assertTrue(form.isStoreFormInDocument());
-    assertFalse(form.isAllowFieldExchange());
-    assertTrue(form.isAutomaticallyRefreshFields());
-    assertTrue(form.isAnonymousForm());
-    assertFalse(form.isUseInitialFocus());
-    assertFalse(form.isFocusOnF6());
-    assertTrue(form.isSignDocuments());
-    assertFalse(form.isRenderPassThroughHtmlInClient());
-    assertFalse(form.isIncludeFieldsInIndex());
-    assertTrue(form.isAllowAutosave());
-    
-    assertEquals(Form.ConflictBehavior.MERGE_CONFLICTS, form.getConflictBehavior());
-    
-    
-    assertTrue(form.isInheritSelectedDocumentValues());
-    Form.InheritanceBehavior inheritance = form.getSelectedDocumentInheritanceBehavior().get();
-    assertEquals("TargetBody", inheritance.getTargetField());
-    assertEquals(Form.InheritanceFieldType.COLLAPSIBLE_RICH_TEXT, inheritance.getType());
-    
-    assertTrue(form.isAutomaticallyEnableEditMode());
-    assertEquals(Form.ContextPaneBehavior.PARENT, form.getContextPaneBehavior());
-    
-    assertTrue(form.isShowMailDialogOnClose());
-    
-    Form.WebRenderingSettings web = form.getWebRenderingSettings();
-    assertFalse(web.isRenderRichContentOnWeb());
-    assertEquals("", web.getWebMimeType().get());
-    assertEquals("Windows-1252", web.getWebCharset().get());
-    assertColorEquals(web.getActiveLinkColor(), 0, 96, 160);
-    assertColorEquals(web.getUnvisitedLinkColor(), 255, 192, 182);
-    assertColorEquals(web.getVisitedLinkColor(), 159, 159, 224);
-    
-    assertEquals("testconn", form.getDefaultDataConnectionName().get());
-    assertEquals("foo", form.getDefaultDataConnectionObject().get());
-    
-    
-    assertEquals("Outer Frame", form.getAutoFrameFrameset().get());
-    assertEquals("Nav", form.getAutoFrameTarget().get());
-  }
-
-  @Test
-  public void testDefaultForm() throws IOException {
-    DbDesign design = this.database.getDesign();
-    Form form = design.getForm("Default Form").get();
-    
-    assertTrue(form.isDefaultForm());
-
-    Form.WebRenderingSettings web = form.getWebRenderingSettings();
-    assertTrue(web.isRenderRichContentOnWeb());
-    assertFalse(web.getWebMimeType().isPresent());
-    assertFalse(web.getWebCharset().isPresent());
-    
-    assertFalse(form.getDefaultDataConnectionName().isPresent());
-    assertFalse(form.getDefaultDataConnectionObject().isPresent());
-  }
-
-  @Test
-  public void testOtherTypeForm() throws IOException {
-    DbDesign design = this.database.getDesign();
-    Form form = design.getForm("Other Type Form").get();
-
-    Form.WebRenderingSettings web = form.getWebRenderingSettings();
-    assertFalse(web.isRenderRichContentOnWeb());
-    assertEquals("text/css", web.getWebMimeType().get());
-    assertFalse(web.getWebCharset().isPresent());
-  }
-
-  @Test
-  public void testFooterSubform() throws IOException {
-    DbDesign design = this.database.getDesign();
-    Subform subform = design.getSubform("Footer").get();
-    
-    assertTrue(subform.isIncludeInInsertSubformDialog());
-    assertFalse(subform.isIncludeInNewFormDialog());
-    assertTrue(subform.isRenderPassThroughHtmlInClient());
-    assertTrue(subform.isIncludeFieldsInIndex());
-    
-    assertTrue(subform.isAllowPublicAccess());
-    
-    ActionBar actions = subform.getActionBar();
-    List<ActionBarAction> actionList = actions.getActions();
-    assertEquals(1, actionList.size());
-    {
-      ActionBarAction action = actionList.get(0);
-      assertEquals("Footer Action", action.getName());
-      ActionContent content = action.getActionContent();
-      assertInstanceOf(FormulaActionContent.class, content);
-      assertEquals("@StatusBar(\"hello.\")", ((FormulaActionContent)content).getFormula());
-    }
-  }
-
-  @Test
-  public void testComputedTargetSubform() throws IOException {
-    DbDesign design = this.database.getDesign();
-    Subform subform = design.getSubform("Computed Target").get();
-    
-    assertFalse(subform.isIncludeInInsertSubformDialog());
-    assertTrue(subform.isIncludeInNewFormDialog());
-    assertFalse(subform.isRenderPassThroughHtmlInClient());
-    assertFalse(subform.isIncludeFieldsInIndex());
-  }
 }
