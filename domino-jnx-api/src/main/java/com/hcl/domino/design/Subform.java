@@ -24,20 +24,19 @@ public interface Subform extends GenericFormOrSubform<Subform> {
   /**
    * Determines whether the subform should be included in the "Insert
    * Subform..." dialog in the design UI.
- *
+   * 
    * @return {@code true} if the subform should be included in the
    *         "Insert Subform..." list; {@code false} otherwise
    * @since 1.0.33
- */
+   */
   boolean isIncludeInInsertSubformDialog();
-
+  
   /**
    * Determines whether the subform should be included in the "New
    * Form..." dialog in the UI.
    * 
    * @return {@code true} if the subform should be included in the "New
    *         Form..." list; {@code false} otherwise
-   * @since 1.0.33
    */
   boolean isIncludeInNewFormDialog();
 }
