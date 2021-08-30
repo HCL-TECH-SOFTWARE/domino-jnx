@@ -1,4 +1,4 @@
-ackage com.hcl.domino.data;
+package com.hcl.domino.data;
 
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.NotesConstants;
