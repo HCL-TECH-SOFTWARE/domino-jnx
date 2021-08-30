@@ -22,6 +22,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import com.hcl.domino.data.Database;
 import com.hcl.domino.design.Form;
+import com.hcl.domino.design.Page;
 import com.hcl.domino.jnx.vertx.json.service.VertxJsonSerializer;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
@@ -64,6 +65,16 @@ public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
     withResourceDxl("/dxl/testDbDesignForms", database -> {
       Form form = database.getDesign().getForm("Test LS Form").get();
       serializer.toJson(form);
+    });
+  }
+  
+  @Test
+  public void testPageBasicSerialization() throws Exception {
+    VertxJsonSerializer serializer = new VertxJsonSerializer();
+    
+    withResourceDxl("/dxl/testDbDesign", database -> {
+      Page page = database.getDesign().getPage("Test Page").get();
+      serializer.toJson(page);
     });
   }
   

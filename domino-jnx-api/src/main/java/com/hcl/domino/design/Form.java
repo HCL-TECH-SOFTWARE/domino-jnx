@@ -35,7 +35,8 @@ import com.hcl.domino.richtext.structures.ColorValue;
  * Represents a Form design element in a database
  */
 public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlternativeElement,
-  DesignElement.XPageNotesAlternativeElement, DesignElement.AutoFrameElement, DesignElement.ThemeableClassicElement {
+  DesignElement.XPageNotesAlternativeElement, DesignElement.AutoFrameElement, DesignElement.ThemeableClassicElement,
+  DesignElement.ReadersRestrictedElement {
   
   /**
    * Represents the settings for inheritance of the entire selected document
@@ -701,4 +702,20 @@ public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlt
    * @since 1.0.34
    */
   PrintSettings getPrintSettings();
+  
+  /**
+   * Retrieves the web-query-open formula for the form or page, if specified.
+   * 
+   * @return an {@link Optional} describing the web-query-open formula if present,
+   *         or an empty one if this has not been specified
+   */
+  Optional<String> getWebQueryOpenFormula();
+  
+  /**
+   * Retrieves the web-query-save formula for the form or page, if specified.
+   * 
+   * @return an {@link Optional} describing the web-query-open formula if present,
+   *         or an empty one if this has not been specified
+   */
+  Optional<String> getWebQuerySaveFormula();
 }

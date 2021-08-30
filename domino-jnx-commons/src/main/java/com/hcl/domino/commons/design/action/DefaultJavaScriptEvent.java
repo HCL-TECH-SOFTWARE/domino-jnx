@@ -16,21 +16,21 @@
  */
 package com.hcl.domino.commons.design.action;
 
-import com.hcl.domino.design.action.JavaScriptActionContent;
-import com.hcl.domino.design.format.HtmlEventId;
+import com.hcl.domino.design.action.EventId;
+import com.hcl.domino.design.action.ScriptEvent;
 
 /**
- * Default implementation of {@link JavaScriptActionContent.ScriptEvent}.
+ * Default implementation of {@link ScriptEvent}.
  * 
  * @author Jesse Gallagher
  * @since 1.0.33
  */
-public class DefaultJavaScriptEvent implements JavaScriptActionContent.ScriptEvent {
-  private final HtmlEventId eventId;
+public class DefaultJavaScriptEvent implements ScriptEvent {
+  private final EventId eventId;
   private final boolean client;
   private final String script;
 
-  public DefaultJavaScriptEvent(HtmlEventId eventId, boolean client, String script) {
+  public DefaultJavaScriptEvent(EventId eventId, boolean client, String script) {
     this.eventId = eventId;
     this.client = client;
     this.script = script;
@@ -38,7 +38,7 @@ public class DefaultJavaScriptEvent implements JavaScriptActionContent.ScriptEve
   
   
   @Override
-  public HtmlEventId getEventId() {
+  public EventId getEventId() {
     return eventId;
   }
 

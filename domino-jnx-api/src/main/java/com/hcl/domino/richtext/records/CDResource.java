@@ -209,6 +209,64 @@ public interface CDResource extends RichTextRecord<WSIG> {
     }
   }
 
+  @Override
+  @StructureGetter("Header")
+  WSIG getHeader();
+
+  @StructureGetter("Flags")
+  Set<Flag> getFlags();
+
+  @StructureSetter("Flags")
+  CDResource setFlags(Collection<Flag> flags);
+
+  @StructureGetter("Type")
+  Type getResourceType();
+
+  @StructureSetter("Type")
+  CDResource setResourceType(Type type);
+
+  @StructureGetter("ResourceClass")
+  Optional<ResourceClass> getResourceClass();
+
+  @StructureSetter("ResourceClass")
+  CDResource setResourceClass(ResourceClass resClass);
+
+  @StructureGetter("Length1")
+  int getLength1();
+
+  @StructureSetter("Length1")
+  CDResource setLength1(int length1);
+
+  @StructureGetter("ServerHintLength")
+  int getServerHintLength();
+
+  @StructureSetter("ServerHintLength")
+  CDResource setServerHintLength(int length);
+
+  @StructureGetter("FileHintLength")
+  int getFileHintLength();
+
+  @StructureSetter("FileHintLength")
+  CDResource setFileHintLength(int length);
+
+  default String getServerHint() {
+    return StructureSupport.extractStringValue(
+      this,
+      0,
+      this.getServerHintLength()
+    );
+  }
+
+  default CDResource setServerHint(final String hint) {
+    return StructureSupport.writeStringValue(
+      this,
+      0,
+      this.getServerHintLength(),
+      hint,
+      this::setServerHintLength
+    );
+  }
+
   default String getFileHint() {
     return StructureSupport.extractStringValue(
       this,
@@ -217,18 +275,37 @@ public interface CDResource extends RichTextRecord<WSIG> {
     );
   }
 
-  @StructureGetter("FileHintLength")
-  int getFileHintLength();
-
-  @StructureGetter("Flags")
-  Set<Flag> getFlags();
-
-  @Override
-  @StructureGetter("Header")
-  WSIG getHeader();
-
-  @StructureGetter("Length1")
-  int getLength1();
+  default CDResource setFileHint(final String hint) {
+    return StructureSupport.writeStringValue(
+      this,
+      this.getServerHintLength(),
+      this.getFileHintLength(),
+      hint,
+      this::setFileHintLength
+    );
+  }
+  
+  /**
+   * Retrieves the URL of the target resource.
+   * <p>
+   * Note: this only applies when {@link #getResourceType()} is {@link Type#URL}.
+   * </p>
+   *
+   * @return an {@link Optional} describing the URL to the referenced value,
+   *         or an empty one if this is not a URL element
+   */
+  default Optional<String> getUrl() {
+    if (this.getResourceType() != Type.URL) {
+      return Optional.empty();
+    }
+    return Optional.of(
+      StructureSupport.extractStringValue(
+        this,
+        this.getServerHintLength() + this.getFileHintLength(),
+        this.getLength1()
+      )
+    );
+  }
 
   /**
    * Retrieves the link anchor name for the target resource.
@@ -303,83 +380,6 @@ public interface CDResource extends RichTextRecord<WSIG> {
         this.getServerHintLength() + this.getFileHintLength() + 8, // for replica ID
         this.getLength1()
       )
-    );
-  }
-
-  @StructureGetter("ResourceClass")
-  Optional<ResourceClass> getResourceClass();
-
-  @StructureGetter("Type")
-  Type getResourceType();
-
-  @StructureGetter("ServerHintLength")
-  int getServerHintLength();
-
-  /**
-   * Retrieves the URL of the target resource.
-   * <p>
-   * Note: this only applies when {@link #getResourceType()} is {@link Type#URL}.
-   * </p>
-   *
-   * @return an {@link Optional} describing the URL to the referenced value,
-   *         or an empty one if this is not a URL element
-   */
-  default Optional<String> getUrl() {
-    if (this.getResourceType() != Type.URL) {
-      return Optional.empty();
-    }
-    return Optional.of(
-      StructureSupport.extractStringValue(
-        this,
-        this.getServerHintLength() + this.getFileHintLength(),
-        this.getLength1()
-      )
-    );
-  }
-
-  default CDResource setFileHint(final String hint) {
-    return StructureSupport.writeStringValue(
-      this,
-      this.getServerHintLength(),
-      this.getFileHintLength(),
-      hint,
-      this::setFileHintLength
-    );
-  }
-
-  @StructureSetter("FileHintLength")
-  CDResource setFileHintLength(int length);
-
-  @StructureSetter("Flags")
-  CDResource setFlags(Collection<Flag> flags);
-
-  @StructureSetter("Length1")
-  CDResource setLength1(int length1);
-
-  @StructureSetter("ResourceClass")
-  CDResource setResourceClass(ResourceClass resClass);
-
-  @StructureSetter("Type")
-  CDResource setResourceType(Type type);
-
-  default CDResource setServerHint(final String hint) {
-    return StructureSupport.writeStringValue(
-      this,
-      0,
-      this.getServerHintLength(),
-      hint,
-      this::setServerHintLength
-    );
-  }
-
-  @StructureSetter("ServerHintLength")
-  CDResource setServerHintLength(int length);
-
-  default String getServerHint() {
-    return StructureSupport.extractStringValue(
-      this,
-      0,
-      this.getServerHintLength()
     );
   }
 }

@@ -670,6 +670,7 @@ public interface NotesConstants extends ViewFormatConstants {
    */
   String DFLAGPAT_FILE_RESOURCE = "(+g-~K[];`,_*"; //$NON-NLS-1$
   String DESIGN_FLAGS = "$Flags"; //$NON-NLS-1$
+  String DESIGN_FLAGS_EXTENDED = "$FlagsExt"; //$NON-NLS-1$
   /** FORM: Indicates that a subform is in the add subform list */
   String DESIGN_FLAG_ADD = "A"; //$NON-NLS-1$
   /** VIEW: Indicates that a view is an antifolder view */
@@ -4500,6 +4501,9 @@ public interface NotesConstants extends ViewFormatConstants {
   String SCRIPTLIB_OBJECT = "$ScriptLib_O"; //$NON-NLS-1$
   String JAVASCRIPTLIBRARY_CODE = "$JavaScriptLibrary"; //$NON-NLS-1$
   String SERVER_JAVASCRIPTLIBRARY_CODE = "$ServerJavaScriptLibrary"; //$NON-NLS-1$
+  
+  /* Outline sitemap */
+  String OUTLINE_SITEMAP_LIST = "$SiteMapList";
 
   String VIEW_COMMENT_ITEM = "$Comment"; //$NON-NLS-1$
   String FILTER_COMMENT_ITEM = "$Comment"; //$NON-NLS-1$
@@ -4542,4 +4546,9 @@ public interface NotesConstants extends ViewFormatConstants {
   String WEBFLAG_NOTE_USEJSCTL_INBROWSER = "D"; //$NON-NLS-1$
   String WEBFLAG_NOTE_CRAWLABLE = "C"; //$NON-NLS-1$
   String WEBFLAG_NOTE_RESTAPIALLOWED = "A"; //$NON-NLS-1$
+  
+  String VIEW_SCRIPT_NAME = "$ViewScript"; //$NON-NLS-1$
+  /** Formula for view script event */
+  String VIEW_ACTION_ITEM_NAME = "$ViewAction"; //$NON-NLS-1$
+  String VIEW_FORM_FORMULA_ITEM = "$FormFormula"; //$NON-NLS-1$
 }

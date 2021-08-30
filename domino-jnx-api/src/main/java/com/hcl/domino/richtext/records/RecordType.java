@@ -484,7 +484,7 @@ public enum RecordType {
    * It is preceded by a CDHOTSPOTBEGIN and a CDPLACEHOLDER.<br>
    * The CD record, CDPLACEHOLDER, further defines the CDEMBEDDEDOUTLINE.
    */
-  EMBEDDEDOUTLINE(RichTextConstants.SIG_CD_EMBEDDEDOUTLINE, 1),
+  EMBEDDEDOUTLINE(RichTextConstants.SIG_CD_EMBEDDEDOUTLINE, 1, CDEmbeddedOutline.class),
   /**
    * This CD Record describes a view as an embedded element.<br>
    * A CDEMBEDDEDVIEW record will be preceded by a CDPLACEHOLDER record.<br>
@@ -560,7 +560,7 @@ public enum RecordType {
    * side image MAP.
    */
   AREAELEMENT(RichTextConstants.SIG_CD_AREAELEMENT, 3),
-  HREF(RichTextConstants.SIG_CD_HREF, new int[] { 1, 3 }, CDResource.class),
+  HREF(RichTextConstants.SIG_CD_HREF, new int[] { 1, 3 , 4}, CDResource.class),
   HTML_ALTTEXT(RichTextConstants.SIG_CD_HTML_ALTTEXT, 3),
   /**
    * Structure which defines simple actions, formulas or LotusScript for an image

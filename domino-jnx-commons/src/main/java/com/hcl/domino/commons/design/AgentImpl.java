@@ -38,6 +38,7 @@ import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.design.DesignAgent;
+import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.agent.AgentContent;
 import com.hcl.domino.design.agent.AgentInterval;
 import com.hcl.domino.design.agent.AgentTrigger;
@@ -56,7 +57,8 @@ import com.hcl.domino.richtext.structures.AssistStruct;
 /**
  * @since 1.0.18
  */
-public class AgentImpl extends AbstractNamedDesignElement<DesignAgent> implements DesignAgent {
+public class AgentImpl extends AbstractDesignElement<DesignAgent> implements DesignAgent, IDefaultReadersRestrictedElement,
+  IDefaultNamedDesignElement {
 
   public AgentImpl(final Document doc) {
     super(doc);
@@ -204,15 +206,6 @@ public class AgentImpl extends AbstractNamedDesignElement<DesignAgent> implement
       default:
         throw new IllegalStateException(MessageFormat.format("Unknown language value {0}", Short.toUnsignedInt(lang)));
     }
-  }
-
-  private Optional<AssistStruct> getAssistInfo() {
-    final Document doc = this.getDocument();
-    if (doc.hasItem(NotesConstants.ASSIST_INFO_ITEM)) {
-      final AssistStruct assistInfo = doc.get(NotesConstants.ASSIST_INFO_ITEM, AssistStruct.class, null);
-      return Optional.ofNullable(assistInfo);
-    }
-    return Optional.empty();
   }
 
   @Override
@@ -393,14 +386,89 @@ public class AgentImpl extends AbstractNamedDesignElement<DesignAgent> implement
     throw new NotYetImplementedException();
   }
 
-  // *******************************************************************************
-  // * Implementation utility methods
-  // *******************************************************************************
-
   @Override
   public boolean isRunOnWeekends() {
     return this.getAssistInfo()
         .map(info -> !info.getFlags().contains(AssistStruct.Flag.NOWEEKENDS))
         .orElse(true);
+  }
+
+  @Override
+  public boolean isRunAsWebUser() {
+    return getAssistFlags().contains(DesignConstants.ASSIST_FLAG_AGENT_RUNASWEBUSER);
+  }
+
+  @Override
+  public Optional<String> getOnBehalfOfUser() {
+    return getDocument().getOptional(NotesConstants.ASSIST_ONBEHALFOF, String.class);
+  }
+
+  @Override
+  public SecurityLevel getSecurityLevel() {
+    int restricted = getDocument().get(DesignConstants.ASSIST_RESTRICTED, int.class, 1);
+    switch(restricted) {
+    case DesignConstants.ASSIST_RESTRICTED_FULLADMIN:
+      return SecurityLevel.UNRESTRICTED_FULLADMIN;
+    case DesignConstants.ASSIST_RESTRICTED_UNRESTRICTED:
+      return SecurityLevel.UNRESTRICTED;
+    case DesignConstants.ASSIST_RESTRICTED_RESTRICTED:
+    default:
+      return SecurityLevel.RESTRICTED;
+    }
+  }
+
+  @Override
+  public boolean isStoreHighlights() {
+    return getAssistInfo()
+      .map(AssistStruct::getFlags)
+      .map(flags -> flags.contains(AssistStruct.Flag.STOREHIGHLIGHTS))
+      .orElse(null);
+  }
+
+  @Override
+  public boolean isStoreSearch() {
+    return getFlags().contains(NotesConstants.DESIGN_FLAG_AGENT_SHOWINSEARCH);
+  }
+
+  @Override
+  public boolean isProfilingEnabled() {
+    return getFlagsExt().contains(DesignConstants.DESIGN_FLAGEXT_PROFILE);
+  }
+
+  @Override
+  public boolean isAllowRemoteDebugging() {
+    return getAssistFlags().contains(DesignConstants.ASSIST_FLAG_ALLOW_REMOTE_DEBUGGING);
+  }
+
+  @Override
+  public boolean isPrivate() {
+    return getAssistFlags().contains(DesignConstants.ASSIST_FLAG_PRIVATE);
+  }
+
+  @Override
+  public boolean isRunInBackgroundInClient() {
+    return getAssistFlags().contains(DesignConstants.ASSIST_FLAG_THREAD);
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return getAssistFlags().contains(DesignConstants.ASSIST_FLAG_ENABLED);
+  }
+
+  // *******************************************************************************
+  // * Implementation utility methods
+  // *******************************************************************************
+
+  private String getAssistFlags() {
+    return getDocument().get(DesignConstants.ASSIST_FLAGS_ITEM, String.class, ""); //$NON-NLS-1$
+  }
+
+  private Optional<AssistStruct> getAssistInfo() {
+    final Document doc = this.getDocument();
+    if (doc.hasItem(NotesConstants.ASSIST_INFO_ITEM)) {
+      final AssistStruct assistInfo = doc.get(NotesConstants.ASSIST_INFO_ITEM, AssistStruct.class, null);
+      return Optional.ofNullable(assistInfo);
+    }
+    return Optional.empty();
   }
 }

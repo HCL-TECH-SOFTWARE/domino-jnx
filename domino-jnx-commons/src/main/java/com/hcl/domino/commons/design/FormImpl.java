@@ -52,7 +52,7 @@ import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FramesetLength;
 
-public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefaultAutoFrameElement {
+public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefaultAutoFrameElement, IDefaultReadersRestrictedElement {
 
   public FormImpl(final Document doc) {
     super(doc);
@@ -282,6 +282,26 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
   @Override
   public PrintSettings getPrintSettings() {
     return new DefaultPrintSettings();
+  }
+  
+  @Override
+  public Optional<String> getWebQueryOpenFormula() {
+    Document doc = getDocument();
+    if(doc.hasItem(DesignConstants.ITEM_NAME_WEBQUERYOPEN)) {
+      return Optional.of(doc.get(DesignConstants.ITEM_NAME_WEBQUERYOPEN, String.class, "")); //$NON-NLS-1$
+    } else {
+      return Optional.empty();
+    }
+  }
+  
+  @Override
+  public Optional<String> getWebQuerySaveFormula() {
+    Document doc = getDocument();
+    if(doc.hasItem(DesignConstants.ITEM_NAME_WEBQUERYSAVE)) {
+      return Optional.of(doc.get(DesignConstants.ITEM_NAME_WEBQUERYSAVE, String.class, "")); //$NON-NLS-1$
+    } else {
+      return Optional.empty();
+    }
   }
   
   // *******************************************************************************

@@ -27,6 +27,7 @@ import java.util.Set;
 
 import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.commons.NotYetImplementedException;
+import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -36,7 +37,6 @@ import com.hcl.domino.data.DocumentProperties;
 import com.hcl.domino.data.Item;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.jna.BaseJNAAPIObject;
-import com.hcl.domino.jna.internal.AbstractTypedAccess;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -70,7 +70,10 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 	/**
 	 * Collection of item types that are assumed to contain composite-data records
 	 */
-	public static final Set<ItemDataType> CD_TYPES = EnumSet.of(ItemDataType.TYPE_COMPOSITE, ItemDataType.TYPE_ACTION);
+	public static final Set<ItemDataType> CD_TYPES = EnumSet.of(
+	  ItemDataType.TYPE_COMPOSITE, ItemDataType.TYPE_ACTION,
+	  ItemDataType.TYPE_VIEWMAP_DATASET, ItemDataType.TYPE_VIEWMAP_LAYOUT
+	);
 	
 	JNAItem(JNADocument parentDoc, NotesBlockIdStruct itemBlockId, int dataType,
 			NotesBlockIdStruct valueBlockId) {

@@ -16,6 +16,13 @@
  */
 package it.com.hcl.domino.test.design;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -32,7 +39,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -74,6 +80,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
+  public static final int EXPECTED_IMPORT_AGENTS = 20;
   private static String dbPath;
 
   @AfterAll
@@ -105,9 +112,9 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
   public void testAgentsCount() {
     final DbDesign dbDesign = this.database.getDesign();
     final Collection<DesignAgent> agents = dbDesign.getAgents().collect(Collectors.toList());
-    Assertions.assertEquals(19, agents.size());
+    assertEquals(EXPECTED_IMPORT_AGENTS, agents.size());
 
-    Assertions.assertNull(dbDesign.getAgent("Content").orElse(null));
+    assertNull(dbDesign.getAgent("Content").orElse(null));
   }
 
   @Test
@@ -115,16 +122,16 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     this.withTempDb(database -> {
       final DbDesign design = database.getDesign();
       final DesignAgent element = design.createAgent("foo bar");
-      Assertions.assertNotNull(element);
-      Assertions.assertEquals("foo bar", element.getTitle());
+      assertNotNull(element);
+      assertEquals("foo bar", element.getTitle());
 
-      Assertions.assertNull(design.getAgent("foo bar").orElse(null));
+      assertNull(design.getAgent("foo bar").orElse(null));
       element.save();
-      Assertions.assertNotNull(design.getAgent("foo bar").orElse(null));
+      assertNotNull(design.getAgent("foo bar").orElse(null));
       element.setTitle("other title");
       element.save();
-      Assertions.assertNull(design.getAgent("foo bar").orElse(null));
-      Assertions.assertNotNull(design.getAgent("other title").orElse(null));
+      assertNull(design.getAgent("foo bar").orElse(null));
+      assertNotNull(design.getAgent("other title").orElse(null));
     });
   }
 
@@ -133,19 +140,20 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     final DbDesign dbDesign = this.database.getDesign();
     final Collection<DesignAgent> agents = dbDesign.getAgents().collect(Collectors.toList());
     final DesignAgent agent = agents.stream().filter(a -> "formula agent".equals(a.getTitle())).findFirst().orElse(null);
-    Assertions.assertNotNull(agent);
-    Assertions.assertEquals(AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertNotNull(agent);
+    assertEquals(AgentLanguage.FORMULA, agent.getAgentLanguage());
 
-    Assertions.assertNotNull(dbDesign.getAgent("formula agent"));
-    Assertions.assertEquals(1, dbDesign.getDesignElementsByName(DesignAgent.class, "formula agent").count());
-    Assertions.assertNotNull(dbDesign.getDesignElementByName(DesignAgent.class, "formula agent"));
+    assertNotNull(dbDesign.getAgent("formula agent"));
+    assertEquals(1, dbDesign.getDesignElementsByName(DesignAgent.class, "formula agent").count());
+    assertNotNull(dbDesign.getDesignElementByName(DesignAgent.class, "formula agent"));
 
     final String formula = "@StatusBar(\"hey\");\n"
         + " @All";
     final AgentContent content = agent.getAgentContent();
-    Assertions.assertInstanceOf(FormulaAgentContent.class, content);
-    Assertions.assertEquals(formula, ((FormulaAgentContent) content).getFormula());
-    Assertions.assertEquals(DocumentAction.MODIFY, ((FormulaAgentContent) content).getDocumentAction());
+    assertInstanceOf(FormulaAgentContent.class, content);
+    assertEquals(formula, ((FormulaAgentContent) content).getFormula());
+    assertEquals(DocumentAction.MODIFY, ((FormulaAgentContent) content).getDocumentAction());
+    assertTrue(agent.isRunInBackgroundInClient());
   }
 
   @Test
@@ -153,21 +161,21 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     final DbDesign dbDesign = this.database.getDesign();
     {
       final List<DesignElement> elements = dbDesign.queryDesignElements("$TITLE='formula agent'").collect(Collectors.toList());
-      Assertions.assertEquals(1, elements.size());
-      Assertions.assertTrue(elements.get(0) instanceof DesignAgent);
-      Assertions.assertEquals("formula agent", ((DesignAgent) elements.get(0)).getTitle());
+      assertEquals(1, elements.size());
+      assertTrue(elements.get(0) instanceof DesignAgent);
+      assertEquals("formula agent", ((DesignAgent) elements.get(0)).getTitle());
     }
     {
       final List<DesignElement> elements = dbDesign.queryDesignElements(DesignAgent.class, "$TITLE='formula agent'")
           .collect(Collectors.toList());
-      Assertions.assertEquals(1, elements.size());
-      Assertions.assertTrue(elements.get(0) instanceof DesignAgent);
-      Assertions.assertEquals("formula agent", ((DesignAgent) elements.get(0)).getTitle());
+      assertEquals(1, elements.size());
+      assertTrue(elements.get(0) instanceof DesignAgent);
+      assertEquals("formula agent", ((DesignAgent) elements.get(0)).getTitle());
     }
     {
       final List<DesignElement> elements = dbDesign.queryDesignElements(View.class, "$TITLE='formula agent'")
           .collect(Collectors.toList());
-      Assertions.assertEquals(0, elements.size());
+      assertEquals(0, elements.size());
     }
   }
 
@@ -176,17 +184,17 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     final DbDesign dbDesign = this.database.getDesign();
     final Collection<DesignAgent> agents = dbDesign.getAgents().collect(Collectors.toList());
     final DesignAgent agent = agents.stream().filter(a -> "imported java agent".equals(a.getTitle())).findFirst().orElse(null);
-    Assertions.assertNotNull(agent);
-    Assertions.assertEquals(AgentLanguage.IMPORTED_JAVA, agent.getAgentLanguage());
+    assertNotNull(agent);
+    assertEquals(AgentLanguage.IMPORTED_JAVA, agent.getAgentLanguage());
 
-    Assertions.assertNotNull(dbDesign.getAgent("imported java agent"));
+    assertNotNull(dbDesign.getAgent("imported java agent"));
     final AgentContent content = agent.getAgentContent();
-    Assertions.assertInstanceOf(ImportedJavaAgentContent.class, content);
+    assertInstanceOf(ImportedJavaAgentContent.class, content);
 
     final ImportedJavaAgentContent javaAgent = (ImportedJavaAgentContent) content;
-    Assertions.assertEquals("ImportedJavaAgentContent.class", javaAgent.getMainClassName());
-    Assertions.assertEquals("H:\\", javaAgent.getCodeFilesystemPath());
-    Assertions.assertEquals(Arrays.asList("ImportedJavaAgentContent.class", "JavaAgentContent.class", "bar.txt", "foo.jar"),
+    assertEquals("ImportedJavaAgentContent.class", javaAgent.getMainClassName());
+    assertEquals("H:\\", javaAgent.getCodeFilesystemPath());
+    assertEquals(Arrays.asList("ImportedJavaAgentContent.class", "JavaAgentContent.class", "bar.txt", "foo.jar"),
         javaAgent.getFileNameList());
   }
 
@@ -195,39 +203,39 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     final DbDesign dbDesign = this.database.getDesign();
     final Collection<DesignAgent> agents = dbDesign.getAgents().collect(Collectors.toList());
     final DesignAgent agent = agents.stream().filter(a -> "java agent".equals(a.getTitle())).findFirst().orElse(null);
-    Assertions.assertNotNull(agent);
-    Assertions.assertEquals(AgentLanguage.JAVA, agent.getAgentLanguage());
+    assertNotNull(agent);
+    assertEquals(AgentLanguage.JAVA, agent.getAgentLanguage());
 
-    Assertions.assertNotNull(dbDesign.getAgent("java agent"));
+    assertNotNull(dbDesign.getAgent("java agent"));
     final AgentContent content = agent.getAgentContent();
-    Assertions.assertInstanceOf(JavaAgentContent.class, content);
+    assertInstanceOf(JavaAgentContent.class, content);
     final JavaAgentContent javaAgent = (JavaAgentContent) content;
-    Assertions.assertEquals("JavaAgent.class", javaAgent.getMainClassName());
-    Assertions.assertEquals("c:\\Notes\\Data", javaAgent.getCodeFilesystemPath());
-    Assertions.assertEquals("%%source%%.jar", javaAgent.getSourceAttachmentName().get());
-    Assertions.assertEquals("%%object%%.jar", javaAgent.getObjectAttachmentName().get());
-    Assertions.assertFalse(javaAgent.getResourcesAttachmentName().isPresent());
-    Assertions.assertEquals(Collections.emptyList(), javaAgent.getSharedLibraryList());
+    assertEquals("JavaAgent.class", javaAgent.getMainClassName());
+    assertEquals("c:\\Notes\\Data", javaAgent.getCodeFilesystemPath());
+    assertEquals("%%source%%.jar", javaAgent.getSourceAttachmentName().get());
+    assertEquals("%%object%%.jar", javaAgent.getObjectAttachmentName().get());
+    assertFalse(javaAgent.getResourcesAttachmentName().isPresent());
+    assertEquals(Collections.emptyList(), javaAgent.getSharedLibraryList());
   }
 
   @Test
   public void testLargeLotusScriptAgent() throws IOException {
     final DbDesign dbDesign = this.database.getDesign();
     final DesignAgent agent = dbDesign.getAgent("Large LotusScript Agent").orElse(null);
-    Assertions.assertNotNull(agent);
+    assertNotNull(agent);
 
-    Assertions.assertEquals(AgentLanguage.LS, agent.getAgentLanguage());
-    Assertions.assertEquals(AgentTrigger.NEWMAIL, agent.getTrigger());
-    Assertions.assertFalse(agent.getStartDate().isPresent());
-    Assertions.assertFalse(agent.getEndDate().isPresent());
+    assertEquals(AgentLanguage.LS, agent.getAgentLanguage());
+    assertEquals(AgentTrigger.NEWMAIL, agent.getTrigger());
+    assertFalse(agent.getStartDate().isPresent());
+    assertFalse(agent.getEndDate().isPresent());
 
     String largels;
     try (InputStream is = this.getClass().getResourceAsStream("/text/largels.txt")) {
       largels = StreamUtil.readString(is);
     }
     final AgentContent content = agent.getAgentContent();
-    Assertions.assertInstanceOf(LotusScriptAgentContent.class, content);
-    Assertions.assertEquals(largels, ((LotusScriptAgentContent) content).getScript());
+    assertInstanceOf(LotusScriptAgentContent.class, content);
+    assertEquals(largels, ((LotusScriptAgentContent) content).getScript());
   }
 
   @Test
@@ -235,47 +243,47 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     final DbDesign dbDesign = this.database.getDesign();
     final Collection<DesignAgent> agents = dbDesign.getAgents().collect(Collectors.toList());
     final DesignAgent agent = agents.stream().filter(a -> "Printer Agent".equals(a.getTitle())).findFirst().orElse(null);
-    Assertions.assertNotNull(agent);
-    Assertions.assertEquals(AgentLanguage.LS, agent.getAgentLanguage());
+    assertNotNull(agent);
+    assertEquals(AgentLanguage.LS, agent.getAgentLanguage());
 
-    Assertions.assertNotNull(dbDesign.getAgent("Printer Agent"));
+    assertNotNull(dbDesign.getAgent("Printer Agent"));
     String largels;
     try (InputStream is = this.getClass().getResourceAsStream("/text/printeragent.txt")) {
       largels = StreamUtil.readString(is);
     }
     final AgentContent content = agent.getAgentContent();
-    Assertions.assertInstanceOf(LotusScriptAgentContent.class, content);
-    Assertions.assertEquals(largels, ((LotusScriptAgentContent) content).getScript());
+    assertInstanceOf(LotusScriptAgentContent.class, content);
+    assertEquals(largels, ((LotusScriptAgentContent) content).getScript());
   }
 
   @Test
   public void testMultiFileJavaAgent() {
     final DbDesign dbDesign = this.database.getDesign();
     final DesignAgent agent = dbDesign.getAgent("Multi-File Java").orElse(null);
-    Assertions.assertNotNull(agent);
+    assertNotNull(agent);
 
-    Assertions.assertEquals(AgentLanguage.JAVA, agent.getAgentLanguage());
-    Assertions.assertEquals(AgentTrigger.SCHEDULED, agent.getTrigger());
-    Assertions.assertEquals(AgentInterval.MINUTES, agent.getIntervalType());
-    Assertions.assertTrue(agent.getStartDate().isPresent());
-    Assertions.assertEquals(LocalDate.of(2021, 6, 14), agent.getStartDate().get().toLocalDate());
-    Assertions.assertFalse(agent.getEndDate().isPresent());
-    Assertions.assertEquals(LocalTime.of(10, 0), agent.getRunLocalTime().get());
-    Assertions.assertEquals(LocalTime.of(16, 0), agent.getRunEndLocalTime().get());
-    Assertions.assertEquals(3 * 60 + 30, agent.getInterval().getAsInt());
-    Assertions.assertEquals("CN=Arcturus/O=Frost", agent.getRunLocation());
-    Assertions.assertFalse(agent.isRunOnWeekends());
+    assertEquals(AgentLanguage.JAVA, agent.getAgentLanguage());
+    assertEquals(AgentTrigger.SCHEDULED, agent.getTrigger());
+    assertEquals(AgentInterval.MINUTES, agent.getIntervalType());
+    assertTrue(agent.getStartDate().isPresent());
+    assertEquals(LocalDate.of(2021, 6, 14), agent.getStartDate().get().toLocalDate());
+    assertFalse(agent.getEndDate().isPresent());
+    assertEquals(LocalTime.of(10, 0), agent.getRunLocalTime().get());
+    assertEquals(LocalTime.of(16, 0), agent.getRunEndLocalTime().get());
+    assertEquals(3 * 60 + 30, agent.getInterval().getAsInt());
+    assertEquals("CN=Arcturus/O=Frost", agent.getRunLocation());
+    assertFalse(agent.isRunOnWeekends());
 
     final AgentContent content = agent.getAgentContent();
-    Assertions.assertInstanceOf(JavaAgentContent.class, content);
+    assertInstanceOf(JavaAgentContent.class, content);
     final JavaAgentContent javaAgent = (JavaAgentContent) content;
-    Assertions.assertEquals("lotus.domino.axis.JavaAgentRenamed.class", javaAgent.getMainClassName());
-    Assertions.assertEquals("c:\\Notes\\Data", javaAgent.getCodeFilesystemPath());
-    Assertions.assertEquals("%%source%%.jar", javaAgent.getSourceAttachmentName().get());
-    Assertions.assertEquals("%%object%%.jar", javaAgent.getObjectAttachmentName().get());
-    Assertions.assertEquals("%%resource%%.jar", javaAgent.getResourcesAttachmentName().get());
-    Assertions.assertEquals(Arrays.asList("foo.jar", "bar.jar"), javaAgent.getEmbeddedJars());
-    Assertions.assertEquals(Arrays.asList("java lib", "java consumer", "java lib 2", "java lib 3", "java lib 4"),
+    assertEquals("lotus.domino.axis.JavaAgentRenamed.class", javaAgent.getMainClassName());
+    assertEquals("c:\\Notes\\Data", javaAgent.getCodeFilesystemPath());
+    assertEquals("%%source%%.jar", javaAgent.getSourceAttachmentName().get());
+    assertEquals("%%object%%.jar", javaAgent.getObjectAttachmentName().get());
+    assertEquals("%%resource%%.jar", javaAgent.getResourcesAttachmentName().get());
+    assertEquals(Arrays.asList("foo.jar", "bar.jar"), javaAgent.getEmbeddedJars());
+    assertEquals(Arrays.asList("java lib", "java consumer", "java lib 2", "java lib 3", "java lib 4"),
         javaAgent.getSharedLibraryList());
   }
 
@@ -283,70 +291,70 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
   public void testNewDocsFormula() {
     final DbDesign dbDesign = this.database.getDesign();
     final DesignAgent agent = dbDesign.getAgent("new docs formula").orElse(null);
-    Assertions.assertNotNull(agent);
+    assertNotNull(agent);
 
-    Assertions.assertEquals(AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertEquals(AgentLanguage.FORMULA, agent.getAgentLanguage());
     final AgentContent content = agent.getAgentContent();
-    Assertions.assertInstanceOf(FormulaAgentContent.class, content);
-    Assertions.assertEquals("\"bar\";\n\n @All", ((FormulaAgentContent) content).getFormula());
-    Assertions.assertEquals(DocumentAction.CREATE, ((FormulaAgentContent) content).getDocumentAction());
+    assertInstanceOf(FormulaAgentContent.class, content);
+    assertEquals("\"bar\";\n\n @All", ((FormulaAgentContent) content).getFormula());
+    assertEquals(DocumentAction.CREATE, ((FormulaAgentContent) content).getDocumentAction());
   }
 
   @Test
   public void testNonformulaSimpleAction() throws IOException {
     final DbDesign dbDesign = this.database.getDesign();
     final DesignAgent agent = dbDesign.getAgent("sa nonformula").orElse(null);
-    Assertions.assertNotNull(agent);
+    assertNotNull(agent);
 
-    Assertions.assertEquals(AgentLanguage.SIMPLE_ACTION, agent.getAgentLanguage());
+    assertEquals(AgentLanguage.SIMPLE_ACTION, agent.getAgentLanguage());
   }
 
   @Test
   public void testScheduledDisabledFormula() {
     final DbDesign dbDesign = this.database.getDesign();
     final DesignAgent agent = dbDesign.getAgent("Scheduled Weekly Disabled").orElse(null);
-    Assertions.assertNotNull(agent);
+    assertNotNull(agent);
 
-    Assertions.assertEquals(AgentLanguage.FORMULA, agent.getAgentLanguage());
-    Assertions.assertEquals(AgentTrigger.SCHEDULED, agent.getTrigger());
-    Assertions.assertEquals(AgentInterval.WEEK, agent.getIntervalType());
-    Assertions.assertFalse(agent.getStartDate().isPresent());
-    Assertions.assertTrue(agent.getEndDate().isPresent());
-    Assertions.assertEquals(LocalDate.of(2022, 6, 14), agent.getEndDate().get().toLocalDate());
-    Assertions.assertEquals("CN=Arcturus/O=Frost", agent.getRunLocation());
-    Assertions.assertEquals(LocalTime.of(2, 0), agent.getRunLocalTime().get());
-    Assertions.assertEquals(DayOfWeek.TUESDAY, agent.getRunDayOfWeek().get());
-    Assertions.assertFalse(agent.getRunEndLocalTime().isPresent());
+    assertEquals(AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertEquals(AgentTrigger.SCHEDULED, agent.getTrigger());
+    assertEquals(AgentInterval.WEEK, agent.getIntervalType());
+    assertFalse(agent.getStartDate().isPresent());
+    assertTrue(agent.getEndDate().isPresent());
+    assertEquals(LocalDate.of(2022, 6, 14), agent.getEndDate().get().toLocalDate());
+    assertEquals("CN=Arcturus/O=Frost", agent.getRunLocation());
+    assertEquals(LocalTime.of(2, 0), agent.getRunLocalTime().get());
+    assertEquals(DayOfWeek.TUESDAY, agent.getRunDayOfWeek().get());
+    assertFalse(agent.getRunEndLocalTime().isPresent());
   }
 
   @Test
   public void testSelectDocsFormula() {
     final DbDesign dbDesign = this.database.getDesign();
     final DesignAgent agent = dbDesign.getAgent("select docs formula").orElse(null);
-    Assertions.assertNotNull(agent);
+    assertNotNull(agent);
 
-    Assertions.assertEquals(AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertEquals(AgentLanguage.FORMULA, agent.getAgentLanguage());
     final AgentContent content = agent.getAgentContent();
-    Assertions.assertInstanceOf(FormulaAgentContent.class, content);
-    Assertions.assertEquals("\"foo\";\n\n @All", ((FormulaAgentContent) content).getFormula());
-    Assertions.assertEquals(DocumentAction.SELECT, ((FormulaAgentContent) content).getDocumentAction());
+    assertInstanceOf(FormulaAgentContent.class, content);
+    assertEquals("\"foo\";\n\n @All", ((FormulaAgentContent) content).getFormula());
+    assertEquals(DocumentAction.SELECT, ((FormulaAgentContent) content).getDocumentAction());
   }
 
   @Test
   public void testSelectServerFormula() {
     final DbDesign dbDesign = this.database.getDesign();
     final DesignAgent agent = dbDesign.getAgent("Select Server").orElse(null);
-    Assertions.assertNotNull(agent);
+    assertNotNull(agent);
 
-    Assertions.assertEquals(AgentLanguage.FORMULA, agent.getAgentLanguage());
-    Assertions.assertEquals(AgentTrigger.SCHEDULED, agent.getTrigger());
-    Assertions.assertEquals(AgentInterval.MONTH, agent.getIntervalType());
-    Assertions.assertFalse(agent.getStartDate().isPresent());
-    Assertions.assertFalse(agent.getEndDate().isPresent());
-    Assertions.assertEquals("", agent.getRunLocation());
-    Assertions.assertEquals(12, agent.getRunDayOfMonth().getAsInt());
-    Assertions.assertEquals(LocalTime.of(4, 0), agent.getRunLocalTime().get());
-    Assertions.assertFalse(agent.getRunEndLocalTime().isPresent());
+    assertEquals(AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertEquals(AgentTrigger.SCHEDULED, agent.getTrigger());
+    assertEquals(AgentInterval.MONTH, agent.getIntervalType());
+    assertFalse(agent.getStartDate().isPresent());
+    assertFalse(agent.getEndDate().isPresent());
+    assertEquals("", agent.getRunLocation());
+    assertEquals(12, agent.getRunDayOfMonth().getAsInt());
+    assertEquals(LocalTime.of(4, 0), agent.getRunLocalTime().get());
+    assertFalse(agent.getRunEndLocalTime().isPresent());
   }
 
   @Test
@@ -354,135 +362,135 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     final DbDesign dbDesign = this.database.getDesign();
     final Collection<DesignAgent> agents = dbDesign.getAgents().collect(Collectors.toList());
     final DesignAgent agent = agents.stream().filter(a -> "sa agent".equals(a.getTitle())).findFirst().orElse(null);
-    Assertions.assertNotNull(agent);
-    Assertions.assertEquals(AgentLanguage.SIMPLE_ACTION, agent.getAgentLanguage());
+    assertNotNull(agent);
+    assertEquals(AgentLanguage.SIMPLE_ACTION, agent.getAgentLanguage());
 
-    Assertions.assertNotNull(dbDesign.getAgent("sa agent"));
+    assertNotNull(dbDesign.getAgent("sa agent"));
     final AgentContent content = agent.getAgentContent();
-    Assertions.assertInstanceOf(SimpleActionAgentContent.class, content);
+    assertInstanceOf(SimpleActionAgentContent.class, content);
     final List<SimpleAction> actions = ((SimpleActionAgentContent) content).getActions();
-    Assertions.assertEquals(19, actions.size());
+    assertEquals(19, actions.size());
     {
       final RunFormulaAction action = (RunFormulaAction) actions.get(0);
-      Assertions.assertEquals(DocumentAction.MODIFY, action.getDocumentAction());
-      Assertions.assertEquals("\"foo\"", action.getFormula());
+      assertEquals(DocumentAction.MODIFY, action.getDocumentAction());
+      assertEquals("\"foo\"", action.getFormula());
     }
     {
       final ModifyFieldAction action = (ModifyFieldAction) actions.get(1);
-      Assertions.assertEquals("Body", action.getFieldName());
-      Assertions.assertEquals("dfdf", action.getValue());
+      assertEquals("Body", action.getFieldName());
+      assertEquals("dfdf", action.getValue());
     }
     {
       final FolderBasedAction action = (FolderBasedAction) actions.get(2);
-      Assertions.assertEquals(FolderBasedAction.Type.REMOVE, action.getType());
+      assertEquals(FolderBasedAction.Type.REMOVE, action.getType());
     }
     {
       final CopyToDatabaseAction action = (CopyToDatabaseAction) actions.get(3);
-      Assertions.assertEquals("CN=Arcturus/O=Frost", action.getServerName());
-      Assertions.assertEquals("names.nsf", action.getDatabaseName());
+      assertEquals("CN=Arcturus/O=Frost", action.getServerName());
+      assertEquals("names.nsf", action.getDatabaseName());
     }
     {
       final FolderBasedAction action = (FolderBasedAction) actions.get(4);
-      Assertions.assertEquals("test folder", action.getFolderName());
+      assertEquals("test folder", action.getFolderName());
     }
     {
       final DeleteDocumentAction action = (DeleteDocumentAction) actions.get(5);
-      Assertions.assertNotNull(action);
+      assertNotNull(action);
     }
     {
       final ReadMarksAction action = (ReadMarksAction) actions.get(6);
-      Assertions.assertEquals(ReadMarksAction.Type.MARK_READ, action.getType());
+      assertEquals(ReadMarksAction.Type.MARK_READ, action.getType());
     }
     {
       final ReadMarksAction action = (ReadMarksAction) actions.get(7);
-      Assertions.assertEquals(ReadMarksAction.Type.MARK_UNREAD, action.getType());
+      assertEquals(ReadMarksAction.Type.MARK_UNREAD, action.getType());
     }
     {
       final ModifyByFormAction action = (ModifyByFormAction) actions.get(8);
-      Assertions.assertEquals("Alias", action.getFormName());
+      assertEquals("Alias", action.getFormName());
       final Map<String, List<String>> modifications = action.getModifications();
-      Assertions.assertEquals(10, modifications.size()); // 10 total fields on the form
-      Assertions.assertEquals(Arrays.asList("foo"), modifications.get("Host"));
-      Assertions.assertEquals(Arrays.asList("bar"), modifications.get("From"));
-      Assertions.assertEquals(Arrays.asList("baz"), modifications.get("To"));
+      assertEquals(10, modifications.size()); // 10 total fields on the form
+      assertEquals(Arrays.asList("foo"), modifications.get("Host"));
+      assertEquals(Arrays.asList("bar"), modifications.get("From"));
+      assertEquals(Arrays.asList("baz"), modifications.get("To"));
     }
     {
       final FolderBasedAction action = (FolderBasedAction) actions.get(9);
-      Assertions.assertEquals(FolderBasedAction.Type.MOVE, action.getType());
-      Assertions.assertEquals("test folder", action.getFolderName());
+      assertEquals(FolderBasedAction.Type.MOVE, action.getType());
+      assertEquals("test folder", action.getFolderName());
     }
     {
       final ReplyAction action = (ReplyAction) actions.get(10);
-      Assertions.assertFalse(action.isReplyToAll());
-      Assertions.assertFalse(action.isReplyOnce());
-      Assertions.assertEquals("\"hey sender\"", action.getBody());
-      Assertions.assertTrue(action.isIncludeDocument());
+      assertFalse(action.isReplyToAll());
+      assertFalse(action.isReplyOnce());
+      assertEquals("\"hey sender\"", action.getBody());
+      assertTrue(action.isIncludeDocument());
     }
     {
       final ReplyAction action = (ReplyAction) actions.get(11);
-      Assertions.assertTrue(action.isReplyToAll());
-      Assertions.assertTrue(action.isReplyOnce());
-      Assertions.assertEquals("\"no copy in this one\"", action.getBody());
-      Assertions.assertFalse(action.isIncludeDocument());
+      assertTrue(action.isReplyToAll());
+      assertTrue(action.isReplyOnce());
+      assertEquals("\"no copy in this one\"", action.getBody());
+      assertFalse(action.isIncludeDocument());
     }
     {
       final RunAgentAction action = (RunAgentAction) actions.get(12);
-      Assertions.assertEquals("Compiler", action.getAgentName());
+      assertEquals("Compiler", action.getAgentName());
     }
     {
       final SendDocumentAction action = (SendDocumentAction) actions.get(13);
-      Assertions.assertNotNull(action);
+      assertNotNull(action);
     }
     {
       final SendMailAction action = (SendMailAction) actions.get(14);
       final ComputableValue to = action.getTo();
-      Assertions.assertFalse(to.isFormula());
-      Assertions.assertEquals("foo@foo.com", to.getValue());
-      Assertions.assertEquals("bar@bar.com", action.getCc().getValue());
+      assertFalse(to.isFormula());
+      assertEquals("foo@foo.com", to.getValue());
+      assertEquals("bar@bar.com", action.getCc().getValue());
       final ComputableValue bcc = action.getBcc();
-      Assertions.assertTrue(bcc.isFormula());
-      Assertions.assertEquals("\"bcc@\" + \"bcc.com\"", bcc.getValue());
-      Assertions.assertEquals("Test sending", action.getSubject().getValue());
-      Assertions.assertEquals("this is test body", action.getBody());
-      Assertions.assertTrue(action.isIncludeDocument());
-      Assertions.assertTrue(action.isIncludeDocLink());
+      assertTrue(bcc.isFormula());
+      assertEquals("\"bcc@\" + \"bcc.com\"", bcc.getValue());
+      assertEquals("Test sending", action.getSubject().getValue());
+      assertEquals("this is test body", action.getBody());
+      assertTrue(action.isIncludeDocument());
+      assertTrue(action.isIncludeDocLink());
     }
     {
       final SendNewsletterAction action = (SendNewsletterAction) actions.get(15);
-      Assertions.assertEquals("foo@foo.com", action.getTo());
-      Assertions.assertEquals("sdfdf", action.getSubject());
-      Assertions.assertEquals("rwViewNameLen  Length, in bytes, of the name of the view used to display the data\r\n"
+      assertEquals("foo@foo.com", action.getTo());
+      assertEquals("sdfdf", action.getSubject());
+      assertEquals("rwViewNameLen  Length, in bytes, of the name of the view used to display the data\r\n"
           + "wSpare		Reserved;  must be 0.", action.getBody());
-      Assertions.assertEquals("Aliases", action.getViewName());
-      Assertions.assertTrue(action.isGatherDocuments());
-      Assertions.assertEquals(2, action.getGatherThreshold());
+      assertEquals("Aliases", action.getViewName());
+      assertTrue(action.isGatherDocuments());
+      assertEquals(2, action.getGatherThreshold());
     }
     {
       final SendNewsletterAction action = (SendNewsletterAction) actions.get(16);
-      Assertions.assertEquals("foo@foo.com", action.getTo());
-      Assertions.assertEquals("sdfdf", action.getSubject());
-      Assertions.assertEquals("this is the newsletter", action.getBody());
-      Assertions.assertEquals("Aliases", action.getViewName());
-      Assertions.assertTrue(action.isGatherDocuments());
-      Assertions.assertEquals(2, action.getGatherThreshold());
+      assertEquals("foo@foo.com", action.getTo());
+      assertEquals("sdfdf", action.getSubject());
+      assertEquals("this is the newsletter", action.getBody());
+      assertEquals("Aliases", action.getViewName());
+      assertTrue(action.isGatherDocuments());
+      assertEquals(2, action.getGatherThreshold());
     }
     {
       final SendNewsletterAction action = (SendNewsletterAction) actions.get(17);
-      Assertions.assertEquals("foo@foo.com", action.getTo());
-      Assertions.assertEquals("sdfdf", action.getSubject());
-      Assertions.assertEquals("this is the newsletters", action.getBody());
-      Assertions.assertEquals("Aliases", action.getViewName());
-      Assertions.assertTrue(action.isGatherDocuments());
-      Assertions.assertEquals(2, action.getGatherThreshold());
+      assertEquals("foo@foo.com", action.getTo());
+      assertEquals("sdfdf", action.getSubject());
+      assertEquals("this is the newsletters", action.getBody());
+      assertEquals("Aliases", action.getViewName());
+      assertTrue(action.isGatherDocuments());
+      assertEquals(2, action.getGatherThreshold());
     }
     {
       final SendNewsletterAction action = (SendNewsletterAction) actions.get(18);
-      Assertions.assertEquals("foo@foo.com", action.getTo());
-      Assertions.assertEquals("sdfdf", action.getSubject());
-      Assertions.assertEquals("", action.getBody());
-      Assertions.assertFalse(action.isIncludeSummary());
-      Assertions.assertTrue(action.isGatherDocuments());
-      Assertions.assertEquals(2, action.getGatherThreshold());
+      assertEquals("foo@foo.com", action.getTo());
+      assertEquals("sdfdf", action.getSubject());
+      assertEquals("", action.getBody());
+      assertFalse(action.isIncludeSummary());
+      assertTrue(action.isGatherDocuments());
+      assertEquals(2, action.getGatherThreshold());
     }
   }
 
@@ -493,13 +501,27 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     // Also tests "Scheduled Weekly Disabled"'s "Scheduled Weekly Tuesday" alias and
     // case-insensitive lookups
     final DesignAgent agent = dbDesign.getAgent("Scheduled Weekly " + dayOfWeek).orElse(null);
-    Assertions.assertNotNull(agent);
+    assertNotNull(agent);
 
-    Assertions.assertEquals(AgentTrigger.SCHEDULED, agent.getTrigger());
-    Assertions.assertEquals(AgentInterval.WEEK, agent.getIntervalType());
-    Assertions.assertFalse(agent.getStartDate().isPresent());
-    Assertions.assertTrue(agent.getEndDate().isPresent());
-    Assertions.assertEquals(dayOfWeek, agent.getRunDayOfWeek().get());
-    Assertions.assertFalse(agent.getRunEndLocalTime().isPresent());
+    assertEquals(AgentTrigger.SCHEDULED, agent.getTrigger());
+    assertEquals(AgentInterval.WEEK, agent.getIntervalType());
+    assertFalse(agent.getStartDate().isPresent());
+    assertTrue(agent.getEndDate().isPresent());
+    assertEquals(dayOfWeek, agent.getRunDayOfWeek().get());
+    assertFalse(agent.getRunEndLocalTime().isPresent());
+  }
+  
+  @Test
+  public void testCreateDocAgent() {
+    DbDesign design = database.getDesign();
+    
+    DesignAgent agent = design.getAgent("Create Doc").get();
+    
+    assertTrue(agent.isAllowRemoteDebugging());
+    assertTrue(agent.isPrivate());
+    assertTrue(agent.isStoreSearch());
+    assertTrue(agent.isStoreHighlights());
+    assertTrue(agent.isProfilingEnabled());
+    assertEquals(DesignAgent.SecurityLevel.UNRESTRICTED_FULLADMIN, agent.getSecurityLevel());
   }
 }

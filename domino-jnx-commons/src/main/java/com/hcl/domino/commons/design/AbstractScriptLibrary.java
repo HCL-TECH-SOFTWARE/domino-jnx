@@ -19,7 +19,8 @@ package com.hcl.domino.commons.design;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.ScriptLibrary;
 
-public class AbstractScriptLibrary<T extends ScriptLibrary> extends AbstractNamedDesignElement<T> implements ScriptLibrary {
+public class AbstractScriptLibrary<T extends ScriptLibrary> extends AbstractDesignElement<T> implements ScriptLibrary,
+  IDefaultNamedDesignElement {
 
   public AbstractScriptLibrary(final Document doc) {
     super(doc);
