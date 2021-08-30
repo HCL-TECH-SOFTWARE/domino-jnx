@@ -20,7 +20,9 @@ import java.text.MessageFormat;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
@@ -29,6 +31,15 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.NotYetImplementedException;
+import com.hcl.domino.commons.design.action.DefaultCopyToDatabaseAction;
+import com.hcl.domino.commons.design.action.DefaultDeleteDocumentAction;
+import com.hcl.domino.commons.design.action.DefaultFolderBasedAction;
+import com.hcl.domino.commons.design.action.DefaultModifyByFormAction;
+import com.hcl.domino.commons.design.action.DefaultModifyFieldAction;
+import com.hcl.domino.commons.design.action.DefaultReplyAction;
+import com.hcl.domino.commons.design.action.DefaultSendDocumentAction;
+import com.hcl.domino.commons.design.action.DefaultSendMailAction;
+import com.hcl.domino.commons.design.action.DefaultSendNewsletterAction;
 import com.hcl.domino.commons.design.agent.DefaultFormulaAgentContent;
 import com.hcl.domino.commons.design.agent.DefaultImportedJavaAgentContent;
 import com.hcl.domino.commons.design.agent.DefaultJavaAgentContent;
@@ -43,14 +54,29 @@ import com.hcl.domino.design.agent.AgentInterval;
 import com.hcl.domino.design.agent.AgentTrigger;
 import com.hcl.domino.design.agent.FormulaAgentContent;
 import com.hcl.domino.design.agent.LotusScriptAgentContent;
+import com.hcl.domino.design.simpleaction.FolderBasedAction;
+import com.hcl.domino.design.simpleaction.ReadMarksAction;
+import com.hcl.domino.design.simpleaction.RunAgentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextRecordList;
+import com.hcl.domino.richtext.records.CDActionByForm;
+import com.hcl.domino.richtext.records.CDActionDBCopy;
+import com.hcl.domino.richtext.records.CDActionDelete;
+import com.hcl.domino.richtext.records.CDActionFolder;
 import com.hcl.domino.richtext.records.CDActionFormula;
 import com.hcl.domino.richtext.records.CDActionJavaAgent;
 import com.hcl.domino.richtext.records.CDActionLotusScript;
+import com.hcl.domino.richtext.records.CDActionModifyField;
+import com.hcl.domino.richtext.records.CDActionNewsletter;
+import com.hcl.domino.richtext.records.CDActionReadMarks;
+import com.hcl.domino.richtext.records.CDActionReply;
+import com.hcl.domino.richtext.records.CDActionRunAgent;
+import com.hcl.domino.richtext.records.CDActionSendDocument;
+import com.hcl.domino.richtext.records.CDActionSendMail;
 import com.hcl.domino.richtext.records.RecordType.Area;
+import com.hcl.domino.richtext.structures.AssistFieldStruct;
 import com.hcl.domino.richtext.structures.AssistStruct;
 
 /**
@@ -108,8 +134,94 @@ public class AgentImpl extends AbstractNamedDesignElement<DesignAgent> implement
         }
       }
       case SIMPLE_ACTION: {
-        RichTextRecordList records = this.getDocument().getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION);
-        final List<SimpleAction> actions = DesignUtil.toSimpleActions(records);
+        final List<SimpleAction> actions = this.getDocument().getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION)
+            .stream()
+            .map(record -> {
+              if (record instanceof CDActionByForm) {
+                final CDActionByForm action = (CDActionByForm) record;
+                final Map<String, List<String>> modifications = new LinkedHashMap<>();
+                for (final AssistFieldStruct field : action.getAssistFields()) {
+                  modifications.put(field.getFieldName(), field.getValues());
+                }
+                return new DefaultModifyByFormAction(action.getFormName(), modifications);
+              } else if (record instanceof CDActionDBCopy) {
+                final CDActionDBCopy action = (CDActionDBCopy) record;
+                return new DefaultCopyToDatabaseAction(action.getServerName(), action.getDatabaseName());
+              } else if (record instanceof CDActionDelete) {
+                return new DefaultDeleteDocumentAction();
+              } else if (record instanceof CDActionFolder) {
+                final CDActionFolder action = (CDActionFolder) record;
+                FolderBasedAction.Type type;
+                switch (action.getHeader().getSignature()) {
+                  case RichTextConstants.SIG_ACTION_MOVETOFOLDER:
+                    type = FolderBasedAction.Type.MOVE;
+                    break;
+                  case RichTextConstants.SIG_ACTION_REMOVEFROMFOLDER:
+                    type = FolderBasedAction.Type.REMOVE;
+                    break;
+                  case RichTextConstants.SIG_ACTION_COPYTOFOLDER:
+                  default:
+                    type = FolderBasedAction.Type.COPY;
+                    break;
+                }
+                return new DefaultFolderBasedAction(action.getFolderName(), action.getFlags(), type);
+              } else if (record instanceof CDActionFormula) {
+                final CDActionFormula action = (CDActionFormula) record;
+                FormulaAgentContent.DocumentAction docAction;
+                if (action.getFlags().contains(CDActionFormula.Flag.NEWCOPY)) {
+                  docAction = FormulaAgentContent.DocumentAction.CREATE;
+                } else if (action.getFlags().contains(CDActionFormula.Flag.SELECTDOCS)) {
+                  docAction = FormulaAgentContent.DocumentAction.SELECT;
+                } else {
+                  docAction = FormulaAgentContent.DocumentAction.MODIFY;
+                }
+                return new DefaultFormulaAgentContent(docAction, action.getAction());
+              } else if (record instanceof CDActionModifyField) {
+                final CDActionModifyField action = (CDActionModifyField) record;
+                return new DefaultModifyFieldAction(action.getFieldName(), action.getValue());
+              } else if (record instanceof CDActionNewsletter) {
+                final CDActionNewsletter action = (CDActionNewsletter) record;
+                return new DefaultSendNewsletterAction(
+                    action.getViewName(),
+                    action.getTo(),
+                    action.getCc(),
+                    action.getBcc(),
+                    action.getSubject(),
+                    action.getBody(),
+                    action.getGatherCount(),
+                    action.getFlags());
+              } else if (record instanceof CDActionSendMail) {
+                final CDActionSendMail action = (CDActionSendMail) record;
+                return new DefaultSendMailAction(
+                    action.getTo(),
+                    action.getCc(),
+                    action.getBcc(),
+                    action.getSubject(),
+                    action.getBody(),
+                    action.getFlags());
+              } else if (record instanceof CDActionReadMarks) {
+                final CDActionReadMarks action = (CDActionReadMarks) record;
+                switch (action.getHeader().getSignature()) {
+                  case (byte) RichTextConstants.SIG_ACTION_MARKUNREAD:
+                    return (ReadMarksAction) () -> ReadMarksAction.Type.MARK_READ;
+                  case (byte) RichTextConstants.SIG_ACTION_MARKREAD:
+                  default:
+                    return (ReadMarksAction) () -> ReadMarksAction.Type.MARK_UNREAD;
+                }
+              } else if (record instanceof CDActionReply) {
+                final CDActionReply action = (CDActionReply) record;
+                return new DefaultReplyAction(action.getFlags(), action.getBody());
+              } else if (record instanceof CDActionRunAgent) {
+                final CDActionRunAgent action = (CDActionRunAgent) record;
+                final String agentName = action.getAgentName();
+                return (RunAgentAction) () -> agentName;
+              } else if (record instanceof CDActionSendDocument) {
+                return new DefaultSendDocumentAction();
+              }
+              return null;
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
         return new DefaultSimpleActionAgentContent(actions);
       }
       case JAVA: {
