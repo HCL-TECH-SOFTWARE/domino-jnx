@@ -26,10 +26,13 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.extension.ExtensionContext;
@@ -57,6 +60,7 @@ import com.hcl.domino.richtext.structures.OpaqueTimeDate;
  */
 @SuppressWarnings("nls")
 public class TestStructAnnotations {
+  private static final Set<String> structNames = Collections.synchronizedSet(new TreeSet<>(String.CASE_INSENSITIVE_ORDER));
 	
 	public static class StructClassesProvider implements ArgumentsProvider {
 		@Override
@@ -80,7 +84,10 @@ public class TestStructAnnotations {
 		
 		// Overall structure name must be set
 		StructureDefinition def = c.getAnnotation(StructureDefinition.class);
-		assertFalse(isEmpty(def.name()), "Struct name cannot be empty");
+		String structName = def.name();
+		assertFalse(isEmpty(structName), "Struct name cannot be empty");
+		assertFalse(structNames.contains(structName), "Struct name must be unique");
+		structNames.add(structName);
 		
 		// Must have members and all members must have a unique name
 		StructureMember[] members = def.members();
@@ -183,6 +190,15 @@ public class TestStructAnnotations {
 			} else {
 				return byte.class.equals(methodType) || Byte.class.equals(methodType);
 			}
+		} else if(byte[].class.equals(structType)) {
+		  if(unsigned) {
+        if(isSetter) {
+          return isAtLeast(short[].class, methodType);
+        }
+        return short[].class.equals(methodType) || Short[].class.equals(methodType);
+      } else {
+        return byte[].class.equals(methodType) || Byte[].class.equals(methodType);
+      }
 		} else if(short.class.equals(structType)) {
 			if(unsigned) {
 				if(isSetter) {
@@ -192,16 +208,38 @@ public class TestStructAnnotations {
 			} else {
 				return short.class.equals(methodType) || Short.class.equals(methodType);
 			}
+		} else if(short[].class.equals(structType)) {
+		  if(unsigned) {
+        if(isSetter) {
+          return isAtLeast(int[].class, methodType);
+        }
+        return int[].class.equals(methodType) || Integer[].class.equals(methodType);
+      } else {
+        return short[].class.equals(methodType) || Short[].class.equals(methodType);
+      }
 		} else if(int.class.equals(structType)) {
 			if(unsigned) {
 				return long.class.equals(methodType) || Long.class.equals(methodType);
 			} else {
 				return int.class.equals(methodType) || Integer.class.equals(methodType);
 			}
+		} else if(int[].class.equals(structType)) {
+		  if(unsigned) {
+		    if(isSetter) {
+          return isAtLeast(long[].class, methodType);
+        }
+        return long[].class.equals(methodType) || Long[].class.equals(methodType);
+      } else {
+        return int[].class.equals(methodType) || Integer[].class.equals(methodType);
+      }
 		} else if(long.class.equals(structType)) {
 			return long.class.equals(methodType) || Long.class.equals(methodType);
+		} else if(long[].class.equals(structType)) {
+		  return long[].class.equals(methodType) || Long[].class.equals(methodType);
 		} else if(double.class.equals(structType)) {
 			return double.class.equals(methodType) || Double.class.equals(methodType);
+		} else if(double[].class.equals(structType)) {
+		  return double[].class.equals(methodType) || Double[].class.equals(methodType);
 		}
 		return false;
 	}
@@ -211,9 +249,20 @@ public class TestStructAnnotations {
 			return short.class.equals(setterType) || Short.class.equals(setterType)
 				|| int.class.equals(setterType) || Integer.class.equals(setterType)
 				|| long.class.equals(setterType) || Long.class.equals(setterType);
+		} else if(short[].class.equals(representationType)) {
+		  return short[].class.equals(setterType) || Short[].class.equals(setterType)
+        || int[].class.equals(setterType) || Integer[].class.equals(setterType)
+        || long[].class.equals(setterType) || Long[].class.equals(setterType);
 		} else if(int.class.equals(representationType)) {
 			return int.class.equals(setterType) || Integer.class.equals(setterType)
 				|| long.class.equals(setterType) || Long.class.equals(setterType);
+		} else if(int[].class.equals(representationType)) {
+		  return int[].class.equals(setterType) || Integer[].class.equals(setterType)
+        || long[].class.equals(setterType) || Long[].class.equals(setterType);
+		} else if(long.class.equals(representationType)) {
+		  return long.class.equals(setterType) || Long.class.equals(setterType);
+		} else if(long[].class.equals(representationType)) {
+		  return long[].class.equals(setterType) || Long[].class.equals(setterType);
 		}
 		return false;
 	}

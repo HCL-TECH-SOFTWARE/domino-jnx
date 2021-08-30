@@ -33,4 +33,17 @@ public interface INumberEnum<T extends Number> {
    * @return the C-level value of the enum
    */
   T getValue();
+  
+  /**
+   * Determines whether the enum value should be skipped by automatic lookup for enum
+   * values. For example, this may apply to mask or multi-element values that are
+   * nonetheless usefully represented in an enum.
+   * 
+   * @return {@code true} if automatic matching should skip this entry;
+   *         {@code false} otherwise
+   * @since 1.0.34
+   */
+  default boolean isSkipInLookup() {
+    return false;
+  }
 }

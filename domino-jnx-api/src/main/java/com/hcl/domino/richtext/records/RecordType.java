@@ -57,7 +57,7 @@ public enum RecordType {
    * more data to be stored.<br>
    * This CD record specifies extended table properties
    */
-  TABLEDATAEXTENSION(RichTextConstants.SIG_CD_TABLEDATAEXTENSION, 1),
+  TABLEDATAEXTENSION(RichTextConstants.SIG_CD_TABLEDATAEXTENSION, 1, CDTableDataExtension.class),
   /**
    * This CD record defines properties of an embedded calendar control (date
    * picker).
@@ -139,7 +139,7 @@ public enum RecordType {
    */
   TEXTPROPERTIESTABLE(RichTextConstants.SIG_CD_TEXTPROPERTIESTABLE, 1),
   HREF2(RichTextConstants.SIG_CD_HREF2, 1, CDResource.class),
-  BACKGROUNDCOLOR(RichTextConstants.SIG_CD_BACKGROUNDCOLOR, 1),
+  BACKGROUNDCOLOR(RichTextConstants.SIG_CD_BACKGROUNDCOLOR, 1, CDColor.class),
   /**
    * This CD Record gives information pertaining to shared resources and/or shared
    * code in a form.<br>
@@ -153,7 +153,7 @@ public enum RecordType {
   CAPTION(RichTextConstants.SIG_CD_CAPTION, 1, CDCaption.class),
   /** Color properties to various HTML Links. */
   LINKCOLORS(RichTextConstants.SIG_CD_LINKCOLORS, 1, CDLinkColors.class),
-  TABLECELL_HREF(RichTextConstants.SIG_CD_TABLECELL_HREF, 1),
+  TABLECELL_HREF(RichTextConstants.SIG_CD_TABLECELL_HREF, 1, CDResource.class),
   /**
    * This CD record defines the Action Bar attributes. It is an extension of the
    * CDACTIONBAR record.<br>
@@ -165,7 +165,7 @@ public enum RecordType {
    * Other and Name associated for any given field defined within a Domino Form
    */
   IDNAME(RichTextConstants.SIG_CD_IDNAME, 1, CDIDName.class),
-  TABLECELL_IDNAME(RichTextConstants.SIG_CD_TABLECELL_IDNAME, 1),
+  TABLECELL_IDNAME(RichTextConstants.SIG_CD_TABLECELL_IDNAME, 1, CDIDName.class),
   /**
    * This structure defines the image segment data of a JPEG or GIF image and
    * follows a CDIMAGEHEADER structure.<br>
@@ -181,8 +181,8 @@ public enum RecordType {
    * CDIMAGESEGMENT structure(s) then follow the CDIMAGEHEADER.
    */
   IMAGEHEADER(RichTextConstants.SIG_CD_IMAGEHEADER, 1, CDImageHeader.class),
-  V5HOTSPOTBEGIN(RichTextConstants.SIG_CD_V5HOTSPOTBEGIN, 1),
-  V5HOTSPOTEND(RichTextConstants.SIG_CD_V5HOTSPOTEND, 1),
+  V5HOTSPOTBEGIN(RichTextConstants.SIG_CD_V5HOTSPOTBEGIN, 1, CDHotspotBegin.class),
+  V5HOTSPOTEND(RichTextConstants.SIG_CD_V5HOTSPOTEND, 1, CDHotspotEnd.class),
   /**
    * This CD record contains language information for a field or a run of rich
    * text.
@@ -204,7 +204,7 @@ public enum RecordType {
    * CDPABDEFINITION with the same
    * ID in a rich-text field.
    */
-  PABDEFINITION(RichTextConstants.SIG_CD_PABDEFINITION, 1),
+  PABDEFINITION(RichTextConstants.SIG_CD_PABDEFINITION, 1, CDPabDefinition.class),
   /**
    * This structure is placed at the start of each paragraph in a rich-text field,
    * and specifies which
@@ -215,7 +215,7 @@ public enum RecordType {
   TEXT(RichTextConstants.SIG_CD_TEXT, 1, CDText.class),
   XML(RichTextConstants.SIG_CD_XML, 1),
   /** Contains the header or footer used in a document. */
-  HEADER(RichTextConstants.SIG_CD_HEADER, 1),
+  HEADER(RichTextConstants.SIG_CD_HEADER, 1, CDHeader.class),
   /**
    * This structure is used to create a document link in a rich text field.<br>
    * It contains all the information necessary to open the specified document from
@@ -231,7 +231,7 @@ public enum RecordType {
    * stored as a single
    * plane (some graphics devices support multiple planes).
    */
-  BITMAPHEADER(RichTextConstants.SIG_CD_BITMAPHEADER, 1),
+  BITMAPHEADER(RichTextConstants.SIG_CD_BITMAPHEADER, 1, CDBitmapHeader.class),
   /**
    * The bitmap data is divided into segments to optimize data storage within
    * Domino.<br>
@@ -243,14 +243,14 @@ public enum RecordType {
    * segments. A bitmap
    * must contain at least one segment, but may have many segments.
    */
-  BITMAPSEGMENT(RichTextConstants.SIG_CD_BITMAPSEGMENT, 1),
+  BITMAPSEGMENT(RichTextConstants.SIG_CD_BITMAPSEGMENT, 1, CDBitmapSegment.class),
   /**
    * A color table is one of the optional records following a CDBITMAPHEADER
    * record.<br>
    * The color table specifies the mapping between 8-bit bitmap samples and 24-bit
    * Red/Green/Blue colors.
    */
-  COLORTABLE(RichTextConstants.SIG_CD_COLORTABLE, 1),
+  COLORTABLE(RichTextConstants.SIG_CD_COLORTABLE, 1, CDColorTable.class),
   /**
    * The CDGRAPHIC record contains information used to control display of graphic
    * objects in a document.<br>
@@ -333,17 +333,17 @@ public enum RecordType {
    * As of R5, this structure is preceded by a CDPRETABLEBEGIN structure.<br>
    * The CDPRETABLEBEGIN structure specifies additional table properties.
    */
-  TABLEBEGIN(RichTextConstants.SIG_CD_TABLEBEGIN, 1),
+  TABLEBEGIN(RichTextConstants.SIG_CD_TABLEBEGIN, 1, CDTableBegin.class),
   /**
    * This structure specifies the cell of a table. Use this structure when
    * accessing a table in a rich text field.
    */
-  TABLECELL(RichTextConstants.SIG_CD_TABLECELL, 1),
+  TABLECELL(RichTextConstants.SIG_CD_TABLECELL, 1, CDTableCell.class),
   /**
    * This structure specifies the end of a table. Use this structure when
    * accessing a table in a rich text field.
    */
-  TABLEEND(RichTextConstants.SIG_CD_TABLEEND, 1),
+  TABLEEND(RichTextConstants.SIG_CD_TABLEEND, 1, CDTableEnd.class),
   /**
    * This structure stores the style name for a Paragraph Attributes Block (PAB).
    */
@@ -389,24 +389,24 @@ public enum RecordType {
    * Pass-through HTML text is not translated to the Domino rich text format.<br>
    * Pass-through HTML text is marked by CDHTMLBEGIN and CDHTMLEND records.
    */
-  HTMLBEGIN(RichTextConstants.SIG_CD_HTMLBEGIN, 1),
+  HTMLBEGIN(RichTextConstants.SIG_CD_HTMLBEGIN, 1, CDHtmlBegin.class),
   /**
    * Text in a rich-text field can have the "Pass-Thru HTML" attribute.<br>
    * Pass-through HTML text is not translated to the Domino rich text format.<br>
    * Pass-through HTML text is marked by CDHTMLBEGIN and CDHTMLEND records.
    */
-  HTMLEND(RichTextConstants.SIG_CD_HTMLEND, 1),
+  HTMLEND(RichTextConstants.SIG_CD_HTMLEND, 1, CDHtmlEnd.class),
   /**
    * A CDHTMLFORMULA record contains a formula used to generate either an
    * attribute or alternate HTML text for a Java applet.
    */
   HTMLFORMULA(RichTextConstants.SIG_CD_HTMLFORMULA, 1),
-  NESTEDTABLEBEGIN(RichTextConstants.SIG_CD_NESTEDTABLEBEGIN, 1),
-  NESTEDTABLECELL(RichTextConstants.SIG_CD_NESTEDTABLECELL, 1),
-  NESTEDTABLEEND(RichTextConstants.SIG_CD_NESTEDTABLEEND, 1),
+  NESTEDTABLEBEGIN(RichTextConstants.SIG_CD_NESTEDTABLEBEGIN, 1, CDTableBegin.class),
+  NESTEDTABLECELL(RichTextConstants.SIG_CD_NESTEDTABLECELL, 1, CDTableCell.class),
+  NESTEDTABLEEND(RichTextConstants.SIG_CD_NESTEDTABLEEND, 1, CDTableEnd.class),
   /** This CD Record identifies the paper color for a given document. */
   COLOR(RichTextConstants.SIG_CD_COLOR, 1, CDColor.class),
-  TABLECELL_COLOR(RichTextConstants.SIG_CD_TABLECELL_COLOR, 1),
+  TABLECELL_COLOR(RichTextConstants.SIG_CD_TABLECELL_COLOR, 1, CDColor.class),
   /**
    * This CD record is used in conjunction with CD record CDEVENT.<br>
    * If a CDEVENT record has an ActionType of ACTION_TYPE_JAVASCRIPT then
@@ -449,17 +449,17 @@ public enum RecordType {
    */
   TIMERINFO(RichTextConstants.SIG_CD_TIMERINFO, 1),
   /** This CD record describes the Row Height property for a table. */
-  TABLEROWHEIGHT(RichTextConstants.SIG_CD_TABLEROWHEIGHT, 1),
+  TABLEROWHEIGHT(RichTextConstants.SIG_CD_TABLEROWHEIGHT, 1, CDTableRowHeight.class),
   /**
    * This CD Record further defines information for a table.<br>
    * Specifically the tab and row labels.
    */
-  TABLELABEL(RichTextConstants.SIG_CD_TABLELABEL, 1),
+  TABLELABEL(RichTextConstants.SIG_CD_TABLELABEL, 1, CDTableLabel.class),
   BIDI_TEXT(RichTextConstants.SIG_CD_BIDI_TEXT, 1),
   BIDI_TEXTEFFECT(RichTextConstants.SIG_CD_BIDI_TEXTEFFECT, 1),
   /** This CD Record is used within mail templates. */
-  REGIONBEGIN(RichTextConstants.SIG_CD_REGIONBEGIN, 1),
-  REGIONEND(RichTextConstants.SIG_CD_REGIONEND, 1),
+  REGIONBEGIN(RichTextConstants.SIG_CD_REGIONBEGIN, 1, CDRegionBegin.class),
+  REGIONEND(RichTextConstants.SIG_CD_REGIONEND, 1, CDRegionEnd.class),
   TRANSITION(RichTextConstants.SIG_CD_TRANSITION, 1),
   /**
    * The designer of a form may define a "hint" associated with a field. This
@@ -477,14 +477,14 @@ public enum RecordType {
    * such as CDEMBEDDEDCTL, CDEMBEDDEDOUTLINE and other embedded CD record types
    * defined in HOTSPOTREC_TYPE_xxx.
    */
-  PLACEHOLDER(RichTextConstants.SIG_CD_PLACEHOLDER, 1),
+  PLACEHOLDER(RichTextConstants.SIG_CD_PLACEHOLDER, 1, CDPlaceholder.class),
   HTMLNAME(RichTextConstants.SIG_CD_HTMLNAME, 1),
   /**
    * This CD Record defines the attributes of an embedded outline.<br>
    * It is preceded by a CDHOTSPOTBEGIN and a CDPLACEHOLDER.<br>
    * The CD record, CDPLACEHOLDER, further defines the CDEMBEDDEDOUTLINE.
    */
-  EMBEDDEDOUTLINE(RichTextConstants.SIG_CD_EMBEDDEDOUTLINE, 1),
+  EMBEDDEDOUTLINE(RichTextConstants.SIG_CD_EMBEDDEDOUTLINE, 1, CDEmbeddedOutline.class),
   /**
    * This CD Record describes a view as an embedded element.<br>
    * A CDEMBEDDEDVIEW record will be preceded by a CDPLACEHOLDER record.<br>
@@ -496,14 +496,14 @@ public enum RecordType {
    * This CD Record gives information pertaining to Background Data for a Table,
    * specifically the 'Cell Image' repeat value.
    */
-  CELLBACKGROUNDDATA(RichTextConstants.SIG_CD_CELLBACKGROUNDDATA, 1),
+  CELLBACKGROUNDDATA(RichTextConstants.SIG_CD_CELLBACKGROUNDDATA, 1, CDCellBackgroundData.class),
   /**
    * This CD record provides additional table properties, expanding the
    * information provided in CDTABLEBEGIN.<br>
    * It will only be recognized in Domino versions 5.0 and greater. This record
    * will be ignored in pre 5.0 versions.
    */
-  PRETABLEBEGIN(RichTextConstants.SIG_CD_PRETABLEBEGIN, 1),
+  PRETABLEBEGIN(RichTextConstants.SIG_CD_PRETABLEBEGIN, 1, CDPreTableBegin.class),
   EXT2_FIELD(RichTextConstants.SIG_CD_EXT2_FIELD, 1, CDExt2Field.class),
   /**
    * This CD record may further define attributes within a CDFIELD such as tab
@@ -536,11 +536,11 @@ public enum RecordType {
   /* Signatures for Frameset CD records */
 
   /** Beginning header record to both a CDFRAMESET and CDFRAME record. */
-  FRAMESETHEADER(RichTextConstants.SIG_CD_FRAMESETHEADER, 2),
+  FRAMESETHEADER(RichTextConstants.SIG_CD_FRAMESETHEADER, 2, CDFramesetHeader.class),
   /** Used to specify an HTML FRAMESET element */
-  FRAMESET(RichTextConstants.SIG_CD_FRAMESET, 2),
+  FRAMESET(RichTextConstants.SIG_CD_FRAMESET, 2, CDFrameset.class),
   /** Used to specify an HTML FRAME element */
-  FRAME(RichTextConstants.SIG_CD_FRAME, 2),
+  FRAME(RichTextConstants.SIG_CD_FRAME, 2, CDFrame.class),
 
   /* Signature for Target Frame info on a link */
 
@@ -560,7 +560,7 @@ public enum RecordType {
    * side image MAP.
    */
   AREAELEMENT(RichTextConstants.SIG_CD_AREAELEMENT, 3),
-  HREF(RichTextConstants.SIG_CD_HREF, new int[] { 1, 3 }, CDResource.class),
+  HREF(RichTextConstants.SIG_CD_HREF, new int[] { 1, 3 , 4}, CDResource.class),
   HTML_ALTTEXT(RichTextConstants.SIG_CD_HTML_ALTTEXT, 3),
   /**
    * Structure which defines simple actions, formulas or LotusScript for an image
@@ -621,11 +621,11 @@ public enum RecordType {
    * record.<br>
    * The pattern table is used to compress repetitive bitmap data.
    */
-  PATTERNTABLE(RichTextConstants.SIG_CD_PATTERNTABLE, 4),
+  PATTERNTABLE(RichTextConstants.SIG_CD_PATTERNTABLE, 4, CDPatternTable.class),
   /** A CD record of this type specifies the start of a DDE link. */
   DDEBEGIN(RichTextConstants.SIG_CD_DDEBEGIN, 4, CDDDEBegin.class),
   /** This structure specifies the end of a DDE link. */
-  DDEEND(RichTextConstants.SIG_CD_DDEEND, 4),
+  DDEEND(RichTextConstants.SIG_CD_DDEEND, 4, CDDDEEnd.class),
   /** This structure specifies the start of an OLE Object. */
   OLEBEGIN(RichTextConstants.SIG_CD_OLEBEGIN, 4),
   /** This structure specifies the end of an OLE Object in a rich text field. */
@@ -641,17 +641,17 @@ public enum RecordType {
   /** This structure specifies the end of a hot region in a rich text field. */
   HOTSPOTEND(RichTextConstants.SIG_CD_HOTSPOTEND, 4, CDHotspotEnd.class),
   /** This structure defines the appearance of a button in a rich text field. */
-  BUTTON(RichTextConstants.SIG_CD_BUTTON, 4),
+  BUTTON(RichTextConstants.SIG_CD_BUTTON, 4, CDButton.class),
   /**
    * This structure defines the appearance of the bar used with collapsible
    * sections.
    */
-  BAR(RichTextConstants.SIG_CD_BAR, 4),
+  BAR(RichTextConstants.SIG_CD_BAR, new int[] { 1, 4 }, CDBar.class),
   V4HOTSPOTBEGIN(RichTextConstants.SIG_CD_V4HOTSPOTBEGIN, 4, CDHotspotBegin.class),
-  V4HOTSPOTEND(RichTextConstants.SIG_CD_V4HOTSPOTEND, 4),
+  V4HOTSPOTEND(RichTextConstants.SIG_CD_V4HOTSPOTEND, 4, CDHotspotEnd.class),
   EXT_FIELD(RichTextConstants.SIG_CD_EXT_FIELD, 4, CDExtField.class),
   /** The CD record contains Lotus Script object code. */
-  LSOBJECT(RichTextConstants.SIG_CD_LSOBJECT, 4),
+  LSOBJECT(RichTextConstants.SIG_CD_LSOBJECT, 4, CDLSObject.class),
   /**
    * This record is included for future use.<br>
    * Applications should not generate these records.<br>
@@ -675,7 +675,7 @@ public enum RecordType {
    * Other records in the layout region define buttons, graphics, fields, or other
    * rich text elements.
    */
-  LAYOUT(RichTextConstants.SIG_CD_LAYOUT, 4),
+  LAYOUT(RichTextConstants.SIG_CD_LAYOUT, 4, CDLayout.class),
   /**
    * A text element in a layout region of a form is defined by a CDLAYOUTTEXT
    * record.<br>
@@ -684,12 +684,12 @@ public enum RecordType {
    * graphical, or
    * action elements associated with the element
    */
-  LAYOUTTEXT(RichTextConstants.SIG_CD_LAYOUTTEXT, 4),
+  LAYOUTTEXT(RichTextConstants.SIG_CD_LAYOUTTEXT, 4, CDLayoutText.class),
   /**
    * The CDLAYOUTEND record marks the end of the elements defining a layout region
    * within a form.
    */
-  LAYOUTEND(RichTextConstants.SIG_CD_LAYOUTEND, 4),
+  LAYOUTEND(RichTextConstants.SIG_CD_LAYOUTEND, 4, CDLayoutEnd.class),
   /**
    * A field in a layout region of a form is defined by a CDLAYOUTFIELD
    * record.<br>
@@ -704,7 +704,7 @@ public enum RecordType {
    * block.
    */
   PABHIDE(RichTextConstants.SIG_CD_PABHIDE, 4, CDPabHide.class),
-  PABFORMREF(RichTextConstants.SIG_CD_PABFORMREF, 4),
+  PABFORMREF(RichTextConstants.SIG_CD_PABFORMREF, 4, CDPabFormulaRef.class),
   /**
    * The designer of a form or view may define custom actions for that form or
    * view.<br>
@@ -725,7 +725,7 @@ public enum RecordType {
    * Most of the information contained in this structure refers to OLE
    * autolaunching behaviors.
    */
-  DOCAUTOLAUNCH(RichTextConstants.SIG_CD_DOCAUTOLAUNCH, 4),
+  DOCAUTOLAUNCH(RichTextConstants.SIG_CD_DOCAUTOLAUNCH, 4, CDDocAutoLaunch.class),
   /**
    * A graphical element in a layout region of a form is defined by a
    * CDLAYOUTGRAPHIC record.<br>

@@ -34,6 +34,7 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
+import com.hcl.domino.design.AboutDocument;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DbProperties;
@@ -43,9 +44,14 @@ import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageResource;
+import com.hcl.domino.design.Outline;
+import com.hcl.domino.design.Page;
 import com.hcl.domino.design.ScriptLibrary;
+import com.hcl.domino.design.SharedField;
 import com.hcl.domino.design.Subform;
+import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
+import com.hcl.domino.exception.SpecialObjectCannotBeLocatedException;
 import com.hcl.domino.misc.NotesConstants;
 
 public abstract class AbstractDbDesign implements DbDesign {
@@ -165,82 +171,6 @@ public abstract class AbstractDbDesign implements DbDesign {
   @Override
   public View createView(final String viewName) {
     return this.createDesignNote(View.class, viewName);
-  }
-
-  /**
-   * Queries the design collection for a single design note.
-   * 
-   * @param noteClass    the class of note to query (see <code>NOTE_CLASS_*</code>
-   *                     in {@link NotesConstants})
-   * @param pattern      the note flag pattern to query (see
-   *                     <code>DFLAGPAT_*</code> in {@link NotesConstants})
-   * @param name         the name or alias of the design note
-   * @param partialMatch whether partial matches are allowed
-   * @return the note ID of the specified design note, or <code>0</code> if the
-   *         note was not found
-   */
-  protected abstract int findDesignNote(DocumentClass noteClass, String pattern, String name, boolean partialMatch);
-
-  public Stream<DesignEntry> findDesignNotes(final DocumentClass noteClass, final String pattern) {
-    /*
-     * Design collection columns:
-     * 	- $TITLE (string)
-     * 	- $FormPrivs
-     * 	- $FormUsers
-     * 	- $Body
-     * 	- $Flags (string)
-     * 	- $Class
-     * 	- $Modified (TIMEDATE)
-     * 	- $Comment (string)
-     * 	- $AssistTrigger
-     * 	- $AssistType
-     * 	- $AssistFlags
-     * 	- $AssistFlags2
-     * 	- $UpdatedBy (string)
-     * 	- $$FormScript_0
-     * 	- $LANGUAGE
-     * 	- $Writers
-     *	- $PWriters
-     *	- $FlagsExt
-     *	- $FileSize (number)
-     *	- $MimeType
-     *	- $DesinerVersion (string)
-     */
-
-    final DominoCollection designColl = this.database.openDesignCollection();
-    final CollectionSearchQuery query = designColl.query()
-        .readDocumentClass()
-        .readColumnValues();
-    final boolean hasPattern = pattern != null && !pattern.isEmpty();
-
-    return query.build(0, Integer.MAX_VALUE, new CollectionSearchQuery.CollectionEntryProcessor<List<DesignEntry>>() {
-      @Override
-      public List<DesignEntry> end(final List<DesignEntry> result) {
-        return result;
-      }
-
-      @Override
-      public Action entryRead(final List<DesignEntry> result, final CollectionEntry entry) {
-        final DocumentClass entryClass = entry.getDocumentClass().orElse(null);
-        if (noteClass.equals(entryClass)) {
-          if (hasPattern) {
-            final String flags = entry.get(4, String.class, ""); //$NON-NLS-1$
-            if (DesignUtil.matchesFlagsPattern(flags, pattern)) {
-              result.add(new DesignEntry(entry.getNoteID(), entryClass, entry));
-            }
-          } else {
-            result.add(new DesignEntry(entry.getNoteID(), entryClass, entry));
-          }
-        }
-        return Action.Continue;
-      }
-
-      @Override
-      public List<DesignEntry> start() {
-        return new LinkedList<>();
-      }
-    })
-        .stream();
   }
 
   @Override
@@ -369,10 +299,16 @@ public abstract class AbstractDbDesign implements DbDesign {
   public Stream<Subform> getSubforms() {
     return this.getDesignElements(Subform.class);
   }
-
-  // *******************************************************************************
-  // * Internal utility methods
-  // *******************************************************************************
+  
+  @Override
+  public Optional<Page> getPage(String name) {
+    return this.getDesignElementByName(Page.class, name);
+  }
+  
+  @Override
+  public Stream<Page> getPages() {
+    return this.getDesignElements(Page.class);
+  }
 
   @Override
   public Optional<View> getView(final String name) {
@@ -382,6 +318,56 @@ public abstract class AbstractDbDesign implements DbDesign {
   @Override
   public Stream<View> getViews() {
     return this.getDesignElements(View.class);
+  }
+  
+  @Override
+  public Optional<Outline> getOutline(final String name) {
+    return this.getDesignElementByName(Outline.class, name);
+  }
+
+  @Override
+  public Stream<Outline> getOutlines() {
+    return this.getDesignElements(Outline.class);
+  }
+  
+  public Optional<AboutDocument> getAboutDocument() {
+    try {
+      return database.getDocumentById(NotesConstants.NOTE_ID_SPECIAL | NotesConstants.NOTE_CLASS_INFO)
+        .map(DesignUtil::createDesignElement)
+        .map(AboutDocument.class::cast);
+    } catch(SpecialObjectCannotBeLocatedException e) {
+      return Optional.empty();
+    }
+  }
+  
+  @Override
+  public Optional<UsingDocument> getUsingDocument() {
+    try {
+      return database.getDocumentById(NotesConstants.NOTE_ID_SPECIAL | NotesConstants.NOTE_CLASS_HELP)
+          .map(DesignUtil::createDesignElement)
+          .map(UsingDocument.class::cast); 
+    } catch(SpecialObjectCannotBeLocatedException e) {
+      return Optional.empty();
+    }
+  }
+
+  @Override
+  public Optional<SharedField> getSharedField(final String name) {
+    // NB: it appears that looking up shared fields using NIFFindDesignNoteExt is unreliable in practice,
+    //     so query from the design collction here
+    DesignMapping<SharedField, ?> mapping = DesignUtil.getDesignMapping(SharedField.class);
+    return this.findDesignNotes(mapping.getNoteClass(), mapping.getFlagsPattern())
+      .filter(entry -> DesignUtil.matchesTitleValues(name, entry.getTitles()))
+      .map(entry -> this.database.getDocumentById(entry.noteId))
+      .findFirst()
+      .map(Optional::get)
+      .map(mapping.getConstructor()::apply)
+      .map(SharedField.class::cast);
+  }
+
+  @Override
+  public Stream<SharedField> getSharedFields() {
+    return this.getDesignElements(SharedField.class);
   }
 
   @SuppressWarnings("unchecked")
@@ -420,4 +406,84 @@ public abstract class AbstractDbDesign implements DbDesign {
           }
         });
   }
+
+  // *******************************************************************************
+  // * Internal utility methods
+  // *******************************************************************************
+
+  public Stream<DesignEntry> findDesignNotes(final DocumentClass noteClass, final String pattern) {
+    /*
+     * Design collection columns:
+     *  - $TITLE (string)
+     *  - $FormPrivs
+     *  - $FormUsers
+     *  - $Body
+     *  - $Flags (string)
+     *  - $Class
+     *  - $Modified (TIMEDATE)
+     *  - $Comment (string)
+     *  - $AssistTrigger
+     *  - $AssistType
+     *  - $AssistFlags
+     *  - $AssistFlags2
+     *  - $UpdatedBy (string)
+     *  - $$FormScript_0
+     *  - $LANGUAGE
+     *  - $Writers
+     *  - $PWriters
+     *  - $FlagsExt
+     *  - $FileSize (number)
+     *  - $MimeType
+     *  - $DesinerVersion (string)
+     */
+
+    final DominoCollection designColl = this.database.openDesignCollection();
+    final CollectionSearchQuery query = designColl.query()
+        .readDocumentClass()
+        .readColumnValues();
+    final boolean hasPattern = pattern != null && !pattern.isEmpty();
+
+    return query.build(0, Integer.MAX_VALUE, new CollectionSearchQuery.CollectionEntryProcessor<List<DesignEntry>>() {
+        @Override
+        public List<DesignEntry> end(final List<DesignEntry> result) {
+          return result;
+        }
+  
+        @Override
+        public Action entryRead(final List<DesignEntry> result, final CollectionEntry entry) {
+          final DocumentClass entryClass = entry.getDocumentClass().orElse(null);
+          if (noteClass.equals(entryClass)) {
+            if (hasPattern) {
+              final String flags = entry.get(4, String.class, ""); //$NON-NLS-1$
+              if (DesignUtil.matchesFlagsPattern(flags, pattern)) {
+                result.add(new DesignEntry(entry.getNoteID(), entryClass, entry));
+              }
+            } else {
+              result.add(new DesignEntry(entry.getNoteID(), entryClass, entry));
+            }
+          }
+          return Action.Continue;
+        }
+  
+        @Override
+        public List<DesignEntry> start() {
+          return new LinkedList<>();
+        }
+      })
+      .stream();
+  }
+
+  /**
+   * Queries the design collection for a single design note.
+   * 
+   * @param noteClass    the class of note to query (see <code>NOTE_CLASS_*</code>
+   *                     in {@link NotesConstants})
+   * @param pattern      the note flag pattern to query (see
+   *                     <code>DFLAGPAT_*</code> in {@link NotesConstants})
+   * @param name         the name or alias of the design note
+   * @param partialMatch whether partial matches are allowed
+   * @return the note ID of the specified design note, or <code>0</code> if the
+   *         note was not found
+   */
+  protected abstract int findDesignNote(DocumentClass noteClass, String pattern, String name, boolean partialMatch);
 }

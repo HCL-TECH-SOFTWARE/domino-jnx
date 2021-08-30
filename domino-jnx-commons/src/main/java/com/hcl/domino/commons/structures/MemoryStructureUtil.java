@@ -1,3 +1,19 @@
+/*
+ * ==========================================================================
+ * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ *                            All rights reserved.
+ * ==========================================================================
+ * Licensed under the  Apache License, Version 2.0  (the "License").  You may
+ * not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+ *
+ * Unless  required  by applicable  law or  agreed  to  in writing,  software
+ * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the  specific language  governing permissions  and limitations
+ * under the License.
+ * ==========================================================================
+ */
 package com.hcl.domino.commons.structures;
 
 import java.lang.reflect.Method;
@@ -140,7 +156,7 @@ public enum MemoryStructureUtil {
           });
   
           final Class<?> type = member.type();
-          final int size = sizeOf(type);
+          final int size = sizeOf(type) * member.length();
           final StructMember mem = new StructMember(member.name(), offset, type, member.unsigned(), member.bitfield(),
               member.length());
           result.add(mem, getters, setters, synthSetters);
@@ -155,8 +171,7 @@ public enum MemoryStructureUtil {
 
   /**
    * Retrieves the {@link Number} subclass for the provided {@link INumberEnum}
-   * implementation
-   * class.
+   * implementation class.
    * 
    * @param type the {@link INumberEnum} class object
    * @return the {@link Number} contained by the enum
@@ -171,6 +186,36 @@ public enum MemoryStructureUtil {
         .findFirst()
         .orElseThrow(() -> new IllegalStateException("Unable to find INumberEnum interface"));
     return (Class<? extends Number>) inumtype.getActualTypeArguments()[0];
+  }
+
+  /**
+   * Retrieves numerical array class for the provided {@link INumberEnum}
+   * array implementation class.
+   * 
+   * @param type the {@link INumberEnum} class object
+   * @return the array class equivalent to the enum
+   * @since 1.0.35
+   */
+  public static Class<?> getNumberArrayType(final Class<?> type) {
+    Class<?> component = type.getComponentType();
+    // Guaranteed to have an interface like INumberEnum<Integer>
+    final ParameterizedType inumtype = Arrays.stream(component.getGenericInterfaces())
+        .filter(t -> t instanceof ParameterizedType)
+        .map(ParameterizedType.class::cast)
+        .filter(t -> INumberEnum.class.equals(t.getRawType()))
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("Unable to find INumberEnum interface"));
+    Class<?> numType = (Class<?>)inumtype.getActualTypeArguments()[0];
+    
+    if(Byte.class.equals(numType)) {
+      return byte[].class;
+    } else if(Short.class.equals(numType)) {
+      return short[].class;
+    } else if(Integer.class.equals(numType)) {
+      return int[].class;
+    } else {
+      return long[].class;
+    }
   }
 
   /**

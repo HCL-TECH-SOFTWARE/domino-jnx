@@ -21,9 +21,11 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.IItemTableData;
@@ -33,7 +35,6 @@ import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.TypedAccess;
 import com.hcl.domino.jna.data.JNADocument;
 import com.hcl.domino.jna.data.JNADominoDateTime;
-import com.hcl.domino.jna.internal.AbstractTypedAccess;
 import com.hcl.domino.jna.internal.LMBCSString;
 
 /**
@@ -294,6 +295,16 @@ public class ItemTableDataDocAdapter implements IItemTableData {
 	@Override
 	public boolean isFreed() {
 		return m_doc.isDisposed();
+	}
+	
+	@Override
+	public <T> Optional<T> getOptional(String itemName, Class<T> valueType) {
+	  return m_typedItems.getOptional(itemName, valueType);
+	}
+	
+	@Override
+	public <T> Optional<List<T>> getAsListOptional(String itemName, Class<T> valueType) {
+	  return m_typedItems.getAsListOptional(itemName, valueType);
 	}
 	
 }

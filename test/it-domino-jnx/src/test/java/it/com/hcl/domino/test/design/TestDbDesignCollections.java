@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -52,11 +53,10 @@ import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.design.ActionBar;
 import com.hcl.domino.design.ActionBar.ButtonHeightMode;
+import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.CollectionDesignElement.DisplaySettings;
 import com.hcl.domino.design.DbDesign;
-import com.hcl.domino.design.DesignElement;
-import com.hcl.domino.design.DesignElement.ClassicThemeBehavior;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
@@ -64,8 +64,10 @@ import com.hcl.domino.design.View;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionContent;
 import com.hcl.domino.design.action.FormulaActionContent;
+import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.action.JavaScriptActionContent;
 import com.hcl.domino.design.action.LotusScriptActionContent;
+import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.design.action.SimpleActionActionContent;
 import com.hcl.domino.design.action.SystemActionContent;
 import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
@@ -81,7 +83,6 @@ import com.hcl.domino.design.format.DateShowFormat;
 import com.hcl.domino.design.format.DateShowSpecial;
 import com.hcl.domino.design.format.DayFormat;
 import com.hcl.domino.design.format.HideFromDevice;
-import com.hcl.domino.design.format.HtmlEventId;
 import com.hcl.domino.design.format.MonthFormat;
 import com.hcl.domino.design.format.NarrowViewPosition;
 import com.hcl.domino.design.format.NumberDisplayFormat;
@@ -155,7 +156,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     assertTrue(view.isAllowCustomizations());
     assertEquals(CollectionDesignElement.OnOpen.GOTO_TOP, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.REFRESH_DISPLAY, view.getOnRefreshUISetting());
-    assertEquals(DesignElement.ClassicThemeBehavior.USE_DATABASE_SETTING, view.getClassicThemeBehavior());
+    assertEquals(ClassicThemeBehavior.USE_DATABASE_SETTING, view.getClassicThemeBehavior());
     assertEquals(CollectionDesignElement.Style.STANDARD_OUTLINE, view.getStyle());
     assertFalse(view.isDefaultCollection());
     assertFalse(view.isDefaultCollectionDesign());
@@ -166,7 +167,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     assertFalse(view.isCreateDocumentsAtViewLevel());
     assertEquals("Home_1.xsp", view.getWebXPageAlternative().get());
     assertFalse(view.isAllowPublicAccess());
-    assertEquals(Arrays.asList("[Admin]"), view.getReaders());
+    assertEquals(Arrays.asList("[Admin]"), view.getReaders().get());
     assertEquals("SELECT @Like(Form; \"Foo\") & IsComplexView=1", view.getSelectionFormula());
     
     CollectionDesignElement.CompositeAppSettings comp = view.getCompositeAppSettings();
@@ -814,7 +815,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     assertFalse(view.isAllowCustomizations());
     assertEquals(CollectionDesignElement.OnOpen.GOTO_LAST_OPENED, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.DISPLAY_INDICATOR, view.getOnRefreshUISetting());
-    assertEquals(DesignElement.ClassicThemeBehavior.DONT_INHERIT_FROM_OS, view.getClassicThemeBehavior());
+    assertEquals(ClassicThemeBehavior.DONT_INHERIT_FROM_OS, view.getClassicThemeBehavior());
     assertEquals(CollectionDesignElement.Style.STANDARD_OUTLINE, view.getStyle());
     assertFalse(view.isDefaultCollection());
     assertTrue(view.isDefaultCollectionDesign());
@@ -825,7 +826,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     assertTrue(view.isCreateDocumentsAtViewLevel());
     assertFalse(view.getWebXPageAlternative().isPresent());
     assertTrue(view.isAllowPublicAccess());
-    assertTrue(view.getReaders().isEmpty());
+    assertFalse(view.getReaders().isPresent());
     assertFalse(view.getColumnProfileDocName().isPresent());
     assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
     // This view uses Simple Searched, but this formula is stored as residual
@@ -942,7 +943,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     assertFalse(view.isAllowCustomizations());
     assertEquals(CollectionDesignElement.OnOpen.GOTO_BOTTOM, view.getOnOpenUISetting());
     assertEquals(CollectionDesignElement.OnRefresh.REFRESH_FROM_TOP, view.getOnRefreshUISetting());
-    assertEquals(DesignElement.ClassicThemeBehavior.INHERIT_FROM_OS, view.getClassicThemeBehavior());
+    assertEquals(ClassicThemeBehavior.INHERIT_FROM_OS, view.getClassicThemeBehavior());
     assertFalse(view.isDefaultCollection());
     assertFalse(view.isDefaultCollectionDesign());
     assertFalse(view.isCollapseAllOnFirstOpen());
@@ -951,7 +952,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     assertFalse(view.isEvaluateActionsOnDocumentChange());
     assertFalse(view.getWebXPageAlternative().isPresent());
     assertFalse(view.isAllowPublicAccess());
-    assertTrue(view.getReaders().isEmpty());
+    assertFalse(view.getReaders().isPresent());
     assertFalse(view.getColumnProfileDocName().isPresent());
     assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
     assertEquals("SELECT @All", view.getSelectionFormula());
@@ -1061,7 +1062,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     assertFalse(view.isEvaluateActionsOnDocumentChange());
     assertFalse(view.getWebXPageAlternative().isPresent());
     assertFalse(view.isAllowPublicAccess());
-    assertTrue(view.getReaders().isEmpty());
+    assertFalse(view.getReaders().isPresent());
     assertFalse(view.getColumnProfileDocName().isPresent());
     assertTrue(view.getUserDefinableNonFallbackColumns().isEmpty());
     assertEquals("SELECT @All", view.getSelectionFormula());
@@ -1813,10 +1814,10 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       {
         ActionContent content = action.getActionContent();
         assertInstanceOf(JavaScriptActionContent.class, content);
-        Collection<JavaScriptActionContent.ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
+        Collection<ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONCLICK) {
+            if(event.getEventId() == EventId.ONCLICK) {
               if(event.isClient()) {
                 if("window.alert(\"you poor soul, using JavaScript actions in a view\")\n".equals(event.getScript())) {
                   return true;
@@ -1828,7 +1829,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONCLICK) {
+            if(event.getEventId() == EventId.ONCLICK) {
               if(!event.isClient()) {
                 if("alert(\"I'm on the web\")\n".equals(event.getScript())) {
                   return true;
@@ -1840,7 +1841,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONMOUSEDOWN) {
+            if(event.getEventId() == EventId.ONMOUSEDOWN) {
               if("console.log(\"is there a console in Notes JS actions?\")\n".equals(event.getScript())) {
                 return true;
               }
@@ -1850,7 +1851,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONMOUSEOVER) {
+            if(event.getEventId() == EventId.ONMOUSEOVER) {
               if("alert(\"wait, do onMouseOver actions work? No; this is web-only\")\n".equals(event.getScript())) {
                 return true;
               }
@@ -1890,10 +1891,10 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       {
         ActionContent content = action.getActionContent();
         assertInstanceOf(JavaScriptActionContent.class, content);
-        Collection<JavaScriptActionContent.ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
+        Collection<ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONCLICK) {
+            if(event.getEventId() == EventId.ONCLICK) {
               if(event.isClient()) {
                 if("window.alert(\"this is the common part\")\n".equals(event.getScript())) {
                   return true;
@@ -1905,7 +1906,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONCLICK) {
+            if(event.getEventId() == EventId.ONCLICK) {
               if(!event.isClient()) {
                 if("window.alert(\"this is the common part\")\n".equals(event.getScript())) {
                   return true;
@@ -1917,7 +1918,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONMOUSEDOWN) {
+            if(event.getEventId() == EventId.ONMOUSEDOWN) {
               if("console.log(\"is there a console in Notes JS actions?\")\n".equals(event.getScript())) {
                 return true;
               }
@@ -1927,7 +1928,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         );
         assertTrue(
           events.stream().anyMatch(event -> {
-            if(event.getEventId() == HtmlEventId.ONMOUSEOVER) {
+            if(event.getEventId() == EventId.ONMOUSEOVER) {
               if("alert(\"wait, do onMouseOver actions work?\")\n".equals(event.getScript())) {
                 return true;
               }
@@ -1960,9 +1961,9 @@ public class TestDbDesignCollections extends AbstractDesignTest {
 
       ActionContent content = action.getActionContent();
       assertInstanceOf(JavaScriptActionContent.class, content);
-      Collection<JavaScriptActionContent.ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
+      Collection<ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
       assertEquals(1, events.size());
-      JavaScriptActionContent.ScriptEvent event = events.stream().findFirst().get();
+      ScriptEvent event = events.stream().findFirst().get();
       String expected = IOUtils.resourceToString("/text/testDbDesignCollections/longjs.js", StandardCharsets.UTF_8).replace('\n', '\r');
       String actual = event.getScript();
       // Chomp the last line-ending character for consistency
@@ -1979,5 +1980,36 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     ActionBar actions = view.getActionBar();
     assertEquals(0, actions.getActions().size());
     assertEquals(ActionBar.Alignment.LEFT, actions.getAlignment());
+  }
+  
+  @Test
+  public void testTestView() throws IOException {
+    DbDesign design = this.database.getDesign();
+    View view = design.getView("test view").get();
+    
+    assertEquals("SELECT @IsAvailable(SomeField)", view.getSelectionFormula());
+    assertEquals("\"I am form formula\"", view.getFormFormula().get());
+    assertEquals("\"I am help request\"", view.getHelpRequestFormula().get());
+    assertEquals("\"I am single-click target\"", view.getSingleClickTargetFrameFormula().get());
+    
+    Map<EventId, String> formulas = view.getFormulaEvents();
+    assertEquals("@StatusBar(\"I am queryopen\")", formulas.get(EventId.CLIENT_VIEW_QUERYOPEN));
+    assertEquals("@StatusBar(\"I am postopen\")", formulas.get(EventId.CLIENT_VIEW_POSTOPEN));
+    assertEquals("@StatusBar(\"I am regiondoubleclick\")", formulas.get(EventId.CLIENT_VIEW_REGIONDBLCLK));
+    assertEquals("@StatusBar(\"I am queryopendocument\")", formulas.get(EventId.CLIENT_VIEW_QUERYOPENDOC));
+    assertEquals("@StatusBar(\"I am queryrecalc\")", formulas.get(EventId.CLIENT_VIEW_QUERYRECALC));
+    assertEquals("@StatusBar(\"I am queryaddtofolder\")", formulas.get(EventId.CLIENT_VIEW_QUERYADDTOFOLDER));
+    assertEquals("@StatusBar(\"I am querypaste\")", formulas.get(EventId.CLIENT_VIEW_QUERYPASTE));
+    assertEquals("@StatusBar(\"I am postpaste\")", formulas.get(EventId.CLIENT_VIEW_POSTPASTE));
+    assertEquals("@StatusBar(\"I am querydragdrop\")", formulas.get(EventId.CLIENT_VIEW_QUERYDRAGDROP));
+    assertEquals("@StatusBar(\"I am postdragdrop\")", formulas.get(EventId.CLIENT_VIEW_POSTDRAGDROP));
+    assertEquals("@StatusBar(\"I am queryclose\")", formulas.get(EventId.CLIENT_VIEW_QUERYCLOSE));
+    assertEquals("@StatusBar(\"I am queryentryresize\")", formulas.get(EventId.CLIENT_VIEW_QUERYENTRYRESIZE));
+    assertEquals("@StatusBar(\"I am postentryresize\")", formulas.get(EventId.CLIENT_VIEW_POSTENTRYRESIZE));
+    assertEquals("@StatusBar(\"I am onselect\")", formulas.get(EventId.CLIENT_VIEW_ONSELECT));
+    assertEquals("@StatusBar(\"I am onsize\")", formulas.get(EventId.CLIENT_VIEW_ONSIZE));
+    
+    String expectedLs = IOUtils.resourceToString("/text/testDbDesignCollections/viewtestls.txt", StandardCharsets.UTF_8);
+    assertEquals(expectedLs, view.getLotusScript());
   }
 }

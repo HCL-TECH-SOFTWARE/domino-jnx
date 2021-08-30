@@ -16,13 +16,11 @@
  */
 package com.hcl.domino.design;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.data.Document;
-import com.hcl.domino.misc.INumberEnum;
 
 /**
  * Access to forms, views, resources read/write
@@ -103,7 +101,7 @@ public interface DesignElement {
   }
   
   /**
-   * This mixin interfaces describes design elements that have an action bar
+   * This mixin interface describes design elements that have an action bar
    * displayed across the top.
    * 
    * @author Jesse Gallagher
@@ -121,33 +119,23 @@ public interface DesignElement {
   }
   
   /**
-   * This enum describes the options available for elements conforming to
-   * {@link ThemeableClassicElement}.
+   * This mixin interface describes design elements that can be restricted to specific
+   * names and roles.
    * 
    * @author Jesse Gallagher
-   * @since 1.0.32
+   * @since 1.0.35
    */
-  enum ClassicThemeBehavior implements INumberEnum<Byte> {
-    USE_DATABASE_SETTING(DesignConstants.THEME_DEFAULT),
-    INHERIT_FROM_OS(DesignConstants.THEME_ENABLE),
-    DONT_INHERIT_FROM_OS(DesignConstants.THEME_DISABLE);
-    
-    private final byte value;
-    private ClassicThemeBehavior(byte value) {
-      this.value = value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return value;
-    }
-
-    @Override
-    public Byte getValue() {
-      return value;
-    }
+  interface ReadersRestrictedElement extends DesignElement {
+    /**
+     * Retrieves the list of users, groups, and roles allowed to access this design element.
+     * 
+     * @return an {@link Optional} describing the list of reader names, or an empty one
+     *         if this element is not reader-restricted
+     * @since 1.0.35
+     */
+    Optional<List<String>> getReaders();
   }
-
+  
   /**
    * @return the comment assigned to the design element
    * @since 1.0.24
@@ -161,8 +149,6 @@ public interface DesignElement {
    * @since 1.0.18
    */
   Document getDocument();
-
-  Collection<String> getItemNames();
 
   boolean isHideFromMobile();
 

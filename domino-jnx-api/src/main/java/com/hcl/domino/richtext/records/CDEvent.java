@@ -19,7 +19,7 @@ package com.hcl.domino.richtext.records;
 import java.util.Collection;
 import java.util.Set;
 
-import com.hcl.domino.design.format.HtmlEventId;
+import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
@@ -34,7 +34,7 @@ import com.hcl.domino.richtext.structures.WSIG;
 @StructureDefinition(name = "CDEVENT", members = {
     @StructureMember(name = "Header", type = WSIG.class),
     @StructureMember(name = "Flags", type = CDEvent.EventFlag.class, bitfield = true),
-    @StructureMember(name = "EventType", type = HtmlEventId.class),
+    @StructureMember(name = "EventType", type = EventId.class),
     @StructureMember(name = "ActionType", type = CDEvent.ActionType.class),
     @StructureMember(name = "ActionLength", type = int.class, unsigned = true),
     @StructureMember(name = "SignatureLength", type = short.class, unsigned = true),
@@ -91,7 +91,7 @@ public interface CDEvent extends RichTextRecord<WSIG> {
   ActionType getActionType();
 
   @StructureGetter("EventType")
-  HtmlEventId getEventType();
+  EventId getEventType();
 
   @StructureGetter("Flags")
   Set<EventFlag> getFlags();
@@ -110,7 +110,7 @@ public interface CDEvent extends RichTextRecord<WSIG> {
   CDEvent setActionType(ActionType actionType);
 
   @StructureSetter("EventType")
-  CDEvent setEventType(HtmlEventId eventType);
+  CDEvent setEventType(EventId eventType);
 
   @StructureSetter("Flags")
   CDEvent setFlags(Collection<EventFlag> flags);

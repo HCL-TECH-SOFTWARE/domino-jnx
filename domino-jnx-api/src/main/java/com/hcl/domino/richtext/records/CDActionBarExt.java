@@ -20,7 +20,7 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
-import com.hcl.domino.design.DesignElement.ClassicThemeBehavior;
+import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
 import com.hcl.domino.design.format.ActionBarTextAlignment;
 import com.hcl.domino.design.format.ActionWidthMode;

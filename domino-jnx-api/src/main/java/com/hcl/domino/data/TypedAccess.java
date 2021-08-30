@@ -21,6 +21,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.temporal.TemporalAccessor;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Common interface to read Domino data with a specific type
@@ -102,4 +103,39 @@ public interface TypedAccess {
    */
   boolean hasItem(String itemName);
 
+
+  
+  /**
+   * Returns an item value converted to the specified data type, if
+   * present on the document.
+   * 
+   * <p>This method supports the same data types as
+   * {@link #get(String, Class, Object)}.</p>
+   *
+   * @param <T>          type of return value
+   * @param itemName     item name, case insensitive
+   * @param valueType    class of return value
+   * @return an {@link Optional} representing the item value, or an empty one
+   *         if the item is not set
+   * @throws IllegalArgumentException if the specified value type is unsupported
+   * @since 1.0.35
+   */
+  <T> Optional<T> getOptional(String itemName, Class<T> valueType);
+  
+  /**
+   * Returns a list of item values converted to the specified data type,
+   * if present on the document.
+   * 
+   * <p>This method supports the same data types as
+   * {@link #getAsList(String, Class, List)}.</p>
+   *
+   * @param <T>          type of return value
+   * @param itemName     item name, case insensitive
+   * @param valueType    class of return value
+   * @return an {@link Optional} representing the item value, or an empty one
+   *         if the item is not set
+   * @throws IllegalArgumentException if the specified value type is unsupported
+   * @since 1.0.35
+   */
+  <T> Optional<List<T>> getAsListOptional(String itemName, Class<T> valueType);
 }

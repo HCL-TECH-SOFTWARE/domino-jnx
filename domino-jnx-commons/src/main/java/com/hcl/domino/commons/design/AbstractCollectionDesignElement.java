@@ -21,9 +21,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.design.view.DominoViewColumnFormat;
@@ -34,11 +37,13 @@ import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoCollection;
+import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.ImageRepeatMode;
+import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.format.ViewCalendarFormat;
 import com.hcl.domino.design.format.ViewLineSpacing;
 import com.hcl.domino.design.format.ViewTableFormat;
@@ -47,16 +52,20 @@ import com.hcl.domino.design.format.ViewTableFormat3;
 import com.hcl.domino.design.format.ViewTableFormat4;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.richtext.RichTextRecordList;
 import com.hcl.domino.richtext.records.CDLinkColors;
 import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.records.CDTarget;
+import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.structures.ColorValue;
 
 /**
  * @param <T> the {@link DesignElement} interface implemented by the class
  * @since 1.0.18
  */
-public abstract class AbstractCollectionDesignElement<T extends CollectionDesignElement> extends AbstractNamedDesignElement<T>
-    implements CollectionDesignElement, IDefaultAutoFrameElement, IDefaultActionBarElement {
+public abstract class AbstractCollectionDesignElement<T extends CollectionDesignElement> extends AbstractDesignElement<T>
+    implements CollectionDesignElement, IDefaultAutoFrameElement, IDefaultActionBarElement, IDefaultReadersRestrictedElement,
+    IDefaultNamedDesignElement {
   private DominoViewFormat format;
 
   public AbstractCollectionDesignElement(final Document doc) {
@@ -261,11 +270,6 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   }
   
   @Override
-  public List<String> getReaders() {
-    return getDocument().getAsList(NotesConstants.DESIGN_READERS, String.class, Collections.emptyList());
-  }
-  
-  @Override
   public Optional<String> getColumnProfileDocName() {
     String name = getDocument().getAsText(DesignConstants.VIEW_COLUMN_PROFILE_DOC, ' ');
     if(StringUtil.isEmpty(name)) {
@@ -279,6 +283,67 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   public Set<String> getUserDefinableNonFallbackColumns() {
     // TODO see if this is truly defined here, as opposed to this being just derived data from column settings
     return new LinkedHashSet<>(getDocument().getAsList(DesignConstants.VIEW_COLUMN_FORMAT_ITEM, String.class, Collections.emptyList()));
+  }
+  
+  @Override
+  public String getLotusScript() {
+    StringBuilder result = new StringBuilder();
+    getDocument().forEachItem(NotesConstants.VIEW_SCRIPT_NAME, (item, loop) -> {
+      result.append(item.get(String.class, "")); //$NON-NLS-1$
+    });
+    return result.toString();
+  }
+  
+  @Override
+  public Optional<String> getSingleClickTargetFrameFormula() {
+    return getHtmlCodeItem().stream()
+      .filter(CDTarget.class::isInstance)
+      .map(CDTarget.class::cast)
+      .filter(rec -> rec.getType().contains(RecordType.TARGET))
+      .findFirst()
+      .flatMap(target -> target.getFlags().contains(CDTarget.Flag.IS_FORMULA) ? target.getTargetFormula() : target.getTargetString());
+  }
+  
+  @Override
+  public Optional<String> getDoubleClickTargetFrameFormula() {
+    return getHtmlCodeItem().stream()
+      .filter(CDTarget.class::isInstance)
+      .map(CDTarget.class::cast)
+      .filter(rec -> rec.getType().contains(RecordType.TARGET_DBLCLK))
+      .findFirst()
+      .flatMap(target -> target.getFlags().contains(CDTarget.Flag.IS_FORMULA) ? target.getTargetFormula() : target.getTargetString());
+  }
+  
+  @Override
+  public Optional<String> getFormFormula() {
+    Document doc = getDocument();
+    if(doc.hasItem(NotesConstants.VIEW_FORM_FORMULA_ITEM)) {
+      return Optional.of(doc.get(NotesConstants.VIEW_FORM_FORMULA_ITEM, String.class, "")); //$NON-NLS-1$
+    } else {
+      return Optional.empty();
+    }
+  }
+  
+  @Override
+  public Optional<String> getHelpRequestFormula() {
+    Document doc = getDocument();
+    if(doc.hasItem(DesignConstants.ITEM_NAME_APPHELPFORMULA)) {
+      return Optional.of(doc.get(DesignConstants.ITEM_NAME_APPHELPFORMULA, String.class, "")); //$NON-NLS-1$
+    } else {
+      return Optional.empty();
+    }
+  }
+  
+  @Override
+  public Map<EventId, String> getFormulaEvents() {
+    Document doc = getDocument();
+    return Arrays.stream(EventId.values())
+      .filter(id -> id.getItemName() != null)
+      .filter(id -> doc.hasItem(id.getItemName()))
+      .collect(Collectors.toMap(
+        Function.identity(),
+        id -> doc.get(id.getItemName(), String.class, "") //$NON-NLS-1$
+      ));
   }
 
   // *******************************************************************************
@@ -342,6 +407,10 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       return Optional.empty();
     }
     return Optional.of((NotesCollationInfo)doc.getItemValue(DesignConstants.VIEW_COLLATION_ITEM).get(0));
+  }
+  
+  protected RichTextRecordList getHtmlCodeItem() {
+    return getDocument().getRichTextItem(DesignConstants.ITEM_NAME_HTMLCODE);
   }
   
   private class DefaultCompositeAppSettings implements CompositeAppSettings {

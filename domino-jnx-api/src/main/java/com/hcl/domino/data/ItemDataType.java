@@ -70,7 +70,8 @@ public enum ItemDataType implements INumberEnum<Short> {
   TYPE_USERDATA(14 + (0 << 8)),
   TYPE_INVALID_OR_UNKNOWN(0 + (0 << 8)),
   TYPE_SEAL_LIST(11 + (0 << 8)),
-  TYPE_CALENDAR_FORMAT(24 + (0 << 8));
+  TYPE_CALENDAR_FORMAT(24 + (0 << 8)),
+  TYPE_OUTLINE_FORMAT(26 + (0 << 8));
 
   private short m_dataType;
 

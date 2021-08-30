@@ -18,6 +18,7 @@ package com.hcl.domino.misc;
 
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -75,9 +76,11 @@ public enum DominoEnumUtil {
    */
   public static <N extends Number, T extends Enum<T> & INumberEnum<N>> Optional<T> valueOf(final Class<T> clazz, final int value) {
     for (final T enumVal : clazz.getEnumConstants()) {
-      final long enumValue = enumVal.getLongValue();
-      if (enumValue == value) {
-        return Optional.of(enumVal);
+      if(!enumVal.isSkipInLookup()) {
+        final long enumValue = enumVal.getLongValue();
+        if (enumValue == value) {
+          return Optional.of(enumVal);
+        }
       }
     }
     return Optional.empty();
@@ -96,9 +99,11 @@ public enum DominoEnumUtil {
    */
   public static <N extends Number, T extends Enum<T> & INumberEnum<N>> Optional<T> valueOf(final Class<T> clazz, final long value) {
     for (final T enumVal : clazz.getEnumConstants()) {
-      final long enumValue = enumVal.getLongValue();
-      if (enumValue == value) {
-        return Optional.of(enumVal);
+      if(!enumVal.isSkipInLookup()) {
+        final long enumValue = enumVal.getLongValue();
+        if (enumValue == value) {
+          return Optional.of(enumVal);
+        }
       }
     }
     return Optional.empty();
@@ -116,9 +121,11 @@ public enum DominoEnumUtil {
    */
   public static <T extends INumberEnum<?>> Optional<T> valueOf(final Class<T> clazz, final Number value) {
     for (final T enumVal : clazz.getEnumConstants()) {
-      final long enumValue = enumVal.getLongValue();
-      if (enumValue == value.longValue()) {
-        return Optional.of(enumVal);
+      if(!enumVal.isSkipInLookup()) {
+        final long enumValue = enumVal.getLongValue();
+        if (enumValue == value.longValue()) {
+          return Optional.of(enumVal);
+        }
       }
     }
     return Optional.empty();
@@ -138,9 +145,11 @@ public enum DominoEnumUtil {
   public static <N extends Number, T extends Enum<T> & INumberEnum<N>> Optional<T> valueOf(final Class<T> clazz,
       final short value) {
     for (final T enumVal : clazz.getEnumConstants()) {
-      final long enumValue = enumVal.getLongValue();
-      if (enumValue == value) {
-        return Optional.of(enumVal);
+      if(!enumVal.isSkipInLookup()) {
+        final long enumValue = enumVal.getLongValue();
+        if (enumValue == value) {
+          return Optional.of(enumVal);
+        }
       }
     }
     return Optional.empty();
@@ -161,9 +170,11 @@ public enum DominoEnumUtil {
     final EnumSet<T> result = EnumSet.noneOf(clazz);
     final long val = value;
     for (final T enumVal : clazz.getEnumConstants()) {
-      final long enumValue = enumVal.getLongValue();
-      if ((val & enumValue) == enumValue) {
-        result.add(enumVal);
+      if(!enumVal.isSkipInLookup()) {
+        final long enumValue = enumVal.getLongValue();
+        if ((val & enumValue) == enumValue) {
+          result.add(enumVal);
+        }
       }
     }
     return result;
@@ -183,9 +194,11 @@ public enum DominoEnumUtil {
   public static <N extends Number, T extends Enum<T> & INumberEnum<N>> EnumSet<T> valuesOf(final Class<T> clazz, final long value) {
     final EnumSet<T> result = EnumSet.noneOf(clazz);
     for (final T enumVal : clazz.getEnumConstants()) {
-      final long enumValue = enumVal.getLongValue();
-      if ((value & enumValue) == enumValue) {
-        result.add(enumVal);
+      if(!enumVal.isSkipInLookup()) {
+        final long enumValue = enumVal.getLongValue();
+        if ((value & enumValue) == enumValue) {
+          result.add(enumVal);
+        }
       }
     }
     return result;
@@ -207,11 +220,34 @@ public enum DominoEnumUtil {
     final EnumSet<T> result = EnumSet.noneOf(clazz);
     final long val = value;
     for (final T enumVal : clazz.getEnumConstants()) {
-      final long enumValue = enumVal.getLongValue();
-      if ((val & enumValue) == enumValue) {
-        result.add(enumVal);
+      if(!enumVal.isSkipInLookup()) {
+        final long enumValue = enumVal.getLongValue();
+        if ((val & enumValue) == enumValue) {
+          result.add(enumVal);
+        }
       }
     }
     return result;
+  }
+  
+  /**
+   * Given a Domino string-style enum, returns the enum constant for the provided string.
+   *
+   * @param <T>   the string-backed enum type
+   * @param clazz the string-backed enum class
+   * @param value the value to convert
+   * @return an {@link Optional} describing the corresponding enum value, or an
+   *         empty one if none match
+   */
+  public static <T extends Enum<T> & IStringEnum> Optional<T> valueOfString(Class<T> clazz, String value) {
+    if(value == null) {
+      return Optional.empty();
+    }
+    for(T enumVal : clazz.getEnumConstants()) {
+      if(Objects.equals(value, enumVal.getStringValue())) {
+        return Optional.of(enumVal);
+      }
+    }
+    return Optional.empty();
   }
 }

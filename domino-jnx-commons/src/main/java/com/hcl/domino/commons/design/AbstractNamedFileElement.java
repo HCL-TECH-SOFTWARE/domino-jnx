@@ -32,8 +32,8 @@ import com.hcl.domino.richtext.process.GetImageResourceSizeProcessor;
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public abstract class AbstractNamedFileElement<T extends NamedFileElement> extends AbstractNamedDesignElement<T>
-    implements NamedFileElement {
+public abstract class AbstractNamedFileElement<T extends NamedFileElement> extends AbstractDesignElement<T>
+    implements NamedFileElement, IDefaultNamedDesignElement {
 
   public AbstractNamedFileElement(final Document doc) {
     super(doc);

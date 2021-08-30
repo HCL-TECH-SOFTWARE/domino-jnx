@@ -1,10 +1,24 @@
+/*
+ * ==========================================================================
+ * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ *                            All rights reserved.
+ * ==========================================================================
+ * Licensed under the  Apache License, Version 2.0  (the "License").  You may
+ * not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+ *
+ * Unless  required  by applicable  law or  agreed  to  in writing,  software
+ * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the  specific language  governing permissions  and limitations
+ * under the License.
+ * ==========================================================================
+ */
 package com.hcl.domino.commons.design.action;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -19,18 +33,15 @@ import com.hcl.domino.design.action.ActionContent;
 import com.hcl.domino.design.action.FormulaActionContent;
 import com.hcl.domino.design.action.JavaScriptActionContent;
 import com.hcl.domino.design.action.LotusScriptActionContent;
+import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.design.action.SimpleActionActionContent;
 import com.hcl.domino.design.action.SystemActionContent;
 import com.hcl.domino.design.format.ActionBarControlType;
 import com.hcl.domino.design.format.HideFromDevice;
-import com.hcl.domino.design.format.HtmlEventId;
 import com.hcl.domino.design.simpleaction.SimpleAction;
 import com.hcl.domino.misc.DominoEnumUtil;
-import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.records.CDAction;
 import com.hcl.domino.richtext.records.CDActionExt;
-import com.hcl.domino.richtext.records.CDBlobPart;
-import com.hcl.domino.richtext.records.CDEvent;
 import com.hcl.domino.richtext.records.CDEventEntry;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.CDTarget;
@@ -107,7 +118,7 @@ public class DefaultActionBarAction implements ActionBarAction {
   public Optional<String> getTargetFrame() {
     return getTargetRecord()
       .flatMap(target -> {
-        String frame = target.getTargetString();
+        String frame = target.getTargetString().get();
         return frame.isEmpty() ? Optional.empty() : Optional.of(frame);
       });
   }
@@ -302,41 +313,7 @@ public class DefaultActionBarAction implements ActionBarAction {
         return (LotusScriptActionContent)() -> lotusScript;
       case COMMON_JAVASCRIPT:
       case JAVASCRIPT: {
-        List<JavaScriptActionContent.ScriptEvent> events = new ArrayList<>();
-        // This is formatted as a series of CDEVENT records followed by CDBLOBPARTs
-        // Client ones are distinguished by using SIG_CD_CLIENT_EVENT and SIG_CD_CLIENT_BLOBPART
-        HtmlEventId currentEvent = null;
-        boolean currentClient = false;
-        StringBuilder currentScript = new StringBuilder();
-        long currentLength = 0;
-        for(RichTextRecord<?> record : this.records) {
-          if(record instanceof CDEvent) {
-            // Start of a new event - flush any existing value and start a new one
-            if(currentEvent != null) {
-              events.add(new DefaultJavaScriptEvent(currentEvent, currentClient, currentScript.toString()));
-              currentScript.setLength(0);
-              currentLength = 0;
-            }
-            
-            currentEvent = ((CDEvent)record).getEventType();
-            currentClient = ((CDEvent)record).getHeader().getSignature() == RichTextConstants.SIG_CD_CLIENT_EVENT;
-            currentLength = ((CDEvent)record).getActionLength();
-          }
-          if(record instanceof CDBlobPart) {
-            // The length stored here may be longer than the actual action length if it's to fit a WORD boundary
-            long byteCount = Math.min(((CDBlobPart)record).getLength(), currentLength);
-            byte[] data = ((CDBlobPart)record).getBlobPartData();
-            currentScript.append(new String(data, 0, (int)byteCount, Charset.forName("LMBCS"))); //$NON-NLS-1$
-            currentLength -= byteCount;
-          }
-          if(record instanceof CDEventEntry) {
-            // These are present for each permutatation, but have unclear use when the above handles it all
-          }
-        }
-        // Finish any laggards
-        if(currentEvent != null) {
-          events.add(new DefaultJavaScriptEvent(currentEvent, currentClient, currentScript.toString()));
-        }
+        List<ScriptEvent> events = RichTextUtil.readJavaScriptEvents(this.records);
         
         return (JavaScriptActionContent)() -> Collections.unmodifiableList(events);
       }

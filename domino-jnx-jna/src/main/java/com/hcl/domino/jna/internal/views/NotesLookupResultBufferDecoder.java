@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.views.IItemTableData;
@@ -47,7 +48,6 @@ import com.hcl.domino.jna.data.JNADocument;
 import com.hcl.domino.jna.data.JNADominoCollection;
 import com.hcl.domino.jna.data.JNADominoDateRange;
 import com.hcl.domino.jna.data.JNADominoDateTime;
-import com.hcl.domino.jna.internal.AbstractTypedAccess;
 import com.hcl.domino.jna.internal.ItemDecoder;
 import com.hcl.domino.jna.internal.JNANotesConstants;
 import com.hcl.domino.jna.internal.LMBCSString;
@@ -1049,6 +1049,16 @@ public class NotesLookupResultBufferDecoder {
 		@Override
 		public List<String> getItemNames() {
 			return Arrays.asList(m_itemNames);
+		}
+		
+		@Override
+		public <T> Optional<T> getOptional(String itemName, Class<T> valueType) {
+		  return m_typedItems.getOptional(itemName, valueType);
+		}
+		
+		@Override
+		public <T> Optional<List<T>> getAsListOptional(String itemName, Class<T> valueType) {
+		  return m_typedItems.getAsListOptional(itemName, valueType);
 		}
 		
 		private ItemTableDataDocAdapter getTableDocAdapter() {

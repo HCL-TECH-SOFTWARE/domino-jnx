@@ -1,0 +1,17 @@
+'++LotusScript Development Environment:2:5:(Options):0:66
+
+'++LotusScript Development Environment:2:5:(Forward):0:1
+Declare Sub Initialize
+
+'++LotusScript Development Environment:2:5:(Declarations):0:2
+
+'++LotusScript Development Environment:2:2:BindEvents:1:129
+Private Sub BindEvents(Byval Objectname_ As String)
+    Static Source As NOTESUIVIEW
+    Set Source = Bind(Objectname_)
+End Sub
+
+'++LotusScript Development Environment:2:2:Initialize:1:10
+Sub Initialize
+    ' I am LotusScript init
+End Sub

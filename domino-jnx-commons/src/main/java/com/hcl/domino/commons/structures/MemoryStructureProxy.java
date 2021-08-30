@@ -420,6 +420,27 @@ public class MemoryStructureProxy implements InvocationHandler {
                   .orElseThrow(() -> new NoSuchElementException(MessageFormat.format("Unable to find {0} value for {1}", member.type.getName(), val)));
             }
           }
+        } else if(member.type.isArray() && INumberEnum.class.isAssignableFrom(member.type.getComponentType())) {
+          if(!thisMethod.getReturnType().isArray()) {
+            throw new IllegalStateException("Getters for array members must have array return types");
+          }
+          // Same as above, but for arrays
+          Object arrayVal = member.reader.apply(buf, member.offset);
+          if(thisMethod.getReturnType().getComponentType().isPrimitive()) {
+            // Then return directly
+            return arrayVal;
+          } else if(member.bitfield) {
+            throw new UnsupportedOperationException("Bitfield array members not supported");
+          } else {
+            Object result = Array.newInstance(member.type.getComponentType(), member.length);
+            for(int i = 0; i < member.length; i++) {
+              Number val = (Number)Array.get(arrayVal, i);
+              @SuppressWarnings("unchecked")
+              Optional<?> opt = DominoEnumUtil.valueOf((Class<? extends INumberEnum<?>>)member.type.getComponentType(), val);
+              Array.set(result, i, opt.orElseThrow(() -> new NoSuchElementException(MessageFormat.format("Unable to find {0} value for {1}", member.type.getName(), val))));
+            }
+            return result;
+          }
         } else {
           return member.reader.apply(buf, member.offset);
         }
@@ -471,6 +492,26 @@ public class MemoryStructureProxy implements InvocationHandler {
             numVal = result;
           }
           member.writer.accept(buf, member.offset, numVal);
+        } else if(member.type.isArray() && INumberEnum.class.isAssignableFrom(member.type.getComponentType())) {
+          // Same as above, but for arrays
+          Object newVal = args[0];
+          Class<?> numArrayType = MemoryStructureUtil.getNumberArrayType(member.type);
+          Class<?> numType = numArrayType.getComponentType();
+          Object numArray = Array.newInstance(numType, member.length);
+          int count = Math.min(Array.getLength(newVal), member.length);
+          for(int i = 0; i < count; i++) {
+            INumberEnum<?> val = (INumberEnum<?>)Array.get(newVal, i);
+            if(byte.class.equals(numType)) {
+              Array.setByte(numArray, i, val.getValue().byteValue());
+            } else if(short.class.equals(numType)) {
+              Array.setShort(numArray, i, val.getValue().shortValue());
+            } else if(int.class.equals(numType)) {
+              Array.setInt(numArray, i, val.getValue().intValue());
+            } else {
+              Array.setLong(numArray, i, val.getValue().longValue());
+            }
+          }
+          member.writer.accept(buf, member.offset, numArray);
         } else {
           member.writer.accept(buf, member.offset, args[0]);
         }

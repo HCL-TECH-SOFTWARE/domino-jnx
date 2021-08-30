@@ -101,7 +101,9 @@ public interface TFMT extends MemoryStructure {
     /** DATE TIME */
     DATETIME(RichTextConstants.TSFMT_DATETIME),
     /** DATE TIME or TIME Today or TIME Yesterday */
-    CDATETIME(RichTextConstants.TSFMT_CDATETIME);
+    CDATETIME(RichTextConstants.TSFMT_CDATETIME),
+    // Undocumented time-structure value observed in mailbox.ntf
+    UNDOCUMENTED((byte)4);
 
     private final byte value;
 

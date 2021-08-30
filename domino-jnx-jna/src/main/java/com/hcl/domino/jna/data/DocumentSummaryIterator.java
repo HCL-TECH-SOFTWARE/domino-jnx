@@ -28,10 +28,10 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import com.hcl.domino.data.Database.Action;
+import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.views.IItemTableData;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
-import com.hcl.domino.jna.internal.AbstractTypedAccess;
 import com.hcl.domino.jna.internal.search.NotesSearch;
 import com.hcl.domino.jna.internal.search.NotesSearch.JNASearchMatch;
 

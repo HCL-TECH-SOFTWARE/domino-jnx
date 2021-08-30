@@ -14,7 +14,7 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.jna.internal;
+package com.hcl.domino.commons.data;
 
 import java.text.MessageFormat;
 import java.time.LocalDate;
@@ -22,7 +22,9 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.util.StringUtil;
@@ -222,6 +224,24 @@ public abstract class AbstractTypedAccess implements TypedAccess, IndexedTypedAc
 			return getAsListViaValueConverter(index, valueType, defaultValue);
 		}
 	}
+	
+	@Override
+  public <T> Optional<T> getOptional(String itemName, Class<T> valueType) {
+    if(hasItem(itemName)) {
+      return Optional.ofNullable(get(itemName, valueType, null));
+    } else {
+      return Optional.empty();
+    }
+  }
+  
+  @Override
+  public <T> Optional<List<T>> getAsListOptional(String itemName, Class<T> valueType) {
+    if(hasItem(itemName)) {
+      return Optional.ofNullable(getAsList(itemName, valueType, Collections.emptyList()));
+    } else {
+      return Optional.empty();
+    }
+  }
 
 	protected abstract List<?> getItemValue(String itemName);
 	protected List<?> getItemValue(int index) {
