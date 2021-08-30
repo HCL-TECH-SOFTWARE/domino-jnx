@@ -297,5 +297,5 @@ public interface SiteMapEntry extends MemoryStructure {
   short[] getSpare();
   
   @StructureSetter("Spare")
-  SiteMapEntry setSpare(char[] Spare);
+  SiteMapEntry setSpare(short[] Spare);
 }
