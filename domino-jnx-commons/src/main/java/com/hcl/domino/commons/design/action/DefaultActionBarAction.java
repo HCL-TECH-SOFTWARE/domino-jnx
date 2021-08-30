@@ -1,40 +1,19 @@
-package com.hcl.domino.commons.design.action;
+package com.hcl.domino.commons.design;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.charset.Charset;
-import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.Set;
 
-import com.hcl.domino.commons.design.DesignUtil;
-import com.hcl.domino.commons.richtext.RichTextUtil;
-import com.hcl.domino.design.action.ActionBarAction;
-import com.hcl.domino.design.action.ActionContent;
-import com.hcl.domino.design.action.FormulaActionContent;
-import com.hcl.domino.design.action.JavaScriptActionContent;
-import com.hcl.domino.design.action.LotusScriptActionContent;
-import com.hcl.domino.design.action.SimpleActionActionContent;
-import com.hcl.domino.design.action.SystemActionContent;
+import com.hcl.domino.design.ActionBarAction;
 import com.hcl.domino.design.format.ActionBarControlType;
 import com.hcl.domino.design.format.HideFromDevice;
-import com.hcl.domino.design.format.HtmlEventId;
-import com.hcl.domino.design.simpleaction.SimpleAction;
-import com.hcl.domino.misc.DominoEnumUtil;
-import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.records.CDAction;
 import com.hcl.domino.richtext.records.CDActionExt;
-import com.hcl.domino.richtext.records.CDBlobPart;
-import com.hcl.domino.richtext.records.CDEvent;
 import com.hcl.domino.richtext.records.CDEventEntry;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.CDTarget;
-import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
 /**
@@ -54,35 +33,6 @@ public class DefaultActionBarAction implements ActionBarAction {
   @Override
   public String getName() {
     return getActionRecord().getTitle();
-  }
-  
-  @Override
-  public ActionLanguage getActionLanguage() {
-    switch(getActionRecord().getActionType()) {
-      case RUN_FORMULA:
-        return ActionLanguage.FORMULA;
-      case RUN_JAVASCRIPT:
-        // Check to see if the JS is common between client and web
-        return records.stream()
-          .filter(CDEventEntry.class::isInstance)
-          .map(CDEventEntry.class::cast)
-          .filter(entry -> entry.getActionType() == CDEventEntry.ActionType.JAVASCRIPT_COMMON)
-          .findFirst()
-          .map(entry -> ActionLanguage.COMMON_JAVASCRIPT)
-          .orElse(ActionLanguage.JAVASCRIPT);
-      case RUN_SCRIPT:
-        return ActionLanguage.LOTUSSCRIPT;
-      case PLACEHOLDER:
-        // TODO figure out this thing's deal - it seems not used in practice
-        return ActionLanguage.FORMULA;
-      case SYS_COMMAND:
-      case OLDSYS_COMMAND:
-        return ActionLanguage.SYSTEM_COMMAND;
-      case RUN_AGENT:
-      default:
-        // More investigation needed
-        return ActionLanguage.SIMPLE_ACTION;
-    }
   }
 
   @Override
@@ -287,71 +237,6 @@ public class DefaultActionBarAction implements ActionBarAction {
   public boolean isDisplayAsSplitButton() {
     return getActionRecord().getFlags().contains(CDAction.Flag.MAKE_SPLIT_BUTTON);
   }
-  
-  @Override
-  public ActionContent getActionContent() {
-    switch(getActionLanguage()) {
-      case SIMPLE_ACTION:
-        List<RichTextRecord<?>> simpleActionRecords = RichTextUtil.readMemoryRecords(getActionRecord().getActionData(), RecordType.Area.TYPE_ACTION);
-        List<SimpleAction> simpleActions = DesignUtil.toSimpleActions(simpleActionRecords);
-        return (SimpleActionActionContent)() -> simpleActions;
-      case LOTUSSCRIPT:
-        // TODO investigate storage of very-large LS
-        // The C API docs say this will be stored in separate items, but Designer crashes when trying to store this
-        String lotusScript = getActionRecord().getActionLotusScript();
-        return (LotusScriptActionContent)() -> lotusScript;
-      case COMMON_JAVASCRIPT:
-      case JAVASCRIPT: {
-        List<JavaScriptActionContent.ScriptEvent> events = new ArrayList<>();
-        // This is formatted as a series of CDEVENT records followed by CDBLOBPARTs
-        // Client ones are distinguished by using SIG_CD_CLIENT_EVENT and SIG_CD_CLIENT_BLOBPART
-        HtmlEventId currentEvent = null;
-        boolean currentClient = false;
-        StringBuilder currentScript = new StringBuilder();
-        long currentLength = 0;
-        for(RichTextRecord<?> record : this.records) {
-          if(record instanceof CDEvent) {
-            // Start of a new event - flush any existing value and start a new one
-            if(currentEvent != null) {
-              events.add(new DefaultJavaScriptEvent(currentEvent, currentClient, currentScript.toString()));
-              currentScript.setLength(0);
-              currentLength = 0;
-            }
-            
-            currentEvent = ((CDEvent)record).getEventType();
-            currentClient = ((CDEvent)record).getHeader().getSignature() == RichTextConstants.SIG_CD_CLIENT_EVENT;
-            currentLength = ((CDEvent)record).getActionLength();
-          }
-          if(record instanceof CDBlobPart) {
-            // The length stored here may be longer than the actual action length if it's to fit a WORD boundary
-            long byteCount = Math.min(((CDBlobPart)record).getLength(), currentLength);
-            byte[] data = ((CDBlobPart)record).getBlobPartData();
-            currentScript.append(new String(data, 0, (int)byteCount, Charset.forName("LMBCS"))); //$NON-NLS-1$
-            currentLength -= byteCount;
-          }
-          if(record instanceof CDEventEntry) {
-            // These are present for each permutatation, but have unclear use when the above handles it all
-          }
-        }
-        // Finish any laggards
-        if(currentEvent != null) {
-          events.add(new DefaultJavaScriptEvent(currentEvent, currentClient, currentScript.toString()));
-        }
-        
-        return (JavaScriptActionContent)() -> Collections.unmodifiableList(events);
-      }
-      case SYSTEM_COMMAND:
-        // The content will be two WORDs: one that varies between V4 and V5+ and another that identifies the actual action
-        ByteBuffer actionContent = ByteBuffer.wrap(getActionRecord().getActionData()).order(ByteOrder.nativeOrder());
-        short val = actionContent.getShort(2);
-        SystemActionContent.SystemAction action = DominoEnumUtil.valueOf(SystemActionContent.SystemAction.class, val)
-          .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Unable to find System Action value for 0x{0}", Integer.toHexString(val))));
-        return (SystemActionContent)() -> action;
-      case FORMULA:
-      default:
-        return (FormulaActionContent)() -> getActionRecord().getActionFormula();
-    }
-  }
 
   // *******************************************************************************
   // * Internal implementation methods
@@ -376,6 +261,13 @@ public class DefaultActionBarAction implements ActionBarAction {
     return records.stream()
       .filter(CDTarget.class::isInstance)
       .map(CDTarget.class::cast)
+      .findFirst();
+  }
+  
+  private Optional<CDEventEntry> getEventEntryRecord() {
+    return records.stream()
+      .filter(CDEventEntry.class::isInstance)
+      .map(CDEventEntry.class::cast)
       .findFirst();
   }
 }
