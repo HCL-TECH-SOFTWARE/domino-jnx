@@ -61,8 +61,8 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignForms extends AbstractDesignTest {
-  public static final int EXPECTED_IMPORT_FORMS = 1;
-  public static final int EXPECTED_IMPORT_SUBFORMS = 0;
+  public static final int EXPECTED_IMPORT_FORMS = 4;
+  public static final int EXPECTED_IMPORT_SUBFORMS = 2;
 
   private static String dbPath;
 
@@ -602,4 +602,39 @@ public class TestDbDesignForms extends AbstractDesignTest {
     }
   }
 
+  @Test
+  public void testLsForm() throws IOException {
+    DbDesign design = this.database.getDesign();
+    Form form = design.getForm("Test LS Form").get();
+    
+    assertEquals(Form.Type.RESPONSE_TO_RESPONSE, form.getType());
+    assertEquals(Form.MenuInclusion.CREATE_OTHER, form.getMenuInclusionMode());
+    assertFalse(form.isIncludeInSearchBuilder());
+    assertTrue(form.isIncludeInPrint());
+    
+    assertEquals(Form.VersioningBehavior.NEW_AS_RESPONSES, form.getVersioningBehavior());
+    assertFalse(form.isVersionCreationAutomatic());
+    
+    assertFalse(form.isDefaultForm());
+    assertTrue(form.isStoreFormInDocument());
+    assertFalse(form.isAllowFieldExchange());
+    assertTrue(form.isAutomaticallyRefreshFields());
+    assertTrue(form.isAnonymousForm());
+    assertFalse(form.isUseInitialFocus());
+    assertFalse(form.isFocusOnF6());
+    assertTrue(form.isSignDocuments());
+    assertFalse(form.isRenderPassThroughHtmlInClient());
+    assertFalse(form.isIncludeFieldsInIndex());
+    assertTrue(form.isAllowAutosave());
+    
+    assertEquals(Form.ConflictBehavior.MERGE_CONFLICTS, form.getConflictBehavior());
+  }
+
+  @Test
+  public void testDefaultForm() throws IOException {
+    DbDesign design = this.database.getDesign();
+    Form form = design.getForm("Default Form").get();
+    
+    assertTrue(form.isDefaultForm());
+  }
 }
