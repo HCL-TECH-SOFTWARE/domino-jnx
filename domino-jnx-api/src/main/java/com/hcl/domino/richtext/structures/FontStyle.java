@@ -35,7 +35,7 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
   members = {
     @StructureMember(name = "Face", type = byte.class),
     @StructureMember(name = "Attrib", type = FontAttribute.class, bitfield = true),
-    @StructureMember(name = "Color", type = StandardColors.class),
+    @StructureMember(name = "Color", type = byte.class, unsigned = true),
     @StructureMember(name = "PointSize", type = byte.class, unsigned = true)
   }
 )
@@ -47,10 +47,16 @@ public interface FontStyle extends MemoryStructure {
   FontStyle setAttributes(Collection<FontAttribute> attributes);
 
   @StructureGetter("Color")
-  StandardColors getColor();
+  Optional<StandardColors> getColor();
 
   @StructureSetter("Color")
   FontStyle setColor(StandardColors color);
+  
+  @StructureGetter("Color")
+  short getColorRaw();
+  
+  @StructureSetter("Color")
+  FontStyle setColorRaw(short color);
 
   @StructureGetter("Face")
   byte getFontFace();
