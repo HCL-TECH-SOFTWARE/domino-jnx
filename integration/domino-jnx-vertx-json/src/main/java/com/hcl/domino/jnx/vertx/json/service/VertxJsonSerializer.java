@@ -50,10 +50,15 @@ import com.hcl.domino.html.RichTextHTMLConverter;
 import com.hcl.domino.jnx.vertx.json.DefaultActionBarActionMixIn;
 import com.hcl.domino.jnx.vertx.json.DefaultActionBarMixIn;
 import com.hcl.domino.jnx.vertx.json.MemoryStructureMixIn;
+import com.hcl.domino.jnx.vertx.json.ResizableMemoryStructureMixIn;
+import com.hcl.domino.jnx.vertx.json.RichTextRecordMixIn;
 import com.hcl.domino.jnx.vertx.json.ViewMixIn;
 import com.hcl.domino.json.JsonSerializer;
 import com.hcl.domino.mime.MimeReader.ReadMimeDataType;
+import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.MemoryStructure;
+import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
+
 import io.vertx.core.json.JsonObject;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -65,6 +70,8 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
     io.vertx.core.json.jackson.DatabindCodec.prettyMapper().setSerializationInclusion(Include.NON_EMPTY);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(View.class, ViewMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(MemoryStructure.class, MemoryStructureMixIn.class);
+    io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(RichTextRecord.class, RichTextRecordMixIn.class);
+    io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(ResizableMemoryStructure.class, ResizableMemoryStructureMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(DefaultActionBar.class, DefaultActionBarMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(DefaultActionBarAction.class, DefaultActionBarActionMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().registerModule(new Jdk8Module());
