@@ -38,6 +38,7 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
+import com.hcl.domino.design.action.ActionLanguage;
 import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
 import com.hcl.domino.design.format.ActionBarTextAlignment;
 import com.hcl.domino.design.format.ActionWidthMode;
@@ -192,7 +193,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDAction action = (CDAction) doc.getRichTextItem("Body").get(0);
-      assertEquals(CDAction.Type.RUN_FORMULA, action.getActionType());
+      assertEquals(ActionLanguage.RUN_FORMULA, action.getActionType());
       assertEquals(EnumSet.of(CDAction.Flag.ALIGN_ICON_RIGHT, CDAction.Flag.HIDE_FROM_MOBILE), action.getFlags());
       assertEquals("Hello there", action.getTitle());
       assertEquals("Index>1", action.getHideWhenFormula());
@@ -215,7 +216,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDAction action = (CDAction) doc.getRichTextItem("Body").get(0);
-      assertEquals(CDAction.Type.RUN_SCRIPT, action.getActionType());
+      assertEquals(ActionLanguage.RUN_SCRIPT, action.getActionType());
       assertEquals(EnumSet.of(CDAction.Flag.ALIGN_ICON_RIGHT, CDAction.Flag.HIDE_FROM_MOBILE), action.getFlags());
       assertEquals("Hello there from LotusScript", action.getTitle());
       assertEquals("Index>1", action.getHideWhenFormula());
