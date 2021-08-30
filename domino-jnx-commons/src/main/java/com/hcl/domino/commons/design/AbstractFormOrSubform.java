@@ -28,6 +28,7 @@ import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.GenericFormOrSubform;
 import com.hcl.domino.design.SubformReference;
 import com.hcl.domino.misc.NotesConstants;
@@ -208,6 +209,10 @@ public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> e
   
   protected RichTextRecordList getFormBodyItem() {
     return getDocument().getRichTextItem(NotesConstants.ITEM_NAME_TEMPLATE);
+  }
+  
+  protected RichTextRecordList getHtmlCodeItem() {
+    return getDocument().getRichTextItem(DesignConstants.ITEM_NAME_HTMLCODE);
   }
   
   protected Optional<CDDocument> getDocumentRecord() {
