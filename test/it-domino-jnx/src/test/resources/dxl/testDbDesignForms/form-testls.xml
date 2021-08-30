@@ -30,10 +30,6 @@ wMCAwMCgwMD/+/CgoKSAgID/AAAA/wD//wAAAP//AP8A//////+YAB4AAAD//////////wAAAAAA
 d/8qAAAAAAABAP/AtgABAABgoAABAJ+f4AAAAAAAAAAAAAAAAAAAAAAAX/8QAAIADwAHAAAAAAAA
 AA==
 </rawitemdata></item>
-<item name='$DefaultDECSInfo'>
-<rawitemdata type='1'>
-bf8oAAAAAAADAAgAAAAAAAAAAAAAAAAAAAAAAGZvb3Rlc3Rjb25uAA==
-</rawitemdata></item>
 <item name='$TITLE'><text>Test LS Form</text></item>
 <item name='$FormUsers'><text>Anonymous</text></item>
 <item name='$AUTOLAUNCH' sign='true'>
@@ -43,9 +39,9 @@ v/8yABAAAAAEAAAABAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
 <item name='$NoBackgroundOverride'><text>1</text></item>
 <item name='$Info' sign='true'>
 <rawitemdata type='1'>
-hhgMALdkAAB/iQAASwABAOCB/wDvAAAA
+hhgMALdkAAB5iQAASwABAOCB/wDvAAAA
 </rawitemdata></item>
-<item name='$Flags'><text>D?C</text></item>
+<item name='$Flags'><text>HD?</text></item>
 <item name='$FrameInfo'><textlist><text>Outer Frame</text><text>Nav</text></textlist></item>
 <item name='$MimeCharSet'><text>Windows-1252</text></item>
 <item name='$WebFlags'><text>HF</text></item>
@@ -79,7 +75,7 @@ AAAAAABUYXJnZXRCb2R5Yg4BAIQAAAAAAAEAAADeBgAAiv+F/wgAAQAACg==
 vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
 AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAC+/zgCAAACAAAAnwEAAAUAAAAAAAAASGVsbG8fJysrTG90
+AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAC+/zgCAAACAAAAnwEAAAUAAAAAAAAASGVsbG8BJysrTG90
 dXNTY3JpcHQgRGV2ZWxvcG1lbnQgRW52aXJvbm1lbnQ6Mjo1OihPcHRpb25zKTowOjY2CgonKytM
 b3R1c1NjcmlwdCBEZXZlbG9wbWVudCBFbnZpcm9ubWVudDoyOjU6KEZvcndhcmQpOjA6MQpEZWNs
 YXJlIFN1YiBDbGljayhTb3VyY2UgQXMgQnV0dG9uKQoKJysrTG90dXNTY3JpcHQgRGV2ZWxvcG1l

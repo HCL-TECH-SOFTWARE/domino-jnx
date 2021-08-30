@@ -1,18 +1,21 @@
 <?xml version='1.0'?>
 <note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
-<item name='$Comment' sign='true'><text/></item>
 <item name='$HTMLCode' sign='true'>
 <rawitemdata type='1'>
 X/8QAAIADwAHAAAAAAAAAA==
 </rawitemdata></item>
 <item name='$TITLE'><text>Computed Target</text></item>
+<item name='$Comment' sign='true'><text/></item>
 <item name='$Info' sign='true'>
 <rawitemdata type='1'>
-hhgBAIAAAAAAgAAAAQABAP///wAgAAAA
+hhgBAIAAAAAAgAAAAQABAP///wAQAAAA
 </rawitemdata></item>
-<item name='$Flags'><text>CUx3N</text></item>
+<item name='$Flags'><text>CUAx3</text></item>
 <item name='$DesignerVersion'><text>8.5.3</text></item>
 <item name='$$ScriptName' summary='false' sign='true'><text>Computed Target</text></item>
+<item name='ComputedSubformField' placeholder='true'>
+<rawitemdata type='0'>
+</rawitemdata></item>
 <item name='$Fields'><text>ComputedSubformField</text></item>
 <item name='$Body' sign='true'>
 <rawitemdata type='1'>
