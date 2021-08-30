@@ -147,6 +147,7 @@ public interface DesignConstants {
   short ACTION_SYS_CMD_PASTE        = 0x7cfe  ;
   short ACTION_SYS_CMD_OPEN_SELECTED    = 0x7d0e;
   short ACTION_SYS_CMD_BOOKMARK     =   0x7d1e;
+<<<<<<< HEAD
   
   /**  Use Reference Note  */
   short TPL_FLAG_REFERENCE = 0x0001;
@@ -237,4 +238,6 @@ public interface DesignConstants {
   
   short FDECS_KEY_FIELD = 0x0001;
   short FDECS_STORE_LOCALLY = 0x0002;
+=======
+>>>>>>> Implement LotusScript, JavaScript, and System actions
 }
