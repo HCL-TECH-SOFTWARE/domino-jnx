@@ -232,4 +232,9 @@ public interface DesignConstants {
   short TPL_FLAG_THEMESETTING = 0x0180;
   /**  shift right this many bits to get the theme setting into the low-order bits.  */
   short TPL_SHIFT_THEMESETTING = 7;
+  
+  String ITEM_NAME_DEFAULTDECSINFO = "$DefaultDECSInfo"; //$NON-NLS-1$
+  
+  short FDECS_KEY_FIELD = 0x0001;
+  short FDECS_STORE_LOCALLY = 0x0002;
 }
