@@ -31,12 +31,10 @@ import java.security.PrivilegedAction;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.BiFunction;
 
 import com.hcl.domino.commons.NotYetImplementedException;
@@ -83,12 +81,34 @@ public class MemoryStructureProxy implements InvocationHandler {
    * 
    * @param type     the number or enum value type to read
    * @param unsigned whether the number value is unsigned
+   * @param bitfield whether the value should be considered a flag-style bitfield
    * @param length   the length of an array-type value
    * @return a {@link BiFunction} that can be applied to a {@link ByteBuffer} and
    *         offset
    */
-  @SuppressWarnings({ "unchecked" })
-  static BiFunction<ByteBuffer, Integer, Object> reader(final Class<?> type, final boolean unsigned, final int length) {
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  static BiFunction<ByteBuffer, Integer, Object> reader(final Class<?> type, final boolean unsigned, final boolean bitfield,
+      final int length) {
+    if (INumberEnum.class.isAssignableFrom(type)) {
+      final Class<?> numberClass = MemoryStructureUtil.getNumberType(type);
+
+      if (bitfield) {
+        return (buf, offset) -> {
+          final Number val = (Number) MemoryStructureProxy.reader(numberClass, unsigned, false, length).apply(buf, offset);
+          return DominoEnumUtil.valuesOf((Class) type, val.longValue());
+        };
+      } else {
+        return (buf, offset) -> {
+          final Number val = (Number) MemoryStructureProxy.reader(numberClass, unsigned, false, length).apply(buf, offset);
+          final Optional<?> opt = DominoEnumUtil.valueOf((Class) type, val.longValue());
+          if (!opt.isPresent()) {
+            throw new NoSuchElementException(MessageFormat.format("Unable to find {0} value for {1}", type.getName(), val));
+          }
+          return opt.get();
+        };
+      }
+    }
+
     if (byte.class.equals(type) || Byte.class.equals(type)) {
       if (unsigned) {
         return (buf, offset) -> (short) Byte.toUnsignedInt(buf.get(offset));
@@ -224,12 +244,38 @@ public class MemoryStructureProxy implements InvocationHandler {
    * 
    * @param type     the number or enum value type to read
    * @param unsigned whether the number value is unsigned
+   * @param bitfield whether the structure member is a flags-type bitfield
    * @param length   the length of the array-type member
    * @return a {@link BiFunction} that can be applied to a {@link ByteBuffer} and
    *         offset
    */
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   static TriConsumer<ByteBuffer, Integer, Object> writer(final Class<?> type, final boolean unsigned,
-      final int length) {
+      final boolean bitfield, final int length) {
+    if (INumberEnum.class.isAssignableFrom(type)) {
+      final Class<?> numberClass = MemoryStructureUtil.getNumberType(type);
+
+      if (bitfield) {
+        return (buf, offset, newVal) -> {
+          // It's possible that the setter sets a single value or a collection
+          if (Collection.class.isInstance(newVal)) {
+            // Assume newVal is a Collection of enums
+            final Number numVal = newVal == null ? 0 : DominoEnumUtil.toBitField((Class) type, (Collection) newVal);
+            MemoryStructureProxy.writer(numberClass, unsigned, false, length).accept(buf, offset, numVal);
+          } else {
+            // Assume it's a single enum
+            final Number numVal = newVal == null ? 0 : ((INumberEnum) newVal).getValue();
+            MemoryStructureProxy.writer(numberClass, unsigned, false, length).accept(buf, offset, numVal);
+          }
+        };
+      } else {
+        return (buf, offset, newVal) -> {
+          final Number numVal = newVal == null ? 0 : ((INumberEnum) newVal).getValue();
+          MemoryStructureProxy.writer(numberClass, unsigned, false, length).accept(buf, offset, numVal);
+        };
+      }
+    }
+
     if (byte.class.equals(type) || Byte.class.equals(type)) {
       return (buf, offset, newVal) -> buf.put(offset, ((Number) newVal).byteValue());
     } else if (byte[].class.equals(type)) {
@@ -377,7 +423,8 @@ public class MemoryStructureProxy implements InvocationHandler {
           // requested as an enum
           final Number val = (Number) member.reader.apply(buf, member.offset);
           @SuppressWarnings("unchecked")
-          final Optional<? extends INumberEnum<?>> result = DominoEnumUtil.valueOf((Class<? extends INumberEnum<?>>) thisMethod.getReturnType(), val);
+          final Optional<? extends INumberEnum<?>> result = DominoEnumUtil
+              .valueOf((Class<? extends INumberEnum<?>>) thisMethod.getReturnType(), val);
           return result.orElse(null);
         } else if (member.type.isPrimitive() && Collection.class.isAssignableFrom(thisMethod.getReturnType())) {
           // Same as above, but for enum collections. TestStructAnnotations in core
@@ -388,38 +435,9 @@ public class MemoryStructureProxy implements InvocationHandler {
           @SuppressWarnings("unchecked")
           final Object result = DominoEnumUtil.valuesOf(enumType, val.longValue());
           return result;
-        } else if(member.type.isPrimitive() && MemoryStructureUtil.isOptionalOf(thisMethod.getGenericReturnType(), INumberEnum.class)) {
-          // Same as above, but for Optionals of single enums
-          final Number val = (Number) member.reader.apply(buf, member.offset);
-          @SuppressWarnings("rawtypes")
-          final Class enumType = (Class) ((ParameterizedType) thisMethod.getGenericReturnType()).getActualTypeArguments()[0];
-          @SuppressWarnings("unchecked")
-          final Optional<? extends INumberEnum<?>> result = DominoEnumUtil.valueOf((Class<? extends INumberEnum<?>>) enumType, val);
-          return result;
         } else if (member.type.equals(OpaqueTimeDate.class) && DominoDateTime.class.equals(thisMethod.getReturnType())) {
           final OpaqueTimeDate dt = (OpaqueTimeDate) member.reader.apply(buf, member.offset);
           return new DefaultDominoDateTime(dt.getInnards());
-        } else if(INumberEnum.class.isAssignableFrom(member.type)) {
-          Number val = (Number)member.reader.apply(buf, member.offset);
-          if(thisMethod.getReturnType().isPrimitive()) {
-            // Return the number directly
-            return val;
-          } else if(member.bitfield) {
-            @SuppressWarnings({ "unchecked", "rawtypes" })
-            Set<?> result = DominoEnumUtil.valuesOf((Class)member.type, val.longValue());
-            return result;
-          } else {
-            @SuppressWarnings("unchecked")
-            Optional<?> opt = DominoEnumUtil.valueOf((Class<? extends INumberEnum<?>>)member.type, val.longValue());
-            if(MemoryStructureUtil.isOptionalOf(thisMethod.getGenericReturnType(), member.type)) {
-              // Pass through the optional result
-              return opt;
-            } else {
-              // Then unwrap the Optional coming from the reader
-              return opt
-                  .orElseThrow(() -> new NoSuchElementException(MessageFormat.format("Unable to find {0} value for {1}", member.type.getName(), val)));
-            }
-          }
         } else {
           return member.reader.apply(buf, member.offset);
         }
@@ -430,47 +448,15 @@ public class MemoryStructureProxy implements InvocationHandler {
       final StructMember member = struct.setterMap.get(thisMethod);
       if (member != null) {
         final ByteBuffer buf = this.record.getData();
-        Class<?> paramType = thisMethod.getParameterTypes()[0];
-        if (member.type.isPrimitive() && INumberEnum.class.isAssignableFrom(paramType)) {
+        if (member.type.isPrimitive() && INumberEnum.class.isAssignableFrom(thisMethod.getParameterTypes()[0])) {
           // Handle the case where a member declared as a primitive is nonetheless set as
           // an enum
           final Object newVal = args[0];
           final Number val = newVal == null ? 0 : ((INumberEnum<?>) newVal).getValue();
           member.writer.accept(buf, member.offset, val);
-        } else if (member.type.equals(OpaqueTimeDate.class) && DominoDateTime.class.equals(paramType)) {
+        } else if (member.type.equals(OpaqueTimeDate.class) && DominoDateTime.class.equals(thisMethod.getParameterTypes()[0])) {
           final int[] innards = ((DominoDateTime) args[0]).getAdapter(int[].class);
           member.writer.accept(buf, member.offset, innards);
-        } else if(INumberEnum.class.isAssignableFrom(member.type) && paramType.isPrimitive()) {
-          // Handle the case where a member declared as an enum is set as a primitive
-          member.writer.accept(buf, member.offset, args[0]);
-        } else if(INumberEnum.class.isAssignableFrom(member.type)) {
-          final Object newVal = args[0];
-          Number numVal;
-          if(member.bitfield) {
-            // Read the existing value and preserve possible undocumented flags
-            Number existing = (Number)member.reader.apply(buf, member.offset);
-            @SuppressWarnings({ "unchecked", "rawtypes" })
-            Number antimask = ~(DominoEnumUtil.toBitField((Class)member.type, EnumSet.allOf((Class)member.type)).longValue());
-            long savedMask = existing.longValue() & antimask.longValue();
-            
-            // It's possible that the setter sets a single value or a collection
-            if (Collection.class.isInstance(newVal)) {
-              // Assume newVal is a Collection of enums
-              @SuppressWarnings({ "rawtypes", "unchecked" })
-              Number result = newVal == null ? 0 : DominoEnumUtil.toBitField((Class) member.type, (Collection) newVal);
-              numVal = result.longValue() | savedMask;
-            } else {
-              // Assume it's a single enum
-              @SuppressWarnings("rawtypes")
-              Number result = newVal == null ? 0 : ((INumberEnum) newVal).getValue();
-              numVal = result.longValue() | savedMask;
-            }
-          } else {
-            @SuppressWarnings("rawtypes")
-            Number result = newVal == null ? 0 : ((INumberEnum) newVal).getValue();
-            numVal = result;
-          }
-          member.writer.accept(buf, member.offset, numVal);
         } else {
           member.writer.accept(buf, member.offset, args[0]);
         }
