@@ -58,6 +58,7 @@ import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.Page;
+import com.hcl.domino.design.Navigator;
 import com.hcl.domino.design.ScriptLibrary;
 import com.hcl.domino.design.SharedField;
 import com.hcl.domino.design.Subform;
@@ -199,6 +200,8 @@ public enum DesignUtil {
     DesignUtil.mappings.put(AboutDocument.class, new DesignMapping<>(DocumentClass.INFO, "", AboutDocumentImpl::new)); //$NON-NLS-1$
     DesignUtil.mappings.put(UsingDocument.class, new DesignMapping<>(DocumentClass.HELP_INDEX, "", UsingDocumentImpl::new)); //$NON-NLS-1$
     DesignUtil.mappings.put(SharedField.class, new DesignMapping<>(DocumentClass.FIELD, "", SharedFieldImpl::new)); //$NON-NLS-1$
+    DesignUtil.mappings.put(Navigator.class, new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_VIEWMAP_ALL_VERSIONS, NavigatorImpl::new)); //$NON-NLS-1$
+
   }
 
   /**
