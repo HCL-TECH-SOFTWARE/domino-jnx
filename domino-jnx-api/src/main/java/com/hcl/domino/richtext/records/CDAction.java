@@ -146,9 +146,6 @@ public interface CDAction extends RichTextRecord<LSIG> {
    * <p>
    * This type is also set implicitly by {@link #setActionFormula(String)} and
    * {@link #setActionLotusScript(String)}.
-   * When setting the type explicitly, you are responsible for setting
-   * {@link #setActionData(byte[])} to an appropriate
-   * value.
    * </p>
    *
    * @param type the new type for the action
