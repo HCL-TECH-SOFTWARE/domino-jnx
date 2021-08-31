@@ -284,7 +284,8 @@ public enum RichTextUtil {
    * ODS bugs described in the C API examples.</p>
    * 
    * @param data the in-memory composite data to parse
-   * @param area the {@link RecordType.Area} type to use to interpret signatures
+   * @param area the {@link com.hcl.domino.richtext.records.RecordType.Area RecordType.Area}
+   *             type to use to interpret signatures
    * @return a {@link List} of {@link RichTextRecord} instances
    */
   public static List<RichTextRecord<?>> readMemoryRecords(byte[] data, RecordType.Area area) {
