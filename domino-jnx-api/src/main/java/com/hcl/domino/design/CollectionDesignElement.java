@@ -27,6 +27,7 @@ import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.format.ViewLineSpacing;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
+import com.hcl.domino.richtext.structures.ColorValue.Flag;
 import com.hcl.domino.security.AclLevel;
 
 /**
@@ -250,7 +251,7 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      * Retrieves the color used for text in unread-document rows in Notes 5.
      * 
      * <p>The Domino Designer property "Transparent" corresponds to this color
-     * value having the {@link ColorValue.Flag#NOCOLOR NOCOLOR} flag set.</p>
+     * value having the {@link Flag NOCOLOR} flag set.</p>
      * 
      * @return a {@link ColorValue} representing the unread-document color
      */
@@ -595,7 +596,7 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
   /**
    * Retrieves an object that provides a view onto this collection's indexing settings.
    * 
-   * @return a {@link IndexOptions} instance
+   * @return a {@link IndexSettings} instance
    * @since 1.0.32
    */
   IndexSettings getIndexSettings();

@@ -49,7 +49,7 @@ import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
 /**
- * Default implementation of {@link ActionBarActions} that works based on
+ * Default implementation of {@link ActionBarAction}s that works based on
  * a {@link List} of composite-data records representing the action's settings.
  * 
  * @author Jesse Gallagher
