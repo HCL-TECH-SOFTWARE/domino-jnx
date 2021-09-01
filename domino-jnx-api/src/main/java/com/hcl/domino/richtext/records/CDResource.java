@@ -382,4 +382,10 @@ public interface CDResource extends RichTextRecord<WSIG> {
       this.getServerHintLength()
     );
   }
+
+  default void setNamedElementFormula(String newFormula) {
+	  StructureSupport.writeCompiledFormula(this,
+			  this.getServerHintLength() + this.getFileHintLength() + 8, // for replica ID
+			  getLength1(), newFormula, this::setLength1);
+  }
 }
