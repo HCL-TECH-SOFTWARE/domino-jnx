@@ -435,7 +435,7 @@ public interface DbDesign {
   Optional<SharedColumn> getSharedColumn(String name);
 
   /**
-   * Retrieves all shared columns in the database
+   * Retrieves all shared columns in the database.
    *
    * @return a {@link Stream} of {@link SharedColumn}s
    * @since 1.0.37
