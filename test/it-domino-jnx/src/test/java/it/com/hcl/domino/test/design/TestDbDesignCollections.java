@@ -60,6 +60,7 @@ import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
+import com.hcl.domino.design.SharedColumn;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionContent;
@@ -2011,5 +2012,76 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     
     String expectedLs = IOUtils.resourceToString("/text/testDbDesignCollections/viewtestls.txt", StandardCharsets.UTF_8);
     assertEquals(expectedLs, view.getLotusScript());
+  }
+  
+  @Test
+  public void testSharedColumns() {
+    DbDesign design = this.database.getDesign();
+    List<SharedColumn> columns = design.getSharedColumns().collect(Collectors.toList());
+    assertEquals(2, columns.size());
+    assertTrue(columns.stream().anyMatch(col -> "testcol".equals(col.getTitle())));
+    assertTrue(columns.stream().anyMatch(col -> "testcol2".equals(col.getTitle())));
+  }
+  
+  @Test
+  public void testSharedColumn1() {
+    DbDesign design = this.database.getDesign();
+    SharedColumn col = design.getSharedColumn("testcol").get();
+    {
+      final CollectionColumn column = col.getColumn();
+      assertEquals("#", column.getTitle());
+      assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      assertEquals(TotalType.None, column.getTotalType());
+      assertFalse(column.isResponsesOnly());
+      assertFalse(column.isIcon());
+
+      // This column does not have numbers settings specified, and should use the defaults
+      {
+        CollectionColumn.NumberSettings numbers = column.getNumberSettings();
+        assertEquals(NumberDisplayFormat.DECIMAL, numbers.getFormat());
+        assertTrue(numbers.isVaryingDecimal());
+        assertFalse(numbers.isOverrideClientLocale());
+        assertFalse(numbers.isUseParenthesesWhenNegative());
+        assertFalse(numbers.isPunctuateThousands());
+      }
+      
+      // This column does not have date/time settings specified, and should use the defaults
+      {
+        CollectionColumn.DateTimeSettings dateTime = column.getDateTimeSettings();
+        assertFalse(dateTime.isOverrideClientLocale());
+        assertFalse(dateTime.isDisplayAbbreviatedDate());
+        
+        assertTrue(dateTime.isDisplayDate());
+        assertEquals(DateShowFormat.MDY, dateTime.getDateShowFormat());
+        assertEquals(EnumSet.of(DateShowSpecial.SHOW_21ST_4DIGIT), dateTime.getDateShowBehavior());
+        assertEquals(CalendarType.GREGORIAN, dateTime.getCalendarType());
+        
+        assertTrue(dateTime.isDisplayTime());
+        assertEquals(TimeShowFormat.HMS, dateTime.getTimeShowFormat());
+        assertEquals(TimeZoneFormat.NEVER, dateTime.getTimeZoneFormat());
+      }
+    }
+  }
+  
+  @Test
+  public void testSharedColumn2() {
+    DbDesign design = this.database.getDesign();
+    SharedColumn col = design.getSharedColumn("testcol2").get();
+    {
+      final CollectionColumn column = col.getColumn();
+      assertEquals("I am test col 2", column.getTitle());
+      assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      assertEquals(TotalType.None, column.getTotalType());
+      assertFalse(column.isResponsesOnly());
+      assertFalse(column.isIcon());
+      
+      assertFalse(column.isHidden());
+      assertFalse(column.isHiddenFromMobile());
+      assertEquals("", column.getHideWhenFormula());
+      assertFalse(column.isHiddenInPreV6());
+      assertFalse(column.isExtendToWindowWidth());
+      assertEquals("", column.getExtraAttributes());
+      assertFalse(column.isShowAsLinks());
+    }
   }
 }
