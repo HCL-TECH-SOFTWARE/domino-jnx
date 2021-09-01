@@ -223,7 +223,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIconOnlyInActionBar());
-      assertFalse(action.isLeftAlignedInActionBar());
+      assertFalse(action.isOppositeAlignedInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertTrue(action.isIncludeInMobileActions());
       assertFalse(action.isIncludeInContextMenu());
@@ -431,7 +431,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
       assertTrue(action.isIncludeInActionBar());
       assertTrue(action.isIconOnlyInActionBar());
-      assertTrue(action.isLeftAlignedInActionBar());
+      assertTrue(action.isOppositeAlignedInActionBar());
       assertFalse(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInMobileActions());
 //      assertFalse(action.isIncludeInMobileSwipeLeft());
@@ -463,7 +463,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
       assertTrue(action.isIncludeInActionBar());
       assertFalse(action.isIconOnlyInActionBar());
-      assertFalse(action.isLeftAlignedInActionBar());
+      assertFalse(action.isOppositeAlignedInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInMobileActions());
 //      assertFalse(action.isIncludeInMobileSwipeLeft());
@@ -540,7 +540,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
       assertTrue(action.isIncludeInActionBar());
       assertFalse(action.isIconOnlyInActionBar());
-      assertFalse(action.isLeftAlignedInActionBar());
+      assertFalse(action.isOppositeAlignedInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInMobileActions());
 //      assertFalse(action.isIncludeInMobileSwipeLeft());

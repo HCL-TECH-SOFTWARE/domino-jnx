@@ -414,6 +414,15 @@ public interface DbDesign {
    * @since 1.0.34
    */
   Stream<SharedField> getSharedFields();
+  
+  /**
+   * Retrieves the shared-actions note, if it exists in the database.
+   * 
+   * @return an {@link Optional} describing the {@link SharedActions} for the database, or
+   *         an empty one if there is no shared-actions note
+   * @since 1.0.37
+   */
+  Optional<SharedActions> getSharedActions();
 
   /**
    * Queries all design elements in the database by the provided formula and

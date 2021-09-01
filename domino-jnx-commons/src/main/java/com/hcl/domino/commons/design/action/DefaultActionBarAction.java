@@ -154,8 +154,9 @@ public class DefaultActionBarAction implements ActionBarAction {
   }
 
   @Override
-  public boolean isLeftAlignedInActionBar() {
-    // This appears to be flipped in meaning from the constant's name
+  public boolean isOppositeAlignedInActionBar() {
+    // This meaning is actually just an inverse of the action bar's setting, not
+    //   forced right-aligned
     return getActionRecord().getFlags().contains(CDAction.Flag.BUTTON_TO_RIGHT);
   }
 
