@@ -73,4 +73,8 @@ public interface CDText extends RichTextRecord<WSIG> {
     return this;
   }
 
+  default CDText setStyle(FontStyle style) {
+    getStyle().getData().put(style.getData());
+    return this;
+  }
 }
