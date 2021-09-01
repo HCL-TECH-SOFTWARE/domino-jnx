@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -36,6 +37,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -862,5 +864,40 @@ public class TestDbDesign extends AbstractDesignTest {
       DbDesign design = database.getDesign();
       assertFalse(design.getSharedActions().isPresent());
     });
+  }
+  
+  @Test
+  public void testGetByUnid() {
+    DbDesign design = database.getDesign();
+    
+    String unid;
+    {
+      SharedActions actions = design.getSharedActions().get();
+      unid = actions.getDocument().getUNID();
+    }
+    {
+      Optional<SharedActions> optActions = design.getDesignElementByUNID(unid);
+      SharedActions actions = optActions.get();
+      List<ActionBarAction> actionList = actions.getActions();
+      assertEquals(5, actionList.size());
+    }
+  }
+  
+  @Test
+  public void testMismatchedGetByUnid() {
+    DbDesign design = database.getDesign();
+    
+    String unid;
+    {
+      SharedActions actions = design.getSharedActions().get();
+      unid = actions.getDocument().getUNID();
+    }
+    {
+      Optional<View> optActions = design.getDesignElementByUNID(unid);
+      assertThrows(ClassCastException.class, () -> {
+        @SuppressWarnings("unused")
+        View view = optActions.get();
+      });
+    }
   }
 }

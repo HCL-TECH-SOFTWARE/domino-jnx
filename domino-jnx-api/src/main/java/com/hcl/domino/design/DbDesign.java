@@ -441,6 +441,21 @@ public interface DbDesign {
    * @since 1.0.37
    */
   Stream<SharedColumn> getSharedColumns();
+  
+  /**
+   * Retrieves a design element by its UNID.
+   * 
+   * @param <T> the expected type of the design element
+   * @param unid the UNID of the design element to retrieve
+   * @return an {@link Optional} describing the design element, or an empty one if no
+   *         note by that UNID exists
+   * @throws ClassCastException if the design element represented by {@code unid} is not of the
+   *                            type represented by {@code <T>}
+   * @throws IllegalArgumentException if the note represented by {@code unid} is not a design
+   *                                  element
+   * @since 1.0.37
+   */
+  <T extends DesignElement> Optional<T> getDesignElementByUNID(String unid);
 
   /**
    * Queries all design elements in the database by the provided formula and

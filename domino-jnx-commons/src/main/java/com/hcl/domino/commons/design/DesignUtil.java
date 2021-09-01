@@ -200,7 +200,7 @@ public enum DesignUtil {
         new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_WEBPAGE, PageImpl::new)
     );
     DesignUtil.mappings.put(AboutDocument.class, new DesignMapping<>(DocumentClass.INFO, "", AboutDocumentImpl::new)); //$NON-NLS-1$
-    DesignUtil.mappings.put(UsingDocument.class, new DesignMapping<>(DocumentClass.HELP_INDEX, "", UsingDocumentImpl::new)); //$NON-NLS-1$
+    DesignUtil.mappings.put(UsingDocument.class, new DesignMapping<>(DocumentClass.HELP, "", UsingDocumentImpl::new)); //$NON-NLS-1$
     DesignUtil.mappings.put(SharedField.class, new DesignMapping<>(DocumentClass.FIELD, "", SharedFieldImpl::new)); //$NON-NLS-1$
     DesignUtil.mappings.put(Navigator.class, new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_VIEWMAP_ALL_VERSIONS, NavigatorImpl::new));
     DesignUtil.mappings.put(SharedActions.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_SACTIONS_DESIGN, SharedActionsImpl::new));
@@ -237,6 +237,8 @@ public enum DesignUtil {
           return new SubformImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_FILE_RESOURCE)) {
           return new FileResourceImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SACTIONS_DESIGN)) {
+          return new SharedActionsImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else {
           return new FormImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         }
@@ -253,6 +255,8 @@ public enum DesignUtil {
       case VIEW:
         if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_FOLDER_ALL_VERSIONS)) {
           return new FolderImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SHARED_COLS)) {
+          return new SharedColumnImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else {
           return new ViewImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         }
