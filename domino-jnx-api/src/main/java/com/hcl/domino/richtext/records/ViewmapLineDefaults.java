@@ -20,7 +20,6 @@ import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
-import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 
 /**
@@ -37,8 +36,7 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
     @StructureMember(name = "FillBGColor", type = short.class, unsigned = true),
     @StructureMember(name = "LineStyle", type = short.class, unsigned = true),
     @StructureMember(name = "LineWidth", type = short.class, unsigned = true),
-    @StructureMember(name = "FillStyle", type = short.class, unsigned = true),
-    @StructureMember(name = "FontID", type = FontStyle.class)
+    @StructureMember(name = "FillStyle", type = short.class, unsigned = true)
   }
 )
 public interface ViewmapLineDefaults extends MemoryStructure {
@@ -62,9 +60,6 @@ public interface ViewmapLineDefaults extends MemoryStructure {
 
   @StructureGetter("FillStyle")
   int getFillStyle();
-
-  @StructureGetter("FontID")
-  FontStyle getFontID();
 
   @StructureSetter("LineColor")
   ViewmapLineDefaults setbHighlightTouch(int lineColor);

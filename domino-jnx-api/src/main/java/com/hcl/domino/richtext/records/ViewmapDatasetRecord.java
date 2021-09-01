@@ -44,7 +44,7 @@ import com.hcl.domino.richtext.structures.WSIG;
     @StructureMember(name = "bAutoAdjust", type = short.class, unsigned = true),
     @StructureMember(name = "BGColor", type = short.class, unsigned = true),
     /* highest sequence number for each type of draw object supported (w/extra space for future) */
-    @StructureMember(name = "SeqNums", type = short[].class, length = ViewmapDatasetRecord.VM_MAX_OBJTYPES),
+    @StructureMember(name = "SeqNums", type = short[].class, length = ViewmapDatasetRecord.VM_MAX_OBJTYPES, unsigned = true),
     @StructureMember(name = "StyleDefaults", type = ViewmapStyleDefaults.class),
     @StructureMember(name = "NumPaletteEntries", type = short.class, unsigned = true),
     @StructureMember(name = "ViewDesignType", type = short.class, unsigned = true), /* design type of initial view */
@@ -92,6 +92,18 @@ public interface ViewmapDatasetRecord extends RichTextRecord<WSIG> {
 
   @StructureGetter("Flags")
   Set<Flags> getFlags();
+
+  @StructureGetter("bAutoAdjust")
+  int getbAutoAdjust();
+
+  @StructureGetter("BGColor")
+  int getBGColor();
+
+  @StructureGetter("SeqNums")
+  int[] getSeqNums();
+
+  @StructureGetter("StyleDefaults")
+  ViewmapStyleDefaults getStyleDefaults();
 
   @StructureGetter("NumPaletteEntries")
   int getNumPaletteEntries();
