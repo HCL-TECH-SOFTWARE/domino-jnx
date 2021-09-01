@@ -19,7 +19,6 @@ package com.hcl.domino.richtext.records;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
-import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 
 /**
@@ -56,23 +55,4 @@ public interface ViewmapStyleDefaults extends MemoryStructure {
 
   @StructureGetter("TextBoxes")
   ViewmapTextboxDefaults getTextBoxes();
-
-  @StructureSetter("Shapes")
-  ViewmapStyleDefaults setShapes(ViewmapShapeDefaults type);
-
-  @StructureSetter("Lines")
-  ViewmapStyleDefaults setLines(ViewmapLineDefaults type);
-
-  @StructureSetter("Regions")
-  ViewmapStyleDefaults setRegions(ViewmapRegionDefaults type);
-
-  @StructureSetter("Buttons")
-  ViewmapStyleDefaults setButtons(ViewmapButtonDefaults type);
-
-  @StructureSetter("Bitmaps")
-  ViewmapStyleDefaults setBitmaps(ViewmapBitmapDefaults type);
-
-  @StructureSetter("TextBoxes")
-  ViewmapStyleDefaults setTextBoxes(ViewmapTextboxDefaults type);
-
 }

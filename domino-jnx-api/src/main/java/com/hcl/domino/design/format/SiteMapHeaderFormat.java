@@ -65,9 +65,6 @@ public interface SiteMapHeaderFormat extends MemoryStructure {
   @StructureGetter("tdLastChecked")
   OpaqueTimeDate getTdLastChecked();
   
-  @StructureSetter("tdLastChecked")
-  SiteMapHeaderFormat setTdLastChecked(OpaqueTimeDate tdLastChecked);
-  
   @StructureGetter("Spare")
   short[] getSpare();
 

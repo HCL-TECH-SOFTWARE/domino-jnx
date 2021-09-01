@@ -22,7 +22,6 @@ import java.nio.charset.Charset;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
-import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.WSIG;
 
@@ -59,9 +58,6 @@ public interface CDText extends RichTextRecord<WSIG> {
     buf.get(lmbcs);
     return new String(lmbcs, Charset.forName("LMBCS-native")); //$NON-NLS-1$
   }
-
-  @StructureSetter("FontID")
-  CDText setStyle(FontStyle style);
 
   /**
    * Sets the text for this record.

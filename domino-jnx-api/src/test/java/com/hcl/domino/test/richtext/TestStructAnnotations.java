@@ -51,6 +51,7 @@ import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.structures.MemoryStructure;
 import com.hcl.domino.richtext.structures.OpaqueTimeDate;
 
 /**
@@ -129,10 +130,17 @@ public class TestStructAnnotations {
 				assertFalse(isEmpty(name), method.getName() + ": Member name is empty");
 				assertTrue(memberValues.containsKey(name), method.getName() + ": Refers to undefined member " + name);
 				assertEquals(1, method.getParameterCount(), method.getName() + ": Invalid getter parameter count: " + method.getParameterCount());
-				
+
+        // MemoryStructure members should not have setters
+				assertFalse(
+				  MemoryStructure.class.isAssignableFrom(memberValues.get(name).type()) && !OpaqueTimeDate.class.isAssignableFrom(memberValues.get(name).type()),
+				  method.getName() + ": MemoryStructure members should not have setters"
+				);
+        
 				// Parameter type must match the expected value
 				Type paramType = method.getGenericParameterTypes()[0];
 				assertTrue(isCompatibleType(paramType, memberValues.get(name), true), method.getName() + ": Parameter type " + paramType + " incompatible with " + memberValues.get(name).type().getName());
+				
 				
 				// Return type must be the original class
 				Class<?> returnType = method.getReturnType();
