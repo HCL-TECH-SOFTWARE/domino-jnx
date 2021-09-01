@@ -12,37 +12,37 @@ import com.hcl.domino.richtext.structures.OpaqueTimeDate;
     @StructureMember(name = "MinorVersion", type = byte.class, unsigned = true),
     @StructureMember(name = "SiteMapStyle", type = byte.class, unsigned = true),
     @StructureMember(name = "OddSpare", type = byte.class, unsigned = true),
-    @StructureMember(name = "Items", type = short.class, unsigned = false),
-    @StructureMember(name = "Entries", type = short.class, unsigned = false),
-    @StructureMember(name = "Length", type = short.class, unsigned = false),
+    @StructureMember(name = "Items", type = short.class),
+    @StructureMember(name = "Entries", type = short.class),
+    @StructureMember(name = "Length", type = short.class),
     @StructureMember(name = "tdLastChecked", type = OpaqueTimeDate.class),
     @StructureMember(name = "Spare", type = short[].class, length = 16)
 })
 public interface SiteMapHeaderFormat extends MemoryStructure {
 
   @StructureGetter("MajorVersion")
-  byte getMajorVersion();
+  short getMajorVersion();
   
   @StructureSetter("MajorVersion")
-  SiteMapHeaderFormat setMajorVersion(byte majorVersion);
+  SiteMapHeaderFormat setMajorVersion(short majorVersion);
   
   @StructureGetter("MinorVersion")
-  byte getMinorVersion();
+  short getMinorVersion();
   
   @StructureSetter("MinorVersion")
-  SiteMapHeaderFormat setMinorVersion(byte minorVersion);
+  SiteMapHeaderFormat setMinorVersion(short minorVersion);
   
   @StructureGetter("SiteMapStyle")
-  byte getSiteMapStyle();
+  short getSiteMapStyle();
   
   @StructureSetter("SiteMapStyle")
-  SiteMapHeaderFormat setSiteMapStyle(byte siteMapStyle);
+  SiteMapHeaderFormat setSiteMapStyle(short siteMapStyle);
   
   @StructureGetter("OddSpare")
-  byte getOddSpare();
+  short getOddSpare();
   
   @StructureSetter("OddSpare")
-  SiteMapHeaderFormat setOddSpare(byte oddSpare);
+  SiteMapHeaderFormat setOddSpare(short oddSpare);
   
   @StructureGetter("Items")
   short getItems();
@@ -64,9 +64,6 @@ public interface SiteMapHeaderFormat extends MemoryStructure {
   
   @StructureGetter("tdLastChecked")
   OpaqueTimeDate getTdLastChecked();
-  
-  @StructureSetter("tdLastChecked")
-  SiteMapHeaderFormat setTdLastChecked(OpaqueTimeDate tdLastChecked);
   
   @StructureGetter("Spare")
   short[] getSpare();
