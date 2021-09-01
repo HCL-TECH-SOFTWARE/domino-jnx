@@ -104,6 +104,8 @@ public class TestStructAnnotations {
 			if(members[i].length() > 1) {
 				assertTrue(members[i].type().isArray(), "Multi-value members must have an array type");
 			}
+			assertFalse(members[i].bitfield() && !INumberEnum.class.isAssignableFrom(members[i].type()), "Only INumberEnum members can be bitfields");
+			
 			memberValues.put(name, members[i]);
 		}
 		
@@ -177,18 +179,27 @@ public class TestStructAnnotations {
 		    return true;
 		  }
 		}
-		
+
 		// Known special support for DominoDateTime
 		if(DominoDateTime.class.equals(methodType) && OpaqueTimeDate.class.equals(member.type())) {
 			return true;
 		}
 		
+		// Check for arrays of structures or INumberEnums
+		if(structType.isArray() && MemoryStructure.class.isAssignableFrom(structType.getComponentType()) && structType.equals(methodType)) {
+		  return true;
+		} else if(structType.isArray() && INumberEnum.class.isAssignableFrom(structType.getComponentType()) && structType.equals(methodType)) {
+		  return true;
+		}
+
 		if(bitfield) {
 			if(!Collection.class.isAssignableFrom(toClass(methodType))) {
 				return false;
 			}
 			Type paramType = ((ParameterizedType)methodType).getActualTypeArguments()[0];
 			return isEnumCompatible(structType, paramType);
+		} else if(MemoryStructure.class.isAssignableFrom(structType) && structType.equals(methodType)) {
+		  return true;
 		} else if(byte.class.equals(structType)) {
 			if(unsigned) {
 				if(isSetter) {
@@ -276,10 +287,14 @@ public class TestStructAnnotations {
 	}
 	
 	private boolean isEnumCompatible(Class<?> structType, Type paramType) {
-		if(structType.equals(paramType)) {
-			return true;
-		}
 		Class<?> paramClass = toClass(paramType);
+		if(!(INumberEnum.class.isAssignableFrom(paramClass) || INumberEnum.class.isAssignableFrom(structType))) {
+		  // Then we're not working with an enum at all
+		  return false;
+		}
+    if(structType.equals(paramClass)) {
+      return true;
+    }
 		if(INumberEnum.class.isAssignableFrom(paramClass)) {
 			Class<?> numType = Arrays.stream(paramClass.getGenericInterfaces())
 				.filter(i -> INumberEnum.class.equals(toClass(i)))

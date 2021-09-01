@@ -46,41 +46,41 @@ public interface ViewmapLineDefaults extends MemoryStructure {
   ViewmapHighlightDefaults getHighlight();
 
   @StructureGetter("LineColor")
-  short getLineColor();
+  int getLineColor();
 
   @StructureGetter("FillFGColor")
-  short getFillFGColor();
+  int getFillFGColor();
 
   @StructureGetter("FillBGColor")
-  short getFillBGColor();
+  int getFillBGColor();
 
   @StructureGetter("LineStyle")
-  short getLineStyle();
+  int getLineStyle();
 
   @StructureGetter("LineWidth")
-  short getLineWidth();
+  int getLineWidth();
 
   @StructureGetter("FillStyle")
-  short getFillStyle();
+  int getFillStyle();
 
   @StructureGetter("FontID")
   FontStyle getFontID();
 
   @StructureSetter("LineColor")
-  ViewmapLineDefaults setbHighlightTouch(short lineColor);
+  ViewmapLineDefaults setbHighlightTouch(int lineColor);
 
   @StructureSetter("FillFGColor")
-  ViewmapLineDefaults setbHighlightCurrent(short fillFGColor);
+  ViewmapLineDefaults setbHighlightCurrent(int fillFGColor);
 
   @StructureSetter("FillBGColor")
-  ViewmapLineDefaults setHLOutlineColor(short fillBGColor);
+  ViewmapLineDefaults setHLOutlineColor(int fillBGColor);
 
   @StructureSetter("LineStyle")
-  ViewmapLineDefaults setHLOutlineWidth(short lineStyle);
+  ViewmapLineDefaults setHLOutlineWidth(int lineStyle);
 
   @StructureSetter("LineWidth")
-  ViewmapLineDefaults setHLOutlineStyle(short lineWidth);
+  ViewmapLineDefaults setHLOutlineStyle(int lineWidth);
 
   @StructureSetter("FillStyle")
-  ViewmapLineDefaults setHLFillColor(short fillStyle);
+  ViewmapLineDefaults setHLFillColor(int fillStyle);
 }

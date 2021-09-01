@@ -40,38 +40,38 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
 )
 public interface ViewmapHighlightDefaults extends MemoryStructure {
   @StructureGetter("bHighlightTouch")
-  short getbHighlightTouch();
+  int getbHighlightTouch();
 
   @StructureGetter("bHighlightCurrent")
-  short getbHighlightCurrent();
+  int getbHighlightCurrent();
 
   @StructureGetter("HLOutlineColor")
-  short getHLOutlineColor();
+  int getHLOutlineColor();
 
   @StructureGetter("HLOutlineWidth")
-  short getHLOutlineWidth();
+  int getHLOutlineWidth();
 
   @StructureGetter("HLOutlineStyle")
-  short getHLOutlineStyle();
+  int getHLOutlineStyle();
 
   @StructureGetter("HLFillColor")
-  short getHLFillColor();
+  int getHLFillColor();
 
   @StructureSetter("bHighlightTouch")
-  ViewmapHighlightDefaults setbHighlightTouch(short touch);
+  ViewmapHighlightDefaults setbHighlightTouch(int touch);
 
   @StructureSetter("bHighlightCurrent")
-  ViewmapHighlightDefaults setbHighlightCurrent(short current);
+  ViewmapHighlightDefaults setbHighlightCurrent(int current);
 
   @StructureSetter("HLOutlineColor")
-  ViewmapHighlightDefaults setHLOutlineColor(short outlineColor);
+  ViewmapHighlightDefaults setHLOutlineColor(int outlineColor);
 
   @StructureSetter("HLOutlineWidth")
-  ViewmapHighlightDefaults setHLOutlineWidth(short outlineWidth);
+  ViewmapHighlightDefaults setHLOutlineWidth(int outlineWidth);
 
   @StructureSetter("HLOutlineStyle")
-  ViewmapHighlightDefaults setHLOutlineStyle(short outlineStyle);
+  ViewmapHighlightDefaults setHLOutlineStyle(int outlineStyle);
 
   @StructureSetter("HLFillColor")
-  ViewmapHighlightDefaults setHLFillColor(short fillColor);
+  ViewmapHighlightDefaults setHLFillColor(int fillColor);
 }
