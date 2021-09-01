@@ -39,7 +39,6 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -935,7 +934,6 @@ public class TestDbDesignForms extends AbstractDesignTest {
     "headline.ntf",
     "busytime.ntf"
   })
-//  @Disabled
   public void testStockFormUnknownRecords(String dbName) {
     Set<RecordType> types = new HashSet<>();
     Database names = getClient().openDatabase(dbName);
@@ -953,6 +951,8 @@ public class TestDbDesignForms extends AbstractDesignTest {
         }
       });
     
-    System.out.println("found: " + types);
+    if(!types.isEmpty()) {
+      System.out.println("Encountered unimplemented CD record types: " + types);
+    }
   }
 }
