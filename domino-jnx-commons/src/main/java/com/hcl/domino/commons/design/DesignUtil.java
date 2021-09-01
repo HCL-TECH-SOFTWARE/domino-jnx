@@ -230,15 +230,30 @@ public enum DesignUtil {
       case FIELD:
         return new SharedFieldImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
       case FILTER:
-        return new AgentImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SCRIPTLIB_JAVA)) {
+          return new JavaLibraryImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SCRIPTLIB_JS)) {
+            return new JavaScriptLibraryImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SCRIPTLIB_LS)) {
+          return new LotusScriptLibraryImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SCRIPTLIB_SERVER_JS)) {
+          return new ServerJavaScriptLibraryImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SITEMAP)) {
+          return new OutlineImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else {
+          return new AgentImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        }
       case FORM:
-        // TODO handle the flood of edge cases here
         if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SUBFORM_ALL_VERSIONS)) {
           return new SubformImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_FILE_RESOURCE)) {
           return new FileResourceImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SACTIONS_DESIGN)) {
           return new SharedActionsImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_WEBPAGE)) {
+          return new PageImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_IMAGE_RESOURCE)) {
+          return new ImageResourceImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else {
           return new FormImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         }
@@ -247,7 +262,7 @@ public enum DesignUtil {
       case HELP_INDEX:
         throw new NotYetImplementedException();
       case ICON:
-        throw new NotYetImplementedException();
+        return new DbPropertiesImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
       case INFO:
         return new AboutDocumentImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
       case REPLFORMULA:

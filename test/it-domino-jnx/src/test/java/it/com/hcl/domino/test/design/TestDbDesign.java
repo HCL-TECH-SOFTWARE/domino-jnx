@@ -219,6 +219,10 @@ public class TestDbDesign extends AbstractDesignTest {
     assertTrue(props.isGenerateEnhancedHtml());
     props.setGenerateEnhancedHtml(false);
     assertFalse(props.isGenerateEnhancedHtml());
+    
+    String unid = props.getDocument().getUNID();
+    Optional<DbProperties> optProps = dbDesign.getDesignElementByUNID(unid);
+    assertInstanceOf(DbProperties.class, optProps.get());
   }
 
   @Test
@@ -405,11 +409,14 @@ public class TestDbDesign extends AbstractDesignTest {
 
     assertTrue(resources.stream().anyMatch(res -> Arrays.asList("Untitled.gif").equals(res.getFileNames())));
     // The copied image resource is known to be broken, as an effect of a Designer
-    // bug. That leaves it as useful
-    // test data, but not for this check
+    // bug. That leaves it as useful test data, but not for this check
     // assertTrue(resources.stream().anyMatch(res -> Arrays.asList("Untitled
     // 2.gif").equals(res.getFileNames())));
     assertTrue(resources.stream().anyMatch(res -> "Untitled.gif".equals(res.getTitle())));
+    
+    String unid = resources.stream().filter(res -> "Untitled.gif".equals(res.getTitle())).map(res -> res.getDocument().getUNID()).findFirst().get();
+    Optional<ImageResource> untitled = dbDesign.getDesignElementByUNID(unid);
+    assertEquals("Untitled.gif", untitled.get().getTitle());
   }
 
   @Test
@@ -544,6 +551,10 @@ public class TestDbDesign extends AbstractDesignTest {
     assertEquals(2, pages.size());
     assertTrue(pages.stream().anyMatch(p -> "Navigation Header".equals(p.getTitle())));
     assertTrue(pages.stream().anyMatch(p -> "Test Page".equals(p.getTitle())));
+    
+    String unid = pages.stream().filter(p -> "Test Page".equals(p.getTitle())).findFirst().map(p -> p.getDocument().getUNID()).get();
+    Optional<Page> testPage = design.getDesignElementByUNID(unid);
+    assertEquals("Test Page", testPage.get().getTitle());
   }
   
   @Test
