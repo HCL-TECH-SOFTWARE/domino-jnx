@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -358,6 +359,57 @@ public class StringUtil {
 	  for (Entry<String,String> currEntry : replacements.entrySet()) {
 		  currTxt = replaceAllMatches(currTxt, currEntry.getKey(), currEntry.getValue(), caseInsensitive);
 	  }
+	  return currTxt;
+  }
+  
+  /**
+   * Replaces text matching a {@link Pattern} with text computed by a {@link Function}
+   * 
+   * @param txt old text
+   * @param replacements mapping of {@link Pattern} and {@link Function}
+   * @return new text
+   */
+  public static String replaceAllMatches(String txt, Map<Pattern,Function<Matcher,String>> replacements) {
+	  String currTxt = txt;
+
+	  StringBuilder sb = new StringBuilder();
+
+	  for (Entry<Pattern,Function<Matcher,String>> currEntry : replacements.entrySet()) {
+		  Pattern pattern = currEntry.getKey();
+		  Function<Matcher,String> fct = currEntry.getValue();
+		  
+		  Matcher matcher = pattern.matcher(txt);
+		  int currIdx = 0;
+
+		  while (matcher.find()) {
+			  int startIdx = matcher.start();
+			  int endIdx = matcher.end();
+
+			  if (startIdx>currIdx) {
+				  String preTxt = txt.substring(currIdx, startIdx);
+				  if (preTxt.length()>0) {
+					  sb.append(preTxt);
+				  }
+			  }
+
+			  currIdx = endIdx;
+			  
+			  String newTxt = fct.apply(matcher);
+			  sb.append(newTxt);
+		  }
+
+		  //write remaining txt until the end
+		  if (currIdx < txt.length()) {
+			  String postTxt = txt.substring(currIdx, txt.length());
+			  if (postTxt.length()>0) {
+				  sb.append(postTxt);
+			  }
+		  }
+
+		  currTxt = sb.toString();
+		  sb.setLength(0);
+	  }
+
 	  return currTxt;
   }
 }
