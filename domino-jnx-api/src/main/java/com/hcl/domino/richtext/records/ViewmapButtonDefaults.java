@@ -26,7 +26,7 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
 /**
  * View Map (Navigator) Button Defaults
  * @author artcnot
- * @since 1.0.15
+ * @since 1.0.37
  */
 @StructureDefinition(
   name = "VIEWMAP_BUTTON_DEFAULTS",

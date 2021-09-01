@@ -25,7 +25,7 @@ import com.hcl.domino.richtext.structures.BSIG;
 /**
  * View Map (Navigator) Header
  * @author artcnot
- * @since 1.0.15
+ * @since 1.0.37
  */
 @StructureDefinition(
   name = "VIEWMAP_HEADER_RECORD",

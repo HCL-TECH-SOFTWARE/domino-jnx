@@ -31,7 +31,7 @@ import com.hcl.domino.richtext.structures.WSIG;
  * View Map (Navigator) Data
  * 
  * @author artcnot
- * @since 1.0.15
+ * @since 1.0.37
  */
 @StructureDefinition(
   name = "VIEWMAP_DATASET_RECORD", 

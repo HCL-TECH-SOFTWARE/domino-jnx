@@ -24,7 +24,7 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
 /**
  * View Map (Navigator) Region Defaults
  * @author artcnot
- * @since 1.0.15
+ * @since 1.0.37
  */
 @StructureDefinition(
   name = "VIEWMAP_REGION_DEFAULTS",
