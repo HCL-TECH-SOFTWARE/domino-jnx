@@ -14,16 +14,15 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design;
+package com.hcl.domino.constants;
 
-import java.util.List;
-import com.hcl.domino.data.IAdaptable;
-import com.hcl.domino.design.DesignElement.NamedDesignElement;
-
-public interface Outline extends NamedDesignElement {
-  
-  public List<IAdaptable> getSitemapList();
-  
-  public void setSitemapList(String sitemapList);
-
+/**
+ * Represents constants originally from the {@code stdnames.h} header file.
+ * 
+ * @author Jesse Gallagher
+ * @since 1.0.37
+ */
+public interface StdNames {
+  /** display only shared columns */
+  String DFLAGPAT_SHARED_COLS = "(+-*^"; //$NON-NLS-1$
 }

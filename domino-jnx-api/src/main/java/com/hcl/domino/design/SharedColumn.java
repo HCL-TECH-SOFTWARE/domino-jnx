@@ -16,14 +16,14 @@
  */
 package com.hcl.domino.design;
 
-import java.util.List;
-import com.hcl.domino.data.IAdaptable;
-import com.hcl.domino.design.DesignElement.NamedDesignElement;
+import com.hcl.domino.data.CollectionColumn;
 
-public interface Outline extends NamedDesignElement {
-  
-  public List<IAdaptable> getSitemapList();
-  
-  public void setSitemapList(String sitemapList);
-
+/**
+ * Represents a shared column within a database.
+ * 
+ * @author Jesse Gallagher
+ * @since 1.0.37
+ */
+public interface SharedColumn extends DesignElement.NamedDesignElement {
+  CollectionColumn getColumn();
 }

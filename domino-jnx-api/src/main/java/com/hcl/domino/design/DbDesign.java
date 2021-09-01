@@ -379,7 +379,7 @@ public interface DbDesign {
    */
   Stream<Outline> getOutlines();
 
-  /*
+  /**
    * Retrieves the "About Application" document for the database, if it exists.
    * 
    * @return an {@link Optional} describing the {@link AboutDocument} for the database,
@@ -402,7 +402,7 @@ public interface DbDesign {
    *
    * @param name the element name to restrict to
    * @return an {@link Optional} describing the {@link SharedField}, or an empty one if
-   *         no such view exists
+   *         no such field exists
    * @since 1.0.34
    */
   Optional<SharedField> getSharedField(String name);
@@ -423,6 +423,24 @@ public interface DbDesign {
    * @since 1.0.37
    */
   Optional<SharedActions> getSharedActions();
+
+  /**
+   * Retrieves the named shared column.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link SharedColumn}, or an empty one if
+   *         no such column exists
+   * @since 1.0.37
+   */
+  Optional<SharedColumn> getSharedColumn(String name);
+
+  /**
+   * Retrieves all shared columns in the database.
+   *
+   * @return a {@link Stream} of {@link SharedColumn}s
+   * @since 1.0.37
+   */
+  Stream<SharedColumn> getSharedColumns();
 
   /**
    * Queries all design elements in the database by the provided formula and

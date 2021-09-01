@@ -26,7 +26,7 @@ import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.data.NotesFont;
-import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.format.CalendarType;
 import com.hcl.domino.design.format.DateComponentOrder;
 import com.hcl.domino.design.format.DateShowFormat;
@@ -62,7 +62,7 @@ import com.hcl.domino.richtext.structures.NFMT;
  * @since 1.0.27
  */
 public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
-  private CollectionDesignElement parent;
+  private DesignElement parent;
   private final int index;
   private int columnValuesIndex;
   private ViewColumnFormat format1;
@@ -454,10 +454,10 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
    * Sets the internal parent reference for this column object, as used by
    * some methods. Does not change any value in the actual column definition.
    * 
-   * @param parent the {@link CollectionDesignElement} to set as the parent
+   * @param parent the {@link DesignElement} to set as the parent
    * @since 1.0.32
    */
-  public void setParent(CollectionDesignElement parent) {
+  public void setParent(DesignElement parent) {
     this.parent = parent;
   }
 

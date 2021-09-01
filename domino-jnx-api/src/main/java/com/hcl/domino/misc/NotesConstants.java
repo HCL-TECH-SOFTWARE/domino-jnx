@@ -16,7 +16,9 @@
  */
 package com.hcl.domino.misc;
 
-public interface NotesConstants extends ViewFormatConstants {
+import com.hcl.domino.constants.StdNames;
+
+public interface NotesConstants extends ViewFormatConstants, StdNames {
 
   public enum AgentCheck {
     CheckRights(0),
