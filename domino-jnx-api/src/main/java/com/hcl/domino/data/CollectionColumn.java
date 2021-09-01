@@ -35,7 +35,6 @@ import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.WeekFormat;
 import com.hcl.domino.design.format.YearFormat;
 import com.hcl.domino.richtext.records.CDResource;
-import com.hcl.domino.richtext.structures.ColorValue;
 
 public interface CollectionColumn {
   interface SortConfiguration {
