@@ -17,8 +17,11 @@
 
 package com.hcl.domino.design;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -135,25 +138,45 @@ public interface RichTextBuilder {
 		 * its rows, applying string replacements
 		 * 
 		 * @param rowIdx index of row to repeat
-		 * @param replacements stream of replacements for each row
+		 * @param nrOfRows number of repetitions
+		 * @param from strings to replace
+		 * @param toFct function to compute what to insert
+		 * @param ignoreCase true for case-insensitive matching
 		 * @return build context
 		 */
-		RichTextBuilderContext<O> repeatTableRow(int rowIdx, Stream<Map<String,String>> replacements);
-		
+		default RichTextBuilderContext<O> repeatTableRow(int rowIdx, int nrOfRows, Collection<String> from,
+				BiFunction<Integer,String,Object> toFct) {
+			
+			Map<Pattern, BiFunction<Integer,Matcher,Object>> replacements = new HashMap<>();
+			if (from!=null) {
+				for (String currFrom : from) {
+					String currFromQuoted = Pattern.quote(currFrom);
+					Pattern currFromPattern = Pattern.compile(currFromQuoted, Pattern.CASE_INSENSITIVE);
+					
+					replacements.put(currFromPattern, (idx,matcher) -> {
+						return toFct==null ? "" : toFct.apply(idx, currFrom);
+					});
+				}
+			}
+			
+			return repeatTableRowExt(rowIdx, nrOfRows, replacements);
+		}
+
 		/**
 		 * Locates the first table in the specified design element and repeats
 		 * its rows, applying string replacements
 		 * 
 		 * @param rowIdx index of row to repeat
-		 * @param nrOfRows number of rows
-		 * @param consumer consumer is called for each row to provide mappings, either (String,String), (String,Form), (String,Subform) or (String,FormBuildContext)
+		 * @param nrOfRows number of repetitions
+		 * @param replacements map of patterns with functions to compute what to insert
 		 * @return build context
 		 */
-		RichTextBuilderContext<O> repeatTableRow(int rowIdx, int nrOfRows, BiConsumer<Integer, Map<String,Object>> consumer);
-		
+		RichTextBuilderContext<O> repeatTableRowExt(int rowIdx, int nrOfRows,
+				Map<Pattern, BiFunction<Integer,Matcher,Object>> replacements);
+
 		/**
 		 * Renames the first field in the form/subform and modifies the formula/LotusScript event
-		 * code accordingly
+		 * code and hide-when formulas accordingly
 		 * 
 		 * @param newFieldName new field name
 		 * @return build context
@@ -161,14 +184,57 @@ public interface RichTextBuilder {
 		RichTextBuilderContext<O> renameField(String newFieldName);
 
 		/**
-		 * Renames the first field in the form/subform and modifies the formula/LotusScript event
-		 * code accordingly
+		 * Renames a field in the form/subform and modifies the formula/LotusScript event
+		 * code and hide-when formulas accordingly
 		 * 
-		 * @param newFieldNames mapping of old and new field names
+		 * @param oldFieldName old fieldname
+		 * @param newFieldName new fieldname
 		 * @return build context
 		 */
-		RichTextBuilderContext<O> renameFields(Map<String,String> newFieldNames);
+		default RichTextBuilderContext<O> renameFields(String oldFieldName, String newFieldName) {
+			Map<Pattern,Function<Matcher,String>> replacements = new HashMap<>();
+			Pattern pattern = Pattern.compile(Pattern.quote(oldFieldName), Pattern.CASE_INSENSITIVE);
+			replacements.put(pattern, (matcher) -> {
+				return newFieldName;
+			});
+			
+			return renameFields(replacements);
+		}
 
+		/**
+		 * Renames the names of fields in the form/subform and modifies the formula/LotusScript event
+		 * code and hide-when formulas accordingly
+		 * 
+		 * @param replacements mapping of fieldname pattern and a function to compute the new name
+		 * @return build context
+		 */
+		RichTextBuilderContext<O> renameFields(Map<Pattern,Function<Matcher,String>> replacements);
+
+		/**
+		 * Rewrites image resource formulas
+		 * 
+		 * @param oldTxt text to replace
+		 * @param newTxt text to insert
+		 * @return build context
+		 */
+		default RichTextBuilderContext<O> replaceInImageResourceFormula(String oldTxt, String newTxt) {
+			Map<Pattern,Function<Matcher,String>> replacements = new HashMap<>();
+			Pattern pattern = Pattern.compile(Pattern.quote(oldTxt), Pattern.CASE_INSENSITIVE);
+			replacements.put(pattern, (matcher)->{
+				return newTxt;
+			});
+			
+			return replaceInImageResourceFormula(replacements);
+		}
+
+		/**
+		 * Rewrites image resource formulas
+		 * 
+		 * @param replacements mapping of regexp patterns and functions to compute the new value
+		 * @return build context
+		 */
+		RichTextBuilderContext<O> replaceInImageResourceFormula(Map<Pattern,Function<Matcher,String>> replacements);
+		
 		/**
 		 * Applies a custom operation on the work document
 		 * 

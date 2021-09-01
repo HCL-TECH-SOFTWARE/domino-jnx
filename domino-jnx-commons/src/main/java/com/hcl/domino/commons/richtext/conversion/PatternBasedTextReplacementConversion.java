@@ -1,15 +1,17 @@
 package com.hcl.domino.commons.richtext.conversion;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.function.BiConsumer;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.hcl.domino.commons.structures.MemoryStructureUtil;
-import com.hcl.domino.commons.util.DumpUtil;
 import com.hcl.domino.commons.util.TriConsumer;
+import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.conversion.IRichTextConversion;
+import com.hcl.domino.richtext.records.CDBegin;
+import com.hcl.domino.richtext.records.CDEnd;
 import com.hcl.domino.richtext.records.CDText;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.FontStyle;
@@ -78,11 +80,27 @@ public class PatternBasedTextReplacementConversion implements IRichTextConversio
 
 	@Override
 	public void convert(List<RichTextRecord<?>> source, RichTextWriter target) {
+		AtomicBoolean inTextBegin = new AtomicBoolean();
+		List<RichTextRecord<?>> txtBeginRecords = new ArrayList<>();
+		
 		source.forEach((record) -> {
-			if (record instanceof CDText) {
-				CDText txtRecord = (CDText) record;
-				String txt = txtRecord.getText();
+			if (record instanceof CDBegin && ((CDBegin)record).getSignature() == RichTextConstants.SIG_CD_TEXT) {
+				inTextBegin.set(true);
+				txtBeginRecords.clear();
+				txtBeginRecords.add(record);
+			}
+			else if (record instanceof CDEnd && ((CDEnd)record).getSignature() == RichTextConstants.SIG_CD_TEXT) {
+				inTextBegin.set(false);
 				
+				//txtBeginRecords contains CDBEGIN, CDTEXT, CDCOLOR, CDEND
+				CDText txtRecord = txtBeginRecords
+						.stream()
+						.filter(CDText.class::isInstance)
+						.map(CDText.class::cast)
+						.findFirst()
+						.get();
+				
+				String txt = txtRecord.getText();
 				Matcher matcher = pattern.matcher(txt);
 				int currIdx = 0;
 
@@ -93,12 +111,18 @@ public class PatternBasedTextReplacementConversion implements IRichTextConversio
 		        	if (startIdx>currIdx) {
 		        		String preTxt = txt.substring(currIdx, startIdx);
 		        		if (preTxt.length()>0) {
-			        		CDText preTxtRecord = MemoryStructureUtil.newStructure(CDText.class, 0);
-			        		preTxtRecord.setStyle(txtRecord.getStyle());
-			        		preTxtRecord.setText(preTxt);
-			        		//add CDText WSIG
-			        		preTxtRecord.getData().put((byte) 0x85).put((byte) 0xff);
-			        		target.addRichTextRecord(preTxtRecord);
+		        			//insert whole BEGIN/END block with CDTEXT, but modify its text content
+		        			for (RichTextRecord<?> currRecordOfBeginEndBlock : txtBeginRecords) {
+		        				if (currRecordOfBeginEndBlock instanceof CDText) {
+		        					target.addRichTextRecord(CDText.class, (preTxtRecord) -> {
+				        				preTxtRecord.setStyle(((CDText)currRecordOfBeginEndBlock).getStyle());
+						        		preTxtRecord.setText(preTxt);
+				        			});
+		        				}
+		        				else {
+		        					target.addRichTextRecord(currRecordOfBeginEndBlock);
+		        				}
+		        			}
 		        		}
 		        	}
 		        	
@@ -112,12 +136,61 @@ public class PatternBasedTextReplacementConversion implements IRichTextConversio
 		        if (currIdx < txt.length()) {
 		        	String postTxt = txt.substring(currIdx, txt.length());
 		        	if (postTxt.length()>0) {
-		        		CDText postTxtRecord = MemoryStructureUtil.newStructure(CDText.class, 0);
-		        		postTxtRecord.setStyle(txtRecord.getStyle());
-		        		postTxtRecord.setText(postTxt);
-		        		//add CDText WSIG
-		        		postTxtRecord.getData().put((byte) 0x85).put((byte) 0xff);
-		        		target.addRichTextRecord(postTxtRecord);
+		        		for (RichTextRecord<?> currRecordOfBeginEndBlock : txtBeginRecords) {
+	        				if (currRecordOfBeginEndBlock instanceof CDText) {
+	        					target.addRichTextRecord(CDText.class, (postTxtRecord) -> {
+	        						postTxtRecord.setStyle(((CDText)currRecordOfBeginEndBlock).getStyle());
+	        						postTxtRecord.setText(postTxt);
+			        			});
+	        				}
+	        				else {
+	        					target.addRichTextRecord(currRecordOfBeginEndBlock);
+	        				}
+	        			}
+		        	}
+		        }
+			}
+			else if (inTextBegin.get()) {
+				//keep recording content of CDTEXT begin/end block until the end is reached
+				txtBeginRecords.add(record);
+			}
+			else if (record instanceof CDText) {
+				//inline CDTEXT without begin/end (so no special color to take care of)
+				
+				CDText txtRecord = (CDText) record;
+				String txt = txtRecord.getText();
+				
+				Matcher matcher = pattern.matcher(txt);
+				int currIdx = 0;
+
+		        while (matcher.find()) {
+		        	int startIdx = matcher.start();
+		        	int endIdx = matcher.end();
+		        	
+		        	if (startIdx>currIdx) {
+		        		String preTxt = txt.substring(currIdx, startIdx);
+		        		if (preTxt.length()>0) {
+		        			target.addRichTextRecord(CDText.class, (preTxtRecord) -> {
+		        				preTxtRecord.setStyle(txtRecord.getStyle());
+				        		preTxtRecord.setText(preTxt);
+		        			});
+		        		}
+		        	}
+		        	
+		        	currIdx = endIdx;
+		        	
+		        	//consumer receives regexp matcher and writes to the target
+		        	this.consumer.accept(matcher, txtRecord.getStyle(), target);
+		        }
+				
+		        //write remaining txt until the end
+		        if (currIdx < txt.length()) {
+		        	String postTxt = txt.substring(currIdx, txt.length());
+		        	if (postTxt.length()>0) {
+		        		target.addRichTextRecord(CDText.class, (postTxtRecord) -> {
+		        			postTxtRecord.setStyle(txtRecord.getStyle());
+			        		postTxtRecord.setText(postTxt);
+		        		});
 		        	}
 		        }
 			}

@@ -9,15 +9,15 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.design.DesignUtil;
+import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.richtext.conversion.PatternBasedTextReplacementConversion;
-import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
@@ -105,12 +105,10 @@ public abstract class JNARichTextBuilderContext<O> implements RichTextBuilderCon
 								if (newContent instanceof String) {
 									String newContentStr = (String) newContent;
 									if (newContentStr.length()>0) {
-						        		CDText newContentTxtRecord = MemoryStructureUtil.newStructure(CDText.class, 0);
-						        		newContentTxtRecord.setStyle(fontStyle);
-						        		newContentTxtRecord.setText(newContentStr);
-						        		//add CDText WSIG
-						        		newContentTxtRecord.getData().put((byte) 0x85).put((byte) 0xff);
-						        		rtWriter.addRichTextRecord(newContentTxtRecord);
+										rtWriter.addRichTextRecord(CDText.class, (newContentTxtRecord) -> {
+											newContentTxtRecord.setStyle(fontStyle);
+											newContentTxtRecord.setText(newContentStr);
+										});
 									}
 								}
 								else if (newContent instanceof RichTextBuilderContext<?>) {
@@ -122,20 +120,19 @@ public abstract class JNARichTextBuilderContext<O> implements RichTextBuilderCon
 									else if (result instanceof DesignElement) {
 										docToInsert  = ((DesignElement)result).getDocument();
 									}
-									
+
 									if (docToInsert!=null) {
 										rtWriter.addRichText(docToInsert, ((RichTextBuilderContext<?>)newContent).getItemName());
 									}
 								}
 								else if (newContent instanceof GenericFormOrSubform<?>) {
-									String otherRTItemName = "$Body";
 									Document docToInsert = ((GenericFormOrSubform<?>)newContent).getDocument();
-									rtWriter.addRichText(docToInsert, rtItemName);
+									RichTextUtil.addOtherRichTextItem(doc, rtWriter, docToInsert, "$body", true);
 								}
 								else if (newContent instanceof Document) {
 									Set<DocumentClass> docClass = ((Document)newContent).getDocumentClass();
 									String otherRTItemName = docClass.contains(DocumentClass.DATA) ? rtItemName : "$body";
-									rtWriter.addRichText((Document) newContent, otherRTItemName);
+									RichTextUtil.addOtherRichTextItem(doc, rtWriter, (Document) newContent, otherRTItemName, true);
 								}
 								else {
 									throw new IllegalArgumentException(MessageFormat.format("Invalid replacement value type: {0}", newContent.getClass().getName()));
@@ -213,7 +210,8 @@ public abstract class JNARichTextBuilderContext<O> implements RichTextBuilderCon
 					Optional<Document> docRepetition = unwrapDocument(objectRepetition);
 
 					if (docRepetition.isPresent()) {
-						rtWriter.addRichText(docRepetition.get(), ((RichTextBuilderContext)replaceCtx).getItemName());
+						RichTextUtil.addOtherRichTextItem(doc, rtWriter, docRepetition.get(),
+								((RichTextBuilderContext<?>)replaceCtx).getItemName(), false);
 					}
 				}
 			}
@@ -267,7 +265,8 @@ public abstract class JNARichTextBuilderContext<O> implements RichTextBuilderCon
 					Optional<Document> docRepetition = unwrapDocument(objectRepetition);
 					
 					if (docRepetition.isPresent()) {
-						rtWriter.addRichText(docRepetition.get(), ((RichTextBuilderContext)replaceCtx).getItemName());
+						RichTextUtil.addOtherRichTextItem(doc, rtWriter, docRepetition.get(),
+								((RichTextBuilderContext<?>)replaceCtx).getItemName(), false);
 					}
 				});
 			}
@@ -278,25 +277,29 @@ public abstract class JNARichTextBuilderContext<O> implements RichTextBuilderCon
 	}
 
 	@Override
-	public RichTextBuilderContext<O> repeatTableRow(int rowIdx, Stream<Map<String, String>> replacements) {
-		throw new NotYetImplementedException();
-	}
-
-	@Override
-	public RichTextBuilderContext<O> repeatTableRow(int rowIdx, int nrOfRows, BiConsumer<Integer, Map<String, Object>> consumer) {
-		throw new NotYetImplementedException();
+	public RichTextBuilderContext<O> repeatTableRowExt(int rowIdx, int nrOfRows,
+			Map<Pattern, BiFunction<Integer,Matcher,Object>> replacements) {
+		operations.add(new RepeatTableRowOperation(getItemName(), rowIdx, nrOfRows, replacements));
+		return this;
 	}
 
 	@Override
 	public RichTextBuilderContext<O> renameField(String newFieldName) {
-		Map<String,String> newFieldNames = new HashMap<>();
-		newFieldNames.put("@firstfield", newFieldName);
-		return renameFields(newFieldNames);
+		Map<Pattern,Function<Matcher,String>> replacements = new HashMap<>();
+		replacements.put(Pattern.compile(Pattern.quote("@firstfield"), Pattern.CASE_INSENSITIVE),
+				(matcher) -> { return newFieldName; });
+		return renameFields(replacements);
 	}
 
 	@Override
-	public RichTextBuilderContext<O> renameFields(Map<String, String> newFieldNames) {
-		operations.add(new RenameFieldsOperation(newFieldNames));
+	public RichTextBuilderContext<O> renameFields(Map<Pattern,Function<Matcher,String>> replacements) {
+		operations.add(new RenameFieldsOperation(replacements));
+		return this;
+	}
+
+	@Override
+	public RichTextBuilderContext<O> replaceInImageResourceFormula(Map<Pattern,Function<Matcher,String>> replacements) {
+		operations.add(new ReplaceImageResourceFormulaOperation(replacements));
 		return this;
 	}
 
