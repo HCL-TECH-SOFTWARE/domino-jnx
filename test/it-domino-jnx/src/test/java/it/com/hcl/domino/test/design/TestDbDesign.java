@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
@@ -36,6 +37,7 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -217,6 +219,10 @@ public class TestDbDesign extends AbstractDesignTest {
     assertTrue(props.isGenerateEnhancedHtml());
     props.setGenerateEnhancedHtml(false);
     assertFalse(props.isGenerateEnhancedHtml());
+    
+    String unid = props.getDocument().getUNID();
+    Optional<DbProperties> optProps = dbDesign.getDesignElementByUNID(unid);
+    assertInstanceOf(DbProperties.class, optProps.get());
   }
 
   @Test
@@ -403,11 +409,14 @@ public class TestDbDesign extends AbstractDesignTest {
 
     assertTrue(resources.stream().anyMatch(res -> Arrays.asList("Untitled.gif").equals(res.getFileNames())));
     // The copied image resource is known to be broken, as an effect of a Designer
-    // bug. That leaves it as useful
-    // test data, but not for this check
+    // bug. That leaves it as useful test data, but not for this check
     // assertTrue(resources.stream().anyMatch(res -> Arrays.asList("Untitled
     // 2.gif").equals(res.getFileNames())));
     assertTrue(resources.stream().anyMatch(res -> "Untitled.gif".equals(res.getTitle())));
+    
+    String unid = resources.stream().filter(res -> "Untitled.gif".equals(res.getTitle())).map(res -> res.getDocument().getUNID()).findFirst().get();
+    Optional<ImageResource> untitled = dbDesign.getDesignElementByUNID(unid);
+    assertEquals("Untitled.gif", untitled.get().getTitle());
   }
 
   @Test
@@ -542,6 +551,10 @@ public class TestDbDesign extends AbstractDesignTest {
     assertEquals(2, pages.size());
     assertTrue(pages.stream().anyMatch(p -> "Navigation Header".equals(p.getTitle())));
     assertTrue(pages.stream().anyMatch(p -> "Test Page".equals(p.getTitle())));
+    
+    String unid = pages.stream().filter(p -> "Test Page".equals(p.getTitle())).findFirst().map(p -> p.getDocument().getUNID()).get();
+    Optional<Page> testPage = design.getDesignElementByUNID(unid);
+    assertEquals("Test Page", testPage.get().getTitle());
   }
   
   @Test
@@ -862,5 +875,40 @@ public class TestDbDesign extends AbstractDesignTest {
       DbDesign design = database.getDesign();
       assertFalse(design.getSharedActions().isPresent());
     });
+  }
+  
+  @Test
+  public void testGetByUnid() {
+    DbDesign design = database.getDesign();
+    
+    String unid;
+    {
+      SharedActions actions = design.getSharedActions().get();
+      unid = actions.getDocument().getUNID();
+    }
+    {
+      Optional<SharedActions> optActions = design.getDesignElementByUNID(unid);
+      SharedActions actions = optActions.get();
+      List<ActionBarAction> actionList = actions.getActions();
+      assertEquals(5, actionList.size());
+    }
+  }
+  
+  @Test
+  public void testMismatchedGetByUnid() {
+    DbDesign design = database.getDesign();
+    
+    String unid;
+    {
+      SharedActions actions = design.getSharedActions().get();
+      unid = actions.getDocument().getUNID();
+    }
+    {
+      Optional<View> optActions = design.getDesignElementByUNID(unid);
+      assertThrows(ClassCastException.class, () -> {
+        @SuppressWarnings("unused")
+        View view = optActions.get();
+      });
+    }
   }
 }

@@ -385,6 +385,14 @@ public abstract class AbstractDbDesign implements DbDesign {
   public Stream<SharedColumn> getSharedColumns() {
     return getDesignElements(SharedColumn.class);
   }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends DesignElement> Optional<T> getDesignElementByUNID(String unid) {
+    return (Optional<T>)(Optional<?>)getDatabase()
+      .getDocumentByUNID(unid)
+      .map(DesignUtil::createDesignElement);
+  }
 
   @SuppressWarnings("unchecked")
   @Override
