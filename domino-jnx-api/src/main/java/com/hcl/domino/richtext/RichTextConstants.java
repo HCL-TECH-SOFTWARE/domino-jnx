@@ -1115,6 +1115,7 @@ public interface RichTextConstants extends EditOds {
   short HTML_EVENT_CLIENT_FORM_POSTSEND = 0x105;
   short HTML_EVENT_CLIENT_FORM_QUERYRECALC = 0x106;
   short HTML_EVENT_CLIENT_FORM_QUERYSEND = 0x107;
+  short HTML_EVENT_CLIENT_FORM_ONSIZE = 0x0127;
   short HTML_EVENT_CLIENT_VIEW_QUERYOPEN = 0x108;
   short HTML_EVENT_CLIENT_VIEW_POSTOPEN = 0x109;
   short HTML_EVENT_CLIENT_VIEW_REGIONDBLCLK = 0x10a;
@@ -1145,8 +1146,7 @@ public interface RichTextConstants extends EditOds {
   short HTML_EVENT_CLIENT_VIEW_ONSELECT = 0x123;
   short HTML_EVENT_CLIENT_VIEW_ONFOCUS = 0x124;
   short HTML_EVENT_CLIENT_VIEW_ONBLUR = 0x125;
-  /** Non-documented flag for the OnSize client event */
-  short HTML_EVENT_CLIENT_FORM_ONSIZE = 0x0127;
+  short HTML_EVENT_CLIENT_VIEW_ONSIZE = 0x126;
   
   short ACTION_FORMULA = 0;
   short ACTION_CANNED_ACTION = 1;
