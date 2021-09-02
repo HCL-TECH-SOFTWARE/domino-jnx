@@ -37,7 +37,7 @@ import com.hcl.domino.richtext.structures.ColorValue;
 public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlternativeElement,
   DesignElement.XPageNotesAlternativeElement, DesignElement.AutoFrameElement, DesignElement.ThemeableClassicElement,
   DesignElement.ReadersRestrictedElement {
-
+  
   /**
    * Represents the settings for inheritance of the entire selected document
    * in new documents.
@@ -81,49 +81,49 @@ public interface Form extends GenericFormOrSubform<Form>, DesignElement.XPageAlt
      * 
      * @return {@code true} to launch the object in-place when applicable;
      *         {@code false} otherwise
-   */
+     */
     boolean isLaunchInPlace();
-  
-  /**
+    
+    /**
      * Determines whether to present the document as a modal dialog when auto-launching.
-   * 
+     * 
      * @return {@code true} to launch the document as a modal;
      *         {@code false} otherwise
-   */
+     */
     boolean isPresentDocumentAsModal();
-  
-  /**
+    
+    /**
      * Determines whether to create the auto-launch object in the first rich text field.
-   * 
+     * 
      * @return {@code true} if the object will use the first RT field on the form;
      *         {@code false} otherwise
-   */
+     */
     boolean isCreateObjectInFirstRichTextField();
-  
-  /**
+    
+    /**
      * Determines the target rich text field for the object, if {@link #getType()} is an
      * applicable type, {@link #isCreateObjectInFirstRichTextField()} is {@code false},
      * and a field is specified.
-   * 
+     * 
      * @return an {@link Optional} describing the target rich text field, or an empty one
      *         if this is not applicable or the field is not specified
-   */
+     */
     Optional<String> getTargetRichTextField();
-  
-  /**
+    
+    /**
      * Determines the conditions for launching an object when {@link #getType()} is an
      * applicable type.
-   * 
+     * 
      * @return a {@link Set} of {@link AutoLaunchWhen} instances
-   */
+     */
     Set<AutoLaunchWhen> getLaunchWhen();
-  
-  /**
+    
+    /**
      * Determines the conditions for hiding an object when {@link #getHideWhen()} is an
      * applicable type.
-   * 
+     * 
      * @return a {@link Set} of {@link AutoLaunchHideWhen} instances
-   */
+     */
     Set<AutoLaunchHideWhen> getHideWhen();
   }
   

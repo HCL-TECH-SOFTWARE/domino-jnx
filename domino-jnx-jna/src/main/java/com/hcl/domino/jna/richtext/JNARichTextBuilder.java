@@ -6,6 +6,11 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.design.GenericFormOrSubform;
 import com.hcl.domino.design.RichTextBuilder;
 
+/**
+ * Implementation of {@link RichTextBuilder} for JNA
+ * 
+ * @author Karsten Lehmann
+ */
 public class JNARichTextBuilder implements RichTextBuilder {
 	private Database db;
 	

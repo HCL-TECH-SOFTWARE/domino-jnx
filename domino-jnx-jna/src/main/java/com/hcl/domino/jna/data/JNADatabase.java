@@ -4442,11 +4442,10 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     NotesErrorUtils.checkResult(result);
     return retNoteID.getValue();
   }
-  
 	
-	@Override
-	public RichTextBuilder getRichTextBuilder() {
-		return new JNARichTextBuilder(this);
-	}
+  @Override
+  public RichTextBuilder getRichTextBuilder() {
+	 return new JNARichTextBuilder(this);
+  }
 
 }

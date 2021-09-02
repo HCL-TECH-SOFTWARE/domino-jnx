@@ -1,3 +1,19 @@
+/*
+ * ==========================================================================
+ * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ *                            All rights reserved.
+ * ==========================================================================
+ * Licensed under the  Apache License, Version 2.0  (the "License").  You may
+ * not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+ *
+ * Unless  required  by applicable  law or  agreed  to  in writing,  software
+ * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the  specific language  governing permissions  and limitations
+ * under the License.
+ * ==========================================================================
+ */
 package com.hcl.domino.jna.richtext.op;
 
 import java.text.MessageFormat;
@@ -7,18 +23,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.richtext.conversion.PatternBasedTextReplacementConversion;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
-import com.hcl.domino.data.Item;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.GenericFormOrSubform;
 import com.hcl.domino.design.RichTextBuilder.RichTextBuilderContext;
@@ -26,7 +39,6 @@ import com.hcl.domino.design.RichTextBuilder.RichTextBuilderOperation;
 import com.hcl.domino.richtext.RichTextRecordList;
 import com.hcl.domino.richtext.RichTextTableParser;
 import com.hcl.domino.richtext.RichTextWriter;
-import com.hcl.domino.richtext.records.CDField;
 import com.hcl.domino.richtext.records.CDPreTableBegin;
 import com.hcl.domino.richtext.records.CDTableBegin;
 import com.hcl.domino.richtext.records.CDTableCell;
@@ -34,6 +46,12 @@ import com.hcl.domino.richtext.records.CDTableEnd;
 import com.hcl.domino.richtext.records.CDText;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
+/**
+ * RichText builder operation to repeat a specified table row and apply text replacements
+ * on each repetition
+ * 
+ * @author Karsten Lehmann
+ */
 public class RepeatTableRowOperation implements RichTextBuilderOperation {
 	private String itemName;
 	private int reqRowIdx;

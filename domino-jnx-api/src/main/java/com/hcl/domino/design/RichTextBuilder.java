@@ -14,7 +14,6 @@
  * under the License.
  * ==========================================================================
  */
-
 package com.hcl.domino.design;
 
 import java.util.Collection;
@@ -32,7 +31,7 @@ import com.hcl.domino.richtext.conversion.IRichTextConversion;
 /**
  * Produces normal and design richtext by combining existing parts
  * 
- * @since 1.0.32
+ * @since 1.0.38
  */
 public interface RichTextBuilder {
 

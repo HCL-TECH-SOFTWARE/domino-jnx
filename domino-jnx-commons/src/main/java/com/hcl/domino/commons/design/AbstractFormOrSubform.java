@@ -180,7 +180,7 @@ public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> e
   public void swapFields(final int indexA, final int indexB) {
     throw new NotYetImplementedException();
   }
-
+  
   @Override
   public boolean isIncludeFieldsInIndex() {
     return !getDocumentFlags3().contains(CDDocument.Flag3.NOADDFIELDNAMESTOINDEX);
