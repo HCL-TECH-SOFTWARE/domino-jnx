@@ -1720,7 +1720,6 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
    *         corresponding to {@code documentClass}
    */
   int getSpecialNoteId(DocumentClass documentClass);
-  
 
   /**
    * Returns a builder to compose richtext (both normal and design richtext) by combining existing pieces
