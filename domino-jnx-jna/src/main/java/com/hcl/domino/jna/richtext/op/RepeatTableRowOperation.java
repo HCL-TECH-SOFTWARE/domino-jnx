@@ -23,15 +23,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.richtext.conversion.PatternBasedTextReplacementConversion;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
+import com.hcl.domino.data.Item;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.GenericFormOrSubform;
 import com.hcl.domino.design.RichTextBuilder.RichTextBuilderContext;
@@ -39,6 +42,7 @@ import com.hcl.domino.design.RichTextBuilder.RichTextBuilderOperation;
 import com.hcl.domino.richtext.RichTextRecordList;
 import com.hcl.domino.richtext.RichTextTableParser;
 import com.hcl.domino.richtext.RichTextWriter;
+import com.hcl.domino.richtext.records.CDField;
 import com.hcl.domino.richtext.records.CDPreTableBegin;
 import com.hcl.domino.richtext.records.CDTableBegin;
 import com.hcl.domino.richtext.records.CDTableCell;
@@ -123,7 +127,7 @@ public class RepeatTableRowOperation implements RichTextBuilderOperation {
 					}
 					else if (rowIndex == reqRowIdx) {
 						for (int i=0; i<nrOfRows; i++) {
-							addRowRecordsWithPlaceholders(i, records, rtWriter);
+							addRowRecordsWithPlaceholders(i, records, doc, rtWriter);
 						}
 					}
 					else {
@@ -153,7 +157,7 @@ public class RepeatTableRowOperation implements RichTextBuilderOperation {
 				}
 
 				private void addRowRecordsWithPlaceholders(int idx, Collection<RichTextRecord<?>> records,
-						RichTextWriter rtWriter) {
+						Document doc, RichTextWriter rtWriter) {
 					
 					Document docTmp = doc.getParentDatabase().createDocument();
 					try (RichTextWriter tmpWriter = docTmp.createRichTextItem("body")) {
@@ -234,7 +238,24 @@ public class RepeatTableRowOperation implements RichTextBuilderOperation {
 						}
 						fixedRecords.add(record);
 					});
-					
+
+					if (doc.getDocumentClass().contains(DocumentClass.FORM)) {
+						//copy LS code for fields
+						Set<String> fieldNames = fixedRecords
+								.stream()
+								.filter(CDField.class::isInstance)
+								.map(CDField.class::cast)
+								.map(CDField::getName)
+								.collect(Collectors.toSet());
+
+						for (String currFieldName : fieldNames) {
+							Optional<Item> lsCodeItem = docTmp.getFirstItem("$$" + currFieldName);
+							if (lsCodeItem.isPresent()) {
+								lsCodeItem.get().copyToDocument(doc, false);
+							}
+						}
+					}
+
 					fixedRecords.forEach(rtWriter::addRichTextRecord);
 				}
 
