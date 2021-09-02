@@ -1,4 +1,4 @@
-package com.hcl.domino.jna.richtext;
+package com.hcl.domino.jna.richtext.op;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;

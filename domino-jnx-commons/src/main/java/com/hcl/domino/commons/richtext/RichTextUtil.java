@@ -409,16 +409,17 @@ public enum RichTextUtil {
    * @param targetRTWriter target richtext writer
    * @param docSource source document
    * @param itemNameSource source richtext item name
-   * @param remoteFirstPar true to remove the first CDParagraph/CDPabDefinition/CDPabReference block
+   * @param removeFirstPar true to remove the first CDParagraph/CDPabDefinition/CDPabReference block
    */
   public static void addOtherRichTextItem(Document docTarget, RichTextWriter targetRTWriter,
-		  Document docSource, String itemNameSource, boolean remoteFirstPar) {
+		  Document docSource, String itemNameSource, boolean removeFirstPar) {
 	  
 	  Document docWork = docSource;
 	  boolean disposeDocWork = false;
 	  
-	  if (remoteFirstPar) {
+	  if (removeFirstPar) {
 		  docWork = docSource.copyToDatabase(docSource.getParentDatabase());
+		  
 		  docWork.convertRichTextItem(itemNameSource, new StripFirstParConversion());
 		  disposeDocWork = true;
 	  }
@@ -446,60 +447,66 @@ public enum RichTextUtil {
 		  docWork.autoClosable().close();
 	  }
   }
-  
+
   private static class StripFirstParConversion implements IRichTextConversion {
 
-	@Override
-	public boolean isMatch(List<RichTextRecord<?>> nav) {
-		return nav
-				.stream()
-				.anyMatch(CDParagraph.class::isInstance);
-	}
+	  @Override
+	  public boolean isMatch(List<RichTextRecord<?>> nav) {
+		  return nav
+				  .stream()
+				  .anyMatch(CDParagraph.class::isInstance);
+	  }
 
-	@Override
-	public void richTextNavigationStart() {
-	}
+	  @Override
+	  public void richTextNavigationStart() {
+	  }
 
-	@Override
-	public void richTextNavigationEnd() {
-	}
+	  @Override
+	  public void richTextNavigationEnd() {
+	  }
 
-	@Override
-	public void convert(List<RichTextRecord<?>> source, RichTextWriter target) {
-		boolean parFound = false;
-		
-		ListIterator<RichTextRecord<?>> sourceRecordIt = source.listIterator();
-		while (sourceRecordIt.hasNext()) {
-			RichTextRecord<?> record = sourceRecordIt.next();
-			if (record instanceof CDParagraph) {
-				if (!parFound) {
-					parFound = true;
-					
-					if (sourceRecordIt.hasNext()) {
-						RichTextRecord<?> nextRecord = sourceRecordIt.next();
-						if (nextRecord instanceof CDPabDefinition) {
-							//ignore pab definition as well
-							if (sourceRecordIt.hasNext()) {
-								RichTextRecord<?> nextRecord2 = sourceRecordIt.next();
-								if (nextRecord2 instanceof CDPabReference) {
-									//ignore pab reference
-								}
-								else {
-									target.addRichTextRecord(nextRecord2);
-								}
-							}
-						}
-						else {
-							target.addRichTextRecord(nextRecord);
-						}
-					}
-				}
-			}
-			else {
-				target.addRichTextRecord(record);
-			}
-		}
-	}
+	  @Override
+	  public void convert(List<RichTextRecord<?>> source, RichTextWriter target) {
+		  boolean parFound = false;
+
+		  ListIterator<RichTextRecord<?>> sourceRecordIt = source.listIterator();
+		  while (sourceRecordIt.hasNext()) {
+			  RichTextRecord<?> record = sourceRecordIt.next();
+			  if (record instanceof CDParagraph) {
+				  if (!parFound) {
+					  parFound = true;
+
+					  if (sourceRecordIt.hasNext()) {
+						  RichTextRecord<?> nextRecord = sourceRecordIt.next();
+						  if (nextRecord instanceof CDPabDefinition) {
+							  //keep paragraph definition in case it is used somewhere else
+							  target.addRichTextRecord(nextRecord);
+							  
+							  //ignore pab definition as well
+							  if (sourceRecordIt.hasNext()) {
+								  RichTextRecord<?> nextRecord2 = sourceRecordIt.next();
+								  if (nextRecord2 instanceof CDPabReference) {
+									  //ignore pab reference
+								  }
+								  else {
+									  target.addRichTextRecord(nextRecord2);
+								  }
+							  }
+						  }
+						  else {
+							  target.addRichTextRecord(nextRecord);
+						  }
+					  }
+				  }
+				  else {
+					  target.addRichTextRecord(record);
+				  }
+			  }
+			  else {
+				  target.addRichTextRecord(record);
+			  }
+		  }
+	  }
 
   }
 }

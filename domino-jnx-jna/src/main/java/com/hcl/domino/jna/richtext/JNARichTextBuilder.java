@@ -15,7 +15,7 @@ public class JNARichTextBuilder implements RichTextBuilder {
 	
 	@Override
 	public <F extends GenericFormOrSubform<F>> RichTextBuilderContext<F> from(F templateForm) {
-		return new JNARichTextBuilderContext<F>(db, templateForm.getDocument(), "$body", (Class<F>) templateForm.getClass()) {
+		return new JNARichTextBuilderContext<F>(this, db, templateForm.getDocument(), "$body", (Class<F>) templateForm.getClass()) {
 			@Override
 			public F build() {
 				Document doc = buildResultDocument();
@@ -26,7 +26,7 @@ public class JNARichTextBuilder implements RichTextBuilder {
 
 	@Override
 	public RichTextBuilderContext<Document> from(Document doc, String rtItemName) {
-		return new JNARichTextBuilderContext<Document>(db, doc, rtItemName, Document.class) {
+		return new JNARichTextBuilderContext<Document>(this, db, doc, rtItemName, Document.class) {
 
 			@Override
 			public Document build() {

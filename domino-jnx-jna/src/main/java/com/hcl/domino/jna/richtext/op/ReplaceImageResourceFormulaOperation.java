@@ -1,4 +1,4 @@
-package com.hcl.domino.jna.richtext;
+package com.hcl.domino.jna.richtext.op;
 
 import java.util.Map;
 import java.util.function.Function;

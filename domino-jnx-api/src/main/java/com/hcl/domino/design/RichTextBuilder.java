@@ -20,14 +20,14 @@ package com.hcl.domino.design;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiConsumer;
+import java.util.Map.Entry;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import com.hcl.domino.data.Document;
+import com.hcl.domino.richtext.conversion.IRichTextConversion;
 
 /**
  * Produces normal and design richtext by combining existing parts
@@ -56,6 +56,13 @@ public interface RichTextBuilder {
 	public interface RichTextBuilderContext<O> {
 		
 		/**
+		 * Returns the parent builder
+		 * 
+		 * @return builder
+		 */
+		public RichTextBuilder getRichTextBuilder();
+		
+		/**
 		 * Returns the type of the build result
 		 * 
 		 * @return type
@@ -76,7 +83,14 @@ public interface RichTextBuilder {
 		 * @param label replacement
 		 * @return build context
 		 */
-		RichTextBuilderContext<O> replace(String placeholder, String label);
+		default RichTextBuilderContext<O> replace(String placeholder, String label) {
+			Map<Pattern,Function<Matcher, Object>> replacementsWithPattern = new HashMap<>();
+			Pattern pattern = Pattern.compile(Pattern.quote(placeholder), Pattern.CASE_INSENSITIVE);
+			replacementsWithPattern.put(pattern, (matcher) -> {
+				return label;
+			});
+			return replaceExt(replacementsWithPattern);
+		}
 
 		/**
 		 * Replaces multiple texts in the specified design element with strings or other design elements
@@ -84,8 +98,18 @@ public interface RichTextBuilder {
 		 * @param replacements mapping of placeholder / new text or design
 		 * @return build context
 		 */
-		RichTextBuilderContext<O> replace(Map<String,Object> replacements);
-	
+		default RichTextBuilderContext<O> replace(Map<String,Object> replacements) {
+			Map<Pattern,Function<Matcher, Object>> replacementsWithPattern = new HashMap<>();
+			for (Entry<String,Object> currEntry : replacements.entrySet()) {
+				Pattern currPattern = Pattern.compile(Pattern.quote(currEntry.getKey()), Pattern.CASE_INSENSITIVE);
+				replacementsWithPattern.put(currPattern, (matcher) -> {
+					return currEntry.getValue();
+				});
+			}
+			
+			return replaceExt(replacementsWithPattern);
+		}
+
 		/**
 		 * Inserts placeholders for a label and formula/LotusScript code
 		 * matching a pattern with dynamically computed design
@@ -94,7 +118,11 @@ public interface RichTextBuilder {
 		 * @param labelFct function to compute replacement
 		 * @return build context
 		 */
-		RichTextBuilderContext<O> replace(Pattern pattern, Function<Matcher,Object> labelFct);
+		default RichTextBuilderContext<O> replace(Pattern pattern, Function<Matcher,Object> labelFct) {
+			Map<Pattern,Function<Matcher, Object>> replacementsWithPattern = new HashMap<>();
+			replacementsWithPattern.put(pattern, labelFct);
+			return replaceExt(replacementsWithPattern);
+		}
 
 		/**
 		 * Inserts a single design element for a label in the DB design
@@ -103,7 +131,14 @@ public interface RichTextBuilder {
 		 * @param formDesign design to insert
 		 * @return build context
 		 */
-		RichTextBuilderContext<O> replace(String placeholder, GenericFormOrSubform<?> formDesign);
+		default RichTextBuilderContext<O> replace(String placeholder, GenericFormOrSubform<?> formDesign) {
+			Map<Pattern,Function<Matcher, Object>> replacementsWithPattern = new HashMap<>();
+			Pattern pattern = Pattern.compile(Pattern.quote(placeholder), Pattern.CASE_INSENSITIVE);
+			replacementsWithPattern.put(pattern, (matcher) -> {
+				return formDesign;
+			});
+			return replaceExt(replacementsWithPattern);
+		}
 
 		/**
 		 * Inserts a single design element for a label in the DB design
@@ -112,26 +147,56 @@ public interface RichTextBuilder {
 		 * @param buildCtx build context
 		 * @return build context
 		 */
-		RichTextBuilderContext<O> replace(String placeholder, RichTextBuilderContext<?> buildCtx);
+		default RichTextBuilderContext<O> replace(String placeholder, RichTextBuilderContext<?> buildCtx) {
+			Map<Pattern,Function<Matcher, Object>> replacementsWithPattern = new HashMap<>();
+			Pattern pattern = Pattern.compile(Pattern.quote(placeholder), Pattern.CASE_INSENSITIVE);
+			replacementsWithPattern.put(pattern, (matcher) -> {
+				return buildCtx;
+			});
+			return replaceExt(replacementsWithPattern);
+		}
 
 		/**
-		 * Repeats form/subform design
+		 * Replaces multiple texts in the specified richtext with values computed via functions
+		 * 
+		 * @param replacements mapping of pattern and computation function
+		 * @return build context
+		 */
+		RichTextBuilderContext<O> replaceExt(Map<Pattern,Function<Matcher, Object>> replacements);
+
+		/**
+		 * Repeats richtext, applying replace operations on each repetition
 		 * 
 		 * @param repetitions number of repetitions
-		 * @param consumer consumer is called for each row to provide mappings, either (String,String), (String,Form), (String,Subform) or (String,FormBuildContext)
+		 * @param replacements mappings of patterns and functions to compute the replace value for each repetition
 		 * @return build context
 		 */
 		RichTextBuilderContext<O> repeat(int repetitions,
-				BiConsumer<Integer,Map<String,Object>> consumer);
+				Map<Pattern, BiFunction<Integer,Matcher,Object>> replacements);
 
 		/**
-		 * Repeats the design of a form/subform and applies text/design replacements for each repetition
+		 * Repeats richtext, applying replace operations on each repetition
 		 * 
-		 * @param <T> type of form/subform
-		 * @param replacements stream of replacements for each row
+		 * @param repetitions number of repetitions
+		 * @param from placeholders
+		 * @param replacements function to compute new values for each repetition and placeholder
 		 * @return build context
 		 */
-		RichTextBuilderContext<O> repeat(Stream<Map<String,Object>> replacements);
+		default RichTextBuilderContext<O> repeat(int repetitions, Collection<String> from,
+				BiFunction<Integer,String,Object> replacements) {
+			
+			Map<Pattern, BiFunction<Integer,Matcher,Object>> replacementsWithPatterns = new HashMap<>();
+			for (String currFrom : from) {
+				String currFromQuoted = Pattern.quote(currFrom);
+				Pattern currFromPattern = Pattern.compile(currFromQuoted, Pattern.CASE_INSENSITIVE);
+
+				replacementsWithPatterns.put(currFromPattern, (idx,matcher)->{
+					return replacements.apply(idx, currFrom);
+				});
+			}
+			
+			return repeat(repetitions, replacementsWithPatterns);
+		}
 
 		/**
 		 * Locates the first table in the specified design element and repeats
@@ -191,7 +256,7 @@ public interface RichTextBuilder {
 		 * @param newFieldName new fieldname
 		 * @return build context
 		 */
-		default RichTextBuilderContext<O> renameFields(String oldFieldName, String newFieldName) {
+		default RichTextBuilderContext<O> renameField(String oldFieldName, String newFieldName) {
 			Map<Pattern,Function<Matcher,String>> replacements = new HashMap<>();
 			Pattern pattern = Pattern.compile(Pattern.quote(oldFieldName), Pattern.CASE_INSENSITIVE);
 			replacements.put(pattern, (matcher) -> {
@@ -236,12 +301,21 @@ public interface RichTextBuilder {
 		RichTextBuilderContext<O> replaceInImageResourceFormula(Map<Pattern,Function<Matcher,String>> replacements);
 		
 		/**
-		 * Applies a custom operation on the work document
+		 * Applies a custom build operation on the work document (supports switching
+		 * to a new work document if required)
 		 * 
 		 * @param op operation
 		 * @return build context
 		 */
 		RichTextBuilderContext<O> apply(RichTextBuilderOperation op);
+		
+		/**
+		 * Applies a custom inline richtext conversion on the work document
+		 * 
+		 * @param rtConv conversion
+		 * @return build context
+		 */
+		RichTextBuilderContext<O> apply(IRichTextConversion rtConv);
 		
 		/**
 		 * Applies the replace/repeat operations and produces the final result (unsaved))
@@ -252,8 +326,19 @@ public interface RichTextBuilder {
 
 	}
 	
+	/**
+	 * One operation in the richtext build pipeline
+	 */
 	public interface RichTextBuilderOperation {
 
+		/**
+		 * Applies a richtext build operation on the work document, e.g. to replace
+		 * placeholder text with content.
+		 * 
+		 * @param ctx build context
+		 * @param doc work document
+		 * @return passed document with applied operation or a new one
+		 */
 		Document apply(RichTextBuilderContext<?> ctx, Document doc);
 		
 	}
