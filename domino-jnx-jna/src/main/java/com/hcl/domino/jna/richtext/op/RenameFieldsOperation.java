@@ -56,11 +56,13 @@ public class RenameFieldsOperation implements RichTextBuilderOperation {
 	
 	@Override
 	public Document apply(RichTextBuilderContext<?> ctx, Document doc) {
+		String firstFieldPatternStrQuoted = Pattern.quote("@firstfield");
+		
 		Pattern firstFieldPattern = null;
 		
 		//check for special pattern text to rename first field in the form
 		for (Pattern currPattern : replacements.keySet()) {
-			if (currPattern.pattern().equalsIgnoreCase("@firstfield")) {
+			if (currPattern.pattern().equalsIgnoreCase(firstFieldPatternStrQuoted)) {
 				firstFieldPattern = currPattern;
 				break;
 			}
@@ -117,17 +119,17 @@ public class RenameFieldsOperation implements RichTextBuilderOperation {
 							fieldRecord.setName(newFieldName);
 							renamedFields.put(fieldName, newFieldName);
 							
-							//now we remove the old compiled LS object code for the old field name, e.g. $textfield_O
-							doc.removeItem("$"+fieldName+"_O");
 							
 							String oldLSCode = doc.get("$$"+fieldName, String.class, "");
 							
 							if (!StringUtil.isEmpty(oldLSCode)) {
 								//and replace all field name occurrences in the LS code (if code for one field references another one)
 								String newLSCode = StringUtil.replaceAllMatches(oldLSCode, replacements);
-								doc.replaceItemValue("$$"+fieldName, EnumSet.of(ItemFlag.SIGNED, ItemFlag.KEEPLINEBREAKS), newLSCode);
+								doc.replaceItemValue("$$"+newFieldName, EnumSet.of(ItemFlag.SIGNED, ItemFlag.KEEPLINEBREAKS), newLSCode);
 								doc.removeItem("$$"+fieldName);
-								
+								//now we remove the old compiled LS object code for the old field name, e.g. $textfield_O
+								doc.removeItem("$"+fieldName+"_O");
+
 								//rename field placeholder item
 								Optional<Item> placeholderItem = doc.getFirstItem(fieldName);
 								if (placeholderItem.isPresent()) {
