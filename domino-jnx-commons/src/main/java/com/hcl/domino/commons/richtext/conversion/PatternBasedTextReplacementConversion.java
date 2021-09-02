@@ -33,8 +33,8 @@ import com.hcl.domino.richtext.structures.FontStyle;
  * "Text before image %includeimage:c:\temp\image.jpg% Text after image"<br>
  * </code>
  * <br>
- * For each match, the <code>BiConsumer</code> receives the <code>Matcher</code> object
- * and can produce replacement richtext content by writing data to the <code>RichTextWriter</code>:<br>
+ * For each match, the {@link TriConsumer} receives the <code>Matcher</code> object and {@link FontStyle} of the replaced text
+ * and can produce replacement richtext content by writing data to the {@link RichTextWriter}:<br>
  * <br>
  * <code>
  * target.addImage(Paths.get(matcher.group("imgname")));
@@ -55,14 +55,6 @@ public class PatternBasedTextReplacementConversion implements IRichTextConversio
 	public PatternBasedTextReplacementConversion(Pattern pattern, TriConsumer<Matcher, FontStyle, RichTextWriter> consumer) {
 		this.pattern = pattern;
 		this.consumer = consumer;
-	}
-
-	@Override
-	public void richTextNavigationStart() {
-	}
-
-	@Override
-	public void richTextNavigationEnd() {
 	}
 
 	@Override
