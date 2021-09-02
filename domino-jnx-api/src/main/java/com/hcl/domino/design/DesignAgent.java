@@ -65,7 +65,7 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
   /**
    * Gets the last date that the agent is able to run, if applicable
    *
-   * @return a {@link Optional} representing the end datte as a
+   * @return a {@link Optional} representing the end date as a
    *         {@link DominoDateTime}, or an empty
    *         one if this is not applicable
    */

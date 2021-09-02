@@ -380,7 +380,7 @@ public interface DbDesign {
    */
   Stream<Outline> getOutlines();
 
-  /*
+  /**
    * Retrieves the "About Application" document for the database, if it exists.
    * 
    * @return an {@link Optional} describing the {@link AboutDocument} for the database,
@@ -403,7 +403,7 @@ public interface DbDesign {
    *
    * @param name the element name to restrict to
    * @return an {@link Optional} describing the {@link SharedField}, or an empty one if
-   *         no such view exists
+   *         no such field exists
    * @since 1.0.34
    */
   Optional<SharedField> getSharedField(String name);
@@ -415,6 +415,48 @@ public interface DbDesign {
    * @since 1.0.34
    */
   Stream<SharedField> getSharedFields();
+  
+  /**
+   * Retrieves the shared-actions note, if it exists in the database.
+   * 
+   * @return an {@link Optional} describing the {@link SharedActions} for the database, or
+   *         an empty one if there is no shared-actions note
+   * @since 1.0.37
+   */
+  Optional<SharedActions> getSharedActions();
+
+  /**
+   * Retrieves the named shared column.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link SharedColumn}, or an empty one if
+   *         no such column exists
+   * @since 1.0.37
+   */
+  Optional<SharedColumn> getSharedColumn(String name);
+
+  /**
+   * Retrieves all shared columns in the database.
+   *
+   * @return a {@link Stream} of {@link SharedColumn}s
+   * @since 1.0.37
+   */
+  Stream<SharedColumn> getSharedColumns();
+  
+  /**
+   * Retrieves a design element by its UNID.
+   * 
+   * @param <T> the expected type of the design element
+   * @param unid the UNID of the design element to retrieve
+   * @return an {@link Optional} describing the design element, or an empty one if no
+   *         note by that UNID exists
+   * @throws ClassCastException if the design element represented by {@code unid} is not of the
+   *                            type represented by {@code <T>}
+   * @throws IllegalArgumentException if the note represented by {@code unid} is not a design
+   *                                  element
+   * @since 1.0.37
+   */
+  <T extends DesignElement> Optional<T> getDesignElementByUNID(String unid);
 
   /**
    * Queries all design elements in the database by the provided formula and

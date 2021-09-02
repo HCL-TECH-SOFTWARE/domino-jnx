@@ -36,7 +36,7 @@ public class ReplaceImageResourceFormulaConversion implements IRichTextConversio
 				.anyMatch((record) -> {
 					if (record instanceof CDResource) {
 						CDResource resourceRecord = (CDResource) record;
-						Optional<String> namedElementFormula = resourceRecord.getNamedElementFormula();
+						Optional<String> namedElementFormula = resourceRecord.getResourceFormula();
 						if (namedElementFormula.isPresent()) {
 							String formula = namedElementFormula.get();
 							
@@ -58,7 +58,7 @@ public class ReplaceImageResourceFormulaConversion implements IRichTextConversio
 		for (RichTextRecord<?> currRecord : source) {
 			if (currRecord instanceof CDResource) {
 				CDResource resourceRecord = (CDResource) currRecord;
-				Optional<String> namedElementFormula = resourceRecord.getNamedElementFormula();
+				Optional<String> namedElementFormula = resourceRecord.getResourceFormula();
 				if (namedElementFormula.isPresent()) {
 					String formula = namedElementFormula.get();
 					String newFormula = formula;
@@ -66,7 +66,7 @@ public class ReplaceImageResourceFormulaConversion implements IRichTextConversio
 						newFormula = replaceAllMatches(newFormula, currEntry.getKey(), currEntry.getValue());
 					}
 					if (!newFormula.equals(formula)) {
-						resourceRecord.setNamedElementFormula(newFormula);
+						resourceRecord.setResourceFormula(newFormula);
 					}
 				}
 				

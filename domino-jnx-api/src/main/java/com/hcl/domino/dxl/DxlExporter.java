@@ -183,7 +183,7 @@ public interface DxlExporter {
   /**
    * Exports an entire database into XML format and returns the string.
    * 
-   * @param doc the document to export
+   * @param db the database to export
    * @return the exported DXL
    * @throws IOException in case of I/O errors
    * @since 1.0.34

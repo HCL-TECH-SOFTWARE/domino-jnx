@@ -1231,7 +1231,7 @@ public interface RichTextConstants extends EditOds {
   short ACTION_PLACEHOLDER = 6;
   short ACTION_RUN_JAVASCRIPT = 7;
 
-  /** Bitmap Uses > 16 colors or > 4 grey scale levels */
+  /** Bitmap Uses &gt; 16 colors or &gt; 4 grey scale levels */
   short CDBITMAP_FLAG_REQUIRES_PALETTE = 1;
   /**
    * Initialized by import code for "first time" importing of bitmaps

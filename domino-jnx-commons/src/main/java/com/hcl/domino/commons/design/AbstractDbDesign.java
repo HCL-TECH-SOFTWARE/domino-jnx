@@ -47,6 +47,8 @@ import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.design.ScriptLibrary;
+import com.hcl.domino.design.SharedActions;
+import com.hcl.domino.design.SharedColumn;
 import com.hcl.domino.design.SharedField;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.UsingDocument;
@@ -368,6 +370,29 @@ public abstract class AbstractDbDesign implements DbDesign {
   @Override
   public Stream<SharedField> getSharedFields() {
     return this.getDesignElements(SharedField.class);
+  }
+  
+  @Override
+  public Optional<SharedActions> getSharedActions() {
+    return getDesignElements(SharedActions.class).findFirst();
+  }
+  
+  @Override
+  public Optional<SharedColumn> getSharedColumn(String name) {
+    return getDesignElementByName(SharedColumn.class, name);
+  }
+  
+  @Override
+  public Stream<SharedColumn> getSharedColumns() {
+    return getDesignElements(SharedColumn.class);
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends DesignElement> Optional<T> getDesignElementByUNID(String unid) {
+    return (Optional<T>)(Optional<?>)getDatabase()
+      .getDocumentByUNID(unid)
+      .map(DesignUtil::createDesignElement);
   }
 
   @SuppressWarnings("unchecked")

@@ -71,11 +71,11 @@ public interface FontStyle extends MemoryStructure {
   FontStyle setPointSize(int size);
   
   /**
-   * Retrieves the {@link StandardFont} value corresponding to
+   * Retrieves the {@link StandardFonts} value corresponding to
    * {@link #getFontFace()}. When this value is empty, then the font is a custom
    * font that is defined in a mechanism specific to different areas of storage.
    * 
-   * @return an {@link Optional} describing the {@link StandardFont} specified,
+   * @return an {@link Optional} describing the {@link StandardFonts} specified,
    *         or an empty one if the value is not a standard font
    */
   default Optional<StandardFonts> getStandardFont() {

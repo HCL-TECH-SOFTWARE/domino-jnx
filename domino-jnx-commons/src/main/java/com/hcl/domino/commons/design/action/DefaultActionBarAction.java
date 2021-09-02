@@ -49,7 +49,7 @@ import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
 /**
- * Default implementation of {@link ActionBarActions} that works based on
+ * Default implementation of {@link ActionBarAction}s that works based on
  * a {@link List} of composite-data records representing the action's settings.
  * 
  * @author Jesse Gallagher
@@ -154,8 +154,9 @@ public class DefaultActionBarAction implements ActionBarAction {
   }
 
   @Override
-  public boolean isLeftAlignedInActionBar() {
-    // This appears to be flipped in meaning from the constant's name
+  public boolean isOppositeAlignedInActionBar() {
+    // This meaning is actually just an inverse of the action bar's setting, not
+    //   forced right-aligned
     return getActionRecord().getFlags().contains(CDAction.Flag.BUTTON_TO_RIGHT);
   }
 

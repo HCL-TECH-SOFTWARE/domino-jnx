@@ -49,7 +49,7 @@ import com.hcl.domino.richtext.structures.WSIG;
     @StructureMember(name = "Header", type = WSIG.class),
     @StructureMember(name = "Flags", type = CDField.Flag.class, bitfield = true),
     @StructureMember(name = "DataType", type = ItemDataType.class),
-    @StructureMember(name = "ListDelim", type = short.class, bitfield = true),
+    @StructureMember(name = "ListDelim", type = FieldListDelimiter.class, bitfield = true),
     @StructureMember(name = "NumberFormat", type = NFMT.class),
     @StructureMember(name = "TimeFormat", type = TFMT.class),
     @StructureMember(name = "FontID", type = FontStyle.class),

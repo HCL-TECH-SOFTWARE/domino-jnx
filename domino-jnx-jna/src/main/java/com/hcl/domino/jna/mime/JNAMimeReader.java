@@ -311,7 +311,6 @@ public class JNAMimeReader extends JNAMimeBase implements MimeReader {
 		 * This function copies the MIME stream content into a {@link Writer}.
 		 * 
 		 * @param buffer buffer to receive the MIME stream data
-		 * @param maxBufferSize max characters to read from the stream into the appendable
 		 * @return number of bytes read or -1 for EOF
 		 * @throws IOException in case of MIME stream I/O errors
 		 */
