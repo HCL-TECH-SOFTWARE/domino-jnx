@@ -24,11 +24,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.OptionalLong;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.design.agent.DefaultFormulaAgentContent;
 import com.hcl.domino.commons.design.agent.DefaultImportedJavaAgentContent;
 import com.hcl.domino.commons.design.agent.DefaultJavaAgentContent;
@@ -243,12 +241,6 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   }
 
   @Override
-  public OptionalLong getLastRunDuration() {
-    // TODO Auto-generated method stub
-    throw new NotYetImplementedException();
-  }
-
-  @Override
   public OptionalInt getRunDayOfMonth() {
     switch (this.getIntervalType()) {
       case MONTH:
@@ -326,18 +318,6 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   }
 
   @Override
-  public String getRunLog() {
-    // TODO Auto-generated method stub
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public List<String> getRunLogAsList() {
-    // TODO Auto-generated method stub
-    throw new NotYetImplementedException();
-  }
-
-  @Override
   public Optional<DominoDateTime> getStartDate() {
     if (this.getTrigger() != AgentTrigger.SCHEDULED) {
       return Optional.empty();
@@ -378,12 +358,6 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   @Override
   public void initializeNewDesignNote() {
     this.setFlags("j3"); //$NON-NLS-1$
-  }
-
-  @Override
-  public boolean isLastRunExceededTimeLimit() {
-    // TODO Auto-generated method stub
-    throw new NotYetImplementedException();
   }
 
   @Override

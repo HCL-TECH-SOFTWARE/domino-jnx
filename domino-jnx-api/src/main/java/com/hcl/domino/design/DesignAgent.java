@@ -18,10 +18,8 @@ package com.hcl.domino.design;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.OptionalLong;
 
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.design.DesignElement.NamedDesignElement;
@@ -110,16 +108,6 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
   AgentInterval getIntervalType();
 
   /**
-   * Analyses the last run log to work out the number of seconds for last run
-   * duration
-   *
-   * @return an {@link OptionalLong} describing the number of seconds between
-   *         start and end
-   *         of last run time, or an empty one if it has no run record
-   */
-  OptionalLong getLastRunDuration();
-
-  /**
    * Retrieves the 1-based day of the month that the agent should run. This only
    * applies when the interval
    * type is {@link AgentInterval#MONTH MONTH}.
@@ -178,21 +166,6 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
   String getRunLocation();
 
   /**
-   * Gets the last run log for the agent. If the agent has not run since last log,
-   * it is a blank String.
-   *
-   * @return String containing run log
-   */
-  String getRunLog();
-
-  /**
-   * Splits the run log into a String for each line
-   *
-   * @return List of run log messages
-   */
-  List<String> getRunLogAsList();
-
-  /**
    * Gets the earliest date that the agent is able to run, if applicable
    *
    * @return a {@link Optional} representing the start date as a
@@ -215,16 +188,6 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    * @return this {@code Agent}
    */
   DesignAgent initializeAgentLanguage(AgentLanguage lang);
-
-  /**
-   * Analyses the last run log to work out if the last run exceeded the max run
-   * time for agents. Combine with
-   * {@link #getLastRunDuration()} to work out what that max run time setting is.
-   *
-   * @return whether the last run time exceeded max run time for agents. If there
-   *         is no run log, this will also be false
-   */
-  boolean isLastRunExceededTimeLimit();
 
   /**
    * Whether or not the agent runs on weekends, only relevant for DAILY or
