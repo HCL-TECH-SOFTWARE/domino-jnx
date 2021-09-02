@@ -29,7 +29,58 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.richtext.conversion.IRichTextConversion;
 
 /**
- * Produces normal and design richtext by combining existing parts
+ * Produces normal and design richtext by combining existing parts.<br>
+ * Example code:<br>
+ * <br>
+ * <code>
+ * RichTextBuilder rtBuilder = db.getRichTextBuilder();<br>
+ * <br>
+ * DbDesign design = db.getDesign();<br>
+ * //table with one row (1 column) containing %fieldtabletitle% and another row with<br>
+ * //two columns for label/field control (%fieldlabel%, %fieldctrl%)<br>
+ * Form fieldTable = design.getForm("tpl_fieldtable1").get();<br>
+ * //form with one textfield that will get renamed by the rt builder<br>
+ * Form txtField = design.getForm("tpl_textfield1").get();<br>
+ * //form with one number field that will get renamed by the rt builder<br>
+ * Form numberField = design.getForm("tpl_numberfield1").get();<br>
+ * <br>
+ * //repeat second row (0=first row) of field table three times and compute<br>
+ * //what to insert for the placeholders<br>
+ * Form newTableForm = rtBuilder<br>
+ * .from(fieldTable)<br>
+ * .replace("%fieldtabletitle%", "Person")<br>
+ * .repeatTableRow(1, 3, Arrays.asList(<br>
+ * &nbsp;&nbsp;"%fieldlabel%",<br>
+ * &nbsp;&nbsp;"%fieldctrl%"<br>
+ * ), (idx, from) -&gt; {<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;if ("%fieldlabel%".equals(from)) {<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;switch (idx) {<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 0:<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return "Firstname";<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 1:<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return "Lastname";<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 2:<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return "Salary";<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;}<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;else if ("%fieldctrl%".equals(from)) {<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;switch(idx) {<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 0:<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return rtBuilder.from(txtField).renameField("firstname");<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 1:<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return rtBuilder.from(txtField).renameField("lastname");<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;case 2:<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return rtBuilder.from(numberField).renameField("salary");<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+ * <br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;return "";<br>
+ * &nbsp;&nbsp;&nbsp;&nbsp;})<br>
+ * .build();<br>
+ * <br>
+ * newTableForm.setTitle("my new form");<br>
+ * newTableForm.save();<br>
+ * </code>
  * 
  * @since 1.0.38
  */
