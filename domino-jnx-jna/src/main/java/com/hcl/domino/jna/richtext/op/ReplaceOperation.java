@@ -83,7 +83,9 @@ public class ReplaceOperation implements RichTextBuilderOperation {
 									}
 
 									if (docToInsert!=null) {
-										rtWriter.addRichText(docToInsert, ((RichTextBuilderContext<?>)newContent).getItemName());
+										RichTextUtil.addOtherRichTextItem(doc, rtWriter, docToInsert,
+												((RichTextBuilderContext<?>)newContent).getItemName(), true);
+
 									}
 								}
 								else if (newContent instanceof GenericFormOrSubform<?>) {
