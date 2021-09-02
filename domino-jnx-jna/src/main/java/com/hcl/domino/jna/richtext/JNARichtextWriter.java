@@ -107,6 +107,11 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
+/**
+ * Provides convenience methods to produce richtext content
+ * 
+ * @author Karsten Lehmann
+ */
 public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocations> implements IDefaultRichTextWriter {
 	private static final Logger log = Logger.getLogger(JNARichtextWriter.class.getPackage().getName());
 	
