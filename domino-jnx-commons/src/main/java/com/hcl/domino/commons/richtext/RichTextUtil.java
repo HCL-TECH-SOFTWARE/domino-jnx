@@ -418,10 +418,11 @@ public enum RichTextUtil {
 	  boolean disposeDocWork = false;
 	  
 	  if (removeFirstPar) {
+		  //we need to tweak the source document, so create an in-memory copy
 		  docWork = docSource.copyToDatabase(docSource.getParentDatabase());
-		  
-		  docWork.convertRichTextItem(itemNameSource, new StripFirstParConversion());
 		  disposeDocWork = true;
+
+		  docWork.convertRichTextItem(itemNameSource, new StripFirstParConversion());
 	  }
 	  
 	  targetRTWriter.addRichText(docWork, itemNameSource);
@@ -448,6 +449,10 @@ public enum RichTextUtil {
 	  }
   }
 
+  /**
+   * Richtext conversion that strips the first paragraph of richtext records
+   * to improve the result of an insert operation of other richtext
+   */
   private static class StripFirstParConversion implements IRichTextConversion {
 
 	  @Override
@@ -509,4 +514,5 @@ public enum RichTextUtil {
 	  }
 
   }
+
 }
