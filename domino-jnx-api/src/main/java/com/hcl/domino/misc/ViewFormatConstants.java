@@ -94,6 +94,10 @@ public interface ViewFormatConstants {
   short VIEW_TABLE_SHOW_PARITAL_THREADS = 0x0020;
   /** show partial index hierarchically, if TRUE */
   short VIEW_TABLE_FLAG_PARTIAL_FLATINDEX = 0x0020;
+  /** TRUE if narrow view is selected */
+  short VIEW_TABLE_NARROW_VIEW = 0x0040;
+  /** TRUE if show abstract is selected (only applies to narrow views) */
+  short VIEW_TABLE_SHOW_ABSTRACT = 0x0080;
 
   /** Value for the wSig member of the VIEW_TABLE_FORMAT2 structure. */
   short VALID_VIEW_FORMAT_SIG = 0x2BAD;
