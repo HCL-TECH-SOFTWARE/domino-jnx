@@ -51,20 +51,27 @@ public interface UNID extends MemoryStructure {
    * @return UNID a {@link UNID} object for the string
    */
   default UNID setUnid(final String unidStr) {
-    if (unidStr.length() != 32) {
-      throw new IllegalArgumentException("UNID is expected to have 32 characters");
-    }
+	  if (unidStr==null || unidStr.length()==0) {
+		  this.getFile().setInnards(new int[] { 0, 0 });
+		  this.getNote().setInnards(new int[] { 0, 0 });
+		  return this;
+	  }
+	  else {
+		  if (unidStr.length() != 32) {
+			  throw new IllegalArgumentException("UNID is expected to have 32 characters");
+		  }
 
-    final int fileInnards1 = (int) (Long.parseLong(unidStr.substring(0, 8), 16) & 0xffffffff);
-    final int fileInnards0 = (int) (Long.parseLong(unidStr.substring(8, 16), 16) & 0xffffffff);
+		  final int fileInnards1 = (int) (Long.parseLong(unidStr.substring(0, 8), 16) & 0xffffffff);
+		  final int fileInnards0 = (int) (Long.parseLong(unidStr.substring(8, 16), 16) & 0xffffffff);
 
-    final int noteInnards1 = (int) (Long.parseLong(unidStr.substring(16, 24), 16) & 0xffffffff);
-    final int noteInnards0 = (int) (Long.parseLong(unidStr.substring(24, 32), 16) & 0xffffffff);
+		  final int noteInnards1 = (int) (Long.parseLong(unidStr.substring(16, 24), 16) & 0xffffffff);
+		  final int noteInnards0 = (int) (Long.parseLong(unidStr.substring(24, 32), 16) & 0xffffffff);
 
-    this.getFile().setInnards(new int[] { fileInnards0, fileInnards1 });
-    this.getNote().setInnards(new int[] { noteInnards0, noteInnards1 });
+		  this.getFile().setInnards(new int[] { fileInnards0, fileInnards1 });
+		  this.getNote().setInnards(new int[] { noteInnards0, noteInnards1 });
+	  }
 
-    return this;
+	  return this;
   }
 
   /**

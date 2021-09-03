@@ -221,7 +221,7 @@ public enum RecordType {
    * It contains all the information necessary to open the specified document from
    * any database on any server.
    */
-  LINKEXPORT2(RichTextConstants.SIG_CD_LINKEXPORT2, 1),
+  LINKEXPORT2(RichTextConstants.SIG_CD_LINKEXPORT2, 1, CDLinkExport2.class),
   /**
    * A rich text field may contain a bitmap image. There are three types,
    * monochrome, 8-bit mapped color,
