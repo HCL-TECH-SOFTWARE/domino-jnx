@@ -613,7 +613,7 @@ public enum RecordType {
    * A Doc Link Reference (a NOTELINK structure) contains all the information
    * necessary to open the specified document from any database on any server.
    */
-  LINK2(RichTextConstants.SIG_CD_LINK2, 4),
+  LINK2(RichTextConstants.SIG_CD_LINK2, 4, CDLink2.class),
   CGM(RichTextConstants.SIG_CD_CGM, 4),
   TIFF(RichTextConstants.SIG_CD_TIFF, 4),
   /**
