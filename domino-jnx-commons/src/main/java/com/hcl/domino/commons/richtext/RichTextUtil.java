@@ -26,7 +26,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.design.action.DefaultJavaScriptEvent;
@@ -35,17 +39,25 @@ import com.hcl.domino.commons.richtext.records.GenericBSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericLSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericWSIGRecord;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
+import com.hcl.domino.data.Document;
+import com.hcl.domino.data.DocumentClass;
+import com.hcl.domino.data.Item;
 import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
+import com.hcl.domino.richtext.conversion.IRichTextConversion;
 import com.hcl.domino.richtext.records.CDBlobPart;
 import com.hcl.domino.richtext.records.CDEvent;
 import com.hcl.domino.richtext.records.CDEventEntry;
+import com.hcl.domino.richtext.records.CDField;
 import com.hcl.domino.richtext.records.CDGraphic;
 import com.hcl.domino.richtext.records.CDImageHeader;
 import com.hcl.domino.richtext.records.CDImageHeader2;
 import com.hcl.domino.richtext.records.CDImageSegment;
+import com.hcl.domino.richtext.records.CDPabDefinition;
+import com.hcl.domino.richtext.records.CDPabReference;
+import com.hcl.domino.richtext.records.CDParagraph;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
@@ -390,4 +402,118 @@ public enum RichTextUtil {
     }
     return events;
   }
+
+  /**
+   * Adds richtext from another document to a {@link RichTextWriter} with optimizations
+   * 
+   * @param docTarget target document
+   * @param targetRTWriter target richtext writer
+   * @param docSource source document
+   * @param itemNameSource source richtext item name
+   * @param removeFirstPar true to remove the first CDParagraph/CDPabDefinition/CDPabReference block
+   */
+  public static void addOtherRichTextItem(Document docTarget, RichTextWriter targetRTWriter,
+		  Document docSource, String itemNameSource, boolean removeFirstPar) {
+	  
+	  Document docWork = docSource;
+	  boolean disposeDocWork = false;
+	  
+	  if (removeFirstPar) {
+		  //we need to tweak the source document, so create an in-memory copy
+		  docWork = docSource.copyToDatabase(docSource.getParentDatabase());
+		  disposeDocWork = true;
+
+		  docWork.convertRichTextItem(itemNameSource, new StripFirstParConversion());
+	  }
+	  
+	  targetRTWriter.addRichText(docWork, itemNameSource);
+	  
+	  if (docWork.getDocumentClass().contains(DocumentClass.FORM)) {
+		  //copy LS code for fields
+		  Set<String> fieldNames = docSource.getRichTextItem(itemNameSource)
+				  .stream()
+				  .filter(CDField.class::isInstance)
+				  .map(CDField.class::cast)
+				  .map(CDField::getName)
+				  .collect(Collectors.toSet());
+
+		  for (String currFieldName : fieldNames) {
+			  Optional<Item> lsCodeItem = docWork.getFirstItem("$$" + currFieldName);
+			  if (lsCodeItem.isPresent()) {
+				  lsCodeItem.get().copyToDocument(docTarget, false);
+			  }
+		  }
+	  }
+	  
+	  if (disposeDocWork) {
+		  docWork.autoClosable().close();
+	  }
+  }
+
+  /**
+   * Richtext conversion that strips the first paragraph of richtext records
+   * to improve the result of an insert operation of other richtext
+   */
+  private static class StripFirstParConversion implements IRichTextConversion {
+
+	  @Override
+	  public boolean isMatch(List<RichTextRecord<?>> nav) {
+		  return nav
+				  .stream()
+				  .anyMatch(CDParagraph.class::isInstance);
+	  }
+
+	  @Override
+	  public void richTextNavigationStart() {
+	  }
+
+	  @Override
+	  public void richTextNavigationEnd() {
+	  }
+
+	  @Override
+	  public void convert(List<RichTextRecord<?>> source, RichTextWriter target) {
+		  boolean parFound = false;
+
+		  ListIterator<RichTextRecord<?>> sourceRecordIt = source.listIterator();
+		  while (sourceRecordIt.hasNext()) {
+			  RichTextRecord<?> record = sourceRecordIt.next();
+			  if (record instanceof CDParagraph) {
+				  if (!parFound) {
+					  parFound = true;
+
+					  if (sourceRecordIt.hasNext()) {
+						  RichTextRecord<?> nextRecord = sourceRecordIt.next();
+						  if (nextRecord instanceof CDPabDefinition) {
+							  //keep paragraph definition in case it is used somewhere else
+							  target.addRichTextRecord(nextRecord);
+							  
+							  //ignore pab definition as well
+							  if (sourceRecordIt.hasNext()) {
+								  RichTextRecord<?> nextRecord2 = sourceRecordIt.next();
+								  if (nextRecord2 instanceof CDPabReference) {
+									  //ignore pab reference
+								  }
+								  else {
+									  target.addRichTextRecord(nextRecord2);
+								  }
+							  }
+						  }
+						  else {
+							  target.addRichTextRecord(nextRecord);
+						  }
+					  }
+				  }
+				  else {
+					  target.addRichTextRecord(record);
+				  }
+			  }
+			  else {
+				  target.addRichTextRecord(record);
+			  }
+		  }
+	  }
+
+  }
+
 }

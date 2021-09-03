@@ -284,7 +284,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
       this::setFileHintLength
     );
   }
-  
+
   /**
    * Retrieves the URL of the target resource.
    * <p>
@@ -355,7 +355,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
       )
     );
   }
-  
+
   /**
    * Retrieves the formula for this resource, when {@link #getFlags()} contains
    * {@link Flag#FORMULA}.
@@ -391,4 +391,11 @@ public interface CDResource extends RichTextRecord<WSIG> {
       )
     );
   }
+
+  default void setResourceFormula(String newFormula) {
+	  StructureSupport.writeCompiledFormula(this,
+			  this.getServerHintLength() + this.getFileHintLength() + 8, // for replica ID
+			  getLength1(), newFormula, this::setLength1);
+  }
+
 }

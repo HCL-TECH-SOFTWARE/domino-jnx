@@ -50,12 +50,12 @@ public interface IRichTextConversion {
   /**
    * Method is called when the rich text navigation is done
    */
-  void richTextNavigationEnd();
+  default void richTextNavigationEnd() { }
 
   /**
    * Method is called before starting the CD record traversal. Can be used
    * to reset variables, e.g. to track if we are within a BEGIN/END block.
    */
-  void richTextNavigationStart();
+  default void richTextNavigationStart() { }
 
 }

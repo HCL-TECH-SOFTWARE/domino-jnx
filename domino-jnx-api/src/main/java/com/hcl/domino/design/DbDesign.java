@@ -21,6 +21,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import com.hcl.domino.admin.idvault.UserId;
+import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.data.DocumentClass;
 
@@ -99,7 +100,7 @@ public interface DbDesign {
    * @return the newly-created in-memory {@link View}
    */
   View createView(String viewName);
-
+  
   /**
    * Retrieves the named agent.
    *
@@ -485,4 +486,11 @@ public interface DbDesign {
    * @param callback optional sign callback to control with document to sign
    */
   void signAll(Set<DocumentClass> docClass, UserId id, SignCallback callback);
+
+  /**
+   * Returns the parent database of the design
+   * 
+   * @return database
+   */
+  Database getDatabase();
 }
