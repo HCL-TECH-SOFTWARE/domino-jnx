@@ -22,7 +22,6 @@ import java.nio.charset.Charset;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
-import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.NOTELINK;
 import com.hcl.domino.richtext.structures.UNID;
 import com.hcl.domino.richtext.structures.WSIG;
@@ -49,9 +48,6 @@ public interface CDLinkExport2 extends RichTextRecord<WSIG> {
 
 	@StructureGetter("NoteLink")
 	NOTELINK getNoteLink();
-
-	@StructureSetter("NoteLink")
-	CDLinkExport2 setNoteLink(NOTELINK link);
 	
 	default String getReplicaId() {
 		return getNoteLink().getFile().toReplicaId();
