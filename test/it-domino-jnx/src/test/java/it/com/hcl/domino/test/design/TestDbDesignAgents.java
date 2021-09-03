@@ -80,7 +80,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
-  public static final int EXPECTED_IMPORT_AGENTS = 20;
+  public static final int EXPECTED_IMPORT_AGENTS = 21;
   private static String dbPath;
 
   @AfterAll

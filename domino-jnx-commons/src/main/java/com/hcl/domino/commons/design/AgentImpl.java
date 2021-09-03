@@ -24,11 +24,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.OptionalLong;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.design.agent.DefaultFormulaAgentContent;
 import com.hcl.domino.commons.design.agent.DefaultImportedJavaAgentContent;
 import com.hcl.domino.commons.design.agent.DefaultJavaAgentContent;
@@ -207,6 +205,14 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
         throw new IllegalStateException(MessageFormat.format("Unknown language value {0}", Short.toUnsignedInt(lang)));
     }
   }
+  
+  @Override
+  public DominoDateTime getAgentVersion() {
+    Document doc = getDocument();
+    return doc
+      .getOptional(NotesConstants.ASSIST_VERSION_ITEM, DominoDateTime.class)
+      .orElseGet(doc::getLastModified);
+  }
 
   @Override
   public Optional<DominoDateTime> getEndDate() {
@@ -241,11 +247,10 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
         .map(AssistStruct::getIntervalType)
         .orElse(AgentInterval.NONE);
   }
-
+  
   @Override
-  public OptionalLong getLastRunDuration() {
-    // TODO Auto-generated method stub
-    throw new NotYetImplementedException();
+  public Optional<LastRunInfo> getLastRunInfo() {
+    return getDocument().getOptional(NotesConstants.ASSIST_RUNINFO_ITEM, LastRunInfo.class);
   }
 
   @Override
@@ -291,7 +296,10 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
         return this.getAssistInfo()
             .map(AssistStruct::getTime2)
             .map(Integer::toUnsignedLong)
-            .map(InnardsConverter::ticksToLocalTime);
+            .flatMap(val -> { 
+              // The value 8640000 represents the end of the day, which is what Designer stores for "all day"
+              return val == 0 || val == 8640000 ? Optional.empty() : Optional.of(InnardsConverter.ticksToLocalTime(val));
+            });
       case DAYS:
       case WEEK:
       case MONTH:
@@ -323,18 +331,6 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   @Override
   public String getRunLocation() {
     return this.getDocument().get(NotesConstants.FILTER_MACHINE_NAME, String.class, ""); //$NON-NLS-1$
-  }
-
-  @Override
-  public String getRunLog() {
-    // TODO Auto-generated method stub
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public List<String> getRunLogAsList() {
-    // TODO Auto-generated method stub
-    throw new NotYetImplementedException();
   }
 
   @Override
@@ -378,12 +374,6 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   @Override
   public void initializeNewDesignNote() {
     this.setFlags("j3"); //$NON-NLS-1$
-  }
-
-  @Override
-  public boolean isLastRunExceededTimeLimit() {
-    // TODO Auto-generated method stub
-    throw new NotYetImplementedException();
   }
 
   @Override

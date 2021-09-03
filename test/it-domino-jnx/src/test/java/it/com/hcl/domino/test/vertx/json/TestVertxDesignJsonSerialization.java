@@ -121,4 +121,13 @@ public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
         serializer.toJson(form);
       });
   }
+  
+  @Test
+  public void testAgentRunInfoSerialization() throws Exception {
+    VertxJsonSerializer serializer = new VertxJsonSerializer();
+    
+    withResourceDxl("/dxl/testDbDesignAgents", database -> {
+      serializer.toJson(database.getDesign().getAgent("Test Java").get()).encodePrettily();
+    });
+  }
 }

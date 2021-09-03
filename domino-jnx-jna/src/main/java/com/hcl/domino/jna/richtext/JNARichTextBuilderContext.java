@@ -26,11 +26,11 @@ import com.hcl.domino.jna.richtext.op.ReplaceOperation;
 import com.hcl.domino.richtext.conversion.IRichTextConversion;
 
 /**
- * Abstract base implementation of {@link RichtextBuilderContext}
+ * Abstract base implementation of {@link RichTextBuilderContext}
  * 
  * @author Karsten Lehmann
  *
- * @param <T> result type
+ * @param <O> result type
  */
 public abstract class JNARichTextBuilderContext<O> implements RichTextBuilderContext<O> {
 	private JNARichTextBuilder rtBuilder;

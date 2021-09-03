@@ -22,7 +22,7 @@ import com.hcl.domino.richtext.records.RichTextRecord;
  * <li>{@link #nonTableRecordFound(RichTextRecord)} - for all CD records outside of tables (before and after)</li>
  * <li>{@link #tableBeginFound(int, Collection, CDTableBegin, Collection)} - when a table has been found</<li>
  * <li>{@link #rowFound(int, short, Collection)} - for each table row with all contained records</li>
- * <li>{@link #cellFound(int, CDTableCell, Collection)} - for each table cell with the table cell content</li>
+ * <li>{@link #cellFound(int, short, short, CDTableCell, Collection)} - for each table cell with the table cell content</li>
  * <li>{@link #tableEndFound(int, CDTableEnd)} - when the table end has been reached</li>
  * </ul>
  * Nested tables in cells are reported as part of the row/cell content.<br><br>
@@ -356,7 +356,7 @@ public abstract class RichTextTableParser {
 	 * @param tableIndex table index in richtext (0=first table)
 	 * @param rowIndex row index (0=first row)
 	 * @param colIndex column index
-	 * @param cellRecord table cell record, e.g. to read spans via {@link CDTableCell#getRowSpan()} or {@link CDTableCell#getColumnSpan()o}
+	 * @param cellRecord table cell record, e.g. to read spans via {@link CDTableCell#getRowSpan()} or {@link CDTableCell#getColumnSpan()}
 	 * @param cellContent content of table cell
 	 * @return true to continue parsing
 	 */

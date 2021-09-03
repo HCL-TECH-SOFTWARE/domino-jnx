@@ -34,14 +34,17 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
  * @author Jesse Gallagher
  * @since 1.0.15
  */
-@StructureDefinition(name = "ODS_ASSISTFIELDSTRUCT", members = {
+@StructureDefinition(
+  name = "ODS_ASSISTFIELDSTRUCT",
+  members = {
     @StructureMember(name = "wTotalLen", type = short.class, unsigned = true),
     @StructureMember(name = "wOperator", type = short.class),
     @StructureMember(name = "wFieldNameLen", type = short.class, unsigned = true),
     @StructureMember(name = "wValueLen", type = short.class, unsigned = true),
     @StructureMember(name = "wValueDataType", type = short.class),
     @StructureMember(name = "wSpare", type = short.class)
-})
+  }
+)
 public interface AssistFieldStruct extends ResizableMemoryStructure {
   enum ActionByField implements INumberEnum<Short> {
     REPLACE(1),
