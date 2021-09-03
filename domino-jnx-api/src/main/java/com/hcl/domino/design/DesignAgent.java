@@ -30,10 +30,64 @@ import com.hcl.domino.design.agent.AgentTrigger;
 /**
  * Access to a database design. Search for design, database as constructor
  * parameter
- *
- * @author t.b.d
  */
 public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRestrictedElement {
+  /**
+   * Represents last-run information for agent notes.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.38
+   */
+  interface LastRunInfo {
+    /**
+     * Retrieves the time the agent was last run.
+     * 
+     * @return a {@link DominoDateTime} representing the last-run time
+     */
+    DominoDateTime getTime();
+    
+    /**
+     * Determines the number of documents processed when the agent was last
+     * run.
+     * 
+     * @return the count of processed documents
+     */
+    long getDocumentCount();
+    
+    /**
+     * Determines the version of the agent when it was last run.
+     * 
+     * <p>This corresponds to the version value represented by
+     * {@link DesignAgent#getAgentVersion()}.</p>
+     * 
+     * @return a {@link DominoDateTime} modification version for the agent
+     *         when it was last run
+     */
+    DominoDateTime getVersion();
+    
+    /**
+     * Determines the specific instance ID (as opposed to the replica ID) of the
+     * database where the agent was last run, represented as a pair of int values.
+     * 
+     * @return a two-element {@code int} array representing the database ID
+     */
+    int[] getDbId();
+    
+    /**
+     * Determines the exit code from the agent's last run.
+     * 
+     * @return a {@code long} representing the last exit code
+     */
+    long getExitCode();
+    
+    /**
+     * Retrieves the log from the last run.
+     * 
+     * @return a {@link String} of the agent log, which may be empty
+     */
+    String getLog();
+  }
+  
   enum AgentLanguage {
     LS, FORMULA, JAVA, IMPORTED_JAVA, SIMPLE_ACTION
   }
@@ -59,6 +113,18 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    * @return an {@link AgentLanguage} instance
    */
   AgentLanguage getAgentLanguage();
+  
+  /**
+   * Determines the effective version of the agent design, as opposed to just when
+   * the note was last modified.
+   * 
+   * <p>This version is expressed as the time the agent design was last modified.</p>
+   * 
+   * @return a {@link DominoDateTime} instance representing the time that the agent's
+   *         design was last changed
+   * @since 1.0.38
+   */
+  DominoDateTime getAgentVersion();
 
   /**
    * Gets the last date that the agent is able to run, if applicable
@@ -106,6 +172,16 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    *         applicable
    */
   AgentInterval getIntervalType();
+  
+  /**
+   * Retrieves information about the agent's last execution, if that information
+   * exists.
+   * 
+   * @return an {@link Optional} describing the agent's last-run information,
+   *         or an empty one if that data is not stored
+   * @since 1.0.38
+   */
+  Optional<LastRunInfo> getLastRunInfo();
 
   /**
    * Retrieves the 1-based day of the month that the agent should run. This only
@@ -131,12 +207,16 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
 
   /**
    * Retrieves the local time of day when the agent should no longer be executed.
-   * This only applies
-   * when the interval type is {@link AgentInterval#MINUTES MINUTES}.
+   * This only applies when the interval type is
+   * {@link AgentInterval#MINUTES MINUTES}.
+   * 
+   * <p>Note: this value will also be empty if the agent is scheduled to run all day,
+   * while {@link #getRunLocalTime()} will reflect midnight in this case.</p>
    *
    * @return an {@link Optional} describing the local end time of execution, or an
-   *         empty one if
-   *         the agent interval is not {@link AgentInterval#MINUTES MINUTES}
+   *         empty one if the agent interval is not
+   *         {@link AgentInterval#MINUTES MINUTES} or if the agent is scheduled to
+   *         run all day
    */
   Optional<LocalTime> getRunEndLocalTime();
 
@@ -147,8 +227,7 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    * {@link AgentInterval#EVENT EVENT}.
    *
    * @return an {@link Optional} describing the local time to run, or an empty one
-   *         if
-   *         this value does not apply
+   *         if this value does not apply
    */
   Optional<LocalTime> getRunLocalTime();
 

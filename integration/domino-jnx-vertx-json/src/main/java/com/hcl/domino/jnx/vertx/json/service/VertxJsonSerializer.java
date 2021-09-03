@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.design.DefaultActionBar;
@@ -74,6 +75,7 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
   public VertxJsonSerializer() {
     //add custom mixin classes for json serialization
     io.vertx.core.json.jackson.DatabindCodec.prettyMapper().setSerializationInclusion(Include.NON_EMPTY);
+    io.vertx.core.json.jackson.DatabindCodec.mapper().configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(DesignElement.class, DesignElementMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(Outline.class, OutlineMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(View.class, ViewMixIn.class);
