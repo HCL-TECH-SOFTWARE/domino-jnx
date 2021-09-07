@@ -23,11 +23,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.ItemDataType;
-import com.hcl.domino.jna.data.JNADominoDateRange;
 import com.hcl.domino.jna.data.JNADominoDateTime;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.structs.NotesNumberPairStruct;
@@ -185,7 +185,7 @@ public class ItemDecoder {
 			DominoDateTime lowerTimeDate = new JNADominoDateTime(lowerTimeDateInnards);
 			DominoDateTime upperTimeDate = new JNADominoDateTime(upperTimeDateInnards);
 			
-			calendarValues.add(new JNADominoDateRange(lowerTimeDate, upperTimeDate));
+			calendarValues.add(new DefaultDominoDateRange(lowerTimeDate, upperTimeDate));
 		}
 		
 		return calendarValues;
