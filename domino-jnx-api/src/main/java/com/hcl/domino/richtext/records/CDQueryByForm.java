@@ -34,31 +34,34 @@ import com.hcl.domino.richtext.structures.WSIG;
 
 /**
  * @author Jesse Gallagher
- * @since 1.0.15
+ * @since 1.0.38
  */
-@StructureDefinition(name = "CDACTIONBYFORM", members = {
+@StructureDefinition(
+  name = "CDQUERYBYFORM",
+  members = {
     @StructureMember(name = "Header", type = WSIG.class),
     @StructureMember(name = "dwFlags", type = int.class),
     @StructureMember(name = "wFieldCount", type = short.class, unsigned = true),
     @StructureMember(name = "wFormNameLen", type = short.class, unsigned = true)
-})
-public interface CDActionByForm extends RichTextRecord<WSIG> {
+  }
+)
+public interface CDQueryByForm extends RichTextRecord<WSIG> {
 
   @StructureGetter("Header")
   @Override
   WSIG getHeader();
 
-  @StructureSetter("wFieldCount")
-  CDActionByForm setFieldCount(int fieldCount);
-
   @StructureGetter("wFieldCount")
   int getFieldCount();
 
+  @StructureSetter("wFieldCount")
+  CDQueryByForm setFieldCount(int fieldCount);
+
   @StructureGetter("wFormNameLen")
   int getFormNameLength();
-  
+
   @StructureSetter("wFormNameLen")
-  CDActionByForm setFormNameLength(int formNameLength);
+  CDQueryByForm setFormNameLength(int formNameLength);
   
   /**
    * Retrieves the action data as a {@link ByteBuffer} view of the underlying
@@ -114,7 +117,7 @@ public interface CDActionByForm extends RichTextRecord<WSIG> {
    * @param actionData the new action data to set
    * @return this record
    */
-  default CDActionByForm setActionData(final byte[] actionData) {
+  default CDQueryByForm setActionData(final byte[] actionData) {
     final byte[] data = actionData == null ? new byte[0] : actionData;
     ByteBuffer buf = this.getVariableData();
     byte[] formNameData = new byte[this.getFormNameLength()];
@@ -136,7 +139,7 @@ public interface CDActionByForm extends RichTextRecord<WSIG> {
    *                           to set
    * @return this record
    */
-  default CDActionByForm setAssistFields(final Collection<AssistFieldStruct> assistFieldStructs) {
+  default CDQueryByForm setAssistFields(final Collection<AssistFieldStruct> assistFieldStructs) {
     final Collection<AssistFieldStruct> structs = assistFieldStructs == null ? Collections.emptyList() : assistFieldStructs;
     this.setFieldCount(structs.size());
     final int totalSize = structs.stream().mapToInt(AssistFieldStruct::getTotalLength).sum();
@@ -160,7 +163,7 @@ public interface CDActionByForm extends RichTextRecord<WSIG> {
     );
   }
 
-  default CDActionByForm setFormName(final String formName) {
+  default CDQueryByForm setFormName(final String formName) {
     final int formNameLen = this.getFormNameLength();
     final ByteBuffer buf = this.getVariableData();
     return StructureSupport.writeStringValue(
