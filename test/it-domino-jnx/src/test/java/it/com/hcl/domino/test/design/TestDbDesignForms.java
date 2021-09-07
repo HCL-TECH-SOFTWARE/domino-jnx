@@ -89,6 +89,7 @@ import com.hcl.domino.richtext.NotesBitmap;
 import com.hcl.domino.richtext.records.CDHeader;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.RecordType;
+import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.security.Acl;
@@ -942,12 +943,22 @@ public class TestDbDesignForms extends AbstractDesignTest {
       .map(Form::getBody)
       .flatMap(List::stream)
       .forEach(rec -> {
+        short type = 0;
         if(rec instanceof GenericBSIGRecord) {
-          types.addAll(((RichTextRecord<?>)rec).getType());
+          type = ((RichTextRecord<?>)rec).getTypeValue();
         } else if(rec instanceof GenericWSIGRecord) {
-          types.addAll(((RichTextRecord<?>)rec).getType());
+          type = ((RichTextRecord<?>)rec).getTypeValue();
         } else if(rec instanceof GenericLSIGRecord) {
-          types.addAll(((RichTextRecord<?>)rec).getType());
+          type = ((RichTextRecord<?>)rec).getTypeValue();
+        }
+        if(type != 0) {
+          RecordType rtype = null;
+          rtype = RecordType.getRecordTypeForConstant(type, Area.TYPE_COMPOSITE);
+          if(rtype != null) {
+            types.add(rtype);
+          } else {
+            System.out.println("Unable to locate rich text RecordType value for " + type + "; candidates are " + RecordType.getRecordTypesForConstant(type));
+          }
         }
       });
     

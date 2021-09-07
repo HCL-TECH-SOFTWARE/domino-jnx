@@ -554,14 +554,14 @@ public enum RecordType {
    * indicates the
    * location of the document to be retrieved when the defined area is activated..
    */
-  MAPELEMENT(RichTextConstants.SIG_CD_MAPELEMENT, 3),
+  MAPELEMENT(RichTextConstants.SIG_CD_MAPELEMENT, new int[] { 1, 3 }),
   /**
    * An AREA element defines the shape and coordinates of a region within a client
    * side image MAP.
    */
-  AREAELEMENT(RichTextConstants.SIG_CD_AREAELEMENT, 3),
+  AREAELEMENT(RichTextConstants.SIG_CD_AREAELEMENT, new int[] { 1, 3 } ),
   HREF(RichTextConstants.SIG_CD_HREF, new int[] { 1, 3 , 4}, CDResource.class),
-  HTML_ALTTEXT(RichTextConstants.SIG_CD_HTML_ALTTEXT, 3),
+  HTML_ALTTEXT(RichTextConstants.SIG_CD_HTML_ALTTEXT, new int[] { 1, 3 }),
   /**
    * Structure which defines simple actions, formulas or LotusScript for an image
    * map, similar to {@link #EVENT}
@@ -734,7 +734,7 @@ public enum RecordType {
    * graphical, or
    * action elements associated with the graphical element.
    */
-  LAYOUTGRAPHIC(RichTextConstants.SIG_CD_LAYOUTGRAPHIC, 4),
+  LAYOUTGRAPHIC(RichTextConstants.SIG_CD_LAYOUTGRAPHIC, new int[] { 1, 4 }),
   OLEOBJINFO(RichTextConstants.SIG_CD_OLEOBJINFO, 4),
   /**
    * A button in a layout region of a form is defined by a CDLAYOUTBUTTON
@@ -749,7 +749,7 @@ public enum RecordType {
    * The CDTEXTEFFECT record stores a "special effect" font ID for a run of rich
    * text.
    */
-  TEXTEFFECT(RichTextConstants.SIG_CD_TEXTEFFECT, 4),
+  TEXTEFFECT(RichTextConstants.SIG_CD_TEXTEFFECT, new int[] { 1, 4 }),
 
   /* Signatures for items of type TYPE_VIEWMAP */
 
@@ -944,6 +944,9 @@ public enum RecordType {
   private final Class<? extends RichTextRecord<?>> m_encapsulation;
 
   RecordType(final short val, final int area) {
+    this(val, area, null);
+  }
+  RecordType(final short val, final int[] area) {
     this(val, area, null);
   }
 
