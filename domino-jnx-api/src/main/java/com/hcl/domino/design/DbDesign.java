@@ -484,6 +484,24 @@ public interface DbDesign {
    * @since 1.0.37
    */
   Stream<SharedColumn> getSharedColumns();
+
+  /**
+   * Retrieves the named style sheet resource.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link StyleSheet}, or an empty one if
+   *         no such style sheet exists
+   * @since 1.0.38
+   */
+  Optional<StyleSheet> getStyleSheet(String name);
+
+  /**
+   * Retrieves all style sheet in the database.
+   *
+   * @return a {@link Stream} of {@link StyleSheet}s
+   * @since 1.0.38
+   */
+  Stream<StyleSheet> getStyleSheets();
   
   /**
    * Retrieves a design element by its UNID.

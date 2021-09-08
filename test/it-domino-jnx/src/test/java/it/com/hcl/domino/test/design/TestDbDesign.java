@@ -61,6 +61,7 @@ import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.design.SharedActions;
 import com.hcl.domino.design.SharedField;
+import com.hcl.domino.design.StyleSheet;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.SubformReference;
 import com.hcl.domino.design.UsingDocument;
@@ -972,6 +973,60 @@ public class TestDbDesign extends AbstractDesignTest {
         @SuppressWarnings("unused")
         View view = optActions.get();
       });
+    }
+  }
+  
+  @Test
+  public void testStyleSheets() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<StyleSheet> sheets = dbDesign.getStyleSheets().collect(Collectors.toList());
+    assertEquals(1, sheets.size());
+    assertTrue(sheets.stream().anyMatch(sheet -> "test.css".equals(sheet.getTitle())));
+  }
+
+  @Test
+  public void testStyleSheetTest() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    StyleSheet res = dbDesign.getStyleSheet("test.css").get();
+    assertEquals("test.css", res.getTitle());
+    assertEquals("text/css", res.getMimeType());
+    assertEquals("UTF-8", res.getCharsetName());
+    
+    String expected = "body {\r\n"
+        + "\tbackground: red;\r\n"
+        + "}";
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("test.css").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<StyleSheet> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
     }
   }
 }

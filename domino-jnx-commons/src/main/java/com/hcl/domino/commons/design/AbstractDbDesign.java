@@ -55,6 +55,7 @@ import com.hcl.domino.design.ScriptLibrary;
 import com.hcl.domino.design.SharedActions;
 import com.hcl.domino.design.SharedColumn;
 import com.hcl.domino.design.SharedField;
+import com.hcl.domino.design.StyleSheet;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
@@ -421,6 +422,16 @@ public abstract class AbstractDbDesign implements DbDesign {
   @Override
   public Stream<SharedColumn> getSharedColumns() {
     return getDesignElements(SharedColumn.class);
+  }
+  
+  @Override
+  public Optional<StyleSheet> getStyleSheet(String name) {
+    return getDesignElementByName(StyleSheet.class, name);
+  }
+  
+  @Override
+  public Stream<StyleSheet> getStyleSheets() {
+    return getDesignElements(StyleSheet.class);
   }
   
   @SuppressWarnings("unchecked")
