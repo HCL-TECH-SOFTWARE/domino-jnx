@@ -356,7 +356,7 @@ public abstract class AbstractDbDesign implements DbDesign {
   @Override
   public Optional<SharedField> getSharedField(final String name) {
     // NB: it appears that looking up shared fields using NIFFindDesignNoteExt is unreliable in practice,
-    //     so query from the design collction here
+    //     so query from the design collection here
     DesignMapping<SharedField, ?> mapping = DesignUtil.getDesignMapping(SharedField.class);
     return this.findDesignNotes(mapping.getNoteClass(), mapping.getFlagsPattern())
       .filter(entry -> DesignUtil.matchesTitleValues(name, entry.getTitles()))
