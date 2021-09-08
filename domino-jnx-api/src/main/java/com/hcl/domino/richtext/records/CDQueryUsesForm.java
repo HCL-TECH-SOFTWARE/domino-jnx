@@ -22,7 +22,7 @@ import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
-import com.hcl.domino.richtext.structures.BSIG;
+import com.hcl.domino.richtext.structures.WSIG;
 
 /**
  * @author Jesse Gallagher
@@ -31,14 +31,14 @@ import com.hcl.domino.richtext.structures.BSIG;
 @StructureDefinition(
   name = "CDQUERYUSESFORM",
   members = {
-    @StructureMember(name = "Header", type = BSIG.class),
+    @StructureMember(name = "Header", type = WSIG.class),
     @StructureMember(name = "dwFlags", type = int.class)
   }
 )
-public interface CDQueryUsesForm extends RichTextRecord<BSIG> {
+public interface CDQueryUsesForm extends RichTextRecord<WSIG> {
   @StructureGetter("Header")
   @Override
-  BSIG getHeader();
+  WSIG getHeader();
   
   default List<String> getFormNames() {
     return StructureSupport.extractStringListStructure(this, 0);

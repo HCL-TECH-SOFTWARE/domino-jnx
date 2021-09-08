@@ -19,12 +19,15 @@ package com.hcl.domino.commons.design;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -44,15 +47,20 @@ import com.hcl.domino.commons.design.simpleaction.DefaultSendNewsletterAction;
 import com.hcl.domino.commons.design.simplesearch.DefaultByAuthorTerm;
 import com.hcl.domino.commons.design.simplesearch.DefaultByDateFieldTerm;
 import com.hcl.domino.commons.design.simplesearch.DefaultByFieldTerm;
+import com.hcl.domino.commons.design.simplesearch.DefaultByFolderTerm;
 import com.hcl.domino.commons.design.simplesearch.DefaultByNumberFieldTerm;
+import com.hcl.domino.commons.design.simplesearch.DefaultExampleFormTerm;
+import com.hcl.domino.commons.design.simplesearch.DefaultTextTerm;
 import com.hcl.domino.design.simpleaction.FolderBasedAction;
 import com.hcl.domino.design.simpleaction.ReadMarksAction;
 import com.hcl.domino.design.simpleaction.RunAgentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
 import com.hcl.domino.design.simplesearch.ByDateFieldTerm;
 import com.hcl.domino.design.simplesearch.ByFieldTerm;
+import com.hcl.domino.design.simplesearch.ByFormTerm;
 import com.hcl.domino.design.simplesearch.ByNumberFieldTerm;
 import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
+import com.hcl.domino.design.simplesearch.TextTerm;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
@@ -93,7 +101,12 @@ import com.hcl.domino.richtext.records.CDActionRunAgent;
 import com.hcl.domino.richtext.records.CDActionSendDocument;
 import com.hcl.domino.richtext.records.CDActionSendMail;
 import com.hcl.domino.richtext.records.CDQueryByField;
+import com.hcl.domino.richtext.records.CDQueryByFolder;
+import com.hcl.domino.richtext.records.CDQueryByForm;
+import com.hcl.domino.richtext.records.CDQueryFormula;
 import com.hcl.domino.richtext.records.CDQueryHeader;
+import com.hcl.domino.richtext.records.CDQueryTextTerm;
+import com.hcl.domino.richtext.records.CDQueryUsesForm;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
 
@@ -722,8 +735,49 @@ public enum DesignUtil {
                 return new DefaultByFieldTerm(textRule, fieldName, textValue);
               }
           }
+        } else if(record instanceof CDQueryByFolder) {
+          CDQueryByFolder query = (CDQueryByFolder)record;
           
-         
+          boolean isPrivate = query.getFlags().contains(CDQueryByFolder.Flag.PRIVATE);
+          String folderName = query.getFolderName();
+          return new DefaultByFolderTerm(folderName, isPrivate);
+        } else if(record instanceof CDQueryByForm) {
+          CDQueryByForm query = (CDQueryByForm)record;
+          
+          String formName = query.getFormName();
+          Map<String, List<String>> fieldMatches = new LinkedHashMap<>();
+          for(AssistFieldStruct struct : query.getAssistFields()) {
+            // Ignore operator
+            String fieldName = struct.getFieldName();
+            List<String> values = struct.getValues();
+            fieldMatches.put(fieldName, values);
+          }
+          
+          return new DefaultExampleFormTerm(formName, fieldMatches);
+        } else if(record instanceof CDQueryFormula) {
+          // This has no representation in Designer, and so is not currently implemented here
+          return null;
+        } else if(record instanceof CDQueryTextTerm) {
+          CDQueryTextTerm query = (CDQueryTextTerm)record;
+          
+          TextTerm.Type textType;
+          Set<CDQueryTextTerm.Flag> flags = query.getFlags();
+          if(flags.contains(CDQueryTextTerm.Flag.ACCRUE)) {
+            textType = TextTerm.Type.ACCRUE;
+          } else if(flags.contains(CDQueryTextTerm.Flag.AND)) {
+            textType = TextTerm.Type.AND;
+          } else if(flags.contains(CDQueryTextTerm.Flag.NEAR)) {
+            textType = TextTerm.Type.NEAR;
+          } else {
+            textType = TextTerm.Type.PLAIN;
+          }
+          
+          return new DefaultTextTerm(textType, query.getTerms());
+        } else if(record instanceof CDQueryUsesForm) {
+          CDQueryUsesForm query = (CDQueryUsesForm)record;
+          
+          Set<String> formNames = Collections.unmodifiableSet(new LinkedHashSet<>(query.getFormNames()));
+          return (ByFormTerm)() -> formNames;
         }
         return (SimpleSearchTerm)null;
       })

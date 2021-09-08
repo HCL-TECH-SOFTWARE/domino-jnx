@@ -90,11 +90,14 @@ public interface CDQueryTextTerm extends RichTextRecord<WSIG> {
   CDQueryTextTerm setTermLengths(long[] lengths);
   
   default List<String> getTerms() {
-    return StructureSupport.extractStringValues(
+    // The terms stop after the first blank entry
+    List<String> terms = StructureSupport.extractStringValues(
       this,
       0,
       getTermLengths()
     );
+    int blankIndex = terms.indexOf(""); //$NON-NLS-1$
+    return terms.subList(0, blankIndex);
   }
   
   default CDQueryTextTerm setTerms(List<String> terms) {

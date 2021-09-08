@@ -216,15 +216,18 @@ public enum StructureSupport {
     buf.position(preLen);
     
     int count = Short.toUnsignedInt(buf.getShort());
+    
+    int[] sizes = new int[count];
+    for(int i = 0; i < count; i++) {
+      sizes[i] = Short.toUnsignedInt(buf.getShort());
+    }
+    
     List<String> result = new ArrayList<>();
     for(int i = 0; i < count; i++) {
-      // Read to the next \0
-      byte b;
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      while((b = buf.get()) != '\0') {
-        baos.write(b);
-      }
-      result.add(new String(baos.toByteArray(), Charset.forName("LMBCS"))); //$NON-NLS-1$
+      // Read sizes[i] bytes as LMBCS
+      byte[] lmbcs = new byte[sizes[i]];
+      buf.get(lmbcs);
+      result.add(new String(lmbcs, Charset.forName("LMBCS"))); //$NON-NLS-1$
     }
     return result;
   }

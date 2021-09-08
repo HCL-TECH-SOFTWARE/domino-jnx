@@ -35,6 +35,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -545,7 +546,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     DesignAgent agent = design.getAgent("Test Selection").get();
     
     List<? extends SimpleSearchTerm> search = agent.getDocumentSelection();
-    assertEquals(21, search.size());
+    assertEquals(23, search.size());
     
     {
       SimpleSearchTerm term = search.get(0);
@@ -576,7 +577,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     {
       SimpleSearchTerm term = search.get(4);
       ByFormTerm form = assertInstanceOf(ByFormTerm.class, term);
-      assertEquals(Arrays.asList("Some Form", "Some Other Form"), form.getFormNames());
+      assertEquals(new LinkedHashSet<>(Arrays.asList("Some Form", "Some Other Form")), form.getFormNames());
     }
     {
       SimpleSearchTerm term = search.get(5);
@@ -687,6 +688,20 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
       DominoDateRange range = date.getDateRange().get();
       assertEquals(start, range.getStartDateTime().toLocalDate());
       assertEquals(end, range.getEndDateTime().toLocalDate());
+    }
+    {
+      SimpleSearchTerm term = search.get(21);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(22);
+      ByDateFieldTerm date = assertInstanceOf(ByDateFieldTerm.class, term);
+      assertEquals(ByDateFieldTerm.DateType.FIELD, date.getDateType());
+      assertFalse(date.getDate().isPresent());
+      assertFalse(date.getDateRange().isPresent());
+      assertEquals(7, date.getDayCount().getAsInt());
     }
   }
 }
