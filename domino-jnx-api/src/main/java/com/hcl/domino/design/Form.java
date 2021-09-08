@@ -21,9 +21,9 @@ import java.util.OptionalInt;
 import java.util.Set;
 
 import com.hcl.domino.data.StandardColors;
-import com.hcl.domino.design.form.AutoLaunchHideWhen;
-import com.hcl.domino.design.form.AutoLaunchType;
-import com.hcl.domino.design.form.AutoLaunchWhen;
+import com.hcl.domino.design.forms.AutoLaunchHideWhen;
+import com.hcl.domino.design.forms.AutoLaunchType;
+import com.hcl.domino.design.forms.AutoLaunchWhen;
 import com.hcl.domino.design.frameset.FrameScrollStyle;
 import com.hcl.domino.design.frameset.FrameSizingType;
 import com.hcl.domino.richtext.NotesBitmap;

@@ -14,30 +14,35 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.form;
+package com.hcl.domino.design.forms;
 
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.misc.INumberEnum;
 
 /**
- * Represents the conditions for hiding an auto-launch object when
- * {@link com.hcl.domino.design.Form.AutoLaunchSettings#getType() AutoLaunchSettings#getType()}
- * is an object type.
+ * Represents the behaviors for auto-launching an embedded component in the client UI.
  * 
  * @author Jesse Gallagher
  * @since 1.0.34
  */
-public enum AutoLaunchHideWhen implements INumberEnum<Integer> {
-  OPEN_CREATE(DesignConstants.HIDE_OPEN_CREATE),
-  OPEN_EDIT(DesignConstants.HIDE_OPEN_EDIT),
-  OPEN_READ(DesignConstants.HIDE_OPEN_READ),
-  CLOSE_CREATE(DesignConstants.HIDE_CLOSE_CREATE),
-  CLOSE_EDIT(DesignConstants.HIDE_CLOSE_EDIT),
-  CLOSE_READ(DesignConstants.HIDE_CLOSE_READ);
+public enum AutoLaunchType implements INumberEnum<Integer> {
   
+  NONE(DesignConstants.AUTOLAUNCH_OBJTYPE_NONE),
+  /**  OLE Class ID (GUID)  */
+  OLE_CLASS(DesignConstants.AUTOLAUNCH_OBJTYPE_OLE_CLASS),
+  /**  First OLE Object  */
+  OLEOBJ(DesignConstants.AUTOLAUNCH_OBJTYPE_OLEOBJ),
+  /**  First Notes doclink  */
+  DOCLINK(DesignConstants.AUTOLAUNCH_OBJTYPE_DOCLINK),
+  /**  First Attachment  */
+  ATTACH(DesignConstants.AUTOLAUNCH_OBJTYPE_ATTACH),
+  /**  AutoLaunch the url in the URL field  */
+  URL(DesignConstants.AUTOLAUNCH_OBJTYPE_URL),
+  ;
+
   private final int value;
 
-  AutoLaunchHideWhen(final int value) {
+  AutoLaunchType(final int value) {
     this.value = value;
   }
 
