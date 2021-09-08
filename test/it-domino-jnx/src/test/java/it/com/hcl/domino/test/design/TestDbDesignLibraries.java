@@ -186,5 +186,14 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
     String unid = scriptLibrary.getDocument().getUNID();
     Optional<ScriptLibrary> optLib = design.getDesignElementByUNID(unid);
     assertInstanceOf(JavaScriptLibrary.class, optLib.get());
+    
+    // Read as a file resource
+    {
+      String script;
+      try(InputStream is = design.getResourceAsStream("js lib").get()) {
+        script = StreamUtil.readString(is);
+      }
+      assertEquals("alert(\"Hi, I'm JS\")", script.replace("\r\n", "\n"));
+    }
   }
 }

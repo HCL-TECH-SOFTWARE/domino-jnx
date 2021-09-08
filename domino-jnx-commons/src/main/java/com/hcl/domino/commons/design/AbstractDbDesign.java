@@ -50,6 +50,7 @@ import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageResource;
+import com.hcl.domino.design.JavaScriptLibrary;
 import com.hcl.domino.design.NamedFileElement;
 import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.Page;
@@ -77,9 +78,9 @@ public abstract class AbstractDbDesign implements DbDesign {
     NotesConstants.DFLAGPAT_IMAGE_RESOURCE,
     NotesConstants.DFLAGPAT_STYLE_SHEET_RESOURCE,
     NotesConstants.DFLAGPAT_COMPDEF,
-    "(+-*g`", //$NON-NLS-1$
-    "+.", //$NON-NLS-1$
-    "+h" //$NON-NLS-1$
+    NotesConstants.DFLAGPAT_STYLEKIT,
+    NotesConstants.DFLAGPAT_SCRIPTLIB_SERVER_JS,
+    NotesConstants.DFLAGPAT_SCRIPTLIB_JS
   ));
 
   public static class DesignEntry {
@@ -505,6 +506,9 @@ public abstract class AbstractDbDesign implements DbDesign {
           return ((NamedFileElement) element).getFileData();
         } else if(element instanceof ServerJavaScriptLibrary) {
           String script = ((ServerJavaScriptLibrary)element).getScript();
+          return new ByteArrayInputStream(script.getBytes());
+        } else if(element instanceof JavaScriptLibrary) {
+          String script = ((JavaScriptLibrary)element).getScript();
           return new ByteArrayInputStream(script.getBytes());
         } else {
           throw new UnsupportedOperationException(MessageFormat.format("Unable to get file data for element of type {0}", element.getClass().getName()));
