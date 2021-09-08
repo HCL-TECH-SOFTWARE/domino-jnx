@@ -60,6 +60,7 @@ import com.hcl.domino.design.SharedColumn;
 import com.hcl.domino.design.SharedField;
 import com.hcl.domino.design.StyleSheet;
 import com.hcl.domino.design.Subform;
+import com.hcl.domino.design.Theme;
 import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.WiringProperties;
@@ -446,6 +447,16 @@ public abstract class AbstractDbDesign implements DbDesign {
   @Override
   public Stream<WiringProperties> getWiringPropertiesElements() {
     return getDesignElements(WiringProperties.class);
+  }
+  
+  @Override
+  public Optional<Theme> getTheme(String name) {
+    return getDesignElementByName(Theme.class, name);
+  }
+  
+  @Override
+  public Stream<Theme> getThemes() {
+    return getDesignElements(Theme.class);
   }
   
   @SuppressWarnings("unchecked")

@@ -64,6 +64,7 @@ import com.hcl.domino.design.SharedField;
 import com.hcl.domino.design.StyleSheet;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.SubformReference;
+import com.hcl.domino.design.Theme;
 import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.WiringProperties;
@@ -1078,6 +1079,57 @@ public class TestDbDesign extends AbstractDesignTest {
     String unid = res.getDocument().getUNID();
     {
       Optional<WiringProperties> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+    }
+  }
+  
+  @Test
+  public void testThemes() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<Theme> themes = dbDesign.getThemes().collect(Collectors.toList());
+    assertEquals(1, themes.size());
+    assertTrue(themes.stream().anyMatch(prop -> "test.theme".equals(prop.getTitle())));
+  }
+  
+  @Test
+  public void testThemeTest() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    Theme res = dbDesign.getTheme("test.theme").get();
+    assertEquals("test.theme", res.getTitle());
+    
+    String expected = "<theme extends=\"webstandard\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"platform:/plugin/com.ibm.designer.domino.stylekits/schema/stylekit.xsd\" >\n"
+        + "</theme>\r\n";
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("test.theme").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<Theme> optRes = dbDesign.getDesignElementByUNID(unid);
       res = optRes.get();
       {
         String content;

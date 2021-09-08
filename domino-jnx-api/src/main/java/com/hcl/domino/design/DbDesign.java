@@ -508,7 +508,7 @@ public interface DbDesign {
    *
    * @param name the element name to restrict to
    * @return an {@link Optional} describing the {@link WiringProperties}, or an empty one if
-   *         no such style sheet exists
+   *         no such wiring properties element exists
    * @since 1.0.38
    */
   Optional<WiringProperties> getWiringPropertiesElement(String name);
@@ -520,6 +520,24 @@ public interface DbDesign {
    * @since 1.0.38
    */
   Stream<WiringProperties> getWiringPropertiesElements();
+
+  /**
+   * Retrieves the named theme element.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link Theme}, or an empty one if
+   *         no such theme exists
+   * @since 1.0.38
+   */
+  Optional<Theme> getTheme(String name);
+
+  /**
+   * Retrieves all theme elements in the database.
+   *
+   * @return a {@link Stream} of {@link Theme}s
+   * @since 1.0.38
+   */
+  Stream<Theme> getThemes();
   
   /**
    * Retrieves a design element by its UNID.
