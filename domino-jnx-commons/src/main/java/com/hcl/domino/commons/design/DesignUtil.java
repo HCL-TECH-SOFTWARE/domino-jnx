@@ -274,6 +274,8 @@ public enum DesignUtil {
           return new SubformImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_FILE_RESOURCE)) {
           return new FileResourceImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_FILE)) {
+          return new FileResourceImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SACTIONS_DESIGN)) {
           return new SharedActionsImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_WEBPAGE)) {

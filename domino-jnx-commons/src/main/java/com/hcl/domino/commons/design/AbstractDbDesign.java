@@ -261,13 +261,31 @@ public abstract class AbstractDbDesign implements DbDesign {
   }
 
   @Override
-  public Optional<FileResource> getFileResource(final String name) {
-    return this.getDesignElementByName(FileResource.class, name);
+  public Optional<FileResource> getFileResource(final String name, boolean includeXsp) {
+    // By default, FileResource is mapped to the Designer list only
+    if(includeXsp) {
+      final int noteId = this.findDesignNote(DocumentClass.FORM, NotesConstants.DFLAGPAT_FILE, name, false);
+      if (noteId == 0) {
+        return Optional.empty();
+      } else {
+        return Optional.of(new FileResourceImpl(this.database.getDocumentById(noteId).get()));
+      }
+    } else {
+      return this.getDesignElementByName(FileResource.class, name);
+    }
   }
 
   @Override
-  public Stream<FileResource> getFileResources() {
-    return this.getDesignElements(FileResource.class);
+  public Stream<FileResource> getFileResources(boolean includeXsp) {
+    // By default, FileResource is mapped to the Designer list only
+    if(includeXsp) {
+      return this.findDesignNotes(DocumentClass.FORM, NotesConstants.DFLAGPAT_FILE)
+        .map(entry -> this.database.getDocumentById(entry.noteId))
+        .map(Optional::get)
+        .map(FileResourceImpl::new);
+    } else {
+      return this.getDesignElements(FileResource.class);
+    }
   }
 
   @Override

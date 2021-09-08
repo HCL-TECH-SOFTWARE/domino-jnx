@@ -285,6 +285,36 @@ public class TestDbDesign extends AbstractDesignTest {
       assertEquals(expected.replace("\r\n", "\n"), content.replace("\r\n", "\n"));
     }
   }
+  
+  @Test
+  public void testFileResourceMisc() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+
+    assertFalse(dbDesign.getFileResources(false).anyMatch(res -> "misc/somexpagestext.txt".equals(res.getTitle())));
+    assertTrue(dbDesign.getFileResources(true).anyMatch(res -> "misc/somexpagestext.txt".equals(res.getTitle())));
+    
+    final FileResource res = dbDesign.getFileResource("misc/somexpagestext.txt", true).get();
+    assertEquals("misc/somexpagestext.txt", res.getTitle());
+    assertEquals("text/plain", res.getMimeType());
+
+    String expected = "I'm called misc/somexpagestxt.txt";
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("misc/somexpagestext.txt").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+  }
 
   @Test
   public void testFileResources() {
@@ -293,6 +323,8 @@ public class TestDbDesign extends AbstractDesignTest {
     assertEquals(3, resources.size());
 
     assertTrue(resources.stream().anyMatch(res -> Arrays.asList("file.css").equals(res.getFileNames())));
+    assertTrue(dbDesign.getFileResources(true).anyMatch(res -> Arrays.asList("file.css").equals(res.getFileNames())));
+    assertTrue(dbDesign.getFileResources(false).anyMatch(res -> Arrays.asList("file.css").equals(res.getFileNames())));
     assertTrue(resources.stream().anyMatch(res -> Arrays.asList("test.txt").equals(res.getFileNames())));
     assertTrue(resources.stream().anyMatch(res -> Arrays.asList("largels.txt").equals(res.getFileNames())));
   }

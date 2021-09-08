@@ -184,21 +184,62 @@ public interface DbDesign {
    * not the "$FileNames" of the file resource. These may diverge, such as when a
    * file resource has an alias assigned to it.
    * </p>
+   * 
+   * <p>Moreover, this method finds only elements listed in the "File Resources"
+   * list in Designer, not elements like "loose" resources in the WebContent
+   * directory.</p>
    *
    * @param name the name of the resource to restrict to
    * @return an {@link Optional} describing the {@link FileResource}, or an empty
    *         one if no such element exists
    * @since 1.0.24
    */
-  Optional<FileResource> getFileResource(String name);
+  default Optional<FileResource> getFileResource(String name) {
+    return getFileResource(name, false);
+  }
+  
+  /**
+   * Retrieves the named file resource, optionally including the pool of "XPages-side"
+   * resources, such as files placed in the "WebContent" directory.
+   * 
+   * <p>
+   * Note: this method uses the value of the "$TITLE" field of the design element,
+   * not the "$FileNames" of the file resource. These may diverge, such as when a
+   * file resource has an alias assigned to it.
+   * </p>
+   *
+   * @param name the name of the resource to restrict to
+   * @param includeXsp whether to include XPages-side file resources
+   * @return an {@link Optional} describing the {@link FileResource}, or an empty
+   *         one if no such element exists
+   * @since 1.0.38
+   */
+  Optional<FileResource> getFileResource(String name, boolean includeXsp);
 
   /**
    * Retrieves all file resource design elements in the database.
+   * 
+   * <p>This method finds only elements listed in the "File Resources"
+   * list in Designer, not elements like "loose" resources in the WebContent
+   * directory.</p>
    *
    * @return a {@link Stream} of {@link FileResource}s
    * @since 1.0.24
    */
-  Stream<FileResource> getFileResources();
+  default Stream<FileResource> getFileResources() {
+    return getFileResources(false);
+  }
+  
+  /**
+   * Retrieves all file resource design elements in the database, optionally
+   * including the pool of "XPages-side" resources, such as files placed in the
+   * "WebContent" directory.
+   *
+   * @param includeXsp whether to include XPages-side file resources
+   * @return a {@link Stream} of {@link FileResource}s
+   * @since 1.0.38
+   */
+  Stream<FileResource> getFileResources(boolean includeXsp);
 
   /**
    * Retrieves the named folder.
