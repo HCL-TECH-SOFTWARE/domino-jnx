@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -98,6 +99,9 @@ import com.hcl.domino.design.simpleaction.ModifyFieldAction;
 import com.hcl.domino.design.simpleaction.ReadMarksAction;
 import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.design.simplesearch.ByFormTerm;
+import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
+import com.hcl.domino.design.simplesearch.TextTerm;
 import com.hcl.domino.exception.FileDoesNotExistException;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
@@ -110,7 +114,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignCollections extends AbstractDesignTest {
-  public static final int EXPECTED_IMPORT_VIEWS = 10;
+  public static final int EXPECTED_IMPORT_VIEWS = 11;
   public static final int EXPECTED_IMPORT_FOLDERS = 1;
 
   private static String dbPath;
@@ -2083,5 +2087,32 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertEquals("", column.getExtraAttributes());
       assertFalse(column.isShowAsLinks());
     }
+  }
+  
+  @Test
+  public void testSelectionView() {
+    DbDesign design = this.database.getDesign();
+    View view = design.getView("Selection View").get();
+    
+    List<? extends SimpleSearchTerm> search = view.getDocumentSelection();
+    assertEquals(3, search.size());
+    {
+      SimpleSearchTerm term = search.get(0);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.ACCRUE, text.getType());
+      assertEquals(Arrays.asList("fdfdf", "dfsdfv"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(1);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(2);
+      ByFormTerm form = assertInstanceOf(ByFormTerm.class, term);
+      assertEquals(new LinkedHashSet<>(Arrays.asList("Alias", "Content|foo|bar")), form.getFormNames());
+    }
+    
   }
 }

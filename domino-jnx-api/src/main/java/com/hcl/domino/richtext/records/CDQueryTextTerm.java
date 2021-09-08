@@ -19,6 +19,7 @@ package com.hcl.domino.richtext.records;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.NotesConstants;
@@ -90,14 +91,13 @@ public interface CDQueryTextTerm extends RichTextRecord<WSIG> {
   CDQueryTextTerm setTermLengths(long[] lengths);
   
   default List<String> getTerms() {
-    // The terms stop after the first blank entry
+    // Filter out blank entries, since there will always be 10 slots
     List<String> terms = StructureSupport.extractStringValues(
       this,
       0,
       getTermLengths()
     );
-    int blankIndex = terms.indexOf(""); //$NON-NLS-1$
-    return terms.subList(0, blankIndex);
+    return terms.stream().filter(s -> !s.isEmpty()).collect(Collectors.toList());
   }
   
   default CDQueryTextTerm setTerms(List<String> terms) {

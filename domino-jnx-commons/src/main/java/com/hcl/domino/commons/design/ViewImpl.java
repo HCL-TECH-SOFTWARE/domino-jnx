@@ -16,10 +16,15 @@
  */
 package com.hcl.domino.commons.design;
 
+import java.util.List;
+
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.View;
+import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
+import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.richtext.records.RecordType;
 
 /**
  * @since 1.0.18
@@ -31,18 +36,23 @@ public class ViewImpl extends AbstractCollectionDesignElement<View> implements V
   }
 
   @Override
-  public String getSelectionFormula() {
-    return getDocument().get(DesignConstants.VIEW_FORMULA_ITEM, String.class, ""); //$NON-NLS-1$
-  }
-
-  @Override
   public void initializeNewDesignNote() {
     this.setFlags("Y"); //$NON-NLS-1$
   }
 
   @Override
+  public String getSelectionFormula() {
+    return getDocument().get(DesignConstants.VIEW_FORMULA_ITEM, String.class, ""); //$NON-NLS-1$
+  }
+
+  @Override
   public View setSelectionFormula(final String selectionFormula) {
     throw new NotYetImplementedException();
+  }
+  
+  @Override
+  public List<? extends SimpleSearchTerm> getDocumentSelection() {
+    return DesignUtil.toSimpleSearch(getDocument().getRichTextItem(NotesConstants.VIEW_SELQUERY_ITEM, RecordType.Area.TYPE_QUERY));
   }
 
   @Override
