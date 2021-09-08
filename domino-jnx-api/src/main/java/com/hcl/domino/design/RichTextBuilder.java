@@ -256,7 +256,6 @@ public interface RichTextBuilder {
 		 * @param nrOfRows number of repetitions
 		 * @param from strings to replace
 		 * @param toFct function to compute what to insert
-		 * @param ignoreCase true for case-insensitive matching
 		 * @return build context
 		 */
 		default RichTextBuilderContext<O> repeatTableRow(int rowIdx, int nrOfRows, Collection<String> from,
