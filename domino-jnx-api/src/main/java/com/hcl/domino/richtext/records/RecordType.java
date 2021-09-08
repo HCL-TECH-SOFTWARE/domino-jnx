@@ -765,7 +765,7 @@ public enum RecordType {
   VMRNDRECT(RichTextConstants.SIG_CD_VMRNDRECT, 5),
   VMBUTTON(RichTextConstants.SIG_CD_VMBUTTON, 5),
   VMACTION_2(RichTextConstants.SIG_CD_VMACTION_2, 5),
-  VMTEXTBOX(RichTextConstants.SIG_CD_VMTEXTBOX, 5),
+  VMTEXTBOX(RichTextConstants.SIG_CD_VMTEXTBOX, 5, ViewmapTextRecord.class),
   VMPOLYGON(RichTextConstants.SIG_CD_VMPOLYGON, 5),
   VMPOLYLINE(RichTextConstants.SIG_CD_VMPOLYLINE, 5),
   VMPOLYRGN(RichTextConstants.SIG_CD_VMPOLYRGN, 5),
