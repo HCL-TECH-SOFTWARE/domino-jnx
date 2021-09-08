@@ -118,12 +118,13 @@ public interface CDQueryByForm extends RichTextRecord<WSIG> {
    * @return this record
    */
   default CDQueryByForm setActionData(final byte[] actionData) {
-    final byte[] data = actionData == null ? new byte[0] : actionData;
     ByteBuffer buf = this.getVariableData();
     byte[] formNameData = new byte[this.getFormNameLength()];
-    buf.position(data.length);
+    int existingLen = buf.remaining() - formNameData.length;
+    buf.position(existingLen);
     buf.get(formNameData);
 
+    final byte[] data = actionData == null ? new byte[0] : actionData;
     this.resizeVariableData(data.length + formNameData.length);
     buf = this.getVariableData();
     buf.put(data);
