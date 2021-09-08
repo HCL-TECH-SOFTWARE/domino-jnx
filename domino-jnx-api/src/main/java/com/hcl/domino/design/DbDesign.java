@@ -502,6 +502,24 @@ public interface DbDesign {
    * @since 1.0.38
    */
   Stream<StyleSheet> getStyleSheets();
+
+  /**
+   * Retrieves the named wiring properties element.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link WiringProperties}, or an empty one if
+   *         no such style sheet exists
+   * @since 1.0.38
+   */
+  Optional<WiringProperties> getWiringPropertiesElement(String name);
+
+  /**
+   * Retrieves all wiring properties elements in the database.
+   *
+   * @return a {@link Stream} of {@link WiringProperties}s
+   * @since 1.0.38
+   */
+  Stream<WiringProperties> getWiringPropertiesElements();
   
   /**
    * Retrieves a design element by its UNID.

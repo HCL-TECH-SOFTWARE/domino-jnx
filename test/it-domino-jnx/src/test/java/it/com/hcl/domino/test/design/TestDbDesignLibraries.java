@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -43,6 +44,7 @@ import com.hcl.domino.design.LotusScriptLibrary;
 import com.hcl.domino.design.ScriptLibrary;
 import com.hcl.domino.design.ServerJavaScriptLibrary;
 import com.hcl.domino.design.agent.JavaAgentContent;
+import com.ibm.commons.util.io.StreamUtil;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
@@ -161,6 +163,15 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
     final ServerJavaScriptLibrary lib = (ServerJavaScriptLibrary) scriptLibrary;
     final String expected = IOUtils.resourceToString("/text/ssjs.txt", Charset.forName("UTF-8"));
     assertEquals(expected.replace("\r\n", "\n"), lib.getScript().replace("\r\n", "\n"));
+    
+    // Read as a file resource
+    {
+      String script;
+      try(InputStream is = design.getResourceAsStream("ssjs lib").get()) {
+        script = StreamUtil.readString(is);
+      }
+      assertEquals(expected.replace("\r\n", "\n"), script.replace("\r\n", "\n"));
+    }
   }
 
   @Test

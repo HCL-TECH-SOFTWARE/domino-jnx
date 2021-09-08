@@ -66,6 +66,7 @@ import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.SubformReference;
 import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
+import com.hcl.domino.design.WiringProperties;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionBarAction.IconType;
 import com.hcl.domino.design.action.ActionContent;
@@ -1019,6 +1020,64 @@ public class TestDbDesign extends AbstractDesignTest {
     String unid = res.getDocument().getUNID();
     {
       Optional<StyleSheet> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+    }
+  }
+  
+  @Test
+  public void testWiringProperties() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<WiringProperties> props = dbDesign.getWiringPropertiesElements().collect(Collectors.toList());
+    assertEquals(1, props.size());
+    assertTrue(props.stream().anyMatch(prop -> "wiringprops.wsdl".equals(prop.getTitle())));
+  }
+  
+  @Test
+  public void testWiringPropertiesTest() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    WiringProperties res = dbDesign.getWiringPropertiesElement("wiringprops.wsdl").get();
+    assertEquals("wiringprops.wsdl", res.getTitle());
+    
+    String expected = "<definitions name=\"Property Broker WSDL\"\n"
+        + "targetNamespace=\"http://com.yourcompany.propertybroker\"\n"
+        + "xmlns=\"http://schemas.xmlsoap.org/wsdl/\"\n"
+        + "xmlns:portlet=\"http://www.ibm.com/wps/c2a\"\n"
+        + "xmlns:soap=\"http://schemas.xmlsoap.org/wsdl/soap/\"\n"
+        + "xmlns:tns=\"http://com.yourcompany.propertybroker\"\n"
+        + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+        + "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n"
+        + "</definitions>\r\n";
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("wiringprops.wsdl").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<WiringProperties> optRes = dbDesign.getDesignElementByUNID(unid);
       res = optRes.get();
       {
         String content;
