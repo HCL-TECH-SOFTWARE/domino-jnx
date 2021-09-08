@@ -61,17 +61,20 @@ import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.design.SharedActions;
 import com.hcl.domino.design.SharedField;
+import com.hcl.domino.design.StyleSheet;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.SubformReference;
+import com.hcl.domino.design.Theme;
 import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
+import com.hcl.domino.design.WiringProperties;
 import com.hcl.domino.design.action.ActionBarAction;
+import com.hcl.domino.design.action.ActionBarAction.IconType;
 import com.hcl.domino.design.action.ActionContent;
 import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.action.FormulaActionContent;
 import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.design.action.SimpleActionActionContent;
-import com.hcl.domino.design.action.ActionBarAction.IconType;
 import com.hcl.domino.design.format.ActionBarControlType;
 import com.hcl.domino.design.format.FieldListDelimiter;
 import com.hcl.domino.design.format.FieldListDisplayDelimiter;
@@ -269,11 +272,51 @@ public class TestDbDesign extends AbstractDesignTest {
       expected = StreamUtil.readString(is);
     }
 
-    String content;
-    try (InputStream is = res.getFileData()) {
-      content = StreamUtil.readString(is);
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected.replace("\r\n", "\n"), content.replace("\r\n", "\n"));
     }
-    assertEquals(expected.replace("\r\n", "\n"), content.replace("\r\n", "\n"));
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("largels.txt").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected.replace("\r\n", "\n"), content.replace("\r\n", "\n"));
+    }
+  }
+  
+  @Test
+  public void testFileResourceMisc() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+
+    assertFalse(dbDesign.getFileResources(false).anyMatch(res -> "misc/somexpagestext.txt".equals(res.getTitle())));
+    assertTrue(dbDesign.getFileResources(true).anyMatch(res -> "misc/somexpagestext.txt".equals(res.getTitle())));
+    
+    final FileResource res = dbDesign.getFileResource("misc/somexpagestext.txt", true).get();
+    assertEquals("misc/somexpagestext.txt", res.getTitle());
+    assertEquals("text/plain", res.getMimeType());
+
+    String expected = "I'm called misc/somexpagestxt.txt";
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("misc/somexpagestext.txt").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
   }
 
   @Test
@@ -283,6 +326,8 @@ public class TestDbDesign extends AbstractDesignTest {
     assertEquals(3, resources.size());
 
     assertTrue(resources.stream().anyMatch(res -> Arrays.asList("file.css").equals(res.getFileNames())));
+    assertTrue(dbDesign.getFileResources(true).anyMatch(res -> Arrays.asList("file.css").equals(res.getFileNames())));
+    assertTrue(dbDesign.getFileResources(false).anyMatch(res -> Arrays.asList("file.css").equals(res.getFileNames())));
     assertTrue(resources.stream().anyMatch(res -> Arrays.asList("test.txt").equals(res.getFileNames())));
     assertTrue(resources.stream().anyMatch(res -> Arrays.asList("largels.txt").equals(res.getFileNames())));
   }
@@ -299,11 +344,22 @@ public class TestDbDesign extends AbstractDesignTest {
     final OffsetDateTime expected = OffsetDateTime.of(2021, 6, 19, 14, 2, 26, 17 * 1000 * 1000 * 10, ZoneOffset.ofHours(-5));
     assertEquals(expected, res.getFileModified().toOffsetDateTime());
 
-    String content;
-    try (InputStream is = res.getFileData()) {
-      content = StreamUtil.readString(is);
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals("I am test text", content);
     }
-    assertEquals("I am test text", content);
+    
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("test.txt").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals("I am test text", content);
+    }
   }
 
   @Test
@@ -435,11 +491,21 @@ public class TestDbDesign extends AbstractDesignTest {
 
     final byte[] expected = IOUtils.resourceToByteArray("/images/Untitled.gif");
 
-    byte[] content;
-    try (InputStream is = res.getFileData()) {
-      content = IOUtils.toByteArray(is);
+    {
+      byte[] content;
+      try (InputStream is = res.getFileData()) {
+        content = IOUtils.toByteArray(is);
+      }
+      assertArrayEquals(expected, content);
     }
-    Assertions.assertArrayEquals(expected, content);
+    // Now try to read it as a generic input stream
+    {
+      byte[] content;
+      try(InputStream is = dbDesign.getResourceAsStream("Untitled.gif").get()) {
+        content = IOUtils.toByteArray(is);
+      }
+      assertArrayEquals(expected, content);
+    }
   }
 
   @Test
@@ -476,7 +542,7 @@ public class TestDbDesign extends AbstractDesignTest {
     try (InputStream is = res.getFileData()) {
       content = IOUtils.toByteArray(is);
     }
-    Assertions.assertArrayEquals(expected, content);
+    assertArrayEquals(expected, content);
   }
 
   @Test
@@ -909,6 +975,169 @@ public class TestDbDesign extends AbstractDesignTest {
         @SuppressWarnings("unused")
         View view = optActions.get();
       });
+    }
+  }
+  
+  @Test
+  public void testStyleSheets() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<StyleSheet> sheets = dbDesign.getStyleSheets().collect(Collectors.toList());
+    assertEquals(1, sheets.size());
+    assertTrue(sheets.stream().anyMatch(sheet -> "test.css".equals(sheet.getTitle())));
+  }
+
+  @Test
+  public void testStyleSheetTest() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    StyleSheet res = dbDesign.getStyleSheet("test.css").get();
+    assertEquals("test.css", res.getTitle());
+    assertEquals("text/css", res.getMimeType());
+    assertEquals("UTF-8", res.getCharsetName());
+    
+    String expected = "body {\r\n"
+        + "\tbackground: red;\r\n"
+        + "}";
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("test.css").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<StyleSheet> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+    }
+  }
+  
+  @Test
+  public void testWiringProperties() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<WiringProperties> props = dbDesign.getWiringPropertiesElements().collect(Collectors.toList());
+    assertEquals(1, props.size());
+    assertTrue(props.stream().anyMatch(prop -> "wiringprops.wsdl".equals(prop.getTitle())));
+  }
+  
+  @Test
+  public void testWiringPropertiesTest() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    WiringProperties res = dbDesign.getWiringPropertiesElement("wiringprops.wsdl").get();
+    assertEquals("wiringprops.wsdl", res.getTitle());
+    
+    String expected = "<definitions name=\"Property Broker WSDL\"\n"
+        + "targetNamespace=\"http://com.yourcompany.propertybroker\"\n"
+        + "xmlns=\"http://schemas.xmlsoap.org/wsdl/\"\n"
+        + "xmlns:portlet=\"http://www.ibm.com/wps/c2a\"\n"
+        + "xmlns:soap=\"http://schemas.xmlsoap.org/wsdl/soap/\"\n"
+        + "xmlns:tns=\"http://com.yourcompany.propertybroker\"\n"
+        + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+        + "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n"
+        + "</definitions>\r\n";
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("wiringprops.wsdl").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<WiringProperties> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+    }
+  }
+  
+  @Test
+  public void testThemes() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<Theme> themes = dbDesign.getThemes().collect(Collectors.toList());
+    assertEquals(1, themes.size());
+    assertTrue(themes.stream().anyMatch(prop -> "test.theme".equals(prop.getTitle())));
+  }
+  
+  @Test
+  public void testThemeTest() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    Theme res = dbDesign.getTheme("test.theme").get();
+    assertEquals("test.theme", res.getTitle());
+    
+    String expected = "<theme extends=\"webstandard\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"platform:/plugin/com.ibm.designer.domino.stylekits/schema/stylekit.xsd\" >\n"
+        + "</theme>\r\n";
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("test.theme").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<Theme> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
     }
   }
 }

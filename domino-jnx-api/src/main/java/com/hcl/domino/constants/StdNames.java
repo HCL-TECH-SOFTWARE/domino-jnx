@@ -25,6 +25,10 @@ package com.hcl.domino.constants;
 public interface StdNames {
   /** display only shared columns */
   String DFLAGPAT_SHARED_COLS = "(+-*^"; //$NON-NLS-1$
+  /** Wiring Properties element is a Form note */
+  String DFLAGPAT_COMPDEF = "+:"; //$NON-NLS-1$
+  /** display only stylekits */
+  String DFLAGPAT_STYLEKIT = "(+-*g`"; //$NON-NLS-1$
   
   /** View selection query object */
   String VIEW_SELQUERY_ITEM = "$SelQuery"; //$NON-NLS-1$

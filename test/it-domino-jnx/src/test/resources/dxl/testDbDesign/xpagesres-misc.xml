@@ -1,0 +1,16 @@
+<?xml version='1.0'?>
+<note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<updatedby><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
+<item name='$Flags'><text>~C4g</text></item>
+<item name='$FlagsExt'><text>w</text></item>
+<item name='$TITLE'><text>misc/somexpagestext.txt</text></item>
+<item name='$MimeType'><text>text/plain</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$FileSize' sign='true'><number>33</number></item>
+<item name='$FileData' sign='true'>
+<rawitemdata type='1'>
+YQAYAAAAAAAhAAAAAQAAAAAAAAAAAAAAYAAzAAAAIQAiAAAAAAAAAAAASSdtIGNhbGxlZCBtaXNj
+L3NvbWV4cGFnZXN0eHQudHh0AA==
+</rawitemdata></item>
+<item name='$FileNames' sign='true'><text>misc/somexpagestext.txt</text></item></note>

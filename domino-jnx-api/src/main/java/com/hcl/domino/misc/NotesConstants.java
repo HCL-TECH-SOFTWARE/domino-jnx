@@ -16,7 +16,6 @@
  */
 package com.hcl.domino.misc;
 
-import com.hcl.domino.constants.Ods;
 import com.hcl.domino.constants.QueryOds;
 import com.hcl.domino.constants.StdNames;
 

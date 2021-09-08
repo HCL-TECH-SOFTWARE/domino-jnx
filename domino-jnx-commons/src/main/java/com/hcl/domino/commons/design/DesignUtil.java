@@ -81,9 +81,12 @@ import com.hcl.domino.design.ScriptLibrary;
 import com.hcl.domino.design.SharedActions;
 import com.hcl.domino.design.SharedColumn;
 import com.hcl.domino.design.SharedField;
+import com.hcl.domino.design.StyleSheet;
 import com.hcl.domino.design.Subform;
+import com.hcl.domino.design.Theme;
 import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
+import com.hcl.domino.design.WiringProperties;
 import com.hcl.domino.design.agent.FormulaAgentContent;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.misc.Pair;
@@ -231,6 +234,9 @@ public enum DesignUtil {
     DesignUtil.mappings.put(Navigator.class, new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_VIEWMAP_ALL_VERSIONS, NavigatorImpl::new));
     DesignUtil.mappings.put(SharedActions.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_SACTIONS_DESIGN, SharedActionsImpl::new));
     DesignUtil.mappings.put(SharedColumn.class, new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_SHARED_COLS, SharedColumnImpl::new));
+    DesignUtil.mappings.put(StyleSheet.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_STYLE_SHEET_RESOURCE, StyleSheetImpl::new));
+    DesignUtil.mappings.put(WiringProperties.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_COMPDEF, WiringPropertiesImpl::new));
+    DesignUtil.mappings.put(Theme.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_STYLEKIT, ThemeImpl::new));
   }
 
   /**
@@ -272,7 +278,11 @@ public enum DesignUtil {
       case FORM:
         if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SUBFORM_ALL_VERSIONS)) {
           return new SubformImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_STYLEKIT)) {
+          return new ThemeImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_FILE_RESOURCE)) {
+          return new FileResourceImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_FILE)) {
           return new FileResourceImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SACTIONS_DESIGN)) {
           return new SharedActionsImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
@@ -280,6 +290,10 @@ public enum DesignUtil {
           return new PageImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_IMAGE_RESOURCE)) {
           return new ImageResourceImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_STYLE_SHEET_RESOURCE)) {
+          return new StyleSheetImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_COMPDEF)) {
+          return new WiringPropertiesImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else {
           return new FormImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         }
