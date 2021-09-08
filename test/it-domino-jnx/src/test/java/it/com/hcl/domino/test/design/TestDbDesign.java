@@ -66,12 +66,12 @@ import com.hcl.domino.design.SubformReference;
 import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.action.ActionBarAction;
+import com.hcl.domino.design.action.ActionBarAction.IconType;
 import com.hcl.domino.design.action.ActionContent;
 import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.action.FormulaActionContent;
 import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.design.action.SimpleActionActionContent;
-import com.hcl.domino.design.action.ActionBarAction.IconType;
 import com.hcl.domino.design.format.ActionBarControlType;
 import com.hcl.domino.design.format.FieldListDelimiter;
 import com.hcl.domino.design.format.FieldListDisplayDelimiter;
@@ -269,11 +269,21 @@ public class TestDbDesign extends AbstractDesignTest {
       expected = StreamUtil.readString(is);
     }
 
-    String content;
-    try (InputStream is = res.getFileData()) {
-      content = StreamUtil.readString(is);
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected.replace("\r\n", "\n"), content.replace("\r\n", "\n"));
     }
-    assertEquals(expected.replace("\r\n", "\n"), content.replace("\r\n", "\n"));
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("largels.txt").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected.replace("\r\n", "\n"), content.replace("\r\n", "\n"));
+    }
   }
 
   @Test
@@ -299,11 +309,22 @@ public class TestDbDesign extends AbstractDesignTest {
     final OffsetDateTime expected = OffsetDateTime.of(2021, 6, 19, 14, 2, 26, 17 * 1000 * 1000 * 10, ZoneOffset.ofHours(-5));
     assertEquals(expected, res.getFileModified().toOffsetDateTime());
 
-    String content;
-    try (InputStream is = res.getFileData()) {
-      content = StreamUtil.readString(is);
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals("I am test text", content);
     }
-    assertEquals("I am test text", content);
+    
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("test.txt").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals("I am test text", content);
+    }
   }
 
   @Test
@@ -435,11 +456,21 @@ public class TestDbDesign extends AbstractDesignTest {
 
     final byte[] expected = IOUtils.resourceToByteArray("/images/Untitled.gif");
 
-    byte[] content;
-    try (InputStream is = res.getFileData()) {
-      content = IOUtils.toByteArray(is);
+    {
+      byte[] content;
+      try (InputStream is = res.getFileData()) {
+        content = IOUtils.toByteArray(is);
+      }
+      assertArrayEquals(expected, content);
     }
-    Assertions.assertArrayEquals(expected, content);
+    // Now try to read it as a generic input stream
+    {
+      byte[] content;
+      try(InputStream is = dbDesign.getResourceAsStream("Untitled.gif").get()) {
+        content = IOUtils.toByteArray(is);
+      }
+      assertArrayEquals(expected, content);
+    }
   }
 
   @Test
@@ -476,7 +507,7 @@ public class TestDbDesign extends AbstractDesignTest {
     try (InputStream is = res.getFileData()) {
       content = IOUtils.toByteArray(is);
     }
-    Assertions.assertArrayEquals(expected, content);
+    assertArrayEquals(expected, content);
   }
 
   @Test

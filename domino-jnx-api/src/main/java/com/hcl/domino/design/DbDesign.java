@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.design;
 
+import java.io.InputStream;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -457,6 +458,16 @@ public interface DbDesign {
    * @since 1.0.37
    */
   <T extends DesignElement> Optional<T> getDesignElementByUNID(String unid);
+  
+  /**
+   * Retrieves the named file, image, or stylesheet resource as a stream of bytes.
+   * 
+   * @param filePath the path to the file-type resource
+   * @return an {@link Optional} describing an {@link InputStream} of the file's bytes,
+   *         or an empty one if no such file exists
+   * @since 1.0.38
+   */
+  Optional<InputStream> getResourceAsStream(String filePath);
 
   /**
    * Queries all design elements in the database by the provided formula and

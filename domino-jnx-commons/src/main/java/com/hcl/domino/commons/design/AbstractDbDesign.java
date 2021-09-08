@@ -16,6 +16,9 @@
  */
 package com.hcl.domino.commons.design;
 
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.LinkedList;
@@ -26,6 +29,7 @@ import java.util.stream.Stream;
 
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.commons.design.DesignUtil.DesignMapping;
+import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.CollectionSearchQuery;
 import com.hcl.domino.data.Database;
@@ -44,6 +48,7 @@ import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageResource;
+import com.hcl.domino.design.NamedFileElement;
 import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.design.ScriptLibrary;
@@ -57,6 +62,19 @@ import com.hcl.domino.exception.SpecialObjectCannotBeLocatedException;
 import com.hcl.domino.misc.NotesConstants;
 
 public abstract class AbstractDbDesign implements DbDesign {
+  /**
+   * Represents flag patterns to be considered filesystem resources, designed to match
+   * XPages's conception of an NSF.
+   */
+  public static final List<String> FILERES_PATTERNS = Collections.unmodifiableList(Arrays.asList(
+    "+g-K;`", //$NON-NLS-1$
+    "+i", //$NON-NLS-1$
+    "+=", //$NON-NLS-1$
+    "+:", //$NON-NLS-1$
+    "(+-*g`", //$NON-NLS-1$
+    "+.", //$NON-NLS-1$
+    "+h" //$NON-NLS-1$
+  ));
 
   public static class DesignEntry {
     private final int noteId;
@@ -419,11 +437,23 @@ public abstract class AbstractDbDesign implements DbDesign {
         .map(Optional::get)
         .map(DesignUtil::createDesignElement);
   }
+  
+  @Override
+  public Optional<InputStream> getResourceAsStream(String filePath) {
+    return this.findDesignNotes(DocumentClass.FORM, FILERES_PATTERNS)
+      .filter(entry -> DesignUtil.matchesTitleValues(filePath, entry.getTitles()))
+      .map(entry -> this.database.getDocumentById(entry.noteId))
+      .findFirst()
+      .map(Optional::get)
+      .map(DesignUtil::createDesignElement)
+      .map(NamedFileElement.class::cast)
+      .map(NamedFileElement::getFileData);
+  }
 
   @Override
   public void signAll(final Set<DocumentClass> docClass, final UserId id, final SignCallback callback) {
     docClass.stream()
-        .flatMap(c -> this.findDesignNotes(c, null))
+        .flatMap(c -> this.findDesignNotes(c, Collections.emptySet()))
         .map(entry -> entry.toDesignElement(this.database))
         .forEach(element -> {
           if (callback.shouldSign(element, id.getUsername())) {
@@ -437,6 +467,18 @@ public abstract class AbstractDbDesign implements DbDesign {
   // *******************************************************************************
 
   public Stream<DesignEntry> findDesignNotes(final DocumentClass noteClass, final String pattern) {
+    return findDesignNotes(noteClass, Collections.singleton(pattern));
+  }
+  
+  /**
+   * Finds design notes matching a given class and any of a collection of pattern strings.
+   *  
+   * @param noteClass the {@link DocumentClass} of the design notes to find
+   * @param patterns zero or more flags pattern strings
+   * @return a {@link Stream} of {@link DesignEntry} objects for matching design elements
+   * @since 1.0.38
+   */
+  public Stream<DesignEntry> findDesignNotes(final DocumentClass noteClass, final Collection<String> patterns) {
     /*
      * Design collection columns:
      *  - $TITLE (string)
@@ -466,7 +508,16 @@ public abstract class AbstractDbDesign implements DbDesign {
     final CollectionSearchQuery query = designColl.query()
         .readDocumentClass()
         .readColumnValues();
-    final boolean hasPattern = pattern != null && !pattern.isEmpty();
+    boolean hasPattern;
+    if(patterns == null || patterns.isEmpty()) {
+      hasPattern = false;
+    } else {
+      if(patterns.size() == 1 && StringUtil.isEmpty(patterns.iterator().next())) {
+        hasPattern = false;
+      } else {
+        hasPattern = true;
+      }
+    }
 
     return query.build(0, Integer.MAX_VALUE, new CollectionSearchQuery.CollectionEntryProcessor<List<DesignEntry>>() {
         @Override
@@ -480,7 +531,7 @@ public abstract class AbstractDbDesign implements DbDesign {
           if (noteClass.equals(entryClass)) {
             if (hasPattern) {
               final String flags = entry.get(4, String.class, ""); //$NON-NLS-1$
-              if (DesignUtil.matchesFlagsPattern(flags, pattern)) {
+              if(patterns.stream().anyMatch(pattern -> DesignUtil.matchesFlagsPattern(flags, pattern))) {
                 result.add(new DesignEntry(entry.getNoteID(), entryClass, entry));
               }
             } else {
