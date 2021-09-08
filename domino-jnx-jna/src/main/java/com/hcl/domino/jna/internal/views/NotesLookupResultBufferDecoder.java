@@ -30,6 +30,7 @@ import java.util.TreeMap;
 
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
+import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.views.IItemTableData;
@@ -46,7 +47,6 @@ import com.hcl.domino.data.TypedAccess;
 import com.hcl.domino.jna.data.JNACollectionEntry;
 import com.hcl.domino.jna.data.JNADocument;
 import com.hcl.domino.jna.data.JNADominoCollection;
-import com.hcl.domino.jna.data.JNADominoDateRange;
 import com.hcl.domino.jna.data.JNADominoDateTime;
 import com.hcl.domino.jna.internal.ItemDecoder;
 import com.hcl.domino.jna.internal.JNANotesConstants;
@@ -853,8 +853,8 @@ public class NotesLookupResultBufferDecoder {
 					if (tdList.get(i) instanceof JNADominoDateTime) {
 						calList.add(NotesDateTimeUtils.timeDateToCalendar((JNADominoDateTime) tdList.get(i)));
 					}
-					else if (tdList.get(i) instanceof JNADominoDateRange) {
-						JNADominoDateRange range = (JNADominoDateRange) tdList.get(i);
+					else if (tdList.get(i) instanceof DefaultDominoDateRange) {
+						DefaultDominoDateRange range = (DefaultDominoDateRange) tdList.get(i);
 						Calendar[] convertedRange = new Calendar[] {NotesDateTimeUtils.timeDateToCalendar((JNADominoDateTime)range.getStartDateTime()), NotesDateTimeUtils.timeDateToCalendar((JNADominoDateTime)range.getEndDateTime())};
 						calList.add(convertedRange);
 					}

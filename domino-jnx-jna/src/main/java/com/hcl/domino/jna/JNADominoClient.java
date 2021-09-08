@@ -56,6 +56,7 @@ import com.hcl.domino.calendar.Calendaring;
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.constants.CopyDatabase;
 import com.hcl.domino.commons.data.DefaultModificationTimePair;
+import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.CAPIGarbageCollector;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -91,7 +92,6 @@ import com.hcl.domino.jna.admin.replication.JNAReplication;
 import com.hcl.domino.jna.calendaring.JNACalendaring;
 import com.hcl.domino.jna.data.JNADatabase;
 import com.hcl.domino.jna.data.JNADominoCollection;
-import com.hcl.domino.jna.data.JNADominoDateRange;
 import com.hcl.domino.jna.data.JNADominoDateTime;
 import com.hcl.domino.jna.data.JNADominoUniversalNoteId;
 import com.hcl.domino.jna.data.JNAFormula;
@@ -867,7 +867,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     DominoDateTime startDT = createDateTime(start);
     DominoDateTime endDT = createDateTime(end);
 
-    return new JNADominoDateRange(startDT, endDT);
+    return new DefaultDominoDateRange(startDT, endDT);
   }
 
   @Override

@@ -20,7 +20,7 @@ import com.hcl.domino.richtext.records.RichTextRecord;
  * The following methods will be called during parsing:<br>
  * <ul>
  * <li>{@link #nonTableRecordFound(RichTextRecord)} - for all CD records outside of tables (before and after)</li>
- * <li>{@link #tableBeginFound(int, Collection, CDTableBegin, Collection)} - when a table has been found</<li>
+ * <li>{@link #tableBeginFound(int, Collection, CDTableBegin, Collection)} - when a table has been found<li>
  * <li>{@link #rowFound(int, short, Collection)} - for each table row with all contained records</li>
  * <li>{@link #cellFound(int, short, short, CDTableCell, Collection)} - for each table cell with the table cell content</li>
  * <li>{@link #tableEndFound(int, CDTableEnd)} - when the table end has been reached</li>

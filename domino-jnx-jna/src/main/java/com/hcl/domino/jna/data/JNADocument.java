@@ -52,6 +52,7 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.commons.constants.UpdateNote;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
+import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.data.SignatureDataImpl;
 import com.hcl.domino.commons.design.FormFieldImpl;
 import com.hcl.domino.commons.design.outline.DominoOutlineFormat;
@@ -1447,7 +1448,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				}
 				DominoDateTime start = new JNADominoDateTime((((GregorianCalendar)calArr[0]).toZonedDateTime()));
 				DominoDateTime end = new JNADominoDateTime((((GregorianCalendar)calArr[1]).toZonedDateTime()));
-				convertedList.add(new JNADominoDateRange(start, end));
+				convertedList.add(new DefaultDominoDateRange(start, end));
 			}
 			else if (list.get(i) instanceof Date) {
 				Date dt = (Date) list.get(i);
@@ -1463,18 +1464,18 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				}
 				DominoDateTime start = new JNADominoDateTime(dateArr[0].getTime());
 				DominoDateTime end = new JNADominoDateTime(dateArr[1].getTime());
-				convertedList.add(new JNADominoDateRange(start, end));
+				convertedList.add(new DefaultDominoDateRange(start, end));
 			}
 			else if (list.get(i) instanceof DominoDateTime[]) {
 				DominoDateTime[] ntdArr = (DominoDateTime[]) list.get(i);
 				if (ntdArr.length!=2) {
 					throw new IllegalArgumentException("Length of DominoDateTime array entry must be 2 for date ranges");
 				}
-				convertedList.add(new JNADominoDateRange(ntdArr[0], ntdArr[1]));
+				convertedList.add(new DefaultDominoDateRange(ntdArr[0], ntdArr[1]));
 			}
 			else if(list.get(i) instanceof DominoDateRange) {
 				DominoDateRange range = (DominoDateRange)list.get(i);
-				convertedList.add(new JNADominoDateRange(range.getStartDateTime(), range.getEndDateTime()));
+				convertedList.add(new DefaultDominoDateRange(range.getStartDateTime(), range.getEndDateTime()));
 			}
 			else {
 				throw new IllegalArgumentException(format("Unsupported date format found in list: {0}", (list.get(i)==null ? "null" : list.get(i).getClass().getName()))); //$NON-NLS-2$
