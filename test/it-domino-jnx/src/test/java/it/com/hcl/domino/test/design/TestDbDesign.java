@@ -50,6 +50,7 @@ import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
+import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.AboutDocument;
 import com.hcl.domino.design.ActionBar;
@@ -1148,21 +1149,30 @@ public class TestDbDesign extends AbstractDesignTest {
     // Use a fresh copy of the DB to avoid interactions with other tests
     withResourceDxl("/dxl/testDbDesign", database -> {
       DbDesign design = database.getDesign();
-      String expected = "I am fake new CSS that isn't in the resource currently";
+      byte[] expected = "I am fake new CSS that isn't in the resource currently".getBytes();
+      DominoDateTime origMod;
       {
         FileResource res = design.getFileResource("file.css").get();
+        origMod = res.getFileModified();
         try(OutputStream os = res.newOutputStream()) {
-          os.write(expected.getBytes());
+          os.write(expected);
         }
         res.save();
       }
       {
         FileResource res = design.getFileResource("file.css").get();
-        String content;
-        try(InputStream is = res.getFileData()) {
-          content = StreamUtil.readString(is);
+        byte[] content;
+        try(
+          InputStream is = res.getFileData();
+          ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ) {
+          StreamUtil.copyStream(is, baos);
+          content = baos.toByteArray();
         }
-        assertEquals(expected, content);
+        assertArrayEquals(expected, content);
+        assertEquals(expected.length, res.getFileSize());
+        assertTrue(res.getFileModified().compareTo(origMod) > 0);
+        assertEquals(expected.length, res.getDocument().get(NotesConstants.ITEM_NAME_FILE_SIZE, int.class, -1));
       }
     });
   }
@@ -1173,8 +1183,10 @@ public class TestDbDesign extends AbstractDesignTest {
     withResourceDxl("/dxl/testDbDesign", database -> {
       DbDesign design = database.getDesign();
       byte[] expected = IOUtils.resourceToByteArray("/images/help_vampire.gif");
+      DominoDateTime origMod;
       {
         ImageResource res = design.getImageResource("Untitled 2.gif").get();
+        origMod = res.getFileModified();
         try(OutputStream os = res.newOutputStream()) {
           os.write(expected);
         }
@@ -1191,6 +1203,9 @@ public class TestDbDesign extends AbstractDesignTest {
           content = baos.toByteArray();
         }
         assertArrayEquals(expected, content);
+        assertEquals(expected.length, res.getFileSize());
+        assertTrue(res.getFileModified().compareTo(origMod) > 0);
+        assertEquals(expected.length, res.getDocument().get(NotesConstants.ITEM_NAME_FILE_SIZE, int.class, -1));
       }
     });
     

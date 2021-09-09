@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -114,6 +115,8 @@ public class ImageResourceImpl extends AbstractNamedFileElement<ImageResource> i
       } catch (IOException e) {
         throw new UncheckedIOException(e);
       }
+      doc.replaceItemValue(NotesConstants.ITEM_NAME_FILE_SIZE, bytes.length);
+      doc.replaceItemValue(NotesConstants.ITEM_NAME_FILE_MODINFO, OffsetDateTime.now());
     });
   }
 
