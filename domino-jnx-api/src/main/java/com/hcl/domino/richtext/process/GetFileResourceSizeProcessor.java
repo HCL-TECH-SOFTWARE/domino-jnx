@@ -32,6 +32,7 @@ import com.hcl.domino.richtext.records.RichTextRecord;
  * @since 1.0.15
  */
 public class GetFileResourceSizeProcessor implements IRichTextProcessor<Long> {
+  public static final GetFileResourceSizeProcessor instance = new GetFileResourceSizeProcessor();
 
   /**
    * Constructs a new file-size extractor.

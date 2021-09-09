@@ -29,6 +29,7 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextWriter;
+import com.hcl.domino.richtext.process.GetImageResourceSizeProcessor;
 import com.hcl.domino.richtext.process.GetImageResourceStreamProcessor;
 
 public class ImageResourceImpl extends AbstractNamedFileElement<ImageResource> implements ImageResource {
@@ -51,6 +52,11 @@ public class ImageResourceImpl extends AbstractNamedFileElement<ImageResource> i
   @Override
   public InputStream getFileData() {
     return GetImageResourceStreamProcessor.instance.apply(this.getDocument().getRichTextItem(NotesConstants.ITEM_NAME_IMAGE_DATA));
+  }
+  
+  @Override
+  public long getFileSize() {
+    return GetImageResourceSizeProcessor.instance.apply(this.getDocument().getRichTextItem(NotesConstants.ITEM_NAME_IMAGE_DATA));
   }
 
   @Override

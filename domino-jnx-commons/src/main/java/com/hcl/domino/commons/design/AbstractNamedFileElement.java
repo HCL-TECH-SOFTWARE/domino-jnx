@@ -30,8 +30,8 @@ import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.design.NamedFileElement;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextWriter;
+import com.hcl.domino.richtext.process.GetFileResourceSizeProcessor;
 import com.hcl.domino.richtext.process.GetFileResourceStreamProcessor;
-import com.hcl.domino.richtext.process.GetImageResourceSizeProcessor;
 
 /**
  * @param <T> The {@link NamedFileElement} implementation type
@@ -63,7 +63,7 @@ public abstract class AbstractNamedFileElement<T extends NamedFileElement> exten
 
   @Override
   public long getFileSize() {
-    return GetImageResourceSizeProcessor.instance.apply(this.getDocument().getRichTextItem(NotesConstants.ITEM_NAME_IMAGE_DATA));
+    return GetFileResourceSizeProcessor.instance.apply(this.getDocument().getRichTextItem(NotesConstants.ITEM_NAME_FILE_DATA));
   }
 
   @Override
