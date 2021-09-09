@@ -754,7 +754,7 @@ public enum RecordType {
   /* Signatures for items of type TYPE_VIEWMAP */
 
   VMHEADER(RichTextConstants.SIG_CD_VMHEADER, 5),
-  VMBITMAP(RichTextConstants.SIG_CD_VMBITMAP, 5),
+  VMBITMAP(RichTextConstants.SIG_CD_VMBITMAP, 5, ViewmapBitmapRecord.class),
   VMRECT(RichTextConstants.SIG_CD_VMRECT, 5),
   VMPOLYGON_BYTE(RichTextConstants.SIG_CD_VMPOLYGON_BYTE, 5),
   VMPOLYLINE_BYTE(RichTextConstants.SIG_CD_VMPOLYLINE_BYTE, 5),
