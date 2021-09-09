@@ -24,8 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -1139,5 +1141,58 @@ public class TestDbDesign extends AbstractDesignTest {
         assertEquals(expected, content);
       }
     }
+  }
+  
+  @Test
+  public void testOverwriteFileResource() throws Exception {
+    // Use a fresh copy of the DB to avoid interactions with other tests
+    withResourceDxl("/dxl/testDbDesign", database -> {
+      DbDesign design = database.getDesign();
+      String expected = "I am fake new CSS that isn't in the resource currently";
+      {
+        FileResource res = design.getFileResource("file.css").get();
+        try(OutputStream os = res.newOutputStream()) {
+          os.write(expected.getBytes());
+        }
+        res.save();
+      }
+      {
+        FileResource res = design.getFileResource("file.css").get();
+        String content;
+        try(InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+    });
+  }
+  
+  @Test
+  public void testOverwriteImageResource() throws Exception {
+    // Use a fresh copy of the DB to avoid interactions with other tests
+    withResourceDxl("/dxl/testDbDesign", database -> {
+      DbDesign design = database.getDesign();
+      byte[] expected = IOUtils.resourceToByteArray("/images/help_vampire.gif");
+      {
+        ImageResource res = design.getImageResource("Untitled 2.gif").get();
+        try(OutputStream os = res.newOutputStream()) {
+          os.write(expected);
+        }
+        res.save();
+      }
+      {
+        ImageResource res = design.getImageResource("Untitled 2.gif").get();
+        byte[] content;
+        try(
+          InputStream is = res.getFileData();
+          ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ) {
+          StreamUtil.copyStream(is, baos);
+          content = baos.toByteArray();
+        }
+        assertArrayEquals(expected, content);
+      }
+    });
+    
   }
 }

@@ -16,19 +16,31 @@
  */
 package com.hcl.domino.commons.design;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.List;
 
+import com.hcl.domino.commons.util.BufferingCallbackOutputStream;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.process.GetImageResourceStreamProcessor;
 
 public class ImageResourceImpl extends AbstractNamedFileElement<ImageResource> implements ImageResource {
 
   public ImageResourceImpl(final Document doc) {
     super(doc);
+  }
+
+  @Override
+  public void initializeNewDesignNote() {
+    // TODO Auto-generated method stub
+
   }
 
   @Override
@@ -62,12 +74,6 @@ public class ImageResourceImpl extends AbstractNamedFileElement<ImageResource> i
   }
 
   @Override
-  public void initializeNewDesignNote() {
-    // TODO Auto-generated method stub
-
-  }
-
-  @Override
   public boolean isColorizeGrays() {
     return this.getDocument().get(NotesConstants.ITEM_NAME_IMAGES_COLORIZE, int.class, 0) == 1;
   }
@@ -85,6 +91,24 @@ public class ImageResourceImpl extends AbstractNamedFileElement<ImageResource> i
   @Override
   public boolean isWebReadOnly() {
     return this.getFlags().contains("&"); //$NON-NLS-1$
+  }
+  
+  @Override
+  public OutputStream newOutputStream() {
+    // TODO don't use a buffering stream here, and instead write bytes in chunks as they come along,
+    //      then update the header record
+    return new BufferingCallbackOutputStream(bytes -> {
+      Document doc = getDocument();
+      doc.removeItem(NotesConstants.ITEM_NAME_IMAGE_DATA);
+      try(
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+        RichTextWriter w = doc.createRichTextItem(NotesConstants.ITEM_NAME_IMAGE_DATA)
+      ) {
+        w.addImageResource(bais, bytes.length);
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+    });
   }
 
 }
