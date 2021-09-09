@@ -47,4 +47,6 @@ public interface MemoryStructureWrapperService {
    * @return the newly-wrapped structure
    */
   <T extends MemoryStructure> T wrapStructure(Class<T> structureClass, ByteBuffer data);
+  
+  public int sizeOf(final Class<?> type);
 }

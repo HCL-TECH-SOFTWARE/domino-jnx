@@ -34,4 +34,9 @@ public class DefaultMemoryStructureWrapperService implements MemoryStructureWrap
       return MemoryStructureUtil.forStructure(structureClass, () -> data.slice().order(ByteOrder.nativeOrder()));
     }
   }
+
+  @Override
+  public int sizeOf(Class<?> type) {
+    return MemoryStructureUtil.sizeOf(type);
+  }
 }

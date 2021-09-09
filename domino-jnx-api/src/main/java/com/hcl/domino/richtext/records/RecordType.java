@@ -102,7 +102,7 @@ public enum RecordType {
   CLIENT_BLOBPART(RichTextConstants.SIG_CD_CLIENT_BLOBPART, 1, CDBlobPart.class),
   CLIENT_EVENT(RichTextConstants.SIG_CD_CLIENT_EVENT, 1, CDEvent.class),
   BORDERINFO_HS(RichTextConstants.SIG_CD_BORDERINFO_HS, 1),
-  LARGE_PARAGRAPH(RichTextConstants.SIG_CD_LARGE_PARAGRAPH, 1),
+  LARGE_PARAGRAPH(RichTextConstants.SIG_CD_LARGE_PARAGRAPH, 1, CDLargeParagraph.class),
   EXT_EMBEDDEDSCHED(RichTextConstants.SIG_CD_EXT_EMBEDDEDSCHED, 1),
   /**
    * This CD record contains size information for a layer box. The units (pixels,
@@ -347,7 +347,7 @@ public enum RecordType {
   /**
    * This structure stores the style name for a Paragraph Attributes Block (PAB).
    */
-  STYLENAME(RichTextConstants.SIG_CD_STYLENAME, 1),
+  STYLENAME(RichTextConstants.SIG_CD_STYLENAME, 1, CDStyleName.class),
   /** This structure stores information for an externally stored object. */
   STORAGELINK(RichTextConstants.SIG_CD_STORAGELINK, 1),
   /**
@@ -374,7 +374,7 @@ public enum RecordType {
    * place.<br>
    * The alternate text is stored in a CDALTTEXT record.
    */
-  ALTTEXT(RichTextConstants.SIG_CD_ALTTEXT, 1),
+  ALTTEXT(RichTextConstants.SIG_CD_ALTTEXT, 1, CDAltText.class),
   /**
    * An anchor hotlink points to a specific location in a rich text field of a
    * document.<br>
@@ -439,7 +439,7 @@ public enum RecordType {
    * This CD record allows for additional information to be provided for a
    * graphic.
    */
-  VERTICALALIGN(RichTextConstants.SIG_CD_VERTICALALIGN, 1),
+  VERTICALALIGN(RichTextConstants.SIG_CD_VERTICALALIGN, 1, CDVerticalAlign.class),
   FLOATPOSITION(RichTextConstants.SIG_CD_FLOATPOSITION, 1),
   /**
    * This CD record provides the time interval information for tables created
@@ -554,12 +554,12 @@ public enum RecordType {
    * indicates the
    * location of the document to be retrieved when the defined area is activated..
    */
-  MAPELEMENT(RichTextConstants.SIG_CD_MAPELEMENT, 3),
+  MAPELEMENT(RichTextConstants.SIG_CD_MAPELEMENT, 3, CDMapElement.class),
   /**
    * An AREA element defines the shape and coordinates of a region within a client
    * side image MAP.
    */
-  AREAELEMENT(RichTextConstants.SIG_CD_AREAELEMENT, 3),
+  AREAELEMENT(RichTextConstants.SIG_CD_AREAELEMENT, 3, CDAreaElement.class),
   HREF(RichTextConstants.SIG_CD_HREF, new int[] { 1, 3 , 4}, CDResource.class),
   HTML_ALTTEXT(RichTextConstants.SIG_CD_HTML_ALTTEXT, 3),
   /**
@@ -749,7 +749,7 @@ public enum RecordType {
    * The CDTEXTEFFECT record stores a "special effect" font ID for a run of rich
    * text.
    */
-  TEXTEFFECT(RichTextConstants.SIG_CD_TEXTEFFECT, 4),
+  TEXTEFFECT(RichTextConstants.SIG_CD_TEXTEFFECT, 4, CDTextEffect.class),
 
   /* Signatures for items of type TYPE_VIEWMAP */
 

@@ -1449,4 +1449,29 @@ public interface RichTextConstants extends EditOds {
   int LAYOUT_TEXT_FLAG_RTL = 0x02000000;
   int LAYOUT_TEXT_FLAG_RO_MASK = 0x03000000;
   int LAYOUT_TEXT_FLAGS_MASK = 0xF0000000;
+  
+  int STYLE_FLAG_FONTID = 0x00000001; /* A FONTID follows the CDSTYLENAME structure.
+                                         The font is included in the style. */
+  int STYLE_FLAG_INCYCLE = 0x00000002; /* This style is included in the Cycle Key [F11].
+                                          The style is available when you press F11
+                                          to cyle through the named styles. */
+  int STYLE_FLAG_PERMANENT = 0x00000004; /* A user name follows the CDSTYLENAME structure.
+                                            The style is available for all documents. */
+  int STYLE_FLAG_MARGIN = 0x00000008;
+  
+  int MAX_STYLE_NAME = 35;
+  
+  int VERTICAL_ALIGNMENT_BASELINE = 0;
+  int VERTICAL_ALIGNMENT_CENTER = 1;
+  int VERTICAL_ALIGNMENT_TOP = 2;
+  /* Don't use 3 and 4 */
+  int VERTICAL_ALIGNMENT_BOTTOM = 5;
+  
+  int CDLARGEPARAGRAPH_BEGIN = 0x0001;
+  int CDLARGEPARAGRAPH_END = 0x0002;
+  
+  int AREA_SHAPE_RECT = 1;
+  int AREA_SHAPE_CIRCLE = 2;
+  int AREA_SHAPE_POLYGON = 3;
+  int AREA_SHAPE_DEFAULT = 4;
 }
