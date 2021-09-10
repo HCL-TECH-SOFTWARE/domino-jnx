@@ -405,7 +405,7 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    */
 
   void createDAConfig( String serverName,String dirAssistDBName, boolean updateServerDoc, String domainName, String companyName, short searchOrder,
-        String hostName, short LDAPVendor, String userName, String password, String dnSearch, boolean useSSL, short port,  boolean acceptExpiredCertificates,
+        String hostName, short LDAPVendor, String userName, String password, String dnSearch, boolean useSSL, short port,  boolean acceptExpiredCerts,
           boolean verifyRemoteSrvCert,  short timeout, short maxEntriesReturned);
 
 
