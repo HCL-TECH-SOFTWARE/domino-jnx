@@ -754,11 +754,12 @@ public enum RecordType {
   /* Signatures for items of type TYPE_VIEWMAP */
 
   VMHEADER(RichTextConstants.SIG_CD_VMHEADER, 5),
+  VMBITMAPHEADER(RichTextConstants.SIG_CD_BITMAPHEADER, 5, CDBitmapHeader.class),
   VMBITMAP(RichTextConstants.SIG_CD_VMBITMAP, 5, ViewmapBitmapRecord.class),
   VMRECT(RichTextConstants.SIG_CD_VMRECT, 5),
   VMPOLYGON_BYTE(RichTextConstants.SIG_CD_VMPOLYGON_BYTE, 5),
   VMPOLYLINE_BYTE(RichTextConstants.SIG_CD_VMPOLYLINE_BYTE, 5),
-  VMREGION(RichTextConstants.SIG_CD_VMREGION, 5),
+  VMREGION(RichTextConstants.SIG_CD_VMREGION, 5, ViewmapRegionRecord.class),
   VMACTION(RichTextConstants.SIG_CD_VMACTION, 5),
   VMELLIPSE(RichTextConstants.SIG_CD_VMELLIPSE, 5),
   VMSMALLTEXTBOX(RichTextConstants.SIG_CD_VMSMALLTEXTBOX, 5),
@@ -771,7 +772,6 @@ public enum RecordType {
   VMPOLYRGN(RichTextConstants.SIG_CD_VMPOLYRGN, 5),
   VMCIRCLE(RichTextConstants.SIG_CD_VMCIRCLE, 5),
   VMPOLYRGN_BYTE(RichTextConstants.SIG_CD_VMPOLYRGN_BYTE, 5),
-
   VMDATASET(RichTextConstants.SIG_VIEWMAP_DATASET, 5, ViewmapDatasetRecord.class),
 
   /* Signatures for alternate CD sequences*/
