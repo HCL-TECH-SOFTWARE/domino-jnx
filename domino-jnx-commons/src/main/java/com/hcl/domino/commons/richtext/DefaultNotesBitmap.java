@@ -21,7 +21,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import com.hcl.domino.commons.design.DesignColorsAndFonts;
+import com.hcl.domino.design.DesignColorsAndFonts;
 import com.hcl.domino.richtext.NotesBitmap;
 import com.hcl.domino.richtext.RectangleSize;
 import com.hcl.domino.richtext.records.CDBitmapHeader;

@@ -21,11 +21,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import com.hcl.domino.commons.design.DesignColorsAndFonts;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.data.NotesFont;
+import com.hcl.domino.design.DesignColorsAndFonts;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.format.CalendarType;
 import com.hcl.domino.design.format.DateComponentOrder;
