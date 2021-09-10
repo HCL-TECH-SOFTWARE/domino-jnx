@@ -564,6 +564,7 @@
 
 			<modules>
 				<module>example/jnx-example-domino-servlet</module>
+                <module>integration/domino-jnx-xpages</module>
 			</modules>
 		</profile>
 
