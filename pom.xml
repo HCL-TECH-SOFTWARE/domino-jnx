@@ -415,6 +415,11 @@
                     <groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-javadoc-plugin</artifactId>
 					<version>${maven.javadoc.plugin.version}</version>
+					<configuration>
+					   <failOnError>true</failOnError>
+					   <failOnWarnings>true</failOnWarnings>
+					   <source>8</source>
+					</configuration>
 				</plugin>
 
 				<plugin>
