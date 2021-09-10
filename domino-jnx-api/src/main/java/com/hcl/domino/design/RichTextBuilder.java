@@ -89,7 +89,7 @@ public interface RichTextBuilder {
 	/**
 	 * Creates a new build context by copying the design of the specified form/subform
 	 * 
-	 * @param F
+	 * @param <F> GenericFormOrSubform
 	 * @param templateForm template form
 	 * @return build context
 	 */
