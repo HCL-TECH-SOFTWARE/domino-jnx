@@ -119,6 +119,7 @@ import com.hcl.domino.jna.internal.gc.allocations.JNAUserNamesListAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
+import com.hcl.domino.jna.internal.structs.CreateDAConfigStruct;
 import com.hcl.domino.jna.internal.structs.DbOptionsStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.ReplExtensionsStruct;
@@ -345,6 +346,20 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     } else {
       return new String[] {"", path}; //$NON-NLS-1$
     }
+  }
+
+
+  @Override
+  public void createDAConfig( String serverName,String dirAssistDBName, boolean updateServerDoc, String domainName, String companyName, short searchOrder,
+      String hostName, short ldapVendor, String userName, String password, String dnSearch, boolean useSSL, short port,  boolean acceptExpiredCertificates, 
+      boolean verifyRemoteSrvCert,  short timeout, short maxEntriesReturned)
+  {
+    CreateDAConfigStruct daConfig = new CreateDAConfigStruct( serverName.getBytes(), dirAssistDBName.getBytes(), updateServerDoc, domainName.getBytes(), companyName.getBytes(), searchOrder,
+          hostName.getBytes(), ldapVendor, userName.getBytes(), password.getBytes(), dnSearch.getBytes(), useSSL, port, acceptExpiredCertificates, 
+          verifyRemoteSrvCert, timeout, maxEntriesReturned);
+
+    daConfig.write();
+    NotesErrorUtils.checkResult(NotesCAPI.get().CreateDAConfig(daConfig));
   }
 
   @Override
