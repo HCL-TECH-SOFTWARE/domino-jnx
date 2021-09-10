@@ -25,10 +25,10 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 @StructureDefinition(
     name = "CDRECT",
     members = {
-      @StructureMember(name = "left", type = long.class, unsigned = true),
-      @StructureMember(name = "top", type = long.class, unsigned = true),
-      @StructureMember(name = "right", type = long.class, unsigned = true),
-      @StructureMember(name = "bottom", type = long.class, unsigned = true)
+      @StructureMember(name = "left", type = long.class),
+      @StructureMember(name = "top", type = long.class),
+      @StructureMember(name = "right", type = long.class),
+      @StructureMember(name = "bottom", type = long.class)
     }
   )
 public interface CDRect extends MemoryStructure, Rectangle {

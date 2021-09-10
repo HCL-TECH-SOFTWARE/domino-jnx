@@ -17,12 +17,9 @@
 package com.hcl.domino.richtext;
 
 import com.hcl.domino.constants.EditOds;
+import com.hcl.domino.constants.Ods;
 
-public interface RichTextConstants extends EditOds {
-
-  short LONGRECORDLENGTH = 0x0000;
-  short WORDRECORDLENGTH = (short) (0xff00 & 0xffff);
-  short BYTERECORDLENGTH = 0; /* High byte contains record length */
+public interface RichTextConstants extends EditOds, Ods {
 
   /* Signatures for Composite Records in items of data type COMPOSITE */
 
@@ -1115,6 +1112,7 @@ public interface RichTextConstants extends EditOds {
   short HTML_EVENT_CLIENT_FORM_POSTSEND = 0x105;
   short HTML_EVENT_CLIENT_FORM_QUERYRECALC = 0x106;
   short HTML_EVENT_CLIENT_FORM_QUERYSEND = 0x107;
+  short HTML_EVENT_CLIENT_FORM_ONSIZE = 0x0127;
   short HTML_EVENT_CLIENT_VIEW_QUERYOPEN = 0x108;
   short HTML_EVENT_CLIENT_VIEW_POSTOPEN = 0x109;
   short HTML_EVENT_CLIENT_VIEW_REGIONDBLCLK = 0x10a;
@@ -1145,8 +1143,7 @@ public interface RichTextConstants extends EditOds {
   short HTML_EVENT_CLIENT_VIEW_ONSELECT = 0x123;
   short HTML_EVENT_CLIENT_VIEW_ONFOCUS = 0x124;
   short HTML_EVENT_CLIENT_VIEW_ONBLUR = 0x125;
-  /** Non-documented flag for the OnSize client event */
-  short HTML_EVENT_CLIENT_FORM_ONSIZE = 0x0127;
+  short HTML_EVENT_CLIENT_VIEW_ONSIZE = 0x126;
   
   short ACTION_FORMULA = 0;
   short ACTION_CANNED_ACTION = 1;
@@ -1231,7 +1228,7 @@ public interface RichTextConstants extends EditOds {
   short ACTION_PLACEHOLDER = 6;
   short ACTION_RUN_JAVASCRIPT = 7;
 
-  /** Bitmap Uses > 16 colors or > 4 grey scale levels */
+  /** Bitmap Uses &gt; 16 colors or &gt; 4 grey scale levels */
   short CDBITMAP_FLAG_REQUIRES_PALETTE = 1;
   /**
    * Initialized by import code for "first time" importing of bitmaps

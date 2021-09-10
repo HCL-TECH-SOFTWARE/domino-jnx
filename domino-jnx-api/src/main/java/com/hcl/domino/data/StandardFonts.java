@@ -38,7 +38,7 @@ public enum StandardFonts implements INumberEnum<Byte> {
   TYPEWRITER(4),
   /**
    * returned if font is not in the standard table; cannot be set via
-   * {@link FontStyle#setFontFace(StandardFonts)}
+   * {@link FontStyle#setStandardFont(StandardFonts)}
    */
   CUSTOMFONT((byte) 255);
 

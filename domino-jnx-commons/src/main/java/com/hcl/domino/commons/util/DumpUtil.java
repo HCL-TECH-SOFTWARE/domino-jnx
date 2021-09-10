@@ -27,6 +27,10 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.text.MessageFormat;
+import java.util.Collection;
+
+import com.hcl.domino.richtext.records.RichTextRecord;
 
 /**
  * Utility class to dump memory content
@@ -186,6 +190,28 @@ public class DumpUtil {
 
       i += cols;
     }
+    return sb.toString();
+  }
+  
+  /**
+   * Reads richtext records and produces a string with record type, hex codes and
+   * characters data.
+   * 
+   * @param rt richtext records
+   * @return record dump
+   */
+  public static String dumpAsAscii(Collection<RichTextRecord<?>> rt) {
+    StringBuilder sb = new StringBuilder();
+
+    rt.forEach((record) -> {
+      sb
+        .append(record.getType())
+        .append(MessageFormat.format(" ({0} bytes)", record.getCDRecordLength())) //$NON-NLS-1$
+        .append('\n') //$NON-NLS-1$
+        .append(dumpAsAscii(record.getData()))
+        .append("\n\n"); //$NON-NLS-1$
+    });
+    
     return sb.toString();
   }
 }

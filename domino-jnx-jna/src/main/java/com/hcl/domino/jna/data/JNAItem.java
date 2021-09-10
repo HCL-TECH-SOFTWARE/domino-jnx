@@ -70,7 +70,11 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 	/**
 	 * Collection of item types that are assumed to contain composite-data records
 	 */
-	public static final Set<ItemDataType> CD_TYPES = EnumSet.of(ItemDataType.TYPE_COMPOSITE, ItemDataType.TYPE_ACTION);
+	public static final Set<ItemDataType> CD_TYPES = EnumSet.of(
+	  ItemDataType.TYPE_COMPOSITE, ItemDataType.TYPE_ACTION,
+	  ItemDataType.TYPE_VIEWMAP_DATASET, ItemDataType.TYPE_VIEWMAP_LAYOUT,
+	  ItemDataType.TYPE_QUERY
+	);
 	
 	JNAItem(JNADocument parentDoc, NotesBlockIdStruct itemBlockId, int dataType,
 			NotesBlockIdStruct valueBlockId) {

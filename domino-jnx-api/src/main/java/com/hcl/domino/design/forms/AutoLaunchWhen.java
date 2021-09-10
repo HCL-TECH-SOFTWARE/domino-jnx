@@ -14,35 +14,27 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.form;
+package com.hcl.domino.design.forms;
 
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.misc.INumberEnum;
 
 /**
- * Represents the behaviors for auto-launching an embedded component in the client UI.
+ * Represents the conditions for when to auto-launch an object when
+ * {@link com.hcl.domino.design.Form.AutoLaunchSettings#getType() AutoLaunchSettings#getType()}
+ * is an object type.
  * 
  * @author Jesse Gallagher
  * @since 1.0.34
  */
-public enum AutoLaunchType implements INumberEnum<Integer> {
+public enum AutoLaunchWhen implements INumberEnum<Integer> {
+  CREATE(DesignConstants.LAUNCH_WHEN_CREATE),
+  EDIT(DesignConstants.LAUNCH_WHEN_EDIT),
+  READ(DesignConstants.LAUNCH_WHEN_READ);
   
-  NONE(DesignConstants.AUTOLAUNCH_OBJTYPE_NONE),
-  /**  OLE Class ID (GUID)  */
-  OLE_CLASS(DesignConstants.AUTOLAUNCH_OBJTYPE_OLE_CLASS),
-  /**  First OLE Object  */
-  OLEOBJ(DesignConstants.AUTOLAUNCH_OBJTYPE_OLEOBJ),
-  /**  First Notes doclink  */
-  DOCLINK(DesignConstants.AUTOLAUNCH_OBJTYPE_DOCLINK),
-  /**  First Attachment  */
-  ATTACH(DesignConstants.AUTOLAUNCH_OBJTYPE_ATTACH),
-  /**  AutoLaunch the url in the URL field  */
-  URL(DesignConstants.AUTOLAUNCH_OBJTYPE_URL),
-  ;
-
   private final int value;
 
-  AutoLaunchType(final int value) {
+  AutoLaunchWhen(final int value) {
     this.value = value;
   }
 

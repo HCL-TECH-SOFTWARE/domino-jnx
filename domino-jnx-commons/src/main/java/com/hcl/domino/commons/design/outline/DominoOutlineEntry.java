@@ -1,10 +1,30 @@
+/*
+ * ==========================================================================
+ * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ *                            All rights reserved.
+ * ==========================================================================
+ * Licensed under the  Apache License, Version 2.0  (the "License").  You may
+ * not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+ *
+ * Unless  required  by applicable  law or  agreed  to  in writing,  software
+ * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the  specific language  governing permissions  and limitations
+ * under the License.
+ * ==========================================================================
+ */
 package com.hcl.domino.commons.design.outline;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import com.hcl.domino.data.IAdaptable;
+import com.hcl.domino.design.format.SiteMapEntry.Flag;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
+import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.misc.OutlineConstants;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.RichTextRecord;
@@ -14,7 +34,7 @@ public class DominoOutlineEntry implements IAdaptable {
   private DominoOutlineEntry.Type resourceType;
   private CDResource.ResourceClass resourceClass;
   private short resourceDesignType;
-  private int flags;
+  private Set<Flag> flags;
   private short level;
   private int id;
   private DominoOutlineEntry.Type oldEntryType;
@@ -62,8 +82,72 @@ public class DominoOutlineEntry implements IAdaptable {
     /** Currently not written to disk only used in RESOURCELINK */
     NAMEDITEMELEMENT(RichTextConstants.CDRESOURCE_TYPE_NAMEDITEMELEMENT),
     /* private outline entries  */
-    OTHERVIEWS(OutlineConstants.SITEMAP_OTHER_VIEWS_ENTRY),
-    OTHERFOLDERS(OutlineConstants.SITEMAP_OTHER_FOLDERS_ENTRY);
+    SPECIAL_ENTRY_START(OutlineConstants.SITEMAP_SPECIAL_ENTRY_START),
+    DEFAULT_HOME_PAGE_ENTRY(OutlineConstants.SITEMAP_DEFAULT_HOME_PAGE_ENTRY),    /*DefaultHomePage*/
+    BROWSEDB_ENTRY(OutlineConstants.SITEMAP_BROWSEDB_ENTRY),    /*Browse Databases*/
+    GLOBAL_WORKBENCH_ENTRY(OutlineConstants.SITEMAP_GLOBAL_WORKBENCH_ENTRY),   /*Domino Global Workbench*/
+    MOBILE_DESIGNER_ENTRY(OutlineConstants.SITEMAP_MOBILE_DESIGNER_ENTRY),    /*Mobile Notes Designer*/
+    WEB_STUDIO_ENTRY(OutlineConstants.SITEMAP_WEB_STUDIO_ENTRY),    /*WebSphere Studio*/
+    NOTES_ENTRY(OutlineConstants.SITEMAP_NOTES_ENTRY),    /*Notes*/
+    SAMETIME_ENTRY(OutlineConstants.SITEMAP_SAMETIME_ENTRY),    /*Sametime*/
+    ADMIN_ENTRY(OutlineConstants.SITEMAP_ADMIN_ENTRY),    /*Admin*/
+    DESIGNER_ENTRY(OutlineConstants.SITEMAP_DESIGNER_ENTRY),    /*Designer*/
+    DESK_ENTRY(OutlineConstants.SITEMAP_DESK_ENTRY),    /*Workspace*/
+    BCASE_ENTRY(OutlineConstants.SITEMAP_BCASE_ENTRY),    /*Replication*/
+    HOME_PAGE_ENTRY(OutlineConstants.SITEMAP_HOME_PAGE_ENTRY),    /*Home Page*/
+
+    IMPLIED_FOLDER_ENTRY(OutlineConstants.SITEMAP_IMPLIED_FOLDER_ENTRY),    /* Implied folder  */
+    ARCHIVE_ENTRY(OutlineConstants.SITEMAP_ARCHIVE_ENTRY),    /* archive entry expanded from
+                                                            archive placeholder */
+
+    ARCHIVE_PLACEHOLDER_END_ENTRY(OutlineConstants.SITEMAP_ARCHIVE_PLACEHOLDER_END_ENTRY),    /* An ending indicator
+                                                            for subsequent refreshes. 
+                                                            Temporary, not saved
+                                                            to disk. */
+    ARCHIVE_PLACEHOLDER_ENTRY(OutlineConstants.SITEMAP_ARCHIVE_PLACEHOLDER_ENTRY),    /* A placeholder to be replaced by all
+                                                                    archive profile folders */
+
+    /* Taking advantage of the sitemap creation checks for special mail folders */
+    TOOLBAR_ENTRY(OutlineConstants.SITEMAP_TOOLBAR_ENTRY),    /* Toolbar entry */
+    INBOX_ENTRY(OutlineConstants.SITEMAP_INBOX_ENTRY),    /* Mail Inbox folder  */
+    RULES_ENTRY(OutlineConstants.SITEMAP_RULES_ENTRY),    /* Mail Rules folder  */
+    DRAFTS_ENTRY(OutlineConstants.SITEMAP_DRAFTS_ENTRY),    /* Mail Drafts folder */
+    TRASH_ENTRY(OutlineConstants.SITEMAP_TRASH_ENTRY),    /* Mail Trash folder  */
+    SENT_ENTRY(OutlineConstants.SITEMAP_SENT_ENTRY),    /* Mail Sent folder   */
+
+
+    HISTORY_ENTRY(OutlineConstants.SITEMAP_HISTORY_ENTRY), /* History folder */
+
+    OTHER_VIEWS_END_ENTRY(OutlineConstants.SITEMAP_OTHER_VIEWS_END_ENTRY), /* An ending indicator
+                                                            for subsequent refreshes. 
+                                                            Temporary, not saved
+                                                            to disk. */
+    OTHER_FOLDERS_END_ENTRY(OutlineConstants.SITEMAP_OTHER_FOLDERS_END_ENTRY), /* An ending indicator
+                                                            for subsequent refreshes. 
+                                                            Temporary, not saved
+                                                            to disk. */
+
+    NS_WEBBROWSER_ENTRY(OutlineConstants.SITEMAP_NS_WEBBROWSER_ENTRY), /* Loads in user's favorites from NS.
+                                                            Added by the UI and
+                                                            populated by sitemap
+                                                            during an expand. */
+
+    IE_WEBBROWSER_ENTRY(OutlineConstants.SITEMAP_IE_WEBBROWSER_ENTRY), /* Loads in user's favorites from IE.
+                                                            Added by the UI and
+                                                            populated by sitemap
+                                                            during an expand. */
+
+    CREATE_ENTRY(OutlineConstants.SITEMAP_CREATE_ENTRY), /* A drop point which causes
+                                                            a new entry to get created. */
+
+    OTHER_VIEWS_ENTRY(OutlineConstants.SITEMAP_OTHER_VIEWS_ENTRY), /* A placeholder to be replaced by all
+                                                            shared views not specifically 
+                                                            mentioned */
+    OTHER_FOLDERS_ENTRY(OutlineConstants.SITEMAP_OTHER_FOLDERS_ENTRY), /* A placeholder to be replaced by all
+                                                            shared folders not specifically 
+                                                            mentioned */
+    OPEN_ARCHIVE_LOGS_NBP(OutlineConstants.SITEMAP_OPEN_ARCHIVE_LOGS_NBP); /* Opening the archive logs from Notes Web using Notes Browser Plugin
+                                                              for local archiving feature (Notes Web Companion)*/
 
     private final short value;
 
@@ -145,12 +229,14 @@ public class DominoOutlineEntry implements IAdaptable {
   public void setResourceDesignType(short entryDesignType) {
     this.resourceDesignType = entryDesignType;
   }
+  
+  
 
-  public int getFlags() {
+  public Set<Flag> getFlags() {
     return flags;
   }
 
-  public void setFlags(int entryFlags) {
+  public void setFlags(Set<Flag> entryFlags) {
     this.flags = entryFlags;
   }
 

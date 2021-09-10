@@ -39,7 +39,7 @@ import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
     @StructureMember(name = "Signature", type = short.class),
     @StructureMember(name = "NumberFormat", type = NFMT.class),
     @StructureMember(name = "NumSymPref", type = NumberPref.class),
-    @StructureMember(name = "NumSymFlags", type = byte.class, bitfield = true),
+    @StructureMember(name = "NumSymFlags", type = byte.class),
     @StructureMember(name = "DecimalSymLength", type = int.class, unsigned = true),
     @StructureMember(name = "MilliSepSymLength", type = int.class, unsigned = true),
     @StructureMember(name = "NegativeSymLength", type = int.class, unsigned = true),

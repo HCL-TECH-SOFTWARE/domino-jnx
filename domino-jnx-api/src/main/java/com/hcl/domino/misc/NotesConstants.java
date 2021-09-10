@@ -16,7 +16,10 @@
  */
 package com.hcl.domino.misc;
 
-public interface NotesConstants extends ViewFormatConstants {
+import com.hcl.domino.constants.QueryOds;
+import com.hcl.domino.constants.StdNames;
+
+public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds {
 
   public enum AgentCheck {
     CheckRights(0),
@@ -2967,6 +2970,8 @@ public interface NotesConstants extends ViewFormatConstants {
   String DFLAGPAT_SACTIONS_DESIGN = "+y"; //$NON-NLS-1$
   /* display only Frameset notes */
   String DFLAGPAT_FRAMESET = "(+-*#"; //$NON-NLS-1$
+  /** display only GraphicViews; no version filtering (for design) */
+  String DFLAGPAT_VIEWMAP_ALL_VERSIONS = "*G"; //$NON-NLS-1$
 
   /* Use following bits with
   ReplicateWithServerExt only */

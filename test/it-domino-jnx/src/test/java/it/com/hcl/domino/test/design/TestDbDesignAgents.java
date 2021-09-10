@@ -34,6 +34,8 @@ import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,6 +48,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
+import com.hcl.domino.data.DominoDateRange;
 import com.hcl.domino.design.ComputableValue;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignAgent;
@@ -70,6 +73,17 @@ import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SendMailAction;
 import com.hcl.domino.design.simpleaction.SendNewsletterAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.design.simplesearch.ByAuthorTerm;
+import com.hcl.domino.design.simplesearch.ByDateFieldTerm;
+import com.hcl.domino.design.simplesearch.ByFieldTerm;
+import com.hcl.domino.design.simplesearch.ByFolderTerm;
+import com.hcl.domino.design.simplesearch.ByFormTerm;
+import com.hcl.domino.design.simplesearch.ByNumberFieldTerm;
+import com.hcl.domino.design.simplesearch.ExampleFormTerm;
+import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
+import com.hcl.domino.design.simplesearch.TextTerm;
+import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.misc.Pair;
 import com.hcl.domino.design.agent.ImportedJavaAgentContent;
 import com.hcl.domino.design.agent.JavaAgentContent;
 import com.hcl.domino.design.agent.LotusScriptAgentContent;
@@ -80,7 +94,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
-  public static final int EXPECTED_IMPORT_AGENTS = 20;
+  public static final int EXPECTED_IMPORT_AGENTS = 22;
   private static String dbPath;
 
   @AfterAll
@@ -523,5 +537,171 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     assertTrue(agent.isStoreHighlights());
     assertTrue(agent.isProfilingEnabled());
     assertEquals(DesignAgent.SecurityLevel.UNRESTRICTED_FULLADMIN, agent.getSecurityLevel());
+  }
+  
+  @Test
+  public void testSelectionQuery() {
+    DbDesign design = database.getDesign();
+    
+    DesignAgent agent = design.getAgent("Test Selection").get();
+    
+    List<? extends SimpleSearchTerm> search = agent.getDocumentSelection();
+    assertEquals(23, search.size());
+    
+    {
+      SimpleSearchTerm term = search.get(0);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.ACCRUE, text.getType());
+      assertEquals(Arrays.asList("dfdf", "b"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(1);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(2);
+      ExampleFormTerm form = assertInstanceOf(ExampleFormTerm.class, term);
+      assertEquals("Some Form", form.getFormName());
+      Map<String, List<String>> expected = new HashMap<>();
+      expected.put("Name", Arrays.asList("fsdf"));
+      assertEquals(expected, form.getFieldMatches());
+    }
+    {
+      SimpleSearchTerm term = search.get(3);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("OR"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(4);
+      ByFormTerm form = assertInstanceOf(ByFormTerm.class, term);
+      assertEquals(new LinkedHashSet<>(Arrays.asList("Some Form", "Some Other Form")), form.getFormNames());
+    }
+    {
+      SimpleSearchTerm term = search.get(5);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND NOT ("), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(6);
+      ByDateFieldTerm date = assertInstanceOf(ByDateFieldTerm.class, term);
+      assertEquals(ByDateFieldTerm.DateType.CREATED, date.getDateType());
+      assertEquals(LocalDate.of(2021, 9, 7), date.getDate().get().toLocalDate());
+      assertFalse(date.getDateRange().isPresent());
+    }
+    {
+      SimpleSearchTerm term = search.get(7);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("OR"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(8);
+      ByAuthorTerm author = assertInstanceOf(ByAuthorTerm.class, term);
+      assertEquals(ByFieldTerm.TextRule.CONTAINS, author.getTextRule());
+      assertEquals(NotesConstants.FIELD_UPDATED_BY, author.getFieldName());
+      assertEquals("fsdf", author.getTextValue());
+    }
+    {
+      SimpleSearchTerm term = search.get(9);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList(")"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(10);
+      ByFieldTerm field = assertInstanceOf(ByFieldTerm.class, term);
+      assertEquals(ByFieldTerm.TextRule.CONTAINS, field.getTextRule());
+      assertEquals("Name", field.getFieldName());
+      assertEquals("dfd", field.getTextValue());
+    }
+    {
+      SimpleSearchTerm term = search.get(11);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(12);
+      ByFolderTerm folder = assertInstanceOf(ByFolderTerm.class, term);
+      assertEquals("Some Folder", folder.getFolderName());
+      assertFalse(folder.isPrivate());
+    }
+    {
+      SimpleSearchTerm term = search.get(13);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("and some arbitrary text"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(14);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.AND, text.getType());
+      assertEquals(Arrays.asList("aab", "bbc"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(15);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(16);
+      ByNumberFieldTerm number = assertInstanceOf(ByNumberFieldTerm.class, term);
+      assertEquals(ByNumberFieldTerm.NumberRule.LESS_THAN, number.getNumberRule());
+      assertEquals("Number", number.getFieldName());
+      assertEquals(4d, number.getNumber().getAsDouble());
+      assertFalse(number.getNumberRange().isPresent());
+    }
+    {
+      SimpleSearchTerm term = search.get(17);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(18);
+      ByNumberFieldTerm number = assertInstanceOf(ByNumberFieldTerm.class, term);
+      assertEquals(ByNumberFieldTerm.NumberRule.NOT_BETWEEN, number.getNumberRule());
+      assertEquals("Number", number.getFieldName());
+      assertFalse(number.getNumber().isPresent());
+      Pair<Double, Double> range = number.getNumberRange().get();
+      assertEquals(3, range.getValue1());
+      assertEquals(6, range.getValue2());
+    }
+    {
+      SimpleSearchTerm term = search.get(19);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(20);
+      ByDateFieldTerm date = assertInstanceOf(ByDateFieldTerm.class, term);
+      assertEquals(ByDateFieldTerm.DateType.MODIFIED, date.getDateType());
+      assertFalse(date.getDate().isPresent());
+      LocalDate start = LocalDate.of(2021, 9, 10);
+      LocalDate end = LocalDate.of(2021, 9, 30);
+      DominoDateRange range = date.getDateRange().get();
+      assertEquals(start, range.getStartDateTime().toLocalDate());
+      assertEquals(end, range.getEndDateTime().toLocalDate());
+    }
+    {
+      SimpleSearchTerm term = search.get(21);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(22);
+      ByDateFieldTerm date = assertInstanceOf(ByDateFieldTerm.class, term);
+      assertEquals(ByDateFieldTerm.DateType.FIELD, date.getDateType());
+      assertFalse(date.getDate().isPresent());
+      assertFalse(date.getDateRange().isPresent());
+      assertEquals(7, date.getDayCount().getAsInt());
+    }
   }
 }

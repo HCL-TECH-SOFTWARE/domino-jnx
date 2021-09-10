@@ -16,11 +16,13 @@
  */
 package com.hcl.domino.design;
 
+import java.io.InputStream;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
 import com.hcl.domino.admin.idvault.UserId;
+import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.data.DocumentClass;
 
@@ -99,7 +101,7 @@ public interface DbDesign {
    * @return the newly-created in-memory {@link View}
    */
   View createView(String viewName);
-
+  
   /**
    * Retrieves the named agent.
    *
@@ -182,21 +184,62 @@ public interface DbDesign {
    * not the "$FileNames" of the file resource. These may diverge, such as when a
    * file resource has an alias assigned to it.
    * </p>
+   * 
+   * <p>Moreover, this method finds only elements listed in the "File Resources"
+   * list in Designer, not elements like "loose" resources in the WebContent
+   * directory.</p>
    *
    * @param name the name of the resource to restrict to
    * @return an {@link Optional} describing the {@link FileResource}, or an empty
    *         one if no such element exists
    * @since 1.0.24
    */
-  Optional<FileResource> getFileResource(String name);
+  default Optional<FileResource> getFileResource(String name) {
+    return getFileResource(name, false);
+  }
+  
+  /**
+   * Retrieves the named file resource, optionally including the pool of "XPages-side"
+   * resources, such as files placed in the "WebContent" directory.
+   * 
+   * <p>
+   * Note: this method uses the value of the "$TITLE" field of the design element,
+   * not the "$FileNames" of the file resource. These may diverge, such as when a
+   * file resource has an alias assigned to it.
+   * </p>
+   *
+   * @param name the name of the resource to restrict to
+   * @param includeXsp whether to include XPages-side file resources
+   * @return an {@link Optional} describing the {@link FileResource}, or an empty
+   *         one if no such element exists
+   * @since 1.0.38
+   */
+  Optional<FileResource> getFileResource(String name, boolean includeXsp);
 
   /**
    * Retrieves all file resource design elements in the database.
+   * 
+   * <p>This method finds only elements listed in the "File Resources"
+   * list in Designer, not elements like "loose" resources in the WebContent
+   * directory.</p>
    *
    * @return a {@link Stream} of {@link FileResource}s
    * @since 1.0.24
    */
-  Stream<FileResource> getFileResources();
+  default Stream<FileResource> getFileResources() {
+    return getFileResources(false);
+  }
+  
+  /**
+   * Retrieves all file resource design elements in the database, optionally
+   * including the pool of "XPages-side" resources, such as files placed in the
+   * "WebContent" directory.
+   *
+   * @param includeXsp whether to include XPages-side file resources
+   * @return a {@link Stream} of {@link FileResource}s
+   * @since 1.0.38
+   */
+  Stream<FileResource> getFileResources(boolean includeXsp);
 
   /**
    * Retrieves the named folder.
@@ -379,7 +422,7 @@ public interface DbDesign {
    */
   Stream<Outline> getOutlines();
 
-  /*
+  /**
    * Retrieves the "About Application" document for the database, if it exists.
    * 
    * @return an {@link Optional} describing the {@link AboutDocument} for the database,
@@ -402,7 +445,7 @@ public interface DbDesign {
    *
    * @param name the element name to restrict to
    * @return an {@link Optional} describing the {@link SharedField}, or an empty one if
-   *         no such view exists
+   *         no such field exists
    * @since 1.0.34
    */
   Optional<SharedField> getSharedField(String name);
@@ -414,6 +457,112 @@ public interface DbDesign {
    * @since 1.0.34
    */
   Stream<SharedField> getSharedFields();
+  
+  /**
+   * Retrieves the shared-actions note, if it exists in the database.
+   * 
+   * @return an {@link Optional} describing the {@link SharedActions} for the database, or
+   *         an empty one if there is no shared-actions note
+   * @since 1.0.37
+   */
+  Optional<SharedActions> getSharedActions();
+
+  /**
+   * Retrieves the named shared column.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link SharedColumn}, or an empty one if
+   *         no such column exists
+   * @since 1.0.37
+   */
+  Optional<SharedColumn> getSharedColumn(String name);
+
+  /**
+   * Retrieves all shared columns in the database.
+   *
+   * @return a {@link Stream} of {@link SharedColumn}s
+   * @since 1.0.37
+   */
+  Stream<SharedColumn> getSharedColumns();
+
+  /**
+   * Retrieves the named style sheet resource.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link StyleSheet}, or an empty one if
+   *         no such style sheet exists
+   * @since 1.0.38
+   */
+  Optional<StyleSheet> getStyleSheet(String name);
+
+  /**
+   * Retrieves all style sheet in the database.
+   *
+   * @return a {@link Stream} of {@link StyleSheet}s
+   * @since 1.0.38
+   */
+  Stream<StyleSheet> getStyleSheets();
+
+  /**
+   * Retrieves the named wiring properties element.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link WiringProperties}, or an empty one if
+   *         no such wiring properties element exists
+   * @since 1.0.38
+   */
+  Optional<WiringProperties> getWiringPropertiesElement(String name);
+
+  /**
+   * Retrieves all wiring properties elements in the database.
+   *
+   * @return a {@link Stream} of {@link WiringProperties}s
+   * @since 1.0.38
+   */
+  Stream<WiringProperties> getWiringPropertiesElements();
+
+  /**
+   * Retrieves the named theme element.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link Theme}, or an empty one if
+   *         no such theme exists
+   * @since 1.0.38
+   */
+  Optional<Theme> getTheme(String name);
+
+  /**
+   * Retrieves all theme elements in the database.
+   *
+   * @return a {@link Stream} of {@link Theme}s
+   * @since 1.0.38
+   */
+  Stream<Theme> getThemes();
+  
+  /**
+   * Retrieves a design element by its UNID.
+   * 
+   * @param <T> the expected type of the design element
+   * @param unid the UNID of the design element to retrieve
+   * @return an {@link Optional} describing the design element, or an empty one if no
+   *         note by that UNID exists
+   * @throws ClassCastException if the design element represented by {@code unid} is not of the
+   *                            type represented by {@code <T>}
+   * @throws IllegalArgumentException if the note represented by {@code unid} is not a design
+   *                                  element
+   * @since 1.0.37
+   */
+  <T extends DesignElement> Optional<T> getDesignElementByUNID(String unid);
+  
+  /**
+   * Retrieves the named file, image, or stylesheet resource as a stream of bytes.
+   * 
+   * @param filePath the path to the file-type resource
+   * @return an {@link Optional} describing an {@link InputStream} of the file's bytes,
+   *         or an empty one if no such file exists
+   * @since 1.0.38
+   */
+  Optional<InputStream> getResourceAsStream(String filePath);
 
   /**
    * Queries all design elements in the database by the provided formula and
@@ -443,4 +592,11 @@ public interface DbDesign {
    * @param callback optional sign callback to control with document to sign
    */
   void signAll(Set<DocumentClass> docClass, UserId id, SignCallback callback);
+
+  /**
+   * Returns the parent database of the design
+   * 
+   * @return database
+   */
+  Database getDatabase();
 }

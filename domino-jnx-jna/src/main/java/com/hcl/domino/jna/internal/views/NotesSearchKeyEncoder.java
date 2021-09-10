@@ -29,10 +29,10 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.Objects;
 
+import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.util.InnardsConverter;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.data.ItemDataType;
-import com.hcl.domino.jna.data.JNADominoDateRange;
 import com.hcl.domino.jna.data.JNADominoDateTime;
 import com.hcl.domino.jna.internal.JNANotesConstants;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -117,9 +117,9 @@ public class NotesSearchKeyEncoder {
 				//date range
 				addCalendarRangeKey(metaDataByteOut, valueDataByteOut, (Calendar[]) currKey);
 			}
-			else if (currKey instanceof JNADominoDateRange) {
+			else if (currKey instanceof DefaultDominoDateRange) {
 				//date range
-				addCalendarRangeKey(metaDataByteOut, valueDataByteOut, (JNADominoDateRange) currKey);
+				addCalendarRangeKey(metaDataByteOut, valueDataByteOut, (DefaultDominoDateRange) currKey);
 			}
 			else if (currKey instanceof double[]) {
 				//looks like this does not work (the C API documentation says it does not work either)
@@ -294,7 +294,7 @@ public class NotesSearchKeyEncoder {
 	 * @param currKey search key, array with two values
 	 * @throws Exception in case of errors
 	 */
-	private static void addCalendarRangeKey(OutputStream itemOut, OutputStream valueDataOut, JNADominoDateRange currKey) throws Exception {
+	private static void addCalendarRangeKey(OutputStream itemOut, OutputStream valueDataOut, DefaultDominoDateRange currKey) throws Exception {
 		int[] startInnards = ((JNADominoDateTime)currKey.getStartDateTime()).getInnards();
 		int[] endInnards = ((JNADominoDateTime)currKey.getEndDateTime()).getInnards();
 		

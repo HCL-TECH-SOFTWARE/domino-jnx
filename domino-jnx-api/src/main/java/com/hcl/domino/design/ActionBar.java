@@ -123,7 +123,7 @@ public interface ActionBar extends DesignElement.ThemeableClassicElement {
   /**
   * Retrieves the repeat mode for the background image.
   * 
-  * @return an {@link BackgroundRepeatMode} for the background image
+  * @return an {@link ActionBarBackgroundRepeat} for the background image
   */
   ActionBarBackgroundRepeat getBackgroundImageRepeatMode();
  
@@ -196,14 +196,15 @@ public interface ActionBar extends DesignElement.ThemeableClassicElement {
   /**
    * Determines the width sizing mode for displaying individual actions in the bar.
    * 
-   * @return a {@link ButtonWidthMode} instance
+   * @return a {@link ActionWidthMode} instance
    */
   ActionWidthMode getButtonWidthMode();
   
   /**
    * Retrieves the width of actions in the bar when {@link #getButtonWidthMode()}
-   * is {@link ButtonWidthMode#ABSOLUTE ABSOLUTE}.
-   * @return
+   * is {@link ActionWidthMode#ABSOLUTE ABSOLUTE}.
+   * 
+   * @return the width of actions
    */
   int getButtonWidth();
   

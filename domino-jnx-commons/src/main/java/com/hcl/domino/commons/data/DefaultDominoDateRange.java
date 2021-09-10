@@ -14,7 +14,7 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.jna.data;
+package com.hcl.domino.commons.data;
 
 import java.text.MessageFormat;
 import java.util.Objects;
@@ -23,11 +23,11 @@ import com.hcl.domino.data.DominoDateRange;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.IAdaptable;
 
-public class JNADominoDateRange implements DominoDateRange, IAdaptable {
+public class DefaultDominoDateRange implements DominoDateRange, IAdaptable {
 	private DominoDateTime m_start;
 	private DominoDateTime m_end;
 	
-	public JNADominoDateRange(DominoDateTime start, DominoDateTime end) {
+	public DefaultDominoDateRange(DominoDateTime start, DominoDateTime end) {
 		m_start = start;
 		m_end = end;
 	}
@@ -49,7 +49,7 @@ public class JNADominoDateRange implements DominoDateRange, IAdaptable {
 
 	@Override
 	public String toString() {
-		return MessageFormat.format("JNADominoDateRange [startdatetime()={0}, enddatetime()={1}]", getStartDateTime(), getEndDateTime()); //$NON-NLS-1$
+		return MessageFormat.format("DefaultDominoDateRange [startdatetime()={0}, enddatetime()={1}]", getStartDateTime(), getEndDateTime()); //$NON-NLS-1$
 	}
 	
 	@Override

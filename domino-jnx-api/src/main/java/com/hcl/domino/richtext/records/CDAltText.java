@@ -17,6 +17,8 @@
 package com.hcl.domino.richtext.records;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.Optional;
+import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -39,6 +41,30 @@ public interface CDAltText extends RichTextRecord<WSIG> {
   
   @StructureGetter("wLength")
   int getLength();
+  
+  /**
+   * Gets the text for alttext in the variable data portion of this record.
+   * 
+   * <p>
+   * This method also sets the {@code wLength} property to the appropriate value.
+   * </p>
+   *
+   * @param altText the caption text to set
+   * @return this record
+   */
+  default Optional<String> getAltText() {
+    if (this.getLength() > 0) {
+      return Optional.of(
+          StructureSupport.extractStringValue(
+            this,
+            0,
+            this.getLength()
+          )
+        ); 
+    }
+    
+    return Optional.empty();
+  }
   
   /**
    * Stores the text for alttext in the variable data portion of this record.

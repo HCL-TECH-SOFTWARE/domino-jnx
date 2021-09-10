@@ -77,7 +77,9 @@ public interface ViewTableFormat extends MemoryStructure {
     HIDE_CAL_HEADER(ViewFormatConstants.VIEW_TABLE_HIDE_CAL_HEADER),
     NOT_CUSTOMIZED(ViewFormatConstants.VIEW_TABLE_NOT_CUSTOMIZED),
     SHOW_PARTIAL_THREADS(ViewFormatConstants.VIEW_TABLE_SHOW_PARITAL_THREADS),
-    PARTIAL_FLATINDEX(ViewFormatConstants.VIEW_TABLE_FLAG_PARTIAL_FLATINDEX);
+    PARTIAL_FLATINDEX(ViewFormatConstants.VIEW_TABLE_FLAG_PARTIAL_FLATINDEX),
+    NARROW_VIEW(ViewFormatConstants.VIEW_TABLE_NARROW_VIEW),
+    SHOW_ABSTRACT(ViewFormatConstants.VIEW_TABLE_SHOW_ABSTRACT);
 
     private final short value;
 

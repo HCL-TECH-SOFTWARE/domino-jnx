@@ -18,12 +18,12 @@ package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -43,6 +43,23 @@ import com.hcl.domino.richtext.structures.WSIG;
     @StructureMember(name = "wFormNameLen", type = short.class, unsigned = true)
 })
 public interface CDActionByForm extends RichTextRecord<WSIG> {
+
+  @StructureGetter("Header")
+  @Override
+  WSIG getHeader();
+
+  @StructureSetter("wFieldCount")
+  CDActionByForm setFieldCount(int fieldCount);
+
+  @StructureGetter("wFieldCount")
+  int getFieldCount();
+
+  @StructureGetter("wFormNameLen")
+  int getFormNameLength();
+  
+  @StructureSetter("wFormNameLen")
+  CDActionByForm setFormNameLength(int formNameLength);
+  
   /**
    * Retrieves the action data as a {@link ByteBuffer} view of the underlying
    * structure data. This data
@@ -86,29 +103,6 @@ public interface CDActionByForm extends RichTextRecord<WSIG> {
     return result;
   }
 
-  @StructureGetter("wFieldCount")
-  int getFieldCount();
-
-  default String getFormName() {
-    return new String(this.getFormNameData(), Charset.forName("LMBCS-native")); //$NON-NLS-1$
-  }
-
-  default byte[] getFormNameData() {
-    final int formNameLen = this.getFormNameLength();
-    final ByteBuffer buf = this.getVariableData();
-    buf.position(buf.limit() - formNameLen);
-    final byte[] lmbcs = new byte[formNameLen];
-    buf.get(lmbcs);
-    return lmbcs;
-  }
-
-  @StructureGetter("wFormNameLen")
-  int getFormNameLength();
-
-  @StructureGetter("Header")
-  @Override
-  WSIG getHeader();
-
   /**
    * Sets the action data for this record.
    * <p>
@@ -121,11 +115,15 @@ public interface CDActionByForm extends RichTextRecord<WSIG> {
    * @return this record
    */
   default CDActionByForm setActionData(final byte[] actionData) {
-    final byte[] data = actionData == null ? new byte[0] : actionData;
-    final byte[] formNameData = this.getFormNameData();
+    ByteBuffer buf = this.getVariableData();
+    byte[] formNameData = new byte[this.getFormNameLength()];
+    int existingLen = buf.remaining() - formNameData.length;
+    buf.position(existingLen);
+    buf.get(formNameData);
 
+    final byte[] data = actionData == null ? new byte[0] : actionData;
     this.resizeVariableData(data.length + formNameData.length);
-    final ByteBuffer buf = this.getVariableData();
+    buf = this.getVariableData();
     buf.put(data);
     buf.put(formNameData);
 
@@ -153,24 +151,25 @@ public interface CDActionByForm extends RichTextRecord<WSIG> {
     return this;
   }
 
-  @StructureSetter("wFieldCount")
-  CDActionByForm setFieldCount(int fieldCount);
-
-  default CDActionByForm setFormName(final String formName) {
-    final byte[] lmbcs = formName == null ? new byte[0] : formName.getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$
-    final int dataLen = this.getVariableData().limit();
-    final int oldNameLen = this.getFormNameLength();
-    final int newLen = dataLen - oldNameLen + lmbcs.length;
-    this.resizeVariableData(newLen);
-    this.setFormNameLength(lmbcs.length);
-
+  default String getFormName() {
+    final int formNameLen = this.getFormNameLength();
     final ByteBuffer buf = this.getVariableData();
-    buf.position(buf.limit() - lmbcs.length);
-    buf.put(lmbcs);
-
-    return this;
+    return StructureSupport.extractStringValue(
+      this,
+      buf.limit() - formNameLen,
+      formNameLen
+    );
   }
 
-  @StructureSetter("wFormNameLen")
-  CDActionByForm setFormNameLength(int formNameLength);
+  default CDActionByForm setFormName(final String formName) {
+    final int formNameLen = this.getFormNameLength();
+    final ByteBuffer buf = this.getVariableData();
+    return StructureSupport.writeStringValue(
+      this,
+      buf.limit() - formNameLen,
+      formNameLen,
+      formName,
+      this::setFormNameLength
+    );
+  }
 }

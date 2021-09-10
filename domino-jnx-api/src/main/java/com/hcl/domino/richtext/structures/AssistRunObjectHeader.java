@@ -14,37 +14,29 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.form;
+package com.hcl.domino.richtext.structures;
 
-import com.hcl.domino.design.DesignConstants;
-import com.hcl.domino.design.Form;
-import com.hcl.domino.misc.INumberEnum;
+import com.hcl.domino.richtext.annotation.StructureDefinition;
+import com.hcl.domino.richtext.annotation.StructureGetter;
+import com.hcl.domino.richtext.annotation.StructureMember;
+import com.hcl.domino.richtext.annotation.StructureSetter;
 
 /**
- * Represents the conditions for when to auto-launch an object when
- * {@link Form.AutoLaunchSettings#getType()} is an object type.
- * 
  * @author Jesse Gallagher
- * @since 1.0.34
+ * @since 1.0.38
  */
-public enum AutoLaunchWhen implements INumberEnum<Integer> {
-  CREATE(DesignConstants.LAUNCH_WHEN_CREATE),
-  EDIT(DesignConstants.LAUNCH_WHEN_EDIT),
-  READ(DesignConstants.LAUNCH_WHEN_READ);
+@StructureDefinition(
+  name = "ODS_ASSISTRUNOBJECTHEADER",
+  members = {
+    @StructureMember(name = "dwFlags", type = int.class),
+    @StructureMember(name = "wEntries", type = short.class, unsigned = true),
+    @StructureMember(name = "wSpare", type = short.class)
+  }
+)
+public interface AssistRunObjectHeader extends ResizableMemoryStructure {
+  @StructureGetter("wEntries")
+  int getEntries();
   
-  private final int value;
-
-  AutoLaunchWhen(final int value) {
-    this.value = value;
-  }
-
-  @Override
-  public long getLongValue() {
-    return this.value;
-  }
-
-  @Override
-  public Integer getValue() {
-    return this.value;
-  }
+  @StructureSetter("wEntries")
+  AssistRunObjectHeader setEntries(int entries);
 }

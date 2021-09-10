@@ -20,9 +20,9 @@ import java.util.Collection;
 import java.util.Set;
 
 import com.hcl.domino.design.DesignConstants;
-import com.hcl.domino.design.form.AutoLaunchHideWhen;
-import com.hcl.domino.design.form.AutoLaunchType;
-import com.hcl.domino.design.form.AutoLaunchWhen;
+import com.hcl.domino.design.forms.AutoLaunchHideWhen;
+import com.hcl.domino.design.forms.AutoLaunchType;
+import com.hcl.domino.design.forms.AutoLaunchWhen;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;

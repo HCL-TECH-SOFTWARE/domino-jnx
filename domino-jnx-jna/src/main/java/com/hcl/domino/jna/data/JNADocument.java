@@ -52,6 +52,7 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.commons.constants.UpdateNote;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
+import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.data.SignatureDataImpl;
 import com.hcl.domino.commons.design.FormFieldImpl;
 import com.hcl.domino.commons.design.outline.DominoOutlineFormat;
@@ -88,16 +89,19 @@ import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.Item;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.exception.LotusScriptCompilationException;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.data.JNADatabaseObjectProducer.ObjectInfo;
+import com.hcl.domino.jna.internal.AgentRunInfoDecoder;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.ItemDecoder;
 import com.hcl.domino.jna.internal.JNANotesConstants;
 import com.hcl.domino.jna.internal.Mem;
+import com.hcl.domino.jna.internal.MemoryUtils;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
@@ -138,6 +142,7 @@ import com.hcl.domino.richtext.records.CDField;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
+import com.hcl.domino.richtext.structures.ObjectDescriptor;
 import com.hcl.domino.richtext.structures.RFC822ItemDesc;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
@@ -437,50 +442,58 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			return tdValues==null ? Collections.emptyList() : tdValues;
 		}
 		else if (dataTypeAsInt == ItemDataType.TYPE_OBJECT.getValue()) {
-			NotesObjectDescriptorStruct objDescriptor = NotesObjectDescriptorStruct.newInstance(valueDataPtr);
-			objDescriptor.read();
+		  ObjectDescriptor objDescriptor = MemoryUtils.readStructure(ObjectDescriptor.class, valueDataPtr);
 			
-			int rrv = objDescriptor.RRV;
+			int rrv = objDescriptor.getRRV();
 			
-			if (objDescriptor.ObjectType == NotesConstants.OBJECT_FILE) {
-				Pointer fileObjectPtr = valueDataPtr;
-				
-				NotesFileObjectStruct fileObject = NotesFileObjectStruct.newInstance(fileObjectPtr);
-				fileObject.read();
-				
-				short compressionType = fileObject.CompressionType;
-				NotesTimeDateStruct fileCreated = Objects.requireNonNull(fileObject.FileCreated, "Unexpected null value for fileObject.FileCreated");
-				NotesTimeDateStruct fileModified = Objects.requireNonNull(fileObject.FileModified, "Unexpected null value for fileObject.FileModified");
-				DominoDateTime fileCreatedWrap = new JNADominoDateTime(fileCreated.Innards);
-				DominoDateTime fileModifiedWrap = new JNADominoDateTime(fileModified.Innards);
-				
-				short fileNameLength = fileObject.FileNameLength;
-				long fileSize = Integer.toUnsignedLong(fileObject.FileSize);
-				short flags = fileObject.Flags;
-				
-				Compression compression = null;
-				for (Compression currComp : Compression.values()) {
-					if (compressionType == currComp.getValue()) {
-						compression = currComp;
-						break;
-					}
-				}
-				
-				Pointer fileNamePtr = fileObjectPtr.share(JNANotesConstants.fileObjectSize);
-				String fileName = NotesStringUtils.fromLMBCS(fileNamePtr, fileNameLength);
-				
-				JNAAttachment attInfo = new JNAAttachment(fileName, compression, flags, fileSize,
-						fileCreatedWrap, fileModifiedWrap, this,
-						itemBlockId, rrv);
-				
-				return Arrays.asList((Object) attInfo);
+			ObjectDescriptor.ObjectType type = objDescriptor.getObjectType().orElse(ObjectDescriptor.ObjectType.UNKNOWN); 
+			switch(type) {
+		  case FILE: {
+		    Pointer fileObjectPtr = valueDataPtr;
+        
+        NotesFileObjectStruct fileObject = NotesFileObjectStruct.newInstance(fileObjectPtr);
+        fileObject.read();
+        
+        short compressionType = fileObject.CompressionType;
+        NotesTimeDateStruct fileCreated = Objects.requireNonNull(fileObject.FileCreated, "Unexpected null value for fileObject.FileCreated");
+        NotesTimeDateStruct fileModified = Objects.requireNonNull(fileObject.FileModified, "Unexpected null value for fileObject.FileModified");
+        DominoDateTime fileCreatedWrap = new JNADominoDateTime(fileCreated.Innards);
+        DominoDateTime fileModifiedWrap = new JNADominoDateTime(fileModified.Innards);
+        
+        short fileNameLength = fileObject.FileNameLength;
+        long fileSize = Integer.toUnsignedLong(fileObject.FileSize);
+        short flags = fileObject.Flags;
+        
+        Compression compression = null;
+        for (Compression currComp : Compression.values()) {
+          if (compressionType == currComp.getValue()) {
+            compression = currComp;
+            break;
+          }
+        }
+        
+        Pointer fileNamePtr = fileObjectPtr.share(JNANotesConstants.fileObjectSize);
+        String fileName = NotesStringUtils.fromLMBCS(fileNamePtr, fileNameLength);
+        
+        JNAAttachment attInfo = new JNAAttachment(fileName, compression, flags, fileSize,
+            fileCreatedWrap, fileModifiedWrap, this,
+            itemBlockId, rrv);
+        
+        return Arrays.asList((Object) attInfo);
+		  }
+		  case ASSIST_RUNDATA: {
+		    Optional<DesignAgent.LastRunInfo> info = AgentRunInfoDecoder.decodeAgentRunInfo(getParentDatabase(), valueDataPtr, valueDataLength);
+		    return info.isPresent() ? Arrays.asList(info) : Collections.emptyList();
+		  }
+		  default:
+	      //TODO add support for other object types
+		    break;
 			}
-			//TODO add support for other object types
 			
 			//clone values because value data gets unlocked, preventing invalid memory access
 			NotesObjectDescriptorStruct clonedObjDescriptor = NotesObjectDescriptorStruct.newInstance();
-			clonedObjDescriptor.ObjectType = objDescriptor.ObjectType;
-			clonedObjDescriptor.RRV = objDescriptor.RRV;
+			clonedObjDescriptor.ObjectType = objDescriptor.getObjectType().map(t -> t.getValue()).orElse((short)0);
+			clonedObjDescriptor.RRV = objDescriptor.getRRV();
 			return Arrays.asList((Object) clonedObjDescriptor);
 		}
 		else if (dataTypeAsInt == ItemDataType.TYPE_NOTEREF_LIST.getValue()) {
@@ -1435,7 +1448,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				}
 				DominoDateTime start = new JNADominoDateTime((((GregorianCalendar)calArr[0]).toZonedDateTime()));
 				DominoDateTime end = new JNADominoDateTime((((GregorianCalendar)calArr[1]).toZonedDateTime()));
-				convertedList.add(new JNADominoDateRange(start, end));
+				convertedList.add(new DefaultDominoDateRange(start, end));
 			}
 			else if (list.get(i) instanceof Date) {
 				Date dt = (Date) list.get(i);
@@ -1451,18 +1464,18 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				}
 				DominoDateTime start = new JNADominoDateTime(dateArr[0].getTime());
 				DominoDateTime end = new JNADominoDateTime(dateArr[1].getTime());
-				convertedList.add(new JNADominoDateRange(start, end));
+				convertedList.add(new DefaultDominoDateRange(start, end));
 			}
 			else if (list.get(i) instanceof DominoDateTime[]) {
 				DominoDateTime[] ntdArr = (DominoDateTime[]) list.get(i);
 				if (ntdArr.length!=2) {
 					throw new IllegalArgumentException("Length of DominoDateTime array entry must be 2 for date ranges");
 				}
-				convertedList.add(new JNADominoDateRange(ntdArr[0], ntdArr[1]));
+				convertedList.add(new DefaultDominoDateRange(ntdArr[0], ntdArr[1]));
 			}
 			else if(list.get(i) instanceof DominoDateRange) {
 				DominoDateRange range = (DominoDateRange)list.get(i);
-				convertedList.add(new JNADominoDateRange(range.getStartDateTime(), range.getEndDateTime()));
+				convertedList.add(new DefaultDominoDateRange(range.getStartDateTime(), range.getEndDateTime()));
 			}
 			else {
 				throw new IllegalArgumentException(format("Unsupported date format found in list: {0}", (list.get(i)==null ? "null" : list.get(i).getClass().getName()))); //$NON-NLS-2$

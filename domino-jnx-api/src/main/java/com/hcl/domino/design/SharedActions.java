@@ -14,40 +14,23 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.form;
+package com.hcl.domino.design;
 
-import com.hcl.domino.design.DesignConstants;
-import com.hcl.domino.design.Form;
-import com.hcl.domino.misc.INumberEnum;
+import java.util.List;
+
+import com.hcl.domino.design.action.ActionBarAction;
 
 /**
- * Represents the conditions for hiding an auto-launch object when
- * {@link Form.AutoLaunchSettings#getType()} is an object type.
+ * Represents the shared-actions note for a database.
  * 
  * @author Jesse Gallagher
- * @since 1.0.34
+ * @since 1.0.37
  */
-public enum AutoLaunchHideWhen implements INumberEnum<Integer> {
-  OPEN_CREATE(DesignConstants.HIDE_OPEN_CREATE),
-  OPEN_EDIT(DesignConstants.HIDE_OPEN_EDIT),
-  OPEN_READ(DesignConstants.HIDE_OPEN_READ),
-  CLOSE_CREATE(DesignConstants.HIDE_CLOSE_CREATE),
-  CLOSE_EDIT(DesignConstants.HIDE_CLOSE_EDIT),
-  CLOSE_READ(DesignConstants.HIDE_CLOSE_READ);
-  
-  private final int value;
-
-  AutoLaunchHideWhen(final int value) {
-    this.value = value;
-  }
-
-  @Override
-  public long getLongValue() {
-    return this.value;
-  }
-
-  @Override
-  public Integer getValue() {
-    return this.value;
-  }
+public interface SharedActions extends DesignElement {
+  /**
+   * Retrieves the actions from the shared-actions note, in declaration order.
+   *  
+   * @return a {@link List} of the actions in the note
+   */
+  List<ActionBarAction> getActions();
 }

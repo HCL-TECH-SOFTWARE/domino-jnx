@@ -32,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,6 +61,7 @@ import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
+import com.hcl.domino.design.SharedColumn;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionContent;
@@ -97,6 +99,9 @@ import com.hcl.domino.design.simpleaction.ModifyFieldAction;
 import com.hcl.domino.design.simpleaction.ReadMarksAction;
 import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.design.simplesearch.ByFormTerm;
+import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
+import com.hcl.domino.design.simplesearch.TextTerm;
 import com.hcl.domino.exception.FileDoesNotExistException;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
@@ -109,7 +114,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignCollections extends AbstractDesignTest {
-  public static final int EXPECTED_IMPORT_VIEWS = 10;
+  public static final int EXPECTED_IMPORT_VIEWS = 11;
   public static final int EXPECTED_IMPORT_FOLDERS = 1;
 
   private static String dbPath;
@@ -190,7 +195,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     Optional<CDResource> backgroundImage = disp.getBackgroundImage();
     assertTrue(backgroundImage.isPresent());
     assertTrue(backgroundImage.get().getFlags().contains(CDResource.Flag.FORMULA));
-    assertEquals("\"hey.png\"", backgroundImage.get().getNamedElementFormula().get());
+    assertEquals("\"hey.png\"", backgroundImage.get().getResourceFormula().get());
     
     assertEquals(ImageRepeatMode.SIZE_TO_FIT, disp.getBackgroundImageRepeatMode());
     
@@ -800,7 +805,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       Optional<CDResource> twistie = column.getTwistieImage();
       assertTrue(twistie.isPresent());
       assertTrue(twistie.get().getFlags().contains(CDResource.Flag.FORMULA));
-      assertEquals("\"foo.png\"", twistie.get().getNamedElementFormula().get());
+      assertEquals("\"foo.png\"", twistie.get().getResourceFormula().get());
     }
 
   }
@@ -1553,7 +1558,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIconOnlyInActionBar());
-      assertFalse(action.isLeftAlignedInActionBar());
+      assertFalse(action.isOppositeAlignedInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertTrue(action.isIncludeInMobileActions());
       assertFalse(action.isIncludeInContextMenu());
@@ -1761,7 +1766,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
       assertTrue(action.isIncludeInActionBar());
       assertTrue(action.isIconOnlyInActionBar());
-      assertTrue(action.isLeftAlignedInActionBar());
+      assertTrue(action.isOppositeAlignedInActionBar());
       assertFalse(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInMobileActions());
 //      assertFalse(action.isIncludeInMobileSwipeLeft());
@@ -1793,7 +1798,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
       assertTrue(action.isIncludeInActionBar());
       assertFalse(action.isIconOnlyInActionBar());
-      assertFalse(action.isLeftAlignedInActionBar());
+      assertFalse(action.isOppositeAlignedInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInMobileActions());
 //      assertFalse(action.isIncludeInMobileSwipeLeft());
@@ -1870,7 +1875,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
       assertTrue(action.isIncludeInActionBar());
       assertFalse(action.isIconOnlyInActionBar());
-      assertFalse(action.isLeftAlignedInActionBar());
+      assertFalse(action.isOppositeAlignedInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInMobileActions());
 //      assertFalse(action.isIncludeInMobileSwipeLeft());
@@ -2011,5 +2016,103 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     
     String expectedLs = IOUtils.resourceToString("/text/testDbDesignCollections/viewtestls.txt", StandardCharsets.UTF_8);
     assertEquals(expectedLs, view.getLotusScript());
+  }
+  
+  @Test
+  public void testSharedColumns() {
+    DbDesign design = this.database.getDesign();
+    List<SharedColumn> columns = design.getSharedColumns().collect(Collectors.toList());
+    assertEquals(2, columns.size());
+    assertTrue(columns.stream().anyMatch(col -> "testcol".equals(col.getTitle())));
+    assertTrue(columns.stream().anyMatch(col -> "testcol2".equals(col.getTitle())));
+  }
+  
+  @Test
+  public void testSharedColumn1() {
+    DbDesign design = this.database.getDesign();
+    SharedColumn col = design.getSharedColumn("testcol").get();
+    {
+      final CollectionColumn column = col.getColumn();
+      assertEquals("#", column.getTitle());
+      assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      assertEquals(TotalType.None, column.getTotalType());
+      assertFalse(column.isResponsesOnly());
+      assertFalse(column.isIcon());
+
+      // This column does not have numbers settings specified, and should use the defaults
+      {
+        CollectionColumn.NumberSettings numbers = column.getNumberSettings();
+        assertEquals(NumberDisplayFormat.DECIMAL, numbers.getFormat());
+        assertTrue(numbers.isVaryingDecimal());
+        assertFalse(numbers.isOverrideClientLocale());
+        assertFalse(numbers.isUseParenthesesWhenNegative());
+        assertFalse(numbers.isPunctuateThousands());
+      }
+      
+      // This column does not have date/time settings specified, and should use the defaults
+      {
+        CollectionColumn.DateTimeSettings dateTime = column.getDateTimeSettings();
+        assertFalse(dateTime.isOverrideClientLocale());
+        assertFalse(dateTime.isDisplayAbbreviatedDate());
+        
+        assertTrue(dateTime.isDisplayDate());
+        assertEquals(DateShowFormat.MDY, dateTime.getDateShowFormat());
+        assertEquals(EnumSet.of(DateShowSpecial.SHOW_21ST_4DIGIT), dateTime.getDateShowBehavior());
+        assertEquals(CalendarType.GREGORIAN, dateTime.getCalendarType());
+        
+        assertTrue(dateTime.isDisplayTime());
+        assertEquals(TimeShowFormat.HMS, dateTime.getTimeShowFormat());
+        assertEquals(TimeZoneFormat.NEVER, dateTime.getTimeZoneFormat());
+      }
+    }
+  }
+  
+  @Test
+  public void testSharedColumn2() {
+    DbDesign design = this.database.getDesign();
+    SharedColumn col = design.getSharedColumn("testcol2").get();
+    {
+      final CollectionColumn column = col.getColumn();
+      assertEquals("I am test col 2", column.getTitle());
+      assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      assertEquals(TotalType.None, column.getTotalType());
+      assertFalse(column.isResponsesOnly());
+      assertFalse(column.isIcon());
+      
+      assertFalse(column.isHidden());
+      assertFalse(column.isHiddenFromMobile());
+      assertEquals("", column.getHideWhenFormula());
+      assertFalse(column.isHiddenInPreV6());
+      assertFalse(column.isExtendToWindowWidth());
+      assertEquals("", column.getExtraAttributes());
+      assertFalse(column.isShowAsLinks());
+    }
+  }
+  
+  @Test
+  public void testSelectionView() {
+    DbDesign design = this.database.getDesign();
+    View view = design.getView("Selection View").get();
+    
+    List<? extends SimpleSearchTerm> search = view.getDocumentSelection();
+    assertEquals(3, search.size());
+    {
+      SimpleSearchTerm term = search.get(0);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.ACCRUE, text.getType());
+      assertEquals(Arrays.asList("fdfdf", "dfsdfv"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(1);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(2);
+      ByFormTerm form = assertInstanceOf(ByFormTerm.class, term);
+      assertEquals(new LinkedHashSet<>(Arrays.asList("Alias", "Content|foo|bar")), form.getFormNames());
+    }
+    
   }
 }

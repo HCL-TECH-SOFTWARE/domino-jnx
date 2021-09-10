@@ -92,7 +92,7 @@ public interface CDMapElement extends RichTextRecord<WSIG> {
           StructureSupport.extractStringValue(
             this,
             0,
-            mapNameLength
+            getVariableData().remaining()
           )
         );
     }
@@ -104,7 +104,7 @@ public interface CDMapElement extends RichTextRecord<WSIG> {
     return StructureSupport.writeStringValue(
         this,
         0,
-        mapName.length(),
+        getVariableData().remaining(),
         mapName,
         this::setMapNameLength
       );

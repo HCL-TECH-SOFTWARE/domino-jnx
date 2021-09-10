@@ -50,7 +50,7 @@ import com.hcl.domino.richtext.structures.WSIG;
 @StructureDefinition(name = "CDEXT2FIELD", members = {
     @StructureMember(name = "Header", type = WSIG.class),
     @StructureMember(name = "NumSymPref", type = NumberPref.class),
-    @StructureMember(name = "NumSymFlags", type = byte.class, bitfield = true),
+    @StructureMember(name = "NumSymFlags", type = byte.class),
     @StructureMember(name = "DecimalSymLength", type = int.class, unsigned = true),
     @StructureMember(name = "MilliSepSymLength", type = int.class, unsigned = true),
     @StructureMember(name = "NegativeSymLength", type = int.class, unsigned = true),

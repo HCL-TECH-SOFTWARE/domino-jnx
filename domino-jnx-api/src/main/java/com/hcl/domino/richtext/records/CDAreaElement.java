@@ -145,4 +145,57 @@ public interface CDAreaElement extends RichTextRecord<WSIG> {
     
     return Optional.empty();
   }
+  
+  default CDAreaElement setRectangle(CDRect rectangle) {
+    //set shape to rectangle
+    setShape(Shape.RECTANGLE);
+    
+    ByteBuffer data = rectangle.getData();
+    data.position(0);
+    
+    final MemoryStructureWrapperService wrapper = MemoryStructureWrapperService.get();
+    final int rectangleSize = wrapper.sizeOf(CDRect.class);
+    this.resizeVariableData(rectangleSize);
+    ByteBuffer buf =  this.getVariableData();
+    buf.put(data);
+    
+    return this;
+  }
+  
+  default CDAreaElement setCircle(CDRect circle) {
+    //set shape to rectangle
+    setShape(Shape.CIRCLE);
+    
+    ByteBuffer data = circle.getData();
+    data.position(0);
+    
+    final MemoryStructureWrapperService wrapper = MemoryStructureWrapperService.get();
+    final int circleSize = wrapper.sizeOf(CDRect.class);
+    this.resizeVariableData(circleSize);
+    ByteBuffer buf =  this.getVariableData();
+    buf.put(data);
+    
+    return this;
+  }
+  
+  default CDAreaElement setPolygon(List<CDPoint> polygon) {
+    //set shape to rectangle
+    setShape(Shape.POLYGON);
+    
+    final MemoryStructureWrapperService wrapper = MemoryStructureWrapperService.get();
+    final int pointSize = wrapper.sizeOf(CDPoint.class);
+    this.resizeVariableData(2+pointSize*polygon.size());
+    ByteBuffer buf =  this.getVariableData();
+    //write  number of points
+    buf.putShort((short)polygon.size());
+    //write points
+    final byte[] newData = new byte[pointSize*polygon.size()];
+    final ByteBuffer databuf = ByteBuffer.wrap(newData).order(ByteOrder.nativeOrder());
+    for (final CDPoint point : polygon) {
+      databuf.put(point.getData());
+    }
+    buf.put(newData);
+    
+    return this;
+  }
 }

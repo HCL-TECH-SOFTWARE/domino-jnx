@@ -39,7 +39,6 @@ import java.util.Set;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -70,9 +69,6 @@ import com.hcl.domino.design.action.LotusScriptActionContent;
 import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.design.action.SimpleActionActionContent;
 import com.hcl.domino.design.action.SystemActionContent;
-import com.hcl.domino.design.form.AutoLaunchHideWhen;
-import com.hcl.domino.design.form.AutoLaunchType;
-import com.hcl.domino.design.form.AutoLaunchWhen;
 import com.hcl.domino.design.format.ActionBarControlType;
 import com.hcl.domino.design.format.ActionBarTextAlignment;
 import com.hcl.domino.design.format.ActionButtonHeightMode;
@@ -80,6 +76,9 @@ import com.hcl.domino.design.format.ActionWidthMode;
 import com.hcl.domino.design.format.BorderStyle;
 import com.hcl.domino.design.format.ButtonBorderDisplay;
 import com.hcl.domino.design.format.HideFromDevice;
+import com.hcl.domino.design.forms.AutoLaunchHideWhen;
+import com.hcl.domino.design.forms.AutoLaunchType;
+import com.hcl.domino.design.forms.AutoLaunchWhen;
 import com.hcl.domino.design.frameset.FrameScrollStyle;
 import com.hcl.domino.design.frameset.FrameSizingType;
 import com.hcl.domino.design.simpleaction.ModifyFieldAction;
@@ -90,6 +89,7 @@ import com.hcl.domino.richtext.NotesBitmap;
 import com.hcl.domino.richtext.records.CDHeader;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.RecordType;
+import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.security.Acl;
@@ -223,7 +223,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIconOnlyInActionBar());
-      assertFalse(action.isLeftAlignedInActionBar());
+      assertFalse(action.isOppositeAlignedInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertTrue(action.isIncludeInMobileActions());
       assertFalse(action.isIncludeInContextMenu());
@@ -431,7 +431,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
       assertTrue(action.isIncludeInActionBar());
       assertTrue(action.isIconOnlyInActionBar());
-      assertTrue(action.isLeftAlignedInActionBar());
+      assertTrue(action.isOppositeAlignedInActionBar());
       assertFalse(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInMobileActions());
 //      assertFalse(action.isIncludeInMobileSwipeLeft());
@@ -463,7 +463,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
       assertTrue(action.isIncludeInActionBar());
       assertFalse(action.isIconOnlyInActionBar());
-      assertFalse(action.isLeftAlignedInActionBar());
+      assertFalse(action.isOppositeAlignedInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInMobileActions());
 //      assertFalse(action.isIncludeInMobileSwipeLeft());
@@ -540,7 +540,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
       assertTrue(action.isIncludeInActionBar());
       assertFalse(action.isIconOnlyInActionBar());
-      assertFalse(action.isLeftAlignedInActionBar());
+      assertFalse(action.isOppositeAlignedInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInMobileActions());
 //      assertFalse(action.isIncludeInMobileSwipeLeft());
@@ -935,7 +935,6 @@ public class TestDbDesignForms extends AbstractDesignTest {
     "headline.ntf",
     "busytime.ntf"
   })
-//  @Disabled
   public void testStockFormUnknownRecords(String dbName) {
     Set<RecordType> types = new HashSet<>();
     Database names = getClient().openDatabase(dbName);
@@ -944,15 +943,27 @@ public class TestDbDesignForms extends AbstractDesignTest {
       .map(Form::getBody)
       .flatMap(List::stream)
       .forEach(rec -> {
+        short type = 0;
         if(rec instanceof GenericBSIGRecord) {
-          types.addAll(((RichTextRecord<?>)rec).getType());
+          type = ((RichTextRecord<?>)rec).getTypeValue();
         } else if(rec instanceof GenericWSIGRecord) {
-          types.addAll(((RichTextRecord<?>)rec).getType());
+          type = ((RichTextRecord<?>)rec).getTypeValue();
         } else if(rec instanceof GenericLSIGRecord) {
-          types.addAll(((RichTextRecord<?>)rec).getType());
+          type = ((RichTextRecord<?>)rec).getTypeValue();
+        }
+        if(type != 0) {
+          RecordType rtype = null;
+          rtype = RecordType.getRecordTypeForConstant(type, Area.TYPE_COMPOSITE);
+          if(rtype != null) {
+            types.add(rtype);
+          } else {
+            System.out.println("Unable to locate rich text RecordType value for " + type + "; candidates are " + RecordType.getRecordTypesForConstant(type));
+          }
         }
       });
     
-    System.out.println("found: " + types);
+    if(!types.isEmpty()) {
+      System.out.println("Encountered unimplemented CD record types: " + types);
+    }
   }
 }

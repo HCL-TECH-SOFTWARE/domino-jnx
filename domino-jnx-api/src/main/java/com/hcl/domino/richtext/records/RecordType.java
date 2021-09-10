@@ -221,7 +221,7 @@ public enum RecordType {
    * It contains all the information necessary to open the specified document from
    * any database on any server.
    */
-  LINKEXPORT2(RichTextConstants.SIG_CD_LINKEXPORT2, 1),
+  LINKEXPORT2(RichTextConstants.SIG_CD_LINKEXPORT2, 1, CDLinkExport2.class),
   /**
    * A rich text field may contain a bitmap image. There are three types,
    * monochrome, 8-bit mapped color,
@@ -554,14 +554,14 @@ public enum RecordType {
    * indicates the
    * location of the document to be retrieved when the defined area is activated..
    */
-  MAPELEMENT(RichTextConstants.SIG_CD_MAPELEMENT, 3, CDMapElement.class),
+  MAPELEMENT(RichTextConstants.SIG_CD_MAPELEMENT, new int[] { 1, 3 }, CDMapElement.class),
   /**
    * An AREA element defines the shape and coordinates of a region within a client
    * side image MAP.
    */
-  AREAELEMENT(RichTextConstants.SIG_CD_AREAELEMENT, 3, CDAreaElement.class),
+  AREAELEMENT(RichTextConstants.SIG_CD_AREAELEMENT, new int[] { 1, 3 }, CDAreaElement.class),
   HREF(RichTextConstants.SIG_CD_HREF, new int[] { 1, 3 , 4}, CDResource.class),
-  HTML_ALTTEXT(RichTextConstants.SIG_CD_HTML_ALTTEXT, 3),
+  HTML_ALTTEXT(RichTextConstants.SIG_CD_HTML_ALTTEXT, new int[] { 1, 3 }),
   /**
    * Structure which defines simple actions, formulas or LotusScript for an image
    * map, similar to {@link #EVENT}
@@ -613,7 +613,7 @@ public enum RecordType {
    * A Doc Link Reference (a NOTELINK structure) contains all the information
    * necessary to open the specified document from any database on any server.
    */
-  LINK2(RichTextConstants.SIG_CD_LINK2, 4),
+  LINK2(RichTextConstants.SIG_CD_LINK2, 4, CDLink2.class),
   CGM(RichTextConstants.SIG_CD_CGM, 4),
   TIFF(RichTextConstants.SIG_CD_TIFF, 4),
   /**
@@ -734,7 +734,7 @@ public enum RecordType {
    * graphical, or
    * action elements associated with the graphical element.
    */
-  LAYOUTGRAPHIC(RichTextConstants.SIG_CD_LAYOUTGRAPHIC, 4),
+  LAYOUTGRAPHIC(RichTextConstants.SIG_CD_LAYOUTGRAPHIC, new int[] { 1, 4 }),
   OLEOBJINFO(RichTextConstants.SIG_CD_OLEOBJINFO, 4),
   /**
    * A button in a layout region of a form is defined by a CDLAYOUTBUTTON
@@ -765,12 +765,14 @@ public enum RecordType {
   VMRNDRECT(RichTextConstants.SIG_CD_VMRNDRECT, 5),
   VMBUTTON(RichTextConstants.SIG_CD_VMBUTTON, 5),
   VMACTION_2(RichTextConstants.SIG_CD_VMACTION_2, 5),
-  VMTEXTBOX(RichTextConstants.SIG_CD_VMTEXTBOX, 5),
+  VMTEXTBOX(RichTextConstants.SIG_CD_VMTEXTBOX, 5, ViewmapTextRecord.class),
   VMPOLYGON(RichTextConstants.SIG_CD_VMPOLYGON, 5),
   VMPOLYLINE(RichTextConstants.SIG_CD_VMPOLYLINE, 5),
   VMPOLYRGN(RichTextConstants.SIG_CD_VMPOLYRGN, 5),
   VMCIRCLE(RichTextConstants.SIG_CD_VMCIRCLE, 5),
   VMPOLYRGN_BYTE(RichTextConstants.SIG_CD_VMPOLYRGN_BYTE, 5),
+
+  VMDATASET(RichTextConstants.SIG_VIEWMAP_DATASET, 5, ViewmapDatasetRecord.class),
 
   /* Signatures for alternate CD sequences*/
 
@@ -828,6 +830,18 @@ public enum RecordType {
   ACTION_JAVAAGENT(RichTextConstants.SIG_ACTION_JAVAAGENT, 7, CDActionJavaAgent.class),
   ACTION_JAVA(RichTextConstants.SIG_ACTION_JAVA, 7),
   
+  /* Simple Search records */
+  QUERY_HEADER(RichTextConstants.SIG_QUERY_HEADER, 8, CDQueryHeader.class),
+  QUERY_TEXTTERM(RichTextConstants.SIG_QUERY_TEXTTERM, 8, CDQueryTextTerm.class),
+  QUERY_BYFIELD(RichTextConstants.SIG_QUERY_BYFIELD, 8, CDQueryByField.class),
+  QUERY_BYDATE(RichTextConstants.SIG_QUERY_BYDATE, 8, CDQueryByField.class),
+  QUERY_BYAUTHOR(RichTextConstants.SIG_QUERY_BYAUTHOR, 8, CDQueryByField.class),
+  QUERY_FORMULA(RichTextConstants.SIG_QUERY_FORMULA, 8, CDQueryFormula.class),
+  QUERY_BYFORM(RichTextConstants.SIG_QUERY_BYFORM, 8, CDQueryByForm.class),
+  QUERY_BYFOLDER(RichTextConstants.SIG_QUERY_BYFOLDER, 8, CDQueryByFolder.class),
+  QUERY_USESFORM(RichTextConstants.SIG_QUERY_USESFORM, 8, CDQueryUsesForm.class),
+  QUERY_TOPIC(RichTextConstants.SIG_QUERY_TOPIC, 8),
+  
   /**
    * This record was seen via observation only when reading the contents of a CDACTION
    * "Simple Actions" record
@@ -836,22 +850,29 @@ public enum RecordType {
 
   public enum Area {
     /** Signatures for Composite Records in items of data type COMPOSITE */
-    TYPE_COMPOSITE,
+    TYPE_COMPOSITE(1),
     /** Signatures for Frameset CD records */
-    FRAMESETS,
+    FRAMESETS(2),
     /** Signature for Target Frame info on a link */
-    TARGET_FRAME,
+    TARGET_FRAME(3),
     /**
      * Signatures for Composite Records that are reserved internal records,
      * whose format may change between releases.
      */
-    RESERVED_INTERNAL,
+    RESERVED_INTERNAL(4),
     /** Signatures for items of type TYPE_VIEWMAP */
-    TYPE_VIEWMAP,
+    TYPE_VIEWMAP(5),
     /** Signatures for alternate CD sequences */
-    ALTERNATE_SEQ,
+    ALTERNATE_SEQ(6),
     /** Signatures for agent action data */
-    TYPE_ACTION
+    TYPE_ACTION(7),
+    /** Signatures for declarative document selection items */
+    TYPE_QUERY(8);
+    
+    private final int code;
+    private Area(int code) {
+      this.code = code;
+    }
   }
 
   private static Map<String, RecordType> m_recordsByConstant;
@@ -896,24 +917,7 @@ public enum RecordType {
    * @return record type or <code>null</code> if unknown constant
    */
   public static RecordType getRecordTypeForConstant(final short constant, final Area area) {
-    switch (area) {
-      case TYPE_COMPOSITE:
-        return RecordType.m_recordsByConstant.get(constant + "|1"); //$NON-NLS-1$
-      case FRAMESETS:
-        return RecordType.m_recordsByConstant.get(constant + "|2"); //$NON-NLS-1$
-      case TARGET_FRAME:
-        return RecordType.m_recordsByConstant.get(constant + "|3"); //$NON-NLS-1$
-      case RESERVED_INTERNAL:
-        return RecordType.m_recordsByConstant.get(constant + "|4"); //$NON-NLS-1$
-      case TYPE_VIEWMAP:
-        return RecordType.m_recordsByConstant.get(constant + "|5"); //$NON-NLS-1$
-      case ALTERNATE_SEQ:
-        return RecordType.m_recordsByConstant.get(constant + "|6"); //$NON-NLS-1$
-      case TYPE_ACTION:
-        return RecordType.m_recordsByConstant.get(constant + "|7"); //$NON-NLS-1$
-      default:
-        throw new IllegalArgumentException(MessageFormat.format("Unknown area: {0}", area));
-    }
+    return m_recordsByConstant.get(constant + "|" + area.code); //$NON-NLS-1$
   }
 
   /**
@@ -942,6 +946,9 @@ public enum RecordType {
   private final Class<? extends RichTextRecord<?>> m_encapsulation;
 
   RecordType(final short val, final int area) {
+    this(val, area, null);
+  }
+  RecordType(final short val, final int[] area) {
     this(val, area, null);
   }
 

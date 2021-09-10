@@ -25,8 +25,8 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 @StructureDefinition(
     name = "CDPOINT",
     members = {
-      @StructureMember(name = "x", type = long.class, unsigned = true),
-      @StructureMember(name = "y", type = long.class, unsigned = true)
+      @StructureMember(name = "x", type = long.class),
+      @StructureMember(name = "y", type = long.class)
     }
   )
 public interface CDPoint extends MemoryStructure, Point {

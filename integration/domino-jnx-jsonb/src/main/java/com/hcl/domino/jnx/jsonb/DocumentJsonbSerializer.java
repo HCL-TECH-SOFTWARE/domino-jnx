@@ -19,7 +19,6 @@ package com.hcl.domino.jnx.jsonb;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -330,7 +329,7 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
 
         if (this.customProcessors != null && this.customProcessors.containsKey(itemName)) {
           final Object val = this.customProcessors.get(itemName).apply(obj, itemName);
-          this.writeArbitraryValue(generator, propName, val);
+          this.writeArbitraryValue(generator, ctx, propName, val);
           return;
         }
 
@@ -527,7 +526,7 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
     generator.writeEnd();
   }
 
-  private void writeArbitraryValue(final JsonGenerator generator, final String propName, final Object val) {
+  private void writeArbitraryValue(final JsonGenerator generator, SerializationContext ctx, final String propName, final Object val) {
     if (val == null) {
       if (propName == null) {
         generator.writeNull();
@@ -568,7 +567,7 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
         if (key == null) {
           throw new IllegalArgumentException("Unable to serialize null key in map");
         }
-        this.writeArbitraryValue(generator, key.toString(), value);
+        this.writeArbitraryValue(generator, ctx, key.toString(), value);
       });
       generator.writeEnd();
     } else if (val instanceof Iterable) {
@@ -578,11 +577,11 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
         generator.writeStartArray(propName);
       }
       final Spliterator<?> iter = ((Iterable<?>) val).spliterator();
-      StreamSupport.stream(iter, false).forEach(value -> this.writeArbitraryValue(generator, null, value));
+      StreamSupport.stream(iter, false).forEach(value -> this.writeArbitraryValue(generator, ctx, null, value));
       generator.writeEnd();
     } else {
-      throw new IllegalArgumentException(
-          MessageFormat.format("Unable to handle value of type \"{0}\": \"{1}\"", val.getClass().getName(), val));
+      // Pass this along to the context to let it try
+      ctx.serialize(propName, val, generator);
     }
   }
 
