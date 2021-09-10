@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.richtext.records;
 
+import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -37,7 +38,8 @@ import com.hcl.domino.richtext.structures.BSIG;
     @StructureMember(name = "yBits", type = short.class, unsigned = true),
     @StructureMember(name = "zBits", type = short.class, unsigned = true),
     @StructureMember(name = "Spare", type = int[].class, length = 4)
-
+    // This structure is followed by the bitmap name and the display label (if any) 
+    // in packed format (no terminating NUL), then by the bitmap data.
 })
 public interface ViewmapBitmapRecord extends RichTextRecord<BSIG> {
   @StructureGetter("DRobj")
@@ -66,4 +68,35 @@ public interface ViewmapBitmapRecord extends RichTextRecord<BSIG> {
 
   @StructureSetter("zBits")
    ViewmapBitmapRecord setzBits(int bits);
+
+  default int getRecordLength() {
+    return this.getHeader().getLength().intValue();
+  }
+
+  /* BitmapName follows immediately after the above structure. */
+  default String getBitmapName() {
+    return StructureSupport.extractStringValue(
+      this,
+      0, // The total of all variable elements before this one
+      this.getDRObj().getNameLen() // the length of this element
+    );
+  }
+
+  /* DisplayLabel follows after the BitmapName */
+  default String getDisplayLabel() {
+    return StructureSupport.extractStringValue(
+      this,
+      this.getDRObj().getNameLen(), // The total of all variable elements before this one
+      this.getDRObj().getLabelLen() // the length of this element
+    );
+  }
+
+  /* BitmapData follows after the BitmapName and the DisplayLabel (i.e at the end) */
+  default String getBitmapData() {
+    return StructureSupport.extractStringValue(
+      this,
+      this.getDRObj().getNameLen() + this.getDRObj().getLabelLen(), // The total of all variable elements before this one
+      this.getDataLen()     // the length of this element
+    );
+  }
 }
