@@ -17,6 +17,7 @@
 package com.hcl.domino.design;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -563,6 +564,24 @@ public interface DbDesign {
    * @since 1.0.38
    */
   Optional<InputStream> getResourceAsStream(String filePath);
+  
+  /**
+   * Opens a new stream to the named file-type resource (file resource, image, or stylesheet).
+   * This method uses the same mechanism as {@link #getResourceAsStream(String)} to locate
+   * existing resources.
+   * 
+   * <p>If the named resource doesn't exist, then this method will create a new resource with
+   * this name on closing the stream. This resource will be a normal file resource that will
+   * show up in {@link #getFileResources()}.</p>
+   * 
+   * <p>Note: it is not guaranteed that any changes made to the resource are written to the NSF
+   * until {@link OutputStream#close()} is called.</p>
+   * 
+   * @param filePath the path of the file to write
+   * @return a new {@link OutputStream}
+   * @since 1.0.39
+   */
+  OutputStream newResourceOutputStream(String filePath);
 
   /**
    * Queries all design elements in the database by the provided formula and

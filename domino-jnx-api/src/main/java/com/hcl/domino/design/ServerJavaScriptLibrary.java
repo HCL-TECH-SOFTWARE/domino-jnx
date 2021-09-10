@@ -22,4 +22,13 @@ package com.hcl.domino.design;
  */
 public interface ServerJavaScriptLibrary extends ScriptLibrary {
   String getScript();
+  
+  /**
+   * Sets the script content of this library.
+   * 
+   * @param script the script content to set
+   * @return this library
+   * @since 1.0.39
+   */
+  ServerJavaScriptLibrary setScript(String script);
 }
