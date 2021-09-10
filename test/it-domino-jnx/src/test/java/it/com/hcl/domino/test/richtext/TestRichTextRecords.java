@@ -919,9 +919,8 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDAltText begin = (CDAltText) doc.getRichTextItem("Body").get(0);
-      Optional<String> altText = begin.getAltText();
       
-      assertEquals("foo.txt", begin.getAltText().get());
+      assertEquals("foo.txt", begin.getAltText());
     });
   }
   
@@ -999,7 +998,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(20, begin.getLastCircleRegionID());
         assertEquals(30, begin.getLastRectRegionID());
         assertEquals(40, begin.getLastPolyRegionID());
-        assertEquals("testmap", begin.getMapName().get());
+        assertEquals("testmap", begin.getMapName());
       });
     }
     

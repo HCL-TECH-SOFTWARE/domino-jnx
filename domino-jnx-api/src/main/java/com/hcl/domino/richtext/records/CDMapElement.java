@@ -16,7 +16,6 @@
  */
 package com.hcl.domino.richtext.records;
 
-import java.util.Optional;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
@@ -85,19 +84,12 @@ public interface CDMapElement extends RichTextRecord<WSIG> {
   @StructureSetter("Reserved")
   CDMapElement setReserved(byte[] reserved);
   
-  default Optional<String> getMapName() {
-    int mapNameLength = this.getMapNameLength();
-    if (mapNameLength > 0) {
-      return Optional.of(
-          StructureSupport.extractStringValue(
-            this,
-            0,
-            getVariableData().remaining()
-          )
+  default String getMapName() {
+    return StructureSupport.extractStringValue(
+        this,
+        0,
+        getVariableData().remaining()
         );
-    }
-    
-    return Optional.empty();
   }
   
   default CDMapElement setMapName(String mapName) {

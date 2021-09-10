@@ -17,7 +17,6 @@
 package com.hcl.domino.richtext.records;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.Optional;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
@@ -52,18 +51,12 @@ public interface CDAltText extends RichTextRecord<WSIG> {
    * @param altText the caption text to set
    * @return this record
    */
-  default Optional<String> getAltText() {
-    if (this.getLength() > 0) {
-      return Optional.of(
-          StructureSupport.extractStringValue(
-            this,
-            0,
-            this.getLength()
-          )
-        ); 
-    }
-    
-    return Optional.empty();
+  default String getAltText() {
+    return StructureSupport.extractStringValue(
+        this,
+        0,
+        this.getLength()
+        );
   }
   
   /**
