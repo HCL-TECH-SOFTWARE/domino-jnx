@@ -1058,4 +1058,22 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
   String validateCredentialsWithToken(String serverName, Object token)
       throws NameNotFoundException, AuthenticationException, AuthenticationNotSupportedException;
 
+  /**
+   * Verifies that the provided LDAP connection information is valid and usable.
+   * 
+   * @param hostName the name of the LDAP host
+   * @param userName the user name to use to connect for simple bindings
+   * @param password the password to use to connect
+   * @param dnSearch a DN search base
+   * @param port the port to use to connect to the server
+   * @param useSSL whether the connection should use TLS/SSL
+   * @param acceptExpiredCerts whether to allow expired TLS certificates
+   * @param verifyRemoteServerCert whether to verify the validity of the remote TLS certificate
+   * @throws DominoException if the connection cannot be validated. The specific exception details
+   *         will include the reason for failure
+   * @since 1.0.39
+   */
+  void verifyLdapConnection(String hostName, String userName, String password, String dnSearch,
+      short port, boolean useSSL, boolean acceptExpiredCerts, boolean verifyRemoteServerCert);
+
 }
