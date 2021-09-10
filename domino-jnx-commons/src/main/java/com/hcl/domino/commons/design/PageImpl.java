@@ -20,6 +20,7 @@ import java.util.Optional;
 
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.ClassicThemeBehavior;
+import com.hcl.domino.design.DesignColorsAndFonts;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.misc.DominoEnumUtil;
