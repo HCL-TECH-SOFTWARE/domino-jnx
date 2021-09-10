@@ -87,10 +87,14 @@ public interface CDStyleName extends RichTextRecord<BSIG> {
   CDStyleName setPabId(int id);
   
   @StructureGetter("StyleName")
-  byte[] getStyleName();
+  byte[] getStyleNameRaw();
   
   @StructureSetter("StyleName")
   CDStyleName setStyleName(byte[] name);
+  
+  default String getStyleName() {
+    return StructureSupport.readLmbcsValue(getStyleNameRaw());
+  }
   
   /**
    * Retrieves the font value for this style, if specified.

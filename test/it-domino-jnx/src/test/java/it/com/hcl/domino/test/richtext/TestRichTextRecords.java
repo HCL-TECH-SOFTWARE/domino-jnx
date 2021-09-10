@@ -21,12 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -35,7 +33,6 @@ import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.StandardColors;
@@ -97,13 +94,12 @@ import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
-import com.hcl.domino.richtext.structures.CDRect;
-import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.AssistFieldStruct.ActionByField;
 import com.hcl.domino.richtext.structures.CDPoint;
+import com.hcl.domino.richtext.structures.CDRect;
+import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.NFMT;
 import com.hcl.domino.richtext.structures.TFMT;
-
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
@@ -946,8 +942,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDStyleName begin = (CDStyleName) doc.getRichTextItem("Body").get(0);
-      String styleName = new String(begin.getStyleName(), Charset.forName("LMBCS")).trim();
-      assertEquals("foo", styleName);
+      assertEquals("foo", begin.getStyleName());
       
       
       Optional<FontStyle> font = begin.getFont();
