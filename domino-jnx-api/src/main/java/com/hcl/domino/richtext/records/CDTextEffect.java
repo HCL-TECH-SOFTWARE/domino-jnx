@@ -42,7 +42,4 @@ public interface CDTextEffect extends RichTextRecord<WSIG> {
    */
   @StructureGetter("FontID")
   FontStyle getFontStyle();
-  
-  @StructureSetter("FontID")
-  CDTextEffect setFontStyle(FontStyle style);
 }

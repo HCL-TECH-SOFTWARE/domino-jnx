@@ -1022,7 +1022,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
             FontStyle style = rtWriter.createFontStyle();
             style.setBold(true);
             style.setColorRaw((short)80);
-            begin.setFontStyle(style);
+//            begin.setFontStyle(style);
           });
         }
 
