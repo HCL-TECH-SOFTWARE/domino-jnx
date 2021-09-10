@@ -47,4 +47,17 @@ public interface MemoryStructureWrapperService {
    * @return the newly-wrapped structure
    */
   <T extends MemoryStructure> T wrapStructure(Class<T> structureClass, ByteBuffer data);
+  
+  /**
+   * Generates a new proxy object backed by a newly-allocated memory
+   * {@link ByteBuffer}.
+   * 
+   * @param <I>                the {@link MemoryStructure} sub-interface to proxy
+   * @param subtype            a class representing {@code I}
+   * @param variableDataLength the amount of additional space, in bytes, to
+   *                           allocate after the structure
+   * @return a new proxy object
+   */
+  <I extends MemoryStructure> I newStructure(final Class<I> subtype, final int variableDataLength);
+
 }
