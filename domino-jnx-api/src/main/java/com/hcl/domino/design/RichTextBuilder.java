@@ -89,6 +89,7 @@ public interface RichTextBuilder {
 	/**
 	 * Creates a new build context by copying the design of the specified form/subform
 	 * 
+	 * @param F
 	 * @param templateForm template form
 	 * @return build context
 	 */
@@ -100,6 +101,7 @@ public interface RichTextBuilder {
 	 * 
 	 * @param templateDoc document
 	 * @param rtItemName richtext item
+	 * @return RichTextBuilderContext
 	 */
 	RichTextBuilderContext<Document> from(Document templateDoc, String rtItemName);
 

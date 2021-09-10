@@ -147,6 +147,7 @@ public interface CDStyleName extends RichTextRecord<BSIG> {
   /**
    * Sets the User name value for this style, if specified.
    * 
+   * @param userName
    * @return returning the corresponding {@link CDStyleName}
    *         value
    */
@@ -184,6 +185,7 @@ public interface CDStyleName extends RichTextRecord<BSIG> {
   /**
    * Set the font value for this style, if specified.
    * 
+   * @param  font FontStyle
    * @return returning the corresponding {@link CDStyleName}
    *         value
    */

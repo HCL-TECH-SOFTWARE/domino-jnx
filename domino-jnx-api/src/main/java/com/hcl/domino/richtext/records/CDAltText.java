@@ -48,7 +48,6 @@ public interface CDAltText extends RichTextRecord<WSIG> {
    * This method also sets the {@code wLength} property to the appropriate value.
    * </p>
    *
-   * @param altText the caption text to set
    * @return this record
    */
   default String getAltText() {

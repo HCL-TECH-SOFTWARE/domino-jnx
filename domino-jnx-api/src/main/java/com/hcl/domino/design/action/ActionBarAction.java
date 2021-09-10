@@ -75,7 +75,7 @@ public interface ActionBarAction {
    * Retrieves the language the action is written in.
    * 
    * <p>Note: {@link ActionBarControlType#MENU_SEPARATOR separator} actions report
-   * {@link ActionLanguage#FORMULA} for this value, despite retaining no code.</p>
+   * {@link ActionLanguage#RUN_FORMULA} for this value, despite retaining no code.</p>
    * 
    * @return a {@link ActionLanguage} instance
    */
