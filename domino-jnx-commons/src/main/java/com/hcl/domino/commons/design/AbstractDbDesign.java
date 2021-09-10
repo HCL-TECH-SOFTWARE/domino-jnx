@@ -177,6 +177,7 @@ public abstract class AbstractDbDesign implements DbDesign {
    * @param <T>         the {@link DesignElement} interface implemented by the
    *                    design class
    * @param designClass a {@link Class} object representing {@code <I>}
+   * @param title the title of the {@link DesignElement.NamedDesignElement} to create
    * @return the newly-created and -initialized design element
    */
   protected <T extends DesignElement.NamedDesignElement> T createDesignNote(final Class<T> designClass, final String title) {
