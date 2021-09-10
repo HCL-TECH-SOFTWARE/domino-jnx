@@ -1,7 +1,14 @@
 <?xml version='1.0'?>
-<stylesheetresource name='test.css' xmlns='http://www.lotus.com/dxl' version='12.0'
- publicaccess='false' designerversion='8.5.3'
- charset='UTF-8'>
-<filedata>
-Ym9keSB7DQoJYmFja2dyb3VuZDogcmVkOw0KfQ==
-</filedata></stylesheetresource>
+<note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$TITLE'><text>test.css</text></item>
+<item name='$MimeType'><text>text/css</text></item>
+<item name='$Flags'><text>34C=Q</text></item>
+<item name='$MimeCharSet'><text>UTF-8</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$FileSize' sign='true'><number>28</number></item>
+<item name='$FileData' sign='true'>
+<rawitemdata type='1'>
+YQAYAAAAAAAcAAAAAQAAAAAAAAAAAAAAYAAuAAAAHAAcAAAAAAAAAAAAYm9keSB7DQoJYmFja2dy
+b3VuZDogcmVkOw0KfQ==
+</rawitemdata></item>
+<item name='$FileNames' sign='true'><text>test.css</text></item></note>

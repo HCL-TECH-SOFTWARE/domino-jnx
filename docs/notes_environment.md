@@ -16,7 +16,7 @@ Your active JVM must match the bitness of your Notes runtime. In almost all case
 
 ### JVM Type
 
-As of V12, Notes on macOS must be loaded with an OpenJ9-based JVM, ideally the Java 8 release from AdoptOpenJDK (soon to be Adoptium). Loading the runtime with a HotSpot-based JVM will lead to a non-fatal NSD at launch and then a likely fatal crash later.
+As of V12, Notes on macOS must be loaded with an OpenJ9-based JVM, ideally an old Java 8 release from AdoptOpenJDK or IBM's [Semeru builds](https://developer.ibm.com/languages/java/semeru-runtimes/), which are the newer location for them. Loading the runtime with a HotSpot-based JVM will lead to a non-fatal NSD at launch and then a likely fatal crash later.
 
 ### Java Library Path
 

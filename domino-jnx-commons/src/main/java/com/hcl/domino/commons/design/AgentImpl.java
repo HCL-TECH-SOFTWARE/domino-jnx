@@ -43,12 +43,14 @@ import com.hcl.domino.design.agent.AgentTrigger;
 import com.hcl.domino.design.agent.FormulaAgentContent;
 import com.hcl.domino.design.agent.LotusScriptAgentContent;
 import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextRecordList;
 import com.hcl.domino.richtext.records.CDActionFormula;
 import com.hcl.domino.richtext.records.CDActionJavaAgent;
 import com.hcl.domino.richtext.records.CDActionLotusScript;
+import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.structures.AssistStruct;
 
@@ -443,6 +445,11 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   @Override
   public boolean isEnabled() {
     return getAssistFlags().contains(DesignConstants.ASSIST_FLAG_ENABLED);
+  }
+  
+  @Override
+  public List<? extends SimpleSearchTerm> getDocumentSelection() {
+    return DesignUtil.toSimpleSearch(getDocument().getRichTextItem(NotesConstants.ASSIST_QUERY_ITEM, RecordType.Area.TYPE_QUERY));
   }
 
   // *******************************************************************************

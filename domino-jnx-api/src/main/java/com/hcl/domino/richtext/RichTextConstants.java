@@ -17,12 +17,9 @@
 package com.hcl.domino.richtext;
 
 import com.hcl.domino.constants.EditOds;
+import com.hcl.domino.constants.Ods;
 
-public interface RichTextConstants extends EditOds {
-
-  short LONGRECORDLENGTH = 0x0000;
-  short WORDRECORDLENGTH = (short) (0xff00 & 0xffff);
-  short BYTERECORDLENGTH = 0; /* High byte contains record length */
+public interface RichTextConstants extends EditOds, Ods {
 
   /* Signatures for Composite Records in items of data type COMPOSITE */
 

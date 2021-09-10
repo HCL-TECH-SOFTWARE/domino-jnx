@@ -18,6 +18,7 @@ package com.hcl.domino.design;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
@@ -26,6 +27,7 @@ import com.hcl.domino.design.DesignElement.NamedDesignElement;
 import com.hcl.domino.design.agent.AgentContent;
 import com.hcl.domino.design.agent.AgentInterval;
 import com.hcl.domino.design.agent.AgentTrigger;
+import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
 
 /**
  * Access to a database design. Search for design, database as constructor
@@ -367,4 +369,13 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    * @since 1.0.35
    */
   boolean isEnabled();
+  
+  /**
+   * Retrieves the search terms used to select documents for agent processing, if provided.
+   * 
+   * @return a {@link List} containing {@link SimpleSearchTerm} subclass instances, or an
+   *         empty list if no search criteria are provided
+   * @since 1.0.38
+   */
+  List<? extends SimpleSearchTerm> getDocumentSelection();
 }

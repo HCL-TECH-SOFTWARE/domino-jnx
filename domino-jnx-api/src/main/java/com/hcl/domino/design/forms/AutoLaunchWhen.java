@@ -14,7 +14,7 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.form;
+package com.hcl.domino.design.forms;
 
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.misc.INumberEnum;
