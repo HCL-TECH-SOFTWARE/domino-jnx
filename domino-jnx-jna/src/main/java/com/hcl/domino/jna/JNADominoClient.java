@@ -105,6 +105,7 @@ import com.hcl.domino.jna.html.JNARichtextHTMLConverter;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.ItemDecoder;
 import com.hcl.domino.jna.internal.JNANotesConstants;
+import com.hcl.domino.jna.internal.structs.VerifyLDAPConnectionStruct;
 import com.hcl.domino.jna.internal.JNANotesReplicationStats;
 import com.hcl.domino.jna.internal.JNASignalHandlerUtil;
 import com.hcl.domino.jna.internal.Mem;
@@ -922,6 +923,13 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   @Override
   public Formula createFormula(String formula) {
     return new JNAFormula(this, formula);
+  }
+
+  @Override
+  public short verifyLdapConnection(
+      String hostName, String userName, String password, String dnSearch, short port, boolean useSSL, boolean acceptExpiredCerts, boolean verifyRemoteServerCert) {
+      VerifyLDAPConnectionStruct ldap = new VerifyLDAPConnectionStruct(hostName.getBytes(),userName.getBytes(),password.getBytes(),dnSearch.getBytes(),port,useSSL,acceptExpiredCerts,verifyRemoteServerCert);
+      return NotesCAPI.get().VerifyLdapDirAssistConnection(ldap);
   }
 
   @Override

@@ -1058,4 +1058,7 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
   String validateCredentialsWithToken(String serverName, Object token)
       throws NameNotFoundException, AuthenticationException, AuthenticationNotSupportedException;
 
+  short verifyLdapConnection(String hostName, String userName, String password, String dnsSearch,
+      short port, boolean useSSL, boolean acceptExpiredCerts, boolean verifyRemoteServerCert);
+
 }
