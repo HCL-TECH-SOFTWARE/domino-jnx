@@ -926,10 +926,11 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   }
 
   @Override
-  public short verifyLdapConnection(
+  public void verifyLdapConnection(
       String hostName, String userName, String password, String dnSearch, short port, boolean useSSL, boolean acceptExpiredCerts, boolean verifyRemoteServerCert) {
       VerifyLDAPConnectionStruct ldap = new VerifyLDAPConnectionStruct(hostName.getBytes(),userName.getBytes(),password.getBytes(),dnSearch.getBytes(),port,useSSL,acceptExpiredCerts,verifyRemoteServerCert);
-      return NotesCAPI.get().VerifyLdapDirAssistConnection(ldap);
+      ldap.write();
+      NotesErrorUtils.checkResult(NotesCAPI.get().VerifyLdapDirAssistConnection(ldap));
   }
 
   @Override
