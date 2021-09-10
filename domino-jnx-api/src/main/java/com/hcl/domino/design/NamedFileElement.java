@@ -16,8 +16,6 @@
  */
 package com.hcl.domino.design;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 
 import com.hcl.domino.data.DominoDateTime;
@@ -30,10 +28,8 @@ import com.hcl.domino.design.DesignElement.NamedDesignElement;
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface NamedFileElement extends NamedDesignElement {
+public interface NamedFileElement extends NamedDesignElement, FileSystemDesignElement {
   String getCharsetName();
-
-  InputStream getFileData();
 
   DominoDateTime getFileModified();
 
@@ -42,17 +38,4 @@ public interface NamedFileElement extends NamedDesignElement {
   long getFileSize();
 
   String getMimeType();
-  
-  /**
-   * Opens a new output stream to replace the content of the file.
-   * 
-   * <p>Note: it is not guaranteed that the data written to this stream
-   * will be saved to the resource until {@link OutputStream#close()} is
-   * called.</p>
-   * 
-   * @return a new {@link OutputStream} that writes new data to replace
-   *         the content of the file
-   * @since 1.0.39
-   */
-  OutputStream newOutputStream();
 }

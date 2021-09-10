@@ -1178,6 +1178,46 @@ public class TestDbDesign extends AbstractDesignTest {
   }
   
   @Test
+  public void testCreateFileResource() throws Exception {
+    withTempDb(database -> {
+      DbDesign design = database.getDesign();
+
+      byte[] expected = "I am fake new content that isn't in the resource currently".getBytes();
+      try(OutputStream os = design.newResourceOutputStream("/somenewfile.txt")) {
+        os.write(expected);
+      }
+      
+      {
+        FileResource res = design.getFileResource("somenewfile.txt").get();
+        byte[] content;
+        try(
+          InputStream is = res.getFileData();
+          ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ) {
+          StreamUtil.copyStream(is, baos);
+          content = baos.toByteArray();
+        }
+        assertArrayEquals(expected, content);
+        assertEquals(expected.length, res.getFileSize());
+        assertEquals(expected.length, res.getDocument().get(NotesConstants.ITEM_NAME_FILE_SIZE, int.class, -1));
+      }
+      
+      // Check as a stream
+      {
+        byte[] content;
+        try(
+          InputStream is = design.getResourceAsStream("/somenewfile.txt").get();
+          ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ) {
+          StreamUtil.copyStream(is, baos);
+          content = baos.toByteArray();
+        }
+        assertArrayEquals(expected, content);
+      }
+    });
+  }
+  
+  @Test
   public void testOverwriteImageResource() throws Exception {
     // Use a fresh copy of the DB to avoid interactions with other tests
     withResourceDxl("/dxl/testDbDesign", database -> {
