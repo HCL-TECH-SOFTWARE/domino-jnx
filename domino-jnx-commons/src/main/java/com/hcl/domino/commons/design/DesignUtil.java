@@ -347,6 +347,7 @@ public enum DesignUtil {
    * design element interface.
    * 
    * @param <T>         a {@link DesignElement} sub-interface
+   * @param <I>         a {@link AbstractDesignElement} implementation class
    * @param designClass a {@link Class} object representing {@code <T>}
    * @return the corresponding {@code DesignMapping}
    * @throws IllegalArgumentException when {@code <T>} has no mapping

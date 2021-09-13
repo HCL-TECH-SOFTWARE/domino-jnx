@@ -379,6 +379,37 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
   void compact(String pathname, Set<CompactMode> mode);
 
   /**
+   * Create the directory assistance for the provided LDAP connection information.
+   *
+   * @param serverName      Name of the serverDoc
+   * @param dirAssistDBName Path and FileName of the Directory Assistance Database
+   * @param updateServerDoc Set to TRUE if the server doc needs to be updated with given DA db name
+   * @param domainName      Should be unique and not match the primary Domino domain
+   * @param companyName     Name of the company associated with the directory
+   * @param searchOrder     order in which the directory is searched
+   * @param hostName        DNS hostname or IP address of LDAP server
+   * @param LDAPVendor      Specify the LDAP directory service provider
+   * @param userName        the user name to use to connect for simple bindings
+   * @param password        the password to use to connect
+   * @param dnSearch        a DN search base
+   * @param useSSL          whether the connection should use TLS/SSL
+   * @param port            the port to use to connect to the server
+   * @param acceptExpiredCerts whether to allow expired TLS certificates
+   * @param verifyRemoteSrvCert whether to verify the validity of the remote TLS certificate
+   * @param timeout         Maximum number of seconds before a search is terminated
+   * @param maxEntriesReturned Max number of entries a single search can return
+   *
+   * @throws DominoException if the DA cannot be created. The specific exception details
+   *         will include the reason for failure
+   * @since 1.0.39
+   */
+
+  void createDAConfig( String serverName,String dirAssistDBName, boolean updateServerDoc, String domainName, String companyName, short searchOrder,
+        String hostName, short LDAPVendor, String userName, String password, String dnSearch, boolean useSSL, short port,  boolean acceptExpiredCerts,
+          boolean verifyRemoteSrvCert,  short timeout, short maxEntriesReturned);
+
+
+  /**
    * Creates a new database on the target server with a given file path.
    *
    * @param serverName    Domino server name to connect to, or an empty string for
@@ -1057,5 +1088,23 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    */
   String validateCredentialsWithToken(String serverName, Object token)
       throws NameNotFoundException, AuthenticationException, AuthenticationNotSupportedException;
+
+  /**
+   * Verifies that the provided LDAP connection information is valid and usable.
+   * 
+   * @param hostName the name of the LDAP host
+   * @param userName the user name to use to connect for simple bindings
+   * @param password the password to use to connect
+   * @param dnSearch a DN search base
+   * @param port the port to use to connect to the server
+   * @param useSSL whether the connection should use TLS/SSL
+   * @param acceptExpiredCerts whether to allow expired TLS certificates
+   * @param verifyRemoteServerCert whether to verify the validity of the remote TLS certificate
+   * @throws DominoException if the connection cannot be validated. The specific exception details
+   *         will include the reason for failure
+   * @since 1.0.39
+   */
+  void verifyLdapConnection(String hostName, String userName, String password, String dnSearch,
+      short port, boolean useSSL, boolean acceptExpiredCerts, boolean verifyRemoteServerCert);
 
 }

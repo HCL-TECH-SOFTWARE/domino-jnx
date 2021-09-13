@@ -16,16 +16,23 @@
  */
 package com.hcl.domino.commons.design;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 
+import com.hcl.domino.commons.util.BufferingCallbackOutputStream;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.design.NamedFileElement;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.richtext.RichTextWriter;
+import com.hcl.domino.richtext.process.GetFileResourceSizeProcessor;
 import com.hcl.domino.richtext.process.GetFileResourceStreamProcessor;
-import com.hcl.domino.richtext.process.GetImageResourceSizeProcessor;
 
 /**
  * @param <T> The {@link NamedFileElement} implementation type
@@ -57,7 +64,26 @@ public abstract class AbstractNamedFileElement<T extends NamedFileElement> exten
 
   @Override
   public long getFileSize() {
-    return GetImageResourceSizeProcessor.instance.apply(this.getDocument().getRichTextItem(NotesConstants.ITEM_NAME_IMAGE_DATA));
+    return GetFileResourceSizeProcessor.instance.apply(this.getDocument().getRichTextItem(NotesConstants.ITEM_NAME_FILE_DATA));
   }
 
+  @Override
+  public OutputStream newOutputStream() {
+    // TODO don't use a buffering stream here, and instead write bytes in chunks as they come along,
+    //      then update the header record
+    return new BufferingCallbackOutputStream(bytes -> {
+      Document doc = getDocument();
+      doc.removeItem(NotesConstants.ITEM_NAME_FILE_DATA);
+      try(
+        ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+        RichTextWriter w = doc.createRichTextItem(NotesConstants.ITEM_NAME_FILE_DATA)
+      ) {
+        w.addFileResource(bais, bytes.length);
+      } catch (IOException e) {
+        throw new UncheckedIOException(e);
+      }
+      doc.replaceItemValue(NotesConstants.ITEM_NAME_FILE_SIZE, bytes.length);
+      doc.replaceItemValue(NotesConstants.ITEM_NAME_FILE_MODINFO, OffsetDateTime.now());
+    });
+  }
 }
