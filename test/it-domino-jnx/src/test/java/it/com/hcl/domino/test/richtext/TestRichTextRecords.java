@@ -21,19 +21,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-
+import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.StandardColors;
@@ -64,6 +63,8 @@ import com.hcl.domino.richtext.records.CDAction;
 import com.hcl.domino.richtext.records.CDActionBar;
 import com.hcl.domino.richtext.records.CDActionBarExt;
 import com.hcl.domino.richtext.records.CDActionByForm;
+import com.hcl.domino.richtext.records.CDAltText;
+import com.hcl.domino.richtext.records.CDAreaElement;
 import com.hcl.domino.richtext.records.CDBlobPart;
 import com.hcl.domino.richtext.records.CDColor;
 import com.hcl.domino.richtext.records.CDDataFlags;
@@ -80,19 +81,25 @@ import com.hcl.domino.richtext.records.CDImageHeader;
 import com.hcl.domino.richtext.records.CDImageHeader.ImageType;
 import com.hcl.domino.richtext.records.CDImageSegment;
 import com.hcl.domino.richtext.records.CDKeyword;
+import com.hcl.domino.richtext.records.CDLargeParagraph;
+import com.hcl.domino.richtext.records.CDMapElement;
 import com.hcl.domino.richtext.records.CDParagraph;
+import com.hcl.domino.richtext.records.CDStyleName;
 import com.hcl.domino.richtext.records.CDText;
+import com.hcl.domino.richtext.records.CDTextEffect;
+import com.hcl.domino.richtext.records.CDVerticalAlign;
 import com.hcl.domino.richtext.records.CurrencyFlag;
 import com.hcl.domino.richtext.records.CurrencyType;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
-import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.AssistFieldStruct.ActionByField;
+import com.hcl.domino.richtext.structures.CDPoint;
+import com.hcl.domino.richtext.structures.CDRect;
+import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.NFMT;
 import com.hcl.domino.richtext.structures.TFMT;
-
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
@@ -896,4 +903,205 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
     });
   }
+  
+  @Test
+  public void testAltText() throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+        rtWriter.addRichTextRecord(CDAltText.class, begin -> {
+          begin.setAltText("foo.txt");
+        });
+      }
+
+      final CDAltText begin = (CDAltText) doc.getRichTextItem("Body").get(0);
+      assertEquals("foo.txt", begin.getAltText());
+    });
+  }
+  
+  @Test
+  public void testStyleName() throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+        rtWriter.addRichTextRecord(CDStyleName.class, begin -> {
+          final String expected = "foo";
+          begin.setStyleName(expected.getBytes());
+          
+          FontStyle font = rtWriter.createFontStyle();
+          font.setBold(true);
+          font.setColorRaw((short)80);
+          font.setPointSize((short)12);
+          font.setUnderline(true);
+          begin.setFont(font);
+          
+          begin.setUserName("testuser");
+          
+        });
+      }
+
+      final CDStyleName begin = (CDStyleName) doc.getRichTextItem("Body").get(0);
+      assertEquals("foo", begin.getStyleName());
+      
+      
+      Optional<FontStyle> font = begin.getFont();
+      assertEquals(true, font.get().isBold());
+      assertEquals(true, font.get().isUnderline());
+      assertEquals(80, font.get().getColorRaw());
+      assertEquals(12, font.get().getPointSize());
+      
+      Optional<String> userName = begin.getUserName();
+      assertEquals("testuser", userName.get());
+    });
+  }
+  
+  @Test
+  public void testVerticalAlign() throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+        rtWriter.addRichTextRecord(CDVerticalAlign.class, begin -> {
+          begin.setAlignment(CDVerticalAlign.Alignment.CENTER);
+        });
+      }
+
+      final CDVerticalAlign begin = (CDVerticalAlign) doc.getRichTextItem("Body").get(0);
+      CDVerticalAlign.Alignment alignment = begin.getAlignment();
+      
+      assertEquals(CDVerticalAlign.Alignment.CENTER, alignment);
+    });
+  }
+    
+    @Test
+    public void testMapElement() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDMapElement.class, begin -> {
+            begin.setLastDefaultRegionID(10);
+            begin.setLastCircleRegionID(20);
+            begin.setLastRectRegionID(30);
+            begin.setLastPolyRegionID(40);
+            begin.setMapName("testmap");
+          });
+        }
+
+        final CDMapElement begin = (CDMapElement) doc.getRichTextItem("Body").get(0);
+        
+        assertEquals(10, begin.getLastDefaultRegionID());
+        assertEquals(20, begin.getLastCircleRegionID());
+        assertEquals(30, begin.getLastRectRegionID());
+        assertEquals(40, begin.getLastPolyRegionID());
+        assertEquals("testmap", begin.getMapName());
+      });
+    }
+    
+    @Test
+    public void testLargeParagraph() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDLargeParagraph.class, begin -> {
+            begin.setFlags(EnumSet.of(CDLargeParagraph.Flag.CDLARGEPARAGRAPH_BEGIN));
+          });
+        }
+
+        final CDLargeParagraph begin = (CDLargeParagraph) doc.getRichTextItem("Body").get(0);
+
+        assertEquals(EnumSet.of(CDLargeParagraph.Flag.CDLARGEPARAGRAPH_BEGIN), begin.getFlags());
+      });
+    }
+    
+    @Test
+    public void testTextEffect() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDTextEffect.class, begin -> {
+            FontStyle style = rtWriter.createFontStyle();
+            style.setBold(true);
+            style.setColorRaw((short)80);
+            begin.setFontStyle(style);
+          });
+        }
+
+        final CDTextEffect begin = (CDTextEffect) doc.getRichTextItem("Body").get(0);
+        FontStyle style = begin.getFontStyle();
+        assertEquals(true, style.isBold());
+        assertEquals(80, style.getColorRaw());
+      });
+    }
+    
+    @Test
+    public void testAreaElementRectangle() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDAreaElement.class, begin -> {
+            CDRect rectangle = rtWriter.createStructure(CDRect.class, 0);
+            rectangle.setTop(1);
+            rectangle.setBottom(10);
+            rectangle.setLeft(2);
+            rectangle.setRight(20);
+            begin.setRectangle(rectangle);
+          });
+        }
+
+        final CDAreaElement begin = (CDAreaElement) doc.getRichTextItem("Body").get(0);
+
+        assertEquals(1, begin.getRectangle().get().getTop());
+        assertEquals(10, begin.getRectangle().get().getBottom());
+        assertEquals(2, begin.getRectangle().get().getLeft());
+        assertEquals(20, begin.getRectangle().get().getRight());
+      });
+    }
+    
+    @Test
+    public void testAreaElementCircle() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDAreaElement.class, begin -> {
+            CDRect circle = rtWriter.createStructure(CDRect.class, 0);
+            circle.setTop(1);
+            circle.setBottom(10);
+            circle.setLeft(2);
+            circle.setRight(20);
+            begin.setCircle(circle);
+          });
+        }
+
+        final CDAreaElement begin = (CDAreaElement) doc.getRichTextItem("Body").get(0);
+
+        assertEquals(1, begin.getCircle().get().getTop());
+        assertEquals(10, begin.getCircle().get().getBottom());
+        assertEquals(2, begin.getCircle().get().getLeft());
+        assertEquals(20, begin.getCircle().get().getRight());
+      });
+    }
+    
+    @Test
+    public void testAreaElementPolygon() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDAreaElement.class, begin -> {
+            List<CDPoint> points = new ArrayList<>();
+            for (int i=0; i<10; i++) {
+              CDPoint point = rtWriter.createStructure(CDPoint.class, 0);
+              point.setX(1+i);
+              point.setY(10+i);
+              points.add(point);
+            }
+            begin.setPolygon(points);
+          });
+        }
+
+        final CDAreaElement begin = (CDAreaElement) doc.getRichTextItem("Body").get(0);
+
+        assertEquals(10, begin.getPolygon().get().size());
+      });
+    }
+    
+    
 }
