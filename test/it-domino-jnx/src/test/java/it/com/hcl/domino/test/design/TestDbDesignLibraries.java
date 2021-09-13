@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -172,6 +173,64 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
       }
       assertEquals(expected.replace("\r\n", "\n"), script.replace("\r\n", "\n"));
     }
+  }
+
+  @Test
+  public void testOverwriteSsjs() throws Exception {
+    withResourceDxl("/dxl/testDbDesignLib", database -> {
+      final DbDesign design = database.getDesign();
+
+      // Overwrite as a library
+      String expected = "/* I am new content */";
+      {
+        final ScriptLibrary scriptLibrary = design.getScriptLibrary("ssjs lib").get();
+        assertInstanceOf(ServerJavaScriptLibrary.class, scriptLibrary);
+        final ServerJavaScriptLibrary lib = (ServerJavaScriptLibrary) scriptLibrary;
+        lib.setScript(expected);
+        lib.save();
+      }
+      
+      // Check as a library
+      {
+        final ScriptLibrary scriptLibrary = design.getScriptLibrary("ssjs lib").get();
+        assertInstanceOf(ServerJavaScriptLibrary.class, scriptLibrary);
+        final ServerJavaScriptLibrary lib = (ServerJavaScriptLibrary) scriptLibrary;
+        assertEquals(expected, lib.getScript());
+      }
+      
+      // Read as a file resource
+      {
+        String script;
+        try(InputStream is = design.getResourceAsStream("ssjs lib").get()) {
+          script = StreamUtil.readString(is);
+        }
+        assertEquals(expected.replace("\r\n", "\n"), script.replace("\r\n", "\n"));
+      }
+      
+      expected = "/* I am new streamed content */";
+      
+      // Overwrite as a stream
+      try(OutputStream os = design.newResourceOutputStream("/ssjs lib")) {
+        os.write(expected.getBytes());
+      }
+      
+      // Check as a library
+      {
+        final ScriptLibrary scriptLibrary = design.getScriptLibrary("ssjs lib").get();
+        assertInstanceOf(ServerJavaScriptLibrary.class, scriptLibrary);
+        final ServerJavaScriptLibrary lib = (ServerJavaScriptLibrary) scriptLibrary;
+        assertEquals(expected, lib.getScript());
+      }
+      
+      // Read as a file resource
+      {
+        String script;
+        try(InputStream is = design.getResourceAsStream("ssjs lib").get()) {
+          script = StreamUtil.readString(is);
+        }
+        assertEquals(expected.replace("\r\n", "\n"), script.replace("\r\n", "\n"));
+      }
+    });
   }
 
   @Test

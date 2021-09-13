@@ -23,7 +23,7 @@ short NSFNoteCipherExtractWithCallback (DHANDLE.ByValue hNote, NotesBlockIdStruc
 
 The JNA `Pointer` class represents any native pointer, while the `Memory` subclass allows you to allocate native memory that will be automatically freed when the Java object goes out of scope. In general, the `Memory` objects and `Structure` representations allocated in the JNA implementation don't need to be explicitly deallocated.
 
-When it is useful to allocate and deallocate memory manually, we have a `DisposableMemory` class that exposes the `dipose()` method to immediately free the backing memory, without waiting for garbage collection.
+When it is useful to allocate and deallocate memory manually, we have a `DisposableMemory` class that exposes the `dispose()` method to immediately free the backing memory, without waiting for garbage collection.
 
 Naming-wise, Java classes use `ByValue` for direct structure values and `ByReference` for struct pointers.
 
