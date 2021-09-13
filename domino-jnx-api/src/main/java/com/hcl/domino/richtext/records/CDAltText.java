@@ -15,8 +15,6 @@
  * ==========================================================================
  */
 package com.hcl.domino.richtext.records;
-import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
@@ -71,13 +69,13 @@ public interface CDAltText extends RichTextRecord<WSIG> {
    * @return this record
    */
   default CDAltText setAltText(final String altText) {
-    final byte[] altTextBytes = altText.getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$
-    this.resizeVariableData(altTextBytes.length);
-    this.setLength(altTextBytes.length);
-
-    final ByteBuffer buf = this.getVariableData();
-    buf.put(altTextBytes);
-    return this;
+    return StructureSupport.writeStringValue(
+        this,
+        0,
+        0,
+        altText,
+        this::setLength
+      );
   }
   
   @StructureSetter("wLength")

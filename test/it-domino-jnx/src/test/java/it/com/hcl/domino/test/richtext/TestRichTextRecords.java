@@ -915,7 +915,6 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDAltText begin = (CDAltText) doc.getRichTextItem("Body").get(0);
-      
       assertEquals("foo.txt", begin.getAltText());
     });
   }
@@ -1003,13 +1002,13 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           rtWriter.addRichTextRecord(CDLargeParagraph.class, begin -> {
-            begin.setFlags(CDLargeParagraph.Flag.CDLARGEPARAGRAPH_BEGIN);
+            begin.setFlags(EnumSet.of(CDLargeParagraph.Flag.CDLARGEPARAGRAPH_BEGIN));
           });
         }
 
         final CDLargeParagraph begin = (CDLargeParagraph) doc.getRichTextItem("Body").get(0);
 
-        assertEquals(CDLargeParagraph.Flag.CDLARGEPARAGRAPH_BEGIN, begin.getFlags());
+        assertEquals(EnumSet.of(CDLargeParagraph.Flag.CDLARGEPARAGRAPH_BEGIN), begin.getFlags());
       });
     }
     
@@ -1022,7 +1021,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
             FontStyle style = rtWriter.createFontStyle();
             style.setBold(true);
             style.setColorRaw((short)80);
-//            begin.setFontStyle(style);
+            begin.setFontStyle(style);
           });
         }
 

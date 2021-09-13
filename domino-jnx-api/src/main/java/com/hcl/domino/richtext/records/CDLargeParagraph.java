@@ -16,6 +16,8 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.util.Collection;
+import java.util.Set;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -30,7 +32,7 @@ import com.hcl.domino.richtext.structures.WSIG;
 @StructureDefinition(name = "CDLARGEPARAGRAPH", members = {
     @StructureMember(name = "Header", type = WSIG.class),
     @StructureMember(name = "Version", type = short.class, unsigned = true),
-    @StructureMember(name = "Flags", type = CDLargeParagraph.Flag.class),
+    @StructureMember(name = "Flags", type = CDLargeParagraph.Flag.class, bitfield = true),
     @StructureMember(name = "Spare", type = int[].class, length = 2)
 })
 public interface CDLargeParagraph extends RichTextRecord<WSIG> {
@@ -67,10 +69,10 @@ public interface CDLargeParagraph extends RichTextRecord<WSIG> {
   CDLargeParagraph setVersion(int version);
   
   @StructureGetter("Flags")
-  Flag getFlags();
+  Set<Flag> getFlags();
   
   @StructureSetter("Flags")
-  CDLargeParagraph setFlags(Flag flags);
+  CDLargeParagraph setFlags(Collection<Flag> flags);
   
   @StructureGetter("Flags")
   short getFlagsRaw();
