@@ -38,15 +38,15 @@ public class VerifyLDAPConnectionStruct extends BaseStructure implements Seriali
 
   public byte[] szHostName = new byte[NotesConstants.MAX_HOSTNAME];
   public byte[] szUserName = new byte[NotesConstants.MAXUSERNAME];
-  public byte[] szPassword = new byte[NotesConstants.MAXUSERNAME];
-  public byte[] szDNSearch = new byte[NotesConstants.MAXPATH];  
-  public short wPort;  
-  public boolean bUseSSL;  
+  public byte[] szPassword = new byte[NotesConstants.MAXUSERPASSWORD];
+  public byte[] szDNSearch = new byte[NotesConstants.MAXLDAPBASE];
+  public boolean bUseSSL;
+  public short wPort;
   public boolean bAcceptExpiredCertificates;   
   public boolean bVerifyRemoteSrvCert;
  
   
-  public VerifyLDAPConnectionStruct(byte hostName[],byte userName[], byte password[], byte dnSearch[], short port, boolean useSSL, boolean acceptExpiredCertificates, boolean verifyRemoteSrvCert) {
+  public VerifyLDAPConnectionStruct(byte hostName[],byte userName[], byte password[], byte dnSearch[], boolean useSSL, short port, boolean acceptExpiredCertificates, boolean verifyRemoteSrvCert) {
     super();
     
     if ((hostName.length != this.szHostName.length)) {
@@ -67,7 +67,7 @@ public class VerifyLDAPConnectionStruct extends BaseStructure implements Seriali
     if ((dnSearch.length != this.szDNSearch.length)) {
       throw new WrongArraySizeException("DNSearch");
     }
-    this.szDNSearch = hostName;
+    this.szDNSearch = dnSearch;
     
     this.wPort = port;
     
@@ -94,7 +94,7 @@ public class VerifyLDAPConnectionStruct extends BaseStructure implements Seriali
 	
 	@Override
 	protected List<String> getFieldOrder() {
-		return Arrays.asList("szHostName", "szUserName", "szPassword", "szDNSearch", "wPort", "bUseSSL", "bAcceptExpiredCertificates", "bVerifyRemoteSrvCert");
+		return Arrays.asList("szHostName", "szUserName", "szPassword", "szDNSearch", "bUseSSL", "wPort", "bAcceptExpiredCertificates", "bVerifyRemoteSrvCert");
 	}
 			
 	@Override

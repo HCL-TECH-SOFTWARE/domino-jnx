@@ -199,6 +199,13 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds 
 
   int MAXPATH = 256;
   short MAXUSERNAME = 256; /* Maximum user name */
+  int MAXDOMAINNAME = 32;
+  int FILETITLEMAX = 97;
+
+  int MAXCOUNTRYNAME = 3;
+  int MAXORGNAME = 65;
+  int MAXORGUNITNAME =33;
+  int MAXLDAPBASE = (MAXORGUNITNAME*4 + MAXORGNAME + MAXCOUNTRYNAME + 22);
   // TODO needs to be checked
   int MAXUSERPASSWORD = 64;
   short MAXENVVALUE = 256;
