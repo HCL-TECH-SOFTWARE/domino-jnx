@@ -68,8 +68,12 @@ import com.hcl.domino.richtext.records.CDAreaElement;
 import com.hcl.domino.richtext.records.CDBlobPart;
 import com.hcl.domino.richtext.records.CDColor;
 import com.hcl.domino.richtext.records.CDDataFlags;
+import com.hcl.domino.richtext.records.CDEmbeddedCalendarControl;
 import com.hcl.domino.richtext.records.CDEmbeddedControl;
+import com.hcl.domino.richtext.records.CDEmbeddedExtraInfo;
 import com.hcl.domino.richtext.records.CDEmbeddedOutline;
+import com.hcl.domino.richtext.records.CDEmbeddedSchedulerControl;
+import com.hcl.domino.richtext.records.CDEmbeddedSchedulerControlExtra;
 import com.hcl.domino.richtext.records.CDExt2Field;
 import com.hcl.domino.richtext.records.CDExtField;
 import com.hcl.domino.richtext.records.CDExtField.HelperType;
@@ -82,8 +86,10 @@ import com.hcl.domino.richtext.records.CDImageHeader.ImageType;
 import com.hcl.domino.richtext.records.CDImageSegment;
 import com.hcl.domino.richtext.records.CDKeyword;
 import com.hcl.domino.richtext.records.CDLargeParagraph;
+import com.hcl.domino.richtext.records.CDLayer;
 import com.hcl.domino.richtext.records.CDMapElement;
 import com.hcl.domino.richtext.records.CDParagraph;
+import com.hcl.domino.richtext.records.CDPositioning;
 import com.hcl.domino.richtext.records.CDStyleName;
 import com.hcl.domino.richtext.records.CDText;
 import com.hcl.domino.richtext.records.CDTextEffect;
@@ -1103,5 +1109,145 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       });
     }
     
+    @Test
+    public void testLayer() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDLayer.class, begin -> {
+          });
+        }
+
+        final CDLayer begin = (CDLayer) doc.getRichTextItem("Body").get(0);
+      });
+    }
     
+    @Test
+    public void testEmbeddedSchedulerControlExtra() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDEmbeddedSchedulerControlExtra.class, begin -> {
+            begin.setFlags(EnumSet.of(CDEmbeddedSchedulerControlExtra.Flag.SUGG_COLORS_DEFINED));
+            begin.setSchedulerName("foo");
+            begin.setDetailDisplayFormFormula("@Accessed");
+            begin.setFixedPartLength(30);
+            begin.setIntervalChangeEventFormula("@Abs(-10)");
+            begin.setIntervalEndDTItemFormula("@Abs(10)");
+            begin.setIntervalStartDTItemFormula("@Abs(20)");
+            begin.setOptPeopleItemsFormula("@Abs(30)");
+            begin.setOptResourcesItemsFormula("@Abs(40)");
+            begin.setPeopleTitle("people");
+            begin.setReqResourcesItemsFormula("@Abs(50)");
+            begin.setReqRoomsItemsFormula("@Abs(60)");
+            begin.setResourcesTitle("resources");
+            begin.setRoomsTitle("rooms");
+            begin.setSchedDetailItemsFormula("@Abs(70)");
+            begin.setSuggestionsAvailEventFormula("@Abs(80)");
+          });
+        }
+
+        final CDEmbeddedSchedulerControlExtra begin = (CDEmbeddedSchedulerControlExtra) doc.getRichTextItem("Body").get(0);
+        assertEquals(EnumSet.of(CDEmbeddedSchedulerControlExtra.Flag.SUGG_COLORS_DEFINED), begin.getFlags());
+        assertEquals("foo", begin.getSchedulerName());
+        assertEquals("@Accessed", begin.getDetailDisplayFormFormula());
+        assertEquals(30, begin.getFixedPartLength());
+        assertEquals("@Abs(-10)", begin.getIntervalChangeEventFormula());
+        assertEquals("@Abs(10)", begin.getIntervalEndDTItemFormula());
+        assertEquals("@Abs(20)", begin.getIntervalStartDTItemFormula());
+        assertEquals("@Abs(30)", begin.getOptPeopleItemsFormula());
+        assertEquals("@Abs(40)", begin.getOptResourcesItemsFormula());
+        assertEquals("people", begin.getPeopleTitle());
+        assertEquals("@Abs(50)", begin.getReqResourcesItemsFormula());
+        assertEquals("@Abs(60)", begin.getReqRoomsItemsFormula());
+        assertEquals("resources", begin.getResourcesTitle());
+        assertEquals("rooms", begin.getRoomsTitle());
+        assertEquals("@Abs(70)", begin.getSchedDetailItemsFormula());
+        assertEquals("@Abs(80)", begin.getSuggestionsAvailEventFormula());
+      });
+    }
+    
+    @Test
+    public void testEmbeddedSchedulerControl() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDEmbeddedSchedulerControl.class, begin -> {
+            begin.setFlags(EnumSet.of(CDEmbeddedSchedulerControl.Flag.SHOW_TWISTIES));
+            begin.setTargetFrameName("foo");
+            begin.setDisplayStartDTItemFormula("@Abs(10)");
+            begin.setHrsPerDayItemFormula("@Abs(20)");
+            begin.setReqPeopleItemsFormula("@Abs(30)");
+            begin.setNameColWidth(50);
+            begin.setPeopleLines(60);
+            begin.setRoomsLines(70);
+            begin.setResourcesLines(80);
+          });
+        }
+
+        final CDEmbeddedSchedulerControl begin = (CDEmbeddedSchedulerControl) doc.getRichTextItem("Body").get(0);
+        assertEquals(EnumSet.of(CDEmbeddedSchedulerControl.Flag.SHOW_TWISTIES), begin.getFlags());
+        assertEquals("foo", begin.getTargetFrameName());
+        assertEquals("@Abs(10)", begin.getDisplayStartDTItemFormula());
+        assertEquals("@Abs(20)", begin.getHrsPerDayItemFormula());
+        assertEquals("@Abs(30)", begin.getReqPeopleItemsFormula());
+        assertEquals(50, begin.getNameColWidth());
+        assertEquals(60, begin.getPeopleLines());
+        assertEquals(70, begin.getRoomsLines());
+        assertEquals(80, begin.getResourcesLines());
+      });
+    }
+    
+    @Test
+    public void testEmbeddedExtraInfo() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDEmbeddedExtraInfo.class, begin -> {
+            begin.setName("foo");
+          });
+        }
+
+        final CDEmbeddedExtraInfo begin = (CDEmbeddedExtraInfo) doc.getRichTextItem("Body").get(0);
+        assertEquals("foo", begin.getName());
+      });
+    }
+    
+    @Test
+    public void testPositioning() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDPositioning.class, begin -> {
+            begin.setScheme(CDPositioning.Scheme.ABSOLUTE);
+            begin.setBrowserLeftOffset(10);
+            begin.setBrowserRightOffset(20);
+            begin.setZIndex(30);
+          });
+        }
+
+        final CDPositioning begin = (CDPositioning) doc.getRichTextItem("Body").get(0);
+        assertEquals(CDPositioning.Scheme.ABSOLUTE, begin.getScheme());
+        assertEquals(10, begin.getBrowserLeftOffset());
+        assertEquals(20, begin.getBrowserRightOffset());
+        assertEquals(30, begin.getZIndex());
+      });
+    }
+    
+    @Test
+    public void testEmbeddedCalendarControl() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDEmbeddedCalendarControl.class, begin -> {
+            begin.setFlags(EnumSet.of(CDEmbeddedCalendarControl.Flag.HASTARGETFRAME));
+            begin.setTargetFrameName("foo.txt");
+          });
+        }
+
+        final CDEmbeddedCalendarControl begin = (CDEmbeddedCalendarControl) doc.getRichTextItem("Body").get(0);
+        assertEquals(EnumSet.of(CDEmbeddedCalendarControl.Flag.HASTARGETFRAME), begin.getFlags());
+        assertEquals("foo.txt", begin.getTargetFrameName());
+      });
+    }
 }
