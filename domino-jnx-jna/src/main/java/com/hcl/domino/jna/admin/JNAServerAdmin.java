@@ -29,6 +29,7 @@ import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClient.OpenDatabase;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.UserNamesList;
+import com.hcl.domino.admin.DirectoryAssistance;
 import com.hcl.domino.admin.IConsoleLine;
 import com.hcl.domino.admin.ServerAdmin;
 import com.hcl.domino.commons.admin.ConsoleLine;
@@ -625,6 +626,17 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations> 
 	public void logMessage(String messageText) {
 		Memory lmbcs = NotesStringUtils.toLMBCS(messageText, true);
 		NotesCAPI.get().AddInLogMessageText(lmbcs, (short)0, new Object[0]);
+	}
+	
+	@Override
+	public DirectoryAssistance getDirectoryAssistance(String serverName, String dirAssistDBName) {
+	  if(StringUtil.isEmpty(serverName)) {
+	    throw new IllegalArgumentException("serverName cannot be empty");
+	  }
+	  if(StringUtil.isEmpty(dirAssistDBName)) {
+      throw new IllegalArgumentException("dirAssistDBName cannot be empty");
+	  }
+	  return new JNADirectoryAssistance(serverName, dirAssistDBName);
 	}
 	
 	

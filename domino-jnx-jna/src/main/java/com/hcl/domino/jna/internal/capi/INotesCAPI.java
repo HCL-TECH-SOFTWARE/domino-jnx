@@ -28,6 +28,8 @@ import com.hcl.domino.jna.internal.callbacks.NotesCallbacks.ACLENTRYENUMFUNC;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.structs.CreateDAConfigStruct;
+import com.hcl.domino.jna.internal.structs.UpdateDAConfigStruct;
+import com.hcl.domino.jna.internal.structs.EnableDisableDAStruct;
 import com.hcl.domino.jna.internal.structs.DbOptionsStruct;
 import com.hcl.domino.jna.internal.structs.VerifyLDAPConnectionStruct;
 import com.hcl.domino.jna.internal.structs.HtmlApi_UrlComponentStruct;
@@ -368,6 +370,8 @@ public interface INotesCAPI extends Library {
 	void OSGetExecutableDirectory(Memory retPathName);
 	void OSGetDataDirectory(Memory retPathName);
 	short CreateDAConfig(CreateDAConfigStruct ldap);
+	short UpdateDAConfig(UpdateDAConfigStruct ldap);
+	short EnableDisableDA(EnableDisableDAStruct daConfig);
 	short VerifyLdapDirAssistConnection(VerifyLDAPConnectionStruct ldap);
 	short OSGetSystemTempDirectory(Memory retPathName, int bufferLength);
 	void OSPathAddTrailingPathSep(Memory retPathName);

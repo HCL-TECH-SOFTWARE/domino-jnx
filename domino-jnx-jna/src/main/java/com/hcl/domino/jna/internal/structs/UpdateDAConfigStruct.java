@@ -33,67 +33,41 @@ import com.sun.jna.Structure;
  * 
  * @author Raghu M R
  */
-public class CreateDAConfigStruct extends BaseStructure implements Serializable, IAdaptable {
+public class UpdateDAConfigStruct extends BaseStructure implements Serializable, IAdaptable {
 
   private static final long serialVersionUID = 1L;
 
-  public boolean bUpdateServerDoc;
-  public short wSearchOrder;
-  public byte[] szDNSearch = new byte[NotesConstants.MAXLDAPBASE];
-  public boolean bAcceptExpiredCertificates;
-  public boolean bVerifyRemoteSrvCert;
-  public short wTimeout;
-  public short wMaxEntriesReturned;
+  public byte[] szDocUNID = new byte[NotesConstants.MAX_HOSTNAME]; 
   public DirectoryAssistanceStruct daStruct;
-
-  public CreateDAConfigStruct( boolean updateServerDoc, short searchOrder, byte dnSearch[], boolean acceptExpiredCertificates,
-      boolean verifyRemoteSrvCert, short timeout, short maxEntriesReturned,
-      DirectoryAssistanceStruct daStruct) {
+ 
+  public UpdateDAConfigStruct( byte docUNID[], DirectoryAssistanceStruct daStruct) {
     
     super();
-    
-    this.bUpdateServerDoc = updateServerDoc;
-    
-    this.wSearchOrder = searchOrder;
-    
-    if ((dnSearch.length != this.szDNSearch.length)) {
-        throw new WrongArraySizeException("dnSearch");
-    }
-    this.szDNSearch = dnSearch;
-    
-    this.bAcceptExpiredCertificates = acceptExpiredCertificates;
-    
-    this.bVerifyRemoteSrvCert = verifyRemoteSrvCert;
-    
-    this.wTimeout = timeout;
-
-    this.wMaxEntriesReturned = maxEntriesReturned;
+        
+    if ((docUNID.length != this.szDocUNID.length)) {
+        throw new WrongArraySizeException("DocUNID");
+    }    
+    this.szDocUNID = docUNID;
     
     this.daStruct = daStruct;
   }
 
-    public CreateDAConfigStruct() {
+    public UpdateDAConfigStruct() {
       super();
     }
   
-	public static CreateDAConfigStruct newInstance() {
-		return AccessController.doPrivileged((PrivilegedAction<CreateDAConfigStruct>) () -> new CreateDAConfigStruct());
+	public static UpdateDAConfigStruct newInstance() {
+		return AccessController.doPrivileged((PrivilegedAction<UpdateDAConfigStruct>) () -> new UpdateDAConfigStruct());
 	}
 
-	public static CreateDAConfigStruct.ByValue newInstanceByVal() {
-		return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> new CreateDAConfigStruct.ByValue());
+	public static UpdateDAConfigStruct.ByValue newInstanceByVal() {
+		return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> new UpdateDAConfigStruct.ByValue());
 	}	
 	
 	@Override
 	protected List<String> getFieldOrder() {
-		return Arrays.asList(  "szServerName",
-		    "bUpdateServerDoc",
-		    "wSearchOrder",
-		    "szDNSearch",
-		    "bAcceptExpiredCertificates",
-		    "bVerifyRemoteSrvCert",
-		    "wTimeout",
-		    "wMaxEntriesReturned",
+		return Arrays.asList(
+		    "docUNID",
 		    "daStruct"
 		    );
 	}
@@ -101,7 +75,7 @@ public class CreateDAConfigStruct extends BaseStructure implements Serializable,
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> clazz) {
-		if (clazz == CreateDAConfigStruct.class) {
+		if (clazz == UpdateDAConfigStruct.class) {
 			return (T) this;
 		}
 		else if (clazz == Pointer.class) {
@@ -110,11 +84,11 @@ public class CreateDAConfigStruct extends BaseStructure implements Serializable,
 		return null;
 	}
 	
-	public static class ByReference extends CreateDAConfigStruct implements Structure.ByReference {
+	public static class ByReference extends UpdateDAConfigStruct implements Structure.ByReference {
 		private static final long serialVersionUID = -2958581285484373942L;		
 	};
 	
-	public static class ByValue extends CreateDAConfigStruct implements Structure.ByValue {
+	public static class ByValue extends UpdateDAConfigStruct implements Structure.ByValue {
 		private static final long serialVersionUID = -6538673668884547829L;		
 	};
 	

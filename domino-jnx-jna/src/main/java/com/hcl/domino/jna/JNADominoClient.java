@@ -55,8 +55,8 @@ import com.hcl.domino.admin.replication.Replication;
 import com.hcl.domino.calendar.Calendaring;
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.constants.CopyDatabase;
-import com.hcl.domino.commons.data.DefaultModificationTimePair;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
+import com.hcl.domino.commons.data.DefaultModificationTimePair;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.CAPIGarbageCollector;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -105,7 +105,6 @@ import com.hcl.domino.jna.html.JNARichtextHTMLConverter;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.ItemDecoder;
 import com.hcl.domino.jna.internal.JNANotesConstants;
-import com.hcl.domino.jna.internal.structs.VerifyLDAPConnectionStruct;
 import com.hcl.domino.jna.internal.JNANotesReplicationStats;
 import com.hcl.domino.jna.internal.JNASignalHandlerUtil;
 import com.hcl.domino.jna.internal.Mem;
@@ -119,11 +118,11 @@ import com.hcl.domino.jna.internal.gc.allocations.JNAUserNamesListAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
-import com.hcl.domino.jna.internal.structs.CreateDAConfigStruct;
 import com.hcl.domino.jna.internal.structs.DbOptionsStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.ReplExtensionsStruct;
 import com.hcl.domino.jna.internal.structs.ReplServStatsStruct;
+import com.hcl.domino.jna.internal.structs.VerifyLDAPConnectionStruct;
 import com.hcl.domino.jna.mime.JNAMimeReader;
 import com.hcl.domino.jna.mime.JNAMimeWriter;
 import com.hcl.domino.jna.mq.JNAMessageQueues;
@@ -346,20 +345,6 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     } else {
       return new String[] {"", path}; //$NON-NLS-1$
     }
-  }
-
-
-  @Override
-  public void createDAConfig( String serverName,String dirAssistDBName, boolean updateServerDoc, String domainName, String companyName, short searchOrder,
-      String hostName, short ldapVendor, String userName, String password, String dnSearch, boolean useSSL, short port,  boolean acceptExpiredCertificates, 
-      boolean verifyRemoteSrvCert,  short timeout, short maxEntriesReturned)
-  {
-    CreateDAConfigStruct daConfig = new CreateDAConfigStruct( serverName.getBytes(), dirAssistDBName.getBytes(), updateServerDoc, domainName.getBytes(), companyName.getBytes(), searchOrder,
-          hostName.getBytes(), ldapVendor, userName.getBytes(), password.getBytes(), dnSearch.getBytes(), useSSL, port, acceptExpiredCertificates, 
-          verifyRemoteSrvCert, timeout, maxEntriesReturned);
-
-    daConfig.write();
-    NotesErrorUtils.checkResult(NotesCAPI.get().CreateDAConfig(daConfig));
   }
 
   @Override
@@ -942,8 +927,8 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
   @Override
   public void verifyLdapConnection(
-      String hostName, String userName, String password, String dnSearch, short port, boolean useSSL, boolean acceptExpiredCerts, boolean verifyRemoteServerCert) {
-      VerifyLDAPConnectionStruct ldap = new VerifyLDAPConnectionStruct(hostName.getBytes(),userName.getBytes(),password.getBytes(),dnSearch.getBytes(),port,useSSL,acceptExpiredCerts,verifyRemoteServerCert);
+      String hostName, String userName, String password, String dnSearch, boolean useSSL, short port, boolean acceptExpiredCerts, boolean verifyRemoteServerCert) {
+      VerifyLDAPConnectionStruct ldap = new VerifyLDAPConnectionStruct(hostName.getBytes(),userName.getBytes(),password.getBytes(),dnSearch.getBytes(),useSSL, port,acceptExpiredCerts,verifyRemoteServerCert);
       ldap.write();
       NotesErrorUtils.checkResult(NotesCAPI.get().VerifyLdapDirAssistConnection(ldap));
   }
