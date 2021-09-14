@@ -55,8 +55,8 @@ import com.hcl.domino.admin.replication.Replication;
 import com.hcl.domino.calendar.Calendaring;
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.constants.CopyDatabase;
-import com.hcl.domino.commons.data.DefaultModificationTimePair;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
+import com.hcl.domino.commons.data.DefaultModificationTimePair;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.CAPIGarbageCollector;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -105,7 +105,6 @@ import com.hcl.domino.jna.html.JNARichtextHTMLConverter;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.ItemDecoder;
 import com.hcl.domino.jna.internal.JNANotesConstants;
-import com.hcl.domino.jna.internal.structs.VerifyLDAPConnectionStruct;
 import com.hcl.domino.jna.internal.JNANotesReplicationStats;
 import com.hcl.domino.jna.internal.JNASignalHandlerUtil;
 import com.hcl.domino.jna.internal.Mem;
@@ -119,14 +118,11 @@ import com.hcl.domino.jna.internal.gc.allocations.JNAUserNamesListAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
-import com.hcl.domino.jna.internal.structs.CreateDAConfigStruct;
-import com.hcl.domino.jna.internal.structs.UpdateDAConfigStruct;
-import com.hcl.domino.jna.internal.structs.EnableDisableDAStruct;
-import com.hcl.domino.jna.internal.structs.DirectoryAssistanceStruct;
 import com.hcl.domino.jna.internal.structs.DbOptionsStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.ReplExtensionsStruct;
 import com.hcl.domino.jna.internal.structs.ReplServStatsStruct;
+import com.hcl.domino.jna.internal.structs.VerifyLDAPConnectionStruct;
 import com.hcl.domino.jna.mime.JNAMimeReader;
 import com.hcl.domino.jna.mime.JNAMimeWriter;
 import com.hcl.domino.jna.mq.JNAMessageQueues;
@@ -349,44 +345,6 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     } else {
       return new String[] {"", path}; //$NON-NLS-1$
     }
-  }
-
-  @Override
-  public void createDAConfig( String serverName,String dirAssistDBName, boolean updateServerDoc, String domainName, String companyName, short searchOrder,
-      String hostName, short ldapVendor, String userName, String password, String dnSearch, boolean useSSL, short port,  boolean acceptExpiredCertificates, 
-      boolean verifyRemoteSrvCert,  short timeout, short maxEntriesReturned)
-  {
-    DirectoryAssistanceStruct daConfigStruct = new DirectoryAssistanceStruct(serverName.getBytes(), dirAssistDBName.getBytes(), domainName.getBytes(), companyName.getBytes(),
-        hostName.getBytes(), ldapVendor, userName.getBytes(), password.getBytes(), useSSL, port);
-
-    CreateDAConfigStruct daConfig = new CreateDAConfigStruct(updateServerDoc, searchOrder, dnSearch.getBytes(), acceptExpiredCertificates,
-        verifyRemoteSrvCert, timeout, maxEntriesReturned, daConfigStruct);
-
-    daConfig.write();
-    NotesErrorUtils.checkResult(NotesCAPI.get().CreateDAConfig(daConfig));
-  }
-
-
-  @Override
-  public void updateDAConfig( String docUNID, String serverName,String dirAssistDBName,  String domainName, String companyName,
-      String hostName, short ldapVendor, String userName, String password, boolean useSSL, short port)
-  {
-    DirectoryAssistanceStruct daConfigStruct = new DirectoryAssistanceStruct(serverName.getBytes(), dirAssistDBName.getBytes(), domainName.getBytes(), companyName.getBytes(),
-        hostName.getBytes(), ldapVendor, userName.getBytes(), password.getBytes(), useSSL, port);
-
-    UpdateDAConfigStruct daConfig = new UpdateDAConfigStruct(docUNID.getBytes(), daConfigStruct);
-
-    daConfig.write();
-    NotesErrorUtils.checkResult(NotesCAPI.get().UpdateDAConfig(daConfig));
-  }
-
-  @Override
-  public void enableDisableDA( String serverName, String dirAssistDBName, String docUNID, boolean enableDomain)
-  {
-    EnableDisableDAStruct daConfig  = new EnableDisableDAStruct(serverName.getBytes(), dirAssistDBName.getBytes(), docUNID.getBytes(), enableDomain);
-
-    daConfig.write();
-    NotesErrorUtils.checkResult(NotesCAPI.get().EnableDisableDA(daConfig));
   }
 
   @Override

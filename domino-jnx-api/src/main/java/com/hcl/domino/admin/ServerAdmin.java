@@ -267,6 +267,18 @@ public interface ServerAdmin {
    */
   DominoSSOToken generateSSOToken(String orgName, String configName,
       String userName, TemporalAccessor creationDate, TemporalAccessor expirationDate, boolean enableRenewal);
+  
+  /**
+   * Retrieves a {@link DirectoryAssistance} object for the given server, allowing
+   * access to and manipulation of the server's directory-assistance
+   * configuration.
+   * 
+   * @param serverName the server to retrieve the configuration for
+   * @param dirAssistDBName Path and FileName of the Directory Assistance Database
+   * @return a new {@link DirectoryAssistance} object
+   * @since 1.0.41
+   */
+  DirectoryAssistance getDirectoryAssistance(String serverName, String dirAssistDBName);
 
   /**
    * This function retrieves a list of server names that belong to the
