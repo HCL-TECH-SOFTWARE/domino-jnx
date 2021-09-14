@@ -22,6 +22,7 @@ import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.List;
 import com.hcl.domino.commons.structs.WrongArraySizeException;
+import com.hcl.domino.jna.internal.structs.DirectoryAssistanceStruct;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Pointer;
@@ -36,88 +37,39 @@ public class CreateDAConfigStruct extends BaseStructure implements Serializable,
 
   private static final long serialVersionUID = 1L;
 
-  public byte[] szServerName = new byte[NotesConstants.MAX_HOSTNAME];
-  public byte[] szDirAssistDBName = new byte[NotesConstants.MAXUSERNAME];
-  public boolean bUpdateServerDoc; 
-  public byte[] szDomainName = new byte[NotesConstants.MAX_HOSTNAME];
-  public byte[] szCompanyName = new byte[NotesConstants.MAXUSERNAME];
+  public boolean bUpdateServerDoc;
   public short wSearchOrder;
-  public byte[] szHostName = new byte[NotesConstants.MAX_HOSTNAME];
-  public short wLDAPVendor;
-  public byte[] szUserName = new byte[NotesConstants.MAXUSERNAME];
-  public byte[] szPassword = new byte[NotesConstants.MAXUSERNAME];
-  public byte[] szDNSearch = new byte[NotesConstants.MAXPATH];
-  public boolean bUseSSL;
-  public short wPort;      
-  public boolean bAcceptExpiredCertificates;   
+  public byte[] szDNSearch = new byte[NotesConstants.MAXLDAPBASE];
+  public boolean bAcceptExpiredCertificates;
   public boolean bVerifyRemoteSrvCert;
-  public short wTimeout; 
+  public short wTimeout;
   public short wMaxEntriesReturned;
-  
-  public CreateDAConfigStruct( byte serverName[], byte dirAssistDBName[], boolean updateServerDoc, byte domainName[], byte companyName[], short searchOrder, 
-      byte  hostName[], short ldapVendor, byte userName[], byte password[], byte dnSearch[], boolean useSSL, short port,  boolean acceptExpiredCertificates, 
-      boolean verifyRemoteSrvCert,  short timeout, short maxEntriesReturned) {
+  public DirectoryAssistanceStruct daStruct;
+
+  public CreateDAConfigStruct( boolean updateServerDoc, short searchOrder, byte dnSearch[], boolean acceptExpiredCertificates,
+      boolean verifyRemoteSrvCert, short timeout, short maxEntriesReturned,
+      DirectoryAssistanceStruct daStruct) {
     
     super();
     
-    if ((serverName.length != this.szServerName.length)) {
-        throw new WrongArraySizeException("serverName");
-    }
-    this.szServerName = serverName;
-    
-    if ((dirAssistDBName.length != this.szDirAssistDBName.length)) {
-      throw new WrongArraySizeException("dirAssistDBName");
-    }
-    this.szDirAssistDBName = dirAssistDBName;
-  
     this.bUpdateServerDoc = updateServerDoc;
-  
-    if ((domainName.length != this.szDomainName.length)) {
-      throw new WrongArraySizeException("domainName");
-    }
-    this.szDomainName = domainName;
-  
-    
-    if ((companyName.length != this.szCompanyName.length)) {
-      throw new WrongArraySizeException("companyName");
-    }
-    this.szCompanyName = companyName;
     
     this.wSearchOrder = searchOrder;
     
-    if ((hostName.length != this.szHostName.length)) {
-      throw new WrongArraySizeException("hostName");
-    }
-    this.szHostName = hostName;
-    
-    this.wLDAPVendor=ldapVendor;
-  
-    if ((userName.length != this.szUserName.length)) {
-      throw new WrongArraySizeException("userName");
-    }
-    this.szUserName = userName;
-
-    if ((password.length != this.szPassword.length)) {
-      throw new WrongArraySizeException("Password");
-    }
-    this.szPassword = password;
-
     if ((dnSearch.length != this.szDNSearch.length)) {
-      throw new WrongArraySizeException("DNSearch");
-    }    
+        throw new WrongArraySizeException("dnSearch");
+    }
     this.szDNSearch = dnSearch;
-    
-    this.wPort = port;
-    
-    this.bUseSSL =useSSL;
     
     this.bAcceptExpiredCertificates = acceptExpiredCertificates;
     
     this.bVerifyRemoteSrvCert = verifyRemoteSrvCert;
     
-    this.wTimeout = timeout; 
+    this.wTimeout = timeout;
+
+    this.wMaxEntriesReturned = maxEntriesReturned;
     
-    this.wMaxEntriesReturned = maxEntriesReturned;      
+    this.daStruct = daStruct;
   }
 
     public CreateDAConfigStruct() {
@@ -135,22 +87,14 @@ public class CreateDAConfigStruct extends BaseStructure implements Serializable,
 	@Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList(  "szServerName",
-		    "szDirAssistDBName",
-		    "bUpdateServerDoc", 
-		    "szDomainName",
-		    "szCompanyName",
+		    "bUpdateServerDoc",
 		    "wSearchOrder",
-		    "szHostName",
-		    "wLDAPVendor",
-		    "szUserName",
-		    "szPassword",
 		    "szDNSearch",
-		    "bUseSSL",
-		    "wPort",      
 		    "bAcceptExpiredCertificates",
 		    "bVerifyRemoteSrvCert",
-		    "wTimeout", 
-		    "wMaxEntriesReturned"
+		    "wTimeout",
+		    "wMaxEntriesReturned",
+		    "daStruct"
 		    );
 	}
 			

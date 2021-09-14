@@ -403,10 +403,45 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    *         will include the reason for failure
    * @since 1.0.39
    */
-
   void createDAConfig( String serverName,String dirAssistDBName, boolean updateServerDoc, String domainName, String companyName, short searchOrder,
         String hostName, short LDAPVendor, String userName, String password, String dnSearch, boolean useSSL, short port,  boolean acceptExpiredCerts,
           boolean verifyRemoteSrvCert,  short timeout, short maxEntriesReturned);
+
+  /**
+   * Update the directory assistance for the provided LDAP connection information.
+   *
+   * @param docUNID         UNID of the Document to be updated
+   * @param serverName      Name of the serverDoc
+   * @param dirAssistDBName Path and FileName of the Directory Assistance Database
+   * @param domainName      Should be unique and not match the primary Domino domain
+   * @param companyName     Name of the company associated with the directory
+   * @param hostName        DNS hostname or IP address of LDAP server
+   * @param LDAPVendor      Specify the LDAP directory service provider
+   * @param userName        the user name to use to connect for simple bindings
+   * @param password        the password to use to connect
+   * @param useSSL          whether the connection should use TLS/SSL
+   * @param port            the port to use to connect to the server
+   *
+   * @throws DominoException if the DA cannot be updated. The specific exception details
+   *         will include the reason for failure
+   * @since 1.0.39
+   */
+  void updateDAConfig( String docUNID, String serverName,String dirAssistDBName,  String domainName, String companyName,
+      String hostName, short ldapVendor, String userName, String password, boolean useSSL, short port);
+
+  /**
+   * Enable or disable the directory assistance.
+   *
+   * @param serverName      Name of the serverDoc
+   * @param dirAssistDBName Path and FileName of the Directory Assistance Database
+   * @param domainName      Should be unique and not match the primary Domino domain
+   * @param enableDomain    whether the DA should be enabled or disabled
+   *
+   * @throws DominoException if the DA cannot be enabled/disabled. The specific exception details
+   *         will include the reason for failure
+   * @since 1.0.39
+   */
+  void enableDisableDA( String serverName, String dirAssistDBName, String domainName, boolean enableDomain);
 
 
   /**
@@ -1105,6 +1140,6 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    * @since 1.0.39
    */
   void verifyLdapConnection(String hostName, String userName, String password, String dnSearch,
-      short port, boolean useSSL, boolean acceptExpiredCerts, boolean verifyRemoteServerCert);
+      boolean useSSL,short port,  boolean acceptExpiredCerts, boolean verifyRemoteServerCert);
 
 }

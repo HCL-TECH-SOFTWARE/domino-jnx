@@ -120,6 +120,9 @@ import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.structs.CreateDAConfigStruct;
+import com.hcl.domino.jna.internal.structs.UpdateDAConfigStruct;
+import com.hcl.domino.jna.internal.structs.EnableDisableDAStruct;
+import com.hcl.domino.jna.internal.structs.DirectoryAssistanceStruct;
 import com.hcl.domino.jna.internal.structs.DbOptionsStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.ReplExtensionsStruct;
@@ -348,18 +351,42 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     }
   }
 
-
   @Override
   public void createDAConfig( String serverName,String dirAssistDBName, boolean updateServerDoc, String domainName, String companyName, short searchOrder,
       String hostName, short ldapVendor, String userName, String password, String dnSearch, boolean useSSL, short port,  boolean acceptExpiredCertificates, 
       boolean verifyRemoteSrvCert,  short timeout, short maxEntriesReturned)
   {
-    CreateDAConfigStruct daConfig = new CreateDAConfigStruct( serverName.getBytes(), dirAssistDBName.getBytes(), updateServerDoc, domainName.getBytes(), companyName.getBytes(), searchOrder,
-          hostName.getBytes(), ldapVendor, userName.getBytes(), password.getBytes(), dnSearch.getBytes(), useSSL, port, acceptExpiredCertificates, 
-          verifyRemoteSrvCert, timeout, maxEntriesReturned);
+    DirectoryAssistanceStruct daConfigStruct = new DirectoryAssistanceStruct(serverName.getBytes(), dirAssistDBName.getBytes(), domainName.getBytes(), companyName.getBytes(),
+        hostName.getBytes(), ldapVendor, userName.getBytes(), password.getBytes(), useSSL, port);
+
+    CreateDAConfigStruct daConfig = new CreateDAConfigStruct(updateServerDoc, searchOrder, dnSearch.getBytes(), acceptExpiredCertificates,
+        verifyRemoteSrvCert, timeout, maxEntriesReturned, daConfigStruct);
 
     daConfig.write();
     NotesErrorUtils.checkResult(NotesCAPI.get().CreateDAConfig(daConfig));
+  }
+
+
+  @Override
+  public void updateDAConfig( String docUNID, String serverName,String dirAssistDBName,  String domainName, String companyName,
+      String hostName, short ldapVendor, String userName, String password, boolean useSSL, short port)
+  {
+    DirectoryAssistanceStruct daConfigStruct = new DirectoryAssistanceStruct(serverName.getBytes(), dirAssistDBName.getBytes(), domainName.getBytes(), companyName.getBytes(),
+        hostName.getBytes(), ldapVendor, userName.getBytes(), password.getBytes(), useSSL, port);
+
+    UpdateDAConfigStruct daConfig = new UpdateDAConfigStruct(docUNID.getBytes(), daConfigStruct);
+
+    daConfig.write();
+    NotesErrorUtils.checkResult(NotesCAPI.get().UpdateDAConfig(daConfig));
+  }
+
+  @Override
+  public void enableDisableDA( String serverName, String dirAssistDBName, String docUNID, boolean enableDomain)
+  {
+    EnableDisableDAStruct daConfig  = new EnableDisableDAStruct(serverName.getBytes(), dirAssistDBName.getBytes(), docUNID.getBytes(), enableDomain);
+
+    daConfig.write();
+    NotesErrorUtils.checkResult(NotesCAPI.get().EnableDisableDA(daConfig));
   }
 
   @Override
@@ -942,8 +969,8 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
   @Override
   public void verifyLdapConnection(
-      String hostName, String userName, String password, String dnSearch, short port, boolean useSSL, boolean acceptExpiredCerts, boolean verifyRemoteServerCert) {
-      VerifyLDAPConnectionStruct ldap = new VerifyLDAPConnectionStruct(hostName.getBytes(),userName.getBytes(),password.getBytes(),dnSearch.getBytes(),port,useSSL,acceptExpiredCerts,verifyRemoteServerCert);
+      String hostName, String userName, String password, String dnSearch, boolean useSSL, short port, boolean acceptExpiredCerts, boolean verifyRemoteServerCert) {
+      VerifyLDAPConnectionStruct ldap = new VerifyLDAPConnectionStruct(hostName.getBytes(),userName.getBytes(),password.getBytes(),dnSearch.getBytes(),useSSL, port,acceptExpiredCerts,verifyRemoteServerCert);
       ldap.write();
       NotesErrorUtils.checkResult(NotesCAPI.get().VerifyLdapDirAssistConnection(ldap));
   }
