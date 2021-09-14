@@ -4,7 +4,18 @@
 
 When the `it-domino-jnx` module is run as a test suite, it runs all annotated methods, so there's no need to enumerate classes specifically anywhere or adhere to a naming scheme.
 
-It is almost always useful to extend `AbstractNotesRuntimeTest` or a subclass, as that abstract class provides init/term behavior for the runtime and threads. It also contains convenience methods for spawning and deleting temporary databases. For example:
+It is almost always useful to extend `AbstractNotesRuntimeTest` or a subclass, as that abstract class provides init/term behavior for the runtime and threads. You can retrieve the active `DominoClient` with the `getClient()` method:
+
+```java
+@Test
+public void testFoo() {
+  DominoClient client = getClient();
+  // Work with client
+}
+```
+
+
+It also contains convenience methods for spawning and deleting temporary databases. For example:
 
 ```java
 @Test
@@ -12,6 +23,20 @@ public void testFoo() throws Exception {
   withTempDb(database -> {
     // Work with database
   });
+}
+```
+
+There's also a variant to use if you create your own `DominoClient` instance. For example:
+
+```java
+@Test
+public void testArbitraryUsername() throws Exception {
+  String expected = "CN=Foo Bar/O=Baz";
+  try (DominoClient fooClient = DominoClientBuilder.newDominoClient().asUser(expected).build()) {
+    this.withTempDb(fooClient, db -> {
+      // ...
+    });
+  }
 }
 ```
 
@@ -47,7 +72,7 @@ The `AbstractNotesRuntimeTest` class also contains a method `withResourceNsf` th
 ```java
 @Test
 public void testDocumentInvalidCreationDate() throws Exception {
-  this.withResourceDb("/nsf/invalidtimedate.nsf", database -> {
+  withResourceDb("/nsf/invalidtimedate.nsf", database -> {
     // ...
   });
 }
