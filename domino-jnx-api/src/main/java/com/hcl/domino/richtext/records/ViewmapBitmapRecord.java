@@ -16,6 +16,8 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.nio.ByteBuffer;
+
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
@@ -57,22 +59,6 @@ public interface ViewmapBitmapRecord extends RichTextRecord<BSIG> {
   @StructureGetter("zBits")
   int getzBits();
 
-  @StructureSetter("DataLen")
-   ViewmapBitmapRecord setDataLen(int length);
-
-  @StructureSetter("xBytes")
-   ViewmapBitmapRecord setxBytes(int bytes);
-
-  @StructureSetter("yBits")
-   ViewmapBitmapRecord setyBits(int bits);
-
-  @StructureSetter("zBits")
-   ViewmapBitmapRecord setzBits(int bits);
-
-  default int getRecordLength() {
-    return this.getHeader().getLength().intValue();
-  }
-
   /* BitmapName follows immediately after the above structure. */
   default String getBitmapName() {
     return StructureSupport.extractStringValue(
@@ -92,11 +78,56 @@ public interface ViewmapBitmapRecord extends RichTextRecord<BSIG> {
   }
 
   /* BitmapData follows after the BitmapName and the DisplayLabel (i.e at the end) */
-  default String getBitmapData() {
-    return StructureSupport.extractStringValue(
+  default byte[] getBitmapData() {
+    final ByteBuffer buf = this.getVariableData();
+    final int len = this.getDataLen();
+    final byte[] data = new byte[len];
+    buf.get(data);
+    return data;
+  }
+
+  @StructureSetter("DataLen")
+   ViewmapBitmapRecord setDataLen(int length);
+
+  @StructureSetter("xBytes")
+   ViewmapBitmapRecord setxBytes(int bytes);
+
+  @StructureSetter("yBits")
+   ViewmapBitmapRecord setyBits(int bits);
+
+  @StructureSetter("zBits")
+   ViewmapBitmapRecord setzBits(int bits);
+
+  default ViewmapBitmapRecord setBitmapName(final String name) {
+    return StructureSupport.writeStringValue(
       this,
-      this.getDRObj().getNameLen() + this.getDRObj().getLabelLen(), // The total of all variable elements before this one
-      this.getDataLen()     // the length of this element
+      0,
+      this.getDRObj().getNameLen(),
+      name,
+      this.getDRObj()::setNameLen
     );
   }
+  
+  default ViewmapBitmapRecord setDisplayLabel(final String label) {
+    return StructureSupport.writeStringValue(
+      this,
+      this.getDRObj().getNameLen(),
+      this.getDRObj().getLabelLen(),
+      label,
+      this.getDRObj()::setLabelLen
+    );
+  }
+  
+
+
+  default ViewmapBitmapRecord setFileSegmentData(final byte[] data) {
+    final ByteBuffer buf = this.getVariableData();
+    buf.put(data);
+    final int remaining = buf.remaining();
+    for (int i = 0; i < remaining; i++) {
+      buf.put((byte) 0);
+    }
+    return this;
+  }
+
 }
