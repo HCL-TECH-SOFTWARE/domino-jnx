@@ -388,7 +388,7 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    * @param companyName     Name of the company associated with the directory
    * @param searchOrder     order in which the directory is searched
    * @param hostName        DNS hostname or IP address of LDAP server
-   * @param LDAPVendor      Specify the LDAP directory service provider
+   * @param ldapVendor      Specify the LDAP directory service provider
    * @param userName        the user name to use to connect for simple bindings
    * @param password        the password to use to connect
    * @param dnSearch        a DN search base
@@ -404,7 +404,7 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    * @since 1.0.39
    */
   void createDAConfig( String serverName,String dirAssistDBName, boolean updateServerDoc, String domainName, String companyName, short searchOrder,
-        String hostName, short LDAPVendor, String userName, String password, String dnSearch, boolean useSSL, short port,  boolean acceptExpiredCerts,
+        String hostName, short ldapVendor, String userName, String password, String dnSearch, boolean useSSL, short port,  boolean acceptExpiredCerts,
           boolean verifyRemoteSrvCert,  short timeout, short maxEntriesReturned);
 
   /**
