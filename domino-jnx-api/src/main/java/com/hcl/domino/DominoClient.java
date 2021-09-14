@@ -416,7 +416,7 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    * @param domainName      Should be unique and not match the primary Domino domain
    * @param companyName     Name of the company associated with the directory
    * @param hostName        DNS hostname or IP address of LDAP server
-   * @param LDAPVendor      Specify the LDAP directory service provider
+   * @param ldapVendor      Specify the LDAP directory service provider
    * @param userName        the user name to use to connect for simple bindings
    * @param password        the password to use to connect
    * @param useSSL          whether the connection should use TLS/SSL
