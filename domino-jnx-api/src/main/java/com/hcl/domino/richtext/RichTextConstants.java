@@ -1471,4 +1471,51 @@ public interface RichTextConstants extends EditOds, Ods {
   int AREA_SHAPE_CIRCLE = 2;
   int AREA_SHAPE_POLYGON = 3;
   int AREA_SHAPE_DEFAULT = 4;
+  
+  /*    values for CDPOSITIONING Scheme */
+  int CDPOSITIONING_SCHEME_STATIC = 0;
+  int CDPOSITIONING_SCHEME_ABSOLUTE = 1;
+  int CDPOSITIONING_SCHEME_RELATIVE = 2;
+  int CDPOSITIONING_SCHEME_FIXED = 3;
+  
+  /* Embbedded Calendar Control */
+  int EMBEDDEDCAL_FLAG_NON_TRANSPARENT_BKGND = 0x0001;
+  int EMBEDDEDCAL_FLAG_HASTARGETFRAME = 0x0002;
+
+  /* USE_COLORS1 indicates that color values for Busytime, freetime, nodata,
+  datarestricted and gridline contain valid information.  Default color
+  values are used if this flag is not set */
+  int EMBEDDEDSCHED_FLAG_USE_COLORS1 = 0x00000001;
+  int EMBEDDEDSCHED_FLAG_NO_INITFROMITEMS = 0x00000002;
+  int EMBEDDEDSCHED_FLAG_NO_REFRESHFROMITEMS = 0x00000004;
+  int EMBEDDEDSCHED_FLAG_ALLOW_FILTERING  = 0x00000008;
+  int EMBEDDEDSCHED_FLAG_USE_COLORS2 = 0x00000008;
+
+  int EMBEDDEDSCHED_FLAG_NO_SHOWLEGEND    = 0x00000010;
+  int EMBEDDEDSCHED_FLAG_SHOWINTERVALINDICATOR   = 0x00000020;
+
+  int EMBEDDEDSCHED_FLAG_SHOW_TWISTIES    = 0x00000040;
+  int EMBEDDEDSCHED_FLAG_ALLOW_EDIT_INPLACE  = 0x00000080;
+
+  int EMBEDDEDSCHED_FLAG_ATTENDEE_WIDTH_DEFINED = 0x00000100;
+  int EMBEDDEDSCHED_FLAG_ATTENDEE_WIDTH_FIXED   = 0x00000200;
+
+  int EMBEDDEDSCHED_FLAG_PEOPLE_INVISIBLE = 0x00000400;
+  int EMBEDDEDSCHED_FLAG_ROOMS_VISIBLE    = 0x00000800;
+  int EMBEDDEDSCHED_FLAG_RESOURCES_VISIBLE   = 0x00001000;
+
+  int EMBEDDEDSCHED_FLAG_PEOPLE_FIXEDHEIGHT  = 0x00002000;
+  int EMBEDDEDSCHED_FLAG_ROOMS_FIXEDHEIGHT   = 0x00004000;
+  int EMBEDDEDSCHED_FLAG_RESOURCES_FIXEDHEIGHT  = 0x00008000;
+  int EMBEDDEDSCHED_FLAG_ATTENDEE_LINES_DEFINED = 0x00010000;   /* set to true if PeopleLines, RoomsLines and ResourcesLines
+                                                                   values in CDEMBEDDEDSCHEDCTL contain valid data */
+  int EMBEDDEDSCHED_FLAG_RTL_READING = 0x00020000;  /* Display schedule from right to left */
+  int EMBEDDEDSCHED_FLAG_NO_LAUNCH   = 0x00040000;  /* if TRUE, don't launch scheduler */
+  int EMBEDDEDSCHED_FLAG_SHOW_CHECKBOXES  = 0x00080000;
+  
+  int EMBEDDEDSCHEDEXT_FLAG_PEOPLE_TITLE_FORMULA = 0x00000001;  /* if the people title is a formula, set this flag */
+  int EMBEDDEDSCHEDEXT_FLAG_ROOMS_TITLE_FORMULA = 0x00000002;  /* if the rooms title is a formula, set this flag */
+  int EMBEDDEDSCHEDEXT_FLAG_RESOURCES_TITLE_FORMULA = 0x00000004;  /* if the resources title is a formula, set this flag */
+  int EMBEDDEDSCHEDEXT_FLAG_SUGG_COLORS_DEFINED = 0x00000008;  /* if the designer has specified background colors for the suggestion OD list, set this flag */
+
 }

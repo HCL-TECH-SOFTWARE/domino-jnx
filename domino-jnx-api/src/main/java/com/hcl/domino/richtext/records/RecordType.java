@@ -62,7 +62,7 @@ public enum RecordType {
    * This CD record defines properties of an embedded calendar control (date
    * picker).
    */
-  EMBEDDEDCALCTL(RichTextConstants.SIG_CD_EMBEDDEDCALCTL, 1),
+  EMBEDDEDCALCTL(RichTextConstants.SIG_CD_EMBEDDEDCALCTL, 1, CDEmbeddedCalendarControl.class),
   /**
    * New field attributes have been added in Notes/Domino 6.<br>
    * To preserve compatibility with existing applications, the new attributes have
@@ -98,12 +98,12 @@ public enum RecordType {
    * CDENDRECORD.
    */
   BACKGROUNDPROPERTIES(RichTextConstants.SIG_CD_BACKGROUNDPROPERTIES, 1),
-  EMBEDEXTRA_INFO(RichTextConstants.SIG_CD_EMBEDEXTRA_INFO, 1),
+  EMBEDEXTRA_INFO(RichTextConstants.SIG_CD_EMBEDEXTRA_INFO, 1, CDEmbeddedExtraInfo.class),
   CLIENT_BLOBPART(RichTextConstants.SIG_CD_CLIENT_BLOBPART, 1, CDBlobPart.class),
   CLIENT_EVENT(RichTextConstants.SIG_CD_CLIENT_EVENT, 1, CDEvent.class),
   BORDERINFO_HS(RichTextConstants.SIG_CD_BORDERINFO_HS, 1),
   LARGE_PARAGRAPH(RichTextConstants.SIG_CD_LARGE_PARAGRAPH, 1, CDLargeParagraph.class),
-  EXT_EMBEDDEDSCHED(RichTextConstants.SIG_CD_EXT_EMBEDDEDSCHED, 1),
+  EXT_EMBEDDEDSCHED(RichTextConstants.SIG_CD_EXT_EMBEDDEDSCHED, 1, CDEmbeddedSchedulerControlExtra.class),
   /**
    * This CD record contains size information for a layer box. The units (pixels,
    * twips, etc.)
@@ -113,14 +113,14 @@ public enum RecordType {
    */
   BOXSIZE(RichTextConstants.SIG_CD_BOXSIZE, 1),
   /** This CD record contains position information for a layer box. */
-  POSITIONING(RichTextConstants.SIG_CD_POSITIONING, 1),
+  POSITIONING(RichTextConstants.SIG_CD_POSITIONING, 1, CDPositioning.class),
   /**
    * The definition for a layer on a form is stored as CD records in the $Body
    * item of the form note.<br>
    * A layer is comprised of a Layer Object Run (pointer to box that represents
    * the layer), Box Run and Position Data.
    */
-  LAYER(RichTextConstants.SIG_CD_LAYER, 1),
+  LAYER(RichTextConstants.SIG_CD_LAYER, 1, CDLayer.class),
   /**
    * This CD Record gives information pertaining to data connection resource
    * information in a field or form.
@@ -524,7 +524,7 @@ public enum RecordType {
    * CDPLACEHOLDER,
    * further defines the CDEMBEDDEDSCHEDCTL.
    */
-  EMBEDDEDSCHEDCTL(RichTextConstants.SIG_CD_EMBEDDEDSCHEDCTL, 1),
+  EMBEDDEDSCHEDCTL(RichTextConstants.SIG_CD_EMBEDDEDSCHEDCTL, 1, CDEmbeddedSchedulerControl.class),
   /**
    * This CD record defines an embedded element of type 'editor'. It is preceded
    * by a
@@ -561,7 +561,7 @@ public enum RecordType {
    */
   AREAELEMENT(RichTextConstants.SIG_CD_AREAELEMENT, new int[] { 1, 3 }, CDAreaElement.class),
   HREF(RichTextConstants.SIG_CD_HREF, new int[] { 1, 3 , 4}, CDResource.class),
-  HTML_ALTTEXT(RichTextConstants.SIG_CD_HTML_ALTTEXT, new int[] { 1, 3 }),
+  HTML_ALTTEXT(RichTextConstants.SIG_CD_HTML_ALTTEXT, new int[] { 1, 3 }, CDAltText.class),
   /**
    * Structure which defines simple actions, formulas or LotusScript for an image
    * map, similar to {@link #EVENT}

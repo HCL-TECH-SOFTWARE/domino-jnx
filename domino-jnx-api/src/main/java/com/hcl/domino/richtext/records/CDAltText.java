@@ -72,7 +72,7 @@ public interface CDAltText extends RichTextRecord<WSIG> {
     return StructureSupport.writeStringValue(
         this,
         0,
-        0,
+        this.getLength(),
         altText,
         this::setLength
       );
