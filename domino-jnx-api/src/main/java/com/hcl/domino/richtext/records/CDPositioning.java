@@ -15,7 +15,7 @@ import com.hcl.domino.richtext.structures.LengthValue;
       @StructureMember(name = "Header", type = BSIG.class),
       @StructureMember(name = "Scheme", type = CDPositioning.Scheme.class),
       @StructureMember(name = "bReserved", type = byte.class),
-      @StructureMember(name = "ZIndex", type = long.class),
+      @StructureMember(name = "ZIndex", type = int.class),
       @StructureMember(name = "Top", type = LengthValue.class),
       @StructureMember(name = "Left", type = LengthValue.class),
       @StructureMember(name = "Bottom", type = LengthValue.class),
@@ -64,10 +64,10 @@ public interface CDPositioning extends RichTextRecord<BSIG> {
   CDPositioning setSchemeRaw(byte scheme);
   
   @StructureGetter("ZIndex")
-  long getZIndex();
+  int getZIndex();
   
   @StructureSetter("ZIndex")
-  CDPositioning setZIndex(long zindex);
+  CDPositioning setZIndex(int zindex);
   
   @StructureGetter("Top")
   LengthValue getTop();
