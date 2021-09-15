@@ -51,6 +51,9 @@ public interface ViewCalendarFormat2 extends MemoryStructure {
 
   @StructureGetter("NonMonthBkColor")
   ColorValue getNonMonthBackgroundColor();
+  
+  @StructureGetter("NonMonthTextColor")
+  ColorValue getNonMonthTextColor();
 
   @StructureGetter("Signature")
   short getSignature();

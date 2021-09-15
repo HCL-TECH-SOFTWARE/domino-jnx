@@ -1,0 +1,63 @@
+<?xml version='1.0'?>
+<note class='view' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$FormatNote' summary='true'>
+<rawitemdata type='4'>
+AQCIjdtfCpC9Zo+TbgAShyWF
+</rawitemdata></item>
+<item name='$FormulaClass' sign='true'><text>1</text></item>
+<item name='$TITLE' sign='true'><text>Calendar View</text></item>
+<item name='$PublicAccess'><text>1</text></item>
+<item name='$Index' sign='true'><text/></item>
+<item name='$Formula' summary='true' sign='true'><formula compiled='true'>
+xgAFADAALAAEAAgACAAHAAkAU29tZURhdGVTb21lVGltZVN1YmplY3QkQ29uZmxpY3QEAAQAAABk
+AAUABABGb3JtAQAFAEFsaWFzAAoCBAAFAAQARm9ybQEABwBDb250ZW50AAoCBAAdAgUABABGb3Jt
+AQADAGZvbwAKAgQAHQIFAAQARm9ybQEAAwBiYXIACgIEAB0CBAADAAcALAAmAAkzUzRTNlM3UzlT
+MTBTMTJTMTNTMTVTMTZTMThTMTlTMjFTMjJT
+</formula></item>
+<item name='$Collation' summary='true'>
+<rawitemdata type='2'>
+JAACAAFEgGYAAAAIAIBmAAgACABTb21lRGF0ZVNvbWVUaW1l
+</rawitemdata></item>
+<item name='$ViewFormat' summary='true' sign='true'>
+<rawitemdata type='5'>
+AQADAAkAmkkDAFZDAQAIAAgAAAAAAFAAAQAACgAAAAAAAAAAAAICAAAAVkMBAAgACAAAAAAAUAAB
+AAAKAAAAAAAAAAAAAgIAAABWQwAABwAHAAAAAABQAAEAAAoAAAAAAAAAAAACAgAAAFNvbWVEYXRl
+U29tZURhdGVTb21lVGltZVNvbWVUaW1lU3ViamVjdFN1YmplY3QmAA4AAAABAQAJAQCGCgEBjQoA
+AA8ArSsGAgcAAQAAAAAAAAAAAFdDAQEACQAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAP//AAAAAAAA
+AAAAAAAAAABXQwEBAAkAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAD//wAAAAAAAAAAAAAAAAAAV0MB
+AQAJAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAA//8AAAAAAAAAAAAAAAAAAEIAlAkAAAEAAP//AAEA
+wMDAAAEAv7//AAIAAgAKAAUAAQCCQv8AAQD/n/8AAgAFAFh7hwABAP8AgAABAAIAAAAAAAgAAAAA
+AAEA
+</rawitemdata></item>
+<item name='$CalendarFormat' summary='true' sign='true'>
+<rawitemdata type='18'>
+AXoAAikOBAYACwUEaQhtAFgAvyoDAPAA7AQeAAEA/0CgAAEAAP8AAARA/wAAAOG//wD/n58A8eD/
+ACMDAQB///8AAQD/YK8AAQCC4P8AAAAAAAAAAAAAAAAAAAAAAAAAAQAhgf8ABgQdJAAAAAAAAAAA
+AAAAAA==
+</rawitemdata></item>
+<item name='$Fonts' sign='true'><textlist><text>5</text><text>22</text><text
+>Wingdings 2</text><text>6</text><text>86</text><text>Curlz MT</text></textlist></item>
+<item name='$Comment' sign='true'><text/></item>
+<item name='$FrameInfo' sign='true'><textlist><text>Outer Frame</text><text
+>NotesView</text></textlist></item>
+<item name='$Flags'><text>PYc</text></item>
+<item name='$WebFlags'><text>SA</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$HTMLCode' summary='true'>
+<rawitemdata type='1'>
+d/8qAAAAAAABAP9AQAABAABi4QABAP+f/wAAAAAAAAAAAAAAAAAAAAAA
+</rawitemdata></item>
+<item name='$ViewAction0' sign='true'><formula>@StatusBar("hello from Example View 2")</formula></item>
+<item name='$SelQuery' sign='true'>
+<rawitemdata type='f'>
+gQYAAAAAgv87AAgAAAAFAAAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAZmRm
+ZGZkZnNkZnYAgv8zACAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+QU5EAIn/IgAAAAAAAgAFAA8AQWxpYXNDb250ZW50fGZvb3xiYXI=
+</rawitemdata></item>
+<item name='$V5ACTIONS' sign='true'>
+<rawitemdata type='1'>
+vRwjAAAAAQABAAAAAQAAAAAAAAAAAAAACAACAHn/bAABANTQyAABAAAAAAAJAAAAAAABANTQyAAA
+AB8AAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAPz/OgAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAEAAAAAAAAAAAAAAAAAAAA=
+</rawitemdata></item></note>
