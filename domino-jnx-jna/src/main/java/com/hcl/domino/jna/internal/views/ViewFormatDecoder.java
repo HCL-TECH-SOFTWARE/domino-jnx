@@ -16,6 +16,10 @@
  */
 package com.hcl.domino.jna.internal.views;
 
+import static com.hcl.domino.jna.internal.MemoryUtils.readBuffer;
+import static com.hcl.domino.jna.internal.MemoryUtils.readMemory;
+import static com.hcl.domino.jna.internal.MemoryUtils.subBuffer;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
@@ -36,14 +40,10 @@ import com.hcl.domino.design.format.ViewTableFormat;
 import com.hcl.domino.design.format.ViewTableFormat2;
 import com.hcl.domino.design.format.ViewTableFormat3;
 import com.hcl.domino.design.format.ViewTableFormat4;
-import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.misc.ViewFormatConstants;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.records.CDResource;
-import com.hcl.domino.richtext.structures.MemoryStructure;
-import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import com.sun.jna.ptr.PointerByReference;
 
 public class ViewFormatDecoder {
 	
@@ -339,59 +339,5 @@ public class ViewFormatDecoder {
 		// TODO figure out why where are sometimes > 1 bytes remaining (observed up to 6 in mail12.ntf)
 		
 		return result;
-	}
-	
-	@SuppressWarnings("unused")
-  private static <T extends MemoryStructure> T readMemory(PointerByReference ppData, short odsType, Class<T> struct) {
-		
-		// Straight-read variant
-		T result = MemoryStructureUtil.newStructure(struct, 0);
-		int len = MemoryStructureUtil.sizeOf(struct);
-		result.getData().put(ppData.getValue().getByteBuffer(0, len));
-		ppData.setValue(ppData.getValue().share(len));
-		
-		return result;
-	}
-
-  @SuppressWarnings("unused")
-	private static <T extends MemoryStructure> T odsReadMemory(Pointer data, short odsType, Class<T> struct) {
-    // TODO determine if any architectures need ODSReadMemory. On x64 macOS, it seems harmful.
-    //    Docs just say "Intel", but long predate x64. On Windows, it says it should be harmless, but
-    //    care has to be taken on "UNIX", which is everything else.
-    //    Additionally, not all structures here have ODS numbers
-	  PointerByReference ppData = new PointerByReference(data);
-    Memory mem = new Memory(MemoryStructureUtil.sizeOf(struct));
-    NotesCAPI.get().ODSReadMemory(ppData, odsType, mem, (short)1);
-    return MemoryStructureUtil.forStructure(struct, () -> mem.getByteBuffer(0, mem.size()));
-	  
-	}
-	
-	/**
-	 * Reads a structure from the provided ByteBuffer, incrementing its position the size of the struct.
-	 * 
-	 * @param <T> the class of structure to read
-	 * @param data the containing data buffer
-	 * @param odsType the ODS type, or {@code -1} if not known
-	 * @param struct a {@link Class} represening {@code <T>}
-	 * @return the read structure
-	 */
-	private static <T extends MemoryStructure> T readMemory(ByteBuffer data, short odsType, Class<T> struct) {
-	  T result = MemoryStructureUtil.newStructure(struct, 0);
-    int len = MemoryStructureUtil.sizeOf(struct);
-    byte[] bytes = new byte[len];
-    data.get(bytes);
-    result.getData().put(bytes);
-    return result;
-	}
-	
-	private static ByteBuffer readBuffer(ByteBuffer buf, long len) {
-	  ByteBuffer result = subBuffer(buf, (int)len);
-	  buf.position(buf.position()+(int)len);
-	  return result;
-	}
-	private static ByteBuffer subBuffer(ByteBuffer buf, int len) {
-	  ByteBuffer tempBuf = buf.slice().order(ByteOrder.nativeOrder());
-    tempBuf.limit(len);
-    return tempBuf;
 	}
 }
