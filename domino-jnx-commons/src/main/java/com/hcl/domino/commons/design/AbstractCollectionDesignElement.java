@@ -29,6 +29,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.NotYetImplementedException;
+import com.hcl.domino.commons.design.view.DefaultCalendarSettings;
+import com.hcl.domino.commons.design.view.DominoCalendarFormat;
 import com.hcl.domino.commons.design.view.DominoViewColumnFormat;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
 import com.hcl.domino.commons.util.StringUtil;
@@ -68,6 +70,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     implements CollectionDesignElement, IDefaultAutoFrameElement, IDefaultActionBarElement, IDefaultReadersRestrictedElement,
     IDefaultNamedDesignElement {
   private DominoViewFormat format;
+  private Optional<DominoCalendarFormat> calendarFormat;
 
   public AbstractCollectionDesignElement(final Document doc) {
     super(doc);
@@ -346,6 +349,16 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
         id -> doc.get(id.getItemName(), String.class, "") //$NON-NLS-1$
       ));
   }
+  
+  @Override
+  public boolean isCalendarFormat() {
+    return getFlags().contains(NotesConstants.DESIGN_FLAG_CALENDAR_VIEW);
+  }
+  
+  @Override
+  public Optional<CalendarSettings> getCalendarSettings() {
+    return readCalendarFormat().map(format -> new DefaultCalendarSettings(this, format));
+  }
 
   // *******************************************************************************
   // * Internal utility methods
@@ -361,6 +374,18 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
         .forEach(col -> col.setParent(this));
     }
     return this.format;
+  }
+  
+  private synchronized Optional<DominoCalendarFormat> readCalendarFormat() {
+    if(this.calendarFormat == null) {
+      final Document doc = this.getDocument();
+      if(doc.hasItem(NotesConstants.VIEW_CALENDAR_FORMAT_ITEM)) {
+        this.calendarFormat = Optional.of((DominoCalendarFormat) doc.getItemValue(NotesConstants.VIEW_CALENDAR_FORMAT_ITEM).get(0));
+      } else {
+        this.calendarFormat = Optional.empty();
+      }
+    }
+    return this.calendarFormat;
   }
   
   private ViewTableFormat getFormat1() {
