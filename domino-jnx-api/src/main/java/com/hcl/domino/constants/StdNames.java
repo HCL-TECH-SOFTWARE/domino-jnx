@@ -32,4 +32,7 @@ public interface StdNames {
   
   /** View selection query object */
   String VIEW_SELQUERY_ITEM = "$SelQuery"; //$NON-NLS-1$
+  
+  /** Calendar View format item */
+  String VIEW_CALENDAR_FORMAT_ITEM = "$CalendarFormat"; //$NON-NLS-1$
 }

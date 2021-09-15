@@ -26,10 +26,13 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.hcl.domino.commons.design.view.DominoCalendarFormat;
 import com.hcl.domino.commons.design.view.DominoViewColumnFormat;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
 import com.hcl.domino.commons.misc.ODSTypes;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
+import com.hcl.domino.design.format.ViewCalendarFormat;
+import com.hcl.domino.design.format.ViewCalendarFormat2;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.ViewColumnFormat2;
 import com.hcl.domino.design.format.ViewColumnFormat3;
@@ -50,10 +53,6 @@ public class ViewFormatDecoder {
 	public static DominoViewFormat decodeViewFormat(Pointer dataPtr, int valueLength) {
 	  // Since it appears that ODSReadMemory is harmful on platforms we support, use a ByteBuffer for safety
 	  ByteBuffer data = dataPtr.getByteBuffer(0, valueLength);
-		
-		// TODO see how this differs when VIEW_TABLE_FORMAT.Type is Calendar
-		// VIEW_CALENDAR_FORMAT doesn't include a column count, which implies that VIEW_TABLE_FORMAT
-		//   may still be present
 		
 		/*
 		 * All views have:
@@ -339,5 +338,24 @@ public class ViewFormatDecoder {
 		// TODO figure out why where are sometimes > 1 bytes remaining (observed up to 6 in mail12.ntf)
 		
 		return result;
+	}
+	
+	public static DominoCalendarFormat decodeCalendarFormat(Pointer dataPtr, int valueLength) {
+    // Since it appears that ODSReadMemory is harmful on platforms we support, use a ByteBuffer for safety
+    ByteBuffer data = dataPtr.getByteBuffer(0, valueLength);
+    
+    // All entries should have a VIEW_CALENDAR_FORMAT
+    DominoCalendarFormat result = new DominoCalendarFormat();
+    
+    ViewCalendarFormat format1 = readMemory(data, ODSTypes._VIEW_CALENDAR_FORMAT, ViewCalendarFormat.class);
+    result.read(format1);
+    
+    int format2size = MemoryStructureUtil.sizeOf(ViewCalendarFormat2.class);
+    if(data.remaining() >= format2size) {
+      ViewCalendarFormat2 format2 = readMemory(data, (short)-1, ViewCalendarFormat2.class);
+      result.read(format2);
+    }
+    
+    return result;
 	}
 }

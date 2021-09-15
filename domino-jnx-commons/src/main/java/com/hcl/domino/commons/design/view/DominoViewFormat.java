@@ -73,12 +73,6 @@ public class DominoViewFormat implements IAdaptable {
     return Collections.unmodifiableList(this.columns);
   }
 
-  private Set<ViewTableFormat.Flag> getFlags1() {
-    final ViewTableFormat format1 = Objects.requireNonNull(this.format1, "VIEW_TABLE_FORMAT not read");
-    final Set<ViewTableFormat.Flag> flags = format1.getFlags();
-    return flags;
-  }
-
   public boolean isCollapsed() {
     return this.getFlags1().contains(ViewTableFormat.Flag.COLLAPSED);
   }
@@ -107,10 +101,6 @@ public class DominoViewFormat implements IAdaptable {
     return backgroundResource;
   }
 
-  // *******************************************************************************
-  // * Format-reader hooks
-  // *******************************************************************************
-
   public boolean isGotoTopOnRefresh() {
     return this.getFlags1().contains(ViewTableFormat.Flag.GOTO_TOP_ON_REFRESH);
   }
@@ -118,6 +108,10 @@ public class DominoViewFormat implements IAdaptable {
   public boolean isHierarchical() {
     return !this.getFlags1().contains(ViewTableFormat.Flag.FLATINDEX);
   }
+
+  // *******************************************************************************
+  // * CalendarLayout-reader hooks
+  // *******************************************************************************
 
   public void read(final ViewTableFormat format1) {
     this.format1 = format1;
@@ -135,11 +129,18 @@ public class DominoViewFormat implements IAdaptable {
     this.format4 = format4;
   }
 
+  public void readBackgroundResource(final CDResource resource) {
+    this.backgroundResource = resource;
+  }
+
   // *******************************************************************************
   // * Internal implementation utilities
   // *******************************************************************************
 
-  public void readBackgroundResource(final CDResource resource) {
-    this.backgroundResource = resource;
+
+  private Set<ViewTableFormat.Flag> getFlags1() {
+    final ViewTableFormat format1 = Objects.requireNonNull(this.format1, "VIEW_TABLE_FORMAT not read");
+    final Set<ViewTableFormat.Flag> flags = format1.getFlags();
+    return flags;
   }
 }

@@ -17,8 +17,11 @@
 package com.hcl.domino.design.format;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
+import com.hcl.domino.data.StandardColors;
+import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.ViewFormatConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -28,10 +31,11 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.MemoryStructure;
+import com.hcl.domino.richtext.structures.RawColorValue;
 
 @StructureDefinition(name = "VIEW_CALENDAR_FORMAT", members = {
     @StructureMember(name = "Version", type = ViewCalendarFormat.Version.class),
-    @StructureMember(name = "Formats", type = ViewCalendarFormat.Format.class, bitfield = true),
+    @StructureMember(name = "Formats", type = CalendarLayout.class, bitfield = true),
     @StructureMember(name = "DayDateFont", type = FontStyle.class),
     @StructureMember(name = "TimeSlotFont", type = FontStyle.class),
     @StructureMember(name = "HeaderFont", type = FontStyle.class),
@@ -45,11 +49,11 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
     @StructureMember(name = "DaySeparatorsColorExt", type = ColorValue.class),
     @StructureMember(name = "BusyColorExt", type = ColorValue.class),
     @StructureMember(name = "MinorVersion", type = ViewCalendarFormat.MinorVersion.class),
-    @StructureMember(name = "InitialFormat", type = byte.class),
-    @StructureMember(name = "CalGridBkColor", type = int.class),
-    @StructureMember(name = "WorkHoursColor", type = int.class),
-    @StructureMember(name = "ToDoBkColor", type = int.class),
-    @StructureMember(name = "HeaderBkColor", type = int.class)
+    @StructureMember(name = "InitialFormat", type = CalendarLayout.class),
+    @StructureMember(name = "CalGridBkColor", type = RawColorValue.class),
+    @StructureMember(name = "WorkHoursColor", type = RawColorValue.class),
+    @StructureMember(name = "ToDoBkColor", type = RawColorValue.class),
+    @StructureMember(name = "HeaderBkColor", type = RawColorValue.class)
 })
 public interface ViewCalendarFormat extends MemoryStructure {
   enum Flag implements INumberEnum<Short> {
@@ -98,32 +102,6 @@ public interface ViewCalendarFormat extends MemoryStructure {
 
     @Override
     public Short getValue() {
-      return this.value;
-    }
-  }
-
-  enum Format implements INumberEnum<Byte> {
-    TWO_DAY(ViewFormatConstants.VIEW_CAL_FORMAT_TWO_DAY),
-    ONE_WEEK(ViewFormatConstants.VIEW_CAL_FORMAT_ONE_WEEK),
-    TWO_WEEKS(ViewFormatConstants.VIEW_CAL_FORMAT_TWO_WEEKS),
-    ONE_MONTH(ViewFormatConstants.VIEW_CAL_FORMAT_ONE_MONTH),
-    ONE_YEAR(ViewFormatConstants.VIEW_CAL_FORMAT_ONE_YEAR),
-    ONE_DAY(ViewFormatConstants.VIEW_CAL_FORMAT_ONE_DAY),
-    WORK_WEEK(ViewFormatConstants.VIEW_CAL_FORMAT_WORK_WEEK);
-
-    private final byte value;
-
-    Format(final byte value) {
-      this.value = value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Byte getValue() {
       return this.value;
     }
   }
@@ -178,7 +156,11 @@ public interface ViewCalendarFormat extends MemoryStructure {
   }
 
   @StructureGetter("BusyColor")
-  short getBusyColor();
+  short getBusyColorRaw();
+  
+  default Optional<StandardColors> getBusyColor() {
+    return DominoEnumUtil.valueOf(StandardColors.class, getBusyColorRaw());
+  }
 
   @StructureGetter("BusyColorExt")
   ColorValue getBusyColorExt();
@@ -187,7 +169,11 @@ public interface ViewCalendarFormat extends MemoryStructure {
   FontStyle getDayDateFont();
 
   @StructureGetter("DaySeparatorsColor")
-  short getDaySeparatorColor();
+  short getDaySeparatorColorRaw();
+
+  default Optional<StandardColors> getDaySeparatorColor() {
+    return DominoEnumUtil.valueOf(StandardColors.class, getDaySeparatorColorRaw());
+  }
 
   @StructureGetter("DaySeparatorsColorExt")
   ColorValue getDaySeparatorColorExt();
@@ -196,22 +182,22 @@ public interface ViewCalendarFormat extends MemoryStructure {
   Set<Flag> getFlags();
 
   @StructureGetter("CalGridBkColor")
-  int getGridBackgroundColor();
+  RawColorValue getGridBackgroundColor();
 
   @StructureGetter("HeaderBkColor")
-  int getHeaderBackgroundColor();
+  RawColorValue getHeaderBackgroundColor();
 
   @StructureGetter("HeaderFont")
   FontStyle getHeaderFont();
 
   @StructureGetter("InitialFormat")
-  byte getInitialFormat();
+  Optional<CalendarLayout> getInitialFormat();
 
   @StructureGetter("MinorVersion")
   MinorVersion getMinorVersion();
 
   @StructureGetter("Formats")
-  Set<Format> getSupportedFormats();
+  Set<CalendarLayout> getSupportedFormats();
 
   @StructureGetter("wTimeSlotDuration")
   int getTimeSlotDurationMinutes();
@@ -226,40 +212,38 @@ public interface ViewCalendarFormat extends MemoryStructure {
   int getTimeSlotStartMinutes();
 
   @StructureGetter("TodayColor")
-  short getTodayColor();
+  short getTodayColorRaw();
+
+  default Optional<StandardColors> getTodayColor() {
+    return DominoEnumUtil.valueOf(StandardColors.class, getTodayColorRaw());
+  }
 
   @StructureGetter("ToDoBkColor")
-  int getToDoBackgroundColor();
+  RawColorValue getToDoBackgroundColor();
 
   @StructureGetter("Version")
   Version getVersion();
 
   @StructureGetter("WorkHoursColor")
-  int getWorkHoursColor();
+  RawColorValue getWorkHoursColor();
 
   @StructureSetter("BusyColor")
-  ViewCalendarFormat setBusyColor(short color);
+  ViewCalendarFormat setBusyColorRaw(short color);
 
   @StructureSetter("DaySeparatorsColor")
-  ViewCalendarFormat setDaySeparatorColor(short color);
+  ViewCalendarFormat setDaySeparatorColorRaw(short color);
 
   @StructureSetter("wFlags")
   ViewCalendarFormat setFlags(Collection<Flag> formats);
 
-  @StructureSetter("CalGridBkColor")
-  ViewCalendarFormat setGridBackgroundColor(int color);
-
-  @StructureSetter("HeaderBkColor")
-  ViewCalendarFormat setHeaderBackgroundColor(int color);
-
   @StructureSetter("InitialFormat")
-  ViewCalendarFormat setInitialFormat(byte format);
+  ViewCalendarFormat setInitialFormat(CalendarLayout format);
 
   @StructureSetter("MinorVersion")
   ViewCalendarFormat setMinorVersion(MinorVersion version);
 
   @StructureSetter("Formats")
-  ViewCalendarFormat setSupportedFormats(Collection<Format> formats);
+  ViewCalendarFormat setSupportedFormats(Collection<CalendarLayout> formats);
 
   @StructureSetter("wTimeSlotDuration")
   ViewCalendarFormat setTimeSlotDurationMinutes(int mins);
@@ -271,14 +255,8 @@ public interface ViewCalendarFormat extends MemoryStructure {
   ViewCalendarFormat setTimeSlotStartMinutes(int mins);
 
   @StructureSetter("TodayColor")
-  ViewCalendarFormat setTodayColor(short color);
-
-  @StructureSetter("ToDoBkColor")
-  ViewCalendarFormat setToDoBackgroundColor(int color);
+  ViewCalendarFormat setTodayColorRaw(short color);
 
   @StructureSetter("Version")
   ViewCalendarFormat setVersion(Version version);
-
-  @StructureSetter("WorkHoursColor")
-  ViewCalendarFormat setWorkHoursColor(int color);
 }
