@@ -18,19 +18,19 @@ package com.hcl.domino.richtext;
 
 public interface Rectangle {
   
-  long getLeft();
+  int getLeft();
 
-  long getTop();
+  int getTop();
   
-  long getRight();
+  int getRight();
 
-  long getBottom();
+  int getBottom();
 
-  Rectangle setLeft(long left);
+  Rectangle setLeft(int left);
 
-  Rectangle setTop(long top);
+  Rectangle setTop(int top);
   
-  Rectangle setRight(long right);
+  Rectangle setRight(int right);
 
-  Rectangle setBottom(long bottom);
+  Rectangle setBottom(int bottom);
 }

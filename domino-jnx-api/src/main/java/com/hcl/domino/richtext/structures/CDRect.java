@@ -25,44 +25,44 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 @StructureDefinition(
     name = "CDRECT",
     members = {
-      @StructureMember(name = "left", type = long.class),
-      @StructureMember(name = "top", type = long.class),
-      @StructureMember(name = "right", type = long.class),
-      @StructureMember(name = "bottom", type = long.class)
+      @StructureMember(name = "left", type = int.class),
+      @StructureMember(name = "top", type = int.class),
+      @StructureMember(name = "right", type = int.class),
+      @StructureMember(name = "bottom", type = int.class)
     }
   )
 public interface CDRect extends MemoryStructure, Rectangle {
 
   @StructureGetter("left")
   @Override
-  long getLeft();
+  int getLeft();
 
   @StructureGetter("top")
   @Override
-  long getTop();
+  int getTop();
   
   @StructureGetter("right")
   @Override
-  long getRight();
+  int getRight();
 
   @StructureGetter("bottom")
   @Override
-  long getBottom();
+  int getBottom();
 
   @StructureSetter("left")
   @Override
-  CDRect setLeft(long left);
+  CDRect setLeft(int left);
 
   @StructureSetter("top")
   @Override
-  CDRect setTop(long top);
+  CDRect setTop(int top);
   
   @StructureSetter("right")
   @Override
-  CDRect setRight(long right);
+  CDRect setRight(int right);
 
   @StructureSetter("bottom")
   @Override
-  CDRect setBottom(long bottom);
+  CDRect setBottom(int bottom);
   
 }
