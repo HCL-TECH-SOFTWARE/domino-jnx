@@ -1150,20 +1150,20 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final CDEmbeddedSchedulerControlExtra begin = (CDEmbeddedSchedulerControlExtra) doc.getRichTextItem("Body").get(0);
         assertEquals(EnumSet.of(CDEmbeddedSchedulerControlExtra.Flag.SUGG_COLORS_DEFINED), begin.getFlags());
         assertEquals("foo", begin.getSchedulerName());
-        assertEquals("@Accessed", begin.getDetailDisplayFormFormula());
+        assertEquals("@Accessed", begin.getDetailDisplayFormFormula().get());
         assertEquals(30, begin.getFixedPartLength());
-        assertEquals("@Abs(-10)", begin.getIntervalChangeEventFormula());
-        assertEquals("@Abs(10)", begin.getIntervalEndDTItemFormula());
-        assertEquals("@Abs(20)", begin.getIntervalStartDTItemFormula());
-        assertEquals("@Abs(30)", begin.getOptPeopleItemsFormula());
-        assertEquals("@Abs(40)", begin.getOptResourcesItemsFormula());
+        assertEquals("@Abs(-10)", begin.getIntervalChangeEventFormula().get());
+        assertEquals("@Abs(10)", begin.getIntervalEndDTItemFormula().get());
+        assertEquals("@Abs(20)", begin.getIntervalStartDTItemFormula().get());
+        assertEquals("@Abs(30)", begin.getOptPeopleItemsFormula().get());
+        assertEquals("@Abs(40)", begin.getOptResourcesItemsFormula().get());
         assertEquals("people", begin.getPeopleTitle());
-        assertEquals("@Abs(50)", begin.getReqResourcesItemsFormula());
-        assertEquals("@Abs(60)", begin.getReqRoomsItemsFormula());
+        assertEquals("@Abs(50)", begin.getReqResourcesItemsFormula().get());
+        assertEquals("@Abs(60)", begin.getReqRoomsItemsFormula().get());
         assertEquals("resources", begin.getResourcesTitle());
         assertEquals("rooms", begin.getRoomsTitle());
-        assertEquals("@Abs(70)", begin.getSchedDetailItemsFormula());
-        assertEquals("@Abs(80)", begin.getSuggestionsAvailEventFormula());
+        assertEquals("@Abs(70)", begin.getSchedDetailItemsFormula().get());
+        assertEquals("@Abs(80)", begin.getSuggestionsAvailEventFormula().get());
       });
     }
     
@@ -1188,9 +1188,9 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final CDEmbeddedSchedulerControl begin = (CDEmbeddedSchedulerControl) doc.getRichTextItem("Body").get(0);
         assertEquals(EnumSet.of(CDEmbeddedSchedulerControl.Flag.SHOW_TWISTIES), begin.getFlags());
         assertEquals("foo", begin.getTargetFrameName());
-        assertEquals("@Abs(10)", begin.getDisplayStartDTItemFormula());
-        assertEquals("@Abs(20)", begin.getHrsPerDayItemFormula());
-        assertEquals("@Abs(30)", begin.getReqPeopleItemsFormula());
+        assertEquals("@Abs(10)", begin.getDisplayStartDTItemFormula().get());
+        assertEquals("@Abs(20)", begin.getHrsPerDayItemFormula().get());
+        assertEquals("@Abs(30)", begin.getReqPeopleItemsFormula().get());
         assertEquals(50, begin.getNameColWidth());
         assertEquals(60, begin.getPeopleLines());
         assertEquals(70, begin.getRoomsLines());
