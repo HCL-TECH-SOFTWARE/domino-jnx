@@ -67,4 +67,15 @@ public interface NOTELINK extends MemoryStructure {
 	default String getDocUnid() {
 		return getNote().toUnidString();
 	}
+	
+	/**
+	 * Copies all data from another link
+	 * 
+	 * @param otherLink link
+	 */
+	default void copyFrom(NOTELINK otherLink) {
+	  setReplicaId(otherLink.getReplicaId());
+	  setViewUnid(otherLink.getViewUnid());
+	  setDocUnid(otherLink.getDocUnid());
+	}
 }
