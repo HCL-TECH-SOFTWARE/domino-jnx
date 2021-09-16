@@ -18,6 +18,7 @@ package com.hcl.domino.richtext.structures;
 
 import java.nio.ByteBuffer;
 
+import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.JNXServiceFinder;
 
 /**
@@ -59,5 +60,14 @@ public interface MemoryStructureWrapperService {
    * @return a new proxy object
    */
   <I extends MemoryStructure> I newStructure(final Class<I> subtype, final int variableDataLength);
+
+  /**
+   * Retrieves the expected size of the provided number or enum type in the
+   * C-side structure.
+   * 
+   * @param type the number or {@link INumberEnum} type
+   * @return the size in bytes of the type
+   */
+  int sizeOf(Class<?> type);
 
 }
