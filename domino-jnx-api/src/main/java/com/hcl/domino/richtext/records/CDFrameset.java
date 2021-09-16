@@ -150,4 +150,28 @@ public interface CDFrameset extends RichTextRecord<WSIG> {
     }
     return result;
   }
+
+  default void setLengths(List<FramesetLength> lengths, boolean isRow) {
+    resizeVariableData(4 * lengths.size());
+    ByteBuffer data = getVariableData();
+
+    byte[] currLengthData = new byte[4];
+
+    for (int i = 0; i < lengths.size(); i++) {
+      FramesetLength currLength = lengths.get(i);
+      currLength.getData().get(currLengthData);
+
+      data.position(i * 4);
+      data.put(currLengthData);
+    }
+
+    if (isRow) {
+      setRowCount(lengths.size());
+      setColumnCount(0);
+    } else {
+      setRowCount(0);
+      setColumnCount(lengths.size());
+    }
+  }
+
 }
