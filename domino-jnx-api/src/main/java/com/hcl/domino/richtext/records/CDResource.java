@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -27,6 +28,8 @@ import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
+import com.hcl.domino.richtext.structures.NOTELINK;
 import com.hcl.domino.richtext.structures.WSIG;
 
 /**
@@ -155,7 +158,58 @@ public interface CDResource extends RichTextRecord<WSIG> {
      * tab, rather than getting opened as a database.
      */
     PORTFOLIO(RichTextConstants.CDRESOURCE_CLASS_PORTFOLIO),
-    OUTLINE(RichTextConstants.CDRESOURCE_CLASS_OUTLINE);
+    OUTLINE(RichTextConstants.CDRESOURCE_CLASS_OUTLINE),
+    /** Obsolete - Use class _VIEW or _FOLDER and flag _SIMPLE */
+    SIMPLEVIEW(RichTextConstants.CDRESOURCE_CLASS_SIMPLEVIEW),
+    /** design link only */
+    SUBFORM(RichTextConstants.CDRESOURCE_CLASS_SUBFORM),
+    /** design link only */
+    SHARED_FLD(RichTextConstants.CDRESOURCE_CLASS_SHARED_FLD),
+    /** design link only */
+    SCRIPTLIB(RichTextConstants.CDRESOURCE_CLASS_SCRIPTLIB),
+    /** design link only */
+    DBSCRIPT(RichTextConstants.CDRESOURCE_CLASS_DBSCRIPT),
+    /** design link only */
+    SHARED_ACTIONS(RichTextConstants.CDRESOURCE_CLASS_SHARED_ACTIONS),
+    /** design link only */
+    WEBSERVICE(RichTextConstants.CDRESOURCE_CLASS_WEBSERVICE),
+    /** design link only */
+    DATA_CONNECTION(RichTextConstants.CDRESOURCE_CLASS_DATA_CONNECTION),
+    SHARED_APPLET(RichTextConstants.CDRESOURCE_CLASS_SHARED_APPLET),
+    EMBEDDED_VIEW(RichTextConstants.CDRESOURCE_CLASS_EMBEDDED_VIEW),
+    STYLE_SHEET(RichTextConstants.CDRESOURCE_CLASS_STYLE_SHEET),
+    /** a file with the html flag, too */
+    HTMLFILE(RichTextConstants.CDRESOURCE_CLASS_HTMLFILE),
+    /** a file that's a JSP */
+    JSP(RichTextConstants.CDRESOURCE_CLASS_JSP),
+    SHAREDCOL(RichTextConstants.CDRESOURCE_CLASS_SHAREDCOL),
+    DB2ACCESSVIEW(RichTextConstants.CDRESOURCE_CLASS_DB2ACCESSVIEW),
+    /** LI 3925.04 */
+    COMPAPP(RichTextConstants.CDRESOURCE_CLASS_COMPAPP),
+    /** LI 3925.05 */
+    COMPDEF(RichTextConstants.CDRESOURCE_CLASS_COMPDEF),
+    /** LI 3261.05 */
+    MAILSETTINGS(RichTextConstants.CDRESOURCE_CLASS_MAILSETTINGS),
+    /** LI 3261.05 */
+    CSSETTINGS(RichTextConstants.CDRESOURCE_CLASS_CSSETTINGS),
+    /** LI 3261.05 */
+    FORM_PREMIUM(RichTextConstants.CDRESOURCE_CLASS_FORM_PREMIUM),
+    /** design link only */
+    XSPPAGES(RichTextConstants.CDRESOURCE_CLASS_XSPPAGES),
+    /** design link only */
+    XSPCCS(RichTextConstants.CDRESOURCE_CLASS_XSPCCS),
+    /** design link only */
+    STYLEKITS(RichTextConstants.CDRESOURCE_CLASS_STYLEKITS),
+    /** design link only */
+    WSCONSUMERS(RichTextConstants.CDRESOURCE_CLASS_WSCONSUMERS),
+    /** design link only */
+    COMPONENT(RichTextConstants.CDRESOURCE_CLASS_COMPONENT),
+    /** design link only */
+    JAVAFILES(RichTextConstants.CDRESOURCE_CLASS_JAVAFILES),
+    /** design link only */
+    JAVAJARS(RichTextConstants.CDRESOURCE_CLASS_JAVAJARS),
+    /** design link only */
+    CUSTOMELTS(RichTextConstants.CDRESOURCE_CLASS_CUSTOMELTS);
 
     private final short value;
 
@@ -321,10 +375,21 @@ public interface CDResource extends RichTextRecord<WSIG> {
     if (this.getResourceType() != Type.NOTELINK) {
       return Optional.empty();
     }
+    int preLen = this.getServerHintLength() + this.getFileHintLength();
+    Set<Flag> flags = getFlags();
+    if (flags.contains(Flag.NOTELINKINLINE)) {
+      //skip NOTELINK structure
+      preLen = MemoryStructureWrapperService.get().sizeOf(NOTELINK.class);
+    }
+    else {
+      //skip WORD with LinkID
+      preLen += 2;
+    }
+    
     return Optional.of(
       StructureSupport.extractStringValue(
         this,
-        this.getServerHintLength() + this.getFileHintLength(),
+        preLen,
         this.getLength1()
       )
     );
@@ -350,12 +415,38 @@ public interface CDResource extends RichTextRecord<WSIG> {
     return Optional.of(
       StructureSupport.extractStringValue(
         this,
-        this.getServerHintLength() + this.getFileHintLength() + 8, // for replica ID
+        this.getServerHintLength() + this.getFileHintLength() + 8, // 8 for replica ID
         this.getLength1()
       )
     );
   }
 
+  /**
+   * Retrieves the url of the element referenced by this resource.
+   * <p>
+   * Note: this only applies when {@link #getResourceType()} is
+   * {@link Type#URL}.
+   * </p>
+   *
+   * @return an {@link Optional} describing the url of the referenced element,
+   *         or an empty one if this is not a url
+   */
+  default Optional<String> getResourceUrl() {
+    if (this.getResourceType() != Type.URL) {
+      return Optional.empty();
+    }
+    if (this.getFlags().contains(Flag.FORMULA)) {
+      return Optional.empty();
+    }
+    return Optional.of(
+      StructureSupport.extractStringValue(
+        this,
+        this.getServerHintLength() + this.getFileHintLength() + 8, // for replica ID
+        this.getLength1()
+      )
+    );
+  }
+  
   /**
    * Retrieves the formula for this resource, when {@link #getFlags()} contains
    * {@link Flag#FORMULA}.
@@ -392,10 +483,120 @@ public interface CDResource extends RichTextRecord<WSIG> {
     );
   }
 
-  default void setResourceFormula(String newFormula) {
-	  StructureSupport.writeCompiledFormula(this,
+  default CDResource setResourceFormula(String newFormula) {
+    Set<Flag> flags = getFlags();
+    if (!flags.contains(Flag.FORMULA)) {
+      //enable formula flag
+      flags.add(Flag.FORMULA);
+      setFlags(flags);
+    }
+    setResourceType(Type.NAMEDELEMENT);
+    
+	  return StructureSupport.writeCompiledFormula(this,
 			  this.getServerHintLength() + this.getFileHintLength() + 8, // for replica ID
 			  getLength1(), newFormula, this::setLength1);
   }
 
+  default CDResource setNamedElement(String name) {
+    Set<Flag> flags = getFlags();
+    if (flags.contains(Flag.FORMULA)) {
+      //clear formula flag
+      flags.remove(Flag.FORMULA);
+      setFlags(flags);
+    }
+    setResourceType(Type.NAMEDELEMENT);
+    
+    return StructureSupport.writeStringValue(this, 
+        this.getServerHintLength() + this.getFileHintLength() + 8, // 8 for replica ID
+        this.getLength1(),
+        name, this::setLength1);
+  }
+  
+  default CDResource setResourceUrl(String url) {
+    setResourceType(Type.URL);
+    
+    Set<Flag> flags = getFlags();
+    if (flags.contains(Flag.FORMULA)) {
+      //clear formula flag
+      flags.remove(Flag.FORMULA);
+      setFlags(flags);
+    }
+    
+    return StructureSupport.writeStringValue(this, 
+        this.getServerHintLength() + this.getFileHintLength(),
+        this.getLength1(),
+        url, this::setLength1);
+  }
+  
+  default Optional<NOTELINK> getLink() {
+    if (getResourceType()!=Type.NOTELINK) {
+      return Optional.empty();
+    }
+    Set<Flag> flags = getFlags();
+    if (!flags.contains(Flag.NOTELINKINLINE)) {
+      return Optional.empty();
+    }
+    
+    ByteBuffer varData = getVariableData();
+    varData.position(this.getServerHintLength() + this.getFileHintLength());
+    ByteBuffer linkData = varData.slice();
+    MemoryStructureWrapperService wrapper = MemoryStructureWrapperService.get();
+    linkData.limit(wrapper.sizeOf(NOTELINK.class));
+    
+    return Optional.of(wrapper.wrapStructure(NOTELINK.class, linkData));
+  }
+  
+  /**
+   * Sets the resource type to {@link Type#NOTELINK}, enables the
+   * flag {@link Flag#NOTELINKINLINE} and stores a {@link NOTELINK}
+   * structure.
+   * 
+   * @param link link to set
+   * @return resource
+   */
+  default CDResource setLink(NOTELINK link) {
+    setResourceType(Type.NOTELINK);
+    
+    Set<Flag> flags = getFlags();
+    flags.add(Flag.NOTELINKINLINE);
+    setFlags(flags);
+    
+    ByteBuffer varData = getVariableData();
+    varData.position(this.getServerHintLength() + this.getFileHintLength());
+    ByteBuffer linkData = varData.slice();
+    MemoryStructureWrapperService wrapper = MemoryStructureWrapperService.get();
+    linkData.limit(wrapper.sizeOf(NOTELINK.class));
+    NOTELINK varDataLink = wrapper.wrapStructure(NOTELINK.class, linkData);
+    varDataLink.copyFrom(link);
+    
+    return this;
+  }
+  
+  /**
+   * Sets the resource type to {@link Type#NOTELINK}, disables the
+   * flag {@link Flag#NOTELINKINLINE} and stores a LinkId pointing
+   * to a $Links item in the document
+   * 
+   * @param linkId link id
+   * @return resource
+   */
+  default CDResource setLinkId(int linkId) {
+    Optional<String> linkAnchorName = getLinkAnchorName();
+    
+    setResourceType(Type.NOTELINK);
+    
+    Set<Flag> flags = getFlags();
+    flags.remove(Flag.NOTELINKINLINE);
+    setFlags(flags);
+    
+    ByteBuffer varData = getVariableData();
+    varData.position(this.getServerHintLength() + this.getFileHintLength());
+    short linkIdShort = (short) (linkId & 0xffff);
+    
+    varData.putShort(linkIdShort);
+    //append link anchor name
+    return StructureSupport.writeStringValue(this,
+        this.getServerHintLength() + this.getFileHintLength() + 2,
+        getLength1(), linkAnchorName.orElse(""), this::setLength1); //$NON-NLS-1$
+  }
 }
