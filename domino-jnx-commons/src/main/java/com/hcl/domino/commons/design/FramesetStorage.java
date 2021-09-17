@@ -31,7 +31,7 @@ public enum FramesetStorage {
    * @param recordsIt CD records
    * @return frameset
    */
-  public static FramesetLayout readFrameset(ListIterator<RichTextRecord<?>> recordsIt) {
+  public static FramesetLayoutImpl readFrameset(ListIterator<RichTextRecord<?>> recordsIt) {
     CDFrameset framesetRecord = (CDFrameset) recordsIt.next();
 
     //collect all CD records that describe the frameset (probably just the one CDFrameset record)
@@ -58,7 +58,7 @@ public enum FramesetStorage {
     //either row or column count is set
     int rowCount = framesetRecord.getRowCount();
     int colCount = framesetRecord.getColumnCount();
-    int rowOrColCount = rowCount>0 ? rowCount : colCount;
+    int rowOrColCount = rowCount>colCount ? rowCount : colCount;
     List<FramesetLength> lengths = framesetRecord.getLengths();
     
     if (rowOrColCount > 0) {
@@ -98,7 +98,23 @@ public enum FramesetStorage {
         else if (record instanceof CDFrameset) {
           //rewind to previous position
           recordsIt.previous();
-          FramesetLayout subFrameset = readFrameset(recordsIt);
+          FramesetLayoutImpl subFrameset = readFrameset(recordsIt);
+          FramesetLength currLength = lengths.get(count);
+          //transfer initial size from lengths list
+          subFrameset.size = currLength.getValue();
+          if (currLength.getType()==FrameSizingType.PERCENTAGE) {
+            subFrameset.sizeUnit = Optional.of(FrameSizeUnit.PERCENTAGE);
+          }
+          else if (currLength.getType()==FrameSizingType.PIXELS) {
+            subFrameset.sizeUnit = Optional.of(FrameSizeUnit.PIXELS);
+          }
+          else if (currLength.getType()==FrameSizingType.RELATIVE) {
+            subFrameset.sizeUnit = Optional.of(FrameSizeUnit.RELATIVE);
+          }
+          else {
+            subFrameset.sizeUnit = Optional.empty();
+          }
+
           frameset.addContent(subFrameset);
 
           count++;
