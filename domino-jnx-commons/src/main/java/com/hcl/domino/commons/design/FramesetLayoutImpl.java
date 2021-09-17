@@ -18,7 +18,6 @@ import com.hcl.domino.richtext.records.CDFrameset;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FramesetLength;
-import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 
 /**
  * Implementation for {@link FramesetLayout}
@@ -30,10 +29,10 @@ public class FramesetLayoutImpl implements FramesetLayout {
   private List<RichTextRecord<?>> framesetRecords;
   private List<FrameContent<?>> contentList;
   private boolean layoutDirty;
-  private Optional<FramesetOrientation> orientation = Optional.empty();
-
-  private int size;
-  private Optional<FrameSizeUnit> sizeUnit;
+  
+  Optional<FramesetOrientation> orientation = Optional.empty();
+  int size;
+  Optional<FrameSizeUnit> sizeUnit;
   
   public FramesetLayoutImpl() {
     this(Collections.emptyList());
@@ -43,6 +42,22 @@ public class FramesetLayoutImpl implements FramesetLayout {
   public FramesetLayoutImpl(List<RichTextRecord<?>> framesetRecords) {
     this.framesetRecords = framesetRecords;
     this.contentList = new ArrayList<>();
+    
+    //find current orientation
+    this.framesetRecords
+    .stream()
+    .filter(CDFrameset.class::isInstance)
+    .map(CDFrameset.class::cast)
+    .forEach((record) -> {
+      int rowCount = record.getRowCount();
+      int colCount = record.getColumnCount();
+      if (rowCount > colCount) {
+        orientation = Optional.of(FramesetOrientation.TOP_TO_BOTTOM);
+      }
+      else {
+        orientation = Optional.of(FramesetOrientation.LEFT_TO_RIGHT);
+      }
+    });
   }
 
   void initDefaults() {
@@ -51,6 +66,8 @@ public class FramesetLayoutImpl implements FramesetLayout {
       record.setFrameBorderWidth(7);
       record.setThemeSetting(ClassicThemeBehavior.USE_DATABASE_SETTING);
     });
+    
+    orientation = Optional.of(FramesetOrientation.LEFT_TO_RIGHT);
   }
 
   @Override
