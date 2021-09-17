@@ -34,6 +34,7 @@ import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.CDResource.ResourceClass;
 import com.hcl.domino.richtext.records.CDResource.Type;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.structures.CDFrameVariableData;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.NOTELINK;
@@ -46,7 +47,7 @@ import com.hcl.domino.richtext.structures.NOTELINK;
 public class FrameImpl implements Frame {
   private Optional<FramesetLayout> parent = Optional.empty();
   private List<RichTextRecord<?>> frameRecords;
-  private boolean dirty;
+  private boolean layoutDirty;
 
   //will be picked when the frameset record is constructed
   int size;
@@ -81,6 +82,7 @@ public class FrameImpl implements Frame {
       record.setTextColor(DesignColorsAndFonts.blackColor());
       record.setBackgroundColor(DesignColorsAndFonts.whiteColor());
       record.setFontStyle(DesignColorsAndFonts.defaultFont());
+      layoutDirty = true;
     });
     
     resetLayoutDirty();
@@ -94,7 +96,7 @@ public class FrameImpl implements Frame {
    * @param resource optional CD resource record
    */
   public FrameImpl(List<RichTextRecord<?>> frameRecords) {
-    this.frameRecords = frameRecords;
+    this.frameRecords = new ArrayList<>(frameRecords);
   }
 
   /**
@@ -121,7 +123,11 @@ public class FrameImpl implements Frame {
     CDFrame frameRecord;
     if (!optFrameRecord.isPresent()) {
       frameRecord = MemoryStructureUtil.newStructure(CDFrame.class, 0);
+      CDFrameVariableData frameVarData = new CDFrameVariableData(frameRecord);
+      frameRecord.writeVariableFrameData(frameVarData);
+
       frameRecords.add(0, frameRecord);
+      layoutDirty = true;
     }
     else {
       frameRecord = optFrameRecord.get();
@@ -165,6 +171,7 @@ public class FrameImpl implements Frame {
       }
 
       frameRecords.add(insertPos, resourceRecord);
+      layoutDirty = true;
     }
     else {
       resourceRecord = optResourceRecord.get();
@@ -212,6 +219,7 @@ public class FrameImpl implements Frame {
       }
 
       frameRecords.add(insertPos, htmlAttrRecord);
+      layoutDirty = true;
     }
     else {
       htmlAttrRecord = optHtmlAttrRecord.get();
@@ -224,6 +232,7 @@ public class FrameImpl implements Frame {
   public Frame setName(String name) {
     withFrameRecord((record) -> {
       record.setFrameName(name);
+      layoutDirty = true;
     });
     return this;
   }
@@ -232,6 +241,7 @@ public class FrameImpl implements Frame {
   public Frame setSequenceNo(int n) {
     withFrameRecord((record) -> {
       record.setSequenceNo(n);
+      layoutDirty = true;
     });
     return this;
   }
@@ -270,6 +280,7 @@ public class FrameImpl implements Frame {
       
       record.setNamedElement(name);
       record.setResourceType(Type.NAMEDELEMENT);
+      layoutDirty = true;
     });
     return this;
   }
@@ -279,6 +290,7 @@ public class FrameImpl implements Frame {
     withResourceRecord((record) -> {
       record.setResourceUrl(url);
       record.setResourceType(Type.NAMEDELEMENT);
+      layoutDirty = true;
     });
     return this;
   }
@@ -287,6 +299,7 @@ public class FrameImpl implements Frame {
   public Frame setContentLink(NOTELINK link) {
     withResourceRecord((record) -> {
       record.setLink(link);
+      layoutDirty = true;
     });
     return this;
   }
@@ -308,6 +321,7 @@ public class FrameImpl implements Frame {
         }
         
         record.setLink(link);
+        layoutDirty = true;
       }
       else {
         throw new IllegalArgumentException("DB replicaid is missing");
@@ -320,6 +334,7 @@ public class FrameImpl implements Frame {
   public Frame setTargetName(String target) {
     withFrameRecord((record) -> {
       record.setFrameTarget(target);
+      layoutDirty = true;
     });
     return this;
   }
@@ -357,6 +372,7 @@ public class FrameImpl implements Frame {
         throw new IllegalArgumentException(
             MessageFormat.format("Invalid scroll type: {0}", type));
       }
+      layoutDirty = true;
     });
     return this;
   }
@@ -365,6 +381,7 @@ public class FrameImpl implements Frame {
   public Frame setAllowResizing(boolean b) {
     withFrameRecord((record) -> {
       record.setNoResize((byte) (b ? 0 : 1));
+      layoutDirty = true;
     });
     return this;
   }
@@ -379,6 +396,7 @@ public class FrameImpl implements Frame {
       else {
         flags.remove(Flag.NotesInitialFocus);
       }
+      layoutDirty = true;
     });
     return this;
   }
@@ -387,6 +405,7 @@ public class FrameImpl implements Frame {
   public Frame setBorderEnabled(boolean b) {
     withFrameRecord((record) -> {
       record.setBorderEnable((byte) (b ? 1 : 0));
+      layoutDirty = true;
     });
     return this;
   }
@@ -399,6 +418,7 @@ public class FrameImpl implements Frame {
       record.setDataFlags(dataFlags);
       
       record.setCaptionFormula(formula);
+      layoutDirty = true;
     });
     return this;
   }
@@ -459,6 +479,7 @@ public class FrameImpl implements Frame {
         flags.remove(Flag.NotesOnlyArrows);
       }
       record.setFlags(flags);
+      layoutDirty = true;
     });
     return this;
   }
@@ -480,6 +501,7 @@ public class FrameImpl implements Frame {
         record.setBorderAlignment(BorderAlignment.Bottom);
         break;
       }
+      layoutDirty = true;
     });
     return this;
   }
@@ -498,6 +520,7 @@ public class FrameImpl implements Frame {
         record.setTextAlignment(TextAlignment.Center);
         break;
       }
+      layoutDirty = true;
     });
     return this;
   }
@@ -517,6 +540,7 @@ public class FrameImpl implements Frame {
       }
       
       record.setFlags(flags);
+      layoutDirty = true;
     });
     return this;
   }
@@ -525,6 +549,7 @@ public class FrameImpl implements Frame {
   public Frame setCaptionStyle(FontStyle style) {
     withFrameRecord((record) -> {
       record.setFontStyle(style);
+      layoutDirty = true;
     });
     return this;
   }
@@ -533,6 +558,7 @@ public class FrameImpl implements Frame {
   public Frame setCaptionFontName(String fontName) {
     withFrameRecord((record) -> {
       record.setFontName(fontName);
+      layoutDirty = true;
     });
     return this;
   }
@@ -541,6 +567,7 @@ public class FrameImpl implements Frame {
   public Frame setCaptionTextColor(ColorValue color) {
     withFrameRecord((record) -> {
       record.setTextColor(color);
+      layoutDirty = true;
     });
     return this;
   }
@@ -549,6 +576,7 @@ public class FrameImpl implements Frame {
   public Frame setCaptionBackgroundColor(ColorValue color) {
     withFrameRecord((record) -> {
       record.setBackgroundColor(color);
+      layoutDirty = true;
     });
     return this;
   }
@@ -560,6 +588,7 @@ public class FrameImpl implements Frame {
       Set<Flag> flags = record.getFlags();
       flags.add(Flag.MarginHeight);
       record.setFlags(flags);
+      layoutDirty = true;
     });
     return this;
   }
@@ -570,6 +599,7 @@ public class FrameImpl implements Frame {
       Set<Flag> flags = record.getFlags();
       flags.remove(Flag.MarginHeight);
       record.setFlags(flags);
+      layoutDirty = true;
     });
     return this;
   }
@@ -581,6 +611,7 @@ public class FrameImpl implements Frame {
       Set<Flag> flags = record.getFlags();
       flags.add(Flag.MarginWidth);
       record.setFlags(flags);
+      layoutDirty = true;
     });
     return this;
   }
@@ -591,6 +622,7 @@ public class FrameImpl implements Frame {
       Set<Flag> flags = record.getFlags();
       flags.remove(Flag.MarginWidth);
       record.setFlags(flags);
+      layoutDirty = true;
     });
     return this;
   }
@@ -599,6 +631,7 @@ public class FrameImpl implements Frame {
   public Frame setHTMLId(String id) {
     withHtmlAttrRecord((record) -> {
       record.setID(id);
+      layoutDirty = true;
     });
     return this;
   }
@@ -607,6 +640,7 @@ public class FrameImpl implements Frame {
   public Frame setHTMLClassName(String c) {
     withHtmlAttrRecord((record) -> {
       record.setClassName(c);
+      layoutDirty = true;
     });
     return this;
   }
@@ -615,6 +649,7 @@ public class FrameImpl implements Frame {
   public Frame setHTMLStyle(String style) {
     withHtmlAttrRecord((record) -> {
       record.setStyle(style);
+      layoutDirty = true;
     });
     return this;
   }
@@ -623,6 +658,7 @@ public class FrameImpl implements Frame {
   public Frame setHTMLTitle(String title) {
     withHtmlAttrRecord((record) -> {
       record.setTitle(title);
+      layoutDirty = true;
     });
     return this;
   }
@@ -631,6 +667,7 @@ public class FrameImpl implements Frame {
   public Frame setHTMLAttributes(String other) {
     withHtmlAttrRecord((record) -> {
       record.setHTMLAttributes(other);
+      layoutDirty = true;
     });
     return this;
   }
@@ -931,12 +968,12 @@ public class FrameImpl implements Frame {
 
   @Override
   public boolean isLayoutDirty() {
-    return dirty;
+    return layoutDirty;
   }
 
   @Override
   public void resetLayoutDirty() {
-    dirty = false;
+    layoutDirty = false;
   }
 
   @SuppressWarnings("unchecked")
@@ -965,6 +1002,7 @@ public class FrameImpl implements Frame {
   public Frame setSize(int amount, FrameSizeUnit unit) {
     this.size = amount;
     this.sizeUnit = Optional.of(unit);
+    layoutDirty = true;
     return this;
   }
 
@@ -985,6 +1023,7 @@ public class FrameImpl implements Frame {
       CDResource resourceRecord = optResourceRecord.get();
       resourceRecord.setResourceClass(ResourceClass.UNKNOWN);
       resourceRecord.setNamedElement(""); //$NON-NLS-1$
+      layoutDirty = true;
     }
     return this;
   }

@@ -40,7 +40,7 @@ public class FramesetLayoutImpl implements FramesetLayout {
   }
 
   public FramesetLayoutImpl(List<RichTextRecord<?>> framesetRecords) {
-    this.framesetRecords = framesetRecords;
+    this.framesetRecords = new ArrayList<>(framesetRecords);
     this.contentList = new ArrayList<>();
     
     //find current orientation
@@ -94,6 +94,7 @@ public class FramesetLayoutImpl implements FramesetLayout {
     if (!optFramesetRecord.isPresent()) {
       framesetRecord = MemoryStructureUtil.newStructure(CDFrameset.class, 0);
       framesetRecords.add(0, framesetRecord);
+      layoutDirty = true;
     }
     else {
       framesetRecord = optFramesetRecord.get();
@@ -151,12 +152,13 @@ public class FramesetLayoutImpl implements FramesetLayout {
     withFramesetRecord((record) -> {
       if (orientation == FramesetOrientation.LEFT_TO_RIGHT) {
         record.setColumnCount(contentList.size());
-        record.setRowCount(0);
+        record.setRowCount(1);
       }
       else if (orientation == FramesetOrientation.TOP_TO_BOTTOM) {
-        record.setColumnCount(0);
+        record.setColumnCount(1);
         record.setRowCount(contentList.size());
       }
+      layoutDirty = true;
     });
     return this;
   }
@@ -186,6 +188,11 @@ public class FramesetLayoutImpl implements FramesetLayout {
   public FramesetLayout flipHorizontally() {
     withFramesetRecord((record) -> {
       Collections.reverse(contentList);
+      
+      List<FramesetLength> lengths = new ArrayList<>(record.getLengths());
+      Collections.reverse(lengths);
+      record.setLengths(lengths, orientation.isPresent() && orientation.get() == FramesetOrientation.TOP_TO_BOTTOM);
+      
       layoutDirty = true;
     });
     return this;
@@ -282,6 +289,7 @@ public class FramesetLayoutImpl implements FramesetLayout {
         contentList.add(currContent);
       }
     }
+    layoutDirty = true;
     return this;
   }
 
@@ -294,6 +302,7 @@ public class FramesetLayoutImpl implements FramesetLayout {
         contentList.add(currContent);
       }
     }
+    layoutDirty = true;
     return this; 
   }
 
@@ -311,6 +320,7 @@ public class FramesetLayoutImpl implements FramesetLayout {
   public FramesetLayout setSize(int amount, FrameSizeUnit unit) {
     this.size = amount;
     this.sizeUnit = Optional.of(unit);
+    layoutDirty = true;
     return this;
   }
 
@@ -338,6 +348,7 @@ public class FramesetLayoutImpl implements FramesetLayout {
   public FramesetLayout setBorderEnabled(boolean b) {
     withFramesetRecord((record) -> {
       record.setBorderEnable((byte) (b ? 1 : 0));
+      layoutDirty = true;
     });
     return this;
   }
@@ -353,6 +364,7 @@ public class FramesetLayoutImpl implements FramesetLayout {
   public FramesetLayout setFrameBorderWidth(int width) {
     withFramesetRecord((record) -> {
       record.setFrameBorderWidth(width);
+      layoutDirty = true;
     });
     return this;
   }
@@ -368,6 +380,7 @@ public class FramesetLayoutImpl implements FramesetLayout {
   public FramesetLayout setFrameSpacingWidth(int width) {
     withFramesetRecord((record) -> {
       record.setFrameSpacingWidth(width);
+      layoutDirty = true;
     });
     return this;
   }
@@ -381,6 +394,7 @@ public class FramesetLayoutImpl implements FramesetLayout {
   public FramesetLayout setFrameBorderColor(ColorValue color) {
     withFramesetRecord((record) -> {
       record.getFrameBorderColor().copyFrom(color);
+      layoutDirty = true;
     });
     return this;
   }
