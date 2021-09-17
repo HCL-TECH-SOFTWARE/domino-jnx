@@ -134,11 +134,12 @@ public interface CDFrameset extends RichTextRecord<WSIG> {
   CDFrameset setThemeSetting(ClassicThemeBehavior behavior);
   
   default List<FramesetLength> getLengths() {
-    // Only one of RowQty and ColQty is legal to be > 0
-    int qty = getRowCount();
-    if(qty < 1) {
-      qty = Math.max(0, getColumnCount());
-    }
+    // C API doc says only one of these is != 0, but
+    // that was not the case in our tests, so we pick the greater one
+    int rowCount = getRowCount();
+    int colCount = getColumnCount();
+    int qty = rowCount>colCount ? rowCount : colCount;
+    
     ByteBuffer data = getVariableData();
     MemoryStructureWrapperService wrapper = MemoryStructureWrapperService.get();
     List<FramesetLength> result = new ArrayList<>(qty);
