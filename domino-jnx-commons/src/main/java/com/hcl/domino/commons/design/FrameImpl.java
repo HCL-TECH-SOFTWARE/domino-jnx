@@ -11,6 +11,7 @@ import java.util.function.Consumer;
 
 import com.hcl.domino.commons.design.FramesetStorage.IFramesetRecordAccess;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
+import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.design.DesignColorsAndFonts;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.Folder;
@@ -290,6 +291,31 @@ public class FrameImpl implements Frame {
     return this;
   }
   
+  @Override
+  public Frame setContentLink(String replicaId, String viewUnid, String docUnid) {
+    withResourceRecord((record) -> {
+      if (!StringUtil.isEmpty(replicaId)) {
+        NOTELINK link = MemoryStructureUtil.newStructure(NOTELINK.class, 0);
+        link.setReplicaId(replicaId);
+        
+        if (!StringUtil.isEmpty(viewUnid)) {
+          link.setViewUnid(viewUnid);
+          
+          if (!StringUtil.isEmpty(docUnid)) {
+            //create doc link
+            link.setDocUnid(docUnid);
+          }
+        }
+        
+        record.setLink(link);
+      }
+      else {
+        throw new IllegalArgumentException("DB replicaid is missing");
+      }
+    });
+    return this;
+  }
+
   @Override
   public Frame setTargetName(String target) {
     withFrameRecord((record) -> {

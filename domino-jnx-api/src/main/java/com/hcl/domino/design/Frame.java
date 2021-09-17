@@ -112,6 +112,21 @@ public interface Frame extends FrameContent<Frame> {
 	Frame setContentLink(NOTELINK link);
 	
 	/**
+   * Sets the frame content via doclink and switches the
+   * frame content type to  {@link FrameContentType#Link}.<br>
+   * <br>
+   * Please note that there are three possible ways to define
+   * valid link data: (replicaid), (replicaid, viewunid) and
+   * (replicaid, viewunid, docunid).
+	 * 
+	 * @param replicaId DB replica ID (for db links)
+	 * @param viewUnid view unid (for view links or doc links)
+	 * @param docUnid doc unid (for doc links)
+	 * @return this frame
+	 */
+	Frame setContentLink(String replicaId, String viewUnid, String docUnid);
+	
+	/**
 	 * Sets the target frame for links clicked within the
 	 * frame
 	 * 
