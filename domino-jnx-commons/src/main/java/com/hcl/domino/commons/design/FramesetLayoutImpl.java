@@ -14,7 +14,9 @@ import com.hcl.domino.design.Frame;
 import com.hcl.domino.design.FrameContent;
 import com.hcl.domino.design.FramesetLayout;
 import com.hcl.domino.design.frameset.FrameSizingType;
+import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.records.CDFrameset;
+import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FramesetLength;
@@ -93,6 +95,9 @@ public class FramesetLayoutImpl implements FramesetLayout {
     CDFrameset framesetRecord;
     if (!optFramesetRecord.isPresent()) {
       framesetRecord = MemoryStructureUtil.newStructure(CDFrameset.class, 0);
+      framesetRecord.getHeader().setSignature(RichTextConstants.SIG_CD_FRAMESET);
+      framesetRecord.getHeader().setLength(MemoryStructureUtil.sizeOf(CDFrameset.class));
+
       framesetRecords.add(0, framesetRecord);
       layoutDirty = true;
     }

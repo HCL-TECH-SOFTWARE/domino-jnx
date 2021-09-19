@@ -24,6 +24,7 @@ import com.hcl.domino.design.Navigator;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.frameset.FrameScrollStyle;
+import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.records.CDFrame;
 import com.hcl.domino.richtext.records.CDFrame.BorderAlignment;
 import com.hcl.domino.richtext.records.CDFrame.DataFlag;
@@ -123,6 +124,9 @@ public class FrameImpl implements Frame {
     CDFrame frameRecord;
     if (!optFrameRecord.isPresent()) {
       frameRecord = MemoryStructureUtil.newStructure(CDFrame.class, 0);
+      frameRecord.getHeader().setSignature(RichTextConstants.SIG_CD_FRAME);
+      frameRecord.getHeader().setLength(MemoryStructureUtil.sizeOf(CDFrame.class));
+
       CDFrameVariableData frameVarData = new CDFrameVariableData(frameRecord);
       frameRecord.writeVariableFrameData(frameVarData);
 
@@ -160,6 +164,9 @@ public class FrameImpl implements Frame {
     CDResource resourceRecord;
     if (!optResourceRecord.isPresent()) {
       resourceRecord = MemoryStructureUtil.newStructure(CDResource.class, 0);
+      resourceRecord.getHeader().setSignature(RichTextConstants.SIG_CD_HREF);
+      resourceRecord.getHeader().setLength(MemoryStructureUtil.sizeOf(CDResource.class));
+
       int insertPos = frameRecords.size();
 
       for (int i=0; i<frameRecords.size(); i++) {
@@ -204,6 +211,9 @@ public class FrameImpl implements Frame {
     CDIDName htmlAttrRecord;
     if (!optHtmlAttrRecord.isPresent()) {
       htmlAttrRecord = MemoryStructureUtil.newStructure(CDIDName.class, 0);
+      htmlAttrRecord.getHeader().setSignature(RichTextConstants.SIG_CD_IDNAME);
+      htmlAttrRecord.getHeader().setLength(MemoryStructureUtil.sizeOf(CDIDName.class));
+      
       int insertPos = frameRecords.size();
 
       for (int i=0; i<frameRecords.size(); i++) {

@@ -2,14 +2,17 @@ package com.hcl.domino.commons.design;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.ListIterator;
 
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.design.DesignConstants;
-import com.hcl.domino.design.FramesetLayout;
 import com.hcl.domino.design.Frameset;
+import com.hcl.domino.design.FramesetLayout;
+import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.CDFrameset;
 import com.hcl.domino.richtext.records.CDFramesetHeader;
@@ -53,6 +56,9 @@ public class FramesetImpl extends AbstractDesignElement<Frameset> implements Fra
     }
     else {
       CDFramesetHeader headerRecord = MemoryStructureUtil.newStructure(CDFramesetHeader.class, 0);
+      headerRecord.getHeader().setSignature(RichTextConstants.SIG_CD_FRAMESETHEADER);
+      headerRecord.getHeader().setLength(MemoryStructureUtil.sizeOf(CDFramesetHeader.class));
+
       headerRecord.setVersion(Version.VERSION2);
       headerRecords.add(headerRecord);
     }
@@ -82,6 +88,10 @@ public class FramesetImpl extends AbstractDesignElement<Frameset> implements Fra
   @Override
   public void initializeNewDesignNote() {
     this.setFlags("#34CQ"); //$NON-NLS-1$
+    Document doc = getDocument();
+    doc.replaceItemValue("$DesignerVersion", "8.5.3"); //$NON-NLS-1$ //$NON-NLS-2$
+    doc.replaceItemValue("$Comment", EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), ""); //$NON-NLS-1$ //$NON-NLS-2$
+    
   }
 
   @Override
@@ -89,7 +99,8 @@ public class FramesetImpl extends AbstractDesignElement<Frameset> implements Fra
     if (framesetLayout.isLayoutDirty()) {
       serialize();
     }
-
+    getDocument().sign();
+    
     return super.save();
   }
   
