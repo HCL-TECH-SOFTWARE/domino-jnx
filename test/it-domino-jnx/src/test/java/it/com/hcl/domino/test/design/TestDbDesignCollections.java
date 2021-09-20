@@ -198,7 +198,8 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     Optional<CDResource> backgroundImage = disp.getBackgroundImage();
     assertTrue(backgroundImage.isPresent());
     assertTrue(backgroundImage.get().getFlags().contains(CDResource.Flag.FORMULA));
-    assertEquals("\"hey.png\"", backgroundImage.get().getResourceFormula().get());
+    List<String> backgroundNamedElementFormulas = backgroundImage.get().getNamedElementFormulas().get();
+    assertTrue(backgroundNamedElementFormulas.contains("\"hey.png\""));
     
     assertEquals(ImageRepeatMode.SIZE_TO_FIT, disp.getBackgroundImageRepeatMode());
     
@@ -808,7 +809,8 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       Optional<CDResource> twistie = column.getTwistieImage();
       assertTrue(twistie.isPresent());
       assertTrue(twistie.get().getFlags().contains(CDResource.Flag.FORMULA));
-      assertEquals("\"foo.png\"", twistie.get().getResourceFormula().get());
+      List<String> twistieNamedElementFormulas = twistie.get().getNamedElementFormulas().get();
+      assertTrue(twistieNamedElementFormulas.contains("\"foo.png\""));
     }
     
     // Test global script

@@ -99,4 +99,17 @@ public interface ColorValue extends MemoryStructure {
   default String toHexString() {
     return String.format("%02X%02X%02X", this.getRed(), this.getGreen(), this.getBlue()); //$NON-NLS-1$
   }
+  
+  /**
+   * Copies the color data values from another {@link ColorValue}
+   * 
+   * @param otherColor color
+   */
+  default void copyFrom(ColorValue otherColor) {
+    setFlags(otherColor.getFlags());
+    setRed(otherColor.getRed());
+    setGreen(otherColor.getGreen());
+    setBlue(otherColor.getBlue());
+    setComponent4(otherColor.getComponent4());
+  }
 }

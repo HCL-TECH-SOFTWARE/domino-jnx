@@ -165,6 +165,10 @@ public enum RecordType {
    * Other and Name associated for any given field defined within a Domino Form
    */
   IDNAME(RichTextConstants.SIG_CD_IDNAME, 1, CDIDName.class),
+  /**
+   * This CD record describes the HTML frame properties, ID, Class, Style, Title, Other and Name
+   */
+  FRAMESET_IDNAME(RichTextConstants.SIG_CD_IDNAME, 2, CDIDName.class),
   TABLECELL_IDNAME(RichTextConstants.SIG_CD_TABLECELL_IDNAME, 1, CDIDName.class),
   /**
    * This structure defines the image segment data of a JPEG or GIF image and
