@@ -631,7 +631,7 @@ public interface DbDesign {
    * Retrieves all framesets in the database.
    *
    * @return a {@link Stream} of {@link Frameset}s
-   * @since 1.0.39
+   * @since 1.0.42
    */
   Stream<Frameset> getFramesets();
   
@@ -641,7 +641,7 @@ public interface DbDesign {
    * @param name the element name to restrict to
    * @return an {@link Optional} describing the {@link Frameset}, or an empty one if
    *         no such theme exists
-   * @since 1.0.39
+   * @since 1.0.42
    */
   Optional<Frameset> getFrameset(String name);
   
