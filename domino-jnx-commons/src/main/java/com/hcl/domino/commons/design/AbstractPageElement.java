@@ -71,6 +71,15 @@ public abstract class AbstractPageElement<T extends GenericPageElement<T>> exten
   }
   
   @Override
+  public String getLotusScriptGlobals() {
+    StringBuilder result = new StringBuilder();
+    getDocument().forEachItem(NotesConstants.DOC_SCRIPT_ITEM, (item, loop) -> {
+      result.append(item.get(String.class, "")); //$NON-NLS-1$
+    });
+    return result.toString();
+  }
+  
+  @Override
   public Optional<String> getWindowTitleFormula() {
     Document doc = getDocument();
     if(doc.hasItem(DesignConstants.ITEM_NAME_WINDOWTITLE)) {

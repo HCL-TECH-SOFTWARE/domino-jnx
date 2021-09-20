@@ -28,6 +28,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -79,6 +81,7 @@ import com.hcl.domino.design.format.ActionButtonHeightMode;
 import com.hcl.domino.design.format.ActionWidthMode;
 import com.hcl.domino.design.format.BorderStyle;
 import com.hcl.domino.design.format.ButtonBorderDisplay;
+import com.hcl.domino.design.format.CalendarLayout;
 import com.hcl.domino.design.format.CalendarType;
 import com.hcl.domino.design.format.DateComponentOrder;
 import com.hcl.domino.design.format.DateShowFormat;
@@ -114,7 +117,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignCollections extends AbstractDesignTest {
-  public static final int EXPECTED_IMPORT_VIEWS = 11;
+  public static final int EXPECTED_IMPORT_VIEWS = 12;
   public static final int EXPECTED_IMPORT_FOLDERS = 1;
 
   private static String dbPath;
@@ -155,7 +158,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
   }
 
   @Test
-  public void testExampleView() {
+  public void testExampleView() throws IOException {
     final DbDesign dbDesign = this.database.getDesign();
     final View view = dbDesign.getView("Example View").get();
     assertTrue(view.isAllowCustomizations());
@@ -809,7 +812,10 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       List<String> twistieNamedElementFormulas = twistie.get().getNamedElementFormulas().get();
       assertTrue(twistieNamedElementFormulas.contains("\"foo.png\""));
     }
-
+    
+    // Test global script
+    String lsGlobalsExpected = IOUtils.resourceToString("/text/testDbDesignCollections/view-example-globals.txt", StandardCharsets.UTF_8);
+    assertEquals(lsGlobalsExpected, view.getLotusScriptGlobals());
   }
 
   @Test
@@ -2095,6 +2101,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
   public void testSelectionView() {
     DbDesign design = this.database.getDesign();
     View view = design.getView("Selection View").get();
+    assertFalse(view.getCalendarSettings().isPresent());
     
     List<? extends SimpleSearchTerm> search = view.getDocumentSelection();
     assertEquals(3, search.size());
@@ -2116,5 +2123,93 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertEquals(new LinkedHashSet<>(Arrays.asList("Alias", "Content|foo|bar")), form.getFormNames());
     }
     
+  }
+  
+  @Test
+  public void testCalendarView() {
+    DbDesign design = this.database.getDesign();
+    View view = design.getView("Calendar View").get();
+    
+    assertEquals("Calendar View", view.getTitle());
+    assertTrue(view.isCalendarFormat());
+    assertFalse(view.isDefaultCollection());
+    assertFalse(view.isDefaultCollectionDesign());
+    assertTrue(view.isCreateDocumentsAtViewLevel());
+    
+    assertTrue(view.getCompositeAppSettings().isShowSwitcher());
+    
+    CollectionDesignElement.DisplaySettings display = view.getDisplaySettings();
+    assertColorEquals(display.getBackgroundColor(), 0, 255, 255);
+    assertColorEquals(display.getGridColor(), 191, 191, 255); // Stored but masked in Designer
+    
+    CollectionDesignElement.CalendarSettings calendar = view.getCalendarSettings().get();
+    
+    assertColorEquals(calendar.getDaySeparatorColor(), 255, 64, 160);
+    
+    assertColorEquals(calendar.getHeaderBackgroundColor(), 241, 224, 255);
+    
+    assertEquals(
+      EnumSet.of(CollectionDesignElement.CalendarTab.DAY, CollectionDesignElement.CalendarTab.MONTH,
+          CollectionDesignElement.CalendarTab.TRASH, CollectionDesignElement.CalendarTab.GOTO_TODAY,
+          CollectionDesignElement.CalendarTab.OWNER_NAME),
+      calendar.getTabs()
+    );
+    
+    assertColorEquals(calendar.getDateBackgroundColor(), 127, 255, 255);
+    assertEquals(StandardColors.Wedgewood, calendar.getTodayColor());
+    assertColorEquals(calendar.getToDoAreaColor(), 255, 159, 159);
+    assertTrue(calendar.isDisplayLargeNumbers());
+    
+    assertColorEquals(calendar.getDailyWorkHoursColor(), 225, 191, 255);
+    assertColorEquals(calendar.getDailyOtherHoursColor(), 255, 0, 0);
+    
+    assertColorEquals(calendar.getNonCurrentMonthColor(), 255, 96, 175);
+    assertColorEquals(calendar.getMonthlyTextColor(), 130, 224, 255);
+    
+    assertColorEquals(calendar.getEntryBackgroundColor(), 0, 255, 0);
+    
+    assertTrue(calendar.isShowConflictMarks());
+    
+    {
+      NotesFont font = calendar.getTimeSlotsFont();
+      assertEquals(StandardFonts.TYPEWRITER, font.getStandardFont().get());
+      assertEquals(11, font.getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.ITALIC, FontAttribute.UNDERLINE), font.getAttributes());
+      assertEquals(StandardColors.Black, font.getStandardColor().get());
+    }
+    {
+      NotesFont font = calendar.getDayAndDateFont();
+      assertEquals(StandardFonts.ROMAN, font.getStandardFont().get());
+      assertEquals(14, font.getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.ITALIC), font.getAttributes());
+      assertEquals(StandardColors.PaleLavender, font.getStandardColor().get());
+    }
+    {
+      NotesFont font = calendar.getHeaderFont();
+      assertFalse(font.getStandardFont().isPresent());
+      assertEquals("Wingdings 2", font.getFontName().get());
+      assertEquals(8, font.getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.UNDERLINE), font.getAttributes());
+      assertEquals(StandardColors.Lilac, font.getStandardColor().get());
+    }
+    {
+      NotesFont font = calendar.getWeeklyDayAndMonthFont();
+      assertFalse(font.getStandardFont().isPresent());
+      assertEquals("Curlz MT", font.getFontName().get());
+      assertEquals(36, font.getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.UNDERLINE), font.getAttributes());
+      assertEquals(StandardColors.RosePearl, font.getStandardColor().get());
+    }
+    
+    assertEquals(EnumSet.of(CalendarLayout.ONE_DAY, CalendarLayout.ONE_WEEK, CalendarLayout.ONE_MONTH, CalendarLayout.WORK_WEEK, CalendarLayout.ONE_YEAR), calendar.getUserCalendarFormats());
+    assertEquals(CalendarLayout.WORK_WEEK, calendar.getInitialUserCalendarFormat().get());
+    
+    assertTrue(calendar.isTimeSlotDisplayAvailable());
+    assertEquals(LocalTime.of(4, 0), calendar.getTimeSlotStart());
+    assertEquals(LocalTime.of(21, 0), calendar.getTimeSlotEnd());
+    assertEquals(Duration.ofMinutes(30), calendar.getTimeSlotDuration());
+    assertTrue(calendar.isTimeSlotsOverridable());
+    assertTrue(calendar.isAllowUserTimeSlotToggle());
+    assertTrue(calendar.isGroupEntriesByTimeSlot());
   }
 }

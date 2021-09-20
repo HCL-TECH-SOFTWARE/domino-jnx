@@ -1074,6 +1074,6 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    * @since 1.0.39
    */
   void verifyLdapConnection(String hostName, String userName, String password, String dnSearch,
-      short port, boolean useSSL, boolean acceptExpiredCerts, boolean verifyRemoteServerCert);
+      boolean useSSL,short port,  boolean acceptExpiredCerts, boolean verifyRemoteServerCert);
 
 }

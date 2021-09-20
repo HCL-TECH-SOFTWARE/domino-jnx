@@ -49,12 +49,24 @@ public interface GenericPageElement<T extends GenericPageElement<T>> extends Des
     Collection<ScriptEvent> getJavaScriptEvents();
     
     /**
-     * Retrieves the element-global LotusScript associated with the form or page.
+     * Retrieves the element-global LotusScript associated with the form or page, other than
+     * the "Globals" portion.
      * 
      * @return a {@link String} representing the IDE-formatted LotusScript for the element
      * @since 1.0.34
+     * @see #getLotusScriptGlobals()
      */
     String getLotusScript();
+    
+    /**
+     * Retrieves the "Globals" portion of the LotusScript associated with the form or page.
+     * 
+     * @return a {@link String} representing the IDE-formatted LotusScript Globals content
+     *         for the element
+     * @since 1.0.41
+     * @see #getLotusScript()
+     */
+    String getLotusScriptGlobals();
     
     /**
      * Retrieves the window-title formula for the form or page, if specified.
