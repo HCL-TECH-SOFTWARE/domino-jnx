@@ -299,6 +299,15 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   }
   
   @Override
+  public String getLotusScriptGlobals() {
+    StringBuilder result = new StringBuilder();
+    getDocument().forEachItem(NotesConstants.VIEW_GLOBAL_SCRIPT_NAME, (item, loop) -> {
+      result.append(item.get(String.class, "")); //$NON-NLS-1$
+    });
+    return result.toString();
+  }
+  
+  @Override
   public Optional<String> getSingleClickTargetFrameFormula() {
     return getHtmlCodeItem().stream()
       .filter(CDTarget.class::isInstance)

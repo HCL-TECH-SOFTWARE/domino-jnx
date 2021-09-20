@@ -158,7 +158,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
   }
 
   @Test
-  public void testExampleView() {
+  public void testExampleView() throws IOException {
     final DbDesign dbDesign = this.database.getDesign();
     final View view = dbDesign.getView("Example View").get();
     assertTrue(view.isAllowCustomizations());
@@ -810,7 +810,10 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertTrue(twistie.get().getFlags().contains(CDResource.Flag.FORMULA));
       assertEquals("\"foo.png\"", twistie.get().getResourceFormula().get());
     }
-
+    
+    // Test global script
+    String lsGlobalsExpected = IOUtils.resourceToString("/text/testDbDesignCollections/view-example-globals.txt", StandardCharsets.UTF_8);
+    assertEquals(lsGlobalsExpected, view.getLotusScriptGlobals());
   }
 
   @Test

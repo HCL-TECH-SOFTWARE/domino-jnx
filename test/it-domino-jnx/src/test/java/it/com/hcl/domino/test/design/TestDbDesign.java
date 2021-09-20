@@ -696,6 +696,9 @@ public class TestDbDesign extends AbstractDesignTest {
     String lsExpected = IOUtils.resourceToString("/text/testDbDesign/testPageLs.txt", StandardCharsets.UTF_8);
     assertEquals(lsExpected, page.getLotusScript());
     
+    String lsGlobalsExpected = IOUtils.resourceToString("/text/testDbDesign/testPageLsGlobals.txt", StandardCharsets.UTF_8);
+    assertEquals(lsGlobalsExpected, page.getLotusScriptGlobals());
+    
     Map<EventId, String> formulas = page.getFormulaEvents();
     assertEquals(1, formulas.size());
     assertEquals("@StatusBar(\"I am page postopen\")", formulas.get(EventId.CLIENT_FORM_POSTOPEN));
