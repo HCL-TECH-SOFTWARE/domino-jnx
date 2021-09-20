@@ -109,9 +109,7 @@ public class FrameImpl implements Frame {
   /**
    * Creates a new frame
    * 
-   * @param parent parent frameset
-   * @param frame frame CD record
-   * @param resource optional CD resource record
+   * @param frameRecords list of existing CD records to define the frame style and content
    */
   public FrameImpl(List<RichTextRecord<?>> frameRecords) {
     this.frameRecords = new ArrayList<>(frameRecords);

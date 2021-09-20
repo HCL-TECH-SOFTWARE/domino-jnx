@@ -92,7 +92,7 @@ public interface Frame extends FrameContent<Frame> {
 	 * <li>{@link Navigator}</li>
 	 * </ul>
 	 * 
-	 * @param replica id of database
+	 * @param replicaID replica id of database
 	 * @param type type
 	 * @param name name
 	 * @return this frame
@@ -440,9 +440,10 @@ public interface Frame extends FrameContent<Frame> {
 	Optional<ColorValue> getCaptionBackgroundColor();
 	
 	/**
+	 * Sets the margin height
 	 * 
-	 * @param amount
-	 * @return
+	 * @param amount size
+	 * @return this frame
 	 */
 	Frame setMarginHeight(int amount);
 	
@@ -470,7 +471,8 @@ public interface Frame extends FrameContent<Frame> {
 	
 	/**
 	 * Resets the margin width to the default value
-	 * @return
+	 * 
+	 * @return this frame
 	 */
 	Frame setMarginWidthDefault();
 	
