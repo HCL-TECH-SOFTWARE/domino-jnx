@@ -44,8 +44,4 @@ public class DefaultMemoryStructureWrapperService implements MemoryStructureWrap
     return MemoryStructureUtil.newStructure(subtype, variableDataLength);
   }
   
-  @Override
-  public int sizeOf(final Class<?> type) {
-    return MemoryStructureUtil.sizeOf(type);
-  }
 }

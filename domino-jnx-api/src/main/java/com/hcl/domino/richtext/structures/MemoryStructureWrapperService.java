@@ -49,7 +49,6 @@ public interface MemoryStructureWrapperService {
    */
   <T extends MemoryStructure> T wrapStructure(Class<T> structureClass, ByteBuffer data);
   
-  public int sizeOf(final Class<?> type);
   /**
    * Generates a new proxy object backed by a newly-allocated memory
    * {@link ByteBuffer}.
