@@ -251,6 +251,23 @@ public interface DxlExporter {
   }
 
   /**
+   * Export a set of note IDs into XML format.
+   * 
+   * @param db  database containing the export ids
+   * @param ids ids to export
+   * @return the exported DXL
+   * @throws IOException in case of I/O errors
+   * @since 1.0.41
+   */
+  default String exportIDs(final Database db, final Collection<Integer> ids) throws IOException {
+    try(StringWriter w = new StringWriter()) {
+      exportIDs(db, ids, w);
+      w.flush();
+      return w.toString();
+    }
+  }
+
+  /**
    * Export a set of note ids into XML format.
    *
    * @param db  database containing the export ids
