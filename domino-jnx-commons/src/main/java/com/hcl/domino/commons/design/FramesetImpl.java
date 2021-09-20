@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.design.DesignConstants;
+import com.hcl.domino.design.FrameContent;
 import com.hcl.domino.design.Frameset;
 import com.hcl.domino.design.FramesetLayout;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -100,7 +102,7 @@ public class FramesetImpl extends AbstractDesignElement<Frameset> implements Fra
       serialize();
     }
     getDocument().sign();
-    
+
     return super.save();
   }
   
@@ -115,6 +117,9 @@ public class FramesetImpl extends AbstractDesignElement<Frameset> implements Fra
       doc.removeItem(DesignConstants.ITEM_NAME_FRAMESET);
     }
 
+    int countOfFramesetsAndFrames = countFramesetsAndFrames(framesetLayout);
+    ((CDFramesetHeader)headerRecords.get(0)).setRecordCount(countOfFramesetsAndFrames);
+    
     try (RichTextWriter rtWriter = doc.createRichTextItem(DesignConstants.ITEM_NAME_FRAMESET);) {
       headerRecords.forEach(rtWriter::addRichTextRecord);
       FramesetStorage.writeFrameset(framesetLayout, rtWriter);
@@ -122,6 +127,18 @@ public class FramesetImpl extends AbstractDesignElement<Frameset> implements Fra
     }
   }
 
+  private int countFramesetsAndFrames(FrameContent layout) {
+    int count = 1;
+    
+    if (layout instanceof FramesetLayout) {
+      count += ((FramesetLayout)layout)
+      .getContent()
+      .collect(Collectors.summingInt(this::countFramesetsAndFrames));
+    }
+    
+    return count;
+  }
+  
   @Override
   public FramesetLayout getLayout() {
     return framesetLayout;
