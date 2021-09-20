@@ -511,9 +511,6 @@ public class FrameImpl implements Frame {
   public Frame setCaptionBorderAlignment(CaptionBorderAlignment align) {
     withFrameRecord((record) -> {
       switch (align) {
-      case Left:
-        record.setBorderAlignment(BorderAlignment.Left);
-        break;
       case Right:
         record.setBorderAlignment(BorderAlignment.Right);
         break;
@@ -522,6 +519,10 @@ public class FrameImpl implements Frame {
         break;
       case Bottom:
         record.setBorderAlignment(BorderAlignment.Bottom);
+        break;
+      case Left:
+      default:
+        record.setBorderAlignment(BorderAlignment.Left);
         break;
       }
       layoutDirty = true;
@@ -533,14 +534,15 @@ public class FrameImpl implements Frame {
   public Frame setCaptionTextAlignment(CaptionTextAlignment justify) {
     withFrameRecord((record) -> {
       switch (justify) {
-      case Left:
-        record.setTextAlignment(TextAlignment.Left);
-        break;
       case Right:
         record.setTextAlignment(TextAlignment.Right);
         break;
       case Center:
         record.setTextAlignment(TextAlignment.Center);
+        break;
+      case Left:
+      default:
+        record.setTextAlignment(TextAlignment.Left);
         break;
       }
       layoutDirty = true;
@@ -789,12 +791,13 @@ public class FrameImpl implements Frame {
       if (flags.contains(Flag.Scrolling)) {
         FrameScrollStyle scrollStyle = record.getScrollBarStyle();
         switch (scrollStyle) {
-        case ALWAYS:
-          return Optional.of(ScrollType.On);
         case NEVER:
           return Optional.of(ScrollType.Off);
         case AUTO:
           return Optional.of(ScrollType.Auto);
+        case ALWAYS:
+        default:
+          return Optional.of(ScrollType.On);
         }
       }
       return Optional.empty();
@@ -890,16 +893,16 @@ public class FrameImpl implements Frame {
         })
         .map((alignment) -> {
           switch (alignment) {
-          case Left:
-            return CaptionBorderAlignment.Left;
           case Right:
             return CaptionBorderAlignment.Right;
           case Bottom:
             return CaptionBorderAlignment.Bottom;
           case Top:
             return CaptionBorderAlignment.Top;
+          case Left:
+          default:
+            return CaptionBorderAlignment.Left;
           }
-          return null;
         });
   }
 
@@ -911,14 +914,14 @@ public class FrameImpl implements Frame {
         })
         .map((alignment) -> {
           switch (alignment) {
-          case Left:
-            return CaptionTextAlignment.Left;
           case Right:
             return CaptionTextAlignment.Right;
           case Center:
             return CaptionTextAlignment.Center;
+          case Left:
+          default:
+            return CaptionTextAlignment.Left;
           }
-          return null;
         });
   }
 
