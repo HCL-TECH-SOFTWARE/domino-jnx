@@ -1,5 +1,8 @@
 package com.hcl.domino.design;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import com.hcl.domino.richtext.structures.ColorValue;
@@ -73,11 +76,12 @@ public interface Frame extends FrameContent<Frame> {
 	 * <li>{@link Navigator}</li>
 	 * </ul>
 	 * 
+	 * @param replica id of database
 	 * @param type type
 	 * @param name name
 	 * @return this frame
 	 */
-	Frame setNamedElement(Class<? extends DesignElement> type, String name);
+	Frame setNamedElement(String replicaID, Class<? extends DesignElement> type, String name);
 	
 	/**
 	 * Returns the type of the named element
@@ -93,6 +97,37 @@ public interface Frame extends FrameContent<Frame> {
    */
   Optional<String> getNamedElement();
 
+  /**
+   * If the frame is configured to display a named element
+   * and the element location is computed via formula, this
+   * method returns a list of three formulas: to compute the
+   * name of the named element, its type (e.g. "Page") and
+   * its database filepath.
+   * 
+   * @return formulas
+   */
+  Optional<List<String>> getNamedElementFormulas();
+  
+  /**
+   * Configures the frame to display a named element where
+   * the element's location is computed via formula.
+   * 
+   * @param formulas three formulas to compute the name of the named element, its type (e.g. "Page") and its database filepath
+   * @return this frame
+   */
+  Frame setNamedElementFormulas(Collection<String> formulas);
+  
+  /**
+   * Configures the frame to display a named element where
+   * the element's location is computed via formula.
+   * 
+   * @param formulas three formulas to compute the name of the named element, its type (e.g. "Page") and its database filepath
+   * @return this frame
+   */
+  default Frame setNamedElementFormulas(String... formulas) {
+    return setNamedElementFormulas(Arrays.asList(formulas));
+  }
+  
 	/**
 	 * Sets the URL of the frame content and switches the
 	 * frame content type to  {@link FrameContentType#URL}
@@ -107,9 +142,10 @@ public interface Frame extends FrameContent<Frame> {
    * frame content type to  {@link FrameContentType#Link}
    * 
 	 * @param link doclink
+   * @param linkAnchorName optional name of link anchor or null/empty string
 	 * @return this frame
 	 */
-	Frame setContentLink(NOTELINK link);
+	Frame setContentLink(NOTELINK link, String linkAnchorName);
 	
 	/**
    * Sets the frame content via doclink and switches the
@@ -122,9 +158,10 @@ public interface Frame extends FrameContent<Frame> {
 	 * @param replicaId DB replica ID (for db links)
 	 * @param viewUnid view unid (for view links or doc links)
 	 * @param docUnid doc unid (for doc links)
+   * @param linkAnchorName optional name of link anchor or null/empty string
 	 * @return this frame
 	 */
-	Frame setContentLink(String replicaId, String viewUnid, String docUnid);
+	Frame setContentLink(String replicaId, String viewUnid, String docUnid, String linkAnchorName);
 	
 	/**
 	 * Sets the target frame for links clicked within the

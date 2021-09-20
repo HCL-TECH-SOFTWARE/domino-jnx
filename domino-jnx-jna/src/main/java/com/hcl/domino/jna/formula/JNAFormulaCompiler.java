@@ -16,10 +16,13 @@
  */
 package com.hcl.domino.jna.formula;
 
+import java.util.List;
+
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.exception.FormulaCompilationException;
 import com.hcl.domino.formula.FormulaCompiler;
+import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.FormulaDecompiler;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -81,6 +84,28 @@ public class JNAFormulaCompiler implements FormulaCompiler {
 	@Override
 	public String decompile(byte[] compiledFormula) {
 		return FormulaDecompiler.decompileFormula(compiledFormula);
+	}
+	
+	@Override
+	public int getSize(byte[] formula) {
+	  try (DisposableMemory mem = new DisposableMemory(formula.length)) {
+	    mem.write(0, formula, 0, formula.length);
+	    
+	    ShortByReference retFormulaLength = new ShortByReference();
+	    short result = NotesCAPI.get().NSFFormulaGetSizeP(mem, retFormulaLength);
+	    NotesErrorUtils.checkResult(result);
+	    
+	    return (int) (retFormulaLength.getValue() & 0xffff);
+	  }
+	}
+	
+	@Override
+	public List<String> decompileMulti(byte[] compiledFormulas) {
+	  try (DisposableMemory mem = new DisposableMemory(compiledFormulas.length)) {
+      mem.write(0, compiledFormulas, 0, compiledFormulas.length);
+
+      return FormulaDecompiler.decompileFormulas(mem, compiledFormulas.length);
+    }
 	}
 	
 }

@@ -3,6 +3,7 @@ package com.hcl.domino.commons.design;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -264,7 +265,7 @@ public class FrameImpl implements Frame {
   }
 
   @Override
-  public Frame setNamedElement(Class<? extends DesignElement> type, String name) {
+  public Frame setNamedElement(String replicaID, Class<? extends DesignElement> type, String name) {
     withResourceRecord((record) -> {
       if (type == Page.class) {
         record.setResourceClass(ResourceClass.PAGE);
@@ -288,8 +289,7 @@ public class FrameImpl implements Frame {
         throw new IllegalArgumentException(MessageFormat.format("Unsupported design element type: ", type));
       }
       
-      record.setNamedElement(name);
-      record.setResourceType(Type.NAMEDELEMENT);
+      record.setNamedElement(replicaID, name);
       layoutDirty = true;
     });
     return this;
@@ -299,23 +299,22 @@ public class FrameImpl implements Frame {
   public Frame setContentUrl(String url) {
     withResourceRecord((record) -> {
       record.setResourceUrl(url);
-      record.setResourceType(Type.NAMEDELEMENT);
       layoutDirty = true;
     });
     return this;
   }
   
   @Override
-  public Frame setContentLink(NOTELINK link) {
+  public Frame setContentLink(NOTELINK link, String linkAnchorName) {
     withResourceRecord((record) -> {
-      record.setLink(link);
+      record.setLink(link, linkAnchorName);
       layoutDirty = true;
     });
     return this;
   }
   
   @Override
-  public Frame setContentLink(String replicaId, String viewUnid, String docUnid) {
+  public Frame setContentLink(String replicaId, String viewUnid, String docUnid, String linkAnchorName) {
     withResourceRecord((record) -> {
       if (!StringUtil.isEmpty(replicaId)) {
         NOTELINK link = MemoryStructureUtil.newStructure(NOTELINK.class, 0);
@@ -330,7 +329,7 @@ public class FrameImpl implements Frame {
           }
         }
         
-        record.setLink(link);
+        record.setLink(link, linkAnchorName);
         layoutDirty = true;
       }
       else {
@@ -745,6 +744,26 @@ public class FrameImpl implements Frame {
   }
 
   @Override
+  public Optional<List<String>> getNamedElementFormulas() {
+    return getResourceRecord()
+        .flatMap(CDResource::getNamedElementFormulas);
+  }
+  
+  @Override
+  public Frame setNamedElementFormulas(Collection<String> formulas) {
+    withResourceRecord((record) -> {
+      if (formulas.size() < 3) {
+        throw new IllegalArgumentException(
+            MessageFormat.format("Please specify 3 formulas for the named element name, type and database filepath", formulas));
+      }
+      
+      record.setNamedElementFormulas(formulas);
+      layoutDirty = true;
+    });
+    return this;
+  }
+  
+  @Override
   public String getTargetName() {
     return getFrameRecord().map(CDFrame::getFrameTarget).orElse(""); //$NON-NLS-1$
   }
@@ -1032,7 +1051,7 @@ public class FrameImpl implements Frame {
     if (optResourceRecord.isPresent()) {
       CDResource resourceRecord = optResourceRecord.get();
       resourceRecord.setResourceClass(ResourceClass.UNKNOWN);
-      resourceRecord.setNamedElement(""); //$NON-NLS-1$
+      resourceRecord.setNamedElement("", ""); //$NON-NLS-1$
       layoutDirty = true;
     }
     return this;

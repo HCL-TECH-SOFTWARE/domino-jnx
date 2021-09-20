@@ -16,11 +16,17 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.hcl.domino.DominoException;
+import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -30,7 +36,9 @@ import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.NOTELINK;
+import com.hcl.domino.richtext.structures.OpaqueTimeDate;
 import com.hcl.domino.richtext.structures.WSIG;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * @author Jesse Gallagher
@@ -272,7 +280,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
 
   @StructureSetter("Flags")
   CDResource setFlags(Collection<Flag> flags);
-
+  
   @StructureGetter("Type")
   Type getResourceType();
 
@@ -448,7 +456,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
   }
   
   /**
-   * Retrieves the formula for this resource, when {@link #getFlags()} contains
+   * Retrieves the formulas for this resource, when {@link #getFlags()} contains
    * {@link Flag#FORMULA}.
    * 
    * <p>The meaning of this formula depends on the value of
@@ -457,7 +465,8 @@ public interface CDResource extends RichTextRecord<WSIG> {
    * <ul>
    *   <li>For resources of type {@link Type#NAMEDELEMENT NAMEDELEMENT} or
    *       {@link Type#URL URL}, this value represents the formula for a string
-   *       of the element name or URL.</li>
+   *       of the element name or URL. Resources of frames in framesets have two
+   *       additional formulas for the resource type (e.g. "Page") and the database path.</li>
    *   <li>For resources of type {@link Type#ACTION ACTION}, this represents the
    *       executable script of the action.</li>
    * </ul>
@@ -465,39 +474,101 @@ public interface CDResource extends RichTextRecord<WSIG> {
    * @return an {@link Optional} describing the formula for the name of the referenced
    *         element, or an optional one if this is not a formula-based element
    */
-  default Optional<String> getResourceFormula() {
+  default Optional<List<String>> getNamedElementFormulas() {
     if (!this.getFlags().contains(Flag.FORMULA)) {
       return Optional.empty();
     }
     int preLen = getServerHintLength() + getFileHintLength();
     if(getResourceType() == Type.NAMEDELEMENT) {
-      // Expect the replica ID
+      // skip the replica ID
       preLen += 8;
     }
-    return Optional.of(
-      StructureSupport.extractCompiledFormula(
-        this,
-        preLen,
-        this.getLength1()
-      )
-    );
+    ByteBuffer varData = getVariableData();
+    varData.position(preLen);
+    byte[] formulaData = new byte[getLength1()];
+    varData.get(formulaData);
+    
+    //there are three formulas: for the name of the named element, its type
+    //and its database path
+    List<String> formulas = FormulaCompiler.get().decompileMulti(formulaData);
+    
+    return Optional.of(formulas);
   }
 
-  default CDResource setResourceFormula(String newFormula) {
+  /**
+   * Sets the formula for a named element. 
+   * 
+   * @param formulas we expect three formulas: for the name of the named element (e.g. "mypage1"), for the resource type, e.g. "Page" and for the database path
+   * @return this record
+   */
+  default CDResource setNamedElementFormulas(Collection<String> formulas) {
     Set<Flag> flags = getFlags();
     if (!flags.contains(Flag.FORMULA)) {
-      //enable formula flag
+      //clear formula flag
       flags.add(Flag.FORMULA);
       setFlags(flags);
     }
     setResourceType(Type.NAMEDELEMENT);
     
-	  return StructureSupport.writeCompiledFormula(this,
-			  this.getServerHintLength() + this.getFileHintLength() + 8, // for replica ID
-			  getLength1(), newFormula, this::setLength1);
+    MemoryStructureWrapperService wrapper = MemoryStructureWrapperService.get();
+    int replicaIDLen = wrapper.sizeOf(OpaqueTimeDate.class);
+    
+    int preLen = this.getServerHintLength() + this.getFileHintLength();
+    
+    FormulaCompiler compiler = FormulaCompiler.get();
+    
+    ByteArrayOutputStream bOut = new ByteArrayOutputStream();
+    for (String currFormula : formulas) {
+      byte[] currFormulaArr = compiler.compile(currFormula);
+      try {
+        bOut.write(currFormulaArr);
+      } catch (IOException e) {
+        throw new DominoException("Error writing compiled formula to stream", e);
+      }
+    }
+
+    resizeVariableData(preLen + replicaIDLen + bOut.size());
+    
+    ByteBuffer varData = getVariableData();
+    varData.position(preLen);
+    varData.put(new byte[8]);
+    varData.put(bOut.toByteArray());
+    
+    setLength1(bOut.size());
+    return this;
   }
 
-  default CDResource setNamedElement(String name) {
+  /**
+   * Returns the database replica id of named elements
+   * 
+   * @return replica id
+   */
+  default Optional<String> getNamedElementReplicaId() {
+    if (getResourceType() != Type.NAMEDELEMENT) {
+      return Optional.empty();
+    }
+    
+    int preLen = this.getServerHintLength() + this.getFileHintLength();
+    ByteBuffer varData = getVariableData();
+    varData.position(preLen);
+    
+    OpaqueTimeDate replicaID = MemoryStructureWrapperService.get().newStructure(OpaqueTimeDate.class, 0);
+    
+    byte[] replicaIDData = new byte[replicaID.getData().limit()];
+    varData.get(replicaIDData);
+    
+    replicaID.getData().put(replicaIDData);
+    return Optional.of(replicaID.toReplicaId());
+  }
+  
+  /**
+   * Sets the name of a named element and its database replica id
+   * 
+   * @param replicaIDStr or null/empty for local DB
+   * @param name name of named element
+   * @return this record
+   */
+  default CDResource setNamedElement(String replicaIDStr, String name) {
     Set<Flag> flags = getFlags();
     if (flags.contains(Flag.FORMULA)) {
       //clear formula flag
@@ -506,10 +577,25 @@ public interface CDResource extends RichTextRecord<WSIG> {
     }
     setResourceType(Type.NAMEDELEMENT);
     
-    return StructureSupport.writeStringValue(this, 
-        this.getServerHintLength() + this.getFileHintLength() + 8, // 8 for replica ID
-        this.getLength1(),
-        name, this::setLength1);
+    MemoryStructureWrapperService wrapper = MemoryStructureWrapperService.get();
+    OpaqueTimeDate replicaID = wrapper.newStructure(OpaqueTimeDate.class, 0);
+    replicaID.setFromReplicaId(replicaIDStr);
+    ByteBuffer replicaIDData = replicaID.getData();
+    int replicaIDLen = replicaIDData.limit();
+    
+    int preLen = this.getServerHintLength() + this.getFileHintLength();
+    
+    byte[] nameLMBCS = name.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+
+    resizeVariableData(preLen + replicaIDLen + nameLMBCS.length);
+    
+    ByteBuffer varData = getVariableData();
+    varData.position(preLen);
+    varData.put(replicaIDData);
+    varData.put(nameLMBCS);
+    
+    setLength1(nameLMBCS.length);
+    return this;
   }
   
   default CDResource setResourceUrl(String url) {
@@ -521,11 +607,19 @@ public interface CDResource extends RichTextRecord<WSIG> {
       flags.remove(Flag.FORMULA);
       setFlags(flags);
     }
+
+    int preLen = this.getServerHintLength() + this.getFileHintLength();
     
-    return StructureSupport.writeStringValue(this, 
-        this.getServerHintLength() + this.getFileHintLength(),
-        this.getLength1(),
-        url, this::setLength1);
+    byte[] urlLMBCS = url.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+
+    resizeVariableData(preLen + urlLMBCS.length);
+    
+    ByteBuffer varData = getVariableData();
+    varData.position(preLen);
+    varData.put(urlLMBCS);
+    
+    setLength1(urlLMBCS.length);
+    return this;
   }
   
   default Optional<NOTELINK> getLink() {
@@ -549,25 +643,32 @@ public interface CDResource extends RichTextRecord<WSIG> {
   /**
    * Sets the resource type to {@link Type#NOTELINK}, enables the
    * flag {@link Flag#NOTELINKINLINE} and stores a {@link NOTELINK}
-   * structure.
+   * structure and optional link anchor name.
    * 
    * @param link link to set
+   * @param linkAnchorName optional name of link anchor or null/empty string
    * @return resource
    */
-  default CDResource setLink(NOTELINK link) {
+  default CDResource setLink(NOTELINK link, String linkAnchorName) {
     setResourceType(Type.NOTELINK);
     
     Set<Flag> flags = getFlags();
     flags.add(Flag.NOTELINKINLINE);
+    flags.remove(Flag.FORMULA);
     setFlags(flags);
     
+    ByteBuffer linkData = link.getData();
+    byte[] linkAnchorNameLMBCS = JNXStringUtil.isEmpty(linkAnchorName) ? new byte[0] : linkAnchorName.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+
+    int preLen = this.getServerHintLength() + this.getFileHintLength();
+    resizeVariableData(preLen + linkData.limit() + linkAnchorNameLMBCS.length);
+    
     ByteBuffer varData = getVariableData();
-    varData.position(this.getServerHintLength() + this.getFileHintLength());
-    ByteBuffer linkData = varData.slice();
-    MemoryStructureWrapperService wrapper = MemoryStructureWrapperService.get();
-    linkData.limit(wrapper.sizeOf(NOTELINK.class));
-    NOTELINK varDataLink = wrapper.wrapStructure(NOTELINK.class, linkData);
-    varDataLink.copyFrom(link);
+    varData.position(preLen);
+    varData.put(linkData);
+    varData.put(linkAnchorNameLMBCS);
+    
+    setLength1(linkAnchorNameLMBCS.length);
     
     return this;
   }
@@ -578,25 +679,30 @@ public interface CDResource extends RichTextRecord<WSIG> {
    * to a $Links item in the document
    * 
    * @param linkId link id
+   * @param linkAnchorName optional name of link anchor or null/empty string
    * @return resource
    */
-  default CDResource setLinkId(int linkId) {
-    Optional<String> linkAnchorName = getLinkAnchorName();
-    
+  default CDResource setLinkId(int linkId, String linkAnchorName) {
     setResourceType(Type.NOTELINK);
     
     Set<Flag> flags = getFlags();
     flags.remove(Flag.NOTELINKINLINE);
+    flags.remove(Flag.FORMULA);
     setFlags(flags);
     
-    ByteBuffer varData = getVariableData();
-    varData.position(this.getServerHintLength() + this.getFileHintLength());
-    short linkIdShort = (short) (linkId & 0xffff);
+    int preLen = this.getServerHintLength() + this.getFileHintLength();
     
+    byte[] linkAnchorNameLMBCS = JNXStringUtil.isEmpty(linkAnchorName) ? new byte[0] : linkAnchorName.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    resize(preLen + 2 + linkAnchorNameLMBCS.length);
+    
+    ByteBuffer varData = getVariableData();
+    varData.position(preLen);
+    short linkIdShort = (short) (linkId & 0xffff);
     varData.putShort(linkIdShort);
     //append link anchor name
-    return StructureSupport.writeStringValue(this,
-        this.getServerHintLength() + this.getFileHintLength() + 2,
-        getLength1(), linkAnchorName.orElse(""), this::setLength1); //$NON-NLS-1$
+    varData.put(linkAnchorNameLMBCS);
+    
+    setLength1(linkAnchorNameLMBCS.length);
+    return this;
   }
 }

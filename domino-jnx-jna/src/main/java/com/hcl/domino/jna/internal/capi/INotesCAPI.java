@@ -399,6 +399,8 @@ public interface INotesCAPI extends Library {
 			boolean fSelectionFormula,
 			DHANDLE.ByReference rethFormulaText,
 			ShortByReference retFormulaTextLength);
+	short NSFFormulaGetSizeP(Pointer ptr, ShortByReference retFormulaLength);
+
 	short NSFFormulaSummaryItem(HANDLE.ByValue hFormula, Memory ItemName, short ItemNameLength);
 	short NSFFormulaMerge(
 			HANDLE.ByValue hSrcFormula,
