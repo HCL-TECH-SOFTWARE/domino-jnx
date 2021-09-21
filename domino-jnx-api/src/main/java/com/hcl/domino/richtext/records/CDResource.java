@@ -449,7 +449,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
     return Optional.of(
       StructureSupport.extractStringValue(
         this,
-        this.getServerHintLength() + this.getFileHintLength() + 8, // for replica ID
+        this.getServerHintLength() + this.getFileHintLength(),
         this.getLength1()
       )
     );
