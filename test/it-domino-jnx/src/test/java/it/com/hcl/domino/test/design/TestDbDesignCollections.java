@@ -599,6 +599,16 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertTrue(column.isExtendToWindowWidth());
       assertEquals("", column.getExtraAttributes());
       assertFalse(column.isShowAsLinks());
+      
+      {
+        CollectionColumn.SortConfiguration sort = column.getSortConfiguration();
+        assertFalse(sort.isSorted());
+        assertFalse(sort.isCaseSensitive());
+        assertTrue(sort.isAccentSensitive());
+        assertFalse(sort.isSortPermuted());
+        assertFalse(sort.isCategorizationFlat());
+        assertFalse(sort.isIgnorePrefixes());
+      }
     }
     {
       final CollectionColumn column = columns.get(4);
@@ -611,6 +621,16 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertFalse(column.isIcon());
       assertTrue(column.isColor());
       assertTrue(column.isHideTitle());
+      
+      {
+        CollectionColumn.SortConfiguration sort = column.getSortConfiguration();
+        assertTrue(sort.isSorted());
+        assertTrue(sort.isCaseSensitive());
+        assertTrue(sort.isAccentSensitive());
+        assertFalse(sort.isSortPermuted());
+        assertFalse(sort.isCategorizationFlat());
+        assertFalse(sort.isIgnorePrefixes());
+      }
       
       {
         CollectionColumn.NumberSettings numbers = column.getNumberSettings();
@@ -797,6 +817,16 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertFalse(column.isExtendToWindowWidth());
       assertEquals("", column.getExtraAttributes());
       assertFalse(column.isShowAsLinks());
+      
+      {
+        CollectionColumn.SortConfiguration sort = column.getSortConfiguration();
+        assertFalse(sort.isSorted());
+        assertFalse(sort.isCaseSensitive());
+        assertTrue(sort.isAccentSensitive());
+        assertFalse(sort.isSortPermuted());
+        assertTrue(sort.isCategorizationFlat());
+        assertFalse(sort.isIgnorePrefixes());
+      }
     }
     {
       final CollectionColumn column = columns.get(11);
@@ -811,6 +841,16 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertTrue(twistie.get().getFlags().contains(CDResource.Flag.FORMULA));
       List<String> twistieNamedElementFormulas = twistie.get().getNamedElementFormulas().get();
       assertTrue(twistieNamedElementFormulas.contains("\"foo.png\""));
+      
+      {
+        CollectionColumn.SortConfiguration sort = column.getSortConfiguration();
+        assertFalse(sort.isSorted());
+        assertFalse(sort.isCaseSensitive());
+        assertTrue(sort.isAccentSensitive());
+        assertFalse(sort.isSortPermuted());
+        assertFalse(sort.isCategorizationFlat());
+        assertTrue(sort.isIgnorePrefixes());
+      }
     }
     
     // Test global script
