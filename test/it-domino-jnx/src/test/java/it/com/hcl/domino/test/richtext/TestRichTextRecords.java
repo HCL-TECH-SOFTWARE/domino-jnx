@@ -1123,6 +1123,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           });
         }
 
+        @SuppressWarnings("unused")
         final CDLayer begin = (CDLayer) doc.getRichTextItem("Body").get(0);
       });
     }
