@@ -1571,4 +1571,22 @@ public interface RichTextConstants extends EditOds, Ods {
   int EMBEDDEDSCHEDEXT_FLAG_RESOURCES_TITLE_FORMULA = 0x00000004;  /* if the resources title is a formula, set this flag */
   int EMBEDDEDSCHEDEXT_FLAG_SUGG_COLORS_DEFINED = 0x00000008;  /* if the designer has specified background colors for the suggestion OD list, set this flag */
 
+  int EMBEDDEDVIEW_FLAG_TRANSPARENT = 0x0001;
+  /*  if EMBEDDEDVIEW_FLAG_USEAPPLET_VIEWPROP is set then the view's property 
+      should be checked otherwise check EMBEDDEDVIEW_FLAG_USEAPPLET_INBROWSER */
+  int EMBEDDEDVIEW_FLAG_USEAPPLET_INBROWSER =  0x0002;
+  int EMBEDDEDVIEW_FLAG_USEAPPLET_VIEWPROP  =  0x0004;
+  int EMBEDDEDVIEW_FLAG_USE_WEBLINES  = 0x0008;
+  int EMBEDDEDVIEW_FLAG_SIMPLE_VIEW_MOUSE_TRACK_ON  = 0x0010; /* Line selection in the view follows the mouse movement if this flag is set */
+  int EMBEDDEDVIEW_FLAG_SIMPLE_VIEW_HEADER_OFF      = 0x0020; /* Hide the view headers if this flag is set */
+  int EMBEDDEDVIEW_FLAG_SIMPLE_VIEW_SHOW_AS_WEB_LINK = 0x0040; /* Line in view shown with underline to makeit look like a web link */
+  int EMBEDDEDVIEW_FLAG_SIMPLE_VIEW_SHOW_ACTION_BAR = 0x0080; /* Show action bar for view or not */
+  int EMBEDDEDVIEW_FLAG_SIMPLE_VIEW_SHOW_SELECTION_MARGIN = 0x0100; /* Show selection margin in view or not */
+  int EMBEDDEDVIEW_FLAG_SIMPLE_VIEW_SHOW_CURRENT_THREAD = 0x0200; /* Show current thread given a noteid */
+  int EMBEDDEDVIEW_FLAG_NOT_USE_WEBVIEW_DEFAULT     = 0x0400; /* on web, use selection margin stuff set here */
+  int EMBEDDEDVIEW_FLAG_SIMPLE_VIEW_SHOW_ONLY_SUMMARIZED = 0x0800; /* Show only summarized for calendar view */
+  int EMBEDDEDVIEW_FLAG_HASNAME       = 0x1000; /* embedded view has name */
+  int EMBEDDEDVIEW_FLAG_SIMPLE_VIEW_SHOW_NEWMAIL_AT_TOP = 0x2000; /* Show only summarized for calendar view */
+  int EMBEDDEDVIEW_FLAG_USEJSCTL_INBROWSER  =  0x4000;  /* use dojo control in browser */
+  int EMBEDDEDVIEW_FLAG_USECUSTOMJS_INBROWSER       = 0x8000;  /* use custom JS in browser */
 }
