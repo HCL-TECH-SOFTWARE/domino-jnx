@@ -50,7 +50,7 @@ public enum RecordType {
   /** Used to ignore a block of CD records for a particular version of Notes */
   IGNORE(RichTextConstants.SIG_CD_IGNORE, 1),
   TABLECELL_HREF2(RichTextConstants.SIG_CD_TABLECELL_HREF2, 1),
-  HREFBORDER(RichTextConstants.SIG_CD_HREFBORDER, 1),
+  HREFBORDER(RichTextConstants.SIG_CD_HREFBORDER, 1, CDResource.class),
   /**
    * This record was added because the Pre Table Begin Record can not be expanded
    * and R6 required
