@@ -46,7 +46,7 @@ public enum RecordType {
    */
   TABLECELL_DATAFLAGS(RichTextConstants.SIG_CD_TABLECELL_DATAFLAGS, 1),
   /** This CD record defines properties of an embedded contact list */
-  EMBEDDEDCONTACTLIST(RichTextConstants.SIG_CD_EMBEDDEDCONTACTLIST, 1),
+  EMBEDDEDCONTACTLIST(RichTextConstants.SIG_CD_EMBEDDEDCONTACTLIST, 1, CDEmbeddedContactList.class),
   /** Used to ignore a block of CD records for a particular version of Notes */
   IGNORE(RichTextConstants.SIG_CD_IGNORE, 1),
   TABLECELL_HREF2(RichTextConstants.SIG_CD_TABLECELL_HREF2, 1),
@@ -111,7 +111,7 @@ public enum RecordType {
    * "Bottom"
    * and "Right" members of the CDPOSITIONING structure.
    */
-  BOXSIZE(RichTextConstants.SIG_CD_BOXSIZE, 1),
+  BOXSIZE(RichTextConstants.SIG_CD_BOXSIZE, 1, CDBoxSize.class),
   /** This CD record contains position information for a layer box. */
   POSITIONING(RichTextConstants.SIG_CD_POSITIONING, 1, CDPositioning.class),
   /**
@@ -491,7 +491,7 @@ public enum RecordType {
    * Further description of the embedded view can be found in the CD record
    * CDPLACEHOLDER.
    */
-  EMBEDDEDVIEW(RichTextConstants.SIG_CD_EMBEDDEDVIEW, 1),
+  EMBEDDEDVIEW(RichTextConstants.SIG_CD_EMBEDDEDVIEW, 1, CDEmbeddedView.class),
   /**
    * This CD Record gives information pertaining to Background Data for a Table,
    * specifically the 'Cell Image' repeat value.

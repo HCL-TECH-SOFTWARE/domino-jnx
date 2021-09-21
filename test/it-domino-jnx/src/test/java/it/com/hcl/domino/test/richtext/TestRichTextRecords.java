@@ -66,14 +66,17 @@ import com.hcl.domino.richtext.records.CDActionByForm;
 import com.hcl.domino.richtext.records.CDAltText;
 import com.hcl.domino.richtext.records.CDAreaElement;
 import com.hcl.domino.richtext.records.CDBlobPart;
+import com.hcl.domino.richtext.records.CDBoxSize;
 import com.hcl.domino.richtext.records.CDColor;
 import com.hcl.domino.richtext.records.CDDataFlags;
 import com.hcl.domino.richtext.records.CDEmbeddedCalendarControl;
+import com.hcl.domino.richtext.records.CDEmbeddedContactList;
 import com.hcl.domino.richtext.records.CDEmbeddedControl;
 import com.hcl.domino.richtext.records.CDEmbeddedExtraInfo;
 import com.hcl.domino.richtext.records.CDEmbeddedOutline;
 import com.hcl.domino.richtext.records.CDEmbeddedSchedulerControl;
 import com.hcl.domino.richtext.records.CDEmbeddedSchedulerControlExtra;
+import com.hcl.domino.richtext.records.CDEmbeddedView;
 import com.hcl.domino.richtext.records.CDExt2Field;
 import com.hcl.domino.richtext.records.CDExtField;
 import com.hcl.domino.richtext.records.CDExtField.HelperType;
@@ -103,7 +106,9 @@ import com.hcl.domino.richtext.structures.AssistFieldStruct;
 import com.hcl.domino.richtext.structures.AssistFieldStruct.ActionByField;
 import com.hcl.domino.richtext.structures.CDPoint;
 import com.hcl.domino.richtext.structures.CDRect;
+import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FontStyle;
+import com.hcl.domino.richtext.structures.LengthValue;
 import com.hcl.domino.richtext.structures.NFMT;
 import com.hcl.domino.richtext.structures.TFMT;
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
@@ -1248,6 +1253,85 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final CDEmbeddedCalendarControl begin = (CDEmbeddedCalendarControl) doc.getRichTextItem("Body").get(0);
         assertEquals(EnumSet.of(CDEmbeddedCalendarControl.Flag.HASTARGETFRAME), begin.getFlags());
         assertEquals("foo.txt", begin.getTargetFrameName());
+      });
+    }
+    
+    @Test
+    public void testEmbeddedView() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDEmbeddedView.class, begin -> {
+            begin.setFlags(EnumSet.of(CDEmbeddedView.Flag.SIMPLE_VIEW_HEADER_OFF));
+            begin.setRestrictFormula("@Abs(10)");
+          });
+        }
+
+        final CDEmbeddedView begin = (CDEmbeddedView) doc.getRichTextItem("Body").get(0);
+        assertEquals(EnumSet.of(CDEmbeddedView.Flag.SIMPLE_VIEW_HEADER_OFF), begin.getFlags());
+        assertEquals("@Abs(10)", begin.getRestrictFormula());
+      });
+    }
+    
+    @Test
+    public void testBoxSize() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDBoxSize.class, begin -> {
+            begin.getHeight().setLength(10);
+            begin.getHeight().setUnit(LengthUnit.PERCENT);
+            begin.getHeight().setFlags(EnumSet.of(LengthValue.Flag.AUTO));
+            begin.getWidth().setLength(20);
+            begin.getWidth().setUnit(LengthUnit.PIXELS);
+            begin.getWidth().setFlags(EnumSet.of(LengthValue.Flag.AUTO));
+          });
+        }
+
+        final CDBoxSize begin = (CDBoxSize) doc.getRichTextItem("Body").get(0);
+        assertEquals(10, begin.getHeight().getLength());
+        assertEquals(LengthUnit.PERCENT, begin.getHeight().getUnit());
+        assertEquals(EnumSet.of(LengthValue.Flag.AUTO), begin.getHeight().getFlags());
+        assertEquals(20, begin.getWidth().getLength());
+        assertEquals(LengthUnit.PIXELS, begin.getWidth().getUnit());
+        assertEquals(EnumSet.of(LengthValue.Flag.AUTO), begin.getWidth().getFlags());
+      });
+    }
+    
+    @Test
+    public void testEmbeddedContactList() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDEmbeddedContactList.class, begin -> {
+            begin.getSelectedBackground().setBlue((short)10);
+            begin.getSelectedBackground().setRed((short)20);
+            begin.getSelectedBackground().setGreen((short)30);
+            begin.getSelectedBackground().setFlags(EnumSet.of(ColorValue.Flag.ISRGB));
+            begin.getSelectedText().setBlue((short)40);
+            begin.getSelectedText().setRed((short)50);
+            begin.getSelectedText().setGreen((short)60);
+            begin.getSelectedText().setFlags(EnumSet.of(ColorValue.Flag.ISRGB));
+            begin.getControlBackground().setBlue((short)70);
+            begin.getControlBackground().setRed((short)80);
+            begin.getControlBackground().setGreen((short)90);
+            begin.getControlBackground().setFlags(EnumSet.of(ColorValue.Flag.ISRGB));
+          });
+        }
+
+        final CDEmbeddedContactList begin = (CDEmbeddedContactList) doc.getRichTextItem("Body").get(0);
+        assertEquals(10, begin.getSelectedBackground().getBlue());
+        assertEquals(20, begin.getSelectedBackground().getRed());
+        assertEquals(30, begin.getSelectedBackground().getGreen());
+        assertEquals(EnumSet.of(ColorValue.Flag.ISRGB), begin.getSelectedBackground().getFlags());
+        assertEquals(40, begin.getSelectedText().getBlue());
+        assertEquals(50, begin.getSelectedText().getRed());
+        assertEquals(60, begin.getSelectedText().getGreen());
+        assertEquals(EnumSet.of(ColorValue.Flag.ISRGB), begin.getSelectedText().getFlags());
+        assertEquals(70, begin.getControlBackground().getBlue());
+        assertEquals(80, begin.getControlBackground().getRed());
+        assertEquals(90, begin.getControlBackground().getGreen());
+        assertEquals(EnumSet.of(ColorValue.Flag.ISRGB), begin.getSelectedText().getFlags());
       });
     }
 }
