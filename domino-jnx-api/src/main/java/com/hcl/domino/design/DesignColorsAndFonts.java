@@ -19,8 +19,10 @@ package com.hcl.domino.design;
 import java.util.EnumSet;
 
 import com.hcl.domino.data.FontAttribute;
+import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.richtext.RectangleSize;
+import com.hcl.domino.richtext.records.CDDocument;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
@@ -201,5 +203,65 @@ public enum DesignColorsAndFonts {
         return height;
       }
     };
+  }
+  
+  /**
+   * Translates the provided pre-V4 paper color to a {@link StandardColors} instance.
+   * 
+   * @param oldColor a {@code PreV4PaperColor} value to translate
+   * @return the corresponding {@link StandardColors} value, or {@link StandardColors#White}
+   *         if {@code oldColor} is {@code null}
+   * @since 1.0.42
+   */
+  public static StandardColors toStandardColor(CDDocument.PreV4PaperColor oldColor) {
+    if(oldColor == null) {
+      return StandardColors.White;
+    }
+    switch(oldColor) {
+      case BLACK:
+        return StandardColors.Black;
+      case BLUE:
+        return StandardColors.Blue;
+      case CYAN:
+        return StandardColors.Cyan;
+      case CYAN2:
+        return StandardColors.Cyan;
+      case DKBLUE:
+        return StandardColors.DarkBlue;
+      case DKCYAN:
+        return StandardColors.DarkCyan;
+      case DKGREEN:
+        return StandardColors.DarkGreen;
+      case DKMAGENTA:
+        return StandardColors.DarkMagenta;
+      case DKRED:
+        return StandardColors.DarkRed;
+      case DKYELLOW:
+        return StandardColors.DarkYellow;
+      case GRAY:
+        return StandardColors.Gray;
+      case GREEN:
+        return StandardColors.Green;
+      case GREEN2:
+        return StandardColors.Green2;
+      case LTCYAN:
+        // TODO figure out if this translates to something else
+        return StandardColors.Cyan;
+      case LTGREEN:
+        return StandardColors.LightGreen;
+      case LTYELLOW:
+        return StandardColors.LightYellow;
+      case MAGENTA:
+        return StandardColors.Magenta;
+      case RED:
+        return StandardColors.Red;
+      case YELLOW:
+        return StandardColors.Yellow;
+      case YELLOW2:
+        return StandardColors.Yellow2;
+      case WHITE:
+      default:
+        return StandardColors.White;
+    }
   }
 }

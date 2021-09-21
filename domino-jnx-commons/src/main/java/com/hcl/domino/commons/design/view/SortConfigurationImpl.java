@@ -36,18 +36,6 @@ public class SortConfigurationImpl implements SortConfiguration {
     this.format = format;
   }
 
-  private ViewColumnFormat getFormat1() {
-    return Objects.requireNonNull(this.format.getAdapter(ViewColumnFormat.class), "VIEW_COLUMN_FORMAT not read");
-  }
-
-  private ViewColumnFormat2 getFormat2() {
-    return Objects.requireNonNull(this.format.getAdapter(ViewColumnFormat2.class), "VIEW_COLUMN_FORMAT2 not read");
-  }
-
-  private Optional<ViewColumnFormat6> getFormat6() {
-    return Optional.ofNullable(this.format.getAdapter(ViewColumnFormat6.class));
-  }
-
   @Override
   public Optional<String> getResortToViewUnid() {
     final UNID unid = this.getFormat2().getResortToViewUNID();
@@ -100,10 +88,6 @@ public class SortConfigurationImpl implements SortConfiguration {
     return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.SecondResortDescending);
   }
 
-  // *******************************************************************************
-  // * Internal implementation methods
-  // *******************************************************************************
-
   @Override
   public boolean isSorted() {
     return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.Sort);
@@ -117,5 +101,44 @@ public class SortConfigurationImpl implements SortConfiguration {
   @Override
   public boolean isSortPermuted() {
     return this.getFormat1().getFlags2().contains(ViewColumnFormat.Flag2.SortPermute);
+  }
+  
+  @Override
+  public boolean isAccentSensitive() {
+    return getFormat2().getFlags().contains(ViewColumnFormat2.Flag3.AccentSensitiveSortInV5);
+  }
+  
+  @Override
+  public boolean isCaseSensitive() {
+    return getFormat2().getFlags().contains(ViewColumnFormat2.Flag3.CaseSensitiveSortInV5);
+  }
+  
+  @Override
+  public boolean isCategorizationFlat() {
+    return getFormat2().getFlags().contains(ViewColumnFormat2.Flag3.FlatInV5);
+  }
+  
+  @Override
+  public boolean isIgnorePrefixes() {
+    return getFormat6()
+      .map(ViewColumnFormat6::getFlags)
+      .map(f -> f.contains(ViewColumnFormat6.Flag.IgnorePrefixes))
+      .orElse(false);
+  }
+
+  // *******************************************************************************
+  // * Internal implementation methods
+  // *******************************************************************************
+
+  private ViewColumnFormat getFormat1() {
+    return Objects.requireNonNull(this.format.getAdapter(ViewColumnFormat.class), "VIEW_COLUMN_FORMAT not read");
+  }
+
+  private ViewColumnFormat2 getFormat2() {
+    return Objects.requireNonNull(this.format.getAdapter(ViewColumnFormat2.class), "VIEW_COLUMN_FORMAT2 not read");
+  }
+
+  private Optional<ViewColumnFormat6> getFormat6() {
+    return Optional.ofNullable(this.format.getAdapter(ViewColumnFormat6.class));
   }
 }

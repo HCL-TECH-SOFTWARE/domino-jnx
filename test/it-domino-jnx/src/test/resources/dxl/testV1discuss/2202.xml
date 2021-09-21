@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<note class='view' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<noteinfo noteid='89a' unid='852559E00078377C852558AC00697645' sequence='59'>
+<created><datetime>19890105T141155,57-05</datetime></created>
+<modified><datetime>19891109T215306,52+00</datetime></modified>
+<revised><datetime>19891109T215306,52+00</datetime></revised>
+<lastaccessed><datetime/></lastaccessed>
+<addedtofile><datetime/></addedtofile></noteinfo>
+<item name='$TITLE'><text>Categorized | CategoryView</text></item>
+<item name='$FORMULA' summary='true'><formula compiled='true'>
+3gACAAwAAgAkMmkAAwACAA4ABABGcm9teQADAAIAUAACACQ0BQAHAFN1YmplY3QAAQAAAAsCBQAH
+AFN1YmplY3QAAQACACAgIgIBAAAASgMBAAEAKAAiAgUABABGcm9tIgIBAAEAKQAiAgMAAgAOAAQA
+RnJvbXkAAwACADIAAgAkNQUABwBTdWJqZWN0AAEABAAgICAoIgIFAAQARnJvbSICAQABACkAIgID
+AAUAJgAiAAUACgACAAIAAgAEAENhdGVnb3JpZXMkMiQ0JDUkUkVGBAAEAAAACABmAAMA
+</formula></item>
+<item name='$FORMULACLASS'><text>1</text></item>
+<item name='$COLLATION' summary='true'>
+<rawitemdata type='2'>
+IAACAABEAGYHAAAKAABmAAoAAgBDYXRlZ29yaWVzJDI=
+</rawitemdata></item>
+<item name='$VIEWFORMAT' summary='true'>
+<rawitemdata type='5'>
+AQAFAA0ABAAAAFZDAwAKAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAACAAAAVkMBAAIABAAOAAAAMAAA
+AAAAAgABAIgAAAEAAAEAACBWQwAAAgADABgAEQAYAAAAAAACAAAAAAAAAAACAgAAAFZDEAACAAAA
+YAAAAAgAAAAAAAAAAgAAAAAAAAACAAAgVkMAAAIABQBCAAAAgAIAAAAAAAACAAAAAAAAAAIAACBD
+YXRlZ29yaWVzJDJEYXRlDgACAAwAAgAkMmkAAwAkOVJzcBgAAgAWAAIAJDkBAAAAAQABACUAlQID
+AAEFAQALAH9EMjswPTsxPSWAJDRgAAIADgAEAEZyb215AAMAAgBQAAIAJDQFAAcAU3ViamVjdAAB
+AAAACwIFAAcAU3ViamVjdAABAAIAICAiAgEAAABKAwEAAQAoACICBQAEAEZyb20iAgEAAQApACIC
+AwAkNVRvcGljQgACAA4ABABGcm9teQADAAIAMgACACQ1BQAHAFN1YmplY3QAAQAEACAgICgiAgUA
+BABGcm9tIgIBAAEAKQAiAgMA
+</rawitemdata></item></note>
+

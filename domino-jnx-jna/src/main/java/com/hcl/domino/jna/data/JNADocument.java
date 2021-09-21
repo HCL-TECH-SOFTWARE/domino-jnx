@@ -70,6 +70,7 @@ import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.ListUtil;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.commons.util.NotesErrorUtils;
+import com.hcl.domino.commons.util.NotesItemDataUtil;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.NotesCollationInfo;
@@ -90,6 +91,7 @@ import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.Item;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.data.PreV3Author;
 import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.exception.LotusScriptCompilationException;
@@ -408,6 +410,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		else if(dataTypeAsInt == ItemDataType.TYPE_CALENDAR_FORMAT.getValue()) {
       supportedType = true;
     }
+		else if(dataTypeAsInt == ItemDataType.TYPE_USERID.getValue()) {
+		  supportedType = true;
+		}
 		
 		if (!supportedType) {
 			throw new DominoException(format("Data type for value of item {0} is currently unsupported: {1}", itemName, dataTypeAsInt));
@@ -647,7 +652,11 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		else if (dataTypeAsInt == ItemDataType.TYPE_OUTLINE_FORMAT.getValue()) {
 		  DominoOutlineFormat outlineFormatInfo = OutlineFormatDecoder.decodeOutlineFormat(valueDataPtr,  valueDataLength);
           return Arrays.asList((Object) outlineFormatInfo);
-        }
+    }
+		else if (dataTypeAsInt == ItemDataType.TYPE_USERID.getValue()) {
+		  PreV3Author result = NotesItemDataUtil.parsePreV3Author(valueDataPtr.getByteBuffer(0, valueDataLength));
+		  return Arrays.asList((Object)result);
+		}
 		else {
 			throw new DominoException(format("Data type for value of item {0} is currently unsupported: {1}", itemName, dataTypeAsInt));
 		}

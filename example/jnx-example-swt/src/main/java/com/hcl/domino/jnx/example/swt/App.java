@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.DominoProcess;
+import com.hcl.domino.jnx.example.swt.dump.DumpDBShell;
 import com.hcl.domino.jnx.example.swt.exporter.DXLShell;
 
 import jakarta.enterprise.inject.se.SeContainer;
@@ -104,16 +105,30 @@ public class App {
           appItem.setText("Apps");
           appItem.setMenu(appMenu);
           
-          MenuItem dxlItem = new MenuItem(appMenu, SWT.NONE);
-          dxlItem.setText("DXL Exporter");
-          dxlItem.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
-              Shell dxl = new DXLShell(display);
-              dxl.open();
-              dxl.layout();
-              dxl.setFocus();
-            }
-          });
+          {
+            MenuItem dxlItem = new MenuItem(appMenu, SWT.NONE);
+            dxlItem.setText("DXL Exporter");
+            dxlItem.addSelectionListener(new SelectionAdapter() {
+              public void widgetSelected(SelectionEvent e) {
+                Shell dxl = new DXLShell(display);
+                dxl.open();
+                dxl.layout();
+                dxl.setFocus();
+              }
+            });
+          }
+          {
+            MenuItem dxlItem = new MenuItem(appMenu, SWT.NONE);
+            dxlItem.setText("DXL Dump");
+            dxlItem.addSelectionListener(new SelectionAdapter() {
+              public void widgetSelected(SelectionEvent e) {
+                Shell dxl = new DumpDBShell(display);
+                dxl.open();
+                dxl.layout();
+                dxl.setFocus();
+              }
+            });
+          }
 
           shell.setMenuBar(menuBar);
           

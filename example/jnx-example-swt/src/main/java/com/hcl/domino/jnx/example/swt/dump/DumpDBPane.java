@@ -14,7 +14,7 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.jnx.example.swt.exporter;
+package com.hcl.domino.jnx.example.swt.dump;
 
 import static com.hcl.domino.jnx.example.swt.util.SwtUtil.bindCheckbox;
 import static com.hcl.domino.jnx.example.swt.util.SwtUtil.bindInput;
@@ -33,10 +33,10 @@ import org.eclipse.swt.widgets.Text;
 
 import com.hcl.domino.jnx.example.swt.App;
 
-public class DXLExporterPane extends Composite {
+public class DumpDBPane extends Composite {
   private Text text;
 
-  public DXLExporterPane(Composite parent, int style) {
+  public DumpDBPane(Composite parent, int style) {
     super(parent, style);
 
     setLayout(new GridLayout(2, false));
@@ -45,29 +45,23 @@ public class DXLExporterPane extends Composite {
     sourceDbLabel.setText("Source Database");
     final Text sourceDbInput = new Text(this, SWT.BORDER);
     sourceDbInput.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-    bindInput("dxlexporter.sourceDatabase", sourceDbInput); //$NON-NLS-1$
+    bindInput("dump.sourceDatabase", sourceDbInput); //$NON-NLS-1$
 
     Label sourceUnidLabel = new Label(this, SWT.NONE);
-    sourceUnidLabel.setText("Source UNID");
+    sourceUnidLabel.setText("Destination Directory");
     final Text sourceUnidInput = new Text(this, SWT.BORDER);
     sourceUnidInput.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-    bindInput("dxlexporter.sourceUnid", sourceUnidInput); //$NON-NLS-1$
+    bindInput("dump.destDir", sourceUnidInput); //$NON-NLS-1$
     
     {
       final Button rawNoteFormat = new Button(this, SWT.CHECK);
       rawNoteFormat.setText("Raw Note Format");
-      bindCheckbox("dxlexporter.useRawNoteFormat", rawNoteFormat); //$NON-NLS-1$
+      bindCheckbox("dump.useRawNoteFormat", rawNoteFormat); //$NON-NLS-1$
       rawNoteFormat.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
-    }
-    {
-      final Button entireDatabase = new Button(this, SWT.CHECK);
-      entireDatabase.setText("Entire Database");
-      bindCheckbox("dxlexporter.entireDatabase", entireDatabase); //$NON-NLS-1$
-      entireDatabase.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
     }
 
     final Button export = new Button(this, SWT.PUSH);
-    export.setText("Export");
+    export.setText("Dump Notes");
     export.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 2, 1));
 
     text = new Text(this, SWT.BORDER | SWT.WRAP | SWT.V_SCROLL | SWT.MULTI);
@@ -75,14 +69,13 @@ public class DXLExporterPane extends Composite {
 
     export.addListener(SWT.Selection, e -> {
       getDisplay().asyncExec(() -> export.setEnabled(false));
-      String sourceDb = loadData("dxlexporter.sourceDatabase"); //$NON-NLS-1$
-      String sourceUnid = loadData("dxlexporter.sourceUnid"); //$NON-NLS-1$
-      boolean rawNoteFormat = loadDataBoolean("dxlexporter.useRawNoteFormat"); //$NON-NLS-1$
-      boolean entireDatabase = loadDataBoolean("dxlexporter.entireDatabase"); //$NON-NLS-1$
+      String sourceDb = loadData("dump.sourceDatabase"); //$NON-NLS-1$
+      String destDir = loadData("dump.destDir"); //$NON-NLS-1$
+      boolean rawNoteFormat = loadDataBoolean("dump.useRawNoteFormat"); //$NON-NLS-1$
 
       String dxl;
       try {
-        dxl = App.getExecutor().submit(new ExportDXLCallable(sourceDb, sourceUnid, rawNoteFormat, entireDatabase)).get();
+        dxl = App.getExecutor().submit(new DumpDBCallable(sourceDb, destDir, rawNoteFormat)).get();
         getDisplay().asyncExec(() -> text.setText(dxl));
       } catch (InterruptedException | ExecutionException e1) {
         e1.printStackTrace();

@@ -519,8 +519,19 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
 
     @Override
     public Optional<StandardColors> getStandardBackgroundColor() {
+      // This could be stored in either in PaperColor (pre-V4) or PaperColorExt.
+      //   Check the flags to know
       return getDocumentRecord()
-        .flatMap(CDDocument::getPaperColor);
+        .flatMap(doc -> {
+          if(doc.getFlags().contains(CDDocument.Flag.SPARESOK)) {
+            // Indicates V4+ friendly
+            return doc.getPaperColor();
+          } else {
+            // Ancient data - translate pre-V4 color
+            return doc.getPreV4PaperColor()
+              .map(DesignColorsAndFonts::toStandardColor);
+          }
+        });
     }
 
     @Override
