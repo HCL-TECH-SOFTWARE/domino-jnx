@@ -134,11 +134,12 @@ public interface CDFrameset extends RichTextRecord<WSIG> {
   CDFrameset setThemeSetting(ClassicThemeBehavior behavior);
   
   default List<FramesetLength> getLengths() {
-    // Only one of RowQty and ColQty is legal to be > 0
-    int qty = getRowCount();
-    if(qty < 1) {
-      qty = Math.max(0, getColumnCount());
-    }
+    // C API doc says only one of these is != 0, but
+    // that was not the case in our tests, so we pick the greater one
+    int rowCount = getRowCount();
+    int colCount = getColumnCount();
+    int qty = rowCount>colCount ? rowCount : colCount;
+    
     ByteBuffer data = getVariableData();
     MemoryStructureWrapperService wrapper = MemoryStructureWrapperService.get();
     List<FramesetLength> result = new ArrayList<>(qty);
@@ -150,4 +151,28 @@ public interface CDFrameset extends RichTextRecord<WSIG> {
     }
     return result;
   }
+
+  default void setLengths(List<FramesetLength> lengths, boolean isRow) {
+    resizeVariableData(4 * lengths.size());
+    ByteBuffer data = getVariableData();
+
+    byte[] currLengthData = new byte[4];
+
+    for (int i = 0; i < lengths.size(); i++) {
+      FramesetLength currLength = lengths.get(i);
+      currLength.getData().get(currLengthData);
+
+      data.position(i * 4);
+      data.put(currLengthData);
+    }
+
+    if (isRow) {
+      setRowCount(lengths.size());
+      setColumnCount(0);
+    } else {
+      setRowCount(0);
+      setColumnCount(lengths.size());
+    }
+  }
+
 }

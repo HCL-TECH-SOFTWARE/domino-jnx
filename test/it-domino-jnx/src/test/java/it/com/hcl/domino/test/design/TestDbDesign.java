@@ -40,6 +40,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -696,6 +697,9 @@ public class TestDbDesign extends AbstractDesignTest {
     String lsExpected = IOUtils.resourceToString("/text/testDbDesign/testPageLs.txt", StandardCharsets.UTF_8);
     assertEquals(lsExpected, page.getLotusScript());
     
+    String lsGlobalsExpected = IOUtils.resourceToString("/text/testDbDesign/testPageLsGlobals.txt", StandardCharsets.UTF_8);
+    assertEquals(lsGlobalsExpected, page.getLotusScriptGlobals());
+    
     Map<EventId, String> formulas = page.getFormulaEvents();
     assertEquals(1, formulas.size());
     assertEquals("@StatusBar(\"I am page postopen\")", formulas.get(EventId.CLIENT_FORM_POSTOPEN));
@@ -1158,6 +1162,7 @@ public class TestDbDesign extends AbstractDesignTest {
           os.write(expected);
         }
         res.save();
+        TimeUnit.SECONDS.sleep(1);
       }
       {
         FileResource res = design.getFileResource("file.css").get();

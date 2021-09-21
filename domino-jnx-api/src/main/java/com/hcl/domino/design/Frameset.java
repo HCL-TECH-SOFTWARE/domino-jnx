@@ -14,32 +14,24 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.formula;
+package com.hcl.domino.design;
 
-import java.util.List;
-
-import com.hcl.domino.exception.FormulaCompilationException;
-import com.hcl.domino.misc.JNXServiceFinder;
+import com.hcl.domino.design.DesignElement.NamedDesignElement;
 
 /**
- * This interface represents a service capable of compiling and decompiling
- * formula
- * language code.
- *
- * @author Jesse Gallagher
- * @since 1.0.15
+ * Frameset design element
+ * 
+ * @author Karsten Lehmann
+ * @since 1.0.42
  */
-public interface FormulaCompiler {
-  static FormulaCompiler get() {
-    return JNXServiceFinder.findRequiredService(FormulaCompiler.class, FormulaCompiler.class.getClassLoader());
-  }
+public interface Frameset extends NamedDesignElement {
 
-  byte[] compile(String formula) throws FormulaCompilationException;
-
-  String decompile(byte[] compiledFormula);
-  
-  int getSize(byte[] formula);
-  
-  List<String> decompileMulti(byte[] compiledFormulas);
+  /**
+   * Returns the layout of the frameset. Use it to add/remove
+   * frames and embedded framesets.
+   * 
+   * @return layout
+   */
+  public FramesetLayout getLayout();
   
 }

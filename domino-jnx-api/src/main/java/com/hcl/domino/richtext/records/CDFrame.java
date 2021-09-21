@@ -74,15 +74,15 @@ public interface CDFrame extends RichTextRecord<WSIG> {
     FrameBorderColor(DesignConstants.fFRFrameBorderColor),
     /**  Set if ScrollBarStyle is specified  */
     Scrolling(DesignConstants.fFRScrolling),
-    /**  Set if this frame has a notes only border */
+    /**  Set if this frame has a notes only border (a border with caption text =&gt;"Caption Only") */
     NotesOnlyBorder(DesignConstants.fFRNotesOnlyBorder),
-    /**  Set if this frame wants arrows shown in Notes */
+    /**  Set if this frame wants arrows shown in Notes (a border with arrows =&gt;"Arrows Only") */
     NotesOnlyArrows(DesignConstants.fFRNotesOnlyArrows),
     /**  Open value specified for Border caption is in percent. */
     NotesOpenPercent(DesignConstants.fFRNotesOpenPercent),
     /**  if set, set initial focus to this frame  */
     NotesInitialFocus(DesignConstants.fFRNotesInitialFocus),
-    /**  Set if this fram caption reading order is Right-To-Left */
+    /**  Set if this frame caption reading order is Right-To-Left */
     NotesReadingOrder(DesignConstants.fFRNotesReadingOrder);
     private final int value;
     private Flag(int value) {
@@ -121,6 +121,46 @@ public interface CDFrame extends RichTextRecord<WSIG> {
       return value;
     }
   }
+  enum BorderAlignment implements INumberEnum<Short> {
+    Top((short) 0),
+    Bottom((short) 1),
+    Left((short) 2),
+    Right((short) 3);
+    private final short value;
+    private BorderAlignment(short value) {
+      this.value = value;
+    }
+    
+    @Override
+    public long getLongValue() {
+      return value;
+    }
+
+    @Override
+    public Short getValue() {
+      return value;
+    }
+  }
+  enum TextAlignment implements INumberEnum<Short> {
+    Left((short)0),
+    Right((short)1),
+    Center((short)2);
+    private final short value;
+    private TextAlignment(short value) {
+      this.value = value;
+    }
+    
+    @Override
+    public long getLongValue() {
+      return value;
+    }
+
+    @Override
+    public Short getValue() {
+      return value;
+    }
+  }
+  
   @StructureGetter("Header")
   @Override
   WSIG getHeader();
@@ -143,9 +183,20 @@ public interface CDFrame extends RichTextRecord<WSIG> {
   @StructureSetter("BorderEnable")
   CDFrame setBorderEnable(byte borderEnable);
   
+  /**
+   * Specifies the NORESIZE attribute for this Frame element
+   * 
+   * @return noresize flag (0 = false, 1=true)
+   */
   @StructureGetter("NoResize")
   byte getNoResize();
   
+  /**
+   * Specifies the NORESIZE attribute for this Frame element
+   * 
+   * @param noResize noresize flag (0 = false, 1=true)
+   * @return this frame
+   */
   @StructureSetter("NoResize")
   CDFrame setNoResize(byte noResize);
   
@@ -244,11 +295,13 @@ public interface CDFrame extends RichTextRecord<WSIG> {
 			  buf.putShort((short) 0);
 		  }
 		  
-		  int unknownValue = varData.getUnknownValue();
-		  buf.putShort((short) (unknownValue & 0xffff));
+		  Optional<BorderAlignment> borderAlignment = varData.getBorderAlignment();
+		  short borderAlignmentShort = borderAlignment.map((align) -> { return align.getValue(); }).orElse((short) 0);
+		  buf.putShort(borderAlignmentShort);
 		  
-		  int textAlign = varData.getTextAlign();
-		  buf.putShort((short) (textAlign & 0xffff));
+		  Optional<TextAlignment> textAlignment = varData.getTextAlignment();
+      short textAlignmentShort = textAlignment.map((align) -> { return align.getValue(); }).orElse((short) 0);
+		  buf.putShort((short) (textAlignmentShort & 0xffff));
 		  
 		  int open = varData.getOpen();
 		  buf.putShort((short) (open & 0xffff));
@@ -301,25 +354,36 @@ public interface CDFrame extends RichTextRecord<WSIG> {
   }
   
   /**
-   * Returns the text alignment: left(0), right (1) or center (2)
+   * Returns the text alignment
    * 
    * @return alignment
    */
-  default int getTextAlign() {
-	  return readVariableFrameData().getTextAlign();
+  default Optional<TextAlignment> getTextAlignment() {
+	  return readVariableFrameData().getTextAlignment();
   }
   
 	/**
 	 * Sets the text alignment
 	 * 
-	 * @param align left(0), right (1) or center (2)
+	 * @param align new alignment
 	 * @return this record
 	 */
-  default CDFrame setTextAlign(int align) {
+  default CDFrame setTextAlignment(TextAlignment align) {
 	  CDFrameVariableData varData = readVariableFrameData();
-	  varData.setTextAlign(align);
+	  varData.setTextAlignment(align);
 	  writeVariableFrameData(varData);
 	  return this;
+  }
+  
+  default Optional<BorderAlignment> getBorderAlignment() {
+    return readVariableFrameData().getBorderAlignment();
+  }
+  
+  default CDFrame setBorderAlignment(BorderAlignment align) {
+    CDFrameVariableData varData = readVariableFrameData();
+    varData.setBorderAlignment(align);
+    writeVariableFrameData(varData);
+    return this;
   }
   
   default int getOpen() {
@@ -420,11 +484,24 @@ public interface CDFrame extends RichTextRecord<WSIG> {
 			  varData.setCaptionFormula(captionFormula);
 		  }
 		  
-		  short unknownValue = buf.getShort();
-		  varData.setUnknownValue(Short.toUnsignedInt(unknownValue));
+		  short borderAlignmentShort = buf.getShort();
+		  BorderAlignment borderAlignment = BorderAlignment.Top; // use 0x0000 by default
+		  for (BorderAlignment currAlignment : BorderAlignment.values()) {
+		    if (borderAlignmentShort == currAlignment.getValue()) {
+		      borderAlignment = currAlignment;
+		      break;
+		    }
+		  }
 		  
-		  short textAlign = buf.getShort();
-		  varData.setTextAlign(Short.toUnsignedInt(textAlign));
+		  varData.setBorderAlignment(borderAlignment);
+		  
+		  short textAlignShort = buf.getShort();
+		  for (TextAlignment currAlign : TextAlignment.values()) {
+		    if (textAlignShort == currAlign.getValue()) {
+		      varData.setTextAlignment(currAlign);
+		      break;
+		    }
+		  }
 		  
 		  short open = buf.getShort();
 		  varData.setOpen(Short.toUnsignedInt(open));

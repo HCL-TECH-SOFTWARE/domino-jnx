@@ -1017,6 +1017,59 @@ public interface RichTextConstants extends EditOds, Ods {
   short CDRESOURCE_CLASS_PORTFOLIO = 21;
   short CDRESOURCE_CLASS_OUTLINE = 22;
 
+  /** Obsolete - Use class _VIEW or _FOLDER and flag _SIMPLE */
+  short CDRESOURCE_CLASS_SIMPLEVIEW = 23;
+  /** design link only */
+  short CDRESOURCE_CLASS_SUBFORM = 24;
+  /** design link only */
+  short CDRESOURCE_CLASS_SHARED_FLD = 25;
+  /** design link only */
+  short CDRESOURCE_CLASS_SCRIPTLIB = 26;
+  /** design link only */
+  short CDRESOURCE_CLASS_DBSCRIPT = 27;
+  /** design link only */
+  short CDRESOURCE_CLASS_SHARED_ACTIONS = 28;
+  /** design link only */
+  short CDRESOURCE_CLASS_WEBSERVICE = 29;
+  /** design link only */
+  short CDRESOURCE_CLASS_DATA_CONNECTION = 30;
+  short CDRESOURCE_CLASS_SHARED_APPLET = 31;
+  short CDRESOURCE_CLASS_EMBEDDED_VIEW = 32;
+  short CDRESOURCE_CLASS_STYLE_SHEET = 33;
+  /** a file with the html flag, too */
+  short CDRESOURCE_CLASS_HTMLFILE = 34;
+  /** a file that's a JSP */
+  short CDRESOURCE_CLASS_JSP = 35;
+  short CDRESOURCE_CLASS_SHAREDCOL = 36;
+  short CDRESOURCE_CLASS_DB2ACCESSVIEW = 37;
+  /** LI 3925.04 */
+  short CDRESOURCE_CLASS_COMPAPP = 38;
+  /** LI 3925.05 */
+  short CDRESOURCE_CLASS_COMPDEF = 39;
+  /** LI 3261.05 */
+  short CDRESOURCE_CLASS_MAILSETTINGS = 40;
+  /** LI 3261.05 */
+  short CDRESOURCE_CLASS_CSSETTINGS = 41;
+  /** LI 3261.05 */
+  short CDRESOURCE_CLASS_FORM_PREMIUM = 42;
+  short CDRESOURCE_MAX_CLASS = CDRESOURCE_CLASS_FORM_PREMIUM;
+  /** design link only */
+  short CDRESOURCE_CLASS_XSPPAGES = 43;
+  /** design link only */
+  short CDRESOURCE_CLASS_XSPCCS = 44;
+  /** design link only */
+  short CDRESOURCE_CLASS_STYLEKITS = 45;
+  /** design link only */
+  short CDRESOURCE_CLASS_WSCONSUMERS = 46;
+  /** design link only */
+  short CDRESOURCE_CLASS_COMPONENT = 47;
+  /** design link only */
+  short CDRESOURCE_CLASS_JAVAFILES = 48;
+  /** design link only */
+  short CDRESOURCE_CLASS_JAVAJARS = 49;
+  /** design link only */
+  short CDRESOURCE_CLASS_CUSTOMELTS = 50;
+  
   short CDBORDERSTYLE_NONE = 0;
   short CDBORDERSTYLE_SOLID = 1;
   short CDBORDERSTYLE_DOUBLE = 2;

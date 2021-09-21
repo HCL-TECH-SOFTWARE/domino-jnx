@@ -3,6 +3,8 @@ package com.hcl.domino.richtext.structures;
 import java.util.Optional;
 
 import com.hcl.domino.richtext.records.CDFrame;
+import com.hcl.domino.richtext.records.CDFrame.BorderAlignment;
+import com.hcl.domino.richtext.records.CDFrame.TextAlignment;
 
 /**
  * Variable data values of a {@link CDFrame} that store additional
@@ -13,8 +15,8 @@ import com.hcl.domino.richtext.records.CDFrame;
 public class CDFrameVariableData {
 	private CDFrame cdFrame;
 	private Optional<String> captionFormula = Optional.empty();
-	private int unknownValue;
-	private int textAlign;
+	private Optional<BorderAlignment> borderAlignment = Optional.empty();
+	private Optional<TextAlignment> textAlign = Optional.empty();
 	private int open;
 	private Optional<ColorValue> backgroundColor = Optional.empty();
 	private Optional<FontStyle> fontStyle = Optional.empty();
@@ -39,26 +41,32 @@ public class CDFrameVariableData {
 		return this;
 	}
 
-	public int getUnknownValue() {
-		return unknownValue;
+	public Optional<BorderAlignment> getBorderAlignment() {
+		return borderAlignment;
 	}
 
-	public CDFrameVariableData setUnknownValue(int unknownValue) {
-		this.unknownValue = unknownValue;
+	public CDFrameVariableData setBorderAlignment(BorderAlignment borderAlignment) {
+		this.borderAlignment = Optional.ofNullable(borderAlignment);
 		return this;
 	}
 
 	/**
-	 * Returns the text alignment: left(0), right (1) or center (2)
+	 * Returns the text alignment within the caption border
 	 * 
 	 * @return alignment
 	 */
-	public int getTextAlign() {
+	public Optional<TextAlignment> getTextAlignment() {
 		return textAlign;
 	}
 
-	public CDFrameVariableData setTextAlign(int textAlign) {
-		this.textAlign = textAlign;
+	/**
+	 * Sets the text alignment within the caption border
+	 * 
+	 * @param textAlign new alignment
+	 * @return this frame data
+	 */
+	public CDFrameVariableData setTextAlignment(TextAlignment textAlign) {
+		this.textAlign = Optional.ofNullable(textAlign);
 		return this;
 	}
 
@@ -118,7 +126,7 @@ public class CDFrameVariableData {
 
 	@Override
 	public String toString() {
-		return "CDFrameVariableData [captionFormula=" + captionFormula + ", unknownValue=" + unknownValue //$NON-NLS-1$ //$NON-NLS-2$
+		return "CDFrameVariableData [captionFormula=" + captionFormula + ", unknownValue=" + borderAlignment //$NON-NLS-1$ //$NON-NLS-2$
 				+ ", textAlign=" + textAlign + ", open=" + open + ", backgroundColor=" + backgroundColor //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 				+ ", fontStyle=" + fontStyle + ", textColor=" + textColor + ", fontName=" + fontName + ", sequenceNo=" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 				+ sequenceNo + "]"; //$NON-NLS-1$

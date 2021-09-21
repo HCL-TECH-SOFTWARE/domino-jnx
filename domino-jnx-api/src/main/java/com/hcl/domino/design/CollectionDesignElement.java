@@ -930,8 +930,19 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * 
    * @return a {@link String} representing the IDE-formatted LotusScript for the element
    * @since 1.0.34
+   * @see #getLotusScriptGlobals()
    */
   String getLotusScript();
+  
+  /**
+   * Retrieves the "Globals" portion of the LotusScript associated with the view or folder.
+   * 
+   * @return a {@link String} representing the IDE-formatted LotusScript Globals content
+   *         for the element
+   * @since 1.0.41
+   * @see #getLotusScript()
+   */
+  String getLotusScriptGlobals();
   
   /**
    * Determines whether the view or folder should be presented as a calendar instead

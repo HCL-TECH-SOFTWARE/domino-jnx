@@ -60,6 +60,9 @@ public interface DesignConstants {
   /** this view is accessible to rest api */
   String WEBFLAG_NOTE_RESTAPIALLOWED = "A"; //$NON-NLS-1$
   
+  /* form item to hold form Frameset definition */
+  String ITEM_NAME_FRAMESET = "$FrameSet"; //$NON-NLS-1$
+  
   /** frameset used to open form */
   String ITEM_NAME_FRAMEINFO = "$FrameInfo"; //$NON-NLS-1$
   String ITEM_NAME_HTMLCODE = "$HTMLCode"; //$NON-NLS-1$

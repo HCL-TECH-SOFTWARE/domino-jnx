@@ -177,4 +177,23 @@ public interface FontStyle extends MemoryStructure {
     return this;
   }
 
+  /**
+   * Copy all font style attributes from another {@link FontStyle} object
+   * 
+   * @param otherStyle other style
+   */
+  default void copyFrom(FontStyle otherStyle) {
+    setAttributes(otherStyle.getAttributes());
+    setBold(otherStyle.isBold());
+    setColorRaw(otherStyle.getColorRaw());
+    setExtrude(otherStyle.isExtrude());
+    setFontFace(otherStyle.getFontFace());
+    setItalic(otherStyle.isItalic());
+    setPointSize(otherStyle.getPointSize());
+    setShadow(otherStyle.isShadow());
+    setStrikeout(otherStyle.isStrikeout());
+    setSub(otherStyle.isSub());
+    setSuper(otherStyle.isSuper());
+    setUnderline(otherStyle.isUnderline());
+  }
 }

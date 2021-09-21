@@ -54,9 +54,11 @@ import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
+import com.hcl.domino.design.FramesetLayout;
 import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.design.JavaScriptLibrary;
 import com.hcl.domino.design.NamedFileElement;
+import com.hcl.domino.design.Frameset;
 import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.design.ScriptLibrary;
@@ -206,6 +208,11 @@ public abstract class AbstractDbDesign implements DbDesign {
     return this.createDesignNote(View.class, viewName);
   }
 
+  @Override
+  public Frameset createFrameset(String framesetName) {
+    return this.createDesignNote(Frameset.class, framesetName);
+  }
+  
   @Override
   public Optional<DesignAgent> getAgent(final String name) {
     return this.getDesignElementByName(DesignAgent.class, name);
@@ -379,6 +386,16 @@ public abstract class AbstractDbDesign implements DbDesign {
   @Override
   public Stream<Outline> getOutlines() {
     return this.getDesignElements(Outline.class);
+  }
+  
+  @Override
+  public Stream<Frameset> getFramesets() {
+    return this.getDesignElements(Frameset.class);
+  }
+  
+  @Override
+  public Optional<Frameset> getFrameset(String name) {
+    return this.getDesignElementByName(Frameset.class, name);
   }
   
   public Optional<AboutDocument> getAboutDocument() {
@@ -633,7 +650,7 @@ public abstract class AbstractDbDesign implements DbDesign {
      *  - $FlagsExt
      *  - $FileSize (number)
      *  - $MimeType
-     *  - $DesinerVersion (string)
+     *  - $DesignerVersion (string)
      */
 
     final DominoCollection designColl = this.database.openDesignCollection();
@@ -705,4 +722,5 @@ public abstract class AbstractDbDesign implements DbDesign {
     }
     return path;
   }
+  
 }
