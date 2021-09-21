@@ -73,7 +73,9 @@ import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
+import com.hcl.domino.design.FramesetLayout;
 import com.hcl.domino.design.ImageResource;
+import com.hcl.domino.design.Frameset;
 import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.design.Navigator;
@@ -237,6 +239,7 @@ public enum DesignUtil {
     DesignUtil.mappings.put(StyleSheet.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_STYLE_SHEET_RESOURCE, StyleSheetImpl::new));
     DesignUtil.mappings.put(WiringProperties.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_COMPDEF, WiringPropertiesImpl::new));
     DesignUtil.mappings.put(Theme.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_STYLEKIT, ThemeImpl::new));
+    DesignUtil.mappings.put(Frameset.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_FRAMESET, FramesetImpl::new));
   }
 
   /**
@@ -294,6 +297,8 @@ public enum DesignUtil {
           return new StyleSheetImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_COMPDEF)) {
           return new WiringPropertiesImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_FRAMESET)) {
+            return new FramesetImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else {
           return new FormImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         }
@@ -347,6 +352,7 @@ public enum DesignUtil {
    * design element interface.
    * 
    * @param <T>         a {@link DesignElement} sub-interface
+   * @param <I>         a {@link AbstractDesignElement} implementation class
    * @param designClass a {@link Class} object representing {@code <T>}
    * @return the corresponding {@code DesignMapping}
    * @throws IllegalArgumentException when {@code <T>} has no mapping

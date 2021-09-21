@@ -17,6 +17,7 @@
 package com.hcl.domino.design;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -101,6 +102,14 @@ public interface DbDesign {
    * @return the newly-created in-memory {@link View}
    */
   View createView(String viewName);
+  
+  /**
+   * Creates a new, unsaved frameset design element.
+   * 
+   * @param framesetName the name of the frameset to create
+   * @return the newly-created in-memory {@link Frameset}
+   */
+  Frameset createFrameset(String framesetName);
   
   /**
    * Retrieves the named agent.
@@ -563,6 +572,24 @@ public interface DbDesign {
    * @since 1.0.38
    */
   Optional<InputStream> getResourceAsStream(String filePath);
+  
+  /**
+   * Opens a new stream to the named file-type resource (file resource, image, or stylesheet).
+   * This method uses the same mechanism as {@link #getResourceAsStream(String)} to locate
+   * existing resources.
+   * 
+   * <p>If the named resource doesn't exist, then this method will create a new resource with
+   * this name on closing the stream. This resource will be a normal file resource that will
+   * show up in {@link #getFileResources()}.</p>
+   * 
+   * <p>Note: it is not guaranteed that any changes made to the resource are written to the NSF
+   * until {@link OutputStream#close()} is called.</p>
+   * 
+   * @param filePath the path of the file to write
+   * @return a new {@link OutputStream}
+   * @since 1.0.39
+   */
+  OutputStream newResourceOutputStream(String filePath);
 
   /**
    * Queries all design elements in the database by the provided formula and
@@ -599,4 +626,23 @@ public interface DbDesign {
    * @return database
    */
   Database getDatabase();
+
+  /**
+   * Retrieves all framesets in the database.
+   *
+   * @return a {@link Stream} of {@link Frameset}s
+   * @since 1.0.42
+   */
+  Stream<Frameset> getFramesets();
+  
+  /**
+   * Retrieves the named frameset.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link Frameset}, or an empty one if
+   *         no such theme exists
+   * @since 1.0.42
+   */
+  Optional<Frameset> getFrameset(String name);
+  
 }

@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.JavaScriptLibrary;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.process.GetJavaScriptDataProcessor;
 
 /**
@@ -39,5 +40,17 @@ public class JavaScriptLibraryImpl extends AbstractScriptLibrary<JavaScriptLibra
     final byte[] data = GetJavaScriptDataProcessor.instance
         .apply(this.getDocument().getRichTextItem(NotesConstants.JAVASCRIPTLIBRARY_CODE));
     return new String(data, 0, data.length - 1, Charset.forName("LMBCS")); //$NON-NLS-1$
+  }
+  
+  @Override
+  public JavaScriptLibrary setScript(String script) {
+    Document doc = getDocument();
+    
+    doc.removeItem(NotesConstants.JAVASCRIPTLIBRARY_CODE);
+    try(RichTextWriter w = doc.createRichTextItem(NotesConstants.JAVASCRIPTLIBRARY_CODE)) {
+      w.addJavaScriptLibraryData(script);
+    }
+    
+    return this;
   }
 }

@@ -751,6 +751,10 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(EnumSet.of(FontAttribute.ITALIC), footer.getFontStyle().getAttributes());
       assertEquals("I am footer text", footer.getText());
     }
+    
+    // Test global script
+    String lsGlobalsExpected = IOUtils.resourceToString("/text/testDbDesignForms/form-testls-globals.txt", StandardCharsets.UTF_8);
+    assertEquals(lsGlobalsExpected, form.getLotusScriptGlobals());
   }
 
   @Test
@@ -873,6 +877,10 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertEquals(EventId.ONHELP, evt.getEventId());
     assertFalse(evt.isClient());
     assertEquals("/* I'm subform help */\n", evt.getScript());
+    
+    // Test global script
+    String lsGlobalsExpected = IOUtils.resourceToString("/text/testDbDesignForms/globals-blank.txt", StandardCharsets.UTF_8);
+    assertEquals(lsGlobalsExpected, subform.getLotusScriptGlobals());
   }
 
   @Test

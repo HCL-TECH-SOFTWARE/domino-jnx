@@ -16,6 +16,8 @@
  */
 package com.hcl.domino.design;
 
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -23,11 +25,16 @@ import java.util.OptionalInt;
 import java.util.Set;
 
 import com.hcl.domino.data.CollectionColumn;
+import com.hcl.domino.data.NotesFont;
+import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.design.action.EventId;
+import com.hcl.domino.design.format.CalendarLayout;
 import com.hcl.domino.design.format.ViewLineSpacing;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.ColorValue.Flag;
+import com.hcl.domino.richtext.structures.FontStyle;
+import com.hcl.domino.richtext.structures.RawColorValue;
 import com.hcl.domino.security.AclLevel;
 
 /**
@@ -108,6 +115,27 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
   }
   
   /**
+   * Represents the tabs and panes available for display in calendar-format collections.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.41
+   */
+  public enum CalendarTab {
+    DAY, WEEK, MONTH, MEETINGS, TRASH, CURRENT_MONTH, GOTO_TODAY,
+    FORMAT_OPTIONS, OWNER_NAME
+  }
+  
+  /**
+   * Represents the available options for displaying the calendar header.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.41
+   */
+  public enum CalendarHeaderStyle {
+    NONE, PLAIN, TABS
+  }
+  
+  /**
    * Represents settings related to view/folder display when used inside of
    * a composite application in the Notes Standard client.
    * 
@@ -122,6 +150,220 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
     String getViewers();
     String getThreadView();
     boolean isAllowConversationMode();
+  }
+  
+  /**
+   * Represents settings specific to calendar-format views and folders.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.41
+   */
+  interface CalendarSettings {
+    /**
+     * Retrieves the color used for the grid separating days in the calendar.
+     * 
+     * @return a {@link ColorValue} instance
+     */
+    ColorValue getDaySeparatorColor();
+    
+    /**
+     * Retrieves the color used for the background of the calendar header.
+     * 
+     * @return a {@link RawColorValue} instance
+     */
+    RawColorValue getHeaderBackgroundColor();
+    
+    /**
+     * Retrieves the display style for the calendar header.
+     * 
+     * @return a {@link CalendarHeaderStyle} instance
+     */
+    CalendarHeaderStyle getHeaderStyle();
+    
+    /**
+     * Retrieves the tabs and options configured to display in the header of
+     * the calendar.
+     * 
+     * @return a {@link Set} of {@link CalendarTab} instances
+     */
+    Set<CalendarTab> getTabs();
+    
+    /**
+     * Retrieves the background color for the date area.
+     * 
+     * @return a {@link ColorValue} instance
+     */
+    ColorValue getDateBackgroundColor();
+    
+    /**
+     * Retrieves the color used for the current day in the date area.
+     * 
+     * @return a {@link StandardColors} instance
+     */
+    StandardColors getTodayColor();
+    
+    /**
+     * Retrieves the color used for the to-do area in the date area.
+     * 
+     * @return a {@link RawColorValue} instance
+     */
+    RawColorValue getToDoAreaColor();
+    
+    /**
+     * Determines whether the date area should display large numbers.
+     * 
+     * @return {@code true} if the date area should use large numbers;
+     *         {@code false} otherwise
+     */
+    boolean isDisplayLargeNumbers();
+    
+    /**
+     * Retrieves the color used for work hours in the daily view.
+     * 
+     * @return a {@link RawColorValue} instance
+     */
+    RawColorValue getDailyWorkHoursColor();
+    
+    /**
+     * Retrieves the color used for non-work hours in the daily view.
+     * 
+     * @return a {@link ColorValue} instance
+     */
+    RawColorValue getDailyOtherHoursColor();
+    
+    /**
+     * Retrieves the color used to display months outside the current month
+     * in the monthly view.
+     * 
+     * @return a {@link ColorValue} instance
+     */
+    ColorValue getNonCurrentMonthColor();
+    
+    /**
+     * Retrieves the color used for text in the monthly view.
+     * 
+     * @return a {@link ColorValue} instance
+     */
+    ColorValue getMonthlyTextColor();
+    
+    /**
+     * Retrieves the background color used for entries.
+     * 
+     * @return a {@link ColorValue} instance
+     */
+    ColorValue getEntryBackgroundColor();
+    
+    /**
+     * Determines whether the calendar should display save-conflict marks.
+     * 
+     * @return {@code true} to display conflict marks in the calendar;
+     *         {@code false} otherwise
+     */
+    boolean isShowConflictMarks();
+    
+    /**
+     * Retrieves the font style used for displaying time slots and grouping
+     * in the calendar.
+     * 
+     * @return a {@link FontStyle} instance
+     */
+    NotesFont getTimeSlotsFont();
+    
+    /**
+     * Retrieves the font style used for displaying header in the calendar.
+     * 
+     * @return a {@link FontStyle} instance
+     */
+    NotesFont getHeaderFont();
+    
+    /**
+     * Retrieves the font style used for displaying day and date in the calendar.
+     * 
+     * @return a {@link FontStyle} instance
+     */
+    NotesFont getDayAndDateFont();
+    
+    /**
+     * Retrieves the font style used for displaying the day and month in weekly
+     * views in the calendar.
+     * 
+     * @return a {@link FontStyle} instance
+     */
+    NotesFont getWeeklyDayAndMonthFont();
+    
+    /**
+     * Retrieves the calendar formats available for users to select.
+     * 
+     * @return a {@link Set} of {@link CalendarLayout} instance
+     */
+    Set<CalendarLayout> getUserCalendarFormats();
+    
+    /**
+     * Retrieves the default calendar format for users viewing the collection.
+     * 
+     * @return an {@link Optional} describing {@link CalendarLayout} instance
+     *         for the default format, or an empty one to use the last format
+     *         viewed by the user
+     */
+    Optional<CalendarLayout> getInitialUserCalendarFormat();
+    
+    /**
+     * Determines whether users are able to see the time-slot display.
+     * 
+     * @return {@code true} if the time slot display is user-visible;
+     *         {@code false} otherwise
+     */
+    boolean isTimeSlotDisplayAvailable();
+    
+    /**
+     * Retrieves the start time to use for displaying time slots when
+     * {@link #isTimeSlotDisplayAvailable()} is {@code true}.
+     * 
+     * @return a {@link LocalTime} instance
+     */
+    LocalTime getTimeSlotStart();
+    
+    /**
+     * Retrieves the end time to use for displaying time slots when
+     * {@link #isTimeSlotDisplayAvailable()} is {@code true}.
+     * 
+     * @return a {@link LocalTime} instance
+     */
+    LocalTime getTimeSlotEnd();
+    
+    /**
+     * Retrieves the duration to use for displaying time slots when
+     * {@link #isTimeSlotDisplayAvailable()} is {@code true}.
+     * 
+     * @return a {@link Duration} instance
+     */
+    Duration getTimeSlotDuration();
+    
+    /**
+     * Determines whether users can override the time-slot display settings
+     * when {@link #isTimeSlotDisplayAvailable()} is {@code true}.
+     * 
+     * @return {@code true} if the time-slot settings are overridable;
+     *         {@code false} otherwise
+     */
+    boolean isTimeSlotsOverridable();
+    
+    /**
+     * Determines whether users are able to toggle time slots on and off
+     * for each day when {@link #isTimeSlotDisplayAvailable()} is {@code true}.
+     * 
+     * @return {@code true} if users can toggle time slots on and off;
+     *         {@code false} otherwise
+     */
+    boolean isAllowUserTimeSlotToggle();
+    
+    /**
+     * Determines whether entries should be grouped together by time slot.
+     * 
+     * @return {@code true} if entries should be grouped by time slot;
+     *         {@code false} otherwise
+     */
+    boolean isGroupEntriesByTimeSlot();
   }
   
   /**
@@ -688,6 +930,37 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * 
    * @return a {@link String} representing the IDE-formatted LotusScript for the element
    * @since 1.0.34
+   * @see #getLotusScriptGlobals()
    */
   String getLotusScript();
+  
+  /**
+   * Retrieves the "Globals" portion of the LotusScript associated with the view or folder.
+   * 
+   * @return a {@link String} representing the IDE-formatted LotusScript Globals content
+   *         for the element
+   * @since 1.0.41
+   * @see #getLotusScript()
+   */
+  String getLotusScriptGlobals();
+  
+  /**
+   * Determines whether the view or folder should be presented as a calendar instead
+   * of the normal "outline" format.
+   * 
+   * @return {@code true} if the collection is calendar format;
+   *         {@code false} otherwise
+   * @since 1.0.41
+   */
+  boolean isCalendarFormat();
+  
+  /**
+   * Retrieves the calendar-specific settings for this view or folder. This only applies
+   * when {@link #isCalendarFormat()} is {@code true}.
+   * 
+   * @return an {@link Optional} describing a {@link CalendarSettings} instance, or an
+   *         empty one if this is not a calendar-format collection
+   * @since 1.0.41
+   */
+  Optional<CalendarSettings> getCalendarSettings();
 }

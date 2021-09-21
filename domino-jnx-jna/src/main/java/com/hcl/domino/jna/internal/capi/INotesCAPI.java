@@ -27,7 +27,11 @@ import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks.ACLENTRYENUMFUNC;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
+import com.hcl.domino.jna.internal.structs.CreateDAConfigStruct;
+import com.hcl.domino.jna.internal.structs.UpdateDAConfigStruct;
+import com.hcl.domino.jna.internal.structs.EnableDisableDAStruct;
 import com.hcl.domino.jna.internal.structs.DbOptionsStruct;
+import com.hcl.domino.jna.internal.structs.VerifyLDAPConnectionStruct;
 import com.hcl.domino.jna.internal.structs.HtmlApi_UrlComponentStruct;
 import com.hcl.domino.jna.internal.structs.IntlFormatStruct;
 import com.hcl.domino.jna.internal.structs.KFM_PASSWORDStruct;
@@ -365,6 +369,10 @@ public interface INotesCAPI extends Library {
 
 	void OSGetExecutableDirectory(Memory retPathName);
 	void OSGetDataDirectory(Memory retPathName);
+	short CreateDAConfig(CreateDAConfigStruct ldap);
+	short UpdateDAConfig(UpdateDAConfigStruct ldap);
+	short EnableDisableDA(EnableDisableDAStruct daConfig);
+	short VerifyLdapDirAssistConnection(VerifyLDAPConnectionStruct ldap);
 	short OSGetSystemTempDirectory(Memory retPathName, int bufferLength);
 	void OSPathAddTrailingPathSep(Memory retPathName);
 	short OSGetEnvironmentString(Memory variableName, Memory rethValueBuffer, short bufferLength);
@@ -397,6 +405,8 @@ public interface INotesCAPI extends Library {
 			boolean fSelectionFormula,
 			DHANDLE.ByReference rethFormulaText,
 			ShortByReference retFormulaTextLength);
+	short NSFFormulaGetSizeP(Pointer ptr, ShortByReference retFormulaLength);
+
 	short NSFFormulaSummaryItem(HANDLE.ByValue hFormula, Memory ItemName, short ItemNameLength);
 	short NSFFormulaMerge(
 			HANDLE.ByValue hSrcFormula,

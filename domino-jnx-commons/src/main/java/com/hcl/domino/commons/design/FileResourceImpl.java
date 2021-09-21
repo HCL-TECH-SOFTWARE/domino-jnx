@@ -31,6 +31,11 @@ public class FileResourceImpl extends AbstractNamedFileElement<FileResource> imp
   }
 
   @Override
+  public void initializeNewDesignNote() {
+    setFlags("345CgQ"); //$NON-NLS-1$
+  }
+
+  @Override
   public String getCharsetName() {
     return this.getDocument().get(NotesConstants.ITEM_NAME_FILE_MIMECHARSET, String.class, ""); //$NON-NLS-1$
   }
@@ -38,12 +43,6 @@ public class FileResourceImpl extends AbstractNamedFileElement<FileResource> imp
   @Override
   public String getMimeType() {
     return this.getDocument().get(NotesConstants.ITEM_NAME_FILE_MIMETYPE, String.class, ""); //$NON-NLS-1$
-  }
-
-  @Override
-  public void initializeNewDesignNote() {
-    // TODO Auto-generated method stub
-
   }
 
 }

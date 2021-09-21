@@ -24,8 +24,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -38,6 +40,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -48,6 +51,7 @@ import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
+import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.AboutDocument;
 import com.hcl.domino.design.ActionBar;
@@ -693,6 +697,9 @@ public class TestDbDesign extends AbstractDesignTest {
     String lsExpected = IOUtils.resourceToString("/text/testDbDesign/testPageLs.txt", StandardCharsets.UTF_8);
     assertEquals(lsExpected, page.getLotusScript());
     
+    String lsGlobalsExpected = IOUtils.resourceToString("/text/testDbDesign/testPageLsGlobals.txt", StandardCharsets.UTF_8);
+    assertEquals(lsGlobalsExpected, page.getLotusScriptGlobals());
+    
     Map<EventId, String> formulas = page.getFormulaEvents();
     assertEquals(1, formulas.size());
     assertEquals("@StatusBar(\"I am page postopen\")", formulas.get(EventId.CLIENT_FORM_POSTOPEN));
@@ -1139,5 +1146,113 @@ public class TestDbDesign extends AbstractDesignTest {
         assertEquals(expected, content);
       }
     }
+  }
+  
+  @Test
+  public void testOverwriteFileResource() throws Exception {
+    // Use a fresh copy of the DB to avoid interactions with other tests
+    withResourceDxl("/dxl/testDbDesign", database -> {
+      DbDesign design = database.getDesign();
+      byte[] expected = "I am fake new CSS that isn't in the resource currently".getBytes();
+      DominoDateTime origMod;
+      {
+        FileResource res = design.getFileResource("file.css").get();
+        origMod = res.getFileModified();
+        try(OutputStream os = res.newOutputStream()) {
+          os.write(expected);
+        }
+        res.save();
+        TimeUnit.SECONDS.sleep(1);
+      }
+      {
+        FileResource res = design.getFileResource("file.css").get();
+        byte[] content;
+        try(
+          InputStream is = res.getFileData();
+          ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ) {
+          StreamUtil.copyStream(is, baos);
+          content = baos.toByteArray();
+        }
+        assertArrayEquals(expected, content);
+        assertEquals(expected.length, res.getFileSize());
+        assertTrue(res.getFileModified().compareTo(origMod) > 0);
+        assertEquals(expected.length, res.getDocument().get(NotesConstants.ITEM_NAME_FILE_SIZE, int.class, -1));
+      }
+    });
+  }
+  
+  @Test
+  public void testCreateFileResource() throws Exception {
+    withTempDb(database -> {
+      DbDesign design = database.getDesign();
+
+      byte[] expected = "I am fake new content that isn't in the resource currently".getBytes();
+      try(OutputStream os = design.newResourceOutputStream("/somenewfile.txt")) {
+        os.write(expected);
+      }
+      
+      {
+        FileResource res = design.getFileResource("somenewfile.txt").get();
+        byte[] content;
+        try(
+          InputStream is = res.getFileData();
+          ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ) {
+          StreamUtil.copyStream(is, baos);
+          content = baos.toByteArray();
+        }
+        assertArrayEquals(expected, content);
+        assertEquals(expected.length, res.getFileSize());
+        assertEquals(expected.length, res.getDocument().get(NotesConstants.ITEM_NAME_FILE_SIZE, int.class, -1));
+      }
+      
+      // Check as a stream
+      {
+        byte[] content;
+        try(
+          InputStream is = design.getResourceAsStream("/somenewfile.txt").get();
+          ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ) {
+          StreamUtil.copyStream(is, baos);
+          content = baos.toByteArray();
+        }
+        assertArrayEquals(expected, content);
+      }
+    });
+  }
+  
+  @Test
+  public void testOverwriteImageResource() throws Exception {
+    // Use a fresh copy of the DB to avoid interactions with other tests
+    withResourceDxl("/dxl/testDbDesign", database -> {
+      DbDesign design = database.getDesign();
+      byte[] expected = IOUtils.resourceToByteArray("/images/help_vampire.gif");
+      DominoDateTime origMod;
+      {
+        ImageResource res = design.getImageResource("Untitled 2.gif").get();
+        origMod = res.getFileModified();
+        try(OutputStream os = res.newOutputStream()) {
+          os.write(expected);
+        }
+        res.save();
+      }
+      {
+        ImageResource res = design.getImageResource("Untitled 2.gif").get();
+        byte[] content;
+        try(
+          InputStream is = res.getFileData();
+          ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ) {
+          StreamUtil.copyStream(is, baos);
+          content = baos.toByteArray();
+        }
+        assertArrayEquals(expected, content);
+        assertEquals(expected.length, res.getFileSize());
+        assertTrue(res.getFileModified().compareTo(origMod) > 0);
+        assertEquals(expected.length, res.getDocument().get(NotesConstants.ITEM_NAME_FILE_SIZE, int.class, -1));
+      }
+    });
+    
   }
 }

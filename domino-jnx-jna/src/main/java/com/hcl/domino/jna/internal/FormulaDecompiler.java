@@ -16,6 +16,9 @@
  */
 package com.hcl.domino.jna.internal;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
@@ -67,5 +70,41 @@ public class FormulaDecompiler {
 				NotesErrorUtils.checkResult(freeResult);
 			}
 		});
+	}
+
+	/**
+	 * Returns the size of a compiled formula in bytes
+	 * 
+	 * @param ptr pointer to compiled formula
+	 * @return size
+	 */
+  public static int getSize(Pointer ptr) {
+    ShortByReference retFormulaLength = new ShortByReference();
+    short result = NotesCAPI.get().NSFFormulaGetSizeP(ptr, retFormulaLength);
+    NotesErrorUtils.checkResult(result);
+    
+    return (int) (retFormulaLength.getValue() & 0xffff);
+  }
+	
+	/**
+	 * Decompiles multiple formulas stored next to each other
+	 * 
+	 * @param ptr pointer to memory with compiled formulas
+	 * @param totalLen total size of memory
+	 * @return list of formulas
+	 */
+	public static List<String> decompileFormulas(Pointer ptr, int totalLen) {
+	  List<String> formulas = new ArrayList<>();
+	  
+	  int offset = 0;
+	  while (offset < totalLen) {
+	    Pointer currPtr = ptr.share(offset);
+	    int size = getSize(currPtr);
+	    String formula = decompileFormula(currPtr);
+	    formulas.add(formula);
+	    offset += size;
+	  }
+	  
+	  return formulas;
 	}
 }

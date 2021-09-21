@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.data.Document;
 import com.hcl.domino.richtext.RichTextWriter;
@@ -58,16 +59,21 @@ public class ReplaceImageResourceFormulaConversion implements IRichTextConversio
 				.anyMatch((record) -> {
 					if (record instanceof CDResource) {
 						CDResource resourceRecord = (CDResource) record;
-						Optional<String> namedElementFormula = resourceRecord.getResourceFormula();
+						Optional<List<String>> namedElementFormula = resourceRecord.getNamedElementFormulas();
 						if (namedElementFormula.isPresent()) {
-							String formula = namedElementFormula.get();
+							List<String> formulas = namedElementFormula.get();
 							
 							return replacements.keySet()
 									.stream()
 									.anyMatch((currPattern) -> {
-										Matcher matcher = currPattern.matcher(formula);
-										boolean matches = matcher.find();
-										return matches;
+									  for (String currFormula : formulas) {
+	                    Matcher matcher = currPattern.matcher(currFormula);
+	                    boolean matches = matcher.find();
+									    if (matches) {
+									      return true;
+									    }
+									  }
+										return false;
 									});
 						}
 					}
@@ -80,16 +86,24 @@ public class ReplaceImageResourceFormulaConversion implements IRichTextConversio
 		for (RichTextRecord<?> currRecord : source) {
 			if (currRecord instanceof CDResource) {
 				CDResource resourceRecord = (CDResource) currRecord;
-				Optional<String> namedElementFormula = resourceRecord.getResourceFormula();
-				if (namedElementFormula.isPresent()) {
-					String formula = namedElementFormula.get();
-					String newFormula = formula;
-					for (Entry<Pattern,Function<Matcher,String>> currEntry : replacements.entrySet()) {
-						newFormula = replaceAllMatches(newFormula, currEntry.getKey(), currEntry.getValue());
-					}
-					if (!newFormula.equals(formula)) {
-						resourceRecord.setResourceFormula(newFormula);
-					}
+        Optional<List<String>> namedElementFormulas = resourceRecord.getNamedElementFormulas();
+				
+				if (namedElementFormulas.isPresent()) {
+				  List<String> oldFormulas = namedElementFormulas.get();
+	        List<String> newFormulas = oldFormulas
+	            .stream()
+	            .map((formula) -> {
+	              String newFormula = formula;
+	              for (Entry<Pattern,Function<Matcher,String>> currEntry : replacements.entrySet()) {
+	                newFormula = replaceAllMatches(newFormula, currEntry.getKey(), currEntry.getValue());
+	              }
+	              return newFormula;
+	            })
+	            .collect(Collectors.toList());
+	        
+	        if (!oldFormulas.equals(newFormulas)) {
+	          resourceRecord.setNamedElementFormulas(newFormulas);
+	        }
 				}
 				
 				target.addRichTextRecord(currRecord);

@@ -16,7 +16,6 @@
  */
 package com.hcl.domino.design;
 
-import java.io.InputStream;
 import java.util.List;
 
 import com.hcl.domino.data.DominoDateTime;
@@ -29,10 +28,8 @@ import com.hcl.domino.design.DesignElement.NamedDesignElement;
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface NamedFileElement extends NamedDesignElement {
+public interface NamedFileElement extends NamedDesignElement, FileSystemDesignElement {
   String getCharsetName();
-
-  InputStream getFileData();
 
   DominoDateTime getFileModified();
 

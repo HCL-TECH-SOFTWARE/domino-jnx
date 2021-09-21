@@ -56,6 +56,7 @@ import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.data.SignatureDataImpl;
 import com.hcl.domino.commons.design.FormFieldImpl;
 import com.hcl.domino.commons.design.outline.DominoOutlineFormat;
+import com.hcl.domino.commons.design.view.DominoCalendarFormat;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.errors.UnsupportedItemValueError;
@@ -402,8 +403,11 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			supportedType = true;
 		}
 		else if (dataTypeAsInt == ItemDataType.TYPE_OUTLINE_FORMAT.getValue()) {
-          supportedType = true;
-        }
+      supportedType = true;
+    }
+		else if(dataTypeAsInt == ItemDataType.TYPE_CALENDAR_FORMAT.getValue()) {
+      supportedType = true;
+    }
 		
 		if (!supportedType) {
 			throw new DominoException(format("Data type for value of item {0} is currently unsupported: {1}", itemName, dataTypeAsInt));
@@ -524,6 +528,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		else if (dataTypeAsInt == ItemDataType.TYPE_VIEW_FORMAT.getValue()) {
 			DominoViewFormat viewFormatInfo = ViewFormatDecoder.decodeViewFormat(valueDataPtr,  valueDataLength);
 			return Arrays.asList((Object) viewFormatInfo);
+		} else if (dataTypeAsInt == ItemDataType.TYPE_CALENDAR_FORMAT.getValue()) {
+		  DominoCalendarFormat calendarFormat = ViewFormatDecoder.decodeCalendarFormat(valueDataPtr, valueDataLength);
+		  return Arrays.asList((Object)calendarFormat);
 		}
 		else if (dataTypeAsInt == ItemDataType.TYPE_FORMULA.getValue()) {
 			boolean isSelectionFormula = DesignConstants.VIEW_FORMULA_ITEM.equalsIgnoreCase(itemName) && getDocumentClass().contains(DocumentClass.VIEW);

@@ -195,23 +195,34 @@ public class DumpUtil {
   
   /**
    * Reads richtext records and produces a string with record type, hex codes and
-   * characters data.
+   * character data.
    * 
    * @param rt richtext records
    * @return record dump
    */
   public static String dumpAsAscii(Collection<RichTextRecord<?>> rt) {
     StringBuilder sb = new StringBuilder();
-
     rt.forEach((record) -> {
-      sb
+      String txt = dumpAsAscii(record);
+      sb.append(txt);
+    });
+
+    return sb.toString();
+  }
+  
+  /**
+   * Produces a string with richtext record type, hex codes and character data
+   * 
+   * @param record richtext record
+   * @return record dump
+   */
+  public static String dumpAsAscii(RichTextRecord<?> record) {
+	  return new StringBuilder()
         .append(record.getType())
         .append(MessageFormat.format(" ({0} bytes)", record.getCDRecordLength())) //$NON-NLS-1$
-        .append('\n') //$NON-NLS-1$
+        .append('\n')
         .append(dumpAsAscii(record.getData()))
-        .append("\n\n"); //$NON-NLS-1$
-    });
-    
-    return sb.toString();
+        .append("\n\n") //$NON-NLS-1$
+        .toString();
   }
 }

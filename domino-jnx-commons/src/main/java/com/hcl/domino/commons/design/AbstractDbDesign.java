@@ -17,7 +17,11 @@
 package com.hcl.domino.commons.design;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
@@ -31,6 +35,7 @@ import java.util.stream.Stream;
 
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.commons.design.DesignUtil.DesignMapping;
+import com.hcl.domino.commons.util.BufferingCallbackOutputStream;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.CollectionSearchQuery;
@@ -49,9 +54,11 @@ import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
+import com.hcl.domino.design.FramesetLayout;
 import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.design.JavaScriptLibrary;
 import com.hcl.domino.design.NamedFileElement;
+import com.hcl.domino.design.Frameset;
 import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.design.ScriptLibrary;
@@ -172,6 +179,7 @@ public abstract class AbstractDbDesign implements DbDesign {
    * @param <T>         the {@link DesignElement} interface implemented by the
    *                    design class
    * @param designClass a {@link Class} object representing {@code <I>}
+   * @param title the title of the {@link DesignElement.NamedDesignElement} to create
    * @return the newly-created and -initialized design element
    */
   protected <T extends DesignElement.NamedDesignElement> T createDesignNote(final Class<T> designClass, final String title) {
@@ -200,6 +208,11 @@ public abstract class AbstractDbDesign implements DbDesign {
     return this.createDesignNote(View.class, viewName);
   }
 
+  @Override
+  public Frameset createFrameset(String framesetName) {
+    return this.createDesignNote(Frameset.class, framesetName);
+  }
+  
   @Override
   public Optional<DesignAgent> getAgent(final String name) {
     return this.getDesignElementByName(DesignAgent.class, name);
@@ -375,6 +388,16 @@ public abstract class AbstractDbDesign implements DbDesign {
     return this.getDesignElements(Outline.class);
   }
   
+  @Override
+  public Stream<Frameset> getFramesets() {
+    return this.getDesignElements(Frameset.class);
+  }
+  
+  @Override
+  public Optional<Frameset> getFrameset(String name) {
+    return this.getDesignElementByName(Frameset.class, name);
+  }
+  
   public Optional<AboutDocument> getAboutDocument() {
     try {
       return database.getDocumentById(NotesConstants.NOTE_ID_SPECIAL | NotesConstants.NOTE_CLASS_INFO)
@@ -495,12 +518,7 @@ public abstract class AbstractDbDesign implements DbDesign {
   
   @Override
   public Optional<InputStream> getResourceAsStream(String filePath) {
-    return this.findDesignNotes(EnumSet.of(DocumentClass.FORM, DocumentClass.FILTER), FILERES_PATTERNS)
-      .filter(entry -> DesignUtil.matchesTitleValues(filePath, entry.getTitles()))
-      .map(entry -> this.database.getDocumentById(entry.noteId))
-      .findFirst()
-      .map(Optional::get)
-      .map(DesignUtil::createDesignElement)
+    return this.findFileElement(filePath)
       .map(element -> {
         if(element instanceof NamedFileElement) {
           return ((NamedFileElement) element).getFileData();
@@ -515,17 +533,57 @@ public abstract class AbstractDbDesign implements DbDesign {
         }
       });
   }
+  
+  @Override
+  public OutputStream newResourceOutputStream(String filePath) {
+    Optional<DesignElement> existingElement = this.findFileElement(filePath);
+    DesignElement element = existingElement.orElseGet(() -> {
+      String path = cleanFilePath(filePath);
+      FileResource result = createDesignNote(FileResource.class, path);
+      Document doc = result.getDocument();
+      doc.replaceItemValue(NotesConstants.ITEM_NAME_FILE_NAMES, path);
+      doc.replaceItemValue(NotesConstants.ITEM_NAME_FILE_MIMETYPE, "application/octet-stream"); //$NON-NLS-1$
+      return result;
+    });
+    
+    if(element instanceof NamedFileElement) {
+      return new BufferingCallbackOutputStream(bytes -> {
+        try(OutputStream os = ((NamedFileElement) element).newOutputStream()) {
+          os.write(bytes);
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
+        }
+        element.save();
+      });
+    } else if(element instanceof ServerJavaScriptLibrary) {
+      return new BufferingCallbackOutputStream(bytes -> {
+        ServerJavaScriptLibrary lib = (ServerJavaScriptLibrary)element;
+        String script = new String(bytes, StandardCharsets.UTF_8);
+        lib.setScript(script);
+        element.save();
+      });
+    } else if(element instanceof JavaScriptLibrary) {
+      return new BufferingCallbackOutputStream(bytes -> {
+        JavaScriptLibrary lib = (JavaScriptLibrary)element;
+        String script = new String(bytes, StandardCharsets.UTF_8);
+        lib.setScript(script);
+        element.save();
+      });
+    } else {
+      throw new UnsupportedOperationException(MessageFormat.format("Unable to get file data for element of type {0}", element.getClass().getName()));
+    }
+  }
 
   @Override
   public void signAll(final Set<DocumentClass> docClass, final UserId id, final SignCallback callback) {
     docClass.stream()
-        .flatMap(c -> this.findDesignNotes(EnumSet.of(c), Collections.emptySet()))
-        .map(entry -> entry.toDesignElement(this.database))
-        .forEach(element -> {
-          if (callback.shouldSign(element, id.getUsername())) {
-            element.sign(id);
-          }
-        });
+      .flatMap(c -> this.findDesignNotes(EnumSet.of(c), Collections.emptySet()))
+      .map(entry -> entry.toDesignElement(this.database))
+      .forEach(element -> {
+        if (callback.shouldSign(element, id.getUsername())) {
+          element.sign(id);
+        }
+      });
   }
 
   // *******************************************************************************
@@ -534,6 +592,31 @@ public abstract class AbstractDbDesign implements DbDesign {
 
   public Stream<DesignEntry> findDesignNotes(final DocumentClass noteClass, final String pattern) {
     return findDesignNotes(Collections.singleton(noteClass), Collections.singleton(pattern));
+  }
+  
+  /**
+   * Looks up the provided file-type design element. If found, the returned element
+   * will be an instance of one of:
+   * 
+   * <ul>
+   *   <li>{@link NamedFileElement}</li>
+   *   <li>{@link ServerJavaScriptLibrary}</li>
+   *   <li>{@link JavaScriptLibrary}</li>
+   * </ul>
+   * 
+   * @param filePath the path of the element to find
+   * @return an {@link Optional} describing the file-type element, or an empty one
+   *         if none was found
+   * @since 1.0.39
+   */
+  public Optional<DesignElement> findFileElement(String filePath) {
+    String path = cleanFilePath(filePath);
+    return this.findDesignNotes(EnumSet.of(DocumentClass.FORM, DocumentClass.FILTER), FILERES_PATTERNS)
+      .filter(entry -> DesignUtil.matchesTitleValues(path, entry.getTitles()))
+      .map(entry -> this.database.getDocumentById(entry.noteId))
+      .findFirst()
+      .map(Optional::get)
+      .map(DesignUtil::createDesignElement);
   }
   
   /**
@@ -567,7 +650,7 @@ public abstract class AbstractDbDesign implements DbDesign {
      *  - $FlagsExt
      *  - $FileSize (number)
      *  - $MimeType
-     *  - $DesinerVersion (string)
+     *  - $DesignerVersion (string)
      */
 
     final DominoCollection designColl = this.database.openDesignCollection();
@@ -628,4 +711,16 @@ public abstract class AbstractDbDesign implements DbDesign {
    *         note was not found
    */
   protected abstract int findDesignNote(DocumentClass noteClass, String pattern, String name, boolean partialMatch);
+  
+  protected String cleanFilePath(String filePath) {
+    String path = StringUtil.toString(filePath);
+    if(path.startsWith("/")) { //$NON-NLS-1$
+      path = path.substring(1);
+    }
+    if(StringUtil.isEmpty(path)) {
+      throw new IllegalArgumentException("Unable to load empty path");
+    }
+    return path;
+  }
+  
 }

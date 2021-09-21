@@ -301,8 +301,8 @@ public interface Document extends TypedAccess, IAdaptable {
   /**
    * Attaches a file to the document, not associated with a rich-text item.
    * <p>
-   * Unlike {@link #attachFile(String, String, Compression)}, this method allows
-   * for specifying file metadata
+   * Unlike {@link #attachFile(String, String, Attachment.Compression)}, this method
+   * allows for specifying file metadata
    * and source binary data arbitrarily. It does not use compression. No temp
    * file is created on disk.
    * </p>

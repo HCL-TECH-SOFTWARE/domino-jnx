@@ -1513,7 +1513,7 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
    * reopened to view any changes.<br>
    * <br>
    * Convenience function that calls
-   * {@link #refreshDesign(String, boolean, boolean, IBreakHandler)} with
+   * {@link #refreshDesign(String, boolean, boolean, DominoClient.IBreakHandler)} with
    * force and errIfTemplateNotFound set to true and without break handler.
    *
    * @param server name of the Lotus Domino Server on which the database template

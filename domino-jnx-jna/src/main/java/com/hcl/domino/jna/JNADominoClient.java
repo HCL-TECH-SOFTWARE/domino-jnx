@@ -55,8 +55,8 @@ import com.hcl.domino.admin.replication.Replication;
 import com.hcl.domino.calendar.Calendaring;
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.constants.CopyDatabase;
-import com.hcl.domino.commons.data.DefaultModificationTimePair;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
+import com.hcl.domino.commons.data.DefaultModificationTimePair;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.CAPIGarbageCollector;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -122,6 +122,7 @@ import com.hcl.domino.jna.internal.structs.DbOptionsStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.ReplExtensionsStruct;
 import com.hcl.domino.jna.internal.structs.ReplServStatsStruct;
+import com.hcl.domino.jna.internal.structs.VerifyLDAPConnectionStruct;
 import com.hcl.domino.jna.mime.JNAMimeReader;
 import com.hcl.domino.jna.mime.JNAMimeWriter;
 import com.hcl.domino.jna.mq.JNAMessageQueues;
@@ -922,6 +923,14 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   @Override
   public Formula createFormula(String formula) {
     return new JNAFormula(this, formula);
+  }
+
+  @Override
+  public void verifyLdapConnection(
+      String hostName, String userName, String password, String dnSearch, boolean useSSL, short port, boolean acceptExpiredCerts, boolean verifyRemoteServerCert) {
+      VerifyLDAPConnectionStruct ldap = new VerifyLDAPConnectionStruct(hostName.getBytes(),userName.getBytes(),password.getBytes(),dnSearch.getBytes(),useSSL, port,acceptExpiredCerts,verifyRemoteServerCert);
+      ldap.write();
+      NotesErrorUtils.checkResult(NotesCAPI.get().VerifyLdapDirAssistConnection(ldap));
   }
 
   @Override
