@@ -576,9 +576,9 @@ public enum RecordType {
   /* whose format may change between releases. */
 
   NATIVEIMAGE(RichTextConstants.SIG_CD_NATIVEIMAGE, 4),
-  DOCUMENT_PRE_26(RichTextConstants.SIG_CD_DOCUMENT_PRE_26, 4),
+  DOCUMENT_PRE_26(RichTextConstants.SIG_CD_DOCUMENT_PRE_26, 4, CDDocument.class),
   /** * OBSOLETE * Defines the attributes of a field in a form. */
-  FIELD_PRE_36(RichTextConstants.SIG_CD_FIELD_PRE_36, 4),
+  FIELD_PRE_36(RichTextConstants.SIG_CD_FIELD_PRE_36, 4, CDFieldPre36.class),
   /**
    * This defines the structure of a CDFIELD record in the $Body item of a form
    * note.<br>
