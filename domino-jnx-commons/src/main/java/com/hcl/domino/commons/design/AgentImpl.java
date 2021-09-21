@@ -204,7 +204,7 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
       case -1: // Set when there are no actions
         return AgentLanguage.SIMPLE_ACTION;
       default:
-        throw new IllegalStateException(MessageFormat.format("Unknown language value {0}", Short.toUnsignedInt(lang)));
+        throw new IllegalStateException(MessageFormat.format("Unknown language value {0} of agent {1} (UNID: {2})", Short.toUnsignedInt(lang), getTitle(), getDocument().getUNID()));
     }
   }
   
