@@ -1269,7 +1269,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
 
         final CDEmbeddedView begin = (CDEmbeddedView) doc.getRichTextItem("Body").get(0);
         assertEquals(EnumSet.of(CDEmbeddedView.Flag.SIMPLE_VIEW_HEADER_OFF), begin.getFlags());
-        assertEquals("@Abs(10)", begin.getRestrictFormula());
+        assertEquals("@Abs(10)", begin.getRestrictFormula().get());
       });
     }
     
