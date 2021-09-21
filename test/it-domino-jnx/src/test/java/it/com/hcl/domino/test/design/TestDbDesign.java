@@ -40,6 +40,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -1161,6 +1162,7 @@ public class TestDbDesign extends AbstractDesignTest {
           os.write(expected);
         }
         res.save();
+        TimeUnit.SECONDS.sleep(1);
       }
       {
         FileResource res = design.getFileResource("file.css").get();
