@@ -281,7 +281,7 @@ public enum RecordType {
    * each segment must be
    * preceded by a CDWINMETASEG record.
    */
-  WINMETASEG(RichTextConstants.SIG_CD_WINMETASEG, 1),
+  WINMETASEG(RichTextConstants.SIG_CD_WINMETASEG, 1, CDWinMetaSegment.class),
   /**
    * A portion of a Macintosh metafile. This record must be preceded by a
    * CDMACMETAHEADER record.<br>
@@ -320,7 +320,7 @@ public enum RecordType {
    * up to 64kB;<br>
    * each segment must be preceded by a CDWINMETASEG record.
    */
-  WINMETAHEADER(RichTextConstants.SIG_CD_WINMETAHEADER, 1),
+  WINMETAHEADER(RichTextConstants.SIG_CD_WINMETAHEADER, 1, CDWinMetaHeader.class),
   /**
    * Identifies a Macintosh metafile embedded in a rich text field.<br>
    * This record must be preceded by a CDGRAPHIC record.<br>
@@ -535,7 +535,7 @@ public enum RecordType {
    * CDHOTSPOTBEGIN and a CDPLACEHOLDER. The CD record, CDPLACEHOLDER, further
    * defines the CDEMBEDDEDEDITCTL
    */
-  EMBEDDEDEDITCTL(RichTextConstants.SIG_CD_EMBEDDEDEDITCTL, 1),
+  EMBEDDEDEDITCTL(RichTextConstants.SIG_CD_EMBEDDEDEDITCTL, 1, CDEmbeddedEditControl.class),
 
   /* Signatures for Frameset CD records */
 
