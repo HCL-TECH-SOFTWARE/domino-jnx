@@ -16,7 +16,6 @@
  */
 package com.hcl.domino.richtext.records;
 
-import com.hcl.domino.richtext.RectangleSize;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -61,7 +60,7 @@ public interface CDWinMetaHeader extends RichTextRecord<LSIG> {
   CDWinMetaHeader setyExt(short yExt);
   
   @StructureGetter("OriginalDisplaySize")
-  RectangleSize getOriginalDisplaySize();
+  RectSize getOriginalDisplaySize();
   
   @StructureGetter("MetafileSize")
   int getMetafileSize();
