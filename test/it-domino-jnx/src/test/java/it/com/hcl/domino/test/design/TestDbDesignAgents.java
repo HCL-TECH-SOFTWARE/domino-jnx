@@ -57,6 +57,7 @@ import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.agent.AgentContent;
 import com.hcl.domino.design.agent.AgentInterval;
+import com.hcl.domino.design.agent.AgentTarget;
 import com.hcl.domino.design.agent.AgentTrigger;
 import com.hcl.domino.design.agent.FormulaAgentContent;
 import com.hcl.domino.design.agent.FormulaAgentContent.DocumentAction;
@@ -94,7 +95,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
-  public static final int EXPECTED_IMPORT_AGENTS = 22;
+  public static final int EXPECTED_IMPORT_AGENTS = 23;
   private static String dbPath;
 
   @AfterAll
@@ -703,5 +704,24 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
       assertFalse(date.getDateRange().isPresent());
       assertEquals(7, date.getDayCount().getAsInt());
     }
+  }
+  
+  @Test
+  public void testUnlockDocument() {
+    DbDesign design = database.getDesign();
+    
+    DesignAgent agent = design.getAgent("Unlock Document").get();
+    assertNotNull(agent);
+    
+    assertEquals(DesignAgent.AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertEquals(AgentTrigger.MANUAL, agent.getTrigger());
+    assertEquals(AgentTarget.SELECTED, agent.getTarget());
+    
+    AgentContent content = agent.getAgentContent();
+    FormulaAgentContent formula = assertInstanceOf(FormulaAgentContent.class, content);
+    assertEquals("FIELD Locked := @DeleteField;\n"
+        + "FIELD DocumentAuthors := @Trim(@Replace(From : CurrentReviewers; \"None\"; \"\"));@All", formula.getFormula());
+    assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
+    
   }
 }
