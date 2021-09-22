@@ -95,7 +95,7 @@ public interface CDEmbeddedEditControl extends RichTextRecord<WSIG> {
    * This method also sets the {@code NameLength} property to the appropriate value.
    * </p>
    *
-   * @param Name name for embedded edit control
+   * @param name name for embedded edit control
    * @return this record
    */
   default CDEmbeddedEditControl setName(final String name) {
