@@ -57,6 +57,8 @@ import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.constants.CopyDatabase;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.data.DefaultModificationTimePair;
+import com.hcl.domino.commons.errors.ErrorText;
+import com.hcl.domino.commons.errors.errorcodes.IGlobalErr;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.CAPIGarbageCollector;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -927,10 +929,21 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
   @Override
   public void verifyLdapConnection(
-      String hostName, String userName, String password, String dnSearch, boolean useSSL, short port, boolean acceptExpiredCerts, boolean verifyRemoteServerCert) {
-      VerifyLDAPConnectionStruct ldap = new VerifyLDAPConnectionStruct(hostName.getBytes(),userName.getBytes(),password.getBytes(),dnSearch.getBytes(),useSSL, port,acceptExpiredCerts,verifyRemoteServerCert);
-      ldap.write();
-      NotesErrorUtils.checkResult(NotesCAPI.get().VerifyLdapDirAssistConnection(ldap));
+      String hostName, String userName, String password, String dnSearch, boolean useSSL,
+      short port, boolean acceptExpiredCerts, boolean verifyRemoteServerCert) {
+
+    VerifyLDAPConnectionStruct ldap = new VerifyLDAPConnectionStruct();
+
+    NotesStringUtils.toLMBCS(hostName, true, ldap.szHostName);
+    NotesStringUtils.toLMBCS(userName, true, ldap.szUserName);
+    NotesStringUtils.toLMBCS(password, true, ldap.szPassword);
+    NotesStringUtils.toLMBCS(dnSearch, true, ldap.szDNSearch);
+
+    ldap.bAcceptExpiredCertificates = acceptExpiredCerts;
+    ldap.bVerifyRemoteSrvCert = verifyRemoteServerCert;
+    ldap.wPort = port;
+    ldap.write();
+    NotesErrorUtils.checkResult(NotesCAPI.get().VerifyLDAPConnection(ldap));
   }
 
   @Override

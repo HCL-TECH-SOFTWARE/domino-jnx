@@ -372,7 +372,7 @@ public interface INotesCAPI extends Library {
 	short CreateDAConfig(CreateDAConfigStruct ldap);
 	short UpdateDAConfig(UpdateDAConfigStruct ldap);
 	short EnableDisableDA(EnableDisableDAStruct daConfig);
-	short VerifyLdapDirAssistConnection(VerifyLDAPConnectionStruct ldap);
+	short VerifyLDAPConnection(VerifyLDAPConnectionStruct ldap);
 	short OSGetSystemTempDirectory(Memory retPathName, int bufferLength);
 	void OSPathAddTrailingPathSep(Memory retPathName);
 	short OSGetEnvironmentString(Memory variableName, Memory rethValueBuffer, short bufferLength);

@@ -36,7 +36,7 @@ public class VerifyLDAPConnectionStruct extends BaseStructure implements Seriali
 
   private static final long serialVersionUID = 1L;
 
-  public byte[] szHostName = new byte[NotesConstants.MAX_HOSTNAME];
+  public byte[] szHostName = new byte[NotesConstants.MAXUSERNAME];
   public byte[] szUserName = new byte[NotesConstants.MAXUSERNAME];
   public byte[] szPassword = new byte[NotesConstants.MAXUSERPASSWORD];
   public byte[] szDNSearch = new byte[NotesConstants.MAXLDAPBASE];
@@ -49,32 +49,29 @@ public class VerifyLDAPConnectionStruct extends BaseStructure implements Seriali
   public VerifyLDAPConnectionStruct(byte hostName[],byte userName[], byte password[], byte dnSearch[], boolean useSSL, short port, boolean acceptExpiredCertificates, boolean verifyRemoteSrvCert) {
     super();
     
-    if ((hostName.length != this.szHostName.length)) {
+    if ((hostName.length > this.szHostName.length)) {
         throw new WrongArraySizeException("hostName");
     }
     this.szHostName = hostName;
     
-    if ((userName.length != this.szUserName.length)) {
+    if ((userName.length > this.szUserName.length)) {
       throw new WrongArraySizeException("userName");
     }
     this.szUserName = userName;
 
-    if ((password.length != this.szPassword.length)) {
+    if ((password.length > this.szPassword.length)) {
       throw new WrongArraySizeException("Password");
     }
     this.szPassword = password;
 
-    if ((dnSearch.length != this.szDNSearch.length)) {
+    if ((dnSearch.length > this.szDNSearch.length)) {
       throw new WrongArraySizeException("DNSearch");
     }
     this.szDNSearch = dnSearch;
     
     this.wPort = port;
-    
     this.bUseSSL =useSSL;
-    
     this.bAcceptExpiredCertificates = acceptExpiredCertificates;
-    
     this.bVerifyRemoteSrvCert = verifyRemoteSrvCert;
   }
 
@@ -82,8 +79,7 @@ public class VerifyLDAPConnectionStruct extends BaseStructure implements Seriali
       super();
     }
 
-  
-  
+
 	public static VerifyLDAPConnectionStruct newInstance() {
 		return AccessController.doPrivileged((PrivilegedAction<VerifyLDAPConnectionStruct>) () -> new VerifyLDAPConnectionStruct());
 	}
