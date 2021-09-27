@@ -32,11 +32,12 @@ public class JNADirectoryAssistance implements DirectoryAssistance {
   }
 
   @Override
-  public void enableDisableDA(String domainName, boolean enableDomain) {
-    EnableDisableDAStruct daConfig  = new EnableDisableDAStruct(serverName.getBytes(), dirAssistDBName.getBytes(), domainName.getBytes(), enableDomain);
+  public void enableDisableDA(String docUnid, boolean enableDomain) {
+    EnableDisableDAStruct daConfig  = new EnableDisableDAStruct(serverName.getBytes(), dirAssistDBName.getBytes(), docUnid.getBytes(), enableDomain);
 
     daConfig.write();
-    NotesErrorUtils.checkResult(NotesCAPI.get().EnableDisableDA(daConfig));
+    System.out.println("The value returned from the call is "+ NotesCAPI.get().EnableDisableDADomain(daConfig));
+    NotesErrorUtils.checkResult(NotesCAPI.get().EnableDisableDADomain(daConfig));
   }
 
   @Override

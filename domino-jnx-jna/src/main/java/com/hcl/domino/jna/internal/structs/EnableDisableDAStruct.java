@@ -47,20 +47,20 @@ public class EnableDisableDAStruct extends BaseStructure implements Serializable
     
     super();
 
-    if ((serverName.length != this.szServerName.length)) {
+    if ((serverName.length > this.szServerName.length)) {
       throw new WrongArraySizeException("serverName");
     }    
     this.szServerName = serverName;
 
-    if ((dirAssistDBName.length != this.szDirAssistDBName.length)) {
+    if ((dirAssistDBName.length > this.szDirAssistDBName.length)) {
       throw new WrongArraySizeException("dirAssistDBName");
-    }    
+    }
     this.szDirAssistDBName = dirAssistDBName;
 
 
-    if ((docUNID.length != this.szDocUNID.length)) {
+    if ((docUNID.length > this.szDocUNID.length)) {
         throw new WrongArraySizeException("DocUNID");
-    }    
+    }
     this.szDocUNID = docUNID;
     
     this.bEnableDomain = enableDomain;
