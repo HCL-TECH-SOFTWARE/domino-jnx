@@ -369,6 +369,12 @@ public interface INotesCAPI extends Library {
 
 	void OSGetExecutableDirectory(Memory retPathName);
 	void OSGetDataDirectory(Memory retPathName);
+	/**
+	 * @param retPathName the destination path-name storage
+	 * @return a STATUS, most likely
+	 * @since 1.0.43
+	 */
+	short OSGetSharedDataDirectory(Memory retPathName);
 	short CreateDAConfig(CreateDAConfigStruct ldap);
 	short UpdateDAConfiguration(UpdateDAConfigStruct ldap);
 	short EnableDisableDADomain(EnableDisableDAStruct daConfig);
