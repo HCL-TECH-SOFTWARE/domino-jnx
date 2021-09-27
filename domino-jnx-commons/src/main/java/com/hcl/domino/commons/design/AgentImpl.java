@@ -451,7 +451,7 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
     return getAssistInfo()
       .map(AssistStruct::getFlags)
       .map(flags -> flags.contains(AssistStruct.Flag.STOREHIGHLIGHTS))
-      .orElse(null);
+      .orElse(false);
   }
 
   @Override
