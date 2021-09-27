@@ -547,6 +547,24 @@ public interface DbDesign {
    * @since 1.0.38
    */
   Stream<Theme> getThemes();
+
+  /**
+   * Retrieves the named Composite Application Component element.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link CompositeComponent}, or an empty one if
+   *         no such theme exists
+   * @since 1.0.38
+   */
+  Optional<CompositeComponent> getCompositeComponent(String name);
+
+  /**
+   * Retrieves all Composite Application Component elements in the database.
+   *
+   * @return a {@link Stream} of {@link CompositeComponent}s
+   * @since 1.0.38
+   */
+  Stream<CompositeComponent> getCompositeComponents();
   
   /**
    * Retrieves a design element by its UNID.

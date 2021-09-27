@@ -29,6 +29,8 @@ public interface StdNames {
   String DFLAGPAT_COMPDEF = "+:"; //$NON-NLS-1$
   /** display only stylekits */
   String DFLAGPAT_STYLEKIT = "(+-*g`"; //$NON-NLS-1$
+  /** display only widgets */
+  String DFLAGPAT_WIDGET = "(+-*g_"; //$NON-NLS-1$
   
   String VIEW_GLOBAL_SCRIPT_NAME = "$ViewGlobalScript"; //$NON-NLS-1$
   /** View selection query object */

@@ -47,6 +47,7 @@ import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.design.AboutDocument;
 import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.CompositeComponent;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DbProperties;
 import com.hcl.domino.design.DesignAgent;
@@ -481,6 +482,16 @@ public abstract class AbstractDbDesign implements DbDesign {
   @Override
   public Stream<Theme> getThemes() {
     return getDesignElements(Theme.class);
+  }
+  
+  @Override
+  public Optional<CompositeComponent> getCompositeComponent(String name) {
+    return getDesignElementByName(CompositeComponent.class, name);
+  }
+  
+  @Override
+  public Stream<CompositeComponent> getCompositeComponents() {
+    return getDesignElements(CompositeComponent.class);
   }
   
   @SuppressWarnings("unchecked")

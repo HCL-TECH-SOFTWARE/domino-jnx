@@ -1,0 +1,36 @@
+<Widget>
+  <pageType>0</pageType>
+  <type>0</type>
+  <geneditPage>false</geneditPage>
+  <allowInstanceContent>true</allowInstanceContent>
+  <resources/>
+  <publishedEvents/>
+  <payloadDef/>
+  <modes>
+    <WidgetMode>
+      <mode__id>0</mode__id>
+      <pageType>0</pageType>
+      <type>0</type>
+      <page>Home.xsp</page>
+    </WidgetMode>
+    <WidgetMode>
+      <mode__id>3</mode__id>
+      <pageType>0</pageType>
+      <type>0</type>
+      <page>Home.xsp</page>
+    </WidgetMode>
+    <WidgetMode>
+      <mode__id>1</mode__id>
+      <pageType>0</pageType>
+      <type>0</type>
+    </WidgetMode>
+    <WidgetMode>
+      <mode__id>2</mode__id>
+      <pageType>0</pageType>
+      <type>0</type>
+    </WidgetMode>
+  </modes>
+  <attributes/>
+  <parameters/>
+  <paramValues/>
+</Widget>

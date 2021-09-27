@@ -56,6 +56,7 @@ import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.AboutDocument;
 import com.hcl.domino.design.ActionBar;
 import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.CompositeComponent;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DbProperties;
 import com.hcl.domino.design.FileResource;
@@ -1255,4 +1256,46 @@ public class TestDbDesign extends AbstractDesignTest {
     });
     
   }
+  
+  @Test
+  public void testComponents() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<CompositeComponent> components = dbDesign.getCompositeComponents().collect(Collectors.toList());
+    assertEquals(1, components.size());
+    assertTrue(components.stream().anyMatch(prop -> "testcomponent.component".equals(prop.getTitle())));
+  }
+  
+  @Test
+  public void testComponentTest() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    CompositeComponent res = dbDesign.getCompositeComponent("testcomponent.component").get();
+    assertEquals("testcomponent.component", res.getTitle());
+    
+    String expected = IOUtils.resourceToString("/text/testDbDesign/testcomponent.xml", StandardCharsets.UTF_8);
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<CompositeComponent> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+    }
+  }
+  
 }
