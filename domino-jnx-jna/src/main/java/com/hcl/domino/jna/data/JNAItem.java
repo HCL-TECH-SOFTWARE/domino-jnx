@@ -201,7 +201,8 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 	 * 
 	 * @return length
 	 */
-	public int getValueLength() {
+	@Override
+  public int getValueLength() {
 		loadItemNameAndFlags();
 
 		return m_valueLength;

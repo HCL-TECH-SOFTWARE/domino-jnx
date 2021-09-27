@@ -52,7 +52,9 @@ public class NotesTableItemLargeStruct extends BaseStructure {
 				.doPrivileged((PrivilegedAction<NotesTableItemLargeStruct>) () -> new NotesTableItemLargeStruct());
 	}
 
-	protected List<String> getFieldOrder() {
+	@SuppressWarnings("nls")
+  @Override
+  protected List<String> getFieldOrder() {
 		return Arrays.asList("NameLength", "filler", "ValueLength");
 	}
 

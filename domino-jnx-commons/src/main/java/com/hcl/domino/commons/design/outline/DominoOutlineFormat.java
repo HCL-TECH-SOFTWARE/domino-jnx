@@ -22,7 +22,7 @@ import com.hcl.domino.data.IAdaptable;
 
 public class DominoOutlineFormat implements IAdaptable {
   
-  private final List<IAdaptable> outlineEntries = new ArrayList();
+  private final List<IAdaptable> outlineEntries = new ArrayList<>();
 
   @Override
   public <T> T getAdapter(Class<T> clazz) {

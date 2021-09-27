@@ -104,13 +104,15 @@ public class JavaConnectLoader extends ClassLoader {
 
 	private native boolean checkECL(long paramLong, int paramInt1, int paramInt2, String paramString);
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+  @SuppressWarnings({ "unchecked", "rawtypes" })
 	public Class loadClass(String paramString) throws ClassNotFoundException {
 		// NOP
 		return null;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+  @SuppressWarnings({ "unchecked", "rawtypes" })
 	public Class findClass(String paramString) throws ClassNotFoundException {
 		// NOP
 		return null;

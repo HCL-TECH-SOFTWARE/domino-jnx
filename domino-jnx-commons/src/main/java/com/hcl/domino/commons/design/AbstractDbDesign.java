@@ -54,7 +54,6 @@ import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
-import com.hcl.domino.design.FramesetLayout;
 import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.design.JavaScriptLibrary;
 import com.hcl.domino.design.NamedFileElement;
@@ -398,6 +397,7 @@ public abstract class AbstractDbDesign implements DbDesign {
     return this.getDesignElementByName(Frameset.class, name);
   }
   
+  @Override
   public Optional<AboutDocument> getAboutDocument() {
     try {
       return database.getDocumentById(NotesConstants.NOTE_ID_SPECIAL | NotesConstants.NOTE_CLASS_INFO)

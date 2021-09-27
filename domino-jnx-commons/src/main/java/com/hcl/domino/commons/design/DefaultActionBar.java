@@ -363,6 +363,7 @@ public class DefaultActionBar implements ActionBar {
       .orElseGet(DesignColorsAndFonts::blackColor);
   }
   
+  @Override
   public List<ActionBarAction> getActions() {
     List<ActionBarAction> result = new ArrayList<>();
     List<RichTextRecord<?>> stash = new ArrayList<>();

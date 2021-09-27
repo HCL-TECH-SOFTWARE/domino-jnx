@@ -124,7 +124,9 @@ public class NotesResultsSortColumn extends BaseStructure {
 		});
 	}
 
-	protected List<String> getFieldOrder() {
+	@SuppressWarnings("nls")
+  @Override
+  protected List<String> getFieldOrder() {
 		return Arrays.asList("name", "title", "pFormula", "sortorder", "bHidden", "bCategorized", "bAggregate", "aggtype", "pMinMaxVal", "dwCtVals", "numAggSum", "numMaxMin", "numAggResult", "bCategLeaf", "bFirstCateg", "bLastCateg", "bCategBreak", "dwCategBreaks", "wColsInCateg", "bCategorizedKey", "dwEntries", "dwColOccs", "pdwCurItemValue");
 	}
 	
