@@ -371,7 +371,7 @@ public interface INotesCAPI extends Library {
 	void OSGetDataDirectory(Memory retPathName);
 	/**
 	 * @param retPathName the destination path-name storage
-	 * @return a STATUS, most likely
+	 * @return the length of the directory name, as a {@code WORD}
 	 * @since 1.0.43
 	 */
 	short OSGetSharedDataDirectory(Memory retPathName);
