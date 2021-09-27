@@ -121,4 +121,17 @@ public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
       serializer.toJson(database.getDesign().getAgent("Test Java").get()).encodePrettily();
     });
   }
+  
+  @ParameterizedTest
+  @ArgumentsSource(StockTemplatesProvider.class)
+  public void testOutlineSerialization(String dbName) {
+    VertxJsonSerializer serializer = new VertxJsonSerializer();
+    
+    Database names = getClient().openDatabase(dbName);
+    names.getDesign()
+      .getOutlines()
+      .forEach(outline -> {
+        serializer.toJson(outline);
+      });
+  }
 }

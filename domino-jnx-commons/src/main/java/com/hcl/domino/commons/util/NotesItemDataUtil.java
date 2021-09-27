@@ -4,9 +4,12 @@ import com.hcl.domino.commons.data.DefaultPreV3Author;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.PreV3Author;
 import com.hcl.domino.richtext.structures.LicenseID;
+import com.hcl.domino.richtext.structures.MemoryStructure;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.text.MessageFormat;
 
 /**
  * Contains methods for interpreting raw Notes data in memory.
@@ -30,5 +33,53 @@ public enum NotesItemDataUtil {
     LicenseID license = MemoryStructureUtil.forStructure(LicenseID.class, () -> licenseBuf);
     
     return new DefaultPreV3Author(name, license);
+  }
+
+  /**
+   * Reads a structure from the provided ByteBuffer, incrementing its position the size of the struct.
+   * 
+   * @param <T> the class of structure to read
+   * @param data the containing data buffer
+   * @param odsType the ODS type, or {@code -1} if not known
+   * @param struct a {@link Class} representing {@code <T>}
+   * @return the read structure
+   */
+  public static <T extends MemoryStructure> T readMemory(ByteBuffer data, short odsType, Class<T> struct) {
+    T result = MemoryStructureUtil.newStructure(struct, 0);
+    int len = MemoryStructureUtil.sizeOf(struct);
+    byte[] bytes = new byte[len];
+    data.get(bytes);
+    result.getData().put(bytes);
+    return result;
+  }
+
+  public static ByteBuffer readBuffer(ByteBuffer buf, long len) {
+    ByteBuffer result = subBuffer(buf, (int)len);
+    buf.position(buf.position()+(int)len);
+    return result;
+  }
+
+  public static byte[] getBufferBytes(ByteBuffer buf, long len) {
+    byte[] result = getSubBufferBytes(buf, (int)len);
+    buf.position(buf.position()+(int)len);
+    return result;
+  }
+
+  public static byte[] getSubBufferBytes(ByteBuffer buf, int len) {
+    byte[] result = new byte[len];
+    buf.slice().order(ByteOrder.nativeOrder()).get(result);
+    return result;
+  }
+
+  public static ByteBuffer subBuffer(ByteBuffer buf, int len) {
+    if(len < 0) {
+      throw new IllegalArgumentException(MessageFormat.format("len ({0}) cannot be less than 0", len));
+    }
+    ByteBuffer tempBuf = buf.slice().order(ByteOrder.nativeOrder());
+    if(len > tempBuf.capacity()) {
+      throw new IllegalArgumentException(MessageFormat.format("len ({0}) cannot be greater than the remaining buffer length ({1})", len, tempBuf.capacity()));
+    }
+    tempBuf.limit(len);
+    return tempBuf;
   }
 }
