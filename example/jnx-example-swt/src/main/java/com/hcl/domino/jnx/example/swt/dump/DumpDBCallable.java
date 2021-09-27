@@ -14,12 +14,15 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.jnx.example.swt.exporter;
+package com.hcl.domino.jnx.example.swt.dump;
 
-import java.util.Arrays;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.Vector;
 import java.util.concurrent.Callable;
 
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -34,19 +37,18 @@ import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.dxl.DxlExporter;
 import com.hcl.domino.dxl.DxlExporter.DXLRichTextOption;
+import com.hcl.domino.exception.InvalidDocumentException;
 
-public class ExportDXLCallable implements Callable<String> {
+public class DumpDBCallable implements Callable<String> {
 
   private final String sourceDb;
-  private final String sourceUnid;
+  private final String destDir;
   private final boolean rawNoteFormat;
-  private final boolean entireDatabase;
 
-  public ExportDXLCallable(String sourceDb, String sourceUnid, boolean rawNoteFormat, boolean entireDatabase) {
+  public DumpDBCallable(String sourceDb, String destDir, boolean rawNoteFormat) {
     this.sourceDb = sourceDb;
-    this.sourceUnid = sourceUnid;
+    this.destDir = destDir;
     this.rawNoteFormat = rawNoteFormat;
-    this.entireDatabase = entireDatabase;
   }
 
   @Override
@@ -64,25 +66,28 @@ public class ExportDXLCallable implements Callable<String> {
           exporter.setRichTextOption(DXLRichTextOption.ITEMDATA);
         }
         
-        if(entireDatabase) {
-          Collection<Integer> ids = database.queryFormula("@True", null, EnumSet.noneOf(SearchFlag.class), null, EnumSet.allOf(DocumentClass.class)) //$NON-NLS-1$
-              .getNoteIds()
-              .get();
-          
-          return exporter.exportIDs(database, ids);
-        } else if(StringUtil.isNotEmpty(sourceUnid)) {
-          Document document = database.getDocumentByUNID(sourceUnid).get();
-          return exporter.exportDocument(document);
-        } else {
-          // Then export the whole DB, minus attachments
-//          exporter.setOmitRichtextAttachments(true);
-          exporter.setOmitMiscFileObjects(true);
-          exporter.setOmitOLEObjects(true);
-//          exporter.setOmitRichtextPictures(true);
-          exporter.setOmitItemNames(new Vector<String>(Arrays.asList("ApprovalHistory", "ContractDrawings"))); //$NON-NLS-1$ //$NON-NLS-2$
-          
-          return exporter.exportDatabase(database);
+        Path dest = Paths.get(destDir);
+        if(!Files.exists(dest)) {
+          Files.createDirectories(dest);
         }
+
+        Collection<Integer> ids = database.queryFormula("@True", null, EnumSet.noneOf(SearchFlag.class), null, EnumSet.allOf(DocumentClass.class)) //$NON-NLS-1$
+            .getNoteIds()
+            .get();
+        for(int id : ids) {
+          try {
+            Document doc = database.getDocumentById(id).get();
+            Path destFile = dest.resolve(id + ".xml"); //$NON-NLS-1$
+            try(OutputStream os = Files.newOutputStream(destFile, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE)) {
+              exporter.exportDocument(doc, os);
+            }
+          } catch(InvalidDocumentException e) {
+            // Very likely to show up in ancient data
+            System.err.println("Unable to export document 0x" + Integer.toHexString(id) + ": " + e.getMessage());
+          }
+        }
+        
+        return "Exported notes to " + destDir;
       } catch(Exception ne) {
         ne.printStackTrace();
         MessageDialog.openError(Display.getCurrent().getActiveShell(), "Error exporting document", ne.getMessage());

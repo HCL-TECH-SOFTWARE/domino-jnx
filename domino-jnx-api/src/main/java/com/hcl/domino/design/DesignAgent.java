@@ -26,6 +26,7 @@ import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.design.DesignElement.NamedDesignElement;
 import com.hcl.domino.design.agent.AgentContent;
 import com.hcl.domino.design.agent.AgentInterval;
+import com.hcl.domino.design.agent.AgentTarget;
 import com.hcl.domino.design.agent.AgentTrigger;
 import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
 
@@ -378,4 +379,12 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    * @since 1.0.38
    */
   List<? extends SimpleSearchTerm> getDocumentSelection();
+  
+  /**
+   * Retrieves the broad document selection target for the agent.
+   * 
+   * @return a {@link AgentTarget} instance
+   * @since 1.0.42
+   */
+  AgentTarget getTarget();
 }

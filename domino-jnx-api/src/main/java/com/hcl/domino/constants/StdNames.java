@@ -35,4 +35,25 @@ public interface StdNames {
   String VIEW_SELQUERY_ITEM = "$SelQuery"; //$NON-NLS-1$
   /** Calendar View format item */
   String VIEW_CALENDAR_FORMAT_ITEM = "$CalendarFormat"; //$NON-NLS-1$
+  
+  String FILTER_TYPE_ITEM = "$Type"; //$NON-NLS-1$
+  String FILTER_FORMULA_ITEM = "$Formula"; //$NON-NLS-1$
+  String FILTER_SCAN_ITEM = "$Scan"; //$NON-NLS-1$
+  String FILTER_OPERATION_ITEM = "$Operation"; //$NON-NLS-1$
+  
+  int FILTER_TYPE_MENU  = 0;
+  int FILTER_TYPE_BACKGROUND = 1;
+  int FILTER_TYPE_MAIL  = 2;
+  int FILTER_TYPE_ONCE  = 3;
+  
+  int FILTER_SCAN_ALL = 0;
+  int FILTER_SCAN_UNREAD = 1;
+  int FILTER_SCAN_VIEW = 2;
+  int FILTER_SCAN_SELECTED = 3;
+  int FILTER_SCAN_MAIL = 4;
+  int FILTER_SCAN_NEW = 5;
+  
+  int FILTER_OP_UPDATE = 0;
+  int FILTER_OP_SELECT = 1;
+  int FILTER_OP_NEW_COPY = 2;
 }

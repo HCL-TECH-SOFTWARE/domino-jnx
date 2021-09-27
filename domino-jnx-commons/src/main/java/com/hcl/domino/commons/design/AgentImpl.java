@@ -39,6 +39,7 @@ import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.agent.AgentContent;
 import com.hcl.domino.design.agent.AgentInterval;
+import com.hcl.domino.design.agent.AgentTarget;
 import com.hcl.domino.design.agent.AgentTrigger;
 import com.hcl.domino.design.agent.FormulaAgentContent;
 import com.hcl.domino.design.agent.LotusScriptAgentContent;
@@ -68,26 +69,49 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   public AgentContent getAgentContent() {
     switch (this.getAgentLanguage()) {
       case FORMULA: {
-        // Find the first CDACTIONFORMULA and read the contents
-        return this.getDocument().getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION)
-            .stream()
-            .filter(CDActionFormula.class::isInstance)
-            .map(CDActionFormula.class::cast)
-            .findFirst()
-            .map(action -> {
-              FormulaAgentContent.DocumentAction docAction;
-              final Set<CDActionFormula.Flag> flags = action.getFlags();
-              if (flags.contains(CDActionFormula.Flag.NEWCOPY)) {
-                docAction = FormulaAgentContent.DocumentAction.CREATE;
-              } else if (flags.contains(CDActionFormula.Flag.SELECTDOCS)) {
-                docAction = FormulaAgentContent.DocumentAction.SELECT;
-              } else {
-                docAction = FormulaAgentContent.DocumentAction.MODIFY;
-              }
-              final String formula = action.getAction();
-              return new DefaultFormulaAgentContent(docAction, formula);
-            })
-            .orElseThrow(() -> new IllegalStateException("Unable to find formula action data"));
+        Document doc = this.getDocument();
+        if(doc.hasItem(NotesConstants.ASSIST_ACTION_ITEM)) {
+          // Find the first CDACTIONFORMULA and read the contents
+          return this.getDocument().getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION)
+              .stream()
+              .filter(CDActionFormula.class::isInstance)
+              .map(CDActionFormula.class::cast)
+              .findFirst()
+              .map(action -> {
+                FormulaAgentContent.DocumentAction docAction;
+                final Set<CDActionFormula.Flag> flags = action.getFlags();
+                if (flags.contains(CDActionFormula.Flag.NEWCOPY)) {
+                  docAction = FormulaAgentContent.DocumentAction.CREATE;
+                } else if (flags.contains(CDActionFormula.Flag.SELECTDOCS)) {
+                  docAction = FormulaAgentContent.DocumentAction.SELECT;
+                } else {
+                  docAction = FormulaAgentContent.DocumentAction.MODIFY;
+                }
+                final String formula = action.getAction();
+                return new DefaultFormulaAgentContent(docAction, formula);
+              })
+              .orElseThrow(() -> new IllegalStateException("Unable to find formula action data"));
+        } else {
+          // Ancient agents use "$Formula" and related fields
+          String formula = doc.get(NotesConstants.FILTER_FORMULA_ITEM, String.class, ""); //$NON-NLS-1$
+          
+          int action = doc.get(NotesConstants.FILTER_OPERATION_ITEM, int.class, 0);
+          FormulaAgentContent.DocumentAction docAction;
+          switch(action) {
+            case NotesConstants.FILTER_OP_SELECT:
+              docAction = FormulaAgentContent.DocumentAction.SELECT;
+              break;
+            case NotesConstants.FILTER_OP_NEW_COPY:
+              docAction = FormulaAgentContent.DocumentAction.CREATE;
+              break;
+            case NotesConstants.FILTER_OP_UPDATE:
+            default:
+              docAction = FormulaAgentContent.DocumentAction.MODIFY;
+              break;
+          }
+          
+          return new DefaultFormulaAgentContent(docAction, formula);
+        }
       }
       case LS: {
         // Could be represented two ways: either as a CDACTIONLOTUSSCRIPT or as multiple
@@ -157,6 +181,9 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
     short lang = this.getDocument().get(NotesConstants.ASSIST_TYPE_ITEM, short.class, (short) 0);
     if (lang == RichTextConstants.SIG_ACTION_FORMULAONLY) {
       lang = RichTextConstants.SIG_ACTION_FORMULA;
+    } else if (lang == 0) {
+      // Seen in ancient data
+      lang = RichTextConstants.SIG_ACTION_FORMULA;
     }
     switch (lang) {
       case RichTextConstants.SIG_ACTION_JAVAAGENT:
@@ -172,15 +199,11 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
         return AgentLanguage.FORMULA;
       case RichTextConstants.SIG_ACTION_FORMULA: {
         // This gets weird. Both FORMULA and FORMULAONLY have been observed to represent
-        // formula
-        // agents... but that's not all. If a Simple Action agent _starts_ with a
-        // @Function Formula
-        // action, then the $AssistType field is written as SIG_ACTION_FORMULA. Thus, we
-        // need to
-        // open the agent to check.
+        // formula agents... but that's not all. If a Simple Action agent _starts_ with a
+        // @Function Formula action, then the $AssistType field is written as
+        // SIG_ACTION_FORMULA. Thus, we need to open the agent to check.
         // Currently, the best check is to see if it has more than just the two opening
-        // records that
-        // it shared with Formula agents
+        // records that it shared with Formula agents
         final RichTextRecordList list = this.getDocument().getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION);
         if (list.size() > 2) {
           return AgentLanguage.SIMPLE_ACTION;
@@ -204,7 +227,7 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
       case -1: // Set when there are no actions
         return AgentLanguage.SIMPLE_ACTION;
       default:
-        throw new IllegalStateException(MessageFormat.format("Unknown language value {0}", Short.toUnsignedInt(lang)));
+        throw new IllegalStateException(MessageFormat.format("Unknown language value {0} of agent {1} (UNID: {2})", Short.toUnsignedInt(lang), getTitle(), getDocument().getUNID()));
     }
   }
   
@@ -348,8 +371,22 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   @Override
   public AgentTrigger getTrigger() {
     return this.getAssistInfo()
-        .map(AssistStruct::getTrigger)
-        .orElse(AgentTrigger.NONE);
+      .map(AssistStruct::getTrigger)
+      .orElseGet(() -> {
+        // Check for ancient data
+        String typeVal = getDocument().get(NotesConstants.FILTER_TYPE_ITEM, String.class, "");
+        if(typeVal.isEmpty()) {
+          return AgentTrigger.NONE;
+        }
+        switch(Integer.parseInt(typeVal)) {
+        case NotesConstants.FILTER_TYPE_MENU:
+          return AgentTrigger.MANUAL;
+        case NotesConstants.FILTER_TYPE_MAIL:
+          return AgentTrigger.NEWMAIL;
+        default:
+          return AgentTrigger.NONE;
+        }
+      });
   }
 
   @Override
@@ -450,6 +487,34 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   @Override
   public List<? extends SimpleSearchTerm> getDocumentSelection() {
     return DesignUtil.toSimpleSearch(getDocument().getRichTextItem(NotesConstants.ASSIST_QUERY_ITEM, RecordType.Area.TYPE_QUERY));
+  }
+
+  @Override
+  public AgentTarget getTarget() {
+    return getAssistInfo()
+      .map(AssistStruct::getSearch)
+      .orElseGet(() -> {
+        // Could be ancient data
+        String scanVal = getDocument().get(NotesConstants.FILTER_SCAN_ITEM, String.class, ""); //$NON-NLS-1$
+        if(scanVal.isEmpty()) {
+          return AgentTarget.ALL;
+        }
+        switch(Integer.parseInt(scanVal)) {
+        case NotesConstants.FILTER_SCAN_UNREAD:
+          return AgentTarget.UNREAD;
+        case NotesConstants.FILTER_SCAN_VIEW:
+          return AgentTarget.VIEW;
+        case NotesConstants.FILTER_SCAN_SELECTED:
+          return AgentTarget.SELECTED;
+        case NotesConstants.FILTER_SCAN_NEW:
+        case NotesConstants.FILTER_SCAN_MAIL:
+          // TODO determine whether MAIL actually translates to this
+          return AgentTarget.NEW;
+        case NotesConstants.FILTER_SCAN_ALL:
+        default:
+          return AgentTarget.ALL;
+        }
+      });
   }
 
   // *******************************************************************************

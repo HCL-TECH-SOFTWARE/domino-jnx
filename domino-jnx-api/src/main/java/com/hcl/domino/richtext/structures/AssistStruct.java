@@ -21,6 +21,7 @@ import java.util.Set;
 
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.design.agent.AgentInterval;
+import com.hcl.domino.design.agent.AgentTarget;
 import com.hcl.domino.design.agent.AgentTrigger;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -36,7 +37,7 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 @StructureDefinition(name = "ODS_ASSISTSTRUCT", members = {
     @StructureMember(name = "wVersion", type = short.class, unsigned = true),
     @StructureMember(name = "wTriggerType", type = AgentTrigger.class),
-    @StructureMember(name = "wSearchType", type = AssistStruct.Search.class),
+    @StructureMember(name = "wSearchType", type = AgentTarget.class),
     @StructureMember(name = "wIntervalType", type = AgentInterval.class),
     @StructureMember(name = "wInterval", type = short.class, unsigned = true),
     @StructureMember(name = "dwTime1", type = int.class),
@@ -76,43 +77,6 @@ public interface AssistStruct extends ResizableMemoryStructure {
     }
   }
 
-  enum Search implements INumberEnum<Short> {
-    /** Unknown or unavailable */
-    NONE(RichTextConstants.ASSISTSEARCH_TYPE_NONE),
-    /** All documents in database */
-    ALL(RichTextConstants.ASSISTSEARCH_TYPE_ALL),
-    /** New documents since last run */
-    NEW(RichTextConstants.ASSISTSEARCH_TYPE_NEW),
-    /** New or modified docs since last run */
-    MODIFIED(RichTextConstants.ASSISTSEARCH_TYPE_MODIFIED),
-    /** Selected documents */
-    SELECTED(RichTextConstants.ASSISTSEARCH_TYPE_SELECTED),
-    /** All documents in view */
-    VIEW(RichTextConstants.ASSISTSEARCH_TYPE_VIEW),
-    /** All unread documents */
-    UNREAD(RichTextConstants.ASSISTSEARCH_TYPE_UNREAD),
-    /** Prompt user */
-    PROMPT(RichTextConstants.ASSISTSEARCH_TYPE_PROMPT),
-    /** Works on the selectable object */
-    UI(RichTextConstants.ASSISTSEARCH_TYPE_UI);
-
-    private final short value;
-
-    Search(final short value) {
-      this.value = value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Short getValue() {
-      return this.value;
-    }
-  }
-
   @StructureGetter("EndTime")
   DominoDateTime getEndDate();
 
@@ -126,7 +90,7 @@ public interface AssistStruct extends ResizableMemoryStructure {
   AgentInterval getIntervalType();
 
   @StructureGetter("wSearchType")
-  Search getSearch();
+  AgentTarget getSearch();
 
   @StructureGetter("StartTime")
   DominoDateTime getStartDate();
@@ -156,7 +120,7 @@ public interface AssistStruct extends ResizableMemoryStructure {
   AssistStruct setIntervalType(AgentInterval interval);
 
   @StructureSetter("wSearchType")
-  AssistStruct setSearch(Search search);
+  AssistStruct setSearch(AgentTarget search);
 
   @StructureSetter("StartTime")
   AssistStruct setStartDate(DominoDateTime startDate);

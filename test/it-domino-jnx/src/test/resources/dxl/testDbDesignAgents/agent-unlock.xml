@@ -1,0 +1,16 @@
+<?xml version='1.0'?>
+<note class='filter' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$TITLE' sign='true'><text>(Unlock Document)</text></item>
+<item name='$Comment' sign='true'><text>Use if a doc is accidentally left in a locked state.  Can be accessed by designers and managers from the Review Status view.</text></item>
+<item name='$Formula' sign='true'><formula>FIELD Locked := @DeleteField;
+FIELD DocumentAuthors := @Trim(@Replace(From : CurrentReviewers; "None"; ""));@All</formula></item>
+<item name='$TYPE'><text>0</text></item>
+<item name='$Operation'><text>0</text></item>
+<item name='$Scan'><text>3</text></item>
+<item name='$LeftToDo' summary='true'>
+<rawitemdata type='3'>
+BgAAAgAAAwB+AQAABAAAAAAAAAABAAAAAAAAAAAAQApxALNiJYUUA3EAmWIlhQ==
+</rawitemdata></item>
+<item name='$Flags'><text>w</text></item>
+<item name='$LANGUAGE' sign='true'><text>en</text></item>
+<item name='$AssistVersion'><datetime>20201116T175922,86+00</datetime></item></note>
