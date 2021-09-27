@@ -1589,4 +1589,7 @@ public interface RichTextConstants extends EditOds, Ods {
   int EMBEDDEDVIEW_FLAG_SIMPLE_VIEW_SHOW_NEWMAIL_AT_TOP = 0x2000; /* Show only summarized for calendar view */
   int EMBEDDEDVIEW_FLAG_USEJSCTL_INBROWSER  =  0x4000;  /* use dojo control in browser */
   int EMBEDDEDVIEW_FLAG_USECUSTOMJS_INBROWSER       = 0x8000;  /* use custom JS in browser */
+  
+  int EMBEDDEDEDITCTL_FLAG_HASNAME = 0x0001;
+  int EMBEDDEDEDITCTL_FLAG_HIDE_ACTIONBAR = 0x0004;
 }
