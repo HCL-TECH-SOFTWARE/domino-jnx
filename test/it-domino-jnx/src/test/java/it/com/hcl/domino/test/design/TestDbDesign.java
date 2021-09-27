@@ -56,6 +56,7 @@ import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.AboutDocument;
 import com.hcl.domino.design.ActionBar;
 import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.CompositeApplication;
 import com.hcl.domino.design.CompositeComponent;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DbProperties;
@@ -1161,9 +1162,9 @@ public class TestDbDesign extends AbstractDesignTest {
         origMod = res.getFileModified();
         try(OutputStream os = res.newOutputStream()) {
           os.write(expected);
+          TimeUnit.SECONDS.sleep(1);
         }
         res.save();
-        TimeUnit.SECONDS.sleep(1);
       }
       {
         FileResource res = design.getFileResource("file.css").get();
@@ -1287,6 +1288,47 @@ public class TestDbDesign extends AbstractDesignTest {
     String unid = res.getDocument().getUNID();
     {
       Optional<CompositeComponent> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+    }
+  }
+  
+  @Test
+  public void testCompositeApplications() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<CompositeApplication> components = dbDesign.getCompositeApplications().collect(Collectors.toList());
+    assertEquals(1, components.size());
+    assertTrue(components.stream().anyMatch(prop -> "testcompapp.ca".equals(prop.getTitle())));
+  }
+  
+  @Test
+  public void testCompositeApplicationTest() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    CompositeApplication res = dbDesign.getCompositeApplication("testcompapp.ca").get();
+    assertEquals("testcompapp.ca", res.getTitle());
+    
+    String expected = IOUtils.resourceToString("/text/testDbDesign/testcompapp.xml", StandardCharsets.UTF_8);
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<CompositeApplication> optRes = dbDesign.getDesignElementByUNID(unid);
       res = optRes.get();
       {
         String content;

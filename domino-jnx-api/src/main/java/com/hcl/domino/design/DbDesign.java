@@ -559,6 +559,24 @@ public interface DbDesign {
   Optional<CompositeComponent> getCompositeComponent(String name);
 
   /**
+   * Retrieves all Composite Application elements in the database.
+   *
+   * @return a {@link Stream} of {@link CompositeApplication}s
+   * @since 1.0.38
+   */
+  Stream<CompositeApplication> getCompositeApplications();
+
+  /**
+   * Retrieves the named Composite Application element.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link CompositeApplication}, or an empty one if
+   *         no such theme exists
+   * @since 1.0.38
+   */
+  Optional<CompositeApplication> getCompositeApplication(String name);
+
+  /**
    * Retrieves all Composite Application Component elements in the database.
    *
    * @return a {@link Stream} of {@link CompositeComponent}s

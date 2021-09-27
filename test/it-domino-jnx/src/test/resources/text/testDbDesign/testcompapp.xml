@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ibm-portal-composite xmlns="http://www.ibm.com/xmlns/prod/websphere/portal/v6.0/ibm-portal-composite" xmlns:var="http://www.ibm.com/xmlns/prod/websphere/portal/v6.0/ibm-portal-composite-variable" xmlns:base="http://www.ibm.com/xmlns/prod/websphere/portal/v6.0/ibm-portal-composite-base" xmlns:community="http://www.ibm.com/xmlns/prod/websphere/portal/v6.0/ibm-portal-composite-community"><application-info guid="[rep_id]_852586B100010717" category="applications"><base:title><base:nls-string xml:lang="ar">تطبيق فارغ</base:nls-string>
+<!-- Copyright IBM Corp. 2010, 2017  All Rights Reserved.              -->
+<!-- (c) Copyright HCL Technologies Ltd. 2021.  All Rights Reserved.  -->
+<!--                                                                   -->
+
+<base:nls-string xml:lang="ca">Aplicació buida</base:nls-string>
+<base:nls-string xml:lang="cs">Prázdná aplikace</base:nls-string>
+<base:nls-string xml:lang="da">Tomt program</base:nls-string>
+<base:nls-string xml:lang="de">Leere Anwendung</base:nls-string>
+<base:nls-string xml:lang="el">Κενή εφαρμογή</base:nls-string>
+<base:nls-string xml:lang="en">Blank Application</base:nls-string>
+<base:nls-string xml:lang="es">Aplicación en blanco</base:nls-string>
+<base:nls-string xml:lang="fi">Tyhjä sovellus</base:nls-string>
+<base:nls-string xml:lang="fr">Application vide</base:nls-string>
+<base:nls-string xml:lang="hu">Üres alkalmazás</base:nls-string>
+<base:nls-string xml:lang="it">Applicazione vuota</base:nls-string>
+<base:nls-string xml:lang="iw">יישום ריק</base:nls-string>
+<base:nls-string xml:lang="ja">ブランクアプリケーション</base:nls-string>
+<base:nls-string xml:lang="ko">빈 애플리케이션</base:nls-string>
+<base:nls-string xml:lang="nl">Lege toepassing</base:nls-string>
+<base:nls-string xml:lang="no">Tom applikasjon</base:nls-string>
+<base:nls-string xml:lang="pl">Pusta aplikacja</base:nls-string>
+<base:nls-string xml:lang="pt">Aplicação em branco</base:nls-string>
+<base:nls-string xml:lang="pt-BR">Aplicativo em branco</base:nls-string>
+<base:nls-string xml:lang="ro">Blank Application</base:nls-string>
+<base:nls-string xml:lang="ru">Пустое приложение</base:nls-string>
+<base:nls-string xml:lang="sk">Prázdna aplikácia</base:nls-string>
+<base:nls-string xml:lang="sl">Prazen program</base:nls-string>
+<base:nls-string xml:lang="sv">Tomt program</base:nls-string>
+<base:nls-string xml:lang="th">แอ็พพลิเคชันว่าง</base:nls-string>
+<base:nls-string xml:lang="tr">Boş Uygulama</base:nls-string>
+<base:nls-string xml:lang="uk">Blank Application</base:nls-string>
+<base:nls-string xml:lang="zh">空应用程序</base:nls-string>
+<base:nls-string xml:lang="zh-TW">空白應用程式</base:nls-string></base:title>
+<base:description>
+<base:nls-string xml:lang="ar">تطبيق فارغ</base:nls-string>
+<base:nls-string xml:lang="ca">Aplicació buida</base:nls-string>
+<base:nls-string xml:lang="cs">Prázdná aplikace</base:nls-string>
+<base:nls-string xml:lang="da">Tomt program</base:nls-string>
+<base:nls-string xml:lang="de">Leere Anwendung</base:nls-string>
+<base:nls-string xml:lang="el">Κενή εφαρμογή</base:nls-string>
+<base:nls-string xml:lang="en">Blank Application</base:nls-string>
+<base:nls-string xml:lang="es">Aplicación en blanco</base:nls-string>
+<base:nls-string xml:lang="fi">Tyhjä sovellus</base:nls-string>
+<base:nls-string xml:lang="fr">Application vide</base:nls-string>
+<base:nls-string xml:lang="hu">Üres alkalmazás</base:nls-string>
+<base:nls-string xml:lang="it">Applicazione vuota</base:nls-string>
+<base:nls-string xml:lang="iw">יישום ריק</base:nls-string>
+<base:nls-string xml:lang="ja">ブランクアプリケーション</base:nls-string>
+<base:nls-string xml:lang="ko">빈 애플리케이션</base:nls-string>
+<base:nls-string xml:lang="nl">Lege toepassing</base:nls-string>
+<base:nls-string xml:lang="no">Tom applikasjon</base:nls-string>
+<base:nls-string xml:lang="pl">Pusta aplikacja</base:nls-string>
+<base:nls-string xml:lang="pt">Aplicação em branco</base:nls-string>
+<base:nls-string xml:lang="pt-BR">Aplicativo em branco</base:nls-string>
+<base:nls-string xml:lang="ro">Blank Application</base:nls-string>
+<base:nls-string xml:lang="ru">Пустое приложение</base:nls-string>
+<base:nls-string xml:lang="sk">Prázdna aplikácia</base:nls-string>
+<base:nls-string xml:lang="sl">Prazen program</base:nls-string>
+<base:nls-string xml:lang="sv">Tomt program</base:nls-string>
+<base:nls-string xml:lang="th">แอ็พพลิเคชันว่าง</base:nls-string>
+<base:nls-string xml:lang="tr">Boş Uygulama</base:nls-string>
+<base:nls-string xml:lang="uk">Blank Application</base:nls-string>
+<base:nls-string xml:lang="zh">空应用程序</base:nls-string>
+<base:nls-string xml:lang="zh-TW">空白應用程式</base:nls-string>
+</base:description></application-info><community:community><community:community-role name="manager" initial="true"><base:title><base:nls-string xml:lang="ar">موجهي النظام</base:nls-string><base:nls-string xml:lang="ca">Administradors</base:nls-string><base:nls-string xml:lang="cs">Administrátoři</base:nls-string><base:nls-string xml:lang="da">Administratorer</base:nls-string><base:nls-string xml:lang="de">Administratoren</base:nls-string><base:nls-string xml:lang="el">Διαχειριστές</base:nls-string><base:nls-string xml:lang="en">Administrators</base:nls-string><base:nls-string xml:lang="es">Administradores</base:nls-string><base:nls-string xml:lang="fi">Pääkäyttäjät</base:nls-string><base:nls-string xml:lang="fr">Administrateurs</base:nls-string><base:nls-string xml:lang="hu">Adminisztrátorok</base:nls-string><base:nls-string xml:lang="it">Amministratori</base:nls-string><base:nls-string xml:lang="iw">מנהלנים</base:nls-string><base:nls-string xml:lang="ja">アドミニストレーター</base:nls-string><base:nls-string xml:lang="ko">운영자</base:nls-string><base:nls-string xml:lang="nl">Beheerders</base:nls-string><base:nls-string xml:lang="no">Administratorer</base:nls-string><base:nls-string xml:lang="pl">Administratorzy</base:nls-string><base:nls-string xml:lang="pt">Administradores</base:nls-string><base:nls-string xml:lang="pt-BR">Administradores</base:nls-string><base:nls-string xml:lang="ro">Administratori</base:nls-string><base:nls-string xml:lang="ru">Администраторы</base:nls-string><base:nls-string xml:lang="sk">Administrátori</base:nls-string><base:nls-string xml:lang="sl">Skrbnik</base:nls-string><base:nls-string xml:lang="sv">Administratörer</base:nls-string><base:nls-string xml:lang="th">Administrator</base:nls-string><base:nls-string xml:lang="tr">Denetimciler</base:nls-string><base:nls-string xml:lang="uk">Адміністратори</base:nls-string><base:nls-string xml:lang="zh">管理员</base:nls-string><base:nls-string xml:lang="zh-TW">管理者</base:nls-string></base:title><base:description><base:nls-string xml:lang="ar">يمكن تعديل التطبيق وعضوية التحكم.</base:nls-string><base:nls-string xml:lang="ca">Poden editar l'aplicació i controlar la pertinença.</base:nls-string><base:nls-string xml:lang="cs">Mohou upravovat aplikaci a řídit členství.</base:nls-string><base:nls-string xml:lang="da">Kan redigere programmet og styre medlemskab.</base:nls-string><base:nls-string xml:lang="de">Ein Administrator kann die Anwendung bearbeiten und die Zugehörigkeit steuern.</base:nls-string><base:nls-string xml:lang="el">Μπορούν να τροποποιούν την εφαρμογή και να ελέγχουν τα μέλη της.</base:nls-string><base:nls-string xml:lang="en">Can edit the application and control membership.</base:nls-string><base:nls-string xml:lang="es">Pueden editar la aplicación y controlar a los miembros.</base:nls-string><base:nls-string xml:lang="fi">Pääkäyttäjät voivat muokata sovellusta ja hallita jäsenyyksiä.</base:nls-string><base:nls-string xml:lang="fr">Peuvent modifier l'application et contrôler l'appartenance.</base:nls-string><base:nls-string xml:lang="hu">Szerkeszthetik az alkalmazást és felügyelhetik a tagságot.</base:nls-string><base:nls-string xml:lang="it">Possono modificare l'applicazione e controllare l'appartenenza.</base:nls-string><base:nls-string xml:lang="iw">יכולים לערוך את היישום ולשלוט ברשימת החברים.</base:nls-string><base:nls-string xml:lang="ja">アプリケーションの編集およびメンバー資格の管理が可能</base:nls-string><base:nls-string xml:lang="ko">응용프로그램 및 제어 구성원을 편집할 수 있습니다.</base:nls-string><base:nls-string xml:lang="nl">Kan de toepassing en het lidmaatschap besturen.</base:nls-string><base:nls-string xml:lang="no">Kan redigere applikasjon og kontrollere medlemskap.</base:nls-string><base:nls-string xml:lang="pl">Mogą edytować aplikację i sterować przypisaniami.</base:nls-string><base:nls-string xml:lang="pt">Pode editar a aplicação e controlar a filiação.</base:nls-string><base:nls-string xml:lang="pt-BR">É possível editar o aplicativo e controlar a associação.</base:nls-string><base:nls-string xml:lang="ro">Se poate edita aplicaţia şi controla apartenenţa.</base:nls-string><base:nls-string xml:lang="ru">Могут изменять приложения и управлять участниками.</base:nls-string><base:nls-string xml:lang="sk">Môžu upravovať aplikáciu a riadiť členstvo.</base:nls-string><base:nls-string xml:lang="sl">Lahko uredi aplikacijo in nadzira članstva.</base:nls-string><base:nls-string xml:lang="sv">Får ändra program och bestämma medlemskap.</base:nls-string><base:nls-string xml:lang="th">สามารถแก้ไขแอ็พพลิเคชันและควบคุมความเป็นสมาชิก</base:nls-string><base:nls-string xml:lang="tr">Uygulamayı düzenleyebilir ve üyeliği denetleyebilirler.</base:nls-string><base:nls-string xml:lang="uk">Можуть редагувати прикладну програму і керувати доступом до неї.</base:nls-string><base:nls-string xml:lang="zh">可以编辑应用程序并控制成员资格。</base:nls-string><base:nls-string xml:lang="zh-TW">可以編輯應用程式和控制成員資格。</base:nls-string></base:description><community:component-role-ref roleRef="Manager@6_5JMPDRH1000980269G784H2GO2" componentRef="com.ibm.portal.blank.paa"/><community:principal id="uid=wpsadmin,o=default organization" idType="UserId" displayName="wpsadmin"/></community:community-role><community:community-role name="user"><base:title><base:nls-string xml:lang="ar">المستخدمون</base:nls-string><base:nls-string xml:lang="ca">Usuaris</base:nls-string><base:nls-string xml:lang="cs">Uživatelé</base:nls-string><base:nls-string xml:lang="da">Brugere</base:nls-string><base:nls-string xml:lang="de">Benutzer</base:nls-string><base:nls-string xml:lang="el">Χρήστες</base:nls-string><base:nls-string xml:lang="en">Users</base:nls-string><base:nls-string xml:lang="es">Usuarios</base:nls-string><base:nls-string xml:lang="fi">Käyttäjät</base:nls-string><base:nls-string xml:lang="fr">Utilisateurs</base:nls-string><base:nls-string xml:lang="hu">Felhasználók</base:nls-string><base:nls-string xml:lang="it">Utenti</base:nls-string><base:nls-string xml:lang="iw">משתמשים</base:nls-string><base:nls-string xml:lang="ja">ユーザー</base:nls-string><base:nls-string xml:lang="ko">사용자</base:nls-string><base:nls-string xml:lang="nl">Gebruikers</base:nls-string><base:nls-string xml:lang="no">Brukere</base:nls-string><base:nls-string xml:lang="pl">Użytkownicy</base:nls-string><base:nls-string xml:lang="pt">Utilizadores</base:nls-string><base:nls-string xml:lang="pt-BR">Usuários</base:nls-string><base:nls-string xml:lang="ro">Utilizatori</base:nls-string><base:nls-string xml:lang="ru">Пользователи</base:nls-string><base:nls-string xml:lang="sk">Užívatelia</base:nls-string><base:nls-string xml:lang="sl">Uporabnik</base:nls-string><base:nls-string xml:lang="sv">Användare</base:nls-string><base:nls-string xml:lang="th">User</base:nls-string><base:nls-string xml:lang="tr">Kullanıcılar</base:nls-string><base:nls-string xml:lang="uk">Користувачі</base:nls-string><base:nls-string xml:lang="zh">用户</base:nls-string><base:nls-string xml:lang="zh-TW">使用者</base:nls-string></base:title><base:description><base:nls-string xml:lang="ar">يمكن استخدام التطبيق.</base:nls-string><base:nls-string xml:lang="ca">Poden utilitzar l'aplicació.</base:nls-string><base:nls-string xml:lang="cs">Mohou používat aplikaci.</base:nls-string><base:nls-string xml:lang="da">Kan bruge programmet.</base:nls-string><base:nls-string xml:lang="de">Ein Benutzer kann die Anwendung verwenden.</base:nls-string><base:nls-string xml:lang="el">Μπορούν να χρησιμοποιούν την εφαρμογή.</base:nls-string><base:nls-string xml:lang="en">Can use the application.</base:nls-string><base:nls-string xml:lang="es">Pueden utilizar la aplicación.</base:nls-string><base:nls-string xml:lang="fi">Käyttäjät voivat käyttää sovellusta.</base:nls-string><base:nls-string xml:lang="fr">Peuvent utiliser l'application.</base:nls-string><base:nls-string xml:lang="hu">Használhatják az alkalmazást.</base:nls-string><base:nls-string xml:lang="it">Possono utilizzare l'applicazione.</base:nls-string><base:nls-string xml:lang="iw">יכולים להשתמש ביישום.</base:nls-string><base:nls-string xml:lang="ja">アプリケーションを使用可能</base:nls-string><base:nls-string xml:lang="ko">응용프로그램을 사용할 수 있습니다.</base:nls-string><base:nls-string xml:lang="nl">Kan de toepassing gebruiken.</base:nls-string><base:nls-string xml:lang="no">Kan bruke applikasjonen.</base:nls-string><base:nls-string xml:lang="pl">Mogą używać aplikacji.</base:nls-string><base:nls-string xml:lang="pt">Pode utilizar a aplicação.</base:nls-string><base:nls-string xml:lang="pt-BR">É possível utilizar o aplicativo.</base:nls-string><base:nls-string xml:lang="ro">Puteţi folosi aplicaţia.</base:nls-string><base:nls-string xml:lang="ru">Могут пользоваться приложением.</base:nls-string><base:nls-string xml:lang="sk">Môžu používať aplikáciu.</base:nls-string><base:nls-string xml:lang="sl">Lahko uporablja aplikacijo.</base:nls-string><base:nls-string xml:lang="sv">Får använda programmet.</base:nls-string><base:nls-string xml:lang="th">สามารถใช้แอ็พพลิเคชัน</base:nls-string><base:nls-string xml:lang="tr">Uygulamayı kullanabilirler.</base:nls-string><base:nls-string xml:lang="uk">Можуть працювати з прикладною програмою.</base:nls-string><base:nls-string xml:lang="zh">可以使用应用程序。</base:nls-string><base:nls-string xml:lang="zh-TW">可以使用應用程式。</base:nls-string></base:description><community:component-role-ref roleRef="User@6_5JMPDRH1000980269G784H2GO2" componentRef="com.ibm.portal.blank.paa"/></community:community-role><community:owner id="uid=wpsadmin,o=Default Organization" idType="UserId" displayName="wpsadmin"/></community:community><business-component guid="[rep_id]_852586B100019288" name="com.ibm.portal.blank.paa" handlerRef="local:ejb/ejb/com/ibm/wps/internalapp/service/PaaInstantiationServiceHome"><var:component-role ref="Manager@6_5JMPDRH1000980269G784H2GO2"/><var:component-role ref="User@6_5JMPDRH1000980269G784H2GO2"/><object-data><ibm-portal-topology xmlns="http://www.ibm.com/xmlns/prod/websphere/portal/v6.0/ibm-portal-topology" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xlink="http://www.w3.org/1999/xlink">
+<component-tree/>
+<layout-tree>
+<layout-element id="layout_TMP_10002">
+<container xsi:type="SimpleContainer" orientation="row">
+<container xsi:type="SimpleContainer" orientation="column"/>
+</container>
+</layout-element>
+</layout-tree>
+<navigation-element id="TMP_10000">
+<title>
+<base:nls-string xml:lang="ar">تطبيق فارغ</base:nls-string>
+<base:nls-string xml:lang="ca">Aplicació buida</base:nls-string>
+<base:nls-string xml:lang="cs">Prázdná aplikace</base:nls-string>
+<base:nls-string xml:lang="da">Tomt program</base:nls-string>
+<base:nls-string xml:lang="de">Leere Anwendung</base:nls-string>
+<base:nls-string xml:lang="el">Κενή εφαρμογή</base:nls-string>
+<base:nls-string xml:lang="en">Blank Application</base:nls-string>
+<base:nls-string xml:lang="es">Aplicación en blanco</base:nls-string>
+<base:nls-string xml:lang="fi">Tyhjä sovellus</base:nls-string>
+<base:nls-string xml:lang="fr">Application vide</base:nls-string>
+<base:nls-string xml:lang="hu">Üres alkalmazás</base:nls-string>
+<base:nls-string xml:lang="it">Applicazione vuota</base:nls-string>
+<base:nls-string xml:lang="iw">יישום ריק</base:nls-string>
+<base:nls-string xml:lang="ja">ブランクアプリケーション</base:nls-string>
+<base:nls-string xml:lang="ko">빈 애플리케이션</base:nls-string>
+<base:nls-string xml:lang="nl">Lege toepassing</base:nls-string>
+<base:nls-string xml:lang="no">Tom applikasjon</base:nls-string>
+<base:nls-string xml:lang="pl">Pusta aplikacja</base:nls-string>
+<base:nls-string xml:lang="pt">Aplicação em branco</base:nls-string>
+<base:nls-string xml:lang="pt-BR">Aplicativo em branco</base:nls-string>
+<base:nls-string xml:lang="ro">Blank Application</base:nls-string>
+<base:nls-string xml:lang="ru">Пустое приложение</base:nls-string>
+<base:nls-string xml:lang="sk">Prázdna aplikácia</base:nls-string>
+<base:nls-string xml:lang="sl">Prazen program</base:nls-string>
+<base:nls-string xml:lang="sv">Tomt program</base:nls-string>
+<base:nls-string xml:lang="th">แอ็พพลิเคชันว่าง</base:nls-string>
+<base:nls-string xml:lang="tr">Boş Uygulama</base:nls-string>
+<base:nls-string xml:lang="uk">Blank Application</base:nls-string>
+<base:nls-string xml:lang="zh">空应用程序</base:nls-string>
+<base:nls-string xml:lang="zh-TW">空白應用程式</base:nls-string>
+</title>
+
+<description>
+<base:nls-string xml:lang="ar">تطبيق فارغ</base:nls-string>
+<base:nls-string xml:lang="ca">Aplicació buida</base:nls-string>
+<base:nls-string xml:lang="cs">Prázdná aplikace</base:nls-string>
+<base:nls-string xml:lang="da">Tomt program</base:nls-string>
+<base:nls-string xml:lang="de">Leere Anwendung</base:nls-string>
+<base:nls-string xml:lang="el">Κενή εφαρμογή</base:nls-string>
+<base:nls-string xml:lang="en">Blank Application</base:nls-string>
+<base:nls-string xml:lang="es">Aplicación en blanco</base:nls-string>
+<base:nls-string xml:lang="fi">Tyhjä sovellus</base:nls-string>
+<base:nls-string xml:lang="fr">Application vide</base:nls-string>
+<base:nls-string xml:lang="hu">Üres alkalmazás</base:nls-string>
+<base:nls-string xml:lang="it">Applicazione vuota</base:nls-string>
+<base:nls-string xml:lang="iw">יישום ריק</base:nls-string>
+<base:nls-string xml:lang="ja">ブランクアプリケーション</base:nls-string>
+<base:nls-string xml:lang="ko">빈 애플리케이션</base:nls-string>
+<base:nls-string xml:lang="nl">Lege toepassing</base:nls-string>
+<base:nls-string xml:lang="no">Tom applikasjon</base:nls-string>
+<base:nls-string xml:lang="pl">Pusta aplikacja</base:nls-string>
+<base:nls-string xml:lang="pt">Aplicação em branco</base:nls-string>
+<base:nls-string xml:lang="pt-BR">Aplicativo em branco</base:nls-string>
+<base:nls-string xml:lang="ro">Blank Application</base:nls-string>
+<base:nls-string xml:lang="ru">Пустое приложение</base:nls-string>
+<base:nls-string xml:lang="sk">Prázdna aplikácia</base:nls-string>
+<base:nls-string xml:lang="sl">Prazen program</base:nls-string>
+<base:nls-string xml:lang="sv">Tomt program</base:nls-string>
+<base:nls-string xml:lang="th">แอ็พพลิเคชันว่าง</base:nls-string>
+<base:nls-string xml:lang="tr">Boş Uygulama</base:nls-string>
+<base:nls-string xml:lang="uk">Blank Application</base:nls-string>
+<base:nls-string xml:lang="zh">空应用程序</base:nls-string>
+<base:nls-string xml:lang="zh-TW">空白應用程式</base:nls-string>
+</description>
+<preference name="com.ibm.portal.categoryGuid">
+<base:value value="1HeDe13PG3IP6G1C03Q46P1DA6R46M9E46OOC6JP4JQ076JPC3Q473JD0" readOnly="false" required="false" xsi:type="base:String"/>
+</preference>
+<parent-tree>
+<parent-tree-ref value="wps.application.root" parameterId="portal.root"/>
+</parent-tree>
+<object-id value="[rep_id]_852586B100040654"/>
+<navigation-element id="TMP_10001" layoutElementRef="layout_TMP_10002">
+<title>
+<base:nls-string xml:lang="ar">صفحة خالية</base:nls-string>
+<base:nls-string xml:lang="ca">Pàgina buida</base:nls-string>
+<base:nls-string xml:lang="cs">Prázdná stránka</base:nls-string>
+<base:nls-string xml:lang="da">Tom side</base:nls-string>
+<base:nls-string xml:lang="de">Leere Seite</base:nls-string>
+<base:nls-string xml:lang="el">Κενή σελίδα</base:nls-string>
+<base:nls-string xml:lang="en">Blank Page</base:nls-string>
+<base:nls-string xml:lang="es">Página en blanco</base:nls-string>
+<base:nls-string xml:lang="fi">Tyhjä sivu</base:nls-string>
+<base:nls-string xml:lang="fr">Page vide</base:nls-string>
+<base:nls-string xml:lang="hu">Üres oldal</base:nls-string>
+<base:nls-string xml:lang="it">Pagina vuota</base:nls-string>
+<base:nls-string xml:lang="iw">דף ריק</base:nls-string>
+<base:nls-string xml:lang="ja">空白ページ</base:nls-string>
+<base:nls-string xml:lang="ko">공백 페이지</base:nls-string>
+<base:nls-string xml:lang="nl">Lege pagina</base:nls-string>
+<base:nls-string xml:lang="no">Tom side</base:nls-string>
+<base:nls-string xml:lang="pl">Pusta strona</base:nls-string>
+<base:nls-string xml:lang="pt">Página em branco</base:nls-string>
+<base:nls-string xml:lang="pt-BR">Página Em Branco</base:nls-string>
+<base:nls-string xml:lang="ro">Pagină goală</base:nls-string>
+<base:nls-string xml:lang="ru">Пустая страница</base:nls-string>
+<base:nls-string xml:lang="sk">Prázdna stránka</base:nls-string>
+<base:nls-string xml:lang="sl">Prazna stran</base:nls-string>
+<base:nls-string xml:lang="sv">Tom sida</base:nls-string>
+<base:nls-string xml:lang="th">หน้าว่าง</base:nls-string>
+<base:nls-string xml:lang="tr">Boş Sayfa</base:nls-string>
+<base:nls-string xml:lang="uk">Порожня сторінка</base:nls-string>
+<base:nls-string xml:lang="zh">空白页面</base:nls-string>
+<base:nls-string xml:lang="zh-TW">空白頁面</base:nls-string>
+</title>
+<description>
+<base:nls-string xml:lang="ar">صفحة خالية</base:nls-string>
+<base:nls-string xml:lang="ca">Pàgina buida</base:nls-string>
+<base:nls-string xml:lang="cs">Prázdná stránka</base:nls-string>
+<base:nls-string xml:lang="da">Tom side</base:nls-string>
+<base:nls-string xml:lang="de">Leere Seite</base:nls-string>
+<base:nls-string xml:lang="el">Κενή σελίδα</base:nls-string>
+<base:nls-string xml:lang="en">Blank Page</base:nls-string>
+<base:nls-string xml:lang="es">Página en blanco</base:nls-string>
+<base:nls-string xml:lang="fi">Tyhjä sivu</base:nls-string>
+<base:nls-string xml:lang="fr">Page vide</base:nls-string>
+<base:nls-string xml:lang="hu">Üres oldal</base:nls-string>
+<base:nls-string xml:lang="it">Pagina vuota</base:nls-string>
+<base:nls-string xml:lang="iw">דף ריק</base:nls-string>
+<base:nls-string xml:lang="ja">空白ページ</base:nls-string>
+<base:nls-string xml:lang="ko">공백 페이지</base:nls-string>
+<base:nls-string xml:lang="nl">Lege pagina</base:nls-string>
+<base:nls-string xml:lang="no">Tom side</base:nls-string>
+<base:nls-string xml:lang="pl">Pusta strona</base:nls-string>
+<base:nls-string xml:lang="pt">Página em branco</base:nls-string>
+<base:nls-string xml:lang="pt-BR">Página Em Branco</base:nls-string>
+<base:nls-string xml:lang="ro">Pagină goală</base:nls-string>
+<base:nls-string xml:lang="ru">Пустая страница</base:nls-string>
+<base:nls-string xml:lang="sk">Prázdna stránka</base:nls-string>
+<base:nls-string xml:lang="sl">Prazna stran</base:nls-string>
+<base:nls-string xml:lang="sv">Tom sida</base:nls-string>
+<base:nls-string xml:lang="th">หน้าว่าง</base:nls-string>
+<base:nls-string xml:lang="tr">Boş Sayfa</base:nls-string>
+<base:nls-string xml:lang="uk">Порожня сторінка</base:nls-string>
+<base:nls-string xml:lang="zh">空白页面</base:nls-string>
+<base:nls-string xml:lang="zh-TW">空白頁面</base:nls-string>
+</description>
+<preference name="com.ibm.notes.enable.preferences">
+<base:value value="true" xsi:type="base:String"/>
+</preference>
+<object-id value="[rep_id]_852586B100035835"/>
+</navigation-element>
+</navigation-element>
+</ibm-portal-topology></object-data></business-component></ibm-portal-composite>
+
