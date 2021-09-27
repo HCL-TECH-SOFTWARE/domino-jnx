@@ -1,7 +1,9 @@
 package com.hcl.domino.jna.admin;
 
 import com.hcl.domino.admin.DirectoryAssistance;
+import com.hcl.domino.commons.structs.WrongArraySizeException;
 import com.hcl.domino.commons.util.NotesErrorUtils;
+import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.structs.CreateDAConfigStruct;
 import com.hcl.domino.jna.internal.structs.DirectoryAssistanceStruct;
@@ -33,10 +35,15 @@ public class JNADirectoryAssistance implements DirectoryAssistance {
 
   @Override
   public void enableDisableDA(String docUnid, boolean enableDomain) {
-    EnableDisableDAStruct daConfig  = new EnableDisableDAStruct(serverName.getBytes(), dirAssistDBName.getBytes(), docUnid.getBytes(), enableDomain);
+
+    EnableDisableDAStruct daConfig  = new EnableDisableDAStruct();
+
+    NotesStringUtils.toLMBCS(serverName, true, daConfig.szServerName);
+    NotesStringUtils.toLMBCS(dirAssistDBName, true, daConfig.szDirAssistDBName);
+    NotesStringUtils.toLMBCS(docUnid, true, daConfig.szDocUNID);
+    daConfig.bEnableDomain = enableDomain;
 
     daConfig.write();
-    System.out.println("The value returned from the call is "+ NotesCAPI.get().EnableDisableDADomain(daConfig));
     NotesErrorUtils.checkResult(NotesCAPI.get().EnableDisableDADomain(daConfig));
   }
 
@@ -49,7 +56,7 @@ public class JNADirectoryAssistance implements DirectoryAssistance {
     UpdateDAConfigStruct daConfig = new UpdateDAConfigStruct(docUNID.getBytes(), daConfigStruct);
 
     daConfig.write();
-    NotesErrorUtils.checkResult(NotesCAPI.get().UpdateDAConfig(daConfig));
+    NotesErrorUtils.checkResult(NotesCAPI.get().UpdateDAConfiguration(daConfig));
   }
 
 }
