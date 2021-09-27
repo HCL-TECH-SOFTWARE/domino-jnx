@@ -74,6 +74,7 @@ import com.hcl.domino.design.Theme;
 import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.WiringProperties;
+import com.hcl.domino.design.XPage;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionBarAction.IconType;
 import com.hcl.domino.design.action.ActionContent;
@@ -1329,6 +1330,47 @@ public class TestDbDesign extends AbstractDesignTest {
     String unid = res.getDocument().getUNID();
     {
       Optional<CompositeApplication> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+    }
+  }
+  
+  @Test
+  public void testXPages() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<XPage> components = dbDesign.getXPages().collect(Collectors.toList());
+    assertEquals(1, components.size());
+    assertTrue(components.stream().anyMatch(prop -> "Home.xsp".equals(prop.getTitle())));
+  }
+  
+  @Test
+  public void testXPageHome() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    XPage res = dbDesign.getXPage("Home.xsp").get();
+    assertEquals("Home.xsp", res.getTitle());
+    
+    String expected = IOUtils.resourceToString("/text/testDbDesign/Home.xml", StandardCharsets.UTF_8) + "\r\n";
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<XPage> optRes = dbDesign.getDesignElementByUNID(unid);
       res = optRes.get();
       {
         String content;

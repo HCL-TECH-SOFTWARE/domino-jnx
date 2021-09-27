@@ -90,6 +90,7 @@ import com.hcl.domino.design.Theme;
 import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.WiringProperties;
+import com.hcl.domino.design.XPage;
 import com.hcl.domino.design.agent.FormulaAgentContent;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.misc.Pair;
@@ -243,6 +244,7 @@ public enum DesignUtil {
     DesignUtil.mappings.put(Frameset.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_FRAMESET, FramesetImpl::new));
     DesignUtil.mappings.put(CompositeComponent.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_WIDGET, CompositeComponentImpl::new));
     DesignUtil.mappings.put(CompositeApplication.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_COMPAPP, CompositeApplicationImpl::new));
+    DesignUtil.mappings.put(XPage.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_XSPPAGE, XPageImpl::new));
   }
 
   /**
@@ -290,6 +292,8 @@ public enum DesignUtil {
           return new CompositeComponentImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_COMPAPP)) {
           return new CompositeApplicationImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_XSPPAGE)) {
+          return new XPageImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_FILE_RESOURCE)) {
           return new FileResourceImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_FILE)) {

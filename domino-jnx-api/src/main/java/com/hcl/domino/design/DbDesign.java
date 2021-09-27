@@ -553,7 +553,7 @@ public interface DbDesign {
    *
    * @param name the element name to restrict to
    * @return an {@link Optional} describing the {@link CompositeComponent}, or an empty one if
-   *         no such theme exists
+   *         no such element exists
    * @since 1.0.38
    */
   Optional<CompositeComponent> getCompositeComponent(String name);
@@ -571,7 +571,7 @@ public interface DbDesign {
    *
    * @param name the element name to restrict to
    * @return an {@link Optional} describing the {@link CompositeApplication}, or an empty one if
-   *         no such theme exists
+   *         no such element exists
    * @since 1.0.38
    */
   Optional<CompositeApplication> getCompositeApplication(String name);
@@ -583,6 +583,24 @@ public interface DbDesign {
    * @since 1.0.38
    */
   Stream<CompositeComponent> getCompositeComponents();
+
+  /**
+   * Retrieves the named XPage element.
+   *
+   * @param name the element name to restrict to
+   * @return an {@link Optional} describing the {@link XPage}, or an empty one if
+   *         no such element exists
+   * @since 1.0.38
+   */
+  Optional<XPage> getXPage(String name);
+
+  /**
+   * Retrieves all XPage elements in the database.
+   *
+   * @return a {@link Stream} of {@link XPage}s
+   * @since 1.0.38
+   */
+  Stream<XPage> getXPages();
   
   /**
    * Retrieves a design element by its UNID.

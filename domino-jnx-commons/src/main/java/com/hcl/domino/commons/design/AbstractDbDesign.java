@@ -73,6 +73,7 @@ import com.hcl.domino.design.Theme;
 import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.WiringProperties;
+import com.hcl.domino.design.XPage;
 import com.hcl.domino.exception.SpecialObjectCannotBeLocatedException;
 import com.hcl.domino.misc.NotesConstants;
 
@@ -503,6 +504,16 @@ public abstract class AbstractDbDesign implements DbDesign {
   @Override
   public Stream<CompositeApplication> getCompositeApplications() {
     return getDesignElements(CompositeApplication.class);
+  }
+  
+  @Override
+  public Optional<XPage> getXPage(String name) {
+    return getDesignElementByName(XPage.class, name);
+  }
+  
+  @Override
+  public Stream<XPage> getXPages() {
+    return getDesignElements(XPage.class);
   }
   
   @SuppressWarnings("unchecked")
