@@ -47,6 +47,8 @@ import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.design.AboutDocument;
 import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.CompositeApplication;
+import com.hcl.domino.design.CompositeComponent;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DbProperties;
 import com.hcl.domino.design.DesignAgent;
@@ -71,6 +73,7 @@ import com.hcl.domino.design.Theme;
 import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.WiringProperties;
+import com.hcl.domino.design.XPage;
 import com.hcl.domino.exception.SpecialObjectCannotBeLocatedException;
 import com.hcl.domino.misc.NotesConstants;
 
@@ -481,6 +484,36 @@ public abstract class AbstractDbDesign implements DbDesign {
   @Override
   public Stream<Theme> getThemes() {
     return getDesignElements(Theme.class);
+  }
+  
+  @Override
+  public Optional<CompositeComponent> getCompositeComponent(String name) {
+    return getDesignElementByName(CompositeComponent.class, name);
+  }
+  
+  @Override
+  public Stream<CompositeComponent> getCompositeComponents() {
+    return getDesignElements(CompositeComponent.class);
+  }
+  
+  @Override
+  public Optional<CompositeApplication> getCompositeApplication(String name) {
+    return getDesignElementByName(CompositeApplication.class, name);
+  }
+  
+  @Override
+  public Stream<CompositeApplication> getCompositeApplications() {
+    return getDesignElements(CompositeApplication.class);
+  }
+  
+  @Override
+  public Optional<XPage> getXPage(String name) {
+    return getDesignElementByName(XPage.class, name);
+  }
+  
+  @Override
+  public Stream<XPage> getXPages() {
+    return getDesignElements(XPage.class);
   }
   
   @SuppressWarnings("unchecked")
