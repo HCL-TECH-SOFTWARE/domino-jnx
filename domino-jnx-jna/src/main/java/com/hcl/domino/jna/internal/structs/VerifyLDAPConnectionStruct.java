@@ -22,6 +22,7 @@ import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.List;
 import com.hcl.domino.commons.structs.WrongArraySizeException;
+import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Pointer;
@@ -50,24 +51,24 @@ public class VerifyLDAPConnectionStruct extends BaseStructure implements Seriali
     super();
     
     if ((hostName.length > this.szHostName.length)) {
-        throw new WrongArraySizeException("hostName");
+        throw new WrongArraySizeException("hostName"); //$NON-NLS-1$
     }
-    this.szHostName = hostName;
+    DominoUtils.overwriteArray(hostName, this.szHostName);
     
     if ((userName.length > this.szUserName.length)) {
-      throw new WrongArraySizeException("userName");
+      throw new WrongArraySizeException("userName"); //$NON-NLS-1$
     }
-    this.szUserName = userName;
+    DominoUtils.overwriteArray(userName, this.szUserName);
 
     if ((password.length > this.szPassword.length)) {
-      throw new WrongArraySizeException("Password");
+      throw new WrongArraySizeException("Password"); //$NON-NLS-1$
     }
-    this.szPassword = password;
+    DominoUtils.overwriteArray(password, this.szPassword);
 
     if ((dnSearch.length > this.szDNSearch.length)) {
-      throw new WrongArraySizeException("DNSearch");
+      throw new WrongArraySizeException("DNSearch"); //$NON-NLS-1$
     }
-    this.szDNSearch = dnSearch;
+    DominoUtils.overwriteArray(dnSearch, this.szDNSearch);
     
     this.wPort = port;
     this.bUseSSL =useSSL;
@@ -88,7 +89,8 @@ public class VerifyLDAPConnectionStruct extends BaseStructure implements Seriali
 		return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> new VerifyLDAPConnectionStruct.ByValue());
 	}	
 	
-	@Override
+	@SuppressWarnings("nls")
+  @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("szHostName", "szUserName", "szPassword", "szDNSearch", "bUseSSL", "wPort", "bAcceptExpiredCertificates", "bVerifyRemoteSrvCert");
 	}
