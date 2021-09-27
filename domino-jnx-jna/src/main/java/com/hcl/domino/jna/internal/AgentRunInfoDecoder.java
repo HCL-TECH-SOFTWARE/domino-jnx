@@ -41,7 +41,7 @@ public enum AgentRunInfoDecoder {
    *         or an empty one if the object is empty
    */
   public static Optional<LastRunInfo> decodeAgentRunInfo(Database database, Pointer valuePtr, int valueLen) {
-    ObjectDescriptor objDescriptor = MemoryUtils.readStructure(ObjectDescriptor.class, valuePtr);
+    ObjectDescriptor objDescriptor = JNAMemoryUtils.readStructure(ObjectDescriptor.class, valuePtr);
     Optional<ObjectDescriptor.ObjectType> objectType = objDescriptor.getObjectType();
     if(!objectType.isPresent()) {
       return Optional.empty();
@@ -82,7 +82,7 @@ public enum AgentRunInfoDecoder {
     AssistRunObjectHeader header = LockUtil.lockHandle(rethBuffer, hBuffer -> {
       try {
         return Mem.OSLockObject(hBuffer, pObject -> {
-          return MemoryUtils.odsReadMemory(pObject, ODSTypes._ODS_ASSISTRUNOBJECTHEADER, AssistRunObjectHeader.class);
+          return JNAMemoryUtils.odsReadMemory(pObject, ODSTypes._ODS_ASSISTRUNOBJECTHEADER, AssistRunObjectHeader.class);
         });
       } finally {
         Mem.OSMemFree(hBuffer);
@@ -114,14 +114,14 @@ public enum AgentRunInfoDecoder {
         PointerByReference ppObject = new PointerByReference(pObject);
         
         // Read one to make sure it exists
-        entries[0] = MemoryUtils.odsReadMemory(ppObject, ODSTypes._ODS_ASSISTRUNOBJECTENTRY, AssistRunObjectEntry.class);
+        entries[0] = JNAMemoryUtils.odsReadMemory(ppObject, ODSTypes._ODS_ASSISTRUNOBJECTENTRY, AssistRunObjectEntry.class);
         if(entries[0].getLength() == 0) {
           return false;
         }
         
         // If we're here, we know at least two more exist
-        entries[1] = MemoryUtils.odsReadMemory(ppObject, ODSTypes._ODS_ASSISTRUNOBJECTENTRY, AssistRunObjectEntry.class);
-        entries[2] = MemoryUtils.odsReadMemory(ppObject, ODSTypes._ODS_ASSISTRUNOBJECTENTRY, AssistRunObjectEntry.class);
+        entries[1] = JNAMemoryUtils.odsReadMemory(ppObject, ODSTypes._ODS_ASSISTRUNOBJECTENTRY, AssistRunObjectEntry.class);
+        entries[2] = JNAMemoryUtils.odsReadMemory(ppObject, ODSTypes._ODS_ASSISTRUNOBJECTENTRY, AssistRunObjectEntry.class);
         
         // If the third entry has zero length, then that means the agent hasn't actually run
         if(entries[2].getLength() == 0) {
@@ -130,7 +130,7 @@ public enum AgentRunInfoDecoder {
         
         // Read in the remaining objects
         for(int i = 3; i < entryCount; i++) {
-          entries[i] = MemoryUtils.odsReadMemory(ppObject, ODSTypes._ODS_ASSISTRUNOBJECTENTRY, AssistRunObjectEntry.class);
+          entries[i] = JNAMemoryUtils.odsReadMemory(ppObject, ODSTypes._ODS_ASSISTRUNOBJECTENTRY, AssistRunObjectEntry.class);
         }
         
         return true;
@@ -158,7 +158,7 @@ public enum AgentRunInfoDecoder {
     AssistRunInfo info = LockUtil.lockHandle(rethBuffer, hBuffer -> {
       try {
         return Mem.OSLockObject(hBuffer, pObject -> {
-          return MemoryUtils.odsReadMemory(pObject, ODSTypes._ODS_ASSISTRUNINFO, AssistRunInfo.class);
+          return JNAMemoryUtils.odsReadMemory(pObject, ODSTypes._ODS_ASSISTRUNINFO, AssistRunInfo.class);
         });
       } finally {
         Mem.OSMemFree(hBuffer);

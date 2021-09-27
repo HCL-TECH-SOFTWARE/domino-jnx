@@ -14,31 +14,40 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.jna.internal.outline;
+package com.hcl.domino.commons.design.outline;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.text.MessageFormat;
 import java.util.List;
-import com.hcl.domino.commons.design.outline.DominoOutlineEntry;
-import com.hcl.domino.commons.design.outline.DominoOutlineFormat;
+
 import com.hcl.domino.commons.misc.ODSTypes;
 import com.hcl.domino.commons.richtext.RichTextUtil;
+import com.hcl.domino.commons.util.NotesItemDataUtil;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.design.OutlineEntry;
 import com.hcl.domino.design.format.SiteMapEntry;
 import com.hcl.domino.design.format.SiteMapHeaderFormat;
 import com.hcl.domino.design.format.SiteMapOutlineHeader;
-import com.hcl.domino.jna.internal.MemoryUtils;
+import com.hcl.domino.misc.DominoEnumUtil;
+import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
-import com.sun.jna.Pointer;
 
 public class OutlineFormatDecoder {
   
-  public static DominoOutlineFormat decodeOutlineFormat(Pointer dataPtr, int valueLength) {
+  /**
+   * Reads outline data from the provided raw buffer. This buffer should contain the outline
+   * item data, without data-type markers, and potentially concatenated from across multiple
+   * items.
+   * 
+   * @param data the data to read
+   * @return a decoded {@link DominoOutlineFormat}
+   */
+  public static DominoOutlineFormat decodeOutlineFormat(ByteBuffer data) {
     
     DominoOutlineFormat result = new DominoOutlineFormat();
-    ByteBuffer data = dataPtr.getByteBuffer(0, valueLength);
-    SiteMapHeaderFormat header = MemoryUtils.readMemory(data, ODSTypes._OUTLINE_FORMAT, SiteMapHeaderFormat.class);
+    SiteMapHeaderFormat header = NotesItemDataUtil.readMemory(data, ODSTypes._OUTLINE_FORMAT, SiteMapHeaderFormat.class);
     short items = header.getItems();
     short numEntries = header.getEntries();
 //    byte  majorVersionByte = header.getMajorVersion();
@@ -46,18 +55,18 @@ public class OutlineFormatDecoder {
 //    short majorVersion = (short)majorVersionByte;
 //    short minorVersion = (short)minorVersionByte;
 
-    SiteMapOutlineHeader outlineHeader = MemoryUtils.readMemory(data, ODSTypes._OUTLINE_FORMAT, SiteMapOutlineHeader.class);
+    SiteMapOutlineHeader outlineHeader = NotesItemDataUtil.readMemory(data, ODSTypes._OUTLINE_FORMAT, SiteMapOutlineHeader.class);
     int flags = outlineHeader.getFlags();
     
     short[] itemEntries = new short[items];
     for (int i=0; i<items; i++) {
-      itemEntries[i] = MemoryUtils.readBuffer(data, 2).getShort();
+      itemEntries[i] = NotesItemDataUtil.readBuffer(data, 2).getShort();
     }
     for (int i=0; i<items; i++) {
       for (int j=0; j<itemEntries[i]; j++) {
 
         DominoOutlineEntry outlineEntry = new DominoOutlineEntry();
-        SiteMapEntry sitemapEntry = MemoryUtils.readMemory(data, ODSTypes._OUTLINE_FORMAT, SiteMapEntry.class);
+        SiteMapEntry sitemapEntry = NotesItemDataUtil.readMemory(data, ODSTypes._OUTLINE_FORMAT, SiteMapEntry.class);
         int fixedSize  = sitemapEntry.getEntryFixedSize();
         short varSize  = sitemapEntry.getEntryVarSize();
         //int entryFlags = sitemapEntry.getEntryFlags();
@@ -80,20 +89,22 @@ public class OutlineFormatDecoder {
         outlineEntry.setFlags(sitemapEntry.getEntryFlags());
         outlineEntry.setResourceDesignType(sitemapEntry.getEntryDesignType());
         outlineEntry.setLevel(sitemapEntry.getLevel());
-        outlineEntry.setResourceTypeFromRaw(sitemapEntry.getEntryType());
-        outlineEntry.setResourceClassFromRaw(sitemapEntry.getEntryClass());
+        DominoEnumUtil.valueOf(OutlineEntry.Type.class, sitemapEntry.getEntryType())
+          .ifPresent(outlineEntry::setResourceType);
+        DominoEnumUtil.valueOf(CDResource.ResourceClass.class, sitemapEntry.getEntryClass())
+          .ifPresent(outlineEntry::setResourceClass);
         
         //read variable data
         if (titleSize > 0) {
-          titleSize = recalculateDataSize(readVariableDataDatatype(data), titleSize, data);
+          titleSize = recalculateDataSize(data.getShort(data.position()), titleSize, data);
           //String title = new String(getBufferBytes(data, titleSize), Charset.forName("LMBCS"));
-          outlineEntry.setTitle(new String(MemoryUtils.getBufferBytes(data, titleSize), Charset.forName("LMBCS")));
+          outlineEntry.setTitle(new String(NotesItemDataUtil.getBufferBytes(data, titleSize), Charset.forName("LMBCS"))); //$NON-NLS-1$
         }
 
         if (onclickSize > 0) {
-          short onclickDataDatatype = readVariableDataDatatype(data);
+          short onclickDataDatatype = data.getShort(data.position());
           onclickSize = recalculateDataSize(onclickDataDatatype, onclickSize, data);
-          ByteBuffer onclickdata = MemoryUtils.readBuffer(data, onclickSize);
+          ByteBuffer onclickdata = NotesItemDataUtil.readBuffer(data, onclickSize);
           byte[] onclickdataBytes = new byte[onclickSize];
           onclickdata.get(onclickdataBytes, 0, onclickSize);
           List<RichTextRecord<?>> onclickData =  null;
@@ -104,9 +115,9 @@ public class OutlineFormatDecoder {
         }
         
         if (imageSize > 0) {
-          short imageDataDatatype = readVariableDataDatatype(data);
+          short imageDataDatatype = data.getShort(data.position());
           imageSize = recalculateDataSize(imageDataDatatype, imageSize, data);
-          ByteBuffer imagedata = MemoryUtils.readBuffer(data, imageSize);
+          ByteBuffer imagedata = NotesItemDataUtil.readBuffer(data, imageSize);
           byte[] imagedataBytes = new byte[imageSize];
           imagedata.get(imagedataBytes, 0, imageSize);
           List<RichTextRecord<?>> imageData =  null;
@@ -117,46 +128,46 @@ public class OutlineFormatDecoder {
         }
         
         if (targetFrameSize > 0) {
-          targetFrameSize = recalculateDataSize(readVariableDataDatatype(data), targetFrameSize, data);
-          outlineEntry.setTargetFrame(new String(MemoryUtils.getBufferBytes(data, targetFrameSize), Charset.forName("LMBCS")));
+          targetFrameSize = recalculateDataSize(data.getShort(data.position()), targetFrameSize, data);
+          outlineEntry.setTargetFrame(new String(NotesItemDataUtil.getBufferBytes(data, targetFrameSize), Charset.forName("LMBCS"))); //$NON-NLS-1$
         }
         
         if (hideWhenSize > 0) {
-          hideWhenSize = recalculateDataSize(readVariableDataDatatype(data), hideWhenSize, data);
-          outlineEntry.setHideWhenData(new String(MemoryUtils.getBufferBytes(data, hideWhenSize), Charset.forName("LMBCS")));
+          hideWhenSize = recalculateDataSize(data.getShort(data.position()), hideWhenSize, data);
+          outlineEntry.setHideWhenFormula(new String(NotesItemDataUtil.getBufferBytes(data, hideWhenSize), Charset.forName("LMBCS"))); //$NON-NLS-1$
         }
         
         if (aliasSize > 0) {
-          aliasSize = recalculateDataSize(readVariableDataDatatype(data), aliasSize, data);
-          outlineEntry.setAlias(new String(MemoryUtils.getBufferBytes(data, aliasSize), Charset.forName("LMBCS")));
+          aliasSize = recalculateDataSize(data.getShort(data.position()), aliasSize, data);
+          outlineEntry.setAlias(new String(NotesItemDataUtil.getBufferBytes(data, aliasSize), Charset.forName("LMBCS"))); //$NON-NLS-1$
         }
         
         if (sourceSize > 0) {
-          sourceSize = recalculateDataSize(readVariableDataDatatype(data), sourceSize, data);
-          outlineEntry.setSourceData(new String(MemoryUtils.getBufferBytes(data, sourceSize), Charset.forName("LMBCS")));
+          sourceSize = recalculateDataSize(data.getShort(data.position()), sourceSize, data);
+          outlineEntry.setSourceData(new String(NotesItemDataUtil.getBufferBytes(data, sourceSize), Charset.forName("LMBCS"))); //$NON-NLS-1$
         }
         
         if (preferredServerSize > 0) {
-          preferredServerSize = recalculateDataSize(readVariableDataDatatype(data), preferredServerSize, data);
-          outlineEntry.setPreferredServer(new String(MemoryUtils.getBufferBytes(data, preferredServerSize), Charset.forName("LMBCS")));
+          preferredServerSize = recalculateDataSize(data.getShort(data.position()), preferredServerSize, data);
+          outlineEntry.setPreferredServer(new String(NotesItemDataUtil.getBufferBytes(data, preferredServerSize), Charset.forName("LMBCS"))); //$NON-NLS-1$
         }
 
         //if (majorVersion == 1 && minorVersion > 3) {
         if (toolbarManagerSize > 0) {
-          toolbarManagerSize = recalculateDataSize(readVariableDataDatatype(data), toolbarManagerSize, data);
-          outlineEntry.setToolbarManager(new String(MemoryUtils.getBufferBytes(data, toolbarManagerSize), Charset.forName("LMBCS")));
+          toolbarManagerSize = recalculateDataSize(data.getShort(data.position()), toolbarManagerSize, data);
+          outlineEntry.setToolbarManager(new String(NotesItemDataUtil.getBufferBytes(data, toolbarManagerSize), Charset.forName("LMBCS"))); //$NON-NLS-1$
         }
 
         if (toolbarEntrySize > 0) {
-          toolbarEntrySize = recalculateDataSize(readVariableDataDatatype(data), toolbarEntrySize, data);
-          outlineEntry.setToolbarEntry(new String(MemoryUtils.getBufferBytes(data, toolbarEntrySize), Charset.forName("LMBCS")));
+          toolbarEntrySize = recalculateDataSize(data.getShort(data.position()), toolbarEntrySize, data);
+          outlineEntry.setToolbarEntry(new String(NotesItemDataUtil.getBufferBytes(data, toolbarEntrySize), Charset.forName("LMBCS"))); //$NON-NLS-1$
         }
         //}
 
         //if (majorVersion == 1 && minorVersion >= 6) {
         if (popupSize > 0) {
-          popupSize = recalculateDataSize(readVariableDataDatatype(data), popupSize, data);
-          outlineEntry.setPopup(new String(MemoryUtils.getBufferBytes(data, popupSize), Charset.forName("LMBCS")));
+          popupSize = recalculateDataSize(data.getShort(data.position()), popupSize, data);
+          outlineEntry.setPopup(new String(NotesItemDataUtil.getBufferBytes(data, popupSize), Charset.forName("LMBCS"))); //$NON-NLS-1$
         }
         //}
         
@@ -164,7 +175,10 @@ public class OutlineFormatDecoder {
        
         //skip rest of variable size for now
         int  skipVarSize  = varSize - (titleSize + onclickSize + imageSize + targetFrameSize + hideWhenSize + aliasSize + sourceSize + preferredServerSize + toolbarManagerSize + toolbarEntrySize +popupSize ) ;
-        MemoryUtils.readBuffer(data, skipVarSize);
+        if(skipVarSize < 0) {
+          throw new IllegalStateException(MessageFormat.format("skipVarSize resulted in a negative value: {0}", skipVarSize));
+        }
+        NotesItemDataUtil.readBuffer(data, skipVarSize);
       }
     }
         
@@ -179,11 +193,6 @@ public class OutlineFormatDecoder {
     }
     
     return retVal;
-  }
-  
-  private static short readVariableDataDatatype(ByteBuffer buf) {
-    ByteBuffer result = MemoryUtils.subBuffer(buf, 2);
-    return result.getShort();
   }
   
   
