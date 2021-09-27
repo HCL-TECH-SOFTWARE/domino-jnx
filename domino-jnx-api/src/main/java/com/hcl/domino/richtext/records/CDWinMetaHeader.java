@@ -32,7 +32,7 @@ import com.hcl.domino.richtext.structures.RectSize;
     @StructureMember(name = "xExt", type = short.class, unsigned = false),
     @StructureMember(name = "yExt", type = short.class, unsigned = false),
     @StructureMember(name = "OriginalDisplaySize", type = RectSize.class),
-    @StructureMember(name = "MetafileSize", type = int.class),
+    @StructureMember(name = "MetafileSize", type = int.class, unsigned = true),
     @StructureMember(name = "SegCount", type = short.class, unsigned = true)
 })
 public interface CDWinMetaHeader extends RichTextRecord<LSIG> {
@@ -63,10 +63,10 @@ public interface CDWinMetaHeader extends RichTextRecord<LSIG> {
   RectSize getOriginalDisplaySize();
   
   @StructureGetter("MetafileSize")
-  int getMetafileSize();
+  long getMetafileSize();
   
   @StructureSetter("MetafileSize")
-  CDWinMetaHeader setMetafileSize(int metafileSize);
+  CDWinMetaHeader setMetafileSize(long metafileSize);
   
   @StructureGetter("SegCount")
   int getSegCount();
