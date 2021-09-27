@@ -777,6 +777,10 @@ public enum RecordType {
   VMCIRCLE(RichTextConstants.SIG_CD_VMCIRCLE, 5),
   VMPOLYRGN_BYTE(RichTextConstants.SIG_CD_VMPOLYRGN_BYTE, 5),
   VMDATASET(RichTextConstants.SIG_VIEWMAP_DATASET, 5, ViewmapDatasetRecord.class),
+  VMBITMAPSEGMENT(RichTextConstants.SIG_CD_BITMAPSEGMENT, 5, CDBitmapSegment.class),
+  VMCOLORTABLE(RichTextConstants.SIG_CD_COLORTABLE, 5, CDColorTable.class),
+  VMPATTERNTABLE(RichTextConstants.SIG_CD_PATTERNTABLE, 5, CDPatternTable.class),
+
 
   /* Signatures for alternate CD sequences*/
 
