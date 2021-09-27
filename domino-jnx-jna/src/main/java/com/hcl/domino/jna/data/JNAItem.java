@@ -236,6 +236,23 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 			protected List<?> getItemValue(String itemName) {
 				return getValue();
 			}
+			
+			@SuppressWarnings("unchecked")
+      @Override
+			public <U> U get(String itemName, Class<U> valueType, U defaultValue) {
+			  // Specialized support for byte[] for the raw data
+			  if(byte[].class.equals(valueType)) {
+  			  Pointer valuePtr = Mem.OSLockObject(m_valueBlockId);
+  		    try {
+            return (U)valuePtr.getByteArray(0, m_valueLength);
+  		    }
+  		    finally {
+  		      Mem.OSUnlockObject(m_valueBlockId);
+  		    }
+			  }
+			  
+			  return super.get(itemName, valueType, defaultValue);
+			};
 		};
 		
 		return typedAccess.get(getName(), valueType, defaultValue);
