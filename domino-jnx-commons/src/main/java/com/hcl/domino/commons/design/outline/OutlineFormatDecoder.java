@@ -17,12 +17,8 @@
 package com.hcl.domino.commons.design.outline;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.text.MessageFormat;
-import java.util.List;
-
 import com.hcl.domino.commons.misc.ODSTypes;
-import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.util.NotesItemDataUtil;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.OutlineEntry;
@@ -31,8 +27,6 @@ import com.hcl.domino.design.format.SiteMapHeaderFormat;
 import com.hcl.domino.design.format.SiteMapOutlineHeader;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.richtext.records.CDResource;
-import com.hcl.domino.richtext.records.RecordType;
-import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 
 public class OutlineFormatDecoder {
