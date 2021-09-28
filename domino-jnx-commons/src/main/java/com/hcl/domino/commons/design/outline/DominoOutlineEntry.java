@@ -16,42 +16,41 @@
  */
 package com.hcl.domino.commons.design.outline;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.design.OutlineEntry;
 import com.hcl.domino.design.format.SiteMapEntry.Flag;
 import com.hcl.domino.richtext.records.CDResource;
-import com.hcl.domino.richtext.records.RichTextRecord;
 
 public class DominoOutlineEntry implements IAdaptable, OutlineEntry {
   
   private Type resourceType;
   private CDResource.ResourceClass resourceClass;
-  private short resourceDesignType;
+  private int resourceDesignType;
   private Set<Flag> flags;
-  private short level;
+  private int level;
   private int id;
   private DominoOutlineEntry.Type oldEntryType;
   private DominoOutlineEntry.ReplType replyResourceType;
   private int replFlags;
-  private short replTruncType;
-  private short gridRow;
-  private short gridColumn;
-  private short wReplTruncDocs;
-  private short wReplTruncAtts;
+  private int replTruncType;
+  private int gridRow;
+  private int gridColumn;
+  private int wReplTruncDocs;
+  private int wReplTruncAtts;
   
-  private String title;
-  private List<RichTextRecord<?>> imageData;
-  private String targetFrame;
-  private List<RichTextRecord<?>> onclickData;
-  private String hideWhenData;
-  private String alias;
-  private String sourceData;
-  private String preferredServer;
-  private String toolbarManager;
-  private String toolbarEntry;
-  private String popup;
+  private DominoOutlineEntryData title;
+  private DominoOutlineEntryData imageData;
+  private DominoOutlineEntryData targetFrame;
+  private DominoOutlineEntryData onclickData;
+  private DominoOutlineEntryData hideWhenData;
+  private DominoOutlineEntryData alias;
+  private DominoOutlineEntryData sourceData;
+  private DominoOutlineEntryData preferredServer;
+  private DominoOutlineEntryData toolbarManager;
+  private DominoOutlineEntryData toolbarEntry;
+  private DominoOutlineEntryData popup;
 
   @Override
   public <T> T getAdapter(Class<T> clazz) {
@@ -78,11 +77,11 @@ public class DominoOutlineEntry implements IAdaptable, OutlineEntry {
   }
 
   @Override
-  public short getResourceDesignType() {
+  public int getResourceDesignType() {
     return resourceDesignType;
   }
 
-  public void setResourceDesignType(short entryDesignType) {
+  public void setResourceDesignType(int entryDesignType) {
     this.resourceDesignType = entryDesignType;
   }
   
@@ -96,11 +95,11 @@ public class DominoOutlineEntry implements IAdaptable, OutlineEntry {
   }
 
   @Override
-  public short getLevel() {
+  public int getLevel() {
     return level;
   }
 
-  public void setLevel(short level) {
+  public void setLevel(int level) {
     this.level = level;
   }
 
@@ -137,144 +136,177 @@ public class DominoOutlineEntry implements IAdaptable, OutlineEntry {
     this.replFlags = replFlags;
   }
 
-  public short getReplTruncType() {
+  public int getReplTruncType() {
     return replTruncType;
   }
 
-  public void setReplTruncType(short replTruncType) {
+  public void setReplTruncType(int replTruncType) {
     this.replTruncType = replTruncType;
   }
 
   @Override
-  public short getGridRow() {
+  public int getGridRow() {
     return gridRow;
   }
 
-  public void setGridRow(short gridRow) {
+  public void setGridRow(int gridRow) {
     this.gridRow = gridRow;
   }
 
   @Override
-  public short getGridColumn() {
+  public int getGridColumn() {
     return gridColumn;
   }
 
-  public void setGridColumn(short gridColumn) {
+  public void setGridColumn(int gridColumn) {
     this.gridColumn = gridColumn;
   }
 
-  public short getwReplTruncDocs() {
+  public int getwReplTruncDocs() {
     return wReplTruncDocs;
   }
 
-  public void setwReplTruncDocs(short wReplTruncDocs) {
+  public void setwReplTruncDocs(int wReplTruncDocs) {
     this.wReplTruncDocs = wReplTruncDocs;
   }
 
-  public short getwReplTruncAtts() {
+  public int getwReplTruncAtts() {
     return wReplTruncAtts;
   }
 
-  public void setwReplTruncAtts(short wReplTruncAtts) {
+  public void setwReplTruncAtts(int wReplTruncAtts) {
     this.wReplTruncAtts = wReplTruncAtts;
   }
 
   @Override
-  public String getTitle() {
-    return title;
+  public Optional<Object> getTitle() {
+    if (title == null) {
+      return Optional.empty();
+    }
+    return title.getDataValue();
   }
 
-  public void setTitle(String title) {
+  public void setTitle(DominoOutlineEntryData title) {
     this.title = title;
   }
 
   @Override
-  public List<RichTextRecord<?>> getImageData() {
-    return imageData;
+  public Optional<Object> getImageData() {
+    if (imageData == null) {
+      return Optional.empty();
+    }
+    return imageData.getDataValue();
   }
 
-  public void setImageData(List<RichTextRecord<?>> imageData) {
+  public void setImageData(DominoOutlineEntryData imageData) {
     this.imageData = imageData;
   }
 
   @Override
-  public String getTargetFrame() {
-    return targetFrame;
+  public Optional<Object> getTargetFrame() {
+    if (targetFrame == null) {
+      return Optional.empty();
+    }
+    return targetFrame.getDataValue();
   }
 
-  public void setTargetFrame(String targetFrame) {
+  public void setTargetFrame(DominoOutlineEntryData targetFrame) {
     this.targetFrame = targetFrame;
   }
 
   @Override
-  public List<RichTextRecord<?>> getOnclickData() {
-    return onclickData;
+  public Optional<Object> getOnclickData() {
+    if (onclickData == null) {
+      return Optional.empty();
+    }
+    return onclickData.getDataValue();
   }
 
-  public void setOnclickData(List<RichTextRecord<?>> onclickData) {
+  public void setOnclickData(DominoOutlineEntryData onclickData) {
     this.onclickData = onclickData;
   }
 
   @Override
-  public String getHideWhenFormula() {
-    return hideWhenData;
+  public Optional<Object> getHideWhenFormula() {
+    if (hideWhenData == null) {
+      return Optional.empty();
+    }
+    return this.hideWhenData.getDataValue();
   }
 
-  public void setHideWhenFormula(String hideWhenData) {
+  public void setHideWhenFormula(DominoOutlineEntryData hideWhenData) {
     this.hideWhenData = hideWhenData;
   }
 
   @Override
-  public String getAlias() {
-    return alias;
+  public Optional<Object> getAlias() {
+    if (alias == null) {
+      return Optional.empty();
+    }
+    return alias.getDataValue();
   }
 
-  public void setAlias(String alias) {
+  public void setAlias(DominoOutlineEntryData alias) {
     this.alias = alias;
   }
 
   @Override
-  public String getSourceData() {
-    return sourceData;
+  public Optional<Object> getSourceData() {
+    if (sourceData == null) {
+      return Optional.empty();
+    }
+    return sourceData.getDataValue();
   }
 
-  public void setSourceData(String sourceData) {
+  public void setSourceData(DominoOutlineEntryData sourceData) {
     this.sourceData = sourceData;
   }
 
   @Override
-  public String getPreferredServer() {
-    return preferredServer;
+  public Optional<Object> getPreferredServer() {
+    if (preferredServer == null) {
+      return Optional.empty();
+    }
+    return preferredServer.getDataValue();
   }
 
-  public void setPreferredServer(String preferredServer) {
+  public void setPreferredServer(DominoOutlineEntryData preferredServer) {
     this.preferredServer = preferredServer;
   }
 
   @Override
-  public String getToolbarManager() {
-    return toolbarManager;
+  public Optional<Object> getToolbarManager() {
+    if (toolbarManager == null) {
+      return Optional.empty();
+    }
+    return toolbarManager.getDataValue();
   }
 
-  public void setToolbarManager(String toolbarManager) {
+  public void setToolbarManager(DominoOutlineEntryData toolbarManager) {
     this.toolbarManager = toolbarManager;
   }
 
   @Override
-  public String getToolbarEntry() {
-    return toolbarEntry;
+  public Optional<Object> getToolbarEntry() {
+    if (toolbarEntry == null) {
+      return Optional.empty();
+    }
+    return toolbarEntry.getDataValue();
   }
 
-  public void setToolbarEntry(String toolbarEntry) {
+  public void setToolbarEntry(DominoOutlineEntryData toolbarEntry) {
     this.toolbarEntry = toolbarEntry;
   }
 
   @Override
-  public String getPopup() {
-    return popup;
+  public Optional<Object> getPopup() {
+    if (popup == null) {
+      return Optional.empty();
+    }
+    return popup.getDataValue();
   }
 
-  public void setPopup(String popup) {
+  public void setPopup(DominoOutlineEntryData popup) {
     this.popup = popup;
   }
 

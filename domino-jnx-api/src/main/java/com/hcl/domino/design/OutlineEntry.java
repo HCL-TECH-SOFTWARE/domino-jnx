@@ -1,6 +1,7 @@
 package com.hcl.domino.design;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.design.format.SiteMapEntry;
@@ -156,33 +157,33 @@ public interface OutlineEntry {
   
   int getId();
   
-  short getLevel();
+  int getLevel();
   
-  short getResourceDesignType();
+  int getResourceDesignType();
   
-  short getGridRow();
+  int getGridRow();
   
-  short getGridColumn();
+  int getGridColumn();
   
-  String getTitle();
+  Optional<Object> getTitle();
   
-  List<RichTextRecord<?>> getImageData();
+  Optional<Object> getImageData();
   
-  String getTargetFrame();
+  Optional<Object> getTargetFrame();
   
-  List<RichTextRecord<?>> getOnclickData();
+  Optional<Object> getOnclickData();
   
-  String getHideWhenFormula();
+  Optional<Object> getHideWhenFormula();
   
-  String getAlias();
+  Optional<Object> getAlias();
   
-  String getSourceData();
+  Optional<Object> getSourceData();
   
-  String getPreferredServer();
+  Optional<Object> getPreferredServer();
   
-  String getToolbarManager();
+  Optional<Object> getToolbarManager();
   
-  String getToolbarEntry();
+  Optional<Object> getToolbarEntry();
   
-  String getPopup();
+  Optional<Object> getPopup();
 }
