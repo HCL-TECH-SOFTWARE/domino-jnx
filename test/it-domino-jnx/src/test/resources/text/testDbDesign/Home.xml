@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core" xmlns:xe="http://www.ibm.com/xsp/coreex" xmlns:xc="http://www.ibm.com/xsp/custom"
+	beforePageLoad="#{pageController.beforePageLoad}" afterPageLoad="#{pageController.afterPageLoad}"
+	pageTitle="Home">
+
+	<xc:layout navigationPath="/Home">
+		<xp:this.facets>
+			<xc:linksbar xp:key="LeftColumn"/>
+		</xp:this.facets>
+		
+		<xp:repeat value="#{pageController.managedBeanClassNames}" var="className" rows="10000">
+			<xp:this.facets>
+				<xp:text xp:key="header" contentType="HTML" value="&lt;ul&gt;"/>
+				<xp:text xp:key="footer" contentType="HTML" value="&lt;/ul&gt;"/>
+			</xp:this.facets>
+			
+			<li><xp:text value="#{className}"/></li>
+		</xp:repeat>
+		
+		<p><xp:text value="#{someAnnotatedBean}"/></p>
+		<p><xp:text value="#{someAnnotatedBean}"/></p>
+		
+		<h3>Application Scope</h3>
+		<xe:dumpObject value="#{applicationScope}"/>
+		<h3>Session Scope</h3>
+		<xe:dumpObject value="#{sessionScope}"/>
+		<h3>View Scope</h3>
+		<xe:dumpObject value="#{viewScope}"/>
+		<h3>Request Scope</h3>
+		<xe:dumpObject value="#{requestScope}"/>
+	</xc:layout>
+</xp:view>

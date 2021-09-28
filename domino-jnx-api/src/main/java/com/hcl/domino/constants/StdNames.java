@@ -25,10 +25,16 @@ package com.hcl.domino.constants;
 public interface StdNames {
   /** display only shared columns */
   String DFLAGPAT_SHARED_COLS = "(+-*^"; //$NON-NLS-1$
-  /** Wiring Properties element is a Form note */
-  String DFLAGPAT_COMPDEF = "+:"; //$NON-NLS-1$
+  /** xsp pages */
+  String DFLAGPAT_XSPPAGE = "*gK"; //$NON-NLS-1$
   /** display only stylekits */
   String DFLAGPAT_STYLEKIT = "(+-*g`"; //$NON-NLS-1$
+  /** display only widgets */
+  String DFLAGPAT_WIDGET = "(+-*g_"; //$NON-NLS-1$
+  /** Wiring Properties element is a Form note */
+  String DFLAGPAT_COMPDEF = "+:"; //$NON-NLS-1$
+  /** Composite Application element is a Form note */
+  String DFLAGPAT_COMPAPP = "+|"; //$NON-NLS-1$
   
   String VIEW_GLOBAL_SCRIPT_NAME = "$ViewGlobalScript"; //$NON-NLS-1$
   /** View selection query object */
@@ -40,6 +46,7 @@ public interface StdNames {
   String FILTER_FORMULA_ITEM = "$Formula"; //$NON-NLS-1$
   String FILTER_SCAN_ITEM = "$Scan"; //$NON-NLS-1$
   String FILTER_OPERATION_ITEM = "$Operation"; //$NON-NLS-1$
+  String FILTER_PERIOD_ITEM = "$Period"; //$NON-NLS-1$
   
   int FILTER_TYPE_MENU  = 0;
   int FILTER_TYPE_BACKGROUND = 1;
@@ -56,4 +63,9 @@ public interface StdNames {
   int FILTER_OP_UPDATE = 0;
   int FILTER_OP_SELECT = 1;
   int FILTER_OP_NEW_COPY = 2;
+  
+  int PERIOD_HOURLY = 0;
+  int PERIOD_DAILY = 1;
+  int PERIOD_WEEKLY = 2;
+  int PERIOD_DISABLED = 3;
 }

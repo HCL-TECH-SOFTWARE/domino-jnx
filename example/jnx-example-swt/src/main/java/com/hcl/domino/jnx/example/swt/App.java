@@ -109,6 +109,7 @@ public class App {
             MenuItem dxlItem = new MenuItem(appMenu, SWT.NONE);
             dxlItem.setText("DXL Exporter");
             dxlItem.addSelectionListener(new SelectionAdapter() {
+              @Override
               public void widgetSelected(SelectionEvent e) {
                 Shell dxl = new DXLShell(display);
                 dxl.open();
@@ -121,6 +122,7 @@ public class App {
             MenuItem dxlItem = new MenuItem(appMenu, SWT.NONE);
             dxlItem.setText("DXL Dump");
             dxlItem.addSelectionListener(new SelectionAdapter() {
+              @Override
               public void widgetSelected(SelectionEvent e) {
                 Shell dxl = new DumpDBShell(display);
                 dxl.open();

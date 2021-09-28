@@ -16,47 +16,41 @@
  */
 package com.hcl.domino.commons.design.outline;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import com.hcl.domino.data.IAdaptable;
+import com.hcl.domino.design.OutlineEntry;
 import com.hcl.domino.design.format.SiteMapEntry.Flag;
-import com.hcl.domino.misc.DominoEnumUtil;
-import com.hcl.domino.misc.INumberEnum;
-import com.hcl.domino.misc.NotesConstants;
-import com.hcl.domino.misc.OutlineConstants;
-import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.records.CDResource;
-import com.hcl.domino.richtext.records.RichTextRecord;
 
-public class DominoOutlineEntry implements IAdaptable {
+public class DominoOutlineEntry implements IAdaptable, OutlineEntry {
   
-  private DominoOutlineEntry.Type resourceType;
+  private Type resourceType;
   private CDResource.ResourceClass resourceClass;
-  private short resourceDesignType;
+  private int resourceDesignType;
   private Set<Flag> flags;
-  private short level;
+  private int level;
   private int id;
   private DominoOutlineEntry.Type oldEntryType;
   private DominoOutlineEntry.ReplType replyResourceType;
   private int replFlags;
-  private short replTruncType;
-  private short gridRow;
-  private short gridColumn;
-  private short wReplTruncDocs;
-  private short wReplTruncAtts;
+  private int replTruncType;
+  private int gridRow;
+  private int gridColumn;
+  private int wReplTruncDocs;
+  private int wReplTruncAtts;
   
-  private String title;
-  private List<RichTextRecord<?>> imageData;
-  private String targetFrame;
-  private List<RichTextRecord<?>> onclickData;
-  private String hideWhenData;
-  private String alias;
-  private String sourceData;
-  private String preferredServer;
-  private String toolbarManager;
-  private String toolbarEntry;
-  private String popup;
+  private DominoOutlineEntryData title;
+  private DominoOutlineEntryData imageData;
+  private DominoOutlineEntryData targetFrame;
+  private DominoOutlineEntryData onclickData;
+  private DominoOutlineEntryData hideWhenData;
+  private DominoOutlineEntryData alias;
+  private DominoOutlineEntryData sourceData;
+  private DominoOutlineEntryData preferredServer;
+  private DominoOutlineEntryData toolbarManager;
+  private DominoOutlineEntryData toolbarEntry;
+  private DominoOutlineEntryData popup;
 
   @Override
   public <T> T getAdapter(Class<T> clazz) {
@@ -64,150 +58,16 @@ public class DominoOutlineEntry implements IAdaptable {
     return null;
   }
   
-  enum Type implements INumberEnum<Short> {
-    EMPTY(RichTextConstants.CDRESOURCE_TYPE_EMPTY),
-    URL(RichTextConstants.CDRESOURCE_TYPE_URL),
-    NOTELINK(RichTextConstants.CDRESOURCE_TYPE_NOTELINK),
-    NAMEDELEMENT(RichTextConstants.CDRESOURCE_TYPE_NAMEDELEMENT),
-    /** Currently not written to disk only used in RESOURCELINK */
-    NOTEIDLINK(RichTextConstants.CDRESOURCE_TYPE_NOTEIDLINK),
-    /**
-     * This would be used in conjunction with the formula flag. The formula is
-     * an @Command that would
-     * perform some action, typically it would also switch to a Notes UI element.
-     * This will be used to
-     * reference the replicator page and other UI elements.
-     */
-    ACTION(RichTextConstants.CDRESOURCE_TYPE_ACTION),
-    /** Currently not written to disk only used in RESOURCELINK */
-    NAMEDITEMELEMENT(RichTextConstants.CDRESOURCE_TYPE_NAMEDITEMELEMENT),
-    /* private outline entries  */
-    SPECIAL_ENTRY_START(OutlineConstants.SITEMAP_SPECIAL_ENTRY_START),
-    DEFAULT_HOME_PAGE_ENTRY(OutlineConstants.SITEMAP_DEFAULT_HOME_PAGE_ENTRY),    /*DefaultHomePage*/
-    BROWSEDB_ENTRY(OutlineConstants.SITEMAP_BROWSEDB_ENTRY),    /*Browse Databases*/
-    GLOBAL_WORKBENCH_ENTRY(OutlineConstants.SITEMAP_GLOBAL_WORKBENCH_ENTRY),   /*Domino Global Workbench*/
-    MOBILE_DESIGNER_ENTRY(OutlineConstants.SITEMAP_MOBILE_DESIGNER_ENTRY),    /*Mobile Notes Designer*/
-    WEB_STUDIO_ENTRY(OutlineConstants.SITEMAP_WEB_STUDIO_ENTRY),    /*WebSphere Studio*/
-    NOTES_ENTRY(OutlineConstants.SITEMAP_NOTES_ENTRY),    /*Notes*/
-    SAMETIME_ENTRY(OutlineConstants.SITEMAP_SAMETIME_ENTRY),    /*Sametime*/
-    ADMIN_ENTRY(OutlineConstants.SITEMAP_ADMIN_ENTRY),    /*Admin*/
-    DESIGNER_ENTRY(OutlineConstants.SITEMAP_DESIGNER_ENTRY),    /*Designer*/
-    DESK_ENTRY(OutlineConstants.SITEMAP_DESK_ENTRY),    /*Workspace*/
-    BCASE_ENTRY(OutlineConstants.SITEMAP_BCASE_ENTRY),    /*Replication*/
-    HOME_PAGE_ENTRY(OutlineConstants.SITEMAP_HOME_PAGE_ENTRY),    /*Home Page*/
-
-    IMPLIED_FOLDER_ENTRY(OutlineConstants.SITEMAP_IMPLIED_FOLDER_ENTRY),    /* Implied folder  */
-    ARCHIVE_ENTRY(OutlineConstants.SITEMAP_ARCHIVE_ENTRY),    /* archive entry expanded from
-                                                            archive placeholder */
-
-    ARCHIVE_PLACEHOLDER_END_ENTRY(OutlineConstants.SITEMAP_ARCHIVE_PLACEHOLDER_END_ENTRY),    /* An ending indicator
-                                                            for subsequent refreshes. 
-                                                            Temporary, not saved
-                                                            to disk. */
-    ARCHIVE_PLACEHOLDER_ENTRY(OutlineConstants.SITEMAP_ARCHIVE_PLACEHOLDER_ENTRY),    /* A placeholder to be replaced by all
-                                                                    archive profile folders */
-
-    /* Taking advantage of the sitemap creation checks for special mail folders */
-    TOOLBAR_ENTRY(OutlineConstants.SITEMAP_TOOLBAR_ENTRY),    /* Toolbar entry */
-    INBOX_ENTRY(OutlineConstants.SITEMAP_INBOX_ENTRY),    /* Mail Inbox folder  */
-    RULES_ENTRY(OutlineConstants.SITEMAP_RULES_ENTRY),    /* Mail Rules folder  */
-    DRAFTS_ENTRY(OutlineConstants.SITEMAP_DRAFTS_ENTRY),    /* Mail Drafts folder */
-    TRASH_ENTRY(OutlineConstants.SITEMAP_TRASH_ENTRY),    /* Mail Trash folder  */
-    SENT_ENTRY(OutlineConstants.SITEMAP_SENT_ENTRY),    /* Mail Sent folder   */
-
-
-    HISTORY_ENTRY(OutlineConstants.SITEMAP_HISTORY_ENTRY), /* History folder */
-
-    OTHER_VIEWS_END_ENTRY(OutlineConstants.SITEMAP_OTHER_VIEWS_END_ENTRY), /* An ending indicator
-                                                            for subsequent refreshes. 
-                                                            Temporary, not saved
-                                                            to disk. */
-    OTHER_FOLDERS_END_ENTRY(OutlineConstants.SITEMAP_OTHER_FOLDERS_END_ENTRY), /* An ending indicator
-                                                            for subsequent refreshes. 
-                                                            Temporary, not saved
-                                                            to disk. */
-
-    NS_WEBBROWSER_ENTRY(OutlineConstants.SITEMAP_NS_WEBBROWSER_ENTRY), /* Loads in user's favorites from NS.
-                                                            Added by the UI and
-                                                            populated by sitemap
-                                                            during an expand. */
-
-    IE_WEBBROWSER_ENTRY(OutlineConstants.SITEMAP_IE_WEBBROWSER_ENTRY), /* Loads in user's favorites from IE.
-                                                            Added by the UI and
-                                                            populated by sitemap
-                                                            during an expand. */
-
-    CREATE_ENTRY(OutlineConstants.SITEMAP_CREATE_ENTRY), /* A drop point which causes
-                                                            a new entry to get created. */
-
-    OTHER_VIEWS_ENTRY(OutlineConstants.SITEMAP_OTHER_VIEWS_ENTRY), /* A placeholder to be replaced by all
-                                                            shared views not specifically 
-                                                            mentioned */
-    OTHER_FOLDERS_ENTRY(OutlineConstants.SITEMAP_OTHER_FOLDERS_ENTRY), /* A placeholder to be replaced by all
-                                                            shared folders not specifically 
-                                                            mentioned */
-    OPEN_ARCHIVE_LOGS_NBP(OutlineConstants.SITEMAP_OPEN_ARCHIVE_LOGS_NBP); /* Opening the archive logs from Notes Web using Notes Browser Plugin
-                                                              for local archiving feature (Notes Web Companion)*/
-
-    private final short value;
-
-    Type(final short value) {
-      this.value = value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Short getValue() {
-      return this.value;
-    }
-  }
-  
-  public DominoOutlineEntry.Type getResourceType() {
+  @Override
+  public Type getResourceType() {
     return resourceType;
   }
 
-  public void setResourceType(DominoOutlineEntry.Type entryType) {
+  public void setResourceType(Type entryType) {
     this.resourceType = entryType;
   }
   
-  public void setResourceTypeFromRaw(short entryType) {
-    final Optional<DominoOutlineEntry.Type> optEntryType = DominoEnumUtil.valueOf((Class) DominoOutlineEntry.Type.class, entryType);
-    if (optEntryType.isPresent())
-      this.setResourceType(optEntryType.get());
-  }
-  
-  enum ReplType implements INumberEnum<Short> {
-    EMPTY(RichTextConstants.CDRESOURCE_TYPE_EMPTY),
-    /* TODO get  the values from Domino and replace them */
-    BCASE_DATABASE_ENTRY((short)-1),
-    BCASE_IMAP_DB_ENTRY((short)-2),
-    BCASE_NEWS_DB_ENTRY((short)-3),
-    BCASE_SCHEDRQST_ENTRY((short)-4),
-    BCASE_SCHEDULE_ENTRY((short)-5),
-    BCASE_LAST_ENTRY((short)-6),
-    BCASE_MAILBOX_ENTRY((short)-7);
-
-    private final short value;
-
-    ReplType(final short value) {
-      this.value = value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Short getValue() {
-      return this.value;
-    }
-  }
-
+  @Override
   public CDResource.ResourceClass getResourceClass() {
     return resourceClass;
   }
@@ -215,23 +75,17 @@ public class DominoOutlineEntry implements IAdaptable {
   public void setResourceClass(CDResource.ResourceClass entryClass) {
     this.resourceClass = entryClass;
   }
-  
-  public void setResourceClassFromRaw(short entryClass) {
-    final Optional<CDResource.ResourceClass> optEntryClass = DominoEnumUtil.valueOf((Class) CDResource.ResourceClass.class, entryClass);
-    if (optEntryClass.isPresent())
-      this.setResourceClass(optEntryClass.get());
-  }
 
-  public short getResourceDesignType() {
+  @Override
+  public int getResourceDesignType() {
     return resourceDesignType;
   }
 
-  public void setResourceDesignType(short entryDesignType) {
+  public void setResourceDesignType(int entryDesignType) {
     this.resourceDesignType = entryDesignType;
   }
   
-  
-
+  @Override
   public Set<Flag> getFlags() {
     return flags;
   }
@@ -240,14 +94,16 @@ public class DominoOutlineEntry implements IAdaptable {
     this.flags = entryFlags;
   }
 
-  public short getLevel() {
+  @Override
+  public int getLevel() {
     return level;
   }
 
-  public void setLevel(short level) {
+  public void setLevel(int level) {
     this.level = level;
   }
 
+  @Override
   public int getId() {
     return id;
   }
@@ -280,131 +136,177 @@ public class DominoOutlineEntry implements IAdaptable {
     this.replFlags = replFlags;
   }
 
-  public short getReplTruncType() {
+  public int getReplTruncType() {
     return replTruncType;
   }
 
-  public void setReplTruncType(short replTruncType) {
+  public void setReplTruncType(int replTruncType) {
     this.replTruncType = replTruncType;
   }
 
-  public short getGridRow() {
+  @Override
+  public int getGridRow() {
     return gridRow;
   }
 
-  public void setGridRow(short gridRow) {
+  public void setGridRow(int gridRow) {
     this.gridRow = gridRow;
   }
 
-  public short getGridColumn() {
+  @Override
+  public int getGridColumn() {
     return gridColumn;
   }
 
-  public void setGridColumn(short gridColumn) {
+  public void setGridColumn(int gridColumn) {
     this.gridColumn = gridColumn;
   }
 
-  public short getwReplTruncDocs() {
+  public int getwReplTruncDocs() {
     return wReplTruncDocs;
   }
 
-  public void setwReplTruncDocs(short wReplTruncDocs) {
+  public void setwReplTruncDocs(int wReplTruncDocs) {
     this.wReplTruncDocs = wReplTruncDocs;
   }
 
-  public short getwReplTruncAtts() {
+  public int getwReplTruncAtts() {
     return wReplTruncAtts;
   }
 
-  public void setwReplTruncAtts(short wReplTruncAtts) {
+  public void setwReplTruncAtts(int wReplTruncAtts) {
     this.wReplTruncAtts = wReplTruncAtts;
   }
 
-  public String getTitle() {
-    return title;
+  @Override
+  public Optional<Object> getTitle() {
+    if (title == null) {
+      return Optional.empty();
+    }
+    return title.getDataValue();
   }
 
-  public void setTitle(String title) {
+  public void setTitle(DominoOutlineEntryData title) {
     this.title = title;
   }
 
-  public List<RichTextRecord<?>> getImageData() {
-    return imageData;
+  @Override
+  public Optional<Object> getImageData() {
+    if (imageData == null) {
+      return Optional.empty();
+    }
+    return imageData.getDataValue();
   }
 
-  public void setImageData(List<RichTextRecord<?>> imageData) {
+  public void setImageData(DominoOutlineEntryData imageData) {
     this.imageData = imageData;
   }
 
-  public String getTargetFrame() {
-    return targetFrame;
+  @Override
+  public Optional<Object> getTargetFrame() {
+    if (targetFrame == null) {
+      return Optional.empty();
+    }
+    return targetFrame.getDataValue();
   }
 
-  public void setTargetFrame(String targetFrame) {
+  public void setTargetFrame(DominoOutlineEntryData targetFrame) {
     this.targetFrame = targetFrame;
   }
 
-  public List<RichTextRecord<?>> getOnclickData() {
-    return onclickData;
+  @Override
+  public Optional<Object> getOnclickData() {
+    if (onclickData == null) {
+      return Optional.empty();
+    }
+    return onclickData.getDataValue();
   }
 
-  public void setOnclickData(List<RichTextRecord<?>> onclickData) {
+  public void setOnclickData(DominoOutlineEntryData onclickData) {
     this.onclickData = onclickData;
   }
 
-  public String getHideWhenData() {
-    return hideWhenData;
+  @Override
+  public Optional<Object> getHideWhenFormula() {
+    if (hideWhenData == null) {
+      return Optional.empty();
+    }
+    return this.hideWhenData.getDataValue();
   }
 
-  public void setHideWhenData(String hideWhenData) {
+  public void setHideWhenFormula(DominoOutlineEntryData hideWhenData) {
     this.hideWhenData = hideWhenData;
   }
 
-  public String getAlias() {
-    return alias;
+  @Override
+  public Optional<Object> getAlias() {
+    if (alias == null) {
+      return Optional.empty();
+    }
+    return alias.getDataValue();
   }
 
-  public void setAlias(String alias) {
+  public void setAlias(DominoOutlineEntryData alias) {
     this.alias = alias;
   }
 
-  public String getSourceData() {
-    return sourceData;
+  @Override
+  public Optional<Object> getSourceData() {
+    if (sourceData == null) {
+      return Optional.empty();
+    }
+    return sourceData.getDataValue();
   }
 
-  public void setSourceData(String sourceData) {
+  public void setSourceData(DominoOutlineEntryData sourceData) {
     this.sourceData = sourceData;
   }
 
-  public String getPreferredServer() {
-    return preferredServer;
+  @Override
+  public Optional<Object> getPreferredServer() {
+    if (preferredServer == null) {
+      return Optional.empty();
+    }
+    return preferredServer.getDataValue();
   }
 
-  public void setPreferredServer(String preferredServer) {
+  public void setPreferredServer(DominoOutlineEntryData preferredServer) {
     this.preferredServer = preferredServer;
   }
 
-  public String getToolbarManager() {
-    return toolbarManager;
+  @Override
+  public Optional<Object> getToolbarManager() {
+    if (toolbarManager == null) {
+      return Optional.empty();
+    }
+    return toolbarManager.getDataValue();
   }
 
-  public void setToolbarManager(String toolbarManager) {
+  public void setToolbarManager(DominoOutlineEntryData toolbarManager) {
     this.toolbarManager = toolbarManager;
   }
 
-  public String getToolbarEntry() {
-    return toolbarEntry;
+  @Override
+  public Optional<Object> getToolbarEntry() {
+    if (toolbarEntry == null) {
+      return Optional.empty();
+    }
+    return toolbarEntry.getDataValue();
   }
 
-  public void setToolbarEntry(String toolbarEntry) {
+  public void setToolbarEntry(DominoOutlineEntryData toolbarEntry) {
     this.toolbarEntry = toolbarEntry;
   }
 
-  public String getPopup() {
-    return popup;
+  @Override
+  public Optional<Object> getPopup() {
+    if (popup == null) {
+      return Optional.empty();
+    }
+    return popup.getDataValue();
   }
 
-  public void setPopup(String popup) {
+  public void setPopup(DominoOutlineEntryData popup) {
     this.popup = popup;
   }
 

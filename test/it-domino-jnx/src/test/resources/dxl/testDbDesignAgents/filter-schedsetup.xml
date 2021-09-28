@@ -1,0 +1,14 @@
+<?xml version='1.0'?>
+<note class='filter' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$Comment'><text>Copies all Time Slot documents in the (Setup) view and creates a new month's worth of Time Slot documents.</text></item>
+<item name='$Formula'><formula>MonthType = @Environment("EnvSchMonthType") &amp; HourSeq &gt;= @Environment("EnvDayStart") &amp; HourSeq &lt;= @Environment("EnvDayEnd");
+FIELD Month := @Environment("EnvSchMonth");
+FIELD MonthSeq := @Environment("EnvSchMonthSeq");
+FIELD ClockType := @Environment("EnvClockType");
+FIELD MonthType := @Unavailable;
+</formula></item>
+<item name='$Type'><text>0</text></item>
+<item name='$Operation'><text>2</text></item>
+<item name='$Scan'><text>2</text></item>
+<item name='$TITLE'><text>(Setup)</text></item>
+<item name='$Flags'><text/></item></note>

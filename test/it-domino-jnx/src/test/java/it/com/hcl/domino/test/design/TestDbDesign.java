@@ -56,6 +56,8 @@ import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.AboutDocument;
 import com.hcl.domino.design.ActionBar;
 import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.CompositeApplication;
+import com.hcl.domino.design.CompositeComponent;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DbProperties;
 import com.hcl.domino.design.FileResource;
@@ -72,6 +74,7 @@ import com.hcl.domino.design.Theme;
 import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.WiringProperties;
+import com.hcl.domino.design.XPage;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionBarAction.IconType;
 import com.hcl.domino.design.action.ActionContent;
@@ -1160,9 +1163,9 @@ public class TestDbDesign extends AbstractDesignTest {
         origMod = res.getFileModified();
         try(OutputStream os = res.newOutputStream()) {
           os.write(expected);
+          TimeUnit.SECONDS.sleep(1);
         }
         res.save();
-        TimeUnit.SECONDS.sleep(1);
       }
       {
         FileResource res = design.getFileResource("file.css").get();
@@ -1255,4 +1258,128 @@ public class TestDbDesign extends AbstractDesignTest {
     });
     
   }
+  
+  @Test
+  public void testComponents() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<CompositeComponent> components = dbDesign.getCompositeComponents().collect(Collectors.toList());
+    assertEquals(1, components.size());
+    assertTrue(components.stream().anyMatch(prop -> "testcomponent.component".equals(prop.getTitle())));
+  }
+  
+  @Test
+  public void testComponentTest() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    CompositeComponent res = dbDesign.getCompositeComponent("testcomponent.component").get();
+    assertEquals("testcomponent.component", res.getTitle());
+    
+    String expected = IOUtils.resourceToString("/text/testDbDesign/testcomponent.xml", StandardCharsets.UTF_8);
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<CompositeComponent> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+    }
+  }
+  
+  @Test
+  public void testCompositeApplications() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<CompositeApplication> components = dbDesign.getCompositeApplications().collect(Collectors.toList());
+    assertEquals(1, components.size());
+    assertTrue(components.stream().anyMatch(prop -> "testcompapp.ca".equals(prop.getTitle())));
+  }
+  
+  @Test
+  public void testCompositeApplicationTest() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    CompositeApplication res = dbDesign.getCompositeApplication("testcompapp.ca").get();
+    assertEquals("testcompapp.ca", res.getTitle());
+    
+    String expected = IOUtils.resourceToString("/text/testDbDesign/testcompapp.xml", StandardCharsets.UTF_8);
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<CompositeApplication> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+    }
+  }
+  
+  @Test
+  public void testXPages() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<XPage> components = dbDesign.getXPages().collect(Collectors.toList());
+    assertEquals(1, components.size());
+    assertTrue(components.stream().anyMatch(prop -> "Home.xsp".equals(prop.getTitle())));
+  }
+  
+  @Test
+  public void testXPageHome() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    XPage res = dbDesign.getXPage("Home.xsp").get();
+    assertEquals("Home.xsp", res.getTitle());
+    
+    String expected = IOUtils.resourceToString("/text/testDbDesign/Home.xml", StandardCharsets.UTF_8) + "\r\n";
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<XPage> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+    }
+  }
+  
 }
