@@ -1,0 +1,12 @@
+<?xml version='1.0'?>
+<note class='filter' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$TITLE'><text>Release Dead Messages</text></item>
+<item name='$COMMENT'><text>This filter releases (and tries to resend) all messages that have been marked DEAD.
+</text></item>
+<item name='$Operation'><text>0</text></item>
+<item name='$SCAN'><text>0</text></item>
+<item name='$FORMULA' summary='true'><formula>RoutingState = "DEAD";
+FIELD RoutingState := "";
+FIELD Recipients := IntendedRecipient;
+FIELD Form := MailSavedForm;
+</formula></item></note>

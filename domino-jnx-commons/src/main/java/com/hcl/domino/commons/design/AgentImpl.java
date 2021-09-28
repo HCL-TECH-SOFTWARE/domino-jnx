@@ -374,7 +374,7 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
       .map(AssistStruct::getTrigger)
       .orElseGet(() -> {
         // Check for ancient data
-        String typeVal = getDocument().get(NotesConstants.FILTER_TYPE_ITEM, String.class, "");
+        String typeVal = getDocument().get(NotesConstants.FILTER_TYPE_ITEM, String.class, "0"); //$NON-NLS-1$
         if(typeVal.isEmpty()) {
           return AgentTrigger.NONE;
         }

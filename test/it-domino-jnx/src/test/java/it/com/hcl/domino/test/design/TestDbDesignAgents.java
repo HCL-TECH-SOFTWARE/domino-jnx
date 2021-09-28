@@ -95,7 +95,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
-  public static final int EXPECTED_IMPORT_AGENTS = 23;
+  public static final int EXPECTED_IMPORT_AGENTS = 24;
   private static String dbPath;
 
   @AfterAll
@@ -723,5 +723,27 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
         + "FIELD DocumentAuthors := @Trim(@Replace(From : CurrentReviewers; \"None\"; \"\"));@All", formula.getFormula());
     assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
     
+  }
+  
+  @Test
+  public void testReleaseDeadMessages() {
+    DbDesign design = database.getDesign();
+    
+    DesignAgent agent = design.getAgent("Release Dead Messages").get();
+    
+    assertEquals("Release Dead Messages", agent.getTitle());
+    assertEquals("This filter releases (and tries to resend) all messages that have been marked DEAD.\n", agent.getComment());
+    
+    assertEquals(DesignAgent.AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertEquals(AgentTrigger.MANUAL, agent.getTrigger());
+    assertEquals(AgentTarget.ALL, agent.getTarget());
+
+    AgentContent content = agent.getAgentContent();
+    FormulaAgentContent formula = assertInstanceOf(FormulaAgentContent.class, content);
+    assertEquals("RoutingState = \"DEAD\";\n"
+        + "FIELD RoutingState := \"\";\n"
+        + "FIELD Recipients := IntendedRecipient;\n"
+        + "FIELD Form := MailSavedForm;", formula.getFormula());
+    assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
   }
 }
