@@ -1,0 +1,45 @@
+<?xml version='1.0'?>
+<note default='true' class='filter' xmlns='http://www.lotus.com/dxl'>
+<item name='$Comment'><text>This macro runs on Purchase Requisition documents mailed in from the Product Catalog database.  It sets up certain default field values, and removes unnecessary field values.</text></item>
+<item name='$FORMULA'><formula>@All;
+REM;
+REM {Set Approval and Email Status fields};
+REM;
+FIELD Approved := @If(Approvers != ""; "In Process"; "Approved");
+initstring := @Explode(@Repeat("No "; @Elements(Approvers) - 1));
+FIELD ApproversEmail := @If(Approvers != ""; @Trim("Yes" : initstring); "");
+FIELD ApproversStatus := @If(Approvers != ""; @Trim("No" : initstring); "");
+FIELD Routed := "No";
+REM;
+REM {Remove unnecessary fields from the mailed-in document};
+REM;
+FIELD PRServer := @Unavailable;
+FIELD PRFilename := @Unavailable;
+FIELD TestPRNames := @Unavailable;
+FIELD Limit := @Unavailable;
+FIELD CCApprovers := @Unavailable;
+FIELD CCApproversLimit := @Unavailable;
+FIELD AssignedApprovers := @Unavailable;
+FIELD AdditionalApprovers := @Unavailable;
+FIELD AdditionalApproversLimit := @Unavailable;
+FIELD MailOptions := @Unavailable;
+FIELD InfoMessage := @Unavailable;
+FIELD CheckLimit := @Unavailable;
+FIELD SendTo := @Unavailable;
+FIELD From := @Unavailable;
+FIELD PostedDate := @Unavailable;
+FIELD Recipients := @Unavailable;
+FIELD RouteServers := @Unavailable;
+FIELD RouteTimes := @Unavailable;
+FIELD DeliveredDate := @Unavailable;
+FIELD Categories := @Unavailable;
+</formula></item>
+<item name='$TYPE'><text>2</text></item>
+<item name='$Operation'><text>0</text></item>
+<item name='$Scan'><text>5</text></item>
+<item name='$TITLE'><text>Clean Incoming PO's</text></item>
+<item name='$Flags'><text>E</text></item>
+<item name='$LeftToDo' summary='true'>
+<rawitemdata type='3'>
+BgAAggAAAwBGAQAABAAAAAAAAAABAAAAAAAAAAAAtBVsAJVfJYVkn3UAkV4lhQ==
+</rawitemdata></item></note>

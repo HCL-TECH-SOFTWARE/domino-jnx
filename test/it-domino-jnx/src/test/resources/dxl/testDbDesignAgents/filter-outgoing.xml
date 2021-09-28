@@ -1,0 +1,42 @@
+<?xml version='1.0'?>
+<note class='filter' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$Comment'><text>This macro runs in the background, hourly.   For each Purchase Requisition which has recently been approved this macro will route the individual line items from that req to the Purchasing Item Tracking database.</text></item>
+<item name='$FORMULA'><formula>REM {Setup the header string (header fields)};
+REM;
+dlm := "~~";
+header := RequisitionNumber + dlm + RequisitionDate + dlm + RequisitionedBy + dlm + RequisitionedFor;
+REM;
+REM {Construct a data string for each line item, put it in the };
+REM {subject field of a mail message, and send it off to the Line};
+REM {Item Tracking database.};
+REM;
+data1 := "1" + dlm + header + dlm + pn1 + dlm + Name1 + dlm + @Text(Price1) + dlm + @Text(Qty1) + dlm + @Text(Total1) + dlm;
+FIELD first := @If(pn1 != "" &amp; @IsAvailable(pn1); @MailSend("Lineitem"; ""; ""; data1); "");
+FIELD first := @Unavailable;
+REM;
+data2 := "2" + dlm + header + dlm + pn2 + dlm + Name2 + dlm + @Text(Price2) + dlm + @Text(Qty2) + dlm + @Text(Total2) + dlm;
+FIELD second := @If(pn2 != "" &amp; @IsAvailable(pn2); @MailSend("Lineitem"; ""; ""; data2); "");
+FIELD second := @Unavailable;
+REM;
+data3 := "3" + dlm + header + dlm + pn3 + dlm + Name3 + dlm + @Text(Price3) + dlm + @Text(Qty3) + dlm + @Text(Total3) + dlm;
+FIELD third := @If(pn3 != "" &amp; @IsAvailable(pn3); @MailSend("Lineitem"; ""; ""; data3); "");
+FIELD third := @Unavailable;
+REM;
+REM {Update the status of this Req to Routed=Yes};
+REM;
+FIELD Routed := "Yes";
+REM;
+REM {Select only Reqs that have been approved, but not yet routed};
+REM;
+Approved = "Approved" &amp; Routed = "No"</formula></item>
+<item name='$TYPE'><text>1</text></item>
+<item name='$Operation'><text>0</text></item>
+<item name='$Scan'><text>5</text></item>
+<item name='$TITLE'><text>Outgoing Line Items</text></item>
+<item name='$Period'><text>0</text></item>
+<item name='$MachineName'><text>CN=Level3 Approver/OU=Approver/O=WG Apps</text></item>
+<item name='$Flags'><text>B</text></item>
+<item name='$LeftToDo' summary='true'>
+<rawitemdata type='3'>
+BgAAAgAAAwAmAQAABAAAAAAAAAABAAAAAAAAAAAA90McAMxeJYVkn3UAkV4lhQ==
+</rawitemdata></item></note>
