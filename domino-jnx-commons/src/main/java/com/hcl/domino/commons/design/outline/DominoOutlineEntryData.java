@@ -40,6 +40,7 @@ public class DominoOutlineEntryData implements IAdaptable, OutlineEntryData {
     this.dataType = val.dataType;
   }
   
+  @Override
   public short getDataType() {
     return this.dataType;
   }
@@ -48,6 +49,7 @@ public class DominoOutlineEntryData implements IAdaptable, OutlineEntryData {
     this.dataType = type;
   }
   
+  @Override
   public Optional<Object> getDataValue() {
     if (this.dataType ==  ItemDataType.TYPE_FORMULA.getValue()) {
       if (this.dataBuf == null || this.dataBuf.length == 0) {
