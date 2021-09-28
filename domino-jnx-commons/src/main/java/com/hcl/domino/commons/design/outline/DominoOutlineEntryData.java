@@ -53,25 +53,25 @@ public class DominoOutlineEntryData implements IAdaptable, OutlineEntryData {
   public Optional<Object> getDataValue() {
     if (this.dataType ==  ItemDataType.TYPE_FORMULA.getValue()) {
       if (this.dataBuf == null || this.dataBuf.length == 0) {
-        return Optional.empty(); //$NON-NLS-1$
+        return Optional.empty();
       } else {
         return Optional.of(FormulaCompiler.get().decompile(this.dataBuf));
       }
     } else if (this.dataType ==  ItemDataType.TYPE_TEXT.getValue()) {
       if (this.dataBuf == null || this.dataBuf.length == 0) {
-        return Optional.empty(); //$NON-NLS-1$
+        return Optional.empty();
       } else {
-        return Optional.of(new String(this.dataBuf, Charset.forName("LMBCS")));
+        return Optional.of(new String(this.dataBuf, Charset.forName("LMBCS"))); //$NON-NLS-1$
       }
     } else if (this.dataType ==  ItemDataType.TYPE_COMPOSITE.getValue()) {
       if (this.dataBuf == null || this.dataBuf.length == 0) {
-        return Optional.empty(); //$NON-NLS-1$
+        return Optional.empty();
       } else {
         try {
           return Optional.of(RichTextUtil.readMemoryRecords(this.dataBuf, RecordType.Area.RESERVED_INTERNAL));
         } catch (Exception e) {
           //exception reading ad rich text just return as String
-          return Optional.of(new String(this.dataBuf, Charset.forName("LMBCS")));
+          return Optional.of(new String(this.dataBuf, Charset.forName("LMBCS"))); //$NON-NLS-1$
         }
       }
     }
