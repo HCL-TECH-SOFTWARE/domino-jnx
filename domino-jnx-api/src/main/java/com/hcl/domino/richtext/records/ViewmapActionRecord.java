@@ -44,6 +44,7 @@ import com.hcl.domino.richtext.structures.WSIG;
 })
 public interface ViewmapActionRecord extends RichTextRecord<WSIG> {
   @StructureGetter("Header")
+  @Override
   WSIG getHeader();
 
   @StructureGetter("bHighlightTouch")
