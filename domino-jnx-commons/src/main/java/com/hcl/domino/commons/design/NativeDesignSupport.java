@@ -30,33 +30,32 @@ public interface NativeDesignSupport {
     return JNXServiceFinder.findRequiredService(NativeDesignSupport.class, NativeDesignSupport.class.getClassLoader());
   }
 
-  /** context string for agent code */
-  String CTX_AGENT = ""; //$NON-NLS-1$
-  /** context string for form code */
-  String CTX_FORM = "NOTESUIDOCUMENT"; //$NON-NLS-1$
-  /** context string for page code */
-  String CTX_PAGE = "NOTESUIDOCUMENT"; //$NON-NLS-1$
-  /** context string for subform code */
-  String CTX_SUBFORM = "NOTESUIDOCUMENT"; //$NON-NLS-1$
-  /** context string for view code */
-  String CTX_VIEW = "NOTESUIVIEW"; //$NON-NLS-1$
-  /** context string for action code */
-  String CTX_ACTION = "BUTTON"; //$NON-NLS-1$
-  /** context string for field code */
-  String CTX_FIELD = "FIELD"; //$NON-NLS-1$
-  /** context string for database script code */
-  String CTX_DBSCRIPT = "NOTESUIDATABASE"; //$NON-NLS-1$
-  
   /**
    * This function formats a raw block of LotusScript source code by rearranging
    * the Declarations and the Options into the appropriate sections, and adding
    * header comments that the Designer IDE uses for rendering the script
    * (e.g. <code>'++LotusScript Development Environment:2:5:(Options):0:74</code>).<br>
    * This function supports LotusScript in the Script Libraries, Agents, Forms, Pages,
-   * Subforms, Views, Actions, Fields or Database Scripts.
+   * Subforms, Views, Actions, Fields or Database Scripts.<br>
+   * <br>
+   * The <code>nameOfContextClass</code> parameter controls how the LS code is
+   * formatted, e.g. the method might add binding code for NOTESUIDOCUMENT if
+   * form code is formatted.<br>
+   * <br>
+   * See this table for possible values:<br>
+   * <br>
+   * <table border="1" cellpadding="0" cellspacing="0">
+   * <tr valign="top"><th>If the LotusScript was contained in:</th><th>Specify the following text as <code>nameOfContextClass</code>:</th></tr>
+   * <tr valign="top"><td>Agent<br>webservice<br>script libraries<br>globals</td><td><i>Empty string</i></td></tr>
+   * <tr valign="top"><td>Form<br>page<br>subform</td><td>NOTESUIDOCUMENT</td></tr>
+   * <tr valign="top"><td>View<br>folder</td><td>NOTESUIVIEW</td></tr>
+   * <tr valign="top"><td>Button<br>action hotspot<br>action<br>area</td><td>BUTTON</td></tr>
+   * <tr valign="top"><td>Database script</td><td>NOTESUIDATABASE</td></tr>
+   * <tr valign="top"><td>Field</td><td>FIELD</td></tr>
+   * </table>
    * 
    * @param code code to format
-   * @param nameOfContextClass e.g. {@link #CTX_AGENT} for agents (empty string), {@link #CTX_FORM} for forms (NOTESUIDOCUMENT) etc.
+   * @param nameOfContextClass see table above
    * @return pair of formatted code and any warnings/errors collected during LS parsing
    */
   Pair<String,String> formatLSForDesigner(String code, String nameOfContextClass);
