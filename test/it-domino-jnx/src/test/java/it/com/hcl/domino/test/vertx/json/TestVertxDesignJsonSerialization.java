@@ -145,4 +145,15 @@ public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
       .getAgents()
       .forEach(serializer::toJson);
   }
+  
+  @Test
+  public void testResourceAgentsSerialization() throws Exception {
+    VertxJsonSerializer serializer = new VertxJsonSerializer();
+    
+    withResourceDxl("/dxl/testDbDesignAgents", database -> {
+      database.getDesign()
+        .getAgents()
+        .forEach(serializer::toJson);
+    });
+  }
 }
