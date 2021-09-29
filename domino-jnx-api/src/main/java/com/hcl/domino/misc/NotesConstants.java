@@ -4563,4 +4563,9 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds 
   /** Formula for view script event */
   String VIEW_ACTION_ITEM_NAME = "$ViewAction"; //$NON-NLS-1$
   String VIEW_FORM_FORMULA_ITEM = "$FormFormula"; //$NON-NLS-1$
+  
+  /**
+   * This value specifies the maximum length of ID name.See SCRIPTCONTEXTDESCR for more information.
+   */
+  int MAXIMUM_ID_NAME_LENGTH = 40;
 }

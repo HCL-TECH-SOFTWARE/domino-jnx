@@ -28,10 +28,8 @@ import com.hcl.domino.jna.internal.callbacks.NotesCallbacks.ACLENTRYENUMFUNC;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.structs.CreateDAConfigStruct;
-import com.hcl.domino.jna.internal.structs.UpdateDAConfigStruct;
-import com.hcl.domino.jna.internal.structs.EnableDisableDAStruct;
 import com.hcl.domino.jna.internal.structs.DbOptionsStruct;
-import com.hcl.domino.jna.internal.structs.VerifyLDAPConnectionStruct;
+import com.hcl.domino.jna.internal.structs.EnableDisableDAStruct;
 import com.hcl.domino.jna.internal.structs.HtmlApi_UrlComponentStruct;
 import com.hcl.domino.jna.internal.structs.IntlFormatStruct;
 import com.hcl.domino.jna.internal.structs.KFM_PASSWORDStruct;
@@ -54,6 +52,8 @@ import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
 import com.hcl.domino.jna.internal.structs.ReplExtensionsStruct;
 import com.hcl.domino.jna.internal.structs.ReplServStatsStruct;
+import com.hcl.domino.jna.internal.structs.UpdateDAConfigStruct;
+import com.hcl.domino.jna.internal.structs.VerifyLDAPConnectionStruct;
 import com.sun.jna.Library;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
@@ -2551,4 +2551,8 @@ public interface INotesCAPI extends Library {
 	short NSFDbGetNamesList(HANDLE.ByValue hDB, int Flags, DHANDLE.ByReference rethNamesList);
 	
 	int OSProcessGroup(int query);
+	
+	short AgentLSTextFormat(DHANDLE.ByValue hSrc, DHANDLE.ByReference hDest,
+	    DHANDLE.ByReference hErrs, int dwFlags, DHANDLE.ByReference phData);
+
 }
