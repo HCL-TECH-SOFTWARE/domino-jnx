@@ -46,10 +46,10 @@ public interface NativeDesignSupport {
    * <br>
    * <table border="1" cellpadding="0" cellspacing="0">
    * <tr valign="top"><th>If the LotusScript was contained in:</th><th>Specify the following text as <code>nameOfContextClass</code>:</th></tr>
-   * <tr valign="top"><td>Agent<br>webservice<br>script libraries<br>globals</td><td><i>Empty string</i></td></tr>
-   * <tr valign="top"><td>Form<br>page<br>subform</td><td>NOTESUIDOCUMENT</td></tr>
-   * <tr valign="top"><td>View<br>folder</td><td>NOTESUIVIEW</td></tr>
-   * <tr valign="top"><td>Button<br>action hotspot<br>action<br>area</td><td>BUTTON</td></tr>
+   * <tr valign="top"><td>Agent<br>Webservice<br>Script libraries<br>Globals</td><td><i>Empty string</i></td></tr>
+   * <tr valign="top"><td>Form<br>Page<br>Subform</td><td>NOTESUIDOCUMENT</td></tr>
+   * <tr valign="top"><td>View<br>Folder</td><td>NOTESUIVIEW</td></tr>
+   * <tr valign="top"><td>Button<br>Action hotspot<br>Action<br>Area</td><td>BUTTON</td></tr>
    * <tr valign="top"><td>Database script</td><td>NOTESUIDATABASE</td></tr>
    * <tr valign="top"><td>Field</td><td>FIELD</td></tr>
    * </table>
