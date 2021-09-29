@@ -150,6 +150,7 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("Unable to find Java action data"));
         return new DefaultJavaAgentContent(
+            this,
             action.getClassName(),
             action.getCodePath(),
             Arrays.stream(action.getFileList().split("\\n")) //$NON-NLS-1$
