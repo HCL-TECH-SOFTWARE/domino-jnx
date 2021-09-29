@@ -46,6 +46,7 @@ public interface StdNames {
   String FILTER_FORMULA_ITEM = "$Formula"; //$NON-NLS-1$
   String FILTER_SCAN_ITEM = "$Scan"; //$NON-NLS-1$
   String FILTER_OPERATION_ITEM = "$Operation"; //$NON-NLS-1$
+  String FILTER_PERIOD_ITEM = "$Period"; //$NON-NLS-1$
   
   int FILTER_TYPE_MENU  = 0;
   int FILTER_TYPE_BACKGROUND = 1;
@@ -62,4 +63,9 @@ public interface StdNames {
   int FILTER_OP_UPDATE = 0;
   int FILTER_OP_SELECT = 1;
   int FILTER_OP_NEW_COPY = 2;
+  
+  int PERIOD_HOURLY = 0;
+  int PERIOD_DAILY = 1;
+  int PERIOD_WEEKLY = 2;
+  int PERIOD_DISABLED = 3;
 }
