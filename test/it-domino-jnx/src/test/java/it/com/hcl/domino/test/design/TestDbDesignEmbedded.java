@@ -106,9 +106,9 @@ public class TestDbDesignEmbedded extends AbstractDesignTest {
     //sub level mouse color
     assertColorEquals(outline.getMouseFontColors()[2], 0, 0, 255);
     //name
-    assertEquals(outline.getName(), "TestEmbeddedOutline");
+    assertEquals("TestEmbeddedOutline", outline.getName());
     //target frame
-    assertEquals(outline.getTargetFrame(), "TestEmbeddedOutlineFrame");
+    assertEquals("TestEmbeddedOutlineFrame", outline.getTargetFrame());
   }
   
   @Test
@@ -128,7 +128,7 @@ public class TestDbDesignEmbedded extends AbstractDesignTest {
     //        CDEmbeddedView.Flag.SIMPLE_VIEW_SHOW_ACTION_BAR, 
     //        CDEmbeddedView.Flag.SIMPLE_VIEW_SHOW_SELECTION_MARGIN));
     //name length
-    assertEquals(view.getNameLength(), new String("TestEmbeddedView").length());
+    assertEquals("TestEmbeddedView".length(), view.getNameLength());
   }
   
   @Test
@@ -143,10 +143,12 @@ public class TestDbDesignEmbedded extends AbstractDesignTest {
         .findFirst()
         .get();
     
-    assertEquals(cal.getTargetFrameName(), "TestTargetFrame");
-    assertEquals(cal.getFlags(),
-        EnumSet.of(CDEmbeddedCalendarControl.Flag.NON_TRANSPARENT_BKGND, 
-            CDEmbeddedCalendarControl.Flag.HASTARGETFRAME));
+    assertEquals("TestTargetFrame", cal.getTargetFrameName());
+    assertEquals(
+      EnumSet.of(CDEmbeddedCalendarControl.Flag.NON_TRANSPARENT_BKGND, 
+          CDEmbeddedCalendarControl.Flag.HASTARGETFRAME),
+      cal.getFlags()
+    );
   }
   
   @Test
@@ -161,10 +163,10 @@ public class TestDbDesignEmbedded extends AbstractDesignTest {
         .findFirst()
         .get();
     
-    assertEquals(scheduler.getTargetFrameName(), "EmbeddedSchedulerTargetFrame");
-    assertEquals(scheduler.getReqPeopleItemsFormula(), "\"Line1\r\nLine2\r\nLine3\"");
+    assertEquals("EmbeddedSchedulerTargetFrame", scheduler.getTargetFrameName());
+    assertEquals("\"Line1\r\nLine2\r\nLine3\"", scheduler.getReqPeopleItemsFormula());
     //assertEquals(scheduler.getDisplayStartDTItemFormula(), "@Accessed");
-    assertEquals(scheduler.getHrsPerDayItemFormula(), "\"8-5\"");
+    assertEquals("\"8-5\"", scheduler.getHrsPerDayItemFormula());
   }
   
   @Test
@@ -179,9 +181,9 @@ public class TestDbDesignEmbedded extends AbstractDesignTest {
         .findFirst()
         .get();
     
-    assertEquals(schedulerextra.getOptPeopleItemsFormula(), "@All");
-    assertEquals(schedulerextra.getReqRoomsItemsFormula(), "\"Room1\r\nRoom2\"");
-    assertEquals(schedulerextra.getSchedulerName(), "EmbeddedSchedulerName");
+    assertEquals("@All", schedulerextra.getOptPeopleItemsFormula());
+    assertEquals("\"Room1\r\nRoom2\"", schedulerextra.getReqRoomsItemsFormula());
+    assertEquals("EmbeddedSchedulerName", schedulerextra.getSchedulerName());
   }
   
   @Test
@@ -196,6 +198,6 @@ public class TestDbDesignEmbedded extends AbstractDesignTest {
         .findFirst()
         .get();
     
-    assertEquals(editor.getName(), "EmbeddedEditorName");
+    assertEquals("EmbeddedEditorName", editor.getName());
   }
 }
