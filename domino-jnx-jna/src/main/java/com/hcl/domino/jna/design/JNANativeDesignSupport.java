@@ -15,8 +15,10 @@
  * ==========================================================================
  */package com.hcl.domino.jna.design;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
+import java.util.List;
 
 import com.hcl.domino.commons.design.NativeDesignSupport;
 import com.hcl.domino.commons.util.NotesErrorUtils;
@@ -131,6 +133,11 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
         }
       }
     });
+  }
+  
+  @Override
+  public List<ByteBuffer> splitAsLMBCS(String txt, boolean addNull, boolean replaceLinebreaks, int chunkSize) {
+    return NotesStringUtils.splitAsLMBCS(txt, addNull, replaceLinebreaks, chunkSize);
   }
   
 }

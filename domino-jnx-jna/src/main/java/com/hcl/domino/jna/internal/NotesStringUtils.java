@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Formatter;
 import java.util.List;
@@ -984,9 +985,9 @@ public class NotesStringUtils {
 	 * @param addNull true to add a null terminator
 	 * @param replaceLinebreaks true to replace linebreaks with \0
 	 * @param chunkSize max size of chunks (might be less for LMBCS with multibyte sequences), must be greater than 4
-	 * @return stream of chunks
+	 * @return list of chunks
 	 */
-	public static Stream<ByteBuffer> splitAsLMBCS(String txt, boolean addNull, boolean replaceLinebreaks, int chunkSize) {
+	public static List<ByteBuffer> splitAsLMBCS(String txt, boolean addNull, boolean replaceLinebreaks, int chunkSize) {
 	  Memory mem = toLMBCS(txt, addNull, replaceLinebreaks);
 	  return splitLMBCS(mem, mem.size(), chunkSize);
 	}
@@ -997,15 +998,15 @@ public class NotesStringUtils {
 	 * @param txtPtr pointer to LMBCS string
 	 * @param txtSize length of string
    * @param chunkSize max size of chunks (might be less for LMBCS with multibyte sequences), must be greater than 4
-   * @return stream of chunks
+   * @return list of chunks
 	 */
-	public static Stream<ByteBuffer> splitLMBCS(Pointer txtPtr, long txtSize, int chunkSize) {
+	public static List<ByteBuffer> splitLMBCS(Pointer txtPtr, long txtSize, int chunkSize) {
 	  if (chunkSize<5) {
 	    throw new IllegalArgumentException("Chunk size must be greater than 4");
 	  }
 
 	  if (txtSize < chunkSize) {
-	    return Stream.of(txtPtr.getByteBuffer(0, txtSize));
+	    return Arrays.asList(txtPtr.getByteBuffer(0, txtSize));
 	  }
 
 	  Pointer nlsInfoPtr = NotesCAPI.get().OSGetLMBCSCLS();
@@ -1057,6 +1058,6 @@ public class NotesStringUtils {
 	    offset = correctedNextOffset;
 	  }
 
-	  return chunks.stream();
+	  return chunks;
 	}
 }

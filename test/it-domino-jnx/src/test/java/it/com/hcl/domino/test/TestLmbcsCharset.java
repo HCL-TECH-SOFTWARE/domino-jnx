@@ -130,6 +130,7 @@ public class TestLmbcsCharset extends AbstractNotesRuntimeTest {
     int[] i = new int[1];
     for (i[0] = 5; i[0]<(testString.length()+30); i[0]++) {
       String concString = NativeDesignSupport.get().splitAsLMBCS(testString, false, false, i[0])
+          .stream()
           .map((bb) -> {
             byte[] arr = new byte[bb.limit()];
             assertTrue(arr.length <= i[0], "Chunk size is <="+i[0]);

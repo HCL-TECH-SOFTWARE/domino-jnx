@@ -15,6 +15,9 @@
  * ==========================================================================
  */package com.hcl.domino.commons.design;
 
+import java.nio.ByteBuffer;
+import java.util.List;
+
 import com.hcl.domino.misc.JNXServiceFinder;
 import com.hcl.domino.misc.Pair;
 
@@ -60,4 +63,16 @@ public interface NativeDesignSupport {
    */
   Pair<String,String> formatLSForDesigner(String code, String nameOfContextClass);
   
+  /**
+   * Converts a Java string to LMBCS and splits it into chunks of the specified
+   * max length.
+   * 
+   * @param txt text to convert and split
+   * @param addNull true to add a null terminator
+   * @param replaceLinebreaks true to replace linebreaks with \0
+   * @param chunkSize max size of chunks (might be less for LMBCS with multibyte sequences), must be greater than 4
+   * @return list of chunks
+   */
+  List<ByteBuffer> splitAsLMBCS(String txt, boolean addNull, boolean replaceLinebreaks, int chunkSize);
+
 }
