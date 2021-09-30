@@ -16,6 +16,7 @@
  */
 package it.com.hcl.domino.test.design;
 
+import static it.com.hcl.domino.test.util.ITUtil.toLf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -26,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.DayOfWeek;
@@ -38,8 +40,11 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,6 +66,10 @@ import com.hcl.domino.design.agent.AgentTarget;
 import com.hcl.domino.design.agent.AgentTrigger;
 import com.hcl.domino.design.agent.FormulaAgentContent;
 import com.hcl.domino.design.agent.FormulaAgentContent.DocumentAction;
+import com.hcl.domino.design.agent.ImportedJavaAgentContent;
+import com.hcl.domino.design.agent.JavaAgentContent;
+import com.hcl.domino.design.agent.LotusScriptAgentContent;
+import com.hcl.domino.design.agent.SimpleActionAgentContent;
 import com.hcl.domino.design.simpleaction.CopyToDatabaseAction;
 import com.hcl.domino.design.simpleaction.DeleteDocumentAction;
 import com.hcl.domino.design.simpleaction.FolderBasedAction;
@@ -85,10 +94,6 @@ import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
 import com.hcl.domino.design.simplesearch.TextTerm;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.misc.Pair;
-import com.hcl.domino.design.agent.ImportedJavaAgentContent;
-import com.hcl.domino.design.agent.JavaAgentContent;
-import com.hcl.domino.design.agent.LotusScriptAgentContent;
-import com.hcl.domino.design.agent.SimpleActionAgentContent;
 import com.ibm.commons.util.io.StreamUtil;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
@@ -272,7 +277,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
   }
 
   @Test
-  public void testMultiFileJavaAgent() {
+  public void testMultiFileJavaAgent() throws IOException {
     final DbDesign dbDesign = this.database.getDesign();
     final DesignAgent agent = dbDesign.getAgent("Multi-File Java").orElse(null);
     assertNotNull(agent);
@@ -300,6 +305,113 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     assertEquals(Arrays.asList("foo.jar", "bar.jar"), javaAgent.getEmbeddedJars());
     assertEquals(Arrays.asList("java lib", "java consumer", "java lib 2", "java lib 3", "java lib 4"),
         javaAgent.getSharedLibraryList());
+    
+    try(
+      InputStream is = javaAgent.getSourceAttachment().get();
+      JarInputStream jis = new JarInputStream(is)
+    ) {
+      boolean foundBar = false;
+      boolean foundAgent = false;
+      
+      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
+        if("foo/Bar.java".equals(entry.getName())) {
+          foundBar = true;
+          String actual = toLf(StreamUtil.readString(jis));
+          String expected = toLf(IOUtils.resourceToString("/text/testDbDesignAgents/Bar.java", StandardCharsets.UTF_8));
+          assertEquals(expected, actual);
+        } else if("lotus/domino/axis/JavaAgentRenamed.java".equals(entry.getName())) {
+          foundAgent = true;
+          String actual = toLf(StreamUtil.readString(jis));
+          String expected = toLf(IOUtils.resourceToString("/text/testDbDesignAgents/JavaAgentRenamed.java", StandardCharsets.UTF_8));
+          assertEquals(expected, actual);
+        }
+        
+        jis.closeEntry();
+      }
+      
+      assertTrue(foundBar);
+      assertTrue(foundAgent);
+    }
+
+    try(
+      InputStream is = javaAgent.getObjectAttachment().get();
+      JarInputStream jis = new JarInputStream(is)
+    ) {
+      boolean foundBar = false;
+      boolean foundAgent = false;
+      
+      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
+        if("foo/Bar.class".equals(entry.getName())) {
+          foundBar = true;
+        } else if("lotus/domino/axis/JavaAgentRenamed.class".equals(entry.getName())) {
+          foundAgent = true;
+        }
+        
+        jis.closeEntry();
+      }
+      
+      assertTrue(foundBar);
+      assertTrue(foundAgent);
+    }
+
+    try(
+      InputStream is = javaAgent.getResourcesAttachment().get();
+      JarInputStream jis = new JarInputStream(is)
+    ) {
+      boolean foundBar = false;
+      boolean foundDesktop = false;
+      
+      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
+        if("bar.txt".equals(entry.getName())) {
+          foundBar = true;
+        } else if("desktop.ini".equals(entry.getName())) {
+          foundDesktop = true;
+          
+          String actual = toLf(IOUtils.toString(jis, StandardCharsets.UTF_16));
+          String expected = toLf(IOUtils.resourceToString("/text/testDbDesignAgents/desktop.ini.txt", StandardCharsets.UTF_8));
+          assertEquals(expected, actual);
+        }
+        
+        jis.closeEntry();
+      }
+      
+      assertTrue(foundBar);
+      assertTrue(foundDesktop);
+    }
+
+    try(
+      InputStream is = javaAgent.getEmbeddedJar("foo.jar").get();
+      JarInputStream jis = new JarInputStream(is)
+    ) {
+      boolean foundFoo = false;
+      
+      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
+        if("foo.txt".equals(entry.getName())) {
+          foundFoo = true;
+        }
+        
+        jis.closeEntry();
+      }
+      
+      assertTrue(foundFoo);
+    }
+
+    try(
+      InputStream is = javaAgent.getEmbeddedJar("bar.jar").get();
+      JarInputStream jis = new JarInputStream(is)
+    ) {
+      boolean foundBar = false;
+      
+      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
+        if("bar.txt".equals(entry.getName())) {
+          foundBar = true;
+        }
+        
+        jis.closeEntry();
+      }
+      
+      assertTrue(foundBar);
+    }
   }
 
   @Test
