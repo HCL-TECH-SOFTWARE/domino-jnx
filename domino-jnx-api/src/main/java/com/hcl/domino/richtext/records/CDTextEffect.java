@@ -18,7 +18,6 @@ package com.hcl.domino.richtext.records;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
-import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.WSIG;
 
