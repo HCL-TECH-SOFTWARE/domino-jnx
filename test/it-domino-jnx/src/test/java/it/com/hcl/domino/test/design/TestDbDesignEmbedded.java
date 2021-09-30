@@ -16,13 +16,17 @@
  */
 package it.com.hcl.domino.test.design;
 
+import static it.com.hcl.domino.test.util.ITUtil.toLf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,10 +38,12 @@ import com.hcl.domino.design.Form;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.richtext.records.CDEmbeddedCalendarControl;
 import com.hcl.domino.richtext.records.CDEmbeddedEditControl;
+import com.hcl.domino.richtext.records.CDEmbeddedExtraInfo;
 import com.hcl.domino.richtext.records.CDEmbeddedOutline;
 import com.hcl.domino.richtext.records.CDEmbeddedSchedulerControl;
 import com.hcl.domino.richtext.records.CDEmbeddedSchedulerControlExtra;
 import com.hcl.domino.richtext.records.CDEmbeddedView;
+import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclEntry;
 import com.hcl.domino.security.AclFlag;
@@ -96,7 +102,8 @@ public class TestDbDesignEmbedded extends AbstractDesignTest {
         .findFirst()
         .get();
     
-    assertEquals(288, outline.getSubLevelHorizontalOffset());
+    assertEquals(360, outline.getSubLevelHorizontalOffset());
+    assertEquals(288, outline.getSubLevelHeight());
     //top level color
     assertColorEquals(outline.getSelectionFontColors()[1], 255, 255, 255);
     //sub level color
@@ -116,19 +123,28 @@ public class TestDbDesignEmbedded extends AbstractDesignTest {
     DbDesign design = this.database.getDesign();
     Form form = design.getForm("ppage layout B").get();
     
-    CDEmbeddedView view = form.getBody()
-        .stream()
-        .filter(CDEmbeddedView.class::isInstance)
-        .map(CDEmbeddedView.class::cast)
-        .findFirst()
-        .get();
+    // The embedded view will be immediately followed by another
+    //   record that actually contains the name
     
-    //assertEquals(view.getFlags(), 
-    //    EnumSet.of(CDEmbeddedView.Flag.HASNAME, 
-    //        CDEmbeddedView.Flag.SIMPLE_VIEW_SHOW_ACTION_BAR, 
-    //        CDEmbeddedView.Flag.SIMPLE_VIEW_SHOW_SELECTION_MARGIN));
-    //name length
-    assertEquals("TestEmbeddedView".length(), view.getNameLength());
+    int viewIndex = -1;
+    List<?> body = form.getBody();
+    for(int i = 0; i < body.size(); i++) {
+      if(body.get(i) instanceof CDEmbeddedView) {
+        viewIndex = i;
+        break;
+      }
+    }
+    assertTrue(viewIndex > -1 && viewIndex < body.size());
+    CDEmbeddedView view = (CDEmbeddedView)body.get(viewIndex);
+    
+    assertEquals(
+      EnumSet.of(CDEmbeddedView.Flag.USEAPPLET_INBROWSER, CDEmbeddedView.Flag.SIMPLE_VIEW_SHOW_ACTION_BAR,
+        CDEmbeddedView.Flag.SIMPLE_VIEW_SHOW_SELECTION_MARGIN, CDEmbeddedView.Flag.HASNAME),
+      view.getFlags()
+    );
+    
+    CDEmbeddedExtraInfo info = (CDEmbeddedExtraInfo)body.get(viewIndex+1);
+    assertEquals("TestEmbeddedView", info.getName());
   }
   
   @Test
@@ -164,9 +180,9 @@ public class TestDbDesignEmbedded extends AbstractDesignTest {
         .get();
     
     assertEquals("EmbeddedSchedulerTargetFrame", scheduler.getTargetFrameName());
-    assertEquals("\"Line1\r\nLine2\r\nLine3\"", scheduler.getReqPeopleItemsFormula());
+    assertEquals("\"Line1\nLine2\nLine3\"", toLf(scheduler.getReqPeopleItemsFormula().get()));
     //assertEquals(scheduler.getDisplayStartDTItemFormula(), "@Accessed");
-    assertEquals("\"8-5\"", scheduler.getHrsPerDayItemFormula());
+    assertEquals("\"8-5\"", scheduler.getHrsPerDayItemFormula().get());
   }
   
   @Test
@@ -181,8 +197,8 @@ public class TestDbDesignEmbedded extends AbstractDesignTest {
         .findFirst()
         .get();
     
-    assertEquals("@All", schedulerextra.getOptPeopleItemsFormula());
-    assertEquals("\"Room1\r\nRoom2\"", schedulerextra.getReqRoomsItemsFormula());
+    assertEquals("@All", schedulerextra.getOptPeopleItemsFormula().get());
+    assertEquals("\"Room1\nRoom2\"", toLf(schedulerextra.getReqRoomsItemsFormula().get()));
     assertEquals("EmbeddedSchedulerName", schedulerextra.getSchedulerName());
   }
   
