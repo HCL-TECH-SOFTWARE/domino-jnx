@@ -3097,6 +3097,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		
 		JNADocumentAllocations allocations = getAllocations();
 		short result = LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
+		  //removes all items with this name (not just the first):
 			return NotesCAPI.get().NSFItemDelete(noteHandleByVal, itemNameMem, (short) (itemNameMem.size() & 0xffff));
 
 		});
