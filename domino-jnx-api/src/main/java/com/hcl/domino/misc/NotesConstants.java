@@ -4568,4 +4568,12 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds 
    * This value specifies the maximum length of ID name.See SCRIPTCONTEXTDESCR for more information.
    */
   int MAXIMUM_ID_NAME_LENGTH = 40;
+  
+  String DESIGNER_VERSION = "$DesignerVersion"; //$NON-NLS-1$
+  
+  /** agent designer can force the agent to have restricted
+  rights, even if the signer has unrestricted rights , or
+  raise their rights to be full admin + unrestricted */
+  String ASSIST_RESTRICTED = "$Restricted"; //$NON-NLS-1$
+
 }

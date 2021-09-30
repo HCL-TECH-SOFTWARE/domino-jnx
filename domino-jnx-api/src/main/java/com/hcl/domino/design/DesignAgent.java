@@ -111,6 +111,15 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
   AgentContent getAgentContent();
 
   /**
+   * Changes the agent language and content.
+   * 
+   * @param lang new language
+   * @param content new agent code
+   * @return this agent
+   */
+  DesignAgent setAgentContent(AgentLanguage lang, String content);
+  
+  /**
    * Language the agent is written using
    *
    * @return an {@link AgentLanguage} instance
@@ -306,6 +315,15 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    * @since 1.0.35
    */
   SecurityLevel getSecurityLevel();
+  
+  /**
+   * Changes the security level to enforce when running this agent.
+   * 
+   * @param level new level
+   * @return this agent
+   * @since 1.0.43
+   */
+  DesignAgent setSecurityLevel(SecurityLevel level);
   
   /**
    * Determines whether the agent should store highlights when run.

@@ -285,6 +285,12 @@ public enum StructureSupport {
 
   public static <T extends ResizableMemoryStructure> T writeStringValue(final T struct, final long preLen, final long currentLen,
       final String value, final LongConsumer sizeWriter) {
+    
+    return writeStringValue(struct, preLen, currentLen, value, true, sizeWriter);
+  }
+  
+  public static <T extends ResizableMemoryStructure> T writeStringValue(final T struct, final long preLen, final long currentLen,
+      final String value, final boolean replaceLinebreaks, final LongConsumer sizeWriter) {
     ByteBuffer buf = struct.getVariableData();
     final long otherLen = buf.remaining() - preLen - currentLen;
 
@@ -300,7 +306,17 @@ public enum StructureSupport {
     final byte[] otherData = new byte[(int) otherLen];
     buf.get(otherData);
 
-    final byte[] lmbcs = value == null ? new byte[0] : value.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    final byte[] lmbcs;
+    if (value == null) {
+      lmbcs = new byte[0];
+    }
+    else if (replaceLinebreaks) {
+      lmbcs = value.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    }
+    else {
+      lmbcs = value.getBytes(Charset.forName("LMBCS-keepnewlines")); //$NON-NLS-1$
+    }
+    
     if (sizeWriter != null) {
       sizeWriter.accept(lmbcs.length);
     }

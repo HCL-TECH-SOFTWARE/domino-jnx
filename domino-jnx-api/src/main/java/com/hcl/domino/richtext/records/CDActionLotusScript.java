@@ -45,7 +45,9 @@ public interface CDActionLotusScript extends RichTextRecord<WSIG> {
   long getScriptLength();
 
   default CDActionLotusScript setScript(final String script) {
-    StructureSupport.writeStringValue(this, 0, this.getScriptLength(), script, (final long newVal) -> this.setScriptLength(newVal));
+    StructureSupport.writeStringValue(this, 0, this.getScriptLength(), script,
+        false, // => don't replace linebreaks with \0,
+        this::setScriptLength);
     return this;
   }
 
