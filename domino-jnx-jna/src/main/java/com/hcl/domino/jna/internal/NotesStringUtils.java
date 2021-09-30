@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Formatter;
 import java.util.List;
+import java.util.stream.Stream;
 
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.util.NotesErrorUtils;
@@ -38,6 +39,7 @@ import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * String conversion functions between Java and LMBCS
@@ -443,7 +445,7 @@ public class NotesStringUtils {
 		// Check if it's a native pointer and use it directly
 		try {
 			Pointer ptr = Native.getDirectBufferPointer(buf);
-			return fromLMBCS(ptr.share(offset), -1);
+			return fromLMBCS(ptr.share(offset), buf.remaining()-offset);
 		} catch(IllegalArgumentException e) {
 			byte[] data = new byte[buf.remaining()-offset];
 			buf.get(data);
@@ -540,7 +542,7 @@ public class NotesStringUtils {
 	 * @param noCache true to not write the result to an internal cache; in this cache, the method returns a {@link DisposableMemory} object
 	 * @return encoded string in memory, might be a shared copy if the string could be find in the cache
 	 */
-	private static Memory toLMBCS(String inStr, boolean addNull, LineBreakConversion lineBreakConversion, boolean noCache) {
+	public static Memory toLMBCS(String inStr, boolean addNull, LineBreakConversion lineBreakConversion, boolean noCache) {
 		if (inStr==null) {
 			return null;
 		}
@@ -973,5 +975,88 @@ public class NotesStringUtils {
 		}
 		
 	}
-	
+
+	/**
+	 * Converts a Java string to LMBCS and splits it into chunks of the specified
+	 * max length.
+	 * 
+	 * @param txt text to convert and split
+	 * @param addNull true to add a null terminator
+	 * @param replaceLinebreaks true to replace linebreaks with \0
+	 * @param chunkSize max size of chunks (might be less for LMBCS with multibyte sequences), must be greater than 4
+	 * @return stream of chunks
+	 */
+	public static Stream<ByteBuffer> splitAsLMBCS(String txt, boolean addNull, boolean replaceLinebreaks, int chunkSize) {
+	  Memory mem = toLMBCS(txt, addNull, replaceLinebreaks);
+	  return splitLMBCS(mem, mem.size(), chunkSize);
+	}
+
+	/**
+	 * Splits an LMBCS string into chunks of the specified max length
+	 * 
+	 * @param txtPtr pointer to LMBCS string
+	 * @param txtSize length of string
+   * @param chunkSize max size of chunks (might be less for LMBCS with multibyte sequences), must be greater than 4
+   * @return stream of chunks
+	 */
+	public static Stream<ByteBuffer> splitLMBCS(Pointer txtPtr, long txtSize, int chunkSize) {
+	  if (chunkSize<5) {
+	    throw new IllegalArgumentException("Chunk size must be greater than 4");
+	  }
+
+	  if (txtSize < chunkSize) {
+	    return Stream.of(txtPtr.getByteBuffer(0, txtSize));
+	  }
+
+	  Pointer nlsInfoPtr = NotesCAPI.get().OSGetLMBCSCLS();
+
+	  List<ByteBuffer> chunks = new ArrayList<>();
+
+	  long offset = 0;
+
+	  ByteBuffer wholeByteBuf = txtPtr.getByteBuffer(offset, txtSize);
+
+	  while (true) {
+	    long nextOffset = offset + chunkSize + 1;
+
+	    if (nextOffset > txtSize) {
+	      //add last chunk
+	      wholeByteBuf.position((int) offset);
+	      ByteBuffer lastByteBuf = wholeByteBuf.slice();
+	      lastByteBuf.position(0);
+	      lastByteBuf.limit((int) (txtSize - offset));
+	      chunks.add(lastByteBuf);
+	      break;
+	    }
+
+	    //end NLS_goto_prev_whole_char at current offset
+	    Pointer ppStart = txtPtr.share(offset);
+
+	    //set pointer to offset where we want to split
+	    PointerByReference ppString = new PointerByReference();
+	    ppString.setValue(txtPtr.share(nextOffset));
+
+	    //make sure we are at the beginning of the character for multibyte
+	    NotesCAPI.get().NLS_goto_prev_whole_char(ppString, ppStart, nlsInfoPtr);
+
+	    long correctedNextOffset = Pointer.nativeValue(ppString.getValue()) - Pointer.nativeValue(txtPtr);
+	    long actualChunkSize = correctedNextOffset - offset;
+
+	    if (actualChunkSize==0) {
+	      break;
+	    }
+
+	    //extract chunk data from bytebuffer
+	    wholeByteBuf.position((int) offset);
+	    ByteBuffer chunkByteBuf = wholeByteBuf.slice();
+	    chunkByteBuf.position(0);
+	    chunkByteBuf.limit((int) actualChunkSize);
+
+	    chunks.add(chunkByteBuf);
+	    //start next scan at corrected offset
+	    offset = correctedNextOffset;
+	  }
+
+	  return chunks.stream();
+	}
 }

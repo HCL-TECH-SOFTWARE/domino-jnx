@@ -28,6 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.hcl.domino.jna.internal.NotesStringUtils;
+import com.hcl.domino.jna.internal.NotesStringUtils.LineBreakConversion;
 import com.sun.jna.Memory;
 
 public class LMBCSCharsetProvider extends CharsetProvider {
@@ -48,12 +49,17 @@ public class LMBCSCharsetProvider extends CharsetProvider {
     public static final LMBCSCharset INSTANCE_NULLTERM_KEEPNEWLINES = new LMBCSCharset(NAME, ALIASES.toArray(new String[ALIASES.size()]), true, false);
 
     private boolean addNull;
-    private boolean replaceLineBreaks;
+    private LineBreakConversion lineBreakConv;
     
 		protected LMBCSCharset(String canonicalName, String[] aliases, boolean addNull, boolean replaceLineBreaks) {
 			super(canonicalName, aliases);
 			this.addNull = addNull;
-			this.replaceLineBreaks = replaceLineBreaks;
+			if (replaceLineBreaks) {
+			  lineBreakConv = LineBreakConversion.NULL;
+			}
+			else {
+			  lineBreakConv = LineBreakConversion.ORIGINAL;
+			}
 		}
 
 		@Override
@@ -88,7 +94,8 @@ public class LMBCSCharsetProvider extends CharsetProvider {
 					}
 					char[] chars = new char[in.remaining()];
 					in.get(chars);
-					Memory encoded = NotesStringUtils.toLMBCS(new String(chars), addNull, replaceLineBreaks);
+					
+					Memory encoded = NotesStringUtils.toLMBCS(new String(chars), addNull, lineBreakConv, false);
 					if(out.remaining() < encoded.size()) {
 						return CoderResult.OVERFLOW;
 					}
