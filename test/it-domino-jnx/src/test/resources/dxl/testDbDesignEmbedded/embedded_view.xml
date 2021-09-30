@@ -1,0 +1,188 @@
+<?xml version='1.0' encoding='utf-8'?>
+<form name='ppage layout B' alias='homeb' xmlns='http://www.lotus.com/dxl'
+ version='12.0' maintenanceversion='1.0' replicaid='6525860E002D4664' nocompose='true'
+ publicaccess='false' designerversion='8.5' language='en'>
+<noteinfo noteid='256' unid='1256324357CA32388525692F0050FF7A' sequence='120'>
+<created><datetime dst='true'>20000802T104442,82-04</datetime></created>
+<modified><datetime>20210301T125025,61+00</datetime></modified>
+<revised><datetime>20210301T125025,60+00</datetime></revised>
+<lastaccessed><datetime>20210301T125025,60+00</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20201027T041533,92-04</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Domino Template Development/O=Domino</name></updatedby>
+<revisions><datetime dst='true'>20060208T151107,18-04</datetime><datetime
+ dst='true'>20070122T154000,09-04</datetime><datetime dst='true'>20070130T162038,04-04</datetime><datetime
+ dst='true'>20071024T141011,36-04</datetime><datetime dst='true'>20080428T080056,22-04</datetime><datetime
+ dst='true'>20081002T081818,75-04</datetime></revisions>
+<wassignedby><name>CN=Domino Template Development/O=Domino</name></wassignedby><code
+ event='querymodechange'><lotusscript>Sub Querymodechange(Source As Notesuidocument, Continue As Variant)
+	Dim s As New NotesSession
+	Set profile  = s.CurrentDatabase.GetProfileDocument("HPSettings")
+	HPSetting = profile.NOHPChange
+	If HPSetting(0) = "1" Then
+		continue = False
+	End If
+End Sub</lotusscript></code>
+<background><imageref><code event='value'><formula>REM {DNT};
+ThemeCh := @If("theme" + ThemeChoice);
+
+@If(ThemeChoice = "100" | ThemeChoice = ""; "theme2";  ThemeCh)</formula></code></imageref></background>
+<body><richtext>
+<pardef id='1' hide='edit print copy preview previewedit notes web'/>
+<par def='1'/><subformref><code event='value'><formula>defaultFormBG := "2";
+ch := @If(ThemeChoice = "" | ThemeChoice = "100"; defaultFormBG; ThemeChoice);
+"Theme" + ch + "CSS"</formula></code></subformref>
+<par def='1'/>
+<pardef id='2' hide='read edit print copy preview previewedit notes web'/><subformref
+ name='EditSaveHP'/>
+<pardef id='3' hide='notes'/><subformref name='NameDate'/>
+<pardef id='4'/>
+<par def='4'><run><font size='9pt'/></run><layer htmlid='Layer_1' zindex='1'
+ topunittype='pixels' top='81.0000' leftunittype='pixels' left='95.0000' widthunittype='pixels'
+ width='295.0000' heightunittype='pixels' height='161.0000'>
+<pardef id='5' align='center' hide='notes web mobile'/>
+<par def='5'/>
+<table widthtype='fitmargins' htmlclass='PPB-table' leftmargin='0' refwidth='3.0729in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='7' align='center' keepwithnext='true' keeptogether='true'/>
+<par def='7'><run><font size='9pt'/></run><field type='richtextlite' kind='editable'
+ name='RT1' description='Click the drop-down to select the contents for this field'
+ htmltitle='Click the drop-down to select the contents for this field' fieldhelp='Click the icon to insert a picture|Click the icon to insert a shared image|Click the icon to insert an attachment|Click the icon to insert a view|Click the icon to insert a date picker|Click the icon to insert a shared applet|Click the icon to change text style|Click the icon to insert an OLE object|Click the icon to insert your calendar|Click the icon to insert your inbox'
+ fieldhint='Click the drop-down to select the contents for this field' onlyallow='picture sharedimage attachment view datepicker sharedapplet text object help clear'
+ firstdisplay='picture'/><compositedata type='98' prevtype='65513' nexttype='98'
+ afterparcount='11' containertype='65418' aftercontainercount='4' afterbegincount='7'>
+Yg4BAIQAAAAAAAEAAAA=
+</compositedata></par></tablecell></tablerow></table></layer></par>
+<par def='4'><run><font size='9pt'/></run></par>
+<par def='4'><layer htmlid='Layer_2' zindex='2' topunittype='pixels' top='81.0000'
+ leftunittype='pixels' left='403.0000' widthunittype='pixels' width='295.0000'
+ heightunittype='pixels' height='161.0000'>
+<par def='5'/>
+<table widthtype='fitmargins' htmlclass='PPB-table' leftmargin='0' refwidth='3.0729in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='7'><run><font size='9pt'/></run><field type='richtextlite' kind='editable'
+ name='RT2' description='Click the drop-down to select the contents for this field'
+ htmltitle='Click the drop-down to select the contents for this field' fieldhelp='Click the icon to insert a picture|Click the icon to insert a shared image|Click the icon to insert an attachment|Click the icon to insert a view|Click the icon to insert a date picker|Click the icon to insert a shared applet|Click the icon to change text style|Click the icon to insert an OLE object|Click the icon to insert your calendar|Click the icon to insert your inbox'
+ fieldhint='Click the drop-down to select the contents for this field' onlyallow='picture sharedimage attachment view datepicker sharedapplet text object help clear'
+ firstdisplay='sharedapplet'/><compositedata type='98' prevtype='65513' nexttype='98'
+ afterparcount='10' containertype='65418' aftercontainercount='4' afterbegincount='7'>
+Yg4BAIQAAAAAAAEAAAA=
+</compositedata></par></tablecell></tablerow></table></layer><layer
+ htmlid='Layer_3' zindex='3' topunittype='pixels' top='81.0000' leftunittype='pixels'
+ left='711.0000' widthunittype='pixels' width='308.0000' heightunittype='pixels'
+ height='161.0000'>
+<par def='5'/>
+<table widthtype='fitmargins' htmlclass='PPB-table' leftmargin='0' refwidth='3.2083in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='9' align='center' keepwithnext='true' keeptogether='true'/>
+<par def='9'><run><font size='9pt'/></run><field type='richtextlite' kind='editable'
+ name='RT3' description='Click the drop-down to select the contents for this field'
+ htmltitle='Click the drop-down to select the contents for this field' fieldhelp='Click the icon to insert a picture|Click the icon to insert a shared image|Click the icon to insert an attachment|Click the icon to insert a view|Click the icon to insert a date picker|Click the icon to insert a shared applet|Click the icon to change text style|Click the icon to insert an OLE object|Click the icon to insert your calendar|Click the icon to insert your inbox'
+ fieldhint='Click the drop-down to select the contents for this field' onlyallow='picture sharedimage attachment view datepicker sharedapplet text object help clear'
+ firstdisplay='picture'/><compositedata type='98' prevtype='65513' nexttype='98'
+ afterparcount='11' containertype='65418' aftercontainercount='4' afterbegincount='7'>
+Yg4BAIQAAAAAAAEAAAA=
+</compositedata></par></tablecell></tablerow></table></layer><layer
+ htmlid='Layer' zindex='6' topunittype='pixels' top='260.0000' leftunittype='pixels'
+ left='95.0000' widthunittype='percent' width='96.0000' heightunittype='pixels'
+ height='232.0000'>
+<pardef id='10'/>
+<par def='10'/>
+<table htmlclass='GreyButtons' leftmargin='0' widthtype='fixedleft' refwidth='7.3229in'><tablerowstyle
+><font size='0pt' style='underline strikethrough emboss' name='monospace'
+ color='#090000'/></tablerowstyle><tablecolumn width='1.8333in'/><tablecolumn
+ width='1.8333in'/><tablecolumn width='1.8333in'/><tablecolumn width='1.8229in'/>
+<tablerow>
+<tablecell valign='bottom' borderwidth='0px'>
+<pardef id='12' align='center' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='12'><run><font size='9pt'/></run><imagemap lastdefaultid='8' lastrectangleid='51'><picture
+ width='92px' height='25px' scaledheight='0.2604in' scaledwidth='1.8229in'
+ htmlid='p1' name='pic1'><imageref><code event='value'><formula>defaultTheme := "2";
+blueThemes := "10":"3":"5";
+themeNum := @If(ThemeChoice = "100" | ThemeChoice = ""; defaultTheme; ThemeChoice);
+
+@If(@Contains(themeNum; blueThemes) ; "theme3button"; "theme" + themeNum + "button")</formula></code></imageref><caption
+ position='center'>Inbox</caption></picture>
+<area type='default' htmlid='DefaultHotspot2'><code event='onClick'><formula
+>REM {DNT};
+selection := "inbox";
+FIELD $Views := selection;
+@Command([RefreshHideFormulas])</formula></code></area></imagemap><run><font
+ size='9pt'/></run></par></tablecell>
+<tablecell valign='bottom' borderwidth='0px'>
+<pardef id='13' align='center' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='13'><run><font size='9pt'/></run><imagemap lastdefaultid='8' lastrectangleid='51'><picture
+ width='92px' height='25px' scaledheight='0.2604in' scaledwidth='1.8229in'
+ htmlid='p2' name='pic2'><imageref><code event='value'><formula>defaultTheme := "2";
+blueThemes := "10":"3":"5";
+themeNum := @If(ThemeChoice = "100" | ThemeChoice = ""; defaultTheme; ThemeChoice);
+
+@If(@Contains(themeNum; blueThemes) ; "theme3button"; "theme" + themeNum + "button")</formula></code></imageref><caption
+ position='center'>Calendar</caption></picture>
+<area type='default' htmlid='DefaultHotspot3'><code event='onClick'><formula
+>REM {DNT};
+selection := "cal";
+FIELD $Views := selection;
+@Command([RefreshHideFormulas])</formula></code></area></imagemap><run><font
+ size='9pt'/></run></par></tablecell>
+<tablecell valign='bottom' borderwidth='0px'>
+<pardef id='14' align='center' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='14'><run><font size='9pt'/></run><imagemap lastdefaultid='8' lastrectangleid='51'><picture
+ width='92px' height='25px' scaledheight='0.2604in' scaledwidth='1.8229in'
+ htmlid='p3' name='pic3'><imageref><code event='value'><formula>defaultTheme := "2";
+blueThemes := "10":"3":"5";
+themeNum := @If(ThemeChoice = "100" | ThemeChoice = ""; defaultTheme; ThemeChoice);
+
+@If(@Contains(themeNum; blueThemes) ; "theme3button"; "theme" + themeNum + "button")</formula></code></imageref><caption
+ position='center'>To Do</caption></picture>
+<area type='default' htmlid='DefaultHotspot4'><code event='onClick'><formula
+>REM {DNT};
+selection := "todo";
+FIELD $Views := selection;
+@Command([RefreshHideFormulas])</formula></code></area></imagemap><run><font
+ size='9pt'/></run></par></tablecell>
+<tablecell valign='bottom' borderwidth='0px'>
+<pardef id='15' align='center' keepwithnext='true' keeptogether='true'/>
+<par def='15'><run><font size='9pt'/></run><imagemap lastdefaultid='8' lastrectangleid='51'><picture
+ width='92px' height='25px' scaledheight='0.2604in' scaledwidth='1.8229in'
+ htmlid='p4' name='pic4'><imageref><code event='value'><formula>defaultTheme := "2";
+blueThemes := "10":"3":"5";
+themeNum := @If(ThemeChoice = "100" | ThemeChoice = ""; defaultTheme; ThemeChoice);
+
+@If(@Contains(themeNum; blueThemes) ; "theme3button"; "theme" + themeNum + "button")</formula></code></imageref><caption
+ position='center'>Contacts</caption></picture>
+<area type='default' htmlid='DefaultHotspot2_1'><code event='onClick'><formula
+>REM {DNT};
+selection := "contacts";
+FIELD $Views := selection;
+@Command([RefreshHideFormulas])</formula></code></area></imagemap><run><font
+ size='9pt'/></run></par></tablecell></tablerow></table>
+<par def='10'/>
+<table widthtype='fitwindow' minrowheight='2.5000in' rowdisplay='compute'
+ sizetabsequally='true' htmlid='views' leftmargin='0' rightmargin='98%' refwidth='9.9514in'><border
+ style='solid' width='1px'/><tablecolumn width='100%'/>
+<tablerow tablabel='inbox' name='inbox'>
+<tablecell borderwidth='0px'>
+<pardef id='17' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='17'><embeddedview name='($Inbox)' showactionbar='true' showselectionmargin='true' embeddedname='TestEmbeddedView'
+ widthtype='fitwindow' height='2.7500in' scrollbars='true' database='mailfile'/></par></tablecell></tablerow>
+<tablerow tablabel='cal' name='cal'>
+<tablecell borderwidth='0px'>
+<par def='17'><embeddedview name='Calendar' showactionbar='true' widthtype='fitwindow'
+ height='2.7500in' scrollbars='true' database='mailfile'/></par></tablecell></tablerow>
+<tablerow tablabel='todo' name='todo'>
+<tablecell borderwidth='0px'>
+<par def='17'><embeddedview name='TodoByStatus' showactionbar='true' widthtype='fitwindow'
+ height='2.7500in' scrollbars='true' database='mailfile'/></par></tablecell></tablerow>
+<tablerow tablabel='contacts' name='contacts'>
+<tablecell borderwidth='0px'>
+<par def='17'><embeddedview name='People' showactionbar='true' widthtype='fitwindow'
+ height='2.7500in' scrollbars='true' database='addressbook'/></par></tablecell></tablerow></table></layer></par></richtext></body>
+<item name='$SubForm_RepIDs' sign='true'><textlist><text>0000000000000000</text><text
+>0000000000000000</text><text>0000000000000000</text></textlist></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>homeb</text>        </item></form>
