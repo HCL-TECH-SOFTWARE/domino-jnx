@@ -57,8 +57,6 @@ import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.constants.CopyDatabase;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.data.DefaultModificationTimePair;
-import com.hcl.domino.commons.errors.ErrorText;
-import com.hcl.domino.commons.errors.errorcodes.IGlobalErr;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.CAPIGarbageCollector;
 import com.hcl.domino.commons.gc.IAPIObject;

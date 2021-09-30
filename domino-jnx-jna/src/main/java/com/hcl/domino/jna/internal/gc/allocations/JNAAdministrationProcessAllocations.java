@@ -26,7 +26,8 @@ import com.hcl.domino.jna.admin.JNAAdministrationProcess;
 public class JNAAdministrationProcessAllocations extends APIObjectAllocations<JNAAdministrationProcess> {
 	private boolean m_disposed;
 	
-	public JNAAdministrationProcessAllocations(IGCDominoClient parentDominoClient,
+	@SuppressWarnings("rawtypes")
+  public JNAAdministrationProcessAllocations(IGCDominoClient parentDominoClient,
 			APIObjectAllocations parentAllocations, JNAAdministrationProcess referent,
 			ReferenceQueue<? super IAPIObject> queue) {
 		super(parentDominoClient, parentAllocations, referent, queue);

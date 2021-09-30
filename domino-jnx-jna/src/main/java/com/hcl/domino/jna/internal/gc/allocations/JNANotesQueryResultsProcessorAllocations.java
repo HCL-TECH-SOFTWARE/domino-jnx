@@ -34,7 +34,8 @@ public class JNANotesQueryResultsProcessorAllocations extends APIObjectAllocatio
 	private NotesQueryResultsHandles m_queryResultsHandles;
 	private List<Reader> m_pendingJsonReader = new ArrayList<>();
 	
-	public JNANotesQueryResultsProcessorAllocations(IGCDominoClient parentDominoClient,
+	@SuppressWarnings("rawtypes")
+  public JNANotesQueryResultsProcessorAllocations(IGCDominoClient parentDominoClient,
 			APIObjectAllocations parentAllocations, JNAQueryResultsProcessor referent,
 			ReferenceQueue<? super IAPIObject> queue) {
 		super(parentDominoClient, parentAllocations, referent, queue);

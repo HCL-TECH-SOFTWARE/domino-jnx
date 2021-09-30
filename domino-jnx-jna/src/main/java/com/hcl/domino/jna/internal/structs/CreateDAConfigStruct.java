@@ -21,8 +21,8 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.List;
+
 import com.hcl.domino.commons.structs.WrongArraySizeException;
-import com.hcl.domino.jna.internal.structs.DirectoryAssistanceStruct;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Pointer;
