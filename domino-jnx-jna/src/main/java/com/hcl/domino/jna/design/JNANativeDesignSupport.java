@@ -23,6 +23,10 @@ import java.util.List;
 import com.hcl.domino.commons.design.NativeDesignSupport;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
+import com.hcl.domino.data.Document;
+import com.hcl.domino.data.Item;
+import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.jna.data.JNAItem;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -139,5 +143,22 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
   public List<ByteBuffer> splitAsLMBCS(String txt, boolean addNull, boolean replaceLinebreaks, int chunkSize) {
     return NotesStringUtils.splitAsLMBCS(txt, addNull, replaceLinebreaks, chunkSize);
   }
+
+  @Override
+  public void setCDRecordItemType(Document doc, Item item, ItemDataType newType) {
+    if (!isInCDRecordFormat(item.getType())) {
+      throw new IllegalArgumentException(MessageFormat.format("Item is not in CD record format: {0}", item.getType()));
+    }
+    if (!isInCDRecordFormat(newType)) {
+      throw new IllegalArgumentException(MessageFormat.format("New item type is not in CD record format: {0}", newType));
+    }
+    
+    ((JNAItem)item).setItemType(newType);
+  }
   
+  private boolean isInCDRecordFormat(ItemDataType type) {
+    return type==ItemDataType.TYPE_COMPOSITE ||
+        type==ItemDataType.TYPE_QUERY ||
+        type==ItemDataType.TYPE_ACTION;
+  }
 }

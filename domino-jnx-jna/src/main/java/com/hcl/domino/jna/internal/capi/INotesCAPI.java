@@ -2569,4 +2569,8 @@ public interface INotesCAPI extends Library {
 	    Pointer pStrStart, 
       Pointer pInfo);
 
+	short NSFItemModifyValue (DHANDLE.ByValue hNote, NotesBlockIdStruct.ByValue bhItem, 
+      short itemFlags, short dataType, 
+      Pointer value, int valueLength);
+
 }

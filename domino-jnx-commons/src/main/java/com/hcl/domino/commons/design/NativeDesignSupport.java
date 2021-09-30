@@ -18,6 +18,9 @@
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import com.hcl.domino.data.Document;
+import com.hcl.domino.data.Item;
+import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.misc.JNXServiceFinder;
 import com.hcl.domino.misc.Pair;
 
@@ -75,4 +78,15 @@ public interface NativeDesignSupport {
    */
   List<ByteBuffer> splitAsLMBCS(String txt, boolean addNull, boolean replaceLinebreaks, int chunkSize);
 
+  /**
+   * Switches between compatible item data types that all store the item value in
+   * CD record format, e.g. between {@link ItemDataType#TYPE_COMPOSITE} and
+   * {@link ItemDataType#TYPE_ACTION}.
+   * 
+   * @param doc document
+   * @param item item to change
+   * @param newType new item type
+   */
+  void setCDRecordItemType(Document doc, Item item, ItemDataType newType);
+  
 }
