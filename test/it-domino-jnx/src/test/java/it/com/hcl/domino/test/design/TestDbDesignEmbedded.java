@@ -43,7 +43,6 @@ import com.hcl.domino.richtext.records.CDEmbeddedOutline;
 import com.hcl.domino.richtext.records.CDEmbeddedSchedulerControl;
 import com.hcl.domino.richtext.records.CDEmbeddedSchedulerControlExtra;
 import com.hcl.domino.richtext.records.CDEmbeddedView;
-import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclEntry;
 import com.hcl.domino.security.AclFlag;
