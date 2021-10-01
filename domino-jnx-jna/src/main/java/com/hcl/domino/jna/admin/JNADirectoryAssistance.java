@@ -1,7 +1,25 @@
+/*
+ * ==========================================================================
+ * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ *                            All rights reserved.
+ * ==========================================================================
+ * Licensed under the  Apache License, Version 2.0  (the "License").  You may
+ * not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+ *
+ * Unless  required  by applicable  law or  agreed  to  in writing,  software
+ * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the  specific language  governing permissions  and limitations
+ * under the License.
+ * ==========================================================================
+ */
 package com.hcl.domino.jna.admin;
 
 import com.hcl.domino.admin.DirectoryAssistance;
+import com.hcl.domino.commons.structs.WrongArraySizeException;
 import com.hcl.domino.commons.util.NotesErrorUtils;
+import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.structs.CreateDAConfigStruct;
 import com.hcl.domino.jna.internal.structs.DirectoryAssistanceStruct;
@@ -32,11 +50,17 @@ public class JNADirectoryAssistance implements DirectoryAssistance {
   }
 
   @Override
-  public void enableDisableDA(String domainName, boolean enableDomain) {
-    EnableDisableDAStruct daConfig  = new EnableDisableDAStruct(serverName.getBytes(), dirAssistDBName.getBytes(), domainName.getBytes(), enableDomain);
+  public void enableDisableDA(String docUnid, boolean enableDomain) {
+
+    EnableDisableDAStruct daConfig  = new EnableDisableDAStruct();
+
+    NotesStringUtils.toLMBCS(serverName, true, daConfig.szServerName);
+    NotesStringUtils.toLMBCS(dirAssistDBName, true, daConfig.szDirAssistDBName);
+    NotesStringUtils.toLMBCS(docUnid, true, daConfig.szDocUNID);
+    daConfig.bEnableDomain = enableDomain;
 
     daConfig.write();
-    NotesErrorUtils.checkResult(NotesCAPI.get().EnableDisableDA(daConfig));
+    NotesErrorUtils.checkResult(NotesCAPI.get().EnableDisableDADomain(daConfig));
   }
 
   @Override
@@ -48,7 +72,7 @@ public class JNADirectoryAssistance implements DirectoryAssistance {
     UpdateDAConfigStruct daConfig = new UpdateDAConfigStruct(docUNID.getBytes(), daConfigStruct);
 
     daConfig.write();
-    NotesErrorUtils.checkResult(NotesCAPI.get().UpdateDAConfig(daConfig));
+    NotesErrorUtils.checkResult(NotesCAPI.get().UpdateDAConfiguration(daConfig));
   }
 
 }

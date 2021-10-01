@@ -43,7 +43,8 @@ import com.hcl.domino.richtext.structures.WSIG;
 		)
 public interface CDLinkExport2 extends RichTextRecord<WSIG> {
 	
-	@StructureGetter("Header")
+  @Override
+  @StructureGetter("Header")
 	WSIG getHeader();
 
 	@StructureGetter("NoteLink")

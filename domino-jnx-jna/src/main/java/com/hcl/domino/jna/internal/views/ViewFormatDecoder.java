@@ -16,9 +16,9 @@
  */
 package com.hcl.domino.jna.internal.views;
 
-import static com.hcl.domino.jna.internal.MemoryUtils.readBuffer;
-import static com.hcl.domino.jna.internal.MemoryUtils.readMemory;
-import static com.hcl.domino.jna.internal.MemoryUtils.subBuffer;
+import static com.hcl.domino.commons.util.NotesItemDataUtil.readBuffer;
+import static com.hcl.domino.commons.util.NotesItemDataUtil.readMemory;
+import static com.hcl.domino.commons.util.NotesItemDataUtil.subBuffer;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

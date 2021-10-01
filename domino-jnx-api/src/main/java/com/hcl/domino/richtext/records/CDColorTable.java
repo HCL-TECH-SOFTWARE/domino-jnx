@@ -16,6 +16,8 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.nio.ByteBuffer;
+
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -24,15 +26,43 @@ import com.hcl.domino.richtext.structures.LSIG;
 /**
  * @author Jesse Gallagher
  * @since 1.0.34
+ * 
+ * Bitmap Color Table. If the bitmap is 8 bit color or grey scale, you
+ * must have a color table.  However, you only need as many entries as
+ * you have colors, i.e. if a 16 color bitmap was converted to 8 bit
+ * form for Notes, the color table would only require 16 entries even
+ * though 8 bit color implies 256 entries.  The number of entries must
+ * match that specified in the CDBITMAPHEADER ColorCount. 
  */
 @StructureDefinition(
   name = "CDCOLORTABLE",
   members = {
     @StructureMember(name = "Header", type = LSIG.class)
+    /* One or more color table entries go here */
   }
 )
 public interface CDColorTable extends RichTextRecord<LSIG> {
   @StructureGetter("Header")
   @Override
   LSIG getHeader();
+
+  default byte[] getColorTableEntries() {
+    final ByteBuffer buf = this.getVariableData();
+    /* Is there a way to get ColorCount from CDBITMAPHEADER istead of ... */
+    final int len = (int) (this.getHeader().getLength() - 6); /* note length  -  header length  */
+    final byte[] data = new byte[len];
+    buf.get(data);
+    return data;
+  }
+
+  default CDColorTable setColorTableEntries(final byte[] data) {
+    final ByteBuffer buf = this.getVariableData();
+    buf.put(data);
+    final int remaining = buf.remaining();
+    for (int i = 0; i < remaining; i++) {
+      buf.put((byte) 0);
+    }
+    return this;
+  }
+
 }

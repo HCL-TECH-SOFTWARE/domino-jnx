@@ -22,6 +22,7 @@ import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.List;
 import com.hcl.domino.commons.structs.WrongArraySizeException;
+import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Pointer;
@@ -36,7 +37,7 @@ public class VerifyLDAPConnectionStruct extends BaseStructure implements Seriali
 
   private static final long serialVersionUID = 1L;
 
-  public byte[] szHostName = new byte[NotesConstants.MAX_HOSTNAME];
+  public byte[] szHostName = new byte[NotesConstants.MAXUSERNAME];
   public byte[] szUserName = new byte[NotesConstants.MAXUSERNAME];
   public byte[] szPassword = new byte[NotesConstants.MAXUSERPASSWORD];
   public byte[] szDNSearch = new byte[NotesConstants.MAXLDAPBASE];
@@ -49,32 +50,29 @@ public class VerifyLDAPConnectionStruct extends BaseStructure implements Seriali
   public VerifyLDAPConnectionStruct(byte hostName[],byte userName[], byte password[], byte dnSearch[], boolean useSSL, short port, boolean acceptExpiredCertificates, boolean verifyRemoteSrvCert) {
     super();
     
-    if ((hostName.length != this.szHostName.length)) {
-        throw new WrongArraySizeException("hostName");
+    if ((hostName.length > this.szHostName.length)) {
+        throw new WrongArraySizeException("hostName"); //$NON-NLS-1$
     }
-    this.szHostName = hostName;
+    DominoUtils.overwriteArray(hostName, this.szHostName);
     
-    if ((userName.length != this.szUserName.length)) {
-      throw new WrongArraySizeException("userName");
+    if ((userName.length > this.szUserName.length)) {
+      throw new WrongArraySizeException("userName"); //$NON-NLS-1$
     }
-    this.szUserName = userName;
+    DominoUtils.overwriteArray(userName, this.szUserName);
 
-    if ((password.length != this.szPassword.length)) {
-      throw new WrongArraySizeException("Password");
+    if ((password.length > this.szPassword.length)) {
+      throw new WrongArraySizeException("Password"); //$NON-NLS-1$
     }
-    this.szPassword = password;
+    DominoUtils.overwriteArray(password, this.szPassword);
 
-    if ((dnSearch.length != this.szDNSearch.length)) {
-      throw new WrongArraySizeException("DNSearch");
+    if ((dnSearch.length > this.szDNSearch.length)) {
+      throw new WrongArraySizeException("DNSearch"); //$NON-NLS-1$
     }
-    this.szDNSearch = dnSearch;
+    DominoUtils.overwriteArray(dnSearch, this.szDNSearch);
     
     this.wPort = port;
-    
     this.bUseSSL =useSSL;
-    
     this.bAcceptExpiredCertificates = acceptExpiredCertificates;
-    
     this.bVerifyRemoteSrvCert = verifyRemoteSrvCert;
   }
 
@@ -82,8 +80,7 @@ public class VerifyLDAPConnectionStruct extends BaseStructure implements Seriali
       super();
     }
 
-  
-  
+
 	public static VerifyLDAPConnectionStruct newInstance() {
 		return AccessController.doPrivileged((PrivilegedAction<VerifyLDAPConnectionStruct>) () -> new VerifyLDAPConnectionStruct());
 	}
@@ -92,7 +89,8 @@ public class VerifyLDAPConnectionStruct extends BaseStructure implements Seriali
 		return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> new VerifyLDAPConnectionStruct.ByValue());
 	}	
 	
-	@Override
+	@SuppressWarnings("nls")
+  @Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("szHostName", "szUserName", "szPassword", "szDNSearch", "bUseSSL", "wPort", "bAcceptExpiredCertificates", "bVerifyRemoteSrvCert");
 	}

@@ -16,19 +16,26 @@
  */
 package it.com.hcl.domino.test.design;
 
+import static it.com.hcl.domino.test.util.ITUtil.toLf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -152,7 +159,7 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
   public void testScriptLibraries() {
     final DbDesign dbDesign = this.database.getDesign();
     final List<ScriptLibrary> libraries = dbDesign.getScriptLibraries().collect(Collectors.toList());
-    assertEquals(9, libraries.size());
+    assertEquals(10, libraries.size());
   }
 
   @Test
@@ -253,6 +260,128 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
         script = StreamUtil.readString(is);
       }
       assertEquals("alert(\"Hi, I'm JS\")", script.replace("\r\n", "\n"));
+    }
+  }
+  
+  @Test
+  public void testMultiFileJava() throws IOException {
+    final DbDesign design = this.database.getDesign();
+    final ScriptLibrary scriptLibrary = design.getScriptLibrary("Multi-File Java Lib").get();
+    assertInstanceOf(JavaLibrary.class, scriptLibrary);
+
+    final JavaLibrary lib = (JavaLibrary) scriptLibrary;
+    final JavaAgentContent content = lib.getScriptContent();
+    assertEquals("%%source%%.jar", content.getSourceAttachmentName().get());
+    assertEquals("%%object%%.jar", content.getObjectAttachmentName().get());
+    assertEquals("%%resource%%.jar", content.getResourcesAttachmentName().get());
+    assertEquals(Arrays.asList("bar.jar", "foo.jar"), content.getEmbeddedJars());
+    assertEquals(Collections.emptyList(), content.getSharedLibraryList());
+    
+    try(
+      InputStream is = content.getSourceAttachment().get();
+      JarInputStream jis = new JarInputStream(is)
+    ) {
+      boolean foundBar = false;
+      boolean foundAgent = false;
+      
+      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
+        if("foo/Bar.java".equals(entry.getName())) {
+          foundBar = true;
+          String actual = toLf(StreamUtil.readString(jis));
+          String expected = toLf(IOUtils.resourceToString("/text/testDbDesignLibraries/Bar.java", StandardCharsets.UTF_8));
+          assertEquals(expected, actual);
+        } else if("lotus/domino/axis/JavaAgentRenamed.java".equals(entry.getName())) {
+          foundAgent = true;
+          String actual = toLf(StreamUtil.readString(jis));
+          String expected = toLf(IOUtils.resourceToString("/text/testDbDesignLibraries/JavaAgentRenamed.java", StandardCharsets.UTF_8));
+          assertEquals(expected, actual);
+        }
+        
+        jis.closeEntry();
+      }
+      
+      assertTrue(foundBar);
+      assertTrue(foundAgent);
+    }
+
+    try(
+      InputStream is = content.getObjectAttachment().get();
+      JarInputStream jis = new JarInputStream(is)
+    ) {
+      boolean foundBar = false;
+      boolean foundAgent = false;
+      
+      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
+        if("foo/Bar.class".equals(entry.getName())) {
+          foundBar = true;
+        } else if("lotus/domino/axis/JavaAgentRenamed.class".equals(entry.getName())) {
+          foundAgent = true;
+        }
+        
+        jis.closeEntry();
+      }
+      
+      assertTrue(foundBar);
+      assertTrue(foundAgent);
+    }
+
+    try(
+      InputStream is = content.getResourcesAttachment().get();
+      JarInputStream jis = new JarInputStream(is)
+    ) {
+      boolean foundBar = false;
+      boolean foundDesktop = false;
+      
+      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
+        if("bar.txt".equals(entry.getName())) {
+          foundBar = true;
+        } else if("desktop.ini".equals(entry.getName())) {
+          foundDesktop = true;
+          
+          String actual = toLf(IOUtils.toString(jis, StandardCharsets.UTF_16));
+          String expected = toLf(IOUtils.resourceToString("/text/testDbDesignLibraries/desktop.ini.txt", StandardCharsets.UTF_8));
+          assertEquals(expected, actual);
+        }
+        
+        jis.closeEntry();
+      }
+      
+      assertTrue(foundBar);
+      assertTrue(foundDesktop);
+    }
+
+    try(
+      InputStream is = content.getEmbeddedJar("foo.jar").get();
+      JarInputStream jis = new JarInputStream(is)
+    ) {
+      boolean foundFoo = false;
+      
+      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
+        if("foo.txt".equals(entry.getName())) {
+          foundFoo = true;
+        }
+        
+        jis.closeEntry();
+      }
+      
+      assertTrue(foundFoo);
+    }
+
+    try(
+      InputStream is = content.getEmbeddedJar("bar.jar").get();
+      JarInputStream jis = new JarInputStream(is)
+    ) {
+      boolean foundBar = false;
+      
+      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
+        if("bar.txt".equals(entry.getName())) {
+          foundBar = true;
+        }
+        
+        jis.closeEntry();
+      }
+      
+      assertTrue(foundBar);
     }
   }
 }

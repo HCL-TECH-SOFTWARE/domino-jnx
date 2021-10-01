@@ -22,7 +22,7 @@ import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.List;
 import com.hcl.domino.commons.structs.WrongArraySizeException;
-import com.hcl.domino.jna.internal.structs.DirectoryAssistanceStruct;
+import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Pointer;
@@ -47,21 +47,21 @@ public class EnableDisableDAStruct extends BaseStructure implements Serializable
     
     super();
 
-    if ((serverName.length != this.szServerName.length)) {
-      throw new WrongArraySizeException("serverName");
-    }    
-    this.szServerName = serverName;
+    if ((serverName.length > this.szServerName.length)) {
+      throw new WrongArraySizeException("serverName"); //$NON-NLS-1$
+    }
+    DominoUtils.overwriteArray(serverName, this.szServerName);
 
-    if ((dirAssistDBName.length != this.szDirAssistDBName.length)) {
-      throw new WrongArraySizeException("dirAssistDBName");
-    }    
-    this.szDirAssistDBName = dirAssistDBName;
+    if ((dirAssistDBName.length > this.szDirAssistDBName.length)) {
+      throw new WrongArraySizeException("dirAssistDBName"); //$NON-NLS-1$
+    }
+    DominoUtils.overwriteArray(dirAssistDBName, this.szDirAssistDBName);
 
 
-    if ((docUNID.length != this.szDocUNID.length)) {
-        throw new WrongArraySizeException("DocUNID");
-    }    
-    this.szDocUNID = docUNID;
+    if ((docUNID.length > this.szDocUNID.length)) {
+        throw new WrongArraySizeException("DocUNID"); //$NON-NLS-1$
+    }
+    DominoUtils.overwriteArray(docUNID, this.szDocUNID);
     
     this.bEnableDomain = enableDomain;
   }
@@ -81,10 +81,10 @@ public class EnableDisableDAStruct extends BaseStructure implements Serializable
 	@Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList(
-		    "szServerName",
-		    "szDirAssistDBName",		    
-		    "szDocUNID",
-		    "bEnableDomain"
+		    "szServerName", //$NON-NLS-1$
+		    "szDirAssistDBName", //$NON-NLS-1$    
+		    "szDocUNID", //$NON-NLS-1$
+		    "bEnableDomain" //$NON-NLS-1$
 		    );
 	}
 			

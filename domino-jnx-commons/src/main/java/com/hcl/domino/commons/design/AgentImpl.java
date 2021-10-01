@@ -106,19 +106,23 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
           // Ancient agents use "$Formula" and related fields
           String formula = doc.get(NotesConstants.FILTER_FORMULA_ITEM, String.class, ""); //$NON-NLS-1$
           
-          int action = doc.get(NotesConstants.FILTER_OPERATION_ITEM, int.class, 0);
           FormulaAgentContent.DocumentAction docAction;
-          switch(action) {
-            case NotesConstants.FILTER_OP_SELECT:
-              docAction = FormulaAgentContent.DocumentAction.SELECT;
-              break;
-            case NotesConstants.FILTER_OP_NEW_COPY:
-              docAction = FormulaAgentContent.DocumentAction.CREATE;
-              break;
-            case NotesConstants.FILTER_OP_UPDATE:
-            default:
-              docAction = FormulaAgentContent.DocumentAction.MODIFY;
-              break;
+          String action = doc.get(NotesConstants.FILTER_OPERATION_ITEM, String.class, "0"); //$NON-NLS-1$
+          if(StringUtil.isEmpty(action)) {
+            docAction = FormulaAgentContent.DocumentAction.MODIFY;
+          } else {
+            switch(Integer.parseInt(action)) {
+              case NotesConstants.FILTER_OP_SELECT:
+                docAction = FormulaAgentContent.DocumentAction.SELECT;
+                break;
+              case NotesConstants.FILTER_OP_NEW_COPY:
+                docAction = FormulaAgentContent.DocumentAction.CREATE;
+                break;
+              case NotesConstants.FILTER_OP_UPDATE:
+              default:
+                docAction = FormulaAgentContent.DocumentAction.MODIFY;
+                break;
+            }
           }
           
           return new DefaultFormulaAgentContent(docAction, formula);
@@ -157,6 +161,7 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("Unable to find Java action data"));
         return new DefaultJavaAgentContent(
+            this,
             action.getClassName(),
             action.getCodePath(),
             Arrays.stream(action.getFileList().split("\\n")) //$NON-NLS-1$
@@ -354,12 +359,32 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
 
   @Override
   public OptionalInt getInterval() {
+    // Ancient data is interpreted very differently
+    Optional<AssistStruct> assistInfo = getAssistInfo();
+    if(!assistInfo.isPresent()) {
+      String periodVal = getDocument().get(NotesConstants.FILTER_PERIOD_ITEM, String.class, ""); //$NON-NLS-1$
+      if(StringUtil.isEmpty(periodVal)) {
+        return OptionalInt.empty();
+      }
+      switch(Integer.parseInt(periodVal)) {
+      case NotesConstants.PERIOD_HOURLY:
+        return OptionalInt.of(60);
+      case NotesConstants.PERIOD_DAILY:
+        return OptionalInt.of(1);
+      case NotesConstants.PERIOD_WEEKLY:
+        return OptionalInt.of(1);
+      case NotesConstants.PERIOD_DISABLED:
+      default:
+        return OptionalInt.empty();
+      }
+    }
+    
     switch (this.getIntervalType()) {
       case DAYS:
       case MINUTES:
       case MONTH:
       case WEEK:
-        return this.getAssistInfo()
+        return assistInfo
             .map(info -> OptionalInt.of(info.getInterval()))
             .orElse(OptionalInt.empty());
       case NONE:
@@ -372,8 +397,29 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   @Override
   public AgentInterval getIntervalType() {
     return this.getAssistInfo()
-        .map(AssistStruct::getIntervalType)
-        .orElse(AgentInterval.NONE);
+      .map(AssistStruct::getIntervalType)
+      .orElseGet(() -> {
+        // Check for agent data
+        if(getTrigger() == AgentTrigger.SCHEDULED) {
+          String periodVal = getDocument().get(NotesConstants.FILTER_PERIOD_ITEM, String.class, ""); //$NON-NLS-1$
+          if(StringUtil.isEmpty(periodVal)) {
+            return AgentInterval.NONE;
+          }
+          switch(Integer.parseInt(periodVal)) {
+          case NotesConstants.PERIOD_HOURLY:
+            return AgentInterval.MINUTES;
+          case NotesConstants.PERIOD_DAILY:
+            return AgentInterval.DAYS;
+          case NotesConstants.PERIOD_WEEKLY:
+            return AgentInterval.WEEK;
+          case NotesConstants.PERIOD_DISABLED:
+          default:
+            return AgentInterval.NONE;
+          }
+        } else {
+          return AgentInterval.NONE;
+        }
+      });
   }
   
   @Override
@@ -477,7 +523,7 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
       .map(AssistStruct::getTrigger)
       .orElseGet(() -> {
         // Check for ancient data
-        String typeVal = getDocument().get(NotesConstants.FILTER_TYPE_ITEM, String.class, "");
+        String typeVal = getDocument().get(NotesConstants.FILTER_TYPE_ITEM, String.class, "0"); //$NON-NLS-1$
         if(typeVal.isEmpty()) {
           return AgentTrigger.NONE;
         }
@@ -486,6 +532,8 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
           return AgentTrigger.MANUAL;
         case NotesConstants.FILTER_TYPE_MAIL:
           return AgentTrigger.NEWMAIL;
+        case NotesConstants.FILTER_TYPE_BACKGROUND:
+          return AgentTrigger.SCHEDULED;
         default:
           return AgentTrigger.NONE;
         }
@@ -629,7 +677,7 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
     return getAssistInfo()
       .map(AssistStruct::getFlags)
       .map(flags -> flags.contains(AssistStruct.Flag.STOREHIGHLIGHTS))
-      .orElse(null);
+      .orElse(false);
   }
 
   @Override
@@ -692,7 +740,6 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
           return AgentTarget.SELECTED;
         case NotesConstants.FILTER_SCAN_NEW:
         case NotesConstants.FILTER_SCAN_MAIL:
-          // TODO determine whether MAIL actually translates to this
           return AgentTarget.NEW;
         case NotesConstants.FILTER_SCAN_ALL:
         default:

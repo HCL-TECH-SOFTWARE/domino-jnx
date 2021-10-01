@@ -29,35 +29,35 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
 
 @StructureDefinition(name = "SITEMAP_ENTRY", members = {
     @StructureMember(name = "EntryFixedSize", type = short.class, unsigned = true),
-    @StructureMember(name = "EntryVarSize", type = short.class),
+    @StructureMember(name = "EntryVarSize", type = short.class, unsigned = true),
     @StructureMember(name = "EntryFlags", type = SiteMapEntry.Flag.class, bitfield = true),
     @StructureMember(name = "Id", type = int.class, unsigned = false),
-    @StructureMember(name = "OldEntryType", type = short.class),
-    @StructureMember(name = "Level", type = short.class),
-    @StructureMember(name = "TitleSize", type = short.class),
-    @StructureMember(name = "PopupSize", type = short.class),
-    @StructureMember(name = "OnClickSize", type = short.class),
-    @StructureMember(name = "SourceSize", type = short.class),
-    @StructureMember(name = "ImagesSize", type = short.class),
+    @StructureMember(name = "OldEntryType", type = short.class, unsigned = true),
+    @StructureMember(name = "Level", type = short.class, unsigned = true),
+    @StructureMember(name = "TitleSize", type = short.class, unsigned = true),
+    @StructureMember(name = "PopupSize", type = short.class, unsigned = true),
+    @StructureMember(name = "OnClickSize", type = short.class, unsigned = true),
+    @StructureMember(name = "SourceSize", type = short.class, unsigned = true),
+    @StructureMember(name = "ImagesSize", type = short.class, unsigned = true),
     @StructureMember(name = "Unused3", type = short.class),
-    @StructureMember(name = "TargetFrameSize", type = short.class),
+    @StructureMember(name = "TargetFrameSize", type = short.class, unsigned = true),
     @StructureMember(name = "Unused4", type = short.class),
-    @StructureMember(name = "HideWhenSize", type = short.class),
+    @StructureMember(name = "HideWhenSize", type = short.class, unsigned = true),
     @StructureMember(name = "Unused5", type = short.class),
-    @StructureMember(name = "AliasSize", type = short.class),
-    @StructureMember(name = "EntryType", type = short.class),
-    @StructureMember(name = "EntryClass", type = short.class),
-    @StructureMember(name = "EntryDesignType", type = short.class),
-    @StructureMember(name = "ReplEntryType", type = short.class),
-    @StructureMember(name = "ReplFlags", type = short.class),
-    @StructureMember(name = "ReplTruncType", type = short.class),
-    @StructureMember(name = "PreferredServerSize", type = short.class),
-    @StructureMember(name = "GridRow", type = short.class),
-    @StructureMember(name = "GridColumn", type = short.class),
-    @StructureMember(name = "ToolbarManagerSize", type = short.class),
-    @StructureMember(name = "ToolbarEntrySize", type = short.class),
-    @StructureMember(name = "wReplTruncDocs", type = short.class),
-    @StructureMember(name = "wReplTruncAtts", type = short.class),
+    @StructureMember(name = "AliasSize", type = short.class, unsigned = true),
+    @StructureMember(name = "EntryType", type = short.class, unsigned = true),
+    @StructureMember(name = "EntryClass", type = short.class, unsigned = true),
+    @StructureMember(name = "EntryDesignType", type = short.class, unsigned = true),
+    @StructureMember(name = "ReplEntryType", type = short.class, unsigned = true),
+    @StructureMember(name = "ReplFlags", type = short.class, unsigned = true),
+    @StructureMember(name = "ReplTruncType", type = short.class, unsigned = true),
+    @StructureMember(name = "PreferredServerSize", type = short.class, unsigned = true),
+    @StructureMember(name = "GridRow", type = short.class, unsigned = true),
+    @StructureMember(name = "GridColumn", type = short.class, unsigned = true),
+    @StructureMember(name = "ToolbarManagerSize", type = short.class, unsigned = true),
+    @StructureMember(name = "ToolbarEntrySize", type = short.class, unsigned = true),
+    @StructureMember(name = "wReplTruncDocs", type = short.class, unsigned = true),
+    @StructureMember(name = "wReplTruncAtts", type = short.class, unsigned = true),
     @StructureMember(name = "Spare", type = short[].class, length = 4)
 })
 public interface SiteMapEntry extends MemoryStructure {
@@ -69,10 +69,10 @@ public interface SiteMapEntry extends MemoryStructure {
   SiteMapEntry setEntryFixedSize(int entryFixedSize);
 
   @StructureGetter("EntryVarSize")
-  short getEntryVarSize();
+  int getEntryVarSize();
   
   @StructureSetter("EntryVarSize")
-  SiteMapEntry setEntryVarSize(short entryVarSize);
+  SiteMapEntry setEntryVarSize(int entryVarSize);
   
   enum Flag implements INumberEnum<Integer> {
     /** Column contains a name. */
@@ -154,46 +154,46 @@ public interface SiteMapEntry extends MemoryStructure {
   SiteMapEntry setId(int id);
   
   @StructureGetter("OldEntryType")
-  short getOldEntryType();
+  int getOldEntryType();
   
   @StructureSetter("OldEntryType")
-  SiteMapEntry setOldEntryType(short oldEntryType);
+  SiteMapEntry setOldEntryType(int oldEntryType);
   
   @StructureGetter("Level")
-  short getLevel();
+  int getLevel();
   
   @StructureSetter("Level")
-  SiteMapEntry setLevel(short level);
+  SiteMapEntry setLevel(int level);
   
   @StructureGetter("TitleSize")
-  short getTitleSize();
+  int getTitleSize();
   
   @StructureSetter("TitleSize")
-  SiteMapEntry setTitleSize(short titleSize);
+  SiteMapEntry setTitleSize(int titleSize);
   
   @StructureGetter("PopupSize")
-  short getPopupSize();
+  int getPopupSize();
   
   @StructureSetter("PopupSize")
-  SiteMapEntry setPopupSize(short popupSize);
+  SiteMapEntry setPopupSize(int popupSize);
   
   @StructureGetter("OnClickSize")
-  short getOnClickSize();
+  int getOnClickSize();
   
   @StructureSetter("OnClickSize")
-  SiteMapEntry setOnClickSize(short onClickSize);
+  SiteMapEntry setOnClickSize(int onClickSize);
   
   @StructureGetter("SourceSize")
-  short getSourceSize();
+  int getSourceSize();
   
   @StructureSetter("SourceSize")
-  SiteMapEntry setSourceSize(short sourceSize);
+  SiteMapEntry setSourceSize(int sourceSize);
   
   @StructureGetter("ImagesSize")
-  short getImagesSize();
+  int getImagesSize();
   
   @StructureSetter("ImagesSize")
-  SiteMapEntry setImagesSize(short imagesSize);
+  SiteMapEntry setImagesSize(int imagesSize);
   
   @StructureGetter("Unused3")
   short getUnused3();
@@ -202,10 +202,10 @@ public interface SiteMapEntry extends MemoryStructure {
   SiteMapEntry setUnused3(short unused3);
   
   @StructureGetter("TargetFrameSize")
-  short getTargetFrameSize();
+  int getTargetFrameSize();
   
   @StructureSetter("TargetFrameSize")
-  SiteMapEntry setTargetFrameSize(short targetFrameSize);
+  SiteMapEntry setTargetFrameSize(int targetFrameSize);
   
   @StructureGetter("Unused4")
   short getUnused4();
@@ -214,10 +214,10 @@ public interface SiteMapEntry extends MemoryStructure {
   SiteMapEntry setUnused4(short unused4);
   
   @StructureGetter("HideWhenSize")
-  short getHideWhenSize();
+  int getHideWhenSize();
   
   @StructureSetter("HideWhenSize")
-  SiteMapEntry setHideWhenSize(short hideWhenSize);
+  SiteMapEntry setHideWhenSize(int hideWhenSize);
   
   @StructureGetter("Unused5")
   short getUnused5();
@@ -226,88 +226,88 @@ public interface SiteMapEntry extends MemoryStructure {
   SiteMapEntry setUnused5(short unused5);
   
   @StructureGetter("AliasSize")
-  short getAliasSize();
+  int getAliasSize();
   
   @StructureSetter("AliasSize")
-  SiteMapEntry setAliasSize(short aliasSize);
+  SiteMapEntry setAliasSize(int aliasSize);
   
   @StructureGetter("EntryType")
-  short getEntryType();
+  int getEntryType();
   
   @StructureSetter("EntryType")
-  SiteMapEntry setEntryType(short entryType);
+  SiteMapEntry setEntryType(int entryType);
   
   @StructureGetter("EntryClass")
-  short getEntryClass();
+  int getEntryClass();
   
   @StructureSetter("EntryClass")
-  SiteMapEntry setEntryClass(short entryClass);
+  SiteMapEntry setEntryClass(int entryClass);
   
   @StructureGetter("EntryDesignType")
-  short getEntryDesignType();
+  int getEntryDesignType();
   
   @StructureSetter("EntryDesignType")
-  SiteMapEntry setEntryDesignType(short entryDesignType);
+  SiteMapEntry setEntryDesignType(int entryDesignType);
   
   @StructureGetter("ReplEntryType")
-  short getReplEntryType();
+  int getReplEntryType();
   
   @StructureSetter("ReplEntryType")
-  SiteMapEntry setReplEntryType(short replEntryType);
+  SiteMapEntry setReplEntryType(int replEntryType);
   
   @StructureGetter("ReplFlags")
-  short getReplFlags();
+  int getReplFlags();
   
   @StructureSetter("ReplFlags")
-  SiteMapEntry setReplFlags(short replFlags);
+  SiteMapEntry setReplFlags(int replFlags);
   
   @StructureGetter("ReplTruncType")
-  short getReplTruncType();
+  int getReplTruncType();
   
   @StructureSetter("ReplTruncType")
-  SiteMapEntry setReplTruncType(short replTruncType);
+  SiteMapEntry setReplTruncType(int replTruncType);
   
   @StructureGetter("PreferredServerSize")
-  short getPreferredServerSize();
+  int getPreferredServerSize();
   
   @StructureSetter("PreferredServerSize")
-  SiteMapEntry setPreferredServerSize(short preferredServerSize);
+  SiteMapEntry setPreferredServerSize(int preferredServerSize);
   
   @StructureGetter("GridRow")
-  short getGridRow();
+  int getGridRow();
   
   @StructureSetter("GridRow")
-  SiteMapEntry setGridRow(short gridRow);
+  SiteMapEntry setGridRow(int gridRow);
   
   @StructureGetter("GridColumn")
-  short getGridColumn();
+  int getGridColumn();
   
   @StructureSetter("GridColumn")
-  SiteMapEntry setGridColumn(short gridColumn);
+  SiteMapEntry setGridColumn(int gridColumn);
   
   @StructureGetter("ToolbarManagerSize")
-  short getToolbarManagerSize();
+  int getToolbarManagerSize();
   
   @StructureSetter("ToolbarManagerSize")
-  SiteMapEntry setToolbarManagerSize(short toolbarManagerSize);
+  SiteMapEntry setToolbarManagerSize(int toolbarManagerSize);
   
   @StructureGetter("ToolbarEntrySize")
-  short getToolbarEntrySize();
+  int getToolbarEntrySize();
   
   @StructureSetter("ToolbarEntrySize")
-  SiteMapEntry setToolbarEntrySize(short toolbarEntrySize);
+  SiteMapEntry setToolbarEntrySize(int toolbarEntrySize);
   
   @StructureGetter("wReplTruncDocs")
-  short getwReplTruncDocs();
+  int getwReplTruncDocs();
   
   @StructureSetter("wReplTruncDocs")
-  SiteMapEntry setWReplTruncDocs(short wReplTruncDocs);
+  SiteMapEntry setWReplTruncDocs(int wReplTruncDocs);
   
   @StructureGetter("wReplTruncAtts")
-  short getwReplTruncAtts();
+  int getwReplTruncAtts();
   
   @StructureSetter("wReplTruncAtts")
-  SiteMapEntry setWReplTruncAtts(short wReplTruncAtts);
+  SiteMapEntry setWReplTruncAtts(int wReplTruncAtts);
   
   @StructureGetter("Spare")
   short[] getSpare();
