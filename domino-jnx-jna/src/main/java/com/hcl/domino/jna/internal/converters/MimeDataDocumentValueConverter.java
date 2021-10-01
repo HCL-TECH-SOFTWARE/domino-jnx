@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoException;
@@ -36,6 +37,7 @@ import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentValueConverter;
+import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.mime.MimeData;
 import com.hcl.domino.mime.MimeReader;
 import com.hcl.domino.mime.MimeReader.ReadMimeDataType;
@@ -187,7 +189,7 @@ public class MimeDataDocumentValueConverter implements DocumentValueConverter {
 	}
 
 	@Override
-	public <T> void setValue(Document doc, String itemName, T newValue) {
+	public <T> void setValue(Document doc, Set<ItemFlag> itemFlags, String itemName, T newValue) {
 		MimeData mimeData = (MimeData) newValue;
 
 		String html = mimeData.getHtml();

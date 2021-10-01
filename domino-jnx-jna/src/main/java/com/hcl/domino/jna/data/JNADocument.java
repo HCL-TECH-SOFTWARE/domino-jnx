@@ -1571,7 +1571,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 					if (strValueMem!=null) {
 						valuePtr.write(0, strValueMem.getByteArray(0, (int) strValueMem.size()), 0, (int) strValueMem.size());
 					}
-					return appendItemValue(itemName, flags, ItemDataType.TYPE_TEXT.getValue(), hItemByVal, valueSize, allowDataTypeChanges);
+					return appendItemValue(itemName, flags, ItemDataType.TYPE_TEXT.getValue(), hItemByVal, valueSize);
 				}
 				finally {
 					Mem.OSUnlockObject(hItemByVal);
@@ -1593,7 +1593,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 					valuePtr.setShort(0, ItemDataType.TYPE_NUMBER.getValue().shortValue());
 					valuePtr = valuePtr.share(2);
 					valuePtr.setDouble(0, ((Number)value).doubleValue());
-					return appendItemValue(itemName, flags, ItemDataType.TYPE_NUMBER.getValue(), hItemByVal, valueSize, allowDataTypeChanges);
+					return appendItemValue(itemName, flags, ItemDataType.TYPE_NUMBER.getValue(), hItemByVal, valueSize);
 				}
 				finally {
 					Mem.OSUnlockObject(hItemByVal);
@@ -1639,7 +1639,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 					timeDate.Innards[1] = innards[1];
 					timeDate.write();
 
-					return appendItemValue(itemName, flags, ItemDataType.TYPE_TIME.getValue(), hItemByVal, valueSize, allowDataTypeChanges);
+					return appendItemValue(itemName, flags, ItemDataType.TYPE_TIME.getValue(), hItemByVal, valueSize);
 				}
 				finally {
 					Mem.OSUnlockObject(hItemByVal);
@@ -1681,7 +1681,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				@SuppressWarnings("unused")
 				Pointer valuePtr = Mem.OSLockObject(hListByVal);
 				try {
-					return appendItemValue(itemName, flags, ItemDataType.TYPE_TEXT_LIST.getValue(), hListByVal, listSize, allowDataTypeChanges);
+					return appendItemValue(itemName, flags, ItemDataType.TYPE_TEXT_LIST.getValue(), hListByVal, listSize);
 				}
 				finally {
 					Mem.OSUnlockObject(hListByVal);
@@ -1755,7 +1755,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 					}
 					
 					return appendItemValue(itemName, flags, ItemDataType.TYPE_NUMBER_RANGE.getValue(), hItemByVal,
-							valueSize, allowDataTypeChanges);
+							valueSize);
 				}
 				finally {
 					Mem.OSUnlockObject(hItemByVal);
@@ -1851,7 +1851,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 						rangeListPtr = rangeListPtr.share(JNANotesConstants.timeDatePairSize);
 					}
 
-					return appendItemValue(itemName, flags, ItemDataType.TYPE_TIME_RANGE.getValue(), hItemByVal, valueSize, allowDataTypeChanges);
+					return appendItemValue(itemName, flags, ItemDataType.TYPE_TIME_RANGE.getValue(), hItemByVal, valueSize);
 				}
 				finally {
 					Mem.OSUnlockObject(hItemByVal);
@@ -1898,7 +1898,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 					struct.write();
 					valuePtr.write(0, struct.getAdapter(Pointer.class).getByteArray(0, 2*JNANotesConstants.timeDateSize), 0, 2*JNANotesConstants.timeDateSize);
 
-					return appendItemValue(itemName, flags, ItemDataType.TYPE_NOTEREF_LIST.getValue(), hItemByVal, valueSize, allowDataTypeChanges);
+					return appendItemValue(itemName, flags, ItemDataType.TYPE_NOTEREF_LIST.getValue(), hItemByVal, valueSize);
 				}
 				finally {
 					Mem.OSUnlockObject(hItemByVal);
@@ -1927,7 +1927,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 					
 					valuePtr.write(0, compiledFormula, 0, compiledFormula.length);
 
-					return appendItemValue(itemName, flags, ItemDataType.TYPE_FORMULA.getValue(), hItemByVal, valueSize, allowDataTypeChanges);
+					return appendItemValue(itemName, flags, ItemDataType.TYPE_FORMULA.getValue(), hItemByVal, valueSize);
 				}
 				finally {
 					Mem.OSUnlockObject(hItemByVal);
@@ -1942,7 +1942,12 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			}
 			writingItemType.get().add(valueConverter.getClass());
 			try {
-				valueConverter.setValue(this, itemName, value);
+			  if (valueConverter instanceof DocumentValueConverter) {
+	        valueConverter.setValue(this, flags, itemName, value);
+			  }
+			  else {
+	        valueConverter.setValue(this, itemName, value);
+			  }
 				return this;
 			}
 			finally {
@@ -1962,10 +1967,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	 * @param itemType item type
 	 * @param hItemValue handle to memory block with item value
 	 * @param valueLength length of binary item value (without data type short)
-	 * @param allowDataTypeChanges true to allow change of written data type
 	 * @return this document
 	 */
-	private Document appendItemValue(String itemName, Set<ItemFlag> flags, int itemType, DHANDLE.ByValue hItemValue, int valueLength, boolean allowDataTypeChanges) {
+	public Document appendItemValue(String itemName, Set<ItemFlag> flags, int itemType, DHANDLE.ByValue hItemValue, int valueLength) {
 		checkDisposed();
 
 		Memory itemNameMem = NotesStringUtils.toLMBCS(itemName, false);
