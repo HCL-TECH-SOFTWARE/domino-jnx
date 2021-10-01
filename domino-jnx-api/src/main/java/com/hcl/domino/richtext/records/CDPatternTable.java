@@ -18,7 +18,6 @@ package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
 
-import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;

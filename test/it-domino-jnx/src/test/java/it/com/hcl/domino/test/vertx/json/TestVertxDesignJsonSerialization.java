@@ -28,6 +28,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.Page;
+import com.hcl.domino.design.DesignAgent.AgentLanguage;
 import com.hcl.domino.jnx.vertx.json.service.VertxJsonSerializer;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
@@ -144,5 +145,21 @@ public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
     names.getDesign()
       .getAgents()
       .forEach(serializer::toJson);
+  }
+  
+  @Test
+  public void testResourceAgentsSerialization() throws Exception {
+    VertxJsonSerializer serializer = new VertxJsonSerializer();
+    
+    withResourceDxl("/dxl/testDbDesignAgents", database -> {
+      database.getDesign()
+        .getAgents()
+        .peek(agent -> {
+          if(agent.getAgentLanguage() == AgentLanguage.JAVA) {
+            System.out.println(serializer.toJson(agent));
+          }
+        })
+        .forEach(serializer::toJson);
+    });
   }
 }

@@ -21,6 +21,7 @@ import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.GenericFormOrSubform;
 import com.hcl.domino.design.RichTextBuilder;
+import com.hcl.domino.misc.NotesConstants;
 
 /**
  * Implementation of {@link RichTextBuilder} for JNA
@@ -34,9 +35,10 @@ public class JNARichTextBuilder implements RichTextBuilder {
 		this.db = db;
 	}
 	
-	@Override
+	@SuppressWarnings("unchecked")
+  @Override
 	public <F extends GenericFormOrSubform<F>> RichTextBuilderContext<F> from(F templateForm) {
-		return new JNARichTextBuilderContext<F>(this, db, templateForm.getDocument(), "$body", (Class<F>) templateForm.getClass()) {
+		return new JNARichTextBuilderContext<F>(this, db, templateForm.getDocument(), NotesConstants.ITEM_NAME_TEMPLATE, (Class<F>) templateForm.getClass()) {
 			@Override
 			public F build() {
 				Document doc = buildResultDocument();

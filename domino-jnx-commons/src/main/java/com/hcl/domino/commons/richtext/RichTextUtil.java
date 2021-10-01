@@ -312,7 +312,7 @@ public enum RichTextUtil {
     // Read and discard the type WORD
     buf.getShort();
     
-    while(buf.hasRemaining()) {
+    while(buf.remaining() > 1) {
       ByteBuffer recordData = buf.slice().order(ByteOrder.LITTLE_ENDIAN);
       
       byte byte1 = recordData.get(0);

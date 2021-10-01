@@ -776,11 +776,11 @@ public enum DesignUtil {
           CDQueryByForm query = (CDQueryByForm)record;
           
           String formName = query.getFormName();
-          Map<String, List<String>> fieldMatches = new LinkedHashMap<>();
+          Map<String, List<Object>> fieldMatches = new LinkedHashMap<>();
           for(AssistFieldStruct struct : query.getAssistFields()) {
             // Ignore operator
             String fieldName = struct.getFieldName();
-            List<String> values = struct.getValues();
+            List<Object> values = struct.getValues();
             fieldMatches.put(fieldName, values);
           }
           

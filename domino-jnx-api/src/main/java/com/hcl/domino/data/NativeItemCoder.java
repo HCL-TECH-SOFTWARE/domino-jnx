@@ -19,11 +19,11 @@ package com.hcl.domino.data;
 import java.util.List;
 
 import com.hcl.domino.misc.JNXServiceFinder;
+import com.hcl.domino.richtext.records.RecordType;
 
 /**
  * This service interface represents an implementation-contributed service that
- * is able to decode
- * item-type data from native memory
+ * is able to decode item-type data from native memory
  *
  * @author Jesse Gallagher
  * @since 1.0.24
@@ -36,4 +36,15 @@ public interface NativeItemCoder {
   List<String> decodeStringList(byte[] buf);
 
   byte[] encodeStringList(List<String> values);
+  
+  /**
+   * Decodes the provided raw item data to a Java-compatible type.
+   * 
+   * @param buf the value to decode
+   * @param area the rich-text record category to use when interpreting
+   *             composite data
+   * @return an object corresponding to the native data
+   * @since 1.0.43
+   */
+  List<Object> decodeItemValue(byte[] buf, RecordType.Area area);
 }

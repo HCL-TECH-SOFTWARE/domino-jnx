@@ -60,7 +60,6 @@ import com.hcl.domino.jna.internal.gc.allocations.JNAUserNamesListAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
-import com.hcl.domino.jna.internal.search.NotesSearch.SearchCallback;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.views.NotesLookupResultBufferDecoder;
 import com.hcl.domino.jna.internal.views.ViewFormulaCompiler;
