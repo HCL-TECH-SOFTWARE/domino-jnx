@@ -18,11 +18,13 @@ package com.hcl.domino.commons.converters;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentValueConverter;
+import com.hcl.domino.data.Item.ItemFlag;
 
 /**
  * Shared logic for {@link DocumentValueConverter} implementations that handle
@@ -61,14 +63,14 @@ public abstract class AbstractPrimitiveDocumentValueConverter<BOX> implements Do
 
   @SuppressWarnings("unchecked")
   @Override
-  public <T> void setValue(final Document obj, final String itemName, final T newValue) {
+  public <T> void setValue(final Document obj, Set<ItemFlag> itemFlags, final String itemName, final T newValue) {
     if (newValue instanceof Iterable) {
       final List<Double> listVal = StreamSupport.stream(((Iterable<BOX>) newValue).spliterator(), false)
           .map(this::convertToDouble)
           .collect(Collectors.toList());
-      obj.replaceItemValue(itemName, listVal);
+      obj.replaceItemValue(itemName, itemFlags, listVal);
     } else {
-      obj.replaceItemValue(itemName, this.convertToDouble((BOX) newValue));
+      obj.replaceItemValue(itemName, itemFlags, this.convertToDouble((BOX) newValue));
     }
   }
 

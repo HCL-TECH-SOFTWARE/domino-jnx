@@ -995,7 +995,7 @@ public interface Document extends TypedAccess, IAdaptable {
   void removeAttachment(String uniqueFileNameInDoc);
 
   /**
-   * Removes the first item of the provided name from the document.
+   * Removes <b>all occurrences</b> of items with the provided name from the document.
    *
    * @param itemName the case-insensitive name of the item to remove
    */

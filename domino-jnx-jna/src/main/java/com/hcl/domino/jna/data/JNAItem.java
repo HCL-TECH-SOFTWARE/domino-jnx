@@ -25,13 +25,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.NotesErrorUtils;
+import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentProperties;
 import com.hcl.domino.data.Item;
@@ -413,6 +413,31 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 		return (m_itemFlags & NotesConstants.ITEM_SIGN) == NotesConstants.ITEM_SIGN;
 	}
 
+	public void setItemType(ItemDataType newType) {
+	  JNADocumentAllocations docAllocations = (JNADocumentAllocations) getParent().getAdapter(APIObjectAllocations.class);
+	  docAllocations.checkDisposed();
+
+	  loadItemNameAndFlags();
+
+	  NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
+	  itemBlockIdByVal.pool = m_itemBlockId.pool;
+	  itemBlockIdByVal.block = m_itemBlockId.block;
+
+	  int itemFlags = getFlagsAsInt();
+	  DisposableMemory itemValue = getValueRaw(false);
+	  try {
+	    short result = LockUtil.lockHandle(docAllocations.getNoteHandle(), (docHandleByVal) -> {
+	      return NotesCAPI.get().NSFItemModifyValue(docHandleByVal, itemBlockIdByVal, 
+	          (short) (itemFlags & 0xffff), newType.getValue(), 
+	          itemValue, (int) itemValue.size());
+	    });
+	    NotesErrorUtils.checkResult(result);
+	  }
+	  finally {
+	    itemValue.dispose();
+	  }
+	}
+	
 	private void setItemFlags(short newFlags) {
 		JNADocumentAllocations docAllocations = (JNADocumentAllocations) getParent().getAdapter(APIObjectAllocations.class);
 		docAllocations.checkDisposed();
