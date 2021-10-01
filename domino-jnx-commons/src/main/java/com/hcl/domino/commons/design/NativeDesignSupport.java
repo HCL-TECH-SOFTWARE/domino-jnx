@@ -89,4 +89,13 @@ public interface NativeDesignSupport {
    */
   void setCDRecordItemType(Document doc, Item item, ItemDataType newType);
   
+  /**
+   * Creates the item $AssistRunInfo in an agent design document with an attached
+   * database object that contains ODS_ASSISTRUNOBJECTHEADER / ODS_ASSISTRUNOBJECTENTRY
+   * structures.
+   * 
+   * @param doc document to create item $AssistRunInfo
+   */
+  void initAgentRunInfo(Document doc);
+  
 }

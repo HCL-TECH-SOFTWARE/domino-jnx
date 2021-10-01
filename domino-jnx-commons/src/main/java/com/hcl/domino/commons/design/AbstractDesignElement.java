@@ -16,8 +16,11 @@
  */
 package com.hcl.domino.commons.design;
 
+import java.util.EnumSet;
+
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.misc.NotesConstants;
@@ -147,7 +150,11 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   public void setFlags(final String flags) {
     this.getDocument().replaceItemValue(NotesConstants.DESIGN_FLAGS, flags);
   }
-  
+
+  public void setFlagsExt(final String flags) {
+    this.getDocument().replaceItemValue(NotesConstants.DESIGN_FLAGS_EXTENDED, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), flags);
+  }
+
   public String getWebFlags() {
     return getDocument().getAsText(NotesConstants.ITEM_NAME_WEBFLAGS, ' ');
   }

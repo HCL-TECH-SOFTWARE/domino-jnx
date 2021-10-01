@@ -300,6 +300,18 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
   boolean isRunAsWebUser();
   
   /**
+   * Sets whether the agent should be run as the web user when accessed via
+   * URL.
+   * 
+   * @param b {@code true} if the agent should run as the current web user when
+   *         accessed via URL; {@code false} to run as the signer or the on-behalf-
+   *         of user
+   * @return this agent
+   * @since 1.0.43
+   */
+  DesignAgent setRunAsWebUser(boolean b);
+  
+  /**
    * Retrieves the name of the user to run the agent on behalf of, if set.
    * 
    * @return an {@link Optional} describing the on-behalf-of user, or an empty one
@@ -390,6 +402,15 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
   boolean isEnabled();
   
   /**
+   * Enables/disables the agent to run according to its schedule or trigger.
+   * 
+   * @param b true if enabled
+   * @return this agent
+   * @since 1.0.43
+   */
+  DesignAgent setEnabled(boolean b);
+  
+  /**
    * Retrieves the search terms used to select documents for agent processing, if provided.
    * 
    * @return a {@link List} containing {@link SimpleSearchTerm} subclass instances, or an
@@ -405,4 +426,14 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    * @since 1.0.42
    */
   AgentTarget getTarget();
+
+  /**
+   * Changes the broad document selection target for the agent.
+   * 
+   * @param target a {@link AgentTarget} instance
+   * @return this agent
+   * @since 1.0.43
+   */
+  DesignAgent setTarget(AgentTarget target);
+  
 }

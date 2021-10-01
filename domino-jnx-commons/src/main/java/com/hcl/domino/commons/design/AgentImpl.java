@@ -30,17 +30,16 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.commons.design.agent.DefaultFormulaAgentContent;
 import com.hcl.domino.commons.design.agent.DefaultImportedJavaAgentContent;
 import com.hcl.domino.commons.design.agent.DefaultJavaAgentContent;
 import com.hcl.domino.commons.design.agent.DefaultSimpleActionAgentContent;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
-import com.hcl.domino.commons.util.DumpUtil;
 import com.hcl.domino.commons.util.InnardsConverter;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoDateTime;
-import com.hcl.domino.data.Item;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.DesignAgent;
@@ -62,6 +61,7 @@ import com.hcl.domino.richtext.records.CDActionFormula;
 import com.hcl.domino.richtext.records.CDActionHeader;
 import com.hcl.domino.richtext.records.CDActionJavaAgent;
 import com.hcl.domino.richtext.records.CDActionLotusScript;
+import com.hcl.domino.richtext.records.CDQueryHeader;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.structures.AssistStruct;
@@ -497,14 +497,14 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
     int val;
     switch (Objects.requireNonNull(lang)) {
       case LS:
-        val = RichTextConstants.SIG_ACTION_LOTUSSCRIPT;
+        val = Short.toUnsignedInt(RichTextConstants.SIG_ACTION_LOTUSSCRIPT);
         break;
       case JAVA:
       case IMPORTED_JAVA:
-        val = RichTextConstants.SIG_ACTION_JAVA;
+        val = Short.toUnsignedInt(RichTextConstants.SIG_ACTION_JAVA);
         break;
       case FORMULA:
-        val = RichTextConstants.SIG_ACTION_FORMULAONLY;
+        val = Short.toUnsignedInt(RichTextConstants.SIG_ACTION_FORMULAONLY);
         break;
       default:
         val = -1;
@@ -515,11 +515,51 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
 
   @Override
   public void initializeNewDesignNote() {
-//    this.setFlags(NotesConstants.DESIGN_FLAG_JAVA_AGENT_WITH_SOURCE + NotesConstants.DESIGN_FLAG_HIDE_FROM_V3); //$NON-NLS-1$
-    this.setFlags(NotesConstants.DESIGN_FLAG_HIDE_FROM_V3); //$NON-NLS-1$
-    
     Document doc = getDocument();
+    
+    this.setFlags(NotesConstants.DESIGN_FLAG_HIDE_FROM_V3);
+    
+    doc.replaceItemValue(NotesConstants.ASSIST_DOCCOUNT_ITEM, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), 0);
+    
+    AssistStruct assistStruct = createAssistInfoWithDefaults();
+    setAssistInfo(assistStruct);
+    
+    DefaultDominoDateTime wildcardTD = new DefaultDominoDateTime(new int[] {0, 0});
+    doc.replaceItemValue(NotesConstants.ASSIST_LASTRUN_ITEM, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), wildcardTD);
+
+    //write simple search query header
+    try (RichTextWriter rtWriter = doc.createRichTextItem(NotesConstants.ASSIST_QUERY_ITEM)) {
+      rtWriter.addRichTextRecord(CDQueryHeader.class, (record) -> {
+        record
+        .getHeader()
+        .setSignature((byte) (RichTextConstants.SIG_QUERY_HEADER & 0xff))
+        .setLength((short) (MemoryStructureUtil.sizeOf(CDQueryHeader.class) & 0xffff));
+      });
+    }
+    NativeDesignSupport designSupport = NativeDesignSupport.get();
+    
+    //switch search query item from TYPE_COMPOSITE to TYPE_QUERY
+    doc.forEachItem(NotesConstants.ASSIST_QUERY_ITEM, (item,loop) -> {
+      item.setSigned(true);
+      designSupport.setCDRecordItemType(doc, item, ItemDataType.TYPE_QUERY);
+    });
+
+    designSupport.initAgentRunInfo(doc);
+
+    doc.replaceItemValue(DesignConstants.ASSIST_TRIGGER_ITEM, Integer.toString(RichTextConstants.ASSISTTRIGGER_TYPE_MANUAL)); //$NON-NLS-1$
+    doc.replaceItemValue(NotesConstants.ASSIST_VERSION_ITEM, new DefaultDominoDateTime());
+    
     doc.replaceItemValue(NotesConstants.DESIGNER_VERSION, "8.5.3"); //$NON-NLS-1$
+    
+    setFlag(NotesConstants.DESIGN_FLAG_V4AGENT, true);
+    setFlag(NotesConstants.DESIGN_FLAG_HIDE_FROM_V3, true);
+    setFlagsExt(""); //$NON-NLS-1$
+    setSecurityLevel(SecurityLevel.RESTRICTED);
+    setEnabled(true);
+    setRunAsWebUser(false);
+    
+    doc.replaceItemValue("$Comment", EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), ""); //$NON-NLS-1$ //$NON-NLS-2$
+    doc.replaceItemValue("$Flags", "fL3"); //$NON-NLS-1$ //$NON-NLS-2$
     
   }
 
@@ -533,6 +573,19 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   @Override
   public boolean isRunAsWebUser() {
     return getAssistFlags().contains(DesignConstants.ASSIST_FLAG_AGENT_RUNASWEBUSER);
+  }
+
+  @Override
+  public DesignAgent setRunAsWebUser(boolean b) {
+    if (b) {
+     setAssistFlag(DesignConstants.ASSIST_FLAG_AGENT_RUNASWEBUSER, true);
+     setAssistFlag(DesignConstants.ASSIST_FLAG_AGENT_RUNASSIGNER, false);
+    }
+    else {
+      setAssistFlag(DesignConstants.ASSIST_FLAG_AGENT_RUNASWEBUSER, false);
+      setAssistFlag(DesignConstants.ASSIST_FLAG_AGENT_RUNASSIGNER, true);
+    }
+    return this;
   }
 
   @Override
@@ -610,6 +663,12 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   }
   
   @Override
+  public DesignAgent setEnabled(boolean b) {
+    setAssistFlag(DesignConstants.ASSIST_FLAG_ENABLED, b);
+    return this;
+  }
+  
+  @Override
   public List<? extends SimpleSearchTerm> getDocumentSelection() {
     return DesignUtil.toSimpleSearch(getDocument().getRichTextItem(NotesConstants.ASSIST_QUERY_ITEM, RecordType.Area.TYPE_QUERY));
   }
@@ -642,6 +701,14 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
       });
   }
 
+  @Override
+  public DesignAgent setTarget(AgentTarget target) {
+    AssistStruct assistInfo = getAssistInfo().orElseGet(this::createAssistInfoWithDefaults);
+    assistInfo.setSearch(target);
+    setAssistInfo(assistInfo);
+    return this;
+  }
+  
   // *******************************************************************************
   // * Implementation utility methods
   // *******************************************************************************
@@ -650,6 +717,27 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
     return getDocument().get(DesignConstants.ASSIST_FLAGS_ITEM, String.class, ""); //$NON-NLS-1$
   }
 
+  private void setAssistFlags(String flags) {
+   getDocument().replaceItemValue(DesignConstants.ASSIST_FLAGS_ITEM, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), flags);
+  }
+
+  private void setAssistFlag(final String flagConstant, final boolean value) {
+    final String flags = this.getAssistFlags();
+    if (value && !flags.contains(flagConstant)) {
+      this.setAssistFlags(flags + flagConstant);
+    } else if (!value && flags.contains(flagConstant)) {
+      this.setAssistFlags(flags.replace(flagConstant, "")); //$NON-NLS-1$
+    }
+  }
+  
+  private AssistStruct createAssistInfoWithDefaults() {
+    AssistStruct assistStruct = MemoryStructureUtil.newStructure(AssistStruct.class, 0);
+    assistStruct.setVersion(1);
+    assistStruct.setTrigger(AgentTrigger.MANUAL);
+    assistStruct.setSearch(AgentTarget.SELECTED);
+    return assistStruct;
+  }
+  
   private Optional<AssistStruct> getAssistInfo() {
     final Document doc = this.getDocument();
     if (doc.hasItem(NotesConstants.ASSIST_INFO_ITEM)) {
@@ -658,4 +746,14 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
     }
     return Optional.empty();
   }
+  
+  private void setAssistInfo(AssistStruct info) {
+    ByteBuffer infoData = info.getData();
+    ByteBuffer infoDataWithType = ByteBuffer.allocate(2 + infoData.limit());
+    infoDataWithType.putShort(ItemDataType.TYPE_ASSISTANT_INFO.getValue());
+    infoDataWithType.put(infoData);
+    infoDataWithType.position(0);
+    getDocument().replaceItemValue(NotesConstants.ASSIST_INFO_ITEM, EnumSet.of(ItemFlag.SIGNED), infoDataWithType);
+  }
+  
 }

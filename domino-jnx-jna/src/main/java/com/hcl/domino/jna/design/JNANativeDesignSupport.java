@@ -18,24 +18,38 @@
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 
 import com.hcl.domino.commons.design.NativeDesignSupport;
+import com.hcl.domino.commons.gc.APIObjectAllocations;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.Item;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.data.Item.ItemFlag;
+import com.hcl.domino.jna.data.JNADatabase;
+import com.hcl.domino.jna.data.JNADocument;
 import com.hcl.domino.jna.data.JNAItem;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
+import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
+import com.hcl.domino.jna.internal.gc.allocations.JNADocumentAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
+import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.misc.Pair;
+import com.hcl.domino.richtext.structures.ObjectDescriptor;
+import com.hcl.domino.richtext.structures.ObjectDescriptor.ObjectType;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  * 
@@ -160,5 +174,87 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
     return type==ItemDataType.TYPE_COMPOSITE ||
         type==ItemDataType.TYPE_QUERY ||
         type==ItemDataType.TYPE_ACTION;
+  }
+
+  private final byte[] initialRunInfoData = new byte[] {
+      0x00, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00,
+      0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x10, 0x20, 0x43, 0x00,
+      0x61, (byte) 0x87, 0x25, (byte) 0xc1, (byte) 0x8b, 0x44, 0x34, 0x00,
+      0x2d, (byte) 0x87, 0x25, (byte) 0xc1, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+      0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+  };
+
+  @Override
+  public void initAgentRunInfo(Document doc) {
+    JNADatabase db = (JNADatabase) doc.getParentDatabase();
+    JNADatabaseAllocations dbAllocations = (JNADatabaseAllocations) db.getAdapter(APIObjectAllocations.class);
+    dbAllocations.checkDisposed();
+    
+    JNADocumentAllocations docAllocations = (JNADocumentAllocations) ((JNADocument)doc).getAdapter(APIObjectAllocations.class);
+    docAllocations.checkDisposed();
+
+    //TODO replace this hardcoded run info data with code that writes AssistRunObjectHeader, AssistRunObjectEntry and AssistRunInfo
+    byte[] runInfoDataWithSpace = new byte[1032];
+    Arrays.fill(runInfoDataWithSpace, (byte) 0xaa);
+    System.arraycopy(initialRunInfoData, 0, runInfoDataWithSpace, 0, initialRunInfoData.length);
+    
+    short noteClass = DocumentClass.DOCUMENT.getValue();
+    short privs = 0;
+    ObjectType objectType = ObjectType.ASSIST_RUNDATA;
+    
+    final DHANDLE.ByReference retCopyBufferHandle = DHANDLE.newInstanceByReference();
+    short result = Mem.OSMemAlloc((short) 0, runInfoDataWithSpace.length, retCopyBufferHandle);
+    NotesErrorUtils.checkResult(result);
+
+    int rrv = LockUtil.lockHandles(dbAllocations.getDBHandle(), docAllocations.getNoteHandle(), retCopyBufferHandle,
+        (hDbByVal, hNoteByVal, hCopyBufferByVal) -> {
+
+          IntByReference rtnRRV = new IntByReference();
+
+          short allocObjResult = NotesCAPI.get().NSFDbAllocObjectExtended2(hDbByVal,
+              runInfoDataWithSpace.length,
+              noteClass, privs, objectType.getValue(), rtnRRV);
+          NotesErrorUtils.checkResult(allocObjResult);
+
+          //copy buffer array data into memory buffer
+          Pointer ptrBuffer = Mem.OSLockObject(hCopyBufferByVal);
+          try {
+            ptrBuffer.write(0, runInfoDataWithSpace, 0, runInfoDataWithSpace.length);
+          }
+          finally {
+            Mem.OSUnlockObject(hCopyBufferByVal);
+          }
+
+          short writeObjResult = NotesCAPI.get().NSFDbWriteObject(
+              hDbByVal,
+              rtnRRV.getValue(),
+              hCopyBufferByVal,
+              0,
+              runInfoDataWithSpace.length);
+          NotesErrorUtils.checkResult(writeObjResult);
+
+          Mem.OSMemFree(hCopyBufferByVal);
+
+          return rtnRRV.getValue();
+        });
+
+    ObjectDescriptor objDescriptor = MemoryStructureUtil.newStructure(ObjectDescriptor.class, 0);
+    objDescriptor.setRRV(rrv);
+    objDescriptor.setObjectType(objectType);
+    
+    ByteBuffer objDescriptorData = objDescriptor.getData();
+    ByteBuffer objDescriptorDataWithType = ByteBuffer.allocate(2 + objDescriptorData.limit());
+    objDescriptorDataWithType.putShort(ItemDataType.TYPE_OBJECT.getValue());
+    objDescriptorDataWithType.put(objDescriptorData);
+    objDescriptorDataWithType.position(0);
+    
+    doc.replaceItemValue(NotesConstants.ASSIST_RUNINFO_ITEM, EnumSet.of(ItemFlag.SUMMARY), objDescriptorDataWithType);
   }
 }
