@@ -22,6 +22,7 @@ import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.List;
 import com.hcl.domino.commons.structs.WrongArraySizeException;
+import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Pointer;
@@ -53,50 +54,48 @@ public class DirectoryAssistanceStruct extends BaseStructure implements Serializ
   public DirectoryAssistanceStruct(byte serverName[], byte dirAssistDBName[], byte domainName[], byte companyName[], 
       byte hostName[],short ldapVendor, byte userName[], byte password[], boolean useSSL, short port) {
     
-    super();
- 
-    if ((serverName.length != this.szServerName.length)) {
-      throw new WrongArraySizeException("serverName");
-    }
-    this.szServerName = serverName;
+	super();
+	    
+	if ((serverName.length > this.szServerName.length)) {
+	  throw new WrongArraySizeException("serverName");
+	}
+	DominoUtils.overwriteArray(serverName, this.szServerName);
 
-    if ((dirAssistDBName.length != this.szDirAssistDBName.length)) {
-      throw new WrongArraySizeException("dirAssistDBName");
-    }
-    this.szDirAssistDBName = dirAssistDBName;
+	if ((dirAssistDBName.length > this.szDirAssistDBName.length)) {
+	  throw new WrongArraySizeException("dirAssistDBName");
+	}
+	DominoUtils.overwriteArray(dirAssistDBName, this.szDirAssistDBName);
+	    
+	if ((domainName.length > this.szDomainName.length)) {
+	  throw new WrongArraySizeException("domainName");
+	}
+	DominoUtils.overwriteArray(domainName, this.szDomainName);
 
-    
-    if ((domainName.length != this.szDomainName.length)) {
-      throw new WrongArraySizeException("domainName");
-    }
-    this.szDomainName = domainName;
+	if ((companyName.length > this.szCompanyName.length)) {
+	  throw new WrongArraySizeException("companyName");
+	}
+	DominoUtils.overwriteArray(companyName, this.szCompanyName);
+	    
+	if ((hostName.length > this.szHostName.length)) {
+	  throw new WrongArraySizeException("hostName");
+	}
+	DominoUtils.overwriteArray(hostName, this.szHostName);
 
-    if ((companyName.length != this.szCompanyName.length)) {
-      throw new WrongArraySizeException("companyName");
-    }
-    this.szCompanyName = companyName;
-    
-    if ((hostName.length != this.szHostName.length)) {
-        throw new WrongArraySizeException("hostName");
-    }
-    this.szHostName = hostName;
+	this.wLDAPVendor = ldapVendor; 
+	    
+	if ((userName.length > this.szUserName.length)) {
+	  throw new WrongArraySizeException("userName");
+	}
+	DominoUtils.overwriteArray(userName, this.szUserName);
 
-    this.wLDAPVendor = ldapVendor; 
-    
-    if ((userName.length != this.szUserName.length)) {
-      throw new WrongArraySizeException("userName");
-    }
-    this.szUserName = userName;
-
-    if ((password.length != this.szPassword.length)) {
-      throw new WrongArraySizeException("Password");
-    }
-    this.szPassword = password;
-    
-    this.wPort = port;
-    
-    this.bUseSSL =useSSL;
-    
+	if ((password.length > this.szPassword.length)) {
+	  throw new WrongArraySizeException("Password");
+	}
+	DominoUtils.overwriteArray(password, this.szPassword);
+	    
+	this.wPort = port;
+	    
+	this.bUseSSL =useSSL;  
   }
 
     public DirectoryAssistanceStruct() {

@@ -375,7 +375,7 @@ public interface INotesCAPI extends Library {
 	 * @since 1.0.43
 	 */
 	short OSGetSharedDataDirectory(Memory retPathName);
-	short CreateDAConfig(CreateDAConfigStruct ldap);
+	short CreateDAConfiguration(CreateDAConfigStruct ldap);
 	short UpdateDAConfiguration(UpdateDAConfigStruct ldap);
 	short EnableDisableDADomain(EnableDisableDAStruct daConfig);
 	short VerifyLDAPConnection(VerifyLDAPConnectionStruct ldap);
