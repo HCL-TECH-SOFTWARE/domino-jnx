@@ -34,6 +34,7 @@ import com.hcl.domino.jna.internal.ItemDecoder;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNAUserDirectoryQueryIteratorAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
+import com.hcl.domino.richtext.records.RecordType;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.ShortByReference;
@@ -105,7 +106,7 @@ public class JNAUserDirectoryQueryIterator extends BaseJNAAPIObject<JNAUserDirec
 					// Read the data based on its type
 					Pointer dataPtr = data.share(2); // Skip the data type word
 					int dataLen = Short.toUnsignedInt(retSize.getValue())-2;
-					Object val = ItemDecoder.readItemValue(dataPtr, retDataType.getValue(), dataLen);
+					Object val = ItemDecoder.readItemValue(dataPtr, retDataType.getValue(), dataLen, RecordType.Area.TYPE_COMPOSITE);
 					if(val instanceof Collection) {
 						values.put(key, new ArrayList<>((Collection<?>)val));
 					} else {

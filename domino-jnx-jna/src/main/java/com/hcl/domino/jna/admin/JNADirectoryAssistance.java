@@ -17,7 +17,6 @@
 package com.hcl.domino.jna.admin;
 
 import com.hcl.domino.admin.DirectoryAssistance;
-import com.hcl.domino.commons.structs.WrongArraySizeException;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;

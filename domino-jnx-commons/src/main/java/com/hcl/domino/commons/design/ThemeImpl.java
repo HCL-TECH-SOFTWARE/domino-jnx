@@ -18,7 +18,6 @@ package com.hcl.domino.commons.design;
 
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.Theme;
-import com.hcl.domino.design.WiringProperties;
 import com.hcl.domino.misc.NotesConstants;
 
 public class ThemeImpl extends AbstractNamedFileElement<Theme> implements Theme {

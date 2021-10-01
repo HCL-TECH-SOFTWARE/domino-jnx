@@ -185,7 +185,8 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 
 		item.enumerateCDRecords((signature, cdRecordPtr, cdRecordLength) -> {
 			byte[] cdRecordDataArr = cdRecordPtr.getByteArray(0, cdRecordLength);
-			DisposableMemory cdRecordDataMem = new DisposableMemory(cdRecordLength);
+			@SuppressWarnings("resource")
+      DisposableMemory cdRecordDataMem = new DisposableMemory(cdRecordLength);
 			cdRecordDataMem.write(0, cdRecordDataArr, 0, cdRecordLength);
 			ByteBuffer data = cdRecordDataMem.getByteBuffer(0, cdRecordLength).order(ByteOrder.nativeOrder());
 

@@ -38,5 +38,5 @@ public interface ExampleFormTerm extends SimpleSearchTerm {
    * 
    * @return a {@link Map} of field names to matched values
    */
-  Map<String, List<String>> getFieldMatches();
+  Map<String, List<Object>> getFieldMatches();
 }

@@ -198,7 +198,7 @@ public class TestClientBasics extends AbstractNotesRuntimeTest {
     client.close();
 
     Assertions.assertThrows(DominoException.class, (Executable) () -> {
-      final Database db = client.openDatabase("names.nsf");
+      client.openDatabase("names.nsf");
     }, "Did not throw exception when using closed DominoClient");
   }
 

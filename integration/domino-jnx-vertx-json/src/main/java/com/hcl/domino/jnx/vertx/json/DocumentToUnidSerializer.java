@@ -29,7 +29,7 @@ import com.hcl.domino.data.Document;
  * @since 1.0.32
  */
 public class DocumentToUnidSerializer extends JsonSerializer<Document> {
-	private static String UNID = "unid";
+	private static String UNID = "unid"; //$NON-NLS-1$
 
 	@Override
 	public void serialize(Document value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
