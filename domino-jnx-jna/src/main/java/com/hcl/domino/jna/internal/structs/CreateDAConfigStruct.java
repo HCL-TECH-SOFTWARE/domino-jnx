@@ -56,7 +56,7 @@ public class CreateDAConfigStruct extends BaseStructure implements Serializable,
     
     this.wSearchOrder = searchOrder;
     
-    if ((dnSearch.length != this.szDNSearch.length)) {
+    if ((dnSearch.length > this.szDNSearch.length)) {
         throw new WrongArraySizeException("dnSearch");
     }
     this.szDNSearch = dnSearch;
@@ -86,8 +86,7 @@ public class CreateDAConfigStruct extends BaseStructure implements Serializable,
 	
 	@Override
 	protected List<String> getFieldOrder() {
-		return Arrays.asList(  "szServerName",
-		    "bUpdateServerDoc",
+		return Arrays.asList("bUpdateServerDoc",
 		    "wSearchOrder",
 		    "szDNSearch",
 		    "bAcceptExpiredCertificates",

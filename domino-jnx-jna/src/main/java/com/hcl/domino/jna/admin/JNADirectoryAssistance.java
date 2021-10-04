@@ -38,14 +38,31 @@ public class JNADirectoryAssistance implements DirectoryAssistance {
   public void createDAConfig(boolean updateServerDoc, String domainName, String companyName, short searchOrder, String hostName,
       short ldapVendor, String userName, String password, String dnSearch, boolean useSSL, short port, boolean acceptExpiredCerts,
       boolean verifyRemoteSrvCert, short timeout, short maxEntriesReturned) {
-    DirectoryAssistanceStruct daConfigStruct = new DirectoryAssistanceStruct(serverName.getBytes(), dirAssistDBName.getBytes(), domainName.getBytes(), companyName.getBytes(),
-        hostName.getBytes(), ldapVendor, userName.getBytes(), password.getBytes(), useSSL, port);
+    DirectoryAssistanceStruct daConfigStruct = new DirectoryAssistanceStruct();
+    NotesStringUtils.toLMBCS(this.serverName, true, daConfigStruct.szServerName);
+    NotesStringUtils.toLMBCS(this.dirAssistDBName, true, daConfigStruct.szDirAssistDBName);
+    NotesStringUtils.toLMBCS(domainName, true, daConfigStruct.szDomainName);
+    NotesStringUtils.toLMBCS(companyName, true, daConfigStruct.szCompanyName);
+    NotesStringUtils.toLMBCS(hostName, true, daConfigStruct.szHostName);
+    NotesStringUtils.toLMBCS(userName, true, daConfigStruct.szUserName);
+    NotesStringUtils.toLMBCS(password, true, daConfigStruct.szPassword);
 
-    CreateDAConfigStruct daConfig = new CreateDAConfigStruct(updateServerDoc, searchOrder, dnSearch.getBytes(), acceptExpiredCerts,
-        verifyRemoteSrvCert, timeout, maxEntriesReturned, daConfigStruct);
+    daConfigStruct.wLDAPVendor = ldapVendor;
+    daConfigStruct.bUseSSL = useSSL;
+    daConfigStruct.wPort = port;
+    daConfigStruct.write();
 
+    CreateDAConfigStruct daConfig = new CreateDAConfigStruct();
+    daConfig.bUpdateServerDoc = updateServerDoc;
+    daConfig.wSearchOrder = searchOrder ;
+    NotesStringUtils.toLMBCS(dnSearch, true, daConfig.szDNSearch);
+    daConfig.bAcceptExpiredCertificates = acceptExpiredCerts;
+    daConfig.bVerifyRemoteSrvCert = verifyRemoteSrvCert;
+    daConfig.wTimeout = timeout ;
+    daConfig.wMaxEntriesReturned = maxEntriesReturned ;
+    daConfig.daStruct = daConfigStruct;
     daConfig.write();
-    NotesErrorUtils.checkResult(NotesCAPI.get().CreateDAConfig(daConfig));
+    NotesErrorUtils.checkResult(NotesCAPI.get().CreateDAConfiguration(daConfig));
   }
 
   @Override
