@@ -36,6 +36,7 @@ public interface DocumentValueConverter extends ValueConverter<Document> {
    * @param itemName name of item to write
    * @param newValue new value
    */
+  @Override
   default <T> void setValue(Document obj, String itemName, T newValue) {
     setValue(obj, EnumSet.of(ItemFlag.SUMMARY), itemName, newValue);
   }

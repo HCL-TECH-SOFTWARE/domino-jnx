@@ -667,7 +667,8 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
       break;
     case RESTRICTED:
       doc.replaceItemValue(DesignConstants.ASSIST_RESTRICTED, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), DesignConstants.ASSIST_RESTRICTED_RESTRICTED);
-      default:
+      break;
+    default:
     }
     return this;
   }
