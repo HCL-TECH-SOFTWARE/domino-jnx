@@ -16,7 +16,9 @@
  */
 package com.hcl.domino.design.agent;
 
+import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represents the contents of an imported Java agent.
@@ -28,6 +30,18 @@ public interface ImportedJavaAgentContent extends AgentContent {
   String getCodeFilesystemPath();
 
   List<String> getFileNameList();
+  
+  /**
+   * Retrieves the contents of the named file (as determined
+   * in {@link #getFileNameList()} as a stream of bytes.
+   * 
+   * @param name the name of the file to retrieve
+   * @return an {@link Optional} describing an {@link InputStream} of
+   *         the file's contents if it exists, or an empty one otherwise
+   * @see #getFileNameList()
+   * @since 1.0.43
+   */
+  Optional<InputStream> getFile(String name);
 
   String getMainClassName();
 }

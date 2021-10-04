@@ -60,6 +60,12 @@
 			<version>0.6.4</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.bcel</groupId>
+			<artifactId>bcel</artifactId>
+			<version>6.5.0</version>
+            <scope>test</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>org.eclipse</groupId>

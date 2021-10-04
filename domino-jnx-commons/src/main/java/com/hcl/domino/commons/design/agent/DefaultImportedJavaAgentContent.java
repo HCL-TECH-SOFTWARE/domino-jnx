@@ -16,9 +16,14 @@
  */
 package com.hcl.domino.commons.design.agent;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
+import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.agent.ImportedJavaAgentContent;
 
 /**
@@ -26,12 +31,14 @@ import com.hcl.domino.design.agent.ImportedJavaAgentContent;
  * @since 1.0.24
  */
 public class DefaultImportedJavaAgentContent implements ImportedJavaAgentContent {
+  private final DesignElement agent;
   private final String mainClassName;
   private final String codeFilesystemPath;
   private final List<String> fileNameList;
 
-  public DefaultImportedJavaAgentContent(final String mainClassName, final String codeFilesystemPath,
+  public DefaultImportedJavaAgentContent(DesignElement agent, final String mainClassName, final String codeFilesystemPath,
       final List<String> fileNameList) {
+    this.agent = agent;
     this.mainClassName = mainClassName;
     this.codeFilesystemPath = codeFilesystemPath;
     this.fileNameList = new ArrayList<>(fileNameList);
@@ -45,6 +52,24 @@ public class DefaultImportedJavaAgentContent implements ImportedJavaAgentContent
   @Override
   public List<String> getFileNameList() {
     return this.fileNameList;
+  }
+  
+  @Override
+  public Optional<InputStream> getFile(String name) {
+    // Do a basic check to make sure it's in the list
+    List<String> jars = this.fileNameList;
+    if(!jars.contains(name)) {
+      return Optional.empty();
+    }
+    return agent.getDocument()
+      .getAttachment(name)
+      .map(t -> {
+        try {
+          return t.getInputStream();
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
+        }
+      });
   }
 
   @Override
