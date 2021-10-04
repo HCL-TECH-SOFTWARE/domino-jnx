@@ -43,7 +43,11 @@ import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.apache.bcel.classfile.ClassParser;
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.classfile.Method;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -200,7 +204,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
   }
 
   @Test
-  public void testImportedJavaAgent() {
+  public void testImportedJavaAgent() throws IOException {
     final DbDesign dbDesign = this.database.getDesign();
     final Collection<DesignAgent> agents = dbDesign.getAgents().collect(Collectors.toList());
     final DesignAgent agent = agents.stream().filter(a -> "imported java agent".equals(a.getTitle())).findFirst().orElse(null);
@@ -209,13 +213,32 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
 
     assertNotNull(dbDesign.getAgent("imported java agent"));
     final AgentContent content = agent.getAgentContent();
-    assertInstanceOf(ImportedJavaAgentContent.class, content);
 
-    final ImportedJavaAgentContent javaAgent = (ImportedJavaAgentContent) content;
+    final ImportedJavaAgentContent javaAgent = assertInstanceOf(ImportedJavaAgentContent.class, content);
     assertEquals("ImportedJavaAgentContent.class", javaAgent.getMainClassName());
     assertEquals("H:\\", javaAgent.getCodeFilesystemPath());
     assertEquals(Arrays.asList("ImportedJavaAgentContent.class", "JavaAgentContent.class", "bar.txt", "foo.jar"),
-        javaAgent.getFileNameList());
+        javaAgent.getFiles());
+    
+    // Try to read the Java code
+    {
+      JavaClass clazz;
+      try(InputStream is = javaAgent.getFile("ImportedJavaAgentContent.class").get()) {
+        ClassParser parser = new ClassParser(is, "ImportedJavaAgentContent.class");
+        clazz = parser.parse();
+      }
+      assertEquals("com.hcl.domino.design.agent.ImportedJavaAgentContent", clazz.getClassName());
+    }
+    {
+      JavaClass clazz;
+      try(InputStream is = javaAgent.getFile("JavaAgentContent.class").get()) {
+        ClassParser parser = new ClassParser(is, "JavaAgentContent.class");
+        clazz = parser.parse();
+      }
+      assertEquals("com.hcl.domino.design.agent.JavaAgentContent", clazz.getClassName());
+      Method[] methods = clazz.getMethods();
+      assertTrue(Stream.of(methods).anyMatch(m -> "getResourcesAttachmentName".equals(m.getName())));
+    }
   }
 
   @Test
