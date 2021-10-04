@@ -29,16 +29,16 @@ import java.util.Optional;
 public interface ImportedJavaAgentContent extends AgentContent {
   String getCodeFilesystemPath();
 
-  List<String> getFileNameList();
+  List<String> getFiles();
   
   /**
    * Retrieves the contents of the named file (as determined
-   * in {@link #getFileNameList()} as a stream of bytes.
+   * in {@link #getFiles()} as a stream of bytes.
    * 
    * @param name the name of the file to retrieve
    * @return an {@link Optional} describing an {@link InputStream} of
    *         the file's contents if it exists, or an empty one otherwise
-   * @see #getFileNameList()
+   * @see #getFiles()
    * @since 1.0.43
    */
   Optional<InputStream> getFile(String name);

@@ -50,7 +50,7 @@ public class DefaultImportedJavaAgentContent implements ImportedJavaAgentContent
   }
 
   @Override
-  public List<String> getFileNameList() {
+  public List<String> getFiles() {
     return this.fileNameList;
   }
   

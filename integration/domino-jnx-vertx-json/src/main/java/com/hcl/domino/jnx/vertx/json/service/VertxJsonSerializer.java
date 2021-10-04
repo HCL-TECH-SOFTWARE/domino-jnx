@@ -46,6 +46,7 @@ import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.GenericFormOrSubform;
 import com.hcl.domino.design.View;
+import com.hcl.domino.design.agent.ImportedJavaAgentContent;
 import com.hcl.domino.design.agent.JavaAgentContent;
 import com.hcl.domino.exception.EntryNotFoundInIndexException;
 import com.hcl.domino.exception.ItemNotFoundException;
@@ -56,6 +57,7 @@ import com.hcl.domino.jnx.vertx.json.DefaultActionBarActionMixIn;
 import com.hcl.domino.jnx.vertx.json.DefaultActionBarMixIn;
 import com.hcl.domino.jnx.vertx.json.DesignElementMixIn;
 import com.hcl.domino.jnx.vertx.json.GenericFormOrSubformMixIn;
+import com.hcl.domino.jnx.vertx.json.ImportedJavaAgentContentMixIn;
 import com.hcl.domino.jnx.vertx.json.JavaAgentContentMixIn;
 import com.hcl.domino.jnx.vertx.json.MemoryStructureMixIn;
 import com.hcl.domino.jnx.vertx.json.OutlineMixIn;
@@ -88,6 +90,7 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(DefaultActionBar.class, DefaultActionBarMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(DefaultActionBarAction.class, DefaultActionBarActionMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(JavaAgentContent.class, JavaAgentContentMixIn.class);
+    io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(ImportedJavaAgentContent.class, ImportedJavaAgentContentMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().registerModule(new Jdk8Module());
   }
 

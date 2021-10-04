@@ -218,7 +218,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     assertEquals("ImportedJavaAgentContent.class", javaAgent.getMainClassName());
     assertEquals("H:\\", javaAgent.getCodeFilesystemPath());
     assertEquals(Arrays.asList("ImportedJavaAgentContent.class", "JavaAgentContent.class", "bar.txt", "foo.jar"),
-        javaAgent.getFileNameList());
+        javaAgent.getFiles());
     
     // Try to read the Java code
     {
