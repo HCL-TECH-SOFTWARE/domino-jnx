@@ -15,6 +15,8 @@
  * ==========================================================================
  */
 package com.hcl.domino.richtext.records;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
@@ -28,7 +30,8 @@ import com.hcl.domino.richtext.structures.WSIG;
 @StructureDefinition(name = "CDALTTEXT", members = {
     @StructureMember(name = "Header", type = WSIG.class),
     @StructureMember(name = "wLength", type = short.class, unsigned = true),
-    @StructureMember(name = "Reserved1", type = short.class, unsigned = true)
+    @StructureMember(name = "Reserved1", type = short.class, unsigned = true),
+    @StructureMember(name = "Reserved2", type = int.class)
 })
 public interface CDAltText extends RichTextRecord<WSIG> {
 
@@ -49,6 +52,11 @@ public interface CDAltText extends RichTextRecord<WSIG> {
    * @return this record
    */
   default String getAltText() {
+//    ByteBuffer buf = getVariableData();
+//    int len = buf.remaining();
+//    byte[] lmbcs = new byte[len];
+//    buf.get(lmbcs);
+//    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
     return StructureSupport.extractStringValue(
         this,
         0,
@@ -69,13 +77,18 @@ public interface CDAltText extends RichTextRecord<WSIG> {
    * @return this record
    */
   default CDAltText setAltText(final String altText) {
-    return StructureSupport.writeStringValue(
-        this,
-        0,
-        this.getLength(),
-        altText,
-        this::setLength
-      );
+    byte[] lmbcs = altText.getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$
+    resizeVariableData(lmbcs.length);
+    ByteBuffer buf = getVariableData();
+    buf.put(lmbcs);
+    return this;
+//    return StructureSupport.writeStringValue(
+//        this,
+//        0,
+//        this.getLength(),
+//        altText,
+//        this::setLength
+//      );
   }
   
   @StructureSetter("wLength")

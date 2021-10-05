@@ -25,26 +25,26 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 @StructureDefinition(
     name = "CDPOINT",
     members = {
-      @StructureMember(name = "x", type = long.class),
-      @StructureMember(name = "y", type = long.class)
+      @StructureMember(name = "x", type = int.class),
+      @StructureMember(name = "y", type = int.class)
     }
   )
 public interface CDPoint extends MemoryStructure, Point {
 
   @StructureGetter("x")
   @Override
-  long getX();
+  int getX();
 
   @StructureGetter("y")
   @Override
-  long getY();
+  int getY();
 
   @StructureSetter("x")
   @Override
-  CDPoint setX(long x);
+  CDPoint setX(int x);
 
   @StructureSetter("y")
   @Override
-  CDPoint setY(long y);
+  CDPoint setY(int y);
   
 }
