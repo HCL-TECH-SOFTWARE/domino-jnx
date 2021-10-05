@@ -52,11 +52,6 @@ public interface CDAltText extends RichTextRecord<WSIG> {
    * @return this record
    */
   default String getAltText() {
-//    ByteBuffer buf = getVariableData();
-//    int len = buf.remaining();
-//    byte[] lmbcs = new byte[len];
-//    buf.get(lmbcs);
-//    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
     return StructureSupport.extractStringValue(
         this,
         0,
