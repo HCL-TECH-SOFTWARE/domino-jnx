@@ -59,6 +59,7 @@ import com.hcl.domino.jnx.vertx.json.DesignElementMixIn;
 import com.hcl.domino.jnx.vertx.json.GenericFormOrSubformMixIn;
 import com.hcl.domino.jnx.vertx.json.ImportedJavaAgentContentMixIn;
 import com.hcl.domino.jnx.vertx.json.JavaAgentContentMixIn;
+import com.hcl.domino.jnx.vertx.json.JnxTypesModule;
 import com.hcl.domino.jnx.vertx.json.MemoryStructureMixIn;
 import com.hcl.domino.jnx.vertx.json.OutlineMixIn;
 import com.hcl.domino.jnx.vertx.json.ResizableMemoryStructureMixIn;
@@ -92,6 +93,7 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(JavaAgentContent.class, JavaAgentContentMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(ImportedJavaAgentContent.class, ImportedJavaAgentContentMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().registerModule(new Jdk8Module());
+    io.vertx.core.json.jackson.DatabindCodec.mapper().registerModule(new JnxTypesModule());
   }
 
   /**
