@@ -77,18 +77,13 @@ public interface CDAltText extends RichTextRecord<WSIG> {
    * @return this record
    */
   default CDAltText setAltText(final String altText) {
-    byte[] lmbcs = altText.getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$
-    resizeVariableData(lmbcs.length);
-    ByteBuffer buf = getVariableData();
-    buf.put(lmbcs);
-    return this;
-//    return StructureSupport.writeStringValue(
-//        this,
-//        0,
-//        this.getLength(),
-//        altText,
-//        this::setLength
-//      );
+    return StructureSupport.writeStringValue(
+        this,
+        0,
+        this.getLength(),
+        altText,
+        this::setLength
+      );
   }
   
   @StructureSetter("wLength")
