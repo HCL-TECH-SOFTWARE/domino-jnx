@@ -50,6 +50,7 @@ import com.hcl.domino.data.Database.OpenDocumentMode;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoDateRange;
+import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.DominoTimeType;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.html.HtmlConvertOption;
@@ -675,5 +676,64 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
 
       assertFalse(json.containsKey("@meta"), "JSON should not contain a metadata object");
     });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testDominoDateTimeSerialization(final JsonSerializer serializer) {
+    LocalDate expected = LocalDate.of(2021, 4, 5);
+    DominoDateTime now = getClient().createDateTime(expected);
+    DateTimeExample obj = new DateTimeExample(now);
+    
+    String jsonString = serializer.toJson(obj).toString();
+    JsonObject jsonObj = Json.createReader(new StringReader(jsonString)).readObject();
+    String time = jsonObj.getString("time");
+    
+    LocalDate actual = LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(time));
+    assertEquals(expected, actual);
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testDominoDateRangeSerialization(final JsonSerializer serializer) {
+    LocalDate expected1 = LocalDate.of(2021, 4, 5);
+    LocalDate expected2 = LocalDate.of(2021, 10, 21);
+    DominoDateRange now = getClient().createDateRange(expected1, expected2);
+    DateRangeExample obj = new DateRangeExample(now);
+    
+    String jsonString = serializer.toJson(obj).toString();
+    JsonObject jsonObj = Json.createReader(new StringReader(jsonString)).readObject();
+    String time = jsonObj.getString("time");
+    
+    String[] parts = StringUtil.splitString(time, '/');
+    
+    LocalDate actual1 = LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(parts[0]));
+    LocalDate actual2 = LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(parts[1]));
+    assertEquals(expected1, actual1);
+    assertEquals(expected2, actual2);
+  }
+  
+  public static class DateTimeExample {
+    private final DominoDateTime time;
+    
+    public DateTimeExample(DominoDateTime time) {
+      this.time = time;
+    }
+    
+    public DominoDateTime getTime() {
+      return time;
+    }
+  }
+  
+  public static class DateRangeExample {
+    private final DominoDateRange time;
+    
+    public DateRangeExample(DominoDateRange time) {
+      this.time = time;
+    }
+    
+    public DominoDateRange getTime() {
+      return time;
+    }
   }
 }
