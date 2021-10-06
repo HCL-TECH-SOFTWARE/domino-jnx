@@ -37,7 +37,7 @@ import com.hcl.domino.richtext.structures.WSIG;
     @StructureMember(name = "Flags", type = CDDDEBegin.DDEFlag.class),
     @StructureMember(name = "PasteEmbedDocName", type = char[].class, length = 80),
     @StructureMember(name = "EmbeddedDocCount", type = short.class, unsigned = true),
-    @StructureMember(name = "ClipFormat", type = CDDDEBegin.DDEFormat.class)
+    @StructureMember(name = "ClipFormat", type = DDEFormat.class)
 })
 public interface CDDDEBegin extends RichTextRecord<WSIG> {
   enum DDEFlag implements INumberEnum<Integer> {
@@ -64,33 +64,6 @@ public interface CDDDEBegin extends RichTextRecord<WSIG> {
 
     @Override
     public Integer getValue() {
-      return this.value;
-    }
-  }
-
-  enum DDEFormat implements INumberEnum<Short> {
-    TEXT(0x01),
-    METAFILE(0x02),
-    BITMAP(0x03),
-    RTF(0x04),
-    OWNERLINK(0x06),
-    OBJECTLINK(0x07),
-    NATIVE(0x08),
-    ICON(0x09);
-
-    private final short value;
-
-    DDEFormat(final int value) {
-      this.value = (short) value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Short getValue() {
       return this.value;
     }
   }

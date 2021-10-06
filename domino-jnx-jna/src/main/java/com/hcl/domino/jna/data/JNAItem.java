@@ -30,6 +30,7 @@ import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
+import com.hcl.domino.commons.richtext.DefaultRichTextList;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.data.Document;
@@ -44,11 +45,14 @@ import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNADocumentAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNAItemAllocations;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
+import com.hcl.domino.jna.internal.richtext.JNARichtextNavigator;
 import com.hcl.domino.jna.internal.structs.NotesBlockIdStruct;
 import com.hcl.domino.mime.MimeEntity;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextConstants;
+import com.hcl.domino.richtext.RichTextRecordList;
+import com.hcl.domino.richtext.records.RecordType.Area;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
@@ -124,6 +128,11 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 		finally {
 			Mem.OSUnlockObject(valueBlockId);
 		}
+	}
+	
+	@Override
+	public RichTextRecordList getValueRichText(Area variant) {
+	  return new DefaultRichTextList(new JNARichtextNavigator((JNADocument)this.getParent(), this), variant);
 	}
 	
 	@SuppressWarnings("rawtypes")
