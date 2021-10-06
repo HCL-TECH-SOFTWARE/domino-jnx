@@ -16,6 +16,10 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.util.Optional;
+
+import com.hcl.domino.constants.WindowsConstants;
+import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -28,36 +32,63 @@ import com.hcl.domino.richtext.structures.RectSize;
  */
 @StructureDefinition(name = "CDWINMETAHEADER", members = {
     @StructureMember(name = "Header", type = LSIG.class),
-    @StructureMember(name = "mm", type = short.class, unsigned = false),
-    @StructureMember(name = "xExt", type = short.class, unsigned = false),
-    @StructureMember(name = "yExt", type = short.class, unsigned = false),
+    @StructureMember(name = "mm", type = CDWinMetaHeader.MappingMode.class),
+    @StructureMember(name = "xExt", type = short.class),
+    @StructureMember(name = "yExt", type = short.class),
     @StructureMember(name = "OriginalDisplaySize", type = RectSize.class),
     @StructureMember(name = "MetafileSize", type = int.class, unsigned = true),
     @StructureMember(name = "SegCount", type = short.class, unsigned = true)
 })
 public interface CDWinMetaHeader extends RichTextRecord<LSIG> {
+  public enum MappingMode implements INumberEnum<Short> {
+    TEXT(WindowsConstants.MM_TEXT),
+    LOMETRIC(WindowsConstants.MM_LOMETRIC),
+    HIMETRIC(WindowsConstants.MM_HIMETRIC),
+    LOENGLISH(WindowsConstants.MM_LOENGLISH),
+    HIENGLISH(WindowsConstants.MM_HIENGLISH),
+    TWIPS(WindowsConstants.MM_TWIPS),
+    ISOTROPIC(WindowsConstants.MM_ISOTROPIC),
+    ANISOTROPIC(WindowsConstants.MM_ANISOTROPIC);
+    private final short value;
+    private MappingMode(short value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return value;
+    }
+
+    @Override
+    public Short getValue() {
+      return value;
+    }
+  }
 
   @StructureGetter("Header")
   @Override
   LSIG getHeader();
   
   @StructureGetter("mm")
-  short getmm();
+  Optional<MappingMode> getMappingMode();
+  
+  @StructureGetter("mm")
+  short getMappingModeRaw();
   
   @StructureSetter("mm")
-  CDWinMetaHeader setmm(short length);
+  CDWinMetaHeader setMappingMode(MappingMode mode);
   
   @StructureGetter("xExt")
-  short getxExt();
+  short getXExtent();
   
   @StructureSetter("xExt")
-  CDWinMetaHeader setxExt(short xExt);
+  CDWinMetaHeader setXExtent(short xExt);
   
   @StructureGetter("yExt")
-  short getyExt();
+  short getYExtent();
   
   @StructureSetter("yExt")
-  CDWinMetaHeader setyExt(short yExt);
+  CDWinMetaHeader setYExtent(short yExt);
   
   @StructureGetter("OriginalDisplaySize")
   RectSize getOriginalDisplaySize();

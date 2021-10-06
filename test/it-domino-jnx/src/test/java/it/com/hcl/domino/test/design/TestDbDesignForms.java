@@ -88,6 +88,8 @@ import com.hcl.domino.design.simpleaction.SimpleAction;
 import com.hcl.domino.richtext.NotesBitmap;
 import com.hcl.domino.richtext.records.CDHeader;
 import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.records.CDWinMetaHeader;
+import com.hcl.domino.richtext.records.CDWinMetaSegment;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
@@ -101,7 +103,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignForms extends AbstractDesignTest {
-  public static final int EXPECTED_IMPORT_FORMS = 7;
+  public static final int EXPECTED_IMPORT_FORMS = 8;
   public static final int EXPECTED_IMPORT_SUBFORMS = 2;
 
   private static String dbPath;
@@ -973,5 +975,38 @@ public class TestDbDesignForms extends AbstractDesignTest {
     if(!types.isEmpty()) {
       System.out.println("Encountered unimplemented CD record types: " + types);
     }
+  }
+  
+  @Test
+  public void testLotusComponentsForm() {
+    DbDesign design = database.getDesign();
+    
+    Form form = design.getForm("Lotus Components Form").get();
+    
+    List<?> body = form.getBody();
+    
+    // The form contains several embedded Lotus Components objects,
+    //   the first of which has a single Win-meta header/segment pair
+    
+    CDWinMetaHeader header = body.stream()
+      .filter(CDWinMetaHeader.class::isInstance)
+      .map(CDWinMetaHeader.class::cast)
+      .findFirst()
+      .get();
+    assertEquals(CDWinMetaHeader.MappingMode.ANISOTROPIC, header.getMappingMode().get());
+    assertEquals((short)10583, header.getXExtent());
+    assertEquals((short)7938, header.getYExtent());
+    assertEquals(6000, header.getOriginalDisplaySize().getWidth());
+    assertEquals(4500, header.getOriginalDisplaySize().getHeight());
+    assertEquals(3548, header.getMetafileSize());
+    assertEquals(1, header.getSegCount());
+    
+    CDWinMetaSegment segment = body.stream()
+      .filter(CDWinMetaSegment.class::isInstance)
+      .map(CDWinMetaSegment.class::cast)
+      .findFirst()
+      .get();
+    assertEquals(3548, segment.getDataSize());
+    assertEquals(3548, segment.getSegSize());
   }
 }
