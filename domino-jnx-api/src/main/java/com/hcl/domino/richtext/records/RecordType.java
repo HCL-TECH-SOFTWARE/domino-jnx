@@ -631,9 +631,9 @@ public enum RecordType {
   /** This structure specifies the end of a DDE link. */
   DDEEND(RichTextConstants.SIG_CD_DDEEND, 4, CDDDEEnd.class),
   /** This structure specifies the start of an OLE Object. */
-  OLEBEGIN(RichTextConstants.SIG_CD_OLEBEGIN, 4),
+  OLEBEGIN(RichTextConstants.SIG_CD_OLEBEGIN, 4, CDOLEBegin.class),
   /** This structure specifies the end of an OLE Object in a rich text field. */
-  OLEEND(RichTextConstants.SIG_CD_OLEEND, 4),
+  OLEEND(RichTextConstants.SIG_CD_OLEEND, 4, CDOLEEnd.class),
   /**
    * This structure specifies the start of a "hot" region in a rich text
    * field.<br>

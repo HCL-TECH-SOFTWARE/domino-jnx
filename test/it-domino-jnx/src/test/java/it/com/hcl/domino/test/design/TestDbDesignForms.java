@@ -87,6 +87,8 @@ import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
 import com.hcl.domino.richtext.NotesBitmap;
 import com.hcl.domino.richtext.records.CDHeader;
+import com.hcl.domino.richtext.records.CDOLEBegin;
+import com.hcl.domino.richtext.records.CDOLEEnd;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.CDWinMetaHeader;
 import com.hcl.domino.richtext.records.CDWinMetaSegment;
@@ -987,26 +989,81 @@ public class TestDbDesignForms extends AbstractDesignTest {
     
     // The form contains several embedded Lotus Components objects,
     //   the first of which has a single Win-meta header/segment pair
+    {
+      List<?> seg = extractOle(body, 0);
+      
+      CDOLEBegin begin = seg.stream()
+        .filter(CDOLEBegin.class::isInstance)
+        .map(CDOLEBegin.class::cast)
+        .findFirst()
+        .get();
+      assertEquals(CDOLEBegin.Version.VERSION2, begin.getVersion().get());
+      assertEquals(EnumSet.of(CDOLEBegin.Flag.OBJECT), begin.getFlags());
+      assertEquals(CDOLEBegin.ClipFormat.METAFILE, begin.getClipFormat().get());
+      assertEquals("EXT25566", begin.getAttachmentName());
+      assertEquals("Lotus.Draw.1", begin.getClassName());
+      assertEquals("", begin.getTemplateName());
+      
+      CDWinMetaHeader header = seg.stream()
+        .filter(CDWinMetaHeader.class::isInstance)
+        .map(CDWinMetaHeader.class::cast)
+        .findFirst()
+        .get();
+      assertEquals(CDWinMetaHeader.MappingMode.ANISOTROPIC, header.getMappingMode().get());
+      assertEquals((short)10583, header.getXExtent());
+      assertEquals((short)7938, header.getYExtent());
+      assertEquals(6000, header.getOriginalDisplaySize().getWidth());
+      assertEquals(4500, header.getOriginalDisplaySize().getHeight());
+      assertEquals(3548, header.getMetafileSize());
+      assertEquals(1, header.getSegCount());
+      
+      CDWinMetaSegment segment = seg.stream()
+        .filter(CDWinMetaSegment.class::isInstance)
+        .map(CDWinMetaSegment.class::cast)
+        .findFirst()
+        .get();
+      assertEquals(3548, segment.getDataSize());
+      assertEquals(3548, segment.getSegSize());
+    }
     
-    CDWinMetaHeader header = body.stream()
-      .filter(CDWinMetaHeader.class::isInstance)
-      .map(CDWinMetaHeader.class::cast)
-      .findFirst()
-      .get();
-    assertEquals(CDWinMetaHeader.MappingMode.ANISOTROPIC, header.getMappingMode().get());
-    assertEquals((short)10583, header.getXExtent());
-    assertEquals((short)7938, header.getYExtent());
-    assertEquals(6000, header.getOriginalDisplaySize().getWidth());
-    assertEquals(4500, header.getOriginalDisplaySize().getHeight());
-    assertEquals(3548, header.getMetafileSize());
-    assertEquals(1, header.getSegCount());
+    // The file viewer has some Notes/FX bindings
+    {
+      List<?> seg = extractOle(body, 2);
+      CDOLEBegin begin = seg.stream()
+          .filter(CDOLEBegin.class::isInstance)
+          .map(CDOLEBegin.class::cast)
+          .findFirst()
+          .get();
+        assertEquals(CDOLEBegin.Version.VERSION2, begin.getVersion().get());
+        assertEquals(EnumSet.of(CDOLEBegin.Flag.OBJECT), begin.getFlags());
+        assertEquals(CDOLEBegin.ClipFormat.METAFILE, begin.getClipFormat().get());
+        assertEquals("EXT05342", begin.getAttachmentName());
+        assertEquals("Lotus.FileViewer.1", begin.getClassName());
+        assertEquals("", begin.getTemplateName());
+    }
+  }
+  
+  private List<?> extractOle(List<?> body, int index) {
+    int found = 0;
     
-    CDWinMetaSegment segment = body.stream()
-      .filter(CDWinMetaSegment.class::isInstance)
-      .map(CDWinMetaSegment.class::cast)
-      .findFirst()
-      .get();
-    assertEquals(3548, segment.getDataSize());
-    assertEquals(3548, segment.getSegSize());
+    int oleBeginIndex = -1;
+    for(oleBeginIndex = 0; oleBeginIndex < body.size(); oleBeginIndex++) {
+      if(body.get(oleBeginIndex) instanceof CDOLEBegin) {
+        if(found == index) {
+          break;
+        }
+        found++;
+      }
+    }
+    assertTrue(oleBeginIndex > -1 && oleBeginIndex < body.size());
+    int oleEndIndex = -1;
+    for(oleEndIndex = oleBeginIndex; oleEndIndex < body.size(); oleEndIndex++) {
+      if(body.get(oleEndIndex) instanceof CDOLEEnd) {
+        break;
+      }
+    }
+    assertTrue(oleEndIndex > -1 && oleEndIndex < body.size());
+    
+    return body.subList(oleBeginIndex, oleEndIndex-1);
   }
 }
