@@ -162,7 +162,7 @@ public class OutlineFormatDecoder {
   
   private static int  recalculateDataSize(short dataType, int datasize, ByteBuffer buf)  {
     int retVal = datasize;
-    if (dataType == ItemDataType.TYPE_FORMULA.getValue()) {
+    if (dataType == ItemDataType.TYPE_FORMULA.getValue() || dataType == ItemDataType.TYPE_TEXT.getValue()) {
       retVal = (short) (datasize - 2);
       buf.position(buf.position()+2);
     }

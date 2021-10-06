@@ -15,6 +15,8 @@
  * ==========================================================================
  */
 package com.hcl.domino.richtext.records;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
@@ -28,7 +30,8 @@ import com.hcl.domino.richtext.structures.WSIG;
 @StructureDefinition(name = "CDALTTEXT", members = {
     @StructureMember(name = "Header", type = WSIG.class),
     @StructureMember(name = "wLength", type = short.class, unsigned = true),
-    @StructureMember(name = "Reserved1", type = short.class, unsigned = true)
+    @StructureMember(name = "Reserved1", type = short.class, unsigned = true),
+    @StructureMember(name = "Reserved2", type = int.class)
 })
 public interface CDAltText extends RichTextRecord<WSIG> {
 

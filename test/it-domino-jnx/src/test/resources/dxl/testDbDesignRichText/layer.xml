@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='utf-8'?>
+<form name='TestLayer' xmlns='http://www.lotus.com/dxl' version='12.0' replicaid='8525683F00771995'
+ publicaccess='false' designerversion='8.5.3' renderpassthrough='true'>
+<noteinfo noteid='4f6' unid='3BC5A43699332BE885258764007845DB' sequence='3'>
+<created><datetime dst='true'>20211004T175342,03-04</datetime></created>
+<modified><datetime dst='true'>20211004T180327,66-04</datetime></modified>
+<revised><datetime dst='true'>20211004T180327,64-04</datetime></revised>
+<lastaccessed><datetime dst='true'>20211004T180327,64-04</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20211004T175342,44-04</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Prabhakar Bugga/O=Prabhakar Bugga</name></updatedby>
+<wassignedby><name>CN=Prabhakar Bugga/O=Prabhakar Bugga</name></wassignedby>
+<body><richtext>
+<pardef id='1'/>
+<par def='1'><layer htmlid='LayerId' zindex='1' topunittype='pixels' top='0.0000'
+ leftunittype='pixels' left='96.0000' widthunittype='pixels' width='500.0000'
+ heightunittype='pixels' height='200.0000' bgcolor='#a16252'>
+<pardef id='2'/>
+<par def='2'><layer htmlid='LayerId2' zindex='2' topunittype='percent' top='0.0000'
+ leftunittype='percent' left='0.0000' widthunittype='percent' width='40.0000'
+ heightunittype='percent' height='50.0000' bgcolor='yellow'>
+<par def='2'/></layer></par></layer></par></richtext></body>
+<item name='$$ScriptName' summary='false' sign='true'><text>TestLayer</text></item></form>
+
