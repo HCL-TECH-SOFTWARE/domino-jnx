@@ -16,6 +16,7 @@
  */
 package it.com.hcl.domino.test.design;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -35,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -56,6 +58,7 @@ import com.hcl.domino.design.ActionBar;
 import com.hcl.domino.design.ActionBar.ButtonHeightMode;
 import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.DbDesign;
+import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageRepeatMode;
@@ -89,9 +92,11 @@ import com.hcl.domino.richtext.NotesBitmap;
 import com.hcl.domino.richtext.records.CDHeader;
 import com.hcl.domino.richtext.records.CDOLEBegin;
 import com.hcl.domino.richtext.records.CDOLEEnd;
+import com.hcl.domino.richtext.records.CDOLEObjectInfo;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.CDWinMetaHeader;
 import com.hcl.domino.richtext.records.CDWinMetaSegment;
+import com.hcl.domino.richtext.records.DDEFormat;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
@@ -1041,6 +1046,72 @@ public class TestDbDesignForms extends AbstractDesignTest {
         assertEquals("Lotus.FileViewer.1", begin.getClassName());
         assertEquals("", begin.getTemplateName());
     }
+    
+    // There are four $OLEOBJINFO fields
+    AtomicInteger index = new AtomicInteger(0);
+    form.getDocument().forEachItem(DesignConstants.OLE_OBJECT_ITEM, (item, loop) -> {
+      switch(index.get()) {
+      case 0: {
+        CDOLEObjectInfo info = (CDOLEObjectInfo)item.getValueRichText().get(0);
+        assertEquals(CDOLEObjectInfo.StorageFormat.STRUCT_STORAGE, info.getStorageFormat().get());
+        assertEquals(DDEFormat.METAFILE, info.getDisplayFormat().get());
+        assertEquals(EnumSet.of(CDOLEObjectInfo.Flag.CONTROL, CDOLEObjectInfo.Flag.UPDATEFROMDOCUMENT), info.getFlags());
+        assertEquals((short)0, info.getStorageFormatAppearedIn());
+        assertEquals("EXT25566", info.getFileObjectName());
+        assertEquals("Lotus Draw/Diagram Component", info.getDescription());
+        assertEquals("$Body", info.getFieldName());
+        assertEquals("", info.getTextIndexObjectName());
+        assertEquals("", info.getHtmlData());
+        assertArrayEquals(new byte[0], info.getAssociatedFileData());
+        break;
+      }
+      case 1: {
+        CDOLEObjectInfo info = (CDOLEObjectInfo)item.getValueRichText().get(0);
+        assertEquals(CDOLEObjectInfo.StorageFormat.STRUCT_STORAGE, info.getStorageFormat().get());
+        assertEquals(DDEFormat.METAFILE, info.getDisplayFormat().get());
+        assertEquals(EnumSet.of(CDOLEObjectInfo.Flag.CONTROL, CDOLEObjectInfo.Flag.UPDATEFROMDOCUMENT), info.getFlags());
+        assertEquals((short)0, info.getStorageFormatAppearedIn());
+        assertEquals("EXT36062", info.getFileObjectName());
+        assertEquals("Lotus Comment Component", info.getDescription());
+        assertEquals("$Body", info.getFieldName());
+        assertEquals("", info.getTextIndexObjectName());
+        assertEquals("", info.getHtmlData());
+        assertArrayEquals(new byte[0], info.getAssociatedFileData());
+        break;
+      }
+      case 2: {
+        CDOLEObjectInfo info = (CDOLEObjectInfo)item.getValueRichText().get(0);
+        assertEquals(CDOLEObjectInfo.StorageFormat.STRUCT_STORAGE, info.getStorageFormat().get());
+        assertEquals(DDEFormat.METAFILE, info.getDisplayFormat().get());
+        assertEquals(EnumSet.of(CDOLEObjectInfo.Flag.CONTROL, CDOLEObjectInfo.Flag.UPDATEFROMDOCUMENT), info.getFlags());
+        assertEquals((short)0, info.getStorageFormatAppearedIn());
+        assertEquals("EXT05342", info.getFileObjectName());
+        assertEquals("Lotus File Viewer Component", info.getDescription());
+        assertEquals("$Body", info.getFieldName());
+        assertEquals("", info.getTextIndexObjectName());
+        assertEquals("", info.getHtmlData());
+        assertArrayEquals(new byte[0], info.getAssociatedFileData());
+        break;
+      }
+      case 3: {
+        CDOLEObjectInfo info = (CDOLEObjectInfo)item.getValueRichText().get(0);
+        assertEquals(CDOLEObjectInfo.StorageFormat.STRUCT_STORAGE, info.getStorageFormat().get());
+        assertEquals(DDEFormat.METAFILE, info.getDisplayFormat().get());
+        assertEquals(EnumSet.of(CDOLEObjectInfo.Flag.CONTROL, CDOLEObjectInfo.Flag.UPDATEFROMDOCUMENT), info.getFlags());
+        assertEquals((short)0, info.getStorageFormatAppearedIn());
+        assertEquals("EXT60758", info.getFileObjectName());
+        assertEquals("Lotus Spreadsheet Component", info.getDescription());
+        assertEquals("$Body", info.getFieldName());
+        assertEquals("", info.getTextIndexObjectName());
+        assertEquals("", info.getHtmlData());
+        assertArrayEquals(new byte[0], info.getAssociatedFileData());
+        break;
+      }
+      default:
+        throw new IllegalStateException("Encounted unexpected OLE item index " + index.get());
+      }
+      index.incrementAndGet();
+    });
   }
   
   private List<?> extractOle(List<?> body, int index) {

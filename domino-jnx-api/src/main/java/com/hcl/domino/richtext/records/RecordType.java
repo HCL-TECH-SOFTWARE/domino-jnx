@@ -739,7 +739,7 @@ public enum RecordType {
    * action elements associated with the graphical element.
    */
   LAYOUTGRAPHIC(RichTextConstants.SIG_CD_LAYOUTGRAPHIC, new int[] { 1, 4 }),
-  OLEOBJINFO(RichTextConstants.SIG_CD_OLEOBJINFO, 4),
+  OLEOBJINFO(RichTextConstants.SIG_CD_OLEOBJINFO, new int[] { 1, 4 }, CDOLEObjectInfo.class),
   /**
    * A button in a layout region of a form is defined by a CDLAYOUTBUTTON
    * record.<br>
