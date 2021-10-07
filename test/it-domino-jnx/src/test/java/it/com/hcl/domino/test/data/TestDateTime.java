@@ -207,14 +207,20 @@ public class TestDateTime extends AbstractNotesRuntimeTest {
     final DominoClient client = this.getClient();
 
     {
-      final ZonedDateTime zdt = ZonedDateTime
-          .from(DateTimeFormatter.ISO_DATE_TIME.parse("1996-12-10T14:49:04+05:00[America/New_York]"));
+      ZonedDateTime zdt = ZonedDateTime.of(
+        LocalDate.of(1996, 12, 10),
+        LocalTime.of(14, 49, 04),
+        ZoneId.of("America/New_York")
+      );
       final DominoDateTime dt = client.createDateTime(zdt);
       Assertions.assertArrayEquals(new int[] { 0x006CDCC0, 0x852563FC }, dt.getAdapter(int[].class));
     }
     {
-      final ZonedDateTime zdt = ZonedDateTime
-          .from(DateTimeFormatter.ISO_DATE_TIME.parse("1996-12-10T14:49:04-05:30[Asia/Calcutta]"));
+      ZonedDateTime zdt = ZonedDateTime.of(
+          LocalDate.of(1996, 12, 10),
+          LocalTime.of(14, 49, 04),
+          ZoneId.of("Asia/Calcutta")
+        );
       final DominoDateTime dt = client.createDateTime(zdt);
       Assertions.assertArrayEquals(new int[] { 0x00332f20, 0x652563FC }, dt.getAdapter(int[].class));
     }
