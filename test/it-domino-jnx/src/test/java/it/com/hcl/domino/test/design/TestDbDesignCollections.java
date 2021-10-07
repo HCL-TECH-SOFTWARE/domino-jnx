@@ -117,7 +117,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignCollections extends AbstractDesignTest {
-  public static final int EXPECTED_IMPORT_VIEWS = 12;
+  public static final int EXPECTED_IMPORT_VIEWS = 13;
   public static final int EXPECTED_IMPORT_FOLDERS = 1;
 
   private static String dbPath;
@@ -2251,5 +2251,13 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     assertTrue(calendar.isTimeSlotsOverridable());
     assertTrue(calendar.isAllowUserTimeSlotToggle());
     assertTrue(calendar.isGroupEntriesByTimeSlot());
+  }
+  
+  @Test
+  public void testEmptyView() {
+    DbDesign design = database.getDesign();
+    
+    View view = design.getView("Empty View").get();
+    assertTrue(view.getColumns().isEmpty());
   }
 }
