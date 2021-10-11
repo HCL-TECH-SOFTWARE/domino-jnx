@@ -404,7 +404,7 @@ public enum RecordType {
    * A CDHTMLFORMULA record contains a formula used to generate either an
    * attribute or alternate HTML text for a Java applet.
    */
-  HTMLFORMULA(RichTextConstants.SIG_CD_HTMLFORMULA, 1),
+  HTMLFORMULA(RichTextConstants.SIG_CD_HTMLFORMULA, 1, CDHtmlFormula.class),
   NESTEDTABLEBEGIN(RichTextConstants.SIG_CD_NESTEDTABLEBEGIN, 1, CDTableBegin.class),
   NESTEDTABLECELL(RichTextConstants.SIG_CD_NESTEDTABLECELL, 1, CDTableCell.class),
   NESTEDTABLEEND(RichTextConstants.SIG_CD_NESTEDTABLEEND, 1, CDTableEnd.class),
@@ -451,7 +451,7 @@ public enum RecordType {
    * different row is displayed within the time interval specified.<br>
    * This structure is stored just before the CDTABLEEND structure.
    */
-  TIMERINFO(RichTextConstants.SIG_CD_TIMERINFO, 1),
+  TIMERINFO(RichTextConstants.SIG_CD_TIMERINFO, 1, CDTimerInfo.class),
   /** This CD record describes the Row Height property for a table. */
   TABLEROWHEIGHT(RichTextConstants.SIG_CD_TABLEROWHEIGHT, 1, CDTableRowHeight.class),
   /**
@@ -464,7 +464,7 @@ public enum RecordType {
   /** This CD Record is used within mail templates. */
   REGIONBEGIN(RichTextConstants.SIG_CD_REGIONBEGIN, 1, CDRegionBegin.class),
   REGIONEND(RichTextConstants.SIG_CD_REGIONEND, 1, CDRegionEnd.class),
-  TRANSITION(RichTextConstants.SIG_CD_TRANSITION, 1),
+  TRANSITION(RichTextConstants.SIG_CD_TRANSITION, 1, CDTransition.class),
   /**
    * The designer of a form may define a "hint" associated with a field. This
    * descriptive text

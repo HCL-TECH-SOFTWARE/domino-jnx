@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.LongConsumer;
 import java.util.stream.LongStream;
@@ -34,6 +35,7 @@ import java.util.stream.Stream;
 
 import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.richtext.structures.ListStructure;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 
 /**
@@ -258,6 +260,41 @@ public enum StructureSupport {
     buf.position((int) preLen);
     final byte[] result = new byte[(int) len];
     buf.get(result);
+    return result;
+  }
+  
+  /**
+   * Extracts an array of variable-sized structures from the variable-data portion of a structure.
+   * 
+   * @param <T> the type of structure to extract
+   * @param struct the parent structure
+   * @param preLen the number of bytes before the value to extract
+   * @param type a {@link Class} representing {@code <T>}
+   * @param count the count of structures to extract
+   * @param sizeFunc a {@link Function} that determines the total length of each structure
+   * @return a {@link List} of {@code T} objects
+   * @since 1.0.44
+   */
+  public static <T extends ResizableMemoryStructure> List<T> extractResizableStructures(ResizableMemoryStructure struct, int preLen, Class<T> type, int count, Function<T, Integer> sizeFunc) {
+    ByteBuffer data = struct.getVariableData();
+    data.position(data.position()+preLen);
+    
+    MemoryStructureWrapperService svc = MemoryStructureWrapperService.get();
+    List<T> result = new ArrayList<>(count);
+    int baseSize = svc.sizeOf(type);
+    for(int i = 0; i < count; i++) {
+      ByteBuffer sub = data.slice();
+      sub.limit(baseSize);
+      T base = svc.wrapStructure(type, sub);
+      int size = sizeFunc.apply(base);
+      
+      sub = data.slice();
+      sub.limit(size);
+      result.add(svc.wrapStructure(type, sub));
+      
+      data.position(data.position()+size);
+    }
+    
     return result;
   }
 
