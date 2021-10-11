@@ -118,4 +118,30 @@ public interface EditOds {
   short TRANS_BOXES_INCREMENT = 5;
   short TRANS_EXPLODE = 6;
   short TRANS_DISSOLVE = 7;
+
+  /* Structures for hotspots which are "active" objects (Java applets, plugins, etc.) */
+  short ACTIVEOBJECT_TYPE_JAVA = 1;
+  short ACTIVEOBJECT_TYPE_PLUGIN = 2;
+  short ACTIVEOBJECT_TYPE_OBJECT = 3;
+
+  byte ACTIVEOBJECT_UNIT_PIXELS = 0;
+  byte ACTIVEOBJECT_UNIT_HIMETRICS = 1;
+  byte ACTIVEOBJECT_UNIT_INCHES = 2;
+  byte ACTIVEOBJECT_UNIT_PERCENT = 3;
+  
+  int ACTIVEOBJECT_FLAG_MAYSCRIPT = 0x00000001;
+  /** Active object is a Java applet that uses CORBA */
+  int ACTIVEOBJECT_FLAG_CORBA_APPLET = 0x00000002;
+  /** This is a CORBA applet that uses SSL */
+  int ACTIVEOBJECT_FLAG_CORBA_SSL = 0x00000004;
+  /** This object comes from a mime mail message*/
+  int ACTIVEOBJECT_FLAG_MAIL_PLUGIN = 0x00000008;
+  /** don't automatically download the jar stuff for applets */
+  int ACTIVEOBJECT_FLAG_NOCORBADOWNLOAD = 0x00000010;
+  /** Reserved part of ACTIVEOBJECT sturct contains applet files digested for signature verification */
+  int ACTIVEOBJECT_FLAG_DIGESTAPPLETFILES = 0x00000020;
+  
+  /* Version control of ACTIVEOBJECT */
+  /** Created by Notes build 141 */
+  short ACTIVEOBJECT_VERSION1 = 0;
 }

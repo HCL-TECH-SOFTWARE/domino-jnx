@@ -89,10 +89,12 @@ import com.hcl.domino.design.simpleaction.ModifyFieldAction;
 import com.hcl.domino.design.simpleaction.ReadMarksAction;
 import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.NotesBitmap;
 import com.hcl.domino.richtext.records.CDBegin;
 import com.hcl.domino.richtext.records.CDEnd;
 import com.hcl.domino.richtext.records.CDHeader;
+import com.hcl.domino.richtext.records.CDHotspotBegin;
 import com.hcl.domino.richtext.records.CDOLEBegin;
 import com.hcl.domino.richtext.records.CDOLEEnd;
 import com.hcl.domino.richtext.records.CDOLEObjectInfo;
@@ -111,6 +113,9 @@ import com.hcl.domino.richtext.records.DDEFormat;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.structures.ActiveObject;
+import com.hcl.domino.richtext.structures.ActiveObjectParam;
+import com.hcl.domino.richtext.structures.ActiveObjectStorageLink;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclEntry;
@@ -1227,6 +1232,61 @@ public class TestDbDesignForms extends AbstractDesignTest {
       .findFirst()
       .get();
     assertEquals("i am caption", label.getLabel());
+  }
+  
+  @Test
+  public void testJavaApplet() {
+    DbDesign design = database.getDesign();
+    
+    // This test re-uses the same form as above
+    Form form = design.getForm("Test LS Form").get();
+    
+    List<?> hotspot = extract(
+      form.getBody(),
+      0,
+      r -> r instanceof CDBegin && ((CDBegin)r).getSignature() == RecordType.V4HOTSPOTBEGIN.getConstant(),
+      r -> r instanceof CDEnd
+    );
+    CDHotspotBegin hotspotBegin = hotspot.stream()
+      .filter(CDHotspotBegin.class::isInstance)
+      .map(CDHotspotBegin.class::cast)
+      .filter(h -> h.getHotspotType().equals(HotspotType.ACTIVEOBJECT))
+      .findFirst()
+      .get();
+    
+    ActiveObject obj = hotspotBegin.getActiveObject().get();
+    assertEquals(ActiveObject.Version.VERSION1, obj.getVersion().get());
+    assertEquals(ActiveObject.Type.JAVA, obj.getObjectType().get());
+    assertEquals(EnumSet.of(ActiveObject.Flag.CORBA_APPLET, ActiveObject.Flag.NOCORBADOWNLOAD), obj.getFlags());
+    assertEquals(ActiveObject.Unit.PIXELS, obj.getWidthUnitType().get());
+    assertEquals(ActiveObject.Unit.PIXELS, obj.getHeightUnitType().get());
+    assertEquals(200, obj.getWidth());
+    assertEquals(200, obj.getHeight());
+    assertEquals("", obj.getDocUrlName());
+    assertEquals("notes:///./$FILE", obj.getCodebase());
+    assertEquals("somejar.class", obj.getCode());
+    assertEquals("", obj.getObjectName());
+    {
+      List<ActiveObjectParam> params = obj.getParams();
+      {
+        ActiveObjectParam param = params.get(0);
+        assertEquals("foo", param.getParam());
+        assertEquals("\"ba\" + \"r\"", param.getFormula());
+      }
+      {
+        ActiveObjectParam param = params.get(1);
+        assertEquals("bar", param.getParam());
+        assertEquals("\"baz\"", param.getFormula());
+      }
+    }
+    {
+      List<ActiveObjectStorageLink> links = obj.getStorageLinks();
+      {
+        ActiveObjectStorageLink link = links.get(0);
+        assertEquals("somejar.jar", link.getLink());
+      }
+    }
+    
   }
   
   private List<?> extractOle(List<?> body, int index) {
