@@ -96,10 +96,12 @@ import com.hcl.domino.richtext.records.CDHeader;
 import com.hcl.domino.richtext.records.CDOLEBegin;
 import com.hcl.domino.richtext.records.CDOLEEnd;
 import com.hcl.domino.richtext.records.CDOLEObjectInfo;
+import com.hcl.domino.richtext.records.CDPreTableBegin;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.CDTableBegin;
 import com.hcl.domino.richtext.records.CDTableDataExtension;
 import com.hcl.domino.richtext.records.CDTableEnd;
+import com.hcl.domino.richtext.records.CDTableLabel;
 import com.hcl.domino.richtext.records.CDText;
 import com.hcl.domino.richtext.records.CDTimerInfo;
 import com.hcl.domino.richtext.records.CDTransition;
@@ -1161,6 +1163,70 @@ public class TestDbDesignForms extends AbstractDesignTest {
       .findFirst()
       .get();
     assertEquals(CDTransition.Type.TOPTOBOTTOM_ROW, trans.getTransitionType().get());
+  }
+  
+  @Test
+  public void testTabbedTable() {
+    DbDesign design = database.getDesign();
+    
+    // This test re-uses the same form as above
+    Form form = design.getForm("Test LS Form").get();
+    
+    List<?> pretable = extract(
+      form.getBody(),
+      1,
+      r -> r instanceof CDBegin && RecordType.PRETABLEBEGIN.getConstant() == ((CDBegin)r).getSignature(),
+      r -> r instanceof CDEnd && RecordType.PRETABLEBEGIN.getConstant() == ((CDEnd)r).getSignature()
+    );
+    assertTrue(pretable.stream().anyMatch(CDTableDataExtension.class::isInstance));
+    CDPreTableBegin pre = pretable.stream()
+      .filter(CDPreTableBegin.class::isInstance)
+      .map(CDPreTableBegin.class::cast)
+      .findFirst()
+      .get();
+    assertEquals(EnumSet.of(CDPreTableBegin.Flag.SHOWTABSONLEFT), pre.getFlags());
+    
+    List<?> table = extract(form.getBody(), 1, CDTableBegin.class, CDTableEnd.class);
+    assertInstanceOf(CDTableBegin.class, table.get(0));
+    assertInstanceOf(CDTableEnd.class, table.get(table.size()-1));
+    
+    // Make sure we can find out text bits
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("I")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("am")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("a")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("tabbed table")));
+  }
+  
+  @Test
+  public void testCaptionTable() {
+    DbDesign design = database.getDesign();
+    
+    // This test re-uses the same form as above
+    Form form = design.getForm("Test LS Form").get();
+    
+    List<?> pretable = extract(
+      form.getBody(),
+      2,
+      r -> r instanceof CDBegin && RecordType.PRETABLEBEGIN.getConstant() == ((CDBegin)r).getSignature(),
+      r -> r instanceof CDEnd && RecordType.PRETABLEBEGIN.getConstant() == ((CDEnd)r).getSignature()
+    );
+    assertTrue(pretable.stream().anyMatch(CDTableDataExtension.class::isInstance));
+    
+    List<?> table = extract(form.getBody(), 2, CDTableBegin.class, CDTableEnd.class);
+    assertInstanceOf(CDTableBegin.class, table.get(0));
+    assertInstanceOf(CDTableEnd.class, table.get(table.size()-1));
+    
+    // Make sure we can find out text bits
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("i")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("am")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("a")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("caption table")));
+    CDTableLabel label = table.stream()
+      .filter(CDTableLabel.class::isInstance)
+      .map(CDTableLabel.class::cast)
+      .findFirst()
+      .get();
+    assertEquals("i am caption", label.getLabel());
   }
   
   private List<?> extractOle(List<?> body, int index) {
