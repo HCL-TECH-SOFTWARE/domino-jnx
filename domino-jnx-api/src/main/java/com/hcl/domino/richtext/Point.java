@@ -18,12 +18,12 @@ package com.hcl.domino.richtext;
 
 public interface Point {
 
-  long getX();
+  int getX();
 
-  long getY();
+  int getY();
 
-  Point setX(long x);
+  Point setX(int x);
 
-  Point setY(long y);
+  Point setY(int y);
   
 }

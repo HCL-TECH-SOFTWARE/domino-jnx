@@ -1362,9 +1362,9 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           rtWriter.addRichTextRecord(CDWinMetaHeader.class, begin -> {
-            begin.setmm((short)10);
-            begin.setxExt((short)20);
-            begin.setyExt((short)30);
+            begin.setMappingMode(CDWinMetaHeader.MappingMode.HIMETRIC);
+            begin.setXExtent((short)20);
+            begin.setYExtent((short)30);
             begin.getOriginalDisplaySize().setHeight(40);
             begin.getOriginalDisplaySize().setWidth(50);
             begin.setMetafileSize(90000);
@@ -1373,9 +1373,9 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         }
 
         final CDWinMetaHeader begin = (CDWinMetaHeader) doc.getRichTextItem("Body").get(0);
-        assertEquals(10, begin.getmm());
-        assertEquals(20, begin.getxExt());
-        assertEquals(30, begin.getyExt());
+        assertEquals(CDWinMetaHeader.MappingMode.HIMETRIC, begin.getMappingMode().get());
+        assertEquals(20, begin.getXExtent());
+        assertEquals(30, begin.getYExtent());
         assertEquals(40, begin.getOriginalDisplaySize().getHeight());
         assertEquals(50, begin.getOriginalDisplaySize().getWidth());
         assertEquals(90000, begin.getMetafileSize());

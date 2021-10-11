@@ -72,4 +72,41 @@ public interface EditOds {
   short ALIGNMENT_BOTTOMLEFT = 6;
   short ALIGNMENT_BOTTOMCENTER = 7;
   short ALIGNMENT_BOTTOMRIGHT = 8;
+  
+  short NOTES_OLEVERSION1 = 1;
+  short NOTES_OLEVERSION2 = 2;
+  
+  /** The data is an OLE embedded OBJECT */
+  int OLEREC_FLAG_OBJECT = 0x01;
+  /** The data is an OLE Link */
+  int OLEREC_FLAG_LINK = 0x02;
+  /** If link, Link type == Automatic (hot) */
+  int OLEREC_FLAG_AUTOLINK = 0x04;
+  /** If link, Link type == Manual (warm) */
+  int OLEREC_FLAG_MANUALLINK = 0x08;
+  /** New object, just inserted */
+  int OLEREC_FLAG_NEWOBJECT = 0x10;
+  /** New object, just pasted */
+  int OLEREC_FLAG_PASTED = 0x20;
+  /** Object came from form and should be saved every time it changes in server */
+  int OLEREC_FLAG_SAVEOBJWHENCHANGED = 0x40;
+  /** Object inherited from form, so don't visualize or object incabable of rendering itself. */
+  int OLEREC_FLAG_NOVISUALIZE = 0x80;
+  
+  /** CF_TEXT */
+  short DDEFORMAT_TEXT = 0x01;
+  /** CF_METAFILE or CF_METAFILEPICT */
+  short DDEFORMAT_METAFILE = 0x02;
+  /** CF_BITMAP */
+  short DDEFORMAT_BITMAP = 0x03;
+  /** Rich Text Format */
+  short DDEFORMAT_RTF = 0x04;
+  /** OLE Ownerlink (never saved in CD_DDE or CD_OLE: used at run time) */
+  short DDEFORMAT_OWNERLINK = 0x06;
+  /** OLE Objectlink (never saved in CD_DDE or CD_OLE: used at run time) */
+  short DDEFORMAT_OBJECTLINK = 0x07;
+  /** OLE Native (never saved in CD_DDE or CD_OLE: used at run time) */
+  short DDEFORMAT_NATIVE = 0x08;
+  /** Program Icon for embedded object */
+  short DDEFORMAT_ICON = 0x09;
 }

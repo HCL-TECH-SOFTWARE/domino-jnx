@@ -61,6 +61,24 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 
 		setInitialized();
 	}
+	
+	/**
+	 * Constructs a new rich-text navigator for the specific item within a document.
+	 * 
+	 * @param doc the parent document
+	 * @param item the item containing composite data
+	 * @since 1.0.43
+	 */
+	public JNARichtextNavigator(JNADocument doc, JNAItem item) {
+	  super(doc);
+    
+    m_richTextItemName = item.getName();
+    //read items
+    m_items = new LinkedList<>();
+    m_items.add(item);
+
+    setInitialized();
+	}
 
 	@Override
 	public Document getParentDocument() {

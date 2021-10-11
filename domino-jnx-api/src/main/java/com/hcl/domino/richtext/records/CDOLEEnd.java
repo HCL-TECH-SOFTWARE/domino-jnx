@@ -14,37 +14,26 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.richtext.structures;
+package com.hcl.domino.richtext.records;
 
-import com.hcl.domino.richtext.Point;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
-import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.structures.WSIG;
 
+/**
+ * @author Jesse Gallagher
+ * @since 1.0.43
+ */
 @StructureDefinition(
-    name = "CDPOINT",
-    members = {
-      @StructureMember(name = "x", type = int.class),
-      @StructureMember(name = "y", type = int.class)
-    }
-  )
-public interface CDPoint extends MemoryStructure, Point {
-
-  @StructureGetter("x")
+  name = "CDOLEEND",
+  members = {
+    @StructureMember(name = "Header", type = WSIG.class),
+    @StructureMember(name = "Flags", type = int.class),
+  }
+)
+public interface CDOLEEnd extends RichTextRecord<WSIG> {
+  @StructureGetter("Header")
   @Override
-  int getX();
-
-  @StructureGetter("y")
-  @Override
-  int getY();
-
-  @StructureSetter("x")
-  @Override
-  CDPoint setX(int x);
-
-  @StructureSetter("y")
-  @Override
-  CDPoint setY(int y);
-  
+  WSIG getHeader();
 }

@@ -16,10 +16,12 @@
  */
 package com.hcl.domino.misc;
 
+import com.hcl.domino.constants.EditOds;
+import com.hcl.domino.constants.OleOds;
 import com.hcl.domino.constants.QueryOds;
 import com.hcl.domino.constants.StdNames;
 
-public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds {
+public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds, EditOds, OleOds {
 
   public enum AgentCheck {
     CheckRights(0),
