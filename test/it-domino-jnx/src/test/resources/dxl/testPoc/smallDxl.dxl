@@ -1,0 +1,2305 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE database SYSTEM 'xmlschemas/domino_12_0.dtd'>
+<database xmlns='http://www.lotus.com/dxl' version='12.0' replicaid='4325874B00435EEC'
+ path='DOMCFG5.NSF' title='Test' fromtemplate='StdR5DominoWebServerConfiguration'
+ usejavascriptinpages='false' maintainunread='false' increasemaxfields='true'
+ advancedtemplate='true'>
+<databaseinfo dbid='4325874B00435EEC' odsversion='52' diskspace='884736' percentused='92.6215277777778'
+ numberofdocuments='1'><datamodified><datetime>20210909T170501,62+03</datetime></datamodified><designmodified
+><datetime>20210922T153616,16+03</datetime></designmodified></databaseinfo>
+<launchsettings><noteslaunch whenopened='openframeset' restorelastview='true'
+ frameset='MainFrameset' showaboutdocument='never'/></launchsettings>
+<form name='Virtual Server' alias='VirtualServer' nocompose='true' noquery='true'
+ publicaccess='false' designerversion='6'>
+<noteinfo noteid='12e' unid='0467356830916710852563C500082A2A' sequence='25'>
+<created><datetime dst='true'>19961015T212910,82-04</datetime></created>
+<modified><datetime>20210909T151552,24+03</datetime></modified>
+<revised><datetime>20200514T204846,92+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,23+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,23+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='windowtitle'><formula>@If(@IsNewDoc; "New Virtual Server"; "Virtual Server")</formula></code>
+<body><richtext>
+<pardef id='1' align='none' leftmargin='1in' hide='notes' tabs='L0.5000in L1in'/>
+<par def='1'><horizrule height='0.0500in' width='100%' use3dshading='true'
+ color='black'/></par>
+<par def='1'><run html='true'><font size='9pt'/>&lt;STYLE TYPE="text/css"&gt;</run></par>
+<par def='1'><run html='true'><font size='9pt'/> 	TD {font-family: "Arial"}</run></par>
+<par def='1'><run html='true'><font size='9pt'/>	.TableImage {background-image:url(/</run><run
+ html='true'><font size='9pt'/><computedtext><code event='value'><formula
+>@WebDbName</formula></code></computedtext></run><run html='true'><font size='9pt'/>/gears.gif?OpenImageResource);}</run></par>
+<par def='1'><run html='true'><font size='9pt'/>&lt;/STYLE&gt;</run></par>
+<table widthtype='fitwindow' htmlclass='TableImage' leftmargin='0.7500in'
+ refwidth='10.0313in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<cellbackground repeat='once'><imageref name='gears'/></cellbackground>
+<pardef id='3' keepwithnext='true' keeptogether='true'/>
+<par def='3'><run><font size='9pt'/> </run></par>
+<pardef id='4' leftmargin='0.2500in' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='14pt' style='bold' color='#424282'/>Virtual Server</run></par>
+<pardef id='5' keepwithnext='true' keeptogether='true'/>
+<par def='5'><run><font size='9pt'/>  </run></par></tablecell></tablerow></table>
+<pardef id='6' leftmargin='0.7500in' hide='notes web'/>
+<par def='6'><run><font size='9pt'/></run></par>
+<table widthtype='fitwindow' leftmargin='0.7500in' refwidth='10.0313in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='8' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='8'><run><font size='8pt'/></run></par>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' refwidth='9.8313in'><tablecolumn
+ width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px' bgcolor='#b1b1d2'>
+<pardef id='10' leftmargin='2%' rightmargin='98%' keepwithnext='true' keeptogether='true'/>
+<par def='10'><run><font size='9pt' style='bold' color='#424282'/>Site Information</run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='#b1b1d2'>
+<pardef id='11' leftmargin='1%' rightmargin='99%' keepwithnext='true' keeptogether='true'/>
+<par def='11'><run><font size='9pt' color='#424282'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px 0px 1px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>This is the IP number of the Virtual Server</popuptext><run
+><font size='9pt' color='navy'/>IP Address:</run></popup><run><font size='9pt'
+ color='navy'/></run></par></tablecell>
+<tablecell borderwidth='0px 0px 1px'>
+<pardef id='12' leftmargin='2%' rightmargin='99%' keepwithnext='true' keeptogether='true'/>
+<par def='12'><run><font size='8pt'/><field defaultfocus='true' type='text'
+ kind='editable' name='MH_IP' description='This is the IP number of the Virtual Server'/></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>Optional comment.</popuptext><run><font size='9pt'
+ color='navy'/>Comment:</run></popup><run><font size='9pt' color='navy'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='12'><run><font size='8pt'/><field type='text' kind='editable' name='MH_Comment'
+ description='Optional comment.'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='10'><run><font size='8pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>This is the optional HTML file that can be used instead of the Home URL</popuptext><run
+><font size='8pt' color='navy'/>Default home page</run><run><font size='9pt'
+ color='navy'/>:</run></popup><run><font size='9pt' color='navy'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='12'><run><font size='8pt'/><field type='text' kind='editable' name='MH_Welcome'
+ description='This is the optional HTML file that can be used instead of the Home URL'><code
+ event='defaultvalue'><formula>"default.htm"</formula></code></field></run></par></tablecell></tablerow></table>
+<par def='8'><run><font size='9pt'/></run></par>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' refwidth='9.8313in'><tablecolumn
+ width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px' bgcolor='#b1b1d2'>
+<par def='10'><run><font size='9pt' style='bold' color='#424282'/>Mapping</run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='#b1b1d2'>
+<par def='12'><run><font size='9pt' color='#424282'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px 0px 1px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>Directory in file system for storage of HTML files</popuptext><run
+><font size='9pt' color='navy'/>HTML directory:</run></popup><run><font size='9pt'
+ color='navy'/></run></par></tablecell>
+<tablecell borderwidth='0px 0px 1px'>
+<par def='12'><run><font size='8pt'/><field type='text' kind='editable' name='MH_HTMLDir'
+ description='Directory in file system for storage of HTML files'><code event='defaultvalue'><formula
+>"domino\\html"</formula></code></field></run><run><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>URL to execute when visiting server</popuptext><run
+><font size='9pt' color='navy'/>Home URL:</run></popup><run><font size='9pt'
+ color='navy'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='12'><run><font size='8pt'/><field type='text' kind='editable' name='MH_HomeURL'
+ description='URL to execute when visiting server'><code event='defaultvalue'><formula
+>"/?Open"</formula></code></field></run><run><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>URL Path to specify a CGI program</popuptext><run
+><font size='9pt' color='navy'/>CGI URL path:</run></popup><run><font size='9pt'
+ color='navy'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='12'><run><font size='8pt'/><field type='text' kind='editable' name='MH_CGIPath'
+ description='URL Path to specify a CGI program'><code event='defaultvalue'><formula
+>"/cgi-bin"</formula></code></field></run><run><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>Directory in file system where CGI Programs are stored</popuptext><run
+><font size='9pt' color='navy'/>CGI directory:</run></popup><run><font size='9pt'
+ color='navy'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='12'><run><font size='8pt'/><field type='text' kind='editable' name='MH_CGIDir'
+ description='Directory in file system where CGI Programs are stored'><code
+ event='defaultvalue'><formula>"domino\\cgi-bin"</formula></code></field></run><run
+><font size='9pt' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>The URL path used to identify icons.</popuptext><run
+><font size='9pt' color='navy'/>Icon URL path:</run></popup><run><font size='9pt'
+ color='navy'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='12'><run><font size='9pt' color='navy'/></run><run><font size='9pt'/><field
+ type='text' kind='editable' name='MH_IconsPath' description='The URL path used to identify icons.'><code
+ event='defaultvalue'><formula>"/icons"</formula></code></field></run><run
+><font size='9pt' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>Directory in file system where Icons are stored</popuptext><run
+><font size='9pt' color='navy'/>Path to icons:</run></popup><run><font size='9pt'
+ color='navy'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='12'><run><font size='9pt' color='navy'/></run><run><font size='9pt'/><field
+ type='text' kind='editable' name='MH_IconsDir' description='Directory in file system where Icons are stored'><code
+ event='defaultvalue'><formula>"domino\\icons"</formula></code></field></run><run
+><font size='9pt' color='navy'/></run></par></tablecell></tablerow></table>
+<par def='8'><run><font size='9pt'/></run></par></tablecell></tablerow></table>
+<pardef id='13'/>
+<par def='13'/></richtext></body>
+<item name='$SignatureStatus'><text>1</text></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>VirtualServer</text></item></form>
+
+<form name='Mapping URL -> Directory' alias='DirMap' nocompose='true' noquery='true'
+ publicaccess='false' designerversion='6'>
+<noteinfo noteid='146' unid='C75EB1F06A2072EC852563C50014BEDC' sequence='58'>
+<created><datetime dst='true'>19961015T234635,80-04</datetime></created>
+<modified><datetime>20210909T151552,30+03</datetime></modified>
+<revised><datetime>20200514T204846,40+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,29+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,29+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='windowtitle'><formula>@If(@IsNewDoc; "New URL Directory Mapping"; "URL Directory Mapping")</formula></code>
+<body><richtext>
+<pardef id='1' align='none' leftmargin='1in' hide='notes' tabs='L0.5000in L1in'/>
+<par def='1'><horizrule height='0.0500in' width='100%' use3dshading='true'
+ color='black'/></par>
+<par def='1'><run html='true'><font size='9pt'/>&lt;STYLE TYPE="text/css"&gt;</run></par>
+<par def='1'><run html='true'><font size='9pt'/> 	TD {font-family: "Arial"}</run></par>
+<par def='1'><run html='true'><font size='9pt'/>	.TableImage {background-image:url(/</run><run
+ html='true'><font size='9pt'/><computedtext><code event='value'><formula
+>@WebDbName</formula></code></computedtext></run><run html='true'><font size='9pt'/>/gears.gif?OpenImageResource);}</run></par>
+<par def='1'><run html='true'><font size='9pt'/>&lt;/STYLE&gt;</run></par>
+<table htmlclass='TableImage' leftmargin='0.7500in' widthtype='fixedleft'
+ refwidth='11in'><tablecolumn width='11in'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<cellbackground repeat='once'><imageref name='gears'/></cellbackground>
+<pardef id='3' keepwithnext='true' keeptogether='true'/>
+<par def='3'><run><font size='9pt'/> </run></par>
+<pardef id='4' leftmargin='0.2500in' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='14pt' style='bold' color='#424282'/>'URL -&gt; Directory' Mapping</run></par>
+<pardef id='5' keepwithnext='true' keeptogether='true'/>
+<par def='5'><run><font size='9pt'/>  </run></par></tablecell></tablerow></table>
+<pardef id='6' hide='notes web'/>
+<par def='6'><run><font size='9pt'/></run></par>
+<table widthtype='fitwindow' leftmargin='0.7500in' refwidth='10.0313in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='8' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='8'><run><font size='9pt'/></run></par>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' refwidth='9.8313in'><tablecolumn
+ width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px 0px 1px' bgcolor='#b1b1d2'>
+<pardef id='10' leftmargin='2%' rightmargin='98%' keepwithnext='true' keeptogether='true'/>
+<par def='10'><run><font size='9pt' style='bold' color='#424282'/>Site Information</run></par></tablecell>
+<tablecell borderwidth='0px 0px 1px' bgcolor='#b1b1d2'>
+<pardef id='11' leftmargin='2%' rightmargin='100%' keepwithnext='true' keeptogether='true'/>
+<par def='11'><run><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>The IP number of the server. Leaving this blank will effect this change for all Virtual Servers</popuptext><run
+><font size='9pt' color='navy'/>IP Address:</run></popup><run><font size='9pt'
+ color='navy'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<pardef id='12' leftmargin='0.1125in' rightmargin='100%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='12'><run><font size='8pt'/><field defaultfocus='true' type='text'
+ kind='editable' name='RM_ServerIP' description='The IP number of the server. Leaving this blank will effect this change for all Virtual Servers'/></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>Optional comment field.</popuptext><run><font
+ size='9pt' color='navy'/>Comment:</run></popup><run><font size='9pt' color='navy'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='12'><run><font size='8pt'/><field type='text' kind='editable' name='RM_Comment'
+ description='Optional comment field.'/></run><run><font size='9pt' color='navy'/></run></par></tablecell></tablerow></table>
+<par def='8'><run><font size='9pt'/></run></par>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' refwidth='9.8313in'><tablecolumn
+ width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px 0px 1px' bgcolor='#b1b1d2'>
+<par def='10'><run><font size='9pt' style='bold' color='#424282'/>Mapping</run></par></tablecell>
+<tablecell borderwidth='0px 0px 1px' bgcolor='#b1b1d2'>
+<par def='11'><run><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>URL path to be mapped.</popuptext><run><font
+ size='9pt' color='navy'/>URL path:</run></popup><run><font size='9pt' color='navy'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='12'><run><font size='8pt'/><field type='text' kind='editable' name='RM_MapFrom'
+ description='URL path to be mapped.'/></run><run><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>Actual filesystem path that the URL will be mapped to.</popuptext><run
+><font size='9pt' color='navy'/>Directory:</run></popup><run><font size='9pt'
+ color='navy'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='12'><run><font size='8pt'/><field type='text' kind='editable' name='RM_MapTo'
+ description='Actual filesystem path that the URL will be mapped to.'/></run><run
+><font size='9pt' color='navy'/></run></par></tablecell></tablerow></table>
+<pardef id='13' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='13'/>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' refwidth='9.8313in'><tablecolumn
+ width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#b1b1d2'>
+<par def='10'><run><font size='9pt' style='bold' color='#424282'/></run><popup
+ show='onclick' hotspotstyle='none'><popuptext>This is the security level for this directory. HTML files should have "Read" set and CGI directories should be set to "Execute"</popuptext><run
+><font size='9pt' style='bold' color='#424282'/>Access</run></popup><run><font
+ size='9pt' style='bold' color='#424282'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='0px' bgcolor='#b1b1d2'>
+<pardef id='15' leftmargin='1%' rightmargin='100%' keepwithnext='true' keeptogether='true'/>
+<par def='15'><run><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='10'><run><font size='9pt' color='navy'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='12'><run><font size='9pt'/></run><run><font size='8pt'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' kind='editable'
+ name='RM_MapType' description='This is the security level for this directory. HTML files should have "Read" set and CGI directories should be set to "Execute"'><keywords
+ columns='1' ui='radiobutton'><textlist><text>Read | Pass</text><text>Execute | Exec</text></textlist></keywords><code
+ event='defaultvalue'><formula>"Pass"</formula></code></field></run></par></tablecell></tablerow></table>
+<par def='13'><run><font size='9pt'/></run></par></tablecell></tablerow></table>
+<pardef id='16'/>
+<par def='16'><run><font size='9pt'/> </run></par>
+<pardef id='17'/>
+<par def='17'/>
+<par def='17'/></richtext></body>
+<item name='$SignatureStatus'><text>1</text></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>DirMap</text></item></form>
+
+<form name='Mapping URL -> URL' alias='URLMap' nocompose='true' noquery='true'
+ publicaccess='false' designerversion='6'>
+<noteinfo noteid='14a' unid='33FB8A941FF853EC852563C500165D8C' sequence='36'>
+<created><datetime dst='true'>19961016T000417,40-04</datetime></created>
+<modified><datetime>20210909T151552,31+03</datetime></modified>
+<revised><datetime>20200514T204846,41+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,30+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,30+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='windowtitle'><formula>@If(@IsNewDoc; "New URL Mapping"; "URL Mapping")</formula></code>
+<body><richtext>
+<pardef id='1' align='none' leftmargin='1in' hide='notes' tabs='L0.5000in L1in'/>
+<par def='1'><horizrule height='0.0500in' width='100%' use3dshading='true'
+ color='black'/></par>
+<par def='1'><run html='true'><font size='9pt'/>&lt;STYLE TYPE="text/css"&gt;</run></par>
+<par def='1'><run html='true'><font size='9pt'/> 	TD {font-family: "Arial"}</run></par>
+<par def='1'><run html='true'><font size='9pt'/>	.TableImage {background-image:url(/</run><run
+ html='true'><font size='9pt'/><computedtext><code event='value'><formula
+>@WebDbName</formula></code></computedtext></run><run html='true'><font size='9pt'/>/gears.gif?OpenImageResource);}</run></par>
+<par def='1'><run html='true'><font size='9pt'/>&lt;/STYLE&gt;</run></par>
+<table widthtype='fitwindow' htmlclass='TableImage' leftmargin='0.7500in'
+ refwidth='10.0313in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<cellbackground repeat='once'><imageref name='gears'/></cellbackground>
+<pardef id='3' keepwithnext='true' keeptogether='true'/>
+<par def='3'><run><font size='9pt'/> </run></par>
+<pardef id='4' leftmargin='0.2500in' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='14pt' style='bold' color='#424282'/>'URL -&gt; URL' Mapping</run></par>
+<pardef id='5' keepwithnext='true' keeptogether='true'/>
+<par def='5'><run><font size='9pt'/>  </run></par></tablecell></tablerow></table>
+<pardef id='6' leftmargin='0.7500in' hide='notes web'/>
+<par def='6'><run><font size='9pt'/></run></par>
+<table widthtype='fitwindow' leftmargin='0.7500in' refwidth='10.0313in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='8' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='8'><run><font size='8pt'/></run></par>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' refwidth='9.8313in'><tablecolumn
+ width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px' bgcolor='#b1b1d2'>
+<pardef id='10' leftmargin='2%' rightmargin='98%' keepwithnext='true' keeptogether='true'/>
+<par def='10'><run><font size='9pt' style='bold' color='#424282'/>Site Information</run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='#b1b1d2'>
+<pardef id='11' leftmargin='1%' rightmargin='99%' keepwithnext='true' keeptogether='true'/>
+<par def='11'><run><font size='9pt' color='#424282'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>The IP number of the server. Leaving this blank will effect this change for all Virtual Servers</popuptext><run
+><font size='9pt' color='navy'/>IP Address:</run></popup><run><font size='9pt'
+ color='navy'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<pardef id='12' leftmargin='2%' rightmargin='99%' keepwithnext='true' keeptogether='true'/>
+<par def='12'><run><font size='8pt'/><field defaultfocus='true' type='text'
+ kind='editable' name='RM_ServerIP' description='The IP number of the server. Leaving this blank will effect this change for all Virtual Servers'/></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>Optional comment field.</popuptext><run><font
+ size='9pt' color='navy'/>Comment:</run></popup><run><font size='9pt' color='navy'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='12'><run><font size='8pt'/><field type='text' kind='editable' name='Comment'
+ description='Optional comment field.'/></run></par></tablecell></tablerow></table>
+<pardef id='13' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='13'/>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' refwidth='9.8313in'><tablecolumn
+ width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px 0px 1px' bgcolor='#b1b1d2'>
+<par def='10'><run><font size='9pt' style='bold' color='#424282'/>Mapping</run></par></tablecell>
+<tablecell borderwidth='0px 0px 1px' bgcolor='#b1b1d2'>
+<par def='12'><run><font size='9pt' color='#424282'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>This is the URL that will be used from the browser.</popuptext><run
+><font size='9pt' color='navy'/>First URL path:</run></popup><run><font size='9pt'
+ color='navy'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='12'><run><font size='8pt'/><field type='text' kind='editable' name='RM_MapFrom'
+ description='This is the URL that will be used from the browser.'/></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>This is the URL of the actual resource on the server. NOTE: mapping URLs to Notes resources should be done with redirect documents.</popuptext><run
+><font size='9pt' color='navy'/>Second URL path:</run></popup><run><font size='9pt'
+ color='navy'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='12'><run><font size='8pt'/><field type='text' kind='editable' name='RM_MapTo'
+ description='This is the URL of the actual resource on the server. NOTE: mapping URLs to Notes resources should be done with redirect documents.'/></run><run
+><font size='9pt' color='navy'/></run></par></tablecell></tablerow></table>
+<par def='13'><run><font size='9pt'/></run></par></tablecell></tablerow></table>
+<pardef id='15'/>
+<par def='15'><run><font size='8pt'/></run></par>
+<pardef id='16' leftmargin='1in' hide='read edit preview previewedit'/>
+<par def='16'><run><font size='9pt'/></run><run><font size='8pt'/><field borderstyle='none'
+ type='text' kind='computed' name='RM_MapType'><keywords columns='1' ui='radiobutton'/><code
+ event='defaultvalue'><formula>"Map"</formula></code></field></run></par>
+<par def='15'/>
+<par def='15'/></richtext></body>
+<item name='$SignatureStatus'><text>1</text></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>URLMap</text></item></form>
+
+<form name='Redirection URL -> URL' alias='URLRedirect' nocompose='true' noquery='true'
+ publicaccess='false' designerversion='6'>
+<noteinfo noteid='14e' unid='2B319573F5BF4DC8852563C50016A532' sequence='25'>
+<created><datetime dst='true'>19961016T000720,82-04</datetime></created>
+<modified><datetime>20210909T151552,32+03</datetime></modified>
+<revised><datetime>20200514T204846,42+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,31+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,31+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='windowtitle'><formula>@If(@IsNewDoc; "New URL Redirection"; "URL Redirection")</formula></code>
+<body><richtext>
+<pardef id='1' align='none' leftmargin='1in' hide='notes' tabs='L0.5000in L1in'/>
+<par def='1'><horizrule height='0.0500in' width='100%' use3dshading='true'
+ color='black'/></par>
+<par def='1'><run html='true'><font size='9pt'/>&lt;STYLE TYPE="text/css"&gt;</run></par>
+<par def='1'><run html='true'><font size='9pt'/> 	TD {font-family: "Arial"}</run></par>
+<par def='1'><run html='true'><font size='9pt'/>	.TableImage {background-image:url(/</run><run
+ html='true'><font size='9pt'/><computedtext><code event='value'><formula
+>@WebDbName</formula></code></computedtext></run><run html='true'><font size='9pt'/>/gears.gif?OpenImageResource);}</run></par>
+<par def='1'><run html='true'><font size='9pt'/>&lt;/STYLE&gt;</run></par>
+<table widthtype='fitwindow' htmlclass='TableImage' leftmargin='0.7500in'
+ refwidth='10.0313in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<cellbackground repeat='once'><imageref name='gears'/></cellbackground>
+<pardef id='3' keepwithnext='true' keeptogether='true'/>
+<par def='3'><run><font size='9pt'/> </run></par>
+<pardef id='4' leftmargin='0.2500in' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='14pt' style='bold' color='#424282'/>'URL -&gt; URL' Redirection</run></par>
+<pardef id='5' keepwithnext='true' keeptogether='true'/>
+<par def='5'><run><font size='9pt'/>  </run></par></tablecell></tablerow></table>
+<pardef id='6' leftmargin='0.7500in' hide='notes web'/>
+<par def='6'><run><font size='9pt'/></run></par>
+<table widthtype='fitwindow' leftmargin='0.7500in' refwidth='10.0313in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='8' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='8'><run><font size='9pt'/></run></par>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' refwidth='9.8313in'><tablecolumn
+ width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#b1b1d2'>
+<pardef id='10' leftmargin='2%' rightmargin='98%' keepwithnext='true' keeptogether='true'/>
+<par def='10'><run><font size='9pt' style='bold' color='#424282'/>Site Information</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px' bgcolor='#b1b1d2'>
+<pardef id='11' leftmargin='1%' rightmargin='99%' keepwithnext='true' keeptogether='true'/>
+<par def='11'><run><font size='9pt' color='#424282'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>The IP number of the server. Leaving this blank will effect this change for all Virtual Servers</popuptext><run
+><font size='9pt' color='navy'/>IP Address:</run></popup><run><font size='9pt'
+ color='navy'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<pardef id='12' leftmargin='2%' rightmargin='99%' keepwithnext='true' keeptogether='true'/>
+<par def='12'><run><font size='8pt'/><field defaultfocus='true' type='text'
+ kind='editable' name='RM_ServerIP' description='The IP number of the server. Leaving this blank will effect this change for all Virtual Servers'/></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>Optional comment field.</popuptext><run><font
+ size='9pt' color='navy'/>Comment:</run></popup><run><font size='9pt' color='navy'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='12'><run><font size='8pt'/><field type='text' kind='editable' name='Comment'
+ description='Optional comment field.'/></run></par></tablecell></tablerow></table>
+<pardef id='13' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='13'/>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' refwidth='9.8313in'><tablecolumn
+ width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' bgcolor='#b1b1d2'>
+<par def='10'><run><font size='9pt' style='bold' color='#424282'/>Mapping</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px' bgcolor='#b1b1d2'>
+<par def='12'><run><font size='9pt' color='#424282'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>This is the URL that will be entered in the browser.</popuptext><run
+><font size='9pt' color='navy'/>URL path:</run></popup><run><font size='9pt'
+ color='navy'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='12'><run><font size='8pt'/><field type='text' kind='editable' name='RM_MapFrom'
+ description='This is the URL that will be entered in the browser.'/></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='10'><run><font size='9pt' color='navy'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>The actual URL that is being mapped.</popuptext><run
+><font size='9pt' color='navy'/>Redirection URL:</run></popup><run><font size='9pt'
+ color='navy'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='12'><run><font size='8pt'/><field type='text' kind='editable' name='RM_MapTo'
+ description='The actual URL that is being mapped.'/></run><run><font size='9pt'
+ color='navy'/></run></par></tablecell></tablerow></table>
+<par def='13'><run><font size='8pt'/></run></par></tablecell></tablerow></table>
+<pardef id='15'/>
+<par def='15'><run><font size='9pt'/></run></par>
+<par def='15'><run><font size='9pt'/></run></par>
+<pardef id='16' leftmargin='1in' hide='read edit preview previewedit'/>
+<par def='16'><run><font size='9pt'/></run><run><font size='8pt'/><field borderstyle='none'
+ type='text' kind='computed' name='RM_MapType'><keywords columns='1' ui='radiobutton'/><code
+ event='defaultvalue'><formula>"Redirect"</formula></code></field></run></par>
+<par def='15'/>
+<par def='15'/></richtext></body>
+<item name='$SignatureStatus'><text>1</text></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>URLRedirect</text></item></form>
+
+<form name='Mapping Error Messages' alias='ErrorMap' nocompose='true' noquery='true'
+ publicaccess='true' designerversion='6'>
+<noteinfo noteid='156' unid='1A718317E75671AF8525648700748823' sequence='77'>
+<created><datetime dst='true'>19970428T171250,27-04</datetime></created>
+<modified><datetime>20210909T151552,34+03</datetime></modified>
+<revised><datetime>20200514T204846,44+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,33+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,33+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='windowtitle'><formula>@If(@IsNewDoc;"New Error &amp; Response Form Mapping";"Error &amp; Response Form Mapping : " + @If(EM_ServerType = "0"; "All Servers"; EM_IP))</formula></code><code
+ event='htmlhead'><formula>"&lt;meta http-equiv='expires' content='0'&gt;" +
+"&lt;link rel=stylesheet type='text/css' href='/" + @WebDbName + "/cssForm?ReadForm'&gt;"</formula></code>
+<actionbar useappletinbrowser='true' bgcolor='#b1b1d2' bordercolor='black'>
+<actionbuttonstyle bgcolor='#b1b1d2' textalign='center' internalmargin='3px'/><border
+ style='solid' width='0px 0px 1px' color='none'/>
+<sharedactionref id='4'>
+<action title='Edit Document' showinmenu='false' hide='preview edit previewedit'><imageref
+ name='edit.gif'/><code event='click'><formula>@Command([EditDocument])</formula></code></action></sharedactionref>
+<sharedactionref id='5'>
+<action title='Save &amp; Close' showinmenu='false' hide='preview read previewedit'><imageref
+ name='save.gif'/><code event='click'><formula>@Command([FileSave]);
+@Command([FileCloseWindow])</formula></code></action></sharedactionref>
+<sharedactionref id='1'>
+<action title='Cancel' showinmenu='false' hide='preview previewedit web'><imageref
+ name='cancel.gif|cancel.gif'/><code event='click'><formula>REM {Notes only};
+FIELD SaveOptions := 0;
+@Command([FileCloseWindow])</formula></code></action></sharedactionref>
+<sharedactionref id='3'>
+<action title='Cancel' showinmenu='false' hide='notes'><imageref name='cancel.gif|cancel.gif'/><code
+ event='click'><formula>REM {web new docs};
+CurrentView := @GetProfileField("tempvars"; "viewtitle");
+@Command([OpenView]; CurrentView)</formula></code><code event='hidewhen'><formula
+> !@IsNewDoc</formula></code></action></sharedactionref>
+<sharedactionref id='2'>
+<action title='Cancel' showinmenu='false' hide='notes'><imageref name='cancel.gif|cancel.gif'/><code
+ event='click'><formula>REM {saved docs};
+@Command([FileCloseWindow])</formula></code><code event='hidewhen'><formula
+>@IsNewDoc</formula></code></action></sharedactionref></actionbar>
+<body><richtext>
+<pardef id='1' align='none' leftmargin='1in' hide='notes' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'/><subformref
+ name='$FormHeaderErrorResponse'/>
+<pardef id='2' hide='notes'/>
+<par def='2'><run html='true'><font size='9pt'/>&amp;nbsp</run></par>
+<table widthtype='fitwindow' leftmargin='0.7500in' refwidth='10.0313in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='4' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='9pt'/></run></par>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' rightmargin='98%'
+ refwidth='9.6306in'><tablecolumn width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px' bgcolor='#b1b1d2'>
+<pardef id='6' leftmargin='0.0597in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='6'><run><font size='9pt' style='bold' color='#424282'/>Site Information</run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='#b1b1d2'>
+<pardef id='7' leftmargin='0.0201in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='7'><run><font size='9pt' style='bold' color='#424282'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px 0px 1px'>
+<par def='6'><run><font size='9pt' color='#424282'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>Specify the scope of this Mapping. If using Web Site configuration documents, the Mapping can apply to either all Web Sites hosted on this server or to a specific one. If not, the Mapping can apply to the entire Server or a specific Virtual server.</popuptext><run
+><font size='9pt' color='#424282'/>Applies To</run></popup><run><font size='9pt'
+ color='#424282'/>:</run></par></tablecell>
+<tablecell borderwidth='0px 0px 1px'>
+<pardef id='8' leftmargin='0.0201in' rightmargin='98%' hide='edit previewedit'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>EM_ServerType != "0"</formula></code></pardef>
+<par def='8'><run><font size='9pt'/>All Web Sites/Entire Server</run></par>
+<pardef id='9' leftmargin='0.0201in' rightmargin='98%' hide='edit previewedit'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>EM_ServerType = "0"</formula></code></pardef>
+<par def='9'><run><font size='9pt'/>Specific Web Site/Virtual Server</run></par>
+<pardef id='10' leftmargin='0.0201in' rightmargin='98%' hide='read copy preview'
+ keepwithnext='true' keeptogether='true'/>
+<par def='10'><run><font size='9pt'/></run><run><font size='9pt'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' kind='editable'
+ name='EM_ServerType'><keywords recalconchange='true' columns='1' ui='radiobutton'><textlist
+><text>All Web Sites/Entire Server|0</text><text>Specific Web Site/Virtual Server|1</text></textlist></keywords><code
+ event='defaultvalue'><formula>"0"</formula></code></field></run><run><font
+ size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='1px 0px'>
+<pardef id='11' leftmargin='0.0597in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>EM_ServerType != "1"</formula></code></pardef>
+<par def='11'><run><font size='9pt' color='#424282'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>If using Web Site configuration documents, specify the name of the Web Site this Mapping applies to. Otherwise specify the Virtual Server name or IP address.</popuptext><run
+><font size='9pt' color='#424282'/>Web Site/Virtual Server</run></popup><run
+><font size='9pt' color='#424282'/>:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px'>
+<pardef id='12' leftmargin='0.0201in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>EM_ServerType != "1"</formula></code></pardef>
+<par def='12'><run><font size='9pt'/></run><run><font size='9pt'/><field defaultfocus='true'
+ type='text' kind='editable' name='EM_IP' description='This is the IP number of the Virtual Server'/></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='6'><run><font size='9pt' color='#424282'/>Comment:</run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='7'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='EM_Comment' description='Optional comment.'/></run><run
+><font size='9pt'/></run></par></tablecell></tablerow></table>
+<par def='4'><run><font size='9pt'/></run></par>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' rightmargin='98%'
+ refwidth='9.6306in'><tablecolumn width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell columnspan='2' borderwidth='0px' bgcolor='#b1b1d2'>
+<pardef id='14' leftmargin='0.0500in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='14'><run><font size='9pt' style='bold' color='#424282'/>General Errors</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='6'><run><font size='9pt' color='#424282'/>Target Database:</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='7'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='EM_ErrorDB' description='The database file in which the target form resides'><code
+ event='defaultvalue'><formula>@Subset(@DbName; -1)</formula></code></field></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='6'><run><font size='9pt' color='#424282'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>URL to execute when visiting server</popuptext><run
+><font size='9pt' color='#424282'/>Target Form:</run></popup><run><font size='9pt'
+ color='#424282'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='7'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='EM_ErrorForm' description='The form to use as the response page.'><code
+ event='defaultvalue'><formula>"CustomGeneralErrorForm"</formula></code></field></run><run
+><font size='9pt'/></run></par></tablecell></tablerow></table>
+<par def='4'/>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' rightmargin='98%'
+ refwidth='9.6306in'><tablecolumn width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell columnspan='2' borderwidth='0px' bgcolor='#b1b1d2'>
+<pardef id='16' leftmargin='0.0597in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='16'><run><font size='9pt' style='bold' color='#424282'/>Authentication Failures</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='6'><run><font size='9pt' color='#424282'/>Target Database:</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='7'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='EM_AuthenticateDB' description='The database file in which the target form resides'><code
+ event='defaultvalue'><formula>@Subset(@DbName; -1)</formula></code></field></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='6'><run><font size='9pt' color='#424282'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>URL to execute when visiting server</popuptext><run
+><font size='9pt' color='#424282'/>Target Form:</run></popup><run><font size='9pt'
+ color='#424282'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='7'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='EM_AuthenticateForm' description='The form to use as the response page.'><code
+ event='defaultvalue'><formula>"CustomAuthenticationFailureForm"</formula></code></field></run><run
+><font size='9pt'/></run></par></tablecell></tablerow></table>
+<pardef id='17' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='17'><run><font size='9pt'/></run></par>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' rightmargin='98%'
+ refwidth='9.6306in'><tablecolumn width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell columnspan='2' borderwidth='0px' bgcolor='#b1b1d2'>
+<par def='16'><run><font size='9pt' style='bold' color='#424282'/>Authorization Failures</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='6'><run><font size='9pt' color='#424282'/>Target Database:</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='7'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='EM_AuthorizeDB' description='The database file in which the target form resides'><code
+ event='defaultvalue'><formula>@Subset(@DbName; -1)</formula></code></field></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='6'><run><font size='9pt' color='#424282'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>URL to execute when visiting server</popuptext><run
+><font size='9pt' color='#424282'/>Target Form:</run></popup><run><font size='9pt'
+ color='#424282'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='7'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='EM_AuthorizeForm' description='The form to use as the response page.'><code
+ event='defaultvalue'><formula>"CustomAuthorizationFailureForm"</formula></code></field></run><run
+><font size='9pt'/></run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt'/></run></par>
+<par def='17'><run><font size='9pt'/></run></par>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' rightmargin='98%'
+ refwidth='9.6306in'><tablecolumn width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell columnspan='2' borderwidth='0px' bgcolor='#b1b1d2'>
+<par def='16'><run><font size='9pt' style='bold' color='#424282'/>Password Expired Errors</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='6'><run><font size='9pt' color='#424282'/>Target Database:</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='7'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='EM_ExpiredErrorDB' description='The database file in which the target form resides'><code
+ event='defaultvalue'><formula>@Subset(@DbName; -1)</formula></code></field></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='6'><run><font size='9pt' color='#424282'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>URL to execute when visiting server</popuptext><run
+><font size='9pt' color='#424282'/>Target Form:</run></popup><run><font size='9pt'
+ color='#424282'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='7'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='EM_ExpiredErrorForm' description='The form to use as the response page.'><code
+ event='defaultvalue'><formula>"CustomExpiredErrorForm"</formula></code></field></run><run
+><font size='9pt'/></run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt'/></run></par>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' rightmargin='98%'
+ refwidth='9.6306in'><tablecolumn width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell columnspan='2' borderwidth='0px' bgcolor='#b1b1d2'>
+<par def='16'><run><font size='9pt' style='bold' color='#424282'/>Password Change Not Allowed Errors</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='6'><run><font size='9pt' color='#424282'/>Target Database:</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='7'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='EM_CannotSubmitDB' description='The database file in which the target form resides'><code
+ event='defaultvalue'><formula>@Subset(@DbName; -1)</formula></code></field></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='6'><run><font size='9pt' color='#424282'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>URL to execute when visiting server</popuptext><run
+><font size='9pt' color='#424282'/>Target Form:</run></popup><run><font size='9pt'
+ color='#424282'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='7'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='EM_CannotSubmitForm' description='The form to use as the response page.'><code
+ event='defaultvalue'><formula>"CustomPasswordChangeRestrictedForm"</formula></code></field></run><run
+><font size='9pt'/></run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt'/></run></par>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' rightmargin='98%'
+ refwidth='9.6306in'><tablecolumn width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell columnspan='2' borderwidth='0px' bgcolor='#b1b1d2'>
+<par def='16'><run><font size='9pt' style='bold' color='#424282'/>Password Change Submitted Responses</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='6'><run><font size='9pt' color='#424282'/>Target Database:</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='7'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='EM_PasswordSubmitDB' description='The database file in which the target form resides'><code
+ event='defaultvalue'><formula>@Subset(@DbName; -1)</formula></code></field></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='6'><run><font size='9pt' color='#424282'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>URL to execute when visiting server</popuptext><run
+><font size='9pt' color='#424282'/>Target Form:</run></popup><run><font size='9pt'
+ color='#424282'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='7'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='EM_PasswordSubmitForm' description='The form to use as the response page.'><code
+ event='defaultvalue'><formula>"CustomPasswordSubmitForm"</formula></code></field></run><run
+><font size='9pt'/></run></par></tablecell></tablerow></table>
+<par def='17'/>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' rightmargin='98%'
+ refwidth='9.6306in'><tablecolumn width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell columnspan='2' borderwidth='0px' bgcolor='#b1b1d2'>
+<par def='16'><run><font size='9pt' style='bold' color='#424282'/>Document Deleted Responses</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='6'><run><font size='9pt' color='#424282'/>Target Database:</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<par def='7'><run><font size='9pt'/><field type='text' kind='editable' name='EM_DeleteDB'
+ description='The database file in which the target form resides'><code event='defaultvalue'><formula
+>@Subset(@DbName; -1)</formula></code></field></run><run><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='6'><run><font size='9pt' color='#424282'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>URL to execute when visiting server</popuptext><run
+><font size='9pt' color='#424282'/>Target Form:</run></popup><run><font size='9pt'
+ color='#424282'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='1px 0px'>
+<par def='7'><run><font size='9pt'/><field type='text' kind='editable' name='EM_DeleteForm'
+ description='The form to use as the response page.'><code event='defaultvalue'><formula
+>"CustomDocumentDeletedForm"</formula></code></field></run><run><font size='9pt'/></run></par></tablecell></tablerow></table>
+<par def='4'><run><font size='9pt'/></run></par></tablecell></tablerow></table>
+<pardef id='19' leftmargin='1in' hide='notes web'/>
+<par def='19'><run><font size='9pt' color='red'/>Hidden: </run><run><font
+ size='9pt' color='red'/><field type='text' kind='computed' name='$PublicAccess'><code
+ event='defaultvalue'><formula>"1"</formula></code></field></run><run><font
+ size='9pt' color='red'/></run><run><font size='9pt' color='red'/><sharedfieldref
+ name='$$Return'/></run><run><font size='9pt' color='red'/></run></par></richtext></body>
+<item name='$SignatureStatus'><text>1</text></item>
+<item name='$SubForm_RepIDs' sign='true'><text>0000000000000000</text></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>ErrorMap</text></item></form>
+
+<form name='Mapping a Login Form' alias='LoginMap' nocompose='true' noquery='true'
+ publicaccess='true' designerversion='6'>
+<noteinfo noteid='166' unid='CBC4FF475CADB36C852566B1007C389A' sequence='89'>
+<created><datetime dst='true'>19981103T183649,54-04</datetime></created>
+<modified><datetime>20210909T151552,38+03</datetime></modified>
+<revised><datetime>20200514T204846,49+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,37+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,37+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='windowtitle'><formula>@If(@IsNewDoc;"New Sign In Form Mapping";"Sign In Form Mapping : " + @If(LF_ServerType = "0"; "All Servers"; LF_IP))</formula></code><code
+ event='htmlhead'><formula>"&lt;meta http-equiv='expires' content='0'&gt;" +
+"&lt;link rel=stylesheet type='text/css' href='/" + @WebDbName + "/cssForm?ReadForm'&gt;"</formula></code>
+<actionbar useappletinbrowser='true' bgcolor='#b1b1d2' bordercolor='black'>
+<actionbuttonstyle bgcolor='#b1b1d2' textalign='center' internalmargin='3px'/><border
+ style='solid' width='0px 0px 1px'/>
+<sharedactionref id='5'>
+<action title='Save &amp; Close' showinmenu='false' hide='preview read previewedit'><imageref
+ name='save.gif'/><code event='click'><formula>@Command([FileSave]);
+@Command([FileCloseWindow])</formula></code></action></sharedactionref>
+<sharedactionref id='4'>
+<action title='Edit Document' showinmenu='false' hide='preview edit previewedit'><imageref
+ name='edit.gif'/><code event='click'><formula>@Command([EditDocument])</formula></code></action></sharedactionref>
+<sharedactionref id='1'>
+<action title='Cancel' showinmenu='false' hide='preview previewedit web'><imageref
+ name='cancel.gif|cancel.gif'/><code event='click'><formula>REM {Notes only};
+FIELD SaveOptions := 0;
+@Command([FileCloseWindow])</formula></code></action></sharedactionref>
+<sharedactionref id='3'>
+<action title='Cancel' showinmenu='false' hide='notes'><imageref name='cancel.gif|cancel.gif'/><code
+ event='click'><formula>REM {web new docs};
+CurrentView := @GetProfileField("tempvars"; "viewtitle");
+@Command([OpenView]; CurrentView)</formula></code><code event='hidewhen'><formula
+> !@IsNewDoc</formula></code></action></sharedactionref>
+<sharedactionref id='2'>
+<action title='Cancel' showinmenu='false' hide='notes'><imageref name='cancel.gif|cancel.gif'/><code
+ event='click'><formula>REM {saved docs};
+@Command([FileCloseWindow])</formula></code><code event='hidewhen'><formula
+>@IsNewDoc</formula></code></action></sharedactionref></actionbar>
+<body><richtext>
+<pardef id='1' align='none' leftmargin='1in' hide='notes' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'/><subformref
+ name='$FormHeaderUserLogin'/>
+<pardef id='2' hide='notes'/>
+<par def='2'><run html='true'><font size='9pt'/>&amp;nbsp</run></par>
+<table widthtype='fitwindow' leftmargin='0.7500in' refwidth='10.1979in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='4' leftmargin='0%' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='9pt'/> </run></par>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' rightmargin='98%'
+ refwidth='9.7938in'><tablecolumn width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px' bgcolor='#b1b1d2'>
+<pardef id='6' leftmargin='0.0597in' rightmargin='99%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='6'><run><font size='9pt' style='bold' color='#424282'/>Site Information</run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='#b1b1d2'>
+<pardef id='7' leftmargin='0.0201in' rightmargin='100%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='7'><run><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px 0px 1px'>
+<pardef id='8' leftmargin='0.0597in' rightmargin='100%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='8'><run><font size='9pt' color='#424282'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>Specify the scope of this Mapping. If using Web Site configuration documents, the Mapping can apply to either all Web Sites hosted on this server or to a specific one. If not, the Mapping can apply to the entire Server or a specific Virtual server.</popuptext><run
+><font size='9pt' color='#424282'/>Applies To</run></popup><run><font size='9pt'
+ color='#424282'/>:</run></par></tablecell>
+<tablecell borderwidth='0px 0px 1px'>
+<pardef id='9' leftmargin='0.0201in' rightmargin='100%' hide='edit previewedit'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>LF_ServerType != "0"</formula></code></pardef>
+<par def='9'><run><font size='9pt'/>All Web Sites/Entire Server</run></par>
+<pardef id='10' leftmargin='0.0201in' rightmargin='100%' hide='edit previewedit'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>LF_ServerType = "0"</formula></code></pardef>
+<par def='10'><run><font size='9pt'/>Specific Web Site/Virtual Server</run></par>
+<pardef id='11' leftmargin='0.0201in' rightmargin='100%' hide='read copy preview'
+ keepwithnext='true' keeptogether='true'/>
+<par def='11'><run><font size='9pt'/></run><run><font size='9pt'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' kind='editable'
+ name='LF_ServerType'><keywords recalconchange='true' columns='1' ui='radiobutton'><textlist
+><text>All Web Sites/Entire Server|0</text><text>Specific Web Site/Virtual Server|1</text></textlist></keywords><code
+ event='defaultvalue'><formula>"0"</formula></code></field></run><run><font
+ size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='12' leftmargin='0.0597in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>LF_ServerType != "1"</formula></code></pardef>
+<par def='12'><run><font size='9pt' color='#424282'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>If using Web Site configuration documents, specify the name of the Web Site this Mapping applies to. Otherwise specify the Virtual Server name or IP address.</popuptext><run
+><font size='9pt' color='#424282'/>Web Site/Virtual Server</run></popup><run
+><font size='9pt' color='#424282'/>:</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='13' leftmargin='0.0201in' rightmargin='100%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>LF_ServerType != "1"</formula></code></pardef>
+<par def='13'><run><font size='9pt'/></run><run><font size='9pt'/><field defaultfocus='true'
+ type='text' kind='editable' name='LF_IP' description='This is the IP number of the Virtual Server'/></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='6'><run><font size='9pt' color='#424282'/>Comment:</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='7'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='LF_Comment' description='Optional comment.'/></run><run
+><font size='9pt'/></run></par></tablecell></tablerow></table>
+<par def='4'><run><font size='9pt'/></run></par>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' rightmargin='98%'
+ refwidth='9.7938in'><tablecolumn width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px' bgcolor='#b1b1d2'>
+<par def='6'><run><font size='9pt' style='bold' color='#424282'/>Form Mapping</run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='#b1b1d2'>
+<pardef id='14' leftmargin='0.0201in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='14'><run><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px 0px 1px'>
+<par def='6'><run><font size='9pt' color='#424282'/>Target Database:</run></par></tablecell>
+<tablecell borderwidth='0px 0px 1px'>
+<par def='14'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='LF_LoginFormDB' description='The database file in which the target form resides'><code
+ event='defaultvalue'><formula>@Subset(@DbName; -1)</formula></code></field></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='6'><run><font size='9pt' color='#424282'/>Target Form:</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='14'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='LF_LoginForm' description='The form to use as the response page.'><code
+ event='defaultvalue'><formula>"CustomLoginForm"</formula></code></field></run><run
+><font size='9pt'/></run></par></tablecell></tablerow></table>
+<par def='4'><run><font size='9pt'/></run></par></tablecell></tablerow></table>
+<pardef id='15' leftmargin='1in' hide='read edit copy preview previewedit'/>
+<par def='15'><run><font size='9pt' color='red'/>Hidden: </run><run><font
+ size='9pt' color='red'/><field type='text' kind='editable' name='$PublicAccess'><code
+ event='defaultvalue'><formula>"1"</formula></code></field></run><run><font
+ size='9pt' color='red'/></run><run><font size='9pt' color='red'/><sharedfieldref
+ name='$$Return'/></run><run><font size='9pt' color='red'/></run></par></richtext></body>
+<item name='$SignatureStatus'><text>1</text></item>
+<item name='$SubForm_RepIDs' sign='true'><text>0000000000000000</text></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>LoginMap</text></item></form>
+
+<form name='$$LoginUserForm' alias='$$LoginUserForm' nocompose='true' noquery='true'
+ publicaccess='true' designerversion='8.5.3'>
+<noteinfo noteid='16e' unid='A5F213B09E138B72052566B20068AA38' sequence='269'>
+<created><datetime>19981104T140313,20-05</datetime></created>
+<modified><datetime>20210909T151552,40+03</datetime></modified>
+<revised><datetime>20200514T204846,51+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,39+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,39+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<revisions><datetime dst='true'>20200218T142300,05-04</datetime><datetime
+ dst='true'>20200218T142340,93-04</datetime><datetime dst='true'>20200218T142650,98-04</datetime><datetime
+ dst='true'>20200218T151333,23-05</datetime><datetime dst='true'>20200513T173723,36-04</datetime><datetime
+ dst='true'>20200513T173956,86-04</datetime><datetime dst='true'>20200513T174010,62-04</datetime><datetime
+ dst='true'>20200513T174050,20-04</datetime><datetime dst='true'>20200513T222106,20-04</datetime><datetime
+ dst='true'>20200513T222143,85-04</datetime><datetime dst='true'>20200513T222414,06-04</datetime><datetime
+ dst='true'>20200513T222426,82-04</datetime><datetime dst='true'>20200513T222437,85-04</datetime><datetime
+ dst='true'>20200513T222814,93-04</datetime><datetime dst='true'>20200513T232632,71-04</datetime><datetime
+ dst='true'>20200513T232634,48-04</datetime><datetime dst='true'>20200513T232714,08-04</datetime><datetime
+ dst='true'>20200513T232729,29-04</datetime><datetime dst='true'>20200513T234521,14-04</datetime><datetime
+ dst='true'>20200513T235438,55-04</datetime><datetime dst='true'>20200513T235503,30-04</datetime><datetime
+ dst='true'>20200513T235505,27-04</datetime><datetime dst='true'>20200513T235642,84-04</datetime><datetime
+ dst='true'>20200513T235947,38-04</datetime><datetime dst='true'>20200514T000201,99-04</datetime><datetime
+ dst='true'>20200514T141501,34-04</datetime><datetime dst='true'>20200514T142457,60-04</datetime><datetime
+ dst='true'>20200514T144133,29-04</datetime><datetime dst='true'>20200514T154816,89-04</datetime><datetime
+ dst='true'>20200514T154837,24-04</datetime><datetime dst='true'>20200514T154854,29-04</datetime><datetime
+ dst='true'>20200514T155119,13-04</datetime><datetime dst='true'>20200514T155346,83-04</datetime></revisions>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='windowtitle'><formula>"Login"</formula></code><code event='htmlbody'><formula
+>"onload=\"setFormFocus();\""</formula></code><code event='htmlhead'><formula
+>"&lt;meta http-equiv='expires' content='0'&gt;" +
+"&lt;link rel=stylesheet type='text/css' href='/" + @WebDbName + "/cssLogin?ReadForm'&gt;"</formula></code><code
+ event='jsheader' for='web'><javascript>//SPR# KMOA6YUDZ3: ignore any focus errors in case the focus can't be set (form invisible, etc)
+window.onerror = new Function("return true;");
+
+function setFormFocus() {
+	document.forms[0].Username.focus(); 
+	document.forms[0].Username.select();
+}
+</javascript></code>
+<body><richtext>
+<pardef id='1' align='center' leftmargin='1in'/>
+<par def='1'/>
+<pardef id='2' align='center' leftmargin='1in'/>
+<par def='2'><run html='true'>&lt;table border="0" width="100%" height="70%"&gt;&lt;tr&gt;&lt;td align="center"&gt;</run></par>
+<table htmlid='LoginUserFormTable1' widthtype='fixedcenter' refwidth='5.3250in'><tablecolumn
+ width='0.5556in'/><tablecolumn width='3.1194in'/><tablecolumn width='1.6500in'/>
+<tablerow>
+<tablecell borderwidth='0px' htmlid='LoginUserFormTable1_a'>
+<pardef id='3' leftmargin='0' firstlineleftmargin='0.0104in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='3'><run><font name='serif'/></run></par></tablecell>
+<tablecell borderwidth='0px' htmlid='LoginUserFormTable1_b'>
+<pardef id='4' align='center' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font name='serif'/></run></par>
+<par def='4'><run><font name='serif'/></run></par>
+<table widthtype='fitmargins' htmlid='LoginUserFormTable_1' leftmargin='0.0104in'
+ refwidth='3.1090in'><tablecolumn width='0.9000in'/><tablecolumn width='0.1250in'/><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell valign='center' borderwidth='0px'>
+<pardef id='5' align='right' leftmargin='0.0104in' rightmargin='0.8882in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='5'><picture width='32px' height='32px' alttext='""'><gif>
+R0lGODlhIAAgAOcAAAAAAIAAAACAAICAAAAAgIAAgACAgMDAwMDcwKbK8P//zP//mf//Zv//M//M
+///MzP/Mmf/MZv/MM//MAP+Z//+ZzP+Zmf+ZZv+ZM/+ZAP9m//9mzP9mmf9mZv9mM/9mAP8z//8z
+zP8zmf8zZv8zM/8zAP8AzP8Amf8AZv8AM8z//8z/zMz/mcz/Zsz/Zsz/M8z/AMzM/8zMzMzMmczM
+ZszMM8zMAMyZ/8yZzMyZmcyZZsyZM8yZAMxm/8xmzMxmmcxmZsxmM8xmAMwz/8wzzMwzmcwzZswz
+M8wzAMwA/8wAzMwAmcwAZswAM8wAAJn//5n/zJn/mZn/Zpn/M5n/AJnM/5nMzJnMmZnMZpnMM5nM
+AJmZ/5mZzJmZmZmZZpmZM5mZAJlm/5lmzJlmmZlmZplmM5lmAJkz/5kzzJkzmZkzZpkzM5kzAJkA
+/5kAzJkAmZkAZpkAM5kAAGb//2b/zGb/mWb/Zmb/M2b/AGbM/2bMzGbMmWbMZmbMM2bMAGaZ/2aZ
+zGaZmWaZZmaZM2aZAGZm/2ZmzGZmmWZmZmZmM2ZmAGYz/2YzzGYzmWYzZmYzM2YzAGYA/2YAzGYA
+mWYAZmYAM2YAADP//zP/zDP/mTP/ZjP/MzP/ADPM/zPMzDPMmTPMZjPMMzPMADOZ/zOZzDOZmTOZ
+ZjOZMzOZADNm/zNmzDNmmTNmZjNmMzNmADMz/zMzzDMzmTMzZjMzMzMzADMA/zMAzDMAmTMAZjMA
+MzMAAAD/zAD/mQD/ZgD/MwDM/wDMzADMmQDMZgDMMwDMAACZ/wCZzACZmQCZZgCZMwCZAABm/wBm
+zABmmQBmZgBmAABmMwAz/wAzzAAzmQAzZgAzMwAzAAAAzAAAmQAAZgAAM90AALsAAKoAAIgAAHcA
+AFUAAEQAACIAAADdAAC7AACqAACIAAB3AABVAABEAAAiAN3d3VVVVXd3d3d3d0RERCIiIhEREQAA
+dwAAVQAARAAAIv/78KCgpICAgP8AAAD/AP//AAAA//8A/wD//////ywAAAAAIAAgAEAI/wD/CRwo
+MJ/Bgwe5cfPGkCFBggYPkJjYgcQFNmw8XNQIAaPGb98MKmR4j2G+ewgzeoDAkuUFly5BrvTABkBI
+lP9IMuSm8uXFjBeCXvBA85uFDhUl5ntowcK/ihMPBoVgkES+kd5KeoOI8qBHoB05ggWJUKTWewoN
+qmzZkS3boWxCHsRJkCTIu3jzTjyA9KHfvWXLYtXqV+DEp007sHnZUSVYkQuzOvx38iCJr0AXv/To
+gWzChSUreyWKkeVil2wgXCD70sNchV3VagwKFC5Rmj6LykUp2ZtCj2/dqob7baLVygN1fsPIvGZz
+jDaROu1bWCDJe9iza89+uPrDidvDZ8if7P1pB4nHq15IP5j8w75Hoa7Px7H4y6uRCQ/cS0L6ZbFT
+jQWZTluJZhxtKzVGWn1y4aeTaLJtZJpYDArGTWix5ZPZhkQBQFNnDSKEFoQariVcS6t9kxtZKF2Y
+0mzD4SYUUSou5oFNN+WTFTejCYWaTxcxRpNNc+lYUlrAwXQiXDalx1tv3CxHVEswusTkN1CRcIBB
+1vXGWVAAcHZbTUYd9U93dUn2DQBstukmmyD1909T5dmVVz55caMlmuXl1JBvPAbGZWEBAQA7
+</gif></picture></par></tablecell>
+<tablecell valign='center' borderwidth='0px'>
+<pardef id='6' leftmargin='0' keepwithnext='true' keeptogether='true'/>
+<par def='6'/></tablecell>
+<tablecell valign='center' borderwidth='0px'>
+<pardef id='7' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='7'><computedtext><code event='value'><formula>sDefault 		:= "Please identify yourself:";
+sNotEnough	:= "%1, you are not authorized to access %2." + @NewLine + @NewLine + "Please sign in with a name which has sufficient access rights:";
+sInvalid		:= "You provided an invalid username or password." + @NewLine + @NewLine + "Please sign in again:";
+sExpired		:= "Your login has expired. Please sign in again:";
+sOutOfSync	:= "%1, your login has been invalidated due to a timing issue with the login servers." + @NewLine + @NewLine + "(The servers may need to have their clocks synchronized to resolve this.)" + @NewLine + @NewLine + "Please sign in again:";
+sLockedOrInvalid	:= "You are locked out, or you have provided an invalid username or password." + @NewLine + @NewLine + "Please sign in again:";
+
+"---DNT---";
+
+User	:= @ProperCase(@Name([CN]; @UserName));
+URL	:= @Right(redirectTo; "/");
+URL	:= @If(@Contains(URL; "?"); @Left(URL; "?"); URL);
+
+List	:= User:URL;
+@For(n:=1; n&lt;=@Elements(List); n:=n+1;
+ sNotEnough := @ReplaceSubstring(sNotEnough; "%" + @Text(n); List[n]);
+ sOutOfSync := @ReplaceSubstring(sOutOfSync; "%" + @Text(n); List[n])
+);
+
+@If(	reasonType = "0"; sDefault;
+	reasonType = "1"; sNotEnough;
+	reasonType = "2"; sInvalid;
+	reasonType = "3"; sExpired;
+	reasonType = "4"; sOutOfSync;
+	reasonType = "5"; sLockedOrInvalid;
+	sDefault
+)</formula></code></computedtext></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='8' keepwithnext='true' keeptogether='true'/>
+<par def='8'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='9' keepwithnext='true' keeptogether='true'/>
+<par def='9'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px' extrahtmlattrs='height=20'>
+<pardef id='10' keepwithnext='true' keeptogether='true'/>
+<par def='10'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' htmlid='LoginUserFormTable_a'>
+<pardef id='11' align='right' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='11'><run html='true'>&lt;label for="user-id"&gt;</run>User name:<run
+ html='true'>&lt;/label&gt;</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px'>
+<par def='9'/></tablecell>
+<tablecell valign='center' borderwidth='0px' htmlid='LoginUserFormTable_b'>
+<par def='7'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30'/><field defaultfocus='true' usenotesstyle='false' height='0.2500in'
+ width='1in' multiline='true' borderstyle='single' type='text' kind='editable'
+ name='Username' htmlid='user-id'><code event='htmlattributes'><formula>"maxlength=50 autocomplete=off"</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' htmlid='LoginUserFormTable_c'>
+<par def='11'><run html='true'>&lt;label for="pw-id"&gt;</run>Password:<run
+ html='true'>&lt;/label&gt;</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px'>
+<par def='9'/></tablecell>
+<tablecell valign='center' borderwidth='0px' htmlid='LoginUserFormTable_d'>
+<par def='7'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30'/><field type='password' usenotesstyle='false' height='0.2500in'
+ width='1in' multiline='true' borderstyle='single' kind='editable' seal='true'
+ name='Password' htmlid='pw-id'><code event='htmlattributes'><formula>"maxlength=255 autocomplete=off"</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='8'><run><font size='9pt'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='9'><run><font size='9pt'/></run></par></tablecell>
+<tablecell borderwidth='0px' extrahtmlattrs='height=10'>
+<par def='10'><run><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' extrahtmlattrs='height=50'>
+<par def='8'/></tablecell>
+<tablecell valign='center' borderwidth='0px'>
+<par def='9'/></tablecell>
+<tablecell valign='center' borderwidth='0px'>
+<par def='10'><run><font size='9pt'/></run><button width='2in' widthtype='maximum'
+ maxlines='1' wraptext='true' bgcolor='system'>Sign In</button><run html='true'><font
+ size='9pt'/></run></par></tablecell></tablerow></table>
+<par def='4'><run><font name='serif'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='12' keepwithnext='true' keeptogether='true'/>
+<par def='12'><run><font name='serif'/></run><picture width='159px' height='165px'
+ alttext='""'><jpeg>
+/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB
+AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEB
+AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAClAJ8DASIA
+AhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA
+AAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3
+ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm
+p6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEA
+AwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSEx
+BhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElK
+U1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3
+uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+/iii
+igAooooAKKKKACiig+tABUcnb8aGlVRnnnj8fT/P86ytS1GG3iJJwR64OM8c88fXnvWVWrGlTdRt
+WtdefX8h8kqnuxi5OTSt81f8NbD7y/jtUJ4ZsHHPccnH4HnP1Ga8T8Z/Em00hZXlmXahJZfNVQg/
+E9z6ZP8AM5XxE+ItloNjcO88e6NJDvLDgbTx1B457jknjpn8MP2wf2wbfwxY36WuoRxSkSYxOAW5
+PYOffgDj8zX4nxv4jwyunUoUa0HVjJpwjfmSUb7qL66a+Z+tcE+HVXO6tGWJoThTfLJTaVneUVa1
+29nfZdddr/pz4h/ad8OWF48LarACG2uHuohtOfunJH+1gjvxV7Qf2ktA1Bo1g1CCUs54W5jbAPcY
+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
+UUAFFFFABRRRQB//2Q==
+</jpeg></picture></par></tablecell></tablerow></table>
+<par def='2'/>
+<par def='2'><run><font size='9pt'/><field type='text' kind='editable' name='RedirectTo'
+ extrahtmlattrs='type=hidden'><code event='defaultvalue'><formula>"/"</formula></code></field></run><compositedata
+ type='98' prevtype='65402' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='2' afterbegincount='4'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par>
+<par def='2'><run html='true'>&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</run></par>
+<pardef id='13' align='center' leftmargin='1in' hide='notes web'/>
+<par def='13'/>
+<pardef id='14' leftmargin='1in' hide='notes web'/>
+<par def='14'><run><font size='9pt' color='red'/>Hidden: </run><run><font
+ size='9pt' color='red'/><field type='text' kind='editable' name='$PublicAccess'><code
+ event='defaultvalue'><formula>"1"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ color='red'/> </run><run><font size='9pt' color='red'/><field type='text'
+ kind='editable' name='ReasonType'><code event='defaultvalue'><formula>"0"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='19' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ color='red'/><field type='text' kind='computedfordisplay' name='$$HTMLTagAttributes'><code
+ event='defaultvalue'><formula>"lang=\"en\""</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='25' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'/></run></par>
+<par def='13'><run><font size='9pt'/></run></par></richtext></body>
+<item name='OriginalModTime' sign='true'><datetime dst='true'>20050504T140639,65-04</datetime></item>
+<item name='Token' summary='false' sign='true'><number>0</number></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>$$LoginUserForm</text></item></form>
+
+<form name='Mapping a Change Password Form' alias='PasswordMap' nocompose='true'
+ noquery='true' publicaccess='true' designerversion='6'>
+<noteinfo noteid='176' unid='7173D1EC4363CF06852569FA00600C43' sequence='65'>
+<created><datetime dst='true'>20010221T132905,95-04</datetime></created>
+<modified><datetime>20210909T151552,42+03</datetime></modified>
+<revised><datetime>20200514T204846,53+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,41+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,41+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='windowtitle'><formula>@If(@IsNewDoc;"New Change Password Form Mapping";"Change Password Form Mapping : " + @If(LF_ServerType = "0"; "All Servers"; LF_IP))</formula></code><code
+ event='htmlhead'><formula>"&lt;meta http-equiv='expires' content='0'&gt;" +
+"&lt;link rel=stylesheet type='text/css' href='/" + @WebDbName + "/cssForm?ReadForm'&gt;"</formula></code>
+<actionbar useappletinbrowser='true' bgcolor='#b1b1d2' bordercolor='black'>
+<actionbuttonstyle bgcolor='#b1b1d2' textalign='center' internalmargin='3px'/><border
+ style='solid' width='0px 0px 1px' color='none'/>
+<sharedactionref id='4'>
+<action title='Edit Document' showinmenu='false' hide='preview edit previewedit'><imageref
+ name='edit.gif'/><code event='click'><formula>@Command([EditDocument])</formula></code></action></sharedactionref>
+<sharedactionref id='5'>
+<action title='Save &amp; Close' showinmenu='false' hide='preview read previewedit'><imageref
+ name='save.gif'/><code event='click'><formula>@Command([FileSave]);
+@Command([FileCloseWindow])</formula></code></action></sharedactionref>
+<sharedactionref id='1'>
+<action title='Cancel' showinmenu='false' hide='preview previewedit web'><imageref
+ name='cancel.gif|cancel.gif'/><code event='click'><formula>REM {Notes only};
+FIELD SaveOptions := 0;
+@Command([FileCloseWindow])</formula></code></action></sharedactionref>
+<sharedactionref id='3'>
+<action title='Cancel' showinmenu='false' hide='notes'><imageref name='cancel.gif|cancel.gif'/><code
+ event='click'><formula>REM {web new docs};
+CurrentView := @GetProfileField("tempvars"; "viewtitle");
+@Command([OpenView]; CurrentView)</formula></code><code event='hidewhen'><formula
+> !@IsNewDoc</formula></code></action></sharedactionref>
+<sharedactionref id='2'>
+<action title='Cancel' showinmenu='false' hide='notes'><imageref name='cancel.gif|cancel.gif'/><code
+ event='click'><formula>REM {saved docs};
+@Command([FileCloseWindow])</formula></code><code event='hidewhen'><formula
+>@IsNewDoc</formula></code></action></sharedactionref></actionbar>
+<body><richtext>
+<pardef id='1' align='none' leftmargin='1in' hide='notes' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'/><subformref
+ name='$FormHeaderChangePassword'/>
+<pardef id='2' hide='notes'/>
+<par def='2'><run html='true'><font size='9pt'/>&amp;nbsp</run></par>
+<table widthtype='fitwindow' leftmargin='0.7500in' refwidth='10.0313in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='4' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='9pt'/></run></par>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' rightmargin='98%'
+ refwidth='9.6306in'><tablecolumn width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px' bgcolor='#b1b1d2'>
+<pardef id='6' leftmargin='0.0597in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='6'><run><font size='9pt' style='bold' color='#424282'/>Site Information</run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='#b1b1d2'>
+<pardef id='7' leftmargin='0.0201in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='7'><run><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px 0px 1px'>
+<par def='6'><run><font size='9pt' color='#424282'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>Specify the scope of this Mapping. If using Web Site configuration documents, the Mapping can apply to either all Web Sites hosted on this server or to a specific one. If not, the Mapping can apply to the entire Server or a specific Virtual server.</popuptext><run
+><font size='9pt' color='#424282'/>Applies To</run></popup><run><font size='9pt'
+ color='#424282'/>:</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px 0px 1px'>
+<pardef id='8' leftmargin='0.0201in' rightmargin='98%' hide='edit previewedit'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>LF_ServerType != "0"</formula></code></pardef>
+<par def='8'><run><font size='9pt'/>All Web Sites/Entire Server</run></par>
+<pardef id='9' leftmargin='0.0201in' rightmargin='98%' hide='edit previewedit'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>LF_ServerType = "0"</formula></code></pardef>
+<par def='9'><run><font size='9pt'/>Specific Web Site/Virtual Server</run></par>
+<pardef id='10' leftmargin='0.0201in' rightmargin='98%' hide='read copy preview'
+ keepwithnext='true' keeptogether='true'/>
+<par def='10'><run><font size='9pt'/></run><run><font size='9pt'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' kind='editable'
+ name='LF_ServerType'><keywords recalconchange='true' columns='1' ui='radiobutton'><textlist
+><text>All Web Sites/Entire Server|0</text><text>Specific Web Site/Virtual Server|1</text></textlist></keywords><code
+ event='defaultvalue'><formula>"0"</formula></code></field></run><run><font
+ size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='11' leftmargin='0.0597in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>LF_ServerType != "1"</formula></code></pardef>
+<par def='11'><run><font size='9pt' color='#424282'/></run><popup show='onclick'
+ hotspotstyle='none'><popuptext>If using Web Site configuration documents, specify the name of the Web Site this Mapping applies to. Otherwise specify the Virtual Server name or IP address.</popuptext><run
+><font size='9pt' color='#424282'/>Web Site/Virtual Server</run></popup><run
+><font size='9pt' color='#424282'/>:</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='12' leftmargin='0.0201in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>LF_ServerType != "1"</formula></code></pardef>
+<par def='12'><run><font size='9pt'/></run><run><font size='9pt'/><field defaultfocus='true'
+ type='text' kind='editable' name='LF_IP' description='This is the IP number of the Virtual Server'/></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='6'><run><font size='9pt' color='#424282'/>Comment:</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='7'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='LF_Comment' description='Optional comment.'/></run><run
+><font size='9pt'/></run></par></tablecell></tablerow></table>
+<par def='4'><run><font size='9pt'/></run></par>
+<table widthtype='fitmargins' user4spacing='true' leftmargin='0.2000in' rightmargin='98%'
+ refwidth='9.6306in'><tablecolumn width='1.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px' bgcolor='#b1b1d2'>
+<par def='6'><run><font size='9pt' style='bold' color='#424282'/>Form Mapping</run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='#b1b1d2'>
+<par def='7'><run><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px 0px 1px'>
+<par def='6'><run><font size='9pt' color='#424282'/>Target Database:</run></par></tablecell>
+<tablecell borderwidth='0px 0px 1px'>
+<par def='7'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='LF_PasswordFormDB' description='The database file in which the target form resides'><code
+ event='defaultvalue'><formula>@Subset(@DbName; -1)</formula></code></field></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='6'><run><font size='9pt' color='#424282'/>Target Form:</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='7'><run><font size='9pt'/></run><run><font size='9pt'/><field type='text'
+ kind='editable' name='LF_PasswordForm' description='The form to use as the response page.'><code
+ event='defaultvalue'><formula>"CustomChangePasswordForm"</formula></code></field></run><run
+><font size='9pt'/></run></par></tablecell></tablerow></table>
+<par def='4'><run><font size='9pt'/></run></par></tablecell></tablerow></table>
+<pardef id='13' leftmargin='1in' hide='read edit copy preview previewedit'/>
+<par def='13'><run><font size='9pt' color='red'/>Hidden: </run><run><font
+ size='9pt' color='red'/><field type='text' kind='editable' name='$PublicAccess'><code
+ event='defaultvalue'><formula>"1"</formula></code></field></run><run><font
+ size='9pt' color='red'/></run><run><font size='9pt' color='red'/><sharedfieldref
+ name='$$Return'/></run><run><font size='9pt' color='red'/></run></par></richtext></body>
+<item name='$SignatureStatus'><text>1</text></item>
+<item name='$SubForm_RepIDs' sign='true'><text>0000000000000000</text></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>PasswordMap</text></item></form>
+
+<form name='$$ChangePasswordForm' alias='$$ChangePasswordForm' nocompose='true'
+ htmlallfields='true' publicaccess='true' designerversion='8.5.3'>
+<noteinfo noteid='182' unid='4FFCC45411B012AE852569FA0060C398' sequence='89'>
+<created><datetime dst='true'>20010221T133655,28-04</datetime></created>
+<modified><datetime>20210909T151552,45+03</datetime></modified>
+<revised><datetime>20200514T204846,55+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,44+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,44+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<revisions><datetime dst='true'>20050504T143501,78-04</datetime><datetime
+ dst='true'>20061019T112409,14-04</datetime><datetime dst='true'>20061019T112657,93-04</datetime><datetime
+ dst='true'>20061019T120134,65-04</datetime><datetime dst='true'>20061019T173306,37-04</datetime><datetime
+ dst='true'>20080925T090313,24-04</datetime><datetime dst='true'>20090722T081655,15-04</datetime><datetime
+ dst='true'>20090722T081755,90-04</datetime><datetime dst='true'>20090722T081923,62-04</datetime><datetime
+ dst='true'>20090722T082142,30-04</datetime></revisions>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='windowtitle'><formula>"Change Password"</formula></code><code event='htmlbody'><formula
+>"onload=\"setFormFocus();\""</formula></code><code event='htmlhead'><formula
+>"&lt;meta http-equiv='expires' content='0'&gt;" +
+"&lt;link rel=stylesheet type='text/css' href='/" + @WebDbName + "/cssLogin?ReadForm'&gt;"</formula></code><code
+ event='jsheader' for='web'><javascript>//SPR# KMOA6YUDZ3: ignore any focus errors in case the focus can't be set (form invisible, etc)
+window.onerror = new Function("return true;");
+
+function setFormFocus() {
+	document.forms[0].Password.focus(); 
+	document.forms[0].Password.select();
+}
+</javascript></code>
+<body><richtext>
+<pardef id='1' align='center' leftmargin='1in'/>
+<par def='1'/>
+<par def='1'><run html='true'>&lt;table border="0" width="100%" height="80%"&gt;&lt;tr&gt;&lt;td align="center"&gt;</run></par>
+<table leftmargin='0%' widthtype='fixedcenter' refwidth='5.2500in'><tablecolumn
+ width='3.6000in'/><tablecolumn width='1.6500in'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='3' align='center' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='3'><run><font style='bold'/></run></par>
+<table widthtype='fitmargins' leftmargin='0.0104in' refwidth='3.5896in'><tablecolumn
+ width='1.5000in'/><tablecolumn width='0.1250in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell valign='center' borderwidth='0px'>
+<pardef id='4' align='right' keepwithnext='true' keeptogether='true'/>
+<par def='4'/></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='5' keepwithnext='true' keeptogether='true'/>
+<par def='5'/></tablecell>
+<tablecell valign='center' borderwidth='0px'>
+<pardef id='6' keepwithnext='true' keeptogether='true'/>
+<par def='6'><run><font size='12pt' style='bold'/>Change Password</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='7' keepwithnext='true' keeptogether='true'/>
+<par def='7'/></tablecell>
+<tablecell borderwidth='0px'>
+<par def='5'/></tablecell>
+<tablecell borderwidth='0px' extrahtmlattrs='height=10'>
+<par def='6'/></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px'>
+<pardef id='8' align='right' leftmargin='0.0104in' rightmargin='1.4917in'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>reasonType = "0"</formula></code></pardef>
+<par def='8'><picture height='32px' width='32px' alttext='""'><notesbitmap
+>
+lQAmAAAAAAAAAAAAAAABAAAAAAAAACAAIAAIAAEACAABAAABAACWAIgDAAAAAAAAAAAAACAAdgPI
+/8n5wtzF3sj/x//CJM73wt7H/8b/wiQBB8r5wtzC3gH3wt7G/8X/wh0BB8IkxPkDJBckw/nC3MLe
+AffC3sX/xP/CFgL/HcMkw/nCFwEQwvkCJPnC3MLeAffC3sT/w//CHQL/FsIdwiQLFyT5HhcQ3yQX
+EPnC3MLeAffC3sP/wv/CJAL/HcIWAx1sF8IQwmzCHgRsHhcQwvnC3MLeAffC3sL/Af/CJAIHJMId
+BxYkbB4XEGzCFwYQbB4XEN/C+cLcwt4B98LeAf/C+QEHwyQDHSQXwmwGHhdsHhcQwmwCHhfC38L5
+wtzC3gH3wt4C+ffC+cMkwhcCbB7CEMJswh4EbB4XEMLfw/nC3MLeAvfeAvn3w/kBJMJsAR7CbAMe
+F2zCFwEQwmzCHsLfxPnC3APe994C+ffE+QVsHhdsHsIQCGweFxBsHhcQwt/F+cLcAvfeAvn3xPnC
+bA0ebB4XEGweFxBsHhcQwt/G+QPc994C+ffE+QNsHhfCbAIeF8Jswh4EAB5sHsLfx/kC99wC+ffE
++QFswh7CbMIQAmwXwhAEF2wQF8LfBPkXEB7D+QL33AL598T5wmzCHsoQARfC3wQXEBcewt8D+ff5
+Avn3xPkBbMIexRABF8IQARfCEAEXwt8JHhAebADf+ff5Atz3xPkCbB7CFwEQwhcCHmzEF8IeBt8X
+bBceAMLfA/n3+QLc98T5AmwewxcCbB7CFwIebMMeBmwXEBcebMLfwvkC9/kD3vfcw/kCbB7DF8IQ
+BBdsFxDCFwJsF8IQBB5sAN/D+QL3+QLe98LcwvkBbMIexBABbMgQBBcebN/E+QL3+QPe997C3AH5
+wmwBHsMQARfIEAYXHmwA3yTD+QL3+QLe98LewtzCbAEexBABF8YQwhcDHmzfwyTC+QL3+cLeAffC
+3gPc32zCHsMQAR7CF8MQwhcFHmwA3x3DJAEHwvkB/8LeAffC3gLcbMIeAxcQF8JsAR7EF8IeA2zf
+FsIdBSQHJPn/wv/C3gH3wt7CbMIewhcBAMJsxR4DbADfwhYCHf/CJML/w//C3gP33t/GbAEAxmwC
+AN/CHQIW/8Idw//E/8LeA/fe38wAwt8DJB3/whbE/8X/wt4B987fwiQBB8Idxf/G/8LeAffG3wH5
+xd8D3CQHwiTG/8f/wt7O98Ikx//I/8XewtzJ+cj/lwAGAwAAAAAAgAAAAIAAgIAAAACAgACAAICA
+wMDAwNzApsrw///M//+Z//9m//8z/8z//8zM/8yZ/8xm/8wz/8wA/5n//5nM/5mZ/5lm/5kz/5kA
+/2b//2bM/2aZ/2Zm/2Yz/2YA/zP//zPM/zOZ/zNm/zMz/zMA/wDM/wCZ/wBm/wAzzP//zP/MzP+Z
+zP9mzP9mzP8zzP8AzMz/zMzMzMyZzMxmzMwzzMwAzJn/zJnMzJmZzJlmzJkzzJkAzGb/zGbMzGaZ
+zGZmzGYzzGYAzDP/zDPMzDOZzDNmzDMzzDMAzAD/zADMzACZzABmzAAzzAAAmf//mf/Mmf+Zmf9m
+mf8zmf8Amcz/mczMmcyZmcxmmcwzmcwAmZn/mZnMmZmZmZlmmZkzmZkAmWb/mWbMmWaZmWZmmWYz
+mWYAmTP/mTPMmTOZmTNmmTMzmTMAmQD/mQDMmQCZmQBmmQAzmQAAZv//Zv/MZv+ZZv9mZv8zZv8A
+Zsz/ZszMZsyZZsxmZswzZswAZpn/ZpnMZpmZZplmZpkzZpkAZmb/ZmbMZmaZZmZmZmYzZmYAZjP/
+ZjPMZjOZZjNmZjMzZjMAZgD/ZgDMZgCZZgBmZgAzZgAAM///M//MM/+ZM/9mM/8zM/8AM8z/M8zM
+M8yZM8xmM8wzM8wAM5n/M5nMM5mZM5lmM5kzM5kAM2b/M2bMM2aZM2ZmM2YzM2YAMzP/MzPMMzOZ
+MzNmMzMzMzMAMwD/MwDMMwCZMwBmMwAzMwAAAP/MAP+ZAP9mAP8zAMz/AMzMAMyZAMxmAMwzAMwA
+AJn/AJnMAJmZAJlmAJkzAJkAAGb/AGbMAGaZAGZmAGYAAGYzADP/ADPMADOZADNmADMzADMAAADM
+AACZAABmAAAz3QAAuwAAqgAAiAAAdwAAVQAARAAAIgAAAN0AALsAAKoAAIgAAHcAAFUAAEQAACIA
+3d3dVVVVd3d3d3d3REREIiIiERERAAB3AABVAABEAAAi//vwoKCkgICA/wAAAP8A//8AAAD//wD/
+AP//////
+</notesbitmap></picture></par></tablecell>
+<tablecell valign='center' borderwidth='0px'>
+<pardef id='9' align='right' leftmargin='0' keepwithnext='true' keeptogether='true'/>
+<par def='9'/></tablecell>
+<tablecell valign='center' borderwidth='0px'>
+<pardef id='10' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>reasonType = "0"</formula></code></pardef>
+<par def='10'><run><font color='red'/></run><run><font color='red'/><field
+ type='text' kind='computedfordisplay' name='ReasonText'><code event='defaultvalue'><formula
+>REM {Note that cases 3 and 7 don't really come through this form. They have corresponding error forms.};
+REM {Also note that cases 1 &amp; 2 are the only errors that display the expiration date. This is reflected in the DisplayDate field.};
+
+@If(
+reasonType="0";"";
+reasonType="1";"Please choose a new password. Your password will expire on ";
+reasonType="2";"Please choose a new password. Your password expired on ";
+reasonType="3";"Your access has been restricted because your password is expired. Please contact your admin";
+reasonType="4";"The old password you entered is incorrect. Please try again";
+reasonType="5";"The new passwords you entered do not match. Please try again";
+reasonType="6";"Your new password is not strong enough. Please enter more characters or more varied characters";
+reasonType="7";"Your account has been locked out. Please contact your admin for more information";
+reasonType="8";"Your admin has required a password change before logging in. Please choose a new password";
+reasonType="9";"You have used this password before. Please choose a new one";
+reasonType="10";"Your new password is not long enough. Please enter more characters";
+reasonType="11";"Please supply a new password and confirm it.";
+reasonType="12";"The new password contains invalid characters, please limit to: 01234567890+*-#!§$%&amp;/=?abcdefghijklmnopqrstuvwxyz.";
+"")</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='11' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font color='red'/> </run><run><font
+ color='red'/><field type='datetime' kind='computedfordisplay' name='DisplayDate'><datetimeformat
+ show='date' date='weekdaymonthdayyear' fourdigityearfor21stcentury='true'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
+>REM {Note that cases 1 &amp; 2 are the only errors that display the expiration date.};
+
+@If((reasonType="1" | reasonType="2"); ExpirationDate; "")</formula></code></field></run><run
+><font color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='7'/></tablecell>
+<tablecell borderwidth='0px'>
+<par def='5'/></tablecell>
+<tablecell borderwidth='0px' extrahtmlattrs='height=10'>
+<par def='6'/></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px'>
+<pardef id='11' align='right' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='11'><run html='true'>&lt;label for="pw-old-id"&gt;</run>Old Password:<run
+ html='true'>&lt;/label&gt;</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px'>
+<par def='5'/></tablecell>
+<tablecell valign='center' borderwidth='0px'>
+<pardef id='12' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='12'><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30'/><field defaultfocus='true' type='password' usenotesstyle='false'
+ height='0.2500in' width='1in' multiline='true' borderstyle='single' kind='editable'
+ seal='true' name='Password' htmlid='pw-old-id'><code event='htmlattributes'><formula
+>"maxlength=255 autocomplete=off"</formula></code></field></run><run><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px'>
+<par def='11'><run html='true'>&lt;label for="pw-new-id"&gt;</run>New Password:<run
+ html='true'>&lt;/label&gt;</run></par></tablecell>
+<tablecell valign='center' borderwidth='0px'>
+<par def='5'/></tablecell>
+<tablecell valign='center' borderwidth='0px'>
+<par def='12'><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30'/><field type='password' usenotesstyle='false' height='0.2500in'
+ width='1in' multiline='true' borderstyle='single' kind='editable' seal='true'
+ name='PasswordNew' htmlid='pw-new-id'><code event='htmlattributes'><formula
+>"maxlength=255 autocomplete=off"</formula></code></field></run><run><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px'>
+<par def='4'><run html='true'>&lt;label for="pw-confirm-id"&gt;</run>Confirm Password:<run
+ html='true'>&lt;/label&gt;</run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='5'><run><font size='9pt'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='6'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/><field
+ type='password' usenotesstyle='false' height='0.2500in' width='1in' multiline='true'
+ borderstyle='single' kind='editable' seal='true' name='PasswordConfirm' htmlid='pw-confirm-id'><code
+ event='htmlattributes'><formula>"maxlength=255 autocomplete=off"</formula></code></field></run><run
+><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='7'><run><font size='9pt'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='5'><run><font size='9pt'/></run></par></tablecell>
+<tablecell borderwidth='0px' extrahtmlattrs='height=10'>
+<par def='6'><run html='true'><font size='9pt'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell valign='center' borderwidth='0px' extrahtmlattrs='height=50'>
+<pardef id='13' hide='notes web' keepwithnext='true' keeptogether='true'/>
+<par def='13'/></tablecell>
+<tablecell valign='center' borderwidth='0px'>
+<par def='5'/></tablecell>
+<tablecell valign='center' borderwidth='0px'><compositedata type='65449' prevtype='221'
+ nexttype='65413' afterparcount='4' containertype='65453' afterbegincount='1'>
+qf8MAB0ACAAAAAAA
+</compositedata><compositedata
+ type='65413' prevtype='65449' nexttype='170' afterparcount='5' containertype='65453'
+ afterbegincount='2'>
+hf8IAAEAAAo=
+</compositedata><compositedata type='170' prevtype='65413'
+ nexttype='222' afterparcount='6' containertype='65453' afterbegincount='3'>
+qgI=
+</compositedata>
+<par def='6'><button width='2in' widthtype='maximum' maxlines='1' wraptext='true'
+ bgcolor='system'>Submit</button> <button width='2in' widthtype='maximum'
+ maxlines='1' wraptext='true' bgcolor='system'><code event='onClick' for='web'><javascript
+>window.location = document.forms[0].RedirectTo.value</javascript></code><code
+ event='onClick' for='client'><javascript>window.location = document.forms[0].RedirectTo.value</javascript></code>Cancel</button><run
+ html='true'><font size='9pt'/></run></par></tablecell></tablerow></table>
+<par def='3'><run><font name='serif'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='0px'>
+<pardef id='14' keepwithnext='true' keeptogether='true'/>
+<par def='14'><run><font name='serif'/></run><picture width='159px' height='165px'
+ alttext='""'><jpeg>
+/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEB
+AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/2wBDAQEBAQEBAQEBAQEBAQEBAQEBAQEB
+AQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAARCAClAJ8DASIA
+AhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA
+AAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3
+ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm
+p6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEA
+AwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSEx
+BhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElK
+U1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3
+uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD+/iii
+igAooooAKKKKACiig+tABUcnb8aGlVRnnnj8fT/P86ytS1GG3iJJwR64OM8c88fXnvWVWrGlTdRt
+WtdefX8h8kqnuxi5OTSt81f8NbD7y/jtUJ4ZsHHPccnH4HnP1Ga8T8Z/Em00hZXlmXahJZfNVQg/
+E9z6ZP8AM5XxE+ItloNjcO88e6NJDvLDgbTx1B457jknjpn8MP2wf2wbfwxY36WuoRxSkSYxOAW5
+PYOffgDj8zX4nxv4jwyunUoUa0HVjJpwjfmSUb7qL66a+Z+tcE+HVXO6tGWJoThTfLJTaVneUVa1
+29nfZdddr/pz4h/ad8OWF48LarACG2uHuohtOfunJH+1gjvxV7Qf2ktA1Bo1g1CCUs54W5jbAPcY
+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
+UUAFFFFABRRRQB//2Q==
+</jpeg></picture></par></tablecell></tablerow></table>
+<par def='1'><run html='true'>&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</run></par>
+<pardef id='15' leftmargin='1in'/>
+<par def='15'><run><font name='monospace' color='teal'/></run></par>
+<par def='15'><run><font name='monospace' color='teal'/></run></par>
+<pardef id='16' leftmargin='1in' hide='notes web mobile'/>
+<par def='16'><run><font size='9pt' color='teal'/>Hidden: </run><run><font
+ size='9pt' color='teal'/><field type='text' kind='editable' name='$PublicAccess'><code
+ event='defaultvalue'><formula>"1"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ color='teal'/></run><run><font size='9pt' color='teal'/><field type='text'
+ kind='editable' name='ReasonType'><code event='defaultvalue'><formula>"0"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='19' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ color='teal'/></run><run><font size='9pt' color='teal'/><field type='datetime'
+ kind='computed' name='ExpirationDate'><datetimeformat show='datetime' date='yearmonthday'
+ time='hourminute' zone='always' dateformat='weekdaymonthdayyear' dayformat='twodigitday'
+ monthformat='twodigitmonth' yearformat='twodigityear' weekdayformat='shortname'
+ dateseparator1=' ' dateseparator2='/' dateseparator3='/' timeseparator=':'
+ preference='usersetting'/><code event='defaultvalue'><formula>ExpirationDate</formula></code></field></run><run
+><font size='9pt' color='teal'/></run><run><font size='9pt' color='teal'/><field
+ type='text' kind='computed' name='RedirectTo'><code event='defaultvalue'><formula
+>RedirectTo</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='36' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' color='teal'/><field
+ type='text' kind='computedfordisplay' name='$$HTMLTagAttributes'><code event='defaultvalue'><formula
+>"lang=\"en\""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='42' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' color='teal'/></run></par></richtext></body>
+<item name='$$ScriptName' summary='false' sign='true'><text>$$ChangePasswordForm</text></item></form>
+
+<form name='$$ViewTemplateDefault' nocompose='true' noquery='true' htmlallfields='true'
+ publicaccess='false' designerversion='6'>
+<noteinfo noteid='19e' unid='2A4F2DA2F46EA33385256AAB00725595' sequence='18'>
+<created><datetime dst='true'>20010817T164850,13-04</datetime></created>
+<modified><datetime>20210909T151552,52+03</datetime></modified>
+<revised><datetime>20200514T204846,62+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,51+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,51+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='htmlhead'><formula>"&lt;meta http-equiv='expires' content='0'&gt;" +
+"&lt;link rel=stylesheet type='text/css' href='/" + @WebDbName + "/cssForm?ReadForm'&gt;"</formula></code><code
+ event='jsheader' for='web'><javascript>function getSelectedDocs(){
+	/*
+	This function returns selected document UNIDs from an HTML-syle web view
+	*/
+	var iX = 0
+	var aUNID = new Array()
+	var hForm = window.document.forms[0]
+	if (hForm != null) {
+		for (var iY = 0; iY &lt; hForm.elements.length; iY++) {
+ 			if (hForm.elements[iY].type == "checkbox" &amp;&amp; hForm.elements[iY].name == "$$SelectDoc" &amp;&amp; hForm.elements[iY].checked) {
+				aUNID[iX] = hForm.elements[iY].value
+				iX++
+ 			}
+ 		}
+ 	}
+ 	return aUNID
+}
+</javascript></code>
+<body><richtext>
+<pardef id='1'><code event='hidewhen' enabled='false'><formula>@TextToNumber(@Version(1)) &lt; 32 | @TextToNumber(@Version) &lt; 166</formula></code></pardef>
+<par def='1'><run html='true'><font size='8pt'/>&lt;HEAD&gt;<break/>&lt;STYLE TYPE="text/css"&gt;</run></par>
+<pardef id='2' align='none' leftmargin='1in' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'/>
+<par def='2'><run html='true'><font size='8pt'/>	A:HOVER {BACKGROUND-COLOR:  #D3D3D3}</run></par>
+<par def='2'><run html='true'><font size='8pt'/> 	BODY {font-family: "Arial"}</run></par>
+<par def='2'><run html='true'><font size='8pt'/>	TD {font-family: "Arial"}</run></par>
+<par def='2'><run html='true'><font size='8pt'/>&lt;/STYLE&gt;<break/>&lt;/HEAD&gt;</run></par>
+<par def='2'><horizrule height='0.0500in' width='100%' use3dshading='true'
+ color='black'/></par>
+<par def='1'><run html='true'><font size='8pt'/>&lt;TABLE BGCOLOR="EFEFEF"WIDTH="100%" BORDER=0 CELLSPACING=0 CELLPADDING=0&gt;</run></par>
+<par def='1'><run html='true'><font size='8pt'/>&lt;TR HEIGHT="30"&gt;</run></par>
+<pardef id='3'/>
+<par def='3'><run html='true'><font size='8pt'/>&lt;TD ALIGN=LEFT NOWRAP&gt;</run><actionhotspot
+ hotspotstyle='none'><code event='click'><formula>@DbCommand("Domino"; "ViewPreviousPage")</formula></code><run
+><font size='8pt' style='bold'/>Previous Page</run></actionhotspot><run><font
+ size='8pt' style='bold'/> | </run><actionhotspot hotspotstyle='none'><code
+ event='click'><formula>@DbCommand("Domino"; "ViewNextPage")</formula></code><run
+><font size='8pt' style='bold'/>Next Page</run></actionhotspot><run><font
+ size='8pt' style='bold'/> | </run><actionhotspot hotspotstyle='none'><code
+ event='click'><formula>@Command([OpenView]; @ViewTitle)</formula></code><run
+><font size='8pt' style='bold'/>First Page</run></actionhotspot><run><font
+ size='8pt' style='bold'/> | </run><actionhotspot hotspotstyle='none'><code
+ event='click'><formula>@DbCommand("Domino"; "EndView")</formula></code><run
+><font size='8pt' style='bold'/>Last Page</run></actionhotspot><run html='true'><font
+ size='8pt'/>&lt;/TD&gt;</run></par>
+<par def='1'><run html='true'><font size='8pt'/>&lt;/TR&gt;</run></par>
+<par def='1'><run html='true'><font size='8pt'/>&lt;/TABLE&gt;</run></par>
+<pardef id='4' align='center' spaceafter='1.5'/>
+<par def='4'><run><font size='8pt' style='bold'/></run><run><font size='9pt'
+ style='bold'/><computedtext><code event='value'><formula>@Subset(@ViewTitle;1)</formula></code></computedtext></run></par>
+<pardef id='5' hide='notes'/>
+<par def='5'><embeddedview name='Login Form Mappings' displayusing='html'
+ widthtype='fitwindow' heighttype='fitwindow' height='4.5417in' dclickframe='NotesView'/><run
+ html='true'><font size='8pt'/>&lt;BR&gt;&lt;TABLE BGCOLOR="EFEFEF"WIDTH="100%" BORDER=0 CELLSPACING=0 CELLPADDING=0&gt;</run></par>
+<par def='1'><run html='true'><font size='8pt'/>&lt;TR HEIGHT="30"&gt;</run></par>
+<par def='3'><run html='true'><font size='8pt'/>&lt;TD ALIGN=LEFT NOWRAP&gt;</run><actionhotspot
+ hotspotstyle='none'><code event='click'><formula>@DbCommand("Domino"; "ViewPreviousPage")</formula></code><run
+><font size='8pt' style='bold'/>Previous Page</run></actionhotspot><run><font
+ size='8pt' style='bold'/> | </run><actionhotspot hotspotstyle='none'><code
+ event='click'><formula>@DbCommand("Domino"; "ViewNextPage")</formula></code><run
+><font size='8pt' style='bold'/>Next Page</run></actionhotspot><run><font
+ size='8pt' style='bold'/> | </run><actionhotspot hotspotstyle='none'><code
+ event='click'><formula>@Command([OpenView]; @ViewTitle)</formula></code><run
+><font size='8pt' style='bold'/>First Page</run></actionhotspot><run><font
+ size='8pt' style='bold'/> | </run><actionhotspot hotspotstyle='none'><code
+ event='click'><formula>@DbCommand("Domino"; "EndView")</formula></code><run
+><font size='8pt' style='bold'/>Last Page</run></actionhotspot><run html='true'><font
+ size='8pt'/>&lt;/TD&gt;</run></par>
+<par def='1'><run html='true'><font size='8pt'/>&lt;/TR&gt;</run></par>
+<par def='1'><run html='true'><font size='8pt'/>&lt;/TABLE&gt;</run></par></richtext></body>
+<item name='$$ScriptName' summary='false' sign='true'><text>$$ViewTemplateDefault</text></item></form>
+
+<form name='cssForm' alias='cssForm' nocompose='true' noquery='true' treatashtml='true'
+ publicaccess='false' designerversion='8.5'>
+<noteinfo noteid='1d6' unid='86F4E7323E2BF2D185256ACC0062EE24' sequence='14'>
+<created><datetime dst='true'>20010919T140034,92-04</datetime></created>
+<modified><datetime>20210909T151552,66+03</datetime></modified>
+<revised><datetime>20200514T204846,75+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,65+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,65+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<revisions><datetime dst='true'>20080925T090313,44-04</datetime></revisions>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby>
+<body><richtext>
+<pardef id='1' leftmargin='0.7500in' hide='notes web' tabs='L3.9375in'/>
+<section><sectiontitle pardef='1' color='blue'><font size='8pt' color='blue'/><text
+>// sniffer fields</text></sectiontitle>
+<pardef id='2' hide='notes web' tabs='L3.9375in'/>
+<par def='2'><run><font size='8pt' color='blue'/>// prevent caching this doc	&lt;!-- </run><run
+><font size='8pt' color='blue'/><computedtext><code event='value'><formula
+>@Now</formula></code></computedtext></run><run><font size='8pt' color='blue'/> --&gt;</run></par>
+<pardef id='3' hide='notes web' tabs='L4in'/>
+<par def='3'><run><font size='9pt' color='blue'/>// never save this form	</run><run
+><font size='9pt' color='blue'/><field type='text' kind='computed' name='SaveOptions'><code
+ event='defaultvalue'><formula>"0"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ color='blue'/></run></par>
+<par def='3'><run><font size='9pt' color='blue'/>// cgi useragent	</run><run
+><font size='9pt' color='blue'/><field type='text' kind='editable' name='HTTP_User_Agent'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'/></run></par>
+<par def='3'><run><font size='9pt' color='blue'/>// useragent	</run><run><font
+ size='9pt' color='blue'/><field type='text' kind='computedfordisplay' name='tUserAgent'><code
+ event='defaultvalue'><formula>@LowerCase(@GetHTTPHeader("user-agent"));
+
+@LowerCase(HTTP_User_Agent)</formula></code></field></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' color='blue'/></run></par>
+<par def='3'><run><font size='9pt' color='blue'/>// TUMIRNIX	</run><run><font
+ size='9pt' color='blue'/><field type='text' kind='computedfordisplay' name='isX'><code
+ event='defaultvalue'><formula>REM { unix, linux };
+
+@If(@Contains(tUserAgent; "linux"); "1"; "")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ color='blue'/></run></par>
+<par def='3'><run><font size='9pt' color='blue'/>// Windows	</run><run><font
+ size='9pt' color='blue'/><field type='text' kind='computedfordisplay' name='isWIN'><code
+ event='defaultvalue'><formula>@If(@Contains(tUserAgent; "win"); "1"; "")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ color='blue'/></run></par>
+<par def='3'><run><font size='9pt' color='blue'/>// Macintosh	</run><run><font
+ size='9pt' color='blue'/><field type='text' kind='computedfordisplay' name='isMAC'><code
+ event='defaultvalue'><formula>@If(@Contains(tUserAgent; "mac"); "1"; "")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ color='blue'/></run></par>
+<par def='3'><run><font size='9pt' color='blue'/>// Netscape	</run><run><font
+ size='9pt' color='blue'/><field type='text' kind='computedfordisplay' name='isNN'><code
+ event='defaultvalue'><formula>@If( @Contains(tUserAgent; "mozilla") &amp;
+	!@Contains(tUserAgent; "msie"); "1"; "")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ color='blue'/></run></par>
+<par def='3'><run><font size='9pt' color='blue'/>// Netscape 4	</run><run
+><font size='9pt' color='blue'/><field type='text' kind='computedfordisplay'
+ name='isNN4'><code event='defaultvalue'><formula>_nVersion := @TextToNumber(@Left(@Right(tUserAgent; "mozilla/"); " "));
+
+@If(isNN = "1" &amp; _nVersion &gt;= 4 &amp; _nVersion &lt; 5; "1"; "")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ color='blue'/></run></par>
+<par def='3'><run><font size='9pt' color='blue'/>// Netscape 4 and UNIX	</run><run
+><font size='9pt' color='blue'/><field type='text' kind='computedfordisplay'
+ name='isNN4X'><code event='defaultvalue'><formula>@If(isX = "1" &amp; isNN4 = "1"; "1"; "")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ color='blue'/></run></par>
+<par def='3'><run><font size='9pt' color='blue'/>// Netscape 4 and Windows	</run><run
+><font size='9pt' color='blue'/><field type='text' kind='computedfordisplay'
+ name='isNN4W'><code event='defaultvalue'><formula>@If(isWIN = "1" &amp; isNN4 = "1"; "1"; "")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ color='blue'/></run></par>
+<par def='3'><run><font size='9pt' color='blue'/>// Netscape 6	</run><run
+><font size='9pt' color='blue'/><field type='text' kind='computedfordisplay'
+ name='isNN6'><code event='defaultvalue'><formula>_nVersion := @TextToNumber(@Left(@Right(tUserAgent; "mozilla/"); " "));
+
+@If(isNN = "1" &amp; _nVersion &gt;= 5; "1"; "")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ color='blue'/></run></par>
+<par def='3'><run><font size='9pt' color='blue'/>// IE	</run><run><font size='9pt'
+ color='blue'/><field type='text' kind='computedfordisplay' name='isIE'><code
+ event='defaultvalue'><formula>@If(@Contains(tUserAgent; "msie"); "1"; "")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ color='blue'/></run></par>
+<par def='3'><run><font size='9pt' color='blue'/>// DOM	</run><run><font size='9pt'
+ color='blue'/><field type='text' kind='computedfordisplay' name='isDOM'><code
+ event='defaultvalue'><formula>@If(isNN6 = "1" | isIE = "1"; "1"; "")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></section>
+<pardef id='4' hide='web' tabs='L2in L4in'/>
+<par def='4'><run><font size='9pt'/></run></par>
+<par def='4'><run><font size='9pt'/>/* Style sheet for general Notes forms on the web */</run></par>
+<par def='4'><run><font size='9pt'/></run></par>
+<pardef id='5' leftmargin='1in' tabs='L1.5000in L3.5000in'/>
+<par def='5'><run><font size='9pt'/>BODY {</run></par>
+<par def='5'><run><font size='9pt'/>	background-color:	</run><run><font size='9pt'/>#FFFFFF;</run></par>
+<par def='5'><run><font size='9pt'/>	font-family:	</run><run><font size='9pt'
+ color='blue'/><computedtext><code event='value'><formula>@If(isX = "1";
+	"Helvetica";
+	"\"MS Sans Serif\", Arial, Helvetica")
+
++ ", sans-serif"</formula></code></computedtext></run><run><font size='9pt'/>;</run></par>
+<par def='5'><run><font size='9pt'/>	font-size:	</run><run><font size='9pt'
+ color='blue'/><computedtext><code event='value'><formula>@If(isX = "1" | isNN = "1"; "12"; "9")</formula></code></computedtext></run><run
+><font size='9pt'/>pt;</run></par>
+<par def='5'><run><font size='9pt'/>}</run></par>
+<par def='5'><run><font size='9pt'/></run></par>
+<par def='5'><run><font size='9pt'/>A, TABLE, TH, TD, TR, SPAN, DIV {</run></par>
+<par def='5'><run><font size='9pt'/>	font-family:	</run><run><font size='9pt'
+ color='blue'/><computedtext><code event='value'><formula>@If(isX = "1";
+	"Helvetica";
+	"\"MS Sans Serif\", Arial, Helvetica")
+
++ ", sans-serif"</formula></code></computedtext></run><run><font size='9pt'/>;</run></par>
+<par def='5'><run><font size='9pt'/>	font-size:	</run><run><font size='9pt'
+ color='blue'/><computedtext><code event='value'><formula>@If(isX = "1" | isNN = "1"; "12"; "9")</formula></code></computedtext></run><run
+><font size='9pt'/>pt;</run></par>
+<par def='5'><run><font size='9pt'/>}</run></par>
+<par def='5'><run><font size='9pt'/></run></par>
+<par def='5'><run><font size='9pt'/>TD, TR {</run></par>
+<par def='5'><run><font size='9pt'/>	padding-bottom:	</run><run><font size='9pt'/>5px;</run></par>
+<par def='5'><run><font size='9pt'/>	padding-right:	</run><run><font size='9pt'/>5px;</run></par>
+<par def='5'><run><font size='9pt'/>}</run></par>
+<par def='5'><run><font size='9pt'/></run></par>
+<par def='5'><run><font size='9pt'/>INPUT, </run><run><font size='9pt'/>SELECT, </run><run
+><font size='9pt'/>TEXTAREA {</run></par>
+<par def='5'><run><font size='9pt'/>	font-family:	</run><run><font size='9pt'
+ color='blue'/><computedtext><code event='value'><formula>@If(isX = "1";
+	"Helvetica";
+	"\"MS Sans Serif\", Arial, Helvetica")
+
++ ", sans-serif"</formula></code></computedtext></run><run><font size='9pt'/>;</run></par>
+<par def='5'><run><font size='9pt'/>	font-size:	</run><run><font size='9pt'
+ color='blue'/><computedtext><code event='value'><formula>@If(isX = "1" | isNN = "1"; "10"; "9")</formula></code></computedtext></run><run
+><font size='9pt'/>pt;</run></par>
+<par def='5'><run><font size='9pt'/>}</run></par>
+<par def='5'><run><font size='9pt' style='bold'/></run></par>
+<par def='5'><run><font size='9pt'/>PRE {</run></par>
+<par def='5'><run><font size='9pt'/>	font-size:	9pt;</run></par>
+<par def='5'><run><font size='9pt'/>}</run></par>
+<par def='5'><run><font size='9pt'/></run></par>
+<par def='5'><run><font size='9pt'/>A.action:link, </run></par>
+<par def='5'><run><font size='9pt'/>A.action:visited, </run></par>
+<par def='5'><run><font size='9pt'/>A.action:visited</run></par>
+<par def='5'><run><font size='9pt'/>{</run></par>
+<par def='5'><run><font size='9pt'/>	color:	#000000;</run></par>
+<par def='5'><run><font size='9pt'/>	text-decoration:	none;</run></par>
+<par def='5'><run><font size='9pt'/>}</run></par>
+<par def='5'><run><font size='9pt'/></run></par>
+<par def='5'><run><font size='9pt'/>A.action:hover {</run></par>
+<par def='5'><run><font size='9pt'/>	color:	#000000;</run></par>
+<par def='5'><run><font size='9pt'/>    	text-decoration:	underline;</run></par>
+<par def='5'><run><font size='9pt'/>}</run></par>
+<par def='5'><run><font size='9pt'/></run></par>
+<par def='5'><run><font size='9pt'/></run></par>
+<par def='5'><run><font size='9pt'/>A.grpHeader:link, </run></par>
+<par def='5'><run><font size='9pt'/>A.grpHeader:visited, </run></par>
+<par def='5'><run><font size='9pt'/>A.grpHeader:visited</run></par>
+<par def='5'><run><font size='9pt'/>{</run></par>
+<par def='5'><run><font size='9pt'/>	color:	#000000;</run></par>
+<par def='5'><run><font size='9pt'/>	text-decoration:	none;</run></par>
+<par def='5'><run><font size='9pt'/>}</run></par>
+<par def='5'><run><font size='9pt'/></run></par>
+<par def='5'><run><font size='9pt'/>A.grpHeader:hover {</run></par>
+<par def='5'><run><font size='9pt'/>	color:	#000000;</run></par>
+<par def='5'><run><font size='9pt'/>	font-weight:	bold;</run></par>
+<par def='5'><run><font size='9pt'/>	text-decoration:	none;</run></par>
+<par def='5'><run><font size='9pt'/>}</run></par>
+<par def='5'><run><font size='9pt'/></run></par>
+<pardef id='6' leftmargin='1in'/>
+<par def='6'><run><font size='9pt'/></run></par></richtext></body>
+<item name='$SubForm_RepIDs' sign='true'><text>0000000000000000</text></item>
+<item name='$MimeType' sign='true'><text>text/css</text></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>cssForm</text></item></form>
+
+<form name='cssLogin' alias='cssLogin' nocompose='true' noquery='true' treatashtml='true'
+ publicaccess='false' designerversion='8.5'>
+<noteinfo noteid='1da' unid='816CC95788454B7D85256AFF000E8891' sequence='32'>
+<created><datetime dst='true'>20011108T223844,65-04</datetime></created>
+<modified><datetime>20210909T151552,67+03</datetime></modified>
+<revised><datetime>20200514T204846,77+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,66+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,66+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<revisions><datetime dst='true'>20080925T090313,45-04</datetime></revisions>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby>
+<body><richtext>
+<pardef id='1' hide='web'/>
+<par def='1'><run><font style='bold' color='blue'/></run></par>
+<pardef id='2' hide='notes web' tabs='L2in'/><subformref name='$BrowserSniffer'/>
+<par def='1'><run><font style='bold' color='blue'/></run></par>
+<par def='1'><run><font size='9pt'/>/* Style sheet for custom Domino web forms */</run></par>
+<par def='1'><run><font size='9pt'/></run></par>
+<pardef id='3' leftmargin='1in' tabs='L1.5000in L3.5000in'/>
+<par def='3'><run><font size='9pt'/>A, TABLE, TH, TD, TR, SPAN, DIV {</run></par>
+<par def='3'><run><font size='9pt'/>	font-family:	</run><run><font size='9pt'
+ color='blue'/><computedtext><code event='value'><formula>@If(isX = "1";
+	"Helvetica";
+	"\"MS Sans Serif\", Arial, Helvetica")
+
++ ", sans-serif"</formula></code></computedtext></run><run><font size='9pt'/>;</run></par>
+<par def='3'><run><font size='9pt'/>	font-size:	</run><run><font size='9pt'
+ color='blue'/><computedtext><code event='value'><formula>@If(isX = "1"; "12"; "10")</formula></code></computedtext></run><run
+><font size='9pt'/>pt;</run></par>
+<par def='3'><run><font size='9pt'/>}</run></par>
+<pardef id='4' leftmargin='1in'/>
+<par def='4'><run><font size='9pt'/></run></par></richtext></body>
+<item name='$SubForm_RepIDs' sign='true'><text>0000000000000000</text></item>
+<item name='$MimeType' sign='true'><text>text/css</text></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>cssLogin</text></item></form>
+</database>
+
