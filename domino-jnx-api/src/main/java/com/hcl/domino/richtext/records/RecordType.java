@@ -451,7 +451,7 @@ public enum RecordType {
    * different row is displayed within the time interval specified.<br>
    * This structure is stored just before the CDTABLEEND structure.
    */
-  TIMERINFO(RichTextConstants.SIG_CD_TIMERINFO, 1),
+  TIMERINFO(RichTextConstants.SIG_CD_TIMERINFO, 1, CDTimerInfo.class),
   /** This CD record describes the Row Height property for a table. */
   TABLEROWHEIGHT(RichTextConstants.SIG_CD_TABLEROWHEIGHT, 1, CDTableRowHeight.class),
   /**
@@ -464,7 +464,7 @@ public enum RecordType {
   /** This CD Record is used within mail templates. */
   REGIONBEGIN(RichTextConstants.SIG_CD_REGIONBEGIN, 1, CDRegionBegin.class),
   REGIONEND(RichTextConstants.SIG_CD_REGIONEND, 1, CDRegionEnd.class),
-  TRANSITION(RichTextConstants.SIG_CD_TRANSITION, 1),
+  TRANSITION(RichTextConstants.SIG_CD_TRANSITION, 1, CDTransition.class),
   /**
    * The designer of a form may define a "hint" associated with a field. This
    * descriptive text

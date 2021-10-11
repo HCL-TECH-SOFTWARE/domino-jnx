@@ -109,4 +109,13 @@ public interface EditOds {
   short DDEFORMAT_NATIVE = 0x08;
   /** Program Icon for embedded object */
   short DDEFORMAT_ICON = 0x09;
+  
+  /* Transition Types */
+  short TRANS_LEFTTORIGHT_COLUMN = 1;
+  short TRANS_ROLLING = 2;
+  short TRANS_TOPTOBOTTOM_ROW = 3;
+  short TRANS_WIPE = 4;
+  short TRANS_BOXES_INCREMENT = 5;
+  short TRANS_EXPLODE = 6;
+  short TRANS_DISSOLVE = 7;
 }
