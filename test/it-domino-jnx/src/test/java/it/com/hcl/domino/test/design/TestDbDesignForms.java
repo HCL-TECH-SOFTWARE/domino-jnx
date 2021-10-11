@@ -95,6 +95,7 @@ import com.hcl.domino.richtext.records.CDBegin;
 import com.hcl.domino.richtext.records.CDEnd;
 import com.hcl.domino.richtext.records.CDHeader;
 import com.hcl.domino.richtext.records.CDHotspotBegin;
+import com.hcl.domino.richtext.records.CDHtmlFormula;
 import com.hcl.domino.richtext.records.CDOLEBegin;
 import com.hcl.domino.richtext.records.CDOLEEnd;
 import com.hcl.domino.richtext.records.CDOLEObjectInfo;
@@ -1287,6 +1288,16 @@ public class TestDbDesignForms extends AbstractDesignTest {
       }
     }
     
+    {
+      CDHtmlFormula formula = (CDHtmlFormula)extract(hotspot, 0, CDHtmlFormula.class, CDHtmlFormula.class).get(0);
+      assertEquals(EnumSet.of(CDHtmlFormula.Flag.ALT), formula.getFlags());
+      assertEquals("\"i am alt html\"", formula.getFormula());
+    }
+    {
+      CDHtmlFormula formula = (CDHtmlFormula)extract(hotspot, 1, CDHtmlFormula.class, CDHtmlFormula.class).get(0);
+      assertEquals(EnumSet.of(CDHtmlFormula.Flag.ATTR), formula.getFlags());
+      assertEquals("\"i am html attrs\"", formula.getFormula());
+    }
   }
   
   private List<?> extractOle(List<?> body, int index) {

@@ -404,7 +404,7 @@ public enum RecordType {
    * A CDHTMLFORMULA record contains a formula used to generate either an
    * attribute or alternate HTML text for a Java applet.
    */
-  HTMLFORMULA(RichTextConstants.SIG_CD_HTMLFORMULA, 1),
+  HTMLFORMULA(RichTextConstants.SIG_CD_HTMLFORMULA, 1, CDHtmlFormula.class),
   NESTEDTABLEBEGIN(RichTextConstants.SIG_CD_NESTEDTABLEBEGIN, 1, CDTableBegin.class),
   NESTEDTABLECELL(RichTextConstants.SIG_CD_NESTEDTABLECELL, 1, CDTableCell.class),
   NESTEDTABLEEND(RichTextConstants.SIG_CD_NESTEDTABLEEND, 1, CDTableEnd.class),

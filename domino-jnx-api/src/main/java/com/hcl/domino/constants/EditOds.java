@@ -144,4 +144,13 @@ public interface EditOds {
   /* Version control of ACTIVEOBJECT */
   /** Created by Notes build 141 */
   short ACTIVEOBJECT_VERSION1 = 0;
+  
+  /*  Flags for use in the dwFlags field of CDFORMULA */
+  
+  /** formula is HTML attributes */
+  int CDHTMLFORMULA_FLAG_ATTR = 0x00000001;
+  /** formula is alternate HTML */
+  int CDHTMLFORMULA_FLAG_ALT = 0x00000002;
+  /** formula is an action label formula. */
+  int CDHTMLFORMULA_FLAG_ACTION_LABEL = 0x00000004;
 }
