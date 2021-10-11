@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE database SYSTEM 'xmlschemas/domino_12_0.dtd'>
+<database xmlns='http://www.lotus.com/dxl' version='12.0' replicaid='4325876600553FAB'
+ path='D:\it.com.hcl.domino.test.AbstractNotesRuntimeTest3018614211932403116.nsf'
+ title='' optimizetablebitmaps='true' increasemaxfields='true'>
+<databaseinfo dbid='4325876600553FAB' odsversion='52' diskspace='524288' percentused='87.40234375'
+ numberofdocuments='2'><datamodified><datetime>20211006T192352,11+03</datetime></datamodified><designmodified
+><datetime>20211008T125535,16+03</datetime></designmodified></databaseinfo>
+<view name='test' showinmenu='true' publicaccess='false' designerversion='8.5.3'
+ default='true' noviewformat='true'>
+<noteinfo noteid='12e' unid='B33502394262E4724325876600553FBA' sequence='3'>
+<created><datetime>20211006T183108,74+03</datetime></created>
+<modified><datetime>20211008T125535,16+03</datetime></modified>
+<revised><datetime>20211008T125535,15+03</datetime></revised>
+<lastaccessed><datetime>20211008T125535,15+03</datetime></lastaccessed>
+<addedtofile><datetime>20211006T183108,74+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Dziyana Kazachenka/O=IBA</name></updatedby>
+<wassignedby><name>CN=Dziyana Kazachenka/O=IBA</name></wassignedby><code event='selection'><formula
+>SELECT @All</formula></code>
+<item name='$FormulaClass' sign='true'><text>1</text></item></view>
+</database>
+

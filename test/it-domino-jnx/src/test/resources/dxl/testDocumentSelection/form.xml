@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE database SYSTEM 'xmlschemas/domino_12_0.dtd'>
+<database xmlns='http://www.lotus.com/dxl' version='12.0' replicaid='4325876600553FAB'
+ path='D:\it.com.hcl.domino.test.AbstractNotesRuntimeTest3018614211932403116.nsf'
+ title='' optimizetablebitmaps='true' increasemaxfields='true'>
+<databaseinfo dbid='4325876600553FAB' odsversion='52' diskspace='524288' percentused='86.865234375'
+ numberofdocuments='2'><datamodified><datetime>20211006T192352,11+03</datetime></datamodified><designmodified
+><datetime>20211006T193224,57+03</datetime></designmodified></databaseinfo>
+<form name='test' publicaccess='false' designerversion='8.5.3' renderpassthrough='true'>
+<noteinfo noteid='172' unid='2449090BF311198B4325876600579EFB' sequence='2'>
+<created><datetime>20211006T185703,31+03</datetime></created>
+<modified><datetime>20211006T185726,01+03</datetime></modified>
+<revised><datetime>20211006T185726,00+03</datetime></revised>
+<lastaccessed><datetime>20211006T185726,00+03</datetime></lastaccessed>
+<addedtofile><datetime>20211006T185703,50+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Dziyana Kazachenka/O=IBA</name></updatedby>
+<wassignedby><name>CN=Dziyana Kazachenka/O=IBA</name></wassignedby>
+<body><richtext>
+<pardef id='1'/>
+<par def='1'><field type='text' kind='editable' name='tfield'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></richtext></body>
+<item name='$$ScriptName' summary='false' sign='true'><text>test</text></item></form>
+</database>
+

@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='utf-8'?>
+<document xmlns="http://www.lotus.com/dxl" Form="Test">
+    <item name="Foo">
+        <text>Bar</text>
+    </item>
+</document>
