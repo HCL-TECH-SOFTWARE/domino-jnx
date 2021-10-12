@@ -60,6 +60,7 @@ import com.hcl.domino.dxl.DxlImporterLog;
 import com.hcl.domino.exception.DxlImportException;
 import com.hcl.domino.jna.data.JNAIDTable;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
+import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNADxlImporterAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
@@ -225,7 +226,7 @@ public class JNADxlImporter extends AbstractDxlProcessor<JNADxlImporterAllocatio
 		LockUtil.lockHandle(db.getAdapter(HANDLE.class), handle -> {
 			NotesCallbacks.XML_READ_FUNCTION func;
 			if (PlatformUtils.isWin32()) {
-				func = (pBuffer, length, pAction) -> {
+				func = (Win32NotesCallbacks.XML_READ_FUNCTIONWin32) (pBuffer, length, pAction) -> {
 					try {
 						int remaining = in.available();
 						if(remaining < 1) {

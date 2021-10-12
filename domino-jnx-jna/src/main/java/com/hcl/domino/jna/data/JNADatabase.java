@@ -1058,7 +1058,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		NotesCallbacks.NSFPROFILEENUMPROC callback;
 
 		if (PlatformUtils.isWin32()) {
-			callback = (hDB, ctx, profileNameMem1, profileNameLength, usernameMem, usernameLength, noteId) -> {
+			callback = (Win32NotesCallbacks.NSFPROFILEENUMPROCWin32) (hDB, ctx, profileNameMem1, profileNameLength, usernameMem, usernameLength, noteId) -> {
 				String profileName1 = ""; //$NON-NLS-1$
 				if (profileName1 != null) {
 					profileName1 = NotesStringUtils.fromLMBCS(profileNameMem1, ((profileNameLength & 0xffff)));
@@ -4171,7 +4171,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		NotesCallbacks.ABORTCHECKPROC abortProc;
 		if (abortHandler!=null) {
 			if (PlatformUtils.isWin32()) {
-				abortProc = () -> {
+				abortProc = (Win32NotesCallbacks.ABORTCHECKPROCWin32) () -> {
 					if (abortHandler.shouldInterrupt()==Action.Stop) {
 						return INotesErrorConstants.ERR_CANCEL;
 					}

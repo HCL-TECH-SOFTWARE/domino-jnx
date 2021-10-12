@@ -179,6 +179,10 @@ public class JNADominoProcess implements DominoProcess {
 	public String switchToId(Path idPath, String password, boolean dontSetEnvVar) {
 		if (idPath==null) {
 			idPath = Paths.get(getPropertyString("KeyFileName")); //$NON-NLS-1$
+			if (!idPath.isAbsolute()) {
+				Path dataDirPath = Paths.get(getPropertyString("Directory")); //$NON-NLS-1$
+				idPath = dataDirPath.resolve(idPath);
+			}
 		}
 		Memory idPathMem = NotesStringUtils.toLMBCS(idPath.toString(), true);
 		Memory passwordMem = NotesStringUtils.toLMBCS(password, true);

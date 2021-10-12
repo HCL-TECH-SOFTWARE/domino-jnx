@@ -65,7 +65,7 @@ public class TestFindFiles extends AbstractNotesRuntimeTest {
 
     final Optional<FolderData> helpFolderData = foundEntriesOnTopLevel
         .stream()
-        .filter(entry -> (entry instanceof FolderData && subfolderName.equals(((FolderData) entry).getFileName())))
+        .filter(entry -> (entry instanceof FolderData && subfolderName.equalsIgnoreCase(((FolderData) entry).getFileName())))
         .map(FolderData.class::cast)
         .findFirst();
     Assertions.assertTrue(helpFolderData.isPresent());
