@@ -39,11 +39,13 @@ import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Attachment;
+import com.hcl.domino.data.Attachment.IDataCallback;
 import com.hcl.domino.data.Attachment.IDataCallback.Action;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
+import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNADocumentAllocations;
@@ -208,7 +210,7 @@ public class JNAAttachment implements Attachment {
 		final Throwable[] extractError = new Throwable[1];
 		
 		if (PlatformUtils.isWin32()) {
-			extractCallback = (data, length, param) -> {
+			extractCallback = (Win32NotesCallbacks.NoteExtractCallbackWin32) (data, length, param) -> {
 				if (length==0) {
 					return 0;
 				}

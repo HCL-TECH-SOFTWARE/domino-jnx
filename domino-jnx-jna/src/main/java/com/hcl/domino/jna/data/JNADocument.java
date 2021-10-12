@@ -101,12 +101,13 @@ import com.hcl.domino.jna.data.JNADatabaseObjectProducer.ObjectInfo;
 import com.hcl.domino.jna.internal.AgentRunInfoDecoder;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.ItemDecoder;
+import com.hcl.domino.jna.internal.JNAMemoryUtils;
 import com.hcl.domino.jna.internal.JNANotesConstants;
 import com.hcl.domino.jna.internal.Mem;
-import com.hcl.domino.jna.internal.JNAMemoryUtils;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
+import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNADocumentAllocations;
@@ -4125,7 +4126,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		
 		final LotusScriptCompilationException[] ex = new LotusScriptCompilationException[1];
 		short result = LockUtil.lockHandles(parentDbAllocations.getDBHandle(), getAllocations().getNoteHandle(), (hDb, hNote) -> {
-			return NotesCAPI.get().NSFNoteLSCompileExt(hDb, hNote, 0, (pInfo, pCtx) -> {
+			NotesCallbacks.LSCOMPILEERRPROC callback = (pInfo, pCtx) -> {
 				int version = Short.toUnsignedInt(pInfo.Version);
 				int line = Short.toUnsignedInt(pInfo.Line);
 				String errText = ""; //$NON-NLS-1$
@@ -4139,7 +4140,17 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				ex[0] = new LotusScriptCompilationException(errText, errFile, version, line);
 				
 				return INotesErrorConstants.NOERROR;
-			}, null);
+			};
+			
+			if (PlatformUtils.isWin32()) {
+				Win32NotesCallbacks.LSCOMPILEERRPROCWin32 callbackWin32 = (pInfo, pCtx) -> {
+					return callback.invoke(pInfo, pCtx);
+				};
+				return NotesCAPI.get().NSFNoteLSCompileExt(hDb, hNote, 0, callbackWin32, null);
+			}
+			else {
+				return NotesCAPI.get().NSFNoteLSCompileExt(hDb, hNote, 0, callback, null);
+			}
 		});
 		if(ex[0] != null) {
 			throw ex[0];

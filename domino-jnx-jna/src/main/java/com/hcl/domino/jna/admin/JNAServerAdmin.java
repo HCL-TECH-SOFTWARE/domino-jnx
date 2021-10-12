@@ -450,7 +450,7 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations> 
 			
 			NotesCallbacks.REGSIGNALPROC statusCallback;
 			if (PlatformUtils.isWin32()) {
-				statusCallback = ptrMessage -> {
+				statusCallback = (Win32NotesCallbacks.REGSIGNALPROCWin32) ptrMessage -> {
 					if (msgHandler!=null) {
 						String msg = NotesStringUtils.fromLMBCS(ptrMessage, -1);
 						msgHandler.messageReceived(msg);
@@ -538,20 +538,10 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations> 
 		try {
 			NotesCallbacks.ASYNCNOTIFYPROC callback;
 			if (PlatformUtils.isWin32()) {
-				callback = new Win32NotesCallbacks.ASYNCNOTIFYPROCWin32() {
-					
-					@Override
-					public void invoke(Pointer p1, Pointer p2) {
-					}
-				};
+				callback = (Win32NotesCallbacks.ASYNCNOTIFYPROCWin32) (p1, p2) -> {};
 			}
 			else {
-				callback = new NotesCallbacks.ASYNCNOTIFYPROC() {
-					
-					@Override
-					public void invoke(Pointer p1, Pointer p2) {
-					}
-				};
+				callback = (p1, p2) -> {};
 			}
 
 			result = LockUtil.lockHandle(hAsyncQueue, (hAsyncQueueByVal) -> {
