@@ -16,59 +16,81 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.util.Collection;
+import java.util.Set;
+
 import com.hcl.domino.misc.INumberEnum;
-import com.hcl.domino.richtext.RichTextConstants;
+import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
+import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.WSIG;
 
 /**
- * A CD record of this type specifies the start of a DDE link.
- *
  * @author Jesse Gallagher
- * @since 1.0.2
+ * @since 1.0.44
  */
-@StructureDefinition(name = "CDDDEBegin", members = {
+@StructureDefinition(
+  name = "CDHTMLFORMULA",
+  members = {
     @StructureMember(name = "Header", type = WSIG.class),
-    @StructureMember(name = "ServerName", type = char[].class, length = RichTextConstants.DDESERVERNAMEMAX),
-    @StructureMember(name = "TopicName", type = char[].class, length = 100),
-    @StructureMember(name = "ItemName", type = char[].class, length = RichTextConstants.DDEITEMNAMEMAX),
-    @StructureMember(name = "Flags", type = CDDDEBegin.DDEFlag.class),
-    @StructureMember(name = "PasteEmbedDocName", type = char[].class, length = 80),
-    @StructureMember(name = "EmbeddedDocCount", type = short.class, unsigned = true),
-    @StructureMember(name = "ClipFormat", type = DDEFormat.class)
-})
-public interface CDDDEBegin extends RichTextRecord<WSIG> {
-  enum DDEFlag implements INumberEnum<Integer> {
-    AUTOLINK(0x01),
-    MANUALLINK(0x02),
-    EMBEDDED(0x04),
-    INITIATE(0x08),
-    CDP(0x10),
-    NOTES_LAUNCHED(0x20),
-    CONV_ACTIVE(0x40),
-    EMBEDEXTRACTED(0x80),
-    NEWOBJECT(0x100);
-
+    @StructureMember(name = "dwFlags", type = CDHtmlFormula.Flag.class, bitfield = true),
+    @StructureMember(name = "cbLevel", type = byte.class),
+    @StructureMember(name = "cdReserved", type = byte.class),
+    @StructureMember(name = "Reserved", type = short.class),
+  }
+)
+public interface CDHtmlFormula extends RichTextRecord<WSIG> {
+  enum Flag implements INumberEnum<Integer> {
+    /** formula is HTML attributes */
+    ATTR(NotesConstants.CDHTMLFORMULA_FLAG_ATTR),
+    /** formula is alternate HTML */
+    ALT(NotesConstants.CDHTMLFORMULA_FLAG_ALT),
+    /** formula is an action label formula. */
+    ACTION_LABEL(NotesConstants.CDHTMLFORMULA_FLAG_ACTION_LABEL);
     private final int value;
-
-    DDEFlag(final int value) {
+    private Flag(int value) {
       this.value = value;
     }
-
+    
     @Override
     public long getLongValue() {
-      return this.value;
+      return value;
     }
-
+    
     @Override
     public Integer getValue() {
-      return this.value;
+      return value;
     }
   }
-
+  
   @StructureGetter("Header")
   @Override
   WSIG getHeader();
+
+  @StructureGetter("dwFlags")
+  Set<Flag> getFlags();
+  
+  @StructureSetter("dwFlags")
+  CDHtmlFormula setFlags(Collection<Flag> flags);
+  
+  default String getFormula() {
+    return StructureSupport.extractCompiledFormula(
+      this,
+      0,
+      getVariableData().remaining()
+    );
+  }
+  
+  default CDHtmlFormula setFormula(String formula) {
+    return StructureSupport.writeCompiledFormula(
+      this,
+      0,
+      getVariableData().remaining(),
+      formula,
+      (int len) -> {}
+    );
+  }
 }

@@ -16,6 +16,7 @@
  */
 package it.com.hcl.domino.test.design;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -35,6 +36,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -56,6 +59,7 @@ import com.hcl.domino.design.ActionBar;
 import com.hcl.domino.design.ActionBar.ButtonHeightMode;
 import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.DbDesign;
+import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageRepeatMode;
@@ -85,12 +89,34 @@ import com.hcl.domino.design.simpleaction.ModifyFieldAction;
 import com.hcl.domino.design.simpleaction.ReadMarksAction;
 import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.NotesBitmap;
+import com.hcl.domino.richtext.records.CDBegin;
+import com.hcl.domino.richtext.records.CDEnd;
 import com.hcl.domino.richtext.records.CDHeader;
+import com.hcl.domino.richtext.records.CDHotspotBegin;
+import com.hcl.domino.richtext.records.CDHtmlFormula;
+import com.hcl.domino.richtext.records.CDOLEBegin;
+import com.hcl.domino.richtext.records.CDOLEEnd;
+import com.hcl.domino.richtext.records.CDOLEObjectInfo;
+import com.hcl.domino.richtext.records.CDPreTableBegin;
 import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.records.CDTableBegin;
+import com.hcl.domino.richtext.records.CDTableDataExtension;
+import com.hcl.domino.richtext.records.CDTableEnd;
+import com.hcl.domino.richtext.records.CDTableLabel;
+import com.hcl.domino.richtext.records.CDText;
+import com.hcl.domino.richtext.records.CDTimerInfo;
+import com.hcl.domino.richtext.records.CDTransition;
+import com.hcl.domino.richtext.records.CDWinMetaHeader;
+import com.hcl.domino.richtext.records.CDWinMetaSegment;
+import com.hcl.domino.richtext.records.DDEFormat;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.structures.ActiveObject;
+import com.hcl.domino.richtext.structures.ActiveObjectParam;
+import com.hcl.domino.richtext.structures.ActiveObjectStorageLink;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclEntry;
@@ -101,7 +127,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignForms extends AbstractDesignTest {
-  public static final int EXPECTED_IMPORT_FORMS = 7;
+  public static final int EXPECTED_IMPORT_FORMS = 8;
   public static final int EXPECTED_IMPORT_SUBFORMS = 2;
 
   private static String dbPath;
@@ -973,5 +999,336 @@ public class TestDbDesignForms extends AbstractDesignTest {
     if(!types.isEmpty()) {
       System.out.println("Encountered unimplemented CD record types: " + types);
     }
+  }
+  
+  @Test
+  public void testLotusComponentsForm() {
+    DbDesign design = database.getDesign();
+    
+    Form form = design.getForm("Lotus Components Form").get();
+    
+    List<?> body = form.getBody();
+    
+    // The form contains several embedded Lotus Components objects,
+    //   the first of which has a single Win-meta header/segment pair
+    {
+      List<?> seg = extractOle(body, 0);
+      
+      CDOLEBegin begin = seg.stream()
+        .filter(CDOLEBegin.class::isInstance)
+        .map(CDOLEBegin.class::cast)
+        .findFirst()
+        .get();
+      assertEquals(CDOLEBegin.Version.VERSION2, begin.getVersion().get());
+      assertEquals(EnumSet.of(CDOLEBegin.Flag.OBJECT), begin.getFlags());
+      assertEquals(CDOLEBegin.ClipFormat.METAFILE, begin.getClipFormat().get());
+      assertEquals("EXT25566", begin.getAttachmentName());
+      assertEquals("Lotus.Draw.1", begin.getClassName());
+      assertEquals("", begin.getTemplateName());
+      
+      CDWinMetaHeader header = seg.stream()
+        .filter(CDWinMetaHeader.class::isInstance)
+        .map(CDWinMetaHeader.class::cast)
+        .findFirst()
+        .get();
+      assertEquals(CDWinMetaHeader.MappingMode.ANISOTROPIC, header.getMappingMode().get());
+      assertEquals((short)10583, header.getXExtent());
+      assertEquals((short)7938, header.getYExtent());
+      assertEquals(6000, header.getOriginalDisplaySize().getWidth());
+      assertEquals(4500, header.getOriginalDisplaySize().getHeight());
+      assertEquals(3548, header.getMetafileSize());
+      assertEquals(1, header.getSegCount());
+      
+      CDWinMetaSegment segment = seg.stream()
+        .filter(CDWinMetaSegment.class::isInstance)
+        .map(CDWinMetaSegment.class::cast)
+        .findFirst()
+        .get();
+      assertEquals(3548, segment.getDataSize());
+      assertEquals(3548, segment.getSegSize());
+    }
+    
+    // The file viewer has some Notes/FX bindings
+    {
+      List<?> seg = extractOle(body, 2);
+      CDOLEBegin begin = seg.stream()
+          .filter(CDOLEBegin.class::isInstance)
+          .map(CDOLEBegin.class::cast)
+          .findFirst()
+          .get();
+        assertEquals(CDOLEBegin.Version.VERSION2, begin.getVersion().get());
+        assertEquals(EnumSet.of(CDOLEBegin.Flag.OBJECT), begin.getFlags());
+        assertEquals(CDOLEBegin.ClipFormat.METAFILE, begin.getClipFormat().get());
+        assertEquals("EXT05342", begin.getAttachmentName());
+        assertEquals("Lotus.FileViewer.1", begin.getClassName());
+        assertEquals("", begin.getTemplateName());
+    }
+    
+    // There are four $OLEOBJINFO fields
+    AtomicInteger index = new AtomicInteger(0);
+    form.getDocument().forEachItem(DesignConstants.OLE_OBJECT_ITEM, (item, loop) -> {
+      switch(index.get()) {
+      case 0: {
+        CDOLEObjectInfo info = (CDOLEObjectInfo)item.getValueRichText().get(0);
+        assertEquals(CDOLEObjectInfo.StorageFormat.STRUCT_STORAGE, info.getStorageFormat().get());
+        assertEquals(DDEFormat.METAFILE, info.getDisplayFormat().get());
+        assertEquals(EnumSet.of(CDOLEObjectInfo.Flag.CONTROL, CDOLEObjectInfo.Flag.UPDATEFROMDOCUMENT), info.getFlags());
+        assertEquals((short)0, info.getStorageFormatAppearedIn());
+        assertEquals("EXT25566", info.getFileObjectName());
+        assertEquals("Lotus Draw/Diagram Component", info.getDescription());
+        assertEquals("$Body", info.getFieldName());
+        assertEquals("", info.getTextIndexObjectName());
+        assertEquals("", info.getHtmlData());
+        assertArrayEquals(new byte[0], info.getAssociatedFileData());
+        break;
+      }
+      case 1: {
+        CDOLEObjectInfo info = (CDOLEObjectInfo)item.getValueRichText().get(0);
+        assertEquals(CDOLEObjectInfo.StorageFormat.STRUCT_STORAGE, info.getStorageFormat().get());
+        assertEquals(DDEFormat.METAFILE, info.getDisplayFormat().get());
+        assertEquals(EnumSet.of(CDOLEObjectInfo.Flag.CONTROL, CDOLEObjectInfo.Flag.UPDATEFROMDOCUMENT), info.getFlags());
+        assertEquals((short)0, info.getStorageFormatAppearedIn());
+        assertEquals("EXT36062", info.getFileObjectName());
+        assertEquals("Lotus Comment Component", info.getDescription());
+        assertEquals("$Body", info.getFieldName());
+        assertEquals("", info.getTextIndexObjectName());
+        assertEquals("", info.getHtmlData());
+        assertArrayEquals(new byte[0], info.getAssociatedFileData());
+        break;
+      }
+      case 2: {
+        CDOLEObjectInfo info = (CDOLEObjectInfo)item.getValueRichText().get(0);
+        assertEquals(CDOLEObjectInfo.StorageFormat.STRUCT_STORAGE, info.getStorageFormat().get());
+        assertEquals(DDEFormat.METAFILE, info.getDisplayFormat().get());
+        assertEquals(EnumSet.of(CDOLEObjectInfo.Flag.CONTROL, CDOLEObjectInfo.Flag.UPDATEFROMDOCUMENT), info.getFlags());
+        assertEquals((short)0, info.getStorageFormatAppearedIn());
+        assertEquals("EXT05342", info.getFileObjectName());
+        assertEquals("Lotus File Viewer Component", info.getDescription());
+        assertEquals("$Body", info.getFieldName());
+        assertEquals("", info.getTextIndexObjectName());
+        assertEquals("", info.getHtmlData());
+        assertArrayEquals(new byte[0], info.getAssociatedFileData());
+        break;
+      }
+      case 3: {
+        CDOLEObjectInfo info = (CDOLEObjectInfo)item.getValueRichText().get(0);
+        assertEquals(CDOLEObjectInfo.StorageFormat.STRUCT_STORAGE, info.getStorageFormat().get());
+        assertEquals(DDEFormat.METAFILE, info.getDisplayFormat().get());
+        assertEquals(EnumSet.of(CDOLEObjectInfo.Flag.CONTROL, CDOLEObjectInfo.Flag.UPDATEFROMDOCUMENT), info.getFlags());
+        assertEquals((short)0, info.getStorageFormatAppearedIn());
+        assertEquals("EXT60758", info.getFileObjectName());
+        assertEquals("Lotus Spreadsheet Component", info.getDescription());
+        assertEquals("$Body", info.getFieldName());
+        assertEquals("", info.getTextIndexObjectName());
+        assertEquals("", info.getHtmlData());
+        assertArrayEquals(new byte[0], info.getAssociatedFileData());
+        break;
+      }
+      default:
+        throw new IllegalStateException("Encounted unexpected OLE item index " + index.get());
+      }
+      index.incrementAndGet();
+    });
+  }
+  
+  @Test
+  public void testTimerTable() {
+    DbDesign design = database.getDesign();
+    
+    // This test re-uses the same form as above
+    Form form = design.getForm("Test LS Form").get();
+    
+    List<?> pretable = extract(
+      form.getBody(),
+      0,
+      r -> r instanceof CDBegin && RecordType.PRETABLEBEGIN.getConstant() == ((CDBegin)r).getSignature(),
+      r -> r instanceof CDEnd && RecordType.PRETABLEBEGIN.getConstant() == ((CDEnd)r).getSignature()
+    );
+    assertTrue(pretable.stream().anyMatch(CDTableDataExtension.class::isInstance));
+    
+    List<?> table = extract(form.getBody(), 0, CDTableBegin.class, CDTableEnd.class);
+    assertInstanceOf(CDTableBegin.class, table.get(0));
+    assertInstanceOf(CDTableEnd.class, table.get(table.size()-1));
+    
+    // Make sure we can find out text bits
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("I")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("am")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("an")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("animated table")));
+    
+    CDTimerInfo timer = table.stream()
+      .filter(CDTimerInfo.class::isInstance)
+      .map(CDTimerInfo.class::cast)
+      .findFirst()
+      .get();
+    assertEquals(2500l, timer.getInterval());
+    
+    CDTransition trans = table.stream()
+      .filter(CDTransition.class::isInstance)
+      .map(CDTransition.class::cast)
+      .findFirst()
+      .get();
+    assertEquals(CDTransition.Type.TOPTOBOTTOM_ROW, trans.getTransitionType().get());
+  }
+  
+  @Test
+  public void testTabbedTable() {
+    DbDesign design = database.getDesign();
+    
+    // This test re-uses the same form as above
+    Form form = design.getForm("Test LS Form").get();
+    
+    List<?> pretable = extract(
+      form.getBody(),
+      1,
+      r -> r instanceof CDBegin && RecordType.PRETABLEBEGIN.getConstant() == ((CDBegin)r).getSignature(),
+      r -> r instanceof CDEnd && RecordType.PRETABLEBEGIN.getConstant() == ((CDEnd)r).getSignature()
+    );
+    assertTrue(pretable.stream().anyMatch(CDTableDataExtension.class::isInstance));
+    CDPreTableBegin pre = pretable.stream()
+      .filter(CDPreTableBegin.class::isInstance)
+      .map(CDPreTableBegin.class::cast)
+      .findFirst()
+      .get();
+    assertEquals(EnumSet.of(CDPreTableBegin.Flag.SHOWTABSONLEFT), pre.getFlags());
+    
+    List<?> table = extract(form.getBody(), 1, CDTableBegin.class, CDTableEnd.class);
+    assertInstanceOf(CDTableBegin.class, table.get(0));
+    assertInstanceOf(CDTableEnd.class, table.get(table.size()-1));
+    
+    // Make sure we can find out text bits
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("I")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("am")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("a")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("tabbed table")));
+  }
+  
+  @Test
+  public void testCaptionTable() {
+    DbDesign design = database.getDesign();
+    
+    // This test re-uses the same form as above
+    Form form = design.getForm("Test LS Form").get();
+    
+    List<?> pretable = extract(
+      form.getBody(),
+      2,
+      r -> r instanceof CDBegin && RecordType.PRETABLEBEGIN.getConstant() == ((CDBegin)r).getSignature(),
+      r -> r instanceof CDEnd && RecordType.PRETABLEBEGIN.getConstant() == ((CDEnd)r).getSignature()
+    );
+    assertTrue(pretable.stream().anyMatch(CDTableDataExtension.class::isInstance));
+    
+    List<?> table = extract(form.getBody(), 2, CDTableBegin.class, CDTableEnd.class);
+    assertInstanceOf(CDTableBegin.class, table.get(0));
+    assertInstanceOf(CDTableEnd.class, table.get(table.size()-1));
+    
+    // Make sure we can find out text bits
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("i")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("am")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("a")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("caption table")));
+    CDTableLabel label = table.stream()
+      .filter(CDTableLabel.class::isInstance)
+      .map(CDTableLabel.class::cast)
+      .findFirst()
+      .get();
+    assertEquals("i am caption", label.getLabel());
+  }
+  
+  @Test
+  public void testJavaApplet() {
+    DbDesign design = database.getDesign();
+    
+    // This test re-uses the same form as above
+    Form form = design.getForm("Test LS Form").get();
+    
+    List<?> hotspot = extract(
+      form.getBody(),
+      0,
+      r -> r instanceof CDBegin && ((CDBegin)r).getSignature() == RecordType.V4HOTSPOTBEGIN.getConstant(),
+      r -> r instanceof CDEnd
+    );
+    CDHotspotBegin hotspotBegin = hotspot.stream()
+      .filter(CDHotspotBegin.class::isInstance)
+      .map(CDHotspotBegin.class::cast)
+      .filter(h -> h.getHotspotType().equals(HotspotType.ACTIVEOBJECT))
+      .findFirst()
+      .get();
+    
+    ActiveObject obj = hotspotBegin.getActiveObject().get();
+    assertEquals(ActiveObject.Version.VERSION1, obj.getVersion().get());
+    assertEquals(ActiveObject.Type.JAVA, obj.getObjectType().get());
+    assertEquals(EnumSet.of(ActiveObject.Flag.CORBA_APPLET, ActiveObject.Flag.NOCORBADOWNLOAD), obj.getFlags());
+    assertEquals(ActiveObject.Unit.PIXELS, obj.getWidthUnitType().get());
+    assertEquals(ActiveObject.Unit.PIXELS, obj.getHeightUnitType().get());
+    assertEquals(200, obj.getWidth());
+    assertEquals(200, obj.getHeight());
+    assertEquals("", obj.getDocUrlName());
+    assertEquals("notes:///./$FILE", obj.getCodebase());
+    assertEquals("somejar.class", obj.getCode());
+    assertEquals("", obj.getObjectName());
+    {
+      List<ActiveObjectParam> params = obj.getParams();
+      {
+        ActiveObjectParam param = params.get(0);
+        assertEquals("foo", param.getParam());
+        assertEquals("\"ba\" + \"r\"", param.getFormula());
+      }
+      {
+        ActiveObjectParam param = params.get(1);
+        assertEquals("bar", param.getParam());
+        assertEquals("\"baz\"", param.getFormula());
+      }
+    }
+    {
+      List<ActiveObjectStorageLink> links = obj.getStorageLinks();
+      {
+        ActiveObjectStorageLink link = links.get(0);
+        assertEquals("somejar.jar", link.getLink());
+      }
+    }
+    
+    {
+      CDHtmlFormula formula = (CDHtmlFormula)extract(hotspot, 0, CDHtmlFormula.class, CDHtmlFormula.class).get(0);
+      assertEquals(EnumSet.of(CDHtmlFormula.Flag.ALT), formula.getFlags());
+      assertEquals("\"i am alt html\"", formula.getFormula());
+    }
+    {
+      CDHtmlFormula formula = (CDHtmlFormula)extract(hotspot, 1, CDHtmlFormula.class, CDHtmlFormula.class).get(0);
+      assertEquals(EnumSet.of(CDHtmlFormula.Flag.ATTR), formula.getFlags());
+      assertEquals("\"i am html attrs\"", formula.getFormula());
+    }
+  }
+  
+  private List<?> extractOle(List<?> body, int index) {
+    return extract(body, index, CDOLEBegin.class, CDOLEEnd.class);
+  }
+  
+  private List<?> extract(List<?> body, int index, Class<? extends RichTextRecord<?>> begin, Class<? extends RichTextRecord<?>> end) {
+    return extract(body, index, begin::isInstance, end::isInstance);
+  }
+  
+  private List<?> extract(List<?> body, int index, Predicate<Object> begin, Predicate<Object> end) {
+    int found = 0;
+    
+    int oleBeginIndex = -1;
+    for(oleBeginIndex = 0; oleBeginIndex < body.size(); oleBeginIndex++) {
+      if(begin.test(body.get(oleBeginIndex))) {
+        if(found == index) {
+          break;
+        }
+        found++;
+      }
+    }
+    assertTrue(oleBeginIndex > -1 && oleBeginIndex < body.size());
+    int oleEndIndex = -1;
+    for(oleEndIndex = oleBeginIndex; oleEndIndex < body.size(); oleEndIndex++) {
+      if(end.test(body.get(oleEndIndex))) {
+        break;
+      }
+    }
+    assertTrue(oleEndIndex > -1 && oleEndIndex < body.size());
+    
+    return body.subList(oleBeginIndex, oleEndIndex+1);
   }
 }

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.hcl.domino.commons.design.view.DominoViewFormat;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.DominoDateRange;
 import com.hcl.domino.data.DominoDateTime;
@@ -102,6 +103,10 @@ public abstract class AbstractTypedAccess implements TypedAccess, IndexedTypedAc
 		}
 		else if (PreV3Author.class == valueType) {
       List<?> val = getItemValue(itemName);
+      return (T) (val.isEmpty() ? null : val.get(0));
+		}
+		else if (DominoViewFormat.class == valueType) {
+		  List<?> val = getItemValue(itemName);
       return (T) (val.isEmpty() ? null : val.get(0));
 		}
 		else {

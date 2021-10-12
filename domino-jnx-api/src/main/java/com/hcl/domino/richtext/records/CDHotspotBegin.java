@@ -30,6 +30,8 @@ import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.structures.ActiveObject;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.WSIG;
 
 /**
@@ -278,4 +280,21 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
 
   @StructureSetter("Type")
   CDHotspotBegin setHotspotType(HotspotType type);
+  
+  /**
+   * Retrieves the {@link ActiveObject} associated with this hotspot, if its
+   * type is {@link HotspotType#ACTIVEOBJECT}.
+   * 
+   * @return an {@link Optional} describing the associated {@link ActiveObject},
+   *         or an empty one if this is not an active object
+   * @since 1.0.44
+   */
+  default Optional<ActiveObject> getActiveObject() {
+    if(getHotspotType() != HotspotType.ACTIVEOBJECT) {
+      return Optional.empty();
+    }
+    
+    ByteBuffer buf = getVariableData();
+    return Optional.of(MemoryStructureWrapperService.get().wrapStructure(ActiveObject.class, buf));
+  }
 }
