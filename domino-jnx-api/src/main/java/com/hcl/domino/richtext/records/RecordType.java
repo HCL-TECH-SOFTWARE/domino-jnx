@@ -112,6 +112,7 @@ public enum RecordType {
    * and "Right" members of the CDPOSITIONING structure.
    */
   BOXSIZE(RichTextConstants.SIG_CD_BOXSIZE, 1, CDBoxSize.class),
+  
   /** This CD record contains position information for a layer box. */
   POSITIONING(RichTextConstants.SIG_CD_POSITIONING, 1, CDPositioning.class),
   /**
@@ -369,7 +370,7 @@ public enum RecordType {
    */
   TRANSPARENTTABLE(RichTextConstants.SIG_CD_TRANSPARENTTABLE, 1),
   /** Specifies a horizontal line. */
-  HORIZONTALRULE(RichTextConstants.SIG_CD_HORIZONTALRULE, 1),
+  HORIZONTALRULE(RichTextConstants.SIG_CD_HORIZONTALRULE, 1,CDHRule.class),
   /**
    * Documents stored on a Lotus Domino server that are viewed via a Web browser
    * may contain

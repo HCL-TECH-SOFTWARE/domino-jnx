@@ -82,6 +82,7 @@ import com.hcl.domino.richtext.records.CDExtField;
 import com.hcl.domino.richtext.records.CDExtField.HelperType;
 import com.hcl.domino.richtext.records.CDField;
 import com.hcl.domino.richtext.records.CDFieldHint;
+import com.hcl.domino.richtext.records.CDHRule;
 import com.hcl.domino.richtext.records.CDHotspotBegin;
 import com.hcl.domino.richtext.records.CDIDName;
 import com.hcl.domino.richtext.records.CDImageHeader;
@@ -1335,4 +1336,28 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(EnumSet.of(ColorValue.Flag.ISRGB), begin.getSelectedText().getFlags());
       });
     }
+    
+    @Test
+    public void testCDHRule() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDHRule.class, begin -> {
+            begin.setHeight(72);
+            begin.setWidth(100);
+            begin.setColor(0);
+            begin.setGradientColor(65535);
+            begin.setFlags(EnumSet.of(CDHRule.Flag.HRULE_FLAG_USECOLOR, CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_NOSHADOW));
+          });
+        }
+
+        final CDHRule begin = (CDHRule) doc.getRichTextItem("Body").get(0);
+        assertEquals(72, begin.getHeight());
+        assertEquals(100, begin.getWidth());
+        assertEquals(0, begin.getColor());
+        assertEquals(65535, begin.getGradientColor());
+        assertEquals(EnumSet.of(CDHRule.Flag.HRULE_FLAG_USECOLOR, CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_NOSHADOW), begin.getFlags());
+      });
+    }
+    
 }
