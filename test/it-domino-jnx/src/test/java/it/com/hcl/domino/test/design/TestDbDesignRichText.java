@@ -41,6 +41,8 @@ import com.hcl.domino.richtext.records.CDLayer;
 import com.hcl.domino.richtext.records.CDMapElement;
 import com.hcl.domino.richtext.records.CDPositioning;
 import com.hcl.domino.richtext.records.CDStyleName;
+import com.hcl.domino.richtext.records.CDTextEffect;
+import com.hcl.domino.richtext.records.CDVerticalAlign;
 import com.hcl.domino.richtext.structures.CDPoint;
 import com.hcl.domino.richtext.structures.CDRect;
 import com.hcl.domino.security.Acl;
@@ -278,5 +280,35 @@ public class TestDbDesignRichText extends AbstractDesignTest {
     
     assertEquals(500, box.getWidth().getLength());
     assertEquals(200, box.getHeight().getLength());
+  }
+  
+  @Test
+  public void testTextEffect() throws IOException {
+    DbDesign design = this.database.getDesign();
+    Form form = design.getForm("ppage layout A").get();
+    
+    CDTextEffect textEffect = form.getBody()
+        .stream()
+        .filter(CDTextEffect.class::isInstance)
+        .map(CDTextEffect.class::cast)
+        .findFirst()
+        .get();
+    
+    assertEquals(true, textEffect.getFontStyle().isShadow());
+  }
+    
+  @Test
+  public void testVerticalAlign() throws IOException {
+    DbDesign design = this.database.getDesign();
+    Form form = design.getForm("VerticalAlign").get();
+    
+    CDVerticalAlign verticalAlign = form.getBody()
+        .stream()
+        .filter(CDVerticalAlign.class::isInstance)
+        .map(CDVerticalAlign.class::cast)
+        .findFirst()
+        .get();
+    
+    assertEquals(CDVerticalAlign.Alignment.BOTTOM, verticalAlign.getAlignment());
   }
 }
