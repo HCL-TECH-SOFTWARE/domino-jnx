@@ -16,6 +16,8 @@
  */
 package it.com.hcl.domino.test.data;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.time.Instant;
 import java.time.temporal.ChronoField;
 import java.util.ArrayList;
@@ -192,6 +194,30 @@ public class TestDocuments extends AbstractNotesRuntimeTest {
     });
   }
 
+  @Test
+  public void testRemoveItem() throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      //create three items
+      doc.appendItemValue("itemname", "item1value");
+      doc.appendItemValue("itemname", "item2value");
+      doc.appendItemValue("itemname", "item3value");
+      
+      long itemCountBefore = doc.allItems()
+      .filter((item) -> { return "itemname".equalsIgnoreCase(item.getName()); })
+      .count();
+      assertEquals(3, itemCountBefore);
+      
+      doc.removeItem("itemname");
+
+      //check if all three got removed
+      long itemCountAfter = doc.allItems()
+      .filter((item) -> { return "itemname".equalsIgnoreCase(item.getName()); })
+      .count();
+      assertEquals(0, itemCountAfter);
+    });
+  }
+  
   @Test
   public void testResponseCount() throws Exception {
     this.withTempDb(database -> {

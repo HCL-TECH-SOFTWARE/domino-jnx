@@ -58,19 +58,20 @@ import com.hcl.domino.data.CollectionSearchQuery;
 import com.hcl.domino.data.CollectionSearchQuery.CollectionEntryProcessor;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.Action;
-import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.Find;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.Navigate;
+import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.data.CollectionDataCache.CacheState;
 import com.hcl.domino.jna.data.JNACollectionEntry.CacheableViewEntryData;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
+import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNADominoCollectionAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNAIDTableAllocations;
@@ -2025,7 +2026,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		final NotesCallbacks.NIFFindByKeyProc nifCallback;
 		
 		if (PlatformUtils.isWin32()) {
-			nifCallback = ctx1 -> {
+			nifCallback = (Win32NotesCallbacks.NIFFindByKeyProcWin32) ctx1 -> {
 				try {
 					short wSizeOFChunk = ctx1.wSizeOfChunk;
 					Pointer summaryBuffer = ctx1.SummaryBuffer;

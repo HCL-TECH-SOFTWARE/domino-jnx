@@ -72,6 +72,7 @@ import com.hcl.domino.richtext.records.CDDataFlags;
 import com.hcl.domino.richtext.records.CDEmbeddedCalendarControl;
 import com.hcl.domino.richtext.records.CDEmbeddedContactList;
 import com.hcl.domino.richtext.records.CDEmbeddedControl;
+import com.hcl.domino.richtext.records.CDEmbeddedEditControl;
 import com.hcl.domino.richtext.records.CDEmbeddedExtraInfo;
 import com.hcl.domino.richtext.records.CDEmbeddedOutline;
 import com.hcl.domino.richtext.records.CDEmbeddedSchedulerControl;
@@ -98,6 +99,8 @@ import com.hcl.domino.richtext.records.CDStyleName;
 import com.hcl.domino.richtext.records.CDText;
 import com.hcl.domino.richtext.records.CDTextEffect;
 import com.hcl.domino.richtext.records.CDVerticalAlign;
+import com.hcl.domino.richtext.records.CDWinMetaHeader;
+import com.hcl.domino.richtext.records.CDWinMetaSegment;
 import com.hcl.domino.richtext.records.CurrencyFlag;
 import com.hcl.domino.richtext.records.CurrencyType;
 import com.hcl.domino.richtext.records.RecordType;
@@ -1338,6 +1341,67 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
     }
     
     @Test
+    public void testEmbeddedEditControl() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDEmbeddedEditControl.class, begin -> {
+            begin.setName("foo.txt");
+            begin.setFlags(EnumSet.of(CDEmbeddedEditControl.Flag.HASNAME));
+          });
+        }
+
+        final CDEmbeddedEditControl begin = (CDEmbeddedEditControl) doc.getRichTextItem("Body").get(0);
+        assertEquals("foo.txt", begin.getName());
+        assertEquals(EnumSet.of(CDEmbeddedEditControl.Flag.HASNAME), begin.getFlags());
+      });
+    }
+    
+    @Test
+    public void testWinMetaHeader() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDWinMetaHeader.class, begin -> {
+            begin.setMappingMode(CDWinMetaHeader.MappingMode.HIMETRIC);
+            begin.setXExtent((short)20);
+            begin.setYExtent((short)30);
+            begin.getOriginalDisplaySize().setHeight(40);
+            begin.getOriginalDisplaySize().setWidth(50);
+            begin.setMetafileSize(90000);
+            begin.setSegCount(2);
+          });
+        }
+
+        final CDWinMetaHeader begin = (CDWinMetaHeader) doc.getRichTextItem("Body").get(0);
+        assertEquals(CDWinMetaHeader.MappingMode.HIMETRIC, begin.getMappingMode().get());
+        assertEquals(20, begin.getXExtent());
+        assertEquals(30, begin.getYExtent());
+        assertEquals(40, begin.getOriginalDisplaySize().getHeight());
+        assertEquals(50, begin.getOriginalDisplaySize().getWidth());
+        assertEquals(90000, begin.getMetafileSize());
+        assertEquals(2, begin.getSegCount());
+      });
+    }
+    
+    @Test
+    public void testWinMetaSegment() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDWinMetaSegment.class, begin -> {
+            begin.setDataSize(60000);
+            begin.setSegSize(65535);
+          });
+        }
+
+        final CDWinMetaSegment begin = (CDWinMetaSegment) doc.getRichTextItem("Body").get(0);
+        assertEquals(60000, begin.getDataSize());
+        assertEquals(65535, begin.getSegSize());
+      });
+    }
+   
+    @Test
     public void testCDHRule() throws Exception {
       this.withTempDb(database -> {
         final Document doc = database.createDocument();
@@ -1359,5 +1423,4 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(EnumSet.of(CDHRule.Flag.HRULE_FLAG_USECOLOR, CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_NOSHADOW), begin.getFlags());
       });
     }
-    
 }

@@ -113,6 +113,24 @@ public class JNADominoRuntime implements DominoRuntime {
 			retPathName.dispose();
 		}
 	}
+	
+	@Override
+	public Optional<Path> getSharedDataDirectory() {
+	  DisposableMemory retPathName = new DisposableMemory(NotesConstants.MAXPATH);
+    try {
+      NotesCAPI.get().OSGetSharedDataDirectory(retPathName);
+      NotesCAPI.get().OSPathAddTrailingPathSep(retPathName);
+      String pathAsStr = NotesStringUtils.fromLMBCS(retPathName, -1);
+      if(StringUtil.isNotEmpty(pathAsStr)) {
+        return Optional.of(Paths.get(pathAsStr));
+      } else {
+        return Optional.empty();
+      }
+    }
+    finally {
+      retPathName.dispose();
+    }
+	}
 
 	@Override
 	public void setProperty(String propertyName, String value) {

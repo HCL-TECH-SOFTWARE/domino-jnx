@@ -25,13 +25,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
+import com.hcl.domino.commons.richtext.DefaultRichTextList;
 import com.hcl.domino.commons.util.NotesErrorUtils;
+import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentProperties;
 import com.hcl.domino.data.Item;
@@ -44,11 +45,14 @@ import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNADocumentAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNAItemAllocations;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
+import com.hcl.domino.jna.internal.richtext.JNARichtextNavigator;
 import com.hcl.domino.jna.internal.structs.NotesBlockIdStruct;
 import com.hcl.domino.mime.MimeEntity;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextConstants;
+import com.hcl.domino.richtext.RichTextRecordList;
+import com.hcl.domino.richtext.records.RecordType.Area;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
@@ -126,6 +130,11 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 		}
 	}
 	
+	@Override
+	public RichTextRecordList getValueRichText(Area variant) {
+	  return new DefaultRichTextList(new JNARichtextNavigator((JNADocument)this.getParent(), this), variant);
+	}
+	
 	@SuppressWarnings("rawtypes")
 	@Override
 	protected JNAItemAllocations createAllocations(IGCDominoClient<?> parentDominoClient,
@@ -201,7 +210,8 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 	 * 
 	 * @return length
 	 */
-	public int getValueLength() {
+	@Override
+  public int getValueLength() {
 		loadItemNameAndFlags();
 
 		return m_valueLength;
@@ -235,6 +245,23 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 			protected List<?> getItemValue(String itemName) {
 				return getValue();
 			}
+			
+			@SuppressWarnings("unchecked")
+      @Override
+			public <U> U get(String itemName, Class<U> valueType, U defaultValue) {
+			  // Specialized support for byte[] for the raw data
+			  if(byte[].class.equals(valueType)) {
+  			  Pointer valuePtr = Mem.OSLockObject(m_valueBlockId);
+  		    try {
+            return (U)valuePtr.getByteArray(0, m_valueLength);
+  		    }
+  		    finally {
+  		      Mem.OSUnlockObject(m_valueBlockId);
+  		    }
+			  }
+			  
+			  return super.get(itemName, valueType, defaultValue);
+			};
 		};
 		
 		return typedAccess.get(getName(), valueType, defaultValue);
@@ -395,6 +422,31 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 		return (m_itemFlags & NotesConstants.ITEM_SIGN) == NotesConstants.ITEM_SIGN;
 	}
 
+	public void setItemType(ItemDataType newType) {
+	  JNADocumentAllocations docAllocations = (JNADocumentAllocations) getParent().getAdapter(APIObjectAllocations.class);
+	  docAllocations.checkDisposed();
+
+	  loadItemNameAndFlags();
+
+	  NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
+	  itemBlockIdByVal.pool = m_itemBlockId.pool;
+	  itemBlockIdByVal.block = m_itemBlockId.block;
+
+	  int itemFlags = getFlagsAsInt();
+	  DisposableMemory itemValue = getValueRaw(false);
+	  try {
+	    short result = LockUtil.lockHandle(docAllocations.getNoteHandle(), (docHandleByVal) -> {
+	      return NotesCAPI.get().NSFItemModifyValue(docHandleByVal, itemBlockIdByVal, 
+	          (short) (itemFlags & 0xffff), newType.getValue(), 
+	          itemValue, (int) itemValue.size());
+	    });
+	    NotesErrorUtils.checkResult(result);
+	  }
+	  finally {
+	    itemValue.dispose();
+	  }
+	}
+	
 	private void setItemFlags(short newFlags) {
 		JNADocumentAllocations docAllocations = (JNADocumentAllocations) getParent().getAdapter(APIObjectAllocations.class);
 		docAllocations.checkDisposed();

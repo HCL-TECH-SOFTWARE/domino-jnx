@@ -38,6 +38,7 @@ import com.hcl.domino.richtext.structures.WSIG;
   }
 )
 public interface CDLinkColors extends RichTextRecord<WSIG> {
+  @Override
   @StructureGetter("Header")
   WSIG getHeader();
   

@@ -102,7 +102,8 @@ public class JNAAdministrationProcess extends BaseJNAAPIObject<JNAAdministration
 		m_certExpire = JNADominoDateTime.from(LocalDateTime.now().plusYears(2).toInstant(ZoneOffset.UTC));
 	}
 
-	@Override
+	@SuppressWarnings("rawtypes")
+  @Override
 	protected JNAAdministrationProcessAllocations createAllocations(IGCDominoClient<?> parentDominoClient,
 			APIObjectAllocations parentAllocations, ReferenceQueue<? super IAPIObject> queue) {
 		return new JNAAdministrationProcessAllocations(parentDominoClient, parentAllocations, this, queue);

@@ -54,7 +54,9 @@ public class NotesDbReplicaInfo extends BaseStructure {
 		return AccessController.doPrivileged((PrivilegedAction<NotesDbReplicaInfo>) () -> new NotesDbReplicaInfo());
 	}
 
-	protected List<String> getFieldOrder() {
+	@SuppressWarnings("nls")
+  @Override
+  protected List<String> getFieldOrder() {
 		return Arrays.asList("ID", "Flags", "CutoffInterval", "Cutoff");
 	}
 	

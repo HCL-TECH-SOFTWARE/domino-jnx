@@ -369,10 +369,16 @@ public interface INotesCAPI extends Library {
 
 	void OSGetExecutableDirectory(Memory retPathName);
 	void OSGetDataDirectory(Memory retPathName);
-	short CreateDAConfig(CreateDAConfigStruct ldap);
-	short UpdateDAConfig(UpdateDAConfigStruct ldap);
-	short EnableDisableDA(EnableDisableDAStruct daConfig);
-	short VerifyLdapDirAssistConnection(VerifyLDAPConnectionStruct ldap);
+	/**
+	 * @param retPathName the destination path-name storage
+	 * @return the length of the directory name, as a {@code WORD}
+	 * @since 1.0.43
+	 */
+	short OSGetSharedDataDirectory(Memory retPathName);
+	short CreateDAConfiguration(CreateDAConfigStruct ldap);
+	short UpdateDAConfiguration(UpdateDAConfigStruct ldap);
+	short EnableDisableDADomain(EnableDisableDAStruct daConfig);
+	short VerifyLDAPConnection(VerifyLDAPConnectionStruct ldap);
 	short OSGetSystemTempDirectory(Memory retPathName, int bufferLength);
 	void OSPathAddTrailingPathSep(Memory retPathName);
 	short OSGetEnvironmentString(Memory variableName, Memory rethValueBuffer, short bufferLength);
@@ -2551,4 +2557,26 @@ public interface INotesCAPI extends Library {
 	short NSFDbGetNamesList(HANDLE.ByValue hDB, int Flags, DHANDLE.ByReference rethNamesList);
 	
 	int OSProcessGroup(int query);
+	
+	short AgentLSTextFormat(DHANDLE.ByValue hSrc, DHANDLE.ByReference hDest,
+	    DHANDLE.ByReference hErrs, int dwFlags, DHANDLE.ByReference phData);
+
+	short NLS_goto_next32(
+	    PointerByReference ppString,
+	    int len,
+	    Pointer pInfo);
+	
+	short NLS_goto_prev_whole_char (
+	    PointerByReference ppString, 
+	    Pointer pStrStart, 
+	    Pointer pInfo);
+
+	short NLS_align_on_char_boundary(Pointer pString, 
+	    Pointer pStrStart, 
+      Pointer pInfo);
+
+	short NSFItemModifyValue (DHANDLE.ByValue hNote, NotesBlockIdStruct.ByValue bhItem, 
+      short itemFlags, short dataType, 
+      Pointer value, int valueLength);
+
 }

@@ -16,6 +16,7 @@
  */
 package it.com.hcl.domino.test.design;
 
+import static it.com.hcl.domino.test.util.ITUtil.toLf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -26,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.DayOfWeek;
@@ -38,8 +40,15 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import org.apache.bcel.classfile.ClassParser;
+import org.apache.bcel.classfile.JavaClass;
+import org.apache.bcel.classfile.Method;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,6 +70,10 @@ import com.hcl.domino.design.agent.AgentTarget;
 import com.hcl.domino.design.agent.AgentTrigger;
 import com.hcl.domino.design.agent.FormulaAgentContent;
 import com.hcl.domino.design.agent.FormulaAgentContent.DocumentAction;
+import com.hcl.domino.design.agent.ImportedJavaAgentContent;
+import com.hcl.domino.design.agent.JavaAgentContent;
+import com.hcl.domino.design.agent.LotusScriptAgentContent;
+import com.hcl.domino.design.agent.SimpleActionAgentContent;
 import com.hcl.domino.design.simpleaction.CopyToDatabaseAction;
 import com.hcl.domino.design.simpleaction.DeleteDocumentAction;
 import com.hcl.domino.design.simpleaction.FolderBasedAction;
@@ -85,17 +98,13 @@ import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
 import com.hcl.domino.design.simplesearch.TextTerm;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.misc.Pair;
-import com.hcl.domino.design.agent.ImportedJavaAgentContent;
-import com.hcl.domino.design.agent.JavaAgentContent;
-import com.hcl.domino.design.agent.LotusScriptAgentContent;
-import com.hcl.domino.design.agent.SimpleActionAgentContent;
 import com.ibm.commons.util.io.StreamUtil;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
-  public static final int EXPECTED_IMPORT_AGENTS = 23;
+  public static final int EXPECTED_IMPORT_AGENTS = 28;
   private static String dbPath;
 
   @AfterAll
@@ -195,7 +204,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
   }
 
   @Test
-  public void testImportedJavaAgent() {
+  public void testImportedJavaAgent() throws IOException {
     final DbDesign dbDesign = this.database.getDesign();
     final Collection<DesignAgent> agents = dbDesign.getAgents().collect(Collectors.toList());
     final DesignAgent agent = agents.stream().filter(a -> "imported java agent".equals(a.getTitle())).findFirst().orElse(null);
@@ -204,13 +213,32 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
 
     assertNotNull(dbDesign.getAgent("imported java agent"));
     final AgentContent content = agent.getAgentContent();
-    assertInstanceOf(ImportedJavaAgentContent.class, content);
 
-    final ImportedJavaAgentContent javaAgent = (ImportedJavaAgentContent) content;
+    final ImportedJavaAgentContent javaAgent = assertInstanceOf(ImportedJavaAgentContent.class, content);
     assertEquals("ImportedJavaAgentContent.class", javaAgent.getMainClassName());
     assertEquals("H:\\", javaAgent.getCodeFilesystemPath());
     assertEquals(Arrays.asList("ImportedJavaAgentContent.class", "JavaAgentContent.class", "bar.txt", "foo.jar"),
-        javaAgent.getFileNameList());
+        javaAgent.getFiles());
+    
+    // Try to read the Java code
+    {
+      JavaClass clazz;
+      try(InputStream is = javaAgent.getFile("ImportedJavaAgentContent.class").get()) {
+        ClassParser parser = new ClassParser(is, "ImportedJavaAgentContent.class");
+        clazz = parser.parse();
+      }
+      assertEquals("com.hcl.domino.design.agent.ImportedJavaAgentContent", clazz.getClassName());
+    }
+    {
+      JavaClass clazz;
+      try(InputStream is = javaAgent.getFile("JavaAgentContent.class").get()) {
+        ClassParser parser = new ClassParser(is, "JavaAgentContent.class");
+        clazz = parser.parse();
+      }
+      assertEquals("com.hcl.domino.design.agent.JavaAgentContent", clazz.getClassName());
+      Method[] methods = clazz.getMethods();
+      assertTrue(Stream.of(methods).anyMatch(m -> "getResourcesAttachmentName".equals(m.getName())));
+    }
   }
 
   @Test
@@ -272,7 +300,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
   }
 
   @Test
-  public void testMultiFileJavaAgent() {
+  public void testMultiFileJavaAgent() throws IOException {
     final DbDesign dbDesign = this.database.getDesign();
     final DesignAgent agent = dbDesign.getAgent("Multi-File Java").orElse(null);
     assertNotNull(agent);
@@ -300,6 +328,113 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     assertEquals(Arrays.asList("foo.jar", "bar.jar"), javaAgent.getEmbeddedJars());
     assertEquals(Arrays.asList("java lib", "java consumer", "java lib 2", "java lib 3", "java lib 4"),
         javaAgent.getSharedLibraryList());
+    
+    try(
+      InputStream is = javaAgent.getSourceAttachment().get();
+      JarInputStream jis = new JarInputStream(is)
+    ) {
+      boolean foundBar = false;
+      boolean foundAgent = false;
+      
+      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
+        if("foo/Bar.java".equals(entry.getName())) {
+          foundBar = true;
+          String actual = toLf(StreamUtil.readString(jis));
+          String expected = toLf(IOUtils.resourceToString("/text/testDbDesignAgents/Bar.java", StandardCharsets.UTF_8));
+          assertEquals(expected, actual);
+        } else if("lotus/domino/axis/JavaAgentRenamed.java".equals(entry.getName())) {
+          foundAgent = true;
+          String actual = toLf(StreamUtil.readString(jis));
+          String expected = toLf(IOUtils.resourceToString("/text/testDbDesignAgents/JavaAgentRenamed.java", StandardCharsets.UTF_8));
+          assertEquals(expected, actual);
+        }
+        
+        jis.closeEntry();
+      }
+      
+      assertTrue(foundBar);
+      assertTrue(foundAgent);
+    }
+
+    try(
+      InputStream is = javaAgent.getObjectAttachment().get();
+      JarInputStream jis = new JarInputStream(is)
+    ) {
+      boolean foundBar = false;
+      boolean foundAgent = false;
+      
+      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
+        if("foo/Bar.class".equals(entry.getName())) {
+          foundBar = true;
+        } else if("lotus/domino/axis/JavaAgentRenamed.class".equals(entry.getName())) {
+          foundAgent = true;
+        }
+        
+        jis.closeEntry();
+      }
+      
+      assertTrue(foundBar);
+      assertTrue(foundAgent);
+    }
+
+    try(
+      InputStream is = javaAgent.getResourcesAttachment().get();
+      JarInputStream jis = new JarInputStream(is)
+    ) {
+      boolean foundBar = false;
+      boolean foundDesktop = false;
+      
+      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
+        if("bar.txt".equals(entry.getName())) {
+          foundBar = true;
+        } else if("desktop.ini".equals(entry.getName())) {
+          foundDesktop = true;
+          
+          String actual = toLf(IOUtils.toString(jis, StandardCharsets.UTF_16));
+          String expected = toLf(IOUtils.resourceToString("/text/testDbDesignAgents/desktop.ini.txt", StandardCharsets.UTF_8));
+          assertEquals(expected, actual);
+        }
+        
+        jis.closeEntry();
+      }
+      
+      assertTrue(foundBar);
+      assertTrue(foundDesktop);
+    }
+
+    try(
+      InputStream is = javaAgent.getEmbeddedJar("foo.jar").get();
+      JarInputStream jis = new JarInputStream(is)
+    ) {
+      boolean foundFoo = false;
+      
+      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
+        if("foo.txt".equals(entry.getName())) {
+          foundFoo = true;
+        }
+        
+        jis.closeEntry();
+      }
+      
+      assertTrue(foundFoo);
+    }
+
+    try(
+      InputStream is = javaAgent.getEmbeddedJar("bar.jar").get();
+      JarInputStream jis = new JarInputStream(is)
+    ) {
+      boolean foundBar = false;
+      
+      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
+        if("bar.txt".equals(entry.getName())) {
+          foundBar = true;
+        }
+        
+        jis.closeEntry();
+      }
+      
+      assertTrue(foundBar);
+    }
   }
 
   @Test
@@ -723,5 +858,179 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
         + "FIELD DocumentAuthors := @Trim(@Replace(From : CurrentReviewers; \"None\"; \"\"));@All", formula.getFormula());
     assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
     
+  }
+  
+  @Test
+  public void testReleaseDeadMessages() {
+    DbDesign design = database.getDesign();
+    
+    DesignAgent agent = design.getAgent("Release Dead Messages").get();
+    
+    assertEquals("Release Dead Messages", agent.getTitle());
+    assertEquals("This filter releases (and tries to resend) all messages that have been marked DEAD.\n", agent.getComment());
+    
+    assertEquals(DesignAgent.AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertEquals(AgentTrigger.MANUAL, agent.getTrigger());
+    assertEquals(AgentTarget.ALL, agent.getTarget());
+
+    AgentContent content = agent.getAgentContent();
+    FormulaAgentContent formula = assertInstanceOf(FormulaAgentContent.class, content);
+    assertEquals("RoutingState = \"DEAD\";\n"
+        + "FIELD RoutingState := \"\";\n"
+        + "FIELD Recipients := IntendedRecipient;\n"
+        + "FIELD Form := MailSavedForm;", formula.getFormula());
+    assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
+  }
+  
+  @Test
+  public void testChangeInformation() {
+    DbDesign design = database.getDesign();
+    
+    DesignAgent agent = design.getAgent("ChangeInformation").get();
+    
+    assertEquals("(ChangeInformation)", agent.getTitle());
+    assertEquals("Run by Administrator with \"Make Change\" button", agent.getComment());
+    
+    assertEquals(DesignAgent.AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertEquals(AgentTrigger.MANUAL, agent.getTrigger());
+    assertEquals(AgentTarget.VIEW, agent.getTarget());
+
+    AgentContent content = agent.getAgentContent();
+    FormulaAgentContent formula = assertInstanceOf(FormulaAgentContent.class, content);
+    assertEquals("(form = \"Person\") & (LastName = @Environment(\"PHADM_OldLastName\")) & (Firstname = @Environment(\"PHADM_OldFirstname\")) & (PhoneExt = @Environment(\"PHADM_OldPhoneExt\"));\n"
+        + "FIELD LastName := @Environment(\"PHADM_LastName\");\n"
+        + "FIELD FirstName := @Environment(\"PHADM_FirstName\");\n"
+        + "FIELD PhoneExt := @Environment(\"PHADM_PhoneExt\");\n"
+        + "FIELD WG_ShortName := @Environment(\"PHADM_WG_ShortName\");\n"
+        + "FIELD WG_Number := @Environment(\"PHADM_WG_Number\");\n"
+        + "FIELD DeptName := @Environment(\"PHADM_DeptName\");\n"
+        + "FIELD Site_ShortName := @Environment(\"PHADM_Site_ShortName\");\n"
+        + "FIELD OfficeNumber := @Environment(\"PHADM_OfficeNumber\");\n"
+        + "FIELD Email := @Environment(\"PHADM_Email\");", formula.getFormula());
+    assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
+  }
+  
+  @Test
+  public void testSetup() {
+    DbDesign design = database.getDesign();
+    
+    DesignAgent agent = design.getAgent("Setup").get();
+    
+    assertEquals("(Setup)", agent.getTitle());
+    assertEquals("Copies all Time Slot documents in the (Setup) view and creates a new month's worth of Time Slot documents.", agent.getComment());
+    
+    assertEquals(DesignAgent.AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertEquals(AgentTrigger.MANUAL, agent.getTrigger());
+    assertEquals(AgentTarget.VIEW, agent.getTarget());
+
+    AgentContent content = agent.getAgentContent();
+    FormulaAgentContent formula = assertInstanceOf(FormulaAgentContent.class, content);
+    assertEquals("MonthType = @Environment(\"EnvSchMonthType\") & HourSeq >= @Environment(\"EnvDayStart\") & HourSeq <= @Environment(\"EnvDayEnd\");\n"
+        + "FIELD Month := @Environment(\"EnvSchMonth\");\n"
+        + "FIELD MonthSeq := @Environment(\"EnvSchMonthSeq\");\n"
+        + "FIELD ClockType := @Environment(\"EnvClockType\");\n"
+        + "FIELD MonthType := @Unavailable;", formula.getFormula());
+    assertEquals(FormulaAgentContent.DocumentAction.CREATE, formula.getDocumentAction());
+  }
+  
+  @Test
+  public void testOutgoing() {
+    DbDesign design = database.getDesign();
+    
+    DesignAgent agent = design.getAgent("Outgoing Line Items").get();
+    
+    assertEquals("Outgoing Line Items", agent.getTitle());
+    assertEquals("This macro runs in the background, hourly.   For each Purchase Requisition which has recently been approved this macro will route the individual line items from that req to the Purchasing Item Tracking database.", agent.getComment());
+    
+    assertEquals(DesignAgent.AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertEquals(AgentTrigger.SCHEDULED, agent.getTrigger());
+    assertEquals(AgentTarget.NEW, agent.getTarget());
+    
+    // This macro is "hourly" in the NSF, but this should translate to a 60-minute interval
+    assertEquals(AgentInterval.MINUTES, agent.getIntervalType());
+    assertEquals(60, agent.getInterval().getAsInt());
+
+    AgentContent content = agent.getAgentContent();
+    FormulaAgentContent formula = assertInstanceOf(FormulaAgentContent.class, content);
+    assertEquals("REM {Setup the header string (header fields)};\n"
+        + "REM;\n"
+        + "dlm := \"~~\";\n"
+        + "header := RequisitionNumber + dlm + RequisitionDate + dlm + RequisitionedBy + dlm + RequisitionedFor;\n"
+        + "REM;\n"
+        + "REM {Construct a data string for each line item, put it in the };\n"
+        + "REM {subject field of a mail message, and send it off to the Line};\n"
+        + "REM {Item Tracking database.};\n"
+        + "REM;\n"
+        + "data1 := \"1\" + dlm + header + dlm + pn1 + dlm + Name1 + dlm + @Text(Price1) + dlm + @Text(Qty1) + dlm + @Text(Total1) + dlm;\n"
+        + "FIELD first := @If(pn1 != \"\" & @IsAvailable(pn1); @MailSend(\"Lineitem\"; \"\"; \"\"; data1); \"\");\n"
+        + "FIELD first := @Unavailable;\n"
+        + "REM;\n"
+        + "data2 := \"2\" + dlm + header + dlm + pn2 + dlm + Name2 + dlm + @Text(Price2) + dlm + @Text(Qty2) + dlm + @Text(Total2) + dlm;\n"
+        + "FIELD second := @If(pn2 != \"\" & @IsAvailable(pn2); @MailSend(\"Lineitem\"; \"\"; \"\"; data2); \"\");\n"
+        + "FIELD second := @Unavailable;\n"
+        + "REM;\n"
+        + "data3 := \"3\" + dlm + header + dlm + pn3 + dlm + Name3 + dlm + @Text(Price3) + dlm + @Text(Qty3) + dlm + @Text(Total3) + dlm;\n"
+        + "FIELD third := @If(pn3 != \"\" & @IsAvailable(pn3); @MailSend(\"Lineitem\"; \"\"; \"\"; data3); \"\");\n"
+        + "FIELD third := @Unavailable;\n"
+        + "REM;\n"
+        + "REM {Update the status of this Req to Routed=Yes};\n"
+        + "REM;\n"
+        + "FIELD Routed := \"Yes\";\n"
+        + "REM;\n"
+        + "REM {Select only Reqs that have been approved, but not yet routed};\n"
+        + "REM;\n"
+        + "Approved = \"Approved\" & Routed = \"No\"", formula.getFormula());
+    assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
+  }
+  
+  @Test
+  public void testIncoming() {
+    DbDesign design = database.getDesign();
+    
+    DesignAgent agent = design.getAgent("Clean Incoming PO's").get();
+    
+    assertEquals("Clean Incoming PO's", agent.getTitle());
+    assertEquals("This macro runs on Purchase Requisition documents mailed in from the Product Catalog database.  It sets up certain default field values, and removes unnecessary field values.", agent.getComment());
+    
+    assertEquals(DesignAgent.AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertEquals(AgentTrigger.NEWMAIL, agent.getTrigger());
+    assertEquals(AgentTarget.NEW, agent.getTarget());
+    assertEquals(AgentInterval.NONE, agent.getIntervalType());
+
+    AgentContent content = agent.getAgentContent();
+    FormulaAgentContent formula = assertInstanceOf(FormulaAgentContent.class, content);
+    assertEquals("@All;\n"
+        + "REM;\n"
+        + "REM {Set Approval and Email Status fields};\n"
+        + "REM;\n"
+        + "FIELD Approved := @If(Approvers != \"\"; \"In Process\"; \"Approved\");\n"
+        + "initstring := @Explode(@Repeat(\"No \"; @Elements(Approvers) - 1));\n"
+        + "FIELD ApproversEmail := @If(Approvers != \"\"; @Trim(\"Yes\" : initstring); \"\");\n"
+        + "FIELD ApproversStatus := @If(Approvers != \"\"; @Trim(\"No\" : initstring); \"\");\n"
+        + "FIELD Routed := \"No\";\n"
+        + "REM;\n"
+        + "REM {Remove unnecessary fields from the mailed-in document};\n"
+        + "REM;\n"
+        + "FIELD PRServer := @Unavailable;\n"
+        + "FIELD PRFilename := @Unavailable;\n"
+        + "FIELD TestPRNames := @Unavailable;\n"
+        + "FIELD Limit := @Unavailable;\n"
+        + "FIELD CCApprovers := @Unavailable;\n"
+        + "FIELD CCApproversLimit := @Unavailable;\n"
+        + "FIELD AssignedApprovers := @Unavailable;\n"
+        + "FIELD AdditionalApprovers := @Unavailable;\n"
+        + "FIELD AdditionalApproversLimit := @Unavailable;\n"
+        + "FIELD MailOptions := @Unavailable;\n"
+        + "FIELD InfoMessage := @Unavailable;\n"
+        + "FIELD CheckLimit := @Unavailable;\n"
+        + "FIELD SendTo := @Unavailable;\n"
+        + "FIELD From := @Unavailable;\n"
+        + "FIELD PostedDate := @Unavailable;\n"
+        + "FIELD Recipients := @Unavailable;\n"
+        + "FIELD RouteServers := @Unavailable;\n"
+        + "FIELD RouteTimes := @Unavailable;\n"
+        + "FIELD DeliveredDate := @Unavailable;\n"
+        + "FIELD Categories := @Unavailable;", formula.getFormula());
+    assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
   }
 }

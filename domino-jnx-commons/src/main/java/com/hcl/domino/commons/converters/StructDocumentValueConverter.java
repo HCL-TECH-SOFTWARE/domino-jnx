@@ -19,10 +19,12 @@ package com.hcl.domino.commons.converters;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
+import java.util.Set;
 
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentValueConverter;
+import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 
@@ -56,7 +58,7 @@ public class StructDocumentValueConverter implements DocumentValueConverter {
   }
 
   @Override
-  public <T> void setValue(final Document obj, final String itemName, final T newValue) {
+  public <T> void setValue(final Document obj, final Set<ItemFlag> itemFlags, final String itemName, final T newValue) {
     throw new UnsupportedOperationException();
   }
 

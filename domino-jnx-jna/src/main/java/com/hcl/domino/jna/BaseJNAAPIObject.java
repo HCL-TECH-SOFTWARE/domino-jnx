@@ -41,7 +41,8 @@ public abstract class BaseJNAAPIObject<AT extends APIObjectAllocations> extends 
 		super(parent);
 	}
 
-	protected final void checkDisposed() {
+	@Override
+  protected final void checkDisposed() {
 		JNADominoProcess.checkThreadEnabledForDomino();
 
 		AT allocations = getAllocations();

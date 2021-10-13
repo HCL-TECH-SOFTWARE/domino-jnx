@@ -29,14 +29,13 @@ import java.io.Serializable;
  * and internal structure because its read from the Domino server using
  * Java serialization.
  */
-@SuppressWarnings("serial")
 public class MsgFormat implements Serializable {
   /**
   * 
   */
   private static final long serialVersionUID = 1L;
-  public static String revStr = "JSC1.0";
-  public static String[] MsgFormats = new String[] { "Normal", "Compressed", "Encrypted" };
+  public static String revStr = "JSC1.0"; //$NON-NLS-1$
+  public static String[] MsgFormats = new String[] { "Normal", "Compressed", "Encrypted" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
   public static final int MF_DOMINO = 0;
   public static final int MF_CONTROLLER = 1;
   public static final int MF_SHELL = 2;
@@ -101,6 +100,6 @@ public class MsgFormat implements Serializable {
 
   private void writeObject(final ObjectOutputStream out) throws IOException {
     out.defaultWriteObject();
-    out.writeObject("JavaConsole");
+    out.writeObject("JavaConsole"); //$NON-NLS-1$
   }
 }

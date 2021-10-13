@@ -143,6 +143,7 @@ public class FramesetImpl extends AbstractDesignElement<Frameset> implements Fra
     }
   }
 
+  @SuppressWarnings("rawtypes")
   private int countFramesetsAndFrames(FrameContent layout) {
     int count = 1;
     

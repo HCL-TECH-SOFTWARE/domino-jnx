@@ -30,10 +30,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
@@ -66,9 +63,6 @@ import com.hcl.domino.richtext.structures.OpaqueTimeDate;
  * @since 1.0.2
  */
 public class MemoryStructureProxy implements InvocationHandler {
-  static final Map<Class<? extends MemoryStructure>, StructureMap> structureMap = Collections
-      .synchronizedMap(new HashMap<>());
-
   private static final boolean JAVA_8;
   static {
     final String javaVersion = AccessController
@@ -365,8 +359,7 @@ public class MemoryStructureProxy implements InvocationHandler {
 
   @Override
   public Object invoke(final Object self, final Method thisMethod, final Object[] args) throws Throwable {
-    final StructureMap struct = MemoryStructureProxy.structureMap.computeIfAbsent(this.encapsulated,
-        MemoryStructureUtil::generateStructureMap);
+    final StructureMap struct = MemoryStructureUtil.getStructureMap(this.encapsulated);
 
     if (thisMethod.isAnnotationPresent(StructureGetter.class)) {
       final StructMember member = struct.getterMap.get(thisMethod);
@@ -559,8 +552,7 @@ public class MemoryStructureProxy implements InvocationHandler {
 
   /**
    * Invokes a default method from an interface, accounting for access-control
-   * differences between Java 8 and future
-   * versions.
+   * differences between Java 8 and future versions.
    * 
    * @param self       the invocation context object
    * @param thisMethod the default interface method to invoke
@@ -582,8 +574,9 @@ public class MemoryStructureProxy implements InvocationHandler {
               this.encapsulated,
               thisMethod.getName(),
               MethodType.methodType(
-                  void.class,
-                  new Class[0]),
+                  thisMethod.getReturnType(),
+                  thisMethod.getParameterTypes()
+              ),
               this.encapsulated)
           .bindTo(self)
           .invokeWithArguments(args);

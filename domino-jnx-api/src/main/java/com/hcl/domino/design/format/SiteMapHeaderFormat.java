@@ -80,10 +80,4 @@ public interface SiteMapHeaderFormat extends MemoryStructure {
   
   @StructureGetter("tdLastChecked")
   OpaqueTimeDate getTdLastChecked();
-  
-  @StructureGetter("Spare")
-  short[] getSpare();
-
-  @StructureSetter("Spare")
-  SiteMapHeaderFormat setSpare(short[] Spare);
 }

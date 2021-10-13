@@ -1,0 +1,19 @@
+<?xml version='1.0'?>
+<note class='filter' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$Comment'><text>Run by Administrator with "Make Change" button</text></item>
+<item name='$Formula'><formula>(form = "Person") &amp; (LastName = @Environment("PHADM_OldLastName")) &amp; (Firstname = @Environment("PHADM_OldFirstname")) &amp; (PhoneExt = @Environment("PHADM_OldPhoneExt"));
+FIELD LastName := @Environment("PHADM_LastName");
+FIELD FirstName := @Environment("PHADM_FirstName");
+FIELD PhoneExt := @Environment("PHADM_PhoneExt");
+FIELD WG_ShortName := @Environment("PHADM_WG_ShortName");
+FIELD WG_Number := @Environment("PHADM_WG_Number");
+FIELD DeptName := @Environment("PHADM_DeptName");
+FIELD Site_ShortName := @Environment("PHADM_Site_ShortName");
+FIELD OfficeNumber := @Environment("PHADM_OfficeNumber");
+FIELD Email := @Environment("PHADM_Email");
+</formula></item>
+<item name='$Type'><text>0</text></item>
+<item name='$Operation'><text>0</text></item>
+<item name='$Scan'><text>2</text></item>
+<item name='$TITLE'><text>(ChangeInformation)</text></item>
+<item name='$Flags'><text/></item></note>

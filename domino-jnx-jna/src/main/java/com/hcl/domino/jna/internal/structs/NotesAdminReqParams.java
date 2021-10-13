@@ -114,7 +114,9 @@ public class NotesAdminReqParams extends BaseStructure {
 	public NotesAdminReqParams() {
 		super();
 	}
-	protected List<String> getFieldOrder() {
+	@SuppressWarnings("nls")
+  @Override
+  protected List<String> getFieldOrder() {
 		return Arrays.asList("Flags", "dwDeleteInNABType", "chGroupName", "chAltName", "chFirstName", "chMiddleInitial", "chLastName", "chAltCommonName", "chAltOrgUnitName", "chAltLanguage", "fDontUseV1ChangeRequest", "dbhDirectory");
 	}
 	

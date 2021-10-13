@@ -21,9 +21,11 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentValueConverter;
+import com.hcl.domino.data.Item.ItemFlag;
 
 /**
  * {@link DocumentValueConverter} implementation that supports converting to
@@ -80,14 +82,14 @@ public class PrimitiveArrayDocumentValueConverter implements DocumentValueConver
   }
 
   @Override
-  public <T> void setValue(final Document obj, final String itemName, final T newValue) {
+  public <T> void setValue(final Document obj, final Set<ItemFlag> itemFlags, final String itemName, final T newValue) {
     // Pour it into a List
     final int length = Array.getLength(newValue);
     final List<Object> listVal = new ArrayList<>(length);
     for (int i = 0; i < length; i++) {
       listVal.add(Array.get(newValue, i));
     }
-    obj.replaceItemValue(itemName, listVal);
+    obj.replaceItemValue(itemName, itemFlags, listVal);
   }
 
   @Override

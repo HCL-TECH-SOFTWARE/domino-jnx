@@ -19,6 +19,8 @@ package com.hcl.domino.jnx.jsonb.service;
 import com.hcl.domino.commons.json.AbstractJsonSerializer;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.jnx.jsonb.DocumentJsonbSerializer;
+import com.hcl.domino.jnx.jsonb.DominoDateRangeSerializer;
+import com.hcl.domino.jnx.jsonb.DominoDateTimeSerializer;
 
 import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
@@ -27,30 +29,37 @@ import jakarta.json.bind.JsonbConfig;
 public class JsonbSerializer extends AbstractJsonSerializer {
   @Override
   public Object toJson(final Document doc) {
-    final Jsonb jsonb = JsonbBuilder.newBuilder()
-        .withConfig(
-            new JsonbConfig()
-                .withSerializers(
-                    DocumentJsonbSerializer.newBuilder()
-                        .excludeItems(this.skippedItemNames)
-                        .excludeTypes(this.excludedTypes)
-                        .includeItems(this.includedItemNames)
-                        .includeMetadata(this.includeMetadata)
-                        .lowercaseProperties(this.lowercaseProperties)
-                        .booleanItemNames(this.booleanItemNames)
-                        .booleanTrueValues(this.booleanTrueValues)
-                        .dateRangeFormat(this.dateRangeFormat)
-                        .richTextHtmlOptions(this.htmlConvertOptions)
-                        .customProcessors(this.customProcessors)
-                        .build()))
-        .build();
+    final Jsonb jsonb = buildSerializer();
     return jsonb.toJson(doc);
   }
   
   @Override
   public Object toJson(final Object value) {
-    //TODO  add jsonb implementation of Object to Json
-    return new Object();
+    final Jsonb jsonb = buildSerializer();
+    return jsonb.toJson(value);
   }
-
+  
+  private Jsonb buildSerializer() {
+    return JsonbBuilder.newBuilder()
+      .withConfig(
+          new JsonbConfig()
+              .withSerializers(
+                  DocumentJsonbSerializer.newBuilder()
+                      .excludeItems(this.skippedItemNames)
+                      .excludeTypes(this.excludedTypes)
+                      .includeItems(this.includedItemNames)
+                      .includeMetadata(this.includeMetadata)
+                      .lowercaseProperties(this.lowercaseProperties)
+                      .booleanItemNames(this.booleanItemNames)
+                      .booleanTrueValues(this.booleanTrueValues)
+                      .dateRangeFormat(this.dateRangeFormat)
+                      .richTextHtmlOptions(this.htmlConvertOptions)
+                      .customProcessors(this.customProcessors)
+                      .build(),
+                  DominoDateTimeSerializer.INSTANCE,
+                  DominoDateRangeSerializer.INSTANCE
+               )
+              )
+      .build();
+  }
 }

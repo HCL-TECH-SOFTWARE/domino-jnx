@@ -55,7 +55,6 @@ import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.data.SignatureDataImpl;
 import com.hcl.domino.commons.design.FormFieldImpl;
-import com.hcl.domino.commons.design.outline.DominoOutlineFormat;
 import com.hcl.domino.commons.design.view.DominoCalendarFormat;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
@@ -102,12 +101,13 @@ import com.hcl.domino.jna.data.JNADatabaseObjectProducer.ObjectInfo;
 import com.hcl.domino.jna.internal.AgentRunInfoDecoder;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.ItemDecoder;
+import com.hcl.domino.jna.internal.JNAMemoryUtils;
 import com.hcl.domino.jna.internal.JNANotesConstants;
 import com.hcl.domino.jna.internal.Mem;
-import com.hcl.domino.jna.internal.MemoryUtils;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
+import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNADocumentAllocations;
@@ -116,7 +116,6 @@ import com.hcl.domino.jna.internal.gc.handles.DHANDLE32;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE64;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
-import com.hcl.domino.jna.internal.outline.OutlineFormatDecoder;
 import com.hcl.domino.jna.internal.richtext.JNARichtextNavigator;
 import com.hcl.domino.jna.internal.structs.NotesBlockIdStruct;
 import com.hcl.domino.jna.internal.structs.NotesFileObjectStruct;
@@ -404,9 +403,6 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		else if (dataTypeAsInt == ItemDataType.TYPE_COMPOSITE.getValue()) {
 			supportedType = true;
 		}
-		else if (dataTypeAsInt == ItemDataType.TYPE_OUTLINE_FORMAT.getValue()) {
-      supportedType = true;
-    }
 		else if(dataTypeAsInt == ItemDataType.TYPE_CALENDAR_FORMAT.getValue()) {
       supportedType = true;
     }
@@ -451,7 +447,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			return tdValues==null ? Collections.emptyList() : tdValues;
 		}
 		else if (dataTypeAsInt == ItemDataType.TYPE_OBJECT.getValue()) {
-		  ObjectDescriptor objDescriptor = MemoryUtils.readStructure(ObjectDescriptor.class, valueDataPtr);
+		  ObjectDescriptor objDescriptor = JNAMemoryUtils.readStructure(ObjectDescriptor.class, valueDataPtr);
 			
 			int rrv = objDescriptor.getRRV();
 			
@@ -649,10 +645,6 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			List<Object> result = (List<Object>)(List<?>)getRichTextItem(itemName);
 			return result;
 		}
-		else if (dataTypeAsInt == ItemDataType.TYPE_OUTLINE_FORMAT.getValue()) {
-		  DominoOutlineFormat outlineFormatInfo = OutlineFormatDecoder.decodeOutlineFormat(valueDataPtr,  valueDataLength);
-          return Arrays.asList((Object) outlineFormatInfo);
-    }
 		else if (dataTypeAsInt == ItemDataType.TYPE_USERID.getValue()) {
 		  PreV3Author result = NotesItemDataUtil.parsePreV3Author(valueDataPtr.getByteBuffer(0, valueDataLength));
 		  return Arrays.asList((Object)result);
@@ -1571,7 +1563,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 					if (strValueMem!=null) {
 						valuePtr.write(0, strValueMem.getByteArray(0, (int) strValueMem.size()), 0, (int) strValueMem.size());
 					}
-					return appendItemValue(itemName, flags, ItemDataType.TYPE_TEXT.getValue(), hItemByVal, valueSize, allowDataTypeChanges);
+					return appendItemValue(itemName, flags, ItemDataType.TYPE_TEXT.getValue(), hItemByVal, valueSize);
 				}
 				finally {
 					Mem.OSUnlockObject(hItemByVal);
@@ -1593,7 +1585,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 					valuePtr.setShort(0, ItemDataType.TYPE_NUMBER.getValue().shortValue());
 					valuePtr = valuePtr.share(2);
 					valuePtr.setDouble(0, ((Number)value).doubleValue());
-					return appendItemValue(itemName, flags, ItemDataType.TYPE_NUMBER.getValue(), hItemByVal, valueSize, allowDataTypeChanges);
+					return appendItemValue(itemName, flags, ItemDataType.TYPE_NUMBER.getValue(), hItemByVal, valueSize);
 				}
 				finally {
 					Mem.OSUnlockObject(hItemByVal);
@@ -1639,7 +1631,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 					timeDate.Innards[1] = innards[1];
 					timeDate.write();
 
-					return appendItemValue(itemName, flags, ItemDataType.TYPE_TIME.getValue(), hItemByVal, valueSize, allowDataTypeChanges);
+					return appendItemValue(itemName, flags, ItemDataType.TYPE_TIME.getValue(), hItemByVal, valueSize);
 				}
 				finally {
 					Mem.OSUnlockObject(hItemByVal);
@@ -1681,7 +1673,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				@SuppressWarnings("unused")
 				Pointer valuePtr = Mem.OSLockObject(hListByVal);
 				try {
-					return appendItemValue(itemName, flags, ItemDataType.TYPE_TEXT_LIST.getValue(), hListByVal, listSize, allowDataTypeChanges);
+					return appendItemValue(itemName, flags, ItemDataType.TYPE_TEXT_LIST.getValue(), hListByVal, listSize);
 				}
 				finally {
 					Mem.OSUnlockObject(hListByVal);
@@ -1755,7 +1747,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 					}
 					
 					return appendItemValue(itemName, flags, ItemDataType.TYPE_NUMBER_RANGE.getValue(), hItemByVal,
-							valueSize, allowDataTypeChanges);
+							valueSize);
 				}
 				finally {
 					Mem.OSUnlockObject(hItemByVal);
@@ -1851,7 +1843,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 						rangeListPtr = rangeListPtr.share(JNANotesConstants.timeDatePairSize);
 					}
 
-					return appendItemValue(itemName, flags, ItemDataType.TYPE_TIME_RANGE.getValue(), hItemByVal, valueSize, allowDataTypeChanges);
+					return appendItemValue(itemName, flags, ItemDataType.TYPE_TIME_RANGE.getValue(), hItemByVal, valueSize);
 				}
 				finally {
 					Mem.OSUnlockObject(hItemByVal);
@@ -1898,7 +1890,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 					struct.write();
 					valuePtr.write(0, struct.getAdapter(Pointer.class).getByteArray(0, 2*JNANotesConstants.timeDateSize), 0, 2*JNANotesConstants.timeDateSize);
 
-					return appendItemValue(itemName, flags, ItemDataType.TYPE_NOTEREF_LIST.getValue(), hItemByVal, valueSize, allowDataTypeChanges);
+					return appendItemValue(itemName, flags, ItemDataType.TYPE_NOTEREF_LIST.getValue(), hItemByVal, valueSize);
 				}
 				finally {
 					Mem.OSUnlockObject(hItemByVal);
@@ -1927,7 +1919,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 					
 					valuePtr.write(0, compiledFormula, 0, compiledFormula.length);
 
-					return appendItemValue(itemName, flags, ItemDataType.TYPE_FORMULA.getValue(), hItemByVal, valueSize, allowDataTypeChanges);
+					return appendItemValue(itemName, flags, ItemDataType.TYPE_FORMULA.getValue(), hItemByVal, valueSize);
 				}
 				finally {
 					Mem.OSUnlockObject(hItemByVal);
@@ -1942,7 +1934,12 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			}
 			writingItemType.get().add(valueConverter.getClass());
 			try {
-				valueConverter.setValue(this, itemName, value);
+			  if (valueConverter instanceof DocumentValueConverter) {
+	        valueConverter.setValue(this, flags, itemName, value);
+			  }
+			  else {
+	        valueConverter.setValue(this, itemName, value);
+			  }
 				return this;
 			}
 			finally {
@@ -1962,10 +1959,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	 * @param itemType item type
 	 * @param hItemValue handle to memory block with item value
 	 * @param valueLength length of binary item value (without data type short)
-	 * @param allowDataTypeChanges true to allow change of written data type
 	 * @return this document
 	 */
-	private Document appendItemValue(String itemName, Set<ItemFlag> flags, int itemType, DHANDLE.ByValue hItemValue, int valueLength, boolean allowDataTypeChanges) {
+	public Document appendItemValue(String itemName, Set<ItemFlag> flags, int itemType, DHANDLE.ByValue hItemValue, int valueLength) {
 		checkDisposed();
 
 		Memory itemNameMem = NotesStringUtils.toLMBCS(itemName, false);
@@ -3097,6 +3093,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		
 		JNADocumentAllocations allocations = getAllocations();
 		short result = LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
+		  //removes all items with this name (not just the first):
 			return NotesCAPI.get().NSFItemDelete(noteHandleByVal, itemNameMem, (short) (itemNameMem.size() & 0xffff));
 
 		});
@@ -4129,7 +4126,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		
 		final LotusScriptCompilationException[] ex = new LotusScriptCompilationException[1];
 		short result = LockUtil.lockHandles(parentDbAllocations.getDBHandle(), getAllocations().getNoteHandle(), (hDb, hNote) -> {
-			return NotesCAPI.get().NSFNoteLSCompileExt(hDb, hNote, 0, (pInfo, pCtx) -> {
+			NotesCallbacks.LSCOMPILEERRPROC callback = (pInfo, pCtx) -> {
 				int version = Short.toUnsignedInt(pInfo.Version);
 				int line = Short.toUnsignedInt(pInfo.Line);
 				String errText = ""; //$NON-NLS-1$
@@ -4143,7 +4140,17 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				ex[0] = new LotusScriptCompilationException(errText, errFile, version, line);
 				
 				return INotesErrorConstants.NOERROR;
-			}, null);
+			};
+			
+			if (PlatformUtils.isWin32()) {
+				Win32NotesCallbacks.LSCOMPILEERRPROCWin32 callbackWin32 = (pInfo, pCtx) -> {
+					return callback.invoke(pInfo, pCtx);
+				};
+				return NotesCAPI.get().NSFNoteLSCompileExt(hDb, hNote, 0, callbackWin32, null);
+			}
+			else {
+				return NotesCAPI.get().NSFNoteLSCompileExt(hDb, hNote, 0, callback, null);
+			}
 		});
 		if(ex[0] != null) {
 			throw ex[0];

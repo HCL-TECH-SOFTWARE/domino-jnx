@@ -282,7 +282,7 @@ public enum RecordType {
    * each segment must be
    * preceded by a CDWINMETASEG record.
    */
-  WINMETASEG(RichTextConstants.SIG_CD_WINMETASEG, 1),
+  WINMETASEG(RichTextConstants.SIG_CD_WINMETASEG, 1, CDWinMetaSegment.class),
   /**
    * A portion of a Macintosh metafile. This record must be preceded by a
    * CDMACMETAHEADER record.<br>
@@ -321,7 +321,7 @@ public enum RecordType {
    * up to 64kB;<br>
    * each segment must be preceded by a CDWINMETASEG record.
    */
-  WINMETAHEADER(RichTextConstants.SIG_CD_WINMETAHEADER, 1),
+  WINMETAHEADER(RichTextConstants.SIG_CD_WINMETAHEADER, 1, CDWinMetaHeader.class),
   /**
    * Identifies a Macintosh metafile embedded in a rich text field.<br>
    * This record must be preceded by a CDGRAPHIC record.<br>
@@ -405,7 +405,7 @@ public enum RecordType {
    * A CDHTMLFORMULA record contains a formula used to generate either an
    * attribute or alternate HTML text for a Java applet.
    */
-  HTMLFORMULA(RichTextConstants.SIG_CD_HTMLFORMULA, 1),
+  HTMLFORMULA(RichTextConstants.SIG_CD_HTMLFORMULA, 1, CDHtmlFormula.class),
   NESTEDTABLEBEGIN(RichTextConstants.SIG_CD_NESTEDTABLEBEGIN, 1, CDTableBegin.class),
   NESTEDTABLECELL(RichTextConstants.SIG_CD_NESTEDTABLECELL, 1, CDTableCell.class),
   NESTEDTABLEEND(RichTextConstants.SIG_CD_NESTEDTABLEEND, 1, CDTableEnd.class),
@@ -452,7 +452,7 @@ public enum RecordType {
    * different row is displayed within the time interval specified.<br>
    * This structure is stored just before the CDTABLEEND structure.
    */
-  TIMERINFO(RichTextConstants.SIG_CD_TIMERINFO, 1),
+  TIMERINFO(RichTextConstants.SIG_CD_TIMERINFO, 1, CDTimerInfo.class),
   /** This CD record describes the Row Height property for a table. */
   TABLEROWHEIGHT(RichTextConstants.SIG_CD_TABLEROWHEIGHT, 1, CDTableRowHeight.class),
   /**
@@ -465,7 +465,7 @@ public enum RecordType {
   /** This CD Record is used within mail templates. */
   REGIONBEGIN(RichTextConstants.SIG_CD_REGIONBEGIN, 1, CDRegionBegin.class),
   REGIONEND(RichTextConstants.SIG_CD_REGIONEND, 1, CDRegionEnd.class),
-  TRANSITION(RichTextConstants.SIG_CD_TRANSITION, 1),
+  TRANSITION(RichTextConstants.SIG_CD_TRANSITION, 1, CDTransition.class),
   /**
    * The designer of a form may define a "hint" associated with a field. This
    * descriptive text
@@ -536,7 +536,7 @@ public enum RecordType {
    * CDHOTSPOTBEGIN and a CDPLACEHOLDER. The CD record, CDPLACEHOLDER, further
    * defines the CDEMBEDDEDEDITCTL
    */
-  EMBEDDEDEDITCTL(RichTextConstants.SIG_CD_EMBEDDEDEDITCTL, 1),
+  EMBEDDEDEDITCTL(RichTextConstants.SIG_CD_EMBEDDEDEDITCTL, 1, CDEmbeddedEditControl.class),
 
   /* Signatures for Frameset CD records */
 
@@ -632,9 +632,9 @@ public enum RecordType {
   /** This structure specifies the end of a DDE link. */
   DDEEND(RichTextConstants.SIG_CD_DDEEND, 4, CDDDEEnd.class),
   /** This structure specifies the start of an OLE Object. */
-  OLEBEGIN(RichTextConstants.SIG_CD_OLEBEGIN, 4),
+  OLEBEGIN(RichTextConstants.SIG_CD_OLEBEGIN, 4, CDOLEBegin.class),
   /** This structure specifies the end of an OLE Object in a rich text field. */
-  OLEEND(RichTextConstants.SIG_CD_OLEEND, 4),
+  OLEEND(RichTextConstants.SIG_CD_OLEEND, 4, CDOLEEnd.class),
   /**
    * This structure specifies the start of a "hot" region in a rich text
    * field.<br>
@@ -740,7 +740,7 @@ public enum RecordType {
    * action elements associated with the graphical element.
    */
   LAYOUTGRAPHIC(RichTextConstants.SIG_CD_LAYOUTGRAPHIC, new int[] { 1, 4 }),
-  OLEOBJINFO(RichTextConstants.SIG_CD_OLEOBJINFO, 4),
+  OLEOBJINFO(RichTextConstants.SIG_CD_OLEOBJINFO, new int[] { 1, 4 }, CDOLEObjectInfo.class),
   /**
    * A button in a layout region of a form is defined by a CDLAYOUTBUTTON
    * record.<br>
@@ -758,26 +758,30 @@ public enum RecordType {
 
   /* Signatures for items of type TYPE_VIEWMAP */
 
-  VMHEADER(RichTextConstants.SIG_CD_VMHEADER, 5),
-  VMBITMAP(RichTextConstants.SIG_CD_VMBITMAP, 5),
+  VMHEADER(RichTextConstants.SIG_CD_VMHEADER, 5, ViewmapHeaderRecord.class),
+  VMBITMAPHEADER(RichTextConstants.SIG_CD_BITMAPHEADER, 5, CDBitmapHeader.class),
+  VMBITMAP(RichTextConstants.SIG_CD_VMBITMAP, 5, ViewmapBitmapRecord.class),
   VMRECT(RichTextConstants.SIG_CD_VMRECT, 5),
   VMPOLYGON_BYTE(RichTextConstants.SIG_CD_VMPOLYGON_BYTE, 5),
   VMPOLYLINE_BYTE(RichTextConstants.SIG_CD_VMPOLYLINE_BYTE, 5),
-  VMREGION(RichTextConstants.SIG_CD_VMREGION, 5),
-  VMACTION(RichTextConstants.SIG_CD_VMACTION, 5),
+  VMREGION(RichTextConstants.SIG_CD_VMREGION, 5, ViewmapRegionRecord.class),
+  VMACTION(RichTextConstants.SIG_CD_VMACTION, 5, ViewmapActionRecord.class),
   VMELLIPSE(RichTextConstants.SIG_CD_VMELLIPSE, 5),
   VMSMALLTEXTBOX(RichTextConstants.SIG_CD_VMSMALLTEXTBOX, 5),
   VMRNDRECT(RichTextConstants.SIG_CD_VMRNDRECT, 5),
   VMBUTTON(RichTextConstants.SIG_CD_VMBUTTON, 5),
-  VMACTION_2(RichTextConstants.SIG_CD_VMACTION_2, 5),
+  VMACTION_2(RichTextConstants.SIG_CD_VMACTION_2, 5, ViewmapActionRecord.class),
   VMTEXTBOX(RichTextConstants.SIG_CD_VMTEXTBOX, 5, ViewmapTextRecord.class),
   VMPOLYGON(RichTextConstants.SIG_CD_VMPOLYGON, 5),
   VMPOLYLINE(RichTextConstants.SIG_CD_VMPOLYLINE, 5),
   VMPOLYRGN(RichTextConstants.SIG_CD_VMPOLYRGN, 5),
   VMCIRCLE(RichTextConstants.SIG_CD_VMCIRCLE, 5),
   VMPOLYRGN_BYTE(RichTextConstants.SIG_CD_VMPOLYRGN_BYTE, 5),
-
   VMDATASET(RichTextConstants.SIG_VIEWMAP_DATASET, 5, ViewmapDatasetRecord.class),
+  VMBITMAPSEGMENT(RichTextConstants.SIG_CD_BITMAPSEGMENT, 5, CDBitmapSegment.class),
+  VMCOLORTABLE(RichTextConstants.SIG_CD_COLORTABLE, 5, CDColorTable.class),
+  VMPATTERNTABLE(RichTextConstants.SIG_CD_PATTERNTABLE, 5, CDPatternTable.class),
+
 
   /* Signatures for alternate CD sequences*/
 

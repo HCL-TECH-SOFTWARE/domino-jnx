@@ -44,7 +44,9 @@ public class NotesAdminpRequestProfileStruct extends Structure {
 		return AccessController.doPrivileged((PrivilegedAction<NotesAdminpRequestProfileStruct>) () -> new NotesAdminpRequestProfileStruct());
 	}
 
-	protected List<String> getFieldOrder() {
+	@SuppressWarnings("nls")
+  @Override
+  protected List<String> getFieldOrder() {
 		return Arrays.asList("chItemNamePtr", "wItemFlags", "wDataType", "vDataPtr", "wDataSize");
 	}
 	

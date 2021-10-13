@@ -55,7 +55,8 @@ public class JNACDFileRichTextNavigator extends BaseJNAAPIObject<JNACDFileRichTe
 	private long m_lastElementPosition = -1;
 	private int m_lastElementIndex = -1;
 	
-	public JNACDFileRichTextNavigator(IGCDominoClient client, String filePath, InputStream cdFileStream,
+	@SuppressWarnings("rawtypes")
+  public JNACDFileRichTextNavigator(IGCDominoClient client, String filePath, InputStream cdFileStream,
 			long fileSize,
 			boolean autoDelete) throws IOException {
 		super(client);

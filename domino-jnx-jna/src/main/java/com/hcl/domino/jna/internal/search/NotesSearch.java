@@ -60,7 +60,6 @@ import com.hcl.domino.jna.internal.gc.allocations.JNAUserNamesListAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
-import com.hcl.domino.jna.internal.search.NotesSearch.SearchCallback;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.views.NotesLookupResultBufferDecoder;
 import com.hcl.domino.jna.internal.views.ViewFormulaCompiler;
@@ -462,192 +461,101 @@ public class NotesSearch {
 		
 		DbMode mode = db.getMode();
 
-		NotesCallbacks.NsfSearchProc apiCallback;
-		
 		final Throwable invocationEx[] = new Throwable[1];
 
-		if (PlatformUtils.isWin32()) {
-			apiCallback = new Win32NotesCallbacks.NsfSearchProcWin32() {
-				@SuppressWarnings("deprecation")
-				@Override
-				public short invoke(Pointer enumRoutineParameter, Pointer searchMatchPtr,
-						Pointer summaryBufferPtr) {
+		NotesCallbacks.NsfSearchProc apiCallback = new NotesCallbacks.NsfSearchProc() {
 
-					JNASearchMatch searchMatch = hasLargeSearchResult ? SearchMatchDecoder.decodeSearchMatchLarge(searchMatchPtr) : SearchMatchDecoder.decodeSearchMatch(searchMatchPtr);
-
-					IItemTableData itemTableData=null;
-					JNADocument doc=null;
-					try {
-						boolean isMatch = formula==null || searchMatch.matchesFormula();
-						
-						if (isMatch && useSearchFlags.contains(SearchFlag.SUMMARY)) {
-							if (searchMatch.isLargeSummary()) {
-								//summary buffer limit exceeded for Domino V11 and below,
-								//we need to load the document to get access to item values
-								doc = (JNADocument) db.getDocumentById(searchMatch.getNoteID(), EnumSet.of(OpenDocumentMode.SUMMARY_ONLY, OpenDocumentMode.NOOBJECTS)).orElse(null);
-								if (doc!=null) {
-									itemTableData = new ItemTableDataDocAdapter(doc, columnFormulasFixedOrder);
-								}
-							}
-							else {
-								if (summaryBufferPtr!=null && Pointer.nativeValue(summaryBufferPtr)!=0) {
-									boolean convertStringsLazily = true;
-									boolean convertNotesTimeDateToCalendar = false;
-									
-									if (useSearchFlags.contains(SearchFlag.NOITEMNAMES)) {
-										//flag to just return the column values is used; so the
-										//buffer contains an ITEM_VALUE_TABLE with column values
-										//in the column order instead of an ITEM_TABLE with columnname/columnvalue
-										//pairs
-										//create an ItemTableData by adding the column names to make this invisible to callers
-										if (hasLargeSearchSupport) {
-											itemTableData = NotesLookupResultBufferDecoder.decodeItemValueTableLargeWithColumnNames(db, searchMatch.getNoteID(), columnFormulasFixedOrder, summaryBufferPtr, convertStringsLazily, convertNotesTimeDateToCalendar, false);
-										}
-										else {
-											itemTableData = NotesLookupResultBufferDecoder.decodeItemValueTableWithColumnNames(db, searchMatch.getNoteID(), columnFormulasFixedOrder, summaryBufferPtr, convertStringsLazily, convertNotesTimeDateToCalendar, false);
-										}
-									}
-									else {
-										if (hasLargeSearchSupport) {
-											itemTableData = NotesLookupResultBufferDecoder.decodeItemTableLarge(summaryBufferPtr, 
-													convertStringsLazily, convertNotesTimeDateToCalendar, false);
-										}
-										else {
-											itemTableData = NotesLookupResultBufferDecoder.decodeItemTable(summaryBufferPtr, 
-													convertStringsLazily, convertNotesTimeDateToCalendar, false);
-										}
-									}
-								}
-							}
-						}
-
-						Action action;
-						if (searchMatch.getDocumentClass().contains(DocumentClass.NOTIFYDELETION)) {
-							action = callback.deletionStubFound(db, searchMatch, itemTableData);
-						}
-						else {
-							if (!isMatch) {
-								action = callback.noteFoundNotMatchingFormula(db, searchMatch, itemTableData);
-							}
-							else {
-								action = callback.noteFound(db, searchMatch, itemTableData);
-							}
-						}
-						if (action==Action.Stop) {
-							return INotesErrorConstants.ERR_CANCEL;
-						}
-						else {
-							return 0;
-						}
-					}
-					catch (Throwable t) {
-						invocationEx[0] = t;
-						return INotesErrorConstants.ERR_CANCEL;
-					}
-					finally {
-						if (itemTableData!=null) {
-							itemTableData.free();
-						}
-						if (doc!=null) {
-							doc.dispose();
-							doc = null;
-						}
-					}
-				}
-
-			};
-		}
-		else {
-			apiCallback = new NotesCallbacks.NsfSearchProc() {
-
-				@SuppressWarnings("deprecation")
-				@Override
-				public short invoke(Pointer enumRoutineParameter, Pointer searchMatchPtr,
-						Pointer summaryBufferPtr) {
-					JNASearchMatch searchMatch = hasLargeSearchResult ? SearchMatchDecoder.decodeSearchMatchLarge(searchMatchPtr) : SearchMatchDecoder.decodeSearchMatch(searchMatchPtr);
+			@SuppressWarnings("deprecation")
+			@Override
+			public short invoke(Pointer enumRoutineParameter, Pointer searchMatchPtr,
+					Pointer summaryBufferPtr) {
+				JNASearchMatch searchMatch = hasLargeSearchResult ? SearchMatchDecoder.decodeSearchMatchLarge(searchMatchPtr) : SearchMatchDecoder.decodeSearchMatch(searchMatchPtr);
+				
+				IItemTableData itemTableData=null;
+				JNADocument doc=null;
+				try {
+					boolean isMatch = formula==null || searchMatch.matchesFormula();
 					
-					IItemTableData itemTableData=null;
-					JNADocument doc=null;
-					try {
-						boolean isMatch = formula==null || searchMatch.matchesFormula();
-						
-						if (isMatch && useSearchFlags.contains(SearchFlag.SUMMARY)) {
-							if (searchMatch.isLargeSummary()) {
-								//summary buffer limit exceeded for Domino V11 and below,
-								//we need to load the document to get access to item values
-								doc = (JNADocument) db.getDocumentById(searchMatch.getNoteID(), EnumSet.of(OpenDocumentMode.SUMMARY_ONLY, OpenDocumentMode.NOOBJECTS)).orElse(null);
-								if (doc!=null) {
-									itemTableData = new ItemTableDataDocAdapter(doc, columnFormulasFixedOrder);
-								}
+					if (isMatch && useSearchFlags.contains(SearchFlag.SUMMARY)) {
+						if (searchMatch.isLargeSummary()) {
+							//summary buffer limit exceeded for Domino V11 and below,
+							//we need to load the document to get access to item values
+							doc = (JNADocument) db.getDocumentById(searchMatch.getNoteID(), EnumSet.of(OpenDocumentMode.SUMMARY_ONLY, OpenDocumentMode.NOOBJECTS)).orElse(null);
+							if (doc!=null) {
+								itemTableData = new ItemTableDataDocAdapter(doc, columnFormulasFixedOrder);
 							}
-							else {
-								if (summaryBufferPtr!=null && Pointer.nativeValue(summaryBufferPtr)!=0) {
-									boolean convertStringsLazily = true;
-									boolean convertNotesTimeDateToCalendar = false;
-									
-									if (useSearchFlags.contains(SearchFlag.NOITEMNAMES)) {
-										//flag to just return the column values is used; so the
-										//buffer contains an ITEM_VALUE_TABLE with column values
-										//in the column order instead of an ITEM_TABLE with columnname/columnvalue
-										//pairs
-										//create an ItemTableData by adding the column names to make this invisible to callers
-										if (hasLargeSearchSupport) {
-											itemTableData = NotesLookupResultBufferDecoder.decodeItemValueTableLargeWithColumnNames(db, searchMatch.getNoteID(), columnFormulasFixedOrder, summaryBufferPtr, convertStringsLazily, convertNotesTimeDateToCalendar, false);
-										}
-										else {
-											itemTableData = NotesLookupResultBufferDecoder.decodeItemValueTableWithColumnNames(db, searchMatch.getNoteID(), columnFormulasFixedOrder, summaryBufferPtr, convertStringsLazily, convertNotesTimeDateToCalendar, false);
-										}
+						}
+						else {
+							if (summaryBufferPtr!=null && Pointer.nativeValue(summaryBufferPtr)!=0) {
+								boolean convertStringsLazily = true;
+								boolean convertNotesTimeDateToCalendar = false;
+								
+								if (useSearchFlags.contains(SearchFlag.NOITEMNAMES)) {
+									//flag to just return the column values is used; so the
+									//buffer contains an ITEM_VALUE_TABLE with column values
+									//in the column order instead of an ITEM_TABLE with columnname/columnvalue
+									//pairs
+									//create an ItemTableData by adding the column names to make this invisible to callers
+									if (hasLargeSearchSupport) {
+										itemTableData = NotesLookupResultBufferDecoder.decodeItemValueTableLargeWithColumnNames(db, searchMatch.getNoteID(), columnFormulasFixedOrder, summaryBufferPtr, convertStringsLazily, convertNotesTimeDateToCalendar, false);
 									}
 									else {
-										if (hasLargeSearchSupport) {
-											itemTableData = NotesLookupResultBufferDecoder.decodeItemTableLarge(summaryBufferPtr,
-													convertStringsLazily, convertNotesTimeDateToCalendar, false);
-										}
-										else {
-											itemTableData = NotesLookupResultBufferDecoder.decodeItemTable(summaryBufferPtr,
-													convertStringsLazily, convertNotesTimeDateToCalendar, false);
-										}
+										itemTableData = NotesLookupResultBufferDecoder.decodeItemValueTableWithColumnNames(db, searchMatch.getNoteID(), columnFormulasFixedOrder, summaryBufferPtr, convertStringsLazily, convertNotesTimeDateToCalendar, false);
+									}
+								}
+								else {
+									if (hasLargeSearchSupport) {
+										itemTableData = NotesLookupResultBufferDecoder.decodeItemTableLarge(summaryBufferPtr,
+												convertStringsLazily, convertNotesTimeDateToCalendar, false);
+									}
+									else {
+										itemTableData = NotesLookupResultBufferDecoder.decodeItemTable(summaryBufferPtr,
+												convertStringsLazily, convertNotesTimeDateToCalendar, false);
 									}
 								}
 							}
 						}
+					}
 
-						Action action;
-						if (searchMatch.getDocumentClass().contains(DocumentClass.NOTIFYDELETION)) {
-							action = callback.deletionStubFound(db, searchMatch, itemTableData);
+					Action action;
+					if (searchMatch.getDocumentClass().contains(DocumentClass.NOTIFYDELETION)) {
+						action = callback.deletionStubFound(db, searchMatch, itemTableData);
+					}
+					else {
+						if (!isMatch) {
+							action = callback.noteFoundNotMatchingFormula(db, searchMatch, itemTableData);
 						}
 						else {
-							if (!isMatch) {
-								action = callback.noteFoundNotMatchingFormula(db, searchMatch, itemTableData);
-							}
-							else {
-								action = callback.noteFound(db, searchMatch, itemTableData);
-							}
-						}
-						if (action==Action.Stop) {
-							return INotesErrorConstants.ERR_CANCEL;
-						}
-						else {
-							return 0;
+							action = callback.noteFound(db, searchMatch, itemTableData);
 						}
 					}
-					catch (Throwable t) {
-						invocationEx[0] = t;
+					if (action==Action.Stop) {
 						return INotesErrorConstants.ERR_CANCEL;
 					}
-					finally {
-						if (itemTableData!=null) {
-							itemTableData.free();
-						}
-						if (doc!=null) {
-							doc.dispose();
-							doc = null;
-						}
+					else {
+						return 0;
 					}
 				}
+				catch (Throwable t) {
+					invocationEx[0] = t;
+					return INotesErrorConstants.ERR_CANCEL;
+				}
+				finally {
+					if (itemTableData!=null) {
+						itemTableData.free();
+					}
+					if (doc!=null) {
+						doc.dispose();
+						doc = null;
+					}
+				}
+			}
 
-			};
-		}
+		};
+	
+
+		if (PlatformUtils.isWin32()) {}
+		else {}
 		
 		HANDLE.ByReference hFormula = HANDLE.newInstanceByReference();
 		
@@ -749,23 +657,37 @@ public class NotesSearch {
 			
 			short result;
 			try {
-				
 				result = LockUtil.lockHandles(
 						dbAllocations.getDBHandle(),
 						hFormulaFinal,
 						hFilterFinal,
 						hNamesList,
-						
+
 						(dbHandleByVal, hFormulaByVal, hFilterByVal, hNamesListByVal) -> {
-							return NotesCAPI.get().NSFSearchExtended3(dbHandleByVal, hFormulaByVal,
-									hFilterByVal, filterFlagsFinal,
-									viewTitleBuf, searchFlagsBitMaskFinal, searchFlags1Final, searchFlags2Final, searchFlags3Final,
-									searchFlags4Final,
-									(short) (noteClassMaskFinal & 0xffff), sinceStruct, apiCallback, null, retUntil,
-									hNamesListByVal);
-							
+							if (PlatformUtils.isWin32()) {
+								Win32NotesCallbacks.NsfSearchProcWin32 apiCallbackWin32 = (enumRoutineParameter, searchMatchPtr,
+										summaryBufferPtr) -> {
+											return apiCallback.invoke(enumRoutineParameter, searchMatchPtr, summaryBufferPtr);
+										};
+
+								return NotesCAPI.get().NSFSearchExtended3(dbHandleByVal, hFormulaByVal,
+										hFilterByVal, filterFlagsFinal,
+										viewTitleBuf, searchFlagsBitMaskFinal, searchFlags1Final, searchFlags2Final, searchFlags3Final,
+										searchFlags4Final,
+										(short) (noteClassMaskFinal & 0xffff), sinceStruct, apiCallbackWin32, null, retUntil,
+										hNamesListByVal);
+							}
+							else {
+								return NotesCAPI.get().NSFSearchExtended3(dbHandleByVal, hFormulaByVal,
+										hFilterByVal, filterFlagsFinal,
+										viewTitleBuf, searchFlagsBitMaskFinal, searchFlags1Final, searchFlags2Final, searchFlags3Final,
+										searchFlags4Final,
+										(short) (noteClassMaskFinal & 0xffff), sinceStruct, apiCallback, null, retUntil,
+										hNamesListByVal);
+							}
+
 						});
-				
+
 			} catch (Exception e) {
 				throw new DominoException(0, "Error searching database", e);
 			}

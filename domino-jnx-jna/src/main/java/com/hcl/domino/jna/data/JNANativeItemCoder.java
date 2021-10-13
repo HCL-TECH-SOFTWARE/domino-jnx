@@ -17,6 +17,7 @@
 package com.hcl.domino.jna.data;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +29,7 @@ import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
+import com.hcl.domino.richtext.records.RecordType;
 import com.sun.jna.Memory;
 import com.sun.jna.ptr.ShortByReference;
 
@@ -44,6 +46,16 @@ public class JNANativeItemCoder implements NativeItemCoder {
 		ByteBuffer dest = mem.getByteBuffer(0, mem.size());
 		dest.put(buf);
 		return (List<String>)(List<?>)ItemDecoder.decodeTextListValue(mem, false);
+	}
+	
+	@SuppressWarnings("unchecked")
+  @Override
+	public List<Object> decodeItemValue(byte[] buf, RecordType.Area area) {
+	  Memory mem = new Memory(buf.length);
+    ByteBuffer dest = mem.getByteBuffer(0, mem.size());
+    dest.put(buf);
+    Object val = ItemDecoder.readItemValue(mem.share(2), mem.getShort(0), buf.length-2, area);
+    return val instanceof List ? (List<Object>)val : Arrays.asList(val);
 	}
 
 	@Override

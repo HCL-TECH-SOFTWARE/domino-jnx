@@ -419,6 +419,9 @@ public interface DesignConstants {
   /** unrestricted (low bit of zero, plus fulladmin) */
   int ASSIST_RESTRICTED_FULLADMIN = 0x00000002;
   
+  /*  (Read-only) Assistant's trigger type */
+  String ASSIST_TRIGGER_ITEM = "$AssistTrigger"; //$NON-NLS-1$
+
   /** profile code running in this note */
   String DESIGN_FLAGEXT_PROFILE = "F"; //$NON-NLS-1$
 }

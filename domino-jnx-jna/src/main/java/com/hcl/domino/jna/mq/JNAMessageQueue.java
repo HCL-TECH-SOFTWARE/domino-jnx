@@ -47,6 +47,7 @@ import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
+import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNAMessageQueueAllocations;
 import com.hcl.domino.misc.NotesConstants;
@@ -161,7 +162,7 @@ public class JNAMessageQueue extends BaseJNAAPIObject<JNAMessageQueueAllocations
 
 		final NotesCallbacks.MQScanCallback cCallback;
 		if (PlatformUtils.isWin32()) {
-			cCallback = (pBuffer, length1, priority, ctx) -> {
+			cCallback = (Win32NotesCallbacks.MQScanCallbackWin32) (pBuffer, length1, priority, ctx) -> {
 				if (callback==null) {
 					return INotesErrorConstants.ERR_MQSCAN_DEQUEUE;
 				}

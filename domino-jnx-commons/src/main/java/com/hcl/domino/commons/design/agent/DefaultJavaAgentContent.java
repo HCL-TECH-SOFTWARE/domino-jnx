@@ -16,11 +16,15 @@
  */
 package com.hcl.domino.commons.design.agent;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.agent.JavaAgentContent;
 
 /**
@@ -28,6 +32,7 @@ import com.hcl.domino.design.agent.JavaAgentContent;
  * @since 1.0.24
  */
 public class DefaultJavaAgentContent implements JavaAgentContent {
+  private final DesignElement agent;
   private final String mainClassName;
   private final String codeFilesystemPath;
   private final Optional<String> sourceAttachmentName;
@@ -36,8 +41,9 @@ public class DefaultJavaAgentContent implements JavaAgentContent {
   private final List<String> embeddedJars;
   private final List<String> sharedLibraryList;
 
-  public DefaultJavaAgentContent(final String mainClassName, final String codeFilesystemPath, final List<String> javaClassFileList,
-      final List<String> sharedLibraryList) {
+  public DefaultJavaAgentContent(DesignElement agent, final String mainClassName, final String codeFilesystemPath,
+      final List<String> javaClassFileList, final List<String> sharedLibraryList) {
+    this.agent = agent;
     this.mainClassName = mainClassName;
     this.codeFilesystemPath = codeFilesystemPath;
 
@@ -75,6 +81,24 @@ public class DefaultJavaAgentContent implements JavaAgentContent {
   public List<String> getEmbeddedJars() {
     return this.embeddedJars;
   }
+  
+  @Override
+  public Optional<InputStream> getEmbeddedJar(String name) {
+    // Do a basic check to make sure it's in the list
+    List<String> jars = this.embeddedJars;
+    if(!jars.contains(name)) {
+      return Optional.empty();
+    }
+    return agent.getDocument()
+      .getAttachment(name)
+      .map(t -> {
+        try {
+          return t.getInputStream();
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
+        }
+      });
+  }
 
   @Override
   public String getMainClassName() {
@@ -85,10 +109,36 @@ public class DefaultJavaAgentContent implements JavaAgentContent {
   public Optional<String> getObjectAttachmentName() {
     return this.objectAttachmentName;
   }
+  
+  @Override
+  public Optional<InputStream> getObjectAttachment() {
+    return getObjectAttachmentName()
+      .flatMap(name -> agent.getDocument().getAttachment(name))
+      .map(t -> {
+        try {
+          return t.getInputStream();
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
+        }
+      });
+  }
 
   @Override
   public Optional<String> getResourcesAttachmentName() {
     return this.resourcesAttachmentName;
+  }
+  
+  @Override
+  public Optional<InputStream> getResourcesAttachment() {
+    return getResourcesAttachmentName()
+      .flatMap(name -> agent.getDocument().getAttachment(name))
+      .map(t -> {
+        try {
+          return t.getInputStream();
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
+        }
+      });
   }
 
   @Override
@@ -99,5 +149,18 @@ public class DefaultJavaAgentContent implements JavaAgentContent {
   @Override
   public Optional<String> getSourceAttachmentName() {
     return this.sourceAttachmentName;
+  }
+  
+  @Override
+  public Optional<InputStream> getSourceAttachment() {
+    return getSourceAttachmentName()
+      .flatMap(name -> agent.getDocument().getAttachment(name))
+      .map(t -> {
+        try {
+          return t.getInputStream();
+        } catch (IOException e) {
+          throw new UncheckedIOException(e);
+        }
+      });
   }
 }

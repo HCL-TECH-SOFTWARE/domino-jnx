@@ -75,23 +75,31 @@ public interface DominoRuntime {
    * Notes/Domino runtime.
    *
    * @return an {@link Optional} describing a {@link Path} representing the temp
-   *         directory
-   *         on the filesystem, or an empty one if the directory cannot be
-   *         determined
+   *         directory on the filesystem, or an empty one if the directory
+   *         cannot be determined
    */
   Optional<Path> getTempDirectory();
 
   /**
    * Retrieves the path of the directory used by the current Notes/Domino runtime
-   * for temporary
-   * storage during view rebuilding.
+   * for temporary storage during view rebuilding.
    *
    * @return an {@link Optional} describing a {@link Path} representing the
-   *         view-rebuild directory
-   *         on the filesystem, or an empty one if the directory cannot be
-   *         determined
+   *         view-rebuild directory on the filesystem, or an empty one if the
+   *         directory cannot be determined
    */
   Optional<Path> getViewRebuildDirectory();
+  
+  /**
+   * Retrieves the path of the directory used to house shared data for a multi-user
+   * installation.
+   * 
+   * @return an {@link Optional} describing a {@link Path} representing the
+   *         shared data directory on the filesystem, or an empty one if no
+   *         shared data directory is configured
+   * @since 1.0.43
+   */
+  Optional<Path> getSharedDataDirectory();
 
   /**
    * Tells the local runtime to run NSD.

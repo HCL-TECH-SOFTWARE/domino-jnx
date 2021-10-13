@@ -16,12 +16,40 @@
  */
 package com.hcl.domino.data;
 
+import java.util.EnumSet;
 import java.util.ServiceLoader;
+import java.util.Set;
+
+import com.hcl.domino.data.Item.ItemFlag;
 
 /**
  * Implementations of this interface are loaded via {@link ServiceLoader}
  * in {@link Document#get(String, Class, Object)}
  */
 public interface DocumentValueConverter extends ValueConverter<Document> {
+
+  /**
+   * Implement this method to write a value to the object
+   *
+   * @param <T>      value type
+   * @param obj      object
+   * @param itemName name of item to write
+   * @param newValue new value
+   */
+  @Override
+  default <T> void setValue(Document obj, String itemName, T newValue) {
+    setValue(obj, EnumSet.of(ItemFlag.SUMMARY), itemName, newValue);
+  }
+
+  /**
+   * Implement this method to write a value to the object
+   *
+   * @param <T>      value type
+   * @param obj      object
+   * @param itemFlags item flags
+   * @param itemName name of item to write
+   * @param newValue new value
+   */
+  <T> void setValue(Document obj, Set<ItemFlag> itemFlags, String itemName, T newValue);
 
 }
