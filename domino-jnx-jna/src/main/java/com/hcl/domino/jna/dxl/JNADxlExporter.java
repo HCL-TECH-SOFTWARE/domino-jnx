@@ -162,7 +162,7 @@ public class JNADxlExporter extends AbstractDxlProcessor<JNADxlExporterAllocatio
 			NotesCallbacks.XML_WRITE_FUNCTION func;
 			
 			if (PlatformUtils.isWin32()) {
-				func = (pBuffer, length, pAction) -> {
+				func = (Win32NotesCallbacks.XML_WRITE_FUNCTIONWin32) (pBuffer, length, pAction) -> {
 					byte[] bytes = pBuffer.getByteArray(0, length);
 					String chunk = new String(bytes, getJDKExportCharset().get());
 					try {
@@ -202,7 +202,7 @@ public class JNADxlExporter extends AbstractDxlProcessor<JNADxlExporterAllocatio
 			NotesCallbacks.XML_WRITE_FUNCTION func;
 			
 			if (PlatformUtils.isWin32()) {
-				func = (pBuffer, length, pAction) -> {
+				func = (Win32NotesCallbacks.XML_WRITE_FUNCTIONWin32) (pBuffer, length, pAction) -> {
 					byte[] bytes = pBuffer.getByteArray(0, length);
 					String chunk = new String(bytes, getJDKExportCharset().get());
 					try {
@@ -242,7 +242,7 @@ public class JNADxlExporter extends AbstractDxlProcessor<JNADxlExporterAllocatio
 			NotesCallbacks.XML_WRITE_FUNCTION func;
 			
 			if (PlatformUtils.isWin32()) {
-				func = (pBuffer, length, pAction) -> {
+				func = (Win32NotesCallbacks.XML_WRITE_FUNCTIONWin32)(pBuffer, length, pAction) -> {
 					byte[] bytes = pBuffer.getByteArray(0, length);
 					String chunk = new String(bytes, getJDKExportCharset().get());
 					try {

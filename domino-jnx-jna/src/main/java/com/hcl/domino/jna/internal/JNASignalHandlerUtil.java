@@ -25,14 +25,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.hcl.domino.DominoClient.IBreakHandler;
 import com.hcl.domino.DominoClient.IProgressListener;
 import com.hcl.domino.DominoClient.ReplicationStateListener;
+import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.util.PlatformUtils;
-import com.hcl.domino.DominoException;
 import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks.OSSIGBREAKPROC;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks.OSSIGPROGRESSPROC;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks.OSSIGREPLPROC;
+import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Pointer;
@@ -52,7 +53,7 @@ public class JNASignalHandlerUtil {
 	private static volatile NotesCallbacks.OSSIGBREAKPROC prevBreakProc = null;
 	private static ThreadLocal<Exception> lastBreakHandlerException = new ThreadLocal<>();
 
-	private static final NotesCallbacks.OSSIGBREAKPROC breakProcWin32 = () -> {
+	private static final Win32NotesCallbacks.OSSIGBREAKPROCWin32 breakProcWin32 = () -> {
 		try {
 			Thread thread = Thread.currentThread();
 			IBreakHandler breakHandler = m_breakHandlerByThread.get(thread);
@@ -101,7 +102,7 @@ public class JNASignalHandlerUtil {
 	private static volatile NotesCallbacks.OSSIGPROGRESSPROC prevProgressProc = null;
 	private static ThreadLocal<Exception> lastProgressListenerException = new ThreadLocal<>();
 
-	private static NotesCallbacks.OSSIGPROGRESSPROC progressProcWin32 = (option, data1, data2) -> {
+	private static Win32NotesCallbacks.OSSIGPROGRESSPROCWin32 progressProcWin32 = (option, data1, data2) -> {
 		try {
 			Thread thread = Thread.currentThread();
 			IProgressListener progressListener = m_progressListenerByThread.get(thread);
@@ -207,7 +208,7 @@ public class JNASignalHandlerUtil {
 	private static volatile NotesCallbacks.OSSIGREPLPROC prevReplProc = null;
 	private static ThreadLocal<Exception> lastReplProcException = new ThreadLocal<>();
 
-	private static NotesCallbacks.OSSIGREPLPROC replProcWin32 = (state, pText1, pText2) -> {
+	private static Win32NotesCallbacks.OSSIGREPLPROCWin32 replProcWin32 = (state, pText1, pText2) -> {
 		try {
 			Thread thread = Thread.currentThread();
 			ReplicationStateListener progressListener = m_replicationStateListenerByThread.get(thread);

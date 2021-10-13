@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Predicate;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
@@ -88,18 +89,34 @@ import com.hcl.domino.design.simpleaction.ModifyFieldAction;
 import com.hcl.domino.design.simpleaction.ReadMarksAction;
 import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.NotesBitmap;
+import com.hcl.domino.richtext.records.CDBegin;
+import com.hcl.domino.richtext.records.CDEnd;
 import com.hcl.domino.richtext.records.CDHeader;
+import com.hcl.domino.richtext.records.CDHotspotBegin;
+import com.hcl.domino.richtext.records.CDHtmlFormula;
 import com.hcl.domino.richtext.records.CDOLEBegin;
 import com.hcl.domino.richtext.records.CDOLEEnd;
 import com.hcl.domino.richtext.records.CDOLEObjectInfo;
+import com.hcl.domino.richtext.records.CDPreTableBegin;
 import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.records.CDTableBegin;
+import com.hcl.domino.richtext.records.CDTableDataExtension;
+import com.hcl.domino.richtext.records.CDTableEnd;
+import com.hcl.domino.richtext.records.CDTableLabel;
+import com.hcl.domino.richtext.records.CDText;
+import com.hcl.domino.richtext.records.CDTimerInfo;
+import com.hcl.domino.richtext.records.CDTransition;
 import com.hcl.domino.richtext.records.CDWinMetaHeader;
 import com.hcl.domino.richtext.records.CDWinMetaSegment;
 import com.hcl.domino.richtext.records.DDEFormat;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.structures.ActiveObject;
+import com.hcl.domino.richtext.structures.ActiveObjectParam;
+import com.hcl.domino.richtext.structures.ActiveObjectStorageLink;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclEntry;
@@ -1114,12 +1131,189 @@ public class TestDbDesignForms extends AbstractDesignTest {
     });
   }
   
+  @Test
+  public void testTimerTable() {
+    DbDesign design = database.getDesign();
+    
+    // This test re-uses the same form as above
+    Form form = design.getForm("Test LS Form").get();
+    
+    List<?> pretable = extract(
+      form.getBody(),
+      0,
+      r -> r instanceof CDBegin && RecordType.PRETABLEBEGIN.getConstant() == ((CDBegin)r).getSignature(),
+      r -> r instanceof CDEnd && RecordType.PRETABLEBEGIN.getConstant() == ((CDEnd)r).getSignature()
+    );
+    assertTrue(pretable.stream().anyMatch(CDTableDataExtension.class::isInstance));
+    
+    List<?> table = extract(form.getBody(), 0, CDTableBegin.class, CDTableEnd.class);
+    assertInstanceOf(CDTableBegin.class, table.get(0));
+    assertInstanceOf(CDTableEnd.class, table.get(table.size()-1));
+    
+    // Make sure we can find out text bits
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("I")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("am")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("an")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("animated table")));
+    
+    CDTimerInfo timer = table.stream()
+      .filter(CDTimerInfo.class::isInstance)
+      .map(CDTimerInfo.class::cast)
+      .findFirst()
+      .get();
+    assertEquals(2500l, timer.getInterval());
+    
+    CDTransition trans = table.stream()
+      .filter(CDTransition.class::isInstance)
+      .map(CDTransition.class::cast)
+      .findFirst()
+      .get();
+    assertEquals(CDTransition.Type.TOPTOBOTTOM_ROW, trans.getTransitionType().get());
+  }
+  
+  @Test
+  public void testTabbedTable() {
+    DbDesign design = database.getDesign();
+    
+    // This test re-uses the same form as above
+    Form form = design.getForm("Test LS Form").get();
+    
+    List<?> pretable = extract(
+      form.getBody(),
+      1,
+      r -> r instanceof CDBegin && RecordType.PRETABLEBEGIN.getConstant() == ((CDBegin)r).getSignature(),
+      r -> r instanceof CDEnd && RecordType.PRETABLEBEGIN.getConstant() == ((CDEnd)r).getSignature()
+    );
+    assertTrue(pretable.stream().anyMatch(CDTableDataExtension.class::isInstance));
+    CDPreTableBegin pre = pretable.stream()
+      .filter(CDPreTableBegin.class::isInstance)
+      .map(CDPreTableBegin.class::cast)
+      .findFirst()
+      .get();
+    assertEquals(EnumSet.of(CDPreTableBegin.Flag.SHOWTABSONLEFT), pre.getFlags());
+    
+    List<?> table = extract(form.getBody(), 1, CDTableBegin.class, CDTableEnd.class);
+    assertInstanceOf(CDTableBegin.class, table.get(0));
+    assertInstanceOf(CDTableEnd.class, table.get(table.size()-1));
+    
+    // Make sure we can find out text bits
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("I")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("am")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("a")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("tabbed table")));
+  }
+  
+  @Test
+  public void testCaptionTable() {
+    DbDesign design = database.getDesign();
+    
+    // This test re-uses the same form as above
+    Form form = design.getForm("Test LS Form").get();
+    
+    List<?> pretable = extract(
+      form.getBody(),
+      2,
+      r -> r instanceof CDBegin && RecordType.PRETABLEBEGIN.getConstant() == ((CDBegin)r).getSignature(),
+      r -> r instanceof CDEnd && RecordType.PRETABLEBEGIN.getConstant() == ((CDEnd)r).getSignature()
+    );
+    assertTrue(pretable.stream().anyMatch(CDTableDataExtension.class::isInstance));
+    
+    List<?> table = extract(form.getBody(), 2, CDTableBegin.class, CDTableEnd.class);
+    assertInstanceOf(CDTableBegin.class, table.get(0));
+    assertInstanceOf(CDTableEnd.class, table.get(table.size()-1));
+    
+    // Make sure we can find out text bits
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("i")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("am")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("a")));
+    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("caption table")));
+    CDTableLabel label = table.stream()
+      .filter(CDTableLabel.class::isInstance)
+      .map(CDTableLabel.class::cast)
+      .findFirst()
+      .get();
+    assertEquals("i am caption", label.getLabel());
+  }
+  
+  @Test
+  public void testJavaApplet() {
+    DbDesign design = database.getDesign();
+    
+    // This test re-uses the same form as above
+    Form form = design.getForm("Test LS Form").get();
+    
+    List<?> hotspot = extract(
+      form.getBody(),
+      0,
+      r -> r instanceof CDBegin && ((CDBegin)r).getSignature() == RecordType.V4HOTSPOTBEGIN.getConstant(),
+      r -> r instanceof CDEnd
+    );
+    CDHotspotBegin hotspotBegin = hotspot.stream()
+      .filter(CDHotspotBegin.class::isInstance)
+      .map(CDHotspotBegin.class::cast)
+      .filter(h -> h.getHotspotType().equals(HotspotType.ACTIVEOBJECT))
+      .findFirst()
+      .get();
+    
+    ActiveObject obj = hotspotBegin.getActiveObject().get();
+    assertEquals(ActiveObject.Version.VERSION1, obj.getVersion().get());
+    assertEquals(ActiveObject.Type.JAVA, obj.getObjectType().get());
+    assertEquals(EnumSet.of(ActiveObject.Flag.CORBA_APPLET, ActiveObject.Flag.NOCORBADOWNLOAD), obj.getFlags());
+    assertEquals(ActiveObject.Unit.PIXELS, obj.getWidthUnitType().get());
+    assertEquals(ActiveObject.Unit.PIXELS, obj.getHeightUnitType().get());
+    assertEquals(200, obj.getWidth());
+    assertEquals(200, obj.getHeight());
+    assertEquals("", obj.getDocUrlName());
+    assertEquals("notes:///./$FILE", obj.getCodebase());
+    assertEquals("somejar.class", obj.getCode());
+    assertEquals("", obj.getObjectName());
+    {
+      List<ActiveObjectParam> params = obj.getParams();
+      {
+        ActiveObjectParam param = params.get(0);
+        assertEquals("foo", param.getParam());
+        assertEquals("\"ba\" + \"r\"", param.getFormula());
+      }
+      {
+        ActiveObjectParam param = params.get(1);
+        assertEquals("bar", param.getParam());
+        assertEquals("\"baz\"", param.getFormula());
+      }
+    }
+    {
+      List<ActiveObjectStorageLink> links = obj.getStorageLinks();
+      {
+        ActiveObjectStorageLink link = links.get(0);
+        assertEquals("somejar.jar", link.getLink());
+      }
+    }
+    
+    {
+      CDHtmlFormula formula = (CDHtmlFormula)extract(hotspot, 0, CDHtmlFormula.class, CDHtmlFormula.class).get(0);
+      assertEquals(EnumSet.of(CDHtmlFormula.Flag.ALT), formula.getFlags());
+      assertEquals("\"i am alt html\"", formula.getFormula());
+    }
+    {
+      CDHtmlFormula formula = (CDHtmlFormula)extract(hotspot, 1, CDHtmlFormula.class, CDHtmlFormula.class).get(0);
+      assertEquals(EnumSet.of(CDHtmlFormula.Flag.ATTR), formula.getFlags());
+      assertEquals("\"i am html attrs\"", formula.getFormula());
+    }
+  }
+  
   private List<?> extractOle(List<?> body, int index) {
+    return extract(body, index, CDOLEBegin.class, CDOLEEnd.class);
+  }
+  
+  private List<?> extract(List<?> body, int index, Class<? extends RichTextRecord<?>> begin, Class<? extends RichTextRecord<?>> end) {
+    return extract(body, index, begin::isInstance, end::isInstance);
+  }
+  
+  private List<?> extract(List<?> body, int index, Predicate<Object> begin, Predicate<Object> end) {
     int found = 0;
     
     int oleBeginIndex = -1;
     for(oleBeginIndex = 0; oleBeginIndex < body.size(); oleBeginIndex++) {
-      if(body.get(oleBeginIndex) instanceof CDOLEBegin) {
+      if(begin.test(body.get(oleBeginIndex))) {
         if(found == index) {
           break;
         }
@@ -1129,12 +1323,12 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertTrue(oleBeginIndex > -1 && oleBeginIndex < body.size());
     int oleEndIndex = -1;
     for(oleEndIndex = oleBeginIndex; oleEndIndex < body.size(); oleEndIndex++) {
-      if(body.get(oleEndIndex) instanceof CDOLEEnd) {
+      if(end.test(body.get(oleEndIndex))) {
         break;
       }
     }
     assertTrue(oleEndIndex > -1 && oleEndIndex < body.size());
     
-    return body.subList(oleBeginIndex, oleEndIndex-1);
+    return body.subList(oleBeginIndex, oleEndIndex+1);
   }
 }
