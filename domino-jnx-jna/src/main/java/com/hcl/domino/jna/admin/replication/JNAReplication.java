@@ -61,6 +61,7 @@ import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNADocumentAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNAReplicationAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
+import com.hcl.domino.jna.internal.gc.handles.DHANDLE32;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE64;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.structs.NotesDbReplicaInfoStruct;
@@ -483,7 +484,7 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations> 
 						}
 						else {
 							@SuppressWarnings("deprecation")
-							DHANDLE hNoteObj = new DHANDLE64(hNote);
+							DHANDLE hNoteObj = new DHANDLE32(hNote);
 							note = new JNADocument(jnaDb, hNoteObj, true);
 						}
 						Optional<DominoException> statusEx = NotesErrorUtils.toNotesError(status);
@@ -511,7 +512,7 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations> 
 						}
 						else {
 							@SuppressWarnings("deprecation")
-							DHANDLE hNoteObj = new DHANDLE64(hNote);
+							DHANDLE hNoteObj = new DHANDLE32(hNote);
 							note = new JNADocument(jnaDb, hNoteObj, true);
 						}
 						Optional<DominoException> statusEx = NotesErrorUtils.toNotesError(status);
@@ -545,7 +546,7 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations> 
 						}
 						else {
 							@SuppressWarnings("deprecation")
-							DHANDLE hNoteObj = new DHANDLE64(hNote);
+							DHANDLE hNoteObj = new DHANDLE32(hNote);
 							note = new JNADocument(jnaDb, hNoteObj, true);
 						}
 						Optional<DominoException> statusEx = NotesErrorUtils.toNotesError(status);
@@ -573,7 +574,7 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations> 
 						}
 						else {
 							@SuppressWarnings("deprecation")
-							DHANDLE hNoteObj = new DHANDLE64(hNote);
+							DHANDLE hNoteObj = new DHANDLE32(hNote);
 							note = new JNADocument(jnaDb, hNoteObj, true);
 						}
 						Optional<DominoException> statusEx = NotesErrorUtils.toNotesError(status);
@@ -607,7 +608,7 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations> 
 						}
 						else {
 							@SuppressWarnings("deprecation")
-							DHANDLE hNoteObj = new DHANDLE64(hNote);
+							DHANDLE hNoteObj = new DHANDLE32(hNote);
 							note = new JNADocument(jnaDb, hNoteObj, true);
 						}
 						Optional<DominoException> statusEx = NotesErrorUtils.toNotesError(status);
@@ -637,7 +638,7 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations> 
 						}
 						else {
 							@SuppressWarnings("deprecation")
-							DHANDLE hNoteObj = new DHANDLE64(hNote);
+							DHANDLE hNoteObj = new DHANDLE32(hNote);
 							note = new JNADocument(jnaDb, hNoteObj, true);
 						}
 						Optional<DominoException> statusEx = NotesErrorUtils.toNotesError(status);

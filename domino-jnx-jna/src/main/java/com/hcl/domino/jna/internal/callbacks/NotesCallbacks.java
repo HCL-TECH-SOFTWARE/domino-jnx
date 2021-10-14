@@ -245,7 +245,7 @@ public interface NotesCallbacks {
 	}
 
 	interface LSCOMPILEERRPROC extends Callback {
-		short invoke(NotesLSCompileErrorInfo pInfo, long pCtx);
+		short invoke(NotesLSCompileErrorInfo pInfo, Pointer pCtx);
 	}
 	
 	interface IDVLOG_CALLBACK extends Callback {
