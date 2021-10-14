@@ -28,6 +28,7 @@ ENV Directory "/local/notesdata"
 ENV JNX_NOTERM "true"
 ENV PATH "${PATH}:${Notes_ExecDirectory}:${Notes_ExecDirectory}/res/C"
 ENV MAVEN_OPTS "-Djnx.noterm=true -Dmaven.repo.local=/root/.m2/repository"
+ENV JNX_ON_SERVER "1"
 
 # Configure the Maven environment and permissive root home directory
 COPY docker/settings.xml /root/.m2/
