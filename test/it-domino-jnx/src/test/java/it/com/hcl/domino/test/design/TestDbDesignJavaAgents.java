@@ -47,6 +47,8 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
@@ -63,6 +65,9 @@ import com.ibm.commons.util.io.StreamUtil;
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
+// Currently disabled for Java > 8 due to incompatibilities in the
+//   DXL import process for Java agents
+@DisabledForJreRange(min=JRE.JAVA_9)
 public class TestDbDesignJavaAgents extends AbstractNotesRuntimeTest {
   public static final int EXPECTED_IMPORT_AGENTS = 3;
   private static String dbPath;
