@@ -4304,8 +4304,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 								//grab the current pointer stored in retItemNamePtr;
 								//using retItemName here did not work, because the
 								//value of retItemNamePtr got redirected
+								Pointer ptr = retItemNamePtr.getPointer(0);
 								String currItemName = NotesStringUtils.fromLMBCS(
-										new Pointer(retItemNamePtr.getLong(0)),
+										ptr,
 										retItemNameLength.getValue() & 0xffff);
 								
 								short itemTypeAsShort = (short) (retItemType.getValue() & 0xffff);
