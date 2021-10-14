@@ -175,7 +175,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
         + " @All";
     final AgentContent content = agent.getAgentContent();
     assertInstanceOf(FormulaAgentContent.class, content);
-    assertEquals(formula, ((FormulaAgentContent) content).getFormula());
+    assertEquals(formula, toLf(((FormulaAgentContent) content).getFormula()));
     assertEquals(DocumentAction.MODIFY, ((FormulaAgentContent) content).getDocumentAction());
     assertTrue(agent.isRunInBackgroundInClient());
   }
@@ -446,7 +446,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     assertEquals(AgentLanguage.FORMULA, agent.getAgentLanguage());
     final AgentContent content = agent.getAgentContent();
     assertInstanceOf(FormulaAgentContent.class, content);
-    assertEquals("\"bar\";\n\n @All", ((FormulaAgentContent) content).getFormula());
+    assertEquals("\"bar\";\n\n @All", toLf(((FormulaAgentContent) content).getFormula()));
     assertEquals(DocumentAction.CREATE, ((FormulaAgentContent) content).getDocumentAction());
   }
 
@@ -486,7 +486,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     assertEquals(AgentLanguage.FORMULA, agent.getAgentLanguage());
     final AgentContent content = agent.getAgentContent();
     assertInstanceOf(FormulaAgentContent.class, content);
-    assertEquals("\"foo\";\n\n @All", ((FormulaAgentContent) content).getFormula());
+    assertEquals("\"foo\";\n\n @All", toLf(((FormulaAgentContent) content).getFormula()));
     assertEquals(DocumentAction.SELECT, ((FormulaAgentContent) content).getDocumentAction());
   }
 
@@ -855,7 +855,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     AgentContent content = agent.getAgentContent();
     FormulaAgentContent formula = assertInstanceOf(FormulaAgentContent.class, content);
     assertEquals("FIELD Locked := @DeleteField;\n"
-        + "FIELD DocumentAuthors := @Trim(@Replace(From : CurrentReviewers; \"None\"; \"\"));@All", formula.getFormula());
+        + "FIELD DocumentAuthors := @Trim(@Replace(From : CurrentReviewers; \"None\"; \"\"));@All", toLf(formula.getFormula()));
     assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
     
   }
@@ -878,7 +878,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     assertEquals("RoutingState = \"DEAD\";\n"
         + "FIELD RoutingState := \"\";\n"
         + "FIELD Recipients := IntendedRecipient;\n"
-        + "FIELD Form := MailSavedForm;", formula.getFormula());
+        + "FIELD Form := MailSavedForm;", toLf(formula.getFormula()));
     assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
   }
   
@@ -906,7 +906,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
         + "FIELD DeptName := @Environment(\"PHADM_DeptName\");\n"
         + "FIELD Site_ShortName := @Environment(\"PHADM_Site_ShortName\");\n"
         + "FIELD OfficeNumber := @Environment(\"PHADM_OfficeNumber\");\n"
-        + "FIELD Email := @Environment(\"PHADM_Email\");", formula.getFormula());
+        + "FIELD Email := @Environment(\"PHADM_Email\");", toLf(formula.getFormula()));
     assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
   }
   
@@ -929,7 +929,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
         + "FIELD Month := @Environment(\"EnvSchMonth\");\n"
         + "FIELD MonthSeq := @Environment(\"EnvSchMonthSeq\");\n"
         + "FIELD ClockType := @Environment(\"EnvClockType\");\n"
-        + "FIELD MonthType := @Unavailable;", formula.getFormula());
+        + "FIELD MonthType := @Unavailable;", toLf(formula.getFormula()));
     assertEquals(FormulaAgentContent.DocumentAction.CREATE, formula.getDocumentAction());
   }
   
@@ -979,7 +979,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
         + "REM;\n"
         + "REM {Select only Reqs that have been approved, but not yet routed};\n"
         + "REM;\n"
-        + "Approved = \"Approved\" & Routed = \"No\"", formula.getFormula());
+        + "Approved = \"Approved\" & Routed = \"No\"", toLf(formula.getFormula()));
     assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
   }
   
@@ -1030,7 +1030,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
         + "FIELD RouteServers := @Unavailable;\n"
         + "FIELD RouteTimes := @Unavailable;\n"
         + "FIELD DeliveredDate := @Unavailable;\n"
-        + "FIELD Categories := @Unavailable;", formula.getFormula());
+        + "FIELD Categories := @Unavailable;", toLf(formula.getFormula()));
     assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
   }
 }

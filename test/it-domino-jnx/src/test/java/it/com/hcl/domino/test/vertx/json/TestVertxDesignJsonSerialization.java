@@ -16,6 +16,8 @@
  */
 package it.com.hcl.domino.test.vertx.json;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
@@ -26,10 +28,12 @@ import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import com.hcl.domino.data.Database;
+import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.jnx.vertx.json.service.VertxJsonSerializer;
 
+import io.vertx.core.json.JsonObject;
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 /**
@@ -154,6 +158,16 @@ public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
       database.getDesign()
         .getAgents()
         .forEach(serializer::toJson);
+      
+      DesignAgent agent = database.getDesign()
+          .getAgents()
+          .findFirst()
+          .get();
+      agent.sign();
+      // Check an individual agent to read the signer
+      JsonObject json = serializer.toJson(agent);
+      JsonObject doc = json.getJsonObject("document");
+      assertEquals(database.getParentDominoClient().getIDUserName(), doc.getString("signer"));
     });
   }
 }

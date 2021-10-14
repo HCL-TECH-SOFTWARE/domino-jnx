@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import com.hcl.domino.calendar.CalendarDocumentOpen;
 import com.hcl.domino.calendar.CalendarRead;
@@ -46,6 +47,7 @@ public class TestCalendaring extends AbstractCalendaringTest {
   final Logger log = Logger.getLogger(this.getClass().getName());
 
   @Test
+  @EnabledIfEnvironmentVariable(named = AbstractCalendaringTest.PROP_MAIL_SERVER, matches = ".*")
   public void testCreateCalendarEntry() {
     try {
       this.withICalImport("/ical/testCreateCalendarEntry", (db, entries) -> {
@@ -114,6 +116,7 @@ public class TestCalendaring extends AbstractCalendaringTest {
   }
 
   @Test
+  @EnabledIfEnvironmentVariable(named = AbstractCalendaringTest.PROP_MAIL_SERVER, matches = ".*")
   public void testReadRange() {
     try {
       final String mailServerName = this.getMailServer();
@@ -243,6 +246,7 @@ public class TestCalendaring extends AbstractCalendaringTest {
   }
 
   @Test
+  @EnabledIfEnvironmentVariable(named = AbstractCalendaringTest.PROP_MAIL_SERVER, matches = ".*")
   public void testUpdateCalendarEntry() {
     try {
       final String mailServerName = this.getMailServer();

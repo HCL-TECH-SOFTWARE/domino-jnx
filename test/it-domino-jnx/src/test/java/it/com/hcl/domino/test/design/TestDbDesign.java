@@ -16,6 +16,7 @@
  */
 package it.com.hcl.domino.test.design;
 
+import static it.com.hcl.domino.test.util.ITUtil.toLf;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -860,7 +861,7 @@ public class TestDbDesign extends AbstractDesignTest {
           + "		@Command([EditDocument])\n"
           + "	);\n"
           + "	\"\"\n"
-          + ")", ((FormulaActionContent)content).getFormula());
+          + ")", toLf(((FormulaActionContent)content).getFormula()));
     }
     {
       // Save and Close
@@ -892,7 +893,7 @@ public class TestDbDesign extends AbstractDesignTest {
           + "		@Command([FileCloseWindow])\n"
           + "	);\n"
           + "	\"\"\n"
-          + ")", ((FormulaActionContent)content).getFormula());
+          + ")", toLf(((FormulaActionContent)content).getFormula()));
     }
     {
       // Delete
