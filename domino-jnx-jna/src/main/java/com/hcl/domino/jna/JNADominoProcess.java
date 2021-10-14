@@ -65,7 +65,6 @@ public class JNADominoProcess implements DominoProcess {
 		Method initMethod;
 		Method termMethod;
     if("1.8".equals(DominoUtils.getJavaProperty("java.specification.version", ""))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-      System.out.println("working with Java 8");
   		try {
   			Class<?> notesThread = Class.forName("lotus.domino.NotesThread"); //$NON-NLS-1$
   			initMethod = notesThread.getDeclaredMethod("sinitThread"); //$NON-NLS-1$
