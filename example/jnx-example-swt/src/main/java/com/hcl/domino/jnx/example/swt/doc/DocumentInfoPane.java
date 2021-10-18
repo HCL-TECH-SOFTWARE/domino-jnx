@@ -20,7 +20,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.TabFolder;
@@ -31,6 +33,8 @@ import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.dxl.DxlExporter;
+import com.hcl.domino.jnx.example.swt.AppShell;
+import com.hcl.domino.jnx.example.swt.dbtree.DatabaseTree;
 import com.hcl.domino.jnx.example.swt.info.AbstractInfoPane;
 
 import jakarta.enterprise.inject.spi.CDI;
@@ -55,6 +59,21 @@ public class DocumentInfoPane extends AbstractInfoPane {
       
       TabFolder tabFolder = new TabFolder(this, SWT.NONE);
       tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true, 2, 1));
+      
+      // Item list
+      {
+        TabItem tab = new TabItem(tabFolder, SWT.NONE);
+        tab.setText("Items");
+        
+        final SashForm sashForm = new SashForm(tabFolder, SWT.NONE);
+        tab.setControl(sashForm);
+        DocumentItemTree tree = new DocumentItemTree(sashForm, AppShell.resourceManager, serverName, databasePath, unid);
+
+        final Composite infoPane = new Composite(sashForm, SWT.NONE);
+        infoPane.setLayout(new FillLayout());
+        tree.setTarget(infoPane);
+        sashForm.setWeights(1, 3);
+      }
       
       // JSON Export
       {

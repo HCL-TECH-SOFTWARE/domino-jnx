@@ -36,8 +36,8 @@ public class DatabaseTreeLabelProvider extends LabelProvider implements ILabelPr
 
   @Override
   public Image getImage(final Object element) {
-    if (element instanceof DBListTreeNode) {
-      return ((DBListTreeNode) element).getImage();
+    if (element instanceof InfoPaneTreeNode) {
+      return ((InfoPaneTreeNode) element).getImage();
     }
     return super.getImage(element);
   }

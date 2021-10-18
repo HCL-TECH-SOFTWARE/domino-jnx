@@ -31,7 +31,7 @@ import com.hcl.domino.jnx.example.swt.info.ServerInfoPane;
 
 import jakarta.enterprise.inject.spi.CDI;
 
-public class ServerTreeNode extends DBListTreeNode {
+public class ServerTreeNode extends InfoPaneTreeNode {
   private TreeNode[] children;
   private final String displayName;
 
