@@ -33,9 +33,11 @@ import jakarta.enterprise.inject.spi.CDI;
 
 public class ServerTreeNode extends DBListTreeNode {
   private TreeNode[] children;
+  private final String displayName;
 
-  public ServerTreeNode(final String serverName) {
+  public ServerTreeNode(String displayName, final String serverName) {
     super(serverName);
+    this.displayName = displayName;
   }
 
   @Override
@@ -76,6 +78,10 @@ public class ServerTreeNode extends DBListTreeNode {
 
   public String getServerName() {
     return (String) this.getValue();
+  }
+  
+  public String getDisplayName() {
+    return displayName;
   }
 
   @Override

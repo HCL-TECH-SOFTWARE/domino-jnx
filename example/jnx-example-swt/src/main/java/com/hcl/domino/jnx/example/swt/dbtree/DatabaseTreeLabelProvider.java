@@ -44,6 +44,9 @@ public class DatabaseTreeLabelProvider extends LabelProvider implements ILabelPr
 
   @Override
   public String getText(final Object element) {
+    if (element instanceof ServerTreeNode) {
+      return ((ServerTreeNode) element).getDisplayName();
+    }
     return String.valueOf(element);
   }
 
