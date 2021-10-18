@@ -25,8 +25,12 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.TabFolder;
+import org.eclipse.swt.widgets.TabItem;
 
 import com.hcl.domino.jnx.example.swt.dbtree.DatabaseTree;
+import com.hcl.domino.jnx.example.swt.dump.DumpDBPane;
+import com.hcl.domino.jnx.example.swt.exporter.DXLExporterPane;
 
 public class AppShell extends Shell {
 
@@ -42,15 +46,42 @@ public class AppShell extends Shell {
 
     AppShell.resourceManager = new LocalResourceManager(JFaceResources.getResources(), this);
 
-    final SashForm sashForm = new SashForm(this, SWT.NONE);
+    
+    TabFolder tabFolder = new TabFolder(this, SWT.NONE);
+    
+    // Database Browser
+    {
+      TabItem tab = new TabItem(tabFolder, SWT.NONE);
+      tab.setText("Database Browser");
+      
+      final SashForm sashForm = new SashForm(tabFolder, SWT.NONE);
+      tab.setControl(sashForm);
+      this.databaseBrowser = new DatabaseTree(sashForm, AppShell.resourceManager);
 
-    this.databaseBrowser = new DatabaseTree(sashForm, AppShell.resourceManager);
+      final Composite infoPane = new Composite(sashForm, SWT.NONE);
+      infoPane.setLayout(new FillLayout());
+      this.databaseBrowser.setTarget(infoPane);
+      sashForm.setWeights(1, 3);
+    }
+    
+    // DXL Exporter
+    {
+      TabItem tab = new TabItem(tabFolder, SWT.NONE);
+      tab.setText("DXL Exporter");
+      
+      DXLExporterPane pane = new DXLExporterPane(tabFolder, SWT.NONE);
+      tab.setControl(pane);
+    }
+    
+    // DXL Dump
+    {
+      TabItem tab = new TabItem(tabFolder, SWT.NONE);
+      tab.setText("DXL Dump");
+      
+      DumpDBPane pane = new DumpDBPane(tabFolder, SWT.NONE);
+      tab.setControl(pane);
+    }
 
-    final Composite infoPane = new Composite(sashForm, SWT.NONE);
-    infoPane.setLayout(new FillLayout());
-    this.databaseBrowser.setTarget(infoPane);
-
-    sashForm.setWeights(1, 3);
   }
 
   @Override
