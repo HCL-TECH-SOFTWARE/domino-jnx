@@ -58,19 +58,26 @@ public class JNADominoProcess implements DominoProcess {
 	private static final Method notesThreadTerm;
 	
 	static {
-		// If Notes.jar is available, prefer those thread init/term methods to account for
-		//    in-runtime JNI hooks
+		// If Notes.jar is available and we're on Java 8, prefer those thread init/term methods to account for
+		//   in-runtime JNI hooks.
+	  // We currently have to exclude Java 9+ due to incompatibilities in the internal JVM locator in
+	  //   lsxbe
 		Method initMethod;
 		Method termMethod;
-		try {
-			Class<?> notesThread = Class.forName("lotus.domino.NotesThread"); //$NON-NLS-1$
-			initMethod = notesThread.getDeclaredMethod("sinitThread"); //$NON-NLS-1$
-			termMethod = notesThread.getDeclaredMethod("stermThread"); //$NON-NLS-1$
-		} catch(Throwable t) {
-			// Then Notes.jar is not present
-			initMethod = null;
-			termMethod = null;
-		}
+    if("1.8".equals(DominoUtils.getJavaProperty("java.specification.version", ""))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+  		try {
+  			Class<?> notesThread = Class.forName("lotus.domino.NotesThread"); //$NON-NLS-1$
+  			initMethod = notesThread.getDeclaredMethod("sinitThread"); //$NON-NLS-1$
+  			termMethod = notesThread.getDeclaredMethod("stermThread"); //$NON-NLS-1$
+  		} catch(Throwable t) {
+  			// Then Notes.jar is not present
+  			initMethod = null;
+  			termMethod = null;
+  		}
+  	} else {
+  	  initMethod = null;
+  	  termMethod = null;
+  	}
 		notesThreadInit = initMethod;
 		notesThreadTerm = termMethod;
 	}

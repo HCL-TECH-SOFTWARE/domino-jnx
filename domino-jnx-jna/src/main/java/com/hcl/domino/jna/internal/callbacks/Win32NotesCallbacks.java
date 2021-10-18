@@ -137,7 +137,7 @@ public interface Win32NotesCallbacks {
 	
 	interface LSCOMPILEERRPROCWin32 extends NotesCallbacks.LSCOMPILEERRPROC, StdCallCallback {
 		@Override
-		short invoke(NotesLSCompileErrorInfo pInfo, long pCtx);
+		short invoke(NotesLSCompileErrorInfo pInfo, Pointer pCtx);
 	}
 
 	interface STATTRAVERSEPROCWin32 extends NotesCallbacks.STATTRAVERSEPROC, StdCallCallback {

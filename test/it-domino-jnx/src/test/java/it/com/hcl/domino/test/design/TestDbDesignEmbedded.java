@@ -31,6 +31,9 @@ import java.util.Optional;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
+
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.design.DbDesign;
@@ -50,6 +53,9 @@ import com.hcl.domino.security.AclLevel;
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
+// Something in here runs across the same trouble as TestDbDesignJavaAgents, where the
+//   core tries to load a symbol not present on Java > 8
+@DisabledForJreRange(min=JRE.JAVA_9)
 public class TestDbDesignEmbedded extends AbstractDesignTest {
 
   private static String dbPath;
