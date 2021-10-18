@@ -16,6 +16,7 @@
  */
 package it.com.hcl.domino.test.design;
 
+import static it.com.hcl.domino.test.util.ITUtil.toLf;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -478,7 +479,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
       ActionContent content = action.getActionContent();
       assertInstanceOf(LotusScriptActionContent.class, content);
       String expected = IOUtils.resourceToString("/text/testDbDesignCollections/shortls.txt", StandardCharsets.UTF_8);
-      assertEquals(expected, ((LotusScriptActionContent)content).getScript());
+      assertEquals(toLf(expected), toLf(((LotusScriptActionContent)content).getScript()));
     }
     {
       ActionBarAction action = actionList.get(11);
@@ -515,7 +516,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
           events.stream().anyMatch(event -> {
             if(event.getEventId() == EventId.ONCLICK) {
               if(event.isClient()) {
-                if("window.alert(\"you poor soul, using JavaScript actions in a view\")\n".equals(event.getScript())) {
+                if("window.alert(\"you poor soul, using JavaScript actions in a view\")\n".equals(toLf(event.getScript()))) {
                   return true;
                 }
               }
@@ -527,7 +528,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
           events.stream().anyMatch(event -> {
             if(event.getEventId() == EventId.ONCLICK) {
               if(!event.isClient()) {
-                if("alert(\"I'm on the web\")\n".equals(event.getScript())) {
+                if("alert(\"I'm on the web\")\n".equals(toLf(event.getScript()))) {
                   return true;
                 }
               }
@@ -538,7 +539,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
         assertTrue(
           events.stream().anyMatch(event -> {
             if(event.getEventId() == EventId.ONMOUSEDOWN) {
-              if("console.log(\"is there a console in Notes JS actions?\")\n".equals(event.getScript())) {
+              if("console.log(\"is there a console in Notes JS actions?\")\n".equals(toLf(event.getScript()))) {
                 return true;
               }
             }
@@ -548,7 +549,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
         assertTrue(
           events.stream().anyMatch(event -> {
             if(event.getEventId() == EventId.ONMOUSEOVER) {
-              if("alert(\"wait, do onMouseOver actions work? No; this is web-only\")\n".equals(event.getScript())) {
+              if("alert(\"wait, do onMouseOver actions work? No; this is web-only\")\n".equals(toLf(event.getScript()))) {
                 return true;
               }
             }
@@ -592,7 +593,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
           events.stream().anyMatch(event -> {
             if(event.getEventId() == EventId.ONCLICK) {
               if(event.isClient()) {
-                if("window.alert(\"this is the common part\")\n".equals(event.getScript())) {
+                if("window.alert(\"this is the common part\")\n".equals(toLf(event.getScript()))) {
                   return true;
                 }
               }
@@ -604,7 +605,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
           events.stream().anyMatch(event -> {
             if(event.getEventId() == EventId.ONCLICK) {
               if(!event.isClient()) {
-                if("window.alert(\"this is the common part\")\n".equals(event.getScript())) {
+                if("window.alert(\"this is the common part\")\n".equals(toLf(event.getScript()))) {
                   return true;
                 }
               }
@@ -615,7 +616,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
         assertTrue(
           events.stream().anyMatch(event -> {
             if(event.getEventId() == EventId.ONMOUSEDOWN) {
-              if("console.log(\"is there a console in Notes JS actions?\")\n".equals(event.getScript())) {
+              if("console.log(\"is there a console in Notes JS actions?\")\n".equals(toLf(event.getScript()))) {
                 return true;
               }
             }
@@ -625,7 +626,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
         assertTrue(
           events.stream().anyMatch(event -> {
             if(event.getEventId() == EventId.ONMOUSEOVER) {
-              if("alert(\"wait, do onMouseOver actions work?\")\n".equals(event.getScript())) {
+              if("alert(\"wait, do onMouseOver actions work?\")\n".equals(toLf(event.getScript()))) {
                 return true;
               }
             }
@@ -649,7 +650,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
       ActionContent content = action.getActionContent();
       assertInstanceOf(LotusScriptActionContent.class, content);
       String expected = IOUtils.resourceToString("/text/testDbDesignCollections/longls.txt", StandardCharsets.UTF_8);
-      assertEquals(expected, ((LotusScriptActionContent)content).getScript());
+      assertEquals(toLf(expected), toLf(((LotusScriptActionContent)content).getScript()));
     }
     {
       ActionBarAction action = actionList.get(15);
@@ -780,7 +781,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
     
     // Test global script
     String lsGlobalsExpected = IOUtils.resourceToString("/text/testDbDesignForms/form-testls-globals.txt", StandardCharsets.UTF_8);
-    assertEquals(lsGlobalsExpected, form.getLotusScriptGlobals());
+    assertEquals(toLf(lsGlobalsExpected), toLf(form.getLotusScriptGlobals()));
   }
 
   @Test
@@ -902,11 +903,11 @@ public class TestDbDesignForms extends AbstractDesignTest {
     ScriptEvent evt = events.iterator().next();
     assertEquals(EventId.ONHELP, evt.getEventId());
     assertFalse(evt.isClient());
-    assertEquals("/* I'm subform help */\n", evt.getScript());
+    assertEquals("/* I'm subform help */\n", toLf(evt.getScript()));
     
     // Test global script
     String lsGlobalsExpected = IOUtils.resourceToString("/text/testDbDesignForms/globals-blank.txt", StandardCharsets.UTF_8);
-    assertEquals(lsGlobalsExpected, subform.getLotusScriptGlobals());
+    assertEquals(toLf(lsGlobalsExpected), toLf(subform.getLotusScriptGlobals()));
   }
 
   @Test
@@ -928,7 +929,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
     Map<String, String> ls = form.getFieldLotusScript();
     assertEquals(Collections.singleton("SomeField"), ls.keySet());
     String expected = IOUtils.resourceToString("/text/testDbDesignForms/inherSomeField.txt", StandardCharsets.UTF_8);
-    assertEquals(expected, ls.get("SomeField"));
+    assertEquals(toLf(expected), toLf(ls.get("SomeField")));
     
     {
       List<CDResource> stylesheets = form.getIncludedStyleSheets();

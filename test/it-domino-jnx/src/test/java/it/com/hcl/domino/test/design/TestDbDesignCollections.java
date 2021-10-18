@@ -16,6 +16,7 @@
  */
 package it.com.hcl.domino.test.design;
 
+import static it.com.hcl.domino.test.util.ITUtil.toLf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -855,7 +856,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     
     // Test global script
     String lsGlobalsExpected = IOUtils.resourceToString("/text/testDbDesignCollections/view-example-globals.txt", StandardCharsets.UTF_8);
-    assertEquals(lsGlobalsExpected, view.getLotusScriptGlobals());
+    assertEquals(toLf(lsGlobalsExpected), toLf(view.getLotusScriptGlobals()));
   }
 
   @Test
@@ -1835,7 +1836,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       ActionContent content = action.getActionContent();
       assertInstanceOf(LotusScriptActionContent.class, content);
       String expected = IOUtils.resourceToString("/text/testDbDesignCollections/shortls.txt", StandardCharsets.UTF_8);
-      assertEquals(expected, ((LotusScriptActionContent)content).getScript());
+      assertEquals(toLf(expected), toLf(((LotusScriptActionContent)content).getScript()));
     }
     {
       ActionBarAction action = actionList.get(11);
@@ -1872,7 +1873,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
           events.stream().anyMatch(event -> {
             if(event.getEventId() == EventId.ONCLICK) {
               if(event.isClient()) {
-                if("window.alert(\"you poor soul, using JavaScript actions in a view\")\n".equals(event.getScript())) {
+                if("window.alert(\"you poor soul, using JavaScript actions in a view\")\n".equals(toLf(event.getScript()))) {
                   return true;
                 }
               }
@@ -1884,7 +1885,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
           events.stream().anyMatch(event -> {
             if(event.getEventId() == EventId.ONCLICK) {
               if(!event.isClient()) {
-                if("alert(\"I'm on the web\")\n".equals(event.getScript())) {
+                if("alert(\"I'm on the web\")\n".equals(toLf(event.getScript()))) {
                   return true;
                 }
               }
@@ -1895,7 +1896,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         assertTrue(
           events.stream().anyMatch(event -> {
             if(event.getEventId() == EventId.ONMOUSEDOWN) {
-              if("console.log(\"is there a console in Notes JS actions?\")\n".equals(event.getScript())) {
+              if("console.log(\"is there a console in Notes JS actions?\")\n".equals(toLf(event.getScript()))) {
                 return true;
               }
             }
@@ -1905,7 +1906,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         assertTrue(
           events.stream().anyMatch(event -> {
             if(event.getEventId() == EventId.ONMOUSEOVER) {
-              if("alert(\"wait, do onMouseOver actions work? No; this is web-only\")\n".equals(event.getScript())) {
+              if("alert(\"wait, do onMouseOver actions work? No; this is web-only\")\n".equals(toLf(event.getScript()))) {
                 return true;
               }
             }
@@ -1949,7 +1950,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
           events.stream().anyMatch(event -> {
             if(event.getEventId() == EventId.ONCLICK) {
               if(event.isClient()) {
-                if("window.alert(\"this is the common part\")\n".equals(event.getScript())) {
+                if("window.alert(\"this is the common part\")\n".equals(toLf(event.getScript()))) {
                   return true;
                 }
               }
@@ -1961,7 +1962,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
           events.stream().anyMatch(event -> {
             if(event.getEventId() == EventId.ONCLICK) {
               if(!event.isClient()) {
-                if("window.alert(\"this is the common part\")\n".equals(event.getScript())) {
+                if("window.alert(\"this is the common part\")\n".equals(toLf(event.getScript()))) {
                   return true;
                 }
               }
@@ -1972,7 +1973,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         assertTrue(
           events.stream().anyMatch(event -> {
             if(event.getEventId() == EventId.ONMOUSEDOWN) {
-              if("console.log(\"is there a console in Notes JS actions?\")\n".equals(event.getScript())) {
+              if("console.log(\"is there a console in Notes JS actions?\")\n".equals(toLf(event.getScript()))) {
                 return true;
               }
             }
@@ -1982,7 +1983,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
         assertTrue(
           events.stream().anyMatch(event -> {
             if(event.getEventId() == EventId.ONMOUSEOVER) {
-              if("alert(\"wait, do onMouseOver actions work?\")\n".equals(event.getScript())) {
+              if("alert(\"wait, do onMouseOver actions work?\")\n".equals(toLf(event.getScript()))) {
                 return true;
               }
             }
@@ -2006,7 +2007,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       ActionContent content = action.getActionContent();
       assertInstanceOf(LotusScriptActionContent.class, content);
       String expected = IOUtils.resourceToString("/text/testDbDesignCollections/longls.txt", StandardCharsets.UTF_8);
-      assertEquals(expected, ((LotusScriptActionContent)content).getScript());
+      assertEquals(toLf(expected), toLf(((LotusScriptActionContent)content).getScript()));
     }
     {
       ActionBarAction action = actionList.get(15);
@@ -2063,7 +2064,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     assertEquals("@StatusBar(\"I am onsize\")", formulas.get(EventId.CLIENT_VIEW_ONSIZE));
     
     String expectedLs = IOUtils.resourceToString("/text/testDbDesignCollections/viewtestls.txt", StandardCharsets.UTF_8);
-    assertEquals(expectedLs, view.getLotusScript());
+    assertEquals(toLf(expectedLs), toLf(view.getLotusScript()));
   }
   
   @Test
