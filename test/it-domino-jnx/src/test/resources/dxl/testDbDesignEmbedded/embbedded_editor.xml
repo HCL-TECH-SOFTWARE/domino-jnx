@@ -1,32 +1,24 @@
 <?xml version='1.0' encoding='utf-8'?>
-<form name='EmbeddedEditor' xmlns='http://www.lotus.com/dxl' version='12.0'
- replicaid='8525683F00771995' publicaccess='false' designerversion='8.5.3'
- renderpassthrough='true'>
-<noteinfo noteid='38e' unid='CC5093CAF0F6094A8525875F00096B4B' sequence='2'>
-<created><datetime dst='true'>20210928T214252,91-04</datetime></created>
-<modified><datetime dst='true'>20210928T214444,86-04</datetime></modified>
-<revised><datetime dst='true'>20210928T214444,85-04</datetime></revised>
-<lastaccessed><datetime dst='true'>20210928T214444,85-04</datetime></lastaccessed>
-<addedtofile><datetime dst='true'>20210928T214253,46-04</datetime></addedtofile></noteinfo>
-<updatedby><name>CN=Prabhakar Bugga/O=Prabhakar Bugga</name></updatedby>
-<wassignedby><name>CN=Prabhakar Bugga/O=Prabhakar Bugga</name></wassignedby>
-<body><richtext><compositedata type='65453' prevtype='65393' nexttype='65514'
- afterparcount='6' containertype='65453' afterbegincount='2'>
-rf8bACIACAAAAA8ARW1iZWRkZWRFZGl0b3IA
-</compositedata><compositedata
- type='65514' prevtype='65453' nexttype='65535' afterparcount='7' containertype='65453'
- afterbegincount='3'>
-6v8+ACIAgUQAAGQA4g4BAAAKAAAAAAAAAAABAAAKAQAACgAABQD///8AAQAAAAAAAAAAAAAAAAAA
-AAAAAAA=
-</compositedata><compositedata type='65535' prevtype='65514'
- nexttype='174' afterparcount='8' containertype='65453' afterbegincount='4'>
-//9SAAUAAAASAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAEVtYmVkZGVkRWRpdG9yTmFtZQ==
-</compositedata><compositedata
- type='174' prevtype='65535' nexttype='222' afterparcount='9' containertype='65453'
- afterbegincount='5'>
-rgI=
-</compositedata>
-<pardef id='1'/>
-<par def='1'/></richtext></body>
-<item name='$$ScriptName' summary='false' sign='true'><text>EmbeddedEditor</text></item></form>
+<note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$TITLE' sign='true'><text>EmbeddedEditor</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$Body' sign='true'>
+<rawitemdata type='1'>
+gQKC/1oAAQAAAAAAAAAAAKAFAACgBQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAABAAAAAJSHAAAAAAAAAAAAAAAAAQAAAAQAAACDBAEA3QYAAK3/rf8bACIACAAAAA8A
+RW1iZWRkZWRFZGl0b3IAAOr/PgAiAIFEAABkAOIOAQAACgAAAAAAAAAAAQAACgEAAAoAAAUA////
+AAEAAAAAAAAAAAAAAAAAAAAAAAAA//9SAAUAAAASAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEVtYmVkZGVkRWRpdG9yTmFtZa4C3gYAAK4Ahf8I
+AAEAAAo=
+</rawitemdata></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>EmbeddedEditor</text></item>
+<item name='$HTMLCode' sign='true'>
+<rawitemdata type='1'>
+X/8QAAIADwAHAAAAAAAAAA==
+</rawitemdata></item>
+<item name='$Info' sign='true'>
+<rawitemdata type='1'>
+hhgBAIAAAAAAgAAAAQABAP///wAQAAAA
+</rawitemdata></item>
+<item name='$Flags'><text/></item>
+<item name='$Fields'><textlist/></item></note>
