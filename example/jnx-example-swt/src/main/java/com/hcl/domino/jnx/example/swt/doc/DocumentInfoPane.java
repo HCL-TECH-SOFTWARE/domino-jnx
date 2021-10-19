@@ -58,6 +58,7 @@ public class DocumentInfoPane extends AbstractInfoPane {
       
       TabFolder tabFolder = new TabFolder(this, SWT.NONE);
       tabFolder.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, true, 2, 1));
+      this.layout();
       
       // Item list
       {

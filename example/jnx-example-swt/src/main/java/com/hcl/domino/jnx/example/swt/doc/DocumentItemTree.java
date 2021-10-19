@@ -17,8 +17,8 @@
 package com.hcl.domino.jnx.example.swt.doc;
 
 import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ResourceManager;
@@ -34,11 +34,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Tree;
 
-import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
-
-import jakarta.enterprise.inject.spi.CDI;
+import com.hcl.domino.data.Item;
+import com.hcl.domino.jnx.example.swt.bean.DominoContextBean;
+import com.hcl.domino.jnx.example.swt.dbtree.InfoPaneTreeNode;
 
 public class DocumentItemTree extends Composite {
   private TreeViewer itemList;
@@ -71,9 +71,9 @@ public class DocumentItemTree extends Composite {
       public void widgetSelected(final SelectionEvent e) {
         if (e.item != null) {
           final Object item = e.item.getData();
-//          if (item instanceof DBListTreeNode) {
-//            ((DBListTreeNode) item).displayInfoPane(DocumentItemTree.this.target);
-//          }
+          if (item instanceof InfoPaneTreeNode) {
+            ((InfoPaneTreeNode) item).displayInfoPane(DocumentItemTree.this.target);
+          }
         } else {
           Arrays.stream(DocumentItemTree.this.target.getChildren()).forEach(Control::dispose);
         }
@@ -91,23 +91,20 @@ public class DocumentItemTree extends Composite {
     tree.setFont(this.resourceManager.createFont(FontDescriptor.createFrom(font.getFontData()[0].getName(), 10, SWT.NORMAL)));
     tree.setLinesVisible(false);
     
-    ExecutorService exec = CDI.current().select(ExecutorService.class).get();
-    
-    TreeNode[] nodes;
-    try {
-      nodes = exec.submit(() -> {
-        final DominoClient client = CDI.current().select(DominoClient.class).get();
-        final Database database = client.openDatabase(serverName, databasePath);
-        final Document doc = database.getDocumentByUNID(unid).get();
-        return doc.allItems()
-          .map(item -> new DocumentItemTreeNode(item.getName(), item.getType()))
-          .toArray(TreeNode[]::new);
-      }).get();
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException(e);
-    }
-
-    this.itemList.setInput(nodes);
+    DominoContextBean.submit(client -> {
+      final Database database = client.openDatabase(serverName, databasePath);
+      final Document doc = database.getDocumentByUNID(unid).get();
+      List<Item> items = doc.allItems().collect(Collectors.toList());
+      TreeNode[] nodes = new TreeNode[items.size()];
+      
+      for(int i = 0; i < items.size(); i++) {
+        Item item = items.get(i);
+        
+        nodes[i] = new DocumentItemTreeNode(item);
+      }
+      
+      getDisplay().asyncExec(() -> this.itemList.setInput(nodes));
+    });
   }
 
   public void setTarget(final Composite target) {

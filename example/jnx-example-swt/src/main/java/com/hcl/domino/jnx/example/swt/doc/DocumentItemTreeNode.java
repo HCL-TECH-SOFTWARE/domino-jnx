@@ -1,14 +1,17 @@
 package com.hcl.domino.jnx.example.swt.doc;
 
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Composite;
 
-import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.data.Item;
 import com.hcl.domino.jnx.example.swt.dbtree.InfoPaneTreeNode;
 
 public class DocumentItemTreeNode extends InfoPaneTreeNode {
+  private String itemName;
 
-  public DocumentItemTreeNode(String itemName, ItemDataType type) {
-    super(itemName);
+  public DocumentItemTreeNode(Item item) {
+    super(item);
+    this.itemName = item.getName();
   }
 
   @Override
@@ -17,13 +20,27 @@ public class DocumentItemTreeNode extends InfoPaneTreeNode {
     return null;
   }
   
+  public Item getItem() {
+    return (Item)getValue();
+  }
+  
   public String getItemName() {
-    return (String)getValue();
+    return itemName;
   }
   
   @Override
   public String toString() {
     return getItemName();
+  }
+  
+  @Override
+  public void displayInfoPane(Composite target) {
+    super.displayInfoPane(target);
+    
+    target.getDisplay().asyncExec(() -> {
+      new ItemInfoPane(target, getItem());
+      target.layout();
+    });
   }
 
 }
