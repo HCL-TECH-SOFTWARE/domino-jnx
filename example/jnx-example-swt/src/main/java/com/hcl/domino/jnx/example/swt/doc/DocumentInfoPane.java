@@ -34,7 +34,6 @@ import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.dxl.DxlExporter;
 import com.hcl.domino.jnx.example.swt.AppShell;
-import com.hcl.domino.jnx.example.swt.dbtree.DatabaseTree;
 import com.hcl.domino.jnx.example.swt.info.AbstractInfoPane;
 
 import jakarta.enterprise.inject.spi.CDI;
