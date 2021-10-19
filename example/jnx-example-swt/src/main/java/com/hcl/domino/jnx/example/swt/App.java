@@ -35,7 +35,7 @@ import jakarta.enterprise.inject.se.SeContainer;
 import jakarta.enterprise.inject.se.SeContainerInitializer;
 
 public class App {
-  public static final String APP_NAME = "Domino JNX Example Application"; //$NON-NLS-1$
+  public static final String APP_NAME = "Domino Example Application"; //$NON-NLS-1$
 
   public static final ImageDescriptor IMAGE_SERVER;
   public static final ImageDescriptor IMAGE_DATABASE;

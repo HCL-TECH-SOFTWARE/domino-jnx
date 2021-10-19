@@ -28,6 +28,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
+import com.hcl.domino.jnx.example.swt.console.ConsolePane;
 import com.hcl.domino.jnx.example.swt.dbtree.DatabaseTree;
 import com.hcl.domino.jnx.example.swt.dump.DumpDBPane;
 import com.hcl.domino.jnx.example.swt.exporter.DXLExporterPane;
@@ -82,6 +83,14 @@ public class AppShell extends Shell {
       tab.setControl(pane);
     }
 
+    // Server Console
+    {
+      TabItem tab = new TabItem(tabFolder, SWT.NONE);
+      tab.setText("Server Console");
+      
+      ConsolePane pane = new ConsolePane(tabFolder);
+      tab.setControl(pane);
+    }
   }
 
   @Override
