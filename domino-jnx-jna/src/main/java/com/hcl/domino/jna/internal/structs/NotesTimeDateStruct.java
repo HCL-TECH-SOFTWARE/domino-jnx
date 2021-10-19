@@ -323,4 +323,13 @@ public class NotesTimeDateStruct extends BaseStructure implements Serializable, 
 		return AccessController.doPrivileged((PrivilegedAction<ByReference>) () -> new NotesTimeDateStruct.ByReference());
 	}
 
+	 public static NotesTimeDateStruct.ByReference newInstanceByReference(final int innards[]) {
+	    return AccessController.doPrivileged((PrivilegedAction<ByReference>) () -> {
+	      NotesTimeDateStruct.ByReference td = new NotesTimeDateStruct.ByReference();
+	      td.Innards[0] = innards[0];
+	      td.Innards[1] = innards[1];
+	      return td;
+	    });
+	  }
+
 }

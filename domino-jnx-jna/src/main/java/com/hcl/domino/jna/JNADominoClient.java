@@ -1085,32 +1085,35 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     Memory pServerName = NotesStringUtils.toLMBCS(serverName, true);
     JNADominoDateTime sinceDt =
         new JNADominoDateTime(since == null ? JNADominoDateTime.createMinimumDateTime() : since);
-    NotesTimeDateStruct sinceStruct = NotesTimeDateStruct.newInstance(sinceDt.getInnards());
+    NotesTimeDateStruct.ByReference sinceStruct = NotesTimeDateStruct.newInstanceByReference(sinceDt.getInnards());
 
     LongByReference changesSize = new LongByReference();
     DHANDLE.ByReference hChanges = DHANDLE.newInstanceByReference();
-    NotesTimeDateStruct nextSinceTime = NotesTimeDateStruct.newInstance();
+    NotesTimeDateStruct.ByReference nextSinceTime = NotesTimeDateStruct.newInstanceByReference();
 
     checkResult(NotesCAPI.get().NSFGetChangedDBs(pServerName, sinceStruct, changesSize, hChanges,
         nextSinceTime));
     nextSinceTime.read();
 
     return LockUtil.lockHandle(hChanges, hChangesVal -> {
-      return Mem.OSLockObject(hChangesVal, ptr -> {
-        Collection<String> paths = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+      Collection<String> paths = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+      
+      if (hChangesVal!=null && !hChangesVal.isNull()) {
+        Mem.OSLockObject(hChangesVal, ptr -> {
+          long remaining = changesSize.getValue();
+          Pointer pPath = ptr;
+          while (remaining > 0) {
+            int strlen = NotesStringUtils.getNullTerminatedLength(pPath);
+            paths.add(NotesStringUtils.fromLMBCS(pPath, strlen));
 
-        long remaining = changesSize.getValue();
-        Pointer pPath = ptr;
-        while (remaining > 0) {
-          int strlen = NotesStringUtils.getNullTerminatedLength(pPath);
-          paths.add(NotesStringUtils.fromLMBCS(pPath, strlen));
-
-          pPath = pPath.share(strlen + 1);
-          remaining -= strlen + 1;
-        }
-
-        return new DatabaseChangePathList(paths, new JNADominoDateTime(nextSinceTime.Innards));
-      });
+            pPath = pPath.share(strlen + 1);
+            remaining -= strlen + 1;
+          }
+          return null;
+        });
+      }
+      
+      return new DatabaseChangePathList(paths, new JNADominoDateTime(nextSinceTime.Innards));
     });
   }
 
