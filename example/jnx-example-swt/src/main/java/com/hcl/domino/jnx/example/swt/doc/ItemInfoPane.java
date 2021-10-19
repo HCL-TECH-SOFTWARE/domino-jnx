@@ -27,7 +27,7 @@ public class ItemInfoPane extends AbstractInfoPane {
         info("Type", type);
         info("Size", len);
         
-        Text value = new Text(this, SWT.NONE);
+        Text value = new Text(this, SWT.NONE | SWT.MULTI | SWT.WRAP);
         value.setEditable(false);
         value.setText(val);
         value.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1));
