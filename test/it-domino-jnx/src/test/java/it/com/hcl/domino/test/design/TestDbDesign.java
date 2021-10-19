@@ -786,8 +786,8 @@ public class TestDbDesign extends AbstractDesignTest {
     DbDesign design = database.getDesign();
     
     SharedField field = design.getSharedField("testfield2").get();
-    String expected = IOUtils.resourceToString("/text/testDbDesign/testfield2ls.txt", StandardCharsets.UTF_8).replace('\r', '\n');
-    assertEquals(expected, field.getLotusScript().replace('\r', '\n'));
+    String expected = toLf(IOUtils.resourceToString("/text/testDbDesign/testfield2ls.txt", StandardCharsets.UTF_8)).replace('\r', '\n');
+    assertEquals(expected, toLf(field.getLotusScript()).replace('\r', '\n'));
     
     assertTrue(
       field.getFieldBody()

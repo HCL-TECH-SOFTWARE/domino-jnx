@@ -661,8 +661,8 @@ public class TestDbDesignForms extends AbstractDesignTest {
       Collection<ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
       assertEquals(1, events.size());
       ScriptEvent event = events.stream().findFirst().get();
-      String expected = IOUtils.resourceToString("/text/testDbDesignCollections/longjs.js", StandardCharsets.UTF_8).replace('\n', '\r');
-      String actual = event.getScript();
+      String expected = toLf(IOUtils.resourceToString("/text/testDbDesignCollections/longjs.js", StandardCharsets.UTF_8)).replace('\n', '\r');
+      String actual = toLf(event.getScript());
       // Chomp the last line-ending character for consistency
       actual = actual.substring(0, actual.length()-1);
       assertEquals(expected, actual);
