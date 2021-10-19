@@ -52,7 +52,7 @@ public abstract class AbstractInfoPane extends Composite {
     final Text text = new Text(this, SWT.NONE);
     text.setText(value == null ? "" : value.toString()); //$NON-NLS-1$
     text.setEditable(false);
-    text.setBackground(new Color(this.getDisplay(), 0, 0, 0));
+    text.setBackground(new Color(this.getDisplay(), 0, 0, 0, 0));
     text.clearSelection();
   }
 }

@@ -16,7 +16,9 @@
  */
 package com.hcl.domino.jnx.example.swt.bean;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.jnx.example.swt.App;
@@ -26,6 +28,14 @@ import jakarta.enterprise.inject.Produces;
 
 @ApplicationScoped
 public class DominoContextBean {
+  @FunctionalInterface
+  public static interface DominoClientCallable<T> {
+    T apply(DominoClient client) throws Exception;
+  }
+  @FunctionalInterface
+  public static interface DominoClientConsumer {
+    void apply(DominoClient client) throws Exception;
+  }
 
   @Produces
   public DominoClient getClient() {
@@ -35,5 +45,25 @@ public class DominoContextBean {
   @Produces
   public ExecutorService getExecutorService() {
     return App.getExecutor();
+  }
+  
+  public static <T> T exec(DominoClientCallable<T> task) {
+    try {
+      return App.getExecutor().submit(() -> {
+        return task.apply(App.client);
+      }).get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException(e);
+    }
+  }
+  
+  public static Future<?> submit(DominoClientConsumer task) {
+    return App.getExecutor().submit(() -> {
+      try {
+        task.apply(App.client);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    });
   }
 }
