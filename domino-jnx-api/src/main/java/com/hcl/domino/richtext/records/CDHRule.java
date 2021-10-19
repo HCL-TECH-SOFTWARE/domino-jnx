@@ -1,7 +1,10 @@
 package com.hcl.domino.richtext.records;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
+import com.hcl.domino.data.StandardColors;
+import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -46,28 +49,59 @@ public interface CDHRule extends RichTextRecord<WSIG>{
   WSIG getHeader();
   
   @StructureGetter("Width")
-  int getWidth();
+  int getWidthRaw();
+  
+  @StructureGetter("Width")
+  default
+  int getWidth() {
+  //use default rule width if value not set
+  return (this.getWidthRaw() == 0 ? RichTextConstants.DEFAULTHRULEWIDTH : this.getWidthRaw());
+  }
   
   @StructureSetter("Width")
   CDHRule setWidth(int width);
   
   @StructureGetter("Height")
-  int getHeight();
+  int getHeightRaw();
+  
+  @StructureGetter("Height")
+  default
+  int getHeight() {
+    return (this.getHeightRaw() == 0 ? RichTextConstants.DEFAULTHRULEHEIGHT : this.getHeightRaw());
+  }
   
   @StructureSetter("Height")
   CDHRule setHeight(int height);
   
   @StructureGetter("Color")
-  int getColor();
+  int getColorRaw();
+  
+  @StructureGetter("Color")
+  default
+  Optional getColor() {
+  return DominoEnumUtil.valueOf(StandardColors.class, getColorRaw());
+  }
   
   @StructureSetter("Color")
-  CDHRule setColor(int color);
+  CDHRule setColorRaw(int color);
+  
+  @StructureSetter("Color")
+  CDHRule setColor(StandardColors color);
   
   @StructureGetter("GradientColor")
-  int getGradientColor();
+  int getGradientColorRaw();
+  
+  @StructureGetter("GradientColor")
+  default
+  Optional getGradientColor() {
+    return DominoEnumUtil.valueOf(StandardColors.class, getGradientColorRaw());
+  }
   
   @StructureSetter("GradientColor")
-  CDHRule setGradientColor(int gradientColor);
+  CDHRule setGradientColorRaw(int gradientColor);
+  
+  @StructureSetter("GradientColor")
+  CDHRule setGradientColor(StandardColors gradientColor);
   
   @StructureGetter("Flags")
   Set<Flag> getFlags();

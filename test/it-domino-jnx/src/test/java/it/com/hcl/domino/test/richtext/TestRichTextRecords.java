@@ -1409,8 +1409,8 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           rtWriter.addRichTextRecord(CDHRule.class, begin -> {
             begin.setHeight(72);
             begin.setWidth(100);
-            begin.setColor(0);
-            begin.setGradientColor(65535);
+            begin.setColorRaw(0);
+            begin.setGradientColorRaw(65535);
             begin.setFlags(EnumSet.of(CDHRule.Flag.HRULE_FLAG_USECOLOR, CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_NOSHADOW));
           });
         }
