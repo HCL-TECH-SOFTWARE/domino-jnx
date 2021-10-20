@@ -25,6 +25,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
 import java.time.temporal.TemporalAccessor;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -154,9 +155,14 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   public static final String ENV_DEFAULTQUEUEFLUSH = "JNX_GC_DEFAULTQUEUEFLUSH"; //$NON-NLS-1$
   public static final String PROP_ALLOWCROSSTHREAD = "jnx.allowCrossThreadAccess"; //$NON-NLS-1$
   public static final String ENV_ALLOWCROSSTHREAD = "JNX_ALLOWCROSSTHREADACCESS"; //$NON-NLS-1$
+  
+  private final List<String> m_builderNamesList;
+  private final boolean m_builderIsAsId;
+  private final String m_builderUserName;
+  private final boolean m_builderIsInternetAccess;
+  private final boolean m_builderFullAccess;
 
   private Thread m_parentThread;
-  private JNADominoClientBuilder m_builder;
   private Map<String, Object> m_customValues;
   private JNADominoClientAllocations m_allocations;
   private JNADominoRuntime m_dominoRuntime;
@@ -169,7 +175,12 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   private BuildVersionInfo localBuildVersionInfo;
 
   JNADominoClient(JNADominoClientBuilder builder) {
-    m_builder = builder;
+    List<String> names = builder.getUserNamesList();
+    m_builderNamesList = names == null ? Collections.emptyList() : Collections.unmodifiableList(new ArrayList<>(names));
+    m_builderIsAsId = builder.isAsIDUser();
+    m_builderUserName = builder.getUserName();
+    m_builderIsInternetAccess = builder.isMaxInternetAccess();
+    m_builderFullAccess = builder.isFullAccess();
 
     m_parentThread = Thread.currentThread();
     m_customValues = new HashMap<>();
@@ -238,16 +249,13 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   @Override
   public String getEffectiveUserName() {
     if (m_effectiveUserName == null) {
-      JNADominoClientBuilder clientBuilder = getBuilder();
-
-      if (clientBuilder.isAsIDUser() || StringUtil.isEmpty(clientBuilder.getUserName())) {
+      if (m_builderIsAsId || StringUtil.isEmpty(m_builderUserName)) {
         m_effectiveUserName = getIDUserName();
-      } else if (!StringUtil.isEmpty(clientBuilder.getUserName())) {
-        m_effectiveUserName = NotesNamingUtils.toCanonicalName(clientBuilder.getUserName());
-      } else if (clientBuilder.getUserNamesList() != null
-          && !clientBuilder.getUserNamesList().isEmpty()) {
+      } else if (!StringUtil.isEmpty(m_builderUserName)) {
+        m_effectiveUserName = NotesNamingUtils.toCanonicalName(m_builderUserName);
+      } else if (!m_builderNamesList.isEmpty()) {
         m_effectiveUserName =
-            NotesNamingUtils.toCanonicalName(clientBuilder.getUserNamesList().get(0));
+            NotesNamingUtils.toCanonicalName(m_builderNamesList.get(0));
       } else {
         if (isOnServer()) {
           m_effectiveUserName = "Anonymous"; //$NON-NLS-1$
@@ -263,11 +271,9 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   public UserNamesList getEffectiveUserNamesList(String server) {
     JNAUserNamesList namesList;
 
-    JNADominoClientBuilder clientBuilder = getBuilder();
-
-    if (clientBuilder.getUserNamesList() != null && !clientBuilder.getUserNamesList().isEmpty()) {
+    if (!m_builderNamesList.isEmpty()) {
       // special case where the full usernameslist is already provided
-      namesList = NotesNamingUtils.writeNewNamesList(this, clientBuilder.getUserNamesList());
+      namesList = NotesNamingUtils.writeNewNamesList(this, m_builderNamesList);
     } else {
       namesList = NotesNamingUtils.buildNamesList(this, server, getEffectiveUserName());
     }
@@ -277,7 +283,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
       NotesNamingUtils.setPrivileges(namesList, EnumSet.of(Privileges.FullAdminAccess,
           Privileges.Authenticated));
     } else {
-      if (clientBuilder.isMaxInternetAccess()) {
+      if (m_builderIsInternetAccess) {
         NotesNamingUtils.setPrivileges(namesList,
             EnumSet.of(Privileges.Authenticated, Privileges.PasswordAuthenticated));
       } else {
@@ -291,9 +297,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   @SuppressWarnings("unchecked")
   @Override
   public <T> T getAdapter(Class<T> clazz) {
-    if (clazz == JNADominoClientBuilder.class) {
-      return (T) m_builder;
-    } else if (clazz == APIObjectAllocations.class) {
+    if (clazz == APIObjectAllocations.class) {
       return (T) m_allocations;
     } else if (clazz == Thread.class) {
       return (T) m_parentThread;
@@ -302,10 +306,6 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     }
 
     return null;
-  }
-
-  public JNADominoClientBuilder getBuilder() {
-    return m_builder;
   }
 
   @Override
@@ -760,7 +760,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
   @Override
   public boolean isFullAccess() {
-    return m_builder.isFullAccess();
+    return m_builderFullAccess;
   }
 
   @Override
@@ -1351,6 +1351,17 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     }
 
     return buildVersionInfo;
+  }
+  
+  /**
+   * Retrieves the names list used to construct this client.
+   * 
+   * @return a {@link List} of name strings used to build this client,
+   *         or an empty list if this was not specified
+   * @since 1.0.45
+   */
+  public List<String> getBuilderNamesList() {
+    return m_builderNamesList;
   }
 
   @Override
