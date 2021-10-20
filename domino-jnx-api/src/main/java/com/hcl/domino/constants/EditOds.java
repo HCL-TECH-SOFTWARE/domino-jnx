@@ -153,4 +153,31 @@ public interface EditOds {
   int CDHTMLFORMULA_FLAG_ALT = 0x00000002;
   /** formula is an action label formula. */
   int CDHTMLFORMULA_FLAG_ACTION_LABEL = 0x00000004;
+  
+  int LAYOUT_GRAPHIC_FLAG_BUTTON = 0x00000001;
+
+  byte LAYOUT_FIELD_TYPE_TEXT = 0;
+  byte LAYOUT_FIELD_TYPE_CHECK = 1;
+  byte LAYOUT_FIELD_TYPE_RADIO = 2;
+  byte LAYOUT_FIELD_TYPE_LIST = 3;
+  byte LAYOUT_FIELD_TYPE_COMBO = 4;
+  
+
+  int LAYOUT_FIELD_FLAG_SINGLELINE = 0x00000001;
+  int LAYOUT_FIELD_FLAG_VSCROLL = 0x00000002;
+  /* The following flag must not be sampled by any design mode
+    code.  It is, in effect, "write only" for design elements.
+    Play mode elements, on the other hand, can rely on its value. */
+  int LAYOUT_FIELD_FLAG_MULTISEL = 0x00000004;
+  int LAYOUT_FIELD_FLAG_STATIC = 0x00000008;
+  int LAYOUT_FIELD_FLAG_NOBORDER = 0x00000010;
+  int LAYOUT_FIELD_FLAG_IMAGE = 0x00000020;
+  /*  The following flags must be the same as LAYOUT_TEXT_FLAG_ equiv's. */
+  int LAYOUT_FIELD_FLAG_LTR = 0x01000000;
+  int LAYOUT_FIELD_FLAG_RTL = 0x02000000;
+  int LAYOUT_FIELD_FLAG_TRANS = 0x10000000;
+  int LAYOUT_FIELD_FLAG_LEFT = 0x00000000;
+  int LAYOUT_FIELD_FLAG_CENTER = 0x20000000;
+  int LAYOUT_FIELD_FLAG_RIGHT = 0x40000000;
+  int LAYOUT_FIELD_FLAG_VCENTER = 0x80000000;
 }
