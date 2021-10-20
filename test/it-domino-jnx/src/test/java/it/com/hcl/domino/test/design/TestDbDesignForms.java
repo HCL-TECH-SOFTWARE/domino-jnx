@@ -51,10 +51,13 @@ import com.hcl.domino.commons.richtext.records.GenericBSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericLSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericWSIGRecord;
 import com.hcl.domino.data.Database;
+import com.hcl.domino.data.Document;
+import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.NotesFont;
 import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
+import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.design.ActionBar;
 import com.hcl.domino.design.ActionBar.ButtonHeightMode;
 import com.hcl.domino.design.ClassicThemeBehavior;
@@ -91,6 +94,7 @@ import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
 import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.NotesBitmap;
+import com.hcl.domino.richtext.RichTextRecordList;
 import com.hcl.domino.richtext.records.CDBegin;
 import com.hcl.domino.richtext.records.CDEnd;
 import com.hcl.domino.richtext.records.CDHeader;
@@ -105,6 +109,7 @@ import com.hcl.domino.richtext.records.CDOLEEnd;
 import com.hcl.domino.richtext.records.CDOLEObjectInfo;
 import com.hcl.domino.richtext.records.CDPreTableBegin;
 import com.hcl.domino.richtext.records.CDResource;
+import com.hcl.domino.richtext.records.CDSpanRecord;
 import com.hcl.domino.richtext.records.CDTableBegin;
 import com.hcl.domino.richtext.records.CDTableDataExtension;
 import com.hcl.domino.richtext.records.CDTableEnd;
@@ -1388,6 +1393,49 @@ public class TestDbDesignForms extends AbstractDesignTest {
       CDLayoutEnd end = (CDLayoutEnd)layout.get(layout.size()-1);
     }
   }
+  
+  @Test
+  public void testSpanDocument() {
+    Document doc = database.queryFormula("Form='bar'", null, EnumSet.noneOf(SearchFlag.class), null, EnumSet.of(DocumentClass.DOCUMENT))
+      .getDocuments()
+      .findFirst()
+      .get();
+    RichTextRecordList body = doc.getRichTextItem("Body");
+    
+    List<?> span = extract(
+      body,
+      0,
+      rec -> rec instanceof CDSpanRecord && ((CDSpanRecord)rec).getType().contains(RecordType.SPAN_BEGIN),
+      rec -> rec instanceof CDSpanRecord && ((CDSpanRecord)rec).getType().contains(RecordType.SPAN_END)
+    );
+    {
+      CDSpanRecord begin = (CDSpanRecord)span.get(0);
+      assertEquals(0, begin.getPropId());
+    }
+    {
+      CDSpanRecord end = (CDSpanRecord)span.get(span.size()-1);
+      assertEquals(0, end.getPropId());
+    }
+
+    span = extract(
+      body,
+      1,
+      rec -> rec instanceof CDSpanRecord && ((CDSpanRecord)rec).getType().contains(RecordType.SPAN_BEGIN),
+      rec -> rec instanceof CDSpanRecord && ((CDSpanRecord)rec).getType().contains(RecordType.SPAN_END)
+    );
+    {
+      CDSpanRecord begin = (CDSpanRecord)span.get(0);
+      assertEquals(1, begin.getPropId());
+    }
+    {
+      CDSpanRecord end = (CDSpanRecord)span.get(span.size()-1);
+      assertEquals(1, end.getPropId());
+    }
+  }
+  
+  // *******************************************************************************
+  // * Internal utility methods
+  // *******************************************************************************
   
   private List<?> extractOle(List<?> body, int index) {
     return extract(body, index, CDOLEBegin.class, CDOLEEnd.class);

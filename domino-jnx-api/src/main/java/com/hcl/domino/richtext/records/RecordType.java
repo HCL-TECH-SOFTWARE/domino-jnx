@@ -126,8 +126,8 @@ public enum RecordType {
    * information in a field or form.
    */
   DECSFIELD(RichTextConstants.SIG_CD_DECSFIELD, 1, CDDECSField.class),
-  SPAN_END(RichTextConstants.SIG_CD_SPAN_END, 1),
-  SPAN_BEGIN(RichTextConstants.SIG_CD_SPAN_BEGIN, 1),
+  SPAN_END(RichTextConstants.SIG_CD_SPAN_END, 1, CDSpanRecord.class),
+  SPAN_BEGIN(RichTextConstants.SIG_CD_SPAN_BEGIN, 1, CDSpanRecord.class),
   /**
    * A field or a run of rich text may contain language information. This language
    * information is stored in
