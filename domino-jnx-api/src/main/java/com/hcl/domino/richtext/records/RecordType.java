@@ -848,7 +848,7 @@ public enum RecordType {
   QUERY_BYFORM(RichTextConstants.SIG_QUERY_BYFORM, 8, CDQueryByForm.class),
   QUERY_BYFOLDER(RichTextConstants.SIG_QUERY_BYFOLDER, 8, CDQueryByFolder.class),
   QUERY_USESFORM(RichTextConstants.SIG_QUERY_USESFORM, 8, CDQueryUsesForm.class),
-  QUERY_TOPIC(RichTextConstants.SIG_QUERY_TOPIC, 8),
+  QUERY_TOPIC(RichTextConstants.SIG_QUERY_TOPIC, 8, CDQueryTopic.class),
   
   /**
    * This record was seen via observation only when reading the contents of a CDACTION
