@@ -96,6 +96,9 @@ import com.hcl.domino.richtext.records.CDEnd;
 import com.hcl.domino.richtext.records.CDHeader;
 import com.hcl.domino.richtext.records.CDHotspotBegin;
 import com.hcl.domino.richtext.records.CDHtmlFormula;
+import com.hcl.domino.richtext.records.CDLayout;
+import com.hcl.domino.richtext.records.CDLayoutEnd;
+import com.hcl.domino.richtext.records.CDLayoutGraphic;
 import com.hcl.domino.richtext.records.CDOLEBegin;
 import com.hcl.domino.richtext.records.CDOLEEnd;
 import com.hcl.domino.richtext.records.CDOLEObjectInfo;
@@ -118,6 +121,7 @@ import com.hcl.domino.richtext.structures.ActiveObject;
 import com.hcl.domino.richtext.structures.ActiveObjectParam;
 import com.hcl.domino.richtext.structures.ActiveObjectStorageLink;
 import com.hcl.domino.richtext.structures.ColorValue;
+import com.hcl.domino.richtext.structures.ElementHeader;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclEntry;
 import com.hcl.domino.security.AclFlag;
@@ -127,7 +131,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignForms extends AbstractDesignTest {
-  public static final int EXPECTED_IMPORT_FORMS = 8;
+  public static final int EXPECTED_IMPORT_FORMS = 9;
   public static final int EXPECTED_IMPORT_SUBFORMS = 2;
 
   private static String dbPath;
@@ -1297,6 +1301,44 @@ public class TestDbDesignForms extends AbstractDesignTest {
       CDHtmlFormula formula = (CDHtmlFormula)extract(hotspot, 1, CDHtmlFormula.class, CDHtmlFormula.class).get(0);
       assertEquals(EnumSet.of(CDHtmlFormula.Flag.ATTR), formula.getFlags());
       assertEquals("\"i am html attrs\"", formula.getFormula());
+    }
+  }
+  
+  @Test
+  public void testLayoutRegion() {
+    DbDesign design = database.getDesign();
+    Form form = design.getForm("Layout Form").get();
+    
+    List<?> body = form.getBody();
+    
+    List<?> layout = extract(body, 0, CDLayout.class, CDLayoutEnd.class);
+    
+    {
+      CDLayout begin = (CDLayout)layout.get(0);
+      assertEquals(1440, begin.getLeft());
+      assertEquals(10681, begin.getWidth());
+      assertEquals(4501, begin.getHeight());
+      assertEquals(EnumSet.of(CDLayout.Flag.SHOWBORDER, CDLayout.Flag.SHOWGRID, CDLayout.Flag.STYLE3D, CDLayout.Flag.DONTWRAP), begin.getFlags());
+      assertEquals(144, begin.getGridSize());
+    }
+    {
+      CDLayoutGraphic graphic = layout.stream()
+        .filter(CDLayoutGraphic.class::isInstance)
+        .map(CDLayoutGraphic.class::cast)
+        .findFirst()
+        .get();
+      assertEquals(EnumSet.noneOf(CDLayoutGraphic.Flag.class), graphic.getFlags());
+      ElementHeader header = graphic.getElementHeader();
+      assertEquals(5820, header.getLeft());
+      assertEquals(2106, header.getTop());
+      assertEquals(586, header.getWidth());
+      assertEquals(466, header.getHeight());
+      assertColorEquals(header.getBackgroundColor(), 255, 255, 255);
+      assertEquals(StandardColors.White, header.getPreV5BackgroundColor().get());
+    }
+    {
+      @SuppressWarnings("unused")
+      CDLayoutEnd end = (CDLayoutEnd)layout.get(layout.size()-1);
     }
   }
   

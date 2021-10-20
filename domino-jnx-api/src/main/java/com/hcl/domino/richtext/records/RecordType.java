@@ -738,7 +738,7 @@ public enum RecordType {
    * graphical, or
    * action elements associated with the graphical element.
    */
-  LAYOUTGRAPHIC(RichTextConstants.SIG_CD_LAYOUTGRAPHIC, new int[] { 1, 4 }),
+  LAYOUTGRAPHIC(RichTextConstants.SIG_CD_LAYOUTGRAPHIC, new int[] { 1, 4 }, CDLayoutGraphic.class),
   OLEOBJINFO(RichTextConstants.SIG_CD_OLEOBJINFO, new int[] { 1, 4 }, CDOLEObjectInfo.class),
   /**
    * A button in a layout region of a form is defined by a CDLAYOUTBUTTON
@@ -834,7 +834,7 @@ public enum RecordType {
   ACTION_NEWSLETTER(RichTextConstants.SIG_ACTION_NEWSLETTER, 7, CDActionNewsletter.class),
   ACTION_RUNAGENT(RichTextConstants.SIG_ACTION_RUNAGENT, 7, CDActionRunAgent.class),
   ACTION_SENDDOCUMENT(RichTextConstants.SIG_ACTION_SENDDOCUMENT, 7, CDActionSendDocument.class),
-  ACTION_FORMULAONLY(RichTextConstants.SIG_ACTION_FORMULAONLY, 7),
+  ACTION_FORMULAONLY(RichTextConstants.SIG_ACTION_FORMULAONLY, 7, CDActionFormula.class),
   ACTION_JAVAAGENT(RichTextConstants.SIG_ACTION_JAVAAGENT, 7, CDActionJavaAgent.class),
   ACTION_JAVA(RichTextConstants.SIG_ACTION_JAVA, 7),
   

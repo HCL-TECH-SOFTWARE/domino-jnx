@@ -153,4 +153,6 @@ public interface EditOds {
   int CDHTMLFORMULA_FLAG_ALT = 0x00000002;
   /** formula is an action label formula. */
   int CDHTMLFORMULA_FLAG_ACTION_LABEL = 0x00000004;
+  
+  int LAYOUT_GRAPHIC_FLAG_BUTTON = 0x00000001;
 }
