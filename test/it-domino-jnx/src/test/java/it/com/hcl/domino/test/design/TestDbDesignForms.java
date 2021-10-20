@@ -98,6 +98,7 @@ import com.hcl.domino.richtext.records.CDHotspotBegin;
 import com.hcl.domino.richtext.records.CDHtmlFormula;
 import com.hcl.domino.richtext.records.CDLayout;
 import com.hcl.domino.richtext.records.CDLayoutEnd;
+import com.hcl.domino.richtext.records.CDLayoutField;
 import com.hcl.domino.richtext.records.CDLayoutGraphic;
 import com.hcl.domino.richtext.records.CDOLEBegin;
 import com.hcl.domino.richtext.records.CDOLEEnd;
@@ -1006,6 +1007,38 @@ public class TestDbDesignForms extends AbstractDesignTest {
   }
   
   @Test
+  public void testImportedFormsUnknownRecords() {
+    Set<RecordType> types = new HashSet<>();
+    database.getDesign()
+      .getForms()
+      .map(Form::getBody)
+      .flatMap(List::stream)
+      .forEach(rec -> {
+        short type = 0;
+        if(rec instanceof GenericBSIGRecord) {
+          type = ((RichTextRecord<?>)rec).getTypeValue();
+        } else if(rec instanceof GenericWSIGRecord) {
+          type = ((RichTextRecord<?>)rec).getTypeValue();
+        } else if(rec instanceof GenericLSIGRecord) {
+          type = ((RichTextRecord<?>)rec).getTypeValue();
+        }
+        if(type != 0) {
+          RecordType rtype = null;
+          rtype = RecordType.getRecordTypeForConstant(type, Area.TYPE_COMPOSITE);
+          if(rtype != null) {
+            types.add(rtype);
+          } else {
+            System.out.println("Unable to locate rich text RecordType value for " + type + "; candidates are " + RecordType.getRecordTypesForConstant(type));
+          }
+        }
+      });
+    
+    if(!types.isEmpty()) {
+      System.out.println("Encountered unimplemented CD record types: " + types);
+    }
+  }
+  
+  @Test
   public void testLotusComponentsForm() {
     DbDesign design = database.getDesign();
     
@@ -1335,6 +1368,20 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(466, header.getHeight());
       assertColorEquals(header.getBackgroundColor(), 255, 255, 255);
       assertEquals(StandardColors.White, header.getPreV5BackgroundColor().get());
+    }
+    {
+      CDLayoutField field = layout.stream()
+        .filter(CDLayoutField.class::isInstance)
+        .map(CDLayoutField.class::cast)
+        .findFirst()
+        .get();
+      assertEquals(EnumSet.of(CDLayoutField.Flag.VSCROLL, CDLayoutField.Flag.LEFT), field.getFlags());
+      assertEquals(CDLayoutField.Type.TEXT, field.getFieldType().get());
+      ElementHeader header = field.getElementHeader();
+      assertEquals(7740, header.getLeft());
+      assertEquals(936, header.getTop());
+      assertEquals(1921, header.getWidth());
+      assertEquals(361, header.getHeight());
     }
     {
       @SuppressWarnings("unused")

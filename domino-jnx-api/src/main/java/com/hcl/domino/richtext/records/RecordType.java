@@ -702,7 +702,7 @@ public enum RecordType {
    * graphical, or
    * action elements associated with the field.
    */
-  LAYOUTFIELD(RichTextConstants.SIG_CD_LAYOUTFIELD, 4),
+  LAYOUTFIELD(RichTextConstants.SIG_CD_LAYOUTFIELD, 4, CDLayoutField.class),
   /**
    * This record contains the "Hide When" formula for a paragraph attributes
    * block.

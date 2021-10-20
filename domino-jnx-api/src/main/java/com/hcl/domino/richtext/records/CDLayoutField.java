@@ -17,6 +17,7 @@
 package com.hcl.domino.richtext.records;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.misc.INumberEnum;
@@ -33,17 +34,31 @@ import com.hcl.domino.richtext.structures.ElementHeader;
  * @since 1.0.45
  */
 @StructureDefinition(
-  name = "CDLAYOUTGRAPHIC",
+  name = "CDLAYOUTFIELD",
   members = {
     @StructureMember(name = "Header", type = BSIG.class),
     @StructureMember(name = "ElementHeader", type = ElementHeader.class),
-    @StructureMember(name = "Flags", type = CDLayoutGraphic.Flag.class, bitfield = true),
-    @StructureMember(name = "Reserved", type = byte[].class, length = 16)
+    @StructureMember(name = "Flags", type = CDLayoutField.Flag.class, bitfield = true),
+    @StructureMember(name = "bFieldType", type = CDLayoutField.Type.class),
+    @StructureMember(name = "Reserved", type = byte[].class, length = 15)
   }
 )
-public interface CDLayoutGraphic extends RichTextRecord<BSIG> {
+public interface CDLayoutField extends RichTextRecord<BSIG> {
   enum Flag implements INumberEnum<Integer> {
-    BUTTON(NotesConstants.LAYOUT_GRAPHIC_FLAG_BUTTON);
+    SINGLELINE(NotesConstants.LAYOUT_FIELD_FLAG_SINGLELINE),
+    VSCROLL(NotesConstants.LAYOUT_FIELD_FLAG_VSCROLL),
+    MULTISEL(NotesConstants.LAYOUT_FIELD_FLAG_MULTISEL),
+    STATIC(NotesConstants.LAYOUT_FIELD_FLAG_STATIC),
+    NOBORDER(NotesConstants.LAYOUT_FIELD_FLAG_NOBORDER),
+    IMAGE(NotesConstants.LAYOUT_FIELD_FLAG_IMAGE),
+    LTR(NotesConstants.LAYOUT_FIELD_FLAG_LTR),
+    RTL(NotesConstants.LAYOUT_FIELD_FLAG_RTL),
+    TRANS(NotesConstants.LAYOUT_FIELD_FLAG_TRANS),
+    LEFT(NotesConstants.LAYOUT_FIELD_FLAG_LEFT),
+    CENTER(NotesConstants.LAYOUT_FIELD_FLAG_CENTER),
+    RIGHT(NotesConstants.LAYOUT_FIELD_FLAG_RIGHT),
+    VCENTER(NotesConstants.LAYOUT_FIELD_FLAG_VCENTER);
+    
     private final int value;
     private Flag(int value) {
       this.value = value;
@@ -59,7 +74,28 @@ public interface CDLayoutGraphic extends RichTextRecord<BSIG> {
       return value;
     }
   }
-  
+  enum Type implements INumberEnum<Byte> {
+    TEXT(NotesConstants.LAYOUT_FIELD_TYPE_TEXT),
+    CHECK(NotesConstants.LAYOUT_FIELD_TYPE_CHECK),
+    RADIO(NotesConstants.LAYOUT_FIELD_TYPE_RADIO),
+    LIST(NotesConstants.LAYOUT_FIELD_TYPE_LIST),
+    COMBO(NotesConstants.LAYOUT_FIELD_TYPE_COMBO);
+    
+    private final byte value;
+    private Type(byte value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return value;
+    }
+
+    @Override
+    public Byte getValue() {
+      return value;
+    }
+  }
   
   @StructureGetter("Header")
   @Override
@@ -72,5 +108,11 @@ public interface CDLayoutGraphic extends RichTextRecord<BSIG> {
   Set<Flag> getFlags();
   
   @StructureSetter("Flags")
-  CDLayoutGraphic setFlags(Collection<Flag> flags);
+  CDLayoutField setFlags(Collection<Flag> flags);
+  
+  @StructureGetter("bFieldType")
+  Optional<Type> getFieldType();
+  
+  @StructureSetter("bFieldType")
+  CDLayoutField setFieldType(Type type);
 }
