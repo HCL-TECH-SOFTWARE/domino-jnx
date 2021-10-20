@@ -126,8 +126,8 @@ public enum RecordType {
    * information in a field or form.
    */
   DECSFIELD(RichTextConstants.SIG_CD_DECSFIELD, 1, CDDECSField.class),
-  SPAN_END(RichTextConstants.SIG_CD_SPAN_END, 1),
-  SPAN_BEGIN(RichTextConstants.SIG_CD_SPAN_BEGIN, 1),
+  SPAN_END(RichTextConstants.SIG_CD_SPAN_END, 1, CDSpanRecord.class),
+  SPAN_BEGIN(RichTextConstants.SIG_CD_SPAN_BEGIN, 1, CDSpanRecord.class),
   /**
    * A field or a run of rich text may contain language information. This language
    * information is stored in
@@ -137,7 +137,7 @@ public enum RecordType {
    * structures may be stored on a
    * form note and/or a document.
    */
-  TEXTPROPERTIESTABLE(RichTextConstants.SIG_CD_TEXTPROPERTIESTABLE, 1),
+  TEXTPROPERTIESTABLE(RichTextConstants.SIG_CD_TEXTPROPERTIESTABLE, 1, CDTextPropertiesTable.class),
   HREF2(RichTextConstants.SIG_CD_HREF2, 1, CDResource.class),
   BACKGROUNDCOLOR(RichTextConstants.SIG_CD_BACKGROUNDCOLOR, 1, CDColor.class),
   /**
@@ -191,7 +191,7 @@ public enum RecordType {
    * This CD record contains language information for a field or a run of rich
    * text.
    */
-  TEXTPROPERTY(RichTextConstants.SIG_CD_TEXTPROPERTY, 1),
+  TEXTPROPERTY(RichTextConstants.SIG_CD_TEXTPROPERTY, 1, CDTextProperty.class),
   /**
    * This structure defines the start of a new paragraph within a rich-text
    * field.<br>

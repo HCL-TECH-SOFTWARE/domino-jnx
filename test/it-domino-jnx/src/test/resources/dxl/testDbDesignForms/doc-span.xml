@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='utf-8'?>
+<note class='document' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<textproperties>
+<textproperty propid='0' language='EN-US'/>
+<textproperty propid='1' language='FR-FR'/></textproperties>
+<item name='Form'><text>bar</text></item>
+<item name='Body'>
+<rawitemdata type='1'>
+gv9aAAEAAAAAAAAAAACgBQAAoAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAQAAAACUhwAAAAAAAAAAAAAAAAEAAAAEAAAAgwQBAIX/DwABAAAKc2RmZmRmZACBAoME
+AQCF/wgAAQAACm8GAAAAAIX/EwABAAAKSSBhbSBhbmNob3IAbgYAAAAAhf8IAAEAAAqBAoMEAQCF
+/wgAAQAACoECgwQBAIX/CAABAAAKgQKDBAEAhf8bAAEAAApJIGFtIG90aGVyIGxhbmd1YWdlAG8G
+AQAAAIX/CAABAAAKbgYBAAAAhf8IAAEAAAo=
+</rawitemdata></item></note>
