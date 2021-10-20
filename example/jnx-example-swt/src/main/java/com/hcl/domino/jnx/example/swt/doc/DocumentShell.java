@@ -16,6 +16,8 @@
  */
 package com.hcl.domino.jnx.example.swt.doc;
 
+import java.text.MessageFormat;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -42,7 +44,7 @@ public class DocumentShell extends Shell {
   public DocumentShell(final Display display, final String serverName, final String databasePath, final String unid) {
     super(display);
 
-    this.setText("Document " + unid + " - " + App.APP_NAME);
+    this.setText(MessageFormat.format("Document {0} - {1}", unid, App.APP_NAME));
 
     this.setLayout(new GridLayout(1, false));
     this.setSize(1024, 768);
