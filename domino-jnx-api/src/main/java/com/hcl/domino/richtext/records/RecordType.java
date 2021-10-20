@@ -137,7 +137,7 @@ public enum RecordType {
    * structures may be stored on a
    * form note and/or a document.
    */
-  TEXTPROPERTIESTABLE(RichTextConstants.SIG_CD_TEXTPROPERTIESTABLE, 1),
+  TEXTPROPERTIESTABLE(RichTextConstants.SIG_CD_TEXTPROPERTIESTABLE, 1, CDTextPropertiesTable.class),
   HREF2(RichTextConstants.SIG_CD_HREF2, 1, CDResource.class),
   BACKGROUNDCOLOR(RichTextConstants.SIG_CD_BACKGROUNDCOLOR, 1, CDColor.class),
   /**
@@ -191,7 +191,7 @@ public enum RecordType {
    * This CD record contains language information for a field or a run of rich
    * text.
    */
-  TEXTPROPERTY(RichTextConstants.SIG_CD_TEXTPROPERTY, 1),
+  TEXTPROPERTY(RichTextConstants.SIG_CD_TEXTPROPERTY, 1, CDTextProperty.class),
   /**
    * This structure defines the start of a new paragraph within a rich-text
    * field.<br>

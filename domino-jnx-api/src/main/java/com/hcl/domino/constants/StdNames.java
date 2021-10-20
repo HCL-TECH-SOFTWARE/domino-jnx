@@ -68,4 +68,7 @@ public interface StdNames {
   int PERIOD_DAILY = 1;
   int PERIOD_WEEKLY = 2;
   int PERIOD_DISABLED = 3;
+  
+  /** Text Properties table */
+  String ITEM_NAME_TEXTPROPERTIES = "$TextProperties"; //$NON-NLS-1$
 }

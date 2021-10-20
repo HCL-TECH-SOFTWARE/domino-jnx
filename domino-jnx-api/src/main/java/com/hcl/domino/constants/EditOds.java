@@ -180,4 +180,13 @@ public interface EditOds {
   int LAYOUT_FIELD_FLAG_CENTER = 0x20000000;
   int LAYOUT_FIELD_FLAG_RIGHT = 0x40000000;
   int LAYOUT_FIELD_FLAG_VCENTER = 0x80000000;
+  
+  int MAX_TEXTSTYLE_NAME = 128;
+  /*  2-letter ISO Language Code
+      '-'
+      2-letter ISO Country Code
+      '\0'
+      + 1 to make it and even number
+  */
+  int MAX_ISO_LANG_SIZE = 8;
 }

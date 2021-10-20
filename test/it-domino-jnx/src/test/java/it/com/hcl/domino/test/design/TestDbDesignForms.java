@@ -92,6 +92,7 @@ import com.hcl.domino.design.simpleaction.ModifyFieldAction;
 import com.hcl.domino.design.simpleaction.ReadMarksAction;
 import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.NotesBitmap;
 import com.hcl.domino.richtext.RichTextRecordList;
@@ -115,6 +116,8 @@ import com.hcl.domino.richtext.records.CDTableDataExtension;
 import com.hcl.domino.richtext.records.CDTableEnd;
 import com.hcl.domino.richtext.records.CDTableLabel;
 import com.hcl.domino.richtext.records.CDText;
+import com.hcl.domino.richtext.records.CDTextPropertiesTable;
+import com.hcl.domino.richtext.records.CDTextProperty;
 import com.hcl.domino.richtext.records.CDTimerInfo;
 import com.hcl.domino.richtext.records.CDTransition;
 import com.hcl.domino.richtext.records.CDWinMetaHeader;
@@ -1430,6 +1433,25 @@ public class TestDbDesignForms extends AbstractDesignTest {
     {
       CDSpanRecord end = (CDSpanRecord)span.get(span.size()-1);
       assertEquals(1, end.getPropId());
+    }
+    
+    // Now read the text properties info
+    {
+      RichTextRecordList textProperties = doc.getRichTextItem(NotesConstants.ITEM_NAME_TEXTPROPERTIES);
+      
+      CDTextPropertiesTable table = (CDTextPropertiesTable)textProperties.get(0);
+      assertEquals(2, table.getNumberOfEntries());
+      
+      {
+        CDTextProperty prop = (CDTextProperty)textProperties.get(1);
+        assertEquals(0, prop.getPropId());
+        assertEquals("EN-US", prop.getLangName());
+      }
+      {
+        CDTextProperty prop = (CDTextProperty)textProperties.get(2);
+        assertEquals(1, prop.getPropId());
+        assertEquals("FR-FR", prop.getLangName());
+      }
     }
   }
   
