@@ -96,6 +96,7 @@ import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.NotesBitmap;
 import com.hcl.domino.richtext.RichTextRecordList;
+import com.hcl.domino.richtext.records.CDAnchor;
 import com.hcl.domino.richtext.records.CDBegin;
 import com.hcl.domino.richtext.records.CDEnd;
 import com.hcl.domino.richtext.records.CDHeader;
@@ -1435,6 +1436,11 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(1, end.getPropId());
     }
     
+    // Check for the text anchor
+    CDAnchor anchor = extract(body, 0, CDAnchor.class);
+    assertEquals("dsfdf", anchor.getAnchorText());
+    
+    
     // Now read the text properties info
     {
       RichTextRecordList textProperties = doc.getRichTextItem(NotesConstants.ITEM_NAME_TEXTPROPERTIES);
@@ -1463,7 +1469,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
     return extract(body, index, CDOLEBegin.class, CDOLEEnd.class);
   }
   
-  private List<?> extract(List<?> body, int index, Class<? extends RichTextRecord<?>> begin, Class<? extends RichTextRecord<?>> end) {
+  private <B extends RichTextRecord<?>, E extends RichTextRecord<?>> List<?> extract(List<?> body, int index, Class<B> begin, Class<E> end) {
     return extract(body, index, begin::isInstance, end::isInstance);
   }
   
@@ -1489,5 +1495,10 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertTrue(oleEndIndex > -1 && oleEndIndex < body.size());
     
     return body.subList(oleBeginIndex, oleEndIndex+1);
+  }
+  
+  @SuppressWarnings("unchecked")
+  private <T extends RichTextRecord<?>> T extract(List<?> body, int index, Class<T> type) {
+    return (T)extract(body, index, type, type).get(0);
   }
 }

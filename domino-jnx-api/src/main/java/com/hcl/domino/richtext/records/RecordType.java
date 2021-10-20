@@ -387,7 +387,7 @@ public enum RecordType {
    * When the anchor hotlink is selected by a user, Notes displays the anchor
    * location in the target document.
    */
-  ANCHOR(RichTextConstants.SIG_CD_ANCHOR, 1),
+  ANCHOR(RichTextConstants.SIG_CD_ANCHOR, 1, CDAnchor.class),
   /**
    * Text in a rich-text field can have the "Pass-Thru HTML" attribute.<br>
    * Pass-through HTML text is not translated to the Domino rich text format.<br>
