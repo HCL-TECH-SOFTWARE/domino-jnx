@@ -55,7 +55,7 @@ public interface CDTextProperty extends RichTextRecord<WSIG> {
   byte[] getLangNameRaw();
   
   @StructureSetter("LangName")
-  CDTextProperty setLangName();
+  CDTextProperty setLangName(byte[] name);
   
   @StructureGetter("PropID")
   int getPropId();
