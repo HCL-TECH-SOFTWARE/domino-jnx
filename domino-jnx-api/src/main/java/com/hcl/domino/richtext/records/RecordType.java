@@ -22,7 +22,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
 import com.hcl.domino.richtext.RichTextConstants;
 
 /**
@@ -748,7 +747,7 @@ public enum RecordType {
    * graphical, or
    * action elements associated with the button.
    */
-  LAYOUTBUTTON(RichTextConstants.SIG_CD_LAYOUTBUTTON, 4),
+  LAYOUTBUTTON(RichTextConstants.SIG_CD_LAYOUTBUTTON, 4, CDLayoutButton.class),
   /**
    * The CDTEXTEFFECT record stores a "special effect" font ID for a run of rich
    * text.
