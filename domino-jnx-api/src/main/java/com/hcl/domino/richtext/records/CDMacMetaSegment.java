@@ -26,7 +26,7 @@ import com.hcl.domino.richtext.structures.LSIG;
  * Rich text record of type CDMACMETASEG (editods.h
  */
 @StructureDefinition(
-  name = "CDWINMETASEG",
+  name = "CDMACMETASEG",
   members = {
     @StructureMember(name = "Header", type = LSIG.class),
     @StructureMember(name = "DataSize", type = short.class, unsigned = true),
