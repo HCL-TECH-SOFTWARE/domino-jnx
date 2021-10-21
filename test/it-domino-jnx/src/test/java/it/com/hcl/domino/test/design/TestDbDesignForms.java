@@ -1072,7 +1072,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
   }
   
   @ParameterizedTest
-  @EnabledIfEnvironmentVariable(named = ENV_DBDESIGN_FOLDER, matches = ".*")
+  @EnabledIfEnvironmentVariable(named = ENV_DBDESIGN_FOLDER, matches = ".+")
   @ArgumentsSource(FolderNSFsArgumentsProvider.class)
   public void testConfiguredDirectoryFormsUnknownRecords(Path nsfPath) {
     Set<RecordType> types = new HashSet<>();
@@ -1107,7 +1107,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
   }
   
   @ParameterizedTest
-  @EnabledIfEnvironmentVariable(named = ENV_DBDESIGN_FOLDER, matches = ".*")
+  @EnabledIfEnvironmentVariable(named = ENV_DBDESIGN_FOLDER, matches = ".+")
   @ArgumentsSource(FolderNSFsArgumentsProvider.class)
   public void testConfiguredDirectoryDocsUnknownRecords(Path nsfPath) {
     Set<RecordType> types = new HashSet<>();
@@ -1120,7 +1120,6 @@ public class TestDbDesignForms extends AbstractDesignTest {
           .map(item -> item.getValueRichText())
           .flatMap(List::stream)
           .forEach(rec -> {
-            System.out.println("looking at " + rec);
             short type = 0;
             if(rec instanceof GenericBSIGRecord) {
               type = ((RichTextRecord<?>)rec).getTypeValue();
