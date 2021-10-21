@@ -290,7 +290,7 @@ public enum RecordType {
    * segment must be
    * preceded by a CDMACMETASEG record.
    */
-  MACMETASEG(RichTextConstants.SIG_CD_MACMETASEG, 1),
+  MACMETASEG(RichTextConstants.SIG_CD_MACMETASEG, 1, CDMacMetaSegment.class),
   /**
    * Identifies a CGM metafile embedded in a rich text field. This record must be
    * preceded by a CDGRAPHIC record.<br>
@@ -328,7 +328,7 @@ public enum RecordType {
    * for a segment, a metafile may be divided into segments of up to 64kB;<br>
    * each segment must be preceded by a CDMACMETASEG record.
    */
-  MACMETAHEADER(RichTextConstants.SIG_CD_MACMETAHEADER, 1),
+  MACMETAHEADER(RichTextConstants.SIG_CD_MACMETAHEADER, 1, CDMacMetaHeader.class),
   /**
    * This structure specifies the beginning of a table.<br>
    * It contains information about the format and size of the table.<br>
