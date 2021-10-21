@@ -103,6 +103,7 @@ import com.hcl.domino.richtext.records.CDHeader;
 import com.hcl.domino.richtext.records.CDHotspotBegin;
 import com.hcl.domino.richtext.records.CDHtmlFormula;
 import com.hcl.domino.richtext.records.CDLayout;
+import com.hcl.domino.richtext.records.CDLayoutButton;
 import com.hcl.domino.richtext.records.CDLayoutEnd;
 import com.hcl.domino.richtext.records.CDLayoutField;
 import com.hcl.domino.richtext.records.CDLayoutGraphic;
@@ -1391,6 +1392,19 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(936, header.getTop());
       assertEquals(1921, header.getWidth());
       assertEquals(361, header.getHeight());
+    }
+    {
+      CDLayoutButton field = layout.stream()
+        .filter(CDLayoutButton.class::isInstance)
+        .map(CDLayoutButton.class::cast)
+        .findFirst()
+        .get();
+      
+      ElementHeader header = field.getElementHeader();
+      assertEquals(2580, header.getLeft());
+      assertEquals(2661, header.getTop());
+      assertEquals(2041, header.getWidth());
+      assertEquals(451, header.getHeight());
     }
     {
       @SuppressWarnings("unused")
