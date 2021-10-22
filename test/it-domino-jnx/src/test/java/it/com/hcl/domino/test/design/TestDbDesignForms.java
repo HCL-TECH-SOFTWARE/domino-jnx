@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,12 +39,18 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import com.hcl.domino.DominoClient;
@@ -54,6 +61,8 @@ import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.FontAttribute;
+import com.hcl.domino.data.Item;
+import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.NotesFont;
 import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
@@ -103,9 +112,12 @@ import com.hcl.domino.richtext.records.CDHeader;
 import com.hcl.domino.richtext.records.CDHotspotBegin;
 import com.hcl.domino.richtext.records.CDHtmlFormula;
 import com.hcl.domino.richtext.records.CDLayout;
+import com.hcl.domino.richtext.records.CDLayoutButton;
 import com.hcl.domino.richtext.records.CDLayoutEnd;
 import com.hcl.domino.richtext.records.CDLayoutField;
 import com.hcl.domino.richtext.records.CDLayoutGraphic;
+import com.hcl.domino.richtext.records.CDMacMetaHeader;
+import com.hcl.domino.richtext.records.CDMacMetaSegment;
 import com.hcl.domino.richtext.records.CDOLEBegin;
 import com.hcl.domino.richtext.records.CDOLEEnd;
 import com.hcl.domino.richtext.records.CDOLEObjectInfo;
@@ -141,7 +153,9 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignForms extends AbstractDesignTest {
-  public static final int EXPECTED_IMPORT_FORMS = 9;
+  public static final String ENV_DBDESIGN_FOLDER = "DBDESIGN_FORMFOLDER";
+  
+  public static final int EXPECTED_IMPORT_FORMS = 10;
   public static final int EXPECTED_IMPORT_SUBFORMS = 2;
 
   private static String dbPath;
@@ -1047,6 +1061,109 @@ public class TestDbDesignForms extends AbstractDesignTest {
     }
   }
   
+  public static class FolderNSFsArgumentsProvider implements ArgumentsProvider {
+    @Override
+    public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+      String formFolder = System.getenv(ENV_DBDESIGN_FOLDER);
+      Path dir = Paths.get(formFolder);
+      return Files.find(dir, Integer.MAX_VALUE, (path, attr) -> path.getFileName().toString().toLowerCase().endsWith(".nsf"))
+        .map(Arguments::of);
+    }
+  }
+  
+  @ParameterizedTest
+  @EnabledIfEnvironmentVariable(named = ENV_DBDESIGN_FOLDER, matches = ".+")
+  @ArgumentsSource(FolderNSFsArgumentsProvider.class)
+  public void testConfiguredDirectoryFormsUnknownRecords(Path nsfPath) {
+    Set<RecordType> types = new HashSet<>();
+    Database db = getClient().openDatabase("", nsfPath.toString());
+    db.getDesign()
+      .getForms()
+      .map(Form::getBody)
+      .flatMap(List::stream)
+      .forEach(rec -> {
+        short type = 0;
+        if(rec instanceof GenericBSIGRecord) {
+          type = ((RichTextRecord<?>)rec).getTypeValue();
+        } else if(rec instanceof GenericWSIGRecord) {
+          type = ((RichTextRecord<?>)rec).getTypeValue();
+        } else if(rec instanceof GenericLSIGRecord) {
+          type = ((RichTextRecord<?>)rec).getTypeValue();
+        }
+        if(type != 0) {
+          RecordType rtype = null;
+          rtype = RecordType.getRecordTypeForConstant(type, Area.TYPE_COMPOSITE);
+          if(rtype != null) {
+            types.add(rtype);
+          } else {
+            System.out.println("Unable to locate rich text RecordType value for " + type + "; candidates are " + RecordType.getRecordTypesForConstant(type));
+          }
+        }
+      });
+    
+    if(!types.isEmpty()) {
+      System.out.println("Encountered unimplemented CD record types: " + types + " (" + nsfPath + ")");
+    }
+  }
+  
+  @ParameterizedTest
+  @EnabledIfEnvironmentVariable(named = ENV_DBDESIGN_FOLDER, matches = ".+")
+  @ArgumentsSource(FolderNSFsArgumentsProvider.class)
+  public void testConfiguredDirectoryDocsUnknownRecords(Path nsfPath) {
+    Set<RecordType> types = new HashSet<>();
+    Database db = getClient().openDatabase("", nsfPath.toString());
+    db.queryFormula("@All", null, EnumSet.noneOf(SearchFlag.class), null, EnumSet.of(DocumentClass.DOCUMENT))
+      .getDocuments()
+      .forEach(doc -> {
+        doc.allItems()
+          .filter(item -> item.getType() == ItemDataType.TYPE_COMPOSITE)
+          .map(item -> item.getValueRichText())
+          .flatMap(List::stream)
+          .forEach(rec -> {
+            short type = 0;
+            if(rec instanceof GenericBSIGRecord) {
+              type = ((RichTextRecord<?>)rec).getTypeValue();
+            } else if(rec instanceof GenericWSIGRecord) {
+              type = ((RichTextRecord<?>)rec).getTypeValue();
+            } else if(rec instanceof GenericLSIGRecord) {
+              type = ((RichTextRecord<?>)rec).getTypeValue();
+            }
+            if(type != 0) {
+              RecordType rtype = null;
+              rtype = RecordType.getRecordTypeForConstant(type, Area.TYPE_COMPOSITE);
+              if(rtype != null) {
+                types.add(rtype);
+              } else {
+                System.out.println("Unable to locate rich text RecordType value for " + type + "; candidates are " + RecordType.getRecordTypesForConstant(type));
+              }
+            }
+          });
+      });
+    
+    if(!types.isEmpty()) {
+      System.out.println("Encountered unimplemented CD record types: " + types + " (" + nsfPath + ")");
+    }
+  }
+  
+  @Test
+  public void testActivityReport() {
+    DbDesign design = database.getDesign();
+    
+    Form form = design.getForm("Activity Report").get();
+    
+    List<?> body = form.getBody();
+    
+    CDMacMetaHeader header = extract(body, 0, CDMacMetaHeader.class);
+    assertEquals(640, header.getOriginalDisplaySize().getWidth());
+    assertEquals(640, header.getOriginalDisplaySize().getHeight());
+    assertEquals(2324, header.getMetafileSize());
+    assertEquals(1, header.getSegCount());
+    
+    CDMacMetaSegment seg = extract(body, 0, CDMacMetaSegment.class);
+    assertEquals(2324, seg.getDataSize());
+    assertEquals(2324, seg.getSegSize());
+  }
+  
   @Test
   public void testLotusComponentsForm() {
     DbDesign design = database.getDesign();
@@ -1391,6 +1508,19 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(936, header.getTop());
       assertEquals(1921, header.getWidth());
       assertEquals(361, header.getHeight());
+    }
+    {
+      CDLayoutButton field = layout.stream()
+        .filter(CDLayoutButton.class::isInstance)
+        .map(CDLayoutButton.class::cast)
+        .findFirst()
+        .get();
+      
+      ElementHeader header = field.getElementHeader();
+      assertEquals(2580, header.getLeft());
+      assertEquals(2661, header.getTop());
+      assertEquals(2041, header.getWidth());
+      assertEquals(451, header.getHeight());
     }
     {
       @SuppressWarnings("unused")
