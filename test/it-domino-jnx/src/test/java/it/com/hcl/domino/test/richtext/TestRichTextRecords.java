@@ -106,6 +106,7 @@ import com.hcl.domino.richtext.records.CurrencyType;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
 import com.hcl.domino.richtext.structures.AssistFieldStruct.ActionByField;
 import com.hcl.domino.richtext.structures.CDPoint;
@@ -1409,8 +1410,8 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           rtWriter.addRichTextRecord(CDHRule.class, begin -> {
             begin.setHeight(72);
             begin.setWidth(100);
-            begin.setColorRaw(0);
-            begin.setGradientColorRaw(65535);
+            begin.setColorRaw(StandardColors.DarkMagenta);
+            begin.setGradientColorRaw(StandardColors.DarkMagenta);
             begin.setFlags(EnumSet.of(CDHRule.Flag.HRULE_FLAG_USECOLOR, CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_NOSHADOW));
           });
         }
@@ -1418,9 +1419,34 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final CDHRule begin = (CDHRule) doc.getRichTextItem("Body").get(0);
         assertEquals(72, begin.getHeight());
         assertEquals(100, begin.getWidth());
-        assertEquals(0, begin.getColor());
-        assertEquals(65535, begin.getGradientColor());
+        assertEquals(StandardColors.DarkMagenta, begin.getColor().get());
+        assertEquals(StandardColors.DarkMagenta, begin.getGradientColor().get());
         assertEquals(EnumSet.of(CDHRule.Flag.HRULE_FLAG_USECOLOR, CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_NOSHADOW), begin.getFlags());
+      });
+    }
+  
+    @Test
+    public void testVMButtonDefaults() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          final ViewmapButtonDefaults begin =rtWriter.createStructure(ViewmapButtonDefaults.class, 0);           
+            begin.setbHighlightTouch(207);
+            begin.setbHighlightCurrent(15);
+            begin.setHLOutlineColor(15);
+            begin.setHLOutlineWidth(0);
+            begin.setHLOutlineStyle(1);
+            begin.setHLFillColor(1);
+
+      //  final ViewmapButtonDefaults begin = (ViewmapButtonDefaults) doc.getRichTextItem("Body").get(0);
+        assertEquals(207, begin.getLineColor());
+        assertEquals(15,begin.getFillFGColor());
+        assertEquals(15,begin.getFillBGColor());
+        assertEquals(0,begin.getLineStyle());
+        assertEquals(1,begin.getLineWidth());
+        assertEquals(1,begin.getFillStyle());
+      }
+        
       });
     }
 }

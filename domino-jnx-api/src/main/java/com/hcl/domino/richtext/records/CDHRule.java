@@ -78,12 +78,12 @@ public interface CDHRule extends RichTextRecord<WSIG>{
   
   @StructureGetter("Color")
   default
-  Optional getColor() {
+  Optional<StandardColors> getColor() {
   return DominoEnumUtil.valueOf(StandardColors.class, getColorRaw());
   }
   
   @StructureSetter("Color")
-  CDHRule setColorRaw(int color);
+  CDHRule setColorRaw(StandardColors color);
   
   @StructureSetter("Color")
   CDHRule setColor(StandardColors color);
@@ -93,12 +93,12 @@ public interface CDHRule extends RichTextRecord<WSIG>{
   
   @StructureGetter("GradientColor")
   default
-  Optional getGradientColor() {
+  Optional<StandardColors> getGradientColor() {
     return DominoEnumUtil.valueOf(StandardColors.class, getGradientColorRaw());
   }
   
   @StructureSetter("GradientColor")
-  CDHRule setGradientColorRaw(int gradientColor);
+  CDHRule setGradientColorRaw(StandardColors gradientColor);
   
   @StructureSetter("GradientColor")
   CDHRule setGradientColor(StandardColors gradientColor);
