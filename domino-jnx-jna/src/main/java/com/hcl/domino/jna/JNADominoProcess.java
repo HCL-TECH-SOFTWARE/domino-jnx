@@ -212,7 +212,7 @@ public class JNADominoProcess implements DominoProcess {
 	}
 	
 	private static boolean isWritePacemakerDebugMessages() {
-		return DominoUtils.checkBooleanProperty("jnx.debuginit", null); //$NON-NLS-1$
+		return DominoUtils.checkBooleanProperty("jnx.debuginit", "JNX_DEBUGINIT"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 	
 	@Override
@@ -449,7 +449,7 @@ public class JNADominoProcess implements DominoProcess {
 			if(result != 0) {
 				// here we can also abort only and report the exception
 				if (debug) {
-					System.out.println(MessageFormat.format("Domino API could not initialize a thread. ERR 0x{0}", Integer.toHexString(result)));
+					System.out.println(MessageFormat.format("Domino API could not initialize pacemaker thread. ERR 0x{0}", Integer.toHexString(result)));
 				}
 				
 				Optional<DominoException> initException = NotesErrorUtils.toNotesError(result, true);
@@ -464,6 +464,13 @@ public class JNADominoProcess implements DominoProcess {
 				if(!DominoUtils.isNoTerm()) {
 					NotesCAPI.get().NotesTerm();
 				}
+				
+				try {
+          m_waitStartedQueue.put(new Object());
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+          m_interruptedEx = e;
+        }
 				
 				return;
 			}
