@@ -17,10 +17,17 @@
 package com.hcl.domino.jnx.example.swt.bean;
 
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.DominoClient;
+import com.hcl.domino.commons.util.StringUtil;
+import com.hcl.domino.dbdirectory.DbDirectory;
+import com.hcl.domino.dbdirectory.DirEntry;
+import com.hcl.domino.dbdirectory.FileType;
+import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -36,7 +43,24 @@ public class DatabasesBean {
 
   public Collection<String> getDatabasePaths(final String serverName) {
     try {
-      return this.executor.submit(() -> this.client.getDatabasePaths(serverName, null).getDatabasePaths()).get();
+      return this.executor.submit(() -> {
+        if(StringUtil.isEmpty(serverName)) {
+          // Special handling for local, as this will be on a client - getDatabasePath is
+          //   unreliable there
+          DbDirectory dir = client.openDbDirectory();
+          return dir.query()
+            .withServer(null)
+            .withDirectory("") //$NON-NLS-1$
+            .withFormula("") //$NON-NLS-1$
+            .withFlags(EnumSet.of(SearchFlag.FILETYPE, SearchFlag.SUMMARY))
+            .withFileTypes(EnumSet.of(FileType.DBANY, FileType.RECURSE))
+            .stream()
+            .map(DirEntry::getFilePath)
+            .collect(Collectors.toList());
+        } else {
+          return this.client.getDatabasePaths(serverName, null).getDatabasePaths();
+        }
+      }).get();
     } catch (InterruptedException | ExecutionException e) {
       throw new RuntimeException(e);
     }
