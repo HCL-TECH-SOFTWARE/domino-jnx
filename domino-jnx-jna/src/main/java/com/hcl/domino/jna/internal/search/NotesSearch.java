@@ -18,6 +18,7 @@ package com.hcl.domino.jna.internal.search;
 
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,7 +41,6 @@ import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.dbdirectory.FileType;
 import com.hcl.domino.exception.FormulaCompilationException;
-import com.hcl.domino.jna.JNADominoClientBuilder;
 import com.hcl.domino.jna.data.JNADatabase;
 import com.hcl.domino.jna.data.JNADatabase.DbMode;
 import com.hcl.domino.jna.data.JNADocument;
@@ -622,7 +622,7 @@ public class NotesSearch {
 			final int searchFlags4Final = 0;
 			final int noteClassMaskFinal = noteClassMask;
 
-			JNADominoClientBuilder clientBuilder = db.getParentDominoClient().getBuilder();
+			List<String> builderNames = db.getParentDominoClient().getBuilderNamesList();
 			
 			final DHANDLE hNamesList;
 			if (mode == DbMode.DIRECTORY) {
@@ -633,7 +633,7 @@ public class NotesSearch {
 				if (namesList!=null) {
 					boolean openAsIdUser;
 					
-					if (clientBuilder.getUserNamesList()== null || clientBuilder.getUserNamesList().isEmpty()) {
+					if (builderNames.isEmpty()) {
 						openAsIdUser = NotesNamingUtils.equalNames(namesList.getPrimaryName(), db.getParentDominoClient().getIDUserName());
 					}
 					else {

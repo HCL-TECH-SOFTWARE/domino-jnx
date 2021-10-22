@@ -1,35 +1,28 @@
 <?xml version='1.0' encoding='utf-8'?>
-<page name='BBCreate' alias='Create' xmlns='http://www.lotus.com/dxl' version='12.0'
- maintenanceversion='1.0' replicaid='6525860E002D4664' publicaccess='false'
- designerversion='6' language='en' bgcolor='#e1e1e1'>
-<noteinfo noteid='26a' unid='16527D3F4D57663085256663005C86A8' sequence='52'>
-<created><datetime dst='true'>19980817T125037,84-04</datetime></created>
-<modified><datetime>20210301T125025,86+00</datetime></modified>
-<revised><datetime>20210301T125025,85+00</datetime></revised>
-<lastaccessed><datetime>20210301T125025,85+00</datetime></lastaccessed>
-<addedtofile><datetime dst='true'>20201027T041533,97-04</datetime></addedtofile></noteinfo>
-<updatedby><name>CN=Domino Template Development/O=Domino</name></updatedby>
-<revisions><datetime dst='true'>20060208T151058,72-04</datetime><datetime
- dst='true'>20070122T153924,16-04</datetime></revisions>
-<wassignedby><name>CN=Domino Template Development/O=Domino</name></wassignedby><code
- event='windowtitle'><formula>"Create"</formula></code>
-<background><imageref name='BackgroundSystemLightest'/></background>
-<body><richtext>
-<pardef id='1' leftmargin='0.7500in'/>
-<par def='1'><run><font size='2pt' name='Small Fonts' pitch='variable' truetype='false'
- familyid='20'/>		</run></par>
-<par def='1'><embeddedoutline name='TestEmbeddedOutline' scrollbars='false' widthtype='fitwindow' 
- heighttype='fitcontent' targetframe='TestEmbeddedOutlineFrame'
- height='0.8750in' showviewcontents='true'><title><font size='12pt'/><layout
- labelalign='middleleft' heighttype='fixed' height='0.3000in' entryhoffset='0.1000in'
- labelhoffset='0' labelvoffset='0'/></title><toplevel selectedcolor='white'
- mouseovercolor='blue'><font size='9pt'/><eoutlinebackground selectedcolor='navy'/><layout
- labelalign='middleleft' heighttype='fixed' height='0.2000in' entryhoffset='0.1000in'
- entryvoffset='0.0250in' imagealign='middleleft' labelhoffset='0.2500in' labelvoffset='0'/></toplevel><sublevel
- selectedcolor='white' mouseovercolor='blue'><font size='9pt'/><eoutlinebackground
- selectedcolor='navy'/><layout labelalign='middleleft' heighttype='fixed'
- height='0.2000in' entryhoffset='0.2500in' entryvoffset='0.0250in' imagealign='middleleft'
- labelhoffset='0.2500in' labelvoffset='0'/></sublevel></embeddedoutline></par></richtext></body>
+<note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$TITLE' sign='true'><textlist><text>BBCreate</text><text>Create</text></textlist></item>
+<item name='$LANGUAGE'><text>en</text></item>
+<item name='$DesignerVersion'><text>6</text></item>
+<item name='$WindowTitle' sign='true'><formula>"Create"</formula></item>
+<item name='$BackgroundR5'>
+<rawitemdata type='1'>
+3QYBAJkAmQAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAH0AHAAAAAMAAAAAAAAAAAAAAAAAAAAA
+AAAAAAD2/zoAAAAAAAMAEwAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAQmFja2dyb3VuZFN5c3RlbUxp
+Z2h0ZXN03gYBAJkA
+</rawitemdata></item>
+<item name='$Body' sign='true'>
+<rawitemdata type='1'>
+gQKC/1oAAQAAAAAAAAAAADgEAAA4BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAABAAAAAJSEOAQJADgECQAAAAAAAQAAAAQAAACDBAEAhf8KAAUAAAIJCYECgwQBAN0G
+AACt/63/DAAbAAgAAAAAAOr/PgAbAAGEAABkAOwEAQAACQAAAAAAAAAAAQAADAEAAAkAAAUA////
+AAEAAAAAAAAAAAAAAAAAAAAAAAAA7P85AcBPAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkACwASQA
+kAAgASQAaAEgARMAGAABAAAKAQAACgEAAAoBAAAKAQAACgEAAAoAAAAAAAAAAGgBaAEDAAMAAwAF
+AP///wAFAP///wAFAP///wAFAP///wAFAP///wABAAAAgAAFAP///wAFAP///wABAAAAgAAFAP//
+/wABAAAAAAABAP///wABAP///wAAAAAAAAAAAAAAAAADAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAQAAAAAAAQAAAAAAAQAAAAAAAQAAAAAAAQAAAP8AAQAAAP8AAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAVGVzdEVtYmVkZGVkT3V0bGluZVRlc3RFbWJlZGRlZE91dGxpbmVGcmFtZQCuAt4GAACu
+AA==
+</rawitemdata></item>
 <item name='$SiteMapList' sign='true'>
 <rawitemdata type='1a'>
 AQUBAAEAFwBIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
@@ -94,4 +87,18 @@ SGlzdG9yeQABAPb/JwAAAAAAAwAHAAUAAAAAAAAAAAAAAAAAAAAAAAAAAABPdGhlcj8BAPb/LQAA
 AAAAAwAIAAsAAAAAAAAAAAAAAAAAAAAAAAAAAABMaW5rSm91cm5hbD8BAPb/QgACAAAAAgACAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAMsR8GZASEW4OFZQC4aCWFAAAAAAAAAAAAAAAAAAAAAA==
 </rawitemdata></item>
-<item name='$$ScriptName' summary='false' sign='true'><text>Create</text></item></page>
+<item name='$$ScriptName' summary='false' sign='true'><text>Create</text></item>
+<item name='$HTMLCode' sign='true'>
+<rawitemdata type='1'>
+X/8QAAIADwAHAAAAAAAAAA==
+</rawitemdata></item>
+<item name='$Info' sign='true'>
+<rawitemdata type='1'>
+hhhPAIAAAAAAAAAATwABAOHh4QAAAAAA
+</rawitemdata></item>
+<item name='$Flags'><text>C34WQ</text></item>
+<item name='$Fonts'>
+<rawitemdata type='1'>
+i/8oAAEABSJTbWFsbCBGb250cwAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
+</rawitemdata></item></note>
+

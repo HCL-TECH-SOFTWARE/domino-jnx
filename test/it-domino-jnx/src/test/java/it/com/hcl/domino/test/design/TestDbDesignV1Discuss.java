@@ -16,6 +16,7 @@
  */
 package it.com.hcl.domino.test.design;
 
+import static it.com.hcl.domino.test.util.ITUtil.toLf;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -145,7 +146,7 @@ public class TestDbDesignV1Discuss extends AbstractDesignTest {
       assertEquals("", col.getTitle());
       assertEquals(8, col.getDisplayWidth());
       assertEquals("DEFAULT From := @Author;\n"
-          + "@V2If(Subject != \"\"; Subject + \"  \"; \"\") + \"(\" + From + \")\"", col.getFormula());
+          + "@V2If(Subject != \"\"; Subject + \"  \"; \"\") + \"(\" + From + \")\"", toLf(col.getFormula()));
       assertTrue(col.isResizable());
       assertTrue(col.isResponsesOnly());
       
@@ -159,7 +160,7 @@ public class TestDbDesignV1Discuss extends AbstractDesignTest {
       assertEquals("Topic", col.getTitle());
       assertEquals(640, col.getDisplayWidth());
       assertEquals("DEFAULT From := @Author;\n"
-          + "Subject + \"   (\" + From + \")\"", col.getFormula());
+          + "Subject + \"   (\" + From + \")\"", toLf(col.getFormula()));
       assertTrue(col.isResizable());
       assertFalse(col.isResponsesOnly());
       

@@ -4,14 +4,17 @@
 	<parent>
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
-		<version>1.0.44</version>
+		<version>1.0.45-SNAPSHOT</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>jnx-example-swt</artifactId>
 	<name>HCL Domino API Example SWT Application</name>
 
 	<properties>
-		<swt.version>3.116.0</swt.version>
+		<swt.version>3.117.0</swt.version>
+        <java.version>11</java.version>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
 	</properties>
 
 	<dependencies>
@@ -32,19 +35,13 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.jface</artifactId>
-			<version>3.22.100</version>
+			<version>3.23.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.eclipse.platform</groupId>
 					<artifactId>org.eclipse.swt</artifactId>
 				</exclusion>
 			</exclusions>
-		</dependency>
-		<!-- The above will pull in the Java 11 version from its dependency ranges -->
-		<dependency>
-			<groupId>org.eclipse.platform</groupId>
-			<artifactId>org.eclipse.core.commands</artifactId>
-			<version>3.9.800</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.weld.se</groupId>

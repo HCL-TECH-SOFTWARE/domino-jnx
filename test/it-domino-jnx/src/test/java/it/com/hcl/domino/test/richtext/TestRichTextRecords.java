@@ -92,6 +92,7 @@ import com.hcl.domino.richtext.records.CDImageSegment;
 import com.hcl.domino.richtext.records.CDKeyword;
 import com.hcl.domino.richtext.records.CDLargeParagraph;
 import com.hcl.domino.richtext.records.CDLayer;
+import com.hcl.domino.richtext.records.CDLayoutButton;
 import com.hcl.domino.richtext.records.CDMapElement;
 import com.hcl.domino.richtext.records.CDParagraph;
 import com.hcl.domino.richtext.records.CDPositioning;
@@ -1401,6 +1402,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(65535, begin.getSegSize());
       });
     }
+
    
     @Test
     public void testCDHRule() throws Exception {
@@ -1425,28 +1427,19 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       });
     }
   
+          
     @Test
-    public void testVMButtonDefaults() throws Exception {
+    public void testLayoutButton() throws Exception {
       this.withTempDb(database -> {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
-          final ViewmapButtonDefaults begin =rtWriter.createStructure(ViewmapButtonDefaults.class, 0);           
-            begin.setbHighlightTouch(207);
-            begin.setbHighlightCurrent(15);
-            begin.setHLOutlineColor(15);
-            begin.setHLOutlineWidth(0);
-            begin.setHLOutlineStyle(1);
-            begin.setHLFillColor(1);
+          rtWriter.addRichTextRecord(CDLayoutButton.class, begin -> {
+          });
+        }
 
-      //  final ViewmapButtonDefaults begin = (ViewmapButtonDefaults) doc.getRichTextItem("Body").get(0);
-        assertEquals(207, begin.getLineColor());
-        assertEquals(15,begin.getFillFGColor());
-        assertEquals(15,begin.getFillBGColor());
-        assertEquals(0,begin.getLineStyle());
-        assertEquals(1,begin.getLineWidth());
-        assertEquals(1,begin.getFillStyle());
-      }
-        
+        @SuppressWarnings("unused")
+        final CDLayoutButton begin = (CDLayoutButton) doc.getRichTextItem("Body").get(0);
+
       });
     }
 }

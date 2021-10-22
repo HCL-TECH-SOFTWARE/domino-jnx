@@ -1,0 +1,175 @@
+<?xml version='1.0' encoding='utf-8'?>
+<form name='ppage layout A' alias='homea' xmlns='http://www.lotus.com/dxl'
+ version='12.0' replicaid='8525872E0072DBBB' nocompose='true' publicaccess='false'
+ designerversion='8.5' language='en'>
+<noteinfo noteid='602' unid='D638073360AB21868525692D004C05F1' sequence='250'>
+<created><datetime dst='true'>20000731T095022,57-04</datetime></created>
+<modified><datetime dst='true'>20210811T165436,19-04</datetime></modified>
+<revised><datetime>20210301T125035,10+00</datetime></revised>
+<lastaccessed><datetime dst='true'>20210811T165436,18-04</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20210811T165436,18-04</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Domino Template Development/O=Domino</name></updatedby>
+<revisions><datetime>20060208T141107,10-05</datetime><datetime>20070122T134851,40-05</datetime><datetime
+>20070122T143959,91-05</datetime><datetime>20070130T152037,87-05</datetime><datetime
+ dst='true'>20081002T081820,66-04</datetime></revisions>
+<wassignedby><name>CN=Domino Template Development/O=Domino</name></wassignedby><code
+ event='querymodechange'><lotusscript>Sub Querymodechange(Source As Notesuidocument, Continue As Variant)
+	Dim s As New NotesSession
+	Set profile  = s.CurrentDatabase.GetProfileDocument("HPSettings")
+	HPSetting = profile.NOHPChange
+	If HPSetting(0) = "1" Then
+		continue = False
+	End If
+End Sub</lotusscript></code>
+<background><imageref><code event='value'><formula>REM {DNT};
+ThemeCh := @If("theme" + ThemeChoice);
+
+@If(ThemeChoice = "100" | ThemeChoice = ""; "theme3";  ThemeCh)</formula></code></imageref></background>
+<body><richtext>
+<pardef id='1' hide='edit print copy preview previewedit notes web'/><subformref
+><code event='value'><formula>defaultFormBG := "3";
+ch := @If(ThemeChoice = "" | ThemeChoice = "100"; defaultFormBG; ThemeChoice);
+"Theme" + ch + "CSS"</formula></code></subformref>
+<par def='1'><run><font size='12pt' style='shadow' color='white'/></run></par>
+<pardef id='2' hide='read edit print copy preview previewedit notes web'/><subformref
+ name='EditSaveHP'/>
+<pardef id='3'/>
+<par def='3'><layer htmlid='inbox' zindex='1' topunittype='pixels' top='7.0000'
+ leftunittype='pixels' left='92.0000' widthunittype='pixels' width='439.0000'
+ heightunittype='pixels' height='147.0000'>
+<pardef id='4' hide='read print copy preview previewedit embedded'/>
+<par def='4'><run><font size='12pt' name='multilingual'/></run></par>
+<par def='4'><run><font size='12pt' name='multilingual'/></run></par>
+<pardef id='5' hide='edit print copy preview previewedit embedded'/>
+<par def='5'><run><font size='12pt' name='multilingual'/></run></par>
+<table widthtype='fitwindow' rowdisplay='captions' htmlclass='ColorKey' leftmargin='0'
+ refwidth='4.5625in'><tablerowstyle><font size='12pt' style='bold' color='black'/></tablerowstyle><tablecolumn
+ width='100%'/>
+<tablerow tablabel='Inbox'>
+<tablecell>
+<pardef id='7' leftmargin='0.0201in' keepwithnext='true' keeptogether='true'/>
+<par def='7'><embeddedview name='($Inbox)' sclickframe='EmbeddedNotesPreview'
+ showactionbar='true' showselectionmargin='true' widthtype='fitwindow' height='2.4000in'
+ scrollbars='true' database='mailfile'/></par></tablecell></tablerow>
+<tablerow tablabel='To Do'>
+<tablecell borderwidth='1px 1px 0px'>
+<par def='7'><embeddedview sclickframe='EmbEditor' showactionbar='true' widthtype='fitwindow'
+ height='2.4000in' scrollbars='true' database='mailfile'><code event='value'><formula
+>"ToDoByStatus"</formula></code></embeddedview></par></tablecell></tablerow>
+<tablerow tablabel='Miscellaneous'>
+<tablecell borderwidth='0px'>
+<par def='7'/>
+<table widthtype='fitmargins' minrowheight='2.2000in' htmlclass='ColorKey'
+ leftmargin='0' refwidth='4.5625in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell colorstyle='vgradient' borderwidth='0px' bgcolor='none' altbgcolor='white'>
+<pardef id='9' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='9'><run><font size='9pt'/></run></par>
+<pardef id='10' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='10'><run><font size='9pt'/></run><field type='richtextlite' kind='editable'
+ name='RT2' description='Click the drop-down to select the contents for this field'
+ htmltitle='Click the drop-down to select the contents for this field' fieldhelp='Click the icon to insert a picture|Click the icon to insert a shared image|Click the icon to insert an attachment|Click the icon to insert a view|Click the icon to insert a date picker|Click the icon to insert a shared applet|Click the icon to change text style|Click the icon to insert an OLE object|Click the icon to insert your calendar|Click the icon to insert your inbox'
+ fieldhint='Click the drop-down to select the contents for this field' onlyallow='picture sharedimage attachment view datepicker sharedapplet text object help clear'
+ firstdisplay='picture'/><compositedata type='98' prevtype='65513' nexttype='98'
+ afterparcount='11' containertype='65418' aftercontainercount='4' afterbegincount='7'>
+Yg4BAIQAAAAAAAEAAAA=
+</compositedata></par></tablecell></tablerow></table></tablecell></tablerow></table></layer><layer
+ htmlid='cal' zindex='1' topunittype='pixels' top='7.0000' leftunittype='pixels'
+ left='564.0000' widthunittype='pixels' width='445.0000' heightunittype='pixels'
+ height='200.0000'>
+<pardef id='13' hide='read copy preview previewedit embedded'/>
+<par def='13'><run><font size='12pt' name='multilingual'/></run></par>
+<par def='13'><run><font size='12pt' name='multilingual'/></run></par>
+<pardef id='14' hide='edit copy preview previewedit embedded'/>
+<par def='14'><run><font size='12pt' name='multilingual'/></run></par>
+<table widthtype='fitwindow' rowdisplay='captions' htmlclass='ColorKey' leftmargin='0'
+ refwidth='4.6250in'><tablerowstyle><font size='12pt' style='bold' color='black'/></tablerowstyle><tablecolumn
+ width='100%'/>
+<tablerow tablabel='Calendar'>
+<tablecell>
+<pardef id='15' leftmargin='0.0201in' keepwithnext='true' keeptogether='true'/>
+<par def='15'><embeddedview name='Calendar' sclickframe='EmbeddedNotesPreview'
+ showactionbar='true' widthtype='fitwindow' height='2.4000in' scrollbars='true'
+ database='mailfile'/></par></tablecell></tablerow>
+<tablerow tablabel='Contacts'>
+<tablecell borderwidth='0px'>
+<par def='15'><embeddedview name='People' sclickframe='EmbEditor' showactionbar='true'
+ widthtype='fitwindow' height='2.4000in' scrollbars='true' database='addressbook'/></par></tablecell></tablerow>
+<tablerow tablabel='Links'>
+<tablecell borderwidth='0px'>
+<pardef id='16' hide='notes web' keepwithnext='true' keeptogether='true'/>
+<par def='16'/>
+<table widthtype='fitmargins' htmlclass='ColorKey' leftmargin='0' refwidth='4.6250in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell colorstyle='vgradient' borderwidth='0px' bgcolor='none' altbgcolor='white'>
+<pardef id='18' align='center' leftmargin='0.0104in' hide='read preview' keepwithnext='true'
+ keeptogether='true'/>
+<par def='18'><run><font color='white'/>Drag the window containing the Notes application into the box below.</run></par>
+<par def='18'><run><font color='white'/>Click </run><actionhotspot hotspotstyle='none'><code
+ event='click'><formula>REM {Variable to translate};
+title := "Home Page help";
+REM {END variable to translate};
+
+@DialogBox("HelpSFHP"; [AutoHorzFit] : [AutoVertFit] : [SizeToTable] : [NoCancel] : [NoOkCancel]; title)</formula></code><run
+><font style='underline' color='white'/>here</run></actionhotspot><run><font
+ color='white'/> for more information.</run></par>
+<pardef id='19' align='center' leftmargin='0.0104in' spaceafter='1.5' hide='edit copy previewedit'
+ keepwithnext='true' keeptogether='true'/>
+<par def='19'><run><font size='12pt' color='white'/>My favorite links</run></par>
+<table widthtype='fitmargins' minrowheight='1.7299in' htmlclass='Outset' leftmargin='0.4000in'
+ rightmargin='96%' refwidth='3.8528in'><border style='outset' width='9px'
+ color='white'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='21' align='center' leftmargin='0' keepwithnext='true' keeptogether='true'/>
+<par def='21'><run><font color='white'/></run><embeddedoutline outline='UserBookmarkOrder'
+ database='bookmarks' showtwistie='true' type='flat' widthtype='fitwindow'
+ heighttype='fixed' height='1.7500in' columnwidth='1.2000in' expand='none'
+ showviewcontents='true' rootname='(Personalpage-Links)'><title><layout labelalign='topleft'
+ labelhoffset='0' labelvoffset='0'/></title><toplevel><layout labelalign='topleft'
+ imagealign='topleft' labelhoffset='0.2000in' labelvoffset='0'/></toplevel><sublevel
+><layout labelalign='topleft' entryhoffset='0.2000in' imagealign='topleft'
+ labelhoffset='0.2000in' labelvoffset='0'/></sublevel></embeddedoutline><run
+><font color='white'/></run></par></tablecell></tablerow></table>
+<pardef id='22' align='center' leftmargin='0.0104in' hide='edit copy previewedit'
+ keepwithnext='true' keeptogether='true'/>
+<par def='22'><run><font color='white'/></run></par></tablecell></tablerow></table></tablecell></tablerow></table></layer><layer
+ htmlid='previewer' zindex='0' topunittype='pixels' top='312.0000' leftunittype='pixels'
+ left='91.0000' widthunittype='pixels' width='919.0000' heightunittype='pixels'
+ height='61.0000'>
+<par def='13'><run><font size='12pt' name='multilingual'/></run></par>
+<par def='13'><run><font size='12pt' name='multilingual'/></run></par>
+<par def='14'><run><font size='12pt' name='multilingual'/></run></par>
+<table widthtype='fitmargins' rowdisplay='captions' htmlclass='ColorKey' leftmargin='0'
+ refwidth='9.5729in'><tablerowstyle><font size='12pt' style='bold' color='black'/></tablerowstyle><tablecolumn
+ width='100%'/>
+<tablerow tablabel='Previewer'>
+<tablecell borderwidth='0px'><compositedata type='65453' prevtype='221' nexttype='65514'
+ afterparcount='5' containertype='65453' afterbegincount='1'>
+rf8MACIACAAgAAAA
+</compositedata><compositedata
+ type='65514' prevtype='65453' nexttype='65535' afterparcount='6' containertype='65453'
+ afterbegincount='2'>
+6v8+ACIAIUQAAGQAYAwBAAAKAAAAAAAAAAABAAAKAQAACgAABQD///8AAQAAAAAAAAAAAAAAAAAA
+AAAAAAA=
+</compositedata><compositedata type='65535' prevtype='65514'
+ nexttype='65532' afterparcount='7' containertype='65453' afterbegincount='3'>
+//9UAAUAAAAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAEVtYmVkZGVkTm90ZXNQcmV2aWV3
+</compositedata><compositedata
+ type='65532' prevtype='65535' nexttype='174' afterparcount='8' containertype='65453'
+ afterbegincount='4'>
+/P86AAAAAAAFAAIAAgACAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAA
+AA==
+</compositedata><compositedata type='174' prevtype='65532'
+ nexttype='222' afterparcount='9' containertype='65453' afterbegincount='5'>
+rgI=
+</compositedata>
+<pardef id='24' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='24'/></tablecell></tablerow></table></layer></par>
+<par def='3'/></richtext></body>
+<item name='$SubForm_RepIDs' sign='true'><textlist><text>0000000000000000</text><text
+>0000000000000000</text></textlist></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>homea</text></item></form>
+

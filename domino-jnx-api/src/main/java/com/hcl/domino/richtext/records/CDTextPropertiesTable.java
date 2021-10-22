@@ -14,26 +14,33 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.jnx.vertx.json;
+package com.hcl.domino.richtext.records;
 
-import java.io.IOException;
-
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.hcl.domino.data.Document;
+import com.hcl.domino.richtext.annotation.StructureDefinition;
+import com.hcl.domino.richtext.annotation.StructureGetter;
+import com.hcl.domino.richtext.annotation.StructureMember;
+import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.structures.WSIG;
 
 /**
- * Custom  vertx Json Serializer for Document Object in Designs
- *
- * @since 1.0.32
+ * @author Jesse Gallagher
+ * @since 1.0.45
  */
-public class DocumentToUnidSerializer extends JsonSerializer<Document> {
-	private static String UNID = "unid"; //$NON-NLS-1$
-
-	@Override
-	public void serialize(Document value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-		gen.writeStringField(UNID, value.getUNID());
-		gen.writeEndObject();
-	}
+@StructureDefinition(
+  name = "CDTEXTPROPERTIESTABLE",
+  members = {
+    @StructureMember(name = "Header", type = WSIG.class),
+    @StructureMember(name = "NumberOfEntries", type = short.class, unsigned = true)
+  }
+)
+public interface CDTextPropertiesTable extends RichTextRecord<WSIG> {
+  @StructureGetter("Header")
+  @Override
+  WSIG getHeader();
+  
+  @StructureGetter("NumberOfEntries")
+  int getNumberOfEntries();
+  
+  @StructureSetter("NumberOfEntries")
+  CDTextPropertiesTable setNumberOfEntries(int num);
 }

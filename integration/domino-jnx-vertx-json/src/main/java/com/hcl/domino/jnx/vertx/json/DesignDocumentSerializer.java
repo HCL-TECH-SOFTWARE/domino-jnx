@@ -14,30 +14,28 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.jnx.example.swt.dump;
+package com.hcl.domino.jnx.vertx.json;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
+import java.io.IOException;
 
-import com.hcl.domino.jnx.example.swt.App;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.hcl.domino.data.Document;
 
-public class DumpDBShell extends Shell {
+/**
+ * Custom  vertx Json Serializer for Document Object in Designs
+ *
+ * @since 1.0.32
+ */
+public class DesignDocumentSerializer extends JsonSerializer<Document> {
+	public static final String UNID = "unid"; //$NON-NLS-1$
+	public static final String SIGNER = "signer"; //$NON-NLS-1$
 
-  public DumpDBShell(Display display) {
-    super(display, SWT.SHELL_TRIM);
-
-    setText(App.APP_NAME);
-    setSize(500, 550);
-    setLayout(new FillLayout());
-    
-
-    new DumpDBPane(this, SWT.NONE);
-  }
-
-  @Override
-  protected void checkSubclass() {
-    // Disable the check that prevents subclassing of SWT components
-  }
+	@Override
+	public void serialize(Document value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+		gen.writeStringField(UNID, value.getUNID());
+		gen.writeStringField(SIGNER, value.getSigner());
+		gen.writeEndObject();
+	}
 }
