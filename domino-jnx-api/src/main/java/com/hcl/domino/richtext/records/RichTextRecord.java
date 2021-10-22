@@ -95,7 +95,8 @@ public interface RichTextRecord<T extends CDSignature> extends ResizableMemorySt
   }
 
   /**
-   * Returns the type of the record, if known.
+   * Returns the type of the record, if known. If this record is unknown,
+   * this method will return all potential matching signatures.
    *
    * @return a set of {@link RecordType} values that have the value
    *         {@link #getTypeValue()} (there may be duplicates like

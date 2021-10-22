@@ -717,12 +717,13 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(2, body.get(0).getData().capacity());
       }
       {
-        Assertions.assertInstanceOf(CDText.class, body.get(1));
-        final CDText text = (CDText) body.get(1);
+        final CDText text = Assertions.assertInstanceOf(CDText.class, body.get(1));
         assertEquals(8, body.get(1).getHeader().getLength().intValue());
         assertEquals(8, body.get(1).getData().capacity());
         assertTrue(text.getStyle().isBold());
         assertEquals(StandardFonts.TYPEWRITER, text.getStyle().getStandardFont().get());
+        
+        assertEquals(EnumSet.of(RecordType.TEXT), text.getType());
       }
       {
         Assertions.assertInstanceOf(CDImageHeader.class, body.get(2));
