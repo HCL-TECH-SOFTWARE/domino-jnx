@@ -43,6 +43,7 @@ import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 import com.hcl.domino.richtext.structures.OpaqueTimeDate;
 
@@ -349,12 +350,20 @@ public class MemoryStructureProxy implements InvocationHandler {
   }
 
   private final MemoryStructure record;
-
   private final Class<? extends MemoryStructure> encapsulated;
+  private final RecordType recordType;
 
-  public MemoryStructureProxy(final MemoryStructure record, final Class<? extends MemoryStructure> encapsulated) {
+  /**
+   * Constructs a new {@code MemoryStructureProxy} instance for the provided memory layout.
+   * 
+   * @param record the {@link MemoryStructure} instance to provide memory access
+   * @param encapsulated the interface to represent by this proxy
+   * @param recordType the rich-text {@link RecordType} matched for this record; may be {@code null}
+   */
+  public MemoryStructureProxy(final MemoryStructure record, final Class<? extends MemoryStructure> encapsulated, RecordType recordType) {
     this.record = record;
     this.encapsulated = encapsulated;
+    this.recordType = recordType;
   }
 
   @Override
@@ -523,6 +532,11 @@ public class MemoryStructureProxy implements InvocationHandler {
     final Method synthMember = struct.synthSetterMap.get(thisMethod);
     if (synthMember != null) {
       return this.invoke(self, synthMember, args);
+    }
+    
+    // Special handling for rich-text records with applied RecordTypes
+    if(this.recordType != null && "getType".equals(thisMethod.getName()) && thisMethod.getParameterCount() == 0) { //$NON-NLS-1$
+      return EnumSet.of(this.recordType);
     }
 
     if (MemoryStructureUtil.isInLineage(thisMethod, this.encapsulated)) {
