@@ -106,6 +106,7 @@ import com.hcl.domino.richtext.records.CurrencyType;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
 import com.hcl.domino.richtext.structures.AssistFieldStruct.ActionByField;
 import com.hcl.domino.richtext.structures.CDPoint;
@@ -1413,6 +1414,31 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
 
         @SuppressWarnings("unused")
         final CDLayoutButton begin = (CDLayoutButton) doc.getRichTextItem("Body").get(0);
+      });
+    }
+    
+
+    @Test
+    public void testVMButtonDefaults() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          final ViewmapButtonDefaults begin =rtWriter.createStructure(ViewmapButtonDefaults.class, 0);           
+            begin.setLineColor(207);
+            begin.setFillFGColor(15);
+            begin.setFillBGColor(15);
+            begin.setLineStyle(0);
+            begin.setLineWidth(1);
+            begin.setFillStyle(1);
+
+            assertEquals(207, begin.getLineColor());
+            assertEquals(15,begin.getFillFGColor());
+            assertEquals(15,begin.getFillBGColor());
+            assertEquals(0,begin.getLineStyle());
+            assertEquals(1,begin.getLineWidth());
+            assertEquals(1,begin.getFillStyle());
+        }
+        
       });
     }
 }
