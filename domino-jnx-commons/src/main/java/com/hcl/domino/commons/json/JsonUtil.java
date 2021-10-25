@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.commons.json;
 
+import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -24,6 +25,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -204,5 +206,11 @@ public enum JsonUtil {
     }
 
     return null;
+  }
+  
+  public static String toBase64String(ByteBuffer val)  {
+    byte[] byteArr = new byte[val.remaining()];
+    val.get(byteArr);
+    return Base64.getEncoder().encodeToString(byteArr);
   }
 }
