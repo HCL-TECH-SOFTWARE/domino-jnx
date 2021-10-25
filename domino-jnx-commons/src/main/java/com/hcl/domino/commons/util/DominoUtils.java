@@ -40,7 +40,8 @@ public enum DominoUtils {
    */
   public static boolean checkBooleanProperty(final String propertyName, final String envVarName) {
     if (StringUtil.isNotEmpty(propertyName)) {
-      final boolean propVal = AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> Boolean.getBoolean(propertyName));
+      final String propValString = AccessController.doPrivileged((PrivilegedAction<String>) () -> System.getProperty(propertyName));
+      final boolean propVal = "true".equalsIgnoreCase(propValString) || "1".equalsIgnoreCase(propValString); //$NON-NLS-1$ //$NON-NLS-2$
       if (propVal) {
         return true;
       }

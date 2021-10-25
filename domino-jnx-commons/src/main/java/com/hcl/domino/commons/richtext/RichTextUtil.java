@@ -113,20 +113,22 @@ public enum RichTextUtil {
    * {@link #encapsulateRecord(short, ByteBuffer)}) with
    * the new encapsulation interface.
    * 
+   * @param type               the {@link RecordType} instance matched to
+   *                           this record
    * @param record             the {@link AbstractCDRecord} implementation to
    *                           re-encapsulate
    * @param encapsulationClass the new interface to use
    * @return a {@link RichTextRecord} implementation using the data from
    *         {@code record} and implementing the new interface
    */
-  public static RichTextRecord<?> reencapsulateRecord(final AbstractCDRecord<?> record,
+  public static RichTextRecord<?> reencapsulateRecord(RecordType type, final AbstractCDRecord<?> record,
       final Class<? extends RichTextRecord<?>> encapsulationClass) {
     if (record instanceof GenericBSIGRecord) {
-      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericBSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forRichTextStructure(encapsulationClass, type, new GenericBSIGRecord(record.getData(), encapsulationClass));
     } else if (record instanceof GenericWSIGRecord) {
-      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericWSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forRichTextStructure(encapsulationClass, type, new GenericWSIGRecord(record.getData(), encapsulationClass));
     } else if (record instanceof GenericLSIGRecord) {
-      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericLSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forRichTextStructure(encapsulationClass, type, new GenericLSIGRecord(record.getData(), encapsulationClass));
     } else {
       throw new IllegalArgumentException(
           MessageFormat.format("Unable to determine encapsulation for {0}", record.getClass().getName()));
@@ -347,7 +349,7 @@ public enum RichTextUtil {
       if(encapsulation == null) {
         result.add(record);
       } else {
-        result.add(reencapsulateRecord(record, encapsulation));
+        result.add(reencapsulateRecord(type, record, encapsulation));
       }
       
       // These are always stored at WORD boundaries

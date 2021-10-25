@@ -40,6 +40,7 @@ import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.BSIG;
 import com.hcl.domino.richtext.structures.CDSignature;
@@ -250,12 +251,29 @@ public enum MemoryStructureUtil {
   public static final <I extends MemoryStructure> I forStructure(final Class<I> subtype, final MemoryStructure structure) {
     if (structure instanceof ResizableMemoryStructure) {
       return (I) java.lang.reflect.Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-          new Class<?>[] { subtype }, new MemoryStructureProxy(structure, subtype));
+          new Class<?>[] { subtype }, new MemoryStructureProxy(structure, subtype, null));
     } else {
       // Always wrap in a resizable structure to account for variable data
       return MemoryStructureUtil.forStructure(subtype,
           new GenericResizableMemoryStructure(structure.getData().slice().order(ByteOrder.nativeOrder()), subtype));
     }
+  }
+  
+  /**
+   * Generates a new rich-text proxy object backed by the provided {@link MemoryStructure}
+   * implementation.
+   * 
+   * @param <I>        the {@link RichTextRecord} sub-interface to proxy
+   * @param subtype    a class representing {@code I}
+   * @param recordType the matched {@link RecordType} for the record
+   * @param structure  the implementation structure
+   * @return a new proxy object
+   * @since 1.0.45
+   */
+  @SuppressWarnings("unchecked")
+  public static final <I extends RichTextRecord<?>> I forRichTextStructure(Class<I> subtype, RecordType recordType, MemoryStructure structure) {
+    return (I) java.lang.reflect.Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+        new Class<?>[] { subtype }, new MemoryStructureProxy(structure, subtype, recordType));
   }
 
   /**
