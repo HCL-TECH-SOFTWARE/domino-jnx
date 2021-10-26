@@ -109,7 +109,7 @@
 						console.debug("Processing console data", lineObj);
 						// Chop off the trailing "\n"
 						const dataLine = lineObj.data.substring(0, lineObj.data.length-1);
-						if(dataLine.startsWith("<ct" && dataBuf.length != 0)) {
+						if(dataLine.startsWith("<ct") && dataBuf.length != 0) {
 							// Then the buffer is the result of a previous dropped stream and should be truncated
 							dataBuf.length = 0;
 						}
@@ -119,7 +119,6 @@
 						let index = xmlFragment.indexOf("<ct", 0);
 						let endIndex = -1;
 						const nodes = xmlFragment.split(/>\n[\r\n]*/);
-						console.l
 						nodes.forEach(fragment => {
 							if(!fragment.endsWith("</ct")) {
 								dataBuf.push(fragment);

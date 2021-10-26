@@ -91,6 +91,7 @@ import com.hcl.domino.richtext.records.CDImageSegment;
 import com.hcl.domino.richtext.records.CDKeyword;
 import com.hcl.domino.richtext.records.CDLargeParagraph;
 import com.hcl.domino.richtext.records.CDLayer;
+import com.hcl.domino.richtext.records.CDLayoutButton;
 import com.hcl.domino.richtext.records.CDMapElement;
 import com.hcl.domino.richtext.records.CDParagraph;
 import com.hcl.domino.richtext.records.CDPositioning;
@@ -716,12 +717,13 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(2, body.get(0).getData().capacity());
       }
       {
-        Assertions.assertInstanceOf(CDText.class, body.get(1));
-        final CDText text = (CDText) body.get(1);
+        final CDText text = Assertions.assertInstanceOf(CDText.class, body.get(1));
         assertEquals(8, body.get(1).getHeader().getLength().intValue());
         assertEquals(8, body.get(1).getData().capacity());
         assertTrue(text.getStyle().isBold());
         assertEquals(StandardFonts.TYPEWRITER, text.getStyle().getStandardFont().get());
+        
+        assertEquals(EnumSet.of(RecordType.TEXT), text.getType());
       }
       {
         Assertions.assertInstanceOf(CDImageHeader.class, body.get(2));
@@ -1397,6 +1399,20 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final CDWinMetaSegment begin = (CDWinMetaSegment) doc.getRichTextItem("Body").get(0);
         assertEquals(60000, begin.getDataSize());
         assertEquals(65535, begin.getSegSize());
+      });
+    }
+    
+    @Test
+    public void testLayoutButton() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDLayoutButton.class, begin -> {
+          });
+        }
+
+        @SuppressWarnings("unused")
+        final CDLayoutButton begin = (CDLayoutButton) doc.getRichTextItem("Body").get(0);
       });
     }
 }

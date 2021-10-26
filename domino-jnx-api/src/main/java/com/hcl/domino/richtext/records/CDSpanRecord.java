@@ -14,24 +14,34 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.jnx.example.swt.dbtree;
+package com.hcl.domino.richtext.records;
 
-import java.util.Arrays;
+import com.hcl.domino.richtext.annotation.StructureDefinition;
+import com.hcl.domino.richtext.annotation.StructureGetter;
+import com.hcl.domino.richtext.annotation.StructureMember;
+import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.structures.BSIG;
 
-import org.eclipse.jface.viewers.TreeNode;
-import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Control;
-
-public abstract class DBListTreeNode extends TreeNode {
-
-  public DBListTreeNode(final Object value) {
-    super(value);
+/**
+ * @author Jesse Gallagher
+ * @since 1.0.45
+ */
+@StructureDefinition(
+  name = "CDSPANRECORD",
+  members = {
+    @StructureMember(name = "Header", type = BSIG.class),
+    @StructureMember(name = "PropID", type = int.class)
   }
-
-  public void displayInfoPane(final Composite target) {
-    Arrays.stream(target.getChildren()).forEach(Control::dispose);
-  }
-
-  public abstract Image getImage();
+)
+public interface CDSpanRecord extends RichTextRecord<BSIG> {
+  
+  @StructureGetter("Header")
+  @Override
+  BSIG getHeader();
+  
+  @StructureGetter("PropID")
+  int getPropId();
+  
+  @StructureSetter("PropID")
+  CDSpanRecord setPropId(int propId);
 }

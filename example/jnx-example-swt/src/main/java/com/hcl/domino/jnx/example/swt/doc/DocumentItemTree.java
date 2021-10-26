@@ -14,14 +14,10 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.jnx.example.swt.dbtree;
+package com.hcl.domino.jnx.example.swt.doc;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 import org.eclipse.jface.resource.FontDescriptor;
@@ -38,19 +34,26 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Tree;
 
-import com.hcl.domino.jnx.example.swt.bean.DatabasesBean;
-import com.hcl.domino.misc.Pair;
-import com.hcl.domino.naming.Names;
+import com.hcl.domino.data.Database;
+import com.hcl.domino.data.Document;
+import com.hcl.domino.data.Item;
+import com.hcl.domino.jnx.example.swt.bean.DominoContextBean;
+import com.hcl.domino.jnx.example.swt.dbtree.InfoPaneTreeNode;
 
-import jakarta.enterprise.inject.spi.CDI;
-
-public class DatabaseTree extends Composite {
-  private TreeViewer databaseBrowser;
+public class DocumentItemTree extends Composite {
+  private TreeViewer itemList;
   private final ResourceManager resourceManager;
   private Composite target;
+  private final String serverName;
+  private final String databasePath;
+  private final String unid;
 
-  public DatabaseTree(final Composite parent, final ResourceManager resourceManager) {
+  public DocumentItemTree(final Composite parent, final ResourceManager resourceManager, final String serverName, final String databasePath, final String unid) {
     super(parent, SWT.NONE);
+    this.serverName = serverName;
+    this.databasePath = databasePath;
+    this.unid = unid;
+    
     this.resourceManager = resourceManager;
     this.setLayout(new FillLayout(SWT.HORIZONTAL));
 
@@ -63,51 +66,45 @@ public class DatabaseTree extends Composite {
   }
 
   private void connectActions() {
-    this.databaseBrowser.getTree().addSelectionListener(new SelectionAdapter() {
+    this.itemList.getTree().addSelectionListener(new SelectionAdapter() {
       @Override
       public void widgetSelected(final SelectionEvent e) {
         if (e.item != null) {
           final Object item = e.item.getData();
           if (item instanceof InfoPaneTreeNode) {
-            ((InfoPaneTreeNode) item).displayInfoPane(DatabaseTree.this.target);
+            ((InfoPaneTreeNode) item).displayInfoPane(DocumentItemTree.this.target);
           }
         } else {
-          Arrays.stream(DatabaseTree.this.target.getChildren()).forEach(Control::dispose);
+          Arrays.stream(DocumentItemTree.this.target.getChildren()).forEach(Control::dispose);
         }
       }
     });
   }
 
   private void createChildren() {
-    this.databaseBrowser = new TreeViewer(this, SWT.BORDER | SWT.FULL_SELECTION);
-    this.databaseBrowser.setContentProvider(new TreeNodeContentProvider());
-    this.databaseBrowser.setLabelProvider(new DatabaseTreeLabelProvider());
+    this.itemList = new TreeViewer(this, SWT.BORDER | SWT.FULL_SELECTION);
+    this.itemList.setContentProvider(new TreeNodeContentProvider());
+    this.itemList.setLabelProvider(new DocumentItemTreeLabelProvider());
 
-    final Tree tree = this.databaseBrowser.getTree();
+    final Tree tree = this.itemList.getTree();
     final Font font = tree.getFont();
     tree.setFont(this.resourceManager.createFont(FontDescriptor.createFrom(font.getFontData()[0].getName(), 10, SWT.NORMAL)));
     tree.setLinesVisible(false);
     
-    ExecutorService exec = CDI.current().select(ExecutorService.class).get();
-    List<Pair<String, String>> knownServers;
-    try {
-      knownServers = exec.submit(() -> {
-        Collection<String> servers = CDI.current().select(DatabasesBean.class).get().getKnownServers();
-        return servers.stream()
-          .map(name -> new Pair<>(Names.toAbbreviated(name), name))
-          .collect(Collectors.toList());
-      }).get();
-    } catch (InterruptedException | ExecutionException e) {
-      throw new RuntimeException(e);
-    }
-
-    final Collection<Pair<String, String>> serverNames = new ArrayList<>();
-    serverNames.add(new Pair<>("(Local)", "")); //$NON-NLS-2$
-    serverNames.addAll(knownServers);
-    this.databaseBrowser.setInput(
-        serverNames.stream()
-            .map(pair -> new ServerTreeNode(pair.getValue1(), pair.getValue2()))
-            .toArray(TreeNode[]::new));
+    DominoContextBean.submit(client -> {
+      final Database database = client.openDatabase(serverName, databasePath);
+      final Document doc = database.getDocumentByUNID(unid).get();
+      List<Item> items = doc.allItems().collect(Collectors.toList());
+      TreeNode[] nodes = new TreeNode[items.size()];
+      
+      for(int i = 0; i < items.size(); i++) {
+        Item item = items.get(i);
+        
+        nodes[i] = new DocumentItemTreeNode(item);
+      }
+      
+      getDisplay().asyncExec(() -> this.itemList.setInput(nodes));
+    });
   }
 
   public void setTarget(final Composite target) {

@@ -43,7 +43,7 @@ import com.hcl.domino.mq.MessageQueue;
 import jakarta.json.bind.JsonbBuilder;
 
 @Path("console")
-public class ConsoleResource {
+public class LiveConsoleResource {
   private static class SseConsoleHandler implements ConsoleHandler, AutoCloseable {
     private final Sse sse;
     private final SseBroadcaster sseBroadcaster;
@@ -107,6 +107,7 @@ public class ConsoleResource {
         try (DominoClient dominoClient = DominoClientBuilder.newDominoClient().build()) {
           dominoClient.getServerAdmin().openServerConsole(serverName, handler);
         } catch (final CancelException e) {
+          e.printStackTrace();
           // Expected when shutting down
         } catch (final Throwable t) {
           t.printStackTrace();

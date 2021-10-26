@@ -101,10 +101,10 @@ public interface INotesCAPI extends Library {
 	
 	short NSFGetChangedDBs(
 			Memory ServerName,
-			NotesTimeDateStruct SinceTime,
+			NotesTimeDateStruct.ByReference SinceTime,
 			LongByReference ChangesSize,
 			DHANDLE.ByReference hChanges,
-			NotesTimeDateStruct NextSinceTime
+			NotesTimeDateStruct.ByReference NextSinceTime
 			);
 
 	/**

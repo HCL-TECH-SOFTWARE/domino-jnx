@@ -14,30 +14,24 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.jnx.example.swt.exporter;
+package com.hcl.domino.jnx.example.swt.dbtree;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
+import java.util.Arrays;
 
-import com.hcl.domino.jnx.example.swt.App;
+import org.eclipse.jface.viewers.TreeNode;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 
-public class DXLShell extends Shell {
+public abstract class InfoPaneTreeNode extends TreeNode {
 
-  public DXLShell(Display display) {
-    super(display, SWT.SHELL_TRIM);
-
-    setText(App.APP_NAME);
-    setSize(500, 550);
-    setLayout(new FillLayout());
-    
-
-    new DXLExporterPane(this, SWT.NONE);
+  public InfoPaneTreeNode(final Object value) {
+    super(value);
   }
 
-  @Override
-  protected void checkSubclass() {
-    // Disable the check that prevents subclassing of SWT components
+  public void displayInfoPane(final Composite target) {
+    Arrays.stream(target.getChildren()).forEach(Control::dispose);
   }
+
+  public abstract Image getImage();
 }

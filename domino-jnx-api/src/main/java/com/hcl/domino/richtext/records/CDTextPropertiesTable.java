@@ -14,30 +14,33 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.jnx.example.swt.dump;
+package com.hcl.domino.richtext.records;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
+import com.hcl.domino.richtext.annotation.StructureDefinition;
+import com.hcl.domino.richtext.annotation.StructureGetter;
+import com.hcl.domino.richtext.annotation.StructureMember;
+import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.structures.WSIG;
 
-import com.hcl.domino.jnx.example.swt.App;
-
-public class DumpDBShell extends Shell {
-
-  public DumpDBShell(Display display) {
-    super(display, SWT.SHELL_TRIM);
-
-    setText(App.APP_NAME);
-    setSize(500, 550);
-    setLayout(new FillLayout());
-    
-
-    new DumpDBPane(this, SWT.NONE);
+/**
+ * @author Jesse Gallagher
+ * @since 1.0.45
+ */
+@StructureDefinition(
+  name = "CDTEXTPROPERTIESTABLE",
+  members = {
+    @StructureMember(name = "Header", type = WSIG.class),
+    @StructureMember(name = "NumberOfEntries", type = short.class, unsigned = true)
   }
-
+)
+public interface CDTextPropertiesTable extends RichTextRecord<WSIG> {
+  @StructureGetter("Header")
   @Override
-  protected void checkSubclass() {
-    // Disable the check that prevents subclassing of SWT components
-  }
+  WSIG getHeader();
+  
+  @StructureGetter("NumberOfEntries")
+  int getNumberOfEntries();
+  
+  @StructureSetter("NumberOfEntries")
+  CDTextPropertiesTable setNumberOfEntries(int num);
 }

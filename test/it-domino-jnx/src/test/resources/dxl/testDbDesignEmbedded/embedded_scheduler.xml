@@ -1,27 +1,31 @@
 <?xml version='1.0' encoding='utf-8'?>
-<form name='EmbeddedScheduler' xmlns='http://www.lotus.com/dxl' version='12.0'
- replicaid='8525683F00771995' publicaccess='false' designerversion='8.5.3'
- renderpassthrough='true'>
-<noteinfo noteid='37e' unid='626F8D61E8F7CA9A8525875E0071C824' sequence='10'>
-<created><datetime dst='true'>20210928T164248,04-04</datetime></created>
-<modified><datetime dst='true'>20210928T210554,12-04</datetime></modified>
-<revised><datetime dst='true'>20210928T210554,11-04</datetime></revised>
-<lastaccessed><datetime dst='true'>20210928T210554,11-04</datetime></lastaccessed>
-<addedtofile><datetime dst='true'>20210928T164248,55-04</datetime></addedtofile></noteinfo>
-<updatedby><name>CN=Prabhakar Bugga/O=Prabhakar Bugga</name></updatedby>
-<wassignedby><name>CN=Prabhakar Bugga/O=Prabhakar Bugga</name></wassignedby>
-<body><richtext>
-<pardef id='1' align='center'/>
-<par def='1'><richtextdata type='fffd'>
-3QYAAK3/rf8MAB8ACAEAAAAA6v8+AB8ACUQAAGQALg4BAAAKAAAAAAAAAAABAAAKAQAACgAAAQD/
-//8AAQAAAAAAAAAAAAAAAAAAAAAAAAD9/74AafkJABwAAAAQAB4AAQDx8bQAAQD///8AAQDS0tIA
-AQAAAP8AAQDAwMAAFAAEAAIAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEVtYmVkZGVkU2NoZWR1bGVyVGFyZ2V0RnJhbWUQAAAA
-DgABAAMAOC01AAMAHgAAABwAAQARAExpbmUxAExpbmUyAExpbmUzAAMAaf8QAZ4ACAAAAAEAwMDA
-AAEAAAAAAAEA////AAEA////AAEAAAAAAAEA////AAEA////AAEA////AAEAAAAAAAEAAAAAAAEA
-AAAAAAoAGAAAAAAAAAAKABAAFQAJAAwADAAAAAEA8fG0AAAAAQAAAAAAAQAAAAAAAQAAAAAAAAAA
-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKAAAACABmAAMAGAAAABYAAQALAFJvb20xAFJv
-b20yAAMACgAAAAgAuwADABAAAAAOAAEABAB0ZXN0AwBFbWJlZGRlZFNjaGVkdWxlck5hbWVUT1BU
-SVRMRQBNSURETEVUSVRMRQBCT1RUT01USVRMRQCuAt4GAACuAA==
-</richtextdata></par></richtext></body>
-<item name='$$ScriptName' summary='false' sign='true'><text>EmbeddedScheduler</text></item></form>
+<note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$TITLE' sign='true'><text>EmbeddedScheduler</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$Body' sign='true'>
+<rawitemdata type='1'>
+gQKC/1oAAQADAAAAAAAAAKAFAACgBQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAABAAAAAJSHAAAAAAAAAAAAAAAAAQAAAAQAAACDBAEA3QYAAK3/rf8MAB8ACAEAAAAA
+6v8+AB8ACUQAAGQALg4BAAAKAAAAAAAAAAABAAAKAQAACgAAAQD///8AAQAAAAAAAAAAAAAAAAAA
+AAAAAAD9/74AafkJABwAAAAQAB4AAQDx8bQAAQD///8AAQDS0tIAAQAAAP8AAQDAwMAAFAAEAAIA
+AgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAEVtYmVkZGVkU2NoZWR1bGVyVGFyZ2V0RnJhbWUQAAAADgABAAMAOC01AAMAHgAAABwA
+AQARAExpbmUxAExpbmUyAExpbmUzAAMAaf8QAZ4ACAAAAAEAwMDAAAEAAAAAAAEA////AAEA////
+AAEAAAAAAAEA////AAEA////AAEA////AAEAAAAAAAEAAAAAAAEAAAAAAAoAGAAAAAAAAAAKABAA
+FQAJAAwADAAAAAEA8fG0AAAAAQAAAAAAAQAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAKAAAACABmAAMAGAAAABYAAQALAFJvb20xAFJvb20yAAMACgAAAAgAuwADABAA
+AAAOAAEABAB0ZXN0AwBFbWJlZGRlZFNjaGVkdWxlck5hbWVUT1BUSVRMRQBNSURETEVUSVRMRQBC
+T1RUT01USVRMRQCuAt4GAACuAA==
+</rawitemdata></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>EmbeddedScheduler</text></item>
+<item name='$HTMLCode' sign='true'>
+<rawitemdata type='1'>
+X/8QAAIADwAHAAAAAAAAAA==
+</rawitemdata></item>
+<item name='$Info' sign='true'>
+<rawitemdata type='1'>
+hhgBAIAAAAAAgAAAAQABAP///wAQAAAA
+</rawitemdata></item>
+<item name='$Flags'><text/></item>
+<item name='$Fields'><textlist/></item></note>
+
