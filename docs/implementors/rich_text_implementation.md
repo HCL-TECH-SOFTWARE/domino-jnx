@@ -110,6 +110,8 @@ public interface AssistFieldStruct extends MemoryStructure {
 
 Embedded structure members (such as `COLOR_VALUE`/`ColorValue`) should not have a setter specified: since they permanently exist in memory, API users should use the getter for the structure and then use the setters on the structure itself.
 
+In general, it's good to name getters in ways that fit Java style when the struct member name doesn't. For example, Hungarian-notation markers should be removed outright, so a struct member named `dwFoo` would have a corresponding getter named `getFoo()`. Additionally, it can be useful to expand abbreviated names in cases like taking `TitleLen` and making the getter `getTitleLength()`, or taking `ListSep` and making the getter `getListSeparator()`. Additionally, some method names will have to change to avoid collision with existing methods on the interfaces. For example, members named just `Type` would collide with the existing `getType()` method on `RichTextRecord`, and so should be named something specific to the structure at hand, like `getActionType()`.
+
 #### Enum Optionals
 
 Getters for `INumberEnum` types can return an `Optional` of that type, to handle cases where the underlying value doesn't line up with any of the known values. This can be useful in general, but is particularly useful when none of the enum values are `0`: this allows for the getter method to avoid an exception when called with uninitialized data.
