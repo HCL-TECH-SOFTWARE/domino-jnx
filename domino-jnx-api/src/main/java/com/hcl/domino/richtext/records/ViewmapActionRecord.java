@@ -83,6 +83,14 @@ public interface ViewmapActionRecord extends RichTextRecord<WSIG> {
   @StructureGetter("spare")
   int[] getspare();
 
+  default String getActionName() {
+    return StructureSupport.extractStringValue(
+      this,
+      0, // The total of all variable elements before this one
+      this.getActionStringLen()  // the length of this element
+    );
+  }
+
   @StructureSetter("bHighlightTouch")
   ViewmapActionRecord setbHighlightTouch(int bHighlightTouch);
 
@@ -113,12 +121,17 @@ public interface ViewmapActionRecord extends RichTextRecord<WSIG> {
   @StructureSetter("ActionDataDesignType")
   ViewmapActionRecord setActionDataDesignType(int actionDataDesignType);
 
-  default String getActionName() {
-    return StructureSupport.extractStringValue(
+  default ViewmapActionRecord setActionName(final String actionName) {
+    final int actionNameLen = this.getActionStringLen();
+    return StructureSupport.writeStringValue(
       this,
       0, // The total of all variable elements before this one
-      this.getActionStringLen()  // the length of this element
+      actionNameLen,  // the length of this element
+      actionName,
+      this::setActionStringLen
     );
   }
+  
+
   
 }
