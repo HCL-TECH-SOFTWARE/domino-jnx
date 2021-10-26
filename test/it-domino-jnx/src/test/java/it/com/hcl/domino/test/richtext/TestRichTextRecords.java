@@ -106,6 +106,7 @@ import com.hcl.domino.richtext.records.CurrencyType;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.records.ViewmapHeaderRecord;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
 import com.hcl.domino.richtext.structures.AssistFieldStruct.ActionByField;
 import com.hcl.domino.richtext.structures.CDPoint;
@@ -1413,6 +1414,23 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
 
         @SuppressWarnings("unused")
         final CDLayoutButton begin = (CDLayoutButton) doc.getRichTextItem("Body").get(0);
+      });
+    }
+    
+    @Test
+    public void testVMHeaderRecord() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(ViewmapHeaderRecord.class, begin -> {
+        	  begin.setVersion(8);
+              begin.setNameLen(0);
+          });
+        }
+
+        final ViewmapHeaderRecord begin = (ViewmapHeaderRecord) doc.getRichTextItem("Body", Area.TYPE_VIEWMAP).get(0);
+        assertEquals(8, begin.getVersion());
+        assertEquals(0, begin.getNameLen());
       });
     }
 }
