@@ -1450,12 +1450,12 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           final ViewmapLineDefaults viewmapLineDefaults =rtWriter.createStructure(ViewmapLineDefaults.class, 0);
-          viewmapLineDefaults.setbHighlightCurrent(0);
-          viewmapLineDefaults.setbHighlightTouch(0);
-          viewmapLineDefaults.setHLFillColor(0);
-          viewmapLineDefaults.setHLOutlineColor(0);
-          viewmapLineDefaults.setHLOutlineStyle(1);
-          viewmapLineDefaults.setHLOutlineWidth(0);
+          viewmapLineDefaults.setFillFGColor(0);
+          viewmapLineDefaults.setLineColor(0);
+          viewmapLineDefaults.setFillStyle(0);
+          viewmapLineDefaults.setFillBGColor(0);
+          viewmapLineDefaults.setLineWidth(1);
+          viewmapLineDefaults.setLineStyle(0);
           assertEquals(0,viewmapLineDefaults.getFillFGColor());
           assertEquals(0,viewmapLineDefaults.getLineColor());
           assertEquals(0,viewmapLineDefaults.getFillStyle());
@@ -1472,12 +1472,12 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           final ViewmapTextboxDefaults viewmapTextboxDefaults =rtWriter.createStructure(ViewmapTextboxDefaults.class, 0);
-          viewmapTextboxDefaults.setbHighlightCurrent(1);
-          viewmapTextboxDefaults.setbHighlightTouch(0);
-          viewmapTextboxDefaults.setHLFillColor(0);
-          viewmapTextboxDefaults.setHLOutlineColor(1);
-          viewmapTextboxDefaults.setHLOutlineStyle(1);
-          viewmapTextboxDefaults.setHLOutlineWidth(5);
+          viewmapTextboxDefaults.setFillFGColor(1);
+          viewmapTextboxDefaults.setLineColor(0);
+          viewmapTextboxDefaults.setFillStyle(0);
+          viewmapTextboxDefaults.setFillBGColor(1);
+          viewmapTextboxDefaults.setLineWidth(1);
+          viewmapTextboxDefaults.setLineStyle(5);
           assertEquals(1,viewmapTextboxDefaults.getFillFGColor());
           assertEquals(0,viewmapTextboxDefaults.getLineColor());
           assertEquals(0,viewmapTextboxDefaults.getFillStyle());
@@ -1493,12 +1493,12 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           final ViewmapShapeDefaults viewmapShapeDefaults =rtWriter.createStructure(ViewmapShapeDefaults.class, 0);
-          viewmapShapeDefaults.setbHighlightCurrent(7);
-          viewmapShapeDefaults.setbHighlightTouch(0);
-          viewmapShapeDefaults.setHLFillColor(1);
-          viewmapShapeDefaults.setHLOutlineColor(7);
-          viewmapShapeDefaults.setHLOutlineStyle(1);
-          viewmapShapeDefaults.setHLOutlineWidth(0);
+          viewmapShapeDefaults.setFillFGColor(7);
+          viewmapShapeDefaults.setLineColor(0);
+          viewmapShapeDefaults.setFillStyle(1);
+          viewmapShapeDefaults.setFillBGColor(7);
+          viewmapShapeDefaults.setLineWidth(1);
+          viewmapShapeDefaults.setLineStyle(0);
           assertEquals(7,viewmapShapeDefaults.getFillFGColor());
           assertEquals(0,viewmapShapeDefaults.getLineColor());
           assertEquals(1,viewmapShapeDefaults.getFillStyle());
