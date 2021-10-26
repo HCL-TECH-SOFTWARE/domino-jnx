@@ -164,10 +164,10 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
             this,
             action.getClassName(),
             action.getCodePath(),
-            Arrays.stream(action.getFileList().split("\\n")) //$NON-NLS-1$
+            Arrays.stream(action.getFileList().split("(\\r)?\\n")) //$NON-NLS-1$
                 .filter(StringUtil::isNotEmpty)
                 .collect(Collectors.toList()),
-            Arrays.stream(action.getLibraryList().split("\\n")) //$NON-NLS-1$
+            Arrays.stream(action.getLibraryList().split("(\\r)?\\n")) //$NON-NLS-1$
                 .filter(StringUtil::isNotEmpty)
                 .collect(Collectors.toList()));
       }
@@ -184,7 +184,7 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
             this,
             action.getClassName(),
             action.getCodePath(),
-            Arrays.stream(action.getFileList().split("\\n")) //$NON-NLS-1$
+            Arrays.stream(action.getFileList().split("(\\r)?\\n")) //$NON-NLS-1$
                 .filter(StringUtil::isNotEmpty)
                 .collect(Collectors.toList()));
       }
