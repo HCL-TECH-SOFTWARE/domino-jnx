@@ -106,6 +106,9 @@ import com.hcl.domino.richtext.records.CurrencyType;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.records.ViewmapHeaderRecord;
+import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
+import com.hcl.domino.richtext.records.ViewmapActionRecord;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
 import com.hcl.domino.richtext.structures.AssistFieldStruct.ActionByField;
 import com.hcl.domino.richtext.structures.CDPoint;
@@ -1415,4 +1418,88 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final CDLayoutButton begin = (CDLayoutButton) doc.getRichTextItem("Body").get(0);
       });
     }
+
+    @Test
+    public void testVMButtonDefaults() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          final ViewmapButtonDefaults begin =rtWriter.createStructure(ViewmapButtonDefaults.class, 0);           
+            begin.setLineColor(207);
+            begin.setFillFGColor(15);
+            begin.setFillBGColor(15);
+            begin.setLineStyle(0);
+            begin.setLineWidth(1);
+            begin.setFillStyle(1);
+
+            assertEquals(207, begin.getLineColor());
+            assertEquals(15,begin.getFillFGColor());
+            assertEquals(15,begin.getFillBGColor());
+            assertEquals(0,begin.getLineStyle());
+            assertEquals(1,begin.getLineWidth());
+            assertEquals(1,begin.getFillStyle());
+        }
+        
+      });
+    }
+
+    @Test
+    public void testVMHeaderRecord() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(ViewmapHeaderRecord.class, begin -> {
+        	  begin.setVersion(8);
+              begin.setNameLen(0);
+          });
+        }
+
+        final ViewmapHeaderRecord begin = (ViewmapHeaderRecord) doc.getRichTextItem("Body", Area.TYPE_VIEWMAP).get(0);
+        assertEquals(8, begin.getVersion());
+        assertEquals(0, begin.getNameLen());
+      });
+    }
+
+    public void testViewmapActionRecord() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        final String actionName = "the action name";
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(ViewmapActionRecord.class, begin -> {
+            begin.setbHighlightTouch(1);
+            begin.setbHighlightCurrent(2);
+            begin.setHLOutlineColor(3);
+            begin.setHLFillColor(4);
+            begin.setClickAction(5);
+            //begin.setActionStringLen(6); // this is set when calling setActionName()
+            begin.setHLOutlineWidth(7);
+            begin.setHLOutlineStyle(8);
+            begin.getLinkInfo().setDocUnid("B51DB3939AB413C585256D4F00399408");
+            begin.getLinkInfo().setReplicaId("0123456701234567");
+            begin.getLinkInfo().setViewUnid("B51DB3939AB413C585256D4F00399409");
+            begin.setExtDataLen(9);
+            begin.setActionDataDesignType(10);
+            begin.setActionName(actionName);
+
+          });
+        }
+
+        final ViewmapActionRecord var = (ViewmapActionRecord) doc.getRichTextItem("Body", Area.TYPE_VIEWMAP).get(0);
+        assertEquals(1, var.getbHighlightTouch());
+        assertEquals(2, var.getbHighlightCurrent());
+        assertEquals(3, var.getHLOutlineColor());
+        assertEquals(4, var.getHLFillColor());
+        assertEquals(5, var.getClickAction());
+        assertEquals(actionName.length(), var.getActionStringLen());
+        assertEquals(7, var.getHLOutlineWidth());
+        assertEquals(8, var.getHLOutlineStyle());
+        assertEquals("B51DB3939AB413C585256D4F00399408", var.getLinkInfo().getDocUnid());
+        assertEquals("0123456701234567", var.getLinkInfo().getReplicaId());
+        assertEquals("B51DB3939AB413C585256D4F00399409", var.getLinkInfo().getViewUnid());
+        assertEquals(9, var.getExtDataLen());
+        assertEquals(10, var.getActionDataDesignType());
+        assertEquals(actionName, var.getActionName());
+      });
+    }
+    
 }
