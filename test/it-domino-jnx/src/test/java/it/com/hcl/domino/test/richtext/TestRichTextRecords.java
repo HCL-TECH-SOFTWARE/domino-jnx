@@ -107,6 +107,7 @@ import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.records.ViewmapHeaderRecord;
+import com.hcl.domino.richtext.records.ViewmapTextRecord;
 import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
 import com.hcl.domino.richtext.records.ViewmapActionRecord;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
@@ -1501,5 +1502,27 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(actionName, var.getActionName());
       });
     }
-    
+ 
+    @Test
+    public void testVMTextRecord() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(ViewmapTextRecord.class, begin -> {
+        	begin.setLineColor(207);
+        	begin.setFillFGColor(15);
+        	begin.setFillBGColor(15);
+        	begin.setLineStyle(0);
+        	begin.setLineWidth(1);
+          });
+        }
+
+        final ViewmapTextRecord begin = (ViewmapTextRecord) doc.getRichTextItem("Body", Area.TYPE_VIEWMAP).get(0);
+        assertEquals(207, begin.getLineColor());
+        assertEquals(15, begin.getFillFGColor());
+        assertEquals(15, begin.getFillBGColor());
+        assertEquals(0,begin.getLineStyle());
+        assertEquals(1, begin.getLineWidth());
+      });
+    }
 }
