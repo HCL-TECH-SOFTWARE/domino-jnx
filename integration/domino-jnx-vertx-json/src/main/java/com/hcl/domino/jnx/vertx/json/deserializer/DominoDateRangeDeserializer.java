@@ -30,6 +30,7 @@ import com.hcl.domino.data.DominoDateRange;
 
 public class DominoDateRangeDeserializer extends StdDeserializer<DominoDateRange> {
   private static final long serialVersionUID = 1L;
+  private static final String RANGE_SEPARATOR = "/";
 
   public DominoDateRangeDeserializer(Class<DominoDateRange> vc) {
     super(vc);
@@ -41,7 +42,7 @@ public class DominoDateRangeDeserializer extends StdDeserializer<DominoDateRange
     JsonNode node = p.getCodec().readTree(p);
     Iterator<String> fnames = node.fieldNames();
     String dStr = node.get(fnames.next()).asText();
-    int rangeSeparator = dStr.indexOf("/");
+    int rangeSeparator = dStr.indexOf(RANGE_SEPARATOR);
     if (rangeSeparator < 0)
       return null;
     else {
