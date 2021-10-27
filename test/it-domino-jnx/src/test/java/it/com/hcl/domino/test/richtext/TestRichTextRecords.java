@@ -1403,31 +1403,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       });
     }
 
-   
-    @Test
-    public void testCDHRule() throws Exception {
-      this.withTempDb(database -> {
-        final Document doc = database.createDocument();
-        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
-          rtWriter.addRichTextRecord(CDHRule.class, begin -> {
-            begin.setHeight(72);
-            begin.setWidth(100);
-            begin.setColorRaw(StandardColors.DarkMagenta);
-            begin.setGradientColorRaw(StandardColors.DarkMagenta);
-            begin.setFlags(EnumSet.of(CDHRule.Flag.HRULE_FLAG_USECOLOR, CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_NOSHADOW));
-          });
-        }
-
-        final CDHRule begin = (CDHRule) doc.getRichTextItem("Body").get(0);
-        assertEquals(72, begin.getHeight());
-        assertEquals(100, begin.getWidth());
-        assertEquals(StandardColors.DarkMagenta, begin.getColor().get());
-        assertEquals(StandardColors.DarkMagenta, begin.getGradientColor().get());
-        assertEquals(EnumSet.of(CDHRule.Flag.HRULE_FLAG_USECOLOR, CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_NOSHADOW), begin.getFlags());
-      });
-    }
-  
-          
+           
     @Test
     public void testLayoutButton() throws Exception {
       this.withTempDb(database -> {
@@ -1442,4 +1418,29 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
 
       });
     }
+  
+    @Test
+    public void testCDHRule() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDHRule.class, begin -> {
+            begin.setHeight(72);
+            begin.setWidth(100);
+            begin.setColorRaw(0);
+            begin.setColor(StandardColors.Black);
+            begin.setGradientColorRaw(0);
+            begin.setFlags(EnumSet.of(CDHRule.Flag.HRULE_FLAG_USECOLOR, CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_NOSHADOW));
+          });
+        }
+
+        final CDHRule begin = (CDHRule) doc.getRichTextItem("Body").get(0);
+        assertEquals(72, begin.getHeight());
+        assertEquals(100, begin.getWidth());
+        assertEquals(StandardColors.Black, begin.getColor().get());
+        assertEquals(StandardColors.Black, begin.getGradientColor().get());
+        assertEquals(EnumSet.of(CDHRule.Flag.HRULE_FLAG_USECOLOR, CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_NOSHADOW), begin.getFlags());
+      });
+    }
+    
 }

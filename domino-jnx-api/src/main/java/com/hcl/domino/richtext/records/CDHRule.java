@@ -83,7 +83,7 @@ public interface CDHRule extends RichTextRecord<WSIG>{
   }
   
   @StructureSetter("Color")
-  CDHRule setColorRaw(StandardColors color);
+  CDHRule setColorRaw(int colorRaw);
   
   @StructureSetter("Color")
   CDHRule setColor(StandardColors color);
@@ -98,7 +98,7 @@ public interface CDHRule extends RichTextRecord<WSIG>{
   }
   
   @StructureSetter("GradientColor")
-  CDHRule setGradientColorRaw(StandardColors gradientColor);
+  CDHRule setGradientColorRaw(int gradientColorRaw);
   
   @StructureSetter("GradientColor")
   CDHRule setGradientColor(StandardColors gradientColor);
