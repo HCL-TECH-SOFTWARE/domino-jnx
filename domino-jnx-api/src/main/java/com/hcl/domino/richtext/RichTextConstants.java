@@ -17,12 +17,9 @@
 package com.hcl.domino.richtext;
 
 import com.hcl.domino.constants.EditOds;
+import com.hcl.domino.constants.Ods;
 
-public interface RichTextConstants extends EditOds {
-
-  short LONGRECORDLENGTH = 0x0000;
-  short WORDRECORDLENGTH = (short) (0xff00 & 0xffff);
-  short BYTERECORDLENGTH = 0; /* High byte contains record length */
+public interface RichTextConstants extends EditOds, Ods {
 
   /* Signatures for Composite Records in items of data type COMPOSITE */
 
@@ -1020,6 +1017,59 @@ public interface RichTextConstants extends EditOds {
   short CDRESOURCE_CLASS_PORTFOLIO = 21;
   short CDRESOURCE_CLASS_OUTLINE = 22;
 
+  /** Obsolete - Use class _VIEW or _FOLDER and flag _SIMPLE */
+  short CDRESOURCE_CLASS_SIMPLEVIEW = 23;
+  /** design link only */
+  short CDRESOURCE_CLASS_SUBFORM = 24;
+  /** design link only */
+  short CDRESOURCE_CLASS_SHARED_FLD = 25;
+  /** design link only */
+  short CDRESOURCE_CLASS_SCRIPTLIB = 26;
+  /** design link only */
+  short CDRESOURCE_CLASS_DBSCRIPT = 27;
+  /** design link only */
+  short CDRESOURCE_CLASS_SHARED_ACTIONS = 28;
+  /** design link only */
+  short CDRESOURCE_CLASS_WEBSERVICE = 29;
+  /** design link only */
+  short CDRESOURCE_CLASS_DATA_CONNECTION = 30;
+  short CDRESOURCE_CLASS_SHARED_APPLET = 31;
+  short CDRESOURCE_CLASS_EMBEDDED_VIEW = 32;
+  short CDRESOURCE_CLASS_STYLE_SHEET = 33;
+  /** a file with the html flag, too */
+  short CDRESOURCE_CLASS_HTMLFILE = 34;
+  /** a file that's a JSP */
+  short CDRESOURCE_CLASS_JSP = 35;
+  short CDRESOURCE_CLASS_SHAREDCOL = 36;
+  short CDRESOURCE_CLASS_DB2ACCESSVIEW = 37;
+  /** LI 3925.04 */
+  short CDRESOURCE_CLASS_COMPAPP = 38;
+  /** LI 3925.05 */
+  short CDRESOURCE_CLASS_COMPDEF = 39;
+  /** LI 3261.05 */
+  short CDRESOURCE_CLASS_MAILSETTINGS = 40;
+  /** LI 3261.05 */
+  short CDRESOURCE_CLASS_CSSETTINGS = 41;
+  /** LI 3261.05 */
+  short CDRESOURCE_CLASS_FORM_PREMIUM = 42;
+  short CDRESOURCE_MAX_CLASS = CDRESOURCE_CLASS_FORM_PREMIUM;
+  /** design link only */
+  short CDRESOURCE_CLASS_XSPPAGES = 43;
+  /** design link only */
+  short CDRESOURCE_CLASS_XSPCCS = 44;
+  /** design link only */
+  short CDRESOURCE_CLASS_STYLEKITS = 45;
+  /** design link only */
+  short CDRESOURCE_CLASS_WSCONSUMERS = 46;
+  /** design link only */
+  short CDRESOURCE_CLASS_COMPONENT = 47;
+  /** design link only */
+  short CDRESOURCE_CLASS_JAVAFILES = 48;
+  /** design link only */
+  short CDRESOURCE_CLASS_JAVAJARS = 49;
+  /** design link only */
+  short CDRESOURCE_CLASS_CUSTOMELTS = 50;
+  
   short CDBORDERSTYLE_NONE = 0;
   short CDBORDERSTYLE_SOLID = 1;
   short CDBORDERSTYLE_DOUBLE = 2;
@@ -1115,6 +1165,7 @@ public interface RichTextConstants extends EditOds {
   short HTML_EVENT_CLIENT_FORM_POSTSEND = 0x105;
   short HTML_EVENT_CLIENT_FORM_QUERYRECALC = 0x106;
   short HTML_EVENT_CLIENT_FORM_QUERYSEND = 0x107;
+  short HTML_EVENT_CLIENT_FORM_ONSIZE = 0x0127;
   short HTML_EVENT_CLIENT_VIEW_QUERYOPEN = 0x108;
   short HTML_EVENT_CLIENT_VIEW_POSTOPEN = 0x109;
   short HTML_EVENT_CLIENT_VIEW_REGIONDBLCLK = 0x10a;
@@ -1145,8 +1196,7 @@ public interface RichTextConstants extends EditOds {
   short HTML_EVENT_CLIENT_VIEW_ONSELECT = 0x123;
   short HTML_EVENT_CLIENT_VIEW_ONFOCUS = 0x124;
   short HTML_EVENT_CLIENT_VIEW_ONBLUR = 0x125;
-  /** Non-documented flag for the OnSize client event */
-  short HTML_EVENT_CLIENT_FORM_ONSIZE = 0x0127;
+  short HTML_EVENT_CLIENT_VIEW_ONSIZE = 0x126;
   
   short ACTION_FORMULA = 0;
   short ACTION_CANNED_ACTION = 1;
@@ -1449,4 +1499,97 @@ public interface RichTextConstants extends EditOds {
   int LAYOUT_TEXT_FLAG_RTL = 0x02000000;
   int LAYOUT_TEXT_FLAG_RO_MASK = 0x03000000;
   int LAYOUT_TEXT_FLAGS_MASK = 0xF0000000;
+  
+  int STYLE_FLAG_FONTID = 0x00000001; /* A FONTID follows the CDSTYLENAME structure.
+                                         The font is included in the style. */
+  int STYLE_FLAG_INCYCLE = 0x00000002; /* This style is included in the Cycle Key [F11].
+                                          The style is available when you press F11
+                                          to cyle through the named styles. */
+  int STYLE_FLAG_PERMANENT = 0x00000004; /* A user name follows the CDSTYLENAME structure.
+                                            The style is available for all documents. */
+  int STYLE_FLAG_MARGIN = 0x00000008;
+  
+  int MAX_STYLE_NAME = 35;
+  
+  int VERTICAL_ALIGNMENT_BASELINE = 0;
+  int VERTICAL_ALIGNMENT_CENTER = 1;
+  int VERTICAL_ALIGNMENT_TOP = 2;
+  /* Don't use 3 and 4 */
+  int VERTICAL_ALIGNMENT_BOTTOM = 5;
+  
+  int CDLARGEPARAGRAPH_BEGIN = 0x0001;
+  int CDLARGEPARAGRAPH_END = 0x0002;
+  
+  int AREA_SHAPE_RECT = 1;
+  int AREA_SHAPE_CIRCLE = 2;
+  int AREA_SHAPE_POLYGON = 3;
+  int AREA_SHAPE_DEFAULT = 4;
+  
+  /*    values for CDPOSITIONING Scheme */
+  int CDPOSITIONING_SCHEME_STATIC = 0;
+  int CDPOSITIONING_SCHEME_ABSOLUTE = 1;
+  int CDPOSITIONING_SCHEME_RELATIVE = 2;
+  int CDPOSITIONING_SCHEME_FIXED = 3;
+  
+  /* Embbedded Calendar Control */
+  int EMBEDDEDCAL_FLAG_NON_TRANSPARENT_BKGND = 0x0001;
+  int EMBEDDEDCAL_FLAG_HASTARGETFRAME = 0x0002;
+
+  /* USE_COLORS1 indicates that color values for Busytime, freetime, nodata,
+  datarestricted and gridline contain valid information.  Default color
+  values are used if this flag is not set */
+  int EMBEDDEDSCHED_FLAG_USE_COLORS1 = 0x00000001;
+  int EMBEDDEDSCHED_FLAG_NO_INITFROMITEMS = 0x00000002;
+  int EMBEDDEDSCHED_FLAG_NO_REFRESHFROMITEMS = 0x00000004;
+  int EMBEDDEDSCHED_FLAG_ALLOW_FILTERING  = 0x00000008;
+  int EMBEDDEDSCHED_FLAG_USE_COLORS2 = 0x00000008;
+
+  int EMBEDDEDSCHED_FLAG_NO_SHOWLEGEND    = 0x00000010;
+  int EMBEDDEDSCHED_FLAG_SHOWINTERVALINDICATOR   = 0x00000020;
+
+  int EMBEDDEDSCHED_FLAG_SHOW_TWISTIES    = 0x00000040;
+  int EMBEDDEDSCHED_FLAG_ALLOW_EDIT_INPLACE  = 0x00000080;
+
+  int EMBEDDEDSCHED_FLAG_ATTENDEE_WIDTH_DEFINED = 0x00000100;
+  int EMBEDDEDSCHED_FLAG_ATTENDEE_WIDTH_FIXED   = 0x00000200;
+
+  int EMBEDDEDSCHED_FLAG_PEOPLE_INVISIBLE = 0x00000400;
+  int EMBEDDEDSCHED_FLAG_ROOMS_VISIBLE    = 0x00000800;
+  int EMBEDDEDSCHED_FLAG_RESOURCES_VISIBLE   = 0x00001000;
+
+  int EMBEDDEDSCHED_FLAG_PEOPLE_FIXEDHEIGHT  = 0x00002000;
+  int EMBEDDEDSCHED_FLAG_ROOMS_FIXEDHEIGHT   = 0x00004000;
+  int EMBEDDEDSCHED_FLAG_RESOURCES_FIXEDHEIGHT  = 0x00008000;
+  int EMBEDDEDSCHED_FLAG_ATTENDEE_LINES_DEFINED = 0x00010000;   /* set to true if PeopleLines, RoomsLines and ResourcesLines
+                                                                   values in CDEMBEDDEDSCHEDCTL contain valid data */
+  int EMBEDDEDSCHED_FLAG_RTL_READING = 0x00020000;  /* Display schedule from right to left */
+  int EMBEDDEDSCHED_FLAG_NO_LAUNCH   = 0x00040000;  /* if TRUE, don't launch scheduler */
+  int EMBEDDEDSCHED_FLAG_SHOW_CHECKBOXES  = 0x00080000;
+  
+  int EMBEDDEDSCHEDEXT_FLAG_PEOPLE_TITLE_FORMULA = 0x00000001;  /* if the people title is a formula, set this flag */
+  int EMBEDDEDSCHEDEXT_FLAG_ROOMS_TITLE_FORMULA = 0x00000002;  /* if the rooms title is a formula, set this flag */
+  int EMBEDDEDSCHEDEXT_FLAG_RESOURCES_TITLE_FORMULA = 0x00000004;  /* if the resources title is a formula, set this flag */
+  int EMBEDDEDSCHEDEXT_FLAG_SUGG_COLORS_DEFINED = 0x00000008;  /* if the designer has specified background colors for the suggestion OD list, set this flag */
+
+  int EMBEDDEDVIEW_FLAG_TRANSPARENT = 0x0001;
+  /*  if EMBEDDEDVIEW_FLAG_USEAPPLET_VIEWPROP is set then the view's property 
+      should be checked otherwise check EMBEDDEDVIEW_FLAG_USEAPPLET_INBROWSER */
+  int EMBEDDEDVIEW_FLAG_USEAPPLET_INBROWSER =  0x0002;
+  int EMBEDDEDVIEW_FLAG_USEAPPLET_VIEWPROP  =  0x0004;
+  int EMBEDDEDVIEW_FLAG_USE_WEBLINES  = 0x0008;
+  int EMBEDDEDVIEW_FLAG_SIMPLE_VIEW_MOUSE_TRACK_ON  = 0x0010; /* Line selection in the view follows the mouse movement if this flag is set */
+  int EMBEDDEDVIEW_FLAG_SIMPLE_VIEW_HEADER_OFF      = 0x0020; /* Hide the view headers if this flag is set */
+  int EMBEDDEDVIEW_FLAG_SIMPLE_VIEW_SHOW_AS_WEB_LINK = 0x0040; /* Line in view shown with underline to makeit look like a web link */
+  int EMBEDDEDVIEW_FLAG_SIMPLE_VIEW_SHOW_ACTION_BAR = 0x0080; /* Show action bar for view or not */
+  int EMBEDDEDVIEW_FLAG_SIMPLE_VIEW_SHOW_SELECTION_MARGIN = 0x0100; /* Show selection margin in view or not */
+  int EMBEDDEDVIEW_FLAG_SIMPLE_VIEW_SHOW_CURRENT_THREAD = 0x0200; /* Show current thread given a noteid */
+  int EMBEDDEDVIEW_FLAG_NOT_USE_WEBVIEW_DEFAULT     = 0x0400; /* on web, use selection margin stuff set here */
+  int EMBEDDEDVIEW_FLAG_SIMPLE_VIEW_SHOW_ONLY_SUMMARIZED = 0x0800; /* Show only summarized for calendar view */
+  int EMBEDDEDVIEW_FLAG_HASNAME       = 0x1000; /* embedded view has name */
+  int EMBEDDEDVIEW_FLAG_SIMPLE_VIEW_SHOW_NEWMAIL_AT_TOP = 0x2000; /* Show only summarized for calendar view */
+  int EMBEDDEDVIEW_FLAG_USEJSCTL_INBROWSER  =  0x4000;  /* use dojo control in browser */
+  int EMBEDDEDVIEW_FLAG_USECUSTOMJS_INBROWSER       = 0x8000;  /* use custom JS in browser */
+  
+  int EMBEDDEDEDITCTL_FLAG_HASNAME = 0x0001;
+  int EMBEDDEDEDITCTL_FLAG_HIDE_ACTIONBAR = 0x0004;
 }

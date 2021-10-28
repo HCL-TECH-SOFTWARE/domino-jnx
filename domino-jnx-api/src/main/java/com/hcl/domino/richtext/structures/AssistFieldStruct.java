@@ -24,24 +24,29 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.records.RecordType;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.15
  */
-@StructureDefinition(name = "ODS_ASSISTFIELDSTRUCT", members = {
+@StructureDefinition(
+  name = "ODS_ASSISTFIELDSTRUCT",
+  members = {
     @StructureMember(name = "wTotalLen", type = short.class, unsigned = true),
     @StructureMember(name = "wOperator", type = short.class),
     @StructureMember(name = "wFieldNameLen", type = short.class, unsigned = true),
     @StructureMember(name = "wValueLen", type = short.class, unsigned = true),
     @StructureMember(name = "wValueDataType", type = short.class),
     @StructureMember(name = "wSpare", type = short.class)
-})
+  }
+)
 public interface AssistFieldStruct extends ResizableMemoryStructure {
   enum ActionByField implements INumberEnum<Short> {
     REPLACE(1),
@@ -135,27 +140,22 @@ public interface AssistFieldStruct extends ResizableMemoryStructure {
   @StructureGetter("wValueLen")
   int getValueLength();
 
-  default List<String> getValues() {
+  /**
+   * Retrieves the item values represented in this structure.
+   * 
+   * @param <T> the expected data type based on {@link #getValueDataType()}
+   * @return a {@link List} of decoded item values
+   */
+  @SuppressWarnings("unchecked")
+  default <T> List<T> getValues() {
     final ByteBuffer buf = this.getVariableData();
     final int nameLen = this.getFieldNameLength();
     buf.position(buf.position() + nameLen);
-
-    // WORD: TYPE_TEXT_LIST
-    buf.getShort();
-    // USHORT ListEntries
-    final int listEntries = Short.toUnsignedInt(buf.getShort());
-    final int[] stringLengths = new int[listEntries];
-    for (int i = 0; i < listEntries; i++) {
-      stringLengths[i] = Short.toUnsignedInt(buf.getShort());
-    }
-    final Charset lmbcsCharset = Charset.forName("LMBCS-native"); //$NON-NLS-1$
-    final List<String> result = new ArrayList<>(listEntries);
-    for (int i = 0; i < listEntries; i++) {
-      final byte lmbcs[] = new byte[stringLengths[i]];
-      buf.get(lmbcs);
-      result.add(new String(lmbcs, lmbcsCharset));
-    }
-    return result;
+    
+    byte[] val = new byte[buf.remaining()];
+    buf.get(val);
+    
+    return (List<T>)(List<?>)NativeItemCoder.get().decodeItemValue(val, RecordType.Area.TYPE_COMPOSITE);
   }
 
   @StructureSetter("wOperator")

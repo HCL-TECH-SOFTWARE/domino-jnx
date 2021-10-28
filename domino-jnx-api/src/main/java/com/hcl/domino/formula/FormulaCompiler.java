@@ -16,6 +16,8 @@
  */
 package com.hcl.domino.formula;
 
+import java.util.List;
+
 import com.hcl.domino.exception.FormulaCompilationException;
 import com.hcl.domino.misc.JNXServiceFinder;
 
@@ -35,4 +37,9 @@ public interface FormulaCompiler {
   byte[] compile(String formula) throws FormulaCompilationException;
 
   String decompile(byte[] compiledFormula);
+  
+  int getSize(byte[] formula);
+  
+  List<String> decompileMulti(byte[] compiledFormulas);
+  
 }

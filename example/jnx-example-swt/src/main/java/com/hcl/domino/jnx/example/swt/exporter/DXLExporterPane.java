@@ -1,3 +1,19 @@
+/*
+ * ==========================================================================
+ * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ *                            All rights reserved.
+ * ==========================================================================
+ * Licensed under the  Apache License, Version 2.0  (the "License").  You may
+ * not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+ *
+ * Unless  required  by applicable  law or  agreed  to  in writing,  software
+ * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the  specific language  governing permissions  and limitations
+ * under the License.
+ * ==========================================================================
+ */
 package com.hcl.domino.jnx.example.swt.exporter;
 
 import static com.hcl.domino.jnx.example.swt.util.SwtUtil.bindCheckbox;
@@ -41,7 +57,13 @@ public class DXLExporterPane extends Composite {
       final Button rawNoteFormat = new Button(this, SWT.CHECK);
       rawNoteFormat.setText("Raw Note Format");
       bindCheckbox("dxlexporter.useRawNoteFormat", rawNoteFormat); //$NON-NLS-1$
-      rawNoteFormat.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 2, 1));
+      rawNoteFormat.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
+    }
+    {
+      final Button entireDatabase = new Button(this, SWT.CHECK);
+      entireDatabase.setText("Entire Database");
+      bindCheckbox("dxlexporter.entireDatabase", entireDatabase); //$NON-NLS-1$
+      entireDatabase.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false, 1, 1));
     }
 
     final Button export = new Button(this, SWT.PUSH);
@@ -56,10 +78,11 @@ public class DXLExporterPane extends Composite {
       String sourceDb = loadData("dxlexporter.sourceDatabase"); //$NON-NLS-1$
       String sourceUnid = loadData("dxlexporter.sourceUnid"); //$NON-NLS-1$
       boolean rawNoteFormat = loadDataBoolean("dxlexporter.useRawNoteFormat"); //$NON-NLS-1$
+      boolean entireDatabase = loadDataBoolean("dxlexporter.entireDatabase"); //$NON-NLS-1$
 
       String dxl;
       try {
-        dxl = App.getExecutor().submit(new ExportDXLCallable(sourceDb, sourceUnid, rawNoteFormat)).get();
+        dxl = App.getExecutor().submit(new ExportDXLCallable(sourceDb, sourceUnid, rawNoteFormat, entireDatabase)).get();
         getDisplay().asyncExec(() -> text.setText(dxl));
       } catch (InterruptedException | ExecutionException e1) {
         e1.printStackTrace();

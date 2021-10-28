@@ -16,41 +16,53 @@
  */
 package com.hcl.domino.commons.design;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.OptionalLong;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.hcl.domino.commons.NotYetImplementedException;
+import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.commons.design.agent.DefaultFormulaAgentContent;
 import com.hcl.domino.commons.design.agent.DefaultImportedJavaAgentContent;
 import com.hcl.domino.commons.design.agent.DefaultJavaAgentContent;
 import com.hcl.domino.commons.design.agent.DefaultSimpleActionAgentContent;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.InnardsConverter;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.Item.ItemFlag;
+import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.agent.AgentContent;
 import com.hcl.domino.design.agent.AgentInterval;
+import com.hcl.domino.design.agent.AgentTarget;
 import com.hcl.domino.design.agent.AgentTrigger;
 import com.hcl.domino.design.agent.FormulaAgentContent;
 import com.hcl.domino.design.agent.LotusScriptAgentContent;
 import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.misc.Pair;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextRecordList;
+import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.CDActionFormula;
+import com.hcl.domino.richtext.records.CDActionHeader;
 import com.hcl.domino.richtext.records.CDActionJavaAgent;
 import com.hcl.domino.richtext.records.CDActionLotusScript;
+import com.hcl.domino.richtext.records.CDQueryHeader;
+import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.structures.AssistStruct;
 
@@ -68,26 +80,53 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   public AgentContent getAgentContent() {
     switch (this.getAgentLanguage()) {
       case FORMULA: {
-        // Find the first CDACTIONFORMULA and read the contents
-        return this.getDocument().getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION)
-            .stream()
-            .filter(CDActionFormula.class::isInstance)
-            .map(CDActionFormula.class::cast)
-            .findFirst()
-            .map(action -> {
-              FormulaAgentContent.DocumentAction docAction;
-              final Set<CDActionFormula.Flag> flags = action.getFlags();
-              if (flags.contains(CDActionFormula.Flag.NEWCOPY)) {
-                docAction = FormulaAgentContent.DocumentAction.CREATE;
-              } else if (flags.contains(CDActionFormula.Flag.SELECTDOCS)) {
+        Document doc = this.getDocument();
+        if(doc.hasItem(NotesConstants.ASSIST_ACTION_ITEM)) {
+          // Find the first CDACTIONFORMULA and read the contents
+          return this.getDocument().getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION)
+              .stream()
+              .filter(CDActionFormula.class::isInstance)
+              .map(CDActionFormula.class::cast)
+              .findFirst()
+              .map(action -> {
+                FormulaAgentContent.DocumentAction docAction;
+                final Set<CDActionFormula.Flag> flags = action.getFlags();
+                if (flags.contains(CDActionFormula.Flag.NEWCOPY)) {
+                  docAction = FormulaAgentContent.DocumentAction.CREATE;
+                } else if (flags.contains(CDActionFormula.Flag.SELECTDOCS)) {
+                  docAction = FormulaAgentContent.DocumentAction.SELECT;
+                } else {
+                  docAction = FormulaAgentContent.DocumentAction.MODIFY;
+                }
+                final String formula = action.getAction();
+                return new DefaultFormulaAgentContent(docAction, formula);
+              })
+              .orElseThrow(() -> new IllegalStateException("Unable to find formula action data"));
+        } else {
+          // Ancient agents use "$Formula" and related fields
+          String formula = doc.get(NotesConstants.FILTER_FORMULA_ITEM, String.class, ""); //$NON-NLS-1$
+          
+          FormulaAgentContent.DocumentAction docAction;
+          String action = doc.get(NotesConstants.FILTER_OPERATION_ITEM, String.class, "0"); //$NON-NLS-1$
+          if(StringUtil.isEmpty(action)) {
+            docAction = FormulaAgentContent.DocumentAction.MODIFY;
+          } else {
+            switch(Integer.parseInt(action)) {
+              case NotesConstants.FILTER_OP_SELECT:
                 docAction = FormulaAgentContent.DocumentAction.SELECT;
-              } else {
+                break;
+              case NotesConstants.FILTER_OP_NEW_COPY:
+                docAction = FormulaAgentContent.DocumentAction.CREATE;
+                break;
+              case NotesConstants.FILTER_OP_UPDATE:
+              default:
                 docAction = FormulaAgentContent.DocumentAction.MODIFY;
-              }
-              final String formula = action.getAction();
-              return new DefaultFormulaAgentContent(docAction, formula);
-            })
-            .orElseThrow(() -> new IllegalStateException("Unable to find formula action data"));
+                break;
+            }
+          }
+          
+          return new DefaultFormulaAgentContent(docAction, formula);
+        }
       }
       case LS: {
         // Could be represented two ways: either as a CDACTIONLOTUSSCRIPT or as multiple
@@ -122,6 +161,7 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("Unable to find Java action data"));
         return new DefaultJavaAgentContent(
+            this,
             action.getClassName(),
             action.getCodePath(),
             Arrays.stream(action.getFileList().split("\\n")) //$NON-NLS-1$
@@ -141,6 +181,7 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
             .findFirst()
             .orElseThrow(() -> new IllegalStateException("Unable to find Java action data"));
         return new DefaultImportedJavaAgentContent(
+            this,
             action.getClassName(),
             action.getCodePath(),
             Arrays.stream(action.getFileList().split("\\n")) //$NON-NLS-1$
@@ -157,6 +198,9 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
     short lang = this.getDocument().get(NotesConstants.ASSIST_TYPE_ITEM, short.class, (short) 0);
     if (lang == RichTextConstants.SIG_ACTION_FORMULAONLY) {
       lang = RichTextConstants.SIG_ACTION_FORMULA;
+    } else if (lang == 0) {
+      // Seen in ancient data
+      lang = RichTextConstants.SIG_ACTION_FORMULA;
     }
     switch (lang) {
       case RichTextConstants.SIG_ACTION_JAVAAGENT:
@@ -172,15 +216,11 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
         return AgentLanguage.FORMULA;
       case RichTextConstants.SIG_ACTION_FORMULA: {
         // This gets weird. Both FORMULA and FORMULAONLY have been observed to represent
-        // formula
-        // agents... but that's not all. If a Simple Action agent _starts_ with a
-        // @Function Formula
-        // action, then the $AssistType field is written as SIG_ACTION_FORMULA. Thus, we
-        // need to
-        // open the agent to check.
+        // formula agents... but that's not all. If a Simple Action agent _starts_ with a
+        // @Function Formula action, then the $AssistType field is written as
+        // SIG_ACTION_FORMULA. Thus, we need to open the agent to check.
         // Currently, the best check is to see if it has more than just the two opening
-        // records that
-        // it shared with Formula agents
+        // records that it shared with Formula agents
         final RichTextRecordList list = this.getDocument().getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION);
         if (list.size() > 2) {
           return AgentLanguage.SIMPLE_ACTION;
@@ -204,8 +244,108 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
       case -1: // Set when there are no actions
         return AgentLanguage.SIMPLE_ACTION;
       default:
-        throw new IllegalStateException(MessageFormat.format("Unknown language value {0}", Short.toUnsignedInt(lang)));
+        throw new IllegalStateException(MessageFormat.format("Unknown language value {0} of agent {1} (UNID: {2})", Short.toUnsignedInt(lang), getTitle(), getDocument().getUNID()));
     }
+  }
+  
+  @Override
+  public DesignAgent setAgentContent(AgentLanguage lang, String content) {
+    if (lang != AgentLanguage.LS) {
+      throw new IllegalArgumentException(MessageFormat.format("Setting agent content for {0} is currently unsupported", lang));
+    }
+    initializeAgentLanguage(lang);
+    
+    setAgentContentLS(content);
+    
+    return this;
+  }
+
+  private DesignAgent setAgentContentLS(String content) {
+    this.setFlag(NotesConstants.DESIGN_FLAG_HIDE_FROM_V3, true);
+    this.setFlag(NotesConstants.DESIGN_FLAG_V4AGENT, true);
+    this.setFlag(NotesConstants.DESIGN_FLAG_LOTUSSCRIPT_AGENT, true);
+
+    this.setFlag(NotesConstants.DESIGN_FLAG_JAVA_AGENT_WITH_SOURCE, false);
+    this.setFlag(NotesConstants.DESIGN_FLAG_JAVA_AGENT, false);
+
+    //format LS code to be Designer compatible
+    NativeDesignSupport designSupport = NativeDesignSupport.get();
+    Pair<String,String> formattedCodeAndErrors = designSupport.formatLSForDesigner(content, ""); //$NON-NLS-1$
+    String formattedCode = formattedCodeAndErrors.getValue1();
+
+    Document doc = getDocument();
+    Charset lmbcsCharset = Charset.forName("LMBCS"); //$NON-NLS-1$
+
+    //remove old items with source and compiled code
+    doc.removeItem(NotesConstants.ASSIST_ACTION_ITEM);
+    doc.removeItem(NotesConstants.AGENT_HSCRIPT_ITEM);
+    doc.removeItem(NotesConstants.ASSIST_EXACTION_ITEM);
+
+    //split code into LMBCS 
+    List<ByteBuffer> chunks = designSupport.splitAsLMBCS(formattedCode, true, false, 61310); // 61310 -> retrieved by inspecting db design
+    if (chunks.size() == 1) {
+      //code fits into a single item $AssistAction stored as CDACTIONLOTUSSCRIPT record
+      ByteBuffer chunk = chunks.get(0);
+      byte[] data = new byte[chunk.limit()];
+      chunk.get(data);
+      String chunkStr = new String(data, lmbcsCharset);
+
+      try (RichTextWriter rtWriter = doc.createRichTextItem(NotesConstants.ASSIST_ACTION_ITEM);) {
+        rtWriter.addRichTextRecord(CDActionHeader.class, (record) -> {
+          record.getHeader().setSignature((byte) (RecordType.ACTION_HEADER.getConstant() & 0xff));
+          record.getHeader().setLength((short) (MemoryStructureUtil.sizeOf(CDActionHeader.class) & 0xffff));
+        });
+
+        rtWriter.addRichTextRecord(CDActionLotusScript.class, (record) -> {
+          record.getHeader().setSignature(RecordType.ACTION_LOTUSSCRIPT.getConstant());
+          record.getHeader().setLength(MemoryStructureUtil.sizeOf(CDActionLotusScript.class));
+          record.setScript(chunkStr);
+        });
+      }
+    }
+    else {
+      //split up code across multiple $AgentHScript items
+      chunks.forEach((chunk) -> {
+        byte[] data = new byte[chunk.limit()];
+        chunk.get(data);
+        String chunkStr = new String(data, lmbcsCharset);
+
+        doc.appendItemValue(NotesConstants.AGENT_HSCRIPT_ITEM, EnumSet.of(ItemFlag.SIGNED, ItemFlag.KEEPLINEBREAKS), chunkStr);
+      });
+
+      try (RichTextWriter rtWriter = doc.createRichTextItem(NotesConstants.ASSIST_ACTION_ITEM);) {
+        rtWriter.addRichTextRecord(CDActionHeader.class, (record) -> {
+          record.getHeader().setSignature((byte) (RecordType.ACTION_HEADER.getConstant() & 0xff));
+          record.getHeader().setLength((short) (MemoryStructureUtil.sizeOf(CDActionHeader.class) & 0xffff));
+        });
+
+        rtWriter.addRichTextRecord(CDActionLotusScript.class, (record) -> {
+          record.getHeader().setSignature(RecordType.ACTION_LOTUSSCRIPT.getConstant());
+          record.getHeader().setLength(MemoryStructureUtil.sizeOf(CDActionLotusScript.class));
+          record.setScriptLength(0);
+        });
+      }
+    }
+
+    //switch action items from TYPE_COMPOSITE to TYPE_ACTION
+    doc.forEachItem(NotesConstants.ASSIST_ACTION_ITEM, (item,loop) -> {
+      item.setSigned(true);
+      designSupport.setCDRecordItemType(doc, item, ItemDataType.TYPE_ACTION);
+    });
+
+    //compile and sign
+    doc.compileLotusScript();
+    doc.sign();
+
+    return this;
+  }
+  
+  @Override
+  public DominoDateTime getAgentVersion() {
+    Document doc = getDocument();
+    return doc
+      .getOptional(NotesConstants.ASSIST_VERSION_ITEM, DominoDateTime.class)
+      .orElseGet(doc::getLastModified);
   }
 
   @Override
@@ -220,12 +360,32 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
 
   @Override
   public OptionalInt getInterval() {
+    // Ancient data is interpreted very differently
+    Optional<AssistStruct> assistInfo = getAssistInfo();
+    if(!assistInfo.isPresent()) {
+      String periodVal = getDocument().get(NotesConstants.FILTER_PERIOD_ITEM, String.class, ""); //$NON-NLS-1$
+      if(StringUtil.isEmpty(periodVal)) {
+        return OptionalInt.empty();
+      }
+      switch(Integer.parseInt(periodVal)) {
+      case NotesConstants.PERIOD_HOURLY:
+        return OptionalInt.of(60);
+      case NotesConstants.PERIOD_DAILY:
+        return OptionalInt.of(1);
+      case NotesConstants.PERIOD_WEEKLY:
+        return OptionalInt.of(1);
+      case NotesConstants.PERIOD_DISABLED:
+      default:
+        return OptionalInt.empty();
+      }
+    }
+    
     switch (this.getIntervalType()) {
       case DAYS:
       case MINUTES:
       case MONTH:
       case WEEK:
-        return this.getAssistInfo()
+        return assistInfo
             .map(info -> OptionalInt.of(info.getInterval()))
             .orElse(OptionalInt.empty());
       case NONE:
@@ -238,14 +398,34 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   @Override
   public AgentInterval getIntervalType() {
     return this.getAssistInfo()
-        .map(AssistStruct::getIntervalType)
-        .orElse(AgentInterval.NONE);
+      .map(AssistStruct::getIntervalType)
+      .orElseGet(() -> {
+        // Check for agent data
+        if(getTrigger() == AgentTrigger.SCHEDULED) {
+          String periodVal = getDocument().get(NotesConstants.FILTER_PERIOD_ITEM, String.class, ""); //$NON-NLS-1$
+          if(StringUtil.isEmpty(periodVal)) {
+            return AgentInterval.NONE;
+          }
+          switch(Integer.parseInt(periodVal)) {
+          case NotesConstants.PERIOD_HOURLY:
+            return AgentInterval.MINUTES;
+          case NotesConstants.PERIOD_DAILY:
+            return AgentInterval.DAYS;
+          case NotesConstants.PERIOD_WEEKLY:
+            return AgentInterval.WEEK;
+          case NotesConstants.PERIOD_DISABLED:
+          default:
+            return AgentInterval.NONE;
+          }
+        } else {
+          return AgentInterval.NONE;
+        }
+      });
   }
-
+  
   @Override
-  public OptionalLong getLastRunDuration() {
-    // TODO Auto-generated method stub
-    throw new NotYetImplementedException();
+  public Optional<LastRunInfo> getLastRunInfo() {
+    return getDocument().getOptional(NotesConstants.ASSIST_RUNINFO_ITEM, LastRunInfo.class);
   }
 
   @Override
@@ -291,7 +471,10 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
         return this.getAssistInfo()
             .map(AssistStruct::getTime2)
             .map(Integer::toUnsignedLong)
-            .map(InnardsConverter::ticksToLocalTime);
+            .flatMap(val -> { 
+              // The value 8640000 represents the end of the day, which is what Designer stores for "all day"
+              return val == 0 || val == 8640000 ? Optional.empty() : Optional.of(InnardsConverter.ticksToLocalTime(val));
+            });
       case DAYS:
       case WEEK:
       case MONTH:
@@ -326,18 +509,6 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   }
 
   @Override
-  public String getRunLog() {
-    // TODO Auto-generated method stub
-    throw new NotYetImplementedException();
-  }
-
-  @Override
-  public List<String> getRunLogAsList() {
-    // TODO Auto-generated method stub
-    throw new NotYetImplementedException();
-  }
-
-  @Override
   public Optional<DominoDateTime> getStartDate() {
     if (this.getTrigger() != AgentTrigger.SCHEDULED) {
       return Optional.empty();
@@ -350,8 +521,24 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   @Override
   public AgentTrigger getTrigger() {
     return this.getAssistInfo()
-        .map(AssistStruct::getTrigger)
-        .orElse(AgentTrigger.NONE);
+      .map(AssistStruct::getTrigger)
+      .orElseGet(() -> {
+        // Check for ancient data
+        String typeVal = getDocument().get(NotesConstants.FILTER_TYPE_ITEM, String.class, "0"); //$NON-NLS-1$
+        if(typeVal.isEmpty()) {
+          return AgentTrigger.NONE;
+        }
+        switch(Integer.parseInt(typeVal)) {
+        case NotesConstants.FILTER_TYPE_MENU:
+          return AgentTrigger.MANUAL;
+        case NotesConstants.FILTER_TYPE_MAIL:
+          return AgentTrigger.NEWMAIL;
+        case NotesConstants.FILTER_TYPE_BACKGROUND:
+          return AgentTrigger.SCHEDULED;
+        default:
+          return AgentTrigger.NONE;
+        }
+      });
   }
 
   @Override
@@ -359,14 +546,14 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
     int val;
     switch (Objects.requireNonNull(lang)) {
       case LS:
-        val = RichTextConstants.SIG_ACTION_LOTUSSCRIPT;
+        val = Short.toUnsignedInt(RichTextConstants.SIG_ACTION_LOTUSSCRIPT);
         break;
       case JAVA:
       case IMPORTED_JAVA:
-        val = RichTextConstants.SIG_ACTION_JAVA;
+        val = Short.toUnsignedInt(RichTextConstants.SIG_ACTION_JAVA);
         break;
       case FORMULA:
-        val = RichTextConstants.SIG_ACTION_FORMULAONLY;
+        val = Short.toUnsignedInt(RichTextConstants.SIG_ACTION_FORMULAONLY);
         break;
       default:
         val = -1;
@@ -377,13 +564,52 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
 
   @Override
   public void initializeNewDesignNote() {
-    this.setFlags("j3"); //$NON-NLS-1$
-  }
+    Document doc = getDocument();
+    
+    this.setFlags(NotesConstants.DESIGN_FLAG_HIDE_FROM_V3);
+    
+    doc.replaceItemValue(NotesConstants.ASSIST_DOCCOUNT_ITEM, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), 0);
+    
+    AssistStruct assistStruct = createAssistInfoWithDefaults();
+    setAssistInfo(assistStruct);
+    
+    DefaultDominoDateTime wildcardTD = new DefaultDominoDateTime(new int[] {0, 0});
+    doc.replaceItemValue(NotesConstants.ASSIST_LASTRUN_ITEM, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), wildcardTD);
 
-  @Override
-  public boolean isLastRunExceededTimeLimit() {
-    // TODO Auto-generated method stub
-    throw new NotYetImplementedException();
+    //write simple search query header
+    try (RichTextWriter rtWriter = doc.createRichTextItem(NotesConstants.ASSIST_QUERY_ITEM)) {
+      rtWriter.addRichTextRecord(CDQueryHeader.class, (record) -> {
+        record
+        .getHeader()
+        .setSignature((byte) (RichTextConstants.SIG_QUERY_HEADER & 0xff))
+        .setLength((short) (MemoryStructureUtil.sizeOf(CDQueryHeader.class) & 0xffff));
+      });
+    }
+    NativeDesignSupport designSupport = NativeDesignSupport.get();
+    
+    //switch search query item from TYPE_COMPOSITE to TYPE_QUERY
+    doc.forEachItem(NotesConstants.ASSIST_QUERY_ITEM, (item,loop) -> {
+      item.setSigned(true);
+      designSupport.setCDRecordItemType(doc, item, ItemDataType.TYPE_QUERY);
+    });
+
+    designSupport.initAgentRunInfo(doc);
+
+    doc.replaceItemValue(DesignConstants.ASSIST_TRIGGER_ITEM, Integer.toString(RichTextConstants.ASSISTTRIGGER_TYPE_MANUAL)); //$NON-NLS-1$
+    doc.replaceItemValue(NotesConstants.ASSIST_VERSION_ITEM, new DefaultDominoDateTime());
+    
+    doc.replaceItemValue(NotesConstants.DESIGNER_VERSION, "8.5.3"); //$NON-NLS-1$
+    
+    setFlag(NotesConstants.DESIGN_FLAG_V4AGENT, true);
+    setFlag(NotesConstants.DESIGN_FLAG_HIDE_FROM_V3, true);
+    setFlagsExt(""); //$NON-NLS-1$
+    setSecurityLevel(SecurityLevel.RESTRICTED);
+    setEnabled(true);
+    setRunAsWebUser(false);
+    
+    doc.replaceItemValue("$Comment", EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), ""); //$NON-NLS-1$ //$NON-NLS-2$
+    doc.replaceItemValue("$Flags", "fL3"); //$NON-NLS-1$ //$NON-NLS-2$
+    
   }
 
   @Override
@@ -396,6 +622,19 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   @Override
   public boolean isRunAsWebUser() {
     return getAssistFlags().contains(DesignConstants.ASSIST_FLAG_AGENT_RUNASWEBUSER);
+  }
+
+  @Override
+  public DesignAgent setRunAsWebUser(boolean b) {
+    if (b) {
+     setAssistFlag(DesignConstants.ASSIST_FLAG_AGENT_RUNASWEBUSER, true);
+     setAssistFlag(DesignConstants.ASSIST_FLAG_AGENT_RUNASSIGNER, false);
+    }
+    else {
+      setAssistFlag(DesignConstants.ASSIST_FLAG_AGENT_RUNASWEBUSER, false);
+      setAssistFlag(DesignConstants.ASSIST_FLAG_AGENT_RUNASSIGNER, true);
+    }
+    return this;
   }
 
   @Override
@@ -418,11 +657,29 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   }
 
   @Override
+  public DesignAgent setSecurityLevel(SecurityLevel level) {
+    Document doc = getDocument();
+    switch (level) {
+    case UNRESTRICTED_FULLADMIN:
+      doc.replaceItemValue(DesignConstants.ASSIST_RESTRICTED, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), DesignConstants.ASSIST_RESTRICTED_FULLADMIN);
+      break;
+    case UNRESTRICTED:
+      doc.replaceItemValue(DesignConstants.ASSIST_RESTRICTED, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), DesignConstants.ASSIST_RESTRICTED_UNRESTRICTED);
+      break;
+    case RESTRICTED:
+      doc.replaceItemValue(DesignConstants.ASSIST_RESTRICTED, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), DesignConstants.ASSIST_RESTRICTED_RESTRICTED);
+      break;
+    default:
+    }
+    return this;
+  }
+
+  @Override
   public boolean isStoreHighlights() {
     return getAssistInfo()
       .map(AssistStruct::getFlags)
       .map(flags -> flags.contains(AssistStruct.Flag.STOREHIGHLIGHTS))
-      .orElse(null);
+      .orElse(false);
   }
 
   @Override
@@ -454,7 +711,53 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
   public boolean isEnabled() {
     return getAssistFlags().contains(DesignConstants.ASSIST_FLAG_ENABLED);
   }
+  
+  @Override
+  public DesignAgent setEnabled(boolean b) {
+    setAssistFlag(DesignConstants.ASSIST_FLAG_ENABLED, b);
+    return this;
+  }
+  
+  @Override
+  public List<? extends SimpleSearchTerm> getDocumentSelection() {
+    return DesignUtil.toSimpleSearch(getDocument().getRichTextItem(NotesConstants.ASSIST_QUERY_ITEM, RecordType.Area.TYPE_QUERY));
+  }
 
+  @Override
+  public AgentTarget getTarget() {
+    return getAssistInfo()
+      .map(AssistStruct::getSearch)
+      .orElseGet(() -> {
+        // Could be ancient data
+        String scanVal = getDocument().get(NotesConstants.FILTER_SCAN_ITEM, String.class, ""); //$NON-NLS-1$
+        if(scanVal.isEmpty()) {
+          return AgentTarget.ALL;
+        }
+        switch(Integer.parseInt(scanVal)) {
+        case NotesConstants.FILTER_SCAN_UNREAD:
+          return AgentTarget.UNREAD;
+        case NotesConstants.FILTER_SCAN_VIEW:
+          return AgentTarget.VIEW;
+        case NotesConstants.FILTER_SCAN_SELECTED:
+          return AgentTarget.SELECTED;
+        case NotesConstants.FILTER_SCAN_NEW:
+        case NotesConstants.FILTER_SCAN_MAIL:
+          return AgentTarget.NEW;
+        case NotesConstants.FILTER_SCAN_ALL:
+        default:
+          return AgentTarget.ALL;
+        }
+      });
+  }
+
+  @Override
+  public DesignAgent setTarget(AgentTarget target) {
+    AssistStruct assistInfo = getAssistInfo().orElseGet(this::createAssistInfoWithDefaults);
+    assistInfo.setSearch(target);
+    setAssistInfo(assistInfo);
+    return this;
+  }
+  
   // *******************************************************************************
   // * Implementation utility methods
   // *******************************************************************************
@@ -463,6 +766,27 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
     return getDocument().get(DesignConstants.ASSIST_FLAGS_ITEM, String.class, ""); //$NON-NLS-1$
   }
 
+  private void setAssistFlags(String flags) {
+   getDocument().replaceItemValue(DesignConstants.ASSIST_FLAGS_ITEM, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), flags);
+  }
+
+  private void setAssistFlag(final String flagConstant, final boolean value) {
+    final String flags = this.getAssistFlags();
+    if (value && !flags.contains(flagConstant)) {
+      this.setAssistFlags(flags + flagConstant);
+    } else if (!value && flags.contains(flagConstant)) {
+      this.setAssistFlags(flags.replace(flagConstant, "")); //$NON-NLS-1$
+    }
+  }
+  
+  private AssistStruct createAssistInfoWithDefaults() {
+    AssistStruct assistStruct = MemoryStructureUtil.newStructure(AssistStruct.class, 0);
+    assistStruct.setVersion(1);
+    assistStruct.setTrigger(AgentTrigger.MANUAL);
+    assistStruct.setSearch(AgentTarget.SELECTED);
+    return assistStruct;
+  }
+  
   private Optional<AssistStruct> getAssistInfo() {
     final Document doc = this.getDocument();
     if (doc.hasItem(NotesConstants.ASSIST_INFO_ITEM)) {
@@ -471,4 +795,14 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
     }
     return Optional.empty();
   }
+  
+  private void setAssistInfo(AssistStruct info) {
+    ByteBuffer infoData = info.getData();
+    ByteBuffer infoDataWithType = ByteBuffer.allocate(2 + infoData.limit());
+    infoDataWithType.putShort(ItemDataType.TYPE_ASSISTANT_INFO.getValue());
+    infoDataWithType.put(infoData);
+    infoDataWithType.position(0);
+    getDocument().replaceItemValue(NotesConstants.ASSIST_INFO_ITEM, EnumSet.of(ItemFlag.SIGNED), infoDataWithType);
+  }
+  
 }

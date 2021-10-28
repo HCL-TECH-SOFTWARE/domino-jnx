@@ -110,9 +110,9 @@ public interface JsonSerializer {
    * delegate handling of
    * the named item on the document to the processor object.
    * <p>
-   * This processor is provided the contextual document and item name, and should
-   * return
-   * a JSON-compatible object. That is, one of:
+   * This processor is provided the contextual document and item name. To
+   * ensure compatibility, it should return a JSON-compatible object.
+   * That is, one of:
    * </p>
    * <ul>
    * <li>A primitive value</li>
@@ -122,6 +122,9 @@ public interface JsonSerializer {
    * <li>A {@link java.util.Map Map} of {@code String} keys to above objects or
    * other such {@code Map}s</li>
    * </ul>
+   * 
+   * <p>Specific service implementations may handle objects not of these types,
+   * but that behavior is not specified by this interface.</p>
    *
    * @param propName  the name of the property to process
    * @param processor a {@link BiFunction} to process the context {@link Document}

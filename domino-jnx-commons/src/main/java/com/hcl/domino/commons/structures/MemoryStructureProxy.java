@@ -30,10 +30,7 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
@@ -46,6 +43,7 @@ import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 import com.hcl.domino.richtext.structures.OpaqueTimeDate;
 
@@ -66,9 +64,6 @@ import com.hcl.domino.richtext.structures.OpaqueTimeDate;
  * @since 1.0.2
  */
 public class MemoryStructureProxy implements InvocationHandler {
-  static final Map<Class<? extends MemoryStructure>, StructureMap> structureMap = Collections
-      .synchronizedMap(new HashMap<>());
-
   private static final boolean JAVA_8;
   static {
     final String javaVersion = AccessController
@@ -355,18 +350,25 @@ public class MemoryStructureProxy implements InvocationHandler {
   }
 
   private final MemoryStructure record;
-
   private final Class<? extends MemoryStructure> encapsulated;
+  private final RecordType recordType;
 
-  public MemoryStructureProxy(final MemoryStructure record, final Class<? extends MemoryStructure> encapsulated) {
+  /**
+   * Constructs a new {@code MemoryStructureProxy} instance for the provided memory layout.
+   * 
+   * @param record the {@link MemoryStructure} instance to provide memory access
+   * @param encapsulated the interface to represent by this proxy
+   * @param recordType the rich-text {@link RecordType} matched for this record; may be {@code null}
+   */
+  public MemoryStructureProxy(final MemoryStructure record, final Class<? extends MemoryStructure> encapsulated, RecordType recordType) {
     this.record = record;
     this.encapsulated = encapsulated;
+    this.recordType = recordType;
   }
 
   @Override
   public Object invoke(final Object self, final Method thisMethod, final Object[] args) throws Throwable {
-    final StructureMap struct = MemoryStructureProxy.structureMap.computeIfAbsent(this.encapsulated,
-        MemoryStructureUtil::generateStructureMap);
+    final StructureMap struct = MemoryStructureUtil.getStructureMap(this.encapsulated);
 
     if (thisMethod.isAnnotationPresent(StructureGetter.class)) {
       final StructMember member = struct.getterMap.get(thisMethod);
@@ -531,6 +533,11 @@ public class MemoryStructureProxy implements InvocationHandler {
     if (synthMember != null) {
       return this.invoke(self, synthMember, args);
     }
+    
+    // Special handling for rich-text records with applied RecordTypes
+    if(this.recordType != null && "getType".equals(thisMethod.getName()) && thisMethod.getParameterCount() == 0) { //$NON-NLS-1$
+      return EnumSet.of(this.recordType);
+    }
 
     if (MemoryStructureUtil.isInLineage(thisMethod, this.encapsulated)) {
       if (thisMethod.isDefault()) {
@@ -559,8 +566,7 @@ public class MemoryStructureProxy implements InvocationHandler {
 
   /**
    * Invokes a default method from an interface, accounting for access-control
-   * differences between Java 8 and future
-   * versions.
+   * differences between Java 8 and future versions.
    * 
    * @param self       the invocation context object
    * @param thisMethod the default interface method to invoke
@@ -582,8 +588,9 @@ public class MemoryStructureProxy implements InvocationHandler {
               this.encapsulated,
               thisMethod.getName(),
               MethodType.methodType(
-                  void.class,
-                  new Class[0]),
+                  thisMethod.getReturnType(),
+                  thisMethod.getParameterTypes()
+              ),
               this.encapsulated)
           .bindTo(self)
           .invokeWithArguments(args);

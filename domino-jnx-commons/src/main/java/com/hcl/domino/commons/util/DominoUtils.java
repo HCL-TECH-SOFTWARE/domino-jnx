@@ -18,6 +18,8 @@ package com.hcl.domino.commons.util;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Arrays;
+import java.util.Objects;
 
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.CAPIGarbageCollector;
@@ -38,7 +40,8 @@ public enum DominoUtils {
    */
   public static boolean checkBooleanProperty(final String propertyName, final String envVarName) {
     if (StringUtil.isNotEmpty(propertyName)) {
-      final boolean propVal = AccessController.doPrivileged((PrivilegedAction<Boolean>) () -> Boolean.getBoolean(propertyName));
+      final String propValString = AccessController.doPrivileged((PrivilegedAction<String>) () -> System.getProperty(propertyName));
+      final boolean propVal = "true".equalsIgnoreCase(propValString) || "1".equalsIgnoreCase(propValString); //$NON-NLS-1$ //$NON-NLS-2$
       if (propVal) {
         return true;
       }
@@ -185,5 +188,24 @@ public enum DominoUtils {
    */
   public static String setJavaProperty(final String propertyName, final String value) {
     return AccessController.doPrivileged((PrivilegedAction<String>) () -> System.setProperty(propertyName, value));
+  }
+  
+  /**
+   * Overwrites the contents of {@code dest} with the contents of {@code source},
+   * up to {@code dest.length}. If {@code source} is shorter than {@code dest}, this
+   * will zero out the remaining bytes.
+   * 
+   * @param source the array to copy from
+   * @param dest the array to copy to
+   * @since 1.0.42
+   * @throws NullPointerException if {@code source} or {@code dest} is {@code null}
+   */
+  public static void overwriteArray(byte[] source, byte[] dest) {
+    Objects.requireNonNull(source);
+    Objects.requireNonNull(dest);
+    
+    int copyLen = Math.min(source.length, dest.length);
+    System.arraycopy(source, 0, dest, 0, copyLen);
+    Arrays.fill(dest, copyLen, dest.length, (byte)0);
   }
 }

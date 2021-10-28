@@ -26,6 +26,9 @@ import java.util.Set;
 
 import com.hcl.domino.mime.MimeEntity;
 import com.hcl.domino.misc.INumberEnum;
+import com.hcl.domino.richtext.RichTextRecordList;
+import com.hcl.domino.richtext.records.RecordType;
+import com.hcl.domino.richtext.records.RichTextRecord;
 
 /**
  * Carefull attention for date/time and the new Java Stuff and JNA TimeDate
@@ -243,6 +246,25 @@ public interface Item extends IAdaptable {
    * @return a {@link List} of objects representing the item value
    */
   List<Object> getValue();
+  
+  /**
+   * Reads the item's value as a series of rich-text records.
+   * 
+   * @return a {@link List} of {@link RichTextRecord} objects
+   * @since 1.0.44
+   */
+  default RichTextRecordList getValueRichText() {
+    return getValueRichText(RecordType.Area.TYPE_COMPOSITE);
+  }
+  
+  /**
+   * Reads the item's value as a series of rich-text records.
+   * 
+   * @param variant  the data area variant represented by the item
+   * @return a {@link List} of {@link RichTextRecord} objects
+   * @since 1.0.44
+   */
+  RichTextRecordList getValueRichText(RecordType.Area variant);
 
   /**
    * Returns the value length in bytes

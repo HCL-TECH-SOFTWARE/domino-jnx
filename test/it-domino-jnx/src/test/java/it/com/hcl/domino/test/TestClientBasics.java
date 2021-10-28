@@ -78,7 +78,7 @@ public class TestClientBasics extends AbstractNotesRuntimeTest {
 
   @Test
   public void testIsOnServer() {
-    final boolean expected = DominoUtils.checkBooleanProperty("JNX_ON_SERVER", "jnx.onserver");
+    final boolean expected = DominoUtils.checkBooleanProperty("jnx.onserver", "JNX_ON_SERVER");
     Assertions.assertEquals(expected, this.getClient().isOnServer());
   }
 
@@ -198,7 +198,7 @@ public class TestClientBasics extends AbstractNotesRuntimeTest {
     client.close();
 
     Assertions.assertThrows(DominoException.class, (Executable) () -> {
-      final Database db = client.openDatabase("names.nsf");
+      client.openDatabase("names.nsf");
     }, "Did not throw exception when using closed DominoClient");
   }
 

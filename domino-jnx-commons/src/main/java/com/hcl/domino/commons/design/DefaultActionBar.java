@@ -27,8 +27,9 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.NotesFont;
 import com.hcl.domino.design.ActionBar;
 import com.hcl.domino.design.ClassicThemeBehavior;
-import com.hcl.domino.design.action.ActionBarAction;
+import com.hcl.domino.design.DesignColorsAndFonts;
 import com.hcl.domino.design.EdgeWidths;
+import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
 import com.hcl.domino.design.format.ActionBarTextAlignment;
 import com.hcl.domino.design.format.ActionButtonHeightMode;
@@ -362,6 +363,7 @@ public class DefaultActionBar implements ActionBar {
       .orElseGet(DesignColorsAndFonts::blackColor);
   }
   
+  @Override
   public List<ActionBarAction> getActions() {
     List<ActionBarAction> result = new ArrayList<>();
     List<RichTextRecord<?>> stash = new ArrayList<>();

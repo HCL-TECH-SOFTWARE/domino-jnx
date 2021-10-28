@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8'?>
+<note default='true' class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<noteinfo noteid='88e' unid='852559E00078377C052556C20053F942' sequence='110'>
+<created><datetime>19870903T101712,98-05</datetime></created>
+<modified><datetime>19891109T215306,08+00</datetime></modified>
+<revised><datetime>19891109T215305,99+00</datetime></revised>
+<lastaccessed><datetime/></lastaccessed>
+<addedtofile><datetime/></addedtofile></noteinfo>
+<item name='$TITLE'><textlist><text>Main Topic</text><text>Document</text><text
+>MainTopic</text></textlist></item>
+<item name='$INFO'>
+<rawitemdata type='1'>
+hhgHAAAAAACqHwAAjh/NNx8ETxAAABw5
+</rawitemdata></item>
+<item name='$WINDOWTITLE'><formula>StandardTitle := Subject + @DocDescendants(" (No Responses)"; " (1 Response)"; " (% Responses)");
+@V2If(@IsNewDoc; "New Topic"; @ViewTitle = "AuthorView"; Subject; StandardTitle)</formula></item>
+<item name='Subject' placeholder='true'>
+<rawitemdata type='0'>
+</rawitemdata></item>
+<item name='From' placeholder='true'>
+<rawitemdata type='0'>
+</rawitemdata></item>
+<item name='Categories' placeholder='true'>
+<rawitemdata type='0'>
+</rawitemdata></item>
+<item name='Body' placeholder='true'>
+<rawitemdata type='0'>
+</rawitemdata></item>
+<item name='$FIELDS'><textlist><text>Body</text><text>Categories</text><text
+>From</text><text>Subject</text></textlist></item>
+<item name='$BODY'>
+<rawitemdata type='1'>
+gQKC/0YAAQAAAAAAAAAAAKAFAACgBQAAfwsAAAAAAAAAAMBQ6C8Ii/iD//90FlYrRApQ6BYAVrgD
+BFD/dCj/dAAAAAAAAAAAgwQBAIX/CAABAQUKgQKC/0YAAgAAAAAAAAAAAIwKAACgBQAAAAAAAAAA
+AAAAAMBQ6C8Ii/iD//90FlYrRApQ6BYAVrgDBFD/dCj/dAAAAAAAAAAAgwQCAIX/DgABAQUKVG9w
+aWM6hf8JAAEBAAoJYIT/uABnAAAFADACAAAAAAAAAwEAAAoAABYAdhNOAAcAKwAWAAAAFAAFAAcA
+U3ViamVjdABeAQMATgAAAEwABQAHAFN1YmplY3QAAQAAAAoCAQApAFlvdSBtdXN0IGVudGVyIGEg
+dG9waWMgZm9yIHlvdXIgZG9jdW1lbnQuAHsBegBKAwMAU3ViamVjdFJlcXVpcmVkOiBhIHNob3J0
+IGRlc2NyaXB0aW9uIG9mIHRoZSB0b3BpYy6F/wsAAQEACiAgIACBAoMEAgCF/w8AAQEFCkF1dGhv
+cjr/hf8JAAEAAAoJ/4T/TABtAAAHADACAAAAAAAAAwEAAAoKAAAAdhMAAAQAGwAKAAAACABnAAMA
+RnJvbVRoZSBhdXRob3Igb2YgdGhlIGRvY3VtZW50LgCF/wgAAQAACoECgwQCAIX/DQABAQUKRGF0
+ZTr/hf8JAAEAAAoJAYT/XgBlAQAEADACAAAAAQEAAwEAAAoKAAAAdhMAAAQALQAKAAAACABpAAMA
+RGF0ZVRoZSBkYXRlL3RpbWUgd2hlbiB0aGUgZG9jdW1lbnQgd2FzIGNvbXBvc2VkLgCF/wgAAQAA
+CoECgv9GAAMAAAAAAAAAAADYCQAAoAUBANgJAAAAAAAAAADAUOgvCIv4g///dBZWK0QKUOgWAFa4
+AwRQ/3Qo/3QAAAAAAAAAAIMEAwCF/wgAAQAACoECgwQDAIX/EQABAQUKQ2F0ZWdvcnk6M4X/CQAB
+AAAKCT+K/2AACgIBBQIgAgAAAAAAAAIBAAAKAAAAAHYTAAAKADIAAABDYXRlZ29yaWVzRW50ZXIg
+YSB3b3JkIG9yIHBocmFzZSB0aGF0IGNhdGVnb3JpemVzIHRoZSB0b3BpYy6F/wkAAQAACiBOgQKD
+BAEAhf8XAAEAAAogICAgICAgICAgICAgICBJgQKDBAEAhf8IAAEBBQqE/0YAYwABAAQwAgAAAAAA
+AAMBAAAKAAAAAHYTAAAEACAAQm9keUVudGVyIHRoZSB0ZXh0IG9mIHlvdXIgZG9jdW1lbnQuhf8I
+AAEAAAqBAoL/RgAEAAAAAAAAAAAAoAUAAKAFAAB/CwAAAAAAAAAAwFDoLwiL+IP//3QWVitEClDo
+FgBWuAMEUP90KP90MAAAAAAAAACDBAQAhf8IAAEAAAo=
+</rawitemdata></item></note>
+

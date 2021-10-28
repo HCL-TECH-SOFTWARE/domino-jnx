@@ -95,6 +95,7 @@ public interface IConsoleCallback {
   /**
    * Displays a dialog to let the user select a value, e.g. for yes/no questions
    *
+   * @param <T>     the type of the options provided
    * @param msg     dialog message
    * @param title   dialog title
    * @param options selection

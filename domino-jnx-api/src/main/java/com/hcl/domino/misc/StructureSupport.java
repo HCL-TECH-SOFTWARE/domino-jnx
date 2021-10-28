@@ -16,14 +16,26 @@
  */
 package com.hcl.domino.misc;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.LongConsumer;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import com.hcl.domino.formula.FormulaCompiler;
+import com.hcl.domino.richtext.structures.ListStructure;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 
 /**
@@ -82,6 +94,37 @@ public enum StructureSupport {
     final byte[] lmbcs = new byte[(int) len];
     buf.get(lmbcs);
     return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+  }
+
+  /**
+   * Extracts a list of "packed" string values from the structure. For this use, "packed"
+   * means that the string data is exactly as long as each of the lengths in {@code lengths},
+   * with no null terminator or WORD-size padding.
+   *
+   * @param struct  the structure to extract from
+   * @param preLen  the number of bytes before the value to extract
+   * @param lengths the lengths of the string values
+   * @return the extracted string values
+   * @since 1.0.38
+   */
+  public static List<String> extractStringValues(final ResizableMemoryStructure struct, final long preLen, final long[] lengths) {
+    if (lengths.length == 0) {
+      return Collections.emptyList();
+    }
+    if (preLen > Integer.MAX_VALUE) {
+      throw new UnsupportedOperationException(
+          MessageFormat.format("Unable to extract a string value with offset larger than {0} bytes", Integer.MAX_VALUE));
+    }
+
+    final ByteBuffer buf = struct.getVariableData();
+    buf.position((int) preLen);
+    List<String> result = new ArrayList<>(lengths.length);
+    for(long len : lengths) {
+      final byte[] lmbcs = new byte[(int) len];
+      buf.get(lmbcs);
+      result.add(new String(lmbcs, Charset.forName("LMBCS"))); //$NON-NLS-1$ 
+    }
+    return result;
   }
 
   /**
@@ -161,6 +204,99 @@ public enum StructureSupport {
       return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
     }
   }
+  
+  /**
+   * Extracts a list of strings stored using the {@link ListStructure} format.
+   * 
+   * @param struct the structure to read from
+   * @param preLen the number of bytes before the value to extract
+   * @return a {@link List} of extracted strings
+   * @since 1.0.38
+   */
+  public static List<String> extractStringListStructure(ResizableMemoryStructure struct, int preLen) {
+    ByteBuffer buf = struct.getVariableData();
+    buf.position(preLen);
+    
+    int count = Short.toUnsignedInt(buf.getShort());
+    
+    int[] sizes = new int[count];
+    for(int i = 0; i < count; i++) {
+      sizes[i] = Short.toUnsignedInt(buf.getShort());
+    }
+    
+    List<String> result = new ArrayList<>();
+    for(int i = 0; i < count; i++) {
+      // Read sizes[i] bytes as LMBCS
+      byte[] lmbcs = new byte[sizes[i]];
+      buf.get(lmbcs);
+      result.add(new String(lmbcs, Charset.forName("LMBCS"))); //$NON-NLS-1$
+    }
+    return result;
+  }
+
+  /**
+   * Extracts raw byte data from a structure.
+   *
+   * @param struct the structure to extract from
+   * @param preLen the number of bytes before the value to extract
+   * @param len    the size of the stored value
+   * @return the extracted byte data
+   * @since 1.0.43
+   */
+  public static byte[] extractByteArray(final ResizableMemoryStructure struct, final long preLen, final long len) {
+    if (len == 0) {
+      return new byte[0];
+    }
+    if (preLen > Integer.MAX_VALUE) {
+      throw new UnsupportedOperationException(
+          MessageFormat.format("Unable to extract a byte value with offset larger than {0} bytes", Integer.MAX_VALUE));
+    }
+    if (len > Integer.MAX_VALUE) {
+      throw new UnsupportedOperationException(
+          MessageFormat.format("Unable to extract a byte value larger than {0} bytes", Integer.MAX_VALUE));
+    }
+
+    final ByteBuffer buf = struct.getVariableData();
+    buf.position((int) preLen);
+    final byte[] result = new byte[(int) len];
+    buf.get(result);
+    return result;
+  }
+  
+  /**
+   * Extracts an array of variable-sized structures from the variable-data portion of a structure.
+   * 
+   * @param <T> the type of structure to extract
+   * @param struct the parent structure
+   * @param preLen the number of bytes before the value to extract
+   * @param type a {@link Class} representing {@code <T>}
+   * @param count the count of structures to extract
+   * @param sizeFunc a {@link Function} that determines the total length of each structure
+   * @return a {@link List} of {@code T} objects
+   * @since 1.0.44
+   */
+  public static <T extends ResizableMemoryStructure> List<T> extractResizableStructures(ResizableMemoryStructure struct, int preLen, Class<T> type, int count, Function<T, Integer> sizeFunc) {
+    ByteBuffer data = struct.getVariableData();
+    data.position(data.position()+preLen);
+    
+    MemoryStructureWrapperService svc = MemoryStructureWrapperService.get();
+    List<T> result = new ArrayList<>(count);
+    int baseSize = svc.sizeOf(type);
+    for(int i = 0; i < count; i++) {
+      ByteBuffer sub = data.slice();
+      sub.limit(baseSize);
+      T base = svc.wrapStructure(type, sub);
+      int size = sizeFunc.apply(base);
+      
+      sub = data.slice();
+      sub.limit(size);
+      result.add(svc.wrapStructure(type, sub));
+      
+      data.position(data.position()+size);
+    }
+    
+    return result;
+  }
 
   public static <T extends ResizableMemoryStructure> T writeCompiledFormula(final T struct, final int preLen, final int currentLen,
       final String formula, final IntConsumer sizeWriter) {
@@ -215,6 +351,12 @@ public enum StructureSupport {
 
   public static <T extends ResizableMemoryStructure> T writeStringValue(final T struct, final long preLen, final long currentLen,
       final String value, final LongConsumer sizeWriter) {
+    
+    return writeStringValue(struct, preLen, currentLen, value, true, sizeWriter);
+  }
+  
+  public static <T extends ResizableMemoryStructure> T writeStringValue(final T struct, final long preLen, final long currentLen,
+      final String value, final boolean replaceLinebreaks, final LongConsumer sizeWriter) {
     ByteBuffer buf = struct.getVariableData();
     final long otherLen = buf.remaining() - preLen - currentLen;
 
@@ -230,7 +372,17 @@ public enum StructureSupport {
     final byte[] otherData = new byte[(int) otherLen];
     buf.get(otherData);
 
-    final byte[] lmbcs = value == null ? new byte[0] : value.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    final byte[] lmbcs;
+    if (value == null) {
+      lmbcs = new byte[0];
+    }
+    else if (replaceLinebreaks) {
+      lmbcs = value.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    }
+    else {
+      lmbcs = value.getBytes(Charset.forName("LMBCS-keepnewlines")); //$NON-NLS-1$
+    }
+    
     if (sizeWriter != null) {
       sizeWriter.accept(lmbcs.length);
     }
@@ -244,6 +396,64 @@ public enum StructureSupport {
     buf.position((int) preLen);
     buf.put(lmbcs);
     buf.put(otherData);
+
+    return struct;
+  }
+  
+  /**
+   * Writes a list of string values as packed string into variable data.
+   * 
+   * @param <T> the type of structure containing the data
+   * @param struct the structure to write to
+   * @param preLen the number of bytes before the value to write
+   * @param currentLengths the current length values of existing data
+   * @param value the values to write
+   * @param sizeWriter a callback to call with the new lengths
+   * @return the value passed as {@code struct}
+   * @since 1.0.38
+   */
+  public static <T extends ResizableMemoryStructure> T writeStringValues(final T struct, final int preLen, final long[] currentLengths,
+      final List<String> value, final Consumer<long[]> sizeWriter) {
+    if(currentLengths.length == 0) {
+      return struct;
+    }
+    if(Objects.requireNonNull(currentLengths).length != Objects.requireNonNull(value).size()) {
+      throw new IllegalArgumentException("The lengths of currentLengths and value must match");
+    }
+    byte[][] data = new byte[value.size()][];
+    for(int i = 0; i < currentLengths.length; i++) {
+      String val = value.get(i);
+      if(val == null) {
+        val = ""; //$NON-NLS-1$
+      }
+      data[i] = val.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    }
+
+    ByteBuffer buf = struct.getVariableData();
+    long currentLen = LongStream.of(currentLengths).sum();
+    final long otherLen = buf.remaining() - preLen - currentLen;
+    buf.position((int)(preLen + currentLen));
+    final byte[] otherData = new byte[(int) otherLen];
+    buf.get(otherData);
+
+    long[] newLengths = Stream.of(data).mapToLong(d -> Integer.toUnsignedLong(d.length)).toArray();
+    long lmbcsLen = LongStream.of(newLengths).sum();
+    final long newLen = preLen + otherLen + lmbcsLen;
+    if (newLen > Integer.MAX_VALUE) {
+      throw new UnsupportedOperationException(
+          MessageFormat.format("Unable to write a new value exceeding {0} bytes", Integer.MAX_VALUE));
+    }
+    struct.resizeVariableData((int) newLen);
+    buf = struct.getVariableData();
+    buf.position(preLen);
+    for(byte[] lmbcs : data) {
+      buf.put(lmbcs);
+    }
+    buf.put(otherData);
+    
+    if(sizeWriter != null) {
+      sizeWriter.accept(newLengths);
+    }
 
     return struct;
   }
@@ -371,6 +581,122 @@ public enum StructureSupport {
     for (int i = 0; i < padLen; i++) {
       buf.put((byte) 0);
     }
+    buf.put(otherData);
+
+    return struct;
+  }
+
+
+  /**
+   * Writes a {@link ListStructure} value of null-delimited strings, using the provided
+   * {@link IntConsumer} to update an associated length value.
+   * 
+   * @param <T>        the class of the structure
+   * @param struct     the structure to modify
+   * @param preLen     the amount of variable data in bytes before the place to
+   *                   write
+   * @param currentLen the current length of the variable data to overwrite
+   * @param value      the value to write
+   * @param sizeWriter a callback to modify an associated length field, if
+   *                   applicable
+   * @return the provided structure
+   * @since 1.0.38
+   */
+  public static <T extends ResizableMemoryStructure> T writeStringListStructure(final T struct, final int preLen,
+      final int currentLen, final List<String> value, final IntConsumer sizeWriter) {
+    ByteBuffer buf = struct.getVariableData();
+    final long otherLen = buf.remaining() - preLen - currentLen;
+
+    if (preLen + currentLen > Integer.MAX_VALUE) {
+      throw new UnsupportedOperationException(
+          MessageFormat.format("Unable to write a new value with offset larger than {0} bytes", Integer.MAX_VALUE));
+    }
+    if (otherLen > Integer.MAX_VALUE) {
+      throw new UnsupportedOperationException(
+          MessageFormat.format("Unable to write a new value with remaining offset larger than {0} bytes", Integer.MAX_VALUE));
+    }
+    buf.position(preLen + currentLen);
+    final byte[] otherData = new byte[(int) otherLen];
+    buf.get(otherData);
+
+    byte[] lmbcs;
+    try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+      
+      for(int i = 0; i < value.size(); i++) {
+        String val = value.get(i);
+        byte[] data = val == null ? new byte[0] : val.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+        baos.write(data);
+        baos.write(0);
+      }
+      lmbcs = baos.toByteArray();
+    } catch(IOException e) {
+      throw new UncheckedIOException(e);
+    }
+    final long newLen = preLen + otherLen + 2 + lmbcs.length;
+    if (newLen > Integer.MAX_VALUE) {
+      throw new UnsupportedOperationException(
+          MessageFormat.format("Unable to write a new value exceeding {0} bytes", Integer.MAX_VALUE));
+    }
+    struct.resizeVariableData((int) newLen);
+    buf = struct.getVariableData();
+    buf.position(preLen);
+    buf.putShort((short)value.size());
+    buf.put(lmbcs);
+    buf.put(otherData);
+    
+    if(sizeWriter != null) {
+      sizeWriter.accept(lmbcs.length + 2);
+    }
+
+    return struct;
+  }
+  
+  /**
+   * Writes a raw byte value into the variable-data portion of a structure, using the provided
+   * {@link IntConsumer} to update an associated length value.
+   * 
+   * @param <T>        the class of the structure
+   * @param struct     the structure to modify
+   * @param preLen     the amount of variable data in bytes before the place to
+   *                   write
+   * @param currentLen the current length of the variable data to overwrite
+   * @param valueParam the value to write
+   * @param sizeWriter a callback to modify an associated length field, if
+   *                   applicable
+   * @return the provided structure
+   * @since 1.0.43
+   */
+  public static <T extends ResizableMemoryStructure> T writeByteValue(final T struct, final long preLen, final long currentLen,
+      final byte[] valueParam, final IntConsumer sizeWriter) {
+    byte[] value = valueParam == null ? new byte[0] : valueParam;
+    
+    ByteBuffer buf = struct.getVariableData();
+    final long otherLen = buf.remaining() - preLen - currentLen;
+
+    if (preLen + currentLen > Integer.MAX_VALUE) {
+      throw new UnsupportedOperationException(
+          MessageFormat.format("Unable to write a new value with offset larger than {0} bytes", Integer.MAX_VALUE));
+    }
+    if (otherLen > Integer.MAX_VALUE) {
+      throw new UnsupportedOperationException(
+          MessageFormat.format("Unable to write a new value with remaining offset larger than {0} bytes", Integer.MAX_VALUE));
+    }
+    buf.position((int) (preLen + currentLen));
+    final byte[] otherData = new byte[(int) otherLen];
+    buf.get(otherData);
+    
+    if (sizeWriter != null) {
+      sizeWriter.accept(value.length);
+    }
+    final long newLen = preLen + otherLen + value.length;
+    if (newLen > Integer.MAX_VALUE) {
+      throw new UnsupportedOperationException(
+          MessageFormat.format("Unable to write a new value exceeding {0} bytes", Integer.MAX_VALUE));
+    }
+    struct.resizeVariableData((int) newLen);
+    buf = struct.getVariableData();
+    buf.position((int) preLen);
+    buf.put(value);
     buf.put(otherData);
 
     return struct;

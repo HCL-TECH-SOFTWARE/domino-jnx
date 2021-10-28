@@ -16,14 +16,19 @@
  */
 package it.com.hcl.domino.test.design;
 
+import static it.com.hcl.domino.test.util.ITUtil.toLf;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -35,6 +40,8 @@ import java.util.Collection;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -45,10 +52,13 @@ import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
+import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.AboutDocument;
 import com.hcl.domino.design.ActionBar;
 import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.CompositeApplication;
+import com.hcl.domino.design.CompositeComponent;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DbProperties;
 import com.hcl.domino.design.FileResource;
@@ -56,16 +66,24 @@ import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.design.Page;
+import com.hcl.domino.design.SharedActions;
 import com.hcl.domino.design.SharedField;
+import com.hcl.domino.design.StyleSheet;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.SubformReference;
+import com.hcl.domino.design.Theme;
 import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
+import com.hcl.domino.design.WiringProperties;
+import com.hcl.domino.design.XPage;
 import com.hcl.domino.design.action.ActionBarAction;
+import com.hcl.domino.design.action.ActionBarAction.IconType;
 import com.hcl.domino.design.action.ActionContent;
 import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.action.FormulaActionContent;
 import com.hcl.domino.design.action.ScriptEvent;
+import com.hcl.domino.design.action.SimpleActionActionContent;
+import com.hcl.domino.design.format.ActionBarControlType;
 import com.hcl.domino.design.format.FieldListDelimiter;
 import com.hcl.domino.design.format.FieldListDisplayDelimiter;
 import com.hcl.domino.misc.NotesConstants;
@@ -73,6 +91,7 @@ import com.hcl.domino.richtext.FormField;
 import com.hcl.domino.richtext.process.GetImageResourceSizeProcessor;
 import com.hcl.domino.richtext.records.CDEmbeddedOutline;
 import com.hcl.domino.richtext.records.CDField;
+import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.CDText;
 import com.ibm.commons.util.io.StreamUtil;
 
@@ -96,7 +115,7 @@ public class TestDbDesign extends AbstractDesignTest {
   @Test
   public void getGetDbDesign() throws Exception {
     this.withTempDb(database -> {
-      Assertions.assertNotNull(database.getDesign());
+      assertNotNull(database.getDesign());
     });
   }
 
@@ -119,17 +138,17 @@ public class TestDbDesign extends AbstractDesignTest {
     this.withTempDb(database -> {
       final DbDesign design = database.getDesign();
       final Folder element = design.createFolder("foo bar");
-      Assertions.assertNotNull(element);
-      Assertions.assertEquals("foo bar", element.getTitle());
+      assertNotNull(element);
+      assertEquals("foo bar", element.getTitle());
 
       Assertions.assertNull(design.getFolder("foo bar").orElse(null));
       element.save();
-      Assertions.assertNotNull(design.getFolder("foo bar").orElse(null));
+      assertNotNull(design.getFolder("foo bar").orElse(null));
       Assertions.assertNull(design.getView("foo bar").orElse(null));
       element.setTitle("other title");
       element.save();
       Assertions.assertNull(design.getFolder("foo bar").orElse(null));
-      Assertions.assertNotNull(design.getFolder("other title").orElse(null));
+      assertNotNull(design.getFolder("other title").orElse(null));
     });
   }
 
@@ -139,24 +158,24 @@ public class TestDbDesign extends AbstractDesignTest {
       final DbDesign design = database.getDesign();
       {
         final Form element = design.createForm("foo bar");
-        Assertions.assertNotNull(element);
-        Assertions.assertEquals("foo bar", element.getTitle());
+        assertNotNull(element);
+        assertEquals("foo bar", element.getTitle());
 
         Assertions.assertNull(design.getForm("foo bar").orElse(null));
         element.save();
-        Assertions.assertNotNull(design.getForm("foo bar").orElse(null));
+        assertNotNull(design.getForm("foo bar").orElse(null));
         Assertions.assertNull(design.getSubform("foo bar").orElse(null));
         element.setTitle("other title");
         element.save();
         Assertions.assertNull(design.getForm("foo bar").orElse(null));
-        Assertions.assertNotNull(design.getForm("other title").orElse(null));
+        assertNotNull(design.getForm("other title").orElse(null));
 
         element.setHideFromMobile(true);
         element.save();
       }
       {
         final Form element = design.getForm("other title").orElse(null);
-        Assertions.assertNotNull(element);
+        assertNotNull(element);
         assertTrue(element.isHideFromMobile());
       }
     });
@@ -167,17 +186,17 @@ public class TestDbDesign extends AbstractDesignTest {
     this.withTempDb(database -> {
       final DbDesign design = database.getDesign();
       final Subform element = design.createSubform("foo bar");
-      Assertions.assertNotNull(element);
-      Assertions.assertEquals("foo bar", element.getTitle());
+      assertNotNull(element);
+      assertEquals("foo bar", element.getTitle());
 
       Assertions.assertNull(design.getSubform("foo bar").orElse(null));
       element.save();
-      Assertions.assertNotNull(design.getSubform("foo bar").orElse(null));
+      assertNotNull(design.getSubform("foo bar").orElse(null));
       Assertions.assertNull(design.getForm("foo bar").orElse(null));
       element.setTitle("other title");
       element.save();
       Assertions.assertNull(design.getSubform("foo bar").orElse(null));
-      Assertions.assertNotNull(design.getSubform("other title").orElse(null));
+      assertNotNull(design.getSubform("other title").orElse(null));
     });
   }
 
@@ -186,17 +205,17 @@ public class TestDbDesign extends AbstractDesignTest {
     this.withTempDb(database -> {
       final DbDesign design = database.getDesign();
       final View element = design.createView("foo bar");
-      Assertions.assertNotNull(element);
-      Assertions.assertEquals("foo bar", element.getTitle());
+      assertNotNull(element);
+      assertEquals("foo bar", element.getTitle());
 
       Assertions.assertNull(design.getView("foo bar").orElse(null));
       element.save();
-      Assertions.assertNotNull(design.getView("foo bar").orElse(null));
+      assertNotNull(design.getView("foo bar").orElse(null));
       Assertions.assertNull(design.getFolder("foo bar").orElse(null));
       element.setTitle("other title");
       element.save();
       Assertions.assertNull(design.getView("foo bar").orElse(null));
-      Assertions.assertNotNull(design.getCollection("other title").orElse(null));
+      assertNotNull(design.getCollection("other title").orElse(null));
     });
   }
 
@@ -204,73 +223,119 @@ public class TestDbDesign extends AbstractDesignTest {
   public void testDbProperties() {
     final DbDesign dbDesign = this.database.getDesign();
     final DbProperties props = dbDesign.getDatabaseProperties();
-    Assertions.assertNotNull(props);
+    assertNotNull(props);
 
     assertFalse(props.isGenerateEnhancedHtml());
     props.setGenerateEnhancedHtml(true);
     assertTrue(props.isGenerateEnhancedHtml());
     props.setGenerateEnhancedHtml(false);
     assertFalse(props.isGenerateEnhancedHtml());
+    
+    String unid = props.getDocument().getUNID();
+    Optional<DbProperties> optProps = dbDesign.getDesignElementByUNID(unid);
+    assertInstanceOf(DbProperties.class, optProps.get());
   }
 
   @Test
   public void testFileResourceFileCss() throws IOException {
     final DbDesign dbDesign = this.database.getDesign();
     final FileResource res = dbDesign.getFileResource("file.css").get();
-    Assertions.assertEquals("file.css", res.getTitle());
-    Assertions.assertEquals("text/css", res.getMimeType());
-    Assertions.assertEquals("Windows-1252", res.getCharsetName());
+    assertEquals("file.css", res.getTitle());
+    assertEquals("text/css", res.getMimeType());
+    assertEquals("Windows-1252", res.getCharsetName());
 
     String content;
     try (InputStream is = res.getFileData()) {
       content = StreamUtil.readString(is);
     }
-    Assertions.assertEquals("/* I'm a file resource named CSS */", content);
+    assertEquals("/* I'm a file resource named CSS */", content);
   }
 
   @Test
   public void testFileResourceFileCssQuery() throws IOException {
     final DbDesign dbDesign = this.database.getDesign();
     final FileResource res = (FileResource) dbDesign.queryDesignElements("$TITLE='file.css'").findFirst().get();
-    Assertions.assertEquals("file.css", res.getTitle());
-    Assertions.assertEquals("text/css", res.getMimeType());
-    Assertions.assertEquals("Windows-1252", res.getCharsetName());
-    Assertions.assertEquals(res.getDocument().getLastModified().toTemporal().get(), res.getFileModified().toTemporal().get());
+    assertEquals("file.css", res.getTitle());
+    assertEquals("text/css", res.getMimeType());
+    assertEquals("Windows-1252", res.getCharsetName());
+    assertEquals(res.getDocument().getLastModified().toTemporal().get(), res.getFileModified().toTemporal().get());
 
     String content;
     try (InputStream is = res.getFileData()) {
       content = StreamUtil.readString(is);
     }
-    Assertions.assertEquals("/* I'm a file resource named CSS */", content);
+    assertEquals("/* I'm a file resource named CSS */", content);
   }
 
   @Test
   public void testFileResourceLargelsTxt() throws IOException {
     final DbDesign dbDesign = this.database.getDesign();
     final FileResource res = dbDesign.getFileResource("largels.txt").get();
-    Assertions.assertEquals("largels.txt", res.getTitle());
-    Assertions.assertEquals("text/plain", res.getMimeType());
-    Assertions.assertEquals("UTF-8", res.getCharsetName());
+    assertEquals("largels.txt", res.getTitle());
+    assertEquals("text/plain", res.getMimeType());
+    assertEquals("UTF-8", res.getCharsetName());
 
     String expected;
     try (InputStream is = this.getClass().getResourceAsStream("/text/largels_crlf.txt")) {
       expected = StreamUtil.readString(is);
     }
 
-    String content;
-    try (InputStream is = res.getFileData()) {
-      content = StreamUtil.readString(is);
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected.replace("\r\n", "\n"), content.replace("\r\n", "\n"));
     }
-    Assertions.assertEquals(expected.replace("\r\n", "\n"), content.replace("\r\n", "\n"));
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("largels.txt").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected.replace("\r\n", "\n"), content.replace("\r\n", "\n"));
+    }
+  }
+  
+  @Test
+  public void testFileResourceMisc() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+
+    assertFalse(dbDesign.getFileResources(false).anyMatch(res -> "misc/somexpagestext.txt".equals(res.getTitle())));
+    assertTrue(dbDesign.getFileResources(true).anyMatch(res -> "misc/somexpagestext.txt".equals(res.getTitle())));
+    
+    final FileResource res = dbDesign.getFileResource("misc/somexpagestext.txt", true).get();
+    assertEquals("misc/somexpagestext.txt", res.getTitle());
+    assertEquals("text/plain", res.getMimeType());
+
+    String expected = "I'm called misc/somexpagestxt.txt";
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("misc/somexpagestext.txt").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
   }
 
   @Test
   public void testFileResources() {
     final DbDesign dbDesign = this.database.getDesign();
     final List<FileResource> resources = dbDesign.getFileResources().collect(Collectors.toList());
-    Assertions.assertEquals(3, resources.size());
+    assertEquals(3, resources.size());
 
     assertTrue(resources.stream().anyMatch(res -> Arrays.asList("file.css").equals(res.getFileNames())));
+    assertTrue(dbDesign.getFileResources(true).anyMatch(res -> Arrays.asList("file.css").equals(res.getFileNames())));
+    assertTrue(dbDesign.getFileResources(false).anyMatch(res -> Arrays.asList("file.css").equals(res.getFileNames())));
     assertTrue(resources.stream().anyMatch(res -> Arrays.asList("test.txt").equals(res.getFileNames())));
     assertTrue(resources.stream().anyMatch(res -> Arrays.asList("largels.txt").equals(res.getFileNames())));
   }
@@ -279,34 +344,45 @@ public class TestDbDesign extends AbstractDesignTest {
   public void testFileResourceTestTxt() throws IOException {
     final DbDesign dbDesign = this.database.getDesign();
     final FileResource res = dbDesign.getFileResource("test.txt").get();
-    Assertions.assertEquals("test.txt", res.getTitle());
-    Assertions.assertEquals("text/plain", res.getMimeType());
-    Assertions.assertEquals("UTF-8", res.getCharsetName());
+    assertEquals("test.txt", res.getTitle());
+    assertEquals("text/plain", res.getMimeType());
+    assertEquals("UTF-8", res.getCharsetName());
 
     // 20210619T150226,17-04
     final OffsetDateTime expected = OffsetDateTime.of(2021, 6, 19, 14, 2, 26, 17 * 1000 * 1000 * 10, ZoneOffset.ofHours(-5));
-    Assertions.assertEquals(expected, res.getFileModified().toOffsetDateTime());
+    assertEquals(expected, res.getFileModified().toOffsetDateTime());
 
-    String content;
-    try (InputStream is = res.getFileData()) {
-      content = StreamUtil.readString(is);
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals("I am test text", content);
     }
-    Assertions.assertEquals("I am test text", content);
+    
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("test.txt").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals("I am test text", content);
+    }
   }
 
   @Test
   public void testFolders() {
     final DbDesign dbDesign = this.database.getDesign();
     final Collection<CollectionDesignElement> collections = dbDesign.getFolders().collect(Collectors.toList());
-    Assertions.assertEquals(1, collections.size());
+    assertEquals(1, collections.size());
 
     {
       CollectionDesignElement view = collections.stream().filter(v -> "test folder".equals(v.getTitle())).findFirst().orElse(null);
-      Assertions.assertNotNull(view);
+      assertNotNull(view);
 
       view = dbDesign.getCollection("test folder").orElse(null);
-      Assertions.assertNotNull(view);
-      Assertions.assertEquals("test folder", view.getTitle());
+      assertNotNull(view);
+      assertEquals("test folder", view.getTitle());
     }
   }
 
@@ -314,23 +390,23 @@ public class TestDbDesign extends AbstractDesignTest {
   public void testFoldersAndViews() {
     final DbDesign dbDesign = this.database.getDesign();
     final Collection<CollectionDesignElement> collections = dbDesign.getCollections().collect(Collectors.toList());
-    Assertions.assertEquals(3, collections.size()); // 2 imported + 1 default view
+    assertEquals(3, collections.size()); // 2 imported + 1 default view
 
     {
       CollectionDesignElement view = collections.stream().filter(v -> "test view".equals(v.getTitle())).findFirst().orElse(null);
-      Assertions.assertNotNull(view);
+      assertNotNull(view);
 
       view = dbDesign.getCollection("test view").orElse(null);
-      Assertions.assertNotNull(view);
-      Assertions.assertEquals("test view", view.getTitle());
+      assertNotNull(view);
+      assertEquals("test view", view.getTitle());
     }
     {
       CollectionDesignElement view = collections.stream().filter(v -> "test folder".equals(v.getTitle())).findFirst().orElse(null);
-      Assertions.assertNotNull(view);
+      assertNotNull(view);
 
       view = dbDesign.getCollection("test folder").orElse(null);
-      Assertions.assertNotNull(view);
-      Assertions.assertEquals("test folder", view.getTitle());
+      assertNotNull(view);
+      assertEquals("test folder", view.getTitle());
     }
   }
 
@@ -338,51 +414,51 @@ public class TestDbDesign extends AbstractDesignTest {
   public void testForms() {
     final DbDesign dbDesign = this.database.getDesign();
     final Collection<Form> forms = dbDesign.getForms().collect(Collectors.toList());
-    Assertions.assertEquals(2, forms.size());
+    assertEquals(2, forms.size());
     {
       Form form = forms.stream().filter(f -> "Content".equals(f.getTitle())).findFirst().orElse(null);
-      Assertions.assertNotNull(form);
+      assertNotNull(form);
 
       form = dbDesign.getForm("Content").orElse(null);
-      Assertions.assertNotNull(form);
-      Assertions.assertEquals("Content", form.getTitle());
+      assertNotNull(form);
+      assertEquals("Content", form.getTitle());
     }
     {
       final Form form = dbDesign.getForm("Alias").orElse(null);
-      Assertions.assertNotNull(form);
-      Assertions.assertEquals("Alias", form.getTitle());
+      assertNotNull(form);
+      assertEquals("Alias", form.getTitle());
 
       final List<FormField> fields = form.getFields();
-      Assertions.assertEquals(5, fields.size());
-      Assertions.assertEquals(
+      assertEquals(5, fields.size());
+      assertEquals(
           Arrays.asList("Host", "From", "To", "$$Title", "$$Creator"),
           fields.stream().map(FormField::getName).collect(Collectors.toList()));
       {
         final FormField hostField = fields.stream().filter(f -> "Host".equals(f.getName())).findFirst().orElse(null);
-        Assertions.assertNotNull(hostField);
-        Assertions.assertEquals(EnumSet.of(FieldListDelimiter.COMMA, FieldListDelimiter.SEMICOLON, FieldListDelimiter.NEWLINE),
+        assertNotNull(hostField);
+        assertEquals(EnumSet.of(FieldListDelimiter.COMMA, FieldListDelimiter.SEMICOLON, FieldListDelimiter.NEWLINE),
             hostField.getListInputDelimiters());
-        Assertions.assertEquals(FieldListDisplayDelimiter.SEMICOLON, hostField.getListDispayDelimiter());
-        Assertions.assertEquals("host-id", hostField.getHtmlId());
-        Assertions.assertEquals("host-class", hostField.getHtmlClassName());
-        Assertions.assertEquals("host: style", hostField.getHtmlStyle());
-        Assertions.assertEquals("host=\"attr\"", hostField.getHtmlExtraAttr());
-        Assertions.assertEquals("Name", hostField.getHtmlTitle());
-        Assertions.assertEquals(ItemDataType.TYPE_TEXT_LIST, hostField.getDataType().get());
+        assertEquals(FieldListDisplayDelimiter.SEMICOLON, hostField.getListDispayDelimiter());
+        assertEquals("host-id", hostField.getHtmlId());
+        assertEquals("host-class", hostField.getHtmlClassName());
+        assertEquals("host: style", hostField.getHtmlStyle());
+        assertEquals("host=\"attr\"", hostField.getHtmlExtraAttr());
+        assertEquals("Name", hostField.getHtmlTitle());
+        assertEquals(ItemDataType.TYPE_TEXT_LIST, hostField.getDataType().get());
       }
 
       // Check for its two subforms
       final List<SubformReference> subforms = form.getSubforms();
-      Assertions.assertEquals(2, subforms.size());
+      assertEquals(2, subforms.size());
       {
         final SubformReference computed = subforms.get(0);
-        Assertions.assertEquals(SubformReference.Type.FORMULA, computed.getType());
-        Assertions.assertEquals("@If(@True; \"Computed Target\"; \"Computed Target\")", computed.getValue());
+        assertEquals(SubformReference.Type.FORMULA, computed.getType());
+        assertEquals("@If(@True; \"Computed Target\"; \"Computed Target\")", computed.getValue());
       }
       {
         final SubformReference explicit = subforms.get(1);
-        Assertions.assertEquals(SubformReference.Type.EXPLICIT, explicit.getType());
-        Assertions.assertEquals("Footer", explicit.getValue());
+        assertEquals(SubformReference.Type.EXPLICIT, explicit.getType());
+        assertEquals("Footer", explicit.getValue());
       }
     }
 
@@ -393,67 +469,80 @@ public class TestDbDesign extends AbstractDesignTest {
   public void testImageResources() {
     final DbDesign dbDesign = this.database.getDesign();
     final List<ImageResource> resources = dbDesign.getImageResources().collect(Collectors.toList());
-    Assertions.assertEquals(2, resources.size());
+    assertEquals(2, resources.size());
 
     assertTrue(resources.stream().anyMatch(res -> Arrays.asList("Untitled.gif").equals(res.getFileNames())));
     // The copied image resource is known to be broken, as an effect of a Designer
-    // bug. That leaves it as useful
-    // test data, but not for this check
+    // bug. That leaves it as useful test data, but not for this check
     // assertTrue(resources.stream().anyMatch(res -> Arrays.asList("Untitled
     // 2.gif").equals(res.getFileNames())));
     assertTrue(resources.stream().anyMatch(res -> "Untitled.gif".equals(res.getTitle())));
+    
+    String unid = resources.stream().filter(res -> "Untitled.gif".equals(res.getTitle())).map(res -> res.getDocument().getUNID()).findFirst().get();
+    Optional<ImageResource> untitled = dbDesign.getDesignElementByUNID(unid);
+    assertEquals("Untitled.gif", untitled.get().getTitle());
   }
 
   @Test
   public void testImageResUntitled() throws IOException {
     final DbDesign dbDesign = this.database.getDesign();
     final ImageResource res = dbDesign.getImageResource("Untitled.gif").get();
-    Assertions.assertEquals("Untitled.gif", res.getTitle());
-    Assertions.assertEquals("image/gif", res.getMimeType());
+    assertEquals("Untitled.gif", res.getTitle());
+    assertEquals("image/gif", res.getMimeType());
     assertFalse(res.isWebReadOnly());
     assertFalse(res.isWebCompatible());
-    Assertions.assertEquals(1, res.getImagesDown());
-    Assertions.assertEquals(1, res.getImagesAcross());
-    Assertions.assertEquals(890, res.getFileSize());
-    Assertions.assertEquals(890,
+    assertEquals(1, res.getImagesDown());
+    assertEquals(1, res.getImagesAcross());
+    assertEquals(890, res.getFileSize());
+    assertEquals(890,
         new GetImageResourceSizeProcessor().apply(res.getDocument().getRichTextItem(NotesConstants.ITEM_NAME_IMAGE_DATA)));
 
     final byte[] expected = IOUtils.resourceToByteArray("/images/Untitled.gif");
 
-    byte[] content;
-    try (InputStream is = res.getFileData()) {
-      content = IOUtils.toByteArray(is);
+    {
+      byte[] content;
+      try (InputStream is = res.getFileData()) {
+        content = IOUtils.toByteArray(is);
+      }
+      assertArrayEquals(expected, content);
     }
-    Assertions.assertArrayEquals(expected, content);
+    // Now try to read it as a generic input stream
+    {
+      byte[] content;
+      try(InputStream is = dbDesign.getResourceAsStream("Untitled.gif").get()) {
+        content = IOUtils.toByteArray(is);
+      }
+      assertArrayEquals(expected, content);
+    }
   }
 
   @Test
   public void testImageResUntitled2() throws IOException {
     final DbDesign dbDesign = this.database.getDesign();
     final ImageResource res = dbDesign.getImageResource("Untitled 2.gif").get();
-    Assertions.assertEquals("Untitled 2.gif", res.getTitle());
-    Assertions.assertEquals("image/gif", res.getMimeType());
+    assertEquals("Untitled 2.gif", res.getTitle());
+    assertEquals("image/gif", res.getMimeType());
     assertTrue(res.isWebReadOnly());
     assertTrue(res.isWebCompatible());
-    Assertions.assertEquals(2, res.getImagesDown());
-    Assertions.assertEquals(4, res.getImagesAcross());
+    assertEquals(2, res.getImagesDown());
+    assertEquals(4, res.getImagesAcross());
 
     // This is known to have diverged, where the $FileSize reflects one of the image
     // tiles for some reason
-    Assertions.assertEquals(890, res.getFileSize());
-    Assertions.assertEquals(839, res.getDocument().get("$FileSize", int.class, 0));
-    Assertions.assertEquals(890,
+    assertEquals(890, res.getFileSize());
+    assertEquals(839, res.getDocument().get("$FileSize", int.class, 0));
+    assertEquals(890,
         GetImageResourceSizeProcessor.instance.apply(res.getDocument().getRichTextItem(NotesConstants.ITEM_NAME_IMAGE_DATA)));
 
     // The images-down/across values caused the creation of many $ImageData values
-    Assertions.assertEquals(824, GetImageResourceSizeProcessor.instance.apply(res.getDocument().getRichTextItem("$ImageData0000")));
-    Assertions.assertEquals(833, GetImageResourceSizeProcessor.instance.apply(res.getDocument().getRichTextItem("$ImageData0001")));
-    Assertions.assertEquals(835, GetImageResourceSizeProcessor.instance.apply(res.getDocument().getRichTextItem("$ImageData0002")));
-    Assertions.assertEquals(839, GetImageResourceSizeProcessor.instance.apply(res.getDocument().getRichTextItem("$ImageData0003")));
-    Assertions.assertEquals(824, GetImageResourceSizeProcessor.instance.apply(res.getDocument().getRichTextItem("$ImageData0100")));
-    Assertions.assertEquals(833, GetImageResourceSizeProcessor.instance.apply(res.getDocument().getRichTextItem("$ImageData0101")));
-    Assertions.assertEquals(824, GetImageResourceSizeProcessor.instance.apply(res.getDocument().getRichTextItem("$ImageData0102")));
-    Assertions.assertEquals(839, GetImageResourceSizeProcessor.instance.apply(res.getDocument().getRichTextItem("$ImageData0103")));
+    assertEquals(824, GetImageResourceSizeProcessor.instance.apply(res.getDocument().getRichTextItem("$ImageData0000")));
+    assertEquals(833, GetImageResourceSizeProcessor.instance.apply(res.getDocument().getRichTextItem("$ImageData0001")));
+    assertEquals(835, GetImageResourceSizeProcessor.instance.apply(res.getDocument().getRichTextItem("$ImageData0002")));
+    assertEquals(839, GetImageResourceSizeProcessor.instance.apply(res.getDocument().getRichTextItem("$ImageData0003")));
+    assertEquals(824, GetImageResourceSizeProcessor.instance.apply(res.getDocument().getRichTextItem("$ImageData0100")));
+    assertEquals(833, GetImageResourceSizeProcessor.instance.apply(res.getDocument().getRichTextItem("$ImageData0101")));
+    assertEquals(824, GetImageResourceSizeProcessor.instance.apply(res.getDocument().getRichTextItem("$ImageData0102")));
+    assertEquals(839, GetImageResourceSizeProcessor.instance.apply(res.getDocument().getRichTextItem("$ImageData0103")));
 
     final byte[] expected = IOUtils.resourceToByteArray("/images/Untitled.gif");
 
@@ -461,21 +550,21 @@ public class TestDbDesign extends AbstractDesignTest {
     try (InputStream is = res.getFileData()) {
       content = IOUtils.toByteArray(is);
     }
-    Assertions.assertArrayEquals(expected, content);
+    assertArrayEquals(expected, content);
   }
 
   @Test
   public void testSubforms() {
     final DbDesign dbDesign = this.database.getDesign();
     final Collection<Subform> forms = dbDesign.getSubforms().collect(Collectors.toList());
-    Assertions.assertEquals(2, forms.size());
+    assertEquals(2, forms.size());
     {
       Subform subform = forms.stream().filter(f -> "Footer".equals(f.getTitle())).findFirst().orElse(null);
-      Assertions.assertNotNull(subform);
+      assertNotNull(subform);
 
       subform = dbDesign.getSubform("Footer").orElse(null);
-      Assertions.assertNotNull(subform);
-      Assertions.assertEquals("Footer", subform.getTitle());
+      assertNotNull(subform);
+      assertEquals("Footer", subform.getTitle());
     }
 
     Assertions.assertNull(dbDesign.getSubform("Content").orElse(null));
@@ -485,16 +574,16 @@ public class TestDbDesign extends AbstractDesignTest {
   public void testViews() {
     final DbDesign dbDesign = this.database.getDesign();
     final Collection<CollectionDesignElement> collections = dbDesign.getViews().collect(Collectors.toList());
-    Assertions.assertEquals(2, collections.size()); // 1 imported + 1 default view
+    assertEquals(2, collections.size()); // 1 imported + 1 default view
 
     {
       CollectionDesignElement view = collections.stream().filter(v -> "test view".equals(v.getTitle())).findFirst().orElse(null);
-      Assertions.assertNotNull(view);
+      assertNotNull(view);
 
       view = dbDesign.getCollection("test view").orElse(null);
-      Assertions.assertNotNull(view);
-      Assertions.assertEquals("test view", view.getTitle());
-      Assertions.assertEquals("8.5.3", view.getDesignerVersion());
+      assertNotNull(view);
+      assertEquals("test view", view.getTitle());
+      assertEquals("8.5.3", view.getDesignerVersion());
 
       {
         assertTrue(view.isProhibitRefresh());
@@ -536,6 +625,10 @@ public class TestDbDesign extends AbstractDesignTest {
     assertEquals(2, pages.size());
     assertTrue(pages.stream().anyMatch(p -> "Navigation Header".equals(p.getTitle())));
     assertTrue(pages.stream().anyMatch(p -> "Test Page".equals(p.getTitle())));
+    
+    String unid = pages.stream().filter(p -> "Test Page".equals(p.getTitle())).findFirst().map(p -> p.getDocument().getUNID()).get();
+    Optional<Page> testPage = design.getDesignElementByUNID(unid);
+    assertEquals("Test Page", testPage.get().getTitle());
   }
   
   @Test
@@ -607,6 +700,9 @@ public class TestDbDesign extends AbstractDesignTest {
     
     String lsExpected = IOUtils.resourceToString("/text/testDbDesign/testPageLs.txt", StandardCharsets.UTF_8);
     assertEquals(lsExpected, page.getLotusScript());
+    
+    String lsGlobalsExpected = IOUtils.resourceToString("/text/testDbDesign/testPageLsGlobals.txt", StandardCharsets.UTF_8);
+    assertEquals(lsGlobalsExpected, page.getLotusScriptGlobals());
     
     Map<EventId, String> formulas = page.getFormulaEvents();
     assertEquals(1, formulas.size());
@@ -701,4 +797,590 @@ public class TestDbDesign extends AbstractDesignTest {
         .anyMatch(f -> "@If(@False; @Success; @Failure(\"nooo\"))".equals(f.getInputValidationFormula()))
     );
   }
+  
+  @Test
+  public void testSharedActions() {
+    DbDesign design = database.getDesign();
+    
+    SharedActions actions = design.getSharedActions().get();
+    List<ActionBarAction> actionList = actions.getActions();
+    assertEquals(5, actionList.size());
+    // NB: these are stored in a different order from displayed in Designer
+    {
+      // Edit
+      ActionBarAction action = actionList.get(0);
+      assertEquals("Edit", action.getName());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertTrue(action.isIncludeInActionBar());
+      assertFalse(action.isIconOnlyInActionBar());
+      assertFalse(action.isOppositeAlignedInActionBar());
+      assertFalse(action.isDisplayAsSplitButton());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInMobileActions());
+      assertFalse(action.isIncludeInMobileSwipeLeft());
+      assertFalse(action.isIncludeInMobileSwipeRight());
+      assertFalse(action.isIncludeInContextMenu());
+      
+      assertFalse(action.isDisplayIconOnRight());
+      assertEquals(IconType.NOTES, action.getIconType());
+      assertEquals(5, action.getNotesIconIndex());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(FormulaActionContent.class, content);
+      assertEquals("@Command([EditDocument])", ((FormulaActionContent)content).getFormula());
+    }
+    {
+      // Save
+      ActionBarAction action = actionList.get(1);
+      assertEquals("Save", action.getName());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertTrue(action.isIncludeInActionBar());
+      assertFalse(action.isIconOnlyInActionBar());
+      assertFalse(action.isOppositeAlignedInActionBar());
+      assertFalse(action.isDisplayAsSplitButton());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInMobileActions());
+      assertFalse(action.isIncludeInMobileSwipeLeft());
+      assertFalse(action.isIncludeInMobileSwipeRight());
+      assertFalse(action.isIncludeInContextMenu());
+      
+      assertFalse(action.isDisplayIconOnRight());
+      assertEquals(IconType.CUSTOM, action.getIconType());
+      CDResource res = action.getIconResource().get();
+      assertEquals("tango/document-save.png", res.getNamedElement().get());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(FormulaActionContent.class, content);
+      assertEquals("@If(\n"
+          + "	@ClientType=\"Web\" | @IsValid; @Do(\n"
+          + "		@Command([FileSave]);\n"
+          + "		@Command([EditDocument])\n"
+          + "	);\n"
+          + "	\"\"\n"
+          + ")", toLf(((FormulaActionContent)content).getFormula()));
+    }
+    {
+      // Save and Close
+      ActionBarAction action = actionList.get(2);
+      assertEquals("Save and Close", action.getName());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertTrue(action.isIncludeInActionBar());
+      assertFalse(action.isIconOnlyInActionBar());
+      assertFalse(action.isOppositeAlignedInActionBar());
+      assertFalse(action.isDisplayAsSplitButton());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInMobileActions());
+      assertFalse(action.isIncludeInMobileSwipeLeft());
+      assertFalse(action.isIncludeInMobileSwipeRight());
+      assertFalse(action.isIncludeInContextMenu());
+      
+      assertFalse(action.isDisplayIconOnRight());
+      assertEquals(IconType.CUSTOM, action.getIconType());
+      CDResource res = action.getIconResource().get();
+      assertEquals("tango/system-log-out.png", res.getNamedElement().get());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(FormulaActionContent.class, content);
+      assertEquals("@If(\n"
+          + "	@ClientType=\"Web\" | @IsValid; @Do(\n"
+          + "		@Command([FileSave]);\n"
+          + "		@Command([FileCloseWindow])\n"
+          + "	);\n"
+          + "	\"\"\n"
+          + ")", toLf(((FormulaActionContent)content).getFormula()));
+    }
+    {
+      // Delete
+      ActionBarAction action = actionList.get(3);
+      assertEquals("Delete", action.getName());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertTrue(action.isIncludeInActionBar());
+      assertFalse(action.isIconOnlyInActionBar());
+      assertTrue(action.isOppositeAlignedInActionBar());
+      assertFalse(action.isDisplayAsSplitButton());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInMobileActions());
+      assertFalse(action.isIncludeInMobileSwipeLeft());
+      assertFalse(action.isIncludeInMobileSwipeRight());
+      assertFalse(action.isIncludeInContextMenu());
+      
+      assertFalse(action.isDisplayIconOnRight());
+      assertEquals(IconType.NOTES, action.getIconType());
+      assertEquals(4, action.getNotesIconIndex());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(FormulaActionContent.class, content);
+      assertEquals("@Command([EditClear])", ((FormulaActionContent)content).getFormula());
+    }
+    {
+      // tester
+      ActionBarAction action = actionList.get(4);
+      assertEquals("tester", action.getName());
+      assertFalse(action.getLabelFormula().isPresent());
+      assertFalse(action.getTargetFrame().isPresent());
+      assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
+      assertTrue(action.isIncludeInActionBar());
+      assertFalse(action.isIconOnlyInActionBar());
+      assertFalse(action.isOppositeAlignedInActionBar());
+      assertFalse(action.isDisplayAsSplitButton());
+      assertTrue(action.isIncludeInActionMenu());
+      assertFalse(action.isIncludeInMobileActions());
+      assertFalse(action.isIncludeInMobileSwipeLeft());
+      assertFalse(action.isIncludeInMobileSwipeRight());
+      assertFalse(action.isIncludeInContextMenu());
+      
+      assertFalse(action.isDisplayIconOnRight());
+      assertEquals(IconType.NONE, action.getIconType());
+      
+      ActionContent content = action.getActionContent();
+      assertInstanceOf(SimpleActionActionContent.class, content);
+      assertTrue(((SimpleActionActionContent)content).getActions().isEmpty());
+    }
+  }
+  
+  @Test
+  public void testNoSharedActions() throws Exception {
+    withTempDb(database -> {
+      DbDesign design = database.getDesign();
+      assertFalse(design.getSharedActions().isPresent());
+    });
+  }
+  
+  @Test
+  public void testGetByUnid() {
+    DbDesign design = database.getDesign();
+    
+    String unid;
+    {
+      SharedActions actions = design.getSharedActions().get();
+      unid = actions.getDocument().getUNID();
+    }
+    {
+      Optional<SharedActions> optActions = design.getDesignElementByUNID(unid);
+      SharedActions actions = optActions.get();
+      List<ActionBarAction> actionList = actions.getActions();
+      assertEquals(5, actionList.size());
+    }
+  }
+  
+  @Test
+  public void testMismatchedGetByUnid() {
+    DbDesign design = database.getDesign();
+    
+    String unid;
+    {
+      SharedActions actions = design.getSharedActions().get();
+      unid = actions.getDocument().getUNID();
+    }
+    {
+      Optional<View> optActions = design.getDesignElementByUNID(unid);
+      assertThrows(ClassCastException.class, () -> {
+        @SuppressWarnings("unused")
+        View view = optActions.get();
+      });
+    }
+  }
+  
+  @Test
+  public void testStyleSheets() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<StyleSheet> sheets = dbDesign.getStyleSheets().collect(Collectors.toList());
+    assertEquals(1, sheets.size());
+    assertTrue(sheets.stream().anyMatch(sheet -> "test.css".equals(sheet.getTitle())));
+  }
+
+  @Test
+  public void testStyleSheetTest() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    StyleSheet res = dbDesign.getStyleSheet("test.css").get();
+    assertEquals("test.css", res.getTitle());
+    assertEquals("text/css", res.getMimeType());
+    assertEquals("UTF-8", res.getCharsetName());
+    
+    String expected = "body {\r\n"
+        + "\tbackground: red;\r\n"
+        + "}";
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("test.css").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<StyleSheet> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+    }
+  }
+  
+  @Test
+  public void testWiringProperties() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<WiringProperties> props = dbDesign.getWiringPropertiesElements().collect(Collectors.toList());
+    assertEquals(1, props.size());
+    assertTrue(props.stream().anyMatch(prop -> "wiringprops.wsdl".equals(prop.getTitle())));
+  }
+  
+  @Test
+  public void testWiringPropertiesTest() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    WiringProperties res = dbDesign.getWiringPropertiesElement("wiringprops.wsdl").get();
+    assertEquals("wiringprops.wsdl", res.getTitle());
+    
+    String expected = "<definitions name=\"Property Broker WSDL\"\n"
+        + "targetNamespace=\"http://com.yourcompany.propertybroker\"\n"
+        + "xmlns=\"http://schemas.xmlsoap.org/wsdl/\"\n"
+        + "xmlns:portlet=\"http://www.ibm.com/wps/c2a\"\n"
+        + "xmlns:soap=\"http://schemas.xmlsoap.org/wsdl/soap/\"\n"
+        + "xmlns:tns=\"http://com.yourcompany.propertybroker\"\n"
+        + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
+        + "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n"
+        + "</definitions>\r\n";
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("wiringprops.wsdl").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<WiringProperties> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+    }
+  }
+  
+  @Test
+  public void testThemes() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<Theme> themes = dbDesign.getThemes().collect(Collectors.toList());
+    assertEquals(1, themes.size());
+    assertTrue(themes.stream().anyMatch(prop -> "test.theme".equals(prop.getTitle())));
+  }
+  
+  @Test
+  public void testThemeTest() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    Theme res = dbDesign.getTheme("test.theme").get();
+    assertEquals("test.theme", res.getTitle());
+    
+    String expected = "<theme extends=\"webstandard\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"platform:/plugin/com.ibm.designer.domino.stylekits/schema/stylekit.xsd\" >\n"
+        + "</theme>\r\n";
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try to read it as a generic input stream
+    {
+      String content;
+      try(InputStream is = dbDesign.getResourceAsStream("test.theme").get()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<Theme> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+    }
+  }
+  
+  @Test
+  public void testOverwriteFileResource() throws Exception {
+    // Use a fresh copy of the DB to avoid interactions with other tests
+    withResourceDxl("/dxl/testDbDesign", database -> {
+      DbDesign design = database.getDesign();
+      byte[] expected = "I am fake new CSS that isn't in the resource currently".getBytes();
+      DominoDateTime origMod;
+      {
+        FileResource res = design.getFileResource("file.css").get();
+        origMod = res.getFileModified();
+        try(OutputStream os = res.newOutputStream()) {
+          os.write(expected);
+          TimeUnit.SECONDS.sleep(1);
+        }
+        res.save();
+      }
+      {
+        FileResource res = design.getFileResource("file.css").get();
+        byte[] content;
+        try(
+          InputStream is = res.getFileData();
+          ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ) {
+          StreamUtil.copyStream(is, baos);
+          content = baos.toByteArray();
+        }
+        assertArrayEquals(expected, content);
+        assertEquals(expected.length, res.getFileSize());
+        assertTrue(res.getFileModified().compareTo(origMod) > 0);
+        assertEquals(expected.length, res.getDocument().get(NotesConstants.ITEM_NAME_FILE_SIZE, int.class, -1));
+      }
+    });
+  }
+  
+  @Test
+  public void testCreateFileResource() throws Exception {
+    withTempDb(database -> {
+      DbDesign design = database.getDesign();
+
+      byte[] expected = "I am fake new content that isn't in the resource currently".getBytes();
+      try(OutputStream os = design.newResourceOutputStream("/somenewfile.txt")) {
+        os.write(expected);
+      }
+      
+      {
+        FileResource res = design.getFileResource("somenewfile.txt").get();
+        byte[] content;
+        try(
+          InputStream is = res.getFileData();
+          ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ) {
+          StreamUtil.copyStream(is, baos);
+          content = baos.toByteArray();
+        }
+        assertArrayEquals(expected, content);
+        assertEquals(expected.length, res.getFileSize());
+        assertEquals(expected.length, res.getDocument().get(NotesConstants.ITEM_NAME_FILE_SIZE, int.class, -1));
+      }
+      
+      // Check as a stream
+      {
+        byte[] content;
+        try(
+          InputStream is = design.getResourceAsStream("/somenewfile.txt").get();
+          ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ) {
+          StreamUtil.copyStream(is, baos);
+          content = baos.toByteArray();
+        }
+        assertArrayEquals(expected, content);
+      }
+    });
+  }
+  
+  @Test
+  public void testOverwriteImageResource() throws Exception {
+    // Use a fresh copy of the DB to avoid interactions with other tests
+    withResourceDxl("/dxl/testDbDesign", database -> {
+      DbDesign design = database.getDesign();
+      byte[] expected = IOUtils.resourceToByteArray("/images/help_vampire.gif");
+      DominoDateTime origMod;
+      {
+        ImageResource res = design.getImageResource("Untitled 2.gif").get();
+        origMod = res.getFileModified();
+        try(OutputStream os = res.newOutputStream()) {
+          os.write(expected);
+        }
+        res.save();
+      }
+      {
+        ImageResource res = design.getImageResource("Untitled 2.gif").get();
+        byte[] content;
+        try(
+          InputStream is = res.getFileData();
+          ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ) {
+          StreamUtil.copyStream(is, baos);
+          content = baos.toByteArray();
+        }
+        assertArrayEquals(expected, content);
+        assertEquals(expected.length, res.getFileSize());
+        assertTrue(res.getFileModified().compareTo(origMod) > 0);
+        assertEquals(expected.length, res.getDocument().get(NotesConstants.ITEM_NAME_FILE_SIZE, int.class, -1));
+      }
+    });
+    
+  }
+  
+  @Test
+  public void testComponents() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<CompositeComponent> components = dbDesign.getCompositeComponents().collect(Collectors.toList());
+    assertEquals(1, components.size());
+    assertTrue(components.stream().anyMatch(prop -> "testcomponent.component".equals(prop.getTitle())));
+  }
+  
+  @Test
+  public void testComponentTest() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    CompositeComponent res = dbDesign.getCompositeComponent("testcomponent.component").get();
+    assertEquals("testcomponent.component", res.getTitle());
+    
+    String expected = IOUtils.resourceToString("/text/testDbDesign/testcomponent.xml", StandardCharsets.UTF_8);
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<CompositeComponent> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+    }
+  }
+  
+  @Test
+  public void testCompositeApplications() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<CompositeApplication> components = dbDesign.getCompositeApplications().collect(Collectors.toList());
+    assertEquals(1, components.size());
+    assertTrue(components.stream().anyMatch(prop -> "testcompapp.ca".equals(prop.getTitle())));
+  }
+  
+  @Test
+  public void testCompositeApplicationTest() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    CompositeApplication res = dbDesign.getCompositeApplication("testcompapp.ca").get();
+    assertEquals("testcompapp.ca", res.getTitle());
+    
+    String expected = IOUtils.resourceToString("/text/testDbDesign/testcompapp.xml", StandardCharsets.UTF_8);
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<CompositeApplication> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+    }
+  }
+  
+  @Test
+  public void testXPages() {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    List<XPage> components = dbDesign.getXPages().collect(Collectors.toList());
+    assertEquals(1, components.size());
+    assertTrue(components.stream().anyMatch(prop -> "Home.xsp".equals(prop.getTitle())));
+  }
+  
+  @Test
+  public void testXPageHome() throws IOException {
+    final DbDesign dbDesign = this.database.getDesign();
+    
+    XPage res = dbDesign.getXPage("Home.xsp").get();
+    assertEquals("Home.xsp", res.getTitle());
+    
+    String expected = IOUtils.resourceToString("/text/testDbDesign/Home.xml", StandardCharsets.UTF_8) + "\r\n";
+
+    {
+      String content;
+      try (InputStream is = res.getFileData()) {
+        content = StreamUtil.readString(is);
+      }
+      assertEquals(expected, content);
+    }
+    
+    // Now try it as a generic element by UNID
+    String unid = res.getDocument().getUNID();
+    {
+      Optional<XPage> optRes = dbDesign.getDesignElementByUNID(unid);
+      res = optRes.get();
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+    }
+  }
+  
 }

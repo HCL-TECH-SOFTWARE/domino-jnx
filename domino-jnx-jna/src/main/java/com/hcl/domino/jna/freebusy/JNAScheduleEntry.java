@@ -21,11 +21,11 @@ import java.time.temporal.TemporalAccessor;
 import java.util.EnumSet;
 import java.util.Optional;
 
+import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.data.DominoDateRange;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.freebusy.ScheduleAttr;
 import com.hcl.domino.freebusy.ScheduleEntry;
-import com.hcl.domino.jna.data.JNADominoDateRange;
 import com.hcl.domino.jna.data.JNADominoDateTime;
 import com.hcl.domino.jna.internal.structs.NotesSchedEntryExtStruct;
 import com.hcl.domino.jna.internal.structs.NotesSchedEntryStruct;
@@ -58,7 +58,7 @@ public class JNAScheduleEntry implements ScheduleEntry {
 		this.m_unid = entry.Unid==null ? null : entry.Unid.toString();
 		NotesTimeDatePairStruct intervalTDPair = entry.Interval;
 		if (intervalTDPair!=null && intervalTDPair.Lower!=null && intervalTDPair.Upper!=null) {
-			this.m_interval = new JNADominoDateRange(
+			this.m_interval = new DefaultDominoDateRange(
 				new JNADominoDateTime(intervalTDPair.Lower),
 				new JNADominoDateTime(intervalTDPair.Upper)
 			);
@@ -77,7 +77,7 @@ public class JNAScheduleEntry implements ScheduleEntry {
 		this.m_unid = entryExt.Unid==null ? null : entryExt.Unid.toString();
 		NotesTimeDatePairStruct intervalTDPair = entryExt.Interval;
 		if (intervalTDPair!=null && intervalTDPair.Lower!=null && intervalTDPair.Upper!=null) {
-			this.m_interval = new JNADominoDateRange(
+			this.m_interval = new DefaultDominoDateRange(
 				new JNADominoDateTime(intervalTDPair.Lower),
 				new JNADominoDateTime(intervalTDPair.Upper)
 			);

@@ -36,6 +36,7 @@ import com.hcl.domino.crypt.DatabaseEncryptionState;
 import com.hcl.domino.crypt.EncryptionStrength;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.design.DbDesign;
+import com.hcl.domino.design.RichTextBuilder;
 import com.hcl.domino.dql.DQL;
 import com.hcl.domino.dql.DQL.DQLTerm;
 import com.hcl.domino.dql.QueryResultsProcessor;
@@ -1512,7 +1513,7 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
    * reopened to view any changes.<br>
    * <br>
    * Convenience function that calls
-   * {@link #refreshDesign(String, boolean, boolean, IBreakHandler)} with
+   * {@link #refreshDesign(String, boolean, boolean, DominoClient.IBreakHandler)} with
    * force and errIfTemplateNotFound set to true and without break handler.
    *
    * @param server name of the Lotus Domino Server on which the database template
@@ -1719,4 +1720,12 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
    *         corresponding to {@code documentClass}
    */
   int getSpecialNoteId(DocumentClass documentClass);
+
+  /**
+   * Returns a builder to compose richtext (both normal and design richtext) by combining existing pieces
+   * 
+   * @return richtext builder
+   */
+  RichTextBuilder getRichTextBuilder();
+
 }

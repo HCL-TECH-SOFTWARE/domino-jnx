@@ -301,8 +301,8 @@ public interface Document extends TypedAccess, IAdaptable {
   /**
    * Attaches a file to the document, not associated with a rich-text item.
    * <p>
-   * Unlike {@link #attachFile(String, String, Compression)}, this method allows
-   * for specifying file metadata
+   * Unlike {@link #attachFile(String, String, Attachment.Compression)}, this method
+   * allows for specifying file metadata
    * and source binary data arbitrarily. It does not use compression. No temp
    * file is created on disk.
    * </p>
@@ -995,7 +995,7 @@ public interface Document extends TypedAccess, IAdaptable {
   void removeAttachment(String uniqueFileNameInDoc);
 
   /**
-   * Removes the first item of the provided name from the document.
+   * Removes <b>all occurrences</b> of items with the provided name from the document.
    *
    * @param itemName the case-insensitive name of the item to remove
    */

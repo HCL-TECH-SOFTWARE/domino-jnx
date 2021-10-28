@@ -16,15 +16,24 @@
  */
 package it.com.hcl.domino.test.vertx.json;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.ArgumentsProvider;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import com.hcl.domino.data.Database;
+import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.jnx.vertx.json.service.VertxJsonSerializer;
 
+import io.vertx.core.json.JsonObject;
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 /**
@@ -33,20 +42,26 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
  */
 @SuppressWarnings("nls")
 public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
-
   // Run against a handful of common stock NTFs to get a spread of examples
+  public static class StockTemplatesProvider implements ArgumentsProvider {
+    @Override
+    public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
+      return Stream.of(
+        "pernames.ntf",
+        "bookmark.ntf",
+        "log.ntf",
+        "mailbox.ntf",
+        "roamingdata.ntf",
+        "autosave.ntf",
+        "doclbs7.ntf",
+        "headline.ntf",
+        "busytime.ntf"
+      ).map(Arguments::of);
+    }
+  }
+
   @ParameterizedTest
-  @ValueSource(strings = {
-    "pernames.ntf",
-    "bookmark.ntf",
-    "log.ntf",
-    "mailbox.ntf",
-    "roamingdata.ntf",
-    "autosave.ntf",
-    "doclbs7.ntf",
-    "headline.ntf",
-    "busytime.ntf"
-  })
+  @ArgumentsSource(StockTemplatesProvider.class)
   public void testViewSerialization(String dbName) {
     VertxJsonSerializer serializer = new VertxJsonSerializer();
     
@@ -79,17 +94,7 @@ public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
   }
   
   @ParameterizedTest
-  @ValueSource(strings = {
-    "pernames.ntf",
-    "bookmark.ntf",
-    "log.ntf",
-    "mailbox.ntf",
-    "roamingdata.ntf",
-    "autosave.ntf",
-    "doclbs7.ntf",
-    "headline.ntf",
-    "busytime.ntf"
-  })
+  @ArgumentsSource(StockTemplatesProvider.class)
   public void testFormSerialization(String dbName) {
     VertxJsonSerializer serializer = new VertxJsonSerializer();
     
@@ -100,17 +105,7 @@ public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
   }
   
   @ParameterizedTest
-  @ValueSource(strings = {
-    "pernames.ntf",
-    "bookmark.ntf",
-    "log.ntf",
-    "mailbox.ntf",
-    "roamingdata.ntf",
-    "autosave.ntf",
-    "doclbs7.ntf",
-    "headline.ntf",
-    "busytime.ntf"
-  })
+  @ArgumentsSource(StockTemplatesProvider.class)
   public void testSubformSerialization(String dbName) {
     VertxJsonSerializer serializer = new VertxJsonSerializer();
     
@@ -120,5 +115,59 @@ public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
       .forEach(form -> {
         serializer.toJson(form);
       });
+  }
+  
+  @Test
+  public void testAgentRunInfoSerialization() throws Exception {
+    VertxJsonSerializer serializer = new VertxJsonSerializer();
+    
+    withResourceDxl("/dxl/testDbDesignAgents", database -> {
+      serializer.toJson(database.getDesign().getAgent("Test Java").get()).encodePrettily();
+    });
+  }
+  
+  @ParameterizedTest
+  @ArgumentsSource(StockTemplatesProvider.class)
+  public void testOutlineSerialization(String dbName) {
+    VertxJsonSerializer serializer = new VertxJsonSerializer();
+    
+    Database names = getClient().openDatabase(dbName);
+    names.getDesign()
+      .getOutlines()
+      .forEach(outline -> {
+        serializer.toJson(outline);
+      });
+  }
+  
+  @ParameterizedTest
+  @ArgumentsSource(StockTemplatesProvider.class)
+  public void testAgentSerialization(String dbName) {
+    VertxJsonSerializer serializer = new VertxJsonSerializer();
+    
+    Database names = getClient().openDatabase(dbName);
+    names.getDesign()
+      .getAgents()
+      .forEach(serializer::toJson);
+  }
+  
+  @Test
+  public void testResourceAgentsSerialization() throws Exception {
+    VertxJsonSerializer serializer = new VertxJsonSerializer();
+    
+    withResourceDxl("/dxl/testDbDesignAgents", database -> {
+      database.getDesign()
+        .getAgents()
+        .forEach(serializer::toJson);
+      
+      DesignAgent agent = database.getDesign()
+          .getAgents()
+          .findFirst()
+          .get();
+      agent.sign();
+      // Check an individual agent to read the signer
+      JsonObject json = serializer.toJson(agent);
+      JsonObject doc = json.getJsonObject("document");
+      assertEquals(database.getParentDominoClient().getIDUserName(), doc.getString("signer"));
+    });
   }
 }

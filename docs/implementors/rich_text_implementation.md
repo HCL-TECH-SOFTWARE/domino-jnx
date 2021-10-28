@@ -110,9 +110,57 @@ public interface AssistFieldStruct extends MemoryStructure {
 
 Embedded structure members (such as `COLOR_VALUE`/`ColorValue`) should not have a setter specified: since they permanently exist in memory, API users should use the getter for the structure and then use the setters on the structure itself.
 
-#### Optionals
+In general, it's good to name getters in ways that fit Java style when the struct member name doesn't. For example, Hungarian-notation markers should be removed outright, so a struct member named `dwFoo` would have a corresponding getter named `getFoo()`. Additionally, it can be useful to expand abbreviated names in cases like taking `TitleLen` and making the getter `getTitleLength()`, or taking `ListSep` and making the getter `getListSeparator()`. Additionally, some method names will have to change to avoid collision with existing methods on the interfaces. For example, members named just `Type` would collide with the existing `getType()` method on `RichTextRecord`, and so should be named something specific to the structure at hand, like `getActionType()`.
+
+#### Enum Optionals
 
 Getters for `INumberEnum` types can return an `Optional` of that type, to handle cases where the underlying value doesn't line up with any of the known values. This can be useful in general, but is particularly useful when none of the enum values are `0`: this allows for the getter method to avoid an exception when called with uninitialized data.
+
+It is good to pair such getters with "raw" variants. For example:
+
+```java
+@StructureGetter("Color")
+Optional<StandardColors> getColor();
+
+@StructureGetter("Color")
+short getColorRaw();
+
+@StructureSetter("Color")
+SomeStruct setColor(StandardColors color);
+
+@StructureSetter("Color")
+SomeStruct setColorRaw(short colorRaw);
+```
+
+This allows for safe setting of invalid or undocumented values for enum-type values while still providing a good "normal" API for values that match enum constants.
+
+#### Enum/Primitive Equivalence
+
+`INumberEnum` values in struct can be interchangeably referred to both in the structure definition and in getters/setters as the enum type and the primitive equivalent type. For example:
+
+```java
+@StructureDefinition(
+    // ...
+    @StructureMember(name="Color", type=byte.class)
+)
+// ...
+@StructureGetter("Color")
+Optional<StandardColors> getColor();
+```
+
+Alternatively:
+
+```java
+@StructureDefinition(
+    // ...
+    @StructureMember(name="Color", type=StandardColors.class)
+)
+// ...
+@StructureGetter("Color")
+short getColorRaw();
+```
+
+In general, declaring members as the enum type is preferred, as it is clearer when investigating the structure. Using a primitive in the definition when an enum exists should only be used when the storage type doesn't match the enum size (this frequently happens [with `StandardColors`](color_values.md)) or when the struct member is potentially referenced in different ways based on state. These cases are comparatively rare, though.
 
 #### Bitfield Flags
 
@@ -126,15 +174,45 @@ Set<Flag> getFlags();
 CDLayoutText setFlags(Collection<Flag> flags);
 ```
 
-#### Mixing Primitives and Enums
-
-`INumberEnum` values and their primitive equivalents can generally be mixed freely for getters and setters. For example, a struct member defined as a primitive can have a getter that returns a compatible `INumberEnum` value, and vice-versa. This can be useful for fields that are likely to contain errant or undocumented values.
-
 #### Undocumented Flags in Bitfields
 
 When setting a `Collection` of `INumberEnum` values to a struct member marked as a `bitfield`, `MemoryStructureProxy` will preserve any bits that are set but are not represented by an enum constant. For example, if the enums only represent values `0x0001`, `0x0010`, and `0x0100` but the existing value in the structure is `0x1111`, then setting an empty collection will store `0x1000`.
 
 This also applies when a struct member that is otherwise a bitfield value contains a masked component that is a distinct type of value. Such values should be set and retrieved with independent default methods (see below).
+
+#### Working With Embedded Structures
+
+In general, when a structure definition includes another structure inside of it (for example, how `CDText` contains a `FontStyle` member), then the container structure should provide a getter for that embedded member, but not a setter.
+
+```java
+@StructureDefinition(
+    // ...
+    @StructureMember(name="FontID", type=FontStyle.class)
+)
+// ...
+@StructureGetter("FontID")
+FontStyle getFont();
+
+// In use:
+someStruct.getFont().setPointSize(18);
+```
+
+The reason for this is that the structure returned from the getter references the same memory within the container, and so modification methods of the embedded structure will modify the full structure's memory appropriately.
+
+The exception to this is `OpaqueTimeDate`, which is the structure type that corresponds to `TIMEDATE`. These fields have special support to allow for a setter that takes a `DominoDateTime` as a parameter. For example:
+
+```java
+@StructureDefinition(
+    // ...
+    @StructureMember(name="SomeTimeValue", type=OpqaueTimeDate.class)
+)
+// ...
+@StructureGetter("SomeTimeValue")
+DominoDateTime getSomeTimeValue();
+
+@StructureSetter("SomeTimeValue")
+SomeStruct setSomeTimeValue(DominoDateTime val);
+```
 
 ### Default Methods
 

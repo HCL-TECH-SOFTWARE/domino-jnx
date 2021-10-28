@@ -35,7 +35,6 @@ import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.WeekFormat;
 import com.hcl.domino.design.format.YearFormat;
 import com.hcl.domino.richtext.records.CDResource;
-import com.hcl.domino.richtext.structures.ColorValue;
 
 public interface CollectionColumn {
   interface SortConfiguration {
@@ -66,6 +65,43 @@ public interface CollectionColumn {
     boolean isSortedDescending();
 
     boolean isSortPermuted();
+    
+    /**
+     * Determines whether sorting by this column should be case-sensitive.
+     * 
+     * @return {@code true} if sorting should be case-sensitive;
+     *         {@code false} otherwise
+     * @since 1.0.42
+     */
+    boolean isCaseSensitive();
+    
+    /**
+     * Determines whether sorting by this column should be accent-sensitive.
+     * 
+     * @return {@code true} if sorting should be accent-sensitive;
+     *         {@code false} otherwise
+     * @since 1.0.42
+     */
+    boolean isAccentSensitive();
+    
+    /**
+     * Determines whether categories in this column should be flat in Notes V5 and later.
+     * 
+     * @return {@code true} if categories should be flat when supported;
+     *         {@code false} otherwise
+     * @since 1.0.42
+     */
+    boolean isCategorizationFlat();
+    
+    /**
+     * Determines whether sorting in this column should ignore common linguistic prefixes,
+     * e.g. "the" in English.
+     * 
+     * @return {@code true} if sorting should ignore prefixes;
+     *         {@code false} otherwise
+     * @since 1.0.42
+     */
+    boolean isIgnorePrefixes();
   }
   
   /**

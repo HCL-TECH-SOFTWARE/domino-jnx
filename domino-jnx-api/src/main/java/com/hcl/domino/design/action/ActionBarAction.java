@@ -140,13 +140,13 @@ public interface ActionBarAction {
   boolean isIconOnlyInActionBar();
   
   /**
-   * Determines whether the action should be included in the left-side grouping
-   * when displayed in the action bar.
+   * Determines whether the action should be included in the opposite-side grouping
+   * of the default for the containing action bar.
    * 
-   * @return {@code true} if the action should be left-aligned when displayed
+   * @return {@code true} if the action should be opposite-aligned when displayed
    *         in the bar; {@code false} otherwise
    */
-  boolean isLeftAlignedInActionBar();
+  boolean isOppositeAlignedInActionBar();
   
   /**
    * Determines whether the action should be included in the "Actions" menu in

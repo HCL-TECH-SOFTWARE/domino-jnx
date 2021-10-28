@@ -19,7 +19,10 @@ package it.com.hcl.domino.test.design;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.text.MessageFormat;
+
 import com.hcl.domino.richtext.structures.ColorValue;
+import com.hcl.domino.richtext.structures.RawColorValue;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
@@ -27,9 +30,17 @@ public abstract class AbstractDesignTest extends AbstractNotesRuntimeTest {
 
   protected static void assertColorEquals(ColorValue color, int red, int green, int blue) {
     assertNotNull(color);
-    assertEquals(red, color.getRed());
-    assertEquals(green, color.getGreen());
-    assertEquals(blue, color.getBlue());
+    
+    String expected = MessageFormat.format("({0}, {1}, {2})", red, green, blue); //$NON-NLS-1$
+    String actual = MessageFormat.format("({0}, {1}, {2})", color.getRed(), color.getGreen(), color.getBlue()); //$NON-NLS-1$
+    assertEquals(expected, actual);
   }
 
+  protected static void assertColorEquals(RawColorValue color, int red, int green, int blue) {
+    assertNotNull(color);
+    
+    String expected = MessageFormat.format("({0}, {1}, {2})", red, green, blue); //$NON-NLS-1$
+    String actual = MessageFormat.format("({0}, {1}, {2})", color.getRed(), color.getGreen(), color.getBlue()); //$NON-NLS-1$
+    assertEquals(expected, actual);
+  }
 }

@@ -48,7 +48,9 @@ public class NotesConsoleEntryStruct extends Structure {
 		});
 	}
 	
-	protected List<String> getFieldOrder() {
+	@SuppressWarnings("nls")
+  @Override
+  protected List<String> getFieldOrder() {
 		return Arrays.asList("nextEntry", "prevEntry", "type", "signals", "consoleBufferID", "length");
 	}
 

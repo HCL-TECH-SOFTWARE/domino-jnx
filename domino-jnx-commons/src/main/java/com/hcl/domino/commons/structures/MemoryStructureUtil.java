@@ -24,6 +24,7 @@ import java.nio.ByteOrder;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.BSIG;
 import com.hcl.domino.richtext.structures.CDSignature;
@@ -55,6 +57,9 @@ import com.hcl.domino.richtext.structures.WSIG;
  */
 public enum MemoryStructureUtil {
   ;
+  
+  private static final Map<Class<? extends MemoryStructure>, StructureMap> structureMap = Collections
+      .synchronizedMap(new HashMap<>());
 
   /**
    * Retrieves the expected size of the provided number or enum type in the
@@ -73,8 +78,7 @@ public enum MemoryStructureUtil {
     }
     if (MemoryStructure.class.isAssignableFrom(type)) {
       @SuppressWarnings("unchecked")
-      final StructureMap struct = MemoryStructureProxy.structureMap.computeIfAbsent((Class<? extends MemoryStructure>) type,
-          MemoryStructureUtil::generateStructureMap);
+      final StructureMap struct = getStructureMap((Class<? extends MemoryStructure>) type);
       return struct.size();
     }
   
@@ -92,17 +96,33 @@ public enum MemoryStructureUtil {
       throw new IllegalArgumentException("Cannot handle struct member type: " + type.getName());
     }
   }
+  
+  /**
+   * Retrieves a structure map for the provided {@link MemoryStructure} class,
+   * reading in all {@link StructMember}-annotated methods to determine their
+   * types, sizes, and offsets.
+   * 
+   * @param <T> the type of structure to retrieve the map for
+   * @param subtype the structure class to analyze
+   * @return a {@link Map} of getter methods to implementing structure members
+   * @since 1.0.34
+   */
+  public static synchronized <T extends MemoryStructure> StructureMap getStructureMap(Class<T> subtype) {
+    if(!structureMap.containsKey(subtype)) {
+      structureMap.put(subtype, generateStructureMap(subtype));
+    }
+    return structureMap.get(subtype);
+  }
 
   /**
    * Generates a structure map for the provided {@link MemoryStructure} class,
-   * reading in all
-   * {@link StructMember}-annotated methods to determine their types, sizes, and
-   * offsets.
+   * reading in all {@link StructMember}-annotated methods to determine their
+   * types, sizes, and offsets.
    * 
    * @param clazz the structure class to analyze
    * @return a {@link Map} of getter methods to implementing structure members
    */
-  public static StructureMap generateStructureMap(final Class<? extends MemoryStructure> clazz) {
+  private static StructureMap generateStructureMap(final Class<? extends MemoryStructure> clazz) {
     return AccessController.doPrivileged((PrivilegedAction<StructureMap>) () -> {
       final StructureMap result = new StructureMap();
   
@@ -231,12 +251,29 @@ public enum MemoryStructureUtil {
   public static final <I extends MemoryStructure> I forStructure(final Class<I> subtype, final MemoryStructure structure) {
     if (structure instanceof ResizableMemoryStructure) {
       return (I) java.lang.reflect.Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-          new Class<?>[] { subtype }, new MemoryStructureProxy(structure, subtype));
+          new Class<?>[] { subtype }, new MemoryStructureProxy(structure, subtype, null));
     } else {
       // Always wrap in a resizable structure to account for variable data
       return MemoryStructureUtil.forStructure(subtype,
           new GenericResizableMemoryStructure(structure.getData().slice().order(ByteOrder.nativeOrder()), subtype));
     }
+  }
+  
+  /**
+   * Generates a new rich-text proxy object backed by the provided {@link MemoryStructure}
+   * implementation.
+   * 
+   * @param <I>        the {@link RichTextRecord} sub-interface to proxy
+   * @param subtype    a class representing {@code I}
+   * @param recordType the matched {@link RecordType} for the record
+   * @param structure  the implementation structure
+   * @return a new proxy object
+   * @since 1.0.45
+   */
+  @SuppressWarnings("unchecked")
+  public static final <I extends RichTextRecord<?>> I forRichTextStructure(Class<I> subtype, RecordType recordType, MemoryStructure structure) {
+    return (I) java.lang.reflect.Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+        new Class<?>[] { subtype }, new MemoryStructureProxy(structure, subtype, recordType));
   }
 
   /**
@@ -250,8 +287,7 @@ public enum MemoryStructureUtil {
    * @return a new proxy object
    */
   public static final <I extends MemoryStructure> I newStructure(final Class<I> subtype, final int variableDataLength) {
-    final StructureMap struct = MemoryStructureProxy.structureMap.computeIfAbsent(subtype,
-        MemoryStructureUtil::generateStructureMap);
+    final StructureMap struct = getStructureMap(subtype);
     final ByteBuffer buf = ByteBuffer.allocate(struct.size() + variableDataLength);
     // Special handling for CD records and resizable types
     if (RichTextRecord.class.isAssignableFrom(subtype)) {

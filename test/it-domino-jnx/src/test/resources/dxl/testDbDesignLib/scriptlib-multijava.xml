@@ -1,0 +1,91 @@
+<?xml version='1.0'?>
+<note class='filter' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$FlagsExt'><text/></item>
+<item name='$JavaCompilerSource'><text>1.3</text></item>
+<item name='$JavaCompilerTarget'><text>1.2</text></item>
+<item name='$TITLE' sign='true'><text>Multi-File Java Lib</text></item>
+<item name='$Flags'><text>sj34Q</text></item>
+<item name='$PublicAccess' sign='true'><text>1</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$AssistAction' sign='true'>
+<rawitemdata type='10'>
+k/9vAA8ADQBAAAEAAAAAAAAASmF2YUFnZW50LmNsYXNzYzpcTm90ZXNcRGF0YSUlc291cmNlJSUu
+amFyACUlb2JqZWN0JSUuamFyACUlcmVzb3VyY2UlJS5qYXIAYmFyLmphcgBmb28uamFyAAAAAA==
+</rawitemdata></item>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='msdos'
+ compression='none' flags='sign' encoding='none' name='%%source%%.jar' size='602'>
+<created><datetime dst='true'>20210929T123333,45-04</datetime></created>
+<modified><datetime dst='true'>20210929T123506,62-04</datetime></modified><filedata
+>
+UEsDBBQACAgIAGNkPVMAAAAAAAAAAAAAAAAMAAAAZm9vL0Jhci5qYXZhK0hMzk5MT1VIy8+35uXi
+5SooTcrJTFZIzkksLlZwSixSqOblUgACfX0FT/VchZzMpKLEokqQDC9XLS8XAFBLBwhYes1gPQAA
+AD8AAABQSwMEFAAICAgAXGQ9UwAAAAAAAAAAAAAAACcAAABsb3R1cy9kb21pbm8vYXhpcy9KYXZh
+QWdlbnRSZW5hbWVkLmphdmFlUbFOwzAQ3SPlH24jYUg/oOoAiAEEDJSF8WqfUovEF/kuVVCVf8cO
+qXDFDfbd83vPz/KA5gtbgo51lMZy7zw3ODnZloXrBw56fXQb8bIYxkPnDJgOReAZT3jXktd38tiT
+BZqUvBVYwHsUgnNZQKzNBp5uenhxh4Dh+58wOSfa6n5iZ+GNleQVna/q5PJLANAoP1+GVHsScexB
+1n0HLekKVvU2py5XPrDXmBMwH3YXeRPFOW1xyD3iS6pPHgMYtgQtk8CRAtV/rBkMqjlWj5OhQVMk
+qq8jUzME53Wv8Qs+AhrKc85LF9f5B1BLBwhlh8Ty6QAAAKIBAABQSwECFAAUAAgICABjZD1TWHrN
+YD0AAAA/AAAADAAAAAAAAAAAAAAAAAAAAAAAZm9vL0Jhci5qYXZhUEsBAhQAFAAICAgAXGQ9U2WH
+xPLpAAAAogEAACcAAAAAAAAAAAAAAAAAdwAAAGxvdHVzL2RvbWluby9heGlzL0phdmFBZ2VudFJl
+bmFtZWQuamF2YVBLBQYAAAAAAgACAI8AAAC1AQAAAAA=
+</filedata></file></object></item>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='msdos'
+ compression='none' flags='sign' encoding='none' name='%%object%%.jar' size='704'>
+<created><datetime dst='true'>20210929T123333,45-04</datetime></created>
+<modified><datetime dst='true'>20210929T123506,62-04</datetime></modified><filedata
+>
+UEsDBBQACAgIAGNkPVMAAAAAAAAAAAAAAAANAAAAZm9vL0Jhci5jbGFzczv1b9c+BgYGPQYudgYm
+Rgb2tPx8fafEInYGFkYGgazEskT9nMS8dH3/pKzU5BJGBjabzLzMEjtGBmYNzTBGBhbn/JRULgZm
+Bk4eBlYGNgZFBqAMAwgwAiFIBGgkkCcI5jMwsGptZ+DYCFbAAABQSwcILImUsm0AAAB6AAAAUEsD
+BBQACAgIAGNkPVMAAAAAAAAAAAAAAAAoAAAAbG90dXMvZG9taW5vL2F4aXMvSmF2YUFnZW50UmVu
+YW1lZC5jbGFzc22PzU7CQBSFz22BQqlW5Ec0caErCol9AIyJEjcGXYjR9aRMyCjMEDoa3sg1G4wu
+fAAfynhpjBHjXcyZyXfn5JyPz7d3AEfY8+AQDsfGPqbx0EyUNrGYqzS+EE/idCS1vZZaTOTQQ47Q
+WNvL8JlIJaFwrLSyJwS3Fd0Scj0zlD5clALkUSCUroyV6aVQ2gchCLCBTYI/knYg01QZTWi2ov6a
+/TfplrGFbQ8VQu0/HqCKGiFkryxQz2gr55aw/9fwN+76aKDpYYdQveeq8VjoUXw+T+TUZqa7q9jh
+dKa0HViRPNzMRCJxwOldrMbhG1fj0+NXhZVY8+0XFBfZAtf7wRGrw1pvL1Hud14REu6eUex3lqgv
+sp8BQk7E8wVQSwcIBQmP5hsBAACbAQAAUEsBAhQAFAAICAgAY2Q9UyyJlLJtAAAAegAAAA0AAAAA
+AAAAAAAAAAAAAAAAAGZvby9CYXIuY2xhc3NQSwECFAAUAAgICABjZD1TBQmP5hsBAACbAQAAKAAA
+AAAAAAAAAAAAAACoAAAAbG90dXMvZG9taW5vL2F4aXMvSmF2YUFnZW50UmVuYW1lZC5jbGFzc1BL
+BQYAAAAAAgACAJEAAAAZAgAAAAA=
+</filedata></file></object></item>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='msdos'
+ compression='none' flags='sign' encoding='none' name='%%resource%%.jar' size='375'>
+<created><datetime dst='true'>20210929T123333,45-04</datetime></created>
+<modified><datetime dst='true'>20210929T123506,62-04</datetime></modified><filedata
+>
+UEsDBAoAAAgAAKtePVMAAAAAAAAAAAAAAAAHAAAAYmFyLnR4dFBLAwQUAAgICACrXj1TAAAAAAAA
+AAAAAAAACwAAAGRlc2t0b3AuaW5plY5LCwFhFIaftfIz7JgaymWhlJWSBUssJgZTM6ZcFvx4PN+U
+yE6n7zvnvXTe83zUqbEkYsGBlNwa+xLO1oQjO0rWBNfUaaOSk3HXu2Xuf5a9clJJmakW9iEjGm68
+qV7Ehc7Susiu5D58h3bFvLMDjtwc5iYtUUyPLoPqgokppTf95g7/SsucEvYyp2rPd15MX1fIegFQ
+SwcIj30p4JUAAAAaAQAAUEsBAgoACgAACAAAq149UwAAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAAAA
+AAAAAGJhci50eHRQSwECFAAUAAgICACrXj1Tj30p4JUAAAAaAQAACwAAAAAAAAAAAAAAAAAlAAAA
+ZGVza3RvcC5pbmlQSwUGAAAAAAIAAgBuAAAA8wAAAAAA
+</filedata></file></object></item>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='msdos'
+ compression='none' flags='sign' encoding='none' name='bar.jar' size='424'>
+<created><datetime dst='true'>20210929T123333,60-04</datetime></created>
+<modified><datetime dst='true'>20210618T104020,64-04</datetime></modified><filedata
+>
+UEsDBBQACAgIAAZV0lIAAAAAAAAAAAAAAAAJAAQATUVUQS1JTkYv/soAAAMAUEsHCAAAAAACAAAA
+AAAAAFBLAwQUAAgICAAGVdJSAAAAAAAAAAAAAAAAFAAAAE1FVEEtSU5GL01BTklGRVNULk1G803M
+y0xLLS7RDUstKs7Mz7NSMNQz4OVyLkpNLElN0XWqBAoARfQMDRU0HFPyC0r8C1LzvFy8NXm5eLkA
+UEsHCGqmpjE8AAAAPQAAAFBLAwQKAAAIAAD5VNJSAAAAAAAAAAAAAAAABwAAAGJhci50eHRQSwEC
+FAAUAAgICAAGVdJSAAAAAAIAAAAAAAAACQAEAAAAAAAAAAAAAAAAAAAATUVUQS1JTkYv/soAAFBL
+AQIUABQACAgIAAZV0lJqpqYxPAAAAD0AAAAUAAAAAAAAAAAAAAAAAD0AAABNRVRBLUlORi9NQU5J
+RkVTVC5NRlBLAQIKAAoAAAgAAPlU0lIAAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAAALsAAABiYXIu
+dHh0UEsFBgAAAAADAAMAsgAAAOAAAAAAAA==
+</filedata></file></object></item>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='msdos'
+ compression='none' flags='sign' encoding='none' name='foo.jar' size='424'>
+<created><datetime dst='true'>20210929T123333,60-04</datetime></created>
+<modified><datetime dst='true'>20210618T100111,48-04</datetime></modified><filedata
+>
+UEsDBBQACAgIACBQ0lIAAAAAAAAAAAAAAAAJAAQATUVUQS1JTkYv/soAAAMAUEsHCAAAAAACAAAA
+AAAAAFBLAwQUAAgICAAgUNJSAAAAAAAAAAAAAAAAFAAAAE1FVEEtSU5GL01BTklGRVNULk1G803M
+y0xLLS7RDUstKs7Mz7NSMNQz4OVyLkpNLElN0XWqBAoARfQMDRU0HFPyC0r8C1LzvFy8NXm5eLkA
+UEsHCGqmpjE8AAAAPQAAAFBLAwQKAAAIAAAcUNJSAAAAAAAAAAAAAAAABwAAAGZvby50eHRQSwEC
+FAAUAAgICAAgUNJSAAAAAAIAAAAAAAAACQAEAAAAAAAAAAAAAAAAAAAATUVUQS1JTkYv/soAAFBL
+AQIUABQACAgIACBQ0lJqpqYxPAAAAD0AAAAUAAAAAAAAAAAAAAAAAD0AAABNRVRBLUlORi9NQU5J
+RkVTVC5NRlBLAQIKAAoAAAgAABxQ0lIAAAAAAAAAAAAAAAAHAAAAAAAAAAAAAAAAALsAAABmb28u
+dHh0UEsFBgAAAAADAAMAsgAAAOAAAAAAAA==
+</filedata></file></object></item></note>

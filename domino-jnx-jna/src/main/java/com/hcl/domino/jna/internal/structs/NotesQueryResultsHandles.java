@@ -60,7 +60,9 @@ public class NotesQueryResultsHandles extends BaseStructure {
 		});
 	}
 	
-	protected List<String> getFieldOrder() {
+	@SuppressWarnings("nls")
+  @Override
+  protected List<String> getFieldOrder() {
 		return Arrays.asList("hInResults", "hOutFields", "hFieldRules", "hCombineRules");
 	}
 	

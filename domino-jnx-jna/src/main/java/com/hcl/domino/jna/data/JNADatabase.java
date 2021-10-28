@@ -93,6 +93,7 @@ import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.NoteIdWithScore;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
+import com.hcl.domino.design.RichTextBuilder;
 import com.hcl.domino.dql.DQL.DQLTerm;
 import com.hcl.domino.dql.QueryResultsProcessor;
 import com.hcl.domino.exception.DocumentDeletedException;
@@ -100,7 +101,6 @@ import com.hcl.domino.exception.IncompatibleImplementationException;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.JNADominoClient;
-import com.hcl.domino.jna.JNADominoClientBuilder;
 import com.hcl.domino.jna.design.JNADbDesign;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.FTSearchResultsDecoder;
@@ -130,6 +130,7 @@ import com.hcl.domino.jna.internal.structs.NotesOriginatorIdStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
 import com.hcl.domino.jna.internal.views.JNADominoCollectionInfo;
+import com.hcl.domino.jna.richtext.JNARichTextBuilder;
 import com.hcl.domino.jna.utils.JNADominoUtils;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.Loop;
@@ -214,12 +215,12 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		allocations.setNamesList(namesList);
 		
 		JNADominoClient parentClient = getParentDominoClient();
-		JNADominoClientBuilder clientBuilder = parentClient.getBuilder();
+		List<String> builderNames = parentClient.getBuilderNamesList();
 
 		if (namesList==null) {
 			m_openAsIdUser = true;
 		}
-		else if (clientBuilder.getUserNamesList()== null || clientBuilder.getUserNamesList().isEmpty()) {
+		else if (builderNames.isEmpty()) {
 			m_openAsIdUser = NotesNamingUtils.equalNames(namesList.getPrimaryName(), parentClient.getIDUserName());
 		}
 		else {
@@ -271,7 +272,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		m_filePath = filePath;
 		m_options = options;
 
-		JNADominoClientBuilder clientBuilder = parentClient.getBuilder();
+		List<String> builderNames = parentClient.getBuilderNamesList();
 		
 		
 //		if (!"".equals(m_server)) { //$NON-NLS-1$
@@ -297,7 +298,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				m_openAsIdUser = NotesNamingUtils.equalNames(namesListOverride.getPrimaryName(), parentClient.getIDUserName());
 			}
 			else {
-				if (clientBuilder.getUserNamesList() == null || clientBuilder.getUserNamesList().isEmpty()) {
+				if (builderNames.isEmpty()) {
 					m_openAsIdUser = NotesNamingUtils.equalNames(namesList.getPrimaryName(), parentClient.getIDUserName());
 				}
 				else {
@@ -1056,7 +1057,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		NotesCallbacks.NSFPROFILEENUMPROC callback;
 
 		if (PlatformUtils.isWin32()) {
-			callback = (hDB, ctx, profileNameMem1, profileNameLength, usernameMem, usernameLength, noteId) -> {
+			callback = (Win32NotesCallbacks.NSFPROFILEENUMPROCWin32) (hDB, ctx, profileNameMem1, profileNameLength, usernameMem, usernameLength, noteId) -> {
 				String profileName1 = ""; //$NON-NLS-1$
 				if (profileName1 != null) {
 					profileName1 = NotesStringUtils.fromLMBCS(profileNameMem1, ((profileNameLength & 0xffff)));
@@ -3071,14 +3072,14 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		DHANDLE filterIDTableHandle = filterIDTable==null ? null : filterIDTable.getAdapter(DHANDLE.class);
 		
-		JNADominoClientBuilder clientBuilder = getParentDominoClient().getBuilder();
+		List<String> builderNames = getParentDominoClient().getBuilderNamesList();
 
 		DHANDLE hNamesList = null;
 		UserNamesList namesList = getAdapter(UserNamesList.class);
 		if (namesList!=null) {
 			boolean openAsIdUser;
 			
-			if (clientBuilder.getUserNamesList()== null || clientBuilder.getUserNamesList().isEmpty()) {
+			if (builderNames.isEmpty()) {
 				openAsIdUser = NotesNamingUtils.equalNames(namesList.getPrimaryName(), getParentDominoClient().getIDUserName());
 			}
 			else {
@@ -4169,7 +4170,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		NotesCallbacks.ABORTCHECKPROC abortProc;
 		if (abortHandler!=null) {
 			if (PlatformUtils.isWin32()) {
-				abortProc = () -> {
+				abortProc = (Win32NotesCallbacks.ABORTCHECKPROCWin32) () -> {
 					if (abortHandler.shouldInterrupt()==Action.Stop) {
 						return INotesErrorConstants.ERR_CANCEL;
 					}
@@ -4302,8 +4303,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 								//grab the current pointer stored in retItemNamePtr;
 								//using retItemName here did not work, because the
 								//value of retItemNamePtr got redirected
+								Pointer ptr = retItemNamePtr.getPointer(0);
 								String currItemName = NotesStringUtils.fromLMBCS(
-										new Pointer(retItemNamePtr.getLong(0)),
+										ptr,
 										retItemNameLength.getValue() & 0xffff);
 								
 								short itemTypeAsShort = (short) (retItemType.getValue() & 0xffff);
@@ -4440,4 +4442,10 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     NotesErrorUtils.checkResult(result);
     return retNoteID.getValue();
   }
+	
+  @Override
+  public RichTextBuilder getRichTextBuilder() {
+	 return new JNARichTextBuilder(this);
+  }
+
 }

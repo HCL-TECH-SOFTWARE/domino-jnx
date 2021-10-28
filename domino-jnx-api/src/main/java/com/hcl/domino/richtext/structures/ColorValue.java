@@ -43,10 +43,10 @@ public interface ColorValue extends MemoryStructure {
     NOCOLOR(RichTextConstants.COLOR_VALUE_FLAGS_NOCOLOR), /* This object has no color */
     SYSTEMCOLOR(RichTextConstants.COLOR_VALUE_FLAGS_SYSTEMCOLOR), /* Use system default color, ignore color here */
     HASGRADIENT(RichTextConstants.COLOR_VALUE_FLAGS_HASGRADIENT), /* This color has a gradient color that follows */
-    RESERVED1(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED1), /* reserved for user */
-    RESERVED2(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED2), /* reserved for user */
-    RESERVED3(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED3), /* reserved for user */
-    RESERVED4(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED4), /* reserved for user */
+    RESERVED1(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED1), /* defined for Yellow Highlighting */
+    RESERVED2(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED2), /* defined for Pink Highlighting */
+    RESERVED3(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED3), /* defined for Blue Highlighting */
+    RESERVED4(RichTextConstants.COLOR_VALUE_FLAGS_RESERVED4), /* reserved */
     ;
 
     private final short value;
@@ -98,5 +98,18 @@ public interface ColorValue extends MemoryStructure {
 
   default String toHexString() {
     return String.format("%02X%02X%02X", this.getRed(), this.getGreen(), this.getBlue()); //$NON-NLS-1$
+  }
+  
+  /**
+   * Copies the color data values from another {@link ColorValue}
+   * 
+   * @param otherColor color
+   */
+  default void copyFrom(ColorValue otherColor) {
+    setFlags(otherColor.getFlags());
+    setRed(otherColor.getRed());
+    setGreen(otherColor.getGreen());
+    setBlue(otherColor.getBlue());
+    setComponent4(otherColor.getComponent4());
   }
 }

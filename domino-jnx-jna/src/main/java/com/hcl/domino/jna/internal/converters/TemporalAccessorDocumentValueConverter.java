@@ -25,6 +25,7 @@ import java.time.ZonedDateTime;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -32,6 +33,7 @@ import com.hcl.domino.commons.converters.AbstractTemporalAccessorConverter;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentValueConverter;
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.jna.data.JNADominoDateTime;
 
 /**
@@ -74,7 +76,7 @@ public class TemporalAccessorDocumentValueConverter extends AbstractTemporalAcce
 	}
 
 	@Override
-	public <T> void setValue(Document obj, String itemName, T newValue) {
+	public <T> void setValue(Document obj, Set<ItemFlag> itemFlags, String itemName, T newValue) {
 		if(newValue == null) {
 			obj.removeItem(itemName);
 		} else if(newValue instanceof Iterable) {
@@ -82,10 +84,10 @@ public class TemporalAccessorDocumentValueConverter extends AbstractTemporalAcce
 				.map(this::toDominoFriendly)
 				.map(JNADominoDateTime::new)
 				.collect(Collectors.toList());
-			obj.replaceItemValue(itemName, val);
+			obj.replaceItemValue(itemName, itemFlags, val);
 		} else {
 			Temporal val = toDominoFriendly(newValue);
-			obj.replaceItemValue(itemName, new JNADominoDateTime(val));
+			obj.replaceItemValue(itemName, itemFlags, new JNADominoDateTime(val));
 		}
 	}
 	

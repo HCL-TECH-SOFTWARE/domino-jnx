@@ -16,6 +16,10 @@
  */
 package com.hcl.domino.design;
 
+import java.util.List;
+
+import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
+
 /**
  * Access to a database design. Search for design, database as constructor
  * parameter
@@ -27,6 +31,16 @@ public interface View extends CollectionDesignElement {
   String getSelectionFormula();
 
   View setSelectionFormula(final String selectionFormula);
+  
+  /**
+   * Retrieves the simple search terms used to select documents for document selection,
+   * if provided.
+   * 
+   * @return a {@link List} containing {@link SimpleSearchTerm} subclass instances, or an
+   *         empty list if no search criteria are provided
+   * @since 1.0.38
+   */
+  List<? extends SimpleSearchTerm> getDocumentSelection();
 
   /**
    * Retrieves the "formula class" value, a special indicator used by the indexer

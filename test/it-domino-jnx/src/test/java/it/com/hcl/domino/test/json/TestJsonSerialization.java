@@ -16,6 +16,13 @@
  */
 package it.com.hcl.domino.test.json;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.io.StringReader;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -32,7 +39,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -44,6 +50,7 @@ import com.hcl.domino.data.Database.OpenDocumentMode;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoDateRange;
+import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.DominoTimeType;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.html.HtmlConvertOption;
@@ -86,9 +93,9 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
       final JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
 
       final JsonArray arr = obj.getJsonArray("Foo");
-      Assertions.assertEquals("Foo", arr.getString(0));
-      Assertions.assertEquals(true, arr.getBoolean(1));
-      Assertions.assertEquals(123.4d, arr.getJsonNumber(2).doubleValue());
+      assertEquals("Foo", arr.getString(0));
+      assertEquals(true, arr.getBoolean(1));
+      assertEquals(123.4d, arr.getJsonNumber(2).doubleValue());
     });
   }
 
@@ -104,7 +111,7 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
       final String jsonString = serializerParam.toJsonString(doc);
 
       final JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertEquals(true, obj.getBoolean("Foo"));
+      assertEquals(true, obj.getBoolean("Foo"));
     });
   }
 
@@ -120,27 +127,14 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
       final String jsonString = serializerParam.toJsonString(doc);
 
       final JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertEquals(123.4d, obj.getJsonNumber("Foo").doubleValue());
+      assertEquals(123.4d, obj.getJsonNumber("Foo").doubleValue());
     });
   }
 
   @ParameterizedTest
   @ArgumentsSource(SerializerProvider.class)
   public void testCustomProcessorEmptyProp(final JsonSerializer serializerParam) {
-    Assertions.assertThrows(IllegalArgumentException.class, () -> serializerParam.customProcessor("", (doc, item) -> null));
-  }
-
-  @ParameterizedTest
-  @ArgumentsSource(SerializerProvider.class)
-  public void testCustomProcessorIllegalType(final JsonSerializer serializerParam) throws Exception {
-    serializerParam.customProcessor("Foo", (doc, itemName) -> new Object());
-
-    this.withTempDb(database -> {
-      final Document doc = database.createDocument();
-      doc.replaceItemValue("Foo", "Baz");
-
-      Assertions.assertThrows(RuntimeException.class, () -> serializerParam.toJsonString(doc));
-    });
+    assertThrows(IllegalArgumentException.class, () -> serializerParam.customProcessor("", (doc, item) -> null));
   }
 
   @ParameterizedTest
@@ -155,20 +149,20 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
       final String jsonString = serializerParam.toJsonString(doc);
 
       final JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertEquals(123d, obj.getJsonNumber("Foo").doubleValue());
+      assertEquals(123d, obj.getJsonNumber("Foo").doubleValue());
     });
   }
 
   @ParameterizedTest
   @ArgumentsSource(SerializerProvider.class)
   public void testCustomProcessorNullProcessor(final JsonSerializer serializerParam) {
-    Assertions.assertThrows(NullPointerException.class, () -> serializerParam.customProcessor("someitem", null));
+    assertThrows(NullPointerException.class, () -> serializerParam.customProcessor("someitem", null));
   }
 
   @ParameterizedTest
   @ArgumentsSource(SerializerProvider.class)
   public void testCustomProcessorNullProp(final JsonSerializer serializerParam) {
-    Assertions.assertThrows(NullPointerException.class, () -> serializerParam.customProcessor(null, (doc, item) -> null));
+    assertThrows(NullPointerException.class, () -> serializerParam.customProcessor(null, (doc, item) -> null));
   }
 
   @ParameterizedTest
@@ -189,14 +183,14 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
 
       final JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
       final JsonObject innerObj = obj.getJsonObject("Foo");
-      Assertions.assertNotNull(innerObj);
-      Assertions.assertEquals("hello", innerObj.getString("a"));
-      Assertions.assertEquals(123.4d, innerObj.getJsonNumber("b").doubleValue());
-      Assertions.assertEquals(true, innerObj.getBoolean("c"));
+      assertNotNull(innerObj);
+      assertEquals("hello", innerObj.getString("a"));
+      assertEquals(123.4d, innerObj.getJsonNumber("b").doubleValue());
+      assertEquals(true, innerObj.getBoolean("c"));
       final JsonArray dVal = innerObj.getJsonArray("d");
       final List<?> expectedList = (List<?>) expected.get("d");
       for (int i = 0; i < expectedList.size(); i++) {
-        Assertions.assertEquals(expectedList.get(i), dVal.getJsonNumber(i).intValue());
+        assertEquals(expectedList.get(i), dVal.getJsonNumber(i).intValue());
       }
     });
   }
@@ -213,7 +207,7 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
       final String jsonString = serializerParam.toJsonString(doc);
 
       final JsonObject obj = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertEquals("Bar", obj.getString("Foo"));
+      assertEquals("Bar", obj.getString("Foo"));
     });
   }
 
@@ -233,13 +227,13 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
       final JsonSerializer serializer = serializerParam;
 
       final String jsonString = serializer.toJsonString(doc);
-      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
       final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+      assertNotEquals(null, json, "JSON object should not be null");
 
       final String expected = DateTimeFormatter.ISO_LOCAL_DATE.format(today) + '/'
           + DateTimeFormatter.ISO_LOCAL_DATE.format(tomorrow);
-      Assertions.assertEquals(expected, json.getString("DateRange"));
+      assertEquals(expected, json.getString("DateRange"));
     });
   }
 
@@ -256,9 +250,9 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
       final JsonSerializer serializer = serializerParam;
 
       final String jsonString = serializer.toJsonString(doc);
-      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
       final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+      assertNotEquals(null, json, "JSON object should not be null");
 
       final String expected = DateTimeFormatter.ISO_LOCAL_DATE.format(today) + '/'
           + DateTimeFormatter.ISO_LOCAL_DATE.format(tomorrow);
@@ -266,7 +260,7 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
           .map(JsonString.class::cast)
           .map(JsonString::getString)
           .collect(Collectors.toList());
-      Assertions.assertEquals(Arrays.asList(expected, expected), found);
+      assertEquals(Arrays.asList(expected, expected), found);
     });
   }
 
@@ -287,16 +281,16 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
           .dateRangeFormat(DateRangeFormat.OBJECT);
 
       final String jsonString = serializer.toJsonString(doc);
-      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
       final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertNotEquals(null, json, "JSON object should not be null");
+      assertNotEquals(null, json, "JSON object should not be null");
 
       final JsonObject expected = Json.createObjectBuilder()
           .add("from", DateTimeFormatter.ISO_LOCAL_DATE.format(today))
           .add("to", DateTimeFormatter.ISO_LOCAL_DATE.format(tomorrow))
           .build();
       final JsonObject found = json.getJsonObject("DateRange");
-      Assertions.assertEquals(expected, found);
+      assertEquals(expected, found);
     });
   }
 
@@ -314,10 +308,10 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
           .lowercaseProperties(true);
 
       final String jsonString = serializer.toJsonString(doc);
-      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
       final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertNotEquals(null, json, "JSON object should not be null");
-      Assertions.assertFalse(json.containsKey("$fonts"), "JSON should not contain $fonts item");
+      assertNotEquals(null, json, "JSON object should not be null");
+      assertFalse(json.containsKey("$fonts"), "JSON should not contain $fonts item");
     });
   }
 
@@ -335,19 +329,19 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
           .excludeItems(Arrays.asList("receiveD"));
 
       final String jsonString = serializer.toJsonString(doc);
-      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
       final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertNotEquals(null, json, "JSON object should not be null");
-      Assertions.assertEquals("Bulk Mail", json.getString("X_MXTHUNDER_Group"));
-      Assertions.assertEquals(
+      assertNotEquals(null, json, "JSON object should not be null");
+      assertEquals("Bulk Mail", json.getString("X_MXTHUNDER_Group"));
+      assertEquals(
           "<1407518313_SectionID-331186_HitID-1407517453669_SiteID-16268_EmailID-82837855_DB-34_SID-37@ss23.agm1.us>",
           json.getString("X_Track_ID"));
-      Assertions.assertTrue(json.containsKey("Body"), "Body field should be present");
-      Assertions.assertTrue(json.getString("Body").contains("final hours extra"));
+      assertTrue(json.containsKey("Body"), "Body field should be present");
+      assertTrue(json.getString("Body").contains("final hours extra"));
 
       // Make sure the received field was excluded
-      Assertions.assertFalse(json.containsKey("Received"));
-      Assertions.assertEquals(
+      assertFalse(json.containsKey("Received"));
+      assertEquals(
           "Itemize by SMTP Server on Arcturus/Frost(Release 9.0.1FP1HF278 | June 16, 2014) at 08/08/2014 01:18:41 PM",
           json.getJsonArray("$MIMETrack").getString(0));
     });
@@ -367,14 +361,14 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
           .excludeTypes(Arrays.asList(ItemDataType.TYPE_COMPOSITE, ItemDataType.TYPE_MIME_PART));
 
       final String jsonString = serializer.toJsonString(doc);
-      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
       final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertNotEquals(null, json, "JSON object should not be null");
-      Assertions.assertEquals("Bulk Mail", json.getString("X_MXTHUNDER_Group"));
-      Assertions.assertEquals(
+      assertNotEquals(null, json, "JSON object should not be null");
+      assertEquals("Bulk Mail", json.getString("X_MXTHUNDER_Group"));
+      assertEquals(
           "<1407518313_SectionID-331186_HitID-1407517453669_SiteID-16268_EmailID-82837855_DB-34_SID-37@ss23.agm1.us>",
           json.getString("X_Track_ID"));
-      Assertions.assertFalse(json.containsKey("Body"), "Body field should not be present");
+      assertFalse(json.containsKey("Body"), "Body field should not be present");
     });
   }
 
@@ -393,10 +387,10 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
           .includeItems(Arrays.asList("$Fonts"));
 
       final String jsonString = serializer.toJsonString(doc);
-      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
       final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertNotEquals(null, json, "JSON object should not be null");
-      Assertions.assertTrue(json.containsKey("$fonts"), "JSON should contain $fonts item");
+      assertNotEquals(null, json, "JSON object should not be null");
+      assertTrue(json.containsKey("$fonts"), "JSON should contain $fonts item");
     });
   }
 
@@ -411,14 +405,14 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
           .get();
 
       final String jsonString = serializer.toJsonString(doc);
-      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
       final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertNotEquals(null, json, "JSON object should not be null");
-      Assertions.assertEquals("Bar", json.getString("Foo"));
-      Assertions.assertTrue(json.containsKey("Body"), "Body field should be present");
-      Assertions.assertTrue(json.getString("Body").contains("d35f528e-8cfc-4d97-9078-428da6673f51"));
-      Assertions.assertTrue(json.getString("Body").contains("<br />"));
-      Assertions.assertFalse(json.getString("Body").contains("<br>"));
+      assertNotEquals(null, json, "JSON object should not be null");
+      assertEquals("Bar", json.getString("Foo"));
+      assertTrue(json.containsKey("Body"), "Body field should be present");
+      assertTrue(json.getString("Body").contains("d35f528e-8cfc-4d97-9078-428da6673f51"));
+      assertTrue(json.getString("Body").contains("<br />"));
+      assertFalse(json.getString("Body").contains("<br>"));
     });
   }
 
@@ -435,14 +429,14 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
       serializer.richTextConvertOption(HtmlConvertOption.XMLCompatibleHTML, "0");
 
       final String jsonString = serializer.toJsonString(doc);
-      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
       final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertNotEquals(null, json, "JSON object should not be null");
-      Assertions.assertEquals("Bar", json.getString("Foo"));
-      Assertions.assertTrue(json.containsKey("Body"), "Body field should be present");
-      Assertions.assertTrue(json.getString("Body").contains("d35f528e-8cfc-4d97-9078-428da6673f51"));
-      Assertions.assertFalse(json.getString("Body").contains("<br />"));
-      Assertions.assertTrue(json.getString("Body").contains("<br>"));
+      assertNotEquals(null, json, "JSON object should not be null");
+      assertEquals("Bar", json.getString("Foo"));
+      assertTrue(json.containsKey("Body"), "Body field should be present");
+      assertTrue(json.getString("Body").contains("d35f528e-8cfc-4d97-9078-428da6673f51"));
+      assertFalse(json.getString("Body").contains("<br />"));
+      assertTrue(json.getString("Body").contains("<br>"));
     });
   }
 
@@ -460,20 +454,20 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
           .includeItems(Arrays.asList("bOdy"));
 
       final String jsonString = serializer.toJsonString(doc);
-      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
       final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertNotEquals(null, json, "JSON object should not be null");
-      Assertions.assertTrue(json.containsKey("Body"), "Body field should be present");
-      Assertions.assertTrue(json.getString("Body").contains("final hours extra"));
+      assertNotEquals(null, json, "JSON object should not be null");
+      assertTrue(json.containsKey("Body"), "Body field should be present");
+      assertTrue(json.getString("Body").contains("final hours extra"));
 
       // Make sure the received field was excluded
-      Assertions.assertFalse(json.containsKey("Received"));
+      assertFalse(json.containsKey("Received"));
     });
   }
 
   @Test
   public void testJsonSerializationService() {
-    Assertions.assertNotNull(JsonSerializer.createSerializer());
+    assertNotNull(JsonSerializer.createSerializer());
   }
 
   @ParameterizedTest
@@ -490,18 +484,18 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
           .lowercaseProperties(true);
 
       final String jsonString = serializer.toJsonString(doc);
-      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
       final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertNotEquals(null, json, "JSON object should not be null");
-      Assertions.assertEquals("Bulk Mail", json.getString("x_mxthunder_group"));
-      Assertions.assertEquals(
+      assertNotEquals(null, json, "JSON object should not be null");
+      assertEquals("Bulk Mail", json.getString("x_mxthunder_group"));
+      assertEquals(
           "<1407518313_SectionID-331186_HitID-1407517453669_SiteID-16268_EmailID-82837855_DB-34_SID-37@ss23.agm1.us>",
           json.getString("x_track_id"));
-      Assertions.assertTrue(json.containsKey("body"), "Body field should be present");
-      Assertions.assertTrue(json.getString("body").contains("final hours extra"));
+      assertTrue(json.containsKey("body"), "Body field should be present");
+      assertTrue(json.getString("body").contains("final hours extra"));
 
-      Assertions.assertFalse(json.containsKey("Received"));
-      Assertions.assertTrue(json.containsKey("received"));
+      assertFalse(json.containsKey("Received"));
+      assertTrue(json.containsKey("received"));
     });
   }
 
@@ -518,31 +512,31 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
           .includeMetadata(true);
 
       final String jsonString = serializer.toJsonString(doc);
-      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
       final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertNotEquals(null, json, "JSON object should not be null");
-      Assertions.assertEquals("bar", json.getString("Foo"));
-      Assertions.assertEquals("baz", json.getString("Bar"));
+      assertNotEquals(null, json, "JSON object should not be null");
+      assertEquals("bar", json.getString("Foo"));
+      assertEquals("baz", json.getString("Bar"));
 
-      Assertions.assertTrue(json.containsKey("@meta"), "JSON should contain a metadata object");
+      assertTrue(json.containsKey("@meta"), "JSON should contain a metadata object");
       final JsonObject meta = json.getJsonObject("@meta");
-      Assertions.assertNotEquals(null, meta, "Metadata object should not be null");
-      Assertions.assertEquals(doc.getNoteID(), meta.getInt(JsonSerializer.PROP_META_NOTEID));
-      Assertions.assertEquals(doc.getUNID(), meta.getString(JsonSerializer.PROP_META_UNID));
+      assertNotEquals(null, meta, "Metadata object should not be null");
+      assertEquals(doc.getNoteID(), meta.getInt(JsonSerializer.PROP_META_NOTEID));
+      assertEquals(doc.getUNID(), meta.getString(JsonSerializer.PROP_META_UNID));
       final TemporalAccessor cdate = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(meta.getString(JsonSerializer.PROP_META_CREATED));
-      Assertions.assertEquals(doc.getCreated().toOffsetDateTime(), OffsetDateTime.from(cdate));
+      assertEquals(doc.getCreated().toOffsetDateTime(), OffsetDateTime.from(cdate));
       final TemporalAccessor mdate = DateTimeFormatter.ISO_OFFSET_DATE_TIME
           .parse(meta.getString(JsonSerializer.PROP_META_LASTMODIFIED));
-      Assertions.assertEquals(doc.getLastModified().toOffsetDateTime(), OffsetDateTime.from(mdate));
+      assertEquals(doc.getLastModified().toOffsetDateTime(), OffsetDateTime.from(mdate));
       final TemporalAccessor adate = DateTimeFormatter.ISO_OFFSET_DATE_TIME
           .parse(meta.getString(JsonSerializer.PROP_META_LASTACCESSED));
-      Assertions.assertEquals(doc.getLastAccessed().toOffsetDateTime(), OffsetDateTime.from(adate));
+      assertEquals(doc.getLastAccessed().toOffsetDateTime(), OffsetDateTime.from(adate));
       final TemporalAccessor fdate = DateTimeFormatter.ISO_OFFSET_DATE_TIME
           .parse(meta.getString(JsonSerializer.PROP_META_LASTMODIFIEDINFILE));
-      Assertions.assertEquals(doc.getModifiedInThisFile().toOffsetDateTime(), OffsetDateTime.from(fdate));
+      assertEquals(doc.getModifiedInThisFile().toOffsetDateTime(), OffsetDateTime.from(fdate));
       final TemporalAccessor added = DateTimeFormatter.ISO_OFFSET_DATE_TIME
           .parse(meta.getString(JsonSerializer.PROP_META_ADDEDTOFILE));
-      Assertions.assertEquals(doc.getAddedToFile().toOffsetDateTime(), OffsetDateTime.from(added));
+      assertEquals(doc.getAddedToFile().toOffsetDateTime(), OffsetDateTime.from(added));
 
       final JsonArray docClassArray = meta.getJsonArray(JsonSerializer.PROP_META_NOTECLASS);
       final Collection<DocumentClass> docClass = docClassArray.stream()
@@ -550,7 +544,7 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
           .map(JsonString::getString)
           .map(DocumentClass::valueOf)
           .collect(Collectors.toSet());
-      Assertions.assertEquals(doc.getDocumentClass(), docClass);
+      assertEquals(doc.getDocumentClass(), docClass);
 
     });
   }
@@ -568,12 +562,12 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
       final Document doc = database.getDocumentById(noteId, EnumSet.of(OpenDocumentMode.CONVERT_RFC822_TO_TEXT_AND_TIME)).get();
 
       final String jsonString = serializer.toJsonString(doc);
-      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
       final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertNotEquals(null, json, "JSON object should not be null");
-      Assertions.assertEquals("Bulk Mail", json.getString("X_MXTHUNDER_Group"));
-      Assertions.assertTrue(json.containsKey("Body"), "Body field should be present");
-      Assertions.assertTrue(json.getString("Body").contains("final hours extra"));
+      assertNotEquals(null, json, "JSON object should not be null");
+      assertEquals("Bulk Mail", json.getString("X_MXTHUNDER_Group"));
+      assertTrue(json.containsKey("Body"), "Body field should be present");
+      assertTrue(json.getString("Body").contains("final hours extra"));
     });
   }
 
@@ -588,16 +582,16 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
           .get();
 
       final String jsonString = serializer.toJsonString(doc);
-      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
       final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertNotEquals(null, json, "JSON object should not be null");
-      Assertions.assertEquals("Bulk Mail", json.getString("X_MXTHUNDER_Group"));
-      Assertions.assertEquals(
+      assertNotEquals(null, json, "JSON object should not be null");
+      assertEquals("Bulk Mail", json.getString("X_MXTHUNDER_Group"));
+      assertEquals(
           "<1407518313_SectionID-331186_HitID-1407517453669_SiteID-16268_EmailID-82837855_DB-34_SID-37@ss23.agm1.us>",
           json.getString("X_Track_ID"));
-      Assertions.assertTrue(json.containsKey("Body"), "Body field should be present");
-      Assertions.assertTrue(json.getString("Body").contains("final hours extra"));
-      Assertions.assertTrue(json.containsKey("Received"));
+      assertTrue(json.containsKey("Body"), "Body field should be present");
+      assertTrue(json.getString("Body").contains("final hours extra"));
+      assertTrue(json.containsKey("Received"));
     });
   }
 
@@ -618,16 +612,16 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
           .booleanTrueValues(Arrays.asList("Y", "Yes", 1));
 
       final String jsonString = serializer.toJsonString(doc);
-      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
       final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertNotEquals(null, json, "JSON object should not be null");
-      Assertions.assertThrows(ClassCastException.class, () -> json.getBoolean("Foo"));
-      Assertions.assertTrue(json.getBoolean("NumberBool"));
-      Assertions.assertFalse(json.getBoolean("NumberBoolFalse"));
-      Assertions.assertThrows(NullPointerException.class, () -> json.getBoolean("FakeBool"));
-      Assertions.assertTrue(json.getBoolean("YBool"));
-      Assertions.assertTrue(json.getBoolean("YesBool"));
-      Assertions.assertFalse(json.getBoolean("YBoolFalse"));
+      assertNotEquals(null, json, "JSON object should not be null");
+      assertThrows(ClassCastException.class, () -> json.getBoolean("Foo"));
+      assertTrue(json.getBoolean("NumberBool"));
+      assertFalse(json.getBoolean("NumberBoolFalse"));
+      assertThrows(NullPointerException.class, () -> json.getBoolean("FakeBool"));
+      assertTrue(json.getBoolean("YBool"));
+      assertTrue(json.getBoolean("YesBool"));
+      assertFalse(json.getBoolean("YBoolFalse"));
     });
   }
 
@@ -638,12 +632,12 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
       final Document doc = database.createDocument();
       doc.replaceItemValue("Foo", "Bar");
       final Object json = serializer.toJson(doc);
-      Assertions.assertNotNull(json, "JSON result should not be null");
+      assertNotNull(json, "JSON result should not be null");
       final String jsonString = String.valueOf(json);
       final JsonParser parser = Json.createParser(new StringReader(jsonString));
       parser.next();
       final JsonObject obj = parser.getObject();
-      Assertions.assertEquals("Bar", obj.getString("Foo"));
+      assertEquals("Bar", obj.getString("Foo"));
     });
   }
 
@@ -656,12 +650,12 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
       final Object json = serializer
           .lowercaseProperties(true)
           .toJson(doc);
-      Assertions.assertNotNull(json, "JSON result should not be null");
+      assertNotNull(json, "JSON result should not be null");
       final String jsonString = String.valueOf(json);
       final JsonParser parser = Json.createParser(new StringReader(jsonString));
       parser.next();
       final JsonObject obj = parser.getObject();
-      Assertions.assertEquals("Bar", obj.getString("foo"));
+      assertEquals("Bar", obj.getString("foo"));
     });
   }
 
@@ -674,13 +668,72 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
       doc.replaceItemValue("Bar", "baz");
 
       final String jsonString = serializer.toJsonString(doc);
-      Assertions.assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
       final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
-      Assertions.assertNotEquals(null, json, "JSON object should not be null");
-      Assertions.assertEquals("bar", json.getString("Foo"));
-      Assertions.assertEquals("baz", json.getString("Bar"));
+      assertNotEquals(null, json, "JSON object should not be null");
+      assertEquals("bar", json.getString("Foo"));
+      assertEquals("baz", json.getString("Bar"));
 
-      Assertions.assertFalse(json.containsKey("@meta"), "JSON should not contain a metadata object");
+      assertFalse(json.containsKey("@meta"), "JSON should not contain a metadata object");
     });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testDominoDateTimeSerialization(final JsonSerializer serializer) {
+    LocalDate expected = LocalDate.of(2021, 4, 5);
+    DominoDateTime now = getClient().createDateTime(expected);
+    DateTimeExample obj = new DateTimeExample(now);
+    
+    String jsonString = serializer.toJson(obj).toString();
+    JsonObject jsonObj = Json.createReader(new StringReader(jsonString)).readObject();
+    String time = jsonObj.getString("time");
+    
+    LocalDate actual = LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(time));
+    assertEquals(expected, actual);
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testDominoDateRangeSerialization(final JsonSerializer serializer) {
+    LocalDate expected1 = LocalDate.of(2021, 4, 5);
+    LocalDate expected2 = LocalDate.of(2021, 10, 21);
+    DominoDateRange now = getClient().createDateRange(expected1, expected2);
+    DateRangeExample obj = new DateRangeExample(now);
+    
+    String jsonString = serializer.toJson(obj).toString();
+    JsonObject jsonObj = Json.createReader(new StringReader(jsonString)).readObject();
+    String time = jsonObj.getString("time");
+    
+    String[] parts = StringUtil.splitString(time, '/');
+    
+    LocalDate actual1 = LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(parts[0]));
+    LocalDate actual2 = LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(parts[1]));
+    assertEquals(expected1, actual1);
+    assertEquals(expected2, actual2);
+  }
+  
+  public static class DateTimeExample {
+    private final DominoDateTime time;
+    
+    public DateTimeExample(DominoDateTime time) {
+      this.time = time;
+    }
+    
+    public DominoDateTime getTime() {
+      return time;
+    }
+  }
+  
+  public static class DateRangeExample {
+    private final DominoDateRange time;
+    
+    public DateRangeExample(DominoDateRange time) {
+      this.time = time;
+    }
+    
+    public DominoDateRange getTime() {
+      return time;
+    }
   }
 }

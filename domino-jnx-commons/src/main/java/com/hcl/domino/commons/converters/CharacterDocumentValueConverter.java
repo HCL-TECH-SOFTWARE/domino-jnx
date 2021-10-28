@@ -18,11 +18,13 @@ package com.hcl.domino.commons.converters;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentValueConverter;
+import com.hcl.domino.data.Item.ItemFlag;
 
 /**
  * Supports reading and writing {@code char} and {@link Character} values as
@@ -62,13 +64,13 @@ public class CharacterDocumentValueConverter implements DocumentValueConverter {
   }
 
   @Override
-  public <T> void setValue(final Document obj, final String itemName, final T newValue) {
+  public <T> void setValue(final Document obj, Set<ItemFlag> itemFlags, final String itemName, final T newValue) {
     if (newValue instanceof Iterable) {
       final String newVal = StreamSupport.stream(((Iterable<?>) newValue).spliterator(), false)
           .map(o -> o == null ? "" : o.toString()).collect(Collectors.joining()); //$NON-NLS-1$
-      obj.replaceItemValue(itemName, newVal);
+      obj.replaceItemValue(itemName, itemFlags, newVal);
     } else {
-      obj.replaceItemValue(itemName, newValue == null ? "" : newValue.toString()); //$NON-NLS-1$
+      obj.replaceItemValue(itemName, itemFlags, newValue == null ? "" : newValue.toString()); //$NON-NLS-1$
     }
   }
 

@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<note class='document' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='Form'><text>MainTopic</text></item>
+<item name='From' summary='true'>
+<rawitemdata type='700'>
+dGVzdHNlcnZlci5pZHcl9RHSAwAA
+</rawitemdata></item>
+<item name='Categories'><text>Some Category</text></item>
+<item name='Body'>
+<rawitemdata type='1'>
+gv9GAAEAAAAAAAAAAACgBQAAoAUAAH8LAAAAAAAAAADAUOgvCIv4g///dBZWK0QKUOgWAFa4AwRQ
+/3Qo/3QAAAAAAAAAAIMEAQCF/xUAAQAACkhleSwgSSdtIG5ldyD/hf8PAAECAApjb250ZW50/w==
+</rawitemdata></item>
+<item name='Subject'><text>Hello main topic</text></item></note>
+

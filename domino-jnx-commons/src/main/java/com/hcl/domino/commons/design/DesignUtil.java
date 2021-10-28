@@ -19,17 +19,21 @@ package com.hcl.domino.commons.design;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.NotYetImplementedException;
+import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.design.agent.DefaultFormulaAgentContent;
 import com.hcl.domino.commons.design.simpleaction.DefaultCopyToDatabaseAction;
 import com.hcl.domino.commons.design.simpleaction.DefaultDeleteDocumentAction;
@@ -40,15 +44,31 @@ import com.hcl.domino.commons.design.simpleaction.DefaultReplyAction;
 import com.hcl.domino.commons.design.simpleaction.DefaultSendDocumentAction;
 import com.hcl.domino.commons.design.simpleaction.DefaultSendMailAction;
 import com.hcl.domino.commons.design.simpleaction.DefaultSendNewsletterAction;
+import com.hcl.domino.commons.design.simplesearch.DefaultByAuthorTerm;
+import com.hcl.domino.commons.design.simplesearch.DefaultByDateFieldTerm;
+import com.hcl.domino.commons.design.simplesearch.DefaultByFieldTerm;
+import com.hcl.domino.commons.design.simplesearch.DefaultByFolderTerm;
+import com.hcl.domino.commons.design.simplesearch.DefaultByNumberFieldTerm;
+import com.hcl.domino.commons.design.simplesearch.DefaultExampleFormTerm;
+import com.hcl.domino.commons.design.simplesearch.DefaultTextTerm;
 import com.hcl.domino.design.simpleaction.FolderBasedAction;
 import com.hcl.domino.design.simpleaction.ReadMarksAction;
 import com.hcl.domino.design.simpleaction.RunAgentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.design.simplesearch.ByDateFieldTerm;
+import com.hcl.domino.design.simplesearch.ByFieldTerm;
+import com.hcl.domino.design.simplesearch.ByFormTerm;
+import com.hcl.domino.design.simplesearch.ByNumberFieldTerm;
+import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
+import com.hcl.domino.design.simplesearch.TextTerm;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
+import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.design.AboutDocument;
 import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.CompositeApplication;
+import com.hcl.domino.design.CompositeComponent;
 import com.hcl.domino.design.DbProperties;
 import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.DesignElement;
@@ -56,15 +76,24 @@ import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageResource;
+import com.hcl.domino.design.Frameset;
 import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.Page;
+import com.hcl.domino.design.Navigator;
 import com.hcl.domino.design.ScriptLibrary;
+import com.hcl.domino.design.SharedActions;
+import com.hcl.domino.design.SharedColumn;
 import com.hcl.domino.design.SharedField;
+import com.hcl.domino.design.StyleSheet;
 import com.hcl.domino.design.Subform;
+import com.hcl.domino.design.Theme;
 import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
+import com.hcl.domino.design.WiringProperties;
+import com.hcl.domino.design.XPage;
 import com.hcl.domino.design.agent.FormulaAgentContent;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.misc.Pair;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.records.CDActionByForm;
 import com.hcl.domino.richtext.records.CDActionDBCopy;
@@ -78,6 +107,13 @@ import com.hcl.domino.richtext.records.CDActionReply;
 import com.hcl.domino.richtext.records.CDActionRunAgent;
 import com.hcl.domino.richtext.records.CDActionSendDocument;
 import com.hcl.domino.richtext.records.CDActionSendMail;
+import com.hcl.domino.richtext.records.CDQueryByField;
+import com.hcl.domino.richtext.records.CDQueryByFolder;
+import com.hcl.domino.richtext.records.CDQueryByForm;
+import com.hcl.domino.richtext.records.CDQueryFormula;
+import com.hcl.domino.richtext.records.CDQueryHeader;
+import com.hcl.domino.richtext.records.CDQueryTextTerm;
+import com.hcl.domino.richtext.records.CDQueryUsesForm;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
 
@@ -197,8 +233,18 @@ public enum DesignUtil {
         new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_WEBPAGE, PageImpl::new)
     );
     DesignUtil.mappings.put(AboutDocument.class, new DesignMapping<>(DocumentClass.INFO, "", AboutDocumentImpl::new)); //$NON-NLS-1$
-    DesignUtil.mappings.put(UsingDocument.class, new DesignMapping<>(DocumentClass.HELP_INDEX, "", UsingDocumentImpl::new)); //$NON-NLS-1$
+    DesignUtil.mappings.put(UsingDocument.class, new DesignMapping<>(DocumentClass.HELP, "", UsingDocumentImpl::new)); //$NON-NLS-1$
     DesignUtil.mappings.put(SharedField.class, new DesignMapping<>(DocumentClass.FIELD, "", SharedFieldImpl::new)); //$NON-NLS-1$
+    DesignUtil.mappings.put(Navigator.class, new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_VIEWMAP_ALL_VERSIONS, NavigatorImpl::new));
+    DesignUtil.mappings.put(SharedActions.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_SACTIONS_DESIGN, SharedActionsImpl::new));
+    DesignUtil.mappings.put(SharedColumn.class, new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_SHARED_COLS, SharedColumnImpl::new));
+    DesignUtil.mappings.put(StyleSheet.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_STYLE_SHEET_RESOURCE, StyleSheetImpl::new));
+    DesignUtil.mappings.put(WiringProperties.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_COMPDEF, WiringPropertiesImpl::new));
+    DesignUtil.mappings.put(Theme.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_STYLEKIT, ThemeImpl::new));
+    DesignUtil.mappings.put(Frameset.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_FRAMESET, FramesetImpl::new));
+    DesignUtil.mappings.put(CompositeComponent.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_WIDGET, CompositeComponentImpl::new));
+    DesignUtil.mappings.put(CompositeApplication.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_COMPAPP, CompositeApplicationImpl::new));
+    DesignUtil.mappings.put(XPage.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_XSPPAGE, XPageImpl::new));
   }
 
   /**
@@ -224,13 +270,46 @@ public enum DesignUtil {
       case FIELD:
         return new SharedFieldImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
       case FILTER:
-        return new AgentImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SCRIPTLIB_JAVA)) {
+          return new JavaLibraryImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SCRIPTLIB_JS)) {
+            return new JavaScriptLibraryImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SCRIPTLIB_LS)) {
+          return new LotusScriptLibraryImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SCRIPTLIB_SERVER_JS)) {
+          return new ServerJavaScriptLibraryImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SITEMAP)) {
+          return new OutlineImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else {
+          return new AgentImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        }
       case FORM:
-        // TODO handle the flood of edge cases here
         if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SUBFORM_ALL_VERSIONS)) {
           return new SubformImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_STYLEKIT)) {
+          return new ThemeImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_WIDGET)) {
+          return new CompositeComponentImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_COMPAPP)) {
+          return new CompositeApplicationImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_XSPPAGE)) {
+          return new XPageImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_FILE_RESOURCE)) {
           return new FileResourceImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_FILE)) {
+          return new FileResourceImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SACTIONS_DESIGN)) {
+          return new SharedActionsImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_WEBPAGE)) {
+          return new PageImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_IMAGE_RESOURCE)) {
+          return new ImageResourceImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_STYLE_SHEET_RESOURCE)) {
+          return new StyleSheetImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_COMPDEF)) {
+          return new WiringPropertiesImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_FRAMESET)) {
+            return new FramesetImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else {
           return new FormImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         }
@@ -239,7 +318,7 @@ public enum DesignUtil {
       case HELP_INDEX:
         throw new NotYetImplementedException();
       case ICON:
-        throw new NotYetImplementedException();
+        return new DbPropertiesImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
       case INFO:
         return new AboutDocumentImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
       case REPLFORMULA:
@@ -247,6 +326,8 @@ public enum DesignUtil {
       case VIEW:
         if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_FOLDER_ALL_VERSIONS)) {
           return new FolderImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SHARED_COLS)) {
+          return new SharedColumnImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else {
           return new ViewImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         }
@@ -282,6 +363,7 @@ public enum DesignUtil {
    * design element interface.
    * 
    * @param <T>         a {@link DesignElement} sub-interface
+   * @param <I>         a {@link AbstractDesignElement} implementation class
    * @param designClass a {@link Class} object representing {@code <T>}
    * @return the corresponding {@code DesignMapping}
    * @throws IllegalArgumentException when {@code <T>} has no mapping
@@ -562,5 +644,175 @@ public enum DesignUtil {
    */
   public static List<?> encapsulateRichTextBody(Document doc, String itemName) {
     return doc.getRichTextItem(itemName);
+  }
+  
+  /**
+   * Processes the provided list of composite data records to produce a list of equivalent
+   * encapsulated simple search terms, filtering out any unmatched records.
+   * 
+   * @param records a {@link List} of {@link RichTextRecord} instances
+   * @return a corresponding {@link List} of {@link SimpleSearchTerm} instances
+   * @since 1.0.38
+   */
+  public static List<? extends SimpleSearchTerm> toSimpleSearch(List<? extends RichTextRecord<?>> records) {
+    return records
+      .stream()
+      .map(record -> {
+        if(record instanceof CDQueryHeader) {
+          // Ignored intentionally
+          return null;
+        } else if(record instanceof CDQueryByField) {
+          CDQueryByField query = (CDQueryByField)record;
+
+          // Not all below types have meanings, so set defaults first
+          ByFieldTerm.TextRule textRule = ByFieldTerm.TextRule.CONTAINS;
+          ByDateFieldTerm.DateRule dateRule = null;
+          ByNumberFieldTerm.NumberRule numberRule = null;
+          switch(query.getOperator()) {
+            case DOESNOTCONTAIN:
+              textRule = ByFieldTerm.TextRule.DOES_NOT_CONTAIN;
+              break;
+            case CONTAINS:
+              textRule = ByFieldTerm.TextRule.CONTAINS;
+              break;
+            case BETWEEN:
+              dateRule = ByDateFieldTerm.DateRule.BETWEEN;
+              numberRule = ByNumberFieldTerm.NumberRule.BETWEEN;
+              break;
+            case EQUAL:
+              dateRule = ByDateFieldTerm.DateRule.ON;
+              numberRule = ByNumberFieldTerm.NumberRule.EQUAL;
+              break;
+            case GREATER:
+              dateRule = ByDateFieldTerm.DateRule.AFTER;
+              numberRule = ByNumberFieldTerm.NumberRule.GREATER_THAN;
+              break;
+            case INTHELAST:
+              dateRule = ByDateFieldTerm.DateRule.IN_LAST;
+              break;
+            case INTHENEXT:
+              dateRule = ByDateFieldTerm.DateRule.IN_NEXT;
+              break;
+            case LESS:
+              dateRule = ByDateFieldTerm.DateRule.BEFORE;
+              numberRule = ByNumberFieldTerm.NumberRule.LESS_THAN;
+              break;
+            case NOTEQUAL:
+              dateRule = ByDateFieldTerm.DateRule.NOT_ON;
+              numberRule = ByNumberFieldTerm.NumberRule.NOT_EQUAL;
+              break;
+            case NOTWITHIN:
+              dateRule = ByDateFieldTerm.DateRule.NOT_BETWEEN;
+              numberRule = ByNumberFieldTerm.NumberRule.NOT_BETWEEN;
+              break;
+            case OLDERTHAN:
+              dateRule = ByDateFieldTerm.DateRule.OLDER_THAN;
+              break;
+            case DUEIN:
+              // ???
+              dateRule = ByDateFieldTerm.DateRule.AFTER_NEXT;
+              break;
+            default:
+              break;
+          }
+          
+          String fieldName = query.getFieldName();
+          String textValue = query.getValue();
+          
+          switch(query.getDataType()) {
+            case TYPE_NUMBER:
+            case TYPE_NUMBER_RANGE: {
+              switch(numberRule) {
+              case BETWEEN:
+              case NOT_BETWEEN:
+                // Then it's a range
+                return new DefaultByNumberFieldTerm(textRule, fieldName, textValue, numberRule, new Pair<>(query.getNumber1(), query.getNumber2()));
+              default:
+                // Otherwise, single value
+                return new DefaultByNumberFieldTerm(textRule, fieldName, textValue, numberRule, query.getNumber1());
+              }
+            }
+            case TYPE_TIME:
+            case TYPE_TIME_RANGE: {
+              ByDateFieldTerm.DateType dateType = ByDateFieldTerm.DateType.FIELD;
+              if(query.getFlags().contains(CDQueryByField.Flag.BYDATE)) {
+                // Mark it as explicitly By Date and figure out the type by field
+                if("_RevisionDate".equals(fieldName)) { //$NON-NLS-1$
+                  dateType = ByDateFieldTerm.DateType.MODIFIED;
+                } else if("_CreationDate".equals(fieldName)) { //$NON-NLS-1$
+                  dateType = ByDateFieldTerm.DateType.CREATED;
+                }
+              }
+              DominoDateTime date1 = query.getDate1();
+              DominoDateTime date2 = query.getDate2();
+              if(date2.isValid()) {
+                // Then it's definitely a range
+                return new DefaultByDateFieldTerm(textRule, fieldName, textValue, dateType, dateRule, new DefaultDominoDateRange(date1, date2));
+              } else if(date1.isValid()) {
+                // Then it's a single-date query
+                return new DefaultByDateFieldTerm(textRule, fieldName, textValue, dateType, dateRule, date1);
+              } else {
+                // Must be a number-based query
+                return new DefaultByDateFieldTerm(textRule, fieldName, textValue, dateType, dateRule, (int)query.getNumber1());
+              }
+            }
+            default:
+              // Assume text
+              if(query.getFlags().contains(CDQueryByField.Flag.BYAUTHOR)) {
+                // Actually a $UpdatedBy query
+                return new DefaultByAuthorTerm(textRule, fieldName, textValue);
+              } else {
+                // Generic item search
+                return new DefaultByFieldTerm(textRule, fieldName, textValue);
+              }
+          }
+        } else if(record instanceof CDQueryByFolder) {
+          CDQueryByFolder query = (CDQueryByFolder)record;
+          
+          boolean isPrivate = query.getFlags().contains(CDQueryByFolder.Flag.PRIVATE);
+          String folderName = query.getFolderName();
+          return new DefaultByFolderTerm(folderName, isPrivate);
+        } else if(record instanceof CDQueryByForm) {
+          CDQueryByForm query = (CDQueryByForm)record;
+          
+          String formName = query.getFormName();
+          Map<String, List<Object>> fieldMatches = new LinkedHashMap<>();
+          for(AssistFieldStruct struct : query.getAssistFields()) {
+            // Ignore operator
+            String fieldName = struct.getFieldName();
+            List<Object> values = struct.getValues();
+            fieldMatches.put(fieldName, values);
+          }
+          
+          return new DefaultExampleFormTerm(formName, fieldMatches);
+        } else if(record instanceof CDQueryFormula) {
+          // This has no representation in Designer, and so is not currently implemented here
+          return null;
+        } else if(record instanceof CDQueryTextTerm) {
+          CDQueryTextTerm query = (CDQueryTextTerm)record;
+          
+          TextTerm.Type textType;
+          Set<CDQueryTextTerm.Flag> flags = query.getFlags();
+          if(flags.contains(CDQueryTextTerm.Flag.ACCRUE)) {
+            textType = TextTerm.Type.ACCRUE;
+          } else if(flags.contains(CDQueryTextTerm.Flag.AND)) {
+            textType = TextTerm.Type.AND;
+          } else if(flags.contains(CDQueryTextTerm.Flag.NEAR)) {
+            textType = TextTerm.Type.NEAR;
+          } else {
+            textType = TextTerm.Type.PLAIN;
+          }
+          
+          return new DefaultTextTerm(textType, query.getTerms());
+        } else if(record instanceof CDQueryUsesForm) {
+          CDQueryUsesForm query = (CDQueryUsesForm)record;
+          
+          Set<String> formNames = Collections.unmodifiableSet(new LinkedHashSet<>(query.getFormNames()));
+          return (ByFormTerm)() -> formNames;
+        }
+        return (SimpleSearchTerm)null;
+      })
+      .filter(Objects::nonNull)
+      .collect(Collectors.toList());
   }
 }

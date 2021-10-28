@@ -16,15 +16,21 @@
  */
 package it.com.hcl.domino.test.runtime;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.runtime.DominoRuntime;
+import com.ibm.commons.util.StringUtil;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
@@ -40,8 +46,8 @@ public class TestRuntime extends AbstractNotesRuntimeTest {
   @Test
   public void testDataDirectory() {
     final Path data = this.runtime.getDataDirectory().orElse(null);
-    Assertions.assertNotNull(data);
-    Assertions.assertTrue(Files.isDirectory(data));
+    assertNotNull(data);
+    assertTrue(Files.isDirectory(data));
   }
 
   @Test
@@ -51,7 +57,7 @@ public class TestRuntime extends AbstractNotesRuntimeTest {
     final int val = Math.abs((int) System.currentTimeMillis() % 1000);
     this.runtime.setProperty(prop, val);
     try {
-      Assertions.assertEquals(String.valueOf(val), this.runtime.getPropertyString(prop));
+      assertEquals(String.valueOf(val), this.runtime.getPropertyString(prop));
     } finally {
       this.runtime.setProperty(prop, null);
     }
@@ -64,7 +70,7 @@ public class TestRuntime extends AbstractNotesRuntimeTest {
     final int val = Math.abs((int) System.currentTimeMillis() % 1000);
     this.runtime.setProperty(prop, val);
     try {
-      Assertions.assertEquals(val, this.runtime.getPropertyInt(prop));
+      assertEquals(val, this.runtime.getPropertyInt(prop));
     } finally {
       this.runtime.setProperty(prop, null);
     }
@@ -77,7 +83,7 @@ public class TestRuntime extends AbstractNotesRuntimeTest {
     final String val = String.valueOf("time is " + System.currentTimeMillis());
     this.runtime.setProperty(prop, val);
     try {
-      Assertions.assertEquals(val, this.runtime.getPropertyString(prop));
+      assertEquals(val, this.runtime.getPropertyString(prop));
     } finally {
       this.runtime.setProperty(prop, null);
     }
@@ -86,14 +92,14 @@ public class TestRuntime extends AbstractNotesRuntimeTest {
   @Test
   public void testProgramDirectory() {
     final Path program = this.runtime.getProgramDirectory().orElse(null);
-    Assertions.assertNotNull(program);
-    Assertions.assertTrue(Files.isDirectory(program));
+    assertNotNull(program);
+    assertTrue(Files.isDirectory(program));
   }
 
   @Test
   public void testTempDirectory() {
     final Path temp = this.runtime.getTempDirectory().orElse(null);
-    Assertions.assertTrue(Files.isDirectory(temp));
+    assertTrue(Files.isDirectory(temp));
   }
 
   @Test
@@ -101,7 +107,18 @@ public class TestRuntime extends AbstractNotesRuntimeTest {
     final Path rebuild = this.runtime.getViewRebuildDirectory().orElse(null);
     // May not be set
     if (rebuild != null) {
-      Assertions.assertTrue(Files.isDirectory(rebuild));
+      assertTrue(Files.isDirectory(rebuild));
+    }
+  }
+  
+  @Test
+  public void testSharedDataDirectory() {
+    Path data = this.runtime.getSharedDataDirectory().orElse(null);
+    String iniValue = this.runtime.getPropertyString("SharedDataDirectory");
+    if(StringUtil.isEmpty(iniValue)) {
+      assertNull(data);
+    } else {
+      assertEquals(Paths.get(iniValue), data);
     }
   }
 }

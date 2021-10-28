@@ -21,21 +21,76 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
-import java.util.OptionalLong;
 
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.design.DesignElement.NamedDesignElement;
 import com.hcl.domino.design.agent.AgentContent;
 import com.hcl.domino.design.agent.AgentInterval;
+import com.hcl.domino.design.agent.AgentTarget;
 import com.hcl.domino.design.agent.AgentTrigger;
+import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
 
 /**
  * Access to a database design. Search for design, database as constructor
  * parameter
- *
- * @author t.b.d
  */
 public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRestrictedElement {
+  /**
+   * Represents last-run information for agent notes.
+   * 
+   * @author Jesse Gallagher
+   * @since 1.0.38
+   */
+  interface LastRunInfo {
+    /**
+     * Retrieves the time the agent was last run.
+     * 
+     * @return a {@link DominoDateTime} representing the last-run time
+     */
+    DominoDateTime getTime();
+    
+    /**
+     * Determines the number of documents processed when the agent was last
+     * run.
+     * 
+     * @return the count of processed documents
+     */
+    long getDocumentCount();
+    
+    /**
+     * Determines the version of the agent when it was last run.
+     * 
+     * <p>This corresponds to the version value represented by
+     * {@link DesignAgent#getAgentVersion()}.</p>
+     * 
+     * @return a {@link DominoDateTime} modification version for the agent
+     *         when it was last run
+     */
+    DominoDateTime getVersion();
+    
+    /**
+     * Determines the specific instance ID (as opposed to the replica ID) of the
+     * database where the agent was last run, represented as a pair of int values.
+     * 
+     * @return a two-element {@code int} array representing the database ID
+     */
+    int[] getDbId();
+    
+    /**
+     * Determines the exit code from the agent's last run.
+     * 
+     * @return a {@code long} representing the last exit code
+     */
+    long getExitCode();
+    
+    /**
+     * Retrieves the log from the last run.
+     * 
+     * @return a {@link String} of the agent log, which may be empty
+     */
+    String getLog();
+  }
+  
   enum AgentLanguage {
     LS, FORMULA, JAVA, IMPORTED_JAVA, SIMPLE_ACTION
   }
@@ -56,16 +111,37 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
   AgentContent getAgentContent();
 
   /**
+   * Changes the agent language and content.
+   * 
+   * @param lang new language
+   * @param content new agent code
+   * @return this agent
+   */
+  DesignAgent setAgentContent(AgentLanguage lang, String content);
+  
+  /**
    * Language the agent is written using
    *
    * @return an {@link AgentLanguage} instance
    */
   AgentLanguage getAgentLanguage();
+  
+  /**
+   * Determines the effective version of the agent design, as opposed to just when
+   * the note was last modified.
+   * 
+   * <p>This version is expressed as the time the agent design was last modified.</p>
+   * 
+   * @return a {@link DominoDateTime} instance representing the time that the agent's
+   *         design was last changed
+   * @since 1.0.38
+   */
+  DominoDateTime getAgentVersion();
 
   /**
    * Gets the last date that the agent is able to run, if applicable
    *
-   * @return a {@link Optional} representing the end datte as a
+   * @return a {@link Optional} representing the end date as a
    *         {@link DominoDateTime}, or an empty
    *         one if this is not applicable
    */
@@ -108,16 +184,16 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    *         applicable
    */
   AgentInterval getIntervalType();
-
+  
   /**
-   * Analyses the last run log to work out the number of seconds for last run
-   * duration
-   *
-   * @return an {@link OptionalLong} describing the number of seconds between
-   *         start and end
-   *         of last run time, or an empty one if it has no run record
+   * Retrieves information about the agent's last execution, if that information
+   * exists.
+   * 
+   * @return an {@link Optional} describing the agent's last-run information,
+   *         or an empty one if that data is not stored
+   * @since 1.0.38
    */
-  OptionalLong getLastRunDuration();
+  Optional<LastRunInfo> getLastRunInfo();
 
   /**
    * Retrieves the 1-based day of the month that the agent should run. This only
@@ -143,12 +219,16 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
 
   /**
    * Retrieves the local time of day when the agent should no longer be executed.
-   * This only applies
-   * when the interval type is {@link AgentInterval#MINUTES MINUTES}.
+   * This only applies when the interval type is
+   * {@link AgentInterval#MINUTES MINUTES}.
+   * 
+   * <p>Note: this value will also be empty if the agent is scheduled to run all day,
+   * while {@link #getRunLocalTime()} will reflect midnight in this case.</p>
    *
    * @return an {@link Optional} describing the local end time of execution, or an
-   *         empty one if
-   *         the agent interval is not {@link AgentInterval#MINUTES MINUTES}
+   *         empty one if the agent interval is not
+   *         {@link AgentInterval#MINUTES MINUTES} or if the agent is scheduled to
+   *         run all day
    */
   Optional<LocalTime> getRunEndLocalTime();
 
@@ -159,8 +239,7 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    * {@link AgentInterval#EVENT EVENT}.
    *
    * @return an {@link Optional} describing the local time to run, or an empty one
-   *         if
-   *         this value does not apply
+   *         if this value does not apply
    */
   Optional<LocalTime> getRunLocalTime();
 
@@ -176,21 +255,6 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    * @return configured server run location
    */
   String getRunLocation();
-
-  /**
-   * Gets the last run log for the agent. If the agent has not run since last log,
-   * it is a blank String.
-   *
-   * @return String containing run log
-   */
-  String getRunLog();
-
-  /**
-   * Splits the run log into a String for each line
-   *
-   * @return List of run log messages
-   */
-  List<String> getRunLogAsList();
 
   /**
    * Gets the earliest date that the agent is able to run, if applicable
@@ -217,16 +281,6 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
   DesignAgent initializeAgentLanguage(AgentLanguage lang);
 
   /**
-   * Analyses the last run log to work out if the last run exceeded the max run
-   * time for agents. Combine with
-   * {@link #getLastRunDuration()} to work out what that max run time setting is.
-   *
-   * @return whether the last run time exceeded max run time for agents. If there
-   *         is no run log, this will also be false
-   */
-  boolean isLastRunExceededTimeLimit();
-
-  /**
    * Whether or not the agent runs on weekends, only relevant for DAILY or
    * MORE_THAN_DAILY
    *
@@ -246,6 +300,18 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
   boolean isRunAsWebUser();
   
   /**
+   * Sets whether the agent should be run as the web user when accessed via
+   * URL.
+   * 
+   * @param b {@code true} if the agent should run as the current web user when
+   *         accessed via URL; {@code false} to run as the signer or the on-behalf-
+   *         of user
+   * @return this agent
+   * @since 1.0.43
+   */
+  DesignAgent setRunAsWebUser(boolean b);
+  
+  /**
    * Retrieves the name of the user to run the agent on behalf of, if set.
    * 
    * @return an {@link Optional} describing the on-behalf-of user, or an empty one
@@ -261,6 +327,15 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    * @since 1.0.35
    */
   SecurityLevel getSecurityLevel();
+  
+  /**
+   * Changes the security level to enforce when running this agent.
+   * 
+   * @param level new level
+   * @return this agent
+   * @since 1.0.43
+   */
+  DesignAgent setSecurityLevel(SecurityLevel level);
   
   /**
    * Determines whether the agent should store highlights when run.
@@ -325,4 +400,40 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    * @since 1.0.35
    */
   boolean isEnabled();
+  
+  /**
+   * Enables/disables the agent to run according to its schedule or trigger.
+   * 
+   * @param b true if enabled
+   * @return this agent
+   * @since 1.0.43
+   */
+  DesignAgent setEnabled(boolean b);
+  
+  /**
+   * Retrieves the search terms used to select documents for agent processing, if provided.
+   * 
+   * @return a {@link List} containing {@link SimpleSearchTerm} subclass instances, or an
+   *         empty list if no search criteria are provided
+   * @since 1.0.38
+   */
+  List<? extends SimpleSearchTerm> getDocumentSelection();
+  
+  /**
+   * Retrieves the broad document selection target for the agent.
+   * 
+   * @return a {@link AgentTarget} instance
+   * @since 1.0.42
+   */
+  AgentTarget getTarget();
+
+  /**
+   * Changes the broad document selection target for the agent.
+   * 
+   * @param target a {@link AgentTarget} instance
+   * @return this agent
+   * @since 1.0.43
+   */
+  DesignAgent setTarget(AgentTarget target);
+  
 }

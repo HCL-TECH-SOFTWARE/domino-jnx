@@ -87,7 +87,9 @@ public class NotesResultsInfoStruct extends BaseStructure {
 		});
 	}
 
-	protected List<String> getFieldOrder() {
+	@SuppressWarnings("nls")
+  @Override
+  protected List<String> getFieldOrder() {
 		return Arrays.asList("name", "hResults", "formula_list_name", "dbPath", "replicaID", "resultsTime", "hDQLQuery", "hDQLQargList", "dwDQLFlags");
 	}
 	

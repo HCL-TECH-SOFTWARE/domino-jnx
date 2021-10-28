@@ -1,3 +1,19 @@
+/*
+ * ==========================================================================
+ * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ *                            All rights reserved.
+ * ==========================================================================
+ * Licensed under the  Apache License, Version 2.0  (the "License").  You may
+ * not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+ *
+ * Unless  required  by applicable  law or  agreed  to  in writing,  software
+ * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the  specific language  governing permissions  and limitations
+ * under the License.
+ * ==========================================================================
+ */
 package com.hcl.domino.constants;
 
 /**
@@ -56,4 +72,121 @@ public interface EditOds {
   short ALIGNMENT_BOTTOMLEFT = 6;
   short ALIGNMENT_BOTTOMCENTER = 7;
   short ALIGNMENT_BOTTOMRIGHT = 8;
+  
+  short NOTES_OLEVERSION1 = 1;
+  short NOTES_OLEVERSION2 = 2;
+  
+  /** The data is an OLE embedded OBJECT */
+  int OLEREC_FLAG_OBJECT = 0x01;
+  /** The data is an OLE Link */
+  int OLEREC_FLAG_LINK = 0x02;
+  /** If link, Link type == Automatic (hot) */
+  int OLEREC_FLAG_AUTOLINK = 0x04;
+  /** If link, Link type == Manual (warm) */
+  int OLEREC_FLAG_MANUALLINK = 0x08;
+  /** New object, just inserted */
+  int OLEREC_FLAG_NEWOBJECT = 0x10;
+  /** New object, just pasted */
+  int OLEREC_FLAG_PASTED = 0x20;
+  /** Object came from form and should be saved every time it changes in server */
+  int OLEREC_FLAG_SAVEOBJWHENCHANGED = 0x40;
+  /** Object inherited from form, so don't visualize or object incabable of rendering itself. */
+  int OLEREC_FLAG_NOVISUALIZE = 0x80;
+  
+  /** CF_TEXT */
+  short DDEFORMAT_TEXT = 0x01;
+  /** CF_METAFILE or CF_METAFILEPICT */
+  short DDEFORMAT_METAFILE = 0x02;
+  /** CF_BITMAP */
+  short DDEFORMAT_BITMAP = 0x03;
+  /** Rich Text Format */
+  short DDEFORMAT_RTF = 0x04;
+  /** OLE Ownerlink (never saved in CD_DDE or CD_OLE: used at run time) */
+  short DDEFORMAT_OWNERLINK = 0x06;
+  /** OLE Objectlink (never saved in CD_DDE or CD_OLE: used at run time) */
+  short DDEFORMAT_OBJECTLINK = 0x07;
+  /** OLE Native (never saved in CD_DDE or CD_OLE: used at run time) */
+  short DDEFORMAT_NATIVE = 0x08;
+  /** Program Icon for embedded object */
+  short DDEFORMAT_ICON = 0x09;
+  
+  /* Transition Types */
+  short TRANS_LEFTTORIGHT_COLUMN = 1;
+  short TRANS_ROLLING = 2;
+  short TRANS_TOPTOBOTTOM_ROW = 3;
+  short TRANS_WIPE = 4;
+  short TRANS_BOXES_INCREMENT = 5;
+  short TRANS_EXPLODE = 6;
+  short TRANS_DISSOLVE = 7;
+
+  /* Structures for hotspots which are "active" objects (Java applets, plugins, etc.) */
+  short ACTIVEOBJECT_TYPE_JAVA = 1;
+  short ACTIVEOBJECT_TYPE_PLUGIN = 2;
+  short ACTIVEOBJECT_TYPE_OBJECT = 3;
+
+  byte ACTIVEOBJECT_UNIT_PIXELS = 0;
+  byte ACTIVEOBJECT_UNIT_HIMETRICS = 1;
+  byte ACTIVEOBJECT_UNIT_INCHES = 2;
+  byte ACTIVEOBJECT_UNIT_PERCENT = 3;
+  
+  int ACTIVEOBJECT_FLAG_MAYSCRIPT = 0x00000001;
+  /** Active object is a Java applet that uses CORBA */
+  int ACTIVEOBJECT_FLAG_CORBA_APPLET = 0x00000002;
+  /** This is a CORBA applet that uses SSL */
+  int ACTIVEOBJECT_FLAG_CORBA_SSL = 0x00000004;
+  /** This object comes from a mime mail message*/
+  int ACTIVEOBJECT_FLAG_MAIL_PLUGIN = 0x00000008;
+  /** don't automatically download the jar stuff for applets */
+  int ACTIVEOBJECT_FLAG_NOCORBADOWNLOAD = 0x00000010;
+  /** Reserved part of ACTIVEOBJECT sturct contains applet files digested for signature verification */
+  int ACTIVEOBJECT_FLAG_DIGESTAPPLETFILES = 0x00000020;
+  
+  /* Version control of ACTIVEOBJECT */
+  /** Created by Notes build 141 */
+  short ACTIVEOBJECT_VERSION1 = 0;
+  
+  /*  Flags for use in the dwFlags field of CDFORMULA */
+  
+  /** formula is HTML attributes */
+  int CDHTMLFORMULA_FLAG_ATTR = 0x00000001;
+  /** formula is alternate HTML */
+  int CDHTMLFORMULA_FLAG_ALT = 0x00000002;
+  /** formula is an action label formula. */
+  int CDHTMLFORMULA_FLAG_ACTION_LABEL = 0x00000004;
+  
+  int LAYOUT_GRAPHIC_FLAG_BUTTON = 0x00000001;
+
+  byte LAYOUT_FIELD_TYPE_TEXT = 0;
+  byte LAYOUT_FIELD_TYPE_CHECK = 1;
+  byte LAYOUT_FIELD_TYPE_RADIO = 2;
+  byte LAYOUT_FIELD_TYPE_LIST = 3;
+  byte LAYOUT_FIELD_TYPE_COMBO = 4;
+  
+
+  int LAYOUT_FIELD_FLAG_SINGLELINE = 0x00000001;
+  int LAYOUT_FIELD_FLAG_VSCROLL = 0x00000002;
+  /* The following flag must not be sampled by any design mode
+    code.  It is, in effect, "write only" for design elements.
+    Play mode elements, on the other hand, can rely on its value. */
+  int LAYOUT_FIELD_FLAG_MULTISEL = 0x00000004;
+  int LAYOUT_FIELD_FLAG_STATIC = 0x00000008;
+  int LAYOUT_FIELD_FLAG_NOBORDER = 0x00000010;
+  int LAYOUT_FIELD_FLAG_IMAGE = 0x00000020;
+  /*  The following flags must be the same as LAYOUT_TEXT_FLAG_ equiv's. */
+  int LAYOUT_FIELD_FLAG_LTR = 0x01000000;
+  int LAYOUT_FIELD_FLAG_RTL = 0x02000000;
+  int LAYOUT_FIELD_FLAG_TRANS = 0x10000000;
+  int LAYOUT_FIELD_FLAG_LEFT = 0x00000000;
+  int LAYOUT_FIELD_FLAG_CENTER = 0x20000000;
+  int LAYOUT_FIELD_FLAG_RIGHT = 0x40000000;
+  int LAYOUT_FIELD_FLAG_VCENTER = 0x80000000;
+  
+  int MAX_TEXTSTYLE_NAME = 128;
+  /*  2-letter ISO Language Code
+      '-'
+      2-letter ISO Country Code
+      '\0'
+      + 1 to make it and even number
+  */
+  int MAX_ISO_LANG_SIZE = 8;
 }

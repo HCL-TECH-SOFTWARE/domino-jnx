@@ -1,0 +1,24 @@
+<?xml version='1.0' encoding='utf-8'?>
+<note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$TITLE' sign='true'><text>EmbeddedEditor</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$Body' sign='true'>
+<rawitemdata type='1'>
+gQKC/1oAAQAAAAAAAAAAAKAFAACgBQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAABAAAAAJSHAAAAAAAAAAAAAAAAAQAAAAQAAACDBAEA3QYAAK3/rf8bACIACAAAAA8A
+RW1iZWRkZWRFZGl0b3IAAOr/PgAiAIFEAABkAOIOAQAACgAAAAAAAAAAAQAACgEAAAoAAAUA////
+AAEAAAAAAAAAAAAAAAAAAAAAAAAA//9SAAUAAAASAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEVtYmVkZGVkRWRpdG9yTmFtZa4C3gYAAK4Ahf8I
+AAEAAAo=
+</rawitemdata></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>EmbeddedEditor</text></item>
+<item name='$HTMLCode' sign='true'>
+<rawitemdata type='1'>
+X/8QAAIADwAHAAAAAAAAAA==
+</rawitemdata></item>
+<item name='$Info' sign='true'>
+<rawitemdata type='1'>
+hhgBAIAAAAAAgAAAAQABAP///wAQAAAA
+</rawitemdata></item>
+<item name='$Flags'><text/></item>
+<item name='$Fields'><textlist/></item></note>

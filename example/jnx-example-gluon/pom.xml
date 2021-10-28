@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
-		<version>1.0.36</version>
+		<version>1.0.45</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>jnx-example-gluon</artifactId>

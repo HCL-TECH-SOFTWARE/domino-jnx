@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='utf-8'?>
+<form name='VerticalAlign' xmlns='http://www.lotus.com/dxl' version='12.0'
+ replicaid='8525683F00771995' publicaccess='false' designerversion='8.5.3'
+ renderpassthrough='true'>
+<noteinfo noteid='66e' unid='0BD93F421F0465E38525876C0005552B' sequence='2'>
+<created><datetime dst='true'>20211011T205814,83-04</datetime></created>
+<modified><datetime dst='true'>20211011T210206,92-04</datetime></modified>
+<revised><datetime dst='true'>20211011T210206,91-04</datetime></revised>
+<lastaccessed><datetime dst='true'>20211011T210206,91-04</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20211011T205815,10-04</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Prabhakar Bugga/O=Prabhakar Bugga</name></updatedby>
+<wassignedby><name>CN=Prabhakar Bugga/O=Prabhakar Bugga</name></wassignedby>
+<body><richtext>
+<pardef id='1'/>
+<par def='1'><picture width='20px' height='20px' alttext='ACT' align='bottom'><imageref
+ name='act_goto.gif|act_goto'/><caption>GOTO</caption></picture></par></richtext></body>
+<item name='$$ScriptName' summary='false' sign='true'><text>VerticalAlign</text></item></form>
+

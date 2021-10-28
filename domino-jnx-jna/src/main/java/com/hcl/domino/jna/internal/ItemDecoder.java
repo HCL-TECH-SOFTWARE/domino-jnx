@@ -23,11 +23,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
 
+import com.hcl.domino.commons.data.DefaultDominoDateRange;
+import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.ItemDataType;
-import com.hcl.domino.jna.data.JNADominoDateRange;
 import com.hcl.domino.jna.data.JNADominoDateTime;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.structs.NotesNumberPairStruct;
@@ -35,6 +36,7 @@ import com.hcl.domino.jna.internal.structs.NotesRangeStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.misc.DominoEnumUtil;
+import com.hcl.domino.richtext.records.RecordType;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -185,7 +187,7 @@ public class ItemDecoder {
 			DominoDateTime lowerTimeDate = new JNADominoDateTime(lowerTimeDateInnards);
 			DominoDateTime upperTimeDate = new JNADominoDateTime(upperTimeDateInnards);
 			
-			calendarValues.add(new JNADominoDateRange(lowerTimeDate, upperTimeDate));
+			calendarValues.add(new DefaultDominoDateRange(lowerTimeDate, upperTimeDate));
 		}
 		
 		return calendarValues;
@@ -286,10 +288,12 @@ public class ItemDecoder {
 	 * @param ptr a pointer to the data
 	 * @param typeVal the type of the item data, corresponding to {@link ItemDataType} values
 	 * @param length the length of the data itself
+   * @param area the rich-text record category to use when interpreting
+   *             composite data
 	 * @return a parsed Java object representing the data
 	 * @since 1.0.2
 	 */
-	public static Object readItemValue(Pointer ptr, short typeVal, int length) {
+	public static Object readItemValue(Pointer ptr, short typeVal, int length, RecordType.Area area) {
 		ItemDataType type = DominoEnumUtil.valueOf(ItemDataType.class, typeVal)
 			.orElseThrow(() -> new IllegalArgumentException(MessageFormat.format("Unsupported data type: {0}", typeVal)));
 		
@@ -306,6 +310,11 @@ public class ItemDecoder {
 			return decodeNumberList(ptr, length);
 		case TYPE_TIME_RANGE:
 			return decodeTimeDateListAsNotesTimeDate(ptr);
+		case TYPE_COMPOSITE:
+		  // Add back space for the type val skipped below
+		  byte[] data = new byte[length+2];
+		  ptr.read(0, data, 2, length);
+		  return RichTextUtil.readMemoryRecords(data, area);
 		default:
 			throw new IllegalArgumentException(MessageFormat.format("Unsupported data type: {0}", type));
 		}

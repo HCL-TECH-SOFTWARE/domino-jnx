@@ -21,19 +21,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-
+import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.StandardColors;
@@ -64,11 +63,21 @@ import com.hcl.domino.richtext.records.CDAction;
 import com.hcl.domino.richtext.records.CDActionBar;
 import com.hcl.domino.richtext.records.CDActionBarExt;
 import com.hcl.domino.richtext.records.CDActionByForm;
+import com.hcl.domino.richtext.records.CDAltText;
+import com.hcl.domino.richtext.records.CDAreaElement;
 import com.hcl.domino.richtext.records.CDBlobPart;
+import com.hcl.domino.richtext.records.CDBoxSize;
 import com.hcl.domino.richtext.records.CDColor;
 import com.hcl.domino.richtext.records.CDDataFlags;
+import com.hcl.domino.richtext.records.CDEmbeddedCalendarControl;
+import com.hcl.domino.richtext.records.CDEmbeddedContactList;
 import com.hcl.domino.richtext.records.CDEmbeddedControl;
+import com.hcl.domino.richtext.records.CDEmbeddedEditControl;
+import com.hcl.domino.richtext.records.CDEmbeddedExtraInfo;
 import com.hcl.domino.richtext.records.CDEmbeddedOutline;
+import com.hcl.domino.richtext.records.CDEmbeddedSchedulerControl;
+import com.hcl.domino.richtext.records.CDEmbeddedSchedulerControlExtra;
+import com.hcl.domino.richtext.records.CDEmbeddedView;
 import com.hcl.domino.richtext.records.CDExt2Field;
 import com.hcl.domino.richtext.records.CDExtField;
 import com.hcl.domino.richtext.records.CDExtField.HelperType;
@@ -80,19 +89,35 @@ import com.hcl.domino.richtext.records.CDImageHeader;
 import com.hcl.domino.richtext.records.CDImageHeader.ImageType;
 import com.hcl.domino.richtext.records.CDImageSegment;
 import com.hcl.domino.richtext.records.CDKeyword;
+import com.hcl.domino.richtext.records.CDLargeParagraph;
+import com.hcl.domino.richtext.records.CDLayer;
+import com.hcl.domino.richtext.records.CDLayoutButton;
+import com.hcl.domino.richtext.records.CDMapElement;
 import com.hcl.domino.richtext.records.CDParagraph;
+import com.hcl.domino.richtext.records.CDPositioning;
+import com.hcl.domino.richtext.records.CDStyleName;
 import com.hcl.domino.richtext.records.CDText;
+import com.hcl.domino.richtext.records.CDTextEffect;
+import com.hcl.domino.richtext.records.CDVerticalAlign;
+import com.hcl.domino.richtext.records.CDWinMetaHeader;
+import com.hcl.domino.richtext.records.CDWinMetaSegment;
 import com.hcl.domino.richtext.records.CurrencyFlag;
 import com.hcl.domino.richtext.records.CurrencyType;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.records.ViewmapHeaderRecord;
+import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
+import com.hcl.domino.richtext.records.ViewmapActionRecord;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
-import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.AssistFieldStruct.ActionByField;
+import com.hcl.domino.richtext.structures.CDPoint;
+import com.hcl.domino.richtext.structures.CDRect;
+import com.hcl.domino.richtext.structures.ColorValue;
+import com.hcl.domino.richtext.structures.FontStyle;
+import com.hcl.domino.richtext.structures.LengthValue;
 import com.hcl.domino.richtext.structures.NFMT;
 import com.hcl.domino.richtext.structures.TFMT;
-
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
@@ -695,12 +720,13 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(2, body.get(0).getData().capacity());
       }
       {
-        Assertions.assertInstanceOf(CDText.class, body.get(1));
-        final CDText text = (CDText) body.get(1);
+        final CDText text = Assertions.assertInstanceOf(CDText.class, body.get(1));
         assertEquals(8, body.get(1).getHeader().getLength().intValue());
         assertEquals(8, body.get(1).getData().capacity());
         assertTrue(text.getStyle().isBold());
         assertEquals(StandardFonts.TYPEWRITER, text.getStyle().getStandardFont().get());
+        
+        assertEquals(EnumSet.of(RecordType.TEXT), text.getType());
       }
       {
         Assertions.assertInstanceOf(CDImageHeader.class, body.get(2));
@@ -896,4 +922,584 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
     });
   }
+  
+  @Test
+  public void testAltText() throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+        rtWriter.addRichTextRecord(CDAltText.class, begin -> {
+          begin.setAltText("foo.txt");
+        });
+      }
+
+      final CDAltText begin = (CDAltText) doc.getRichTextItem("Body").get(0);
+      assertEquals("foo.txt", begin.getAltText());
+    });
+  }
+  
+  @Test
+  public void testStyleName() throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+        rtWriter.addRichTextRecord(CDStyleName.class, begin -> {
+          final String expected = "foo";
+          begin.setStyleName(expected.getBytes());
+          
+          FontStyle font = rtWriter.createFontStyle();
+          font.setBold(true);
+          font.setColorRaw((short)80);
+          font.setPointSize((short)12);
+          font.setUnderline(true);
+          begin.setFont(font);
+          
+          begin.setUserName("testuser");
+          
+        });
+      }
+
+      final CDStyleName begin = (CDStyleName) doc.getRichTextItem("Body").get(0);
+      assertEquals("foo", begin.getStyleName());
+      
+      
+      Optional<FontStyle> font = begin.getFont();
+      assertEquals(true, font.get().isBold());
+      assertEquals(true, font.get().isUnderline());
+      assertEquals(80, font.get().getColorRaw());
+      assertEquals(12, font.get().getPointSize());
+      
+      Optional<String> userName = begin.getUserName();
+      assertEquals("testuser", userName.get());
+    });
+  }
+  
+  @Test
+  public void testVerticalAlign() throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+        rtWriter.addRichTextRecord(CDVerticalAlign.class, begin -> {
+          begin.setAlignment(CDVerticalAlign.Alignment.CENTER);
+        });
+      }
+
+      final CDVerticalAlign begin = (CDVerticalAlign) doc.getRichTextItem("Body").get(0);
+      CDVerticalAlign.Alignment alignment = begin.getAlignment();
+      
+      assertEquals(CDVerticalAlign.Alignment.CENTER, alignment);
+    });
+  }
+    
+    @Test
+    public void testMapElement() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDMapElement.class, begin -> {
+            begin.setLastDefaultRegionID(10);
+            begin.setLastCircleRegionID(20);
+            begin.setLastRectRegionID(30);
+            begin.setLastPolyRegionID(40);
+            begin.setMapName("testmap");
+          });
+        }
+
+        final CDMapElement begin = (CDMapElement) doc.getRichTextItem("Body").get(0);
+        
+        assertEquals(10, begin.getLastDefaultRegionID());
+        assertEquals(20, begin.getLastCircleRegionID());
+        assertEquals(30, begin.getLastRectRegionID());
+        assertEquals(40, begin.getLastPolyRegionID());
+        assertEquals("testmap", begin.getMapName());
+      });
+    }
+    
+    @Test
+    public void testLargeParagraph() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDLargeParagraph.class, begin -> {
+            begin.setFlags(EnumSet.of(CDLargeParagraph.Flag.CDLARGEPARAGRAPH_BEGIN));
+          });
+        }
+
+        final CDLargeParagraph begin = (CDLargeParagraph) doc.getRichTextItem("Body").get(0);
+
+        assertEquals(EnumSet.of(CDLargeParagraph.Flag.CDLARGEPARAGRAPH_BEGIN), begin.getFlags());
+      });
+    }
+    
+    @Test
+    public void testTextEffect() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDTextEffect.class, begin -> {
+            FontStyle style = rtWriter.createFontStyle();
+            style.setBold(true);
+            style.setColorRaw((short)80);
+            begin.setFontStyle(style);
+          });
+        }
+
+        final CDTextEffect begin = (CDTextEffect) doc.getRichTextItem("Body").get(0);
+        FontStyle style = begin.getFontStyle();
+        assertEquals(true, style.isBold());
+        assertEquals(80, style.getColorRaw());
+      });
+    }
+    
+    @Test
+    public void testAreaElementRectangle() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDAreaElement.class, begin -> {
+            CDRect rectangle = rtWriter.createStructure(CDRect.class, 0);
+            rectangle.setTop(1);
+            rectangle.setBottom(10);
+            rectangle.setLeft(2);
+            rectangle.setRight(20);
+            begin.setRectangle(rectangle);
+          });
+        }
+
+        final CDAreaElement begin = (CDAreaElement) doc.getRichTextItem("Body").get(0);
+
+        assertEquals(1, begin.getRectangle().get().getTop());
+        assertEquals(10, begin.getRectangle().get().getBottom());
+        assertEquals(2, begin.getRectangle().get().getLeft());
+        assertEquals(20, begin.getRectangle().get().getRight());
+      });
+    }
+    
+    @Test
+    public void testAreaElementCircle() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDAreaElement.class, begin -> {
+            CDRect circle = rtWriter.createStructure(CDRect.class, 0);
+            circle.setTop(1);
+            circle.setBottom(10);
+            circle.setLeft(2);
+            circle.setRight(20);
+            begin.setCircle(circle);
+          });
+        }
+
+        final CDAreaElement begin = (CDAreaElement) doc.getRichTextItem("Body").get(0);
+
+        assertEquals(1, begin.getCircle().get().getTop());
+        assertEquals(10, begin.getCircle().get().getBottom());
+        assertEquals(2, begin.getCircle().get().getLeft());
+        assertEquals(20, begin.getCircle().get().getRight());
+      });
+    }
+    
+    @Test
+    public void testAreaElementPolygon() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDAreaElement.class, begin -> {
+            List<CDPoint> points = new ArrayList<>();
+            for (int i=0; i<10; i++) {
+              CDPoint point = rtWriter.createStructure(CDPoint.class, 0);
+              point.setX(1+i);
+              point.setY(10+i);
+              points.add(point);
+            }
+            begin.setPolygon(points);
+          });
+        }
+
+        final CDAreaElement begin = (CDAreaElement) doc.getRichTextItem("Body").get(0);
+
+        assertEquals(10, begin.getPolygon().get().size());
+      });
+    }
+    
+    @Test
+    public void testLayer() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDLayer.class, begin -> {
+          });
+        }
+
+        @SuppressWarnings("unused")
+        final CDLayer begin = (CDLayer) doc.getRichTextItem("Body").get(0);
+      });
+    }
+    
+    @Test
+    public void testEmbeddedSchedulerControlExtra() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDEmbeddedSchedulerControlExtra.class, begin -> {
+            begin.setFlags(EnumSet.of(CDEmbeddedSchedulerControlExtra.Flag.SUGG_COLORS_DEFINED));
+            begin.setSchedulerName("foo");
+            begin.setDetailDisplayFormFormula("@Accessed");
+            begin.setFixedPartLength(30);
+            begin.setIntervalChangeEventFormula("@Abs(-10)");
+            begin.setIntervalEndDTItemFormula("@Abs(10)");
+            begin.setIntervalStartDTItemFormula("@Abs(20)");
+            begin.setOptPeopleItemsFormula("@Abs(30)");
+            begin.setOptResourcesItemsFormula("@Abs(40)");
+            begin.setPeopleTitle("people");
+            begin.setReqResourcesItemsFormula("@Abs(50)");
+            begin.setReqRoomsItemsFormula("@Abs(60)");
+            begin.setResourcesTitle("resources");
+            begin.setRoomsTitle("rooms");
+            begin.setSchedDetailItemsFormula("@Abs(70)");
+            begin.setSuggestionsAvailEventFormula("@Abs(80)");
+          });
+        }
+
+        final CDEmbeddedSchedulerControlExtra begin = (CDEmbeddedSchedulerControlExtra) doc.getRichTextItem("Body").get(0);
+        assertEquals(EnumSet.of(CDEmbeddedSchedulerControlExtra.Flag.SUGG_COLORS_DEFINED), begin.getFlags());
+        assertEquals("foo", begin.getSchedulerName());
+        assertEquals("@Accessed", begin.getDetailDisplayFormFormula().get());
+        assertEquals(30, begin.getFixedPartLength());
+        assertEquals("@Abs(-10)", begin.getIntervalChangeEventFormula().get());
+        assertEquals("@Abs(10)", begin.getIntervalEndDTItemFormula().get());
+        assertEquals("@Abs(20)", begin.getIntervalStartDTItemFormula().get());
+        assertEquals("@Abs(30)", begin.getOptPeopleItemsFormula().get());
+        assertEquals("@Abs(40)", begin.getOptResourcesItemsFormula().get());
+        assertEquals("people", begin.getPeopleTitle());
+        assertEquals("@Abs(50)", begin.getReqResourcesItemsFormula().get());
+        assertEquals("@Abs(60)", begin.getReqRoomsItemsFormula().get());
+        assertEquals("resources", begin.getResourcesTitle());
+        assertEquals("rooms", begin.getRoomsTitle());
+        assertEquals("@Abs(70)", begin.getSchedDetailItemsFormula().get());
+        assertEquals("@Abs(80)", begin.getSuggestionsAvailEventFormula().get());
+      });
+    }
+    
+    @Test
+    public void testEmbeddedSchedulerControl() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDEmbeddedSchedulerControl.class, begin -> {
+            begin.setFlags(EnumSet.of(CDEmbeddedSchedulerControl.Flag.SHOW_TWISTIES));
+            begin.setTargetFrameName("foo");
+            begin.setDisplayStartDTItemFormula("@Abs(10)");
+            begin.setHrsPerDayItemFormula("@Abs(20)");
+            begin.setReqPeopleItemsFormula("@Abs(30)");
+            begin.setNameColWidth(50);
+            begin.setPeopleLines(60);
+            begin.setRoomsLines(70);
+            begin.setResourcesLines(80);
+          });
+        }
+
+        final CDEmbeddedSchedulerControl begin = (CDEmbeddedSchedulerControl) doc.getRichTextItem("Body").get(0);
+        assertEquals(EnumSet.of(CDEmbeddedSchedulerControl.Flag.SHOW_TWISTIES), begin.getFlags());
+        assertEquals("foo", begin.getTargetFrameName());
+        assertEquals("@Abs(10)", begin.getDisplayStartDTItemFormula().get());
+        assertEquals("@Abs(20)", begin.getHrsPerDayItemFormula().get());
+        assertEquals("@Abs(30)", begin.getReqPeopleItemsFormula().get());
+        assertEquals(50, begin.getNameColWidth());
+        assertEquals(60, begin.getPeopleLines());
+        assertEquals(70, begin.getRoomsLines());
+        assertEquals(80, begin.getResourcesLines());
+      });
+    }
+    
+    @Test
+    public void testEmbeddedExtraInfo() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDEmbeddedExtraInfo.class, begin -> {
+            begin.setName("foo");
+          });
+        }
+
+        final CDEmbeddedExtraInfo begin = (CDEmbeddedExtraInfo) doc.getRichTextItem("Body").get(0);
+        assertEquals("foo", begin.getName());
+      });
+    }
+    
+    @Test
+    public void testPositioning() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDPositioning.class, begin -> {
+            begin.setScheme(CDPositioning.Scheme.ABSOLUTE);
+            begin.setBrowserLeftOffset(10);
+            begin.setBrowserRightOffset(20);
+            begin.setZIndex(30);
+          });
+        }
+
+        final CDPositioning begin = (CDPositioning) doc.getRichTextItem("Body").get(0);
+        assertEquals(CDPositioning.Scheme.ABSOLUTE, begin.getScheme());
+        assertEquals(10, begin.getBrowserLeftOffset());
+        assertEquals(20, begin.getBrowserRightOffset());
+        assertEquals(30, begin.getZIndex());
+      });
+    }
+    
+    @Test
+    public void testEmbeddedCalendarControl() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDEmbeddedCalendarControl.class, begin -> {
+            begin.setFlags(EnumSet.of(CDEmbeddedCalendarControl.Flag.HASTARGETFRAME));
+            begin.setTargetFrameName("foo.txt");
+          });
+        }
+
+        final CDEmbeddedCalendarControl begin = (CDEmbeddedCalendarControl) doc.getRichTextItem("Body").get(0);
+        assertEquals(EnumSet.of(CDEmbeddedCalendarControl.Flag.HASTARGETFRAME), begin.getFlags());
+        assertEquals("foo.txt", begin.getTargetFrameName());
+      });
+    }
+    
+    @Test
+    public void testEmbeddedView() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDEmbeddedView.class, begin -> {
+            begin.setFlags(EnumSet.of(CDEmbeddedView.Flag.SIMPLE_VIEW_HEADER_OFF));
+            begin.setRestrictFormula("@Abs(10)");
+          });
+        }
+
+        final CDEmbeddedView begin = (CDEmbeddedView) doc.getRichTextItem("Body").get(0);
+        assertEquals(EnumSet.of(CDEmbeddedView.Flag.SIMPLE_VIEW_HEADER_OFF), begin.getFlags());
+        assertEquals("@Abs(10)", begin.getRestrictFormula().get());
+      });
+    }
+    
+    @Test
+    public void testBoxSize() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDBoxSize.class, begin -> {
+            begin.getHeight().setLength(10);
+            begin.getHeight().setUnit(LengthUnit.PERCENT);
+            begin.getHeight().setFlags(EnumSet.of(LengthValue.Flag.AUTO));
+            begin.getWidth().setLength(20);
+            begin.getWidth().setUnit(LengthUnit.PIXELS);
+            begin.getWidth().setFlags(EnumSet.of(LengthValue.Flag.AUTO));
+          });
+        }
+
+        final CDBoxSize begin = (CDBoxSize) doc.getRichTextItem("Body").get(0);
+        assertEquals(10, begin.getHeight().getLength());
+        assertEquals(LengthUnit.PERCENT, begin.getHeight().getUnit());
+        assertEquals(EnumSet.of(LengthValue.Flag.AUTO), begin.getHeight().getFlags());
+        assertEquals(20, begin.getWidth().getLength());
+        assertEquals(LengthUnit.PIXELS, begin.getWidth().getUnit());
+        assertEquals(EnumSet.of(LengthValue.Flag.AUTO), begin.getWidth().getFlags());
+      });
+    }
+    
+    @Test
+    public void testEmbeddedContactList() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDEmbeddedContactList.class, begin -> {
+            begin.getSelectedBackground().setBlue((short)10);
+            begin.getSelectedBackground().setRed((short)20);
+            begin.getSelectedBackground().setGreen((short)30);
+            begin.getSelectedBackground().setFlags(EnumSet.of(ColorValue.Flag.ISRGB));
+            begin.getSelectedText().setBlue((short)40);
+            begin.getSelectedText().setRed((short)50);
+            begin.getSelectedText().setGreen((short)60);
+            begin.getSelectedText().setFlags(EnumSet.of(ColorValue.Flag.ISRGB));
+            begin.getControlBackground().setBlue((short)70);
+            begin.getControlBackground().setRed((short)80);
+            begin.getControlBackground().setGreen((short)90);
+            begin.getControlBackground().setFlags(EnumSet.of(ColorValue.Flag.ISRGB));
+          });
+        }
+
+        final CDEmbeddedContactList begin = (CDEmbeddedContactList) doc.getRichTextItem("Body").get(0);
+        assertEquals(10, begin.getSelectedBackground().getBlue());
+        assertEquals(20, begin.getSelectedBackground().getRed());
+        assertEquals(30, begin.getSelectedBackground().getGreen());
+        assertEquals(EnumSet.of(ColorValue.Flag.ISRGB), begin.getSelectedBackground().getFlags());
+        assertEquals(40, begin.getSelectedText().getBlue());
+        assertEquals(50, begin.getSelectedText().getRed());
+        assertEquals(60, begin.getSelectedText().getGreen());
+        assertEquals(EnumSet.of(ColorValue.Flag.ISRGB), begin.getSelectedText().getFlags());
+        assertEquals(70, begin.getControlBackground().getBlue());
+        assertEquals(80, begin.getControlBackground().getRed());
+        assertEquals(90, begin.getControlBackground().getGreen());
+        assertEquals(EnumSet.of(ColorValue.Flag.ISRGB), begin.getSelectedText().getFlags());
+      });
+    }
+    
+    @Test
+    public void testEmbeddedEditControl() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDEmbeddedEditControl.class, begin -> {
+            begin.setName("foo.txt");
+            begin.setFlags(EnumSet.of(CDEmbeddedEditControl.Flag.HASNAME));
+          });
+        }
+
+        final CDEmbeddedEditControl begin = (CDEmbeddedEditControl) doc.getRichTextItem("Body").get(0);
+        assertEquals("foo.txt", begin.getName());
+        assertEquals(EnumSet.of(CDEmbeddedEditControl.Flag.HASNAME), begin.getFlags());
+      });
+    }
+    
+    @Test
+    public void testWinMetaHeader() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDWinMetaHeader.class, begin -> {
+            begin.setMappingMode(CDWinMetaHeader.MappingMode.HIMETRIC);
+            begin.setXExtent((short)20);
+            begin.setYExtent((short)30);
+            begin.getOriginalDisplaySize().setHeight(40);
+            begin.getOriginalDisplaySize().setWidth(50);
+            begin.setMetafileSize(90000);
+            begin.setSegCount(2);
+          });
+        }
+
+        final CDWinMetaHeader begin = (CDWinMetaHeader) doc.getRichTextItem("Body").get(0);
+        assertEquals(CDWinMetaHeader.MappingMode.HIMETRIC, begin.getMappingMode().get());
+        assertEquals(20, begin.getXExtent());
+        assertEquals(30, begin.getYExtent());
+        assertEquals(40, begin.getOriginalDisplaySize().getHeight());
+        assertEquals(50, begin.getOriginalDisplaySize().getWidth());
+        assertEquals(90000, begin.getMetafileSize());
+        assertEquals(2, begin.getSegCount());
+      });
+    }
+    
+    @Test
+    public void testWinMetaSegment() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDWinMetaSegment.class, begin -> {
+            begin.setDataSize(60000);
+            begin.setSegSize(65535);
+          });
+        }
+
+        final CDWinMetaSegment begin = (CDWinMetaSegment) doc.getRichTextItem("Body").get(0);
+        assertEquals(60000, begin.getDataSize());
+        assertEquals(65535, begin.getSegSize());
+      });
+    }
+    
+    @Test
+    public void testLayoutButton() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDLayoutButton.class, begin -> {
+          });
+        }
+
+        @SuppressWarnings("unused")
+        final CDLayoutButton begin = (CDLayoutButton) doc.getRichTextItem("Body").get(0);
+      });
+    }
+
+    @Test
+    public void testVMButtonDefaults() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          final ViewmapButtonDefaults begin =rtWriter.createStructure(ViewmapButtonDefaults.class, 0);           
+            begin.setLineColor(207);
+            begin.setFillFGColor(15);
+            begin.setFillBGColor(15);
+            begin.setLineStyle(0);
+            begin.setLineWidth(1);
+            begin.setFillStyle(1);
+
+            assertEquals(207, begin.getLineColor());
+            assertEquals(15,begin.getFillFGColor());
+            assertEquals(15,begin.getFillBGColor());
+            assertEquals(0,begin.getLineStyle());
+            assertEquals(1,begin.getLineWidth());
+            assertEquals(1,begin.getFillStyle());
+        }
+        
+      });
+    }
+
+    @Test
+    public void testVMHeaderRecord() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(ViewmapHeaderRecord.class, begin -> {
+        	  begin.setVersion(8);
+              begin.setNameLen(0);
+          });
+        }
+
+        final ViewmapHeaderRecord begin = (ViewmapHeaderRecord) doc.getRichTextItem("Body", Area.TYPE_VIEWMAP).get(0);
+        assertEquals(8, begin.getVersion());
+        assertEquals(0, begin.getNameLen());
+      });
+    }
+
+    public void testViewmapActionRecord() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        final String actionName = "the action name";
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(ViewmapActionRecord.class, begin -> {
+            begin.setbHighlightTouch(1);
+            begin.setbHighlightCurrent(2);
+            begin.setHLOutlineColor(3);
+            begin.setHLFillColor(4);
+            begin.setClickAction(5);
+            //begin.setActionStringLen(6); // this is set when calling setActionName()
+            begin.setHLOutlineWidth(7);
+            begin.setHLOutlineStyle(8);
+            begin.getLinkInfo().setDocUnid("B51DB3939AB413C585256D4F00399408");
+            begin.getLinkInfo().setReplicaId("0123456701234567");
+            begin.getLinkInfo().setViewUnid("B51DB3939AB413C585256D4F00399409");
+            begin.setExtDataLen(9);
+            begin.setActionDataDesignType(10);
+            begin.setActionName(actionName);
+
+          });
+        }
+
+        final ViewmapActionRecord var = (ViewmapActionRecord) doc.getRichTextItem("Body", Area.TYPE_VIEWMAP).get(0);
+        assertEquals(1, var.getbHighlightTouch());
+        assertEquals(2, var.getbHighlightCurrent());
+        assertEquals(3, var.getHLOutlineColor());
+        assertEquals(4, var.getHLFillColor());
+        assertEquals(5, var.getClickAction());
+        assertEquals(actionName.length(), var.getActionStringLen());
+        assertEquals(7, var.getHLOutlineWidth());
+        assertEquals(8, var.getHLOutlineStyle());
+        assertEquals("B51DB3939AB413C585256D4F00399408", var.getLinkInfo().getDocUnid());
+        assertEquals("0123456701234567", var.getLinkInfo().getReplicaId());
+        assertEquals("B51DB3939AB413C585256D4F00399409", var.getLinkInfo().getViewUnid());
+        assertEquals(9, var.getExtDataLen());
+        assertEquals(10, var.getActionDataDesignType());
+        assertEquals(actionName, var.getActionName());
+      });
+    }
+    
 }

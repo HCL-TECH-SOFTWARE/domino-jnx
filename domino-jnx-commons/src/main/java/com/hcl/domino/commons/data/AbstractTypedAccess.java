@@ -27,12 +27,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.hcl.domino.commons.design.view.DominoViewFormat;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.DominoDateRange;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.DominoTimeType;
 import com.hcl.domino.data.IndexedTypedAccess;
+import com.hcl.domino.data.PreV3Author;
 import com.hcl.domino.data.TypedAccess;
+import com.hcl.domino.design.DesignAgent;
 
 /**
  * Utility class to convert data of an object to different value types
@@ -90,9 +93,21 @@ public abstract class AbstractTypedAccess implements TypedAccess, IndexedTypedAc
 		else if (OffsetDateTime.class == valueType) {
 			return (T) getAsJavaDateTime(getItemValue(itemName), (OffsetDateTime) defaultValue);
 		}
+		else if (DesignAgent.LastRunInfo.class == valueType) {
+		  List<?> val = getItemValue(itemName);
+		  return (T) (val.isEmpty() ? null : val.get(0));
+		}
 		else if (Object.class == valueType || Collection.class.isAssignableFrom(valueType)) {
 			//pass raw value
 			return (T) getItemValue(itemName);
+		}
+		else if (PreV3Author.class == valueType) {
+      List<?> val = getItemValue(itemName);
+      return (T) (val.isEmpty() ? null : val.get(0));
+		}
+		else if (DominoViewFormat.class == valueType) {
+		  List<?> val = getItemValue(itemName);
+      return (T) (val.isEmpty() ? null : val.get(0));
 		}
 		else {
 			return getViaValueConverter(itemName, valueType, defaultValue);

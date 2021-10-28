@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.design.DefaultActionBar;
@@ -45,6 +46,8 @@ import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.GenericFormOrSubform;
 import com.hcl.domino.design.View;
+import com.hcl.domino.design.agent.ImportedJavaAgentContent;
+import com.hcl.domino.design.agent.JavaAgentContent;
 import com.hcl.domino.exception.EntryNotFoundInIndexException;
 import com.hcl.domino.exception.ItemNotFoundException;
 import com.hcl.domino.html.HtmlConversionResult;
@@ -54,6 +57,9 @@ import com.hcl.domino.jnx.vertx.json.DefaultActionBarActionMixIn;
 import com.hcl.domino.jnx.vertx.json.DefaultActionBarMixIn;
 import com.hcl.domino.jnx.vertx.json.DesignElementMixIn;
 import com.hcl.domino.jnx.vertx.json.GenericFormOrSubformMixIn;
+import com.hcl.domino.jnx.vertx.json.ImportedJavaAgentContentMixIn;
+import com.hcl.domino.jnx.vertx.json.JavaAgentContentMixIn;
+import com.hcl.domino.jnx.vertx.json.JnxTypesModule;
 import com.hcl.domino.jnx.vertx.json.MemoryStructureMixIn;
 import com.hcl.domino.jnx.vertx.json.OutlineMixIn;
 import com.hcl.domino.jnx.vertx.json.ResizableMemoryStructureMixIn;
@@ -74,6 +80,7 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
   public VertxJsonSerializer() {
     //add custom mixin classes for json serialization
     io.vertx.core.json.jackson.DatabindCodec.prettyMapper().setSerializationInclusion(Include.NON_EMPTY);
+    io.vertx.core.json.jackson.DatabindCodec.mapper().configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(DesignElement.class, DesignElementMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(Outline.class, OutlineMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(View.class, ViewMixIn.class);
@@ -83,7 +90,10 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(ResizableMemoryStructure.class, ResizableMemoryStructureMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(DefaultActionBar.class, DefaultActionBarMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(DefaultActionBarAction.class, DefaultActionBarActionMixIn.class);
+    io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(JavaAgentContent.class, JavaAgentContentMixIn.class);
+    io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(ImportedJavaAgentContent.class, ImportedJavaAgentContentMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().registerModule(new Jdk8Module());
+    io.vertx.core.json.jackson.DatabindCodec.mapper().registerModule(new JnxTypesModule());
   }
 
   /**

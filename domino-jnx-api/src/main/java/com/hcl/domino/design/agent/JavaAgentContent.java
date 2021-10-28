@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.design.agent;
 
+import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,14 +30,56 @@ public interface JavaAgentContent extends AgentContent {
   String getCodeFilesystemPath();
 
   List<String> getEmbeddedJars();
+  
+  /**
+   * Retrieves the contents of the named embedded JAR (as determined
+   * in {@link #getEmbeddedJars()} as a stream of bytes.
+   * 
+   * @param name the name of the JAR to retrieve
+   * @return an {@link Optional} describing an {@link InputStream} of
+   *         the JAR's contents if it exists, or an empty one otherwise
+   * @see #getEmbeddedJars()
+   * @since 1.0.43
+   */
+  Optional<InputStream> getEmbeddedJar(String name);
 
   String getMainClassName();
 
   Optional<String> getObjectAttachmentName();
+  
+  /**
+   * Retrieves the contents of the bytecode JAR as a stream of bytes.
+   * 
+   * @return an {@link Optional} describing an {@link InputStream} of
+   *         the bytecode JAR's contents if it exists, or an empty
+   *         one otherwise
+   * @since 1.0.43
+   */
+  Optional<InputStream> getObjectAttachment();
 
   Optional<String> getResourcesAttachmentName();
+  
+  /**
+   * Retrieves the contents of the resources JAR as a stream of bytes.
+   * 
+   * @return an {@link Optional} describing an {@link InputStream} of
+   *         the resources JAR's contents if it exists, or an empty
+   *         one otherwise
+   * @since 1.0.43
+   */
+  Optional<InputStream> getResourcesAttachment();
 
   List<String> getSharedLibraryList();
 
   Optional<String> getSourceAttachmentName();
+  
+  /**
+   * Retrieves the contents of the source JAR as a stream of bytes.
+   * 
+   * @return an {@link Optional} describing an {@link InputStream} of
+   *         the source JAR's contents if it exists, or an empty
+   *         one otherwise
+   * @since 1.0.43
+   */
+  Optional<InputStream> getSourceAttachment();
 }

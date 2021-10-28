@@ -113,6 +113,7 @@ public interface IDefaultRichTextWriter extends RichTextWriter {
     long fileLength;
     if (fileLengthParam == -1) {
       // Then read the full content into a temp file
+      // TODO skip this, instead going back and altering the header to write total sizes after completion
       tempFile = Files.createTempFile(getClass().getSimpleName(), ".dat"); //$NON-NLS-1$
       Files.copy(isParam, tempFile, StandardCopyOption.REPLACE_EXISTING);
       is = Files.newInputStream(tempFile);

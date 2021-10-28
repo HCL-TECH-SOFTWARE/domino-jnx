@@ -66,6 +66,7 @@ public interface CDDECSField extends RichTextRecord<WSIG> {
     }
   }
   
+  @Override
   @StructureGetter("Header")
   WSIG getHeader();
   

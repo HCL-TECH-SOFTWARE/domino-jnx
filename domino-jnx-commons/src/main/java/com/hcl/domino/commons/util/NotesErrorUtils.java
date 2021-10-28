@@ -57,6 +57,7 @@ import com.hcl.domino.exception.FileDoesNotExistException;
 import com.hcl.domino.exception.FixupInProgressException;
 import com.hcl.domino.exception.FixupNeededException;
 import com.hcl.domino.exception.ImplicitScheduleFailedException;
+import com.hcl.domino.exception.InvalidDocumentException;
 import com.hcl.domino.exception.ItemNotFoundException;
 import com.hcl.domino.exception.ItemNotPresentException;
 import com.hcl.domino.exception.MimePartNotFoundException;
@@ -303,6 +304,8 @@ public class NotesErrorUtils {
         return Optional.of(new MimePartNotFoundException(s, message));
       case INsfErr.ERR_SPECIAL_ID:
         return Optional.of(new SpecialObjectCannotBeLocatedException(s, message));
+      case INsfErr.ERR_INVALID_NOTE:
+        return Optional.of(new InvalidDocumentException(s, message));
       default:
         return Optional.of(new DominoException(s, message));
     }

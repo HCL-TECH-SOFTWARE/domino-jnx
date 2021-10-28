@@ -46,7 +46,9 @@ public class NotesStringDescStruct extends Structure {
 		});
 	}
 
-	protected List<String> getFieldOrder() {
+	@SuppressWarnings("nls")
+  @Override
+  protected List<String> getFieldOrder() {
 		return Arrays.asList("wSize", "pText");
 	}
 	

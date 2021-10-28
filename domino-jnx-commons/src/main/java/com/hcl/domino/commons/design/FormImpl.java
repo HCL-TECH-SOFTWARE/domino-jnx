@@ -27,12 +27,13 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.design.ClassicThemeBehavior;
+import com.hcl.domino.design.DesignColorsAndFonts;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageRepeatMode;
-import com.hcl.domino.design.form.AutoLaunchHideWhen;
-import com.hcl.domino.design.form.AutoLaunchType;
-import com.hcl.domino.design.form.AutoLaunchWhen;
+import com.hcl.domino.design.forms.AutoLaunchHideWhen;
+import com.hcl.domino.design.forms.AutoLaunchType;
+import com.hcl.domino.design.forms.AutoLaunchWhen;
 import com.hcl.domino.design.frameset.FrameScrollStyle;
 import com.hcl.domino.design.frameset.FrameSizingType;
 import com.hcl.domino.misc.DominoEnumUtil;
@@ -518,8 +519,19 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
 
     @Override
     public Optional<StandardColors> getStandardBackgroundColor() {
+      // This could be stored in either in PaperColor (pre-V4) or PaperColorExt.
+      //   Check the flags to know
       return getDocumentRecord()
-        .flatMap(CDDocument::getPaperColor);
+        .flatMap(doc -> {
+          if(doc.getFlags().contains(CDDocument.Flag.SPARESOK)) {
+            // Indicates V4+ friendly
+            return doc.getPaperColor();
+          } else {
+            // Ancient data - translate pre-V4 color
+            return doc.getPreV4PaperColor()
+              .map(DesignColorsAndFonts::toStandardColor);
+          }
+        });
     }
 
     @Override

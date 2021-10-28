@@ -60,6 +60,9 @@ public interface DesignConstants {
   /** this view is accessible to rest api */
   String WEBFLAG_NOTE_RESTAPIALLOWED = "A"; //$NON-NLS-1$
   
+  /* form item to hold form Frameset definition */
+  String ITEM_NAME_FRAMESET = "$FrameSet"; //$NON-NLS-1$
+  
   /** frameset used to open form */
   String ITEM_NAME_FRAMEINFO = "$FrameInfo"; //$NON-NLS-1$
   String ITEM_NAME_HTMLCODE = "$HTMLCode"; //$NON-NLS-1$
@@ -73,6 +76,10 @@ public interface DesignConstants {
   
   /** font table */
   String ITEM_NAME_FONTS = "$Fonts"; //$NON-NLS-1$
+
+  /** navigator */
+  String NAVIGATOR_VIEWMAP_DATASET_ITEM = "$ViewMapDataset"; //$NON-NLS-1$
+  String NAVIGATOR_VIEWMAP_LAYOUT_ITEM = "$ViewMapLayout"; //$NON-NLS-1$
   
   byte THEME_DEFAULT = 0;
   byte THEME_ENABLE = 1;
@@ -412,6 +419,9 @@ public interface DesignConstants {
   /** unrestricted (low bit of zero, plus fulladmin) */
   int ASSIST_RESTRICTED_FULLADMIN = 0x00000002;
   
+  /*  (Read-only) Assistant's trigger type */
+  String ASSIST_TRIGGER_ITEM = "$AssistTrigger"; //$NON-NLS-1$
+
   /** profile code running in this note */
   String DESIGN_FLAGEXT_PROFILE = "F"; //$NON-NLS-1$
 }

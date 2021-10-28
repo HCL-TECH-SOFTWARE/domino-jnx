@@ -28,10 +28,13 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,6 +63,7 @@ import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
+import com.hcl.domino.design.SharedColumn;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionContent;
@@ -77,6 +81,7 @@ import com.hcl.domino.design.format.ActionButtonHeightMode;
 import com.hcl.domino.design.format.ActionWidthMode;
 import com.hcl.domino.design.format.BorderStyle;
 import com.hcl.domino.design.format.ButtonBorderDisplay;
+import com.hcl.domino.design.format.CalendarLayout;
 import com.hcl.domino.design.format.CalendarType;
 import com.hcl.domino.design.format.DateComponentOrder;
 import com.hcl.domino.design.format.DateShowFormat;
@@ -97,6 +102,9 @@ import com.hcl.domino.design.simpleaction.ModifyFieldAction;
 import com.hcl.domino.design.simpleaction.ReadMarksAction;
 import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.design.simplesearch.ByFormTerm;
+import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
+import com.hcl.domino.design.simplesearch.TextTerm;
 import com.hcl.domino.exception.FileDoesNotExistException;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
@@ -109,7 +117,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignCollections extends AbstractDesignTest {
-  public static final int EXPECTED_IMPORT_VIEWS = 10;
+  public static final int EXPECTED_IMPORT_VIEWS = 13;
   public static final int EXPECTED_IMPORT_FOLDERS = 1;
 
   private static String dbPath;
@@ -150,7 +158,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
   }
 
   @Test
-  public void testExampleView() {
+  public void testExampleView() throws IOException {
     final DbDesign dbDesign = this.database.getDesign();
     final View view = dbDesign.getView("Example View").get();
     assertTrue(view.isAllowCustomizations());
@@ -190,7 +198,8 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     Optional<CDResource> backgroundImage = disp.getBackgroundImage();
     assertTrue(backgroundImage.isPresent());
     assertTrue(backgroundImage.get().getFlags().contains(CDResource.Flag.FORMULA));
-    assertEquals("\"hey.png\"", backgroundImage.get().getResourceFormula().get());
+    List<String> backgroundNamedElementFormulas = backgroundImage.get().getNamedElementFormulas().get();
+    assertTrue(backgroundNamedElementFormulas.contains("\"hey.png\""));
     
     assertEquals(ImageRepeatMode.SIZE_TO_FIT, disp.getBackgroundImageRepeatMode());
     
@@ -590,6 +599,16 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertTrue(column.isExtendToWindowWidth());
       assertEquals("", column.getExtraAttributes());
       assertFalse(column.isShowAsLinks());
+      
+      {
+        CollectionColumn.SortConfiguration sort = column.getSortConfiguration();
+        assertFalse(sort.isSorted());
+        assertFalse(sort.isCaseSensitive());
+        assertTrue(sort.isAccentSensitive());
+        assertFalse(sort.isSortPermuted());
+        assertFalse(sort.isCategorizationFlat());
+        assertFalse(sort.isIgnorePrefixes());
+      }
     }
     {
       final CollectionColumn column = columns.get(4);
@@ -602,6 +621,16 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertFalse(column.isIcon());
       assertTrue(column.isColor());
       assertTrue(column.isHideTitle());
+      
+      {
+        CollectionColumn.SortConfiguration sort = column.getSortConfiguration();
+        assertTrue(sort.isSorted());
+        assertTrue(sort.isCaseSensitive());
+        assertTrue(sort.isAccentSensitive());
+        assertFalse(sort.isSortPermuted());
+        assertFalse(sort.isCategorizationFlat());
+        assertFalse(sort.isIgnorePrefixes());
+      }
       
       {
         CollectionColumn.NumberSettings numbers = column.getNumberSettings();
@@ -788,6 +817,16 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertFalse(column.isExtendToWindowWidth());
       assertEquals("", column.getExtraAttributes());
       assertFalse(column.isShowAsLinks());
+      
+      {
+        CollectionColumn.SortConfiguration sort = column.getSortConfiguration();
+        assertFalse(sort.isSorted());
+        assertFalse(sort.isCaseSensitive());
+        assertTrue(sort.isAccentSensitive());
+        assertFalse(sort.isSortPermuted());
+        assertTrue(sort.isCategorizationFlat());
+        assertFalse(sort.isIgnorePrefixes());
+      }
     }
     {
       final CollectionColumn column = columns.get(11);
@@ -800,9 +839,23 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       Optional<CDResource> twistie = column.getTwistieImage();
       assertTrue(twistie.isPresent());
       assertTrue(twistie.get().getFlags().contains(CDResource.Flag.FORMULA));
-      assertEquals("\"foo.png\"", twistie.get().getResourceFormula().get());
+      List<String> twistieNamedElementFormulas = twistie.get().getNamedElementFormulas().get();
+      assertTrue(twistieNamedElementFormulas.contains("\"foo.png\""));
+      
+      {
+        CollectionColumn.SortConfiguration sort = column.getSortConfiguration();
+        assertFalse(sort.isSorted());
+        assertFalse(sort.isCaseSensitive());
+        assertTrue(sort.isAccentSensitive());
+        assertFalse(sort.isSortPermuted());
+        assertFalse(sort.isCategorizationFlat());
+        assertTrue(sort.isIgnorePrefixes());
+      }
     }
-
+    
+    // Test global script
+    String lsGlobalsExpected = IOUtils.resourceToString("/text/testDbDesignCollections/view-example-globals.txt", StandardCharsets.UTF_8);
+    assertEquals(lsGlobalsExpected, view.getLotusScriptGlobals());
   }
 
   @Test
@@ -1553,7 +1606,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIconOnlyInActionBar());
-      assertFalse(action.isLeftAlignedInActionBar());
+      assertFalse(action.isOppositeAlignedInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertTrue(action.isIncludeInMobileActions());
       assertFalse(action.isIncludeInContextMenu());
@@ -1761,7 +1814,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
       assertTrue(action.isIncludeInActionBar());
       assertTrue(action.isIconOnlyInActionBar());
-      assertTrue(action.isLeftAlignedInActionBar());
+      assertTrue(action.isOppositeAlignedInActionBar());
       assertFalse(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInMobileActions());
 //      assertFalse(action.isIncludeInMobileSwipeLeft());
@@ -1793,7 +1846,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
       assertTrue(action.isIncludeInActionBar());
       assertFalse(action.isIconOnlyInActionBar());
-      assertFalse(action.isLeftAlignedInActionBar());
+      assertFalse(action.isOppositeAlignedInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInMobileActions());
 //      assertFalse(action.isIncludeInMobileSwipeLeft());
@@ -1870,7 +1923,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertEquals(ActionBarControlType.BUTTON, action.getDisplayType());
       assertTrue(action.isIncludeInActionBar());
       assertFalse(action.isIconOnlyInActionBar());
-      assertFalse(action.isLeftAlignedInActionBar());
+      assertFalse(action.isOppositeAlignedInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInMobileActions());
 //      assertFalse(action.isIncludeInMobileSwipeLeft());
@@ -2011,5 +2064,200 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     
     String expectedLs = IOUtils.resourceToString("/text/testDbDesignCollections/viewtestls.txt", StandardCharsets.UTF_8);
     assertEquals(expectedLs, view.getLotusScript());
+  }
+  
+  @Test
+  public void testSharedColumns() {
+    DbDesign design = this.database.getDesign();
+    List<SharedColumn> columns = design.getSharedColumns().collect(Collectors.toList());
+    assertEquals(2, columns.size());
+    assertTrue(columns.stream().anyMatch(col -> "testcol".equals(col.getTitle())));
+    assertTrue(columns.stream().anyMatch(col -> "testcol2".equals(col.getTitle())));
+  }
+  
+  @Test
+  public void testSharedColumn1() {
+    DbDesign design = this.database.getDesign();
+    SharedColumn col = design.getSharedColumn("testcol").get();
+    {
+      final CollectionColumn column = col.getColumn();
+      assertEquals("#", column.getTitle());
+      assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      assertEquals(TotalType.None, column.getTotalType());
+      assertFalse(column.isResponsesOnly());
+      assertFalse(column.isIcon());
+
+      // This column does not have numbers settings specified, and should use the defaults
+      {
+        CollectionColumn.NumberSettings numbers = column.getNumberSettings();
+        assertEquals(NumberDisplayFormat.DECIMAL, numbers.getFormat());
+        assertTrue(numbers.isVaryingDecimal());
+        assertFalse(numbers.isOverrideClientLocale());
+        assertFalse(numbers.isUseParenthesesWhenNegative());
+        assertFalse(numbers.isPunctuateThousands());
+      }
+      
+      // This column does not have date/time settings specified, and should use the defaults
+      {
+        CollectionColumn.DateTimeSettings dateTime = column.getDateTimeSettings();
+        assertFalse(dateTime.isOverrideClientLocale());
+        assertFalse(dateTime.isDisplayAbbreviatedDate());
+        
+        assertTrue(dateTime.isDisplayDate());
+        assertEquals(DateShowFormat.MDY, dateTime.getDateShowFormat());
+        assertEquals(EnumSet.of(DateShowSpecial.SHOW_21ST_4DIGIT), dateTime.getDateShowBehavior());
+        assertEquals(CalendarType.GREGORIAN, dateTime.getCalendarType());
+        
+        assertTrue(dateTime.isDisplayTime());
+        assertEquals(TimeShowFormat.HMS, dateTime.getTimeShowFormat());
+        assertEquals(TimeZoneFormat.NEVER, dateTime.getTimeZoneFormat());
+      }
+    }
+  }
+  
+  @Test
+  public void testSharedColumn2() {
+    DbDesign design = this.database.getDesign();
+    SharedColumn col = design.getSharedColumn("testcol2").get();
+    {
+      final CollectionColumn column = col.getColumn();
+      assertEquals("I am test col 2", column.getTitle());
+      assertEquals(ViewColumnFormat.ListDelimiter.NONE, column.getListDisplayDelimiter());
+      assertEquals(TotalType.None, column.getTotalType());
+      assertFalse(column.isResponsesOnly());
+      assertFalse(column.isIcon());
+      
+      assertFalse(column.isHidden());
+      assertFalse(column.isHiddenFromMobile());
+      assertEquals("", column.getHideWhenFormula());
+      assertFalse(column.isHiddenInPreV6());
+      assertFalse(column.isExtendToWindowWidth());
+      assertEquals("", column.getExtraAttributes());
+      assertFalse(column.isShowAsLinks());
+    }
+  }
+  
+  @Test
+  public void testSelectionView() {
+    DbDesign design = this.database.getDesign();
+    View view = design.getView("Selection View").get();
+    assertFalse(view.getCalendarSettings().isPresent());
+    
+    List<? extends SimpleSearchTerm> search = view.getDocumentSelection();
+    assertEquals(3, search.size());
+    {
+      SimpleSearchTerm term = search.get(0);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.ACCRUE, text.getType());
+      assertEquals(Arrays.asList("fdfdf", "dfsdfv"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(1);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(2);
+      ByFormTerm form = assertInstanceOf(ByFormTerm.class, term);
+      assertEquals(new LinkedHashSet<>(Arrays.asList("Alias", "Content|foo|bar")), form.getFormNames());
+    }
+    
+  }
+  
+  @Test
+  public void testCalendarView() {
+    DbDesign design = this.database.getDesign();
+    View view = design.getView("Calendar View").get();
+    
+    assertEquals("Calendar View", view.getTitle());
+    assertTrue(view.isCalendarFormat());
+    assertFalse(view.isDefaultCollection());
+    assertFalse(view.isDefaultCollectionDesign());
+    assertTrue(view.isCreateDocumentsAtViewLevel());
+    
+    assertTrue(view.getCompositeAppSettings().isShowSwitcher());
+    
+    CollectionDesignElement.DisplaySettings display = view.getDisplaySettings();
+    assertColorEquals(display.getBackgroundColor(), 0, 255, 255);
+    assertColorEquals(display.getGridColor(), 191, 191, 255); // Stored but masked in Designer
+    
+    CollectionDesignElement.CalendarSettings calendar = view.getCalendarSettings().get();
+    
+    assertColorEquals(calendar.getDaySeparatorColor(), 255, 64, 160);
+    
+    assertColorEquals(calendar.getHeaderBackgroundColor(), 241, 224, 255);
+    
+    assertEquals(
+      EnumSet.of(CollectionDesignElement.CalendarTab.DAY, CollectionDesignElement.CalendarTab.MONTH,
+          CollectionDesignElement.CalendarTab.TRASH, CollectionDesignElement.CalendarTab.GOTO_TODAY,
+          CollectionDesignElement.CalendarTab.OWNER_NAME),
+      calendar.getTabs()
+    );
+    
+    assertColorEquals(calendar.getDateBackgroundColor(), 127, 255, 255);
+    assertEquals(StandardColors.Wedgewood, calendar.getTodayColor());
+    assertColorEquals(calendar.getToDoAreaColor(), 255, 159, 159);
+    assertTrue(calendar.isDisplayLargeNumbers());
+    
+    assertColorEquals(calendar.getDailyWorkHoursColor(), 225, 191, 255);
+    assertColorEquals(calendar.getDailyOtherHoursColor(), 255, 0, 0);
+    
+    assertColorEquals(calendar.getNonCurrentMonthColor(), 255, 96, 175);
+    assertColorEquals(calendar.getMonthlyTextColor(), 130, 224, 255);
+    
+    assertColorEquals(calendar.getEntryBackgroundColor(), 0, 255, 0);
+    
+    assertTrue(calendar.isShowConflictMarks());
+    
+    {
+      NotesFont font = calendar.getTimeSlotsFont();
+      assertEquals(StandardFonts.TYPEWRITER, font.getStandardFont().get());
+      assertEquals(11, font.getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.ITALIC, FontAttribute.UNDERLINE), font.getAttributes());
+      assertEquals(StandardColors.Black, font.getStandardColor().get());
+    }
+    {
+      NotesFont font = calendar.getDayAndDateFont();
+      assertEquals(StandardFonts.ROMAN, font.getStandardFont().get());
+      assertEquals(14, font.getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.ITALIC), font.getAttributes());
+      assertEquals(StandardColors.PaleLavender, font.getStandardColor().get());
+    }
+    {
+      NotesFont font = calendar.getHeaderFont();
+      assertFalse(font.getStandardFont().isPresent());
+      assertEquals("Wingdings 2", font.getFontName().get());
+      assertEquals(8, font.getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.UNDERLINE), font.getAttributes());
+      assertEquals(StandardColors.Lilac, font.getStandardColor().get());
+    }
+    {
+      NotesFont font = calendar.getWeeklyDayAndMonthFont();
+      assertFalse(font.getStandardFont().isPresent());
+      assertEquals("Curlz MT", font.getFontName().get());
+      assertEquals(36, font.getPointSize());
+      assertEquals(EnumSet.of(FontAttribute.UNDERLINE), font.getAttributes());
+      assertEquals(StandardColors.RosePearl, font.getStandardColor().get());
+    }
+    
+    assertEquals(EnumSet.of(CalendarLayout.ONE_DAY, CalendarLayout.ONE_WEEK, CalendarLayout.ONE_MONTH, CalendarLayout.WORK_WEEK, CalendarLayout.ONE_YEAR), calendar.getUserCalendarFormats());
+    assertEquals(CalendarLayout.WORK_WEEK, calendar.getInitialUserCalendarFormat().get());
+    
+    assertTrue(calendar.isTimeSlotDisplayAvailable());
+    assertEquals(LocalTime.of(4, 0), calendar.getTimeSlotStart());
+    assertEquals(LocalTime.of(21, 0), calendar.getTimeSlotEnd());
+    assertEquals(Duration.ofMinutes(30), calendar.getTimeSlotDuration());
+    assertTrue(calendar.isTimeSlotsOverridable());
+    assertTrue(calendar.isAllowUserTimeSlotToggle());
+    assertTrue(calendar.isGroupEntriesByTimeSlot());
+  }
+  
+  @Test
+  public void testEmptyView() {
+    DbDesign design = database.getDesign();
+    
+    View view = design.getView("Empty View").get();
+    assertTrue(view.getColumns().isEmpty());
   }
 }

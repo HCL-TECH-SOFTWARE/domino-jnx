@@ -16,7 +16,12 @@
  */
 package com.hcl.domino.misc;
 
-public interface NotesConstants extends ViewFormatConstants {
+import com.hcl.domino.constants.EditOds;
+import com.hcl.domino.constants.OleOds;
+import com.hcl.domino.constants.QueryOds;
+import com.hcl.domino.constants.StdNames;
+
+public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds, EditOds, OleOds {
 
   public enum AgentCheck {
     CheckRights(0),
@@ -196,6 +201,13 @@ public interface NotesConstants extends ViewFormatConstants {
 
   int MAXPATH = 256;
   short MAXUSERNAME = 256; /* Maximum user name */
+  int MAXDOMAINNAME = 32;
+  int FILETITLEMAX = 97;
+
+  int MAXCOUNTRYNAME = 3;
+  int MAXORGNAME = 65;
+  int MAXORGUNITNAME =33;
+  int MAXLDAPBASE = (MAXORGUNITNAME*4 + MAXORGNAME + MAXCOUNTRYNAME + 22);
   // TODO needs to be checked
   int MAXUSERPASSWORD = 64;
   short MAXENVVALUE = 256;
@@ -670,7 +682,45 @@ public interface NotesConstants extends ViewFormatConstants {
    */
   String DFLAGPAT_FILE_RESOURCE = "(+g-~K[];`,_*"; //$NON-NLS-1$
   String DESIGN_FLAGS = "$Flags"; //$NON-NLS-1$
+  
+  /** an extended flags field ($FlagsExt) that is in the design collection.  $Flags is just
+  so full that we need some wiggle room!! */
   String DESIGN_FLAGS_EXTENDED = "$FlagsExt"; //$NON-NLS-1$
+  
+  /** for web apps, this file is ready for primetime
+  for DESIGN_FLAG_CUSTOMELT this indicates desing element can be fetched via URL */
+  String DESIGN_FLAGEXT_FILE_DEPLOYABLE = "D"; //$NON-NLS-1$
+  /** for web apps, this file should not be replaced on redeploy */
+  String DESIGN_FLAGEXT_DONTREFRESH_ON_REDEPLOY = "R"; //$NON-NLS-1$
+  /** for WebDAV resources.  The note has a dead properties in the $DavProperties field */
+  String DESIGN_FLAGEXT_NOTE_HAS_DAVPROPERTIES = "P"; //$NON-NLS-1$
+  /** for WebDAV: indicates that certain MS properties are among the dead properites */
+  String DESIGN_FLAGEXT_NOTE_HAS_MSPROPERTIES = "M"; //$NON-NLS-1$
+  /** for WebDAV lock null resources */
+  String DESIGN_FLAGEXT_DAVLOCKNULL = "N"; //$NON-NLS-1$
+  /** for WebDAV: the note is hidden */
+  String DESIGN_FLAGEXT_WEBDAV_HIDDEN = "H"; //$NON-NLS-1$
+  /**  for davs, a compute with form dav */
+  String DESIGN_FLAGEXT_DAVCOMPUTEFORM = "C"; //$NON-NLS-1$
+  /**  for davs, this one supports attachments */
+  String DESIGN_FLAGEXT_DAVATTACH = "A"; //$NON-NLS-1$
+  /**  for davs, this one GMT normalizes */
+  String DESIGN_FLAGEXT_DAVGMTNORMAL = "Z"; //$NON-NLS-1$
+  /**  can reuse D because old use is obsolete */
+  String DESIGN_FLAGEXT_JAVADEBUG = "D"; //$NON-NLS-1$
+  /**  profile code running in this note */
+  String DESIGN_FLAGEXT_PROFILE = "F"; //$NON-NLS-1$
+  /** for Java script libs and agents, indicates if it has errors */
+  String DESIGN_FLAGEXT_JAVA_ERROR = "E"; //$NON-NLS-1$
+  /**  Scriptlib is a web service consumer lib */
+  String DESIGN_FLAGEXT_WEBSERVICELIB = "W"; //$NON-NLS-1$
+  /** for files, indicates it's in the web content directory */
+  String DESIGN_FLAGEXT_WEBCONTENTFILE = "w"; //$NON-NLS-1$
+  /** After initial creation of a replica, these view are rebuilt */
+  String DESIGN_FLAGEXT_REBUILD_VIEW = "X"; //$NON-NLS-1$
+  /** for design elements created by HCL Volt vs by the user */
+  String DESIGN_FLAGEXT_VOLT = "V"; //$NON-NLS-1$
+
   /** FORM: Indicates that a subform is in the add subform list */
   String DESIGN_FLAG_ADD = "A"; //$NON-NLS-1$
   /** VIEW: Indicates that a view is an antifolder view */
@@ -2967,6 +3017,8 @@ public interface NotesConstants extends ViewFormatConstants {
   String DFLAGPAT_SACTIONS_DESIGN = "+y"; //$NON-NLS-1$
   /* display only Frameset notes */
   String DFLAGPAT_FRAMESET = "(+-*#"; //$NON-NLS-1$
+  /** display only GraphicViews; no version filtering (for design) */
+  String DFLAGPAT_VIEWMAP_ALL_VERSIONS = "*G"; //$NON-NLS-1$
 
   /* Use following bits with
   ReplicateWithServerExt only */
@@ -4442,7 +4494,7 @@ public interface NotesConstants extends ViewFormatConstants {
   /** TimeDate of last run */
   String ASSIST_LASTRUN_ITEM = "$AssistLastRun"; //$NON-NLS-1$
   /** Number of docs run on last run */
-  String ASSIST_DOCCOUNT_ITEM = "$AsisstDocCount"; //$NON-NLS-1$
+  String ASSIST_DOCCOUNT_ITEM = "$AssistDocCount"; //$NON-NLS-1$
   /** Run information object */
   String ASSIST_RUNINFO_ITEM = "$AssistRunInfo"; //$NON-NLS-1$
   /** assistant action item - extra data */
@@ -4551,4 +4603,17 @@ public interface NotesConstants extends ViewFormatConstants {
   /** Formula for view script event */
   String VIEW_ACTION_ITEM_NAME = "$ViewAction"; //$NON-NLS-1$
   String VIEW_FORM_FORMULA_ITEM = "$FormFormula"; //$NON-NLS-1$
+  
+  /**
+   * This value specifies the maximum length of ID name.See SCRIPTCONTEXTDESCR for more information.
+   */
+  int MAXIMUM_ID_NAME_LENGTH = 40;
+  
+  String DESIGNER_VERSION = "$DesignerVersion"; //$NON-NLS-1$
+  
+  /** agent designer can force the agent to have restricted
+  rights, even if the signer has unrestricted rights , or
+  raise their rights to be full admin + unrestricted */
+  String ASSIST_RESTRICTED = "$Restricted"; //$NON-NLS-1$
+
 }

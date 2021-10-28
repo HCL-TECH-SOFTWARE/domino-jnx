@@ -16,6 +16,8 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.nio.ByteBuffer;
+
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -33,6 +35,7 @@ import com.hcl.domino.richtext.structures.LSIG;
     @StructureMember(name = "Reserved", type = int[].class, length = 2),
     @StructureMember(name = "ScanlineCount", type = short.class, unsigned = true),
     @StructureMember(name = "DataSize", type = short.class, unsigned = true)
+    /* Comressed raster data for the segment follows right here */
   }
 )
 public interface CDBitmapSegment extends RichTextRecord<LSIG> {
@@ -43,12 +46,31 @@ public interface CDBitmapSegment extends RichTextRecord<LSIG> {
   @StructureGetter("ScanlineCount")
   int getScanlineCount();
   
-  @StructureSetter("ScanlineCount")
-  CDBitmapSegment setScanlineCount(int count);
-  
   @StructureGetter("DataSize")
   int getDataSize();
+
+  /* BitmapData follows after the BitmapName and the DisplayLabel (i.e at the end) */
+  default byte[] getBitmapData() {
+    final ByteBuffer buf = this.getVariableData();
+    final int len = this.getDataSize();
+    final byte[] data = new byte[len];
+    buf.get(data);
+    return data;
+  }
   
+  @StructureSetter("ScanlineCount")
+  CDBitmapSegment setScanlineCount(int count);
+
   @StructureSetter("DataSize")
   CDBitmapSegment setDataSize(int size);
+
+  default CDBitmapSegment setFileSegmentData(final byte[] data) {
+    final ByteBuffer buf = this.getVariableData();
+    buf.put(data);
+    final int remaining = buf.remaining();
+    for (int i = 0; i < remaining; i++) {
+      buf.put((byte) 0);
+    }
+    return this;
+  }
 }

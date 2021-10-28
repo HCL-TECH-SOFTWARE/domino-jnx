@@ -16,6 +16,7 @@
  */
 package it.com.hcl.domino.test.design;
 
+import static it.com.hcl.domino.test.util.ITUtil.toLf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -33,7 +34,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -46,6 +48,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
+import com.hcl.domino.data.DominoDateRange;
 import com.hcl.domino.design.ComputableValue;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignAgent;
@@ -54,9 +57,12 @@ import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.agent.AgentContent;
 import com.hcl.domino.design.agent.AgentInterval;
+import com.hcl.domino.design.agent.AgentTarget;
 import com.hcl.domino.design.agent.AgentTrigger;
 import com.hcl.domino.design.agent.FormulaAgentContent;
 import com.hcl.domino.design.agent.FormulaAgentContent.DocumentAction;
+import com.hcl.domino.design.agent.LotusScriptAgentContent;
+import com.hcl.domino.design.agent.SimpleActionAgentContent;
 import com.hcl.domino.design.simpleaction.CopyToDatabaseAction;
 import com.hcl.domino.design.simpleaction.DeleteDocumentAction;
 import com.hcl.domino.design.simpleaction.FolderBasedAction;
@@ -70,17 +76,24 @@ import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SendMailAction;
 import com.hcl.domino.design.simpleaction.SendNewsletterAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
-import com.hcl.domino.design.agent.ImportedJavaAgentContent;
-import com.hcl.domino.design.agent.JavaAgentContent;
-import com.hcl.domino.design.agent.LotusScriptAgentContent;
-import com.hcl.domino.design.agent.SimpleActionAgentContent;
+import com.hcl.domino.design.simplesearch.ByAuthorTerm;
+import com.hcl.domino.design.simplesearch.ByDateFieldTerm;
+import com.hcl.domino.design.simplesearch.ByFieldTerm;
+import com.hcl.domino.design.simplesearch.ByFolderTerm;
+import com.hcl.domino.design.simplesearch.ByFormTerm;
+import com.hcl.domino.design.simplesearch.ByNumberFieldTerm;
+import com.hcl.domino.design.simplesearch.ExampleFormTerm;
+import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
+import com.hcl.domino.design.simplesearch.TextTerm;
+import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.misc.Pair;
 import com.ibm.commons.util.io.StreamUtil;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
-  public static final int EXPECTED_IMPORT_AGENTS = 20;
+  public static final int EXPECTED_IMPORT_AGENTS = 25;
   private static String dbPath;
 
   @AfterAll
@@ -151,7 +164,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
         + " @All";
     final AgentContent content = agent.getAgentContent();
     assertInstanceOf(FormulaAgentContent.class, content);
-    assertEquals(formula, ((FormulaAgentContent) content).getFormula());
+    assertEquals(formula, toLf(((FormulaAgentContent) content).getFormula()));
     assertEquals(DocumentAction.MODIFY, ((FormulaAgentContent) content).getDocumentAction());
     assertTrue(agent.isRunInBackgroundInClient());
   }
@@ -177,45 +190,6 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
           .collect(Collectors.toList());
       assertEquals(0, elements.size());
     }
-  }
-
-  @Test
-  public void testImportedJavaAgent() {
-    final DbDesign dbDesign = this.database.getDesign();
-    final Collection<DesignAgent> agents = dbDesign.getAgents().collect(Collectors.toList());
-    final DesignAgent agent = agents.stream().filter(a -> "imported java agent".equals(a.getTitle())).findFirst().orElse(null);
-    assertNotNull(agent);
-    assertEquals(AgentLanguage.IMPORTED_JAVA, agent.getAgentLanguage());
-
-    assertNotNull(dbDesign.getAgent("imported java agent"));
-    final AgentContent content = agent.getAgentContent();
-    assertInstanceOf(ImportedJavaAgentContent.class, content);
-
-    final ImportedJavaAgentContent javaAgent = (ImportedJavaAgentContent) content;
-    assertEquals("ImportedJavaAgentContent.class", javaAgent.getMainClassName());
-    assertEquals("H:\\", javaAgent.getCodeFilesystemPath());
-    assertEquals(Arrays.asList("ImportedJavaAgentContent.class", "JavaAgentContent.class", "bar.txt", "foo.jar"),
-        javaAgent.getFileNameList());
-  }
-
-  @Test
-  public void testJavaAgent() {
-    final DbDesign dbDesign = this.database.getDesign();
-    final Collection<DesignAgent> agents = dbDesign.getAgents().collect(Collectors.toList());
-    final DesignAgent agent = agents.stream().filter(a -> "java agent".equals(a.getTitle())).findFirst().orElse(null);
-    assertNotNull(agent);
-    assertEquals(AgentLanguage.JAVA, agent.getAgentLanguage());
-
-    assertNotNull(dbDesign.getAgent("java agent"));
-    final AgentContent content = agent.getAgentContent();
-    assertInstanceOf(JavaAgentContent.class, content);
-    final JavaAgentContent javaAgent = (JavaAgentContent) content;
-    assertEquals("JavaAgent.class", javaAgent.getMainClassName());
-    assertEquals("c:\\Notes\\Data", javaAgent.getCodeFilesystemPath());
-    assertEquals("%%source%%.jar", javaAgent.getSourceAttachmentName().get());
-    assertEquals("%%object%%.jar", javaAgent.getObjectAttachmentName().get());
-    assertFalse(javaAgent.getResourcesAttachmentName().isPresent());
-    assertEquals(Collections.emptyList(), javaAgent.getSharedLibraryList());
   }
 
   @Test
@@ -257,37 +231,6 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
   }
 
   @Test
-  public void testMultiFileJavaAgent() {
-    final DbDesign dbDesign = this.database.getDesign();
-    final DesignAgent agent = dbDesign.getAgent("Multi-File Java").orElse(null);
-    assertNotNull(agent);
-
-    assertEquals(AgentLanguage.JAVA, agent.getAgentLanguage());
-    assertEquals(AgentTrigger.SCHEDULED, agent.getTrigger());
-    assertEquals(AgentInterval.MINUTES, agent.getIntervalType());
-    assertTrue(agent.getStartDate().isPresent());
-    assertEquals(LocalDate.of(2021, 6, 14), agent.getStartDate().get().toLocalDate());
-    assertFalse(agent.getEndDate().isPresent());
-    assertEquals(LocalTime.of(10, 0), agent.getRunLocalTime().get());
-    assertEquals(LocalTime.of(16, 0), agent.getRunEndLocalTime().get());
-    assertEquals(3 * 60 + 30, agent.getInterval().getAsInt());
-    assertEquals("CN=Arcturus/O=Frost", agent.getRunLocation());
-    assertFalse(agent.isRunOnWeekends());
-
-    final AgentContent content = agent.getAgentContent();
-    assertInstanceOf(JavaAgentContent.class, content);
-    final JavaAgentContent javaAgent = (JavaAgentContent) content;
-    assertEquals("lotus.domino.axis.JavaAgentRenamed.class", javaAgent.getMainClassName());
-    assertEquals("c:\\Notes\\Data", javaAgent.getCodeFilesystemPath());
-    assertEquals("%%source%%.jar", javaAgent.getSourceAttachmentName().get());
-    assertEquals("%%object%%.jar", javaAgent.getObjectAttachmentName().get());
-    assertEquals("%%resource%%.jar", javaAgent.getResourcesAttachmentName().get());
-    assertEquals(Arrays.asList("foo.jar", "bar.jar"), javaAgent.getEmbeddedJars());
-    assertEquals(Arrays.asList("java lib", "java consumer", "java lib 2", "java lib 3", "java lib 4"),
-        javaAgent.getSharedLibraryList());
-  }
-
-  @Test
   public void testNewDocsFormula() {
     final DbDesign dbDesign = this.database.getDesign();
     final DesignAgent agent = dbDesign.getAgent("new docs formula").orElse(null);
@@ -296,7 +239,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     assertEquals(AgentLanguage.FORMULA, agent.getAgentLanguage());
     final AgentContent content = agent.getAgentContent();
     assertInstanceOf(FormulaAgentContent.class, content);
-    assertEquals("\"bar\";\n\n @All", ((FormulaAgentContent) content).getFormula());
+    assertEquals("\"bar\";\n\n @All", toLf(((FormulaAgentContent) content).getFormula()));
     assertEquals(DocumentAction.CREATE, ((FormulaAgentContent) content).getDocumentAction());
   }
 
@@ -336,7 +279,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     assertEquals(AgentLanguage.FORMULA, agent.getAgentLanguage());
     final AgentContent content = agent.getAgentContent();
     assertInstanceOf(FormulaAgentContent.class, content);
-    assertEquals("\"foo\";\n\n @All", ((FormulaAgentContent) content).getFormula());
+    assertEquals("\"foo\";\n\n @All", toLf(((FormulaAgentContent) content).getFormula()));
     assertEquals(DocumentAction.SELECT, ((FormulaAgentContent) content).getDocumentAction());
   }
 
@@ -523,5 +466,364 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     assertTrue(agent.isStoreHighlights());
     assertTrue(agent.isProfilingEnabled());
     assertEquals(DesignAgent.SecurityLevel.UNRESTRICTED_FULLADMIN, agent.getSecurityLevel());
+  }
+  
+  @Test
+  public void testSelectionQuery() {
+    DbDesign design = database.getDesign();
+    
+    DesignAgent agent = design.getAgent("Test Selection").get();
+    
+    List<? extends SimpleSearchTerm> search = agent.getDocumentSelection();
+    assertEquals(23, search.size());
+    
+    {
+      SimpleSearchTerm term = search.get(0);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.ACCRUE, text.getType());
+      assertEquals(Arrays.asList("dfdf", "b"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(1);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(2);
+      ExampleFormTerm form = assertInstanceOf(ExampleFormTerm.class, term);
+      assertEquals("Some Form", form.getFormName());
+      Map<String, List<String>> expected = new HashMap<>();
+      expected.put("Name", Arrays.asList("fsdf"));
+      assertEquals(expected, form.getFieldMatches());
+    }
+    {
+      SimpleSearchTerm term = search.get(3);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("OR"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(4);
+      ByFormTerm form = assertInstanceOf(ByFormTerm.class, term);
+      assertEquals(new LinkedHashSet<>(Arrays.asList("Some Form", "Some Other Form")), form.getFormNames());
+    }
+    {
+      SimpleSearchTerm term = search.get(5);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND NOT ("), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(6);
+      ByDateFieldTerm date = assertInstanceOf(ByDateFieldTerm.class, term);
+      assertEquals(ByDateFieldTerm.DateType.CREATED, date.getDateType());
+      assertEquals(LocalDate.of(2021, 9, 7), date.getDate().get().toLocalDate());
+      assertFalse(date.getDateRange().isPresent());
+    }
+    {
+      SimpleSearchTerm term = search.get(7);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("OR"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(8);
+      ByAuthorTerm author = assertInstanceOf(ByAuthorTerm.class, term);
+      assertEquals(ByFieldTerm.TextRule.CONTAINS, author.getTextRule());
+      assertEquals(NotesConstants.FIELD_UPDATED_BY, author.getFieldName());
+      assertEquals("fsdf", author.getTextValue());
+    }
+    {
+      SimpleSearchTerm term = search.get(9);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList(")"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(10);
+      ByFieldTerm field = assertInstanceOf(ByFieldTerm.class, term);
+      assertEquals(ByFieldTerm.TextRule.CONTAINS, field.getTextRule());
+      assertEquals("Name", field.getFieldName());
+      assertEquals("dfd", field.getTextValue());
+    }
+    {
+      SimpleSearchTerm term = search.get(11);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(12);
+      ByFolderTerm folder = assertInstanceOf(ByFolderTerm.class, term);
+      assertEquals("Some Folder", folder.getFolderName());
+      assertFalse(folder.isPrivate());
+    }
+    {
+      SimpleSearchTerm term = search.get(13);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("and some arbitrary text"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(14);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.AND, text.getType());
+      assertEquals(Arrays.asList("aab", "bbc"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(15);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(16);
+      ByNumberFieldTerm number = assertInstanceOf(ByNumberFieldTerm.class, term);
+      assertEquals(ByNumberFieldTerm.NumberRule.LESS_THAN, number.getNumberRule());
+      assertEquals("Number", number.getFieldName());
+      assertEquals(4d, number.getNumber().getAsDouble());
+      assertFalse(number.getNumberRange().isPresent());
+    }
+    {
+      SimpleSearchTerm term = search.get(17);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(18);
+      ByNumberFieldTerm number = assertInstanceOf(ByNumberFieldTerm.class, term);
+      assertEquals(ByNumberFieldTerm.NumberRule.NOT_BETWEEN, number.getNumberRule());
+      assertEquals("Number", number.getFieldName());
+      assertFalse(number.getNumber().isPresent());
+      Pair<Double, Double> range = number.getNumberRange().get();
+      assertEquals(3, range.getValue1());
+      assertEquals(6, range.getValue2());
+    }
+    {
+      SimpleSearchTerm term = search.get(19);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(20);
+      ByDateFieldTerm date = assertInstanceOf(ByDateFieldTerm.class, term);
+      assertEquals(ByDateFieldTerm.DateType.MODIFIED, date.getDateType());
+      assertFalse(date.getDate().isPresent());
+      LocalDate start = LocalDate.of(2021, 9, 10);
+      LocalDate end = LocalDate.of(2021, 9, 30);
+      DominoDateRange range = date.getDateRange().get();
+      assertEquals(start, range.getStartDateTime().toLocalDate());
+      assertEquals(end, range.getEndDateTime().toLocalDate());
+    }
+    {
+      SimpleSearchTerm term = search.get(21);
+      TextTerm text = assertInstanceOf(TextTerm.class, term);
+      assertEquals(TextTerm.Type.PLAIN, text.getType());
+      assertEquals(Arrays.asList("AND"), text.getValues());
+    }
+    {
+      SimpleSearchTerm term = search.get(22);
+      ByDateFieldTerm date = assertInstanceOf(ByDateFieldTerm.class, term);
+      assertEquals(ByDateFieldTerm.DateType.FIELD, date.getDateType());
+      assertFalse(date.getDate().isPresent());
+      assertFalse(date.getDateRange().isPresent());
+      assertEquals(7, date.getDayCount().getAsInt());
+    }
+  }
+  
+  @Test
+  public void testUnlockDocument() {
+    DbDesign design = database.getDesign();
+    
+    DesignAgent agent = design.getAgent("Unlock Document").get();
+    assertNotNull(agent);
+    
+    assertEquals(DesignAgent.AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertEquals(AgentTrigger.MANUAL, agent.getTrigger());
+    assertEquals(AgentTarget.SELECTED, agent.getTarget());
+    
+    AgentContent content = agent.getAgentContent();
+    FormulaAgentContent formula = assertInstanceOf(FormulaAgentContent.class, content);
+    assertEquals("FIELD Locked := @DeleteField;\n"
+        + "FIELD DocumentAuthors := @Trim(@Replace(From : CurrentReviewers; \"None\"; \"\"));@All", toLf(formula.getFormula()));
+    assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
+    
+  }
+  
+  @Test
+  public void testReleaseDeadMessages() {
+    DbDesign design = database.getDesign();
+    
+    DesignAgent agent = design.getAgent("Release Dead Messages").get();
+    
+    assertEquals("Release Dead Messages", agent.getTitle());
+    assertEquals("This filter releases (and tries to resend) all messages that have been marked DEAD.\n", agent.getComment());
+    
+    assertEquals(DesignAgent.AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertEquals(AgentTrigger.MANUAL, agent.getTrigger());
+    assertEquals(AgentTarget.ALL, agent.getTarget());
+
+    AgentContent content = agent.getAgentContent();
+    FormulaAgentContent formula = assertInstanceOf(FormulaAgentContent.class, content);
+    assertEquals("RoutingState = \"DEAD\";\n"
+        + "FIELD RoutingState := \"\";\n"
+        + "FIELD Recipients := IntendedRecipient;\n"
+        + "FIELD Form := MailSavedForm;", toLf(formula.getFormula()));
+    assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
+  }
+  
+  @Test
+  public void testChangeInformation() {
+    DbDesign design = database.getDesign();
+    
+    DesignAgent agent = design.getAgent("ChangeInformation").get();
+    
+    assertEquals("(ChangeInformation)", agent.getTitle());
+    assertEquals("Run by Administrator with \"Make Change\" button", agent.getComment());
+    
+    assertEquals(DesignAgent.AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertEquals(AgentTrigger.MANUAL, agent.getTrigger());
+    assertEquals(AgentTarget.VIEW, agent.getTarget());
+
+    AgentContent content = agent.getAgentContent();
+    FormulaAgentContent formula = assertInstanceOf(FormulaAgentContent.class, content);
+    assertEquals("(form = \"Person\") & (LastName = @Environment(\"PHADM_OldLastName\")) & (Firstname = @Environment(\"PHADM_OldFirstname\")) & (PhoneExt = @Environment(\"PHADM_OldPhoneExt\"));\n"
+        + "FIELD LastName := @Environment(\"PHADM_LastName\");\n"
+        + "FIELD FirstName := @Environment(\"PHADM_FirstName\");\n"
+        + "FIELD PhoneExt := @Environment(\"PHADM_PhoneExt\");\n"
+        + "FIELD WG_ShortName := @Environment(\"PHADM_WG_ShortName\");\n"
+        + "FIELD WG_Number := @Environment(\"PHADM_WG_Number\");\n"
+        + "FIELD DeptName := @Environment(\"PHADM_DeptName\");\n"
+        + "FIELD Site_ShortName := @Environment(\"PHADM_Site_ShortName\");\n"
+        + "FIELD OfficeNumber := @Environment(\"PHADM_OfficeNumber\");\n"
+        + "FIELD Email := @Environment(\"PHADM_Email\");", toLf(formula.getFormula()));
+    assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
+  }
+  
+  @Test
+  public void testSetup() {
+    DbDesign design = database.getDesign();
+    
+    DesignAgent agent = design.getAgent("Setup").get();
+    
+    assertEquals("(Setup)", agent.getTitle());
+    assertEquals("Copies all Time Slot documents in the (Setup) view and creates a new month's worth of Time Slot documents.", agent.getComment());
+    
+    assertEquals(DesignAgent.AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertEquals(AgentTrigger.MANUAL, agent.getTrigger());
+    assertEquals(AgentTarget.VIEW, agent.getTarget());
+
+    AgentContent content = agent.getAgentContent();
+    FormulaAgentContent formula = assertInstanceOf(FormulaAgentContent.class, content);
+    assertEquals("MonthType = @Environment(\"EnvSchMonthType\") & HourSeq >= @Environment(\"EnvDayStart\") & HourSeq <= @Environment(\"EnvDayEnd\");\n"
+        + "FIELD Month := @Environment(\"EnvSchMonth\");\n"
+        + "FIELD MonthSeq := @Environment(\"EnvSchMonthSeq\");\n"
+        + "FIELD ClockType := @Environment(\"EnvClockType\");\n"
+        + "FIELD MonthType := @Unavailable;", toLf(formula.getFormula()));
+    assertEquals(FormulaAgentContent.DocumentAction.CREATE, formula.getDocumentAction());
+  }
+  
+  @Test
+  public void testOutgoing() {
+    DbDesign design = database.getDesign();
+    
+    DesignAgent agent = design.getAgent("Outgoing Line Items").get();
+    
+    assertEquals("Outgoing Line Items", agent.getTitle());
+    assertEquals("This macro runs in the background, hourly.   For each Purchase Requisition which has recently been approved this macro will route the individual line items from that req to the Purchasing Item Tracking database.", agent.getComment());
+    
+    assertEquals(DesignAgent.AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertEquals(AgentTrigger.SCHEDULED, agent.getTrigger());
+    assertEquals(AgentTarget.NEW, agent.getTarget());
+    
+    // This macro is "hourly" in the NSF, but this should translate to a 60-minute interval
+    assertEquals(AgentInterval.MINUTES, agent.getIntervalType());
+    assertEquals(60, agent.getInterval().getAsInt());
+
+    AgentContent content = agent.getAgentContent();
+    FormulaAgentContent formula = assertInstanceOf(FormulaAgentContent.class, content);
+    assertEquals("REM {Setup the header string (header fields)};\n"
+        + "REM;\n"
+        + "dlm := \"~~\";\n"
+        + "header := RequisitionNumber + dlm + RequisitionDate + dlm + RequisitionedBy + dlm + RequisitionedFor;\n"
+        + "REM;\n"
+        + "REM {Construct a data string for each line item, put it in the };\n"
+        + "REM {subject field of a mail message, and send it off to the Line};\n"
+        + "REM {Item Tracking database.};\n"
+        + "REM;\n"
+        + "data1 := \"1\" + dlm + header + dlm + pn1 + dlm + Name1 + dlm + @Text(Price1) + dlm + @Text(Qty1) + dlm + @Text(Total1) + dlm;\n"
+        + "FIELD first := @If(pn1 != \"\" & @IsAvailable(pn1); @MailSend(\"Lineitem\"; \"\"; \"\"; data1); \"\");\n"
+        + "FIELD first := @Unavailable;\n"
+        + "REM;\n"
+        + "data2 := \"2\" + dlm + header + dlm + pn2 + dlm + Name2 + dlm + @Text(Price2) + dlm + @Text(Qty2) + dlm + @Text(Total2) + dlm;\n"
+        + "FIELD second := @If(pn2 != \"\" & @IsAvailable(pn2); @MailSend(\"Lineitem\"; \"\"; \"\"; data2); \"\");\n"
+        + "FIELD second := @Unavailable;\n"
+        + "REM;\n"
+        + "data3 := \"3\" + dlm + header + dlm + pn3 + dlm + Name3 + dlm + @Text(Price3) + dlm + @Text(Qty3) + dlm + @Text(Total3) + dlm;\n"
+        + "FIELD third := @If(pn3 != \"\" & @IsAvailable(pn3); @MailSend(\"Lineitem\"; \"\"; \"\"; data3); \"\");\n"
+        + "FIELD third := @Unavailable;\n"
+        + "REM;\n"
+        + "REM {Update the status of this Req to Routed=Yes};\n"
+        + "REM;\n"
+        + "FIELD Routed := \"Yes\";\n"
+        + "REM;\n"
+        + "REM {Select only Reqs that have been approved, but not yet routed};\n"
+        + "REM;\n"
+        + "Approved = \"Approved\" & Routed = \"No\"", toLf(formula.getFormula()));
+    assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
+  }
+  
+  @Test
+  public void testIncoming() {
+    DbDesign design = database.getDesign();
+    
+    DesignAgent agent = design.getAgent("Clean Incoming PO's").get();
+    
+    assertEquals("Clean Incoming PO's", agent.getTitle());
+    assertEquals("This macro runs on Purchase Requisition documents mailed in from the Product Catalog database.  It sets up certain default field values, and removes unnecessary field values.", agent.getComment());
+    
+    assertEquals(DesignAgent.AgentLanguage.FORMULA, agent.getAgentLanguage());
+    assertEquals(AgentTrigger.NEWMAIL, agent.getTrigger());
+    assertEquals(AgentTarget.NEW, agent.getTarget());
+    assertEquals(AgentInterval.NONE, agent.getIntervalType());
+
+    AgentContent content = agent.getAgentContent();
+    FormulaAgentContent formula = assertInstanceOf(FormulaAgentContent.class, content);
+    assertEquals("@All;\n"
+        + "REM;\n"
+        + "REM {Set Approval and Email Status fields};\n"
+        + "REM;\n"
+        + "FIELD Approved := @If(Approvers != \"\"; \"In Process\"; \"Approved\");\n"
+        + "initstring := @Explode(@Repeat(\"No \"; @Elements(Approvers) - 1));\n"
+        + "FIELD ApproversEmail := @If(Approvers != \"\"; @Trim(\"Yes\" : initstring); \"\");\n"
+        + "FIELD ApproversStatus := @If(Approvers != \"\"; @Trim(\"No\" : initstring); \"\");\n"
+        + "FIELD Routed := \"No\";\n"
+        + "REM;\n"
+        + "REM {Remove unnecessary fields from the mailed-in document};\n"
+        + "REM;\n"
+        + "FIELD PRServer := @Unavailable;\n"
+        + "FIELD PRFilename := @Unavailable;\n"
+        + "FIELD TestPRNames := @Unavailable;\n"
+        + "FIELD Limit := @Unavailable;\n"
+        + "FIELD CCApprovers := @Unavailable;\n"
+        + "FIELD CCApproversLimit := @Unavailable;\n"
+        + "FIELD AssignedApprovers := @Unavailable;\n"
+        + "FIELD AdditionalApprovers := @Unavailable;\n"
+        + "FIELD AdditionalApproversLimit := @Unavailable;\n"
+        + "FIELD MailOptions := @Unavailable;\n"
+        + "FIELD InfoMessage := @Unavailable;\n"
+        + "FIELD CheckLimit := @Unavailable;\n"
+        + "FIELD SendTo := @Unavailable;\n"
+        + "FIELD From := @Unavailable;\n"
+        + "FIELD PostedDate := @Unavailable;\n"
+        + "FIELD Recipients := @Unavailable;\n"
+        + "FIELD RouteServers := @Unavailable;\n"
+        + "FIELD RouteTimes := @Unavailable;\n"
+        + "FIELD DeliveredDate := @Unavailable;\n"
+        + "FIELD Categories := @Unavailable;", toLf(formula.getFormula()));
+    assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
   }
 }

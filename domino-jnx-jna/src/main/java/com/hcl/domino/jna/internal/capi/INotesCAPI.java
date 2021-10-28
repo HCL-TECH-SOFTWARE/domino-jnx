@@ -27,7 +27,11 @@ import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks.ACLENTRYENUMFUNC;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
+import com.hcl.domino.jna.internal.structs.CreateDAConfigStruct;
+import com.hcl.domino.jna.internal.structs.UpdateDAConfigStruct;
+import com.hcl.domino.jna.internal.structs.EnableDisableDAStruct;
 import com.hcl.domino.jna.internal.structs.DbOptionsStruct;
+import com.hcl.domino.jna.internal.structs.VerifyLDAPConnectionStruct;
 import com.hcl.domino.jna.internal.structs.HtmlApi_UrlComponentStruct;
 import com.hcl.domino.jna.internal.structs.IntlFormatStruct;
 import com.hcl.domino.jna.internal.structs.KFM_PASSWORDStruct;
@@ -97,10 +101,10 @@ public interface INotesCAPI extends Library {
 	
 	short NSFGetChangedDBs(
 			Memory ServerName,
-			NotesTimeDateStruct SinceTime,
+			NotesTimeDateStruct.ByReference SinceTime,
 			LongByReference ChangesSize,
 			DHANDLE.ByReference hChanges,
-			NotesTimeDateStruct NextSinceTime
+			NotesTimeDateStruct.ByReference NextSinceTime
 			);
 
 	/**
@@ -365,6 +369,16 @@ public interface INotesCAPI extends Library {
 
 	void OSGetExecutableDirectory(Memory retPathName);
 	void OSGetDataDirectory(Memory retPathName);
+	/**
+	 * @param retPathName the destination path-name storage
+	 * @return the length of the directory name, as a {@code WORD}
+	 * @since 1.0.43
+	 */
+	short OSGetSharedDataDirectory(Memory retPathName);
+	short CreateDAConfiguration(CreateDAConfigStruct ldap);
+	short UpdateDAConfiguration(UpdateDAConfigStruct ldap);
+	short EnableDisableDADomain(EnableDisableDAStruct daConfig);
+	short VerifyLDAPConnection(VerifyLDAPConnectionStruct ldap);
 	short OSGetSystemTempDirectory(Memory retPathName, int bufferLength);
 	void OSPathAddTrailingPathSep(Memory retPathName);
 	short OSGetEnvironmentString(Memory variableName, Memory rethValueBuffer, short bufferLength);
@@ -397,6 +411,8 @@ public interface INotesCAPI extends Library {
 			boolean fSelectionFormula,
 			DHANDLE.ByReference rethFormulaText,
 			ShortByReference retFormulaTextLength);
+	short NSFFormulaGetSizeP(Pointer ptr, ShortByReference retFormulaLength);
+
 	short NSFFormulaSummaryItem(HANDLE.ByValue hFormula, Memory ItemName, short ItemNameLength);
 	short NSFFormulaMerge(
 			HANDLE.ByValue hSrcFormula,
@@ -2541,4 +2557,26 @@ public interface INotesCAPI extends Library {
 	short NSFDbGetNamesList(HANDLE.ByValue hDB, int Flags, DHANDLE.ByReference rethNamesList);
 	
 	int OSProcessGroup(int query);
+	
+	short AgentLSTextFormat(DHANDLE.ByValue hSrc, DHANDLE.ByReference hDest,
+	    DHANDLE.ByReference hErrs, int dwFlags, DHANDLE.ByReference phData);
+
+	short NLS_goto_next32(
+	    PointerByReference ppString,
+	    int len,
+	    Pointer pInfo);
+	
+	short NLS_goto_prev_whole_char (
+	    PointerByReference ppString, 
+	    Pointer pStrStart, 
+	    Pointer pInfo);
+
+	short NLS_align_on_char_boundary(Pointer pString, 
+	    Pointer pStrStart, 
+      Pointer pInfo);
+
+	short NSFItemModifyValue (DHANDLE.ByValue hNote, NotesBlockIdStruct.ByValue bhItem, 
+      short itemFlags, short dataType, 
+      Pointer value, int valueLength);
+
 }
