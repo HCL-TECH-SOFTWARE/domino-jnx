@@ -52,8 +52,7 @@ public interface CDHRule extends RichTextRecord<WSIG>{
   int getWidthRaw();
   
   @StructureGetter("Width")
-  default
-  int getWidth() {
+  default int getWidth() {
   //use default rule width if value not set
   return (this.getWidthRaw() == 0 ? RichTextConstants.DEFAULTHRULEWIDTH : this.getWidthRaw());
   }
@@ -65,8 +64,7 @@ public interface CDHRule extends RichTextRecord<WSIG>{
   int getHeightRaw();
   
   @StructureGetter("Height")
-  default
-  int getHeight() {
+  default int getHeight() {
     return (this.getHeightRaw() == 0 ? RichTextConstants.DEFAULTHRULEHEIGHT : this.getHeightRaw());
   }
   
@@ -76,32 +74,33 @@ public interface CDHRule extends RichTextRecord<WSIG>{
   @StructureGetter("Color")
   int getColorRaw();
   
-  @StructureGetter("Color")
-  default
-  Optional<StandardColors> getColor() {
+  default Optional<StandardColors> getColor() {
   return DominoEnumUtil.valueOf(StandardColors.class, getColorRaw());
   }
   
   @StructureSetter("Color")
   CDHRule setColorRaw(int colorRaw);
   
-  @StructureSetter("Color")
-  CDHRule setColor(StandardColors color);
+  
+  default CDHRule setColor(StandardColors color)
+  {
+	  return setColorRaw(color.getValue());
+  }
   
   @StructureGetter("GradientColor")
   int getGradientColorRaw();
   
-  @StructureGetter("GradientColor")
-  default
-  Optional<StandardColors> getGradientColor() {
+  default Optional<StandardColors> getGradientColor() {
     return DominoEnumUtil.valueOf(StandardColors.class, getGradientColorRaw());
   }
   
   @StructureSetter("GradientColor")
   CDHRule setGradientColorRaw(int gradientColorRaw);
   
-  @StructureSetter("GradientColor")
-  CDHRule setGradientColor(StandardColors gradientColor);
+  default CDHRule setGradientColor(StandardColors gradientColor)
+  {
+	  return setGradientColorRaw(gradientColor.getValue());
+  }
   
   @StructureGetter("Flags")
   Set<Flag> getFlags();
