@@ -22,7 +22,6 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-import com.hcl.domino.commons.design.NativeDesignSupport;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
@@ -32,6 +31,7 @@ import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.Item;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.design.NativeDesignSupport;
 import com.hcl.domino.jna.data.JNADatabase;
 import com.hcl.domino.jna.data.JNADocument;
 import com.hcl.domino.jna.data.JNAItem;

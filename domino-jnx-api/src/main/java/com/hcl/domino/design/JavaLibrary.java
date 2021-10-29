@@ -16,12 +16,10 @@
  */
 package com.hcl.domino.design;
 
-import com.hcl.domino.design.agent.JavaAgentContent;
-
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface JavaLibrary extends ScriptLibrary {
-  JavaAgentContent getScriptContent();
+public interface JavaLibrary extends ScriptLibrary, JavaAgentAndLibrarySupport {
+
 }

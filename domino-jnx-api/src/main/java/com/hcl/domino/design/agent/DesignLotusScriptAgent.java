@@ -14,32 +14,19 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.commons.design.agent;
+package com.hcl.domino.design.agent;
 
-import com.hcl.domino.design.agent.FormulaAgentContent;
-import com.hcl.domino.design.simpleaction.RunFormulaAction;
+import com.hcl.domino.design.DesignAgent;
 
 /**
- * @author Jesse Gallagher
- * @since 1.0.24
+ * Subtype of {@link DesignAgent} that executes LotusScript
+ * 
+ * @since 1.0.46
  */
-public class DefaultFormulaAgentContent implements FormulaAgentContent, RunFormulaAction {
-  private final DocumentAction action;
-  private final String formula;
+public interface DesignLotusScriptAgent extends DesignAgent {
 
-  public DefaultFormulaAgentContent(final DocumentAction action, final String formula) {
-    this.action = action;
-    this.formula = formula;
-  }
+  String getScript();
 
-  @Override
-  public DocumentAction getDocumentAction() {
-    return this.action;
-  }
-
-  @Override
-  public String getFormula() {
-    return this.formula;
-  }
-
+  void setScript(String script);
+  
 }

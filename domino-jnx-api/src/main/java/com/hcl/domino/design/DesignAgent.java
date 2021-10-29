@@ -24,7 +24,6 @@ import java.util.OptionalInt;
 
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.design.DesignElement.NamedDesignElement;
-import com.hcl.domino.design.agent.AgentContent;
 import com.hcl.domino.design.agent.AgentInterval;
 import com.hcl.domino.design.agent.AgentTarget;
 import com.hcl.domino.design.agent.AgentTrigger;
@@ -91,40 +90,11 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
     String getLog();
   }
   
-  enum AgentLanguage {
-    LS, FORMULA, JAVA, IMPORTED_JAVA, SIMPLE_ACTION
-  }
   enum SecurityLevel {
     RESTRICTED,
     UNRESTRICTED,
     UNRESTRICTED_FULLADMIN
   }
-
-  /**
-   * Retrieves the action content of the agent. The actual type of object depends
-   * on the
-   * {@link AgentLanguage language} of the agent.
-   *
-   * @return an {@link AgentContent} instance representing the content of the
-   *         agent
-   */
-  AgentContent getAgentContent();
-
-  /**
-   * Changes the agent language and content.
-   * 
-   * @param lang new language
-   * @param content new agent code
-   * @return this agent
-   */
-  DesignAgent setAgentContent(AgentLanguage lang, String content);
-  
-  /**
-   * Language the agent is written using
-   *
-   * @return an {@link AgentLanguage} instance
-   */
-  AgentLanguage getAgentLanguage();
   
   /**
    * Determines the effective version of the agent design, as opposed to just when
@@ -271,14 +241,6 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    *         is unavailable
    */
   AgentTrigger getTrigger();
-
-  /**
-   * Language the agent should parse as
-   *
-   * @param lang the agent language
-   * @return this {@code Agent}
-   */
-  DesignAgent initializeAgentLanguage(AgentLanguage lang);
 
   /**
    * Whether or not the agent runs on weekends, only relevant for DAILY or

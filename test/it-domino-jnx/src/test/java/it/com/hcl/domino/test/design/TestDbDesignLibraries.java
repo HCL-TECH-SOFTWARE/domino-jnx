@@ -51,7 +51,6 @@ import com.hcl.domino.design.JavaScriptLibrary;
 import com.hcl.domino.design.LotusScriptLibrary;
 import com.hcl.domino.design.ScriptLibrary;
 import com.hcl.domino.design.ServerJavaScriptLibrary;
-import com.hcl.domino.design.agent.JavaAgentContent;
 import com.ibm.commons.util.io.StreamUtil;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
@@ -92,9 +91,8 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
     assertInstanceOf(JavaLibrary.class, scriptLibrary);
 
     final JavaLibrary lib = (JavaLibrary) scriptLibrary;
-    final JavaAgentContent content = lib.getScriptContent();
-    assertEquals("%%source%%.jar", content.getSourceAttachmentName().get());
-    assertEquals("%%object%%.jar", content.getObjectAttachmentName().get());
+    assertEquals("%%source%%.jar", lib.getSourceAttachmentName().get());
+    assertEquals("%%object%%.jar", lib.getObjectAttachmentName().get());
     
     String unid = scriptLibrary.getDocument().getUNID();
     Optional<ScriptLibrary> optLib = design.getDesignElementByUNID(unid);
@@ -109,9 +107,8 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
     assertInstanceOf(JavaLibrary.class, scriptLibrary);
 
     final JavaLibrary lib = (JavaLibrary) scriptLibrary;
-    final JavaAgentContent content = lib.getScriptContent();
-    assertFalse(content.getSourceAttachmentName().isPresent());
-    assertFalse(content.getObjectAttachmentName().isPresent());
+    assertFalse(lib.getSourceAttachmentName().isPresent());
+    assertFalse(lib.getObjectAttachmentName().isPresent());
   }
 
   @Test
@@ -270,15 +267,14 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
     assertInstanceOf(JavaLibrary.class, scriptLibrary);
 
     final JavaLibrary lib = (JavaLibrary) scriptLibrary;
-    final JavaAgentContent content = lib.getScriptContent();
-    assertEquals("%%source%%.jar", content.getSourceAttachmentName().get());
-    assertEquals("%%object%%.jar", content.getObjectAttachmentName().get());
-    assertEquals("%%resource%%.jar", content.getResourcesAttachmentName().get());
-    assertEquals(Arrays.asList("bar.jar", "foo.jar"), content.getEmbeddedJars());
-    assertEquals(Collections.emptyList(), content.getSharedLibraryList());
+    assertEquals("%%source%%.jar", lib.getSourceAttachmentName().get());
+    assertEquals("%%object%%.jar", lib.getObjectAttachmentName().get());
+    assertEquals("%%resource%%.jar", lib.getResourcesAttachmentName().get());
+    assertEquals(Arrays.asList("bar.jar", "foo.jar"), lib.getEmbeddedJarNames());
+    assertEquals(Collections.emptyList(), lib.getSharedLibraryList());
     
     try(
-      InputStream is = content.getSourceAttachment().get();
+      InputStream is = lib.getSourceAttachment().get();
       JarInputStream jis = new JarInputStream(is)
     ) {
       boolean foundBar = false;
@@ -305,7 +301,7 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
     }
 
     try(
-      InputStream is = content.getObjectAttachment().get();
+      InputStream is = lib.getObjectAttachment().get();
       JarInputStream jis = new JarInputStream(is)
     ) {
       boolean foundBar = false;
@@ -326,7 +322,7 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
     }
 
     try(
-      InputStream is = content.getResourcesAttachment().get();
+      InputStream is = lib.getResourcesAttachment().get();
       JarInputStream jis = new JarInputStream(is)
     ) {
       boolean foundBar = false;
@@ -351,7 +347,7 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
     }
 
     try(
-      InputStream is = content.getEmbeddedJar("foo.jar").get();
+      InputStream is = lib.getEmbeddedJar("foo.jar").get();
       JarInputStream jis = new JarInputStream(is)
     ) {
       boolean foundFoo = false;
@@ -368,7 +364,7 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
     }
 
     try(
-      InputStream is = content.getEmbeddedJar("bar.jar").get();
+      InputStream is = lib.getEmbeddedJar("bar.jar").get();
       JarInputStream jis = new JarInputStream(is)
     ) {
       boolean foundBar = false;

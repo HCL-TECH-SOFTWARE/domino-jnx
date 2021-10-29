@@ -19,6 +19,7 @@ package com.hcl.domino.commons.design;
 import java.nio.charset.Charset;
 
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.ServerJavaScriptLibrary;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextWriter;
@@ -51,6 +52,11 @@ public class ServerJavaScriptLibraryImpl extends AbstractScriptLibrary<ServerJav
       w.addJavaScriptLibraryData(script);
     }
     
+    //set sign flag for code item
+    doc.forEachItem(NotesConstants.SERVER_JAVASCRIPTLIBRARY_CODE, (item,loop) -> {
+      item.setSigned(true);
+    });
+
     return this;
   }
 }

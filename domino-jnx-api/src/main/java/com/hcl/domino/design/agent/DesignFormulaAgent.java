@@ -16,16 +16,28 @@
  */
 package com.hcl.domino.design.agent;
 
-import java.util.List;
-
-import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.design.DesignAgent;
+import com.hcl.domino.design.simpleaction.RunFormulaAction;
 
 /**
- * Represents the contents of a Simple Action agent.
- *
- * @author Jesse Gallagher
- * @since 1.0.24
+ * Subtype of {@link DesignAgent} that executes a formula
+ * 
+ * @since 1.0.46
  */
-public interface SimpleActionAgentContent extends AgentContent {
-  List<SimpleAction> getActions();
+public interface DesignFormulaAgent extends DesignAgent, RunFormulaAction {
+  
+  /**
+   * Sets the document action performed by this agent
+   * 
+   * @param action action
+   */
+  void setDocumentAction(DocumentAction action);
+  
+  /**
+   * Changes the formula code
+   * 
+   * @param formula the agent formula script
+   */
+  void setFormula(String formula);
+
 }

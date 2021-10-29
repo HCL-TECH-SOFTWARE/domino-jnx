@@ -32,12 +32,17 @@ import java.util.stream.StreamSupport;
 
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.jna.JNADominoClient;
+import com.hcl.domino.jna.internal.JNADumpUtil;
+import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
+import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.naming.UserDirectoryQuery;
 import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 
 /**
  * 
@@ -111,7 +116,7 @@ public class JNAUserDirectoryQuery implements UserDirectoryQuery {
 		Memory serverName = NotesStringUtils.toLMBCS(this.serverName, true);
 		Collection<String> namespacesLocal = this.namespaces == null ? Arrays.asList("") : this.namespaces; //$NON-NLS-1$
 		Memory namespaces = NotesStringUtils.toLMBCS(namespacesLocal);
-		short nameCount = (short)namesLocal.size();
+		short nameCount = (short) (namesLocal.size() & 0xffff);
 		Memory names = NotesStringUtils.toLMBCS(namesLocal);
 		Memory items = NotesStringUtils.toLMBCS(this.items);
 		
@@ -119,14 +124,28 @@ public class JNAUserDirectoryQuery implements UserDirectoryQuery {
 		checkResult(NotesCAPI.get().NAMELookup2(
 			serverName,
 			flags,
-			(short)namespacesLocal.size(),
+			(short)(namespacesLocal.size() & 0xffff),
 			namespaces,
 			nameCount,
 			names,
-			(short)(this.items == null ? 0 : this.items.size()),
+			(short)(this.items == null ? 0 : (this.items.size() & 0xffff)),
 			items,
 			rethBuffer
 		));
+		
+		LockUtil.lockHandle(rethBuffer, (hBuffer) -> {
+		  Pointer ptr = Mem.OSLockObject(hBuffer);
+		  try {
+		    IntByReference retSize = new IntByReference();
+		    Mem.OSMemGetSize(hBuffer, retSize);
+		    System.out.println("Buffer:\n"+JNADumpUtil.dumpAsAscii(ptr, retSize.getValue()));
+		    return null;
+		  }
+		  finally {
+		    Mem.OSUnlockObject(hBuffer);
+		  }
+    });
+		
 		
 		JNAUserDirectoryQueryIterator iter = new JNAUserDirectoryQueryIterator(client, rethBuffer, this.items);
 		Spliterator<List<Map<String, List<Object>>>> spliterator = Spliterators.spliterator(iter, nameCount+namespacesLocal.size(), 0);

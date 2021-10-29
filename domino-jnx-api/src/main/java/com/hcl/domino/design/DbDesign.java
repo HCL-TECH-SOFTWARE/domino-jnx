@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.Action;
+import com.hcl.domino.design.agent.DesignLotusScriptAgent;
 import com.hcl.domino.data.DocumentClass;
 
 /**
@@ -66,10 +67,11 @@ public interface DbDesign {
   /**
    * Creates a new, unsaved agent design element.
    *
+   * @param agentType type of agent, e.g. {@link DesignLotusScriptAgent}
    * @param agentName the name of the agent to create
    * @return the newly-created in-memory {@link DesignAgent}
    */
-  DesignAgent createAgent(String agentName);
+  <T extends DesignAgent> T createAgent(Class<T> agentType, String agentName);
 
   /**
    * Creates a new, unsaved folder design element.

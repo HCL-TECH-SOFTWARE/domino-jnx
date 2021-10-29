@@ -16,25 +16,38 @@
  */
 package com.hcl.domino.commons.design.agent;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import com.hcl.domino.design.agent.SimpleActionAgentContent;
+import com.hcl.domino.commons.design.AbstractDesignAgentImpl;
+import com.hcl.domino.commons.design.DesignUtil;
+import com.hcl.domino.data.Document;
+import com.hcl.domino.design.agent.DesignSimpleActionAgent;
 import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.richtext.RichTextRecordList;
+import com.hcl.domino.richtext.records.RecordType.Area;
 
 /**
- * @author Jesse Gallagher
- * @since 1.0.24
+ * Implementation of {@link DesignSimpleActionAgent}
  */
-public class DefaultSimpleActionAgentContent implements SimpleActionAgentContent {
+public class DesignSimpleActionAgentImpl extends AbstractDesignAgentImpl<DesignSimpleActionAgent> implements DesignSimpleActionAgent {
   private final List<SimpleAction> actions;
 
-  public DefaultSimpleActionAgentContent(final Collection<SimpleAction> actions) {
-    this.actions = new ArrayList<>(actions);
+  public DesignSimpleActionAgentImpl(Document doc) {
+    super(doc);
+    
+    RichTextRecordList records = doc.getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION);
+    this.actions = DesignUtil.toSimpleActions(records);
   }
 
+  @Override
+  public void initializeNewDesignNote() {
+    super.initializeNewDesignNote();
+    
+    this.getDocument().replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, -1);
+  }
+  
   @Override
   public List<SimpleAction> getActions() {
     return Collections.unmodifiableList(this.actions);

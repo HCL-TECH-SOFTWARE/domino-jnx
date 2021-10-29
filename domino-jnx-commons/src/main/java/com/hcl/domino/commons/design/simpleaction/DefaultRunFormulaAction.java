@@ -14,30 +14,29 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.simpleaction;
+package com.hcl.domino.commons.design.simpleaction;
 
 import java.util.Optional;
 
-/**
- * @author Jesse Gallagher
- * @since 1.0.24
- */
-public interface RunFormulaAction extends SimpleAction {
+import com.hcl.domino.design.simpleaction.RunFormulaAction;
 
-  enum DocumentAction {
-    MODIFY,
-    CREATE,
-    SELECT
+public class DefaultRunFormulaAction implements RunFormulaAction {
+  private final Optional<DocumentAction> action;
+  private final Optional<String> formula;
+
+  public DefaultRunFormulaAction(final Optional<DocumentAction> action, final Optional<String> formula) {
+    this.action = action;
+    this.formula = formula;
   }
 
-  /**
-   * @return the document action performed by this agent
-   */
-  Optional<DocumentAction> getDocumentAction();
+  @Override
+  public Optional<DocumentAction> getDocumentAction() {
+    return this.action;
+  }
 
-  /**
-   * @return the agent formula script
-   */
-  Optional<String> getFormula();
-  
+  @Override
+  public Optional<String> getFormula() {
+    return this.formula;
+  }
+
 }

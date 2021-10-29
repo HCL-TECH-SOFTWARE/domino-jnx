@@ -140,8 +140,8 @@ public abstract class AbstractDbDesign implements DbDesign {
   }
 
   @Override
-  public DesignAgent createAgent(final String agentName) {
-    return this.createDesignNote(DesignAgent.class, agentName);
+  public <T extends DesignAgent> T createAgent(Class<T> agentType, String agentName) {
+    return this.createDesignNote(agentType, agentName);
   }
 
   /**

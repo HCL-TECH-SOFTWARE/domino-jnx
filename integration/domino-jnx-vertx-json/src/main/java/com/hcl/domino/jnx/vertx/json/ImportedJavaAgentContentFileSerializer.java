@@ -8,11 +8,10 @@ import java.util.Optional;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.hcl.domino.design.agent.ImportedJavaAgentContent;
-import com.hcl.domino.design.agent.JavaAgentContent;
+import com.hcl.domino.design.agent.DesignImportedJavaAgent;
 
 /**
- * Translates the {@code List<String>} of embedded JAR names in a {@link JavaAgentContent}
+ * Translates the {@code List<String>} of embedded JAR names in a {@link DesignImportedJavaAgent}
  * into a map of names to Base64'd content.
  * 
  * @author Jesse Gallagher
@@ -23,8 +22,8 @@ public class ImportedJavaAgentContentFileSerializer extends JsonSerializer<List<
   @Override
   public void serialize(List<String> value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
     Object ctx = gen.getOutputContext().getCurrentValue();
-    if(ctx instanceof ImportedJavaAgentContent) {
-      ImportedJavaAgentContent javaAgent = (ImportedJavaAgentContent)ctx;
+    if(ctx instanceof DesignImportedJavaAgent) {
+      DesignImportedJavaAgent javaAgent = (DesignImportedJavaAgent)ctx;
       
       gen.writeStartObject();
       for(String jar : value) {

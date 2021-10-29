@@ -16,26 +16,13 @@
  */
 package com.hcl.domino.design.agent;
 
+import com.hcl.domino.design.DesignAgent;
+
 /**
- * Represents the contents of a formula-type agent.
- *
- * @author Jesse Gallagher
- * @since 1.0.24
+ * All agent types in Java language
+ * 
+ * @since 1.0.46
  */
-public interface FormulaAgentContent extends AgentContent {
-  enum DocumentAction {
-    MODIFY,
-    CREATE,
-    SELECT
-  }
+public interface JavaLanguageAgent extends DesignAgent {
 
-  /**
-   * @return the document action performed by this agent
-   */
-  DocumentAction getDocumentAction();
-
-  /**
-   * @return the agent formula script
-   */
-  String getFormula();
 }

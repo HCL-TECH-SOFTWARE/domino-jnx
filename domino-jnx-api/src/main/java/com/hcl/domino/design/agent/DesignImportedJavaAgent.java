@@ -1,0 +1,77 @@
+/*
+ * ==========================================================================
+ * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ *                            All rights reserved.
+ * ==========================================================================
+ * Licensed under the  Apache License, Version 2.0  (the "License").  You may
+ * not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+ *
+ * Unless  required  by applicable  law or  agreed  to  in writing,  software
+ * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the  specific language  governing permissions  and limitations
+ * under the License.
+ * ==========================================================================
+ */
+package com.hcl.domino.design.agent;
+
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import com.hcl.domino.design.DesignAgent;
+
+/**
+ * Subtype of {@link DesignAgent} that executes a imported Java classes
+ * 
+ * @since 1.0.46
+ */
+public interface DesignImportedJavaAgent extends DesignAgent, JavaLanguageAgent {
+  
+  String getCodeFilesystemPath();
+
+  void setCodeFilesystemPath(String path);
+  
+  /**
+   * Returns the filenames of all imported files
+   * 
+   * @return filenames
+   */
+  List<String> getFilenames();
+  
+  /**
+   * Retrieves the contents of the named file (as determined
+   * in {@link #getFilenames()} as a stream of bytes.
+   * 
+   * @param name the name of the file to retrieve
+   * @return an {@link Optional} describing an {@link InputStream} of
+   *         the file's contents if it exists, or an empty one otherwise
+   * @see #getFilenames()
+   * @since 1.0.43
+   */
+  Optional<InputStream> getFile(String name);
+
+  void setFiles(Map<String,InputStream> files);
+  
+  /**
+   * Adds/replaces a single file
+   * 
+   * @param fileName filename
+   * @param in new data
+   */
+  void setFile(String fileName, InputStream in);
+  
+  /**
+   * Removes a single file
+   * 
+   * @param fileName filename
+   */
+  void removeFile(String fileName);
+  
+  String getMainClassName();
+  
+  void setMainClassName(String name);
+  
+}

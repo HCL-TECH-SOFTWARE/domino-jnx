@@ -16,17 +16,8 @@
  */
 package com.hcl.domino.commons.design;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
-
-import com.hcl.domino.commons.design.agent.DefaultJavaAgentContent;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.JavaLibrary;
-import com.hcl.domino.design.agent.JavaAgentContent;
-import com.hcl.domino.misc.NotesConstants;
-import com.hcl.domino.richtext.records.CDActionJavaAgent;
-import com.hcl.domino.richtext.records.RecordType.Area;
 
 /**
  * @author Jesse Gallagher
@@ -38,23 +29,4 @@ public class JavaLibraryImpl extends AbstractScriptLibrary<JavaLibrary> implemen
     super(doc);
   }
 
-  @Override
-  public JavaAgentContent getScriptContent() {
-    final CDActionJavaAgent action = this.getDocument().getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION)
-        .stream()
-        .filter(CDActionJavaAgent.class::isInstance)
-        .map(CDActionJavaAgent.class::cast)
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException("Unable to find Java action data"));
-    return new DefaultJavaAgentContent(
-        this,
-        action.getClassName(),
-        action.getCodePath(),
-        Arrays.stream(action.getFileList().split("\\n")) //$NON-NLS-1$
-            .filter(StringUtil::isNotEmpty)
-            .collect(Collectors.toList()),
-        Arrays.stream(action.getLibraryList().split("\\n")) //$NON-NLS-1$
-            .filter(StringUtil::isNotEmpty)
-            .collect(Collectors.toList()));
-  }
 }
