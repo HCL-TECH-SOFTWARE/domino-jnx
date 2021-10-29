@@ -19,13 +19,13 @@ package com.hcl.domino.richtext.records;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.StructureSupport;
@@ -585,7 +585,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
     
     int preLen = this.getServerHintLength() + this.getFileHintLength();
     
-    byte[] nameLMBCS = name.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    byte[] nameLMBCS = name.getBytes(NativeItemCoder.get().getLmbcsCharset());
 
     resizeVariableData(preLen + replicaIDLen + nameLMBCS.length);
     
@@ -610,7 +610,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
 
     int preLen = this.getServerHintLength() + this.getFileHintLength();
     
-    byte[] urlLMBCS = url.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    byte[] urlLMBCS = url.getBytes(NativeItemCoder.get().getLmbcsCharset());
 
     resizeVariableData(preLen + urlLMBCS.length);
     
@@ -658,7 +658,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
     setFlags(flags);
     
     ByteBuffer linkData = link.getData();
-    byte[] linkAnchorNameLMBCS = JNXStringUtil.isEmpty(linkAnchorName) ? new byte[0] : linkAnchorName.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    byte[] linkAnchorNameLMBCS = JNXStringUtil.isEmpty(linkAnchorName) ? new byte[0] : linkAnchorName.getBytes(NativeItemCoder.get().getLmbcsCharset());
 
     int preLen = this.getServerHintLength() + this.getFileHintLength();
     resizeVariableData(preLen + linkData.limit() + linkAnchorNameLMBCS.length);
@@ -692,7 +692,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
     
     int preLen = this.getServerHintLength() + this.getFileHintLength();
     
-    byte[] linkAnchorNameLMBCS = JNXStringUtil.isEmpty(linkAnchorName) ? new byte[0] : linkAnchorName.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    byte[] linkAnchorNameLMBCS = JNXStringUtil.isEmpty(linkAnchorName) ? new byte[0] : linkAnchorName.getBytes(NativeItemCoder.get().getLmbcsCharset());
     resize(preLen + 2 + linkAnchorNameLMBCS.length);
     
     ByteBuffer varData = getVariableData();

@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.data;
 
+import java.nio.charset.Charset;
 import java.util.List;
 
 import com.hcl.domino.misc.JNXServiceFinder;
@@ -32,6 +33,16 @@ public interface NativeItemCoder {
   static NativeItemCoder get() {
     return JNXServiceFinder.findRequiredService(NativeItemCoder.class, NativeItemCoder.class.getClassLoader());
   }
+  
+  /**
+   * Represents different modes for null-termination and newline
+   * handling in LMBCS charsets.
+   * 
+   * @since 1.0.46
+   */
+  enum LmbcsVariant {
+    NORMAL, NULLTERM, KEEPNEWLINES, NULLTERM_KEEPNEWLINES
+  }
 
   List<String> decodeStringList(byte[] buf);
 
@@ -47,4 +58,25 @@ public interface NativeItemCoder {
    * @since 1.0.43
    */
   List<Object> decodeItemValue(byte[] buf, RecordType.Area area);
+  
+  /**
+   * Retrieves an NIO {@code Charset} suitable for encoding and decoding LMBCS
+   * strings.
+   * 
+   * @return a {@link Charset} instance for LMBCS
+   * @since 1.0.46
+   */
+  default Charset getLmbcsCharset() {
+    return getLmbcsCharset(LmbcsVariant.NORMAL);
+  }
+  
+  /**
+   * Retrieves an NIO {@code Charset} suitable for encoding and decoding LMBCS
+   * strings with the provided newline and null-termination characteristics.
+   * 
+   * @param variant the {@link LmbcsVariant} to retrieve
+   * @return a {@link Charset} instance for LMBCS
+   * @since 1.0.46
+   */
+  Charset getLmbcsCharset(LmbcsVariant variant);
 }

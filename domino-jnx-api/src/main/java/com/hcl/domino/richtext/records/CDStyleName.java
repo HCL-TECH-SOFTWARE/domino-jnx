@@ -18,10 +18,11 @@ package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -175,7 +176,7 @@ public interface CDStyleName extends RichTextRecord<BSIG> {
     buf.putShort(userNameLen.shortValue());
     
     //write User Name
-    final byte[] lmbcs = userName == null ? new byte[0] : userName.getBytes(Charset.forName("LMBCS"));
+    final byte[] lmbcs = userName == null ? new byte[0] : userName.getBytes(NativeItemCoder.get().getLmbcsCharset());
     buf.position(preLen+2);
     buf.put(lmbcs);
     

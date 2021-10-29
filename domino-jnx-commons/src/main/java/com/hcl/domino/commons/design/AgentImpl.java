@@ -42,6 +42,7 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.agent.AgentContent;
@@ -274,7 +275,7 @@ public class AgentImpl extends AbstractDesignElement<DesignAgent> implements Des
     String formattedCode = formattedCodeAndErrors.getValue1();
 
     Document doc = getDocument();
-    Charset lmbcsCharset = Charset.forName("LMBCS"); //$NON-NLS-1$
+    Charset lmbcsCharset = NativeItemCoder.get().getLmbcsCharset();
 
     //remove old items with source and compiled code
     doc.removeItem(NotesConstants.ASSIST_ACTION_ITEM);

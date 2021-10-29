@@ -16,9 +16,8 @@
  */
 package com.hcl.domino.commons.design;
 
-import java.nio.charset.Charset;
-
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.design.JavaScriptLibrary;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextWriter;
@@ -39,7 +38,7 @@ public class JavaScriptLibraryImpl extends AbstractScriptLibrary<JavaScriptLibra
     // There appears to always be a trailing null
     final byte[] data = GetJavaScriptDataProcessor.instance
         .apply(this.getDocument().getRichTextItem(NotesConstants.JAVASCRIPTLIBRARY_CODE));
-    return new String(data, 0, data.length - 1, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(data, 0, data.length - 1, NativeItemCoder.get().getLmbcsCharset());
   }
   
   @Override
