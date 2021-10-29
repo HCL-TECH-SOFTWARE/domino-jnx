@@ -16,10 +16,10 @@
  */
 package com.hcl.domino.commons.design.agent;
 
-import java.nio.charset.Charset;
 import java.util.List;
 
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.design.DesignAgent.LastRunInfo;
 import com.hcl.domino.richtext.structures.AssistRunInfo;
 import com.hcl.domino.richtext.structures.AssistRunObjectEntry;
@@ -69,7 +69,7 @@ public class DefaultAgentLastRunInfo implements LastRunInfo {
   public String getLog() {
     // This will be the variable data from the third entry, which is guaranteed to be present
     byte[] data = varData.get(2);
-    String result = new String(data, Charset.forName("LMBCS")); //$NON-NLS-1$
+    String result = new String(data, NativeItemCoder.get().getLmbcsCharset());
     
     // It _appears_ that the log actually ends with this sequence, and is followed by errant data.
     // For now, at least, we'll assume this is expected
