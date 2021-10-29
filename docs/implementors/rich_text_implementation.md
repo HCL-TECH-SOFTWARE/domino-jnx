@@ -303,7 +303,7 @@ public interface CDText extends RichTextRecord {
     int len = buf.remaining();
     byte[] lmbcs = new byte[len];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
   }
 }
 ```
@@ -321,7 +321,7 @@ For example, to set a new value for `CDTEXT`:
 public interface CDText extends RichTextRecord {
   // ...
   default CDText setText(String text) {
-    byte[] lmbcs = text.getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$
+    byte[] lmbcs = text.getBytes(NativeItemCoder.get().getLmbcsCharset());
     resizeVariableData(lmbcs.length);
     ByteBuffer buf = getVariableData();
     buf.put(lmbcs);
