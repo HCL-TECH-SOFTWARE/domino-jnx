@@ -27,7 +27,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.DayOfWeek;
@@ -35,20 +34,12 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.jar.JarEntry;
-import java.util.jar.JarInputStream;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import org.apache.bcel.classfile.ClassParser;
-import org.apache.bcel.classfile.JavaClass;
-import org.apache.bcel.classfile.Method;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,8 +61,6 @@ import com.hcl.domino.design.agent.AgentTarget;
 import com.hcl.domino.design.agent.AgentTrigger;
 import com.hcl.domino.design.agent.FormulaAgentContent;
 import com.hcl.domino.design.agent.FormulaAgentContent.DocumentAction;
-import com.hcl.domino.design.agent.ImportedJavaAgentContent;
-import com.hcl.domino.design.agent.JavaAgentContent;
 import com.hcl.domino.design.agent.LotusScriptAgentContent;
 import com.hcl.domino.design.agent.SimpleActionAgentContent;
 import com.hcl.domino.design.simpleaction.CopyToDatabaseAction;
@@ -104,7 +93,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
-  public static final int EXPECTED_IMPORT_AGENTS = 28;
+  public static final int EXPECTED_IMPORT_AGENTS = 25;
   private static String dbPath;
 
   @AfterAll
@@ -175,7 +164,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
         + " @All";
     final AgentContent content = agent.getAgentContent();
     assertInstanceOf(FormulaAgentContent.class, content);
-    assertEquals(formula, ((FormulaAgentContent) content).getFormula());
+    assertEquals(formula, toLf(((FormulaAgentContent) content).getFormula()));
     assertEquals(DocumentAction.MODIFY, ((FormulaAgentContent) content).getDocumentAction());
     assertTrue(agent.isRunInBackgroundInClient());
   }
@@ -201,64 +190,6 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
           .collect(Collectors.toList());
       assertEquals(0, elements.size());
     }
-  }
-
-  @Test
-  public void testImportedJavaAgent() throws IOException {
-    final DbDesign dbDesign = this.database.getDesign();
-    final Collection<DesignAgent> agents = dbDesign.getAgents().collect(Collectors.toList());
-    final DesignAgent agent = agents.stream().filter(a -> "imported java agent".equals(a.getTitle())).findFirst().orElse(null);
-    assertNotNull(agent);
-    assertEquals(AgentLanguage.IMPORTED_JAVA, agent.getAgentLanguage());
-
-    assertNotNull(dbDesign.getAgent("imported java agent"));
-    final AgentContent content = agent.getAgentContent();
-
-    final ImportedJavaAgentContent javaAgent = assertInstanceOf(ImportedJavaAgentContent.class, content);
-    assertEquals("ImportedJavaAgentContent.class", javaAgent.getMainClassName());
-    assertEquals("H:\\", javaAgent.getCodeFilesystemPath());
-    assertEquals(Arrays.asList("ImportedJavaAgentContent.class", "JavaAgentContent.class", "bar.txt", "foo.jar"),
-        javaAgent.getFiles());
-    
-    // Try to read the Java code
-    {
-      JavaClass clazz;
-      try(InputStream is = javaAgent.getFile("ImportedJavaAgentContent.class").get()) {
-        ClassParser parser = new ClassParser(is, "ImportedJavaAgentContent.class");
-        clazz = parser.parse();
-      }
-      assertEquals("com.hcl.domino.design.agent.ImportedJavaAgentContent", clazz.getClassName());
-    }
-    {
-      JavaClass clazz;
-      try(InputStream is = javaAgent.getFile("JavaAgentContent.class").get()) {
-        ClassParser parser = new ClassParser(is, "JavaAgentContent.class");
-        clazz = parser.parse();
-      }
-      assertEquals("com.hcl.domino.design.agent.JavaAgentContent", clazz.getClassName());
-      Method[] methods = clazz.getMethods();
-      assertTrue(Stream.of(methods).anyMatch(m -> "getResourcesAttachmentName".equals(m.getName())));
-    }
-  }
-
-  @Test
-  public void testJavaAgent() {
-    final DbDesign dbDesign = this.database.getDesign();
-    final Collection<DesignAgent> agents = dbDesign.getAgents().collect(Collectors.toList());
-    final DesignAgent agent = agents.stream().filter(a -> "java agent".equals(a.getTitle())).findFirst().orElse(null);
-    assertNotNull(agent);
-    assertEquals(AgentLanguage.JAVA, agent.getAgentLanguage());
-
-    assertNotNull(dbDesign.getAgent("java agent"));
-    final AgentContent content = agent.getAgentContent();
-    assertInstanceOf(JavaAgentContent.class, content);
-    final JavaAgentContent javaAgent = (JavaAgentContent) content;
-    assertEquals("JavaAgent.class", javaAgent.getMainClassName());
-    assertEquals("c:\\Notes\\Data", javaAgent.getCodeFilesystemPath());
-    assertEquals("%%source%%.jar", javaAgent.getSourceAttachmentName().get());
-    assertEquals("%%object%%.jar", javaAgent.getObjectAttachmentName().get());
-    assertFalse(javaAgent.getResourcesAttachmentName().isPresent());
-    assertEquals(Collections.emptyList(), javaAgent.getSharedLibraryList());
   }
 
   @Test
@@ -300,144 +231,6 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
   }
 
   @Test
-  public void testMultiFileJavaAgent() throws IOException {
-    final DbDesign dbDesign = this.database.getDesign();
-    final DesignAgent agent = dbDesign.getAgent("Multi-File Java").orElse(null);
-    assertNotNull(agent);
-
-    assertEquals(AgentLanguage.JAVA, agent.getAgentLanguage());
-    assertEquals(AgentTrigger.SCHEDULED, agent.getTrigger());
-    assertEquals(AgentInterval.MINUTES, agent.getIntervalType());
-    assertTrue(agent.getStartDate().isPresent());
-    assertEquals(LocalDate.of(2021, 6, 14), agent.getStartDate().get().toLocalDate());
-    assertFalse(agent.getEndDate().isPresent());
-    assertEquals(LocalTime.of(10, 0), agent.getRunLocalTime().get());
-    assertEquals(LocalTime.of(16, 0), agent.getRunEndLocalTime().get());
-    assertEquals(3 * 60 + 30, agent.getInterval().getAsInt());
-    assertEquals("CN=Arcturus/O=Frost", agent.getRunLocation());
-    assertFalse(agent.isRunOnWeekends());
-
-    final AgentContent content = agent.getAgentContent();
-    assertInstanceOf(JavaAgentContent.class, content);
-    final JavaAgentContent javaAgent = (JavaAgentContent) content;
-    assertEquals("lotus.domino.axis.JavaAgentRenamed.class", javaAgent.getMainClassName());
-    assertEquals("c:\\Notes\\Data", javaAgent.getCodeFilesystemPath());
-    assertEquals("%%source%%.jar", javaAgent.getSourceAttachmentName().get());
-    assertEquals("%%object%%.jar", javaAgent.getObjectAttachmentName().get());
-    assertEquals("%%resource%%.jar", javaAgent.getResourcesAttachmentName().get());
-    assertEquals(Arrays.asList("foo.jar", "bar.jar"), javaAgent.getEmbeddedJars());
-    assertEquals(Arrays.asList("java lib", "java consumer", "java lib 2", "java lib 3", "java lib 4"),
-        javaAgent.getSharedLibraryList());
-    
-    try(
-      InputStream is = javaAgent.getSourceAttachment().get();
-      JarInputStream jis = new JarInputStream(is)
-    ) {
-      boolean foundBar = false;
-      boolean foundAgent = false;
-      
-      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
-        if("foo/Bar.java".equals(entry.getName())) {
-          foundBar = true;
-          String actual = toLf(StreamUtil.readString(jis));
-          String expected = toLf(IOUtils.resourceToString("/text/testDbDesignAgents/Bar.java", StandardCharsets.UTF_8));
-          assertEquals(expected, actual);
-        } else if("lotus/domino/axis/JavaAgentRenamed.java".equals(entry.getName())) {
-          foundAgent = true;
-          String actual = toLf(StreamUtil.readString(jis));
-          String expected = toLf(IOUtils.resourceToString("/text/testDbDesignAgents/JavaAgentRenamed.java", StandardCharsets.UTF_8));
-          assertEquals(expected, actual);
-        }
-        
-        jis.closeEntry();
-      }
-      
-      assertTrue(foundBar);
-      assertTrue(foundAgent);
-    }
-
-    try(
-      InputStream is = javaAgent.getObjectAttachment().get();
-      JarInputStream jis = new JarInputStream(is)
-    ) {
-      boolean foundBar = false;
-      boolean foundAgent = false;
-      
-      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
-        if("foo/Bar.class".equals(entry.getName())) {
-          foundBar = true;
-        } else if("lotus/domino/axis/JavaAgentRenamed.class".equals(entry.getName())) {
-          foundAgent = true;
-        }
-        
-        jis.closeEntry();
-      }
-      
-      assertTrue(foundBar);
-      assertTrue(foundAgent);
-    }
-
-    try(
-      InputStream is = javaAgent.getResourcesAttachment().get();
-      JarInputStream jis = new JarInputStream(is)
-    ) {
-      boolean foundBar = false;
-      boolean foundDesktop = false;
-      
-      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
-        if("bar.txt".equals(entry.getName())) {
-          foundBar = true;
-        } else if("desktop.ini".equals(entry.getName())) {
-          foundDesktop = true;
-          
-          String actual = toLf(IOUtils.toString(jis, StandardCharsets.UTF_16));
-          String expected = toLf(IOUtils.resourceToString("/text/testDbDesignAgents/desktop.ini.txt", StandardCharsets.UTF_8));
-          assertEquals(expected, actual);
-        }
-        
-        jis.closeEntry();
-      }
-      
-      assertTrue(foundBar);
-      assertTrue(foundDesktop);
-    }
-
-    try(
-      InputStream is = javaAgent.getEmbeddedJar("foo.jar").get();
-      JarInputStream jis = new JarInputStream(is)
-    ) {
-      boolean foundFoo = false;
-      
-      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
-        if("foo.txt".equals(entry.getName())) {
-          foundFoo = true;
-        }
-        
-        jis.closeEntry();
-      }
-      
-      assertTrue(foundFoo);
-    }
-
-    try(
-      InputStream is = javaAgent.getEmbeddedJar("bar.jar").get();
-      JarInputStream jis = new JarInputStream(is)
-    ) {
-      boolean foundBar = false;
-      
-      for(JarEntry entry = jis.getNextJarEntry(); entry != null; entry = jis.getNextJarEntry()) {
-        if("bar.txt".equals(entry.getName())) {
-          foundBar = true;
-        }
-        
-        jis.closeEntry();
-      }
-      
-      assertTrue(foundBar);
-    }
-  }
-
-  @Test
   public void testNewDocsFormula() {
     final DbDesign dbDesign = this.database.getDesign();
     final DesignAgent agent = dbDesign.getAgent("new docs formula").orElse(null);
@@ -446,7 +239,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     assertEquals(AgentLanguage.FORMULA, agent.getAgentLanguage());
     final AgentContent content = agent.getAgentContent();
     assertInstanceOf(FormulaAgentContent.class, content);
-    assertEquals("\"bar\";\n\n @All", ((FormulaAgentContent) content).getFormula());
+    assertEquals("\"bar\";\n\n @All", toLf(((FormulaAgentContent) content).getFormula()));
     assertEquals(DocumentAction.CREATE, ((FormulaAgentContent) content).getDocumentAction());
   }
 
@@ -486,7 +279,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     assertEquals(AgentLanguage.FORMULA, agent.getAgentLanguage());
     final AgentContent content = agent.getAgentContent();
     assertInstanceOf(FormulaAgentContent.class, content);
-    assertEquals("\"foo\";\n\n @All", ((FormulaAgentContent) content).getFormula());
+    assertEquals("\"foo\";\n\n @All", toLf(((FormulaAgentContent) content).getFormula()));
     assertEquals(DocumentAction.SELECT, ((FormulaAgentContent) content).getDocumentAction());
   }
 
@@ -855,7 +648,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     AgentContent content = agent.getAgentContent();
     FormulaAgentContent formula = assertInstanceOf(FormulaAgentContent.class, content);
     assertEquals("FIELD Locked := @DeleteField;\n"
-        + "FIELD DocumentAuthors := @Trim(@Replace(From : CurrentReviewers; \"None\"; \"\"));@All", formula.getFormula());
+        + "FIELD DocumentAuthors := @Trim(@Replace(From : CurrentReviewers; \"None\"; \"\"));@All", toLf(formula.getFormula()));
     assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
     
   }
@@ -878,7 +671,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     assertEquals("RoutingState = \"DEAD\";\n"
         + "FIELD RoutingState := \"\";\n"
         + "FIELD Recipients := IntendedRecipient;\n"
-        + "FIELD Form := MailSavedForm;", formula.getFormula());
+        + "FIELD Form := MailSavedForm;", toLf(formula.getFormula()));
     assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
   }
   
@@ -906,7 +699,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
         + "FIELD DeptName := @Environment(\"PHADM_DeptName\");\n"
         + "FIELD Site_ShortName := @Environment(\"PHADM_Site_ShortName\");\n"
         + "FIELD OfficeNumber := @Environment(\"PHADM_OfficeNumber\");\n"
-        + "FIELD Email := @Environment(\"PHADM_Email\");", formula.getFormula());
+        + "FIELD Email := @Environment(\"PHADM_Email\");", toLf(formula.getFormula()));
     assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
   }
   
@@ -929,7 +722,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
         + "FIELD Month := @Environment(\"EnvSchMonth\");\n"
         + "FIELD MonthSeq := @Environment(\"EnvSchMonthSeq\");\n"
         + "FIELD ClockType := @Environment(\"EnvClockType\");\n"
-        + "FIELD MonthType := @Unavailable;", formula.getFormula());
+        + "FIELD MonthType := @Unavailable;", toLf(formula.getFormula()));
     assertEquals(FormulaAgentContent.DocumentAction.CREATE, formula.getDocumentAction());
   }
   
@@ -979,7 +772,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
         + "REM;\n"
         + "REM {Select only Reqs that have been approved, but not yet routed};\n"
         + "REM;\n"
-        + "Approved = \"Approved\" & Routed = \"No\"", formula.getFormula());
+        + "Approved = \"Approved\" & Routed = \"No\"", toLf(formula.getFormula()));
     assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
   }
   
@@ -1030,7 +823,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
         + "FIELD RouteServers := @Unavailable;\n"
         + "FIELD RouteTimes := @Unavailable;\n"
         + "FIELD DeliveredDate := @Unavailable;\n"
-        + "FIELD Categories := @Unavailable;", formula.getFormula());
+        + "FIELD Categories := @Unavailable;", toLf(formula.getFormula()));
     assertEquals(FormulaAgentContent.DocumentAction.MODIFY, formula.getDocumentAction());
   }
 }

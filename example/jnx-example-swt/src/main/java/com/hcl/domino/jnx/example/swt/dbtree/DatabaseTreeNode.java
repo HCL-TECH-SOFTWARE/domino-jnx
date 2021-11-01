@@ -22,7 +22,7 @@ import org.eclipse.swt.graphics.Image;
 import com.hcl.domino.jnx.example.swt.App;
 import com.hcl.domino.jnx.example.swt.AppShell;
 
-public class DatabaseTreeNode extends DBListTreeNode {
+public class DatabaseTreeNode extends InfoPaneTreeNode {
   private TreeNode[] children;
   private final String serverName;
   private final String databasePath;

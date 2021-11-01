@@ -34,6 +34,6 @@ public abstract class GenericFormOrSubformMixIn {
   @JsonIgnore abstract List<String> getExplicitSubformRecursive();
   @JsonIgnore abstract List<FormField> getFields();
   @JsonIgnore abstract List<SubformReference> getSubforms();
-  @JsonSerialize(using = DocumentToUnidSerializer.class) abstract Document getDocument();
+  @JsonSerialize(using = DesignDocumentSerializer.class) abstract Document getDocument();
   
 }

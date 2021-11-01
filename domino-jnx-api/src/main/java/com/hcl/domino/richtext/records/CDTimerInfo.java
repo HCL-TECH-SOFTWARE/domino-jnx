@@ -14,30 +14,34 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.jnx.example.swt.exporter;
+package com.hcl.domino.richtext.records;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Shell;
+import com.hcl.domino.richtext.annotation.StructureDefinition;
+import com.hcl.domino.richtext.annotation.StructureGetter;
+import com.hcl.domino.richtext.annotation.StructureMember;
+import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.structures.BSIG;
 
-import com.hcl.domino.jnx.example.swt.App;
-
-public class DXLShell extends Shell {
-
-  public DXLShell(Display display) {
-    super(display, SWT.SHELL_TRIM);
-
-    setText(App.APP_NAME);
-    setSize(500, 550);
-    setLayout(new FillLayout());
-    
-
-    new DXLExporterPane(this, SWT.NONE);
+/**
+ * @author Jesse Gallagher
+ * @since 1.0.44
+ */
+@StructureDefinition(
+  name = "CDTIMERINFO",
+  members = {
+    @StructureMember(name = "Header", type = BSIG.class),
+    @StructureMember(name = "Interval", type = int.class, unsigned = true),
+    @StructureMember(name = "Reserved", type = short[].class, length = 4)
   }
-
+)
+public interface CDTimerInfo extends RichTextRecord<BSIG> {
+  @StructureGetter("Header")
   @Override
-  protected void checkSubclass() {
-    // Disable the check that prevents subclassing of SWT components
-  }
+  BSIG getHeader();
+
+  @StructureGetter("Interval")
+  long getInterval();
+
+  @StructureSetter("Interval")
+  CDTimerInfo setInterval(long interval);
 }

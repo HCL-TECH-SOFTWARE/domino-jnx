@@ -40,6 +40,7 @@ import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.ListUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
+import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
@@ -47,7 +48,8 @@ import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.NotesStringUtils;
-import com.hcl.domino.jna.internal.callbacks.NotesCallbacks.ACLENTRYENUMFUNC;
+import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
+import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNAAclAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
@@ -399,7 +401,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		
 		final Map<Integer,String> rolesByIndex = getRolesByIndex();
 		
-		ACLENTRYENUMFUNC callback = (enumFuncParam, nameMem, accessLevelShort, privileges, accessFlag) -> {
+		NotesCallbacks.ACLENTRYENUMFUNC callback = (enumFuncParam, nameMem, accessLevelShort, privileges, accessFlag) -> {
 
 			String name = NotesStringUtils.fromLMBCS(nameMem, -1);
 			AclLevel accessLevel = DominoEnumUtil.valueOf(AclLevel.class, Short.toUnsignedInt(accessLevelShort))
@@ -434,10 +436,22 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 			JNAAclEntry access = new JNAAclEntry(name, accessLevel, entryRoles, privilegesArr, retFlags);
 			aclAccessInfoByName.put(name, access);
 		};
-
-		short result = LockUtil.lockHandle(hAcl, (hAclByValue) -> {
-			return NotesCAPI.get().ACLEnumEntries(hAclByValue, callback, null);
-		});
+		
+		short result;
+		if (PlatformUtils.isWin32()) {
+			//make sure to call the C function with a StdCallCallback implementation on Win32
+			Win32NotesCallbacks.ACLENTRYENUMFUNCWin32 callbackWin32 = (enumFuncParam, nameMem, accessLevelShort, privileges, accessFlag) -> {
+				callback.invoke(enumFuncParam, nameMem, accessLevelShort, privileges, accessFlag);
+			};
+			result = LockUtil.lockHandle(hAcl, (hAclByValue) -> {
+				return NotesCAPI.get().ACLEnumEntries(hAclByValue, callbackWin32, null);
+			});
+		}
+		else {
+			result = LockUtil.lockHandle(hAcl, (hAclByValue) -> {
+				return NotesCAPI.get().ACLEnumEntries(hAclByValue, callback, null);
+			});
+		}
 		
 		checkResult(result);
 		

@@ -42,6 +42,7 @@ import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.Item;
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -70,7 +71,7 @@ import com.hcl.domino.richtext.records.RichTextRecord;
 public enum RichTextUtil {
   ;
 
-  public static final Charset LMBCS = Charset.forName("LMBCS-native"); //$NON-NLS-1$
+  public static final Charset LMBCS = NativeItemCoder.get().getLmbcsCharset();
 
   /**
    * Creates a {@link AbstractCDRecord} implementation wrapper for the provided
@@ -113,20 +114,22 @@ public enum RichTextUtil {
    * {@link #encapsulateRecord(short, ByteBuffer)}) with
    * the new encapsulation interface.
    * 
+   * @param type               the {@link RecordType} instance matched to
+   *                           this record
    * @param record             the {@link AbstractCDRecord} implementation to
    *                           re-encapsulate
    * @param encapsulationClass the new interface to use
    * @return a {@link RichTextRecord} implementation using the data from
    *         {@code record} and implementing the new interface
    */
-  public static RichTextRecord<?> reencapsulateRecord(final AbstractCDRecord<?> record,
+  public static RichTextRecord<?> reencapsulateRecord(RecordType type, final AbstractCDRecord<?> record,
       final Class<? extends RichTextRecord<?>> encapsulationClass) {
     if (record instanceof GenericBSIGRecord) {
-      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericBSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forRichTextStructure(encapsulationClass, type, new GenericBSIGRecord(record.getData(), encapsulationClass));
     } else if (record instanceof GenericWSIGRecord) {
-      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericWSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forRichTextStructure(encapsulationClass, type, new GenericWSIGRecord(record.getData(), encapsulationClass));
     } else if (record instanceof GenericLSIGRecord) {
-      return MemoryStructureUtil.forStructure(encapsulationClass, new GenericLSIGRecord(record.getData(), encapsulationClass));
+      return MemoryStructureUtil.forRichTextStructure(encapsulationClass, type, new GenericLSIGRecord(record.getData(), encapsulationClass));
     } else {
       throw new IllegalArgumentException(
           MessageFormat.format("Unable to determine encapsulation for {0}", record.getClass().getName()));
@@ -347,7 +350,7 @@ public enum RichTextUtil {
       if(encapsulation == null) {
         result.add(record);
       } else {
-        result.add(reencapsulateRecord(record, encapsulation));
+        result.add(reencapsulateRecord(type, record, encapsulation));
       }
       
       // These are always stored at WORD boundaries
@@ -389,7 +392,7 @@ public enum RichTextUtil {
         // The length stored here may be longer than the actual action length if it's to fit a WORD boundary
         long byteCount = Math.min(((CDBlobPart)record).getLength(), currentLength);
         byte[] data = ((CDBlobPart)record).getBlobPartData();
-        currentScript.append(new String(data, 0, (int)byteCount, Charset.forName("LMBCS"))); //$NON-NLS-1$
+        currentScript.append(new String(data, 0, (int)byteCount, LMBCS));
         currentLength -= byteCount;
       }
       if(record instanceof CDEventEntry) {

@@ -78,7 +78,7 @@ public class TestClientBasics extends AbstractNotesRuntimeTest {
 
   @Test
   public void testIsOnServer() {
-    final boolean expected = DominoUtils.checkBooleanProperty("JNX_ON_SERVER", "jnx.onserver");
+    final boolean expected = DominoUtils.checkBooleanProperty("jnx.onserver", "JNX_ON_SERVER");
     Assertions.assertEquals(expected, this.getClient().isOnServer());
   }
 

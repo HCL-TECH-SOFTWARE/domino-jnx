@@ -48,6 +48,7 @@ import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
+import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNAIDTableAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
@@ -195,7 +196,7 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
 		
 		final NotesCallbacks.IdEnumerateProc proc;
 		if (PlatformUtils.isWin32()) {
-			proc = (parameter, noteId) -> {
+			proc = (Win32NotesCallbacks.IdEnumerateProcWin32) (parameter, noteId) -> {
 				IEnumerateCallback.Action result = callback.noteVisited(noteId);
 				if (result==IEnumerateCallback.Action.Stop) {
 					return INotesErrorConstants.ERR_CANCEL;

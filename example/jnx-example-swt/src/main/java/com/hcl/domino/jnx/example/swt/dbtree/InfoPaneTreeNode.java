@@ -14,26 +14,24 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.jnx.vertx.json;
+package com.hcl.domino.jnx.example.swt.dbtree;
 
-import java.io.IOException;
+import java.util.Arrays;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.hcl.domino.data.Document;
+import org.eclipse.jface.viewers.TreeNode;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 
-/**
- * Custom  vertx Json Serializer for Document Object in Designs
- *
- * @since 1.0.32
- */
-public class DocumentToUnidSerializer extends JsonSerializer<Document> {
-	private static String UNID = "unid"; //$NON-NLS-1$
+public abstract class InfoPaneTreeNode extends TreeNode {
 
-	@Override
-	public void serialize(Document value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-		gen.writeStringField(UNID, value.getUNID());
-		gen.writeEndObject();
-	}
+  public InfoPaneTreeNode(final Object value) {
+    super(value);
+  }
+
+  public void displayInfoPane(final Composite target) {
+    Arrays.stream(target.getChildren()).forEach(Control::dispose);
+  }
+
+  public abstract Image getImage();
 }

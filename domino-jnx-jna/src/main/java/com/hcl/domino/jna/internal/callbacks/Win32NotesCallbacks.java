@@ -18,6 +18,7 @@ package com.hcl.domino.jna.internal.callbacks;
 
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE.ByValue;
 import com.hcl.domino.jna.internal.structs.NIFFindByKeyContextStruct;
+import com.hcl.domino.jna.internal.structs.NotesLSCompileErrorInfo;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
 import com.sun.jna.Memory;
@@ -134,6 +135,11 @@ public interface Win32NotesCallbacks {
 		short invoke(Pointer pInfo, Pointer pCtx);
 	}
 	
+	interface LSCOMPILEERRPROCWin32 extends NotesCallbacks.LSCOMPILEERRPROC, StdCallCallback {
+		@Override
+		short invoke(NotesLSCompileErrorInfo pInfo, Pointer pCtx);
+	}
+
 	interface STATTRAVERSEPROCWin32 extends NotesCallbacks.STATTRAVERSEPROC, StdCallCallback {
 		@Override
 		short invoke(Pointer ctx, Pointer facility, Pointer statName, short valueType, Pointer value);

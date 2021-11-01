@@ -17,10 +17,10 @@
 package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Set;
 
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -78,7 +78,7 @@ public interface CDFieldHint extends RichTextRecord<WSIG> {
     final int len = this.getHintTextLength();
     final byte[] lmbcs = new byte[len];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
   }
 
   @StructureGetter("HintTextLength")
@@ -88,7 +88,7 @@ public interface CDFieldHint extends RichTextRecord<WSIG> {
   CDFieldHint setFlags(Collection<Flag> flags);
 
   default CDFieldHint setHintText(final String text) {
-    final byte[] lmbcs = text == null ? new byte[0] : text.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    final byte[] lmbcs = text == null ? new byte[0] : text.getBytes(NativeItemCoder.get().getLmbcsCharset());
     this.setHintTextLength(lmbcs.length);
     this.resizeVariableData(lmbcs.length);
     final ByteBuffer buf = this.getVariableData();

@@ -67,20 +67,20 @@ public interface ViewmapButtonDefaults extends MemoryStructure {
   FontStyle getFontID();
 
   @StructureSetter("LineColor")
-  ViewmapButtonDefaults setbHighlightTouch(int lineColor);
+  ViewmapButtonDefaults setLineColor(int lineColor);
 
   @StructureSetter("FillFGColor")
-  ViewmapButtonDefaults setbHighlightCurrent(int fillFGColor);
+  ViewmapButtonDefaults setFillFGColor(int fillFGColor);
 
   @StructureSetter("FillBGColor")
-  ViewmapButtonDefaults setHLOutlineColor(int fillBGColor);
+  ViewmapButtonDefaults setFillBGColor(int fillBGColor);
 
   @StructureSetter("LineStyle")
-  ViewmapButtonDefaults setHLOutlineWidth(int lineStyle);
+  ViewmapButtonDefaults setLineStyle(int lineStyle);
 
   @StructureSetter("LineWidth")
-  ViewmapButtonDefaults setHLOutlineStyle(int lineWidth);
+  ViewmapButtonDefaults setLineWidth(int lineWidth);
 
   @StructureSetter("FillStyle")
-  ViewmapButtonDefaults setHLFillColor(int fillStyle);
+  ViewmapButtonDefaults setFillStyle(int fillStyle);
 }

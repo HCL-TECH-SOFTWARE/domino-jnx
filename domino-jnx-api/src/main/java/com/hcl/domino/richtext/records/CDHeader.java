@@ -16,8 +16,7 @@
  */
 package com.hcl.domino.richtext.records;
 
-import java.nio.charset.Charset;
-
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -69,7 +68,7 @@ public interface CDHeader extends RichTextRecord<WSIG> {
         break;
       }
     }
-    return new String(name, 0, firstNull, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(name, 0, firstNull, NativeItemCoder.get().getLmbcsCharset()); //$NON-NLS-1$
   }
   
   default String getText() {

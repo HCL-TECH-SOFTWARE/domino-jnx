@@ -57,7 +57,7 @@ When run, the `withResourceDxl` method will create a fresh temp DB, iterate thro
 
 These naming of the directories doesn't have any explicit requirements, but the convention is to place files within the "dxl" directory and then within a directory names after the test class or individual method.
 
-It is safest to export the notes originally with "raw note format" DXL, to avoid any potential trouble with fidelity (though normal DXL will usually work fine). The `example/jnx-example-swt` app when run contains a menu option under "Apps" to launch a DXL exporter that has an option to set this flag.
+It is safest to export the notes originally with "raw note format" DXL, to avoid any potential trouble with fidelity and with some edge-case bugs when importing for the test suite on Linux. The `example/jnx-example-swt` app when run contains a tab with a DXL exporter that has an option to set this flag.
 
 ### Design DXL Tests
 

@@ -27,7 +27,7 @@ import com.hcl.domino.jnx.example.swt.App;
 import com.hcl.domino.jnx.example.swt.AppShell;
 import com.hcl.domino.jnx.example.swt.info.StoreInfoPane;
 
-public class StoreTreeNode extends DBListTreeNode {
+public class StoreTreeNode extends InfoPaneTreeNode {
   public enum Type {
     DATA(EnumSet.of(DocumentClass.DATA)),
     DESIGN(EnumSet.of(DocumentClass.ALLNONDATA));

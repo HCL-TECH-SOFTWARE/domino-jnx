@@ -337,21 +337,6 @@ public abstract class AbstractCalendaringTest extends AbstractNotesRuntimeTest {
     return this.getClient().getCalendaring();
   }
 
-  private String getMailFileName() {
-    final String mailFile = System.getenv(AbstractCalendaringTest.PROP_MAIL_FILE);
-    if (!StringUtil.isEmpty(mailFile)) {
-      return mailFile;
-    }
-
-    if (this.log.isLoggable(Level.INFO)) {
-      this.log.info(
-          MessageFormat.format("No specific mail-file defined via \"{0}\" env-variable: Falling back to notes-ini variable \"{1}\"",
-              AbstractCalendaringTest.PROP_MAIL_FILE, AbstractCalendaringTest.PROP_MAIL_FILE));
-    }
-
-    return this.getClient().getDominoRuntime().getPropertyString(AbstractCalendaringTest.PROP_MAIL_FILE);
-  }
-
   protected String getMailServer() {
     final String mailServer = System.getenv(AbstractCalendaringTest.PROP_MAIL_SERVER);
     if (!StringUtil.isEmpty(mailServer)) {
@@ -507,19 +492,5 @@ public abstract class AbstractCalendaringTest extends AbstractNotesRuntimeTest {
             StreamUtil.close(is);
           }
         });
-  }
-
-  protected void withMailDatabase(final DatabaseConsumer c) throws Exception {
-    final String mailServerName = this.getMailServer();
-    final String mailFile = this.getMailFileName();
-
-    Assertions.assertFalse(mailFile == null || mailFile.length() == 0, "Cannot find mail-file in environment");
-
-    final Database mailDb = this.getClient().openDatabase(mailServerName, mailFile);
-
-    Assertions.assertNotNull(mailDb, "Cannot find mail-database: server="
-        + (mailServerName == null ? "" : mailServerName) + "dbFile=" + mailFile);
-
-    c.accept(mailDb);
   }
 }

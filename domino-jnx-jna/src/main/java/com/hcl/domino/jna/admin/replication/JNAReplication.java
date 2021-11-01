@@ -55,11 +55,13 @@ import com.hcl.domino.jna.internal.JNANotesConstants;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
+import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNADocumentAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNAReplicationAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
+import com.hcl.domino.jna.internal.gc.handles.DHANDLE32;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE64;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.structs.NotesDbReplicaInfoStruct;
@@ -259,7 +261,7 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations> 
 
 		if (getDocumentsCallback!=null) {
 			if (PlatformUtils.isWin32()) {
-				cGetNotesCallback = (param, totalSizeLow, totalSizeHigh) -> {
+				cGetNotesCallback = (Win32NotesCallbacks.NSFGetNotesCallbackWin32) (param, totalSizeLow, totalSizeHigh) -> {
 					try {
 						long totalSize = (long)totalSizeLow << 32 | totalSizeHigh & 0xFFFFFFFFL;
 						Action action = getDocumentsCallback.gettingDocuments(totalSize);
@@ -303,7 +305,7 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations> 
 		
 		if (folderAddCallback!=null) {
 			if (PlatformUtils.isWin32()) {
-				cFolderAddCallback = (param, noteUNID, opBlock, opBlockSize) -> {
+				cFolderAddCallback = (Win32NotesCallbacks.NSFFolderAddCallbackWin32) (param, noteUNID, opBlock, opBlockSize) -> {
 					try {
 						Action action = folderAddCallback.addedToFolder(noteUNID==null ? null : noteUNID.toString());
 						if (action == Action.STOP) {
@@ -475,14 +477,14 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations> 
 			
 			if (docOpenCallback!=null) {
 				if (PlatformUtils.isWin32()) {
-					cNoteOpenCallback = (param, hNote, noteId, status) -> {
+					cNoteOpenCallback = (Win32NotesCallbacks.NSFNoteOpenCallbackWin32) (param, hNote, noteId, status) -> {
 						JNADocument note;
 						if (hNote==0) {
 							note = null;
 						}
 						else {
 							@SuppressWarnings("deprecation")
-							DHANDLE hNoteObj = new DHANDLE64(hNote);
+							DHANDLE hNoteObj = new DHANDLE32(hNote);
 							note = new JNADocument(jnaDb, hNoteObj, true);
 						}
 						Optional<DominoException> statusEx = NotesErrorUtils.toNotesError(status);
@@ -510,7 +512,7 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations> 
 						}
 						else {
 							@SuppressWarnings("deprecation")
-							DHANDLE hNoteObj = new DHANDLE64(hNote);
+							DHANDLE hNoteObj = new DHANDLE32(hNote);
 							note = new JNADocument(jnaDb, hNoteObj, true);
 						}
 						Optional<DominoException> statusEx = NotesErrorUtils.toNotesError(status);
@@ -537,14 +539,14 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations> 
 			
 			if (objectAllocCallback!=null) {
 				if (PlatformUtils.isWin32()) {
-					cObjectAllocCallback = (param, hNote, oldRRV, status, objectSize) -> {
+					cObjectAllocCallback = (Win32NotesCallbacks.NSFObjectAllocCallbackWin32) (param, hNote, oldRRV, status, objectSize) -> {
 						JNADocument note;
 						if (hNote==0) {
 							note = null;
 						}
 						else {
 							@SuppressWarnings("deprecation")
-							DHANDLE hNoteObj = new DHANDLE64(hNote);
+							DHANDLE hNoteObj = new DHANDLE32(hNote);
 							note = new JNADocument(jnaDb, hNoteObj, true);
 						}
 						Optional<DominoException> statusEx = NotesErrorUtils.toNotesError(status);
@@ -572,7 +574,7 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations> 
 						}
 						else {
 							@SuppressWarnings("deprecation")
-							DHANDLE hNoteObj = new DHANDLE64(hNote);
+							DHANDLE hNoteObj = new DHANDLE32(hNote);
 							note = new JNADocument(jnaDb, hNoteObj, true);
 						}
 						Optional<DominoException> statusEx = NotesErrorUtils.toNotesError(status);
@@ -599,14 +601,14 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations> 
 			
 			if (objectWriteCallback!=null) {
 				if (PlatformUtils.isWin32()) {
-					cObjectWriteCallback = (param, hNote, oldRRV, status, buffer, bufferSize) -> {
+					cObjectWriteCallback = (Win32NotesCallbacks.NSFObjectWriteCallbackWin32) (param, hNote, oldRRV, status, buffer, bufferSize) -> {
 						JNADocument note;
 						if (hNote==0) {
 							note = null;
 						}
 						else {
 							@SuppressWarnings("deprecation")
-							DHANDLE hNoteObj = new DHANDLE64(hNote);
+							DHANDLE hNoteObj = new DHANDLE32(hNote);
 							note = new JNADocument(jnaDb, hNoteObj, true);
 						}
 						Optional<DominoException> statusEx = NotesErrorUtils.toNotesError(status);
@@ -636,7 +638,7 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations> 
 						}
 						else {
 							@SuppressWarnings("deprecation")
-							DHANDLE hNoteObj = new DHANDLE64(hNote);
+							DHANDLE hNoteObj = new DHANDLE32(hNote);
 							note = new JNADocument(jnaDb, hNoteObj, true);
 						}
 						Optional<DominoException> statusEx = NotesErrorUtils.toNotesError(status);

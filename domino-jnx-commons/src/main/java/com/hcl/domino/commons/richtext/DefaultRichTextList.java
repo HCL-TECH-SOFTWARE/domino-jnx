@@ -142,7 +142,7 @@ public class DefaultRichTextList extends AbstractList<RichTextRecord<?>> impleme
         if (type != null) {
           final Class<? extends RichTextRecord<?>> encapsulation = type.getEncapsulation();
           if (encapsulation != null) {
-            return RichTextUtil.reencapsulateRecord((AbstractCDRecord<?>) record, encapsulation);
+            return RichTextUtil.reencapsulateRecord(type, (AbstractCDRecord<?>) record, encapsulation);
           }
         }
       }

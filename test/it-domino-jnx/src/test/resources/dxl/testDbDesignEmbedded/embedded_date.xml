@@ -1,411 +1,531 @@
 <?xml version='1.0' encoding='utf-8'?>
-<form name='ppage layout G' alias='homeg' xmlns='http://www.lotus.com/dxl'
- version='12.0' maintenanceversion='1.0' replicaid='6525860E002D4664' nocompose='true'
- noquery='true' publicaccess='false' designerversion='8.5' language='en' bgcolor='#d7c8bf'>
-<noteinfo noteid='2f6' unid='17C9B1A4EEB51F148525692D004C3728' sequence='252'>
-<created><datetime dst='true'>20000731T095228,56-04</datetime></created>
-<modified><datetime>20210301T125026,44+00</datetime></modified>
-<revised><datetime>20210301T125026,43+00</datetime></revised>
-<lastaccessed><datetime>20210301T125026,43+00</datetime></lastaccessed>
-<addedtofile><datetime dst='true'>20201027T041534,10-04</datetime></addedtofile></noteinfo>
-<updatedby><name>CN=Domino Template Development/O=Domino</name></updatedby>
-<revisions><datetime dst='true'>20061113T141825,14-04</datetime><datetime
- dst='true'>20070122T145314,66-04</datetime><datetime dst='true'>20070122T154002,62-04</datetime><datetime
- dst='true'>20070130T162039,89-04</datetime><datetime dst='true'>20081002T081818,87-04</datetime><datetime
- dst='true'>20081107T091149,50-04</datetime></revisions>
-<wassignedby><name>CN=Domino Template Development/O=Domino</name></wassignedby>
-<globals><code event='options'><lotusscript>Option Public
+<note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$TITLE' sign='true'><textlist><text>ppage layout G</text><text
+>homeg</text></textlist></item>
+<item name='$LANGUAGE'><text>en</text></item>
+<item name='$DesignerVersion'><text>8.5</text></item>
+<item name='$Script' summary='false' sign='true'><text>'++LotusScript Development Environment:2:5:(Options):0:66
+Option Public
 Use "SetPrevLib"
 
-</lotusscript></code></globals><code event='querymodechange'><lotusscript
->Sub Querymodechange(Source As Notesuidocument, Continue As Variant)
-	Call CheckAdminAccess
-End Sub</lotusscript></code>
-<background><imageref><code event='value'><formula>REM {DNT};
-ThemeCh := @If("theme" + ThemeChoice);
+'++LotusScript Development Environment:2:5:(Forward):0:1
 
-@If(ThemeChoice = "" | ThemeChoice = "100"; "theme10";  ThemeCh)</formula></code></imageref></background>
-<body><richtext>
-<pardef id='1' hide='read edit print copy preview previewedit'><parstyle name='TabStyle'><font
- size='12pt' color='black' name='sans-serif'/></parstyle></pardef>
-<par def='1'><run><font size='12pt'/></run></par><subformref><code event='value'><formula
->defaultFormBG := "10";
-ch := @If(ThemeChoice = "" | ThemeChoice = "100"; defaultFormBG; ThemeChoice);
-"Theme" + ch + "CSS"</formula></code></subformref>
-<par def='1'><run><font size='12pt'/></run></par>
-<pardef id='2' hide='read edit print copy preview previewedit notes web'/><subformref
- name='EditSaveHP'/>
-<pardef id='3' leftmargin='1in' hide='notes web'/>
-<par def='3'/>
-<table minrowheight='0.5000in' widthtype='fixedcenter' refwidth='8.7958in'><tablerowstyle
-><font size='0pt' style='underline strikethrough emboss' name='monospace'
- color='#090000'/></tablerowstyle><tablecolumn width='2.1160in'/><tablecolumn
- width='1.5000in'/><tablecolumn width='1.4500in'/><tablecolumn width='1.5000in'/><tablecolumn
- width='2.2299in'/>
-<tablerow>
-<tablecell borderwidth='0px'>
-<pardef id='5' leftmargin='0.0104in' hide='notes web' keepwithnext='true'
- keeptogether='true'/>
-<par def='5'/>
-<table widthtype='fitmargins' minrowheight='1.5000in' leftmargin='0' refwidth='2.0639in'><tablerowstyle
-><font size='0pt' style='underline strikethrough emboss' name='monospace'
- color='#090000'/></tablerowstyle><tablecolumn width='100%'/>
-<tablerow>
-<tablecell borderwidth='5px' bgcolor='white' htmlclass='AppletTable'>
-<pardef id='7' leftmargin='0.0521in' keepwithnext='true' keeptogether='true'/>
-<par def='7'><embeddeddatepicker headerbgcolor='lime' controlbgcolor='aqua' targetframe='TestTargetFrame' height='1.9000in' width='2.0201in'/></par></tablecell></tablerow></table></tablecell>
-<tablecell valign='center' borderwidth='0px'>
-<pardef id='8' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
-<par def='8'><run><font color='white'/></run></par>
-<table widthtype='fitmargins' leftmargin='0' refwidth='1.5000in'><tablerowstyle
-><font size='0pt' style='underline strikethrough emboss' name='monospace'
- color='#090000'/></tablerowstyle><tablecolumn width='100%'/>
-<tablerow>
-<tablecell borderwidth='5px 0px 0px' htmlclass='AppletTable'>
-<par def='8'/></tablecell></tablerow></table></tablecell>
-<tablecell valign='center' borderwidth='0px'>
-<pardef id='10' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
-<par def='10'/>
-<table widthtype='fitmargins' leftmargin='0.0104in' refwidth='1.3875in'><tablerowstyle
-><font size='0pt' style='underline strikethrough emboss' name='monospace'
- color='#090000'/></tablerowstyle><tablecolumn width='100%'/>
-<tablerow>
-<tablecell borderwidth='5px' bgcolor='#efefef' htmlclass='AppletTable'>
-<pardef id='12' align='center' leftmargin='0.0521in' keepwithnext='true' keeptogether='true'><code
- event='hidewhen'><formula>LCPlat := @LowerCase(@Platform);
-@Contains(LCPlat; "mac")</formula></code></pardef>
-<par def='12'><javaapplet width='120px' height='120px'><code event='action'><javaproject
- class='Clock.class' codepath='notes:///./$FILE'>
-<appletresourcefileref appletresource='Clock - Blue background' file='Clock.class'/>
-<appletresourcefileref appletresource='Clock - Blue background' file='face.gif'/>
-<appletresourcefileref appletresource='Clock - Blue background' file='hour.gif'/>
-<appletresourcefileref appletresource='Clock - Blue background' file='minute.gif'/>
-<appletresourcefileref appletresource='Clock - Blue background' file='Rotate.class'/>
-<appletresourcefileref appletresource='Clock - Blue background' file='second.gif'/></javaproject></code></javaapplet> </par>
-<pardef id='13' align='center' leftmargin='0.0521in' keepwithnext='true' keeptogether='true'><code
- event='hidewhen'><formula>LCPlat := @LowerCase(@Platform);
-!@Contains(LCPlat; "mac")</formula></code></pardef>
-<par def='13'><picture width='103px' height='100px'><imageref name='MacAppletImage'/></picture></par></tablecell></tablerow></table></tablecell>
-<tablecell valign='center' borderwidth='0px'>
-<pardef id='14' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
-<par def='14'/>
-<table widthtype='fitmargins' leftmargin='0' refwidth='1.5000in'><tablerowstyle
-><font size='0pt' style='underline strikethrough emboss' name='monospace'
- color='#090000'/></tablerowstyle><tablecolumn width='100%'/>
-<tablerow>
-<tablecell borderwidth='5px 0px 0px' htmlclass='AppletTable'>
-<par def='14'/></tablecell></tablerow></table></tablecell>
-<tablecell valign='center' borderwidth='0px'>
-<pardef id='16' leftmargin='0.0104in' hide='notes web' keepwithnext='true'
- keeptogether='true'/>
-<par def='16'/>
-<table widthtype='fitmargins' minrowheight='1in' leftmargin='0' refwidth='2.1778in'><tablerowstyle
-><font size='0pt' style='underline strikethrough emboss' name='monospace'
- color='#090000'/></tablerowstyle><tablecolumn width='100%'/>
-<tablerow>
-<tablecell borderwidth='5px' bgcolor='#efefef' htmlclass='AppletTable'>
-<pardef id='18' align='center' leftmargin='0.0521in' keepwithnext='true' keeptogether='true'><code
- event='hidewhen'><formula>LCPlat := @LowerCase(@Platform);
-@Contains(LCPlat; "mac")</formula></code></pardef>
-<par def='18'><javaapplet width='200px' height='200px'><code event='action'><javaproject
- class='Calc.class' codepath='notes:///./$FILE'>
-<appletresourcefileref appletresource='Calculator' file='Calc.class'/></javaproject></code></javaapplet> </par>
-<pardef id='19' align='center' leftmargin='0.0521in' keepwithnext='true' keeptogether='true'><code
- event='hidewhen'><formula>LCPlat := @LowerCase(@Platform);
-!@Contains(LCPlat; "mac")</formula></code></pardef>
-<par def='19'><run><font size='9pt'/> Add your own content:</run></par>
-<par def='19'><field type='richtextlite' kind='editable' name='RT9' description='Click the drop-down to select the contents for this field'
- htmltitle='Click the drop-down to select the contents for this field' fieldhelp='Click the icon to insert a picture|Click the icon to insert a shared image|Click the icon to insert an attachment|Click the icon to insert a view|Click the icon to insert a date picker|Click the icon to insert a shared applet|Click the icon to change text style|Click the icon to insert an OLE object|Click the icon to insert your calendar|Click the icon to insert your inbox'
- fieldhint='Click the drop-down to select the contents for this field' onlyallow='picture sharedimage attachment view sharedapplet text object help clear'
- firstdisplay='picture'/><compositedata type='98' prevtype='65513' nexttype='98'
- afterparcount='10' containertype='65418' aftercontainercount='4' afterbegincount='7'>
-Yg4BAIQAAAAAAAEAAAA=
-</compositedata><run
-><font size='9pt'/></run></par></tablecell></tablerow></table></tablecell></tablerow></table>
-<pardef id='4' leftmargin='1in'/>
-<par def='4'/>
-<table widthtype='fitmargins' htmlclass='ColorKey' refwidth='11.0729in'><tablerowstyle
-><font size='0pt' style='underline strikethrough emboss' name='monospace'
- color='#090000'/></tablerowstyle><border style='solid' width='5px'/><tablecolumn
- width='100%'/>
-<tablerow>
-<tablecell colorstyle='vgradient' borderwidth='0px' bgcolor='none' altbgcolor='white'>
-<pardef id='20' leftmargin='0.0521in' keepwithnext='true' keeptogether='true'/>
-<par def='20'><run><font size='7pt'/></run></par>
-<table widthtype='fitmargins' minrowheight='3in' rowdisplay='tabs' tablocation='left'
- user4spacing='true' htmlclass='ColorKey' leftmargin='0.2000in' rightmargin='97%'
- refwidth='9.5396in'><tablerowstyle><font size='12pt' color='#090000'/></tablerowstyle><tablecolumn
- width='100%'/>
-<tablerow tablabel='Inbox'>
-<tablecell borderwidth='0px'>
-<pardef id='22' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
-<par def='22'><embeddedview name='($Inbox)' showactionbar='true' showselectionmargin='true'
- widthtype='fitwindow' height='3in' scrollbars='true' database='mailfile'><border
- color='silver'/></embeddedview></par></tablecell></tablerow>
-<tablerow tablabel='Calendar'>
-<tablecell borderwidth='0px'>
-<par def='22'><embeddedview name='Calendar' showactionbar='true' widthtype='fitwindow'
- height='3in' scrollbars='true' database='mailfile'><border color='#71b2cf'/></embeddedview></par></tablecell></tablerow>
-<tablerow tablabel='To Do'>
-<tablecell valign='center' borderwidth='0px'>
-<pardef id='23' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
-<par def='23'><embeddedview name='TodoByStatus' showactionbar='true' widthtype='fitwindow'
- height='3in' scrollbars='true' database='mailfile'/></par></tablecell></tablerow>
-<tablerow tablabel='Contacts'>
-<tablecell valign='center' borderwidth='0px'>
-<par def='22'><embeddedview name='People' showactionbar='true' widthtype='fitwindow'
- height='3in' scrollbars='true' database='addressbook'><border color='#71b2cf'/></embeddedview></par></tablecell></tablerow>
-<tablerow tablabel='Pictures'>
-<tablecell valign='center' borderwidth='0px'>
-<pardef id='24' align='full' leftmargin='0.1875in' rightmargin='98%' keepwithnext='true'
- keeptogether='true'/>
-<par def='24'/>
-<table widthtype='fitmargins' leftmargin='0.1875in' rightmargin='98%' refwidth='9.1611in'><tablerowstyle
-><font size='0pt' style='underline strikethrough emboss' name='monospace'
- color='#090000'/></tablerowstyle><tablecolumn width='33.3299%'/><tablecolumn
- width='33.3299%'/><tablecolumn width='33.3368%'/>
-<tablerow>
-<tablecell borderwidth='0px'>
-<pardef id='25' align='center' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
-<par def='25'><field type='richtextlite' kind='editable' name='RT1' description='Click the drop-down to select the contents for this field'
- htmltitle='Click the drop-down to select the contents for this field' fieldhelp='Click the icon to insert a picture|Click the icon to insert a shared image|Click the icon to insert an attachment|Click the icon to insert a view|Click the icon to insert a date picker|Click the icon to insert a shared applet|Click the icon to change text style|Click the icon to insert an OLE object|Click the icon to insert your calendar|Click the icon to insert your inbox'
- fieldhint='Click the drop-down to select the contents for this field' onlyallow='picture sharedimage attachment view sharedapplet text object help clear'
- firstdisplay='picture'/><compositedata type='98' prevtype='65513' nexttype='98'
- afterparcount='11' containertype='65418' aftercontainercount='4' afterbegincount='7'>
-Yg4BAIQAAAAAAAEAAAA=
-</compositedata></par></tablecell>
-<tablecell borderwidth='0px'>
-<pardef id='26' align='center' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
-<par def='26'><field type='richtextlite' kind='editable' name='RT2' description='Click the drop-down to select the contents for this field'
- htmltitle='Click the drop-down to select the contents for this field' fieldhelp='Click the icon to insert a picture|Click the icon to insert a shared image|Click the icon to insert an attachment|Click the icon to insert a view|Click the icon to insert a date picker|Click the icon to insert a shared applet|Click the icon to change text style|Click the icon to insert an OLE object|Click the icon to insert your calendar|Click the icon to insert your inbox'
- fieldhint='Click the drop-down to select the contents for this field' onlyallow='picture sharedimage attachment view sharedapplet text object help clear'
- firstdisplay='picture'/><compositedata type='98' prevtype='65513' nexttype='98'
- afterparcount='11' containertype='65418' aftercontainercount='4' afterbegincount='7'>
-Yg4BAIQAAAAAAAEAAAA=
-</compositedata></par></tablecell>
-<tablecell borderwidth='0px'>
-<pardef id='27' align='center' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
-<par def='27'><field type='richtextlite' kind='editable' name='RT3' description='Click the drop-down to select the contents for this field'
- htmltitle='Click the drop-down to select the contents for this field' fieldhelp='Click the icon to insert a picture|Click the icon to insert a shared image|Click the icon to insert an attachment|Click the icon to insert a view|Click the icon to insert a date picker|Click the icon to insert a shared applet|Click the icon to change text style|Click the icon to insert an OLE object|Click the icon to insert your calendar|Click the icon to insert your inbox'
- fieldhint='Click the drop-down to select the contents for this field' onlyallow='picture sharedimage attachment view sharedapplet text object help clear'
- firstdisplay='picture'/><compositedata type='98' prevtype='65513' nexttype='98'
- afterparcount='11' containertype='65418' aftercontainercount='4' afterbegincount='7'>
-Yg4BAIQAAAAAAAEAAAA=
-</compositedata></par></tablecell></tablerow></table></tablecell></tablerow>
-<tablerow tablabel='Links'>
-<tablecell borderwidth='0px'>
-<pardef id='28' align='center' leftmargin='0.0104in' hide='notes web' keepwithnext='true'
- keeptogether='true'/>
-<par def='28'><run><font style='bold' color='#f7f7f7'/></run></par>
-<table widthtype='fitmargins' leftmargin='0.0104in' refwidth='9.5292in'><tablerowstyle
-><font size='0pt' style='underline strikethrough emboss' name='monospace'
- color='#090000'/></tablerowstyle><tablecolumn width='50%'/><tablecolumn width='50%'/>
-<tablerow>
-<tablecell borderwidth='0px'>
-<pardef id='30' align='center' leftmargin='0.1000in' rightmargin='99%' hide='read preview'
- keepwithnext='true' keeptogether='true'/>
-<par def='30'>Drag any window containing a web page into the box below.  Click <actionhotspot
- hotspotstyle='none'><code event='click'><formula>REM {Variable to translate};
-title := "Home Page help";
-REM {END variable to translate};
+'++LotusScript Development Environment:2:5:(Declarations):0:2
 
-@DialogBox("HelpSFHP"; [AutoHorzFit] : [AutoVertFit] : [SizeToTable] : [NoCancel] : [NoOkCancel]; title)</formula></code><run
-><font style='underline'/>here</run></actionhotspot> for more information.</par>
-<pardef id='31' align='center' spacebefore='1.5' spaceafter='1.5' keepwithnext='true'
- keeptogether='true'/>
-<par def='31'><run><font style='bold'/>My favorite web links</run></par></tablecell>
-<tablecell borderwidth='0px'>
-<pardef id='32' align='center' leftmargin='0.1000in' rightmargin='99%' hide='read preview'
- keepwithnext='true' keeptogether='true'/>
-<par def='32'>Drag any window containing a Notes application into the box below.  Click <actionhotspot
- hotspotstyle='none'><code event='click'><formula>REM {Variable to translate};
-title := "Home Page help";
-REM {END variable to translate};
+<break/></text></item>
+<item name='$$FormScript' summary='false' sign='true'><text>'++LotusScript Development Environment:2:5:(Options):0:66
 
-@DialogBox("HelpSFHP"; [AutoHorzFit] : [AutoVertFit] : [SizeToTable] : [NoCancel] : [NoOkCancel]; title)</formula></code><run
-><font style='underline'/>here</run></actionhotspot> for more information.</par>
-<pardef id='33' align='center' spacebefore='1.5' spaceafter='1.5' keepwithnext='true'
- keeptogether='true'/>
-<par def='33'><run><font style='bold'/>My favorite Notes links</run></par></tablecell></tablerow>
-<tablerow>
-<tablecell borderwidth='0px'>
-<pardef id='34' align='center' leftmargin='0' rightmargin='98%' keepwithnext='true'
- keeptogether='true'/>
-<par def='34'><embeddedoutline outline='UserBookmarkOrder' database='bookmarks'
- showtwistie='true' type='flat' widthtype='fitwindow' heighttype='fixed' height='2in'
- columnwidth='1.2000in' expand='none' showviewcontents='true' rootname='(Launchpad-Web)'><title
-><layout labelalign='topleft' labelhoffset='0' labelvoffset='0'/></title><toplevel
-><layout labelalign='topleft' imagealign='topleft' labelhoffset='0.2000in'
- labelvoffset='0'/></toplevel><sublevel><layout labelalign='topleft' entryhoffset='0.2000in'
- imagealign='topleft' labelhoffset='0.2000in' labelvoffset='0'/></sublevel></embeddedoutline></par></tablecell>
-<tablecell borderwidth='0px'>
-<pardef id='35' align='center' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
-<par def='35'><embeddedoutline outline='UserBookmarkOrder' database='bookmarks'
- showtwistie='true' type='flat' widthtype='fitwindow' heighttype='fixed' height='2in'
- columnwidth='1.2000in' expand='none' showviewcontents='true' rootname='(Launchpad-Notes)'><title
-><layout labelalign='topleft' labelhoffset='0' labelvoffset='0'/></title><toplevel
-><layout labelalign='topleft' imagealign='topleft' labelhoffset='0.2000in'
- labelvoffset='0'/></toplevel><sublevel><layout labelalign='topleft' entryhoffset='0.2000in'
- imagealign='topleft' labelhoffset='0.2000in' labelvoffset='0'/></sublevel></embeddedoutline></par></tablecell></tablerow></table></tablecell></tablerow>
-<tablerow tablabel='Misc.'>
-<tablecell valign='center' borderwidth='0px'>
-<pardef id='36' align='full' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
- keeptogether='true'/>
-<par def='36'/>
-<table widthtype='fitmargins' leftmargin='0.1000in' rightmargin='98%' refwidth='9.2486in'><tablerowstyle
-><font size='0pt' style='underline strikethrough emboss' name='monospace'
- color='#090000'/></tablerowstyle><tablecolumn width='33.3472%'/><tablecolumn
- width='33.3472%'/><tablecolumn width='33.3090%'/>
-<tablerow>
-<tablecell borderwidth='0px'>
-<pardef id='37' align='center' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
-<par def='37'><field type='richtextlite' kind='editable' name='RT4' description='Click the drop-down to select the contents for this field'
- htmltitle='Click the drop-down to select the contents for this field' fieldhelp='Click the icon to insert a picture|Click the icon to insert a shared image|Click the icon to insert an attachment|Click the icon to insert a view|Click the icon to insert a date picker|Click the icon to insert a shared applet|Click the icon to change text style|Click the icon to insert an OLE object|Click the icon to insert your calendar|Click the icon to insert your inbox'
- fieldhint='Click the drop-down to select the contents for this field' onlyallow='picture sharedimage attachment view sharedapplet text object help clear'
- firstdisplay='picture'/><compositedata type='98' prevtype='65513' nexttype='98'
- afterparcount='11' containertype='65418' aftercontainercount='4' afterbegincount='7'>
-Yg4BAIQAAAAAAAEAAAA=
-</compositedata></par></tablecell>
-<tablecell borderwidth='0px'>
-<pardef id='38' align='center' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
-<par def='38'><field type='richtextlite' kind='editable' name='RT5' description='Click the drop-down to select the contents for this field'
- htmltitle='Click the drop-down to select the contents for this field' fieldhelp='Click the icon to insert a picture|Click the icon to insert a shared image|Click the icon to insert an attachment|Click the icon to insert a view|Click the icon to insert a date picker|Click the icon to insert a shared applet|Click the icon to change text style|Click the icon to insert an OLE object|Click the icon to insert your calendar|Click the icon to insert your inbox'
- fieldhint='Click the drop-down to select the contents for this field' onlyallow='picture sharedimage attachment view sharedapplet text object help clear'
- firstdisplay='picture'/><compositedata type='98' prevtype='65513' nexttype='98'
- afterparcount='11' containertype='65418' aftercontainercount='4' afterbegincount='7'>
-Yg4BAIQAAAAAAAEAAAA=
-</compositedata></par></tablecell>
-<tablecell borderwidth='0px'>
-<pardef id='39' align='center' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
-<par def='39'><field type='richtextlite' kind='editable' name='RT6' description='Click the drop-down to select the contents for this field'
- htmltitle='Click the drop-down to select the contents for this field' fieldhelp='Click the icon to insert a picture|Click the icon to insert a shared image|Click the icon to insert an attachment|Click the icon to insert a view|Click the icon to insert a date picker|Click the icon to insert a shared applet|Click the icon to change text style|Click the icon to insert an OLE object|Click the icon to insert your calendar|Click the icon to insert your inbox'
- fieldhint='Click the drop-down to select the contents for this field' onlyallow='picture sharedimage attachment view sharedapplet text object help clear'
- firstdisplay='sharedapplet'/><compositedata type='98' prevtype='65513' nexttype='98'
- afterparcount='11' containertype='65418' aftercontainercount='4' afterbegincount='7'>
-Yg4BAIQAAAAAAAEAAAA=
-</compositedata></par></tablecell></tablerow></table></tablecell></tablerow></table>
-<par def='20'><run><font size='4pt'/></run></par></tablecell></tablerow></table>
-<par def='4'/></richtext></body>
+'++LotusScript Development Environment:2:5:(Forward):0:1
+Declare Sub Querymodechange(Source As Notesuidocument, Continue As Variant)
+
+'++LotusScript Development Environment:2:5:(Declarations):0:2
+
+'++LotusScript Development Environment:2:2:Querymodechange:1:12
+Sub Querymodechange(Source As Notesuidocument, Continue As Variant)
+    Call CheckAdminAccess
+End Sub
+'++LotusScript Development Environment:2:2:BindEvents:1:129
+Private Sub BindEvents ( Byval ObjectName_ As String )
+    Static Source As NOTESUIDOCUMENT
+    Set Source = Bind(Objectname_)
+    On Event QUERYMODECHANGE From Source Call QUERYMODECHANGE
+End Sub<break/></text></item>
+<item name='$BackgroundR5'>
+<rawitemdata type='1'>
+3QYBAJkAmQAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAH0AHAAAAAMAAAAAAAAAAAAAAAAAAAAA
+AAAAAAD2//oAAQAAAAMAEwDYAAAAAAAAAAAAAAAAAAAAAAAAAAAA2AAHAAoAAwBETlQABwAKAAMA
+CTFTAAEAMgAHAFRoZW1lQ2gAAQAFAHRoZW1lAAUACwBUaGVtZUNob2ljZQAiAq4ABAC1AQMABwAS
+AAsACTBSMVMyUzVTNlMAAABgAAUACwBUaGVtZUNob2ljZQABAAAACgIFAAsAVGhlbWVDaG9pY2UA
+AQADADEwMAAKAh0CrwAmABIAAQAHAHRoZW1lMTAArgAUAAUABwBUaGVtZUNoAK4ABAC1AwMABwAe
+ABgACTBSUjNTNFM1UzZTN1M4UzEwUzEyUzJF3gYBAJkA
+</rawitemdata></item>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
+ compression='none' flags='sign storedindoc' encoding='none' name='Clock.class'
+ size='58'>
+<created><datetime dst='true'>20211019T154424,99-04</datetime></created>
+<modified><datetime dst='true'>20211019T154424,99-04</datetime></modified><filedata
+>
+9v85AAAAAAADAB8AFwAAAAAAAAAAAAAAAAAAAAAAAAAAAENsb2NrIC0gQmx1ZSBiYWNrZ3JvdW5k
+Pw==
+</filedata></file></object></item>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
+ compression='none' flags='sign storedindoc' encoding='none' name='face.gif'
+ size='58'>
+<created><datetime dst='true'>20211019T154424,99-04</datetime></created>
+<modified><datetime dst='true'>20211019T154424,99-04</datetime></modified><filedata
+>
+9v85AAAAAAADAB8AFwAAAAAAAAAAAAAAAAAAAAAAAAAAAENsb2NrIC0gQmx1ZSBiYWNrZ3JvdW5k
+Pw==
+</filedata></file></object></item>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
+ compression='none' flags='sign storedindoc' encoding='none' name='hour.gif'
+ size='58'>
+<created><datetime dst='true'>20211019T154424,99-04</datetime></created>
+<modified><datetime dst='true'>20211019T154424,99-04</datetime></modified><filedata
+>
+9v85AAAAAAADAB8AFwAAAAAAAAAAAAAAAAAAAAAAAAAAAENsb2NrIC0gQmx1ZSBiYWNrZ3JvdW5k
+Pw==
+</filedata></file></object></item>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
+ compression='none' flags='sign storedindoc' encoding='none' name='minute.gif'
+ size='58'>
+<created><datetime dst='true'>20211019T154424,99-04</datetime></created>
+<modified><datetime dst='true'>20211019T154424,99-04</datetime></modified><filedata
+>
+9v85AAAAAAADAB8AFwAAAAAAAAAAAAAAAAAAAAAAAAAAAENsb2NrIC0gQmx1ZSBiYWNrZ3JvdW5k
+Pw==
+</filedata></file></object></item>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
+ compression='none' flags='sign storedindoc' encoding='none' name='Rotate.class'
+ size='58'>
+<created><datetime dst='true'>20211019T154424,99-04</datetime></created>
+<modified><datetime dst='true'>20211019T154424,99-04</datetime></modified><filedata
+>
+9v85AAAAAAADAB8AFwAAAAAAAAAAAAAAAAAAAAAAAAAAAENsb2NrIC0gQmx1ZSBiYWNrZ3JvdW5k
+Pw==
+</filedata></file></object></item>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
+ compression='none' flags='sign storedindoc' encoding='none' name='second.gif'
+ size='58'>
+<created><datetime dst='true'>20211019T154424,99-04</datetime></created>
+<modified><datetime dst='true'>20211019T154424,99-04</datetime></modified><filedata
+>
+9v85AAAAAAADAB8AFwAAAAAAAAAAAAAAAAAAAAAAAAAAAENsb2NrIC0gQmx1ZSBiYWNrZ3JvdW5k
+Pw==
+</filedata></file></object></item>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
+ compression='none' flags='sign storedindoc' encoding='none' name='Calc.class'
+ size='44'>
+<created><datetime dst='true'>20211019T154424,99-04</datetime></created>
+<modified><datetime dst='true'>20211019T154424,99-04</datetime></modified><filedata
+>
+9v8sAAAAAAADAB8ACgAAAAAAAAAAAAAAAAAAAAAAAAAAAENhbGN1bGF0b3I=
+</filedata></file></object></item>
+<item name='$Body' sign='true'>
+<rawitemdata type='1'>
+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
+u/9WABMAAAAAAAAAAABIAAEAEgAGAExDUGxhdLwAYQEDAAcADAAFAAkxUzJTAAAAHAAFAAYATENQ
+bGF0AQADAG1hYwBHAh4BAwAHAAwABQAJMFI1UwCDBBMAhf8eAAEAAAkgQWRkIHlvdXIgb3duIGNv
+bnRlbnQ6gQKDBBMA3QYAAIr//v9QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACw/xQAAAAAAAAACAAAAAAA
+AAAAAIr/YACCAAEAAAAAAAAAAAAAAAEAAAoAAAAAAAAAAAMAOQAAAFJUOUNsaWNrIHRoZSBkcm9w
+LWRvd24gdG8gc2VsZWN0IHRoZSBjb250ZW50cyBmb3IgdGhpcyBmaWVsZHr/VAAAAAAAAAA5AAAA
+AAAAAAAAAAAAAAAAQ2xpY2sgdGhlIGRyb3AtZG93biB0byBzZWxlY3QgdGhlIGNvbnRlbnRzIGZv
+ciB0aGlzIGZpZWxkAOn/hQF3AQAAAAAAAAAAQ2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IGEgcGlj
+dHVyZXxDbGljayB0aGUgaWNvbiB0byBpbnNlcnQgYSBzaGFyZWQgaW1hZ2V8Q2xpY2sgdGhlIGlj
+b24gdG8gaW5zZXJ0IGFuIGF0dGFjaG1lbnR8Q2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IGEgdmll
+d3xDbGljayB0aGUgaWNvbiB0byBpbnNlcnQgYSBkYXRlIHBpY2tlcnxDbGljayB0aGUgaWNvbiB0
+byBpbnNlcnQgYSBzaGFyZWQgYXBwbGV0fENsaWNrIHRoZSBpY29uIHRvIGNoYW5nZSB0ZXh0IHN0
+eWxlfENsaWNrIHRoZSBpY29uIHRvIGluc2VydCBhbiBPTEUgb2JqZWN0fENsaWNrIHRoZSBpY29u
+IHRvIGluc2VydCB5b3VyIGNhbGVuZGFyfENsaWNrIHRoZSBpY29uIHRvIGluc2VydCB5b3VyIGlu
+Ym94AOn/RwA5AAAAAAAAAAAAQ2xpY2sgdGhlIGRyb3AtZG93biB0byBzZWxlY3QgdGhlIGNvbnRl
+bnRzIGZvciB0aGlzIGZpZWxkAGIOAQCEAAAAAAABAAAAYg4BAIEAAAAAAD8ZAADeBgAAiv+F/wgA
+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
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAEAAAAAlAAOAQIADgECAJY0YgCDBBsA3QYBAPv/+/8s
+AAEAAAABAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAABc/z4AAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAAAAAAEnAAACQAAAAEACQAAAN4GAQD7/88Ozgco
+ADwAAAAAAAMA0BIAAM4H+xh/JQACAAABAQAAgQKC/1oAHAADAAAAAAAAAOwH+xjsBwAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIYBAAAAAJSEDwAAAA8AAAAAAAAAAQAA
+AAQAAACDBBwA3QYAAIr//v9QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACw/xQAAAAAAAAACAAAAAAAAAAA
+AIr/YACCAAEAAAAAAAAAAAAAAAEAAAoAAAAAAAAAAAMAOQAAAFJUMUNsaWNrIHRoZSBkcm9wLWRv
+d24gdG8gc2VsZWN0IHRoZSBjb250ZW50cyBmb3IgdGhpcyBmaWVsZHr/VAAAAAAAAAA5AAAAAAAA
+AAAAAAAAAAAAQ2xpY2sgdGhlIGRyb3AtZG93biB0byBzZWxlY3QgdGhlIGNvbnRlbnRzIGZvciB0
+aGlzIGZpZWxkAOn/hQF3AQAAAAAAAAAAQ2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IGEgcGljdHVy
+ZXxDbGljayB0aGUgaWNvbiB0byBpbnNlcnQgYSBzaGFyZWQgaW1hZ2V8Q2xpY2sgdGhlIGljb24g
+dG8gaW5zZXJ0IGFuIGF0dGFjaG1lbnR8Q2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IGEgdmlld3xD
+bGljayB0aGUgaWNvbiB0byBpbnNlcnQgYSBkYXRlIHBpY2tlcnxDbGljayB0aGUgaWNvbiB0byBp
+bnNlcnQgYSBzaGFyZWQgYXBwbGV0fENsaWNrIHRoZSBpY29uIHRvIGNoYW5nZSB0ZXh0IHN0eWxl
+fENsaWNrIHRoZSBpY29uIHRvIGluc2VydCBhbiBPTEUgb2JqZWN0fENsaWNrIHRoZSBpY29uIHRv
+IGluc2VydCB5b3VyIGNhbGVuZGFyfENsaWNrIHRoZSBpY29uIHRvIGluc2VydCB5b3VyIGluYm94
+AOn/RwA5AAAAAAAAAAAAQ2xpY2sgdGhlIGRyb3AtZG93biB0byBzZWxlY3QgdGhlIGNvbnRlbnRz
+IGZvciB0aGlzIGZpZWxkAGIOAQCEAAAAAAABAAAAYg4BAIEAAAAAAD8ZAADeBgAAiv/QEgAB+xgo
+Kn8lAAIAAAEBAACBAoL/WgAdAAMAAAAAAAAAGRkoKhkZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAhgEAAAAAlIQPAAAADwAAAAAAAAABAAAABAAAAIMEHQDdBgAAiv/+
+/1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAALD/FAAAAAAAAAAIAAAAAAAAAAAAiv9gAIIAAQAAAAAAAAAA
+AAAAAQAACgAAAAAAAAAAAwA5AAAAUlQyQ2xpY2sgdGhlIGRyb3AtZG93biB0byBzZWxlY3QgdGhl
+IGNvbnRlbnRzIGZvciB0aGlzIGZpZWxkev9UAAAAAAAAADkAAAAAAAAAAAAAAAAAAABDbGljayB0
+aGUgZHJvcC1kb3duIHRvIHNlbGVjdCB0aGUgY29udGVudHMgZm9yIHRoaXMgZmllbGQA6f+FAXcB
+AAAAAAAAAABDbGljayB0aGUgaWNvbiB0byBpbnNlcnQgYSBwaWN0dXJlfENsaWNrIHRoZSBpY29u
+IHRvIGluc2VydCBhIHNoYXJlZCBpbWFnZXxDbGljayB0aGUgaWNvbiB0byBpbnNlcnQgYW4gYXR0
+YWNobWVudHxDbGljayB0aGUgaWNvbiB0byBpbnNlcnQgYSB2aWV3fENsaWNrIHRoZSBpY29uIHRv
+IGluc2VydCBhIGRhdGUgcGlja2VyfENsaWNrIHRoZSBpY29uIHRvIGluc2VydCBhIHNoYXJlZCBh
+cHBsZXR8Q2xpY2sgdGhlIGljb24gdG8gY2hhbmdlIHRleHQgc3R5bGV8Q2xpY2sgdGhlIGljb24g
+dG8gaW5zZXJ0IGFuIE9MRSBvYmplY3R8Q2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IHlvdXIgY2Fs
+ZW5kYXJ8Q2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IHlvdXIgaW5ib3gA6f9HADkAAAAAAAAAAABD
+bGljayB0aGUgZHJvcC1kb3duIHRvIHNlbGVjdCB0aGUgY29udGVudHMgZm9yIHRoaXMgZmllbGQA
+Yg4BAIQAAAAAAAEAAABiDgEAgQAAAAAAPxkAAN4GAACK/9ASAAIoKlY7gSUAAgAAAQEAAIECgv9a
+AB4AAwAAAAAAAABGKlY7RioAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AACGAQAAAACUhA8AAAAPAAAAAAAAAAEAAAAEAAAAgwQeAN0GAACK//7/UAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAsP8UAAAAAAAAAAgAAAAAAAAAAACK/2AAggABAAAAAAAAAAAAAAABAAAKAAAAAAAAAAAD
+ADkAAABSVDNDbGljayB0aGUgZHJvcC1kb3duIHRvIHNlbGVjdCB0aGUgY29udGVudHMgZm9yIHRo
+aXMgZmllbGR6/1QAAAAAAAAAOQAAAAAAAAAAAAAAAAAAAENsaWNrIHRoZSBkcm9wLWRvd24gdG8g
+c2VsZWN0IHRoZSBjb250ZW50cyBmb3IgdGhpcyBmaWVsZADp/4UBdwEAAAAAAAAAAENsaWNrIHRo
+ZSBpY29uIHRvIGluc2VydCBhIHBpY3R1cmV8Q2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IGEgc2hh
+cmVkIGltYWdlfENsaWNrIHRoZSBpY29uIHRvIGluc2VydCBhbiBhdHRhY2htZW50fENsaWNrIHRo
+ZSBpY29uIHRvIGluc2VydCBhIHZpZXd8Q2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IGEgZGF0ZSBw
+aWNrZXJ8Q2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IGEgc2hhcmVkIGFwcGxldHxDbGljayB0aGUg
+aWNvbiB0byBjaGFuZ2UgdGV4dCBzdHlsZXxDbGljayB0aGUgaWNvbiB0byBpbnNlcnQgYW4gT0xF
+IG9iamVjdHxDbGljayB0aGUgaWNvbiB0byBpbnNlcnQgeW91ciBjYWxlbmRhcnxDbGljayB0aGUg
+aWNvbiB0byBpbnNlcnQgeW91ciBpbmJveADp/0cAOQAAAAAAAAAAAENsaWNrIHRoZSBkcm9wLWRv
+d24gdG8gc2VsZWN0IHRoZSBjb250ZW50cyBmb3IgdGhpcyBmaWVsZABiDgEAhAAAAAAAAQAAAGIO
+AQCBAAAAAAA/GQAA3gYAAIr/0QYAAAAAgQKDBB4Ahf8IAAEAAArj/4wAUGljdHVyZXMAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAACANASBQDABmk8gHAAAgAAAQEAAIECgv9aAB8AAwAAAAAAAADeBmk83gYAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACGgQAAAACVhA8AAAAPAAAAAAAAAAEAAAAE
+AAAAgwQfAN0GAACF/4X/CAABAS8K0ggBAPf39wDeBgAAhf+BAoL/UgAgAAAAAAAAAAAAzwZpPM8G
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAEAAAAAlAQPAAAADwAA
+AAAAAACDBCAA3QYBAPv/+/8sAAEAAAACAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAA
+AABc/z4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAAAAAAEnAAACQAA
+AAEACQAAAN4GAQD7/88OzwYoADwAAAAAAAMA0BIAAM8GnCFAOAACAAABAQAAgQKC/1oAIQADAAAA
+AAAAAG4HVyFuBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJYhAAAA
+AJSAkAABAJAAAQBWL2MAAQAAAAQAAACDBCEAhf9JAAEAAApEcmFnIGFueSB3aW5kb3cgY29udGFp
+bmluZyBhIHdlYiBwYWdlIGludG8gdGhlIGJveCBiZWxvdy4gIENsaWNrIADdBgAArf+t/wgBAgAc
+AAAA/AD8AAcAHAAVAFZhcmlhYmxlIHRvIHRyYW5zbGF0ZQAHAAoAAwAJMVMAAQAgAAUAdGl0bGUA
+AQAOAEhvbWUgUGFnZSBoZWxwAwAHAA4ABwAJMFIxUzJTAAcAIAAZAEVORCB2YXJpYWJsZSB0byB0
+cmFuc2xhdGUABwAMAAUACTBSMVMAAABYAAEACABIZWxwU0ZIUAIAeQAAAAAAAAACAHgAAAAAAAAA
+HwICALkAAAAAAAAAHwICAIQAAAAAAAAAHwICAHoAAAAAAAAAHwIFAAUAdGl0bGUA3wMDAAcAIgAc
+AAkwUlI0UzVTNlM3UzhTOVMxMFMxMVMxMlMxNFOF/wwAAQQACmhlcmWuAt4GAACuAIX/HgABAAAK
+IGZvciBtb3JlIGluZm9ybWF0aW9uLoECgv9aACIAAwAAAAEAAQDeBpwh3gYAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACGAQAAAACUhwAAAAAAAAAAAAAAAAEAAAAEAAAA
+gwQiAIX/HQABAQAKTXkgZmF2b3JpdGUgd2ViIGxpbmtzANASAAGcIWk8QDgAAgAAAQEAAIECgv9a
+ACMAAwAAAAAAAAA7IiQ8OyIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AACWIQAAAACUgJAAAQCQAAEAVi9jAAEAAAAEAAAAgwQjAIX/UgABAAAKRHJhZyBhbnkgd2luZG93
+IGNvbnRhaW5pbmcgYSBOb3RlcyBhcHBsaWNhdGlvbiBpbnRvIHRoZSBib3ggYmVsb3cuICBDbGlj
+ayDdBgAArf+t/wgBAgAcAAAA/AD8AAcAHAAVAFZhcmlhYmxlIHRvIHRyYW5zbGF0ZQAHAAoAAwAJ
+MVMAAQAgAAUAdGl0bGUAAQAOAEhvbWUgUGFnZSBoZWxwAwAHAA4ABwAJMFIxUzJTAAcAIAAZAEVO
+RCB2YXJpYWJsZSB0byB0cmFuc2xhdGUABwAMAAUACTBSMVMAAABYAAEACABIZWxwU0ZIUAIAeQAA
+AAAAAAACAHgAAAAAAAAAHwICALkAAAAAAAAAHwICAIQAAAAAAAAAHwICAHoAAAAAAAAAHwIFAAUA
+dGl0bGUA3wMDAAcAIgAcAAkwUlI0UzVTNlM3UzhTOVMxMFMxMVMxMlMxNFOF/wwAAQQACmhlcmWu
+At4GAACuAIX/HgABAAAKIGZvciBtb3JlIGluZm9ybWF0aW9uLoECgv9aACQAAwAAAAEAAQCrIWk8
+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
+AAAAAAAAAQAAAAQAAACDBCkA3QYAAIr//v9QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACw/xQAAAAAAAAA
+CAAAAAAAAAAAAIr/YACCAAEAAAAAAAAAAAAAAAEAAAoAAAAAAAAAAAMAOQAAAFJUNENsaWNrIHRo
+ZSBkcm9wLWRvd24gdG8gc2VsZWN0IHRoZSBjb250ZW50cyBmb3IgdGhpcyBmaWVsZHr/VAAAAAAA
+AAA5AAAAAAAAAAAAAAAAAAAAQ2xpY2sgdGhlIGRyb3AtZG93biB0byBzZWxlY3QgdGhlIGNvbnRl
+bnRzIGZvciB0aGlzIGZpZWxkAOn/hQF3AQAAAAAAAAAAQ2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0
+IGEgcGljdHVyZXxDbGljayB0aGUgaWNvbiB0byBpbnNlcnQgYSBzaGFyZWQgaW1hZ2V8Q2xpY2sg
+dGhlIGljb24gdG8gaW5zZXJ0IGFuIGF0dGFjaG1lbnR8Q2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0
+IGEgdmlld3xDbGljayB0aGUgaWNvbiB0byBpbnNlcnQgYSBkYXRlIHBpY2tlcnxDbGljayB0aGUg
+aWNvbiB0byBpbnNlcnQgYSBzaGFyZWQgYXBwbGV0fENsaWNrIHRoZSBpY29uIHRvIGNoYW5nZSB0
+ZXh0IHN0eWxlfENsaWNrIHRoZSBpY29uIHRvIGluc2VydCBhbiBPTEUgb2JqZWN0fENsaWNrIHRo
+ZSBpY29uIHRvIGluc2VydCB5b3VyIGNhbGVuZGFyfENsaWNrIHRoZSBpY29uIHRvIGluc2VydCB5
+b3VyIGluYm94AOn/RwA5AAAAAAAAAAAAQ2xpY2sgdGhlIGRyb3AtZG93biB0byBzZWxlY3QgdGhl
+IGNvbnRlbnRzIGZvciB0aGlzIGZpZWxkAGIOAQCEAAAAAAABAAAAYg4BAIEAAAAAAD8ZAADeBgAA
+iv/QEgABqRgCKoQlAAIAAAEBAACBAoL/WgAqAAMAAAAAAAAAxxgCKscYAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhgEAAAAAlIQPAAAADwAAAAAAAAABAAAABAAAAIME
+KgDdBgAAiv/+/1AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALD/FAAAAAAAAAAIAAAAAAAAAAAAiv9gAIIA
+AQAAAAAAAAAAAAAAAQAACgAAAAAAAAAAAwA5AAAAUlQ1Q2xpY2sgdGhlIGRyb3AtZG93biB0byBz
+ZWxlY3QgdGhlIGNvbnRlbnRzIGZvciB0aGlzIGZpZWxkev9UAAAAAAAAADkAAAAAAAAAAAAAAAAA
+AABDbGljayB0aGUgZHJvcC1kb3duIHRvIHNlbGVjdCB0aGUgY29udGVudHMgZm9yIHRoaXMgZmll
+bGQA6f+FAXcBAAAAAAAAAABDbGljayB0aGUgaWNvbiB0byBpbnNlcnQgYSBwaWN0dXJlfENsaWNr
+IHRoZSBpY29uIHRvIGluc2VydCBhIHNoYXJlZCBpbWFnZXxDbGljayB0aGUgaWNvbiB0byBpbnNl
+cnQgYW4gYXR0YWNobWVudHxDbGljayB0aGUgaWNvbiB0byBpbnNlcnQgYSB2aWV3fENsaWNrIHRo
+ZSBpY29uIHRvIGluc2VydCBhIGRhdGUgcGlja2VyfENsaWNrIHRoZSBpY29uIHRvIGluc2VydCBh
+IHNoYXJlZCBhcHBsZXR8Q2xpY2sgdGhlIGljb24gdG8gY2hhbmdlIHRleHQgc3R5bGV8Q2xpY2sg
+dGhlIGljb24gdG8gaW5zZXJ0IGFuIE9MRSBvYmplY3R8Q2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0
+IHlvdXIgY2FsZW5kYXJ8Q2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IHlvdXIgaW5ib3gA6f9HADkA
+AAAAAAAAAABDbGljayB0aGUgZHJvcC1kb3duIHRvIHNlbGVjdCB0aGUgY29udGVudHMgZm9yIHRo
+aXMgZmllbGQAYg4BAIQAAAAAAAEAAABiDgEAgQAAAAAAPxkAAN4GAACK/9ASAAICKlY7eSUAAgAA
+AQEAAIECgv9aACsAAwAAAAAAAAAgKlY7ICoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAACGAQAAAACUhA8AAAAPAAAAAAAAAAEAAAAEAAAAgwQrAN0GAACK//7/UAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAABQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAsP8UAAAAAAAAAAgAAAAAAAAAAACK/2AAggABAAAAAAAAAAAAAAABAAAK
+AAAAAAAAAAADADkAAABSVDZDbGljayB0aGUgZHJvcC1kb3duIHRvIHNlbGVjdCB0aGUgY29udGVu
+dHMgZm9yIHRoaXMgZmllbGR6/1QAAAAAAAAAOQAAAAAAAAAAAAAAAAAAAENsaWNrIHRoZSBkcm9w
+LWRvd24gdG8gc2VsZWN0IHRoZSBjb250ZW50cyBmb3IgdGhpcyBmaWVsZADp/4UBdwEAAAAAAAAA
+AENsaWNrIHRoZSBpY29uIHRvIGluc2VydCBhIHBpY3R1cmV8Q2xpY2sgdGhlIGljb24gdG8gaW5z
+ZXJ0IGEgc2hhcmVkIGltYWdlfENsaWNrIHRoZSBpY29uIHRvIGluc2VydCBhbiBhdHRhY2htZW50
+fENsaWNrIHRoZSBpY29uIHRvIGluc2VydCBhIHZpZXd8Q2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0
+IGEgZGF0ZSBwaWNrZXJ8Q2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IGEgc2hhcmVkIGFwcGxldHxD
+bGljayB0aGUgaWNvbiB0byBjaGFuZ2UgdGV4dCBzdHlsZXxDbGljayB0aGUgaWNvbiB0byBpbnNl
+cnQgYW4gT0xFIG9iamVjdHxDbGljayB0aGUgaWNvbiB0byBpbnNlcnQgeW91ciBjYWxlbmRhcnxD
+bGljayB0aGUgaWNvbiB0byBpbnNlcnQgeW91ciBpbmJveADp/0cAOQAAAAAAAAAAAENsaWNrIHRo
+ZSBkcm9wLWRvd24gdG8gc2VsZWN0IHRoZSBjb250ZW50cyBmb3IgdGhpcyBmaWVsZABiDgEAhAAA
+AAAAAQAAAGIOAQCBAAAAAAA/GQAA3gYAAIr/0QYAAAAAgQKDBCsAhf8IAAEAAArj/4wATWlzYy4A
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAACANEGAAAAAIECgwQWAIX/CAABAAAE0w4VAP///wABAP///wClBgAAAACB
+AoMEFACF/wgAAQAACg==
+</rawitemdata></item>
 <item name='$SubForm_RepIDs' sign='true'><textlist><text>0000000000000000</text><text
 >0000000000000000</text></textlist></item>
 <item name='$$ScriptName' summary='false' sign='true'><text>homeg</text></item>
 <item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
- compression='none' flags='sign storedindoc' encoding='none' name='CalculateApplet.class'
+ compression='none' flags='storedindoc' encoding='none' name='CalculateApplet.class'
  size='44'>
-<created><datetime dst='true'>20010212T111256,86-04</datetime></created>
-<modified><datetime dst='true'>20010212T111256,86-04</datetime></modified><filedata
->
+<created><datetime>20010212T101256,86-05</datetime></created>
+<modified><datetime>20010212T101256,86-05</datetime></modified><filedata>
 9v8sAAAAAAADAB8ACgAAAAAAAAAAAAAAAAAAAAAAAAAAAENhbGN1bGF0b3I=
 </filedata></file></object></item>
 <item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
- compression='none' flags='sign storedindoc' encoding='none' name='CalculateVector.class'
+ compression='none' flags='storedindoc' encoding='none' name='CalculateVector.class'
  size='44'>
-<created><datetime dst='true'>20010212T111256,86-04</datetime></created>
-<modified><datetime dst='true'>20010212T111256,86-04</datetime></modified><filedata
->
+<created><datetime>20010212T101256,86-05</datetime></created>
+<modified><datetime>20010212T101256,86-05</datetime></modified><filedata>
 9v8sAAAAAAADAB8ACgAAAAAAAAAAAAAAAAAAAAAAAAAAAENhbGN1bGF0b3I=
 </filedata></file></object></item>
 <item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
- compression='none' flags='sign storedindoc' encoding='none' name='DigClk.class'
+ compression='none' flags='storedindoc' encoding='none' name='DigClk.class'
  size='48'>
-<created><datetime dst='true'>20010212T111256,86-04</datetime></created>
-<modified><datetime dst='true'>20010212T111256,86-04</datetime></modified><filedata
->
+<created><datetime>20010212T101256,86-05</datetime></created>
+<modified><datetime>20010212T101256,86-05</datetime></modified><filedata>
 9v8vAAAAAAADAB8ADQAAAAAAAAAAAAAAAAAAAAAAAAAAAERpZ2l0YWwgQ2xvY2s/
 </filedata></file></object></item>
 <item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
- compression='none' flags='sign storedindoc' encoding='none' name='dcimages/0lcdb0.gif'
+ compression='none' flags='storedindoc' encoding='none' name='dcimages/0lcdb0.gif'
  size='48'>
-<created><datetime dst='true'>20010212T111256,86-04</datetime></created>
-<modified><datetime dst='true'>20010212T111256,86-04</datetime></modified><filedata
->
+<created><datetime>20010212T101256,86-05</datetime></created>
+<modified><datetime>20010212T101256,86-05</datetime></modified><filedata>
 9v8vAAAAAAADAB8ADQAAAAAAAAAAAAAAAAAAAAAAAAAAAERpZ2l0YWwgQ2xvY2s/
 </filedata></file></object></item>
 <item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
- compression='none' flags='sign storedindoc' encoding='none' name='dcimages/1lcdb0.gif'
+ compression='none' flags='storedindoc' encoding='none' name='dcimages/1lcdb0.gif'
  size='48'>
-<created><datetime dst='true'>20010212T111256,86-04</datetime></created>
-<modified><datetime dst='true'>20010212T111256,86-04</datetime></modified><filedata
->
+<created><datetime>20010212T101256,86-05</datetime></created>
+<modified><datetime>20010212T101256,86-05</datetime></modified><filedata>
 9v8vAAAAAAADAB8ADQAAAAAAAAAAAAAAAAAAAAAAAAAAAERpZ2l0YWwgQ2xvY2s/
 </filedata></file></object></item>
 <item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
- compression='none' flags='sign storedindoc' encoding='none' name='dcimages/2lcdb0.gif'
+ compression='none' flags='storedindoc' encoding='none' name='dcimages/2lcdb0.gif'
  size='48'>
-<created><datetime dst='true'>20010212T111256,87-04</datetime></created>
-<modified><datetime dst='true'>20010212T111256,87-04</datetime></modified><filedata
->
+<created><datetime>20010212T101256,87-05</datetime></created>
+<modified><datetime>20010212T101256,87-05</datetime></modified><filedata>
 9v8vAAAAAAADAB8ADQAAAAAAAAAAAAAAAAAAAAAAAAAAAERpZ2l0YWwgQ2xvY2s/
 </filedata></file></object></item>
 <item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
- compression='none' flags='sign storedindoc' encoding='none' name='dcimages/3lcdb0.gif'
+ compression='none' flags='storedindoc' encoding='none' name='dcimages/3lcdb0.gif'
  size='48'>
-<created><datetime dst='true'>20010212T111256,87-04</datetime></created>
-<modified><datetime dst='true'>20010212T111256,87-04</datetime></modified><filedata
->
+<created><datetime>20010212T101256,87-05</datetime></created>
+<modified><datetime>20010212T101256,87-05</datetime></modified><filedata>
 9v8vAAAAAAADAB8ADQAAAAAAAAAAAAAAAAAAAAAAAAAAAERpZ2l0YWwgQ2xvY2s/
 </filedata></file></object></item>
 <item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
- compression='none' flags='sign storedindoc' encoding='none' name='dcimages/4lcdb0.gif'
+ compression='none' flags='storedindoc' encoding='none' name='dcimages/4lcdb0.gif'
  size='48'>
-<created><datetime dst='true'>20010212T111256,87-04</datetime></created>
-<modified><datetime dst='true'>20010212T111256,87-04</datetime></modified><filedata
->
+<created><datetime>20010212T101256,87-05</datetime></created>
+<modified><datetime>20010212T101256,87-05</datetime></modified><filedata>
 9v8vAAAAAAADAB8ADQAAAAAAAAAAAAAAAAAAAAAAAAAAAERpZ2l0YWwgQ2xvY2s/
 </filedata></file></object></item>
 <item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
- compression='none' flags='sign storedindoc' encoding='none' name='dcimages/5lcdb0.gif'
+ compression='none' flags='storedindoc' encoding='none' name='dcimages/5lcdb0.gif'
  size='48'>
-<created><datetime dst='true'>20010212T111256,87-04</datetime></created>
-<modified><datetime dst='true'>20010212T111256,87-04</datetime></modified><filedata
->
+<created><datetime>20010212T101256,87-05</datetime></created>
+<modified><datetime>20010212T101256,87-05</datetime></modified><filedata>
 9v8vAAAAAAADAB8ADQAAAAAAAAAAAAAAAAAAAAAAAAAAAERpZ2l0YWwgQ2xvY2s/
 </filedata></file></object></item>
 <item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
- compression='none' flags='sign storedindoc' encoding='none' name='dcimages/6lcdb0.gif'
+ compression='none' flags='storedindoc' encoding='none' name='dcimages/6lcdb0.gif'
  size='48'>
-<created><datetime dst='true'>20010212T111256,87-04</datetime></created>
-<modified><datetime dst='true'>20010212T111256,87-04</datetime></modified><filedata
->
+<created><datetime>20010212T101256,87-05</datetime></created>
+<modified><datetime>20010212T101256,87-05</datetime></modified><filedata>
 9v8vAAAAAAADAB8ADQAAAAAAAAAAAAAAAAAAAAAAAAAAAERpZ2l0YWwgQ2xvY2s/
 </filedata></file></object></item>
 <item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
- compression='none' flags='sign storedindoc' encoding='none' name='dcimages/7lcdb0.gif'
+ compression='none' flags='storedindoc' encoding='none' name='dcimages/7lcdb0.gif'
  size='48'>
-<created><datetime dst='true'>20010212T111256,87-04</datetime></created>
-<modified><datetime dst='true'>20010212T111256,87-04</datetime></modified><filedata
->
+<created><datetime>20010212T101256,87-05</datetime></created>
+<modified><datetime>20010212T101256,87-05</datetime></modified><filedata>
 9v8vAAAAAAADAB8ADQAAAAAAAAAAAAAAAAAAAAAAAAAAAERpZ2l0YWwgQ2xvY2s/
 </filedata></file></object></item>
 <item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
- compression='none' flags='sign storedindoc' encoding='none' name='dcimages/8lcdb0.gif'
+ compression='none' flags='storedindoc' encoding='none' name='dcimages/8lcdb0.gif'
  size='48'>
-<created><datetime dst='true'>20010212T111256,87-04</datetime></created>
-<modified><datetime dst='true'>20010212T111256,87-04</datetime></modified><filedata
->
+<created><datetime>20010212T101256,87-05</datetime></created>
+<modified><datetime>20010212T101256,87-05</datetime></modified><filedata>
 9v8vAAAAAAADAB8ADQAAAAAAAAAAAAAAAAAAAAAAAAAAAERpZ2l0YWwgQ2xvY2s/
 </filedata></file></object></item>
 <item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
- compression='none' flags='sign storedindoc' encoding='none' name='dcimages/9lcdb0.gif'
+ compression='none' flags='storedindoc' encoding='none' name='dcimages/9lcdb0.gif'
  size='48'>
-<created><datetime dst='true'>20010212T111256,87-04</datetime></created>
-<modified><datetime dst='true'>20010212T111256,87-04</datetime></modified><filedata
->
+<created><datetime>20010212T101256,87-05</datetime></created>
+<modified><datetime>20010212T101256,87-05</datetime></modified><filedata>
 9v8vAAAAAAADAB8ADQAAAAAAAAAAAAAAAAAAAAAAAAAAAERpZ2l0YWwgQ2xvY2s/
 </filedata></file></object></item>
 <item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
- compression='none' flags='sign storedindoc' encoding='none' name='dcimages/clcdb0.gif'
+ compression='none' flags='storedindoc' encoding='none' name='dcimages/clcdb0.gif'
  size='48'>
-<created><datetime dst='true'>20010212T111256,87-04</datetime></created>
-<modified><datetime dst='true'>20010212T111256,87-04</datetime></modified><filedata
->
+<created><datetime>20010212T101256,87-05</datetime></created>
+<modified><datetime>20010212T101256,87-05</datetime></modified><filedata>
 9v8vAAAAAAADAB8ADQAAAAAAAAAAAAAAAAAAAAAAAAAAAERpZ2l0YWwgQ2xvY2s/
 </filedata></file></object></item>
 <item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='link'
- compression='none' flags='sign storedindoc' encoding='none' name='dcimages/f122x29.gif'
+ compression='none' flags='storedindoc' encoding='none' name='dcimages/f122x29.gif'
  size='48'>
-<created><datetime dst='true'>20010212T111256,87-04</datetime></created>
-<modified><datetime dst='true'>20010212T111256,87-04</datetime></modified><filedata
->
+<created><datetime>20010212T101256,87-05</datetime></created>
+<modified><datetime>20010212T101256,87-05</datetime></modified><filedata>
 9v8vAAAAAAADAB8ADQAAAAAAAAAAAAAAAAAAAAAAAAAAAERpZ2l0YWwgQ2xvY2s/
-</filedata></file></object></item></form>
+</filedata></file></object></item>
+<item name='$HTMLCode' sign='true'>
+<rawitemdata type='1'>
+X/8QAAIADwAHAAAAAAAAAF//EAABAM0AAgAAAAAAAAA=
+</rawitemdata></item>
+<item name='$Info' sign='true'>
+<rawitemdata type='1'>
+hhjQAIAAAAAAAAAA0AABANfIvwAAAAAA
+</rawitemdata></item>
+<item name='$Flags'><text>CD</text></item>
+<item name='$Fields'><textlist><text>RT9</text><text>RT1</text><text>RT2</text><text
+>RT3</text><text>RT4</text><text>RT5</text><text>RT6</text></textlist></item></note>

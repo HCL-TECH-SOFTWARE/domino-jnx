@@ -19,6 +19,10 @@ package com.hcl.domino.jnx.example.swt.dbtree;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 import org.eclipse.jface.resource.FontDescriptor;
 import org.eclipse.jface.resource.ResourceManager;
@@ -35,6 +39,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Tree;
 
 import com.hcl.domino.jnx.example.swt.bean.DatabasesBean;
+import com.hcl.domino.misc.Pair;
+import com.hcl.domino.naming.Names;
 
 import jakarta.enterprise.inject.spi.CDI;
 
@@ -62,8 +68,8 @@ public class DatabaseTree extends Composite {
       public void widgetSelected(final SelectionEvent e) {
         if (e.item != null) {
           final Object item = e.item.getData();
-          if (item instanceof DBListTreeNode) {
-            ((DBListTreeNode) item).displayInfoPane(DatabaseTree.this.target);
+          if (item instanceof InfoPaneTreeNode) {
+            ((InfoPaneTreeNode) item).displayInfoPane(DatabaseTree.this.target);
           }
         } else {
           Arrays.stream(DatabaseTree.this.target.getChildren()).forEach(Control::dispose);
@@ -81,13 +87,26 @@ public class DatabaseTree extends Composite {
     final Font font = tree.getFont();
     tree.setFont(this.resourceManager.createFont(FontDescriptor.createFrom(font.getFontData()[0].getName(), 10, SWT.NORMAL)));
     tree.setLinesVisible(false);
+    
+    ExecutorService exec = CDI.current().select(ExecutorService.class).get();
+    List<Pair<String, String>> knownServers;
+    try {
+      knownServers = exec.submit(() -> {
+        Collection<String> servers = CDI.current().select(DatabasesBean.class).get().getKnownServers();
+        return servers.stream()
+          .map(name -> new Pair<>(Names.toAbbreviated(name), name))
+          .collect(Collectors.toList());
+      }).get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException(e);
+    }
 
-    final Collection<String> serverNames = new ArrayList<>();
-    serverNames.add(""); //$NON-NLS-1$
-    serverNames.addAll(CDI.current().select(DatabasesBean.class).get().getKnownServers());
+    final Collection<Pair<String, String>> serverNames = new ArrayList<>();
+    serverNames.add(new Pair<>("(Local)", "")); //$NON-NLS-2$
+    serverNames.addAll(knownServers);
     this.databaseBrowser.setInput(
         serverNames.stream()
-            .map(ServerTreeNode::new)
+            .map(pair -> new ServerTreeNode(pair.getValue1(), pair.getValue2()))
             .toArray(TreeNode[]::new));
   }
 

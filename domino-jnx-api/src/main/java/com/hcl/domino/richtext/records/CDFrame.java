@@ -18,11 +18,11 @@ package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.design.DesignColorsAndFonts;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.frameset.FrameScrollStyle;
@@ -318,7 +318,7 @@ public interface CDFrame extends RichTextRecord<WSIG> {
 
 	  if (dataFlags.contains(DataFlag.NotesCaptionFontName)) {
 		  String fontName = varData.getFontName().get();
-		  byte[] fontNameArr = fontName.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+		  byte[] fontNameArr = fontName.getBytes(NativeItemCoder.get().getLmbcsCharset());
 		  buf.putShort((short) (fontNameArr.length & 0xffff));
 		  buf.put(fontNameArr);
 	  }

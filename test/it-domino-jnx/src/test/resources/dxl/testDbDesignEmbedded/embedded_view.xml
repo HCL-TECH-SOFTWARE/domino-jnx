@@ -1,188 +1,262 @@
 <?xml version='1.0' encoding='utf-8'?>
-<form name='ppage layout B' alias='homeb' xmlns='http://www.lotus.com/dxl'
- version='12.0' maintenanceversion='1.0' replicaid='6525860E002D4664' nocompose='true'
- publicaccess='false' designerversion='8.5' language='en'>
-<noteinfo noteid='256' unid='1256324357CA32388525692F0050FF7A' sequence='120'>
-<created><datetime dst='true'>20000802T104442,82-04</datetime></created>
-<modified><datetime>20210301T125025,61+00</datetime></modified>
-<revised><datetime>20210301T125025,60+00</datetime></revised>
-<lastaccessed><datetime>20210301T125025,60+00</datetime></lastaccessed>
-<addedtofile><datetime dst='true'>20201027T041533,92-04</datetime></addedtofile></noteinfo>
-<updatedby><name>CN=Domino Template Development/O=Domino</name></updatedby>
-<revisions><datetime dst='true'>20060208T151107,18-04</datetime><datetime
- dst='true'>20070122T154000,09-04</datetime><datetime dst='true'>20070130T162038,04-04</datetime><datetime
- dst='true'>20071024T141011,36-04</datetime><datetime dst='true'>20080428T080056,22-04</datetime><datetime
- dst='true'>20081002T081818,75-04</datetime></revisions>
-<wassignedby><name>CN=Domino Template Development/O=Domino</name></wassignedby><code
- event='querymodechange'><lotusscript>Sub Querymodechange(Source As Notesuidocument, Continue As Variant)
-	Dim s As New NotesSession
-	Set profile  = s.CurrentDatabase.GetProfileDocument("HPSettings")
-	HPSetting = profile.NOHPChange
-	If HPSetting(0) = "1" Then
-		continue = False
-	End If
-End Sub</lotusscript></code>
-<background><imageref><code event='value'><formula>REM {DNT};
-ThemeCh := @If("theme" + ThemeChoice);
+<note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<item name='$TITLE' sign='true'><textlist><text>ppage layout B</text><text
+>homeb</text></textlist></item>
+<item name='$LANGUAGE'><text>en</text></item>
+<item name='$DesignerVersion'><text>8.5</text></item>
+<item name='$$FormScript' summary='false' sign='true'><text>'++LotusScript Development Environment:2:5:(Options):0:66
 
-@If(ThemeChoice = "100" | ThemeChoice = ""; "theme2";  ThemeCh)</formula></code></imageref></background>
-<body><richtext>
-<pardef id='1' hide='edit print copy preview previewedit notes web'/>
-<par def='1'/><subformref><code event='value'><formula>defaultFormBG := "2";
-ch := @If(ThemeChoice = "" | ThemeChoice = "100"; defaultFormBG; ThemeChoice);
-"Theme" + ch + "CSS"</formula></code></subformref>
-<par def='1'/>
-<pardef id='2' hide='read edit print copy preview previewedit notes web'/><subformref
- name='EditSaveHP'/>
-<pardef id='3' hide='notes'/><subformref name='NameDate'/>
-<pardef id='4'/>
-<par def='4'><run><font size='9pt'/></run><layer htmlid='Layer_1' zindex='1'
- topunittype='pixels' top='81.0000' leftunittype='pixels' left='95.0000' widthunittype='pixels'
- width='295.0000' heightunittype='pixels' height='161.0000'>
-<pardef id='5' align='center' hide='notes web mobile'/>
-<par def='5'/>
-<table widthtype='fitmargins' htmlclass='PPB-table' leftmargin='0' refwidth='3.0729in'><tablecolumn
- width='100%'/>
-<tablerow>
-<tablecell borderwidth='0px'>
-<pardef id='7' align='center' keepwithnext='true' keeptogether='true'/>
-<par def='7'><run><font size='9pt'/></run><field type='richtextlite' kind='editable'
- name='RT1' description='Click the drop-down to select the contents for this field'
- htmltitle='Click the drop-down to select the contents for this field' fieldhelp='Click the icon to insert a picture|Click the icon to insert a shared image|Click the icon to insert an attachment|Click the icon to insert a view|Click the icon to insert a date picker|Click the icon to insert a shared applet|Click the icon to change text style|Click the icon to insert an OLE object|Click the icon to insert your calendar|Click the icon to insert your inbox'
- fieldhint='Click the drop-down to select the contents for this field' onlyallow='picture sharedimage attachment view datepicker sharedapplet text object help clear'
- firstdisplay='picture'/><compositedata type='98' prevtype='65513' nexttype='98'
- afterparcount='11' containertype='65418' aftercontainercount='4' afterbegincount='7'>
-Yg4BAIQAAAAAAAEAAAA=
-</compositedata></par></tablecell></tablerow></table></layer></par>
-<par def='4'><run><font size='9pt'/></run></par>
-<par def='4'><layer htmlid='Layer_2' zindex='2' topunittype='pixels' top='81.0000'
- leftunittype='pixels' left='403.0000' widthunittype='pixels' width='295.0000'
- heightunittype='pixels' height='161.0000'>
-<par def='5'/>
-<table widthtype='fitmargins' htmlclass='PPB-table' leftmargin='0' refwidth='3.0729in'><tablecolumn
- width='100%'/>
-<tablerow>
-<tablecell borderwidth='0px'>
-<par def='7'><run><font size='9pt'/></run><field type='richtextlite' kind='editable'
- name='RT2' description='Click the drop-down to select the contents for this field'
- htmltitle='Click the drop-down to select the contents for this field' fieldhelp='Click the icon to insert a picture|Click the icon to insert a shared image|Click the icon to insert an attachment|Click the icon to insert a view|Click the icon to insert a date picker|Click the icon to insert a shared applet|Click the icon to change text style|Click the icon to insert an OLE object|Click the icon to insert your calendar|Click the icon to insert your inbox'
- fieldhint='Click the drop-down to select the contents for this field' onlyallow='picture sharedimage attachment view datepicker sharedapplet text object help clear'
- firstdisplay='sharedapplet'/><compositedata type='98' prevtype='65513' nexttype='98'
- afterparcount='10' containertype='65418' aftercontainercount='4' afterbegincount='7'>
-Yg4BAIQAAAAAAAEAAAA=
-</compositedata></par></tablecell></tablerow></table></layer><layer
- htmlid='Layer_3' zindex='3' topunittype='pixels' top='81.0000' leftunittype='pixels'
- left='711.0000' widthunittype='pixels' width='308.0000' heightunittype='pixels'
- height='161.0000'>
-<par def='5'/>
-<table widthtype='fitmargins' htmlclass='PPB-table' leftmargin='0' refwidth='3.2083in'><tablecolumn
- width='100%'/>
-<tablerow>
-<tablecell borderwidth='0px'>
-<pardef id='9' align='center' keepwithnext='true' keeptogether='true'/>
-<par def='9'><run><font size='9pt'/></run><field type='richtextlite' kind='editable'
- name='RT3' description='Click the drop-down to select the contents for this field'
- htmltitle='Click the drop-down to select the contents for this field' fieldhelp='Click the icon to insert a picture|Click the icon to insert a shared image|Click the icon to insert an attachment|Click the icon to insert a view|Click the icon to insert a date picker|Click the icon to insert a shared applet|Click the icon to change text style|Click the icon to insert an OLE object|Click the icon to insert your calendar|Click the icon to insert your inbox'
- fieldhint='Click the drop-down to select the contents for this field' onlyallow='picture sharedimage attachment view datepicker sharedapplet text object help clear'
- firstdisplay='picture'/><compositedata type='98' prevtype='65513' nexttype='98'
- afterparcount='11' containertype='65418' aftercontainercount='4' afterbegincount='7'>
-Yg4BAIQAAAAAAAEAAAA=
-</compositedata></par></tablecell></tablerow></table></layer><layer
- htmlid='Layer' zindex='6' topunittype='pixels' top='260.0000' leftunittype='pixels'
- left='95.0000' widthunittype='percent' width='96.0000' heightunittype='pixels'
- height='232.0000'>
-<pardef id='10'/>
-<par def='10'/>
-<table htmlclass='GreyButtons' leftmargin='0' widthtype='fixedleft' refwidth='7.3229in'><tablerowstyle
-><font size='0pt' style='underline strikethrough emboss' name='monospace'
- color='#090000'/></tablerowstyle><tablecolumn width='1.8333in'/><tablecolumn
- width='1.8333in'/><tablecolumn width='1.8333in'/><tablecolumn width='1.8229in'/>
-<tablerow>
-<tablecell valign='bottom' borderwidth='0px'>
-<pardef id='12' align='center' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
-<par def='12'><run><font size='9pt'/></run><imagemap lastdefaultid='8' lastrectangleid='51'><picture
- width='92px' height='25px' scaledheight='0.2604in' scaledwidth='1.8229in'
- htmlid='p1' name='pic1'><imageref><code event='value'><formula>defaultTheme := "2";
-blueThemes := "10":"3":"5";
-themeNum := @If(ThemeChoice = "100" | ThemeChoice = ""; defaultTheme; ThemeChoice);
+'++LotusScript Development Environment:2:5:(Forward):0:1
+Declare Sub Querymodechange(Source As Notesuidocument, Continue As Variant)
 
-@If(@Contains(themeNum; blueThemes) ; "theme3button"; "theme" + themeNum + "button")</formula></code></imageref><caption
- position='center'>Inbox</caption></picture>
-<area type='default' htmlid='DefaultHotspot2'><code event='onClick'><formula
->REM {DNT};
-selection := "inbox";
-FIELD $Views := selection;
-@Command([RefreshHideFormulas])</formula></code></area></imagemap><run><font
- size='9pt'/></run></par></tablecell>
-<tablecell valign='bottom' borderwidth='0px'>
-<pardef id='13' align='center' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
-<par def='13'><run><font size='9pt'/></run><imagemap lastdefaultid='8' lastrectangleid='51'><picture
- width='92px' height='25px' scaledheight='0.2604in' scaledwidth='1.8229in'
- htmlid='p2' name='pic2'><imageref><code event='value'><formula>defaultTheme := "2";
-blueThemes := "10":"3":"5";
-themeNum := @If(ThemeChoice = "100" | ThemeChoice = ""; defaultTheme; ThemeChoice);
+'++LotusScript Development Environment:2:5:(Declarations):0:2
 
-@If(@Contains(themeNum; blueThemes) ; "theme3button"; "theme" + themeNum + "button")</formula></code></imageref><caption
- position='center'>Calendar</caption></picture>
-<area type='default' htmlid='DefaultHotspot3'><code event='onClick'><formula
->REM {DNT};
-selection := "cal";
-FIELD $Views := selection;
-@Command([RefreshHideFormulas])</formula></code></area></imagemap><run><font
- size='9pt'/></run></par></tablecell>
-<tablecell valign='bottom' borderwidth='0px'>
-<pardef id='14' align='center' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
-<par def='14'><run><font size='9pt'/></run><imagemap lastdefaultid='8' lastrectangleid='51'><picture
- width='92px' height='25px' scaledheight='0.2604in' scaledwidth='1.8229in'
- htmlid='p3' name='pic3'><imageref><code event='value'><formula>defaultTheme := "2";
-blueThemes := "10":"3":"5";
-themeNum := @If(ThemeChoice = "100" | ThemeChoice = ""; defaultTheme; ThemeChoice);
-
-@If(@Contains(themeNum; blueThemes) ; "theme3button"; "theme" + themeNum + "button")</formula></code></imageref><caption
- position='center'>To Do</caption></picture>
-<area type='default' htmlid='DefaultHotspot4'><code event='onClick'><formula
->REM {DNT};
-selection := "todo";
-FIELD $Views := selection;
-@Command([RefreshHideFormulas])</formula></code></area></imagemap><run><font
- size='9pt'/></run></par></tablecell>
-<tablecell valign='bottom' borderwidth='0px'>
-<pardef id='15' align='center' keepwithnext='true' keeptogether='true'/>
-<par def='15'><run><font size='9pt'/></run><imagemap lastdefaultid='8' lastrectangleid='51'><picture
- width='92px' height='25px' scaledheight='0.2604in' scaledwidth='1.8229in'
- htmlid='p4' name='pic4'><imageref><code event='value'><formula>defaultTheme := "2";
-blueThemes := "10":"3":"5";
-themeNum := @If(ThemeChoice = "100" | ThemeChoice = ""; defaultTheme; ThemeChoice);
-
-@If(@Contains(themeNum; blueThemes) ; "theme3button"; "theme" + themeNum + "button")</formula></code></imageref><caption
- position='center'>Contacts</caption></picture>
-<area type='default' htmlid='DefaultHotspot2_1'><code event='onClick'><formula
->REM {DNT};
-selection := "contacts";
-FIELD $Views := selection;
-@Command([RefreshHideFormulas])</formula></code></area></imagemap><run><font
- size='9pt'/></run></par></tablecell></tablerow></table>
-<par def='10'/>
-<table widthtype='fitwindow' minrowheight='2.5000in' rowdisplay='compute'
- sizetabsequally='true' htmlid='views' leftmargin='0' rightmargin='98%' refwidth='9.9514in'><border
- style='solid' width='1px'/><tablecolumn width='100%'/>
-<tablerow tablabel='inbox' name='inbox'>
-<tablecell borderwidth='0px'>
-<pardef id='17' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
-<par def='17'><embeddedview name='($Inbox)' showactionbar='true' showselectionmargin='true' embeddedname='TestEmbeddedView'
- widthtype='fitwindow' height='2.7500in' scrollbars='true' database='mailfile'/></par></tablecell></tablerow>
-<tablerow tablabel='cal' name='cal'>
-<tablecell borderwidth='0px'>
-<par def='17'><embeddedview name='Calendar' showactionbar='true' widthtype='fitwindow'
- height='2.7500in' scrollbars='true' database='mailfile'/></par></tablecell></tablerow>
-<tablerow tablabel='todo' name='todo'>
-<tablecell borderwidth='0px'>
-<par def='17'><embeddedview name='TodoByStatus' showactionbar='true' widthtype='fitwindow'
- height='2.7500in' scrollbars='true' database='mailfile'/></par></tablecell></tablerow>
-<tablerow tablabel='contacts' name='contacts'>
-<tablecell borderwidth='0px'>
-<par def='17'><embeddedview name='People' showactionbar='true' widthtype='fitwindow'
- height='2.7500in' scrollbars='true' database='addressbook'/></par></tablecell></tablerow></table></layer></par></richtext></body>
+'++LotusScript Development Environment:2:2:Querymodechange:1:12
+Sub Querymodechange(Source As Notesuidocument, Continue As Variant)
+    Dim s As New NotesSession
+    Set profile  = s.CurrentDatabase.GetProfileDocument("HPSettings")
+    HPSetting = profile.NOHPChange
+    If HPSetting(0) = "1" Then
+        continue = False
+    End If
+End Sub
+'++LotusScript Development Environment:2:2:BindEvents:1:129
+Private Sub BindEvents ( Byval ObjectName_ As String )
+    Static Source As NOTESUIDOCUMENT
+    Set Source = Bind(Objectname_)
+    On Event QUERYMODECHANGE From Source Call QUERYMODECHANGE
+End Sub<break/></text></item>
+<item name='$BackgroundR5'>
+<rawitemdata type='1'>
+3QYBAJkAmQAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAH0AHAAAAAMAAAAAAAAAAAAAAAAAAAAA
+AAAAAAD2//gAAQAAAAMAEwDWAAAAAAAAAAAAAAAAAAAAAAAAAAAA1gAHAAoAAwBETlQABwAKAAMA
+CTFTAAEAMgAHAFRoZW1lQ2gAAQAFAHRoZW1lAAUACwBUaGVtZUNob2ljZQAiAq4ABAC1AQMABwAS
+AAsACTBSMVMyUzVTNlMAAABeAAUACwBUaGVtZUNob2ljZQABAAMAMTAwAAoCBQALAFRoZW1lQ2hv
+aWNlAAEAAAAKAh0CrwAkABAAAQAGAHRoZW1lMq4AFAAFAAcAVGhlbWVDaACuAAQAtQMDAAcAHgAY
+AAkwUlIzUzRTNVM2UzdTOFMxMFMxMlMyRd4GAQCZAA==
+</rawitemdata></item>
+<item name='$Body' sign='true'>
+<rawitemdata type='1'>
+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
+AAAAAAAAQ2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IGEgcGljdHVyZXxDbGljayB0aGUgaWNvbiB0
+byBpbnNlcnQgYSBzaGFyZWQgaW1hZ2V8Q2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IGFuIGF0dGFj
+aG1lbnR8Q2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IGEgdmlld3xDbGljayB0aGUgaWNvbiB0byBp
+bnNlcnQgYSBkYXRlIHBpY2tlcnxDbGljayB0aGUgaWNvbiB0byBpbnNlcnQgYSBzaGFyZWQgYXBw
+bGV0fENsaWNrIHRoZSBpY29uIHRvIGNoYW5nZSB0ZXh0IHN0eWxlfENsaWNrIHRoZSBpY29uIHRv
+IGluc2VydCBhbiBPTEUgb2JqZWN0fENsaWNrIHRoZSBpY29uIHRvIGluc2VydCB5b3VyIGNhbGVu
+ZGFyfENsaWNrIHRoZSBpY29uIHRvIGluc2VydCB5b3VyIGluYm94AOn/RwA5AAAAAAAAAAAAQ2xp
+Y2sgdGhlIGRyb3AtZG93biB0byBzZWxlY3QgdGhlIGNvbnRlbnRzIGZvciB0aGlzIGZpZWxkAGIO
+AQCEAAAAAAABAAAAYg4BAIEAAAAAAD8bAADeBgAAiv+lBgAAAADeBgIAbACF/wgAAQAACoECgwQE
+AIX/CAABAAAJgQKDBAQA3QYCAGwAbBIAAAAAAAAAAAAAAAAAAAAAev8iAAcAAAAAAAAAAAAAAAAA
+AAAAAAAAAABMYXllcl8yAGtIAQACAAAAAAAAAAAAAEBUQAIAAAAAAAAAADB5QAIAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGpaAAAAAAAAAHByQAIAAAAAAAAAACBkQAIA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAIECgwQFAIX/CAABAAAKgQKC/1IACAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAJQEAAAAAAAAAAAAAAAAgwQIAN0GAQD7
+//v/LAABAAAAAQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAev8kAAAACQAAAAAA
+AAAAAAAAAAAAAAAAAABQUEItdGFibGUA3gYBAPv/ow4AACgAPAAAAAAAAwCkEgAAAABJEYBwAAIA
+AAEBAACBAoMEBwCF/wgAAQAACd0GAACK//7/UAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABQAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsP8UAAAAAAAA
+AAgAAAAAAAAAAACK/2AAggABAAAAAAAAAAAAAAABAAAKAAAAAAAAAAADADkAAABSVDJDbGljayB0
+aGUgZHJvcC1kb3duIHRvIHNlbGVjdCB0aGUgY29udGVudHMgZm9yIHRoaXMgZmllbGR6/1QAAAAA
+AAAAOQAAAAAAAAAAAAAAAAAAAENsaWNrIHRoZSBkcm9wLWRvd24gdG8gc2VsZWN0IHRoZSBjb250
+ZW50cyBmb3IgdGhpcyBmaWVsZADp/4UBdwEAAAAAAAAAAENsaWNrIHRoZSBpY29uIHRvIGluc2Vy
+dCBhIHBpY3R1cmV8Q2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IGEgc2hhcmVkIGltYWdlfENsaWNr
+IHRoZSBpY29uIHRvIGluc2VydCBhbiBhdHRhY2htZW50fENsaWNrIHRoZSBpY29uIHRvIGluc2Vy
+dCBhIHZpZXd8Q2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IGEgZGF0ZSBwaWNrZXJ8Q2xpY2sgdGhl
+IGljb24gdG8gaW5zZXJ0IGEgc2hhcmVkIGFwcGxldHxDbGljayB0aGUgaWNvbiB0byBjaGFuZ2Ug
+dGV4dCBzdHlsZXxDbGljayB0aGUgaWNvbiB0byBpbnNlcnQgYW4gT0xFIG9iamVjdHxDbGljayB0
+aGUgaWNvbiB0byBpbnNlcnQgeW91ciBjYWxlbmRhcnxDbGljayB0aGUgaWNvbiB0byBpbnNlcnQg
+eW91ciBpbmJveADp/0cAOQAAAAAAAAAAAENsaWNrIHRoZSBkcm9wLWRvd24gdG8gc2VsZWN0IHRo
+ZSBjb250ZW50cyBmb3IgdGhpcyBmaWVsZABiDgEAhAAAAAAAAQAAAGIOAQCBAAAAAAA/GwAA3gYA
+AIr/pQYAAAAA3gYCAGwAhf8IAAEAAArdBgIAbABsEgAAAAAAAAAAAAAAAAAAAAB6/yIABwAAAAAA
+AAAAAAAAAAAAAAAAAAAAAExheWVyXzMAa0gBAAMAAAAAAAAAAAAAQFRAAgAAAAAAAAAAOIZAAgAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAaloAAAAAAAAAQHNAAgAAAAAA
+AAAAIGRAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAgQKDBAUAhf8IAAEAAAqBAoL/UgAJAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAlAQAAAAAAAAAAAAAAACD
+BAkA3QYBAPv/+/8sAAEAAAABAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAB6/yQA
+AAAJAAAAAAAAAAAAAAAAAAAAAAAAAFBQQi10YWJsZQDeBgEA+/+jDgAAKAA8AAAAAAADAKQSAAAA
+AAwSgHAAAgAAAQEAAIECgv9aAAoAAwAAAAAAAAAPAAwSDwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAACGAQAAAACUhwAAAAAAAAAAAAAAAAEAAAAEAAAAgwQKAIX/CAAB
+AAAJ3QYAAIr//v9QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACw/xQAAAAAAAAACAAAAAAAAAAAAIr/YACC
+AAEAAAAAAAAAAAAAAAEAAAoAAAAAAAAAAAMAOQAAAFJUM0NsaWNrIHRoZSBkcm9wLWRvd24gdG8g
+c2VsZWN0IHRoZSBjb250ZW50cyBmb3IgdGhpcyBmaWVsZHr/VAAAAAAAAAA5AAAAAAAAAAAAAAAA
+AAAAQ2xpY2sgdGhlIGRyb3AtZG93biB0byBzZWxlY3QgdGhlIGNvbnRlbnRzIGZvciB0aGlzIGZp
+ZWxkAOn/hQF3AQAAAAAAAAAAQ2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IGEgcGljdHVyZXxDbGlj
+ayB0aGUgaWNvbiB0byBpbnNlcnQgYSBzaGFyZWQgaW1hZ2V8Q2xpY2sgdGhlIGljb24gdG8gaW5z
+ZXJ0IGFuIGF0dGFjaG1lbnR8Q2xpY2sgdGhlIGljb24gdG8gaW5zZXJ0IGEgdmlld3xDbGljayB0
+aGUgaWNvbiB0byBpbnNlcnQgYSBkYXRlIHBpY2tlcnxDbGljayB0aGUgaWNvbiB0byBpbnNlcnQg
+YSBzaGFyZWQgYXBwbGV0fENsaWNrIHRoZSBpY29uIHRvIGNoYW5nZSB0ZXh0IHN0eWxlfENsaWNr
+IHRoZSBpY29uIHRvIGluc2VydCBhbiBPTEUgb2JqZWN0fENsaWNrIHRoZSBpY29uIHRvIGluc2Vy
+dCB5b3VyIGNhbGVuZGFyfENsaWNrIHRoZSBpY29uIHRvIGluc2VydCB5b3VyIGluYm94AOn/RwA5
+AAAAAAAAAAAAQ2xpY2sgdGhlIGRyb3AtZG93biB0byBzZWxlY3QgdGhlIGNvbnRlbnRzIGZvciB0
+aGlzIGZpZWxkAGIOAQCEAAAAAAABAAAAYg4BAIEAAAAAAD8bAADeBgAAiv+lBgAAAADeBgIAbACF
+/wgAAQAACt0GAgBsAGwSAAAAAAAAAAAAAAAAAAAAAHr/IAAFAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+TGF5ZXIAa0gBAAYAAAAAAAAAAAAAQHBAAgAAAAAAAAAAwFdAAgAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAaloAAAAAAAAAAFhAAwAAAAAAAAAAAG1AAgAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgQKC
+/1oACwAAAAAAAAAAAKAFAACgBQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAABAAAAAJSHAAAAAAAAAAAAAAAAAQAAAAQAAACDBAsAhf8IAAEAAAqBAoL/UgAMAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAA
+lAQAAAAAAAAAAAAAAACDBAwA3QYBAPv/+/8sAAAAAAABBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB
+AAAAAAAAAAAAAABc/z4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAAA
+AAAEnAAACQAAAAEACQAAAHr/JgAAAAsAAAAAAAAAAAAAAAAAAAAAAAAAR3JleUJ1dHRvbnMA3gYB
+APv/ow4AACgAPAAAAAAAAgCkEgAAAABQCgAAAIIAAAEBAACBAoL/WgANAAMAAAAAAAAAHgBQCh4A
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhgEAAAAAlIQPAAAADwAA
+AAAAAAABAAAABAAAAIMEDQCF/wgAAQAACd0GAQCZAJkAHAAAAEEKdwEAAAAAAAAAAAAAAAABAAEA
+AAB9ABwAAAADAFwAGQAAAAAAAAAAAAAAAAAAAAAAdv8hAAUAAQEAAAkBAAAAAAAAAAAAAAAAAAAA
+AEluYm94APb/mAEBAAAAAwATAHYBAAAAAAAAAAAAAAAAAAAAAAAAAAB2AQEAGgAMAGRlZmF1bHRU
+aGVtZQEAAQAyAAMABwAMAAUACTFTMlMAAQAoAAoAYmx1ZVRoZW1lcwEAAgAxMAEAAQAzAB8CAQAB
+ADUAHwIDAAcADgAHAAkwUjFTMlMAAQByAAgAdGhlbWVOdW0FAAsAVGhlbWVDaG9pY2UAAQADADEw
+MAAKAgUACwBUaGVtZUNob2ljZQABAAAACgIdAq8ALgAWAAUADABkZWZhdWx0VGhlbWWuABgABQAL
+AFRoZW1lQ2hvaWNlAK4ABAC1AwMABwAgABoACTBSMVMyUzVTNlM3UzhTOVMxMFMxMlMxNFMAAGYA
+BQAIAHRoZW1lTnVtBQAKAGJsdWVUaGVtZXNHAq8AQgAWAAEADAB0aGVtZTNidXR0b26uACwAAQAF
+AHRoZW1lAAUACAB0aGVtZU51bSICAQAGAGJ1dHRvbiICrgAEALUDAwAHACAAGQAJMFJSNlM4UzlT
+MTFTMTJTMTNTMTRTMTVTAHr/IAACAAAAAAAAAAAABAAAAAAAAAAAAAAAcDFwaWMx3gYBAJkA3QYB
+APT/9P8iAAAAAAAAAAgAMwAAAAAAAAAAAAAAAAAAAAAAAAAAAN0GAQD1//X/HgAAAAAABAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAPn/qAAAAAAAAQABAIgAAAAAAAAAAAAAAAAAAAAAAAAAiAAHAAoAAwBE
+TlQABwAKAAMACTFTAAEAHAAJAHNlbGVjdGlvbgABAAUAaW5ib3gAAwAHAA4ABwAJMFIxUzJTAAMA
+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
+AKUGAAAAAN4GAgBsAIX/CAABAAAK
+</rawitemdata></item>
 <item name='$SubForm_RepIDs' sign='true'><textlist><text>0000000000000000</text><text
 >0000000000000000</text><text>0000000000000000</text></textlist></item>
-<item name='$$ScriptName' summary='false' sign='true'><text>homeb</text>        </item></form>
+<item name='$$ScriptName' summary='false' sign='true'><text>homeb</text></item>
+<item name='$HTMLCode' sign='true'>
+<rawitemdata type='1'>
+X/8QAAIADwAHAAAAAAAAAF//EAABAM0AAgAAAAAAAAA=
+</rawitemdata></item>
+<item name='$Info' sign='true'>
+<rawitemdata type='1'>
+hhgBAIAAAAAAAAAAAQABAP///wAAAAAA
+</rawitemdata></item>
+<item name='$Flags'><text>C</text></item>
+<item name='$Fields'><textlist><text>RT1</text><text>RT2</text><text>RT3</text></textlist></item></note>
+
