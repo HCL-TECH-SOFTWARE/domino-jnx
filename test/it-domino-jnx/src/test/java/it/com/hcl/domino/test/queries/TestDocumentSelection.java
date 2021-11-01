@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.data.*;
 import org.junit.jupiter.api.Assertions;
@@ -67,17 +68,16 @@ public class TestDocumentSelection extends AbstractNotesRuntimeTest {
   public void testAllDataDocumentsSelection() throws Exception {
     this.withResourceDxl("/dxl/testDocumentSelection", db -> {
 
-      final IDTable allDocumentNoteIds = db
+      final IDTable allDataDocumentNoteIds = db
               .createDocumentSelection()
               .selectAllDataDocuments()
               .build();
 
-      Assertions.assertFalse(allDocumentNoteIds.isEmpty());
-      Assertions.assertEquals(1, allDocumentNoteIds.size());
+      Assertions.assertEquals(1, allDataDocumentNoteIds.size());
 
       boolean hasDataDocument = false;
 
-      for (Integer docId : allDocumentNoteIds) {
+      for (Integer docId : allDataDocumentNoteIds) {
         Optional<Document> documentById = db.getDocumentById(docId);
         Assertions.assertTrue(documentById.isPresent());
         final Document currentDoc = documentById.get();
@@ -154,31 +154,7 @@ public class TestDocumentSelection extends AbstractNotesRuntimeTest {
               .build()
               .size();
 
-      Assertions.assertFalse(allDocumentNoteIds.isEmpty());
       Assertions.assertEquals(adminDocumentSize + dataDocumentSize + designElementsSize, allDocumentNoteIds.size());
-
-      boolean hasAdminDocs = false;
-      boolean hasDataDocument = false;
-      boolean hasDesignElements = false;
-
-      for (Integer docId : allDocumentNoteIds) {
-        Optional<Document> documentById = db.getDocumentById(docId);
-        Assertions.assertTrue(documentById.isPresent());
-        final Document currentDoc = documentById.get();
-
-        Set<DocumentClass> documentClass = currentDoc.getDocumentClass();
-        if (documentClass.contains(DocumentClass.ACL) || documentClass.contains(DocumentClass.REPLFORMULA)) {
-          hasAdminDocs = true;
-        } else if (documentClass.contains(DocumentClass.DATA)) {
-          hasDataDocument = true;
-        } else if (DocumentClass.isDesignElement(documentClass)) {
-          hasDesignElements = true;
-        }
-      }
-
-      Assertions.assertTrue(hasAdminDocs);
-      Assertions.assertTrue(hasDataDocument);
-      Assertions.assertTrue(hasDesignElements);
     });
   }
 
@@ -297,6 +273,10 @@ public class TestDocumentSelection extends AbstractNotesRuntimeTest {
               .getSelection();
 
       Assertions.assertNotNull(selection);
+      Assertions.assertTrue(selection
+              .containsAll(Arrays
+                      .stream(DocumentSelection.SelectionType.values())
+                      .collect(Collectors.toSet())));
       Assertions.assertFalse(selection.isEmpty());
     });
   }
@@ -310,7 +290,6 @@ public class TestDocumentSelection extends AbstractNotesRuntimeTest {
               .build();
 
       Assertions.assertNotNull(documentNoteIds);
-      Assertions.assertFalse(documentNoteIds.isEmpty());
       Assertions.assertEquals(1, documentNoteIds.size());
     });
   }
@@ -320,13 +299,13 @@ public class TestDocumentSelection extends AbstractNotesRuntimeTest {
     List<DocumentSelection.SelectionType> selectionTypes = Arrays.asList(DocumentSelection.SelectionType.ACL,
             DocumentSelection.SelectionType.DOCUMENTS);
     this.withResourceDxl("/dxl/testDocumentSelection", db -> {
-      final IDTable ACLDocumentNoteIds = db
+      final IDTable documentNoteIds = db
               .createDocumentSelection()
               .select(selectionTypes)
               .build();
 
-      Assertions.assertNotNull(ACLDocumentNoteIds);
-      Assertions.assertFalse(ACLDocumentNoteIds.isEmpty());
+      Assertions.assertNotNull(documentNoteIds);
+      Assertions.assertEquals(2, documentNoteIds.size());
     });
   }
 
@@ -350,7 +329,6 @@ public class TestDocumentSelection extends AbstractNotesRuntimeTest {
       Assertions.assertFalse(selectionFormula.isEmpty());
       Assertions.assertEquals("Form=\"Test\"", selectionFormula);
 
-      Assertions.assertFalse(documentNoteIds.isEmpty());
       Assertions.assertEquals(1, documentNoteIds.size());
     });
   }
@@ -370,7 +348,6 @@ public class TestDocumentSelection extends AbstractNotesRuntimeTest {
               .build();
       Assertions.assertTrue(docSelection.getPreselection().isPresent());
 
-      Assertions.assertFalse(ids.isEmpty());
       Assertions.assertEquals(1, ids.size());
     });
   }
@@ -382,6 +359,7 @@ public class TestDocumentSelection extends AbstractNotesRuntimeTest {
               .createDocumentSelection()
               .getParentDatabase();
       Assertions.assertNotNull(parentDb);
+      Assertions.assertEquals(db.getReplicaID(), parentDb.getReplicaID());
     });
   }
 
@@ -395,7 +373,6 @@ public class TestDocumentSelection extends AbstractNotesRuntimeTest {
 
       Optional<DominoDateTime> lastBuildTime = docSelection.getLastBuildTime();
       Assertions.assertTrue(lastBuildTime.isPresent());
-      Assertions.assertNotNull(lastBuildTime.get());
     });
   }
 
@@ -408,7 +385,6 @@ public class TestDocumentSelection extends AbstractNotesRuntimeTest {
               .build();
       Optional<DominoDateTime> untilTime = docSelection.getUntilTime();
       Assertions.assertTrue(untilTime.isPresent());
-      Assertions.assertTrue(untilTime.get().isValid());
     });
   }
 }
