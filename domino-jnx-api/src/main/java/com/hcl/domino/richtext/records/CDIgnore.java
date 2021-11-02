@@ -62,14 +62,34 @@ public interface CDIgnore extends RichTextRecord<BSIG> {
     }
   }
   
-  static int CDIGNORE_NOTES_VERSION_6_0_0 = 1; /* 6.0.0 */
-  static int CDIGNORE_NOTES_VERSION_CURRENT = 1; /* 6.0.0 */
+  public enum NotesVersion implements INumberEnum<Integer> {
+    NOTES_VERSION_6_0_0(RichTextConstants.CDIGNORE_NOTES_VERSION_6_0_0), /* 6.0.0 */
+    NOTES_VERSION_CURRENT(RichTextConstants.CDIGNORE_NOTES_VERSION_CURRENT); /* 6.0.0 */
+    
+    private final int value;
+    private NotesVersion(int value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return value;
+    }
+
+    @Override
+    public Integer getValue() {
+      return value;
+    }
+  }
 
   @StructureGetter("Header")
   BSIG getHeader();
 
   @StructureGetter("wNotesVersion")
-  int getNotesVersion();
+  int getNotesVersionRaw();
+  
+  @StructureGetter("wNotesVersion")
+  NotesVersion getNotesVersion();
 
   @StructureGetter("dwFlags")
   int getFlagsRaw();
@@ -78,7 +98,10 @@ public interface CDIgnore extends RichTextRecord<BSIG> {
   Set<Flag> getFlags();
 
   @StructureSetter("wNotesVersion")
-  CDIgnore setNotesVersion(int wNotesVersion);
+  CDIgnore setNotesVersionRaw(int wNotesVersion);
+  
+  @StructureSetter("wNotesVersion")
+  CDIgnore setNotesVersion(NotesVersion wNotesVersion);
 
   @StructureSetter("dwFlags")
   CDIgnore setFlagsRaw(int dwFlags);
