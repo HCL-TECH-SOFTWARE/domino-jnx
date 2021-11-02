@@ -87,7 +87,7 @@ public class DesignImportedJavaAgentImpl extends AbstractDesignAgentImpl<DesignI
       return Collections.emptyList();
     }
     else {
-      return Arrays.stream(action.get().getFileList().split("\\n")) //$NON-NLS-1$
+      return Arrays.stream(action.get().getFileList().split("(\\r)?\\n")) //$NON-NLS-1$
           .filter(StringUtil::isNotEmpty)
           .collect(Collectors.toList());
     }

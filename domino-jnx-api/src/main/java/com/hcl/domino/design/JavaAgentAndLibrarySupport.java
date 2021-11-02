@@ -248,7 +248,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
   default List<String> getJavaClassFileList() {
     return getJavaCDRecord()
         .map((action) -> {
-          return Arrays.stream(action.getFileList().split("\\n")) //$NON-NLS-1$
+          return Arrays.stream(action.getFileList().split("(\\r)?\\n")) //$NON-NLS-1$
               .filter(JNXStringUtil::isNotEmpty)
               .collect(Collectors.toList());
         })
@@ -701,7 +701,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
       return Collections.emptyList();
     }
     else {
-      return Arrays.stream(action.get().getLibraryList().split("\\n")) //$NON-NLS-1$
+      return Arrays.stream(action.get().getLibraryList().split("(\\r)?\\n")) //$NON-NLS-1$
           .filter(JNXStringUtil::isNotEmpty)
           .collect(Collectors.toList());
     }
