@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.data.*;
+import com.hcl.domino.jna.data.JNADominoDateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -385,6 +386,36 @@ public class TestDocumentSelection extends AbstractNotesRuntimeTest {
               .build();
       Optional<DominoDateTime> untilTime = docSelection.getUntilTime();
       Assertions.assertTrue(untilTime.isPresent());
+    });
+  }
+
+  @Test
+  public void testSinceTime() throws Exception {
+    this.withTempDb(db -> {
+
+      long timeMs = System.currentTimeMillis();
+      final Document doc = db.createDocument();
+      doc.setDocumentClass(DocumentClass.DOCUMENT);
+      doc.save();
+
+      JNADominoDateTime expectedDateTime = new JNADominoDateTime(timeMs);
+      DocumentSelection documentSelection = db
+              .createDocumentSelection()
+              .selectAllDocuments()
+              .withSinceTime(expectedDateTime);
+      final IDTable documentNoteIds = documentSelection
+              .build();
+
+      for (Integer id : documentNoteIds) {
+        Optional<Document> currentDoc = db.getDocumentById(id);
+        Assertions.assertTrue(currentDoc.isPresent());
+
+        DominoDateTime actualDateTime = currentDoc.get().getModifiedInThisFile();
+        Assertions.assertTrue(expectedDateTime.toLocalDate().isEqual(actualDateTime.toLocalDate()));
+        Assertions.assertTrue(expectedDateTime.toLocalTime().isBefore(actualDateTime.toLocalTime()));
+      }
+
+      Assertions.assertNotNull(documentSelection.getSinceTime());
     });
   }
 }
