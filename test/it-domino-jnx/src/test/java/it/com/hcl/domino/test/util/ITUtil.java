@@ -31,4 +31,15 @@ public enum ITUtil {
   public static String toLf(String value) {
     return StringUtil.toString(value).replace("\r\n", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
   }
+  
+  /**
+   * Converts Windows- and Unix-style line endings to just CR.
+   * 
+   * @param value the value to convert
+   * @return the converted value
+   * @since 1.0.45
+   */
+  public static String toCr(String value) {
+    return StringUtil.toString(value).replaceAll("(\\r)?\\n", "\r"); //$NON-NLS-1$ //$NON-NLS-2$
+  }
 }

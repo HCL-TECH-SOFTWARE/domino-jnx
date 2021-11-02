@@ -16,6 +16,7 @@
  */
 package it.com.hcl.domino.test.richtext;
 
+import static it.com.hcl.domino.test.util.ITUtil.toCr;
 import static it.com.hcl.domino.test.util.ITUtil.toLf;
 
 import java.io.ByteArrayInputStream;
@@ -241,7 +242,7 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
           EnumSet.of(DocumentClass.ALLNONDATA));
       final Document library = result.getDocuments().findFirst()
           .orElseThrow(() -> new RuntimeException("Couldn't find design note"));
-      final String expected = toLf(IOUtils.resourceToString("/text/clientjs.js", StandardCharsets.UTF_8)) + "\r\n";
+      final String expected = IOUtils.resourceToString("/text/clientjs.js", StandardCharsets.UTF_8) + "\r\n";
 
       // Make sure the blob part length is correct
       final long len = library.getRichTextItem("$JavaScriptLibrary")
@@ -272,12 +273,8 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
           });
       final String libraryString = new String(libraryStream.toByteArray(), RichTextUtil.LMBCS);
 
-      final byte[] lineEndingExpected = expected.replace('\n', '\r').getBytes();
-      final byte[] libraryBytes = toLf(libraryString).getBytes();
-      // Things get weird at the end of the string for some reason
-      if (lineEndingExpected[lineEndingExpected.length - 1] == '\r' && libraryBytes[libraryBytes.length - 1] == '\n') {
-        lineEndingExpected[lineEndingExpected.length - 1] = '\n';
-      }
+      final byte[] lineEndingExpected = toCr(expected).getBytes();
+      final byte[] libraryBytes = toCr(libraryString).getBytes();
       Assertions.assertArrayEquals(lineEndingExpected, libraryBytes);
     });
   }
