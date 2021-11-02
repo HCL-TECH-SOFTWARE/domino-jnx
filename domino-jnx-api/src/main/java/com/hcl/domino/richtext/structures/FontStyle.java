@@ -123,56 +123,88 @@ public interface FontStyle extends MemoryStructure {
 
   default FontStyle setBold(final boolean b) {
     final Set<FontAttribute> style = this.getAttributes();
-    style.add(FontAttribute.BOLD);
+    if (b) {
+      style.add(FontAttribute.BOLD);
+    } else {
+      style.remove(FontAttribute.BOLD);
+    }
     this.setAttributes(style);
     return this;
   }
 
   default FontStyle setExtrude(final boolean b) {
     final Set<FontAttribute> style = this.getAttributes();
-    style.add(FontAttribute.EXTRUDE);
+    if (b) {
+      style.add(FontAttribute.EXTRUDE);
+    } else {
+      style.remove(FontAttribute.EXTRUDE);
+    }
     this.setAttributes(style);
     return this;
   }
 
   default FontStyle setItalic(final boolean b) {
     final Set<FontAttribute> style = this.getAttributes();
-    style.add(FontAttribute.ITALIC);
+    if (b) {
+      style.add(FontAttribute.ITALIC);
+    } else {
+      style.remove(FontAttribute.ITALIC);
+    }
     this.setAttributes(style);
     return this;
   }
 
   default FontStyle setShadow(final boolean b) {
     final Set<FontAttribute> style = this.getAttributes();
-    style.add(FontAttribute.SHADOW);
+    if (b) {
+      style.add(FontAttribute.SHADOW);
+    } else {
+      style.remove(FontAttribute.SHADOW);
+    }
     this.setAttributes(style);
     return this;
   }
 
   default FontStyle setStrikeout(final boolean b) {
     final Set<FontAttribute> style = this.getAttributes();
-    style.add(FontAttribute.STRIKEOUT);
+    if (b) {
+      style.add(FontAttribute.STRIKEOUT);
+    } else {
+      style.remove(FontAttribute.STRIKEOUT);
+    }
     this.setAttributes(style);
     return this;
   }
 
   default FontStyle setSub(final boolean b) {
     final Set<FontAttribute> style = this.getAttributes();
-    style.add(FontAttribute.SUB);
+    if (b) {
+      style.add(FontAttribute.SUB);
+    } else {
+      style.remove(FontAttribute.SUB);
+    }
     this.setAttributes(style);
     return this;
   }
 
   default FontStyle setSuper(final boolean b) {
     final Set<FontAttribute> style = this.getAttributes();
-    style.add(FontAttribute.SUPER);
+    if (b) {
+      style.add(FontAttribute.SUPER);
+    } else {
+      style.remove(FontAttribute.SUPER);
+    }
     this.setAttributes(style);
     return this;
   }
 
   default FontStyle setUnderline(final boolean b) {
     final Set<FontAttribute> style = this.getAttributes();
-    style.add(FontAttribute.UNDERLINE);
+    if (b) {
+      style.add(FontAttribute.UNDERLINE);
+    } else {
+      style.remove(FontAttribute.UNDERLINE);
+    }
     this.setAttributes(style);
     return this;
   }

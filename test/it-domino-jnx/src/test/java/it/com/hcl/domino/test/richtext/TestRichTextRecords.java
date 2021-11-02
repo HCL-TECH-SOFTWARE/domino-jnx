@@ -34,6 +34,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
@@ -1048,6 +1049,63 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         FontStyle style = begin.getFontStyle();
         assertEquals(true, style.isBold());
         assertEquals(80, style.getColorRaw());
+      });
+    }
+    
+    @Test
+    public void testFontStyleAttributes() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDTextEffect.class, begin -> {
+            FontStyle style = rtWriter.createFontStyle();
+            
+            Assertions.assertTrue(style.getAttributes().isEmpty(), "Text should have no attributes yet");
+
+            style.setBold(true);
+            Assertions.assertEquals(EnumSet.of(FontAttribute.BOLD), style.getAttributes(), "Add BOLD attribute");
+            style.setBold(false);
+            Assertions.assertTrue(style.getAttributes().isEmpty(), "BOLD attribute removed");
+
+//            style.setExtrude(true);
+//            System.out.println("*** style: " +style.getAttributes());
+//            Assertions.assertTrue(style.isExtrude(), "Add EXTRUDE attribute");
+//            style.setExtrude(false);
+//            System.out.println("*** style: " +style.getAttributes());
+//            Assertions.assertFalse(style.isExtrude(), "EXTRUDE attribute removed");
+
+            style.setItalic(true);
+            Assertions.assertEquals(EnumSet.of(FontAttribute.ITALIC), style.getAttributes(), "Add ITALIC attribute");
+            style.setItalic(false);
+            Assertions.assertTrue(style.getAttributes().isEmpty(), "Italic attribute removed");
+
+//            style.setShadow(true);
+//            Assertions.assertTrue(style.isShadow(), "Add SHADOW attribute");
+//            style.setShadow(false);
+//            System.out.println("*** style: " +style.getAttributes());
+//            Assertions.assertFalse(style.isShadow(), "SHADOW attribute removed");
+
+            style.setStrikeout(true);
+            Assertions.assertEquals(EnumSet.of(FontAttribute.STRIKEOUT), style.getAttributes(), "Add STRIKEOUT attribute");
+            style.setStrikeout(false);
+            Assertions.assertTrue(style.getAttributes().isEmpty(), "STRIKEOUT attribute removed");
+
+            style.setSub(true);
+            Assertions.assertEquals(EnumSet.of(FontAttribute.SUB), style.getAttributes(), "Add SUB attribute");
+            style.setSub(false);
+            Assertions.assertTrue(style.getAttributes().isEmpty(), "SUB attribute removed");
+
+            style.setSuper(true);
+            Assertions.assertEquals(EnumSet.of(FontAttribute.SUPER), style.getAttributes(), "Add SUPER attribute");
+            style.setSuper(false);
+            Assertions.assertTrue(style.getAttributes().isEmpty(), "SUPER attribute removed");
+
+            style.setUnderline(true);
+            Assertions.assertEquals(EnumSet.of(FontAttribute.UNDERLINE), style.getAttributes(), "Add UNDERLINE attribute");
+            style.setUnderline(false);
+            Assertions.assertTrue(style.getAttributes().isEmpty(), "UNDERLINE attribute removed");          
+          });
+        }
       });
     }
     
