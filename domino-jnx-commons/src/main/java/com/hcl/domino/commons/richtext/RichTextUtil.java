@@ -42,6 +42,7 @@ import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.Item;
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -70,7 +71,7 @@ import com.hcl.domino.richtext.records.RichTextRecord;
 public enum RichTextUtil {
   ;
 
-  public static final Charset LMBCS = Charset.forName("LMBCS-native"); //$NON-NLS-1$
+  public static final Charset LMBCS = NativeItemCoder.get().getLmbcsCharset();
 
   /**
    * Creates a {@link AbstractCDRecord} implementation wrapper for the provided
@@ -391,7 +392,7 @@ public enum RichTextUtil {
         // The length stored here may be longer than the actual action length if it's to fit a WORD boundary
         long byteCount = Math.min(((CDBlobPart)record).getLength(), currentLength);
         byte[] data = ((CDBlobPart)record).getBlobPartData();
-        currentScript.append(new String(data, 0, (int)byteCount, Charset.forName("LMBCS"))); //$NON-NLS-1$
+        currentScript.append(new String(data, 0, (int)byteCount, LMBCS));
         currentLength -= byteCount;
       }
       if(record instanceof CDEventEntry) {

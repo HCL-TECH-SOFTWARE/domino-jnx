@@ -17,10 +17,10 @@
 package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Set;
 
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -190,14 +190,14 @@ public interface CDAction extends RichTextRecord<LSIG> {
     buf.get(lmbcs);
     if (lmbcs[lmbcs.length - 1] == 0) {
       // This is an optional padding byte
-      return new String(lmbcs, 0, lmbcs.length - 1, Charset.forName("LMBCS-native")); //$NON-NLS-1$
+      return new String(lmbcs, 0, lmbcs.length - 1, NativeItemCoder.get().getLmbcsCharset());
     } else {
-      return new String(lmbcs, Charset.forName("LMBCS-native")); //$NON-NLS-1$
+      return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
     }
   }
 
   default CDAction setTitle(final String title) {
-    final byte[] lmbcs = title == null ? new byte[0] : title.getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$
+    final byte[] lmbcs = title == null ? new byte[0] : title.getBytes(NativeItemCoder.get().getLmbcsCharset());
     final byte[] actionData = this.getActionData();
     final byte[] hideWhenData = this.getCompiledHideWhenFormula();
     final int titleLen = lmbcs.length + lmbcs.length % 2;

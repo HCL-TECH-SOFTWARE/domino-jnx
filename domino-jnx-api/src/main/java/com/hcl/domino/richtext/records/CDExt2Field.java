@@ -17,11 +17,11 @@
 package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.design.format.DateShowFormat;
 import com.hcl.domino.design.format.DateShowSpecial;
 import com.hcl.domino.design.format.DateTimeFlag;
@@ -129,7 +129,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     buf.position(preLen);
     final byte[] lmbcs = new byte[len];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
   }
 
   @StructureGetter("CurrencySymLength")
@@ -152,7 +152,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     buf.position(preLen);
     final byte[] lmbcs = new byte[len];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
   }
 
   @StructureGetter("DTDsep1Len")
@@ -172,7 +172,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     buf.position(preLen);
     final byte[] lmbcs = new byte[len];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
   }
 
   @StructureGetter("DTDsep2Len")
@@ -192,7 +192,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     buf.position(preLen);
     final byte[] lmbcs = new byte[len];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
   }
 
   @StructureGetter("DTDsep3Len")
@@ -228,7 +228,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     final ByteBuffer buf = this.getVariableData();
     final byte[] lmbcs = new byte[len];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
   }
 
   @StructureGetter("DecimalSymLength")
@@ -330,7 +330,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     buf.position(preLen);
     final byte[] lmbcs = new byte[len];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
   }
 
   @StructureGetter("MilliSepSymLength")
@@ -351,7 +351,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     buf.position(preLen);
     final byte[] lmbcs = new byte[len];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
   }
 
   @StructureGetter("NegativeSymLength")
@@ -376,7 +376,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     buf.position(preLen);
     final byte[] lmbcs = new byte[len];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
   }
 
   @StructureGetter("wThumbnailImageFileNameLength")
@@ -403,7 +403,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     buf.position(preLen);
     final byte[] lmbcs = new byte[len];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
   }
 
   @StructureGetter("DTTsepLen")
@@ -437,7 +437,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     final byte[] postData = new byte[postLen];
     buf.get(postData);
 
-    final byte[] lmbcs = symbol == null ? new byte[0] : symbol.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    final byte[] lmbcs = symbol == null ? new byte[0] : symbol.getBytes(NativeItemCoder.get().getLmbcsCharset());
     this.setCurrencySymbolLength(lmbcs.length);
     final int newLen = preLen + lmbcs.length + postLen;
     this.resizeVariableData(newLen);
@@ -467,7 +467,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     final byte[] postData = new byte[postLen];
     buf.get(postData);
 
-    final byte[] compiled = sep == null ? new byte[0] : sep.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    final byte[] compiled = sep == null ? new byte[0] : sep.getBytes(NativeItemCoder.get().getLmbcsCharset());
     this.setDateSeparator1Length((short) compiled.length);
     final int newLen = preLen + compiled.length + postLen;
     this.resizeVariableData(newLen);
@@ -494,7 +494,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     final byte[] postData = new byte[postLen];
     buf.get(postData);
 
-    final byte[] compiled = sep == null ? new byte[0] : sep.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    final byte[] compiled = sep == null ? new byte[0] : sep.getBytes(NativeItemCoder.get().getLmbcsCharset());
     this.setDateSeparator2Length((short) compiled.length);
     final int newLen = preLen + compiled.length + postLen;
     this.resizeVariableData(newLen);
@@ -521,7 +521,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     final byte[] postData = new byte[postLen];
     buf.get(postData);
 
-    final byte[] compiled = sep == null ? new byte[0] : sep.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    final byte[] compiled = sep == null ? new byte[0] : sep.getBytes(NativeItemCoder.get().getLmbcsCharset());
     this.setDateSeparator3Length((short) compiled.length);
     final int newLen = preLen + compiled.length + postLen;
     this.resizeVariableData(newLen);
@@ -566,7 +566,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     final byte[] postData = new byte[postLen];
     buf.get(postData);
 
-    final byte[] lmbcs = symbol == null ? new byte[0] : symbol.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    final byte[] lmbcs = symbol == null ? new byte[0] : symbol.getBytes(NativeItemCoder.get().getLmbcsCharset());
     this.setDecimalSymbolLength(lmbcs.length);
     final int newLen = lmbcs.length + postLen;
     this.resizeVariableData(newLen);
@@ -694,7 +694,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     final byte[] postData = new byte[postLen];
     buf.get(postData);
 
-    final byte[] lmbcs = sep == null ? new byte[0] : sep.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    final byte[] lmbcs = sep == null ? new byte[0] : sep.getBytes(NativeItemCoder.get().getLmbcsCharset());
     this.setMilliSeparatorLength(lmbcs.length);
     final int newLen = preLen + lmbcs.length + postLen;
     this.resizeVariableData(newLen);
@@ -722,7 +722,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     final byte[] postData = new byte[postLen];
     buf.get(postData);
 
-    final byte[] lmbcs = symbol == null ? new byte[0] : symbol.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    final byte[] lmbcs = symbol == null ? new byte[0] : symbol.getBytes(NativeItemCoder.get().getLmbcsCharset());
     this.setNegativeSymbolLength(lmbcs.length);
     final int newLen = preLen + lmbcs.length + postLen;
     this.resizeVariableData(newLen);
@@ -754,7 +754,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     final byte[] postData = new byte[postLen];
     buf.get(postData);
 
-    final byte[] lmbcs = fileName == null ? new byte[0] : fileName.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    final byte[] lmbcs = fileName == null ? new byte[0] : fileName.getBytes(NativeItemCoder.get().getLmbcsCharset());
     this.setThumbnailImageFileNameLength(lmbcs.length);
     final int newLen = preLen + lmbcs.length + postLen;
     this.resizeVariableData(newLen);
@@ -788,7 +788,7 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
     final byte[] postData = new byte[postLen];
     buf.get(postData);
 
-    final byte[] compiled = sep == null ? new byte[0] : sep.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    final byte[] compiled = sep == null ? new byte[0] : sep.getBytes(NativeItemCoder.get().getLmbcsCharset());
     this.setTimeSeparatorLength((short) compiled.length);
     final int newLen = preLen + compiled.length + postLen;
     this.resizeVariableData(newLen);

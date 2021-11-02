@@ -28,6 +28,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.hcl.domino.commons.data.AbstractCollectionEntry;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.Document;
@@ -41,7 +42,7 @@ import com.hcl.domino.data.TypedAccess;
  * 
  * @author Karsten Lehmann
  */
-public class JNADocSummaryCollectionEntry implements CollectionEntry {
+public class JNADocSummaryCollectionEntry extends AbstractCollectionEntry {
 	private JNADatabase m_parentDb;
 	private JNADominoCollection m_parentCollection;
 	private int m_noteId;

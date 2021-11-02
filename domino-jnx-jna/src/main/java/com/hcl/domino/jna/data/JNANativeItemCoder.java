@@ -17,6 +17,7 @@
 package com.hcl.domino.jna.data;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
+import com.hcl.domino.jna.misc.LMBCSCharsetProvider.LMBCSCharset;
 import com.hcl.domino.richtext.records.RecordType;
 import com.sun.jna.Memory;
 import com.sun.jna.ptr.ShortByReference;
@@ -103,5 +105,20 @@ public class JNANativeItemCoder implements NativeItemCoder {
 				Mem.OSMemFree(handleByVal);
 			}
 		});
+	}
+	
+	@Override
+	public Charset getLmbcsCharset(LmbcsVariant variant) {
+	  switch(variant) {
+      case KEEPNEWLINES:
+        return LMBCSCharset.INSTANCE_KEEPNEWLINES;
+      case NULLTERM:
+        return LMBCSCharset.INSTANCE_NULLTERM;
+      case NULLTERM_KEEPNEWLINES:
+        return LMBCSCharset.INSTANCE_KEEPNEWLINES;
+      case NORMAL:
+      default:
+        return LMBCSCharset.INSTANCE;
+	  }
 	}
 }

@@ -26,6 +26,7 @@ import java.util.List;
 
 import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.misc.INumberEnum;
+import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -105,11 +106,11 @@ public interface AssistFieldStruct extends ResizableMemoryStructure {
   ActionByField getActionOperator();
 
   default String getFieldName() {
-    final ByteBuffer buf = this.getVariableData();
-    final int nameLen = this.getFieldNameLength();
-    final byte[] nameData = new byte[nameLen];
-    buf.get(nameData);
-    return new String(nameData, Charset.forName("LMBCS-native")); //$NON-NLS-1$
+    return StructureSupport.extractStringValue(
+      this,
+      0,
+      this.getFieldNameLength()
+    );
   }
 
   @StructureGetter("wFieldNameLen")
@@ -162,19 +163,16 @@ public interface AssistFieldStruct extends ResizableMemoryStructure {
   AssistFieldStruct setActionOperator(ActionByField actionByField);
 
   default AssistFieldStruct setFieldName(final String name) {
-    final byte[] lmbcs = name == null ? new byte[0] : name.getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$
-    final byte[] valueData = this.getValueData();
-
-    int variableLen = lmbcs.length + valueData.length;
-    variableLen += variableLen % 2;
-    this.resizeVariableData(variableLen);
-    final ByteBuffer buf = this.getVariableData();
-    buf.put(lmbcs);
-    buf.put(valueData);
-
+    StructureSupport.writeStringValue(
+      this,
+      0,
+      this.getFieldNameLength(),
+      name,
+      (int len) -> {
+        this.setFieldNameLength(len);
+      }
+    );
     this.setTotalLength(this.getData().remaining());
-    this.setFieldNameLength(lmbcs.length);
-
     return this;
   }
 
@@ -202,7 +200,7 @@ public interface AssistFieldStruct extends ResizableMemoryStructure {
     int valueLen = 2 // WORD: TYPE_TEXT_LIST
         + 2 // USHORT ListEntries
         + 2 * vals.size(); // USHORT string lengs
-    final Charset lmbcsCharset = Charset.forName("LMBCS-native"); //$NON-NLS-1$
+    final Charset lmbcsCharset = NativeItemCoder.get().getLmbcsCharset();
     final List<byte[]> lmbcs = new ArrayList<>(vals.size());
     for (final String val : vals) {
       final byte[] valBytes = val.getBytes(lmbcsCharset);

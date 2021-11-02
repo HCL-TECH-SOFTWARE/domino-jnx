@@ -18,13 +18,13 @@ package com.hcl.domino.commons.util;
 
 import com.hcl.domino.commons.data.DefaultPreV3Author;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.data.PreV3Author;
 import com.hcl.domino.richtext.structures.LicenseID;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.text.MessageFormat;
 
 /**
@@ -41,7 +41,7 @@ public enum NotesItemDataUtil {
     
     byte[] lmbcs = new byte[buf.remaining()-8];
     buf.get(lmbcs);
-    String name = new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+    String name = new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
     
     byte[] licenseBytes = new byte[8];
     buf.get(licenseBytes);

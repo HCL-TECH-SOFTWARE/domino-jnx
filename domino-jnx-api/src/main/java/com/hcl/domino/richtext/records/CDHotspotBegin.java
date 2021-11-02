@@ -17,11 +17,11 @@
 package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.HotspotType;
@@ -179,7 +179,7 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
 
     final byte[] lmbcs = new byte[nullIndex - pos];
     buf.get(lmbcs);
-    return Optional.of(new String(lmbcs, Charset.forName("LMBCS"))); //$NON-NLS-1$
+    return Optional.of(new String(lmbcs, NativeItemCoder.get().getLmbcsCharset()));
   }
 
   /**
@@ -210,7 +210,7 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
 
     final byte[] lmbcs = new byte[nullIndex - pos];
     buf.get(lmbcs);
-    return Optional.of(new String(lmbcs, Charset.forName("LMBCS"))); //$NON-NLS-1$
+    return Optional.of(new String(lmbcs, NativeItemCoder.get().getLmbcsCharset()));
   }
 
   @StructureSetter("DataLength")
@@ -235,8 +235,8 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
    * @return this record
    */
   default CDHotspotBegin setFileNames(final String uniqueFileName, final String displayFileName) {
-    final byte[] uniqueFileNameAttachment = uniqueFileName.getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$
-    final byte[] fileNameToDisplayMem = displayFileName.getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$
+    final byte[] uniqueFileNameAttachment = uniqueFileName.getBytes(NativeItemCoder.get().getLmbcsCharset());
+    final byte[] fileNameToDisplayMem = displayFileName.getBytes(NativeItemCoder.get().getLmbcsCharset());
     this.setFileNamesRaw(uniqueFileNameAttachment, fileNameToDisplayMem, true);
 
     return this;
