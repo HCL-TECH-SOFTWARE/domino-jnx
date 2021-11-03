@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.ItemDataType;
@@ -1591,6 +1592,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
     }
     
     @Test
+    @Disabled("CDLSOBJECT_R6 does not have a documented SIG_CD value")
     public void testLSObjectR6() throws Exception {
       this.withTempDb(database -> {
         final Document doc = database.createDocument();
