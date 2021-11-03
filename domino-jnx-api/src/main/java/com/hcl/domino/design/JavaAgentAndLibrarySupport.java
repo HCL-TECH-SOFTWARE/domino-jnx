@@ -41,7 +41,8 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
   String RESOURCE_JAR_FILENAME = "%%resource%%.jar"; //$NON-NLS-1$
 
   /**
-   * Creates initial attachments for source and object content of Java agents/libraries if they don't yet exist.
+   * Creates initial attachments for source and object content if they don't yet exist,
+   * similar to Domino Designer creating a new agent/library.
    */
   default void initJavaContent() {
     Document doc = getDocument();
