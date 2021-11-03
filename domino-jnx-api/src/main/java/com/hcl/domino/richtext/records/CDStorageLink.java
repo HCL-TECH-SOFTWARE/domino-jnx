@@ -45,16 +45,16 @@ import com.hcl.domino.richtext.structures.WSIG;
                                                                                             /* Storage data follows... */
 })
 public interface CDStorageLink extends RichTextRecord<WSIG> {
-  public enum StorageType implements INumberEnum<Integer> {
-    OBJECT(RichTextConstants.STORAGE_LINK_TYPE_OBJECT), 
-    NOTE(RichTextConstants.STORAGE_LINK_TYPE_NOTE), 
-    URL_CONVERTED(RichTextConstants.STORAGE_LINK_TYPE_URL_CONVERTED), 
-    URL_MIME(RichTextConstants.STORAGE_LINK_TYPE_URL_MIME), 
-    MIME_PART(RichTextConstants.STORAGE_LINK_TYPE_MIME_PART), 
-    MIME_OBJECT(RichTextConstants.STORAGE_LINK_TYPE_MIME_OBJECT);
+  public enum StorageType implements INumberEnum<Short> {
+    OBJECT((short)RichTextConstants.STORAGE_LINK_TYPE_OBJECT), 
+    NOTE((short)RichTextConstants.STORAGE_LINK_TYPE_NOTE), 
+    URL_CONVERTED((short)RichTextConstants.STORAGE_LINK_TYPE_URL_CONVERTED), 
+    URL_MIME((short)RichTextConstants.STORAGE_LINK_TYPE_URL_MIME), 
+    MIME_PART((short)RichTextConstants.STORAGE_LINK_TYPE_MIME_PART), 
+    MIME_OBJECT((short)RichTextConstants.STORAGE_LINK_TYPE_MIME_OBJECT);
     
-    private final int value;
-    private StorageType(int value) {
+    private final short value;
+    private StorageType(short value) {
       this.value = value;
     }
 
@@ -64,7 +64,7 @@ public interface CDStorageLink extends RichTextRecord<WSIG> {
     }
 
     @Override
-    public Integer getValue() {
+    public Short getValue() {
       return value;
     }
   }
