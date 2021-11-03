@@ -69,12 +69,12 @@ public interface CDStorageLink extends RichTextRecord<WSIG> {
     }
   }
   
-  public enum LoadType implements INumberEnum<Integer> {
-    LOAD_DEFERRED(RichTextConstants.STORAGE_LINK_LOAD_DEFERRED), 
-    LOAD_ON_DEMAND(RichTextConstants.STORAGE_LINK_LOAD_ON_DEMAND);
+  public enum LoadType implements INumberEnum<Short> {
+    LOAD_DEFERRED((short)RichTextConstants.STORAGE_LINK_LOAD_DEFERRED), 
+    LOAD_ON_DEMAND((short)RichTextConstants.STORAGE_LINK_LOAD_ON_DEMAND);
     
-    private final int value;
-    private LoadType(int value) {
+    private final short value;
+    private LoadType(short value) {
       this.value = value;
     }
 
@@ -84,7 +84,7 @@ public interface CDStorageLink extends RichTextRecord<WSIG> {
     }
 
     @Override
-    public Integer getValue() {
+    public Short getValue() {
       return value;
     }
   }
