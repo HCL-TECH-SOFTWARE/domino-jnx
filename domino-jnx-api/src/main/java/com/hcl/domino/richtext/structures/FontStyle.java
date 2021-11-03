@@ -198,24 +198,24 @@ public interface FontStyle extends MemoryStructure {
   }
 
   default FontStyle setSub(final boolean b) {
-    final Set<FontAttribute> style = this.getAttributes();
-    if (b) {
-      style.add(FontAttribute.SUB);
+    byte style = getAttributesRaw();
+    if(b) {
+      style |= FontAttribute.SUB.getValue();
     } else {
-      style.remove(FontAttribute.SUB);
+      style = (byte)(style & ~FontAttribute.SUB.getValue());
     }
-    this.setAttributes(style);
+    setAttributesRaw(style);
     return this;
   }
 
   default FontStyle setSuper(final boolean b) {
-    final Set<FontAttribute> style = this.getAttributes();
-    if (b) {
-      style.add(FontAttribute.SUPER);
+    byte style = getAttributesRaw();
+    if(b) {
+      style |= FontAttribute.SUPER.getValue();
     } else {
-      style.remove(FontAttribute.SUPER);
+      style = (byte)(style & ~FontAttribute.SUPER.getValue());
     }
-    this.setAttributes(style);
+    setAttributesRaw(style);
     return this;
   }
 
