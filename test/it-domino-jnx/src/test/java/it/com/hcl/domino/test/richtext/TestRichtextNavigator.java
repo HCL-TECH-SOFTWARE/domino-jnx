@@ -274,7 +274,7 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
       final String libraryString = new String(libraryStream.toByteArray(), RichTextUtil.LMBCS);
 
       final byte[] lineEndingExpected = toCr(expected).getBytes();
-      final byte[] libraryBytes = toCr(libraryString).getBytes();
+      final byte[] libraryBytes = toCr(toLf(libraryString)).getBytes();
       Assertions.assertArrayEquals(lineEndingExpected, libraryBytes);
     });
   }
