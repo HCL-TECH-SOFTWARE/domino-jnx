@@ -82,6 +82,7 @@ public interface CDIgnore extends RichTextRecord<BSIG> {
     }
   }
 
+  @Override
   @StructureGetter("Header")
   BSIG getHeader();
 

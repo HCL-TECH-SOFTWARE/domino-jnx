@@ -67,6 +67,7 @@ public interface CDInline extends RichTextRecord<WSIG> {
   }
   static int INLINE_VERSION1 = 1; 
 
+  @Override
   @StructureGetter("Header")
   WSIG getHeader();
 

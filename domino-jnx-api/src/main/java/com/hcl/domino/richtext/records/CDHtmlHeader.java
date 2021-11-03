@@ -37,6 +37,7 @@ import com.hcl.domino.richtext.structures.WSIG;
 })
 public interface CDHtmlHeader extends RichTextRecord<WSIG> {
 
+  @Override
   @StructureGetter("Header")
   WSIG getHeader();
 

@@ -89,6 +89,7 @@ public interface CDStorageLink extends RichTextRecord<WSIG> {
     }
   }
 
+  @Override
   @StructureGetter("Header")
   WSIG getHeader();
 

@@ -59,6 +59,7 @@ public interface CDLSObjectR6 extends RichTextRecord<WSIG> {
     }
   }
 
+  @Override
   @StructureGetter("Header")
   WSIG getHeader();
 
