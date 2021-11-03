@@ -1547,13 +1547,13 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           rtWriter.addRichTextRecord(CDIgnore.class, begin -> {
               begin.setFlags(EnumSet.of(CDIgnore.Flag.CDIGNORE_BEGIN));
-              begin.setNotesVersion(CDIgnore.NotesVersion.NOTES_VERSION_CURRENT);
+              begin.setNotesVersion(CDIgnore.NotesVersion.NOTES_VERSION_6_0_0);
           });
         }
 
         final CDIgnore begin = (CDIgnore) doc.getRichTextItem("Body").get(0);
         assertEquals(EnumSet.of(CDIgnore.Flag.CDIGNORE_BEGIN), begin.getFlags());
-        assertEquals(CDIgnore.NotesVersion.NOTES_VERSION_CURRENT, begin.getNotesVersion());
+        assertEquals(CDIgnore.NotesVersion.NOTES_VERSION_6_0_0, begin.getNotesVersion());
       });
     }
     
