@@ -18,6 +18,7 @@ package it.com.hcl.domino.test.richtext;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -1057,7 +1058,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       this.withTempDb(database -> {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
-          rtWriter.addRichTextRecord(CDTextEffect.class, begin -> {
+          {
             FontStyle style = rtWriter.createFontStyle();
             
             Assertions.assertTrue(style.getAttributes().isEmpty(), "Text should have no attributes yet");
@@ -1103,8 +1104,44 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
             style.setUnderline(true);
             Assertions.assertEquals(EnumSet.of(FontAttribute.UNDERLINE), style.getAttributes(), "Add UNDERLINE attribute");
             style.setUnderline(false);
-            Assertions.assertTrue(style.getAttributes().isEmpty(), "UNDERLINE attribute removed");          
-          });
+            Assertions.assertTrue(style.getAttributes().isEmpty(), "UNDERLINE attribute removed");
+          }
+          {
+            FontStyle style = rtWriter.createFontStyle();
+            
+            style.setExtrude(true);
+            // Extrude uses the same bits as SHADOW and SUB
+            assertTrue(style.isExtrude());
+            assertTrue(style.isShadow());
+            assertTrue(style.isSub());
+            
+            style.setExtrude(false);
+            assertFalse(style.isExtrude());
+            assertFalse(style.isShadow());
+            assertFalse(style.isSub());
+          }
+          {
+            FontStyle style = rtWriter.createFontStyle();
+            style.setSub(true);
+            assertTrue(style.isSub());
+            assertFalse(style.isExtrude());
+            
+            style.setSub(false);
+            assertFalse(style.isSub());
+            assertFalse(style.isExtrude());
+          }
+          {
+            FontStyle style = rtWriter.createFontStyle();
+            style.setEmboss(true);
+            assertTrue(style.isEmboss());
+            assertFalse(style.isExtrude());
+            assertTrue(style.isShadow());
+            
+            style.setEmboss(false);
+            assertFalse(style.isEmboss());
+            assertFalse(style.isExtrude());
+            assertFalse(style.isShadow());
+          }
         }
       });
     }

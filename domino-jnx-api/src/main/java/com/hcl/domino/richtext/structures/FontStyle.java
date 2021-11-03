@@ -42,9 +42,15 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 public interface FontStyle extends MemoryStructure {
   @StructureGetter("Attrib")
   Set<FontAttribute> getAttributes();
+  
+  @StructureGetter("Attrib")
+  byte getAttributesRaw();
 
   @StructureSetter("Attrib")
   FontStyle setAttributes(Collection<FontAttribute> attributes);
+  
+  @StructureSetter("Attrib")
+  FontStyle setAttributesRaw(byte attributes);
 
   @StructureGetter("Color")
   Optional<StandardColors> getColor();
@@ -93,6 +99,10 @@ public interface FontStyle extends MemoryStructure {
     return this.getAttributes().contains(FontAttribute.BOLD);
   }
 
+  default boolean isEmboss() {
+    return this.getAttributes().contains(FontAttribute.EMBOSS);
+  }
+
   default boolean isExtrude() {
     return this.getAttributes().contains(FontAttribute.EXTRUDE);
   }
@@ -132,14 +142,25 @@ public interface FontStyle extends MemoryStructure {
     return this;
   }
 
-  default FontStyle setExtrude(final boolean b) {
-    final Set<FontAttribute> style = this.getAttributes();
-    if (b) {
-      style.add(FontAttribute.EXTRUDE);
+  default FontStyle setEmboss(final boolean b) {
+    byte style = getAttributesRaw();
+    if(b) {
+      style |= FontAttribute.EMBOSS.getValue();
     } else {
-      style.remove(FontAttribute.EXTRUDE);
+      style = (byte)(style & ~FontAttribute.EMBOSS.getValue());
     }
-    this.setAttributes(style);
+    setAttributesRaw(style);
+    return this;
+  }
+
+  default FontStyle setExtrude(final boolean b) {
+    byte style = getAttributesRaw();
+    if(b) {
+      style |= FontAttribute.EXTRUDE.getValue();
+    } else {
+      style = (byte)(style & ~FontAttribute.EXTRUDE.getValue());
+    }
+    setAttributesRaw(style);
     return this;
   }
 
@@ -155,13 +176,13 @@ public interface FontStyle extends MemoryStructure {
   }
 
   default FontStyle setShadow(final boolean b) {
-    final Set<FontAttribute> style = this.getAttributes();
-    if (b) {
-      style.add(FontAttribute.SHADOW);
+    byte style = getAttributesRaw();
+    if(b) {
+      style |= FontAttribute.SHADOW.getValue();
     } else {
-      style.remove(FontAttribute.SHADOW);
+      style = (byte)(style & ~FontAttribute.SHADOW.getValue());
     }
-    this.setAttributes(style);
+    setAttributesRaw(style);
     return this;
   }
 
