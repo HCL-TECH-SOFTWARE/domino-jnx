@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.FontAttribute;
@@ -86,17 +87,23 @@ import com.hcl.domino.richtext.records.CDExtField.HelperType;
 import com.hcl.domino.richtext.records.CDField;
 import com.hcl.domino.richtext.records.CDFieldHint;
 import com.hcl.domino.richtext.records.CDHotspotBegin;
+import com.hcl.domino.richtext.records.CDHtmlHeader;
+import com.hcl.domino.richtext.records.CDHtmlSegment;
 import com.hcl.domino.richtext.records.CDIDName;
+import com.hcl.domino.richtext.records.CDIgnore;
 import com.hcl.domino.richtext.records.CDImageHeader;
 import com.hcl.domino.richtext.records.CDImageHeader.ImageType;
 import com.hcl.domino.richtext.records.CDImageSegment;
+import com.hcl.domino.richtext.records.CDInline;
 import com.hcl.domino.richtext.records.CDKeyword;
+import com.hcl.domino.richtext.records.CDLSObjectR6;
 import com.hcl.domino.richtext.records.CDLargeParagraph;
 import com.hcl.domino.richtext.records.CDLayer;
 import com.hcl.domino.richtext.records.CDLayoutButton;
 import com.hcl.domino.richtext.records.CDMapElement;
 import com.hcl.domino.richtext.records.CDParagraph;
 import com.hcl.domino.richtext.records.CDPositioning;
+import com.hcl.domino.richtext.records.CDStorageLink;
 import com.hcl.domino.richtext.records.CDStyleName;
 import com.hcl.domino.richtext.records.CDText;
 import com.hcl.domino.richtext.records.CDTextEffect;
@@ -1597,4 +1604,101 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       });
     }
     
+    @Test
+    public void testHtmlHeader() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDHtmlHeader.class, begin -> {
+              begin.setSegments(20);
+          });
+        }
+
+        final CDHtmlHeader begin = (CDHtmlHeader) doc.getRichTextItem("Body").get(0);
+        assertEquals(20, begin.getSegments());
+      });
+    }
+    
+    @Test
+    public void testHtmlSegment() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDHtmlSegment.class, begin -> {
+              begin.setHTML("<html><body>test</body></html>");
+          });
+        }
+
+        final CDHtmlSegment begin = (CDHtmlSegment) doc.getRichTextItem("Body").get(0);
+        String expStr = "<html><body>test</body></html>";
+        assertEquals(expStr, begin.getHTML());
+        assertEquals(expStr.length(), begin.getHTMLLength());
+      });
+    }
+    
+    @Test
+    public void testIgnore() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDIgnore.class, begin -> {
+              begin.setFlags(EnumSet.of(CDIgnore.Flag.CDIGNORE_BEGIN));
+              begin.setNotesVersion(CDIgnore.NotesVersion.NOTES_VERSION_6_0_0);
+          });
+        }
+
+        final CDIgnore begin = (CDIgnore) doc.getRichTextItem("Body").get(0);
+        assertEquals(EnumSet.of(CDIgnore.Flag.CDIGNORE_BEGIN), begin.getFlags());
+        assertEquals(CDIgnore.NotesVersion.NOTES_VERSION_6_0_0, begin.getNotesVersion());
+      });
+    }
+    
+    @Test
+    public void testInline() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDInline.class, begin -> {
+              begin.setFlags(EnumSet.of(CDInline.Flag.HTML));
+          });
+        }
+
+        final CDInline begin = (CDInline) doc.getRichTextItem("Body").get(0);
+        assertEquals(EnumSet.of(CDInline.Flag.HTML), begin.getFlags());
+        assertEquals(0, begin.getDatalength());
+      });
+    }
+    
+    @Test
+    public void testStorageLink() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDStorageLink.class, begin -> {
+              begin.setStorageType(CDStorageLink.StorageType.OBJECT);
+              begin.setObject(doc.getUNID());
+          });
+        }
+
+        final CDStorageLink begin = (CDStorageLink) doc.getRichTextItem("Body").get(0);
+        assertEquals(CDStorageLink.StorageType.OBJECT, begin.getStorageType());
+        assertEquals(doc.getUNID(), begin.getObject().get());
+      });
+    }
+    
+    @Test
+    @Disabled("CDLSOBJECT_R6 does not have a documented SIG_CD value")
+    public void testLSObjectR6() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDLSObjectR6.class, begin -> {
+              begin.setFlags(CDLSObjectR6.Flag.LSOBJECT_R6_TYPE);
+          });
+        }
+
+        final CDLSObjectR6 begin = (CDLSObjectR6) doc.getRichTextItem("Body").get(0);
+        assertEquals(CDLSObjectR6.Flag.LSOBJECT_R6_TYPE, begin.getFlags());
+      });
+    }
 }
