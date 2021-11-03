@@ -39,12 +39,12 @@ import com.hcl.domino.richtext.structures.WSIG;
     @StructureMember(name = "Reserved", type = byte[].class, length = 7),        
 })
 public interface CDLSObjectR6 extends RichTextRecord<WSIG> {
-  enum Flag implements INumberEnum<Integer> {
-    LSOBJECT_R6_TYPE(RichTextConstants.CDLSOBJECT_R6_TYPE); /* signals multiple code segments for R6 >64k */
+  enum Flag implements INumberEnum<Byte> {
+    LSOBJECT_R6_TYPE((byte)RichTextConstants.CDLSOBJECT_R6_TYPE); /* signals multiple code segments for R6 >64k */
     
-    private final int value;
+    private final byte value;
 
-    Flag(final int value) {
+    Flag(final byte value) {
       this.value = value;
     }
 
@@ -54,7 +54,7 @@ public interface CDLSObjectR6 extends RichTextRecord<WSIG> {
     }
 
     @Override
-    public Integer getValue() {
+    public Byte getValue() {
       return this.value;
     }
   }
