@@ -209,7 +209,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     }
     final AgentContent content = agent.getAgentContent();
     assertInstanceOf(LotusScriptAgentContent.class, content);
-    assertEquals(largels, ((LotusScriptAgentContent) content).getScript());
+    assertEquals(toLf(largels), toLf(((LotusScriptAgentContent) content).getScript()));
   }
 
   @Test
@@ -227,7 +227,7 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     }
     final AgentContent content = agent.getAgentContent();
     assertInstanceOf(LotusScriptAgentContent.class, content);
-    assertEquals(largels, ((LotusScriptAgentContent) content).getScript());
+    assertEquals(toLf(largels), toLf(((LotusScriptAgentContent) content).getScript()));
   }
 
   @Test
