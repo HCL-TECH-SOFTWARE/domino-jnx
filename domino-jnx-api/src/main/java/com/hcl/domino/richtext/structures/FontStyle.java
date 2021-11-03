@@ -42,9 +42,15 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 public interface FontStyle extends MemoryStructure {
   @StructureGetter("Attrib")
   Set<FontAttribute> getAttributes();
+  
+  @StructureGetter("Attrib")
+  byte getAttributesRaw();
 
   @StructureSetter("Attrib")
   FontStyle setAttributes(Collection<FontAttribute> attributes);
+  
+  @StructureSetter("Attrib")
+  FontStyle setAttributesRaw(byte attributes);
 
   @StructureGetter("Color")
   Optional<StandardColors> getColor();
@@ -93,6 +99,10 @@ public interface FontStyle extends MemoryStructure {
     return this.getAttributes().contains(FontAttribute.BOLD);
   }
 
+  default boolean isEmboss() {
+    return this.getAttributes().contains(FontAttribute.EMBOSS);
+  }
+
   default boolean isExtrude() {
     return this.getAttributes().contains(FontAttribute.EXTRUDE);
   }
@@ -123,56 +133,99 @@ public interface FontStyle extends MemoryStructure {
 
   default FontStyle setBold(final boolean b) {
     final Set<FontAttribute> style = this.getAttributes();
-    style.add(FontAttribute.BOLD);
+    if (b) {
+      style.add(FontAttribute.BOLD);
+    } else {
+      style.remove(FontAttribute.BOLD);
+    }
     this.setAttributes(style);
     return this;
   }
 
+  default FontStyle setEmboss(final boolean b) {
+    byte style = getAttributesRaw();
+    if(b) {
+      style |= FontAttribute.EMBOSS.getValue();
+    } else {
+      style = (byte)(style & ~FontAttribute.EMBOSS.getValue());
+    }
+    setAttributesRaw(style);
+    return this;
+  }
+
   default FontStyle setExtrude(final boolean b) {
-    final Set<FontAttribute> style = this.getAttributes();
-    style.add(FontAttribute.EXTRUDE);
-    this.setAttributes(style);
+    byte style = getAttributesRaw();
+    if(b) {
+      style |= FontAttribute.EXTRUDE.getValue();
+    } else {
+      style = (byte)(style & ~FontAttribute.EXTRUDE.getValue());
+    }
+    setAttributesRaw(style);
     return this;
   }
 
   default FontStyle setItalic(final boolean b) {
     final Set<FontAttribute> style = this.getAttributes();
-    style.add(FontAttribute.ITALIC);
+    if (b) {
+      style.add(FontAttribute.ITALIC);
+    } else {
+      style.remove(FontAttribute.ITALIC);
+    }
     this.setAttributes(style);
     return this;
   }
 
   default FontStyle setShadow(final boolean b) {
-    final Set<FontAttribute> style = this.getAttributes();
-    style.add(FontAttribute.SHADOW);
-    this.setAttributes(style);
+    byte style = getAttributesRaw();
+    if(b) {
+      style |= FontAttribute.SHADOW.getValue();
+    } else {
+      style = (byte)(style & ~FontAttribute.SHADOW.getValue());
+    }
+    setAttributesRaw(style);
     return this;
   }
 
   default FontStyle setStrikeout(final boolean b) {
     final Set<FontAttribute> style = this.getAttributes();
-    style.add(FontAttribute.STRIKEOUT);
+    if (b) {
+      style.add(FontAttribute.STRIKEOUT);
+    } else {
+      style.remove(FontAttribute.STRIKEOUT);
+    }
     this.setAttributes(style);
     return this;
   }
 
   default FontStyle setSub(final boolean b) {
-    final Set<FontAttribute> style = this.getAttributes();
-    style.add(FontAttribute.SUB);
-    this.setAttributes(style);
+    byte style = getAttributesRaw();
+    if(b) {
+      style |= FontAttribute.SUB.getValue();
+    } else {
+      style = (byte)(style & ~FontAttribute.SUB.getValue());
+    }
+    setAttributesRaw(style);
     return this;
   }
 
   default FontStyle setSuper(final boolean b) {
-    final Set<FontAttribute> style = this.getAttributes();
-    style.add(FontAttribute.SUPER);
-    this.setAttributes(style);
+    byte style = getAttributesRaw();
+    if(b) {
+      style |= FontAttribute.SUPER.getValue();
+    } else {
+      style = (byte)(style & ~FontAttribute.SUPER.getValue());
+    }
+    setAttributesRaw(style);
     return this;
   }
 
   default FontStyle setUnderline(final boolean b) {
     final Set<FontAttribute> style = this.getAttributes();
-    style.add(FontAttribute.UNDERLINE);
+    if (b) {
+      style.add(FontAttribute.UNDERLINE);
+    } else {
+      style.remove(FontAttribute.UNDERLINE);
+    }
     this.setAttributes(style);
     return this;
   }
