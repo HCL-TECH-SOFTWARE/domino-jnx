@@ -43,7 +43,6 @@ import com.hcl.domino.richtext.structures.WSIG;
 })
 public interface CDInline extends RichTextRecord<WSIG> {
   public enum Flag implements INumberEnum<Integer> {
-    UNKNOWN(RichTextConstants.INLINE_FLAG_UNKNOWN), 
     SCRIPT_LIB(RichTextConstants.INLINE_FLAG_SCRIPT_LIB), 
     STYLE_SHEET(RichTextConstants.INLINE_FLAG_STYLE_SHEET), 
     HTML(RichTextConstants.INLINE_FLAG_HTML), 
