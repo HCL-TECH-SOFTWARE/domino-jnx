@@ -62,12 +62,12 @@ public interface CDIgnore extends RichTextRecord<BSIG> {
     }
   }
   
-  public enum NotesVersion implements INumberEnum<Integer> {
-    NOTES_VERSION_6_0_0(RichTextConstants.CDIGNORE_NOTES_VERSION_6_0_0), /* 6.0.0 */
-    NOTES_VERSION_CURRENT(RichTextConstants.CDIGNORE_NOTES_VERSION_CURRENT); /* 6.0.0 */
+  public enum NotesVersion implements INumberEnum<Short> {
+    NOTES_VERSION_6_0_0((short)RichTextConstants.CDIGNORE_NOTES_VERSION_6_0_0), /* 6.0.0 */
+    NOTES_VERSION_CURRENT((short)RichTextConstants.CDIGNORE_NOTES_VERSION_CURRENT); /* 6.0.0 */
     
-    private final int value;
-    private NotesVersion(int value) {
+    private final short value;
+    private NotesVersion(short value) {
       this.value = value;
     }
 
@@ -77,7 +77,7 @@ public interface CDIgnore extends RichTextRecord<BSIG> {
     }
 
     @Override
-    public Integer getValue() {
+    public Short getValue() {
       return value;
     }
   }
