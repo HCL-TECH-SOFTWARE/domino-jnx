@@ -1075,23 +1075,23 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
             style.setBold(false);
             Assertions.assertTrue(style.getAttributes().isEmpty(), "BOLD attribute removed");
 
-//            style.setExtrude(true);
-//            System.out.println("*** style: " +style.getAttributes());
-//            Assertions.assertTrue(style.isExtrude(), "Add EXTRUDE attribute");
-//            style.setExtrude(false);
-//            System.out.println("*** style: " +style.getAttributes());
-//            Assertions.assertFalse(style.isExtrude(), "EXTRUDE attribute removed");
+            style.setExtrude(true);
+            System.out.println("*** style: " +style.getAttributes());
+            Assertions.assertTrue(style.isExtrude(), "Add EXTRUDE attribute");
+            style.setExtrude(false);
+            System.out.println("*** style: " +style.getAttributes());
+            Assertions.assertFalse(style.isExtrude(), "EXTRUDE attribute removed");
 
             style.setItalic(true);
             Assertions.assertEquals(EnumSet.of(FontAttribute.ITALIC), style.getAttributes(), "Add ITALIC attribute");
             style.setItalic(false);
             Assertions.assertTrue(style.getAttributes().isEmpty(), "Italic attribute removed");
 
-//            style.setShadow(true);
-//            Assertions.assertTrue(style.isShadow(), "Add SHADOW attribute");
-//            style.setShadow(false);
-//            System.out.println("*** style: " +style.getAttributes());
-//            Assertions.assertFalse(style.isShadow(), "SHADOW attribute removed");
+            style.setShadow(true);
+            Assertions.assertTrue(style.isShadow(), "Add SHADOW attribute");
+            style.setShadow(false);
+            System.out.println("*** style: " +style.getAttributes());
+            Assertions.assertFalse(style.isShadow(), "SHADOW attribute removed");
 
             style.setStrikeout(true);
             Assertions.assertEquals(EnumSet.of(FontAttribute.STRIKEOUT), style.getAttributes(), "Add STRIKEOUT attribute");
