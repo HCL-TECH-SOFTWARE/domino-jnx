@@ -27,7 +27,7 @@ import com.hcl.domino.richtext.structures.WSIG;
 /**
  * CDLSOBJECT_R6
  * 
- * @author 
+ * @author pbugga
  * @since 1.0.46
  */
 

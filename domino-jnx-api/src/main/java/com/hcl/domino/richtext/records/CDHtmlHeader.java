@@ -25,7 +25,7 @@ import com.hcl.domino.richtext.structures.WSIG;
 /**
  * CDHTMLHEADER
  * 
- * @author 
+ * @author pbugga
  * @since 1.0.46
  */
 

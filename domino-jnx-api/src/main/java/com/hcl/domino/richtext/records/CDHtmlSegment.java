@@ -26,7 +26,7 @@ import com.hcl.domino.richtext.structures.WSIG;
 /**
  * CDHTMLSEGMENT
  * 
- * @author 
+ * @author pbugga
  * @since 1.0.46
  */
 

@@ -29,7 +29,7 @@ import com.hcl.domino.richtext.structures.WSIG;
 /**
  * CDSTORAGELINK
  * 
- * @author 
+ * @author pbugga
  * @since 1.0.46
  */
 
