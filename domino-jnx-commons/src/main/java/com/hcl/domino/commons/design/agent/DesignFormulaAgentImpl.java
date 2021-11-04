@@ -36,7 +36,9 @@ import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.CDActionFormula;
+import com.hcl.domino.richtext.records.CDActionHeader;
 import com.hcl.domino.richtext.records.CDActionJavaAgent;
+import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
@@ -148,14 +150,24 @@ public class DesignFormulaAgentImpl extends AbstractDesignAgentImpl<DesignFormul
     Document doc = getDocument();
     
     List<RichTextRecord<?>> records = new ArrayList<>(doc.getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION));
+    
+    CDActionHeader actionHeaderRecord = records.stream()
+        .filter(CDActionHeader.class::isInstance)
+        .map(CDActionHeader.class::cast)
+        .findFirst().orElse(null);
+
+    if (actionHeaderRecord==null) {
+      actionHeaderRecord = RichTextRecord.create(RecordType.ACTION_HEADER, 0);
+      records.add(actionHeaderRecord);
+    }
+
     CDActionFormula formulaAgentRecord = records.stream()
         .filter(CDActionFormula.class::isInstance)
         .map(CDActionFormula.class::cast)
         .findFirst().orElse(null);
     
     if (formulaAgentRecord==null) {
-      formulaAgentRecord = MemoryStructureWrapperService.get().newStructure(CDActionFormula.class, 0);
-      formulaAgentRecord.getHeader().setSignature(RichTextConstants.SIG_ACTION_FORMULA);
+      formulaAgentRecord = RichTextRecord.create(RecordType.ACTION_FORMULA, 0);
       records.add(formulaAgentRecord);
     }
     

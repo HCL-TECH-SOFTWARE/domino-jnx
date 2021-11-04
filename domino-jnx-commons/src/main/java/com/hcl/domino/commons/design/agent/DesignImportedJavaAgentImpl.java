@@ -42,7 +42,9 @@ import com.hcl.domino.design.agent.DesignImportedJavaAgent;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
+import com.hcl.domino.richtext.records.CDActionHeader;
 import com.hcl.domino.richtext.records.CDActionJavaAgent;
+import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
@@ -120,14 +122,24 @@ public class DesignImportedJavaAgentImpl extends AbstractDesignAgentImpl<DesignI
     Document doc = getDocument();
     
     List<RichTextRecord<?>> records = new ArrayList<>(doc.getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION));
+    
+    CDActionHeader actionHeaderRecord = records.stream()
+        .filter(CDActionHeader.class::isInstance)
+        .map(CDActionHeader.class::cast)
+        .findFirst().orElse(null);
+
+    if (actionHeaderRecord==null) {
+      actionHeaderRecord = RichTextRecord.create(RecordType.ACTION_HEADER, 0);
+      records.add(actionHeaderRecord);
+    }
+
     CDActionJavaAgent javaAgentRecord = records.stream()
         .filter(CDActionJavaAgent.class::isInstance)
         .map(CDActionJavaAgent.class::cast)
         .findFirst().orElse(null);
     
     if (javaAgentRecord==null) {
-      javaAgentRecord = MemoryStructureWrapperService.get().newStructure(CDActionJavaAgent.class, 0);
-      javaAgentRecord.getHeader().setSignature(RichTextConstants.SIG_ACTION_JAVAAGENT);
+      javaAgentRecord = RichTextRecord.create(RecordType.ACTION_JAVAAGENT, 0);
       records.add(javaAgentRecord);
     }
     
