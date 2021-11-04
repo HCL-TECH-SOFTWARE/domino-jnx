@@ -23,10 +23,13 @@ import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
+import com.hcl.domino.richtext.records.CDActionHeader;
 import com.hcl.domino.richtext.records.CDActionJavaAgent;
+import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
+import com.hcl.domino.util.JNXDumpUtil;
 import com.hcl.domino.util.JNXStringUtil;
 
 /**
@@ -179,11 +182,16 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
     //change $file item flags
     doc.forEachItem("$file", (item,loop) -> { //$NON-NLS-1$
       if (item.getType() == ItemDataType.TYPE_OBJECT) {
-        Attachment att = item.get(Attachment.class, null);
-        if (att!=null && fileName.equals(att.getFileName())) {
-          item.setSigned(true);
-          item.setEncrypted(true);
-          item.setSummary(true);
+        List<?> values = item.getValue();
+        if (values!=null && values.size()==1 && values.get(0) instanceof Attachment) {
+          Attachment att = (Attachment) values.get(0);
+          
+          if (fileName.equals(att.getFileName())) {
+            item.setSigned(true);
+            item.setEncrypted(true);
+            item.setSummary(true);
+            loop.stop();
+          }
         }
       }
     });
@@ -215,14 +223,24 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
     Document doc = getDocument();
     
     List<RichTextRecord<?>> records = new ArrayList<>(doc.getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION));
+
+    CDActionHeader actionHeaderRecord = records.stream()
+        .filter(CDActionHeader.class::isInstance)
+        .map(CDActionHeader.class::cast)
+        .findFirst().orElse(null);
+
+    if (actionHeaderRecord==null) {
+      actionHeaderRecord = RichTextRecord.create(RecordType.ACTION_HEADER, 0);
+      records.add(actionHeaderRecord);
+    }
+    
     CDActionJavaAgent javaAgentRecord = records.stream()
         .filter(CDActionJavaAgent.class::isInstance)
         .map(CDActionJavaAgent.class::cast)
         .findFirst().orElse(null);
     
     if (javaAgentRecord==null) {
-      javaAgentRecord = MemoryStructureWrapperService.get().newStructure(CDActionJavaAgent.class, 0);
-      javaAgentRecord.getHeader().setSignature(RichTextConstants.SIG_ACTION_JAVAAGENT);
+      javaAgentRecord = RichTextRecord.create(RecordType.ACTION_JAVAAGENT, 0);
       records.add(javaAgentRecord);
     }
     
