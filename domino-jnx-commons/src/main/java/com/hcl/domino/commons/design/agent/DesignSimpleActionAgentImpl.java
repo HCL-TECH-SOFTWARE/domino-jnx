@@ -40,13 +40,6 @@ public class DesignSimpleActionAgentImpl extends AbstractDesignAgentImpl<DesignS
     RichTextRecordList records = doc.getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION);
     this.actions = DesignUtil.toSimpleActions(records);
   }
-
-  @Override
-  public void initializeNewDesignNote() {
-    super.initializeNewDesignNote();
-    
-    this.getDocument().replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, -1);
-  }
   
   @Override
   public List<SimpleAction> getActions() {

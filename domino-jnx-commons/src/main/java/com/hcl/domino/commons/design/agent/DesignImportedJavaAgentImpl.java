@@ -67,13 +67,6 @@ public class DesignImportedJavaAgentImpl extends AbstractDesignAgentImpl<DesignI
     .map(CDActionJavaAgent.class::cast)
     .findFirst();
   }
-
-  @Override
-  public void initializeNewDesignNote() {
-    super.initializeNewDesignNote();
-    
-    this.getDocument().replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, Short.toUnsignedInt(RichTextConstants.SIG_ACTION_JAVA));
-  }
   
   @Override
   public String getCodeFilesystemPath() {

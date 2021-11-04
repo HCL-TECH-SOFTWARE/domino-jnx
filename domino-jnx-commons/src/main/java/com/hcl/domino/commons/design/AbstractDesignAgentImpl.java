@@ -261,8 +261,10 @@ public abstract class AbstractDesignAgentImpl<T extends DesignAgent> extends Abs
   public void initializeNewDesignNote() {
     Document doc = getDocument();
     
-    this.setFlags(NotesConstants.DESIGN_FLAG_HIDE_FROM_V3);
-    
+    setFlag(NotesConstants.DESIGN_FLAG_HIDE_FROM_V3, true);
+    setFlag(NotesConstants.DESIGN_FLAG_V4AGENT, true);
+    setFlagsExt(""); //$NON-NLS-1$
+
     doc.replaceItemValue(NotesConstants.ASSIST_DOCCOUNT_ITEM, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), 0);
     
     AssistStruct assistStruct = createAssistInfoWithDefaults();
@@ -295,15 +297,11 @@ public abstract class AbstractDesignAgentImpl<T extends DesignAgent> extends Abs
     
     doc.replaceItemValue(NotesConstants.DESIGNER_VERSION, "8.5.3"); //$NON-NLS-1$
     
-    setFlag(NotesConstants.DESIGN_FLAG_V4AGENT, true);
-    setFlag(NotesConstants.DESIGN_FLAG_HIDE_FROM_V3, true);
-    setFlagsExt(""); //$NON-NLS-1$
     setSecurityLevel(SecurityLevel.RESTRICTED);
     setEnabled(true);
     setRunAsWebUser(false);
     
     doc.replaceItemValue("$Comment", EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), ""); //$NON-NLS-1$ //$NON-NLS-2$
-    doc.replaceItemValue("$Flags", "fL3"); //$NON-NLS-1$ //$NON-NLS-2$
   }
 
   @Override

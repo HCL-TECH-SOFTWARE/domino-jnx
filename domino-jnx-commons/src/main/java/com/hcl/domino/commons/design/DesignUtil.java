@@ -29,6 +29,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -72,10 +74,14 @@ import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.Frameset;
 import com.hcl.domino.design.ImageResource;
+import com.hcl.domino.design.JavaLibrary;
+import com.hcl.domino.design.JavaScriptLibrary;
+import com.hcl.domino.design.LotusScriptLibrary;
 import com.hcl.domino.design.Navigator;
 import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.design.ScriptLibrary;
+import com.hcl.domino.design.ServerJavaScriptLibrary;
 import com.hcl.domino.design.SharedActions;
 import com.hcl.domino.design.SharedColumn;
 import com.hcl.domino.design.SharedField;
@@ -86,6 +92,11 @@ import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.WiringProperties;
 import com.hcl.domino.design.XPage;
+import com.hcl.domino.design.agent.DesignFormulaAgent;
+import com.hcl.domino.design.agent.DesignImportedJavaAgent;
+import com.hcl.domino.design.agent.DesignJavaAgent;
+import com.hcl.domino.design.agent.DesignLotusScriptAgent;
+import com.hcl.domino.design.agent.DesignSimpleActionAgent;
 import com.hcl.domino.design.simpleaction.FolderBasedAction;
 import com.hcl.domino.design.simpleaction.ReadMarksAction;
 import com.hcl.domino.design.simpleaction.RunAgentAction;
@@ -141,10 +152,12 @@ public enum DesignUtil {
     private final DocumentClass noteClass;
     private final String flagsPattern;
     private final Function<Document, I> constructor;
-
-    protected DesignMapping(final DocumentClass noteClass, final String flagsPattern, final Function<Document, I> constructor) {
+    private final BiConsumer<Class<? extends DesignElement>, Document> docInitializer;
+    
+    protected DesignMapping(final DocumentClass noteClass, final String flagsPattern, BiConsumer<Class<? extends DesignElement>, Document> docInitializer, final Function<Document, I> constructor) {
       this.noteClass = noteClass;
       this.flagsPattern = flagsPattern;
+      this.docInitializer = docInitializer;
       this.constructor = constructor;
     }
 
@@ -159,21 +172,26 @@ public enum DesignUtil {
     public DocumentClass getNoteClass() {
       return this.noteClass;
     }
+    
+    public BiConsumer<Class<? extends DesignElement>, Document> getDocInitializer() {
+      return this.docInitializer;
+    }
   }
 
   private static final Map<Class<? extends DesignElement>, DesignMapping<? extends DesignElement, ? extends AbstractDesignElement<?>>> mappings = new HashMap<>();
   static {
     DesignUtil.mappings.put(Outline.class,
-        new DesignMapping<>(DocumentClass.FILTER, NotesConstants.DFLAGPAT_SITEMAP,
+        new DesignMapping<>(DocumentClass.FILTER, NotesConstants.DFLAGPAT_SITEMAP, null,
             OutlineImpl::new));
     DesignUtil.mappings.put(View.class,
-        new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_VIEW_ALL_VERSIONS, ViewImpl::new));
+        new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_VIEW_ALL_VERSIONS, null, ViewImpl::new));
     DesignUtil.mappings.put(Folder.class,
-        new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_FOLDER_ALL_VERSIONS, FolderImpl::new));
+        new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_FOLDER_ALL_VERSIONS, null, FolderImpl::new));
     DesignUtil.mappings.put(CollectionDesignElement.class,
         new DesignMapping<CollectionDesignElement, AbstractCollectionDesignElement<CollectionDesignElement>>(
             DocumentClass.VIEW,
             NotesConstants.DFLAGPAT_VIEWS_AND_FOLDERS_DESIGN,
+            null,
             doc -> {
               final String flags = doc.getAsText(NotesConstants.DESIGN_FLAGS, ' ');
               if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_FOLDER_ALL_VERSIONS)) {
@@ -190,14 +208,37 @@ public enum DesignUtil {
             }));
 
     DesignUtil.mappings.put(Form.class,
-        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_FORM_ALL_VERSIONS, FormImpl::new));
+        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_FORM_ALL_VERSIONS, null, FormImpl::new));
     DesignUtil.mappings.put(Subform.class,
-        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_SUBFORM_ALL_VERSIONS,
+        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_SUBFORM_ALL_VERSIONS, null,
             SubformImpl::new));
     DesignUtil.mappings.put(DesignAgent.class,
         new DesignMapping<DesignAgent, AbstractDesignAgentImpl<DesignAgent>>(
             DocumentClass.FILTER,
             NotesConstants.DFLAGPAT_AGENTSLIST,
+            (designClass, doc) -> {
+              //initialize fields to indicate the type of agent
+              if (DesignFormulaAgent.class.isAssignableFrom(designClass)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "f3"); //$NON-NLS-1$
+                doc.replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, Short.toUnsignedInt(RichTextConstants.SIG_ACTION_FORMULAONLY));
+              }
+              else if (DesignImportedJavaAgent.class.isAssignableFrom(designClass)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "f3"); //$NON-NLS-1$
+                doc.replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, Short.toUnsignedInt(RichTextConstants.SIG_ACTION_JAVA));
+              }
+              else if (DesignJavaAgent.class.isAssignableFrom(designClass)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "fJj3"); //$NON-NLS-1$
+                doc.replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, Short.toUnsignedInt(RichTextConstants.SIG_ACTION_JAVAAGENT));
+              }
+              else if (DesignLotusScriptAgent.class.isAssignableFrom(designClass)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "fL3"); //$NON-NLS-1$
+                doc.replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, Short.toUnsignedInt(RichTextConstants.SIG_ACTION_LOTUSSCRIPT));
+              }
+              else if (DesignSimpleActionAgent.class.isAssignableFrom(designClass)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "f3"); //$NON-NLS-1$
+                doc.replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, -1);
+              }
+            },
             doc -> {
               final String flags = doc.getAsText(NotesConstants.DESIGN_FLAGS, ' ');
               short lang = doc.get(NotesConstants.ASSIST_TYPE_ITEM, short.class, (short) 0);
@@ -283,15 +324,31 @@ public enum DesignUtil {
             }));
     
     DesignUtil.mappings.put(DbProperties.class,
-        new DesignMapping<>(DocumentClass.ICON, "", DbPropertiesImpl::new) //$NON-NLS-1$
+        new DesignMapping<>(DocumentClass.ICON, "", null, DbPropertiesImpl::new) //$NON-NLS-1$
     );
     DesignUtil.mappings.put(FileResource.class,
-        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_FILE_RESOURCE,
+        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_FILE_RESOURCE, null,
             FileResourceImpl::new));
     DesignUtil.mappings.put(ScriptLibrary.class,
         new DesignMapping<ScriptLibrary, AbstractScriptLibrary<ScriptLibrary>>(
             DocumentClass.FILTER,
             NotesConstants.DFLAGPAT_SCRIPTLIB,
+            (designClass,doc) -> {
+              //initialize fields to indicate the type of library
+              if (designClass.isAssignableFrom(JavaLibrary.class)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "sj34Q"); //$NON-NLS-1$
+              }
+              else  if (designClass.isAssignableFrom(JavaScriptLibrary.class)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "h534Q"); //$NON-NLS-1$
+              }
+              else  if (designClass.isAssignableFrom(LotusScriptLibrary.class)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "s34Q"); //$NON-NLS-1$
+              }
+              else  if (designClass.isAssignableFrom(ServerJavaScriptLibrary.class)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, ".5834Q"); //$NON-NLS-1$
+              }
+              
+            },
             doc -> {
               final String flags = doc.getAsText(NotesConstants.DESIGN_FLAGS, ' ');
               if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SCRIPTLIB_JAVA)) {
@@ -320,24 +377,24 @@ public enum DesignUtil {
               }
             }));
     DesignUtil.mappings.put(ImageResource.class,
-        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_IMAGE_RESOURCE,
+        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_IMAGE_RESOURCE, null,
             ImageResourceImpl::new));
     DesignUtil.mappings.put(Page.class,
-        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_WEBPAGE, PageImpl::new)
+        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_WEBPAGE, null, PageImpl::new)
     );
-    DesignUtil.mappings.put(AboutDocument.class, new DesignMapping<>(DocumentClass.INFO, "", AboutDocumentImpl::new)); //$NON-NLS-1$
-    DesignUtil.mappings.put(UsingDocument.class, new DesignMapping<>(DocumentClass.HELP, "", UsingDocumentImpl::new)); //$NON-NLS-1$
-    DesignUtil.mappings.put(SharedField.class, new DesignMapping<>(DocumentClass.FIELD, "", SharedFieldImpl::new)); //$NON-NLS-1$
-    DesignUtil.mappings.put(Navigator.class, new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_VIEWMAP_ALL_VERSIONS, NavigatorImpl::new));
-    DesignUtil.mappings.put(SharedActions.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_SACTIONS_DESIGN, SharedActionsImpl::new));
-    DesignUtil.mappings.put(SharedColumn.class, new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_SHARED_COLS, SharedColumnImpl::new));
-    DesignUtil.mappings.put(StyleSheet.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_STYLE_SHEET_RESOURCE, StyleSheetImpl::new));
-    DesignUtil.mappings.put(WiringProperties.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_COMPDEF, WiringPropertiesImpl::new));
-    DesignUtil.mappings.put(Theme.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_STYLEKIT, ThemeImpl::new));
-    DesignUtil.mappings.put(Frameset.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_FRAMESET, FramesetImpl::new));
-    DesignUtil.mappings.put(CompositeComponent.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_WIDGET, CompositeComponentImpl::new));
-    DesignUtil.mappings.put(CompositeApplication.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_COMPAPP, CompositeApplicationImpl::new));
-    DesignUtil.mappings.put(XPage.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_XSPPAGE, XPageImpl::new));
+    DesignUtil.mappings.put(AboutDocument.class, new DesignMapping<>(DocumentClass.INFO, "", null, AboutDocumentImpl::new)); //$NON-NLS-1$
+    DesignUtil.mappings.put(UsingDocument.class, new DesignMapping<>(DocumentClass.HELP, "", null, UsingDocumentImpl::new)); //$NON-NLS-1$
+    DesignUtil.mappings.put(SharedField.class, new DesignMapping<>(DocumentClass.FIELD, "", null, SharedFieldImpl::new)); //$NON-NLS-1$
+    DesignUtil.mappings.put(Navigator.class, new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_VIEWMAP_ALL_VERSIONS, null, NavigatorImpl::new));
+    DesignUtil.mappings.put(SharedActions.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_SACTIONS_DESIGN, null, SharedActionsImpl::new));
+    DesignUtil.mappings.put(SharedColumn.class, new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_SHARED_COLS, null, SharedColumnImpl::new));
+    DesignUtil.mappings.put(StyleSheet.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_STYLE_SHEET_RESOURCE, null, StyleSheetImpl::new));
+    DesignUtil.mappings.put(WiringProperties.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_COMPDEF, null, WiringPropertiesImpl::new));
+    DesignUtil.mappings.put(Theme.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_STYLEKIT, null, ThemeImpl::new));
+    DesignUtil.mappings.put(Frameset.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_FRAMESET, null, FramesetImpl::new));
+    DesignUtil.mappings.put(CompositeComponent.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_WIDGET, null, CompositeComponentImpl::new));
+    DesignUtil.mappings.put(CompositeApplication.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_COMPAPP, null, CompositeApplicationImpl::new));
+    DesignUtil.mappings.put(XPage.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_XSPPAGE, null, XPageImpl::new));
   }
 
   /**

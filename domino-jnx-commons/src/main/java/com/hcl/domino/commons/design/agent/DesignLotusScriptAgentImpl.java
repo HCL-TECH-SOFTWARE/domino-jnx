@@ -31,7 +31,6 @@ import com.hcl.domino.design.NativeDesignSupport;
 import com.hcl.domino.design.agent.DesignLotusScriptAgent;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.misc.Pair;
-import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.CDActionHeader;
 import com.hcl.domino.richtext.records.CDActionLotusScript;
@@ -68,13 +67,6 @@ public class DesignLotusScriptAgentImpl extends AbstractDesignAgentImpl<DesignLo
   @Override
   public String getScript() {
     return script;
-  }
-
-  @Override
-  public void initializeNewDesignNote() {
-    super.initializeNewDesignNote();
-    
-    this.getDocument().replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, Short.toUnsignedInt(RichTextConstants.SIG_ACTION_LOTUSSCRIPT));
   }
   
   @Override

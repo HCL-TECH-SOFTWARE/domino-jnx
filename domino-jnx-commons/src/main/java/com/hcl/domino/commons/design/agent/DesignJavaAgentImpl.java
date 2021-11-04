@@ -20,8 +20,6 @@ import com.hcl.domino.commons.design.AbstractDesignAgentImpl;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.JavaAgentAndLibrarySupport;
 import com.hcl.domino.design.agent.DesignJavaAgent;
-import com.hcl.domino.misc.NotesConstants;
-import com.hcl.domino.richtext.RichTextConstants;
 
 /**
  * Implementation of {@link DesignJavaAgent}
@@ -30,13 +28,6 @@ public class DesignJavaAgentImpl extends AbstractDesignAgentImpl<DesignJavaAgent
 
   public DesignJavaAgentImpl(Document doc) {
     super(doc);
-  }
-
-  @Override
-  public void initializeNewDesignNote() {
-    super.initializeNewDesignNote();
-    
-    this.getDocument().replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, Short.toUnsignedInt(RichTextConstants.SIG_ACTION_JAVA));
   }
 
 }

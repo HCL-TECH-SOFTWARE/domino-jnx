@@ -51,13 +51,6 @@ public class DesignFormulaAgentImpl extends AbstractDesignAgentImpl<DesignFormul
   }
 
   @Override
-    public void initializeNewDesignNote() {
-      super.initializeNewDesignNote();
-      
-      this.getDocument().replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, Short.toUnsignedInt(RichTextConstants.SIG_ACTION_FORMULAONLY));
-    }
-  
-  @Override
   public Optional<DocumentAction> getDocumentAction() {
     Document doc = this.getDocument();
     if(doc.hasItem(NotesConstants.ASSIST_ACTION_ITEM)) {
