@@ -17,8 +17,8 @@
 package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -56,7 +56,7 @@ public interface CDText extends RichTextRecord<WSIG> {
     final int len = buf.remaining();
     final byte[] lmbcs = new byte[len];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS-native")); //$NON-NLS-1$
+    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
   }
 
   /**
@@ -66,7 +66,7 @@ public interface CDText extends RichTextRecord<WSIG> {
    * @return this record
    */
   default CDText setText(final String text) {
-    final byte[] lmbcs = text.getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$
+    final byte[] lmbcs = text.getBytes(NativeItemCoder.get().getLmbcsCharset());
     this.resizeVariableData(lmbcs.length);
     final ByteBuffer buf = this.getVariableData();
     buf.put(lmbcs);
