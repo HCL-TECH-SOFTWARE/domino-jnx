@@ -1427,10 +1427,6 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           rtWriter.addRichTextRecord(CDHRule.class, begin -> {
             begin.setHeight(72);
             begin.setWidth(100);
-            begin.setColorRaw(0);
-            begin.setColor(StandardColors.Black);
-            begin.setGradientColor(StandardColors.Black);
-            begin.setGradientColorRaw(0);
             begin.setFlags(EnumSet.of(CDHRule.Flag.HRULE_FLAG_USECOLOR, CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_NOSHADOW));
           });
         }
@@ -1438,12 +1434,38 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final CDHRule begin = (CDHRule) doc.getRichTextItem("Body").get(0);
         assertEquals(72, begin.getHeight());
         assertEquals(100, begin.getWidth());
-        assertEquals(0, begin.getColorRaw());
-        assertEquals(0,begin.getGradientColorRaw());
-        assertEquals(StandardColors.Black, begin.getColor().get());
-        assertEquals(StandardColors.Black, begin.getGradientColor().get());
         assertEquals(EnumSet.of(CDHRule.Flag.HRULE_FLAG_USECOLOR, CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_NOSHADOW), begin.getFlags());
       });
     }
-    
+   
+    @Test
+    public void testsetGradientColor() throws Exception{
+    	this.withTempDb(database -> {
+            final Document doc = database.createDocument();
+            try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+              rtWriter.addRichTextRecord(CDHRule.class, begin -> {
+            	  begin.setColor(StandardColors.Black);
+                  begin.setGradientColor(StandardColors.Black);
+              });
+            }
+            final CDHRule begin = (CDHRule) doc.getRichTextItem("Body").get(0);
+            assertEquals(StandardColors.Black, begin.getColor().get());
+            assertEquals(StandardColors.Black, begin.getGradientColor().get());
+         });
+    }
+    @Test
+    public void testsetGradientColorRaw() throws Exception{
+    	this.withTempDb(database -> {
+            final Document doc = database.createDocument();
+            try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+              rtWriter.addRichTextRecord(CDHRule.class, begin -> {
+            	  begin.setColorRaw(0);
+                  begin.setGradientColorRaw(0);
+              });
+            }
+            final CDHRule begin = (CDHRule) doc.getRichTextItem("Body").get(0);
+            assertEquals(0, begin.getColorRaw());
+            assertEquals(0, begin.getGradientColorRaw());
+         });
+    } 
 }
