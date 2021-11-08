@@ -1451,6 +1451,8 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
             final CDHRule begin = (CDHRule) doc.getRichTextItem("Body").get(0);
             assertEquals(StandardColors.Black, begin.getColor().get());
             assertEquals(StandardColors.Black, begin.getGradientColor().get());
+            assertEquals(0, begin.getColorRaw());
+            assertEquals(0, begin.getGradientColorRaw());
          });
     }
     @Test
@@ -1466,6 +1468,8 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
             final CDHRule begin = (CDHRule) doc.getRichTextItem("Body").get(0);
             assertEquals(0, begin.getColorRaw());
             assertEquals(0, begin.getGradientColorRaw());
+            assertEquals(StandardColors.Black, begin.getColor().get());
+            assertEquals(StandardColors.Black, begin.getGradientColor().get());
          });
     } 
 }
