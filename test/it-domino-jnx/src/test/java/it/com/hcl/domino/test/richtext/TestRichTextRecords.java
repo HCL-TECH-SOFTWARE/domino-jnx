@@ -1514,6 +1514,26 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         	begin.setFillBGColor(15);
         	begin.setLineStyle(0);
         	begin.setLineWidth(1);
+        	begin.setFillStyle(1);
+        	begin.getDRObj().setTextColor(0);
+        	begin.getDRObj().setAlignment(0);
+        	begin.getDRObj().setbWrap(0);
+        	begin.getDRObj().setLabelLen(9);
+        	begin.getDRObj().setNameLen(8);
+        	begin.getDRObj().getFontID().setFontFace((byte) 1);
+        	begin.getDRObj().getFontID().setBold(true);
+        	begin.getDRObj().getFontID().setColor(StandardColors.Aqua);
+        	begin.getDRObj().getFontID().setExtrude(true);
+        	begin.getDRObj().getFontID().setFontFace((byte) 1);
+        	begin.getDRObj().getFontID().setItalic(true);
+        	begin.getDRObj().getFontID().setPointSize(1);
+        	begin.getDRObj().getFontID().setShadow(true);
+        	begin.getDRObj().getFontID().setStandardFont(StandardFonts.SWISS);
+        	begin.getDRObj().getFontID().setStrikeout(true);
+        	begin.getDRObj().getFontID().setSub(true);
+        	begin.getDRObj().getFontID().setSuper(true);
+        	begin.getDRObj().getFontID().setUnderline(true);
+        	       	
           });
         }
 
@@ -1523,6 +1543,25 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(15, begin.getFillBGColor());
         assertEquals(0,begin.getLineStyle());
         assertEquals(1, begin.getLineWidth());
+        assertEquals(1, begin.getFillStyle());
+        assertEquals(0, begin.getDRObj().getTextColor());
+        assertEquals(0, begin.getDRObj().getAlignment());
+        assertEquals(0, begin.getDRObj().getbWrap());
+        assertEquals(9, begin.getDRObj().getLabelLen());
+        assertEquals(8, begin.getDRObj().getNameLen());
+        assertEquals(1, begin.getDRObj().getFontID().getFontFace());
+        assertEquals(true, begin.getDRObj().getFontID().isBold());
+        assertEquals(StandardColors.Aqua,begin.getDRObj().getFontID().getColor().get());
+        assertEquals(true, begin.getDRObj().getFontID().isExtrude());
+        assertEquals(1,begin.getDRObj().getFontID().getFontFace());
+        assertEquals(true, begin.getDRObj().getFontID().isItalic());
+        assertEquals(1, begin.getDRObj().getFontID().getPointSize());
+        assertEquals(true, begin.getDRObj().getFontID().isShadow());
+        assertEquals(StandardFonts.SWISS, begin.getDRObj().getFontID().getStandardFont().get());
+        assertEquals(true, begin.getDRObj().getFontID().isStrikeout());
+        assertEquals(true, begin.getDRObj().getFontID().isSub());
+        assertEquals(true, begin.getDRObj().getFontID().isSuper());
+        assertEquals(true, begin.getDRObj().getFontID().isUnderline());
       });
     }
 }
