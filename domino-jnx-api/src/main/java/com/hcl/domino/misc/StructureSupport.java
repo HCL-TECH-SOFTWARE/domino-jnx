@@ -20,7 +20,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +32,8 @@ import java.util.function.LongConsumer;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+import com.hcl.domino.data.NativeItemCoder;
+import com.hcl.domino.data.NativeItemCoder.LmbcsVariant;
 import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.richtext.structures.ListStructure;
 import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
@@ -93,7 +94,7 @@ public enum StructureSupport {
     buf.position((int) preLen);
     final byte[] lmbcs = new byte[(int) len];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
   }
 
   /**
@@ -122,7 +123,7 @@ public enum StructureSupport {
     for(long len : lengths) {
       final byte[] lmbcs = new byte[(int) len];
       buf.get(lmbcs);
-      result.add(new String(lmbcs, Charset.forName("LMBCS"))); //$NON-NLS-1$ 
+      result.add(new String(lmbcs, NativeItemCoder.get().getLmbcsCharset())); 
     }
     return result;
   }
@@ -164,7 +165,7 @@ public enum StructureSupport {
       nullPos--;
     }
 
-    return new String(lmbcs, 0, nullPos + 1, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(lmbcs, 0, nullPos + 1, NativeItemCoder.get().getLmbcsCharset());
   }
 
   /**
@@ -199,9 +200,9 @@ public enum StructureSupport {
     final byte[] lmbcs = new byte[(int) len];
     buf.get(lmbcs);
     if (lmbcs[lmbcs.length - 1] == '\0' || lmbcs[lmbcs.length - 1] == -1) {
-      return new String(lmbcs, 0, lmbcs.length - 1, Charset.forName("LMBCS")); //$NON-NLS-1$
+      return new String(lmbcs, 0, lmbcs.length - 1, NativeItemCoder.get().getLmbcsCharset());
     } else {
-      return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+      return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
     }
   }
   
@@ -229,7 +230,7 @@ public enum StructureSupport {
       // Read sizes[i] bytes as LMBCS
       byte[] lmbcs = new byte[sizes[i]];
       buf.get(lmbcs);
-      result.add(new String(lmbcs, Charset.forName("LMBCS"))); //$NON-NLS-1$
+      result.add(new String(lmbcs, NativeItemCoder.get().getLmbcsCharset()));
     }
     return result;
   }
@@ -383,10 +384,10 @@ public enum StructureSupport {
       lmbcs = new byte[0];
     }
     else if (replaceLinebreaks) {
-      lmbcs = value.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+      lmbcs = value.getBytes(NativeItemCoder.get().getLmbcsCharset());
     }
     else {
-      lmbcs = value.getBytes(Charset.forName("LMBCS-keepnewlines")); //$NON-NLS-1$
+      lmbcs = value.getBytes(NativeItemCoder.get().getLmbcsCharset(LmbcsVariant.KEEPNEWLINES));
     }
     
     if (sizeWriter != null) {
@@ -432,7 +433,7 @@ public enum StructureSupport {
       if(val == null) {
         val = ""; //$NON-NLS-1$
       }
-      data[i] = val.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+      data[i] = val.getBytes(NativeItemCoder.get().getLmbcsCharset());
     }
 
     ByteBuffer buf = struct.getVariableData();
@@ -508,7 +509,7 @@ public enum StructureSupport {
     final byte[] otherData = new byte[(int) otherLen];
     buf.get(otherData);
 
-    final byte[] lmbcs = value == null ? new byte[0] : value.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    final byte[] lmbcs = value == null ? new byte[0] : value.getBytes(NativeItemCoder.get().getLmbcsCharset());
     /* Pad for a \0 terminator and for if the result will then be odd-numbered */
     final int padLen = 1 + (lmbcs.length % 2 == 0 ? 1 : 0);
     if (sizeWriter != null) {
@@ -569,7 +570,7 @@ public enum StructureSupport {
     final byte[] otherData = new byte[(int) otherLen];
     buf.get(otherData);
 
-    final byte[] lmbcs = value == null ? new byte[0] : value.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    final byte[] lmbcs = value == null ? new byte[0] : value.getBytes(NativeItemCoder.get().getLmbcsCharset());
     /* Pad for word boundaries */
     final int padLen = lmbcs.length % 2 == 0 ? 1 : 0;
     if (sizeWriter != null) {
@@ -630,7 +631,7 @@ public enum StructureSupport {
       
       for(int i = 0; i < value.size(); i++) {
         String val = value.get(i);
-        byte[] data = val == null ? new byte[0] : val.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+        byte[] data = val == null ? new byte[0] : val.getBytes(NativeItemCoder.get().getLmbcsCharset());
         baos.write(data);
         baos.write(0);
       }
@@ -724,6 +725,6 @@ public enum StructureSupport {
         break;
       }
     }
-    return new String(lmbcs, 0, firstNull, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(lmbcs, 0, firstNull, NativeItemCoder.get().getLmbcsCharset());
   }
 }

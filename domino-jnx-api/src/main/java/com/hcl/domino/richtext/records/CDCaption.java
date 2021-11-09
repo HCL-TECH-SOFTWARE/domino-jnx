@@ -17,8 +17,8 @@
 package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -92,7 +92,7 @@ public interface CDCaption extends RichTextRecord<WSIG> {
    * @return this record
    */
   default CDCaption setCaptionText(final String captionText) {
-    final byte[] captionTextBytes = captionText.getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$
+    final byte[] captionTextBytes = captionText.getBytes(NativeItemCoder.get().getLmbcsCharset());
     this.resizeVariableData(captionTextBytes.length);
     this.setLength(captionTextBytes.length);
 

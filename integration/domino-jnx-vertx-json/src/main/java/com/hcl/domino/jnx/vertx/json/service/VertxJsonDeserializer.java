@@ -22,12 +22,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-
 import com.hcl.domino.commons.json.AbstractJsonDeserializer;
 import com.hcl.domino.commons.json.JsonUtil;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.jnx.vertx.json.JnxTypesModule;
 import com.hcl.domino.json.JsonSerializer;
-
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -35,7 +34,11 @@ import io.vertx.core.json.JsonObject;
  * @since 1.0.9
  */
 public class VertxJsonDeserializer extends AbstractJsonDeserializer {
-
+  
+  public VertxJsonDeserializer() {
+    io.vertx.core.json.jackson.DatabindCodec.mapper().registerModule(new JnxTypesModule());
+  }
+  
   private boolean areCompatibleTypes(final Object a, final Object b) {
     if (a == null || b == null) {
       return true;

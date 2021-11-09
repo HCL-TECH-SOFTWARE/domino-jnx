@@ -1,4 +1,4 @@
-/*
+*
  * ==========================================================================
  * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
@@ -55,7 +55,7 @@ public abstract class AbstractDesignAgentImpl<T extends DesignAgent> extends Abs
   public AbstractDesignAgentImpl(final Document doc) {
     super(doc);
   }
-  
+
   @Override
   public DominoDateTime getAgentVersion() {
     Document doc = getDocument();
@@ -264,7 +264,7 @@ public abstract class AbstractDesignAgentImpl<T extends DesignAgent> extends Abs
     setFlag(NotesConstants.DESIGN_FLAG_HIDE_FROM_V3, true);
     setFlag(NotesConstants.DESIGN_FLAG_V4AGENT, true);
     setFlagsExt(""); //$NON-NLS-1$
-
+    
     doc.replaceItemValue(NotesConstants.ASSIST_DOCCOUNT_ITEM, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), 0);
     
     AssistStruct assistStruct = createAssistInfoWithDefaults();

@@ -32,6 +32,8 @@ import com.hcl.domino.data.Item;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.NativeDesignSupport;
+import com.hcl.domino.data.NativeItemCoder;
+import com.hcl.domino.data.NativeItemCoder.LmbcsVariant;
 import com.hcl.domino.jna.data.JNADatabase;
 import com.hcl.domino.jna.data.JNADocument;
 import com.hcl.domino.jna.data.JNAItem;
@@ -69,7 +71,7 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
     byte[] nameOfContextClassLMBCS;
     DHANDLE.ByReference phDataByRef = DHANDLE.newInstanceByReference();
     if (!StringUtil.isEmpty(nameOfContextClass)) {
-      nameOfContextClassLMBCS = nameOfContextClass.getBytes(Charset.forName("LMBCS-nullterm")); //$NON-NLS-1$
+      nameOfContextClassLMBCS = nameOfContextClass.getBytes(NativeItemCoder.get().getLmbcsCharset(LmbcsVariant.NULLTERM));
       if (nameOfContextClassLMBCS.length > (NotesConstants.MAXIMUM_ID_NAME_LENGTH+1)) {
         throw new IllegalArgumentException(MessageFormat.format("Name of context class exceeds max length of {0} bytes", NotesConstants.MAXIMUM_ID_NAME_LENGTH));
       }

@@ -18,7 +18,6 @@ package com.hcl.domino.commons.mime;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
@@ -30,6 +29,7 @@ import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Attachment.IDataCallback;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.NativeItemCoder;
 
 public class NotesMIMEPart {
   /**
@@ -111,7 +111,7 @@ public class NotesMIMEPart {
    */
   public void getContentAsBytes(final IDataCallbackWithFileSize callback) {
     if (this.m_options.contains(MimePartOptions.BODY_IN_DBOBJECT)) {
-      final String fileName = new String(this.m_data, Charset.forName("LMBCS-native")); //$NON-NLS-1$
+      final String fileName = new String(this.m_data, NativeItemCoder.get().getLmbcsCharset());
       final Attachment att = this.m_parentNote.getAttachment(fileName).orElseThrow(
           () -> new DominoException(0, MessageFormat.format("No attachment item found for filename {0}", fileName)));
       final long size = att.getFileSize();

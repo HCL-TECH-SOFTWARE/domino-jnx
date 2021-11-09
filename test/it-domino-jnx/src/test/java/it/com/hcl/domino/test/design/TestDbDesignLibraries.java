@@ -119,7 +119,7 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
 
     final LotusScriptLibrary lib = (LotusScriptLibrary) scriptLibrary;
     final String expected = IOUtils.resourceToString("/text/largelslibrary.txt", Charset.forName("UTF-8"));
-    assertEquals(expected, lib.getScript());
+    assertEquals(toLf(expected), toLf(lib.getScript()));
     
     String unid = scriptLibrary.getDocument().getUNID();
     Optional<ScriptLibrary> optLib = design.getDesignElementByUNID(unid);
@@ -149,7 +149,7 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
 
     final LotusScriptLibrary lib = (LotusScriptLibrary) scriptLibrary;
     final String expected = IOUtils.resourceToString("/text/lslibrary.txt", Charset.forName("UTF-8"));
-    assertEquals(expected, lib.getScript());
+    assertEquals(toLf(expected), toLf(lib.getScript()));
   }
 
   @Test
