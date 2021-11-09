@@ -51,7 +51,6 @@ public interface CDHRule extends RichTextRecord<WSIG>{
   @StructureGetter("Width")
   int getWidthRaw();
   
-  @StructureGetter("Width")
   default int getWidth() {
   //use default rule width if value not set
   return (this.getWidthRaw() == 0 ? RichTextConstants.DEFAULTHRULEWIDTH : this.getWidthRaw());
@@ -63,7 +62,6 @@ public interface CDHRule extends RichTextRecord<WSIG>{
   @StructureGetter("Height")
   int getHeightRaw();
   
-  @StructureGetter("Height")
   default int getHeight() {
     return (this.getHeightRaw() == 0 ? RichTextConstants.DEFAULTHRULEHEIGHT : this.getHeightRaw());
   }
