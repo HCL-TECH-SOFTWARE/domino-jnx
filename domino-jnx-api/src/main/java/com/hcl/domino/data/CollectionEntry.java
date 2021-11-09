@@ -133,4 +133,13 @@ public interface CollectionEntry extends TypedAccess, IndexedTypedAccess, Map<St
    *         an empty one if the entry does not represent a document
    */
   Optional<Document> openDocument();
+  
+  /**
+   * Retrieves the indent level of the entry. Generally speaking, this is equivalent
+   * to the number of "slots" in the entry's position.
+   * 
+   * @return the 1-based index of the entry's indentation level in the collection
+   * @since 1.0.46
+   */
+  int getIndentLevel();
 }

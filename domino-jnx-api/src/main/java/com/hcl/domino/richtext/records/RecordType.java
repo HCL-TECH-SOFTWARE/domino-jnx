@@ -47,7 +47,7 @@ public enum RecordType {
   /** This CD record defines properties of an embedded contact list */
   EMBEDDEDCONTACTLIST(RichTextConstants.SIG_CD_EMBEDDEDCONTACTLIST, 1, CDEmbeddedContactList.class),
   /** Used to ignore a block of CD records for a particular version of Notes */
-  IGNORE(RichTextConstants.SIG_CD_IGNORE, 1),
+  IGNORE(RichTextConstants.SIG_CD_IGNORE, 1, CDIgnore.class),
   TABLECELL_HREF2(RichTextConstants.SIG_CD_TABLECELL_HREF2, 1),
   HREFBORDER(RichTextConstants.SIG_CD_HREFBORDER, 1, CDResource.class),
   /**
@@ -146,9 +146,9 @@ public enum RecordType {
    * A CDINLINE record may be preceded by a CDBEGINRECORD and followed by a
    * CDRESOURCE and then a CDENDRECORD.
    */
-  INLINE(RichTextConstants.SIG_CD_INLINE, 1),
+  INLINE(RichTextConstants.SIG_CD_INLINE, 1, CDInline.class),
   V6HOTSPOTBEGIN_CONTINUATION(RichTextConstants.SIG_CD_V6HOTSPOTBEGIN_CONTINUATION, 1),
-  TARGET_DBLCLK(RichTextConstants.SIG_CD_TARGET_DBLCLK, 1),
+  TARGET_DBLCLK(RichTextConstants.SIG_CD_TARGET_DBLCLK, 1, CDTarget.class),
   /** This CD record defines the properties of a caption for a grapic record. */
   CAPTION(RichTextConstants.SIG_CD_CAPTION, 1, CDCaption.class),
   /** Color properties to various HTML Links. */
@@ -353,7 +353,7 @@ public enum RecordType {
    */
   STYLENAME(RichTextConstants.SIG_CD_STYLENAME, 1, CDStyleName.class),
   /** This structure stores information for an externally stored object. */
-  STORAGELINK(RichTextConstants.SIG_CD_STORAGELINK, 1),
+  STORAGELINK(RichTextConstants.SIG_CD_STORAGELINK, 1, CDStorageLink.class),
   /**
    * Bitmap Transparency Table (optionally one per bitmap). The colors in this
    * table specify the bitmap
@@ -661,13 +661,13 @@ public enum RecordType {
    * Applications should not generate these records.<br>
    * Domino and Notes will ignore this record.
    */
-  HTMLHEADER(RichTextConstants.SIG_CD_HTMLHEADER, 4),
+  HTMLHEADER(RichTextConstants.SIG_CD_HTMLHEADER, 4, CDHtmlHeader.class),
   /**
    * This record is included for future use. Applications should not generate
    * these records.<br>
    * Domino and Notes will ignore this record.
    */
-  HTMLSEGMENT(RichTextConstants.SIG_CD_HTMLSEGMENT, 4),
+  HTMLSEGMENT(RichTextConstants.SIG_CD_HTMLSEGMENT, 4, CDHtmlSegment.class),
   OLEOBJPH(RichTextConstants.SIG_CD_OLEOBJPH, 4),
   MAPIBINARY(RichTextConstants.SIG_CD_MAPIBINARY, 4),
 

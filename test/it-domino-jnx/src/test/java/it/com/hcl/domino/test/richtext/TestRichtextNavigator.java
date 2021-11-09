@@ -16,6 +16,9 @@
  */
 package it.com.hcl.domino.test.richtext;
 
+import static it.com.hcl.domino.test.util.ITUtil.toCr;
+import static it.com.hcl.domino.test.util.ITUtil.toLf;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -270,12 +273,8 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
           });
       final String libraryString = new String(libraryStream.toByteArray(), RichTextUtil.LMBCS);
 
-      final byte[] lineEndingExpected = expected.replace('\n', '\r').getBytes();
-      final byte[] libraryBytes = libraryString.getBytes();
-      // Things get weird at the end of the string for some reason
-      if (lineEndingExpected[lineEndingExpected.length - 1] == '\r' && libraryBytes[libraryBytes.length - 1] == '\n') {
-        lineEndingExpected[lineEndingExpected.length - 1] = '\n';
-      }
+      final byte[] lineEndingExpected = toCr(expected).getBytes();
+      final byte[] libraryBytes = toCr(toLf(libraryString)).getBytes();
       Assertions.assertArrayEquals(lineEndingExpected, libraryBytes);
     });
   }
@@ -397,8 +396,8 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
         // trailing newline
         final String expectedScript = scriptContent + "\n";
 
-        Assertions.assertArrayEquals(expectedScript.getBytes(StandardCharsets.UTF_8),
-            libraryString.getBytes(StandardCharsets.UTF_8));
+        Assertions.assertArrayEquals(toLf(expectedScript).getBytes(StandardCharsets.UTF_8),
+            toLf(libraryString).getBytes(StandardCharsets.UTF_8));
       }
     });
   }

@@ -37,10 +37,10 @@ import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.hcl.domino.commons.data.AbstractCollectionEntry;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.ReadMask;
-import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.CollectionEntryValueConverter;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.DocInfo;
@@ -58,7 +58,7 @@ import com.hcl.domino.misc.NotesConstants;
  * 
  * @author Karsten Lehmann
  */
-public class JNACollectionEntry implements CollectionEntry {
+public class JNACollectionEntry extends AbstractCollectionEntry {
 	private JNADominoCollection m_parentCollection;
 	private int[] m_pos;
 	private String m_posStr;

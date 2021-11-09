@@ -23,12 +23,12 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Formatter;
 import java.util.List;
-import java.util.stream.Stream;
 
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.util.NotesErrorUtils;
@@ -66,7 +66,7 @@ public class NotesStringUtils {
 	private static LRUStringLMBCSCache m_string2LMBCSCache_NullTerminated_OriginalLinebreaks = new LRUStringLMBCSCache(MAX_STRING2LMBCS_SIZE_BYTES);
 	private static LRUStringLMBCSCache m_string2LMBCSCache_NotNullTerminated_OriginalLinebreaks = new LRUStringLMBCSCache(MAX_STRING2LMBCS_SIZE_BYTES);
 	
-	private static final Charset charsetUTF8 = Charset.forName("UTF-8"); //$NON-NLS-1$
+	private static final Charset charsetUTF8 = StandardCharsets.UTF_8;
 
 	public static void flushCache() {
 		m_string2LMBCSCache_NullTerminated_LinefeedLinebreaks.clear();

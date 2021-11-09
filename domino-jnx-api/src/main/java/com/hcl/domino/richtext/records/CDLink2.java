@@ -17,8 +17,8 @@
 package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -52,10 +52,10 @@ public interface CDLink2 extends RichTextRecord<WSIG> {
 	CDLink2 setLinkID(int id);
 
 	default CDLink2 setTexts(String comment, String hint, String anchor) {
-		final byte[] lmbcsComment = (comment==null || comment.length()==0 ?  "" : comment).getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$ //$NON-NLS-2$
-		final byte[] lmbcsHint = (hint==null || hint.length()==0 ? "" : hint).getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$ //$NON-NLS-2$
+		final byte[] lmbcsComment = (comment==null || comment.length()==0 ?  "" : comment).getBytes(NativeItemCoder.get().getLmbcsCharset()); //$NON-NLS-1$
+		final byte[] lmbcsHint = (hint==null || hint.length()==0 ? "" : hint).getBytes(NativeItemCoder.get().getLmbcsCharset()); //$NON-NLS-1$
 		//anchor text is optional
-		final byte[] lmbcsAnchor = anchor==null || anchor.length()==0 ? null : anchor.getBytes(Charset.forName("LMBCS-native")); //$NON-NLS-1$
+		final byte[] lmbcsAnchor = anchor==null || anchor.length()==0 ? null : anchor.getBytes(NativeItemCoder.get().getLmbcsCharset());
 		
 		int totalLen = lmbcsComment.length + 1 + lmbcsHint.length + 1;
 		if (lmbcsAnchor!=null) {
@@ -109,9 +109,9 @@ public interface CDLink2 extends RichTextRecord<WSIG> {
 			}
 		}
 		
-		String comment = idxCommentEnd==-1 ? "" : new String(lmbcs, 0, idxCommentEnd, Charset.forName("LMBCS-native")); //$NON-NLS-1$ //$NON-NLS-2$
-		String hint = idxHintEnd==-1 ? "" : new String(lmbcs, idxCommentEnd+1, idxHintEnd - idxCommentEnd-1, Charset.forName("LMBCS-native")); //$NON-NLS-1$ //$NON-NLS-2$
-		String anchor = idxAnchorEnd==-1 ? "" : new String(lmbcs, idxHintEnd+1, idxAnchorEnd - idxHintEnd-1, Charset.forName("LMBCS-native")); //$NON-NLS-1$ //$NON-NLS-2$
+		String comment = idxCommentEnd==-1 ? "" : new String(lmbcs, 0, idxCommentEnd, NativeItemCoder.get().getLmbcsCharset()); //$NON-NLS-1$
+		String hint = idxHintEnd==-1 ? "" : new String(lmbcs, idxCommentEnd+1, idxHintEnd - idxCommentEnd-1, NativeItemCoder.get().getLmbcsCharset()); //$NON-NLS-1$
+		String anchor = idxAnchorEnd==-1 ? "" : new String(lmbcs, idxHintEnd+1, idxAnchorEnd - idxHintEnd-1, NativeItemCoder.get().getLmbcsCharset()); //$NON-NLS-1$
 		
 		return new String[] {comment, hint, anchor};
 	}

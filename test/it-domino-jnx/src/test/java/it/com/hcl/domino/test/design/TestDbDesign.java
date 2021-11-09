@@ -676,37 +676,37 @@ public class TestDbDesign extends AbstractDesignTest {
     assertTrue(
       events.stream()
         .filter(evt -> evt.isClient())
-        .anyMatch(evt -> "/* I am the Notes JS header */\n".equals(evt.getScript()))
+        .anyMatch(evt -> "/* I am the Notes JS header */\n".equals(toLf(evt.getScript())))
     );
     assertTrue(
       events.stream()
         .filter(evt -> !evt.isClient())
-        .anyMatch(evt -> "/* I am the web JS header */\n".equals(evt.getScript()))
+        .anyMatch(evt -> "/* I am the web JS header */\n".equals(toLf(evt.getScript())))
     );
     assertTrue(
       events.stream()
         .filter(evt -> evt.isClient())
-        .anyMatch(evt -> "/* I'm in-common help */\n".equals(evt.getScript()))
+        .anyMatch(evt -> "/* I'm in-common help */\n".equals(toLf(evt.getScript())))
     );
     assertTrue(
       events.stream()
         .filter(evt -> !evt.isClient())
-        .anyMatch(evt -> "/* I'm in-common help */\n".equals(evt.getScript()))
+        .anyMatch(evt -> "/* I'm in-common help */\n".equals(toLf(evt.getScript())))
     );
     assertTrue(
       events.stream()
-        .anyMatch(evt -> "alert(\"I am on dbl click\")\n".equals(evt.getScript()))
+        .anyMatch(evt -> "alert(\"I am on dbl click\")\n".equals(toLf(evt.getScript())))
     );
     
     String lsExpected = IOUtils.resourceToString("/text/testDbDesign/testPageLs.txt", StandardCharsets.UTF_8);
-    assertEquals(lsExpected, page.getLotusScript());
+    assertEquals(toLf(lsExpected), toLf(page.getLotusScript()));
     
     String lsGlobalsExpected = IOUtils.resourceToString("/text/testDbDesign/testPageLsGlobals.txt", StandardCharsets.UTF_8);
-    assertEquals(lsGlobalsExpected, page.getLotusScriptGlobals());
+    assertEquals(toLf(lsGlobalsExpected), toLf(page.getLotusScriptGlobals()));
     
     Map<EventId, String> formulas = page.getFormulaEvents();
     assertEquals(1, formulas.size());
-    assertEquals("@StatusBar(\"I am page postopen\")", formulas.get(EventId.CLIENT_FORM_POSTOPEN));
+    assertEquals("@StatusBar(\"I am page postopen\")", toLf(formulas.get(EventId.CLIENT_FORM_POSTOPEN)));
     
     CDEmbeddedOutline outline = page.getBody()
       .stream()
@@ -786,8 +786,8 @@ public class TestDbDesign extends AbstractDesignTest {
     DbDesign design = database.getDesign();
     
     SharedField field = design.getSharedField("testfield2").get();
-    String expected = IOUtils.resourceToString("/text/testDbDesign/testfield2ls.txt", StandardCharsets.UTF_8).replace('\r', '\n');
-    assertEquals(expected, field.getLotusScript().replace('\r', '\n'));
+    String expected = toLf(IOUtils.resourceToString("/text/testDbDesign/testfield2ls.txt", StandardCharsets.UTF_8)).replace('\r', '\n');
+    assertEquals(expected, toLf(field.getLotusScript()).replace('\r', '\n'));
     
     assertTrue(
       field.getFieldBody()
@@ -1283,7 +1283,7 @@ public class TestDbDesign extends AbstractDesignTest {
       try (InputStream is = res.getFileData()) {
         content = StreamUtil.readString(is);
       }
-      assertEquals(expected, content);
+      assertEquals(toLf(expected), content);
     }
     
     // Now try it as a generic element by UNID
@@ -1296,7 +1296,7 @@ public class TestDbDesign extends AbstractDesignTest {
         try (InputStream is = res.getFileData()) {
           content = StreamUtil.readString(is);
         }
-        assertEquals(expected, content);
+        assertEquals(toLf(expected), content);
       }
     }
   }
@@ -1324,7 +1324,7 @@ public class TestDbDesign extends AbstractDesignTest {
       try (InputStream is = res.getFileData()) {
         content = StreamUtil.readString(is);
       }
-      assertEquals(expected, content);
+      assertEquals(toLf(expected), content);
     }
     
     // Now try it as a generic element by UNID
@@ -1337,7 +1337,7 @@ public class TestDbDesign extends AbstractDesignTest {
         try (InputStream is = res.getFileData()) {
           content = StreamUtil.readString(is);
         }
-        assertEquals(expected, content);
+        assertEquals(toLf(expected), content);
       }
     }
   }
@@ -1365,7 +1365,7 @@ public class TestDbDesign extends AbstractDesignTest {
       try (InputStream is = res.getFileData()) {
         content = StreamUtil.readString(is);
       }
-      assertEquals(expected, content);
+      assertEquals(toLf(expected), toLf(content));
     }
     
     // Now try it as a generic element by UNID
@@ -1378,7 +1378,7 @@ public class TestDbDesign extends AbstractDesignTest {
         try (InputStream is = res.getFileData()) {
           content = StreamUtil.readString(is);
         }
-        assertEquals(expected, content);
+        assertEquals(toLf(expected), toLf(content));
       }
     }
   }
