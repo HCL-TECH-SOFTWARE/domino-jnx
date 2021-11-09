@@ -29,7 +29,7 @@ public class JnxTypesModule extends SimpleModule {
           JsonSerializer<?> serializer) {
 
         if (serializer instanceof BeanSerializerBase) {
-          return new DesignAgentLanguageSerializer(
+          return new AgentOrLibraryLanguageSerializer(
               (BeanSerializerBase) serializer);
         }
         else {
