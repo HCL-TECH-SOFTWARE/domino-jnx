@@ -82,7 +82,7 @@ public class DesignImportedJavaAgentImpl extends AbstractDesignAgentImpl<DesignI
       return Collections.emptyList();
     }
     else {
-      return Arrays.stream(action.get().getFileList().split("(\\r)?\\n")) //$NON-NLS-1$
+      return Arrays.stream(action.get().getFileList().split("(\r)?\n")) //$NON-NLS-1$
           .filter(StringUtil::isNotEmpty)
           .collect(Collectors.toList());
     }
@@ -240,7 +240,7 @@ public class DesignImportedJavaAgentImpl extends AbstractDesignAgentImpl<DesignI
     }
     
     withJavaCDRecord((action) -> {
-      String filenamesConc = files.keySet().stream().filter(JNXStringUtil::isEmpty).collect(Collectors.joining("\\n")); //$NON-NLS-1$
+      String filenamesConc = files.keySet().stream().filter(JNXStringUtil::isEmpty).collect(Collectors.joining("\n")); //$NON-NLS-1$
       action.setFileList(filenamesConc);
     });
   }
@@ -261,7 +261,7 @@ public class DesignImportedJavaAgentImpl extends AbstractDesignAgentImpl<DesignI
       List<String> newFilenames = new ArrayList<>(filenames);
       newFilenames.add(fileName);
       
-      withJavaCDRecord((action) -> { action.setFileList(newFilenames.stream().collect(Collectors.joining("\\n"))); }); //$NON-NLS-1$
+      withJavaCDRecord((action) -> { action.setFileList(newFilenames.stream().collect(Collectors.joining("\n"))); }); //$NON-NLS-1$
     }
   }
   
@@ -278,7 +278,7 @@ public class DesignImportedJavaAgentImpl extends AbstractDesignAgentImpl<DesignI
     String newFilesConc = filenames
         .stream()
         .filter((currName) -> { return !fileName.equals(currName); })
-        .collect(Collectors.joining("\\n")); //$NON-NLS-1$
+        .collect(Collectors.joining("\n")); //$NON-NLS-1$
     
     withJavaCDRecord((action) -> {
       action.setFileList(newFilesConc);

@@ -20,6 +20,6 @@ package com.hcl.domino.design;
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface JavaLibrary extends ScriptLibrary, JavaAgentAndLibrarySupport {
+public interface JavaLibrary extends ScriptLibrary, JavaAgentOrLibrary<JavaLibrary> {
 
 }

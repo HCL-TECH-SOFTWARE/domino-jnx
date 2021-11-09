@@ -1,4 +1,4 @@
-package com.hcl.domino.design;
+package com.hcl.domino.commons.design.agent;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,26 +16,27 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import com.hcl.domino.commons.design.AbstractDesignElement;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Document;
-import com.hcl.domino.data.Document.IAttachmentProducer;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.data.Document.IAttachmentProducer;
+import com.hcl.domino.design.NativeDesignSupport;
 import com.hcl.domino.misc.NotesConstants;
-import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.CDActionHeader;
 import com.hcl.domino.richtext.records.CDActionJavaAgent;
 import com.hcl.domino.richtext.records.RecordType;
-import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
-import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
-import com.hcl.domino.util.JNXDumpUtil;
+import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.util.JNXStringUtil;
 
 /**
- * Shared code for of Java agents and Java libraries
+ * Shared code for r/w access of Java agent and library resources
+ * 
+ * @author Karsten Lehmann
  */
-public interface JavaAgentAndLibrarySupport extends DesignElement {
+public class JavaAgentAndLibrarySupport {
   /** standard filename for the source JAR */
   String SOURCE_JAR_FILENAME = "%%source%%.jar"; //$NON-NLS-1$
   /** standard filename for the bytecode JAR */
@@ -43,11 +44,21 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
   /** standard filename for the resources jar */
   String RESOURCE_JAR_FILENAME = "%%resource%%.jar"; //$NON-NLS-1$
 
+  private AbstractDesignElement<?> designElement;
+  
+  public JavaAgentAndLibrarySupport(AbstractDesignElement<?> designElement) {
+    this.designElement = designElement;
+  }
+  
+  private Document getDocument() {
+    return designElement.getDocument();
+  }
+  
   /**
    * Creates initial attachments for source and object content if they don't yet exist,
    * similar to Domino Designer creating a new agent/library.
    */
-  default void initJavaContent() {
+  public void initJavaContent() {
     Document doc = getDocument();
     String flags = doc.get(NotesConstants.DESIGN_FLAGS, String.class, ""); //$NON-NLS-1$
     boolean isLib = flags.contains(NotesConstants.DESIGN_FLAG_SCRIPTLIB);
@@ -65,15 +76,15 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
         InputStream in = null;
         try {
           if (isLib) {
-            final String LIB_DEFAULT_SOURCE_JAR_RESOURCEPATH = "initialdesign/javalibrary/%%source%%.jar"; //$NON-NLS-1$
-            in = JavaAgentAndLibrarySupport.class.getResourceAsStream(LIB_DEFAULT_SOURCE_JAR_RESOURCEPATH);
+            final String LIB_DEFAULT_SOURCE_JAR_RESOURCEPATH = "/com/hcl/domino/commons/design/initialdesign/javalibrary/%%source%%.jar"; //$NON-NLS-1$
+            in = getClass().getResourceAsStream(LIB_DEFAULT_SOURCE_JAR_RESOURCEPATH);
             if (in==null) {
               throw new IllegalStateException(MessageFormat.format("Required resource not found: {0}", LIB_DEFAULT_SOURCE_JAR_RESOURCEPATH));
             }
           }
           else {
-            final String AGENT_DEFAULT_SOURCE_JAR_RESOURCEPATH = "initialdesign/javaagent/%%source%%.jar"; //$NON-NLS-1$
-            in = JavaAgentAndLibrarySupport.class.getResourceAsStream(AGENT_DEFAULT_SOURCE_JAR_RESOURCEPATH);
+            final String AGENT_DEFAULT_SOURCE_JAR_RESOURCEPATH = "/com/hcl/domino/commons/design/initialdesign/javaagent/%%source%%.jar"; //$NON-NLS-1$
+            in = getClass().getResourceAsStream(AGENT_DEFAULT_SOURCE_JAR_RESOURCEPATH);
             if (in==null) {
               throw new IllegalStateException(MessageFormat.format("Required resource not found: {0}", AGENT_DEFAULT_SOURCE_JAR_RESOURCEPATH));
             }
@@ -100,14 +111,14 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
         InputStream in = null;
         try {
           if (isLib) {
-            final String LIB_DEFAULT_OBJECT_JAR_RESOURCEPATH = "initialdesign/javalibrary/%%object%%.jar";
+            final String LIB_DEFAULT_OBJECT_JAR_RESOURCEPATH = "/com/hcl/domino/commons/design/initialdesign/javalibrary/%%object%%.jar";
             in = JavaAgentAndLibrarySupport.class.getResourceAsStream(LIB_DEFAULT_OBJECT_JAR_RESOURCEPATH);
             if (in==null) {
               throw new IllegalStateException(MessageFormat.format("Required resource not found: {0}", LIB_DEFAULT_OBJECT_JAR_RESOURCEPATH));
             }
           }
           else {
-            final String AGENT_DEFAULT_OBJECT_JAR_RESOURCEPATH = "initialdesign/javaagent/%%object%%.jar";
+            final String AGENT_DEFAULT_OBJECT_JAR_RESOURCEPATH = "/com/hcl/domino/commons/design/initialdesign/javaagent/%%object%%.jar";
             in = JavaAgentAndLibrarySupport.class.getResourceAsStream(AGENT_DEFAULT_OBJECT_JAR_RESOURCEPATH);
             if (in==null) {
               throw new IllegalStateException(MessageFormat.format("Required resource not found: {0}", AGENT_DEFAULT_OBJECT_JAR_RESOURCEPATH));
@@ -152,7 +163,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    * @param fileName filename
    * @param in attachment data
    */
-  default void addSignedAttachment(String fileName, InputStream in) {
+  private void addSignedAttachment(String fileName, InputStream in) {
     Document doc = getDocument();
     Optional<Attachment> oldAtt = doc.getAttachment(fileName);
     if (oldAtt.isPresent()) {
@@ -197,7 +208,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
     });
   }
 
-  default Optional<CDActionJavaAgent> getJavaCDRecord() {
+  private Optional<CDActionJavaAgent> getJavaCDRecord() {
     return getDocument().getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION)
     .stream()
     .filter(CDActionJavaAgent.class::isInstance)
@@ -210,7 +221,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    * 
    * @return path, not null
    */
-  default String getCodeFilesystemPath() {
+  public String getCodeFilesystemPath() {
     return getJavaCDRecord().map(CDActionJavaAgent::getCodePath).orElse(""); //$NON-NLS-1$
   }
 
@@ -219,7 +230,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    * 
    * @param consumer consumer of {@link CDActionJavaAgent} record
    */
-  default void withJavaCDRecord(Consumer<CDActionJavaAgent> consumer) {
+  private void withJavaCDRecord(Consumer<CDActionJavaAgent> consumer) {
     Document doc = getDocument();
     
     List<RichTextRecord<?>> records = new ArrayList<>(doc.getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION));
@@ -258,24 +269,24 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
     });
   }
   
-  default void setCodeFilesystemPath(String path) {
+  public void setCodeFilesystemPath(String path) {
     withJavaCDRecord((record) -> {
       record.setCodePath(path);
     });
   }
   
-  default List<String> getJavaClassFileList() {
+  private List<String> getJavaClassFileList() {
     return getJavaCDRecord()
         .map((action) -> {
-          return Arrays.stream(action.getFileList().split("(\\r)?\\n")) //$NON-NLS-1$
+          return Arrays.stream(action.getFileList().split("(\r)?\n")) //$NON-NLS-1$
               .filter(JNXStringUtil::isNotEmpty)
               .collect(Collectors.toList());
         })
         .orElseGet(Collections::emptyList);
   }
   
-  default void setJavaClassFileList(List<String> list) {
-    String listConc = list.stream().collect(Collectors.joining("\\n")); //$NON-NLS-1$
+  private void setJavaClassFileList(List<String> list) {
+    String listConc = list.stream().collect(Collectors.joining("\n")); //$NON-NLS-1$
     withJavaCDRecord((record) -> {
       record.setFileList(listConc);
     });
@@ -286,7 +297,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    * 
    * @return list of filenames
    */
-  default List<String> getEmbeddedJarNames() {
+  public List<String> getEmbeddedJarNames() {
     List<String> javaClassFileList = getJavaClassFileList();
 
     if (javaClassFileList.size() > 2) {
@@ -310,7 +321,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    * 
    * @param embeddedJars map of filenames and their file data
    */
-  default void setEmbeddedJars(Map<String,InputStream> embeddedJars) {
+  public void setEmbeddedJars(Map<String,InputStream> embeddedJars) {
     //check for reserved filenames that could produce a mess
     if (embeddedJars.containsKey(SOURCE_JAR_FILENAME)) {
       throw new IllegalArgumentException(MessageFormat.format("Invalid reserved filename found: \"{0}\"", SOURCE_JAR_FILENAME));
@@ -373,7 +384,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    * @param fileName filename
    * @param in new data
    */
-  default void setEmbeddedJar(String fileName, InputStream in) {
+  public void setEmbeddedJar(String fileName, InputStream in) {
     //check for reserved filenames that could produce a mess
     if (fileName.equals(SOURCE_JAR_FILENAME)) {
       throw new IllegalArgumentException(MessageFormat.format("Invalid reserved filename found: \"{0}\"", SOURCE_JAR_FILENAME));
@@ -422,7 +433,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    * 
    * @param fileNameToRemove filename of embedded jar to remove
    */
-  default void removeEmbeddedJar(String fileNameToRemove) {
+  public void removeEmbeddedJar(String fileNameToRemove) {
     List<String> oldEmbeddedJarNames = getEmbeddedJarNames();
     
     if (oldEmbeddedJarNames.contains(fileNameToRemove)) {
@@ -457,7 +468,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    * 
    * @param in stream, not null
    */
-  default void setSourceAttachment(InputStream in) {
+  public void setSourceAttachment(InputStream in) {
     if (in==null) {
       throw new IllegalArgumentException("InputStream cannot be null");
     }
@@ -495,7 +506,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    * 
    * @param in stream, not null
    */
-  default void setObjectAttachment(InputStream in) {
+  public void setObjectAttachment(InputStream in) {
     if (in==null) {
       throw new IllegalArgumentException("InputStream cannot be null");
     }
@@ -533,7 +544,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    * 
    * @param in new data or null to just remove the old jar
    */
-  default void setResourceAttachment(InputStream in) {
+  public void setResourceAttachment(InputStream in) {
     Document doc = getDocument();
     
     List<String> embeddedJars = getEmbeddedJarNames();
@@ -596,7 +607,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    * @see #getEmbeddedJarNames()
    * @since 1.0.43
    */
-  default Optional<InputStream> getEmbeddedJar(String name) {
+  public Optional<InputStream> getEmbeddedJar(String name) {
     // Do a basic check to make sure it's in the list
     List<String> jars = getEmbeddedJarNames();
     if(!jars.contains(name)) {
@@ -618,7 +629,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    * 
    * @return classname, not null
    */
-  default String getMainClassName() {
+  public String getMainClassName() {
     return getJavaCDRecord().map(CDActionJavaAgent::getClassName).orElse(""); //$NON-NLS-1$
   }
 
@@ -627,7 +638,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    * 
    * @param name new name
    */
-  default void setMainClassName(String name) {
+  public void setMainClassName(String name) {
     withJavaCDRecord((record) -> {
       record.setClassName(Objects.requireNonNull(name));
     });
@@ -638,7 +649,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    * 
    * @return filename if it exists
    */
-  default Optional<String> getObjectAttachmentName() {
+  public Optional<String> getObjectAttachmentName() {
     List<String> javaClassFileList = getJavaClassFileList();
     
     if (javaClassFileList.size() > 1) {
@@ -656,7 +667,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    *         one otherwise
    * @since 1.0.43
    */
-  default Optional<InputStream> getObjectAttachment() {
+  public Optional<InputStream> getObjectAttachment() {
     return getObjectAttachmentName()
         .flatMap(name -> getDocument().getAttachment(name))
         .map(t -> {
@@ -673,7 +684,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    * 
    * @return filename
    */
-  default Optional<String> getResourcesAttachmentName() {
+  public Optional<String> getResourcesAttachmentName() {
     List<String> javaClassFileList = getJavaClassFileList();
     
     if (javaClassFileList.size() > 2) {
@@ -697,7 +708,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    *         one otherwise
    * @since 1.0.43
    */
-  default Optional<InputStream> getResourcesAttachment() {
+  public Optional<InputStream> getResourcesAttachment() {
     return getResourcesAttachmentName()
         .flatMap(name -> getDocument().getAttachment(name))
         .map(t -> {
@@ -714,13 +725,13 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    * 
    * @return library names
    */
-  default List<String> getSharedLibraryList() {
+  public List<String> getSharedLibraryList() {
     final Optional<CDActionJavaAgent> action = getJavaCDRecord();
     if (!action.isPresent()) {
       return Collections.emptyList();
     }
     else {
-      return Arrays.stream(action.get().getLibraryList().split("(\\r)?\\n")) //$NON-NLS-1$
+      return Arrays.stream(action.get().getLibraryList().split("(\r)?\n")) //$NON-NLS-1$
           .filter(JNXStringUtil::isNotEmpty)
           .collect(Collectors.toList());
     }
@@ -728,14 +739,15 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
 
   /**
    * Changes the list of shared libraries that this Java agent/library depends on
-   * @param libs
+   * 
+   * @param libs shared library names
    */
-  default void setSharedLibraryList(List<String> libs) {
+  public void setSharedLibraryList(List<String> libs) {
     withJavaCDRecord((record) -> {
       String libsConc = libs
           .stream()
           .filter(JNXStringUtil::isNotEmpty)
-          .collect(Collectors.joining("\\n")); //$NON-NLS-1$
+          .collect(Collectors.joining("\n")); //$NON-NLS-1$
       record.setLibraryList(libsConc);
     });
   }
@@ -745,7 +757,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    * 
    * @return filename
    */
-  default Optional<String> getSourceAttachmentName() {
+  public Optional<String> getSourceAttachmentName() {
     List<String> javaClassFileList = getJavaClassFileList();
     
     if (javaClassFileList.size() > 0) {
@@ -763,7 +775,7 @@ public interface JavaAgentAndLibrarySupport extends DesignElement {
    *         one otherwise
    * @since 1.0.43
    */
-  default Optional<InputStream> getSourceAttachment() {
+  public Optional<InputStream> getSourceAttachment() {
     return getSourceAttachmentName()
         .flatMap(name -> getDocument().getAttachment(name))
         .map(t -> {

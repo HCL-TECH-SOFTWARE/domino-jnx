@@ -16,18 +16,138 @@
  */
 package com.hcl.domino.commons.design.agent;
 
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import com.hcl.domino.commons.design.AbstractDesignAgentImpl;
 import com.hcl.domino.data.Document;
-import com.hcl.domino.design.JavaAgentAndLibrarySupport;
 import com.hcl.domino.design.agent.DesignJavaAgent;
 
 /**
  * Implementation of {@link DesignJavaAgent}
  */
-public class DesignJavaAgentImpl extends AbstractDesignAgentImpl<DesignJavaAgent> implements DesignJavaAgent, JavaAgentAndLibrarySupport {
-
+public class DesignJavaAgentImpl extends AbstractDesignAgentImpl<DesignJavaAgent> implements DesignJavaAgent {
+  private JavaAgentAndLibrarySupport designSupport;
+  
   public DesignJavaAgentImpl(Document doc) {
     super(doc);
+    this.designSupport = new JavaAgentAndLibrarySupport(this);
   }
 
+  @Override
+  public DesignJavaAgent initJavaContent() {
+    designSupport.initJavaContent();
+    return this;
+  }
+
+  @Override
+  public String getCodeFilesystemPath() {
+    return designSupport.getCodeFilesystemPath();
+  }
+  
+  @Override
+  public DesignJavaAgent setCodeFilesystemPath(String path) {
+    designSupport.setCodeFilesystemPath(path);
+    return this;
+  }
+  
+  @Override
+  public List<String> getEmbeddedJarNames() {
+    return designSupport.getEmbeddedJarNames();
+  }
+  
+  @Override
+  public DesignJavaAgent setEmbeddedJars(Map<String, InputStream> embeddedJars) {
+    designSupport.setEmbeddedJars(embeddedJars);
+    return this;
+  }
+  
+  @Override
+  public DesignJavaAgent setEmbeddedJar(String fileName, InputStream in) {
+    designSupport.setEmbeddedJar(fileName, in);
+    return this;
+  }
+  
+  @Override
+  public DesignJavaAgent removeEmbeddedJar(String fileNameToRemove) {
+    designSupport.removeEmbeddedJar(fileNameToRemove);
+    return this;
+  }
+  
+  @Override
+  public DesignJavaAgent setSourceAttachment(InputStream in) {
+    designSupport.setSourceAttachment(in);
+    return this;
+  }
+  
+  @Override
+  public DesignJavaAgent setObjectAttachment(InputStream in) {
+    designSupport.setObjectAttachment(in);
+    return this;
+  }
+  
+  @Override
+  public DesignJavaAgent setResourceAttachment(InputStream in) {
+    designSupport.setResourceAttachment(in);
+    return this;
+  }
+  
+  @Override
+  public Optional<InputStream> getEmbeddedJar(String name) {
+    return designSupport.getEmbeddedJar(name);
+  }
+  
+  @Override
+  public String getMainClassName() {
+    return designSupport.getMainClassName();
+  }
+  
+  @Override
+  public DesignJavaAgent setMainClassName(String name) {
+    designSupport.setMainClassName(name);
+    return this;
+  }
+ 
+  @Override
+  public Optional<String> getObjectAttachmentName() {
+   return designSupport.getObjectAttachmentName();
+  }
+  
+  @Override
+  public Optional<InputStream> getObjectAttachment() {
+    return designSupport.getObjectAttachment();
+  }
+  
+  @Override
+  public Optional<String> getResourcesAttachmentName() {
+    return designSupport.getResourcesAttachmentName();
+  }
+ 
+  @Override
+  public Optional<InputStream> getResourcesAttachment() {
+    return designSupport.getResourcesAttachment();
+  }
+  
+  @Override
+  public List<String> getSharedLibraryList() {
+    return designSupport.getSharedLibraryList();
+  }
+  
+  @Override
+  public DesignJavaAgent setSharedLibraryList(List<String> libs) {
+    designSupport.setSharedLibraryList(libs);
+    return this;
+  }
+  
+  @Override
+  public Optional<String> getSourceAttachmentName() {
+    return designSupport.getSourceAttachmentName();
+  }
+  
+  @Override
+  public Optional<InputStream> getSourceAttachment() {
+   return designSupport.getSourceAttachment();
+  }
 }

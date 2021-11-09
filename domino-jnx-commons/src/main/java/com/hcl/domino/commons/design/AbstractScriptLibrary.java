@@ -16,8 +16,12 @@
  */
 package com.hcl.domino.commons.design;
 
+import java.util.EnumSet;
+
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.design.ScriptLibrary;
+import com.hcl.domino.misc.NotesConstants;
 
 public class AbstractScriptLibrary<T extends ScriptLibrary> extends AbstractDesignElement<T> implements ScriptLibrary,
   IDefaultNamedDesignElement {
@@ -28,7 +32,9 @@ public class AbstractScriptLibrary<T extends ScriptLibrary> extends AbstractDesi
 
   @Override
   public void initializeNewDesignNote() {
-
+    Document doc = getDocument();
+    doc.replaceItemValue(NotesConstants.DESIGNER_VERSION, "8.5.3"); //$NON-NLS-1$
+    doc.replaceItemValue(NotesConstants.FIELD_PUBLICACCESS, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), "1"); //$NON-NLS-1$
   }
 
 }

@@ -67,12 +67,23 @@ public interface DbDesign {
   /**
    * Creates a new, unsaved agent design element.
    *
+   * @param <T> agent subtype
    * @param agentType type of agent, e.g. {@link DesignLotusScriptAgent}
    * @param agentName the name of the agent to create
    * @return the newly-created in-memory {@link DesignAgent}
    */
   <T extends DesignAgent> T createAgent(Class<T> agentType, String agentName);
 
+  /**
+   * Creates a new, unsaved script library design element.
+   * 
+   * @param <T> library subtype
+   * @param libraryType type of library, e.g. {@link LotusScriptLibrary}
+   * @param libName the name of the library to create
+   * @return the newly-created in-memory {@link ScriptLibrary}
+   */
+  <T extends ScriptLibrary> T createScriptLibrary(Class<T> libraryType, String libName);
+  
   /**
    * Creates a new, unsaved folder design element.
    *

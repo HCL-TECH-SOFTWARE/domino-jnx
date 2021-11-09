@@ -144,6 +144,11 @@ public abstract class AbstractDbDesign implements DbDesign {
     return this.createDesignNote(agentType, agentName);
   }
 
+  @Override
+  public <T extends ScriptLibrary> T createScriptLibrary(Class<T> libraryType, String libName) {
+    return this.createDesignNote(libraryType, libName);
+  }
+  
   /**
    * Creates a new design note of the provided class. This creates the backing
    * {@link Document},

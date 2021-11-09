@@ -19,7 +19,6 @@ package com.hcl.domino.commons.design;
 import java.nio.charset.Charset;
 
 import com.hcl.domino.data.Document;
-import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.ServerJavaScriptLibrary;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextWriter;
@@ -48,6 +47,7 @@ public class ServerJavaScriptLibraryImpl extends AbstractScriptLibrary<ServerJav
     Document doc = getDocument();
     
     doc.removeItem(NotesConstants.SERVER_JAVASCRIPTLIBRARY_CODE);
+    
     try(RichTextWriter w = doc.createRichTextItem(NotesConstants.SERVER_JAVASCRIPTLIBRARY_CODE)) {
       w.addJavaScriptLibraryData(script);
     }
