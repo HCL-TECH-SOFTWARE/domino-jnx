@@ -16,6 +16,10 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.util.Optional;
+
+import com.hcl.domino.data.StandardColors;
+import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
@@ -48,7 +52,10 @@ import com.hcl.domino.richtext.structures.BSIG;
 public interface VMODSdrobj extends RichTextRecord<BSIG> {
 
   enum Flags implements INumberEnum<Short> {
-    /* no ENUM values defined in doc or .h file */
+    VISIBLE((short)0x0002), /*	Set if obj is visible */
+    SELECTABLE((short)0x0004), /*	Set if obj can be select (i.e. is not background) */
+    LOCKED((short)0x0008), /*	Set if obj can't be edited */
+    IMAGEMAP_BITMAP((short)0x0010) /*	Bitmap representing runtime image of the navigator.  Use to create imagemaps from navigators. */
     ;
 
     private final short value;
@@ -84,7 +91,11 @@ public interface VMODSdrobj extends RichTextRecord<BSIG> {
   FontStyle getFontID();
 
   @StructureGetter("TextColor")
-  int getTextColor();
+  int getTextColorRaw();
+
+  default Optional<StandardColors> getTextColor() {
+    return DominoEnumUtil.valueOf(StandardColors.class, getTextColorRaw());
+  }
 
   @StructureGetter("Alignment")
   int getAlignment();
@@ -102,7 +113,11 @@ public interface VMODSdrobj extends RichTextRecord<BSIG> {
   VMODSdrobj setLabelLen(int length);
 
   @StructureSetter("TextColor")
-  VMODSdrobj setTextColor(int color);
+  VMODSdrobj setTextColorRaw(int color);
+
+  default VMODSdrobj setTextColor(StandardColors color) {
+	  return setTextColorRaw(color.getValue());
+  }
 
   @StructureSetter("Alignment")
   VMODSdrobj setAlignment(int alignment);

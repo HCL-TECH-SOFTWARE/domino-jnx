@@ -14,32 +14,37 @@
  * under the License.
  * ==========================================================================
  */
-package it.com.hcl.domino.test.util;
+package com.hcl.domino.richtext.records;
 
-import com.ibm.commons.util.StringUtil;
+import com.hcl.domino.richtext.annotation.StructureDefinition;
+import com.hcl.domino.richtext.annotation.StructureGetter;
+import com.hcl.domino.richtext.annotation.StructureMember;
+import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.structures.WSIG;
 
-public enum ITUtil {
-  ;
-  
-  /**
-   * Converts Windows-style CRLF line endings to just LF.
-   * 
-   * @param value the value to convert
-   * @return the converted value
-   * @since 1.0.43
-   */
-  public static String toLf(String value) {
-    return StringUtil.toString(value).replace("\r\n", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
-  }
-  
-  /**
-   * Converts Windows- and Unix-style line endings to just CR.
-   * 
-   * @param value the value to convert
-   * @return the converted value
-   * @since 1.0.45
-   */
-  public static String toCr(String value) {
-    return StringUtil.toString(value).replaceAll("(\\r)?\\n", "\r"); //$NON-NLS-1$ //$NON-NLS-2$
-  }
+/**
+ * CDHTMLHEADER
+ * 
+ * @author pbugga
+ * @since 1.0.46
+ */
+
+@StructureDefinition(
+  name = "CDHTMLHEADER", 
+  members = { 
+    @StructureMember(name = "Header", type = WSIG.class),                        
+    @StructureMember(name = "wSegments", type = short.class, unsigned = true),   				/* Number of HTML Segments */
+})
+public interface CDHtmlHeader extends RichTextRecord<WSIG> {
+
+  @Override
+  @StructureGetter("Header")
+  WSIG getHeader();
+
+  @StructureGetter("wSegments")
+  int getSegments();
+
+  @StructureSetter("wSegments")
+  CDHtmlHeader setSegments(int wSegments);
+
 }

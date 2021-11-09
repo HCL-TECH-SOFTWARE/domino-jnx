@@ -22,7 +22,6 @@ import static com.hcl.domino.commons.util.NotesItemDataUtil.subBuffer;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,6 +30,7 @@ import com.hcl.domino.commons.design.view.DominoViewColumnFormat;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
 import com.hcl.domino.commons.misc.ODSTypes;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.design.format.ViewCalendarFormat;
 import com.hcl.domino.design.format.ViewCalendarFormat2;
 import com.hcl.domino.design.format.ViewColumnFormat;
@@ -275,7 +275,7 @@ public class ViewFormatDecoder {
         int titleLen = Short.toUnsignedInt(data.getShort());
         byte[] lmbcs = new byte[titleLen];
         data.get(lmbcs);
-        String title = new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+        String title = new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
         col.readHiddenTitle(title);
       }
     }
@@ -291,7 +291,7 @@ public class ViewFormatDecoder {
         int aliasLen = Short.toUnsignedInt(data.getShort());
         byte[] lmbcs = new byte[aliasLen];
         data.get(lmbcs);
-        String alias = new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+        String alias = new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
         col.readSharedColumnName(alias);
       }
 		}

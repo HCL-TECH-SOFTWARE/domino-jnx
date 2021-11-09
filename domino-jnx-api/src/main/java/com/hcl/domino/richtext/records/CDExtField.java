@@ -17,10 +17,10 @@
 package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Set;
 
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -173,7 +173,7 @@ public interface CDExtField extends RichTextRecord<WSIG> {
     final ByteBuffer buf = this.getVariableData();
     final byte[] lmbcs = new byte[len];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
   }
 
   @StructureGetter("EntryDBNameLen")
@@ -189,7 +189,7 @@ public interface CDExtField extends RichTextRecord<WSIG> {
     buf.position(preLen);
     final byte[] lmbcs = new byte[len];
     buf.get(lmbcs);
-    return new String(lmbcs, Charset.forName("LMBCS")); //$NON-NLS-1$
+    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
   }
 
   @StructureGetter("EntryViewNameLen")
@@ -213,7 +213,7 @@ public interface CDExtField extends RichTextRecord<WSIG> {
 
   default CDExtField setEntryDBName(final String name) {
     final int viewNameLen = this.getEntryViewNameLength();
-    final byte[] lmbcs = name == null ? new byte[0] : name.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    final byte[] lmbcs = name == null ? new byte[0] : name.getBytes(NativeItemCoder.get().getLmbcsCharset());
     this.setEntryDBNameLength(lmbcs.length);
     this.resizeVariableData(viewNameLen + lmbcs.length);
 
@@ -228,7 +228,7 @@ public interface CDExtField extends RichTextRecord<WSIG> {
 
   default CDExtField setEntryViewName(final String name) {
     final int dbNameLen = this.getEntryDBNameLength();
-    final byte[] lmbcs = name == null ? new byte[0] : name.getBytes(Charset.forName("LMBCS")); //$NON-NLS-1$
+    final byte[] lmbcs = name == null ? new byte[0] : name.getBytes(NativeItemCoder.get().getLmbcsCharset());
     this.setEntryViewNameLength(lmbcs.length);
     this.resizeVariableData(dbNameLen + lmbcs.length);
 

@@ -16,11 +16,11 @@
  */
 package com.hcl.domino.commons.design.outline;
 
-import java.nio.charset.Charset;
 import java.util.Optional;
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.design.OutlineEntryData;
 import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.richtext.records.RecordType;
@@ -61,7 +61,7 @@ public class DominoOutlineEntryData implements IAdaptable, OutlineEntryData {
       if (this.dataBuf == null || this.dataBuf.length == 0) {
         return Optional.empty();
       } else {
-        return Optional.of(new String(this.dataBuf, Charset.forName("LMBCS"))); //$NON-NLS-1$
+        return Optional.of(new String(this.dataBuf, NativeItemCoder.get().getLmbcsCharset()));
       }
     } else if (this.dataType ==  ItemDataType.TYPE_COMPOSITE.getValue()) {
       if (this.dataBuf == null || this.dataBuf.length == 0) {
@@ -71,7 +71,7 @@ public class DominoOutlineEntryData implements IAdaptable, OutlineEntryData {
           return Optional.of(RichTextUtil.readMemoryRecords(this.dataBuf, RecordType.Area.RESERVED_INTERNAL));
         } catch (Exception e) {
           //exception reading ad rich text just return as String
-          return Optional.of(new String(this.dataBuf, Charset.forName("LMBCS"))); //$NON-NLS-1$
+          return Optional.of(new String(this.dataBuf, NativeItemCoder.get().getLmbcsCharset()));
         }
       }
     }
