@@ -86,6 +86,7 @@ import com.hcl.domino.richtext.records.CDExtField;
 import com.hcl.domino.richtext.records.CDExtField.HelperType;
 import com.hcl.domino.richtext.records.CDField;
 import com.hcl.domino.richtext.records.CDFieldHint;
+import com.hcl.domino.richtext.records.CDHRule;
 import com.hcl.domino.richtext.records.CDHotspotBegin;
 import com.hcl.domino.richtext.records.CDHtmlHeader;
 import com.hcl.domino.richtext.records.CDHtmlSegment;
@@ -115,6 +116,7 @@ import com.hcl.domino.richtext.records.CurrencyType;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
 import com.hcl.domino.richtext.records.ViewmapHeaderRecord;
 import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
 import com.hcl.domino.richtext.records.ViewmapActionRecord;
@@ -1506,7 +1508,8 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(65535, begin.getSegSize());
       });
     }
-    
+
+           
     @Test
     public void testLayoutButton() throws Exception {
       this.withTempDb(database -> {
@@ -1518,8 +1521,63 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
 
         @SuppressWarnings("unused")
         final CDLayoutButton begin = (CDLayoutButton) doc.getRichTextItem("Body").get(0);
+
       });
     }
+  
+    @Test
+    public void testCDHRule() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDHRule.class, begin -> {
+            begin.setHeight(72);
+            begin.setWidth(100);
+            begin.setFlags(EnumSet.of(CDHRule.Flag.HRULE_FLAG_USECOLOR, CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_NOSHADOW));
+          });
+        }
+
+        final CDHRule begin = (CDHRule) doc.getRichTextItem("Body").get(0);
+        assertEquals(72, begin.getHeight());
+        assertEquals(100, begin.getWidth());
+        assertEquals(EnumSet.of(CDHRule.Flag.HRULE_FLAG_USECOLOR, CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_NOSHADOW), begin.getFlags());
+      });
+    }
+   
+    @Test
+    public void testsetGradientColor() throws Exception{
+    	this.withTempDb(database -> {
+            final Document doc = database.createDocument();
+            try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+              rtWriter.addRichTextRecord(CDHRule.class, begin -> {
+            	  begin.setColor(StandardColors.Black);
+                  begin.setGradientColor(StandardColors.Black);
+              });
+            }
+            final CDHRule begin = (CDHRule) doc.getRichTextItem("Body").get(0);
+            assertEquals(StandardColors.Black, begin.getColor().get());
+            assertEquals(StandardColors.Black, begin.getGradientColor().get());
+            assertEquals(0, begin.getColorRaw());
+            assertEquals(0, begin.getGradientColorRaw());
+         });
+    }
+    @Test
+    public void testsetGradientColorRaw() throws Exception{
+    	this.withTempDb(database -> {
+            final Document doc = database.createDocument();
+            try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+              rtWriter.addRichTextRecord(CDHRule.class, begin -> {
+            	  begin.setColorRaw(0);
+                  begin.setGradientColorRaw(0);
+              });
+            }
+            final CDHRule begin = (CDHRule) doc.getRichTextItem("Body").get(0);
+            assertEquals(0, begin.getColorRaw());
+            assertEquals(0, begin.getGradientColorRaw());
+            assertEquals(StandardColors.Black, begin.getColor().get());
+            assertEquals(StandardColors.Black, begin.getGradientColor().get());
+         });
+    } 
 
     @Test
     public void testVMButtonDefaults() throws Exception {
