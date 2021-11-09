@@ -27,6 +27,7 @@ import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.design.NativeDesignSupport;
 import com.hcl.domino.design.agent.DesignLotusScriptAgent;
 import com.hcl.domino.misc.NotesConstants;
@@ -84,7 +85,7 @@ public class DesignLotusScriptAgentImpl extends AbstractDesignAgentImpl<DesignLo
     String formattedCode = formattedCodeAndErrors.getValue1();
 
     Document doc = getDocument();
-    Charset lmbcsCharset = Charset.forName("LMBCS"); //$NON-NLS-1$
+    Charset lmbcsCharset = NativeItemCoder.get().getLmbcsCharset(); //$NON-NLS-1$
 
     //remove old items with source and compiled code
     doc.removeItem(NotesConstants.ASSIST_ACTION_ITEM);

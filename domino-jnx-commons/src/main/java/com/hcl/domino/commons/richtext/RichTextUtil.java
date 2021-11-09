@@ -44,6 +44,7 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.Item;
 import com.hcl.domino.data.NativeItemCoder;
+import com.hcl.domino.data.NativeItemCoder.LmbcsVariant;
 import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.richtext.RichTextConstants;

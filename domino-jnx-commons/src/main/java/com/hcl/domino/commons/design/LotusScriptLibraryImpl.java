@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.Item.ItemFlag;
+import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.design.LotusScriptLibrary;
 import com.hcl.domino.design.NativeDesignSupport;
 import com.hcl.domino.misc.NotesConstants;
@@ -57,7 +58,7 @@ public class LotusScriptLibraryImpl extends AbstractScriptLibrary<LotusScriptLib
     String formattedCode = formattedCodeAndErrors.getValue1();
 
     Document doc = getDocument();
-    Charset lmbcsCharset = Charset.forName("LMBCS"); //$NON-NLS-1$
+    Charset lmbcsCharset = NativeItemCoder.get().getLmbcsCharset(); //$NON-NLS-1$
 
     //remove old items with source and compiled code
     doc.removeItem(NotesConstants.SCRIPTLIB_ITEM_NAME);
