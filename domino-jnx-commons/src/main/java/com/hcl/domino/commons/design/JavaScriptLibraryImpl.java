@@ -51,6 +51,11 @@ public class JavaScriptLibraryImpl extends AbstractScriptLibrary<JavaScriptLibra
       w.addJavaScriptLibraryData(script);
     }
     
+    //set sign flag for code item
+    doc.forEachItem(NotesConstants.JAVASCRIPTLIBRARY_CODE, (item,loop) -> {
+      item.setSigned(true);
+    });
+
     return this;
   }
 }
