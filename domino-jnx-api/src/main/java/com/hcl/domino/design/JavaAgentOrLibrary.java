@@ -7,6 +7,33 @@ import java.util.Optional;
 
 public interface JavaAgentOrLibrary<T extends JavaAgentOrLibrary<?>> extends DesignElement {
 
+  /**
+   * Changes the JDK version for Java source compatibility
+   * 
+   * @param target, e.g. "1.3"
+   */
+  void setJavaCompilerSource(String target);
+  
+  /**
+   * Gets the JDK version for Java source compatibility
+   * 
+   * @return target, e.g. "1.3"
+   */
+  String getJavaCompilerSource();
+  
+  /**
+   * Changes the JDK version for Java class compatibility
+   * 
+   * @param target, e.g. "1.3"
+   */
+  void setJavaCompilerTarget(String target);
+  
+  /**
+   * Gets the JDK version for Java class compatibility
+   * 
+   * @return target, e.g. "1.2"
+   */
+  String getJavaCompilerTarget();
 
   /**
    * Creates initial attachments for source and object content if they don't yet exist,

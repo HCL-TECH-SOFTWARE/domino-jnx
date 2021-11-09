@@ -37,6 +37,26 @@ public class DesignJavaAgentImpl extends AbstractDesignAgentImpl<DesignJavaAgent
   }
 
   @Override
+  public void setJavaCompilerSource(String target) {
+    getDocument().replaceItemValue("$JavaCompilerSource", target); //$NON-NLS-1$
+  }
+
+  @Override
+  public String getJavaCompilerSource() {
+    return getDocument().get("$JavaCompilerSource", String.class, "");  //$NON-NLS-1$ //$NON-NLS-2$
+  }
+  
+  @Override
+  public void setJavaCompilerTarget(String target) {
+    getDocument().replaceItemValue("$JavaCompilerTarget", target); //$NON-NLS-1$
+  }
+  
+  @Override
+  public String getJavaCompilerTarget() {
+    return getDocument().get("$JavaCompilerTarget", String.class, ""); //$NON-NLS-1$ //$NON-NLS-2$
+  }
+
+  @Override
   public DesignJavaAgent initJavaContent() {
     designSupport.initJavaContent();
     return this;
