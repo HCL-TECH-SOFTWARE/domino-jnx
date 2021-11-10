@@ -193,11 +193,16 @@ public class DesignImportedJavaAgentImpl extends AbstractDesignAgentImpl<DesignI
     //change $file item flags
     doc.forEachItem("$file", (item,loop) -> { //$NON-NLS-1$
       if (item.getType() == ItemDataType.TYPE_OBJECT) {
-        Attachment att = item.get(Attachment.class, null);
-        if (att!=null && fileName.equals(att.getFileName())) {
-          item.setSigned(true);
-          item.setEncrypted(true);
-          item.setSummary(true);
+        List<?> values = item.getValue();
+        if (values!=null && values.size()==1 && values.get(0) instanceof Attachment) {
+          Attachment att = (Attachment) values.get(0);
+          
+          if (fileName.equals(att.getFileName())) {
+            item.setSigned(true);
+            item.setEncrypted(true);
+            item.setSummary(true);
+            loop.stop();
+          }
         }
       }
     });
