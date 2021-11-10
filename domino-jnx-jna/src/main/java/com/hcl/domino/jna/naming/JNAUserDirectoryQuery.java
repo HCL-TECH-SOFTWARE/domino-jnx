@@ -32,7 +32,6 @@ import java.util.stream.StreamSupport;
 
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.jna.JNADominoClient;
-import com.hcl.domino.jna.internal.JNADumpUtil;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -138,7 +137,6 @@ public class JNAUserDirectoryQuery implements UserDirectoryQuery {
 		  try {
 		    IntByReference retSize = new IntByReference();
 		    Mem.OSMemGetSize(hBuffer, retSize);
-		    System.out.println("Buffer:\n"+JNADumpUtil.dumpAsAscii(ptr, retSize.getValue()));
 		    return null;
 		  }
 		  finally {
