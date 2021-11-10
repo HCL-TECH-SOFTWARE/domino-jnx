@@ -17,18 +17,19 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.design.AbstractDesignElement;
+import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Document;
-import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.Document.IAttachmentProducer;
+import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.NativeDesignSupport;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.CDActionHeader;
 import com.hcl.domino.richtext.records.CDActionJavaAgent;
 import com.hcl.domino.richtext.records.RecordType;
-import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.records.RecordType.Area;
+import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.util.JNXStringUtil;
 
 /**
@@ -140,6 +141,11 @@ public class JavaAgentAndLibrarySupport {
     }
     
     if (changed) {
+      if (StringUtil.isEmpty(getCodeFilesystemPath())) {
+        String newCodeFilesystemPath = getDocument().getParentDatabase().getParentDominoClient().getDominoRuntime().getPropertyString("Directory");
+        setCodeFilesystemPath(newCodeFilesystemPath);
+      }
+      
       //build new java class file list, keep old resource attachment name and other embedded jars
       // 0 - source attachment name
       // 1 - object attachment name
