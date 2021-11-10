@@ -112,14 +112,14 @@ public class JavaAgentAndLibrarySupport {
         InputStream in = null;
         try {
           if (isLib) {
-            final String LIB_DEFAULT_OBJECT_JAR_RESOURCEPATH = "/com/hcl/domino/commons/design/initialdesign/javalibrary/%%object%%.jar";
+            final String LIB_DEFAULT_OBJECT_JAR_RESOURCEPATH = "/com/hcl/domino/commons/design/initialdesign/javalibrary/%%object%%.jar"; //$NON-NLS-1$
             in = JavaAgentAndLibrarySupport.class.getResourceAsStream(LIB_DEFAULT_OBJECT_JAR_RESOURCEPATH);
             if (in==null) {
               throw new IllegalStateException(MessageFormat.format("Required resource not found: {0}", LIB_DEFAULT_OBJECT_JAR_RESOURCEPATH));
             }
           }
           else {
-            final String AGENT_DEFAULT_OBJECT_JAR_RESOURCEPATH = "/com/hcl/domino/commons/design/initialdesign/javaagent/%%object%%.jar";
+            final String AGENT_DEFAULT_OBJECT_JAR_RESOURCEPATH = "/com/hcl/domino/commons/design/initialdesign/javaagent/%%object%%.jar"; //$NON-NLS-1$
             in = JavaAgentAndLibrarySupport.class.getResourceAsStream(AGENT_DEFAULT_OBJECT_JAR_RESOURCEPATH);
             if (in==null) {
               throw new IllegalStateException(MessageFormat.format("Required resource not found: {0}", AGENT_DEFAULT_OBJECT_JAR_RESOURCEPATH));
