@@ -224,7 +224,7 @@ public enum DesignUtil {
               }
               else if (DesignImportedJavaAgent.class.isAssignableFrom(designClass)) {
                 doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "f3"); //$NON-NLS-1$
-                doc.replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, Short.toUnsignedInt(RichTextConstants.SIG_ACTION_JAVA));
+                doc.replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, Short.toUnsignedInt(RichTextConstants.SIG_ACTION_JAVAAGENT));
               }
               else if (DesignJavaAgent.class.isAssignableFrom(designClass)) {
                 doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "fJj3"); //$NON-NLS-1$
