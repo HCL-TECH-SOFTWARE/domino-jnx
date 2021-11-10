@@ -32,16 +32,12 @@ import java.util.stream.StreamSupport;
 
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.jna.JNADominoClient;
-import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
-import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.naming.UserDirectoryQuery;
 import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.IntByReference;
 
 /**
  * 
@@ -131,19 +127,6 @@ public class JNAUserDirectoryQuery implements UserDirectoryQuery {
 			items,
 			rethBuffer
 		));
-		
-		LockUtil.lockHandle(rethBuffer, (hBuffer) -> {
-		  Pointer ptr = Mem.OSLockObject(hBuffer);
-		  try {
-		    IntByReference retSize = new IntByReference();
-		    Mem.OSMemGetSize(hBuffer, retSize);
-		    return null;
-		  }
-		  finally {
-		    Mem.OSUnlockObject(hBuffer);
-		  }
-    });
-		
 		
 		JNAUserDirectoryQueryIterator iter = new JNAUserDirectoryQueryIterator(client, rethBuffer, this.items);
 		Spliterator<List<Map<String, List<Object>>>> spliterator = Spliterators.spliterator(iter, nameCount+namespacesLocal.size(), 0);
