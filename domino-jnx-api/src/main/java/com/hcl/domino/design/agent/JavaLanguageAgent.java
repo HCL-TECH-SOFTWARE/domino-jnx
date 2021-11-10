@@ -21,7 +21,7 @@ import com.hcl.domino.design.DesignAgent;
 /**
  * All agent types in Java language
  * 
- * @since 1.0.46
+ * @since 1.0.47
  */
 public interface JavaLanguageAgent extends DesignAgent {
 
