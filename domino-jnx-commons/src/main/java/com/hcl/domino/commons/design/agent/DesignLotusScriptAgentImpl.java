@@ -43,6 +43,11 @@ public class DesignLotusScriptAgentImpl extends AbstractDesignAgentImpl<DesignLo
   
   public DesignLotusScriptAgentImpl(Document doc) {
     super(doc);
+  }
+
+  @Override
+  public String getScript() {
+    Document doc = getDocument();
     
     // Could be represented two ways: either as a CDACTIONLOTUSSCRIPT or as multiple
     // $AgentHScript text items
@@ -51,23 +56,18 @@ public class DesignLotusScriptAgentImpl extends AbstractDesignAgentImpl<DesignLo
         .filter(CDActionLotusScript.class::isInstance)
         .map(CDActionLotusScript.class::cast)
         .findFirst()
-        .orElseThrow(() -> new IllegalStateException("Unable to find LotusScript action data"));
+        .orElse(null);
     
-    if (action.getScriptLength() == 0) {
-      // This must be stored in $AgentHScript items
-      this.script = doc.allItems()
-          .filter(item -> NotesConstants.AGENT_HSCRIPT_ITEM.equalsIgnoreCase(item.getName()))
-          .map(item -> item.getValue().get(0))
-          .map(String::valueOf)
-          .collect(Collectors.joining());
-    } else {
-      this.script = action.getScript();
+    if (action!=null && action.getScriptLength()>0) {
+      return action.getScript();
     }
-  }
-
-  @Override
-  public String getScript() {
-    return script;
+    else {
+      return doc.allItems()
+      .filter(item -> NotesConstants.AGENT_HSCRIPT_ITEM.equalsIgnoreCase(item.getName()))
+      .map(item -> item.getValue().get(0))
+      .map(String::valueOf)
+      .collect(Collectors.joining());
+    }
   }
   
   @Override
