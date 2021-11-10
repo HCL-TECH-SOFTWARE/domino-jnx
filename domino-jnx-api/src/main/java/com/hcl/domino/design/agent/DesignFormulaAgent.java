@@ -22,7 +22,7 @@ import com.hcl.domino.design.simpleaction.RunFormulaAction;
 /**
  * Subtype of {@link DesignAgent} that executes a formula
  * 
- * @since 1.0.46
+ * @since 1.0.47
  */
 public interface DesignFormulaAgent extends DesignAgent, RunFormulaAction {
   

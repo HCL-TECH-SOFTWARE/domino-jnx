@@ -26,7 +26,7 @@ import com.hcl.domino.design.DesignAgent;
 /**
  * Subtype of {@link DesignAgent} that executes a imported Java classes
  * 
- * @since 1.0.46
+ * @since 1.0.47
  */
 public interface DesignImportedJavaAgent extends DesignAgent, JavaLanguageAgent {
   
@@ -49,7 +49,6 @@ public interface DesignImportedJavaAgent extends DesignAgent, JavaLanguageAgent 
    * @return an {@link Optional} describing an {@link InputStream} of
    *         the file's contents if it exists, or an empty one otherwise
    * @see #getFilenames()
-   * @since 1.0.43
    */
   Optional<InputStream> getFile(String name);
 

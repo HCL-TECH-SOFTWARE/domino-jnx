@@ -24,7 +24,7 @@ import com.hcl.domino.design.simpleaction.SimpleAction;
 /**
  * Subtype of {@link DesignAgent} that executes simple actions
  * 
- * @since 1.0.46
+ * @since 1.0.47
  */
 public interface DesignSimpleActionAgent extends DesignAgent {
 

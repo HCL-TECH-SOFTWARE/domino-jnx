@@ -22,7 +22,7 @@ import com.hcl.domino.design.JavaAgentOrLibrary;
 /**
  * Subtype of {@link DesignAgent} that executes Java classes
  * 
- * @since 1.0.46
+ * @since 1.0.47
  */
 public interface DesignJavaAgent extends DesignAgent, JavaLanguageAgent, JavaAgentOrLibrary<DesignJavaAgent> {
 

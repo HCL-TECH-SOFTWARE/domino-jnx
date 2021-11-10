@@ -21,7 +21,7 @@ import com.hcl.domino.design.DesignAgent;
 /**
  * Subtype of {@link DesignAgent} that executes LotusScript
  * 
- * @since 1.0.46
+ * @since 1.0.47
  */
 public interface DesignLotusScriptAgent extends DesignAgent {
 
