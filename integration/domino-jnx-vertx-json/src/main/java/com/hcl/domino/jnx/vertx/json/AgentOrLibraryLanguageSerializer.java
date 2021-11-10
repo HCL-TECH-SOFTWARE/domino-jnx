@@ -17,6 +17,9 @@
 package com.hcl.domino.jnx.vertx.json;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import com.fasterxml.jackson.core.JsonGenerationException;
@@ -85,12 +88,26 @@ class AgentOrLibraryLanguageSerializer extends BeanSerializerBase {
       }
       else if (bean instanceof DesignImportedJavaAgent) {
         jgen.writeStringField(PROP_LANGUAGE, "IMPORTED_JAVA");  //$NON-NLS-1$
+        
+        DesignImportedJavaAgent importedJavaAgent = (DesignImportedJavaAgent) bean;
+        jgen.writeObjectFieldStart("files"); //$NON-NLS-1$
+        List<String> files = importedJavaAgent.getFilenames();
+        
+        for(String jar : files) {
+          Optional<InputStream> content = importedJavaAgent.getFile(jar);
+          jgen.writeFieldName(jar);
+          OptInputStreamToBase64Serializer.INSTANCE.serialize(content, jgen, provider);
+        }
+        jgen.writeEndObject();
       }
       else if (bean instanceof DesignSimpleActionAgent) {
         jgen.writeStringField(PROP_LANGUAGE, "SIMPLE_ACTION");  //$NON-NLS-1$
       }
-      else if (bean instanceof JavaScriptLibrary || bean instanceof ServerJavaScriptLibrary) {
+      else if (bean instanceof JavaScriptLibrary) {
         jgen.writeStringField(PROP_LANGUAGE, "JAVASCRIPT");  //$NON-NLS-1$
+      }
+      else if (bean instanceof ServerJavaScriptLibrary) {
+        jgen.writeStringField(PROP_LANGUAGE, "SERVERJAVASCRIPT");  //$NON-NLS-1$
       }
       
       jgen.writeEndObject();
