@@ -67,20 +67,20 @@ public interface ViewmapShapeDefaults extends MemoryStructure {
   FontStyle getFontID();
 
   @StructureSetter("LineColor")
-  ViewmapShapeDefaults setbHighlightTouch(int lineColor);
+  ViewmapShapeDefaults setLineColor(int lineColor);
 
   @StructureSetter("FillFGColor")
-  ViewmapShapeDefaults setbHighlightCurrent(int fillFGColor);
+  ViewmapShapeDefaults setFillFGColor(int fillFGColor);
 
   @StructureSetter("FillBGColor")
-  ViewmapShapeDefaults setHLOutlineColor(int fillBGColor);
+  ViewmapShapeDefaults setFillBGColor(int fillBGColor);
 
   @StructureSetter("LineStyle")
-  ViewmapShapeDefaults setHLOutlineWidth(int lineStyle);
+  ViewmapShapeDefaults setLineStyle(int lineStyle);
 
   @StructureSetter("LineWidth")
-  ViewmapShapeDefaults setHLOutlineStyle(int lineWidth);
+  ViewmapShapeDefaults setLineWidth(int lineWidth);
 
   @StructureSetter("FillStyle")
-  ViewmapShapeDefaults setHLFillColor(int fillStyle);
+  ViewmapShapeDefaults setFillStyle(int fillStyle);
 }
