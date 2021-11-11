@@ -16,26 +16,17 @@
  */
 package com.hcl.domino.design.agent;
 
+import com.hcl.domino.design.DesignAgent;
+
 /**
- * Represents the contents of a formula-type agent.
- *
- * @author Jesse Gallagher
- * @since 1.0.24
+ * Subtype of {@link DesignAgent} that executes LotusScript
+ * 
+ * @since 1.0.47
  */
-public interface FormulaAgentContent extends AgentContent {
-  enum DocumentAction {
-    MODIFY,
-    CREATE,
-    SELECT
-  }
+public interface DesignLotusScriptAgent extends DesignAgent {
 
-  /**
-   * @return the document action performed by this agent
-   */
-  DocumentAction getDocumentAction();
+  String getScript();
 
-  /**
-   * @return the agent formula script
-   */
-  String getFormula();
+  void setScript(String script);
+  
 }

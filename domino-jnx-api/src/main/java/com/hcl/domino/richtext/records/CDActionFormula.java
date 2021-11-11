@@ -61,7 +61,7 @@ public interface CDActionFormula extends RichTextRecord<WSIG> {
     }
   }
 
-  default String getAction() {
+  default String getFormula() {
     return StructureSupport.extractCompiledFormula(this, 0, this.getFormulaLength());
   }
 
@@ -81,7 +81,7 @@ public interface CDActionFormula extends RichTextRecord<WSIG> {
   @StructureSetter("wFormulaLen")
   CDActionFormula setFormulaLength(int len);
 
-  default CDActionFormula setScript(final String script) {
+  default CDActionFormula setFormula(final String script) {
     return StructureSupport.writeCompiledFormula(this, 0, this.getFormulaLength(), script, this::setFormulaLength);
   }
 }

@@ -21,6 +21,12 @@ package com.hcl.domino.design;
  * @since 1.0.24
  */
 public interface JavaScriptLibrary extends ScriptLibrary {
+  
+  /**
+   * Gets the script content of this library
+   * 
+   * @return code
+   */
   String getScript();
   
   /**

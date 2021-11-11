@@ -31,7 +31,7 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
-import com.hcl.domino.design.DesignAgent.AgentLanguage;
+import com.hcl.domino.design.agent.JavaLanguageAgent;
 import com.hcl.domino.dxl.DxlExporter;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
@@ -100,7 +100,7 @@ public class TestDxlExporter extends AbstractNotesRuntimeTest {
 
     final Database names = this.getClient().openDatabase(namesServer, "names.nsf");
     names.getDesign().getAgents()
-        .filter(agent -> agent.getAgentLanguage() == AgentLanguage.JAVA)
+        .filter(JavaLanguageAgent.class::isInstance)
         .forEach(agent -> {
           final Document designNote = agent.getDocument();
           try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {

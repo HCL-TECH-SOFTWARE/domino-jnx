@@ -16,6 +16,8 @@
  */
 package it.com.hcl.domino.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,6 +27,7 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -35,6 +38,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -405,4 +409,34 @@ public abstract class AbstractNotesRuntimeTest {
       }
     }
   }
+  
+  /**
+   * Compares the data of two {@link InputStream}s
+   * 
+   * @param inExpected expected content
+   * @param inActual actual content
+   * @param msg assert message
+   * @throws IOException
+   */
+  public static void assertEqualStreams(InputStream inExpected, InputStream inActual, String msg) throws IOException {
+    try {
+      int pos=0;
+      int val1;
+      int val2;
+      
+      do {
+        val1 = inExpected.read();
+        val2 = inActual.read();
+
+        assertEquals(val1, val2, MessageFormat.format("{0} - InputStream value mismatch at position {1}", msg, pos));
+        pos++;
+      }
+      while (val1!=-1);
+    }
+    finally {
+      IOUtils.closeQuietly(inExpected);
+      IOUtils.closeQuietly(inActual);
+    }
+  }
+
 }
