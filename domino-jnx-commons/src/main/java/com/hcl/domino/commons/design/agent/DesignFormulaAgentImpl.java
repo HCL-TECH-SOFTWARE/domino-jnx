@@ -33,15 +33,13 @@ import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.NativeDesignSupport;
 import com.hcl.domino.design.agent.DesignFormulaAgent;
 import com.hcl.domino.misc.NotesConstants;
-import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.CDActionFormula;
 import com.hcl.domino.richtext.records.CDActionHeader;
 import com.hcl.domino.richtext.records.CDActionJavaAgent;
 import com.hcl.domino.richtext.records.RecordType;
-import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.records.RecordType.Area;
-import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
+import com.hcl.domino.richtext.records.RichTextRecord;
 
 /**
  * Implementation of {@link DesignFormulaAgent}
