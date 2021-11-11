@@ -39,10 +39,12 @@ import org.junit.jupiter.api.Test;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignAgent;
+import com.hcl.domino.design.DesignAgent.SecurityLevel;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.agent.DesignFormulaAgent;
 import com.hcl.domino.design.agent.DesignImportedJavaAgent;
 import com.hcl.domino.design.agent.DesignJavaAgent;
+import com.hcl.domino.design.agent.DesignLotusScriptAgent;
 import com.hcl.domino.design.agent.DesignSimpleActionAgent;
 import com.hcl.domino.design.agent.JavaLanguageAgent;
 import com.hcl.domino.design.simpleaction.RunFormulaAction.DocumentAction;
@@ -51,18 +53,19 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 public class TestAgentCreation extends AbstractNotesRuntimeTest {
 
+  @SuppressWarnings("nls")
   @Test
   public void testCreateFormulaAgent() throws Exception {
     withTempDb((db) -> {
       DbDesign dbDesign = db.getDesign();
 
-      String agentName = "formulaagent"; //$NON-NLS-1$
+      String agentName = "formulaagent";
 
       DocumentAction docAction1 = DocumentAction.SELECT;
-      String formula1 = "@SetField(\"abc\";1);\n@All"; //$NON-NLS-1$
+      String formula1 = "@SetField(\"abc\";1);\n@All";
 
       DocumentAction docAction2 = DocumentAction.MODIFY;
-      String formula2 = "@SetField(\"def\";0);\n@All"; //$NON-NLS-1$
+      String formula2 = "@SetField(\"def\";0);\n@All";
 
       DesignFormulaAgent agent = dbDesign.createAgent(DesignFormulaAgent.class, agentName);
       assertNotNull(agent);
@@ -93,17 +96,18 @@ public class TestAgentCreation extends AbstractNotesRuntimeTest {
     });
   }
 
+  @SuppressWarnings("nls")
   @Test
   public void testCreateJavaAgent() throws Exception {
     withTempDb((db) -> {
-      String mainClassName = "JavaAgent.class"; //$NON-NLS-1$
-      String sourceTarget = "1.3"; //$NON-NLS-1$
-      String objectTarget = "1.2"; //$NON-NLS-1$
-      String codeFilesystemPath = "c:\\data"; //$NON-NLS-1$
-      List<String> sharedLibs = Arrays.asList("lib1", "lib2"); //$NON-NLS-1$ //$NON-NLS-2$
+      String mainClassName = "JavaAgent.class";
+      String sourceTarget = "1.3";
+      String objectTarget = "1.2";
+      String codeFilesystemPath = "c:\\data";
+      List<String> sharedLibs = Arrays.asList("lib1", "lib2");
       
       DbDesign dbDesign = db.getDesign();
-      DesignJavaAgent agent = dbDesign.createAgent(DesignJavaAgent.class, "javaagent"); //$NON-NLS-1$
+      DesignJavaAgent agent = dbDesign.createAgent(DesignJavaAgent.class, "javaagent");
       assertNotNull(agent);
       
       //write initial source/object jars
@@ -131,7 +135,7 @@ public class TestAgentCreation extends AbstractNotesRuntimeTest {
       assertEquals(sharedLibs, agent.getSharedLibraryList());
       
       {
-        final String AGENT_DEFAULT_SOURCE_JAR_RESOURCEPATH = "/com/hcl/domino/commons/design/initialdesign/javaagent/%%source%%.jar"; //$NON-NLS-1$
+        final String AGENT_DEFAULT_SOURCE_JAR_RESOURCEPATH = "/com/hcl/domino/commons/design/initialdesign/javaagent/%%source%%.jar";
         InputStream inOrig = getClass().getResourceAsStream(AGENT_DEFAULT_SOURCE_JAR_RESOURCEPATH);
         assertNotNull(inOrig);
         
@@ -141,7 +145,7 @@ public class TestAgentCreation extends AbstractNotesRuntimeTest {
         assertEqualStreams(inOrig, inDesign, "Source attachment mismatch");
       }
       {
-        final String AGENT_DEFAULT_OBJECT_JAR_RESOURCEPATH = "/com/hcl/domino/commons/design/initialdesign/javaagent/%%object%%.jar"; //$NON-NLS-1$
+        final String AGENT_DEFAULT_OBJECT_JAR_RESOURCEPATH = "/com/hcl/domino/commons/design/initialdesign/javaagent/%%object%%.jar";
         InputStream inOrig = getClass().getResourceAsStream(AGENT_DEFAULT_OBJECT_JAR_RESOURCEPATH);
         assertNotNull(inOrig);
         
@@ -154,16 +158,16 @@ public class TestAgentCreation extends AbstractNotesRuntimeTest {
       {
         //build resources jar on the fly
         final String[] testResources = {
-            "/images/file-icon.gif", //$NON-NLS-1$
-            "/images/help_vampire.gif" //$NON-NLS-1$
+            "/images/file-icon.gif",
+            "/images/help_vampire.gif"
         };
         Manifest manifest = new Manifest();
-        manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0"); //$NON-NLS-1$
+        manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
         ByteArrayOutputStream jarOut = new ByteArrayOutputStream();
         
         try (JarOutputStream target = new JarOutputStream(jarOut, manifest);) {
           for (String currResource : testResources) {
-            int iPos = currResource.lastIndexOf("/"); //$NON-NLS-1$
+            int iPos = currResource.lastIndexOf("/");
             String fileName = currResource.substring(iPos+1);
             
             JarEntry entry = new JarEntry(fileName);
@@ -194,29 +198,30 @@ public class TestAgentCreation extends AbstractNotesRuntimeTest {
     });
   }
   
+  @SuppressWarnings("nls")
   @Test
   public void testCreateImportedJavaAgent() throws Exception {
     withTempDb((db) -> {
       DbDesign dbDesign = db.getDesign();
-      DesignImportedJavaAgent agent = dbDesign.createAgent(DesignImportedJavaAgent.class, "importedjavaagent"); //$NON-NLS-1$
+      DesignImportedJavaAgent agent = dbDesign.createAgent(DesignImportedJavaAgent.class, "importedjavaagent");
       assertNotNull(agent);
 
-      String mainClassName = "JavaAgent.class"; //$NON-NLS-1$
-      String codeFilesystemPath = "c:\\data"; //$NON-NLS-1$
+      String mainClassName = "JavaAgent.class";
+      String codeFilesystemPath = "c:\\data";
 
       //write initial source/object jars
       agent.setMainClassName(mainClassName);
       agent.setCodeFilesystemPath(codeFilesystemPath);
       
       final List<String> testResources = Arrays.asList(
-          "/images/file-icon.gif", //$NON-NLS-1$
-          "/images/help_vampire.gif" //$NON-NLS-1$
+          "/images/file-icon.gif",
+          "/images/help_vampire.gif"
       );
 
       Map<String, String> writtenFileNames = new HashMap<>();
       
       for (String currResource : testResources) {
-        int iPos = currResource.lastIndexOf("/"); //$NON-NLS-1$
+        int iPos = currResource.lastIndexOf("/");
         String fileName = currResource.substring(iPos+1);
 
         InputStream in = getClass().getResourceAsStream(currResource);
@@ -257,16 +262,71 @@ public class TestAgentCreation extends AbstractNotesRuntimeTest {
     });
   }
   
-  
+  @SuppressWarnings("nls")
   @Test
   public void testCreateSimpleActionAgent() throws Exception {
     withTempDb((db) -> {
       DbDesign dbDesign = db.getDesign();
-      DesignSimpleActionAgent agent = dbDesign.createAgent(DesignSimpleActionAgent.class, "simpleactions"); //$NON-NLS-1$
+      DesignSimpleActionAgent agent = dbDesign.createAgent(DesignSimpleActionAgent.class, "simpleactions");
       assertNotNull(agent);
 
+      agent.sign();
+      agent.save();
+      
       // test for simple action agent is missing; we don't have APIs to write simple actions yet
+
+      String unid = agent.getDocument().getUNID();
+
+      DesignElement testDE = dbDesign.getDesignElementByUNID(unid).orElseThrow(() -> new IllegalStateException("Agent not found via UNID"));
+      assertInstanceOf(DesignSimpleActionAgent.class, testDE);
+      agent = (DesignSimpleActionAgent) testDE;
 
     });
   }
+  
+  @SuppressWarnings("nls")
+  @Test
+  public void setCreateLSAgent() throws Exception {
+    withTempDb((db) -> {
+      String onBehalfUser = "CN=Test User/O=TestOrg";
+      String script = "Option Public\n"
+          + "Option Declare\n"
+          + "\n"
+          + "Sub Initialize\n"
+          + "  Dim session As New NotesSession\n"
+          + "End Sub";
+
+      DbDesign dbDesign = db.getDesign();
+      DesignLotusScriptAgent agent = dbDesign.createAgent(DesignLotusScriptAgent.class, "lsagent");
+      assertNotNull(agent);
+
+      agent.setOnBehalfOfUser(onBehalfUser);
+      agent.setPrivate(true);
+      agent.setProfilingEnabled(true);
+      agent.setStoreSearch(true);
+      agent.setEnabled(true);
+      agent.setSecurityLevel(SecurityLevel.UNRESTRICTED);
+      agent.setRunInBackgroundInClient(true);
+      agent.setScript(script);
+
+      agent.sign();
+      agent.save();
+
+      String unid = agent.getDocument().getUNID();
+
+      DesignElement testDE = dbDesign.getDesignElementByUNID(unid).orElseThrow(() -> new IllegalStateException("Agent not found via UNID"));
+      assertInstanceOf(DesignLotusScriptAgent.class, testDE);
+      agent = (DesignLotusScriptAgent) testDE;
+
+      assertEquals(onBehalfUser, agent.getOnBehalfOfUser().orElse(null));
+      assertEquals(true, agent.isPrivate());
+      assertEquals(true, agent.isProfilingEnabled());
+      assertEquals(true, agent.isStoreSearch());
+      assertEquals(true, agent.isEnabled());
+      assertEquals(SecurityLevel.UNRESTRICTED, agent.getSecurityLevel());
+      assertEquals(true, agent.isRunInBackgroundInClient());
+      assertTrue(agent.getScript().contains("Dim session As New NotesSession"));
+    });
+  }
+
 }
