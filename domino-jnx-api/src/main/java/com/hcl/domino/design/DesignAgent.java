@@ -241,7 +241,7 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    *         is unavailable
    */
   AgentTrigger getTrigger();
-
+  
   /**
    * Whether or not the agent runs on weekends, only relevant for DAILY or
    * MORE_THAN_DAILY
@@ -249,7 +249,7 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    * @return whether it runs on weekends. WEEKLY or MONTHLY returns true
    */
   boolean isRunOnWeekends();
-
+  
   /**
    * Determines whether the agent should be run as the web user when accessed via
    * URL.
@@ -281,6 +281,14 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    * @since 1.0.35
    */
   Optional<String> getOnBehalfOfUser();
+  
+  /**
+   * Sets the name of the user to run the agent on behalf of, if set.
+   * 
+   * @param user the on-behalf-of user or null/empty string to unset
+   * @since 1.0.47
+   */
+  void setOnBehalfOfUser(String user);
   
   /**
    * Determines the security level to enforce when running this agent.
@@ -318,6 +326,14 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
   boolean isStoreSearch();
   
   /**
+   * Sets whether the agent search should be stored in the search bar menu.
+   * 
+   * @param b true to store
+   * @since 1.0.47
+   */
+  void setStoreSearch(boolean b);
+  
+  /**
    * Determines whether profiling should be enabled for this agent.
    * 
    * @return {@code true} if profiling is enabled;
@@ -325,6 +341,14 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    * @since 1.0.35
    */
   boolean isProfilingEnabled();
+  
+  /**
+   * Sets whether profiling should be enabled for this agent.
+   * 
+   * @param b true to enable
+   * @since 1.0.47
+   */
+  void setProfilingEnabled(boolean b);
   
   /**
    * Determines whether remote debugging should be enabled for this agent.
@@ -336,6 +360,14 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
   boolean isAllowRemoteDebugging();
   
   /**
+   * Sets whether remote debugging should be enabled for this agent.
+   * 
+   * @param b true to enable
+   * @since 1.0.47
+   */
+  void setAllowRemoteDebugging(boolean b);
+  
+  /**
    * Determines whether the agent is private to the user or not.
    * 
    * @return {@code true} if the agent is private;
@@ -343,6 +375,14 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    * @since 1.0.35
    */
   boolean isPrivate();
+  
+  /**
+   * Sets whether the agent is private to the user or not.
+   * 
+   * @param b true if private
+   * @since 1.0.47
+   */
+  void setPrivate(boolean b);
   
   /**
    * Determines whether the agent should run in a background thread when invoked
@@ -353,6 +393,15 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    * @since 1.0.35
    */
   boolean isRunInBackgroundInClient();
+  
+  /**
+   * Sets whether the agent should run in a background thread when invoked
+   * from the client.
+   * 
+   * @param b true to run in background
+   * @since 1.0.47
+   */
+  void setRunInBackgroundInClient(boolean b);
   
   /**
    * Determines whether the agent is enabled to run according to its schedule or trigger.

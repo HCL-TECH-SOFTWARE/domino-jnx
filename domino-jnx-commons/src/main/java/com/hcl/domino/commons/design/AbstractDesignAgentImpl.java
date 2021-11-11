@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
+import com.hcl.domino.Name;
 import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.InnardsConverter;
@@ -40,6 +41,7 @@ import com.hcl.domino.design.agent.AgentTarget;
 import com.hcl.domino.design.agent.AgentTrigger;
 import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.naming.Names;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.CDQueryHeader;
@@ -335,6 +337,16 @@ public abstract class AbstractDesignAgentImpl<T extends DesignAgent> extends Abs
   }
 
   @Override
+  public void setOnBehalfOfUser(String user) {
+    if (StringUtil.isEmpty(user)) {
+      getDocument().removeItem(NotesConstants.ASSIST_ONBEHALFOF);
+    }
+    else {
+      getDocument().replaceItemValue(NotesConstants.ASSIST_ONBEHALFOF, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), Names.toCanonical(user));
+    }
+  }
+  
+  @Override
   public SecurityLevel getSecurityLevel() {
     int restricted = getDocument().get(DesignConstants.ASSIST_RESTRICTED, int.class, 1);
     switch(restricted) {
@@ -380,25 +392,50 @@ public abstract class AbstractDesignAgentImpl<T extends DesignAgent> extends Abs
   }
 
   @Override
+  public void setStoreSearch(boolean b) {
+    setFlag(NotesConstants.DESIGN_FLAG_AGENT_SHOWINSEARCH, b);
+  }
+  
+  @Override
   public boolean isProfilingEnabled() {
     return getFlagsExt().contains(DesignConstants.DESIGN_FLAGEXT_PROFILE);
   }
 
+  @Override
+  public void setProfilingEnabled(boolean b) {
+    setFlagExt(DesignConstants.DESIGN_FLAGEXT_PROFILE, b);
+  }
+  
   @Override
   public boolean isAllowRemoteDebugging() {
     return getAssistFlags().contains(DesignConstants.ASSIST_FLAG_ALLOW_REMOTE_DEBUGGING);
   }
 
   @Override
+  public void setAllowRemoteDebugging(boolean b) {
+    setAssistFlag(DesignConstants.ASSIST_FLAG_ALLOW_REMOTE_DEBUGGING, b);
+  }
+  
+  @Override
   public boolean isPrivate() {
     return getAssistFlags().contains(DesignConstants.ASSIST_FLAG_PRIVATE);
   }
 
   @Override
+  public void setPrivate(boolean b) {
+    setAssistFlag(DesignConstants.ASSIST_FLAG_PRIVATE, b);
+  }
+  
+  @Override
   public boolean isRunInBackgroundInClient() {
     return getAssistFlags().contains(DesignConstants.ASSIST_FLAG_THREAD);
   }
 
+  @Override
+  public void setRunInBackgroundInClient(boolean b) {
+    setAssistFlag(DesignConstants.ASSIST_FLAG_THREAD, b);
+  }
+  
   @Override
   public boolean isEnabled() {
     return getAssistFlags().contains(DesignConstants.ASSIST_FLAG_ENABLED);
