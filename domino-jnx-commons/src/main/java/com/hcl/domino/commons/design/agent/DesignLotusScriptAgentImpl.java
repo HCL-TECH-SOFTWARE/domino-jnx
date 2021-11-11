@@ -38,13 +38,53 @@ import com.hcl.domino.richtext.records.CDActionLotusScript;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 
+/**
+ * Implementation of {@link DesignLotusScriptAgent}
+ * 
+ * @author Karsten Lehmann
+ */
 public class DesignLotusScriptAgentImpl extends AbstractDesignAgentImpl<DesignLotusScriptAgent> implements DesignLotusScriptAgent {
-  private String script;
   
   public DesignLotusScriptAgentImpl(Document doc) {
     super(doc);
   }
 
+  @Override
+  public void initializeNewDesignNote() {
+    super.initializeNewDesignNote();
+    
+    this.setFlag(NotesConstants.DESIGN_FLAG_HIDE_FROM_V3, true);
+    this.setFlag(NotesConstants.DESIGN_FLAG_V4AGENT, true);
+    this.setFlag(NotesConstants.DESIGN_FLAG_LOTUSSCRIPT_AGENT, true);
+
+    this.setFlag(NotesConstants.DESIGN_FLAG_JAVA_AGENT_WITH_SOURCE, false);
+    this.setFlag(NotesConstants.DESIGN_FLAG_JAVA_AGENT, false);
+
+    Document doc = getDocument();
+    
+    try (RichTextWriter rtWriter = doc.createRichTextItem(NotesConstants.ASSIST_ACTION_ITEM);) {
+      rtWriter.addRichTextRecord(CDActionHeader.class, (record) -> {
+        record.getHeader().setSignature((byte) (RecordType.ACTION_HEADER.getConstant() & 0xff));
+        record.getHeader().setLength((short) (MemoryStructureUtil.sizeOf(CDActionHeader.class) & 0xffff));
+      });
+
+      rtWriter.addRichTextRecord(CDActionLotusScript.class, (record) -> {
+        record.getHeader().setSignature(RecordType.ACTION_LOTUSSCRIPT.getConstant());
+        record.getHeader().setLength(MemoryStructureUtil.sizeOf(CDActionLotusScript.class));
+      });
+    }
+
+    NativeDesignSupport designSupport = NativeDesignSupport.get();
+    
+    //switch action items from TYPE_COMPOSITE to TYPE_ACTION
+    doc.forEachItem(NotesConstants.ASSIST_ACTION_ITEM, (item,loop) -> {
+      item.setSigned(true);
+      designSupport.setCDRecordItemType(doc, item, ItemDataType.TYPE_ACTION);
+    });
+
+    doc.sign();
+  }
+  
   @Override
   public String getScript() {
     Document doc = getDocument();
@@ -72,13 +112,6 @@ public class DesignLotusScriptAgentImpl extends AbstractDesignAgentImpl<DesignLo
   
   @Override
   public void setScript(String script) {
-    this.setFlag(NotesConstants.DESIGN_FLAG_HIDE_FROM_V3, true);
-    this.setFlag(NotesConstants.DESIGN_FLAG_V4AGENT, true);
-    this.setFlag(NotesConstants.DESIGN_FLAG_LOTUSSCRIPT_AGENT, true);
-
-    this.setFlag(NotesConstants.DESIGN_FLAG_JAVA_AGENT_WITH_SOURCE, false);
-    this.setFlag(NotesConstants.DESIGN_FLAG_JAVA_AGENT, false);
-
     //format LS code to be Designer compatible
     NativeDesignSupport designSupport = NativeDesignSupport.get();
     Pair<String,String> formattedCodeAndErrors = designSupport.formatLSForDesigner(script, ""); //$NON-NLS-1$
