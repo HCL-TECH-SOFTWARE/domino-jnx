@@ -27,6 +27,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
+import com.hcl.domino.design.JavaAgentOrLibrary;
 import com.hcl.domino.design.JavaLibrary;
 import com.hcl.domino.design.JavaScriptLibrary;
 import com.hcl.domino.design.LotusScriptLibrary;
@@ -108,6 +109,20 @@ class AgentOrLibraryLanguageSerializer extends BeanSerializerBase {
       }
       else if (bean instanceof ServerJavaScriptLibrary) {
         jgen.writeStringField(PROP_LANGUAGE, "SERVERJAVASCRIPT");  //$NON-NLS-1$
+      }
+      
+      if (bean instanceof JavaAgentOrLibrary<?>) {
+        JavaAgentOrLibrary<?> javaAgentOrLib = (JavaAgentOrLibrary<?>) bean;
+        
+        jgen.writeObjectFieldStart("embeddedJars"); //$NON-NLS-1$
+        List<String> embJarnames = javaAgentOrLib.getEmbeddedJarNames();
+        
+        for(String jar : embJarnames) {
+          Optional<InputStream> content = javaAgentOrLib.getEmbeddedJar(jar);
+          jgen.writeFieldName(jar);
+          OptInputStreamToBase64Serializer.INSTANCE.serialize(content, jgen, provider);
+        }
+        jgen.writeEndObject();
       }
       
       jgen.writeEndObject();

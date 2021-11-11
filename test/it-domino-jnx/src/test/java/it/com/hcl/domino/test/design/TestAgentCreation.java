@@ -194,6 +194,23 @@ public class TestAgentCreation extends AbstractNotesRuntimeTest {
         
         assertEqualStreams(new ByteArrayInputStream(jarOut.toByteArray()), agent.getResourcesAttachment().get(),
             "Resource attachment mismatch");
+        
+        {
+          //use library object jar to test embedded jar functionality
+          final String LIB_DEFAULT_OBJECT_JAR_RESOURCEPATH = "/com/hcl/domino/commons/design/initialdesign/javalibrary/%%object%%.jar";
+          InputStream inOrig = getClass().getResourceAsStream(LIB_DEFAULT_OBJECT_JAR_RESOURCEPATH);
+          assertNotNull(inOrig);
+          
+          agent.setEmbeddedJar("embeddedjar1.jar", inOrig);
+          
+          List<String> embJarNames = agent.getEmbeddedJarNames();
+          assertEquals(1, embJarNames.size());
+          assertTrue(embJarNames.contains("embeddedjar1.jar"));
+          
+          inOrig = getClass().getResourceAsStream(LIB_DEFAULT_OBJECT_JAR_RESOURCEPATH);
+          InputStream inTest = agent.getEmbeddedJar("embeddedjar1.jar").get();
+          assertEqualStreams(inOrig, inTest, "Embedded jar mismatch");
+        }
       }
     });
   }
