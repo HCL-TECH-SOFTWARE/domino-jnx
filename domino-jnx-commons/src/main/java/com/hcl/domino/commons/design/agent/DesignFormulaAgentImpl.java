@@ -27,6 +27,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import com.hcl.domino.commons.design.AbstractDesignAgentImpl;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.ItemDataType;
@@ -50,6 +51,26 @@ public class DesignFormulaAgentImpl extends AbstractDesignAgentImpl<DesignFormul
     super(doc);
   }
 
+  @Override
+  public void initializeNewDesignNote() {
+    super.initializeNewDesignNote();
+    
+    Document doc = getDocument();
+    
+    try (RichTextWriter rtWriter = doc.createRichTextItem(NotesConstants.ASSIST_ACTION_ITEM);) {
+      rtWriter.addRichTextRecord(CDActionHeader.class, (record) -> {
+        record.getHeader().setSignature((byte) (RecordType.ACTION_HEADER.getConstant() & 0xff));
+        record.getHeader().setLength((short) (MemoryStructureUtil.sizeOf(CDActionHeader.class) & 0xffff));
+      });
+    }
+    
+    //fix wrong item type TYPE_COMPOSITE
+    doc.forEachItem(NotesConstants.ASSIST_ACTION_ITEM, (item, loop) -> {
+      item.setSigned(true);
+      NativeDesignSupport.get().setCDRecordItemType(doc, item, ItemDataType.TYPE_ACTION);
+    });
+  }
+  
   @Override
   public Optional<DocumentAction> getDocumentAction() {
     Document doc = this.getDocument();
