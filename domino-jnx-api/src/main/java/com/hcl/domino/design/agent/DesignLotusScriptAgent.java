@@ -16,32 +16,17 @@
  */
 package com.hcl.domino.design.agent;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.Optional;
+import com.hcl.domino.design.DesignAgent;
 
 /**
- * Represents the contents of an imported Java agent.
- *
- * @author Jesse Gallagher
- * @since 1.0.24
+ * Subtype of {@link DesignAgent} that executes LotusScript
+ * 
+ * @since 1.0.47
  */
-public interface ImportedJavaAgentContent extends AgentContent {
-  String getCodeFilesystemPath();
+public interface DesignLotusScriptAgent extends DesignAgent {
 
-  List<String> getFiles();
+  String getScript();
+
+  void setScript(String script);
   
-  /**
-   * Retrieves the contents of the named file (as determined
-   * in {@link #getFiles()} as a stream of bytes.
-   * 
-   * @param name the name of the file to retrieve
-   * @return an {@link Optional} describing an {@link InputStream} of
-   *         the file's contents if it exists, or an empty one otherwise
-   * @see #getFiles()
-   * @since 1.0.43
-   */
-  Optional<InputStream> getFile(String name);
-
-  String getMainClassName();
 }

@@ -113,6 +113,7 @@ public interface CDActionJavaAgent extends RichTextRecord<WSIG> {
         this.getClassNameLength() + this.getCodePathLength(),
         this.getFileListLength(),
         fileList,
+        false, // keep line breaks in the string, don't replace with \0
         this::setFileListLength);
     return this;
   }
@@ -126,6 +127,7 @@ public interface CDActionJavaAgent extends RichTextRecord<WSIG> {
         this.getClassNameLength() + this.getCodePathLength() + this.getFileListLength(),
         this.getLibraryListLength(),
         libraryList,
+        false, // keep line breaks in the string, don't replace with \0
         this::setLibraryListLength);
     return this;
   }

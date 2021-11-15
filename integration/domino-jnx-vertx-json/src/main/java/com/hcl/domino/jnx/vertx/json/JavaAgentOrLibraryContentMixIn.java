@@ -14,14 +14,21 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.agent;
+package com.hcl.domino.jnx.vertx.json;
 
-/**
- * Represents the contents of a LotusScript-type agent.
- *
- * @author Jesse Gallagher
- * @since 1.0.24
- */
-public interface LotusScriptAgentContent extends AgentContent {
-  String getScript();
+import java.io.InputStream;
+import java.util.Optional;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+public abstract class JavaAgentOrLibraryContentMixIn {
+  @JsonSerialize(using = OptInputStreamToBase64Serializer.class) abstract Optional<InputStream> getObjectAttachment();
+  
+  @JsonSerialize(using = OptInputStreamToBase64Serializer.class) abstract Optional<InputStream> getResourcesAttachment();
+
+  @JsonSerialize(using = OptInputStreamToBase64Serializer.class) abstract Optional<InputStream> getSourceAttachment();
+  
+  @JsonIgnore abstract Optional<InputStream> getEmbeddedJar(String file);
+
 }

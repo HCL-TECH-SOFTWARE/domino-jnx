@@ -14,28 +14,12 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.agent;
+package com.hcl.domino.jnx.vertx.json;
 
-/**
- * Represents the contents of a formula-type agent.
- *
- * @author Jesse Gallagher
- * @since 1.0.24
- */
-public interface FormulaAgentContent extends AgentContent {
-  enum DocumentAction {
-    MODIFY,
-    CREATE,
-    SELECT
-  }
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.jnx.vertx.json.serializer.DominoDateTimeSerializer;
 
-  /**
-   * @return the document action performed by this agent
-   */
-  DocumentAction getDocumentAction();
-
-  /**
-   * @return the agent formula script
-   */
-  String getFormula();
+public abstract class DesignAgentMixIn {
+  @JsonSerialize(using = DominoDateTimeSerializer.class) abstract DominoDateTime getAgentVersion();
 }

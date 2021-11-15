@@ -794,4 +794,24 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 		Action recordVisited(short signature, Pointer cdRecordPtr, int cdRecordLength);
 
 	}
+	
+	@SuppressWarnings("unchecked")
+  @Override
+	protected <T> T getAdapterLocal(Class<T> clazz) {
+	  if (clazz == NotesBlockIdStruct[].class) {
+	    //give readonly access to some internals used for debugging and checking for the right item instance
+	    NotesBlockIdStruct itemBlockIdClone = NotesBlockIdStruct.newInstance();
+	    itemBlockIdClone.block = m_itemBlockId.block;
+	    itemBlockIdClone.pool = m_itemBlockId.pool;
+	    
+	    NotesBlockIdStruct valueBlockIdClone = NotesBlockIdStruct.newInstance();
+	    valueBlockIdClone.block = m_valueBlockId.block;
+	    valueBlockIdClone.pool = m_valueBlockId.pool;
+	    
+	    return (T) new NotesBlockIdStruct[] {itemBlockIdClone, valueBlockIdClone};
+	  }
+	  else {
+	    return super.getAdapterLocal(clazz);
+	  }
+	}
 }
