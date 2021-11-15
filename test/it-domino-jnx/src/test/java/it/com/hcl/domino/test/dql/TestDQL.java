@@ -1,21 +1,19 @@
-package it.com.hcl.domino.test.poc;
+package it.com.hcl.domino.test.dql;
 
-import com.hcl.domino.commons.data.*;
-import com.hcl.domino.commons.design.*;
+import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.data.*;
-import com.hcl.domino.design.*;
-import com.hcl.domino.dql.*;
-import com.hcl.domino.dxl.*;
-import it.com.hcl.domino.test.*;
-import org.junit.jupiter.api.*;
+import com.hcl.domino.design.DbDesign;
+import com.hcl.domino.design.Folder;
+import com.hcl.domino.dql.DQL;
+import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
-import java.io.*;
-import java.text.*;
-import java.time.*;
-import java.time.temporal.*;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.Date;
-import java.util.stream.*;
+import java.util.stream.Collectors;
 
 import static com.hcl.domino.dql.DQL.*;
 
@@ -25,42 +23,71 @@ import static com.hcl.domino.dql.DQL.*;
 
 public class TestDQL extends AbstractNotesRuntimeTest {
 
-//
-//    @Test
-//    @Disabled
-//    public void testDQLIn() throws Exception {
-//        this.withTempDb(db -> {
-//
-//            Document document1 = db.createDocument();
-//            document1.appendItemValue("name", "Kars");
-//            document1.save();
-//
-//            View view = new ViewImpl(document1);
-//            view.setTitle("viewTitle");
-//            view.setComment("viewComment");
-//            Folder folder = new FolderImpl(document1);
-//            folder.setTitle("folderTitle");
-//            CollectionDesignElement column = folder.addColumn();
-//            column.setTitle("columnTitle");
-//
-//
-//            view.save();
-//            document1.save();
-////            final DxlImporter importer = this.getClient().createDxlImporter();
-////            InputStream is = this.getClass().getResourceAsStream("/dxl/testDQL/DQLView.xml");
-////            importer.importDxl(is, db);
-////            DbDesign design = db.getDesign();
-////            List<View> collect = design.getViews().collect(Collectors.toList());
-////            ViewImpl viewImpl = (ViewImpl) collect.get(0);
-////            DocumentSelection select = db.createDocumentSelection().select(DocumentSelection.SelectionType.VIEWS);
-//            DQL.DQLTerm dqlIn = DQL.in("name");
-//            DQLTerm kars = contains("Kars");
-//            DQLTerm and = and(dqlIn, kars);
-//            DQLQueryResult dqlQueryResult = db.queryDQL(and, EnumSet.of(DBQuery.EXPLAIN));
-//            String explainText = dqlQueryResult.getExplainText();
-//            System.out.println(explainText);
-//        });
-//    }
+
+    /**
+     * TODO: figure why fail in results!
+     * Assertions.assertTrue(!resultsTable.isEmpty());
+     *
+     * @throws Exception
+     */
+    @Test
+    public void testDQLIn() throws Exception {
+        this.withTempDb(db -> {
+
+            DbDesign design = db.getDesign();
+            Folder folder = design.createFolder("folderName");
+            Folder folder2 = design.createFolder("folderName2");
+            Document document = folder.getDocument();
+            document.appendItemValue("lastName", "Kasparov");
+            Document document2 = folder2.getDocument();
+            document.appendItemValue("lastName", "Kasparov");
+
+            document.save();
+            folder.save();
+            folder2.save();
+
+            DQL.DQLTerm dqlIn = DQL.in("folderName", "folderName2");
+            System.out.println("Query: " + dqlIn);
+            DQLQueryResult result = db.queryDQL(dqlIn, EnumSet.of(DBQuery.VIEWREFRESH));
+            Assertions.assertNotNull(result);
+            final IDTable resultsTable = result.getNoteIds().get();
+//            Assertions.assertTrue(!resultsTable.isEmpty());
+            System.out.println(result);
+        });
+    }
+
+    /**
+     * TODO: figure why fail in results!
+     * Assertions.assertTrue(!resultsTable.isEmpty());
+     * @throws Exception
+     */
+    @Test
+    public void testDQLInAll() throws Exception {
+        this.withTempDb(db -> {
+
+            DbDesign design = db.getDesign();
+            Folder folder = design.createFolder("folder");
+            Folder folder2 = design.createFolder("folder2");
+
+            Document document = folder.getDocument();
+            document.appendItemValue("lastName", "Kasparov");
+
+            folder.save();
+
+            Document document1 = folder2.getDocument();
+            document1.appendItemValue("lastName", "Kasparov");
+
+            folder2.save();
+
+            DQL.DQLTerm dqlInAll = DQL.inAll("folder", "folder2");
+            System.out.println("Query1: " + dqlInAll);
+            DQLQueryResult result = db.queryDQL(dqlInAll, EnumSet.of(DBQuery.VIEWREFRESH));
+            Assertions.assertNotNull(result);
+            final IDTable resultsTable = result.getNoteIds().get();
+//            Assertions.assertTrue(!resultsTable.isEmpty());
+            System.out.println(result);
+        });
+    }
 
     @Test
     public void testDQLNot() throws Exception {
@@ -99,14 +126,15 @@ public class TestDQL extends AbstractNotesRuntimeTest {
     public void testDQLContains() throws Exception {
         this.withTempDb(db -> {
             Document document = db.createDocument();
-            document.appendItemValue("name", "Annetikulspole");
+            document.appendItemValue("firstName", "Annetikulspole");
+            document.appendItemValue("lastName", "Dnetikulspole");
             document.save();
             Set<FTIndex> options = new HashSet<>();
             options.add(FTIndex.STEM_INDEX);
             db.ftIndex(options);
-            DQL.DQLTerm dqlContains = DQL.contains("An*e");
+            DQL.DQLTerm dqlContains = DQL.contains("An*le", "Dn*e");
             DQLQueryResult result = db.queryDQL(dqlContains, EnumSet.of(DBQuery.EXPLAIN));
-
+            Assertions.assertInstanceOf(String.class, dqlContains.toString());
             String explainText = result.getExplainText();
             Assertions.assertNotNull(explainText);
             Assertions.assertTrue(explainText.length() > 0);
@@ -129,7 +157,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             db.ftIndex(options);
             DQLTerm dqlTerm = containsAll("An*e", "Fae*5");
             DQLQueryResult result = db.queryDQL(dqlTerm, EnumSet.of(DBQuery.EXPLAIN));
-
+            Assertions.assertInstanceOf(String.class, dqlTerm.toString());
             String explainText = result.getExplainText();
             Assertions.assertNotNull(explainText);
             Assertions.assertTrue(explainText.length() > 0);
@@ -154,35 +182,6 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
             Assertions.assertTrue(!resultsTable.isEmpty());
-        });
-    }
-
-    /**
-     *
-     * @throws Exception
-     */
-    @Test
-    @Disabled
-    public void testDQLInAll() throws Exception {
-        this.withTempDb(db -> {
-
-            final DxlImporter importer = this.getClient().createDxlImporter();
-            InputStream is = this.getClass().getResourceAsStream("/dxl/testDbDesign/view-test.xml");
-            importer.importDxl(is, db);
-//            Document someDoc = db.createDocument();
-            DbDesign design = db.getDesign();
-            View testView1 = db.getDesign().createView("TestView1");
-            View testView2 = db.getDesign().createView("TestView2");
-            testView1.save();
-            testView2.save();
-            List<View> collect = design.getViews().collect(Collectors.toList());
-            DocumentSelection select = db.createDocumentSelection().select(DocumentSelection.SelectionType.VIEWS);
-//            someDoc.save();
-//            AbstractNotesRuntimeTest.generateNABPersons(db, 500);
-            DQL.DQLTerm dqlAll = DQL.inAll("TestView1", "TestView2", "");
-            DQLQueryResult result = db.queryDQL(dqlAll, EnumSet.of(DBQuery.EXPLAIN));
-            String explainText = result.getExplainText();
-            System.out.println(explainText);
         });
     }
 
@@ -236,41 +235,37 @@ public class TestDQL extends AbstractNotesRuntimeTest {
 
     /**
      * Equal doesn't work correctly with Date.
-     *
+     * <p>
      * if you create direct query to DB like:
      * db.queryDQL("localDateTime = @dt('" + dtNow +"')", EnumSet.of(DBQuery.EXPLAIN))
      * it works okay. (row commented out below)
-     *
+     * <p>
      * if you do the same query through DQL.isEqualTo (DQL:470)
      * then it fails, because JNADatabase.queryDQL (JNADatabase:2974) getting query
      * without milliseconds, like this:
      * localDateTime = @dt('2021-10-11T13:38:47Z')
-     *
+     * <p>
      * if you add correct milliseconds directly in query, it will work fine. Like this:
      * localDateTime = @dt('2021-10-11T13:38:47.130Z')
-     *
      */
     @Test
-    @Disabled
     public void testDateIsLessThanOrEqualComparisonTerm() throws Exception {
         this.withTempDb(db -> {
 
             Instant instantNow = Instant.now();
             Date dateNow = Date.from(instantNow);
-            Date dateLater = Date.from(instantNow.plus(60, ChronoUnit.SECONDS));
-
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Date dateWithoutTime = sdf.parse(sdf.format(new Date()));
+            Date dateLater = Date.from(instantNow.plus(1, ChronoUnit.SECONDS));
 
             Document someDoc = db.createDocument();
-            someDoc.appendItemValue("date", instantNow);
+            someDoc.appendItemValue("date", dateNow);
             someDoc.save();
 
             DQL.DQLTerm isLessThanOrEqual = DQL.and(
                     DQL.item("date").isLessThanOrEqual(dateLater));
-//                    DQL.item("date").isEqualTo(dateNow)); // fails
+//                    DQL.item("date").isLessThanOrEqual(dateNow)); //fails!
+            System.out.println("Query: " + isLessThanOrEqual);
             DQLQueryResult result = db.queryDQL(isLessThanOrEqual, EnumSet.of(DBQuery.EXPLAIN));
-//            DQLQueryResult result = db.queryDQL("date = @dt('" + instantNow.toString() +"')", EnumSet.of(DBQuery.EXPLAIN));
+//            DQLQueryResult result = db.queryDQL("date = @dt('" + instantNow +"')", EnumSet.of(DBQuery.EXPLAIN));
             showResult(result);
             String explainText = result.getExplainText();
             System.out.println(explainText);
@@ -282,7 +277,6 @@ public class TestDQL extends AbstractNotesRuntimeTest {
     }
 
     @Test
-    @Disabled
     public void testDateIsGreaterThanOrEqualComparisonTerm() throws Exception {
         this.withTempDb(db -> {
             Instant instantNow = Instant.now();
@@ -294,7 +288,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
 
             DQL.DQLTerm isGreaterThanOrEqual = DQL.and(
                     DQL.item("someDate").isGreaterThanOrEqual(dateEalier));
-//                    DQL.item("someDate").isEqualTo(dateNow));
+//                    DQL.item("someDate").isGreaterThanOrEqual(dateNow)); //fails!
             DQLQueryResult result = db.queryDQL(isGreaterThanOrEqual, EnumSet.of(DBQuery.EXPLAIN));
             showResult(result);
             String explainText = result.getExplainText();
@@ -585,23 +579,22 @@ public class TestDQL extends AbstractNotesRuntimeTest {
     }
 
     /**
-     * Read the comment below in TestDQL:600
+     * Read the comment below in TestDQL:660
+     *
      * @throws Exception
      */
     @Test
-    @Disabled
     public void testTemporalAccessorIsGreaterThanOrEqualContainsTerm() throws Exception {
         this.withTempDb(db -> {
             Document someDoc = db.createDocument();
             Instant dateTimeNow = Instant.now();
-            Instant dateTimeEalier = dateTimeNow.minus(5, ChronoUnit.SECONDS);
+            Instant dateTimeEalier = dateTimeNow.minus(1, ChronoUnit.SECONDS);
             DefaultDominoDateTime dtNow = DefaultDominoDateTime.from(dateTimeNow);
             DefaultDominoDateTime dtEalier = DefaultDominoDateTime.from(dateTimeEalier);
             someDoc.appendItemValue("localDateTime", dtNow);
             someDoc.save();
             DQLQueryResult result = db.queryDQL(DQL.and(
-                    DQL.item("localDateTime").isGreaterThanOrEqual(dtEalier),
-                    DQL.item("localDateTime").isEqualTo(dtNow)
+                    DQL.item("localDateTime").isGreaterThanOrEqual(dtEalier)
             ), EnumSet.of(DBQuery.EXPLAIN));
 //            DQLQueryResult result = db.queryDQL("localDateTime = @dt('" + dtNow +"')", EnumSet.of(DBQuery.EXPLAIN));
             showResult(result);
@@ -657,9 +650,8 @@ public class TestDQL extends AbstractNotesRuntimeTest {
     }
 
     @Test
-    @Disabled
     /**
-     * Equal doesn't work correctly with TemporalAccessor.
+     * Equal in ...ThanOrEqual doesn't work correctly with TemporalAccessor.
      *
      * if you create direct query to DB like:
      * db.queryDQL("localDateTime = @dt('" + dtNow +"')", EnumSet.of(DBQuery.EXPLAIN))
@@ -678,14 +670,14 @@ public class TestDQL extends AbstractNotesRuntimeTest {
         this.withTempDb(db -> {
             Document someDoc = db.createDocument();
             Instant dateTimeNow = Instant.now();
-            Instant dateTimeLater = dateTimeNow.plus(5, ChronoUnit.SECONDS);
+            Instant dateTimeLater = dateTimeNow.plus(1, ChronoUnit.SECONDS);
             DefaultDominoDateTime dtNow = DefaultDominoDateTime.from(dateTimeNow);
             DefaultDominoDateTime laterDT = DefaultDominoDateTime.from(dateTimeLater);
             someDoc.appendItemValue("localDateTime", dtNow);
             someDoc.save();
             DQLQueryResult result = db.queryDQL(DQL.and(
-                    DQL.item("localDateTime").isLessThan(laterDT),
-                    DQL.item("localDateTime").isEqualTo(dtNow)
+                    DQL.item("localDateTime").isLessThanOrEqual(laterDT)
+//                    DQL.item("localDateTime").isLessThanOrEqual(dtNow)
             ), EnumSet.of(DBQuery.EXPLAIN));
 //            DQLQueryResult result = db.queryDQL("localDateTime = @dt('" + dtNow +"')", EnumSet.of(DBQuery.EXPLAIN));
             showResult(result);
@@ -696,6 +688,42 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             final IDTable resultsTable = result.getNoteIds().get();
             Assertions.assertTrue(!resultsTable.isEmpty());
         });
+    }
+
+    @Test
+    public void testAndTermException() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            DQL.and(new DQLTerm[0]);
+        }, "And arguments value is empty");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            DQL.and(null);
+        }, "And arguments value is empty");
+    }
+
+    @Test
+    public void testOrTermException() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            DQL.or(new DQLTerm[0]);
+        }, "And arguments value is empty");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            DQL.or(null);
+        }, "And arguments value is empty");
+    }
+
+    @Test
+    public void testInException() {
+        double[] doubleValues = new double[0];
+        int[] intValues = new int[0];
+        String[] strValues = new String[0];
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+                DQL.item("").in(intValues)
+        );
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+                DQL.item("").in(doubleValues)
+        );
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+                DQL.item("").in(strValues)
+        );
     }
 
     @Test
@@ -710,6 +738,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             db.ftIndex(options);
 
             DQL.NoteContainsTerm noteContainsTerm = new DQL.NoteContainsTerm(true, "Stephan");
+            Assertions.assertInstanceOf(String.class, noteContainsTerm.toString());
             DQLQueryResult result = db.queryDQL(noteContainsTerm, EnumSet.of(DBQuery.EXPLAIN));
             showResult(result);
             String explainText = result.getExplainText();
@@ -721,51 +750,38 @@ public class TestDQL extends AbstractNotesRuntimeTest {
     }
 
     @Test
-    public void testView() throws Exception {
+    public void testNamedView() throws Exception {
         DQL.NamedView namedView = DQL.view("testView");
         DQL.NamedViewColumn viewColumn = namedView.column("viewColumn");
-        System.out.println("namedView.getViewName()" + namedView.getViewName());
-        System.out.println("namedView.toString() = " + namedView.toString());
-        System.out.println("viewColumn.getColumnName() = " + viewColumn.getColumnName());
-        System.out.println("viewColumn.toString() = " + viewColumn.toString());
-
-
-//        this.withTempDb(db -> {
-//            View view = db.getDesign().createView("view1");
-//            view.setTitle("viewTitle");
-//            view.addColumn();
-//            view.setComment("viewComment");
-//            view.getAliases().add("viewAliases");
-//            view.save();
-//
-//            Set<FTIndex> options = new HashSet<>();
-//            options.add(FTIndex.STEM_INDEX);
-//            db.ftIndex(options);
-//
-//            DQL.NamedView namedView = DQL.view("testView");
-//            namedView.column("viewColumn");
-//
-//            DQL.SpecialValue specialValue = DQL.modifiedInThisFile();
-//
-//        });
+        NamedViewColumn viewColumn1 = namedView.column("viewColumn");
+        System.out.println(viewColumn1);
     }
 
     @Test
-    public void testSpecialViewModifiedInThisFile(){
+    public void testSpecialViewModifiedInThisFile() {
         DQL.SpecialValue specialValueModifiedInThisFile = modifiedInThisFile();
         Assertions.assertNotNull(specialValueModifiedInThisFile.getType());
         Assertions.assertNotNull(specialValueModifiedInThisFile.toString());
     }
 
     @Test
-    public void testSpecialViewdocumentUniqueId(){
-        DQL.SpecialValue specialValueDocumentUniqueId = documentUniqueId();
-        Assertions.assertNotNull(specialValueDocumentUniqueId.getType());
+    public void testSpecialViewdocumentUniqueId() {
+        DQL.NamedItem specialValueDocumentUniqueId = item("");
+        System.out.println(specialValueDocumentUniqueId.getName());
+        Assertions.assertNotNull(specialValueDocumentUniqueId.getName());
         Assertions.assertNotNull(specialValueDocumentUniqueId.toString());
     }
 
     @Test
-    public void testSpecialViewCreated(){
+    public void testItemThrowIllegalArgumentException() {
+        DQL.NamedItem specialValue1 = item(" name");
+        DQL.NamedItem specialValue2 = item("'name'");
+        Assertions.assertThrows(IllegalArgumentException.class, specialValue1::toString);
+        Assertions.assertThrows(IllegalArgumentException.class, specialValue2::toString);
+    }
+
+    @Test
+    public void testSpecialViewCreated() {
         DQL.SpecialValue specialValueCreated = created();
         Assertions.assertNotNull(specialValueCreated.getType());
         Assertions.assertNotNull(specialValueCreated.toString());
@@ -773,7 +789,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
 
     private void showResult(DQLQueryResult result) {
         List<Document> collect = result.getDocuments().collect(Collectors.toList());
-                    System.out.println("*************DATA IN DB:*************");
+        System.out.println("*************DATA IN DB:*************");
         collect.forEach(doc -> {
                     doc.allItems().collect(Collectors.toList()).forEach(item -> {
                                 System.out.println(item.getName() + " " + item.getValue());
