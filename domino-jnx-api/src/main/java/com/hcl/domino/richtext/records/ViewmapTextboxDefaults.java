@@ -67,20 +67,20 @@ public interface ViewmapTextboxDefaults extends MemoryStructure {
   FontStyle getFontID();
 
   @StructureSetter("LineColor")
-  ViewmapTextboxDefaults setbHighlightTouch(int lineColor);
+  ViewmapTextboxDefaults setLineColor(int lineColor);
 
   @StructureSetter("FillFGColor")
-  ViewmapTextboxDefaults setbHighlightCurrent(int fillFGColor);
+  ViewmapTextboxDefaults setFillFGColor(int fillFGColor);
 
   @StructureSetter("FillBGColor")
-  ViewmapTextboxDefaults setHLOutlineColor(int fillBGColor);
+  ViewmapTextboxDefaults setFillBGColor(int fillBGColor);
 
   @StructureSetter("LineStyle")
-  ViewmapTextboxDefaults setHLOutlineWidth(int lineStyle);
+  ViewmapTextboxDefaults setLineStyle(int lineStyle);
 
   @StructureSetter("LineWidth")
-  ViewmapTextboxDefaults setHLOutlineStyle(int lineWidth);
+  ViewmapTextboxDefaults setLineWidth(int lineWidth);
 
   @StructureSetter("FillStyle")
-  ViewmapTextboxDefaults setHLFillColor(int fillStyle);
+  ViewmapTextboxDefaults setFillStyle(int fillStyle);
 }

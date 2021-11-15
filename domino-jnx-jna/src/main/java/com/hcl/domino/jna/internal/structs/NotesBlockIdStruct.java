@@ -101,5 +101,11 @@ public class NotesBlockIdStruct extends BaseStructure {
 		public static NotesBlockIdStruct.ByValue newInstance() {
 			return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> new NotesBlockIdStruct.ByValue());
 		}
-	};
+	}
+  @Override
+  public String toString() {
+    return "NotesBlockIdStruct [pool=" + pool + ", block=" + block + "]"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+  };
+	
+	
 }

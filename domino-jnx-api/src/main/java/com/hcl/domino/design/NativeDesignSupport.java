@@ -13,7 +13,7 @@
  * License for the  specific language  governing permissions  and limitations
  * under the License.
  * ==========================================================================
- */package com.hcl.domino.commons.design;
+ */package com.hcl.domino.design;
 
 import java.nio.ByteBuffer;
 import java.util.List;

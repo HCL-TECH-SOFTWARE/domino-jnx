@@ -14,32 +14,30 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.commons.design.agent;
+package com.hcl.domino.design.agent;
 
-import com.hcl.domino.design.agent.FormulaAgentContent;
+import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.simpleaction.RunFormulaAction;
 
 /**
- * @author Jesse Gallagher
- * @since 1.0.24
+ * Subtype of {@link DesignAgent} that executes a formula
+ * 
+ * @since 1.0.47
  */
-public class DefaultFormulaAgentContent implements FormulaAgentContent, RunFormulaAction {
-  private final DocumentAction action;
-  private final String formula;
-
-  public DefaultFormulaAgentContent(final DocumentAction action, final String formula) {
-    this.action = action;
-    this.formula = formula;
-  }
-
-  @Override
-  public DocumentAction getDocumentAction() {
-    return this.action;
-  }
-
-  @Override
-  public String getFormula() {
-    return this.formula;
-  }
+public interface DesignFormulaAgent extends DesignAgent, RunFormulaAction {
+  
+  /**
+   * Sets the document action performed by this agent
+   * 
+   * @param action action
+   */
+  void setDocumentAction(DocumentAction action);
+  
+  /**
+   * Changes the formula code
+   * 
+   * @param formula the agent formula script
+   */
+  void setFormula(String formula);
 
 }

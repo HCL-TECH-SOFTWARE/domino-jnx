@@ -54,12 +54,10 @@ import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignAgent;
-import com.hcl.domino.design.DesignAgent.AgentLanguage;
-import com.hcl.domino.design.agent.AgentContent;
 import com.hcl.domino.design.agent.AgentInterval;
 import com.hcl.domino.design.agent.AgentTrigger;
-import com.hcl.domino.design.agent.ImportedJavaAgentContent;
-import com.hcl.domino.design.agent.JavaAgentContent;
+import com.hcl.domino.design.agent.DesignImportedJavaAgent;
+import com.hcl.domino.design.agent.DesignJavaAgent;
 import com.ibm.commons.util.io.StreamUtil;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
@@ -112,21 +110,21 @@ public class TestDbDesignJavaAgents extends AbstractNotesRuntimeTest {
     final Collection<DesignAgent> agents = dbDesign.getAgents().collect(Collectors.toList());
     final DesignAgent agent = agents.stream().filter(a -> "imported java agent".equals(a.getTitle())).findFirst().orElse(null);
     assertNotNull(agent);
-    assertEquals(AgentLanguage.IMPORTED_JAVA, agent.getAgentLanguage());
+    
+    assertInstanceOf(DesignImportedJavaAgent.class, agent);
+    DesignImportedJavaAgent importedJavaAgent = (DesignImportedJavaAgent) agent;
 
     assertNotNull(dbDesign.getAgent("imported java agent"));
-    final AgentContent content = agent.getAgentContent();
 
-    final ImportedJavaAgentContent javaAgent = assertInstanceOf(ImportedJavaAgentContent.class, content);
-    assertEquals("ImportedJavaAgentContent.class", javaAgent.getMainClassName());
-    assertEquals("H:\\", javaAgent.getCodeFilesystemPath());
+    assertEquals("ImportedJavaAgentContent.class", importedJavaAgent.getMainClassName());
+    assertEquals("H:\\", importedJavaAgent.getCodeFilesystemPath());
     assertEquals(Arrays.asList("ImportedJavaAgentContent.class", "JavaAgentContent.class", "bar.txt", "foo.jar"),
-        javaAgent.getFiles());
+        importedJavaAgent.getFilenames());
     
     // Try to read the Java code
     {
       JavaClass clazz;
-      try(InputStream is = javaAgent.getFile("ImportedJavaAgentContent.class").get()) {
+      try(InputStream is = importedJavaAgent.getFile("ImportedJavaAgentContent.class").get()) {
         ClassParser parser = new ClassParser(is, "ImportedJavaAgentContent.class");
         clazz = parser.parse();
       }
@@ -134,7 +132,7 @@ public class TestDbDesignJavaAgents extends AbstractNotesRuntimeTest {
     }
     {
       JavaClass clazz;
-      try(InputStream is = javaAgent.getFile("JavaAgentContent.class").get()) {
+      try(InputStream is = importedJavaAgent.getFile("JavaAgentContent.class").get()) {
         ClassParser parser = new ClassParser(is, "JavaAgentContent.class");
         clazz = parser.parse();
       }
@@ -150,12 +148,12 @@ public class TestDbDesignJavaAgents extends AbstractNotesRuntimeTest {
     final Collection<DesignAgent> agents = dbDesign.getAgents().collect(Collectors.toList());
     final DesignAgent agent = agents.stream().filter(a -> "java agent".equals(a.getTitle())).findFirst().orElse(null);
     assertNotNull(agent);
-    assertEquals(AgentLanguage.JAVA, agent.getAgentLanguage());
+    
+    assertInstanceOf(DesignJavaAgent.class, agent);
+    DesignJavaAgent javaAgent = (DesignJavaAgent) agent;
 
-    assertNotNull(dbDesign.getAgent("java agent"));
-    final AgentContent content = agent.getAgentContent();
-    assertInstanceOf(JavaAgentContent.class, content);
-    final JavaAgentContent javaAgent = (JavaAgentContent) content;
+    assertNotNull(dbDesign.getAgent("java agent").orElse(null));
+    
     assertEquals("JavaAgent.class", javaAgent.getMainClassName());
     assertEquals("c:\\Notes\\Data", javaAgent.getCodeFilesystemPath());
     assertEquals("%%source%%.jar", javaAgent.getSourceAttachmentName().get());
@@ -170,7 +168,9 @@ public class TestDbDesignJavaAgents extends AbstractNotesRuntimeTest {
     final DesignAgent agent = dbDesign.getAgent("Multi-File Java").orElse(null);
     assertNotNull(agent);
 
-    assertEquals(AgentLanguage.JAVA, agent.getAgentLanguage());
+    assertInstanceOf(DesignJavaAgent.class, agent);
+    DesignJavaAgent javaAgent = (DesignJavaAgent) agent;
+
     assertEquals(AgentTrigger.SCHEDULED, agent.getTrigger());
     assertEquals(AgentInterval.MINUTES, agent.getIntervalType());
     assertTrue(agent.getStartDate().isPresent());
@@ -182,15 +182,12 @@ public class TestDbDesignJavaAgents extends AbstractNotesRuntimeTest {
     assertEquals("CN=Arcturus/O=Frost", agent.getRunLocation());
     assertFalse(agent.isRunOnWeekends());
 
-    final AgentContent content = agent.getAgentContent();
-    assertInstanceOf(JavaAgentContent.class, content);
-    final JavaAgentContent javaAgent = (JavaAgentContent) content;
     assertEquals("lotus.domino.axis.JavaAgentRenamed.class", javaAgent.getMainClassName());
     assertEquals("c:\\Notes\\Data", javaAgent.getCodeFilesystemPath());
     assertEquals("%%source%%.jar", javaAgent.getSourceAttachmentName().get());
     assertEquals("%%object%%.jar", javaAgent.getObjectAttachmentName().get());
     assertEquals("%%resource%%.jar", javaAgent.getResourcesAttachmentName().get());
-    assertEquals(Arrays.asList("foo.jar", "bar.jar"), javaAgent.getEmbeddedJars());
+    assertEquals(Arrays.asList("foo.jar", "bar.jar"), javaAgent.getEmbeddedJarNames());
     assertEquals(Arrays.asList("java lib", "java consumer", "java lib 2", "java lib 3", "java lib 4"),
         javaAgent.getSharedLibraryList());
     

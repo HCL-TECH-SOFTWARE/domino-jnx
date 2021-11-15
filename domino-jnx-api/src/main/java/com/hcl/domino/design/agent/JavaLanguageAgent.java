@@ -16,13 +16,13 @@
  */
 package com.hcl.domino.design.agent;
 
+import com.hcl.domino.design.DesignAgent;
+
 /**
- * Represents the content of an agent, such as LotusScript content or a Java
- * project.
- *
- * @author Jesse Gallagher
- * @since 1.0.24
+ * All agent types in Java language
+ * 
+ * @since 1.0.47
  */
-public interface AgentContent {
+public interface JavaLanguageAgent extends DesignAgent {
 
 }

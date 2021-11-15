@@ -81,12 +81,9 @@ public interface CDBlobPart extends RichTextRecord<WSIG> {
   }
 
   default CDBlobPart setBlobPartData(final byte[] data) {
+    resizeVariableData(data.length);
     final ByteBuffer buf = this.getVariableData();
     buf.put(data);
-    final int remaining = buf.remaining();
-    for (int i = 0; i < remaining; i++) {
-      buf.put((byte) 0);
-    }
     setLength(data.length);
     return this;
   }

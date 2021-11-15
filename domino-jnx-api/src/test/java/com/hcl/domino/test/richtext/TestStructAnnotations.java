@@ -124,6 +124,7 @@ public class TestStructAnnotations {
 				// Return type must match the expected value
 				Type returnType = method.getGenericReturnType();
 				assertTrue(isCompatibleType(returnType, memberValues.get(name), false), method.getName() + ": Return type " + returnType + " incompatible with " + memberValues.get(name).type().getName());
+				assertFalse(method.isDefault(), method.getName() + ": Should not have both a @StructureGetter annotation and a default implementation");
 			}
 			
 			StructureSetter setter = method.getAnnotation(StructureSetter.class);
@@ -147,6 +148,8 @@ public class TestStructAnnotations {
 				// Return type must be the original class
 				Class<?> returnType = method.getReturnType();
 				assertTrue(c.equals(returnType), "#" + method.getName() + ": Invalid return type " + returnType.getName());
+        assertFalse(method.isDefault(), method.getName() + ": Should not have both a @StructureSetter annotation and a default implementation");
+        assertFalse(method.isAnnotationPresent(StructureGetter.class), method.getName() + ": Cannot be marked as both a @StructureGetter and @StructureSetter");
 			}
 			
 			assertFalse(!Modifier.isStatic(method.getModifiers()) && !method.isDefault() && getter == null && setter == null,

@@ -21,5 +21,21 @@ package com.hcl.domino.design;
  * @since 1.0.24
  */
 public interface LotusScriptLibrary extends ScriptLibrary {
+  
+  /**
+   * Returns the LS code
+   * 
+   * @return code
+   */
   String getScript();
+  
+  /**
+   * Changes the library content
+   * 
+   * @param script new LS code, will be formatted to be Designer compatible
+   * @return this library
+   * @since 1.0.47
+   */
+  LotusScriptLibrary setScript(String script);
+  
 }

@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -43,6 +44,7 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.Item;
 import com.hcl.domino.data.NativeItemCoder;
+import com.hcl.domino.data.NativeItemCoder.LmbcsVariant;
 import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.action.ScriptEvent;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -72,6 +74,7 @@ public enum RichTextUtil {
   ;
 
   public static final Charset LMBCS = NativeItemCoder.get().getLmbcsCharset();
+  public static final Charset LMBCS_KEEPNEWLINES = NativeItemCoder.get().getLmbcsCharset(LmbcsVariant.KEEPNEWLINES);
 
   /**
    * Creates a {@link AbstractCDRecord} implementation wrapper for the provided
@@ -261,7 +264,7 @@ public enum RichTextUtil {
   }
 
   public static void writeScriptLibrary(final RichTextWriter w, final String script, final CDEvent.ActionType libraryType) {
-    final byte[] bytes = script.getBytes(RichTextUtil.LMBCS);
+    final byte[] bytes = script.getBytes(RichTextUtil.LMBCS_KEEPNEWLINES);
 
     final int fileLength = bytes.length;
     int segCount = fileLength / RichTextConstants.BLOBPART_SIZE_CAP;
@@ -270,18 +273,20 @@ public enum RichTextUtil {
     }
 
     final int paddedLength = fileLength + 1; // Make sure there's at least one \0 at the end
-    w.addRichTextRecord(CDEvent.class, event -> {
+
+    w.addRichTextRecord(RecordType.EVENT, (Consumer<CDEvent>) event -> {
       event.setEventType(EventId.LIBRARY);
       event.setActionType(libraryType);
       event.setActionLength(paddedLength + paddedLength % 2);
     });
+
     for (int i = 0; i < segCount; i++) {
       final int dataOffset = RichTextConstants.BLOBPART_SIZE_CAP * i;
       final short dataSize = (short) Math.min(paddedLength - dataOffset, RichTextConstants.BLOBPART_SIZE_CAP);
       final short segSize = (short) (dataSize + dataSize % 2);
       final byte[] segData = Arrays.copyOfRange(bytes, dataOffset, dataOffset + dataSize);
 
-      w.addRichTextRecord(CDBlobPart.class, segSize, part -> {
+      w.addRichTextRecord(RecordType.BLOBPART, (Consumer<CDBlobPart>) (part) -> {
         part.setOwnerSig(RichTextConstants.SIG_CD_EVENT);
         part.setLength(dataSize);
         part.setBlobMax(RichTextConstants.BLOBPART_SIZE_CAP);
