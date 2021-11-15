@@ -30,28 +30,53 @@ public class TestDQL extends AbstractNotesRuntimeTest {
      *
      * @throws Exception
      */
+    @SuppressWarnings("unused")
     @Test
     public void testDQLIn() throws Exception {
         this.withTempDb(db -> {
 
             DbDesign design = db.getDesign();
-            Folder folder = design.createFolder("folderName");
-            Folder folder2 = design.createFolder("folderName2");
-            Document document = folder.getDocument();
-            document.appendItemValue("lastName", "Kasparov");
-            Document document2 = folder2.getDocument();
-            document.appendItemValue("lastName", "Kasparov");
+            //create two new folders with the design of the default view
+            int folderNoteId = db.createFolder("folderName");
+            int folderNoteId2 = db.createFolder("folderName2");
+            
+            //these don't work yet because design element creation for views and folders is still tbd:
+            //Folder folder = design.createFolder("folderName");
+            //Folder folder2 = design.createFolder("folderName2");
+            
+            Document document1 = db.createDocument();
+            document1.appendItemValue("lastName", "Kasparov");
+            Document document2 = db.createDocument();
+            document2.appendItemValue("lastName", "Kasparov");
 
-            document.save();
-            folder.save();
-            folder2.save();
+            document1.save();
+            document2.save();
 
+            int noteId1 = document1.getNoteID();
+            Assertions.assertTrue(noteId1!=0);
+            int noteId2 = document2.getNoteID();
+            Assertions.assertTrue(noteId2!=0);
+            
+            db.addToFolder("folderName", Arrays.asList(noteId1));
+            IDTable folderIDTable1 = db.getIDTableForFolder("folderName", true);
+            int[] folderNoteIds = folderIDTable1.toIntArray();
+            Assertions.assertTrue(folderNoteIds.length>0);
+            
+            db.addToFolder("folderName2", Arrays.asList(noteId2));
+            IDTable folderIDTable2 = db.getIDTableForFolder("folderName2", true);
+            int[] folderNoteIds2 = folderIDTable2.toIntArray();
+            Assertions.assertTrue(folderNoteIds2.length>0);
+            
             DQL.DQLTerm dqlIn = DQL.in("folderName", "folderName2");
             System.out.println("Query: " + dqlIn);
             DQLQueryResult result = db.queryDQL(dqlIn, EnumSet.of(DBQuery.VIEWREFRESH));
             Assertions.assertNotNull(result);
             final IDTable resultsTable = result.getNoteIds().get();
-//            Assertions.assertTrue(!resultsTable.isEmpty());
+            
+            Assertions.assertTrue(resultsTable.size()==2);
+            Assertions.assertTrue(resultsTable.contains(noteId1));
+            Assertions.assertTrue(resultsTable.contains(noteId2));
+            
             System.out.println(result);
         });
     }
@@ -66,25 +91,42 @@ public class TestDQL extends AbstractNotesRuntimeTest {
         this.withTempDb(db -> {
 
             DbDesign design = db.getDesign();
-            Folder folder = design.createFolder("folder");
-            Folder folder2 = design.createFolder("folder2");
+            
+            //create two new folders with the design of the default view
+            int folderNoteId = db.createFolder("folder1");
+            int folderNoteId2 = db.createFolder("folder2");
 
-            Document document = folder.getDocument();
-            document.appendItemValue("lastName", "Kasparov");
+            //these don't work yet because design element creation for views and folders is still tbd:
+            //Folder folder = design.createFolder("folder");
+            //Folder folder2 = design.createFolder("folder2");
 
-            folder.save();
-
-            Document document1 = folder2.getDocument();
+            Document document1 = db.createDocument();
             document1.appendItemValue("lastName", "Kasparov");
 
-            folder2.save();
+            Document document2 = db.createDocument();
+            document2.appendItemValue("lastName", "Kasparov");
+            
+            document1.save();
+            document2.save();
 
-            DQL.DQLTerm dqlInAll = DQL.inAll("folder", "folder2");
+            int noteId1 = document1.getNoteID();
+            Assertions.assertTrue(noteId1!=0);
+            int noteId2 = document2.getNoteID();
+            Assertions.assertTrue(noteId2!=0);
+
+            db.addToFolder("folder1", Arrays.asList(noteId1));
+            db.addToFolder("folder2", Arrays.asList(noteId1));
+            
+            db.addToFolder("folder2", Arrays.asList(noteId2));
+            
+            DQL.DQLTerm dqlInAll = DQL.inAll("folder1", "folder2");
             System.out.println("Query1: " + dqlInAll);
             DQLQueryResult result = db.queryDQL(dqlInAll, EnumSet.of(DBQuery.VIEWREFRESH));
             Assertions.assertNotNull(result);
             final IDTable resultsTable = result.getNoteIds().get();
-//            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1);
+            Assertions.assertTrue(resultsTable.contains(noteId1));
+            
             System.out.println(result);
         });
     }
