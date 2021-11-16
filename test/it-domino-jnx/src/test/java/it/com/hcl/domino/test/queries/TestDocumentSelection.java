@@ -390,7 +390,7 @@ public class TestDocumentSelection extends AbstractNotesRuntimeTest {
   }
 
   @Test
-  public void testSinceTime() throws Exception {
+  public void testSinceTime1() throws Exception {
     this.withTempDb(db -> {
 
       long timeMs = System.currentTimeMillis();
@@ -416,6 +416,34 @@ public class TestDocumentSelection extends AbstractNotesRuntimeTest {
       }
 
       Assertions.assertNotNull(documentSelection.getSinceTime());
+    });
+  }
+  
+  @Test
+  public void testSinceTime2() throws Exception {
+    this.withTempDb(db -> {
+
+      DocumentSelection firstSelection = db.createDocumentSelection().selectAllDocuments().build();
+      Optional<DominoDateTime> firstUntilTime = firstSelection.getUntilTime();
+      Assertions.assertTrue(firstUntilTime.isPresent());
+      
+      final Document doc = db.createDocument();
+      doc.setDocumentClass(DocumentClass.DOCUMENT);
+      doc.save();
+
+      //find changes since first selection
+      DocumentSelection secondSelection = db.createDocumentSelection().selectAllDocuments().withSinceTime(firstUntilTime.get()).build();
+      Optional<DominoDateTime> secondUntilTime = secondSelection.getUntilTime();
+      Assertions.assertTrue(secondUntilTime.isPresent());
+
+      Assertions.assertNotEquals(firstUntilTime, secondUntilTime);
+      Assertions.assertEquals(1, secondSelection.size());
+      
+      IDTable addedNoteIds = (IDTable) secondSelection.clone();
+      addedNoteIds.removeAll(firstSelection);
+      
+      Assertions.assertEquals(1, addedNoteIds.size());
+      Assertions.assertTrue(addedNoteIds.iterator().next() == doc.getNoteID());
     });
   }
 }
