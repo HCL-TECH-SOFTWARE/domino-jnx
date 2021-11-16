@@ -297,7 +297,7 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 			select(SelectedEntries.selectAll().deselectByKey(key, exact));
 		}
 		else {
-			((AllDeselectedEntries)m_selectedEntries).selectByKey(key, exact);
+			((AllSelectedEntries)m_selectedEntries).deselectByKey(key, exact);
 		}
 		
 		return this;

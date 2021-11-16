@@ -24,30 +24,20 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.zip.GZIPInputStream;
 
+import com.hcl.domino.data.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClient.Encryption;
 import com.hcl.domino.DominoException;
-import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.CollectionEntry.SpecialValue;
 import com.hcl.domino.data.CollectionSearchQuery.SelectedEntries;
-import com.hcl.domino.data.Database;
-import com.hcl.domino.data.Document;
-import com.hcl.domino.data.DocumentClass;
-import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoCollection.Direction;
-import com.hcl.domino.data.Navigate;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.dql.DQL;
 import com.hcl.domino.dql.DQL.DQLTerm;
@@ -258,6 +248,48 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
       allDocIdsFiltered.retainAll(sortedIdsOfDQLMatches);
 
       Assertions.assertEquals(sortedIdsOfDQLMatches, allDocIdsFiltered);
+    });
+  }
+
+  @Test
+  public void testSearchAtFirstEntry() throws Exception {
+    this.withViewQueryTestDb(database -> {
+      final DominoCollection view = database.openCollection("Lastname Firstname Flat").get();
+      view.resortView("lastname", Direction.Descending);
+      CollectionSearchQuery query = view.query();
+
+      Optional<CollectionEntry> firstEntry = query.firstEntry();
+      Optional<Integer> firstId = query
+              .startAtFirstEntry()
+              .collectIds(0, 1)
+              .stream()
+              .findFirst();
+
+      Assertions.assertTrue(firstEntry.isPresent());
+      Assertions.assertTrue(firstId.isPresent());
+      Assertions.assertEquals(firstId.get(), firstEntry.get().getNoteID());
+    });
+  }
+
+  @Test
+  public void testDeselectByKey() throws Exception {
+    this.withViewQueryTestDb(database -> {
+      final DominoCollection view = database.openCollection("Lastname Firstname Flat").get();
+      view.resortView("lastname", Direction.Descending);
+      CollectionSearchQuery query = view.query();
+
+      Optional<CollectionEntry> firstEntry = query.firstEntry();
+      final String lookupKey = "Abbo";
+      Set<Integer> ids = query
+              .startAtFirstEntry()
+              .deselectByKey(lookupKey, false)
+              .collectIds(0, 4000);
+
+      Assertions.assertTrue(firstEntry.isPresent());
+      Assertions.assertEquals(3996, ids.size());
+      ids.forEach(id -> Assertions.assertFalse(database.getDocumentById(id).get()
+              .getItemValue("FirstName").toString()
+              .contains(lookupKey)));
     });
   }
 
