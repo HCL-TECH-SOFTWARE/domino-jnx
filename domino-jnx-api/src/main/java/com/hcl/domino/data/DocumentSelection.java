@@ -279,7 +279,12 @@ public interface DocumentSelection extends IDTable, DominoClientDescendant {
 
   /**
    * Adds a since time to the search so that it only contains documents
-   * with a "Modified in this file" date after the given date.
+   * with a "Modified in this file" date after the given date.<br>
+   * <br>
+   * Can be used for incremental searches:<br>
+   * use the return value of {@link DocumentSelection#getUntilTime()} from
+   * one search as since value for the next search and get back only documents that
+   * have been created or modified in the meantime.
    *
    * @param dt since time
    * @return document selection instance
