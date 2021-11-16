@@ -62,20 +62,20 @@ public interface ViewmapLineDefaults extends MemoryStructure {
   int getFillStyle();
 
   @StructureSetter("LineColor")
-  ViewmapLineDefaults setbHighlightTouch(int lineColor);
+  ViewmapLineDefaults setLineColor(int lineColor);
 
   @StructureSetter("FillFGColor")
-  ViewmapLineDefaults setbHighlightCurrent(int fillFGColor);
+  ViewmapLineDefaults setFillFGColor(int fillFGColor);
 
   @StructureSetter("FillBGColor")
-  ViewmapLineDefaults setHLOutlineColor(int fillBGColor);
+  ViewmapLineDefaults setFillBGColor(int fillBGColor);
 
   @StructureSetter("LineStyle")
-  ViewmapLineDefaults setHLOutlineWidth(int lineStyle);
+  ViewmapLineDefaults setLineStyle(int lineStyle);
 
   @StructureSetter("LineWidth")
-  ViewmapLineDefaults setHLOutlineStyle(int lineWidth);
+  ViewmapLineDefaults setLineWidth(int lineWidth);
 
   @StructureSetter("FillStyle")
-  ViewmapLineDefaults setHLFillColor(int fillStyle);
+  ViewmapLineDefaults setFillStyle(int fillStyle);
 }

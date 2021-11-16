@@ -29,18 +29,25 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
-import com.hcl.domino.commons.design.agent.DefaultFormulaAgentContent;
+import com.hcl.domino.commons.design.agent.DesignFormulaAgentImpl;
+import com.hcl.domino.commons.design.agent.DesignImportedJavaAgentImpl;
+import com.hcl.domino.commons.design.agent.DesignJavaAgentImpl;
+import com.hcl.domino.commons.design.agent.DesignLotusScriptAgentImpl;
+import com.hcl.domino.commons.design.agent.DesignSimpleActionAgentImpl;
 import com.hcl.domino.commons.design.simpleaction.DefaultCopyToDatabaseAction;
 import com.hcl.domino.commons.design.simpleaction.DefaultDeleteDocumentAction;
 import com.hcl.domino.commons.design.simpleaction.DefaultFolderBasedAction;
 import com.hcl.domino.commons.design.simpleaction.DefaultModifyByFormAction;
 import com.hcl.domino.commons.design.simpleaction.DefaultModifyFieldAction;
 import com.hcl.domino.commons.design.simpleaction.DefaultReplyAction;
+import com.hcl.domino.commons.design.simpleaction.DefaultRunFormulaAction;
 import com.hcl.domino.commons.design.simpleaction.DefaultSendDocumentAction;
 import com.hcl.domino.commons.design.simpleaction.DefaultSendMailAction;
 import com.hcl.domino.commons.design.simpleaction.DefaultSendNewsletterAction;
@@ -51,16 +58,6 @@ import com.hcl.domino.commons.design.simplesearch.DefaultByFolderTerm;
 import com.hcl.domino.commons.design.simplesearch.DefaultByNumberFieldTerm;
 import com.hcl.domino.commons.design.simplesearch.DefaultExampleFormTerm;
 import com.hcl.domino.commons.design.simplesearch.DefaultTextTerm;
-import com.hcl.domino.design.simpleaction.FolderBasedAction;
-import com.hcl.domino.design.simpleaction.ReadMarksAction;
-import com.hcl.domino.design.simpleaction.RunAgentAction;
-import com.hcl.domino.design.simpleaction.SimpleAction;
-import com.hcl.domino.design.simplesearch.ByDateFieldTerm;
-import com.hcl.domino.design.simplesearch.ByFieldTerm;
-import com.hcl.domino.design.simplesearch.ByFormTerm;
-import com.hcl.domino.design.simplesearch.ByNumberFieldTerm;
-import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
-import com.hcl.domino.design.simplesearch.TextTerm;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
@@ -75,12 +72,16 @@ import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
-import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.design.Frameset;
+import com.hcl.domino.design.ImageResource;
+import com.hcl.domino.design.JavaLibrary;
+import com.hcl.domino.design.JavaScriptLibrary;
+import com.hcl.domino.design.LotusScriptLibrary;
+import com.hcl.domino.design.Navigator;
 import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.Page;
-import com.hcl.domino.design.Navigator;
 import com.hcl.domino.design.ScriptLibrary;
+import com.hcl.domino.design.ServerJavaScriptLibrary;
 import com.hcl.domino.design.SharedActions;
 import com.hcl.domino.design.SharedColumn;
 import com.hcl.domino.design.SharedField;
@@ -91,10 +92,26 @@ import com.hcl.domino.design.UsingDocument;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.WiringProperties;
 import com.hcl.domino.design.XPage;
-import com.hcl.domino.design.agent.FormulaAgentContent;
+import com.hcl.domino.design.agent.DesignFormulaAgent;
+import com.hcl.domino.design.agent.DesignImportedJavaAgent;
+import com.hcl.domino.design.agent.DesignJavaAgent;
+import com.hcl.domino.design.agent.DesignLotusScriptAgent;
+import com.hcl.domino.design.agent.DesignSimpleActionAgent;
+import com.hcl.domino.design.simpleaction.FolderBasedAction;
+import com.hcl.domino.design.simpleaction.ReadMarksAction;
+import com.hcl.domino.design.simpleaction.RunAgentAction;
+import com.hcl.domino.design.simpleaction.RunFormulaAction;
+import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.design.simplesearch.ByDateFieldTerm;
+import com.hcl.domino.design.simplesearch.ByFieldTerm;
+import com.hcl.domino.design.simplesearch.ByFormTerm;
+import com.hcl.domino.design.simplesearch.ByNumberFieldTerm;
+import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
+import com.hcl.domino.design.simplesearch.TextTerm;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.misc.Pair;
 import com.hcl.domino.richtext.RichTextConstants;
+import com.hcl.domino.richtext.RichTextRecordList;
 import com.hcl.domino.richtext.records.CDActionByForm;
 import com.hcl.domino.richtext.records.CDActionDBCopy;
 import com.hcl.domino.richtext.records.CDActionDelete;
@@ -114,6 +131,7 @@ import com.hcl.domino.richtext.records.CDQueryFormula;
 import com.hcl.domino.richtext.records.CDQueryHeader;
 import com.hcl.domino.richtext.records.CDQueryTextTerm;
 import com.hcl.domino.richtext.records.CDQueryUsesForm;
+import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
 
@@ -134,10 +152,12 @@ public enum DesignUtil {
     private final DocumentClass noteClass;
     private final String flagsPattern;
     private final Function<Document, I> constructor;
-
-    protected DesignMapping(final DocumentClass noteClass, final String flagsPattern, final Function<Document, I> constructor) {
+    private final BiConsumer<Class<? extends DesignElement>, Document> docInitializer;
+    
+    protected DesignMapping(final DocumentClass noteClass, final String flagsPattern, BiConsumer<Class<? extends DesignElement>, Document> docInitializer, final Function<Document, I> constructor) {
       this.noteClass = noteClass;
       this.flagsPattern = flagsPattern;
+      this.docInitializer = docInitializer;
       this.constructor = constructor;
     }
 
@@ -152,21 +172,26 @@ public enum DesignUtil {
     public DocumentClass getNoteClass() {
       return this.noteClass;
     }
+    
+    public BiConsumer<Class<? extends DesignElement>, Document> getDocInitializer() {
+      return this.docInitializer;
+    }
   }
 
   private static final Map<Class<? extends DesignElement>, DesignMapping<? extends DesignElement, ? extends AbstractDesignElement<?>>> mappings = new HashMap<>();
   static {
     DesignUtil.mappings.put(Outline.class,
-        new DesignMapping<>(DocumentClass.FILTER, NotesConstants.DFLAGPAT_SITEMAP,
+        new DesignMapping<>(DocumentClass.FILTER, NotesConstants.DFLAGPAT_SITEMAP, null,
             OutlineImpl::new));
     DesignUtil.mappings.put(View.class,
-        new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_VIEW_ALL_VERSIONS, ViewImpl::new));
+        new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_VIEW_ALL_VERSIONS, null, ViewImpl::new));
     DesignUtil.mappings.put(Folder.class,
-        new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_FOLDER_ALL_VERSIONS, FolderImpl::new));
+        new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_FOLDER_ALL_VERSIONS, null, FolderImpl::new));
     DesignUtil.mappings.put(CollectionDesignElement.class,
         new DesignMapping<CollectionDesignElement, AbstractCollectionDesignElement<CollectionDesignElement>>(
             DocumentClass.VIEW,
             NotesConstants.DFLAGPAT_VIEWS_AND_FOLDERS_DESIGN,
+            null,
             doc -> {
               final String flags = doc.getAsText(NotesConstants.DESIGN_FLAGS, ' ');
               if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_FOLDER_ALL_VERSIONS)) {
@@ -183,22 +208,147 @@ public enum DesignUtil {
             }));
 
     DesignUtil.mappings.put(Form.class,
-        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_FORM_ALL_VERSIONS, FormImpl::new));
+        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_FORM_ALL_VERSIONS, null, FormImpl::new));
     DesignUtil.mappings.put(Subform.class,
-        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_SUBFORM_ALL_VERSIONS,
+        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_SUBFORM_ALL_VERSIONS, null,
             SubformImpl::new));
     DesignUtil.mappings.put(DesignAgent.class,
-        new DesignMapping<>(DocumentClass.FILTER, NotesConstants.DFLAGPAT_AGENTSLIST, AgentImpl::new));
+        new DesignMapping<DesignAgent, AbstractDesignAgentImpl<DesignAgent>>(
+            DocumentClass.FILTER,
+            NotesConstants.DFLAGPAT_AGENTSLIST,
+            (designClass, doc) -> {
+              //initialize fields to indicate the type of agent
+              if (DesignFormulaAgent.class.isAssignableFrom(designClass)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "f3"); //$NON-NLS-1$
+                doc.replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, Short.toUnsignedInt(RichTextConstants.SIG_ACTION_FORMULAONLY));
+              }
+              else if (DesignImportedJavaAgent.class.isAssignableFrom(designClass)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "f3"); //$NON-NLS-1$
+                doc.replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, Short.toUnsignedInt(RichTextConstants.SIG_ACTION_JAVAAGENT));
+              }
+              else if (DesignJavaAgent.class.isAssignableFrom(designClass)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "fJj3"); //$NON-NLS-1$
+                doc.replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, Short.toUnsignedInt(RichTextConstants.SIG_ACTION_JAVAAGENT));
+              }
+              else if (DesignLotusScriptAgent.class.isAssignableFrom(designClass)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "fL3"); //$NON-NLS-1$
+                doc.replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, Short.toUnsignedInt(RichTextConstants.SIG_ACTION_LOTUSSCRIPT));
+              }
+              else if (DesignSimpleActionAgent.class.isAssignableFrom(designClass)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "f3"); //$NON-NLS-1$
+                doc.replaceItemValue(NotesConstants.ASSIST_TYPE_ITEM, -1);
+              }
+            },
+            doc -> {
+              final String flags = doc.getAsText(NotesConstants.DESIGN_FLAGS, ' ');
+              short lang = doc.get(NotesConstants.ASSIST_TYPE_ITEM, short.class, (short) 0);
+
+              if (lang == RichTextConstants.SIG_ACTION_FORMULAONLY) {
+                lang = RichTextConstants.SIG_ACTION_FORMULA;
+              } else if (lang == 0) {
+                // Seen in ancient data
+                lang = RichTextConstants.SIG_ACTION_FORMULA;
+              }
+              switch (lang) {
+                case RichTextConstants.SIG_ACTION_JAVAAGENT:
+                  // Imported Java agents are distinguished by a $Flags value
+                  if (flags.contains(NotesConstants.DESIGN_FLAG_JAVA_AGENT_WITH_SOURCE)) {
+                    @SuppressWarnings("unchecked")
+                    final AbstractDesignAgentImpl<DesignAgent> result = (AbstractDesignAgentImpl<DesignAgent>) (AbstractDesignAgentImpl<?>) new DesignJavaAgentImpl(
+                        doc);
+                    return result;
+                  } else {
+                    @SuppressWarnings("unchecked")
+                    final AbstractDesignAgentImpl<DesignAgent> result = (AbstractDesignAgentImpl<DesignAgent>) (AbstractDesignAgentImpl<?>) new DesignImportedJavaAgentImpl(
+                        doc);
+                    return result;
+                  }
+                case RichTextConstants.SIG_ACTION_LOTUSSCRIPT:
+                {
+                  @SuppressWarnings("unchecked")
+                  final AbstractDesignAgentImpl<DesignAgent> result = (AbstractDesignAgentImpl<DesignAgent>) (AbstractDesignAgentImpl<?>) new DesignLotusScriptAgentImpl(
+                      doc);
+                  return result;
+                }
+                case RichTextConstants.SIG_ACTION_FORMULAONLY:
+                {
+                  @SuppressWarnings("unchecked")
+                  final AbstractDesignAgentImpl<DesignAgent> result = (AbstractDesignAgentImpl<DesignAgent>) (AbstractDesignAgentImpl<?>) new DesignFormulaAgentImpl(
+                      doc);
+                  return result;
+                }
+                case RichTextConstants.SIG_ACTION_FORMULA: {
+                  // This gets weird. Both FORMULA and FORMULAONLY have been observed to represent
+                  // formula agents... but that's not all. If a Simple Action agent _starts_ with a
+                  // @Function Formula action, then the $AssistType field is written as
+                  // SIG_ACTION_FORMULA. Thus, we need to open the agent to check.
+                  // Currently, the best check is to see if it has more than just the two opening
+                  // records that it shared with Formula agents
+                  final RichTextRecordList list = doc.getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION);
+                  if (list.size() > 2) {
+                    @SuppressWarnings("unchecked")
+                    final AbstractDesignAgentImpl<DesignAgent> result = (AbstractDesignAgentImpl<DesignAgent>) (AbstractDesignAgentImpl<?>) new DesignSimpleActionAgentImpl(
+                        doc);
+                    return result;
+                  }
+                  @SuppressWarnings("unchecked")
+                  final AbstractDesignAgentImpl<DesignAgent> result = (AbstractDesignAgentImpl<DesignAgent>) (AbstractDesignAgentImpl<?>) new DesignFormulaAgentImpl(
+                      doc);
+                  return result;
+                }
+                case RichTextConstants.SIG_ACTION_MODIFYFIELD:
+                case RichTextConstants.SIG_ACTION_REPLY:
+                case RichTextConstants.SIG_ACTION_SENDMAIL:
+                case RichTextConstants.SIG_ACTION_DBCOPY:
+                case RichTextConstants.SIG_ACTION_DELETE:
+                case RichTextConstants.SIG_ACTION_BYFORM:
+                case RichTextConstants.SIG_ACTION_MARKREAD:
+                case RichTextConstants.SIG_ACTION_MARKUNREAD:
+                case RichTextConstants.SIG_ACTION_MOVETOFOLDER:
+                case RichTextConstants.SIG_ACTION_COPYTOFOLDER:
+                case RichTextConstants.SIG_ACTION_REMOVEFROMFOLDER:
+                case RichTextConstants.SIG_ACTION_NEWSLETTER:
+                case RichTextConstants.SIG_ACTION_RUNAGENT:
+                case RichTextConstants.SIG_ACTION_SENDDOCUMENT:
+                case -1: // Set when there are no actions
+                {
+                  @SuppressWarnings("unchecked")
+                  final AbstractDesignAgentImpl<DesignAgent> result = (AbstractDesignAgentImpl<DesignAgent>) (AbstractDesignAgentImpl<?>) new DesignSimpleActionAgentImpl(
+                      doc);
+                  return result;
+                }
+                default:
+                  throw new UnsupportedOperationException(
+                      MessageFormat.format("Unable to find implementation for language value {0} and flags value \"{1}\"", lang, flags));
+              }
+            }));
+    
     DesignUtil.mappings.put(DbProperties.class,
-        new DesignMapping<>(DocumentClass.ICON, "", DbPropertiesImpl::new) //$NON-NLS-1$
+        new DesignMapping<>(DocumentClass.ICON, "", null, DbPropertiesImpl::new) //$NON-NLS-1$
     );
     DesignUtil.mappings.put(FileResource.class,
-        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_FILE_RESOURCE,
+        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_FILE_RESOURCE, null,
             FileResourceImpl::new));
     DesignUtil.mappings.put(ScriptLibrary.class,
         new DesignMapping<ScriptLibrary, AbstractScriptLibrary<ScriptLibrary>>(
             DocumentClass.FILTER,
             NotesConstants.DFLAGPAT_SCRIPTLIB,
+            (designClass,doc) -> {
+              //initialize fields to indicate the type of library
+              if (designClass.isAssignableFrom(JavaLibrary.class)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "sj34Q"); //$NON-NLS-1$
+              }
+              else  if (designClass.isAssignableFrom(JavaScriptLibrary.class)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "h534Q"); //$NON-NLS-1$
+              }
+              else  if (designClass.isAssignableFrom(LotusScriptLibrary.class)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, "s34Q"); //$NON-NLS-1$
+              }
+              else  if (designClass.isAssignableFrom(ServerJavaScriptLibrary.class)) {
+                doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, ".5834Q"); //$NON-NLS-1$
+              }
+              
+            },
             doc -> {
               final String flags = doc.getAsText(NotesConstants.DESIGN_FLAGS, ' ');
               if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SCRIPTLIB_JAVA)) {
@@ -227,24 +377,24 @@ public enum DesignUtil {
               }
             }));
     DesignUtil.mappings.put(ImageResource.class,
-        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_IMAGE_RESOURCE,
+        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_IMAGE_RESOURCE, null,
             ImageResourceImpl::new));
     DesignUtil.mappings.put(Page.class,
-        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_WEBPAGE, PageImpl::new)
+        new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_WEBPAGE, null, PageImpl::new)
     );
-    DesignUtil.mappings.put(AboutDocument.class, new DesignMapping<>(DocumentClass.INFO, "", AboutDocumentImpl::new)); //$NON-NLS-1$
-    DesignUtil.mappings.put(UsingDocument.class, new DesignMapping<>(DocumentClass.HELP, "", UsingDocumentImpl::new)); //$NON-NLS-1$
-    DesignUtil.mappings.put(SharedField.class, new DesignMapping<>(DocumentClass.FIELD, "", SharedFieldImpl::new)); //$NON-NLS-1$
-    DesignUtil.mappings.put(Navigator.class, new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_VIEWMAP_ALL_VERSIONS, NavigatorImpl::new));
-    DesignUtil.mappings.put(SharedActions.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_SACTIONS_DESIGN, SharedActionsImpl::new));
-    DesignUtil.mappings.put(SharedColumn.class, new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_SHARED_COLS, SharedColumnImpl::new));
-    DesignUtil.mappings.put(StyleSheet.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_STYLE_SHEET_RESOURCE, StyleSheetImpl::new));
-    DesignUtil.mappings.put(WiringProperties.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_COMPDEF, WiringPropertiesImpl::new));
-    DesignUtil.mappings.put(Theme.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_STYLEKIT, ThemeImpl::new));
-    DesignUtil.mappings.put(Frameset.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_FRAMESET, FramesetImpl::new));
-    DesignUtil.mappings.put(CompositeComponent.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_WIDGET, CompositeComponentImpl::new));
-    DesignUtil.mappings.put(CompositeApplication.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_COMPAPP, CompositeApplicationImpl::new));
-    DesignUtil.mappings.put(XPage.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_XSPPAGE, XPageImpl::new));
+    DesignUtil.mappings.put(AboutDocument.class, new DesignMapping<>(DocumentClass.INFO, "", null, AboutDocumentImpl::new)); //$NON-NLS-1$
+    DesignUtil.mappings.put(UsingDocument.class, new DesignMapping<>(DocumentClass.HELP, "", null, UsingDocumentImpl::new)); //$NON-NLS-1$
+    DesignUtil.mappings.put(SharedField.class, new DesignMapping<>(DocumentClass.FIELD, "", null, SharedFieldImpl::new)); //$NON-NLS-1$
+    DesignUtil.mappings.put(Navigator.class, new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_VIEWMAP_ALL_VERSIONS, null, NavigatorImpl::new));
+    DesignUtil.mappings.put(SharedActions.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_SACTIONS_DESIGN, null, SharedActionsImpl::new));
+    DesignUtil.mappings.put(SharedColumn.class, new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_SHARED_COLS, null, SharedColumnImpl::new));
+    DesignUtil.mappings.put(StyleSheet.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_STYLE_SHEET_RESOURCE, null, StyleSheetImpl::new));
+    DesignUtil.mappings.put(WiringProperties.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_COMPDEF, null, WiringPropertiesImpl::new));
+    DesignUtil.mappings.put(Theme.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_STYLEKIT, null, ThemeImpl::new));
+    DesignUtil.mappings.put(Frameset.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_FRAMESET, null, FramesetImpl::new));
+    DesignUtil.mappings.put(CompositeComponent.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_WIDGET, null, CompositeComponentImpl::new));
+    DesignUtil.mappings.put(CompositeApplication.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_COMPAPP, null, CompositeApplicationImpl::new));
+    DesignUtil.mappings.put(XPage.class, new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_XSPPAGE, null, XPageImpl::new));
   }
 
   /**
@@ -281,7 +431,12 @@ public enum DesignUtil {
         } else if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SITEMAP)) {
           return new OutlineImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else {
-          return new AgentImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+          //create a DesignAgent implementation, DesignMapping uses flags and additional fields to check the language type
+          Document docLocal = doc.orElseGet(() -> database.getDocumentById(noteId).get());
+          @SuppressWarnings("unchecked")
+          DesignMapping<DesignAgent, AbstractDesignAgentImpl<DesignAgent>> mapping = (DesignMapping<DesignAgent, AbstractDesignAgentImpl<DesignAgent>>) DesignUtil.mappings.get(DesignAgent.class);
+          final AbstractDesignAgentImpl<DesignAgent> result = mapping.getConstructor().apply(docLocal);
+          return result;
         }
       case FORM:
         if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SUBFORM_ALL_VERSIONS)) {
@@ -575,15 +730,15 @@ public enum DesignUtil {
           return new DefaultFolderBasedAction(action.getFolderName(), action.getFlags(), type);
         } else if (record instanceof CDActionFormula) {
           final CDActionFormula action = (CDActionFormula) record;
-          FormulaAgentContent.DocumentAction docAction;
+          RunFormulaAction.DocumentAction docAction;
           if (action.getFlags().contains(CDActionFormula.Flag.NEWCOPY)) {
-            docAction = FormulaAgentContent.DocumentAction.CREATE;
+            docAction = RunFormulaAction.DocumentAction.CREATE;
           } else if (action.getFlags().contains(CDActionFormula.Flag.SELECTDOCS)) {
-            docAction = FormulaAgentContent.DocumentAction.SELECT;
+            docAction = RunFormulaAction.DocumentAction.SELECT;
           } else {
-            docAction = FormulaAgentContent.DocumentAction.MODIFY;
+            docAction = RunFormulaAction.DocumentAction.MODIFY;
           }
-          return new DefaultFormulaAgentContent(docAction, action.getAction());
+          return new DefaultRunFormulaAction(Optional.of(docAction), Optional.of(action.getFormula()));
         } else if (record instanceof CDActionModifyField) {
           final CDActionModifyField action = (CDActionModifyField) record;
           return new DefaultModifyFieldAction(action.getFieldName(), action.getValue());

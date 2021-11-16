@@ -155,6 +155,15 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
     this.getDocument().replaceItemValue(NotesConstants.DESIGN_FLAGS_EXTENDED, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), flags);
   }
 
+  public void setFlagExt(final String flagConstant, final boolean value) {
+    final String flags = this.getFlagsExt();
+    if (value && !flags.contains(flagConstant)) {
+      this.setFlagsExt(flags + flagConstant);
+    } else if (!value && flags.contains(flagConstant)) {
+      this.setFlagsExt(flags.replace(flagConstant, "")); //$NON-NLS-1$
+    }
+  }
+
   public String getWebFlags() {
     return getDocument().getAsText(NotesConstants.ITEM_NAME_WEBFLAGS, ' ');
   }

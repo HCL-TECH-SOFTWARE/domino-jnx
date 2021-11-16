@@ -14,30 +14,16 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.commons.design.agent;
+package com.hcl.domino.design.agent;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-
-import com.hcl.domino.design.agent.SimpleActionAgentContent;
-import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.design.DesignAgent;
+import com.hcl.domino.design.JavaAgentOrLibrary;
 
 /**
- * @author Jesse Gallagher
- * @since 1.0.24
+ * Subtype of {@link DesignAgent} that executes Java classes
+ * 
+ * @since 1.0.47
  */
-public class DefaultSimpleActionAgentContent implements SimpleActionAgentContent {
-  private final List<SimpleAction> actions;
-
-  public DefaultSimpleActionAgentContent(final Collection<SimpleAction> actions) {
-    this.actions = new ArrayList<>(actions);
-  }
-
-  @Override
-  public List<SimpleAction> getActions() {
-    return Collections.unmodifiableList(this.actions);
-  }
+public interface DesignJavaAgent extends DesignAgent, JavaLanguageAgent, JavaAgentOrLibrary<DesignJavaAgent> {
 
 }

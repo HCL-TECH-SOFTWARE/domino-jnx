@@ -1,58 +1,116 @@
-package it.com.hcl.domino.test.dql;
+/*
+ * ==========================================================================
+ * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ *                            All rights reserved.
+ * ==========================================================================
+ * Licensed under the  Apache License, Version 2.0  (the "License").  You may
+ * not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+ *
+ * Unless  required  by applicable  law or  agreed  to  in writing,  software
+ * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the  specific language  governing permissions  and limitations
+ * under the License.
+ * ==========================================================================
+ */package it.com.hcl.domino.test.dql;
 
-import com.hcl.domino.commons.data.DefaultDominoDateTime;
-import com.hcl.domino.data.*;
-import com.hcl.domino.design.DbDesign;
-import com.hcl.domino.design.Folder;
-import com.hcl.domino.dql.DQL;
-import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import static com.hcl.domino.dql.DQL.containsAll;
+import static com.hcl.domino.dql.DQL.created;
+import static com.hcl.domino.dql.DQL.item;
+import static com.hcl.domino.dql.DQL.modifiedInThisFile;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-import static com.hcl.domino.dql.DQL.*;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import com.hcl.domino.commons.data.DefaultDominoDateTime;
+import com.hcl.domino.data.DBQuery;
+import com.hcl.domino.data.DQLQueryResult;
+import com.hcl.domino.data.Document;
+import com.hcl.domino.data.FTIndex;
+import com.hcl.domino.data.IDTable;
+import com.hcl.domino.dql.DQL;
+import com.hcl.domino.dql.DQL.DQLTerm;
+
+import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 /**
+ * Test cases for DQL query building and searches
+ * 
  * @author Karsakov_S created on 06.10.2021
  */
-
 public class TestDQL extends AbstractNotesRuntimeTest {
-
-
+    private static final Logger log = Logger.getLogger(TestDQL.class.getName());
+    static {
+      log.setLevel(Level.OFF);
+    }
+    
     /**
      * TODO: figure why fail in results!
      * Assertions.assertTrue(!resultsTable.isEmpty());
      *
      * @throws Exception
      */
+    @SuppressWarnings("unused")
     @Test
     public void testDQLIn() throws Exception {
         this.withTempDb(db -> {
 
-            DbDesign design = db.getDesign();
-            Folder folder = design.createFolder("folderName");
-            Folder folder2 = design.createFolder("folderName2");
-            Document document = folder.getDocument();
-            document.appendItemValue("lastName", "Kasparov");
-            Document document2 = folder2.getDocument();
-            document.appendItemValue("lastName", "Kasparov");
+            //create two new folders with the design of the default view
+            int folderNoteId = db.createFolder("folderName");
+            int folderNoteId2 = db.createFolder("folderName2");
+            
+            //these don't work yet because design element creation for views and folders is still tbd:
+            //DbDesign design = db.getDesign();
+            //Folder folder = design.createFolder("folderName");
+            //Folder folder2 = design.createFolder("folderName2");
+            
+            Document document1 = db.createDocument();
+            document1.appendItemValue("lastName", "Kasparov");
+            Document document2 = db.createDocument();
+            document2.appendItemValue("lastName", "Kasparov");
 
-            document.save();
-            folder.save();
-            folder2.save();
+            document1.save();
+            document2.save();
 
+            int noteId1 = document1.getNoteID();
+            Assertions.assertTrue(noteId1!=0);
+            int noteId2 = document2.getNoteID();
+            Assertions.assertTrue(noteId2!=0);
+            
+            db.addToFolder("folderName", Arrays.asList(noteId1));
+            IDTable folderIDTable1 = db.getIDTableForFolder("folderName", true);
+            int[] folderNoteIds = folderIDTable1.toIntArray();
+            Assertions.assertTrue(folderNoteIds.length>0);
+            
+            db.addToFolder("folderName2", Arrays.asList(noteId2));
+            IDTable folderIDTable2 = db.getIDTableForFolder("folderName2", true);
+            int[] folderNoteIds2 = folderIDTable2.toIntArray();
+            Assertions.assertTrue(folderNoteIds2.length>0);
+            
             DQL.DQLTerm dqlIn = DQL.in("folderName", "folderName2");
-            System.out.println("Query: " + dqlIn);
+            log.log(Level.INFO, "Query: " + dqlIn);
             DQLQueryResult result = db.queryDQL(dqlIn, EnumSet.of(DBQuery.VIEWREFRESH));
             Assertions.assertNotNull(result);
             final IDTable resultsTable = result.getNoteIds().get();
-//            Assertions.assertTrue(!resultsTable.isEmpty());
-            System.out.println(result);
+            
+            Assertions.assertTrue(resultsTable.size()==2);
+            Assertions.assertTrue(resultsTable.contains(noteId1));
+            Assertions.assertTrue(resultsTable.contains(noteId2));
+            
+            log.log(Level.INFO, String.valueOf(result));
         });
     }
 
@@ -61,38 +119,55 @@ public class TestDQL extends AbstractNotesRuntimeTest {
      * Assertions.assertTrue(!resultsTable.isEmpty());
      * @throws Exception
      */
+    @SuppressWarnings("unused")
     @Test
     public void testDQLInAll() throws Exception {
         this.withTempDb(db -> {
+            //create two new folders with the design of the default view
+            int folderNoteId = db.createFolder("folder1");
+            int folderNoteId2 = db.createFolder("folder2");
 
-            DbDesign design = db.getDesign();
-            Folder folder = design.createFolder("folder");
-            Folder folder2 = design.createFolder("folder2");
+            //these don't work yet because design element creation for views and folders is still tbd:
+            //DbDesign design = db.getDesign();
+            //Folder folder = design.createFolder("folder");
+            //Folder folder2 = design.createFolder("folder2");
 
-            Document document = folder.getDocument();
-            document.appendItemValue("lastName", "Kasparov");
-
-            folder.save();
-
-            Document document1 = folder2.getDocument();
+            Document document1 = db.createDocument();
             document1.appendItemValue("lastName", "Kasparov");
 
-            folder2.save();
+            Document document2 = db.createDocument();
+            document2.appendItemValue("lastName", "Kasparov");
+            
+            document1.save();
+            document2.save();
 
-            DQL.DQLTerm dqlInAll = DQL.inAll("folder", "folder2");
-            System.out.println("Query1: " + dqlInAll);
+            int noteId1 = document1.getNoteID();
+            Assertions.assertTrue(noteId1!=0);
+            int noteId2 = document2.getNoteID();
+            Assertions.assertTrue(noteId2!=0);
+
+            db.addToFolder("folder1", Arrays.asList(noteId1));
+            db.addToFolder("folder2", Arrays.asList(noteId1));
+            
+            db.addToFolder("folder2", Arrays.asList(noteId2));
+            
+            DQL.DQLTerm dqlInAll = DQL.inAll("folder1", "folder2");
+            log.log(Level.INFO, "Query1: " + dqlInAll);
             DQLQueryResult result = db.queryDQL(dqlInAll, EnumSet.of(DBQuery.VIEWREFRESH));
             Assertions.assertNotNull(result);
             final IDTable resultsTable = result.getNoteIds().get();
-//            Assertions.assertTrue(!resultsTable.isEmpty());
-            System.out.println(result);
+            Assertions.assertTrue(resultsTable.size()==1);
+            Assertions.assertTrue(resultsTable.contains(noteId1));
+            
+            log.log(Level.INFO, String.valueOf(result));
         });
     }
 
     @Test
     public void testDQLNot() throws Exception {
         this.withTempDb(db -> {
-            AbstractNotesRuntimeTest.generateNABPersons(db, 5);
+            final int nrOfDocs = 5;
+            AbstractNotesRuntimeTest.generateNABPersons(db, nrOfDocs);
             DQL.DQLTerm dqlNot = DQL.not(
                     DQL.item("LastName").isEqualTo("Karsakov")
             );
@@ -102,23 +177,24 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(explainText);
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
-            System.out.println(result.getExplainText());
-            System.out.println(result.toString());
+            Assertions.assertTrue(resultsTable.size()==nrOfDocs);
+            log.log(Level.INFO, result.getExplainText());
+            log.log(Level.INFO, result.toString());
         });
     }
 
     @Test
     public void testDQLAll() throws Exception {
         this.withTempDb(db -> {
-            AbstractNotesRuntimeTest.generateNABPersons(db, 5);
+            final int nrOfDocs = 5;
+            AbstractNotesRuntimeTest.generateNABPersons(db, nrOfDocs);
             DQL.DQLTerm dqlAll = DQL.all();
             DQLQueryResult result = db.queryDQL(dqlAll, EnumSet.of(DBQuery.EXPLAIN));
             String explainText = result.getExplainText();
             Assertions.assertNotNull(explainText);
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==nrOfDocs);
         });
     }
 
@@ -139,9 +215,8 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(explainText);
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
-            System.out.println(explainText);
-
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==document.getNoteID());
+            log.log(Level.INFO, explainText);
         });
     }
 
@@ -162,9 +237,8 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(explainText);
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
-            System.out.println(explainText);
-
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==document.getNoteID());
+            log.log(Level.INFO, explainText);
         });
     }
 
@@ -186,7 +260,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
     }
 
     @Test
-    public void TestDateLessThanComparisonTerm() throws Exception {
+    public void testDateLessThanComparisonTerm() throws Exception {
         this.withTempDb(db -> {
             Instant instantNow = Instant.now();
             Date dateNow = Date.from(instantNow);
@@ -205,7 +279,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(explainText);
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -214,13 +288,13 @@ public class TestDQL extends AbstractNotesRuntimeTest {
         this.withTempDb(db -> {
             Instant instantNow = Instant.now();
             Date dateNow = Date.from(instantNow);
-            Date dateEalier = Date.from(instantNow.minus(60, ChronoUnit.SECONDS));
+            Date dateEarlier = Date.from(instantNow.minus(60, ChronoUnit.SECONDS));
             Document someDoc = db.createDocument();
             someDoc.appendItemValue("date", dateNow);
             someDoc.save();
 
             DQL.DQLTerm greaterLessDate = DQL.and(
-                    DQL.item("date").isGreaterThan(dateEalier));
+                    DQL.item("date").isGreaterThan(dateEarlier));
             DQL.DQLTerm and = DQL.and(greaterLessDate);
             DQLQueryResult result = db.queryDQL(and, EnumSet.of(DBQuery.EXPLAIN));
             showResult(result);
@@ -229,50 +303,32 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(explainText);
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
-    /**
-     * Equal doesn't work correctly with Date.
-     * <p>
-     * if you create direct query to DB like:
-     * db.queryDQL("localDateTime = @dt('" + dtNow +"')", EnumSet.of(DBQuery.EXPLAIN))
-     * it works okay. (row commented out below)
-     * <p>
-     * if you do the same query through DQL.isEqualTo (DQL:470)
-     * then it fails, because JNADatabase.queryDQL (JNADatabase:2974) getting query
-     * without milliseconds, like this:
-     * localDateTime = @dt('2021-10-11T13:38:47Z')
-     * <p>
-     * if you add correct milliseconds directly in query, it will work fine. Like this:
-     * localDateTime = @dt('2021-10-11T13:38:47.130Z')
-     */
     @Test
     public void testDateIsLessThanOrEqualComparisonTerm() throws Exception {
         this.withTempDb(db -> {
 
             Instant instantNow = Instant.now();
             Date dateNow = Date.from(instantNow);
-            Date dateLater = Date.from(instantNow.plus(1, ChronoUnit.SECONDS));
 
             Document someDoc = db.createDocument();
             someDoc.appendItemValue("date", dateNow);
             someDoc.save();
 
             DQL.DQLTerm isLessThanOrEqual = DQL.and(
-                    DQL.item("date").isLessThanOrEqual(dateLater));
-//                    DQL.item("date").isLessThanOrEqual(dateNow)); //fails!
-            System.out.println("Query: " + isLessThanOrEqual);
+                    DQL.item("date").isLessThanOrEqual(dateNow));
+            log.log(Level.INFO, "Query: " + isLessThanOrEqual);
             DQLQueryResult result = db.queryDQL(isLessThanOrEqual, EnumSet.of(DBQuery.EXPLAIN));
-//            DQLQueryResult result = db.queryDQL("date = @dt('" + instantNow +"')", EnumSet.of(DBQuery.EXPLAIN));
             showResult(result);
             String explainText = result.getExplainText();
-            System.out.println(explainText);
+            log.log(Level.INFO, explainText);
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -281,21 +337,19 @@ public class TestDQL extends AbstractNotesRuntimeTest {
         this.withTempDb(db -> {
             Instant instantNow = Instant.now();
             Date dateNow = Date.from(instantNow);
-            Date dateEalier = Date.from(instantNow.minus(60, ChronoUnit.SECONDS));
             Document someDoc = db.createDocument();
             someDoc.appendItemValue("someDate", dateNow);
             someDoc.save();
 
             DQL.DQLTerm isGreaterThanOrEqual = DQL.and(
-                    DQL.item("someDate").isGreaterThanOrEqual(dateEalier));
-//                    DQL.item("someDate").isGreaterThanOrEqual(dateNow)); //fails!
+                    DQL.item("someDate").isGreaterThanOrEqual(dateNow));
             DQLQueryResult result = db.queryDQL(isGreaterThanOrEqual, EnumSet.of(DBQuery.EXPLAIN));
             showResult(result);
             String explainText = result.getExplainText();
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -312,7 +366,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -330,7 +384,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -348,7 +402,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -367,11 +421,11 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             ), EnumSet.of(DBQuery.EXPLAIN));
             showResult(result);
             String explainText = result.getExplainText();
-            System.out.println(explainText);
+            log.log(Level.INFO, explainText);
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -393,7 +447,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -412,7 +466,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -434,7 +488,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -456,7 +510,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -476,7 +530,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -496,7 +550,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -515,7 +569,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -535,7 +589,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -554,7 +608,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -574,36 +628,27 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
-    /**
-     * Read the comment below in TestDQL:660
-     *
-     * @throws Exception
-     */
     @Test
     public void testTemporalAccessorIsGreaterThanOrEqualContainsTerm() throws Exception {
         this.withTempDb(db -> {
             Document someDoc = db.createDocument();
             Instant dateTimeNow = Instant.now();
-            Instant dateTimeEalier = dateTimeNow.minus(1, ChronoUnit.SECONDS);
             DefaultDominoDateTime dtNow = DefaultDominoDateTime.from(dateTimeNow);
-            DefaultDominoDateTime dtEalier = DefaultDominoDateTime.from(dateTimeEalier);
             someDoc.appendItemValue("localDateTime", dtNow);
             someDoc.save();
-            DQLQueryResult result = db.queryDQL(DQL.and(
-                    DQL.item("localDateTime").isGreaterThanOrEqual(dtEalier)
-            ), EnumSet.of(DBQuery.EXPLAIN));
-//            DQLQueryResult result = db.queryDQL("localDateTime = @dt('" + dtNow +"')", EnumSet.of(DBQuery.EXPLAIN));
+            DQLQueryResult result = db.queryDQL(DQL.item("localDateTime").isGreaterThanOrEqual(dtNow),
+                EnumSet.of(DBQuery.EXPLAIN));
             showResult(result);
             String explainText = result.getExplainText();
-            System.out.println(explainText);
+            log.log(Level.INFO, explainText);
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -620,11 +665,11 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             DQLQueryResult result = db.queryDQL(DQL.item("localDateTime").isGreaterThan(earlierDT), EnumSet.of(DBQuery.EXPLAIN));
             showResult(result);
             String explainText = result.getExplainText();
-            System.out.println(explainText);
+            log.log(Level.INFO, explainText);
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -641,52 +686,35 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             DQLQueryResult result = db.queryDQL(DQL.item("localDateTime").isLessThan(laterDT), EnumSet.of(DBQuery.EXPLAIN));
             showResult(result);
             String explainText = result.getExplainText();
-            System.out.println(explainText);
+            log.log(Level.INFO, explainText);
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
-    @Test
-    /**
-     * Equal in ...ThanOrEqual doesn't work correctly with TemporalAccessor.
-     *
-     * if you create direct query to DB like:
-     * db.queryDQL("localDateTime = @dt('" + dtNow +"')", EnumSet.of(DBQuery.EXPLAIN))
-     * it works okay. (row commented out below)
-     *
-     * if you do the same query through DQL.isEqualTo (DQL:470)
-     * then it fails, because JNADatabase.queryDQL (JNADatabase:2974) getting query
-     * without milliseconds, like this:
-     * localDateTime = @dt('2021-10-11T13:38:47Z')
-     *
-     * if you add correct milliseconds directly in query, it will work fine. Like this:
-     * localDateTime = @dt('2021-10-11T13:38:47.130Z')
-     *
-     */
     public void testTemporalAccessorIsLessThanOrEqualContainsTerm() throws Exception {
         this.withTempDb(db -> {
             Document someDoc = db.createDocument();
             Instant dateTimeNow = Instant.now();
             Instant dateTimeLater = dateTimeNow.plus(1, ChronoUnit.SECONDS);
             DefaultDominoDateTime dtNow = DefaultDominoDateTime.from(dateTimeNow);
-            DefaultDominoDateTime laterDT = DefaultDominoDateTime.from(dateTimeLater);
+            System.out.println("dateTimeNow="+dateTimeNow);
+            System.out.println("dtNow="+dtNow);
+            
             someDoc.appendItemValue("localDateTime", dtNow);
             someDoc.save();
-            DQLQueryResult result = db.queryDQL(DQL.and(
-                    DQL.item("localDateTime").isLessThanOrEqual(laterDT)
-//                    DQL.item("localDateTime").isLessThanOrEqual(dtNow)
-            ), EnumSet.of(DBQuery.EXPLAIN));
-//            DQLQueryResult result = db.queryDQL("localDateTime = @dt('" + dtNow +"')", EnumSet.of(DBQuery.EXPLAIN));
+            
+            DQLQueryResult result = db.queryDQL(DQL.item("localDateTime").isLessThanOrEqual(dtNow),
+                EnumSet.of(DBQuery.EXPLAIN));
             showResult(result);
             String explainText = result.getExplainText();
-            System.out.println(explainText);
+            log.log(Level.INFO, explainText);
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
 
@@ -745,16 +773,8 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertNotNull(result.getExplainText());
             Assertions.assertTrue(explainText.length() > 0);
             final IDTable resultsTable = result.getNoteIds().get();
-            Assertions.assertTrue(!resultsTable.isEmpty());
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
-    }
-
-    @Test
-    public void testNamedView() throws Exception {
-        DQL.NamedView namedView = DQL.view("testView");
-        DQL.NamedViewColumn viewColumn = namedView.column("viewColumn");
-        NamedViewColumn viewColumn1 = namedView.column("viewColumn");
-        System.out.println(viewColumn1);
     }
 
     @Test
@@ -767,7 +787,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
     @Test
     public void testSpecialViewdocumentUniqueId() {
         DQL.NamedItem specialValueDocumentUniqueId = item("");
-        System.out.println(specialValueDocumentUniqueId.getName());
+        log.log(Level.INFO, specialValueDocumentUniqueId.getName());
         Assertions.assertNotNull(specialValueDocumentUniqueId.getName());
         Assertions.assertNotNull(specialValueDocumentUniqueId.toString());
     }
@@ -788,15 +808,43 @@ public class TestDQL extends AbstractNotesRuntimeTest {
     }
 
     private void showResult(DQLQueryResult result) {
+        StringBuilder sb = new StringBuilder();
+      
         List<Document> collect = result.getDocuments().collect(Collectors.toList());
-        System.out.println("*************DATA IN DB:*************");
+        sb.append("\n*************DATA IN DB:*************\n");
         collect.forEach(doc -> {
-                    doc.allItems().collect(Collectors.toList()).forEach(item -> {
-                                System.out.println(item.getName() + " " + item.getValue());
+                    doc.allItems().forEach(item -> {
+                                sb.append(item.getName() + "=" + item.getValue() + "\n");
                             }
                     );
-                    System.out.println("*************************************");
+                    sb.append("*************************************\n");
                 }
         );
+        log.log(Level.INFO, sb.toString());
+    }
+    
+    @Test
+    public void testDQLSearch() throws Exception {
+      this.withTempDb(database -> {
+        AbstractNotesRuntimeTest.generateNABPersons(database, 500);
+
+        {
+          final DQLQueryResult result = database
+              .queryDQL(
+                  DQL.or(
+                      DQL.item("Firstname").isEqualTo("Alexa"),
+                      DQL.item("Firstname").isEqualTo("Carlos")),
+                  EnumSet.of(DBQuery.EXPLAIN));
+
+          final String explainTxt = result.getExplainText();
+
+          Assertions.assertNotNull(explainTxt);
+          Assertions.assertTrue(explainTxt.length() > 0);
+
+          final IDTable resultsTable = result.getNoteIds().get();
+          Assertions.assertTrue(!resultsTable.isEmpty());
+        }
+      });
+
     }
 }

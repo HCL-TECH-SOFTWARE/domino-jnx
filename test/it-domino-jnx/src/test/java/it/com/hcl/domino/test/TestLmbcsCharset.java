@@ -26,8 +26,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.hcl.domino.commons.design.NativeDesignSupport;
 import com.hcl.domino.commons.util.StringUtil;
+import com.hcl.domino.design.NativeDesignSupport;
 
 @SuppressWarnings("nls")
 public class TestLmbcsCharset extends AbstractNotesRuntimeTest {

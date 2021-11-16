@@ -16,12 +16,28 @@
  */
 package com.hcl.domino.design.simpleaction;
 
-import com.hcl.domino.design.agent.FormulaAgentContent;
+import java.util.Optional;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface RunFormulaAction extends SimpleAction, FormulaAgentContent {
+public interface RunFormulaAction extends SimpleAction {
 
+  enum DocumentAction {
+    MODIFY,
+    CREATE,
+    SELECT
+  }
+
+  /**
+   * @return the document action performed by this agent
+   */
+  Optional<DocumentAction> getDocumentAction();
+
+  /**
+   * @return the agent formula script
+   */
+  Optional<String> getFormula();
+  
 }

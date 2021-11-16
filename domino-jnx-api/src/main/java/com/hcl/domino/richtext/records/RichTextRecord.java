@@ -22,6 +22,7 @@ import java.util.Set;
 
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.structures.CDSignature;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 
 /**
@@ -121,5 +122,24 @@ public interface RichTextRecord<T extends CDSignature> extends ResizableMemorySt
       default: /* BSIG */
         return (short) (typeAsShort & 0x00FF); /* Length not part of signature */
     }
+  }
+  
+  /**
+   * Creates a new richtext record
+   * 
+   * @param <T> richtext record class
+   * @param recordType record type
+   * @param variableDataLength initial size of variable data
+   * @return record
+   */
+  @SuppressWarnings("unchecked")
+  static <T extends RichTextRecord<?>> T create(final RecordType recordType, int variableDataLength) {
+    final Class<T> recordClass = (Class<T>) recordType.getEncapsulation();
+    MemoryStructureWrapperService structureService = MemoryStructureWrapperService.get();
+    final T record = structureService.newStructure(recordClass, variableDataLength);
+    record.getHeader().setSignature(recordType.getConstant());
+    record.getHeader().setLength(structureService.sizeOf(recordClass) + variableDataLength);
+
+    return record;
   }
 }
