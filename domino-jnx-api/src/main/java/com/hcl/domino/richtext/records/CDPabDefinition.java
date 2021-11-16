@@ -252,4 +252,54 @@ public interface CDPabDefinition extends RichTextRecord<WSIG> {
   
   @StructureSetter("Flags2")
   CDPabDefinition setFlags2(Collection<Flag2> flags);
+  
+//  As of R5, a CDPABDEFINITION structure can be followed by an array of six WORDs of margin values:
+//    Margin [0]  - Left margin offset in twips
+//    Margin [1]  - Left margin offset in percent (0 - 100)
+//    Margin [2]  - First line left margin offset in twips
+//    Margin [3]  - First line left margin offset in percent (0 - 100)
+//    Margin [4]  - Right margin offset in twips
+//    Margin [5]  - Right margin offset in percent (0 - 100)
+
+  default boolean isR5OrNewer() {
+    int varLength = getVariableData().capacity();
+    if (varLength >= 6) {
+      return true;
+    }
+    return false;
+  }
+
+  default int getLeftMarginOffsetInTWIPS() {
+    return 0;
+  }
+  
+  default CDPabDefinition setLeftMarginOffsetInTWIPS(int val) {
+    return this;
+  }
+  
+  default int getLeftMarginOffsetInPercent() {
+    return 0;
+  }
+  
+  default CDPabDefinition setLeftMarginOffsetInPercent(int val) {
+    return this;
+  }
+  
+  default int getFirstLineLeftMarginOffsetInTwips() {
+    return 0;
+  }
+  
+  default CDPabDefinition setFirstLineLeftMarginOffsetInTwips(int val) {
+    return this;
+  }
+  
+  default int getRightMarginOffsetInTwips() {
+    return 0;
+  }
+  
+  default CDPabDefinition setRightMarginOffsetInTwips(int val) {
+    return this;
+  }
+  
+  
 }
