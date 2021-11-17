@@ -18,6 +18,7 @@ package com.hcl.domino.commons.design;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -25,7 +26,6 @@ import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import com.hcl.domino.commons.richtext.DefaultNotesBitmap;
-import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.StandardColors;
@@ -35,6 +35,7 @@ import com.hcl.domino.design.DesignColorsAndFonts;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.ImageRepeatMode;
+import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.forms.AutoLaunchHideWhen;
 import com.hcl.domino.design.forms.AutoLaunchType;
 import com.hcl.domino.design.forms.AutoLaunchWhen;
@@ -43,30 +44,29 @@ import com.hcl.domino.design.frameset.FrameSizingType;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.NotesBitmap;
-import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextRecordList;
 import com.hcl.domino.richtext.RichTextWriter;
-import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.records.CDDECSField;
 import com.hcl.domino.richtext.records.CDDocAutoLaunch;
 import com.hcl.domino.richtext.records.CDDocument;
+import com.hcl.domino.richtext.records.CDEventEntry;
+import com.hcl.domino.richtext.records.CDEventEntry.ActionType;
+import com.hcl.domino.richtext.records.CDEventEntry.Platform;
 import com.hcl.domino.richtext.records.CDField;
 import com.hcl.domino.richtext.records.CDFrame;
 import com.hcl.domino.richtext.records.CDGraphic;
 import com.hcl.domino.richtext.records.CDHeader;
 import com.hcl.domino.richtext.records.CDLinkColors;
 import com.hcl.domino.richtext.records.CDPabDefinition;
-import com.hcl.domino.richtext.records.CDPabReference;
 import com.hcl.domino.richtext.records.CDPabDefinition.Justify;
+import com.hcl.domino.richtext.records.CDPabReference;
 import com.hcl.domino.richtext.records.CDParagraph;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.CDText;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.structures.ColorValue;
-import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.FramesetLength;
-import com.hcl.domino.richtext.structures.WSIG;
 
 public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefaultAutoFrameElement, IDefaultReadersRestrictedElement {
 
@@ -112,60 +112,25 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
     
     //write initial $body content
     try (RichTextWriter writer = doc.createRichTextItem(NotesConstants.ITEM_NAME_TEMPLATE)) {
+      
       writer.addRichTextRecord(RecordType.PARAGRAPH, (Consumer<CDParagraph>) (record) -> {
-//      [PARAGRAPH] (2 bytes)
-//      [81 02                  ]   [..      ]
-        
       });
-      int pabDefSize = MemoryStructureUtil.sizeOf(CDPabDefinition.class);
-      System.out.println("CDPabDefinition.size="+pabDefSize);
       
       writer.addRichTextRecord(RecordType.PABDEFINITION, (Consumer<CDPabDefinition>) (record) -> {
-        int recordLength1 = record.getCDRecordLength();
-        System.out.println("recordLength1="+recordLength1);
-        
-//      [PABDEFINITION] (90 bytes)
-//      [82 ff 5a 00 01 00 00 00]   [..Z.....]
-//      [00 00 00 00 00 00 a0 05]   [........]
-//      [00 00 a0 05 00 00 00 00]   [........]
-//      [00 00 00 00 00 00 00 00]   [........]
-//      [00 00 00 00 00 00 00 00]   [........]
-//      [00 00 00 00 00 00 00 00]   [........]
-//      [00 00 00 00 00 00 00 00]   [........]
-//      [00 00 00 00 00 00 00 01]   [........]
-//      [00 00 00 00 94 87 00 00]   [........]
-//      [00 00 00 00 00 00 00 00]   [........]
-//      [00 00 01 00 00 00 04 00]   [........]
-//      [00 00                  ]   [..      ]
-        
-//        @StructureMember(name = "Header", type = WSIG.class),
-//        @StructureMember(name = "PABID", type = short.class, unsigned = true),
-//        @StructureMember(name = "JustifyMode", type = CDPabDefinition.Justify.class),
-//        @StructureMember(name = "LineSpacing", type = short.class, unsigned = true),
-//        @StructureMember(name = "ParagraphSpacingBefore", type = short.class, unsigned = true),
-//        @StructureMember(name = "ParagraphSpacingAfter", type = short.class, unsigned = true),
-//        @StructureMember(name = "LeftMargin", type = short.class, unsigned = true),
-//        @StructureMember(name = "RightMargin", type = short.class, unsigned = true),
-//        @StructureMember(name = "FirstLineLeftMargin", type = short.class, unsigned = true),
-//        @StructureMember(name = "Tabs", type = short.class, unsigned = true),
-//        @StructureMember(name = "Tab", type = short[].class, length = RichTextConstants.MAXTABS),
-//        @StructureMember(name = "Flags", type = CDPabDefinition.Flag.class, bitfield = true),
-//        @StructureMember(name = "TabTypes", type = int.class),
-//        @StructureMember(name = "Flags2", type = CDPabDefinition.Flag2.class, bitfield = true)
-
-        record.setPabId(1);
-        record.setJustifyMode(Justify.LEFT);
-        record.setLineSpacing(0);
-        record.setParagraphSpacingBefore(0);
-        record.setParagraphSpacingAfter(0);
-        record.setLeftMargin(1440);
-        record.setRightMargin(0);
-        record.setFirstLineLeftMargin(1440);
-        record.setTabStopCount(0);
-        record.setTabStops(new short[20]);
-        record.setFlags(Arrays.asList(CDPabDefinition.Flag.HIDE_UNLINK));
-        record.setTabTypesRaw(0);
-        record.setFlags2(Arrays.asList(
+        record
+        .setPabId(1)
+        .setJustifyMode(Justify.LEFT)
+        .setLineSpacing(0)
+        .setParagraphSpacingBefore(0)
+        .setParagraphSpacingAfter(0)
+        .setLeftMargin(1440)
+        .setRightMargin(0)
+        .setFirstLineLeftMargin(1440)
+        .setTabStopCount(0)
+        .setTabStops(new short[20])
+        .setFlags(Arrays.asList(CDPabDefinition.Flag.HIDE_UNLINK))
+        .setTabTypesRaw(0)
+        .setFlags2(Arrays.asList(
             CDPabDefinition.Flag2.LM_OFFSET,
             CDPabDefinition.Flag2.FLLM_OFFSET,
             CDPabDefinition.Flag2.RM_PERCENT,
@@ -173,77 +138,82 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
             CDPabDefinition.Flag2.FLLM_DEFAULT,
             CDPabDefinition.Flag2.RM_DEFAULT,
             CDPabDefinition.Flag2.MORE_FLAGS
-            ));
+            ))
+
+        //R5 flags
+        .setLeftMarginOffsetInTWIPS(0)
+        .setLeftMarginOffsetInPercent(0)
+        .setFirstLineLeftMarginOffsetInTwips(0)
+        .setFirstLineMarginOffsetInPercent(0)
+        .setRightMarginOffsetInTwips(0)
+        .setRightMarginOffsetInPercent(0)
         
-        int recordLength2 = record.getCDRecordLength();
-        System.out.println("recordLength2="+recordLength2);
-        
+        //R6 flags
+        .setFlags3(EnumSet.of(CDPabDefinition.Flag3.LAYER_USES_DRM));
       });
       
       writer.addRichTextRecord(RecordType.PABREFERENCE, (Consumer<CDPabReference>) (record) -> {
-//      [PABREFERENCE] (4 bytes)
-//      [83 04 01 00            ]   [....    ]
         record.setPabId(1);
       });
       
       writer.addRichTextRecord(RecordType.TEXT, (Consumer<CDText>) (record) -> {
-//      [TEXT] (8 bytes)
-//      [85 ff 08 00 01 00 00 0a]   [........]
-        
-        FontStyle style = writer
-            .createFontStyle()
-            .setEmboss(false)
-            .setSub(false)
-            .setColor(StandardColors.Black)
-            .setShadow(false)
-            .setSuper(false)
-            .setExtrude(false)
-            .setUnderline(false)
-            .setStandardFont(StandardFonts.SWISS)
-            .setItalic(false)
-            .setBold(false)
-            .setStrikeout(false)
-            .setPointSize(10);
-        record.setStyle(style);
-        
-        
+        record.getStyle()
+        .setEmboss(false)
+        .setSub(false)
+        .setColor(StandardColors.Black)
+        .setShadow(false)
+        .setSuper(false)
+        .setExtrude(false)
+        .setUnderline(false)
+        .setStandardFont(StandardFonts.SWISS)
+        .setItalic(false)
+        .setBold(false)
+        .setStrikeout(false)
+        .setPointSize(10);
       });
-
     }
     
+    doc.forEachItem(NotesConstants.ITEM_NAME_TEMPLATE, (item, loop) -> {
+      item.setSigned(true);
+      item.setEncrypted(false);
+    });
     
-//
-//    Field Name: $Body
-//    Data Type: Rich Text
-//    Data Length: 104 bytes
-//    Seq Num: 1
-//    Dup Item ID: 0
-//    Field Flags: SIGN 
-//
-//
-//
-//
-//
-//    Field Name: $HTMLCode
-//    Data Type: Rich Text
-//    Data Length: 16 bytes
-//    Seq Num: 1
-//    Dup Item ID: 0
-//    Field Flags: SIGN 
-//
-//
-//
-//
-//    Field Name: $Info
-//    Data Type: Rich Text
-//    Data Length: 24 bytes
-//    Seq Num: 1
-//    Dup Item ID: 0
-//    Field Flags: SIGN 
-//
+    try (RichTextWriter writer = doc.createRichTextItem("$HTMLCode")) { //$NON-NLS-1$
+      writer.addRichTextRecord(RecordType.EVENT_LANGUAGE_ENTRY, (Consumer<CDEventEntry>) (record) -> {
+        record.setPlatform(Platform.WEB)
+        .setHtmlEventId(EventId.HEADER)
+        .setActionType(ActionType.JAVASCRIPT);
+      });
+    }
+    
+    doc.forEachItem("$HTMLCode", (item, loop) -> { //$NON-NLS-1$
+      item.setSigned(true);
+      item.setEncrypted(false);
+    });
 
-
-
+    try (RichTextWriter writer = doc.createRichTextItem("$Info")) { //$NON-NLS-1$
+      writer.addRichTextRecord(RecordType.DOCUMENT, (Consumer<CDDocument>) (record) -> {
+        record.setPaperColor(StandardColors.White)
+        .setFlags(EnumSet.of(CDDocument.Flag.SPARESOK))
+        .setFlags2(EnumSet.of(CDDocument.Flag2.UPDATE_SIBLING))
+        .setPaperColorRaw(1)
+        .setFlags3(EnumSet.of(CDDocument.Flag3.RENDERPASSTHROUGH));
+        
+        record
+        .getPaperColorValue()
+        .setFlags(EnumSet.of(ColorValue.Flag.ISRGB))
+        .setRed((short) (255 & 0xffff))
+        .setGreen((short) (255 & 0xffff))
+        .setBlue((short) (255 & 0xffff))
+        .setComponent4((short) 0);
+        
+      });
+    }
+    
+    doc.forEachItem("$Info", (item, loop) -> { //$NON-NLS-1$
+      item.setSigned(true);
+      item.setEncrypted(false);
+    });
 
   }
 
