@@ -16,9 +16,14 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.nio.ByteBuffer;
+import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 
+import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -153,7 +158,7 @@ public interface CDPabDefinition extends RichTextRecord<WSIG> {
     UNCHECKEDLIST(NotesConstants.PABFLAG2_UNCHECKEDLIST),
     /**  set if right to left reading order  */
     BIDI_RTLREADING(NotesConstants.PABFLAG2_BIDI_RTLREADING),
-    /**  TRUE if Pab needs to Read more Flafs */
+    /**  TRUE if Pab needs to Read more Flags */
     MORE_FLAGS(NotesConstants.PABFLAG2_MORE_FLAGS);
     private final short value;
     private Flag2(short value) {
@@ -167,6 +172,30 @@ public interface CDPabDefinition extends RichTextRecord<WSIG> {
 
     @Override
     public Short getValue() {
+      return value;
+    }
+  }
+  
+  enum Flag3 implements INumberEnum<Integer> {
+    /** True, if Hide when embedded */
+    HIDE_EE(NotesConstants.PABFLAG3_HIDE_EE),
+    /** True, if hidden from mobile clients */
+    HIDE_MOBILE(NotesConstants.PABFLAG3_HIDE_MOBILE),
+    /** True if boxes in a layer have set PABFLAG_DISPLAY_RM on pabs */
+    LAYER_USES_DRM(NotesConstants.PABFLAG3_LAYER_USES_DRM);
+    
+    private final int value;
+    private Flag3(int value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return value;
+    }
+
+    @Override
+    public Integer getValue() {
       return value;
     }
   }
@@ -251,7 +280,21 @@ public interface CDPabDefinition extends RichTextRecord<WSIG> {
   Set<Flag2> getFlags2();
   
   @StructureSetter("Flags2")
-  CDPabDefinition setFlags2(Collection<Flag2> flags);
+  CDPabDefinition setFlags2Raw(short val);
+  
+  default CDPabDefinition setFlags2(Collection<Flag2> flags) {
+    if (flags.contains(CDPabDefinition.Flag2.MORE_FLAGS)) {
+      //make sure we have space for the 6 margin WORDs followed by two DWORDs
+      //(first contains EXTENDEDPABFLAGS3, next contains R6 flags like PABFLAG3_HIDE_EE)
+      ByteBuffer varData = getVariableData();
+      if (varData.capacity()<16) {
+        resizeVariableData(16);
+        varData = getVariableData();
+      }
+    }
+    setFlags2Raw(DominoEnumUtil.toBitField(Flag2.class, flags));
+    return this;
+  }
   
 //  As of R5, a CDPABDEFINITION structure can be followed by an array of six WORDs of margin values:
 //    Margin [0]  - Left margin offset in twips
@@ -261,45 +304,308 @@ public interface CDPabDefinition extends RichTextRecord<WSIG> {
 //    Margin [4]  - Right margin offset in twips
 //    Margin [5]  - Right margin offset in percent (0 - 100)
 
+  /**
+   * Checks if this record contains extended margin values that have been introduced in R5
+   * 
+   * @return true if we have data for R5 or later
+   * @see #setLeftMarginOffsetInTWIPS(int)
+   * @see #setLeftMarginOffsetInPercent(int)
+   * @see #setFirstLineLeftMarginOffsetInTwips(int)
+   * @see #setFirstLineMarginOffsetInPercent(int)
+   * @see #setRightMarginOffsetInTwips(int)
+   * @see #setRightMarginOffsetInPercent(int)
+   */
   default boolean isR5OrNewer() {
     int varLength = getVariableData().capacity();
-    if (varLength >= 6) {
+    if (varLength >= 12) {
       return true;
     }
     return false;
   }
 
-  default int getLeftMarginOffsetInTWIPS() {
-    return 0;
+  /**
+   * Returns the left margin offset in twips (R6+)
+   * 
+   * @return margin
+   */
+  default Optional<Integer> getLeftMarginOffsetInTWIPS() {
+    ByteBuffer varData = getVariableData();
+    if (varData.capacity()>=12) {
+      short val = varData.getShort(0);
+      return Optional.of(Short.toUnsignedInt(val));
+    }
+    return Optional.empty();
   }
   
+  /**
+   * Sets the left margin offset in twips (R6+)
+   * 
+   * @param val new value
+   * @return this record
+   */
   default CDPabDefinition setLeftMarginOffsetInTWIPS(int val) {
+    if (val<0 || val>65535) {
+      throw new IllegalArgumentException(MessageFormat.format("Value {0} exceeds allowed range (0-65535)", val));
+    }
+    ByteBuffer varData = getVariableData();
+    if (varData.capacity()<12) {
+      resizeVariableData(12);
+      varData = getVariableData();
+    }
+    varData.position(0);
+    varData.putShort((short) (val & 0xffff));
     return this;
   }
   
-  default int getLeftMarginOffsetInPercent() {
-    return 0;
+  /**
+   * Returns the left margin offset in percent (0 - 100)
+   * 
+   * @return margin
+   */
+  default Optional<Integer> getLeftMarginOffsetInPercent() {
+    ByteBuffer varData = getVariableData();
+    if (varData.capacity()>=12) {
+      short val = varData.getShort(1);
+      return Optional.of(Short.toUnsignedInt(val));
+    }
+    return Optional.empty();
   }
   
+  /**
+   * Sets the left margin offset in percent (0 - 100)
+   * 
+   * @param val new value
+   * @return this record
+   */
   default CDPabDefinition setLeftMarginOffsetInPercent(int val) {
+    if (val<0 || val>100) {
+      throw new IllegalArgumentException(MessageFormat.format("Value {0} exceeds allowed range (0-100)", val));
+    }
+    ByteBuffer varData = getVariableData();
+    if (varData.capacity()<12) {
+      resizeVariableData(12);
+      varData = getVariableData();
+    }
+    varData.position(1*2);
+    varData.putShort((short) (val & 0xffff));
     return this;
   }
   
-  default int getFirstLineLeftMarginOffsetInTwips() {
-    return 0;
+  /**
+   * Returns the first line left margin offset in twips
+   * 
+   * @return margin
+   */
+  default Optional<Integer> getFirstLineLeftMarginOffsetInTwips() {
+    ByteBuffer varData = getVariableData();
+    if (varData.capacity()>=12) {
+      short val = varData.getShort(2);
+      return Optional.of(Short.toUnsignedInt(val));
+    }
+    return Optional.empty();
   }
   
+  /**
+   * Sets the first line left margin offset in twips
+   * 
+   * @param val new value
+   * @return this record
+   */
   default CDPabDefinition setFirstLineLeftMarginOffsetInTwips(int val) {
+    if (val<0 || val>65535) {
+      throw new IllegalArgumentException(MessageFormat.format("Value {0} exceeds allowed range (0-65535)", val));
+    }
+    ByteBuffer varData = getVariableData();
+    if (varData.capacity()<12) {
+      resizeVariableData(12);
+      varData = getVariableData();
+    }
+    varData.position(2*2);
+    varData.putShort((short) (val & 0xffff));
     return this;
   }
   
-  default int getRightMarginOffsetInTwips() {
-    return 0;
+  /**
+   * Returns the first line left margin offset in percent (0 - 100)
+   * 
+   * @return margin
+   */
+  default Optional<Integer> getFirstLineMarginOffsetInPercent() {
+    ByteBuffer varData = getVariableData();
+    if (varData.capacity()>=12) {
+      short val = varData.getShort(3);
+      return Optional.of(Short.toUnsignedInt(val));
+    }
+    return Optional.empty();
   }
   
+  /**
+   * Sets the first line left margin offset in percent (0 - 100)
+   * 
+   * @param val new value
+   * @return this record
+   */
+  default CDPabDefinition setFirstLineMarginOffsetInPercent(int val) {
+    if (val<0 || val>100) {
+      throw new IllegalArgumentException(MessageFormat.format("Value {0} exceeds allowed range (0-100)", val));
+    }
+    ByteBuffer varData = getVariableData();
+    if (varData.capacity()<12) {
+      resizeVariableData(12);
+      varData = getVariableData();
+    }
+    varData.position(3*2);
+    varData.putShort((short) (val & 0xffff));
+    return this;
+  }
+  
+  /**
+   * Returns the right margin offset in twips
+   * 
+   * @return margin
+   */
+  default Optional<Integer> getRightMarginOffsetInTwips() {
+    ByteBuffer varData = getVariableData();
+    if (varData.capacity()>=12) {
+      short val = varData.getShort(4);
+      return Optional.of(Short.toUnsignedInt(val));
+    }
+    return Optional.empty();
+  }
+  
+  /**
+   * Sets the right margin offset in twips
+   * 
+   * @param val new value
+   * @return this record
+   */
   default CDPabDefinition setRightMarginOffsetInTwips(int val) {
+    if (val<0 || val>65535) {
+      throw new IllegalArgumentException(MessageFormat.format("Value {0} exceeds allowed range (0-65535)", val));
+    }
+    ByteBuffer varData = getVariableData();
+    if (varData.capacity()<12) {
+      resizeVariableData(12);
+      varData = getVariableData();
+    }
+    varData.position(4*2);
+    varData.putShort((short) (val & 0xffff));
     return this;
   }
   
+  /**
+   * Returns the right margin offset in percent (0 - 100)
+   * 
+   * @return margin
+   */
+  default Optional<Integer> getRightMarginOffsetInPercent() {
+    ByteBuffer varData = getVariableData();
+    if (varData.capacity()>=12) {
+      short val = varData.getShort(5);
+      return Optional.of(Short.toUnsignedInt(val));
+    }
+    return Optional.empty();
+  }
   
+  /**
+   * Sets the right margin offset in percent (0 - 100)
+   * 
+   * @param val new value
+   * @return this record
+   */
+  default CDPabDefinition setRightMarginOffsetInPercent(int val) {
+    if (val<0 || val>100) {
+      throw new IllegalArgumentException(MessageFormat.format("Value {0} exceeds allowed range (0-100)", val));
+    }
+    ByteBuffer varData = getVariableData();
+    if (varData.capacity()<12) {
+      resizeVariableData(12);
+      varData = getVariableData();
+    }
+    varData.position(5*2);
+    varData.putShort((short) (val & 0xffff));
+    return this;
+  }
+  
+  /**
+   * Checks if this paragraph definition contains R6 specific flags
+   * 
+   * @return true if we have data for R6 or later
+   * @see #getFlags3()
+   */
+  default boolean isR6OrNewer() {
+    Set<Flag2> flags2 = getFlags2();
+    
+    if (flags2.contains(Flag2.MORE_FLAGS)) {
+      ByteBuffer varData = getVariableData();
+      if (varData.capacity()>=20) {
+        varData.position(12);
+        int whatFollows = varData.getInt();
+        if ((whatFollows & NotesConstants.EXTENDEDPABFLAGS3) == NotesConstants.EXTENDEDPABFLAGS3) {
+          //we have a following DWORD with R6 flags
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  
+  /**
+   * Returns R6 specific flags (if set)
+   * 
+   * @return flags
+   */
+  default Set<Flag3> getFlags3() {
+    Set<Flag2> flags2 = getFlags2();
+    
+    if (flags2.contains(Flag2.MORE_FLAGS)) {
+      ByteBuffer varData = getVariableData();
+      if (varData.capacity()>=20) { // 6 WORDs + 2 DWORDs
+        varData.position(12);
+        int whatFollows = varData.getInt();
+        if ((whatFollows & NotesConstants.EXTENDEDPABFLAGS3) == NotesConstants.EXTENDEDPABFLAGS3) {
+          //we have a following DWORD with R6 flags
+          int flags3 = varData.getInt();
+          return DominoEnumUtil.valuesOf(Flag3.class, flags3);
+        }
+      }
+    }
+    
+    return Collections.emptySet();
+  }
+  
+  /**
+   * Sets R6 specific flags
+   * 
+   * @param flags flags
+   * @return this record
+   */
+  default CDPabDefinition setFlags3(Collection<Flag3> flags) {
+    Set<Flag2> flags2 = getFlags2();
+    if (!flags2.contains(Flag2.MORE_FLAGS)) {
+      flags2.add(Flag2.MORE_FLAGS);
+      setFlags2(flags2);
+    }
+    
+    ByteBuffer varData = getVariableData();
+    if (varData.capacity()<20) {
+      resizeVariableData(20);
+      varData = getVariableData();
+    }
+    //skip 6 margin WORDs
+    varData.position(12);
+    
+    //make sure the following DWORD at least contains the flag EXTENDEDPABFLAGS3 (may be extended later)
+    int whatFollows = varData.getInt();
+    if ((whatFollows & NotesConstants.EXTENDEDPABFLAGS3) != NotesConstants.EXTENDEDPABFLAGS3) {
+      whatFollows |= NotesConstants.EXTENDEDPABFLAGS3;
+      varData.position(12);
+      varData.putInt(whatFollows);
+    }
+    
+    int flags3Bitfield = DominoEnumUtil.toBitField(Flag3.class, flags);
+    varData.putInt(flags3Bitfield);
+    
+    return this;
+  }
 }
