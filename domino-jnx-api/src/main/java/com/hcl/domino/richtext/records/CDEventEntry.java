@@ -134,4 +134,8 @@ public interface CDEventEntry extends RichTextRecord<WSIG> {
   default Optional<EventId> getHtmlEventId() {
     return DominoEnumUtil.valueOf(EventId.class, getEventId());
   }
+  
+  @StructureSetter("wEventId")
+  CDEventEntry setHtmlEventId(EventId id);
+  
 }
