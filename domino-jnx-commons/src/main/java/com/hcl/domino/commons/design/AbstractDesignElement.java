@@ -87,7 +87,7 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
 
   @Override
   public void setComment(final String comment) {
-    this.doc.replaceItemValue(NotesConstants.FILTER_COMMENT_ITEM, comment);
+    this.doc.replaceItemValue(NotesConstants.FILTER_COMMENT_ITEM, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), comment);
   }
 
   @Override

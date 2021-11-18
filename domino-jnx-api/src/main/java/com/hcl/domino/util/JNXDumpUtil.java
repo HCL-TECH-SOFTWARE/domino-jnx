@@ -220,7 +220,7 @@ public class JNXDumpUtil {
   public static String dumpAsAscii(RichTextRecord<?> record) {
 	  return new StringBuilder()
         .append(record.getType())
-        .append(MessageFormat.format(" ({0} bytes)", record.getCDRecordLength())) //$NON-NLS-1$
+        .append(MessageFormat.format(" ({0} bytes total, {1} bytes variable length)", record.getCDRecordLength(), record.getVariableData().capacity())) //$NON-NLS-1$
         .append('\n')
         .append(dumpAsAscii(record.getData()))
         .append("\n\n") //$NON-NLS-1$

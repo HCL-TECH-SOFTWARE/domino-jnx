@@ -157,7 +157,7 @@ public interface CDDocument extends RichTextRecord<BSIG> {
     CNTXTPARENT(DesignConstants.TPL_FLAG_CNTXTPARENT),
     /**  manual versioning  */
     MANVCREATE(DesignConstants.TPL_FLAG_MANVCREATE),
-    /**  V4 versioning - updates are sibblings  */
+    /**  V4 versioning - updates are siblings  */
     UPDATE_SIBLING(DesignConstants.TPL_FLAG_UPDATE_SIBLING),
     /**  V4 Anonymous form  */
     ANONYMOUS(DesignConstants.TPL_FLAG_ANONYMOUS),
@@ -273,7 +273,7 @@ public interface CDDocument extends RichTextRecord<BSIG> {
   
   @StructureGetter("PaperColorValue")
   ColorValue getPaperColorValue();
-
+  
   @StructureGetter("FormFlags3")
   Set<Flag3> getFlags3();
 
