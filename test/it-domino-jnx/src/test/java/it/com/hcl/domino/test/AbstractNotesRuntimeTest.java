@@ -416,7 +416,7 @@ public abstract class AbstractNotesRuntimeTest {
    * @param inExpected expected content
    * @param inActual actual content
    * @param msg assert message
-   * @throws IOException
+   * @throws IOException if there is an exception reading from the streams
    */
   public static void assertEqualStreams(InputStream inExpected, InputStream inActual, String msg) throws IOException {
     try {

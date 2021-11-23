@@ -66,6 +66,7 @@ import com.hcl.domino.design.AboutDocument;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.CompositeApplication;
 import com.hcl.domino.design.CompositeComponent;
+import com.hcl.domino.design.DatabaseScriptLibrary;
 import com.hcl.domino.design.DbProperties;
 import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.DesignElement;
@@ -329,6 +330,9 @@ public enum DesignUtil {
     DesignUtil.mappings.put(FileResource.class,
         new DesignMapping<>(DocumentClass.FORM, NotesConstants.DFLAGPAT_FILE_RESOURCE, null,
             FileResourceImpl::new));
+    
+    DesignUtil.mappings.put(DatabaseScriptLibrary.class, new DesignMapping<>(DocumentClass.FILTER, NotesConstants.DFLAGPAT_DATABASESCRIPT, null, DatabaseScriptLibraryImpl::new));
+    
     DesignUtil.mappings.put(ScriptLibrary.class,
         new DesignMapping<ScriptLibrary, AbstractScriptLibrary<ScriptLibrary>>(
             DocumentClass.FILTER,
@@ -347,7 +351,6 @@ public enum DesignUtil {
               else  if (designClass.isAssignableFrom(ServerJavaScriptLibrary.class)) {
                 doc.replaceItemValue(NotesConstants.DESIGN_FLAGS, ".5834Q"); //$NON-NLS-1$
               }
-              
             },
             doc -> {
               final String flags = doc.getAsText(NotesConstants.DESIGN_FLAGS, ' ');

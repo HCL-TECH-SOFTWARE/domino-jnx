@@ -47,6 +47,7 @@ public class JnxTypesModule extends SimpleModule {
   public void setupModule(SetupContext context) {
     context.addBeanSerializerModifier(new BeanSerializerModifier() {
 
+      @Override
       public JsonSerializer<?> modifySerializer(
           SerializationConfig config,
           BeanDescription beanDesc,

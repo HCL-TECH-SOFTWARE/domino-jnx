@@ -51,6 +51,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
  * 
  * @author Karsakov_S created on 06.10.2021
  */
+@SuppressWarnings("nls")
 public class TestDQL extends AbstractNotesRuntimeTest {
     private static final Logger log = Logger.getLogger(TestDQL.class.getName());
     static {
@@ -61,7 +62,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
      * TODO: figure why fail in results!
      * Assertions.assertTrue(!resultsTable.isEmpty());
      *
-     * @throws Exception
+     * @throws Exception if there is an exception running the test
      */
     @SuppressWarnings("unused")
     @Test
@@ -117,7 +118,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
     /**
      * TODO: figure why fail in results!
      * Assertions.assertTrue(!resultsTable.isEmpty());
-     * @throws Exception
+     * @throws Exception if there is an exception running the test
      */
     @SuppressWarnings("unused")
     @Test
