@@ -26,6 +26,7 @@ import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 import com.hcl.domino.data.*;
@@ -272,24 +273,100 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
   }
 
   @Test
+  public void testSelectByMultipleKey() throws Exception {
+    this.withViewQueryTestDb(database -> {
+      final DominoCollection view = database.openCollection("Lastname Firstname Flat").get();
+      CollectionSearchQuery query = view.query();
+
+      String firstKey = "Abbo";
+      String secondKey = "H";
+      final List<Object> lookupKeys = Arrays.asList(firstKey, secondKey);
+      query
+              .startAtFirstEntry()
+              .selectByKey(lookupKeys, false)
+              .forEachDocument(0, 4000, (doc, loop) -> {
+                String lastname = doc.getItemValue("Lastname").toString();
+                String firstname = doc.getItemValue("Firstname").toString();
+                Assertions.assertTrue(lastname.contains(firstKey) && firstname.contains(secondKey));
+              });
+      Set<Integer> ids = query.collectIds(0, 4000);
+
+      Assertions.assertEquals(2, query.size());
+      Assertions.assertEquals(2, ids.size());
+    });
+  }
+
+  @Test
   public void testDeselectByKey() throws Exception {
     this.withViewQueryTestDb(database -> {
       final DominoCollection view = database.openCollection("Lastname Firstname Flat").get();
-      view.resortView("lastname", Direction.Descending);
       CollectionSearchQuery query = view.query();
 
-      Optional<CollectionEntry> firstEntry = query.firstEntry();
       final String lookupKey = "Abbo";
       Set<Integer> ids = query
               .startAtFirstEntry()
               .deselectByKey(lookupKey, false)
               .collectIds(0, 4000);
 
-      Assertions.assertTrue(firstEntry.isPresent());
       Assertions.assertEquals(3996, ids.size());
       ids.forEach(id -> Assertions.assertFalse(database.getDocumentById(id).get()
-              .getItemValue("FirstName").toString()
+              .getItemValue("Lastname").toString()
               .contains(lookupKey)));
+    });
+  }
+
+  @Test
+  public void testDeselectByMultipleKeys() throws Exception {
+    this.withViewQueryTestDb(database -> {
+      final DominoCollection view = database.openCollection("Lastname Firstname Flat").get();
+      CollectionSearchQuery query = view.query();
+
+      String firstKey = "Abbo";
+      String secondKey = "H";
+      final List<Object> lookupKeys = Arrays.asList(firstKey, secondKey);
+      Set<Integer> ids = new HashSet<>();
+      query.startAtFirstEntry()
+              .deselectByKey(lookupKeys, false)
+              .collectIds(0, 4000, ids);
+
+      Assertions.assertEquals(3998, ids.size());
+      ids.forEach(id -> {
+        Document curDoc = database.getDocumentById(id).get();
+        String lastname = curDoc.getItemValue("Lastname").toString();
+        String firstname = curDoc.getItemValue("Firstname").toString();
+        Assertions.assertFalse(lastname.contains(firstKey) && firstname.contains(secondKey));
+      });
+    });
+  }
+
+  @Test
+  public void testLookupByDifferentLevelsOfCategory() throws Exception {
+    this.withViewQueryTestDb(database -> {
+      final DominoCollection view = database.openCollection("Lastname Birthyear Categorized").get();
+
+      final List<Object> categories = Arrays.asList("A", "Abbott");
+      String categoryString = categories.stream()
+              .map(Object::toString)
+              .collect(Collectors.joining("\\"));
+
+      final List<CollectionEntry> categoryEntries = new ArrayList<>();
+      List<SpecialValue> specialValues = Arrays.asList(SpecialValue.INDEXPOSITION, SpecialValue.SEQUENCENUMBER);
+      view
+              .query()
+              .direction(Navigate.NEXT_DOCUMENT)
+              .readColumnValues()
+              .readSpecialValues(specialValues)
+              .startAtCategory(categories)
+              .collectEntries(0, 4000, categoryEntries);
+      Assertions.assertNotEquals(Collections.emptyList(), categoryEntries, "category entry should not be empty");
+      Assertions.assertEquals(4, categoryEntries.size());
+
+      categoryEntries.forEach(categoryEntry -> {
+        Assertions.assertFalse(categoryEntry.getItemNames().isEmpty(), "category should have item names");
+        Assertions.assertFalse(categoryEntry.isEmpty(), "category entry should have column values");
+        final String actualCategory = categoryEntry.get("$0", String.class, null);
+        Assertions.assertEquals(categoryString, actualCategory);
+      });
     });
   }
 
