@@ -28,6 +28,8 @@ import java.util.Map;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
+import com.hcl.domino.exception.DominoInitException;
+import com.hcl.domino.jna.JNADominoProcess;
 import com.hcl.domino.jna.internal.capi.INotesCAPI.NativeFunctionName;
 import com.sun.jna.Function;
 import com.sun.jna.FunctionMapper;
@@ -74,18 +76,39 @@ public class NotesCAPI {
 		return m_platformAlignment;
 	}
 
-	public static synchronized INotesCAPI get() {
+	 /**
+   * Loads the Domino shared library and returns a Java Proxy object to map C functions to Java methods.
+   * 
+   * @return C API proxy object to call C API methods
+   * @throws DominoInitException of Domino shared library cannot be found or the C API init failed
+   */
+  public static synchronized INotesCAPI get() {
+    return get(false);
+  }
+  
+	/**
+	 * Loads the Domino shared library and returns a Java Proxy object to map C functions to Java methods.
+	 * 
+	 * @param skipThreadCheck true to not check if the current thread has been initialized for Domino
+	 * @return C API proxy object to call C API methods
+	 * @throws DominoInitException of Domino shared library cannot be found or the C API init failed
+	 */
+	public static synchronized INotesCAPI get(boolean skipThreadCheck) {
 		if (m_instance==null && m_initError==null) {
 			try {
 				m_instance = createAPI();
 			}
-			catch (Exception e) {
-				m_initError = new DominoException(0, "Error initializing the Domino JNX API", e);
+			catch (Throwable e) {
+				m_initError = new DominoInitException("Error loading Notes/Domino shared library. Please make sure that the location of nnotes.dll (Windows), libnotes.so (Linux) or libnotes.dylib is added to the PATH.", e);
 			}
 		}
 	
 		if (m_initError!=null) {
 			throw m_initError;
+		}
+		
+		if (!skipThreadCheck) {
+	    JNADominoProcess.checkThreadEnabledForDomino();
 		}
 		
 		boolean useCallstackLogging = DominoUtils.checkBooleanProperty("jnx.callstacklog", "JNX_CALLSTACKLOG"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -144,7 +167,6 @@ public class NotesCAPI {
 
 		INotesCAPI api;
 		if (PlatformUtils.isWindows()) {
-//		     * @see Native#load(java.lang.String, java.lang.Class, java.util.Map)
 			api = Native.load("nnotes", INotesCAPI.class, libraryOptions); //$NON-NLS-1$
 		}
 		else {
