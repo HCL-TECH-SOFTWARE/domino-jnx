@@ -85,6 +85,14 @@ public interface DbDesign {
   <T extends ScriptLibrary> T createScriptLibrary(Class<T> libraryType, String libName);
   
   /**
+   * Create a new unsaved database script library if it does not exist yet or the
+   * one already available in the database
+   * 
+   * @return database script library
+   */
+  DatabaseScriptLibrary createDatabaseScriptLibrary();
+  
+  /**
    * Creates a new, unsaved folder design element.
    *
    * @param folderName the name of the folder to create
@@ -390,6 +398,14 @@ public interface DbDesign {
    */
   Optional<ScriptLibrary> getScriptLibrary(String name);
 
+  /**
+   * Retrives the database script library.
+   * 
+   * @return an {@link Optional} describing the {@link DatabaseScriptLibrary}, or an empty one if no such element exists
+   * @since 1.0.48
+   */
+  Optional<DatabaseScriptLibrary> getDatabaseScriptLibrary();
+  
   /**
    * Retrieves the named subform.
    *

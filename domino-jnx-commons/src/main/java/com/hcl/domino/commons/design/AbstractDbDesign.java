@@ -49,6 +49,7 @@ import com.hcl.domino.design.AboutDocument;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.CompositeApplication;
 import com.hcl.domino.design.CompositeComponent;
+import com.hcl.domino.design.DatabaseScriptLibrary;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DbProperties;
 import com.hcl.domino.design.DesignAgent;
@@ -304,6 +305,25 @@ public abstract class AbstractDbDesign implements DbDesign {
         .map(mapping.getConstructor());
   }
 
+  @Override
+  public Optional<DatabaseScriptLibrary> getDatabaseScriptLibrary() {
+    Optional<DatabaseScriptLibrary> lib = this.getDesignElementByName(DatabaseScriptLibrary.class, "Database Script"); //$NON-NLS-1$
+    if (lib.isPresent()) {
+      return Optional.of((DatabaseScriptLibrary) lib.get());
+    }
+    else {
+      return Optional.empty();
+    }
+  }
+
+  @Override
+  public DatabaseScriptLibrary createDatabaseScriptLibrary() {
+    return getDatabaseScriptLibrary()
+        .orElseGet(() -> {
+          return this.createDesignNote(DatabaseScriptLibrary.class, "Database Script"); //$NON-NLS-1$
+        });
+  }
+  
   @Override
   public Optional<FileResource> getFileResource(final String name, boolean includeXsp) {
     // By default, FileResource is mapped to the Designer list only
