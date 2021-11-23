@@ -65,11 +65,13 @@ class AgentOrLibraryLanguageSerializer extends BeanSerializerBase {
     super(src, objectIdWriter, filterId);
   }
 
+  @Override
   public BeanSerializerBase withObjectIdWriter(
           ObjectIdWriter objectIdWriter) {
       return new AgentOrLibraryLanguageSerializer(this, objectIdWriter);
   }
 
+  @Override
   public void serialize(Object bean, JsonGenerator jgen,
           SerializerProvider provider) throws IOException,
           JsonGenerationException {           

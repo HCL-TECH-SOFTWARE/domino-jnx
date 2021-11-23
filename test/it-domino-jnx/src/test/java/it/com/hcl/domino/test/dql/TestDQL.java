@@ -61,7 +61,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
      * TODO: figure why fail in results!
      * Assertions.assertTrue(!resultsTable.isEmpty());
      *
-     * @throws Exception
+     * @throws Exception if there is an exception running the test
      */
     @SuppressWarnings("unused")
     @Test
@@ -117,7 +117,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
     /**
      * TODO: figure why fail in results!
      * Assertions.assertTrue(!resultsTable.isEmpty());
-     * @throws Exception
+     * @throws Exception if there is an exception running the test
      */
     @SuppressWarnings("unused")
     @Test

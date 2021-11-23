@@ -10,7 +10,7 @@ public interface JavaAgentOrLibrary<T extends JavaAgentOrLibrary<?>> extends Des
   /**
    * Changes the JDK version for Java source compatibility
    * 
-   * @param target, e.g. "1.3"
+   * @param target e.g. "1.3"
    */
   void setJavaCompilerSource(String target);
   
@@ -24,7 +24,7 @@ public interface JavaAgentOrLibrary<T extends JavaAgentOrLibrary<?>> extends Des
   /**
    * Changes the JDK version for Java class compatibility
    * 
-   * @param target, e.g. "1.3"
+   * @param target e.g. "1.3"
    */
   void setJavaCompilerTarget(String target);
   
