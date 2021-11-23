@@ -29,6 +29,7 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.exception.DominoInitException;
+import com.hcl.domino.jna.JNADominoProcess;
 import com.hcl.domino.jna.internal.capi.INotesCAPI.NativeFunctionName;
 import com.sun.jna.Function;
 import com.sun.jna.FunctionMapper;
@@ -75,13 +76,24 @@ public class NotesCAPI {
 		return m_platformAlignment;
 	}
 
+	 /**
+   * Loads the Domino shared library and returns a Java Proxy object to map C functions to Java methods.
+   * 
+   * @return C API proxy object to call C API methods
+   * @throws DominoInitException of Domino shared library cannot be found or the C API init failed
+   */
+  public static synchronized INotesCAPI get() {
+    return get(false);
+  }
+  
 	/**
 	 * Loads the Domino shared library and returns a Java Proxy object to map C functions to Java methods.
 	 * 
+	 * @param skipThreadCheck true to not check if the current thread has been initialized for Domino
 	 * @return C API proxy object to call C API methods
 	 * @throws DominoInitException of Domino shared library cannot be found or the C API init failed
 	 */
-	public static synchronized INotesCAPI get() {
+	public static synchronized INotesCAPI get(boolean skipThreadCheck) {
 		if (m_instance==null && m_initError==null) {
 			try {
 				m_instance = createAPI();
@@ -93,6 +105,10 @@ public class NotesCAPI {
 	
 		if (m_initError!=null) {
 			throw m_initError;
+		}
+		
+		if (!skipThreadCheck) {
+	    JNADominoProcess.checkThreadEnabledForDomino();
 		}
 		
 		boolean useCallstackLogging = DominoUtils.checkBooleanProperty("jnx.callstacklog", "JNX_CALLSTACKLOG"); //$NON-NLS-1$ //$NON-NLS-2$

@@ -86,7 +86,7 @@ public class JNADominoProcess implements DominoProcess {
 	public static void ensureProcessInitialized() {
 		synchronized (pacemakerThreadlock) {
 			if (!processInitialized) {
-				throw new IllegalStateException("DominoProcess.get().initializeProcess(String[]) must be called first to initialize the Domino API for this process.");
+				throw new DominoInitException("DominoProcess.get().initializeProcess(String[]) must be called first to initialize the Domino API for this process.");
 			}
 		}
 	}
@@ -94,7 +94,7 @@ public class JNADominoProcess implements DominoProcess {
 	public static void ensureProcessNotTerminated() {
 		synchronized (pacemakerThreadlock) {
 			if (processTerminated) {
-				throw new IllegalStateException("Domino access for this process has already been terminated.");
+				throw new DominoInitException("Domino access for this process has already been terminated.");
 			}
 		}
 	}
@@ -295,7 +295,7 @@ public class JNADominoProcess implements DominoProcess {
 						throw new RuntimeException(e);
 					}
 				} else {
-					NotesCAPI.get().NotesInitThread();
+					NotesCAPI.get(true).NotesInitThread(); // true => do not check if thread is initialized for Domino, because we do this
 				}
 			}
 			threadInfo = new ThreadInfo(Thread.currentThread().getStackTrace(), System.currentTimeMillis());
@@ -347,6 +347,11 @@ public class JNADominoProcess implements DominoProcess {
 		}
 	}
 	
+	/**
+	 * Makes sure that the process and current thread have been initialized for Domino C API access
+	 * 
+	 * @throws DominoInitException in case of missing initialization
+	 */
 	public static void checkThreadEnabledForDomino() {
 		ensureProcessInitialized();
 		ensureProcessNotTerminated();
@@ -354,7 +359,7 @@ public class JNADominoProcess implements DominoProcess {
 		Thread thread = Thread.currentThread();
 		ThreadInfo threadInfo = threadEnabledForDominoRefCount.get(thread);
 		if (threadInfo==null || threadInfo.getRefCount()==0) {
-			throw new DominoException("Please use DominoProcess.get().initializeThread() / terminateThread() to enable Domino access for this thread.");
+			throw new DominoInitException("Please use DominoProcess.get().initializeThread() / terminateThread() to enable Domino access for this thread.");
 		}
 	}
 
@@ -448,7 +453,7 @@ public class JNADominoProcess implements DominoProcess {
 			INotesCAPI capi;
 			try {
 			  //loads Domino shared library and maps it to the JNA INotesCAPI proxy object
-			  capi = NotesCAPI.get();
+			  capi = NotesCAPI.get(true); // true => do not check if thread is initialized for Domino, because we do this
 			}
 			catch (DominoInitException e) {
 			  this.initException = e;
@@ -487,7 +492,7 @@ public class JNADominoProcess implements DominoProcess {
 				System.out.println("Domino API initialized.");
 			}
 			
-			result = NotesCAPI.get().NotesInitThread();
+			result = capi.NotesInitThread();
 			if(result != 0) {
 				// here we can also abort only and report the exception
 				if (debug) {
@@ -498,7 +503,7 @@ public class JNADominoProcess implements DominoProcess {
 				
 				// additionally we have to terminate the process, to clean up properly
 				if(!DominoUtils.isNoTerm()) {
-					NotesCAPI.get().NotesTerm();
+					capi.NotesTerm();
 				}
 				
 				notifyCaller();
@@ -523,12 +528,12 @@ public class JNADominoProcess implements DominoProcess {
 				if (debug) {
 					System.out.println("Stopping Domino pacemaker thread...");
 				}
-				NotesCAPI.get().NotesTermThread();
+				capi.NotesTermThread();
 				if (debug) {
 					System.out.println("Domino pacemaker thread stopped.");
 				}
 				if(!DominoUtils.isNoTerm()) {
-					NotesCAPI.get().NotesTerm();
+					capi.NotesTerm();
 				}
 				processTerminated = true;
 			}

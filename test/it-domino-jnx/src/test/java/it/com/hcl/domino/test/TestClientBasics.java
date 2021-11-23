@@ -26,6 +26,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Assertions;
@@ -40,7 +41,10 @@ import com.hcl.domino.UserNamesList;
 import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.ModificationTimePair;
+import com.hcl.domino.exception.DominoInitException;
 import com.hcl.domino.exception.ServerNotFoundException;
+import com.hcl.domino.jna.internal.DisposableMemory;
+import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.server.ServerPingInfo;
 import com.ibm.commons.util.StringUtil;
 
@@ -230,5 +234,41 @@ public class TestClientBasics extends AbstractNotesRuntimeTest {
       assertNotNull(pair.getNonDataModified());
       assertTrue(pair.getNonDataModified().isValid());
     }
+  }
+  
+
+  @Test
+  public void testMissingThreadInit() throws Exception {
+    withTempDb((db) -> {
+      Object lock = new Object();
+      
+      AtomicReference<Exception> ex = new AtomicReference<>();
+      
+      synchronized (lock) {
+        //try to access C API in a non-initialized thread
+        Thread t = new Thread(() -> {
+          synchronized (lock) {
+            try {
+              DisposableMemory mem = new DisposableMemory(20);
+              
+              NotesCAPI.get().Cstrlen(mem);
+            }
+            catch (Exception e) {
+              ex.set(e);
+            }
+            finally {
+              lock.notify();
+            }
+            
+          }
+        });
+        t.start();
+        
+        lock.wait();
+      }
+      
+      Assertions.assertNotNull(ex.get());
+      Assertions.assertInstanceOf(DominoInitException.class, ex.get());
+    });
   }
 }
