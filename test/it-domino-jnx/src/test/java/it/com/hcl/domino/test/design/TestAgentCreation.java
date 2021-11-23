@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -41,6 +42,8 @@ import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.DesignAgent.SecurityLevel;
 import com.hcl.domino.design.DesignElement;
+import com.hcl.domino.design.JavaScriptLibrary;
+import com.hcl.domino.design.ScriptLibrary;
 import com.hcl.domino.design.agent.DesignFormulaAgent;
 import com.hcl.domino.design.agent.DesignImportedJavaAgent;
 import com.hcl.domino.design.agent.DesignJavaAgent;
@@ -93,6 +96,17 @@ public class TestAgentCreation extends AbstractNotesRuntimeTest {
       assertEquals(toLf(formula2), toLf(agent.getFormula().get()));
       assertEquals(docAction2, agent.getDocumentAction().get());
 
+      Optional<DesignAgent> agentFromAll = dbDesign.getAgents()
+      .filter((currAgent) -> { return unid.equals(currAgent.getDocument().getUNID()); })
+      .findFirst();
+      assertTrue(agentFromAll.isPresent());
+      assertEquals(unid, agentFromAll.get().getDocument().getUNID());
+      assertInstanceOf(DesignFormulaAgent.class, agentFromAll.get());
+      
+      Optional<DesignAgent> agentViaNameSearch = dbDesign.getAgent(agentName);
+      assertTrue(agentViaNameSearch.isPresent());
+      assertInstanceOf(DesignFormulaAgent.class, agentViaNameSearch.get());
+      assertEquals(unid, agentViaNameSearch.get().getDocument().getUNID());
     });
   }
 
@@ -211,6 +225,18 @@ public class TestAgentCreation extends AbstractNotesRuntimeTest {
           InputStream inTest = agent.getEmbeddedJar("embeddedjar1.jar").get();
           assertEqualStreams(inOrig, inTest, "Embedded jar mismatch");
         }
+        
+        Optional<DesignAgent> agentFromAll = dbDesign.getAgents()
+            .filter((currAgent) -> { return unid.equals(currAgent.getDocument().getUNID()); })
+            .findFirst();
+        assertTrue(agentFromAll.isPresent());
+        assertEquals(unid, agentFromAll.get().getDocument().getUNID());
+        assertInstanceOf(DesignJavaAgent.class, agentFromAll.get());
+
+        Optional<DesignAgent> agentViaNameSearch = dbDesign.getAgent("javaagent");
+        assertTrue(agentViaNameSearch.isPresent());
+        assertInstanceOf(DesignJavaAgent.class, agentViaNameSearch.get());
+        assertEquals(unid, agentViaNameSearch.get().getDocument().getUNID());
       }
     });
   }
@@ -275,7 +301,17 @@ public class TestAgentCreation extends AbstractNotesRuntimeTest {
         }
       }
       
-      
+      Optional<DesignAgent> agentFromAll = dbDesign.getAgents()
+          .filter((currAgent) -> { return unid.equals(currAgent.getDocument().getUNID()); })
+          .findFirst();
+      assertTrue(agentFromAll.isPresent());
+      assertEquals(unid, agentFromAll.get().getDocument().getUNID());
+      assertInstanceOf(DesignImportedJavaAgent.class, agentFromAll.get());
+
+      Optional<DesignAgent> agentViaNameSearch = dbDesign.getAgent("importedjavaagent");
+      assertTrue(agentViaNameSearch.isPresent());
+      assertInstanceOf(DesignImportedJavaAgent.class, agentViaNameSearch.get());
+      assertEquals(unid, agentViaNameSearch.get().getDocument().getUNID());
     });
   }
   
@@ -298,6 +334,17 @@ public class TestAgentCreation extends AbstractNotesRuntimeTest {
       assertInstanceOf(DesignSimpleActionAgent.class, testDE);
       agent = (DesignSimpleActionAgent) testDE;
 
+      Optional<DesignAgent> agentFromAll = dbDesign.getAgents()
+          .filter((currAgent) -> { return unid.equals(currAgent.getDocument().getUNID()); })
+          .findFirst();
+      assertTrue(agentFromAll.isPresent());
+      assertEquals(unid, agentFromAll.get().getDocument().getUNID());
+      assertInstanceOf(DesignSimpleActionAgent.class, agentFromAll.get());
+
+      Optional<DesignAgent> agentViaNameSearch = dbDesign.getAgent("simpleactions");
+      assertTrue(agentViaNameSearch.isPresent());
+      assertInstanceOf(DesignSimpleActionAgent.class, agentViaNameSearch.get());
+      assertEquals(unid, agentViaNameSearch.get().getDocument().getUNID());
     });
   }
   
@@ -343,6 +390,18 @@ public class TestAgentCreation extends AbstractNotesRuntimeTest {
       assertEquals(SecurityLevel.UNRESTRICTED, agent.getSecurityLevel());
       assertEquals(true, agent.isRunInBackgroundInClient());
       assertTrue(agent.getScript().contains("Dim session As New NotesSession"));
+      
+      Optional<DesignAgent> agentFromAll = dbDesign.getAgents()
+          .filter((currAgent) -> { return unid.equals(currAgent.getDocument().getUNID()); })
+          .findFirst();
+      assertTrue(agentFromAll.isPresent());
+      assertEquals(unid, agentFromAll.get().getDocument().getUNID());
+      assertInstanceOf(DesignLotusScriptAgent.class, agentFromAll.get());
+
+      Optional<DesignAgent> agentViaNameSearch = dbDesign.getAgent("lsagent");
+      assertTrue(agentViaNameSearch.isPresent());
+      assertInstanceOf(DesignLotusScriptAgent.class, agentViaNameSearch.get());
+      assertEquals(unid, agentViaNameSearch.get().getDocument().getUNID());
     });
   }
 

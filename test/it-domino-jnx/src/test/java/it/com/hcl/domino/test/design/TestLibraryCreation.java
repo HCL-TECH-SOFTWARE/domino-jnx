@@ -26,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
@@ -39,6 +40,7 @@ import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.JavaLibrary;
 import com.hcl.domino.design.JavaScriptLibrary;
 import com.hcl.domino.design.LotusScriptLibrary;
+import com.hcl.domino.design.ScriptLibrary;
 import com.hcl.domino.design.ServerJavaScriptLibrary;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
@@ -77,6 +79,18 @@ public class TestLibraryCreation extends AbstractNotesRuntimeTest {
       String testScript = lib.getScript();
       assertNotNull(testScript);
       assertTrue(testScript.contains("Comments for Library"));
+      
+      Optional<ScriptLibrary> libFromAll = dbDesign.getScriptLibraries()
+      .filter((currLib) -> { return unid.equals(currLib.getDocument().getUNID()); })
+      .findFirst();
+      assertTrue(libFromAll.isPresent());
+      assertEquals(unid, libFromAll.get().getDocument().getUNID());
+      assertInstanceOf(LotusScriptLibrary.class, libFromAll.get());
+      
+      Optional<ScriptLibrary> libViaNameSearch = dbDesign.getScriptLibrary("lslib");
+      assertTrue(libViaNameSearch.isPresent());
+      assertInstanceOf(LotusScriptLibrary.class, libViaNameSearch.get());
+      assertEquals(unid, libViaNameSearch.get().getDocument().getUNID());
     });
   }
 
@@ -178,6 +192,18 @@ public class TestLibraryCreation extends AbstractNotesRuntimeTest {
         assertEqualStreams(new ByteArrayInputStream(jarOut.toByteArray()), lib.getResourcesAttachment().get(),
             "Resource attachment mismatch");
       }
+      
+      Optional<ScriptLibrary> libFromAll = dbDesign.getScriptLibraries()
+      .filter((currLib) -> { return unid.equals(currLib.getDocument().getUNID()); })
+      .findFirst();
+      assertTrue(libFromAll.isPresent());
+      assertEquals(unid, libFromAll.get().getDocument().getUNID());
+      assertInstanceOf(JavaLibrary.class, libFromAll.get());
+
+      Optional<ScriptLibrary> libViaNameSearch = dbDesign.getScriptLibrary("javalib");
+      assertTrue(libViaNameSearch.isPresent());
+      assertInstanceOf(JavaLibrary.class, libViaNameSearch.get());
+      assertEquals(unid, libViaNameSearch.get().getDocument().getUNID());
     });
   }
 
@@ -206,6 +232,18 @@ public class TestLibraryCreation extends AbstractNotesRuntimeTest {
       String testScript = lib.getScript();
       assertNotNull(testScript);
       assertTrue(testScript.contains("test()"));
+      
+      Optional<ScriptLibrary> libFromAll = dbDesign.getScriptLibraries()
+      .filter((currLib) -> { return unid.equals(currLib.getDocument().getUNID()); })
+      .findFirst();
+      assertTrue(libFromAll.isPresent());
+      assertEquals(unid, libFromAll.get().getDocument().getUNID());
+      assertInstanceOf(ServerJavaScriptLibrary.class, libFromAll.get());
+      
+      Optional<ScriptLibrary> libViaNameSearch = dbDesign.getScriptLibrary("ssjslib");
+      assertTrue(libViaNameSearch.isPresent());
+      assertInstanceOf(ServerJavaScriptLibrary.class, libViaNameSearch.get());
+      assertEquals(unid, libViaNameSearch.get().getDocument().getUNID());
     });
   }
 
@@ -234,6 +272,18 @@ public class TestLibraryCreation extends AbstractNotesRuntimeTest {
       String testScript = lib.getScript();
       assertNotNull(testScript);
       assertTrue(testScript.contains("test()"));
+      
+      Optional<ScriptLibrary> libFromAll = dbDesign.getScriptLibraries()
+      .filter((currLib) -> { return unid.equals(currLib.getDocument().getUNID()); })
+      .findFirst();
+      assertTrue(libFromAll.isPresent());
+      assertEquals(unid, libFromAll.get().getDocument().getUNID());
+      assertInstanceOf(JavaScriptLibrary.class, libFromAll.get());
+      
+      Optional<ScriptLibrary> libViaNameSearch = dbDesign.getScriptLibrary("jslib");
+      assertTrue(libViaNameSearch.isPresent());
+      assertInstanceOf(JavaScriptLibrary.class, libViaNameSearch.get());
+      assertEquals(unid, libViaNameSearch.get().getDocument().getUNID());
     });
   }
 
