@@ -51,6 +51,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
  * 
  * @author Karsakov_S created on 06.10.2021
  */
+@SuppressWarnings("nls")
 public class TestDQL extends AbstractNotesRuntimeTest {
     private static final Logger log = Logger.getLogger(TestDQL.class.getName());
     static {
