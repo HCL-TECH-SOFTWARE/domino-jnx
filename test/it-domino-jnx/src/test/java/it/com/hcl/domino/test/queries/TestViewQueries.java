@@ -427,6 +427,20 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
         .noneMatch(c -> StringUtil.isEmpty(c.getTitle())));
   }
 
+  @Test
+  public void testExpand() throws Exception {
+    this.withViewQueryTestDb(database -> {
+      final DominoCollection view = database.openCollection("Lastname Birthyear Categorized").get();
+      CollectionSearchQuery query = view.query().expand(CollectionSearchQuery.ExpandedEntries.collapseAll());
+
+      List<CollectionEntry> entries = query
+              .readColumnValues()
+              .collectEntries(0, 4000);
+
+      Assertions.assertEquals(25, entries.size());
+    });
+  }
+
   protected void withViewQueryTestDb(final DatabaseConsumer c) throws Exception {
     final DominoClient client = this.getClient();
 
