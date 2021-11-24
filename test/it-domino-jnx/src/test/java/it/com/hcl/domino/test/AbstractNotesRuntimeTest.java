@@ -29,9 +29,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -51,8 +54,11 @@ import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClient.Encryption;
 import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.DominoProcess;
+import com.hcl.domino.data.AutoCloseableDocument;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.DocumentClass;
+import com.hcl.domino.data.IDTable;
 import com.hcl.domino.dxl.DxlImporter;
 import com.hcl.domino.dxl.DxlImporter.DXLImportOption;
 import com.hcl.domino.dxl.DxlImporter.XMLValidationOption;
@@ -237,6 +243,23 @@ public abstract class AbstractNotesRuntimeTest {
             StreamUtil.close(is);
           }
         });
+    
+    Optional<IDTable> importedNoteIds = importer.getImportedNoteIds();
+
+    //sign imported design
+    if (importedNoteIds.isPresent()) {
+      for (int noteId : importedNoteIds.get()) {
+        Optional<Document> docOpt = database.getDocumentById(noteId);
+        if (docOpt.isPresent()) {
+          try (AutoCloseableDocument doc = docOpt.get().autoClosable()) {
+            if (!doc.getDocumentClass().contains(DocumentClass.DATA)) {
+              doc.sign();
+              doc.save();
+            }
+          }
+        }
+      }
+    }
   }
 
   @AfterAll
