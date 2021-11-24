@@ -17,42 +17,52 @@
 package it.com.hcl.domino.test.queries;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-import java.util.zip.GZIPInputStream;
 
-import com.hcl.domino.data.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClient.Encryption;
 import com.hcl.domino.DominoException;
+import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.CollectionEntry.SpecialValue;
+import com.hcl.domino.data.CollectionSearchQuery;
 import com.hcl.domino.data.CollectionSearchQuery.SelectedEntries;
+import com.hcl.domino.data.Database;
+import com.hcl.domino.data.Document;
+import com.hcl.domino.data.DocumentClass;
+import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoCollection.Direction;
+import com.hcl.domino.data.Navigate;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.dql.DQL;
 import com.hcl.domino.dql.DQL.DQLTerm;
 import com.hcl.domino.dxl.DxlExporter;
-import com.hcl.domino.dxl.DxlImporter;
-import com.hcl.domino.dxl.DxlImporter.DXLImportOption;
-import com.hcl.domino.dxl.DxlImporter.XMLValidationOption;
-import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
-import com.ibm.commons.util.io.StreamUtil;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
+/**
+ * Testcases for view lookups
+ */
 public class TestViewQueries extends AbstractNotesRuntimeTest {
 
   @Test
@@ -106,48 +116,6 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
         });
   }
 
-  protected void initViewQueryTestDbDesign(final Database db) throws Exception {
-    final DominoClient client = this.getClient();
-    final DxlImporter importer = client.createDxlImporter();
-    importer.setInputValidationOption(XMLValidationOption.NEVER);
-    importer.setDesignImportOption(DXLImportOption.REPLACE_ELSE_CREATE);
-    importer.setReplicaRequiredForReplaceOrUpdate(false);
-
-    AbstractNotesRuntimeTest.getResourceFiles("/dxl/testViewQueries").stream()
-        .filter(Objects::nonNull)
-        .map(name -> PathUtil.concat("/", name, '/'))
-        .map(name -> StringUtil.endsWithIgnoreCase(name, ".xml") ? (InputStream) this.getClass().getResourceAsStream(name)
-            : StringUtil.endsWithIgnoreCase(name, ".xml.gz")
-                ? AbstractNotesRuntimeTest.call(() -> new GZIPInputStream(this.getClass().getResourceAsStream(name)))
-                : null)
-        .filter(Objects::nonNull)
-        .forEach(is -> {
-          try {
-            importer.importDxl(is, db);
-          } catch (final IOException e2) {
-            throw new RuntimeException(e2);
-          } finally {
-            StreamUtil.close(is);
-          }
-        });
-
-    // sign imported design
-    db
-        .queryFormula("@true", null, new HashSet<>(), null, EnumSet.of(DocumentClass.ALLNONDATA))
-        .getDocuments()
-        .forEach(doc -> {
-          doc.sign();
-          doc.save();
-
-          // String name = doc.get("$TITLE", String.class, null);
-          // System.out.println("Signed "+name);
-        });
-
-    final int SAMPLE_SIZE = 4000;
-    System.out.println("Generating " + SAMPLE_SIZE + " persons in database " + db.getServer() + "!!" + db.getRelativeFilePath());
-    AbstractNotesRuntimeTest.generateNABPersons(db, 4000);
-  }
-
   @Test
   public void testCategoryLookup() throws Exception {
     this.withViewQueryTestDb(database -> {
@@ -171,7 +139,7 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
 
       final String catEntryPos = categoryEntry.getSpecialValue(SpecialValue.INDEXPOSITION, String.class, "");
 
-      System.out.println("Category entry: " + categoryEntry);
+//      System.out.println("Category entry: " + categoryEntry);
 
       {
         // now try to find it via its note id
@@ -396,24 +364,28 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
 
   @Test
   public void testLookupByKey() throws Exception {
-    final DominoClient client = this.getClient();
-    final Database dbFakenames = client.openDatabase("fakenames.nsf");
-    final DominoCollection view = dbFakenames.openCollection("($Users)").get();
+    withViewQueryTestDb((database) -> {
+      final DominoCollection view = database.openCollection("Lastname Firstname Flat").get();
 
-    final String lookupKey = "Abbo";
-    final boolean exact = false;
+      final String lookupKey = "Abbo";
+      final boolean exact = false;
 
-    final int skip = 0;
-    final int count = Integer.MAX_VALUE;
+      final int skip = 0;
+      final int count = Integer.MAX_VALUE;
 
-    @SuppressWarnings("unused")
-    final List<CollectionEntry> entries = view
-        .query()
-        .selectByKey(lookupKey, exact)
-        .readUNID()
-        .readColumnValues()
-        .readSpecialValues(SpecialValue.INDEXPOSITION)
-        .collectEntries(skip, count);
+      final List<CollectionEntry> entries = view
+          .query()
+          .selectByKey(lookupKey, exact)
+          .readUNID()
+          .readColumnValues()
+          .readSpecialValues(SpecialValue.INDEXPOSITION)
+          .collectEntries(skip, count);
+      
+      Assertions.assertFalse(entries.isEmpty());
+      entries.forEach((entry) -> {
+        Assertions.assertTrue(entry.get("Lastname", String.class, "").startsWith(lookupKey));
+      });
+    });
   }
 
   // Test for issue #138 "DominoCollectionInfo returns empty strings for
@@ -459,15 +431,17 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
         System.out.println("Generated database " + dbFilePath);
 
         db = client.createDatabase("", dbFilePath, true, true, Encryption.None);
-        this.initViewQueryTestDbDesign(db);
+        populateResourceDxl("/dxl/testViewQueries", db);
+        generateNABPersons(db, 4000);
       }
 
       c.accept(db);
     } else {
-      this.withTempDb(database -> {
-        this.initViewQueryTestDbDesign(database);
+      this.withTempDb(db -> {
+        populateResourceDxl("/dxl/testViewQueries", db);
+        generateNABPersons(db, 4000);
 
-        c.accept(database);
+        c.accept(db);
       });
     }
   }
