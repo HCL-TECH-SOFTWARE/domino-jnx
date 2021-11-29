@@ -4616,4 +4616,9 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   raise their rights to be full admin + unrestricted */
   String ASSIST_RESTRICTED = "$Restricted"; //$NON-NLS-1$
 
+  /* NABLookupBasicAuthentication options */
+  
+  int BASIC_AUTH_NO_AMBIGUOUS_NAMES = 0;
+  int BASIC_AUTH_ALLOW_AMBIGUOUS_NAMES = 1;
+
 }

@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -112,7 +113,9 @@ import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.NotesNamingUtils.Privileges;
 import com.hcl.domino.jna.internal.NotesStringUtils;
+import com.hcl.domino.jna.internal.capi.INotesCAPI1201;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
+import com.hcl.domino.jna.internal.capi.NotesCAPI1201;
 import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNADominoClientAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNAUserNamesListAllocations;
@@ -137,6 +140,7 @@ import com.hcl.domino.mime.MimeWriter;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.mq.MessageQueues;
+import com.hcl.domino.naming.Names;
 import com.hcl.domino.naming.UserDirectory;
 import com.hcl.domino.person.Person;
 import com.hcl.domino.runtime.DominoRuntime;
@@ -1127,17 +1131,60 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     return new JNAPerson(this, username);
   }
 
+  private AtomicReference<Boolean> skipNewNABCredentialCheck = new AtomicReference<>();
+  
+  private boolean isSkipNewNABCredentialCheck() {
+    Boolean skip = skipNewNABCredentialCheck.get();
+    if (skip==null) {
+      skip = DominoUtils.checkBooleanProperty("jnx.skipnewnabcredentialcheck", //$NON-NLS-1$
+          "JNX_SKIPNEWNABCREDENTIALCHECK"); //$NON-NLS-1$
+      skipNewNABCredentialCheck.set(skip);
+    }
+    return skip.booleanValue();
+  }
+  
   @Override
   public String validateCredentials(String serverName, String userName, String password)
       throws NameNotFoundException, AuthenticationNotSupportedException, AuthenticationException {
-    // TODO investigate LDAP in DirAssist
-    // TODO investigate enforcing "fewer names" rule from server doc
-    // TODO verify that behavior matches HTTP login when there are multiple users matching the name
 
     if (StringUtil.isEmpty(userName)) {
       throw new IllegalArgumentException("userName cannot be empty");
     }
 
+    String fullName;
+    
+    if (StringUtil.isEmpty(serverName) || Names.equalNames(getIDUserName(), serverName)) {
+      if (!isSkipNewNABCredentialCheck()) {
+        //use credential check function added in 12.0.1 GA if possible
+        try {
+          INotesCAPI1201 capi1201 = NotesCAPI1201.get();
+
+          Memory variableUserNameMem = NotesStringUtils.toLMBCS(userName, true);
+          Memory variablePasswordMem = NotesStringUtils.toLMBCS(password, true);
+          DisposableMemory rethValueBuffer = new DisposableMemory(NotesConstants.MAXUSERNAME);
+          try {
+            short result = capi1201.NABLookupBasicAuthentication(variableUserNameMem,
+                variablePasswordMem, NotesConstants.BASIC_AUTH_NO_AMBIGUOUS_NAMES,
+                NotesConstants.MAXUSERNAME,
+                rethValueBuffer);
+            if (result == 1) {
+              fullName = NotesStringUtils.fromLMBCS(rethValueBuffer, -1);
+            } else {
+              throw new AuthenticationException("Invalid user name or passwords");
+            }
+          } finally {
+            rethValueBuffer.dispose();
+          }
+
+          return StringUtil.isEmpty(fullName) ? userName : fullName;
+        }
+        catch (UnsatisfiedLinkError e) {
+          //may be thrown if C function is not yet available
+          skipNewNABCredentialCheck.set(Boolean.TRUE);
+        }
+      }
+    }
+    
     UserDirectory dir = openUserDirectory(serverName);
     List<Map<String, List<Object>>> result = dir.query()
         .namespaces(Collections.singleton(NotesConstants.USERNAMESSPACE))
@@ -1153,7 +1200,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
           MessageFormat.format("Unable to locate name \"{0}\"", userName));
     }
 
-    String fullName =
+    fullName =
         StringUtil.getFirstString(result.get(0).get(NotesConstants.MAIL_FULLNAME_ITEM));
     String httpPassword =
         StringUtil.getFirstString(result.get(0).get(NotesConstants.MAIL_HTTPPASSWORD_ITEM));
