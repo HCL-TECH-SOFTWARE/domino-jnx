@@ -16,16 +16,15 @@
  */
 package com.hcl.domino.dql;
 
-import java.text.DateFormat;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.Objects;
-import java.util.TimeZone;
 
 import com.hcl.domino.data.DominoDateTime;
 
@@ -721,12 +720,9 @@ public class DQL {
     }
   }
 
-  private static ThreadLocal<DateFormat> RFC3339_PATTERN_DATETIME = ThreadLocal
-      .withInitial(() -> new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss")); //$NON-NLS-1$
-
-  private static ThreadLocal<DateFormat> RFC3339_PATTERN_DATE = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd")); //$NON-NLS-1$
-
-  private static ThreadLocal<DateFormat> RFC3339_PATTERN_TIME = ThreadLocal.withInitial(() -> new SimpleDateFormat("HH:mm:ss")); //$NON-NLS-1$
+  private static ThreadLocal<DateTimeFormatter> RFC3339_PATTERN_DATETIME = ThreadLocal.withInitial(() -> DateTimeFormatter.ISO_DATE_TIME);
+  private static ThreadLocal<DateTimeFormatter> RFC3339_PATTERN_DATE = ThreadLocal.withInitial(() -> DateTimeFormatter.ISO_LOCAL_DATE);
+  private static ThreadLocal<DateTimeFormatter> RFC3339_PATTERN_TIME = ThreadLocal.withInitial(() ->DateTimeFormatter.ISO_LOCAL_TIME);
 
   /**
    * Returns a DQL term that matches all documents
@@ -822,26 +818,32 @@ public class DQL {
   }
 
   private static String escapeViewName(final String viewName) {
-    if (viewName.contains("'") || viewName.contains("\"")) { //$NON-NLS-1$
+    if (viewName.contains("'") || viewName.contains("\"")) { //$NON-NLS-1$ //$NON-NLS-2$
       throw new IllegalArgumentException(MessageFormat.format("Unexpected quote character in view name: {0}", viewName));
     }
     return viewName.replace("\\", "\\\\"); //$NON-NLS-1$ //$NON-NLS-2$
   }
 
   private static String formatDateValue(final Date dateValue) {
-    return MessageFormat.format("@dt(''{0}'')", DQL.toRFC3339(dateValue)); //$NON-NLS-1$
+    //Domino can only store hundredth of a second
+    long dateValueMS = dateValue.getTime();
+    long millis = dateValue.getTime() % 1000;
+    long millisRounded = 10 * (millis / 10);
+    dateValueMS -= (millis-millisRounded);
+
+    return MessageFormat.format("@dt(''{0}'')", DQL.RFC3339_PATTERN_DATETIME.get().format(OffsetDateTime.ofInstant(Instant.ofEpochMilli(dateValueMS), ZoneId.of("UTC")))); //$NON-NLS-1$ //$NON-NLS-2$
   }
 
   private static String formatDominoDateTimeValue(final DominoDateTime tdValue) {
     if (tdValue.hasDate()) {
       if (tdValue.hasTime()) {
-        return DQL.formatDateValue(Date.from(tdValue.toOffsetDateTime().toInstant()));
+        return MessageFormat.format("@dt(''{0}'')", DQL.RFC3339_PATTERN_DATETIME.get().format(tdValue.toOffsetDateTime())); //$NON-NLS-1$
       } else {
-        return DQL.RFC3339_PATTERN_DATE.get().format(Date.from(tdValue.toOffsetDateTime().toInstant()));
+        return DQL.RFC3339_PATTERN_DATE.get().format(tdValue.toOffsetDateTime().toInstant());
       }
     } else {
       if (tdValue.hasTime()) {
-        return DQL.RFC3339_PATTERN_TIME.get().format(Date.from(tdValue.toOffsetDateTime().toInstant()));
+        return DQL.RFC3339_PATTERN_TIME.get().format(tdValue.toOffsetDateTime().toInstant());
       } else {
         throw new IllegalArgumentException("DominoDateTime has no date and no time");
       }
@@ -913,36 +915,6 @@ public class DQL {
    */
   public static DQLTerm or(final DQLTerm... terms) {
     return new OrTerm(terms);
-  }
-
-  private static String toRFC3339(final Date dt) {
-    final StringBuilder sb = new StringBuilder();
-    sb.append(DQL.RFC3339_PATTERN_DATETIME.get().format(dt));
-
-    final Calendar cal = new GregorianCalendar();
-    cal.setTime(dt);
-    cal.setTimeZone(TimeZone.getDefault());
-
-    final int offsetMillis = cal.get(Calendar.ZONE_OFFSET) + cal.get(Calendar.DST_OFFSET);
-    final int offsetHours = Math.abs(offsetMillis / (1000 * 60 * 60));
-    final int offsetMinutes = Math.abs(offsetMillis / (1000 * 60) % 60);
-
-    if (offsetMillis == 0) {
-      sb.append("Z"); //$NON-NLS-1$
-    } else {
-      sb.append(offsetMillis > 0 ? "+" : "-"); //$NON-NLS-1$ //$NON-NLS-2$
-      if (offsetHours < 10) {
-        sb.append("0"); //$NON-NLS-1$
-      }
-      sb.append(offsetHours);
-      sb.append(":"); //$NON-NLS-1$
-      if (offsetMinutes < 10) {
-        sb.append("0"); //$NON-NLS-1$
-      }
-      sb.append(offsetMinutes);
-    }
-
-    return sb.toString();
   }
 
   /**

@@ -111,7 +111,7 @@ public class JNAUserDirectoryQuery implements UserDirectoryQuery {
 		Memory serverName = NotesStringUtils.toLMBCS(this.serverName, true);
 		Collection<String> namespacesLocal = this.namespaces == null ? Arrays.asList("") : this.namespaces; //$NON-NLS-1$
 		Memory namespaces = NotesStringUtils.toLMBCS(namespacesLocal);
-		short nameCount = (short)namesLocal.size();
+		short nameCount = (short) (namesLocal.size() & 0xffff);
 		Memory names = NotesStringUtils.toLMBCS(namesLocal);
 		Memory items = NotesStringUtils.toLMBCS(this.items);
 		
@@ -119,11 +119,11 @@ public class JNAUserDirectoryQuery implements UserDirectoryQuery {
 		checkResult(NotesCAPI.get().NAMELookup2(
 			serverName,
 			flags,
-			(short)namespacesLocal.size(),
+			(short)(namespacesLocal.size() & 0xffff),
 			namespaces,
 			nameCount,
 			names,
-			(short)(this.items == null ? 0 : this.items.size()),
+			(short)(this.items == null ? 0 : (this.items.size() & 0xffff)),
 			items,
 			rethBuffer
 		));

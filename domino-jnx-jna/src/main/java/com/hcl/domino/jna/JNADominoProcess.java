@@ -28,7 +28,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -38,8 +37,10 @@ import com.hcl.domino.DominoProcess;
 import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
+import com.hcl.domino.exception.DominoInitException;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
+import com.hcl.domino.jna.internal.capi.INotesCAPI;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Memory;
@@ -85,7 +86,7 @@ public class JNADominoProcess implements DominoProcess {
 	public static void ensureProcessInitialized() {
 		synchronized (pacemakerThreadlock) {
 			if (!processInitialized) {
-				throw new IllegalStateException("DominoProcess.get().initializeProcess(String[]) must be called first to initialize the Domino API for this process.");
+				throw new DominoInitException("DominoProcess.get().initializeProcess(String[]) must be called first to initialize the Domino API for this process.");
 			}
 		}
 	}
@@ -93,7 +94,7 @@ public class JNADominoProcess implements DominoProcess {
 	public static void ensureProcessNotTerminated() {
 		synchronized (pacemakerThreadlock) {
 			if (processTerminated) {
-				throw new IllegalStateException("Domino access for this process has already been terminated.");
+				throw new DominoInitException("Domino access for this process has already been terminated.");
 			}
 		}
 	}
@@ -115,11 +116,11 @@ public class JNADominoProcess implements DominoProcess {
 						Path dominoProgramDirPath = Paths.get(dominoProgramDirPathStr);
 						
 						if (!Files.exists(dominoProgramDirPath)) {
-							throw new DominoException(MessageFormat.format("Specified Notes/Domino program dir path does not exist: {0}", dominoProgramDirPath.toString()));
+							throw new DominoInitException(MessageFormat.format("Specified Notes/Domino program dir path does not exist: {0}", dominoProgramDirPath.toString()));
 						}
 						
 						if (!Files.isDirectory(dominoProgramDirPath)) {
-							throw new DominoException(MessageFormat.format("Specified Notes/Domino program dir path is not a directory: {0}", dominoProgramDirPath.toString()));
+							throw new DominoInitException(MessageFormat.format("Specified Notes/Domino program dir path is not a directory: {0}", dominoProgramDirPath.toString()));
 						}
 					}
 					
@@ -129,11 +130,11 @@ public class JNADominoProcess implements DominoProcess {
 							Path notesIniPath = Paths.get(notesIniPathStr.substring(1));
 							
 							if (!Files.exists(notesIniPath)) {
-								throw new DominoException(MessageFormat.format("Specified Notes.ini path does not exist: {0}", notesIniPath.toString()));
+								throw new DominoInitException(MessageFormat.format("Specified Notes.ini path does not exist: {0}", notesIniPath.toString()));
 							}
 							
 							if (!Files.isRegularFile(notesIniPath)) {
-								throw new DominoException(MessageFormat.format("Specified Notes.ini path is not a file: {0}", notesIniPath.toString()));
+								throw new DominoInitException(MessageFormat.format("Specified Notes.ini path is not a file: {0}", notesIniPath.toString()));
 							}
 						}
 					}
@@ -294,7 +295,7 @@ public class JNADominoProcess implements DominoProcess {
 						throw new RuntimeException(e);
 					}
 				} else {
-					NotesCAPI.get().NotesInitThread();
+					NotesCAPI.get(true).NotesInitThread(); // true => do not check if thread is initialized for Domino, because we do this
 				}
 			}
 			threadInfo = new ThreadInfo(Thread.currentThread().getStackTrace(), System.currentTimeMillis());
@@ -346,6 +347,11 @@ public class JNADominoProcess implements DominoProcess {
 		}
 	}
 	
+	/**
+	 * Makes sure that the process and current thread have been initialized for Domino C API access
+	 * 
+	 * @throws DominoInitException in case of missing initialization
+	 */
 	public static void checkThreadEnabledForDomino() {
 		ensureProcessInitialized();
 		ensureProcessNotTerminated();
@@ -353,7 +359,7 @@ public class JNADominoProcess implements DominoProcess {
 		Thread thread = Thread.currentThread();
 		ThreadInfo threadInfo = threadEnabledForDominoRefCount.get(thread);
 		if (threadInfo==null || threadInfo.getRefCount()==0) {
-			throw new DominoException("Please use DominoProcess.get().initializeThread() / terminateThread() to enable Domino access for this thread.");
+			throw new DominoInitException("Please use DominoProcess.get().initializeThread() / terminateThread() to enable Domino access for this thread.");
 		}
 	}
 
@@ -363,10 +369,10 @@ public class JNADominoProcess implements DominoProcess {
 		private LinkedBlockingQueue<Object> m_waitStartedQueue = new LinkedBlockingQueue<>();
 		private int argsCount;
 		private StringArray args;
-		private DominoException initException;
+		private DominoInitException initException;
 		
 		public DominoPacemakerThread(int argsCount, StringArray args) {
-			super("Domino Pacemaker");
+			super("Domino JNX Pacemaker");
 			
 			this.argsCount=argsCount;
 			this.args=args;
@@ -378,7 +384,7 @@ public class JNADominoProcess implements DominoProcess {
 		 * 
 		 * @return		the exception or null, if none occurred
 		 */
-		public DominoException getInitException() {
+		public DominoInitException getInitException() {
 			return initException;
 		}
 
@@ -404,40 +410,80 @@ public class JNADominoProcess implements DominoProcess {
 			}
 		}
 		
+		/**
+		 * Notifies the code that started this pacemaker thread that execution is
+		 * done, either with success or failure.
+		 */
+		private void notifyCaller() {
+		  try {
+        m_waitStartedQueue.put(new Object());
+      } catch (InterruptedException e1) {
+        e1.printStackTrace();
+        m_interruptedEx = e1;
+      }
+		}
+		
+		private DominoInitException toDominoInitException(short result) {
+		  int resultAsInt = Short.toUnsignedInt(result);
+      
+      //resolve C API init error code without using OSLoadString (using built-in constants) to prevent a crash
+      final short statusCode = (short) (result & NotesConstants.ERR_MASK);
+      String statusMessage;
+      try {
+        statusMessage = NotesErrorUtils.errToString(statusCode, true);
+      } catch (final Throwable e) {
+        statusMessage = MessageFormat.format("Error initializing Notes runtime, ERR 0x{0}", Integer.toHexString(resultAsInt));
+      }
+      final boolean isRemoteError = (result & NotesConstants.STS_REMOTE) == NotesConstants.STS_REMOTE;
+
+      final String msg = MessageFormat.format(
+          "{0} (error code: 0x{1}, raw error with all flags: 0x{2})",
+          statusMessage,
+          Integer.toHexString(resultAsInt) + (isRemoteError ? ", remote server error" : ""),
+          Integer.toHexString(result));
+      
+      return new DominoInitException(result, msg);
+		}
+		
 		@Override
 		public void run() {
 			boolean debug = isWritePacemakerDebugMessages();
 			short result;
 			
+			INotesCAPI capi;
+			try {
+			  //loads Domino shared library and maps it to the JNA INotesCAPI proxy object
+			  capi = NotesCAPI.get(true); // true => do not check if thread is initialized for Domino, because we do this
+			}
+			catch (DominoInitException e) {
+			  this.initException = e;
+			  notifyCaller();
+        return;
+			}
+			catch (Throwable e) {
+			  this.initException = new DominoInitException("Error loading Notes/Domino shared library. Please make sure that the location of nnotes.dll (Windows), libnotes.so (Linux) or libnotes.dylib is added to the PATH.", e);
+			  notifyCaller();
+			  return;
+			}
+			
 			// initializing the notes connection is performed here, since
 			// it appears to be necessary to do this in the same thread as
 			// a call to NotesTerm later on
 			if (!DominoUtils.isNoInit()) {
-				result = NotesCAPI.get().NotesInitExtended(this.argsCount, this.args);
+				result = capi.NotesInitExtended(this.argsCount, this.args);
 				if(result != 0) {
 					// in this case we need to abort and report the exception
 					
+          int resultAsInt = Short.toUnsignedInt(result);
+          
 					if (debug) {
-						int resultAsInt = Short.toUnsignedInt(result);
-						System.out.println(MessageFormat.format("Domino API could not initialize the process. ERR 0x{0}", Integer.toHexString(resultAsInt)));
+						System.out.println(MessageFormat.format("Domino API could not initialize the process. ERR 0x{0}",
+						    Integer.toHexString(resultAsInt)));
 					}
+
+					this.initException = toDominoInitException(result);
 					
-					//resolve C API init error code without using OSLoadString (using built-in constants)
-					Optional<DominoException> initException = NotesErrorUtils.toNotesError(result, true);
-					if (initException.isPresent()) {
-						this.initException = initException.get();
-					}
-					else {
-						int resultAsInt = Short.toUnsignedInt(result);
-	                    this.initException = new DominoException(result, MessageFormat.format("Error initializing Notes runtime, ERR 0x{0}", Integer.toHexString(resultAsInt)));
-					}
-					
-					try {
-						m_waitStartedQueue.put(new Object());
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-						m_interruptedEx = e;
-					}
+					notifyCaller();
 					return;
 				}
 			}
@@ -445,32 +491,22 @@ public class JNADominoProcess implements DominoProcess {
 			if (debug) {
 				System.out.println("Domino API initialized.");
 			}
-			result = NotesCAPI.get().NotesInitThread();
+			
+			result = capi.NotesInitThread();
 			if(result != 0) {
 				// here we can also abort only and report the exception
 				if (debug) {
 					System.out.println(MessageFormat.format("Domino API could not initialize pacemaker thread. ERR 0x{0}", Integer.toHexString(result)));
 				}
 				
-				Optional<DominoException> initException = NotesErrorUtils.toNotesError(result, true);
-				if (initException.isPresent()) {
-					this.initException = initException.get();
-				}
-				else {
-					this.initException = new DominoException(result, MessageFormat.format("Error initializing Notes thread, ERR {0}", result));
-				}
+        this.initException = toDominoInitException(result);
 				
 				// additionally we have to terminate the process, to clean up properly
 				if(!DominoUtils.isNoTerm()) {
-					NotesCAPI.get().NotesTerm();
+					capi.NotesTerm();
 				}
 				
-				try {
-          m_waitStartedQueue.put(new Object());
-        } catch (InterruptedException e) {
-          e.printStackTrace();
-          m_interruptedEx = e;
-        }
+				notifyCaller();
 				
 				return;
 			}
@@ -478,8 +514,9 @@ public class JNADominoProcess implements DominoProcess {
 			if (debug) {
 				System.out.println("Domino pacemaker thread started.");
 			}
+			
 			try {
-				m_waitStartedQueue.put(new Object());
+			  notifyCaller();
 				
 				//wait for quit signal
 				m_quitSignalQueue.take();
@@ -491,12 +528,12 @@ public class JNADominoProcess implements DominoProcess {
 				if (debug) {
 					System.out.println("Stopping Domino pacemaker thread...");
 				}
-				NotesCAPI.get().NotesTermThread();
+				capi.NotesTermThread();
 				if (debug) {
 					System.out.println("Domino pacemaker thread stopped.");
 				}
 				if(!DominoUtils.isNoTerm()) {
-					NotesCAPI.get().NotesTerm();
+					capi.NotesTerm();
 				}
 				processTerminated = true;
 			}

@@ -14,34 +14,12 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.agent;
+package com.hcl.domino.jnx.vertx.json;
 
-import java.io.InputStream;
-import java.util.List;
-import java.util.Optional;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.jnx.vertx.json.serializer.DominoDateTimeSerializer;
 
-/**
- * Represents the contents of an imported Java agent.
- *
- * @author Jesse Gallagher
- * @since 1.0.24
- */
-public interface ImportedJavaAgentContent extends AgentContent {
-  String getCodeFilesystemPath();
-
-  List<String> getFiles();
-  
-  /**
-   * Retrieves the contents of the named file (as determined
-   * in {@link #getFiles()} as a stream of bytes.
-   * 
-   * @param name the name of the file to retrieve
-   * @return an {@link Optional} describing an {@link InputStream} of
-   *         the file's contents if it exists, or an empty one otherwise
-   * @see #getFiles()
-   * @since 1.0.43
-   */
-  Optional<InputStream> getFile(String name);
-
-  String getMainClassName();
+public abstract class DesignAgentMixIn {
+  @JsonSerialize(using = DominoDateTimeSerializer.class) abstract DominoDateTime getAgentVersion();
 }

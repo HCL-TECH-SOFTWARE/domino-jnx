@@ -1,0 +1,745 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE database SYSTEM 'xmlschemas/domino_12_0.dtd'>
+<database xmlns='http://www.lotus.com/dxl' version='12.0' replicaid='4325874B00435EEC'
+ path='DOMCFG5.NSF' title='Test' fromtemplate='StdR5DominoWebServerConfiguration'
+ usejavascriptinpages='false' maintainunread='false' increasemaxfields='true'
+ advancedtemplate='true'>
+<databaseinfo dbid='4325874B00435EEC' odsversion='52' diskspace='884736' percentused='93.4895833333333'
+ numberofdocuments='2'><datamodified><datetime>20211007T191321,64+03</datetime></datamodified><designmodified
+><datetime>20211006T112058,71+03</datetime></designmodified></databaseinfo>
+<launchsettings><noteslaunch whenopened='openframeset' restorelastview='true'
+ frameset='MainFrameset' showaboutdocument='never'/></launchsettings>
+<view name='All Documents' alias='All' showinmenu='false' publicaccess='false'
+ designerversion='6' default='true' unreadmarks='none' onopengoto='lastopened'
+ onrefresh='displayindicator' headers='beveled' opencollapsed='false' showresponsehierarchy='true'
+ showmargin='true' shrinkrows='false' extendlastcolumn='false' showhierarchies='false'
+ unreadcolor='black' rowlinecount='1' headerlinecount='1' rowspacing='1' bgcolor='white'
+ totalscolor='gray' headerbgcolor='white' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false'>
+<noteinfo noteid='11e' unid='B2B9A9ECD9FDC2E7852563C0000700B0' sequence='32'>
+<created><datetime dst='true'>19961010T211629,28-04</datetime></created>
+<modified><datetime>20210909T151552,20+03</datetime></modified>
+<revised><datetime>20200514T204846,32+00</datetime></revised>
+<lastaccessed><datetime>20210909T151725,63+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,19+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='selection'><formula>SELECT @All</formula></code>
+<column sort='ascending' hidedetailrows='false' itemname='Form' width='19'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><columnheader title='Type'><font size='8pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='Comment' width='28.6250' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt'/><columnheader title='Comment'><font size='9pt'/></columnheader></column></view>
+
+<view name='($Virtual Servers)' showinmenu='false' publicaccess='false' designerversion='6'
+ unreadmarks='none' onopengoto='lastopened' onrefresh='displayindicator' headers='beveled'
+ opencollapsed='false' showresponsehierarchy='true' showmargin='true' shrinkrows='false'
+ extendlastcolumn='false' showhierarchies='false' unreadcolor='black' rowlinecount='1'
+ headerlinecount='1' rowspacing='1' bgcolor='white' totalscolor='gray' headerbgcolor='white'
+ boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ uniquekeys='false'>
+<noteinfo noteid='132' unid='2791B91D3664AE7F852563C5000AB232' sequence='20'>
+<created><datetime dst='true'>19961015T215649,78-04</datetime></created>
+<modified><datetime>20210909T151552,25+03</datetime></modified>
+<revised><datetime>20200514T204846,35+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,24+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,24+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='selection'><formula>SELECT ((Form = "VirtualServer") | (Form = "Virtual Server"))</formula></code>
+<column hidedetailrows='false' itemname='MH_IP' width='14.5000' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Lucida Console' pitch='fixed' truetype='true' familyid='30'/><columnheader
+ title='Virtual Server (IP)'><font size='8pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='MH_Welcome' width='15' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Lucida Console' pitch='fixed' truetype='true' familyid='30'/><columnheader
+ title='Default Page'><font size='8pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='MH_HTMLDir' width='25.1250' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Lucida Console' pitch='fixed' truetype='true' familyid='30'/><columnheader
+ title='HTML Directory'><font size='8pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='MH_HomeURL' width='12.5000' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><columnheader
+ title='Home URL'><font size='8pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='MH_CGIPath' width='10' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><columnheader
+ title='CGI Path'><font size='8pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='MH_CGIDir' width='10' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><columnheader
+ title='CGI Directory'><font size='8pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='MH_IconsPath' width='10' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><columnheader
+ title='Icons Path'><font size='8pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='MH_IconsDir' width='10' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><columnheader
+ title='Icons Directory'><font size='8pt'/></columnheader></column></view>
+
+<view name='($Mapping)' alias='Mappings' showinmenu='false' publicaccess='false'
+ designerversion='6' unreadmarks='none' onopengoto='lastopened' onrefresh='displayindicator'
+ headers='beveled' opencollapsed='false' showresponsehierarchy='true' showmargin='true'
+ shrinkrows='false' extendlastcolumn='false' showhierarchies='false' unreadcolor='black'
+ rowlinecount='1' headerlinecount='1' rowspacing='1' bgcolor='white' totalscolor='gray'
+ headerbgcolor='white' boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ uniquekeys='false'>
+<noteinfo noteid='136' unid='46E9D267597373F3852563C5000D4895' sequence='29'>
+<created><datetime dst='true'>19961015T222505,49-04</datetime></created>
+<modified><datetime>20210909T151552,26+03</datetime></modified>
+<revised><datetime>20200514T204846,36+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,25+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,25+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='selection'><formula>SELECT (
+(Form="DirMap") |
+(Form="Mapping URL -&gt; Directory") |
+(Form="URLMap") |
+(Form="Mapping URL -&gt; URL") |
+(Form="URLRedirect") |
+(Form="Redirection URL -&gt; URL")
+)</formula></code>
+<column sort='ascending' hidedetailrows='false' itemname='RM_ServerIP' width='16.7500'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Lucida Console' pitch='fixed'
+ truetype='true' familyid='30'/><columnheader title='Virtual Server (IP)'><font
+ size='9pt'/></columnheader></column>
+<column sort='descending' hidedetailrows='false' itemname='RM_MapFrom' width='24.7500'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Lucida Console' pitch='fixed'
+ truetype='true' familyid='30'/><columnheader title='Virtual Directory (URL Path)'><font
+ size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='RM_MapType' width='8.2500' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt'/><columnheader title='MapType'><font size='9pt'/></columnheader></column>
+<column resort='both' hidedetailrows='false' itemname='RM_MapTo' width='36.6250'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Lucida Console' pitch='fixed'
+ truetype='true' familyid='30'/><columnheader title='Directory'><font size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='Comment' width='10' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt'/><columnheader title='Comment'><font size='9pt'/></columnheader></column></view>
+
+<view name='($ObsVirtualServers) ' alias=' Virtual Servers (Obsolete)' showinmenu='false'
+ publicaccess='false' designerversion='6' unreadmarks='none' onopengoto='lastopened'
+ onrefresh='displayindicator' headers='beveled' opencollapsed='false' showresponsehierarchy='true'
+ showmargin='true' shrinkrows='false' extendlastcolumn='false' showhierarchies='false'
+ unreadcolor='black' rowlinecount='1' headerlinecount='1' rowspacing='1' bgcolor='white'
+ totalscolor='gray' headerbgcolor='white' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false'>
+<noteinfo noteid='13a' unid='7C4F90337454005B852563C5001203BD' sequence='23'>
+<created><datetime dst='true'>19961015T231646,05-04</datetime></created>
+<modified><datetime>20210909T151552,27+03</datetime></modified>
+<revised><datetime>20200514T204846,37+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,26+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,26+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='selection'><formula>SELECT ((Form = "VirtualServer") | (Form = "Virtual Server"))</formula></code>
+<actionbar bgcolor='silver' bordercolor='black'>
+<actionbuttonstyle bgcolor='silver'/>
+<action title='Categori_ze' showinbar='false' systemcommand='categorize'/>
+<action title='_Edit Document' showinbar='false' systemcommand='edit'/>
+<action title='Send Docu_ment' showinbar='false' systemcommand='send'/>
+<action title='_Forward' showinbar='false' systemcommand='forward'/>
+<action title='_Move To Folder...' showinbar='false' systemcommand='movetofolder'/>
+<action title='_Remove From Folder' showinbar='false' systemcommand='removefromfolder'/>
+<action title='Remove Obsolete Documents' icon='90' showinmenu='false'><code
+ event='click'><lotusscript>Sub Click(Source As Button)
+	Dim workspace As New NotesUIWorkspace
+	Dim view As NotesView
+	Dim sess As New NotesSession
+	Dim db As NotesDatabase
+	Dim doc As NotesDocument
+	Dim lastdoc As NotesDocument
+	
+	Set db = sess.CurrentDatabase
+	Set view = db.GetView( "Virtual Servers (Obsolete)" )
+	
+	Set doc = view.GetFirstDocument
+	If Not doc Is  Nothing Then
+		Set lastdoc = view.GetLastDocument
+		Do  While 1
+			Set doc = view.GetFirstDocument
+			If doc.universalid = lastdoc.universalid Then
+				Call doc.Remove( True )
+				Exit Do
+			End If
+			Call doc.remove( True )
+		Loop
+	End If
+	Call workspace.ViewRefresh
+End Sub</lotusscript></code></action></actionbar>
+<column hidedetailrows='false' itemname='MH_IP' width='17.1250' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Lucida Console' pitch='fixed' truetype='true' familyid='30'/><columnheader
+ title='Virtual Server (IP)'><font size='8pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='MH_Comment' width='39.6250' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><columnheader
+ title='Comment'><font size='8pt'/></columnheader></column></view>
+
+<view name='($ObsDirMaps) ' alias=' Directory Mappings (Obsolete)' showinmenu='false'
+ publicaccess='false' designerversion='6' unreadmarks='none' onopengoto='lastopened'
+ onrefresh='displayindicator' headers='beveled' opencollapsed='false' showresponsehierarchy='true'
+ showmargin='true' shrinkrows='false' extendlastcolumn='false' showhierarchies='false'
+ unreadcolor='black' rowlinecount='1' headerlinecount='1' rowspacing='1' bgcolor='white'
+ totalscolor='gray' headerbgcolor='white' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false'>
+<noteinfo noteid='13e' unid='DFBC6D6595C65EC3852563C50012626E' sequence='27'>
+<created><datetime dst='true'>19961015T232048,46-04</datetime></created>
+<modified><datetime>20210909T151552,28+03</datetime></modified>
+<revised><datetime>20200514T204846,38+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,27+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,27+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='selection'><formula>SELECT ((Form = "DirMap") | (Form = "Directory Mapping"))</formula></code>
+<actionbar bgcolor='silver' bordercolor='black'>
+<actionbuttonstyle bgcolor='silver'/>
+<action title='Categori_ze' showinbar='false' systemcommand='categorize'/>
+<action title='_Edit Document' showinbar='false' systemcommand='edit'/>
+<action title='Send Docu_ment' showinbar='false' systemcommand='send'/>
+<action title='_Forward' showinbar='false' systemcommand='forward'/>
+<action title='_Move To Folder...' showinbar='false' systemcommand='movetofolder'/>
+<action title='_Remove From Folder' showinbar='false' systemcommand='removefromfolder'/>
+<action title='Remove Obsolete Documents' icon='90' showinmenu='false'><code
+ event='click'><lotusscript>Sub Click(Source As Button)
+	Dim workspace As New NotesUIWorkspace
+	Dim view As NotesView
+	Dim sess As New NotesSession
+	Dim db As NotesDatabase
+	Dim doc As NotesDocument
+	Dim lastdoc As NotesDocument
+	
+	Set db = sess.CurrentDatabase
+	Set view = db.GetView( "Directory Mappings (Obsolete)" )
+	
+	Set doc = view.GetFirstDocument
+	If Not doc Is  Nothing Then
+		Set lastdoc = view.GetLastDocument
+		Do  While 1
+			Set doc = view.GetFirstDocument
+			If doc.universalid = lastdoc.universalid Then
+				Call doc.Remove( True )
+				Exit Do
+			End If
+			Call doc.remove( True )
+		Loop
+	End If
+	Call workspace.ViewRefresh
+End Sub</lotusscript></code></action></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='$18' width='1' resizable='true'
+ separatemultiplevalues='true' sortnoaccent='true' sortnocase='true' showaslinks='false'
+ categorized='true'><font size='9pt' color='blue' style='bold' name='Lucida Console'
+ pitch='fixed' truetype='true' familyid='30'/><columnheader><font size='8pt'/></columnheader><code
+ event='value'><formula>@If (RM_ServerIP = ""; "&lt;default&gt;"; RM_ServerIP)</formula></code></column>
+<column hidedetailrows='false' itemname='$22' width='1' resizable='true' separatemultiplevalues='false'
+ sortnoaccent='true' sortnocase='true' showaslinks='false' showasicons='true'><columnheader
+><font size='8pt' style='bold'/></columnheader><code event='value'><formula
+>@If (RM_MapFrom  = "/"; 160; 0)</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='$19' width='35'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Lucida Console' pitch='fixed'
+ truetype='true' familyid='30'/><columnheader title='Virtual Directory (URL Path)'><font
+ size='8pt'/></columnheader><code event='value'><formula>@If (RM_MapFrom = "/"; " &lt;home&gt;"; RM_MapFrom)</formula></code></column>
+<column hidedetailrows='false' itemname='RM_MapTo' width='35' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Lucida Console' pitch='fixed' truetype='true' familyid='30'/><columnheader
+ title='Directory (File System)'><font size='8pt'/></columnheader></column>
+<column align='center' hidedetailrows='false' itemname='$20' width='4' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'
+ showasicons='true'><columnheader align='center' title='Read'><font size='8pt'/></columnheader><code
+ event='value'><formula>@If (RM_MapType = "Pass"; 82; 0)</formula></code></column>
+<column align='center' hidedetailrows='false' itemname='$21' width='4' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'
+ showasicons='true'><columnheader align='center' title='Execute'><font size='8pt'/></columnheader><code
+ event='value'><formula>@If (RM_MapType = "Exec"; 82; 0)</formula></code></column>
+<column hidedetailrows='false' itemname='Comment' width='12' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='8pt'/><columnheader><font size='8pt' style='bold'/></columnheader></column></view>
+
+<view name='($ObsURLRedirs) ' alias=' URL Redirections (Obsolete)' showinmenu='false'
+ publicaccess='false' designerversion='6' unreadmarks='none' onopengoto='lastopened'
+ onrefresh='displayindicator' headers='beveled' opencollapsed='false' showresponsehierarchy='true'
+ showmargin='true' shrinkrows='false' extendlastcolumn='false' showhierarchies='false'
+ unreadcolor='black' rowlinecount='1' headerlinecount='1' rowspacing='1' bgcolor='white'
+ totalscolor='gray' headerbgcolor='white' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false'>
+<noteinfo noteid='142' unid='AD343054B835923D852563C500144ACF' sequence='29'>
+<created><datetime dst='true'>19961015T234138,71-04</datetime></created>
+<modified><datetime>20210909T151552,29+03</datetime></modified>
+<revised><datetime>20200514T204846,39+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,28+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,28+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='selection'><formula>SELECT ((Form = "URLRedirect") | (Form = "Redirection URL -&gt; URL"))</formula></code>
+<actionbar bgcolor='silver' bordercolor='black'>
+<actionbuttonstyle bgcolor='silver'/>
+<action title='Categori_ze' showinbar='false' systemcommand='categorize'/>
+<action title='_Edit Document' showinbar='false' systemcommand='edit'/>
+<action title='Send Docu_ment' showinbar='false' systemcommand='send'/>
+<action title='_Forward' showinbar='false' systemcommand='forward'/>
+<action title='_Move To Folder...' showinbar='false' systemcommand='movetofolder'/>
+<action title='_Remove From Folder' showinbar='false' systemcommand='removefromfolder'/>
+<action title='Remove Obsolete Documents' icon='90' showinmenu='false'><code
+ event='click'><lotusscript>Sub Click(Source As Button)
+	Dim workspace As New NotesUIWorkspace
+	Dim view As NotesView
+	Dim sess As New NotesSession
+	Dim db As NotesDatabase
+	Dim doc As NotesDocument
+	Dim lastdoc As NotesDocument
+	
+	Set db = sess.CurrentDatabase
+	Set view = db.GetView( "URL Redirections (Obsolete)" )
+	
+	Set doc = view.GetFirstDocument
+	If Not doc Is  Nothing Then
+		Set lastdoc = view.GetLastDocument
+		Do  While 1
+			Set doc = view.GetFirstDocument
+			If doc.universalid = lastdoc.universalid Then
+				Call doc.Remove( True )
+				Exit Do
+			End If
+			Call doc.remove( True )
+		Loop
+	End If
+	Call workspace.ViewRefresh
+End Sub</lotusscript></code></action></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='$20' width='1' resizable='true'
+ separatemultiplevalues='true' sortnoaccent='true' sortnocase='true' showaslinks='false'
+ categorized='true'><font size='9pt' color='blue' style='bold' name='Lucida Console'
+ pitch='fixed' truetype='true' familyid='30'/><columnheader><font size='8pt'/></columnheader><code
+ event='value'><formula>@If (RM_ServerIP = ""; "&lt;default&gt;"; RM_ServerIP)</formula></code></column>
+<column hidedetailrows='false' itemname='$21' width='1' resizable='true' separatemultiplevalues='false'
+ sortnoaccent='true' sortnocase='true' showaslinks='false' showasicons='true'><columnheader
+><font size='8pt' style='bold'/></columnheader><code event='value'><formula
+>@If (RM_MapFrom  = "/"; 160; 0)</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='$22' width='39'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Lucida Console' pitch='fixed'
+ truetype='true' familyid='30'/><columnheader title='Virtual Directory (URL Path)'><font
+ size='8pt'/></columnheader><code event='value'><formula>@If (RM_MapFrom = "/"; " &lt;home&gt;"; RM_MapFrom)</formula></code></column>
+<column hidedetailrows='false' itemname='RM_MapTo' width='38.6250' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Lucida Console' pitch='fixed' truetype='true' familyid='30'/><columnheader
+ title='Redirect to URL'><font size='8pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='Comment' width='10' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><columnheader
+><font size='8pt' style='bold'/></columnheader></column></view>
+
+<view name='($ObsURLMaps) ' alias=' URL Mappings (Obsolete)' showinmenu='false'
+ publicaccess='false' designerversion='6' unreadmarks='none' onopengoto='lastopened'
+ onrefresh='displayindicator' headers='beveled' opencollapsed='false' showresponsehierarchy='true'
+ showmargin='true' shrinkrows='false' extendlastcolumn='false' showhierarchies='false'
+ unreadcolor='black' rowlinecount='1' headerlinecount='1' rowspacing='1' bgcolor='white'
+ totalscolor='gray' headerbgcolor='white' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false'>
+<noteinfo noteid='152' unid='210D341AD2F0CCDE852563C50016FB4B' sequence='25'>
+<created><datetime dst='true'>19961016T001101,23-04</datetime></created>
+<modified><datetime>20210909T151552,33+03</datetime></modified>
+<revised><datetime>20200514T204846,43+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,32+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,32+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='selection'><formula>SELECT ((Form = "URLMap") | (Form = "Mapping URL -&gt; URL"))</formula></code>
+<actionbar bgcolor='silver' bordercolor='black'>
+<actionbuttonstyle bgcolor='silver'/>
+<action title='Categori_ze' showinbar='false' systemcommand='categorize'/>
+<action title='_Edit Document' showinbar='false' systemcommand='edit'/>
+<action title='Send Docu_ment' showinbar='false' systemcommand='send'/>
+<action title='_Forward' showinbar='false' systemcommand='forward'/>
+<action title='_Move To Folder...' showinbar='false' systemcommand='movetofolder'/>
+<action title='_Remove From Folder' showinbar='false' systemcommand='removefromfolder'/>
+<action title='Remove Obsolete Documents' icon='90' showinmenu='false'><code
+ event='click'><lotusscript>Sub Click(Source As Button)
+	Dim workspace As New NotesUIWorkspace
+	Dim view As NotesView
+	Dim sess As New NotesSession
+	Dim db As NotesDatabase
+	Dim doc As NotesDocument
+	Dim lastdoc As NotesDocument
+	
+	Set db = sess.CurrentDatabase
+	Set view = db.GetView( "URL Mappings (Obsolete)" )
+	
+	Set doc = view.GetFirstDocument
+	If Not doc Is  Nothing Then
+		Set lastdoc = view.GetLastDocument
+		Do  While 1
+			Set doc = view.GetFirstDocument
+			If doc.universalid = lastdoc.universalid Then
+				Call doc.Remove( True )
+				Exit Do
+			End If
+			Call doc.remove( True )
+		Loop
+	End If
+	Call workspace.ViewRefresh
+End Sub</lotusscript></code></action></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='$20' width='1' resizable='true'
+ separatemultiplevalues='true' sortnoaccent='true' sortnocase='true' showaslinks='false'
+ categorized='true'><font size='9pt' color='blue' style='bold' name='Lucida Console'
+ pitch='fixed' truetype='true' familyid='30'/><columnheader><font size='8pt'/></columnheader><code
+ event='value'><formula>@If (RM_ServerIP = ""; "&lt;default&gt;"; RM_ServerIP)</formula></code></column>
+<column hidedetailrows='false' itemname='$22' width='1' resizable='true' separatemultiplevalues='false'
+ sortnoaccent='true' sortnocase='true' showaslinks='false' showasicons='true'><columnheader
+><font size='8pt' style='bold'/></columnheader><code event='value'><formula
+>@If (RM_MapFrom  = "/"; 160; 0)</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='$21' width='27.2500'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Lucida Console' pitch='fixed'
+ truetype='true' familyid='30'/><columnheader title='First URL Path'><font
+ size='8pt'/></columnheader><code event='value'><formula>@If (RM_MapFrom = "/"; " &lt;home&gt;"; RM_MapFrom)</formula></code></column>
+<column align='center' hidedetailrows='false' itemname='$18' width='2.2500'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false' showasicons='true'><columnheader><font size='8pt' style='bold'/></columnheader><code
+ event='value'><formula>108</formula></code></column>
+<column hidedetailrows='false' itemname='RM_MapTo' width='29.1250' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Lucida Console' pitch='fixed' truetype='true' familyid='30'/><columnheader
+ title='Second URL Path'><font size='8pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='Comment' width='10' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><columnheader
+><font size='8pt' style='bold'/></columnheader></column></view>
+
+<view name='Error Message Form Mappings' alias='ErrorMappings' showinmenu='false'
+ allowdocselection='true' publicaccess='false' designerversion='6' unreadmarks='none'
+ onopengoto='lastopened' onrefresh='displayindicator' headers='beveled' opencollapsed='false'
+ showresponsehierarchy='true' showmargin='true' shrinkrows='false' extendlastcolumn='true'
+ showhierarchies='false' unreadcolor='black' rowlinecount='1' headerlinecount='1'
+ rowspacing='1' bgcolor='white' totalscolor='gray' headerbgcolor='white' boldunreadrows='false'
+ evaluateactions='false' allownewdocuments='false' allowcustomizations='true'
+ hidemarginborder='false' marginwidth='1px 0px 0px' marginbgcolor='black'
+ uniquekeys='false'>
+<noteinfo noteid='15a' unid='757212C86E6295A9852564870074F7E8' sequence='35'>
+<created><datetime dst='true'>19970428T171736,40-04</datetime></created>
+<modified><datetime>20210909T151552,35+03</datetime></modified>
+<revised><datetime>20200514T204846,47+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,34+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,34+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='selection'><formula>SELECT ((Form = "ErrorMap") | (Form = "Mapping Error Messages"))</formula></code>
+<actionbar useappletinbrowser='true' bgcolor='#b1b1d2' bordercolor='black'>
+<actionbuttonstyle bgcolor='#b1b1d2' textalign='center' internalmargin='3px'/><border
+ style='solid' color='none'/>
+<action title='Add Mapping' showinmenu='false'><imageref name='btnNewDoc.gif'/><code
+ event='click'><formula>@SetProfileField("Return"; "Error Message Mapping"; @Subset(@ViewTitle; -1));
+@PostedCommand([Compose]; "Mapping Error Messages")</formula></code></action>
+<action title='Edit Mapping' showinmenu='false'><imageref name='btnEdit.gif'/><code
+ event='click'><formula>@Command([EditDocument])</formula></code></action>
+<sharedactionref id='6'>
+<action title='Delete Mapping' showinmenu='false' hide='web'><imageref name='btnDelete.gif'/><code
+ event='click'><formula>@Command([EditClear])</formula></code></action></sharedactionref>
+<sharedactionref id='7'>
+<action title='Move to Trash' showinmenu='false' hide='notes'><imageref name='btnDelete.gif'/><code
+ event='click'><formula>@Command([MoveToTrash])</formula></code></action></sharedactionref>
+<sharedactionref id='8'>
+<action title='Empty Trash' showinmenu='false' hide='notes'><imageref name='btnTrash.gif'/><code
+ event='click'><formula>@Command([EmptyTrash])</formula></code></action></sharedactionref></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='$7' width='2' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'
+ hidden='true'><font size='9pt'/><columnheader><font size='9pt'/></columnheader><datetimeformat
+ show='datetime' date='yearmonthday' time='hourminutesecond' zone='never'
+ dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' varying='true' punctuated='false' parens='false' percent='false'
+ bytes='false' decimalsym='.' thousandssep=',' currencysymtype='custom' currencysym='$'
+ usecustomsym='false'/><code event='value'><formula>@TextToNumber(LF_ServerType)</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='$8' width='20.5000'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='true'><font size='9pt'/><columnheader title='Web Site/Virtual Server'><font
+ size='9pt'/></columnheader><datetimeformat show='datetime' date='yearmonthday'
+ time='hourminutesecond' zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday'
+ monthformat='twodigitmonth' yearformat='fourdigityear' weekdayformat='shortname'
+ dateseparator1=' ' dateseparator2='/' dateseparator3='/' timeseparator=':'
+ preference='usersetting'/><numberformat format='general' varying='true' punctuated='false'
+ parens='false' percent='false' bytes='false' decimalsym='.' thousandssep=','
+ currencysymtype='custom' currencysym='$' usecustomsym='false'/><code event='value'><formula
+>@If (EM_ServerType = "0"; "- All Web Sites/Entire Server -"; EM_IP)</formula></code></column>
+<column hidedetailrows='false' itemname='EM_Comment' width='39.6250' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt'/><columnheader title='Comment'><font size='9pt'/></columnheader></column></view>
+
+<view name='($ErrorMessages)' showinmenu='false' publicaccess='true' designerversion='6'
+ unreadmarks='none' onopengoto='lastopened' onrefresh='displayindicator' headers='beveled'
+ opencollapsed='false' showresponsehierarchy='true' showmargin='true' shrinkrows='false'
+ extendlastcolumn='false' showhierarchies='false' unreadcolor='black' rowlinecount='1'
+ headerlinecount='1' rowspacing='1' bgcolor='white' totalscolor='gray' headerbgcolor='white'
+ boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ uniquekeys='false'>
+<noteinfo noteid='15e' unid='E8D82C238950D458852564870074F9A0' sequence='19'>
+<created><datetime dst='true'>19970428T171740,80-04</datetime></created>
+<modified><datetime>20210909T151552,36+03</datetime></modified>
+<revised><datetime>20200514T204846,45+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,35+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,35+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='selection'><formula>SELECT ((Form = "ErrorMap") | (Form = "Mapping Error Messages"))</formula></code>
+<actionbar bordercolor='black'>
+<actionbuttonstyle bgcolor='#d5ccbb'/>
+<action title='Categori_ze' showinmenu='false' showinbar='false' systemcommand='categorize'/>
+<action title='_Edit Document' showinbar='false' systemcommand='edit'/>
+<action title='Send Docu_ment' showinbar='false' systemcommand='send'/>
+<action title='_Forward' showinmenu='false' showinbar='false' systemcommand='forward'/>
+<action title='_Move To Folder...' showinmenu='false' showinbar='false' systemcommand='movetofolder'/>
+<action title='_Remove From Folder' showinmenu='false' showinbar='false' systemcommand='removefromfolder'/></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='EM_ServerType' width='7.3750'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt'/><columnheader title='Server Type'><font
+ size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='EM_IP' width='2' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt'/><columnheader title='IP'><font size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='EM_AuthenticateDB' width='11' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt'/><columnheader title='Authentication DB'><font size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='EM_AuthenticateForm' width='11' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt'/><columnheader title='Authentication Form'><font size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='EM_AuthorizeDB' width='11' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt'/><columnheader title='Authorization DB'><font size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='EM_AuthorizeForm' width='11' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt'/><columnheader title='Authorization Form'><font size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='EM_ErrorDB' width='5.6250' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt'/><columnheader title='Gen DB'><font size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='EM_ErrorForm' width='5.8750' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt'/><columnheader title='Gen Form'><font size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='EM_DeleteDB' width='4.7500' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt'/><columnheader title='Del DB'><font size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='EM_DeleteForm' width='5.7500' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt'/><columnheader title='Del Form'><font size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='EM_ExpiredErrorDB' width='7' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt'/><columnheader title='Expired DB'><font size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='EM_ExpiredErrorForm' width='7.3750'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt'/><columnheader title='Expired Form'><font
+ size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='EM_CannotSubmitDB' width='11.2500'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt'/><columnheader title='ChangeRestricted DB'><font
+ size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='EM_CannotSubmitForm' width='12.5000'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt'/><columnheader title='ChangeRestricted Form'><font
+ size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='EM_PasswordSubmitDB' width='12' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt'/><columnheader title='PasswordSubmit DB'><font size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='EM_PasswordSubmitForm' width='12.5000'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt'/><columnheader title='Password Submit Form'><font
+ size='9pt'/></columnheader></column></view>
+
+<view name='($LoginForms)' showinmenu='false' publicaccess='true' designerversion='6'
+ unreadmarks='none' onopengoto='lastopened' onrefresh='displayindicator' headers='beveled'
+ opencollapsed='false' showresponsehierarchy='true' showmargin='true' shrinkrows='false'
+ extendlastcolumn='false' showhierarchies='false' unreadcolor='black' rowlinecount='1'
+ headerlinecount='1' rowspacing='1' bgcolor='white' totalscolor='gray' headerbgcolor='white'
+ boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ uniquekeys='false'>
+<noteinfo noteid='16a' unid='86B4A7FCABFD882C852566B1007C82EA' sequence='26'>
+<created><datetime dst='true'>19981103T183959,78-04</datetime></created>
+<modified><datetime>20210909T151552,39+03</datetime></modified>
+<revised><datetime>20200514T204846,50+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,38+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,38+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='selection'><formula>SELECT ((Form = "LoginMap") | (Form = "Mapping a Login Form"))</formula></code>
+<actionbar bordercolor='black'>
+<actionbuttonstyle bgcolor='silver'/>
+<action title='Categori_ze' showinmenu='false' showinbar='false' systemcommand='categorize'/>
+<action title='_Edit Document' showinbar='false' systemcommand='edit'/>
+<action title='Send Docu_ment' showinbar='false' systemcommand='send'/>
+<action title='_Forward' showinmenu='false' showinbar='false' systemcommand='forward'/>
+<action title='_Move To Folder...' showinmenu='false' showinbar='false' systemcommand='movetofolder'/>
+<action title='_Remove From Folder' showinmenu='false' showinbar='false' systemcommand='removefromfolder'/></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='$1' width='17' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt'/><columnheader title='Mapping'><font size='9pt'/></columnheader><code
+ event='value'><formula>@If(LF_ServerType = "0"; "(Server Wide Settings)";LF_IP)</formula></code></column></view>
+
+<view name='Sign In Form Mappings' alias='LoginMappings' showinmenu='false'
+ allowdocselection='true' publicaccess='false' designerversion='6' unreadmarks='none'
+ onopengoto='lastopened' onrefresh='displayindicator' headers='beveled' opencollapsed='false'
+ showresponsehierarchy='true' showmargin='true' shrinkrows='false' extendlastcolumn='true'
+ showhierarchies='false' unreadcolor='black' rowlinecount='1' headerlinecount='1'
+ rowspacing='1' haslinkcolumn='true' bgcolor='white' totalscolor='gray' headerbgcolor='#e1e1e1'
+ boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='1px 0px 0px'
+ marginbgcolor='black' uniquekeys='false'>
+<noteinfo noteid='172' unid='5F0BC23DB4966A32852566E10018C61D' sequence='91'>
+<created><datetime dst='true'>19981221T003035,81-04</datetime></created>
+<modified><datetime>20210909T151552,41+03</datetime></modified>
+<revised><datetime>20200514T204846,52+00</datetime></revised>
+<lastaccessed><datetime>20210909T151725,71+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,40+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='selection'><formula>SELECT ((Form = "LoginMap") | (Form = "Mapping a Login Form"))</formula></code>
+<actionbar useappletinbrowser='true' bgcolor='#b1b1d2' bordercolor='black'>
+<actionbuttonstyle bgcolor='none' textalign='center' internalmargin='3px'><imageref
+ name='ActionButton.gif'/></actionbuttonstyle><border style='solid' color='none'/>
+<action title='Add Mapping' showinmenu='false'><imageref name='btnNewDoc.gif'/><code
+ event='click'><formula>@SetProfileField("Return"; "Login Form Mappings"; @Subset(@ViewTitle; -1));
+@PostedCommand([Compose]; "Mapping a Login Form")</formula></code></action>
+<action title='Edit Mapping' showinmenu='false'><imageref name='btnEdit.gif'/><code
+ event='click'><formula>@Command([EditDocument])</formula></code></action>
+<sharedactionref id='6'>
+<action title='Delete Mapping' showinmenu='false' hide='web'><imageref name='btnDelete.gif'/><code
+ event='click'><formula>@Command([EditClear])</formula></code></action></sharedactionref>
+<sharedactionref id='7'>
+<action title='Move to Trash' showinmenu='false' hide='notes'><imageref name='btnDelete.gif'/><code
+ event='click'><formula>@Command([MoveToTrash])</formula></code></action></sharedactionref>
+<sharedactionref id='8'>
+<action title='Empty Trash' showinmenu='false' hide='notes'><imageref name='btnTrash.gif'/><code
+ event='click'><formula>@Command([EmptyTrash])</formula></code></action></sharedactionref></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='$7' width='2' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'
+ hidden='true'><font size='9pt'/><columnheader><font size='9pt'/></columnheader><datetimeformat
+ show='datetime' date='yearmonthday' time='hourminutesecond' zone='never'
+ dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' varying='true' punctuated='false' parens='false' percent='false'
+ bytes='false' decimalsym='.' thousandssep=',' currencysymtype='custom' currencysym='$'
+ usecustomsym='false'/><code event='value'><formula>@TextToNumber(LF_ServerType)</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='$6' width='20' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='true'><font
+ size='9pt'/><columnheader title='Web Site/Virtual Server'><font size='9pt'/></columnheader><datetimeformat
+ show='datetime' date='yearmonthday' time='hourminutesecond' zone='never'
+ dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' varying='true' punctuated='false' parens='false' percent='false'
+ bytes='false' decimalsym='.' thousandssep=',' currencysymtype='custom' currencysym='$'
+ usecustomsym='false'/><code event='value'><formula>@If (LF_ServerType = "0"; "- All Web Sites/Entire Server -"; LF_IP)</formula></code></column>
+<column hidedetailrows='false' itemname='LF_LoginFormDB' width='15' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='true'><font
+ size='9pt'/><columnheader title='Database Path'><font size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='LF_LoginForm' width='20' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='true'><font
+ size='9pt'/><columnheader title='Form Name'><font size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='LF_Comment' width='39.6250' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='true'><font
+ size='9pt'/><columnheader title='Comment'><font size='9pt'/></columnheader></column></view>
+
+<view name='($PasswordForms)' showinmenu='false' publicaccess='true' designerversion='6'
+ unreadmarks='none' onopengoto='lastopened' onrefresh='displayindicator' headers='beveled'
+ opencollapsed='false' showresponsehierarchy='true' showmargin='true' shrinkrows='false'
+ extendlastcolumn='false' showhierarchies='false' unreadcolor='black' rowlinecount='1'
+ headerlinecount='1' rowspacing='1' bgcolor='white' totalscolor='gray' headerbgcolor='white'
+ boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ uniquekeys='false'>
+<noteinfo noteid='17a' unid='D78966C8EA1B6008852569FA00607012' sequence='16'>
+<created><datetime dst='true'>20010221T133321,46-04</datetime></created>
+<modified><datetime>20210909T151552,43+03</datetime></modified>
+<revised><datetime>20200514T204846,54+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,42+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,42+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='selection'><formula>SELECT ((Form = "PasswordMap") | (Form = "Mapping a Change Password Form"))</formula></code>
+<actionbar bordercolor='black'>
+<actionbuttonstyle bgcolor='silver'/>
+<action title='Categori_ze' showinmenu='false' showinbar='false' systemcommand='categorize'/>
+<action title='_Edit Document' showinbar='false' systemcommand='edit'/>
+<action title='Send Docu_ment' showinbar='false' systemcommand='send'/>
+<action title='_Forward' showinmenu='false' showinbar='false' systemcommand='forward'/>
+<action title='_Move To Folder...' showinmenu='false' showinbar='false' systemcommand='movetofolder'/>
+<action title='_Remove From Folder' showinmenu='false' showinbar='false' systemcommand='removefromfolder'/></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='$1' width='17' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><columnheader
+ title='Mapping'><font size='9pt'/></columnheader><code event='value'><formula
+>@If(LF_ServerType = "0"; "(Server Wide Settings)";LF_IP)</formula></code></column></view>
+
+<view name='Change Password Form Mappings' alias='PasswordMappings' showinmenu='false'
+ allowdocselection='true' publicaccess='false' designerversion='6' unreadmarks='none'
+ onopengoto='lastopened' onrefresh='displayindicator' headers='beveled' opencollapsed='false'
+ showresponsehierarchy='true' showmargin='true' shrinkrows='false' extendlastcolumn='true'
+ showhierarchies='false' unreadcolor='black' rowlinecount='1' headerlinecount='1'
+ rowspacing='1' bgcolor='white' totalscolor='gray' headerbgcolor='white' boldunreadrows='false'
+ evaluateactions='false' allownewdocuments='false' allowcustomizations='true'
+ hidemarginborder='false' marginwidth='1px 0px 0px' marginbgcolor='black'
+ uniquekeys='false'>
+<noteinfo noteid='17e' unid='2B507F264C1F85DD852569FA006099DB' sequence='39'>
+<created><datetime dst='true'>20010221T133508,43-04</datetime></created>
+<modified><datetime>20210909T151552,44+03</datetime></modified>
+<revised><datetime>20200514T204846,56+00</datetime></revised>
+<lastaccessed><datetime>20210909T151552,43+03</datetime></lastaccessed>
+<addedtofile><datetime>20210909T151552,43+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></updatedby>
+<wassignedby><name>CN=Lotus Notes Template Development/O=Lotus Notes</name></wassignedby><code
+ event='selection'><formula>SELECT ((Form = "PasswordMap") | (Form = "Mapping a Change Password Form"))</formula></code>
+<actionbar useappletinbrowser='true' bgcolor='#b1b1d2' bordercolor='black'>
+<actionbuttonstyle bgcolor='#b1b1d2' textalign='center' internalmargin='3px'/><border
+ style='solid' color='none'/>
+<action title='Add Mapping' showinmenu='false'><imageref name='btnNewDoc.gif'/><code
+ event='click'><formula>@SetProfileField("Return"; "Change Password Form Mappings"; @Subset(@ViewTitle; -1));
+@PostedCommand([Compose]; "Mapping a Change Password Form")</formula></code></action>
+<action title='Edit Mapping' showinmenu='false'><imageref name='btnEdit.gif'/><code
+ event='click'><formula>@Command([EditDocument])</formula></code></action>
+<sharedactionref id='6'>
+<action title='Delete Mapping' showinmenu='false' hide='web'><imageref name='btnDelete.gif'/><code
+ event='click'><formula>@Command([EditClear])</formula></code></action></sharedactionref>
+<sharedactionref id='7'>
+<action title='Move to Trash' showinmenu='false' hide='notes'><imageref name='btnDelete.gif'/><code
+ event='click'><formula>@Command([MoveToTrash])</formula></code></action></sharedactionref>
+<sharedactionref id='8'>
+<action title='Empty Trash' showinmenu='false' hide='notes'><imageref name='btnTrash.gif'/><code
+ event='click'><formula>@Command([EmptyTrash])</formula></code></action></sharedactionref></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='$7' width='2' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'
+ hidden='true'><font size='9pt'/><columnheader><font size='9pt'/></columnheader><datetimeformat
+ show='datetime' date='yearmonthday' time='hourminutesecond' zone='never'
+ dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' varying='true' punctuated='false' parens='false' percent='false'
+ bytes='false' decimalsym='.' thousandssep=',' currencysymtype='custom' currencysym='$'
+ usecustomsym='false'/><code event='value'><formula>@TextToNumber(LF_ServerType)</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='$8' width='20' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='true'><font
+ size='9pt'/><columnheader title='Web Site/Virtual Server'><font size='9pt'/></columnheader><datetimeformat
+ show='datetime' date='yearmonthday' time='hourminutesecond' zone='never'
+ dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' varying='true' punctuated='false' parens='false' percent='false'
+ bytes='false' decimalsym='.' thousandssep=',' currencysymtype='custom' currencysym='$'
+ usecustomsym='false'/><code event='value'><formula>@If (LF_ServerType = "0"; "- All Web Sites/Entire Server -"; LF_IP)</formula></code></column>
+<column hidedetailrows='false' itemname='LF_PasswordFormDB' width='15' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='true'><font
+ size='9pt'/><columnheader title='Database Path'><font size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='LF_PasswordForm' width='20' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='true'><font
+ size='9pt'/><columnheader title='Form Name'><font size='9pt'/></columnheader></column>
+<column hidedetailrows='false' itemname='LF_Comment' width='39.6250' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='true'><font
+ size='9pt'/><columnheader title='Comment'><font size='9pt'/></columnheader></column></view>
+</database>
+

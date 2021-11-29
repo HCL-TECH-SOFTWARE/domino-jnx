@@ -17,21 +17,23 @@
 package it.com.hcl.domino.test.queries;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
-import java.util.zip.GZIPInputStream;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -41,6 +43,7 @@ import com.hcl.domino.DominoClient.Encryption;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.CollectionEntry.SpecialValue;
+import com.hcl.domino.data.CollectionSearchQuery;
 import com.hcl.domino.data.CollectionSearchQuery.SelectedEntries;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
@@ -52,16 +55,14 @@ import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.dql.DQL;
 import com.hcl.domino.dql.DQL.DQLTerm;
 import com.hcl.domino.dxl.DxlExporter;
-import com.hcl.domino.dxl.DxlImporter;
-import com.hcl.domino.dxl.DxlImporter.DXLImportOption;
-import com.hcl.domino.dxl.DxlImporter.XMLValidationOption;
-import com.ibm.commons.util.PathUtil;
 import com.ibm.commons.util.StringUtil;
-import com.ibm.commons.util.io.StreamUtil;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
+/**
+ * Testcases for view lookups
+ */
 public class TestViewQueries extends AbstractNotesRuntimeTest {
 
   @Test
@@ -115,48 +116,6 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
         });
   }
 
-  protected void initViewQueryTestDbDesign(final Database db) throws Exception {
-    final DominoClient client = this.getClient();
-    final DxlImporter importer = client.createDxlImporter();
-    importer.setInputValidationOption(XMLValidationOption.NEVER);
-    importer.setDesignImportOption(DXLImportOption.REPLACE_ELSE_CREATE);
-    importer.setReplicaRequiredForReplaceOrUpdate(false);
-
-    AbstractNotesRuntimeTest.getResourceFiles("/dxl/testViewQueries").stream()
-        .filter(Objects::nonNull)
-        .map(name -> PathUtil.concat("/", name, '/'))
-        .map(name -> StringUtil.endsWithIgnoreCase(name, ".xml") ? (InputStream) this.getClass().getResourceAsStream(name)
-            : StringUtil.endsWithIgnoreCase(name, ".xml.gz")
-                ? AbstractNotesRuntimeTest.call(() -> new GZIPInputStream(this.getClass().getResourceAsStream(name)))
-                : null)
-        .filter(Objects::nonNull)
-        .forEach(is -> {
-          try {
-            importer.importDxl(is, db);
-          } catch (final IOException e2) {
-            throw new RuntimeException(e2);
-          } finally {
-            StreamUtil.close(is);
-          }
-        });
-
-    // sign imported design
-    db
-        .queryFormula("@true", null, new HashSet<>(), null, EnumSet.of(DocumentClass.ALLNONDATA))
-        .getDocuments()
-        .forEach(doc -> {
-          doc.sign();
-          doc.save();
-
-          // String name = doc.get("$TITLE", String.class, null);
-          // System.out.println("Signed "+name);
-        });
-
-    final int SAMPLE_SIZE = 4000;
-    System.out.println("Generating " + SAMPLE_SIZE + " persons in database " + db.getServer() + "!!" + db.getRelativeFilePath());
-    AbstractNotesRuntimeTest.generateNABPersons(db, 4000);
-  }
-
   @Test
   public void testCategoryLookup() throws Exception {
     this.withViewQueryTestDb(database -> {
@@ -180,7 +139,7 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
 
       final String catEntryPos = categoryEntry.getSpecialValue(SpecialValue.INDEXPOSITION, String.class, "");
 
-      System.out.println("Category entry: " + categoryEntry);
+//      System.out.println("Category entry: " + categoryEntry);
 
       {
         // now try to find it via its note id
@@ -262,6 +221,124 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
   }
 
   @Test
+  public void testSearchAtFirstEntry() throws Exception {
+    this.withViewQueryTestDb(database -> {
+      final DominoCollection view = database.openCollection("Lastname Firstname Flat").get();
+      view.resortView("lastname", Direction.Descending);
+      CollectionSearchQuery query = view.query();
+
+      Optional<CollectionEntry> firstEntry = query.firstEntry();
+      Optional<Integer> firstId = query
+              .startAtFirstEntry()
+              .collectIds(0, 1)
+              .stream()
+              .findFirst();
+
+      Assertions.assertTrue(firstEntry.isPresent());
+      Assertions.assertTrue(firstId.isPresent());
+      Assertions.assertEquals(firstId.get(), firstEntry.get().getNoteID());
+    });
+  }
+
+  @Test
+  public void testSelectByMultipleKey() throws Exception {
+    this.withViewQueryTestDb(database -> {
+      final DominoCollection view = database.openCollection("Lastname Firstname Flat").get();
+      CollectionSearchQuery query = view.query();
+
+      String firstKey = "Abbo";
+      String secondKey = "H";
+      final List<Object> lookupKeys = Arrays.asList(firstKey, secondKey);
+      query
+              .startAtFirstEntry()
+              .selectByKey(lookupKeys, false)
+              .forEachDocument(0, 4000, (doc, loop) -> {
+                String lastname = doc.getItemValue("Lastname").toString();
+                String firstname = doc.getItemValue("Firstname").toString();
+                Assertions.assertTrue(lastname.contains(firstKey) && firstname.contains(secondKey));
+              });
+      Set<Integer> ids = query.collectIds(0, 4000);
+
+      Assertions.assertEquals(2, query.size());
+      Assertions.assertEquals(2, ids.size());
+    });
+  }
+
+  @Test
+  public void testDeselectByKey() throws Exception {
+    this.withViewQueryTestDb(database -> {
+      final DominoCollection view = database.openCollection("Lastname Firstname Flat").get();
+      CollectionSearchQuery query = view.query();
+
+      final String lookupKey = "Abbo";
+      Set<Integer> ids = query
+              .startAtFirstEntry()
+              .deselectByKey(lookupKey, false)
+              .collectIds(0, 4000);
+
+      Assertions.assertEquals(3996, ids.size());
+      ids.forEach(id -> Assertions.assertFalse(database.getDocumentById(id).get()
+              .getItemValue("Lastname").toString()
+              .contains(lookupKey)));
+    });
+  }
+
+  @Test
+  public void testDeselectByMultipleKeys() throws Exception {
+    this.withViewQueryTestDb(database -> {
+      final DominoCollection view = database.openCollection("Lastname Firstname Flat").get();
+      CollectionSearchQuery query = view.query();
+
+      String firstKey = "Abbo";
+      String secondKey = "H";
+      final List<Object> lookupKeys = Arrays.asList(firstKey, secondKey);
+      Set<Integer> ids = new HashSet<>();
+      query.startAtFirstEntry()
+              .deselectByKey(lookupKeys, false)
+              .collectIds(0, 4000, ids);
+
+      Assertions.assertEquals(3998, ids.size());
+      ids.forEach(id -> {
+        Document curDoc = database.getDocumentById(id).get();
+        String lastname = curDoc.getItemValue("Lastname").toString();
+        String firstname = curDoc.getItemValue("Firstname").toString();
+        Assertions.assertFalse(lastname.contains(firstKey) && firstname.contains(secondKey));
+      });
+    });
+  }
+
+  @Test
+  public void testLookupByDifferentLevelsOfCategory() throws Exception {
+    this.withViewQueryTestDb(database -> {
+      final DominoCollection view = database.openCollection("Lastname Birthyear Categorized").get();
+
+      final List<Object> categories = Arrays.asList("A", "Abbott");
+      String categoryString = categories.stream()
+              .map(Object::toString)
+              .collect(Collectors.joining("\\"));
+
+      final List<CollectionEntry> categoryEntries = new ArrayList<>();
+      List<SpecialValue> specialValues = Arrays.asList(SpecialValue.INDEXPOSITION, SpecialValue.SEQUENCENUMBER);
+      view
+              .query()
+              .direction(Navigate.NEXT_DOCUMENT)
+              .readColumnValues()
+              .readSpecialValues(specialValues)
+              .startAtCategory(categories)
+              .collectEntries(0, 4000, categoryEntries);
+      Assertions.assertNotEquals(Collections.emptyList(), categoryEntries, "category entry should not be empty");
+      Assertions.assertEquals(4, categoryEntries.size());
+
+      categoryEntries.forEach(categoryEntry -> {
+        Assertions.assertFalse(categoryEntry.getItemNames().isEmpty(), "category should have item names");
+        Assertions.assertFalse(categoryEntry.isEmpty(), "category entry should have column values");
+        final String actualCategory = categoryEntry.get("$0", String.class, null);
+        Assertions.assertEquals(categoryString, actualCategory);
+      });
+    });
+  }
+
+  @Test
   public void testLookupByCategory() throws Exception {
     this.withViewQueryTestDb(database -> {
       final DominoCollection view = database.openCollection("Lastname Birthyear Categorized").get();
@@ -287,24 +364,28 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
 
   @Test
   public void testLookupByKey() throws Exception {
-    final DominoClient client = this.getClient();
-    final Database dbFakenames = client.openDatabase("fakenames.nsf");
-    final DominoCollection view = dbFakenames.openCollection("($Users)").get();
+    withViewQueryTestDb((database) -> {
+      final DominoCollection view = database.openCollection("Lastname Firstname Flat").get();
 
-    final String lookupKey = "Abbo";
-    final boolean exact = false;
+      final String lookupKey = "Abbo";
+      final boolean exact = false;
 
-    final int skip = 0;
-    final int count = Integer.MAX_VALUE;
+      final int skip = 0;
+      final int count = Integer.MAX_VALUE;
 
-    @SuppressWarnings("unused")
-    final List<CollectionEntry> entries = view
-        .query()
-        .selectByKey(lookupKey, exact)
-        .readUNID()
-        .readColumnValues()
-        .readSpecialValues(SpecialValue.INDEXPOSITION)
-        .collectEntries(skip, count);
+      final List<CollectionEntry> entries = view
+          .query()
+          .selectByKey(lookupKey, exact)
+          .readUNID()
+          .readColumnValues()
+          .readSpecialValues(SpecialValue.INDEXPOSITION)
+          .collectEntries(skip, count);
+      
+      Assertions.assertFalse(entries.isEmpty());
+      entries.forEach((entry) -> {
+        Assertions.assertTrue(entry.get("Lastname", String.class, "").startsWith(lookupKey));
+      });
+    });
   }
 
   // Test for issue #138 "DominoCollectionInfo returns empty strings for
@@ -316,6 +397,20 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
     final Database names = client.openDatabase("pernames.ntf");
     Assertions.assertTrue(names.getAllCollections()
         .noneMatch(c -> StringUtil.isEmpty(c.getTitle())));
+  }
+
+  @Test
+  public void testExpand() throws Exception {
+    this.withViewQueryTestDb(database -> {
+      final DominoCollection view = database.openCollection("Lastname Birthyear Categorized").get();
+      CollectionSearchQuery query = view.query().expand(CollectionSearchQuery.ExpandedEntries.collapseAll());
+
+      List<CollectionEntry> entries = query
+              .readColumnValues()
+              .collectEntries(0, 4000);
+
+      Assertions.assertEquals(25, entries.size());
+    });
   }
 
   protected void withViewQueryTestDb(final DatabaseConsumer c) throws Exception {
@@ -336,15 +431,17 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
         System.out.println("Generated database " + dbFilePath);
 
         db = client.createDatabase("", dbFilePath, true, true, Encryption.None);
-        this.initViewQueryTestDbDesign(db);
+        populateResourceDxl("/dxl/testViewQueries", db);
+        generateNABPersons(db, 4000);
       }
 
       c.accept(db);
     } else {
-      this.withTempDb(database -> {
-        this.initViewQueryTestDbDesign(database);
+      this.withTempDb(db -> {
+        populateResourceDxl("/dxl/testViewQueries", db);
+        generateNABPersons(db, 4000);
 
-        c.accept(database);
+        c.accept(db);
       });
     }
   }

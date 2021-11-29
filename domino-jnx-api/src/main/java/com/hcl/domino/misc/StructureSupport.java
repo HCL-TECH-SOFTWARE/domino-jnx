@@ -350,6 +350,12 @@ public enum StructureSupport {
         (final long newLen) -> sizeWriter.accept((int) newLen));
   }
 
+  public static <T extends ResizableMemoryStructure> T writeStringValue(final T struct, final int preLen, final int currentLen,
+      final String value, boolean replaceLinebreaks, final IntConsumer sizeWriter) {
+    return StructureSupport.writeStringValue(struct, preLen, currentLen, value, replaceLinebreaks,
+        (final long newLen) -> sizeWriter.accept((int) newLen));
+  }
+
   public static <T extends ResizableMemoryStructure> T writeStringValue(final T struct, final long preLen, final long currentLen,
       final String value, final LongConsumer sizeWriter) {
     

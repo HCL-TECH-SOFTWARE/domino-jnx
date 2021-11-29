@@ -14,18 +14,33 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.agent;
+package com.hcl.domino.exception;
 
-import java.util.List;
-
-import com.hcl.domino.design.simpleaction.SimpleAction;
+import com.hcl.domino.DominoException;
 
 /**
- * Represents the contents of a Simple Action agent.
+ * Error is thrown when the Domino C API cannot be accessed.
  *
- * @author Jesse Gallagher
- * @since 1.0.24
+ * @author Karsten Lehmann
+ * @since 1.0.48
  */
-public interface SimpleActionAgentContent extends AgentContent {
-  List<SimpleAction> getActions();
+public class DominoInitException extends DominoException {
+  private static final long serialVersionUID = 1L;
+
+  public DominoInitException(final int id, final String message) {
+    super(id, message);
+  }
+
+  public DominoInitException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
+  }
+
+  public DominoInitException(final String msg) {
+    super(msg);
+  }
+
+  public DominoInitException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
+
 }

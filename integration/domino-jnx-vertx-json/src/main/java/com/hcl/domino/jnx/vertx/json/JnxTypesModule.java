@@ -16,7 +16,12 @@
  */
 package com.hcl.domino.jnx.vertx.json;
 
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.BeanSerializerModifier;
+import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
 import com.hcl.domino.data.DominoDateRange;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.jnx.vertx.json.deserializer.DominoDateRangeDeserializer;
@@ -37,5 +42,27 @@ public class JnxTypesModule extends SimpleModule {
     addDeserializer(DominoDateTime.class, new DominoDateTimeDeserializer((Class<DominoDateTime>)DominoDateTime.class));
     addDeserializer(DominoDateRange.class, new DominoDateRangeDeserializer((Class<DominoDateRange>)DominoDateRange.class));
   }
+
+  @Override
+  public void setupModule(SetupContext context) {
+    context.addBeanSerializerModifier(new BeanSerializerModifier() {
+
+      @Override
+      public JsonSerializer<?> modifySerializer(
+          SerializationConfig config,
+          BeanDescription beanDesc,
+          JsonSerializer<?> serializer) {
+
+        if (serializer instanceof BeanSerializerBase) {
+          return new AgentOrLibraryLanguageSerializer(
+              (BeanSerializerBase) serializer);
+        }
+        else {
+          return serializer; 
+        }
+      }                   
+    });
+  }
+
 
 }

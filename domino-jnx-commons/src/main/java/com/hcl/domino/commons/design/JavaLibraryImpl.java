@@ -16,45 +16,160 @@
  */
 package com.hcl.domino.commons.design;
 
-import java.util.Arrays;
-import java.util.stream.Collectors;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
-import com.hcl.domino.commons.design.agent.DefaultJavaAgentContent;
-import com.hcl.domino.commons.util.StringUtil;
+import com.hcl.domino.commons.design.agent.JavaAgentAndLibrarySupport;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.JavaLibrary;
-import com.hcl.domino.design.agent.JavaAgentContent;
-import com.hcl.domino.misc.NotesConstants;
-import com.hcl.domino.richtext.records.CDActionJavaAgent;
-import com.hcl.domino.richtext.records.RecordType.Area;
 
 /**
  * @author Jesse Gallagher
  * @since 1.0.24
  */
 public class JavaLibraryImpl extends AbstractScriptLibrary<JavaLibrary> implements JavaLibrary {
+  private JavaAgentAndLibrarySupport designSupport;
 
   public JavaLibraryImpl(final Document doc) {
     super(doc);
+    this.designSupport = new JavaAgentAndLibrarySupport(this);
   }
 
   @Override
-  public JavaAgentContent getScriptContent() {
-    final CDActionJavaAgent action = this.getDocument().getRichTextItem(NotesConstants.ASSIST_ACTION_ITEM, Area.TYPE_ACTION)
-        .stream()
-        .filter(CDActionJavaAgent.class::isInstance)
-        .map(CDActionJavaAgent.class::cast)
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException("Unable to find Java action data"));
-    return new DefaultJavaAgentContent(
-        this,
-        action.getClassName(),
-        action.getCodePath(),
-        Arrays.stream(action.getFileList().split("(\\r)?\\n")) //$NON-NLS-1$
-            .filter(StringUtil::isNotEmpty)
-            .collect(Collectors.toList()),
-        Arrays.stream(action.getLibraryList().split("(\\r)?\\n")) //$NON-NLS-1$
-            .filter(StringUtil::isNotEmpty)
-            .collect(Collectors.toList()));
+  public void setJavaCompilerSource(String target) {
+    getDocument().replaceItemValue("$JavaCompilerSource", target); //$NON-NLS-1$
   }
+
+  @Override
+  public String getJavaCompilerSource() {
+    return getDocument().get("$JavaCompilerSource", String.class, "");  //$NON-NLS-1$ //$NON-NLS-2$
+  }
+  
+  @Override
+  public void setJavaCompilerTarget(String target) {
+    getDocument().replaceItemValue("$JavaCompilerTarget", target); //$NON-NLS-1$
+  }
+  
+  @Override
+  public String getJavaCompilerTarget() {
+    return getDocument().get("$JavaCompilerTarget", String.class, ""); //$NON-NLS-1$ //$NON-NLS-2$
+  }
+
+  @Override
+  public JavaLibrary initJavaContent() {
+    designSupport.initJavaContent();
+    return this;
+  }
+
+  @Override
+  public String getCodeFilesystemPath() {
+    return designSupport.getCodeFilesystemPath();
+  }
+
+  @Override
+  public JavaLibrary setCodeFilesystemPath(String path) {
+    designSupport.setCodeFilesystemPath(path);
+    return this;
+  }
+
+  @Override
+  public List<String> getEmbeddedJarNames() {
+    return designSupport.getEmbeddedJarNames();
+  }
+
+  @Override
+  public JavaLibrary setEmbeddedJars(Map<String, InputStream> embeddedJars) {
+    designSupport.setEmbeddedJars(embeddedJars);
+    return this;
+  }
+
+  @Override
+  public JavaLibrary setEmbeddedJar(String fileName, InputStream in) {
+    designSupport.setEmbeddedJar(fileName, in);
+    return this;
+  }
+
+  @Override
+  public JavaLibrary removeEmbeddedJar(String fileNameToRemove) {
+    designSupport.removeEmbeddedJar(fileNameToRemove);
+    return this;
+  }
+
+  @Override
+  public JavaLibrary setSourceAttachment(InputStream in) {
+    designSupport.setSourceAttachment(in);
+    return this;
+  }
+
+  @Override
+  public JavaLibrary setObjectAttachment(InputStream in) {
+    designSupport.setObjectAttachment(in);
+    return this;
+  }
+
+  @Override
+  public JavaLibrary setResourceAttachment(InputStream in) {
+    designSupport.setResourceAttachment(in);
+    return this;
+  }
+
+  @Override
+  public Optional<InputStream> getEmbeddedJar(String name) {
+    return designSupport.getEmbeddedJar(name);
+  }
+
+  @Override
+  public String getMainClassName() {
+    return designSupport.getMainClassName();
+  }
+
+  @Override
+  public JavaLibrary setMainClassName(String name) {
+    designSupport.setMainClassName(name);
+    return this;
+  }
+
+  @Override
+  public Optional<String> getObjectAttachmentName() {
+   return designSupport.getObjectAttachmentName();
+  }
+
+  @Override
+  public Optional<InputStream> getObjectAttachment() {
+    return designSupport.getObjectAttachment();
+  }
+
+  @Override
+  public Optional<String> getResourcesAttachmentName() {
+    return designSupport.getResourcesAttachmentName();
+  }
+  
+  @Override
+  public Optional<InputStream> getResourcesAttachment() {
+    return designSupport.getResourcesAttachment();
+  }
+
+  @Override
+  public List<String> getSharedLibraryList() {
+    return designSupport.getSharedLibraryList();
+  }
+
+  @Override
+  public JavaLibrary setSharedLibraryList(List<String> libs) {
+    designSupport.setSharedLibraryList(libs);
+    return this;
+  }
+
+  @Override
+  public Optional<String> getSourceAttachmentName() {
+    return designSupport.getSourceAttachmentName();
+  }
+
+  @Override
+  public Optional<InputStream> getSourceAttachment() {
+   return designSupport.getSourceAttachment();
+  }
+
 }

@@ -16,6 +16,8 @@
  */
 package it.com.hcl.domino.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -25,16 +27,21 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -47,8 +54,11 @@ import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClient.Encryption;
 import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.DominoProcess;
+import com.hcl.domino.data.AutoCloseableDocument;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.DocumentClass;
+import com.hcl.domino.data.IDTable;
 import com.hcl.domino.dxl.DxlImporter;
 import com.hcl.domino.dxl.DxlImporter.DXLImportOption;
 import com.hcl.domino.dxl.DxlImporter.XMLValidationOption;
@@ -233,6 +243,23 @@ public abstract class AbstractNotesRuntimeTest {
             StreamUtil.close(is);
           }
         });
+    
+    Optional<IDTable> importedNoteIds = importer.getImportedNoteIds();
+
+    //sign imported design
+    if (importedNoteIds.isPresent()) {
+      for (int noteId : importedNoteIds.get()) {
+        Optional<Document> docOpt = database.getDocumentById(noteId);
+        if (docOpt.isPresent()) {
+          try (AutoCloseableDocument doc = docOpt.get().autoClosable()) {
+            if (!doc.getDocumentClass().contains(DocumentClass.DATA)) {
+              doc.sign();
+              doc.save();
+            }
+          }
+        }
+      }
+    }
   }
 
   @AfterAll
@@ -405,4 +432,34 @@ public abstract class AbstractNotesRuntimeTest {
       }
     }
   }
+  
+  /**
+   * Compares the data of two {@link InputStream}s
+   * 
+   * @param inExpected expected content
+   * @param inActual actual content
+   * @param msg assert message
+   * @throws IOException if there is an exception reading from the streams
+   */
+  public static void assertEqualStreams(InputStream inExpected, InputStream inActual, String msg) throws IOException {
+    try {
+      int pos=0;
+      int val1;
+      int val2;
+      
+      do {
+        val1 = inExpected.read();
+        val2 = inActual.read();
+
+        assertEquals(val1, val2, MessageFormat.format("{0} - InputStream value mismatch at position {1}", msg, pos));
+        pos++;
+      }
+      while (val1!=-1);
+    }
+    finally {
+      IOUtils.closeQuietly(inExpected);
+      IOUtils.closeQuietly(inActual);
+    }
+  }
+
 }

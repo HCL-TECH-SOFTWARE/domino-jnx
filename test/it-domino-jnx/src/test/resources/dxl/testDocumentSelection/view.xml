@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!--
+
+    ==========================================================================
+    Copyright (C) 2019-2021 HCL ( http://www.hcl.com/ )
+                               All rights reserved.
+    ==========================================================================
+    Licensed under the  Apache License, Version 2.0  (the "License").  You may
+    not use this file except in compliance with the License.  You may obtain a
+    copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+
+    Unless  required  by applicable  law or  agreed  to  in writing,  software
+    distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+    WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+    License for the  specific language  governing permissions  and limitations
+    under the License.
+    ==========================================================================
+
+-->
+<view name='test' showinmenu='true' publicaccess='false' designerversion='8.5.3'
+ default='true' noviewformat='true'>
+<noteinfo noteid='12e' unid='B33502394262E4724325876600553FBA' sequence='3'>
+<created><datetime>20211006T183108,74+03</datetime></created>
+<modified><datetime>20211008T125535,16+03</datetime></modified>
+<revised><datetime>20211008T125535,15+03</datetime></revised>
+<lastaccessed><datetime>20211008T125535,15+03</datetime></lastaccessed>
+<addedtofile><datetime>20211006T183108,74+03</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Dziyana Kazachenka/O=IBA</name></updatedby>
+<wassignedby><name>CN=Dziyana Kazachenka/O=IBA</name></wassignedby><code event='selection'><formula
+>SELECT @All</formula></code>
+<item name='$FormulaClass' sign='true'><text>1</text></item></view>
+

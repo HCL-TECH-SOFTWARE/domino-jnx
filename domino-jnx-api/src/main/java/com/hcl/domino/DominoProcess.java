@@ -18,6 +18,7 @@ package com.hcl.domino;
 
 import java.nio.file.Path;
 
+import com.hcl.domino.exception.DominoInitException;
 import com.hcl.domino.misc.JNXServiceFinder;
 
 /**
@@ -61,8 +62,9 @@ public interface DominoProcess {
    * </p>
    *
    * @param initArgs the arguments to pass to the initialization call
+   * @throws DominoInitException if initialization fails
    */
-  void initializeProcess(String[] initArgs);
+  void initializeProcess(String[] initArgs) throws DominoInitException;
 
   /**
    * Initializes the current thread for Domino API use.

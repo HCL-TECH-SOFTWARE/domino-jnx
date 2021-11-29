@@ -14,15 +14,30 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.agent;
+package com.hcl.domino.design;
+
+import com.hcl.domino.design.DesignElement.NamedDesignElement;
 
 /**
- * Represents the content of an agent, such as LotusScript content or a Java
- * project.
- *
- * @author Jesse Gallagher
- * @since 1.0.24
+ * @author Karsten Lehmann
+ * @since 1.0.48
  */
-public interface AgentContent {
-
+public interface DatabaseScriptLibrary extends NamedDesignElement {
+  
+  /**
+   * Returns the LS code
+   * 
+   * @return code
+   */
+  String getScript();
+  
+  /**
+   * Changes the library content
+   * 
+   * @param script new LS code, will be formatted to be Designer compatible
+   * @return this library
+   * @since 1.0.47
+   */
+  DatabaseScriptLibrary setScript(String script);
+  
 }

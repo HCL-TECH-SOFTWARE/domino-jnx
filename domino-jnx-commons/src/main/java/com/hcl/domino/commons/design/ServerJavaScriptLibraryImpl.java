@@ -46,10 +46,16 @@ public class ServerJavaScriptLibraryImpl extends AbstractScriptLibrary<ServerJav
     Document doc = getDocument();
     
     doc.removeItem(NotesConstants.SERVER_JAVASCRIPTLIBRARY_CODE);
+    
     try(RichTextWriter w = doc.createRichTextItem(NotesConstants.SERVER_JAVASCRIPTLIBRARY_CODE)) {
       w.addJavaScriptLibraryData(script);
     }
     
+    //set sign flag for code item
+    doc.forEachItem(NotesConstants.SERVER_JAVASCRIPTLIBRARY_CODE, (item,loop) -> {
+      item.setSigned(true);
+    });
+
     return this;
   }
 }

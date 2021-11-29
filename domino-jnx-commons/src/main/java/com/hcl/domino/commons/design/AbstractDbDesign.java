@@ -49,6 +49,7 @@ import com.hcl.domino.design.AboutDocument;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.CompositeApplication;
 import com.hcl.domino.design.CompositeComponent;
+import com.hcl.domino.design.DatabaseScriptLibrary;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DbProperties;
 import com.hcl.domino.design.DesignAgent;
@@ -56,10 +57,10 @@ import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
+import com.hcl.domino.design.Frameset;
 import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.design.JavaScriptLibrary;
 import com.hcl.domino.design.NamedFileElement;
-import com.hcl.domino.design.Frameset;
 import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.design.ScriptLibrary;
@@ -140,10 +141,15 @@ public abstract class AbstractDbDesign implements DbDesign {
   }
 
   @Override
-  public DesignAgent createAgent(final String agentName) {
-    return this.createDesignNote(DesignAgent.class, agentName);
+  public <T extends DesignAgent> T createAgent(Class<T> agentType, String agentName) {
+    return this.createDesignNote(agentType, agentName);
   }
 
+  @Override
+  public <T extends ScriptLibrary> T createScriptLibrary(Class<T> libraryType, String libName) {
+    return this.createDesignNote(libraryType, libName);
+  }
+  
   /**
    * Creates a new design note of the provided class. This creates the backing
    * {@link Document},
@@ -157,13 +163,30 @@ public abstract class AbstractDbDesign implements DbDesign {
    * @param designClass a {@link Class} object representing {@code <I>}
    * @return the newly-created and -initialized design element
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   protected <T extends DesignElement, I extends AbstractDesignElement<T>> T createDesignNote(final Class<T> designClass) {
-    final DesignMapping<T, I> mapping = DesignUtil.getDesignMapping(designClass);
-
     final Document doc = this.database.createDocument();
+    
+    //special case for agents and script libraries: here the
+    //mappings are hashed by their base classes DesignAgent and ScriptLibrary
+    
+    final DesignMapping<T, I> mapping;
+    if (DesignAgent.class.isAssignableFrom(designClass)) {
+      mapping = (DesignMapping) DesignUtil.getDesignMapping(DesignAgent.class);
+    }
+    else if (ScriptLibrary.class.isAssignableFrom(designClass)) {
+      mapping = (DesignMapping) DesignUtil.getDesignMapping(ScriptLibrary.class);
+    }
+    else {
+      mapping = DesignUtil.getDesignMapping(designClass);
+    }
+
     doc.setDocumentClass(mapping.getNoteClass());
 
+    if (mapping.getDocInitializer()!=null) {
+      mapping.getDocInitializer().accept(designClass, doc);
+    }
+    
     final I result = mapping.getConstructor().apply(doc);
     result.initializeNewDesignNote();
     return (T) result;
@@ -282,6 +305,25 @@ public abstract class AbstractDbDesign implements DbDesign {
         .map(mapping.getConstructor());
   }
 
+  @Override
+  public Optional<DatabaseScriptLibrary> getDatabaseScriptLibrary() {
+    Optional<DatabaseScriptLibrary> lib = this.getDesignElementByName(DatabaseScriptLibrary.class, "Database Script"); //$NON-NLS-1$
+    if (lib.isPresent()) {
+      return Optional.of((DatabaseScriptLibrary) lib.get());
+    }
+    else {
+      return Optional.empty();
+    }
+  }
+
+  @Override
+  public DatabaseScriptLibrary createDatabaseScriptLibrary() {
+    return getDatabaseScriptLibrary()
+        .orElseGet(() -> {
+          return this.createDesignNote(DatabaseScriptLibrary.class, "Database Script"); //$NON-NLS-1$
+        });
+  }
+  
   @Override
   public Optional<FileResource> getFileResource(final String name, boolean includeXsp) {
     // By default, FileResource is mapped to the Designer list only

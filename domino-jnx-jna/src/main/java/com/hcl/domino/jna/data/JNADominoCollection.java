@@ -604,7 +604,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		m_collationInfo = collationInfo;
 
 		if (!readCollations) {
-			throw new AssertionError(MessageFormat.format("View note with UNID {0} contains collations", m_viewUnid));
+			throw new AssertionError(MessageFormat.format("View note with UNID {0} contains no collations", m_viewUnid));
 		}
 		
 		

@@ -16,12 +16,18 @@
  */
 package com.hcl.domino.design.agent;
 
+import java.util.List;
+
+import com.hcl.domino.design.DesignAgent;
+import com.hcl.domino.design.simpleaction.SimpleAction;
+
 /**
- * Represents the contents of a LotusScript-type agent.
- *
- * @author Jesse Gallagher
- * @since 1.0.24
+ * Subtype of {@link DesignAgent} that executes simple actions
+ * 
+ * @since 1.0.47
  */
-public interface LotusScriptAgentContent extends AgentContent {
-  String getScript();
+public interface DesignSimpleActionAgent extends DesignAgent {
+
+  List<SimpleAction> getActions();
+  
 }

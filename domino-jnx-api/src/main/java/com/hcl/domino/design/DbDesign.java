@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.Action;
+import com.hcl.domino.design.agent.DesignLotusScriptAgent;
 import com.hcl.domino.data.DocumentClass;
 
 /**
@@ -66,11 +67,31 @@ public interface DbDesign {
   /**
    * Creates a new, unsaved agent design element.
    *
+   * @param <T> agent subtype
+   * @param agentType type of agent, e.g. {@link DesignLotusScriptAgent}
    * @param agentName the name of the agent to create
    * @return the newly-created in-memory {@link DesignAgent}
    */
-  DesignAgent createAgent(String agentName);
+  <T extends DesignAgent> T createAgent(Class<T> agentType, String agentName);
 
+  /**
+   * Creates a new, unsaved script library design element.
+   * 
+   * @param <T> library subtype
+   * @param libraryType type of library, e.g. {@link LotusScriptLibrary}
+   * @param libName the name of the library to create
+   * @return the newly-created in-memory {@link ScriptLibrary}
+   */
+  <T extends ScriptLibrary> T createScriptLibrary(Class<T> libraryType, String libName);
+  
+  /**
+   * Create a new unsaved database script library if it does not exist yet or the
+   * one already available in the database
+   * 
+   * @return database script library
+   */
+  DatabaseScriptLibrary createDatabaseScriptLibrary();
+  
   /**
    * Creates a new, unsaved folder design element.
    *
@@ -377,6 +398,14 @@ public interface DbDesign {
    */
   Optional<ScriptLibrary> getScriptLibrary(String name);
 
+  /**
+   * Retrives the database script library.
+   * 
+   * @return an {@link Optional} describing the {@link DatabaseScriptLibrary}, or an empty one if no such element exists
+   * @since 1.0.48
+   */
+  Optional<DatabaseScriptLibrary> getDatabaseScriptLibrary();
+  
   /**
    * Retrieves the named subform.
    *

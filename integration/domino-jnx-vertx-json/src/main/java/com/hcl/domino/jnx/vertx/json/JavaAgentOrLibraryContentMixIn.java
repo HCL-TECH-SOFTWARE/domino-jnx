@@ -14,28 +14,21 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.design.agent;
+package com.hcl.domino.jnx.vertx.json;
 
-/**
- * Represents the contents of a formula-type agent.
- *
- * @author Jesse Gallagher
- * @since 1.0.24
- */
-public interface FormulaAgentContent extends AgentContent {
-  enum DocumentAction {
-    MODIFY,
-    CREATE,
-    SELECT
-  }
+import java.io.InputStream;
+import java.util.Optional;
 
-  /**
-   * @return the document action performed by this agent
-   */
-  DocumentAction getDocumentAction();
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-  /**
-   * @return the agent formula script
-   */
-  String getFormula();
+public abstract class JavaAgentOrLibraryContentMixIn {
+  @JsonSerialize(using = OptInputStreamToBase64Serializer.class) abstract Optional<InputStream> getObjectAttachment();
+  
+  @JsonSerialize(using = OptInputStreamToBase64Serializer.class) abstract Optional<InputStream> getResourcesAttachment();
+
+  @JsonSerialize(using = OptInputStreamToBase64Serializer.class) abstract Optional<InputStream> getSourceAttachment();
+  
+  @JsonIgnore abstract Optional<InputStream> getEmbeddedJar(String file);
+
 }

@@ -88,6 +88,7 @@ import com.hcl.domino.richtext.records.CDExtField;
 import com.hcl.domino.richtext.records.CDExtField.HelperType;
 import com.hcl.domino.richtext.records.CDField;
 import com.hcl.domino.richtext.records.CDFieldHint;
+import com.hcl.domino.richtext.records.CDHRule;
 import com.hcl.domino.richtext.records.CDHotspotBegin;
 import com.hcl.domino.richtext.records.CDHtmlHeader;
 import com.hcl.domino.richtext.records.CDHtmlSegment;
@@ -118,6 +119,11 @@ import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.records.VMODSdrobj;
+import com.hcl.domino.richtext.records.ViewmapHighlightDefaults;
+import com.hcl.domino.richtext.records.ViewmapLineDefaults;
+import com.hcl.domino.richtext.records.ViewmapShapeDefaults;
+import com.hcl.domino.richtext.records.ViewmapTextboxDefaults;
+import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
 import com.hcl.domino.richtext.records.ViewmapHeaderRecord;
 import com.hcl.domino.richtext.records.ViewmapRegionRecord;
 import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
@@ -1510,7 +1516,8 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(65535, begin.getSegSize());
       });
     }
-    
+
+           
     @Test
     public void testLayoutButton() throws Exception {
       this.withTempDb(database -> {
@@ -1522,8 +1529,63 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
 
         @SuppressWarnings("unused")
         final CDLayoutButton begin = (CDLayoutButton) doc.getRichTextItem("Body").get(0);
+
       });
     }
+  
+    @Test
+    public void testCDHRule() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(CDHRule.class, begin -> {
+            begin.setHeight(72);
+            begin.setWidth(100);
+            begin.setFlags(EnumSet.of(CDHRule.Flag.HRULE_FLAG_USECOLOR, CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_NOSHADOW));
+          });
+        }
+
+        final CDHRule begin = (CDHRule) doc.getRichTextItem("Body").get(0);
+        assertEquals(72, begin.getHeight());
+        assertEquals(100, begin.getWidth());
+        assertEquals(EnumSet.of(CDHRule.Flag.HRULE_FLAG_USECOLOR, CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_FITTOWINDOW,CDHRule.Flag.HRULE_FLAG_NOSHADOW), begin.getFlags());
+      });
+    }
+   
+    @Test
+    public void testsetGradientColor() throws Exception{
+    	this.withTempDb(database -> {
+            final Document doc = database.createDocument();
+            try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+              rtWriter.addRichTextRecord(CDHRule.class, begin -> {
+            	  begin.setColor(StandardColors.Black);
+                  begin.setGradientColor(StandardColors.Black);
+              });
+            }
+            final CDHRule begin = (CDHRule) doc.getRichTextItem("Body").get(0);
+            assertEquals(StandardColors.Black, begin.getColor().get());
+            assertEquals(StandardColors.Black, begin.getGradientColor().get());
+            assertEquals(0, begin.getColorRaw());
+            assertEquals(0, begin.getGradientColorRaw());
+         });
+    }
+    @Test
+    public void testsetGradientColorRaw() throws Exception{
+    	this.withTempDb(database -> {
+            final Document doc = database.createDocument();
+            try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+              rtWriter.addRichTextRecord(CDHRule.class, begin -> {
+            	  begin.setColorRaw(0);
+                  begin.setGradientColorRaw(0);
+              });
+            }
+            final CDHRule begin = (CDHRule) doc.getRichTextItem("Body").get(0);
+            assertEquals(0, begin.getColorRaw());
+            assertEquals(0, begin.getGradientColorRaw());
+            assertEquals(StandardColors.Black, begin.getColor().get());
+            assertEquals(StandardColors.Black, begin.getGradientColor().get());
+         });
+    } 
 
     @Test
     public void testVMButtonDefaults() throws Exception {
@@ -1782,6 +1844,92 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(false, begin.getDRObj().getFontID().isSuper());
         assertEquals(false, begin.getDRObj().getFontID().isUnderline());
         assertEquals(false, begin.getDRObj().getFontID().isEmboss());
+
+    public void testViewmapHighlightDefaults() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          final ViewmapHighlightDefaults viewmapHighlightDefaults =rtWriter.createStructure(ViewmapHighlightDefaults.class, 0);
+          viewmapHighlightDefaults.setbHighlightCurrent(0);
+          viewmapHighlightDefaults.setbHighlightTouch(0);
+          viewmapHighlightDefaults.setHLFillColor(65535);
+          viewmapHighlightDefaults.setHLOutlineColor(2);
+          viewmapHighlightDefaults.setHLOutlineStyle(0);
+          viewmapHighlightDefaults.setHLOutlineWidth(2);   
+          assertEquals(0,viewmapHighlightDefaults.getbHighlightCurrent());
+          assertEquals(0,viewmapHighlightDefaults.getbHighlightTouch());
+          assertEquals(65535,viewmapHighlightDefaults.getHLFillColor());
+          assertEquals(2,viewmapHighlightDefaults.getHLOutlineColor());
+          assertEquals(0,viewmapHighlightDefaults.getHLOutlineStyle());
+          assertEquals(2,viewmapHighlightDefaults.getHLOutlineWidth());
+        }
+
+        
+      });
+    }
+    
+    @Test
+    public void testViewmapLineDefaults() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          final ViewmapLineDefaults viewmapLineDefaults =rtWriter.createStructure(ViewmapLineDefaults.class, 0);
+          viewmapLineDefaults.setFillFGColor(0);
+          viewmapLineDefaults.setLineColor(0);
+          viewmapLineDefaults.setFillStyle(0);
+          viewmapLineDefaults.setFillBGColor(0);
+          viewmapLineDefaults.setLineWidth(1);
+          viewmapLineDefaults.setLineStyle(0);
+          assertEquals(0,viewmapLineDefaults.getFillFGColor());
+          assertEquals(0,viewmapLineDefaults.getLineColor());
+          assertEquals(0,viewmapLineDefaults.getFillStyle());
+          assertEquals(0,viewmapLineDefaults.getFillBGColor());
+          assertEquals(1,viewmapLineDefaults.getLineWidth());
+          assertEquals(0,viewmapLineDefaults.getLineStyle());
+        } 
+      });
+    }
+    
+    @Test
+    public void testViewmapTextboxDefaults() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          final ViewmapTextboxDefaults viewmapTextboxDefaults =rtWriter.createStructure(ViewmapTextboxDefaults.class, 0);
+          viewmapTextboxDefaults.setFillFGColor(1);
+          viewmapTextboxDefaults.setLineColor(0);
+          viewmapTextboxDefaults.setFillStyle(0);
+          viewmapTextboxDefaults.setFillBGColor(1);
+          viewmapTextboxDefaults.setLineWidth(1);
+          viewmapTextboxDefaults.setLineStyle(5);
+          assertEquals(1,viewmapTextboxDefaults.getFillFGColor());
+          assertEquals(0,viewmapTextboxDefaults.getLineColor());
+          assertEquals(0,viewmapTextboxDefaults.getFillStyle());
+          assertEquals(1,viewmapTextboxDefaults.getFillBGColor());
+          assertEquals(1,viewmapTextboxDefaults.getLineWidth());
+          assertEquals(5,viewmapTextboxDefaults.getLineStyle());
+        } 
+      });
+    }
+    @Test
+    public void testViewmapShapeDefaults() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          final ViewmapShapeDefaults viewmapShapeDefaults =rtWriter.createStructure(ViewmapShapeDefaults.class, 0);
+          viewmapShapeDefaults.setFillFGColor(7);
+          viewmapShapeDefaults.setLineColor(0);
+          viewmapShapeDefaults.setFillStyle(1);
+          viewmapShapeDefaults.setFillBGColor(7);
+          viewmapShapeDefaults.setLineWidth(1);
+          viewmapShapeDefaults.setLineStyle(0);
+          assertEquals(7,viewmapShapeDefaults.getFillFGColor());
+          assertEquals(0,viewmapShapeDefaults.getLineColor());
+          assertEquals(1,viewmapShapeDefaults.getFillStyle());
+          assertEquals(7,viewmapShapeDefaults.getFillBGColor());
+          assertEquals(1,viewmapShapeDefaults.getLineWidth());
+          assertEquals(0,viewmapShapeDefaults.getLineStyle());
+        } 
       });
     }
     

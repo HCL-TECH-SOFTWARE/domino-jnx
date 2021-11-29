@@ -16,8 +16,10 @@
  */
 package com.hcl.domino.richtext.records;
 
+
 import java.util.Collection;
 import java.util.Set;
+
 
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -95,7 +97,11 @@ public interface VMODSdrobj extends RichTextRecord<BSIG> {
   FontStyle getFontID();
 
   @StructureGetter("TextColor")
-  int getTextColor();
+  int getTextColorRaw();
+
+  default Optional<StandardColors> getTextColor() {
+    return DominoEnumUtil.valueOf(StandardColors.class, getTextColorRaw());
+  }
 
   @StructureGetter("Alignment")
   int getAlignment();
@@ -116,7 +122,11 @@ public interface VMODSdrobj extends RichTextRecord<BSIG> {
   VMODSdrobj setLabelLen(int length);
 
   @StructureSetter("TextColor")
-  VMODSdrobj setTextColor(int color);
+  VMODSdrobj setTextColorRaw(int color);
+
+  default VMODSdrobj setTextColor(StandardColors color) {
+	  return setTextColorRaw(color.getValue());
+  }
 
   @StructureSetter("Alignment")
   VMODSdrobj setAlignment(int alignment);
