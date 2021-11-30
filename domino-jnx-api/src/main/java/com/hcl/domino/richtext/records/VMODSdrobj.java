@@ -18,9 +18,10 @@ package com.hcl.domino.richtext.records;
 
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
-
-
+import com.hcl.domino.data.StandardColors;
+import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;

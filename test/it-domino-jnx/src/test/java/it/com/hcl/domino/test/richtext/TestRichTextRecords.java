@@ -1785,7 +1785,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
             begin.getDRObj().setbWrap(0);
             begin.getDRObj().setLabelLen(0);
             begin.getDRObj().setNameLen(8);
-            begin.getDRObj().setTextColor(4);
+            begin.getDRObj().setTextColor(StandardColors.Blue);
             begin.getDRObj().setFlags(expectedFlags);
             begin.getDRObj().getHeader().setLength((short) 82);
             begin.getDRObj().getHeader().setSignature((byte) -76);
@@ -1820,7 +1820,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(0, begin.getDRObj().getbWrap());
         assertEquals(0, begin.getDRObj().getLabelLen());
         assertEquals(8, begin.getDRObj().getNameLen());
-        assertEquals(4, begin.getDRObj().getTextColor());
+        assertEquals(StandardColors.Blue, begin.getDRObj().getTextColor().get());
         assertEquals(expectedFlags, begin.getDRObj().getFlags());
         assertEquals((short) 82, begin.getDRObj().getHeader().getLength());
         assertEquals((byte) -76, begin.getDRObj().getHeader().getSignature());
@@ -1844,7 +1844,9 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(false, begin.getDRObj().getFontID().isSuper());
         assertEquals(false, begin.getDRObj().getFontID().isUnderline());
         assertEquals(false, begin.getDRObj().getFontID().isEmboss());
-
+      });
+      }
+    
     public void testViewmapHighlightDefaults() throws Exception {
       this.withTempDb(database -> {
         final Document doc = database.createDocument();
