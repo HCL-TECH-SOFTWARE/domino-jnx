@@ -58,7 +58,6 @@ public interface VMODSdrobj extends RichTextRecord<BSIG> {
     VM_DROBJ_FLAGS_SELECTABLE((short)0x0004), /*    Set if obj can be select (i.e. is not background) */
     VM_DROBJ_FLAGS_LOCKED((short)0x0008), /*    Set if obj can't be edited */
     VM_DROBJ_FLAGS_IMAGEMAP_BITMAP((short)0x0010), /*   Bitmap representing runtime image of the navigator.  Use to create imagemaps from navigators. */
-    VM_DSET_READING_ORDER_RTL((short)0x0010) /* reading order */
     ;
 
     private final short value;

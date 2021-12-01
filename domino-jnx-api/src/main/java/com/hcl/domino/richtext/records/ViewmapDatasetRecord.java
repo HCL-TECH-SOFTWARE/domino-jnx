@@ -59,7 +59,9 @@ public interface ViewmapDatasetRecord extends RichTextRecord<WSIG> {
   enum Flags implements INumberEnum<Short> {
     SHOW_GRID((short)0x0001), 
     SNAPTO_GRID((short)0x0002), 
-    SAVE_IMAGEMAP((short)0x0004);
+    SAVE_IMAGEMAP((short)0x0004),
+    READING_ORDER_RTL((short)0x0020); /* reading order */
+
 
     private final short value;
     private Flags(short value) {
