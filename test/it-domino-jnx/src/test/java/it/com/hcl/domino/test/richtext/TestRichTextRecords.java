@@ -126,7 +126,6 @@ import com.hcl.domino.richtext.records.ViewmapTextboxDefaults;
 import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
 import com.hcl.domino.richtext.records.ViewmapHeaderRecord;
 import com.hcl.domino.richtext.records.ViewmapRegionRecord;
-import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
 import com.hcl.domino.richtext.records.ViewmapActionRecord;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
 import com.hcl.domino.richtext.structures.AssistFieldStruct.ActionByField;
@@ -1773,7 +1772,6 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       this.withTempDb(database -> {
         final Document doc = database.createDocument();
         Collection <VMODSdrobj.Flags> expectedFlags = new HashSet <VMODSdrobj.Flags> ();
-        Collection<FontAttribute> attributes = new HashSet<FontAttribute>();
         expectedFlags.add(VMODSdrobj.Flags.VM_DROBJ_FLAGS_VISIBLE);
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           rtWriter.addRichTextRecord(ViewmapRegionRecord.class, begin -> {
@@ -1787,28 +1785,11 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
             begin.getDRObj().setNameLen(8);
             begin.getDRObj().setTextColor(StandardColors.Blue);
             begin.getDRObj().setFlags(expectedFlags);
-            begin.getDRObj().getHeader().setLength((short) 82);
-            begin.getDRObj().getHeader().setSignature((byte) -76);
             begin.getDRObj().getObjRect().setBottom(307);
             begin.getDRObj().getObjRect().setLeft(13);
             begin.getDRObj().getObjRect().setRight(94);
             begin.getDRObj().getObjRect().setTop(237);
-            begin.getDRObj().getFontID().setAttributes(attributes);
-            begin.getDRObj().getFontID().setAttributesRaw((byte) 0);
-            begin.getDRObj().getFontID().setColor(StandardColors.Black);
-            begin.getDRObj().getFontID().setColorRaw((short) 0);
-            begin.getDRObj().getFontID().setFontFace((byte) 1);
             begin.getDRObj().getFontID().setPointSize(10);
-            begin.getDRObj().getFontID().setStandardFont(StandardFonts.SWISS); 
-            begin.getDRObj().getFontID().setBold(false);
-            begin.getDRObj().getFontID().setItalic(false);
-            begin.getDRObj().getFontID().setUnderline(false);
-            begin.getDRObj().getFontID().setStrikeout(false);
-            begin.getDRObj().getFontID().setSub(false);
-            begin.getDRObj().getFontID().setSuper(false);
-            begin.getDRObj().getFontID().setShadow(false);
-            begin.getDRObj().getFontID().setEmboss(false);
-            begin.getDRObj().getFontID().setExtrude(false);  
           });
         }
         final ViewmapRegionRecord begin = (ViewmapRegionRecord) doc.getRichTextItem("Body", Area.TYPE_VIEWMAP).get(0);
@@ -1822,28 +1803,11 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(8, begin.getDRObj().getNameLen());
         assertEquals(StandardColors.Blue, begin.getDRObj().getTextColor().get());
         assertEquals(expectedFlags, begin.getDRObj().getFlags());
-        assertEquals((short) 82, begin.getDRObj().getHeader().getLength());
-        assertEquals((byte) -76, begin.getDRObj().getHeader().getSignature());
         assertEquals(307, begin.getDRObj().getObjRect().getBottom());
         assertEquals(13, begin.getDRObj().getObjRect().getLeft());
         assertEquals(94, begin.getDRObj().getObjRect().getRight());
         assertEquals(237, begin.getDRObj().getObjRect().getTop());
-        assertEquals(attributes, begin.getDRObj().getFontID().getAttributes());
-        assertEquals((byte)0, begin.getDRObj().getFontID().getAttributesRaw());
-        assertEquals(StandardColors.Black, begin.getDRObj().getFontID().getColor().get());
-        assertEquals((short) 0, begin.getDRObj().getFontID().getColorRaw());
-        assertEquals((byte) 1, begin.getDRObj().getFontID().getFontFace());
         assertEquals(10, begin.getDRObj().getFontID().getPointSize());
-        assertEquals(StandardFonts.SWISS, begin.getDRObj().getFontID().getStandardFont().get());
-        assertEquals(false, begin.getDRObj().getFontID().isBold());
-        assertEquals(false, begin.getDRObj().getFontID().isExtrude());
-        assertEquals(false, begin.getDRObj().getFontID().isItalic());
-        assertEquals(false, begin.getDRObj().getFontID().isShadow());
-        assertEquals(false, begin.getDRObj().getFontID().isStrikeout());
-        assertEquals(false, begin.getDRObj().getFontID().isSub());
-        assertEquals(false, begin.getDRObj().getFontID().isSuper());
-        assertEquals(false, begin.getDRObj().getFontID().isUnderline());
-        assertEquals(false, begin.getDRObj().getFontID().isEmboss());
       });
       }
     
