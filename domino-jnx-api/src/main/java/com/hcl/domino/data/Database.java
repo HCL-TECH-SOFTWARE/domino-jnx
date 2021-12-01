@@ -1480,6 +1480,26 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
   FormulaQueryResult queryFormula(String selectionFormula, IDTable filter, Set<SearchFlag> searchFlags,
       TemporalAccessor since, Set<DocumentClass> docClass);
 
+  /**
+   * Evaluates a formula on a set of documents or the whole database
+   * 
+   * @param selectionFormula selection formula
+   * @param filter           optional filter IDTable to evaluate the formula only
+   *                         against selected documents
+   * @param searchFlags      flags to control the search behavior
+   * @param since            optional start date/time to run incremental searches,
+   *                         e.g. the value {@link IDTable#getDateTime()} of the
+   *                         returned {@link FormulaQueryResult#getNoteIds()}
+   * @param docClass         class of documents to search
+   * @param computeValues    map to compute summary values for the search matches,
+   *                         returned via {@link FormulaQueryCallback#matchFound(Database, SearchMatch, TypedAccess)}.
+   *                         For example use (key="item1", value="") to return values
+   *                         of an existing item "item1"
+   *                         or (key="_computeditem2", value="@Text(@Created)") to compute a value.
+   * @param callback         callback to receive matches, non-matches and deletions
+   *                         since the given date/time
+   * @return                 new date/time to be passed as "since" value for the next search for incremental search results
+   */
   DominoDateTime queryFormula(String selectionFormula, Set<Integer> filter, Set<SearchFlag> searchFlags,
       TemporalAccessor since, Set<DocumentClass> docClass, Map<String, String> computeValues,
       FormulaQueryCallback callback);
