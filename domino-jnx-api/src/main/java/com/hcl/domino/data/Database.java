@@ -1488,11 +1488,10 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
    *                         against selected documents
    * @param searchFlags      flags to control the search behavior
    * @param since            optional start date/time to run incremental searches,
-   *                         e.g. the value {@link IDTable#getDateTime()} of the
-   *                         returned {@link FormulaQueryResult#getNoteIds()}
+   *                         e.g. the return value of previous queryFormula method calls.
    * @param docClass         class of documents to search
-   * @param computeValues    map to compute summary values for the search matches,
-   *                         returned via {@link FormulaQueryCallback#matchFound(Database, SearchMatch, TypedAccess)}.
+   * @param computeValues    map to compute summary values for the search matches, returned via 
+   *                         the <code>callback</code>.
    *                         For example use (key="item1", value="") to return values
    *                         of an existing item "item1"
    *                         or (key="_computeditem2", value="@Text(@Created)") to compute a value.
