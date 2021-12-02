@@ -51,7 +51,7 @@ public enum AgentRunInfoDecoder {
    * <p>The provided pointer is expected to start _after_ the data-type WORD if it
    * comes from an item.</p>
    * 
-   * @param agent parent database
+   * @param database parent database
    * @param valuePtr a {@link Pointer} to the start of the run info data
    * @param valueLen the length of the run info in memory
    * @return an {@link Optional} describing the {@link LastRunInfo} instance for the data,
