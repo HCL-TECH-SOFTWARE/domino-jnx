@@ -20,6 +20,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -40,6 +42,7 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.UserNamesList;
 import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.data.Database;
+import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.ModificationTimePair;
 import com.hcl.domino.exception.DominoInitException;
 import com.hcl.domino.exception.ServerNotFoundException;
@@ -150,6 +153,7 @@ public class TestClientBasics extends AbstractNotesRuntimeTest {
   public void testRunAsync() {
     final DominoClient client = this.getClient();
     final int result = IntStream.range(0, 5)
+        .parallel()
         .mapToObj(i -> (Callable<Integer>) () -> {
           client.openDatabase("names.nsf");
           return i;
@@ -174,6 +178,7 @@ public class TestClientBasics extends AbstractNotesRuntimeTest {
     final ExecutorService executor = Executors.newCachedThreadPool(client.getThreadFactory());
     try {
       final int result = IntStream.range(0, 5)
+          .parallel()
           .mapToObj(i -> (Callable<Integer>) () -> {
             client.openDatabase("names.nsf");
             return i;
@@ -271,4 +276,56 @@ public class TestClientBasics extends AbstractNotesRuntimeTest {
       Assertions.assertInstanceOf(DominoInitException.class, ex.get());
     });
   }
+  
+  @Test
+  public void testDominoClientMultiThreading() throws Exception {
+    final DominoClient client = this.getClient();
+
+    final ExecutorService executor = Executors.newCachedThreadPool(client.getThreadFactory());
+    try {
+      //run a heavily multi threaded operation on a shared DominoClient which results in all kinds of issues
+      //when the CAPIGarbageCollector is not synchronized property
+      final int nrOfThread = 40;
+      final int result = IntStream.range(0, nrOfThread)
+          .parallel()
+          .mapToObj(i -> (Callable<Integer>) () -> {
+            for (int x=0; x<10; x++) {
+              Database db = client.openDatabase("names.nsf"); //$NON-NLS-1$
+
+              long docCount = db.getAllNoteIds(EnumSet.of(DocumentClass.DATA), false)
+                  .stream()
+                  .limit(10)
+                  .map(db::getDocumentById)
+                  .filter(Objects::nonNull)
+                  .count();
+
+              Assertions.assertTrue(docCount>0);
+
+              long viewCount = db.getAllCollections().count();
+              
+              Assertions.assertTrue(viewCount>0);
+              
+              Thread.sleep(50);
+              
+              db.close();
+            }
+            return 1;
+          })
+          .map(executor::submit)
+          .mapToInt(future -> {
+            try {
+              return future.get();
+            } catch (InterruptedException | ExecutionException e) {
+              throw new RuntimeException(e);
+            }
+          })
+          .sum();
+
+      Assertions.assertEquals(nrOfThread, result);
+    } finally {
+      executor.shutdown();
+      executor.awaitTermination(30, TimeUnit.SECONDS);
+    }
+  }
+  
 }
