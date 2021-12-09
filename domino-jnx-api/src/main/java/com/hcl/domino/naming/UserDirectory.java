@@ -31,6 +31,14 @@ import java.util.Set;
  * @since 1.0.2
  */
 public interface UserDirectory {
+  
+  /**
+   * Returns the path of the primary database on server.
+   * 
+   * @return directory path
+   */
+  Optional<String> getPrimaryDirectoryPath();
+  
   /**
    * Retrieves a collection of the Domino directory databases used
    * by this runtime or server.

@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -74,6 +75,24 @@ public class TestUserDirectory extends AbstractNotesRuntimeTest {
     }
     Assertions.assertNotNull(dirNames);
     Assertions.assertFalse(dirNames.isEmpty());
+  }
+
+  @Test
+  public void testGetPrimaryDirectoryPathLocal() {
+    final UserDirectory dir = this.getClient().openUserDirectory(null);
+    Assertions.assertNotNull(dir);
+    Optional<String> primaryDirPath = dir.getPrimaryDirectoryPath();
+    
+    if (TestUserDirectory.log.isLoggable(Level.INFO)) {
+      TestUserDirectory.log.info("Got primary local directory name: " + primaryDirPath);
+    }
+
+    Assertions.assertTrue(primaryDirPath.isPresent());
+    
+    final Set<String> dirNames = dir.getDirectoryPaths();
+    Assertions.assertNotNull(dirNames);
+    Assertions.assertFalse(dirNames.isEmpty());
+    Assertions.assertTrue(dirNames.contains(primaryDirPath.get()));
   }
 
   @Test
