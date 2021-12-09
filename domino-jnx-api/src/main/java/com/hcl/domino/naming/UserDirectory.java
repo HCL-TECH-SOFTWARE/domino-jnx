@@ -33,7 +33,7 @@ import java.util.Set;
 public interface UserDirectory {
   
   /**
-   * Returns the path of the primary database on server.
+   * Returns the path of the primary directory database on server.
    * 
    * @return directory path
    */
