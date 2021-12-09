@@ -19,17 +19,23 @@ package com.hcl.domino.jna.naming;
 import static com.hcl.domino.commons.util.NotesErrorUtils.checkResult;
 
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 
+import com.hcl.domino.commons.errors.INotesErrorConstants;
+import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.jna.JNADominoClient;
+import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
+import com.hcl.domino.jna.internal.capi.INotesCAPI;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
-import com.hcl.domino.naming.UserDirectoryQuery;
+import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.naming.UserDirectory;
+import com.hcl.domino.naming.UserDirectoryQuery;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ShortByReference;
@@ -39,6 +45,8 @@ import com.sun.jna.ptr.ShortByReference;
  * @since 1.0.2
  */
 public class JNAUserDirectory implements UserDirectory {
+  private static String localEnvPrimaryDirectoryPath;
+  
 	private final JNADominoClient client;
 	private final String serverName;
 	
@@ -47,6 +55,84 @@ public class JNAUserDirectory implements UserDirectory {
 		this.serverName = serverName;
 	}
 
+	@Override
+	public Optional<String> getPrimaryDirectoryPath() {
+	  if (StringUtil.isEmpty(serverName)) {
+	    synchronized (JNAUserDirectory.class) {
+	      if (localEnvPrimaryDirectoryPath!=null) {
+	        //return cached path for local environment if possible
+	        return Optional.of(localEnvPrimaryDirectoryPath);
+	      }
+	    }
+	  }
+	  
+    final INotesCAPI capi = NotesCAPI.get();
+    final ShortByReference wEntryLen = new ShortByReference();
+    final ShortByReference wCount = new ShortByReference();
+    final DHANDLE.ByReference hReturn = DHANDLE.newInstanceByReference();
+    
+    try {
+      final DisposableMemory chPrimaryNamePtr = new DisposableMemory(NotesConstants.MAXPATH + 1);
+      try {
+        final Memory serverNameMem = NotesStringUtils.toLMBCS(serverName, true);
+        final short status = capi.NAMEGetAddressBooks(serverNameMem, NotesConstants.NAME_GET_AB_FIRSTONLY, wCount, wEntryLen, hReturn);
+        NotesErrorUtils.checkResult(status);
+
+        if (wCount.getValue() != 0) {
+          LockUtil.lockHandle(hReturn, (hReturnByVal) -> {
+            return Mem.OSLockObject(hReturnByVal, (pszReturn) -> {
+              short status2 = capi.OSPathNetParse(pszReturn, null,
+                  null, chPrimaryNamePtr);
+              NotesErrorUtils.checkResult(status2);
+
+              final short wNameLen = capi.Cstrlen(chPrimaryNamePtr);
+              final ShortByReference wTypePos = new ShortByReference();
+              wTypePos.setValue(wNameLen);
+
+              status2 =
+                  capi.OSPathFileType(chPrimaryNamePtr, wTypePos);
+              NotesErrorUtils.checkResult(status2);
+
+              if (wNameLen == wTypePos.getValue()) {
+                /* no file type specified */
+                Memory dbTypeMem = NotesStringUtils.toLMBCS(NotesConstants.DBTYPE, true);
+                capi.Cstrncat(chPrimaryNamePtr, dbTypeMem,
+                    (NotesConstants.MAXPATH - 1));
+              }
+              capi.OSLocalizePath(chPrimaryNamePtr);
+
+              return INotesErrorConstants.NOERROR;
+            });
+          });
+          
+          final int strlen = NotesStringUtils.getNullTerminatedLength(chPrimaryNamePtr);
+          String path = NotesStringUtils.fromLMBCS(chPrimaryNamePtr, strlen);
+          
+          if (!StringUtil.isEmpty(path)) {
+            if (StringUtil.isEmpty(serverName)) {
+              //cache path for local environment
+              synchronized (JNAUserDirectory.class) {
+                localEnvPrimaryDirectoryPath = path;
+              }
+            }
+            return Optional.of(path);
+          }
+        }
+
+        return Optional.empty();
+      } finally {
+        chPrimaryNamePtr.dispose();
+      }
+    } finally {
+      if (!hReturn.isNull()) {
+        final short result = LockUtil.lockHandle(hReturn, (hReturnByVal) -> {
+          return Mem.OSMemFree(hReturnByVal);
+        });
+        NotesErrorUtils.checkResult(result);
+      }
+    }
+	}
+	
 	@Override
 	public Set<String> getDirectoryPaths() {
 		Memory server = NotesStringUtils.toLMBCS(serverName, true);
