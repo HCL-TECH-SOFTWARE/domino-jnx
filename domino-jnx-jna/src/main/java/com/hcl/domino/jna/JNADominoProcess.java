@@ -105,7 +105,10 @@ public class JNADominoProcess implements DominoProcess {
 			if (processInitialized) {
 				return;
 			}
-			
+
+			// Fail early if we can't load the notes shared library. The get() function may throw an unchecked DominoInitException
+			NotesCAPI.get(true); // true => do not check if thread is initialized for Domino
+
 			if (initArgs==null) {
 				initArgs = new String[0];
 			}
@@ -470,7 +473,15 @@ public class JNADominoProcess implements DominoProcess {
 			// it appears to be necessary to do this in the same thread as
 			// a call to NotesTerm later on
 			if (!DominoUtils.isNoInit()) {
-				result = capi.NotesInitExtended(this.argsCount, this.args);
+			  if (this.argsCount==0) {
+			    // DNEXT-12954 Running as an Domino server addin task. Can't reliably know
+			    // the notes.ini that the server is using.
+			    result = capi.NotesInit();
+			  }
+			  else {
+			    result = capi.NotesInitExtended(this.argsCount, this.args);
+			  }
+			  
 				if(result != 0) {
 					// in this case we need to abort and report the exception
 					
