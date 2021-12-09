@@ -36,6 +36,7 @@ public interface UserDirectory {
    * Returns the path of the primary directory database on server.
    * 
    * @return directory path
+   * @since 1.0.49
    */
   Optional<String> getPrimaryDirectoryPath();
   
