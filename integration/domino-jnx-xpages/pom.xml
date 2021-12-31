@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>com.hcl.domino</groupId>
-		<artifactId>domino-jnx</artifactId>
-		<version>1.0.49-SNAPSHOT</version>
-		<relativePath>../..</relativePath>
-	</parent>
-	<artifactId>domino-jnx-xpages</artifactId>
-	<name>HCL Domino API XPages Library</name>
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.hcl.domino</groupId>
+        <artifactId>domino-jnx</artifactId>
+        <version>1.0.52</version>
+        <relativePath>../..</relativePath>
+    </parent>
+    <artifactId>domino-jnx-xpages</artifactId>
+    <name>HCL Domino API XPages Library</name>
     <packaging>bundle</packaging>
 
-	<dependencies>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>domino-jnx-api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>domino-jnx-commons</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>domino-jnx-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>domino-jnx-commons</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>domino-jnx-jna</artifactId>
             <version>${project.version}</version>
         </dependency>
-        
-		<dependency>
-			<groupId>com.sun.mail</groupId>
-			<artifactId>jakarta.mail</artifactId>
-			<scope>provided</scope>
-		</dependency>
-	</dependencies>
-	
+
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>jakarta.mail</artifactId>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
 
     <pluginRepositories>
         <pluginRepository>
@@ -44,27 +44,28 @@
         </pluginRepository>
     </pluginRepositories>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
 
-				<configuration>
-				    <excludeDependencies>false</excludeDependencies>
-					<instructions>
-						<Bundle-SymbolicName>com.hcl.domino.jnx.xsp;singleton:=true</Bundle-SymbolicName>
-						<Automatic-Module-Name>com.hcl.domino.jnx.xsp</Automatic-Module-Name>
+                <configuration>
+                    <excludeDependencies>false</excludeDependencies>
+                    <instructions>
+                        <Bundle-SymbolicName>com.hcl.domino.jnx.xsp;singleton:=true</Bundle-SymbolicName>
+                        <Automatic-Module-Name>com.hcl.domino.jnx.xsp</Automatic-Module-Name>
                         <Embed-Dependency>*;scope=compile</Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                         <Embed-Directory>lib</Embed-Directory>
                         <Import-Package>!sun.misc,*</Import-Package>
                         <DynamicImport-Package>sun.misc</DynamicImport-Package>
                         <Export-Package>com.hcl.domino.*</Export-Package>
-                        <Require-Bundle>com.ibm.xsp.core</Require-Bundle>>
-					</instructions>
-				</configuration>
-			</plugin>
+                        <Require-Bundle>com.ibm.xsp.core</Require-Bundle>
+                        >
+                    </instructions>
+                </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>org.reficio</groupId>
@@ -118,8 +119,8 @@
                     </execution>
                 </executions>
             </plugin>
-		</plugins>
-	</build>
+        </plugins>
+    </build>
 
     <profiles>
         <profile>

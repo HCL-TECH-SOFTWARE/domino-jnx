@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
-		<version>1.0.49-SNAPSHOT</version>
+		<version>1.0.52</version>
 	</parent>
 	<artifactId>domino-jnx-jna</artifactId>
 	<name>HCL Domino API, JNA Implementation</name>
