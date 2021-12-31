@@ -10,7 +10,7 @@ Download GraalVM CE from:
 
 [https://github.com/graalvm/graalvm-ce-builds/releases](https://github.com/graalvm/graalvm-ce-builds/releases)
 
-The app targets Java 8, and the Java 11 builds work as well. Your GraalVM version should match the SDK used in this project. As of this writing, that is 21.2.0.
+The app targets Java 8, and the Java 11 builds work as well. Your GraalVM version should match the SDK used in this project. As of this writing, that is 21.3.0.
 
 Then, follow the [instructions in the GraalVM documentation](https://www.graalvm.org/reference-manual/native-image/) for installing the `native-image` tool.
 

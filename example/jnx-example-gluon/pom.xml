@@ -11,7 +11,7 @@
 	<name>HCL Domino API Example Gluon Native App</name>
 
 	<properties>
-		<graal.version>21.2.0</graal.version>
+		<graal.version>21.3.0</graal.version>
 		<main.class>com.hcl.domino.example.gluon.Main</main.class>
 	</properties>
 
