@@ -150,7 +150,7 @@
 
 
 		<!-- Maven Versions -->
-		<maven.version>[3.6,)</maven.version>
+		<maven.version>[3.8,)</maven.version>
 
 		<!-- Plugin Versions -->
 		<eclipse.plugin.version>2.10</eclipse.plugin.version>
@@ -331,6 +331,48 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>${spotless.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>apply</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<formats>
+						<format>
+							<!-- Markdown, JSON and gitignore -->
+							<includes>
+								<include>*.md</include>
+								<include>*.json</include>
+								<include>.gitignore</include>
+							</includes>
+							<trimTrailingWhitespace />
+							<endWithNewline />
+							<indent>
+								<spaces>true</spaces>
+								<spacesPerTab>2</spacesPerTab>
+							</indent>
+						</format>
+					</formats>
+					<!-- ECLIPSE Java format -->
+					<java>
+						<toggleOffOn />
+						<importOrder>
+							<file>${maven.multiModuleProjectDirectory}/spotless.importorder</file>
+						</importOrder>
+						<removeUnusedImports />
+						<eclipse>
+							<file>${maven.multiModuleProjectDirectory}/eclipse-java-keep-style.xml</file>
+						</eclipse>
+					</java>
+				</configuration>
 			</plugin>
 
 		</plugins>
