@@ -720,10 +720,6 @@ public class DQL {
     }
   }
 
-  private static ThreadLocal<DateTimeFormatter> RFC3339_PATTERN_DATETIME = ThreadLocal.withInitial(() -> DateTimeFormatter.ISO_DATE_TIME);
-  private static ThreadLocal<DateTimeFormatter> RFC3339_PATTERN_DATE = ThreadLocal.withInitial(() -> DateTimeFormatter.ISO_LOCAL_DATE);
-  private static ThreadLocal<DateTimeFormatter> RFC3339_PATTERN_TIME = ThreadLocal.withInitial(() ->DateTimeFormatter.ISO_LOCAL_TIME);
-
   /**
    * Returns a DQL term that matches all documents
    *
@@ -831,19 +827,19 @@ public class DQL {
     long millisRounded = 10 * (millis / 10);
     dateValueMS -= (millis-millisRounded);
 
-    return MessageFormat.format("@dt(''{0}'')", DQL.RFC3339_PATTERN_DATETIME.get().format(OffsetDateTime.ofInstant(Instant.ofEpochMilli(dateValueMS), ZoneId.of("UTC")))); //$NON-NLS-1$ //$NON-NLS-2$
+    return MessageFormat.format("@dt(''{0}'')", DateTimeFormatter.ISO_DATE_TIME.format(OffsetDateTime.ofInstant(Instant.ofEpochMilli(dateValueMS), ZoneId.of("UTC")))); //$NON-NLS-1$ //$NON-NLS-2$
   }
 
   private static String formatDominoDateTimeValue(final DominoDateTime tdValue) {
     if (tdValue.hasDate()) {
       if (tdValue.hasTime()) {
-        return MessageFormat.format("@dt(''{0}'')", DQL.RFC3339_PATTERN_DATETIME.get().format(tdValue.toOffsetDateTime())); //$NON-NLS-1$
+        return MessageFormat.format("@dt(''{0}'')", DateTimeFormatter.ISO_DATE_TIME.format(tdValue.toOffsetDateTime())); //$NON-NLS-1$
       } else {
-        return DQL.RFC3339_PATTERN_DATE.get().format(tdValue.toOffsetDateTime().toInstant());
+        return DateTimeFormatter.ISO_LOCAL_DATE.format(tdValue.toOffsetDateTime().toInstant());
       }
     } else {
       if (tdValue.hasTime()) {
-        return DQL.RFC3339_PATTERN_TIME.get().format(tdValue.toOffsetDateTime().toInstant());
+        return DateTimeFormatter.ISO_LOCAL_TIME.format(tdValue.toOffsetDateTime().toInstant());
       } else {
         throw new IllegalArgumentException("DominoDateTime has no date and no time");
       }
