@@ -2261,4 +2261,17 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     View view = design.getView("Empty View").get();
     assertTrue(view.getColumns().isEmpty());
   }
+  
+  @Test
+  public void testSetSelectionFormula() throws Exception {
+    withResourceDxl("/dxl/testDbDesignCollections", database -> {
+      DbDesign design = database.getDesign();
+      
+      View view = design.getView("Empty View").get();
+      
+      String formula = "SELECT Foo = \"Bar\" & Bar=4";
+      view.setSelectionFormula(formula);
+      assertEquals(formula, view.getSelectionFormula());
+    });
+  }
 }
