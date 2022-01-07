@@ -22,9 +22,7 @@ import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.List;
 
-import com.hcl.domino.commons.structs.WrongArraySizeException;
 import com.hcl.domino.data.IAdaptable;
-import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
@@ -38,36 +36,13 @@ public class CreateDAConfigStruct extends BaseStructure implements Serializable,
   private static final long serialVersionUID = 1L;
 
   public boolean bUpdateServerDoc;
-  public short wSearchOrder;
-  public byte[] szDNSearch = new byte[NotesConstants.MAXLDAPBASE];
-  public boolean bAcceptExpiredCertificates;
-  public boolean bVerifyRemoteSrvCert;
-  public short wTimeout;
-  public short wMaxEntriesReturned;
   public DirectoryAssistanceStruct daStruct;
 
-  public CreateDAConfigStruct( boolean updateServerDoc, short searchOrder, byte dnSearch[], boolean acceptExpiredCertificates,
-      boolean verifyRemoteSrvCert, short timeout, short maxEntriesReturned,
-      DirectoryAssistanceStruct daStruct) {
+  public CreateDAConfigStruct( boolean updateServerDoc, DirectoryAssistanceStruct daStruct) {
     
     super();
     
     this.bUpdateServerDoc = updateServerDoc;
-    
-    this.wSearchOrder = searchOrder;
-    
-    if ((dnSearch.length > this.szDNSearch.length)) {
-        throw new WrongArraySizeException("dnSearch");
-    }
-    this.szDNSearch = dnSearch;
-    
-    this.bAcceptExpiredCertificates = acceptExpiredCertificates;
-    
-    this.bVerifyRemoteSrvCert = verifyRemoteSrvCert;
-    
-    this.wTimeout = timeout;
-
-    this.wMaxEntriesReturned = maxEntriesReturned;
     
     this.daStruct = daStruct;
   }
@@ -87,12 +62,6 @@ public class CreateDAConfigStruct extends BaseStructure implements Serializable,
 	@Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("bUpdateServerDoc",
-		    "wSearchOrder",
-		    "szDNSearch",
-		    "bAcceptExpiredCertificates",
-		    "bVerifyRemoteSrvCert",
-		    "wTimeout",
-		    "wMaxEntriesReturned",
 		    "daStruct"
 		    );
 	}

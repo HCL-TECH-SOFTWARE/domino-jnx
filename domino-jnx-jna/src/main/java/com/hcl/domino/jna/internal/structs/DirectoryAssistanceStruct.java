@@ -38,21 +38,29 @@ public class DirectoryAssistanceStruct extends BaseStructure implements Serializ
   private static final long serialVersionUID = 1L;
 
   public byte[] szServerName = new byte[NotesConstants.MAXUSERNAME];
+  public byte[] szHostName = new byte [NotesConstants.MAXUSERNAME];
+  public byte[]  szUserName = new byte [NotesConstants.MAXUSERNAME]; 
   public byte[] szDirAssistDBName = new byte[NotesConstants.MAXPATH];
   
+  public byte[] szCompanyName = new byte[NotesConstants.FILETITLEMAX];
+  public byte[] szDNSearch = new byte[NotesConstants.MAXLDAPBASE];
+  public byte[]  szPassword = new byte [NotesConstants.MAXUSERPASSWORD];
   public byte[] szDomainName = new byte[NotesConstants.MAXDOMAINNAME];
-  public byte[] szCompanyName = new byte[NotesConstants.FILETITLEMAX];  
 
-  public byte[] szHostName = new byte [NotesConstants.MAXUSERNAME];
+
+  public short wTimeout;
+  public short wMaxEntriesReturned;
+  public short wSearchOrder;
   public short wLDAPVendor;
-  public byte[]  szUserName = new byte [NotesConstants.MAXUSERNAME]; 
-  public byte[]  szPassword = new byte [NotesConstants.MAXUSERPASSWORD]; 
-
-  public boolean bUseSSL;
   public short wPort;
+  public boolean bUseSSL;
+  public boolean bAcceptExpiredCertificates;
+  public boolean bVerifyRemoteSrvCert;
+  
   
   public DirectoryAssistanceStruct(byte serverName[], byte dirAssistDBName[], byte domainName[], byte companyName[], 
-      byte hostName[],short ldapVendor, byte userName[], byte password[], boolean useSSL, short port) {
+	      byte hostName[],short ldapVendor, byte userName[], byte password[], boolean useSSL, short port, short searchOrder, byte dnSearch[],
+	      boolean acceptExpiredCertificates, boolean verifyRemoteSrvCert, short timeout, short maxEntriesReturned) {
     
 	super();
 	    
@@ -95,7 +103,22 @@ public class DirectoryAssistanceStruct extends BaseStructure implements Serializ
 	    
 	this.wPort = port;
 	    
-	this.bUseSSL =useSSL;  
+	this.bUseSSL =useSSL;
+	
+	this.wSearchOrder = searchOrder;
+    
+    if ((dnSearch.length > this.szDNSearch.length)) {
+        throw new WrongArraySizeException("dnSearch");
+    }
+    this.szDNSearch = dnSearch;
+    
+    this.bAcceptExpiredCertificates = acceptExpiredCertificates;
+    
+    this.bVerifyRemoteSrvCert = verifyRemoteSrvCert;
+    
+    this.wTimeout = timeout;
+
+    this.wMaxEntriesReturned = maxEntriesReturned;
   }
 
     public DirectoryAssistanceStruct() {
@@ -113,15 +136,21 @@ public class DirectoryAssistanceStruct extends BaseStructure implements Serializ
 	@Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("szServerName",
-		    "szDirAssistDBName",
-		    "szDomainName",
-		    "szCompanyName",
-		    "szHostName",
-		    "wLDAPVendor",
-		    "szUserName",
-		    "szPassword",
-		    "bUseSSL",
-		    "wPort");
+				"szHostName",
+				"szUserName",
+				"szDirAssistDBName",
+				"szCompanyName",
+				"szDNSearch",
+				"szPassword",
+			    "szDomainName",
+			    "wTimeout",
+			    "wMaxEntriesReturned",
+			    "wSearchOrder",
+			    "wLDAPVendor",
+			    "wPort",
+			    "bUseSSL",
+			    "bAcceptExpiredCertificates",
+			    "bVerifyRemoteSrvCert");
 	}
 			
 	@Override

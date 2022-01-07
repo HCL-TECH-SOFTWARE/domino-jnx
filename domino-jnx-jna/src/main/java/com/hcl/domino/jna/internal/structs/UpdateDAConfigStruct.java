@@ -28,7 +28,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
 /**
- * JNA class for the CreateDAConfigStruct type
+ * JNA class for the UpdateDAConfigStruct type
  * 
  * @author Raghu M R
  */
@@ -36,19 +36,22 @@ public class UpdateDAConfigStruct extends BaseStructure implements Serializable,
 
   private static final long serialVersionUID = 1L;
 
-  public byte[] szDocUNID = new byte[NotesConstants.MAX_HOSTNAME]; 
   public DirectoryAssistanceStruct daStruct;
+  public byte[] szDocUNID = new byte[NotesConstants.MAX_HOSTNAME]; 
  
   public UpdateDAConfigStruct( byte docUNID[], DirectoryAssistanceStruct daStruct) {
     
     super();
         
-    if ((docUNID.length != this.szDocUNID.length)) {
-        throw new WrongArraySizeException("DocUNID");
-    }    
+	
+	
+	  if ((docUNID.length != this.szDocUNID.length)) { throw new
+	  WrongArraySizeException("DocUNID"); }
+	 
+	     
+    this.daStruct = daStruct;
     this.szDocUNID = docUNID;
     
-    this.daStruct = daStruct;
   }
 
     public UpdateDAConfigStruct() {
@@ -66,8 +69,8 @@ public class UpdateDAConfigStruct extends BaseStructure implements Serializable,
 	@Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList(
-		    "docUNID",
-		    "daStruct"
+		    "daStruct",
+			"szDocUNID"
 		    );
 	}
 			
