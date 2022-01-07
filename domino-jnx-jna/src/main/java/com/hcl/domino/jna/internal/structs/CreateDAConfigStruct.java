@@ -38,52 +38,52 @@ public class CreateDAConfigStruct extends BaseStructure implements Serializable,
   public boolean bUpdateServerDoc;
   public DirectoryAssistanceStruct daStruct;
 
-  public CreateDAConfigStruct( boolean updateServerDoc, DirectoryAssistanceStruct daStruct) {
-    
+  public CreateDAConfigStruct(boolean updateServerDoc, DirectoryAssistanceStruct daStruct) {
+
     super();
-    
+
     this.bUpdateServerDoc = updateServerDoc;
-    
+
     this.daStruct = daStruct;
   }
 
-    public CreateDAConfigStruct() {
-      super();
-    }
-  
-	public static CreateDAConfigStruct newInstance() {
-		return AccessController.doPrivileged((PrivilegedAction<CreateDAConfigStruct>) () -> new CreateDAConfigStruct());
-	}
+  public CreateDAConfigStruct() {
+    super();
+  }
 
-	public static CreateDAConfigStruct.ByValue newInstanceByVal() {
-		return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> new CreateDAConfigStruct.ByValue());
-	}	
-	
-	@Override
-	protected List<String> getFieldOrder() {
-		return Arrays.asList("bUpdateServerDoc",
-		    "daStruct"
-		    );
-	}
-			
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T> T getAdapter(Class<T> clazz) {
-		if (clazz == CreateDAConfigStruct.class) {
-			return (T) this;
-		}
-		else if (clazz == Pointer.class) {
-			return (T) getPointer();
-		}
-		return null;
-	}
-	
-	public static class ByReference extends CreateDAConfigStruct implements Structure.ByReference {
-		private static final long serialVersionUID = -2958581285484373942L;		
-	};
-	
-	public static class ByValue extends CreateDAConfigStruct implements Structure.ByValue {
-		private static final long serialVersionUID = -6538673668884547829L;		
-	};
-	
+  public static CreateDAConfigStruct newInstance() {
+    return AccessController
+        .doPrivileged((PrivilegedAction<CreateDAConfigStruct>) () -> new CreateDAConfigStruct());
+  }
+
+  public static CreateDAConfigStruct.ByValue newInstanceByVal() {
+    return AccessController
+        .doPrivileged((PrivilegedAction<ByValue>) () -> new CreateDAConfigStruct.ByValue());
+  }
+
+  @Override
+  protected List<String> getFieldOrder() {
+    return Arrays.asList("bUpdateServerDoc",
+        "daStruct");
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T getAdapter(Class<T> clazz) {
+    if (clazz == CreateDAConfigStruct.class) {
+      return (T) this;
+    } else if (clazz == Pointer.class) {
+      return (T) getPointer();
+    }
+    return null;
+  }
+
+  public static class ByReference extends CreateDAConfigStruct implements Structure.ByReference {
+    private static final long serialVersionUID = -2958581285484373942L;
+  };
+
+  public static class ByValue extends CreateDAConfigStruct implements Structure.ByValue {
+    private static final long serialVersionUID = -6538673668884547829L;
+  };
+
 }
