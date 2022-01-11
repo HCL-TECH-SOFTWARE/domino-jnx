@@ -38,110 +38,144 @@ public class DirectoryAssistanceStruct extends BaseStructure implements Serializ
   private static final long serialVersionUID = 1L;
 
   public byte[] szServerName = new byte[NotesConstants.MAXUSERNAME];
+  public byte[] szHostName = new byte[NotesConstants.MAXUSERNAME];
+  public byte[] szUserName = new byte[NotesConstants.MAXUSERNAME];
   public byte[] szDirAssistDBName = new byte[NotesConstants.MAXPATH];
-  
+
+  public byte[] szCompanyName = new byte[NotesConstants.FILETITLEMAX];
+  public byte[] szDNSearch = new byte[NotesConstants.MAXLDAPBASE];
+  public byte[] szPassword = new byte[NotesConstants.MAXUSERPASSWORD];
   public byte[] szDomainName = new byte[NotesConstants.MAXDOMAINNAME];
-  public byte[] szCompanyName = new byte[NotesConstants.FILETITLEMAX];  
 
-  public byte[] szHostName = new byte [NotesConstants.MAXUSERNAME];
+
+  public short wTimeout;
+  public short wMaxEntriesReturned;
+  public short wSearchOrder;
   public short wLDAPVendor;
-  public byte[]  szUserName = new byte [NotesConstants.MAXUSERNAME]; 
-  public byte[]  szPassword = new byte [NotesConstants.MAXUSERPASSWORD]; 
-
-  public boolean bUseSSL;
   public short wPort;
-  
-  public DirectoryAssistanceStruct(byte serverName[], byte dirAssistDBName[], byte domainName[], byte companyName[], 
-      byte hostName[],short ldapVendor, byte userName[], byte password[], boolean useSSL, short port) {
-    
-	super();
-	    
-	if ((serverName.length > this.szServerName.length)) {
-	  throw new WrongArraySizeException("serverName");
-	}
-	DominoUtils.overwriteArray(serverName, this.szServerName);
+  public boolean bUseSSL;
+  public boolean bAcceptExpiredCertificates;
+  public boolean bVerifyRemoteSrvCert;
 
-	if ((dirAssistDBName.length > this.szDirAssistDBName.length)) {
-	  throw new WrongArraySizeException("dirAssistDBName");
-	}
-	DominoUtils.overwriteArray(dirAssistDBName, this.szDirAssistDBName);
-	    
-	if ((domainName.length > this.szDomainName.length)) {
-	  throw new WrongArraySizeException("domainName");
-	}
-	DominoUtils.overwriteArray(domainName, this.szDomainName);
 
-	if ((companyName.length > this.szCompanyName.length)) {
-	  throw new WrongArraySizeException("companyName");
-	}
-	DominoUtils.overwriteArray(companyName, this.szCompanyName);
-	    
-	if ((hostName.length > this.szHostName.length)) {
-	  throw new WrongArraySizeException("hostName");
-	}
-	DominoUtils.overwriteArray(hostName, this.szHostName);
+  public DirectoryAssistanceStruct(byte serverName[], byte dirAssistDBName[], byte domainName[],
+      byte companyName[],
+      byte hostName[], short ldapVendor, byte userName[], byte password[], boolean useSSL,
+      short port, short searchOrder, byte dnSearch[],
+      boolean acceptExpiredCertificates, boolean verifyRemoteSrvCert, short timeout,
+      short maxEntriesReturned) {
 
-	this.wLDAPVendor = ldapVendor; 
-	    
-	if ((userName.length > this.szUserName.length)) {
-	  throw new WrongArraySizeException("userName");
-	}
-	DominoUtils.overwriteArray(userName, this.szUserName);
+    super();
 
-	if ((password.length > this.szPassword.length)) {
-	  throw new WrongArraySizeException("Password");
-	}
-	DominoUtils.overwriteArray(password, this.szPassword);
-	    
-	this.wPort = port;
-	    
-	this.bUseSSL =useSSL;  
+    if ((serverName.length > this.szServerName.length)) {
+      throw new WrongArraySizeException("serverName");
+    }
+    DominoUtils.overwriteArray(serverName, this.szServerName);
+
+    if ((dirAssistDBName.length > this.szDirAssistDBName.length)) {
+      throw new WrongArraySizeException("dirAssistDBName");
+    }
+    DominoUtils.overwriteArray(dirAssistDBName, this.szDirAssistDBName);
+
+    if ((domainName.length > this.szDomainName.length)) {
+      throw new WrongArraySizeException("domainName");
+    }
+    DominoUtils.overwriteArray(domainName, this.szDomainName);
+
+    if ((companyName.length > this.szCompanyName.length)) {
+      throw new WrongArraySizeException("companyName");
+    }
+    DominoUtils.overwriteArray(companyName, this.szCompanyName);
+
+    if ((hostName.length > this.szHostName.length)) {
+      throw new WrongArraySizeException("hostName");
+    }
+    DominoUtils.overwriteArray(hostName, this.szHostName);
+
+    this.wLDAPVendor = ldapVendor;
+
+    if ((userName.length > this.szUserName.length)) {
+      throw new WrongArraySizeException("userName");
+    }
+    DominoUtils.overwriteArray(userName, this.szUserName);
+
+    if ((password.length > this.szPassword.length)) {
+      throw new WrongArraySizeException("Password");
+    }
+    DominoUtils.overwriteArray(password, this.szPassword);
+
+    this.wPort = port;
+
+    this.bUseSSL = useSSL;
+
+    this.wSearchOrder = searchOrder;
+
+    if ((dnSearch.length > this.szDNSearch.length)) {
+      throw new WrongArraySizeException("dnSearch");
+    }
+    this.szDNSearch = dnSearch;
+
+    this.bAcceptExpiredCertificates = acceptExpiredCertificates;
+
+    this.bVerifyRemoteSrvCert = verifyRemoteSrvCert;
+
+    this.wTimeout = timeout;
+
+    this.wMaxEntriesReturned = maxEntriesReturned;
   }
 
-    public DirectoryAssistanceStruct() {
-      super();
-    }  
-  
-	public static DirectoryAssistanceStruct newInstance() {
-		return AccessController.doPrivileged((PrivilegedAction<DirectoryAssistanceStruct>) () -> new DirectoryAssistanceStruct());
-	}
+  public DirectoryAssistanceStruct() {
+    super();
+  }
 
-	public static DirectoryAssistanceStruct.ByValue newInstanceByVal() {
-		return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> new DirectoryAssistanceStruct.ByValue());
-	}	
-	
-	@Override
-	protected List<String> getFieldOrder() {
-		return Arrays.asList("szServerName",
-		    "szDirAssistDBName",
-		    "szDomainName",
-		    "szCompanyName",
-		    "szHostName",
-		    "wLDAPVendor",
-		    "szUserName",
-		    "szPassword",
-		    "bUseSSL",
-		    "wPort");
-	}
-			
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T> T getAdapter(Class<T> clazz) {
-		if (clazz == DirectoryAssistanceStruct.class) {
-			return (T) this;
-		}
-		else if (clazz == Pointer.class) {
-			return (T) getPointer();
-		}
-		return null;
-	}
-	
-	public static class ByReference extends DirectoryAssistanceStruct implements Structure.ByReference {
-		private static final long serialVersionUID = -2958581285484373942L;		
-	};
-	
-	public static class ByValue extends DirectoryAssistanceStruct implements Structure.ByValue {
-		private static final long serialVersionUID = -6538673668884547829L;		
-	};
-	
+  public static DirectoryAssistanceStruct newInstance() {
+    return AccessController.doPrivileged(
+        (PrivilegedAction<DirectoryAssistanceStruct>) () -> new DirectoryAssistanceStruct());
+  }
+
+  public static DirectoryAssistanceStruct.ByValue newInstanceByVal() {
+    return AccessController
+        .doPrivileged((PrivilegedAction<ByValue>) () -> new DirectoryAssistanceStruct.ByValue());
+  }
+
+  @Override
+  protected List<String> getFieldOrder() {
+    return Arrays.asList("szServerName",
+        "szHostName",
+        "szUserName",
+        "szDirAssistDBName",
+        "szCompanyName",
+        "szDNSearch",
+        "szPassword",
+        "szDomainName",
+        "wTimeout",
+        "wMaxEntriesReturned",
+        "wSearchOrder",
+        "wLDAPVendor",
+        "wPort",
+        "bUseSSL",
+        "bAcceptExpiredCertificates",
+        "bVerifyRemoteSrvCert");
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T getAdapter(Class<T> clazz) {
+    if (clazz == DirectoryAssistanceStruct.class) {
+      return (T) this;
+    } else if (clazz == Pointer.class) {
+      return (T) getPointer();
+    }
+    return null;
+  }
+
+  public static class ByReference extends DirectoryAssistanceStruct
+      implements Structure.ByReference {
+    private static final long serialVersionUID = -2958581285484373942L;
+  };
+
+  public static class ByValue extends DirectoryAssistanceStruct implements Structure.ByValue {
+    private static final long serialVersionUID = -6538673668884547829L;
+  };
+
 }

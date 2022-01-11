@@ -28,7 +28,7 @@ import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
 /**
- * JNA class for the CreateDAConfigStruct type
+ * JNA class for the UpdateDAConfigStruct type
  * 
  * @author Raghu M R
  */
@@ -36,59 +36,60 @@ public class UpdateDAConfigStruct extends BaseStructure implements Serializable,
 
   private static final long serialVersionUID = 1L;
 
-  public byte[] szDocUNID = new byte[NotesConstants.MAX_HOSTNAME]; 
   public DirectoryAssistanceStruct daStruct;
- 
-  public UpdateDAConfigStruct( byte docUNID[], DirectoryAssistanceStruct daStruct) {
-    
+  public byte[] szDocUNID = new byte[NotesConstants.MAX_HOSTNAME];
+
+  public UpdateDAConfigStruct(byte docUNID[], DirectoryAssistanceStruct daStruct) {
+
     super();
-        
+
     if ((docUNID.length != this.szDocUNID.length)) {
-        throw new WrongArraySizeException("DocUNID");
-    }    
-    this.szDocUNID = docUNID;
-    
+      throw new WrongArraySizeException("DocUNID");
+    }
+
     this.daStruct = daStruct;
+    this.szDocUNID = docUNID;
+
   }
 
-    public UpdateDAConfigStruct() {
-      super();
-    }
-  
-	public static UpdateDAConfigStruct newInstance() {
-		return AccessController.doPrivileged((PrivilegedAction<UpdateDAConfigStruct>) () -> new UpdateDAConfigStruct());
-	}
+  public UpdateDAConfigStruct() {
+    super();
+  }
 
-	public static UpdateDAConfigStruct.ByValue newInstanceByVal() {
-		return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> new UpdateDAConfigStruct.ByValue());
-	}	
-	
-	@Override
-	protected List<String> getFieldOrder() {
-		return Arrays.asList(
-		    "docUNID",
-		    "daStruct"
-		    );
-	}
-			
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T> T getAdapter(Class<T> clazz) {
-		if (clazz == UpdateDAConfigStruct.class) {
-			return (T) this;
-		}
-		else if (clazz == Pointer.class) {
-			return (T) getPointer();
-		}
-		return null;
-	}
-	
-	public static class ByReference extends UpdateDAConfigStruct implements Structure.ByReference {
-		private static final long serialVersionUID = -2958581285484373942L;		
-	};
-	
-	public static class ByValue extends UpdateDAConfigStruct implements Structure.ByValue {
-		private static final long serialVersionUID = -6538673668884547829L;		
-	};
-	
+  public static UpdateDAConfigStruct newInstance() {
+    return AccessController
+        .doPrivileged((PrivilegedAction<UpdateDAConfigStruct>) () -> new UpdateDAConfigStruct());
+  }
+
+  public static UpdateDAConfigStruct.ByValue newInstanceByVal() {
+    return AccessController
+        .doPrivileged((PrivilegedAction<ByValue>) () -> new UpdateDAConfigStruct.ByValue());
+  }
+
+  @Override
+  protected List<String> getFieldOrder() {
+    return Arrays.asList(
+        "daStruct",
+        "szDocUNID");
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T getAdapter(Class<T> clazz) {
+    if (clazz == UpdateDAConfigStruct.class) {
+      return (T) this;
+    } else if (clazz == Pointer.class) {
+      return (T) getPointer();
+    }
+    return null;
+  }
+
+  public static class ByReference extends UpdateDAConfigStruct implements Structure.ByReference {
+    private static final long serialVersionUID = -2958581285484373942L;
+  };
+
+  public static class ByValue extends UpdateDAConfigStruct implements Structure.ByValue {
+    private static final long serialVersionUID = -6538673668884547829L;
+  };
+
 }

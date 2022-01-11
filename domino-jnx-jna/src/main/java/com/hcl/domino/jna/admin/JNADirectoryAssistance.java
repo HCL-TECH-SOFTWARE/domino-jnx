@@ -35,9 +35,12 @@ public class JNADirectoryAssistance implements DirectoryAssistance {
   }
 
   @Override
-  public void createDAConfig(boolean updateServerDoc, String domainName, String companyName, short searchOrder, String hostName,
-      short ldapVendor, String userName, String password, String dnSearch, boolean useSSL, short port, boolean acceptExpiredCerts,
-      boolean verifyRemoteSrvCert, short timeout, short maxEntriesReturned) {
+  public void createDAConfig(boolean updateServerDoc, String domainName, String companyName,
+      short searchOrder,
+      String hostName, short ldapVendor, String userName, String password, String dnSearch,
+      boolean useSSL,
+      short port, boolean acceptExpiredCerts, boolean verifyRemoteSrvCert, short timeout,
+      short maxEntriesReturned) {
     DirectoryAssistanceStruct daConfigStruct = new DirectoryAssistanceStruct();
     NotesStringUtils.toLMBCS(this.serverName, true, daConfigStruct.szServerName);
     NotesStringUtils.toLMBCS(this.dirAssistDBName, true, daConfigStruct.szDirAssistDBName);
@@ -46,6 +49,12 @@ public class JNADirectoryAssistance implements DirectoryAssistance {
     NotesStringUtils.toLMBCS(hostName, true, daConfigStruct.szHostName);
     NotesStringUtils.toLMBCS(userName, true, daConfigStruct.szUserName);
     NotesStringUtils.toLMBCS(password, true, daConfigStruct.szPassword);
+    NotesStringUtils.toLMBCS(dnSearch, true, daConfigStruct.szDNSearch);
+    daConfigStruct.wSearchOrder = searchOrder;
+    daConfigStruct.bAcceptExpiredCertificates = acceptExpiredCerts;
+    daConfigStruct.bVerifyRemoteSrvCert = verifyRemoteSrvCert;
+    daConfigStruct.wTimeout = timeout;
+    daConfigStruct.wMaxEntriesReturned = maxEntriesReturned;
 
     daConfigStruct.wLDAPVendor = ldapVendor;
     daConfigStruct.bUseSSL = useSSL;
@@ -54,12 +63,6 @@ public class JNADirectoryAssistance implements DirectoryAssistance {
 
     CreateDAConfigStruct daConfig = new CreateDAConfigStruct();
     daConfig.bUpdateServerDoc = updateServerDoc;
-    daConfig.wSearchOrder = searchOrder ;
-    NotesStringUtils.toLMBCS(dnSearch, true, daConfig.szDNSearch);
-    daConfig.bAcceptExpiredCertificates = acceptExpiredCerts;
-    daConfig.bVerifyRemoteSrvCert = verifyRemoteSrvCert;
-    daConfig.wTimeout = timeout ;
-    daConfig.wMaxEntriesReturned = maxEntriesReturned ;
     daConfig.daStruct = daConfigStruct;
     daConfig.write();
     NotesErrorUtils.checkResult(NotesCAPI.get().CreateDAConfiguration(daConfig));
@@ -68,7 +71,7 @@ public class JNADirectoryAssistance implements DirectoryAssistance {
   @Override
   public void enableDisableDA(String docUnid, boolean enableDomain) {
 
-    EnableDisableDAStruct daConfig  = new EnableDisableDAStruct();
+    EnableDisableDAStruct daConfig = new EnableDisableDAStruct();
 
     NotesStringUtils.toLMBCS(serverName, true, daConfig.szServerName);
     NotesStringUtils.toLMBCS(dirAssistDBName, true, daConfig.szDirAssistDBName);
@@ -80,13 +83,36 @@ public class JNADirectoryAssistance implements DirectoryAssistance {
   }
 
   @Override
-  public void updateDAConfig(String docUNID, String domainName, String companyName, String hostName, short ldapVendor,
-      String userName, String password, boolean useSSL, short port) {
-    DirectoryAssistanceStruct daConfigStruct = new DirectoryAssistanceStruct(serverName.getBytes(), dirAssistDBName.getBytes(), domainName.getBytes(), companyName.getBytes(),
-        hostName.getBytes(), ldapVendor, userName.getBytes(), password.getBytes(), useSSL, port);
+  public void updateDAConfig(String docUnid, String domainName, String companyName,
+      short searchOrder,
+      String hostName, short ldapVendor, String userName, String password, String dnSearch,
+      boolean useSSL,
+      short port, boolean acceptExpiredCerts, boolean verifyRemoteSrvCert, short timeout,
+      short maxEntriesReturned) {
 
-    UpdateDAConfigStruct daConfig = new UpdateDAConfigStruct(docUNID.getBytes(), daConfigStruct);
+    DirectoryAssistanceStruct daConfigStruct = new DirectoryAssistanceStruct();
+    NotesStringUtils.toLMBCS(this.serverName, true, daConfigStruct.szServerName);
+    NotesStringUtils.toLMBCS(this.dirAssistDBName, true, daConfigStruct.szDirAssistDBName);
+    NotesStringUtils.toLMBCS(domainName, true, daConfigStruct.szDomainName);
+    NotesStringUtils.toLMBCS(companyName, true, daConfigStruct.szCompanyName);
+    NotesStringUtils.toLMBCS(hostName, true, daConfigStruct.szHostName);
+    NotesStringUtils.toLMBCS(userName, true, daConfigStruct.szUserName);
+    NotesStringUtils.toLMBCS(password, true, daConfigStruct.szPassword);
+    NotesStringUtils.toLMBCS(dnSearch, true, daConfigStruct.szDNSearch);
+    daConfigStruct.wSearchOrder = searchOrder;
+    daConfigStruct.bAcceptExpiredCertificates = acceptExpiredCerts;
+    daConfigStruct.bVerifyRemoteSrvCert = verifyRemoteSrvCert;
+    daConfigStruct.wTimeout = timeout;
+    daConfigStruct.wMaxEntriesReturned = maxEntriesReturned;
 
+    daConfigStruct.wLDAPVendor = ldapVendor;
+    daConfigStruct.bUseSSL = useSSL;
+    daConfigStruct.wPort = port;
+    daConfigStruct.write();
+
+    UpdateDAConfigStruct daConfig = new UpdateDAConfigStruct();
+    daConfig.daStruct = daConfigStruct;
+    NotesStringUtils.toLMBCS(docUnid, true, daConfig.szDocUNID);
     daConfig.write();
     NotesErrorUtils.checkResult(NotesCAPI.get().UpdateDAConfiguration(daConfig));
   }
