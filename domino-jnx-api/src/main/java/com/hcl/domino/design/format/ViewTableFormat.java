@@ -17,8 +17,11 @@
 package com.hcl.domino.design.format;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.hcl.domino.design.format.ViewColumnFormat.Flag;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.ViewFormatConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -104,9 +107,51 @@ public interface ViewTableFormat extends MemoryStructure {
   @StructureGetter("Flags")
   Set<Flag> getFlags();
 
+  default ViewTableFormat setFlag(Flag flag, boolean b) {
+    Set<Flag> oldFlags = getFlags();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<Flag> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setFlags(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<Flag> newFlags = oldFlags
+            .stream()
+            .filter(currFlag -> !flag.equals(currFlag))
+            .collect(Collectors.toSet());
+        setFlags(newFlags);
+      }
+    }
+    return this;
+  }
+  
   @StructureGetter("Flags2")
   Set<Flag2> getFlags2();
 
+  default ViewTableFormat setFlag(Flag2 flag, boolean b) {
+    Set<Flag2> oldFlags = getFlags2();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<Flag2> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setFlags2(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<Flag2> newFlags = oldFlags
+            .stream()
+            .filter(currFlag -> !flag.equals(currFlag))
+            .collect(Collectors.toSet());
+        setFlags2(newFlags);
+      }
+    }
+    return this;
+  }
+  
   @StructureGetter("Header")
   ViewFormatHeader getHeader();
 

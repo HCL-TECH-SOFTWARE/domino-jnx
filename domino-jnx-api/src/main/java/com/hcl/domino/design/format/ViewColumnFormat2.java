@@ -16,8 +16,12 @@
  */
 package com.hcl.domino.design.format;
 
+import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.NotesConstants;
@@ -26,8 +30,10 @@ import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FontStyle;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 import com.hcl.domino.richtext.structures.UNID;
 
@@ -49,6 +55,9 @@ import com.hcl.domino.richtext.structures.UNID;
     @StructureMember(name = "wCustomHiddenFlags", type = ViewColumnFormat2.HiddenFlag.class, bitfield = true),
     @StructureMember(name = "ColumnColor", type = ColorValue.class),
     @StructureMember(name = "HeaderFontColor", type = ColorValue.class),
+    
+    //structure has compiled hide-when formula and twistie CDResource as variable data,
+    //but these will be stored separately in the $ViewFormat item
   }
 )
 public interface ViewColumnFormat2 extends ResizableMemoryStructure {
@@ -146,12 +155,6 @@ public interface ViewColumnFormat2 extends ResizableMemoryStructure {
   @StructureGetter("HeaderFontID")
   FontStyle getHeaderFontStyle();
 
-  default String getHideWhenFormula() {
-    return StructureSupport.extractCompiledFormula(this,
-        0,
-        this.getHideWhenFormulaLength());
-  }
-
   @StructureGetter("wHideWhenFormulaSize")
   int getHideWhenFormulaLength();
 
@@ -163,13 +166,7 @@ public interface ViewColumnFormat2 extends ResizableMemoryStructure {
 
   @StructureGetter("Signature")
   short getSignature();
-
-  default String getTwistieResource() {
-    return StructureSupport.extractCompiledFormula(this,
-        this.getHideWhenFormulaLength(),
-        this.getTwistieResourceLength());
-  }
-
+  
   @StructureGetter("wTwistieResourceSize")
   int getTwistieResourceLength();
 
@@ -181,6 +178,33 @@ public interface ViewColumnFormat2 extends ResizableMemoryStructure {
 
   @StructureSetter("Flags3")
   ViewColumnFormat2 setFlags(Collection<Flag3> flags);
+
+  default ViewColumnFormat2 setFlag(Flag3 flag, boolean b) {
+    Set<Flag3> oldFlags = getFlags();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<Flag3> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setFlags(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<Flag3> newFlags = oldFlags
+            .stream()
+            .filter(currFlag -> !flag.equals(currFlag))
+            .collect(Collectors.toSet());
+        setFlags(newFlags);
+      }
+    }
+    return this;
+  }
+  
+  default String getHideWhenFormula() {
+    return StructureSupport.extractCompiledFormula(this,
+        0,
+        this.getHideWhenFormulaLength());
+  }
 
   default ViewColumnFormat2 setHideWhenFormula(final String formula) {
     return StructureSupport.writeCompiledFormula(
@@ -200,13 +224,29 @@ public interface ViewColumnFormat2 extends ResizableMemoryStructure {
   @StructureSetter("Signature")
   ViewColumnFormat2 setSignature(short signature);
 
-  default ViewColumnFormat2 setTwistieResource(final String formula) {
-    return StructureSupport.writeCompiledFormula(
-        this,
-        this.getHideWhenFormulaLength(),
-        this.getTwistieResourceLength(),
-        formula,
-        this::setTwistieResourceLength);
+  default Optional<CDResource> getTwistieResource() {
+    int twistieResourceLen = getTwistieResourceLength();
+    if (twistieResourceLen>0) {
+      MemoryStructureWrapperService memStructureService = MemoryStructureWrapperService.get();
+      CDResource res = memStructureService.newStructure(CDResource.class, twistieResourceLen);
+      return Optional.of(res);
+    }
+    else {
+      return Optional.empty();
+    }
+  }
+  
+  default ViewColumnFormat2 setTwistieResource(CDResource res) {
+    int hideWhenFormulaLen = this.getHideWhenFormulaLength();
+    ByteBuffer resData = res.getData();
+    int twistieResourceLen = resData.capacity();
+    
+    resizeVariableData(hideWhenFormulaLen + twistieResourceLen);
+    ByteBuffer varData = getVariableData();
+    varData.position(hideWhenFormulaLen);
+    varData.put(resData);
+    
+    return this;
   }
 
   @StructureSetter("wTwistieResourceSize")

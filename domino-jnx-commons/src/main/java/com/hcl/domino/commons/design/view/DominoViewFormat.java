@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.commons.design.view;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,7 +36,7 @@ import com.hcl.domino.richtext.records.CDResource;
  * @since 1.0.27
  */
 public class DominoViewFormat implements IAdaptable {
-  private final List<DominoViewColumnFormat> columns = new ArrayList<>();
+  private final List<CollectionColumn> columns = new ArrayList<>();
 
   private ViewTableFormat format1;
   private ViewTableFormat2 format2;
@@ -43,10 +44,74 @@ public class DominoViewFormat implements IAdaptable {
   private ViewTableFormat4 format4;
   private CDResource backgroundResource;
 
-  public DominoViewColumnFormat addColumn() {
-    final DominoViewColumnFormat col = new DominoViewColumnFormat(this.columns.size());
-    this.columns.add(col);
+  /**
+   * Adds a new empty column format object at the specified position
+   * 
+   * @param index insertion index, use -1 to append at the end
+   * @return column format
+   */
+  public CollectionColumn addColumn(int index) {
+    final ViewTableFormat format1 = Objects.requireNonNull(this.format1, "VIEW_TABLE_FORMAT not read");
+    final DominoViewColumnFormat col = new DominoViewColumnFormat();
+    
+    if (index==-1) {
+      this.columns.add(col);
+    }
+    else {
+      this.columns.add(index, col);
+    }
+    
+    format1.setColumnCount(this.columns.size());
+    
     return col;
+  }
+
+  /**
+   * Removes a view column format
+   * 
+   * @param index column index
+   */
+  public void removeColumn(CollectionColumn column) {
+    final ViewTableFormat format1 = Objects.requireNonNull(this.format1, "VIEW_TABLE_FORMAT not read");
+    int index = columns.indexOf(column);
+    if (index!=-1) {
+      columns.remove(index);
+      format1.setColumnCount(this.columns.size());
+    }
+  }
+  
+  /**
+   * Returns the view column format for the specified index
+   * 
+   * @param index index
+   * @return format
+   */
+  public CollectionColumn getColumn(int index) {
+    return columns.get(index);
+  }
+  
+  public void swapColumns(CollectionColumn a, CollectionColumn b) {
+    int idx1 = columns.indexOf(a);
+    int idx2 = columns.indexOf(b);
+    
+    if (idx1!=-1 && idx2!=-1) {
+      swapColumns(idx1, idx2);
+    }
+  }
+
+  public void swapColumns(int a, int b) {
+    if (a >= columns.size()) {
+      throw new IndexOutOfBoundsException(MessageFormat.format("Index: {0}, Size: {1}", a, columns.size()));
+    }
+    
+    if (b >= columns.size()) {
+      throw new IndexOutOfBoundsException(MessageFormat.format("Index: {0}, Size: {1}", b, columns.size()));
+    }
+    
+    CollectionColumn colA = columns.get(a);
+    CollectionColumn colB = columns.get(a);
+    columns.set(a, colB);
+    columns.set(b, colA);
   }
 
   @SuppressWarnings("unchecked")

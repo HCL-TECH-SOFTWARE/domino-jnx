@@ -26,7 +26,7 @@ import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
  *
  * @author t.b.d
  */
-public interface View extends CollectionDesignElement {
+public interface View extends CollectionDesignElement<View> {
 
   String getSelectionFormula();
 

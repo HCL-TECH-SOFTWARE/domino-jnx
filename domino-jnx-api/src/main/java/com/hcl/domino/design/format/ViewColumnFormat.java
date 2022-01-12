@@ -17,7 +17,9 @@
 package com.hcl.domino.design.format;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
@@ -312,7 +314,7 @@ public interface ViewColumnFormat extends ResizableMemoryStructure {
   short getSignature();
 
   @StructureGetter("TimeFormat")
-  TFMT getTimeForat();
+  TFMT getTimeFormat();
 
   default String getTitle() {
     return StructureSupport.extractStringValue(this,
@@ -349,6 +351,48 @@ public interface ViewColumnFormat extends ResizableMemoryStructure {
   @StructureSetter("Flags1")
   ViewColumnFormat setFlags(Collection<Flag> flags);
 
+  default ViewColumnFormat setFlag(Flag flag, boolean b) {
+    Set<Flag> oldFlags = getFlags();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<Flag> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setFlags(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<Flag> newFlags = oldFlags
+            .stream()
+            .filter(currFlag -> !flag.equals(currFlag))
+            .collect(Collectors.toSet());
+        setFlags(newFlags);
+      }
+    }
+    return this;
+  }
+  
+  default ViewColumnFormat setFlag(Flag2 flag, boolean b) {
+    Set<Flag2> oldFlags = getFlags2();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<Flag2> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setFlags2(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<Flag2> newFlags = oldFlags
+            .stream()
+            .filter(currFlag -> !flag.equals(currFlag))
+            .collect(Collectors.toSet());
+        setFlags2(newFlags);
+      }
+    }
+    return this;
+  }
+  
   default ViewColumnFormat setFlags2(final Collection<Flag2> flags) {
     final short val = DominoEnumUtil.toBitField(Flag2.class, flags);
     final short rawFlags = this.getFlags2Raw();

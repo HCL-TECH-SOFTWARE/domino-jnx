@@ -55,6 +55,8 @@ import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
     @StructureMember(name = "bUnused", type = byte.class),
     @StructureMember(name = "Unused3", type = int.class),
     @StructureMember(name = "Unused4", type = int.class),
+    
+    //followed by var data with strings for the custom decimal symbol, milli separator, negative symbol and currency symbol
   }
 )
 public interface ViewColumnFormat4 extends ResizableMemoryStructure {

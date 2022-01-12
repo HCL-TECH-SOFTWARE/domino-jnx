@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.NotesFont;
@@ -40,7 +41,7 @@ import com.hcl.domino.security.AclLevel;
 /**
  * Describes a collection design element, i.e. a view or folder
  */
-public interface CollectionDesignElement extends DesignElement.NamedDesignElement, DesignElement.XPageAlternativeElement,
+public interface CollectionDesignElement<T extends CollectionDesignElement<?>> extends DesignElement.NamedDesignElement, DesignElement.XPageAlternativeElement,
   DesignElement.ThemeableClassicElement, DesignElement.AutoFrameElement, DesignElement.ActionBarElement,
   DesignElement.ReadersRestrictedElement {
 
@@ -711,7 +712,11 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
     boolean isAllowWebCrawlerIndexing();
   }
 
-  CollectionDesignElement addColumn();
+  default T addColumn(Consumer<CollectionColumn> consumer) {
+    return addColumn(-1, consumer);
+  }
+
+  T addColumn(int pos, Consumer<CollectionColumn> consumer);
 
   com.hcl.domino.data.DominoCollection getCollection();
 
@@ -723,13 +728,13 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
 
   boolean isAllowCustomizations();
 
-  CollectionDesignElement removeColumn(CollectionColumn column);
+  T removeColumn(CollectionColumn column);
 
-  CollectionDesignElement setOnRefreshUISetting(OnRefresh onRefreshUISetting);
+  T setOnRefreshUISetting(OnRefresh onRefreshUISetting);
 
-  CollectionDesignElement swapColumns(CollectionColumn a, CollectionColumn b);
+  T swapColumns(CollectionColumn a, CollectionColumn b);
 
-  CollectionDesignElement swapColumns(int a, int b);
+  T swapColumns(int a, int b);
   
   /**
    * Retrieves the style of the collection - namely, whether it is displayed in

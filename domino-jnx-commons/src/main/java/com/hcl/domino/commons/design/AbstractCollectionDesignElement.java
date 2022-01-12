@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.commons.design;
 
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,6 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -39,12 +41,14 @@ import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoCollection;
+import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DesignColorsAndFonts;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.EdgeWidths;
+import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.format.ViewCalendarFormat;
@@ -66,9 +70,9 @@ import com.hcl.domino.richtext.structures.ColorValue;
  * @param <T> the {@link DesignElement} interface implemented by the class
  * @since 1.0.18
  */
-public abstract class AbstractCollectionDesignElement<T extends CollectionDesignElement> extends AbstractDesignElement<T>
-    implements CollectionDesignElement, IDefaultAutoFrameElement, IDefaultActionBarElement, IDefaultReadersRestrictedElement,
-    IDefaultNamedDesignElement {
+public abstract class AbstractCollectionDesignElement<T extends CollectionDesignElement<?>> extends AbstractDesignElement<T>
+    implements CollectionDesignElement<T>, IDefaultAutoFrameElement, IDefaultActionBarElement, IDefaultReadersRestrictedElement,
+    IDefaultNamedDesignElement, IAdaptable {
   private Optional<DominoViewFormat> format;
   private Optional<DominoCalendarFormat> calendarFormat;
 
@@ -76,9 +80,30 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     super(doc);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public CollectionDesignElement addColumn() {
-    throw new NotYetImplementedException();
+  public <T> T getAdapter(Class<T> clazz) {
+    if (DominoViewFormat.class.equals(clazz)) {
+      return (T) readViewFormat().orElse(null);
+    }
+
+    return null;
+  }
+  
+  @Override
+  public T addColumn(int pos, Consumer<CollectionColumn> consumer) {
+    //TODO check why it's not allowed to change folder columns
+    if (Folder.class.isAssignableFrom(getClass())) {
+      throw new UnsupportedOperationException();
+    }
+    
+    DominoViewFormat viewFormat = readViewFormat()
+    .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
+
+    CollectionColumn newCol = viewFormat.addColumn(pos);
+    consumer.accept(newCol);
+    
+    return (T) this;
   }
 
   @Override
@@ -157,23 +182,35 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   }
 
   @Override
-  public CollectionDesignElement removeColumn(final CollectionColumn column) {
+  public T removeColumn(final CollectionColumn column) {
+    DominoViewFormat viewFormat = readViewFormat()
+    .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
+
+    viewFormat.removeColumn(column);
+    return (T) this;
+  }
+
+  @Override
+  public T setOnRefreshUISetting(final OnRefresh onRefreshUISetting) {
     throw new NotYetImplementedException();
   }
 
   @Override
-  public CollectionDesignElement setOnRefreshUISetting(final OnRefresh onRefreshUISetting) {
-    throw new NotYetImplementedException();
+  public T swapColumns(final CollectionColumn a, final CollectionColumn b) {
+    DominoViewFormat viewFormat = readViewFormat()
+    .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
+
+    viewFormat.swapColumns(a, b);
+    return (T) this;
   }
 
   @Override
-  public CollectionDesignElement swapColumns(final CollectionColumn a, final CollectionColumn b) {
-    throw new NotYetImplementedException();
-  }
+  public T swapColumns(final int a, final int b) {
+    DominoViewFormat viewFormat = readViewFormat()
+    .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
 
-  @Override
-  public CollectionDesignElement swapColumns(final int a, final int b) {
-    throw new NotYetImplementedException();
+    viewFormat.swapColumns(a, b);
+    return (T) this;
   }
   
   @Override
@@ -277,7 +314,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public UnreadMarksMode getUnreadMarksMode() {
-    return getFormat1()
+    return getTableFormat1()
       .map(format1 -> {
         Set<ViewTableFormat.Flag> flags = format1.getFlags();
         if(flags.contains(ViewTableFormat.Flag.DISP_ALLUNREAD)) {
@@ -432,11 +469,11 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     return this.calendarFormat;
   }
   
-  private Optional<ViewTableFormat> getFormat1() {
+  private Optional<ViewTableFormat> getTableFormat1() {
     return readViewFormat().map(format -> format.getAdapter(ViewTableFormat.class));
   }
   
-  private Optional<ViewTableFormat2> getFormat2() {
+  private Optional<ViewTableFormat2> getTableFormat2() {
     return readViewFormat()
       .flatMap(format -> {
         final ViewTableFormat2 format2 = format.getAdapter(ViewTableFormat2.class);
@@ -448,7 +485,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       });
   }
   
-  private Optional<ViewTableFormat3> getFormat3() {
+  private Optional<ViewTableFormat3> getTableFormat3() {
     return readViewFormat()
       .flatMap(format -> {
         final ViewTableFormat3 format3 = format.getAdapter(ViewTableFormat3.class);
@@ -460,7 +497,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       });
   }
   
-  private Optional<ViewTableFormat4> getFormat4() {
+  private Optional<ViewTableFormat4> getTableFormat4() {
     return readViewFormat()
       .flatMap(format -> {
         final ViewTableFormat4 format4 = format.getAdapter(ViewTableFormat4.class);
@@ -493,28 +530,28 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
     @Override
     public boolean isHideColumnHeader() {
-      return getFormat3()
+      return getTableFormat3()
           .map(format3 -> format3.getFlags().contains(ViewTableFormat3.Flag.HideColumnHeader))
           .orElse(false);
     }
 
     @Override
     public boolean isShowPartialHierarchies() {
-      return getFormat1()
+      return getTableFormat1()
         .map(format -> format.getFlags2().contains(ViewTableFormat.Flag2.SHOW_PARTIAL_THREADS))
         .orElse(false);
     }
 
     @Override
     public boolean isShowSwitcher() {
-      return getFormat3()
+      return getTableFormat3()
           .map(format3 -> format3.getFlags().contains(ViewTableFormat3.Flag.ShowVerticalHorizontalSwitcher))
           .orElse(false);
     }
 
     @Override
     public boolean isShowTabNavigator() {
-      return getFormat3()
+      return getTableFormat3()
         .map(format3 -> format3.getFlags().contains(ViewTableFormat3.Flag.ShowTabNavigator))
         .orElse(false);
     }
@@ -531,7 +568,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
     @Override
     public boolean isAllowConversationMode() {
-      return getFormat1()
+      return getTableFormat1()
         .map(format -> format.getFlags2().contains(ViewTableFormat.Flag2.PARTIAL_FLATINDEX))
         .orElse(false);
     }
@@ -542,7 +579,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     @Override
     public ColorValue getBackgroundColor() {
       // TODO investigate pre-V5 background colors
-      return getFormat3()
+      return getTableFormat3()
         .map(ViewTableFormat3::getBackgroundColor)
         .orElseGet(DesignColorsAndFonts::whiteColor);
     }
@@ -550,14 +587,14 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     @Override
     public ColorValue getAlternateRowColor() {
       // TODO investigate pre-V5 background colors
-      return getFormat3()
+      return getTableFormat3()
         .map(ViewTableFormat3::getAlternateBackgroundColor)
         .orElseGet(DesignColorsAndFonts::noColor);
     }
     
     @Override
     public boolean isUseAlternateRowColor() {
-      return getFormat1()
+      return getTableFormat1()
         .map(format -> format.getFlags().contains(ViewTableFormat.Flag.ALTERNATE_ROW_COLORING))
         .orElse(false);
     }
@@ -570,14 +607,14 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
     @Override
     public ImageRepeatMode getBackgroundImageRepeatMode() {
-      return getFormat4()
+      return getTableFormat4()
         .map(ViewTableFormat4::getRepeatType)
         .orElse(ImageRepeatMode.ONCE);
     }
 
     @Override
     public GridStyle getGridStyle() {
-      Optional<ViewTableFormat3> format3 = getFormat3();
+      Optional<ViewTableFormat3> format3 = getTableFormat3();
       if(!format3.isPresent()) {
         return GridStyle.NONE;
       }
@@ -597,14 +634,14 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
     @Override
     public ColorValue getGridColor() {
-      return getFormat3()
+      return getTableFormat3()
         .map(ViewTableFormat3::getGridColor)
         .orElseGet(DesignColorsAndFonts::noColor);
     }
 
     @Override
     public HeaderStyle getHeaderStyle() {
-      return getFormat1()
+      return getTableFormat1()
         .map(format -> {
           Set<ViewTableFormat.Flag> flags = format.getFlags();
           Set<ViewTableFormat.Flag2> flags2 = format.getFlags2();
@@ -623,35 +660,35 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
     @Override
     public ColorValue getHeaderColor() {
-      return getFormat3()
+      return getTableFormat3()
         .map(ViewTableFormat3::getHeaderBackgroundColor)
         .orElseGet(DesignColorsAndFonts::noColor);
     }
 
     @Override
     public int getHeaderLines() {
-      return getFormat2()
+      return getTableFormat2()
         .map(ViewTableFormat2::getHeaderLineCount)
         .orElse((short)1);
     }
 
     @Override
     public int getRowLines() {
-      return getFormat2()
+      return getTableFormat2()
         .map(ViewTableFormat2::getLineCount)
         .orElse((short)1);
     }
 
     @Override
     public ViewLineSpacing getLineSpacing() {
-      return getFormat2()
+      return getTableFormat2()
         .map(ViewTableFormat2::getSpacing)
         .orElse(ViewLineSpacing.SINGLE_SPACE);
     }
 
     @Override
     public boolean isShrinkRowsToContent() {
-      return getFormat1()
+      return getTableFormat1()
         .map(ViewTableFormat::getFlags)
         .map(flags -> flags.contains(ViewTableFormat.Flag.VARIABLE_LINE_COUNT))
         .orElse(false);
@@ -664,7 +701,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
     @Override
     public boolean isColorizeViewIcons() {
-      return getFormat1()
+      return getTableFormat1()
         .map(ViewTableFormat::getFlags2)
         .map(flags -> flags.contains(ViewTableFormat.Flag2.COLORIZE_ICONS))
         .orElse(false);
@@ -672,14 +709,14 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
     @Override
     public ColorValue getUnreadColor() {
-      return getFormat3()
+      return getTableFormat3()
         .map(ViewTableFormat3::getUnreadColor)
         .orElseGet(DesignColorsAndFonts::blackColor);
     }
 
     @Override
     public boolean isUnreadBold() {
-      return getFormat3()
+      return getTableFormat3()
           .map(format -> {
             Set<ViewTableFormat3.Flag> flags = format.getFlags();
             return flags.contains(ViewTableFormat3.Flag.BoldUnreadRows);
@@ -689,14 +726,14 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
     @Override
     public ColorValue getColumnTotalColor() {
-      return getFormat3()
+      return getTableFormat3()
           .map(ViewTableFormat3::getTotalsColor)
           .orElseGet(DesignColorsAndFonts::blackColor);
     }
 
     @Override
     public boolean isShowSelectionMargin() {
-      return getFormat1()
+      return getTableFormat1()
         .map(ViewTableFormat::getFlags)
         .map(flags -> !flags.contains(ViewTableFormat.Flag.HIDE_LEFT_MARGIN))
         .orElse(true);
@@ -704,7 +741,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
     @Override
     public boolean isHideSelectionMarginBorder() {
-      return getFormat3()
+      return getTableFormat3()
         .map(ViewTableFormat3::getFlags)
         .map(flags -> flags.contains(ViewTableFormat3.Flag.HideLeftMarginBorder))
         .orElse(false);
@@ -712,7 +749,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
     @Override
     public boolean isExtendLastColumnToWindowWidth() {
-      return getFormat1()
+      return getTableFormat1()
         .map(ViewTableFormat::getFlags)
         .map(flags -> flags.contains(ViewTableFormat.Flag.EXTEND_LAST_COLUMN))
         .orElse(true);
@@ -721,23 +758,23 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     @Override
     public EdgeWidths getMargin() {
       return new LambdaEdgeWidths(
-        () -> getFormat3().map(ViewTableFormat3::getViewMarginTop).orElse(0),
-        () -> getFormat3().map(ViewTableFormat3::getViewMarginLeft).orElse(0),
-        () -> getFormat3().map(ViewTableFormat3::getViewMarginRight).orElse(0),
-        () -> getFormat3().map(ViewTableFormat3::getViewMarginBottom).orElse(0)
+        () -> getTableFormat3().map(ViewTableFormat3::getViewMarginTop).orElse(0),
+        () -> getTableFormat3().map(ViewTableFormat3::getViewMarginLeft).orElse(0),
+        () -> getTableFormat3().map(ViewTableFormat3::getViewMarginRight).orElse(0),
+        () -> getTableFormat3().map(ViewTableFormat3::getViewMarginBottom).orElse(0)
       );
     }
 
     @Override
     public int getBelowHeaderMargin() {
-      return getFormat3()
+      return getTableFormat3()
         .map(ViewTableFormat3::getViewMarginTopUnder)
         .orElse(0);
     }
 
     @Override
     public ColorValue getMarginColor() {
-      return getFormat3()
+      return getTableFormat3()
         .map(ViewTableFormat3::getMarginBackgroundColor)
         .orElseGet(DesignColorsAndFonts::whiteColor);
     }
@@ -818,7 +855,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
     @Override
     public boolean isTreatAsHtml() {
-      return getFormat2()
+      return getTableFormat2()
         .map(ViewTableFormat2::getFlags)
         .map(flags -> flags.contains(ViewTableFormat2.Flag.HTML_PASSTHRU))
         .orElse(false);

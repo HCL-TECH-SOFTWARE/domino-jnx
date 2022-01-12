@@ -551,6 +551,14 @@ public interface CollectionColumn {
   String getItemName();
 
   /**
+   * Changes the programmatic column name
+   * 
+   * @param itemName new name
+   * @return this column
+   */
+  CollectionColumn setItemName(String itemName);
+  
+  /**
    * @return the delimiter to use when displaying multiple values
    * @since 1.0.27
    */
@@ -790,4 +798,16 @@ public interface CollectionColumn {
    * @since 1.0.32
    */
   CompositeApplicationSettings getCompositeApplicationSettings();
+
+  CollectionColumn setFormula(String formula);
+
+  CollectionColumn setHideWhenFormula(String formula);
+
+  CollectionColumn setTitle(String title);
+
+  CollectionColumn setShowTwistie(boolean b);
+
+  CollectionColumn setUseHideWhen(boolean b);
+
+  CollectionColumn setHideTitle(boolean b);
 }

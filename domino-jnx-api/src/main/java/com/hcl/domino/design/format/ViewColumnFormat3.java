@@ -55,6 +55,8 @@ import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
     @StructureMember(name = "DatePreference", type = short.class),
     @StructureMember(name = "bUnused", type = byte.class),
     @StructureMember(name = "Unused", type = int.class)
+    
+    //followed by var data with strings for custom date separators 1, 2 and 3 as well as the custom time separator string
   }
 )
 public interface ViewColumnFormat3 extends ResizableMemoryStructure {

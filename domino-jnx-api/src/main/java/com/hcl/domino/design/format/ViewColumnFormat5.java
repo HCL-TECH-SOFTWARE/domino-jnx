@@ -40,6 +40,8 @@ import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
     @StructureMember(name = "wDistNameColLen", type = short.class, unsigned = true),
     @StructureMember(name = "wSharedColumnAliasLen", type = short.class, unsigned = true),
     @StructureMember(name = "dwReserved", type = int[].class, length = 4),
+    
+    //followed by strings for the name column name, 
 })
 public interface ViewColumnFormat5 extends ResizableMemoryStructure {
   enum Flag implements INumberEnum<Integer> {
@@ -86,12 +88,24 @@ public interface ViewColumnFormat5 extends ResizableMemoryStructure {
   @StructureGetter("dwLength")
   int getLength();
 
+  
+  /**
+   * This method does not seem to 
+   * @return
+   */
   default String getSharedColumnAlias() {
     return StructureSupport.extractStringValue(this,
         this.getDnColumnNameLength(),
         this.getSharedColumnAliasLength());
   }
 
+  /**
+   * This shared column alias length does not seem to be set/used at all,
+   * since the names of the shared columns are stored separately with their
+   * own length WORD
+   * 
+   * @return length
+   */
   @StructureGetter("wSharedColumnAliasLen")
   int getSharedColumnAliasLength();
 

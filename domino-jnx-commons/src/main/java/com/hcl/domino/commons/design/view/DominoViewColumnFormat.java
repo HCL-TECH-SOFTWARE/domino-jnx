@@ -17,6 +17,7 @@
 package com.hcl.domino.commons.design.view;
 
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -25,8 +26,10 @@ import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.data.NotesFont;
+import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DesignColorsAndFonts;
 import com.hcl.domino.design.DesignElement;
+import com.hcl.domino.design.SharedColumn;
 import com.hcl.domino.design.format.CalendarType;
 import com.hcl.domino.design.format.DateComponentOrder;
 import com.hcl.domino.design.format.DateShowFormat;
@@ -49,12 +52,12 @@ import com.hcl.domino.design.format.ViewColumnFormat5;
 import com.hcl.domino.design.format.ViewColumnFormat6;
 import com.hcl.domino.design.format.WeekFormat;
 import com.hcl.domino.design.format.YearFormat;
-import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.CurrencyFlag;
 import com.hcl.domino.richtext.records.CurrencyType;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FontStyle;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.NFMT;
 
 /**
@@ -63,21 +66,17 @@ import com.hcl.domino.richtext.structures.NFMT;
  */
 public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   private DesignElement parent;
-  private final int index;
-  private int columnValuesIndex;
+//  private int columnValuesIndex;
   private ViewColumnFormat format1;
   private ViewColumnFormat2 format2;
   private ViewColumnFormat3 format3;
   private ViewColumnFormat4 format4;
   private ViewColumnFormat5 format5;
   private ViewColumnFormat6 format6;
-  private byte[] hideWhenFormula;
-  private CDResource twistie;
   private String sharedColumnName;
   private String hiddenTitle;
 
-  public DominoViewColumnFormat(final int index) {
-    this.index = index;
+  public DominoViewColumnFormat() {
   }
 
   @SuppressWarnings("unchecked")
@@ -101,7 +100,42 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
 
   @Override
   public int getColumnValuesIndex() {
-    return this.columnValuesIndex;
+    if (this.parent instanceof SharedColumn) {
+      CollectionColumn column = ((SharedColumn)this.parent).getColumn();
+      if (this.equals(column)) {
+        int constValLen = getFormat1().getConstantValueLength();
+        if (constValLen==0) {
+          return 0;
+        }
+      }
+    }
+    else if (this.parent instanceof CollectionDesignElement) {
+      List<CollectionColumn> columns = ((CollectionDesignElement)this.parent).getColumns();
+      int columnValuesIndex = 0;
+      
+      for (CollectionColumn currCol : columns) {
+        int currColValuesIndex = 0xffff;
+        
+        if (currCol instanceof IAdaptable) {
+          ViewColumnFormat currFormat1 = ((IAdaptable)currCol).getAdapter(ViewColumnFormat.class);
+          if (currFormat1!=null) {
+            int constValLen = currFormat1.getConstantValueLength();
+            if (constValLen==0) {
+              currColValuesIndex=columnValuesIndex++;
+            }
+          }
+        }
+        
+        if (this.equals(currCol)) {
+          return currColValuesIndex;
+        }
+      }
+      
+      int index = columns.indexOf(this);
+      return index;
+    }
+    
+    return 0xffff;
   }
 
   @Override
@@ -122,18 +156,36 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   }
 
   @Override
+  public CollectionColumn setFormula(String formula) {
+    this.getFormat1().setFormula(formula);
+    return this;
+  }
+  
+  @Override
   public String getHideWhenFormula() {
-    final byte[] compiled = this.hideWhenFormula;
-    if (compiled == null || compiled.length == 0) {
-      return ""; //$NON-NLS-1$
-    } else {
-      return FormulaCompiler.get().decompile(compiled);
+    return getFormat2()
+        .map(fmt -> fmt.getHideWhenFormula())
+        .orElse(""); //$NON-NLS-1$
+  }
+
+  @Override
+  public CollectionColumn setHideWhenFormula(String formula) {
+    if (this.format2==null) {
+      this.format2 = createFormat2();
     }
+    this.format2.setHideWhenFormula(formula);
+    return this;
   }
 
   @Override
   public String getItemName() {
     return this.getFormat1().getItemName();
+  }
+
+  @Override
+  public CollectionColumn setItemName(String itemName) {
+    this.getFormat1().setItemName(itemName);
+    return this;
   }
 
   @Override
@@ -143,9 +195,21 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
 
   @Override
   public int getPosition() {
-    return this.index;
+    if (this.parent instanceof SharedColumn) {
+      CollectionColumn column = ((SharedColumn)this.parent).getColumn();
+      if (this.equals(column)) {
+        return 0;
+      }
+    }
+    else if (this.parent instanceof CollectionDesignElement) {
+      List<CollectionColumn> columns = ((CollectionDesignElement)this.parent).getColumns();
+      int index = columns.indexOf(this);
+      return index;
+    }
+    
+    return -1;
   }
-
+  
   @Override
   public SortConfiguration getSortConfiguration() {
     return new SortConfigurationImpl(this);
@@ -160,6 +224,17 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
     }
   }
 
+  @Override
+  public CollectionColumn setTitle(String title) {
+    if (this.isHideTitle()) {
+      this.hiddenTitle = title;
+    }
+    else {
+      this.getFormat1().setTitle(title);
+    }
+    return this;
+  }
+  
   @Override
   public TotalType getTotalType() {
     switch (this.getFormat1().getTotalType()) {
@@ -274,11 +349,26 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   }
 
   @Override
+  public CollectionColumn setShowTwistie(boolean b) {
+    this.getFormat1().setFlag(ViewColumnFormat.Flag.Twistie, b);
+    return this;
+  }
+  
+  @Override
   public boolean isUseHideWhen() {
     return this.getFormat2()
       .map(ViewColumnFormat2::getFlags)
       .map(flags -> flags.contains(ViewColumnFormat2.Flag3.HideWhenFormula))
       .orElse(false);
+  }
+  
+  @Override
+  public CollectionColumn setUseHideWhen(boolean b) {
+    if (this.format2==null) {
+      this.format2 = createFormat2();
+    }
+    this.format2.setFlag(ViewColumnFormat2.Flag3.HideWhenFormula, b);
+    return this;
   }
   
   @Override
@@ -301,7 +391,16 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   
   @Override
   public Optional<CDResource> getTwistieImage() {
-    return Optional.ofNullable(this.twistie);
+    return getFormat2()
+        .flatMap(fmt -> fmt.getTwistieResource());
+  }
+  
+  public CollectionColumn setTwistieImage(CDResource res) {
+    if (this.format2==null) {
+      this.format2 = createFormat2();
+    }
+    this.format2.setTwistieResource(res);
+    return this;
   }
   
   @Override
@@ -344,6 +443,15 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
       .map(ViewColumnFormat2::getFlags)
       .map(flags -> flags.contains(ViewColumnFormat2.Flag3.HideColumnTitle))
       .orElse(false);
+  }
+  
+  @Override
+  public CollectionColumn setHideTitle(boolean b) {
+    if (this.format2==null) {
+      this.format2 = createFormat2();
+    }
+    this.format2.setFlag(ViewColumnFormat2.Flag3.HideColumnTitle, b);
+    return this;
   }
   
   @Override
@@ -430,21 +538,21 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
     this.format6 = format6;
   }
 
-  public void readColumnValuesIndex(final int columnValuesIndex) {
-    this.columnValuesIndex = columnValuesIndex;
-  }
+//  public void readColumnValuesIndex(final int columnValuesIndex) {
+//    this.columnValuesIndex = columnValuesIndex;
+//  }
 
-  public void readHideWhenFormula(final byte[] formula) {
-    this.hideWhenFormula = formula;
-  }
+//  public void readHideWhenFormula(final byte[] formula) {
+//    this.compiledHideWhenFormula = formula;
+//  }
 
   public void readSharedColumnName(final String name) {
     this.sharedColumnName = name;
   }
   
-  public void readTwistie(final CDResource resource) {
-    this.twistie = resource;
-  }
+//  public void readTwistie(final CDResource resource) {
+//    this.twistie = resource;
+//  }
   
   public void readHiddenTitle(String title) {
     this.hiddenTitle = title;
@@ -488,7 +596,85 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   private Optional<ViewColumnFormat6> getFormat6() {
     return Optional.ofNullable(this.format6);
   }
-  
+
+  private ViewColumnFormat2 createFormat2() {
+    ViewColumnFormat2 fmt = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat2.class, 0);
+    
+    //TODO init with defaults
+    
+    return fmt;
+  }
+
+  private ViewColumnFormat3 createFormat3() {
+    //make sure predecessor formats exist
+    if (this.format2==null) {
+      this.format2 = createFormat2();
+    }
+    
+    ViewColumnFormat3 fmt = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat3.class, 0);
+    
+    //TODO init with defaults
+    
+    return fmt;
+  }
+
+  private ViewColumnFormat4 createFormat4() {
+    //make sure predecessor formats exist
+    if (this.format2==null) {
+      this.format2 = createFormat2();
+    }
+    if (this.format3==null) {
+      this.format3 = createFormat3();
+    }
+    
+    ViewColumnFormat4 fmt = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat4.class, 0);
+    
+    //TODO init with defaults
+    
+    return fmt;
+  }
+
+  private ViewColumnFormat5 createFormat5() {
+    //make sure predecessor formats exist
+    if (this.format2==null) {
+      this.format2 = createFormat2();
+    }
+    if (this.format3==null) {
+      this.format3 = createFormat3();
+    }
+    if (this.format4==null) {
+      this.format4 = createFormat4();
+    }
+    
+    ViewColumnFormat5 fmt = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat5.class, 0);
+    
+    //TODO init with defaults
+    
+    return fmt;
+  }
+
+  private ViewColumnFormat6 createFormat6() {
+    //make sure predecessor formats exist
+    if (this.format2==null) {
+      this.format2 = createFormat2();
+    }
+    if (this.format3==null) {
+      this.format3 = createFormat3();
+    }
+    if (this.format4==null) {
+      this.format4 = createFormat4();
+    }
+    if (this.format5==null) {
+      this.format5 = createFormat5();
+    }
+    
+    ViewColumnFormat6 fmt = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat6.class, 0);
+    
+    //TODO init with defaults
+    
+    return fmt;
+  }
+
   private class DefaultNumberSettings implements NumberSettings {
 
     @Override
