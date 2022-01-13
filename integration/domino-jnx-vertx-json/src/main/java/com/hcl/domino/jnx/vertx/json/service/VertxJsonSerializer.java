@@ -31,6 +31,7 @@ import org.apache.commons.io.IOUtils;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.design.DefaultActionBar;
 import com.hcl.domino.commons.design.action.DefaultActionBarAction;
@@ -96,6 +97,7 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(DesignAgent.class, DesignAgentMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().addMixIn(DesignImportedJavaAgent.class, ImportedJavaAgentContentMixIn.class);
     io.vertx.core.json.jackson.DatabindCodec.mapper().registerModule(new Jdk8Module());
+    io.vertx.core.json.jackson.DatabindCodec.mapper().registerModule(new JavaTimeModule());
     io.vertx.core.json.jackson.DatabindCodec.mapper().registerModule(new JnxTypesModule());
   }
 

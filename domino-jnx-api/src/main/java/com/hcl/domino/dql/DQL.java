@@ -17,7 +17,10 @@
 package com.hcl.domino.dql;
 
 import java.text.MessageFormat;
+import java.time.DateTimeException;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -660,6 +663,8 @@ public class DQL {
           sb.append(DQL.formatDateValue((Date) this.m_value));
         } else if (this.m_value instanceof DominoDateTime) {
           sb.append(DQL.formatDominoDateTimeValue((DominoDateTime) this.m_value));
+        } else if(this.m_value instanceof TemporalAccessor) {
+          sb.append(DQL.formatTemporalValue((TemporalAccessor) this.m_value));
         } else {
           throw new IllegalArgumentException(MessageFormat.format("Unknown value found: {0} (type={1})", this.m_value,
               this.m_value == null ? "null" : this.m_value.getClass().getName())); //$NON-NLS-1$
@@ -719,10 +724,6 @@ public class DQL {
       return this.m_toString;
     }
   }
-
-  private static ThreadLocal<DateTimeFormatter> RFC3339_PATTERN_DATETIME = ThreadLocal.withInitial(() -> DateTimeFormatter.ISO_DATE_TIME);
-  private static ThreadLocal<DateTimeFormatter> RFC3339_PATTERN_DATE = ThreadLocal.withInitial(() -> DateTimeFormatter.ISO_LOCAL_DATE);
-  private static ThreadLocal<DateTimeFormatter> RFC3339_PATTERN_TIME = ThreadLocal.withInitial(() ->DateTimeFormatter.ISO_LOCAL_TIME);
 
   /**
    * Returns a DQL term that matches all documents
@@ -831,23 +832,57 @@ public class DQL {
     long millisRounded = 10 * (millis / 10);
     dateValueMS -= (millis-millisRounded);
 
-    return MessageFormat.format("@dt(''{0}'')", DQL.RFC3339_PATTERN_DATETIME.get().format(OffsetDateTime.ofInstant(Instant.ofEpochMilli(dateValueMS), ZoneId.of("UTC")))); //$NON-NLS-1$ //$NON-NLS-2$
+    return MessageFormat.format("@dt(''{0}'')", DateTimeFormatter.ISO_DATE_TIME.format(OffsetDateTime.ofInstant(Instant.ofEpochMilli(dateValueMS), ZoneId.of("UTC")))); //$NON-NLS-1$ //$NON-NLS-2$
   }
 
   private static String formatDominoDateTimeValue(final DominoDateTime tdValue) {
     if (tdValue.hasDate()) {
       if (tdValue.hasTime()) {
-        return MessageFormat.format("@dt(''{0}'')", DQL.RFC3339_PATTERN_DATETIME.get().format(tdValue.toOffsetDateTime())); //$NON-NLS-1$
+        return MessageFormat.format("@dt(''{0}'')", DateTimeFormatter.ISO_DATE_TIME.format(tdValue.toOffsetDateTime())); //$NON-NLS-1$
       } else {
-        return DQL.RFC3339_PATTERN_DATE.get().format(tdValue.toOffsetDateTime().toInstant());
+        return DateTimeFormatter.ISO_LOCAL_DATE.format(tdValue.toOffsetDateTime().toInstant());
       }
     } else {
       if (tdValue.hasTime()) {
-        return DQL.RFC3339_PATTERN_TIME.get().format(tdValue.toOffsetDateTime().toInstant());
+        return DateTimeFormatter.ISO_LOCAL_TIME.format(tdValue.toOffsetDateTime().toInstant());
       } else {
         throw new IllegalArgumentException("DominoDateTime has no date and no time");
       }
     }
+  }
+
+  private static String formatTemporalValue(final TemporalAccessor temporalValue) {
+    // TODO see if there's a more-efficient way to identify the type
+    try {
+      OffsetDateTime dt = OffsetDateTime.from(temporalValue);
+      LocalDate localDate = dt.toLocalDate();
+      LocalTime localTime = toHundredths(dt.toLocalTime());
+      OffsetDateTime rounded = OffsetDateTime.of(localDate, localTime, dt.getOffset());
+      return MessageFormat.format("@dt(''{0}'')", DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(rounded)); //$NON-NLS-1$
+    } catch(DateTimeException e) {
+      // Next
+    }
+    try {
+      LocalDate dt = LocalDate.from(temporalValue);
+      return MessageFormat.format("@dt(''{0}'')", DateTimeFormatter.ISO_LOCAL_DATE.format(dt)); //$NON-NLS-1$
+    } catch(DateTimeException e) {
+      // Next
+    }
+    try {
+      LocalTime dt = LocalTime.from(temporalValue);
+      LocalTime hundredths = toHundredths(dt);
+      return MessageFormat.format("@dt(''{0}'')", DateTimeFormatter.ISO_LOCAL_TIME.format(hundredths)); //$NON-NLS-1$
+    } catch(DateTimeException e) {
+      // Next
+    }
+    Instant instant = Instant.from(temporalValue);
+    return formatDateValue(Date.from(instant));
+  }
+  
+  private static LocalTime toHundredths(LocalTime localTime) {
+    int millis = localTime.getNano() / 1000 / 1000;
+    millis = millis / 10 * 10;
+    return LocalTime.of(localTime.getHour(), localTime.getMinute(), localTime.getSecond(), millis * 1000 * 1000);
   }
 
   private static String formatDoubleValue(final double dblValue) {

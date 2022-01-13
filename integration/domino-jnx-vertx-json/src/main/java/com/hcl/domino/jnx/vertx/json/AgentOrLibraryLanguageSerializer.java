@@ -25,6 +25,7 @@ import java.util.Set;
 import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.ser.BeanPropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.ObjectIdWriter;
 import com.fasterxml.jackson.databind.ser.std.BeanSerializerBase;
 import com.hcl.domino.design.JavaAgentOrLibrary;
@@ -40,7 +41,7 @@ import com.hcl.domino.design.agent.DesignSimpleActionAgent;
 
 /**
  * Adds language JSON attributes when serializing design agents
- * 
+ *
  * @author Karsten Lehmann
  */
 class AgentOrLibraryLanguageSerializer extends BeanSerializerBase {
@@ -48,18 +49,18 @@ class AgentOrLibraryLanguageSerializer extends BeanSerializerBase {
   private static final long serialVersionUID = 1L;
 
   AgentOrLibraryLanguageSerializer(BeanSerializerBase source) {
-      super(source);
+    super(source);
   }
 
-  AgentOrLibraryLanguageSerializer(AgentOrLibraryLanguageSerializer source, 
-          ObjectIdWriter objectIdWriter) {
-      super(source, objectIdWriter);
+  AgentOrLibraryLanguageSerializer(AgentOrLibraryLanguageSerializer source,
+      ObjectIdWriter objectIdWriter) {
+    super(source, objectIdWriter);
   }
 
   AgentOrLibraryLanguageSerializer(AgentOrLibraryLanguageSerializer src, Set<String> toIgnore) {
     super(src, toIgnore);
   }
-  
+
   public AgentOrLibraryLanguageSerializer(AgentOrLibraryLanguageSerializer src,
       ObjectIdWriter objectIdWriter, Object filterId) {
     super(src, objectIdWriter, filterId);
@@ -67,67 +68,61 @@ class AgentOrLibraryLanguageSerializer extends BeanSerializerBase {
 
   @Override
   public BeanSerializerBase withObjectIdWriter(
-          ObjectIdWriter objectIdWriter) {
-      return new AgentOrLibraryLanguageSerializer(this, objectIdWriter);
+      ObjectIdWriter objectIdWriter) {
+    return new AgentOrLibraryLanguageSerializer(this, objectIdWriter);
   }
 
   @Override
   public void serialize(Object bean, JsonGenerator jgen,
-          SerializerProvider provider) throws IOException,
-          JsonGenerationException {           
-    
-      jgen.writeStartObject();     
-      
-      serializeFields(bean, jgen, provider);
-      
-      if (bean instanceof DesignJavaAgent || bean instanceof JavaLibrary) {
-        jgen.writeStringField(PROP_LANGUAGE, "JAVA");  //$NON-NLS-1$
+      SerializerProvider provider) throws IOException,
+      JsonGenerationException {
+
+    jgen.writeStartObject();
+
+    serializeFields(bean, jgen, provider);
+
+    if (bean instanceof DesignJavaAgent || bean instanceof JavaLibrary) {
+      jgen.writeStringField(PROP_LANGUAGE, "JAVA"); //$NON-NLS-1$
+    } else if (bean instanceof DesignLotusScriptAgent || bean instanceof LotusScriptLibrary) {
+      jgen.writeStringField(PROP_LANGUAGE, "LOTUSSCRIPT"); //$NON-NLS-1$
+    } else if (bean instanceof DesignFormulaAgent) {
+      jgen.writeStringField(PROP_LANGUAGE, "FORMULA"); //$NON-NLS-1$
+    } else if (bean instanceof DesignImportedJavaAgent) {
+      jgen.writeStringField(PROP_LANGUAGE, "IMPORTED_JAVA"); //$NON-NLS-1$
+
+      DesignImportedJavaAgent importedJavaAgent = (DesignImportedJavaAgent) bean;
+      jgen.writeObjectFieldStart("files"); //$NON-NLS-1$
+      List<String> files = importedJavaAgent.getFilenames();
+
+      for (String jar : files) {
+        Optional<InputStream> content = importedJavaAgent.getFile(jar);
+        jgen.writeFieldName(jar);
+        OptInputStreamToBase64Serializer.INSTANCE.serialize(content, jgen, provider);
       }
-      else if (bean instanceof DesignLotusScriptAgent || bean instanceof LotusScriptLibrary) {
-        jgen.writeStringField(PROP_LANGUAGE, "LOTUSSCRIPT");  //$NON-NLS-1$
-      }
-      else if (bean instanceof DesignFormulaAgent) {
-        jgen.writeStringField(PROP_LANGUAGE, "FORMULA");  //$NON-NLS-1$
-      }
-      else if (bean instanceof DesignImportedJavaAgent) {
-        jgen.writeStringField(PROP_LANGUAGE, "IMPORTED_JAVA");  //$NON-NLS-1$
-        
-        DesignImportedJavaAgent importedJavaAgent = (DesignImportedJavaAgent) bean;
-        jgen.writeObjectFieldStart("files"); //$NON-NLS-1$
-        List<String> files = importedJavaAgent.getFilenames();
-        
-        for(String jar : files) {
-          Optional<InputStream> content = importedJavaAgent.getFile(jar);
-          jgen.writeFieldName(jar);
-          OptInputStreamToBase64Serializer.INSTANCE.serialize(content, jgen, provider);
-        }
-        jgen.writeEndObject();
-      }
-      else if (bean instanceof DesignSimpleActionAgent) {
-        jgen.writeStringField(PROP_LANGUAGE, "SIMPLE_ACTION");  //$NON-NLS-1$
-      }
-      else if (bean instanceof JavaScriptLibrary) {
-        jgen.writeStringField(PROP_LANGUAGE, "JAVASCRIPT");  //$NON-NLS-1$
-      }
-      else if (bean instanceof ServerJavaScriptLibrary) {
-        jgen.writeStringField(PROP_LANGUAGE, "SERVERJAVASCRIPT");  //$NON-NLS-1$
-      }
-      
-      if (bean instanceof JavaAgentOrLibrary<?>) {
-        JavaAgentOrLibrary<?> javaAgentOrLib = (JavaAgentOrLibrary<?>) bean;
-        
-        jgen.writeObjectFieldStart("embeddedJars"); //$NON-NLS-1$
-        List<String> embJarnames = javaAgentOrLib.getEmbeddedJarNames();
-        
-        for(String jar : embJarnames) {
-          Optional<InputStream> content = javaAgentOrLib.getEmbeddedJar(jar);
-          jgen.writeFieldName(jar);
-          OptInputStreamToBase64Serializer.INSTANCE.serialize(content, jgen, provider);
-        }
-        jgen.writeEndObject();
-      }
-      
       jgen.writeEndObject();
+    } else if (bean instanceof DesignSimpleActionAgent) {
+      jgen.writeStringField(PROP_LANGUAGE, "SIMPLE_ACTION"); //$NON-NLS-1$
+    } else if (bean instanceof JavaScriptLibrary) {
+      jgen.writeStringField(PROP_LANGUAGE, "JAVASCRIPT"); //$NON-NLS-1$
+    } else if (bean instanceof ServerJavaScriptLibrary) {
+      jgen.writeStringField(PROP_LANGUAGE, "SERVERJAVASCRIPT"); //$NON-NLS-1$
+    }
+
+    if (bean instanceof JavaAgentOrLibrary<?>) {
+      JavaAgentOrLibrary<?> javaAgentOrLib = (JavaAgentOrLibrary<?>) bean;
+
+      jgen.writeObjectFieldStart("embeddedJars"); //$NON-NLS-1$
+      List<String> embJarnames = javaAgentOrLib.getEmbeddedJarNames();
+
+      for (String jar : embJarnames) {
+        Optional<InputStream> content = javaAgentOrLib.getEmbeddedJar(jar);
+        jgen.writeFieldName(jar);
+        OptInputStreamToBase64Serializer.INSTANCE.serialize(content, jgen, provider);
+      }
+      jgen.writeEndObject();
+    }
+
+    jgen.writeEndObject();
   }
 
   @Override
@@ -143,5 +138,18 @@ class AgentOrLibraryLanguageSerializer extends BeanSerializerBase {
   @Override
   public BeanSerializerBase withFilterId(Object filterId) {
     return new AgentOrLibraryLanguageSerializer(this, _objectIdWriter, filterId);
+  }
+
+  @Override
+  protected BeanSerializerBase withByNameInclusion(Set<String> toIgnore, Set<String> toInclude) {
+    // TODO: Implement method
+    throw new IllegalStateException("withByNameInclusion not implemented yet");
+  }
+
+  @Override
+  protected BeanSerializerBase withProperties(BeanPropertyWriter[] properties,
+      BeanPropertyWriter[] filteredProperties) {
+    // TODO: Implement method
+    throw new IllegalStateException("withProperties not implemented yet");
   }
 }

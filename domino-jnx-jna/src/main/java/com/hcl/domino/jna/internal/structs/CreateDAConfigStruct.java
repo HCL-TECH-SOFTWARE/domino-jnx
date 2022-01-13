@@ -22,9 +22,7 @@ import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.List;
 
-import com.hcl.domino.commons.structs.WrongArraySizeException;
 import com.hcl.domino.data.IAdaptable;
-import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
@@ -38,83 +36,54 @@ public class CreateDAConfigStruct extends BaseStructure implements Serializable,
   private static final long serialVersionUID = 1L;
 
   public boolean bUpdateServerDoc;
-  public short wSearchOrder;
-  public byte[] szDNSearch = new byte[NotesConstants.MAXLDAPBASE];
-  public boolean bAcceptExpiredCertificates;
-  public boolean bVerifyRemoteSrvCert;
-  public short wTimeout;
-  public short wMaxEntriesReturned;
   public DirectoryAssistanceStruct daStruct;
 
-  public CreateDAConfigStruct( boolean updateServerDoc, short searchOrder, byte dnSearch[], boolean acceptExpiredCertificates,
-      boolean verifyRemoteSrvCert, short timeout, short maxEntriesReturned,
-      DirectoryAssistanceStruct daStruct) {
-    
-    super();
-    
-    this.bUpdateServerDoc = updateServerDoc;
-    
-    this.wSearchOrder = searchOrder;
-    
-    if ((dnSearch.length > this.szDNSearch.length)) {
-        throw new WrongArraySizeException("dnSearch");
-    }
-    this.szDNSearch = dnSearch;
-    
-    this.bAcceptExpiredCertificates = acceptExpiredCertificates;
-    
-    this.bVerifyRemoteSrvCert = verifyRemoteSrvCert;
-    
-    this.wTimeout = timeout;
+  public CreateDAConfigStruct(boolean updateServerDoc, DirectoryAssistanceStruct daStruct) {
 
-    this.wMaxEntriesReturned = maxEntriesReturned;
-    
+    super();
+
+    this.bUpdateServerDoc = updateServerDoc;
+
     this.daStruct = daStruct;
   }
 
-    public CreateDAConfigStruct() {
-      super();
-    }
-  
-	public static CreateDAConfigStruct newInstance() {
-		return AccessController.doPrivileged((PrivilegedAction<CreateDAConfigStruct>) () -> new CreateDAConfigStruct());
-	}
+  public CreateDAConfigStruct() {
+    super();
+  }
 
-	public static CreateDAConfigStruct.ByValue newInstanceByVal() {
-		return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> new CreateDAConfigStruct.ByValue());
-	}	
-	
-	@Override
-	protected List<String> getFieldOrder() {
-		return Arrays.asList("bUpdateServerDoc",
-		    "wSearchOrder",
-		    "szDNSearch",
-		    "bAcceptExpiredCertificates",
-		    "bVerifyRemoteSrvCert",
-		    "wTimeout",
-		    "wMaxEntriesReturned",
-		    "daStruct"
-		    );
-	}
-			
-	@Override
-	@SuppressWarnings("unchecked")
-	public <T> T getAdapter(Class<T> clazz) {
-		if (clazz == CreateDAConfigStruct.class) {
-			return (T) this;
-		}
-		else if (clazz == Pointer.class) {
-			return (T) getPointer();
-		}
-		return null;
-	}
-	
-	public static class ByReference extends CreateDAConfigStruct implements Structure.ByReference {
-		private static final long serialVersionUID = -2958581285484373942L;		
-	};
-	
-	public static class ByValue extends CreateDAConfigStruct implements Structure.ByValue {
-		private static final long serialVersionUID = -6538673668884547829L;		
-	};
-	
+  public static CreateDAConfigStruct newInstance() {
+    return AccessController
+        .doPrivileged((PrivilegedAction<CreateDAConfigStruct>) () -> new CreateDAConfigStruct());
+  }
+
+  public static CreateDAConfigStruct.ByValue newInstanceByVal() {
+    return AccessController
+        .doPrivileged((PrivilegedAction<ByValue>) () -> new CreateDAConfigStruct.ByValue());
+  }
+
+  @Override
+  protected List<String> getFieldOrder() {
+    return Arrays.asList("bUpdateServerDoc",
+        "daStruct");
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <T> T getAdapter(Class<T> clazz) {
+    if (clazz == CreateDAConfigStruct.class) {
+      return (T) this;
+    } else if (clazz == Pointer.class) {
+      return (T) getPointer();
+    }
+    return null;
+  }
+
+  public static class ByReference extends CreateDAConfigStruct implements Structure.ByReference {
+    private static final long serialVersionUID = -2958581285484373942L;
+  };
+
+  public static class ByValue extends CreateDAConfigStruct implements Structure.ByValue {
+    private static final long serialVersionUID = -6538673668884547829L;
+  };
+
 }

@@ -23,8 +23,10 @@ import javax.naming.AuthenticationException;
 import javax.naming.AuthenticationNotSupportedException;
 import javax.naming.NameNotFoundException;
 
+import com.hcl.domino.BuildVersionInfo;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClientBuilder;
+import com.hcl.domino.misc.NotesConstants;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.security.enterprise.credential.Credential;
@@ -60,11 +62,26 @@ public class NotesDirectoryIdentityStore implements IdentityStore {
 
   public CredentialValidationResult validate(final UsernamePasswordCredential credential) {
     try (DominoClient client = DominoClientBuilder.newDominoClient().build()) {
-      final String dn = client.validateCredentials(null, credential.getCaller(), credential.getPasswordAsString());
-      return new CredentialValidationResult(null, dn, dn, dn, this.getGroups(dn));
+      try {
+        final String dn = client.validateCredentials(null, credential.getCaller(), credential.getPasswordAsString());
+        return new CredentialValidationResult(null, dn, dn, dn, this.getGroups(dn));
+      } catch(AuthenticationException e) {
+        // On 12.0.1+, we may only get an AuthenticationException based on the single API call.
+        //   In this case, try to look up the user to see if it's invalid or not a valid name at all
+        BuildVersionInfo buildVersion = client.getBuildVersion(null);
+        if(buildVersion != null && buildVersion.isAtLeast(12, 0, 1, 0, 0)) {
+          if(client.openUserDirectory(null).lookupUserValue(credential.getCaller(), NotesConstants.MAIL_FULLNAME_ITEM).isPresent()) {
+            return CredentialValidationResult.INVALID_RESULT;
+          } else {
+            return CredentialValidationResult.NOT_VALIDATED_RESULT;
+          }
+        }
+
+        return CredentialValidationResult.INVALID_RESULT;
+      }
     } catch (final NameNotFoundException e) {
       return CredentialValidationResult.NOT_VALIDATED_RESULT;
-    } catch (AuthenticationException | AuthenticationNotSupportedException e) {
+    } catch (AuthenticationNotSupportedException e) {
       return CredentialValidationResult.INVALID_RESULT;
     }
   }

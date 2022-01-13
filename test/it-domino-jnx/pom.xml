@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
-		<version>1.0.49-SNAPSHOT</version>
+		<version>1.1.1-SNAPSHOT</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>it-domino-jnx</artifactId>
@@ -64,7 +64,7 @@
 			<groupId>org.apache.bcel</groupId>
 			<artifactId>bcel</artifactId>
 			<version>6.5.0</version>
-            <scope>test</scope>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
@@ -154,7 +154,7 @@
 				<dependency>
 					<groupId>org.junit.platform</groupId>
 					<artifactId>junit-platform-console-standalone</artifactId>
-					<version>1.7.2</version>
+					<version>1.8.2</version>
 					<scope>test</scope>
 				</dependency>
 			</dependencies>
@@ -163,6 +163,7 @@
 				<plugins>
 					<plugin>
 						<artifactId>maven-dependency-plugin</artifactId>
+						<version>${maven.dependency.plugin.version}</version>
 						<executions>
 							<execution>
 								<?m2e ignore?>

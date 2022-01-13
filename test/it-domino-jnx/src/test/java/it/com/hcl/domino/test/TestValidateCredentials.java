@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
+import com.hcl.domino.BuildVersionInfo;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.DominoException;
@@ -151,8 +152,16 @@ public class TestValidateCredentials extends AbstractNotesRuntimeTest {
   public void testValidateCredentialsFailure()
       throws AuthenticationException, AuthenticationNotSupportedException, NameNotFoundException {
     final DominoClient client = this.getClient();
-    Assertions.assertThrows(NameNotFoundException.class,
-        () -> client.validateCredentials(null, "It's fair to assume that a user with this name does not exist", "foo"));
+    BuildVersionInfo buildVersion = client.getBuildVersion(null);
+    if(buildVersion != null && buildVersion.isAtLeast(12, 0, 1, 0, 0)) {
+      // This behavior changed in 12.0.1, where there is a real call to authenticate users. However,
+      //   that call makes no distinction between a wrong password and a missing user.
+      Assertions.assertThrows(AuthenticationException.class,
+          () -> client.validateCredentials(null, "It's fair to assume that a user with this name does not exist", "foo"));
+    } else {
+      Assertions.assertThrows(NameNotFoundException.class,
+          () -> client.validateCredentials(null, "It's fair to assume that a user with this name does not exist", "foo"));
+    }
   }
 
   @Test
@@ -166,7 +175,14 @@ public class TestValidateCredentials extends AbstractNotesRuntimeTest {
   public void testValidateCredentialsNullPassword()
       throws AuthenticationException, AuthenticationNotSupportedException, NameNotFoundException {
     final DominoClient client = this.getClient();
-    Assertions.assertThrows(NameNotFoundException.class, () -> client.validateCredentials(null, "fake user", null));
+    BuildVersionInfo buildVersion = client.getBuildVersion(null);
+    if(buildVersion != null && buildVersion.isAtLeast(12, 0, 1, 0, 0)) {
+      // This behavior changed in 12.0.1, where there is a real call to authenticate users. However,
+      //   that call makes no distinction between a wrong password and a missing user.
+      Assertions.assertThrows(AuthenticationException.class, () -> client.validateCredentials(null, "fake user", null));
+    } else {
+      Assertions.assertThrows(NameNotFoundException.class, () -> client.validateCredentials(null, "fake user", null));
+    }
   }
 
   @Test

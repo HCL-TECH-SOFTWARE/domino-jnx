@@ -83,6 +83,30 @@ public class BuildVersionInfoImpl implements BuildVersionInfo {
   public boolean isNonProductionBuild() {
     return (this.flags & NotesConstants.BLDVERFLAGS_NONPRODUCTION) == NotesConstants.BLDVERFLAGS_NONPRODUCTION;
   }
+  
+  @Override
+  public boolean isAtLeast(int majorVersion, int minorVersion, int qmrNumber, int qmuNumber, int hotfixNumber) {
+    if(this.majorVersion < majorVersion) {
+      return false;
+    } else if(this.majorVersion > majorVersion) {
+      return true;
+    } else if(this.minorVersion < minorVersion) {
+      return false;
+    } else if(this.minorVersion > minorVersion) {
+      return true;
+    } else if(this.qmrNumber < qmrNumber) {
+      return false;
+    } else if(this.qmrNumber > qmrNumber) {
+      return true;
+    } else if(this.qmuNumber < qmuNumber) {
+      return false;
+    } else if(this.qmuNumber > qmuNumber) {
+      return true;
+    } else if(this.hotfixNumber < hotfixNumber) {
+      return false;
+    }
+    return true;
+  }
 
   @Override
   public String toString() {

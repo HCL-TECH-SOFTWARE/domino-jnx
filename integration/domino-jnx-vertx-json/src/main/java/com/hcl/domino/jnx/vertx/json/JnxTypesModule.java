@@ -60,8 +60,10 @@ public class JnxTypesModule extends SimpleModule {
         else {
           return serializer; 
         }
-      }                   
+      }             
     });
+    
+    super.setupModule(context);
   }
 
 
