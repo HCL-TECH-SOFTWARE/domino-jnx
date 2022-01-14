@@ -31,6 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import com.hcl.domino.admin.idvault.UserId;
@@ -611,6 +612,12 @@ public abstract class AbstractDbDesign implements DbDesign {
   
   @Override
   public OutputStream newResourceOutputStream(String filePath) {
+    return newResourceOutputStream(filePath, null);
+  }
+  
+  
+  @Override
+  public OutputStream newResourceOutputStream(String filePath, Consumer<DesignElement> callback) {
     Optional<DesignElement> existingElement = this.findFileElement(filePath);
     DesignElement element = existingElement.orElseGet(() -> {
       String path = cleanFilePath(filePath);
@@ -629,6 +636,9 @@ public abstract class AbstractDbDesign implements DbDesign {
           throw new UncheckedIOException(e);
         }
         element.save();
+        if(callback != null) {
+          callback.accept((NamedFileElement)element);
+        }
       });
     } else if(element instanceof ServerJavaScriptLibrary) {
       return new BufferingCallbackOutputStream(bytes -> {
@@ -636,6 +646,9 @@ public abstract class AbstractDbDesign implements DbDesign {
         String script = new String(bytes, StandardCharsets.UTF_8);
         lib.setScript(script);
         element.save();
+        if(callback != null) {
+          callback.accept(lib);
+        }
       });
     } else if(element instanceof JavaScriptLibrary) {
       return new BufferingCallbackOutputStream(bytes -> {
@@ -643,6 +656,9 @@ public abstract class AbstractDbDesign implements DbDesign {
         String script = new String(bytes, StandardCharsets.UTF_8);
         lib.setScript(script);
         element.save();
+        if(callback != null) {
+          callback.accept(lib);
+        }
       });
     } else {
       throw new UnsupportedOperationException(MessageFormat.format("Unable to get file data for element of type {0}", element.getClass().getName()));
