@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import com.hcl.domino.admin.idvault.UserId;
@@ -91,6 +92,15 @@ public interface DbDesign {
    * @return database script library
    */
   DatabaseScriptLibrary createDatabaseScriptLibrary();
+  
+  /**
+   * Creates a new, unsaved File Resource design element.
+   * 
+   * @param filePath the name of the file resource element
+   * @return the newly-created in-memory {@link FileResource}
+   * @since 1.1.2
+   */
+  FileResource createFileResource(String filePath);
   
   /**
    * Creates a new, unsaved folder design element.
@@ -673,6 +683,35 @@ public interface DbDesign {
    * @since 1.0.39
    */
   OutputStream newResourceOutputStream(String filePath);
+  
+  /**
+   * Opens a new stream to the named file-type resource (file resource, image, or stylesheet).
+   * This method uses the same mechanism as {@link #getResourceAsStream(String)} to locate
+   * existing resources.
+   * 
+   * <p>If the named resource doesn't exist, then this method will create a new resource with
+   * this name on closing the stream. This resource will be a normal file resource that will
+   * show up in {@link #getFileResources()}.</p>
+   * 
+   * <p>When {@link OutputStream#close()} is called, then the provided {@code callback} will
+   * be executed with the contextual {@link DesignElement}. This object will be one of:</p>
+   * 
+   * <ul>
+   *   <li>{@link NamedFileElement}</li>
+   *   <li>{@link ServerJavaScriptLibrary}</li>
+   *   <li>{@link JavaScriptLibrary}</li>
+   * </ul>
+   * 
+   * <p>Note: it is not guaranteed that any changes made to the resource are written to the NSF
+   * until {@link OutputStream#close()} is called.</p>
+   * 
+   * @param filePath the path of the file to write
+   * @param callback a {@link Consumer} that will be provided with the {@link DesignElement}
+   *                 that is written to upon close. May be {@code null}
+   * @return a new {@link OutputStream}
+   * @since 1.1.2
+   */
+  OutputStream newResourceOutputStream(String filePath, Consumer<DesignElement> callback);
 
   /**
    * Queries all design elements in the database by the provided formula and

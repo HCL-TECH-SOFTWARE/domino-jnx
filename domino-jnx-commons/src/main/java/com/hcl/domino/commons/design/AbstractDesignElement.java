@@ -35,6 +35,16 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   public AbstractDesignElement(final Document doc) {
     this.doc = doc;
   }
+  
+  @Override
+  public void delete() {
+    delete(false);
+  }
+  
+  @Override
+  public void delete(boolean noStub) {
+    this.doc.delete(noStub);
+  }
 
   @Override
   public String getComment() {

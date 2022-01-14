@@ -137,6 +137,20 @@ public interface DesignElement {
   }
   
   /**
+   * Deletes the design element note from the database.
+   * 
+   * @since 1.1.2
+   */
+  void delete();
+  
+  /**
+   * Deletes the design element note from the database.
+   *
+   * @param noStub whether to purge the note without leaving a deletion stub
+   */
+  void delete(boolean noStub);
+  
+  /**
    * @return the comment assigned to the design element
    * @since 1.0.24
    */

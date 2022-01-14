@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
@@ -61,6 +62,7 @@ import com.hcl.domino.design.CompositeApplication;
 import com.hcl.domino.design.CompositeComponent;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DbProperties;
+import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
@@ -1223,6 +1225,98 @@ public class TestDbDesign extends AbstractDesignTest {
         }
         assertArrayEquals(expected, content);
       }
+    });
+  }
+  
+  @Test
+  public void testCreateFileResourceManual() throws Exception {
+    withTempDb(database -> {
+      DbDesign design = database.getDesign();
+
+      byte[] expected = "I am fake new content that isn't in the resource currently".getBytes();
+      {
+        FileResource res = design.createFileResource("somenewfile2.txt");
+        try(OutputStream os = res.newOutputStream()) {
+          os.write(expected);
+        }
+        assertFalse(design.getFileResource("somenewfile2.txt").isPresent());
+        res.save();
+        assertTrue(design.getFileResource("somenewfile2.txt").isPresent());
+      }
+      
+      {
+        FileResource res = design.getFileResource("somenewfile2.txt").get();
+        byte[] content;
+        try(
+          InputStream is = res.getFileData();
+          ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ) {
+          StreamUtil.copyStream(is, baos);
+          content = baos.toByteArray();
+        }
+        assertArrayEquals(expected, content);
+        assertEquals(expected.length, res.getFileSize());
+        assertEquals(expected.length, res.getDocument().get(NotesConstants.ITEM_NAME_FILE_SIZE, int.class, -1));
+      }
+      
+      // Check as a stream
+      {
+        byte[] content;
+        try(
+          InputStream is = design.getResourceAsStream("/somenewfile2.txt").get();
+          ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ) {
+          StreamUtil.copyStream(is, baos);
+          content = baos.toByteArray();
+        }
+        assertArrayEquals(expected, content);
+      }
+    });
+  }
+  
+  @Test
+  public void testCreateFileResourceNullCallback() throws Exception {
+    withTempDb(database -> {
+      DbDesign design = database.getDesign();
+
+      byte[] expected = "I am fake new content that isn't in the resource currently".getBytes();
+      try(OutputStream os = design.newResourceOutputStream("/somenewfile.txt", null)) {
+        os.write(expected);
+      }
+      
+      {
+        FileResource res = design.getFileResource("somenewfile.txt").get();
+        byte[] content;
+        try(
+          InputStream is = res.getFileData();
+          ByteArrayOutputStream baos = new ByteArrayOutputStream()
+        ) {
+          StreamUtil.copyStream(is, baos);
+          content = baos.toByteArray();
+        }
+        assertArrayEquals(expected, content);
+        assertEquals(expected.length, res.getFileSize());
+        assertEquals(expected.length, res.getDocument().get(NotesConstants.ITEM_NAME_FILE_SIZE, int.class, -1));
+      }
+    });
+  }
+  
+  @Test
+  public void testCreateFileResourceCallback() throws Exception {
+    withTempDb(database -> {
+      DbDesign design = database.getDesign();
+
+      boolean[] result = new boolean[] { false };
+      Consumer<DesignElement> callback = element -> {
+        assertTrue(element instanceof FileResource);
+        result[0] = true;
+      };
+      byte[] expected = "I am fake new content that isn't in the resource currently".getBytes();
+      try(OutputStream os = design.newResourceOutputStream("/somenewfile.txt", callback)) {
+        os.write(expected);
+      }
+      
+      assertTrue(result[0]);
     });
   }
   
