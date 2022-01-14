@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -13,7 +13,8 @@
  * License for the  specific language  governing permissions  and limitations
  * under the License.
  * ==========================================================================
- */package it.com.hcl.domino.test.dql;
+ */
+package it.com.hcl.domino.test.dql;
 
 import static com.hcl.domino.dql.DQL.containsAll;
 import static com.hcl.domino.dql.DQL.created;
