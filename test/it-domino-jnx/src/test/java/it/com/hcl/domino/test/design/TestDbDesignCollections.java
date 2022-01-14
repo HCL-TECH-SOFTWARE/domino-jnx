@@ -2261,4 +2261,26 @@ public class TestDbDesignCollections extends AbstractDesignTest {
     View view = design.getView("Empty View").get();
     assertTrue(view.getColumns().isEmpty());
   }
+  
+  @Test
+  public void testDeleteView() throws Exception {
+    withResourceDxl("/dxl/testDbDesignCollections", database -> {
+      DbDesign design = database.getDesign();
+      
+      View view = design.getView("Empty View").get();
+      view.delete();
+      assertFalse(design.getView("Empty View").isPresent());
+    });
+  }
+  
+  @Test
+  public void testDeleteViewNoStub() throws Exception {
+    withResourceDxl("/dxl/testDbDesignCollections", database -> {
+      DbDesign design = database.getDesign();
+      
+      View view = design.getView("Empty View").get();
+      view.delete(true);
+      assertFalse(design.getView("Empty View").isPresent());
+    });
+  }
 }
