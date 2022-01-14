@@ -706,8 +706,8 @@ public interface DbDesign {
    * until {@link OutputStream#close()} is called.</p>
    * 
    * @param filePath the path of the file to write
-   * @param a {@link Consumer} that will be provided with the {@link DesignElement} that
-   *        is written to upon close. May be {@code null}
+   * @param callback a {@link Consumer} that will be provided with the {@link DesignElement}
+   *                 that is written to upon close. May be {@code null}
    * @return a new {@link OutputStream}
    * @since 1.1.2
    */
