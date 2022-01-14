@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.hcl.domino</groupId>
 	<artifactId>domino-jnx</artifactId>
-	<version>1.0.52</version>
+	<version>1.1.1</version>
 	<packaging>pom</packaging>
 
 	<name>HCL Domino API Parent Project</name>
@@ -150,7 +150,7 @@
 
 
 		<!-- Maven Versions -->
-		<maven.version>[3.6,)</maven.version>
+		<maven.version>[3.8,)</maven.version>
 
 		<!-- Plugin Versions -->
 		<eclipse.plugin.version>2.10</eclipse.plugin.version>
@@ -244,6 +244,11 @@
 				<artifactId>jackson-datatype-jdk8</artifactId>
 				<version>${jackson.version}</version>
 			</dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.datatype</groupId>
+                <artifactId>jackson-datatype-jsr310</artifactId>
+                <version>${jackson.version}</version>
+            </dependency>
 
 			<!-- Vert.x integration -->
 			<dependency>
@@ -331,6 +336,48 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>${spotless.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>apply</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<formats>
+						<format>
+							<!-- Markdown, JSON and gitignore -->
+							<includes>
+								<include>*.md</include>
+								<include>*.json</include>
+								<include>.gitignore</include>
+							</includes>
+							<trimTrailingWhitespace />
+							<endWithNewline />
+							<indent>
+								<spaces>true</spaces>
+								<spacesPerTab>2</spacesPerTab>
+							</indent>
+						</format>
+					</formats>
+					<!-- ECLIPSE Java format -->
+					<java>
+						<toggleOffOn />
+						<importOrder>
+							<file>${maven.multiModuleProjectDirectory}/spotless.importorder</file>
+						</importOrder>
+						<removeUnusedImports />
+						<eclipse>
+							<file>${maven.multiModuleProjectDirectory}/eclipse-java-keep-style.xml</file>
+						</eclipse>
+					</java>
+				</configuration>
 			</plugin>
 
 		</plugins>

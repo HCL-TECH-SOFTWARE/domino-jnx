@@ -184,7 +184,7 @@ public interface DesignElement {
    * Determines whether the design element should be accessible to
    * sub-Reader users with Public Access rights.
    * 
-   * @return {@code true} if the element should allow public acces;
+   * @return {@code true} if the element should allow public access;
    *         {@code false} otherwise
    */
   boolean isAllowPublicAccess();

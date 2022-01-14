@@ -68,5 +68,23 @@ public interface BuildVersionInfo {
    * @return true if non-production build
    */
   boolean isNonProductionBuild();
+  
+  /**
+   * Determines whether the build version is at least a Domino version number.
+   * 
+   * <p>Note: this is expected to check only number values, and does not take into
+   * account release dates. For example, version 12.0.0 is considered "newer"
+   * than 11.0.1FP4 despite coming out several months previous.</p>
+   * 
+   * @param majorVersion the {@link #getMajorVersion() major version} to check
+   * @param minorVersion the {@link #getMinorVersion() minor version} to check
+   * @param qmrNumber the {@link #getQMRNumber() QMR version} to check
+   * @param qmuNumber the {@link #getQMUNumber() QMU number} to check
+   * @param hotfixNumber the {@link #getHotfixNumber() hotfix number} to check
+   * @return {@code true} if this build version represents a version considered
+   *         the same or higher than the provided values; {@code false} otherwise
+   * @since 1.1.1
+   */
+  boolean isAtLeast(int majorVersion, int minorVersion, int qmrNumber, int qmuNumber, int hotfixNumber);
 
 }

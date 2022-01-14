@@ -78,11 +78,18 @@ public interface DirectoryAssistance {
    * @param password        the password to use to connect
    * @param useSSL          whether the connection should use TLS/SSL
    * @param port            the port to use to connect to the server
+   * @param searchOrder	Order in which the directory is searched, DEFAULT - 0
+   * @param dnSearch Name where the directory naming tree searches should start(server name)
+   * @param acceptExpiredCerts Force SSL to accept remote certificates which have expired. DEFAULT FALSE
+   * @param verifyRemoteSrvCert DEFAULT : FALSE
+   * @param timeout Maximum number of seconds before a search is terminated. DEFAULT : 60
+   * @param maxEntriesReturned MAx number of entries a single search can return. DEFAULT : 100
    *
    * @throws DominoException if the DA cannot be updated. The specific exception details
    *         will include the reason for failure
    * @since 1.0.39
    */
-  void updateDAConfig( String docUNID, String domainName, String companyName,
-      String hostName, short ldapVendor, String userName, String password, boolean useSSL, short port);
+  void updateDAConfig( String docUNID, String domainName, String companyName, short searchOrder,
+	        String hostName, short ldapVendor, String userName, String password, String dnSearch, boolean useSSL, short port,  boolean acceptExpiredCerts,
+	          boolean verifyRemoteSrvCert,  short timeout, short maxEntriesReturned);
 }

@@ -6,7 +6,11 @@
 	],
 	"settings": {
 		"java.configuration.updateBuildConfiguration": "interactive",
-		"java.format.settings.url": "/eclipse-java-google-style.xml",
-		"java.format.settings.profile": "GoogleStyle"
+		"java.format.settings.url": "/eclipse-java-keep-style.xml",
+		"java.format.settings.profile": "KeepStyle",
+		"plantuml.diagramsRoot": "dos/flows",
+		"plantuml.exportFormat": "png",
+		"plantuml.exportOutDir": "docs/flows",
+		"plantuml.exportSubFolder": false
 	}
 }

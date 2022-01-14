@@ -1170,7 +1170,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
             if (result == 1) {
               fullName = NotesStringUtils.fromLMBCS(rethValueBuffer, -1);
             } else {
-              throw new AuthenticationException("Invalid user name or passwords");
+              throw new AuthenticationException("Invalid user name or password");
             }
           } finally {
             rethValueBuffer.dispose();
