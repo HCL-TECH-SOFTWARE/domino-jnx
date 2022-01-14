@@ -52,6 +52,8 @@ import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.CollectionColumn.TotalType;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.FontAttribute;
+import com.hcl.domino.data.Item;
+import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.NotesFont;
 import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
@@ -61,6 +63,7 @@ import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.CollectionDesignElement.DisplaySettings;
 import com.hcl.domino.design.DbDesign;
+import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
@@ -2281,6 +2284,22 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       View view = design.getView("Empty View").get();
       view.delete(true);
       assertFalse(design.getView("Empty View").isPresent());
+    });
+  }
+  
+  @Test
+  public void testSetSelectionFormula() throws Exception {
+    withResourceDxl("/dxl/testDbDesignCollections", database -> {
+      DbDesign design = database.getDesign();
+
+      View view = design.getView("Empty View").get();
+
+      String formula = "SELECT Foo = \"Bar\" & Bar=4";
+      view.setSelectionFormula(formula);
+      assertEquals(formula, view.getSelectionFormula());
+      
+      Item item = view.getDocument().getFirstItem(DesignConstants.VIEW_FORMULA_ITEM).get();
+      assertEquals(ItemDataType.TYPE_FORMULA, item.getType());
     });
   }
 }
