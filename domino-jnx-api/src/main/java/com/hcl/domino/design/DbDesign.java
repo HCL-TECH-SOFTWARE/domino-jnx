@@ -94,6 +94,15 @@ public interface DbDesign {
   DatabaseScriptLibrary createDatabaseScriptLibrary();
   
   /**
+   * Creates a new, unsaved File Resource design element.
+   * 
+   * @param filePath the name of the file resource element
+   * @return the newly-created in-memory {@link FileResource}
+   * @since 1.1.2
+   */
+  FileResource createFileResource(String filePath);
+  
+  /**
    * Creates a new, unsaved folder design element.
    *
    * @param folderName the name of the folder to create

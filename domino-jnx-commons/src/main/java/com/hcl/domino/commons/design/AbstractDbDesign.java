@@ -213,6 +213,16 @@ public abstract class AbstractDbDesign implements DbDesign {
     element.setTitle(title);
     return element;
   }
+  
+  @Override
+  public FileResource createFileResource(String filePath) {
+    String path = cleanFilePath(filePath);
+    FileResource result = createDesignNote(FileResource.class, path);
+    Document doc = result.getDocument();
+    doc.replaceItemValue(NotesConstants.ITEM_NAME_FILE_NAMES, path);
+    doc.replaceItemValue(NotesConstants.ITEM_NAME_FILE_MIMETYPE, "application/octet-stream"); //$NON-NLS-1$
+    return result;
+  }
 
   @Override
   public Folder createFolder(final String folderName) {
@@ -619,14 +629,7 @@ public abstract class AbstractDbDesign implements DbDesign {
   @Override
   public OutputStream newResourceOutputStream(String filePath, Consumer<DesignElement> callback) {
     Optional<DesignElement> existingElement = this.findFileElement(filePath);
-    DesignElement element = existingElement.orElseGet(() -> {
-      String path = cleanFilePath(filePath);
-      FileResource result = createDesignNote(FileResource.class, path);
-      Document doc = result.getDocument();
-      doc.replaceItemValue(NotesConstants.ITEM_NAME_FILE_NAMES, path);
-      doc.replaceItemValue(NotesConstants.ITEM_NAME_FILE_MIMETYPE, "application/octet-stream"); //$NON-NLS-1$
-      return result;
-    });
+    DesignElement element = existingElement.orElseGet(() -> createFileResource(filePath));
     
     if(element instanceof NamedFileElement) {
       return new BufferingCallbackOutputStream(bytes -> {
