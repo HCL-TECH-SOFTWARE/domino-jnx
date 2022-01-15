@@ -16,16 +16,26 @@
  */
 package com.hcl.domino.commons.design;
 
+import java.nio.ByteBuffer;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+
 import com.hcl.domino.commons.design.view.DominoViewColumnFormat;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
+import com.hcl.domino.commons.design.view.ViewFormatEncoder;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.NativeItemCoder;
+import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.design.DesignConstants;
+import com.hcl.domino.design.NativeDesignSupport;
 import com.hcl.domino.design.SharedColumn;
 
 public class SharedColumnImpl extends AbstractDesignElement<SharedColumn> implements IDefaultNamedDesignElement, SharedColumn {
-  private DominoViewFormat format;
-
+  private Optional<DominoViewFormat> format;
+  private boolean viewFormatDirty;
+  
   public SharedColumnImpl(Document doc) {
     super(doc);
   }
@@ -37,22 +47,58 @@ public class SharedColumnImpl extends AbstractDesignElement<SharedColumn> implem
 
   @Override
   public CollectionColumn getColumn() {
-    return readViewFormat().getColumns().get(0);
+    Optional<DominoViewFormat> viewFormat = readViewFormat();
+    if (viewFormat.isPresent()) {
+      List<CollectionColumn> columns = viewFormat.get().getColumns();
+      if (!columns.isEmpty()) {
+        return columns.get(0);
+      }
+    }
+    //should not be the case, we add a column on creation
+    throw new IllegalStateException("SharedColumn has no content and needs to be initialized first");
   }
 
   //*******************************************************************************
   // * Internal utility methods
   // *******************************************************************************
 
-   private synchronized DominoViewFormat readViewFormat() {
+   private synchronized Optional<DominoViewFormat> readViewFormat() {
      if (this.format == null) {
        final Document doc = this.getDocument();
-       this.format = (DominoViewFormat) doc.getItemValue(DesignConstants.VIEW_VIEW_FORMAT_ITEM).get(0);
-       this.format.getColumns()
-         .stream()
-         .map(DominoViewColumnFormat.class::cast)
-         .forEach(col -> col.setParent(this));
+       this.format = doc.getOptional(DesignConstants.VIEW_VIEW_FORMAT_ITEM, DominoViewFormat.class);
+       this.format.ifPresent(format ->
+         format.getColumns()
+           .stream()
+           .map(DominoViewColumnFormat.class::cast)
+           .forEach(col -> col.setParent(this))
+       );
      }
      return this.format;
    }
+   
+   public boolean isViewFormatDirty() {
+     return viewFormatDirty;
+   }
+   
+   public void setViewFormatDirty(boolean b) {
+     this.viewFormatDirty = b;
+   }
+
+   @Override
+  public boolean save() {
+     if (isViewFormatDirty()) {
+       if (this.format!=null && this.format.isPresent()) {
+         final Document doc = this.getDocument();
+         doc.replaceItemValue(DesignConstants.VIEW_VIEW_FORMAT_ITEM,
+             EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY),
+             this.format.get());
+         doc.sign();
+       }
+       
+       setViewFormatDirty(false);
+     }
+     
+     return super.save();
+  }
+   
 }

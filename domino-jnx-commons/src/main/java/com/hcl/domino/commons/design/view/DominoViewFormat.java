@@ -25,6 +25,12 @@ import java.util.Set;
 
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.IAdaptable;
+import com.hcl.domino.design.format.ViewColumnFormat;
+import com.hcl.domino.design.format.ViewColumnFormat2;
+import com.hcl.domino.design.format.ViewColumnFormat3;
+import com.hcl.domino.design.format.ViewColumnFormat4;
+import com.hcl.domino.design.format.ViewColumnFormat5;
+import com.hcl.domino.design.format.ViewColumnFormat6;
 import com.hcl.domino.design.format.ViewTableFormat;
 import com.hcl.domino.design.format.ViewTableFormat2;
 import com.hcl.domino.design.format.ViewTableFormat3;
@@ -125,6 +131,60 @@ public class DominoViewFormat implements IAdaptable {
       return (T) this.format3;
     } else if (ViewTableFormat4.class == clazz) {
       return (T) this.format4;
+    } else if (ViewColumnFormat[].class == clazz) {
+      ViewColumnFormat[] colFormats = new ViewColumnFormat[columns.size()];
+      for (int i=0; i<columns.size(); i++) {
+        CollectionColumn currCol = columns.get(i);
+        if (currCol instanceof IAdaptable) {
+          colFormats[i] = ((IAdaptable)currCol).getAdapter(ViewColumnFormat.class);
+        }
+      }
+      return (T) colFormats;
+    } else if (ViewColumnFormat2[].class == clazz) {
+      ViewColumnFormat2[] colFormats = new ViewColumnFormat2[columns.size()];
+      for (int i=0; i<columns.size(); i++) {
+        CollectionColumn currCol = columns.get(i);
+        if (currCol instanceof IAdaptable) {
+          colFormats[i] = ((IAdaptable)currCol).getAdapter(ViewColumnFormat2.class);
+        }
+      }
+      return (T) colFormats;
+    } else if (ViewColumnFormat3[].class == clazz) {
+      ViewColumnFormat3[] colFormats = new ViewColumnFormat3[columns.size()];
+      for (int i=0; i<columns.size(); i++) {
+        CollectionColumn currCol = columns.get(i);
+        if (currCol instanceof IAdaptable) {
+          colFormats[i] = ((IAdaptable)currCol).getAdapter(ViewColumnFormat3.class);
+        }
+      }
+      return (T) colFormats;
+    } else if (ViewColumnFormat4[].class == clazz) {
+      ViewColumnFormat4[] colFormats = new ViewColumnFormat4[columns.size()];
+      for (int i=0; i<columns.size(); i++) {
+        CollectionColumn currCol = columns.get(i);
+        if (currCol instanceof IAdaptable) {
+          colFormats[i] = ((IAdaptable)currCol).getAdapter(ViewColumnFormat4.class);
+        }
+      }
+      return (T) colFormats;
+    } else if (ViewColumnFormat5[].class == clazz) {
+      ViewColumnFormat5[] colFormats = new ViewColumnFormat5[columns.size()];
+      for (int i=0; i<columns.size(); i++) {
+        CollectionColumn currCol = columns.get(i);
+        if (currCol instanceof IAdaptable) {
+          colFormats[i] = ((IAdaptable)currCol).getAdapter(ViewColumnFormat5.class);
+        }
+      }
+      return (T) colFormats;
+    } else if (ViewColumnFormat6[].class == clazz) {
+      ViewColumnFormat6[] colFormats = new ViewColumnFormat6[columns.size()];
+      for (int i=0; i<columns.size(); i++) {
+        CollectionColumn currCol = columns.get(i);
+        if (currCol instanceof IAdaptable) {
+          colFormats[i] = ((IAdaptable)currCol).getAdapter(ViewColumnFormat6.class);
+        }
+      }
+      return (T) colFormats;
     }
     return null;
   }

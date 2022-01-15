@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.design.format;
 
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,6 +36,7 @@ import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.NFMT;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 import com.hcl.domino.richtext.structures.TFMT;
+import com.hcl.domino.util.JNXDumpUtil;
 
 /**
  * @author Jesse Gallagher
@@ -404,7 +406,7 @@ public interface ViewColumnFormat extends ResizableMemoryStructure {
   ViewColumnFormat setFlags2Raw(short flags);
 
   default ViewColumnFormat setFormula(final String formula) {
-    return StructureSupport.writeStringValue(
+    return StructureSupport.writeCompiledFormula(
         this,
         this.getItemNameLength() + this.getTitleLength(),
         this.getFormulaLength(),

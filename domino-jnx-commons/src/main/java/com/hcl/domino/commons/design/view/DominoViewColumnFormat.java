@@ -22,6 +22,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import com.hcl.domino.commons.design.AbstractCollectionDesignElement;
+import com.hcl.domino.commons.design.SharedColumnImpl;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.IAdaptable;
@@ -158,6 +160,7 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   @Override
   public CollectionColumn setFormula(String formula) {
     this.getFormat1().setFormula(formula);
+    markViewFormatDirty();
     return this;
   }
   
@@ -174,6 +177,7 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
       this.format2 = createFormat2();
     }
     this.format2.setHideWhenFormula(formula);
+    markViewFormatDirty();
     return this;
   }
 
@@ -185,6 +189,7 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   @Override
   public CollectionColumn setItemName(String itemName) {
     this.getFormat1().setItemName(itemName);
+    markViewFormatDirty();
     return this;
   }
 
@@ -232,6 +237,7 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
     else {
       this.getFormat1().setTitle(title);
     }
+    markViewFormatDirty();
     return this;
   }
   
@@ -351,6 +357,7 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   @Override
   public CollectionColumn setShowTwistie(boolean b) {
     this.getFormat1().setFlag(ViewColumnFormat.Flag.Twistie, b);
+    markViewFormatDirty();
     return this;
   }
   
@@ -368,6 +375,7 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
       this.format2 = createFormat2();
     }
     this.format2.setFlag(ViewColumnFormat2.Flag3.HideWhenFormula, b);
+    markViewFormatDirty();
     return this;
   }
   
@@ -400,6 +408,7 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
       this.format2 = createFormat2();
     }
     this.format2.setTwistieResource(res);
+    markViewFormatDirty();
     return this;
   }
   
@@ -451,6 +460,7 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
       this.format2 = createFormat2();
     }
     this.format2.setFlag(ViewColumnFormat2.Flag3.HideColumnTitle, b);
+    markViewFormatDirty();
     return this;
   }
   
@@ -1018,6 +1028,15 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
       return getFormat6()
         .map(ViewColumnFormat6::getPublishFieldName)
         .orElse(""); //$NON-NLS-1$
+    }
+  }
+  
+  private void markViewFormatDirty() {
+    if (this.parent instanceof SharedColumnImpl) {
+      ((SharedColumnImpl)this.parent).setViewFormatDirty(true);
+    }
+    else if (this.parent instanceof AbstractCollectionDesignElement) {
+      ((AbstractCollectionDesignElement)this.parent).setViewFormatDirty(true);
     }
   }
 }

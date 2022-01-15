@@ -16,9 +16,11 @@
  */
 package com.hcl.domino.commons.design;
 
+import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -35,6 +37,7 @@ import com.hcl.domino.commons.design.view.DefaultCalendarSettings;
 import com.hcl.domino.commons.design.view.DominoCalendarFormat;
 import com.hcl.domino.commons.design.view.DominoViewColumnFormat;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
+import com.hcl.domino.commons.design.view.ViewFormatEncoder;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.NotesCollationInfo;
 import com.hcl.domino.data.CollectionColumn;
@@ -42,6 +45,8 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.IAdaptable;
+import com.hcl.domino.data.NativeItemCoder;
+import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DesignColorsAndFonts;
@@ -75,7 +80,8 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     IDefaultNamedDesignElement, IAdaptable {
   private Optional<DominoViewFormat> format;
   private Optional<DominoCalendarFormat> calendarFormat;
-
+  private boolean viewFormatDirty;
+  
   public AbstractCollectionDesignElement(final Document doc) {
     super(doc);
   }
@@ -524,6 +530,31 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   protected RichTextRecordList getHtmlCodeItem() {
     return getDocument().getRichTextItem(DesignConstants.ITEM_NAME_HTMLCODE);
+  }
+  
+  public boolean isViewFormatDirty() {
+    return viewFormatDirty;
+  }
+  
+  public void setViewFormatDirty(boolean b) {
+    this.viewFormatDirty = b;
+  }
+  
+  @Override
+  public boolean save() {
+    if (isViewFormatDirty()) {
+      if (this.format!=null && this.format.isPresent()) {
+        final Document doc = this.getDocument();
+        doc.replaceItemValue(DesignConstants.VIEW_VIEW_FORMAT_ITEM,
+            EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY),
+            this.format.get());
+        doc.sign();
+      }
+      
+      setViewFormatDirty(false);
+    }
+
+    return super.save();
   }
   
   private class DefaultCompositeAppSettings implements CompositeAppSettings {

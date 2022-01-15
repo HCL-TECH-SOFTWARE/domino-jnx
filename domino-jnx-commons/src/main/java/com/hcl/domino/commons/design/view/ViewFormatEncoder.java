@@ -1,4 +1,20 @@
-package com.hcl.domino.jna.internal.views;
+/*
+ * ==========================================================================
+ * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ *                            All rights reserved.
+ * ==========================================================================
+ * Licensed under the  Apache License, Version 2.0  (the "License").  You may
+ * not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+ *
+ * Unless  required  by applicable  law or  agreed  to  in writing,  software
+ * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the  specific language  governing permissions  and limitations
+ * under the License.
+ * ==========================================================================
+ */
+package com.hcl.domino.commons.design.view;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -8,8 +24,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.hcl.domino.commons.design.view.DominoViewColumnFormat;
-import com.hcl.domino.commons.design.view.DominoViewFormat;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.NativeItemCoder;
@@ -95,7 +109,7 @@ public class ViewFormatEncoder {
       buf.put(format1Data);
     }
     
-    
+    //write fixed part of VIEW_COLUMN_FORMAT first
     for (int i=0; i<columns.size(); i++) {
       DominoViewColumnFormat col = columns.get(i);
       
@@ -103,15 +117,34 @@ public class ViewFormatEncoder {
       if (fmt==null) {
         fmt = createDefaultViewColumnFormat();
       }
-      ByteBuffer fmtData = fmt.getData();
-      int fmtCapacity = fmtData.capacity();
       
-      buf = ensureBufferCapacity(buf, buf.capacity() + fmtCapacity);
-      buf.put(fmtData);
+      //ignore var data with hide-when formula and twistie resource here, will be stored later after the ViewTableFormat3
+      ByteBuffer fmtVarData = fmt.getVariableData();
+      ByteBuffer fmtData = fmt.getData();
+      
+      byte[] fmtFixedData = new byte[fmtData.capacity() - fmtVarData.capacity()];
+      fmtData.get(fmtFixedData);
+      buf = ensureBufferCapacity(buf, buf.capacity() + fmtFixedData.length);
+      buf.put(fmtFixedData);
+    }
+
+    //followed by the var data of VIEW_COLUMN_FORMAT
+    for (int i=0; i<columns.size(); i++) {
+      DominoViewColumnFormat col = columns.get(i);
+      
+      ViewColumnFormat fmt = col.getAdapter(ViewColumnFormat.class);
+      if (fmt==null) {
+        fmt = createDefaultViewColumnFormat();
+      }
+      
+      //ignore var data with hide-when formula and twistie resource here, will be stored later after the ViewTableFormat3
+      ByteBuffer fmtVarData = fmt.getVariableData();
+      buf = ensureBufferCapacity(buf, buf.capacity() + fmtVarData.capacity());
+      buf.put(fmtVarData);
     }
 
     {
-      //write ViewTableFormat2
+      //write VIEW_TABLE_FORMAT2
       ViewTableFormat2 fmt2 = viewFormat.getAdapter(ViewTableFormat2.class);
       if (fmt2==null) {
         fmt2 = createViewTableFormat2(viewFormat);
@@ -122,7 +155,8 @@ public class ViewFormatEncoder {
       buf = ensureBufferCapacity(buf, buf.capacity() + fmt2Capacity);
       buf.put(fmt2Data);
     }
-    
+
+    //write fixed part of VIEW_COLUMN_FORMAT2 first
     for (int i=0; i<columns.size(); i++) {
       DominoViewColumnFormat col = columns.get(i);
       
@@ -137,13 +171,13 @@ public class ViewFormatEncoder {
       
       byte[] fmt2FixedData = new byte[fmt2Data.capacity() - fmt2VarData.capacity()];
       fmt2Data.get(fmt2FixedData);
-      
+
       buf = ensureBufferCapacity(buf, buf.capacity() + fmt2FixedData.length);
       buf.put(fmt2FixedData);
     }
 
     {
-      //write ViewTableFormat3
+      //write VIEW_TABLE_FORMAT3
       ViewTableFormat3 fmt3 = viewFormat.getAdapter(ViewTableFormat3.class);
       if (fmt3==null) {
         fmt3 = createViewTableFormat3(viewFormat);
@@ -155,7 +189,7 @@ public class ViewFormatEncoder {
       buf.put(fmt3Data);
     }
 
-    // Followed by variable data defined by VIEW_COLUMN_FORMAT2
+    // write variable data defined by VIEW_COLUMN_FORMAT2 (hide-when formula and twistie CDRESOURCE)
     for (int i=0; i<columns.size(); i++) {
       DominoViewColumnFormat col = columns.get(i);
       
@@ -184,9 +218,8 @@ public class ViewFormatEncoder {
       }
     }
     
-
     {
-      //write ViewTableFormat4
+      //write VIEW_TABLE_FORMAT4
       ViewTableFormat4 fmt4 = viewFormat.getAdapter(ViewTableFormat4.class);
       if (fmt4==null) {
         fmt4 = createViewTableFormat4(viewFormat);
