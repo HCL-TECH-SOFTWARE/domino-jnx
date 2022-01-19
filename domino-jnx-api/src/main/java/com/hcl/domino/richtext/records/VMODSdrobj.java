@@ -16,8 +16,10 @@
  */
 package com.hcl.domino.richtext.records;
 
-import java.util.Optional;
 
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
 import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
@@ -39,7 +41,7 @@ import com.hcl.domino.richtext.structures.BSIG;
   members = { 
     @StructureMember(name = "Header", type = BSIG.class), /* Signature identifying the type of Navigator CD record. */
     @StructureMember(name = "ObjRect", type = VMODSrect.class), /* Bounding rectangle for this graphical object. */
-    @StructureMember(name = "flags", type = ViewmapDatasetRecord.Flags.class, bitfield = true), /* Option flags. Set to 7. */
+    @StructureMember(name = "flags", type = VMODSdrobj.Flags.class, bitfield = true), /* Option flags. Set to 7. */
     @StructureMember(name = "NameLen", type = short.class, unsigned = true), /* Graphical object name length (may be 0). */
     @StructureMember(name = "LabelLen", type = short.class, unsigned = true), /* Graphical object displayed label length (may be 0). */
     @StructureMember(name = "FontID", type = FontStyle.class), /* FontID to use when displaying the label. */
@@ -52,10 +54,10 @@ import com.hcl.domino.richtext.structures.BSIG;
 public interface VMODSdrobj extends RichTextRecord<BSIG> {
 
   enum Flags implements INumberEnum<Short> {
-    VISIBLE((short)0x0002), /*	Set if obj is visible */
-    SELECTABLE((short)0x0004), /*	Set if obj can be select (i.e. is not background) */
-    LOCKED((short)0x0008), /*	Set if obj can't be edited */
-    IMAGEMAP_BITMAP((short)0x0010) /*	Bitmap representing runtime image of the navigator.  Use to create imagemaps from navigators. */
+    VM_DROBJ_FLAGS_VISIBLE((short)0x0002), /*   Set if obj is visible */
+    VM_DROBJ_FLAGS_SELECTABLE((short)0x0004), /*    Set if obj can be select (i.e. is not background) */
+    VM_DROBJ_FLAGS_LOCKED((short)0x0008), /*    Set if obj can't be edited */
+    VM_DROBJ_FLAGS_IMAGEMAP_BITMAP((short)0x0010), /*   Bitmap representing runtime image of the navigator.  Use to create imagemaps from navigators. */
     ;
 
     private final short value;
@@ -81,6 +83,10 @@ public interface VMODSdrobj extends RichTextRecord<BSIG> {
   @StructureGetter("ObjRect")
   VMODSrect getObjRect();
 
+
+  @StructureGetter("flags")
+  Set<VMODSdrobj.Flags> getFlags();
+  
   @StructureGetter("NameLen")
   int getNameLen();
 
@@ -105,6 +111,9 @@ public interface VMODSdrobj extends RichTextRecord<BSIG> {
 
   @StructureGetter("Spare")
   int[] getSpare();
+
+  @StructureSetter("flags")
+  VMODSdrobj setFlags(Collection<VMODSdrobj.Flags> flags);
 
   @StructureSetter("NameLen")
   VMODSdrobj setNameLen(int length);

@@ -28,7 +28,9 @@ import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.io.IOUtils;
@@ -118,6 +120,7 @@ import com.hcl.domino.richtext.records.CurrencyType;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.records.VMODSdrobj;
 import com.hcl.domino.richtext.records.ViewmapHighlightDefaults;
 import com.hcl.domino.richtext.records.ViewmapLineDefaults;
 import com.hcl.domino.richtext.records.ViewmapShapeDefaults;
@@ -125,6 +128,7 @@ import com.hcl.domino.richtext.records.ViewmapTextboxDefaults;
 import com.hcl.domino.richtext.records.ViewmapHeaderRecord;
 import com.hcl.domino.richtext.records.ViewmapTextRecord;
 import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
+import com.hcl.domino.richtext.records.ViewmapRegionRecord;
 import com.hcl.domino.richtext.records.ViewmapActionRecord;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
 import com.hcl.domino.richtext.structures.AssistFieldStruct.ActionByField;
@@ -1767,6 +1771,49 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
     }
     
     @Test
+    public void testViewmapRegionRecord() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        Collection <VMODSdrobj.Flags> expectedFlags = new HashSet <VMODSdrobj.Flags> ();
+        expectedFlags.add(VMODSdrobj.Flags.VM_DROBJ_FLAGS_VISIBLE);
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(ViewmapRegionRecord.class, begin -> {
+            begin.setFillStyle(0);
+            begin.setLineColor(4);
+            begin.setLineStyle(0);
+            begin.setLineWidth(1);
+            begin.getDRObj().setAlignment(0);
+            begin.getDRObj().setbWrap(0);
+            begin.getDRObj().setLabelLen(0);
+            begin.getDRObj().setNameLen(8);
+            begin.getDRObj().setTextColor(StandardColors.Blue);
+            begin.getDRObj().setFlags(expectedFlags);
+            begin.getDRObj().getObjRect().setBottom(307);
+            begin.getDRObj().getObjRect().setLeft(13);
+            begin.getDRObj().getObjRect().setRight(94);
+            begin.getDRObj().getObjRect().setTop(237);
+            begin.getDRObj().getFontID().setPointSize(10);
+          });
+        }
+        final ViewmapRegionRecord begin = (ViewmapRegionRecord) doc.getRichTextItem("Body", Area.TYPE_VIEWMAP).get(0);
+        assertEquals(0, begin.getFillStyle());
+        assertEquals(4, begin.getLineColor());
+        assertEquals(0, begin.getLineStyle());
+        assertEquals(1, begin.getLineWidth());
+        assertEquals(0, begin.getDRObj().getAlignment());
+        assertEquals(0, begin.getDRObj().getbWrap());
+        assertEquals(0, begin.getDRObj().getLabelLen());
+        assertEquals(8, begin.getDRObj().getNameLen());
+        assertEquals(StandardColors.Blue, begin.getDRObj().getTextColor().get());
+        assertEquals(expectedFlags, begin.getDRObj().getFlags());
+        assertEquals(307, begin.getDRObj().getObjRect().getBottom());
+        assertEquals(13, begin.getDRObj().getObjRect().getLeft());
+        assertEquals(94, begin.getDRObj().getObjRect().getRight());
+        assertEquals(237, begin.getDRObj().getObjRect().getTop());
+        assertEquals(10, begin.getDRObj().getFontID().getPointSize());
+      });
+      }
+    
     public void testViewmapHighlightDefaults() throws Exception {
       this.withTempDb(database -> {
         final Document doc = database.createDocument();
