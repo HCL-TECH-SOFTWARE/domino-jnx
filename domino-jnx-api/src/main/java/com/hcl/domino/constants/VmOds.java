@@ -7,7 +7,20 @@ package com.hcl.domino.constants;
  * @since 1.1.2
  */
 public interface VmOds {
-
+  /** Set if obj is visible  */
+  short VM_DROBJ_FLAGS_VISIBLE = 0x0002;
+  /** Set if obj can be select (i.e. is not background) */
+  short VM_DROBJ_FLAGS_SELECTABLE = 0x0004;
+  /**  Set if obj can't be edited  */
+  short VM_DROBJ_FLAGS_LOCKED = 0x0008;
+  /**
+   * Bitmap representing runtime image of the navigator.  Use to create
+   * imagemaps from navigators.
+   */
+  short VM_DROBJ_FLAGS_IMAGEMAP_BITMAP = 0x0010;
+  /**  reading order  */
+  short VM_DSET_READING_ORDER_RTL = 0x0020;
+  
   short VM_ACTION_NONE = 0;
   short VM_ACTION_SWITCHVIEW = 1;
   short VM_ACTION_SWITCHNAV = 2;

@@ -31,7 +31,7 @@ import com.hcl.domino.richtext.structures.BSIG;
 @StructureDefinition(
   name = "VIEWMAP_REGION_RECORD", 
   members = { 
-    @StructureMember(name = "DRobj", type = VMODSdrobj.class),
+    @StructureMember(name = "DRobj", type = ViewmapDrawingObject.class),
     @StructureMember(name = "LineColor", type = short.class, unsigned = true),
     @StructureMember(name = "LineStyle", type = short.class, unsigned = true),
     @StructureMember(name = "LineWidth", type = short.class, unsigned = true),
@@ -41,7 +41,7 @@ import com.hcl.domino.richtext.structures.BSIG;
 })
 public interface ViewmapRegionRecord extends RichTextRecord<BSIG> {
   @StructureGetter("DRobj")
-  VMODSdrobj getDRObj();
+  ViewmapDrawingObject getDRObj();
 
   @StructureGetter("LineColor")
   int getLineColor();

@@ -120,7 +120,7 @@ import com.hcl.domino.richtext.records.CurrencyType;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
-import com.hcl.domino.richtext.records.VMODSdrobj;
+import com.hcl.domino.richtext.records.ViewmapDrawingObject;
 import com.hcl.domino.richtext.records.ViewmapHighlightDefaults;
 import com.hcl.domino.richtext.records.ViewmapLineDefaults;
 import com.hcl.domino.richtext.records.ViewmapShapeDefaults;
@@ -1774,16 +1774,16 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
     public void testViewmapRegionRecord() throws Exception {
       this.withTempDb(database -> {
         final Document doc = database.createDocument();
-        Collection <VMODSdrobj.Flags> expectedFlags = new HashSet <VMODSdrobj.Flags> ();
-        expectedFlags.add(VMODSdrobj.Flags.VM_DROBJ_FLAGS_VISIBLE);
+        Collection <ViewmapDrawingObject.Flags> expectedFlags = new HashSet <ViewmapDrawingObject.Flags> ();
+        expectedFlags.add(ViewmapDrawingObject.Flags.VISIBLE);
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           rtWriter.addRichTextRecord(ViewmapRegionRecord.class, begin -> {
             begin.setFillStyle(0);
             begin.setLineColor(4);
             begin.setLineStyle(0);
             begin.setLineWidth(1);
-            begin.getDRObj().setAlignment(0);
-            begin.getDRObj().setbWrap(0);
+            begin.getDRObj().setAlignment((short)0);
+            begin.getDRObj().setbWrap((short)0);
             begin.getDRObj().setLabelLen(0);
             begin.getDRObj().setNameLen(8);
             begin.getDRObj().setTextColor(StandardColors.Blue);

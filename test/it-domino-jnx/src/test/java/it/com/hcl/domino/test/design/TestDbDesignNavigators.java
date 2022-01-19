@@ -24,10 +24,13 @@ import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignType;
 import com.hcl.domino.design.Navigator;
+import com.hcl.domino.design.navigator.NavigatorFillStyle;
 import com.hcl.domino.design.navigator.NavigatorLineStyle;
 import com.hcl.domino.richtext.records.ViewmapActionRecord;
 import com.hcl.domino.richtext.records.ViewmapDatasetRecord;
+import com.hcl.domino.richtext.records.ViewmapDrawingObject;
 import com.hcl.domino.richtext.records.ViewmapHeaderRecord;
+import com.hcl.domino.richtext.records.ViewmapRectRecord;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclEntry;
 import com.hcl.domino.security.AclFlag;
@@ -99,7 +102,27 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
     {
       List<?> layout = nav.getLayout();
       assertTrue(layout.stream().anyMatch(ViewmapHeaderRecord.class::isInstance));
-      
+
+      {
+        ViewmapRectRecord rect = (ViewmapRectRecord)layout.get(1);
+        
+        ViewmapDrawingObject draw = rect.getDrawingObject();
+        assertEquals(302, draw.getObjRect().getLeft());
+        assertEquals(45, draw.getObjRect().getTop());
+        assertEquals(377, draw.getObjRect().getRight());
+        assertEquals(150, draw.getObjRect().getBottom());
+        assertEquals(EnumSet.of(ViewmapDrawingObject.Flags.VISIBLE, ViewmapDrawingObject.Flags.SELECTABLE), draw.getFlags());
+        assertEquals(5, draw.getFontID().getFontFace());
+
+        assertEquals(StandardColors.RoyalPurple, rect.getLineColor().get());
+        assertEquals(StandardColors.YellowGreen, rect.getFillForegroundColor().get());
+        assertEquals(StandardColors.Cyan, rect.getFillBackgroundColor().get());
+        assertEquals(NavigatorLineStyle.SOLID, rect.getLineStyle());
+        assertEquals(NavigatorFillStyle.SOLID, rect.getFillStyle());
+        
+        assertEquals("NormalRect", rect.getName());
+        assertEquals("I am a normal rectangle.", rect.getLabel());
+      }
       {
         ViewmapActionRecord action = (ViewmapActionRecord)layout.get(2);
         assertEquals(StandardColors.DarkMagenta2, action.getHighlightOutlineColor().get());
