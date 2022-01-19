@@ -62,6 +62,7 @@ import com.hcl.domino.design.Frameset;
 import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.design.JavaScriptLibrary;
 import com.hcl.domino.design.NamedFileElement;
+import com.hcl.domino.design.Navigator;
 import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.design.ScriptLibrary;
@@ -391,6 +392,16 @@ public abstract class AbstractDbDesign implements DbDesign {
   @Override
   public Stream<ImageResource> getImageResources() {
     return this.getDesignElements(ImageResource.class);
+  }
+  
+  @Override
+  public Optional<Navigator> getNavigator(String name) {
+    return this.getDesignElementByName(Navigator.class, name);
+  }
+  
+  @Override
+  public Stream<Navigator> getNavigators() {
+    return this.getDesignElements(Navigator.class);
   }
 
   @Override

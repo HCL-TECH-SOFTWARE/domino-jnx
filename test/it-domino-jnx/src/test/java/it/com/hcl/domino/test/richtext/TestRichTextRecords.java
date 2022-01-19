@@ -40,6 +40,7 @@ import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
+import com.hcl.domino.design.DesignType;
 import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
 import com.hcl.domino.design.format.ActionBarTextAlignment;
 import com.hcl.domino.design.format.ActionWidthMode;
@@ -58,6 +59,7 @@ import com.hcl.domino.design.format.TimeShowFormat;
 import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.design.format.WeekFormat;
 import com.hcl.domino.design.format.YearFormat;
+import com.hcl.domino.design.navigator.NavigatorLineStyle;
 import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextRecordList;
@@ -122,7 +124,6 @@ import com.hcl.domino.richtext.records.ViewmapShapeDefaults;
 import com.hcl.domino.richtext.records.ViewmapTextboxDefaults;
 import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
 import com.hcl.domino.richtext.records.ViewmapHeaderRecord;
-import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
 import com.hcl.domino.richtext.records.ViewmapActionRecord;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
 import com.hcl.domino.richtext.structures.AssistFieldStruct.ActionByField;
@@ -1630,39 +1631,39 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final String actionName = "the action name";
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           rtWriter.addRichTextRecord(ViewmapActionRecord.class, begin -> {
-            begin.setbHighlightTouch(1);
-            begin.setbHighlightCurrent(2);
-            begin.setHLOutlineColor(3);
-            begin.setHLFillColor(4);
-            begin.setClickAction(5);
+            begin.setHighlightTouch(1);
+            begin.setHighlightCurrent(2);
+            begin.setOutlineColorRaw(3);
+            begin.setHighlightFillColorRaw(4);
+            begin.setClickAction(ViewmapActionRecord.Action.GOTO_LINK);
             //begin.setActionStringLen(6); // this is set when calling setActionName()
-            begin.setHLOutlineWidth(7);
-            begin.setHLOutlineStyle(8);
+            begin.setHighlightOutlineWidth(7);
+            begin.setHighlightOutlineStyle(NavigatorLineStyle.SOLID);
             begin.getLinkInfo().setDocUnid("B51DB3939AB413C585256D4F00399408");
             begin.getLinkInfo().setReplicaId("0123456701234567");
             begin.getLinkInfo().setViewUnid("B51DB3939AB413C585256D4F00399409");
             begin.setExtDataLen(9);
-            begin.setActionDataDesignType(10);
-            begin.setActionName(actionName);
+            begin.setActionDataDesignType(DesignType.PRIVATE);
+            begin.setActionString(actionName);
 
           });
         }
 
         final ViewmapActionRecord var = (ViewmapActionRecord) doc.getRichTextItem("Body", Area.TYPE_VIEWMAP).get(0);
-        assertEquals(1, var.getbHighlightTouch());
-        assertEquals(2, var.getbHighlightCurrent());
-        assertEquals(3, var.getHLOutlineColor());
-        assertEquals(4, var.getHLFillColor());
-        assertEquals(5, var.getClickAction());
+        assertEquals(1, var.getHighlightTouch());
+        assertEquals(2, var.getHighlightCurrent());
+        assertEquals(3, var.getHighlightOutlineColorRaw());
+        assertEquals(4, var.getHighlightFillColorRaw());
+        assertEquals(ViewmapActionRecord.Action.GOTO_LINK, var.getClickAction().get());
         assertEquals(actionName.length(), var.getActionStringLen());
-        assertEquals(7, var.getHLOutlineWidth());
-        assertEquals(8, var.getHLOutlineStyle());
+        assertEquals(7, var.getHighlightOutlineWidth());
+        assertEquals(NavigatorLineStyle.SOLID, var.getHighlightOutlineStyle());
         assertEquals("B51DB3939AB413C585256D4F00399408", var.getLinkInfo().getDocUnid());
         assertEquals("0123456701234567", var.getLinkInfo().getReplicaId());
         assertEquals("B51DB3939AB413C585256D4F00399409", var.getLinkInfo().getViewUnid());
         assertEquals(9, var.getExtDataLen());
-        assertEquals(10, var.getActionDataDesignType());
-        assertEquals(actionName, var.getActionName());
+        assertEquals(DesignType.PRIVATE, var.getActionDataDesignType());
+        assertEquals(actionName, var.getActionString());
       });
     }
     

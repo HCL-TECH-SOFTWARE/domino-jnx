@@ -39,6 +39,7 @@ import org.junit.jupiter.api.Test;
 import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.data.DBQuery;
 import com.hcl.domino.data.DQLQueryResult;
+import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.FTIndex;
 import com.hcl.domino.data.IDTable;
@@ -220,6 +221,22 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==document.getNoteID());
             log.log(Level.INFO, explainText);
         });
+    }
+
+    @Test
+    public void testDQLContainsRemote() throws Exception {
+      Database db = getClient().openDatabase("Galatea-VCC/IKSG", "cms60/cmsodir.nsf");
+      DQL.DQLTerm dqlContains = DQL.item("CompanyName").contains("201 W.");
+      DQLQueryResult result = db.queryDQL(dqlContains, EnumSet.of(DBQuery.EXPLAIN));
+      Assertions.assertInstanceOf(String.class, dqlContains.toString());
+      String explainText = result.getExplainText();
+      Assertions.assertNotNull(explainText);
+      Assertions.assertTrue(explainText.length() > 0);
+      final IDTable resultsTable = result.getNoteIds().get();
+      Assertions.assertTrue(resultsTable.size() > 0);
+      System.out.println("count: " + resultsTable.size());
+      System.out.println("unids: " + resultsTable.stream().map(Integer::toHexString).collect(Collectors.toList()));
+      log.log(Level.INFO, explainText);
     }
 
     @Test

@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
@@ -62,7 +61,6 @@ import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.FontAttribute;
-import com.hcl.domino.data.Item;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.NotesFont;
 import com.hcl.domino.data.StandardColors;
@@ -1598,38 +1596,5 @@ public class TestDbDesignForms extends AbstractDesignTest {
   
   private List<?> extractOle(List<?> body, int index) {
     return extract(body, index, CDOLEBegin.class, CDOLEEnd.class);
-  }
-  
-  private <B extends RichTextRecord<?>, E extends RichTextRecord<?>> List<?> extract(List<?> body, int index, Class<B> begin, Class<E> end) {
-    return extract(body, index, begin::isInstance, end::isInstance);
-  }
-  
-  private List<?> extract(List<?> body, int index, Predicate<Object> begin, Predicate<Object> end) {
-    int found = 0;
-    
-    int oleBeginIndex = -1;
-    for(oleBeginIndex = 0; oleBeginIndex < body.size(); oleBeginIndex++) {
-      if(begin.test(body.get(oleBeginIndex))) {
-        if(found == index) {
-          break;
-        }
-        found++;
-      }
-    }
-    assertTrue(oleBeginIndex > -1 && oleBeginIndex < body.size());
-    int oleEndIndex = -1;
-    for(oleEndIndex = oleBeginIndex; oleEndIndex < body.size(); oleEndIndex++) {
-      if(end.test(body.get(oleEndIndex))) {
-        break;
-      }
-    }
-    assertTrue(oleEndIndex > -1 && oleEndIndex < body.size());
-    
-    return body.subList(oleBeginIndex, oleEndIndex+1);
-  }
-  
-  @SuppressWarnings("unchecked")
-  private <T extends RichTextRecord<?>> T extract(List<?> body, int index, Class<T> type) {
-    return (T)extract(body, index, type, type).get(0);
   }
 }

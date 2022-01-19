@@ -16,8 +16,32 @@
  */
 package com.hcl.domino.design;
 
+import java.util.List;
+
 import com.hcl.domino.design.DesignElement.NamedDesignElement;
 
 public interface Navigator extends NamedDesignElement {
+  /**
+   * Retrieves the image map of the navigator.
+   * 
+   * @return a {@link List} of rich-text entities
+   * @since 1.1.1
+   */
+  List<?> getImageMap();
 
+  /**
+   * Retrieves the data set of the navigator.
+   * 
+   * @return a {@link List} of rich-text entities
+   * @since 1.1.1
+   */
+  List<?> getDataSet();
+
+  /**
+   * Retrieves the layout data of the navigator.
+   * 
+   * @return a {@link List} of rich-text entities
+   * @since 1.1.1
+   */
+  List<?> getLayout();
 }

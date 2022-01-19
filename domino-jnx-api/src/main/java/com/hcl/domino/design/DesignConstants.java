@@ -76,10 +76,6 @@ public interface DesignConstants {
   
   /** font table */
   String ITEM_NAME_FONTS = "$Fonts"; //$NON-NLS-1$
-
-  /** navigator */
-  String NAVIGATOR_VIEWMAP_DATASET_ITEM = "$ViewMapDataset"; //$NON-NLS-1$
-  String NAVIGATOR_VIEWMAP_LAYOUT_ITEM = "$ViewMapLayout"; //$NON-NLS-1$
   
   byte THEME_DEFAULT = 0;
   byte THEME_ENABLE = 1;
