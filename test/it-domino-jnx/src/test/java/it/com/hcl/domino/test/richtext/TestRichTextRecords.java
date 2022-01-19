@@ -122,8 +122,9 @@ import com.hcl.domino.richtext.records.ViewmapHighlightDefaults;
 import com.hcl.domino.richtext.records.ViewmapLineDefaults;
 import com.hcl.domino.richtext.records.ViewmapShapeDefaults;
 import com.hcl.domino.richtext.records.ViewmapTextboxDefaults;
-import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
 import com.hcl.domino.richtext.records.ViewmapHeaderRecord;
+import com.hcl.domino.richtext.records.ViewmapTextRecord;
+import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
 import com.hcl.domino.richtext.records.ViewmapActionRecord;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
 import com.hcl.domino.richtext.structures.AssistFieldStruct.ActionByField;
@@ -1853,5 +1854,66 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         } 
       });
     }
-    
+ 
+    @Test
+    public void testVMTextRecord() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(ViewmapTextRecord.class, begin -> {
+        	begin.setLineColor(207);
+        	begin.setFillFGColor(15);
+        	begin.setFillBGColor(15);
+        	begin.setLineStyle(0);
+        	begin.setLineWidth(1);
+        	begin.setFillStyle(1);
+        	begin.getDRObj().setTextColor(StandardColors.Blue);
+        	begin.getDRObj().setAlignment(0);
+        	begin.getDRObj().setbWrap(0);
+        	begin.getDRObj().setLabelLen(9);
+        	begin.getDRObj().setNameLen(8);
+        	begin.getDRObj().getFontID().setFontFace((byte) 1);
+        	begin.getDRObj().getFontID().setBold(true);
+        	begin.getDRObj().getFontID().setColor(StandardColors.Aqua);
+        	begin.getDRObj().getFontID().setExtrude(true);
+        	begin.getDRObj().getFontID().setFontFace((byte) 1);
+        	begin.getDRObj().getFontID().setItalic(true);
+        	begin.getDRObj().getFontID().setPointSize(1);
+        	begin.getDRObj().getFontID().setShadow(true);
+        	begin.getDRObj().getFontID().setStandardFont(StandardFonts.SWISS);
+        	begin.getDRObj().getFontID().setStrikeout(true);
+        	begin.getDRObj().getFontID().setSub(true);
+        	begin.getDRObj().getFontID().setSuper(true);
+        	begin.getDRObj().getFontID().setUnderline(true);
+        	       	
+          });
+        }
+
+        final ViewmapTextRecord begin = (ViewmapTextRecord) doc.getRichTextItem("Body", Area.TYPE_VIEWMAP).get(0);
+        assertEquals(207, begin.getLineColor());
+        assertEquals(15, begin.getFillFGColor());
+        assertEquals(15, begin.getFillBGColor());
+        assertEquals(0,begin.getLineStyle());
+        assertEquals(1, begin.getLineWidth());
+        assertEquals(1, begin.getFillStyle());
+        assertEquals(StandardColors.Blue, begin.getDRObj().getTextColor().get());
+        assertEquals(0, begin.getDRObj().getAlignment());
+        assertEquals(0, begin.getDRObj().getbWrap());
+        assertEquals(9, begin.getDRObj().getLabelLen());
+        assertEquals(8, begin.getDRObj().getNameLen());
+        assertEquals(1, begin.getDRObj().getFontID().getFontFace());
+        assertEquals(true, begin.getDRObj().getFontID().isBold());
+        assertEquals(StandardColors.Aqua,begin.getDRObj().getFontID().getColor().get());
+        assertEquals(true, begin.getDRObj().getFontID().isExtrude());
+        assertEquals(1,begin.getDRObj().getFontID().getFontFace());
+        assertEquals(true, begin.getDRObj().getFontID().isItalic());
+        assertEquals(1, begin.getDRObj().getFontID().getPointSize());
+        assertEquals(true, begin.getDRObj().getFontID().isShadow());
+        assertEquals(StandardFonts.SWISS, begin.getDRObj().getFontID().getStandardFont().get());
+        assertEquals(true, begin.getDRObj().getFontID().isStrikeout());
+        assertEquals(true, begin.getDRObj().getFontID().isSub());
+        assertEquals(true, begin.getDRObj().getFontID().isSuper());
+        assertEquals(true, begin.getDRObj().getFontID().isUnderline());
+      });
+    }
 }
