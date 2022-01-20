@@ -212,7 +212,7 @@ public interface ViewmapActionRecord extends RichTextRecord<WSIG> {
    * Sets the action formula for this record. This should be used when
    * {@link #getClickAction()} is {@link Action#RUNFORMULA}.
    * 
-   * @param the formula to set
+   * @param actionFormula the formula to set
    * @return this structure
    * @since 1.1.2
    */
