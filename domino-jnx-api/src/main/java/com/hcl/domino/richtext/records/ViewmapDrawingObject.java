@@ -41,7 +41,7 @@ import com.hcl.domino.richtext.structures.BSIG;
   members = { 
     @StructureMember(name = "Header", type = BSIG.class), /* Signature identifying the type of Navigator CD record. */
     @StructureMember(name = "ObjRect", type = VMODSrect.class), /* Bounding rectangle for this graphical object. */
-    @StructureMember(name = "flags", type = ViewmapDrawingObject.Flags.class, bitfield = true), /* Option flags. Set to 7. */
+    @StructureMember(name = "flags", type = ViewmapDrawingObject.Flag.class, bitfield = true), /* Option flags. Set to 7. */
     @StructureMember(name = "NameLen", type = short.class, unsigned = true), /* Graphical object name length (may be 0). */
     @StructureMember(name = "LabelLen", type = short.class, unsigned = true), /* Graphical object displayed label length (may be 0). */
     @StructureMember(name = "FontID", type = FontStyle.class), /* FontID to use when displaying the label. */
@@ -53,7 +53,7 @@ import com.hcl.domino.richtext.structures.BSIG;
 })
 public interface ViewmapDrawingObject extends RichTextRecord<BSIG> {
 
-  enum Flags implements INumberEnum<Short> {
+  enum Flag implements INumberEnum<Short> {
     /** Set if obj is visible */
     VISIBLE(NotesConstants.VM_DROBJ_FLAGS_VISIBLE),
     /** Set if obj can be select (i.e. is not background) */
@@ -68,7 +68,7 @@ public interface ViewmapDrawingObject extends RichTextRecord<BSIG> {
     ;
 
     private final short value;
-    private Flags(short value) {
+    private Flag(short value) {
       this.value = value;
     }
 
@@ -92,7 +92,7 @@ public interface ViewmapDrawingObject extends RichTextRecord<BSIG> {
 
 
   @StructureGetter("flags")
-  Set<ViewmapDrawingObject.Flags> getFlags();
+  Set<ViewmapDrawingObject.Flag> getFlags();
   
   @StructureGetter("NameLen")
   int getNameLen();
@@ -116,7 +116,7 @@ public interface ViewmapDrawingObject extends RichTextRecord<BSIG> {
   short getbWrap();
 
   @StructureSetter("flags")
-  ViewmapDrawingObject setFlags(Collection<ViewmapDrawingObject.Flags> flags);
+  ViewmapDrawingObject setFlags(Collection<ViewmapDrawingObject.Flag> flags);
 
   @StructureSetter("NameLen")
   ViewmapDrawingObject setNameLen(int length);

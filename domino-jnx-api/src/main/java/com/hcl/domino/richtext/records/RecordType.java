@@ -774,7 +774,7 @@ public enum RecordType {
   VMPOLYGON(RichTextConstants.SIG_CD_VMPOLYGON, 5),
   VMPOLYLINE(RichTextConstants.SIG_CD_VMPOLYLINE, 5),
   VMPOLYRGN(RichTextConstants.SIG_CD_VMPOLYRGN, 5),
-  VMCIRCLE(RichTextConstants.SIG_CD_VMCIRCLE, 5),
+  VMCIRCLE(RichTextConstants.SIG_CD_VMCIRCLE, 5, ViewmapRegionRecord.class),
   VMPOLYRGN_BYTE(RichTextConstants.SIG_CD_VMPOLYRGN_BYTE, 5, ViewmapPolygonRecordByte.class),
   VMDATASET(RichTextConstants.SIG_VIEWMAP_DATASET, 5, ViewmapDatasetRecord.class),
   VMBITMAPSEGMENT(RichTextConstants.SIG_CD_BITMAPSEGMENT, 5, CDBitmapSegment.class),

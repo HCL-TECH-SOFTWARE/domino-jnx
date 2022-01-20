@@ -16,7 +16,9 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 
 import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.misc.DominoEnumUtil;
@@ -39,7 +41,7 @@ import com.hcl.domino.richtext.structures.WSIG;
   members = { 
     @StructureMember(name = "Header", type = WSIG.class), /* Signature identifying the type of Navigator CD record. */
     @StructureMember(name = "ObjRect", type = VMODSrect.class), /* Bounding rectangle for this graphical object. */
-    @StructureMember(name = "flags", type = ViewmapDatasetRecord.Flags.class, bitfield = true), /* Option flags. Set to 7. */
+    @StructureMember(name = "flags", type = ViewmapBigDrawingObject.Flag.class, bitfield = true), /* Option flags. Set to 7. */
     @StructureMember(name = "NameLen", type = short.class, unsigned = true), /* Graphical object name length (may be 0). */
     @StructureMember(name = "LabelLen", type = short.class, unsigned = true), /* Graphical object displayed label length (may be 0). */
     @StructureMember(name = "FontID", type = FontStyle.class), /* FontID to use when displaying the label. */
@@ -49,9 +51,9 @@ import com.hcl.domino.richtext.structures.WSIG;
     @StructureMember(name = "Spare", type = int[].class, length = 4) /* Reserved. Must be 0. */
     /* Header field contains WORD length subfield. Some Navigator CD records use VMODSdrobj, which contains a BYTE length subfield. */
 })
-public interface VMODSbigobj extends RichTextRecord<WSIG> {
+public interface ViewmapBigDrawingObject extends RichTextRecord<WSIG> {
 
-  enum Flags implements INumberEnum<Short> {
+  enum Flag implements INumberEnum<Short> {
     VISIBLE((short)0x0002), /*	Set if obj is visible */
     SELECTABLE((short)0x0004), /*	Set if obj can be select (i.e. is not background) */
     LOCKED((short)0x0008), /*	Set if obj can't be edited */
@@ -59,7 +61,7 @@ public interface VMODSbigobj extends RichTextRecord<WSIG> {
     ;
 
     private final short value;
-    private Flags(short value) {
+    private Flag(short value) {
       this.value = value;
     }
 
@@ -80,6 +82,12 @@ public interface VMODSbigobj extends RichTextRecord<WSIG> {
 
   @StructureGetter("ObjRect")
   VMODSrect getObjRect();
+
+  @StructureGetter("flags")
+  Set<Flag> getFlags();
+
+  @StructureSetter("flags")
+  ViewmapDrawingObject setFlags(Collection<Flag> flags);
 
   @StructureGetter("NameLen")
   int getNameLen();
@@ -107,22 +115,22 @@ public interface VMODSbigobj extends RichTextRecord<WSIG> {
   int[] getSpare();
 
   @StructureSetter("NameLen")
-  VMODSbigobj setNameLen(int length);
+  ViewmapBigDrawingObject setNameLen(int length);
 
   @StructureSetter("LabelLen")
-  VMODSbigobj setLabelLen(int length);
+  ViewmapBigDrawingObject setLabelLen(int length);
 
   @StructureSetter("TextColor")
-  VMODSbigobj setTextColorRaw(int color);
+  ViewmapBigDrawingObject setTextColorRaw(int color);
 
-  default VMODSbigobj setTextColor(StandardColors color) {
+  default ViewmapBigDrawingObject setTextColor(StandardColors color) {
 	  return setTextColorRaw(color.getValue());
   }
 
   @StructureSetter("Alignment")
-  VMODSbigobj setAlignment(int alignment);
+  ViewmapBigDrawingObject setAlignment(int alignment);
 
   @StructureSetter("bWrap")
-  VMODSbigobj setbWrap(int bWrap);
+  ViewmapBigDrawingObject setbWrap(int bWrap);
 
 }

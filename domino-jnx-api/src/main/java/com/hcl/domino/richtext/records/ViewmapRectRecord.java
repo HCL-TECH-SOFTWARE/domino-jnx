@@ -91,7 +91,7 @@ public interface ViewmapRectRecord extends RichTextRecord<BSIG> {
   ViewmapRectRecord setLineStyle(NavigatorLineStyle style);
   
   @StructureGetter("LineWidth")
-  int getLineWidht();
+  int getLineWidth();
   
   @StructureSetter("LineWidth")
   ViewmapRectRecord setLineWidth(int width);

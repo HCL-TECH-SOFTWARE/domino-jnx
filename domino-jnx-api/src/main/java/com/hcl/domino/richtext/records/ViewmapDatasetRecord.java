@@ -40,7 +40,7 @@ import com.hcl.domino.richtext.structures.WSIG;
     @StructureMember(name = "Version", type = short.class, unsigned = true),
     @StructureMember(name = "ViewNameLen", type = short.class, unsigned = true), /* length of initial view name; 0 if none */
     @StructureMember(name = "Gridsize", type = short.class, unsigned = true), /* (in pixels) */
-    @StructureMember(name = "Flags", type = ViewmapDatasetRecord.Flags.class, bitfield = true),
+    @StructureMember(name = "Flags", type = ViewmapDatasetRecord.Flag.class, bitfield = true),
     @StructureMember(name = "bAutoAdjust", type = short.class, unsigned = true),
     @StructureMember(name = "BGColor", type = short.class, unsigned = true),
     /* highest sequence number for each type of draw object supported (w/extra space for future) */
@@ -56,7 +56,7 @@ public interface ViewmapDatasetRecord extends RichTextRecord<WSIG> {
   static int VM_MAX_OBJTYPES = 32;
 
   /* Navigator Dataset Flags VM_DSET_XXXXXXXX */
-  enum Flags implements INumberEnum<Short> {
+  enum Flag implements INumberEnum<Short> {
     SHOW_GRID((short)0x0001), 
     SNAPTO_GRID((short)0x0002), 
     SAVE_IMAGEMAP((short)0x0004),
@@ -64,7 +64,7 @@ public interface ViewmapDatasetRecord extends RichTextRecord<WSIG> {
 
 
     private final short value;
-    private Flags(short value) {
+    private Flag(short value) {
       this.value = value;
     }
 
@@ -93,7 +93,7 @@ public interface ViewmapDatasetRecord extends RichTextRecord<WSIG> {
   int getGridsize();
 
   @StructureGetter("Flags")
-  Set<Flags> getFlags();
+  Set<Flag> getFlags();
 
   @StructureGetter("bAutoAdjust")
   int getbAutoAdjust();
@@ -129,7 +129,7 @@ public interface ViewmapDatasetRecord extends RichTextRecord<WSIG> {
   ViewmapDatasetRecord setGridsize(int gridsize);
 
   @StructureSetter("Flags")
-  ViewmapDatasetRecord setFlags(Collection<Flags> flags);
+  ViewmapDatasetRecord setFlags(Collection<Flag> flags);
 
   @StructureSetter("bAutoAdjust")
   ViewmapDatasetRecord setbAutoAdjust(int bAutoAdjust);

@@ -10,7 +10,8 @@ import com.hcl.domino.misc.NotesConstants;
  * @since 1.1.2
  */
 public enum NavigatorLineStyle implements INumberEnum<Short> {
-  SOLID(NotesConstants.VM_LINE_SOLID);
+  SOLID(NotesConstants.VM_LINE_SOLID),
+  NONE(NotesConstants.VM_LINE_NONE);
   
   private final short value;
   
