@@ -1,5 +1,6 @@
 package it.com.hcl.domino.test.design;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,6 +32,7 @@ import com.hcl.domino.richtext.records.ViewmapActionRecord;
 import com.hcl.domino.richtext.records.ViewmapDatasetRecord;
 import com.hcl.domino.richtext.records.ViewmapDrawingObject;
 import com.hcl.domino.richtext.records.ViewmapHeaderRecord;
+import com.hcl.domino.richtext.records.ViewmapPolygonRecordByte;
 import com.hcl.domino.richtext.records.ViewmapRectRecord;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclEntry;
@@ -182,6 +184,11 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertEquals(NavigatorLineStyle.SOLID, action.getHighlightOutlineStyle());
         assertEquals(ViewmapActionRecord.Action.RUNFORMULA, action.getClickAction().get());
         assertTrue(action.getActionFormula().get().equals("@StatusBar(\"I am a formula circle.\")"));
+      }
+      {
+        ViewmapPolygonRecordByte poly = (ViewmapPolygonRecordByte)layout.get(9);
+        assertArrayEquals(new int[] { 123, 231, 304, 248, 269 }, poly.getPoints());
+        assertEquals("HotspotPolygon1", poly.getName());
       }
       {
         ViewmapActionRecord action = (ViewmapActionRecord)layout.get(10);
