@@ -34,6 +34,7 @@ import com.hcl.domino.richtext.records.ViewmapBigDrawingObject;
 import com.hcl.domino.richtext.records.ViewmapDatasetRecord;
 import com.hcl.domino.richtext.records.ViewmapDrawingObject;
 import com.hcl.domino.richtext.records.ViewmapHeaderRecord;
+import com.hcl.domino.richtext.records.ViewmapPolyLineRecordByte;
 import com.hcl.domino.richtext.records.ViewmapPolygonRecordByte;
 import com.hcl.domino.richtext.records.ViewmapRectRecord;
 import com.hcl.domino.richtext.records.ViewmapRegionRecord;
@@ -204,7 +205,92 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertEquals(DesignType.SHARED, action.getActionDataDesignType());
       }
       {
-        ViewmapRegionRecord rect = (ViewmapRegionRecord)layout.get(7);
+        ViewmapRectRecord roundRect = (ViewmapRectRecord)layout.get(7);
+        
+        ViewmapDrawingObject draw = roundRect.getDrawingObject();
+        assertEquals(82, draw.getObjRect().getLeft());
+        assertEquals(403, draw.getObjRect().getTop());
+        assertEquals(105, draw.getObjRect().getRight());
+        assertEquals(471, draw.getObjRect().getBottom());
+        assertEquals(EnumSet.of(ViewmapDrawingObject.Flag.VISIBLE, ViewmapDrawingObject.Flag.SELECTABLE), draw.getFlags());
+        assertEquals(StandardFonts.SWISS, draw.getFontID().getStandardFont().get());
+
+        assertEquals(StandardColors.Black, roundRect.getLineColor().get());
+        assertEquals(StandardColors.Cerulean, roundRect.getFillForegroundColor().get());
+        assertEquals(StandardColors.Cyan, roundRect.getFillBackgroundColor().get());
+        assertEquals(NavigatorLineStyle.SOLID, roundRect.getLineStyle());
+        assertEquals(1, roundRect.getLineWidth());
+        assertEquals(NavigatorFillStyle.SOLID, roundRect.getFillStyle());
+        
+        assertEquals("RoundRect13", roundRect.getName());
+        assertEquals("Round rects are everywhere", roundRect.getLabel());
+      }
+      {
+        ViewmapRectRecord ellipse = (ViewmapRectRecord)layout.get(8);
+        
+        ViewmapDrawingObject draw = ellipse.getDrawingObject();
+        assertEquals(228, draw.getObjRect().getLeft());
+        assertEquals(423, draw.getObjRect().getTop());
+        assertEquals(567, draw.getObjRect().getRight());
+        assertEquals(456, draw.getObjRect().getBottom());
+        assertEquals(EnumSet.of(ViewmapDrawingObject.Flag.VISIBLE, ViewmapDrawingObject.Flag.SELECTABLE, ViewmapDrawingObject.Flag.LOCKED), draw.getFlags());
+        assertEquals(StandardFonts.SWISS, draw.getFontID().getStandardFont().get());
+
+        assertEquals(StandardColors.Black, ellipse.getLineColor().get());
+        assertEquals(StandardColors.Cyan, ellipse.getFillForegroundColor().get());
+        assertEquals(StandardColors.Cyan, ellipse.getFillBackgroundColor().get());
+        assertEquals(NavigatorLineStyle.SOLID, ellipse.getLineStyle());
+        assertEquals(1, ellipse.getLineWidth());
+        assertEquals(NavigatorFillStyle.SOLID, ellipse.getFillStyle());
+        
+        assertEquals("Ellipse13", ellipse.getName());
+        assertEquals("I'm quite wide", ellipse.getLabel());
+      }
+      {
+        ViewmapPolygonRecordByte poly = (ViewmapPolygonRecordByte)layout.get(9);
+        
+        ViewmapDrawingObject draw = poly.getDrawingObject();
+        assertEquals(662, draw.getObjRect().getLeft());
+        assertEquals(439, draw.getObjRect().getTop());
+        assertEquals(778, draw.getObjRect().getRight());
+        assertEquals(477, draw.getObjRect().getBottom());
+        assertEquals(EnumSet.of(ViewmapDrawingObject.Flag.VISIBLE, ViewmapDrawingObject.Flag.SELECTABLE), draw.getFlags());
+        assertEquals(StandardFonts.SWISS, draw.getFontID().getStandardFont().get());
+
+        assertEquals(StandardColors.Black, poly.getLineColor().get());
+        assertEquals(StandardColors.DarkOrange, poly.getFillForegroundColor().get());
+        assertEquals(StandardColors.Cyan, poly.getFillBackgroundColor().get());
+        assertEquals(NavigatorLineStyle.NONE, poly.getLineStyle());
+        assertEquals(1, poly.getLineWidth());
+        assertEquals(NavigatorFillStyle.SOLID, poly.getFillStyle());
+        
+        assertEquals("Polygon1", poly.getName());
+        assertEquals("Weird poly", poly.getLabel());
+        
+        assertArrayEquals(new int[] { 662, 457, 698, 442, 777, 439 }, poly.getPoints());
+      }
+      {
+        ViewmapPolyLineRecordByte line = (ViewmapPolyLineRecordByte)layout.get(10);
+        
+        ViewmapDrawingObject draw = line.getDrawingObject();
+        assertEquals(158, draw.getObjRect().getLeft());
+        assertEquals(482, draw.getObjRect().getTop());
+        assertEquals(451, draw.getObjRect().getRight());
+        assertEquals(511, draw.getObjRect().getBottom());
+        assertEquals(EnumSet.of(ViewmapDrawingObject.Flag.VISIBLE, ViewmapDrawingObject.Flag.SELECTABLE), draw.getFlags());
+        assertEquals(StandardFonts.SWISS, draw.getFontID().getStandardFont().get());
+
+        assertEquals(StandardColors.Peach, line.getLineColor().get());
+        assertEquals(NavigatorLineStyle.SOLID, line.getLineStyle());
+        assertEquals(6, line.getLineWidth());
+        
+        assertEquals("Polyline1", line.getName());
+        assertEquals("", line.getLabel());
+        
+        assertArrayEquals(new int[] { 158, 510, 159, 510, 243 }, line.getPoints());
+      }
+      {
+        ViewmapRegionRecord rect = (ViewmapRegionRecord)layout.get(11);
         
         ViewmapDrawingObject draw = rect.getDrawingObject();
         assertEquals(152, draw.getObjRect().getLeft());
@@ -223,7 +309,7 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertEquals("", rect.getLabel());
       }
       {
-        ViewmapActionRecord action = (ViewmapActionRecord)layout.get(8);
+        ViewmapActionRecord action = (ViewmapActionRecord)layout.get(12);
         assertEquals(StandardColors.Red, action.getHighlightOutlineColor().get());
         assertEquals(StandardColors.Black, action.getHighlightFillColor().get());
         assertEquals(NavigatorLineStyle.SOLID, action.getHighlightOutlineStyle());
@@ -231,7 +317,7 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertTrue(action.getActionString().get().contains("I am a LotusScript rectangle"));
       }
       {
-        ViewmapRegionRecord circle = (ViewmapRegionRecord)layout.get(9);
+        ViewmapRegionRecord circle = (ViewmapRegionRecord)layout.get(13);
         
         ViewmapDrawingObject draw = circle.getDrawingObject();
         assertEquals(435, draw.getObjRect().getLeft());
@@ -250,7 +336,7 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertEquals("", circle.getLabel());
       }
       {
-        ViewmapActionRecord action = (ViewmapActionRecord)layout.get(10);
+        ViewmapActionRecord action = (ViewmapActionRecord)layout.get(14);
         assertEquals(StandardColors.Red, action.getHighlightOutlineColor().get());
         assertEquals(StandardColors.Black, action.getHighlightFillColor().get());
         assertEquals(NavigatorLineStyle.SOLID, action.getHighlightOutlineStyle());
@@ -258,12 +344,12 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertTrue(action.getActionFormula().get().equals("@StatusBar(\"I am a formula circle.\")"));
       }
       {
-        ViewmapPolygonRecordByte poly = (ViewmapPolygonRecordByte)layout.get(11);
+        ViewmapPolygonRecordByte poly = (ViewmapPolygonRecordByte)layout.get(15);
         assertArrayEquals(new int[] { 123, 231, 304, 248, 269 }, poly.getPoints());
         assertEquals("HotspotPolygon1", poly.getName());
       }
       {
-        ViewmapActionRecord action = (ViewmapActionRecord)layout.get(12);
+        ViewmapActionRecord action = (ViewmapActionRecord)layout.get(16);
         assertEquals(StandardColors.Red, action.getHighlightOutlineColor().get());
         assertEquals(StandardColors.Black, action.getHighlightFillColor().get());
         assertEquals(NavigatorLineStyle.SOLID, action.getHighlightOutlineStyle());

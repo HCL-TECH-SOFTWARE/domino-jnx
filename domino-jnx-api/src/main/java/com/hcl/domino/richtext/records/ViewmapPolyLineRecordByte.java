@@ -19,7 +19,6 @@ package com.hcl.domino.richtext.records;
 import java.util.Optional;
 
 import com.hcl.domino.data.StandardColors;
-import com.hcl.domino.design.navigator.NavigatorFillStyle;
 import com.hcl.domino.design.navigator.NavigatorLineStyle;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -29,27 +28,24 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.BSIG;
 
 /**
- * Variant of VIEWMAP_POLYGON_RECORD that pre-dates the Notes 4.5-era
+ * Variant of VIEWMAP_POLYLINE_RECORD that pre-dates the Notes 4.5-era
  * move to a VMODSbigobj header.
  * 
  * @author Jesse Gallagher
  * @since 1.1.2
  */
 @StructureDefinition(
-  name = "VIEWMAP_POLYGON_RECORD_BYTE",
+  name = "VIEWMAP_POLYLINE_RECORD_BYTE",
   members = {
     @StructureMember(name = "DRobj", type = ViewmapDrawingObject.class),
     @StructureMember(name = "LineColor", type = short.class),
-    @StructureMember(name = "FillFGColor", type = short.class),
-    @StructureMember(name = "FillBGColor", type = short.class),
     @StructureMember(name = "LineStyle", type = NavigatorLineStyle.class),
     @StructureMember(name = "LineWidth", type = short.class, unsigned = true),
-    @StructureMember(name = "FillStyle", type = NavigatorFillStyle.class),
     @StructureMember(name = "nPts", type = short.class, unsigned = true),
     @StructureMember(name = "spare", type=int[].class, length = 4)
   }
 )
-public interface ViewmapPolygonRecordByte extends RichTextRecord<BSIG> {
+public interface ViewmapPolyLineRecordByte extends RichTextRecord<BSIG> {
 
   @StructureGetter("DRobj")
   ViewmapDrawingObject getDrawingObject();
@@ -66,49 +62,25 @@ public interface ViewmapPolygonRecordByte extends RichTextRecord<BSIG> {
   Optional<StandardColors> getLineColor();
   
   @StructureSetter("LineColor")
-  ViewmapPolygonRecordByte setLineColor(StandardColors color);
-
-  @StructureGetter("FillFGColor")
-  short getFillForegroundColorRaw();
-  
-  @StructureGetter("FillFGColor")
-  Optional<StandardColors> getFillForegroundColor();
-  
-  @StructureSetter("FillFGColor")
-  ViewmapPolygonRecordByte setFillForegroundColor(StandardColors color);
-
-  @StructureGetter("FillBGColor")
-  short getFillBackgroundColorRaw();
-  
-  @StructureGetter("FillBGColor")
-  Optional<StandardColors> getFillBackgroundColor();
-  
-  @StructureSetter("FillBGColor")
-  ViewmapPolygonRecordByte setFillBackgroundColor(StandardColors color);
+  ViewmapPolyLineRecordByte setLineColor(StandardColors color);
   
   @StructureGetter("LineStyle")
   NavigatorLineStyle getLineStyle();
   
   @StructureSetter("LineStyle")
-  ViewmapPolygonRecordByte setLineStyle(NavigatorLineStyle style);
+  ViewmapPolyLineRecordByte setLineStyle(NavigatorLineStyle style);
   
   @StructureGetter("LineWidth")
   int getLineWidth();
   
   @StructureSetter("LineWidth")
-  ViewmapPolygonRecordByte setLineWidth(int width);
-  
-  @StructureGetter("FillStyle")
-  NavigatorFillStyle getFillStyle();
-  
-  @StructureSetter("FillStyle")
-  ViewmapPolygonRecordByte setFillStyle(NavigatorFillStyle style);
+  ViewmapPolyLineRecordByte setLineWidth(int width);
   
   @StructureGetter("nPts")
   int getPointCount();
   
   @StructureSetter("nPts")
-  ViewmapPolygonRecordByte setPointCount(int count);
+  ViewmapPolyLineRecordByte setPointCount(int count);
   
   default String getName() {
     return StructureSupport.extractStringValue(
@@ -118,7 +90,7 @@ public interface ViewmapPolygonRecordByte extends RichTextRecord<BSIG> {
     );
   }
   
-  default ViewmapPolygonRecordByte setName(String name) {
+  default ViewmapPolyLineRecordByte setName(String name) {
     return StructureSupport.writeStringValue(
       this,
       0,
@@ -136,7 +108,7 @@ public interface ViewmapPolygonRecordByte extends RichTextRecord<BSIG> {
     );
   }
   
-  default ViewmapPolygonRecordByte setLabel(String label) {
+  default ViewmapPolyLineRecordByte setLabel(String label) {
     return StructureSupport.writeStringValue(
       this,
       getDrawingObject().getNameLen(),
@@ -154,7 +126,7 @@ public interface ViewmapPolygonRecordByte extends RichTextRecord<BSIG> {
     );
   }
   
-  default ViewmapPolygonRecordByte setPoints(int[] points) {
+  default ViewmapPolyLineRecordByte setPoints(int[] points) {
     setPointCount(points == null ? 0 : points.length);
     return StructureSupport.writeIntValue(
         this,
