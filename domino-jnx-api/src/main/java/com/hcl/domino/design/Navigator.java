@@ -25,7 +25,7 @@ public interface Navigator extends NamedDesignElement {
    * Retrieves the image map of the navigator.
    * 
    * @return a {@link List} of rich-text entities
-   * @since 1.1.1
+   * @since 1.1.2
    */
   List<?> getImageMap();
 
@@ -33,7 +33,7 @@ public interface Navigator extends NamedDesignElement {
    * Retrieves the data set of the navigator.
    * 
    * @return a {@link List} of rich-text entities
-   * @since 1.1.1
+   * @since 1.1.2
    */
   List<?> getDataSet();
 
@@ -41,7 +41,7 @@ public interface Navigator extends NamedDesignElement {
    * Retrieves the layout data of the navigator.
    * 
    * @return a {@link List} of rich-text entities
-   * @since 1.1.1
+   * @since 1.1.2
    */
   List<?> getLayout();
 }
