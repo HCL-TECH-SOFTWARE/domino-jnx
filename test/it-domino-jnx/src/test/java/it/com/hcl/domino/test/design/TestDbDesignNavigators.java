@@ -31,14 +31,21 @@ import com.hcl.domino.design.navigator.NavigatorFillStyle;
 import com.hcl.domino.design.navigator.NavigatorLineStyle;
 import com.hcl.domino.richtext.records.ViewmapActionRecord;
 import com.hcl.domino.richtext.records.ViewmapBigDrawingObject;
+import com.hcl.domino.richtext.records.ViewmapBitmapDefaults;
+import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
 import com.hcl.domino.richtext.records.ViewmapDatasetRecord;
 import com.hcl.domino.richtext.records.ViewmapDrawingObject;
 import com.hcl.domino.richtext.records.ViewmapHeaderRecord;
+import com.hcl.domino.richtext.records.ViewmapLineDefaults;
 import com.hcl.domino.richtext.records.ViewmapPolyLineRecordByte;
 import com.hcl.domino.richtext.records.ViewmapPolygonRecordByte;
 import com.hcl.domino.richtext.records.ViewmapRectRecord;
+import com.hcl.domino.richtext.records.ViewmapRegionDefaults;
 import com.hcl.domino.richtext.records.ViewmapRegionRecord;
+import com.hcl.domino.richtext.records.ViewmapShapeDefaults;
+import com.hcl.domino.richtext.records.ViewmapStyleDefaults;
 import com.hcl.domino.richtext.records.ViewmapTextRecord;
+import com.hcl.domino.richtext.records.ViewmapTextboxDefaults;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclEntry;
 import com.hcl.domino.security.AclFlag;
@@ -112,6 +119,94 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
       assertEquals(0, data.getGridSize());
       assertEquals(EnumSet.of(ViewmapDatasetRecord.Flag.SAVE_IMAGEMAP), data.getFlags());
       assertFalse(data.isAutoAdjust());
+      assertEquals(StandardColors.White, data.getBackgroundColor().get());
+      assertArrayEquals(new int[] { 1, 1, 1, 1, 1, 1, 2, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, data.getSeqNums());
+
+      ViewmapStyleDefaults styles = data.getStyleDefaults();
+      {
+        ViewmapShapeDefaults shapes = styles.getShapes();
+        assertFalse(shapes.getHighlight().isTouch());
+        assertFalse(shapes.getHighlight().isCurrent());
+        assertEquals(StandardColors.Red, shapes.getHighlight().getOutlineColor().get());
+        assertEquals(2, shapes.getHighlight().getOutlineWidth());
+        assertEquals(NavigatorLineStyle.SOLID, shapes.getHighlight().getOutlineStyle());
+        
+        assertEquals(StandardColors.Black, shapes.getLineColor().get());
+        assertEquals(StandardColors.Cyan, shapes.getFillForegroundColor().get());
+        assertEquals(StandardColors.Cyan, shapes.getFillBackgroundColor().get());
+        assertEquals(NavigatorLineStyle.SOLID, shapes.getLineStyle());
+        assertEquals(1, shapes.getLineWidth());
+        assertEquals(NavigatorFillStyle.SOLID, shapes.getFillStyle());
+      }
+      {
+        ViewmapLineDefaults lines = styles.getLines();
+        assertFalse(lines.getHighlight().isTouch());
+        assertFalse(lines.getHighlight().isCurrent());
+        assertEquals(StandardColors.Red, lines.getHighlight().getOutlineColor().get());
+        assertEquals(2, lines.getHighlight().getOutlineWidth());
+        assertEquals(NavigatorLineStyle.SOLID, lines.getHighlight().getOutlineStyle());
+        
+        assertEquals(StandardColors.Black, lines.getLineColor().get());
+        assertEquals(StandardColors.Black, lines.getFillForegroundColor().get());
+        assertEquals(StandardColors.Black, lines.getFillBackgroundColor().get());
+        assertEquals(NavigatorLineStyle.SOLID, lines.getLineStyle());
+        assertEquals(1, lines.getLineWidth());
+        assertEquals(NavigatorFillStyle.TRANSPARENT, lines.getFillStyle());
+      }
+      {
+        ViewmapRegionDefaults regions = styles.getRegions();
+        assertFalse(regions.getHighlight().isTouch());
+        assertFalse(regions.getHighlight().isCurrent());
+        assertEquals(StandardColors.Red, regions.getHighlight().getOutlineColor().get());
+        assertEquals(2, regions.getHighlight().getOutlineWidth());
+        assertEquals(NavigatorLineStyle.SOLID, regions.getHighlight().getOutlineStyle());
+      }
+      {
+        ViewmapButtonDefaults buttons = styles.getButtons();
+        assertFalse(buttons.getHighlight().isTouch());
+        assertFalse(buttons.getHighlight().isCurrent());
+        assertEquals(StandardColors.Red, buttons.getHighlight().getOutlineColor().get());
+        assertEquals(2, buttons.getHighlight().getOutlineWidth());
+        assertEquals(NavigatorLineStyle.SOLID, buttons.getHighlight().getOutlineStyle());
+        
+        assertEquals(StandardColors.Gray70, buttons.getLineColor().get());
+        assertEquals(StandardColors.LightGray, buttons.getFillForegroundColor().get());
+        assertEquals(StandardColors.LightGray, buttons.getFillBackgroundColor().get());
+        assertEquals(NavigatorLineStyle.SOLID, buttons.getLineStyle());
+        assertEquals(1, buttons.getLineWidth());
+        assertEquals(NavigatorFillStyle.SOLID, buttons.getFillStyle());
+        
+        assertEquals(StandardFonts.SWISS, buttons.getFontID().getStandardFont().get());
+      }
+      {
+        ViewmapBitmapDefaults bitmaps = styles.getBitmaps();
+        assertFalse(bitmaps.getHighlight().isTouch());
+        assertFalse(bitmaps.getHighlight().isCurrent());
+        assertEquals(StandardColors.Red, bitmaps.getHighlight().getOutlineColor().get());
+        assertEquals(2, bitmaps.getHighlight().getOutlineWidth());
+        assertEquals(NavigatorLineStyle.SOLID, bitmaps.getHighlight().getOutlineStyle());
+      }
+      {
+        ViewmapTextboxDefaults texts = styles.getTextBoxes();
+        assertFalse(texts.getHighlight().isTouch());
+        assertFalse(texts.getHighlight().isCurrent());
+        assertEquals(StandardColors.Red, texts.getHighlight().getOutlineColor().get());
+        assertEquals(2, texts.getHighlight().getOutlineWidth());
+        assertEquals(NavigatorLineStyle.SOLID, texts.getHighlight().getOutlineStyle());
+        
+        assertEquals(StandardColors.Black, texts.getLineColor().get());
+        assertEquals(StandardColors.White, texts.getFillForegroundColor().get());
+        assertEquals(StandardColors.White, texts.getFillBackgroundColor().get());
+        assertEquals(NavigatorLineStyle.NONE, texts.getLineStyle());
+        assertEquals(1, texts.getLineWidth());
+        assertEquals(NavigatorFillStyle.TRANSPARENT, texts.getFillStyle());
+        
+        assertEquals(StandardFonts.SWISS, texts.getFontID().getStandardFont().get());
+      }
+      
+      assertEquals(0, data.getNumPaletteEntries());
+      assertEquals(DesignType.SHARED, data.getViewDesignType());
+      assertColorEquals(data.getBackgroundColorValue(), 255, 255, 255);
     }
     {
       List<?> layout = nav.getLayout();

@@ -16,6 +16,11 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.util.Optional;
+
+import com.hcl.domino.data.StandardColors;
+import com.hcl.domino.design.navigator.NavigatorFillStyle;
+import com.hcl.domino.design.navigator.NavigatorLineStyle;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -26,6 +31,7 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
 /**
  * View Map (Navigator) Button Defaults
  * @author artcnot
+ * @author Jesse Gallagher
  * @since 1.0.37
  */
 @StructureDefinition(
@@ -35,9 +41,9 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
     @StructureMember(name = "LineColor", type = short.class, unsigned = true),
     @StructureMember(name = "FillFGColor", type = short.class, unsigned = true),
     @StructureMember(name = "FillBGColor", type = short.class, unsigned = true),
-    @StructureMember(name = "LineStyle", type = short.class, unsigned = true),
+    @StructureMember(name = "LineStyle", type = NavigatorLineStyle.class),
     @StructureMember(name = "LineWidth", type = short.class, unsigned = true),
-    @StructureMember(name = "FillStyle", type = short.class, unsigned = true),
+    @StructureMember(name = "FillStyle", type = NavigatorFillStyle.class),
     @StructureMember(name = "FontID", type = FontStyle.class)
   }
 )
@@ -46,41 +52,50 @@ public interface ViewmapButtonDefaults extends MemoryStructure {
   ViewmapHighlightDefaults getHighlight();
 
   @StructureGetter("LineColor")
-  int getLineColor();
+  int getLineColorRaw();
+  
+  @StructureGetter("LineColor")
+  Optional<StandardColors> getLineColor();
+
+  @StructureSetter("LineColor")
+  ViewmapButtonDefaults setLineColor(StandardColors lineColor);
 
   @StructureGetter("FillFGColor")
-  int getFillFGColor();
+  int getFillForegroundColorRaw();
+  
+  @StructureGetter("FillFGColor")
+  Optional<StandardColors> getFillForegroundColor();
+
+  @StructureSetter("FillFGColor")
+  ViewmapButtonDefaults setFillForegroundColor(StandardColors fillFGColor);
 
   @StructureGetter("FillBGColor")
-  int getFillBGColor();
+  int getFillBackgroundColorRaw();
+
+  @StructureGetter("FillBGColor")
+  Optional<StandardColors> getFillBackgroundColor();
+
+  @StructureSetter("FillBGColor")
+  ViewmapButtonDefaults setFillBackgroundColor(StandardColors fillBGColor);
 
   @StructureGetter("LineStyle")
-  int getLineStyle();
+  NavigatorLineStyle getLineStyle();
+
+  @StructureSetter("LineStyle")
+  ViewmapButtonDefaults setLineStyle(NavigatorLineStyle lineStyle);
 
   @StructureGetter("LineWidth")
   int getLineWidth();
 
-  @StructureGetter("FillStyle")
-  int getFillStyle();
-
-  @StructureGetter("FontID")
-  FontStyle getFontID();
-
-  @StructureSetter("LineColor")
-  ViewmapButtonDefaults setLineColor(int lineColor);
-
-  @StructureSetter("FillFGColor")
-  ViewmapButtonDefaults setFillFGColor(int fillFGColor);
-
-  @StructureSetter("FillBGColor")
-  ViewmapButtonDefaults setFillBGColor(int fillBGColor);
-
-  @StructureSetter("LineStyle")
-  ViewmapButtonDefaults setLineStyle(int lineStyle);
-
   @StructureSetter("LineWidth")
   ViewmapButtonDefaults setLineWidth(int lineWidth);
 
+  @StructureGetter("FillStyle")
+  NavigatorFillStyle getFillStyle();
+
   @StructureSetter("FillStyle")
-  ViewmapButtonDefaults setFillStyle(int fillStyle);
+  ViewmapButtonDefaults setFillStyle(NavigatorFillStyle fillStyle);
+
+  @StructureGetter("FontID")
+  FontStyle getFontID();
 }

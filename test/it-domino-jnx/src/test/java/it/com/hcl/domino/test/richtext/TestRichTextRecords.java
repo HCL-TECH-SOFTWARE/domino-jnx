@@ -1593,19 +1593,19 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           final ViewmapButtonDefaults begin =rtWriter.createStructure(ViewmapButtonDefaults.class, 0);           
-            begin.setLineColor(207);
-            begin.setFillFGColor(15);
-            begin.setFillBGColor(15);
-            begin.setLineStyle(0);
+            begin.setLineColor(StandardColors.Caribbean);
+            begin.setFillForegroundColor(StandardColors.Emerald);
+            begin.setFillBackgroundColor(StandardColors.DarkRed);
+            begin.setLineStyle(NavigatorLineStyle.NONE);
             begin.setLineWidth(1);
-            begin.setFillStyle(1);
+            begin.setFillStyle(NavigatorFillStyle.SOLID);
 
-            assertEquals(207, begin.getLineColor());
-            assertEquals(15,begin.getFillFGColor());
-            assertEquals(15,begin.getFillBGColor());
-            assertEquals(0,begin.getLineStyle());
+            assertEquals(StandardColors.Caribbean, begin.getLineColor().get());
+            assertEquals(StandardColors.Emerald, begin.getFillForegroundColor().get());
+            assertEquals(StandardColors.DarkRed, begin.getFillBackgroundColor().get());
+            assertEquals(NavigatorLineStyle.NONE,begin.getLineStyle());
             assertEquals(1,begin.getLineWidth());
-            assertEquals(1,begin.getFillStyle());
+            assertEquals(NavigatorFillStyle.SOLID,begin.getFillStyle());
         }
         
       });
@@ -1818,18 +1818,18 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           final ViewmapHighlightDefaults viewmapHighlightDefaults =rtWriter.createStructure(ViewmapHighlightDefaults.class, 0);
-          viewmapHighlightDefaults.setbHighlightCurrent(0);
-          viewmapHighlightDefaults.setbHighlightTouch(0);
-          viewmapHighlightDefaults.setHLFillColor(65535);
-          viewmapHighlightDefaults.setHLOutlineColor(2);
-          viewmapHighlightDefaults.setHLOutlineStyle(0);
-          viewmapHighlightDefaults.setHLOutlineWidth(2);   
-          assertEquals(0,viewmapHighlightDefaults.getbHighlightCurrent());
-          assertEquals(0,viewmapHighlightDefaults.getbHighlightTouch());
-          assertEquals(65535,viewmapHighlightDefaults.getHLFillColor());
-          assertEquals(2,viewmapHighlightDefaults.getHLOutlineColor());
-          assertEquals(0,viewmapHighlightDefaults.getHLOutlineStyle());
-          assertEquals(2,viewmapHighlightDefaults.getHLOutlineWidth());
+          viewmapHighlightDefaults.setCurrent(true);
+          viewmapHighlightDefaults.setTouch(false);
+          viewmapHighlightDefaults.setFillColor(StandardColors.PaleAqua);
+          viewmapHighlightDefaults.setOutlineColor(StandardColors.Avocado);
+          viewmapHighlightDefaults.setOutlineStyle(NavigatorLineStyle.SOLID);
+          viewmapHighlightDefaults.setOutlineWidth(2);   
+          assertTrue(viewmapHighlightDefaults.isCurrent());
+          assertFalse(viewmapHighlightDefaults.isTouch());
+          assertEquals(StandardColors.PaleAqua, viewmapHighlightDefaults.getFillColor().get());
+          assertEquals(StandardColors.Avocado, viewmapHighlightDefaults.getOutlineColor().get());
+          assertEquals(NavigatorLineStyle.SOLID,viewmapHighlightDefaults.getOutlineStyle());
+          assertEquals(2,viewmapHighlightDefaults.getOutlineWidth());
         }
 
         
@@ -1842,18 +1842,18 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           final ViewmapLineDefaults viewmapLineDefaults =rtWriter.createStructure(ViewmapLineDefaults.class, 0);
-          viewmapLineDefaults.setFillFGColor(0);
-          viewmapLineDefaults.setLineColor(0);
-          viewmapLineDefaults.setFillStyle(0);
-          viewmapLineDefaults.setFillBGColor(0);
+          viewmapLineDefaults.setFillForegroundColor(StandardColors.Mustard);
+          viewmapLineDefaults.setLineColor(StandardColors.DarkEmerald);
+          viewmapLineDefaults.setFillStyle(NavigatorFillStyle.SOLID);
+          viewmapLineDefaults.setFillBackgroundColor(StandardColors.BlueGray);
           viewmapLineDefaults.setLineWidth(1);
-          viewmapLineDefaults.setLineStyle(0);
-          assertEquals(0,viewmapLineDefaults.getFillFGColor());
-          assertEquals(0,viewmapLineDefaults.getLineColor());
-          assertEquals(0,viewmapLineDefaults.getFillStyle());
-          assertEquals(0,viewmapLineDefaults.getFillBGColor());
+          viewmapLineDefaults.setLineStyle(NavigatorLineStyle.SOLID);
+          assertEquals(StandardColors.Mustard, viewmapLineDefaults.getFillForegroundColor().get());
+          assertEquals(StandardColors.DarkEmerald, viewmapLineDefaults.getLineColor().get());
+          assertEquals(NavigatorFillStyle.SOLID,viewmapLineDefaults.getFillStyle());
+          assertEquals(StandardColors.BlueGray, viewmapLineDefaults.getFillBackgroundColor());
           assertEquals(1,viewmapLineDefaults.getLineWidth());
-          assertEquals(0,viewmapLineDefaults.getLineStyle());
+          assertEquals(NavigatorLineStyle.SOLID,viewmapLineDefaults.getLineStyle());
         } 
       });
     }
@@ -1864,18 +1864,18 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           final ViewmapTextboxDefaults viewmapTextboxDefaults =rtWriter.createStructure(ViewmapTextboxDefaults.class, 0);
-          viewmapTextboxDefaults.setFillFGColor(1);
-          viewmapTextboxDefaults.setLineColor(0);
-          viewmapTextboxDefaults.setFillStyle(0);
-          viewmapTextboxDefaults.setFillBGColor(1);
+          viewmapTextboxDefaults.setFillForegroundColor(StandardColors.DarkBlueGray);
+          viewmapTextboxDefaults.setLineColor(StandardColors.LightOlive);
+          viewmapTextboxDefaults.setFillStyle(NavigatorFillStyle.TRANSPARENT);
+          viewmapTextboxDefaults.setFillBackgroundColor(StandardColors.DarkYellow);
           viewmapTextboxDefaults.setLineWidth(1);
-          viewmapTextboxDefaults.setLineStyle(5);
-          assertEquals(1,viewmapTextboxDefaults.getFillFGColor());
-          assertEquals(0,viewmapTextboxDefaults.getLineColor());
-          assertEquals(0,viewmapTextboxDefaults.getFillStyle());
-          assertEquals(1,viewmapTextboxDefaults.getFillBGColor());
+          viewmapTextboxDefaults.setLineStyle(NavigatorLineStyle.NONE);
+          assertEquals(StandardColors.DarkBlueGray, viewmapTextboxDefaults.getFillForegroundColor().get());
+          assertEquals(StandardColors.LightOlive,viewmapTextboxDefaults.getLineColor().get());
+          assertEquals(NavigatorFillStyle.TRANSPARENT,viewmapTextboxDefaults.getFillStyle());
+          assertEquals(StandardColors.DarkYellow,viewmapTextboxDefaults.getFillBackgroundColor().get());
           assertEquals(1,viewmapTextboxDefaults.getLineWidth());
-          assertEquals(5,viewmapTextboxDefaults.getLineStyle());
+          assertEquals(NavigatorLineStyle.NONE,viewmapTextboxDefaults.getLineStyle());
         } 
       });
     }
@@ -1885,18 +1885,18 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           final ViewmapShapeDefaults viewmapShapeDefaults =rtWriter.createStructure(ViewmapShapeDefaults.class, 0);
-          viewmapShapeDefaults.setFillFGColor(7);
-          viewmapShapeDefaults.setLineColor(0);
-          viewmapShapeDefaults.setFillStyle(1);
-          viewmapShapeDefaults.setFillBGColor(7);
+          viewmapShapeDefaults.setFillForegroundColor(StandardColors.Cranberry);
+          viewmapShapeDefaults.setLineColor(StandardColors.ArcticBlue);
+          viewmapShapeDefaults.setFillStyle(NavigatorFillStyle.TRANSPARENT);
+          viewmapShapeDefaults.setFillBackgroundColor(StandardColors.DeepPurple);
           viewmapShapeDefaults.setLineWidth(1);
-          viewmapShapeDefaults.setLineStyle(0);
-          assertEquals(7,viewmapShapeDefaults.getFillFGColor());
-          assertEquals(0,viewmapShapeDefaults.getLineColor());
-          assertEquals(1,viewmapShapeDefaults.getFillStyle());
-          assertEquals(7,viewmapShapeDefaults.getFillBGColor());
+          viewmapShapeDefaults.setLineStyle(NavigatorLineStyle.NONE);
+          assertEquals(StandardColors.Cranberry, viewmapShapeDefaults.getFillForegroundColor().get());
+          assertEquals(StandardColors.ArcticBlue,viewmapShapeDefaults.getLineColor().get());
+          assertEquals(NavigatorFillStyle.TRANSPARENT, viewmapShapeDefaults.getFillStyle());
+          assertEquals(StandardColors.DeepPurple, viewmapShapeDefaults.getFillBackgroundColor().get());
           assertEquals(1,viewmapShapeDefaults.getLineWidth());
-          assertEquals(0,viewmapShapeDefaults.getLineStyle());
+          assertEquals(NavigatorLineStyle.NONE,viewmapShapeDefaults.getLineStyle());
         } 
       });
     }

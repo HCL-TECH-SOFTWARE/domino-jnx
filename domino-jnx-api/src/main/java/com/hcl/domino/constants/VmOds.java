@@ -44,7 +44,9 @@ public interface VmOds {
   short VM_ACTION_GOTO_URL = 8;
 
   short VM_LINE_SOLID = 0;
-  // A value of 5 is not document, but was observed in practice
+  // A value of 5 is not documented, but was observed in practice
   short VM_LINE_NONE = 5;
+  // This constant is not documented, but was observed in practice
+  short VM_FILL_TRANSPARENT = 0;
   short VM_FILL_SOLID = 1;
 }

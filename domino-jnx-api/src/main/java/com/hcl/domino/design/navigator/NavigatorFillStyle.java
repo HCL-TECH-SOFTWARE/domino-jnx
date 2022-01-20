@@ -10,7 +10,7 @@ import com.hcl.domino.misc.NotesConstants;
  * @since 1.1.2
  */
 public enum NavigatorFillStyle implements INumberEnum<Short> {
-  TRANSPARENT((short)0),
+  TRANSPARENT(NotesConstants.VM_FILL_TRANSPARENT),
   SOLID(NotesConstants.VM_FILL_SOLID);
   
   private final short value;
