@@ -19,89 +19,68 @@ package com.hcl.domino.richtext.records;
 import java.util.Optional;
 
 import com.hcl.domino.data.StandardColors;
-import com.hcl.domino.design.navigator.NavigatorFillStyle;
 import com.hcl.domino.design.navigator.NavigatorLineStyle;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
-import com.hcl.domino.richtext.structures.WSIG;
+import com.hcl.domino.richtext.structures.BSIG;
 
 /**
- * VIEWMAP_TEXT_RECORD
+ * Variant of VIEWMAP_POLYLINE_RECORD that pre-dates the Notes 4.5-era
+ * move to a VMODSbigobj header.
  * 
- * @author artcnot
  * @author Jesse Gallagher
- * @since 1.0.38
+ * @since 1.1.2
  */
 @StructureDefinition(
-  name = "VIEWMAP_TEXT_RECORD", 
-  members = { 
-    @StructureMember(name = "DRobj", type = ViewmapBigDrawingObject.class),
-    @StructureMember(name = "LineColor", type = short.class, unsigned = true), /* Color of the boundary line.   Use NOTES_COLOR_xxx value. */
-    @StructureMember(name = "FillFGColor", type = short.class, unsigned = true),
-    @StructureMember(name = "FillBGColor", type = short.class, unsigned = true),
+  name = "VIEWMAP_POLYLINE_RECORD_BYTE",
+  members = {
+    @StructureMember(name = "DRobj", type = ViewmapDrawingObject.class),
+    @StructureMember(name = "LineColor", type = short.class),
     @StructureMember(name = "LineStyle", type = NavigatorLineStyle.class),
     @StructureMember(name = "LineWidth", type = short.class, unsigned = true),
-    @StructureMember(name = "FillStyle", type = NavigatorFillStyle.class),
-    @StructureMember(name = "Spare", type = int[].class, length = 4)
-
-})
-public interface ViewmapTextRecord extends RichTextRecord<WSIG> {
+    @StructureMember(name = "nPts", type = short.class, unsigned = true),
+    @StructureMember(name = "spare", type=int[].class, length = 4)
+  }
+)
+public interface ViewmapPolyLineRecordByte extends RichTextRecord<BSIG> {
 
   @StructureGetter("DRobj")
-  ViewmapBigDrawingObject getDrawingObject();
+  ViewmapDrawingObject getDrawingObject();
 
   @Override
-  default WSIG getHeader() {
+  default BSIG getHeader() {
     return getDrawingObject().getHeader();
   }
 
   @StructureGetter("LineColor")
-  int getLineColorRaw();
+  short getLineColorRaw();
   
   @StructureGetter("LineColor")
   Optional<StandardColors> getLineColor();
   
   @StructureSetter("LineColor")
-  ViewmapTextRecord setLineColor(StandardColors color);
-
-  @StructureGetter("FillFGColor")
-  int getFillForegroundColorRaw();
-  
-  @StructureGetter("FillFGColor")
-  Optional<StandardColors> getFillForegroundColor();
-  
-  @StructureSetter("FillFGColor")
-  ViewmapTextRecord setFillForegroundColor(StandardColors color);
-
-  @StructureGetter("FillBGColor")
-  int getFillBackgroundColorRaw();
-  
-  @StructureGetter("FillBGColor")
-  Optional<StandardColors> getFillBackgroundColor();
-  
-  @StructureSetter("FillBGColor")
-  ViewmapTextRecord setFillBackgroundColor(StandardColors color);
+  ViewmapPolyLineRecordByte setLineColor(StandardColors color);
   
   @StructureGetter("LineStyle")
   NavigatorLineStyle getLineStyle();
   
   @StructureSetter("LineStyle")
-  ViewmapTextRecord setLineStyle(NavigatorLineStyle style);
-
+  ViewmapPolyLineRecordByte setLineStyle(NavigatorLineStyle style);
+  
   @StructureGetter("LineWidth")
   int getLineWidth();
-
+  
   @StructureSetter("LineWidth")
-  ViewmapTextRecord setLineWidth(int width);
+  ViewmapPolyLineRecordByte setLineWidth(int width);
   
-  @StructureGetter("FillStyle")
-  NavigatorFillStyle getFillStyle();
+  @StructureGetter("nPts")
+  int getPointCount();
   
-  @StructureSetter("FillStyle")
-  ViewmapTextRecord setFillStyle(NavigatorFillStyle style);
+  @StructureSetter("nPts")
+  ViewmapPolyLineRecordByte setPointCount(int count);
   
   default String getName() {
     return StructureSupport.extractStringValue(
@@ -111,7 +90,7 @@ public interface ViewmapTextRecord extends RichTextRecord<WSIG> {
     );
   }
   
-  default ViewmapTextRecord setName(String name) {
+  default ViewmapPolyLineRecordByte setName(String name) {
     return StructureSupport.writeStringValue(
       this,
       0,
@@ -129,7 +108,7 @@ public interface ViewmapTextRecord extends RichTextRecord<WSIG> {
     );
   }
   
-  default ViewmapTextRecord setLabel(String label) {
+  default ViewmapPolyLineRecordByte setLabel(String label) {
     return StructureSupport.writeStringValue(
       this,
       getDrawingObject().getNameLen(),
@@ -138,4 +117,24 @@ public interface ViewmapTextRecord extends RichTextRecord<WSIG> {
       getDrawingObject()::setLabelLen
     );
   }
+  
+  default int[] getPoints() {
+    return StructureSupport.extractIntArray(
+      this,
+      getDrawingObject().getNameLen() + getDrawingObject().getLabelLen(),
+      getPointCount()
+    );
+  }
+  
+  default ViewmapPolyLineRecordByte setPoints(int[] points) {
+    setPointCount(points == null ? 0 : points.length);
+    return StructureSupport.writeIntValue(
+        this,
+        getDrawingObject().getNameLen() + getDrawingObject().getLabelLen(),
+        getPointCount(),
+        points,
+        len -> {}
+      );
+  }
+
 }

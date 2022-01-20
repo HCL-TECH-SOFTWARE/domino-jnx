@@ -398,6 +398,9 @@ public class MemoryStructureProxy implements InvocationHandler {
           @SuppressWarnings("unchecked")
           final Optional<? extends INumberEnum<?>> result = DominoEnumUtil.valueOf((Class<? extends INumberEnum<?>>) enumType, val);
           return result;
+        } else if(member.type.isPrimitive() && Boolean.TYPE.equals(thisMethod.getReturnType())) {
+          final Number val = (Number) member.reader.apply(buf, member.offset);
+          return val.longValue() != 0;
         } else if (member.type.equals(OpaqueTimeDate.class) && DominoDateTime.class.equals(thisMethod.getReturnType())) {
           final OpaqueTimeDate dt = (OpaqueTimeDate) member.reader.apply(buf, member.offset);
           return new DefaultDominoDateTime(dt.getInnards());
@@ -458,7 +461,12 @@ public class MemoryStructureProxy implements InvocationHandler {
           // Handle the case where a member declared as a primitive is nonetheless set as
           // an enum
           final Object newVal = args[0];
-          final Number val = newVal == null ? 0 : ((INumberEnum<?>) newVal).getValue();
+          Number val = newVal == null ? 0 : ((INumberEnum<?>) newVal).getValue();
+          val = MemoryStructureUtil.matchPrimitiveSizeForEnum(val, member);
+          member.writer.accept(buf, member.offset, val);
+        } else if(member.type.isPrimitive() && Boolean.TYPE.isAssignableFrom(paramType)) {
+          final Object newVal = args[0];
+          int val = newVal == null ? 0 : (Boolean)newVal ? 1 : 0;
           member.writer.accept(buf, member.offset, val);
         } else if (member.type.equals(OpaqueTimeDate.class) && DominoDateTime.class.equals(paramType)) {
           final int[] innards = ((DominoDateTime) args[0]).getAdapter(int[].class);

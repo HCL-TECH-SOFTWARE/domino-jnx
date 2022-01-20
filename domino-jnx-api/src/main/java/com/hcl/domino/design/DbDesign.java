@@ -377,6 +377,24 @@ public interface DbDesign {
    * @since 1.0.24
    */
   Stream<ImageResource> getImageResources();
+  
+  /**
+   * Retrieves a named navigator
+   * 
+   * @param name the name of the navigator to restrict to
+   * @return an {@link Optional} describing the {@link Navigator}, or an empty
+   *         one if no such element exists
+   * @since 1.1.1
+   */
+  Optional<Navigator> getNavigator(String name);
+  
+  /**
+   * Retrieves all navigator design elements in the database.
+   * 
+   * @return a {@link Stream} of {@link Navigator} elements
+   * @since 1.1.1
+   */
+  Stream<Navigator> getNavigators();
 
   /**
    * Retrieves all script library design elements in the database. These libraries

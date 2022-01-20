@@ -28,7 +28,9 @@ import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import org.apache.commons.io.IOUtils;
@@ -40,6 +42,7 @@ import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
+import com.hcl.domino.design.DesignType;
 import com.hcl.domino.design.format.ActionBarBackgroundRepeat;
 import com.hcl.domino.design.format.ActionBarTextAlignment;
 import com.hcl.domino.design.format.ActionWidthMode;
@@ -58,6 +61,8 @@ import com.hcl.domino.design.format.TimeShowFormat;
 import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.design.format.WeekFormat;
 import com.hcl.domino.design.format.YearFormat;
+import com.hcl.domino.design.navigator.NavigatorFillStyle;
+import com.hcl.domino.design.navigator.NavigatorLineStyle;
 import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextRecordList;
@@ -116,13 +121,15 @@ import com.hcl.domino.richtext.records.CurrencyType;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.records.ViewmapDrawingObject;
 import com.hcl.domino.richtext.records.ViewmapHighlightDefaults;
 import com.hcl.domino.richtext.records.ViewmapLineDefaults;
 import com.hcl.domino.richtext.records.ViewmapShapeDefaults;
 import com.hcl.domino.richtext.records.ViewmapTextboxDefaults;
-import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
 import com.hcl.domino.richtext.records.ViewmapHeaderRecord;
+import com.hcl.domino.richtext.records.ViewmapTextRecord;
 import com.hcl.domino.richtext.records.ViewmapButtonDefaults;
+import com.hcl.domino.richtext.records.ViewmapRegionRecord;
 import com.hcl.domino.richtext.records.ViewmapActionRecord;
 import com.hcl.domino.richtext.structures.AssistFieldStruct;
 import com.hcl.domino.richtext.structures.AssistFieldStruct.ActionByField;
@@ -1082,10 +1089,8 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
             Assertions.assertTrue(style.getAttributes().isEmpty(), "BOLD attribute removed");
 
             style.setExtrude(true);
-            System.out.println("*** style: " +style.getAttributes());
             Assertions.assertTrue(style.isExtrude(), "Add EXTRUDE attribute");
             style.setExtrude(false);
-            System.out.println("*** style: " +style.getAttributes());
             Assertions.assertFalse(style.isExtrude(), "EXTRUDE attribute removed");
 
             style.setItalic(true);
@@ -1096,7 +1101,6 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
             style.setShadow(true);
             Assertions.assertTrue(style.isShadow(), "Add SHADOW attribute");
             style.setShadow(false);
-            System.out.println("*** style: " +style.getAttributes());
             Assertions.assertFalse(style.isShadow(), "SHADOW attribute removed");
 
             style.setStrikeout(true);
@@ -1589,19 +1593,19 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           final ViewmapButtonDefaults begin =rtWriter.createStructure(ViewmapButtonDefaults.class, 0);           
-            begin.setLineColor(207);
-            begin.setFillFGColor(15);
-            begin.setFillBGColor(15);
-            begin.setLineStyle(0);
+            begin.setLineColor(StandardColors.Caribbean);
+            begin.setFillForegroundColor(StandardColors.Emerald);
+            begin.setFillBackgroundColor(StandardColors.DarkRed);
+            begin.setLineStyle(NavigatorLineStyle.NONE);
             begin.setLineWidth(1);
-            begin.setFillStyle(1);
+            begin.setFillStyle(NavigatorFillStyle.SOLID);
 
-            assertEquals(207, begin.getLineColor());
-            assertEquals(15,begin.getFillFGColor());
-            assertEquals(15,begin.getFillBGColor());
-            assertEquals(0,begin.getLineStyle());
+            assertEquals(StandardColors.Caribbean, begin.getLineColor().get());
+            assertEquals(StandardColors.Emerald, begin.getFillForegroundColor().get());
+            assertEquals(StandardColors.DarkRed, begin.getFillBackgroundColor().get());
+            assertEquals(NavigatorLineStyle.NONE,begin.getLineStyle());
             assertEquals(1,begin.getLineWidth());
-            assertEquals(1,begin.getFillStyle());
+            assertEquals(NavigatorFillStyle.SOLID,begin.getFillStyle());
         }
         
       });
@@ -1624,45 +1628,46 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       });
     }
 
+    @Test
     public void testViewmapActionRecord() throws Exception {
       this.withTempDb(database -> {
         final Document doc = database.createDocument();
         final String actionName = "the action name";
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           rtWriter.addRichTextRecord(ViewmapActionRecord.class, begin -> {
-            begin.setbHighlightTouch(1);
-            begin.setbHighlightCurrent(2);
-            begin.setHLOutlineColor(3);
-            begin.setHLFillColor(4);
-            begin.setClickAction(5);
+            begin.setHighlightTouch(true);
+            begin.setHighlightCurrent(false);
+            begin.setOutlineColorRaw(3);
+            begin.setHighlightFillColorRaw(4);
+            begin.setClickAction(ViewmapActionRecord.Action.GOTO_LINK);
             //begin.setActionStringLen(6); // this is set when calling setActionName()
-            begin.setHLOutlineWidth(7);
-            begin.setHLOutlineStyle(8);
+            begin.setHighlightOutlineWidth(7);
+            begin.setHighlightOutlineStyle(NavigatorLineStyle.SOLID);
             begin.getLinkInfo().setDocUnid("B51DB3939AB413C585256D4F00399408");
             begin.getLinkInfo().setReplicaId("0123456701234567");
             begin.getLinkInfo().setViewUnid("B51DB3939AB413C585256D4F00399409");
             begin.setExtDataLen(9);
-            begin.setActionDataDesignType(10);
-            begin.setActionName(actionName);
+            begin.setActionDataDesignType(DesignType.PRIVATE);
+            begin.setActionString(actionName);
 
           });
         }
 
         final ViewmapActionRecord var = (ViewmapActionRecord) doc.getRichTextItem("Body", Area.TYPE_VIEWMAP).get(0);
-        assertEquals(1, var.getbHighlightTouch());
-        assertEquals(2, var.getbHighlightCurrent());
-        assertEquals(3, var.getHLOutlineColor());
-        assertEquals(4, var.getHLFillColor());
-        assertEquals(5, var.getClickAction());
+        assertTrue(var.isHighlightTouch());
+        assertFalse(var.isHighlightCurrent());
+        assertEquals(3, var.getHighlightOutlineColorRaw());
+        assertEquals(4, var.getHighlightFillColorRaw());
+        assertEquals(ViewmapActionRecord.Action.GOTO_LINK, var.getClickAction().get());
         assertEquals(actionName.length(), var.getActionStringLen());
-        assertEquals(7, var.getHLOutlineWidth());
-        assertEquals(8, var.getHLOutlineStyle());
+        assertEquals(7, var.getHighlightOutlineWidth());
+        assertEquals(NavigatorLineStyle.SOLID, var.getHighlightOutlineStyle());
         assertEquals("B51DB3939AB413C585256D4F00399408", var.getLinkInfo().getDocUnid());
         assertEquals("0123456701234567", var.getLinkInfo().getReplicaId());
         assertEquals("B51DB3939AB413C585256D4F00399409", var.getLinkInfo().getViewUnid());
         assertEquals(9, var.getExtDataLen());
-        assertEquals(10, var.getActionDataDesignType());
-        assertEquals(actionName, var.getActionName());
+        assertEquals(DesignType.PRIVATE, var.getActionDataDesignType());
+        assertEquals(actionName, var.getActionString().get());
       });
     }
     
@@ -1765,23 +1770,66 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
     }
     
     @Test
+    public void testViewmapRegionRecord() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        Collection <ViewmapDrawingObject.Flag> expectedFlags = new HashSet <ViewmapDrawingObject.Flag> ();
+        expectedFlags.add(ViewmapDrawingObject.Flag.VISIBLE);
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(ViewmapRegionRecord.class, begin -> {
+            begin.setFillStyle(NavigatorFillStyle.SOLID);
+            begin.setLineColor(StandardColors.Aqua);
+            begin.setLineStyle(NavigatorLineStyle.SOLID);
+            begin.setLineWidth(1);
+            begin.getDrawingObject().setAlignment((short)0);
+            begin.getDrawingObject().setbWrap((short)0);
+            begin.getDrawingObject().setLabelLen(0);
+            begin.getDrawingObject().setNameLen(8);
+            begin.getDrawingObject().setTextColor(StandardColors.Blue);
+            begin.getDrawingObject().setFlags(expectedFlags);
+            begin.getDrawingObject().getObjRect().setBottom(307);
+            begin.getDrawingObject().getObjRect().setLeft(13);
+            begin.getDrawingObject().getObjRect().setRight(94);
+            begin.getDrawingObject().getObjRect().setTop(237);
+            begin.getDrawingObject().getFontID().setPointSize(10);
+          });
+        }
+        final ViewmapRegionRecord begin = (ViewmapRegionRecord) doc.getRichTextItem("Body", Area.TYPE_VIEWMAP).get(0);
+        assertEquals(NavigatorFillStyle.SOLID, begin.getFillStyle());
+        assertEquals(StandardColors.Aqua, begin.getLineColor().get());
+        assertEquals(NavigatorLineStyle.SOLID, begin.getLineStyle());
+        assertEquals(1, begin.getLineWidth());
+        assertEquals(0, begin.getDrawingObject().getAlignment());
+        assertEquals(0, begin.getDrawingObject().getbWrap());
+        assertEquals(0, begin.getDrawingObject().getLabelLen());
+        assertEquals(8, begin.getDrawingObject().getNameLen());
+        assertEquals(StandardColors.Blue, begin.getDrawingObject().getTextColor().get());
+        assertEquals(expectedFlags, begin.getDrawingObject().getFlags());
+        assertEquals(307, begin.getDrawingObject().getObjRect().getBottom());
+        assertEquals(13, begin.getDrawingObject().getObjRect().getLeft());
+        assertEquals(94, begin.getDrawingObject().getObjRect().getRight());
+        assertEquals(237, begin.getDrawingObject().getObjRect().getTop());
+        assertEquals(10, begin.getDrawingObject().getFontID().getPointSize());
+      });
+      }
+    
     public void testViewmapHighlightDefaults() throws Exception {
       this.withTempDb(database -> {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           final ViewmapHighlightDefaults viewmapHighlightDefaults =rtWriter.createStructure(ViewmapHighlightDefaults.class, 0);
-          viewmapHighlightDefaults.setbHighlightCurrent(0);
-          viewmapHighlightDefaults.setbHighlightTouch(0);
-          viewmapHighlightDefaults.setHLFillColor(65535);
-          viewmapHighlightDefaults.setHLOutlineColor(2);
-          viewmapHighlightDefaults.setHLOutlineStyle(0);
-          viewmapHighlightDefaults.setHLOutlineWidth(2);   
-          assertEquals(0,viewmapHighlightDefaults.getbHighlightCurrent());
-          assertEquals(0,viewmapHighlightDefaults.getbHighlightTouch());
-          assertEquals(65535,viewmapHighlightDefaults.getHLFillColor());
-          assertEquals(2,viewmapHighlightDefaults.getHLOutlineColor());
-          assertEquals(0,viewmapHighlightDefaults.getHLOutlineStyle());
-          assertEquals(2,viewmapHighlightDefaults.getHLOutlineWidth());
+          viewmapHighlightDefaults.setCurrent(true);
+          viewmapHighlightDefaults.setTouch(false);
+          viewmapHighlightDefaults.setFillColor(StandardColors.PaleAqua);
+          viewmapHighlightDefaults.setOutlineColor(StandardColors.Avocado);
+          viewmapHighlightDefaults.setOutlineStyle(NavigatorLineStyle.SOLID);
+          viewmapHighlightDefaults.setOutlineWidth(2);   
+          assertTrue(viewmapHighlightDefaults.isCurrent());
+          assertFalse(viewmapHighlightDefaults.isTouch());
+          assertEquals(StandardColors.PaleAqua, viewmapHighlightDefaults.getFillColor().get());
+          assertEquals(StandardColors.Avocado, viewmapHighlightDefaults.getOutlineColor().get());
+          assertEquals(NavigatorLineStyle.SOLID,viewmapHighlightDefaults.getOutlineStyle());
+          assertEquals(2,viewmapHighlightDefaults.getOutlineWidth());
         }
 
         
@@ -1794,18 +1842,18 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           final ViewmapLineDefaults viewmapLineDefaults =rtWriter.createStructure(ViewmapLineDefaults.class, 0);
-          viewmapLineDefaults.setFillFGColor(0);
-          viewmapLineDefaults.setLineColor(0);
-          viewmapLineDefaults.setFillStyle(0);
-          viewmapLineDefaults.setFillBGColor(0);
+          viewmapLineDefaults.setFillForegroundColor(StandardColors.Mustard);
+          viewmapLineDefaults.setLineColor(StandardColors.DarkEmerald);
+          viewmapLineDefaults.setFillStyle(NavigatorFillStyle.SOLID);
+          viewmapLineDefaults.setFillBackgroundColor(StandardColors.BlueGray);
           viewmapLineDefaults.setLineWidth(1);
-          viewmapLineDefaults.setLineStyle(0);
-          assertEquals(0,viewmapLineDefaults.getFillFGColor());
-          assertEquals(0,viewmapLineDefaults.getLineColor());
-          assertEquals(0,viewmapLineDefaults.getFillStyle());
-          assertEquals(0,viewmapLineDefaults.getFillBGColor());
+          viewmapLineDefaults.setLineStyle(NavigatorLineStyle.SOLID);
+          assertEquals(StandardColors.Mustard, viewmapLineDefaults.getFillForegroundColor().get());
+          assertEquals(StandardColors.DarkEmerald, viewmapLineDefaults.getLineColor().get());
+          assertEquals(NavigatorFillStyle.SOLID,viewmapLineDefaults.getFillStyle());
+          assertEquals(StandardColors.BlueGray, viewmapLineDefaults.getFillBackgroundColor());
           assertEquals(1,viewmapLineDefaults.getLineWidth());
-          assertEquals(0,viewmapLineDefaults.getLineStyle());
+          assertEquals(NavigatorLineStyle.SOLID,viewmapLineDefaults.getLineStyle());
         } 
       });
     }
@@ -1816,18 +1864,18 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           final ViewmapTextboxDefaults viewmapTextboxDefaults =rtWriter.createStructure(ViewmapTextboxDefaults.class, 0);
-          viewmapTextboxDefaults.setFillFGColor(1);
-          viewmapTextboxDefaults.setLineColor(0);
-          viewmapTextboxDefaults.setFillStyle(0);
-          viewmapTextboxDefaults.setFillBGColor(1);
+          viewmapTextboxDefaults.setFillForegroundColor(StandardColors.DarkBlueGray);
+          viewmapTextboxDefaults.setLineColor(StandardColors.LightOlive);
+          viewmapTextboxDefaults.setFillStyle(NavigatorFillStyle.TRANSPARENT);
+          viewmapTextboxDefaults.setFillBackgroundColor(StandardColors.DarkYellow);
           viewmapTextboxDefaults.setLineWidth(1);
-          viewmapTextboxDefaults.setLineStyle(5);
-          assertEquals(1,viewmapTextboxDefaults.getFillFGColor());
-          assertEquals(0,viewmapTextboxDefaults.getLineColor());
-          assertEquals(0,viewmapTextboxDefaults.getFillStyle());
-          assertEquals(1,viewmapTextboxDefaults.getFillBGColor());
+          viewmapTextboxDefaults.setLineStyle(NavigatorLineStyle.NONE);
+          assertEquals(StandardColors.DarkBlueGray, viewmapTextboxDefaults.getFillForegroundColor().get());
+          assertEquals(StandardColors.LightOlive,viewmapTextboxDefaults.getLineColor().get());
+          assertEquals(NavigatorFillStyle.TRANSPARENT,viewmapTextboxDefaults.getFillStyle());
+          assertEquals(StandardColors.DarkYellow,viewmapTextboxDefaults.getFillBackgroundColor().get());
           assertEquals(1,viewmapTextboxDefaults.getLineWidth());
-          assertEquals(5,viewmapTextboxDefaults.getLineStyle());
+          assertEquals(NavigatorLineStyle.NONE,viewmapTextboxDefaults.getLineStyle());
         } 
       });
     }
@@ -1837,20 +1885,81 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           final ViewmapShapeDefaults viewmapShapeDefaults =rtWriter.createStructure(ViewmapShapeDefaults.class, 0);
-          viewmapShapeDefaults.setFillFGColor(7);
-          viewmapShapeDefaults.setLineColor(0);
-          viewmapShapeDefaults.setFillStyle(1);
-          viewmapShapeDefaults.setFillBGColor(7);
+          viewmapShapeDefaults.setFillForegroundColor(StandardColors.Cranberry);
+          viewmapShapeDefaults.setLineColor(StandardColors.ArcticBlue);
+          viewmapShapeDefaults.setFillStyle(NavigatorFillStyle.TRANSPARENT);
+          viewmapShapeDefaults.setFillBackgroundColor(StandardColors.DeepPurple);
           viewmapShapeDefaults.setLineWidth(1);
-          viewmapShapeDefaults.setLineStyle(0);
-          assertEquals(7,viewmapShapeDefaults.getFillFGColor());
-          assertEquals(0,viewmapShapeDefaults.getLineColor());
-          assertEquals(1,viewmapShapeDefaults.getFillStyle());
-          assertEquals(7,viewmapShapeDefaults.getFillBGColor());
+          viewmapShapeDefaults.setLineStyle(NavigatorLineStyle.NONE);
+          assertEquals(StandardColors.Cranberry, viewmapShapeDefaults.getFillForegroundColor().get());
+          assertEquals(StandardColors.ArcticBlue,viewmapShapeDefaults.getLineColor().get());
+          assertEquals(NavigatorFillStyle.TRANSPARENT, viewmapShapeDefaults.getFillStyle());
+          assertEquals(StandardColors.DeepPurple, viewmapShapeDefaults.getFillBackgroundColor().get());
           assertEquals(1,viewmapShapeDefaults.getLineWidth());
-          assertEquals(0,viewmapShapeDefaults.getLineStyle());
+          assertEquals(NavigatorLineStyle.NONE,viewmapShapeDefaults.getLineStyle());
         } 
       });
     }
-    
+ 
+    @Test
+    public void testVMTextRecord() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addRichTextRecord(ViewmapTextRecord.class, begin -> {
+          	begin.setLineColor(StandardColors.Aubergine);
+          	begin.setFillForegroundColor(StandardColors.AztecBlue);
+          	begin.setFillBackgroundColor(StandardColors.DarkOlive);
+          	begin.setLineStyle(NavigatorLineStyle.SOLID);
+          	begin.setLineWidth(1);
+          	begin.setFillStyle(NavigatorFillStyle.TRANSPARENT);
+          	begin.getDrawingObject().setTextColor(StandardColors.Blue);
+          	begin.getDrawingObject().setAlignment(0);
+          	begin.getDrawingObject().setbWrap(0);
+          	begin.getDrawingObject().setLabelLen(9);
+          	begin.getDrawingObject().setNameLen(8);
+          	begin.getDrawingObject().getFontID().setFontFace((byte) 1);
+          	begin.getDrawingObject().getFontID().setBold(true);
+          	begin.getDrawingObject().getFontID().setColor(StandardColors.Aqua);
+          	begin.getDrawingObject().getFontID().setExtrude(true);
+          	begin.getDrawingObject().getFontID().setFontFace((byte) 1);
+          	begin.getDrawingObject().getFontID().setItalic(true);
+          	begin.getDrawingObject().getFontID().setPointSize(1);
+          	begin.getDrawingObject().getFontID().setShadow(true);
+          	begin.getDrawingObject().getFontID().setStandardFont(StandardFonts.SWISS);
+          	begin.getDrawingObject().getFontID().setStrikeout(true);
+          	begin.getDrawingObject().getFontID().setSub(true);
+          	begin.getDrawingObject().getFontID().setSuper(true);
+          	begin.getDrawingObject().getFontID().setUnderline(true);
+        	       	
+          });
+        }
+
+        final ViewmapTextRecord begin = (ViewmapTextRecord) doc.getRichTextItem("Body", Area.TYPE_VIEWMAP).get(0);
+        assertEquals(StandardColors.Aubergine, begin.getLineColor().get());
+        assertEquals(StandardColors.AztecBlue, begin.getFillForegroundColor().get());
+        assertEquals(StandardColors.DarkOlive, begin.getFillBackgroundColor().get());
+        assertEquals(NavigatorLineStyle.SOLID, begin.getLineStyle());
+        assertEquals(1, begin.getLineWidth());
+        assertEquals(NavigatorFillStyle.TRANSPARENT, begin.getFillStyle());
+        assertEquals(StandardColors.Blue, begin.getDrawingObject().getTextColor().get());
+        assertEquals(0, begin.getDrawingObject().getAlignment());
+        assertEquals(0, begin.getDrawingObject().getbWrap());
+        assertEquals(9, begin.getDrawingObject().getLabelLen());
+        assertEquals(8, begin.getDrawingObject().getNameLen());
+        assertEquals(1, begin.getDrawingObject().getFontID().getFontFace());
+        assertEquals(true, begin.getDrawingObject().getFontID().isBold());
+        assertEquals(StandardColors.Aqua,begin.getDrawingObject().getFontID().getColor().get());
+        assertEquals(true, begin.getDrawingObject().getFontID().isExtrude());
+        assertEquals(1,begin.getDrawingObject().getFontID().getFontFace());
+        assertEquals(true, begin.getDrawingObject().getFontID().isItalic());
+        assertEquals(1, begin.getDrawingObject().getFontID().getPointSize());
+        assertEquals(true, begin.getDrawingObject().getFontID().isShadow());
+        assertEquals(StandardFonts.SWISS, begin.getDrawingObject().getFontID().getStandardFont().get());
+        assertEquals(true, begin.getDrawingObject().getFontID().isStrikeout());
+        assertEquals(true, begin.getDrawingObject().getFontID().isSub());
+        assertEquals(true, begin.getDrawingObject().getFontID().isSuper());
+        assertEquals(true, begin.getDrawingObject().getFontID().isUnderline());
+      });
+    }
 }

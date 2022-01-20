@@ -31,35 +31,35 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
 @StructureDefinition(
   name = "VMODSrect",
   members = {
-    @StructureMember(name = "left", type = int.class, unsigned = true),
-    @StructureMember(name = "top", type =  int.class, unsigned = true),
-    @StructureMember(name = "right", type =  int.class, unsigned = true),
-    @StructureMember(name = "bottom", type =  int.class, unsigned = true)
+    @StructureMember(name = "left", type = int.class),
+    @StructureMember(name = "top", type =  int.class),
+    @StructureMember(name = "right", type =  int.class),
+    @StructureMember(name = "bottom", type =  int.class)
   }
 )
 public interface VMODSrect extends MemoryStructure {
   @StructureGetter("left")
-  long getLeft();
+  int getLeft();
 
   @StructureGetter("top")
-  long getTop();
+  int getTop();
 
   @StructureGetter("right")
-  long getRight();
+  int getRight();
 
   @StructureGetter("bottom")
-  long getBottom();
+  int getBottom();
 
   @StructureSetter("left")
-  VMODSrect setLeft(long left);
+  VMODSrect setLeft(int left);
 
   @StructureSetter("top")
-  VMODSrect setTop(long top);
+  VMODSrect setTop(int top);
 
   @StructureSetter("right")
-  VMODSrect setRight(long right);
+  VMODSrect setRight(int right);
 
   @StructureSetter("bottom")
-  VMODSrect setBottom(long bottom);
+  VMODSrect setBottom(int bottom);
 
 }

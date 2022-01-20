@@ -29,26 +29,26 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.WSIG;
 
 /**
- * VIEWMAP_TEXT_RECORD
+ * VIEWMAP_POLYGON_RECORD record
  * 
- * @author artcnot
  * @author Jesse Gallagher
- * @since 1.0.38
+ * @since 1.1.2
  */
 @StructureDefinition(
-  name = "VIEWMAP_TEXT_RECORD", 
-  members = { 
+  name = "VIEWMAP_POLYGON_RECORD",
+  members = {
     @StructureMember(name = "DRobj", type = ViewmapBigDrawingObject.class),
-    @StructureMember(name = "LineColor", type = short.class, unsigned = true), /* Color of the boundary line.   Use NOTES_COLOR_xxx value. */
-    @StructureMember(name = "FillFGColor", type = short.class, unsigned = true),
-    @StructureMember(name = "FillBGColor", type = short.class, unsigned = true),
+    @StructureMember(name = "LineColor", type = short.class),
+    @StructureMember(name = "FillFGColor", type = short.class),
+    @StructureMember(name = "FillBGColor", type = short.class),
     @StructureMember(name = "LineStyle", type = NavigatorLineStyle.class),
     @StructureMember(name = "LineWidth", type = short.class, unsigned = true),
     @StructureMember(name = "FillStyle", type = NavigatorFillStyle.class),
-    @StructureMember(name = "Spare", type = int[].class, length = 4)
-
-})
-public interface ViewmapTextRecord extends RichTextRecord<WSIG> {
+    @StructureMember(name = "nPts", type = short.class, unsigned = true),
+    @StructureMember(name = "spare", type=int[].class, length = 4)
+  }
+)
+public interface ViewmapPolygonRecord extends RichTextRecord<WSIG> {
 
   @StructureGetter("DRobj")
   ViewmapBigDrawingObject getDrawingObject();
@@ -59,49 +59,55 @@ public interface ViewmapTextRecord extends RichTextRecord<WSIG> {
   }
 
   @StructureGetter("LineColor")
-  int getLineColorRaw();
+  short getLineColorRaw();
   
   @StructureGetter("LineColor")
   Optional<StandardColors> getLineColor();
   
   @StructureSetter("LineColor")
-  ViewmapTextRecord setLineColor(StandardColors color);
+  ViewmapPolygonRecord setLineColor(StandardColors color);
 
   @StructureGetter("FillFGColor")
-  int getFillForegroundColorRaw();
+  short getFillForegroundColorRaw();
   
   @StructureGetter("FillFGColor")
   Optional<StandardColors> getFillForegroundColor();
   
   @StructureSetter("FillFGColor")
-  ViewmapTextRecord setFillForegroundColor(StandardColors color);
+  ViewmapPolygonRecord setFillForegroundColor(StandardColors color);
 
   @StructureGetter("FillBGColor")
-  int getFillBackgroundColorRaw();
+  short getFillBackgroundColorRaw();
   
   @StructureGetter("FillBGColor")
   Optional<StandardColors> getFillBackgroundColor();
   
   @StructureSetter("FillBGColor")
-  ViewmapTextRecord setFillBackgroundColor(StandardColors color);
+  ViewmapPolygonRecord setFillBackgroundColor(StandardColors color);
   
   @StructureGetter("LineStyle")
   NavigatorLineStyle getLineStyle();
   
   @StructureSetter("LineStyle")
-  ViewmapTextRecord setLineStyle(NavigatorLineStyle style);
-
+  ViewmapPolygonRecord setLineStyle(NavigatorLineStyle style);
+  
   @StructureGetter("LineWidth")
   int getLineWidth();
-
+  
   @StructureSetter("LineWidth")
-  ViewmapTextRecord setLineWidth(int width);
+  ViewmapPolygonRecord setLineWidth(int width);
   
   @StructureGetter("FillStyle")
   NavigatorFillStyle getFillStyle();
   
   @StructureSetter("FillStyle")
-  ViewmapTextRecord setFillStyle(NavigatorFillStyle style);
+  ViewmapPolygonRecord setFillStyle(NavigatorFillStyle style);
+  
+  @StructureGetter("nPts")
+  int getPointCount();
+  
+  @StructureSetter("nPts")
+  ViewmapPolygonRecord setPointCount(int count);
   
   default String getName() {
     return StructureSupport.extractStringValue(
@@ -111,7 +117,7 @@ public interface ViewmapTextRecord extends RichTextRecord<WSIG> {
     );
   }
   
-  default ViewmapTextRecord setName(String name) {
+  default ViewmapPolygonRecord setName(String name) {
     return StructureSupport.writeStringValue(
       this,
       0,
@@ -129,7 +135,7 @@ public interface ViewmapTextRecord extends RichTextRecord<WSIG> {
     );
   }
   
-  default ViewmapTextRecord setLabel(String label) {
+  default ViewmapPolygonRecord setLabel(String label) {
     return StructureSupport.writeStringValue(
       this,
       getDrawingObject().getNameLen(),
@@ -138,4 +144,24 @@ public interface ViewmapTextRecord extends RichTextRecord<WSIG> {
       getDrawingObject()::setLabelLen
     );
   }
+  
+  default int[] getPoints() {
+    return StructureSupport.extractIntArray(
+      this,
+      getDrawingObject().getNameLen() + getDrawingObject().getLabelLen(),
+      getPointCount()
+    );
+  }
+  
+  default ViewmapPolygonRecord setPoints(int[] points) {
+    setPointCount(points == null ? 0 : points.length);
+    return StructureSupport.writeIntValue(
+        this,
+        getDrawingObject().getNameLen() + getDrawingObject().getLabelLen(),
+        getPointCount(),
+        points,
+        len -> {}
+      );
+  }
+
 }
