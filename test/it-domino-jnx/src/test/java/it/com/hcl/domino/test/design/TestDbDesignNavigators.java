@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.StandardColors;
+import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignType;
 import com.hcl.domino.design.Navigator;
@@ -104,6 +105,10 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
       assertTrue(layout.stream().anyMatch(ViewmapHeaderRecord.class::isInstance));
 
       {
+        ViewmapHeaderRecord header = (ViewmapHeaderRecord)layout.get(0);
+        assertEquals(8, header.getVersion());
+      }
+      {
         ViewmapRectRecord rect = (ViewmapRectRecord)layout.get(1);
         
         ViewmapDrawingObject draw = rect.getDrawingObject();
@@ -130,6 +135,28 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertEquals(NavigatorLineStyle.SOLID, action.getHighlightOutlineStyle());
         assertEquals(ViewmapActionRecord.Action.NONE, action.getClickAction().get());
         assertEquals(DesignType.SHARED, action.getActionDataDesignType());
+      }
+      {
+        ViewmapRectRecord button = (ViewmapRectRecord)layout.get(3);
+        
+        ViewmapDrawingObject draw = button.getDrawingObject();
+        assertEquals(330, draw.getObjRect().getLeft());
+        assertEquals(281, draw.getObjRect().getTop());
+        assertEquals(425, draw.getObjRect().getRight());
+        assertEquals(332, draw.getObjRect().getBottom());
+        assertEquals(EnumSet.of(ViewmapDrawingObject.Flags.VISIBLE, ViewmapDrawingObject.Flags.SELECTABLE, ViewmapDrawingObject.Flags.LOCKED), draw.getFlags());
+        assertEquals(StandardFonts.UNICODE, draw.getFontID().getStandardFont().get());
+
+        assertEquals(StandardColors.LightOlive, button.getLineColor().get());
+        assertEquals(StandardColors.LightLavender, button.getFillForegroundColor().get());
+        assertEquals(StandardColors.LightGray, button.getFillBackgroundColor().get());
+        assertEquals(NavigatorLineStyle.SOLID, button.getLineStyle());
+        assertEquals(3, button.getLineWidht());
+        assertEquals(NavigatorFillStyle.SOLID, button.getFillStyle());
+        
+        assertEquals("Button10", button.getName());
+        assertEquals("I am a button.", button.getLabel());
+        
       }
       {
         ViewmapActionRecord action = (ViewmapActionRecord)layout.get(4);
