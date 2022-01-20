@@ -1906,36 +1906,36 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           rtWriter.addRichTextRecord(ViewmapTextRecord.class, begin -> {
-        	begin.setLineColor(StandardColors.SealBlue);
-        	begin.setFillForegroundColor(StandardColors.AztecBlue);
-        	begin.setFillBackgroundColor(StandardColors.DarkOlive);
-        	begin.setLineStyle(NavigatorLineStyle.SOLID);
-        	begin.setLineWidth(1);
-        	begin.setFillStyle(NavigatorFillStyle.TRANSPARENT);
-        	begin.getDrawingObject().setTextColor(StandardColors.Blue);
-        	begin.getDrawingObject().setAlignment(0);
-        	begin.getDrawingObject().setbWrap(0);
-        	begin.getDrawingObject().setLabelLen(9);
-        	begin.getDrawingObject().setNameLen(8);
-        	begin.getDrawingObject().getFontID().setFontFace((byte) 1);
-        	begin.getDrawingObject().getFontID().setBold(true);
-        	begin.getDrawingObject().getFontID().setColor(StandardColors.Aqua);
-        	begin.getDrawingObject().getFontID().setExtrude(true);
-        	begin.getDrawingObject().getFontID().setFontFace((byte) 1);
-        	begin.getDrawingObject().getFontID().setItalic(true);
-        	begin.getDrawingObject().getFontID().setPointSize(1);
-        	begin.getDrawingObject().getFontID().setShadow(true);
-        	begin.getDrawingObject().getFontID().setStandardFont(StandardFonts.SWISS);
-        	begin.getDrawingObject().getFontID().setStrikeout(true);
-        	begin.getDrawingObject().getFontID().setSub(true);
-        	begin.getDrawingObject().getFontID().setSuper(true);
-        	begin.getDrawingObject().getFontID().setUnderline(true);
+          	begin.setLineColor(StandardColors.Aubergine);
+          	begin.setFillForegroundColor(StandardColors.AztecBlue);
+          	begin.setFillBackgroundColor(StandardColors.DarkOlive);
+          	begin.setLineStyle(NavigatorLineStyle.SOLID);
+          	begin.setLineWidth(1);
+          	begin.setFillStyle(NavigatorFillStyle.TRANSPARENT);
+          	begin.getDrawingObject().setTextColor(StandardColors.Blue);
+          	begin.getDrawingObject().setAlignment(0);
+          	begin.getDrawingObject().setbWrap(0);
+          	begin.getDrawingObject().setLabelLen(9);
+          	begin.getDrawingObject().setNameLen(8);
+          	begin.getDrawingObject().getFontID().setFontFace((byte) 1);
+          	begin.getDrawingObject().getFontID().setBold(true);
+          	begin.getDrawingObject().getFontID().setColor(StandardColors.Aqua);
+          	begin.getDrawingObject().getFontID().setExtrude(true);
+          	begin.getDrawingObject().getFontID().setFontFace((byte) 1);
+          	begin.getDrawingObject().getFontID().setItalic(true);
+          	begin.getDrawingObject().getFontID().setPointSize(1);
+          	begin.getDrawingObject().getFontID().setShadow(true);
+          	begin.getDrawingObject().getFontID().setStandardFont(StandardFonts.SWISS);
+          	begin.getDrawingObject().getFontID().setStrikeout(true);
+          	begin.getDrawingObject().getFontID().setSub(true);
+          	begin.getDrawingObject().getFontID().setSuper(true);
+          	begin.getDrawingObject().getFontID().setUnderline(true);
         	       	
           });
         }
 
         final ViewmapTextRecord begin = (ViewmapTextRecord) doc.getRichTextItem("Body", Area.TYPE_VIEWMAP).get(0);
-        assertEquals(StandardColors.SealBlue, begin.getLineColor().get());
+        assertEquals(StandardColors.Aubergine, begin.getLineColor().get());
         assertEquals(StandardColors.AztecBlue, begin.getFillForegroundColor().get());
         assertEquals(StandardColors.DarkOlive, begin.getFillBackgroundColor().get());
         assertEquals(NavigatorLineStyle.SOLID, begin.getLineStyle());

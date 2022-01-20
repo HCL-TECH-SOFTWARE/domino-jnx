@@ -458,7 +458,8 @@ public class MemoryStructureProxy implements InvocationHandler {
           // Handle the case where a member declared as a primitive is nonetheless set as
           // an enum
           final Object newVal = args[0];
-          final Number val = newVal == null ? 0 : ((INumberEnum<?>) newVal).getValue();
+          Number val = newVal == null ? 0 : ((INumberEnum<?>) newVal).getValue();
+          val = MemoryStructureUtil.matchPrimitiveSizeForEnum(val, member);
           member.writer.accept(buf, member.offset, val);
         } else if (member.type.equals(OpaqueTimeDate.class) && DominoDateTime.class.equals(paramType)) {
           final int[] innards = ((DominoDateTime) args[0]).getAdapter(int[].class);
