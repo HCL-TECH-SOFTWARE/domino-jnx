@@ -1089,10 +1089,8 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
             Assertions.assertTrue(style.getAttributes().isEmpty(), "BOLD attribute removed");
 
             style.setExtrude(true);
-            System.out.println("*** style: " +style.getAttributes());
             Assertions.assertTrue(style.isExtrude(), "Add EXTRUDE attribute");
             style.setExtrude(false);
-            System.out.println("*** style: " +style.getAttributes());
             Assertions.assertFalse(style.isExtrude(), "EXTRUDE attribute removed");
 
             style.setItalic(true);
@@ -1103,7 +1101,6 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
             style.setShadow(true);
             Assertions.assertTrue(style.isShadow(), "Add SHADOW attribute");
             style.setShadow(false);
-            System.out.println("*** style: " +style.getAttributes());
             Assertions.assertFalse(style.isShadow(), "SHADOW attribute removed");
 
             style.setStrikeout(true);
