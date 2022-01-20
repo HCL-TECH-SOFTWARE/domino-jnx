@@ -87,7 +87,7 @@ public interface ViewmapBigDrawingObject extends RichTextRecord<WSIG> {
   Set<Flag> getFlags();
 
   @StructureSetter("flags")
-  ViewmapDrawingObject setFlags(Collection<Flag> flags);
+  ViewmapBigDrawingObject setFlags(Collection<Flag> flags);
 
   @StructureGetter("NameLen")
   int getNameLen();

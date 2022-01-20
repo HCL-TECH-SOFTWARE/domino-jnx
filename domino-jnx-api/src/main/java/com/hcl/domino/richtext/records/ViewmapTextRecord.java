@@ -39,7 +39,7 @@ import com.hcl.domino.richtext.structures.WSIG;
   name = "VIEWMAP_TEXT_RECORD", 
   members = { 
     @StructureMember(name = "DRobj", type = ViewmapBigDrawingObject.class),
-    @StructureMember(name = "LineColor", type = short.class), /* Color of the boundary line.   Use NOTES_COLOR_xxx value. */
+    @StructureMember(name = "LineColor", type = short.class, unsigned = true), /* Color of the boundary line.   Use NOTES_COLOR_xxx value. */
     @StructureMember(name = "FillFGColor", type = short.class, unsigned = true),
     @StructureMember(name = "FillBGColor", type = short.class, unsigned = true),
     @StructureMember(name = "LineStyle", type = NavigatorLineStyle.class),
@@ -59,7 +59,7 @@ public interface ViewmapTextRecord extends RichTextRecord<WSIG> {
   }
 
   @StructureGetter("LineColor")
-  short getLineColorRaw();
+  int getLineColorRaw();
   
   @StructureGetter("LineColor")
   Optional<StandardColors> getLineColor();
@@ -68,7 +68,7 @@ public interface ViewmapTextRecord extends RichTextRecord<WSIG> {
   ViewmapTextRecord setLineColor(StandardColors color);
 
   @StructureGetter("FillFGColor")
-  short getFillForegroundColorRaw();
+  int getFillForegroundColorRaw();
   
   @StructureGetter("FillFGColor")
   Optional<StandardColors> getFillForegroundColor();
@@ -77,7 +77,7 @@ public interface ViewmapTextRecord extends RichTextRecord<WSIG> {
   ViewmapTextRecord setFillForegroundColor(StandardColors color);
 
   @StructureGetter("FillBGColor")
-  short getFillBackgroundColorRaw();
+  int getFillBackgroundColorRaw();
   
   @StructureGetter("FillBGColor")
   Optional<StandardColors> getFillBackgroundColor();

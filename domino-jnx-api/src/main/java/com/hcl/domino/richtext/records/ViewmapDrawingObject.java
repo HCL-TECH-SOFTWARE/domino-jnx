@@ -45,7 +45,7 @@ import com.hcl.domino.richtext.structures.BSIG;
     @StructureMember(name = "NameLen", type = short.class, unsigned = true), /* Graphical object name length (may be 0). */
     @StructureMember(name = "LabelLen", type = short.class, unsigned = true), /* Graphical object displayed label length (may be 0). */
     @StructureMember(name = "FontID", type = FontStyle.class), /* FontID to use when displaying the label. */
-    @StructureMember(name = "TextColor", type = short.class), /* Color to use for the label text. Use NOTES_COLOR_xxx value. */
+    @StructureMember(name = "TextColor", type = short.class, unsigned = true), /* Color to use for the label text. Use NOTES_COLOR_xxx value. */
     @StructureMember(name = "Alignment", type = short.class), /* Alignment of the label text. Set to 0. */
     @StructureMember(name = "bWrap", type = short.class), /* If TRUE, apply word-wrap when displaying the label. */
     @StructureMember(name = "spare", type = int[].class, length = 4) /* Reserved. Must be 0. */

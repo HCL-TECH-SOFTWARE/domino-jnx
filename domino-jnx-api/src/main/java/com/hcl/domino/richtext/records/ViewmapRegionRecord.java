@@ -55,7 +55,7 @@ public interface ViewmapRegionRecord extends RichTextRecord<BSIG> {
   }
 
   @StructureGetter("LineColor")
-  short getLineColorRaw();
+  int getLineColorRaw();
   
   @StructureGetter("LineColor")
   Optional<StandardColors> getLineColor();

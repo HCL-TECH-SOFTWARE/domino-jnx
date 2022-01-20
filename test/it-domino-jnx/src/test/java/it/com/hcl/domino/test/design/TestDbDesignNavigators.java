@@ -106,6 +106,12 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
     {
       List<?> dataset = nav.getDataSet();
       assertTrue(dataset.stream().anyMatch(ViewmapDatasetRecord.class::isInstance));
+      
+      ViewmapDatasetRecord data = (ViewmapDatasetRecord)dataset.get(0);
+      assertEquals(9, data.getVersion());
+      assertEquals(0, data.getGridSize());
+      assertEquals(EnumSet.of(ViewmapDatasetRecord.Flag.SAVE_IMAGEMAP), data.getFlags());
+      assertFalse(data.isAutoAdjust());
     }
     {
       List<?> layout = nav.getLayout();

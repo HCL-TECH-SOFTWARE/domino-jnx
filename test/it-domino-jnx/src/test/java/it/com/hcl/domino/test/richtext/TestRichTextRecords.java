@@ -1628,14 +1628,15 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       });
     }
 
+    @Test
     public void testViewmapActionRecord() throws Exception {
       this.withTempDb(database -> {
         final Document doc = database.createDocument();
         final String actionName = "the action name";
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           rtWriter.addRichTextRecord(ViewmapActionRecord.class, begin -> {
-            begin.setHighlightTouch(1);
-            begin.setHighlightCurrent(2);
+            begin.setHighlightTouch(true);
+            begin.setHighlightCurrent(false);
             begin.setOutlineColorRaw(3);
             begin.setHighlightFillColorRaw(4);
             begin.setClickAction(ViewmapActionRecord.Action.GOTO_LINK);
@@ -1653,8 +1654,8 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         }
 
         final ViewmapActionRecord var = (ViewmapActionRecord) doc.getRichTextItem("Body", Area.TYPE_VIEWMAP).get(0);
-        assertEquals(1, var.getHighlightTouch());
-        assertEquals(2, var.getHighlightCurrent());
+        assertTrue(var.isHighlightTouch());
+        assertFalse(var.isHighlightCurrent());
         assertEquals(3, var.getHighlightOutlineColorRaw());
         assertEquals(4, var.getHighlightFillColorRaw());
         assertEquals(ViewmapActionRecord.Action.GOTO_LINK, var.getClickAction().get());
@@ -1666,7 +1667,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals("B51DB3939AB413C585256D4F00399409", var.getLinkInfo().getViewUnid());
         assertEquals(9, var.getExtDataLen());
         assertEquals(DesignType.PRIVATE, var.getActionDataDesignType());
-        assertEquals(actionName, var.getActionString());
+        assertEquals(actionName, var.getActionString().get());
       });
     }
     

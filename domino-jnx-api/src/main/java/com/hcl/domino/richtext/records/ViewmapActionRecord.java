@@ -81,10 +81,10 @@ public interface ViewmapActionRecord extends RichTextRecord<WSIG> {
   WSIG getHeader();
 
   @StructureGetter("bHighlightTouch")
-  int getHighlightTouch();
+  boolean isHighlightTouch();
 
   @StructureGetter("bHighlightCurrent")
-  int getHighlightCurrent();
+  boolean isHighlightCurrent();
 
   @StructureGetter("HLOutlineColor")
   int getHighlightOutlineColorRaw();
@@ -120,10 +120,10 @@ public interface ViewmapActionRecord extends RichTextRecord<WSIG> {
   DesignType getActionDataDesignType();
 
   @StructureSetter("bHighlightTouch")
-  ViewmapActionRecord setHighlightTouch(int bHighlightTouch);
+  ViewmapActionRecord setHighlightTouch(boolean highlightTouch);
 
   @StructureSetter("bHighlightCurrent")
-  ViewmapActionRecord setHighlightCurrent(int bHighlightCurrent);
+  ViewmapActionRecord setHighlightCurrent(boolean highlightCurrent);
 
   @StructureSetter("HLOutlineColor")
   ViewmapActionRecord setOutlineColorRaw(int hLOutlineColor);

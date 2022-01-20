@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import com.hcl.domino.misc.INumberEnum;
+import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -57,10 +58,14 @@ public interface ViewmapDatasetRecord extends RichTextRecord<WSIG> {
 
   /* Navigator Dataset Flags VM_DSET_XXXXXXXX */
   enum Flag implements INumberEnum<Short> {
-    SHOW_GRID((short)0x0001), 
-    SNAPTO_GRID((short)0x0002), 
-    SAVE_IMAGEMAP((short)0x0004),
-    READING_ORDER_RTL((short)0x0020); /* reading order */
+    /** show the grid in design mode, NIY */
+    SHOW_GRID(NotesConstants.VM_DSET_SHOW_GRID),
+    /** snap to grid */
+    SNAPTO_GRID(NotesConstants.VM_DSET_SNAPTO_GRID),
+    /** save web imagemap of navigator so it looks good on the web */
+    SAVE_IMAGEMAP(NotesConstants.VM_DSET_SAVE_IMAGEMAP),
+    /** reading order */
+    READING_ORDER_RTL(NotesConstants.VM_DSET_READING_ORDER_RTL);
 
 
     private final short value;
@@ -90,13 +95,13 @@ public interface ViewmapDatasetRecord extends RichTextRecord<WSIG> {
   int getViewNameLen();
 
   @StructureGetter("Gridsize")
-  int getGridsize();
+  int getGridSize();
 
   @StructureGetter("Flags")
   Set<Flag> getFlags();
 
   @StructureGetter("bAutoAdjust")
-  int getbAutoAdjust();
+  boolean isAutoAdjust();
 
   @StructureGetter("BGColor")
   int getBGColor();
@@ -132,7 +137,7 @@ public interface ViewmapDatasetRecord extends RichTextRecord<WSIG> {
   ViewmapDatasetRecord setFlags(Collection<Flag> flags);
 
   @StructureSetter("bAutoAdjust")
-  ViewmapDatasetRecord setbAutoAdjust(int bAutoAdjust);
+  ViewmapDatasetRecord setAutoAdjust(boolean bAutoAdjust);
 
   @StructureSetter("BGColor")
   ViewmapDatasetRecord setBGColor(int bGColor);
