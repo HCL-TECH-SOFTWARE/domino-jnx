@@ -272,10 +272,6 @@ public class ViewFormatDecoder {
 				ViewColumnFormat5 col5 = MemoryStructureUtil.newStructure(ViewColumnFormat5.class, totalLen - MemoryStructureUtil.sizeOf(ViewColumnFormat5.class));
 				col5.getData().put(buf);
 				col.read(col5);
-				
-				int sharedColLen = col5.getSharedColumnAliasLength();
-				byte[] reserved = col5.getReserved();
-				
 			}
 		}
 		

@@ -433,8 +433,6 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   /** False if ascending order (default) */
   byte CDF_M_descending = 0x01;
 
-  /*	Flags for COLOR_VALUE */
-
   /** Obsolete - see new constant below */
   byte CDF_M_caseinsensitive = 0x02;
   /** If prefix list, then ignore for sorting */

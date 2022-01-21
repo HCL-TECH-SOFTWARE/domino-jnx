@@ -16,6 +16,8 @@
  */
 package com.hcl.domino.commons.design.view;
 
+import static com.hcl.domino.commons.util.NotesItemDataUtil.ensureBufferCapacity;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
@@ -41,34 +43,6 @@ import com.hcl.domino.richtext.records.CDResource;
 
 public class ViewFormatEncoder {
 
-  /**
-   * Checks if the specified buffer at least has the specified size. If not we create
-   * a new one and copy over all data, keeping the current position
-   * 
-   * @param buf buffer
-   * @param newSize new minimum size
-   * @return buffer, either the same (if capacity was sufficient) or a new one
-   */
-  private static ByteBuffer ensureBufferCapacity(ByteBuffer buf, int newSize) {
-    if (newSize < 1) {
-      throw new IllegalArgumentException("New size must be greater than 0 bytes");
-    }
-    if (buf.capacity() > newSize) {
-      return buf;
-    }
-    
-    int pos = buf.position();
-    
-    final ByteBuffer newData = ByteBuffer.allocate(newSize).order(ByteOrder.nativeOrder());
-    final int copySize = Math.min(newSize, buf.capacity());
-    buf.position(0);
-    buf.limit(copySize);
-    newData.put(buf);
-    newData.position(pos);
-    
-    return newData;
-  }
-  
   /**
    * Encodes a {@link DominoViewFormat} describing the style of a view and of its columns in
    * binary form. The result is expected to be readible via {@link ViewFormatDecoder#decodeViewFormat(com.sun.jna.Pointer, int)}

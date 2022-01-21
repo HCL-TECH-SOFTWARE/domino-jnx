@@ -55,7 +55,9 @@ import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.data.SignatureDataImpl;
 import com.hcl.domino.commons.design.FormFieldImpl;
+import com.hcl.domino.commons.design.view.CollationDecoder;
 import com.hcl.domino.commons.design.view.DominoCalendarFormat;
+import com.hcl.domino.commons.design.view.DominoCollationInfo;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
 import com.hcl.domino.commons.design.view.ViewFormatDecoder;
 import com.hcl.domino.commons.design.view.ViewFormatEncoder;
@@ -74,7 +76,6 @@ import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.NotesItemDataUtil;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringUtil;
-import com.hcl.domino.commons.views.NotesCollationInfo;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Attachment.Compression;
 import com.hcl.domino.data.AutoCloseableDocument;
@@ -129,7 +130,6 @@ import com.hcl.domino.jna.internal.structs.NotesRangeStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
-import com.hcl.domino.jna.internal.views.CollationDecoder;
 import com.hcl.domino.jna.richtext.JNARichtextWriter;
 import com.hcl.domino.jna.utils.JNADominoUtils;
 import com.hcl.domino.misc.DominoEnumUtil;
@@ -524,16 +524,18 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			return unids;
 		}
 		else if (dataTypeAsInt == ItemDataType.TYPE_COLLATION.getValue()) {
-			NotesCollationInfo colInfo = CollationDecoder.decodeCollation(valueDataPtr);
-			return Arrays.asList((Object) colInfo);
+      ByteBuffer data = valueDataPtr.getByteBuffer(0, valueDataLength);
+
+      DominoCollationInfo collateInfo = CollationDecoder.decodeCollation(data);
+			return Arrays.asList((Object) collateInfo);
 		}
 		else if (dataTypeAsInt == ItemDataType.TYPE_VIEW_FORMAT.getValue()) {
-	    ByteBuffer data = valueDataPtr.getByteBuffer(0, valueLength);
+	    ByteBuffer data = valueDataPtr.getByteBuffer(0, valueDataLength);
 
 			DominoViewFormat viewFormatInfo = ViewFormatDecoder.decodeViewFormat(data);
 			return Arrays.asList((Object) viewFormatInfo);
 		} else if (dataTypeAsInt == ItemDataType.TYPE_CALENDAR_FORMAT.getValue()) {
-      ByteBuffer data = valueDataPtr.getByteBuffer(0, valueLength);
+      ByteBuffer data = valueDataPtr.getByteBuffer(0, valueDataLength);
       
 		  DominoCalendarFormat calendarFormat = ViewFormatDecoder.decodeCalendarFormat(data);
 		  return Arrays.asList((Object)calendarFormat);

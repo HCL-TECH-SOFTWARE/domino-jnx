@@ -98,4 +98,33 @@ public enum NotesItemDataUtil {
     tempBuf.limit(len);
     return tempBuf;
   }
+  
+  /**
+   * Checks if the specified buffer at least has the specified size. If not we create
+   * a new one and copy over all data, keeping the current position
+   * 
+   * @param buf buffer
+   * @param newSize new minimum size
+   * @return buffer, either the same (if capacity was sufficient) or a new one
+   */
+  public static ByteBuffer ensureBufferCapacity(ByteBuffer buf, int newSize) {
+    if (newSize < 1) {
+      throw new IllegalArgumentException("New size must be greater than 0 bytes");
+    }
+    if (buf.capacity() > newSize) {
+      return buf;
+    }
+    
+    int pos = buf.position();
+    
+    final ByteBuffer newData = ByteBuffer.allocate(newSize).order(ByteOrder.nativeOrder());
+    final int copySize = Math.min(newSize, buf.capacity());
+    buf.position(0);
+    buf.limit(copySize);
+    newData.put(buf);
+    newData.position(pos);
+    
+    return newData;
+  }
+
 }

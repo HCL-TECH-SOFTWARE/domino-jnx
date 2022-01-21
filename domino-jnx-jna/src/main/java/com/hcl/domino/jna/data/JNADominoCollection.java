@@ -38,6 +38,8 @@ import java.util.TreeSet;
 import java.util.function.BiConsumer;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.design.view.DominoCollationInfo;
+import com.hcl.domino.commons.design.view.DominoCollationInfo.DominoCollateColumn;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
@@ -49,7 +51,6 @@ import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.FindFlag;
 import com.hcl.domino.commons.views.NotesCollateDescriptor;
-import com.hcl.domino.commons.views.NotesCollationInfo;
 import com.hcl.domino.commons.views.ReadMask;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.CollectionEntry;
@@ -587,15 +588,16 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 			if (collationInfoList!=null && !collationInfoList.isEmpty()) {
 				readCollations = true;
 				
-				NotesCollationInfo colInfo = (NotesCollationInfo) collationInfoList.get(0);
+				DominoCollationInfo colInfo = (DominoCollationInfo) collationInfoList.get(0);
 				
-				List<NotesCollateDescriptor> collateDescList = colInfo.getDescriptors();
-				if (!collateDescList.isEmpty()) {
-					NotesCollateDescriptor firstCollateDesc = collateDescList.get(0);
-					String currItemName = firstCollateDesc.getName();
-					Direction currDirection = firstCollateDesc.getDirection();
-					
-					collationInfo.addCollation((short) colNo, currItemName, currDirection);
+				List<DominoCollateColumn> collateColumns = colInfo.getColumns();
+				if (!collateColumns.isEmpty()) {
+				  DominoCollateColumn firstCollateDesc = collateColumns.get(0);
+				  String currItemName = firstCollateDesc.getName();
+				  boolean isDescending = firstCollateDesc.isDescending();
+				  
+          collationInfo.addCollation((short) colNo, currItemName,
+              isDescending ? Direction.Descending : Direction.Ascending);
 				}
 			}
 			colNo++;

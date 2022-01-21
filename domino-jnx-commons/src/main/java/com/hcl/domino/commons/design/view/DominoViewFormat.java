@@ -49,7 +49,10 @@ public class DominoViewFormat implements IAdaptable {
   private ViewTableFormat3 format3;
   private ViewTableFormat4 format4;
   private CDResource backgroundResource;
-
+  
+  public DominoViewFormat() {
+  }
+  
   /**
    * Adds a new empty column format object at the specified position
    * 
@@ -186,6 +189,7 @@ public class DominoViewFormat implements IAdaptable {
       }
       return (T) colFormats;
     }
+    
     return null;
   }
 
@@ -235,7 +239,7 @@ public class DominoViewFormat implements IAdaptable {
   }
 
   // *******************************************************************************
-  // * CalendarLayout-reader hooks
+  // * Layout-reader hooks
   // *******************************************************************************
 
   public void read(final ViewTableFormat format1) {
@@ -257,11 +261,10 @@ public class DominoViewFormat implements IAdaptable {
   public void readBackgroundResource(final CDResource resource) {
     this.backgroundResource = resource;
   }
-
+  
   // *******************************************************************************
   // * Internal implementation utilities
   // *******************************************************************************
-
 
   private Set<ViewTableFormat.Flag> getFlags1() {
     final ViewTableFormat format1 = Objects.requireNonNull(this.format1, "VIEW_TABLE_FORMAT not read");

@@ -33,6 +33,7 @@ import com.hcl.domino.design.DesignColorsAndFonts;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.SharedColumn;
 import com.hcl.domino.design.format.CalendarType;
+import com.hcl.domino.design.format.CollateDescriptor;
 import com.hcl.domino.design.format.DateComponentOrder;
 import com.hcl.domino.design.format.DateShowFormat;
 import com.hcl.domino.design.format.DateShowSpecial;
@@ -68,7 +69,6 @@ import com.hcl.domino.richtext.structures.NFMT;
  */
 public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   private DesignElement parent;
-//  private int columnValuesIndex;
   private ViewColumnFormat format1;
   private ViewColumnFormat2 format2;
   private ViewColumnFormat3 format3;
@@ -77,7 +77,7 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   private ViewColumnFormat6 format6;
   private String sharedColumnName;
   private String hiddenTitle;
-
+  
   public DominoViewColumnFormat() {
   }
 
@@ -190,6 +190,7 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   public CollectionColumn setItemName(String itemName) {
     this.getFormat1().setItemName(itemName);
     markViewFormatDirty();
+    
     return this;
   }
 
@@ -547,22 +548,10 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
   public void read(final ViewColumnFormat6 format6) {
     this.format6 = format6;
   }
-
-//  public void readColumnValuesIndex(final int columnValuesIndex) {
-//    this.columnValuesIndex = columnValuesIndex;
-//  }
-
-//  public void readHideWhenFormula(final byte[] formula) {
-//    this.compiledHideWhenFormula = formula;
-//  }
-
+  
   public void readSharedColumnName(final String name) {
     this.sharedColumnName = name;
   }
-  
-//  public void readTwistie(final CDResource resource) {
-//    this.twistie = resource;
-//  }
   
   public void readHiddenTitle(String title) {
     this.hiddenTitle = title;
@@ -1039,4 +1028,11 @@ public class DominoViewColumnFormat implements IAdaptable, CollectionColumn {
       ((AbstractCollectionDesignElement)this.parent).setViewFormatDirty(true);
     }
   }
+  
+  private CollateDescriptor createCollateDescriptor() {
+    CollateDescriptor desc = CollateDescriptor.newInstance();
+    desc.setName(getItemName());
+    return desc;
+  }
+
 }
