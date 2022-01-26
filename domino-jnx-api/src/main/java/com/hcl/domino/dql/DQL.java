@@ -995,6 +995,7 @@ public class DQL {
    * @param formula the formula expression to use
    * @return term representing the formula expression
    * @throws IllegalArgumentException if {@code formula} is empty
+   * @since 1.1.2
    */
   public static FormulaTerm formula(String formula) {
     return new FormulaTerm(formula);
@@ -1007,6 +1008,7 @@ public class DQL {
    * @param formula the {@link Formula} objects to use
    * @return term representing the formula expression
    * @throws NullPointerException if {@code formula} is {@code null}
+   * @since 1.1.2
    */
   public static FormulaTerm formula(Formula formula) {
     Objects.requireNonNull(formula, "formula cannot be null");
