@@ -17,6 +17,7 @@
 package com.hcl.domino.test.dql;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.text.MessageFormat;
 import java.time.Instant;
@@ -91,4 +92,20 @@ public class TestDQLGenerator {
     dateValueMS -= (millis-millisRounded);
     return ZonedDateTime.ofInstant(Instant.ofEpochMilli(dateValueMS), val.getZone());
   }
+  
+  @Test
+  public void testEmptyFormula() {
+    assertThrows(IllegalArgumentException.class, () -> DQL.formula(null));
+    assertThrows(IllegalArgumentException.class, () -> DQL.formula(""));
+  }
+
+  @Test
+  public void testFormulas() {
+    assertEquals("@formula('@True')", DQL.formula("@True").toString());
+    assertEquals("@formula('Foo=\"Hello\"')", DQL.formula("Foo=\"Hello\"").toString());
+    assertEquals("@formula('Foo=''Hello''')", DQL.formula("Foo='Hello'").toString());
+    
+    assertEquals("Bar = 'Baz' and @formula('Foo=''Hello''')", DQL.and(DQL.item("Bar").isEqualTo("Baz"), DQL.formula("Foo='Hello'")).toString());
+  }
+  
 }

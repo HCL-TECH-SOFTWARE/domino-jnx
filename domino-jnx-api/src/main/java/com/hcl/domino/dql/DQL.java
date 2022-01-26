@@ -338,6 +338,30 @@ public class DQL {
 
   }
 
+  /**
+   * @since 1.1.2
+   */
+  public static class FormulaTerm extends DQLTerm {
+    private final String m_formula;
+
+    private String m_toString;
+
+    private FormulaTerm(final String formula) {
+      if(formula == null || formula.isEmpty()) {
+        throw new IllegalArgumentException("Formula expression cannot be empty");
+      }
+      this.m_formula = formula;
+    }
+
+    @Override
+    public String toString() {
+      if (this.m_toString == null) {
+        this.m_toString = MessageFormat.format("@formula(''{0}'')", escapeStringValue(m_formula)); //$NON-NLS-1$
+      }
+      return this.m_toString;
+    }
+  }
+
   public static class SpecialValue extends NamedItem {
     private final SpecialValueType m_type;
 
@@ -961,6 +985,18 @@ public class DQL {
    */
   public static NamedView view(final String viewName) {
     return new NamedView(viewName);
+  }
+  
+  /**
+   * Use this method to filter documents based on a formula-language
+   * expression
+   * 
+   * @param formula the formula expression to use
+   * @return term representing the formula expression
+   * @throws IllegalArgumentException if {@code formula} is empty
+   */
+  public static FormulaTerm formula(String formula) {
+    return new FormulaTerm(formula);
   }
 
 }

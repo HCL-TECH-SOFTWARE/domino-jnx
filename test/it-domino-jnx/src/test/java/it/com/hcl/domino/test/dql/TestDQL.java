@@ -866,4 +866,21 @@ public class TestDQL extends AbstractNotesRuntimeTest {
       });
 
     }
+
+    @Test
+    public void testFormulaNumber() throws Exception {
+        this.withTempDb(db -> {
+            Document someDoc = db.createDocument();
+            int val = 123;
+            someDoc.appendItemValue("val", val);
+            someDoc.save();
+            DQLQueryResult result = db.queryDQL(DQL.formula("val=" + val), EnumSet.of(DBQuery.EXPLAIN));
+            showResult(result);
+            String explainText = result.getExplainText();
+            Assertions.assertNotNull(result.getExplainText());
+            Assertions.assertTrue(explainText.length() > 0);
+            final IDTable resultsTable = result.getNoteIds().get();
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
+        });
+    }
 }
