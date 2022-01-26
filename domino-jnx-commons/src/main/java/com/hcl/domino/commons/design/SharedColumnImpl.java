@@ -21,7 +21,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
-import com.hcl.domino.commons.design.view.DominoViewColumnFormat;
+import com.hcl.domino.commons.design.view.DominoCollectionColumn;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
 import com.hcl.domino.commons.design.view.ViewFormatEncoder;
 import com.hcl.domino.data.CollectionColumn;
@@ -69,7 +69,7 @@ public class SharedColumnImpl extends AbstractDesignElement<SharedColumn> implem
        this.format.ifPresent(format ->
          format.getColumns()
            .stream()
-           .map(DominoViewColumnFormat.class::cast)
+           .map(DominoCollectionColumn.class::cast)
            .forEach(col -> col.setParent(this))
        );
      }

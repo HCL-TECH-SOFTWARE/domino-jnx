@@ -1,17 +1,151 @@
 package com.hcl.domino.commons.design.view;
 
-import static com.hcl.domino.commons.util.NotesItemDataUtil.ensureBufferCapacity;
-
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
+import com.hcl.domino.commons.design.view.DominoCollationInfo.DominoCollateColumn;
+import com.hcl.domino.data.CollectionColumn;
+import com.hcl.domino.data.CollectionColumn.SortConfiguration;
 import com.hcl.domino.design.format.CollateDescriptor;
 import com.hcl.domino.design.format.Collation;
+import com.hcl.domino.design.format.CollateDescriptor.CollateType;
 import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 
 public class CollationEncoder {
 
+  /**
+   * Analyzes the {@link DominoViewFormat} object and produces matching {@link DominoCollationInfo}
+   * objects for sorted/categorized columns and columns with resort options.
+   * 
+   * @param viewFormat view format
+   * @return list of collations, to be written as items $Collation, $Collation1, $Collation2 etc.
+   */
+  public static List<DominoCollationInfo> newCollationFromViewFormat(DominoViewFormat viewFormat) {
+    List<DominoCollationInfo> collations = new ArrayList<>();
+    List<CollectionColumn> viewColumns = viewFormat.getColumns();
+
+    {
+      //add COLLATE structure for $Collation containing buildOnDemand and Unique property
+      //as well as any already sorted column
+      DominoCollationInfo collation = new DominoCollationInfo();
+      collations.add(collation);
+
+      collation.setBuildOnDemand(false);
+      collation.setUnique(false);
+
+      for (CollectionColumn currViewCol : viewColumns) {
+        SortConfiguration currSortCfg = currViewCol.getSortConfiguration();
+        DominoCollateColumn collateCol = null;
+
+        if (currSortCfg.isCategory()) {
+          collateCol = collation.addColumn(currViewCol.getItemName(), currSortCfg.isSortedDescending());
+          collateCol.setType(CollateType.CATEGORY);
+        }
+        else if (currSortCfg.isSorted()) {
+          collateCol = collation.addColumn(currViewCol.getItemName(), currSortCfg.isSortedDescending());
+          collateCol.setType(CollateType.KEY);
+        }
+
+        if (collateCol!=null) {
+          boolean isAccentSensitive = currSortCfg.isAccentSensitive();
+          collateCol.setAccentSensitive(isAccentSensitive);
+          boolean isCaseSensitive = currSortCfg.isCaseSensitive();
+          collateCol.setCaseSensitive(isCaseSensitive);
+          boolean isIgnorePrefixes = currSortCfg.isIgnorePrefixes();
+          collateCol.setIgnorePrefixes(isIgnorePrefixes);
+        }
+      }
+    }
+    
+    {
+      //now go through the columns to find resortable ones
+      for (CollectionColumn currViewCol : viewColumns) {
+        SortConfiguration currSortCfg = currViewCol.getSortConfiguration();
+        if (currSortCfg.isResortAscending()) {
+          
+          DominoCollationInfo collation = new DominoCollationInfo();
+          collations.add(collation);
+
+          collation.setBuildOnDemand(currSortCfg.isDeferResortIndexing());
+          //TODO find out where the unique property comes from:
+          collation.setUnique(false);
+
+          DominoCollateColumn collateCol = collation.addColumn(currViewCol.getItemName(), false);
+          collateCol.setType(currSortCfg.isCategory() ? CollateType.CATEGORY : CollateType.KEY);
+          
+          boolean isAccentSensitive = currSortCfg.isAccentSensitive();
+          collateCol.setAccentSensitive(isAccentSensitive);
+          boolean isCaseSensitive = currSortCfg.isCaseSensitive();
+          collateCol.setCaseSensitive(isCaseSensitive);
+          boolean isIgnorePrefixes = currSortCfg.isIgnorePrefixes();
+          collateCol.setIgnorePrefixes(isIgnorePrefixes);
+
+          if (currSortCfg.isSecondaryResort()) {
+            //second sort column is specified
+            
+            int secSortCol = currSortCfg.getSecondResortColumnIndex();
+
+            if (secSortCol < viewColumns.size()) {
+              //column still exists
+              CollectionColumn secondarySortCol = viewColumns.get(secSortCol);
+              SortConfiguration secondarySortCfg = secondarySortCol.getSortConfiguration();
+              
+              DominoCollateColumn secondaryCollateCol = collation.addColumn(secondarySortCol.getItemName(), currSortCfg.isSecondaryResortDescending());
+              secondaryCollateCol.setType(secondarySortCfg.isCategory() ? CollateType.CATEGORY : CollateType.KEY);
+
+              secondaryCollateCol.setAccentSensitive(secondarySortCfg.isAccentSensitive());
+              secondaryCollateCol.setCaseSensitive(secondarySortCfg.isCaseSensitive());
+              secondaryCollateCol.setIgnorePrefixes(secondarySortCfg.isIgnorePrefixes());
+            }
+          }
+        }
+        
+        if (currSortCfg.isResortDescending()) {
+          
+          DominoCollationInfo collation = new DominoCollationInfo();
+          collations.add(collation);
+
+          collation.setBuildOnDemand(currSortCfg.isDeferResortIndexing());
+          //TODO find out where the unique property comes from:
+          collation.setUnique(false);
+
+          DominoCollateColumn collateCol = collation.addColumn(currViewCol.getItemName(), true);
+          collateCol.setType(currSortCfg.isCategory() ? CollateType.CATEGORY : CollateType.KEY);
+          
+          boolean isAccentSensitive = currSortCfg.isAccentSensitive();
+          collateCol.setAccentSensitive(isAccentSensitive);
+          boolean isCaseSensitive = currSortCfg.isCaseSensitive();
+          collateCol.setCaseSensitive(isCaseSensitive);
+          boolean isIgnorePrefixes = currSortCfg.isIgnorePrefixes();
+          collateCol.setIgnorePrefixes(isIgnorePrefixes);
+
+          if (currSortCfg.isSecondaryResort()) {
+            //second sort column is specified
+            
+            int secSortCol = currSortCfg.getSecondResortColumnIndex();
+
+            if (secSortCol < viewColumns.size()) {
+              //column still exists
+              CollectionColumn secondarySortCol = viewColumns.get(secSortCol);
+              SortConfiguration secondarySortCfg = secondarySortCol.getSortConfiguration();
+              
+              DominoCollateColumn secondaryCollateCol = collation.addColumn(secondarySortCol.getItemName(), currSortCfg.isSecondaryResortDescending());
+              secondaryCollateCol.setType(secondarySortCfg.isCategory() ? CollateType.CATEGORY : CollateType.KEY);
+
+              secondaryCollateCol.setAccentSensitive(secondarySortCfg.isAccentSensitive());
+              secondaryCollateCol.setCaseSensitive(secondarySortCfg.isCaseSensitive());
+              secondaryCollateCol.setIgnorePrefixes(secondarySortCfg.isIgnorePrefixes());
+            }
+          }
+        }
+      }
+    }
+    return collations;
+  }
+  
   /**
    * Encodes the collation info of a view
    * 

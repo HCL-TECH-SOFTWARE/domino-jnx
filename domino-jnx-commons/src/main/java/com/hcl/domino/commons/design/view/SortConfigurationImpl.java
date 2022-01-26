@@ -30,9 +30,9 @@ import com.hcl.domino.richtext.structures.UNID;
  * @since 1.0.27
  */
 public class SortConfigurationImpl implements SortConfiguration {
-  private final DominoViewColumnFormat format;
+  private final DominoCollectionColumn format;
 
-  public SortConfigurationImpl(final DominoViewColumnFormat format) {
+  public SortConfigurationImpl(final DominoCollectionColumn format) {
     this.format = format;
   }
 

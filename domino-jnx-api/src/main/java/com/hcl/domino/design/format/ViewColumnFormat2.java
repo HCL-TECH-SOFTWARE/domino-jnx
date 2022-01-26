@@ -17,15 +17,19 @@
 package com.hcl.domino.design.format;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.hcl.domino.data.FontAttribute;
+import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.misc.StructureSupport;
+import com.hcl.domino.misc.ViewFormatConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -61,6 +65,19 @@ import com.hcl.domino.richtext.structures.UNID;
   }
 )
 public interface ViewColumnFormat2 extends ResizableMemoryStructure {
+  public static ViewColumnFormat2 newInstance() {
+    ViewColumnFormat2 format2 = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat2.class, 0);
+    format2.setSignature(ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE2);
+    format2.setCustomOrder(0xffff);
+    format2.getHeaderFontStyle()
+    .setAttributes(Arrays.asList(FontAttribute.BOLD))
+    .setStandardFont(StandardFonts.SWISS)
+    .setPointSize(9)
+    .setFontFace((byte) 1);
+    
+    return format2;
+  }
+  
   enum Flag3 implements INumberEnum<Short> {
     FlatInV5(NotesConstants.VCF3_M_FlatInV5),
     CaseSensitiveSortInV5(NotesConstants.VCF3_M_CaseSensitiveSortInV5),

@@ -70,7 +70,7 @@ public class ViewFormatDecoder {
 		ViewTableFormat format1 = readMemory(data, ODSTypes._VIEW_TABLE_FORMAT, ViewTableFormat.class);
 		result.read(format1);
 		
-		List<DominoViewColumnFormat> columns = new ArrayList<>();
+		List<DominoCollectionColumn> columns = new ArrayList<>();
 		
 		// Always present
 		{
@@ -96,7 +96,7 @@ public class ViewFormatDecoder {
         System.out.println("VarData ViewColumnFormat #"+i+"\n"+DumpUtil.dumpAsAscii(varData));
 				fullColData.put(varData);
 
-				DominoViewColumnFormat viewCol = (DominoViewColumnFormat) result.addColumn(-1);
+				DominoCollectionColumn viewCol = (DominoCollectionColumn) result.addColumn(-1);
 				viewCol.read(fullCol);
 				columns.add(viewCol);
 			}
@@ -139,7 +139,7 @@ public class ViewFormatDecoder {
 		
 		// Followed by variable data defined by VIEW_COLUMN_FORMAT2
 		for(int i = 0; i < format1.getColumnCount(); i++) {
-			DominoViewColumnFormat col = columns.get(i);
+			DominoCollectionColumn col = columns.get(i);
 			ViewColumnFormat2 fmt = col.getAdapter(ViewColumnFormat2.class);
 			int hideWhenLen = fmt.getHideWhenFormulaLength();
       int twistieLen = fmt.getTwistieResourceLength();
@@ -202,7 +202,7 @@ public class ViewFormatDecoder {
 		
 		// VIEW_COLUMN_FORMAT3 - date/time format
 		for(int i = 0; i < format1.getColumnCount(); i++) {
-			DominoViewColumnFormat col = columns.get(i);
+			DominoCollectionColumn col = columns.get(i);
 			ViewColumnFormat2 fmt = col.getAdapter(ViewColumnFormat2.class);
 			if(fmt.getFlags().contains(ViewColumnFormat2.Flag3.ExtDate)) {
 				
@@ -229,7 +229,7 @@ public class ViewFormatDecoder {
 		
 		// VIEW_COLUMN_FORMAT4 - number format
 		for(int i = 0; i < format1.getColumnCount(); i++) {
-			DominoViewColumnFormat col = columns.get(i);
+			DominoCollectionColumn col = columns.get(i);
 			ViewColumnFormat2 fmt = col.getAdapter(ViewColumnFormat2.class);
 			if(fmt.getFlags().contains(ViewColumnFormat2.Flag3.NumberFormat)) {
 				
@@ -256,7 +256,7 @@ public class ViewFormatDecoder {
 		
 		// VIEW_COLUMN_FORMAT5 - names format
 		for(int i = 0; i < format1.getColumnCount(); i++) {
-			DominoViewColumnFormat col = columns.get(i);
+			DominoCollectionColumn col = columns.get(i);
 			ViewColumnFormat2 fmt = col.getAdapter(ViewColumnFormat2.class);
 			if(fmt.getFlags().contains(ViewColumnFormat2.Flag3.NamesFormat)) {
 				int len = MemoryStructureUtil.sizeOf(ViewColumnFormat5.class);
@@ -278,7 +278,7 @@ public class ViewFormatDecoder {
 		
 		// Hidden titles follow as WORD-prefixed P-strings
 		for(int i = 0; i < format1.getColumnCount(); i++) {
-      DominoViewColumnFormat col = columns.get(i);
+      DominoCollectionColumn col = columns.get(i);
       if(col.isHideTitle()) {
         int titleLen = Short.toUnsignedInt(data.getShort());
         byte[] lmbcs = new byte[titleLen];
@@ -294,7 +294,7 @@ public class ViewFormatDecoder {
 		
 		// Shared-column aliases follow as WORD-prefixed P-strings
 		for(int i = 0; i < format1.getColumnCount(); i++) {
-			DominoViewColumnFormat col = columns.get(i);
+			DominoCollectionColumn col = columns.get(i);
       if(col.isSharedColumn()) {
         int aliasLen = Short.toUnsignedInt(data.getShort());
         byte[] lmbcs = new byte[aliasLen];
@@ -338,7 +338,7 @@ public class ViewFormatDecoder {
 		
 		// VIEW_COLUMN_FORMAT6 - Hannover
 		for(int i = 0; i < format1.getColumnCount(); i++) {
-			DominoViewColumnFormat col = columns.get(i);
+			DominoCollectionColumn col = columns.get(i);
 			ViewColumnFormat2 fmt = col.getAdapter(ViewColumnFormat2.class);
 			if(fmt.getFlags().contains(ViewColumnFormat2.Flag3.ExtendedViewColFmt6)) {
 				int len = MemoryStructureUtil.sizeOf(ViewColumnFormat6.class);

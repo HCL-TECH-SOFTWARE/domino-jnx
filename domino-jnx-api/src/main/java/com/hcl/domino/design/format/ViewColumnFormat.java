@@ -16,7 +16,6 @@
  */
 package com.hcl.domino.design.format;
 
-import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -33,10 +32,10 @@ import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.FontStyle;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.NFMT;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 import com.hcl.domino.richtext.structures.TFMT;
-import com.hcl.domino.util.JNXDumpUtil;
 
 /**
  * @author Jesse Gallagher
@@ -58,6 +57,33 @@ import com.hcl.domino.util.JNXDumpUtil;
     @StructureMember(name = "ListSep", type = ViewColumnFormat.ListDelimiter.class)
 })
 public interface ViewColumnFormat extends ResizableMemoryStructure {
+  
+  public static ViewColumnFormat newInstance() {
+    ViewColumnFormat format = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat.class, 0);
+    format.setTitle("#"); //$NON-NLS-1$
+    format.setReadingOrder(ReadingOrder.LTR);
+    format.setDisplayWidth(80);
+    format.setTotalType(StatType.NONE);
+    
+    //numberFormat
+    
+    format.setFormula("@DocNumber"); //$NON-NLS-1$
+    format.setConstantValueLength(format.getConstantValueLength());
+    format.setHeaderAlignment(Alignment.LEFT);
+    format.setDataType(DataType.TEXT);
+    format.setSignature(ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE);
+    
+    //timeFormat
+    format.setAlignment(Alignment.LEFT);
+    format.setHeaderReadingOrder(ReadingOrder.LTR);
+    format.setItemName("$0"); //$NON-NLS-1$
+    format.getFontStyle().setPointSize(10).setFontFace((byte) 1);
+    
+    format.setListDelimiter(ListDelimiter.NONE);
+    
+    return format;
+  }
+  
   enum Alignment implements INumberEnum<Byte> {
     LEFT(ViewFormatConstants.VIEW_COL_ALIGN_LEFT),
     RIGHT(ViewFormatConstants.VIEW_COL_ALIGN_RIGHT),

@@ -58,14 +58,14 @@ public class ViewFormatEncoder {
     
     //validate that we have the current column type
     for (CollectionColumn currCol : viewFormat.getColumns()) {
-      if (currCol instanceof DominoViewColumnFormat ==false) {
-        throw new IllegalArgumentException(MessageFormat.format("Column must be of type {0}: {1}", DominoViewColumnFormat.class.getName(), currCol.getClass().getName()));
+      if (currCol instanceof DominoCollectionColumn ==false) {
+        throw new IllegalArgumentException(MessageFormat.format("Column must be of type {0}: {1}", DominoCollectionColumn.class.getName(), currCol.getClass().getName()));
       }
     }
 
-    List<DominoViewColumnFormat> columns = viewFormat.getColumns()
+    List<DominoCollectionColumn> columns = viewFormat.getColumns()
         .stream()
-        .map(DominoViewColumnFormat.class::cast)
+        .map(DominoCollectionColumn.class::cast)
         .collect(Collectors.toList());
 
     ByteBuffer buf;
@@ -85,7 +85,7 @@ public class ViewFormatEncoder {
     
     //write fixed part of VIEW_COLUMN_FORMAT first
     for (int i=0; i<columns.size(); i++) {
-      DominoViewColumnFormat col = columns.get(i);
+      DominoCollectionColumn col = columns.get(i);
       
       ViewColumnFormat fmt = col.getAdapter(ViewColumnFormat.class);
       if (fmt==null) {
@@ -104,7 +104,7 @@ public class ViewFormatEncoder {
 
     //followed by the var data of VIEW_COLUMN_FORMAT
     for (int i=0; i<columns.size(); i++) {
-      DominoViewColumnFormat col = columns.get(i);
+      DominoCollectionColumn col = columns.get(i);
       
       ViewColumnFormat fmt = col.getAdapter(ViewColumnFormat.class);
       if (fmt==null) {
@@ -132,7 +132,7 @@ public class ViewFormatEncoder {
 
     //write fixed part of VIEW_COLUMN_FORMAT2 first
     for (int i=0; i<columns.size(); i++) {
-      DominoViewColumnFormat col = columns.get(i);
+      DominoCollectionColumn col = columns.get(i);
       
       ViewColumnFormat2 fmt2 = col.getAdapter(ViewColumnFormat2.class);
       if (fmt2==null) {
@@ -165,7 +165,7 @@ public class ViewFormatEncoder {
 
     // write variable data defined by VIEW_COLUMN_FORMAT2 (hide-when formula and twistie CDRESOURCE)
     for (int i=0; i<columns.size(); i++) {
-      DominoViewColumnFormat col = columns.get(i);
+      DominoCollectionColumn col = columns.get(i);
       
       ViewColumnFormat2 fmt2 = col.getAdapter(ViewColumnFormat2.class);
       if (fmt2==null) {
@@ -216,7 +216,7 @@ public class ViewFormatEncoder {
 
     // VIEW_COLUMN_FORMAT4 - number format
     for (int i=0; i<columns.size(); i++) {
-      DominoViewColumnFormat col = columns.get(i);
+      DominoCollectionColumn col = columns.get(i);
       ViewColumnFormat2 fmt2 = col.getAdapter(ViewColumnFormat2.class);
       
       if(fmt2.getFlags().contains(ViewColumnFormat2.Flag3.NumberFormat)) {
@@ -233,7 +233,7 @@ public class ViewFormatEncoder {
     
     // VIEW_COLUMN_FORMAT5 - names format
     for (int i=0; i<columns.size(); i++) {
-      DominoViewColumnFormat col = columns.get(i);
+      DominoCollectionColumn col = columns.get(i);
       ViewColumnFormat2 fmt2 = col.getAdapter(ViewColumnFormat2.class);
       
       if(fmt2.getFlags().contains(ViewColumnFormat2.Flag3.NamesFormat)) {
@@ -252,7 +252,7 @@ public class ViewFormatEncoder {
     
     // Hidden titles follow as WORD-prefixed P-strings
     for(int i = 0; i < columns.size(); i++) {
-      DominoViewColumnFormat col = columns.get(i);
+      DominoCollectionColumn col = columns.get(i);
       if(col.isHideTitle()) {
         String hiddenTitle = col.getTitle();
         byte[] hiddenTitleData = hiddenTitle.getBytes(lmbcsCharset);
@@ -267,7 +267,7 @@ public class ViewFormatEncoder {
 
     // Shared-column aliases follow as WORD-prefixed P-strings
     for(int i = 0; i < columns.size(); i++) {
-      DominoViewColumnFormat col = columns.get(i);
+      DominoCollectionColumn col = columns.get(i);
       if(col.isSharedColumn()) {
         Optional<String> sharedColumnName = col.getSharedColumnName();
         if (sharedColumnName.isPresent()) {
@@ -292,7 +292,7 @@ public class ViewFormatEncoder {
     
     // VIEW_COLUMN_FORMAT6 - Hannover
     for(int i = 0; i < columns.size(); i++) {
-      DominoViewColumnFormat col = columns.get(i);
+      DominoCollectionColumn col = columns.get(i);
       ViewColumnFormat2 fmt = col.getAdapter(ViewColumnFormat2.class);
       if(fmt.getFlags().contains(ViewColumnFormat2.Flag3.ExtendedViewColFmt6)) {
         ViewColumnFormat6 fmt6 = col.getAdapter(ViewColumnFormat6.class);

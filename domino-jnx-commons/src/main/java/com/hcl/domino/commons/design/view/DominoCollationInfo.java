@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.design.format.CollateDescriptor;
+import com.hcl.domino.design.format.CollateDescriptor.CollateType;
 import com.hcl.domino.design.format.CollateDescriptor.Flag;
 import com.hcl.domino.design.format.Collation;
 
@@ -62,7 +63,7 @@ public class DominoCollationInfo implements IAdaptable {
   }
   
   /**
-   * Flag to indicate only build on demand.
+   * Flag to indicate only build on demand ("Defer index creation until first use").
    * 
    * @return true for build on demand
    */
@@ -135,7 +136,7 @@ public class DominoCollationInfo implements IAdaptable {
     }
     
     public boolean isDescending() {
-      return getCollateDescriptor().getFlags().contains(CollateDescriptor.Flag.Descending);
+      return getCollateDescriptor().getFlags().contains(Flag.Descending);
     }
     
     public DominoCollateColumn setDescending(boolean b) {
@@ -144,7 +145,7 @@ public class DominoCollationInfo implements IAdaptable {
     }
     
     public boolean isCaseSensitive() {
-      return getCollateDescriptor().getFlags().contains(CollateDescriptor.Flag.CaseSensitiveInV5);
+      return getCollateDescriptor().getFlags().contains(Flag.CaseSensitiveInV5);
     }
     
     public DominoCollateColumn setCaseSensitive(boolean b) {
@@ -153,7 +154,7 @@ public class DominoCollationInfo implements IAdaptable {
     }
     
     public boolean isAccentSensitive() {
-      return getCollateDescriptor().getFlags().contains(CollateDescriptor.Flag.AccentSensitiveInV5);
+      return getCollateDescriptor().getFlags().contains(Flag.AccentSensitiveInV5);
     }
     
     public DominoCollateColumn setAccentSensitive(boolean b) {
@@ -162,7 +163,7 @@ public class DominoCollationInfo implements IAdaptable {
     }
     
     public boolean isIgnorePrefixes() {
-      return getCollateDescriptor().getFlags().contains(CollateDescriptor.Flag.IgnorePrefixes);
+      return getCollateDescriptor().getFlags().contains(Flag.IgnorePrefixes);
     }
     
     public DominoCollateColumn setIgnorePrefixes(boolean b) {
@@ -170,6 +171,13 @@ public class DominoCollationInfo implements IAdaptable {
       return this;
     }
     
+    public CollateType getType() {
+      return this.collateDescriptor.getKeyType();
+    }
     
+    public DominoCollateColumn setType(CollateType type) {
+      this.collateDescriptor.setKeyType(type);
+      return this;
+    }
   }
 }

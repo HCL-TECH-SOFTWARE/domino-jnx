@@ -37,7 +37,8 @@ public class ViewImpl extends AbstractCollectionDesignElement<View> implements V
 
   @Override
   public void initializeNewDesignNote() {
-    this.setFlags("Y"); //$NON-NLS-1$
+    super.initializeNewDesignNote();
+    this.setFlags("PY"); //$NON-NLS-1$
   }
 
   @Override

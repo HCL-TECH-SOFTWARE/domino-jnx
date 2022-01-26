@@ -51,6 +51,7 @@ public class DominoViewFormat implements IAdaptable {
   private CDResource backgroundResource;
   
   public DominoViewFormat() {
+    this.format1 = ViewTableFormat.newInstance();
   }
   
   /**
@@ -61,7 +62,7 @@ public class DominoViewFormat implements IAdaptable {
    */
   public CollectionColumn addColumn(int index) {
     final ViewTableFormat format1 = Objects.requireNonNull(this.format1, "VIEW_TABLE_FORMAT not read");
-    final DominoViewColumnFormat col = new DominoViewColumnFormat();
+    final DominoCollectionColumn col = new DominoCollectionColumn();
     
     if (index==-1) {
       this.columns.add(col);
@@ -118,7 +119,7 @@ public class DominoViewFormat implements IAdaptable {
     }
     
     CollectionColumn colA = columns.get(a);
-    CollectionColumn colB = columns.get(a);
+    CollectionColumn colB = columns.get(b);
     columns.set(a, colB);
     columns.set(b, colA);
   }

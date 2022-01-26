@@ -133,7 +133,7 @@ public interface CollateDescriptor extends ResizableMemoryStructure {
     Descending(NotesConstants.CDF_M_descending),
 
     /** Obsolete - see new constant below */
-    CaseSensitive(NotesConstants.CDF_M_caseinsensitive),
+//    CaseSensitive(NotesConstants.CDF_M_caseinsensitive),
     
     /** If prefix list, then ignore for sorting */
     IgnorePrefixes(NotesConstants.CDF_M_ignoreprefixes),

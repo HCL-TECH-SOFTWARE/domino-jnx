@@ -16,7 +16,6 @@
  */
 package com.hcl.domino.commons.design;
 
-import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +24,7 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
@@ -33,11 +33,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.NotYetImplementedException;
+import com.hcl.domino.commons.design.view.CollationEncoder;
 import com.hcl.domino.commons.design.view.DefaultCalendarSettings;
 import com.hcl.domino.commons.design.view.DominoCalendarFormat;
-import com.hcl.domino.commons.design.view.DominoViewColumnFormat;
+import com.hcl.domino.commons.design.view.DominoCollationInfo;
+import com.hcl.domino.commons.design.view.DominoCollectionColumn;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
-import com.hcl.domino.commons.design.view.ViewFormatEncoder;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.NotesCollationInfo;
 import com.hcl.domino.data.CollectionColumn;
@@ -45,7 +46,6 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.IAdaptable;
-import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.CollectionDesignElement;
@@ -86,6 +86,24 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     super(doc);
   }
 
+  @Override
+  public void initializeNewDesignNote() {
+    Document doc = getDocument();
+    
+    DominoCollationInfo collationInfo = new DominoCollationInfo();
+    doc.replaceItemValue(DesignConstants.VIEW_COLLATION_ITEM,
+        EnumSet.of(ItemFlag.SUMMARY), collationInfo);
+    doc.replaceItemValue(NotesConstants.VIEW_COMMENT_ITEM,
+        EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), ""); //$NON-NLS-1$
+    doc.replaceItemValue(DesignConstants.DESIGNER_VERSION, "8.5.3"); //$NON-NLS-1$
+    doc.replaceItemValue(DesignConstants.VIEW_INDEX_ITEM,
+        EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), ""); //$NON-NLS-1$
+    
+    this.format = Optional.of(new DominoViewFormat());
+    addColumn("#", "$0", (col) -> { //$NON-NLS-1$ //$NON-NLS-2$
+    });
+  }
+  
   @SuppressWarnings("unchecked")
   @Override
   public <T> T getAdapter(Class<T> clazz) {
@@ -97,7 +115,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   }
   
   @Override
-  public T addColumn(int pos, Consumer<CollectionColumn> consumer) {
+  public T addColumn(int pos, String title, String itemName, Consumer<CollectionColumn> consumer) {
     //TODO check why it's not allowed to change folder columns
     if (Folder.class.isAssignableFrom(getClass())) {
       throw new UnsupportedOperationException();
@@ -107,15 +125,26 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
 
     CollectionColumn newCol = viewFormat.addColumn(pos);
-    consumer.accept(newCol);
+    newCol.setTitle(title);
+    newCol.setItemName(itemName);
+    
+    if (consumer!=null) {
+      consumer.accept(newCol);
+    }
+    
+    setViewFormatDirty(true);
     
     return (T) this;
   }
 
   @Override
   public DominoCollection getCollection() {
-//    throw new NotYetImplementedException();
-    return null;
+    Document doc = getDocument();
+    if (doc.isNew()) {
+      throw new IllegalStateException("Design element has not been saved yet");
+    }
+    
+    return doc.getParentDatabase().openCollectionByUNID(getDocument().getUNID()).get();
   }
 
   @Override
@@ -207,6 +236,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
 
     viewFormat.swapColumns(a, b);
+    setViewFormatDirty(true);
     return (T) this;
   }
 
@@ -216,6 +246,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
 
     viewFormat.swapColumns(a, b);
+    setViewFormatDirty(true);
     return (T) this;
   }
   
@@ -456,7 +487,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       this.format.ifPresent(format ->
         format.getColumns()
           .stream()
-          .map(DominoViewColumnFormat.class::cast)
+          .map(DominoCollectionColumn.class::cast)
           .forEach(col -> col.setParent(this))
       );
     }
@@ -548,6 +579,32 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
         doc.replaceItemValue(DesignConstants.VIEW_VIEW_FORMAT_ITEM,
             EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY),
             this.format.get());
+        
+        List<DominoCollationInfo> collations = Objects.requireNonNull(CollationEncoder.newCollationFromViewFormat(this.format.get()));
+        if (collations.isEmpty()) {
+          throw new IllegalStateException("CollationEncoder returned empty list");
+        }
+        
+        //remove old collations
+        doc.removeItem(DesignConstants.VIEW_COLLATION_ITEM); //$NON-NLS-1$
+        int idx = 1;
+        while (doc.hasItem(DesignConstants.VIEW_COLLATION_ITEM+Integer.toString(idx))) {
+          doc.removeItem(DesignConstants.VIEW_COLLATION_ITEM+Integer.toString(idx));
+          idx++;
+        }
+        
+        //write new collations
+        doc.replaceItemValue(DesignConstants.VIEW_COLLATION_ITEM,
+            EnumSet.of(ItemFlag.SUMMARY), collations.get(0));
+        
+        if (collations.size()>1) {
+          for (int i=1; i<collations.size(); i++) {
+            DominoCollationInfo currCollation = collations.get(i);
+            doc.replaceItemValue(DesignConstants.VIEW_COLLATION_ITEM+Integer.toString(i),
+                EnumSet.of(ItemFlag.SUMMARY), currCollation);
+          }
+        }
+        
         doc.sign();
       }
       
@@ -555,6 +612,11 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     return super.save();
+  }
+  
+  @Override
+  public String toString() {
+    return MessageFormat.format("{0} [title={1}, columns={2}]", getClass().getSimpleName(), getTitle(), getColumns());
   }
   
   private class DefaultCompositeAppSettings implements CompositeAppSettings {

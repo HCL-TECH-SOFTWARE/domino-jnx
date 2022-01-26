@@ -30,6 +30,7 @@ public class FolderImpl extends AbstractCollectionDesignElement<Folder> implemen
 
   @Override
   public void initializeNewDesignNote() {
+    super.initializeNewDesignNote();
     this.setFlags("F3Y"); //$NON-NLS-1$
   }
 

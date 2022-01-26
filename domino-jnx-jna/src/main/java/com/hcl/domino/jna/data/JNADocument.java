@@ -56,6 +56,7 @@ import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.data.SignatureDataImpl;
 import com.hcl.domino.commons.design.FormFieldImpl;
 import com.hcl.domino.commons.design.view.CollationDecoder;
+import com.hcl.domino.commons.design.view.CollationEncoder;
 import com.hcl.domino.commons.design.view.DominoCalendarFormat;
 import com.hcl.domino.commons.design.view.DominoCollationInfo;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
@@ -1134,6 +1135,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
     else if (value instanceof DominoViewFormat) {
       return true;
     }
+    else if (value instanceof DominoCollationInfo) {
+      return true;
+    }
 		return false;
 	}
 
@@ -1971,6 +1975,36 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
       
       });
 		}
+    else if (value instanceof DominoCollationInfo) {
+      ByteBuffer collationData = CollationEncoder.encode((DominoCollationInfo) value);
+      collationData.position(0);
+      byte[] collationDataArr = new byte[collationData.capacity()];
+      collationData.get(collationDataArr);
+      
+      //date type + compiled formula
+      int valueSize = 2 + collationDataArr.length;
+      
+      DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
+      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
+      NotesErrorUtils.checkResult(result);
+      
+      return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
+        Pointer valuePtr = Mem.OSLockObject(hItemByVal);
+        
+        try {
+          valuePtr.setShort(0, ItemDataType.TYPE_COLLATION.getValue().shortValue());
+          valuePtr = valuePtr.share(2);
+          
+          valuePtr.write(0, collationDataArr, 0, collationDataArr.length);
+
+          return appendItemValue(itemName, flags, ItemDataType.TYPE_COLLATION.getValue(), hItemByVal, valueSize);
+        }
+        finally {
+          Mem.OSUnlockObject(hItemByVal);
+        }
+      
+      });
+    }
 		else if (valueConverter!=null) {
 			if (writingItemType.get().contains(valueConverter.getClass())) {
 				throw new IllegalStateException(format("Infinite loop detected writing the value of item {0} as type {1}", itemName,

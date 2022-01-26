@@ -21,7 +21,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.hcl.domino.design.format.ViewColumnFormat.Flag;
+import com.hcl.domino.design.format.ViewFormatHeader.Version;
+import com.hcl.domino.design.format.ViewFormatHeader.ViewStyle;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.ViewFormatConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -29,6 +30,7 @@ import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.MemoryStructure;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 
 @StructureDefinition(name = "VIEW_TABLE_FORMAT", members = {
     @StructureMember(name = "Header", type = ViewFormatHeader.class),
@@ -38,6 +40,18 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
     @StructureMember(name = "Flags2", type = ViewTableFormat.Flag2.class, bitfield = true),
 })
 public interface ViewTableFormat extends MemoryStructure {
+  public static ViewTableFormat newInstance() {
+    ViewTableFormat format = MemoryStructureWrapperService.get().newStructure(ViewTableFormat.class, 0);
+    format
+    .getHeader()
+    .setVersion(Version.VERSION1)
+    .setStyle(ViewStyle.TABLE);
+    format.setItemSequenceNumber(1);
+    format.setFlag(Flag.CONFLICT, true);
+    format.setFlag(Flag2.NOT_CUSTOMIZED, true);
+    return format;
+  }
+  
   enum Flag implements INumberEnum<Short> {
     COLLAPSED(ViewFormatConstants.VIEW_TABLE_FLAG_COLLAPSED),
     FLATINDEX(ViewFormatConstants.VIEW_TABLE_FLAG_FLATINDEX),

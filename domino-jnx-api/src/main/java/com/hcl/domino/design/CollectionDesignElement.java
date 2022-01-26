@@ -712,11 +712,11 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
     boolean isAllowWebCrawlerIndexing();
   }
 
-  default T addColumn(Consumer<CollectionColumn> consumer) {
-    return addColumn(-1, consumer);
+  default T addColumn(String title, String itemName, Consumer<CollectionColumn> consumer) {
+    return addColumn(-1, title, itemName, consumer);
   }
 
-  T addColumn(int pos, Consumer<CollectionColumn> consumer);
+  T addColumn(int pos, String title, String itemName, Consumer<CollectionColumn> consumer);
 
   com.hcl.domino.data.DominoCollection getCollection();
 

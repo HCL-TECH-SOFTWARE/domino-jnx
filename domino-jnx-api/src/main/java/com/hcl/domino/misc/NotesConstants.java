@@ -434,7 +434,7 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   byte CDF_M_descending = 0x01;
 
   /** Obsolete - see new constant below */
-  byte CDF_M_caseinsensitive = 0x02;
+//  byte CDF_M_caseinsensitive = 0x02;
   /** If prefix list, then ignore for sorting */
   byte CDF_M_ignoreprefixes = 0x02;
   /** Obsolete - see new constant below */
