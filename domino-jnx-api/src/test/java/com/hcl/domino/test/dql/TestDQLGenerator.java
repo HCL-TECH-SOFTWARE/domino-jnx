@@ -95,7 +95,7 @@ public class TestDQLGenerator {
   
   @Test
   public void testEmptyFormula() {
-    assertThrows(IllegalArgumentException.class, () -> DQL.formula(null));
+    assertThrows(IllegalArgumentException.class, () -> DQL.formula((String)null));
     assertThrows(IllegalArgumentException.class, () -> DQL.formula(""));
   }
 

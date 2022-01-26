@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.Objects;
 
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.Formula;
 
 /**
  * Utility class to programmatically compose syntactically correct
@@ -997,6 +998,19 @@ public class DQL {
    */
   public static FormulaTerm formula(String formula) {
     return new FormulaTerm(formula);
+  }
+  
+  /**
+   * Use this method to filter documents based on a formula-language
+   * expression
+   * 
+   * @param formula the {@link Formula} objects to use
+   * @return term representing the formula expression
+   * @throws NullPointerException if {@code formula} is {@code null}
+   */
+  public static FormulaTerm formula(Formula formula) {
+    Objects.requireNonNull(formula, "formula cannot be null");
+    return new FormulaTerm(formula.getFormula());
   }
 
 }

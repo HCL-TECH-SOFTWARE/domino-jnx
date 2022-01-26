@@ -20,6 +20,7 @@ import static com.hcl.domino.dql.DQL.containsAll;
 import static com.hcl.domino.dql.DQL.created;
 import static com.hcl.domino.dql.DQL.item;
 import static com.hcl.domino.dql.DQL.modifiedInThisFile;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -42,6 +43,7 @@ import com.hcl.domino.data.DQLQueryResult;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.FTIndex;
+import com.hcl.domino.data.Formula;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.dql.DQL;
 import com.hcl.domino.dql.DQL.DQLTerm;
@@ -875,6 +877,26 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             someDoc.appendItemValue("val", val);
             someDoc.save();
             DQLQueryResult result = db.queryDQL(DQL.formula("val=" + val), EnumSet.of(DBQuery.EXPLAIN));
+            showResult(result);
+            String explainText = result.getExplainText();
+            Assertions.assertNotNull(result.getExplainText());
+            Assertions.assertTrue(explainText.length() > 0);
+            final IDTable resultsTable = result.getNoteIds().get();
+            Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
+        });
+    }
+
+    @Test
+    public void testFormulaObjectNumber() throws Exception {
+        this.withTempDb(db -> {
+            Document someDoc = db.createDocument();
+            int val = 123;
+            someDoc.appendItemValue("val", val);
+            someDoc.save();
+            Formula formula = db.getParentDominoClient().createFormula("val=" + val);
+            DQLTerm dql = DQL.formula(formula);
+            assertEquals("@formula('val=" + val + "')", dql.toString());
+            DQLQueryResult result = db.queryDQL(dql, EnumSet.of(DBQuery.EXPLAIN));
             showResult(result);
             String explainText = result.getExplainText();
             Assertions.assertNotNull(result.getExplainText());
