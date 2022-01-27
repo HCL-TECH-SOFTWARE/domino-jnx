@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.data.CollectionColumn;
@@ -52,6 +53,9 @@ public class DominoViewFormat implements IAdaptable {
   
   public DominoViewFormat() {
     this.format1 = ViewTableFormat.newInstance();
+    this.format2 = ViewTableFormat2.newInstance();
+    this.format3 = ViewTableFormat3.newInstance();
+    this.format4 = ViewTableFormat4.newInstance();
   }
   
   /**
@@ -207,38 +211,83 @@ public class DominoViewFormat implements IAdaptable {
     return this.getFlags1().contains(ViewTableFormat.Flag.COLLAPSED);
   }
 
+  public DominoViewFormat setCollapsed(boolean b) {
+    this.getFormat1().setFlag(ViewTableFormat.Flag.COLLAPSED, b);
+    return this;
+  }
+  
   public boolean isConflict() {
     return this.getFlags1().contains(ViewTableFormat.Flag.CONFLICT);
   }
 
+  public DominoViewFormat setConflict(boolean b) {
+    this.getFormat1().setFlag(ViewTableFormat.Flag.CONFLICT, b);
+    return this;
+  }
+  
   public boolean isExtendLastColumn() {
     return this.getFlags1().contains(ViewTableFormat.Flag.EXTEND_LAST_COLUMN);
   }
 
+  public DominoViewFormat setExtendLastColumn(boolean b) {
+    this.getFormat1().setFlag(ViewTableFormat.Flag.EXTEND_LAST_COLUMN, b);
+    return this;
+  }
+  
   public boolean isGotoBottomOnOpen() {
     return this.getFlags1().contains(ViewTableFormat.Flag.GOTO_BOTTOM_ON_OPEN);
   }
 
+  public DominoViewFormat setGotoBottomOnOpen(boolean b) {
+    this.getFormat1().setFlag(ViewTableFormat.Flag.GOTO_BOTTOM_ON_OPEN, b);
+    return this;
+  }
+  
   public boolean isGotoBottomOnRefresh() {
     return this.getFlags1().contains(ViewTableFormat.Flag.GOTO_BOTTOM_ON_REFRESH);
   }
 
+  public DominoViewFormat setGotoBottomOnRefresh(boolean b) {
+    this.getFormat1().setFlag(ViewTableFormat.Flag.GOTO_BOTTOM_ON_REFRESH, b);
+    return this;
+  }
+  
   public boolean isGotoTopOnOpen() {
     return this.getFlags1().contains(ViewTableFormat.Flag.GOTO_TOP_ON_OPEN);
+  }
+  
+  public DominoViewFormat setGotoTopOnOpen(boolean b) {
+    this.getFormat1().setFlag(ViewTableFormat.Flag.GOTO_TOP_ON_OPEN, b);
+    return this;
   }
   
   public CDResource getBackgroundResource() {
     return backgroundResource;
   }
 
+  public DominoViewFormat setBackgroundResource(CDResource backgroundResource) {
+    this.backgroundResource = backgroundResource;
+    return this;
+  }
+  
   public boolean isGotoTopOnRefresh() {
     return this.getFlags1().contains(ViewTableFormat.Flag.GOTO_TOP_ON_REFRESH);
   }
 
+  public DominoViewFormat setGotoTopOnRefresh(boolean b) {
+    this.getFormat1().setFlag(ViewTableFormat.Flag.GOTO_TOP_ON_REFRESH, b);
+    return this;
+  }
+  
   public boolean isHierarchical() {
     return !this.getFlags1().contains(ViewTableFormat.Flag.FLATINDEX);
   }
 
+  public DominoViewFormat setHierarchical(boolean b) {
+    this.getFormat1().setFlag(ViewTableFormat.Flag.FLATINDEX, !b);
+    return this;
+  }
+  
   // *******************************************************************************
   // * Layout-reader hooks
   // *******************************************************************************
@@ -267,8 +316,44 @@ public class DominoViewFormat implements IAdaptable {
   // * Internal implementation utilities
   // *******************************************************************************
 
+  public ViewTableFormat getFormat1() {
+    return Objects.requireNonNull(this.format1, "VIEW_TABLE_FORMAT not read");
+  }
+
+  public Optional<ViewTableFormat2> getFormat2(boolean createIfMissing) {
+    if (this.format2==null && createIfMissing) {
+      this.format2 = ViewTableFormat2.newInstance();
+    }
+    
+    return Optional.ofNullable(this.format2);
+  }
+
+  public Optional<ViewTableFormat3> getFormat3(boolean createIfMissing) {
+    if (createIfMissing) {
+      getFormat2(true);
+    }
+    
+    if (this.format3==null && createIfMissing) {
+      this.format3 = ViewTableFormat3.newInstance();
+    }
+    
+    return Optional.ofNullable(this.format3);
+  }
+
+  public Optional<ViewTableFormat4> getFormat4(boolean createIfMissing) {
+    if (createIfMissing) {
+      getFormat3(true);
+    }
+    
+    if (this.format4==null && createIfMissing) {
+      this.format4 = ViewTableFormat4.newInstance();
+    }
+    
+    return Optional.ofNullable(this.format4);
+  }
+
   private Set<ViewTableFormat.Flag> getFlags1() {
-    final ViewTableFormat format1 = Objects.requireNonNull(this.format1, "VIEW_TABLE_FORMAT not read");
+    final ViewTableFormat format1 = getFormat1();
     final Set<ViewTableFormat.Flag> flags = format1.getFlags();
     return flags;
   }

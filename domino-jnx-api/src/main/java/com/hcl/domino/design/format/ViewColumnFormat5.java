@@ -17,7 +17,9 @@
 package com.hcl.domino.design.format;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.NotesConstants;
@@ -26,6 +28,7 @@ import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 
 /**
@@ -44,6 +47,15 @@ import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
     //followed by strings for the name column name, 
 })
 public interface ViewColumnFormat5 extends ResizableMemoryStructure {
+
+  public static ViewColumnFormat5 newInstance() {
+    ViewColumnFormat5 fmt = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat5.class, 0);
+    
+    //TODO set defaults
+    
+    return fmt;
+  }
+  
   enum Flag implements INumberEnum<Integer> {
     /** Column contains a name. */
     IS_NAME(NotesConstants.VCF5_M_IS_NAME),
@@ -130,6 +142,27 @@ public interface ViewColumnFormat5 extends ResizableMemoryStructure {
   @StructureSetter("dwFlags")
   ViewColumnFormat5 setFlags(Collection<Flag> flags);
 
+  default ViewColumnFormat5 setFlag(Flag flag, boolean b) {
+    Set<Flag> oldFlags = getFlags();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<Flag> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setFlags(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<Flag> newFlags = oldFlags
+            .stream()
+            .filter(currFlag -> !flag.equals(currFlag))
+            .collect(Collectors.toSet());
+        setFlags(newFlags);
+      }
+    }
+    return this;
+  }
+  
   @StructureSetter("dwLength")
   ViewColumnFormat5 setLength(int length);
 

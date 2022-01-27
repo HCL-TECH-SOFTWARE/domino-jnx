@@ -17,8 +17,11 @@
 package com.hcl.domino.design.format;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.hcl.domino.design.format.ViewColumnFormat.Flag;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.misc.StructureSupport;
@@ -26,6 +29,7 @@ import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 
 /**
@@ -46,6 +50,15 @@ import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
     @StructureMember(name = "dwReserved", type = int[].class, length = 16),
 })
 public interface ViewColumnFormat6 extends ResizableMemoryStructure {
+  
+  public static ViewColumnFormat6 newInstance() {
+    ViewColumnFormat6 fmt = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat6.class, 0);
+
+    //TODO set defaults
+    
+    return fmt;
+  }
+  
   enum Flag implements INumberEnum<Integer> {
     BeginWrapUnder(NotesConstants.VCF6_M_BeginWrapUnder),
     PublishColumn(NotesConstants.VCF6_M_PublishColumn),
@@ -91,6 +104,27 @@ public interface ViewColumnFormat6 extends ResizableMemoryStructure {
   @StructureSetter("dwFlags6")
   ViewColumnFormat6 setFlags(Collection<Flag> flags);
 
+  default ViewColumnFormat6 setFlag(Flag flag, boolean b) {
+    Set<Flag> oldFlags = getFlags();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<Flag> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setFlags(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<Flag> newFlags = oldFlags
+            .stream()
+            .filter(currFlag -> !flag.equals(currFlag))
+            .collect(Collectors.toSet());
+        setFlags(newFlags);
+      }
+    }
+    return this;
+  }
+  
   @StructureGetter("SequenceNumber")
   int getSequenceNumber();
 

@@ -169,6 +169,11 @@ public interface ViewTableFormat extends MemoryStructure {
   @StructureGetter("Header")
   ViewFormatHeader getHeader();
 
+  /**
+   * Returns the sequence number for unique item names
+   * 
+   * @return number
+   */
   @StructureGetter("ItemSequenceNumber")
   int getItemSequenceNumber();
 

@@ -17,7 +17,9 @@
 package com.hcl.domino.richtext.structures;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -125,8 +127,29 @@ public interface NFMT extends MemoryStructure {
   Format getFormat();
 
   @StructureSetter("Attributes")
-  NFMT setAttributes(Collection<Attribute> attriutes);
+  NFMT setAttributes(Collection<Attribute> attributes);
 
+  default NFMT setAttribute(Attribute attr, boolean b) {
+    Set<Attribute> oldAttributes = getAttributes();
+    if (b) {
+      if (!oldAttributes.contains(attr)) {
+        Set<Attribute> newAttributes = new HashSet<>(oldAttributes);
+        newAttributes.add(attr);
+        setAttributes(newAttributes);
+      }
+    }
+    else {
+      if (oldAttributes.contains(attr)) {
+        Set<Attribute> newAttributes = oldAttributes
+            .stream()
+            .filter(currAttr -> !attr.equals(currAttr))
+            .collect(Collectors.toSet());
+        setAttributes(newAttributes);
+      }
+    }
+    return this;
+  }
+  
   @StructureSetter("Digits")
   NFMT setDigits(short digits);
 

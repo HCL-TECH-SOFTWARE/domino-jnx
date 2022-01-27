@@ -18,6 +18,7 @@ package com.hcl.domino.design;
 
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -712,29 +713,93 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
     boolean isAllowWebCrawlerIndexing();
   }
 
+  /**
+   * Appends a new column with default properties
+   * 
+   * @param title column title
+   * @param itemName programmatic name
+   * @param consumer receives the added column for further processing
+   * @return this instance
+   */
   default T addColumn(String title, String itemName, Consumer<CollectionColumn> consumer) {
     return addColumn(-1, title, itemName, consumer);
   }
 
+  /**
+   * Inserts a new column at the specified position with default properties
+   * 
+   * @param pos target position or -1 to append at the end
+   * @param title column title
+   * @param itemName programmatic name
+   * @param consumer receives the added column for further processing
+   * @return this instance
+   */
   T addColumn(int pos, String title, String itemName, Consumer<CollectionColumn> consumer);
 
-  com.hcl.domino.data.DominoCollection getCollection();
+  /**
+   * Appends a new column by copying all properties from the provided template column
+   * 
+   * @param templateCol template column to copy properties
+   * @param consumer receives the added column for further processing
+   * @return this instance
+   */
+  default T addColumn(CollectionColumn templateCol, Consumer<CollectionColumn> consumer) {
+    return addColumn(-1, templateCol, consumer);
+  }
+  
+  /**
+   * Inserts a new column at the specified position by copying all properties from the provided template column
+   * 
+   * @param pos target position or -1 to append at the end
+   * @param templateCol template column to copy properties
+   * @param consumer receives the added column for further processing
+   * @return this instance
+   */
+  public T addColumn(int pos, CollectionColumn templateCol, Consumer<CollectionColumn> consumer);
 
-  List<CollectionColumn> getColumns();
-
-  OnOpen getOnOpenUISetting();
-
-  OnRefresh getOnRefreshUISetting();
-
-  boolean isAllowCustomizations();
-
+  /**
+   * Removes the specified column
+   * 
+   * @param column column
+   * @return this instance
+   */
   T removeColumn(CollectionColumn column);
-
-  T setOnRefreshUISetting(OnRefresh onRefreshUISetting);
 
   T swapColumns(CollectionColumn a, CollectionColumn b);
 
   T swapColumns(int a, int b);
+
+  com.hcl.domino.data.DominoCollection getCollection();
+
+  /**
+   * Returns all columns as a read-only list. Use the add/remove/swap methods to
+   * change the column list or the setters of {@link CollectionColumn} to tweak
+   * the column properties.
+   * 
+   * @return columns
+   */
+  List<CollectionColumn> getColumns();
+
+  /**
+   * Transfers all columns from another view or folder, overwriting
+   * our current columns
+   * 
+   * @param viewOrFolder other view or folder
+   * @return this instance
+   */
+  T copyViewFormatFrom(CollectionDesignElement<?> viewOrFolder);
+  
+  OnOpen getOnOpenUISetting();
+
+  T setOnOpenUISetting(OnOpen setting);
+  
+  OnRefresh getOnRefreshUISetting();
+  
+  boolean isAllowCustomizations();
+
+  T setAllowCustomizations(boolean b);
+
+  T setOnRefreshUISetting(OnRefresh onRefreshUISetting);
   
   /**
    * Retrieves the style of the collection - namely, whether it is displayed in
@@ -745,6 +810,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
    */
   Style getStyle();
 
+  T setStyle(Style style);
+  
   /**
    * Determines whether the view or folder is marked as the default to display on
    * database open.
@@ -754,6 +821,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
    * @since 1.0.32
    */
   boolean isDefaultCollection();
+  
+  T setDefaultCollection(boolean b);
   
   /**
    * Determines whether the view or folder is marked as the default design for new
@@ -765,6 +834,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
    */
   boolean isDefaultCollectionDesign();
   
+  T setDefaultCollectionDesign(boolean b);
+  
   /**
    * Determines whether all non-leaf entries should be collapsed when the user first
    * opens the database.
@@ -774,6 +845,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
    * @since 1.0.32
    */
   boolean isCollapseAllOnFirstOpen();
+  
+  T setCollapseAllOnFirstOpen(boolean b);
   
   /**
    * Determines whether response documents selected by the view will be indexed in
@@ -785,6 +858,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
    */
   boolean isShowResponseDocumentsInHierarchy();
   
+  T setShowResponseDocumentsInHierarchy(boolean b);
+  
   /**
    * Determines whether the view or folder should be shown in the client View menu
    * as its own entry.
@@ -794,6 +869,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
    * @since 1.0.32
    */
   boolean isShowInViewMenu();
+  
+  T setShowInViewMenu(boolean b);
   
   /**
    * Determines whether computed attributes of action-bar actions should be evaluated each
@@ -805,6 +882,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
    */
   boolean isEvaluateActionsOnDocumentChange();
   
+  T setEvaluateActionsOnDocumentChange(boolean b);
+  
   /**
    * Determines whether the view or folder is configured to allow the user to create new
    * documents within the displayed table.
@@ -814,6 +893,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
    * @since 1.0.32
    */
   boolean isCreateDocumentsAtViewLevel();
+  
+  T setCreateDocumentsAtViewLevel(boolean b);
   
   /**
    * Retrieves an object that provides a view onto this collection's settings for use in
@@ -839,6 +920,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
    * @since 1.0.32
    */
   UnreadMarksMode getUnreadMarksMode();
+  
+  T setUnreadMarksMode(UnreadMarksMode mode);
   
   /**
    * Retrieves an object that provides a view onto this collection's indexing settings.
@@ -866,6 +949,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
    */
   boolean isAllowDominoDataService();
   
+  T setAllowDominoDataService(boolean b);
+  
   /**
    * Retrieves the name of the profile document used to define the colors for user-
    * definable color columns, if set.
@@ -877,6 +962,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
    */
   Optional<String> getColumnProfileDocName();
   
+  T setColumnProfileDocName(String name);
+  
   /**
    * Retrieves the programmatic names of columns set as user-definable color columns
    * and with "use column formula as backup" disabled.
@@ -885,6 +972,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
    * @since 1.0.32
    */
   Set<String> getUserDefinableNonFallbackColumns();
+  
+  T setUserDefinableNonFallbackColumns(Collection<String> col);
   
   /**
    * Retrieves the form formula for the view or folder, if specified.
@@ -895,6 +984,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
    */
   Optional<String> getFormFormula();
   
+  T setFormFormula(String formula);
+  
   /**
    * Retrieves the help-request formula for the view or folder, if specified.
    * 
@@ -903,6 +994,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
    * @since 1.0.34
    */
   Optional<String> getHelpRequestFormula();
+  
+  T setHelpRequestFormula(String formula);
   
   /**
    * Retrieves the single-click target-frame formula for the view or folder, if specified.
@@ -958,6 +1051,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
    * @since 1.0.41
    */
   boolean isCalendarFormat();
+  
+  T setCalendarFormat(boolean b);
   
   /**
    * Retrieves the calendar-specific settings for this view or folder. This only applies

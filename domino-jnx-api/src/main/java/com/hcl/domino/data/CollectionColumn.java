@@ -44,27 +44,63 @@ public interface CollectionColumn {
      */
     Optional<String> getResortToViewUnid();
 
+    /**
+     * Changes the UNID of the view to switch to when resorting
+     * 
+     * @param unid UNID or null
+     * @return this sort configuration
+     */
+    SortConfiguration setResortToViewUnid(String unid);
+    
     int getSecondResortColumnIndex();
 
+    SortConfiguration setSecondResortColumnIndex(int idx);
+    
     boolean isCategory();
 
+    /**
+     * Toggles the category attribute
+     * 
+     * @param b
+     * @return
+     */
+    SortConfiguration setCategory(boolean b);
+    
     boolean isDeferResortIndexing();
 
+    SortConfiguration setDeferResortIndexing(boolean b);
+    
     boolean isResortAscending();
 
+    SortConfiguration setResortAscending(boolean b);
+    
     boolean isResortDescending();
 
+    SortConfiguration setResortDescending(boolean b);
+    
     boolean isResortToView();
 
+    SortConfiguration setResortToView(boolean b);
+    
     boolean isSecondaryResort();
 
+    SortConfiguration setSecondaryResort(boolean b);
+    
     boolean isSecondaryResortDescending();
 
+    SortConfiguration setSecondaryResortDescending(boolean b);
+    
     boolean isSorted();
 
+    SortConfiguration setSorted(boolean b);
+    
     boolean isSortedDescending();
 
+    SortConfiguration setSortedDescending(boolean b);
+    
     boolean isSortPermuted();
+    
+    SortConfiguration setSortPermuted(boolean b);
     
     /**
      * Determines whether sorting by this column should be case-sensitive.
@@ -75,6 +111,8 @@ public interface CollectionColumn {
      */
     boolean isCaseSensitive();
     
+    SortConfiguration setCaseSensitive(boolean b);
+    
     /**
      * Determines whether sorting by this column should be accent-sensitive.
      * 
@@ -83,6 +121,8 @@ public interface CollectionColumn {
      * @since 1.0.42
      */
     boolean isAccentSensitive();
+    
+    SortConfiguration setAccentSensitive(boolean b);
     
     /**
      * Determines whether categories in this column should be flat in Notes V5 and later.
@@ -93,6 +133,8 @@ public interface CollectionColumn {
      */
     boolean isCategorizationFlat();
     
+    SortConfiguration setCategorizationFlat(boolean b);
+    
     /**
      * Determines whether sorting in this column should ignore common linguistic prefixes,
      * e.g. "the" in English.
@@ -102,6 +144,8 @@ public interface CollectionColumn {
      * @since 1.0.42
      */
     boolean isIgnorePrefixes();
+    
+    SortConfiguration setIgnorePrefixes(boolean b);
   }
   
   /**
@@ -119,6 +163,8 @@ public interface CollectionColumn {
      */
     NumberDisplayFormat getFormat();
     
+    NumberSettings setFormat(NumberDisplayFormat format);
+    
     /**
      * Determines whether the column should display numbers with varying decimal
      * places instead of using the value from {@link #getFixedDecimalPlaces()}.
@@ -128,6 +174,8 @@ public interface CollectionColumn {
      */
     boolean isVaryingDecimal();
     
+    NumberSettings setVaryingDecimal(boolean b);
+    
     /**
      * Retrieves the number of places to display for decimal values when appropriate
      * and {@link #isVaryingDecimal()} is {@code false}.
@@ -135,6 +183,8 @@ public interface CollectionColumn {
      * @return the fixed decimal length
      */
     int getFixedDecimalPlaces();
+    
+    NumberSettings setFixedDecimalPlaces(int b);
     
     /**
      * Determines whether numbers should be displayed with custom symbols defined here
@@ -145,6 +195,8 @@ public interface CollectionColumn {
      */
     boolean isOverrideClientLocale();
     
+    NumberSettings setOverrideClientLocale(boolean b);
+    
     /**
      * Retrieves the decimal symbol to use when {@link #isOverrideClientLocale()} is
      * {@code true}.
@@ -153,6 +205,8 @@ public interface CollectionColumn {
      */
     String getDecimalSymbol();
     
+    NumberSettings setDecimalSymbol(String s);
+    
     /**
      * Retrieves the thousands separator to use when {@link #isOverrideClientLocale()}
      * is {@code true}.
@@ -160,6 +214,8 @@ public interface CollectionColumn {
      * @return the column-specific thousands separator
      */
     String getThousandsSeparator();
+    
+    NumberSettings setThousandsSeparator(String s);
     
     /**
      * Determines whether negative values in this column should be displayed with
@@ -170,6 +226,8 @@ public interface CollectionColumn {
      */
     boolean isUseParenthesesWhenNegative();
     
+    NumberSettings setUseParenthesesWhenNegative(boolean b);
+    
     /**
      * Determines whether thousands groups should be punctuated when displayed.
      * 
@@ -177,6 +235,8 @@ public interface CollectionColumn {
      *         {@code false} to use the default behavior
      */
     boolean isPunctuateThousands();
+    
+    NumberSettings setPunctuateThousands(boolean b);
     
     /**
      * Retrieves the ISO code for currency values in this column to use when
@@ -186,6 +246,8 @@ public interface CollectionColumn {
      * @return an ISO currency code
      */
     long getCurrencyIsoCode();
+    
+    NumberSettings setCurrencyIsoCode(long code);
     
     /**
      * Determines whether values in the column should be displayed with a custom
@@ -197,6 +259,8 @@ public interface CollectionColumn {
      */
     boolean isUseCustomCurrencySymbol();
     
+    NumberSettings setUseCustomCurrencySymbol(boolean b);
+    
     /**
      * Retrieves the currency symbol to use when {@link #getFormat()} is
      * {@link NumberDisplayFormat#CURRENCY CURRENCY},
@@ -207,6 +271,8 @@ public interface CollectionColumn {
      */
     String getCurrencySymbol();
     
+    NumberSettings setCurrencySymbol(String s);
+    
     /**
      * Determines whether the currency symbol specified in {@link #getCurrencySymbol()}
      * should be appended to the end of the number instead of affixed to the start.
@@ -216,6 +282,8 @@ public interface CollectionColumn {
      */
     boolean isCurrencySymbolPostfix();
     
+    NumberSettings setCurrencySymbolPostfix(boolean b);
+    
     /**
      * Determines whether the currency display should use a space in between the number
      * and the currency symbol.
@@ -224,6 +292,9 @@ public interface CollectionColumn {
      *         {@code false} otherwise
      */
     boolean isUseSpaceNextToNumber();
+    
+    NumberSettings setUseSpaceNextToNumber(boolean b);
+    
   }
   
   /**

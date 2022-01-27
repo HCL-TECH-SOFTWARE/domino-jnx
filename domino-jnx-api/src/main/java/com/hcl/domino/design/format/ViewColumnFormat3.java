@@ -17,8 +17,10 @@
 package com.hcl.domino.design.format;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.StructureSupport;
@@ -27,6 +29,7 @@ import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 
 /**
@@ -60,6 +63,14 @@ import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
   }
 )
 public interface ViewColumnFormat3 extends ResizableMemoryStructure {
+  public static ViewColumnFormat3 newInstance() {
+    ViewColumnFormat3 fmt = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat3.class, 0);
+
+    // TODO add defaults
+    
+    return fmt;
+  }
+  
   @StructureGetter("Signature")
   short getSignature();
 
@@ -144,6 +155,27 @@ public interface ViewColumnFormat3 extends ResizableMemoryStructure {
   @StructureSetter("DTDSpecial")
   ViewColumnFormat3 setDateShowSpecial(Collection<DateShowSpecial> format);
 
+  default ViewColumnFormat3 setDateShowSpecial(DateShowSpecial flag, boolean b) {
+    Set<DateShowSpecial> oldFlags = getDateShowSpecial();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<DateShowSpecial> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setDateShowSpecial(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<DateShowSpecial> newFlags = oldFlags
+            .stream()
+            .filter(currAttr -> !flag.equals(currAttr))
+            .collect(Collectors.toSet());
+        setDateShowSpecial(newFlags);
+      }
+    }
+    return this;
+  }
+
   @StructureGetter("DTTShow")
   byte getTimeShowFormatRaw();
 
@@ -175,6 +207,27 @@ public interface ViewColumnFormat3 extends ResizableMemoryStructure {
     return this;
   }
   
+  default ViewColumnFormat3 setDateTimeFlag(DateTimeFlag attr, boolean b) {
+    Set<DateTimeFlag> oldFlags = getDateTimeFlags();
+    if (b) {
+      if (!oldFlags.contains(attr)) {
+        Set<DateTimeFlag> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(attr);
+        setDateTimeFlags(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(attr)) {
+        Set<DateTimeFlag> newFlags = oldFlags
+            .stream()
+            .filter(currAttr -> !attr.equals(currAttr))
+            .collect(Collectors.toSet());
+        setDateTimeFlags(newFlags);
+      }
+    }
+    return this;
+  }
+
   default DateComponentOrder getDateComponentOrder() {
     int bitfield = getDateTimeFlagsRaw();
     int val = (bitfield & RichTextConstants.DT_STYLE_MSK) >> 0x10;

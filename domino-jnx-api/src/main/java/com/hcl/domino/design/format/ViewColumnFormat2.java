@@ -177,7 +177,7 @@ public interface ViewColumnFormat2 extends ResizableMemoryStructure {
 
   @StructureGetter("ResortToViewUNID")
   UNID getResortToViewUNID();
-
+  
   @StructureGetter("wSecondResortColumnIndex")
   int getSecondResortColumnIndex();
 
@@ -189,6 +189,27 @@ public interface ViewColumnFormat2 extends ResizableMemoryStructure {
 
   @StructureSetter("wCustomHiddenFlags")
   ViewColumnFormat2 setCustomHiddenFlags(Collection<HiddenFlag> hiddenFlags);
+
+  default ViewColumnFormat2 setCustomHiddenFlag(HiddenFlag flag, boolean b) {
+    Set<HiddenFlag> oldFlags = getCustomHiddenFlags();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<HiddenFlag> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setCustomHiddenFlags(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<HiddenFlag> newFlags = oldFlags
+            .stream()
+            .filter(currAttr -> !flag.equals(currAttr))
+            .collect(Collectors.toSet());
+        setCustomHiddenFlags(newFlags);
+      }
+    }
+    return this;
+  }
 
   @StructureSetter("wCustomOrder")
   ViewColumnFormat2 setCustomOrder(int order);

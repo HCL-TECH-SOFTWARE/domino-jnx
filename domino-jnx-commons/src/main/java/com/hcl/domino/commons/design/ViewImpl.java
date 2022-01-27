@@ -16,10 +16,12 @@
  */
 package com.hcl.domino.commons.design;
 
+import java.util.EnumSet;
 import java.util.List;
 
-import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.Formula;
+import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
@@ -48,7 +50,9 @@ public class ViewImpl extends AbstractCollectionDesignElement<View> implements V
 
   @Override
   public View setSelectionFormula(final String selectionFormula) {
-    throw new NotYetImplementedException();
+    Formula formula = getDocument().getParentDatabase().getParentDominoClient().createFormula(selectionFormula);
+    getDocument().replaceItemValue(DesignConstants.VIEW_FORMULA_ITEM, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), formula);
+    return this;
   }
   
   @Override

@@ -27,9 +27,13 @@ import com.hcl.domino.design.format.ViewCalendarFormat2;
  * @since 1.0.41
  */
 public class DominoCalendarFormat implements IAdaptable {
-
   private ViewCalendarFormat format1;
   private ViewCalendarFormat2 format2;
+  
+  public DominoCalendarFormat() {
+    format1 = ViewCalendarFormat.newInstance();
+    format2 = ViewCalendarFormat2.newInstance();
+  }
   
   @SuppressWarnings("unchecked")
   @Override

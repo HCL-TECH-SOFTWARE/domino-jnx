@@ -30,10 +30,10 @@ import com.hcl.domino.richtext.structures.UNID;
  * @since 1.0.27
  */
 public class SortConfigurationImpl implements SortConfiguration {
-  private final DominoCollectionColumn format;
+  private final DominoCollectionColumn column;
 
   public SortConfigurationImpl(final DominoCollectionColumn format) {
-    this.format = format;
+    this.column = format;
   }
 
   @Override
@@ -47,25 +47,60 @@ public class SortConfigurationImpl implements SortConfiguration {
   }
 
   @Override
+  public SortConfiguration setResortToViewUnid(String unid) {
+    this.getFormat2().getResortToViewUNID().setUnid(unid);
+    this.column.markViewFormatDirty();
+    return this;
+  }
+  
+  @Override
   public int getSecondResortColumnIndex() {
     return this.getFormat2().getSecondResortColumnIndex();
   }
 
+  @Override
+  public SortConfiguration setSecondResortColumnIndex(int idx) {
+    this.getFormat2().setSecondResortColumnIndex(idx);
+    this.column.markViewFormatDirty();
+    return this;
+  }
+  
   @Override
   public boolean isCategory() {
     return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.SortCategorize);
   }
 
   @Override
+  public SortConfiguration setCategory(boolean b) {
+    this.getFormat1().setFlag(ViewColumnFormat.Flag.SortCategorize, b);
+    this.column.markViewFormatDirty();
+    return this;
+  }
+  
+  @Override
   public boolean isDeferResortIndexing() {
-    return this.getFormat6()
+    return this.getFormat6(false)
         .map(fmt -> fmt.getFlags().contains(ViewColumnFormat6.Flag.BuildCollationOnDemand))
         .orElse(false);
   }
 
   @Override
+  public SortConfiguration setDeferResortIndexing(boolean b) {
+    this.getFormat6(true).get().setFlag(ViewColumnFormat6.Flag.BuildCollationOnDemand, b);
+    this.column.markViewFormatDirty();
+    return this;
+  }
+  
+  @Override
   public boolean isResortAscending() {
     return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.ResortAscending);
+  }
+
+  @Override
+  public SortConfiguration setResortAscending(boolean b) {
+    this.getFormat1().setFlag(ViewColumnFormat.Flag.ResortAscending, b);
+    this.column.markViewFormatDirty();
+    return this;
   }
 
   @Override
@@ -74,33 +109,82 @@ public class SortConfigurationImpl implements SortConfiguration {
   }
 
   @Override
+  public SortConfiguration setResortDescending(boolean b) {
+    this.getFormat1().setFlag(ViewColumnFormat.Flag.ResortDescending, b);
+    this.column.markViewFormatDirty();
+    return this;
+  }
+  
+  @Override
   public boolean isResortToView() {
     return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.ResortToView);
   }
 
+  @Override
+  public SortConfiguration setResortToView(boolean b) {
+    this.getFormat1().setFlag(ViewColumnFormat.Flag.ResortToView, b);
+    this.column.markViewFormatDirty();
+    return this;
+  }
+  
   @Override
   public boolean isSecondaryResort() {
     return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.SecondResort);
   }
 
   @Override
+  public SortConfiguration setSecondaryResort(boolean b) {
+    getFormat1().setFlag(ViewColumnFormat.Flag.SecondResort, b);
+    this.column.markViewFormatDirty();
+    return this;
+  }
+  
+  @Override
   public boolean isSecondaryResortDescending() {
     return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.SecondResortDescending);
   }
 
+  @Override
+  public SortConfiguration setSecondaryResortDescending(boolean b) {
+    this.getFormat1().setFlag(ViewColumnFormat.Flag.SecondResortDescending, b);
+    this.column.markViewFormatDirty();
+    return this;
+  }
+  
   @Override
   public boolean isSorted() {
     return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.Sort);
   }
 
   @Override
+  public SortConfiguration setSorted(boolean b) {
+    this.getFormat1().setFlag(ViewColumnFormat.Flag.Sort, b);
+    this.column.markViewFormatDirty();
+    return this;
+  }
+  
+  @Override
   public boolean isSortedDescending() {
     return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.SortDescending);
   }
 
   @Override
+  public SortConfiguration setSortedDescending(boolean b) {
+    this.getFormat1().setFlag(ViewColumnFormat.Flag.SortDescending, b);
+    this.column.markViewFormatDirty();
+    return this;
+  }
+  
+  @Override
   public boolean isSortPermuted() {
     return this.getFormat1().getFlags2().contains(ViewColumnFormat.Flag2.SortPermute);
+  }
+  
+  @Override
+  public SortConfiguration setSortPermuted(boolean b) {
+    this.getFormat1().setFlag(ViewColumnFormat.Flag2.SortPermute, b);
+    this.column.markViewFormatDirty();
+    return this;
   }
   
   @Override
@@ -109,8 +193,22 @@ public class SortConfigurationImpl implements SortConfiguration {
   }
   
   @Override
+  public SortConfiguration setAccentSensitive(boolean b) {
+    this.getFormat2().setFlag(ViewColumnFormat2.Flag3.AccentSensitiveSortInV5, b);
+    this.column.markViewFormatDirty();
+    return  this;
+  }
+  
+  @Override
   public boolean isCaseSensitive() {
-    return getFormat2().getFlags().contains(ViewColumnFormat2.Flag3.CaseSensitiveSortInV5);
+    return this.getFormat2().getFlags().contains(ViewColumnFormat2.Flag3.CaseSensitiveSortInV5);
+  }
+  
+  @Override
+  public SortConfiguration setCaseSensitive(boolean b) {
+    this.getFormat2().setFlag(ViewColumnFormat2.Flag3.CaseSensitiveSortInV5, b);
+    this.column.markViewFormatDirty();
+    return this;
   }
   
   @Override
@@ -119,26 +217,40 @@ public class SortConfigurationImpl implements SortConfiguration {
   }
   
   @Override
+  public SortConfiguration setCategorizationFlat(boolean b) {
+    this.getFormat2().setFlag(ViewColumnFormat2.Flag3.FlatInV5, b);
+    this.column.markViewFormatDirty();
+    return this;
+  }
+  
+  @Override
   public boolean isIgnorePrefixes() {
-    return getFormat6()
+    return getFormat6(false)
       .map(ViewColumnFormat6::getFlags)
       .map(f -> f.contains(ViewColumnFormat6.Flag.IgnorePrefixes))
       .orElse(false);
   }
 
+  @Override
+  public SortConfiguration setIgnorePrefixes(boolean b) {
+    this.getFormat6(true).get().setFlag(ViewColumnFormat6.Flag.IgnorePrefixes, b);
+    this.column.markViewFormatDirty();
+    return this;
+  }
+  
   // *******************************************************************************
   // * Internal implementation methods
   // *******************************************************************************
 
   private ViewColumnFormat getFormat1() {
-    return Objects.requireNonNull(this.format.getAdapter(ViewColumnFormat.class), "VIEW_COLUMN_FORMAT not read");
+    return Objects.requireNonNull(this.column.getAdapter(ViewColumnFormat.class), "VIEW_COLUMN_FORMAT not read");
   }
 
   private ViewColumnFormat2 getFormat2() {
-    return Objects.requireNonNull(this.format.getAdapter(ViewColumnFormat2.class), "VIEW_COLUMN_FORMAT2 not read");
+    return Objects.requireNonNull(this.column.getAdapter(ViewColumnFormat2.class), "VIEW_COLUMN_FORMAT2 not read");
   }
 
-  private Optional<ViewColumnFormat6> getFormat6() {
-    return Optional.ofNullable(this.format.getAdapter(ViewColumnFormat6.class));
+  private Optional<ViewColumnFormat6> getFormat6(boolean createIfMissing) {
+    return this.column.getFormat6(createIfMissing);
   }
 }

@@ -31,6 +31,7 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.MemoryStructure;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.RawColorValue;
 
 @StructureDefinition(name = "VIEW_CALENDAR_FORMAT", members = {
@@ -56,6 +57,14 @@ import com.hcl.domino.richtext.structures.RawColorValue;
     @StructureMember(name = "HeaderBkColor", type = RawColorValue.class)
 })
 public interface ViewCalendarFormat extends MemoryStructure {
+  public static ViewCalendarFormat newInstance() {
+    ViewCalendarFormat format = MemoryStructureWrapperService.get().newStructure(ViewCalendarFormat.class, 0);
+
+    //TODO set defaults
+    
+    return format;
+  }
+  
   enum Flag implements INumberEnum<Short> {
     /** Display Conflict marks */
     DISPLAY_CONFLICTS(ViewFormatConstants.CAL_DISPLAY_CONFLICTS),

@@ -435,6 +435,8 @@ public interface RichTextConstants extends EditOds, Ods {
   byte TSFMT_DATETIME = 2;
   /** DATE TIME or TIME Today or TIME Yesterday */
   byte TSFMT_CDATETIME = 3;
+  /** DATE, Today or Yesterday */
+  byte TSFMT_CDATE = 4;
 
   /*	CDFIELD Flags Definitions */
 

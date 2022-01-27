@@ -167,4 +167,17 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   public String getWebFlags() {
     return getDocument().getAsText(NotesConstants.ITEM_NAME_WEBFLAGS, ' ');
   }
+  
+  public void setWebFlags(String flags) {
+    this.getDocument().replaceItemValue(NotesConstants.ITEM_NAME_WEBFLAGS, flags);
+  }
+  
+  public void setWebFlag(final String flagConstant, final boolean value) {
+    final String flags = this.getWebFlags();
+    if (value && !flags.contains(flagConstant)) {
+      this.setWebFlags(flags + flagConstant);
+    } else if (!value && flags.contains(flagConstant)) {
+      this.setWebFlags(flags.replace(flagConstant, "")); //$NON-NLS-1$
+    }
+  }
 }

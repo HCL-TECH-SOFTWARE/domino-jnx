@@ -16,11 +16,11 @@
  */
 package com.hcl.domino.design.format;
 
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.misc.INumberEnum;
@@ -180,6 +180,27 @@ public interface ViewTableFormat2 extends MemoryStructure {
   @StructureSetter("Flags1")
   ViewTableFormat2 setFlags(Collection<Flag> flags);
 
+  default ViewTableFormat2 setFlag(Flag flag, boolean b) {
+    Set<Flag> oldFlags = getFlags();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<Flag> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setFlags(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<Flag> newFlags = oldFlags
+            .stream()
+            .filter(currAttr -> !flag.equals(currAttr))
+            .collect(Collectors.toSet());
+        setFlags(newFlags);
+      }
+    }
+    return this;
+  }
+  
   @StructureSetter("HeaderLineCount")
   ViewTableFormat2 setHeaderLineCount(short lineCount);
 

@@ -18,6 +18,7 @@ package com.hcl.domino.commons.design.view;
 
 import java.text.MessageFormat;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -25,6 +26,7 @@ import java.util.Set;
 
 import com.hcl.domino.commons.design.AbstractCollectionDesignElement;
 import com.hcl.domino.commons.design.SharedColumnImpl;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.IAdaptable;
@@ -60,8 +62,9 @@ import com.hcl.domino.richtext.records.CurrencyFlag;
 import com.hcl.domino.richtext.records.CurrencyType;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FontStyle;
-import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.NFMT;
+import com.hcl.domino.richtext.structures.NFMT.Attribute;
+import com.hcl.domino.richtext.structures.NFMT.Format;
 
 /**
  * @author Jesse Gallagher
@@ -83,6 +86,43 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     this.format2 = ViewColumnFormat2.newInstance();
   }
 
+  /**
+   * Copies all data from the specified column
+   * 
+   * @param otherCol other column
+   * @return this instance
+   */
+  public DominoCollectionColumn copyDesignFrom(DominoCollectionColumn otherCol) {
+    if (otherCol.format1!=null) {
+      this.format1 = MemoryStructureUtil.newStructure(ViewColumnFormat.class, otherCol.format1.getVariableData().capacity());
+      this.format1.getData().put(otherCol.format1.getData());
+    }
+    if (otherCol.format2!=null) {
+      this.format2 = MemoryStructureUtil.newStructure(ViewColumnFormat2.class, otherCol.format2.getVariableData().capacity());
+      this.format2.getData().put(otherCol.format2.getData());
+    }
+    if (otherCol.format3!=null) {
+      this.format3 = MemoryStructureUtil.newStructure(ViewColumnFormat3.class, otherCol.format3.getVariableData().capacity());
+      this.format3.getData().put(otherCol.format3.getData());
+    }
+    if (otherCol.format4!=null) {
+      this.format4 = MemoryStructureUtil.newStructure(ViewColumnFormat4.class, otherCol.format4.getVariableData().capacity());
+      this.format4.getData().put(otherCol.format4.getData());
+    }
+    if (otherCol.format5!=null) {
+      this.format5 = MemoryStructureUtil.newStructure(ViewColumnFormat5.class, otherCol.format5.getVariableData().capacity());
+      this.format5.getData().put(otherCol.format5.getData());
+    }
+    if (otherCol.format6!=null) {
+      this.format6 = MemoryStructureUtil.newStructure(ViewColumnFormat6.class, otherCol.format6.getVariableData().capacity());
+      this.format6.getData().put(otherCol.format6.getData());
+    }
+    
+    this.sharedColumnName = otherCol.sharedColumnName;
+    this.hiddenTitle = otherCol.hiddenTitle;
+    return this;
+  }
+  
   @SuppressWarnings("unchecked")
   @Override
   public <T> T getAdapter(final Class<T> clazz) {
@@ -149,7 +189,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   
   @Override
   public String getExtraAttributes() {
-    return getFormat6()
+    return getFormat6(false)
       .map(ViewColumnFormat6::getAttributes)
       .orElse(""); //$NON-NLS-1$
   }
@@ -168,17 +208,14 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   
   @Override
   public String getHideWhenFormula() {
-    return getFormat2()
+    return getFormat2(false)
         .map(fmt -> fmt.getHideWhenFormula())
         .orElse(""); //$NON-NLS-1$
   }
 
   @Override
   public CollectionColumn setHideWhenFormula(String formula) {
-    if (this.format2==null) {
-      this.format2 = createFormat2();
-    }
-    this.format2.setHideWhenFormula(formula);
+    getFormat2(true).get().setHideWhenFormula(formula);
     markViewFormatDirty();
     return this;
   }
@@ -270,7 +307,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   
   @Override
   public boolean isExtendToWindowWidth() {
-    return getFormat6()
+    return getFormat6(false)
       .map(ViewColumnFormat6::getFlags)
       .map(flags -> flags.contains(ViewColumnFormat6.Flag.ExtendColWidthToAvailWindowWidth))
       .orElse(false);
@@ -280,7 +317,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   public boolean isHidden() {
     if(this.format1.getFlags().contains(ViewColumnFormat.Flag.Hidden)) {
       // Then we need to look for further details
-      return this.getFormat2()
+      return this.getFormat2(false)
         .map(format2 -> {
           Set<ViewColumnFormat2.HiddenFlag> hiddenFlags = format2.getCustomHiddenFlags();
           if(hiddenFlags.contains(ViewColumnFormat2.HiddenFlag.NormalView)) {
@@ -305,7 +342,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   
   @Override
   public boolean isHiddenFromMobile() {
-    return getFormat2()
+    return getFormat2(false)
       .map(ViewColumnFormat2::getCustomHiddenFlags)
       .map(flags -> flags.contains(ViewColumnFormat2.HiddenFlag.MOBILE))
       .orElse(false);
@@ -313,7 +350,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   
   @Override
   public boolean isHiddenInPreV6() {
-    return getFormat2()
+    return getFormat2(false)
       .map(ViewColumnFormat2::getFlags)
       .map(flags -> flags.contains(ViewColumnFormat2.Flag3.HideInR5))
       .orElse(false);
@@ -341,7 +378,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   
   @Override
   public boolean isSharedColumn() {
-    return this.getFormat2()
+    return this.getFormat2(false)
       .map(ViewColumnFormat2::getFlags)
       .map(flags -> flags.contains(ViewColumnFormat2.Flag3.IsSharedColumn))
       .orElse(false);
@@ -366,7 +403,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   
   @Override
   public boolean isUseHideWhen() {
-    return this.getFormat2()
+    return this.getFormat2(false)
       .map(ViewColumnFormat2::getFlags)
       .map(flags -> flags.contains(ViewColumnFormat2.Flag3.HideWhenFormula))
       .orElse(false);
@@ -374,10 +411,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   
   @Override
   public CollectionColumn setUseHideWhen(boolean b) {
-    if (this.format2==null) {
-      this.format2 = createFormat2();
-    }
-    this.format2.setFlag(ViewColumnFormat2.Flag3.HideWhenFormula, b);
+    getFormat2(true).get().setFlag(ViewColumnFormat2.Flag3.HideWhenFormula, b);
     markViewFormatDirty();
     return this;
   }
@@ -389,35 +423,32 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   
   @Override
   public boolean isNameColumn() {
-    return getFormat5()
+    return getFormat5(false)
       .map(fmt -> fmt.getFlags().contains(ViewColumnFormat5.Flag.IS_NAME))
       .orElse(false);
   }
   
   @Override
   public Optional<String> getOnlinePresenceNameColumn() {
-    return getFormat5()
+    return getFormat5(false)
       .map(fmt -> fmt.getDnColumnName());
   }
   
   @Override
   public Optional<CDResource> getTwistieImage() {
-    return getFormat2()
+    return getFormat2(false)
         .flatMap(fmt -> fmt.getTwistieResource());
   }
   
   public CollectionColumn setTwistieImage(CDResource res) {
-    if (this.format2==null) {
-      this.format2 = createFormat2();
-    }
-    this.format2.setTwistieResource(res);
+    getFormat2(true).get().setTwistieResource(res);
     markViewFormatDirty();
     return this;
   }
   
   @Override
   public boolean isUserEditable() {
-    return getFormat2()
+    return getFormat2(false)
       .map(ViewColumnFormat2::getFlags)
       .map(flags -> flags.contains(ViewColumnFormat2.Flag3.IsColumnEditable))
       .orElse(false);
@@ -425,7 +456,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   
   @Override
   public boolean isColor() {
-    return getFormat2()
+    return getFormat2(false)
       .map(ViewColumnFormat2::getFlags)
       .map(flags -> flags.contains(ViewColumnFormat2.Flag3.Color))
       .orElse(false);
@@ -433,7 +464,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   
   @Override
   public boolean isUserDefinableColor() {
-    boolean setInVcf2 = getFormat2()
+    boolean setInVcf2 = getFormat2(false)
         .map(ViewColumnFormat2::getFlags)
         .map(flags -> {
           return flags;
@@ -443,7 +474,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     if(setInVcf2) {
       return true;
     }
-    return getFormat6()
+    return getFormat6(false)
       .map(ViewColumnFormat6::getFlags)
       .map(flags -> flags.contains(ViewColumnFormat6.Flag.UserDefinableExtended))
       .orElse(false);
@@ -451,7 +482,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   
   @Override
   public boolean isHideTitle() {
-    return getFormat2()
+    return getFormat2(false)
       .map(ViewColumnFormat2::getFlags)
       .map(flags -> flags.contains(ViewColumnFormat2.Flag3.HideColumnTitle))
       .orElse(false);
@@ -462,7 +493,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     if (this.format2==null) {
       this.format2 = createFormat2();
     }
-    this.format2.setFlag(ViewColumnFormat2.Flag3.HideColumnTitle, b);
+    getFormat2(true).get().setFlag(ViewColumnFormat2.Flag3.HideColumnTitle, b);
     markViewFormatDirty();
     return this;
   }
@@ -474,7 +505,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   
   @Override
   public NotesFont getHeaderFont() {
-    FontStyle style = getFormat2()
+    FontStyle style = getFormat2(false)
       .map(ViewColumnFormat2::getHeaderFontStyle)
       .orElseGet(DesignColorsAndFonts::viewHeaderFont);
     return new TextFontItemNotesFont(this.parent.getDocument(), style);
@@ -486,7 +517,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
    *             to be always 0 in practice
    */
   public ColorValue getRowFontColor() {
-    return getFormat2()
+    return getFormat2(false)
       .map(ViewColumnFormat2::getColumnColor)
       .orElseGet(DesignColorsAndFonts::blackColor);
   }
@@ -498,7 +529,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
    */
   @Deprecated
   public ColorValue getHeaderFontColor() {
-    return getFormat2()
+    return getFormat2(false)
       .map(ViewColumnFormat2::getHeaderFontColor)
       .orElseGet(DesignColorsAndFonts::blackColor);
   }
@@ -574,52 +605,59 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   // * Internal implementation utilities
   // *******************************************************************************
 
-  private ViewColumnFormat getFormat1() {
+  ViewColumnFormat getFormat1() {
     return Objects.requireNonNull(this.format1, "VIEW_COLUMN_FORMAT not read");
   }
 
-  private Optional<ViewColumnFormat2> getFormat2() {
+  Optional<ViewColumnFormat2> getFormat2(boolean createIfMissing) {
+    if (this.format2==null && createIfMissing) {
+      this.format2 = createFormat2();
+    }
     return Optional.ofNullable(this.format2);
   }
   
-  private Optional<ViewColumnFormat3> getFormat3() {
+  Optional<ViewColumnFormat3> getFormat3(boolean createIfMissing) {
+    if (this.format3==null && createIfMissing) {
+      this.format3 = createFormat3();
+    }
     return Optional.ofNullable(this.format3);
   }
   
-  private Optional<ViewColumnFormat4> getFormat4() {
+  Optional<ViewColumnFormat4> getFormat4(boolean createIfMissing) {
+    if (this.format4==null && createIfMissing) {
+      this.format4 = createFormat4();
+    }
     return Optional.ofNullable(this.format4);
   }
   
-  private Optional<ViewColumnFormat5> getFormat5() {
+  Optional<ViewColumnFormat5> getFormat5(boolean createIfMissing) {
+    if (this.format5==null && createIfMissing) {
+      this.format5 = createFormat5();
+    }
     return Optional.ofNullable(this.format5);
   }
   
-  private Optional<ViewColumnFormat6> getFormat6() {
+  Optional<ViewColumnFormat6> getFormat6(boolean createIfMissing) {
+    if (this.format6==null && createIfMissing) {
+      this.format6 = createFormat6();
+    }
     return Optional.ofNullable(this.format6);
   }
 
-  private ViewColumnFormat2 createFormat2() {
-    ViewColumnFormat2 fmt = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat2.class, 0);
-    
-    //TODO init with defaults
-    
-    return fmt;
+  ViewColumnFormat2 createFormat2() {
+    return ViewColumnFormat2.newInstance();
   }
 
-  private ViewColumnFormat3 createFormat3() {
+  ViewColumnFormat3 createFormat3() {
     //make sure predecessor formats exist
     if (this.format2==null) {
       this.format2 = createFormat2();
     }
     
-    ViewColumnFormat3 fmt = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat3.class, 0);
-    
-    //TODO init with defaults
-    
-    return fmt;
+    return ViewColumnFormat3.newInstance();
   }
 
-  private ViewColumnFormat4 createFormat4() {
+  ViewColumnFormat4 createFormat4() {
     //make sure predecessor formats exist
     if (this.format2==null) {
       this.format2 = createFormat2();
@@ -628,14 +666,10 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       this.format3 = createFormat3();
     }
     
-    ViewColumnFormat4 fmt = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat4.class, 0);
-    
-    //TODO init with defaults
-    
-    return fmt;
+    return ViewColumnFormat4.newInstance();
   }
 
-  private ViewColumnFormat5 createFormat5() {
+  ViewColumnFormat5 createFormat5() {
     //make sure predecessor formats exist
     if (this.format2==null) {
       this.format2 = createFormat2();
@@ -647,14 +681,10 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       this.format4 = createFormat4();
     }
     
-    ViewColumnFormat5 fmt = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat5.class, 0);
-    
-    //TODO init with defaults
-    
-    return fmt;
+    return ViewColumnFormat5.newInstance();
   }
 
-  private ViewColumnFormat6 createFormat6() {
+  ViewColumnFormat6 createFormat6() {
     //make sure predecessor formats exist
     if (this.format2==null) {
       this.format2 = createFormat2();
@@ -669,18 +699,14 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       this.format5 = createFormat5();
     }
     
-    ViewColumnFormat6 fmt = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat6.class, 0);
-    
-    //TODO init with defaults
-    
-    return fmt;
+    return ViewColumnFormat6.newInstance();
   }
 
   private class DefaultNumberSettings implements NumberSettings {
 
     @Override
     public NumberDisplayFormat getFormat() {
-      return getFormat4()
+      return getFormat4(false)
         .map(format4 -> {
           switch(format4.getNumberFormat().getFormat()) {
             case BYTES:
@@ -705,133 +731,275 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
         .orElse(NumberDisplayFormat.DECIMAL);
     }
 
+    public NumberSettings setFormat(NumberDisplayFormat format) {
+      NFMT nfmt = getFormat4(true).get().getNumberFormat();
+      
+      switch (format) {
+      case BYTES:
+      case PERCENT:
+      case DECIMAL:
+      {
+        nfmt.setFormat(Format.GENERAL);
+        
+        Set<Attribute> oldAttributes = nfmt.getAttributes();
+        Set<Attribute> newAttributes = new HashSet<>(oldAttributes);
+        
+        if (format == NumberDisplayFormat.BYTES) {
+          newAttributes.remove(NFMT.Attribute.PERCENT);
+          
+        }
+        else if (format == NumberDisplayFormat.PERCENT) {
+          newAttributes.remove(NFMT.Attribute.BYTES);
+          
+        }
+        else if (format == NumberDisplayFormat.DECIMAL) {
+          newAttributes.remove(NFMT.Attribute.PERCENT);
+          newAttributes.remove(NFMT.Attribute.BYTES);
+          
+        }
+        
+        nfmt.setAttributes(newAttributes);
+      }
+        break;
+      case CURRENCY:
+        nfmt.setFormat(Format.CURRENCY);
+        break;
+      case SCIENTIFIC:
+        nfmt.setFormat(Format.SCIENTIFIC);
+        break;
+      default:
+          throw new IllegalArgumentException(MessageFormat.format("Unknown format: {0}", format));
+      }
+      
+      markViewFormatDirty();
+      return this;
+    }
+
     @Override
     public boolean isVaryingDecimal() {
-      return getFormat4()
+      return getFormat4(false)
         .map(format4 -> format4.getNumberFormat().getAttributes().contains(NFMT.Attribute.VARYING))
         .orElse(true);
     }
 
+    public NumberSettings setVaryingDecimal(boolean b) {
+      getFormat4(true)
+      .ifPresent((fmt4) -> {
+        fmt4.getNumberFormat().setAttribute(NFMT.Attribute.VARYING, b);
+      });
+      markViewFormatDirty();
+      return this;
+    };
+    
     @Override
     public int getFixedDecimalPlaces() {
-      return getFormat4()
+      return getFormat4(false)
         .map(format4 -> (int)format4.getNumberFormat().getDigits())
         .orElse(0);
     }
 
+    public NumberSettings setFixedDecimalPlaces(int d) {
+      getFormat4(true)
+      .ifPresent((fmt4) -> {
+        fmt4.getNumberFormat().setDigits((short) d);
+      });
+      return this;
+    };
+    
     @Override
     public boolean isOverrideClientLocale() {
-      return getFormat4()
+      return getFormat4(false)
         .map(format4 -> format4.getNumberSymbolPreference() == NumberPref.FIELD)
         .orElse(false);
     }
 
+    public NumberSettings setOverrideClientLocale(boolean b) {
+      getFormat4(true)
+      .ifPresent((fmt4) -> {
+        fmt4.setNumberSymbolPreference(b ? NumberPref.FIELD : NumberPref.CLIENT);
+      });
+      return this;
+    };
+    
     @Override
     public String getDecimalSymbol() {
       // TODO determine whether the default here should change for non-US locales
-      return getFormat4()
+      return getFormat4(false)
         .map(format4 -> format4.getDecimalSymbol())
         .orElse("."); //$NON-NLS-1$
     }
 
+    public NumberSettings setDecimalSymbol(String s) {
+      getFormat4(true)
+      .ifPresent((fmt4) -> {
+        fmt4.setDecimalSymbol(s);
+      });
+      return this;
+    };
+    
     @Override
     public String getThousandsSeparator() {
       // TODO determine whether the default here should change for non-US locales
-      return getFormat4()
+      return getFormat4(false)
         .map(format4 -> format4.getMilliSeparator())
         .orElse(","); //$NON-NLS-1$
     }
 
+    public NumberSettings setThousandsSeparator(String s) {
+      getFormat4(true)
+      .ifPresent((fmt4) -> {
+        fmt4.setMilliSeparator(s);
+      });
+      return this;
+    };
+    
     @Override
     public boolean isUseParenthesesWhenNegative() {
-      return getFormat4()
+      return getFormat4(false)
         .map(format4 -> format4.getNumberFormat().getAttributes().contains(NFMT.Attribute.PARENS))
         .orElse(false);
     }
 
+    public NumberSettings setUseParenthesesWhenNegative(boolean b) {
+      getFormat4(true)
+      .ifPresent((fmt4) -> {
+        fmt4.getNumberFormat().setAttribute(NFMT.Attribute.PARENS, b);
+      });
+      return this;
+    };
+    
     @Override
     public boolean isPunctuateThousands() {
-      return getFormat4()
+      return getFormat4(false)
         .map(format4 -> format4.getNumberFormat().getAttributes().contains(NFMT.Attribute.PUNCTUATED))
         .orElse(false);
     }
 
+    public NumberSettings setPunctuateThousands(boolean b) {
+      getFormat4(true)
+      .ifPresent((fmt4) -> {
+        fmt4.getNumberFormat().setAttribute(NFMT.Attribute.PUNCTUATED, b);
+      });
+      return this;
+    };
+    
     @Override
     public long getCurrencyIsoCode() {
-      return getFormat4()
+      return getFormat4(false)
         .map(format4 -> format4.getISOCountry())
         .orElse(0l);
     }
 
+    public NumberSettings setCurrencyIsoCode(long code) {
+      getFormat4(true)
+      .ifPresent((fmt4) -> {
+        fmt4.setISOCountry(code);
+      });
+      return this;
+    };
+    
     @Override
     public boolean isUseCustomCurrencySymbol() {
-      return getFormat4()
+      return getFormat4(false)
         .map(format4 -> format4.getCurrencyType() == CurrencyType.CUSTOM)
         .orElse(false);
     }
 
+    public NumberSettings setUseCustomCurrencySymbol(boolean b) {
+      getFormat4(true)
+      .ifPresent((fmt4) -> {
+        fmt4.setCurrencyType(b ? CurrencyType.CUSTOM : CurrencyType.COMMON);
+      });
+      return this;
+    };
+    
     @Override
     public String getCurrencySymbol() {
       // TODO determine whether the default here should change for non-US locales
-      return getFormat4()
+      return getFormat4(false)
         .map(format4 -> format4.getCurrencySymbol())
         .orElse("$"); //$NON-NLS-1$
     }
 
+    public NumberSettings setCurrencySymbol(String s) {
+      getFormat4(true)
+      .ifPresent((fmt4) -> {
+        fmt4.setCurrencySymbol(s);
+      });
+      return this;
+    }
+    
     @Override
     public boolean isCurrencySymbolPostfix() {
-      return getFormat4()
+      return getFormat4(false)
         .map(format4 -> format4.getCurrencyFlags().contains(CurrencyFlag.SYMFOLLOWS))
         .orElse(false);
     }
 
+    public NumberSettings setCurrencySymbolPostfix(boolean b) {
+      getFormat4(true)
+      .ifPresent((fmt4) -> {
+        fmt4.setCurrencyFlag(CurrencyFlag.SYMFOLLOWS, b);
+      });
+      return this;
+    };
+    
     @Override
     public boolean isUseSpaceNextToNumber() {
-      return getFormat4()
+      return getFormat4(false)
         .map(format4 -> format4.getCurrencyFlags().contains(CurrencyFlag.USESPACES))
         .orElse(false);
     }
+    
+    public NumberSettings setUseSpaceNextToNumber(boolean b) {
+      getFormat4(true)
+      .ifPresent((fmt4) -> {
+        fmt4.setCurrencyFlag(CurrencyFlag.USESPACES, b);
+      });
+      return this;
+    };
+    
   }
   
   private class DefaultDateTimeSettings implements DateTimeSettings {
     @Override
     public boolean isOverrideClientLocale() {
-      return getFormat3()
+      return getFormat3(false)
         .map(format3 -> format3.getDateTimePreference() == NumberPref.FIELD)
         .orElse(false);
     }
 
     @Override
     public boolean isDisplayAbbreviatedDate() {
-      return getFormat3()
+      return getFormat3(false)
         .map(format3 -> format3.getDateTimeFlags().contains(DateTimeFlag.SHOWABBREV))
         .orElse(false);
     }
 
     @Override
     public boolean isDisplayDate() {
-      return getFormat3()
+      return getFormat3(false)
         .map(format3 -> format3.getDateTimeFlags().contains(DateTimeFlag.SHOWDATE))
         .orElse(true);
     }
 
     @Override
     public DateShowFormat getDateShowFormat() {
-      return getFormat3()
+      return getFormat3(false)
         .map(format3 -> format3.getDateShowFormat())
         .orElse(DateShowFormat.MDY);
     }
 
     @Override
     public Set<DateShowSpecial> getDateShowBehavior() {
-      return getFormat3()
+      return getFormat3(false)
         .map(format3 -> format3.getDateShowSpecial())
         .orElseGet(() -> EnumSet.of(DateShowSpecial.SHOW_21ST_4DIGIT));
     }
 
     @Override
     public CalendarType getCalendarType() {
-      return getFormat3()
+      return getFormat3(false)
         .map(ViewColumnFormat3::getDateTimeFlags2)
         .map(flags -> flags.contains(DateTimeFlag2.USE_HIJRI_CALENDAR) ? CalendarType.HIJRI : CalendarType.GREGORIAN)
         .orElse(CalendarType.GREGORIAN);
@@ -839,7 +1007,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
 
     @Override
     public DateComponentOrder getDateComponentOrder() {
-      return getFormat3()
+      return getFormat3(false)
         .map(ViewColumnFormat3::getDateComponentOrder)
         .orElse(DateComponentOrder.WMDY);
     }
@@ -847,7 +1015,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     @Override
     public String getCustomDateSeparator1() {
       // TODO determine whether the default here should change for non-US locales
-      return getFormat3()
+      return getFormat3(false)
         .map(ViewColumnFormat3::getDateSeparator1)
         .orElse(" "); //$NON-NLS-1$
     }
@@ -855,7 +1023,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     @Override
     public String getCustomDateSeparator2() {
       // TODO determine whether the default here should change for non-US locales
-      return getFormat3()
+      return getFormat3(false)
         .map(ViewColumnFormat3::getDateSeparator2)
         .orElse("/"); //$NON-NLS-1$
     }
@@ -863,63 +1031,63 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     @Override
     public String getCustomDateSeparator3() {
       // TODO determine whether the default here should change for non-US locales
-      return getFormat3()
+      return getFormat3(false)
         .map(ViewColumnFormat3::getDateSeparator3)
         .orElse("/"); //$NON-NLS-1$
     }
 
     @Override
     public DayFormat getDayFormat() {
-      return getFormat3()
+      return getFormat3(false)
         .map(ViewColumnFormat3::getDayFormat)
         .orElse(DayFormat.DD);
     }
 
     @Override
     public MonthFormat getMonthFormat() {
-      return getFormat3()
+      return getFormat3(false)
         .map(ViewColumnFormat3::getMonthFormat)
         .orElse(MonthFormat.MM);
     }
 
     @Override
     public YearFormat getYearFormat() {
-      return getFormat3()
+      return getFormat3(false)
         .map(ViewColumnFormat3::getYearFormat)
         .orElse(YearFormat.YYYY);
     }
 
     @Override
     public WeekFormat getWeekdayFormat() {
-      return getFormat3()
+      return getFormat3(false)
         .map(ViewColumnFormat3::getDayOfWeekFormat)
         .orElse(WeekFormat.WWW);
     }
 
     @Override
     public boolean isDisplayTime() {
-      return getFormat3()
+      return getFormat3(false)
         .map(format3 -> format3.getDateTimeFlags().contains(DateTimeFlag.SHOWTIME))
         .orElse(true);
     }
 
     @Override
     public TimeShowFormat getTimeShowFormat() {
-      return getFormat3()
+      return getFormat3(false)
         .flatMap(ViewColumnFormat3::getTimeShowFormat)
         .orElse(TimeShowFormat.HMS);
     }
 
     @Override
     public TimeZoneFormat getTimeZoneFormat() {
-      return getFormat3()
+      return getFormat3(false)
         .map(ViewColumnFormat3::getTimeZoneFormat)
         .orElse(TimeZoneFormat.NEVER);
     }
 
     @Override
     public boolean isTime24HourFormat() {
-      return getFormat3()
+      return getFormat3(false)
         .map(format3 -> format3.getDateTimeFlags().contains(DateTimeFlag.TWENTYFOURHOUR))
         .orElse(true);
     }
@@ -927,7 +1095,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     @Override
     public String getCustomTimeSeparator() {
       // TODO determine whether the default here should change for non-US locales
-      return getFormat3()
+      return getFormat3(false)
         .map(format3 -> format3.getTimeSeparator())
         .orElse(":"); //$NON-NLS-1$
     }
@@ -937,7 +1105,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
 
     @Override
     public boolean isNamesValue() {
-      return getFormat5()
+      return getFormat5(false)
         .map(ViewColumnFormat5::getFlags)
         .map(flags -> flags.contains(ViewColumnFormat5.Flag.IS_NAME))
         .orElse(false);
@@ -945,7 +1113,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
 
     @Override
     public boolean isShowOnlineStatus() {
-      return getFormat5()
+      return getFormat5(false)
         .map(ViewColumnFormat5::getFlags)
         .map(flags -> flags.contains(ViewColumnFormat5.Flag.SHOW_IM_STATUS))
         .orElse(false);
@@ -953,14 +1121,14 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
 
     @Override
     public Optional<String> getNameColumnName() {
-      return getFormat5()
+      return getFormat5(false)
         .map(ViewColumnFormat5::getDnColumnName)
         .flatMap(name -> name.isEmpty() ? Optional.empty() : Optional.of(name));
     }
 
     @Override
     public OnlinePresenceOrientation getPresenceIconOrientation() {
-      return getFormat5()
+      return getFormat5(false)
         .map(ViewColumnFormat5::getFlags)
         .map(flags -> {
           if(flags.contains(ViewColumnFormat5.Flag.VERT_ORIENT_BOTTOM)) {
@@ -979,14 +1147,14 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
 
     @Override
     public NarrowViewPosition getNarrowViewPosition() {
-      return getFormat6()
+      return getFormat6(false)
         .map(ViewColumnFormat6::getIfViewIsNarrowDo)
         .orElse(NarrowViewPosition.KEEP_ON_TOP);
     }
 
     @Override
     public boolean isJustifySecondRow() {
-      return getFormat6()
+      return getFormat6(false)
         .map(ViewColumnFormat6::getFlags)
         .map(flags -> flags.contains(ViewColumnFormat6.Flag.BeginWrapUnder))
         .orElse(false);
@@ -994,21 +1162,21 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
 
     @Override
     public int getSequenceNumber() {
-      return getFormat6()
+      return getFormat6(false)
         .map(ViewColumnFormat6::getSequenceNumber)
         .orElse(0);
     }
 
     @Override
     public TileViewerPosition getTileViewerPosition() {
-      return getFormat6()
+      return getFormat6(false)
         .map(ViewColumnFormat6::getTileViewer)
         .orElse(TileViewerPosition.TOP);
     }
 
     @Override
     public int getTileLineNumber() {
-      return getFormat6()
+      return getFormat6(false)
         .map(ViewColumnFormat6::getLineNumber)
         .map(index -> index == 0 ? 1 : index)
         .orElse(1);
@@ -1016,13 +1184,13 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
 
     @Override
     public String getCompositeProperty() {
-      return getFormat6()
+      return getFormat6(false)
         .map(ViewColumnFormat6::getPublishFieldName)
         .orElse(""); //$NON-NLS-1$
     }
   }
   
-  private void markViewFormatDirty() {
+  void markViewFormatDirty() {
     if (this.parent instanceof SharedColumnImpl) {
       ((SharedColumnImpl)this.parent).setViewFormatDirty(true);
     }
