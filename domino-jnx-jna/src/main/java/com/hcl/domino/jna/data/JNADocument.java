@@ -2692,16 +2692,23 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		}
 		return m_documentClass;
 	}
-	
+
+	 @Override
+	 public Document setDocumentClass(DocumentClass docClass) {
+	   return setDocumentClass(EnumSet.of(docClass));
+	 }
+
 	@Override
-	public Document setDocumentClass(DocumentClass docClass) {
+	public Document setDocumentClass(Collection<DocumentClass> docClass) {
 		checkDisposed();
 		
 		m_documentClass = null;
+		Short docClassVal = DominoEnumUtil.toBitField(DocumentClass.class, docClass);
+		
 		JNADocumentAllocations allocations = getAllocations();
 		LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
 			ShortByReference noteClassVal = new ShortByReference();
-			noteClassVal.setValue(docClass == null ? 0 : docClass.getValue());
+			noteClassVal.setValue(docClassVal.shortValue());
 			NotesCAPI.get().NSFNoteSetInfo(noteHandleByVal, NotesConstants._NOTE_CLASS, noteClassVal.getPointer());
 			return null;
 		});
