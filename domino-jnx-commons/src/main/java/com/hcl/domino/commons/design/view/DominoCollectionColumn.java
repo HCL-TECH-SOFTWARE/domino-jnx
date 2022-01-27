@@ -626,6 +626,9 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   Optional<ViewColumnFormat4> getFormat4(boolean createIfMissing) {
     if (this.format4==null && createIfMissing) {
       this.format4 = createFormat4();
+      
+      //set flag to add ViewColumnFormat4 when encoding $ViewFormat
+      getFormat2(true).get().setFlag(ViewColumnFormat2.Flag3.NumberFormat, true);
     }
     return Optional.ofNullable(this.format4);
   }
@@ -633,6 +636,9 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   Optional<ViewColumnFormat5> getFormat5(boolean createIfMissing) {
     if (this.format5==null && createIfMissing) {
       this.format5 = createFormat5();
+      
+      //set flag to add ViewColumnFormat5 when encoding $ViewFormat
+      getFormat2(true).get().setFlag(ViewColumnFormat2.Flag3.NamesFormat, true);
     }
     return Optional.ofNullable(this.format5);
   }
@@ -640,6 +646,9 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   Optional<ViewColumnFormat6> getFormat6(boolean createIfMissing) {
     if (this.format6==null && createIfMissing) {
       this.format6 = createFormat6();
+      
+      //set flag to add ViewColumnFormat6 when encoding $ViewFormat
+      getFormat2(true).get().setFlag(ViewColumnFormat2.Flag3.ExtendedViewColFmt6, true);
     }
     return Optional.ofNullable(this.format6);
   }
@@ -759,6 +768,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
         }
         
         nfmt.setAttributes(newAttributes);
+        markViewFormatDirty();
       }
         break;
       case CURRENCY:
@@ -786,8 +796,8 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       getFormat4(true)
       .ifPresent((fmt4) -> {
         fmt4.getNumberFormat().setAttribute(NFMT.Attribute.VARYING, b);
+        markViewFormatDirty();
       });
-      markViewFormatDirty();
       return this;
     };
     
@@ -802,6 +812,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       getFormat4(true)
       .ifPresent((fmt4) -> {
         fmt4.getNumberFormat().setDigits((short) d);
+        markViewFormatDirty();
       });
       return this;
     };
@@ -817,6 +828,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       getFormat4(true)
       .ifPresent((fmt4) -> {
         fmt4.setNumberSymbolPreference(b ? NumberPref.FIELD : NumberPref.CLIENT);
+        markViewFormatDirty();
       });
       return this;
     };
@@ -833,6 +845,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       getFormat4(true)
       .ifPresent((fmt4) -> {
         fmt4.setDecimalSymbol(s);
+        markViewFormatDirty();
       });
       return this;
     };
@@ -849,6 +862,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       getFormat4(true)
       .ifPresent((fmt4) -> {
         fmt4.setMilliSeparator(s);
+        markViewFormatDirty();
       });
       return this;
     };
@@ -864,6 +878,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       getFormat4(true)
       .ifPresent((fmt4) -> {
         fmt4.getNumberFormat().setAttribute(NFMT.Attribute.PARENS, b);
+        markViewFormatDirty();
       });
       return this;
     };
@@ -879,6 +894,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       getFormat4(true)
       .ifPresent((fmt4) -> {
         fmt4.getNumberFormat().setAttribute(NFMT.Attribute.PUNCTUATED, b);
+        markViewFormatDirty();
       });
       return this;
     };
@@ -894,6 +910,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       getFormat4(true)
       .ifPresent((fmt4) -> {
         fmt4.setISOCountry(code);
+        markViewFormatDirty();
       });
       return this;
     };
@@ -909,6 +926,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       getFormat4(true)
       .ifPresent((fmt4) -> {
         fmt4.setCurrencyType(b ? CurrencyType.CUSTOM : CurrencyType.COMMON);
+        markViewFormatDirty();
       });
       return this;
     };
@@ -925,6 +943,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       getFormat4(true)
       .ifPresent((fmt4) -> {
         fmt4.setCurrencySymbol(s);
+        markViewFormatDirty();
       });
       return this;
     }
@@ -940,6 +959,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       getFormat4(true)
       .ifPresent((fmt4) -> {
         fmt4.setCurrencyFlag(CurrencyFlag.SYMFOLLOWS, b);
+        markViewFormatDirty();
       });
       return this;
     };
@@ -955,6 +975,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       getFormat4(true)
       .ifPresent((fmt4) -> {
         fmt4.setCurrencyFlag(CurrencyFlag.USESPACES, b);
+        markViewFormatDirty();
       });
       return this;
     };
