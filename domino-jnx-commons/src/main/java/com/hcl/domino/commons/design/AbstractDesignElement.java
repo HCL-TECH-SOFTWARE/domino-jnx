@@ -17,6 +17,7 @@
 package com.hcl.domino.commons.design;
 
 import java.util.EnumSet;
+import java.util.Optional;
 
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.data.Document;
@@ -59,6 +60,16 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   @Override
   public Document getDocument() {
     return this.doc;
+  }
+  
+  @Override
+  public Optional<String> getTemplateName() {
+    String val = this.doc.getAsText(NotesConstants.DESIGN_CLASS, ' ');
+    if(val == null || val.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.of(val);
+    }
   }
   
   @Override
@@ -118,6 +129,11 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   @Override
   public void setProhibitRefresh(final boolean prohibitRefresh) {
     this.setFlag(NotesConstants.DESIGN_FLAG_PRESERVE, prohibitRefresh);
+  }
+  
+  @Override
+  public void setTemplateName(String templateName) {
+    this.doc.replaceItemValue(NotesConstants.DESIGN_CLASS, templateName);
   }
 
   @Override

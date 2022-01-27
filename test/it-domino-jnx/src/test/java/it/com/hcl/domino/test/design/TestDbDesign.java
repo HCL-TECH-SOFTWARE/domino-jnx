@@ -624,7 +624,7 @@ public class TestDbDesign extends AbstractDesignTest {
     DbDesign design = database.getDesign();
     
     List<Page> pages = design.getPages().collect(Collectors.toList());
-    assertEquals(2, pages.size());
+    assertEquals(3, pages.size());
     assertTrue(pages.stream().anyMatch(p -> "Navigation Header".equals(p.getTitle())));
     assertTrue(pages.stream().anyMatch(p -> "Test Page".equals(p.getTitle())));
     
@@ -1475,6 +1475,38 @@ public class TestDbDesign extends AbstractDesignTest {
         assertEquals(toLf(expected), toLf(content));
       }
     }
+  }
+  
+  @Test
+  public void testTemplatePage() {
+    DbDesign design = database.getDesign();
+    Page page = design.getPage("TemplatePage").get();
+    assertEquals("foo", page.getTemplateName().get());
+  }
+  
+  @Test
+  public void testNonTemplatePage() {
+    DbDesign design = database.getDesign();
+    Page page = design.getPage("Test Page").get();
+    assertFalse(page.getTemplateName().isPresent());
+  }
+  
+  @Test
+  public void testSetTemplate() throws Exception {
+    // Use a fresh copy of the DB to avoid interactions with other tests
+    withResourceDxl("/dxl/testDbDesign", database -> {
+      DbDesign design = database.getDesign();
+      {
+        Page page = design.getPage("Test Page").get();
+        page.setTemplateName("bazbaz");
+        assertEquals("bazbaz", page.getTemplateName().get());
+        page.save();
+      }
+      {
+        Page page = design.getPage("Test Page").get();
+        assertEquals("bazbaz", page.getTemplateName().get());
+      }
+    });
   }
   
 }
