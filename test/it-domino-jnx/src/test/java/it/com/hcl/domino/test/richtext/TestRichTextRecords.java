@@ -1851,7 +1851,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           assertEquals(StandardColors.Mustard, viewmapLineDefaults.getFillForegroundColor().get());
           assertEquals(StandardColors.DarkEmerald, viewmapLineDefaults.getLineColor().get());
           assertEquals(NavigatorFillStyle.SOLID,viewmapLineDefaults.getFillStyle());
-          assertEquals(StandardColors.BlueGray, viewmapLineDefaults.getFillBackgroundColor());
+          assertEquals(StandardColors.BlueGray, viewmapLineDefaults.getFillBackgroundColor().get());
           assertEquals(1,viewmapLineDefaults.getLineWidth());
           assertEquals(NavigatorLineStyle.SOLID,viewmapLineDefaults.getLineStyle());
         } 
