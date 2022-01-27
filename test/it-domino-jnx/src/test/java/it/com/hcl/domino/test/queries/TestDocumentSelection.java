@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.data.*;
@@ -394,6 +395,7 @@ public class TestDocumentSelection extends AbstractNotesRuntimeTest {
     this.withTempDb(db -> {
 
       long timeMs = System.currentTimeMillis();
+      TimeUnit.MILLISECONDS.sleep(10); // Make sure we wait at least one Domino tic
       final Document doc = db.createDocument();
       doc.setDocumentClass(DocumentClass.DOCUMENT);
       doc.save();
