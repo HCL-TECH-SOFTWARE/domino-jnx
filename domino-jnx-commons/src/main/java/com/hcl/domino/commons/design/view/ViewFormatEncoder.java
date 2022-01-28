@@ -23,6 +23,7 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -30,6 +31,8 @@ import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.data.NativeItemCoder.LmbcsVariant;
+import com.hcl.domino.design.format.ViewCalendarFormat;
+import com.hcl.domino.design.format.ViewCalendarFormat2;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.ViewColumnFormat2;
 import com.hcl.domino.design.format.ViewColumnFormat4;
@@ -360,4 +363,25 @@ public class ViewFormatEncoder {
     return fmt;
   }
   
+  public static ByteBuffer encodeCalendarFormat(DominoCalendarFormat calFormat) {
+    ViewCalendarFormat format1 = Objects.requireNonNull(calFormat.getAdapter(ViewCalendarFormat.class));
+    
+    ByteBuffer format1Data = format1.getData();
+    int format1Capacity = format1Data.capacity();
+
+    ByteBuffer buf = ByteBuffer.allocate(format1Capacity).order(ByteOrder.nativeOrder());
+    buf.put(format1Data);
+    
+    ViewCalendarFormat2 format2 = calFormat.getAdapter(ViewCalendarFormat2.class);
+    
+    if (format2!=null) {
+      ByteBuffer format2Data = format2.getData();
+      int format2Capacity = format2Data.capacity();
+      
+      buf = ensureBufferCapacity(buf, buf.capacity() + format2Capacity);
+      buf.put(format2Data);
+    }
+    
+    return buf;
+  }
 }

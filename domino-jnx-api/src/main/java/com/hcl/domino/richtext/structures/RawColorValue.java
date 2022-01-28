@@ -55,4 +55,15 @@ public interface RawColorValue extends MemoryStructure {
   
   @StructureSetter("Blue")
   RawColorValue setBlue(short blue);
+  
+  /**
+   * Copies the color data values from another {@link RawColorValue}
+   * 
+   * @param otherColor color
+   */
+  default void copyFrom(RawColorValue otherColor) {
+    setRed(otherColor.getRed());
+    setGreen(otherColor.getGreen());
+    setBlue(otherColor.getBlue());
+  }
 }

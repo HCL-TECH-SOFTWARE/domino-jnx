@@ -39,6 +39,7 @@ import com.hcl.domino.commons.design.view.DominoCalendarFormat;
 import com.hcl.domino.commons.design.view.DominoCollationInfo;
 import com.hcl.domino.commons.design.view.DominoCollectionColumn;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
+import com.hcl.domino.commons.util.ListUtil;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.NotesCollationInfo;
 import com.hcl.domino.data.CollectionColumn;
@@ -70,6 +71,7 @@ import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.CDTarget;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.structures.ColorValue;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * @param <T> the {@link DesignElement} interface implemented by the class
@@ -122,7 +124,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   @Override
   public <T> T getAdapter(Class<T> clazz) {
     if (DominoViewFormat.class.equals(clazz)) {
-      return (T) readViewFormat(false).orElse(null);
+      return (T) getViewFormat(false).orElse(null);
     }
 
     return null;
@@ -135,7 +137,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       throw new UnsupportedOperationException();
     }
     
-    DominoViewFormat viewFormat = readViewFormat(true)
+    DominoViewFormat viewFormat = getViewFormat(true)
     .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
 
     DominoCollectionColumn newCol = (DominoCollectionColumn) viewFormat.addColumn(pos);
@@ -160,7 +162,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
     DominoCollectionColumn dominoTemplateCol = (DominoCollectionColumn) templateCol;
 
-    DominoViewFormat viewFormat = readViewFormat(true)
+    DominoViewFormat viewFormat = getViewFormat(true)
     .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
     
     DominoCollectionColumn newCol = (DominoCollectionColumn) viewFormat.addColumn(pos);
@@ -188,14 +190,14 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
   @Override
   public List<CollectionColumn> getColumns() {
-    return this.readViewFormat(true)
+    return this.getViewFormat(true)
       .map(DominoViewFormat::getColumns)
       .orElseGet(Collections::emptyList);
   }
 
   @Override
   public OnOpen getOnOpenUISetting() {
-    return readViewFormat(false)
+    return getViewFormat(false)
       .map(format -> {
         final ViewTableFormat format1 = format.getAdapter(ViewTableFormat.class);
         final Set<ViewTableFormat.Flag> flags = format1.getFlags();
@@ -212,7 +214,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
   @Override
   public T setOnOpenUISetting(OnOpen setting) {
-    readViewFormat(true)
+    getViewFormat(true)
     .map(DominoViewFormat::getFormat1)
     .ifPresent((fmt) -> {
       Set<ViewTableFormat.Flag> oldFlags = fmt.getFlags();
@@ -235,7 +237,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public OnRefresh getOnRefreshUISetting() {
-    return readViewFormat(false)
+    return getViewFormat(false)
       .map(format -> {
         final ViewTableFormat format1 = format.getAdapter(ViewTableFormat.class);
         final Set<ViewTableFormat.Flag> flags = format1.getFlags();
@@ -255,7 +257,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
   @Override
   public T setOnRefreshUISetting(OnRefresh onRefreshUISetting) {
-    readViewFormat(true)
+    getViewFormat(true)
     .map(DominoViewFormat::getFormat1)
     .ifPresent((fmt) -> {
       Set<ViewTableFormat.Flag> oldFlags = fmt.getFlags();
@@ -293,7 +295,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
   @Override
   public boolean isAllowCustomizations() {
-    return readViewFormat(false)
+    return getViewFormat(false)
       .map(format -> {
         final ViewTableFormat3 format3 = format.getAdapter(ViewTableFormat3.class);
         if (format3 == null) {
@@ -308,7 +310,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
   @Override
   public T setAllowCustomizations(boolean b) {
-    readViewFormat(true)
+    getViewFormat(true)
     .flatMap((viewFormat) -> { return viewFormat.getFormat3(true); })
     .ifPresent((fmt3) -> {
       // It appears that this flag is inverted in practice
@@ -320,7 +322,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public T removeColumn(final CollectionColumn column) {
-    DominoViewFormat viewFormat = readViewFormat(false)
+    DominoViewFormat viewFormat = getViewFormat(false)
     .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
 
     viewFormat.removeColumn(column);
@@ -330,7 +332,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
   @Override
   public T swapColumns(final CollectionColumn a, final CollectionColumn b) {
-    DominoViewFormat viewFormat = readViewFormat(false)
+    DominoViewFormat viewFormat = getViewFormat(false)
     .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
 
     viewFormat.swapColumns(a, b);
@@ -340,7 +342,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
 
   @Override
   public T swapColumns(final int a, final int b) {
-    DominoViewFormat viewFormat = readViewFormat(false)
+    DominoViewFormat viewFormat = getViewFormat(false)
     .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
 
     viewFormat.swapColumns(a, b);
@@ -350,7 +352,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public ClassicThemeBehavior getClassicThemeBehavior() {
-    return readViewFormat(false)
+    return getViewFormat(false)
       .map(format -> {
         final ViewTableFormat3 format3 = format.getAdapter(ViewTableFormat3.class);
         if(format3 == null) {
@@ -366,7 +368,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public Style getStyle() {
-    return readCalendarFormat(false)
+    return getCalendarFormat(false)
         .map((calFormat) -> { return Style.CALENDAR; })
         .orElse(Style.STANDARD_OUTLINE);
   }
@@ -374,7 +376,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   @Override
   public T setStyle(Style style) {
     if (style == Style.CALENDAR) {
-      readCalendarFormat(true);
+      getCalendarFormat(true);
     }
     else {
       Document doc = getDocument();
@@ -425,7 +427,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public boolean isCollapseAllOnFirstOpen() {
-    return readViewFormat(false)
+    return getViewFormat(false)
       .map(format -> 
         format.getAdapter(ViewTableFormat.class)
           .getFlags()
@@ -436,7 +438,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public T setCollapseAllOnFirstOpen(boolean b) {
-    readViewFormat(true)
+    getViewFormat(true)
     .ifPresent((viewFormat) -> {
       viewFormat.getFormat1().setFlag(ViewTableFormat.Flag.COLLAPSED, b);
       setViewFormatDirty(true);
@@ -448,7 +450,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   @Override
   public boolean isShowResponseDocumentsInHierarchy() {
     // NB: This method reflects Designer's UI, which is inverted from the actual storage
-    return readViewFormat(false)
+    return getViewFormat(false)
       .map(format ->
         !format.getAdapter(ViewTableFormat.class)
           .getFlags()
@@ -459,7 +461,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public T setShowResponseDocumentsInHierarchy(boolean b) {
-    readViewFormat(true)
+    getViewFormat(true)
     .ifPresent((viewFormat) -> {
       viewFormat.getFormat1().setFlag(ViewTableFormat.Flag.FLATINDEX, !b);
       setViewFormatDirty(true);
@@ -481,7 +483,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public boolean isEvaluateActionsOnDocumentChange() {
-    return readViewFormat(false)
+    return getViewFormat(false)
       .map(format -> {
         final ViewTableFormat3 format3 = format.getAdapter(ViewTableFormat3.class);
         if (format3 == null) {
@@ -495,7 +497,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public T setEvaluateActionsOnDocumentChange(boolean b) {
-    readViewFormat(true)
+    getViewFormat(true)
     .ifPresent((viewFormat) -> {
       ViewTableFormat3 format3 = viewFormat.getFormat3(true).get();
       format3.setFlag(ViewTableFormat3.Flag.EvaluateActionsHideWhen, b);
@@ -506,7 +508,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public boolean isCreateDocumentsAtViewLevel() {
-    return readViewFormat(false)
+    return getViewFormat(false)
       .map(format -> {
         final ViewTableFormat3 format3 = format.getAdapter(ViewTableFormat3.class);
         if (format3 == null) {
@@ -520,7 +522,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public T setCreateDocumentsAtViewLevel(boolean b) {
-    readViewFormat(true)
+    getViewFormat(true)
     .ifPresent((viewFormat) -> {
       ViewTableFormat3 format3 = viewFormat.getFormat3(true).get();
       format3.setFlag(ViewTableFormat3.Flag.AllowCreateNewDoc, b);
@@ -557,7 +559,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public T setUnreadMarksMode(UnreadMarksMode mode) {
-    readViewFormat(true)
+    getViewFormat(true)
     .ifPresent((viewFormat) -> {
       ViewTableFormat tableFormat1 = viewFormat.getFormat1();
       Set<ViewTableFormat.Flag> oldFlags = tableFormat1.getFlags();
@@ -736,14 +738,14 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public Optional<CalendarSettings> getCalendarSettings() {
-    return readCalendarFormat(false).map(format -> new DefaultCalendarSettings(this, format));
+    return getCalendarFormat(false).map(format -> new DefaultCalendarSettings(this, format));
   }
 
   // *******************************************************************************
   // * Internal utility methods
   // *******************************************************************************
 
-  private synchronized Optional<DominoViewFormat> readViewFormat(boolean createIfMissing) {
+  private synchronized Optional<DominoViewFormat> getViewFormat(boolean createIfMissing) {
     if (this.format == null) {
       final Document doc = this.getDocument();
       
@@ -764,7 +766,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     return Optional.ofNullable(this.format);
   }
   
-  private synchronized Optional<DominoCalendarFormat> readCalendarFormat(boolean createIfMissing) {
+  private synchronized Optional<DominoCalendarFormat> getCalendarFormat(boolean createIfMissing) {
     if(this.calendarFormat == null) {
       final Document doc = this.getDocument();
       
@@ -780,24 +782,46 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   }
   
   private Optional<ViewTableFormat> getTableFormat1(boolean createIfMissing) {
-    return readViewFormat(createIfMissing).map(DominoViewFormat::getFormat1);
+    return getViewFormat(createIfMissing).map(DominoViewFormat::getFormat1);
   }
 
   private Optional<ViewTableFormat2> getTableFormat2(boolean createIfMissing) {
-    return readViewFormat(createIfMissing).flatMap((fmt) -> { return fmt.getFormat2(createIfMissing);});
+    return getViewFormat(createIfMissing).flatMap((fmt) -> { return fmt.getFormat2(createIfMissing);});
   }
 
   private Optional<ViewTableFormat3> getTableFormat3(boolean createIfMissing) {
-    return readViewFormat(createIfMissing).flatMap((fmt) -> { return fmt.getFormat3(createIfMissing);});
+    return getViewFormat(createIfMissing).flatMap((fmt) -> { return fmt.getFormat3(createIfMissing);});
   }
 
   private Optional<ViewTableFormat4> getTableFormat4(boolean createIfMissing) {
-    return readViewFormat(createIfMissing).flatMap((fmt) -> { return fmt.getFormat4(createIfMissing);});
+    return getViewFormat(createIfMissing).flatMap((fmt) -> { return fmt.getFormat4(createIfMissing);});
   }
 
   private Set<String> getIndexDispositionOptions() {
     String index = getDocument().getAsText(DesignConstants.VIEW_INDEX_ITEM, '/');
-    return new HashSet<>(Arrays.asList(index.split("/"))); //$NON-NLS-1$
+    return Arrays
+        .asList(index.split("/")) //$NON-NLS-1$
+        .stream()
+        .filter(JNXStringUtil::isNotEmpty)
+        .collect(Collectors.toSet());
+  }
+  
+  private T setIndexDispositionOptions(Collection<String> options) {
+    String indexStr;
+    if (options.isEmpty()) {
+      indexStr = ""; //$NON-NLS-1$
+    }
+    else {
+      //prepend delimiter character; order of the options is not relevant
+      indexStr = "/" + options //$NON-NLS-1$
+          .stream()
+          .filter(JNXStringUtil::isNotEmpty)
+          .collect(Collectors.joining("/")); //$NON-NLS-1$
+    }
+    
+    getDocument().replaceItemValue(DesignConstants.VIEW_INDEX_ITEM,
+        EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), indexStr);
+    return (T) this;
   }
   
   private Optional<NotesCollationInfo> getCollationInfo() {
@@ -897,12 +921,32 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public CompositeAppSettings setHideColumnHeader(boolean b) {
+      getTableFormat3(true)
+      .ifPresent((fmt3) -> {
+        fmt3.setFlag(ViewTableFormat3.Flag.HideColumnHeader, b);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
+    @Override
     public boolean isShowPartialHierarchies() {
       return getTableFormat1(false)
         .map(format -> format.getFlags2().contains(ViewTableFormat.Flag2.SHOW_PARTIAL_THREADS))
         .orElse(false);
     }
 
+    @Override
+    public CompositeAppSettings setShowPartialHierarchies(boolean b) {
+      getTableFormat1(true)
+      .ifPresent((fmt1) -> {
+        fmt1.setFlag(ViewTableFormat.Flag2.SHOW_PARTIAL_THREADS, b);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
     @Override
     public boolean isShowSwitcher() {
       return getTableFormat3(false)
@@ -911,6 +955,16 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public CompositeAppSettings setShowSwitcher(boolean b) {
+      getTableFormat3(true)
+      .ifPresent((fmt3) -> {
+        fmt3.setFlag(ViewTableFormat3.Flag.ShowVerticalHorizontalSwitcher, b);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
+    @Override
     public boolean isShowTabNavigator() {
       return getTableFormat3(false)
         .map(format3 -> format3.getFlags().contains(ViewTableFormat3.Flag.ShowTabNavigator))
@@ -918,21 +972,54 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public CompositeAppSettings setShowTabNavigator(boolean b) {
+      getTableFormat3(true)
+      .ifPresent((fmt3) -> {
+        fmt3.setFlag(ViewTableFormat3.Flag.ShowTabNavigator, b);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
+    @Override
     public String getViewers() {
       return getDocument().getAsText(DesignConstants.VIEW_VIEWERS_ITEM, ' ');
     }
 
+    @Override
+    public CompositeAppSettings setViewers(String s) {
+      getDocument().replaceItemValue(DesignConstants.VIEW_VIEWERS_ITEM, s);
+      return this;
+    }
+    
     @Override
     public String getThreadView() {
       return getDocument().getAsText(DesignConstants.VIEW_THREADVIEW_ITEM, ' ');
     }
 
     @Override
+    public CompositeAppSettings setThreadView(String s) {
+      getDocument().replaceItemValue(DesignConstants.VIEW_THREADVIEW_ITEM, s);
+      return this;
+    }
+    
+    @Override
     public boolean isAllowConversationMode() {
       return getTableFormat1(false)
         .map(format -> format.getFlags2().contains(ViewTableFormat.Flag2.PARTIAL_FLATINDEX))
         .orElse(false);
     }
+    
+    @Override
+    public CompositeAppSettings setAllowConversationMode(boolean b) {
+      getTableFormat1(true)
+      .ifPresent((fmt1) -> {
+        fmt1.setFlag(ViewTableFormat.Flag2.PARTIAL_FLATINDEX, b);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
   }
   
   private class DefaultDisplaySettings implements DisplaySettings {
@@ -946,11 +1033,31 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public DisplaySettings setBackgroundColor(ColorValue color) {
+      getTableFormat3(true)
+      .ifPresent((fmt3) -> {
+        fmt3.getBackgroundColor().copyFrom(color);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
+    @Override
     public ColorValue getAlternateRowColor() {
       // TODO investigate pre-V5 background colors
       return getTableFormat3(false)
         .map(ViewTableFormat3::getAlternateBackgroundColor)
         .orElseGet(DesignColorsAndFonts::noColor);
+    }
+    
+    @Override
+    public DisplaySettings setAlternateRowColor(ColorValue color) {
+      getTableFormat3(true)
+      .ifPresent((fmt3) -> {
+        fmt3.getAlternateBackgroundColor().copyFrom(color);
+        setViewFormatDirty(true);
+      });
+      return this;
     }
     
     @Override
@@ -961,11 +1068,31 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public DisplaySettings setUseAlternateRowColor(boolean b) {
+      getTableFormat1(true)
+      .ifPresent((fmt1) -> {
+        fmt1.setFlag(ViewTableFormat.Flag.ALTERNATE_ROW_COLORING, b);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
+    @Override
     public Optional<CDResource> getBackgroundImage() {
-      return readViewFormat(false)
+      return getViewFormat(false)
         .flatMap(format -> Optional.ofNullable(format.getBackgroundResource()));
     }
 
+    @Override
+    public DisplaySettings setBackgroundImage(CDResource resource) {
+      getViewFormat(true)
+      .ifPresent((viewFormat) -> {
+        viewFormat.setBackgroundResource(resource);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
     @Override
     public ImageRepeatMode getBackgroundImageRepeatMode() {
       return getTableFormat4(false)
@@ -973,6 +1100,16 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
         .orElse(ImageRepeatMode.ONCE);
     }
 
+    @Override
+    public DisplaySettings setBackgroundRepeatMode(ImageRepeatMode mode) {
+      getTableFormat4(true)
+      .ifPresent((fmt4) -> {
+        fmt4.setRepeatType(mode);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
     @Override
     public GridStyle getGridStyle() {
       Optional<ViewTableFormat3> format3 = getTableFormat3(false);
@@ -994,12 +1131,53 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public DisplaySettings setGridStyle(GridStyle style) {
+      getTableFormat3(true)
+      .ifPresent((fmt3) -> {
+        Set<ViewTableFormat3.Flag> oldFlags = fmt3.getFlags();
+        Set<ViewTableFormat3.Flag> newFlags = new HashSet<>(oldFlags);
+        
+        newFlags.remove(ViewTableFormat3.Flag.GridStyleSolid);
+        newFlags.remove(ViewTableFormat3.Flag.GridStyleDash);
+        newFlags.remove(ViewTableFormat3.Flag.GridStyleDot);
+        newFlags.remove(ViewTableFormat3.Flag.GridStyleDashDot);
+        
+        if (style == GridStyle.SOLID) {
+          newFlags.add(ViewTableFormat3.Flag.GridStyleSolid);
+        }
+        else if (style == GridStyle.DASHED) {
+          newFlags.add(ViewTableFormat3.Flag.GridStyleDash);
+        }
+        else if (style == GridStyle.DOTS) {
+          newFlags.add(ViewTableFormat3.Flag.GridStyleDot);
+        }
+        else if (style == GridStyle.DASHES_AND_DOTS) {
+          newFlags.add(ViewTableFormat3.Flag.GridStyleDashDot);
+        }
+        
+        fmt3.setFlags(newFlags);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
+    @Override
     public ColorValue getGridColor() {
       return getTableFormat3(false)
         .map(ViewTableFormat3::getGridColor)
         .orElseGet(DesignColorsAndFonts::noColor);
     }
 
+    @Override
+    public DisplaySettings setGridColor(ColorValue color) {
+      getTableFormat3(true)
+      .ifPresent((fmt3) -> {
+        fmt3.getGridColor().copyFrom(color);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
     @Override
     public HeaderStyle getHeaderStyle() {
       return getTableFormat1(false)
@@ -1020,12 +1198,53 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public DisplaySettings setHeaderStyle(HeaderStyle style) {
+      getTableFormat1(true)
+      .ifPresent((fmt1) -> {
+        Set<ViewTableFormat.Flag> oldFlags = fmt1.getFlags();
+        Set<ViewTableFormat.Flag> newFlags = new HashSet<>(oldFlags);
+        
+        Set<ViewTableFormat.Flag2> oldFlags2 = fmt1.getFlags2();
+        Set<ViewTableFormat.Flag2> newFlags2 = new HashSet<>(oldFlags2);
+
+        newFlags.remove(ViewTableFormat.Flag.SIMPLE_HEADINGS);
+        newFlags.remove(ViewTableFormat.Flag.HIDE_HEADINGS);
+        newFlags2.remove(ViewTableFormat.Flag2.FLAT_HEADINGS);
+        
+        if (style == HeaderStyle.SIMPLE) {
+          newFlags.add(ViewTableFormat.Flag.SIMPLE_HEADINGS);
+        }
+        else if (style == HeaderStyle.NONE) {
+          newFlags.add(ViewTableFormat.Flag.HIDE_HEADINGS);
+        }
+        else if (style == HeaderStyle.FLAT) {
+          newFlags2.add(ViewTableFormat.Flag2.FLAT_HEADINGS);
+        }
+        
+        fmt1.setFlags(newFlags);
+        fmt1.setFlags2(newFlags2);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
+    @Override
     public ColorValue getHeaderColor() {
       return getTableFormat3(false)
         .map(ViewTableFormat3::getHeaderBackgroundColor)
         .orElseGet(DesignColorsAndFonts::noColor);
     }
 
+    @Override
+    public DisplaySettings setHeaderColor(ColorValue color) {
+      getTableFormat3(true)
+      .ifPresent((fmt3) -> {
+        fmt3.getHeaderBackgroundColor().copyFrom(color);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
     @Override
     public int getHeaderLines() {
       return getTableFormat2(false)
@@ -1034,6 +1253,16 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public DisplaySettings setHeaderLines(int lines) {
+      getTableFormat2(true)
+      .ifPresent((fmt2) -> {
+        fmt2.setHeaderLineCount((short) lines);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
+    @Override
     public int getRowLines() {
       return getTableFormat2(false)
         .map(ViewTableFormat2::getLineCount)
@@ -1041,12 +1270,32 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public DisplaySettings setRowLines(int lines) {
+      getTableFormat2(true)
+      .ifPresent((fmt2) -> {
+        fmt2.setLineCount((short) lines);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
+    @Override
     public ViewLineSpacing getLineSpacing() {
       return getTableFormat2(false)
         .map(ViewTableFormat2::getSpacing)
         .orElse(ViewLineSpacing.SINGLE_SPACE);
     }
 
+    @Override
+    public DisplaySettings setLineSpacing(ViewLineSpacing spacing) {
+      getTableFormat2(true)
+      .ifPresent((fmt2) -> {
+        fmt2.setSpacing(spacing);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
     @Override
     public boolean isShrinkRowsToContent() {
       return getTableFormat1(false)
@@ -1056,10 +1305,40 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public DisplaySettings setShrinkRowsToContent(boolean b) {
+      getTableFormat1(true)
+      .ifPresent((fmt1) -> {
+        fmt1.setFlag(ViewTableFormat.Flag.VARIABLE_LINE_COUNT, b);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
+    @Override
     public boolean isHideEmptyCategories() {
       return getIndexDispositionOptions().contains(DesignConstants.INDEXDISPOSITION_HIDEEMPTYCATEGORIES);
     }
 
+    @Override
+    public DisplaySettings setHideEmptyCategories(boolean b) {
+      Set<String> oldOptions = getIndexDispositionOptions();
+      Set<String> newOptions = new HashSet<>(oldOptions);
+      
+      if (b) {
+        if (!newOptions.contains(DesignConstants.INDEXDISPOSITION_HIDEEMPTYCATEGORIES)) {
+          newOptions.add(DesignConstants.INDEXDISPOSITION_HIDEEMPTYCATEGORIES);
+          setIndexDispositionOptions(newOptions);
+        }
+      }
+      else {
+        if (newOptions.contains(DesignConstants.INDEXDISPOSITION_HIDEEMPTYCATEGORIES)) {
+          newOptions.remove(DesignConstants.INDEXDISPOSITION_HIDEEMPTYCATEGORIES);
+          setIndexDispositionOptions(newOptions);
+        }
+      }
+      return this;
+    }
+    
     @Override
     public boolean isColorizeViewIcons() {
       return getTableFormat1(false)
@@ -1069,12 +1348,32 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public DisplaySettings setColorizeViewIcons(boolean b) {
+      getTableFormat1(true)
+      .ifPresent((fmt1) -> {
+        fmt1.setFlag(ViewTableFormat.Flag2.COLORIZE_ICONS, b);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
+    @Override
     public ColorValue getUnreadColor() {
       return getTableFormat3(false)
         .map(ViewTableFormat3::getUnreadColor)
         .orElseGet(DesignColorsAndFonts::blackColor);
     }
 
+    @Override
+    public DisplaySettings setUnreadColor(ColorValue color) {
+      getTableFormat3(true)
+      .ifPresent((fmt3) -> {
+        fmt3.getUnreadColor().copyFrom(color);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
     @Override
     public boolean isUnreadBold() {
       return getTableFormat3(false)
@@ -1086,12 +1385,32 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public DisplaySettings setUnreadBold(boolean b) {
+      getTableFormat3(true)
+      .ifPresent((fmt3) -> {
+        fmt3.setFlag(ViewTableFormat3.Flag.BoldUnreadRows, b);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
+    @Override
     public ColorValue getColumnTotalColor() {
       return getTableFormat3(false)
           .map(ViewTableFormat3::getTotalsColor)
           .orElseGet(DesignColorsAndFonts::blackColor);
     }
 
+    @Override
+    public DisplaySettings setColumnTotalColor(ColorValue color) {
+      getTableFormat3(true)
+      .ifPresent((fmt3) -> {
+        fmt3.getTotalsColor().copyFrom(color);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
     @Override
     public boolean isShowSelectionMargin() {
       return getTableFormat1(false)
@@ -1101,6 +1420,16 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public DisplaySettings setShowSelectionMargin(boolean b) {
+      getTableFormat1(true)
+      .ifPresent((fmt1) -> {
+        fmt1.setFlag(ViewTableFormat.Flag.HIDE_LEFT_MARGIN, !b);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
+    @Override
     public boolean isHideSelectionMarginBorder() {
       return getTableFormat3(false)
         .map(ViewTableFormat3::getFlags)
@@ -1109,6 +1438,16 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public DisplaySettings setHideSelectionMarginBorder(boolean b) {
+      getTableFormat3(true)
+      .ifPresent((fmt3) -> {
+        fmt3.setFlag(ViewTableFormat3.Flag.HideLeftMarginBorder, b);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
+    @Override
     public boolean isExtendLastColumnToWindowWidth() {
       return getTableFormat1(false)
         .map(ViewTableFormat::getFlags)
@@ -1116,6 +1455,16 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
         .orElse(true);
     }
 
+    @Override
+    public DisplaySettings setExtendLastColumnToWindowWidth(boolean b) {
+      getTableFormat1(true)
+      .ifPresent((fmt1) -> {
+        fmt1.setFlag(ViewTableFormat.Flag.EXTEND_LAST_COLUMN, b);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
     @Override
     public EdgeWidths getMargin() {
       return new LambdaEdgeWidths(
@@ -1127,6 +1476,19 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public DisplaySettings setMargin(EdgeWidths w) {
+      getTableFormat3(true)
+      .ifPresent((fmt3) -> {
+        fmt3.setViewMarginTop(w.getTop());
+        fmt3.setViewMarginBottom(w.getBottom());
+        fmt3.setViewMarginLeft(w.getLeft());
+        fmt3.setViewMarginRight(w.getRight());
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
+    @Override
     public int getBelowHeaderMargin() {
       return getTableFormat3(false)
         .map(ViewTableFormat3::getViewMarginTopUnder)
@@ -1134,15 +1496,65 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public DisplaySettings setBelowHeaderMargin(int val) {
+      getTableFormat3(true)
+      .ifPresent((fmt3) -> {
+        fmt3.setViewMarginTopUnder(val);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
+    @Override
     public ColorValue getMarginColor() {
       return getTableFormat3(false)
         .map(ViewTableFormat3::getMarginBackgroundColor)
         .orElseGet(DesignColorsAndFonts::whiteColor);
     }
+    
+    @Override
+    public DisplaySettings setMarginColor(ColorValue color) {
+      getTableFormat3(true)
+      .ifPresent((fmt3) -> {
+        fmt3.getMarginBackgroundColor().copyFrom(color);
+        setViewFormatDirty(true);
+      });
+      return this;
+    }
+    
   }
   
   private class DefaultIndexSettings implements IndexSettings {
+    
+    private boolean isNoIndexRefreshOption(String option) {
+      return !isIndexRefreshOption(option);
+    }
+    
+    private boolean isIndexRefreshOption(String option) {
+      if (DesignConstants.INDEXDISPOSITION_REFRESHMANUAL.equals(option) ||
+          DesignConstants.INDEXDISPOSITION_REFRESHAUTO.equals(option) ||
+          option.startsWith(DesignConstants.INDEXDISPOSITION_REFRESHAUTOATMOST+"=")) { //$NON-NLS-1$
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
 
+    private boolean isDiscardOption(String option) {
+      if (DesignConstants.INDEXDISPOSITION_DISCARDEACHUSE.equals(option) ||
+          option.startsWith(DesignConstants.INDEXDISPOSITION_DISCARDINACTIVEFOR+"=")) {
+        return true;
+      }
+      else {
+        return false;
+      }
+    }
+    
+    private boolean isNoDiscardOption(String option) {
+      return !isDiscardOption(option);
+    }
+    
     @Override
     public IndexRefreshMode getRefreshMode() {
       Set<String> indexOptions = getIndexDispositionOptions();
@@ -1158,6 +1570,30 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public IndexSettings setRefreshMode(IndexRefreshMode mode) {
+      if (mode == IndexRefreshMode.AUTO_AT_MOST_EVERY) {
+        return setRefreshMaxIntervalSeconds(12 * 60 * 60); //Designer default: 12 hours
+      }
+      else {
+        Set<String> newOptions = new HashSet<>(
+            getIndexDispositionOptions()
+            .stream()
+            .filter(this::isNoIndexRefreshOption)
+            .collect(Collectors.toSet()));
+        
+        if (mode==IndexRefreshMode.AUTO) {
+          newOptions.add(DesignConstants.INDEXDISPOSITION_REFRESHAUTO);
+        }
+        else if (mode==IndexRefreshMode.MANUAL) {
+          newOptions.add(DesignConstants.INDEXDISPOSITION_REFRESHMANUAL);
+        }
+        
+        setIndexDispositionOptions(newOptions);
+      }
+      return this;
+    }
+    
+    @Override
     public OptionalInt getRefreshMaxIntervalSeconds() {
       Set<String> indexOptions = getIndexDispositionOptions();
       for(String opt : indexOptions) {
@@ -1168,6 +1604,18 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       return OptionalInt.empty();
     }
 
+    @Override
+    public IndexSettings setRefreshMaxIntervalSeconds(int seconds) {
+      Set<String> newOptions = new HashSet<>(
+          getIndexDispositionOptions()
+          .stream()
+          .filter(this::isNoIndexRefreshOption)
+          .collect(Collectors.toSet()));
+      newOptions.add(DesignConstants.INDEXDISPOSITION_REFRESHAUTOATMOST + "=" + Integer.toString(seconds)); //$NON-NLS-1$
+      setIndexDispositionOptions(newOptions);
+      return this;
+    }
+    
     @Override
     public IndexDiscardMode getDiscardMode() {
       Set<String> indexOptions = getIndexDispositionOptions();
@@ -1181,6 +1629,27 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public IndexSettings setDiscardMode(IndexDiscardMode mode) {
+      if (mode==IndexDiscardMode.INACTIVE_FOR) {
+        return setDiscardAfterHours(7 * 24); //Designer default: 7 days
+      }
+      else {
+        Set<String> newOptions = new HashSet<>(
+            getIndexDispositionOptions()
+            .stream()
+            .filter(this::isNoDiscardOption)
+            .collect(Collectors.toSet()));
+        
+        if (mode == IndexDiscardMode.AFTER_EACH_USE) {
+          newOptions.add(DesignConstants.INDEXDISPOSITION_DISCARDEACHUSE);
+        }
+
+        setIndexDispositionOptions(newOptions);
+      }
+      return this;
+    }
+    
+    @Override
     public OptionalInt getDiscardAfterHours() {
       Set<String> indexOptions = getIndexDispositionOptions();
       for(String opt : indexOptions) {
@@ -1192,10 +1661,42 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public IndexSettings setDiscardAfterHours(int hours) {
+      Set<String> newOptions = new HashSet<>(
+          getIndexDispositionOptions()
+          .stream()
+          .filter(this::isNoDiscardOption)
+          .collect(Collectors.toSet()));
+      newOptions.add(DesignConstants.INDEXDISPOSITION_DISCARDINACTIVEFOR + "=" + Integer.toString(hours)); //$NON-NLS-1$
+      setIndexDispositionOptions(newOptions);
+      return this;
+    }
+    
+    @Override
     public boolean isRestrictInitialBuildToDesigner() {
       return getIndexDispositionOptions().contains(DesignConstants.INDEXDISPOSITION_RESTRICTTODESIGNER);
     }
 
+    @Override
+    public IndexSettings setRestrictInitialBuildToDesigner(boolean b) {
+      Set<String> oldOptions = getIndexDispositionOptions();
+      Set<String> newOptions = new HashSet<>(oldOptions);
+      
+      if (b) {
+        if (!newOptions.contains(DesignConstants.INDEXDISPOSITION_RESTRICTTODESIGNER)) {
+          newOptions.add(DesignConstants.INDEXDISPOSITION_RESTRICTTODESIGNER);
+          setIndexDispositionOptions(newOptions);
+        }
+      }
+      else {
+        if (newOptions.contains(DesignConstants.INDEXDISPOSITION_RESTRICTTODESIGNER)) {
+          newOptions.remove(DesignConstants.INDEXDISPOSITION_RESTRICTTODESIGNER);
+          setIndexDispositionOptions(newOptions);
+        }
+      }
+      return this;
+    }
+    
     @Override
     public boolean isGenerateUniqueKeysInIndex() {
       // TODO see if this is actually specified primarily here, as the rest of the item is derived
@@ -1209,7 +1710,19 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public boolean isIncludeUpdatesInTransactionLog() {
       String logUpdates = getDocument().get(DesignConstants.FIELD_LOGVIEWUPDATES, String.class, null);
       return DesignConstants.FIELD_LOGVIEWUPDATES_ENABLED.equals(logUpdates);
-    } 
+    }
+    
+    @Override
+    public IndexSettings setIncludeUpdatesInTransactionLog(boolean b) {
+      if (b) {
+        getDocument().replaceItemValue(DesignConstants.FIELD_LOGVIEWUPDATES, "1"); //$NON-NLS-1$
+      }
+      else {
+        getDocument().removeItem(DesignConstants.FIELD_LOGVIEWUPDATES);
+      }
+      return this;
+    }
+    
   }
   
   private class DefaultWebRenderingSettings implements WebRenderingSettings {
@@ -1223,15 +1736,36 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
 
     @Override
+    public WebRenderingSettings setTreatAsHtml(boolean b) {
+      getTableFormat2(true)
+      .ifPresent((fmt2) -> {
+        fmt2.setFlag(ViewTableFormat2.Flag.HTML_PASSTHRU, b);
+      });
+      return this;
+    }
+    
+    @Override
     public boolean isUseJavaApplet() {
       return getWebFlags().contains(DesignConstants.WEBFLAG_NOTE_USEAPPLET_INBROWSER);
     }
 
     @Override
+    public WebRenderingSettings setUseJavaApplet(boolean b) {
+      setWebFlag(DesignConstants.WEBFLAG_NOTE_USEAPPLET_INBROWSER, b);
+      return this;
+    }
+    
+    @Override
     public boolean isAllowSelection() {
       return getWebFlags().contains(DesignConstants.WEBFLAG_NOTE_ALLOW_DOC_SELECTIONS);
     }
 
+    @Override
+    public WebRenderingSettings setAllowSelection(boolean b) {
+      setWebFlag(DesignConstants.WEBFLAG_NOTE_ALLOW_DOC_SELECTIONS, b);
+      return this;
+    }
+    
     @Override
     public ColorValue getActiveLinkColor() {
       Document doc = getDocument();
@@ -1280,6 +1814,12 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     @Override
     public boolean isAllowWebCrawlerIndexing() {
       return getWebFlags().contains(DesignConstants.WEBFLAG_NOTE_CRAWLABLE);
+    }
+    
+    @Override
+    public WebRenderingSettings setAllowWebCrawlerIndexing(boolean b) {
+      setWebFlag(DesignConstants.WEBFLAG_NOTE_CRAWLABLE, b);
+      return this;
     }
     
   }

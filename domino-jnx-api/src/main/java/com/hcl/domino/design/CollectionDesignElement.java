@@ -146,12 +146,32 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
    */
   interface CompositeAppSettings {
     boolean isHideColumnHeader();
+    
+    CompositeAppSettings setHideColumnHeader(boolean b);
+    
     boolean isShowPartialHierarchies();
+    
+    CompositeAppSettings setShowPartialHierarchies(boolean b);
+    
     boolean isShowSwitcher();
+    
+    CompositeAppSettings setShowSwitcher(boolean b);
+    
     boolean isShowTabNavigator();
+    
+    CompositeAppSettings setShowTabNavigator(boolean b);
+    
     String getViewers();
+    
+    CompositeAppSettings setViewers(String s);
+    
     String getThreadView();
+    
+    CompositeAppSettings setThreadView(String s);
+    
     boolean isAllowConversationMode();
+    
+    CompositeAppSettings setAllowConversationMode(boolean b);
   }
   
   /**
@@ -168,6 +188,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     ColorValue getDaySeparatorColor();
     
+    CalendarSettings setDaySeparatorColor(ColorValue color);
+    
     /**
      * Retrieves the color used for the background of the calendar header.
      * 
@@ -175,12 +197,16 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     RawColorValue getHeaderBackgroundColor();
     
+    CalendarSettings setHeaderBackgroundColor(RawColorValue color);
+    
     /**
      * Retrieves the display style for the calendar header.
      * 
      * @return a {@link CalendarHeaderStyle} instance
      */
     CalendarHeaderStyle getHeaderStyle();
+    
+    CalendarSettings setHeaderStyle(CalendarHeaderStyle style);
     
     /**
      * Retrieves the tabs and options configured to display in the header of
@@ -190,12 +216,16 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     Set<CalendarTab> getTabs();
     
+    CalendarSettings setTabs(Collection<CalendarTab> tabs);
+    
     /**
      * Retrieves the background color for the date area.
      * 
      * @return a {@link ColorValue} instance
      */
     ColorValue getDateBackgroundColor();
+    
+    CalendarSettings setDateBackgroundColor(ColorValue color);
     
     /**
      * Retrieves the color used for the current day in the date area.
@@ -204,12 +234,16 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     StandardColors getTodayColor();
     
+    CalendarSettings setTodayColor(StandardColors color);
+    
     /**
      * Retrieves the color used for the to-do area in the date area.
      * 
      * @return a {@link RawColorValue} instance
      */
     RawColorValue getToDoAreaColor();
+    
+    CalendarSettings setToDoAreaColor(RawColorValue color);
     
     /**
      * Determines whether the date area should display large numbers.
@@ -219,6 +253,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     boolean isDisplayLargeNumbers();
     
+    CalendarSettings setDisplayLargeNumbers(boolean b);
+    
     /**
      * Retrieves the color used for work hours in the daily view.
      * 
@@ -226,12 +262,16 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     RawColorValue getDailyWorkHoursColor();
     
+    CalendarSettings setDailyWorkHoursColor(RawColorValue color);
+    
     /**
      * Retrieves the color used for non-work hours in the daily view.
      * 
      * @return a {@link ColorValue} instance
      */
     RawColorValue getDailyOtherHoursColor();
+    
+    CalendarSettings setDailyOthersHoursColors(RawColorValue color);
     
     /**
      * Retrieves the color used to display months outside the current month
@@ -241,12 +281,16 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     ColorValue getNonCurrentMonthColor();
     
+    CalendarSettings setNonCurrentMonthColor(ColorValue color);
+    
     /**
      * Retrieves the color used for text in the monthly view.
      * 
      * @return a {@link ColorValue} instance
      */
     ColorValue getMonthlyTextColor();
+    
+    CalendarSettings setMonthlyTextColor(ColorValue color);
     
     /**
      * Retrieves the background color used for entries.
@@ -255,6 +299,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     ColorValue getEntryBackgroundColor();
     
+    CalendarSettings setEntryBackgroundColor(ColorValue color);
+    
     /**
      * Determines whether the calendar should display save-conflict marks.
      * 
@@ -262,6 +308,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      *         {@code false} otherwise
      */
     boolean isShowConflictMarks();
+    
+    CalendarSettings setShowConflictMarks(boolean b);
     
     /**
      * Retrieves the font style used for displaying time slots and grouping
@@ -300,6 +348,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     Set<CalendarLayout> getUserCalendarFormats();
     
+    CalendarSettings setUserCalendarFormats(Collection<CalendarLayout> layouts);
+    
     /**
      * Retrieves the default calendar format for users viewing the collection.
      * 
@@ -309,6 +359,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     Optional<CalendarLayout> getInitialUserCalendarFormat();
     
+    CalendarSettings setInitialUserCalendarFormat(CalendarLayout layout);
+    
     /**
      * Determines whether users are able to see the time-slot display.
      * 
@@ -316,6 +368,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      *         {@code false} otherwise
      */
     boolean isTimeSlotDisplayAvailable();
+    
+    CalendarSettings setTimeSlotDisplayAvailable(boolean b);
     
     /**
      * Retrieves the start time to use for displaying time slots when
@@ -325,6 +379,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     LocalTime getTimeSlotStart();
     
+    CalendarSettings setTimeSlotStart(LocalTime time);
+    
     /**
      * Retrieves the end time to use for displaying time slots when
      * {@link #isTimeSlotDisplayAvailable()} is {@code true}.
@@ -333,6 +389,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     LocalTime getTimeSlotEnd();
     
+    CalendarSettings setTimeSlotEnd(LocalTime time);
+    
     /**
      * Retrieves the duration to use for displaying time slots when
      * {@link #isTimeSlotDisplayAvailable()} is {@code true}.
@@ -340,6 +398,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      * @return a {@link Duration} instance
      */
     Duration getTimeSlotDuration();
+    
+    CalendarSettings setTimeSlotDuration(Duration d);
     
     /**
      * Determines whether users can override the time-slot display settings
@@ -350,6 +410,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     boolean isTimeSlotsOverridable();
     
+    CalendarSettings setTimeSlotsOverridable(boolean b);
+    
     /**
      * Determines whether users are able to toggle time slots on and off
      * for each day when {@link #isTimeSlotDisplayAvailable()} is {@code true}.
@@ -359,6 +421,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     boolean isAllowUserTimeSlotToggle();
     
+    CalendarSettings setAllowUserTimeSlotToggle(boolean b);
+    
     /**
      * Determines whether entries should be grouped together by time slot.
      * 
@@ -366,6 +430,9 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      *         {@code false} otherwise
      */
     boolean isGroupEntriesByTimeSlot();
+    
+    CalendarSettings setGroupEntriesByTimeSlot(boolean b);
+    
   }
   
   /**
@@ -382,6 +449,9 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      * @return a {@link ColorValue} representing the background color
      */
     ColorValue getBackgroundColor();
+    
+    DisplaySettings setBackgroundColor(ColorValue color);
+    
     /**
      * Retrieves the background color for alternating rows.
      * 
@@ -389,6 +459,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      *         alternating rows
      */
     ColorValue getAlternateRowColor();
+    
+    DisplaySettings setAlternateRowColor(ColorValue color);
     
     /**
      * Determines whether the value of {@link #getAlternateRowColor()} is used.
@@ -398,6 +470,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     boolean isUseAlternateRowColor();
     
+    DisplaySettings setUseAlternateRowColor(boolean b);
+    
     /**
      * Retrieves the background image for the collection, if specified.
      * 
@@ -405,12 +479,17 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      *         has been specified; an empty one otherwise
      */
     Optional<CDResource> getBackgroundImage();
+    
+    DisplaySettings setBackgroundImage(CDResource resource);
+    
     /**
      * Retrieves the repeat mode for the background image.
      * 
      * @return an {@link ImageRepeatMode} for the background image
      */
     ImageRepeatMode getBackgroundImageRepeatMode();
+    
+    DisplaySettings setBackgroundRepeatMode(ImageRepeatMode mode);
     
     /**
      * Retrieves the specified grid style for the view or folder.
@@ -419,12 +498,16 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     GridStyle getGridStyle();
     
+    DisplaySettings setGridStyle(GridStyle style);
+    
     /**
      * Retrieves the color used for the grid.
      * 
      * @return a {@link ColorValue} representing the color of the grid
      */
     ColorValue getGridColor();
+    
+    DisplaySettings setGridColor(ColorValue color);
     
     /**
      * Retrieves the specified header display style for table-format views and
@@ -434,6 +517,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     HeaderStyle getHeaderStyle();
     
+    DisplaySettings setHeaderStyle(HeaderStyle style);
+    
     /**
      * Retrieves the specified header display color for table-format views and
      * folders.
@@ -441,6 +526,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      * @return a {@link ColorValue} instance for the header color
      */
     ColorValue getHeaderColor();
+    
+    DisplaySettings setHeaderColor(ColorValue color);
     
     /**
      * Retrieves the number of lines used to display the header in table-format
@@ -450,6 +537,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     int getHeaderLines();
     
+    DisplaySettings setHeaderLines(int lines);
+    
     /**
      * Retrieves the number of lines used to display each row in a view or folder.
      * 
@@ -457,12 +546,16 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     int getRowLines();
     
+    DisplaySettings setRowLines(int lines);
+    
     /**
      * Retrieves the line-spacing mode used for each row in a view or folder.
      * 
      * @return a {@link ViewLineSpacing} instance for the row spacing mode
      */
     ViewLineSpacing getLineSpacing();
+    
+    DisplaySettings setLineSpacing(ViewLineSpacing spacing);
     
     /**
      * Determines whether the view or folder should shrink rows to fit the actual content
@@ -472,6 +565,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      *         {@code false} otherwise
      */
     boolean isShrinkRowsToContent();
+    
+    DisplaySettings setShrinkRowsToContent(boolean b);
     
     /**
      * Determines whether empty categories (e.g. those where the only entries are hidden
@@ -483,6 +578,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
     // TODO determine whether this also affects API access and consider moving to the top level if so
     boolean isHideEmptyCategories();
     
+    DisplaySettings setHideEmptyCategories(boolean b);
+    
     /**
      * Determines whether view icons should be colorized when displayed.
      * 
@@ -490,6 +587,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      *         {@code false} otherwise
      */
     boolean isColorizeViewIcons();
+    
+    DisplaySettings setColorizeViewIcons(boolean b);
     
     /**
      * Retrieves the color used for text in unread-document rows in Notes 5.
@@ -501,6 +600,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     ColorValue getUnreadColor();
     
+    DisplaySettings setUnreadColor(ColorValue color);
+    
     /**
      * Determines whether unread-document rows should use bold text in Notes
      * 6 and newer.
@@ -510,12 +611,16 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     boolean isUnreadBold();
     
+    DisplaySettings setUnreadBold(boolean b);
+    
     /**
      * Retrieves the color used for total-row text.
      * 
      * @return a {@link ColorValue} representing the total-row color
      */
     ColorValue getColumnTotalColor();
+    
+    DisplaySettings setColumnTotalColor(ColorValue color);
     
     /**
      * Determines whether the view or folder should be displayed with a margin for
@@ -526,6 +631,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     boolean isShowSelectionMargin();
     
+    DisplaySettings setShowSelectionMargin(boolean b);
+    
     /**
      * Determines whether, when {@link #isShowSelectionMargin()} is {@code true}, the
      * border between the margin and body should be hidden.
@@ -534,6 +641,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      *         {@code false} otherwise
      */
     boolean isHideSelectionMarginBorder();
+    
+    DisplaySettings setHideSelectionMarginBorder(boolean b);
     
     /**
      * Determines whether the last column in the view or folder should be extended to
@@ -547,6 +656,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     boolean isExtendLastColumnToWindowWidth();
     
+    DisplaySettings setExtendLastColumnToWindowWidth(boolean b);
+    
     /**
      * Retrieves an object representing the top, left, right, and bottom margins around
      * the edge of the view or folder.
@@ -556,6 +667,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     EdgeWidths getMargin();
     
+    DisplaySettings setMargin(EdgeWidths w);
+    
     /**
      * Retrieves the setting for the margin below the view or folder header.
      * 
@@ -564,12 +677,17 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     int getBelowHeaderMargin();
     
+    DisplaySettings setBelowHeaderMargin(int val);
+    
     /**
      * Retrieves the color used for the view or folder margin.
      * 
      * @return a {@link ColorValue} representing the view or folder margin
      */
     ColorValue getMarginColor();
+    
+    DisplaySettings setMarginColor(ColorValue color);
+    
   }
   
   /**
@@ -586,6 +704,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     IndexRefreshMode getRefreshMode();
     
+    IndexSettings setRefreshMode(IndexRefreshMode mode);
+    
     /**
      * Retrieves the "refresh at most X seconds" value.
      * 
@@ -599,12 +719,16 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     OptionalInt getRefreshMaxIntervalSeconds();
     
+    IndexSettings setRefreshMaxIntervalSeconds(int seconds);
+    
     /**
      * Retrieves the index discard mode.
      * 
      * @return a {@link IndexDiscardMode} instance for the view or folder
      */
     IndexDiscardMode getDiscardMode();
+    
+    IndexSettings setDiscardMode(IndexDiscardMode mode);
     
     /**
      * Retrieves the "discard if inactive for X hours" value.
@@ -619,6 +743,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     OptionalInt getDiscardAfterHours();
     
+    IndexSettings setDiscardAfterHours(int hours);
+    
     /**
      * Determines whether the initial index build should be restricted to an ID
      * with {@link AclLevel#DESIGNER Designer} or
@@ -627,6 +753,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      * @return whether initial index building is restricted
      */
     boolean isRestrictInitialBuildToDesigner();
+    
+    IndexSettings setRestrictInitialBuildToDesigner(boolean b);
     
     /**
      * Determines whether the indexer should limit entries to one per unique collation
@@ -645,6 +773,9 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      *         {@code false} otherwise
      */
     boolean isIncludeUpdatesInTransactionLog();
+    
+    IndexSettings setIncludeUpdatesInTransactionLog(boolean b);
+    
   }
   
   /**
@@ -664,6 +795,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     boolean isTreatAsHtml();
     
+    WebRenderingSettings setTreatAsHtml(boolean b);
+    
     /**
      * Determines whether the collection should be rendered using a Java applet instead of
      * HTML-based controls.
@@ -673,6 +806,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      */
     boolean isUseJavaApplet();
     
+    WebRenderingSettings setUseJavaApplet(boolean b);
+    
     /**
      * Determines whether the collection should include selection checkboxes when rendered
      * using HTML controls.
@@ -681,6 +816,8 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      *         {@code false} otherwise
      */
     boolean isAllowSelection();
+    
+    WebRenderingSettings setAllowSelection(boolean b);
     
     /**
      * Retrieves the color used for active links when using HTML controls.
@@ -711,6 +848,9 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
      *         {@code false} otherwise
      */
     boolean isAllowWebCrawlerIndexing();
+    
+    WebRenderingSettings setAllowWebCrawlerIndexing(boolean b);
+    
   }
 
   /**

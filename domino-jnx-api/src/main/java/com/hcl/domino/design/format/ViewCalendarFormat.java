@@ -17,8 +17,10 @@
 package com.hcl.domino.design.format;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.misc.DominoEnumUtil;
@@ -245,6 +247,27 @@ public interface ViewCalendarFormat extends MemoryStructure {
   @StructureSetter("wFlags")
   ViewCalendarFormat setFlags(Collection<Flag> formats);
 
+  default ViewCalendarFormat setFlag(Flag flag, boolean b) {
+    Set<Flag> oldFlags = getFlags();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<Flag> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setFlags(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<Flag> newFlags = oldFlags
+            .stream()
+            .filter(currFlag -> !flag.equals(currFlag))
+            .collect(Collectors.toSet());
+        setFlags(newFlags);
+      }
+    }
+    return this;
+  }
+  
   @StructureSetter("InitialFormat")
   ViewCalendarFormat setInitialFormat(CalendarLayout format);
 

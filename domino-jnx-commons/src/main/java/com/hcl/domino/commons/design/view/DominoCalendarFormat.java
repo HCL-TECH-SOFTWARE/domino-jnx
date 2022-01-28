@@ -16,6 +16,8 @@
  */
 package com.hcl.domino.commons.design.view;
 
+import java.util.Optional;
+
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.design.format.ViewCalendarFormat;
 import com.hcl.domino.design.format.ViewCalendarFormat2;
@@ -32,7 +34,6 @@ public class DominoCalendarFormat implements IAdaptable {
   
   public DominoCalendarFormat() {
     format1 = ViewCalendarFormat.newInstance();
-    format2 = ViewCalendarFormat2.newInstance();
   }
   
   @SuppressWarnings("unchecked")
@@ -58,4 +59,15 @@ public class DominoCalendarFormat implements IAdaptable {
     this.format2 = format2;
   }
 
+  ViewCalendarFormat getFormat1() {
+    return this.format1;
+  }
+  
+  Optional<ViewCalendarFormat2> getFormat2(boolean createIfMissing) {
+    if (this.format2==null && createIfMissing) {
+      this.format2 = ViewCalendarFormat2.newInstance();
+    }
+    
+    return Optional.ofNullable(this.format2);
+  }
 }

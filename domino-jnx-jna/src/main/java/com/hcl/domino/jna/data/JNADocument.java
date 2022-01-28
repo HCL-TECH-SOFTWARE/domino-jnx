@@ -1975,6 +1975,36 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
       
       });
 		}
+		else if (value instanceof DominoCalendarFormat) {
+      ByteBuffer calendarFormatData = ViewFormatEncoder.encodeCalendarFormat((DominoCalendarFormat) value);
+      calendarFormatData.position(0);
+      byte[] calendarFormatDataArr = new byte[calendarFormatData.capacity()];
+      calendarFormatData.get(calendarFormatDataArr);
+      
+      //date type + compiled formula
+      int valueSize = 2 + calendarFormatDataArr.length;
+      
+      DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
+      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
+      NotesErrorUtils.checkResult(result);
+      
+      return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
+        Pointer valuePtr = Mem.OSLockObject(hItemByVal);
+        
+        try {
+          valuePtr.setShort(0, ItemDataType.TYPE_CALENDAR_FORMAT.getValue().shortValue());
+          valuePtr = valuePtr.share(2);
+          
+          valuePtr.write(0, calendarFormatDataArr, 0, calendarFormatDataArr.length);
+
+          return appendItemValue(itemName, flags, ItemDataType.TYPE_CALENDAR_FORMAT.getValue(), hItemByVal, valueSize);
+        }
+        finally {
+          Mem.OSUnlockObject(hItemByVal);
+        }
+      
+      });
+    }
     else if (value instanceof DominoCollationInfo) {
       ByteBuffer collationData = CollationEncoder.encode((DominoCollationInfo) value);
       collationData.position(0);
