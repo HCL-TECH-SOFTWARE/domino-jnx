@@ -16,12 +16,15 @@
  */
 package com.hcl.domino.commons.design;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,7 +42,6 @@ import com.hcl.domino.commons.design.view.DominoCalendarFormat;
 import com.hcl.domino.commons.design.view.DominoCollationInfo;
 import com.hcl.domino.commons.design.view.DominoCollectionColumn;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
-import com.hcl.domino.commons.util.ListUtil;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.NotesCollationInfo;
 import com.hcl.domino.data.CollectionColumn;
@@ -49,13 +51,13 @@ import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.Formula;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.data.Item.ItemFlag;
+import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DesignColorsAndFonts;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.EdgeWidths;
-import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.format.ViewLineSpacing;
@@ -63,6 +65,7 @@ import com.hcl.domino.design.format.ViewTableFormat;
 import com.hcl.domino.design.format.ViewTableFormat2;
 import com.hcl.domino.design.format.ViewTableFormat3;
 import com.hcl.domino.design.format.ViewTableFormat4;
+import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextRecordList;
@@ -101,6 +104,8 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     doc.replaceItemValue(DesignConstants.DESIGNER_VERSION, "8.5.3"); //$NON-NLS-1$
     doc.replaceItemValue(DesignConstants.VIEW_INDEX_ITEM,
         EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), ""); //$NON-NLS-1$
+    doc.replaceItemValue(DesignConstants.VIEW_CLASSES_ITEM, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), "1");
+    
     
     this.format = new DominoViewFormat();
     addColumn("#", "$0", (col) -> { //$NON-NLS-1$ //$NON-NLS-2$
@@ -132,11 +137,6 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public T addColumn(int pos, String title, String itemName, Consumer<CollectionColumn> consumer) {
-    //TODO check why it's not allowed to change folder columns
-    if (Folder.class.isAssignableFrom(getClass())) {
-      throw new UnsupportedOperationException();
-    }
-    
     DominoViewFormat viewFormat = getViewFormat(true)
     .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
 
@@ -885,7 +885,30 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
                 EnumSet.of(ItemFlag.SUMMARY), currCollation);
           }
         }
-        
+
+        //rebuild $FORMULA item
+        {
+          LinkedHashMap<String,String> columnItemNamesAndFormulas = new LinkedHashMap<String, String>();
+          for (CollectionColumn currCol : this.format.getColumns()) {
+            String currItemName = currCol.getItemName();
+            String currFormula = currCol.getFormula();
+            columnItemNamesAndFormulas.put(currItemName, currFormula);
+          }
+
+          String selectionFormula = getSelectionFormula();
+          if (StringUtil.isEmpty(selectionFormula)) {
+            selectionFormula = "SELECT @All"; //$NON-NLS-1$
+          }
+          byte[] formulaItemData = FormulaCompiler.get().compile(selectionFormula, columnItemNamesAndFormulas);
+          ByteBuffer formulaItemDataBuf = ByteBuffer.allocate(formulaItemData.length + 2).order(ByteOrder.nativeOrder());
+          formulaItemDataBuf.putShort(ItemDataType.TYPE_FORMULA.getValue());
+          formulaItemDataBuf.put(formulaItemData);
+          
+          formulaItemDataBuf.position(0);
+          
+          doc.replaceItemValue(DesignConstants.VIEW_FORMULA_ITEM, EnumSet.of(ItemFlag.SIGNED), formulaItemDataBuf);
+        }
+
         doc.sign();
       }
       
@@ -904,6 +927,10 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     }
     
     return super.save();
+  }
+  
+  public String getSelectionFormula() {
+    return "";
   }
   
   @Override
