@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.formula;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.hcl.domino.exception.FormulaCompilationException;
@@ -36,10 +37,23 @@ public interface FormulaCompiler {
 
   byte[] compile(String formula) throws FormulaCompilationException;
 
-  String decompile(byte[] compiledFormula);
+  /**
+   * Method to generate the data for the $FORMULA item of a view definition by combining
+   * the view's selection formula with the programmatic names and formulas of the columns
+   * 
+   * @param selectionFormula selection formula
+   * @param columnItemNamesAndFormulas map with programmatic column names as keys and their formula as values, will be processed in key order; if null, we simply compile the selection formula
+   * @return data of combined formula
+   */
+  byte[] compile(String selectionFormula, LinkedHashMap<String,String> columnItemNamesAndFormulas);
+
+  default String decompile(byte[] compiledFormula) {
+    return decompile(compiledFormula, false);
+  }
+  String decompile(byte[] compiledFormula, boolean isSelectionFormula);
   
   int getSize(byte[] formula);
   
   List<String> decompileMulti(byte[] compiledFormulas);
-  
+
 }

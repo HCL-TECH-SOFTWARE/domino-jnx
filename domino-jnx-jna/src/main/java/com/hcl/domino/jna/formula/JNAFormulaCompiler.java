@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.formula;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.hcl.domino.commons.errors.INotesErrorConstants;
@@ -27,10 +28,12 @@ import com.hcl.domino.jna.internal.FormulaDecompiler;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
-import com.hcl.domino.jna.internal.gc.handles.HANDLE;
+import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
+import com.hcl.domino.jna.internal.views.ViewFormulaCompiler;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.ShortByReference;
 
 public class JNAFormulaCompiler implements FormulaCompiler {
@@ -42,7 +45,7 @@ public class JNAFormulaCompiler implements FormulaCompiler {
 		Memory formulaText = NotesStringUtils.toLMBCS(formula, false, false);
 		short formulaTextLength = (short) formulaText.size();
 
-		HANDLE.ByReference rethFormula = HANDLE.newInstanceByReference();
+		DHANDLE.ByReference rethFormula = DHANDLE.newInstanceByReference();
 		ShortByReference retFormulaLength = new ShortByReference();
 		ShortByReference retCompileError = new ShortByReference();
 		ShortByReference retCompileErrorLine = new ShortByReference();
@@ -82,8 +85,8 @@ public class JNAFormulaCompiler implements FormulaCompiler {
 	}
 
 	@Override
-	public String decompile(byte[] compiledFormula) {
-		return FormulaDecompiler.decompileFormula(compiledFormula);
+	public String decompile(byte[] compiledFormula, boolean isSelectionFormula) {
+		return FormulaDecompiler.decompileFormula(compiledFormula, isSelectionFormula);
 	}
 	
 	@Override
@@ -107,5 +110,37 @@ public class JNAFormulaCompiler implements FormulaCompiler {
       return FormulaDecompiler.decompileFormulas(mem, compiledFormulas.length);
     }
 	}
-	
+
+	@Override
+	public byte[] compile(String selectionFormula, LinkedHashMap<String,String> columnItemNamesAndFormulas) {
+	  DHANDLE.ByReference hFormula = null;
+	  try {
+	    hFormula = ViewFormulaCompiler.compile(selectionFormula, columnItemNamesAndFormulas);
+	    
+	    return LockUtil.lockHandle(hFormula, (hFormulaByVal) -> {
+	       IntByReference retSize = new IntByReference();
+	       short resultGetSize = Mem.OSMemGetSize(hFormulaByVal, retSize);
+	        NotesErrorUtils.checkResult(resultGetSize);
+
+	        Pointer ptrCompiledFormula = Mem.OSLockObject(hFormulaByVal);
+	        try {
+	          byte[] resultBytes = new byte[retSize.getValue()];
+	          ptrCompiledFormula.getByteBuffer(0, resultBytes.length).get(resultBytes);
+	          return resultBytes;
+	        }
+	        finally {
+	          Mem.OSUnlockObject(hFormulaByVal);
+	        }
+	    });
+	  }
+	  finally {
+	    if (hFormula!=null && !hFormula.isNull()) {
+	      short result = LockUtil.lockHandle(hFormula, (hFormulaByVal) -> {
+	        return Mem.OSMemFree(hFormulaByVal);
+	      });
+	      NotesErrorUtils.checkResult(result);
+	    }
+	  }
+	}
+
 }

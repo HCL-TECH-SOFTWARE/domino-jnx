@@ -30,14 +30,13 @@ import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
-import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ShortByReference;
 
 public class JNAFormulaAllocations extends APIObjectAllocations<JNAFormula> {
-	private HANDLE m_hFormula;
+	private DHANDLE m_hFormula;
 	private DHANDLE m_hCompute;
 	private Pointer m_ptrCompiledFormula;
 	private int m_compiledFormulaLength;
@@ -55,7 +54,7 @@ public class JNAFormulaAllocations extends APIObjectAllocations<JNAFormula> {
 		return m_disposed;
 	}
 
-	public HANDLE getFormulaHandle() {
+	public DHANDLE getFormulaHandle() {
 		return m_hFormula;
 	}
 	
@@ -83,7 +82,7 @@ public class JNAFormulaAllocations extends APIObjectAllocations<JNAFormula> {
 
 		short computeFlags = 0;
 
-		HANDLE.ByReference rethFormula = HANDLE.newInstanceByReference();
+		DHANDLE.ByReference rethFormula = DHANDLE.newInstanceByReference();
 		ShortByReference retFormulaLength = new ShortByReference();
 		ShortByReference retCompileError = new ShortByReference();
 		ShortByReference retCompileErrorLine = new ShortByReference();
