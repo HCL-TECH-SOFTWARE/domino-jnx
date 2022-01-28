@@ -34,8 +34,12 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.NFMT;
+import com.hcl.domino.richtext.structures.NFMT.Format;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 import com.hcl.domino.richtext.structures.TFMT;
+import com.hcl.domino.richtext.structures.TFMT.DateFormat;
+import com.hcl.domino.richtext.structures.TFMT.TimeFormat;
+import com.hcl.domino.richtext.structures.TFMT.TimeStructure;
 
 /**
  * @author Jesse Gallagher
@@ -65,15 +69,24 @@ public interface ViewColumnFormat extends ResizableMemoryStructure {
     format.setDisplayWidth(80);
     format.setTotalType(StatType.NONE);
     
-    //numberFormat
+    format
+    .getNumberFormat()
+    .setFormat(Format.GENERAL)
+    .setDigits((short) 0);
     
     format.setFormula("@DocNumber"); //$NON-NLS-1$
-    format.setConstantValueLength(format.getConstantValueLength());
+//    format.setConstantValueLength(format.getConstantValueLength());
     format.setHeaderAlignment(Alignment.LEFT);
     format.setDataType(DataType.TEXT);
     format.setSignature(ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE);
     
-    //timeFormat
+    format
+    .getTimeFormat()
+    .setZoneFormat(TimeZoneFormat.NEVER)
+    .setTimeStructure(TimeStructure.DATETIME)
+    .setTimeFormat(TimeFormat.FULL)
+    .setDateFormat(DateFormat.FULL);
+    
     format.setAlignment(Alignment.LEFT);
     format.setHeaderReadingOrder(ReadingOrder.LTR);
     format.setItemName("$0"); //$NON-NLS-1$

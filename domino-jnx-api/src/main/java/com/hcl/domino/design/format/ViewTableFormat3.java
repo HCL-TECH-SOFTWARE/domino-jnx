@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.design.format;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -54,7 +55,56 @@ public interface ViewTableFormat3 extends MemoryStructure {
   public static ViewTableFormat3 newInstance() {
     ViewTableFormat3 format3 = MemoryStructureWrapperService.get().newStructure(ViewTableFormat3.class, 0);
     
-    //TODO set defaults
+    format3
+    .getHeaderBackgroundColor()
+    .setBlue((short) 255)
+    .setRed((short) 255)
+    .setGreen((short) 255)
+    .setFlags(Arrays.asList(ColorValue.Flag.ISRGB));
+    
+    format3
+    .getAlternateBackgroundColor()
+    .setBlue((short) 255)
+    .setRed((short) 255)
+    .setGreen((short) 255)
+    .setFlags(Arrays.asList(ColorValue.Flag.ISRGB, ColorValue.Flag.NOCOLOR));
+    
+    format3
+    .getMarginBackgroundColor()
+    .setBlue((short) 255)
+    .setRed((short) 255)
+    .setGreen((short) 255)
+    .setFlags(Arrays.asList(ColorValue.Flag.ISRGB));
+    
+    format3
+    .getUnreadColor()
+    .setBlue((short) 0)
+    .setRed((short) 0)
+    .setGreen((short) 0)
+    .setFlags(Arrays.asList(ColorValue.Flag.ISRGB));
+    
+    format3.setMaxRows(1);
+    
+    format3
+    .getBackgroundColor()
+    .setBlue((short) 255)
+    .setRed((short) 255)
+    .setGreen((short) 255)
+    .setFlags(Arrays.asList(ColorValue.Flag.ISRGB));
+    
+    format3
+    .getTotalsColor()
+    .setBlue((short) 0)
+    .setRed((short) 0)
+    .setGreen((short) 0)
+    .setFlags(Arrays.asList(ColorValue.Flag.ISRGB));
+    
+    format3
+    .getGridColor()
+    .setBlue((short) 0)
+    .setRed((short) 0)
+    .setGreen((short) 0)
+    .setFlags(Arrays.asList(ColorValue.Flag.ISRGB));
     
     return format3;
   }

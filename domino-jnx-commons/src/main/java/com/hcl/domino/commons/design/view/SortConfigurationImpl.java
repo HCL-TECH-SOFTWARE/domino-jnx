@@ -74,6 +74,13 @@ public class SortConfigurationImpl implements SortConfiguration {
   public SortConfiguration setCategory(boolean b) {
     this.getFormat1().setFlag(ViewColumnFormat.Flag.SortCategorize, b);
     this.column.markViewFormatDirty();
+    
+    if (b) {
+      setSorted(true);
+      setSortPermuted(true);
+      setAccentSensitive(true);
+      this.column.setShowTwistie(true);
+    }
     return this;
   }
   

@@ -33,7 +33,7 @@ public interface ViewTableFormat4 extends MemoryStructure {
   public static ViewTableFormat4 newInstance() {
     ViewTableFormat4 format4 = MemoryStructureWrapperService.get().newStructure(ViewTableFormat4.class, 0);
     
-    //TODO set defaults
+    format4.setRepeatType(ImageRepeatMode.ONCE);
     
     return format4;
   }

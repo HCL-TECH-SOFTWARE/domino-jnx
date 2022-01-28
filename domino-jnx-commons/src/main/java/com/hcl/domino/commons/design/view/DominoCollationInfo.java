@@ -99,6 +99,7 @@ public class DominoCollationInfo implements IAdaptable {
     newCol.setName(name);
     newCol.setDescending(isDecending);
     this.collateColumns.add(newCol);
+    this.collation.setItems(this.collateColumns.size());
     return newCol;
   }
   

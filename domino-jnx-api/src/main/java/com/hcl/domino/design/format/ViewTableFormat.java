@@ -48,7 +48,6 @@ public interface ViewTableFormat extends MemoryStructure {
     .setStyle(ViewStyle.TABLE);
     format.setItemSequenceNumber(1);
     format.setFlag(Flag.CONFLICT, true);
-    format.setFlag(Flag2.NOT_CUSTOMIZED, true);
     return format;
   }
   

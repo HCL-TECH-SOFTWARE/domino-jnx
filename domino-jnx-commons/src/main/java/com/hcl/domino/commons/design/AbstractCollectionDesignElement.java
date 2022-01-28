@@ -108,8 +108,8 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     
     
     this.format = new DominoViewFormat();
-    addColumn("#", "$0", (col) -> { //$NON-NLS-1$ //$NON-NLS-2$
-    });
+//    addColumn("#", "$0", (col) -> { //$NON-NLS-1$ //$NON-NLS-2$
+//    });
   }
   
   @Override
@@ -425,6 +425,14 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     return (T) this;
   }
   
+  @Override
+  public void setTitle(final String... title) {
+    //$TITLE for views/folders are stored differently than for forms (concatenated with |, no string list)
+    this.getDocument().replaceItemValue(NotesConstants.FIELD_TITLE,
+        EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY),
+        Arrays.asList(title).stream().collect(Collectors.joining("|"))); //$NON-NLS-1$
+  }
+
   @Override
   public boolean isCollapseAllOnFirstOpen() {
     return getViewFormat(false)
@@ -824,13 +832,13 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     return (T) this;
   }
   
-  private Optional<NotesCollationInfo> getCollationInfo() {
-    Document doc = getDocument();
-    if(!doc.hasItem(DesignConstants.VIEW_COLLATION_ITEM)) {
-      return Optional.empty();
-    }
-    return Optional.of((NotesCollationInfo)doc.getItemValue(DesignConstants.VIEW_COLLATION_ITEM).get(0));
-  }
+//  private Optional<NotesCollationInfo> getCollationInfo() {
+//    Document doc = getDocument();
+//    if(!doc.hasItem(DesignConstants.VIEW_COLLATION_ITEM)) {
+//      return Optional.empty();
+//    }
+//    return Optional.of((NotesCollationInfo)doc.getItemValue(DesignConstants.VIEW_COLLATION_ITEM).get(0));
+//  }
   
   protected RichTextRecordList getHtmlCodeItem() {
     return getDocument().getRichTextItem(DesignConstants.ITEM_NAME_HTMLCODE);
@@ -906,7 +914,8 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
           
           formulaItemDataBuf.position(0);
           
-          doc.replaceItemValue(DesignConstants.VIEW_FORMULA_ITEM, EnumSet.of(ItemFlag.SIGNED), formulaItemDataBuf);
+          doc.replaceItemValue(DesignConstants.VIEW_FORMULA_ITEM, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), formulaItemDataBuf);
+          doc.getFirstItem(DesignConstants.VIEW_FORMULA_ITEM).get().setSummary(true);
         }
 
         doc.sign();
@@ -1728,9 +1737,11 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public boolean isGenerateUniqueKeysInIndex() {
       // TODO see if this is actually specified primarily here, as the rest of the item is derived
       // I suspect this is stored in $Collation only, in the COLLATION structure
-      return getCollationInfo()
-        .map(NotesCollationInfo::isUnique)
-        .orElse(false);
+//      return getCollationInfo()
+//        .map(NotesCollationInfo::isUnique)
+//        .orElse(false);
+      
+      return false;
     }
 
     @Override

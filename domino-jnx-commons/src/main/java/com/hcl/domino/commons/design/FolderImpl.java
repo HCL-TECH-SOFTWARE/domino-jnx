@@ -16,7 +16,14 @@
  */
 package com.hcl.domino.commons.design;
 
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.stream.Collectors;
+
+import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.DominoCollection;
+import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.design.Folder;
 
 /**
@@ -34,4 +41,28 @@ public class FolderImpl extends AbstractCollectionDesignElement<Folder> implemen
     this.setFlags("F3Y"); //$NON-NLS-1$
   }
 
+  @Override
+  public void setTitle(String... title) {
+    super.setTitle(title);
+    
+    this.getDocument().replaceItemValue("$Name", //$NON-NLS-1$
+        EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY),
+        Arrays.asList(title).stream().collect(Collectors.joining("|"))); //$NON-NLS-1$
+  }
+ 
+  @Override
+  public boolean save() {
+    boolean result = super.save();
+    
+    Document doc = getDocument();
+    if (doc.isNew()) {
+      //triggers creation of the $Collection item
+      Database db = doc.getParentDatabase();
+      DominoCollection collection = db.openCollectionByUNID(doc.getUNID()).get();
+      collection.getAllIds(true, true);
+    }
+    
+    return result;
+  }
+  
 }
