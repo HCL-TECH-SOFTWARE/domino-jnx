@@ -533,7 +533,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		else if (dataTypeAsInt == ItemDataType.TYPE_VIEW_FORMAT.getValue()) {
 	    ByteBuffer data = valueDataPtr.getByteBuffer(0, valueDataLength);
 
-			DominoViewFormat viewFormatInfo = ViewFormatDecoder.decodeViewFormat(data);
+			DominoViewFormat viewFormatInfo = ViewFormatDecoder.decodeViewFormat(this, data);
 			return Arrays.asList((Object) viewFormatInfo);
 		} else if (dataTypeAsInt == ItemDataType.TYPE_CALENDAR_FORMAT.getValue()) {
       ByteBuffer data = valueDataPtr.getByteBuffer(0, valueDataLength);

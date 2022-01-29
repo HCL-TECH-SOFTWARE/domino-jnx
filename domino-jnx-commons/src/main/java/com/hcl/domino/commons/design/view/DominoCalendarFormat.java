@@ -33,7 +33,7 @@ public class DominoCalendarFormat implements IAdaptable {
   private ViewCalendarFormat2 format2;
   
   public DominoCalendarFormat() {
-    format1 = ViewCalendarFormat.newInstance();
+    format1 = ViewCalendarFormat.newInstanceWithDefaults();
   }
   
   @SuppressWarnings("unchecked")
@@ -65,7 +65,7 @@ public class DominoCalendarFormat implements IAdaptable {
   
   Optional<ViewCalendarFormat2> getFormat2(boolean createIfMissing) {
     if (this.format2==null && createIfMissing) {
-      this.format2 = ViewCalendarFormat2.newInstance();
+      this.format2 = ViewCalendarFormat2.newInstanceWithDefaults();
     }
     
     return Optional.ofNullable(this.format2);

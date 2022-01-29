@@ -44,6 +44,12 @@ import com.hcl.domino.design.format.ViewTableFormat3;
 import com.hcl.domino.design.format.ViewTableFormat4;
 import com.hcl.domino.richtext.records.CDResource;
 
+/**
+ * Utility class to encode the $ViewFormat item value
+ * 
+ * @author Karsten Lehmann
+ * @since 1.2.4
+ */
 public class ViewFormatEncoder {
 
   /**
@@ -77,7 +83,8 @@ public class ViewFormatEncoder {
       //write basic table format
       ViewTableFormat format1 = viewFormat.getAdapter(ViewTableFormat.class);
       if (format1==null) {
-        format1 = createViewTableFormat(viewFormat);
+        format1 = ViewTableFormat.newInstanceWithDefaults();
+        format1.setColumnCount(viewFormat.getColumnCount());
       }
       ByteBuffer format1Data = format1.getData();
       int format1Capacity = format1Data.capacity();
@@ -92,7 +99,7 @@ public class ViewFormatEncoder {
       
       ViewColumnFormat fmt = col.getAdapter(ViewColumnFormat.class);
       if (fmt==null) {
-        fmt = createDefaultViewColumnFormat();
+        fmt = ViewColumnFormat.newInstanceWithDefaults();
       }
       
       //ignore var data with hide-when formula and twistie resource here, will be stored later after the ViewTableFormat3
@@ -111,7 +118,7 @@ public class ViewFormatEncoder {
       
       ViewColumnFormat fmt = col.getAdapter(ViewColumnFormat.class);
       if (fmt==null) {
-        fmt = createDefaultViewColumnFormat();
+        fmt = ViewColumnFormat.newInstanceWithDefaults();
       }
       
       //ignore var data with hide-when formula and twistie resource here, will be stored later after the ViewTableFormat3
@@ -124,7 +131,7 @@ public class ViewFormatEncoder {
       //write VIEW_TABLE_FORMAT2
       ViewTableFormat2 fmt2 = viewFormat.getAdapter(ViewTableFormat2.class);
       if (fmt2==null) {
-        fmt2 = createViewTableFormat2(viewFormat);
+        fmt2 = ViewTableFormat2.newInstanceWithDefaults();
       }
       ByteBuffer fmt2Data = fmt2.getData();
       int fmt2Capacity = fmt2Data.capacity();
@@ -139,7 +146,7 @@ public class ViewFormatEncoder {
       
       ViewColumnFormat2 fmt2 = col.getAdapter(ViewColumnFormat2.class);
       if (fmt2==null) {
-        fmt2 = createDefaultViewColumnFormat2();
+        fmt2 = ViewColumnFormat2.newInstanceWithDefaults();
       }
       
       //ignore var data with hide-when formula and twistie resource here, will be stored later after the ViewTableFormat3
@@ -157,7 +164,7 @@ public class ViewFormatEncoder {
       //write VIEW_TABLE_FORMAT3
       ViewTableFormat3 fmt3 = viewFormat.getAdapter(ViewTableFormat3.class);
       if (fmt3==null) {
-        fmt3 = createViewTableFormat3(viewFormat);
+        fmt3 = ViewTableFormat3.newInstanceWithDefaults();
       }
       ByteBuffer fmt3Data = fmt3.getData();
       int fmt3Capacity = fmt3Data.capacity();
@@ -172,7 +179,7 @@ public class ViewFormatEncoder {
       
       ViewColumnFormat2 fmt2 = col.getAdapter(ViewColumnFormat2.class);
       if (fmt2==null) {
-        fmt2 = createDefaultViewColumnFormat2();
+        fmt2 = ViewColumnFormat2.newInstanceWithDefaults();
       }
       
       ByteBuffer fmt2VarData = fmt2.getVariableData();
@@ -199,7 +206,7 @@ public class ViewFormatEncoder {
       //write VIEW_TABLE_FORMAT4
       ViewTableFormat4 fmt4 = viewFormat.getAdapter(ViewTableFormat4.class);
       if (fmt4==null) {
-        fmt4 = createViewTableFormat4(viewFormat);
+        fmt4 = ViewTableFormat4.newInstanceWithDefaults();
       }
       ByteBuffer fmt4Data = fmt4.getData();
       int fmt4Capacity = fmt4Data.capacity();
@@ -225,7 +232,7 @@ public class ViewFormatEncoder {
       if(fmt2.getFlags().contains(ViewColumnFormat2.Flag3.NumberFormat)) {
         ViewColumnFormat4 fmt4 = col.getAdapter(ViewColumnFormat4.class);
         if (fmt4==null) {
-          fmt4 = createDefaultViewColumnFormat4();
+          fmt4 = ViewColumnFormat4.newInstanceWithDefaults();
         }
         
         ByteBuffer fmt4Data = fmt4.getData();
@@ -242,7 +249,7 @@ public class ViewFormatEncoder {
       if(fmt2.getFlags().contains(ViewColumnFormat2.Flag3.NamesFormat)) {
         ViewColumnFormat5 fmt5 = col.getAdapter(ViewColumnFormat5.class);
         if (fmt5==null) {
-          fmt5 = createDefaultViewColumnFormat5();
+          fmt5 = ViewColumnFormat5.newInstanceWithDefaults();
         }
         
         ByteBuffer fmt5Data = fmt5.getData();
@@ -300,7 +307,7 @@ public class ViewFormatEncoder {
       if(fmt.getFlags().contains(ViewColumnFormat2.Flag3.ExtendedViewColFmt6)) {
         ViewColumnFormat6 fmt6 = col.getAdapter(ViewColumnFormat6.class);
         if (fmt6==null) {
-          fmt6 = createDefaultViewColumnFormat6();
+          fmt6 = ViewColumnFormat6.newInstanceWithDefaults();
         }
 
         ByteBuffer fmt6Data = fmt6.getData();
@@ -314,53 +321,6 @@ public class ViewFormatEncoder {
 
     
     return buf;
-  }
-
-  private static ViewTableFormat createViewTableFormat(DominoViewFormat viewFormat) {
-    ViewTableFormat fmt = MemoryStructureUtil.newStructure(ViewTableFormat.class, 0);
-    fmt.setColumnCount(viewFormat.getColumnCount());
-    
-    return fmt;
-  }
-
-  private static ViewTableFormat2 createViewTableFormat2(DominoViewFormat viewFormat) {
-    ViewTableFormat2 fmt = MemoryStructureUtil.newStructure(ViewTableFormat2.class, 0);
-    return fmt;
-  }
-
-  private static ViewTableFormat3 createViewTableFormat3(DominoViewFormat viewFormat) {
-    ViewTableFormat3 fmt = MemoryStructureUtil.newStructure(ViewTableFormat3.class, 0);
-    return fmt;
-  }
-
-  private static ViewTableFormat4 createViewTableFormat4(DominoViewFormat viewFormat) {
-    ViewTableFormat4 fmt = MemoryStructureUtil.newStructure(ViewTableFormat4.class, 0);
-    return fmt;
-  }
-
-  private static ViewColumnFormat6 createDefaultViewColumnFormat6() {
-    ViewColumnFormat6 fmt = MemoryStructureUtil.newStructure(ViewColumnFormat6.class, 0);
-    return fmt;
-  }
-
-  private static ViewColumnFormat5 createDefaultViewColumnFormat5() {
-    ViewColumnFormat5 fmt = MemoryStructureUtil.newStructure(ViewColumnFormat5.class, 0);
-    return fmt;
-  }
-
-  private static ViewColumnFormat4 createDefaultViewColumnFormat4() {
-    ViewColumnFormat4 fmt = MemoryStructureUtil.newStructure(ViewColumnFormat4.class, 0);
-    return fmt;
-  }
-
-  private static ViewColumnFormat2 createDefaultViewColumnFormat2() {
-    ViewColumnFormat2 fmt = MemoryStructureUtil.newStructure(ViewColumnFormat2.class, 0);
-    return fmt;
-  }
-
-  private static ViewColumnFormat createDefaultViewColumnFormat() {
-    ViewColumnFormat fmt = MemoryStructureUtil.newStructure(ViewColumnFormat.class, 0);
-    return fmt;
   }
   
   public static ByteBuffer encodeCalendarFormat(DominoCalendarFormat calFormat) {

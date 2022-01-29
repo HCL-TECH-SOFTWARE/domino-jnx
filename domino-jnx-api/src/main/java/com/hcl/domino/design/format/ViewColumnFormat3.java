@@ -63,7 +63,7 @@ import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
   }
 )
 public interface ViewColumnFormat3 extends ResizableMemoryStructure {
-  public static ViewColumnFormat3 newInstance() {
+  public static ViewColumnFormat3 newInstanceWithDefaults() {
     ViewColumnFormat3 fmt = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat3.class, 0);
 
     // TODO add defaults

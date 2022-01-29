@@ -41,7 +41,7 @@ import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
     @StructureMember(name = "Spare", type = int[].class, length = 3)
 })
 public interface ViewCalendarFormat2 extends MemoryStructure {
-  public static ViewCalendarFormat2 newInstance() {
+  public static ViewCalendarFormat2 newInstanceWithDefaults() {
     ViewCalendarFormat2 format = MemoryStructureWrapperService.get().newStructure(ViewCalendarFormat2.class, 0);
 
     //TODO set defaults

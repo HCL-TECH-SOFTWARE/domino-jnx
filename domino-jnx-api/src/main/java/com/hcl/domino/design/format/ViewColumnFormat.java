@@ -62,7 +62,7 @@ import com.hcl.domino.richtext.structures.TFMT.TimeStructure;
 })
 public interface ViewColumnFormat extends ResizableMemoryStructure {
   
-  public static ViewColumnFormat newInstance() {
+  public static ViewColumnFormat newInstanceWithDefaults() {
     ViewColumnFormat format = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat.class, 0);
     format.setTitle("#"); //$NON-NLS-1$
     format.setReadingOrder(ReadingOrder.LTR);

@@ -52,7 +52,7 @@ import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
     @StructureMember(name = "dwReserved", type = int[].class, length = 1),
 })
 public interface ViewTableFormat3 extends MemoryStructure {
-  public static ViewTableFormat3 newInstance() {
+  public static ViewTableFormat3 newInstanceWithDefaults() {
     ViewTableFormat3 format3 = MemoryStructureWrapperService.get().newStructure(ViewTableFormat3.class, 0);
     
     format3

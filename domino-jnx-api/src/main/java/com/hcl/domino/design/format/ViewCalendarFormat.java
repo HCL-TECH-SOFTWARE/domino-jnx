@@ -59,7 +59,7 @@ import com.hcl.domino.richtext.structures.RawColorValue;
     @StructureMember(name = "HeaderBkColor", type = RawColorValue.class)
 })
 public interface ViewCalendarFormat extends MemoryStructure {
-  public static ViewCalendarFormat newInstance() {
+  public static ViewCalendarFormat newInstanceWithDefaults() {
     ViewCalendarFormat format = MemoryStructureWrapperService.get().newStructure(ViewCalendarFormat.class, 0);
 
     //TODO set defaults

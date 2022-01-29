@@ -65,7 +65,7 @@ import com.hcl.domino.richtext.structures.UNID;
   }
 )
 public interface ViewColumnFormat2 extends ResizableMemoryStructure {
-  public static ViewColumnFormat2 newInstance() {
+  public static ViewColumnFormat2 newInstanceWithDefaults() {
     ViewColumnFormat2 format2 = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat2.class, 0);
     format2.setSignature(ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE2);
     format2.setCustomOrder(0xffff);

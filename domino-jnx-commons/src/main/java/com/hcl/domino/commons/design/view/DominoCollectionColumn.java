@@ -19,22 +19,16 @@ package com.hcl.domino.commons.design.view;
 import java.text.MessageFormat;
 import java.util.EnumSet;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import com.hcl.domino.commons.design.AbstractCollectionDesignElement;
-import com.hcl.domino.commons.design.SharedColumnImpl;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.data.NotesFont;
-import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.DesignColorsAndFonts;
-import com.hcl.domino.design.DesignElement;
-import com.hcl.domino.design.SharedColumn;
 import com.hcl.domino.design.format.CalendarType;
 import com.hcl.domino.design.format.DateComponentOrder;
 import com.hcl.domino.design.format.DateShowFormat;
@@ -71,7 +65,8 @@ import com.hcl.domino.richtext.structures.NFMT.Format;
  * @since 1.0.27
  */
 public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
-  private DesignElement parent;
+  private DominoViewFormat parentViewFormat;
+//  private DesignElement parentx;
   private ViewColumnFormat format1;
   private ViewColumnFormat2 format2;
   private ViewColumnFormat3 format3;
@@ -81,9 +76,10 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   private String sharedColumnName;
   private String hiddenTitle;
   
-  public DominoCollectionColumn() {
-    this.format1 = ViewColumnFormat.newInstance();
-    this.format2 = ViewColumnFormat2.newInstance();
+  public DominoCollectionColumn(DominoViewFormat parentViewFormat) {
+    this.parentViewFormat = parentViewFormat;
+    this.format1 = ViewColumnFormat.newInstanceWithDefaults();
+    this.format2 = ViewColumnFormat2.newInstanceWithDefaults();
   }
 
   /**
@@ -144,42 +140,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
 
   @Override
   public int getColumnValuesIndex() {
-    if (this.parent instanceof SharedColumn) {
-      CollectionColumn column = ((SharedColumn)this.parent).getColumn();
-      if (this.equals(column)) {
-        int constValLen = getFormat1().getConstantValueLength();
-        if (constValLen==0) {
-          return 0;
-        }
-      }
-    }
-    else if (this.parent instanceof CollectionDesignElement) {
-      List<CollectionColumn> columns = ((CollectionDesignElement)this.parent).getColumns();
-      int columnValuesIndex = 0;
-      
-      for (CollectionColumn currCol : columns) {
-        int currColValuesIndex = 0xffff;
-        
-        if (currCol instanceof IAdaptable) {
-          ViewColumnFormat currFormat1 = ((IAdaptable)currCol).getAdapter(ViewColumnFormat.class);
-          if (currFormat1!=null) {
-            int constValLen = currFormat1.getConstantValueLength();
-            if (constValLen==0) {
-              currColValuesIndex=columnValuesIndex++;
-            }
-          }
-        }
-        
-        if (this.equals(currCol)) {
-          return currColValuesIndex;
-        }
-      }
-      
-      int index = columns.indexOf(this);
-      return index;
-    }
-    
-    return 0xffff;
+    return this.parentViewFormat.getColumnValuesIndex(this);
   }
 
   @Override
@@ -240,19 +201,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
 
   @Override
   public int getPosition() {
-    if (this.parent instanceof SharedColumn) {
-      CollectionColumn column = ((SharedColumn)this.parent).getColumn();
-      if (this.equals(column)) {
-        return 0;
-      }
-    }
-    else if (this.parent instanceof CollectionDesignElement) {
-      List<CollectionColumn> columns = ((CollectionDesignElement)this.parent).getColumns();
-      int index = columns.indexOf(this);
-      return index;
-    }
-    
-    return -1;
+    return this.parentViewFormat.getPosition(this);
   }
   
   @Override
@@ -500,7 +449,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   
   @Override
   public NotesFont getRowFont() {
-    return new TextFontItemNotesFont(this.parent.getDocument(), format1.getFontStyle());
+    return new TextFontItemNotesFont(this.parentViewFormat.getParent(), format1.getFontStyle());
   }
   
   @Override
@@ -508,7 +457,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     FontStyle style = getFormat2(false)
       .map(ViewColumnFormat2::getHeaderFontStyle)
       .orElseGet(DesignColorsAndFonts::viewHeaderFont);
-    return new TextFontItemNotesFont(this.parent.getDocument(), style);
+    return new TextFontItemNotesFont(this.parentViewFormat.getParent(), style);
   }
   
   /**
@@ -590,17 +539,6 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     this.hiddenTitle = title;
   }
   
-  /**
-   * Sets the internal parent reference for this column object, as used by
-   * some methods. Does not change any value in the actual column definition.
-   * 
-   * @param parent the {@link DesignElement} to set as the parent
-   * @since 1.0.32
-   */
-  public void setParent(DesignElement parent) {
-    this.parent = parent;
-  }
-
   // *******************************************************************************
   // * Internal implementation utilities
   // *******************************************************************************
@@ -654,7 +592,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   }
 
   ViewColumnFormat2 createFormat2() {
-    return ViewColumnFormat2.newInstance();
+    return ViewColumnFormat2.newInstanceWithDefaults();
   }
 
   ViewColumnFormat3 createFormat3() {
@@ -663,7 +601,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       this.format2 = createFormat2();
     }
     
-    return ViewColumnFormat3.newInstance();
+    return ViewColumnFormat3.newInstanceWithDefaults();
   }
 
   ViewColumnFormat4 createFormat4() {
@@ -675,7 +613,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       this.format3 = createFormat3();
     }
     
-    return ViewColumnFormat4.newInstance();
+    return ViewColumnFormat4.newInstanceWithDefaults();
   }
 
   ViewColumnFormat5 createFormat5() {
@@ -690,7 +628,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       this.format4 = createFormat4();
     }
     
-    return ViewColumnFormat5.newInstance();
+    return ViewColumnFormat5.newInstanceWithDefaults();
   }
 
   ViewColumnFormat6 createFormat6() {
@@ -708,7 +646,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       this.format5 = createFormat5();
     }
     
-    return ViewColumnFormat6.newInstance();
+    return ViewColumnFormat6.newInstanceWithDefaults();
   }
 
   private class DefaultNumberSettings implements NumberSettings {
@@ -1212,12 +1150,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   }
   
   void markViewFormatDirty() {
-    if (this.parent instanceof SharedColumnImpl) {
-      ((SharedColumnImpl)this.parent).setViewFormatDirty(true);
-    }
-    else if (this.parent instanceof AbstractCollectionDesignElement) {
-      ((AbstractCollectionDesignElement)this.parent).setViewFormatDirty(true);
-    }
+    this.parentViewFormat.setDirty(true);
   }
 
   @Override

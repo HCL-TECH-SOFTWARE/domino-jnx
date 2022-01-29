@@ -16,20 +16,15 @@
  */
 package com.hcl.domino.commons.design;
 
-import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
-import com.hcl.domino.commons.design.view.DominoCollectionColumn;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
-import com.hcl.domino.commons.design.view.ViewFormatEncoder;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.Document;
-import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.design.DesignConstants;
-import com.hcl.domino.design.NativeDesignSupport;
 import com.hcl.domino.design.SharedColumn;
 
 public class SharedColumnImpl extends AbstractDesignElement<SharedColumn> implements IDefaultNamedDesignElement, SharedColumn {
@@ -66,12 +61,6 @@ public class SharedColumnImpl extends AbstractDesignElement<SharedColumn> implem
      if (this.format == null) {
        final Document doc = this.getDocument();
        this.format = doc.getOptional(DesignConstants.VIEW_VIEW_FORMAT_ITEM, DominoViewFormat.class);
-       this.format.ifPresent(format ->
-         format.getColumns()
-           .stream()
-           .map(DominoCollectionColumn.class::cast)
-           .forEach(col -> col.setParent(this))
-       );
      }
      return this.format;
    }

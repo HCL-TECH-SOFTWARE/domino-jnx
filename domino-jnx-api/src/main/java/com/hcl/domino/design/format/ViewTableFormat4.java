@@ -30,7 +30,7 @@ import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
     @StructureMember(name = "RepeatType", type = ImageRepeatMode.class)
 })
 public interface ViewTableFormat4 extends MemoryStructure {
-  public static ViewTableFormat4 newInstance() {
+  public static ViewTableFormat4 newInstanceWithDefaults() {
     ViewTableFormat4 format4 = MemoryStructureWrapperService.get().newStructure(ViewTableFormat4.class, 0);
     
     format4.setRepeatType(ImageRepeatMode.ONCE);

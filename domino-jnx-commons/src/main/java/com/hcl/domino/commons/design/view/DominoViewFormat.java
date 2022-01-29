@@ -25,7 +25,10 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.data.CollectionColumn;
+import com.hcl.domino.data.Document;
 import com.hcl.domino.data.IAdaptable;
+import com.hcl.domino.design.CollectionDesignElement;
+import com.hcl.domino.design.SharedColumn;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.ViewColumnFormat2;
 import com.hcl.domino.design.format.ViewColumnFormat3;
@@ -43,19 +46,25 @@ import com.hcl.domino.richtext.records.CDResource;
  * @since 1.0.27
  */
 public class DominoViewFormat implements IAdaptable {
-  private final List<CollectionColumn> columns = new ArrayList<>();
-
+  private final List<DominoCollectionColumn> columns = new ArrayList<>();
+  private Document doc;
   private ViewTableFormat format1;
   private ViewTableFormat2 format2;
   private ViewTableFormat3 format3;
   private ViewTableFormat4 format4;
   private CDResource backgroundResource;
+  private boolean dirty;
   
-  public DominoViewFormat() {
-    this.format1 = ViewTableFormat.newInstance();
-    this.format2 = ViewTableFormat2.newInstance();
-    this.format3 = ViewTableFormat3.newInstance();
-    this.format4 = ViewTableFormat4.newInstance();
+  public DominoViewFormat(Document doc) {
+    this.doc = doc;
+    this.format1 = ViewTableFormat.newInstanceWithDefaults();
+    this.format2 = ViewTableFormat2.newInstanceWithDefaults();
+    this.format3 = ViewTableFormat3.newInstanceWithDefaults();
+    this.format4 = ViewTableFormat4.newInstanceWithDefaults();
+  }
+  
+  public Document getParent() {
+    return doc;
   }
   
   /**
@@ -66,7 +75,7 @@ public class DominoViewFormat implements IAdaptable {
    */
   public CollectionColumn addColumn(int index) {
     final ViewTableFormat format1 = Objects.requireNonNull(this.format1, "VIEW_TABLE_FORMAT not read");
-    final DominoCollectionColumn col = new DominoCollectionColumn();
+    final DominoCollectionColumn col = new DominoCollectionColumn(this);
     
     if (index==-1) {
       this.columns.add(col);
@@ -122,8 +131,8 @@ public class DominoViewFormat implements IAdaptable {
       throw new IndexOutOfBoundsException(MessageFormat.format("Index: {0}, Size: {1}", b, columns.size()));
     }
     
-    CollectionColumn colA = columns.get(a);
-    CollectionColumn colB = columns.get(b);
+    DominoCollectionColumn colA = columns.get(a);
+    DominoCollectionColumn colB = columns.get(b);
     columns.set(a, colB);
     columns.set(b, colA);
   }
@@ -322,7 +331,7 @@ public class DominoViewFormat implements IAdaptable {
 
   public Optional<ViewTableFormat2> getFormat2(boolean createIfMissing) {
     if (this.format2==null && createIfMissing) {
-      this.format2 = ViewTableFormat2.newInstance();
+      this.format2 = ViewTableFormat2.newInstanceWithDefaults();
     }
     
     return Optional.ofNullable(this.format2);
@@ -334,7 +343,7 @@ public class DominoViewFormat implements IAdaptable {
     }
     
     if (this.format3==null && createIfMissing) {
-      this.format3 = ViewTableFormat3.newInstance();
+      this.format3 = ViewTableFormat3.newInstanceWithDefaults();
     }
     
     return Optional.ofNullable(this.format3);
@@ -346,7 +355,7 @@ public class DominoViewFormat implements IAdaptable {
     }
     
     if (this.format4==null && createIfMissing) {
-      this.format4 = ViewTableFormat4.newInstance();
+      this.format4 = ViewTableFormat4.newInstanceWithDefaults();
     }
     
     return Optional.ofNullable(this.format4);
@@ -357,4 +366,42 @@ public class DominoViewFormat implements IAdaptable {
     final Set<ViewTableFormat.Flag> flags = format1.getFlags();
     return flags;
   }
-}
+  
+  public int getColumnValuesIndex(DominoCollectionColumn col) {
+    int columnValuesIndex = 0;
+    
+    if (!columns.contains(col)) {
+      throw new IllegalArgumentException("Column is part part of the view format");
+    }
+    
+    for (DominoCollectionColumn currCol : columns) {
+      int currColValuesIndex = 0xffff;
+      
+      ViewColumnFormat currFormat1 = currCol.getFormat1();
+      if (currFormat1!=null) {
+        int constValLen = currFormat1.getConstantValueLength();
+        if (constValLen==0) {
+          currColValuesIndex=columnValuesIndex++;
+        }
+      }
+      
+      if (currCol.equals(col)) {
+        return currColValuesIndex;
+      }
+    }
+    
+    return 0xffff;
+  }
+  
+  public int getPosition(CollectionColumn col) {
+    return columns.indexOf(col);
+  }
+
+  public void setDirty(boolean b) {
+    this.dirty = b;
+  }
+  
+  public boolean isDirty() {
+    return this.dirty;
+  }
+ }

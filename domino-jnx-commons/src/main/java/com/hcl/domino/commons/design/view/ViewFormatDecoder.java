@@ -29,6 +29,7 @@ import java.util.List;
 import com.hcl.domino.commons.misc.ODSTypes;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.DumpUtil;
+import com.hcl.domino.data.Document;
 import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.design.format.ViewCalendarFormat;
 import com.hcl.domino.design.format.ViewCalendarFormat2;
@@ -48,7 +49,7 @@ import com.hcl.domino.richtext.records.CDResource;
 
 public class ViewFormatDecoder {
 	
-	public static DominoViewFormat decodeViewFormat(ByteBuffer data) {
+	public static DominoViewFormat decodeViewFormat(Document parentDoc, ByteBuffer data) {
 	  {
 	    int pos = data.position();
 	    int remaining = data.remaining();
@@ -65,7 +66,7 @@ public class ViewFormatDecoder {
 		 * - var data * colCount
 		 */
 		
-		DominoViewFormat result = new DominoViewFormat();
+		DominoViewFormat result = new DominoViewFormat(parentDoc);
 		
 		ViewTableFormat format1 = readMemory(data, ODSTypes._VIEW_TABLE_FORMAT, ViewTableFormat.class);
 		result.read(format1);

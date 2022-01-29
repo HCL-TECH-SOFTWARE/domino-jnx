@@ -40,7 +40,7 @@ import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
     @StructureMember(name = "Flags2", type = ViewTableFormat.Flag2.class, bitfield = true),
 })
 public interface ViewTableFormat extends MemoryStructure {
-  public static ViewTableFormat newInstance() {
+  public static ViewTableFormat newInstanceWithDefaults() {
     ViewTableFormat format = MemoryStructureWrapperService.get().newStructure(ViewTableFormat.class, 0);
     format
     .getHeader()

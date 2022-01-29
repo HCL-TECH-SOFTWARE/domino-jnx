@@ -2906,7 +2906,7 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   String FIELD_UPDATED_BY = "$UpdatedBy"; //$NON-NLS-1$
 
   String FIELD_FORM = "Form"; //$NON-NLS-1$
-
+  String FIELD_NAMED = "$Name";  //$NON-NLS-1$
   String FIELD_TYPE_TYPE = "Type"; //$NON-NLS-1$
   /** Note should never be purged. */
   String FIELD_NOPURGE = "$NoPurge"; //$NON-NLS-1$

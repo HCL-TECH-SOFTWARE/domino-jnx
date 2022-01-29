@@ -25,6 +25,7 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.design.Folder;
+import com.hcl.domino.misc.NotesConstants;
 
 /**
  * @since 1.0.18
@@ -45,7 +46,7 @@ public class FolderImpl extends AbstractCollectionDesignElement<Folder> implemen
   public void setTitle(String... title) {
     super.setTitle(title);
     
-    this.getDocument().replaceItemValue("$Name", //$NON-NLS-1$
+    this.getDocument().replaceItemValue(NotesConstants.FIELD_NAMED,
         EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY),
         Arrays.asList(title).stream().collect(Collectors.joining("|"))); //$NON-NLS-1$
   }

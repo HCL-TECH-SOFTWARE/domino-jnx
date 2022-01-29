@@ -51,7 +51,7 @@ import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
     @StructureMember(name = "Spare", type = short[].class, length = 4),
 })
 public interface ViewTableFormat2 extends MemoryStructure {
-  public static ViewTableFormat2 newInstance() {
+  public static ViewTableFormat2 newInstanceWithDefaults() {
     ViewTableFormat2 format2 = MemoryStructureWrapperService.get().newStructure(ViewTableFormat2.class, 0);
     format2.setSignature(FormatSignature.VALID);
     format2.setSpacing(ViewLineSpacing.SINGLE_SPACE);

@@ -43,7 +43,6 @@ import com.hcl.domino.commons.design.view.DominoCollationInfo;
 import com.hcl.domino.commons.design.view.DominoCollectionColumn;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
 import com.hcl.domino.commons.util.StringUtil;
-import com.hcl.domino.commons.views.NotesCollationInfo;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
@@ -107,7 +106,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     doc.replaceItemValue(DesignConstants.VIEW_CLASSES_ITEM, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), "1");
     
     
-    this.format = new DominoViewFormat();
+    this.format = new DominoViewFormat(doc);
 //    addColumn("#", "$0", (col) -> { //$NON-NLS-1$ //$NON-NLS-2$
 //    });
   }
@@ -141,7 +140,6 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
 
     DominoCollectionColumn newCol = (DominoCollectionColumn) viewFormat.addColumn(pos);
-    newCol.setParent(this);
     newCol.setTitle(title);
     newCol.setItemName(itemName);
     
@@ -166,7 +164,6 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
     
     DominoCollectionColumn newCol = (DominoCollectionColumn) viewFormat.addColumn(pos);
-    newCol.setParent(this);
     newCol.copyDesignFrom(dominoTemplateCol);
     
     if (consumer!=null) {
@@ -761,14 +758,8 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
         this.format = (DominoViewFormat) doc.getItemValue(DesignConstants.VIEW_VIEW_FORMAT_ITEM).get(0);
       }
       
-      if (this.format!=null) {
-        format.getColumns()
-        .stream()
-        .map(DominoCollectionColumn.class::cast)
-        .forEach(col -> col.setParent(this));
-      }
-      else if (createIfMissing) {
-        this.format = new DominoViewFormat();
+      if (this.format==null) {
+        this.format = new DominoViewFormat(doc);
       }
     }
     return Optional.ofNullable(this.format);
@@ -831,14 +822,6 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
         EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), indexStr);
     return (T) this;
   }
-  
-//  private Optional<NotesCollationInfo> getCollationInfo() {
-//    Document doc = getDocument();
-//    if(!doc.hasItem(DesignConstants.VIEW_COLLATION_ITEM)) {
-//      return Optional.empty();
-//    }
-//    return Optional.of((NotesCollationInfo)doc.getItemValue(DesignConstants.VIEW_COLLATION_ITEM).get(0));
-//  }
   
   protected RichTextRecordList getHtmlCodeItem() {
     return getDocument().getRichTextItem(DesignConstants.ITEM_NAME_HTMLCODE);
@@ -1737,9 +1720,11 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     public boolean isGenerateUniqueKeysInIndex() {
       // TODO see if this is actually specified primarily here, as the rest of the item is derived
       // I suspect this is stored in $Collation only, in the COLLATION structure
-//      return getCollationInfo()
-//        .map(NotesCollationInfo::isUnique)
-//        .orElse(false);
+      List<?> collationValues = getDocument().getItemValue(DesignConstants.VIEW_COLLATION_ITEM);
+      if (!collationValues.isEmpty()) {
+        DominoCollationInfo collation = (DominoCollationInfo) collationValues.get(0);
+        return collation.isUnique();
+      }
       
       return false;
     }

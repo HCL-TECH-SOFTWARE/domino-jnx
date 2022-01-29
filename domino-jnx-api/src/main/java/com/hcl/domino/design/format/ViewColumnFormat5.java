@@ -48,7 +48,7 @@ import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 })
 public interface ViewColumnFormat5 extends ResizableMemoryStructure {
 
-  public static ViewColumnFormat5 newInstance() {
+  public static ViewColumnFormat5 newInstanceWithDefaults() {
     ViewColumnFormat5 fmt = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat5.class, 0);
     
     //TODO set defaults
