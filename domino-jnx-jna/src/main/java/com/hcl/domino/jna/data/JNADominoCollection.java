@@ -50,7 +50,6 @@ import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.FindFlag;
-import com.hcl.domino.commons.views.NotesCollateDescriptor;
 import com.hcl.domino.commons.views.ReadMask;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.CollectionEntry;
@@ -609,7 +608,6 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 			throw new AssertionError(MessageFormat.format("View note with UNID {0} contains no collations", m_viewUnid));
 		}
 		
-		
 		//read view columns
 		List<?> viewFormatList = viewNote.getItemValue("$VIEWFORMAT"); //$NON-NLS-1$
 		if (viewFormatList!=null && !viewFormatList.isEmpty()) {
@@ -620,9 +618,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 			for (int i=0; i<columns.size(); i++) {
 				CollectionColumn currCol = columns.get(i);
 				String currItemName = currCol.getItemName();
-//				String currItemNameLC = currItemName.toLowerCase(Locale.ENGLISH);
 				String currTitle = currCol.getTitle();
-//				String currTitleLC = currTitle.toLowerCase(Locale.ENGLISH);
 				
 				int currColumnValuesIndex = currCol.getColumnValuesIndex();
 				

@@ -47,18 +47,14 @@ import com.hcl.domino.misc.ViewFormatConstants;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.records.CDResource;
 
+/**
+ * Utility class to decode the $ViewFormat item value
+ * 
+ * @author Jesse Gallagher
+ */
 public class ViewFormatDecoder {
 	
 	public static DominoViewFormat decodeViewFormat(Document parentDoc, ByteBuffer data) {
-	  {
-	    int pos = data.position();
-	    int remaining = data.remaining();
-	    byte[] remainingData = new byte[remaining];
-	    data.get(remainingData);
-	    System.out.println(DumpUtil.dumpAsAscii(remainingData));
-	    data.position(pos);
-
-	  }
 		/*
 		 * All views have:
 		 * - VIEW_TABLE_FORMAT (starts with VIEW_FORMAT_HEADER)
@@ -94,7 +90,6 @@ public class ViewFormatDecoder {
 				fullColData.put(tempCol.getData());
 				byte[] varData = new byte[varSize];
 				pPackedData.get(varData);
-        System.out.println("VarData ViewColumnFormat #"+i+"\n"+DumpUtil.dumpAsAscii(varData));
 				fullColData.put(varData);
 
 				DominoCollectionColumn viewCol = (DominoCollectionColumn) result.addColumn(-1);

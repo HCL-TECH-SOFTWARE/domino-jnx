@@ -84,7 +84,6 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     IDefaultNamedDesignElement, IAdaptable {
   private DominoViewFormat format;
   private DominoCalendarFormat calendarFormat;
-  private boolean viewFormatDirty;
   private boolean calendarFormatDirty;
   
   public AbstractCollectionDesignElement(final Document doc) {
@@ -828,11 +827,18 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   }
   
   public boolean isViewFormatDirty() {
-    return viewFormatDirty;
+    if (this.format!=null) {
+      return this.format.isDirty();
+    }
+    else {
+      return false;
+    }
   }
   
   public void setViewFormatDirty(boolean b) {
-    this.viewFormatDirty = b;
+    if (this.format!=null) {
+      this.format.setDirty(b);
+    }
   }
   
   public boolean isCalendarFormatDirty() {

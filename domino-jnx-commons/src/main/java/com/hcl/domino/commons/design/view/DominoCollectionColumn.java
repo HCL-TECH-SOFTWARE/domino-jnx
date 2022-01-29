@@ -66,7 +66,6 @@ import com.hcl.domino.richtext.structures.NFMT.Format;
  */
 public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   private DominoViewFormat parentViewFormat;
-//  private DesignElement parentx;
   private ViewColumnFormat format1;
   private ViewColumnFormat2 format2;
   private ViewColumnFormat3 format3;
