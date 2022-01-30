@@ -1135,6 +1135,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
     else if (value instanceof DominoViewFormat) {
       return true;
     }
+    else if (value instanceof DominoCalendarFormat) {
+      return true;
+    }
     else if (value instanceof DominoCollationInfo) {
       return true;
     }

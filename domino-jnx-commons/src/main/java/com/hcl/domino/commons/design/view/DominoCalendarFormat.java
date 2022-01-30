@@ -59,11 +59,11 @@ public class DominoCalendarFormat implements IAdaptable {
     this.format2 = format2;
   }
 
-  ViewCalendarFormat getFormat1() {
+  public ViewCalendarFormat getFormat1() {
     return this.format1;
   }
   
-  Optional<ViewCalendarFormat2> getFormat2(boolean createIfMissing) {
+  public Optional<ViewCalendarFormat2> getFormat2(boolean createIfMissing) {
     if (this.format2==null && createIfMissing) {
       this.format2 = ViewCalendarFormat2.newInstanceWithDefaults();
     }

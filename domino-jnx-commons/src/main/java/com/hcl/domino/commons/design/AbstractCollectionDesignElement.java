@@ -129,6 +129,9 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     if (DominoViewFormat.class.equals(clazz)) {
       return (T) getViewFormat(false).orElse(null);
     }
+    else if (DominoCalendarFormat.class.equals(clazz)) {
+      return (T) getCalendarFormat(false).orElse(null);
+    }
 
     return null;
   }
@@ -372,12 +375,21 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   @Override
   public T setStyle(Style style) {
     if (style == Style.CALENDAR) {
-      getCalendarFormat(true);
+      getCalendarFormat(true).get().getFormat2(true);
+      
+      getViewFormat(true)
+      .get().getFormat1().setFlag(ViewTableFormat.Flag.HIDE_HEADINGS, true)
+      .setFlag(ViewTableFormat.Flag.CONFLICT, true)
+      .setFlag(ViewTableFormat.Flag.FLATINDEX, true);
+      
+      setFlag(NotesConstants.DESIGN_FLAG_CALENDAR_VIEW, true);
     }
     else {
       Document doc = getDocument();
       doc.removeItem(NotesConstants.VIEW_CALENDAR_FORMAT_ITEM);
+      setFlag(NotesConstants.DESIGN_FLAG_CALENDAR_VIEW, false);
     }
+    
     setCalendarFormatDirty(true);
     return (T) this;
   }

@@ -20,6 +20,7 @@ import java.util.EnumSet;
 
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.DesignElement;
@@ -80,6 +81,13 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   @Override
   public boolean save() {
     this.doc.save();
+    
+    DominoCollection designCollection = this.doc.getParentDatabase().openDesignCollection();
+    if (designCollection!=null) {
+      //we had issues seeing newly created views in Domino Designer without refreshing the design collection
+      designCollection.refresh();
+    }
+    
     // TODO figure out if this should do something else or if the method signature
     // should change
     return true;
