@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -18,7 +18,6 @@ package com.hcl.domino.commons.design;
 
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.FileResource;
-import com.hcl.domino.misc.NotesConstants;
 
 /**
  * @author Jesse Gallagher
@@ -33,16 +32,6 @@ public class FileResourceImpl extends AbstractNamedFileElement<FileResource> imp
   @Override
   public void initializeNewDesignNote() {
     setFlags("345CgQ"); //$NON-NLS-1$
-  }
-
-  @Override
-  public String getCharsetName() {
-    return this.getDocument().get(NotesConstants.ITEM_NAME_FILE_MIMECHARSET, String.class, ""); //$NON-NLS-1$
-  }
-
-  @Override
-  public String getMimeType() {
-    return this.getDocument().get(NotesConstants.ITEM_NAME_FILE_MIMETYPE, String.class, ""); //$NON-NLS-1$
   }
 
 }

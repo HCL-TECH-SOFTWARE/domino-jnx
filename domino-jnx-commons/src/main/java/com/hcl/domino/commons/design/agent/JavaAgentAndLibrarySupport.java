@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -807,6 +807,20 @@ public class JavaAgentAndLibrarySupport {
             throw new UncheckedIOException(e);
           }
         });
+  }
+  
+  public boolean isCompileDebug() {
+    String flagsExt = getDocument().getAsText(NotesConstants.DESIGN_FLAGS_EXTENDED, ' ');
+    return flagsExt.contains(NotesConstants.DESIGN_FLAGEXT_JAVADEBUG);
+  }
+  
+  public void setCompileDebug(boolean debug) {
+    String flagsExt = getDocument().getAsText(NotesConstants.DESIGN_FLAGS_EXTENDED, ' ');
+    if(debug && !flagsExt.contains(NotesConstants.DESIGN_FLAGEXT_JAVADEBUG)) {
+      getDocument().replaceItemValue(NotesConstants.DESIGN_FLAGS_EXTENDED, flagsExt + NotesConstants.DESIGN_FLAGEXT_JAVADEBUG);
+    } else if(!debug && flagsExt.contains(NotesConstants.DESIGN_FLAGEXT_JAVADEBUG)) {
+      getDocument().replaceItemValue(NotesConstants.DESIGN_FLAGS_EXTENDED, flagsExt.replace(NotesConstants.DESIGN_FLAGEXT_JAVADEBUG, "")); //$NON-NLS-1$
+    }
   }
 
 }

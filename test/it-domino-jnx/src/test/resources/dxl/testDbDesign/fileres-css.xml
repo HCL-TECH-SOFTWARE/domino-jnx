@@ -1,8 +1,7 @@
-<?xml version='1.0'?>
-<note class='form' xmlns='http://www.lotus.com/dxl' version='12.0'>
+<?xml version='1.0' encoding='utf-8'?>
+<note class='form' xmlns='http://www.lotus.com/dxl' version='12.0' maintenanceversion='1.0'>
 <item name='$TITLE'><text>file.css</text></item>
 <item name='$MimeType'><text>text/css</text></item>
-<item name='$Flags'><text>345CgQ</text></item>
 <item name='$DesignerVersion'><text>8.5.3</text></item>
 <item name='$FileSize' sign='true'><number>35</number></item>
 <item name='$FileData' sign='true'>
@@ -11,5 +10,6 @@ YQAYAAAAAAAjAAAAAQAAAAAAAAAAAAAAYAA1AAAAIwAkAAAAAAAAAAAALyogSSdtIGEgZmlsZSBy
 ZXNvdXJjZSBuYW1lZCBDU1MgKi8A
 </rawitemdata></item>
 <item name='$FileNames' sign='true'><text>file.css</text></item>
-<item name='$MimeCharSet'><text>Windows-1252</text></item></note>
+<item name='$MimeCharSet'><text>Windows-1252</text></item>
+<item name='$Flags'><text>345CgQ$</text></item></note>
 

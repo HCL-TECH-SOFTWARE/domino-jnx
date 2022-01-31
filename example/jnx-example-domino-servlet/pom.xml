@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
-		<version>1.1.1-SNAPSHOT</version>
+		<version>1.1.2-SNAPSHOT</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>jnx-example-domino-servlet</artifactId>
@@ -16,13 +16,11 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>domino-jnx-api</artifactId>
 			<version>${project.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>domino-jnx-jna</artifactId>
 			<version>${project.version}</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<!-- Domino-compatible implementations -->
@@ -53,8 +51,7 @@
 							com.ibm.domino.xsp.adapter,
 							com.ibm.domino.napi,
 							com.ibm.commons,
-							com.ibm.commons.xml,
-							com.hcl.domino.jnx
+							com.ibm.commons.xml
 						</Require-Bundle>
 						<Import-Package>
 							javax.servlet,
@@ -91,16 +88,6 @@
 										<artifact>
 											<id>${project.groupId}:${project.artifactId}:${project.version}</id>
 											<transitive>false</transitive>
-										</artifact>
-										<artifact>
-											<id>${project.groupId}:domino-jnx-jna:${project.version}</id>
-											<transitive>true</transitive>
-										</artifact>
-										<artifact>
-											<id>com.sun.mail:jakarta.mail:${jakarta.mail.version}</id>
-										</artifact>
-										<artifact>
-											<id>org.glassfish.hk2:osgi-resource-locator:2.4.0</id>
 										</artifact>
 									</artifacts>
 								</feature>

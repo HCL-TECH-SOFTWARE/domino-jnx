@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -34,7 +34,7 @@ import com.hcl.domino.richtext.structures.BSIG;
 @StructureDefinition(
   name = "VIEWMAP_BITMAP_RECORD", 
   members = { 
-    @StructureMember(name = "DRobj", type = VMODSdrobj.class),
+    @StructureMember(name = "DRobj", type = ViewmapDrawingObject.class),
     @StructureMember(name = "DataLen", type = short.class, unsigned = true),
     @StructureMember(name = "xBytes", type = short.class, unsigned = true),
     @StructureMember(name = "yBits", type = short.class, unsigned = true),
@@ -45,7 +45,7 @@ import com.hcl.domino.richtext.structures.BSIG;
 })
 public interface ViewmapBitmapRecord extends RichTextRecord<BSIG> {
   @StructureGetter("DRobj")
-  VMODSdrobj getDRObj();
+  ViewmapDrawingObject getDRObj();
 
   @StructureGetter("DataLen")
   int getDataLen();

@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -47,6 +47,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.hcl.domino.DominoException;
 import com.hcl.domino.admin.idvault.UserId;
@@ -1103,16 +1104,16 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		else if (value instanceof Calendar || value instanceof Date || value instanceof Temporal) {
 			return true;
 		}
-		else if (value instanceof List && ((List)value).isEmpty()) {
+		else if (value instanceof Iterable && !((Iterable)value).iterator().hasNext()) {
 			return true;
 		}
-		else if (value instanceof List && isStringList((List) value)) {
+		else if (value instanceof Iterable && isStringList((Iterable) value)) {
 			return true;
 		}
-		else if (value instanceof List && isNumberOrNumberArrayList((List) value)) {
+		else if (value instanceof Iterable && isNumberOrNumberArrayList((Iterable) value)) {
 			return true;
 		}
-		else if (value instanceof List && isCalendarOrCalendarArrayList((List) value)) {
+		else if (value instanceof Iterable && isCalendarOrCalendarArrayList((Iterable) value)) {
 			return true;
 		}
 		else if (value instanceof DominoDateRange) {
@@ -1127,14 +1128,12 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		return false;
 	}
 
-	private boolean isNumberOrNumberArrayList(List<?> list) {
-		if (list==null || list.isEmpty()) {
+	private boolean isNumberOrNumberArrayList(Iterable<?> list) {
+		if (list==null || !list.iterator().hasNext()) {
 			return false;
 		}
-		for (int i=0; i<list.size(); i++) {
+		for (Object currObj : list) {
 			boolean isAccepted=false;
-			
-			Object currObj = list.get(i);
 			
 			if (currObj instanceof double[]) {
 				double[] valArr = (double[]) currObj;
@@ -1201,26 +1200,22 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		return true;
 	}
 	
-	private boolean isStringList(List<?> list) {
-		if (list==null || list.isEmpty()) {
+	private boolean isStringList(Iterable<?> list) {
+		if (list==null || !list.iterator().hasNext()) {
 			return false;
 		}
-		for (int i=0; i<list.size(); i++) {
-			if (!(list.get(i) instanceof String)) {
-				return false;
-			}
+		if(!StreamSupport.stream(list.spliterator(), false).allMatch(String.class::isInstance)) {
+		  return false;
 		}
 		return true;
 	}
 
-	private boolean isCalendarOrCalendarArrayList(List<?> list) {
-		if (list==null || list.isEmpty()) {
+	private boolean isCalendarOrCalendarArrayList(Iterable<?> list) {
+		if (list==null || !list.iterator().hasNext()) {
 			return false;
 		}
-		for (int i=0; i<list.size(); i++) {
+		for(Object currObj : list) {
 			boolean isAccepted=false;
-			
-			Object currObj = list.get(i);
 			
 			if (currObj instanceof Calendar[]) {
 				Calendar[] calArr = (Calendar[]) currObj;
@@ -1310,34 +1305,29 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		}
 	}
 
-	private List<?> toNumberOrNumberArrayList(List<?> list) {
-		boolean allNumbers = true;
-		for (int i=0; i<list.size(); i++) {
-			if (!(list.get(i) instanceof double[]) && !(list.get(i) instanceof Double)) {
-				allNumbers = false;
-				break;
-			}
-		}
+	private List<?> toNumberOrNumberArrayList(Iterable<?> list) {
+		boolean allNumbers = StreamSupport.stream(list.spliterator(), false)
+		    .allMatch(i -> i instanceof double[] || i instanceof Double);
 		
 		if (allNumbers) {
-			return list;
+			return StreamSupport.stream(list.spliterator(), false).collect(Collectors.toList());
 		}
 		
 		List<Object> convertedList = new ArrayList<>();
-		for (int i=0; i<list.size(); i++) {
-			if (list.get(i) instanceof Number) {
+		for (Object obj : list) {
+			if (obj instanceof Number) {
 				//ok
-				convertedList.add(((Number)list.get(i)).doubleValue());
+				convertedList.add(((Number)obj).doubleValue());
 			}
-			else if (list.get(i) instanceof double[]) {
-				if (((double[])list.get(i)).length!=2) {
+			else if (obj instanceof double[]) {
+				if (((double[])obj).length!=2) {
 					throw new IllegalArgumentException("Length of double array entry must be 2 for number ranges");
 				}
 				//ok
-				convertedList.add(list.get(i));
+				convertedList.add(obj);
 			}
-			else if (list.get(i) instanceof Number[]) {
-				Number[] numberArr = (Number[]) list.get(i);
+			else if (obj instanceof Number[]) {
+				Number[] numberArr = (Number[]) obj;
 				if (numberArr.length!=2) {
 					throw new IllegalArgumentException("Length of Number array entry must be 2 for number ranges");
 				}
@@ -1347,8 +1337,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 						numberArr[1].doubleValue()
 				});
 			}
-			else if (list.get(i) instanceof Double[]) {
-				Double[] doubleArr = (Double[]) list.get(i);
+			else if (obj instanceof Double[]) {
+				Double[] doubleArr = (Double[]) obj;
 				if (doubleArr.length!=2) {
 					throw new IllegalArgumentException("Length of Number array entry must be 2 for number ranges");
 				}
@@ -1358,8 +1348,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 						doubleArr[1]
 				});
 			}
-			else if (list.get(i) instanceof Integer[]) {
-				Integer[] integerArr = (Integer[]) list.get(i);
+			else if (obj instanceof Integer[]) {
+				Integer[] integerArr = (Integer[]) obj;
 				if (integerArr.length!=2) {
 					throw new IllegalArgumentException("Length of Integer array entry must be 2 for number ranges");
 				}
@@ -1369,8 +1359,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 						integerArr[1].doubleValue()
 				});
 			}
-			else if (list.get(i) instanceof Long[]) {
-				Long[] longArr = (Long[]) list.get(i);
+			else if (obj instanceof Long[]) {
+				Long[] longArr = (Long[]) obj;
 				if (longArr.length!=2) {
 					throw new IllegalArgumentException("Length of Long array entry must be 2 for number ranges");
 				}
@@ -1380,8 +1370,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 						longArr[1].doubleValue()
 				});
 			}
-			else if (list.get(i) instanceof Float[]) {
-				Float[] floatArr = (Float[]) list.get(i);
+			else if (obj instanceof Float[]) {
+				Float[] floatArr = (Float[]) obj;
 				if (floatArr.length!=2) {
 					throw new IllegalArgumentException("Length of Float array entry must be 2 for number ranges");
 				}
@@ -1391,8 +1381,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 						floatArr[1].doubleValue()
 				});
 			}
-			else if (list.get(i) instanceof int[]) {
-				int[] intArr = (int[]) list.get(i);
+			else if (obj instanceof int[]) {
+				int[] intArr = (int[]) obj;
 				if (intArr.length!=2) {
 					throw new IllegalArgumentException("Length of int array entry must be 2 for number ranges");
 				}
@@ -1402,8 +1392,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 						intArr[1]
 				});
 			}
-			else if (list.get(i) instanceof long[]) {
-				long[] longArr = (long[]) list.get(i);
+			else if (obj instanceof long[]) {
+				long[] longArr = (long[]) obj;
 				if (longArr.length!=2) {
 					throw new IllegalArgumentException("Length of long array entry must be 2 for number ranges");
 				}
@@ -1413,8 +1403,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 						longArr[1]
 				});
 			}
-			else if (list.get(i) instanceof float[]) {
-				float[] floatArr = (float[]) list.get(i);
+			else if (obj instanceof float[]) {
+				float[] floatArr = (float[]) obj;
 				if (floatArr.length!=2) {
 					throw new IllegalArgumentException("Length of float array entry must be 2 for number ranges");
 				}
@@ -1425,32 +1415,27 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				});
 			}
 			else {
-				throw new IllegalArgumentException(format("Unsupported date format found in list: {0}", (list.get(i)==null ? "null" : list.get(i).getClass().getName()))); //$NON-NLS-2$
+				throw new IllegalArgumentException(format("Unsupported date format found in list: {0}", (obj==null ? "null" : obj.getClass().getName()))); //$NON-NLS-2$
 			}
 		}
 		return convertedList;
 	}
 	
-	private List<?> toDateTimeOrDateTimeRangeList(List<?> list) {
-		boolean allDateTime = true;
-		for (int i=0; i<list.size(); i++) {
-			if (!(list.get(i) instanceof DominoDateTime[]) && !(list.get(i) instanceof DominoDateTime)) {
-				allDateTime = false;
-				break;
-			}
-		}
+	private List<?> toDateTimeOrDateTimeRangeList(Iterable<?> list) {
+		boolean allDateTime = StreamSupport.stream(list.spliterator(), false)
+		    .allMatch(i -> i instanceof DominoDateTime[] || i instanceof DominoDateTime);
 		
 		if (allDateTime) {
-			return list;
+			return StreamSupport.stream(list.spliterator(), false).collect(Collectors.toList());
 		}
 		
 		List<Object> convertedList = new ArrayList<>();
-		for (int i=0; i<list.size(); i++) {
-			if (list.get(i) instanceof GregorianCalendar) {
-				convertedList.add(new JNADominoDateTime(((GregorianCalendar) list.get(i)).toZonedDateTime()));
+		for (Object obj : list) {
+			if (obj instanceof GregorianCalendar) {
+				convertedList.add(new JNADominoDateTime(((GregorianCalendar) obj).toZonedDateTime()));
 			}
-			else if (list.get(i) instanceof Calendar[]) {
-				Calendar[] calArr = (Calendar[]) list.get(i);
+			else if (obj instanceof Calendar[]) {
+				Calendar[] calArr = (Calendar[]) obj;
 				if (calArr.length!=2) {
 					throw new IllegalArgumentException("Length of Calendar array entry must be 2 for date ranges");
 				}
@@ -1458,15 +1443,15 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				DominoDateTime end = new JNADominoDateTime((((GregorianCalendar)calArr[1]).toZonedDateTime()));
 				convertedList.add(new DefaultDominoDateRange(start, end));
 			}
-			else if (list.get(i) instanceof Date) {
-				Date dt = (Date) list.get(i);
+			else if (obj instanceof Date) {
+				Date dt = (Date) obj;
 				convertedList.add(new JNADominoDateTime(dt.getTime()));
 			}
-			else if (list.get(i) instanceof DominoDateTime) {
-				convertedList.add(list.get(i));
+			else if (obj instanceof DominoDateTime) {
+				convertedList.add(obj);
 			}
-			else if (list.get(i) instanceof Date[]) {
-				Date[] dateArr = (Date[]) list.get(i);
+			else if (obj instanceof Date[]) {
+				Date[] dateArr = (Date[]) obj;
 				if (dateArr.length!=2) {
 					throw new IllegalArgumentException("Length of Date array entry must be 2 for date ranges");
 				}
@@ -1474,19 +1459,19 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				DominoDateTime end = new JNADominoDateTime(dateArr[1].getTime());
 				convertedList.add(new DefaultDominoDateRange(start, end));
 			}
-			else if (list.get(i) instanceof DominoDateTime[]) {
-				DominoDateTime[] ntdArr = (DominoDateTime[]) list.get(i);
+			else if (obj instanceof DominoDateTime[]) {
+				DominoDateTime[] ntdArr = (DominoDateTime[]) obj;
 				if (ntdArr.length!=2) {
 					throw new IllegalArgumentException("Length of DominoDateTime array entry must be 2 for date ranges");
 				}
 				convertedList.add(new DefaultDominoDateRange(ntdArr[0], ntdArr[1]));
 			}
-			else if(list.get(i) instanceof DominoDateRange) {
-				DominoDateRange range = (DominoDateRange)list.get(i);
+			else if(obj instanceof DominoDateRange) {
+				DominoDateRange range = (DominoDateRange)obj;
 				convertedList.add(new DefaultDominoDateRange(range.getStartDateTime(), range.getEndDateTime()));
 			}
 			else {
-				throw new IllegalArgumentException(format("Unsupported date format found in list: {0}", (list.get(i)==null ? "null" : list.get(i).getClass().getName()))); //$NON-NLS-2$
+				throw new IllegalArgumentException(format("Unsupported date format found in list: {0}", (obj==null ? "null" : obj.getClass().getName()))); //$NON-NLS-2$
 			}
 		}
 		return convertedList;
@@ -1638,9 +1623,10 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				}
 			});
 		}
-		else if (value instanceof List && (((List<?>)value).isEmpty() || isStringList((List<?>) value))) {
+		else if (value instanceof Iterable && (!((Iterable<?>)value).iterator().hasNext() || isStringList((Iterable<?>) value))) {
 			@SuppressWarnings("unchecked")
-			List<String> strList = (List<String>) value;
+			List<String> strList = StreamSupport.stream(((Iterable<String>) value).spliterator(), false)
+			  .collect(Collectors.toList());
 			
 			if (strList.size()> 65535) {
 				throw new IllegalArgumentException(format("String list size must fit in a WORD ({0}>65535)", strList.size()));
@@ -1659,13 +1645,14 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			return LockUtil.lockHandle(rethList, (hListByVal) -> {
 				Mem.OSUnlockObject(hListByVal);
 				
-				for (int i=0; i<strList.size(); i++) {
-					String currStr = strList.get(i);
+				int i = 0;
+				for(String currStr : strList) {
 					Memory currStrMem = NotesStringUtils.toLMBCS(currStr, false);
 
 					short localResult = NotesCAPI.get().ListAddEntry(hListByVal, 1, retListSize, (short) (i & 0xffff), currStrMem,
 							(short) (currStrMem==null ? 0 : (currStrMem.size() & 0xffff)));
 					NotesErrorUtils.checkResult(localResult);
+					i++;
 				}
 				
 				int listSize = retListSize.getValue() & 0xffff;
@@ -1680,8 +1667,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				}
 			});
 		}
-		else if (value instanceof List && isNumberOrNumberArrayList((List<?>) value)) {
-			List<?> numberOrNumberArrList = toNumberOrNumberArrayList((List<?>) value);
+		else if (value instanceof Iterable && isNumberOrNumberArrayList((Iterable<?>) value)) {
+		  List<?> numberOrNumberArrList = toNumberOrNumberArrayList((Iterable<?>) value);
 			
 			List<Number> numberList = new ArrayList<>();
 			List<double[]> numberArrList = new ArrayList<>();
@@ -1766,8 +1753,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		else if (value instanceof DominoDateRange) {
 			return appendItemValue(itemName, flags, Arrays.asList(value), valueConverter, allowDataTypeChanges);
 		}
-		else if (value instanceof List && isCalendarOrCalendarArrayList((List<?>) value)) {
-			List<?> dateOrDateTimeRangeList = toDateTimeOrDateTimeRangeList((List<?>) value);
+		else if (value instanceof Iterable && isCalendarOrCalendarArrayList((Iterable<?>) value)) {
+			List<?> dateOrDateTimeRangeList = toDateTimeOrDateTimeRangeList((Iterable<?>) value);
 			
 			List<DominoDateTime> dateTimeList = new ArrayList<>();
 			List<DominoDateRange> dateRangeList = new ArrayList<>();

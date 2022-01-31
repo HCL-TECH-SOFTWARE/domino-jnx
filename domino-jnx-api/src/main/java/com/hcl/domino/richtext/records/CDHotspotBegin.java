@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -18,6 +18,7 @@ package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -211,6 +212,63 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
     final byte[] lmbcs = new byte[nullIndex - pos];
     buf.get(lmbcs);
     return Optional.of(new String(lmbcs, NativeItemCoder.get().getLmbcsCharset()));
+  }
+  
+  /**
+   * Returns the formula for this hotspot, if the {@link Flag#FORMULA} flag is
+   * set.
+   * 
+   * @return an {@link Optional} describing the hotspot formula, or an empty
+   *         one if this is not applicable
+   * @since 1.1.2
+   */
+  default Optional<String> getFormula() {
+    if(!getFlags().contains(Flag.FORMULA)) {
+      return Optional.empty();
+    }
+    
+    return Optional.of(StructureSupport.extractCompiledFormula(
+      this,
+      0,
+      getDataLength()
+    ));
+  }
+  
+  /**
+   * Returns the LotusScript for this hotspot, if the {@link Flag#SCRIPT} flag is
+   * set.
+   * 
+   * @return an {@link Optional} describing the hotspot LotusScript, or an empty
+   *         one if this is not applicable
+   * @since 1.1.2
+   */
+  default Optional<String> getScript() {
+    if(!getFlags().contains(Flag.SCRIPT)) {
+      return Optional.empty();
+    }
+    
+    return Optional.of(StructureSupport.extractStringValue(
+      this,
+      0,
+      getDataLength()
+    ));
+  }
+  
+  /**
+   * Returns the Simple Actions for this hotspot, if the {@link Flag#ACTION} flag is
+   * set.
+   * 
+   * @return an {@link Optional} describing the Simple Action CD records, or an empty
+   *         one if this is not applicable
+   * @since 1.1.2
+   */
+  default Optional<List<RichTextRecord<?>>> getActions() {
+    if(!getFlags().contains(Flag.ACTION)) {
+      return Optional.empty();
+    }
+    
+    ByteBuffer data = getVariableData();
+    return Optional.of(NativeItemCoder.get().readMemoryRecords(data, RecordType.Area.TYPE_ACTION));
   }
 
   @StructureSetter("DataLength")

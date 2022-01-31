@@ -1,20 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<note class="filter" xmlns="http://www.lotus.com/dxl">
-  <item name="$Comment">
-    <text>j</text>
-  </item>
-  <item name="$TITLE" sign="true">
-    <text>java lib 4</text>
-  </item>
-  <item name="$Flags">
-    <text>sj34Q</text>
-  </item>
-  <item name="$PublicAccess" sign="true">
-    <text>1</text>
-  </item>
-  <item name="$AssistAction" sign="true">
-    <rawitemdata type="10">
-k/8SAAAAAAAAAAAAAAAAAAAA
-</rawitemdata>
-  </item>
-</note>
+<?xml version='1.0' encoding='utf-8'?>
+<note class='filter' xmlns='http://www.lotus.com/dxl' version='12.0' maintenanceversion='1.0'>
+<item name='$FlagsExt'><text>D</text></item>
+<item name='$JavaCompilerSource'><text>1.8</text></item>
+<item name='$JavaCompilerTarget'><text>1.8</text></item>
+<item name='$TITLE' sign='true'><text>java lib 4</text></item>
+<item name='$Flags'><text>sj34Q</text></item>
+<item name='$PublicAccess' sign='true'><text>1</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$AssistAction' sign='true'>
+<rawitemdata type='10'>
+k/9OAA8ADQAfAAEAAAAAAAAASmF2YUFnZW50LmNsYXNzYzpcTm90ZXNcRGF0YSUlc291cmNlJSUu
+amFyACUlb2JqZWN0JSUuamFyAAAA
+</rawitemdata></item>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='msdos'
+ compression='none' flags='sign' encoding='none' name='%%source%%.jar' size='169'>
+<created><datetime>20220131T151521,61-05</datetime></created>
+<modified><datetime>20220131T151521,61-05</datetime></modified><filedata>
+UEsDBBQACAgIAOl5P1QAAAAAAAAAAAAAAAANAAAAVW50aXRsZWQuamF2YSsoTcrJTFZIzkksLlYI
+zSvJLMlJTVGoVuDlqgUAUEsHCAhwNLgdAAAAGwAAAFBLAQIUABQACAgIAOl5P1QIcDS4HQAAABsA
+AAANAAAAAAAAAAAAAAAAAAAAAABVbnRpdGxlZC5qYXZhUEsFBgAAAAABAAEAOwAAAFgAAAAAAA==
+</filedata></file></object></item>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='msdos'
+ compression='none' flags='sign' encoding='none' name='%%object%%.jar' size='331'>
+<created><datetime>20220131T151521,61-05</datetime></created>
+<modified><datetime>20220131T151521,61-05</datetime></modified><filedata>
+UEsDBBQACAgIAOp5P1QAAAAAAAAAAAAAAAAOAAAAVW50aXRsZWQuY2xhc3M1Ts0OwWAQnNVqqaLx
+Bm446MWNuEicGg5+7l/rC59Um9RX7+UkcfAAHkpsS3eT2Z3ZSWbfn+cLwASejRqhsUu00rE82DAJ
+3lnchB+L5Oivw7OMNMGaqUTpOcEYDPcEc5EepAMDTRd1WIRuoBK5yi+hzLYijCWhF6SRiPciUwX/
+i6Y+qSvBCaq8KZNNmmeRXKrC0K4O4+IH9MGJKIq4OYnRZuaXHKiPHmjceanBYbRKkdBidH8Gnu1S
+65Su7hdQSwcIoqHaxL0AAAD5AAAAUEsBAhQAFAAICAgA6nk/VKKh2sS9AAAA+QAAAA4AAAAAAAAA
+AAAAAAAAAAAAAFVudGl0bGVkLmNsYXNzUEsFBgAAAAABAAEAPAAAAPkAAAAAAA==
+</filedata></file></object></item>
+<item name='$Comment'><text>j</text></item></note>
+

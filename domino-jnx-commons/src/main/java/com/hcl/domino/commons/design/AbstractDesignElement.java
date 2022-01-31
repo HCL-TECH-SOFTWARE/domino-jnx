@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -17,6 +17,7 @@
 package com.hcl.domino.commons.design;
 
 import java.util.EnumSet;
+import java.util.Optional;
 
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.data.Document;
@@ -35,6 +36,16 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   public AbstractDesignElement(final Document doc) {
     this.doc = doc;
   }
+  
+  @Override
+  public void delete() {
+    delete(false);
+  }
+  
+  @Override
+  public void delete(boolean noStub) {
+    this.doc.delete(noStub);
+  }
 
   @Override
   public String getComment() {
@@ -49,6 +60,16 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   @Override
   public Document getDocument() {
     return this.doc;
+  }
+  
+  @Override
+  public Optional<String> getTemplateName() {
+    String val = this.doc.getAsText(NotesConstants.DESIGN_CLASS, ' ');
+    if(val == null || val.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.of(val);
+    }
   }
   
   @Override
@@ -108,6 +129,11 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   @Override
   public void setProhibitRefresh(final boolean prohibitRefresh) {
     this.setFlag(NotesConstants.DESIGN_FLAG_PRESERVE, prohibitRefresh);
+  }
+  
+  @Override
+  public void setTemplateName(String templateName) {
+    this.doc.replaceItemValue(NotesConstants.DESIGN_CLASS, templateName);
   }
 
   @Override

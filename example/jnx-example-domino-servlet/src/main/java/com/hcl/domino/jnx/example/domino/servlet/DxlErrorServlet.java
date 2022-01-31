@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -57,7 +57,9 @@ public class DxlErrorServlet extends HttpServlet {
     resp.setContentType("text/plain"); //$NON-NLS-1$
     try (PrintWriter w = resp.getWriter()) {
       try {
-        final Database names = this.client.openDatabase("names.nsf"); //$NON-NLS-1$
+        String primaryDirectory = this.client.openUserDirectory(null).getPrimaryDirectoryPath()
+            .orElseThrow(() -> new IllegalStateException("Unable to identify primary directory path"));
+        final Database names = this.client.openDatabase(primaryDirectory);
         final DxlImporter importer = this.client.createDxlImporter();
         importer.importDxl("I am not valid DXL", names); //$NON-NLS-1$
       } catch (final Throwable t) {

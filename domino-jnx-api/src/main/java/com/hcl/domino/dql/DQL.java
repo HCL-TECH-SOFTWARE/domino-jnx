@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.Objects;
 
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.Formula;
 
 /**
  * Utility class to programmatically compose syntactically correct
@@ -336,6 +337,30 @@ public class DQL {
       return this.m_toString;
     }
 
+  }
+
+  /**
+   * @since 1.1.2
+   */
+  public static class FormulaTerm extends DQLTerm {
+    private final String m_formula;
+
+    private String m_toString;
+
+    private FormulaTerm(final String formula) {
+      if(formula == null || formula.isEmpty()) {
+        throw new IllegalArgumentException("Formula expression cannot be empty");
+      }
+      this.m_formula = formula;
+    }
+
+    @Override
+    public String toString() {
+      if (this.m_toString == null) {
+        this.m_toString = MessageFormat.format("@formula(''{0}'')", escapeStringValue(m_formula)); //$NON-NLS-1$
+      }
+      return this.m_toString;
+    }
   }
 
   public static class SpecialValue extends NamedItem {
@@ -961,6 +986,33 @@ public class DQL {
    */
   public static NamedView view(final String viewName) {
     return new NamedView(viewName);
+  }
+  
+  /**
+   * Use this method to filter documents based on a formula-language
+   * expression
+   * 
+   * @param formula the formula expression to use
+   * @return term representing the formula expression
+   * @throws IllegalArgumentException if {@code formula} is empty
+   * @since 1.1.2
+   */
+  public static FormulaTerm formula(String formula) {
+    return new FormulaTerm(formula);
+  }
+  
+  /**
+   * Use this method to filter documents based on a formula-language
+   * expression
+   * 
+   * @param formula the {@link Formula} objects to use
+   * @return term representing the formula expression
+   * @throws NullPointerException if {@code formula} is {@code null}
+   * @since 1.1.2
+   */
+  public static FormulaTerm formula(Formula formula) {
+    Objects.requireNonNull(formula, "formula cannot be null");
+    return new FormulaTerm(formula.getFormula());
   }
 
 }

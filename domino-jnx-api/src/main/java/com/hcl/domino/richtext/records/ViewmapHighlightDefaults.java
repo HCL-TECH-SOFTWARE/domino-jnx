@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -16,6 +16,10 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.util.Optional;
+
+import com.hcl.domino.data.StandardColors;
+import com.hcl.domino.design.navigator.NavigatorLineStyle;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -34,44 +38,50 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
     @StructureMember(name = "bHighlightCurrent", type = short.class, unsigned = true),
     @StructureMember(name = "HLOutlineColor", type = short.class, unsigned = true),
     @StructureMember(name = "HLOutlineWidth", type = short.class, unsigned = true),
-    @StructureMember(name = "HLOutlineStyle", type = short.class, unsigned = true),
+    @StructureMember(name = "HLOutlineStyle", type = NavigatorLineStyle.class),
     @StructureMember(name = "HLFillColor", type = short.class, unsigned = true)
   }
 )
 public interface ViewmapHighlightDefaults extends MemoryStructure {
   @StructureGetter("bHighlightTouch")
-  int getbHighlightTouch();
-
-  @StructureGetter("bHighlightCurrent")
-  int getbHighlightCurrent();
-
-  @StructureGetter("HLOutlineColor")
-  int getHLOutlineColor();
-
-  @StructureGetter("HLOutlineWidth")
-  int getHLOutlineWidth();
-
-  @StructureGetter("HLOutlineStyle")
-  int getHLOutlineStyle();
-
-  @StructureGetter("HLFillColor")
-  int getHLFillColor();
+  boolean isTouch();
 
   @StructureSetter("bHighlightTouch")
-  ViewmapHighlightDefaults setbHighlightTouch(int touch);
+  ViewmapHighlightDefaults setTouch(boolean touch);
+
+  @StructureGetter("bHighlightCurrent")
+  boolean isCurrent();
 
   @StructureSetter("bHighlightCurrent")
-  ViewmapHighlightDefaults setbHighlightCurrent(int current);
+  ViewmapHighlightDefaults setCurrent(boolean current);
+  
+  @StructureGetter("HLOutlineColor")
+  int getOutlineColorRaw();
+
+  @StructureGetter("HLOutlineColor")
+  Optional<StandardColors> getOutlineColor();
 
   @StructureSetter("HLOutlineColor")
-  ViewmapHighlightDefaults setHLOutlineColor(int outlineColor);
+  ViewmapHighlightDefaults setOutlineColor(StandardColors outlineColor);
+
+  @StructureGetter("HLOutlineWidth")
+  int getOutlineWidth();
 
   @StructureSetter("HLOutlineWidth")
-  ViewmapHighlightDefaults setHLOutlineWidth(int outlineWidth);
+  ViewmapHighlightDefaults setOutlineWidth(int outlineWidth);
+
+  @StructureGetter("HLOutlineStyle")
+  NavigatorLineStyle getOutlineStyle();
 
   @StructureSetter("HLOutlineStyle")
-  ViewmapHighlightDefaults setHLOutlineStyle(int outlineStyle);
+  ViewmapHighlightDefaults setOutlineStyle(NavigatorLineStyle outlineStyle);
+
+  @StructureGetter("HLFillColor")
+  int getFillColorRaw();
+  
+  @StructureGetter("HLFillColor")
+  Optional<StandardColors> getFillColor();
 
   @StructureSetter("HLFillColor")
-  ViewmapHighlightDefaults setHLFillColor(int fillColor);
+  ViewmapHighlightDefaults setFillColor(StandardColors fillColor);
 }

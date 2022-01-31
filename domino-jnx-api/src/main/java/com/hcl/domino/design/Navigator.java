@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -16,8 +16,32 @@
  */
 package com.hcl.domino.design;
 
+import java.util.List;
+
 import com.hcl.domino.design.DesignElement.NamedDesignElement;
 
 public interface Navigator extends NamedDesignElement {
+  /**
+   * Retrieves the image map of the navigator.
+   * 
+   * @return a {@link List} of rich-text entities
+   * @since 1.1.2
+   */
+  List<?> getImageMap();
 
+  /**
+   * Retrieves the data set of the navigator.
+   * 
+   * @return a {@link List} of rich-text entities
+   * @since 1.1.2
+   */
+  List<?> getDataSet();
+
+  /**
+   * Retrieves the layout data of the navigator.
+   * 
+   * @return a {@link List} of rich-text entities
+   * @since 1.1.2
+   */
+  List<?> getLayout();
 }

@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -31,6 +31,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 import com.hcl.domino.admin.idvault.UserId;
@@ -61,6 +62,7 @@ import com.hcl.domino.design.Frameset;
 import com.hcl.domino.design.ImageResource;
 import com.hcl.domino.design.JavaScriptLibrary;
 import com.hcl.domino.design.NamedFileElement;
+import com.hcl.domino.design.Navigator;
 import com.hcl.domino.design.Outline;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.design.ScriptLibrary;
@@ -211,6 +213,16 @@ public abstract class AbstractDbDesign implements DbDesign {
     final T element = this.createDesignNote(designClass);
     element.setTitle(title);
     return element;
+  }
+  
+  @Override
+  public FileResource createFileResource(String filePath) {
+    String path = cleanFilePath(filePath);
+    FileResource result = createDesignNote(FileResource.class, path);
+    Document doc = result.getDocument();
+    doc.replaceItemValue(NotesConstants.ITEM_NAME_FILE_NAMES, path);
+    doc.replaceItemValue(NotesConstants.ITEM_NAME_FILE_MIMETYPE, "application/octet-stream"); //$NON-NLS-1$
+    return result;
   }
 
   @Override
@@ -380,6 +392,16 @@ public abstract class AbstractDbDesign implements DbDesign {
   @Override
   public Stream<ImageResource> getImageResources() {
     return this.getDesignElements(ImageResource.class);
+  }
+  
+  @Override
+  public Optional<Navigator> getNavigator(String name) {
+    return this.getDesignElementByName(Navigator.class, name);
+  }
+  
+  @Override
+  public Stream<Navigator> getNavigators() {
+    return this.getDesignElements(Navigator.class);
   }
 
   @Override
@@ -611,15 +633,14 @@ public abstract class AbstractDbDesign implements DbDesign {
   
   @Override
   public OutputStream newResourceOutputStream(String filePath) {
+    return newResourceOutputStream(filePath, null);
+  }
+  
+  
+  @Override
+  public OutputStream newResourceOutputStream(String filePath, Consumer<DesignElement> callback) {
     Optional<DesignElement> existingElement = this.findFileElement(filePath);
-    DesignElement element = existingElement.orElseGet(() -> {
-      String path = cleanFilePath(filePath);
-      FileResource result = createDesignNote(FileResource.class, path);
-      Document doc = result.getDocument();
-      doc.replaceItemValue(NotesConstants.ITEM_NAME_FILE_NAMES, path);
-      doc.replaceItemValue(NotesConstants.ITEM_NAME_FILE_MIMETYPE, "application/octet-stream"); //$NON-NLS-1$
-      return result;
-    });
+    DesignElement element = existingElement.orElseGet(() -> createFileResource(filePath));
     
     if(element instanceof NamedFileElement) {
       return new BufferingCallbackOutputStream(bytes -> {
@@ -629,6 +650,9 @@ public abstract class AbstractDbDesign implements DbDesign {
           throw new UncheckedIOException(e);
         }
         element.save();
+        if(callback != null) {
+          callback.accept((NamedFileElement)element);
+        }
       });
     } else if(element instanceof ServerJavaScriptLibrary) {
       return new BufferingCallbackOutputStream(bytes -> {
@@ -636,6 +660,9 @@ public abstract class AbstractDbDesign implements DbDesign {
         String script = new String(bytes, StandardCharsets.UTF_8);
         lib.setScript(script);
         element.save();
+        if(callback != null) {
+          callback.accept(lib);
+        }
       });
     } else if(element instanceof JavaScriptLibrary) {
       return new BufferingCallbackOutputStream(bytes -> {
@@ -643,6 +670,9 @@ public abstract class AbstractDbDesign implements DbDesign {
         String script = new String(bytes, StandardCharsets.UTF_8);
         lib.setScript(script);
         element.save();
+        if(callback != null) {
+          callback.accept(lib);
+        }
       });
     } else {
       throw new UnsupportedOperationException(MessageFormat.format("Unable to get file data for element of type {0}", element.getClass().getName()));
