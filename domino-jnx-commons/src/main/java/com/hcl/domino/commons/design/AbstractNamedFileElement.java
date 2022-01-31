@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.time.OffsetDateTime;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -39,8 +40,8 @@ import com.hcl.domino.richtext.process.GetFileResourceStreamProcessor;
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public abstract class AbstractNamedFileElement<T extends NamedFileElement> extends AbstractDesignElement<T>
-    implements NamedFileElement, IDefaultNamedDesignElement {
+public abstract class AbstractNamedFileElement<T extends NamedFileElement<T>> extends AbstractDesignElement<T>
+    implements NamedFileElement<T>, IDefaultNamedDesignElement {
 
   public AbstractNamedFileElement(final Document doc) {
     super(doc);
@@ -60,6 +61,13 @@ public abstract class AbstractNamedFileElement<T extends NamedFileElement> exten
   @Override
   public List<String> getFileNames() {
     return this.getDocument().getAsList(NotesConstants.ITEM_NAME_FILE_NAMES, String.class, Collections.emptyList());
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public T setFileNames(Collection<String> fileNames) {
+    this.getDocument().replaceItemValue(NotesConstants.ITEM_NAME_FILE_NAMES, fileNames);
+    return (T)this;
   }
 
   @Override
@@ -85,5 +93,35 @@ public abstract class AbstractNamedFileElement<T extends NamedFileElement> exten
       doc.replaceItemValue(NotesConstants.ITEM_NAME_FILE_SIZE, bytes.length);
       doc.replaceItemValue(NotesConstants.ITEM_NAME_FILE_MODINFO, OffsetDateTime.now());
     });
+  }
+
+  
+  @Override
+  public String getCharsetName() {
+    return this.getDocument().get(NotesConstants.ITEM_NAME_FILE_MIMECHARSET, String.class, ""); //$NON-NLS-1$
+  }
+
+  @Override
+  public String getMimeType() {
+    return this.getDocument().get(NotesConstants.ITEM_NAME_FILE_MIMETYPE, String.class, ""); //$NON-NLS-1$
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public T setMimeType(String mimeType) {
+    this.getDocument().replaceItemValue(NotesConstants.ITEM_NAME_FILE_MIMETYPE, mimeType);
+    return (T)this;
+  }
+  
+  @Override
+  public boolean isNeedsRefresh() {
+    return getFlags().contains(NotesConstants.DESIGN_FLAG_NEEDSREFRESH);
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public T setNeedsRefresh(boolean refresh) {
+    setFlag(NotesConstants.DESIGN_FLAG_NEEDSREFRESH, refresh);
+    return (T)this;
   }
 }

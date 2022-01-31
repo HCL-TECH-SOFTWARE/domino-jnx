@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -16,11 +16,13 @@
  */
 package com.hcl.domino.richtext.records;
 
-import java.util.Optional;
 
+import java.util.Collection;
+import java.util.Optional;
+import java.util.Set;
 import com.hcl.domino.data.StandardColors;
-import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
+import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -39,27 +41,34 @@ import com.hcl.domino.richtext.structures.BSIG;
   members = { 
     @StructureMember(name = "Header", type = BSIG.class), /* Signature identifying the type of Navigator CD record. */
     @StructureMember(name = "ObjRect", type = VMODSrect.class), /* Bounding rectangle for this graphical object. */
-    @StructureMember(name = "flags", type = ViewmapDatasetRecord.Flags.class, bitfield = true), /* Option flags. Set to 7. */
+    @StructureMember(name = "flags", type = ViewmapDrawingObject.Flag.class, bitfield = true), /* Option flags. Set to 7. */
     @StructureMember(name = "NameLen", type = short.class, unsigned = true), /* Graphical object name length (may be 0). */
     @StructureMember(name = "LabelLen", type = short.class, unsigned = true), /* Graphical object displayed label length (may be 0). */
     @StructureMember(name = "FontID", type = FontStyle.class), /* FontID to use when displaying the label. */
     @StructureMember(name = "TextColor", type = short.class, unsigned = true), /* Color to use for the label text. Use NOTES_COLOR_xxx value. */
-    @StructureMember(name = "Alignment", type = short.class, unsigned = true), /* Alignment of the label text. Set to 0. */
-    @StructureMember(name = "bWrap", type = short.class, unsigned = true), /* If TRUE, apply word-wrap when displaying the label. */
-    @StructureMember(name = "Spare", type = int[].class, length = 4) /* Reserved. Must be 0. */
+    @StructureMember(name = "Alignment", type = short.class), /* Alignment of the label text. Set to 0. */
+    @StructureMember(name = "bWrap", type = short.class), /* If TRUE, apply word-wrap when displaying the label. */
+    @StructureMember(name = "spare", type = int[].class, length = 4) /* Reserved. Must be 0. */
     /* Header field contains WORD length subfield. Some Navigator CD records use VMODSbigobj, which contains a BYTE length subfield. */
 })
-public interface VMODSdrobj extends RichTextRecord<BSIG> {
+public interface ViewmapDrawingObject extends RichTextRecord<BSIG> {
 
-  enum Flags implements INumberEnum<Short> {
-    VISIBLE((short)0x0002), /*	Set if obj is visible */
-    SELECTABLE((short)0x0004), /*	Set if obj can be select (i.e. is not background) */
-    LOCKED((short)0x0008), /*	Set if obj can't be edited */
-    IMAGEMAP_BITMAP((short)0x0010) /*	Bitmap representing runtime image of the navigator.  Use to create imagemaps from navigators. */
+  enum Flag implements INumberEnum<Short> {
+    /** Set if obj is visible */
+    VISIBLE(NotesConstants.VM_DROBJ_FLAGS_VISIBLE),
+    /** Set if obj can be select (i.e. is not background) */
+    SELECTABLE(NotesConstants.VM_DROBJ_FLAGS_SELECTABLE),
+    /** Set if obj can't be edited */
+    LOCKED(NotesConstants.VM_DROBJ_FLAGS_LOCKED),
+    /**
+     * Bitmap representing runtime image of the navigator.  Use to create
+     * imagemaps from navigators.
+     */
+    IMAGEMAP_BITMAP(NotesConstants.VM_DROBJ_FLAGS_IMAGEMAP_BITMAP)
     ;
 
     private final short value;
-    private Flags(short value) {
+    private Flag(short value) {
       this.value = value;
     }
 
@@ -81,6 +90,10 @@ public interface VMODSdrobj extends RichTextRecord<BSIG> {
   @StructureGetter("ObjRect")
   VMODSrect getObjRect();
 
+
+  @StructureGetter("flags")
+  Set<ViewmapDrawingObject.Flag> getFlags();
+  
   @StructureGetter("NameLen")
   int getNameLen();
 
@@ -93,36 +106,34 @@ public interface VMODSdrobj extends RichTextRecord<BSIG> {
   @StructureGetter("TextColor")
   int getTextColorRaw();
 
-  default Optional<StandardColors> getTextColor() {
-    return DominoEnumUtil.valueOf(StandardColors.class, getTextColorRaw());
-  }
+  @StructureGetter("TextColor")
+  Optional<StandardColors> getTextColor();
 
   @StructureGetter("Alignment")
-  int getAlignment();
+  short getAlignment();
 
   @StructureGetter("bWrap")
-  int getbWrap();
+  short getbWrap();
 
-  @StructureGetter("Spare")
-  int[] getSpare();
+  @StructureSetter("flags")
+  ViewmapDrawingObject setFlags(Collection<ViewmapDrawingObject.Flag> flags);
 
   @StructureSetter("NameLen")
-  VMODSdrobj setNameLen(int length);
+  ViewmapDrawingObject setNameLen(int length);
 
   @StructureSetter("LabelLen")
-  VMODSdrobj setLabelLen(int length);
+  ViewmapDrawingObject setLabelLen(int length);
 
   @StructureSetter("TextColor")
-  VMODSdrobj setTextColorRaw(int color);
+  ViewmapDrawingObject setTextColorRaw(int color);
 
-  default VMODSdrobj setTextColor(StandardColors color) {
-	  return setTextColorRaw(color.getValue());
-  }
+  @StructureSetter("TextColor")
+  ViewmapDrawingObject setTextColor(StandardColors color);
 
   @StructureSetter("Alignment")
-  VMODSdrobj setAlignment(int alignment);
+  ViewmapDrawingObject setAlignment(short alignment);
 
   @StructureSetter("bWrap")
-  VMODSdrobj setbWrap(int bWrap);
+  ViewmapDrawingObject setbWrap(short bWrap);
 
 }

@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -16,11 +16,13 @@
  */
 package com.hcl.domino.data;
 
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.List;
 
 import com.hcl.domino.misc.JNXServiceFinder;
 import com.hcl.domino.richtext.records.RecordType;
+import com.hcl.domino.richtext.records.RichTextRecord;
 
 /**
  * This service interface represents an implementation-contributed service that
@@ -79,4 +81,16 @@ public interface NativeItemCoder {
    * @since 1.0.46
    */
   Charset getLmbcsCharset(LmbcsVariant variant);
+  
+  /**
+   * Parses the provided in-memory value as a series of rich-text records, using
+   * the provided area to resolve ambiguities.
+   * 
+   * @param data the data to parse
+   * @param area the {@link com.hcl.domino.richtext.records.RecordType.Area Area}
+   *             type to use
+   * @return a {@link List} of {@link RichTextRecord} elements
+   * @since 1.1.2
+   */
+  List<RichTextRecord<?>> readMemoryRecords(ByteBuffer data, RecordType.Area area);
 }

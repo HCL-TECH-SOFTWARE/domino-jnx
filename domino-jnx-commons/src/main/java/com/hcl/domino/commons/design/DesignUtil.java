@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -485,6 +485,8 @@ public enum DesignUtil {
           return new FolderImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else if(DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_SHARED_COLS)) {
           return new SharedColumnImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
+        } else if(matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_VIEWMAP_ALL_VERSIONS)) {
+          return new NavigatorImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         } else {
           return new ViewImpl(doc.orElseGet(() -> database.getDocumentById(noteId).get()));
         }

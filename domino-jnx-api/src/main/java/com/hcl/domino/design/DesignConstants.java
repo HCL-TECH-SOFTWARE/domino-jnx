@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -76,10 +76,6 @@ public interface DesignConstants {
   
   /** font table */
   String ITEM_NAME_FONTS = "$Fonts"; //$NON-NLS-1$
-
-  /** navigator */
-  String NAVIGATOR_VIEWMAP_DATASET_ITEM = "$ViewMapDataset"; //$NON-NLS-1$
-  String NAVIGATOR_VIEWMAP_LAYOUT_ITEM = "$ViewMapLayout"; //$NON-NLS-1$
   
   byte THEME_DEFAULT = 0;
   byte THEME_ENABLE = 1;

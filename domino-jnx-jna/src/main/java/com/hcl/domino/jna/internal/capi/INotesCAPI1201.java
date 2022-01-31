@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -16,8 +16,12 @@
  */
 package com.hcl.domino.jna.internal.capi;
 
+import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
+import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.sun.jna.Library;
 import com.sun.jna.Memory;
+import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.ShortByReference;
 
 /**
  * Notes API methods introduced in R12.0.1
@@ -29,5 +33,23 @@ public interface INotesCAPI1201 extends Library {
   short NABLookupBasicAuthentication(Memory userName, Memory password, int dwFlags,
       int nMaxFullNameLen,
       Memory fullUserName);
+  
+  short NSFProcessResultsExt(HANDLE.ByValue hDb,
+      Memory resultsname,
+      int dwFlags,
+      int hInResults,
+      int hOutFields,
+      int hFieldRules,
+      int hCombineRules,
+      DHANDLE.ByValue hReaders,
+      int dwHoursTillExpire,
+      IntByReference phErrorText,
+      DHANDLE.ByReference phStreamedhQueue,
+      ShortByReference phViewOpened,
+      IntByReference pViewNoteID,
+      int dwQRPTimeLimit, 
+      int dwQRPEntriesLimit,  
+      int dwQRPTimeCheckInterval);  
 
+  
 }

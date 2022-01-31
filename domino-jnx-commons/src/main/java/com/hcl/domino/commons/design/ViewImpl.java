@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -21,7 +21,10 @@ import java.util.List;
 
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.Formula;
+<<<<<<< HEAD
 import com.hcl.domino.data.Item.ItemFlag;
+=======
+>>>>>>> develop
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.simplesearch.SimpleSearchTerm;
@@ -51,7 +54,11 @@ public class ViewImpl extends AbstractCollectionDesignElement<View> implements V
   @Override
   public View setSelectionFormula(final String selectionFormula) {
     Formula formula = getDocument().getParentDatabase().getParentDominoClient().createFormula(selectionFormula);
+<<<<<<< HEAD
     getDocument().replaceItemValue(DesignConstants.VIEW_FORMULA_ITEM, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), formula);
+=======
+    getDocument().replaceItemValue(DesignConstants.VIEW_FORMULA_ITEM, formula);
+>>>>>>> develop
     return this;
   }
   

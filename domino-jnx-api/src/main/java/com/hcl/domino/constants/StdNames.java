@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -71,4 +71,13 @@ public interface StdNames {
   
   /** Text Properties table */
   String ITEM_NAME_TEXTPROPERTIES = "$TextProperties"; //$NON-NLS-1$
+  
+  /* ViewMap note item names */
+
+  /** Contains ViewMap dataset data */
+  String VIEWMAP_DATASET_ITEM  = "$ViewMapDataset"; //$NON-NLS-1$
+  /** Contains layout objects */
+  String VIEWMAP_LAYOUT_ITEM   = "$ViewMapLayout"; //$NON-NLS-1$
+  /** Contains the navigator's imagemap */
+  String VIEWMAP_IMAGEMAP_ITEM = "$NavImagemap"; //$NON-NLS-1$
 }

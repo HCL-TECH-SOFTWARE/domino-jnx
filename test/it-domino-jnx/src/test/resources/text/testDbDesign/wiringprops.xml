@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions name="com.yourcompany.propertybroker"
+  targetNamespace="http://com.yourcompany.propertybroker"
+  xmlns="http://schemas.xmlsoap.org/wsdl/"
+  xmlns:idt="http://www.ibm.com/xmlns/prod/datatype"
+  xmlns:portlet="http://www.ibm.com/wps/c2a"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/"
+  xmlns:tns="http://com.yourcompany.propertybroker"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <types>
+    <xsd:schema targetNamespace="http://com.yourcompany.propertybroker">
+      <xsd:simpleType name="someNewType">
+        <xsd:restriction base="xsd:string"/>
+      </xsd:simpleType>
+    </xsd:schema>
+    <xsd:schema targetNamespace="http://www.ibm.com/xmlns/prod/datatype">
+      <xsd:simpleType name="emailAddress822">
+        <xsd:restriction base="xsd:string"/>
+      </xsd:simpleType>
+      <xsd:simpleType name="distinguishedName">
+        <xsd:restriction base="xsd:string"/>
+      </xsd:simpleType>
+      <xsd:simpleType name="mailTo">
+        <xsd:restriction base="xsd:string"/>
+      </xsd:simpleType>
+      <xsd:simpleType name="url">
+        <xsd:restriction base="xsd:anyURI"/>
+      </xsd:simpleType>
+    </xsd:schema>
+  </types>
+  <message name="testprop">
+    <part name="testprop" type="xsd:string"/>
+  </message>
+  <message name="testActionInput">
+    <part name="testActionInput" type="xsd:string"/>
+  </message>
+  <portType name="com.yourcompany.propertybroker_Service">
+    <operation name="testAction">
+      <input message="tns:testActionInput"/>
+      <output message="tns:testprop"/>
+    </operation>
+    <operation name="publish_testprop">
+      <output message="tns:testprop"/>
+    </operation>
+    <operation name="publish_testActionInput">
+      <output message="tns:testActionInput"/>
+    </operation>
+  </portType>
+  <binding name="com.yourcompany.propertybrokerbinding" type="tns:com.yourcompany.propertybroker_Service">
+    <portlet:binding/>
+    <operation name="testAction">
+      <portlet:action activeOnStartup="true" caption="" description=""
+        name="testAction" selectOnMultipleMatch="false" type="standard"/>
+      <input>
+        <portlet:param boundTo="request-attribute"
+          name="testActionInput" partname="testActionInput"/>
+      </input>
+      <output>
+        <portlet:param boundTo="request-attribute" name="testprop" partname="testprop"/>
+      </output>
+    </operation>
+    <operation name="publish_testprop">
+      <portlet:action activeOnStartup="true" name="publish_testprop"
+        selectOnMultipleMatch="true" type="standard"/>
+      <output>
+        <portlet:param boundTo="request-attribute" caption=""
+          description="" name="testprop" partname="testprop"/>
+      </output>
+    </operation>
+    <operation name="publish_testActionInput">
+      <portlet:action activeOnStartup="true"
+        name="publish_testActionInput" selectOnMultipleMatch="true" type="standard"/>
+      <output>
+        <portlet:param boundTo="request-attribute" caption=""
+          description="" name="testActionInput" partname="testActionInput"/>
+      </output>
+    </operation>
+  </binding>
+</definitions>

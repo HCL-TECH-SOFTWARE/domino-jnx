@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.hcl.domino.data.DominoDateTime;
 
-public interface ImageResource extends NamedFileElement {
+public interface ImageResource extends NamedFileElement<ImageResource> {
   @Override
   DominoDateTime getFileModified();
 

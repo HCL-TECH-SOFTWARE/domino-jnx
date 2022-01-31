@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -20,8 +20,9 @@ import com.hcl.domino.constants.EditOds;
 import com.hcl.domino.constants.OleOds;
 import com.hcl.domino.constants.QueryOds;
 import com.hcl.domino.constants.StdNames;
+import com.hcl.domino.constants.VmOds;
 
-public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds, EditOds, OleOds {
+public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds, EditOds, OleOds, VmOds {
 
   public enum AgentCheck {
     CheckRights(0),

@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -17,6 +17,7 @@
 package it.com.hcl.domino.test.vertx.json;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.stream.Stream;
 
@@ -168,6 +169,17 @@ public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
       JsonObject json = serializer.toJson(agent);
       JsonObject doc = json.getJsonObject("document");
       assertEquals(database.getParentDominoClient().getIDUserName(), doc.getString("signer"));
+    });
+  }
+  
+  @Test
+  public void testFormButtonSerialization() throws Exception {
+    VertxJsonSerializer serializer = new VertxJsonSerializer();
+    
+    withResourceDxl("/dxl/testDbDesignForms", database -> {
+      Form form = database.getDesign().getForm("Button Form").get();
+      String json = serializer.toJson(form).toString();
+      assertTrue(json.contains("@StatusBar(\\\"I am button output\\\")"));
     });
   }
 }

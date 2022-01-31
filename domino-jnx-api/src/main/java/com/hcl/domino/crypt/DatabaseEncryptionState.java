@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -22,7 +22,7 @@ import com.hcl.domino.misc.INumberEnum;
  * @since 1.0.18
  */
 public enum DatabaseEncryptionState implements INumberEnum<Integer> {
-  UNENCRYPTED(0), ENCRYPTED(1), PENDING_ENCRYPTION(2);
+  UNENCRYPTED(0), ENCRYPTED(1), PENDING_ENCRYPTION(2), PENDING_DECRYPTION(3);
 
   private final int value;
 
