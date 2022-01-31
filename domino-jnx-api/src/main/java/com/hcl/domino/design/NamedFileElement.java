@@ -59,4 +59,25 @@ public interface NamedFileElement<T extends NamedFileElement<T>> extends NamedDe
    * @since 1.1.2
    */
   T setMimeType(String mimeType);
+  
+  /**
+   * Determines whether the design element is marked as needing a refresh (e.g.
+   * it was opened for modification in an external editor).
+   * 
+   * @return {@code true} if the element is marked as needing refresh;
+   *         {@code false} otherwise
+   * @since 1.1.2
+   */
+  boolean isNeedsRefresh();
+  
+  /**
+   * Sets whether the design element is marked as needing a refresh (e.g.
+   * it was opened for modification in an external editor).
+   * 
+   * @param refresh {@code true} if the element is marked as needing refresh;
+   *                {@code false} otherwise
+   * @return this element
+   * @since 1.1.2
+   */
+  T setNeedsRefresh(boolean refresh);
 }

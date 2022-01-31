@@ -112,4 +112,16 @@ public abstract class AbstractNamedFileElement<T extends NamedFileElement<T>> ex
     this.getDocument().replaceItemValue(NotesConstants.ITEM_NAME_FILE_MIMETYPE, mimeType);
     return (T)this;
   }
+  
+  @Override
+  public boolean isNeedsRefresh() {
+    return getFlags().contains(NotesConstants.DESIGN_FLAG_NEEDSREFRESH);
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public T setNeedsRefresh(boolean refresh) {
+    setFlag(NotesConstants.DESIGN_FLAG_NEEDSREFRESH, refresh);
+    return (T)this;
+  }
 }

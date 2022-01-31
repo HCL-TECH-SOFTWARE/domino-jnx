@@ -355,6 +355,7 @@ public class TestDbDesign extends AbstractDesignTest {
     assertEquals("test.txt", res.getTitle());
     assertEquals("text/plain", res.getMimeType());
     assertEquals("UTF-8", res.getCharsetName());
+    
 
     // 20210619T150226,17-04
     final OffsetDateTime expected = OffsetDateTime.of(2021, 6, 19, 14, 2, 26, 17 * 1000 * 1000 * 10, ZoneOffset.ofHours(-5));
@@ -1327,10 +1328,13 @@ public class TestDbDesign extends AbstractDesignTest {
         res.setMimeType(expectedMime);
         res.setFileNames(Collections.singleton(newFileName));
         assertIterableEquals(Collections.singleton(newFileName), res.getFileNames());
+        assertTrue(res.isNeedsRefresh());
+        res.setNeedsRefresh(false);
         res.save();
       }
       {
         FileResource res = design.getFileResource("file.css").get(); // $TITLE isn't updated above
+        assertFalse(res.isNeedsRefresh());
         assertIterableEquals(Collections.singleton(newFileName), res.getFileNames());
         byte[] content;
         try(
