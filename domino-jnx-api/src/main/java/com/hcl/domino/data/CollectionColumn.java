@@ -596,6 +596,8 @@ public interface CollectionColumn {
    */
   int getDisplayWidth();
   
+  CollectionColumn setDisplayWidth(int width);
+  
   /**
    * Retrieves the custom attributes set on this column.
    * 
@@ -604,7 +606,11 @@ public interface CollectionColumn {
    */
   String getExtraAttributes();
 
+  CollectionColumn setExtraAttributes(String attr);
+  
   String getFormula();
+
+  CollectionColumn setFormula(String formula);
 
   /**
    * Retrieves the hide-when formula for the column.
@@ -619,22 +625,27 @@ public interface CollectionColumn {
    */
   String getHideWhenFormula();
 
-  String getItemName();
+  CollectionColumn setHideWhenFormula(String formula);
 
+  String getItemName();
+  
   /**
    * Changes the programmatic column name
    * 
    * @param itemName new name
    * @return this column
+   * @since 1.2.4
    */
   CollectionColumn setItemName(String itemName);
-  
+
   /**
    * @return the delimiter to use when displaying multiple values
    * @since 1.0.27
    */
   ViewColumnFormat.ListDelimiter getListDisplayDelimiter();
 
+  CollectionColumn setListDisplayDelimiter(ViewColumnFormat.ListDelimiter delimiter);
+  
   int getPosition();
 
   /**
@@ -646,12 +657,16 @@ public interface CollectionColumn {
 
   String getTitle();
 
+  CollectionColumn setTitle(String title);
+
   /**
    * @return the total-row value to compute
    * @since 1.0.27
    */
   TotalType getTotalType();
 
+  CollectionColumn setTotalType(TotalType type);
+  
   boolean isConstant();
   
   /**
@@ -664,6 +679,8 @@ public interface CollectionColumn {
    */
   boolean isExtendToWindowWidth();
 
+  CollectionColumn setExtendToWindowWidth(boolean b);
+  
   boolean isHidden();
   
   /**
@@ -676,6 +693,8 @@ public interface CollectionColumn {
    */
   boolean isHiddenFromMobile();
   
+  CollectionColumn setHiddenFromMobile(boolean b);
+  
   /**
    * Determines whether column should be hidden from Notes clients below
    * version 6.
@@ -686,6 +705,8 @@ public interface CollectionColumn {
    */
   boolean isHiddenInPreV6();
 
+  CollectionColumn setHiddenInPreV6(boolean b);
+  
   /**
    * Determines whether a column's non-total rows should be hidden.
    * 
@@ -694,6 +715,8 @@ public interface CollectionColumn {
    */
   boolean isHideDetailRows();
 
+  CollectionColumn setHideDetailRows(boolean b);
+  
   /**
    * Determines whether the column's values should be shown as icons, either
    * as indexed values to stock icons or string names of image resources.
@@ -703,6 +726,8 @@ public interface CollectionColumn {
    */
   boolean isIcon();
 
+  CollectionColumn setIcon(boolean b);
+  
   /**
    * Determines whether the column should be resizable by the user in the UI.
    * 
@@ -711,6 +736,8 @@ public interface CollectionColumn {
    */
   boolean isResizable();
 
+  CollectionColumn setResizable(boolean b);
+  
   /**
    * Determines whether the column should be evaluated for response documents only.
    * 
@@ -718,6 +745,8 @@ public interface CollectionColumn {
    *         {@code false} otherwise
    */
   boolean isResponsesOnly();
+  
+  CollectionColumn setResponsesOnly(boolean b);
   
   /**
    * Determines whether this column is marked as being displayed as links when rendered
@@ -728,7 +757,11 @@ public interface CollectionColumn {
    */
   boolean isShowAsLinks();
 
+  CollectionColumn setShowAsLinks(boolean b);
+  
   boolean isShowTwistie();
+
+  CollectionColumn setShowTwistie(boolean b);
 
   /**
    * @return {@code true} if the column's hide-when formula should be used;
@@ -737,12 +770,16 @@ public interface CollectionColumn {
    */
   boolean isUseHideWhen();
   
+  CollectionColumn setUseHideWhen(boolean b);
+  
   /**
    * @return {@code true} if the column is defined by a shared column;
    *         {@code false} otherwise
    * @since 1.0.29
    */
   boolean isSharedColumn();
+  
+  CollectionColumn setSharedColumn(boolean b);
   
   /**
    * @return an {@link Optional} describing the name of the shared-column
@@ -752,12 +789,16 @@ public interface CollectionColumn {
    */
   Optional<String> getSharedColumnName();
   
+  CollectionColumn setSharedColumnName(String name);
+  
   /**
    * @return {@code true} if this column is marked as containing a name
    *         value; {@code false} otherwise
    * @since 1.0.29
    */
   boolean isNameColumn();
+  
+  CollectionColumn setNameColumn(boolean b);
   
   /**
    * @return an {@link Optional} describing the name of the column containing
@@ -766,6 +807,8 @@ public interface CollectionColumn {
    * @since 1.0.29
    */
   Optional<String> getOnlinePresenceNameColumn();
+  
+  CollectionColumn setOnlinePresenceNameColumn(String name);
   
   /**
    * Retrieves the image resource used for the expand/collapse twistie, if
@@ -778,6 +821,23 @@ public interface CollectionColumn {
    */
   Optional<CDResource> getTwistieImage();
   
+  CollectionColumn setTwistieImage(CDResource res);
+
+  /**
+   * Convenience function that sets the twistie image to a named image
+   * 
+   * @param name name of image resource
+   * @return this instance
+   */
+  CollectionColumn setTwistieImageName(String name);
+
+  /**
+   * Removes the twistie image
+   * 
+   * @return this instance
+   */
+  public CollectionColumn clearTwistieImage();
+  
   /**
    * Determines whether the column is marked as being user-editable.
    * 
@@ -786,6 +846,8 @@ public interface CollectionColumn {
    * @since 1.0.32
    */
   boolean isUserEditable();
+  
+  CollectionColumn setUserEditable(boolean b);
   
   /**
    * Determines whether the column's values should be treated as specifying the
@@ -796,6 +858,8 @@ public interface CollectionColumn {
    * @since 1.0.32
    */
   boolean isColor();
+  
+  CollectionColumn setColor(boolean b);
   
   /**
    * Determines whether the column represents a color value definable by the user
@@ -817,6 +881,8 @@ public interface CollectionColumn {
    * @since 1.0.32
    */
   boolean isHideTitle();
+  
+  CollectionColumn setHideTitle(boolean b);
   
   /**
    * Retrieves the font information for entry rows in this column.
@@ -869,16 +935,4 @@ public interface CollectionColumn {
    * @since 1.0.32
    */
   CompositeApplicationSettings getCompositeApplicationSettings();
-
-  CollectionColumn setFormula(String formula);
-
-  CollectionColumn setHideWhenFormula(String formula);
-
-  CollectionColumn setTitle(String title);
-
-  CollectionColumn setShowTwistie(boolean b);
-
-  CollectionColumn setUseHideWhen(boolean b);
-
-  CollectionColumn setHideTitle(boolean b);
 }

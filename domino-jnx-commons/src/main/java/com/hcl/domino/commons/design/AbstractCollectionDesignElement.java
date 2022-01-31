@@ -1129,6 +1129,18 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
       });
       return this;
     }
+
+    @Override
+    public DisplaySettings setBackgroundImageName(String name) {
+      setBackgroundImage(CDResource.newSharedImageByName(name));
+      return this;
+    }
+
+    @Override
+    public DisplaySettings clearBackgroundImage() {
+      setBackgroundImage(null);
+      return this;
+    }
     
     @Override
     public ImageRepeatMode getBackgroundImageRepeatMode() {

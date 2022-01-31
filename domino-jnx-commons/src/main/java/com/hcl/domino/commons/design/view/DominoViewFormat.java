@@ -39,6 +39,7 @@ import com.hcl.domino.design.format.ViewTableFormat;
 import com.hcl.domino.design.format.ViewTableFormat2;
 import com.hcl.domino.design.format.ViewTableFormat3;
 import com.hcl.domino.design.format.ViewTableFormat4;
+import com.hcl.domino.design.format.ViewTableFormat3.Flag;
 import com.hcl.domino.richtext.records.CDResource;
 
 /**
@@ -61,10 +62,6 @@ public class DominoViewFormat implements IAdaptable {
     this.format2 = ViewTableFormat2.newInstanceWithDefaults();
     this.format3 = ViewTableFormat3.newInstanceWithDefaults();
     this.format4 = ViewTableFormat4.newInstanceWithDefaults();
-  }
-  
-  public Document getParent() {
-    return doc;
   }
   
   /**
@@ -202,6 +199,8 @@ public class DominoViewFormat implements IAdaptable {
         }
       }
       return (T) colFormats;
+    } else if (Document.class == clazz) {
+      return (T) this.doc;
     }
     
     return null;
@@ -276,6 +275,12 @@ public class DominoViewFormat implements IAdaptable {
 
   public DominoViewFormat setBackgroundResource(CDResource backgroundResource) {
     this.backgroundResource = backgroundResource;
+    if (this.backgroundResource!=null) {
+      getFormat3(true).get().setFlag(Flag.HasBackgroundImage, true);
+    }
+    else {
+      getFormat3(true).get().setFlag(Flag.HasBackgroundImage, false);
+    }
     return this;
   }
   

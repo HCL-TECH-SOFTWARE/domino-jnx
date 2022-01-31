@@ -266,7 +266,18 @@ public interface ViewColumnFormat2 extends ResizableMemoryStructure {
     int twistieResourceLen = getTwistieResourceLength();
     if (twistieResourceLen>0) {
       MemoryStructureWrapperService memStructureService = MemoryStructureWrapperService.get();
-      CDResource res = memStructureService.newStructure(CDResource.class, twistieResourceLen);
+      CDResource res = memStructureService.newStructure(CDResource.class, twistieResourceLen - memStructureService.sizeOf(CDResource.class));
+      
+      ByteBuffer varData = getVariableData();
+      
+      //skip computed hide-when formula
+      int hideWhenFormulaLen = this.getHideWhenFormulaLength();
+      varData.position(hideWhenFormulaLen);
+      
+      byte[] twistieResourceData = new byte[twistieResourceLen];
+      varData.get(twistieResourceData);
+      res.getData().put(twistieResourceData);
+      
       return Optional.of(res);
     }
     else {
@@ -275,14 +286,25 @@ public interface ViewColumnFormat2 extends ResizableMemoryStructure {
   }
   
   default ViewColumnFormat2 setTwistieResource(CDResource res) {
-    int hideWhenFormulaLen = this.getHideWhenFormulaLength();
-    ByteBuffer resData = res.getData();
-    int twistieResourceLen = resData.capacity();
-    
-    resizeVariableData(hideWhenFormulaLen + twistieResourceLen);
+    //save hide-when formula data
     ByteBuffer varData = getVariableData();
-    varData.position(hideWhenFormulaLen);
-    varData.put(resData);
+    int hideWhenFormulaLen = this.getHideWhenFormulaLength();
+    byte[] hideWhenFormulaData = new byte[hideWhenFormulaLen];
+    varData.get(hideWhenFormulaData);
+    
+    int newTwistieResourceLen = 0;
+    if (res!=null) {
+      ByteBuffer newResData = res.getData();
+      newTwistieResourceLen = newResData.capacity();
+    }
+    
+    resizeVariableData(hideWhenFormulaLen + newTwistieResourceLen);
+    
+    varData = getVariableData();
+    varData.put(hideWhenFormulaData);
+    varData.put(res.getData());
+    
+    setTwistieResourceLength(newTwistieResourceLen);
     
     return this;
   }

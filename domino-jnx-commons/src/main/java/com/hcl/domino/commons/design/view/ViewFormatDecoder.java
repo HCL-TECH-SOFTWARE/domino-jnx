@@ -154,7 +154,7 @@ public class ViewFormatDecoder {
           ByteBuffer buf = readBuffer(data, twistieLen);
           CDResource res = MemoryStructureUtil.newStructure(CDResource.class, twistieLen - MemoryStructureUtil.sizeOf(CDResource.class));
           res.getData().put(buf);
-          fmtVarData.put(buf);
+          fmtVarData.put(res.getData());
         }
       }
 		}
@@ -172,16 +172,20 @@ public class ViewFormatDecoder {
 		
 		// Background resource link
     int cdresLen = MemoryStructureUtil.sizeOf(CDResource.class);
+    
     if(data.remaining() < 2) {
       return result;
     }
 		short sig = data.getShort(data.position());
 		CDResource backgroundRes = null;
-		if(data.hasRemaining() && sig == RichTextConstants.SIG_CD_HREF) {
+		if(format3.getFlags().contains(ViewTableFormat3.Flag.HasBackgroundImage) &&
+		    data.hasRemaining() && sig == RichTextConstants.SIG_CD_HREF) {
+		  
 			// Retrieve the fixed structure to determine the full length of the record
 		  ByteBuffer tempBuf = subBuffer(data, MemoryStructureUtil.sizeOf(CDResource.class));
-			CDResource res = MemoryStructureUtil.forStructure(CDResource.class, () -> tempBuf);
-			int len = res.getHeader().getLength();
+		  CDResource res = MemoryStructureUtil.forStructure(CDResource.class, () -> tempBuf);
+
+		  int len = res.getHeader().getLength();
 			
 			ByteBuffer buf = readBuffer(data, len);
 			backgroundRes = MemoryStructureUtil.newStructure(CDResource.class, len - cdresLen);

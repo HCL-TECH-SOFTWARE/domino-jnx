@@ -41,6 +41,7 @@ import com.hcl.domino.design.format.ViewColumnFormat6;
 import com.hcl.domino.design.format.ViewTableFormat;
 import com.hcl.domino.design.format.ViewTableFormat2;
 import com.hcl.domino.design.format.ViewTableFormat3;
+import com.hcl.domino.design.format.ViewTableFormat3.Flag;
 import com.hcl.domino.design.format.ViewTableFormat4;
 import com.hcl.domino.richtext.records.CDResource;
 
@@ -160,12 +161,22 @@ public class ViewFormatEncoder {
       buf.put(fmt2FixedData);
     }
 
+    CDResource backgroundResource = viewFormat.getBackgroundResource();
+
     {
       //write VIEW_TABLE_FORMAT3
       ViewTableFormat3 fmt3 = viewFormat.getAdapter(ViewTableFormat3.class);
       if (fmt3==null) {
         fmt3 = ViewTableFormat3.newInstanceWithDefaults();
       }
+      
+      if (backgroundResource!=null) {
+        fmt3.setFlag(Flag.HasBackgroundImage, true);
+      }
+      else {
+        fmt3.setFlag(Flag.HasBackgroundImage, false);
+      }
+      
       ByteBuffer fmt3Data = fmt3.getData();
       int fmt3Capacity = fmt3Data.capacity();
       
@@ -215,7 +226,6 @@ public class ViewFormatEncoder {
       buf.put(fmt4Data);
     }
 
-    CDResource backgroundResource = viewFormat.getBackgroundResource();
     if (backgroundResource!=null) {
       //write background image
       ByteBuffer backgroundResourceData = backgroundResource.getData();

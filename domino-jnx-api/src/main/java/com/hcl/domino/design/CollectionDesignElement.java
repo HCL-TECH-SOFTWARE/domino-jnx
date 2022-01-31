@@ -485,6 +485,21 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
     DisplaySettings setBackgroundImage(CDResource resource);
     
     /**
+     * Convenience function that sets the background image to
+     * 
+     * @param name image resource name
+     * @return this instance
+     */
+    DisplaySettings setBackgroundImageName(String name);
+    
+    /**
+     * Removes the background image
+     * 
+     * @return this instance
+     */
+    DisplaySettings clearBackgroundImage();
+    
+    /**
      * Retrieves the repeat mode for the background image.
      * 
      * @return an {@link ImageRepeatMode} for the background image

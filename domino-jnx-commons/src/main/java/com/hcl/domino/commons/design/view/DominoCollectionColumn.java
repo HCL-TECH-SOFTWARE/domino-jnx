@@ -26,6 +26,7 @@ import java.util.Set;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionColumn;
+import com.hcl.domino.data.Document;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.data.NotesFont;
 import com.hcl.domino.design.DesignColorsAndFonts;
@@ -51,6 +52,8 @@ import com.hcl.domino.design.format.ViewColumnFormat5;
 import com.hcl.domino.design.format.ViewColumnFormat6;
 import com.hcl.domino.design.format.WeekFormat;
 import com.hcl.domino.design.format.YearFormat;
+import com.hcl.domino.design.format.ViewColumnFormat.ListDelimiter;
+import com.hcl.domino.design.format.ViewColumnFormat2.Flag3;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.CurrencyFlag;
 import com.hcl.domino.richtext.records.CurrencyType;
@@ -148,12 +151,29 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   }
   
   @Override
+  public CollectionColumn setDisplayWidth(int width) {
+    this.getFormat1().setDisplayWidth(width);
+    markViewFormatDirty();
+    return this;
+  }
+  
+  @Override
   public String getExtraAttributes() {
     return getFormat6(false)
       .map(ViewColumnFormat6::getAttributes)
       .orElse(""); //$NON-NLS-1$
   }
 
+  @Override
+  public CollectionColumn setExtraAttributes(String attr) {
+    getFormat6(true)
+    .ifPresent((fmt6) -> {
+      fmt6.setAttributes(attr);
+      markViewFormatDirty();
+    });
+    return this;
+  }
+  
   @Override
   public String getFormula() {
     return this.getFormat1().getFormula();
@@ -189,7 +209,6 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   public CollectionColumn setItemName(String itemName) {
     this.getFormat1().setItemName(itemName);
     markViewFormatDirty();
-    
     return this;
   }
 
@@ -198,6 +217,13 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     return this.getFormat1().getListDelimiter();
   }
 
+  @Override
+  public CollectionColumn setListDisplayDelimiter(ListDelimiter delimiter) {
+    this.getFormat1().setListDelimiter(delimiter);
+    markViewFormatDirty();
+    return this;
+  }
+  
   @Override
   public int getPosition() {
     return this.parentViewFormat.getPosition(this);
@@ -249,6 +275,38 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   }
 
   @Override
+  public CollectionColumn setTotalType(TotalType type) {
+    ViewColumnFormat.StatType newStatType;
+    
+    switch (type) {
+    case AveragePerSubcategory:
+      newStatType = ViewColumnFormat.StatType.AVG_PER_CHILD;
+      break;
+    case Average:
+      newStatType = ViewColumnFormat.StatType.AVG_PER_ENTRY;
+      break;
+    case Percent:
+      newStatType = ViewColumnFormat.StatType.PCT_OVERALL;
+      break;
+    case PercentOfParentCategory:
+      newStatType = ViewColumnFormat.StatType.PCT_PARENT;
+      break;
+    case Total:
+      newStatType = ViewColumnFormat.StatType.TOTAL;
+      break;
+    case None:
+      newStatType = ViewColumnFormat.StatType.NONE;
+      break;
+      default:
+        throw new IllegalArgumentException(MessageFormat.format("Unknown TotalType: {0}", type));
+    }
+    
+    this.getFormat1().setTotalType(newStatType);
+    markViewFormatDirty();
+    return this;
+  }
+  
+  @Override
   public boolean isConstant() {
     return this.getFormat1().getConstantValueLength() > 0;
   }
@@ -261,6 +319,16 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
       .orElse(false);
   }
 
+  @Override
+  public CollectionColumn setExtendToWindowWidth(boolean b) {
+    getFormat6(true)
+    .ifPresent((fmt6) -> {
+      fmt6.setFlag(ViewColumnFormat6.Flag.ExtendColWidthToAvailWindowWidth, b);
+      markViewFormatDirty();
+    });
+    return this;
+  }
+  
   @Override
   public boolean isHidden() {
     if(this.format1.getFlags().contains(ViewColumnFormat.Flag.Hidden)) {
@@ -297,6 +365,16 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   }
   
   @Override
+  public CollectionColumn setHiddenFromMobile(boolean b) {
+    getFormat2(true)
+    .ifPresent((fmt2) -> {
+      fmt2.setCustomHiddenFlag(ViewColumnFormat2.HiddenFlag.MOBILE, b);
+      markViewFormatDirty();
+    });
+    return this;
+  }
+  
+  @Override
   public boolean isHiddenInPreV6() {
     return getFormat2(false)
       .map(ViewColumnFormat2::getFlags)
@@ -305,23 +383,61 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   }
 
   @Override
+  public CollectionColumn setHiddenInPreV6(boolean b) {
+    getFormat2(true)
+    .ifPresent((fmt2) -> {
+      fmt2.setFlag(ViewColumnFormat2.Flag3.HideInR5, b);
+      markViewFormatDirty();
+    });
+    return this;
+  }
+  
+  @Override
   public boolean isHideDetailRows() {
     return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.HideDetail);
   }
 
+  @Override
+  public CollectionColumn setHideDetailRows(boolean b) {
+    this.getFormat1().setFlag(ViewColumnFormat.Flag.HideDetail, b);
+    markViewFormatDirty();
+    return this;
+  }
+  
   @Override
   public boolean isIcon() {
     return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.Icon);
   }
 
   @Override
+  public CollectionColumn setIcon(boolean b) {
+    this.getFormat1().setFlag(ViewColumnFormat.Flag.Icon, b);
+    markViewFormatDirty();
+    return this;
+  }
+  
+  @Override
   public boolean isResizable() {
     return !this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.NoResize);
   }
 
   @Override
+  public CollectionColumn setResizable(boolean b) {
+    getFormat1().setFlag(ViewColumnFormat.Flag.NoResize, !b);
+    markViewFormatDirty();
+    return this;
+  }
+  
+  @Override
   public boolean isResponsesOnly() {
     return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.Response);
+  }
+  
+  @Override
+  public CollectionColumn setResponsesOnly(boolean b) {
+    this.getFormat1().setFlag(ViewColumnFormat.Flag.Response, b);
+    markViewFormatDirty();
+    return this;
   }
   
   @Override
@@ -333,10 +449,27 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   }
   
   @Override
+  public CollectionColumn setSharedColumn(boolean b) {
+    getFormat2(true)
+    .ifPresent((fmt2) -> {
+      fmt2.setFlag(ViewColumnFormat2.Flag3.IsSharedColumn, b);
+      markViewFormatDirty();
+    });
+    return this;
+  }
+  
+  @Override
   public boolean isShowAsLinks() {
     return this.getFormat1().getFlags2().contains(ViewColumnFormat.Flag2.ShowValuesAsLinks);
   }
 
+  @Override
+  public CollectionColumn setShowAsLinks(boolean b) {
+    getFormat1().setFlag(ViewColumnFormat.Flag2.ShowValuesAsLinks, b);
+    markViewFormatDirty();
+    return this;
+  }
+  
   @Override
   public boolean isShowTwistie() {
     return this.getFormat1().getFlags().contains(ViewColumnFormat.Flag.Twistie);
@@ -370,10 +503,26 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   }
   
   @Override
+  public CollectionColumn setSharedColumnName(String name) {
+    this.sharedColumnName = name;
+    return this;
+  }
+  
+  @Override
   public boolean isNameColumn() {
     return getFormat5(false)
       .map(fmt -> fmt.getFlags().contains(ViewColumnFormat5.Flag.IS_NAME))
       .orElse(false);
+  }
+  
+  @Override
+  public CollectionColumn setNameColumn(boolean b) {
+    getFormat5(true)
+    .ifPresent((fmt5) -> {
+      fmt5.setFlag(ViewColumnFormat5.Flag.IS_NAME, b);
+      markViewFormatDirty();
+    });
+    return this;
   }
   
   @Override
@@ -383,14 +532,37 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   }
   
   @Override
+  public CollectionColumn setOnlinePresenceNameColumn(String name) {
+    getFormat5(true)
+    .ifPresent((fmt5) -> {
+      fmt5.setDnColumnName(name);
+      markViewFormatDirty();
+    });
+    return this;
+  }
+  
+  @Override
   public Optional<CDResource> getTwistieImage() {
     return getFormat2(false)
         .flatMap(fmt -> fmt.getTwistieResource());
   }
   
-  public CollectionColumn setTwistieImage(CDResource res) {
-    getFormat2(true).get().setTwistieResource(res);
+  @Override
+  public CollectionColumn clearTwistieImage() {
+    getFormat2(true).get().setTwistieResource(null).setFlag(Flag3.TwistieResource, false);
     markViewFormatDirty();
+    return this;
+  }
+  
+  public CollectionColumn setTwistieImage(CDResource res) {
+    getFormat2(true).get().setTwistieResource(res).setFlag(Flag3.TwistieResource, true);
+    markViewFormatDirty();
+    return this;
+  }
+
+  @Override
+  public CollectionColumn setTwistieImageName(String name) {
+    setTwistieImage(CDResource.newSharedImageByName(name));
     return this;
   }
   
@@ -403,11 +575,31 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   }
   
   @Override
+  public CollectionColumn setUserEditable(boolean b) {
+    getFormat2(true)
+    .ifPresent((fmt2) -> {
+      fmt2.setFlag(ViewColumnFormat2.Flag3.IsColumnEditable, b);
+      markViewFormatDirty();
+    });
+    return this;
+  }
+  
+  @Override
   public boolean isColor() {
     return getFormat2(false)
       .map(ViewColumnFormat2::getFlags)
       .map(flags -> flags.contains(ViewColumnFormat2.Flag3.Color))
       .orElse(false);
+  }
+  
+  @Override
+  public CollectionColumn setColor(boolean b) {
+    getFormat2(true)
+    .ifPresent((fmt2) -> {
+      fmt2.setFlag(ViewColumnFormat2.Flag3.Color, b);
+      markViewFormatDirty();
+    });
+    return this;
   }
   
   @Override
@@ -448,7 +640,8 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   
   @Override
   public NotesFont getRowFont() {
-    return new TextFontItemNotesFont(this.parentViewFormat.getParent(), format1.getFontStyle());
+    Document doc = Objects.requireNonNull(this.parentViewFormat.getAdapter(Document.class));
+    return new TextFontItemNotesFont(doc, format1.getFontStyle());
   }
   
   @Override
@@ -456,7 +649,8 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     FontStyle style = getFormat2(false)
       .map(ViewColumnFormat2::getHeaderFontStyle)
       .orElseGet(DesignColorsAndFonts::viewHeaderFont);
-    return new TextFontItemNotesFont(this.parentViewFormat.getParent(), style);
+    Document doc = Objects.requireNonNull(this.parentViewFormat.getAdapter(Document.class));
+    return new TextFontItemNotesFont(doc, style);
   }
   
   /**
