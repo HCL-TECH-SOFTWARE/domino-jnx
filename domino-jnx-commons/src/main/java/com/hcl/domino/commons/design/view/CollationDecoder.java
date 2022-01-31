@@ -25,7 +25,6 @@ import java.util.List;
 
 import com.hcl.domino.commons.misc.ODSTypes;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
-import com.hcl.domino.commons.util.DumpUtil;
 import com.hcl.domino.design.format.CollateDescriptor;
 import com.hcl.domino.design.format.Collation;
 
@@ -38,15 +37,6 @@ import com.hcl.domino.design.format.Collation;
 public class CollationDecoder {
 
   public static DominoCollationInfo decodeCollation(ByteBuffer data) {
-    {
-      int pos = data.position();
-      int remaining = data.remaining();
-      byte[] remainingData = new byte[remaining];
-      data.get(remainingData);
-      System.out.println(DumpUtil.dumpAsAscii(remainingData));
-      data.position(pos);
-    }
-    
     /*
      * Data contains:
      * - COLLATION

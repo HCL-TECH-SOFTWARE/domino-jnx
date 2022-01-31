@@ -28,7 +28,6 @@ import java.util.List;
 
 import com.hcl.domino.commons.misc.ODSTypes;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
-import com.hcl.domino.commons.util.DumpUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.design.format.ViewCalendarFormat;
@@ -304,18 +303,6 @@ public class ViewFormatDecoder {
       return result;
     }
 
-		{
-		  int pos = data.position();
-		  int remaining = data.remaining();
-		  byte[] remainingData = new byte[remaining];
-		  data.get(remainingData);
-		  System.out.println(DumpUtil.dumpAsAscii(remainingData));
-		  data.position(pos);
-		  
-	    short v1 = data.getShort(data.position());
-	    short v2 = ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE6;
-		}
-		
 		// TODO figure out where these ghost bits come from. I'd thought they were "ghost" shared-column names, but
 		//      it turns out they were instead hidden column titles. It seems in practice (test data and mail12.ntf) that
 		//      they're all 0, so the below algorithm "works" to move past them
