@@ -104,6 +104,8 @@ import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.NotesBitmap;
 import com.hcl.domino.richtext.RichTextRecordList;
+import com.hcl.domino.richtext.records.CDActionHeader;
+import com.hcl.domino.richtext.records.CDActionModifyField;
 import com.hcl.domino.richtext.records.CDAnchor;
 import com.hcl.domino.richtext.records.CDBegin;
 import com.hcl.domino.richtext.records.CDEnd;
@@ -154,7 +156,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 public class TestDbDesignForms extends AbstractDesignTest {
   public static final String ENV_DBDESIGN_FOLDER = "DBDESIGN_FORMFOLDER";
   
-  public static final int EXPECTED_IMPORT_FORMS = 10;
+  public static final int EXPECTED_IMPORT_FORMS = 11;
   public static final int EXPECTED_IMPORT_SUBFORMS = 2;
 
   private static String dbPath;
@@ -1587,6 +1589,53 @@ public class TestDbDesignForms extends AbstractDesignTest {
         assertEquals(1, prop.getPropId());
         assertEquals("FR-FR", prop.getLangName());
       }
+    }
+  }
+  
+  @Test
+  public void testOnPageButton() {
+    DbDesign design = database.getDesign();
+    Form form = design.getForm("Button Form").get();
+    List<?> body = form.getBody();
+    
+    {
+      CDHotspotBegin button = extract(body, 0, CDHotspotBegin.class);
+      assertEquals(HotspotType.BUTTON, button.getHotspotType());
+      assertEquals("@StatusBar(\"I am button output\")", button.getFormula().get());
+    }
+    {
+      CDHotspotBegin button = extract(body, 1, CDHotspotBegin.class);
+      assertEquals(HotspotType.BUTTON, button.getHotspotType());
+      assertEquals("'++LotusScript Development Environment:2:5:(Options):0:66\n"
+          + "\n"
+          + "'++LotusScript Development Environment:2:5:(Forward):0:1\n"
+          + "Declare Sub Click(Source As Button)\n"
+          + "\n"
+          + "'++LotusScript Development Environment:2:5:(Declarations):0:2\n"
+          + "\n"
+          + "'++LotusScript Development Environment:2:2:BindEvents:1:129\n"
+          + "Private Sub BindEvents(Byval Objectname_ As String)\n"
+          + "\tStatic Source As BUTTON\n"
+          + "\tSet Source = Bind(Objectname_)\n"
+          + "\tOn Event Click From Source Call Click\n"
+          + "End Sub\n"
+          + "\n"
+          + "'++LotusScript Development Environment:2:2:Click:1:12\n"
+          + "Sub Click(Source As Button)\n"
+          + "\tMsgbox \"hi\"\n"
+          + "End Sub\n"
+          + "", button.getScript().get());
+    }
+    {
+      CDHotspotBegin button = extract(body, 2, CDHotspotBegin.class);
+      assertEquals(HotspotType.BUTTON, button.getHotspotType());
+      
+      List<RichTextRecord<?>> actions = button.getActions().get();
+      assertInstanceOf(CDActionHeader.class, actions.get(0));
+      CDActionModifyField field = (CDActionModifyField)actions.get(1);
+      assertTrue(field.getFlags().contains(CDActionModifyField.Flag.REPLACE));
+      assertEquals("DateComposed", field.getFieldName());
+      assertEquals("1/1/2022", field.getValue());
     }
   }
   

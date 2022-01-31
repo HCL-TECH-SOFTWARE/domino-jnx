@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.jna.internal.ItemDecoder;
@@ -32,6 +33,8 @@ import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.misc.LMBCSCharsetProvider.LMBCSCharset;
 import com.hcl.domino.richtext.records.RecordType;
+import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.records.RecordType.Area;
 import com.sun.jna.Memory;
 import com.sun.jna.ptr.ShortByReference;
 
@@ -120,5 +123,12 @@ public class JNANativeItemCoder implements NativeItemCoder {
       default:
         return LMBCSCharset.INSTANCE;
 	  }
+	}
+	
+	@Override
+	public List<RichTextRecord<?>> readMemoryRecords(ByteBuffer data, Area area) {
+	  byte[] val = new byte[data.remaining()];
+	  data.get(val);
+	  return RichTextUtil.readMemoryRecords(val, area);
 	}
 }
