@@ -52,6 +52,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
+import com.hcl.domino.commons.richtext.records.GenericBSIGRecord;
+import com.hcl.domino.commons.richtext.records.GenericLSIGRecord;
+import com.hcl.domino.commons.richtext.records.GenericWSIGRecord;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.ItemDataType;
@@ -624,7 +627,7 @@ public class TestDbDesign extends AbstractDesignTest {
     DbDesign design = database.getDesign();
     
     List<Page> pages = design.getPages().collect(Collectors.toList());
-    assertEquals(3, pages.size());
+    assertEquals(4, pages.size());
     assertTrue(pages.stream().anyMatch(p -> "Navigation Header".equals(p.getTitle())));
     assertTrue(pages.stream().anyMatch(p -> "Test Page".equals(p.getTitle())));
     
@@ -1507,6 +1510,17 @@ public class TestDbDesign extends AbstractDesignTest {
         assertEquals("bazbaz", page.getTemplateName().get());
       }
     });
+  }
+  
+  @Test
+  public void testImportedNav() {
+    DbDesign design = database.getDesign();
+    Page page = design.getPage("ImportedNav").get();
+    
+    List<?> body = page.getBody();
+    assertFalse(body.stream().anyMatch(GenericBSIGRecord.class::isInstance));
+    assertFalse(body.stream().anyMatch(GenericWSIGRecord.class::isInstance));
+    assertFalse(body.stream().anyMatch(GenericLSIGRecord.class::isInstance));
   }
   
 }
