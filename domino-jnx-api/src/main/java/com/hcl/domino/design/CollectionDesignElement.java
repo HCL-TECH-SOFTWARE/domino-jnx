@@ -40,7 +40,9 @@ import com.hcl.domino.richtext.structures.RawColorValue;
 import com.hcl.domino.security.AclLevel;
 
 /**
- * Describes a collection design element, i.e. a view or folder
+ * Describes a collection design element, i.e. a view or folder.<br>
+ * <br>
+ * APIs to create new views/folders and edit its design has been added in version 1.2.4.
  */
 public interface CollectionDesignElement<T extends CollectionDesignElement<?>> extends DesignElement.NamedDesignElement, DesignElement.XPageAlternativeElement,
   DesignElement.ThemeableClassicElement, DesignElement.AutoFrameElement, DesignElement.ActionBarElement,
