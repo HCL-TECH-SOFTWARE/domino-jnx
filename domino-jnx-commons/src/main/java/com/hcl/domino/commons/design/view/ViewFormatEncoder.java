@@ -27,7 +27,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.data.NativeItemCoder.LmbcsVariant;
@@ -55,7 +54,7 @@ public class ViewFormatEncoder {
 
   /**
    * Encodes a {@link DominoViewFormat} describing the style of a view and of its columns in
-   * binary form. The result is expected to be readible via {@link ViewFormatDecoder#decodeViewFormat(com.sun.jna.Pointer, int)}
+   * binary form. The result is expected to be readable via {@link ViewFormatDecoder#decodeViewFormat(com.hcl.domino.data.Document, ByteBuffer)}
    * without data loss.
    * 
    * @param viewFormat view design

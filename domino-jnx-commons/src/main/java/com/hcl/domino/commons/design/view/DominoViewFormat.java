@@ -89,7 +89,7 @@ public class DominoViewFormat implements IAdaptable {
   /**
    * Removes a view column format
    * 
-   * @param index column index
+   * @param column column to remove
    */
   public void removeColumn(CollectionColumn column) {
     final ViewTableFormat format1 = Objects.requireNonNull(this.format1, "VIEW_TABLE_FORMAT not read");

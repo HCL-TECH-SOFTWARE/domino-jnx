@@ -1158,7 +1158,7 @@ public interface Document extends TypedAccess, IAdaptable {
   Document setDocumentClass(Collection<DocumentClass> docClass);
 
   /**
-   * Writes a primary key information to the note. T>his primary key can be used
+   * Writes a primary key information to the note. This primary key can be used
    * for
    * efficient note retrieval without any lookup views.<br>
    * <br>

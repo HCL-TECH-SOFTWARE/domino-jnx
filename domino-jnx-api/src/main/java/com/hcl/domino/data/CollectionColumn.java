@@ -61,8 +61,8 @@ public interface CollectionColumn {
     /**
      * Toggles the category attribute
      * 
-     * @param b
-     * @return
+     * @param b new value
+     * @return this instance
      */
     SortConfiguration setCategory(boolean b);
     

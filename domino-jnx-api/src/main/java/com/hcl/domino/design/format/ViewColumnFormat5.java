@@ -102,8 +102,10 @@ public interface ViewColumnFormat5 extends ResizableMemoryStructure {
 
   
   /**
-   * This method does not seem to 
-   * @return
+   * This method does always seem to return an empty string. Shared column names
+   * are stored in a different place as packed strings.
+   * 
+   * @return empty string
    */
   default String getSharedColumnAlias() {
     return StructureSupport.extractStringValue(this,
