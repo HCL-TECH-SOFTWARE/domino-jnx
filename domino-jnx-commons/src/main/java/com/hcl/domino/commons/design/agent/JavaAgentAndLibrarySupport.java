@@ -808,5 +808,19 @@ public class JavaAgentAndLibrarySupport {
           }
         });
   }
+  
+  public boolean isCompileDebug() {
+    String flagsExt = getDocument().getAsText(NotesConstants.DESIGN_FLAGS_EXTENDED, ' ');
+    return flagsExt.contains(NotesConstants.DESIGN_FLAGEXT_JAVADEBUG);
+  }
+  
+  public void setCompileDebug(boolean debug) {
+    String flagsExt = getDocument().getAsText(NotesConstants.DESIGN_FLAGS_EXTENDED, ' ');
+    if(debug && !flagsExt.contains(NotesConstants.DESIGN_FLAGEXT_JAVADEBUG)) {
+      getDocument().replaceItemValue(NotesConstants.DESIGN_FLAGS_EXTENDED, flagsExt + NotesConstants.DESIGN_FLAGEXT_JAVADEBUG);
+    } else if(!debug && flagsExt.contains(NotesConstants.DESIGN_FLAGEXT_JAVADEBUG)) {
+      getDocument().replaceItemValue(NotesConstants.DESIGN_FLAGS_EXTENDED, flagsExt.replace(NotesConstants.DESIGN_FLAGEXT_JAVADEBUG, "")); //$NON-NLS-1$
+    }
+  }
 
 }

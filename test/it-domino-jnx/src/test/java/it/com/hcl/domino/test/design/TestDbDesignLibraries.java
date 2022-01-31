@@ -93,6 +93,8 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
     final JavaLibrary lib = (JavaLibrary) scriptLibrary;
     assertEquals("%%source%%.jar", lib.getSourceAttachmentName().get());
     assertEquals("%%object%%.jar", lib.getObjectAttachmentName().get());
+
+    assertFalse(lib.isCompileDebug());
     
     String unid = scriptLibrary.getDocument().getUNID();
     Optional<ScriptLibrary> optLib = design.getDesignElementByUNID(unid);
@@ -107,8 +109,13 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
     assertInstanceOf(JavaLibrary.class, scriptLibrary);
 
     final JavaLibrary lib = (JavaLibrary) scriptLibrary;
-    assertFalse(lib.getSourceAttachmentName().isPresent());
-    assertFalse(lib.getObjectAttachmentName().isPresent());
+    assertEquals("c:\\Notes\\Data", lib.getCodeFilesystemPath());
+    assertTrue(lib.getSourceAttachmentName().isPresent());
+    assertTrue(lib.getObjectAttachmentName().isPresent());
+
+    assertTrue(lib.isCompileDebug());
+    lib.setCompileDebug(false);
+    assertFalse(lib.isCompileDebug());
   }
 
   @Test

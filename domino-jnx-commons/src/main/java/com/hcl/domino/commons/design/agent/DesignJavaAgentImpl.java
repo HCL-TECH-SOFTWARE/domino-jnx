@@ -170,4 +170,15 @@ public class DesignJavaAgentImpl extends AbstractDesignAgentImpl<DesignJavaAgent
   public Optional<InputStream> getSourceAttachment() {
    return designSupport.getSourceAttachment();
   }
+  
+  @Override
+  public boolean isCompileDebug() {
+    return designSupport.isCompileDebug();
+  }
+  
+  @Override
+  public DesignJavaAgent setCompileDebug(boolean debug) {
+    designSupport.setCompileDebug(debug);
+    return this;
+  }
 }

@@ -221,6 +221,27 @@ public interface JavaAgentOrLibrary<T extends JavaAgentOrLibrary<?>> extends Des
    *         one otherwise
    * @since 1.0.43
    */
-  public Optional<InputStream> getSourceAttachment();
+  Optional<InputStream> getSourceAttachment();
+  
+  /**
+   * Determines whether the Java agent or library is configured to be compiled
+   * with debug information.
+   * 
+   * @return {@code true} if Java code should be compiled with debug information;
+   *         {@code false} otherwise
+   * @since 1.1.2
+   */
+  boolean isCompileDebug();
+  
+  /**
+   * Sets whether the Java agent or library is configured to be compiled
+   * with debug information.
+   * 
+   * @param debug {@code true} if Java code should be compiled with debug
+   *              information; {@code false} otherwise
+   * @return this instance
+   * @since 1.1.2
+   */
+  T setCompileDebug(boolean debug);
   
 }

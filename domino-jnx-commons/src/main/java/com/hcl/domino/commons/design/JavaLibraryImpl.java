@@ -171,5 +171,16 @@ public class JavaLibraryImpl extends AbstractScriptLibrary<JavaLibrary> implemen
   public Optional<InputStream> getSourceAttachment() {
    return designSupport.getSourceAttachment();
   }
+  
+  @Override
+  public boolean isCompileDebug() {
+    return designSupport.isCompileDebug();
+  }
+  
+  @Override
+  public JavaLibrary setCompileDebug(boolean debug) {
+    designSupport.setCompileDebug(debug);
+    return this;
+  }
 
 }

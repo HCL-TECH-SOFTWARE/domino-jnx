@@ -92,7 +92,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
-  public static final int EXPECTED_IMPORT_AGENTS = 25;
+  public static final int EXPECTED_IMPORT_AGENTS = 26;
   private static String dbPath;
 
   @AfterAll
@@ -849,5 +849,17 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
         + "FIELD DeliveredDate := @Unavailable;\n"
         + "FIELD Categories := @Unavailable;"), toLf(formulaAgent.getFormula().get()));
     assertEquals(DesignFormulaAgent.DocumentAction.MODIFY, formulaAgent.getDocumentAction().get());
+  }
+  
+  @Test
+  public void testJavaAgent() {
+    DbDesign design = database.getDesign();
+    DesignJavaAgent agent = (DesignJavaAgent)design.getAgent("java agent").get();
+    
+    assertTrue(agent.isCompileDebug());
+    agent.setCompileDebug(false);
+    assertFalse(agent.isCompileDebug());
+    
+    assertEquals("test.OtherMainClass.class", agent.getMainClassName());
   }
 }

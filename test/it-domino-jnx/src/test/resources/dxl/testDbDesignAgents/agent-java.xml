@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding='utf-8'?>
+<note class='filter' xmlns='http://www.lotus.com/dxl' version='12.0' maintenanceversion='1.0'>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='msdos'
+ compression='none' flags='sign' encoding='none' name='%%source%%.jar' size='761'>
+<created><datetime dst='true'>20210408T163700,75-04</datetime></created>
+<modified><datetime>20220131T150649,80-05</datetime></modified><filedata>
+UEsDBBQACAgIANh4P1QAAAAAAAAAAAAAAAAOAAAASmF2YUFnZW50LmphdmFVjrGOwkAMRHsk/mHK
+5IrwAYgCTjRIdw00lGZjhdWFdbR2EAjl30miAHsuvJ7VG3v8pZFoqMVaLUq5+CDF13I+m8+a9lR7
+B1eTKnZ0pXXFwcA341AqRrUhZTwGGn1Njqv4Er9irD/kQ5Z/AMDifZB4155VvQTo9K5QsU2fWb5M
+0fHitwTrI4BSsXrZi96cYuOGdMdigewobYSTklEJK84cOf9QHRyZO2fbm+PGhkic/4/MRRN9sL2R
++ztEcpzm7Map790TUEsHCLO9HTDEAAAAWgEAAFBLAwQUAAgICADYeD9UAAAAAAAAAAAAAAAAFAAA
+AHRlc3QvT3RoZXJDbGFzcy5qYXZhK0hMzk5MT1UoSS0usebl4uUqKE3KyUxWSM5JLC5W8C/JSC1y
+BjOrQZK1vFwAUEsHCCzps3otAAAAMQAAAFBLAwQUAAgICADYeD9UAAAAAAAAAAAAAAAAGAAAAHRl
+c3QvT3RoZXJNYWluQ2xhc3MuamF2YT2MQQqDQAwA74H8Iec96AN6sj2XviFdgy6Nm8VEKEj/XvTg
+bQaGaZw/PAmFeNwQEMrSbA1Si8270ZZSrRsmqXFnl7PoU0KgRLOo2kE9QtveWjJlZXd6xSzrk0t9
+nCrfkDo6XRfaj80P4Q9QSwcIe7bh2moAAAB9AAAAUEsBAhQAFAAICAgA2Hg/VLO9HTDEAAAAWgEA
+AA4AAAAAAAAAAAAAAAAAAAAAAEphdmFBZ2VudC5qYXZhUEsBAhQAFAAICAgA2Hg/VCzps3otAAAA
+MQAAABQAAAAAAAAAAAAAAAAAAAEAAHRlc3QvT3RoZXJDbGFzcy5qYXZhUEsBAhQAFAAICAgA2Hg/
+VHu24dpqAAAAfQAAABgAAAAAAAAAAAAAAAAAbwEAAHRlc3QvT3RoZXJNYWluQ2xhc3MuamF2YVBL
+BQYAAAAAAwADAMQAAAAfAgAAAAA=
+</filedata></file></object></item>
+<item name='$FILE' summary='true' sign='true' seal='true'><object><file hosttype='msdos'
+ compression='none' flags='sign' encoding='none' name='%%object%%.jar' size='1217'>
+<created><datetime dst='true'>20210408T163700,75-04</datetime></created>
+<modified><datetime>20220131T150649,80-05</datetime></modified><filedata>
+UEsDBBQACAgIANh4P1QAAAAAAAAAAAAAAAAPAAAASmF2YUFnZW50LmNsYXNzbZHJTsMwEIb/oUva
+NOxt2XcOLBJ5gCIkQHBAgUsRdxOsYig2SlzEG3HmAoIDD8BDISZuqQA1h5l4lm9+jz+/3j8A7GDd
+wxChfCIexH5LaushT6i3je2k4ZW5U9qELn4gUkko7iqt7B4ht7F5QcgfmivpI4dygAKKhNFIaXnW
+ubuUybm4bHPHRGRi0b4QicrOvWDeXquUUIn6Yxus4cxYmZ4KpX0QxgKMY4Lgt6RtyjRVRhOmNzaj
+P9J6mUYFVdQ91AjVQfkAU5hmdcxy0w6NtvLREhb+A3+nGz5mMe9hjjB5w0LDttCt8OgxlvfWQRfc
+le8TpW3Tivj2PBEx385Lf/TWB6slEJfVogFQzvlN00lieayyTY30N7STVWOFV5ND9g3xH++crcen
+kD2xL2y9ovTs0j7bogvmUGEbdAvYD7NndL/5tgetbb3wC26/YZJw+oRStP2CmWfXFmCUl9GF1hkC
+lNiWHWyMUVW22ZDlLqg3pMD4RSxlz4k851acylUnb+0bUEsHCFLomjuDAQAAgwIAAFBLAwQUAAgI
+CADYeD9UAAAAAAAAAAAAAAAAFQAAAHRlc3QvT3RoZXJDbGFzcy5jbGFzc11Oyw6CMBCcFQTFB+of
+eFMP8AEaLyaeiB403gs2WoOQQPG/PJl48AP8KOOCJiZuk9nO7LSzz9f9AcBDz0aN4GqZa3+tjzJb
+xCLPbZiE3klchB+L5OCvw5OMNMGaqUTpOcEYjXcEc5HupQMDzTbqsPifQCVyVZxDmW1FGEvCIEgj
+Ee9Epkr+FU19VDmhH/zFTgnOJi2ySC5V6XN/I69cBkNwNMoiPhzJaDPzKw7UJzc0rnypwWG0KtFA
+i7H9MXDvVM+7lct9A1BLBwjXx0B1xgAAAAkBAABQSwMEFAAICAgA2Hg/VAAAAAAAAAAAAAAAABkA
+AAB0ZXN0L090aGVyTWFpbkNsYXNzLmNsYXNzbU7LbsJADBxDSCDlUYHgzg16IB9QVAmQOKVwAHFf
+YAVbhV0pu+G/OFXqoR/ARyGctBckbGnssWdkX28/vwBGeA1QInSctC5auqNMP4XSs0RYG8Aj9BLj
+MhvtzUlpE00OUrupsJLgj5VW7oNQHgw3BG9m9jJEGbU6KvAJrVhpuchOW5muxTZhRzs2O5FsRKpy
+/j/03FFZQjd+8sA7IVyZLN3Jucq1ncf16EucBfrgF5AHcfJpxoBZVHCg8vaN6oWbEkJGvxhW8cJY
+/xNwbRT2ZqFq3QFQSwcIJH+jwtQAAAAbAQAAUEsBAhQAFAAICAgA2Hg/VFLomjuDAQAAgwIAAA8A
+AAAAAAAAAAAAAAAAAAAAAEphdmFBZ2VudC5jbGFzc1BLAQIUABQACAgIANh4P1TXx0B1xgAAAAkB
+AAAVAAAAAAAAAAAAAAAAAMABAAB0ZXN0L090aGVyQ2xhc3MuY2xhc3NQSwECFAAUAAgICADYeD9U
+JH+jwtQAAAAbAQAAGQAAAAAAAAAAAAAAAADJAgAAdGVzdC9PdGhlck1haW5DbGFzcy5jbGFzc1BL
+BQYAAAAAAwADAMcAAADkAwAAAAA=
+</filedata></file></object></item>
+<item name='$JavaCompilerSource'><text>1.3</text></item>
+<item name='$JavaCompilerTarget'><text>1.2</text></item>
+<item name='$AssistVersion'><datetime>20220131T150649,80-05</datetime></item>
+<item name='$TITLE' sign='true'><text>java agent</text></item>
+<item name='$AssistType' sign='true'><number>65427</number></item>
+<item name='$AssistLastRun' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='$AssistDocCount' sign='true'><number>0</number></item>
+<item name='$FlagsExt' sign='true'><text>D</text></item>
+<item name='$AssistFlags' sign='true'><text>Es</text></item>
+<item name='$AssistTrigger'><text>4</text></item>
+<item name='$AssistInfo' sign='true'>
+<rawitemdata type='11'>
+AQAEAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+</rawitemdata></item>
+<item name='$AssistQuery' sign='true'>
+<rawitemdata type='f'>
+gQYAAAAA
+</rawitemdata></item>
+<item name='$AssistAction' sign='true'>
+<rawitemdata type='10'>
+gQKT/1gAGQANAB8AAQAAAAAAAAB0ZXN0Lk90aGVyTWFpbkNsYXNzLmNsYXNzYzpcTm90ZXNcRGF0
+YSUlc291cmNlJSUuamFyACUlb2JqZWN0JSUuamFyAAAA
+</rawitemdata></item>
+<item name='$AssistAction_Ex' sign='true'>
+<rawitemdata type='14'>
+gQI=
+</rawitemdata></item>
+<item name='$Restricted' sign='true'><number>1</number></item>
+<item name='$Flags'><text>fJj3</text></item>
+<item name='$DesignerVersion'><text>8.5.3</text></item>
+<item name='$AssistRunInfo' summary='true'>
+<rawitemdata type='3'>
+BgABAAAACABmHAAAAAAAAAUAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAFn1uANuHJYUqeVAAt4YlhQAAAAAAAAAAAAAAAAAAAAAAAAAAqgJ06CeS
+QEzHGWjimEoYOkHiVy0QeXyelHxOa/c/Se28jYRUoD/HtFGBaZWjWm4T82iphfD3mxh6rmdPyOP6
+tA2GhzyGdUr0dzePL0riUtXtPTm6dKiLQumaD3CTTrd6gRSpkBwp5kysyFGDvos+yqEn4P2/w4pm
+E/7RuQZmx9YJ0IHk+yyWW9MnIGa6Rtq35z+hot/2m/Xn7VtgyS1t/3+3NnM1hnOTZDJSJyOyG8Ag
+Y+Z7ObZiiUie8wZgUwhs1ZGIfYZMOzOKHIsoXPay4qNDpnJ8UqgErWsRxPsN5H67nW2gvgbIX30a
+eufxWr5Mgep9f4RgKfNZJcci0D2Dmw9qTLb32nqFnGHRpK/NmEunB/dWplVnZGwLn6/wgJhLa/5r
+WuLsTLweaLMS2umqVuI4sIBJDUSKXsRz3DFnIftyasfjdIEAStl3IB/w3Y1cYtzXBpXYbnjjQlO8
+KH0ZHsGFIOiRcQnR7i4tuhS7joDICYgPnPAP4a1pkVoqhTROG0PsOGtzNWGS7QdS0Af7hiUzOX+a
+WxL6CjVtUv/Ume4nmYBLdHl4ATtkZVhGL4Ci3FxvcIJKnpbKR+xk1wKx4XrgzmPpBkYKtcyVtdBl
+ziQJh6gef33moxz/TIhyDSpsAcxrW7+laHzU7eayt6fw1tsXFnbh68gEtCeuko9WdcOM0pMcha9x
+a/rOYb2KYB6K9o7W7eB7gBnGxx4R9r+SUgJXAyaQ9G10mRfbBYgtDidEHIrXrxgjvkzerltc5FNm
+1KEWj3j8uZNakQawjzoNAuMyZu2P22c2/G7Pji3gBQAFACwAAAAAAAAAAAAAAAAAAAAAAAAAJEhU
+TUxDb2RlACRDb21tZW50ACRJbmZvACQkU2NyaXB0TmFtZQAkQm9keQAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAA
+</rawitemdata></item></note>
+
