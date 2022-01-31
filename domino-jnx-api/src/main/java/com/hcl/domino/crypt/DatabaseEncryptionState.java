@@ -22,7 +22,7 @@ import com.hcl.domino.misc.INumberEnum;
  * @since 1.0.18
  */
 public enum DatabaseEncryptionState implements INumberEnum<Integer> {
-  UNENCRYPTED(0), ENCRYPTED(1), PENDING_ENCRYPTION(2);
+  UNENCRYPTED(0), ENCRYPTED(1), PENDING_ENCRYPTION(2), PENDING_DECRYPTION(3);
 
   private final int value;
 
