@@ -327,7 +327,9 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations> 
 				JNAUserNamesList namesListFullAccess = NotesNamingUtils.buildNamesList((JNADominoClient) client, server, idUsername);
 				NotesNamingUtils.setPrivileges(namesListFullAccess, EnumSet.of(Privileges.Authenticated, Privileges.FullAdminAccess));
 
-				try (JNADatabase db = new JNADatabase(getParentDominoClient(), server, "names.nsf", //$NON-NLS-1$
+		    String primaryDirectory = getParentDominoClient().openUserDirectory(null).getPrimaryDirectoryPath()
+		        .orElseThrow(() -> new IllegalStateException("Unable to identify primary directory path"));
+				try (JNADatabase db = new JNADatabase(getParentDominoClient(), server, primaryDirectory,
 						EnumSet.noneOf(OpenDatabase.class), namesListFullAccess);) {
 					
 					hasFullAccess = db.hasFullAccess();
