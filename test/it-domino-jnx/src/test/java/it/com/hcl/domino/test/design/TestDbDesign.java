@@ -1158,6 +1158,58 @@ public class TestDbDesign extends AbstractDesignTest {
   }
   
   @Test
+  public void testOverwriteThemeResource() throws Exception {
+    withResourceDxl("/dxl/testDbDesign", database -> {
+      final DbDesign dbDesign = database.getDesign();
+  
+      String expected = "<theme extends=\"webstandard2\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"platform:/plugin/com.ibm.designer.domino.stylekits/schema/stylekit.xsd\" >\n"
+          + "</theme>\r\n";
+      {
+        Theme theme = dbDesign.getTheme("test.theme").get();
+        try(OutputStream os = theme.newOutputStream()) {
+          os.write(expected.getBytes(StandardCharsets.UTF_8));
+        }
+        theme.save();
+      }
+      
+      Theme res = dbDesign.getTheme("test.theme").get();
+      assertEquals("test.theme", res.getTitle());
+      
+  
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+      
+      // Now try to read it as a generic input stream
+      {
+        String content;
+        try(InputStream is = dbDesign.getResourceAsStream("test.theme").get()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+      
+      // Now try it as a generic element by UNID
+      String unid = res.getDocument().getUNID();
+      {
+        Optional<Theme> optRes = dbDesign.getDesignElementByUNID(unid);
+        res = optRes.get();
+        {
+          String content;
+          try (InputStream is = res.getFileData()) {
+            content = StreamUtil.readString(is);
+          }
+          assertEquals(expected, content);
+        }
+      }
+    });
+  }
+  
+  @Test
   public void testOverwriteFileResource() throws Exception {
     // Use a fresh copy of the DB to avoid interactions with other tests
     withResourceDxl("/dxl/testDbDesign", database -> {
