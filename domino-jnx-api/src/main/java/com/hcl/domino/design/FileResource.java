@@ -22,5 +22,5 @@ package com.hcl.domino.design;
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface FileResource extends NamedFileElement {
+public interface FileResource extends NamedFileElement<FileResource> {
 }

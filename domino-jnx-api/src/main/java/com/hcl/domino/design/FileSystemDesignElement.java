@@ -32,6 +32,9 @@ public interface FileSystemDesignElement extends DesignElement {
   /**
    * Opens a new output stream to replace the content of the file.
    * 
+   * <p>Closing this output stream will update the file's size and
+   * modification times in the design note.</p>
+   * 
    * <p>Note: it is not guaranteed that the data written to this stream
    * will be saved to the resource until {@link OutputStream#close()} is
    * called.</p>

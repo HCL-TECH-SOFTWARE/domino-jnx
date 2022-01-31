@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.design;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.hcl.domino.data.DominoDateTime;
@@ -28,14 +29,34 @@ import com.hcl.domino.design.DesignElement.NamedDesignElement;
  * @author Jesse Gallagher
  * @since 1.0.24
  */
-public interface NamedFileElement extends NamedDesignElement, FileSystemDesignElement {
+public interface NamedFileElement<T extends NamedFileElement<T>> extends NamedDesignElement, FileSystemDesignElement {
   String getCharsetName();
 
   DominoDateTime getFileModified();
 
   List<String> getFileNames();
+  
+  /**
+   * Sets the file names associated with this design element. This item
+   * is most commonly a single-value list.
+   * 
+   * @param fileNames the file names to set
+   * @return this element
+   * @since 1.1.2
+   */
+  T setFileNames(Collection<String> fileNames);
 
   long getFileSize();
 
   String getMimeType();
+  
+  /**
+   * Sets the MIME type for the file resource, which may be sent to
+   * web clients.
+   * 
+   * @param mimeType the MIME type to set
+   * @return this element
+   * @since 1.1.2
+   */
+  T setMimeType(String mimeType);
 }

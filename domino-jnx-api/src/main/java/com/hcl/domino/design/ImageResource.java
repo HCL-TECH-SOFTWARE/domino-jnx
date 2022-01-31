@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.hcl.domino.data.DominoDateTime;
 
-public interface ImageResource extends NamedFileElement {
+public interface ImageResource extends NamedFileElement<ImageResource> {
   @Override
   DominoDateTime getFileModified();
 

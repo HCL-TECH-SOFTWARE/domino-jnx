@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -37,6 +38,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -101,6 +103,7 @@ import com.hcl.domino.richtext.records.CDText;
 import com.ibm.commons.util.io.StreamUtil;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
+import it.com.hcl.domino.test.util.ITUtil;
 
 @SuppressWarnings("nls")
 public class TestDbDesign extends AbstractDesignTest {
@@ -1048,6 +1051,60 @@ public class TestDbDesign extends AbstractDesignTest {
     }
   }
   
+
+
+  @Test
+  public void testOverwriteStyleSheetTest() throws Exception {
+    withResourceDxl("/dxl/testDbDesign", database -> {
+      final DbDesign dbDesign = database.getDesign();
+      
+      String expected = "foo { bar: baz }";
+      {
+        StyleSheet ss = dbDesign.getStyleSheet("test.css").get();
+        try(OutputStream os = ss.newOutputStream()) {
+          os.write(expected.getBytes(StandardCharsets.UTF_8));
+        }
+        ss.save();
+      }
+      
+      StyleSheet res = dbDesign.getStyleSheet("test.css").get();
+      assertEquals("test.css", res.getTitle());
+      assertEquals("text/css", res.getMimeType());
+      assertEquals("UTF-8", res.getCharsetName());
+  
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+      
+      // Now try to read it as a generic input stream
+      {
+        String content;
+        try(InputStream is = dbDesign.getResourceAsStream("test.css").get()) {
+          content = StreamUtil.readString(is);
+        }
+        assertEquals(expected, content);
+      }
+      
+      // Now try it as a generic element by UNID
+      String unid = res.getDocument().getUNID();
+      {
+        Optional<StyleSheet> optRes = dbDesign.getDesignElementByUNID(unid);
+        res = optRes.get();
+        {
+          String content;
+          try (InputStream is = res.getFileData()) {
+            content = StreamUtil.readString(is);
+          }
+          assertEquals(expected, content);
+        }
+      }
+    });
+  }
+  
   @Test
   public void testWiringProperties() {
     final DbDesign dbDesign = this.database.getDesign();
@@ -1064,20 +1121,12 @@ public class TestDbDesign extends AbstractDesignTest {
     WiringProperties res = dbDesign.getWiringPropertiesElement("wiringprops.wsdl").get();
     assertEquals("wiringprops.wsdl", res.getTitle());
     
-    String expected = "<definitions name=\"Property Broker WSDL\"\n"
-        + "targetNamespace=\"http://com.yourcompany.propertybroker\"\n"
-        + "xmlns=\"http://schemas.xmlsoap.org/wsdl/\"\n"
-        + "xmlns:portlet=\"http://www.ibm.com/wps/c2a\"\n"
-        + "xmlns:soap=\"http://schemas.xmlsoap.org/wsdl/soap/\"\n"
-        + "xmlns:tns=\"http://com.yourcompany.propertybroker\"\n"
-        + "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"
-        + "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n"
-        + "</definitions>\r\n";
+    String expected = ITUtil.toLf(IOUtils.resourceToString("/text/testDbDesign/wiringprops.xml", StandardCharsets.UTF_8));
 
     {
       String content;
       try (InputStream is = res.getFileData()) {
-        content = StreamUtil.readString(is);
+        content = ITUtil.toLf(StreamUtil.readString(is));
       }
       assertEquals(expected, content);
     }
@@ -1086,7 +1135,7 @@ public class TestDbDesign extends AbstractDesignTest {
     {
       String content;
       try(InputStream is = dbDesign.getResourceAsStream("wiringprops.wsdl").get()) {
-        content = StreamUtil.readString(is);
+        content = ITUtil.toLf(StreamUtil.readString(is));
       }
       assertEquals(expected, content);
     }
@@ -1099,11 +1148,61 @@ public class TestDbDesign extends AbstractDesignTest {
       {
         String content;
         try (InputStream is = res.getFileData()) {
-          content = StreamUtil.readString(is);
+          content = ITUtil.toLf(StreamUtil.readString(is));
         }
         assertEquals(expected, content);
       }
     }
+  }
+  
+  @Test
+  public void testOverwriteWiringPropertiesTest() throws Exception {
+    withResourceDxl("/dxl/testDbDesign", database -> {
+      final DbDesign dbDesign = database.getDesign();
+      
+      String expected = "foo bar";
+      {
+        WiringProperties props = dbDesign.getWiringPropertiesElement("wiringprops.wsdl").get();
+        try(OutputStream os = props.newOutputStream()) {
+          os.write(expected.getBytes(StandardCharsets.UTF_8));
+        }
+        props.save();
+      }
+      
+      WiringProperties res = dbDesign.getWiringPropertiesElement("wiringprops.wsdl").get();
+      assertEquals("wiringprops.wsdl", res.getTitle());
+  
+      {
+        String content;
+        try (InputStream is = res.getFileData()) {
+          content = ITUtil.toLf(StreamUtil.readString(is));
+        }
+        assertEquals(expected, content);
+      }
+      
+      // Now try to read it as a generic input stream
+      {
+        String content;
+        try(InputStream is = dbDesign.getResourceAsStream("wiringprops.wsdl").get()) {
+          content = ITUtil.toLf(StreamUtil.readString(is));
+        }
+        assertEquals(expected, content);
+      }
+      
+      // Now try it as a generic element by UNID
+      String unid = res.getDocument().getUNID();
+      {
+        Optional<WiringProperties> optRes = dbDesign.getDesignElementByUNID(unid);
+        res = optRes.get();
+        {
+          String content;
+          try (InputStream is = res.getFileData()) {
+            content = ITUtil.toLf(StreamUtil.readString(is));
+          }
+          assertEquals(expected, content);
+        }
+      }
+    });
   }
   
   @Test
@@ -1215,6 +1314,8 @@ public class TestDbDesign extends AbstractDesignTest {
     withResourceDxl("/dxl/testDbDesign", database -> {
       DbDesign design = database.getDesign();
       byte[] expected = "I am fake new CSS that isn't in the resource currently".getBytes();
+      String expectedMime = "foo/bar";
+      String newFileName = "file2.css";
       DominoDateTime origMod;
       {
         FileResource res = design.getFileResource("file.css").get();
@@ -1223,10 +1324,14 @@ public class TestDbDesign extends AbstractDesignTest {
           os.write(expected);
           TimeUnit.SECONDS.sleep(1);
         }
+        res.setMimeType(expectedMime);
+        res.setFileNames(Collections.singleton(newFileName));
+        assertIterableEquals(Collections.singleton(newFileName), res.getFileNames());
         res.save();
       }
       {
-        FileResource res = design.getFileResource("file.css").get();
+        FileResource res = design.getFileResource("file.css").get(); // $TITLE isn't updated above
+        assertIterableEquals(Collections.singleton(newFileName), res.getFileNames());
         byte[] content;
         try(
           InputStream is = res.getFileData();
@@ -1239,6 +1344,7 @@ public class TestDbDesign extends AbstractDesignTest {
         assertEquals(expected.length, res.getFileSize());
         assertTrue(res.getFileModified().compareTo(origMod) > 0);
         assertEquals(expected.length, res.getDocument().get(NotesConstants.ITEM_NAME_FILE_SIZE, int.class, -1));
+        assertEquals(expectedMime, res.getMimeType());
       }
     });
   }
@@ -1381,6 +1487,7 @@ public class TestDbDesign extends AbstractDesignTest {
     withResourceDxl("/dxl/testDbDesign", database -> {
       DbDesign design = database.getDesign();
       byte[] expected = IOUtils.resourceToByteArray("/images/help_vampire.gif");
+      String expectedMime = "image/fake+type";
       DominoDateTime origMod;
       {
         ImageResource res = design.getImageResource("Untitled 2.gif").get();
@@ -1388,6 +1495,7 @@ public class TestDbDesign extends AbstractDesignTest {
         try(OutputStream os = res.newOutputStream()) {
           os.write(expected);
         }
+        res.setMimeType(expectedMime);
         res.save();
       }
       {
@@ -1404,6 +1512,7 @@ public class TestDbDesign extends AbstractDesignTest {
         assertEquals(expected.length, res.getFileSize());
         assertTrue(res.getFileModified().compareTo(origMod) > 0);
         assertEquals(expected.length, res.getDocument().get(NotesConstants.ITEM_NAME_FILE_SIZE, int.class, -1));
+        assertEquals(expectedMime, res.getMimeType());
       }
     });
     

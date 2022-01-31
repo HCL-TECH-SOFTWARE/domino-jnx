@@ -22,6 +22,6 @@ package com.hcl.domino.design;
  * @author Jesse Gallagher
  * @since 1.0.43
  */
-public interface CompositeComponent extends NamedFileElement {
+public interface CompositeComponent extends NamedFileElement<CompositeComponent> {
 
 }

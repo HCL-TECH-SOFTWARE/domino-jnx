@@ -22,6 +22,6 @@ package com.hcl.domino.design;
  * @author Jesse Gallagher
  * @since 1.0.43
  */
-public interface XPage extends NamedFileElement {
+public interface XPage extends NamedFileElement<XPage> {
 
 }
