@@ -17,14 +17,18 @@
 package it.com.hcl.domino.test.data;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoField;
+import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -381,5 +385,82 @@ public class TestDocuments extends AbstractNotesRuntimeTest {
         Assertions.assertFalse(doc.getDocumentClass().contains(DocumentClass.DATA));
       }
     });
+  }
+  
+  @Test
+  public void testWriteSet() throws Exception {
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      doc.replaceItemValue("foo", Collections.singleton("hey"));
+      assertEquals("hey", doc.get("foo", String.class, null));
+    });
+  }
+  
+  @Test
+  public void testWriteIterableString() throws Exception {
+    SomeIterable<String> someIterable = new SomeIterable<String>("foo", "bar");
+
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      doc.replaceItemValue("foo", someIterable);
+      assertIterableEquals(someIterable.list, doc.getAsList("foo", String.class, null));
+    });
+  }
+  
+  @Test
+  public void testWriteIterableNumbers() throws Exception {
+    SomeIterable<Double> someIterable = new SomeIterable<Double>(1d, 4d);
+
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      doc.replaceItemValue("foo", someIterable);
+      assertIterableEquals(someIterable.list, doc.getAsList("foo", Double.class, null));
+    });
+  }
+  
+  @Test
+  public void testWriteIterableNumbers2() throws Exception {
+    SomeIterable<Number> someIterable = new SomeIterable<Number>(1d, 4d, 8);
+
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      doc.replaceItemValue("foo", someIterable);
+      assertIterableEquals(
+          someIterable.list.stream()
+            .map(Number::doubleValue)
+            .collect(Collectors.toList()),
+          doc.getAsList("foo", Double.class, null)
+      );
+    });
+  }
+  
+  @Test
+  public void testWriteIterableDates() throws Exception {
+    SomeIterable<Temporal> someIterable = new SomeIterable<Temporal>(LocalDate.of(2022, 1, 31), LocalDate.of(2040, 2, 2));
+
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      doc.replaceItemValue("foo", someIterable);
+      assertIterableEquals(
+          someIterable.list,
+          doc.getAsList("foo", DominoDateTime.class, null)
+            .stream()
+            .map(DominoDateTime::toLocalDate)
+            .collect(Collectors.toList())
+      );
+    });
+  }
+  
+  private class SomeIterable<T> implements Iterable<T> {
+    List<T> list;
+    
+    public SomeIterable(@SuppressWarnings("unchecked") T... vals) {
+      list = Arrays.asList(vals);
+    }
+    
+    @Override
+    public Iterator<T> iterator() {
+      return list.iterator();
+    }
   }
 }

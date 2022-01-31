@@ -47,6 +47,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.hcl.domino.DominoException;
 import com.hcl.domino.admin.idvault.UserId;
@@ -1103,16 +1104,16 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		else if (value instanceof Calendar || value instanceof Date || value instanceof Temporal) {
 			return true;
 		}
-		else if (value instanceof Collection && ((Collection)value).isEmpty()) {
+		else if (value instanceof Iterable && !((Iterable)value).iterator().hasNext()) {
 			return true;
 		}
-		else if (value instanceof Collection && isStringList((Collection) value)) {
+		else if (value instanceof Iterable && isStringList((Iterable) value)) {
 			return true;
 		}
-		else if (value instanceof Collection && isNumberOrNumberArrayList((Collection) value)) {
+		else if (value instanceof Iterable && isNumberOrNumberArrayList((Iterable) value)) {
 			return true;
 		}
-		else if (value instanceof Collection && isCalendarOrCalendarArrayList((Collection) value)) {
+		else if (value instanceof Iterable && isCalendarOrCalendarArrayList((Iterable) value)) {
 			return true;
 		}
 		else if (value instanceof DominoDateRange) {
@@ -1127,8 +1128,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		return false;
 	}
 
-	private boolean isNumberOrNumberArrayList(Collection<?> list) {
-		if (list==null || list.isEmpty()) {
+	private boolean isNumberOrNumberArrayList(Iterable<?> list) {
+		if (list==null || !list.iterator().hasNext()) {
 			return false;
 		}
 		for (Object currObj : list) {
@@ -1199,18 +1200,18 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		return true;
 	}
 	
-	private boolean isStringList(Collection<?> list) {
-		if (list==null || list.isEmpty()) {
+	private boolean isStringList(Iterable<?> list) {
+		if (list==null || !list.iterator().hasNext()) {
 			return false;
 		}
-		if(!list.stream().allMatch(String.class::isInstance)) {
+		if(!StreamSupport.stream(list.spliterator(), false).allMatch(String.class::isInstance)) {
 		  return false;
 		}
 		return true;
 	}
 
-	private boolean isCalendarOrCalendarArrayList(Collection<?> list) {
-		if (list==null || list.isEmpty()) {
+	private boolean isCalendarOrCalendarArrayList(Iterable<?> list) {
+		if (list==null || !list.iterator().hasNext()) {
 			return false;
 		}
 		for(Object currObj : list) {
@@ -1304,11 +1305,12 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		}
 	}
 
-	private List<?> toNumberOrNumberArrayList(Collection<?> list) {
-		boolean allNumbers = list.stream().allMatch(i -> i instanceof double[] || i instanceof Double);
+	private List<?> toNumberOrNumberArrayList(Iterable<?> list) {
+		boolean allNumbers = StreamSupport.stream(list.spliterator(), false)
+		    .allMatch(i -> i instanceof double[] || i instanceof Double);
 		
 		if (allNumbers) {
-			return new ArrayList<>(list);
+			return StreamSupport.stream(list.spliterator(), false).collect(Collectors.toList());
 		}
 		
 		List<Object> convertedList = new ArrayList<>();
@@ -1419,11 +1421,12 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		return convertedList;
 	}
 	
-	private List<?> toDateTimeOrDateTimeRangeList(Collection<?> list) {
-		boolean allDateTime = list.stream().allMatch(i -> i instanceof DominoDateTime[] || i instanceof DominoDateTime);
+	private List<?> toDateTimeOrDateTimeRangeList(Iterable<?> list) {
+		boolean allDateTime = StreamSupport.stream(list.spliterator(), false)
+		    .allMatch(i -> i instanceof DominoDateTime[] || i instanceof DominoDateTime);
 		
 		if (allDateTime) {
-			return new ArrayList<>(list);
+			return StreamSupport.stream(list.spliterator(), false).collect(Collectors.toList());
 		}
 		
 		List<Object> convertedList = new ArrayList<>();
@@ -1620,9 +1623,10 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				}
 			});
 		}
-		else if (value instanceof Collection && (((Collection<?>)value).isEmpty() || isStringList((Collection<?>) value))) {
+		else if (value instanceof Iterable && (!((Iterable<?>)value).iterator().hasNext() || isStringList((Iterable<?>) value))) {
 			@SuppressWarnings("unchecked")
-			Collection<String> strList = (Collection<String>) value;
+			List<String> strList = StreamSupport.stream(((Iterable<String>) value).spliterator(), false)
+			  .collect(Collectors.toList());
 			
 			if (strList.size()> 65535) {
 				throw new IllegalArgumentException(format("String list size must fit in a WORD ({0}>65535)", strList.size()));
@@ -1663,8 +1667,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				}
 			});
 		}
-		else if (value instanceof Collection && isNumberOrNumberArrayList((Collection<?>) value)) {
-		  List<?> numberOrNumberArrList = toNumberOrNumberArrayList((Collection<?>) value);
+		else if (value instanceof Iterable && isNumberOrNumberArrayList((Iterable<?>) value)) {
+		  List<?> numberOrNumberArrList = toNumberOrNumberArrayList((Iterable<?>) value);
 			
 			List<Number> numberList = new ArrayList<>();
 			List<double[]> numberArrList = new ArrayList<>();
@@ -1749,8 +1753,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		else if (value instanceof DominoDateRange) {
 			return appendItemValue(itemName, flags, Arrays.asList(value), valueConverter, allowDataTypeChanges);
 		}
-		else if (value instanceof Collection && isCalendarOrCalendarArrayList((Collection<?>) value)) {
-			List<?> dateOrDateTimeRangeList = toDateTimeOrDateTimeRangeList((Collection<?>) value);
+		else if (value instanceof Iterable && isCalendarOrCalendarArrayList((Iterable<?>) value)) {
+			List<?> dateOrDateTimeRangeList = toDateTimeOrDateTimeRangeList((Iterable<?>) value);
 			
 			List<DominoDateTime> dateTimeList = new ArrayList<>();
 			List<DominoDateRange> dateRangeList = new ArrayList<>();
