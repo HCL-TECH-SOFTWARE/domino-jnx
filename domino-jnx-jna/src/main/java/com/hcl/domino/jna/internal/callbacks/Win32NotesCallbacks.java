@@ -16,6 +16,8 @@
  */
 package com.hcl.domino.jna.internal.callbacks;
 
+import com.hcl.domino.jna.internal.callbacks.NotesCallbacks.NSFFORMCMDSPROC;
+import com.hcl.domino.jna.internal.callbacks.NotesCallbacks.NSFFORMFUNCPROC;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE.ByValue;
 import com.hcl.domino.jna.internal.structs.NIFFindByKeyContextStruct;
 import com.hcl.domino.jna.internal.structs.NotesLSCompileErrorInfo;
@@ -202,6 +204,16 @@ public interface Win32NotesCallbacks {
 	interface ASYNCNOTIFYPROCWin32 extends NotesCallbacks.ASYNCNOTIFYPROC, StdCallCallback {
 		@Override
 		void invoke(Pointer p1, Pointer p2);
+	}
+
+	interface NSFFORMFUNCPROCWin32 extends NSFFORMFUNCPROC, StdCallCallback {
+	  @Override
+	  short invoke(Pointer ptr);
+	}
+
+	interface NSFFORMCMDSPROCWin32 extends NSFFORMCMDSPROC, StdCallCallback {
+	  @Override
+    short invoke(Pointer ptr, short code, IntByReference stopFlag);
 	}
 
 }

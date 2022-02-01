@@ -25,13 +25,13 @@ import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.Mem.LockedMemory;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks.ACLENTRYENUMFUNC;
+import com.hcl.domino.jna.internal.callbacks.NotesCallbacks.NSFFORMCMDSPROC;
+import com.hcl.domino.jna.internal.callbacks.NotesCallbacks.NSFFORMFUNCPROC;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.structs.CreateDAConfigStruct;
-import com.hcl.domino.jna.internal.structs.UpdateDAConfigStruct;
-import com.hcl.domino.jna.internal.structs.EnableDisableDAStruct;
 import com.hcl.domino.jna.internal.structs.DbOptionsStruct;
-import com.hcl.domino.jna.internal.structs.VerifyLDAPConnectionStruct;
+import com.hcl.domino.jna.internal.structs.EnableDisableDAStruct;
 import com.hcl.domino.jna.internal.structs.HtmlApi_UrlComponentStruct;
 import com.hcl.domino.jna.internal.structs.IntlFormatStruct;
 import com.hcl.domino.jna.internal.structs.KFM_PASSWORDStruct;
@@ -54,6 +54,8 @@ import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
 import com.hcl.domino.jna.internal.structs.ReplExtensionsStruct;
 import com.hcl.domino.jna.internal.structs.ReplServStatsStruct;
+import com.hcl.domino.jna.internal.structs.UpdateDAConfigStruct;
+import com.hcl.domino.jna.internal.structs.VerifyLDAPConnectionStruct;
 import com.sun.jna.Library;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
@@ -430,6 +432,16 @@ public interface INotesCAPI extends Library {
 			IntByReference retNoteMatchesFormula,
 			IntByReference retNoteShouldBeDeleted,
 			IntByReference retNoteModified);
+
+	short NSFFormulaAnalyze (DHANDLE.ByValue hFormula,
+	      IntByReference retAttributes,
+	      ShortByReference retSummaryNamesOffset);
+
+	short NSFFormulaFunctions(NSFFORMFUNCPROC callback);
+
+	short NSFFormulaCommands(NSFFORMCMDSPROC callback);
+
+	Pointer NSFFindFormulaParameters(Memory pszString);
 
 	void DEBUGDumpHandleTable(int flags, short blkType);
 

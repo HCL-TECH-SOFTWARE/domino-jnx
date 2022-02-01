@@ -56,4 +56,10 @@ public interface FormulaCompiler {
   
   List<String> decompileMulti(byte[] compiledFormulas);
 
+  public List<String> getAllFormulaFunctions();
+  
+  public List<String> getAllFormulaCommands();
+  
+  public List<String> getFunctionParameters(String atFunctionName);
+  
 }
