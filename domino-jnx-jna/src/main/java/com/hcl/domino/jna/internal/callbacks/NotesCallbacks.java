@@ -270,4 +270,13 @@ public interface NotesCallbacks {
 	interface ASYNCNOTIFYPROC extends Callback {
 		void invoke(Pointer p1, Pointer p2);
 	}
+
+	interface NSFFORMFUNCPROC extends Callback {
+	  short invoke(Pointer ptr);
+	}
+
+	interface NSFFORMCMDSPROC extends Callback {
+	  short invoke(Pointer ptr, short code, IntByReference stopFlag);
+	}
+
 }

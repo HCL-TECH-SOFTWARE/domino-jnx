@@ -16,17 +16,25 @@
  */
 package com.hcl.domino.jna.formula;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Optional;
 
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.util.NotesErrorUtils;
+import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.exception.FormulaCompilationException;
 import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.FormulaDecompiler;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
+import com.hcl.domino.jna.internal.callbacks.NotesCallbacks.NSFFORMCMDSPROC;
+import com.hcl.domino.jna.internal.callbacks.NotesCallbacks.NSFFORMFUNCPROC;
+import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks.NSFFORMCMDSPROCWin32;
+import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks.NSFFORMFUNCPROCWin32;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
@@ -143,4 +151,101 @@ public class JNAFormulaCompiler implements FormulaCompiler {
 	  }
 	}
 
+	@Override
+	public List<String> getAllFormulaCommands() {
+	  List<String> retNames = new ArrayList<>();
+
+	  NSFFORMCMDSPROC callback;
+	  if (PlatformUtils.isWin32()) {
+	    callback = new NSFFORMCMDSPROCWin32() {
+
+	      @Override
+	      public short invoke(Pointer ptr, short code, IntByReference stopFlag) {
+	        String name = NotesStringUtils.fromLMBCS(ptr, -1);
+	        retNames.add(name);
+	        return 0;
+	      }
+
+	    };
+	  }
+	  else {
+	    callback = new NSFFORMCMDSPROC() {
+
+	      @Override
+	      public short invoke(Pointer ptr, short code, IntByReference stopFlag) {
+	        String name = NotesStringUtils.fromLMBCS(ptr, -1);
+	        retNames.add(name);
+	        return 0;
+	      }
+
+	    };
+	  }
+	  short result = NotesCAPI.get().NSFFormulaCommands(callback);
+	  NotesErrorUtils.checkResult(result);
+
+	  return retNames;
+	}
+	
+	 @Override
+	  public List<String> getAllFormulaFunctions() {
+	    List<String> retNames = new ArrayList<>();
+
+	    NSFFORMFUNCPROC callback;
+	    if (PlatformUtils.isWin32()) {
+	      callback = new NSFFORMFUNCPROCWin32() {
+
+	        @Override
+	        public short invoke(Pointer ptr) {
+	          String name = NotesStringUtils.fromLMBCS(ptr, -1);
+	          retNames.add(name);
+	          return 0;
+	        }
+
+	      };
+	    }
+	    else {
+	      callback = new NSFFORMFUNCPROC() {
+
+	        @Override
+	        public short invoke(Pointer ptr) {
+	          String name = NotesStringUtils.fromLMBCS(ptr, -1);
+	          retNames.add(name);
+	          return 0;
+	        }
+
+	      };
+	    }
+	    short result = NotesCAPI.get().NSFFormulaFunctions(callback);
+	    NotesErrorUtils.checkResult(result);
+
+	    return retNames;
+	  }
+	 
+	@Override
+  public List<String> getFunctionParameters(String atFunctionName) {
+    Memory atFunctionNameMem = NotesStringUtils.toLMBCS(atFunctionName, true);
+    Pointer ptr = NotesCAPI.get().NSFFindFormulaParameters(atFunctionNameMem);
+    if (ptr==null) {
+      return Collections.emptyList();
+    }
+    else {
+      //example format for @Middle(:
+      //string; offset; numberchars)string; offset; endstring)string; startString; endstring)string; startString; numberchars)
+      List<String> params = new ArrayList<>();
+      String paramsConc = NotesStringUtils.fromLMBCS(ptr, -1);
+      
+      StringBuilder sb = new StringBuilder();
+      
+      for (int i=0; i<paramsConc.length(); i++) {
+        char c = paramsConc.charAt(i);
+        sb.append(c);
+        
+        if (c==')') {
+          params.add(sb.toString());
+          sb.setLength(0);
+        }
+      }
+      return params;
+    }
+  }
 }
