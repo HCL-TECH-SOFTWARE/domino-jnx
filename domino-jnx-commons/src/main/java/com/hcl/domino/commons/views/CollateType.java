@@ -22,7 +22,7 @@ import com.hcl.domino.misc.NotesConstants;
 
 /**
  * These are the possible values for the keytype member of the
- * {@code NotesCollateDescriptor} data structure.<br>
+ * {@code CollateDescriptor} data structure.<br>
  * The keytype structure member specifies the type of sorting that is done in
  * the specified column in a view.
  *

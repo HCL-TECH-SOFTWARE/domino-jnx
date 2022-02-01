@@ -164,15 +164,16 @@ public interface DbDesign {
    * @param name the element name to restrict to
    * @return an {@link Optional} describing the {@link Folder} or {@link View},
    *         or an empty {@code Optional} if no such element exists
+   * @param <T> collection type
    */
-  Optional<CollectionDesignElement> getCollection(String name);
+  <T extends CollectionDesignElement<?>> Optional<CollectionDesignElement<T>> getCollection(String name);
 
   /**
    * Retrieves all folders and views in the database.
    *
    * @return a {@link Stream} of {@link Folder}s and/or {@link View}s
    */
-  Stream<CollectionDesignElement> getCollections();
+  Stream<CollectionDesignElement<?>> getCollections();
 
   /**
    * Retrieves the database properties. This is, for implementation reasons, also

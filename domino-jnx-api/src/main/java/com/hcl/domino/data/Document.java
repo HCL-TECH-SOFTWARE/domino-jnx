@@ -1149,6 +1149,15 @@ public interface Document extends TypedAccess, IAdaptable {
   Document setDocumentClass(DocumentClass docClass);
 
   /**
+   * Sets the class of this document.
+   *
+   * @param docClass the {@link DocumentClass} value to set
+   * @return this document
+   * @since 1.0.15
+   */
+  Document setDocumentClass(Collection<DocumentClass> docClass);
+
+  /**
    * Writes a primary key information to the note. This primary key can be used
    * for
    * efficient note retrieval without any lookup views.<br>

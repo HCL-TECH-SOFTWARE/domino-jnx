@@ -21,6 +21,6 @@ package com.hcl.domino.design;
  *
  * @author Jesse Gallagher
  */
-public interface Folder extends CollectionDesignElement {
+public interface Folder extends CollectionDesignElement<Folder> {
 
 }

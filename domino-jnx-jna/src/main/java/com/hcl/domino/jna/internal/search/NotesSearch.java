@@ -58,8 +58,8 @@ import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNAIDTableAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNAUserNamesListAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
-import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
+import com.hcl.domino.jna.internal.search.NotesSearch.SearchCallback;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.views.NotesLookupResultBufferDecoder;
 import com.hcl.domino.jna.internal.views.ViewFormulaCompiler;
@@ -557,7 +557,7 @@ public class NotesSearch {
 		if (PlatformUtils.isWin32()) {}
 		else {}
 		
-		HANDLE.ByReference hFormula = HANDLE.newInstanceByReference();
+		DHANDLE.ByReference hFormula = DHANDLE.newInstanceByReference();
 		
 		if (!StringUtil.isEmpty(formula)) {
 			hFormula = ViewFormulaCompiler.compile(formula, columnFormulasFixedOrder);
@@ -612,7 +612,7 @@ public class NotesSearch {
 //				filterFlags = NotesConstants.SEARCH_FILTER_FOLDER;
 			}
 			
-			final HANDLE.ByReference hFormulaFinal = hFormula;
+			final DHANDLE.ByReference hFormulaFinal = hFormula;
 			final DHANDLE hFilterFinal = hFilter;
 			final int filterFlagsFinal = filterFlags;
 			final int searchFlagsBitMaskFinal = searchFlagsBitMask;

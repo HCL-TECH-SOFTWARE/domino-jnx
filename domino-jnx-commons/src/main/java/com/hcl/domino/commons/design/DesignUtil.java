@@ -188,7 +188,7 @@ public enum DesignUtil {
     DesignUtil.mappings.put(Folder.class,
         new DesignMapping<>(DocumentClass.VIEW, NotesConstants.DFLAGPAT_FOLDER_ALL_VERSIONS, null, FolderImpl::new));
     DesignUtil.mappings.put(CollectionDesignElement.class,
-        new DesignMapping<CollectionDesignElement, AbstractCollectionDesignElement<CollectionDesignElement>>(
+        new DesignMapping<CollectionDesignElement<?>, AbstractCollectionDesignElement<CollectionDesignElement<?>>>(
             DocumentClass.VIEW,
             NotesConstants.DFLAGPAT_VIEWS_AND_FOLDERS_DESIGN,
             null,
@@ -196,12 +196,12 @@ public enum DesignUtil {
               final String flags = doc.getAsText(NotesConstants.DESIGN_FLAGS, ' ');
               if (DesignUtil.matchesFlagsPattern(flags, NotesConstants.DFLAGPAT_FOLDER_ALL_VERSIONS)) {
                 @SuppressWarnings("unchecked")
-                final AbstractCollectionDesignElement<CollectionDesignElement> result = (AbstractCollectionDesignElement<CollectionDesignElement>) (AbstractCollectionDesignElement<?>) new FolderImpl(
+                final AbstractCollectionDesignElement<CollectionDesignElement<?>> result = (AbstractCollectionDesignElement<CollectionDesignElement<?>>) (AbstractCollectionDesignElement<?>) new FolderImpl(
                     doc);
                 return result;
               } else {
                 @SuppressWarnings("unchecked")
-                final AbstractCollectionDesignElement<CollectionDesignElement> result = (AbstractCollectionDesignElement<CollectionDesignElement>) (AbstractCollectionDesignElement<?>) new ViewImpl(
+                final AbstractCollectionDesignElement<CollectionDesignElement<?>> result = (AbstractCollectionDesignElement<CollectionDesignElement<?>>) (AbstractCollectionDesignElement<?>) new ViewImpl(
                     doc);
                 return result;
               }

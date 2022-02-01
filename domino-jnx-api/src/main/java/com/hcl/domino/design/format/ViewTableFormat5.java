@@ -21,6 +21,7 @@ import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.MemoryStructure;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 
 @StructureDefinition(name = "VIEW_TABLE_FORMAT5", members = {
     @StructureMember(name = "Length", type = short.class, unsigned = true),
@@ -28,6 +29,15 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
     @StructureMember(name = "RepeatType", type = short.class)
 })
 public interface ViewTableFormat5 extends MemoryStructure {
+  public static ViewTableFormat5 newInstanceWithDefaults() {
+    ViewTableFormat5 format5 = MemoryStructureWrapperService.get().newStructure(ViewTableFormat5.class, 0);
+    
+    //TODO set defaults
+    
+    return format5;
+    
+  }
+  
   @StructureGetter("Length")
   int getLength();
 

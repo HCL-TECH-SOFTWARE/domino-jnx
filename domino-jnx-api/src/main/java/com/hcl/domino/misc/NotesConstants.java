@@ -434,10 +434,8 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   /** False if ascending order (default) */
   byte CDF_M_descending = 0x01;
 
-  /*	Flags for COLOR_VALUE */
-
   /** Obsolete - see new constant below */
-  byte CDF_M_caseinsensitive = 0x02;
+//  byte CDF_M_caseinsensitive = 0x02;
   /** If prefix list, then ignore for sorting */
   byte CDF_M_ignoreprefixes = 0x02;
   /** Obsolete - see new constant below */
@@ -2909,7 +2907,7 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   String FIELD_UPDATED_BY = "$UpdatedBy"; //$NON-NLS-1$
 
   String FIELD_FORM = "Form"; //$NON-NLS-1$
-
+  String FIELD_NAMED = "$Name";  //$NON-NLS-1$
   String FIELD_TYPE_TYPE = "Type"; //$NON-NLS-1$
   /** Note should never be purged. */
   String FIELD_NOPURGE = "$NoPurge"; //$NON-NLS-1$

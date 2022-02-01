@@ -260,14 +260,21 @@ public abstract class AbstractDbDesign implements DbDesign {
     return this.getDesignElements(DesignAgent.class);
   }
 
+  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Override
-  public Optional<CollectionDesignElement> getCollection(final String name) {
-    return this.getDesignElementByName(CollectionDesignElement.class, name);
+  public <T extends CollectionDesignElement<?>> Optional<CollectionDesignElement<T>> getCollection(final String name) {
+    Optional<CollectionDesignElement> el = this.getDesignElementByName(CollectionDesignElement.class, name);
+    return el.isPresent() ? Optional.of(el.get()) : Optional.empty();
   }
 
   @Override
-  public Stream<CollectionDesignElement> getCollections() {
-    return this.getDesignElements(CollectionDesignElement.class);
+  public Stream<CollectionDesignElement<?>> getCollections() {
+    @SuppressWarnings("rawtypes")
+    Stream<CollectionDesignElement> stream = this.getDesignElements(CollectionDesignElement.class);
+    return stream
+        .map((el) -> {
+          return (CollectionDesignElement<?>) el;
+        });
   }
 
   @Override

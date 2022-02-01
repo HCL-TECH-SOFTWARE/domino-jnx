@@ -56,8 +56,13 @@ import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.data.SignatureDataImpl;
 import com.hcl.domino.commons.design.FormFieldImpl;
+import com.hcl.domino.commons.design.view.CollationDecoder;
+import com.hcl.domino.commons.design.view.CollationEncoder;
 import com.hcl.domino.commons.design.view.DominoCalendarFormat;
+import com.hcl.domino.commons.design.view.DominoCollationInfo;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
+import com.hcl.domino.commons.design.view.ViewFormatDecoder;
+import com.hcl.domino.commons.design.view.ViewFormatEncoder;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.errors.UnsupportedItemValueError;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
@@ -73,7 +78,6 @@ import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.NotesItemDataUtil;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringUtil;
-import com.hcl.domino.commons.views.NotesCollationInfo;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Attachment.Compression;
 import com.hcl.domino.data.AutoCloseableDocument;
@@ -128,8 +132,6 @@ import com.hcl.domino.jna.internal.structs.NotesRangeStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
-import com.hcl.domino.jna.internal.views.CollationDecoder;
-import com.hcl.domino.jna.internal.views.ViewFormatDecoder;
 import com.hcl.domino.jna.richtext.JNARichtextWriter;
 import com.hcl.domino.jna.utils.JNADominoUtils;
 import com.hcl.domino.misc.DominoEnumUtil;
@@ -524,14 +526,20 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			return unids;
 		}
 		else if (dataTypeAsInt == ItemDataType.TYPE_COLLATION.getValue()) {
-			NotesCollationInfo colInfo = CollationDecoder.decodeCollation(valueDataPtr);
-			return Arrays.asList((Object) colInfo);
+      ByteBuffer data = valueDataPtr.getByteBuffer(0, valueDataLength);
+
+      DominoCollationInfo collateInfo = CollationDecoder.decodeCollation(data);
+			return Arrays.asList((Object) collateInfo);
 		}
 		else if (dataTypeAsInt == ItemDataType.TYPE_VIEW_FORMAT.getValue()) {
-			DominoViewFormat viewFormatInfo = ViewFormatDecoder.decodeViewFormat(valueDataPtr,  valueDataLength);
+	    ByteBuffer data = valueDataPtr.getByteBuffer(0, valueDataLength);
+
+			DominoViewFormat viewFormatInfo = ViewFormatDecoder.decodeViewFormat(this, data);
 			return Arrays.asList((Object) viewFormatInfo);
 		} else if (dataTypeAsInt == ItemDataType.TYPE_CALENDAR_FORMAT.getValue()) {
-		  DominoCalendarFormat calendarFormat = ViewFormatDecoder.decodeCalendarFormat(valueDataPtr, valueDataLength);
+      ByteBuffer data = valueDataPtr.getByteBuffer(0, valueDataLength);
+      
+		  DominoCalendarFormat calendarFormat = ViewFormatDecoder.decodeCalendarFormat(data);
 		  return Arrays.asList((Object)calendarFormat);
 		}
 		else if (dataTypeAsInt == ItemDataType.TYPE_FORMULA.getValue()) {
@@ -1125,6 +1133,15 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		else if (value instanceof JNAFormula) {
 			return true;
 		}
+    else if (value instanceof DominoViewFormat) {
+      return true;
+    }
+    else if (value instanceof DominoCalendarFormat) {
+      return true;
+    }
+    else if (value instanceof DominoCollationInfo) {
+      return true;
+    }
 		return false;
 	}
 
@@ -1520,8 +1537,12 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		flags.remove(ItemFlag.KEEPLINEBREAKS);
 
 		if (value instanceof JNAFormula) {
-			//formulas as stored in compiled binary format
+			//formulas are stored in compiled binary format
 			flags.remove(ItemFlag.SUMMARY);
+		}
+		else if (value instanceof DominoViewFormat) {
+		  flags.add(ItemFlag.SUMMARY);
+		  flags.add(ItemFlag.SIGNED);
 		}
 		
 		if (value instanceof String) {
@@ -1914,6 +1935,96 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			
 			});
 		}
+		else if (value instanceof DominoViewFormat) {
+		  ByteBuffer viewFormatData = ViewFormatEncoder.encodeViewFormat((DominoViewFormat) value);
+		  viewFormatData.position(0);
+		  byte[] viewFormatDataArr = new byte[viewFormatData.capacity()];
+		  viewFormatData.get(viewFormatDataArr);
+		  
+		  //date type + compiled formula
+      int valueSize = 2 + viewFormatDataArr.length;
+      
+      DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
+      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
+      NotesErrorUtils.checkResult(result);
+      
+      return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
+        Pointer valuePtr = Mem.OSLockObject(hItemByVal);
+        
+        try {
+          valuePtr.setShort(0, ItemDataType.TYPE_VIEW_FORMAT.getValue().shortValue());
+          valuePtr = valuePtr.share(2);
+          
+          valuePtr.write(0, viewFormatDataArr, 0, viewFormatDataArr.length);
+
+          return appendItemValue(itemName, flags, ItemDataType.TYPE_VIEW_FORMAT.getValue(), hItemByVal, valueSize);
+        }
+        finally {
+          Mem.OSUnlockObject(hItemByVal);
+        }
+      
+      });
+		}
+		else if (value instanceof DominoCalendarFormat) {
+      ByteBuffer calendarFormatData = ViewFormatEncoder.encodeCalendarFormat((DominoCalendarFormat) value);
+      calendarFormatData.position(0);
+      byte[] calendarFormatDataArr = new byte[calendarFormatData.capacity()];
+      calendarFormatData.get(calendarFormatDataArr);
+      
+      //date type + compiled formula
+      int valueSize = 2 + calendarFormatDataArr.length;
+      
+      DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
+      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
+      NotesErrorUtils.checkResult(result);
+      
+      return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
+        Pointer valuePtr = Mem.OSLockObject(hItemByVal);
+        
+        try {
+          valuePtr.setShort(0, ItemDataType.TYPE_CALENDAR_FORMAT.getValue().shortValue());
+          valuePtr = valuePtr.share(2);
+          
+          valuePtr.write(0, calendarFormatDataArr, 0, calendarFormatDataArr.length);
+
+          return appendItemValue(itemName, flags, ItemDataType.TYPE_CALENDAR_FORMAT.getValue(), hItemByVal, valueSize);
+        }
+        finally {
+          Mem.OSUnlockObject(hItemByVal);
+        }
+      
+      });
+    }
+    else if (value instanceof DominoCollationInfo) {
+      ByteBuffer collationData = CollationEncoder.encode((DominoCollationInfo) value);
+      collationData.position(0);
+      byte[] collationDataArr = new byte[collationData.capacity()];
+      collationData.get(collationDataArr);
+      
+      //date type + compiled formula
+      int valueSize = 2 + collationDataArr.length;
+      
+      DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
+      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
+      NotesErrorUtils.checkResult(result);
+      
+      return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
+        Pointer valuePtr = Mem.OSLockObject(hItemByVal);
+        
+        try {
+          valuePtr.setShort(0, ItemDataType.TYPE_COLLATION.getValue().shortValue());
+          valuePtr = valuePtr.share(2);
+          
+          valuePtr.write(0, collationDataArr, 0, collationDataArr.length);
+
+          return appendItemValue(itemName, flags, ItemDataType.TYPE_COLLATION.getValue(), hItemByVal, valueSize);
+        }
+        finally {
+          Mem.OSUnlockObject(hItemByVal);
+        }
+      
+      });
+    }
 		else if (valueConverter!=null) {
 			if (writingItemType.get().contains(valueConverter.getClass())) {
 				throw new IllegalStateException(format("Infinite loop detected writing the value of item {0} as type {1}", itemName,
@@ -2601,16 +2712,23 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		}
 		return m_documentClass;
 	}
-	
+
+	 @Override
+	 public Document setDocumentClass(DocumentClass docClass) {
+	   return setDocumentClass(EnumSet.of(docClass));
+	 }
+
 	@Override
-	public Document setDocumentClass(DocumentClass docClass) {
+	public Document setDocumentClass(Collection<DocumentClass> docClass) {
 		checkDisposed();
 		
 		m_documentClass = null;
+		Short docClassVal = DominoEnumUtil.toBitField(DocumentClass.class, docClass);
+		
 		JNADocumentAllocations allocations = getAllocations();
 		LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
 			ShortByReference noteClassVal = new ShortByReference();
-			noteClassVal.setValue(docClass == null ? 0 : docClass.getValue());
+			noteClassVal.setValue(docClassVal.shortValue());
 			NotesCAPI.get().NSFNoteSetInfo(noteHandleByVal, NotesConstants._NOTE_CLASS, noteClassVal.getPointer());
 			return null;
 		});

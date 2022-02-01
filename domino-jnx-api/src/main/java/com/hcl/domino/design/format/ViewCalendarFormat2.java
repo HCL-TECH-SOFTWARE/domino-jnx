@@ -16,6 +16,11 @@
  */
 package com.hcl.domino.design.format;
 
+import java.util.EnumSet;
+
+import com.hcl.domino.data.StandardFonts;
+import com.hcl.domino.design.DesignColorsAndFonts;
+import com.hcl.domino.misc.ViewFormatConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -23,6 +28,7 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.MemoryStructure;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 
 /**
  * @since 1.0.27
@@ -40,6 +46,22 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
     @StructureMember(name = "Spare", type = int[].class, length = 3)
 })
 public interface ViewCalendarFormat2 extends MemoryStructure {
+  public static ViewCalendarFormat2 newInstanceWithDefaults() {
+    ViewCalendarFormat2 format2 = MemoryStructureWrapperService.get().newStructure(ViewCalendarFormat2.class, 0);
+
+    format2.getTodayColor().setRed((short)255).setGreen((short)0).setBlue((short)0).setFlags(EnumSet.of(ColorValue.Flag.ISRGB));
+    format2.setSignature(ViewFormatConstants.VIEW_CALENDAR_FORMAT2_SIGNATURE);
+    format2.getDayDateColor().copyFrom(DesignColorsAndFonts.blackColor());
+    format2.getNonMonthBackgroundColor().copyFrom(DesignColorsAndFonts.whiteColor());
+    format2.getWeekDayMonthFont().setStandardFont(StandardFonts.SWISS).setPointSize(9).setFontFace((byte)1);
+    format2.getTimeSlotColor().copyFrom(DesignColorsAndFonts.blackColor());
+    format2.getDayDateBackgroundColor().copyFrom(DesignColorsAndFonts.whiteColor());
+    format2.getNonMonthTextColor().copyFrom(DesignColorsAndFonts.blackColor());
+    format2.getHeaderColor().copyFrom(DesignColorsAndFonts.blackColor());
+    
+    return format2;
+  }
+
   @StructureGetter("DayDateBkColor")
   ColorValue getDayDateBackgroundColor();
 

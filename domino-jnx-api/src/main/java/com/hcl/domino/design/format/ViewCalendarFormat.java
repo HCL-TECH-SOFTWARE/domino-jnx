@@ -16,11 +16,16 @@
  */
 package com.hcl.domino.design.format;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.data.StandardColors;
+import com.hcl.domino.data.StandardFonts;
+import com.hcl.domino.design.DesignColorsAndFonts;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.ViewFormatConstants;
@@ -31,6 +36,7 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.MemoryStructure;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.RawColorValue;
 
 @StructureDefinition(name = "VIEW_CALENDAR_FORMAT", members = {
@@ -56,6 +62,36 @@ import com.hcl.domino.richtext.structures.RawColorValue;
     @StructureMember(name = "HeaderBkColor", type = RawColorValue.class)
 })
 public interface ViewCalendarFormat extends MemoryStructure {
+  public static ViewCalendarFormat newInstanceWithDefaults() {
+    ViewCalendarFormat format = MemoryStructureWrapperService.get().newStructure(ViewCalendarFormat.class, 0);
+
+    //TODO set defaults
+    format.setBusyColorRaw(StandardColors.White.getValue());
+    format.getBusyColorExt().copyFrom(DesignColorsAndFonts.whiteColor());
+    format.getTimeSlotFont().setStandardFont(StandardFonts.SWISS).setPointSize(9).setFontFace((byte)1);
+    format.setSupportedFormats(Arrays.asList(CalendarLayout.TWO_DAY, CalendarLayout.ONE_WEEK,
+        CalendarLayout.TWO_WEEKS, CalendarLayout.ONE_MONTH, CalendarLayout.ONE_YEAR,
+        CalendarLayout.ONE_DAY, CalendarLayout.WORK_WEEK));
+    format.getHeaderBackgroundColor().setRed((short) 255).setBlue((short) 255).setGreen((short) 255);
+    format.getWorkHoursColor().setRed((short) 255).setBlue((short) 255).setGreen((short) 255);
+    format.setMinorVersion(MinorVersion.MINOR_4);
+    format.setTimeSlotDurationMinutes(60);
+    format.getToDoBackgroundColor().setRed((short) 255).setBlue((short) 255).setGreen((short) 255);
+    format.setTimeSlotStartMinutes(480);
+    format.getDaySeparatorColorExt().copyFrom(DesignColorsAndFonts.blackColor());
+    format.setTodayColorRaw(StandardColors.Red.getValue());
+    format.setBusyColorRaw(StandardColors.White.getValue());
+    format.getDayDateFont().setStandardFont(StandardFonts.SWISS).setPointSize(9).setFontFace((byte)1);
+    format.setDaySeparatorColorRaw(StandardColors.Black.getValue());
+    format.setTimeSlotEndMinutes(1080);
+    format.setVersion(Version.VERSION_1);
+    format.setTodayColorRaw(StandardColors.Red.getValue());
+    format.getHeaderFont().setStandardFont(StandardFonts.SWISS).setBold(true).setPointSize(10).setFontFace((byte)1);
+    format.getGridBackgroundColor().setRed((short)255).setBlue((short)255).setGreen((short)255);
+    
+    return format;
+  }
+  
   enum Flag implements INumberEnum<Short> {
     /** Display Conflict marks */
     DISPLAY_CONFLICTS(ViewFormatConstants.CAL_DISPLAY_CONFLICTS),
@@ -236,6 +272,27 @@ public interface ViewCalendarFormat extends MemoryStructure {
   @StructureSetter("wFlags")
   ViewCalendarFormat setFlags(Collection<Flag> formats);
 
+  default ViewCalendarFormat setFlag(Flag flag, boolean b) {
+    Set<Flag> oldFlags = getFlags();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<Flag> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setFlags(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<Flag> newFlags = oldFlags
+            .stream()
+            .filter(currFlag -> !flag.equals(currFlag))
+            .collect(Collectors.toSet());
+        setFlags(newFlags);
+      }
+    }
+    return this;
+  }
+  
   @StructureSetter("InitialFormat")
   ViewCalendarFormat setInitialFormat(CalendarLayout format);
 

@@ -399,7 +399,7 @@ public interface INotesCAPI extends Library {
 			short formulaNameLength,
 			Memory formulaText,
 			short  formulaTextLength,
-			HANDLE.ByReference rethFormula,
+			DHANDLE.ByReference rethFormula,
 			ShortByReference retFormulaLength,
 			ShortByReference retCompileError,
 			ShortByReference retCompileErrorLine,
@@ -413,10 +413,10 @@ public interface INotesCAPI extends Library {
 			ShortByReference retFormulaTextLength);
 	short NSFFormulaGetSizeP(Pointer ptr, ShortByReference retFormulaLength);
 
-	short NSFFormulaSummaryItem(HANDLE.ByValue hFormula, Memory ItemName, short ItemNameLength);
+	short NSFFormulaSummaryItem(DHANDLE.ByValue hFormula, Memory ItemName, short ItemNameLength);
 	short NSFFormulaMerge(
-			HANDLE.ByValue hSrcFormula,
-			HANDLE.ByValue hDestFormula);
+			DHANDLE.ByValue hSrcFormula,
+			DHANDLE.ByValue hDestFormula);
 	short NSFComputeStart(
 			short Flags,
 			Pointer lpCompiledFormula,
@@ -665,7 +665,7 @@ public interface INotesCAPI extends Library {
             NotesTimeDateStruct retModifiedTime, IntByReference retSequence);
 
 	short NSFSearchExtended3 (HANDLE.ByValue hDB, 
-			HANDLE.ByValue hFormula, 
+			DHANDLE.ByValue hFormula, 
 			DHANDLE.ByValue hFilter, 
 			int filterFlags, 
 			Memory ViewTitle, 
