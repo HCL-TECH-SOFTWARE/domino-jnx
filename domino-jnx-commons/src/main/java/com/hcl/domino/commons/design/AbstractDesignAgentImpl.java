@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import com.hcl.domino.Name;
 import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.InnardsConverter;

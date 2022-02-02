@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.internal.capi;
 
+import com.hcl.domino.jna.internal.capi.INotesCAPI.UndocumentedAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.sun.jna.Library;
@@ -24,12 +25,13 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
 /**
- * Notes API methods introduced in R12
+ * C API methods introduced in R12
  * 
  * @author Karsten Lehmann
  */
 public interface INotesCAPI12 extends Library {
 
+  @UndocumentedAPI
 	public short NSFProcessResults(HANDLE.ByValue hDb,
 			Memory viewname,
 			int dwFlags,
@@ -39,7 +41,8 @@ public interface INotesCAPI12 extends Library {
 			int hCombineRules,
 			IntByReference hErrorText,
 			DHANDLE.ByReference phStreamedhQueue);  
-	
+
+  @UndocumentedAPI
 	short NSFQueryAddToResultsList(int /* QUEP_LISTTYPE */ type,
 			Pointer pInEntry, Pointer phEntryList,
 			IntByReference phErrorText);

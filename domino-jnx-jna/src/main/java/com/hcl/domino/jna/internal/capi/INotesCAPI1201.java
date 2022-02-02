@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.internal.capi;
 
+import com.hcl.domino.jna.internal.capi.INotesCAPI.UndocumentedAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.sun.jna.Library;
@@ -24,16 +25,18 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.ShortByReference;
 
 /**
- * Notes API methods introduced in R12.0.1
+ * C API methods introduced in R12.0.1
  * 
  * @author Karsten Lehmann
  */
 public interface INotesCAPI1201 extends Library {
 
+  @UndocumentedAPI
   short NABLookupBasicAuthentication(Memory userName, Memory password, int dwFlags,
       int nMaxFullNameLen,
       Memory fullUserName);
-  
+
+  @UndocumentedAPI
   short NSFProcessResultsExt(HANDLE.ByValue hDb,
       Memory resultsname,
       int dwFlags,
