@@ -1911,9 +1911,6 @@ public interface INotesCAPI extends Library {
 			DHANDLE.ByReference rethSummary,
 			IntByReference retNumEntries);
 
-	@UndocumentedAPI
-	short NSFNoteSetTUAFromParent(DHANDLE.ByValue hParentNote, DHANDLE.ByValue hChildNote);
-
 	short NSFNoteLSCompileExt(
 			HANDLE.ByValue hDb,
 			DHANDLE.ByValue hNote,
