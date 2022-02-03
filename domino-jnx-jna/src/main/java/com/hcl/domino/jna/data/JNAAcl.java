@@ -111,7 +111,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 	}
 	
 	private void init(DHANDLE hAcl) {
-		getAllocations().setAckHandle(hAcl);
+		getAllocations().setAclHandle(hAcl);
 	}
 
 	@Override

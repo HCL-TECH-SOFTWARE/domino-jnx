@@ -64,7 +64,7 @@ public class JNAAclAllocations extends APIObjectAllocations<JNAAcl> {
 		return m_hAcl;
 	}
 
-	public void setAckHandle(DHANDLE hAcl) {
+	public void setAclHandle(DHANDLE hAcl) {
 		this.m_hAcl = hAcl;
 	}
 }
