@@ -96,8 +96,24 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
   }
 
   /** Available encryption strengths for database creation */
-  public enum Encryption {
-    None, Simple, Medium, Strong, AES128, AES256
+  public enum Encryption implements INumberEnum<Integer> {
+    None(0), Simple(1), Medium(2), Strong(3), AES128(4), AES256(5);
+
+    private final int value;
+
+    Encryption(final int value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Integer getValue() {
+      return this.value;
+    }
   }
 
   /**

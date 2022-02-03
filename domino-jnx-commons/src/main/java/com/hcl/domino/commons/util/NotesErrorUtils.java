@@ -51,6 +51,7 @@ import com.hcl.domino.commons.errors.errorcodes.IXmlErr;
 import com.hcl.domino.exception.BadPasswordException;
 import com.hcl.domino.exception.CancelException;
 import com.hcl.domino.exception.CompactInProgressException;
+import com.hcl.domino.exception.CompactionRequiredException;
 import com.hcl.domino.exception.DocumentDeletedException;
 import com.hcl.domino.exception.EntryNotFoundInIndexException;
 import com.hcl.domino.exception.FileDoesNotExistException;
@@ -306,6 +307,8 @@ public class NotesErrorUtils {
         return Optional.of(new SpecialObjectCannotBeLocatedException(s, message));
       case INsfErr.ERR_INVALID_NOTE:
         return Optional.of(new InvalidDocumentException(s, message));
+      case INsfErr.ERR_LOCALSEC_NEEDCOMPACT:
+        return Optional.of(new CompactionRequiredException(s, message));
       default:
         return Optional.of(new DominoException(s, message));
     }

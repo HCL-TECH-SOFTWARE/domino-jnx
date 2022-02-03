@@ -28,18 +28,19 @@ import java.util.stream.Stream;
 
 import com.hcl.domino.BuildVersionInfo;
 import com.hcl.domino.DominoClient;
+import com.hcl.domino.DominoClient.Encryption;
 import com.hcl.domino.DominoClient.IBreakHandler;
 import com.hcl.domino.DominoClient.NotesReplicationStats;
 import com.hcl.domino.DominoClient.ReplicationStateListener;
 import com.hcl.domino.UserNamesList;
 import com.hcl.domino.crypt.DatabaseEncryptionState;
-import com.hcl.domino.crypt.EncryptionStrength;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.RichTextBuilder;
 import com.hcl.domino.dql.DQL;
 import com.hcl.domino.dql.DQL.DQLTerm;
 import com.hcl.domino.dql.QueryResultsProcessor;
+import com.hcl.domino.exception.CompactionRequiredException;
 import com.hcl.domino.exception.DocumentDeletedException;
 import com.hcl.domino.exception.SpecialObjectCannotBeLocatedException;
 import com.hcl.domino.misc.DominoClientDescendant;
@@ -228,7 +229,7 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
      *         database, or
      *         an empty one if the information could not be determined
      */
-    Optional<EncryptionStrength> getStrength();
+    Optional<Encryption> getStrength();
   }
 
   public interface FormulaQueryCallback {
@@ -992,6 +993,15 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
    */
   EncryptionInfo getLocalEncryptionInfo();
 
+  /**
+  * Changes the local encryption level/strength
+  * 
+  * @param encryption new encryption
+  * @param userName user to encrypt the database for; null/empty for current ID user (should be used in the Notes Client and in most cases on the server side as well)
+  * @throws CompactionRequiredException to notify the developer that the NSF needs to be compacted next
+  */
+ public void setLocalEncryptionInfo(Encryption encryption, String userName);
+ 
   /**
    * This function returns an {@link IDTable} of Note IDs of documents which have
    * been modified in some way

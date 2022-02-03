@@ -18,8 +18,8 @@ package com.hcl.domino.commons.data;
 
 import java.util.Optional;
 
+import com.hcl.domino.DominoClient.Encryption;
 import com.hcl.domino.crypt.DatabaseEncryptionState;
-import com.hcl.domino.crypt.EncryptionStrength;
 import com.hcl.domino.data.Database.EncryptionInfo;
 
 /**
@@ -27,9 +27,9 @@ import com.hcl.domino.data.Database.EncryptionInfo;
  */
 public class EncryptionInfoImpl implements EncryptionInfo {
   private final Optional<DatabaseEncryptionState> state;
-  private final Optional<EncryptionStrength> strength;
+  private final Optional<Encryption> strength;
 
-  public EncryptionInfoImpl(final Optional<DatabaseEncryptionState> state, final Optional<EncryptionStrength> strength) {
+  public EncryptionInfoImpl(final Optional<DatabaseEncryptionState> state, final Optional<Encryption> strength) {
     this.state = state;
     this.strength = strength;
   }
@@ -40,7 +40,7 @@ public class EncryptionInfoImpl implements EncryptionInfo {
   }
 
   @Override
-  public Optional<EncryptionStrength> getStrength() {
+  public Optional<Encryption> getStrength() {
     return this.strength;
   }
 

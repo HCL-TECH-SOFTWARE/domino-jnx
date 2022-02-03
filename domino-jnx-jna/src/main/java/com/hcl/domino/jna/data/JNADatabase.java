@@ -44,6 +44,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 import com.hcl.domino.BuildVersionInfo;
+import com.hcl.domino.DominoClient.Encryption;
 import com.hcl.domino.DominoClient.IBreakHandler;
 import com.hcl.domino.DominoClient.NotesReplicationStats;
 import com.hcl.domino.DominoClient.OpenDatabase;
@@ -69,7 +70,6 @@ import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.IItemTableData;
 import com.hcl.domino.commons.views.OpenCollection;
 import com.hcl.domino.crypt.DatabaseEncryptionState;
-import com.hcl.domino.crypt.EncryptionStrength;
 import com.hcl.domino.data.Agent;
 import com.hcl.domino.data.DBQuery;
 import com.hcl.domino.data.DQLQueryResult;
@@ -4356,10 +4356,37 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		return new EncryptionInfoImpl(
 			DominoEnumUtil.valueOf(DatabaseEncryptionState.class, state.getValue()),
-			DominoEnumUtil.valueOf(EncryptionStrength.class, strength.getValue())
+			DominoEnumUtil.valueOf(Encryption.class, strength.getValue())
 		);
 	}
 
+	@Override
+  public void setLocalEncryptionInfo(Encryption encryption, String userName) {
+    checkDisposed();
+    
+    HANDLE hDb = getAllocations().getDBHandle();
+    
+    if (userName==null) {
+      userName = ""; //$NON-NLS-1$
+    }
+    String userNameCanonical = NotesNamingUtils.toCanonicalName(userName);
+    Memory userNameCanonicalMem = NotesStringUtils.toLMBCS(userNameCanonical, true);
+
+    short option = NotesConstants.LSECINFOSET_MODIFY;
+    if (encryption == Encryption.None) {
+      option = NotesConstants.LSECINFOSET_CLEAR;
+    }
+    
+    byte strengthAsByte = (byte) (encryption.getValue() & 0xff);
+    
+    short fOption = option;
+    
+    short result = LockUtil.lockHandle(hDb, (hDbByVal) -> {
+      return NotesCAPI.get().NSFDbLocalSecInfoSet(hDbByVal, fOption, strengthAsByte, userNameCanonicalMem);
+    });
+    NotesErrorUtils.checkResult(result);
+  }
+  
 	@Override
 	public AccessInfo getEffectiveAccessInfo() {
 		checkDisposed();
