@@ -994,7 +994,12 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
   EncryptionInfo getLocalEncryptionInfo();
 
   /**
-  * Changes the local encryption level/strength
+  * Changes the local encryption strength.<br>
+  * <br>
+  * <b>Please note that invoking this method always throws an
+  * {@link CompactionRequiredException} (same behavior as in the C API)
+  * to notify the developer that he needs to compact the database as next step
+  * to do the actual data encryption/decryption.</b>
   * 
   * @param encryption new encryption
   * @param userName user to encrypt the database for; null/empty for current ID user (should be used in the Notes Client and in most cases on the server side as well)
