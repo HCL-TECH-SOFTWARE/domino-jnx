@@ -59,6 +59,7 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.StringArray;
 import com.sun.jna.ptr.ByteByReference;
+import com.sun.jna.ptr.DoubleByReference;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
@@ -1284,11 +1285,6 @@ public interface INotesCAPI extends Library {
 	short NSFDbGetModifiedNoteTable(HANDLE.ByValue hDB, short NoteClassMask,
 			NotesTimeDateStruct.ByValue Since, NotesTimeDateStruct.ByReference retUntil,
 			DHANDLE.ByReference rethTable);
-	@UndocumentedAPI
-	short NSFDbGetModifiedNoteTableExt (HANDLE.ByValue hDB, short NoteClassMask, 
-			short Option, NotesTimeDateStruct.ByValue Since,
-			NotesTimeDateStruct.ByReference retUntil,
-			DHANDLE.ByReference rethTable);
 
 	@UndocumentedAPI
 	short NSFDbGetModifiedNotesInfo(HANDLE.ByValue hDB,		/* Database handle */
@@ -1927,7 +1923,6 @@ public interface INotesCAPI extends Library {
 			 short ReservedListLength, short ReservedListCount, 
 			 DbOptionsStruct.ByValue dbOptions, DHANDLE.ByValue hNamesList, DHANDLE.ByValue hReservedList);
 
-
 	// *******************************************************************************
 	// * calendaring
 	// *******************************************************************************
@@ -2210,9 +2205,7 @@ public interface INotesCAPI extends Library {
 
 	short NSFDbGetMajMinVersion(HANDLE.ByValue hDb, NotesBuildVersionStruct retBuildVersion);
 
-	@UndocumentedAPI
-	short NSFDbCompactExtended4(Memory Pathname, int Options, int Options2, int TimeLimit,
-			IntByReference retStats, IntByReference Granules, DHANDLE.ByValue hNamesList);
+	short NSFDbCompactExtendedExt2(Memory pathname, int options, int options2, DoubleByReference originalSize, DoubleByReference compactedSize);
 
 	@UndocumentedAPI
 	short SECMakeProxyEntry (short fct, DHANDLE.ByValue hNABEntry,Memory pProxyDBServer,

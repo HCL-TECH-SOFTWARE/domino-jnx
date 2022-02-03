@@ -139,6 +139,7 @@ import com.hcl.domino.mime.MimeReader;
 import com.hcl.domino.mime.MimeWriter;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.misc.Pair;
 import com.hcl.domino.mq.MessageQueues;
 import com.hcl.domino.naming.Names;
 import com.hcl.domino.naming.UserDirectory;
@@ -151,6 +152,7 @@ import com.hcl.domino.security.Ecl;
 import com.hcl.domino.server.ServerPingInfo;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
+import com.sun.jna.ptr.DoubleByReference;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.LongByReference;
 
@@ -1290,7 +1292,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
 
   @Override
-  public void compact(String pathname, Set<CompactMode> mode) {
+  public Pair<Double,Double> compact(String pathname, Set<CompactMode> mode) {
     if (StringUtil.isEmpty(pathname)) {
       throw new IllegalArgumentException("Pathname cannot be empty");
     }
@@ -1308,14 +1310,16 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
       }
     }
 
-    int timeLimit = 0;
-
     Memory pathnameMem = NotesStringUtils.toLMBCS(pathname, true);
 
-    short result = NotesCAPI.get().NSFDbCompactExtended4(pathnameMem, options1,
-        options2, timeLimit, null, null, null);
+    DoubleByReference retOriginalSize = new DoubleByReference();
+    DoubleByReference retCompactedSize = new DoubleByReference();
 
+    short result = NotesCAPI.get().NSFDbCompactExtendedExt2(pathnameMem, options1,
+        options2, null, null);
     checkResult(result);
+    
+    return new Pair<>(retOriginalSize.getValue(), retCompactedSize.getValue());
   }
 
   @Override

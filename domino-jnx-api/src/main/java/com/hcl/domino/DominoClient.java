@@ -64,6 +64,7 @@ import com.hcl.domino.mime.MimeReader;
 import com.hcl.domino.mime.MimeWriter;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.JNXThread;
+import com.hcl.domino.misc.Pair;
 import com.hcl.domino.mq.MessageQueues;
 import com.hcl.domino.naming.UserDirectory;
 import com.hcl.domino.person.Person;
@@ -391,8 +392,9 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    *
    * @param pathname path of local database
    * @param mode     compact flags
+   * @return the original and compacted size of the NSF
    */
-  void compact(String pathname, Set<CompactMode> mode);
+  Pair<Double,Double> compact(String pathname, Set<CompactMode> mode);
 
   /**
    * Creates a new database on the target server with a given file path.
