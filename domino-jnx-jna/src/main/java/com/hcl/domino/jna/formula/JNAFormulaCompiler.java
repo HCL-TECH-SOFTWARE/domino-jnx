@@ -20,11 +20,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
+import com.hcl.domino.data.FormulaAnalyzeResult;
+import com.hcl.domino.data.FormulaAnalyzeResult.FormulaAttributes;
 import com.hcl.domino.exception.FormulaCompilationException;
 import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.jna.internal.DisposableMemory;
@@ -39,6 +41,7 @@ import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.views.ViewFormulaCompiler;
+import com.hcl.domino.misc.DominoEnumUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
@@ -247,5 +250,63 @@ public class JNAFormulaCompiler implements FormulaCompiler {
       }
       return params;
     }
+  }
+
+  @Override
+  public FormulaAnalyzeResult analyzeFormula(String formula) {
+    Memory formulaName = null;
+    short formulaNameLength = 0;
+    Memory formulaText = NotesStringUtils.toLMBCS(formula, false, false);
+    short formulaTextLength = (short) formulaText.size();
+
+    DHANDLE.ByReference rethFormula = DHANDLE.newInstanceByReference();
+    ShortByReference retFormulaLength = new ShortByReference();
+    ShortByReference retCompileError = new ShortByReference();
+    ShortByReference retCompileErrorLine = new ShortByReference();
+    ShortByReference retCompileErrorColumn = new ShortByReference();
+    ShortByReference retCompileErrorOffset = new ShortByReference();
+    ShortByReference retCompileErrorLength = new ShortByReference();
+    
+    short result = NotesCAPI.get().NSFFormulaCompile(formulaName, formulaNameLength,
+        formulaText, formulaTextLength, rethFormula, retFormulaLength,
+        retCompileError, retCompileErrorLine, retCompileErrorColumn,
+        retCompileErrorOffset, retCompileErrorLength);
+    
+    if (result == INotesErrorConstants.ERR_FORMULA_COMPILATION) {
+      String errMsg = NotesErrorUtils.errToString(result); // "Formula Error"
+      String compileErrorReason = NotesErrorUtils.errToString(retCompileError.getValue());
+
+      throw new FormulaCompilationException(result, errMsg, formula,
+          compileErrorReason,
+          retCompileError.getValue(),
+          retCompileErrorLine.getValue(),
+          retCompileErrorColumn.getValue(),
+          retCompileErrorOffset.getValue(),
+          retCompileErrorLength.getValue());
+    }
+    NotesErrorUtils.checkResult(result);
+    
+    return LockUtil.lockHandle(rethFormula, (handleByVal) -> {
+      IntByReference retAttributes = new IntByReference();
+      ShortByReference retSummaryNamesOffset = new ShortByReference();
+      
+      short resultAnalyze = NotesCAPI.get().NSFFormulaAnalyze(handleByVal,
+          retAttributes,
+          retSummaryNamesOffset);
+      NotesErrorUtils.checkResult(resultAnalyze);
+      
+      Set<FormulaAttributes> attributes = DominoEnumUtil.valuesOf(FormulaAttributes.class, retAttributes.getValue());
+
+      Mem.OSMemFree(handleByVal);
+      return new FormulaAnalyzeResult() {
+
+        @Override
+        public Set<FormulaAttributes> getAttributes() {
+          return attributes;
+        }
+        
+      };
+    });
+  
   }
 }

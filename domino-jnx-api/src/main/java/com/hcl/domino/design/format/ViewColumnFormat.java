@@ -21,6 +21,9 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.hcl.domino.data.FormulaAnalyzeResult;
+import com.hcl.domino.data.FormulaAnalyzeResult.FormulaAttributes;
+import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.NotesConstants;
@@ -445,12 +448,23 @@ public interface ViewColumnFormat extends ResizableMemoryStructure {
   ViewColumnFormat setFlags2Raw(short flags);
 
   default ViewColumnFormat setFormula(final String formula) {
-    return StructureSupport.writeCompiledFormula(
+    StructureSupport.writeCompiledFormula(
         this,
         this.getItemNameLength() + this.getTitleLength(),
         this.getFormulaLength(),
         formula,
         this::setFormulaLength);
+    
+    //check if formula is a constant value
+    FormulaAnalyzeResult analyzeResult = FormulaCompiler.get().analyzeFormula(formula);
+    if (analyzeResult.getAttributes().contains(FormulaAttributes.CONSTANT)) {
+      setConstantValueLength(getFormulaLength());
+    }
+    else {
+      setConstantValueLength(0);
+    }
+    
+    return this;
   }
 
   @StructureSetter("FormulaSize")

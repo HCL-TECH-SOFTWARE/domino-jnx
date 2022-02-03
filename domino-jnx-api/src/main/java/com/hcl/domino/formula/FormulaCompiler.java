@@ -19,6 +19,7 @@ package com.hcl.domino.formula;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.hcl.domino.data.FormulaAnalyzeResult;
 import com.hcl.domino.exception.FormulaCompilationException;
 import com.hcl.domino.misc.JNXServiceFinder;
 
@@ -61,5 +62,7 @@ public interface FormulaCompiler {
   public List<String> getAllFormulaCommands();
   
   public List<String> getFunctionParameters(String atFunctionName);
+  
+  public FormulaAnalyzeResult analyzeFormula(String formula);
   
 }
