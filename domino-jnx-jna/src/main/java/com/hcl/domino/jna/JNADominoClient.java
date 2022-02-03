@@ -383,29 +383,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
     JNAUserNamesList userNamesList = (JNAUserNamesList) getEffectiveUserNamesList(serverName);
 
-    byte encryptStrengthByte = NotesConstants.DBCREATE_ENCRYPT_NONE;
-    switch (encryption) {
-      case Simple:
-        encryptStrengthByte = NotesConstants.DBCREATE_ENCRYPT_SIMPLE;
-        break;
-      case Medium:
-        encryptStrengthByte = NotesConstants.DBCREATE_ENCRYPT_MEDIUM;
-        break;
-      case Strong:
-        encryptStrengthByte = NotesConstants.DBCREATE_ENCRYPT_STRONG;
-        break;
-      case AES128:
-        encryptStrengthByte = NotesConstants.DBCREATE_ENCRYPT_AES128;
-        break;
-      case AES256:
-        encryptStrengthByte = NotesConstants.DBCREATE_ENCRYPT_AES256;
-        break;
-      case None:
-      default:
-        encryptStrengthByte = NotesConstants.DBCREATE_ENCRYPT_NONE;
-        break;
-    }
-    final byte fEncryptStrengthByte = encryptStrengthByte;
+    byte encryptStrengthByte = (byte) (encryption.getValue() & 0xff);
 
     short dbClassShort = dbClass.getValue();
     short optionsShort =
@@ -429,7 +407,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
         namesListAllocations == null ? null : namesListAllocations.getHandle(), (hNamesList) -> {
           return NotesCAPI.get().NSFDbCreateExtended4(path, dbClassShort, forceCreation,
               fOptionsShort,
-              options2, fEncryptStrengthByte, 0, (Memory) null, (Memory) null,
+              options2, encryptStrengthByte, 0, (Memory) null, (Memory) null,
               (short) 0, (short) 0, defaultDbOptionsByVal, hNamesList, (DHANDLE.ByValue) null);
         }));
 
@@ -525,7 +503,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
       copyFlags.add(CopyDatabase.ENCRYPT_SIMPLE);
     } else if (encryption == Encryption.Medium) {
       copyFlags.add(CopyDatabase.ENCRYPT_MEDIUM);
-    } else if (encryption == Encryption.Strong) {
+    } else if (encryption == Encryption.Strong || encryption == Encryption.AES128) {
       copyFlags.add(CopyDatabase.ENCRYPT_STRONG);
     }
 
@@ -540,13 +518,12 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
       String targetServerName, String targetFilePath,
       Encryption encryption) {
 
-    EnumSet<CopyDatabase> copyFlags =
-        EnumSet.of(CopyDatabase.REPLICA, CopyDatabase.REPLICA_NAMELIST);
+    EnumSet<CopyDatabase> copyFlags = EnumSet.noneOf(CopyDatabase.class);
     if (encryption == Encryption.Simple) {
       copyFlags.add(CopyDatabase.ENCRYPT_SIMPLE);
     } else if (encryption == Encryption.Medium) {
       copyFlags.add(CopyDatabase.ENCRYPT_MEDIUM);
-    } else if (encryption == Encryption.Strong) {
+    } else if (encryption == Encryption.Strong || encryption == Encryption.AES128) {
       copyFlags.add(CopyDatabase.ENCRYPT_STRONG);
     }
 

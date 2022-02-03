@@ -14,29 +14,33 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.crypt;
+package com.hcl.domino.exception;
 
-import com.hcl.domino.misc.INumberEnum;
+import com.hcl.domino.DominoException;
 
 /**
- * @since 1.0.18
+ * Represents error code 0x0386, "You should compact your database in order to complete the local security setting"
+ *
+ * @author Karsten Lehmann
+ * @since 1.3.5
  */
-public enum EncryptionStrength implements INumberEnum<Integer> {
-  UNENCRYPTED(0), SIMPLE(1), MEDIUM(2), STRONG(3), AES128(4);
+public class CompactionRequiredException extends DominoException {
+  private static final long serialVersionUID = 1L;
 
-  private final int value;
-
-  EncryptionStrength(final int value) {
-    this.value = value;
+  public CompactionRequiredException(final int id, final String message) {
+    super(id, message);
   }
 
-  @Override
-  public long getLongValue() {
-    return this.value;
+  public CompactionRequiredException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
   }
 
-  @Override
-  public Integer getValue() {
-    return this.value;
+  public CompactionRequiredException(final String msg) {
+    super(msg);
   }
+
+  public CompactionRequiredException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
+
 }

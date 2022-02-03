@@ -105,7 +105,9 @@ public enum CompactMode {
   ENABLE_ENCRYPTION(2, CompactConstants.DBCOMPACT2_ENABLE_ENCRYPTION),
 
   /** Create a new replica in the copy style compact */
-  COPY_REPLICA(2, CompactConstants.DBCOMPACT2_COPY_REPLICA);
+  COPY_REPLICA(2, CompactConstants.DBCOMPACT2_COPY_REPLICA),
+  /** Take database offline for compact */
+  FORCE(2, CompactConstants.DBCOMPACT2_FORCE);
 
   private interface CompactConstants {
     /*	Define options for DB compact. */

@@ -4632,4 +4632,11 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   int FA_ONLY_CONST_COMMAND_AND_SETTARGETFRAME = 0x00000200;
   int FA_FUNC_SETTARGETFRAME = 0x00000400;
 
+  /** if setting up a new database */
+  short LSECINFOSET_DBCREATE = 0x0001;
+  /** if clearing local security */
+  short LSECINFOSET_CLEAR = 0x0002;
+  /** if changing bulk key encryption */
+  short LSECINFOSET_MODIFY = 0x0004;
+
 }
