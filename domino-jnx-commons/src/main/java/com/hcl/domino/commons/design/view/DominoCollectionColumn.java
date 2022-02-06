@@ -553,7 +553,8 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     markViewFormatDirty();
     return this;
   }
-  
+
+  @Override
   public CollectionColumn setTwistieImage(CDResource res) {
     getFormat2(true).get().setTwistieResource(res).setFlag(Flag3.TwistieResource, true);
     markViewFormatDirty();
@@ -871,6 +872,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
         .orElse(NumberDisplayFormat.DECIMAL);
     }
 
+    @Override
     public NumberSettings setFormat(NumberDisplayFormat format) {
       NFMT nfmt = getFormat4(true).get().getNumberFormat();
       
@@ -923,6 +925,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
         .orElse(true);
     }
 
+    @Override
     public NumberSettings setVaryingDecimal(boolean b) {
       getFormat4(true)
       .ifPresent((fmt4) -> {
@@ -939,6 +942,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
         .orElse(0);
     }
 
+    @Override
     public NumberSettings setFixedDecimalPlaces(int d) {
       getFormat4(true)
       .ifPresent((fmt4) -> {
@@ -955,6 +959,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
         .orElse(false);
     }
 
+    @Override
     public NumberSettings setOverrideClientLocale(boolean b) {
       getFormat4(true)
       .ifPresent((fmt4) -> {
@@ -972,6 +977,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
         .orElse("."); //$NON-NLS-1$
     }
 
+    @Override
     public NumberSettings setDecimalSymbol(String s) {
       getFormat4(true)
       .ifPresent((fmt4) -> {
@@ -989,6 +995,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
         .orElse(","); //$NON-NLS-1$
     }
 
+    @Override
     public NumberSettings setThousandsSeparator(String s) {
       getFormat4(true)
       .ifPresent((fmt4) -> {
@@ -1005,6 +1012,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
         .orElse(false);
     }
 
+    @Override
     public NumberSettings setUseParenthesesWhenNegative(boolean b) {
       getFormat4(true)
       .ifPresent((fmt4) -> {
@@ -1021,6 +1029,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
         .orElse(false);
     }
 
+    @Override
     public NumberSettings setPunctuateThousands(boolean b) {
       getFormat4(true)
       .ifPresent((fmt4) -> {
@@ -1037,6 +1046,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
         .orElse(0l);
     }
 
+    @Override
     public NumberSettings setCurrencyIsoCode(long code) {
       getFormat4(true)
       .ifPresent((fmt4) -> {
@@ -1053,6 +1063,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
         .orElse(false);
     }
 
+    @Override
     public NumberSettings setUseCustomCurrencySymbol(boolean b) {
       getFormat4(true)
       .ifPresent((fmt4) -> {
@@ -1070,6 +1081,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
         .orElse("$"); //$NON-NLS-1$
     }
 
+    @Override
     public NumberSettings setCurrencySymbol(String s) {
       getFormat4(true)
       .ifPresent((fmt4) -> {
@@ -1086,6 +1098,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
         .orElse(false);
     }
 
+    @Override
     public NumberSettings setCurrencySymbolPostfix(boolean b) {
       getFormat4(true)
       .ifPresent((fmt4) -> {
@@ -1101,7 +1114,8 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
         .map(format4 -> format4.getCurrencyFlags().contains(CurrencyFlag.USESPACES))
         .orElse(false);
     }
-    
+
+    @Override
     public NumberSettings setUseSpaceNextToNumber(boolean b) {
       getFormat4(true)
       .ifPresent((fmt4) -> {
