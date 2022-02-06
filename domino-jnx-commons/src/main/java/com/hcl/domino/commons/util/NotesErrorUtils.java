@@ -62,6 +62,7 @@ import com.hcl.domino.exception.InvalidDocumentException;
 import com.hcl.domino.exception.ItemNotFoundException;
 import com.hcl.domino.exception.ItemNotPresentException;
 import com.hcl.domino.exception.MimePartNotFoundException;
+import com.hcl.domino.exception.NoCrossCertificateException;
 import com.hcl.domino.exception.NotAuthorizedException;
 import com.hcl.domino.exception.QuitPendingException;
 import com.hcl.domino.exception.ServerNotFoundException;
@@ -309,6 +310,8 @@ public class NotesErrorUtils {
         return Optional.of(new InvalidDocumentException(s, message));
       case INsfErr.ERR_LOCALSEC_NEEDCOMPACT:
         return Optional.of(new CompactionRequiredException(s, message));
+      case IBsafeErr.ERR_BSAFE_NO_CROSS_CERT:
+        return Optional.of(new NoCrossCertificateException(s, message));
       default:
         return Optional.of(new DominoException(s, message));
     }

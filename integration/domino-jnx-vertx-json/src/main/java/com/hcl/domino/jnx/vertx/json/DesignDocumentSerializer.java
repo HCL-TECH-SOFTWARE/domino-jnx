@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.exception.NoCrossCertificateException;
 
 /**
  * Custom  vertx Json Serializer for Document Object in Designs
@@ -35,7 +36,12 @@ public class DesignDocumentSerializer extends JsonSerializer<Document> {
 	@Override
 	public void serialize(Document value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
 		gen.writeStringField(UNID, value.getUNID());
-		gen.writeStringField(SIGNER, value.getSigner());
+		try {
+	    String signer = value.getSigner();
+		  gen.writeStringField(SIGNER, signer);
+		} catch(NoCrossCertificateException e) {
+		  // signer can't be verified - skip silently
+		}
 		gen.writeEndObject();
 	}
 }
