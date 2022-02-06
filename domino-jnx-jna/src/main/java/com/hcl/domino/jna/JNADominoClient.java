@@ -1316,7 +1316,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     DoubleByReference retCompactedSize = new DoubleByReference();
 
     short result = NotesCAPI.get().NSFDbCompactExtendedExt2(pathnameMem, options1,
-        options2, null, null);
+        options2, retOriginalSize, retCompactedSize);
     checkResult(result);
     
     return new Pair<>(retOriginalSize.getValue(), retCompactedSize.getValue());
