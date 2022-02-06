@@ -520,7 +520,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
       String targetServerName, String targetFilePath,
       Encryption encryption) {
 
-    EnumSet<CopyDatabase> copyFlags = EnumSet.noneOf(CopyDatabase.class);
+    EnumSet<CopyDatabase> copyFlags = EnumSet.of(CopyDatabase.REPLICA, CopyDatabase.REPLICA_NAMELIST);
     if (encryption == Encryption.Simple) {
       copyFlags.add(CopyDatabase.ENCRYPT_SIMPLE);
     } else if (encryption == Encryption.Medium) {
