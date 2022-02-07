@@ -395,6 +395,7 @@ public interface INotesCAPI extends Library {
 	short UpdateDAConfiguration(UpdateDAConfigStruct ldap);
 	short EnableDisableDADomain(EnableDisableDAStruct daConfig);
 	short VerifyLDAPConnection(VerifyLDAPConnectionStruct ldap);
+  @UndocumentedAPI
 	short OSGetSystemTempDirectory(Memory retPathName, int bufferLength);
   @UndocumentedAPI
 	void OSPathAddTrailingPathSep(Memory retPathName);
@@ -519,6 +520,7 @@ public interface INotesCAPI extends Library {
 			short Privileges,
 			IntByReference retObjectID);
 	
+	@UndocumentedAPI
 	short NSFDbAllocObjectExtended2(HANDLE.ByValue cDB,
 			int size, short noteClass, short privs, short type, IntByReference rtnRRV);
 
@@ -620,6 +622,7 @@ public interface INotesCAPI extends Library {
 
 	boolean NSFNoteIsSignedOrSealed(DHANDLE.ByValue note_handle, ByteByReference signed_flag_ptr, ByteByReference sealed_flag_ptr);
 
+	@UndocumentedAPI
 	short NSFNoteExpand(DHANDLE.ByValue hNote);
 	short NSFNoteVerifySignature(
 			DHANDLE.ByValue hNote,
@@ -646,6 +649,7 @@ public interface INotesCAPI extends Library {
 			DHANDLE.ByValue nameList);
 
 	void NIFGetLastModifiedTime(DHANDLE.ByValue hCollection, NotesTimeDateStruct retLastModifiedTime);
+  @UndocumentedAPI
 	void NIFGetLastAccessedTime(DHANDLE.ByValue hCollection, NotesTimeDateStruct retLastModifiedTime);
 	@UndocumentedAPI
 	void NIFGetNextDiscardTime(DHANDLE.ByValue hCollection, NotesTimeDateStruct retLastModifiedTime);
@@ -1618,6 +1622,7 @@ public interface INotesCAPI extends Library {
 
 	short NSFDbHasFullAccess(HANDLE.ByValue hDb);
 	short NSFDbReopen (HANDLE.ByValue hDb, HANDLE.ByReference retHDb);
+	@UndocumentedAPI
 	short NSFDbReopenWithFullAccess (HANDLE.ByValue hDb, HANDLE.ByReference retHDb);
 
 	short SECTokenGenerate(
