@@ -382,11 +382,11 @@ public class TestDbDesign extends AbstractDesignTest {
   @Test
   public void testFolders() {
     final DbDesign dbDesign = this.database.getDesign();
-    final Collection<CollectionDesignElement> collections = dbDesign.getFolders().collect(Collectors.toList());
+    final Collection<CollectionDesignElement<?>> collections = dbDesign.getFolders().collect(Collectors.toList());
     assertEquals(1, collections.size());
 
     {
-      CollectionDesignElement view = collections.stream().filter(v -> "test folder".equals(v.getTitle())).findFirst().orElse(null);
+      CollectionDesignElement<?> view = collections.stream().filter(v -> "test folder".equals(v.getTitle())).findFirst().orElse(null);
       assertNotNull(view);
 
       view = dbDesign.getCollection("test folder").orElse(null);
@@ -398,11 +398,11 @@ public class TestDbDesign extends AbstractDesignTest {
   @Test
   public void testFoldersAndViews() {
     final DbDesign dbDesign = this.database.getDesign();
-    final Collection<CollectionDesignElement> collections = dbDesign.getCollections().collect(Collectors.toList());
+    final Collection<CollectionDesignElement<?>> collections = dbDesign.getCollections().collect(Collectors.toList());
     assertEquals(3, collections.size()); // 2 imported + 1 default view
 
     {
-      CollectionDesignElement view = collections.stream().filter(v -> "test view".equals(v.getTitle())).findFirst().orElse(null);
+      CollectionDesignElement<?> view = collections.stream().filter(v -> "test view".equals(v.getTitle())).findFirst().orElse(null);
       assertNotNull(view);
 
       view = dbDesign.getCollection("test view").orElse(null);
@@ -410,7 +410,7 @@ public class TestDbDesign extends AbstractDesignTest {
       assertEquals("test view", view.getTitle());
     }
     {
-      CollectionDesignElement view = collections.stream().filter(v -> "test folder".equals(v.getTitle())).findFirst().orElse(null);
+      CollectionDesignElement<?> view = collections.stream().filter(v -> "test folder".equals(v.getTitle())).findFirst().orElse(null);
       assertNotNull(view);
 
       view = dbDesign.getCollection("test folder").orElse(null);
@@ -582,11 +582,11 @@ public class TestDbDesign extends AbstractDesignTest {
   @Test
   public void testViews() {
     final DbDesign dbDesign = this.database.getDesign();
-    final Collection<CollectionDesignElement> collections = dbDesign.getViews().collect(Collectors.toList());
+    final Collection<CollectionDesignElement<?>> collections = dbDesign.getViews().collect(Collectors.toList());
     assertEquals(2, collections.size()); // 1 imported + 1 default view
 
     {
-      CollectionDesignElement view = collections.stream().filter(v -> "test view".equals(v.getTitle())).findFirst().orElse(null);
+      CollectionDesignElement<?> view = collections.stream().filter(v -> "test view".equals(v.getTitle())).findFirst().orElse(null);
       assertNotNull(view);
 
       view = dbDesign.getCollection("test view").orElse(null);

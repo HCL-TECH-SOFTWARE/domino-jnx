@@ -520,7 +520,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
       String targetServerName, String targetFilePath,
       Encryption encryption) {
 
-    EnumSet<CopyDatabase> copyFlags = EnumSet.noneOf(CopyDatabase.class);
+    EnumSet<CopyDatabase> copyFlags = EnumSet.of(CopyDatabase.REPLICA, CopyDatabase.REPLICA_NAMELIST);
     if (encryption == Encryption.Simple) {
       copyFlags.add(CopyDatabase.ENCRYPT_SIMPLE);
     } else if (encryption == Encryption.Medium) {
@@ -1316,7 +1316,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     DoubleByReference retCompactedSize = new DoubleByReference();
 
     short result = NotesCAPI.get().NSFDbCompactExtendedExt2(pathnameMem, options1,
-        options2, null, null);
+        options2, retOriginalSize, retCompactedSize);
     checkResult(result);
     
     return new Pair<>(retOriginalSize.getValue(), retCompactedSize.getValue());
