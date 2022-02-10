@@ -21,7 +21,7 @@ See [the GraalVM docs](https://www.graalvm.org/reference-manual/native-image/Nat
 To compile the native image, run Maven with the `native-image` profile enabled:
 
 ```sh
-$ mvn client:build
+$ mvn client:build -Pnative-image
 ```
 
 ## Running

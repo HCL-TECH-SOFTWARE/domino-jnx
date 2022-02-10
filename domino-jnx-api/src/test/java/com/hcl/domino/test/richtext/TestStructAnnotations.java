@@ -41,7 +41,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.reflections.Reflections;
-import org.reflections.scanners.TypeAnnotationsScanner;
+import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;
 
 import com.hcl.domino.DominoClient;
@@ -70,8 +70,7 @@ public class TestStructAnnotations {
 					ConfigurationBuilder.build()
 					.forPackages(DominoClient.class.getPackage().getName())
 					.setExpandSuperTypes(false)
-					.useParallelExecutor()
-					.addScanners(new TypeAnnotationsScanner())
+					.addScanners(Scanners.TypesAnnotated)
 				).getTypesAnnotatedWith(StructureDefinition.class)
 				.stream()
 				.map(Arguments::of);

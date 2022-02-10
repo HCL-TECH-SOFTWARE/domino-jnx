@@ -131,6 +131,14 @@
                 </property>
             </activation>
 
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>artifactory.openntf.org</id>
+                    <name>artifactory.openntf.org</name>
+                    <url>https://artifactory.openntf.org/openntf</url>
+                </pluginRepository>
+            </pluginRepositories>
+
             <repositories>
                 <repository>
                     <id>com.hcl.xsp.p2</id>
@@ -153,7 +161,7 @@
                     <plugin>
                         <groupId>org.openntf.maven</groupId>
                         <artifactId>p2-layout-resolver</artifactId>
-                        <version>1.2.0</version>
+                        <version>1.4.0</version>
                         <extensions>true</extensions>
                     </plugin>
                 </plugins>

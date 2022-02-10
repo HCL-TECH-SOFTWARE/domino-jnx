@@ -123,7 +123,7 @@
 		<jakarta.json.version>2.0.1</jakarta.json.version>
 		<jakarta.json.bind.version>2.0.0</jakarta.json.bind.version>
 		<jakarta.mail.version>2.0.1</jakarta.mail.version>
-		<jakarta.activation.version>2.0.1</jakarta.activation.version>
+		<jakarta.activation.version>2.1.0</jakarta.activation.version>
 		<java.version>1.8</java.version>
 		<javasimon.version>4.2.0</javasimon.version>
 		<joda.version>2.10</joda.version>
@@ -138,14 +138,14 @@
 		<mustache.version>0.9.10</mustache.version>
 		<netty.ssl.version>2.0.46.Final</netty.ssl.version>
 		<net.java.dev.jna-version>5.10.0</net.java.dev.jna-version>
-		<org.eclipse.yasson.version>2.0.3</org.eclipse.yasson.version>
-		<pmd.version>6.41.0</pmd.version>
+		<org.eclipse.yasson.version>2.0.4</org.eclipse.yasson.version>
+		<pmd.version>6.42.0</pmd.version>
 		<powermock.version>2.0.9</powermock.version>
 		<saxon.version>10.6</saxon.version>
-		<spotbugs.version>4.5.2</spotbugs.version>
+		<spotbugs.version>4.5.3</spotbugs.version>
 		<spotless.version>2.4.1</spotless.version>
 		<testcontainers.version>1.15.2</testcontainers.version>
-		<vertx.version>4.2.3</vertx.version>
+		<vertx.version>4.2.4</vertx.version>
 		<yaml.version>1.25</yaml.version>
 
 
