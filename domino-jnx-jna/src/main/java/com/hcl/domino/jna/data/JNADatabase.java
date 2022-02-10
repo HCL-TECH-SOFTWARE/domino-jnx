@@ -2173,13 +2173,8 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		return hasFullAccess==1;
 	}
 	
-	/**
-	 * Reopens the database for a new use
-	 * 
-	 * @return database
-	 */
 	@Override
-	public JNADatabase reopen() {
+	public Database reopen() {
 		checkDisposed();
 		
 		HANDLE.ByReference rethNewDb = HANDLE.newInstanceByReference();
