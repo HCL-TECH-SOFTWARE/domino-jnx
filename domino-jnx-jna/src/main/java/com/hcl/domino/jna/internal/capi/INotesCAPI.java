@@ -1622,8 +1622,6 @@ public interface INotesCAPI extends Library {
 
 	short NSFDbHasFullAccess(HANDLE.ByValue hDb);
 	short NSFDbReopen (HANDLE.ByValue hDb, HANDLE.ByReference retHDb);
-	@UndocumentedAPI
-	short NSFDbReopenWithFullAccess (HANDLE.ByValue hDb, HANDLE.ByReference retHDb);
 
 	short SECTokenGenerate(
 			Memory ServerName,

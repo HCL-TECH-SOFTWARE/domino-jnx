@@ -2174,40 +2174,6 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	}
 	
 	/**
-	 * Reopens the database with full access rights
-	 * 
-	 * @return database
-	 */
-	public JNADatabase reopenWithFullAccess() {
-		checkDisposed();
-		
-		HANDLE.ByReference rethNewDb = HANDLE.newInstanceByReference();
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().NSFDbReopenWithFullAccess(hDbByVal, rethNewDb);
-		});
-		NotesErrorUtils.checkResult(result);
-		
-		JNAUserNamesList serverNamesList = NotesNamingUtils.buildNamesList(getParent(), getParentDominoClient().getIDUserName());
-		NotesNamingUtils.setPrivileges(serverNamesList, EnumSet.of(Privileges.Authenticated, Privileges.FullAdminAccess));
-		
-		return new JNADatabase(getParentDominoClient(), new IAdaptable() {
-
-			@Override
-			@SuppressWarnings("unchecked")
-			public <T> T getAdapter(Class<T> clazz) {
-				if (HANDLE.class.equals(clazz)) {
-					return (T) rethNewDb;
-				}
-				else if (JNAUserNamesList.class.equals(clazz)) {
-					return (T) serverNamesList;
-				}
-				else {
-					return null;
-				}
-			}
-		});
-	}
-	/**
 	 * Reopens the database for a new use
 	 * 
 	 * @return database
