@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -364,5 +364,30 @@ public enum MemoryStructureUtil {
     }
     
     return false;
+  }
+  
+  /**
+   * Inspects the incoming value and "expands" it if necessary for an equivalent positive value in
+   * the target size. For example, if {@code newVal} is a {@code Byte} and {@code member} represents
+   * a {@code short}, this will return an equivalent positive value to {@code newVal}'s signed
+   * negative scope.
+   * 
+   * <p>Note: this is intended for use specifically for cases of writing enumerated values, which
+   * are assumed to be positive.</p>
+   * 
+   * @param newVal the incoming value to convert
+   * @param member the struct member the value is going to be written to
+   * @return a potentially-resized version of {@code newVal} for storage
+   * @since 1.1.2
+   */
+  public static Number matchPrimitiveSizeForEnum(Number newVal, StructMember member) {
+    if(newVal instanceof Byte && Short.TYPE.equals(member.type)) {
+      return Byte.toUnsignedInt((Byte)newVal);
+    } else if(newVal instanceof Short && Integer.TYPE.equals(member.type)) {
+      return Short.toUnsignedInt((Short)newVal);
+    } else if(newVal instanceof Integer && Long.TYPE.equals(member.type)) {
+      return Integer.toUnsignedLong((Integer)newVal);
+    }
+    return newVal;
   }
 }

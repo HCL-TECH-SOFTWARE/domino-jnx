@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -22,6 +22,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.exception.NoCrossCertificateException;
 
 /**
  * Custom  vertx Json Serializer for Document Object in Designs
@@ -35,7 +36,12 @@ public class DesignDocumentSerializer extends JsonSerializer<Document> {
 	@Override
 	public void serialize(Document value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
 		gen.writeStringField(UNID, value.getUNID());
-		gen.writeStringField(SIGNER, value.getSigner());
+		try {
+	    String signer = value.getSigner();
+		  gen.writeStringField(SIGNER, signer);
+		} catch(NoCrossCertificateException e) {
+		  // signer can't be verified - skip silently
+		}
 		gen.writeEndObject();
 	}
 }

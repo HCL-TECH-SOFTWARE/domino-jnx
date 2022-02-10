@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -18,11 +18,13 @@ package com.hcl.domino.design;
 
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.NotesFont;
@@ -38,9 +40,11 @@ import com.hcl.domino.richtext.structures.RawColorValue;
 import com.hcl.domino.security.AclLevel;
 
 /**
- * Describes a collection design element, i.e. a view or folder
+ * Describes a collection design element, i.e. a view or folder.<br>
+ * <br>
+ * APIs to create new views/folders and edit its design has been added in version 1.2.4.
  */
-public interface CollectionDesignElement extends DesignElement.NamedDesignElement, DesignElement.XPageAlternativeElement,
+public interface CollectionDesignElement<T extends CollectionDesignElement<?>> extends DesignElement.NamedDesignElement, DesignElement.XPageAlternativeElement,
   DesignElement.ThemeableClassicElement, DesignElement.AutoFrameElement, DesignElement.ActionBarElement,
   DesignElement.ReadersRestrictedElement {
 
@@ -144,12 +148,32 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    */
   interface CompositeAppSettings {
     boolean isHideColumnHeader();
+    
+    CompositeAppSettings setHideColumnHeader(boolean b);
+    
     boolean isShowPartialHierarchies();
+    
+    CompositeAppSettings setShowPartialHierarchies(boolean b);
+    
     boolean isShowSwitcher();
+    
+    CompositeAppSettings setShowSwitcher(boolean b);
+    
     boolean isShowTabNavigator();
+    
+    CompositeAppSettings setShowTabNavigator(boolean b);
+    
     String getViewers();
+    
+    CompositeAppSettings setViewers(String s);
+    
     String getThreadView();
+    
+    CompositeAppSettings setThreadView(String s);
+    
     boolean isAllowConversationMode();
+    
+    CompositeAppSettings setAllowConversationMode(boolean b);
   }
   
   /**
@@ -166,6 +190,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     ColorValue getDaySeparatorColor();
     
+    CalendarSettings setDaySeparatorColor(ColorValue color);
+    
     /**
      * Retrieves the color used for the background of the calendar header.
      * 
@@ -173,12 +199,16 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     RawColorValue getHeaderBackgroundColor();
     
+    CalendarSettings setHeaderBackgroundColor(RawColorValue color);
+    
     /**
      * Retrieves the display style for the calendar header.
      * 
      * @return a {@link CalendarHeaderStyle} instance
      */
     CalendarHeaderStyle getHeaderStyle();
+    
+    CalendarSettings setHeaderStyle(CalendarHeaderStyle style);
     
     /**
      * Retrieves the tabs and options configured to display in the header of
@@ -188,12 +218,16 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     Set<CalendarTab> getTabs();
     
+    CalendarSettings setTabs(Collection<CalendarTab> tabs);
+    
     /**
      * Retrieves the background color for the date area.
      * 
      * @return a {@link ColorValue} instance
      */
     ColorValue getDateBackgroundColor();
+    
+    CalendarSettings setDateBackgroundColor(ColorValue color);
     
     /**
      * Retrieves the color used for the current day in the date area.
@@ -202,12 +236,16 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     StandardColors getTodayColor();
     
+    CalendarSettings setTodayColor(StandardColors color);
+    
     /**
      * Retrieves the color used for the to-do area in the date area.
      * 
      * @return a {@link RawColorValue} instance
      */
     RawColorValue getToDoAreaColor();
+    
+    CalendarSettings setToDoAreaColor(RawColorValue color);
     
     /**
      * Determines whether the date area should display large numbers.
@@ -217,6 +255,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     boolean isDisplayLargeNumbers();
     
+    CalendarSettings setDisplayLargeNumbers(boolean b);
+    
     /**
      * Retrieves the color used for work hours in the daily view.
      * 
@@ -224,12 +264,16 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     RawColorValue getDailyWorkHoursColor();
     
+    CalendarSettings setDailyWorkHoursColor(RawColorValue color);
+    
     /**
      * Retrieves the color used for non-work hours in the daily view.
      * 
      * @return a {@link ColorValue} instance
      */
     RawColorValue getDailyOtherHoursColor();
+    
+    CalendarSettings setDailyOthersHoursColors(RawColorValue color);
     
     /**
      * Retrieves the color used to display months outside the current month
@@ -239,12 +283,16 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     ColorValue getNonCurrentMonthColor();
     
+    CalendarSettings setNonCurrentMonthColor(ColorValue color);
+    
     /**
      * Retrieves the color used for text in the monthly view.
      * 
      * @return a {@link ColorValue} instance
      */
     ColorValue getMonthlyTextColor();
+    
+    CalendarSettings setMonthlyTextColor(ColorValue color);
     
     /**
      * Retrieves the background color used for entries.
@@ -253,6 +301,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     ColorValue getEntryBackgroundColor();
     
+    CalendarSettings setEntryBackgroundColor(ColorValue color);
+    
     /**
      * Determines whether the calendar should display save-conflict marks.
      * 
@@ -260,6 +310,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      *         {@code false} otherwise
      */
     boolean isShowConflictMarks();
+    
+    CalendarSettings setShowConflictMarks(boolean b);
     
     /**
      * Retrieves the font style used for displaying time slots and grouping
@@ -298,6 +350,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     Set<CalendarLayout> getUserCalendarFormats();
     
+    CalendarSettings setUserCalendarFormats(Collection<CalendarLayout> layouts);
+    
     /**
      * Retrieves the default calendar format for users viewing the collection.
      * 
@@ -307,6 +361,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     Optional<CalendarLayout> getInitialUserCalendarFormat();
     
+    CalendarSettings setInitialUserCalendarFormat(CalendarLayout layout);
+    
     /**
      * Determines whether users are able to see the time-slot display.
      * 
@@ -314,6 +370,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      *         {@code false} otherwise
      */
     boolean isTimeSlotDisplayAvailable();
+    
+    CalendarSettings setTimeSlotDisplayAvailable(boolean b);
     
     /**
      * Retrieves the start time to use for displaying time slots when
@@ -323,6 +381,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     LocalTime getTimeSlotStart();
     
+    CalendarSettings setTimeSlotStart(LocalTime time);
+    
     /**
      * Retrieves the end time to use for displaying time slots when
      * {@link #isTimeSlotDisplayAvailable()} is {@code true}.
@@ -331,6 +391,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     LocalTime getTimeSlotEnd();
     
+    CalendarSettings setTimeSlotEnd(LocalTime time);
+    
     /**
      * Retrieves the duration to use for displaying time slots when
      * {@link #isTimeSlotDisplayAvailable()} is {@code true}.
@@ -338,6 +400,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      * @return a {@link Duration} instance
      */
     Duration getTimeSlotDuration();
+    
+    CalendarSettings setTimeSlotDuration(Duration d);
     
     /**
      * Determines whether users can override the time-slot display settings
@@ -348,6 +412,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     boolean isTimeSlotsOverridable();
     
+    CalendarSettings setTimeSlotsOverridable(boolean b);
+    
     /**
      * Determines whether users are able to toggle time slots on and off
      * for each day when {@link #isTimeSlotDisplayAvailable()} is {@code true}.
@@ -357,6 +423,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     boolean isAllowUserTimeSlotToggle();
     
+    CalendarSettings setAllowUserTimeSlotToggle(boolean b);
+    
     /**
      * Determines whether entries should be grouped together by time slot.
      * 
@@ -364,6 +432,9 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      *         {@code false} otherwise
      */
     boolean isGroupEntriesByTimeSlot();
+    
+    CalendarSettings setGroupEntriesByTimeSlot(boolean b);
+    
   }
   
   /**
@@ -380,6 +451,9 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      * @return a {@link ColorValue} representing the background color
      */
     ColorValue getBackgroundColor();
+    
+    DisplaySettings setBackgroundColor(ColorValue color);
+    
     /**
      * Retrieves the background color for alternating rows.
      * 
@@ -387,6 +461,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      *         alternating rows
      */
     ColorValue getAlternateRowColor();
+    
+    DisplaySettings setAlternateRowColor(ColorValue color);
     
     /**
      * Determines whether the value of {@link #getAlternateRowColor()} is used.
@@ -396,6 +472,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     boolean isUseAlternateRowColor();
     
+    DisplaySettings setUseAlternateRowColor(boolean b);
+    
     /**
      * Retrieves the background image for the collection, if specified.
      * 
@@ -403,12 +481,32 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      *         has been specified; an empty one otherwise
      */
     Optional<CDResource> getBackgroundImage();
+    
+    DisplaySettings setBackgroundImage(CDResource resource);
+    
+    /**
+     * Convenience function that sets the background image to
+     * 
+     * @param name image resource name
+     * @return this instance
+     */
+    DisplaySettings setBackgroundImageName(String name);
+    
+    /**
+     * Removes the background image
+     * 
+     * @return this instance
+     */
+    DisplaySettings clearBackgroundImage();
+    
     /**
      * Retrieves the repeat mode for the background image.
      * 
      * @return an {@link ImageRepeatMode} for the background image
      */
     ImageRepeatMode getBackgroundImageRepeatMode();
+    
+    DisplaySettings setBackgroundRepeatMode(ImageRepeatMode mode);
     
     /**
      * Retrieves the specified grid style for the view or folder.
@@ -417,12 +515,16 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     GridStyle getGridStyle();
     
+    DisplaySettings setGridStyle(GridStyle style);
+    
     /**
      * Retrieves the color used for the grid.
      * 
      * @return a {@link ColorValue} representing the color of the grid
      */
     ColorValue getGridColor();
+    
+    DisplaySettings setGridColor(ColorValue color);
     
     /**
      * Retrieves the specified header display style for table-format views and
@@ -432,6 +534,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     HeaderStyle getHeaderStyle();
     
+    DisplaySettings setHeaderStyle(HeaderStyle style);
+    
     /**
      * Retrieves the specified header display color for table-format views and
      * folders.
@@ -439,6 +543,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      * @return a {@link ColorValue} instance for the header color
      */
     ColorValue getHeaderColor();
+    
+    DisplaySettings setHeaderColor(ColorValue color);
     
     /**
      * Retrieves the number of lines used to display the header in table-format
@@ -448,6 +554,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     int getHeaderLines();
     
+    DisplaySettings setHeaderLines(int lines);
+    
     /**
      * Retrieves the number of lines used to display each row in a view or folder.
      * 
@@ -455,12 +563,16 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     int getRowLines();
     
+    DisplaySettings setRowLines(int lines);
+    
     /**
      * Retrieves the line-spacing mode used for each row in a view or folder.
      * 
      * @return a {@link ViewLineSpacing} instance for the row spacing mode
      */
     ViewLineSpacing getLineSpacing();
+    
+    DisplaySettings setLineSpacing(ViewLineSpacing spacing);
     
     /**
      * Determines whether the view or folder should shrink rows to fit the actual content
@@ -470,6 +582,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      *         {@code false} otherwise
      */
     boolean isShrinkRowsToContent();
+    
+    DisplaySettings setShrinkRowsToContent(boolean b);
     
     /**
      * Determines whether empty categories (e.g. those where the only entries are hidden
@@ -481,6 +595,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
     // TODO determine whether this also affects API access and consider moving to the top level if so
     boolean isHideEmptyCategories();
     
+    DisplaySettings setHideEmptyCategories(boolean b);
+    
     /**
      * Determines whether view icons should be colorized when displayed.
      * 
@@ -488,6 +604,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      *         {@code false} otherwise
      */
     boolean isColorizeViewIcons();
+    
+    DisplaySettings setColorizeViewIcons(boolean b);
     
     /**
      * Retrieves the color used for text in unread-document rows in Notes 5.
@@ -499,6 +617,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     ColorValue getUnreadColor();
     
+    DisplaySettings setUnreadColor(ColorValue color);
+    
     /**
      * Determines whether unread-document rows should use bold text in Notes
      * 6 and newer.
@@ -508,12 +628,16 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     boolean isUnreadBold();
     
+    DisplaySettings setUnreadBold(boolean b);
+    
     /**
      * Retrieves the color used for total-row text.
      * 
      * @return a {@link ColorValue} representing the total-row color
      */
     ColorValue getColumnTotalColor();
+    
+    DisplaySettings setColumnTotalColor(ColorValue color);
     
     /**
      * Determines whether the view or folder should be displayed with a margin for
@@ -524,6 +648,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     boolean isShowSelectionMargin();
     
+    DisplaySettings setShowSelectionMargin(boolean b);
+    
     /**
      * Determines whether, when {@link #isShowSelectionMargin()} is {@code true}, the
      * border between the margin and body should be hidden.
@@ -532,6 +658,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      *         {@code false} otherwise
      */
     boolean isHideSelectionMarginBorder();
+    
+    DisplaySettings setHideSelectionMarginBorder(boolean b);
     
     /**
      * Determines whether the last column in the view or folder should be extended to
@@ -545,6 +673,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     boolean isExtendLastColumnToWindowWidth();
     
+    DisplaySettings setExtendLastColumnToWindowWidth(boolean b);
+    
     /**
      * Retrieves an object representing the top, left, right, and bottom margins around
      * the edge of the view or folder.
@@ -554,6 +684,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     EdgeWidths getMargin();
     
+    DisplaySettings setMargin(EdgeWidths w);
+    
     /**
      * Retrieves the setting for the margin below the view or folder header.
      * 
@@ -562,12 +694,17 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     int getBelowHeaderMargin();
     
+    DisplaySettings setBelowHeaderMargin(int val);
+    
     /**
      * Retrieves the color used for the view or folder margin.
      * 
      * @return a {@link ColorValue} representing the view or folder margin
      */
     ColorValue getMarginColor();
+    
+    DisplaySettings setMarginColor(ColorValue color);
+    
   }
   
   /**
@@ -584,6 +721,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     IndexRefreshMode getRefreshMode();
     
+    IndexSettings setRefreshMode(IndexRefreshMode mode);
+    
     /**
      * Retrieves the "refresh at most X seconds" value.
      * 
@@ -597,12 +736,16 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     OptionalInt getRefreshMaxIntervalSeconds();
     
+    IndexSettings setRefreshMaxIntervalSeconds(int seconds);
+    
     /**
      * Retrieves the index discard mode.
      * 
      * @return a {@link IndexDiscardMode} instance for the view or folder
      */
     IndexDiscardMode getDiscardMode();
+    
+    IndexSettings setDiscardMode(IndexDiscardMode mode);
     
     /**
      * Retrieves the "discard if inactive for X hours" value.
@@ -617,6 +760,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     OptionalInt getDiscardAfterHours();
     
+    IndexSettings setDiscardAfterHours(int hours);
+    
     /**
      * Determines whether the initial index build should be restricted to an ID
      * with {@link AclLevel#DESIGNER Designer} or
@@ -625,6 +770,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      * @return whether initial index building is restricted
      */
     boolean isRestrictInitialBuildToDesigner();
+    
+    IndexSettings setRestrictInitialBuildToDesigner(boolean b);
     
     /**
      * Determines whether the indexer should limit entries to one per unique collation
@@ -643,6 +790,9 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      *         {@code false} otherwise
      */
     boolean isIncludeUpdatesInTransactionLog();
+    
+    IndexSettings setIncludeUpdatesInTransactionLog(boolean b);
+    
   }
   
   /**
@@ -662,6 +812,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     boolean isTreatAsHtml();
     
+    WebRenderingSettings setTreatAsHtml(boolean b);
+    
     /**
      * Determines whether the collection should be rendered using a Java applet instead of
      * HTML-based controls.
@@ -671,6 +823,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      */
     boolean isUseJavaApplet();
     
+    WebRenderingSettings setUseJavaApplet(boolean b);
+    
     /**
      * Determines whether the collection should include selection checkboxes when rendered
      * using HTML controls.
@@ -679,6 +833,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      *         {@code false} otherwise
      */
     boolean isAllowSelection();
+    
+    WebRenderingSettings setAllowSelection(boolean b);
     
     /**
      * Retrieves the color used for active links when using HTML controls.
@@ -709,27 +865,98 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
      *         {@code false} otherwise
      */
     boolean isAllowWebCrawlerIndexing();
+    
+    WebRenderingSettings setAllowWebCrawlerIndexing(boolean b);
+    
   }
 
-  CollectionDesignElement addColumn();
+  /**
+   * Appends a new column with default properties
+   * 
+   * @param title column title
+   * @param itemName programmatic name
+   * @param consumer receives the added column for further processing
+   * @return this instance
+   */
+  default T addColumn(String title, String itemName, Consumer<CollectionColumn> consumer) {
+    return addColumn(-1, title, itemName, consumer);
+  }
+
+  /**
+   * Inserts a new column at the specified position with default properties
+   * 
+   * @param pos target position or -1 to append at the end
+   * @param title column title
+   * @param itemName programmatic name
+   * @param consumer receives the added column for further processing
+   * @return this instance
+   */
+  T addColumn(int pos, String title, String itemName, Consumer<CollectionColumn> consumer);
+
+  /**
+   * Appends a new column by copying all properties from the provided template column
+   * 
+   * @param templateCol template column to copy properties
+   * @param consumer receives the added column for further processing
+   * @return this instance
+   */
+  default T addColumn(CollectionColumn templateCol, Consumer<CollectionColumn> consumer) {
+    return addColumn(-1, templateCol, consumer);
+  }
+  
+  /**
+   * Inserts a new column at the specified position by copying all properties from the provided template column
+   * 
+   * @param pos target position or -1 to append at the end
+   * @param templateCol template column to copy properties
+   * @param consumer receives the added column for further processing
+   * @return this instance
+   */
+  public T addColumn(int pos, CollectionColumn templateCol, Consumer<CollectionColumn> consumer);
+
+  /**
+   * Removes the specified column
+   * 
+   * @param column column
+   * @return this instance
+   */
+  T removeColumn(CollectionColumn column);
+
+  T swapColumns(CollectionColumn a, CollectionColumn b);
+
+  T swapColumns(int a, int b);
 
   com.hcl.domino.data.DominoCollection getCollection();
 
+  /**
+   * Returns all columns as a read-only list. Use the add/remove/swap methods to
+   * change the column list or the setters of {@link CollectionColumn} to tweak
+   * the column properties.
+   * 
+   * @return columns
+   */
   List<CollectionColumn> getColumns();
 
+  /**
+   * Transfers all columns from another view or folder, overwriting
+   * our current columns
+   * 
+   * @param viewOrFolder other view or folder
+   * @return this instance
+   */
+  T copyViewFormatFrom(CollectionDesignElement<?> viewOrFolder);
+  
   OnOpen getOnOpenUISetting();
 
+  T setOnOpenUISetting(OnOpen setting);
+  
   OnRefresh getOnRefreshUISetting();
-
+  
   boolean isAllowCustomizations();
 
-  CollectionDesignElement removeColumn(CollectionColumn column);
+  T setAllowCustomizations(boolean b);
 
-  CollectionDesignElement setOnRefreshUISetting(OnRefresh onRefreshUISetting);
-
-  CollectionDesignElement swapColumns(CollectionColumn a, CollectionColumn b);
-
-  CollectionDesignElement swapColumns(int a, int b);
+  T setOnRefreshUISetting(OnRefresh onRefreshUISetting);
   
   /**
    * Retrieves the style of the collection - namely, whether it is displayed in
@@ -740,6 +967,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    */
   Style getStyle();
 
+  T setStyle(Style style);
+  
   /**
    * Determines whether the view or folder is marked as the default to display on
    * database open.
@@ -749,6 +978,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.32
    */
   boolean isDefaultCollection();
+  
+  T setDefaultCollection(boolean b);
   
   /**
    * Determines whether the view or folder is marked as the default design for new
@@ -760,6 +991,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    */
   boolean isDefaultCollectionDesign();
   
+  T setDefaultCollectionDesign(boolean b);
+  
   /**
    * Determines whether all non-leaf entries should be collapsed when the user first
    * opens the database.
@@ -769,6 +1002,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.32
    */
   boolean isCollapseAllOnFirstOpen();
+  
+  T setCollapseAllOnFirstOpen(boolean b);
   
   /**
    * Determines whether response documents selected by the view will be indexed in
@@ -780,6 +1015,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    */
   boolean isShowResponseDocumentsInHierarchy();
   
+  T setShowResponseDocumentsInHierarchy(boolean b);
+  
   /**
    * Determines whether the view or folder should be shown in the client View menu
    * as its own entry.
@@ -789,6 +1026,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.32
    */
   boolean isShowInViewMenu();
+  
+  T setShowInViewMenu(boolean b);
   
   /**
    * Determines whether computed attributes of action-bar actions should be evaluated each
@@ -800,6 +1039,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    */
   boolean isEvaluateActionsOnDocumentChange();
   
+  T setEvaluateActionsOnDocumentChange(boolean b);
+  
   /**
    * Determines whether the view or folder is configured to allow the user to create new
    * documents within the displayed table.
@@ -809,6 +1050,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.32
    */
   boolean isCreateDocumentsAtViewLevel();
+  
+  T setCreateDocumentsAtViewLevel(boolean b);
   
   /**
    * Retrieves an object that provides a view onto this collection's settings for use in
@@ -834,6 +1077,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.32
    */
   UnreadMarksMode getUnreadMarksMode();
+  
+  T setUnreadMarksMode(UnreadMarksMode mode);
   
   /**
    * Retrieves an object that provides a view onto this collection's indexing settings.
@@ -861,6 +1106,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    */
   boolean isAllowDominoDataService();
   
+  T setAllowDominoDataService(boolean b);
+  
   /**
    * Retrieves the name of the profile document used to define the colors for user-
    * definable color columns, if set.
@@ -872,6 +1119,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    */
   Optional<String> getColumnProfileDocName();
   
+  T setColumnProfileDocName(String name);
+  
   /**
    * Retrieves the programmatic names of columns set as user-definable color columns
    * and with "use column formula as backup" disabled.
@@ -880,6 +1129,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.32
    */
   Set<String> getUserDefinableNonFallbackColumns();
+  
+  T setUserDefinableNonFallbackColumns(Collection<String> col);
   
   /**
    * Retrieves the form formula for the view or folder, if specified.
@@ -890,6 +1141,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    */
   Optional<String> getFormFormula();
   
+  T setFormFormula(String formula);
+  
   /**
    * Retrieves the help-request formula for the view or folder, if specified.
    * 
@@ -898,6 +1151,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.34
    */
   Optional<String> getHelpRequestFormula();
+  
+  T setHelpRequestFormula(String formula);
   
   /**
    * Retrieves the single-click target-frame formula for the view or folder, if specified.
@@ -953,6 +1208,8 @@ public interface CollectionDesignElement extends DesignElement.NamedDesignElemen
    * @since 1.0.41
    */
   boolean isCalendarFormat();
+  
+  T setCalendarFormat(boolean b);
   
   /**
    * Retrieves the calendar-specific settings for this view or folder. This only applies

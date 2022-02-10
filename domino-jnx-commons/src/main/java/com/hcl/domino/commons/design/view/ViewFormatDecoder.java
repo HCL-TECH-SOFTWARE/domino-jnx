@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -14,7 +14,7 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.jna.internal.views;
+package com.hcl.domino.commons.design.view;
 
 import static com.hcl.domino.commons.util.NotesItemDataUtil.readBuffer;
 import static com.hcl.domino.commons.util.NotesItemDataUtil.readMemory;
@@ -22,14 +22,13 @@ import static com.hcl.domino.commons.util.NotesItemDataUtil.subBuffer;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hcl.domino.commons.design.view.DominoCalendarFormat;
-import com.hcl.domino.commons.design.view.DominoViewColumnFormat;
-import com.hcl.domino.commons.design.view.DominoViewFormat;
 import com.hcl.domino.commons.misc.ODSTypes;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
+import com.hcl.domino.data.Document;
 import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.design.format.ViewCalendarFormat;
 import com.hcl.domino.design.format.ViewCalendarFormat2;
@@ -46,14 +45,15 @@ import com.hcl.domino.design.format.ViewTableFormat4;
 import com.hcl.domino.misc.ViewFormatConstants;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.records.CDResource;
-import com.sun.jna.Pointer;
 
+/**
+ * Utility class to decode the $ViewFormat item value
+ * 
+ * @author Jesse Gallagher
+ */
 public class ViewFormatDecoder {
 	
-	public static DominoViewFormat decodeViewFormat(Pointer dataPtr, int valueLength) {
-	  // Since it appears that ODSReadMemory is harmful on platforms we support, use a ByteBuffer for safety
-	  ByteBuffer data = dataPtr.getByteBuffer(0, valueLength);
-		
+	public static DominoViewFormat decodeViewFormat(Document parentDoc, ByteBuffer data) {
 		/*
 		 * All views have:
 		 * - VIEW_TABLE_FORMAT (starts with VIEW_FORMAT_HEADER)
@@ -61,22 +61,24 @@ public class ViewFormatDecoder {
 		 * - var data * colCount
 		 */
 		
-		DominoViewFormat result = new DominoViewFormat();
+		DominoViewFormat result = new DominoViewFormat(parentDoc);
 		
 		ViewTableFormat format1 = readMemory(data, ODSTypes._VIEW_TABLE_FORMAT, ViewTableFormat.class);
 		result.read(format1);
 		
-		List<DominoViewColumnFormat> columns = new ArrayList<>();
+		List<DominoCollectionColumn> columns = new ArrayList<>();
 		
-		int columnValuesIndex = 0;
 		// Always present
 		{
 			int vcfSize = MemoryStructureUtil.sizeOf(ViewColumnFormat.class);
 			ByteBuffer pPackedData = data.duplicate().order(ByteOrder.nativeOrder());
 			pPackedData.position(pPackedData.position()+(vcfSize * format1.getColumnCount()));
+
+			int colCount = format1.getColumnCount();
+			//reset column count; will be increased when the column format is added
+			format1.setColumnCount(0);
 			
-			for(int i = 0; i < format1.getColumnCount(); i++) {
-				
+			for(int i = 0; i < colCount; i++) {
 				ViewColumnFormat tempCol = readMemory(data, ODSTypes._VIEW_COLUMN_FORMAT, ViewColumnFormat.class);
 				
 				// Find the actual size with variable data and re-read
@@ -88,18 +90,10 @@ public class ViewFormatDecoder {
 				byte[] varData = new byte[varSize];
 				pPackedData.get(varData);
 				fullColData.put(varData);
-				
-				DominoViewColumnFormat viewCol = result.addColumn();
+
+				DominoCollectionColumn viewCol = (DominoCollectionColumn) result.addColumn(-1);
 				viewCol.read(fullCol);
 				columns.add(viewCol);
-				
-				// Mark the column-values index now that it's knowable
-				if(fullCol.getConstantValueLength() == 0) {
-					viewCol.readColumnValuesIndex(columnValuesIndex);
-					columnValuesIndex++;
-				} else {
-					viewCol.readColumnValuesIndex(0xFFFF);
-				}
 			}
 			
 			data.position(pPackedData.position());
@@ -123,7 +117,7 @@ public class ViewFormatDecoder {
 		for(int i = 0; i < format1.getColumnCount(); i++) {
 			ViewColumnFormat2 col = readMemory(data, ODSTypes._VIEW_COLUMN_FORMAT2, ViewColumnFormat2.class);
 			if(col.getSignature() != ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE2) {
-			  throw new IllegalStateException("Read unexpected VIEW_COLUMN_FORMAT2 signature: 0x" + Integer.toHexString(col.getSignature()));
+			  throw new IllegalStateException(MessageFormat.format("Read unexpected VIEW_COLUMN_FORMAT2 signature: 0x{0}", Integer.toHexString(col.getSignature())));
 			}
 			columns.get(i).read(col);
 		}
@@ -140,21 +134,29 @@ public class ViewFormatDecoder {
 		
 		// Followed by variable data defined by VIEW_COLUMN_FORMAT2
 		for(int i = 0; i < format1.getColumnCount(); i++) {
-			DominoViewColumnFormat col = columns.get(i);
+			DominoCollectionColumn col = columns.get(i);
 			ViewColumnFormat2 fmt = col.getAdapter(ViewColumnFormat2.class);
 			int hideWhenLen = fmt.getHideWhenFormulaLength();
-			if(hideWhenLen > 0) {
-			  byte[] formula = new byte[hideWhenLen];
-			  data.get(formula);
-				col.readHideWhenFormula(formula);
-			}
-			int twistieLen = fmt.getTwistieResourceLength();
-			if(twistieLen > 0) {
-			  ByteBuffer buf = readBuffer(data, twistieLen);
-				CDResource res = MemoryStructureUtil.newStructure(CDResource.class, twistieLen - MemoryStructureUtil.sizeOf(CDResource.class));
-				res.getData().put(buf);
-				col.readTwistie(res);
-			}
+      int twistieLen = fmt.getTwistieResourceLength();
+      
+      if(hideWhenLen > 0 || twistieLen > 0) {
+        //add hide when formula and twistie resource to the vardata of VIEW_COLUMN_FORMAT2 although it's stored separately
+        fmt.resizeVariableData(hideWhenLen + twistieLen);
+        ByteBuffer fmtVarData = fmt.getVariableData();
+        
+        if (hideWhenLen > 0) {
+          byte[] formula = new byte[hideWhenLen];
+          data.get(formula);
+          fmtVarData.put(formula);
+        }
+        
+        if (twistieLen > 0) {
+          ByteBuffer buf = readBuffer(data, twistieLen);
+          CDResource res = MemoryStructureUtil.newStructure(CDResource.class, twistieLen - MemoryStructureUtil.sizeOf(CDResource.class));
+          res.getData().put(buf);
+          fmtVarData.put(res.getData());
+        }
+      }
 		}
 		
 		// Followed by VIEW_TABLE_FORMAT4 data
@@ -170,16 +172,20 @@ public class ViewFormatDecoder {
 		
 		// Background resource link
     int cdresLen = MemoryStructureUtil.sizeOf(CDResource.class);
+    
     if(data.remaining() < 2) {
       return result;
     }
 		short sig = data.getShort(data.position());
 		CDResource backgroundRes = null;
-		if(data.hasRemaining() && sig == RichTextConstants.SIG_CD_HREF) {
+		if(format3.getFlags().contains(ViewTableFormat3.Flag.HasBackgroundImage) &&
+		    data.hasRemaining() && sig == RichTextConstants.SIG_CD_HREF) {
+		  
 			// Retrieve the fixed structure to determine the full length of the record
 		  ByteBuffer tempBuf = subBuffer(data, MemoryStructureUtil.sizeOf(CDResource.class));
-			CDResource res = MemoryStructureUtil.forStructure(CDResource.class, () -> tempBuf);
-			int len = res.getHeader().getLength();
+		  CDResource res = MemoryStructureUtil.forStructure(CDResource.class, () -> tempBuf);
+
+		  int len = res.getHeader().getLength();
 			
 			ByteBuffer buf = readBuffer(data, len);
 			backgroundRes = MemoryStructureUtil.newStructure(CDResource.class, len - cdresLen);
@@ -195,7 +201,7 @@ public class ViewFormatDecoder {
 		
 		// VIEW_COLUMN_FORMAT3 - date/time format
 		for(int i = 0; i < format1.getColumnCount(); i++) {
-			DominoViewColumnFormat col = columns.get(i);
+			DominoCollectionColumn col = columns.get(i);
 			ViewColumnFormat2 fmt = col.getAdapter(ViewColumnFormat2.class);
 			if(fmt.getFlags().contains(ViewColumnFormat2.Flag3.ExtDate)) {
 				
@@ -222,7 +228,7 @@ public class ViewFormatDecoder {
 		
 		// VIEW_COLUMN_FORMAT4 - number format
 		for(int i = 0; i < format1.getColumnCount(); i++) {
-			DominoViewColumnFormat col = columns.get(i);
+			DominoCollectionColumn col = columns.get(i);
 			ViewColumnFormat2 fmt = col.getAdapter(ViewColumnFormat2.class);
 			if(fmt.getFlags().contains(ViewColumnFormat2.Flag3.NumberFormat)) {
 				
@@ -249,7 +255,7 @@ public class ViewFormatDecoder {
 		
 		// VIEW_COLUMN_FORMAT5 - names format
 		for(int i = 0; i < format1.getColumnCount(); i++) {
-			DominoViewColumnFormat col = columns.get(i);
+			DominoCollectionColumn col = columns.get(i);
 			ViewColumnFormat2 fmt = col.getAdapter(ViewColumnFormat2.class);
 			if(fmt.getFlags().contains(ViewColumnFormat2.Flag3.NamesFormat)) {
 				int len = MemoryStructureUtil.sizeOf(ViewColumnFormat5.class);
@@ -268,9 +274,10 @@ public class ViewFormatDecoder {
 			}
 		}
 		
+		
 		// Hidden titles follow as WORD-prefixed P-strings
 		for(int i = 0; i < format1.getColumnCount(); i++) {
-      DominoViewColumnFormat col = columns.get(i);
+      DominoCollectionColumn col = columns.get(i);
       if(col.isHideTitle()) {
         int titleLen = Short.toUnsignedInt(data.getShort());
         byte[] lmbcs = new byte[titleLen];
@@ -286,7 +293,7 @@ public class ViewFormatDecoder {
 		
 		// Shared-column aliases follow as WORD-prefixed P-strings
 		for(int i = 0; i < format1.getColumnCount(); i++) {
-			DominoViewColumnFormat col = columns.get(i);
+			DominoCollectionColumn col = columns.get(i);
       if(col.isSharedColumn()) {
         int aliasLen = Short.toUnsignedInt(data.getShort());
         byte[] lmbcs = new byte[aliasLen];
@@ -299,12 +306,16 @@ public class ViewFormatDecoder {
 		if(data.remaining() < 2) {
       return result;
     }
-		
+
 		// TODO figure out where these ghost bits come from. I'd thought they were "ghost" shared-column names, but
 		//      it turns out they were instead hidden column titles. It seems in practice (test data and mail12.ntf) that
 		//      they're all 0, so the below algorithm "works" to move past them
 		while(data.remaining() > 1 && data.getShort(data.position()) != ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE6) {
 			int ghostSharedColLen = Short.toUnsignedInt(data.getShort());
+			
+			if(data.remaining() < ghostSharedColLen) {
+	      return result;
+	    }
 			data.position(data.position()+ghostSharedColLen);
 		}
 		
@@ -314,7 +325,7 @@ public class ViewFormatDecoder {
 		
 		// VIEW_COLUMN_FORMAT6 - Hannover
 		for(int i = 0; i < format1.getColumnCount(); i++) {
-			DominoViewColumnFormat col = columns.get(i);
+			DominoCollectionColumn col = columns.get(i);
 			ViewColumnFormat2 fmt = col.getAdapter(ViewColumnFormat2.class);
 			if(fmt.getFlags().contains(ViewColumnFormat2.Flag3.ExtendedViewColFmt6)) {
 				int len = MemoryStructureUtil.sizeOf(ViewColumnFormat6.class);
@@ -340,10 +351,7 @@ public class ViewFormatDecoder {
 		return result;
 	}
 	
-	public static DominoCalendarFormat decodeCalendarFormat(Pointer dataPtr, int valueLength) {
-    // Since it appears that ODSReadMemory is harmful on platforms we support, use a ByteBuffer for safety
-    ByteBuffer data = dataPtr.getByteBuffer(0, valueLength);
-    
+	public static DominoCalendarFormat decodeCalendarFormat(ByteBuffer data) {
     // All entries should have a VIEW_CALENDAR_FORMAT
     DominoCalendarFormat result = new DominoCalendarFormat();
     

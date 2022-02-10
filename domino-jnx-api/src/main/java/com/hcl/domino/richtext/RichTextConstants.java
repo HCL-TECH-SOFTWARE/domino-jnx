@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -435,6 +435,8 @@ public interface RichTextConstants extends EditOds, Ods {
   byte TSFMT_DATETIME = 2;
   /** DATE TIME or TIME Today or TIME Yesterday */
   byte TSFMT_CDATETIME = 3;
+  /** DATE, Today or Yesterday */
+  byte TSFMT_CDATE = 4;
 
   /*	CDFIELD Flags Definitions */
 

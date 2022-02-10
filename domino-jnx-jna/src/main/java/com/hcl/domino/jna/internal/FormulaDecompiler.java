@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -28,33 +28,55 @@ import com.sun.jna.ptr.ShortByReference;
 
 public class FormulaDecompiler {
 
+  /**
+   * Decompiles a compiled formula
+   * 
+   * @param compiledFormula compiled formula as byte array
+   * @return formula
+   */
+  public static String decompileFormula(byte[] compiledFormula) {
+    return decompileFormula(compiledFormula, false);
+  }
+  
 	/**
 	 * Decompiles a compiled formula
 	 * 
 	 * @param compiledFormula compiled formula as byte array
+   * @param isSelectionFormula true if decoding a selection formula
 	 * @return formula
 	 */
-	public static String decompileFormula(byte[] compiledFormula) {
+	public static String decompileFormula(byte[] compiledFormula, boolean isSelectionFormula) {
 		DisposableMemory mem = new DisposableMemory(compiledFormula.length);
 		try {
 			mem.write(0, compiledFormula, 0, compiledFormula.length);
-			return decompileFormula(mem);
+			return decompileFormula(mem, isSelectionFormula);
 		}
 		finally {
 			mem.dispose();
 		}
 	}
 	
+	 /**
+   * Decompiles a compiled formula
+   * 
+   * @param ptr pointer to compiled formula
+   * @return formula
+   */
+  public static String decompileFormula(Pointer ptr) {
+    return decompileFormula(ptr, false);
+  }
+  
 	/**
 	 * Decompiles a compiled formula
 	 * 
 	 * @param ptr pointer to compiled formula
+	 * @param isSelectionFormula true if decoding a selection formula
 	 * @return formula
 	 */
-	public static String decompileFormula(Pointer ptr) {
+	public static String decompileFormula(Pointer ptr, boolean isSelectionFormula) {
 		DHANDLE.ByReference rethFormulaText = DHANDLE.newInstanceByReference();
 		ShortByReference retFormulaTextLength = new ShortByReference();
-		short result = NotesCAPI.get().NSFFormulaDecompile(ptr, false, rethFormulaText, retFormulaTextLength);
+		short result = NotesCAPI.get().NSFFormulaDecompile(ptr, isSelectionFormula, rethFormulaText, retFormulaTextLength);
 		NotesErrorUtils.checkResult(result);
 
 		return LockUtil.lockHandle(rethFormulaText, (rethFormulaTextByVal) -> {

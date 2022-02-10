@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -46,11 +46,6 @@ public class ImageResourceImpl extends AbstractNamedFileElement<ImageResource> i
   }
 
   @Override
-  public String getCharsetName() {
-    return this.getDocument().get(NotesConstants.ITEM_NAME_FILE_MIMECHARSET, String.class, ""); //$NON-NLS-1$
-  }
-
-  @Override
   public InputStream getFileData() {
     return GetImageResourceStreamProcessor.instance.apply(this.getDocument().getRichTextItem(NotesConstants.ITEM_NAME_IMAGE_DATA));
   }
@@ -73,11 +68,6 @@ public class ImageResourceImpl extends AbstractNamedFileElement<ImageResource> i
   @Override
   public int getImagesDown() {
     return this.getDocument().get(NotesConstants.ITEM_NAME_IMAGES_HIGH, int.class, 1);
-  }
-
-  @Override
-  public String getMimeType() {
-    return this.getDocument().get(NotesConstants.ITEM_NAME_FILE_MIMETYPE, String.class, ""); //$NON-NLS-1$
   }
 
   @Override

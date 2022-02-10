@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -169,5 +169,16 @@ public class DesignJavaAgentImpl extends AbstractDesignAgentImpl<DesignJavaAgent
   @Override
   public Optional<InputStream> getSourceAttachment() {
    return designSupport.getSourceAttachment();
+  }
+  
+  @Override
+  public boolean isCompileDebug() {
+    return designSupport.isCompileDebug();
+  }
+  
+  @Override
+  public DesignJavaAgent setCompileDebug(boolean debug) {
+    designSupport.setCompileDebug(debug);
+    return this;
   }
 }

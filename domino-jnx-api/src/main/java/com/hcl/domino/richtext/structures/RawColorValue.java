@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -55,4 +55,15 @@ public interface RawColorValue extends MemoryStructure {
   
   @StructureSetter("Blue")
   RawColorValue setBlue(short blue);
+  
+  /**
+   * Copies the color data values from another {@link RawColorValue}
+   * 
+   * @param otherColor color
+   */
+  default void copyFrom(RawColorValue otherColor) {
+    setRed(otherColor.getRed());
+    setGreen(otherColor.getGreen());
+    setBlue(otherColor.getBlue());
+  }
 }

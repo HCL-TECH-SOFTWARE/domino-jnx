@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -17,9 +17,11 @@
 package com.hcl.domino.commons.design;
 
 import java.util.EnumSet;
+import java.util.Optional;
 
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.DesignElement;
@@ -35,6 +37,16 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   public AbstractDesignElement(final Document doc) {
     this.doc = doc;
   }
+  
+  @Override
+  public void delete() {
+    delete(false);
+  }
+  
+  @Override
+  public void delete(boolean noStub) {
+    this.doc.delete(noStub);
+  }
 
   @Override
   public String getComment() {
@@ -49,6 +61,16 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   @Override
   public Document getDocument() {
     return this.doc;
+  }
+  
+  @Override
+  public Optional<String> getTemplateName() {
+    String val = this.doc.getAsText(NotesConstants.DESIGN_CLASS, ' ');
+    if(val == null || val.isEmpty()) {
+      return Optional.empty();
+    } else {
+      return Optional.of(val);
+    }
   }
   
   @Override
@@ -80,6 +102,13 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   @Override
   public boolean save() {
     this.doc.save();
+    
+    DominoCollection designCollection = this.doc.getParentDatabase().openDesignCollection();
+    if (designCollection!=null) {
+      //we had issues seeing newly created views in Domino Designer without refreshing the design collection
+      designCollection.refresh();
+    }
+    
     // TODO figure out if this should do something else or if the method signature
     // should change
     return true;
@@ -108,6 +137,11 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   @Override
   public void setProhibitRefresh(final boolean prohibitRefresh) {
     this.setFlag(NotesConstants.DESIGN_FLAG_PRESERVE, prohibitRefresh);
+  }
+  
+  @Override
+  public void setTemplateName(String templateName) {
+    this.doc.replaceItemValue(NotesConstants.DESIGN_CLASS, templateName);
   }
 
   @Override
@@ -166,5 +200,18 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
 
   public String getWebFlags() {
     return getDocument().getAsText(NotesConstants.ITEM_NAME_WEBFLAGS, ' ');
+  }
+  
+  public void setWebFlags(String flags) {
+    this.getDocument().replaceItemValue(NotesConstants.ITEM_NAME_WEBFLAGS, flags);
+  }
+  
+  public void setWebFlag(final String flagConstant, final boolean value) {
+    final String flags = this.getWebFlags();
+    if (value && !flags.contains(flagConstant)) {
+      this.setWebFlags(flags + flagConstant);
+    } else if (!value && flags.contains(flagConstant)) {
+      this.setWebFlags(flags.replace(flagConstant, "")); //$NON-NLS-1$
+    }
   }
 }

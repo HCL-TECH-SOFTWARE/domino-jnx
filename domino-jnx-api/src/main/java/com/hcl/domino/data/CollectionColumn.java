@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -44,27 +44,63 @@ public interface CollectionColumn {
      */
     Optional<String> getResortToViewUnid();
 
+    /**
+     * Changes the UNID of the view to switch to when resorting
+     * 
+     * @param unid UNID or null
+     * @return this sort configuration
+     */
+    SortConfiguration setResortToViewUnid(String unid);
+    
     int getSecondResortColumnIndex();
 
+    SortConfiguration setSecondResortColumnIndex(int idx);
+    
     boolean isCategory();
 
+    /**
+     * Toggles the category attribute
+     * 
+     * @param b new value
+     * @return this instance
+     */
+    SortConfiguration setCategory(boolean b);
+    
     boolean isDeferResortIndexing();
 
+    SortConfiguration setDeferResortIndexing(boolean b);
+    
     boolean isResortAscending();
 
+    SortConfiguration setResortAscending(boolean b);
+    
     boolean isResortDescending();
 
+    SortConfiguration setResortDescending(boolean b);
+    
     boolean isResortToView();
 
+    SortConfiguration setResortToView(boolean b);
+    
     boolean isSecondaryResort();
 
+    SortConfiguration setSecondaryResort(boolean b);
+    
     boolean isSecondaryResortDescending();
 
+    SortConfiguration setSecondaryResortDescending(boolean b);
+    
     boolean isSorted();
 
+    SortConfiguration setSorted(boolean b);
+    
     boolean isSortedDescending();
 
+    SortConfiguration setSortedDescending(boolean b);
+    
     boolean isSortPermuted();
+    
+    SortConfiguration setSortPermuted(boolean b);
     
     /**
      * Determines whether sorting by this column should be case-sensitive.
@@ -75,6 +111,8 @@ public interface CollectionColumn {
      */
     boolean isCaseSensitive();
     
+    SortConfiguration setCaseSensitive(boolean b);
+    
     /**
      * Determines whether sorting by this column should be accent-sensitive.
      * 
@@ -83,6 +121,8 @@ public interface CollectionColumn {
      * @since 1.0.42
      */
     boolean isAccentSensitive();
+    
+    SortConfiguration setAccentSensitive(boolean b);
     
     /**
      * Determines whether categories in this column should be flat in Notes V5 and later.
@@ -93,6 +133,8 @@ public interface CollectionColumn {
      */
     boolean isCategorizationFlat();
     
+    SortConfiguration setCategorizationFlat(boolean b);
+    
     /**
      * Determines whether sorting in this column should ignore common linguistic prefixes,
      * e.g. "the" in English.
@@ -102,6 +144,8 @@ public interface CollectionColumn {
      * @since 1.0.42
      */
     boolean isIgnorePrefixes();
+    
+    SortConfiguration setIgnorePrefixes(boolean b);
   }
   
   /**
@@ -119,6 +163,8 @@ public interface CollectionColumn {
      */
     NumberDisplayFormat getFormat();
     
+    NumberSettings setFormat(NumberDisplayFormat format);
+    
     /**
      * Determines whether the column should display numbers with varying decimal
      * places instead of using the value from {@link #getFixedDecimalPlaces()}.
@@ -128,6 +174,8 @@ public interface CollectionColumn {
      */
     boolean isVaryingDecimal();
     
+    NumberSettings setVaryingDecimal(boolean b);
+    
     /**
      * Retrieves the number of places to display for decimal values when appropriate
      * and {@link #isVaryingDecimal()} is {@code false}.
@@ -135,6 +183,8 @@ public interface CollectionColumn {
      * @return the fixed decimal length
      */
     int getFixedDecimalPlaces();
+    
+    NumberSettings setFixedDecimalPlaces(int b);
     
     /**
      * Determines whether numbers should be displayed with custom symbols defined here
@@ -145,6 +195,8 @@ public interface CollectionColumn {
      */
     boolean isOverrideClientLocale();
     
+    NumberSettings setOverrideClientLocale(boolean b);
+    
     /**
      * Retrieves the decimal symbol to use when {@link #isOverrideClientLocale()} is
      * {@code true}.
@@ -153,6 +205,8 @@ public interface CollectionColumn {
      */
     String getDecimalSymbol();
     
+    NumberSettings setDecimalSymbol(String s);
+    
     /**
      * Retrieves the thousands separator to use when {@link #isOverrideClientLocale()}
      * is {@code true}.
@@ -160,6 +214,8 @@ public interface CollectionColumn {
      * @return the column-specific thousands separator
      */
     String getThousandsSeparator();
+    
+    NumberSettings setThousandsSeparator(String s);
     
     /**
      * Determines whether negative values in this column should be displayed with
@@ -170,6 +226,8 @@ public interface CollectionColumn {
      */
     boolean isUseParenthesesWhenNegative();
     
+    NumberSettings setUseParenthesesWhenNegative(boolean b);
+    
     /**
      * Determines whether thousands groups should be punctuated when displayed.
      * 
@@ -177,6 +235,8 @@ public interface CollectionColumn {
      *         {@code false} to use the default behavior
      */
     boolean isPunctuateThousands();
+    
+    NumberSettings setPunctuateThousands(boolean b);
     
     /**
      * Retrieves the ISO code for currency values in this column to use when
@@ -186,6 +246,8 @@ public interface CollectionColumn {
      * @return an ISO currency code
      */
     long getCurrencyIsoCode();
+    
+    NumberSettings setCurrencyIsoCode(long code);
     
     /**
      * Determines whether values in the column should be displayed with a custom
@@ -197,6 +259,8 @@ public interface CollectionColumn {
      */
     boolean isUseCustomCurrencySymbol();
     
+    NumberSettings setUseCustomCurrencySymbol(boolean b);
+    
     /**
      * Retrieves the currency symbol to use when {@link #getFormat()} is
      * {@link NumberDisplayFormat#CURRENCY CURRENCY},
@@ -207,6 +271,8 @@ public interface CollectionColumn {
      */
     String getCurrencySymbol();
     
+    NumberSettings setCurrencySymbol(String s);
+    
     /**
      * Determines whether the currency symbol specified in {@link #getCurrencySymbol()}
      * should be appended to the end of the number instead of affixed to the start.
@@ -216,6 +282,8 @@ public interface CollectionColumn {
      */
     boolean isCurrencySymbolPostfix();
     
+    NumberSettings setCurrencySymbolPostfix(boolean b);
+    
     /**
      * Determines whether the currency display should use a space in between the number
      * and the currency symbol.
@@ -224,6 +292,9 @@ public interface CollectionColumn {
      *         {@code false} otherwise
      */
     boolean isUseSpaceNextToNumber();
+    
+    NumberSettings setUseSpaceNextToNumber(boolean b);
+    
   }
   
   /**
@@ -525,6 +596,8 @@ public interface CollectionColumn {
    */
   int getDisplayWidth();
   
+  CollectionColumn setDisplayWidth(int width);
+  
   /**
    * Retrieves the custom attributes set on this column.
    * 
@@ -533,7 +606,11 @@ public interface CollectionColumn {
    */
   String getExtraAttributes();
 
+  CollectionColumn setExtraAttributes(String attr);
+  
   String getFormula();
+
+  CollectionColumn setFormula(String formula);
 
   /**
    * Retrieves the hide-when formula for the column.
@@ -548,7 +625,18 @@ public interface CollectionColumn {
    */
   String getHideWhenFormula();
 
+  CollectionColumn setHideWhenFormula(String formula);
+
   String getItemName();
+  
+  /**
+   * Changes the programmatic column name
+   * 
+   * @param itemName new name
+   * @return this column
+   * @since 1.2.4
+   */
+  CollectionColumn setItemName(String itemName);
 
   /**
    * @return the delimiter to use when displaying multiple values
@@ -556,6 +644,8 @@ public interface CollectionColumn {
    */
   ViewColumnFormat.ListDelimiter getListDisplayDelimiter();
 
+  CollectionColumn setListDisplayDelimiter(ViewColumnFormat.ListDelimiter delimiter);
+  
   int getPosition();
 
   /**
@@ -567,12 +657,16 @@ public interface CollectionColumn {
 
   String getTitle();
 
+  CollectionColumn setTitle(String title);
+
   /**
    * @return the total-row value to compute
    * @since 1.0.27
    */
   TotalType getTotalType();
 
+  CollectionColumn setTotalType(TotalType type);
+  
   boolean isConstant();
   
   /**
@@ -585,6 +679,8 @@ public interface CollectionColumn {
    */
   boolean isExtendToWindowWidth();
 
+  CollectionColumn setExtendToWindowWidth(boolean b);
+  
   boolean isHidden();
   
   /**
@@ -597,6 +693,8 @@ public interface CollectionColumn {
    */
   boolean isHiddenFromMobile();
   
+  CollectionColumn setHiddenFromMobile(boolean b);
+  
   /**
    * Determines whether column should be hidden from Notes clients below
    * version 6.
@@ -607,6 +705,8 @@ public interface CollectionColumn {
    */
   boolean isHiddenInPreV6();
 
+  CollectionColumn setHiddenInPreV6(boolean b);
+  
   /**
    * Determines whether a column's non-total rows should be hidden.
    * 
@@ -615,6 +715,8 @@ public interface CollectionColumn {
    */
   boolean isHideDetailRows();
 
+  CollectionColumn setHideDetailRows(boolean b);
+  
   /**
    * Determines whether the column's values should be shown as icons, either
    * as indexed values to stock icons or string names of image resources.
@@ -624,6 +726,8 @@ public interface CollectionColumn {
    */
   boolean isIcon();
 
+  CollectionColumn setIcon(boolean b);
+  
   /**
    * Determines whether the column should be resizable by the user in the UI.
    * 
@@ -632,6 +736,8 @@ public interface CollectionColumn {
    */
   boolean isResizable();
 
+  CollectionColumn setResizable(boolean b);
+  
   /**
    * Determines whether the column should be evaluated for response documents only.
    * 
@@ -639,6 +745,8 @@ public interface CollectionColumn {
    *         {@code false} otherwise
    */
   boolean isResponsesOnly();
+  
+  CollectionColumn setResponsesOnly(boolean b);
   
   /**
    * Determines whether this column is marked as being displayed as links when rendered
@@ -649,7 +757,11 @@ public interface CollectionColumn {
    */
   boolean isShowAsLinks();
 
+  CollectionColumn setShowAsLinks(boolean b);
+  
   boolean isShowTwistie();
+
+  CollectionColumn setShowTwistie(boolean b);
 
   /**
    * @return {@code true} if the column's hide-when formula should be used;
@@ -658,12 +770,16 @@ public interface CollectionColumn {
    */
   boolean isUseHideWhen();
   
+  CollectionColumn setUseHideWhen(boolean b);
+  
   /**
    * @return {@code true} if the column is defined by a shared column;
    *         {@code false} otherwise
    * @since 1.0.29
    */
   boolean isSharedColumn();
+  
+  CollectionColumn setSharedColumn(boolean b);
   
   /**
    * @return an {@link Optional} describing the name of the shared-column
@@ -673,12 +789,16 @@ public interface CollectionColumn {
    */
   Optional<String> getSharedColumnName();
   
+  CollectionColumn setSharedColumnName(String name);
+  
   /**
    * @return {@code true} if this column is marked as containing a name
    *         value; {@code false} otherwise
    * @since 1.0.29
    */
   boolean isNameColumn();
+  
+  CollectionColumn setNameColumn(boolean b);
   
   /**
    * @return an {@link Optional} describing the name of the column containing
@@ -687,6 +807,8 @@ public interface CollectionColumn {
    * @since 1.0.29
    */
   Optional<String> getOnlinePresenceNameColumn();
+  
+  CollectionColumn setOnlinePresenceNameColumn(String name);
   
   /**
    * Retrieves the image resource used for the expand/collapse twistie, if
@@ -699,6 +821,23 @@ public interface CollectionColumn {
    */
   Optional<CDResource> getTwistieImage();
   
+  CollectionColumn setTwistieImage(CDResource res);
+
+  /**
+   * Convenience function that sets the twistie image to a named image
+   * 
+   * @param name name of image resource
+   * @return this instance
+   */
+  CollectionColumn setTwistieImageName(String name);
+
+  /**
+   * Removes the twistie image
+   * 
+   * @return this instance
+   */
+  public CollectionColumn clearTwistieImage();
+  
   /**
    * Determines whether the column is marked as being user-editable.
    * 
@@ -707,6 +846,8 @@ public interface CollectionColumn {
    * @since 1.0.32
    */
   boolean isUserEditable();
+  
+  CollectionColumn setUserEditable(boolean b);
   
   /**
    * Determines whether the column's values should be treated as specifying the
@@ -717,6 +858,8 @@ public interface CollectionColumn {
    * @since 1.0.32
    */
   boolean isColor();
+  
+  CollectionColumn setColor(boolean b);
   
   /**
    * Determines whether the column represents a color value definable by the user
@@ -738,6 +881,8 @@ public interface CollectionColumn {
    * @since 1.0.32
    */
   boolean isHideTitle();
+  
+  CollectionColumn setHideTitle(boolean b);
   
   /**
    * Retrieves the font information for entry rows in this column.

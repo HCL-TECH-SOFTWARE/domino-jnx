@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -51,6 +51,7 @@ import com.hcl.domino.commons.errors.errorcodes.IXmlErr;
 import com.hcl.domino.exception.BadPasswordException;
 import com.hcl.domino.exception.CancelException;
 import com.hcl.domino.exception.CompactInProgressException;
+import com.hcl.domino.exception.CompactionRequiredException;
 import com.hcl.domino.exception.DocumentDeletedException;
 import com.hcl.domino.exception.EntryNotFoundInIndexException;
 import com.hcl.domino.exception.FileDoesNotExistException;
@@ -61,6 +62,7 @@ import com.hcl.domino.exception.InvalidDocumentException;
 import com.hcl.domino.exception.ItemNotFoundException;
 import com.hcl.domino.exception.ItemNotPresentException;
 import com.hcl.domino.exception.MimePartNotFoundException;
+import com.hcl.domino.exception.NoCrossCertificateException;
 import com.hcl.domino.exception.NotAuthorizedException;
 import com.hcl.domino.exception.QuitPendingException;
 import com.hcl.domino.exception.ServerNotFoundException;
@@ -306,6 +308,10 @@ public class NotesErrorUtils {
         return Optional.of(new SpecialObjectCannotBeLocatedException(s, message));
       case INsfErr.ERR_INVALID_NOTE:
         return Optional.of(new InvalidDocumentException(s, message));
+      case INsfErr.ERR_LOCALSEC_NEEDCOMPACT:
+        return Optional.of(new CompactionRequiredException(s, message));
+      case IBsafeErr.ERR_BSAFE_NO_CROSS_CERT:
+        return Optional.of(new NoCrossCertificateException(s, message));
       default:
         return Optional.of(new DominoException(s, message));
     }

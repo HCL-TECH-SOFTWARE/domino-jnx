@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -21,6 +21,6 @@ package com.hcl.domino.design;
  *
  * @author Jesse Gallagher
  */
-public interface Folder extends CollectionDesignElement {
+public interface Folder extends CollectionDesignElement<Folder> {
 
 }

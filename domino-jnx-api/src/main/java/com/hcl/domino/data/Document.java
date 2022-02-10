@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -1147,6 +1147,15 @@ public interface Document extends TypedAccess, IAdaptable {
    * @since 1.0.15
    */
   Document setDocumentClass(DocumentClass docClass);
+
+  /**
+   * Sets the class of this document.
+   *
+   * @param docClass the {@link DocumentClass} value to set
+   * @return this document
+   * @since 1.0.15
+   */
+  Document setDocumentClass(Collection<DocumentClass> docClass);
 
   /**
    * Writes a primary key information to the note. This primary key can be used

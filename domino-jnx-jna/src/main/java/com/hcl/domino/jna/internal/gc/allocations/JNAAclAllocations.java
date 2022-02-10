@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -64,7 +64,7 @@ public class JNAAclAllocations extends APIObjectAllocations<JNAAcl> {
 		return m_hAcl;
 	}
 
-	public void setAckHandle(DHANDLE hAcl) {
+	public void setAclHandle(DHANDLE hAcl) {
 		this.m_hAcl = hAcl;
 	}
 }

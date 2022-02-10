@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -137,6 +137,20 @@ public interface DesignElement {
   }
   
   /**
+   * Deletes the design element note from the database.
+   * 
+   * @since 1.1.2
+   */
+  void delete();
+  
+  /**
+   * Deletes the design element note from the database.
+   *
+   * @param noStub whether to purge the note without leaving a deletion stub
+   */
+  void delete(boolean noStub);
+  
+  /**
    * @return the comment assigned to the design element
    * @since 1.0.24
    */
@@ -149,6 +163,16 @@ public interface DesignElement {
    * @since 1.0.18
    */
   Document getDocument();
+  
+  /**
+   * Retrieves the name of the note-specific template this design element
+   * is set to derive from.
+   * 
+   * @return an {@link Optional} describing the note's template, or an empty
+   *         one if this note does not derive from a distinct template
+   * @since 1.1.2
+   */
+  Optional<String> getTemplateName();
 
   boolean isHideFromMobile();
 
@@ -175,6 +199,16 @@ public interface DesignElement {
   void setHideFromWeb(boolean hideFromWeb);
 
   void setProhibitRefresh(boolean prohibitRefresh);
+  
+  /**
+   * Sets the name of the note-specific template this design element
+   * should derive from.
+   * 
+   * @param templateName the name of the template the element should
+   *                     derive from, or an empty value to un-set this
+   * @since 1.1.2
+   */
+  void setTemplateName(String templateName);
 
   void sign();
 

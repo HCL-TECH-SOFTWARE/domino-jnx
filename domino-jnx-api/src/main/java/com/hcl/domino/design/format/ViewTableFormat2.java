@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -17,8 +17,12 @@
 package com.hcl.domino.design.format;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.hcl.domino.data.StandardColors;
+import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.ViewFormatConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -27,6 +31,7 @@ import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.MemoryStructure;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 
 @StructureDefinition(name = "VIEW_TABLE_FORMAT2", members = {
     @StructureMember(name = "Length", type = short.class, unsigned = true),
@@ -46,6 +51,36 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
     @StructureMember(name = "Spare", type = short[].class, length = 4),
 })
 public interface ViewTableFormat2 extends MemoryStructure {
+  public static ViewTableFormat2 newInstanceWithDefaults() {
+    ViewTableFormat2 format2 = MemoryStructureWrapperService.get().newStructure(ViewTableFormat2.class, 0);
+    format2.setSignature(FormatSignature.VALID);
+    format2.setSpacing(ViewLineSpacing.SINGLE_SPACE);
+    format2.setAlternateBackgroundColor((short) 1);
+    format2.setBackgroundColor((short) 1);
+    format2.setHeaderLineCount((short) 1);
+    format2.setBackgroundColorExt((short) 1);
+    format2.getTitleFont()
+    .setBold(true)
+    .setPointSize(9)
+    .setFontFace((byte) 1)
+    .setStandardFont(StandardFonts.SWISS);
+    
+    format2.getTotalsFont()
+    .setColor(StandardColors.Gray)
+    .setBold(true)
+    .setStandardFont(StandardFonts.SWISS)
+    .setPointSize(10)
+    .setFontFace((byte) 1);
+    
+    format2.setLineCount((short) 1);
+    
+    format2.getUnreadFont()
+    .setStandardFont(StandardFonts.SWISS)
+    .setPointSize(10)
+    .setFontFace((byte) 1);
+    
+    return format2;
+  }
   enum Flag implements INumberEnum<Byte> {
     HAS_LINK_COLUMN(ViewFormatConstants.VIEW_TABLE_HAS_LINK_COLUMN),
     HTML_PASSTHRU(ViewFormatConstants.VIEW_TABLE_HTML_PASSTHRU);
@@ -145,6 +180,27 @@ public interface ViewTableFormat2 extends MemoryStructure {
   @StructureSetter("Flags1")
   ViewTableFormat2 setFlags(Collection<Flag> flags);
 
+  default ViewTableFormat2 setFlag(Flag flag, boolean b) {
+    Set<Flag> oldFlags = getFlags();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<Flag> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setFlags(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<Flag> newFlags = oldFlags
+            .stream()
+            .filter(currAttr -> !flag.equals(currAttr))
+            .collect(Collectors.toSet());
+        setFlags(newFlags);
+      }
+    }
+    return this;
+  }
+  
   @StructureSetter("HeaderLineCount")
   ViewTableFormat2 setHeaderLineCount(short lineCount);
 

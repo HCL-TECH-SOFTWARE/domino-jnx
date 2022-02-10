@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -22,13 +22,22 @@ import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.MemoryStructure;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 
 @StructureDefinition(name = "VIEW_TABLE_FORMAT4", members = {
     @StructureMember(name = "Length", type = short.class, unsigned = true),
-    @StructureMember(name = "Flags", type = int.class),
+    @StructureMember(name = "Flags", type = int.class), /*  Reserved for future use */
     @StructureMember(name = "RepeatType", type = ImageRepeatMode.class)
 })
 public interface ViewTableFormat4 extends MemoryStructure {
+  public static ViewTableFormat4 newInstanceWithDefaults() {
+    ViewTableFormat4 format4 = MemoryStructureWrapperService.get().newStructure(ViewTableFormat4.class, 0);
+    
+    format4.setRepeatType(ImageRepeatMode.ONCE);
+    
+    return format4;
+  }
+
   @StructureGetter("Length")
   int getLength();
 

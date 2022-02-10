@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -17,7 +17,9 @@
 package com.hcl.domino.design.format;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -26,6 +28,7 @@ import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.records.CurrencyFlag;
 import com.hcl.domino.richtext.records.CurrencyType;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.NFMT;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 
@@ -55,16 +58,47 @@ import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
     @StructureMember(name = "bUnused", type = byte.class),
     @StructureMember(name = "Unused3", type = int.class),
     @StructureMember(name = "Unused4", type = int.class),
+    
+    //followed by var data with strings for the custom decimal symbol, milli separator, negative symbol and currency symbol
   }
 )
 public interface ViewColumnFormat4 extends ResizableMemoryStructure {
 
+  public static ViewColumnFormat4 newInstanceWithDefaults() {
+    ViewColumnFormat4 fmt = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat4.class, 0);
+
+    //TODO add defaults
+    
+    return fmt;
+  }
+  
   @StructureGetter("CurrencyFlags")
   Set<CurrencyFlag> getCurrencyFlags();
 
   @StructureSetter("CurrencyFlags")
   ViewColumnFormat4 setCurrencyFlags(Collection<CurrencyFlag> flags);
 
+  default ViewColumnFormat4 setCurrencyFlag(CurrencyFlag flag, boolean b) {
+    Set<CurrencyFlag> oldFlags = getCurrencyFlags();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<CurrencyFlag> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setCurrencyFlags(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<CurrencyFlag> newFlags = oldFlags
+            .stream()
+            .filter(currFlag -> !flag.equals(currFlag))
+            .collect(Collectors.toSet());
+        setCurrencyFlags(newFlags);
+      }
+    }
+    return this;
+  }
+  
   @StructureGetter("CurrencyPref")
   NumberPref getCurrencyPreference();
 

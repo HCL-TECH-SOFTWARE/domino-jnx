@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -19,6 +19,7 @@ package com.hcl.domino.richtext.records;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -38,6 +39,7 @@ import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.NOTELINK;
 import com.hcl.domino.richtext.structures.OpaqueTimeDate;
 import com.hcl.domino.richtext.structures.WSIG;
+import com.hcl.domino.util.JNXDumpUtil;
 import com.hcl.domino.util.JNXStringUtil;
 
 /**
@@ -58,6 +60,46 @@ import com.hcl.domino.util.JNXStringUtil;
   }
 )
 public interface CDResource extends RichTextRecord<WSIG> {
+  /**
+   * Creates a new image resource reference in the current database with a static name
+   * 
+   * @param name image resource name
+   * @return image resource reference
+   */
+  public static CDResource newSharedImageByName(String name) {
+    return newSharedImageByName("0000000000000000", name); //$NON-NLS-1$
+  }
+  
+  /**
+   * Creates a new image resource reference in a different database with a static name
+   * 
+   * @param replicaId target db replica id
+   * @param name image resource name
+   * @return image resource reference
+   */
+  public static CDResource newSharedImageByName(String replicaId, String name) {
+    MemoryStructureWrapperService memService = MemoryStructureWrapperService.get();
+    CDResource res = memService.newStructure(CDResource.class, 0);
+    res.setResourceClass(ResourceClass.SHAREDIMAGE);
+    res.setNamedElement(replicaId, name);
+    res.getHeader().setSignature(RichTextConstants.SIG_CD_HREF).setLength(res.getData().capacity());
+    return res;
+  }
+  
+  /**
+   * Creates a new image resource reference in the current database with a computed name
+   * 
+   * @param formula formula to compute name
+   * @return image resource reference
+   */
+  public static CDResource newSharedImageByFormula(String formula) {
+    CDResource res = MemoryStructureWrapperService.get().newStructure(CDResource.class, 0);
+    res.setResourceClass(ResourceClass.SHAREDIMAGE);
+    res.setNamedElementFormulas(Arrays.asList(formula));
+    res.getHeader().setSignature(RichTextConstants.SIG_CD_HREF).setLength(res.getData().capacity());
+    return res;
+  }
+  
   enum Flag implements INumberEnum<Integer> {
     /** the type's data is a formula valid for _TYPE_URL and _TYPE_NAMEDELEMENT */
     FORMULA(RichTextConstants.CDRESOURCE_FLAGS_FORMULA),

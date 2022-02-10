@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -102,8 +102,8 @@ public interface TFMT extends MemoryStructure {
     DATETIME(RichTextConstants.TSFMT_DATETIME),
     /** DATE TIME or TIME Today or TIME Yesterday */
     CDATETIME(RichTextConstants.TSFMT_CDATETIME),
-    // Undocumented time-structure value observed in mailbox.ntf
-    UNDOCUMENTED((byte)4);
+    /** DATE, Today or Yesterday */
+    CDATE(RichTextConstants.TSFMT_CDATE);
 
     private final byte value;
 

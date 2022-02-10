@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -270,4 +270,13 @@ public interface NotesCallbacks {
 	interface ASYNCNOTIFYPROC extends Callback {
 		void invoke(Pointer p1, Pointer p2);
 	}
+
+	interface NSFFORMFUNCPROC extends Callback {
+	  short invoke(Pointer ptr);
+	}
+
+	interface NSFFORMCMDSPROC extends Callback {
+	  short invoke(Pointer ptr, short code, IntByReference stopFlag);
+	}
+
 }

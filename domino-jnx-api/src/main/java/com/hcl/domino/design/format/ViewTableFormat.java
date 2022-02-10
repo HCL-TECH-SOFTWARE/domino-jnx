@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -17,8 +17,12 @@
 package com.hcl.domino.design.format;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.hcl.domino.design.format.ViewFormatHeader.Version;
+import com.hcl.domino.design.format.ViewFormatHeader.ViewStyle;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.ViewFormatConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -26,6 +30,7 @@ import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.MemoryStructure;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 
 @StructureDefinition(name = "VIEW_TABLE_FORMAT", members = {
     @StructureMember(name = "Header", type = ViewFormatHeader.class),
@@ -35,6 +40,17 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
     @StructureMember(name = "Flags2", type = ViewTableFormat.Flag2.class, bitfield = true),
 })
 public interface ViewTableFormat extends MemoryStructure {
+  public static ViewTableFormat newInstanceWithDefaults() {
+    ViewTableFormat format = MemoryStructureWrapperService.get().newStructure(ViewTableFormat.class, 0);
+    format
+    .getHeader()
+    .setVersion(Version.VERSION1)
+    .setStyle(ViewStyle.TABLE);
+    format.setItemSequenceNumber(1);
+    format.setFlag(Flag.CONFLICT, true);
+    return format;
+  }
+  
   enum Flag implements INumberEnum<Short> {
     COLLAPSED(ViewFormatConstants.VIEW_TABLE_FLAG_COLLAPSED),
     FLATINDEX(ViewFormatConstants.VIEW_TABLE_FLAG_FLATINDEX),
@@ -104,12 +120,59 @@ public interface ViewTableFormat extends MemoryStructure {
   @StructureGetter("Flags")
   Set<Flag> getFlags();
 
+  default ViewTableFormat setFlag(Flag flag, boolean b) {
+    Set<Flag> oldFlags = getFlags();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<Flag> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setFlags(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<Flag> newFlags = oldFlags
+            .stream()
+            .filter(currFlag -> !flag.equals(currFlag))
+            .collect(Collectors.toSet());
+        setFlags(newFlags);
+      }
+    }
+    return this;
+  }
+  
   @StructureGetter("Flags2")
   Set<Flag2> getFlags2();
 
+  default ViewTableFormat setFlag(Flag2 flag, boolean b) {
+    Set<Flag2> oldFlags = getFlags2();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<Flag2> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setFlags2(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<Flag2> newFlags = oldFlags
+            .stream()
+            .filter(currFlag -> !flag.equals(currFlag))
+            .collect(Collectors.toSet());
+        setFlags2(newFlags);
+      }
+    }
+    return this;
+  }
+  
   @StructureGetter("Header")
   ViewFormatHeader getHeader();
 
+  /**
+   * Returns the sequence number for unique item names
+   * 
+   * @return number
+   */
   @StructureGetter("ItemSequenceNumber")
   int getItemSequenceNumber();
 

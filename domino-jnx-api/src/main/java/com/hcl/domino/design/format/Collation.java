@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -17,7 +17,9 @@
 package com.hcl.domino.design.format;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.NotesConstants;
@@ -25,6 +27,7 @@ import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 
 /**
@@ -40,6 +43,13 @@ import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
   }
 )
 public interface Collation extends ResizableMemoryStructure {
+  
+  static Collation newInstance() {
+    Collation c = MemoryStructureWrapperService.get().newStructure(Collation.class, 0);
+    c.setSignature(NotesConstants.COLLATION_SIGNATURE);
+    return c;
+  }
+  
   enum Flag implements INumberEnum<Byte> {
     /** Flag to indicate unique keys. */
     UNIQUE(NotesConstants.COLLATION_FLAG_UNIQUE),
@@ -80,6 +90,27 @@ public interface Collation extends ResizableMemoryStructure {
 
   @StructureSetter("Flags")
   Collation setFlags(Collection<Flag> flags);
+
+  default Collation setFlag(Flag flag, boolean b) {
+    Set<Flag> oldFlags = getFlags();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<Flag> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setFlags(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<Flag> newFlags = oldFlags
+            .stream()
+            .filter(currFlag -> !flag.equals(currFlag))
+            .collect(Collectors.toSet());
+        setFlags(newFlags);
+      }
+    }
+    return this;
+  }
 
   @StructureGetter("signature")
   byte getSignature();

@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -18,12 +18,44 @@ package com.hcl.domino.data;
 
 import java.util.List;
 
+import com.hcl.domino.formula.FormulaCompiler;
+
 /**
  * A compiled Domino formula that can be evaluated standalone or
  * on one or multiple documents.
  */
 public interface Formula {
 
+  /**
+   * Returns a list of all registered (public) formula functions. Use {@link #getFunctionParameters(String)}
+   * to get a list of function parameters.
+   * 
+   * @return functions, e.g. "@Left("
+   */
+  public static List<String> getAllFormulaFunction() {
+    return FormulaCompiler.get().getAllFormulaFunctions();
+  }
+
+  /**
+   * Returns a list of all registered (public) formula commands. Use {@link #getFunctionParameters(String)}
+   * to get a list of command parameters.
+   * 
+   * @return commands, e.g. "MailSend"
+   */
+  public static List<String> getAllFormulaCommands() {
+    return FormulaCompiler.get().getAllFormulaCommands();
+  }
+  
+  /**
+   * Scan through the function table or keyword table to find parameters of an @ function or an @ command.
+   * 
+   * @param atFunctionName name returned by {@link #getAllFormulaFunction()} or {@link #getAllFormulaCommands()}, e.g. "@Left("
+   * @return function parameters, e.g. ["stringToSearch; numberOfChars)", "stringToSearch; subString)"] for the function "@Left("
+   */
+  public static List<String> getFunctionParameters(String atFunctionName) {
+    return FormulaCompiler.get().getFunctionParameters(atFunctionName);
+  }
+  
   /**
    * Formula computation result
    */
@@ -122,4 +154,13 @@ public interface Formula {
    * @return formula string
    */
   String getFormula();
+  
+  /**
+   * Analyzes the formula, e.g. to check if its just a field name, a constant value
+   * or time based.
+   * 
+   * @return analyze result
+   */
+  FormulaAnalyzeResult analyze();
+  
 }

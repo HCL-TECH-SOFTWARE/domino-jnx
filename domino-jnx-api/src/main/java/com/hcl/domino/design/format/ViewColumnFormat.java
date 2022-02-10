@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -17,8 +17,13 @@
 package com.hcl.domino.design.format;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.hcl.domino.data.FormulaAnalyzeResult;
+import com.hcl.domino.data.FormulaAnalyzeResult.FormulaAttributes;
+import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.NotesConstants;
@@ -30,9 +35,14 @@ import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
 import com.hcl.domino.richtext.annotation.StructureSetter;
 import com.hcl.domino.richtext.structures.FontStyle;
+import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.NFMT;
+import com.hcl.domino.richtext.structures.NFMT.Format;
 import com.hcl.domino.richtext.structures.ResizableMemoryStructure;
 import com.hcl.domino.richtext.structures.TFMT;
+import com.hcl.domino.richtext.structures.TFMT.DateFormat;
+import com.hcl.domino.richtext.structures.TFMT.TimeFormat;
+import com.hcl.domino.richtext.structures.TFMT.TimeStructure;
 
 /**
  * @author Jesse Gallagher
@@ -54,6 +64,42 @@ import com.hcl.domino.richtext.structures.TFMT;
     @StructureMember(name = "ListSep", type = ViewColumnFormat.ListDelimiter.class)
 })
 public interface ViewColumnFormat extends ResizableMemoryStructure {
+  
+  public static ViewColumnFormat newInstanceWithDefaults() {
+    ViewColumnFormat format = MemoryStructureWrapperService.get().newStructure(ViewColumnFormat.class, 0);
+    format.setTitle("#"); //$NON-NLS-1$
+    format.setReadingOrder(ReadingOrder.LTR);
+    format.setDisplayWidth(80);
+    format.setTotalType(StatType.NONE);
+    
+    format
+    .getNumberFormat()
+    .setFormat(Format.GENERAL)
+    .setDigits((short) 0);
+    
+    format.setFormula("@DocNumber"); //$NON-NLS-1$
+//    format.setConstantValueLength(format.getConstantValueLength());
+    format.setHeaderAlignment(Alignment.LEFT);
+    format.setDataType(DataType.TEXT);
+    format.setSignature(ViewFormatConstants.VIEW_COLUMN_FORMAT_SIGNATURE);
+    
+    format
+    .getTimeFormat()
+    .setZoneFormat(TimeZoneFormat.NEVER)
+    .setTimeStructure(TimeStructure.DATETIME)
+    .setTimeFormat(TimeFormat.FULL)
+    .setDateFormat(DateFormat.FULL);
+    
+    format.setAlignment(Alignment.LEFT);
+    format.setHeaderReadingOrder(ReadingOrder.LTR);
+    format.setItemName("$0"); //$NON-NLS-1$
+    format.getFontStyle().setPointSize(10).setFontFace((byte) 1);
+    
+    format.setListDelimiter(ListDelimiter.NONE);
+    
+    return format;
+  }
+  
   enum Alignment implements INumberEnum<Byte> {
     LEFT(ViewFormatConstants.VIEW_COL_ALIGN_LEFT),
     RIGHT(ViewFormatConstants.VIEW_COL_ALIGN_RIGHT),
@@ -312,7 +358,7 @@ public interface ViewColumnFormat extends ResizableMemoryStructure {
   short getSignature();
 
   @StructureGetter("TimeFormat")
-  TFMT getTimeForat();
+  TFMT getTimeFormat();
 
   default String getTitle() {
     return StructureSupport.extractStringValue(this,
@@ -349,6 +395,48 @@ public interface ViewColumnFormat extends ResizableMemoryStructure {
   @StructureSetter("Flags1")
   ViewColumnFormat setFlags(Collection<Flag> flags);
 
+  default ViewColumnFormat setFlag(Flag flag, boolean b) {
+    Set<Flag> oldFlags = getFlags();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<Flag> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setFlags(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<Flag> newFlags = oldFlags
+            .stream()
+            .filter(currFlag -> !flag.equals(currFlag))
+            .collect(Collectors.toSet());
+        setFlags(newFlags);
+      }
+    }
+    return this;
+  }
+  
+  default ViewColumnFormat setFlag(Flag2 flag, boolean b) {
+    Set<Flag2> oldFlags = getFlags2();
+    if (b) {
+      if (!oldFlags.contains(flag)) {
+        Set<Flag2> newFlags = new HashSet<>(oldFlags);
+        newFlags.add(flag);
+        setFlags2(newFlags);
+      }
+    }
+    else {
+      if (oldFlags.contains(flag)) {
+        Set<Flag2> newFlags = oldFlags
+            .stream()
+            .filter(currFlag -> !flag.equals(currFlag))
+            .collect(Collectors.toSet());
+        setFlags2(newFlags);
+      }
+    }
+    return this;
+  }
+  
   default ViewColumnFormat setFlags2(final Collection<Flag2> flags) {
     final short val = DominoEnumUtil.toBitField(Flag2.class, flags);
     final short rawFlags = this.getFlags2Raw();
@@ -360,12 +448,23 @@ public interface ViewColumnFormat extends ResizableMemoryStructure {
   ViewColumnFormat setFlags2Raw(short flags);
 
   default ViewColumnFormat setFormula(final String formula) {
-    return StructureSupport.writeStringValue(
+    StructureSupport.writeCompiledFormula(
         this,
         this.getItemNameLength() + this.getTitleLength(),
         this.getFormulaLength(),
         formula,
         this::setFormulaLength);
+    
+    //check if formula is a constant value
+    FormulaAnalyzeResult analyzeResult = FormulaCompiler.get().analyzeFormula(formula);
+    if (analyzeResult.getAttributes().contains(FormulaAttributes.CONSTANT)) {
+      setConstantValueLength(getFormulaLength());
+    }
+    else {
+      setConstantValueLength(0);
+    }
+    
+    return this;
   }
 
   @StructureSetter("FormulaSize")

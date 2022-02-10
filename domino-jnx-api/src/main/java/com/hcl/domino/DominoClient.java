@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -64,6 +64,7 @@ import com.hcl.domino.mime.MimeReader;
 import com.hcl.domino.mime.MimeWriter;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.JNXThread;
+import com.hcl.domino.misc.Pair;
 import com.hcl.domino.mq.MessageQueues;
 import com.hcl.domino.naming.UserDirectory;
 import com.hcl.domino.person.Person;
@@ -96,8 +97,24 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
   }
 
   /** Available encryption strengths for database creation */
-  public enum Encryption {
-    None, Simple, Medium, Strong, AES128, AES256
+  public enum Encryption implements INumberEnum<Integer> {
+    None(0), Simple(1), Medium(2), Strong(3), AES128(4), AES256(5);
+
+    private final int value;
+
+    Encryption(final int value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return this.value;
+    }
+
+    @Override
+    public Integer getValue() {
+      return this.value;
+    }
   }
 
   /**
@@ -375,8 +392,9 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    *
    * @param pathname path of local database
    * @param mode     compact flags
+   * @return the original and compacted size of the NSF
    */
-  void compact(String pathname, Set<CompactMode> mode);
+  Pair<Double,Double> compact(String pathname, Set<CompactMode> mode);
 
   /**
    * Creates a new database on the target server with a given file path.

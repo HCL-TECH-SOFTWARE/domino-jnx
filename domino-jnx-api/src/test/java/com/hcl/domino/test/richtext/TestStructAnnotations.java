@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -203,6 +203,8 @@ public class TestStructAnnotations {
 			return isEnumCompatible(structType, paramType);
 		} else if(MemoryStructure.class.isAssignableFrom(structType) && structType.equals(methodType)) {
 		  return true;
+		} else if(structType.isPrimitive() && boolean.class.equals(methodType)) {
+		  return true;
 		} else if(byte.class.equals(structType)) {
 			if(unsigned) {
 				if(isSetter) {
@@ -267,7 +269,7 @@ public class TestStructAnnotations {
 	}
 	
 	private boolean isAtLeast(Class<?> representationType, Type setterType) {
-		if(short.class.equals(representationType)) {
+		if(short.class.equals(representationType) || Short.class.equals(representationType)) {
 			return short.class.equals(setterType) || Short.class.equals(setterType)
 				|| int.class.equals(setterType) || Integer.class.equals(setterType)
 				|| long.class.equals(setterType) || Long.class.equals(setterType);
@@ -275,13 +277,13 @@ public class TestStructAnnotations {
 		  return short[].class.equals(setterType) || Short[].class.equals(setterType)
         || int[].class.equals(setterType) || Integer[].class.equals(setterType)
         || long[].class.equals(setterType) || Long[].class.equals(setterType);
-		} else if(int.class.equals(representationType)) {
+		} else if(int.class.equals(representationType) || Integer.class.equals(representationType)) {
 			return int.class.equals(setterType) || Integer.class.equals(setterType)
 				|| long.class.equals(setterType) || Long.class.equals(setterType);
 		} else if(int[].class.equals(representationType)) {
 		  return int[].class.equals(setterType) || Integer[].class.equals(setterType)
         || long[].class.equals(setterType) || Long[].class.equals(setterType);
-		} else if(long.class.equals(representationType)) {
+		} else if(long.class.equals(representationType) || Long.class.equals(representationType)) {
 		  return long.class.equals(setterType) || Long.class.equals(setterType);
 		} else if(long[].class.equals(representationType)) {
 		  return long[].class.equals(setterType) || Long[].class.equals(setterType);
@@ -298,23 +300,10 @@ public class TestStructAnnotations {
     if(structType.equals(paramClass)) {
       return true;
     }
-		if(INumberEnum.class.isAssignableFrom(paramClass)) {
-			Class<?> numType = Arrays.stream(paramClass.getGenericInterfaces())
-				.filter(i -> INumberEnum.class.equals(toClass(i)))
-				.map(i -> toClass(((ParameterizedType)i).getActualTypeArguments()[0]))
-				.findFirst()
-				.get();
-			if(Byte.class.equals(numType)) {
-				return byte.class.equals(structType);
-			} else if(Short.class.equals(numType)) {
-				return short.class.equals(structType);
-			} else if(Integer.class.equals(numType)) {
-				return int.class.equals(structType);
-			} else if(Long.class.equals(numType)) {
-				return long.class.equals(structType);
-			}
-		}
-		return false;
+    // NB: in the past, this portion checked that the incoming enum value was the same size
+    //     as the struct storage. However, there are common cases, such as StandardColors,
+    //     where a smaller enum value should be stored in a larger slot
+		return true;
 	}
 	
 	private Class<?> toClass(final Type type) {

@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -29,7 +29,7 @@ import com.hcl.domino.exception.FormulaCompilationException;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
-import com.hcl.domino.jna.internal.gc.handles.HANDLE;
+import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.ptr.ShortByReference;
@@ -49,7 +49,7 @@ public class ViewFormulaCompiler {
 	 * @param columnItemNamesAndFormulas map with programmatic column names as keys and their formula as values, will be processed in key order; if null, we simply compile the selection formula
 	 * @return handle to combined formula
 	 */
-	public static HANDLE.ByReference compile(String selectionFormula, LinkedHashMap<String,String> columnItemNamesAndFormulas) {
+	public static DHANDLE.ByReference compile(String selectionFormula, LinkedHashMap<String,String> columnItemNamesAndFormulas) {
 		Memory formulaName = null;
 		short formulaNameLength = 0;
 		Memory selectionFormulaMem = NotesStringUtils.toLMBCS(selectionFormula, false);
@@ -68,7 +68,7 @@ public class ViewFormulaCompiler {
 		ShortByReference retCompileErrorLength = new ShortByReference();
 		retCompileErrorLength.setValue((short) 0);
 
-		HANDLE.ByReference rethViewFormula = HANDLE.newInstanceByReference();
+		DHANDLE.ByReference rethViewFormula = DHANDLE.newInstanceByReference();
 		rethViewFormula.clear();
 		
 		short result = NotesCAPI.get().NSFFormulaCompile(formulaName, formulaNameLength, selectionFormulaMem, selectionFormulaLength,
@@ -94,7 +94,7 @@ public class ViewFormulaCompiler {
 			boolean errorCompilingColumns = true;
 			
 			//keep track of what to dispose when compiling errors occur
-			List<HANDLE> columnFormulaHandlesToDisposeOnError = new ArrayList<>();
+			List<DHANDLE> columnFormulaHandlesToDisposeOnError = new ArrayList<>();
 			
 			try {
 				//compile each column and merge them with the view formula
@@ -130,7 +130,7 @@ public class ViewFormulaCompiler {
 						ShortByReference retColumnCompileErrorLength = new ShortByReference();
 						retColumnCompileErrorLength.setValue((short) 0);
 						
-						HANDLE.ByReference rethColumnFormula = HANDLE.newInstanceByReference();
+						DHANDLE.ByReference rethColumnFormula = DHANDLE.newInstanceByReference();
 						
 						result = NotesCAPI.get().NSFFormulaCompile(columnItemNameMem, columnItemNameLength, columnFormulaMem,
 								columnFormulaLength, rethColumnFormula, retColumnFormulaLength, retColumnCompileError, retColumnCompileErrorLine,
@@ -174,7 +174,7 @@ public class ViewFormulaCompiler {
 			}
 			finally {
 				//in any case free the compiled column memory
-				for (HANDLE currColumnFormulaHandle : columnFormulaHandlesToDisposeOnError) {
+				for (DHANDLE currColumnFormulaHandle : columnFormulaHandlesToDisposeOnError) {
 					LockUtil.lockHandle(currColumnFormulaHandle, (currColumnFormulaHandleByVal) -> {
 						short localResult = Mem.OSMemFree(currColumnFormulaHandleByVal);
 						NotesErrorUtils.checkResult(localResult);

@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -21,6 +21,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.errors.UnsupportedItemValueError;
@@ -32,6 +33,8 @@ import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.Formula;
+import com.hcl.domino.data.FormulaAnalyzeResult;
+import com.hcl.domino.data.FormulaAnalyzeResult.FormulaAttributes;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.exception.FormulaCompilationException;
@@ -342,5 +345,38 @@ public class JNAFormula extends BaseJNAAPIObject<JNAFormulaAllocations> implemen
 		return defaultValue;
 	}
 
+	@Override
+	public FormulaAnalyzeResult analyze() {
+	  checkDisposed();
+    
+	  JNAFormulaAllocations allocations = getAllocations();
+	  
+	  return LockUtil.lockHandle(allocations.getFormulaHandle(), (hFormulaByVal) -> {
+	    IntByReference retAttributes = new IntByReference();
+	    ShortByReference retSummaryNamesOffset = new ShortByReference();
+	    
+	    short result = NotesCAPI.get().NSFFormulaAnalyze(hFormulaByVal,
+	        retAttributes,
+	        retSummaryNamesOffset);
+	    NotesErrorUtils.checkResult(result);
+	    
+	    Set<FormulaAttributes> attributes = DominoEnumUtil.valuesOf(FormulaAttributes.class, retAttributes.getValue());
+	    
+	    return new FormulaAnalyzeResult() {
 
+        @Override
+        public Set<FormulaAttributes> getAttributes() {
+          return attributes;
+        }
+        
+        @Override
+        public String toString() {
+          return MessageFormat.format("FormulaAnalyzeResult [attributes={0}]", attributes);
+        }
+
+	    };
+	  });
+
+	}
+	
 }

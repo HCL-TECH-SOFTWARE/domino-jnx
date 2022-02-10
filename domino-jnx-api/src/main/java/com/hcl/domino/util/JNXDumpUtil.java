@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -19,6 +19,7 @@ package com.hcl.domino.util;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.StringReader;
 import java.io.Writer;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -29,7 +30,10 @@ import java.nio.file.StandardOpenOption;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Scanner;
 
 import com.hcl.domino.richtext.records.RichTextRecord;
 
@@ -192,6 +196,90 @@ public class JNXDumpUtil {
       i += cols;
     }
     return sb.toString();
+  }
+  
+  /**
+   * Reads memory content of two {@link ByteBuffer} objects and produces a String with hex codes and
+   * character data in case the memory contains bytes in ascii range.
+   * 
+   * @param headline1 headline for first bytebuffer
+   * @param buf1 first byte buffer
+   * @param headline2 headline for second bytebuffer
+   * @param buf2 second byte buffer
+   * @param size number of bytes to read
+   * @param cols number of bytes written in on eline
+   * @return memory dump
+   */
+  public static String dumpAsAscii(String headline1, ByteBuffer buf1, String headline2, ByteBuffer buf2, int size, int cols) {
+    String dumpBuf1 = dumpAsAscii(buf1, size, cols);
+    String dumpBuf2 = dumpAsAscii(buf2, size, cols);
+    
+    try (Scanner scannerBuf1 = new Scanner(new StringReader(dumpBuf1));
+        Scanner scannerBuf2 = new Scanner(new StringReader(dumpBuf2));) {
+      
+      List<String> lines1 = new ArrayList<>();
+      List<String> lines2 = new ArrayList<>();
+      
+      int maxLine1Len = 0;
+      int maxLine2Len = 0;
+      
+      while (scannerBuf1.hasNext() || scannerBuf2.hasNext()) {
+        String line1 = scannerBuf1.hasNext() ? scannerBuf1.nextLine() : ""; //$NON-NLS-1$
+        maxLine1Len = Math.max(maxLine1Len, line1.length());
+        
+        lines1.add(line1);
+        
+        String line2 = scannerBuf2.hasNext() ? scannerBuf2.nextLine() : ""; //$NON-NLS-1$
+        maxLine2Len = Math.max(maxLine2Len, line2.length());
+        
+        lines2.add(line2);
+      }
+      
+      StringBuilder sb = new StringBuilder();
+      
+      //write header
+      sb.append(headline1.substring(0, Math.min(headline1.length(), maxLine1Len)));
+      if (headline1.length() < maxLine1Len) {
+        sb.append(JNXStringUtil.repeat(' ', maxLine1Len - headline1.length()));
+      }
+      
+      sb.append(" | "); //$NON-NLS-1$
+      
+      sb.append(headline2.substring(0, Math.min(headline2.length(), maxLine2Len)));
+      if (headline2.length() < maxLine2Len) {
+        sb.append(JNXStringUtil.repeat(' ', maxLine2Len - headline2.length()));
+      }
+      
+      sb.append(" | Different?"); //$NON-NLS-1$
+
+      sb.append("\n"); //$NON-NLS-1$
+      
+      for (int i=0; i<lines1.size(); i++) {
+        String currLine1 = lines1.get(i);
+        if (currLine1.length() < maxLine1Len) { //$NON-NLS-1$
+          currLine1 += JNXStringUtil.repeat(' ', maxLine1Len-currLine1.length());
+        }
+        
+        String currLine2 = lines2.get(i);
+        if (currLine2.length() < maxLine2Len) { //$NON-NLS-1$
+          currLine2 += JNXStringUtil.repeat(' ', maxLine2Len-currLine2.length());
+        }
+        
+        sb.append(currLine1);
+        sb.append(" | "); //$NON-NLS-1$
+        sb.append(currLine2);
+        
+        sb.append(" |"); //$NON-NLS-1$
+        
+        if (!currLine1.equals(currLine2)) {
+          sb.append(" X"); //$NON-NLS-1$
+        }
+        
+        sb.append("\n"); //$NON-NLS-1$
+      }
+      
+      return sb.toString();
+    }
   }
   
   /**

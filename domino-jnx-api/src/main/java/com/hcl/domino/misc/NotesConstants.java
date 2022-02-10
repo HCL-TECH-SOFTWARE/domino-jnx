@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -20,8 +20,9 @@ import com.hcl.domino.constants.EditOds;
 import com.hcl.domino.constants.OleOds;
 import com.hcl.domino.constants.QueryOds;
 import com.hcl.domino.constants.StdNames;
+import com.hcl.domino.constants.VmOds;
 
-public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds, EditOds, OleOds {
+public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds, EditOds, OleOds, VmOds {
 
   public enum AgentCheck {
     CheckRights(0),
@@ -433,10 +434,8 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   /** False if ascending order (default) */
   byte CDF_M_descending = 0x01;
 
-  /*	Flags for COLOR_VALUE */
-
   /** Obsolete - see new constant below */
-  byte CDF_M_caseinsensitive = 0x02;
+//  byte CDF_M_caseinsensitive = 0x02;
   /** If prefix list, then ignore for sorting */
   byte CDF_M_ignoreprefixes = 0x02;
   /** Obsolete - see new constant below */
@@ -2908,7 +2907,7 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   String FIELD_UPDATED_BY = "$UpdatedBy"; //$NON-NLS-1$
 
   String FIELD_FORM = "Form"; //$NON-NLS-1$
-
+  String FIELD_NAMED = "$Name";  //$NON-NLS-1$
   String FIELD_TYPE_TYPE = "Type"; //$NON-NLS-1$
   /** Note should never be purged. */
   String FIELD_NOPURGE = "$NoPurge"; //$NON-NLS-1$
@@ -4620,5 +4619,24 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   
   int BASIC_AUTH_NO_AMBIGUOUS_NAMES = 0;
   int BASIC_AUTH_ALLOW_AMBIGUOUS_NAMES = 1;
+
+  int FA_CONSTANT = 0x00000001;
+  int FA_TIME_VARIANT = 0x00000002;
+  int FA_ONLY_FIELD_NAME = 0x00000004;
+  int FA_FUNC_SIBLINGS = 0x00000008;
+  int FA_FUNC_CHILDREN = 0x00000010;
+  int FA_FUNC_DESCENDANTS = 0x00000020;
+  int FA_FUNC_ALLCHILDREN = 0x00000040;
+  int FA_FUNC_ALLDESCENDANTS = 0x00000080;
+  int FA_ONLY_SELECTALL = 0x00000100;
+  int FA_ONLY_CONST_COMMAND_AND_SETTARGETFRAME = 0x00000200;
+  int FA_FUNC_SETTARGETFRAME = 0x00000400;
+
+  /** if setting up a new database */
+  short LSECINFOSET_DBCREATE = 0x0001;
+  /** if clearing local security */
+  short LSECINFOSET_CLEAR = 0x0002;
+  /** if changing bulk key encryption */
+  short LSECINFOSET_MODIFY = 0x0004;
 
 }

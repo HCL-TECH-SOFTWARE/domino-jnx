@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -75,6 +75,7 @@ public enum DesignColorsAndFonts {
    */
   public static ColorValue whiteColor() {
     ColorValue result = MemoryStructureWrapperService.get().newStructure(ColorValue.class, 0);
+    result.setFlags(EnumSet.of(ColorValue.Flag.ISRGB));
     result.setRed((short)255);
     result.setGreen((short)255);
     result.setBlue((short)255);
@@ -89,6 +90,7 @@ public enum DesignColorsAndFonts {
    */
   public static ColorValue blackColor() {
     ColorValue result = MemoryStructureWrapperService.get().newStructure(ColorValue.class, 0);
+    result.setFlags(EnumSet.of(ColorValue.Flag.ISRGB));
     result.setRed((short)0);
     result.setGreen((short)0);
     result.setBlue((short)0);
@@ -104,6 +106,7 @@ public enum DesignColorsAndFonts {
    */
   public static ColorValue defaultActiveLink() {
     ColorValue result = MemoryStructureWrapperService.get().newStructure(ColorValue.class, 0);
+    result.setFlags(EnumSet.of(ColorValue.Flag.ISRGB));
     result.setRed((short)255);
     result.setGreen((short)0);
     result.setBlue((short)0);
@@ -119,6 +122,7 @@ public enum DesignColorsAndFonts {
    */
   public static ColorValue defaultUnvisitedLink() {
     ColorValue result = MemoryStructureWrapperService.get().newStructure(ColorValue.class, 0);
+    result.setFlags(EnumSet.of(ColorValue.Flag.ISRGB));
     result.setRed((short)0);
     result.setGreen((short)0);
     result.setBlue((short)255);
@@ -134,6 +138,7 @@ public enum DesignColorsAndFonts {
    */
   public static ColorValue defaultVisitedLink() {
     ColorValue result = MemoryStructureWrapperService.get().newStructure(ColorValue.class, 0);
+    result.setFlags(EnumSet.of(ColorValue.Flag.ISRGB));
     result.setRed((short)128);
     result.setGreen((short)0);
     result.setBlue((short)128);

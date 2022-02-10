@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -44,6 +44,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
 import com.hcl.domino.BuildVersionInfo;
+import com.hcl.domino.DominoClient.Encryption;
 import com.hcl.domino.DominoClient.IBreakHandler;
 import com.hcl.domino.DominoClient.NotesReplicationStats;
 import com.hcl.domino.DominoClient.OpenDatabase;
@@ -69,7 +70,6 @@ import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.IItemTableData;
 import com.hcl.domino.commons.views.OpenCollection;
 import com.hcl.domino.crypt.DatabaseEncryptionState;
-import com.hcl.domino.crypt.EncryptionStrength;
 import com.hcl.domino.data.Agent;
 import com.hcl.domino.data.DBQuery;
 import com.hcl.domino.data.DQLQueryResult;
@@ -2173,47 +2173,8 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		return hasFullAccess==1;
 	}
 	
-	/**
-	 * Reopens the database with full access rights
-	 * 
-	 * @return database
-	 */
-	public JNADatabase reopenWithFullAccess() {
-		checkDisposed();
-		
-		HANDLE.ByReference rethNewDb = HANDLE.newInstanceByReference();
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().NSFDbReopenWithFullAccess(hDbByVal, rethNewDb);
-		});
-		NotesErrorUtils.checkResult(result);
-		
-		JNAUserNamesList serverNamesList = NotesNamingUtils.buildNamesList(getParent(), getParentDominoClient().getIDUserName());
-		NotesNamingUtils.setPrivileges(serverNamesList, EnumSet.of(Privileges.Authenticated, Privileges.FullAdminAccess));
-		
-		return new JNADatabase(getParentDominoClient(), new IAdaptable() {
-
-			@Override
-			@SuppressWarnings("unchecked")
-			public <T> T getAdapter(Class<T> clazz) {
-				if (HANDLE.class.equals(clazz)) {
-					return (T) rethNewDb;
-				}
-				else if (JNAUserNamesList.class.equals(clazz)) {
-					return (T) serverNamesList;
-				}
-				else {
-					return null;
-				}
-			}
-		});
-	}
-	/**
-	 * Reopens the database for a new use
-	 * 
-	 * @return database
-	 */
 	@Override
-	public JNADatabase reopen() {
+	public Database reopen() {
 		checkDisposed();
 		
 		HANDLE.ByReference rethNewDb = HANDLE.newInstanceByReference();
@@ -4356,10 +4317,37 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		return new EncryptionInfoImpl(
 			DominoEnumUtil.valueOf(DatabaseEncryptionState.class, state.getValue()),
-			DominoEnumUtil.valueOf(EncryptionStrength.class, strength.getValue())
+			DominoEnumUtil.valueOf(Encryption.class, strength.getValue())
 		);
 	}
 
+	@Override
+  public void setLocalEncryptionInfo(Encryption encryption, String userName) {
+    checkDisposed();
+    
+    HANDLE hDb = getAllocations().getDBHandle();
+    
+    if (userName==null) {
+      userName = ""; //$NON-NLS-1$
+    }
+    String userNameCanonical = NotesNamingUtils.toCanonicalName(userName);
+    Memory userNameCanonicalMem = NotesStringUtils.toLMBCS(userNameCanonical, true);
+
+    short option = NotesConstants.LSECINFOSET_MODIFY;
+    if (encryption == Encryption.None) {
+      option = NotesConstants.LSECINFOSET_CLEAR;
+    }
+    
+    byte strengthAsByte = (byte) (encryption.getValue() & 0xff);
+    
+    short fOption = option;
+    
+    short result = LockUtil.lockHandle(hDb, (hDbByVal) -> {
+      return NotesCAPI.get().NSFDbLocalSecInfoSet(hDbByVal, fOption, strengthAsByte, userNameCanonicalMem);
+    });
+    NotesErrorUtils.checkResult(result);
+  }
+  
 	@Override
 	public AccessInfo getEffectiveAccessInfo() {
 		checkDisposed();

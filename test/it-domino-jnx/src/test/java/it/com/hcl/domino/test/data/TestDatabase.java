@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -16,9 +16,14 @@
  */
 package it.com.hcl.domino.test.data;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -37,8 +42,10 @@ import com.hcl.domino.DominoClient.Encryption;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.UserNamesList;
 import com.hcl.domino.crypt.DatabaseEncryptionState;
-import com.hcl.domino.crypt.EncryptionStrength;
+import com.hcl.domino.data.CompactMode;
 import com.hcl.domino.data.Database;
+import com.hcl.domino.data.Database.EncryptionInfo;
+import com.hcl.domino.exception.CompactionRequiredException;
 import com.hcl.domino.data.DominoCollectionInfo;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.html.HtmlConversionResult;
@@ -230,9 +237,90 @@ public class TestDatabase extends AbstractNotesRuntimeTest {
     final Database.EncryptionInfo info = localenc.getLocalEncryptionInfo();
     Assertions.assertNotNull(info);
     Assertions.assertEquals(DatabaseEncryptionState.ENCRYPTED, info.getState().orElse(null));
-    Assertions.assertEquals(EncryptionStrength.AES128, info.getStrength().orElse(null));
+    Assertions.assertEquals(Encryption.AES128, info.getStrength().orElse(null));
   }
 
+  @Test
+  public void testEncryptDecryptNSF() throws Exception {
+    final Encryption newEncryption = Encryption.AES128;
+    
+    final DominoClient client = this.getClient();
+    Database db = AbstractNotesRuntimeTest.createTempDb(client);
+    final String tempDbPath = db.getAbsoluteFilePath();
+    
+    Set<CompactMode> compactMode = EnumSet.of(CompactMode.IGNORE_ERRORS, CompactMode.FORCE);
+
+    try {
+      {
+        //first we mark the database for encryption, compact it
+        //and make sure it got encrypted
+
+        EncryptionInfo encInfo = db.getLocalEncryptionInfo();
+
+        assertNotNull(encInfo);
+        assertEquals(DatabaseEncryptionState.UNENCRYPTED, encInfo.getState().orElse(null));
+        assertEquals(Encryption.None, encInfo.getStrength().orElse(null));
+
+        Database fDb = db;
+        assertThrows(CompactionRequiredException.class, () -> {
+          fDb.setLocalEncryptionInfo(newEncryption, null);
+        });
+
+        EncryptionInfo encInfoAfterSet = db.getLocalEncryptionInfo();
+
+        assertEquals(DatabaseEncryptionState.PENDING_ENCRYPTION, encInfoAfterSet.getState().orElse(null));
+        assertEquals(newEncryption, encInfoAfterSet.getStrength().orElse(null));
+
+        //close db
+        db.close();
+
+        client.compact(tempDbPath, compactMode);
+
+        db = client.openDatabase(tempDbPath);
+
+        EncryptionInfo encInfoAfterCompact = db.getLocalEncryptionInfo();
+
+        assertEquals(DatabaseEncryptionState.ENCRYPTED, encInfoAfterCompact.getState().orElse(null));
+        assertEquals(newEncryption, encInfoAfterCompact.getStrength().orElse(null));
+      }
+
+      {
+        //next we mark the database for decryption
+        //and check if this works
+        Database fDb = db;
+        assertThrows(CompactionRequiredException.class, () -> {
+          fDb.setLocalEncryptionInfo(Encryption.None, null);
+        });
+
+        EncryptionInfo encInfoAfterReset = db.getLocalEncryptionInfo();
+
+        assertEquals(DatabaseEncryptionState.PENDING_DECRYPTION, encInfoAfterReset.getState().orElse(null));
+        assertEquals(newEncryption, encInfoAfterReset.getStrength().orElse(null));
+
+        db.close();
+
+        client.compact(tempDbPath, compactMode);
+
+        db = client.openDatabase(tempDbPath);
+
+        EncryptionInfo encInfoAfterCompact2 = db.getLocalEncryptionInfo();
+
+        assertEquals(DatabaseEncryptionState.UNENCRYPTED, encInfoAfterCompact2.getState().orElse(null));
+        assertEquals(Encryption.None, encInfoAfterCompact2.getStrength().orElse(null));
+      }
+
+      
+    } finally {
+      db.close();
+      try {
+        client.deleteDatabase(null, tempDbPath);
+      } catch (final Throwable t) {
+        System.err.println("Unable to delete database " + tempDbPath + ": " + t);
+      }
+    }
+    
+  }
+  
   @Test
   public void testMultiOpen() throws Exception {
     final DominoClient client = this.getClient();

@@ -1,6 +1,6 @@
 /*
  * ==========================================================================
- * Copyright (C) 2019-2021 HCL America, Inc. ( http://www.hcl.com/ )
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
  *                            All rights reserved.
  * ==========================================================================
  * Licensed under the  Apache License, Version 2.0  (the "License").  You may
@@ -22,6 +22,7 @@ import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -261,6 +262,37 @@ public enum StructureSupport {
     buf.position((int) preLen);
     final byte[] result = new byte[(int) len];
     buf.get(result);
+    return result;
+  }
+
+  /**
+   * Extracts a signed int array from a structure.
+   *
+   * @param struct the structure to extract from
+   * @param preLen the number of bytes before the value to extract
+   * @param len    the size of the stored value
+   * @return the extracted int array
+   * @since 1.1.2
+   */
+  public static int[] extractIntArray(final ResizableMemoryStructure struct, final long preLen, final long len) {
+    if (len == 0) {
+      return new int[0];
+    }
+    if (preLen > Integer.MAX_VALUE) {
+      throw new UnsupportedOperationException(
+          MessageFormat.format("Unable to extract a int value with offset larger than {0} bytes", Integer.MAX_VALUE));
+    }
+    if (len > Integer.MAX_VALUE) {
+      throw new UnsupportedOperationException(
+          MessageFormat.format("Unable to extract a int value larger than {0} bytes", Integer.MAX_VALUE));
+    }
+
+    final ByteBuffer buf = struct.getVariableData();
+    buf.position((int) preLen);
+    final int[] result = new int[(int) len];
+    for(int i = 0; i < len; i++) {
+      result[i] = buf.getInt();
+    }
     return result;
   }
   
@@ -704,6 +736,58 @@ public enum StructureSupport {
     buf = struct.getVariableData();
     buf.position((int) preLen);
     buf.put(value);
+    buf.put(otherData);
+
+    return struct;
+  }
+  
+  /**
+   * Writes an int array value into the variable-data portion of a structure, using the provided
+   * {@link IntConsumer} to update an associated length value.
+   * 
+   * @param <T>        the class of the structure
+   * @param struct     the structure to modify
+   * @param preLen     the amount of variable data in bytes before the place to
+   *                   write
+   * @param currentLen the current length of the variable data to overwrite
+   * @param valueParam the value to write
+   * @param sizeWriter a callback to modify an associated length field, if
+   *                   applicable
+   * @return the provided structure
+   * @since 1.1.2
+   */
+  public static <T extends ResizableMemoryStructure> T writeIntValue(final T struct, final long preLen, final long currentLen,
+      final int[] valueParam, final IntConsumer sizeWriter) {
+    int[] value = valueParam == null ? new int[0] : valueParam;
+    
+    ByteBuffer buf = struct.getVariableData();
+    final long otherLen = buf.remaining() - preLen - currentLen;
+
+    if (preLen + currentLen > Integer.MAX_VALUE) {
+      throw new UnsupportedOperationException(
+          MessageFormat.format("Unable to write a new value with offset larger than {0} bytes", Integer.MAX_VALUE));
+    }
+    if (otherLen > Integer.MAX_VALUE) {
+      throw new UnsupportedOperationException(
+          MessageFormat.format("Unable to write a new value with remaining offset larger than {0} bytes", Integer.MAX_VALUE));
+    }
+    buf.position((int) (preLen + currentLen));
+    final byte[] otherData = new byte[(int) otherLen];
+    buf.get(otherData);
+    
+    int valueLen = value.length * 4;
+    if (sizeWriter != null) {
+      sizeWriter.accept(valueLen);
+    }
+    final long newLen = preLen + otherLen + valueLen;
+    if (newLen > Integer.MAX_VALUE) {
+      throw new UnsupportedOperationException(
+          MessageFormat.format("Unable to write a new value exceeding {0} bytes", Integer.MAX_VALUE));
+    }
+    struct.resizeVariableData((int) newLen);
+    buf = struct.getVariableData();
+    buf.position((int) preLen);
+    Arrays.stream(value).forEach(buf::putInt);
     buf.put(otherData);
 
     return struct;
