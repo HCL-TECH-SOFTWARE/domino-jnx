@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
 
@@ -554,6 +555,19 @@ public interface Document extends TypedAccess, IAdaptable {
    */
   Optional<Attachment> getAttachment(String fileName);
 
+  /**
+   * Returns the names of all attachments
+   * 
+   * @return attachment names
+   */
+  default Set<String> getAttachmentNames() {
+    Set<String> attachmentNames = new TreeSet<>();
+    forEachAttachment((att, loop) -> {
+      attachmentNames.add(att.getFileName());
+    });
+    return attachmentNames;
+  }
+  
   /**
    * Retrieves the creation date of this document.
    * <p>

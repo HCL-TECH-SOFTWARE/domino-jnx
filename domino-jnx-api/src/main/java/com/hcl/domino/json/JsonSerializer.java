@@ -55,6 +55,8 @@ public interface JsonSerializer {
   String PROP_META_LASTACCESSED = "lastaccessed"; //$NON-NLS-1$
   String PROP_META_ADDEDTOFILE = "addedtofile"; //$NON-NLS-1$
   String PROP_META_NOTECLASS = "noteclass"; //$NON-NLS-1$
+  String PROP_META_SEQUENCENUMBER = "seq"; //$NON-NLS-1$
+  String PROP_META_SEQUENCETIME = "seqtime"; //$NON-NLS-1$
 
   String PROP_RANGE_FROM = "from"; //$NON-NLS-1$
   String PROP_RANGE_TO = "to"; //$NON-NLS-1$
