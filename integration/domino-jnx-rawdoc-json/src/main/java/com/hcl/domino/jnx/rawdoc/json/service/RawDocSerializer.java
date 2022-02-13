@@ -51,6 +51,7 @@ import com.hcl.domino.data.ItemDataType;
  * is hard to read.
  * 
  * @author Karsten Lehmann
+ * @since 1.4.6
  */
 public class RawDocSerializer extends AbstractJsonSerializer {
   public static final String PROP_ITEMS = "items"; //$NON-NLS-1$

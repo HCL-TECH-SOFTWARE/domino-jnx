@@ -19,6 +19,10 @@ package com.hcl.domino.jnx.rawdoc.json.service;
 import com.hcl.domino.json.JsonSerializer;
 import com.hcl.domino.json.JsonSerializerFactory;
 
+/**
+ * @author Karsten Lehmann
+ * @since 1.4.6
+ */
 public class RawDocJsonSerializerFactory implements JsonSerializerFactory {
 
   @Override

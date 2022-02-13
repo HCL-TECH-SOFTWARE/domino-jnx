@@ -559,6 +559,7 @@ public interface Document extends TypedAccess, IAdaptable {
    * Returns the names of all attachments
    * 
    * @return attachment names
+   * @since 1.4.6
    */
   default Set<String> getAttachmentNames() {
     Set<String> attachmentNames = new TreeSet<>();

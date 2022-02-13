@@ -21,7 +21,7 @@ import com.hcl.domino.json.JsonDeserializerFactory;
 
 /**
  * @author Karsten Lehmann
- * @since 1.3.6
+ * @since 1.4.6
  */
 public class RawDocJsonDeserializerFactory implements JsonDeserializerFactory {
 

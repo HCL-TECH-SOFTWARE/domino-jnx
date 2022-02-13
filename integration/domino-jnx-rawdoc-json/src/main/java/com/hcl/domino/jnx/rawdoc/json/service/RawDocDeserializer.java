@@ -51,6 +51,7 @@ import com.hcl.domino.data.ItemDataType;
  * Deserializer for the {@link RawDocSerializer}.
  * 
  * @author Karsten Lehmann
+ * @since 1.4.6
  */
 public class RawDocDeserializer extends AbstractJsonDeserializer {
   
