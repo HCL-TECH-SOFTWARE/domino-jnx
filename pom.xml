@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.hcl.domino</groupId>
 	<artifactId>domino-jnx</artifactId>
-	<version>1.3.6-SNAPSHOT</version>
+	<version>1.4.6-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>HCL Domino API Parent Project</name>
@@ -48,6 +48,7 @@
 		<module>integration/domino-jnx-jakarta-security</module>
 		<module>integration/domino-jnx-vertx-json</module>
 		<module>integration/domino-jnx-lsxbeshim</module>
+		<module>integration/domino-jnx-rawdoc-json</module>
 
 		<module>test/it-domino-jnx</module>
 

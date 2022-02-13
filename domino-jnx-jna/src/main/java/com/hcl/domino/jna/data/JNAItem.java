@@ -17,6 +17,7 @@
 package com.hcl.domino.jna.data;
 
 import java.lang.ref.ReferenceQueue;
+import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -809,6 +810,17 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 	    valueBlockIdClone.pool = m_valueBlockId.pool;
 	    
 	    return (T) new NotesBlockIdStruct[] {itemBlockIdClone, valueBlockIdClone};
+	  }
+	  else if (clazz == ByteBuffer.class) {
+      DisposableMemory valMem = getValueRaw(true);
+      return (T) valMem.getByteBuffer(0, valMem.size());
+	  }
+	  else if (clazz == byte[].class) {
+	    DisposableMemory valMem = getValueRaw(true);
+	    byte[] valArr = new byte[(int) valMem.size()];
+	    valMem.read(0, valArr,0, valArr.length);
+	    valMem.dispose();
+	    return (T) valArr;
 	  }
 	  else {
 	    return super.getAdapterLocal(clazz);

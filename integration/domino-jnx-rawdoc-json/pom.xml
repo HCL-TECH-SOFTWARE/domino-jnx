@@ -7,8 +7,8 @@
 		<version>1.4.6-SNAPSHOT</version>
 		<relativePath>../..</relativePath>
 	</parent>
-	<artifactId>domino-jnx-vertx-json</artifactId>
-	<name>HCL Domino API Vert.x JSON Integration</name>
+	<artifactId>domino-jnx-rawdoc-json</artifactId>
+	<name>HCL Domino API JSON Integration to serialize/deserialize docs with full fidelity</name>
 
 	<dependencies>
 		<dependency>
@@ -20,16 +20,6 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>domino-jnx-commons</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>io.vertx</groupId>
-			<artifactId>vertx-core</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.mail</groupId>
-			<artifactId>jakarta.mail</artifactId>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -52,10 +42,10 @@
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jdk8</artifactId>
 		</dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
-        </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.datatype</groupId>
+        <artifactId>jackson-datatype-jsr310</artifactId>
+    </dependency>
 	</dependencies>
 
 	<build>
@@ -66,8 +56,8 @@
 
 				<configuration>
 					<instructions>
-						<Bundle-SymbolicName>com.hcl.domino.jnx.vertx.json</Bundle-SymbolicName>
-						<Automatic-Module-Name>com.hcl.domino.jnx.vertx.json</Automatic-Module-Name>
+						<Bundle-SymbolicName>com.hcl.domino.jnx.rawdoc.json</Bundle-SymbolicName>
+						<Automatic-Module-Name>com.hcl.domino.jnx.rawdoc.json</Automatic-Module-Name>
 					</instructions>
 				</configuration>
 
