@@ -4,14 +4,14 @@
 	<parent>
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
-		<version>1.3.5-SNAPSHOT</version>
+		<version>1.3.6-SNAPSHOT</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>jnx-example-swt</artifactId>
 	<name>HCL Domino API Example SWT Application</name>
 
 	<properties>
-		<swt.version>3.117.0</swt.version>
+		<swt.version>3.118.0</swt.version>
 		<java.version>11</java.version>
 		<maven.compiler.source>11</maven.compiler.source>
 		<maven.compiler.target>11</maven.compiler.target>
@@ -35,7 +35,7 @@
 		<dependency>
 			<groupId>org.eclipse.platform</groupId>
 			<artifactId>org.eclipse.jface</artifactId>
-			<version>3.23.0</version>
+			<version>3.24.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.eclipse.platform</groupId>
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>org.jboss.weld.se</groupId>
 			<artifactId>weld-se-core</artifactId>
-			<version>4.0.1.SP1</version>
+			<version>5.0.0.Beta1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse</groupId>
