@@ -874,12 +874,12 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	
 
 	@Override
-	public void forEachItem(BiConsumer<Item, Loop> consumer) {
-		forEachItem(null, consumer);
+	public Document forEachItem(BiConsumer<Item, Loop> consumer) {
+		return forEachItem(null, consumer);
 	}
 
 	@Override
-	public void forEachItem(final String searchForItemName, BiConsumer<Item, Loop> consumer) {
+	public Document forEachItem(final String searchForItemName, BiConsumer<Item, Loop> consumer) {
 		LoopImpl loop = new LoopImpl();
 		
 		AtomicInteger itemIdx = new AtomicInteger(-1);
@@ -915,6 +915,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			
 			consumer.accept(lastItem, loop);
 		}
+		return this;
 	}
 	
 	@Override
@@ -936,7 +937,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	 * @param searchForItemName item name to search for or null to scan through all items
 	 * @param callback callback is called for each scan result
 	 */
-	public void getItems(final String searchForItemName, final IItemCallback callback) {
+	private void getItems(final String searchForItemName, final IItemCallback callback) {
 		checkDisposed();
 		
 		Memory itemNameMem = StringUtil.isEmpty(searchForItemName) ? null : NotesStringUtils.toLMBCS(searchForItemName, false);
@@ -1048,7 +1049,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 
 	@Override
-	public void forEachAttachment(BiConsumer<Attachment, Loop> consumer) {
+	public Document forEachAttachment(BiConsumer<Attachment, Loop> consumer) {
 		List<Attachment> attachments = new ArrayList<>();
 		
 		getItems("$file", new IItemCallback() { //$NON-NLS-1$
@@ -1081,6 +1082,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			
 			loop.next();
 		}
+		
+		return this;
 	}
 
 	@Override
@@ -2266,22 +2269,24 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 
 	@Override
-	public void removeAttachment(String uniqueFileNameInDoc) {
+	public Document removeAttachment(String uniqueFileNameInDoc) {
 		getAttachment(uniqueFileNameInDoc).ifPresent(Attachment::deleteFromDocument);
+		return this;
 	}
 
 	@Override
-	public void makeResponse(Document doc) {
-		makeResponse(doc.getUNID());
+	public Document makeResponse(Document doc) {
+		return makeResponse(doc.getUNID());
 	}
 
 	@Override
-	public void makeResponse(String unid) {
+	public Document makeResponse(String unid) {
 		replaceItemValue("$REF", EnumSet.of(ItemFlag.SUMMARY), new JNADominoUniversalNoteId(unid)); //$NON-NLS-1$
+		return this;
 	}
 
 	@Override
-	public void sign() {
+	public Document sign() {
 		checkDisposed();
 
 		Set<DocumentClass> docClass = getDocumentClass();
@@ -2309,10 +2314,11 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 
 			return 0;
 		});
+		return this;
 	}
 
 	@Override
-	public void sign(UserId id, boolean signNotesIfMimePresent) {
+	public Document sign(UserId id, boolean signNotesIfMimePresent) {
 		checkDisposed();
 		
 		LockUtil.lockHandle(getAllocations().getNoteHandle(), (hNoteByVal) -> {
@@ -2347,16 +2353,19 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			
 			return 0;
 		});
+		
+		return this;
 	}
 
 	@Override
-	public void unsign() {
+	public Document unsign() {
 		checkDisposed();
 		
 		short result = LockUtil.lockHandle(getAllocations().getNoteHandle(), (hNoteByVal) -> {
 			return NotesCAPI.get().NSFNoteUnsign(hNoteByVal);
 		});
 		NotesErrorUtils.checkResult(result);
+		return this;
 	}
 
 	@Override
@@ -2392,7 +2401,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 
 	@Override
-	public void setUNID(String newUNID) {
+	public Document setUNID(String newUNID) {
 		checkDisposed();
 		JNADocumentAllocations allocations = getAllocations();
 		
@@ -2415,6 +2424,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		finally {
 			retOid.dispose();
 		}
+		return this;
 	}
 
 	@Override
@@ -2457,7 +2467,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 
 	@Override
-	public void decrypt(UserId id) {
+	public Document decrypt(UserId id) {
 		checkDisposed();
 		
 		short decryptFlags = NotesConstants.DECRYPT_ATTACHMENTS_IN_PLACE;
@@ -2478,6 +2488,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			NotesErrorUtils.checkResult(decryptResult);
 			return 0;
 		});
+		return this;
 	}
 
 	@Override
@@ -2500,7 +2511,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 	
 	@Override
-	public void undelete() {
+	public Document undelete() {
 		checkDisposed();
 		JNADocumentAllocations allocations = getAllocations();
 		
@@ -2514,6 +2525,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		});
 		
 		NotesErrorUtils.checkResult(result);
+		return this;
 	}
 	
 	/**
@@ -2563,23 +2575,23 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 
 	
 	@Override
-	public void save() {
-		save(false);
+	public Document save() {
+		return save(false);
 	}
 
 	@Override
-	public void save(boolean force) {
+	public Document save(boolean force) {
 		if (force) {
-			save(EnumSet.of(UpdateNote.FORCE));
+			return save(EnumSet.of(UpdateNote.FORCE));
 		}
 		else {
-			save(EnumSet.noneOf(UpdateNote.class));
+			return save(EnumSet.noneOf(UpdateNote.class));
 		}
 	}
 
-	void save(Set<UpdateNote> updateFlags) {
+	Document save(Set<UpdateNote> updateFlags) {
 		if (checkForProfileAndSave()) {
-			return;
+			return this;
 		}
 		
 		checkDisposed();
@@ -2594,6 +2606,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		});
 		
 		NotesErrorUtils.checkResult(result);
+		return this;
 	}
 	
 	/**
@@ -2793,11 +2806,11 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 
 	@Override
-	public void unlock(LockMode mode) {
+	public Document unlock(LockMode mode) {
 		checkDisposed();
 		
 		if (isNew()) {
-			return;
+			return this;
 		}
 		
 		int lockFlags = 0;
@@ -2828,6 +2841,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		});
 	
 		NotesErrorUtils.checkResult(result);
+		return this;
 	}
 
 	/**
@@ -3191,7 +3205,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 	
 	@Override
-	public void removeItem(String itemName) {
+	public Document removeItem(String itemName) {
 		checkDisposed();
 		
 		Memory itemNameMem = NotesStringUtils.toLMBCS(itemName, false);
@@ -3203,9 +3217,10 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 
 		});
 		if (result==INotesErrorConstants.ERR_ITEM_NOT_FOUND) {
-			return;
+			return this;
 		}
 		NotesErrorUtils.checkResult(result);
+		return this;
 	}
 
 	
@@ -3286,9 +3301,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	 * @param objectId object id part of primary key
 	 */
 	@Override
-	public void setPrimaryKey(String category, String objectId) {
+	public Document setPrimaryKey(String category, String objectId) {
 		String name = JNADatabase.getApplicationNoteName(category, objectId);
-		replaceItemValue("$name", name); //$NON-NLS-1$
+		return replaceItemValue("$name", name); //$NON-NLS-1$
 	}
 
 	/**
@@ -3379,33 +3394,34 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 	
 	@Override
-	public void setSaveMessageOnSend(boolean b) {
+	public Document setSaveMessageOnSend(boolean b) {
 		m_saveMessageOnSend = b;
+		return this;
 	}
 	
 	@Override
-	public void send() {
-		send(false, (Collection<String>) null);
+	public Document send() {
+		return send(false, (Collection<String>) null);
 	}
 
 	@Override
-	public void send(String recipient) {
-		send(false, Arrays.asList(recipient));
+	public Document send(String recipient) {
+		return send(false, Arrays.asList(recipient));
 	}
 
 	@Override
-	public void send(Collection<String> recipients) {
-		send(false, recipients);
+	public Document send(Collection<String> recipients) {
+		return send(false, recipients);
 	}
 
 	@Override
-	public void send(boolean attachform) {
-		send(attachform, (Collection<String>) null);
+	public Document send(boolean attachform) {
+		return send(attachform, (Collection<String>) null);
 	}
 
 	@Override
-	public void send(boolean attachform, String recipient) {
-		send(attachform, Arrays.asList(recipient));
+	public Document send(boolean attachform, String recipient) {
+		return send(attachform, Arrays.asList(recipient));
 	}
 
 	/**
@@ -3682,7 +3698,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 
 	@Override
-	public void send(boolean attachform, Collection<String> recipients) {
+	public Document send(boolean attachform, Collection<String> recipients) {
 		checkDisposed();
 		
 		JNADatabase parentDb = (JNADatabase) getParentDatabase();
@@ -3992,10 +4008,12 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	
 		// now we can kill the temp doc and reset
 		tmpDoc.dispose();
+		
+		return this;
 	}
 	
 	@Override
-	public void computeWithForm(boolean continueOnError, final ComputeWithFormCallback callback) {
+	public Document computeWithForm(boolean continueOnError, final ComputeWithFormCallback callback) {
 		checkDisposed();
 
 		int dwFlags = continueOnError ? NotesConstants.CWF_CONTINUE_ON_ERROR : 0;
@@ -4120,6 +4138,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			});
 			NotesErrorUtils.checkResult(result);
 		}
+		
+		return this;
 	}
 
 	private static FormField readFormField(Pointer pCDField) {
@@ -4213,17 +4233,18 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 	
 	@Override
-	public void setUnread(String userName, boolean unread) {
+	public Document setUnread(String userName, boolean unread) {
 		if (unread) {
 			getParentDatabase().updateUnreadDocumentTable(userName, null, Collections.singleton(getNoteID()));
 		}
 		else {
 			getParentDatabase().updateUnreadDocumentTable(userName, Collections.singleton(getNoteID()), null);
 		}
+		return this;
 	}
 	
 	@Override
-	public void compileLotusScript() {
+	public Document compileLotusScript() {
 		checkDisposed();
 		
 		JNADatabaseAllocations parentDbAllocations = (JNADatabaseAllocations) getParent().getAdapter(APIObjectAllocations.class);
@@ -4261,6 +4282,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			throw ex[0];
 		}
 		NotesErrorUtils.checkResult(result);
+		
+		return this;
 	}
 	
 	@Override
@@ -4310,7 +4333,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 	
 	@Override
-	public void appendToTextList(String itemName, String value, boolean allowDuplicates) {
+	public Document appendToTextList(String itemName, String value, boolean allowDuplicates) {
 		checkDisposed();
 		
 		Memory itemNameMem = NotesStringUtils.toLMBCS(itemName, true);
@@ -4326,5 +4349,6 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 					valueLen, allowDuplicates);
 		});
 		NotesErrorUtils.checkResult(result);
+		return this;
 	}
 }
