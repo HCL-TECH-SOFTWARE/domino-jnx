@@ -596,6 +596,21 @@ public interface CollectionColumn {
    */
   int getDisplayWidth();
   
+  /**
+   * Sets the display width of this column.
+   * <p>
+   * Note: this value reflects the storage mechanism, which differs from the
+   * display in Designer.
+   * The stored value is the count of 1/8 average character widths to go by, while
+   * Designer adjusts
+   * this by full characters. Accordingly, this value will be about 8 times larger
+   * than the value
+   * shown in Designer.
+   * </p>
+   * 
+   * @param width new width
+   * @return this instance
+   */
   CollectionColumn setDisplayWidth(int width);
   
   /**
@@ -935,4 +950,14 @@ public interface CollectionColumn {
    * @since 1.0.32
    */
   CompositeApplicationSettings getCompositeApplicationSettings();
+  
+  /**
+   * Copies the format of the specified column
+   * 
+   * @param otherCol column to copy column format
+   * @return this instance
+   * @since 1.5.7
+   */
+  CollectionColumn copyColumnFormatFrom(CollectionColumn otherCol);
+  
 }

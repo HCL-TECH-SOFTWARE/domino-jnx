@@ -135,6 +135,15 @@ public interface DbDesign {
   View createView(String viewName);
   
   /**
+   * Creates a new, unsaved shared column design element
+   * 
+   * @param columnName the name of the shared column to create
+   * @return the newly-created in-memory {@link SharedColumn}
+   * @since 1.5.7
+   */
+  SharedColumn createSharedColumn(String columnName);
+  
+  /**
    * Creates a new, unsaved frameset design element.
    * 
    * @param framesetName the name of the frameset to create

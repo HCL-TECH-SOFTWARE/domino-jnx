@@ -246,6 +246,11 @@ public abstract class AbstractDbDesign implements DbDesign {
   }
 
   @Override
+  public SharedColumn createSharedColumn(String columnName) {
+    return this.createDesignNote(SharedColumn.class, columnName);
+  }
+  
+  @Override
   public Frameset createFrameset(String framesetName) {
     return this.createDesignNote(Frameset.class, framesetName);
   }
