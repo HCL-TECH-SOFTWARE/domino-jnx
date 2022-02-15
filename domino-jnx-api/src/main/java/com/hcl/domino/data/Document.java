@@ -279,8 +279,9 @@ public interface Document extends TypedAccess, IAdaptable {
    *                        to allow duplicate entries in the text list.
    *                        {@code true} - If you wish to allow them and
    *                        {@code false} - If you do not.
+   * @return this document
    */
-  void appendToTextList(String itemName, String value, boolean allowDuplicates);
+  Document appendToTextList(String itemName, String value, boolean allowDuplicates);
 
   /**
    * Attaches a file to the document, not associated with a rich-text item.
@@ -336,8 +337,9 @@ public interface Document extends TypedAccess, IAdaptable {
    *
    * @throws LotusScriptCompilationException if there is a compilation problem
    * @since 1.0.5
+   * @return this document
    */
-  void compileLotusScript();
+  Document compileLotusScript();
 
   /**
    * For each form field associated with this document, this function will:<br>
@@ -363,8 +365,9 @@ public interface Document extends TypedAccess, IAdaptable {
    *
    * @param continueOnError Ignore error processing for fields
    * @param callback        error callback routine
+   * @return this document
    */
-  void computeWithForm(boolean continueOnError, final ComputeWithFormCallback callback);
+  Document computeWithForm(boolean continueOnError, final ComputeWithFormCallback callback);
 
   /**
    * Applies one of multiple conversions to a rich text item, writing the new
@@ -479,8 +482,9 @@ public interface Document extends TypedAccess, IAdaptable {
    *
    * @param id the {@link UserId} to use for decryption, or {@code null}
    *           to use the active runtime Notes ID
+   * @return this document
    */
-  void decrypt(UserId id);
+  Document decrypt(UserId id);
 
   /**
    * Deletes the document from the database.
@@ -503,23 +507,26 @@ public interface Document extends TypedAccess, IAdaptable {
    * processed or the consumer calls {@link Loop#stop()}.
    *
    * @param consumer a {@link BiConsumer} to process the attachments
+   * @return this document
    */
-  void forEachAttachment(BiConsumer<Attachment, Loop> consumer);
+  Document forEachAttachment(BiConsumer<Attachment, Loop> consumer);
 
   /**
    * Iterates over all document items
    *
    * @param consumer consumer to receive the {@link Item}
+   * @return this document
    */
-  void forEachItem(BiConsumer<Item, Loop> consumer);
+  Document forEachItem(BiConsumer<Item, Loop> consumer);
 
   /**
    * Iterates over all document items with the specified name
    *
    * @param itemName item name
    * @param consumer consumer to receive the {@link Item}
+   * @return this document
    */
-  void forEachItem(String itemName, BiConsumer<Item, Loop> consumer);
+  Document forEachItem(String itemName, BiConsumer<Item, Loop> consumer);
 
   /**
    * Retrives the time when the document was added to this NSF, regardless of when
@@ -987,15 +994,17 @@ public interface Document extends TypedAccess, IAdaptable {
    * Makes the document a response to another document.
    *
    * @param doc the parent document
+   * @return this document
    */
-  void makeResponse(Document doc);
+  Document makeResponse(Document doc);
 
   /**
    * Makes the document a response to another document identified by UNID.
    *
    * @param unid the UNID of the parent document
+   * @return this document
    */
-  void makeResponse(String unid);
+  Document makeResponse(String unid);
 
   /**
    * Removes an attachment by the unique internal file name.
@@ -1006,15 +1015,17 @@ public interface Document extends TypedAccess, IAdaptable {
    * @param uniqueFileNameInDoc the unique internal name of the attachment in the
    *                            document
    * @see RemoveAttachmentIconConversion
+   * @return this document
    */
-  void removeAttachment(String uniqueFileNameInDoc);
+  Document removeAttachment(String uniqueFileNameInDoc);
 
   /**
    * Removes <b>all occurrences</b> of items with the provided name from the document.
    *
    * @param itemName the case-insensitive name of the item to remove
+   * @return this document
    */
-  void removeItem(String itemName);
+  Document removeItem(String itemName);
 
   /**
    * Sets the value of an item value to the document, replacing any other items of
@@ -1068,22 +1079,25 @@ public interface Document extends TypedAccess, IAdaptable {
    * <p>
    * This is equivalent to calling {@code save(false)}.
    * </p>
+   * @return this document
    */
-  void save();
+  Document save();
 
   /**
    * Writes in-memory changes to a document to the database.
    *
    * @param force whether to save the document even if another user has modified
    *              or deleted it
+   * @return this document
    */
-  void save(boolean force);
+  Document save(boolean force);
 
   /**
    * Mails the note<br>
    * Convenience function that calls {@link #send(boolean, Collection)}.
+   * @return this document
    */
-  void send();
+  Document send();
 
   /**
    * Mails the document<br>
@@ -1092,8 +1106,9 @@ public interface Document extends TypedAccess, IAdaptable {
    * @param attachform If true, the form is stored and sent along with the
    *                   document. If false, it isn't. Do not attach a form that
    *                   uses computed subforms.
+   * @return this document
    */
-  void send(boolean attachform);
+  Document send(boolean attachform);
 
   /**
    * Mails the document<br>
@@ -1121,8 +1136,9 @@ public interface Document extends TypedAccess, IAdaptable {
    *                   uses computed subforms.
    * @param recipients The recipients of the document, may include people, groups,
    *                   or mail-in databases.
+   * @return this document
    */
-  void send(boolean attachform, Collection<String> recipients);
+  Document send(boolean attachform, Collection<String> recipients);
 
   /**
    * Mails the document<br>
@@ -1133,8 +1149,9 @@ public interface Document extends TypedAccess, IAdaptable {
    *                   uses computed subforms.
    * @param recipient  The recipient of the document, may include people, groups,
    *                   or mail-in databases.
+   * @return this document
    */
-  void send(boolean attachform, String recipient);
+  Document send(boolean attachform, String recipient);
 
   /**
    * Mails the document<br>
@@ -1142,8 +1159,9 @@ public interface Document extends TypedAccess, IAdaptable {
    *
    * @param recipients The recipients of the document, may include people, groups,
    *                   or mail-in databases.
+   * @return this document
    */
-  void send(Collection<String> recipients);
+  Document send(Collection<String> recipients);
 
   /**
    * Mails the document<br>
@@ -1151,8 +1169,9 @@ public interface Document extends TypedAccess, IAdaptable {
    *
    * @param recipient The recipient of the document, may include people, groups,
    *                  or mail-in databases.
+   * @return this document
    */
-  void send(String recipient);
+  Document send(String recipient);
 
   /**
    * Sets the class of this document.
@@ -1182,22 +1201,25 @@ public interface Document extends TypedAccess, IAdaptable {
    *
    * @param category category part of primary key
    * @param objectId object id part of primary key
+   * @return this document
    */
-  void setPrimaryKey(String category, String objectId);
+  Document setPrimaryKey(String category, String objectId);
 
   /**
    * Indicates whether a document is saved to a database when mailed.
    *
    * @param b true to save on send
+   * @return this document
    */
-  void setSaveMessageOnSend(boolean b);
+  Document setSaveMessageOnSend(boolean b);
 
   /**
    * Sets the universal ID for the document.
    *
    * @param newUNID a 32-character hexadecimal string
+   * @return this document
    */
-  void setUNID(String newUNID);
+  Document setUNID(String newUNID);
 
   /**
    * Method to change the unread state of the document
@@ -1205,13 +1227,15 @@ public interface Document extends TypedAccess, IAdaptable {
    * @param userName username in abbreviated or canonical format, if null, we use
    *                 {@link DominoClient#getEffectiveUserName()}
    * @param unread   true to mark unread, false to mark read
+   * @return this document
    */
-  void setUnread(String userName, boolean unread);
+  Document setUnread(String userName, boolean unread);
 
   /**
    * Signs the document using the active Notes ID.
+   * @return this document
    */
-  void sign();
+  Document sign();
 
   /**
    * Function to sign all items in the document.<br>
@@ -1229,8 +1253,9 @@ public interface Document extends TypedAccess, IAdaptable {
    * @param signNotesIfMimePresent If the note has MIME parts and this flag is
    *                               true it will be SMIME signed, if not set it
    *                               will be Notes signed.
+   * @return this document
    */
-  void sign(UserId id, boolean signNotesIfMimePresent);
+  Document sign(UserId id, boolean signNotesIfMimePresent);
 
   /**
    * Returns the total size of the document
@@ -1241,8 +1266,9 @@ public interface Document extends TypedAccess, IAdaptable {
 
   /**
    * Undeletes a soft deleted document
+   * @return this document
    */
-  void undelete();
+  Document undelete();
 
   /**
    * This function removes the lock on a note.<br>
@@ -1255,13 +1281,15 @@ public interface Document extends TypedAccess, IAdaptable {
    * locking.#
    *
    * @param mode lock mode
+   * @return this document
    */
-  void unlock(LockMode mode);
+  Document unlock(LockMode mode);
 
   /**
    * Unsigns the note. This function removes the $Signature item from the note.
+   * @return this document
    */
-  void unsign();
+  Document unsign();
 
   /**
    * This function verifies a signature on a note or section(s) within a note.<br>
