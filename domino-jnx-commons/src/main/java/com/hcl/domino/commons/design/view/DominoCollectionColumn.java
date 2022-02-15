@@ -45,15 +45,15 @@ import com.hcl.domino.design.format.TileViewerPosition;
 import com.hcl.domino.design.format.TimeShowFormat;
 import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.design.format.ViewColumnFormat;
+import com.hcl.domino.design.format.ViewColumnFormat.ListDelimiter;
 import com.hcl.domino.design.format.ViewColumnFormat2;
+import com.hcl.domino.design.format.ViewColumnFormat2.Flag3;
 import com.hcl.domino.design.format.ViewColumnFormat3;
 import com.hcl.domino.design.format.ViewColumnFormat4;
 import com.hcl.domino.design.format.ViewColumnFormat5;
 import com.hcl.domino.design.format.ViewColumnFormat6;
 import com.hcl.domino.design.format.WeekFormat;
 import com.hcl.domino.design.format.YearFormat;
-import com.hcl.domino.design.format.ViewColumnFormat.ListDelimiter;
-import com.hcl.domino.design.format.ViewColumnFormat2.Flag3;
 import com.hcl.domino.richtext.records.CDResource;
 import com.hcl.domino.richtext.records.CurrencyFlag;
 import com.hcl.domino.richtext.records.CurrencyType;
@@ -84,40 +84,44 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     this.format2 = ViewColumnFormat2.newInstanceWithDefaults();
   }
 
-  /**
-   * Copies all data from the specified column
-   * 
-   * @param otherCol other column
-   * @return this instance
-   */
-  public DominoCollectionColumn copyDesignFrom(DominoCollectionColumn otherCol) {
-    if (otherCol.format1!=null) {
-      this.format1 = MemoryStructureUtil.newStructure(ViewColumnFormat.class, otherCol.format1.getVariableData().capacity());
-      this.format1.getData().put(otherCol.format1.getData());
+  @Override
+  public CollectionColumn copyColumnFormatFrom(CollectionColumn otherCol) {
+    if (!(otherCol instanceof DominoCollectionColumn)) {
+      throw new IllegalArgumentException(MessageFormat.format("Column is not a DominoCollectionColumn: {0}",
+          otherCol==null ? "null" : otherCol.getClass().getName())); //$NON-NLS-1$
     }
-    if (otherCol.format2!=null) {
-      this.format2 = MemoryStructureUtil.newStructure(ViewColumnFormat2.class, otherCol.format2.getVariableData().capacity());
-      this.format2.getData().put(otherCol.format2.getData());
+
+    DominoCollectionColumn otherDominoCol = (DominoCollectionColumn) otherCol;
+    
+    if (otherDominoCol.format1!=null) {
+      this.format1 = MemoryStructureUtil.newStructure(ViewColumnFormat.class, otherDominoCol.format1.getVariableData().capacity());
+      this.format1.getData().put(otherDominoCol.format1.getData());
     }
-    if (otherCol.format3!=null) {
-      this.format3 = MemoryStructureUtil.newStructure(ViewColumnFormat3.class, otherCol.format3.getVariableData().capacity());
-      this.format3.getData().put(otherCol.format3.getData());
+    if (otherDominoCol.format2!=null) {
+      this.format2 = MemoryStructureUtil.newStructure(ViewColumnFormat2.class, otherDominoCol.format2.getVariableData().capacity());
+      this.format2.getData().put(otherDominoCol.format2.getData());
     }
-    if (otherCol.format4!=null) {
-      this.format4 = MemoryStructureUtil.newStructure(ViewColumnFormat4.class, otherCol.format4.getVariableData().capacity());
-      this.format4.getData().put(otherCol.format4.getData());
+    if (otherDominoCol.format3!=null) {
+      this.format3 = MemoryStructureUtil.newStructure(ViewColumnFormat3.class, otherDominoCol.format3.getVariableData().capacity());
+      this.format3.getData().put(otherDominoCol.format3.getData());
     }
-    if (otherCol.format5!=null) {
-      this.format5 = MemoryStructureUtil.newStructure(ViewColumnFormat5.class, otherCol.format5.getVariableData().capacity());
-      this.format5.getData().put(otherCol.format5.getData());
+    if (otherDominoCol.format4!=null) {
+      this.format4 = MemoryStructureUtil.newStructure(ViewColumnFormat4.class, otherDominoCol.format4.getVariableData().capacity());
+      this.format4.getData().put(otherDominoCol.format4.getData());
     }
-    if (otherCol.format6!=null) {
-      this.format6 = MemoryStructureUtil.newStructure(ViewColumnFormat6.class, otherCol.format6.getVariableData().capacity());
-      this.format6.getData().put(otherCol.format6.getData());
+    if (otherDominoCol.format5!=null) {
+      this.format5 = MemoryStructureUtil.newStructure(ViewColumnFormat5.class, otherDominoCol.format5.getVariableData().capacity());
+      this.format5.getData().put(otherDominoCol.format5.getData());
+    }
+    if (otherDominoCol.format6!=null) {
+      this.format6 = MemoryStructureUtil.newStructure(ViewColumnFormat6.class, otherDominoCol.format6.getVariableData().capacity());
+      this.format6.getData().put(otherDominoCol.format6.getData());
     }
     
-    this.sharedColumnName = otherCol.sharedColumnName;
-    this.hiddenTitle = otherCol.hiddenTitle;
+    this.sharedColumnName = otherDominoCol.sharedColumnName;
+    this.hiddenTitle = otherDominoCol.hiddenTitle;
+    markViewFormatDirty();
+    
     return this;
   }
   

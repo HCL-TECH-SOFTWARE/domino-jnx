@@ -36,6 +36,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.design.view.CollationEncoder;
 import com.hcl.domino.commons.design.view.DefaultCalendarSettings;
 import com.hcl.domino.commons.design.view.DominoCalendarFormat;
@@ -58,6 +59,7 @@ import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.EdgeWidths;
 import com.hcl.domino.design.ImageRepeatMode;
+import com.hcl.domino.design.SharedColumn;
 import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.design.format.ViewLineSpacing;
 import com.hcl.domino.design.format.ViewTableFormat;
@@ -106,8 +108,6 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     
     
     this.format = new DominoViewFormat(doc);
-//    addColumn("#", "$0", (col) -> { //$NON-NLS-1$ //$NON-NLS-2$
-//    });
   }
   
   @Override
@@ -166,13 +166,29 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
     
     DominoCollectionColumn newCol = (DominoCollectionColumn) viewFormat.addColumn(pos);
-    newCol.copyDesignFrom(dominoTemplateCol);
+    newCol.copyColumnFormatFrom(dominoTemplateCol);
     
     if (consumer!=null) {
       consumer.accept(newCol);
     }
     
     setViewFormatDirty(true);
+    
+    return (T) this;
+  }
+  
+  @Override
+  public T addSharedColumn(int pos, String columnName, Consumer<CollectionColumn> consumer) {
+    SharedColumn sharedCol = getDocument()
+        .getParentDatabase()
+        .getDesign()
+        .getSharedColumn(columnName)
+        .orElseThrow(() -> new DominoException(MessageFormat.format("Shared column not found: {0}", columnName)));
+    
+    addColumn(pos, sharedCol.getColumn(), (col) -> {
+      col.setSharedColumn(true);
+      col.setSharedColumnName(columnName);
+    });
     
     return (T) this;
   }
@@ -435,7 +451,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public void setTitle(final String... title) {
-    //$TITLE for views/folders are stored differently than for forms (concatenated with |, no string list)
+    //$TITLE for views/folders/sharedcolumns are stored differently than for forms (concatenated with |, no string list)
     this.getDocument().replaceItemValue(NotesConstants.FIELD_TITLE,
         EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY),
         Arrays.asList(title).stream().collect(Collectors.joining("|"))); //$NON-NLS-1$
