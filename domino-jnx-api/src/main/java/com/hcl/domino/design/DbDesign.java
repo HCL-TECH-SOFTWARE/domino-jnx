@@ -139,6 +139,7 @@ public interface DbDesign {
    * 
    * @param columnName the name of the shared column to create
    * @return the newly-created in-memory {@link SharedColumn}
+   * @since 1.5.7
    */
   SharedColumn createSharedColumn(String columnName);
   

@@ -956,6 +956,7 @@ public interface CollectionColumn {
    * 
    * @param otherCol column to copy column format
    * @return this instance
+   * @since 1.5.7
    */
   CollectionColumn copyColumnFormatFrom(CollectionColumn otherCol);
   
