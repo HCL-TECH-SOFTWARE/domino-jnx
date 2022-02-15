@@ -138,7 +138,7 @@ public interface CollectionEntry extends TypedAccess, IndexedTypedAccess, Map<St
    * Retrieves the indent level of the entry. Generally speaking, this is equivalent
    * to the number of "slots" in the entry's position (e.g. "1.2.3" = 3). This
    * requires {@link SpecialValue#INDEXPOSITION} to be set as value to be read
-   * from the collection via {@link CollectionSearchQuery#readSpecialValues(SpecialValue...)}.
+   * from the collection via {@link CollectionSearchQuery#readSpecialValues(java.util.Collection)}.
    * 
    * @return the 1-based index of the entry's indentation level in the collection
    * @since 1.0.46
