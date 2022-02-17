@@ -218,7 +218,7 @@ public interface QueryResultsProcessor {
    * characteristics.<br>
    * <br>
    * To open and manipulate results views using the HCL Notes® client or to write application
-   * code that utilizes it, it's important to understand these characteristics.<br<
+   * code that utilizes it, it's important to understand these characteristics.<br>
    * <br>
    * Results views are created and persist in a database that you choose. Using a separate,
    * non-production database is recommended. Doing so avoids unnecessary, routine database
