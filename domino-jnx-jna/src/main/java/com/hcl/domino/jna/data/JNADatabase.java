@@ -681,6 +681,13 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		return Optional.ofNullable(openCollection(viewNoteId, openFlagSet));
 	}
 
+	@Override
+  public Optional<DominoCollection> openCollection(int viewNoteId) {
+	  checkDisposed();
+	  
+	  return Optional.ofNullable(openCollection(viewNoteId, (EnumSet<OpenCollection>) null));
+	}
+
 	public DominoCollection openCollection(int viewNoteId, EnumSet<OpenCollection> openFlagSet) {
 		checkDisposed();
 		

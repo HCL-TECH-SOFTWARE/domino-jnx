@@ -1362,13 +1362,23 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
   Optional<DominoCollection> openCollection(String collectionName);
 
   /**
+   * Opens a {@link DominoCollection}
+   * 
    * @param unid the UNID of a view or folder note to open
    * @return an {@link Optional} describing the requested collection, or an empty
-   *         one if
-   *         the note does not exist
+   *         one if the note does not exist
    */
   Optional<DominoCollection> openCollectionByUNID(String unid);
 
+  /**
+   * Opens a {@link DominoCollection}
+   * 
+   * @param viewNoteId note id of a view or folder note to open
+   * @return an {@link Optional} describing the requested collection, or an empty
+   *         one if the note does not exist
+   */
+  Optional<DominoCollection> openCollection(int viewNoteId);
+  
   Optional<DominoCollection> openDefaultCollection();
 
   /**
