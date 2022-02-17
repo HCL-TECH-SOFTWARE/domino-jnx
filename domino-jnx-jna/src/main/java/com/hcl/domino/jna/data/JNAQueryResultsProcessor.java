@@ -21,6 +21,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.lang.ref.ReferenceQueue;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -31,21 +32,27 @@ import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
+import com.hcl.domino.commons.views.OpenCollection;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.dql.QueryResultsProcessor;
 import com.hcl.domino.jna.BaseJNAAPIObject;
+import com.hcl.domino.jna.internal.LMBCSStringList;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.Mem.LockedMemory;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.capi.NotesCAPI12;
+import com.hcl.domino.jna.internal.capi.NotesCAPI1201;
+import com.hcl.domino.jna.internal.capi.INotesCAPI.UndocumentedAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNAIDTableAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNANotesQueryResultsProcessorAllocations;
+import com.hcl.domino.jna.internal.gc.allocations.LMBCSStringListAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE32;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE64;
+import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.structs.NotesFieldFormulaStruct;
 import com.hcl.domino.jna.internal.structs.NotesQueryResultsHandles;
@@ -55,6 +62,7 @@ import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.ShortByReference;
 
 /**
  * JNA implementation of {@link QueryResultsProcessor} to run multi-database read operations.
@@ -77,7 +85,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 	}
 
 	@Override
-	public void addNoteIds(Database parentDb, Collection<Integer> idTable, String resultsname) {
+	public QueryResultsProcessor addNoteIds(Database parentDb, Collection<Integer> idTable, String resultsname) {
 		checkDisposed();
 		
 		NotesResultsInfoStruct ri = NotesResultsInfoStruct.newInstance();
@@ -122,15 +130,16 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 		NotesErrorUtils.checkResult(result);
 		
 		queryResultsProcessorAllocations.getNotesQueryResultsHandles().read();
+		return this;
 	}
 	
 	@Override
-	public void addColumn(String name) {
-		addSortColumn(name, null, SortOrder.UNORDERED, Hidden.FALSE, Categorized.FALSE);
+	public QueryResultsProcessor addColumn(String name) {
+		return addSortColumn(name, null, SortOrder.UNORDERED, Hidden.FALSE, Categorized.FALSE);
 	}
 
 	@Override
-	public void addSortColumn(String colname, String title, SortOrder sortorder, Hidden ishidden, Categorized iscategorized) {
+	public QueryResultsProcessor addSortColumn(String colname, String title, SortOrder sortorder, Hidden ishidden, Categorized iscategorized) {
 		NotesResultsSortColumn rsc = NotesResultsSortColumn.newInstance();
 		rsc.write();
 		
@@ -171,10 +180,11 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 		short result = NotesCAPI12.get().NSFQueryAddToResultsList(NotesConstants.QUEP_LISTTYPE.SORT_COL_LST.getValue(),
 				rsc.getPointer(), hOutFieldsPtr, null);
 		NotesErrorUtils.checkResult(result);
+		return this;
 	}
 
 	@Override
-	public void addFormula(String formula, String columnname, String resultsname) {
+	public QueryResultsProcessor addFormula(String formula, String columnname, String resultsname) {
 		checkDisposed();
 
 		if (StringUtil.isEmpty(formula)) {
@@ -222,6 +232,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 		short result = NotesCAPI12.get().NSFQueryAddToResultsList(NotesConstants.QUEP_LISTTYPE.FIELD_FORMULA_LST.getValue(),
 				ff.getPointer(), hFieldRulesPtr, null);
 		NotesErrorUtils.checkResult(result);
+		return this;
 	}
 
 	@Override
@@ -564,6 +575,76 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 				return dataStr;
 			});
 		}
+	}
 
+	@Override
+	public int executeToView(String viewName, int hoursUntilExpire, List<String> readers) {
+	  JNANotesQueryResultsProcessorAllocations allocations = getAllocations();
+	  allocations.checkDisposed();
+
+	  NotesQueryResultsHandles handles = allocations.getNotesQueryResultsHandles();
+	  handles.read();
+
+	  if (handles.hOutFields == 0) {
+	    throw new DominoException("No column has been defined");
+	  }
+
+	  JNADatabaseAllocations dbAllocations = (JNADatabaseAllocations) m_db.getAdapter(APIObjectAllocations.class);
+	  dbAllocations.checkDisposed();
+
+	  Memory viewNameMem = NotesStringUtils.toLMBCS(viewName, true);
+	  List<String> readersCanonical = NotesNamingUtils.toCanonicalNames(readers);
+
+	  LMBCSStringList readersList = new LMBCSStringList(this, readersCanonical, false);
+	  LMBCSStringListAllocations readersListAllocations = (LMBCSStringListAllocations) readersList.getAdapter(APIObjectAllocations.class);
+
+	  IntByReference hErrorText = new IntByReference();
+	  hErrorText.setValue(0);
+	  DHANDLE.ByReference hqueue = DHANDLE.newInstanceByReference();
+
+	  final int timeoutsec = 0;
+	  final int maxEntries = 0;
+
+	  ShortByReference hviewcoll = new ShortByReference();
+	  IntByReference viewnid = new IntByReference();
+
+	  short result = LockUtil.lockHandles(dbAllocations.getDBHandle(), readersListAllocations.getListHandle() , (dbHandleByVal, hListByVal) -> {
+	    return NotesCAPI1201.get().NSFProcessResultsExt(
+	        dbHandleByVal,
+	        viewNameMem,
+	        NotesConstants.PROCRES_CREATE_VIEW,
+	        handles.hInResults,
+	        handles.hOutFields,
+	        handles.hFieldRules,
+	        handles.hCombineRules,
+	        hListByVal,
+	        hoursUntilExpire,
+	        hErrorText,
+	        hqueue,
+	        hviewcoll,
+	        viewnid,
+	        timeoutsec*1000,
+	        maxEntries,
+	        0
+	        );
+	  });
+
+	  if (result==0) {
+	    return viewnid.getValue();
+	  }
+	  else {
+	    if (hErrorText.getValue()!=0) {
+	      try (LockedMemory errMsgMem = Mem.OSMemoryLock(hErrorText.getValue(), true);) {
+	        Pointer errMsgPtr = errMsgMem.getPointer();
+	        String errMsg = NotesStringUtils.fromLMBCS(errMsgPtr, -1);
+	        throw new DominoException(result, errMsg);
+	      }
+	    }
+	    else {
+	      NotesErrorUtils.checkResult(result);
+	      //unreachable
+	      return 0;
+	    }
+	  }
 	}
 }

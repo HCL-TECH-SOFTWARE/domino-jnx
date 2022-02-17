@@ -3469,6 +3469,9 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   int REMCON_CMD_ONLY = 0x000000008;
   int REMCON_GET_CONSOLE_META = 0x000000010;
   int REMCON_SYNC = 0x000000020;
+  
+  /* Flags for NSFProcessResults */
+  
   /** Output of results processing is a created, populated view */
   int PROCRES_CREATE_VIEW = 0x00000001;
 
@@ -3476,7 +3479,7 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   int PROCRES_JSON_OUTPUT = 0x00000002;
 
   /**
-   * Output of results processing is a SEARCH_MATCH || ITEM_TABLE summary stream
+   * NOT SUPPORTED YET - Output of results processing is a SEARCH_MATCH || ITEM_TABLE summary stream
    */
   int PROCRES_SUMMARY_OUTPUT = 0x00000004;
 
@@ -3491,15 +3494,22 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
 
   int PROCRES_STREAMED_OUTPUT = NotesConstants.PROCRES_JSON_OUTPUT | NotesConstants.PROCRES_SUMMARY_OUTPUT;
 
+  /** Coupled with PROCRES_CREATE_VIEW, return an opened instance of the view */
+  int PROCRES_RETURN_OPEN_VIEW = 0x00000040;
+  
+
   /** internal flag to indicate category processing */
-  int PROCRES_HAS_CATEGORIZED_KEYS = 0x00000040;
+  int PROCRES_HAS_CATEGORIZED_KEYS = 0x00000080;
 
   /** For formatting JSON arrays (from the outside) */
-  int PROCRES_JSON_PREPEND_COMMA = 0x00000080;
+  int PROCRES_JSON_PREPEND_COMMA = 0x00000100;
 
   /** If TYPE_ERROR occurs, drop the document from results with no error */
-  int PROCRES_IGNORE_TYPE_ERROR = 0x00000100;
+  int PROCRES_IGNORE_TYPE_ERROR = 0x00000200;
 
+  /** For every input result set, only process each document once */
+  int PROCRES_DEDUPE_NOTEIDS = 0x00000400;
+  
   int MAX_CMD_VALLEN = NotesConstants.MAXSPRINTF + 1; // 256 + null term
 
   int MAX_ADDGROUP_ADMINP_ITEMS = 4;
