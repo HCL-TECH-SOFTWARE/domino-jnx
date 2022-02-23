@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.hcl.domino</groupId>
         <artifactId>domino-jnx</artifactId>
-        <version>1.6.7-SNAPSHOT</version>
+        <version>1.7.8-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
     <artifactId>domino-jnx-xpages</artifactId>
