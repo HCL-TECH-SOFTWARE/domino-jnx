@@ -30,6 +30,7 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
+import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.design.ClassicThemeBehavior;
 import com.hcl.domino.design.DesignColorsAndFonts;
 import com.hcl.domino.design.DesignConstants;
@@ -99,7 +100,7 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
     Document doc = getDocument();
     doc.replaceItemValue(NotesConstants.FIELD_TITLE, title);
     if (doc.isNew()) {
-      doc.replaceItemValue(NotesConstants.DOC_SCRIPT_NAME, title);
+      doc.replaceItemValue(NotesConstants.DOC_SCRIPT_NAME, EnumSet.of(ItemFlag.SIGNED), title);
     }
   }
   
