@@ -47,6 +47,15 @@ public interface Page extends GenericPageElement.ScriptablePageElement<Page>, De
     boolean isRenderRichContentOnWeb();
     
     /**
+     * Set whether the Domino server should render full rich content (e.g. styled text and editable
+     * fields) when this page is displayed on the web.
+     * 
+     * @param b true to render
+     * @return this instance
+     */
+    WebRenderingSettings setRenderRichContentOnWeb(boolean b);
+    
+    /**
      * Retrieves the content type to use when displaying this page on the web when
      * {@link #isRenderRichContentOnWeb()} is {@code false}.
      * 
