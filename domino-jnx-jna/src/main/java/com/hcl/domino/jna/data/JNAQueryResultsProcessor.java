@@ -20,11 +20,13 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.ref.ReferenceQueue;
+import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.hcl.domino.BuildVersionInfo;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
@@ -32,8 +34,9 @@ import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
-import com.hcl.domino.commons.views.OpenCollection;
 import com.hcl.domino.data.Database;
+import com.hcl.domino.data.NativeItemCoder;
+import com.hcl.domino.data.NativeItemCoder.LmbcsVariant;
 import com.hcl.domino.dql.QueryResultsProcessor;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.internal.LMBCSStringList;
@@ -44,7 +47,6 @@ import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.capi.NotesCAPI12;
 import com.hcl.domino.jna.internal.capi.NotesCAPI1201;
-import com.hcl.domino.jna.internal.capi.INotesCAPI.UndocumentedAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNAIDTableAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNANotesQueryResultsProcessorAllocations;
@@ -52,12 +54,13 @@ import com.hcl.domino.jna.internal.gc.allocations.LMBCSStringListAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE32;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE64;
-import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
-import com.hcl.domino.jna.internal.structs.NotesFieldFormulaStruct;
+import com.hcl.domino.jna.internal.structs.NotesFieldFormulaStructV1201;
+import com.hcl.domino.jna.internal.structs.NotesFieldFormulaStructV1200;
 import com.hcl.domino.jna.internal.structs.NotesQueryResultsHandles;
 import com.hcl.domino.jna.internal.structs.NotesResultsInfoStruct;
-import com.hcl.domino.jna.internal.structs.NotesResultsSortColumn;
+import com.hcl.domino.jna.internal.structs.NotesResultsSortColumnV1200;
+import com.hcl.domino.jna.internal.structs.NotesResultsSortColumnV1201;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
@@ -71,10 +74,19 @@ import com.sun.jna.ptr.ShortByReference;
  */
 public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResultsProcessorAllocations> implements QueryResultsProcessor {
 	private JNADatabase m_db;
-	
+  private final boolean isV1200;
+
 	public JNAQueryResultsProcessor(IGCDominoClient<?> dominoClient, JNADatabase db) {
 		super(dominoClient);
 		m_db = db;
+		
+    //we need special handling for 12.0.0, because two structures changed between 12.0.0 and 12.0.1;
+		//FIELD_FORMULA had a fixed max formula length of 256 byte that got lifted and
+		//RESULTS_SORT_COLUMN had less/different fields
+    BuildVersionInfo buildVersionInfo = dominoClient.getBuildVersion("");
+    isV1200 = buildVersionInfo.getMajorVersion() == 12 &&
+        buildVersionInfo.getMinorVersion() ==  0 &&
+        buildVersionInfo.getQMRNumber() == 0;
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -132,17 +144,21 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 		queryResultsProcessorAllocations.getNotesQueryResultsHandles().read();
 		return this;
 	}
-	
-	@Override
-	public QueryResultsProcessor addColumn(String name) {
-		return addSortColumn(name, null, SortOrder.UNORDERED, Hidden.FALSE, Categorized.FALSE);
-	}
 
-	@Override
-	public QueryResultsProcessor addSortColumn(String colname, String title, SortOrder sortorder, Hidden ishidden, Categorized iscategorized) {
-		NotesResultsSortColumn rsc = NotesResultsSortColumn.newInstance();
-		rsc.write();
-		
+	 @Override
+	 public QueryResultsProcessor addColumn(String colname, String title, String formula, SortOrder sortorder, Hidden ishidden, Categorized iscategorized) {
+	   if (isV1200) {
+	     return addSortColumnV1200(colname, title, formula, sortorder, ishidden, iscategorized);
+	   }
+	   else {
+       return addSortColumnV1201(colname, title, formula, sortorder, ishidden, iscategorized);
+	   }
+	 }
+	 
+	private QueryResultsProcessor addSortColumnV1200(String colname, String title, String formula, SortOrder sortorder, Hidden ishidden, Categorized iscategorized) {
+	  NotesResultsSortColumnV1200 rsc = NotesResultsSortColumnV1200.newInstance();
+    rsc.write();
+	  
 		if (StringUtil.isEmpty(colname)) {
 			throw new IllegalArgumentException("Column name cannot be empty");
 		}
@@ -154,7 +170,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 		
 		Memory colnameMem = NotesStringUtils.toLMBCS(colname, true);
 		byte[] colnameArr = colnameMem.getByteArray(0, (int) colnameMem.size());
-		if (colnameArr.length > rsc.name.length) {
+		if (colnameArr.length > NotesConstants.MAX_CMD_VALLEN) {
 			throw new IllegalArgumentException("Column name exceeds max text length in bytes");
 		}
 		System.arraycopy(colnameArr, 0, rsc.name, 0, colnameArr.length);
@@ -162,10 +178,17 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 		if (!StringUtil.isEmpty(title)) {
 			Memory titleMem = NotesStringUtils.toLMBCS(title, true);
 			byte[] titleArr = titleMem.getByteArray(0, (int) titleMem.size());
-			if (titleArr.length > rsc.title.length) {
+			if (titleArr.length > NotesConstants.MAX_CMD_VALLEN) {
 				throw new IllegalArgumentException("Title exceeds max text length in bytes");
 			}
 			System.arraycopy(titleArr, 0, rsc.title, 0, titleArr.length);
+		}
+		
+		Memory formulaMem;
+		
+		if (!StringUtil.isEmpty(formula)) {
+	    formulaMem = NotesStringUtils.toLMBCS(formula, true, false);
+		  rsc.pFormula = formulaMem;
 		}
 		
 		rsc.sortorder = sortorder.getValue();
@@ -183,6 +206,93 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 		return this;
 	}
 
+	private QueryResultsProcessor addSortColumnV1201(String colname, String title, String formula, SortOrder sortorder, Hidden ishidden, Categorized iscategorized) {
+	    NotesResultsSortColumnV1201 rsc = NotesResultsSortColumnV1201.newInstance();
+	    rsc.write();
+	    
+	    if (StringUtil.isEmpty(colname)) {
+	      throw new IllegalArgumentException("Column name cannot be empty");
+	    }
+	    
+	    if (title!=null && title.length()==0) {
+	      //title is optional
+	      title = null;
+	    }
+	    
+	    Memory colnameMem = NotesStringUtils.toLMBCS(colname, true);
+	    byte[] colnameArr = colnameMem.getByteArray(0, (int) colnameMem.size());
+	    if (colnameArr.length > NotesConstants.MAX_CMD_VALLEN) {
+	      throw new IllegalArgumentException("Column name exceeds max text length in bytes");
+	    }
+	    System.arraycopy(colnameArr, 0, rsc.name, 0, colnameArr.length);
+	    
+	    if (!StringUtil.isEmpty(title)) {
+	      Memory titleMem = NotesStringUtils.toLMBCS(title, true);
+	      byte[] titleArr = titleMem.getByteArray(0, (int) titleMem.size());
+	      if (titleArr.length > NotesConstants.MAX_CMD_VALLEN) {
+	        throw new IllegalArgumentException("Title exceeds max text length in bytes");
+	      }
+	      System.arraycopy(titleArr, 0, rsc.title, 0, titleArr.length);
+	    }
+	    
+      IntByReference rethFormulaStr = new IntByReference();
+      JNANotesQueryResultsProcessorAllocations allocations = getAllocations();
+      
+	    if (!StringUtil.isEmpty(formula)) {
+	      Charset charset = NativeItemCoder.get().getLmbcsCharset(LmbcsVariant.NULLTERM_KEEPNEWLINES);
+	      byte[] formulaStringArr = formula.getBytes(charset);
+
+	      
+	      short result = Mem.OSMemoryAllocate(NotesConstants.BLK_MEM_ALLOC, formulaStringArr.length, rethFormulaStr);
+	      NotesErrorUtils.checkResult(result);
+	      
+	      if (rethFormulaStr.getValue()==0) {
+          throw new DominoException("Memory allocation for formula failed");
+	      }
+	      
+	      allocations.addFormulaHandleForDispose(rethFormulaStr.getValue());
+	      
+	      try (LockedMemory mem = Mem.OSMemoryLock(rethFormulaStr.getValue(), false)) {
+	        mem.getPointer().write(0, formulaStringArr, 0, formulaStringArr.length);
+	      }
+	      rsc.hColFormula = rethFormulaStr.getValue();
+	    }
+	    
+	    
+
+	    rsc.sortorder = sortorder.getValue();
+	    rsc.bHidden = ishidden == Hidden.TRUE;
+	    rsc.bCategorized = iscategorized == Categorized.TRUE;
+	    rsc.write();
+	    
+	    JNANotesQueryResultsProcessorAllocations queryResultsProcessorAllocations = getAllocations();
+	    Pointer queryResultsHandlesPtr = queryResultsProcessorAllocations.getNotesQueryResultsHandles().getPointer();
+	    Pointer hOutFieldsPtr = queryResultsHandlesPtr.share(4);
+	    
+	    IntByReference hretError = new IntByReference();
+	    
+	    short result = NotesCAPI12.get().NSFQueryAddToResultsList(NotesConstants.QUEP_LISTTYPE.SORT_COL_LST.getValue(),
+	        rsc.getPointer(), hOutFieldsPtr, hretError);
+
+	    if (result!=0 && hretError.getValue()!=0) {
+	      if (hretError.getValue()!=0) {
+	        String errorMessage = NotesErrorUtils.errToString(result);
+	        
+	        String errorDetails;
+	        try (LockedMemory memErr = Mem.OSMemoryLock(hretError.getValue(), true)) {
+	          errorDetails = NotesStringUtils.fromLMBCS(memErr.getPointer(), -1);
+	        }
+	        
+	        throw new DominoException(result, errorMessage + " - " + errorDetails); //$NON-NLS-1$
+	      }
+	      else {
+	        NotesErrorUtils.checkResult(result);
+	      }
+	    }
+	    
+	    return this;
+	  }
+	 
 	@Override
 	public QueryResultsProcessor addFormula(String formula, String columnname, String resultsname) {
 		checkDisposed();
@@ -199,41 +309,109 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 			throw new IllegalArgumentException("Results name cannot be empty");
 		}
 		
-		NotesFieldFormulaStruct ff = NotesFieldFormulaStruct.newInstance();
-		ff.write();
-		
-		Memory formulaMem = NotesStringUtils.toLMBCS(formula, true);
-		byte[] formulaArr = formulaMem.getByteArray(0, (int) formulaMem.size());
-		if (formulaArr.length > ff.formula.length) {
-			throw new IllegalArgumentException("Formula exceeds max size in bytes");
-		}
-		System.arraycopy(formulaArr, 0, ff.formula, 0, formulaArr.length);
-		
-		Memory columnnameMem = NotesStringUtils.toLMBCS(columnname, true);
-		byte[] columnnameArr = columnnameMem.getByteArray(0, (int) columnnameMem.size());
-		if (columnnameArr.length > ff.columnname.length) {
-			throw new IllegalArgumentException("Column name exceeds max size in bytes");
-		}
-		System.arraycopy(columnnameArr, 0, ff.columnname, 0, columnnameArr.length);
-		
-		Memory resultsnameMem = NotesStringUtils.toLMBCS(resultsname, true);
-		byte[] resultsnameArr = resultsnameMem.getByteArray(0, (int) resultsnameMem.size());
-		if (resultsnameArr.length > ff.resultsname.length) {
-			throw new IllegalArgumentException("Results name exceeds max size in bytes");
-		}
-		System.arraycopy(resultsnameArr, 0, ff.resultsname, 0, resultsnameArr.length);
+    Memory resultsnameMem = NotesStringUtils.toLMBCS(resultsname, true);
+    byte[] resultsnameArr = resultsnameMem.getByteArray(0, (int) resultsnameMem.size());
+    if (resultsnameArr.length > NotesConstants.MAX_CMD_VALLEN) {
+      throw new IllegalArgumentException("Results name exceeds max size in bytes");
+    }
 
-		ff.write();
+    Memory columnnameMem = NotesStringUtils.toLMBCS(columnname, true);
+    byte[] columnnameArr = columnnameMem.getByteArray(0, (int) columnnameMem.size());
+    if (columnnameArr.length > NotesConstants.MAX_CMD_VALLEN) {
+      throw new IllegalArgumentException("Column name exceeds max size in bytes");
+    }
+
+    Charset charset = NativeItemCoder.get().getLmbcsCharset(LmbcsVariant.NULLTERM_KEEPNEWLINES);
+    byte[] formulaStringArr = formula.getBytes(charset);
+
+		Pointer ptrFF;
+		
+		NotesFieldFormulaStructV1200 ffV1200 = null;
+		NotesFieldFormulaStructV1201 ffV1201 = null;
+		
+		if (isV1200) {
+	    ffV1200 = NotesFieldFormulaStructV1200.newInstance();
+	    ffV1200.write();
+
+      //write result set name
+      System.arraycopy(resultsnameArr, 0, ffV1200.resultsname, 0, resultsnameArr.length);
+
+      //write column name
+	    System.arraycopy(columnnameArr, 0, ffV1200.columnname, 0, columnnameArr.length);
+	    
+	    //write formula string
+	    {
+	      if (formulaStringArr.length > ffV1200.formula.length) {
+	        throw new IllegalArgumentException("Formula exceeds max size in bytes");
+	      }
+	      System.arraycopy(formulaStringArr, 0, ffV1200.formula, 0, formulaStringArr.length);
+	    }
+	    
+	    ffV1200.write();
+	    ptrFF = ffV1200.getPointer();
+		}
+		else {
+	    ffV1201 = NotesFieldFormulaStructV1201.newInstance();
+	    ffV1201.write();
+
+	     //write result set name
+      System.arraycopy(resultsnameArr, 0, ffV1201.resultsname, 0, resultsnameArr.length);
+
+	    //write column name
+	    System.arraycopy(columnnameArr, 0, ffV1201.columnname, 0, columnnameArr.length);
+
+	    //write formula string
+	    {
+	      IntByReference rethFormula = new IntByReference();
+	      short result = Mem.OSMemoryAllocate(NotesConstants.BLK_MEM_ALLOC, formulaStringArr.length, rethFormula);
+	      NotesErrorUtils.checkResult(result);
+	      
+	      if (rethFormula.getValue()==0) {
+	        throw new DominoException("Memory allocation for formula failed");
+	      }
+	      
+	      try (LockedMemory mem = Mem.OSMemoryLock(rethFormula.getValue());) {
+	        mem.getPointer().write(0, formulaStringArr, 0, formulaStringArr.length);
+	      }
+	      
+	      ffV1201.hFormula = rethFormula.getValue();
+	      
+	      //dispose this later
+	      JNANotesQueryResultsProcessorAllocations allocations = getAllocations();
+	      allocations.addFormulaHandleForDispose(ffV1201.hFormula);
+	    }
+
+	    ffV1201.write();
+      ptrFF = ffV1201.getPointer();
+		}
 
 		JNANotesQueryResultsProcessorAllocations queryResultsProcessorAllocations = getAllocations();
 		Pointer queryResultsHandlesPtr = queryResultsProcessorAllocations.getNotesQueryResultsHandles().getPointer();
 		Pointer hFieldRulesPtr = queryResultsHandlesPtr.share(4 + 4);
 		
+		IntByReference hretError = new IntByReference();
+		
 		short result = NotesCAPI12.get().NSFQueryAddToResultsList(NotesConstants.QUEP_LISTTYPE.FIELD_FORMULA_LST.getValue(),
-				ff.getPointer(), hFieldRulesPtr, null);
-		NotesErrorUtils.checkResult(result);
-		return this;
-	}
+		    ptrFF, hFieldRulesPtr, hretError);
+		
+    if (result!=0 && hretError.getValue()!=0) {
+      if (hretError.getValue()!=0) {
+        String errorMessage = NotesErrorUtils.errToString(result);
+        
+        String errorDetails;
+        try (LockedMemory memErr = Mem.OSMemoryLock(hretError.getValue(), true)) {
+          errorDetails = NotesStringUtils.fromLMBCS(memErr.getPointer(), -1);
+        }
+        
+        throw new DominoException(result, errorMessage + " - " + errorDetails); //$NON-NLS-1$
+      }
+      else {
+        NotesErrorUtils.checkResult(result);
+      }
+    }
+    
+    return this;
+ 	}
 
 	@Override
 	public void executeToJSON(Appendable appendable, Set<QRPOptions> options) {
@@ -339,9 +517,9 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 		if (result!=0) {
 			if (hErrorText.getValue()!=0) {
 				try (LockedMemory errMsgMem = Mem.OSMemoryLock(hErrorText.getValue(), true);) {
-					Pointer errMsgPtr = errMsgMem.getPointer();
-					String errMsg = NotesStringUtils.fromLMBCS(errMsgPtr, -1);
-					throw new DominoException(result, errMsg);
+					String errorMessage = NotesErrorUtils.errToString(result);
+				  String errorDetails = NotesStringUtils.fromLMBCS(errMsgMem.getPointer(), -1);
+					throw new DominoException(result, errorMessage + " - " + errorDetails); //$NON-NLS-1$
 				}
 			}
 			else {
@@ -391,9 +569,9 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 		if (result!=0) {
 			if (hErrorText.getValue()!=0) {
 				try (LockedMemory errMsgMem = Mem.OSMemoryLock(hErrorText.getValue(), true);) {
-					Pointer errMsgPtr = errMsgMem.getPointer();
-					String errMsg = NotesStringUtils.fromLMBCS(errMsgPtr, -1);
-					throw new DominoException(result, errMsg);
+          String errorMessage = NotesErrorUtils.errToString(result);
+          String errorDetails = NotesStringUtils.fromLMBCS(errMsgMem.getPointer(), -1);
+          throw new DominoException(result, errorMessage + " - " + errorDetails); //$NON-NLS-1$
 				}
 			}
 			else {
@@ -635,9 +813,9 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 	  else {
 	    if (hErrorText.getValue()!=0) {
 	      try (LockedMemory errMsgMem = Mem.OSMemoryLock(hErrorText.getValue(), true);) {
-	        Pointer errMsgPtr = errMsgMem.getPointer();
-	        String errMsg = NotesStringUtils.fromLMBCS(errMsgPtr, -1);
-	        throw new DominoException(result, errMsg);
+          String errorMessage = NotesErrorUtils.errToString(result);
+          String errorDetails = NotesStringUtils.fromLMBCS(errMsgMem.getPointer(), -1);
+          throw new DominoException(result, errorMessage + " - " + errorDetails); //$NON-NLS-1$
 	      }
 	    }
 	    else {
