@@ -127,6 +127,15 @@ public interface DbDesign {
   Subform createSubform(String subformName);
 
   /**
+   * Creates a new, unsaved page design element
+   * 
+   * @param pageName the name of the page to create
+   * @return the newly-created in-memory {@link Page}
+   * @since 1.7.8
+   */
+  Page createPage(String pageName);
+  
+  /**
    * Creates a new, unsaved view design element.
    *
    * @param viewName the name of the view to create

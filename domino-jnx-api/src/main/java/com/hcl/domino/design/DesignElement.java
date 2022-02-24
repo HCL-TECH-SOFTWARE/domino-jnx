@@ -165,6 +165,26 @@ public interface DesignElement {
   Document getDocument();
   
   /**
+   * Convenience method to get the UNID of the underlying design document
+   * 
+   * @return UNID
+   * @since 1.6.7
+   */
+  default String getUNID() {
+    return getDocument().getUNID();
+  }
+  
+  /**
+   * Convenience method to get the note ID of the underlying design document
+   * 
+   * @return the integer note ID
+   * @since 1.6.7
+   */
+  default int getNoteID() {
+    return getDocument().getNoteID();
+  }
+  
+  /**
    * Retrieves the name of the note-specific template this design element
    * is set to derive from.
    * 

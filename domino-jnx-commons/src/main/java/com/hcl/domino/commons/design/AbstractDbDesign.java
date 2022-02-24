@@ -241,6 +241,11 @@ public abstract class AbstractDbDesign implements DbDesign {
   }
 
   @Override
+  public Page createPage(String pageName) {
+    return this.createDesignNote(Page.class, pageName);
+  }
+  
+  @Override
   public View createView(final String viewName) {
     return this.createDesignNote(View.class, viewName);
   }

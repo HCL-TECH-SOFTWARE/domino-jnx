@@ -23,6 +23,7 @@ import java.util.function.Consumer;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.StandardColors;
 import com.hcl.domino.data.StandardFonts;
+import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.action.EventId;
 import com.hcl.domino.misc.NotesConstants;
@@ -53,7 +54,7 @@ public class SubformImpl extends AbstractFormOrSubform<Subform> implements Subfo
     Document doc = getDocument();
     doc.replaceItemValue(NotesConstants.FIELD_TITLE, title);
     if (doc.isNew()) {
-      doc.replaceItemValue(NotesConstants.DOC_SCRIPT_NAME, title);
+      doc.replaceItemValue(NotesConstants.DOC_SCRIPT_NAME, EnumSet.of(ItemFlag.SIGNED), title);
     }
   }
 
