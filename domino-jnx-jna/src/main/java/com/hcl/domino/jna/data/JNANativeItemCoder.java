@@ -118,7 +118,7 @@ public class JNANativeItemCoder implements NativeItemCoder {
       case NULLTERM:
         return LMBCSCharset.INSTANCE_NULLTERM;
       case NULLTERM_KEEPNEWLINES:
-        return LMBCSCharset.INSTANCE_KEEPNEWLINES;
+        return LMBCSCharset.INSTANCE_NULLTERM_KEEPNEWLINES;
       case NORMAL:
       default:
         return LMBCSCharset.INSTANCE;
