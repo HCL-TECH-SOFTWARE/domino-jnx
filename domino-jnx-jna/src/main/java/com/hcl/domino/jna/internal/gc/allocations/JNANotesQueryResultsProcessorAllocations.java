@@ -33,6 +33,7 @@ public class JNANotesQueryResultsProcessorAllocations extends APIObjectAllocatio
 	private boolean m_disposed;
 	private NotesQueryResultsHandles m_queryResultsHandles;
 	private List<Reader> m_pendingJsonReader = new ArrayList<>();
+	private List<Integer> m_pendingFormulaHandles = new ArrayList<>();
 	
 	@SuppressWarnings("rawtypes")
   public JNANotesQueryResultsProcessorAllocations(IGCDominoClient parentDominoClient,
@@ -75,6 +76,8 @@ public class JNANotesQueryResultsProcessorAllocations extends APIObjectAllocatio
 		}
 
 		if (m_queryResultsHandles!=null) {
+		  m_queryResultsHandles.read();
+		  
 			if (m_queryResultsHandles.hInResults!=0) {
 				Mem.OSMemoryFree(m_queryResultsHandles.hInResults);
 				m_queryResultsHandles.hInResults = 0;
@@ -94,11 +97,22 @@ public class JNANotesQueryResultsProcessorAllocations extends APIObjectAllocatio
 				Mem.OSMemoryFree(m_queryResultsHandles.hCombineRules);
 				m_queryResultsHandles.hCombineRules = 0;
 			}
+			
+			m_queryResultsHandles.write();
 		}
+		
+		for (Integer currHandle : m_pendingFormulaHandles) {
+		  Mem.OSMemoryFree(currHandle);
+		}
+		m_pendingFormulaHandles.clear();
 		
 		m_disposed = true;
 	}
 
+	public void addFormulaHandleForDispose(int handle) {
+	  m_pendingFormulaHandles.add(handle);
+	}
+	
 	/**
 	 * Registers a reader to be closed when this allocations object is disposed
 	 * 

@@ -165,6 +165,16 @@ public interface INotesCAPI extends Library {
 			DHANDLE.ByReference retHandle);
 	
 	/**
+	 * Allocates a block of memory
+	 * 
+	 * @param dwtype block type
+	 * @param size size of memory
+	 * @param rethandle returned MEMHANDLE
+	 * @return status
+	 */
+	short OSMemoryAllocate (int dwtype, int size, IntByReference rethandle);
+
+	/**
 	 * @param handle the handle to lock
 	 * @return a pointer to the locked memory
 	 * @deprecated use {@link Mem#OSMemoryLock(int)} instead

@@ -36,37 +36,37 @@ public class TestBuildVersionInfo {
     public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
       return Stream.of(
         Arguments.of(
-          new BuildVersionInfoImpl(12, 0, 1, 0, 0, 0, 0),
+          new BuildVersionInfoImpl(12, 0, 1, 0, 0, 0, 0, 0),
           true,
           12, 0, 0, 0, 0, 0
         ),
         Arguments.of(
-          new BuildVersionInfoImpl(12, 0, 0, 0, 0, 0, 0),
+          new BuildVersionInfoImpl(12, 0, 0, 0, 0, 0, 0, 0),
           false,
           12, 0, 1, 0, 0, 0
         ),
         Arguments.of(
-          new BuildVersionInfoImpl(11, 2, 0, 0, 0, 0, 0),
+          new BuildVersionInfoImpl(11, 2, 0, 0, 0, 0, 0, 0),
           false,
           12, 0, 1, 0, 0, 0
         ),
         Arguments.of(
-          new BuildVersionInfoImpl(12, 2, 0, 0, 0, 0, 0),
+          new BuildVersionInfoImpl(12, 2, 0, 0, 0, 0, 0, 0),
           true,
           12, 0, 1, 0, 0, 0
         ),
         Arguments.of(
-          new BuildVersionInfoImpl(12, 2, 0, 0, 0, 0, 0),
+          new BuildVersionInfoImpl(12, 2, 0, 0, 0, 0, 0, 0),
           false,
           12, 2, 1, 0, 0, 0
         ),
         Arguments.of(
-          new BuildVersionInfoImpl(12, 2, 0, 0, 0, 0, 0),
+          new BuildVersionInfoImpl(12, 2, 0, 0, 0, 0, 0, 0),
           true,
           12, 2, 0, 0, 0, 0
         ),
         Arguments.of(
-          new BuildVersionInfoImpl(12, 2, 0, 0, 0, 0, 345),
+          new BuildVersionInfoImpl(12, 2, 0, 0, 0, 0, 345, 0),
           true,
           12, 2, 0, 0, 0, 0
         )

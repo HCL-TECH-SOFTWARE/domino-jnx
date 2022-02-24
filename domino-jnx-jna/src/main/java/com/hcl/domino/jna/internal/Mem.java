@@ -315,7 +315,11 @@ public class Mem {
 	public static boolean OSMemoryUnlock(long handle) {
 		return NotesCAPI.get().OSMemoryUnlock(handle);
 	}
-	
+
+	public static short OSMemoryAllocate(int dwtype, int size, IntByReference rethandle) {
+	  return NotesCAPI.get().OSMemoryAllocate(dwtype, size, rethandle);
+	}
+
 	public static void OSMemoryFree(int handle) {
 		NotesCAPI.get().OSMemoryFree(handle);
 	}

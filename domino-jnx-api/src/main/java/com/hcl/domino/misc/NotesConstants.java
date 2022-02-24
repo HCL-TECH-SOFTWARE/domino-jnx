@@ -4649,4 +4649,55 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   /** if changing bulk key encryption */
   short LSECINFOSET_MODIFY = 0x0004;
 
+  /*  Define memory allocator hints for static memory, which also re-use the
+  top 2 bits of the BLK_ codes.  These codes are used by the Static
+  memory package, e.g. OSStaticMem(), NOT by OSMemAlloc() */
+
+  /* Object is truly global */
+  int MEM_GLOBAL = 0x00000000;
+  /* Object is process-instance */
+  int MEM_PROCESS = 0x00008000;
+  /* Object is thread-instance */
+  int MEM_THREAD = 0x0000C000;
+  /* Object is physical thread-instance */
+  int MEM_PTHREAD = 0x00004000;
+  /* Object is thread group-instance */
+  int MEM_GTHREAD = 0x00010000;
+
+  /* LSXBE errors, 0 - 47 */
+  int PKG_LSBE = 0x11b0;
+
+  /* OSStaticMem */
+  int BLK_LIST_HDR = ((PKG_LSBE +0x1) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_MEM_STVPOOL = ((PKG_LSBE +0x2) | MEM_PROCESS);
+  /* OSMemAlloc */
+  int BLK_MEM_HVPOOL = ((PKG_LSBE +0x3) | 0);
+  /* OSStaticMem */
+  int BLK_MEM_REFCOUNT = ((PKG_LSBE +0x4) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_RESOURCE_HMOD = ((PKG_LSBE +0x5) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_MEM_POOLLOCK = ((PKG_LSBE +0x6) | MEM_PROCESS);
+  /* OSMemAlloc id tag */
+  int BLK_MEM_ALLOC = ((PKG_LSBE +0x7));
+  /* OSStaticMem */
+  int BLK_SEM_SESSION = ((PKG_LSBE +0x8) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_CCSTR_LOCK = ((PKG_LSBE +0x9) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_JAVA_JNIPTR = ((PKG_LSBE +0xa) | MEM_THREAD);
+  /* OSStaticMem */
+  int BLK_DB_SEM = ((PKG_LSBE +0xb) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_VIEW_SEM = ((PKG_LSBE +0xc) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_OBJECT_SEM = ((PKG_LSBE +0xd) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_MEM_LOCK_SEM = ((PKG_LSBE +0xe) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_MEM_CORBA = ((PKG_LSBE +0xf) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_MEM_MONITORTH = ((PKG_LSBE +0x10) | MEM_PROCESS);
+
 }

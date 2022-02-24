@@ -39,11 +39,13 @@ public class NotesFieldFormulaStruct extends BaseStructure {
 	 * C type : char[MAX_CMD_VALLEN]
 	 */
 	public byte[] columnname = new byte[NotesConstants.MAX_CMD_VALLEN];
-	/**
-	 * how to build result data from documents<br>
-	 * C type : char[MAX_CMD_VALLEN]
-	 */
-	public byte[] formula = new byte[NotesConstants.MAX_CMD_VALLEN];
+	
+  /**
+   * how to build result data from documents<br>
+   * C type : MEMHANDLE
+   */
+	public int hFormula;
+	
 	/** We will flag any non-matched formula entry misspelling, etc */
 	public boolean bMatched;
 	
@@ -65,7 +67,7 @@ public class NotesFieldFormulaStruct extends BaseStructure {
 	@SuppressWarnings("nls")
   @Override
   protected List<String> getFieldOrder() {
-		return Arrays.asList("resultsname", "columnname", "formula", "bMatched");
+		return Arrays.asList("resultsname", "columnname", "hFormula", "bMatched");
 	}
 	
 	/**
@@ -73,11 +75,11 @@ public class NotesFieldFormulaStruct extends BaseStructure {
 	 * C type : char[MAX_CMD_VALLEN]<br>
 	 * @param columnname columnname \ufffd refers to sort column name - programmatic name<br>
 	 * C type : char[MAX_CMD_VALLEN]<br>
-	 * @param formula how to build result data from documents<br>
-	 * C type : char[MAX_CMD_VALLEN]<br>
+	 * @param hFormula how to build result data from documents<br>
+	 * C type : MEMHANDLE<br>
 	 * @param bMatched We will flag any non-matched formula entry misspelling, etc
 	 */
-	public NotesFieldFormulaStruct(byte resultsname[], byte columnname[], byte formula[], boolean bMatched) {
+	public NotesFieldFormulaStruct(byte resultsname[], byte columnname[], int hFormula, boolean bMatched) {
 		super();
 		if ((resultsname.length != this.resultsname.length)) 
 			throw new IllegalArgumentException("Wrong array size !");
@@ -85,9 +87,7 @@ public class NotesFieldFormulaStruct extends BaseStructure {
 		if ((columnname.length != this.columnname.length)) 
 			throw new IllegalArgumentException("Wrong array size !");
 		this.columnname = columnname;
-		if ((formula.length != this.formula.length)) 
-			throw new IllegalArgumentException("Wrong array size !");
-		this.formula = formula;
+		this.hFormula = hFormula;
 		this.bMatched = bMatched;
 	}
 	

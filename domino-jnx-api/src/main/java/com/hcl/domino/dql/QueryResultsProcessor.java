@@ -72,7 +72,9 @@ public interface QueryResultsProcessor {
    * @param name programmatic column name
    * @return this instance
    */
-  QueryResultsProcessor addColumn(String name);
+  default QueryResultsProcessor addColumn(String name) {
+    return addColumn(name, "", "", SortOrder.UNORDERED, Hidden.FALSE, Categorized.FALSE);
+  }
 
   /**
    * Provides Domino formula language to override the data used to generate values
@@ -112,13 +114,11 @@ public interface QueryResultsProcessor {
 
   /**
    * Creates a single column of values to be returned when
-   * {@link QueryResultsProcessor} execute
-   * is performed. Values for the column can be generated from a field, or a
-   * formula. Sorting order,
-   * categorization and hidden attributes determine the returned stream of results
-   * entries.<br>
-   * Sort columns span all input result sets and databases taking part in the
-   * {@link QueryResultsProcessor}.
+   * {@link QueryResultsProcessor} is executed. Column values can be generated from a field
+   * or a formula. Sorting order, categorization and hidden attributes determine the
+   * returned stream of results entries.<br>
+   * Columns span all input result sets and databases taking part in the {@link QueryResultsProcessor}.
+   * Execute calls in the {@link QueryResultsProcessor} require at least one column to be specified.
    *
    * @param name          The unique (within a QueryResultsProcessor instance)
    *                      programmatic name of the column. If there is no override
@@ -137,6 +137,18 @@ public interface QueryResultsProcessor {
    *                      see the description of the isCategorized parameter.
    * @param title         The display title of the column. Used only in generated
    *                      views, the title is the UI column header.
+   * @param formula       Formula language string to serve as the default means of
+   *                      computing values for the column. If not supplied and if
+   *                      not overridden by an addFormula value, the name argument
+   *                      is treated as a field name. The precedence of supplying column values is:<br>
+   *                      <ol>
+   *                      <li>AddFormula Formula Language override</li>
+   *                      <li>Formula argument of the AddColumn method</li>
+   *                      <li>Use the name argument of the AddColumn method as a database field name</li>
+   *                      </ol>
+   *                      If supplied, the Formula Language provided is applied to the column
+   *                      across all results added using addCollection or addDominoQuery.<br>
+   *                      Formulas are not allowed on columns with aggregates.
    * @param sortorder     A constant to indicate how the column should be sorted.
    *                      Values are sorted case and accent insensitively by
    *                      default. Multiple sort columns can have sort orders, and
@@ -161,7 +173,8 @@ public interface QueryResultsProcessor {
    *                      subcategories.
    * @return this instance
    */
-  QueryResultsProcessor addSortColumn(String name, String title, SortOrder sortorder, Hidden ishidden, Categorized iscategorized);
+  QueryResultsProcessor addColumn(String name, String title, String formula, SortOrder sortorder,
+      Hidden ishidden, Categorized iscategorized);
 
   /**
    * Processes the input collections in the manner specified by the Sort Columns,
@@ -252,7 +265,7 @@ public interface QueryResultsProcessor {
    * @param hoursUntilExpire The time, in hours, for the view to be left in the host database. If not specified, it expires in 24 hours. You can extend the expiration time using the updall or dbmt tasks.
    * @param readers These define the allowed Readers for the documents in the View (usernames and groups). Will be converted to canonical format
    * @return view note id
-   * @since 1.6.7
+   * @since 1.8.8, requires JNX running against a Notes/Domino R12.0.1 environment
    */
   int executeToView(String viewName, int hoursUntilExpire, List<String> readers);
   

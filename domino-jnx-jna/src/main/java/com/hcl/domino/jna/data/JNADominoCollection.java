@@ -37,6 +37,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
 
+import com.hcl.domino.BuildVersionInfo;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.design.view.DominoCollationInfo;
 import com.hcl.domino.commons.design.view.DominoCollationInfo.DominoCollateColumn;
@@ -1621,8 +1622,9 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		
 		{
 			//check for R9 and flag compatibility
-			int buildVersion = ((JNADatabase) getParent()).getParentServerBuildVersion();
-			if (buildVersion < 400) {
+		  BuildVersionInfo buildVersion = ((JNADatabase) getParent()).getBuildVersionInfo();
+		  
+			if (buildVersion.getBuildNumber() < 400) {
 				return false;
 			}
 		}
