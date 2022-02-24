@@ -350,7 +350,7 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 		//opening any database on the server is required before putting the id fault, according to the
 		//C API documentation and sample "idvault.c"
 		
-	  String primaryDirectory = getParentDominoClient().openUserDirectory(null).getPrimaryDirectoryPath()
+	  String primaryDirectory = getParentDominoClient().openUserDirectory(serverName).getPrimaryDirectoryPath()
 	      .orElseThrow(() -> new IllegalStateException("Unable to identify primary directory path"));
 		try (JNADatabase anyServerDb = new JNADatabase(getParentDominoClient(), serverName, primaryDirectory, EnumSet.noneOf(OpenDatabase.class));) {
 			String userNameCanonical = NotesNamingUtils.toCanonicalName(userName);
