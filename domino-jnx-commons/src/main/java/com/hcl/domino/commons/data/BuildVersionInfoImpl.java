@@ -37,9 +37,11 @@ public class BuildVersionInfoImpl implements BuildVersionInfo {
   private final int flags;
   /** Fixpack version installed on machine */
   private final int fixpackNumber;
-
+  /** build number */
+  private final int buildNumber;
+  
   public BuildVersionInfoImpl(final int majorVersion, final int minorVersion, final int qmrNumber, final int qmuNumber,
-      final int hotfixNumber, final int flags, final int fixpackNumber) {
+      final int hotfixNumber, final int flags, final int fixpackNumber, final int buildNumber) {
     this.majorVersion = majorVersion;
     this.minorVersion = minorVersion;
     this.qmrNumber = qmrNumber;
@@ -47,6 +49,7 @@ public class BuildVersionInfoImpl implements BuildVersionInfo {
     this.hotfixNumber = hotfixNumber;
     this.flags = flags;
     this.fixpackNumber = fixpackNumber;
+    this.buildNumber = buildNumber;
   }
 
   @Override
@@ -85,6 +88,11 @@ public class BuildVersionInfoImpl implements BuildVersionInfo {
   }
   
   @Override
+  public int getBuildNumber() {
+    return this.buildNumber;
+  }
+  
+  @Override
   public boolean isAtLeast(int majorVersion, int minorVersion, int qmrNumber, int qmuNumber, int hotfixNumber) {
     if(this.majorVersion < majorVersion) {
       return false;
@@ -113,7 +121,7 @@ public class BuildVersionInfoImpl implements BuildVersionInfo {
     return "BuildVersionInfoImpl [majorVersion=" + this.majorVersion + ", minorVersion=" + this.minorVersion + ", qmrNumber=" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         + this.qmrNumber + ", qmuNumber=" + this.qmuNumber + ", hotfixNumber=" + this.hotfixNumber + ", isNonProdBuild=" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
         + this.isNonProductionBuild()
-        + ", fixpackNumber=" + this.fixpackNumber + "]"; //$NON-NLS-1$ //$NON-NLS-2$
+        + ", fixpackNumber=" + this.fixpackNumber + ", buildnumber=" + this.buildNumber + "]"; //$NON-NLS-1$ //$NON-NLS-2$
   }
 
 }
