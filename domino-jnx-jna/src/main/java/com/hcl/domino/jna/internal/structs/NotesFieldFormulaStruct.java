@@ -28,7 +28,7 @@ import java.util.List;
  * a tool written by <a href="http://ochafik.com/">Olivier Chafik</a> that <a href="http://code.google.com/p/jnaerator/wiki/CreditsAndLicense">uses a few opensource projects.</a>.<br>
  * For help, please visit <a href="http://nativelibs4java.googlecode.com/">NativeLibs4Java</a> , <a href="http://rococoa.dev.java.net/">Rococoa</a>, or <a href="http://jna.dev.java.net/">JNA</a>.
  */
-public class NotesFieldFormulaStructV1200 extends BaseStructure {
+public class NotesFieldFormulaStruct extends BaseStructure {
 	/**
 	 * the query results name<br>
 	 * C type : char[MAX_CMD_VALLEN]
@@ -42,14 +42,14 @@ public class NotesFieldFormulaStructV1200 extends BaseStructure {
 	
   /**
    * how to build result data from documents<br>
-   * C type : char[MAX_CMD_VALLEN]
+   * C type : MEMHANDLE
    */
-  public byte[] formula = new byte[NotesConstants.MAX_CMD_VALLEN];
+	public int hFormula;
 	
 	/** We will flag any non-matched formula entry misspelling, etc */
 	public boolean bMatched;
 	
-	public NotesFieldFormulaStructV1200() {
+	public NotesFieldFormulaStruct() {
 		super();
 	}
 	
@@ -58,16 +58,16 @@ public class NotesFieldFormulaStructV1200 extends BaseStructure {
 		return Structure.ALIGN_DEFAULT;
 	}
 
-	public static NotesFieldFormulaStructV1200 newInstance() {
-		return AccessController.doPrivileged((PrivilegedAction<NotesFieldFormulaStructV1200>) () -> {
-			return new NotesFieldFormulaStructV1200();
+	public static NotesFieldFormulaStruct newInstance() {
+		return AccessController.doPrivileged((PrivilegedAction<NotesFieldFormulaStruct>) () -> {
+			return new NotesFieldFormulaStruct();
 		});
 	}
 
 	@SuppressWarnings("nls")
   @Override
   protected List<String> getFieldOrder() {
-		return Arrays.asList("resultsname", "columnname", "formula", "bMatched");
+		return Arrays.asList("resultsname", "columnname", "hFormula", "bMatched");
 	}
 	
 	/**
@@ -75,11 +75,11 @@ public class NotesFieldFormulaStructV1200 extends BaseStructure {
 	 * C type : char[MAX_CMD_VALLEN]<br>
 	 * @param columnname columnname \ufffd refers to sort column name - programmatic name<br>
 	 * C type : char[MAX_CMD_VALLEN]<br>
-   * @param formula how to build result data from documents<br>
-   * C type : char[MAX_CMD_VALLEN]<br>
+	 * @param hFormula how to build result data from documents<br>
+	 * C type : MEMHANDLE<br>
 	 * @param bMatched We will flag any non-matched formula entry misspelling, etc
 	 */
-	public NotesFieldFormulaStructV1200(byte resultsname[], byte columnname[], byte formula[], boolean bMatched) {
+	public NotesFieldFormulaStruct(byte resultsname[], byte columnname[], int hFormula, boolean bMatched) {
 		super();
 		if ((resultsname.length != this.resultsname.length)) 
 			throw new IllegalArgumentException("Wrong array size !");
@@ -87,33 +87,31 @@ public class NotesFieldFormulaStructV1200 extends BaseStructure {
 		if ((columnname.length != this.columnname.length)) 
 			throw new IllegalArgumentException("Wrong array size !");
 		this.columnname = columnname;
-    if ((formula.length != this.formula.length)) 
-      throw new IllegalArgumentException("Wrong array size !");
-    this.formula = formula;
+		this.hFormula = hFormula;
 		this.bMatched = bMatched;
 	}
 	
-	public NotesFieldFormulaStructV1200(Pointer peer) {
+	public NotesFieldFormulaStruct(Pointer peer) {
 		super(peer);
 	}
 	
-	public static NotesFieldFormulaStructV1200 newInstance(Pointer peer) {
-		return AccessController.doPrivileged((PrivilegedAction<NotesFieldFormulaStructV1200>) () -> {
-			return new NotesFieldFormulaStructV1200(peer);
+	public static NotesFieldFormulaStruct newInstance(Pointer peer) {
+		return AccessController.doPrivileged((PrivilegedAction<NotesFieldFormulaStruct>) () -> {
+			return new NotesFieldFormulaStruct(peer);
 		});
 	}
 
-	public static class ByReference extends NotesFieldFormulaStructV1200 implements Structure.ByReference {
+	public static class ByReference extends NotesFieldFormulaStruct implements Structure.ByReference {
 		
 	};
 	
-	public static NotesFieldFormulaStructV1200.ByReference newInstanceByReference() {
-		return AccessController.doPrivileged((PrivilegedAction<NotesFieldFormulaStructV1200.ByReference>) () -> {
-			return new NotesFieldFormulaStructV1200.ByReference();
+	public static NotesFieldFormulaStruct.ByReference newInstanceByReference() {
+		return AccessController.doPrivileged((PrivilegedAction<NotesFieldFormulaStruct.ByReference>) () -> {
+			return new NotesFieldFormulaStruct.ByReference();
 		});
 	}
 
-	public static class ByValue extends NotesFieldFormulaStructV1200 implements Structure.ByValue {
+	public static class ByValue extends NotesFieldFormulaStruct implements Structure.ByValue {
 		
 	};
 }
