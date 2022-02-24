@@ -23,9 +23,6 @@ import java.util.Set;
 
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.IDTable;
-import com.hcl.domino.dql.QueryResultsProcessor.Categorized;
-import com.hcl.domino.dql.QueryResultsProcessor.Hidden;
-import com.hcl.domino.dql.QueryResultsProcessor.SortOrder;
 
 /**
  * Aggregates, computes, sorts, and formats collections of documents across any
