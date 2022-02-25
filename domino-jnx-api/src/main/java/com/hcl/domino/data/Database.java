@@ -1379,6 +1379,24 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
    */
   Optional<DominoCollection> openCollection(int viewNoteId);
   
+  /**
+   * Opens a {@link DominoCollection}, telling NIF to pull the view's content
+   * from a separate database (acting like a private view in the Notes Client).<br>
+   * <br>
+   * Opening such a view in the Notes user interface destroys the view
+   * index, so the entries will magically disappear.<br>
+   * Please note that based on our tests, read access writes will not be transferred
+   * to the view, so it only represents what the current database owner
+   * (that triggers the index creation/update) is allowed to set.
+   * 
+   * @param viewNoteId note id of a view or folder note to open
+   * @param dbData separate database to read the view data from
+   * @return an {@link Optional} describing the requested collection, or an empty
+   *         one if the note does not exist
+   * @since 1.9.8
+   */
+  public Optional<DominoCollection> openCollection(int viewNoteId, Database dbData);
+
   Optional<DominoCollection> openDefaultCollection();
 
   /**
