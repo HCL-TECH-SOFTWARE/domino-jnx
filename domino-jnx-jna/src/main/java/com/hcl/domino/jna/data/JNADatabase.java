@@ -649,7 +649,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		if (noteId==0) {
 			return Optional.empty();
 		}
-		DominoCollection col = openCollection(noteId, null);
+		DominoCollection col = openCollection(noteId, (EnumSet<OpenCollection> ) null);
 		return Optional.of(col);
 	}
 	
@@ -689,11 +689,33 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	}
 
 	public DominoCollection openCollection(int viewNoteId, EnumSet<OpenCollection> openFlagSet) {
+	  return openCollection(viewNoteId, openFlagSet, this);
+	}
+
+  @Override
+  public Optional<DominoCollection> openCollection(int viewNoteId, Database dbData) {
+    return Optional.ofNullable(openCollection(viewNoteId, (EnumSet<OpenCollection> ) null, dbData));
+  }
+
+	private DominoCollection openCollection(int viewNoteId, EnumSet<OpenCollection> openFlagSet, Database dbData) {
 		checkDisposed();
 		
-		JNADatabaseAllocations allocations = getAllocations();
+		if (viewNoteId==0) {
+		  return null;
+		}
+		
+		if (dbData!=null && dbData instanceof JNADatabase==false) {
+		  throw new IllegalArgumentException("Database to read data must be of type JNADatabase");
+		}
+		
+		JNADatabase jnaDbData = dbData==null ? this : (JNADatabase) dbData;
+		
+		jnaDbData.checkDisposed();
+		
+		JNADatabaseAllocations dbViewAllocations = getAllocations();
+    JNADatabaseAllocations dbDataAllocations = jnaDbData.getAllocations();
 
-		Memory retViewUNID = new Memory(16);
+		DisposableMemory retViewUNID = new DisposableMemory(16);
 		JNAIDTable unreadTable = new JNAIDTable(getParentDominoClient());
 		
 		//always enforce reopening; funny things can happen on a Domino server
@@ -704,7 +726,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		short openFlags = DominoEnumUtil.toBitField(OpenCollection.class, openFlagSetClone);
 
-		JNAUserNamesList namesList = allocations.getNamesList();
+		JNAUserNamesList namesList = dbViewAllocations.getNamesList();
 		
 		if (namesList.isDisposed()) {
 			throw new ObjectDisposedException(namesList);
@@ -723,11 +745,12 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		short result = LockUtil.lockHandles(
 				namesListAllocations.getHandle(),
 				unreadTableAllocations.getIdTableHandle(),
-				allocations.getDBHandle(),
+				dbViewAllocations.getDBHandle(),
+				dbDataAllocations.getDBHandle(),
 				
-				(namesListHandleByVal, unreadTableHandleByVal, dbHandleByVal) -> {
-					short localResult = NotesCAPI.get().NIFOpenCollectionWithUserNameList(dbHandleByVal,
-							dbHandleByVal,
+				(namesListHandleByVal, unreadTableHandleByVal, dbViewHandleByVal, dbDataHandleByVal) -> {
+					short localResult = NotesCAPI.get().NIFOpenCollectionWithUserNameList(dbViewHandleByVal,
+							dbDataHandleByVal,
 							viewNoteId, openFlags, unreadTableHandleByVal,
 							rethCollection, null, retViewUNID, rethCollapsedList,
 							rethSelectedList, namesListHandleByVal);
@@ -738,10 +761,12 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		NotesErrorUtils.checkResult(result);
 		
 		String sViewUNID = toUNID(retViewUNID);
+		retViewUNID.dispose();
+		
 		JNAIDTable collapsedList = new JNAIDTable(getParentDominoClient(), rethCollapsedList, true);
 		JNAIDTable selectedList = new JNAIDTable(getParentDominoClient(), rethSelectedList, true);
 		
-		return new JNADominoCollection(this, rethCollection, viewNoteId,
+		return new JNADominoCollection(this, jnaDbData, rethCollection, viewNoteId,
 				sViewUNID, collapsedList,
 				selectedList, unreadTable);
 	}
@@ -2707,7 +2732,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		checkDisposed();
 		
 		try {
-			DominoCollection col = openCollection(NotesConstants.NOTE_ID_SPECIAL | NotesConstants.NOTE_CLASS_DESIGN, null);
+			DominoCollection col = openCollection(NotesConstants.NOTE_ID_SPECIAL | NotesConstants.NOTE_CLASS_DESIGN, (EnumSet<OpenCollection>) null);
 			return col;
 		}
 		catch (DominoException e) {
@@ -2730,7 +2755,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		NotesErrorUtils.checkResult(result);
 		
 		//try again:
-		DominoCollection col = openCollection(NotesConstants.NOTE_ID_SPECIAL | NotesConstants.NOTE_CLASS_DESIGN, null);
+		DominoCollection col = openCollection(NotesConstants.NOTE_ID_SPECIAL | NotesConstants.NOTE_CLASS_DESIGN, (EnumSet<OpenCollection> ) null);
 		return col;
 	}
 	
