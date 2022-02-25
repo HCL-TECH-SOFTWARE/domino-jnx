@@ -1393,6 +1393,7 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
    * @param dbData separate database to read the view data from
    * @return an {@link Optional} describing the requested collection, or an empty
    *         one if the note does not exist
+   * @since 1.9.8
    */
   public Optional<DominoCollection> openCollection(int viewNoteId, Database dbData);
 
