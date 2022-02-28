@@ -20,7 +20,7 @@ public class TestPrivateViews extends AbstractNotesRuntimeTest {
   /**
    * This method create two temporary databases: dbData that will be used to store
    * documents and dbView that we use to create a view.<br>
-   * The view is opened via {@link Database#openCollection(Database, int)} which tells
+   * The view is opened via {@link Database#openCollection(int, Database)}, which tells
    * NIF to read the view data from another database. So the view acts like a
    * private view. Opening such a view in the Notes user interface destroys the view
    * index, so the entries will magically disappear.<br>

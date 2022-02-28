@@ -185,6 +185,7 @@ public class SharedColumnImpl extends AbstractDesignElement<SharedColumn> implem
      return super.save();
   }
 
+   @Override
    public void setTitle(final String... title) {
      //$TITLE for views/folders/sharedcolumns are stored differently than for forms (concatenated with |, no string list)
      this.getDocument().replaceItemValue(NotesConstants.FIELD_TITLE,

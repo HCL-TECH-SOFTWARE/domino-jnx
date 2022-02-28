@@ -35,7 +35,6 @@ public class NotesResultsSortColumnStruct extends Structure {
 	/** When hColFormula is dereferenced, this gets incremented for subsequent unlocks */
 	public int numformulalocks;
 	/**
-	 * @see DESIGN_COMPONENT_ATTR<br>
 	 * ASC, DESC or none<br>
 	 * C type : DESIGN_COMPONENT_ATTR
 	 */
@@ -47,7 +46,6 @@ public class NotesResultsSortColumnStruct extends Structure {
 	/** a column whose values are aggregated across categorized keys */
 	public boolean bAggregate;
 	/**
-	 * @see QUEP_AGGREGATE_TYPE<br>
 	 * AVG, MAX, MIN, SUM, COUNT, COUNTVALS, STDDEV<br>
 	 * C type : QUEP_AGGREGATE_TYPE
 	 */
@@ -102,7 +100,9 @@ public class NotesResultsSortColumnStruct extends Structure {
 	public NotesResultsSortColumnStruct() {
 		super();
 	}
-	protected List<String> getFieldOrder() {
+	@SuppressWarnings("nls")
+  @Override
+  protected List<String> getFieldOrder() {
 		return Arrays.asList("name", "title", "hColFormula", "bColFormulaSet", "numformulalocks", "sortorder", "bHidden", "bCategorized", "bAggregate", "aggtype", "pMinMaxVal", "dwCtVals", "numAggSum", "numMaxMin", "numAggResult", "bCategLeaf", "bFirstCateg", "bLastCateg", "bCategBreak", "dwCategBreaks", "wColsInCateg", "bCategorizedKey", "bGenerated", "dwEntries", "dwColOccs", "pdwCurItemValue");
 	}
 	public NotesResultsSortColumnStruct(Pointer peer) {
