@@ -109,6 +109,8 @@ import com.hcl.domino.richtext.records.CDActionModifyField;
 import com.hcl.domino.richtext.records.CDAnchor;
 import com.hcl.domino.richtext.records.CDBegin;
 import com.hcl.domino.richtext.records.CDEnd;
+import com.hcl.domino.richtext.records.CDExtField;
+import com.hcl.domino.richtext.records.CDField;
 import com.hcl.domino.richtext.records.CDHeader;
 import com.hcl.domino.richtext.records.CDHotspotBegin;
 import com.hcl.domino.richtext.records.CDHtmlFormula;
@@ -156,7 +158,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 public class TestDbDesignForms extends AbstractDesignTest {
   public static final String ENV_DBDESIGN_FOLDER = "DBDESIGN_FORMFOLDER";
   
-  public static final int EXPECTED_IMPORT_FORMS = 11;
+  public static final int EXPECTED_IMPORT_FORMS = 12;
   public static final int EXPECTED_IMPORT_SUBFORMS = 2;
 
   private static String dbPath;
@@ -1636,6 +1638,33 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertTrue(field.getFlags().contains(CDActionModifyField.Flag.REPLACE));
       assertEquals("DateComposed", field.getFieldName());
       assertEquals("1/1/2022", field.getValue());
+    }
+  }
+  
+  @Test
+  public void testFieldEvents() {
+    DbDesign design = database.getDesign();
+    Form form = design.getForm("Field Events Form").get();
+    List<?> body = form.getBody();
+    
+    {
+      CDExtField extField = extract(body, 0, CDExtField.class);
+      assertEquals(1, extField.getEntryColumnNumber());
+      assertEquals("", extField.getEntryDBName());
+      assertEquals("Action View", extField.getEntryViewName());
+      assertEquals("\"I am HTML attributes\"", extField.getHtmlAttributesFormula());
+      
+      extField.setHtmlAttributesFormula("\"I am new HTML attributes\"");
+      assertEquals("", extField.getEntryDBName());
+      assertEquals("Action View", extField.getEntryViewName());
+      assertEquals("\"I am new HTML attributes\"", extField.getHtmlAttributesFormula());
+    }
+    {
+      CDField someField = extract(body, 0, CDField.class);
+      assertEquals("SomeField", someField.getName());
+      assertEquals("\"I am the default value\"", someField.getDefaultValueFormula());
+      assertEquals("\"I am the input translation\"", someField.getInputTranslationFormula());
+      assertEquals("\"I am input validation\"", someField.getInputValidationFormula());
     }
   }
   
