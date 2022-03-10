@@ -17,11 +17,14 @@
 package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Set;
 
 import com.hcl.domino.data.NativeItemCoder;
+import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.misc.INumberEnum;
+import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
@@ -41,6 +44,11 @@ import com.hcl.domino.richtext.structures.WSIG;
     @StructureMember(name = "EntryDBNameLen", type = short.class, unsigned = true),
     @StructureMember(name = "EntryViewNameLen", type = short.class, unsigned = true),
     @StructureMember(name = "EntryColumnNumber", type = short.class, unsigned = true)
+
+    // The structure is followed by strings corresponding to EntryDBNameLen and
+    //   EntryViewNameLen.
+    // The view info is then followed by an undocumented DWORD "HTML Flags" field,
+    //   then the HTML attributes formula
 })
 public interface CDExtField extends RichTextRecord<WSIG> {
   enum Flag implements INumberEnum<Integer> {
@@ -165,32 +173,8 @@ public interface CDExtField extends RichTextRecord<WSIG> {
   @StructureGetter("EntryColumnNumber")
   int getEntryColumnNumber();
 
-  default String getEntryDBName() {
-    final int len = this.getEntryDBNameLength();
-    if (len == 0) {
-      return ""; //$NON-NLS-1$
-    }
-    final ByteBuffer buf = this.getVariableData();
-    final byte[] lmbcs = new byte[len];
-    buf.get(lmbcs);
-    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
-  }
-
   @StructureGetter("EntryDBNameLen")
   int getEntryDBNameLength();
-
-  default String getEntryViewName() {
-    final int len = this.getEntryViewNameLength();
-    if (len == 0) {
-      return ""; //$NON-NLS-1$
-    }
-    final int preLen = this.getEntryDBNameLength();
-    final ByteBuffer buf = this.getVariableData();
-    buf.position(preLen);
-    final byte[] lmbcs = new byte[len];
-    buf.get(lmbcs);
-    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
-  }
 
   @StructureGetter("EntryViewNameLen")
   int getEntryViewNameLength();
@@ -211,6 +195,33 @@ public interface CDExtField extends RichTextRecord<WSIG> {
   @StructureSetter("EntryColumnNumber")
   CDExtField setEntryColumnNumber(int columnNumber);
 
+  @StructureSetter("EntryDBNameLen")
+  CDExtField setEntryDBNameLength(int len);
+
+  @StructureSetter("EntryViewNameLen")
+  CDExtField setEntryViewNameLength(int len);
+
+  @StructureSetter("Flags1")
+  CDExtField setFlags1(Collection<Flag> flags);
+
+  @StructureSetter("Flags2")
+  CDExtField setFlags2(Collection<Flag2> flags);
+
+  @StructureSetter("EntryHelper")
+  CDExtField setHelperType(HelperType type);
+
+
+  default String getEntryDBName() {
+    final int len = this.getEntryDBNameLength();
+    if (len == 0) {
+      return ""; //$NON-NLS-1$
+    }
+    final ByteBuffer buf = this.getVariableData();
+    final byte[] lmbcs = new byte[len];
+    buf.get(lmbcs);
+    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
+  }
+
   default CDExtField setEntryDBName(final String name) {
     final int viewNameLen = this.getEntryViewNameLength();
     final byte[] lmbcs = name == null ? new byte[0] : name.getBytes(NativeItemCoder.get().getLmbcsCharset());
@@ -223,8 +234,18 @@ public interface CDExtField extends RichTextRecord<WSIG> {
     return this;
   }
 
-  @StructureSetter("EntryDBNameLen")
-  CDExtField setEntryDBNameLength(int len);
+  default String getEntryViewName() {
+    final int len = this.getEntryViewNameLength();
+    if (len == 0) {
+      return ""; //$NON-NLS-1$
+    }
+    final int preLen = this.getEntryDBNameLength();
+    final ByteBuffer buf = this.getVariableData();
+    buf.position(preLen);
+    final byte[] lmbcs = new byte[len];
+    buf.get(lmbcs);
+    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
+  }
 
   default CDExtField setEntryViewName(final String name) {
     final int dbNameLen = this.getEntryDBNameLength();
@@ -239,16 +260,51 @@ public interface CDExtField extends RichTextRecord<WSIG> {
     return this;
   }
 
-  @StructureSetter("EntryViewNameLen")
-  CDExtField setEntryViewNameLength(int len);
+  default String getHtmlAttributesFormula() {
+    int preLen = this.getEntryDBNameLength() + this.getEntryViewNameLength();
+    int total = this.getVariableData().remaining();
+    if(total - preLen > 0) {
+      return StructureSupport.extractCompiledFormula(
+          this,
+          preLen + 4,
+          total - preLen - 4
+      );
+    } else {
+      return ""; //$NON-NLS-1$
+    }
+  }
+  
+  default CDExtField setHtmlAttributesFormula(String formula) {
+    int preLen = this.getEntryDBNameLength() + this.getEntryViewNameLength();
+    int total = this.getVariableData().remaining();
+    int currentLen = total - preLen;
+    
+    ByteBuffer buf = this.getVariableData();
+    final long otherLen = buf.remaining() - preLen - currentLen;
+    
+    buf.position((int) (preLen + currentLen));
+    final byte[] otherData = new byte[(int) otherLen];
+    buf.get(otherData);
 
-  @StructureSetter("Flags1")
-  CDExtField setFlags1(Collection<Flag> flags);
+    final byte[] compiled = FormulaCompiler.get().compile(formula);
+    final long newLen = preLen + otherLen + compiled.length + 4;
+    if (newLen > Integer.MAX_VALUE) {
+      throw new UnsupportedOperationException(
+          MessageFormat.format("Unable to write a new value exceeding {0} bytes", Integer.MAX_VALUE));
+    }
+    this.resizeVariableData((int) newLen);
+    buf = this.getVariableData();
+    if(currentLen == 0) {
+      // Then there was no pre-existing HTML Flags - write 0
+      buf.position((int) preLen);
+      buf.putInt(0); // DWORD HTML Flags
+    } else {
+      // Otherwise, retain pre-existing HTML Flags
+      buf.position((int) preLen + 4);
+    }
+    buf.put(compiled);
+    buf.put(otherData);
 
-  @StructureSetter("Flags2")
-  CDExtField setFlags2(Collection<Flag2> flags);
-
-  @StructureSetter("EntryHelper")
-  CDExtField setHelperType(HelperType type);
-
+    return this;
+  }
 }
