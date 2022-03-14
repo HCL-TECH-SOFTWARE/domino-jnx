@@ -20,7 +20,6 @@ import java.io.BufferedReader;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.concurrent.Callable;
 
@@ -42,8 +41,6 @@ public class DQLQueryCallable implements Callable<String> {
     this.sourceDb = sourceDb;
     this.query = query;
     this.extract = extract;
-    System.out.println("query: " + this.query);
-    System.out.println("extract: " + Arrays.toString(this.extract));
   }
 
   @Override
