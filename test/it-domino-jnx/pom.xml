@@ -63,7 +63,8 @@
 		<dependency>
 			<groupId>com.devskiller</groupId>
 			<artifactId>jfairy</artifactId>
-			<version>0.6.5</version>
+			<!-- Note: 0.6.5 breaks some tests -->
+			<version>0.6.4</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
