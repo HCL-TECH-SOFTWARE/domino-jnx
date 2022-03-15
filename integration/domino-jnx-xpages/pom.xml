@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.hcl.domino</groupId>
         <artifactId>domino-jnx</artifactId>
-        <version>1.9.8-SNAPSHOT</version>
+        <version>1.9.9-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
     <artifactId>domino-jnx-xpages</artifactId>
@@ -94,7 +94,7 @@
                                             <transitive>false</transitive>
                                         </artifact>
                                         <artifact>
-                                            <id>com.sun.mail:jakarta.mail:${jakarta.mail.version}</id>
+                                            <id>com.sun.mail:jakarta.mail:${jakarta.sun.mail.version}</id>
                                         </artifact>
                                     </artifacts>
                                 </feature>

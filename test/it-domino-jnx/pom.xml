@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
-		<version>1.9.8-SNAPSHOT</version>
+		<version>1.9.9-SNAPSHOT</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>it-domino-jnx</artifactId>
@@ -35,12 +35,12 @@
 			<version>${project.version}</version>
 			<scope>test</scope>
 		</dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>domino-jnx-rawdoc-json</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>domino-jnx-rawdoc-json</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
 
 		<dependency>
 			<groupId>com.ibm.sbt</groupId>
@@ -63,7 +63,7 @@
 		<dependency>
 			<groupId>com.devskiller</groupId>
 			<artifactId>jfairy</artifactId>
-			<version>0.6.4</version>
+			<version>0.6.5</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
