@@ -98,16 +98,16 @@ public class JNXDumpUtil {
   }
   
   /**
-   * Reads memory content at the specified pointer and produces a String with hex codes and
+   * Reads content of the {@link ByteBuffer} and produces a String with hex codes and
    * character data in case the memory contains bytes in ascii range. Calls {@link #dumpAsAscii(ByteBuffer, int, int)}
-   * with cols = 8 and size = buf.remaining().
+   * with cols = 8 and size = buf.limit().
    * 
    * @param buf byte buffer
    * @return memory dump
    * @since 1.0.32
    */
   public static String dumpAsAscii(ByteBuffer buf) {
-    return dumpAsAscii(buf, buf.remaining());
+    return dumpAsAscii(buf, buf.limit());
   }
   
   /**
@@ -123,7 +123,7 @@ public class JNXDumpUtil {
   }
   
   /**
-   * Reads memory content at the specified pointer and produces a String with hex codes and
+   * Reads content of the {@link ByteBuffer} and produces a String with hex codes and
    * character data in case the memory contains bytes in ascii range. Calls {@link #dumpAsAscii(ByteBuffer, int, int)}
    * with cols = 8.
    * 
@@ -136,7 +136,7 @@ public class JNXDumpUtil {
   }
 
   /**
-   * Reads memory content at the specified pointer and produces a String with hex codes and
+   * Reads content of the {@link ByteBuffer} and produces a String with hex codes and
    * character data in case the memory contains bytes in ascii range.
    * 
    * @param buf byte buffer
