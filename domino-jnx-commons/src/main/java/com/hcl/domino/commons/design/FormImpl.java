@@ -179,7 +179,7 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
       item.setEncrypted(false);
     });
     
-    try (RichTextWriter writer = doc.createRichTextItem("$HTMLCode")) { //$NON-NLS-1$
+    try (RichTextWriter writer = doc.createRichTextItem(DesignConstants.ITEM_NAME_HTMLCODE)) {
       writer.addRichTextRecord(RecordType.EVENT_LANGUAGE_ENTRY, (Consumer<CDEventEntry>) (record) -> {
         record.setPlatform(Platform.WEB)
         .setHtmlEventId(EventId.HEADER)
@@ -187,12 +187,12 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
       });
     }
     
-    doc.forEachItem("$HTMLCode", (item, loop) -> { //$NON-NLS-1$
+    doc.forEachItem(DesignConstants.ITEM_NAME_HTMLCODE, (item, loop) -> {
       item.setSigned(true);
       item.setEncrypted(false);
     });
 
-    try (RichTextWriter writer = doc.createRichTextItem("$Info")) { //$NON-NLS-1$
+    try (RichTextWriter writer = doc.createRichTextItem(NotesConstants.ITEM_NAME_DOCUMENT)) {
       writer.addRichTextRecord(RecordType.DOCUMENT, (Consumer<CDDocument>) (record) -> {
         record.setPaperColor(StandardColors.White)
         .setFlags(EnumSet.of(CDDocument.Flag.SPARESOK))
@@ -211,7 +211,7 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
       });
     }
     
-    doc.forEachItem("$Info", (item, loop) -> { //$NON-NLS-1$
+    doc.forEachItem(NotesConstants.ITEM_NAME_DOCUMENT, (item, loop) -> { //$NON-NLS-1$
       item.setSigned(true);
       item.setEncrypted(false);
     });
