@@ -494,13 +494,13 @@ public interface RichTextConstants extends EditOds, Ods {
   short FIELD_TYPE_FORMULA = 11;
   short FIELD_TYPE_TIMEZONE = 12;
 
+  short LDELIM_SPACE = 0x0001;
   short LDELIM_COMMA = 0x0002;
   short LDELIM_SEMICOLON = 0x0004;
   short LDELIM_NEWLINE = 0x0008;
   short LDELIM_BLANKLINE = 0x0010;
   short LD_MASK = 0x0fff;
 
-  short LDELIM_SPACE = 0x0001;
   short LDDELIM_SPACE = 0x1000;
   short LDDELIM_COMMA = 0x2000;
   short LDDELIM_SEMICOLON = 0x3000;
