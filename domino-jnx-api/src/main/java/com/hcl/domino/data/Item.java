@@ -42,13 +42,54 @@ public interface Item extends IAdaptable {
    * Enum for the field flags for an Item
    */
   public enum ItemFlag implements INumberEnum<Integer> {
-    SUMMARY(0x0004),
-    NAMES(0x0040),
-    READERS(0x0400),
-    READWRITERS(0x0020),
-    PROTECTED(0x0200),
-    ENCRYPTED(0x0002),
+    /**
+     * This item is signed.
+     */
     SIGNED(0x0001),
+    /**
+     * This item is sealed. When used in {@link Document#appendItemValue(String, Object)},
+     * the item is encryption enabled; it can later be encrypted if edited from the
+     * Notes UI and saved in a form that specifies Encryption.
+     */
+    ENCRYPTED(0x0002),
+    /**
+     * This item is stored in the note's summary buffer. Summary items may be used
+     * in view columns, selection formulas, and @-functions. Summary items may be
+     * accessed via the SEARCH_MATCH structure provided by NSFSearch or in the
+     * buffer returned by NIFReadEntries. API program may read, modify, and write
+     * items in the summary buffer without opening the note first. The maximum size
+     * of the summary buffer is 32K. Items of {@link ItemDataType#TYPE_COMPOSITE}
+     * may not have the SUMMARY flag set.
+     */
+    SUMMARY(0x0004),
+    /**
+     * This item is an Author Names field as indicated by the READ/WRITE-ACCESS
+     * flag. Item is {@link ItemDataType#TYPE_TEXT} or {@link ItemDataType#TYPE_TEXT_LIST}.
+     * Author Names fields have the READWRITERS flag or'd with the NAMES flag.
+     */
+    READWRITERS(0x0020),
+    /**
+     * This item is a Names field. Indicated by the NAMES (distinguished names)
+     * flag. Item is {@link ItemDataType#TYPE_TEXT} or {@link ItemDataType#TYPE_TEXT_LIST}.
+     */
+    NAMES(0x0040),
+    /**
+     * Item will not be written to disk
+     */
+    NOUPDATE(0x0080),
+    /**
+     * This is a Reader Names field. Indicated by the READER-ACCESS flag. Item is
+     * {@link ItemDataType#TYPE_TEXT} or {@link ItemDataType#TYPE_TEXT_LIST}.
+     */
+    READERS(0x0400),
+    /**
+     * This item is a placeholder field in a form note. Item is {@link ItemDataType#TYPE_INVALID_OR_UNKNOWN}
+     */
+    PLACEHOLDER(0x0100),
+    /**
+     * A user requires editor access to change this field.
+     */
+    PROTECTED(0x0200),
     /**
      * Special flag to keep \n in string item values instead of replacing them with
      * \0
