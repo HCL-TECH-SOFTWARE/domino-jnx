@@ -268,13 +268,13 @@ public enum StandardColors implements INumberEnum<Byte> {
   DarkRoseGray(238, 0x81, 0x3f, 0x62),
   Black2(239, 0x00, 0x00, 0x00);
 
-  private final byte m_color;
+  private final byte color;
   private final short red;
   private final short green;
   private final short blue;
 
   StandardColors(final int colorIdx, int red, int green, int blue) {
-    this.m_color = (byte) (colorIdx);
+    this.color = (byte) (colorIdx);
     this.red = (short)red;
     this.green = (short)green;
     this.blue = (short)blue;
@@ -282,12 +282,12 @@ public enum StandardColors implements INumberEnum<Byte> {
 
   @Override
   public long getLongValue() {
-    return Byte.toUnsignedLong(this.m_color);
+    return Byte.toUnsignedLong(this.color);
   }
 
   @Override
   public Byte getValue() {
-    return this.m_color;
+    return this.color;
   }
   
   public short getGreen() {
