@@ -25,10 +25,11 @@ import org.junit.jupiter.api.Test;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.ViewColumnFormat.ReadingOrder;
+import com.hcl.domino.jna.test.AbstractJNARuntimeTest;
 import com.hcl.domino.misc.ViewFormatConstants;
 
 @SuppressWarnings("nls")
-public class TestDesignStructures {
+public class TestDesignStructures extends AbstractJNARuntimeTest {
   @Test
   public void testViewColumnFormat() {
     ByteBuffer data;

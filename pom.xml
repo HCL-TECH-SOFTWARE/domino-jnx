@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.hcl.domino</groupId>
 	<artifactId>domino-jnx</artifactId>
-	<version>1.9.8-SNAPSHOT</version>
+	<version>1.9.9-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>HCL Domino API Parent Project</name>
@@ -120,10 +120,11 @@
 		<guava.version>31.0.1-jre</guava.version>
 		<ibm.commons.version>9.0.0</ibm.commons.version>
 		<icu4j.version>65.1</icu4j.version>
-		<jackson.version>2.13.1</jackson.version>
+		<jackson.version>2.13.2</jackson.version>
 		<jakarta.json.version>2.0.1</jakarta.json.version>
 		<jakarta.json.bind.version>2.0.0</jakarta.json.bind.version>
-		<jakarta.mail.version>2.0.1</jakarta.mail.version>
+		<jakarta.mail.version>2.1.0</jakarta.mail.version>
+		<jakarta.sun.mail.version>2.0.1</jakarta.sun.mail.version>
 		<jakarta.activation.version>2.1.0</jakarta.activation.version>
 		<java.version>1.8</java.version>
 		<javasimon.version>4.2.0</javasimon.version>
@@ -140,13 +141,13 @@
 		<netty.ssl.version>2.0.46.Final</netty.ssl.version>
 		<net.java.dev.jna-version>5.10.0</net.java.dev.jna-version>
 		<org.eclipse.yasson.version>2.0.4</org.eclipse.yasson.version>
-		<pmd.version>6.42.0</pmd.version>
+		<pmd.version>6.43.0</pmd.version>
 		<powermock.version>2.0.9</powermock.version>
 		<saxon.version>10.6</saxon.version>
-		<spotbugs.version>4.5.3</spotbugs.version>
+		<spotbugs.version>4.6.0</spotbugs.version>
 		<spotless.version>2.4.1</spotless.version>
 		<testcontainers.version>1.15.2</testcontainers.version>
-		<vertx.version>4.2.4</vertx.version>
+		<vertx.version>4.2.5</vertx.version>
 		<yaml.version>1.25</yaml.version>
 
 
@@ -211,7 +212,7 @@
 			<dependency>
 				<groupId>com.sun.mail</groupId>
 				<artifactId>jakarta.mail</artifactId>
-				<version>${jakarta.mail.version}</version>
+				<version>${jakarta.sun.mail.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>jakarta.json</groupId>
@@ -245,11 +246,11 @@
 				<artifactId>jackson-datatype-jdk8</artifactId>
 				<version>${jackson.version}</version>
 			</dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson.datatype</groupId>
-                <artifactId>jackson-datatype-jsr310</artifactId>
-                <version>${jackson.version}</version>
-            </dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.datatype</groupId>
+				<artifactId>jackson-datatype-jsr310</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
 
 			<!-- Vert.x integration -->
 			<dependency>
