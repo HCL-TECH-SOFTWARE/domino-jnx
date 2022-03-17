@@ -217,7 +217,7 @@ public class JNAFormula extends BaseJNAAPIObject<JNAFormulaAllocations> implemen
 			}
 		}
 
-		ShortByReference retResultLength = new ShortByReference();
+		IntByReference retResultLength = new IntByReference();
 		IntByReference retNoteMatchesFormula = new IntByReference();
 		IntByReference retNoteShouldBeDeleted = new IntByReference();
 		IntByReference retNoteModified = new IntByReference();
@@ -231,15 +231,18 @@ public class JNAFormula extends BaseJNAAPIObject<JNAFormulaAllocations> implemen
 
 					DHANDLE.ByReference rethResult = DHANDLE.newInstanceByReference();
 
-					short result = NotesCAPI.get().NSFComputeEvaluate(computeHdlByVal, optDocHandle, rethResult,
-							retResultLength, retNoteMatchesFormula, retNoteShouldBeDeleted, retNoteModified);
+		      //NSFComputeEvaluateExt supports more than the usual 64K of formula result data
+		      final int retDWordResultLength = 1;
+		      short result = NotesCAPI.get().NSFComputeEvaluateExt(computeHdlByVal, optDocHandle, rethResult, retResultLength, retDWordResultLength,
+		          retNoteMatchesFormula, retNoteShouldBeDeleted, retNoteModified
+		          );
 					NotesErrorUtils.checkResult(result);
 
 					return LockUtil.lockHandle(rethResult, (resultHdlByVal) -> {
 						if (resultHdlByVal==null || resultHdlByVal.isNull()) {
 							throw new IllegalStateException("got a null handle as computation result");
 						}
-						int valueLength = retResultLength.getValue() & 0xffff;
+						int valueLength = retResultLength.getValue();
 
 						Pointer valuePtr = Mem.OSLockObject(resultHdlByVal);
 						try {

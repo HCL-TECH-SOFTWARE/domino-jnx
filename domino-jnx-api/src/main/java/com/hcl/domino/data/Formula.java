@@ -22,7 +22,10 @@ import com.hcl.domino.formula.FormulaCompiler;
 
 /**
  * A compiled Domino formula that can be evaluated standalone or
- * on one or multiple documents.
+ * on one or multiple documents.<br>
+ * <br>
+ * The implementation supports more than the usual 64K of return value, e.g. to use
+ * <code>@DBColumn</code> to read the column values in views with many entries.
  */
 public interface Formula {
 

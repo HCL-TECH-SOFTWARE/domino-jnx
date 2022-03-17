@@ -459,6 +459,15 @@ public interface INotesCAPI extends Library {
 			IntByReference retNoteMatchesFormula,
 			IntByReference retNoteShouldBeDeleted,
 			IntByReference retNoteModified);
+  @UndocumentedAPI
+  short NSFComputeEvaluateExt(DHANDLE.ByValue hCompute,
+      DHANDLE.ByValue hNote,
+      DHANDLE.ByReference rethResult,
+      IntByReference retResultLength,
+      int allowDWordResults,
+      IntByReference retNoteMatchesFormula,
+      IntByReference retNoteShouldBeDeleted,
+      IntByReference retNoteModified);
 
   @UndocumentedAPI
 	short NSFFormulaAnalyze (DHANDLE.ByValue hFormula,
