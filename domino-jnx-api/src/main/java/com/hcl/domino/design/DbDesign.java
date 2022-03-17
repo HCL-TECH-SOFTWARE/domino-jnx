@@ -26,8 +26,8 @@ import java.util.stream.Stream;
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.Action;
-import com.hcl.domino.design.agent.DesignLotusScriptAgent;
 import com.hcl.domino.data.DocumentClass;
+import com.hcl.domino.design.agent.DesignLotusScriptAgent;
 
 /**
  * Provides access to a database's design elements, allowing querying,
@@ -151,6 +151,15 @@ public interface DbDesign {
    * @since 1.5.7
    */
   SharedColumn createSharedColumn(String columnName);
+  
+  /**
+   * Creates a new, unsaved shared field design element
+   * 
+   * @param name the name of the shared field to create
+   * @return the newly-created in-memory {@link SharedField}
+   * @since 1.10.10
+   */
+  SharedField createSharedField(String name);
   
   /**
    * Creates a new, unsaved frameset design element.
