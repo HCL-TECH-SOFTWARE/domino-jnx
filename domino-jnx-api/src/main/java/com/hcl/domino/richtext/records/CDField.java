@@ -29,6 +29,7 @@ import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.design.format.FieldListDelimiter;
 import com.hcl.domino.design.format.FieldListDisplayDelimiter;
 import com.hcl.domino.formula.FormulaCompiler;
+import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -173,8 +174,10 @@ public interface CDField extends RichTextRecord<WSIG> {
   @StructureGetter("ListDelim")
   short getListDelimiterRaw();
 
-  @StructureGetter("ListDelim")
-  Set<FieldListDelimiter> getListDelimiters();
+  default Set<FieldListDelimiter> getListDelimiters() {
+    final short ldVal = (short) (this.getListDelimiterRaw() & RichTextConstants.LD_MASK);
+    return DominoEnumUtil.valuesOf(FieldListDelimiter.class, ldVal);
+  }
 
   default FieldListDisplayDelimiter getListDisplayDelimiter() {
     // The default mechanism doesn't pick up this single value, since the storage is
