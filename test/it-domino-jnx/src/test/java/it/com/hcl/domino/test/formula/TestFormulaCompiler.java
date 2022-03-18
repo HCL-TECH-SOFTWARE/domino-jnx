@@ -280,12 +280,12 @@ public class TestFormulaCompiler extends AbstractNotesRuntimeTest {
       //FALLBACK_EXT seems to block retrieval of the doc field
       {
         Formula formula = client
-            .createFormula("@GetDocField(\""+otherDocUnid+"\";\"field1\")")
+            .createFormula("@GetDocField(\""+otherDocUnid+"\";\"form\")")
             .disallow(Disallow.FALLBACK_EXT);
         List<Object> result = formula.evaluate(doc);
         assertEquals(Arrays.asList(""), result);
       }
-      
+
       //check if we can prevent @SetDocField
       {
         Formula formula = client
