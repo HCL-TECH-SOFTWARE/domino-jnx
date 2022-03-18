@@ -17,8 +17,8 @@
 package com.hcl.domino.dql;
 
 import java.io.Reader;
+import java.io.Writer;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 import com.hcl.domino.data.Database;
@@ -184,16 +184,16 @@ public interface QueryResultsProcessor {
    * <br>
    * The JSON syntax produced by {@link QueryResultsProcessor} execution conforms
    * to JSON RFC 8259.<br>
-   * All results are output under the “StreamedResults” top element key. For
+   * All results are output under the <code>“StreamedResults”</code> top element key. For
    * categorized results,
    * all nested details are output under the “Documents” key.<br>
-   * Special keys “@nid” for NoteID and “@DbPath” are output so results can be
+   * Special keys <code>“@nid”</code> for NoteID and <code>“@DbPath”</code> are output so results can be
    * acted upon on a document basis.<br>
    * Fields that are lists on documents (multiply-occurring) are output as JSON
    * arrays of like type.
    *
    * @param appendable the execution result is written in JSON format into this
-   *                   {@link Appendable} in small chunks
+   *                   {@link Appendable} in small chunks (e.g. a {@link Writer} or {@link StringBuilder}
    * @param options    options to tweak the JSON output or null/empty for default
    *                   format
    */
@@ -207,10 +207,10 @@ public interface QueryResultsProcessor {
    * <br>
    * The JSON syntax produced by {@link QueryResultsProcessor} execution conforms
    * to JSON RFC 8259.<br>
-   * All results are output under the “StreamedResults” top element key. For
+   * All results are output under the <code>“StreamedResults”</code> top element key. For
    * categorized results,
    * all nested details are output under the “Documents” key.<br>
-   * Special keys “@nid” for NoteID and “@DbPath” are output so results can be
+   * Special keys <code>“@nid”</code> for NoteID and <code>“@DbPath”</code> are output so results can be
    * acted upon on a document basis.<br>
    * Fields that are lists on documents (multiply-occurring) are output as JSON
    * arrays of like type.
