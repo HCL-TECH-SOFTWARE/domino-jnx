@@ -45,7 +45,7 @@ public interface Formula {
     UNSAFE_EXTENSION(NotesConstants.COMPUTE_CAPABILITY_UNSAFE_EXTENSION),
     /** Built-in compute extensions */
     FALLBACK_EXT(NotesConstants.COMPUTE_CAPABILITY_FALLBACK_EXT),
-    /** Unsafe is any @func that creates/modifies anything (i.e. not "read only") */
+    /** Unsafe is any <code>@func</code> that creates/modifies anything (i.e. not "read only") */
     UNSAFE(NotesConstants.COMPUTE_CAPABILITY_UNSAFE);
     
     private final int m_value;

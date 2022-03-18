@@ -4706,9 +4706,9 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
 
   int COMPUTE_CAPABILITY_SETENVIRONMENT = 0x00000001;
   int COMPUTE_CAPABILITY_UICOMMANDS = 0x00000002;
-  /** FIELD Foo := */
+  /** <code>FIELD Foo :=</code> */
   int COMPUTE_CAPABILITY_ASSIGN = 0x00000004;
-  /** @SetDocField, @DocMark. */
+  /** <code>@SetDocField</code>, <code>@DocMark</code> */
   int COMPUTE_CAPABILITY_SIDEEFFECTS = 0x00000008;
   /** Any compute extension. */
   int COMPUTE_CAPABILITY_EXTENSION   = 0x00000010;
@@ -4717,7 +4717,7 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   /** Built-in compute extensions */
   int COMPUTE_CAPABILITY_FALLBACK_EXT = 0x00000040;
 
-  /** Unsafe is any @func that creates/modifies anything (i.e. not "read only") */
+  /** Unsafe is any <code>@func</code> that creates/modifies anything (i.e. not "read only") */
   int COMPUTE_CAPABILITY_UNSAFE = 0x0000002F;
 
 }
