@@ -64,7 +64,7 @@ public class JNANotesQueryResultsProcessorAllocations extends APIObjectAllocatio
 
 		synchronized (m_pendingJsonReader) {
 			//make sure that all created readers have been closed
-			for (Reader currReader : m_pendingJsonReader) {
+			for (Reader currReader : new ArrayList<>(m_pendingJsonReader)) { //prevent ConcurrentModificationException by creating a copy of the list
 				try {
 					currReader.close();
 				}
