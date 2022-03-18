@@ -72,7 +72,8 @@ import com.sun.jna.ptr.ShortByReference;
  */
 public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResultsProcessorAllocations> implements QueryResultsProcessor {
 	private JNADatabase m_db;
-
+	private int m_totalNotesAdded;
+	
 	public JNAQueryResultsProcessor(IGCDominoClient<?> dominoClient, JNADatabase db) {
 		super(dominoClient);
 		m_db = db;
@@ -156,6 +157,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
     }
     
 		queryResultsProcessorAllocations.getNotesQueryResultsHandles().read();
+    m_totalNotesAdded += idTable.size();
 		return this;
 	}
 
@@ -339,9 +341,22 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 
 	@Override
 	public void executeToJSON(Appendable appendable, Set<QRPOptions> options) {
+	  if (appendable==null) {
+	    throw new IllegalArgumentException("Appendable is null");
+	  }
+
 		JNANotesQueryResultsProcessorAllocations allocations = getAllocations();
 		allocations.checkDisposed();
 		
+    if (m_totalNotesAdded==0) {
+      //workaround for 12.0.0 / 12.0.1 issue where the produced json string is invalid
+      try {
+        appendable.append(" {\"StreamResults\" :[]} "); //$NON-NLS-1$
+      } catch (IOException e) {
+        throw new DominoException(0, "Error writing data to Appendable", e);
+      }
+    }
+
 		NotesQueryResultsHandles handles = allocations.getNotesQueryResultsHandles();
 		handles.read();
 		
@@ -458,6 +473,11 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 		JNANotesQueryResultsProcessorAllocations allocations = getAllocations();
 		allocations.checkDisposed();
 		
+    if (m_totalNotesAdded==0) {
+      //workaround for 12.0.0 / 12.0.1 issue where the produced json string is invalid
+      return new StringReader(" {\"StreamResults\" :[]} "); //$NON-NLS-1$
+    }
+
 		NotesQueryResultsHandles handles = allocations.getNotesQueryResultsHandles();
 		handles.read();
 		
@@ -562,7 +582,6 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 			}
 
 			JNANotesQueryResultsProcessorAllocations allocations = m_processor.getAllocations();
-			allocations.checkDisposed();
 			allocations.unregisterReaderForClose(this);
 			
 			m_isClosed = true;
