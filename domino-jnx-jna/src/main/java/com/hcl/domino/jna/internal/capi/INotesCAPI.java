@@ -470,6 +470,9 @@ public interface INotesCAPI extends Library {
       IntByReference retNoteModified);
 
   @UndocumentedAPI
+  void NSFComputeSetDisallowFlags (DHANDLE.ByValue hCompute, int dwFlags);
+
+  @UndocumentedAPI
 	short NSFFormulaAnalyze (DHANDLE.ByValue hFormula,
 	      IntByReference retAttributes,
 	      ShortByReference retSummaryNamesOffset);

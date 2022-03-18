@@ -4700,4 +4700,24 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   /* OSStaticMem */
   int BLK_MEM_MONITORTH = ((PKG_LSBE +0x10) | MEM_PROCESS);
 
+
+  /*  Set of capabilities that we do not allow; The caller can call NSFComputeSetDisallowFlags
+  to prevent compute from executing one or more of the following things: */
+
+  int COMPUTE_CAPABILITY_SETENVIRONMENT = 0x00000001;
+  int COMPUTE_CAPABILITY_UICOMMANDS = 0x00000002;
+  /** <code>FIELD Foo :=</code> */
+  int COMPUTE_CAPABILITY_ASSIGN = 0x00000004;
+  /** <code>@SetDocField</code>, <code>@DocMark</code> */
+  int COMPUTE_CAPABILITY_SIDEEFFECTS = 0x00000008;
+  /** Any compute extension. */
+  int COMPUTE_CAPABILITY_EXTENSION   = 0x00000010;
+  /** Any compute extension with side-effects */
+  int COMPUTE_CAPABILITY_UNSAFE_EXTENSION = 0x00000020;
+  /** Built-in compute extensions */
+  int COMPUTE_CAPABILITY_FALLBACK_EXT = 0x00000040;
+
+  /** Unsafe is any <code>@func</code> that creates/modifies anything (i.e. not "read only") */
+  int COMPUTE_CAPABILITY_UNSAFE = 0x0000002F;
+
 }

@@ -134,10 +134,27 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 		JNANotesQueryResultsProcessorAllocations queryResultsProcessorAllocations = getAllocations();
 		Pointer queryResultsHandlesPtr = queryResultsProcessorAllocations.getNotesQueryResultsHandles().getPointer();
 
+    IntByReference hretError = new IntByReference();
+    
 		short result = NotesCAPI12.get().NSFQueryAddToResultsList(NotesConstants.QUEP_LISTTYPE.INPUT_RESULTS_LST.getValue(),
-				ri.getPointer(), queryResultsHandlesPtr /* &hInResults */, null);
-		NotesErrorUtils.checkResult(result);
+				ri.getPointer(), queryResultsHandlesPtr /* &hInResults */, hretError);
 		
+    if (result!=0 && hretError.getValue()!=0) {
+      if (hretError.getValue()!=0) {
+        String errorMessage = NotesErrorUtils.errToString(result);
+        
+        String errorDetails;
+        try (LockedMemory memErr = Mem.OSMemoryLock(hretError.getValue(), true)) {
+          errorDetails = NotesStringUtils.fromLMBCS(memErr.getPointer(), -1);
+        }
+        
+        throw new DominoException(result, errorMessage + " - " + errorDetails); //$NON-NLS-1$
+      }
+      else {
+        NotesErrorUtils.checkResult(result);
+      }
+    }
+    
 		queryResultsProcessorAllocations.getNotesQueryResultsHandles().read();
 		return this;
 	}
@@ -664,7 +681,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 	}
 
 	@Override
-	public int executeToView(String viewName, int hoursUntilExpire, List<String> readers) {
+	public int executeToView(String viewName, int hoursUntilExpire, Collection<String> readers) {
 	  JNANotesQueryResultsProcessorAllocations allocations = getAllocations();
 	  allocations.checkDisposed();
 

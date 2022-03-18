@@ -16,9 +16,12 @@
  */
 package com.hcl.domino.data;
 
+import java.util.Collection;
 import java.util.List;
 
 import com.hcl.domino.formula.FormulaCompiler;
+import com.hcl.domino.misc.INumberEnum;
+import com.hcl.domino.misc.NotesConstants;
 
 /**
  * A compiled Domino formula that can be evaluated standalone or
@@ -28,6 +31,67 @@ import com.hcl.domino.formula.FormulaCompiler;
  * <code>@DBColumn</code> to read the column values in views with many entries.
  */
 public interface Formula {
+  public enum Disallow implements INumberEnum<Integer>{
+    /** Setting of environment variables */
+    SETENVIRONMENT(NotesConstants.COMPUTE_CAPABILITY_SETENVIRONMENT),
+    UICOMMANDS(NotesConstants.COMPUTE_CAPABILITY_UICOMMANDS),
+    /** <code>FIELD Foo :=</code> */
+    ASSIGN(NotesConstants.COMPUTE_CAPABILITY_ASSIGN),
+     /** <code>@SetDocField</code>, <code>@DocMark</code> */
+    SIDEEFFECTS(NotesConstants.COMPUTE_CAPABILITY_SIDEEFFECTS),
+    /** Any compute extension. */
+    EXTENSION(NotesConstants.COMPUTE_CAPABILITY_EXTENSION),
+     /** Any compute extension with side-effects */
+    UNSAFE_EXTENSION(NotesConstants.COMPUTE_CAPABILITY_UNSAFE_EXTENSION),
+    /** Built-in compute extensions */
+    FALLBACK_EXT(NotesConstants.COMPUTE_CAPABILITY_FALLBACK_EXT),
+    /** Unsafe is any <code>@func</code> that creates/modifies anything (i.e. not "read only") */
+    UNSAFE(NotesConstants.COMPUTE_CAPABILITY_UNSAFE);
+    
+    private final int m_value;
+    
+    private Disallow(int value) {
+      m_value = value;
+    }
+    
+    @Override
+    public Integer getValue() {
+      return m_value;
+    }
+    
+    @Override
+    public long getLongValue() {
+      return m_value;
+    }
+    
+  }
+  
+  /**
+   * Prevents the execution of unsafe formula operations.
+   * 
+   * @param actions disallowed actions
+   * @return this instance
+   * @since 1.10.11
+   */
+  Formula disallow(Collection<Disallow> actions);
+  
+  /**
+   * Prevents the execution of unsafe formula operations.
+   * 
+   * @param action disallowed action
+   * @return this instance
+   * @since 1.10.11
+   */
+  Formula disallow(Disallow action);
+
+  /**
+   * Checks whether a formula operation is disallowed
+   * 
+   * @param action action
+   * @return true if disallowed
+   * @since 1.10.11
+   */
+  boolean isDisallowed(Disallow action);
 
   /**
    * Returns a list of all registered (public) formula functions. Use {@link #getFunctionParameters(String)}

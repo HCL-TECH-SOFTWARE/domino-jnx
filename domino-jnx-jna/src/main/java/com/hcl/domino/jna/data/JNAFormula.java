@@ -19,7 +19,9 @@ package com.hcl.domino.jna.data;
 import java.lang.ref.ReferenceQueue;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -60,7 +62,8 @@ import com.sun.jna.ptr.ShortByReference;
  */
 public class JNAFormula extends BaseJNAAPIObject<JNAFormulaAllocations> implements IAdaptable, Formula {
 	private String m_formula;
-
+	private Set<Disallow> m_disallowedActions;
+	
 	/**
 	 * Creates a new instance. The constructure compiles the formula and throws a {@link FormulaCompilationException},
 	 * if there are any compilation errors
@@ -73,6 +76,7 @@ public class JNAFormula extends BaseJNAAPIObject<JNAFormulaAllocations> implemen
 		super(parent);
 		
 		m_formula = formula;
+		m_disallowedActions = new HashSet<>();
 		
 		getAllocations().initWithFormula(formula);
 		
@@ -110,6 +114,23 @@ public class JNAFormula extends BaseJNAAPIObject<JNAFormulaAllocations> implemen
 		else {
 			return MessageFormat.format("Compiled formula [formula={0}]", m_formula); //$NON-NLS-1$
 		}
+	}
+	
+	@Override
+	public Formula disallow(Collection<Disallow> actions) {
+	  m_disallowedActions.addAll(actions);
+	  return this;
+	}
+
+	@Override
+	public Formula disallow(Disallow action) {
+	  m_disallowedActions.add(action);
+	  return this;
+	}
+	
+	@Override
+	public boolean isDisallowed(Disallow action) {
+	  return m_disallowedActions.contains(action);
 	}
 	
 	private List<Object> parseFormulaResult(Pointer valuePtr, int valueLength) {
@@ -229,6 +250,11 @@ public class JNAFormula extends BaseJNAAPIObject<JNAFormulaAllocations> implemen
 				getAllocations().getComputeHandle(),
 				(optDocHandle, computeHdlByVal) -> {
 
+				  if (!m_disallowedActions.isEmpty()) {
+				    int disallowedActionsFlag = DominoEnumUtil.toBitField(Disallow.class, m_disallowedActions);
+				    NotesCAPI.get().NSFComputeSetDisallowFlags(computeHdlByVal, disallowedActionsFlag);
+				  }
+				  
 					DHANDLE.ByReference rethResult = DHANDLE.newInstanceByReference();
 
 		      //NSFComputeEvaluateExt supports more than the usual 64K of formula result data
