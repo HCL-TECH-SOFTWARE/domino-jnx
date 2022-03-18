@@ -267,6 +267,6 @@ public interface QueryResultsProcessor {
    * @return view note id
    * @since 1.8.8, requires JNX running against a Notes/Domino R12.0.1 environment
    */
-  int executeToView(String viewName, int hoursUntilExpire, List<String> readers);
+  int executeToView(String viewName, int hoursUntilExpire, Collection<String> readers);
   
 }
