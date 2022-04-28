@@ -3469,6 +3469,9 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   int REMCON_CMD_ONLY = 0x000000008;
   int REMCON_GET_CONSOLE_META = 0x000000010;
   int REMCON_SYNC = 0x000000020;
+  
+  /* Flags for NSFProcessResults */
+  
   /** Output of results processing is a created, populated view */
   int PROCRES_CREATE_VIEW = 0x00000001;
 
@@ -3476,7 +3479,7 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   int PROCRES_JSON_OUTPUT = 0x00000002;
 
   /**
-   * Output of results processing is a SEARCH_MATCH || ITEM_TABLE summary stream
+   * NOT SUPPORTED YET - Output of results processing is a SEARCH_MATCH || ITEM_TABLE summary stream
    */
   int PROCRES_SUMMARY_OUTPUT = 0x00000004;
 
@@ -3491,15 +3494,22 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
 
   int PROCRES_STREAMED_OUTPUT = NotesConstants.PROCRES_JSON_OUTPUT | NotesConstants.PROCRES_SUMMARY_OUTPUT;
 
+  /** Coupled with PROCRES_CREATE_VIEW, return an opened instance of the view */
+  int PROCRES_RETURN_OPEN_VIEW = 0x00000040;
+  
+
   /** internal flag to indicate category processing */
-  int PROCRES_HAS_CATEGORIZED_KEYS = 0x00000040;
+  int PROCRES_HAS_CATEGORIZED_KEYS = 0x00000080;
 
   /** For formatting JSON arrays (from the outside) */
-  int PROCRES_JSON_PREPEND_COMMA = 0x00000080;
+  int PROCRES_JSON_PREPEND_COMMA = 0x00000100;
 
   /** If TYPE_ERROR occurs, drop the document from results with no error */
-  int PROCRES_IGNORE_TYPE_ERROR = 0x00000100;
+  int PROCRES_IGNORE_TYPE_ERROR = 0x00000200;
 
+  /** For every input result set, only process each document once */
+  int PROCRES_DEDUPE_NOTEIDS = 0x00000400;
+  
   int MAX_CMD_VALLEN = NotesConstants.MAXSPRINTF + 1; // 256 + null term
 
   int MAX_ADDGROUP_ADMINP_ITEMS = 4;
@@ -4638,5 +4648,76 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   short LSECINFOSET_CLEAR = 0x0002;
   /** if changing bulk key encryption */
   short LSECINFOSET_MODIFY = 0x0004;
+
+  /*  Define memory allocator hints for static memory, which also re-use the
+  top 2 bits of the BLK_ codes.  These codes are used by the Static
+  memory package, e.g. OSStaticMem(), NOT by OSMemAlloc() */
+
+  /* Object is truly global */
+  int MEM_GLOBAL = 0x00000000;
+  /* Object is process-instance */
+  int MEM_PROCESS = 0x00008000;
+  /* Object is thread-instance */
+  int MEM_THREAD = 0x0000C000;
+  /* Object is physical thread-instance */
+  int MEM_PTHREAD = 0x00004000;
+  /* Object is thread group-instance */
+  int MEM_GTHREAD = 0x00010000;
+
+  /* LSXBE errors, 0 - 47 */
+  int PKG_LSBE = 0x11b0;
+
+  /* OSStaticMem */
+  int BLK_LIST_HDR = ((PKG_LSBE +0x1) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_MEM_STVPOOL = ((PKG_LSBE +0x2) | MEM_PROCESS);
+  /* OSMemAlloc */
+  int BLK_MEM_HVPOOL = ((PKG_LSBE +0x3) | 0);
+  /* OSStaticMem */
+  int BLK_MEM_REFCOUNT = ((PKG_LSBE +0x4) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_RESOURCE_HMOD = ((PKG_LSBE +0x5) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_MEM_POOLLOCK = ((PKG_LSBE +0x6) | MEM_PROCESS);
+  /* OSMemAlloc id tag */
+  int BLK_MEM_ALLOC = ((PKG_LSBE +0x7));
+  /* OSStaticMem */
+  int BLK_SEM_SESSION = ((PKG_LSBE +0x8) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_CCSTR_LOCK = ((PKG_LSBE +0x9) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_JAVA_JNIPTR = ((PKG_LSBE +0xa) | MEM_THREAD);
+  /* OSStaticMem */
+  int BLK_DB_SEM = ((PKG_LSBE +0xb) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_VIEW_SEM = ((PKG_LSBE +0xc) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_OBJECT_SEM = ((PKG_LSBE +0xd) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_MEM_LOCK_SEM = ((PKG_LSBE +0xe) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_MEM_CORBA = ((PKG_LSBE +0xf) | MEM_PROCESS);
+  /* OSStaticMem */
+  int BLK_MEM_MONITORTH = ((PKG_LSBE +0x10) | MEM_PROCESS);
+
+
+  /*  Set of capabilities that we do not allow; The caller can call NSFComputeSetDisallowFlags
+  to prevent compute from executing one or more of the following things: */
+
+  int COMPUTE_CAPABILITY_SETENVIRONMENT = 0x00000001;
+  int COMPUTE_CAPABILITY_UICOMMANDS = 0x00000002;
+  /** <code>FIELD Foo :=</code> */
+  int COMPUTE_CAPABILITY_ASSIGN = 0x00000004;
+  /** <code>@SetDocField</code>, <code>@DocMark</code> */
+  int COMPUTE_CAPABILITY_SIDEEFFECTS = 0x00000008;
+  /** Any compute extension. */
+  int COMPUTE_CAPABILITY_EXTENSION   = 0x00000010;
+  /** Any compute extension with side-effects */
+  int COMPUTE_CAPABILITY_UNSAFE_EXTENSION = 0x00000020;
+  /** Built-in compute extensions */
+  int COMPUTE_CAPABILITY_FALLBACK_EXT = 0x00000040;
+
+  /** Unsafe is any <code>@func</code> that creates/modifies anything (i.e. not "read only") */
+  int COMPUTE_CAPABILITY_UNSAFE = 0x0000002F;
 
 }

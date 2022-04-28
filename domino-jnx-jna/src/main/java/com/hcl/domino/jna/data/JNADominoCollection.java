@@ -37,6 +37,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
 
+import com.hcl.domino.BuildVersionInfo;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.design.view.DominoCollationInfo;
 import com.hcl.domino.commons.design.view.DominoCollationInfo.DominoCollateColumn;
@@ -218,6 +219,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		return descending;
 	}
 	
+	private JNADatabase m_parentDbData;
 	private int m_viewNoteId;
 	private String m_viewUnid;
 	private String m_name;
@@ -238,11 +240,13 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 	private DominoViewFormat m_viewFormat;
 	private boolean m_autoUpdate = true;
 
-	JNADominoCollection(JNADatabase parentDb, ByReference rethCollection, int viewNoteId,
+	JNADominoCollection(JNADatabase parentDbView, JNADatabase parentDbData, ByReference rethCollection, int viewNoteId,
 			String viewUNID,
 			JNAIDTable collapsedList, JNAIDTable selectedList, JNAIDTable unreadTable) {
-		super(parentDb);
+		super(parentDbView);
 		
+		//just keep hard reference to data DB so that GC will not purge it as long as the DominoCollection object exists
+		m_parentDbData = parentDbData;
 		m_viewNoteId = viewNoteId;
 		m_viewUnid = viewUNID;
 		
@@ -256,6 +260,15 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		setInitialized();
 	}
 
+	@Override
+	protected void checkDisposedLocal() {
+    super.checkDisposedLocal();
+    
+	  if (m_parentDbData!=null && m_parentDbData.isDisposed()) {
+	    throw new DominoException("Database to read view data is already disposed");
+	  }
+	}
+	
 	@Override
 	public Database getParentDatabase() {
 		return (Database) getParent();
@@ -1621,8 +1634,9 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		
 		{
 			//check for R9 and flag compatibility
-			int buildVersion = ((JNADatabase) getParent()).getParentServerBuildVersion();
-			if (buildVersion < 400) {
+		  BuildVersionInfo buildVersion = ((JNADatabase) getParent()).getBuildVersionInfo();
+		  
+			if (buildVersion.getBuildNumber() < 400) {
 				return false;
 			}
 		}

@@ -18,11 +18,13 @@ package com.hcl.domino.commons.design;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.design.view.CollationEncoder;
 import com.hcl.domino.commons.design.view.DominoCollationInfo;
@@ -182,5 +184,13 @@ public class SharedColumnImpl extends AbstractDesignElement<SharedColumn> implem
      
      return super.save();
   }
-   
+
+   @Override
+   public void setTitle(final String... title) {
+     //$TITLE for views/folders/sharedcolumns are stored differently than for forms (concatenated with |, no string list)
+     this.getDocument().replaceItemValue(NotesConstants.FIELD_TITLE,
+         EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY),
+         Arrays.asList(title).stream().collect(Collectors.joining("|"))); //$NON-NLS-1$
+   }
+
 }

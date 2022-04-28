@@ -43,7 +43,14 @@ public interface NativeItemCoder {
    * @since 1.0.46
    */
   enum LmbcsVariant {
-    NORMAL, NULLTERM, KEEPNEWLINES, NULLTERM_KEEPNEWLINES
+    /** encodes strings without terminating \0. Replaces \n and \n\r in the string with \0 */
+    NORMAL,
+    /** encodes strings with terminating \0 */
+    NULLTERM,
+    /** keeps \n and \n\r in the string (e.g. used to store MIME or LS), no terminating \0 */
+    KEEPNEWLINES,
+    /** keeps \n and \n\r in the string (e.g. used to store MIME or LS), with terminating \0 */
+    NULLTERM_KEEPNEWLINES
   }
 
   List<String> decodeStringList(byte[] buf);
@@ -65,7 +72,7 @@ public interface NativeItemCoder {
    * Retrieves an NIO {@code Charset} suitable for encoding and decoding LMBCS
    * strings.
    * 
-   * @return a {@link Charset} instance for LMBCS
+   * @return a {@link Charset} instance for LMBCS ({@link LmbcsVariant#NORMAL})
    * @since 1.0.46
    */
   default Charset getLmbcsCharset() {

@@ -25,7 +25,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 
 @SuppressWarnings("nls")
-public class TestLmbcsCharsetProvider {
+public class TestLmbcsCharsetProvider extends AbstractJNARuntimeTest {
   @ParameterizedTest
   @ValueSource(strings = { "Hello", "EkranAlıntısı1.JPG" })
   public void testAscii(final String expected) {

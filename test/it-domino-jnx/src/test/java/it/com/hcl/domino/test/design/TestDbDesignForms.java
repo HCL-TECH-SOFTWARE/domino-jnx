@@ -101,6 +101,7 @@ import com.hcl.domino.design.simpleaction.ReadMarksAction;
 import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.NotesBitmap;
 import com.hcl.domino.richtext.RichTextRecordList;
@@ -108,7 +109,13 @@ import com.hcl.domino.richtext.records.CDActionHeader;
 import com.hcl.domino.richtext.records.CDActionModifyField;
 import com.hcl.domino.richtext.records.CDAnchor;
 import com.hcl.domino.richtext.records.CDBegin;
+import com.hcl.domino.richtext.records.CDBlobPart;
 import com.hcl.domino.richtext.records.CDEnd;
+import com.hcl.domino.richtext.records.CDEvent;
+import com.hcl.domino.richtext.records.CDEventEntry;
+import com.hcl.domino.richtext.records.CDExt2Field;
+import com.hcl.domino.richtext.records.CDExtField;
+import com.hcl.domino.richtext.records.CDField;
 import com.hcl.domino.richtext.records.CDHeader;
 import com.hcl.domino.richtext.records.CDHotspotBegin;
 import com.hcl.domino.richtext.records.CDHtmlFormula;
@@ -156,7 +163,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 public class TestDbDesignForms extends AbstractDesignTest {
   public static final String ENV_DBDESIGN_FOLDER = "DBDESIGN_FORMFOLDER";
   
-  public static final int EXPECTED_IMPORT_FORMS = 11;
+  public static final int EXPECTED_IMPORT_FORMS = 12;
   public static final int EXPECTED_IMPORT_SUBFORMS = 2;
 
   private static String dbPath;
@@ -1636,6 +1643,155 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertTrue(field.getFlags().contains(CDActionModifyField.Flag.REPLACE));
       assertEquals("DateComposed", field.getFieldName());
       assertEquals("1/1/2022", field.getValue());
+    }
+  }
+  
+  @Test
+  public void testFieldEvents() {
+    DbDesign design = database.getDesign();
+    Form form = design.getForm("Field Events Form").get();
+    List<?> body = form.getBody();
+    
+    List<?> field = extract(body, 0, CDBegin.class, CDEnd.class);
+    {
+      CDExt2Field ext2Field = extract(field, 0, CDExt2Field.class);
+      assertEquals("\"I am input enabled\"", ext2Field.getInputEnabledFormula());
+    }
+    {
+      CDExtField extField = extract(field, 0, CDExtField.class);
+      assertEquals(1, extField.getEntryColumnNumber());
+      assertEquals("", extField.getEntryDBName());
+      assertEquals("Action View", extField.getEntryViewName());
+      assertEquals("\"I am HTML attributes\"", extField.getHtmlAttributesFormula());
+      
+      extField.setHtmlAttributesFormula("\"I am new HTML attributes\"");
+      assertEquals("", extField.getEntryDBName());
+      assertEquals("Action View", extField.getEntryViewName());
+      assertEquals("\"I am new HTML attributes\"", extField.getHtmlAttributesFormula());
+    }
+    {
+      CDField someField = extract(field, 0, CDField.class);
+      assertEquals("SomeField", someField.getName());
+      assertEquals("\"I am the default value\"", someField.getDefaultValueFormula());
+      assertEquals("\"I am the input translation\"", someField.getInputTranslationFormula());
+      assertEquals("\"I am input validation\"", someField.getInputValidationFormula());
+    }
+    {
+      CDEvent event = extract(field, 0, CDEvent.class);
+      assertEquals(EventId.ONBLUR, event.getEventType());
+      CDBlobPart blob = extract(field, 0, CDBlobPart.class);
+      assertEquals("alert(\"I am web onBlur\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+    }
+    {
+      CDEvent event = extract(field, 1, CDEvent.class);
+      assertEquals(EventId.ONCHANGE, event.getEventType());
+      CDBlobPart blob = extract(field, 1, CDBlobPart.class);
+      assertEquals("alert(\"I am common onChange\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+    }
+    {
+      CDEvent event = extract(field, 2, CDEvent.class);
+      assertEquals(EventId.ONCLICK, event.getEventType());
+      CDBlobPart blob = extract(field, 2, CDBlobPart.class);
+      assertEquals("alert(\"I am web onClick\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+    }
+    {
+      CDEvent event = extract(field, 3, CDEvent.class);
+      assertEquals(EventId.ONDBLCLICK, event.getEventType());
+      CDBlobPart blob = extract(field, 3, CDBlobPart.class);
+      assertEquals("alert(\"I am web onDblClick\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+    }
+    {
+      CDEvent event = extract(field, 4, CDEvent.class);
+      assertEquals(EventId.ONFOCUS, event.getEventType());
+      CDBlobPart blob = extract(field, 4, CDBlobPart.class);
+      assertEquals("alert(\"I am web onFocus\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+    }
+    {
+      CDEvent event = extract(field, 5, CDEvent.class);
+      assertEquals(EventId.ONKEYDOWN, event.getEventType());
+      CDBlobPart blob = extract(field, 5, CDBlobPart.class);
+      assertEquals("alert(\"I am web onKeyDown\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+    }
+    {
+      CDEvent event = extract(field, 6, CDEvent.class);
+      assertEquals(EventId.ONKEYPRESS, event.getEventType());
+      CDBlobPart blob = extract(field, 6, CDBlobPart.class);
+      assertEquals("alert(\"I am web onKeyPress\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+    }
+    {
+      CDEvent event = extract(field, 7, CDEvent.class);
+      assertEquals(EventId.ONKEYUP, event.getEventType());
+      CDBlobPart blob = extract(field, 7, CDBlobPart.class);
+      assertEquals("alert(\"I am web onKeyUp\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+    }
+    {
+      CDEvent event = extract(field, 8, CDEvent.class);
+      assertEquals(EventId.ONMOUSEDOWN, event.getEventType());
+      CDBlobPart blob = extract(field, 8, CDBlobPart.class);
+      assertEquals("alert(\"I am web onMouseDown\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+    }
+    {
+      CDEvent event = extract(field, 9, CDEvent.class);
+      assertEquals(EventId.ONMOUSEMOVE, event.getEventType());
+      CDBlobPart blob = extract(field, 9, CDBlobPart.class);
+      assertEquals("alert(\"I am web onMouseMove\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+    }
+    {
+      CDEvent event = extract(field, 10, CDEvent.class);
+      assertEquals(EventId.ONMOUSEOUT, event.getEventType());
+      CDBlobPart blob = extract(field, 10, CDBlobPart.class);
+      assertEquals("alert(\"I am web onMouseOut\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+    }
+    {
+      CDEvent event = extract(field, 11, CDEvent.class);
+      assertEquals(EventId.ONMOUSEOVER, event.getEventType());
+      CDBlobPart blob = extract(field, 11, CDBlobPart.class);
+      assertEquals("alert(\"I am web onMouseOver\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+    }
+    {
+      CDEvent event = extract(field, 12, CDEvent.class);
+      assertEquals(EventId.ONMOUSEUP, event.getEventType());
+      CDBlobPart blob = extract(field, 12, CDBlobPart.class);
+      assertEquals("alert(\"I am web onMouseUp\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+    }
+    {
+      CDEvent event = extract(field, 13, CDEvent.class);
+      assertEquals(EventId.ONSELECT, event.getEventType());
+      CDBlobPart blob = extract(field, 13, CDBlobPart.class);
+      assertEquals("alert(\"I am web onSelect\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+    }
+    {
+      CDEvent event = extract(field, 14, CDEvent.class);
+      assertEquals(EventId.ONFOCUS, event.getEventType());
+      CDBlobPart blob = extract(field, 14, CDBlobPart.class);
+      assertEquals("alert(\"I am client onFocus\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+    }
+    {
+      CDEventEntry entry = extract(field, 0, CDEventEntry.class);
+      assertEquals(CDEventEntry.ActionType.LOTUS_SCRIPT, entry.getActionType());
+    }
+    {
+      CDEventEntry entry = extract(field, 1, CDEventEntry.class);
+      assertEquals(CDEventEntry.ActionType.JAVASCRIPT, entry.getActionType());
+    }
+    {
+      CDEventEntry entry = extract(field, 2, CDEventEntry.class);
+      assertEquals(CDEventEntry.ActionType.LOTUS_SCRIPT, entry.getActionType());
+    }
+    {
+      CDEventEntry entry = extract(field, 3, CDEventEntry.class);
+      assertEquals(CDEventEntry.ActionType.JAVASCRIPT, entry.getActionType());
+      assertEquals(EventId.ONBLUR, entry.getHtmlEventId().get());
+    }
+    {
+      CDEventEntry entry = extract(field, 4, CDEventEntry.class);
+      assertEquals(EventId.ONCHANGE, entry.getHtmlEventId().get());
+      assertEquals(CDEventEntry.ActionType.JAVASCRIPT, entry.getActionType());
+    }
+    {
+      CDEventEntry entry = extract(field, 5, CDEventEntry.class);
+      assertEquals(CDEventEntry.ActionType.JAVASCRIPT, entry.getActionType());
+      assertEquals(EventId.ONFOCUS, entry.getHtmlEventId().get());
     }
   }
   

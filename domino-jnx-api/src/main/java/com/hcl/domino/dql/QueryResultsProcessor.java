@@ -17,6 +17,7 @@
 package com.hcl.domino.dql;
 
 import java.io.Reader;
+import java.io.Writer;
 import java.util.Collection;
 import java.util.Set;
 
@@ -69,8 +70,11 @@ public interface QueryResultsProcessor {
    * Convenience method to add an unsorted column to the processor
    *
    * @param name programmatic column name
+   * @return this instance
    */
-  void addColumn(String name);
+  default QueryResultsProcessor addColumn(String name) {
+    return addColumn(name, "", "", SortOrder.UNORDERED, Hidden.FALSE, Categorized.FALSE);
+  }
 
   /**
    * Provides Domino formula language to override the data used to generate values
@@ -90,8 +94,9 @@ public interface QueryResultsProcessor {
    *                    use the formula language to generate sort column values.
    *                    Wildcards may be specified to map to multiple input
    *                    collection names.
+   * @return this instance
    */
-  void addFormula(String formula, String columnname, String resultsname);
+  QueryResultsProcessor addFormula(String formula, String columnname, String resultsname);
 
   /**
    * Adds note ids from a database to the query results processor
@@ -103,18 +108,17 @@ public interface QueryResultsProcessor {
    *                    origin of results is desired and in addFormula method
    *                    calls to override the data used to create sorted column
    *                    values.
+   * @return this instance
    */
-  void addNoteIds(Database parentDb, Collection<Integer> noteIds, String resultsname);
+  QueryResultsProcessor addNoteIds(Database parentDb, Collection<Integer> noteIds, String resultsname);
 
   /**
    * Creates a single column of values to be returned when
-   * {@link QueryResultsProcessor} execute
-   * is performed. Values for the column can be generated from a field, or a
-   * formula. Sorting order,
-   * categorization and hidden attributes determine the returned stream of results
-   * entries.<br>
-   * Sort columns span all input result sets and databases taking part in the
-   * {@link QueryResultsProcessor}.
+   * {@link QueryResultsProcessor} is executed. Column values can be generated from a field
+   * or a formula. Sorting order, categorization and hidden attributes determine the
+   * returned stream of results entries.<br>
+   * Columns span all input result sets and databases taking part in the {@link QueryResultsProcessor}.
+   * Execute calls in the {@link QueryResultsProcessor} require at least one column to be specified.
    *
    * @param name          The unique (within a QueryResultsProcessor instance)
    *                      programmatic name of the column. If there is no override
@@ -133,6 +137,18 @@ public interface QueryResultsProcessor {
    *                      see the description of the isCategorized parameter.
    * @param title         The display title of the column. Used only in generated
    *                      views, the title is the UI column header.
+   * @param formula       Formula language string to serve as the default means of
+   *                      computing values for the column. If not supplied and if
+   *                      not overridden by an addFormula value, the name argument
+   *                      is treated as a field name. The precedence of supplying column values is:<br>
+   *                      <ol>
+   *                      <li>AddFormula Formula Language override</li>
+   *                      <li>Formula argument of the AddColumn method</li>
+   *                      <li>Use the name argument of the AddColumn method as a database field name</li>
+   *                      </ol>
+   *                      If supplied, the Formula Language provided is applied to the column
+   *                      across all results added using addCollection or addDominoQuery.<br>
+   *                      Formulas are not allowed on columns with aggregates.
    * @param sortorder     A constant to indicate how the column should be sorted.
    *                      Values are sorted case and accent insensitively by
    *                      default. Multiple sort columns can have sort orders, and
@@ -155,8 +171,10 @@ public interface QueryResultsProcessor {
    *                      uncategorized column in addition to the categorized
    *                      column. Categorized columns can nest to create
    *                      subcategories.
+   * @return this instance
    */
-  void addSortColumn(String name, String title, SortOrder sortorder, Hidden ishidden, Categorized iscategorized);
+  QueryResultsProcessor addColumn(String name, String title, String formula, SortOrder sortorder,
+      Hidden ishidden, Categorized iscategorized);
 
   /**
    * Processes the input collections in the manner specified by the Sort Columns,
@@ -166,21 +184,21 @@ public interface QueryResultsProcessor {
    * <br>
    * The JSON syntax produced by {@link QueryResultsProcessor} execution conforms
    * to JSON RFC 8259.<br>
-   * All results are output under the “StreamedResults” top element key. For
+   * All results are output under the <code>“StreamedResults”</code> top element key. For
    * categorized results,
    * all nested details are output under the “Documents” key.<br>
-   * Special keys “@nid” for NoteID and “@DbPath” are output so results can be
+   * Special keys <code>“@nid”</code> for NoteID and <code>“@DbPath”</code> are output so results can be
    * acted upon on a document basis.<br>
    * Fields that are lists on documents (multiply-occurring) are output as JSON
    * arrays of like type.
    *
    * @param appendable the execution result is written in JSON format into this
-   *                   {@link Appendable} in small chunks
+   *                   {@link Appendable} in small chunks (e.g. a {@link Writer} or {@link StringBuilder}
    * @param options    options to tweak the JSON output or null/empty for default
    *                   format
    */
   void executeToJSON(Appendable appendable, Set<QRPOptions> options);
-
+  
   /**
    * Processes the input collections in the manner specified by the Sort Columns,
    * overriding
@@ -189,10 +207,10 @@ public interface QueryResultsProcessor {
    * <br>
    * The JSON syntax produced by {@link QueryResultsProcessor} execution conforms
    * to JSON RFC 8259.<br>
-   * All results are output under the “StreamedResults” top element key. For
+   * All results are output under the <code>“StreamedResults”</code> top element key. For
    * categorized results,
    * all nested details are output under the “Documents” key.<br>
-   * Special keys “@nid” for NoteID and “@DbPath” are output so results can be
+   * Special keys <code>“@nid”</code> for NoteID and <code>“@DbPath”</code> are output so results can be
    * acted upon on a document basis.<br>
    * Fields that are lists on documents (multiply-occurring) are output as JSON
    * arrays of like type.
@@ -203,4 +221,52 @@ public interface QueryResultsProcessor {
    */
   Reader executeToJSON(Set<QRPOptions> options);
 
+  /**
+   * Saves sorted QueryResultsProcessor results to a "results view" in a database.<br>
+   * Processes the input collections in the manner specified by the Sort Columns,
+   * overriding field values with formulas specified via addFormula calls.<br>
+   * Creates a results view in a host database and returns note id of the View.<br>
+   * <br>
+   * Results views created using the ExecuteToView method have the following distinctive
+   * characteristics.<br>
+   * <br>
+   * To open and manipulate results views using the HCL Notes® client or to write application
+   * code that utilizes it, it's important to understand these characteristics.<br>
+   * <br>
+   * Results views are created and persist in a database that you choose. Using a separate,
+   * non-production database is recommended. Doing so avoids unnecessary, routine database
+   * processing and also avoids user confusion over the views, which are not standard views.<br>
+   * <br>
+   * Results views are generated programmatically, so they are designed to be discarded after use. Therefore:<br>
+   * <ul>
+   * <li>They do not refresh automatically. If you want more recent data, you need to delete the old view using a method to remove in the View class or by running updall with the -Tx option, and then recreate and repopulate the view.</li>
+   * <li>They are automatically deleted during updall and dbmt task maintenance after their expiration time elapses.</li>
+   * </ul>
+   * Results views contain unique NoteIDs that cannot be referenced. Therefore:<br>
+   * <ul>
+   * <li>They do not generate document properties data in the Notes client.</li>
+   * <li>You can't open them using normal mouse gestures in the Notes client.</li>
+   * <li>You can't use full text indexing to search them; they are the results of such searches.</li>
+   * <li>You can use API calls that use those NoteIDs only within the context of the results views.</li>
+   * <li>They include hidden columns that contain the database path and the true NoteID for each originating document. You can access this information using view column processing.</li>
+   * </ul>
+   * Security for results views is implemented at the view level:<br>
+   * <ul>
+   * <li>By default, only the person or server creating the view can read the view data.</li>
+   * <li>You can use the Readers parameter to define a reader list.</li>
+   * <li>A person or server with access to the view gets access to all document details and aggregate values; there is no mechanism to restrict this access.</li>
+   * </ul>
+   * Domino processing of results views is otherwise typical.<br>
+   * <br>
+   * You can use Domino Designer to edit results views, with the exception of selection
+   * criteria and view formulas, which are specified when the views are created.
+   * 
+   * @param viewName The name of the results view to create and populate.
+   * @param hoursUntilExpire The time, in hours, for the view to be left in the host database. If not specified, it expires in 24 hours. You can extend the expiration time using the updall or dbmt tasks.
+   * @param readers These define the allowed Readers for the documents in the View (usernames and groups). Will be converted to canonical format
+   * @return view note id
+   * @since 1.8.8, requires JNX running against a Notes/Domino R12.0.1 environment
+   */
+  int executeToView(String viewName, int hoursUntilExpire, Collection<String> readers);
+  
 }

@@ -915,6 +915,27 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
   public T addColumn(int pos, CollectionColumn templateCol, Consumer<CollectionColumn> consumer);
 
   /**
+   * Appends an existing shared column at the specified position
+   * 
+   * @param columnName name of shared column
+   * @param consumer receives the added column for further processing
+   * @return this instance
+   */
+  default T addSharedColumn(String columnName, Consumer<CollectionColumn> consumer) {
+    return addSharedColumn(-1, columnName, consumer);
+  }
+  
+  /**
+   * Inserts an existing shared column at the specified position
+   * 
+   * @param pos target position or -1 to append at the end
+   * @param columnName name of shared column
+   * @param consumer receives the added column for further processing
+   * @return this instance
+   */
+  public T addSharedColumn(int pos, String columnName, Consumer<CollectionColumn> consumer);
+  
+  /**
    * Removes the specified column
    * 
    * @param column column

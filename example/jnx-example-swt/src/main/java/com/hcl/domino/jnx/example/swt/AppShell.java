@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.TabItem;
 
 import com.hcl.domino.jnx.example.swt.console.ConsolePane;
 import com.hcl.domino.jnx.example.swt.dbtree.DatabaseTree;
+import com.hcl.domino.jnx.example.swt.dql.DQLExplorerPane;
 import com.hcl.domino.jnx.example.swt.dump.DumpDBPane;
 import com.hcl.domino.jnx.example.swt.exporter.DXLExporterPane;
 
@@ -89,6 +90,15 @@ public class AppShell extends Shell {
       tab.setText("Server Console");
       
       ConsolePane pane = new ConsolePane(tabFolder);
+      tab.setControl(pane);
+    }
+
+    // DQL Explorer
+    {
+      TabItem tab = new TabItem(tabFolder, SWT.NONE);
+      tab.setText("DQL Explorer");
+      
+      DQLExplorerPane pane = new DQLExplorerPane(tabFolder, SWT.NONE);
       tab.setControl(pane);
     }
   }

@@ -1,27 +1,11 @@
-/*
- * ==========================================================================
- * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
- *                            All rights reserved.
- * ==========================================================================
- * Licensed under the  Apache License, Version 2.0  (the "License").  You may
- * not use this file except in compliance with the License.  You may obtain a
- * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
- *
- * Unless  required  by applicable  law or  agreed  to  in writing,  software
- * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
- * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
- * License for the  specific language  governing permissions  and limitations
- * under the License.
- * ==========================================================================
- */
 package com.hcl.domino.jna.internal.structs;
+
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.List;
 
 import com.hcl.domino.misc.NotesConstants;
-import com.hcl.domino.misc.NotesConstants.DESIGN_COMPONENT_ATTR;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
@@ -30,26 +14,29 @@ import com.sun.jna.Structure;
  * a tool written by <a href="http://ochafik.com/">Olivier Chafik</a> that <a href="http://code.google.com/p/jnaerator/wiki/CreditsAndLicense">uses a few opensource projects.</a>.<br>
  * For help, please visit <a href="http://nativelibs4java.googlecode.com/">NativeLibs4Java</a> , <a href="http://rococoa.dev.java.net/">Rococoa</a>, or <a href="http://jna.dev.java.net/">JNA</a>.
  */
-public class NotesResultsSortColumn extends BaseStructure {
+public class NotesResultsSortColumnStruct extends Structure {
 	/**
 	 * programmatic name \ufffd used for all reference<br>
-	 * C type : char[1]
+	 * C type : char[MAX_CMD_VALLEN]
 	 */
 	public byte[] name = new byte[NotesConstants.MAX_CMD_VALLEN];
 	/**
 	 * view column title (view results only)<br>
-	 * C type : char[1]
+	 * C type : char[MAX_CMD_VALLEN]
 	 */
 	public byte[] title = new byte[NotesConstants.MAX_CMD_VALLEN];
 	/**
-	 * used during fetch only<br>
-	 * C type : char*
+	 * optional default formula for the sort column, provides simplified formula argument<br>
+	 * C type : MEMHANDLE
 	 */
-	public Pointer pFormula;
+	public int hColFormula;
+	/** Flag it being set prior to being overridden */
+	public boolean bColFormulaSet;
+	/** When hColFormula is dereferenced, this gets incremented for subsequent unlocks */
+	public int numformulalocks;
 	/**
 	 * ASC, DESC or none<br>
 	 * C type : DESIGN_COMPONENT_ATTR
-	 * @see DESIGN_COMPONENT_ATTR
 	 */
 	public int sortorder;
 	/** column is sorted, not returned */
@@ -67,7 +54,7 @@ public class NotesResultsSortColumn extends BaseStructure {
 	 * Support all data types for @@min or @@max (can't be both)<br>
 	 * C type : ITEM_TABLE*
 	 */
-	public NotesItemTableStruct pMinMaxVal;
+	public Pointer pMinMaxVal;
 	/** for @@countvals (count distinct values, this category) */
 	public int dwCtVals;
 	/**
@@ -99,6 +86,8 @@ public class NotesResultsSortColumn extends BaseStructure {
 	public short wColsInCateg;
 	/** Either a categorized column, or part of a multiple-column category value */
 	public boolean bCategorizedKey;
+	/** DBPath and NoteID columns are NOT specified by customer code, but generated and internally */
+	public boolean bGenerated;
 	/** The number of TYPE_NUMBER entries this category (for producing @@avg and @@count) */
 	public int dwEntries;
 	/** The number of occurrences (including LIST occurrences) of a column field */
@@ -108,50 +97,28 @@ public class NotesResultsSortColumn extends BaseStructure {
 	 * C type : char*
 	 */
 	public Pointer pdwCurItemValue;
-	
-	public NotesResultsSortColumn() {
+	public NotesResultsSortColumnStruct() {
 		super();
 	}
-
-	@Override
-	protected int getOverrideAlignment() {
-		return Structure.ALIGN_DEFAULT;
-	}
-	
-	public static NotesResultsSortColumn newInstance() {
-		return AccessController.doPrivileged((PrivilegedAction<NotesResultsSortColumn>) () -> {
-			return new NotesResultsSortColumn();
-		});
-	}
-
 	@SuppressWarnings("nls")
   @Override
   protected List<String> getFieldOrder() {
-		return Arrays.asList("name", "title", "pFormula", "sortorder", "bHidden", "bCategorized", "bAggregate", "aggtype", "pMinMaxVal", "dwCtVals", "numAggSum", "numMaxMin", "numAggResult", "bCategLeaf", "bFirstCateg", "bLastCateg", "bCategBreak", "dwCategBreaks", "wColsInCateg", "bCategorizedKey", "dwEntries", "dwColOccs", "pdwCurItemValue");
+		return Arrays.asList("name", "title", "hColFormula", "bColFormulaSet", "numformulalocks", "sortorder", "bHidden", "bCategorized", "bAggregate", "aggtype", "pMinMaxVal", "dwCtVals", "numAggSum", "numMaxMin", "numAggResult", "bCategLeaf", "bFirstCateg", "bLastCateg", "bCategBreak", "dwCategBreaks", "wColsInCateg", "bCategorizedKey", "bGenerated", "dwEntries", "dwColOccs", "pdwCurItemValue");
 	}
-	
-	public NotesResultsSortColumn(Pointer peer) {
+	public NotesResultsSortColumnStruct(Pointer peer) {
 		super(peer);
 	}
-	
-	public static NotesResultsSortColumn newInstance(Pointer peer) {
-		return AccessController.doPrivileged((PrivilegedAction<NotesResultsSortColumn>) () -> {
-			return new NotesResultsSortColumn(peer);
-		});
-	}
-
-	public static NotesResultsSortColumn.ByReference newInstanceByReference() {
-		return AccessController.doPrivileged((PrivilegedAction<NotesResultsSortColumn.ByReference>) () -> {
-			return new NotesResultsSortColumn.ByReference();
-		});
-	}
-
-	public static class ByReference extends NotesResultsSortColumn implements Structure.ByReference {
-		public ByReference() {
-			super();
-		}
-	};
-	public static class ByValue extends NotesResultsSortColumn implements Structure.ByValue {
+	public static class ByReference extends NotesResultsSortColumnStruct implements Structure.ByReference {
 		
 	};
+	public static class ByValue extends NotesResultsSortColumnStruct implements Structure.ByValue {
+		
+	};
+	
+	 public static NotesResultsSortColumnStruct newInstance() {
+	    return AccessController.doPrivileged((PrivilegedAction<NotesResultsSortColumnStruct>) () -> {
+	      return new NotesResultsSortColumnStruct();
+	    });
+	  }
+
 }

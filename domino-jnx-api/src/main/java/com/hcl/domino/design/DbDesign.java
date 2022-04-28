@@ -127,12 +127,30 @@ public interface DbDesign {
   Subform createSubform(String subformName);
 
   /**
+   * Creates a new, unsaved page design element
+   * 
+   * @param pageName the name of the page to create
+   * @return the newly-created in-memory {@link Page}
+   * @since 1.7.8
+   */
+  Page createPage(String pageName);
+  
+  /**
    * Creates a new, unsaved view design element.
    *
    * @param viewName the name of the view to create
    * @return the newly-created in-memory {@link View}
    */
   View createView(String viewName);
+  
+  /**
+   * Creates a new, unsaved shared column design element
+   * 
+   * @param columnName the name of the shared column to create
+   * @return the newly-created in-memory {@link SharedColumn}
+   * @since 1.5.7
+   */
+  SharedColumn createSharedColumn(String columnName);
   
   /**
    * Creates a new, unsaved frameset design element.

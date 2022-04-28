@@ -16,6 +16,11 @@
  */
 package com.hcl.domino.richtext.structures;
 
+import java.nio.charset.Charset;
+import java.text.MessageFormat;
+
+import com.hcl.domino.data.NativeItemCoder;
+import com.hcl.domino.data.NativeItemCoder.LmbcsVariant;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -51,5 +56,17 @@ public interface CDFace extends MemoryStructure {
   
   default String getName() {
     return StructureSupport.readLmbcsValue(getNameRaw());
+  }
+  
+  default CDFace setName(String name) {
+   Charset lmbcsNullTerm =  NativeItemCoder.get().getLmbcsCharset(LmbcsVariant.NULLTERM);
+   byte[] nameLMBCS = name.getBytes(lmbcsNullTerm);
+   if (nameLMBCS.length > RichTextConstants.MAXFACESIZE) {
+     throw new IllegalArgumentException(
+         MessageFormat.format("Name exceeds max length of {0} byte: {1}",
+             RichTextConstants.MAXFACESIZE, name));
+   }
+   setNameRaw(nameLMBCS);
+   return this;
   }
 }

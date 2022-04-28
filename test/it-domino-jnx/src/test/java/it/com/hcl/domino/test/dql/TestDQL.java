@@ -799,14 +799,14 @@ public class TestDQL extends AbstractNotesRuntimeTest {
     }
 
     @Test
-    public void testSpecialViewModifiedInThisFile() {
+    public void testSpecialValueModifiedInThisFile() {
         DQL.SpecialValue specialValueModifiedInThisFile = modifiedInThisFile();
         Assertions.assertNotNull(specialValueModifiedInThisFile.getType());
         Assertions.assertNotNull(specialValueModifiedInThisFile.toString());
     }
 
     @Test
-    public void testSpecialViewdocumentUniqueId() {
+    public void testSpecialValueDocumentUniqueId() {
         DQL.NamedItem specialValueDocumentUniqueId = item("");
         log.log(Level.INFO, specialValueDocumentUniqueId.getName());
         Assertions.assertNotNull(specialValueDocumentUniqueId.getName());
@@ -822,7 +822,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
     }
 
     @Test
-    public void testSpecialViewCreated() {
+    public void testSpecialValueCreated() {
         DQL.SpecialValue specialValueCreated = created();
         Assertions.assertNotNull(specialValueCreated.getType());
         Assertions.assertNotNull(specialValueCreated.toString());

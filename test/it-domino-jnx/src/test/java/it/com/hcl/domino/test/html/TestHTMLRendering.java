@@ -19,11 +19,13 @@ package it.com.hcl.domino.test.html;
 import static com.hcl.domino.html.HtmlConvertOption.XMLCompatibleHTML;
 
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -107,18 +109,45 @@ public class TestHTMLRendering extends AbstractNotesRuntimeTest {
       final DominoClient client = this.getClient();
       final RichTextHTMLConverter rtConverter = client.getRichTextHtmlConverter();
 
-      final Collection<String> convOptions = Arrays.asList(
-          HtmlConvertOption.FontConversion.toOption("1"),
-          HtmlConvertOption.ForceOutlineExpand.toOption("1"),
-          HtmlConvertOption.ForceSectionExpand.toOption("1"));
+      //assemble conversion properties to let the HTMLConverter produce modern HTML, so no font tags, but span/div tags with inline styles
+      
+      Map<HtmlConvertOption, String> convOptions = new HashMap<>();
+      //expand outlines and sections
+      convOptions.put(HtmlConvertOption.ForceOutlineExpand, "1");
+      convOptions.put(HtmlConvertOption.ForceSectionExpand, "1");
+      //display all tabs of tabbed tables
+      convOptions.put(HtmlConvertOption.RowAtATimeTableAlt, "1");
+      convOptions.put(HtmlConvertOption.ListFidelity, "1");
+      convOptions.put(HtmlConvertOption.TextExactSpacing, "1");
+      //use Notes URLs in links instead of web URLs
+      convOptions.put(HtmlConvertOption.OfferNotesURLInLink, "1");
+      //enable the font conversion master option (FontConversion) so that we
+      //can set "specs" and "tags" options to produce modern HTML
+      convOptions.put(HtmlConvertOption.FontConversion, "1");
+      HtmlConvertOption.allSpecs().forEach((opt) -> {
+        convOptions.put(opt, "2");
+      });
+      HtmlConvertOption.allTags().forEach((opt) -> {
+        convOptions.put(opt, "0");
+      });
+
+      //convert to key=value string list
+      List<String> optionsAndValues = convOptions
+          .entrySet()
+          .stream()
+          .map((entry) -> {
+            return entry.getKey() + "=" + entry.getValue();
+          })
+          .collect(Collectors.toList());
+
 
       {
         final HtmlConversionResult convResult = rtConverter.renderItem(doc, "body")
-            .options(convOptions)
-            .convert();
+            .options(optionsAndValues)
+          .convert();
 
         final String html = convResult.getHtml();
-        // System.out.println("Single item:\n"+convResult.getHTML());
+//        System.out.println("Single item:\n"+html);
 
         Assertions.assertTrue(html.indexOf(uuidInBodyRT) != -1);
         Assertions.assertTrue(html.indexOf(uuidInForm) == -1);
@@ -129,7 +158,7 @@ public class TestHTMLRendering extends AbstractNotesRuntimeTest {
         final AtomicBoolean sizeGreaterZero = new AtomicBoolean();
         final AtomicBoolean anyImgData = new AtomicBoolean();
 
-        rtConverter.readEmbeddedImage(doc, itemName, convOptions, img.getItemIndex(), img.getItemOffset(),
+        rtConverter.readEmbeddedImage(doc, itemName, optionsAndValues, img.getItemIndex(), img.getItemOffset(),
             new HTMLImageReader() {
 
               @Override
@@ -159,7 +188,7 @@ public class TestHTMLRendering extends AbstractNotesRuntimeTest {
 
       {
         final HtmlConversionResult convResult = rtConverter.render(doc)
-            .options(convOptions)
+            .options(optionsAndValues)
             .convert();
 
         final String html = convResult.getHtml();

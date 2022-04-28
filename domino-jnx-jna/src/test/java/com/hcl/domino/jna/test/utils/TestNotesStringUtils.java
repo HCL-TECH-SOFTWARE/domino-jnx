@@ -23,10 +23,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.jna.internal.NotesStringUtils;
+import com.hcl.domino.jna.test.AbstractJNARuntimeTest;
 import com.sun.jna.Memory;
 
 @SuppressWarnings("nls")
-public class TestNotesStringUtils {
+public class TestNotesStringUtils extends AbstractJNARuntimeTest {
 
   @Test
   public void testStringListRoundTrip() {

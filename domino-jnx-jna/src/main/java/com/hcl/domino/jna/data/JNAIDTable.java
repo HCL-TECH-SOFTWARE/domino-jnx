@@ -519,7 +519,7 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
 
 	@SuppressWarnings("unchecked")
 	private Collection<Integer> toIntCollection(Collection<?> c) {
-		if (c.isEmpty()) {
+		if (c.isEmpty() || c instanceof IDTable) {
 			return (Collection<Integer>) c;
 		}
 		
