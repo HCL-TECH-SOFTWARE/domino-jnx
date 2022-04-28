@@ -30,6 +30,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 
 import com.hcl.domino.data.Database;
 import com.hcl.domino.design.DesignAgent;
+import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.jnx.vertx.json.service.VertxJsonSerializer;
@@ -180,6 +181,17 @@ public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
       Form form = database.getDesign().getForm("Button Form").get();
       String json = serializer.toJson(form).toString();
       assertTrue(json.contains("@StatusBar(\\\"I am button output\\\")"));
+    });
+  }
+  
+  @Test
+  public void testFolderSerialization() throws Exception {
+    VertxJsonSerializer serializer = new VertxJsonSerializer();
+    
+    withResourceDxl("/dxl/testDbDesign", database -> {
+      Folder folder = database.getDesign().getFolder("test folder").get();
+      String json = serializer.toJson(folder).toString();
+      assertTrue(json.contains("\"test folder\""));
     });
   }
 }
