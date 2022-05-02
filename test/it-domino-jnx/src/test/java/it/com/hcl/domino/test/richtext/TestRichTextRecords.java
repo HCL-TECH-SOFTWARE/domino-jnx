@@ -590,10 +590,69 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       assertEquals(NFMT.Format.CURRENCY, numberFormat.getFormat());
 
       final TFMT timeFormat = field.getTimeFormat();
-      assertEquals(TFMT.DateFormat.CPARTIAL4, timeFormat.getDateFormat());
-      assertEquals(TFMT.TimeFormat.HOUR, timeFormat.getTimeFormat());
-      assertEquals(TFMT.TimeStructure.CDATETIME, timeFormat.getTimeStructure());
-      assertEquals(TimeZoneFormat.SOMETIMES, timeFormat.getZoneFormat());
+      assertEquals(TFMT.DateFormat.CPARTIAL4, timeFormat.getDateFormat().get());
+      assertEquals(TFMT.TimeFormat.HOUR, timeFormat.getTimeFormat().get());
+      assertEquals(TFMT.TimeStructure.CDATETIME, timeFormat.getTimeStructure().get());
+      assertEquals(TimeZoneFormat.SOMETIMES, timeFormat.getZoneFormat().get());
+
+      assertEquals("\"hi\"", field.getDefaultValueFormula());
+      assertEquals("@ThisValue+\"hi\"", field.getInputTranslationFormula());
+      assertEquals("@If(a; @Success; @Failure(\"nooo\"))", field.getInputValidationFormula());
+      assertEquals("Test Description", field.getDescription());
+      assertEquals(Arrays.asList("foo", "bar"), field.getTextValues().get());
+      Assertions.assertFalse(field.getTextValueFormula().isPresent());
+      assertEquals("TextField", field.getName());
+    });
+  }
+  
+  @Test
+  public void testCDFieldInvalidTFMT() throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+        rtWriter.addRichTextRecord(CDField.class, field -> {
+          field.setFlags(EnumSet.of(CDField.Flag.COMPUTED, CDField.Flag.PROTECTED));
+          field.setFieldType(ItemDataType.TYPE_TEXT);
+          field.setListDisplayDelimiter(FieldListDisplayDelimiter.NEWLINE);
+          field.setListDelimiters(EnumSet.of(FieldListDelimiter.NEWLINE, FieldListDelimiter.SEMICOLON));
+
+          field.getNumberFormat().setAttributes(EnumSet.of(NFMT.Attribute.PARENS));
+          field.getNumberFormat().setDigits((short) 4);
+          field.getNumberFormat().setFormat(NFMT.Format.CURRENCY);
+
+          field.getTimeFormat().setDateFormat(TFMT.DateFormat.CPARTIAL4);
+          field.getTimeFormat().setTimeFormatRaw((byte)3);
+          field.getTimeFormat().setTimeStructure(TFMT.TimeStructure.CDATETIME);
+          field.getTimeFormat().setZoneFormat(TimeZoneFormat.SOMETIMES);
+
+          field.setDefaultValueFormula("\"hi\"");
+          field.setInputTranslationFormula("@ThisValue+\"hi\"");
+          field.setInputValidationFormula("@If(a; @Success; @Failure(\"nooo\"))");
+          field.setDescription("Test Description");
+          field.setTextValues(Arrays.asList("foo", "bar"));
+          field.setName("TextField");
+        });
+      }
+
+      final CDField field = (CDField) doc.getRichTextItem("Body").get(0);
+      assertEquals(ItemDataType.TYPE_TEXT, field.getFieldType());
+      // KEYWORDS_UI_STANDARD is 0x0000 and thus always shows up
+      assertEquals(EnumSet.of(CDField.Flag.COMPUTED, CDField.Flag.PROTECTED, CDField.Flag.KEYWORDS_UI_STANDARD),
+          field.getFlags());
+      assertEquals(FieldListDisplayDelimiter.NEWLINE, field.getListDisplayDelimiter());
+      assertEquals(EnumSet.of(FieldListDelimiter.NEWLINE, FieldListDelimiter.SEMICOLON), field.getListDelimiters());
+
+      final NFMT numberFormat = field.getNumberFormat();
+      assertEquals(EnumSet.of(NFMT.Attribute.PARENS), numberFormat.getAttributes());
+      assertEquals((short) 4, numberFormat.getDigits());
+      assertEquals(NFMT.Format.CURRENCY, numberFormat.getFormat());
+
+      final TFMT timeFormat = field.getTimeFormat();
+      assertEquals(TFMT.DateFormat.CPARTIAL4, timeFormat.getDateFormat().get());
+      assertFalse(timeFormat.getTimeFormat().isPresent());
+      assertEquals((byte)3, timeFormat.getTimeFormatRaw());
+      assertEquals(TFMT.TimeStructure.CDATETIME, timeFormat.getTimeStructure().get());
+      assertEquals(TimeZoneFormat.SOMETIMES, timeFormat.getZoneFormat().get());
 
       assertEquals("\"hi\"", field.getDefaultValueFormula());
       assertEquals("@ThisValue+\"hi\"", field.getInputTranslationFormula());
@@ -648,10 +707,10 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       assertEquals(NFMT.Format.CURRENCY, numberFormat.getFormat());
 
       final TFMT timeFormat = field.getTimeFormat();
-      assertEquals(TFMT.DateFormat.CPARTIAL4, timeFormat.getDateFormat());
-      assertEquals(TFMT.TimeFormat.HOUR, timeFormat.getTimeFormat());
-      assertEquals(TFMT.TimeStructure.CDATETIME, timeFormat.getTimeStructure());
-      assertEquals(TimeZoneFormat.SOMETIMES, timeFormat.getZoneFormat());
+      assertEquals(TFMT.DateFormat.CPARTIAL4, timeFormat.getDateFormat().get());
+      assertEquals(TFMT.TimeFormat.HOUR, timeFormat.getTimeFormat().get());
+      assertEquals(TFMT.TimeStructure.CDATETIME, timeFormat.getTimeStructure().get());
+      assertEquals(TimeZoneFormat.SOMETIMES, timeFormat.getZoneFormat().get());
 
       assertEquals("\"hi\"", field.getDefaultValueFormula());
       assertEquals("@ThisValue+\"hi\"", field.getInputTranslationFormula());

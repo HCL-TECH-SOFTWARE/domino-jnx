@@ -16,6 +16,8 @@
  */
 package com.hcl.domino.richtext.structures;
 
+import java.util.Optional;
+
 import com.hcl.domino.design.format.TimeZoneFormat;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -123,26 +125,50 @@ public interface TFMT extends MemoryStructure {
   }
 
   @StructureGetter("Date")
-  DateFormat getDateFormat();
+  Optional<DateFormat> getDateFormat();
+  
+  @StructureGetter("Date")
+  byte getDateFormatRaw();
 
   @StructureGetter("Time")
-  TimeFormat getTimeFormat();
+  Optional<TimeFormat> getTimeFormat();
+  
+  @StructureGetter("Time")
+  byte getTimeFormatRaw();
 
   @StructureGetter("Structure")
-  TimeStructure getTimeStructure();
+  Optional<TimeStructure> getTimeStructure();
+  
+  @StructureGetter("Structure")
+  byte getTimeStructureRaw();
 
   @StructureGetter("Zone")
-  TimeZoneFormat getZoneFormat();
+  Optional<TimeZoneFormat> getZoneFormat();
+  
+  @StructureGetter("Zone")
+  byte getZoneFormatRaw();
 
   @StructureSetter("Date")
   TFMT setDateFormat(DateFormat format);
+  
+  @StructureSetter("Date")
+  TFMT setDateFormatRaw(byte format);
 
   @StructureSetter("Time")
   TFMT setTimeFormat(TimeFormat format);
+  
+  @StructureSetter("Time")
+  TFMT setTimeFormatRaw(byte format);
 
   @StructureSetter("Structure")
   TFMT setTimeStructure(TimeStructure structure);
+  
+  @StructureSetter("Structure")
+  TFMT setTimeStructureRaw(byte structure);
 
   @StructureSetter("Zone")
   TFMT setZoneFormat(TimeZoneFormat format);
+  
+  @StructureSetter("Zone")
+  TFMT setZomeFormatRaw(byte format);
 }
