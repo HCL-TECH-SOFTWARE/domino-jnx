@@ -61,7 +61,10 @@ public enum StructureSupport {
     }
 
     final ByteBuffer buf = struct.getVariableData();
-    buf.position((int) preLen);
+    if(preLen > buf.limit()) {
+      return ""; //$NON-NLS-1$
+    }
+    buf.position((int) Math.max(0, preLen));
     final byte[] compiled = new byte[(int) len];
     buf.get(compiled);
     return FormulaCompiler.get().decompile(compiled);
@@ -92,7 +95,10 @@ public enum StructureSupport {
     }
 
     final ByteBuffer buf = struct.getVariableData();
-    buf.position((int) preLen);
+    if(preLen > buf.limit()) {
+      return ""; //$NON-NLS-1$
+    }
+    buf.position((int) Math.max(0, preLen));
     final byte[] lmbcs = new byte[(int) len];
     buf.get(lmbcs);
     return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
@@ -119,7 +125,10 @@ public enum StructureSupport {
     }
 
     final ByteBuffer buf = struct.getVariableData();
-    buf.position((int) preLen);
+    if(preLen > buf.limit()) {
+      return Collections.emptyList();
+    }
+    buf.position((int) Math.max(0, preLen));
     List<String> result = new ArrayList<>(lengths.length);
     for(long len : lengths) {
       final byte[] lmbcs = new byte[(int) len];
@@ -158,7 +167,10 @@ public enum StructureSupport {
     }
 
     final ByteBuffer buf = struct.getVariableData();
-    buf.position((int) preLen);
+    if(preLen > buf.limit()) {
+      return ""; //$NON-NLS-1$
+    }
+    buf.position((int) Math.max(0, preLen));
     final byte[] lmbcs = new byte[(int) len];
     buf.get(lmbcs);
     int nullPos = lmbcs.length - 1;
@@ -197,7 +209,10 @@ public enum StructureSupport {
     }
 
     final ByteBuffer buf = struct.getVariableData();
-    buf.position((int) preLen);
+    if(preLen > buf.limit()) {
+      return ""; //$NON-NLS-1$
+    }
+    buf.position((int) Math.max(0, preLen));
     final byte[] lmbcs = new byte[(int) len];
     buf.get(lmbcs);
     if (lmbcs[lmbcs.length - 1] == '\0' || lmbcs[lmbcs.length - 1] == -1) {
@@ -217,7 +232,7 @@ public enum StructureSupport {
    */
   public static List<String> extractStringListStructure(ResizableMemoryStructure struct, int preLen) {
     ByteBuffer buf = struct.getVariableData();
-    buf.position(preLen);
+    buf.position(Math.max(0, preLen));
     
     int count = Short.toUnsignedInt(buf.getShort());
     
@@ -259,7 +274,10 @@ public enum StructureSupport {
     }
 
     final ByteBuffer buf = struct.getVariableData();
-    buf.position((int) preLen);
+    if(preLen > buf.limit()) {
+      return new byte[0];
+    }
+    buf.position((int) Math.max(0, preLen));
     final byte[] result = new byte[(int) len];
     buf.get(result);
     return result;
@@ -288,7 +306,10 @@ public enum StructureSupport {
     }
 
     final ByteBuffer buf = struct.getVariableData();
-    buf.position((int) preLen);
+    if(preLen > buf.limit()) {
+      return new int[0];
+    }
+    buf.position((int) Math.max(0, preLen));
     final int[] result = new int[(int) len];
     for(int i = 0; i < len; i++) {
       result[i] = buf.getInt();
@@ -310,7 +331,7 @@ public enum StructureSupport {
    */
   public static <T extends ResizableMemoryStructure> List<T> extractResizableStructures(ResizableMemoryStructure struct, int preLen, Class<T> type, int count, Function<T, Integer> sizeFunc) {
     ByteBuffer data = struct.getVariableData();
-    data.position(data.position()+preLen);
+    data.position(Math.max(0, preLen));
     
     MemoryStructureWrapperService svc = MemoryStructureWrapperService.get();
     List<T> result = new ArrayList<>(count);
@@ -354,7 +375,7 @@ public enum StructureSupport {
           MessageFormat.format("Unable to write a new value with remaining offset larger than {0} bytes", Integer.MAX_VALUE));
     }
 
-    buf.position((int) (preLen + currentLen));
+    buf.position((int) (Math.max(0, preLen) + currentLen));
     final byte[] otherData = new byte[(int) otherLen];
     buf.get(otherData);
 
@@ -407,7 +428,7 @@ public enum StructureSupport {
       throw new UnsupportedOperationException(
           MessageFormat.format("Unable to write a new value with remaining offset larger than {0} bytes", Integer.MAX_VALUE));
     }
-    buf.position((int) (preLen + currentLen));
+    buf.position((int) (Math.max(0, preLen) + currentLen));
     final byte[] otherData = new byte[(int) otherLen];
     buf.get(otherData);
 
@@ -471,7 +492,7 @@ public enum StructureSupport {
     ByteBuffer buf = struct.getVariableData();
     long currentLen = LongStream.of(currentLengths).sum();
     final long otherLen = buf.remaining() - preLen - currentLen;
-    buf.position((int)(preLen + currentLen));
+    buf.position((int)(Math.max(0, preLen) + currentLen));
     final byte[] otherData = new byte[(int) otherLen];
     buf.get(otherData);
 
@@ -527,9 +548,9 @@ public enum StructureSupport {
   public static <T extends ResizableMemoryStructure> T writeStringValueUnpacked(final T struct, final int preLen,
       final int currentLen, final String value, final IntConsumer sizeWriter) {
     ByteBuffer buf = struct.getVariableData();
-    final long otherLen = buf.remaining() - preLen - currentLen;
+    final long otherLen = buf.remaining() - Math.max(0, preLen) - currentLen;
 
-    if (preLen + currentLen > Integer.MAX_VALUE) {
+    if (Math.max(0, preLen) + currentLen > Integer.MAX_VALUE) {
       throw new UnsupportedOperationException(
           MessageFormat.format("Unable to write a new value with offset larger than {0} bytes", Integer.MAX_VALUE));
     }
@@ -537,7 +558,7 @@ public enum StructureSupport {
       throw new UnsupportedOperationException(
           MessageFormat.format("Unable to write a new value with remaining offset larger than {0} bytes", Integer.MAX_VALUE));
     }
-    buf.position(preLen + currentLen);
+    buf.position(Math.max(0, preLen) + currentLen);
     final byte[] otherData = new byte[(int) otherLen];
     buf.get(otherData);
 
@@ -547,14 +568,14 @@ public enum StructureSupport {
     if (sizeWriter != null) {
       sizeWriter.accept(lmbcs.length + padLen);
     }
-    final long newLen = preLen + otherLen + lmbcs.length + padLen;
+    final long newLen = Math.max(0, preLen) + otherLen + lmbcs.length + padLen;
     if (newLen > Integer.MAX_VALUE) {
       throw new UnsupportedOperationException(
           MessageFormat.format("Unable to write a new value exceeding {0} bytes", Integer.MAX_VALUE));
     }
     struct.resizeVariableData((int) newLen);
     buf = struct.getVariableData();
-    buf.position(preLen);
+    buf.position(Math.max(0, preLen));
     buf.put(lmbcs);
     for (int i = 0; i < padLen; i++) {
       buf.put((byte) 0);
@@ -590,7 +611,7 @@ public enum StructureSupport {
     ByteBuffer buf = struct.getVariableData();
     final long otherLen = buf.remaining() - preLen - currentLen;
 
-    if (preLen + currentLen > Integer.MAX_VALUE) {
+    if (Math.max(0, preLen) + currentLen > Integer.MAX_VALUE) {
       throw new UnsupportedOperationException(
           MessageFormat.format("Unable to write a new value with offset larger than {0} bytes", Integer.MAX_VALUE));
     }
@@ -598,7 +619,7 @@ public enum StructureSupport {
       throw new UnsupportedOperationException(
           MessageFormat.format("Unable to write a new value with remaining offset larger than {0} bytes", Integer.MAX_VALUE));
     }
-    buf.position(preLen + currentLen);
+    buf.position(Math.max(0, preLen) + currentLen);
     final byte[] otherData = new byte[(int) otherLen];
     buf.get(otherData);
 
@@ -644,9 +665,9 @@ public enum StructureSupport {
   public static <T extends ResizableMemoryStructure> T writeStringListStructure(final T struct, final int preLen,
       final int currentLen, final List<String> value, final IntConsumer sizeWriter) {
     ByteBuffer buf = struct.getVariableData();
-    final long otherLen = buf.remaining() - preLen - currentLen;
+    final long otherLen = buf.remaining() - Math.max(0, preLen) - currentLen;
 
-    if (preLen + currentLen > Integer.MAX_VALUE) {
+    if (Math.max(0, preLen) + currentLen > Integer.MAX_VALUE) {
       throw new UnsupportedOperationException(
           MessageFormat.format("Unable to write a new value with offset larger than {0} bytes", Integer.MAX_VALUE));
     }
@@ -654,7 +675,7 @@ public enum StructureSupport {
       throw new UnsupportedOperationException(
           MessageFormat.format("Unable to write a new value with remaining offset larger than {0} bytes", Integer.MAX_VALUE));
     }
-    buf.position(preLen + currentLen);
+    buf.position(Math.max(0, preLen) + currentLen);
     final byte[] otherData = new byte[(int) otherLen];
     buf.get(otherData);
 
@@ -671,14 +692,14 @@ public enum StructureSupport {
     } catch(IOException e) {
       throw new UncheckedIOException(e);
     }
-    final long newLen = preLen + otherLen + 2 + lmbcs.length;
+    final long newLen = Math.max(0, preLen) + otherLen + 2 + lmbcs.length;
     if (newLen > Integer.MAX_VALUE) {
       throw new UnsupportedOperationException(
           MessageFormat.format("Unable to write a new value exceeding {0} bytes", Integer.MAX_VALUE));
     }
     struct.resizeVariableData((int) newLen);
     buf = struct.getVariableData();
-    buf.position(preLen);
+    buf.position(Math.max(0, preLen));
     buf.putShort((short)value.size());
     buf.put(lmbcs);
     buf.put(otherData);
@@ -710,9 +731,9 @@ public enum StructureSupport {
     byte[] value = valueParam == null ? new byte[0] : valueParam;
     
     ByteBuffer buf = struct.getVariableData();
-    final long otherLen = buf.remaining() - preLen - currentLen;
+    final long otherLen = buf.remaining() - Math.max(0, preLen) - currentLen;
 
-    if (preLen + currentLen > Integer.MAX_VALUE) {
+    if (Math.max(0, preLen) + currentLen > Integer.MAX_VALUE) {
       throw new UnsupportedOperationException(
           MessageFormat.format("Unable to write a new value with offset larger than {0} bytes", Integer.MAX_VALUE));
     }
@@ -720,21 +741,21 @@ public enum StructureSupport {
       throw new UnsupportedOperationException(
           MessageFormat.format("Unable to write a new value with remaining offset larger than {0} bytes", Integer.MAX_VALUE));
     }
-    buf.position((int) (preLen + currentLen));
+    buf.position((int) (Math.max(0, preLen) + currentLen));
     final byte[] otherData = new byte[(int) otherLen];
     buf.get(otherData);
     
     if (sizeWriter != null) {
       sizeWriter.accept(value.length);
     }
-    final long newLen = preLen + otherLen + value.length;
+    final long newLen = Math.max(0, preLen) + otherLen + value.length;
     if (newLen > Integer.MAX_VALUE) {
       throw new UnsupportedOperationException(
           MessageFormat.format("Unable to write a new value exceeding {0} bytes", Integer.MAX_VALUE));
     }
     struct.resizeVariableData((int) newLen);
     buf = struct.getVariableData();
-    buf.position((int) preLen);
+    buf.position((int) Math.max(0, preLen));
     buf.put(value);
     buf.put(otherData);
 
@@ -761,9 +782,9 @@ public enum StructureSupport {
     int[] value = valueParam == null ? new int[0] : valueParam;
     
     ByteBuffer buf = struct.getVariableData();
-    final long otherLen = buf.remaining() - preLen - currentLen;
+    final long otherLen = buf.remaining() - Math.max(0, preLen) - currentLen;
 
-    if (preLen + currentLen > Integer.MAX_VALUE) {
+    if (Math.max(0, preLen) + currentLen > Integer.MAX_VALUE) {
       throw new UnsupportedOperationException(
           MessageFormat.format("Unable to write a new value with offset larger than {0} bytes", Integer.MAX_VALUE));
     }
@@ -771,7 +792,7 @@ public enum StructureSupport {
       throw new UnsupportedOperationException(
           MessageFormat.format("Unable to write a new value with remaining offset larger than {0} bytes", Integer.MAX_VALUE));
     }
-    buf.position((int) (preLen + currentLen));
+    buf.position((int) (Math.max(0, preLen) + currentLen));
     final byte[] otherData = new byte[(int) otherLen];
     buf.get(otherData);
     
@@ -779,14 +800,14 @@ public enum StructureSupport {
     if (sizeWriter != null) {
       sizeWriter.accept(valueLen);
     }
-    final long newLen = preLen + otherLen + valueLen;
+    final long newLen = Math.max(0, preLen) + otherLen + valueLen;
     if (newLen > Integer.MAX_VALUE) {
       throw new UnsupportedOperationException(
           MessageFormat.format("Unable to write a new value exceeding {0} bytes", Integer.MAX_VALUE));
     }
     struct.resizeVariableData((int) newLen);
     buf = struct.getVariableData();
-    buf.position((int) preLen);
+    buf.position((int)Math.max(0, preLen));
     Arrays.stream(value).forEach(buf::putInt);
     buf.put(otherData);
 

@@ -520,6 +520,34 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
   }
 
   @Test
+  @Disabled("This is not actually a very good representation of corrupt data and should be replaced with a real-world document")
+  public void testCDExtFieldCorrupt() throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+        rtWriter.addRichTextRecord(CDExtField.class, extField -> {
+          extField.setFlags1(EnumSet.of(CDExtField.Flag.KWHINKYMINKY));
+          extField.setFlags2(EnumSet.of(CDExtField.Flag2.CONTROL, CDExtField.Flag2.ALLOWTABBINGOUT));
+          extField.setHelperType(HelperType.VIEWDLG);
+          extField.setEntryViewName("Some view");
+          extField.setEntryColumnNumber(6);
+          extField.setHtmlAttributesFormula("'I am formula'");
+          extField.setEntryDBNameLength(-10);
+        });
+      }
+
+      final CDExtField extField = (CDExtField) doc.getRichTextItem("Body").get(0);
+      // KEYWORD_FRAME_3D is 0x00000000 and so comes along for the ride
+      assertEquals(EnumSet.of(CDExtField.Flag.KWHINKYMINKY, CDExtField.Flag.KEYWORD_FRAME_3D), extField.getFlags1());
+      assertEquals(EnumSet.of(CDExtField.Flag2.CONTROL, CDExtField.Flag2.ALLOWTABBINGOUT), extField.getFlags2());
+      assertEquals(HelperType.VIEWDLG, extField.getHelperType());
+      assertEquals("Some view", extField.getEntryViewName());
+      assertEquals(6, extField.getEntryColumnNumber());
+      assertEquals("'I am formula'", extField.getHtmlAttributesFormula());
+    });
+  }
+  
+  @Test
   public void testCDField() throws Exception {
     this.withTempDb(database -> {
       final Document doc = database.createDocument();
