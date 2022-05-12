@@ -21,7 +21,6 @@ import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Set;
 
-import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.StructureSupport;
@@ -212,57 +211,44 @@ public interface CDExtField extends RichTextRecord<WSIG> {
 
 
   default String getEntryDBName() {
-    final int len = this.getEntryDBNameLength();
-    if (len == 0) {
-      return ""; //$NON-NLS-1$
-    }
-    final ByteBuffer buf = this.getVariableData();
-    final byte[] lmbcs = new byte[len];
-    buf.get(lmbcs);
-    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
+    return StructureSupport.extractStringValue(
+      this,
+      0,
+      this.getEntryDBNameLength()
+    );
   }
 
   default CDExtField setEntryDBName(final String name) {
-    final int viewNameLen = this.getEntryViewNameLength();
-    final byte[] lmbcs = name == null ? new byte[0] : name.getBytes(NativeItemCoder.get().getLmbcsCharset());
-    this.setEntryDBNameLength(lmbcs.length);
-    this.resizeVariableData(viewNameLen + lmbcs.length);
-
-    final ByteBuffer buf = this.getVariableData();
-    buf.put(lmbcs);
-
-    return this;
+    return StructureSupport.writeStringValue(
+      this,
+      0,
+      this.getEntryDBNameLength(),
+      name,
+      this::setEntryDBNameLength
+    );
   }
 
   default String getEntryViewName() {
-    final int len = this.getEntryViewNameLength();
-    if (len == 0) {
-      return ""; //$NON-NLS-1$
-    }
-    final int preLen = this.getEntryDBNameLength();
-    final ByteBuffer buf = this.getVariableData();
-    buf.position(preLen);
-    final byte[] lmbcs = new byte[len];
-    buf.get(lmbcs);
-    return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
+    return StructureSupport.extractStringValue(
+      this,
+      this.getEntryDBNameLength(),
+      this.getEntryViewNameLength()
+    );
   }
 
   default CDExtField setEntryViewName(final String name) {
-    final int dbNameLen = this.getEntryDBNameLength();
-    final byte[] lmbcs = name == null ? new byte[0] : name.getBytes(NativeItemCoder.get().getLmbcsCharset());
-    this.setEntryViewNameLength(lmbcs.length);
-    this.resizeVariableData(dbNameLen + lmbcs.length);
-
-    final ByteBuffer buf = this.getVariableData();
-    buf.position(dbNameLen);
-    buf.put(lmbcs);
-
-    return this;
+    return StructureSupport.writeStringValue(
+      this,
+      this.getEntryDBNameLength(),
+      this.getEntryViewNameLength(),
+      name,
+      this::setEntryViewNameLength
+    );
   }
 
   default String getHtmlAttributesFormula() {
     int preLen = this.getEntryDBNameLength() + this.getEntryViewNameLength();
-    int total = this.getVariableData().remaining();
+    int total = this.getVariableData().limit();
     if(total - preLen > 0) {
       return StructureSupport.extractCompiledFormula(
           this,
