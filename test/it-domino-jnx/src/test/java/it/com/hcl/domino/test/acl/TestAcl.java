@@ -16,9 +16,14 @@
  */
 package it.com.hcl.domino.test.acl;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -27,10 +32,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
+import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.DominoClient.Encryption;
 import com.hcl.domino.data.Database;
+import com.hcl.domino.exception.NotAuthorizedException;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclAccess;
+import com.hcl.domino.security.AclFlag;
+import com.hcl.domino.security.AclLevel;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
@@ -137,6 +146,33 @@ public class TestAcl extends AbstractNotesRuntimeTest {
 
       Assertions.assertEquals(!isUniformAccess, acl.isUniformAccess(), "ACL uniform access has not changed");
       Assertions.assertNotEquals(isUniformAccess, acl.isUniformAccess(), "ACL uniform access did not toggle");
+    });
+  }
+  
+  @Test
+  public void testLimitedAccess() throws Exception {
+    withTempDb(database -> {
+      String dbPath = database.getAbsoluteFilePath();
+      
+      {
+        Acl acl = database.getACL();
+        acl.updateEntry("-Default-", null, AclLevel.READER, null, null);
+        acl.save();
+      }
+      
+      try(DominoClient client = DominoClientBuilder.newDominoClient().asUser("I am some fake name").build()) {
+        Database noAccessDb = client.openDatabase(dbPath);
+        
+        Acl acl = noAccessDb.getACL();
+        acl.addEntry("foo", AclLevel.MANAGER, Collections.emptyList(), EnumSet.noneOf(AclFlag.class));
+        try {
+          acl.save();
+        } catch(NotAuthorizedException e) {
+          // Should have method information tacked on
+          assertTrue(e.getMessage().contains("#save"));
+        }
+        assertThrows(NotAuthorizedException.class, () -> acl.save());
+      }
     });
   }
 
