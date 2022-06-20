@@ -287,7 +287,13 @@ public class NotesErrorUtils {
       case IMiscErr.ERR_MQ_QUITTING:
         return Optional.of(new QuitPendingException(s, message));
       case INsfErr.ERR_NOACCESS:
-        return Optional.of(new NotAuthorizedException(s, message));
+        // Special handling for NOACCESS, since it shows up very frequently in nebulous cases (Issue #336)
+        String expandedMessage = MessageFormat.format("{0} - {1}", message, deriveCallingClass());
+        if(!expandedMessage.isEmpty()) {
+          return Optional.of(new NotAuthorizedException(s, expandedMessage));
+        } else {
+          return Optional.of(new NotAuthorizedException(s, message));
+        }
       case IOsErr.ERR_CANCEL:
         return Optional.of(new CancelException(s, message));
       case ISrvErr.ERR_SERVER_UNAVAILABLE:
@@ -315,5 +321,14 @@ public class NotesErrorUtils {
       default:
         return Optional.of(new DominoException(s, message));
     }
+  }
+  
+  private static String deriveCallingClass() {
+    StackTraceElement[] stack = new Throwable().getStackTrace();
+    return Arrays.stream(stack)
+      .filter(el -> !NotesErrorUtils.class.getName().equals(el.getClassName()))
+      .findFirst()
+      .map(el -> el.getClassName() + "#" + el.getMethodName() + ":" + el.getLineNumber()) //$NON-NLS-1$ //$NON-NLS-2$
+      .orElse(""); //$NON-NLS-1$
   }
 }
