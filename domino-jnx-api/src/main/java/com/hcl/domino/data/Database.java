@@ -1244,8 +1244,8 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
    * database.<br>
    * <br>
    * If no list is found and this flag is set to {@code false}, the method will
-   * return {@code null}.<br>
-   * if this flag is set to {code true}, the list of unread documents will be
+   * return an empty {@link Optional}.<br>
+   * If this flag is set to {code true}, the list of unread documents will be
    * created and all
    * documents in the database will be added to the list.<br>
    * <br>
@@ -1276,7 +1276,7 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
    * @param createIfNotAvailable {code true}: If the unread list for this user
    *                             cannot be found on disk, return all note IDs.
    *                             {@code false}: If the list cannot be found,
-   *                             return null
+   *                             return an empty {@link Optional}
    * @param updateUnread         {@code true} to update unread marks,
    *                             {@code false} to not update unread marks.
    * @return an {@link Optional} describing the table of unread documents, or an
