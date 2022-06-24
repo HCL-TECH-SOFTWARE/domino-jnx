@@ -17,16 +17,22 @@
 package com.hcl.domino.jnx.vertx.json.service;
 
 import java.text.MessageFormat;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.hcl.domino.commons.json.AbstractJsonDeserializer;
 import com.hcl.domino.commons.json.JsonUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.jnx.vertx.json.JnxTypesModule;
 import com.hcl.domino.json.JsonSerializer;
+
 import io.vertx.core.json.JsonObject;
 
 /**
@@ -36,6 +42,8 @@ import io.vertx.core.json.JsonObject;
 public class VertxJsonDeserializer extends AbstractJsonDeserializer {
   
   public VertxJsonDeserializer() {
+    io.vertx.core.json.jackson.DatabindCodec.mapper().registerModule(new Jdk8Module());
+    io.vertx.core.json.jackson.DatabindCodec.mapper().registerModule(new JavaTimeModule());
     io.vertx.core.json.jackson.DatabindCodec.mapper().registerModule(new JnxTypesModule());
   }
   
@@ -46,10 +54,25 @@ public class VertxJsonDeserializer extends AbstractJsonDeserializer {
       return a.getClass().equals(b.getClass());
     }
   }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public Document fromJson(Object json) {
+    if(json instanceof JsonObject) {
+      return fromJsonObject((JsonObject)json);
+    } else if(json instanceof Map) {
+      return fromJsonObject(new JsonObject((Map<String, Object>)json));
+    }
+    return super.fromJson(json);
+  }
 
   @Override
   public Document fromJson(final String json) {
     final JsonObject jsonObj = new JsonObject(json);
+    return fromJsonObject(jsonObj);
+  }
+  
+  private Document fromJsonObject(JsonObject jsonObj) {
     final Document doc = this.targetDocument == null ? this.targetDatabase.createDocument() : this.targetDocument;
     final Set<String> processedNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
     jsonObj.stream()
@@ -73,6 +96,8 @@ public class VertxJsonDeserializer extends AbstractJsonDeserializer {
                 this.detectDateTime, this.dateTimeItems, itemName, value.toString()));
           } else if (value instanceof Boolean || boolean.class.equals(value.getClass())) {
             doc.replaceItemValue(itemName, (Boolean) value ? this.trueValue : this.falseValue);
+          } else if(value instanceof TemporalAccessor) {
+            doc.replaceItemValue(itemName, value);
           } else if (value instanceof Iterable) {
             final List<Object> arr = new ArrayList<>();
             Object arrayType = null;
@@ -94,6 +119,8 @@ public class VertxJsonDeserializer extends AbstractJsonDeserializer {
                       this.dateTimeItems, itemName, arrVal.toString()));
                 } else if (arrVal instanceof Boolean || boolean.class.equals(arrVal.getClass())) {
                   result.add((Boolean) arrVal ? this.trueValue : this.falseValue);
+                } else if (arrVal instanceof TemporalAccessor) {
+                  result.add(arrVal);
                 }
               }
             }
