@@ -37,6 +37,7 @@ import com.hcl.domino.json.JsonDeserializer;
 import com.hcl.domino.json.JsonSerializerFactory;
 import com.hcl.domino.misc.JNXServiceFinder;
 
+import io.vertx.core.json.JsonObject;
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
@@ -57,6 +58,29 @@ public class TestVertxJsonDeserialization extends AbstractNotesRuntimeTest {
       deserializer.detectDateTime(true);
 
       Map<String, Object> obj = new HashMap<>();
+      obj.put("Form", "Hello");
+      LocalDate localDate = LocalDate.of(2022, 6, 24);
+      LocalTime localTime = LocalTime.of(11, 57, 20);
+      OffsetDateTime dt = OffsetDateTime.of(localDate, localTime, ZoneOffset.UTC);
+      Instant time = dt.toInstant();
+      obj.put("Time", time);
+
+      Document doc = deserializer.fromJson(obj);
+      
+      assertEquals("Hello", doc.get("Form", String.class, ""));
+      assertEquals(time, doc.get("Time", Instant.class, null));
+
+    });
+  }
+  
+  @Test
+  public void testInstantHandlingJsonObject() throws Exception {
+    this.withTempDb(database -> {
+      JsonDeserializer deserializer = new VertxJsonDeserializer();
+      deserializer.target(database);
+      deserializer.detectDateTime(true);
+
+      JsonObject obj = new JsonObject();
       obj.put("Form", "Hello");
       LocalDate localDate = LocalDate.of(2022, 6, 24);
       LocalTime localTime = LocalTime.of(11, 57, 20);
