@@ -29,8 +29,10 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Objects;
 
+import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.Formula;
+import com.hcl.domino.misc.JNXServiceFinder;
 
 /**
  * Utility class to programmatically compose syntactically correct
@@ -1015,4 +1017,21 @@ public class DQL {
     return new FormulaTerm(formula.getFormula());
   }
 
+  /**
+   * Parses DQL from a DQL expression string
+   * 
+   * @param dql dql
+   * @return parsed DQL
+   * @throws IllegalArgumentException in case of parsing errors
+   */
+  public static DQL parseDQL(String dql) throws IllegalArgumentException {
+    DQLExpressionParser parser = JNXServiceFinder.findRequiredService(DQLExpressionParser.class, DQLExpressionParser.class.getClassLoader());
+    return parser.parseDQL(dql);
+  }
+  
+  public static interface DQLExpressionParser {
+    
+    DQL parseDQL(String dql) throws IllegalArgumentException;
+    
+  }
 }
