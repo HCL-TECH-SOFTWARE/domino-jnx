@@ -46,6 +46,9 @@ public abstract class AbstractTemporalAccessorConverter {
 
   @SuppressWarnings("unchecked")
   protected <T> T convert(final DominoDateTime val, final Class<?> clazz) {
+    if(val == null) {
+      return null;
+    }
     return (T) AbstractTemporalAccessorConverter.accessors.entrySet()
         .stream()
         .filter(entry -> entry.getKey().test(clazz))

@@ -16,6 +16,8 @@
  */
 package com.hcl.domino.jnx.jsonb.service;
 
+import java.util.Map;
+
 import com.hcl.domino.commons.json.AbstractJsonDeserializer;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.jnx.jsonb.DocumentJsonbDeserializer;
@@ -28,6 +30,10 @@ public class JsonbDeserializer extends AbstractJsonDeserializer {
 
   @Override
   public Document fromJson(final Object json) {
+    if(json instanceof Map) {
+      String jsonString = JsonbBuilder.create().toJson(json);
+      return this.fromJson(jsonString);
+    }
     return this.fromJson(json.toString());
   }
 

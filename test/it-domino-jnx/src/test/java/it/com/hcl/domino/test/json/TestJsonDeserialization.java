@@ -16,7 +16,10 @@
  */
 package it.com.hcl.domino.test.json;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
@@ -24,7 +27,9 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.Temporal;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
@@ -460,6 +465,34 @@ public class TestJsonDeserialization extends AbstractNotesRuntimeTest {
           Assertions.assertEquals(OffsetDateTime.of(date, time, ZoneOffset.ofHours(-5)), OffsetDateTime.from(temporal));
         }
       }
+    });
+  }
+  
+  @ParameterizedTest
+  @ArgumentsSource(DeserializerProvider.class)
+  public void testInstant(final JsonDeserializer deserializer) throws Exception {
+    this.withTempDb(database -> {
+      Map<String, Object> obj = new HashMap<>();
+      obj.put("Form", "Hello");
+      LocalDate localDate = LocalDate.of(2022, 6, 24);
+      LocalTime localTime = LocalTime.of(11, 57, 20);
+      OffsetDateTime dt = OffsetDateTime.of(localDate, localTime, ZoneOffset.UTC);
+      Instant time = dt.toInstant();
+      obj.put("LocalDate", localDate);
+      obj.put("LocalTime", localTime);
+      obj.put("OffsetDateTime", dt);
+      obj.put("Time", time);
+      
+      Document doc = deserializer.target(database)
+                      .detectDateTime(true)
+                      .fromJson(obj);
+      
+      assertEquals("Hello", doc.get("Form", String.class, ""));
+      assertEquals(localDate, doc.get("LocalDate", LocalDate.class, null));
+      assertEquals(localTime, doc.get("LocalTime", LocalTime.class, null));
+      assertEquals(dt, doc.get("OffsetDateTime", OffsetDateTime.class, null));
+      assertEquals(time, doc.get("Time", Instant.class, null));
+
     });
   }
 }
