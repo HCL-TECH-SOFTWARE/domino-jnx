@@ -124,7 +124,7 @@ start
  ;
 
 term
- : docftterm | BROPEN term BRCLOSE (boolean BROPEN term BRCLOSE)+ | identifier operator_with_value | formulaexpression
+ : docftterm | BROPEN docftterm BRCLOSE | identifier operator_with_value | BROPEN identifier operator_with_value BRCLOSE | formulaexpression | BROPEN formulaexpression BRCLOSE | term (boolean term)+ | BROPEN term (boolean term)+ BRCLOSE
  ;
 
 identifier

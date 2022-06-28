@@ -2,37 +2,326 @@ package com.hcl.domino.commons.dql;
 
 import static java.text.MessageFormat.format;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
+
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import com.hcl.domino.commons.dql.parser.DQLLexer;
 import com.hcl.domino.commons.dql.parser.DQLListener;
 import com.hcl.domino.commons.dql.parser.DQLParser;
+import com.hcl.domino.commons.dql.parser.DQLParser.BooleanContext;
+import com.hcl.domino.commons.dql.parser.DQLParser.DatetimeContext;
+import com.hcl.domino.commons.dql.parser.DQLParser.EscapedstringContext;
+import com.hcl.domino.commons.dql.parser.DQLParser.FieldnameContext;
+import com.hcl.domino.commons.dql.parser.DQLParser.IdentifierContext;
+import com.hcl.domino.commons.dql.parser.DQLParser.NumberContext;
+import com.hcl.domino.commons.dql.parser.DQLParser.Operator_with_valueContext;
+import com.hcl.domino.commons.dql.parser.DQLParser.StartContext;
+import com.hcl.domino.commons.dql.parser.DQLParser.SubstitutionvarContext;
+import com.hcl.domino.commons.dql.parser.DQLParser.TermContext;
+import com.hcl.domino.commons.dql.parser.DQLParser.ValueContext;
+import com.hcl.domino.commons.dql.parser.DQLParser.ViewandcolumnnameContext;
 import com.hcl.domino.dql.DQL;
 import com.hcl.domino.dql.DQL.DQLExpressionParser;
+import com.hcl.domino.dql.DQL.DQLTerm;
+import com.hcl.domino.dql.DQL.NamedItem;
+import com.hcl.domino.dql.DQL.NamedViewColumn;
+import com.hcl.domino.dql.DQL.SpecialValue;
 
 public class DQLExpressionParserImpl implements DQLExpressionParser {
 
   @Override
-  public DQL parseDQL(String dql) throws IllegalArgumentException {
+  public DQLTerm parseDQL(String dql) throws IllegalArgumentException {
     DQLLexer dqlLexer = new DQLLexer(CharStreams.fromString(dql));
 
     CommonTokenStream tokens = new CommonTokenStream(dqlLexer);
     DQLParser parser = new DQLParser(tokens);
     ParseTree tree = parser.start();
 
-    DQLListenerImpl dqlListener = new DQLListenerImpl();
-    ParseTreeWalker walker = new ParseTreeWalker();
+//    DQLListenerImpl dqlListener = new DQLListenerImpl();
+//    ParseTreeWalker walker = new ParseTreeWalker();
 
-    walker.walk(dqlListener, tree);
+    DQLTerm dqlTerm = null;
+    if (tree instanceof StartContext) {
+      dqlTerm = toTerm((StartContext)tree)
+          .orElseThrow(() -> {
+            return new IllegalArgumentException(format("Unable to parse StartContext to DQL term: {0}", tree));
+          });
+    }
+    else if (tree instanceof TermContext) {
+      dqlTerm = toTerm((StartContext)tree)
+          .orElseThrow(() -> {
+            return new IllegalArgumentException(format("Unable to parse TermContext to DQL term: {0}", tree));
+          });
+    }
+    else {
+      throw new IllegalArgumentException(format("Unable to part TermContext to DQL term: {0}", tree));
+    }
+    
+    return dqlTerm;
+  }
 
-//    throw new IllegalArgumentException(format("Unable to parse DQL string: {0}", dql));
-    return null;
+  private enum BooleanOp { and, or, andNot, orNot }
+
+  private Optional<DQLTerm> toTerm(StartContext startCtx) {
+    if (startCtx.getChildCount()>0 && startCtx.getChild(0) instanceof TermContext) {
+      return toTerm((TermContext) startCtx.getChild(0));
+    }
+    
+    return Optional.empty();
+  }
+
+  private Optional<DQLTerm> toTerm(TermContext termCtx) {
+    Optional<DQLTerm> dqlTerm = toTermWithBooleanOps(termCtx);
+    
+    if (!dqlTerm.isPresent()) {
+      dqlTerm = toTermIdentifierEqualsValue(termCtx);
+    }
+    
+    return dqlTerm;
+  }
+   
+  private Optional<DQLTerm> toTermWithBooleanOps(TermContext termCtx) {
+    int n = termCtx.getChildCount();
+    if (n==0) {
+      return Optional.empty();
+    }
+
+    boolean hasBooleanCtx = termCtx.children.stream().anyMatch(BooleanContext.class::isInstance);
+    
+    if (hasBooleanCtx) {
+      //multiple DQL terms separated by and/or/and not/or not
+
+      BooleanOp booleanOp = null;
+      List<DQLTerm> nestedTerms = new ArrayList<>();
+
+      AtomicReference<ParseTree> currChild = new AtomicReference<>();
+      
+      for (int i=0; i<n; i++) {
+        currChild.set(termCtx.getChild(i));
+        
+        if (termCtx.getChild(i) instanceof TermContext) {
+          DQLTerm nestedTerm = toTerm((TermContext) termCtx.getChild(i))
+              .orElseThrow(() -> {
+                return new IllegalArgumentException(format("Unable to parse TermContext to a DQLTerm: {0}", currChild.get()));
+              });
+
+          nestedTerms.add(nestedTerm);
+        }
+        else if (termCtx.getChild(i) instanceof BooleanContext) {
+          BooleanOp currBooleanOp = toBooleanOp((BooleanContext) termCtx.getChild(i))
+              .orElseThrow(() -> {
+                return new IllegalArgumentException(format("Unable to parse BooleanContext to a DQL boolean operator: {0}", currChild.get()));
+              });
+
+          if (booleanOp!=null && booleanOp!=currBooleanOp) {
+            throw new IllegalArgumentException(format("DQL boolean operator cannot be mixed: {0}!={1}", booleanOp, currBooleanOp));
+          }
+          booleanOp = currBooleanOp;
+        }
+      }
+
+      if (booleanOp==null) {
+        throw new IllegalArgumentException(format("Unable to find DQL boolean operator", termCtx));
+      }
+
+      if (nestedTerms.isEmpty()) {
+        throw new IllegalArgumentException(format("No nested DQL terms found", termCtx));
+      }
+
+      switch (booleanOp) {
+      case and:
+        return Optional.of(DQL.and(nestedTerms.toArray(new DQLTerm[nestedTerms.size()])));
+      case or:
+        return Optional.of(DQL.or(nestedTerms.toArray(new DQLTerm[nestedTerms.size()])));
+      case andNot: {
+        List<DQLTerm> notTerms = nestedTerms
+            .stream()
+            .map(DQL::not)
+            .collect(Collectors.toList());
+
+        return Optional.of(DQL.and(notTerms.toArray(new DQLTerm[notTerms.size()])));
+      }
+      case orNot: {
+        List<DQLTerm> notTerms = nestedTerms
+            .stream()
+            .map(DQL::not)
+            .collect(Collectors.toList());
+        return Optional.of(DQL.or(notTerms.toArray(new DQLTerm[notTerms.size()])));
+      }
+      }
+    }
+
+    return Optional.empty();
+  }
+
+  private Optional<DQLTerm> toTermIdentifierEqualsValue(TermContext termCtx) {
+    int n = termCtx.getChildCount();
+    if (n!=2) {
+      return Optional.empty();
+    }
+
+    NamedItem namedItem = null;
+    NamedViewColumn namedViewColumn = null;
+    // missing @fl('xyz') > 0
+    SpecialValue specialValue = null;
+    
+    
+    if (termCtx.getChild(0) instanceof IdentifierContext) {
+      IdentifierContext identifierCtx = (IdentifierContext) termCtx.getChild(0);
+      if (identifierCtx.getChildCount()==1 && identifierCtx.getChild(0) instanceof FieldnameContext) {
+        FieldnameContext fieldNameCtx = (FieldnameContext) identifierCtx.getChild(0);
+        if (fieldNameCtx.getChildCount()==1 && fieldNameCtx.getChild(0) instanceof TerminalNode) {
+          namedItem = DQL.item(fieldNameCtx.getChild(0).getText());
+        }
+      }
+      else if(identifierCtx.getChildCount()==1 && identifierCtx.getChild(0) instanceof ViewandcolumnnameContext) {
+        ViewandcolumnnameContext viewAndColCtx = (ViewandcolumnnameContext) identifierCtx.getChild(0);
+        
+      }
+    }
+    
+    String opStr = null;
+    if (termCtx.getChild(1) instanceof Operator_with_valueContext) {
+      Operator_with_valueContext opWithValue = (Operator_with_valueContext) termCtx.getChild(1);
+      if (opWithValue.getChildCount()>0) {
+        opStr = opWithValue.getChild(0).getText();
+      }
+    }
+    
+    Number numberVal = null;
+    String isoDateTimeStr = null;
+    String escapedString = null;
+    String substitutionVar = null;
+    
+    if (termCtx.getChild(1) instanceof Operator_with_valueContext) {
+      Operator_with_valueContext opWithValue = (Operator_with_valueContext) termCtx.getChild(1);
+      if (opWithValue.getChildCount()==2) {
+       
+        if (opWithValue.getChild(0) instanceof TerminalNode) {
+          opStr = opWithValue.getChild(0).getText();
+        }
+        
+        if (opStr!=null) {
+          if (opWithValue.getChild(1) instanceof ValueContext) {
+            ValueContext valueCtx = (ValueContext) opWithValue.getChild(1);
+            if (valueCtx.getChildCount()==1) {
+              if (valueCtx.getChild(0) instanceof NumberContext) {
+                numberVal = Double.parseDouble(valueCtx.getChild(0).getText());
+              }
+              else if (valueCtx.getChild(0) instanceof DatetimeContext) {
+                isoDateTimeStr = valueCtx.getChild(0).getText();
+              }
+              else if (valueCtx.getChild(0) instanceof EscapedstringContext) {
+                escapedString = valueCtx.getChild(0).getText();
+              }
+              else if (valueCtx.getChild(0) instanceof SubstitutionvarContext) {
+                substitutionVar = valueCtx.getChild(0).getText();
+              }
+            }
+          }
+        }
+      }
+    }
+    
+    if (namedItem!=null) {
+      
+      if (numberVal!=null) {
+        if ("=".equals(opStr)) {
+          return Optional.of(namedItem.isEqualTo(numberVal.doubleValue()));
+        }
+        else if (">".equals(opStr)) {
+          return Optional.of(namedItem.isGreaterThan(numberVal.doubleValue()));
+        }
+        else if (">=".equals(opStr)) {
+          return Optional.of(namedItem.isGreaterThanOrEqual(numberVal.doubleValue()));
+        }
+        else if ("<".equals(opStr)) {
+          return Optional.of(namedItem.isLessThan(numberVal.doubleValue()));
+        }
+        else if ("<=".equals(opStr)) {
+          return Optional.of(namedItem.isLessThanOrEqual(numberVal.doubleValue()));
+        }
+      }
+      
+      if (escapedString!=null) {
+        if ("=".equals(opStr)) {
+          return Optional.of(namedItem.isEqualTo(unescapeString(escapedString)));
+        }
+        else if (">".equals(opStr)) {
+          return Optional.of(namedItem.isGreaterThan(unescapeString(escapedString)));
+        }
+        else if (">=".equals(opStr)) {
+          return Optional.of(namedItem.isGreaterThanOrEqual(unescapeString(escapedString)));
+        }
+        else if ("<".equals(opStr)) {
+          return Optional.of(namedItem.isLessThan(unescapeString(escapedString)));
+        }
+        else if ("<=".equals(opStr)) {
+          return Optional.of(namedItem.isLessThanOrEqual(unescapeString(escapedString)));
+        }
+      }
+    }
+    
+    return Optional.empty();
+  }
+
+  //  : EQUAL value  | GREATER value | LESS value | GREATEREQUAL value | LESSEQUAL value | operator_inall_list | operator_in_list | contains_all_list | contains_list
+
+  private String unescapeString(String str) {
+    if (!str.startsWith("'") || !str.endsWith("'")) {
+      throw new IllegalArgumentException(format("String value to unescape does not seem to be escaped: {0}", str));
+    }
+    str = str.substring(1);
+    str = str.substring(0, str.length()-1);
+    
+    StringBuilder sb = new StringBuilder();
+    for (int i=0; i<str.length(); i++) {
+      char c = str.charAt(i);
+      if (c == '\\') {
+        i++;
+        if (i<str.length()) {
+          if (str.charAt(i) == '\'') {
+            sb.append("'");
+            continue;
+          }
+        }
+        
+        sb.append(c);
+      }
+      else {
+        sb.append(c);
+      }
+    }
+    return sb.toString();
+  }
+  
+  private Optional<BooleanOp> toBooleanOp(BooleanContext booleanCtx) {
+    if (booleanCtx.getChildCount()==1 && booleanCtx.getChild(0) instanceof TerminalNode) {
+      String booleanOpStr = ((TerminalNode)booleanCtx.getChild(0)).getText().trim();
+      if ("and".equalsIgnoreCase(booleanOpStr)) {
+        return Optional.of(BooleanOp.and);
+      }
+      else if ("or".equalsIgnoreCase(booleanOpStr)) {
+        return Optional.of(BooleanOp.or);
+      }
+      else if ("and not".equalsIgnoreCase(booleanOpStr)) {
+        return Optional.of(BooleanOp.andNot);
+      }
+      else if ("or not".equalsIgnoreCase(booleanOpStr)) {
+        return Optional.of(BooleanOp.orNot);
+      }
+    }
+    return Optional.empty();
   }
 
   private static class DQLListenerImpl implements DQLListener {
@@ -307,12 +596,12 @@ public class DQLExpressionParserImpl implements DQLExpressionParser {
 
     @Override
     public void enterEveryRule(ParserRuleContext ctx) {
-//      System.out.println("enterEveryRule "+ctx);
+      //      System.out.println("enterEveryRule "+ctx);
     }
 
     @Override
     public void exitEveryRule(ParserRuleContext ctx) {
-//      System.out.println("exitEveryRule "+ctx);
+      //      System.out.println("exitEveryRule "+ctx);
     }
 
     @Override

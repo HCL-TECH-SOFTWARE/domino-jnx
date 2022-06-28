@@ -1021,17 +1021,17 @@ public class DQL {
    * Parses DQL from a DQL expression string
    * 
    * @param dql dql
-   * @return parsed DQL
+   * @return parsed DQL term
    * @throws IllegalArgumentException in case of parsing errors
    */
-  public static DQL parseDQL(String dql) throws IllegalArgumentException {
+  public static DQLTerm parseDQL(String dql) throws IllegalArgumentException {
     DQLExpressionParser parser = JNXServiceFinder.findRequiredService(DQLExpressionParser.class, DQLExpressionParser.class.getClassLoader());
     return parser.parseDQL(dql);
   }
   
   public static interface DQLExpressionParser {
     
-    DQL parseDQL(String dql) throws IllegalArgumentException;
+    DQLTerm parseDQL(String dql) throws IllegalArgumentException;
     
   }
 }
