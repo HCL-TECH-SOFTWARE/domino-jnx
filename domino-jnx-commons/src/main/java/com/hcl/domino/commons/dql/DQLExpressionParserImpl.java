@@ -2,6 +2,11 @@ package com.hcl.domino.commons.dql;
 
 import static java.text.MessageFormat.format;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,9 +51,6 @@ public class DQLExpressionParserImpl implements DQLExpressionParser {
     CommonTokenStream tokens = new CommonTokenStream(dqlLexer);
     DQLParser parser = new DQLParser(tokens);
     ParseTree tree = parser.start();
-
-//    DQLListenerImpl dqlListener = new DQLListenerImpl();
-//    ParseTreeWalker walker = new ParseTreeWalker();
 
     DQLTerm dqlTerm = null;
     if (tree instanceof StartContext) {
@@ -270,8 +272,43 @@ public class DQLExpressionParserImpl implements DQLExpressionParser {
           return Optional.of(namedItem.isLessThanOrEqual(unescapeString(escapedString)));
         }
       }
+
+      if (isoDateTimeStr!=null) {
+        if (isoDateTimeStr.startsWith("@dt('")) {
+          isoDateTimeStr = isoDateTimeStr.substring(5);
+        }
+        if (isoDateTimeStr.endsWith("')")) {
+          isoDateTimeStr = isoDateTimeStr.substring(0, isoDateTimeStr.length()-2);
+        }
+        
+        DateTimeFormatter FMT = new DateTimeFormatterBuilder()
+            .append(DateTimeFormatter.ISO_LOCAL_DATE)
+            .optionalStart() //time is optional
+            .appendLiteral('T')
+            .append(DateTimeFormatter.ISO_LOCAL_TIME)
+            .toFormatter();
+
+        TemporalAccessor dt = FMT.parseBest(isoDateTimeStr, LocalDateTime::from, LocalDate::from);        
+
+        if ("=".equals(opStr)) {
+          return Optional.of(namedItem.isEqualTo(dt));
+        }
+        else if (">".equals(opStr)) {
+          return Optional.of(namedItem.isGreaterThan(dt));
+        }
+        else if (">=".equals(opStr)) {
+          return Optional.of(namedItem.isGreaterThanOrEqual(dt));
+        }
+        else if ("<".equals(opStr)) {
+          return Optional.of(namedItem.isLessThan(dt));
+        }
+        else if ("<=".equals(opStr)) {
+          return Optional.of(namedItem.isLessThanOrEqual(dt));
+        }
+        
+      }
     }
-    
+
     return Optional.empty();
   }
 

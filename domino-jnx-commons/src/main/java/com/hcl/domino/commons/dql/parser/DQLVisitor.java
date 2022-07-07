@@ -1,7 +1,5 @@
 // Generated from DQL.g4 by ANTLR 4.10.1
-
 package com.hcl.domino.commons.dql.parser;
-
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**

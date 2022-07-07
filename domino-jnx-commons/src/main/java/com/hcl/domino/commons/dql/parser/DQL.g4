@@ -1,9 +1,5 @@
 grammar DQL;
 
-@header {
-package com.hcl.domino.commons.dql.parser;
-}
-
 options { caseInsensitive = true; }
 
 //*********************LEXER SPECIFICATION **************
