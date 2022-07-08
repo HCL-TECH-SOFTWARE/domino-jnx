@@ -383,7 +383,7 @@ public class DQL {
     }
   }
 
-  private enum SpecialValueType {
+  public enum SpecialValueType {
     MODIFIEDINTHISFLE("@ModifiedInThisFile"), //$NON-NLS-1$
     DOCUMENTUNIQUEID("@DocumentUniqueID"), //$NON-NLS-1$
     CREATED("@Created"); //$NON-NLS-1$

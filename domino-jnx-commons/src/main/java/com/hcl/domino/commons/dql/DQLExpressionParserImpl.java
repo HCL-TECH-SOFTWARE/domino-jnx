@@ -23,6 +23,7 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import com.hcl.domino.commons.dql.parser.DQLLexer;
 import com.hcl.domino.commons.dql.parser.DQLListener;
 import com.hcl.domino.commons.dql.parser.DQLParser;
+import com.hcl.domino.commons.dql.parser.DQLParser.AtfunctionContext;
 import com.hcl.domino.commons.dql.parser.DQLParser.BooleanContext;
 import com.hcl.domino.commons.dql.parser.DQLParser.DatetimeContext;
 import com.hcl.domino.commons.dql.parser.DQLParser.EscapedstringContext;
@@ -41,6 +42,7 @@ import com.hcl.domino.dql.DQL.DQLTerm;
 import com.hcl.domino.dql.DQL.NamedItem;
 import com.hcl.domino.dql.DQL.NamedViewColumn;
 import com.hcl.domino.dql.DQL.SpecialValue;
+import com.hcl.domino.dql.DQL.SpecialValueType;
 
 public class DQLExpressionParserImpl implements DQLExpressionParser {
 
@@ -74,31 +76,82 @@ public class DQLExpressionParserImpl implements DQLExpressionParser {
 
   private enum BooleanOp { and, or, andNot, orNot }
 
+  private List<ParseTree> childrenNoEOF(ParseTree parent) {
+    List<ParseTree> list = new ArrayList<>();
+    
+    int n = parent.getChildCount();
+    for (int i=0; i<n; i++) {
+     list.add(parent.getChild(i));
+    }
+    
+    if (!list.isEmpty()) {
+      if (parent instanceof StartContext) {
+        if (list.get(list.size()-1) instanceof TerminalNode && "<EOF>".equals(list.get(list.size()-1).getText())) {
+          list.remove(list.size()-1);
+        }        
+      }
+    }
+
+    if (!list.isEmpty()) {
+      if (list.get(0) instanceof TerminalNode && "(".equals(list.get(0).getText())) {
+        list.remove(0);
+      }
+    }
+    
+    if (!list.isEmpty()) {
+      if (list.get(list.size()-1) instanceof TerminalNode && ")".equals(list.get(list.size()-1).getText())) {
+        list.remove(list.size()-1);
+      }
+    }
+
+    return list;
+  }
+  
+  /**
+   * Starting point to traverse the tree
+   * 
+   * @param startCtx start context
+   * @return DQL term if found
+   */
   private Optional<DQLTerm> toTerm(StartContext startCtx) {
-    if (startCtx.getChildCount()>0 && startCtx.getChild(0) instanceof TermContext) {
+    List<ParseTree> childrenNoEOF = childrenNoEOF(startCtx);
+    
+    if (childrenNoEOF.size()==1 && startCtx.getChild(0) instanceof TermContext) {
       return toTerm((TermContext) startCtx.getChild(0));
     }
     
-    return Optional.empty();
+    return toTermWithBooleanOps(startCtx);
   }
 
   private Optional<DQLTerm> toTerm(TermContext termCtx) {
-    Optional<DQLTerm> dqlTerm = toTermWithBooleanOps(termCtx);
-    
-    if (!dqlTerm.isPresent()) {
-      dqlTerm = toTermIdentifierEqualsValue(termCtx);
+    List<ParseTree> childrenNoEOF = childrenNoEOF(termCtx);
+    if (childrenNoEOF.size()==1 && termCtx.getChild(0) instanceof TermContext) {
+      return toTerm((TermContext) termCtx.getChild(0));
     }
     
-    return dqlTerm;
+    boolean hasBooleanCtx = termCtx.children.stream().anyMatch(BooleanContext.class::isInstance);
+
+    if (hasBooleanCtx) {
+      return toTermWithBooleanOps(termCtx);
+    }
+    else {
+      Optional<DQLTerm> dqlTerm = toTermIdentifierEqualsValue(termCtx);
+      
+      return dqlTerm;
+    }
   }
-   
-  private Optional<DQLTerm> toTermWithBooleanOps(TermContext termCtx) {
-    int n = termCtx.getChildCount();
-    if (n==0) {
+  
+  private Optional<DQLTerm> toTermWithBooleanOps(ParseTree termCtx) {
+    List<ParseTree> childrenNoEOF = childrenNoEOF(termCtx);
+    
+    if (childrenNoEOF.isEmpty()) {
       return Optional.empty();
     }
-
-    boolean hasBooleanCtx = termCtx.children.stream().anyMatch(BooleanContext.class::isInstance);
+    else if (childrenNoEOF.size()==1 && childrenNoEOF.get(0) instanceof TermContext) {
+      return toTerm((TermContext)childrenNoEOF.get(0));
+    }
+    
+    boolean hasBooleanCtx = childrenNoEOF.stream().anyMatch(BooleanContext.class::isInstance);
     
     if (hasBooleanCtx) {
       //multiple DQL terms separated by and/or/and not/or not
@@ -106,23 +159,23 @@ public class DQLExpressionParserImpl implements DQLExpressionParser {
       BooleanOp booleanOp = null;
       List<DQLTerm> nestedTerms = new ArrayList<>();
 
-      AtomicReference<ParseTree> currChild = new AtomicReference<>();
+      AtomicReference<ParseTree> currChildRef = new AtomicReference<>();
       
-      for (int i=0; i<n; i++) {
-        currChild.set(termCtx.getChild(i));
+      for (ParseTree currChild : childrenNoEOF) {
+        currChildRef.set(currChild);
         
-        if (termCtx.getChild(i) instanceof TermContext) {
-          DQLTerm nestedTerm = toTerm((TermContext) termCtx.getChild(i))
+        if (currChild instanceof TermContext) {
+          DQLTerm nestedTerm = toTerm((TermContext) currChild)
               .orElseThrow(() -> {
-                return new IllegalArgumentException(format("Unable to parse TermContext to a DQLTerm: {0}", currChild.get()));
+                return new IllegalArgumentException(format("Unable to parse TermContext to a DQLTerm: {0}", currChildRef.get()));
               });
 
           nestedTerms.add(nestedTerm);
         }
-        else if (termCtx.getChild(i) instanceof BooleanContext) {
-          BooleanOp currBooleanOp = toBooleanOp((BooleanContext) termCtx.getChild(i))
+        else if (currChild instanceof BooleanContext) {
+          BooleanOp currBooleanOp = toBooleanOp((BooleanContext) currChild)
               .orElseThrow(() -> {
-                return new IllegalArgumentException(format("Unable to parse BooleanContext to a DQL boolean operator: {0}", currChild.get()));
+                return new IllegalArgumentException(format("Unable to parse BooleanContext to a DQL boolean operator: {0}", currChildRef.get()));
               });
 
           if (booleanOp!=null && booleanOp!=currBooleanOp) {
@@ -167,8 +220,9 @@ public class DQLExpressionParserImpl implements DQLExpressionParser {
   }
 
   private Optional<DQLTerm> toTermIdentifierEqualsValue(TermContext termCtx) {
-    int n = termCtx.getChildCount();
-    if (n!=2) {
+    List<ParseTree> childrenNoEOF = childrenNoEOF(termCtx);
+    
+    if (childrenNoEOF.size()!=2) {
       return Optional.empty();
     }
 
@@ -178,8 +232,9 @@ public class DQLExpressionParserImpl implements DQLExpressionParser {
     SpecialValue specialValue = null;
     
     
-    if (termCtx.getChild(0) instanceof IdentifierContext) {
-      IdentifierContext identifierCtx = (IdentifierContext) termCtx.getChild(0);
+    if (childrenNoEOF.get(0) instanceof IdentifierContext) {
+      IdentifierContext identifierCtx = (IdentifierContext) childrenNoEOF.get(0);
+      
       if (identifierCtx.getChildCount()==1 && identifierCtx.getChild(0) instanceof FieldnameContext) {
         FieldnameContext fieldNameCtx = (FieldnameContext) identifierCtx.getChild(0);
         if (fieldNameCtx.getChildCount()==1 && fieldNameCtx.getChild(0) instanceof TerminalNode) {
@@ -190,11 +245,27 @@ public class DQLExpressionParserImpl implements DQLExpressionParser {
         ViewandcolumnnameContext viewAndColCtx = (ViewandcolumnnameContext) identifierCtx.getChild(0);
         
       }
+      else if(identifierCtx.getChildCount()==1 && identifierCtx.getChild(0) instanceof AtfunctionContext) {
+        AtfunctionContext atFctCtx = (AtfunctionContext) identifierCtx.getChild(0);
+        String atFctName = atFctCtx.getChild(0).getText();
+        if ("@documentuniqueid".equalsIgnoreCase(atFctName)) {
+          specialValue = DQL.documentUniqueId();
+        }
+        else if ("@created".equalsIgnoreCase(atFctName)) {
+          specialValue = DQL.created();
+        }
+        else if ("@modifiedinthisfile".equalsIgnoreCase(atFctName)) {
+          specialValue = DQL.modifiedInThisFile();
+        }
+        else {
+          throw new IllegalArgumentException(format("Unknown @function in DQL expression: ", atFctName));
+        }
+      }
     }
     
     String opStr = null;
-    if (termCtx.getChild(1) instanceof Operator_with_valueContext) {
-      Operator_with_valueContext opWithValue = (Operator_with_valueContext) termCtx.getChild(1);
+    if (childrenNoEOF.get(1) instanceof Operator_with_valueContext) {
+      Operator_with_valueContext opWithValue = (Operator_with_valueContext) childrenNoEOF.get(1);
       if (opWithValue.getChildCount()>0) {
         opStr = opWithValue.getChild(0).getText();
       }
@@ -205,8 +276,8 @@ public class DQLExpressionParserImpl implements DQLExpressionParser {
     String escapedString = null;
     String substitutionVar = null;
     
-    if (termCtx.getChild(1) instanceof Operator_with_valueContext) {
-      Operator_with_valueContext opWithValue = (Operator_with_valueContext) termCtx.getChild(1);
+    if (childrenNoEOF.get(1) instanceof Operator_with_valueContext) {
+      Operator_with_valueContext opWithValue = (Operator_with_valueContext) childrenNoEOF.get(1);
       if (opWithValue.getChildCount()==2) {
        
         if (opWithValue.getChild(0) instanceof TerminalNode) {
@@ -305,7 +376,70 @@ public class DQLExpressionParserImpl implements DQLExpressionParser {
         else if ("<=".equals(opStr)) {
           return Optional.of(namedItem.isLessThanOrEqual(dt));
         }
+      }
+
+      if (substitutionVar!=null) {
+        throw new IllegalArgumentException("Substitution variables in DQL are currently unsupported by the parser/JNX DQL API");
+      }
+    }
+
+    if (specialValue!=null) {
+      if (specialValue.getType()==SpecialValueType.DOCUMENTUNIQUEID) {
+        if (escapedString!=null) {
+          if ("=".equals(opStr)) {
+            return Optional.of(specialValue.isEqualTo(unescapeString(escapedString)));
+          }
+          else if (">".equals(opStr)) {
+            return Optional.of(specialValue.isGreaterThan(unescapeString(escapedString)));
+          }
+          else if (">=".equals(opStr)) {
+            return Optional.of(specialValue.isGreaterThanOrEqual(unescapeString(escapedString)));
+          }
+          else if ("<".equals(opStr)) {
+            return Optional.of(specialValue.isLessThan(unescapeString(escapedString)));
+          }
+          else if ("<=".equals(opStr)) {
+            return Optional.of(specialValue.isLessThanOrEqual(unescapeString(escapedString)));
+          }
+        }
+      }
+      else if (specialValue.getType()==SpecialValueType.CREATED ||
+          specialValue.getType()==SpecialValueType.MODIFIEDINTHISFLE) {
         
+        if (isoDateTimeStr!=null) {
+          if (isoDateTimeStr.startsWith("@dt('")) {
+            isoDateTimeStr = isoDateTimeStr.substring(5);
+          }
+          if (isoDateTimeStr.endsWith("')")) {
+            isoDateTimeStr = isoDateTimeStr.substring(0, isoDateTimeStr.length()-2);
+          }
+          
+          DateTimeFormatter FMT = new DateTimeFormatterBuilder()
+              .append(DateTimeFormatter.ISO_LOCAL_DATE)
+              .optionalStart() //time is optional
+              .appendLiteral('T')
+              .append(DateTimeFormatter.ISO_LOCAL_TIME)
+              .toFormatter();
+
+          TemporalAccessor dt = FMT.parseBest(isoDateTimeStr, LocalDateTime::from, LocalDate::from);        
+
+          if ("=".equals(opStr)) {
+            return Optional.of(specialValue.isEqualTo(dt));
+          }
+          else if (">".equals(opStr)) {
+            return Optional.of(specialValue.isGreaterThan(dt));
+          }
+          else if (">=".equals(opStr)) {
+            return Optional.of(specialValue.isGreaterThanOrEqual(dt));
+          }
+          else if ("<".equals(opStr)) {
+            return Optional.of(specialValue.isLessThan(dt));
+          }
+          else if ("<=".equals(opStr)) {
+            return Optional.of(specialValue.isLessThanOrEqual(dt));
+          }
+
+        }
       }
     }
 
