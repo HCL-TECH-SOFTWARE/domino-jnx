@@ -610,7 +610,9 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
       assertEquals(response.getDocumentClass(), docClass);
       
       assertEquals(parentUnid, meta.getString(JsonSerializer.PROP_META_PARENTUNID));
-      assertTrue(meta.getString(JsonSerializer.PROP_META_REVISION).startsWith(response.getUNID()));
+      String revision = meta.getString(JsonSerializer.PROP_META_REVISION);
+      assertNotNull(revision);
+      assertFalse(revision.isEmpty());
       assertTrue(meta.getBoolean(JsonSerializer.PROP_META_UNREAD));
       assertEquals(parentUnid, meta.getString(JsonSerializer.PROP_META_THREADID));
     });

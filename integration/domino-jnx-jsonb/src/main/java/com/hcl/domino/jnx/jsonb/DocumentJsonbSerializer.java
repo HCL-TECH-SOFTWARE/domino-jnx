@@ -22,6 +22,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Formatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +41,7 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoDateRange;
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.DominoOriginatorId;
 import com.hcl.domino.data.DominoTimeType;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.exception.EntryNotFoundInIndexException;
@@ -309,7 +311,19 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
       generator.writeEnd();
       
       generator.write(JsonSerializer.PROP_META_UNREAD, obj.isUnread());
-      generator.write(JsonSerializer.PROP_META_REVISION, obj.getOID().toString());
+      
+      {
+        DominoOriginatorId oid = obj.getOID();
+        int[] seqTime = oid.getSequenceTime().getAdapter(int[].class);
+        
+        try(Formatter formatter = new Formatter()) {
+          formatter.format("%08x", oid.getSequence()); //$NON-NLS-1$
+          formatter.format("%08x", seqTime[0]); //$NON-NLS-1$
+          formatter.format("%08x", seqTime[1]); //$NON-NLS-1$
+          generator.write(JsonSerializer.PROP_META_REVISION, formatter.toString().toUpperCase());
+        }
+      }
+      
       if(obj.isResponse()) {
         generator.write(JsonSerializer.PROP_META_PARENTUNID, obj.getParentDocumentUNID());
       }

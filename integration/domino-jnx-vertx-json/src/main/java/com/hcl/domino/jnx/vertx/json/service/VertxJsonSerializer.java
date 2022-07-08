@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.Formatter;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -41,6 +42,7 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoDateRange;
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.DominoOriginatorId;
 import com.hcl.domino.data.DominoTimeType;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.DesignAgent;
@@ -142,7 +144,17 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
               .map(DocumentClass::name)
               .collect(Collectors.toList()));
       meta.put(JsonSerializer.PROP_META_UNREAD, doc.isUnread());
-      meta.put(JsonSerializer.PROP_META_REVISION, doc.getOID().toString());
+      {
+        DominoOriginatorId oid = doc.getOID();
+        int[] seqTime = oid.getSequenceTime().getAdapter(int[].class);
+        
+        try(Formatter formatter = new Formatter()) {
+          formatter.format("%08x", oid.getSequence()); //$NON-NLS-1$
+          formatter.format("%08x", seqTime[0]); //$NON-NLS-1$
+          formatter.format("%08x", seqTime[1]); //$NON-NLS-1$
+          meta.put(JsonSerializer.PROP_META_REVISION, formatter.toString().toUpperCase());
+        }
+      }
       
       if(doc.isResponse()) {
         meta.put(JsonSerializer.PROP_META_PARENTUNID, doc.getParentDocumentUNID());
