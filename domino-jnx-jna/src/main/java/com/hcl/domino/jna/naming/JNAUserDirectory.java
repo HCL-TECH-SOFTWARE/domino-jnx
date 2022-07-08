@@ -148,11 +148,11 @@ public class JNAUserDirectory implements UserDirectory {
 			hReturn
 		));
 		
-		return LockUtil.lockHandle(hReturn, hBuffer -> {
-			return Mem.OSLockObject(hBuffer, ptr -> {
-				int count = returnCount.getValue();
-				Set<String> result = new LinkedHashSet<>(count);
-				
+		return LockUtil.lockHandle(hReturn, hReturnByVal -> {
+      int count = returnCount.getValue();
+		  Set<String> result = new LinkedHashSet<>(count);
+		  
+			Mem.OSLockObject(hReturnByVal, ptr -> {
 				Pointer strPtr = ptr.share(0);
 				for(int i = 0; i < count; i++) {
 					int strlen = NotesStringUtils.getNullTerminatedLength(strPtr);
@@ -164,8 +164,12 @@ public class JNAUserDirectory implements UserDirectory {
 					strPtr = strPtr.share(strlen);
 				}
 				
-				return result;
+				return null;
 			});
+			
+			Mem.OSMemFree(hReturnByVal);
+			
+			return result;
 		});
 	}
 
