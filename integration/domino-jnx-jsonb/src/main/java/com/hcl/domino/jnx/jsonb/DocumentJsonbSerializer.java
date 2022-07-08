@@ -307,6 +307,17 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
         generator.write(c.name());
       }
       generator.writeEnd();
+      
+      generator.write(JsonSerializer.PROP_META_UNREAD, obj.isUnread());
+      generator.write(JsonSerializer.PROP_META_REVISION, obj.getOID().toString());
+      if(obj.isResponse()) {
+        generator.write(JsonSerializer.PROP_META_PARENTUNID, obj.getParentDocumentUNID());
+      }
+      String threadId = obj.getThreadID();
+      if(threadId != null && !threadId.isEmpty()) {
+        generator.write(JsonSerializer.PROP_META_THREADID, threadId);
+      }
+      
       generator.writeEnd();
     }
 

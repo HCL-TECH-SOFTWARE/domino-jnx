@@ -16,14 +16,14 @@
  */
 package com.hcl.domino.jna.data;
 
-import java.text.MessageFormat;
 import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
+import java.util.Formatter;
 
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.DominoOriginatorId;
 import com.hcl.domino.data.DominoUniversalNoteId;
 import com.hcl.domino.data.IAdaptable;
-import com.hcl.domino.data.DominoOriginatorId;
 import com.hcl.domino.jna.internal.structs.NotesOriginatorIdStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.sun.jna.Pointer;
@@ -189,6 +189,18 @@ public class JNADominoOriginatorId implements DominoOriginatorId, IAdaptable {
 	
 	@Override
 	public String toString() {
-		return MessageFormat.format("JNADominoOriginatorId [unid={0}, seq={1}, seqtime={2}]", getUNID(), getSequence(), getSequenceTime()); //$NON-NLS-1$
+	  StringBuilder result = new StringBuilder();
+	  result.append(getUNID());
+	  
+	  int[] seqTime = getSequenceTime().getAdapter(int[].class);
+	  
+	  try(Formatter formatter = new Formatter()) {
+	    formatter.format("%08x", getSequence()); //$NON-NLS-1$
+      formatter.format("%08x", seqTime[0]); //$NON-NLS-1$
+      formatter.format("%08x", seqTime[1]); //$NON-NLS-1$
+      result.append(formatter.toString().toUpperCase());
+	  }
+	  
+		return result.toString();
 	}
 }

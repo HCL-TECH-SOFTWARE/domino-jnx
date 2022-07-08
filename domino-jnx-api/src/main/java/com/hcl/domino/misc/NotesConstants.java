@@ -4720,4 +4720,6 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   /** Unsafe is any <code>@func</code> that creates/modifies anything (i.e. not "read only") */
   int COMPUTE_CAPABILITY_UNSAFE = 0x0000002F;
 
+  /** Non-documented item containing the thread ID for the document when thread tracking is enabled. */
+  String ITEM_THREAD_ID = "$TUA"; //$NON-NLS-1$
 }

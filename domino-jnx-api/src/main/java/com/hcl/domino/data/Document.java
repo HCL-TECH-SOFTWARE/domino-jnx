@@ -805,6 +805,18 @@ public interface Document extends TypedAccess, IAdaptable {
    * @return signer or empty string if not signed
    */
   String getSigner();
+  
+  /**
+   * Retrieves the thread ID of this document, if present.
+   * <p>
+   * This is equivalent to calling {@code get("$TUA", String.class, "")}.
+   * </p>
+   *
+   * @return the document's thread ID, or an empty string if the document
+   *         has no stored thread
+   * @since 1.11.0
+   */
+  String getThreadID();
 
   /**
    * Retrieves the universal ID of the document, which is unique across replicas.

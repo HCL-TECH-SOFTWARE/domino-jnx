@@ -141,6 +141,16 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
           doc.getDocumentClass().stream()
               .map(DocumentClass::name)
               .collect(Collectors.toList()));
+      meta.put(JsonSerializer.PROP_META_UNREAD, doc.isUnread());
+      meta.put(JsonSerializer.PROP_META_REVISION, doc.getOID().toString());
+      
+      if(doc.isResponse()) {
+        meta.put(JsonSerializer.PROP_META_PARENTUNID, doc.getParentDocumentUNID());
+      }
+      String threadId = doc.getThreadID();
+      if(threadId != null && !threadId.isEmpty()) {
+        meta.put(JsonSerializer.PROP_META_THREADID, threadId);
+      }
     }
 
     doc.forEachItem((item, loop) -> {
