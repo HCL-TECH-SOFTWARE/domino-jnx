@@ -25,6 +25,7 @@ import java.util.EnumSet;
 import java.util.Formatter;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Spliterator;
 import java.util.TreeMap;
@@ -327,9 +328,9 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
       if(obj.isResponse()) {
         generator.write(JsonSerializer.PROP_META_PARENTUNID, obj.getParentDocumentUNID());
       }
-      String threadId = obj.getThreadID();
-      if(threadId != null && !threadId.isEmpty()) {
-        generator.write(JsonSerializer.PROP_META_THREADID, threadId);
+      Optional<String> threadId = obj.getThreadID();
+      if(threadId.isPresent()) {
+        generator.write(JsonSerializer.PROP_META_THREADID, threadId.get());
       }
       
       generator.writeEnd();

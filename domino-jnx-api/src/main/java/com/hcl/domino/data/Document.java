@@ -812,11 +812,11 @@ public interface Document extends TypedAccess, IAdaptable {
    * This is equivalent to calling {@code get("$TUA", String.class, "")}.
    * </p>
    *
-   * @return the document's thread ID, or an empty string if the document
-   *         has no stored thread
+   * @return an {@link Optional} describing the the document's thread ID,
+   *         or an empty one if the document has no stored thread
    * @since 1.11.0
    */
-  String getThreadID();
+  Optional<String> getThreadID();
 
   /**
    * Retrieves the universal ID of the document, which is unique across replicas.

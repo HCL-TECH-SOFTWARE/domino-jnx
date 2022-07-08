@@ -538,6 +538,8 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
       final TemporalAccessor added = DateTimeFormatter.ISO_OFFSET_DATE_TIME
           .parse(meta.getString(JsonSerializer.PROP_META_ADDEDTOFILE));
       assertEquals(doc.getAddedToFile().toOffsetDateTime(), OffsetDateTime.from(added));
+      assertFalse(meta.containsKey(JsonSerializer.PROP_META_THREADID));
+      assertFalse(meta.containsKey(JsonSerializer.PROP_META_PARENTUNID));
 
       final JsonArray docClassArray = meta.getJsonArray(JsonSerializer.PROP_META_NOTECLASS);
       final Collection<DocumentClass> docClass = docClassArray.stream()

@@ -683,8 +683,13 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 	
 	@Override
-	public String getThreadID() {
-	  return get(NotesConstants.ITEM_THREAD_ID, String.class, ""); //$NON-NLS-1$
+	public Optional<String> getThreadID() {
+	  String id = get(NotesConstants.ITEM_THREAD_ID, String.class, ""); //$NON-NLS-1$
+	  if(id != null && !id.isEmpty()) {
+	    return Optional.of(id);
+	  } else {
+	    return Optional.empty();
+	  }
 	}
 
 	@Override

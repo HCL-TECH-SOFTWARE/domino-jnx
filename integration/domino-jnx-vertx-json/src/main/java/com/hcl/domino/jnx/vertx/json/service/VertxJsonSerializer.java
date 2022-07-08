@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Formatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -159,9 +160,9 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
       if(doc.isResponse()) {
         meta.put(JsonSerializer.PROP_META_PARENTUNID, doc.getParentDocumentUNID());
       }
-      String threadId = doc.getThreadID();
-      if(threadId != null && !threadId.isEmpty()) {
-        meta.put(JsonSerializer.PROP_META_THREADID, threadId);
+      Optional<String> threadId = doc.getThreadID();
+      if(threadId.isPresent()) {
+        meta.put(JsonSerializer.PROP_META_THREADID, threadId.get());
       }
     }
 
