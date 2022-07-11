@@ -166,202 +166,204 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
       }
     }
 
-    doc.forEachItem((item, loop) -> {
-      final String itemName = item.getName();
-      if (itemName != null && !handledItems.contains(itemName)) {
-        handledItems.add(itemName);
-
-        if (this.includedItemNames != null && !this.includedItemNames.contains(itemName)) {
-          // Skip
-          return;
-        }
-
-        final ItemDataType type = item.getType();
-        if ((this.excludedTypes != null && this.excludedTypes.contains(type)) || AbstractJsonSerializer.isExcludedField(itemName)) {
-          return;
-        }
-
-        final String propName = this.lowercaseProperties ? itemName.toLowerCase() : itemName;
-
-        if (this.customProcessors.containsKey(itemName)) {
-          result.put(propName, this.customProcessors.get(itemName).apply(doc, itemName));
-          return;
-        }
-
-        switch (type) {
-          case TYPE_NUMBER: {
-            final double value = item.get(double.class, 0d);
-            if (this.booleanItemNames.contains(propName)) {
-              final boolean val = AbstractJsonSerializer.matchesBooleanValues(value, this.booleanTrueValues);
-              result.put(propName, val);
-            } else {
-              result.put(propName, value);
-            }
-            break;
+    if(!this.metaOnly) {
+      doc.forEachItem((item, loop) -> {
+        final String itemName = item.getName();
+        if (itemName != null && !handledItems.contains(itemName)) {
+          handledItems.add(itemName);
+  
+          if (this.includedItemNames != null && !this.includedItemNames.contains(itemName)) {
+            // Skip
+            return;
           }
-          case TYPE_NUMBER_RANGE: {
-            final List<Double> vals = item.getAsList(Double.class, Collections.emptyList());
-            if (this.booleanItemNames.contains(propName)) {
-              if (vals.size() == 1) {
-                final boolean val = AbstractJsonSerializer.matchesBooleanValues(vals.get(0), this.booleanTrueValues);
+  
+          final ItemDataType type = item.getType();
+          if ((this.excludedTypes != null && this.excludedTypes.contains(type)) || AbstractJsonSerializer.isExcludedField(itemName)) {
+            return;
+          }
+  
+          final String propName = this.lowercaseProperties ? itemName.toLowerCase() : itemName;
+  
+          if (this.customProcessors.containsKey(itemName)) {
+            result.put(propName, this.customProcessors.get(itemName).apply(doc, itemName));
+            return;
+          }
+  
+          switch (type) {
+            case TYPE_NUMBER: {
+              final double value = item.get(double.class, 0d);
+              if (this.booleanItemNames.contains(propName)) {
+                final boolean val = AbstractJsonSerializer.matchesBooleanValues(value, this.booleanTrueValues);
                 result.put(propName, val);
               } else {
-                result.put(propName, false);
+                result.put(propName, value);
               }
-            } else {
-              result.put(propName, vals);
+              break;
             }
-            break;
-          }
-          case TYPE_RFC822_TEXT:
-          case TYPE_TEXT: {
-            final String val = item.get(String.class, null);
-            if (this.booleanItemNames.contains(propName)) {
-              final boolean boolVal = AbstractJsonSerializer.matchesBooleanValues(val, this.booleanTrueValues);
-              result.put(propName, boolVal);
-            } else {
-              if (val == null) {
+            case TYPE_NUMBER_RANGE: {
+              final List<Double> vals = item.getAsList(Double.class, Collections.emptyList());
+              if (this.booleanItemNames.contains(propName)) {
+                if (vals.size() == 1) {
+                  final boolean val = AbstractJsonSerializer.matchesBooleanValues(vals.get(0), this.booleanTrueValues);
+                  result.put(propName, val);
+                } else {
+                  result.put(propName, false);
+                }
+              } else {
+                result.put(propName, vals);
+              }
+              break;
+            }
+            case TYPE_RFC822_TEXT:
+            case TYPE_TEXT: {
+              final String val = item.get(String.class, null);
+              if (this.booleanItemNames.contains(propName)) {
+                final boolean boolVal = AbstractJsonSerializer.matchesBooleanValues(val, this.booleanTrueValues);
+                result.put(propName, boolVal);
+              } else {
+                if (val == null) {
+                  result.putNull(propName);
+                } else {
+                  result.put(propName, val);
+                }
+              }
+              break;
+            }
+            case TYPE_TEXT_LIST: {
+              final List<String> vals = item.getAsList(String.class, Collections.emptyList());
+              if (this.booleanItemNames.contains(propName)) {
+                if (vals.size() == 1) {
+                  final boolean val = AbstractJsonSerializer.matchesBooleanValues(vals.get(0), this.booleanTrueValues);
+                  result.put(propName, val);
+                } else {
+                  result.put(propName, false);
+                }
+              } else {
+                result.put(propName, vals);
+              }
+              break;
+            }
+            case TYPE_TIME: {
+              final DominoTimeType val = item.get(DominoTimeType.class, null);
+              this.writeTimeProperty(result, propName, val);
+              break;
+            }
+            case TYPE_TIME_RANGE: {
+              final List<DominoTimeType> vals = item.getAsList(DominoTimeType.class, Collections.emptyList());
+              if (vals.size() == 1) {
+                this.writeTimeProperty(result, propName, vals.get(0));
+              } else {
+                result.put(propName,
+                    vals.stream()
+                        .map(dt -> {
+                          if (dt instanceof DominoDateTime) {
+                            return JsonUtil.toIsoString((DominoDateTime) dt);
+                          } else {
+                            switch (this.dateRangeFormat) {
+                              case OBJECT:
+                                final JsonObject inner = new JsonObject();
+                                inner.put(JsonSerializer.PROP_RANGE_FROM, ((DominoDateRange) dt).getStartDateTime());
+                                inner.put(JsonSerializer.PROP_RANGE_TO, ((DominoDateRange) dt).getEndDateTime());
+                                return result;
+                              case ISO:
+                              default:
+                                return JsonUtil.toIsoString((DominoDateRange) dt);
+                            }
+                          }
+                        })
+                        .collect(Collectors.toList()));
+              }
+              break;
+            }
+            case TYPE_COMPOSITE:
+              try {
+                final RichTextHTMLConverter.Builder builder = doc.getParentDatabase()
+                    .getParentDominoClient()
+                    .getRichTextHtmlConverter()
+                    .renderItem(doc, propName);
+                if (this.htmlConvertOptions.isEmpty()) {
+                  builder.option(HtmlConvertOption.XMLCompatibleHTML, "1"); //$NON-NLS-1$
+                } else {
+                  this.htmlConvertOptions.forEach(builder::option);
+                }
+                final HtmlConversionResult conv = builder.convert();
+                result.put(propName, conv.getHtml());
+              } catch (ItemNotFoundException | EntryNotFoundInIndexException e) {
+                // Occurs with design notes
+                result.put(propName, ""); //$NON-NLS-1$
+              } catch (final DominoException e) {
+                switch (e.getId()) {
+                  case 14941:
+                  case 14944:
+                    // Un-messaged error codes observed with design notes
+                    result.put(propName, ""); //$NON-NLS-1$
+                    break;
+                  default:
+                    throw e;
+                }
+              }
+              break;
+            case TYPE_MIME_PART:
+              // TODO read inline?
+              // TODO rationalize multiple body types
+              final MimeMessage mime = doc.getParentDatabase()
+                  .getParentDominoClient()
+                  .getMimeReader()
+                  .readMIME(doc, propName, EnumSet.of(ReadMimeDataType.MIMEHEADERS));
+              String content;
+              try (InputStream is = mime.getInputStream()) {
+                content = IOUtils.toString(is, StandardCharsets.UTF_8);
+              } catch (IOException | MessagingException e) {
+                throw new RuntimeException(e);
+              }
+              if (content == null) {
                 result.putNull(propName);
               } else {
-                result.put(propName, val);
+                result.put(propName, content.toString());
               }
-            }
-            break;
+              break;
+            case TYPE_HTML:
+              // TODO this is probably a specialized value, but the underlying API could
+              // handle converting to string
+              break;
+            case TYPE_USERDATA:
+              // TODO Base64? Custom adapters?
+              break;
+            case TYPE_FORMULA:
+            case TYPE_ERROR:
+            case TYPE_NOTEREF_LIST:
+              // TODO convert to string?
+              break;
+            case TYPE_ACTION:
+            case TYPE_ASSISTANT_INFO:
+            case TYPE_CALENDAR_FORMAT:
+            case TYPE_COLLATION:
+            case TYPE_HIGHLIGHTS:
+            case TYPE_ICON:
+            case TYPE_INVALID_OR_UNKNOWN:
+            case TYPE_LSOBJECT:
+            case TYPE_NOTELINK_LIST:
+            case TYPE_OBJECT:
+            case TYPE_QUERY:
+            case TYPE_SCHED_LIST:
+            case TYPE_SEAL:
+            case TYPE_SEAL2:
+            case TYPE_SEALDATA:
+            case TYPE_SEAL_LIST:
+            case TYPE_SIGNATURE:
+            case TYPE_UNAVAILABLE:
+            case TYPE_USERID:
+            case TYPE_VIEWMAP_DATASET:
+            case TYPE_VIEWMAP_LAYOUT:
+            case TYPE_VIEW_FORMAT:
+            case TYPE_WORKSHEET_DATA:
+            default:
+              break;
+  
           }
-          case TYPE_TEXT_LIST: {
-            final List<String> vals = item.getAsList(String.class, Collections.emptyList());
-            if (this.booleanItemNames.contains(propName)) {
-              if (vals.size() == 1) {
-                final boolean val = AbstractJsonSerializer.matchesBooleanValues(vals.get(0), this.booleanTrueValues);
-                result.put(propName, val);
-              } else {
-                result.put(propName, false);
-              }
-            } else {
-              result.put(propName, vals);
-            }
-            break;
-          }
-          case TYPE_TIME: {
-            final DominoTimeType val = item.get(DominoTimeType.class, null);
-            this.writeTimeProperty(result, propName, val);
-            break;
-          }
-          case TYPE_TIME_RANGE: {
-            final List<DominoTimeType> vals = item.getAsList(DominoTimeType.class, Collections.emptyList());
-            if (vals.size() == 1) {
-              this.writeTimeProperty(result, propName, vals.get(0));
-            } else {
-              result.put(propName,
-                  vals.stream()
-                      .map(dt -> {
-                        if (dt instanceof DominoDateTime) {
-                          return JsonUtil.toIsoString((DominoDateTime) dt);
-                        } else {
-                          switch (this.dateRangeFormat) {
-                            case OBJECT:
-                              final JsonObject inner = new JsonObject();
-                              inner.put(JsonSerializer.PROP_RANGE_FROM, ((DominoDateRange) dt).getStartDateTime());
-                              inner.put(JsonSerializer.PROP_RANGE_TO, ((DominoDateRange) dt).getEndDateTime());
-                              return result;
-                            case ISO:
-                            default:
-                              return JsonUtil.toIsoString((DominoDateRange) dt);
-                          }
-                        }
-                      })
-                      .collect(Collectors.toList()));
-            }
-            break;
-          }
-          case TYPE_COMPOSITE:
-            try {
-              final RichTextHTMLConverter.Builder builder = doc.getParentDatabase()
-                  .getParentDominoClient()
-                  .getRichTextHtmlConverter()
-                  .renderItem(doc, propName);
-              if (this.htmlConvertOptions.isEmpty()) {
-                builder.option(HtmlConvertOption.XMLCompatibleHTML, "1"); //$NON-NLS-1$
-              } else {
-                this.htmlConvertOptions.forEach(builder::option);
-              }
-              final HtmlConversionResult conv = builder.convert();
-              result.put(propName, conv.getHtml());
-            } catch (ItemNotFoundException | EntryNotFoundInIndexException e) {
-              // Occurs with design notes
-              result.put(propName, ""); //$NON-NLS-1$
-            } catch (final DominoException e) {
-              switch (e.getId()) {
-                case 14941:
-                case 14944:
-                  // Un-messaged error codes observed with design notes
-                  result.put(propName, ""); //$NON-NLS-1$
-                  break;
-                default:
-                  throw e;
-              }
-            }
-            break;
-          case TYPE_MIME_PART:
-            // TODO read inline?
-            // TODO rationalize multiple body types
-            final MimeMessage mime = doc.getParentDatabase()
-                .getParentDominoClient()
-                .getMimeReader()
-                .readMIME(doc, propName, EnumSet.of(ReadMimeDataType.MIMEHEADERS));
-            String content;
-            try (InputStream is = mime.getInputStream()) {
-              content = IOUtils.toString(is, StandardCharsets.UTF_8);
-            } catch (IOException | MessagingException e) {
-              throw new RuntimeException(e);
-            }
-            if (content == null) {
-              result.putNull(propName);
-            } else {
-              result.put(propName, content.toString());
-            }
-            break;
-          case TYPE_HTML:
-            // TODO this is probably a specialized value, but the underlying API could
-            // handle converting to string
-            break;
-          case TYPE_USERDATA:
-            // TODO Base64? Custom adapters?
-            break;
-          case TYPE_FORMULA:
-          case TYPE_ERROR:
-          case TYPE_NOTEREF_LIST:
-            // TODO convert to string?
-            break;
-          case TYPE_ACTION:
-          case TYPE_ASSISTANT_INFO:
-          case TYPE_CALENDAR_FORMAT:
-          case TYPE_COLLATION:
-          case TYPE_HIGHLIGHTS:
-          case TYPE_ICON:
-          case TYPE_INVALID_OR_UNKNOWN:
-          case TYPE_LSOBJECT:
-          case TYPE_NOTELINK_LIST:
-          case TYPE_OBJECT:
-          case TYPE_QUERY:
-          case TYPE_SCHED_LIST:
-          case TYPE_SEAL:
-          case TYPE_SEAL2:
-          case TYPE_SEALDATA:
-          case TYPE_SEAL_LIST:
-          case TYPE_SIGNATURE:
-          case TYPE_UNAVAILABLE:
-          case TYPE_USERID:
-          case TYPE_VIEWMAP_DATASET:
-          case TYPE_VIEWMAP_LAYOUT:
-          case TYPE_VIEW_FORMAT:
-          case TYPE_WORKSHEET_DATA:
-          default:
-            break;
-
         }
-      }
-    });
+      });
+    }
 
     return result;
   }

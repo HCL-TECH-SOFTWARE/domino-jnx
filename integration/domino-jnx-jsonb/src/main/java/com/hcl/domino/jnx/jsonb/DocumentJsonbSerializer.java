@@ -72,6 +72,7 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
     private DateRangeFormat dateRangeFormat = DateRangeFormat.ISO;
     private Map<HtmlConvertOption, String> htmlConvertOptions;
     protected Map<String, BiFunction<Document, String, Object>> customProcessors = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private boolean metaOnly;
 
     private Builder() {
     }
@@ -134,6 +135,7 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
       result.dateRangeFormat = this.dateRangeFormat;
       result.htmlConvertOptions = this.htmlConvertOptions;
       result.customProcessors = this.customProcessors;
+      result.metaOnly = metaOnly;
 
       return result;
     }
@@ -249,6 +251,20 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
       this.htmlConvertOptions = richTextHtmlOptions;
       return this;
     }
+    
+    /**
+     * Sets whether or not the serializer will emit only the {@code @meta} object
+     * and its attributes, as opposed to also including the full document contents.
+     * 
+     * @param metaOnly {@code true} to emit only metadata; {@code false} (the default)
+     *                 to emit both meta and document data
+     * @return this serializer
+     * @since 1.11.0
+     */
+    public Builder metaOnly(boolean metaOnly) {
+      this.metaOnly = metaOnly;
+      return this;
+    }
   }
 
   /**
@@ -279,6 +295,7 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
   private DateRangeFormat dateRangeFormat;
   Map<HtmlConvertOption, String> htmlConvertOptions;
   Map<String, BiFunction<Document, String, Object>> customProcessors;
+  private boolean metaOnly;
 
   private DocumentJsonbSerializer() {
   }
@@ -336,218 +353,220 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
       generator.writeEnd();
     }
 
-    obj.forEachItem((item, loop) -> {
-      final String itemName = item.getName();
-      if (itemName != null && !handledItems.contains(itemName)) {
-        handledItems.add(itemName);
-
-        if (this.includedItemNames != null && !this.includedItemNames.contains(itemName)) {
-          // Skip
-          return;
-        }
-
-        final ItemDataType type = item.getType();
-        if ((this.excludedTypes != null && this.excludedTypes.contains(type)) || AbstractJsonSerializer.isExcludedField(itemName)) {
-          return;
-        }
-
-        final String propName = this.lowercaseProperties ? itemName.toLowerCase() : itemName;
-
-        if (this.customProcessors != null && this.customProcessors.containsKey(itemName)) {
-          final Object val = this.customProcessors.get(itemName).apply(obj, itemName);
-          this.writeArbitraryValue(generator, ctx, propName, val);
-          return;
-        }
-
-        switch (type) {
-          case TYPE_NUMBER: {
-            final double value = item.get(double.class, 0d);
-            if (this.booleanItemNames.contains(propName)) {
-              final boolean val = AbstractJsonSerializer.matchesBooleanValues(value, this.booleanTrueValues);
-              generator.write(propName, val);
-            } else {
-              generator.write(propName, value);
-            }
-            break;
+    if(!this.metaOnly) {
+      obj.forEachItem((item, loop) -> {
+        final String itemName = item.getName();
+        if (itemName != null && !handledItems.contains(itemName)) {
+          handledItems.add(itemName);
+  
+          if (this.includedItemNames != null && !this.includedItemNames.contains(itemName)) {
+            // Skip
+            return;
           }
-          case TYPE_NUMBER_RANGE: {
-            final List<Double> vals = item.getAsList(Double.class, Collections.emptyList());
-            if (this.booleanItemNames.contains(propName)) {
-              if (vals.size() == 1) {
-                final boolean val = AbstractJsonSerializer.matchesBooleanValues(vals.get(0), this.booleanTrueValues);
+  
+          final ItemDataType type = item.getType();
+          if ((this.excludedTypes != null && this.excludedTypes.contains(type)) || AbstractJsonSerializer.isExcludedField(itemName)) {
+            return;
+          }
+  
+          final String propName = this.lowercaseProperties ? itemName.toLowerCase() : itemName;
+  
+          if (this.customProcessors != null && this.customProcessors.containsKey(itemName)) {
+            final Object val = this.customProcessors.get(itemName).apply(obj, itemName);
+            this.writeArbitraryValue(generator, ctx, propName, val);
+            return;
+          }
+  
+          switch (type) {
+            case TYPE_NUMBER: {
+              final double value = item.get(double.class, 0d);
+              if (this.booleanItemNames.contains(propName)) {
+                final boolean val = AbstractJsonSerializer.matchesBooleanValues(value, this.booleanTrueValues);
                 generator.write(propName, val);
               } else {
-                generator.write(propName, false);
+                generator.write(propName, value);
               }
-            } else {
-              generator.writeStartArray(propName);
-              for (final Double val : vals) {
-                generator.write(val);
-              }
-              generator.writeEnd();
+              break;
             }
-            break;
-          }
-          case TYPE_RFC822_TEXT:
-          case TYPE_TEXT: {
-            final String val = item.get(String.class, null);
-            if (this.booleanItemNames.contains(propName)) {
-              final boolean boolVal = AbstractJsonSerializer.matchesBooleanValues(val, this.booleanTrueValues);
-              generator.write(propName, boolVal);
-            } else {
-              if (val == null) {
-                generator.writeNull(propName);
-              } else {
-                generator.write(propName, val);
-              }
-            }
-            break;
-          }
-          case TYPE_TEXT_LIST: {
-            final List<String> vals = item.getAsList(String.class, Collections.emptyList());
-            if (this.booleanItemNames.contains(propName)) {
-              if (vals.size() == 1) {
-                final boolean val = AbstractJsonSerializer.matchesBooleanValues(vals.get(0), this.booleanTrueValues);
-                generator.write(propName, val);
-              } else {
-                generator.write(propName, false);
-              }
-            } else {
-              generator.writeStartArray(propName);
-              for (final String val : vals) {
-                generator.write(val);
-              }
-              generator.writeEnd();
-            }
-            break;
-          }
-          case TYPE_TIME: {
-            final DominoTimeType val = item.get(DominoTimeType.class, null);
-            this.writeTimeProperty(generator, propName, val);
-            break;
-          }
-          case TYPE_TIME_RANGE: {
-            final List<DominoTimeType> vals = item.getAsList(DominoTimeType.class, Collections.emptyList());
-            if (vals.size() == 1) {
-              this.writeTimeProperty(generator, propName, vals.get(0));
-            } else {
-              generator.writeStartArray(propName);
-              for (final DominoTimeType val : vals) {
-                if (val == null) {
-                  generator.writeNull();
+            case TYPE_NUMBER_RANGE: {
+              final List<Double> vals = item.getAsList(Double.class, Collections.emptyList());
+              if (this.booleanItemNames.contains(propName)) {
+                if (vals.size() == 1) {
+                  final boolean val = AbstractJsonSerializer.matchesBooleanValues(vals.get(0), this.booleanTrueValues);
+                  generator.write(propName, val);
                 } else {
-                  if (val instanceof DominoDateTime) {
-                    generator.write(JsonUtil.toIsoString((DominoDateTime) val));
+                  generator.write(propName, false);
+                }
+              } else {
+                generator.writeStartArray(propName);
+                for (final Double val : vals) {
+                  generator.write(val);
+                }
+                generator.writeEnd();
+              }
+              break;
+            }
+            case TYPE_RFC822_TEXT:
+            case TYPE_TEXT: {
+              final String val = item.get(String.class, null);
+              if (this.booleanItemNames.contains(propName)) {
+                final boolean boolVal = AbstractJsonSerializer.matchesBooleanValues(val, this.booleanTrueValues);
+                generator.write(propName, boolVal);
+              } else {
+                if (val == null) {
+                  generator.writeNull(propName);
+                } else {
+                  generator.write(propName, val);
+                }
+              }
+              break;
+            }
+            case TYPE_TEXT_LIST: {
+              final List<String> vals = item.getAsList(String.class, Collections.emptyList());
+              if (this.booleanItemNames.contains(propName)) {
+                if (vals.size() == 1) {
+                  final boolean val = AbstractJsonSerializer.matchesBooleanValues(vals.get(0), this.booleanTrueValues);
+                  generator.write(propName, val);
+                } else {
+                  generator.write(propName, false);
+                }
+              } else {
+                generator.writeStartArray(propName);
+                for (final String val : vals) {
+                  generator.write(val);
+                }
+                generator.writeEnd();
+              }
+              break;
+            }
+            case TYPE_TIME: {
+              final DominoTimeType val = item.get(DominoTimeType.class, null);
+              this.writeTimeProperty(generator, propName, val);
+              break;
+            }
+            case TYPE_TIME_RANGE: {
+              final List<DominoTimeType> vals = item.getAsList(DominoTimeType.class, Collections.emptyList());
+              if (vals.size() == 1) {
+                this.writeTimeProperty(generator, propName, vals.get(0));
+              } else {
+                generator.writeStartArray(propName);
+                for (final DominoTimeType val : vals) {
+                  if (val == null) {
+                    generator.writeNull();
                   } else {
-                    switch (this.dateRangeFormat) {
-                      case OBJECT:
-                        generator.writeStartObject();
-                        generator.write(JsonSerializer.PROP_RANGE_FROM,
-                            JsonUtil.toIsoString(((DominoDateRange) val).getStartDateTime()));
-                        generator.write(JsonSerializer.PROP_RANGE_TO,
-                            JsonUtil.toIsoString(((DominoDateRange) val).getEndDateTime()));
-                        generator.writeEnd();
-                        break;
-                      case ISO:
-                      default:
-                        generator.write(JsonUtil.toIsoString((DominoDateRange) val));
-                        break;
+                    if (val instanceof DominoDateTime) {
+                      generator.write(JsonUtil.toIsoString((DominoDateTime) val));
+                    } else {
+                      switch (this.dateRangeFormat) {
+                        case OBJECT:
+                          generator.writeStartObject();
+                          generator.write(JsonSerializer.PROP_RANGE_FROM,
+                              JsonUtil.toIsoString(((DominoDateRange) val).getStartDateTime()));
+                          generator.write(JsonSerializer.PROP_RANGE_TO,
+                              JsonUtil.toIsoString(((DominoDateRange) val).getEndDateTime()));
+                          generator.writeEnd();
+                          break;
+                        case ISO:
+                        default:
+                          generator.write(JsonUtil.toIsoString((DominoDateRange) val));
+                          break;
+                      }
                     }
                   }
                 }
+                generator.writeEnd();
               }
-              generator.writeEnd();
+              break;
             }
-            break;
-          }
-          case TYPE_COMPOSITE:
-            try {
-              final RichTextHTMLConverter.Builder builder = obj.getParentDatabase()
+            case TYPE_COMPOSITE:
+              try {
+                final RichTextHTMLConverter.Builder builder = obj.getParentDatabase()
+                    .getParentDominoClient()
+                    .getRichTextHtmlConverter()
+                    .renderItem(obj, propName);
+                if (this.htmlConvertOptions == null || this.htmlConvertOptions.isEmpty()) {
+                  builder.option(HtmlConvertOption.XMLCompatibleHTML, "1"); //$NON-NLS-1$
+                } else {
+                  this.htmlConvertOptions.forEach(builder::option);
+                }
+                final HtmlConversionResult conv = builder.convert();
+                generator.write(propName, conv.getHtml());
+              } catch (ItemNotFoundException | EntryNotFoundInIndexException e) {
+                // Occurs with design notes
+                generator.write(propName, ""); //$NON-NLS-1$
+              } catch (final DominoException e) {
+                switch (e.getId()) {
+                  case 14941:
+                  case 14944:
+                    // Un-messaged error codes observed with design notes
+                    generator.write(propName, ""); //$NON-NLS-1$
+                    break;
+                  default:
+                    throw e;
+                }
+              }
+              break;
+            case TYPE_MIME_PART:
+              // TODO read inline?
+              // TODO rationalize multiple body types
+              final MimeMessage mime = obj.getParentDatabase()
                   .getParentDominoClient()
-                  .getRichTextHtmlConverter()
-                  .renderItem(obj, propName);
-              if (this.htmlConvertOptions == null || this.htmlConvertOptions.isEmpty()) {
-                builder.option(HtmlConvertOption.XMLCompatibleHTML, "1"); //$NON-NLS-1$
+                  .getMimeReader()
+                  .readMIME(obj, propName, EnumSet.of(ReadMimeDataType.MIMEHEADERS));
+              String content;
+              try (InputStream is = mime.getInputStream()) {
+                content = IOUtils.toString(is, StandardCharsets.UTF_8);
+              } catch (IOException | MessagingException e) {
+                throw new RuntimeException(e);
+              }
+              if (content == null) {
+                generator.writeNull(propName);
               } else {
-                this.htmlConvertOptions.forEach(builder::option);
+                generator.write(propName, content.toString());
               }
-              final HtmlConversionResult conv = builder.convert();
-              generator.write(propName, conv.getHtml());
-            } catch (ItemNotFoundException | EntryNotFoundInIndexException e) {
-              // Occurs with design notes
-              generator.write(propName, ""); //$NON-NLS-1$
-            } catch (final DominoException e) {
-              switch (e.getId()) {
-                case 14941:
-                case 14944:
-                  // Un-messaged error codes observed with design notes
-                  generator.write(propName, ""); //$NON-NLS-1$
-                  break;
-                default:
-                  throw e;
-              }
-            }
-            break;
-          case TYPE_MIME_PART:
-            // TODO read inline?
-            // TODO rationalize multiple body types
-            final MimeMessage mime = obj.getParentDatabase()
-                .getParentDominoClient()
-                .getMimeReader()
-                .readMIME(obj, propName, EnumSet.of(ReadMimeDataType.MIMEHEADERS));
-            String content;
-            try (InputStream is = mime.getInputStream()) {
-              content = IOUtils.toString(is, StandardCharsets.UTF_8);
-            } catch (IOException | MessagingException e) {
-              throw new RuntimeException(e);
-            }
-            if (content == null) {
-              generator.writeNull(propName);
-            } else {
-              generator.write(propName, content.toString());
-            }
-            break;
-          case TYPE_HTML:
-            // TODO this is probably a specialized value, but the underlying API could
-            // handle converting to string
-            break;
-          case TYPE_USERDATA:
-            // TODO Base64? Custom adapters?
-            break;
-          case TYPE_FORMULA:
-          case TYPE_ERROR:
-          case TYPE_NOTEREF_LIST:
-            // TODO convert to string?
-            break;
-          case TYPE_ACTION:
-          case TYPE_ASSISTANT_INFO:
-          case TYPE_CALENDAR_FORMAT:
-          case TYPE_COLLATION:
-          case TYPE_HIGHLIGHTS:
-          case TYPE_ICON:
-          case TYPE_INVALID_OR_UNKNOWN:
-          case TYPE_LSOBJECT:
-          case TYPE_NOTELINK_LIST:
-          case TYPE_OBJECT:
-          case TYPE_QUERY:
-          case TYPE_SCHED_LIST:
-          case TYPE_SEAL:
-          case TYPE_SEAL2:
-          case TYPE_SEALDATA:
-          case TYPE_SEAL_LIST:
-          case TYPE_SIGNATURE:
-          case TYPE_UNAVAILABLE:
-          case TYPE_USERID:
-          case TYPE_VIEWMAP_DATASET:
-          case TYPE_VIEWMAP_LAYOUT:
-          case TYPE_VIEW_FORMAT:
-          case TYPE_WORKSHEET_DATA:
-          default:
-            break;
-
+              break;
+            case TYPE_HTML:
+              // TODO this is probably a specialized value, but the underlying API could
+              // handle converting to string
+              break;
+            case TYPE_USERDATA:
+              // TODO Base64? Custom adapters?
+              break;
+            case TYPE_FORMULA:
+            case TYPE_ERROR:
+            case TYPE_NOTEREF_LIST:
+              // TODO convert to string?
+              break;
+            case TYPE_ACTION:
+            case TYPE_ASSISTANT_INFO:
+            case TYPE_CALENDAR_FORMAT:
+            case TYPE_COLLATION:
+            case TYPE_HIGHLIGHTS:
+            case TYPE_ICON:
+            case TYPE_INVALID_OR_UNKNOWN:
+            case TYPE_LSOBJECT:
+            case TYPE_NOTELINK_LIST:
+            case TYPE_OBJECT:
+            case TYPE_QUERY:
+            case TYPE_SCHED_LIST:
+            case TYPE_SEAL:
+            case TYPE_SEAL2:
+            case TYPE_SEALDATA:
+            case TYPE_SEAL_LIST:
+            case TYPE_SIGNATURE:
+            case TYPE_UNAVAILABLE:
+            case TYPE_USERID:
+            case TYPE_VIEWMAP_DATASET:
+            case TYPE_VIEWMAP_LAYOUT:
+            case TYPE_VIEW_FORMAT:
+            case TYPE_WORKSHEET_DATA:
+            default:
+              break;
+  
+          }
         }
-      }
-    });
+      });
+    }
 
     generator.writeEnd();
   }

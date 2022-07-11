@@ -234,6 +234,17 @@ public interface JsonSerializer {
    * @since 1.0.27
    */
   JsonSerializer richTextConvertOption(HtmlConvertOption option, String value);
+  
+  /**
+   * Sets whether or not the serializer will emit only the {@link #PROP_METADATA} object
+   * and its attributes, as opposed to also including the full document contents.
+   * 
+   * @param metaOnly {@code true} to emit only metadata; {@code false} (the default)
+   *                 to emit both meta and document data
+   * @return this serializer
+   * @since 1.11.0
+   */
+  JsonSerializer metaOnly(boolean metaOnly);
 
   /**
    * Serializes the provided document as a JSON object using the implementation's

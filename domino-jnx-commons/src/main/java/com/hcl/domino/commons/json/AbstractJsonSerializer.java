@@ -41,6 +41,7 @@ public abstract class AbstractJsonSerializer implements JsonSerializer {
 
   protected boolean lowercaseProperties;
   protected boolean includeMetadata;
+  protected boolean metaOnly;
 
   protected Collection<String> booleanItemNames = Collections.emptySet();
 
@@ -140,6 +141,12 @@ public abstract class AbstractJsonSerializer implements JsonSerializer {
   @Override
   public JsonSerializer richTextConvertOption(final HtmlConvertOption option, final String value) {
     this.htmlConvertOptions.put(option, value);
+    return this;
+  }
+  
+  @Override
+  public JsonSerializer metaOnly(boolean metaOnly) {
+    this.metaOnly = metaOnly;
     return this;
   }
 

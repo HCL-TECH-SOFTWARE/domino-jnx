@@ -551,6 +551,59 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
 
     });
   }
+  
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testMetadataOnly(final JsonSerializer serializerParam) throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("Foo", "bar");
+      doc.replaceItemValue("Bar", "baz");
+      doc.save();
+
+      final JsonSerializer serializer = serializerParam
+          .includeMetadata(true)
+          .metaOnly(true);
+
+      final String jsonString = serializer.toJsonString(doc);
+      assertFalse(StringUtil.isEmpty(jsonString), "JSON should not be empty");
+      final JsonObject json = Json.createReader(new StringReader(jsonString)).readObject();
+      assertNotEquals(null, json, "JSON object should not be null");
+      assertFalse(json.containsKey("Foo"));
+      assertFalse(json.containsKey("Bar"));
+
+      assertTrue(json.containsKey("@meta"), "JSON should contain a metadata object");
+      final JsonObject meta = json.getJsonObject("@meta");
+      assertNotEquals(null, meta, "Metadata object should not be null");
+      assertEquals(doc.getNoteID(), meta.getInt(JsonSerializer.PROP_META_NOTEID));
+      assertEquals(doc.getUNID(), meta.getString(JsonSerializer.PROP_META_UNID));
+      final TemporalAccessor cdate = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(meta.getString(JsonSerializer.PROP_META_CREATED));
+      assertEquals(doc.getCreated().toOffsetDateTime(), OffsetDateTime.from(cdate));
+      final TemporalAccessor mdate = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+          .parse(meta.getString(JsonSerializer.PROP_META_LASTMODIFIED));
+      assertEquals(doc.getLastModified().toOffsetDateTime(), OffsetDateTime.from(mdate));
+      final TemporalAccessor adate = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+          .parse(meta.getString(JsonSerializer.PROP_META_LASTACCESSED));
+      assertEquals(doc.getLastAccessed().toOffsetDateTime(), OffsetDateTime.from(adate));
+      final TemporalAccessor fdate = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+          .parse(meta.getString(JsonSerializer.PROP_META_LASTMODIFIEDINFILE));
+      assertEquals(doc.getModifiedInThisFile().toOffsetDateTime(), OffsetDateTime.from(fdate));
+      final TemporalAccessor added = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+          .parse(meta.getString(JsonSerializer.PROP_META_ADDEDTOFILE));
+      assertEquals(doc.getAddedToFile().toOffsetDateTime(), OffsetDateTime.from(added));
+      assertFalse(meta.containsKey(JsonSerializer.PROP_META_THREADID));
+      assertFalse(meta.containsKey(JsonSerializer.PROP_META_PARENTUNID));
+
+      final JsonArray docClassArray = meta.getJsonArray(JsonSerializer.PROP_META_NOTECLASS);
+      final Collection<DocumentClass> docClass = docClassArray.stream()
+          .map(JsonString.class::cast)
+          .map(JsonString::getString)
+          .map(DocumentClass::valueOf)
+          .collect(Collectors.toSet());
+      assertEquals(doc.getDocumentClass(), docClass);
+
+    });
+  }
 
   @ParameterizedTest
   @ArgumentsSource(SerializerProvider.class)
