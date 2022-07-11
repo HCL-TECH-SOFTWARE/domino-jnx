@@ -155,7 +155,7 @@ public abstract class AbstractJsonSerializer implements JsonSerializer {
    * @return whether the item should be excluded from export
    */
   public static boolean isExcludedField(final String itemName) {
-    if (itemName == null || itemName.isEmpty() || itemName.toLowerCase().endsWith("_storedform") || itemName.toLowerCase().endsWith("_storedsubform")) { //$NON-NLS-1$
+    if (itemName == null || itemName.isEmpty() || itemName.toLowerCase().endsWith("_storedform") || itemName.toLowerCase().endsWith("_storedsubform")) { //$NON-NLS-1$ //$NON-NLS-2$
       return true;
     }
     return false;
