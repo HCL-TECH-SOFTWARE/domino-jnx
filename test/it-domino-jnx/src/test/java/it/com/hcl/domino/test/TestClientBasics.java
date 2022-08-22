@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -62,6 +63,28 @@ public class TestClientBasics extends AbstractNotesRuntimeTest {
     final String expected = "CN=Foo Bar/O=Baz";
     try (DominoClient fooClient = DominoClientBuilder.newDominoClient()
         .asUser(expected)
+        .build()) {
+
+      Assertions.assertEquals(expected, fooClient.getEffectiveUserName());
+      Assertions.assertNotEquals(expected, fooClient.getIDUserName());
+      Assertions.assertEquals(client.getIDUserName(), fooClient.getIDUserName());
+      Assertions.assertNotEquals(client.getEffectiveUserName(), fooClient.getEffectiveUserName());
+      this.withTempDb(fooClient, db -> {
+        final Optional<UserNamesList> namesList = db.getNamesList();
+        Assertions.assertTrue(namesList.isPresent());
+        Assertions.assertEquals(expected, namesList.get().getPrimaryName());
+      });
+    }
+
+  }
+
+  @Test
+  public void testArbitraryUsernameList() throws Exception {
+    final DominoClient client = this.getClient();
+
+    final String expected = "CN=Foo Bar/O=Baz";
+    try (DominoClient fooClient = DominoClientBuilder.newDominoClient()
+        .asUser(Arrays.asList(expected))
         .build()) {
 
       Assertions.assertEquals(expected, fooClient.getEffectiveUserName());

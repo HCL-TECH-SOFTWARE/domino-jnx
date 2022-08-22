@@ -255,7 +255,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   @Override
   public String getEffectiveUserName() {
     if (m_effectiveUserName == null) {
-      if (m_builderIsAsId || StringUtil.isEmpty(m_builderUserName)) {
+      if (m_builderIsAsId) {
         m_effectiveUserName = getIDUserName();
       } else if (!StringUtil.isEmpty(m_builderUserName)) {
         m_effectiveUserName = NotesNamingUtils.toCanonicalName(m_builderUserName);
