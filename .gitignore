@@ -12,6 +12,7 @@ buildNumber.properties
 .classpath
 .settings
 .project
+.factorypath
 .vertx
 .metadata
 .DS_Store

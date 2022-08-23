@@ -681,6 +681,16 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			retNoteId.dispose();
 		}
 	}
+	
+	@Override
+	public Optional<String> getThreadID() {
+	  String id = get(NotesConstants.ITEM_THREAD_ID, String.class, ""); //$NON-NLS-1$
+	  if(id != null && !id.isEmpty()) {
+	    return Optional.of(id);
+	  } else {
+	    return Optional.empty();
+	  }
+	}
 
 	@Override
 	public String getUNID() {
