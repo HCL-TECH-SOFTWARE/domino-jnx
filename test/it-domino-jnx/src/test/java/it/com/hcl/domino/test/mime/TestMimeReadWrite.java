@@ -20,9 +20,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -56,8 +58,13 @@ import com.hcl.domino.mime.RichTextMimeConversionSettings.MessageContentEncoding
 import com.hcl.domino.richtext.RichTextWriter;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
+import jakarta.mail.Address;
 import jakarta.mail.BodyPart;
+import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
+import jakarta.mail.Session;
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.util.ByteArrayDataSource;
@@ -229,8 +236,8 @@ public class TestMimeReadWrite extends AbstractNotesRuntimeTest {
 
       // add some required fields required by Apache Commons Email
       mail.setFrom("mr.sender@acme.com", "Mr. Sender");
-      mail.addTo("mr.receiver@acme.com", "Mr. Receiver");
-      mail.addTo("mr.receiver2@acme.com", "Mr. Receiver 2");
+      mail.addTo("mr.receiver@acme.com");
+      mail.addTo("mr.receiver2@acme.com");
       mail.setHostName("acme.com");
 
       final String subjectWrite = "Testmail";
@@ -298,8 +305,8 @@ public class TestMimeReadWrite extends AbstractNotesRuntimeTest {
         item.convertRFC822TextItem();
         Assertions.assertEquals(ItemDataType.TYPE_TEXT_LIST, item.getType(), "SendTo is text after conversion");
         final List<String> read = item.getAsList(String.class, Collections.emptyList());
-        Assertions.assertEquals("\"Mr. Receiver\" <mr.receiver@acme.com>", read.get(0), "SendTo ok");
-        Assertions.assertEquals("\"Mr. Receiver 2\" <mr.receiver2@acme.com>", read.get(1), "SendTo ok");
+        Assertions.assertEquals("mr.receiver@acme.com", read.get(0), "SendTo ok");
+        Assertions.assertEquals("mr.receiver2@acme.com", read.get(1), "SendTo ok");
       }
 
       {
@@ -396,5 +403,44 @@ public class TestMimeReadWrite extends AbstractNotesRuntimeTest {
 
     exec.shutdownNow();
     exec.awaitTermination(2, TimeUnit.MINUTES);
+  }
+  
+  @Test
+  public void testJakartaMailMultiTo() throws Exception {
+    final Session session = Session.getDefaultInstance(new Properties(), null);
+    MimeMessage email = new MimeMessage(session);
+    List<String> addresses = Arrays.asList("mr.receiver@acme.com", "mr.receiver2@acme.com");
+    Address[] convertedAddresses = addresses.stream()
+      .map(a -> {
+        try {
+          InternetAddress ia = new InternetAddress(a);
+          ia.validate();
+          return ia;
+        } catch (AddressException e) {
+          throw new RuntimeException(e);
+        }
+      })
+      .toArray(Address[]::new);
+    email.setRecipients(Message.RecipientType.TO, convertedAddresses);
+    email.setFrom("foo@foo.com");
+    email.setSubject("Test subject");
+    email.setContent("hello.", "text/plain");
+    
+    this.withTempDb(dbMail -> {
+      final Document doc = dbMail.createDocument();
+      doc.replaceItemValue("Form", "Memo");
+
+      final MimeWriter mimeWriter = dbMail.getParentDominoClient().getMimeWriter();
+      try {
+        mimeWriter.writeMime(doc, null, email, EnumSet.of(WriteMimeDataType.HEADERS, WriteMimeDataType.BODY));
+      } catch (final MessagingException e) {
+        throw e;
+      }
+      
+      Item item = doc.getFirstItem("SendTo").get();
+      item.convertRFC822TextItem();
+      List<String> sendTo = item.getAsList(String.class, Collections.emptyList());
+      Assertions.assertIterableEquals(addresses, sendTo);
+    });
   }
 }
