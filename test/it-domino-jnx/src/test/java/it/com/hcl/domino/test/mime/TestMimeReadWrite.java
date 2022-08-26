@@ -22,6 +22,7 @@ import java.net.URL;
 import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -172,6 +173,133 @@ public class TestMimeReadWrite extends AbstractNotesRuntimeTest {
         Assertions.assertEquals(ItemDataType.TYPE_TEXT, item.getType(), "SendTo is text after conversion");
         final String read = item.get(String.class, "");
         Assertions.assertEquals("\"Mr. Receiver\" <mr.receiver@acme.com>", read, "SendTo ok");
+      }
+
+      {
+        final Item item = doc.getFirstItem("From").orElse(null);
+        Assertions.assertNotNull(item, "From should exist");
+        Assertions.assertEquals(ItemDataType.TYPE_RFC822_TEXT, item.getType(), "From should be RFC822");
+        item.convertRFC822TextItem();
+        Assertions.assertEquals(ItemDataType.TYPE_TEXT, item.getType(), "From is text after conversion");
+        final String read = item.get(String.class, "");
+        Assertions.assertEquals("\"Mr. Sender\" <mr.sender@acme.com>", read, "From ok");
+      }
+
+      {
+        final Item bodyItem = doc.getFirstItem("Body").orElse(null);
+        Assertions.assertNotNull(bodyItem, "Body should exist");
+        Assertions.assertEquals(ItemDataType.TYPE_MIME_PART, bodyItem.getType(), "Body should be MIME");
+      }
+
+      // now read the created mime content via OutputStream and InputStream interface and compare both results
+      final MimeReader mimeReader = client.getMimeReader();
+
+      final Set<ReadMimeDataType> readDataType = EnumSet.of(ReadMimeDataType.MIMEHEADERS, ReadMimeDataType.RFC822HEADERS);
+
+      final ByteArrayOutputStream rawMimeOut = new ByteArrayOutputStream();
+      mimeReader.readMIME(doc, "body", readDataType, rawMimeOut);
+
+      Assertions.assertTrue(rawMimeOut.size() > 0);
+
+      final ByteArrayOutputStream rawMimeOutViaInputStream = new ByteArrayOutputStream();
+      final byte[] buffer = new byte[2000];
+      int len;
+
+      try (InputStream in = mimeReader.readMIMEAsStream(doc, "body", readDataType);) {
+        while ((len = in.read(buffer)) > 0) {
+          rawMimeOutViaInputStream.write(buffer, 0, len);
+        }
+      }
+
+      Assertions.assertTrue(rawMimeOutViaInputStream.size() > 0);
+
+      byte[] rawMimeOutArr = rawMimeOut.toByteArray();
+      byte[] rawMimeOutViaInputStreamArr = rawMimeOutViaInputStream.toByteArray();
+      
+      Assertions.assertArrayEquals(rawMimeOutArr, rawMimeOutViaInputStreamArr);
+    });
+  }
+  
+  @Test
+  public void testCreateMailMultiTo() throws Exception {
+    final DominoClient client = this.getClient();
+
+    this.withTempDb(dbMail -> {
+      final HtmlEmail mail = new HtmlEmail();
+
+      // add some required fields required by Apache Commons Email
+      mail.setFrom("mr.sender@acme.com", "Mr. Sender");
+      mail.addTo("mr.receiver@acme.com", "Mr. Receiver");
+      mail.addTo("mr.receiver2@acme.com", "Mr. Receiver 2");
+      mail.setHostName("acme.com");
+
+      final String subjectWrite = "Testmail";
+      mail.setSubject(subjectWrite);
+      mail.setCharset("UTF-8");
+
+      // embed an online image
+      final URL url = this.getClass().getResource(TestMimeReadWrite.TEST_IMAGE_PATH);
+      Assertions.assertNotNull(url, "Test image can be found");
+
+      final String cid = mail.embed(url, "Test icon");
+
+      final int testAttSize = 50000;
+      final byte[] testAttachmentData = this.produceTestData(testAttSize);
+      final ByteArrayDataSource testAttachmentDataSource = new ByteArrayDataSource(testAttachmentData, "text/plain");
+      // add the attachment
+      mail.attach(testAttachmentDataSource, "testascii.txt", "A text ascii file", EmailAttachment.ATTACHMENT);
+
+      // set text content as plaintext and HTML
+      final String mailPlainTxt = "This is plain text";
+      final String mailHtmlTxt = "<html><body>This is <b>formatted</b> text and an image:<br><img src=\"cid:" + cid
+          + "\"></body></html>";
+      mail.setTextMsg(mailPlainTxt);
+      mail.setHtmlMsg(mailHtmlTxt);
+
+      mail.buildMimeMessage();
+      final MimeMessage mimeMsg = mail.getMimeMessage();
+
+      final Document doc = dbMail.createDocument();
+      doc.replaceItemValue("Form", "Memo");
+
+      final MimeWriter mimeWriter = client.getMimeWriter();
+      try {
+        mimeWriter.writeMime(doc, null, mimeMsg, EnumSet.of(WriteMimeDataType.HEADERS, WriteMimeDataType.BODY));
+      } catch (final MessagingException e) {
+        e.printStackTrace();
+      }
+
+      // doc.save();
+
+      {
+        final Item subjectItem = doc.getFirstItem("Subject").orElse(null);
+        Assertions.assertNotNull(subjectItem, "Subject should exist");
+        Assertions.assertEquals(ItemDataType.TYPE_RFC822_TEXT, subjectItem.getType(), "Subject should be RFC822");
+        subjectItem.convertRFC822TextItem();
+        Assertions.assertEquals(ItemDataType.TYPE_TEXT, subjectItem.getType(), "Subject is text after conversion");
+        final String subjectRead = subjectItem.get(String.class, "");
+        Assertions.assertEquals(subjectWrite, subjectRead, "Subject ok");
+      }
+
+      {
+        final Item postedDateItem = doc.getFirstItem("PostedDate").orElse(null);
+        Assertions.assertNotNull(postedDateItem, "PostedDate should exist");
+        Assertions.assertEquals(ItemDataType.TYPE_RFC822_TEXT, postedDateItem.getType(), "PostedDate should be RFC822");
+        postedDateItem.convertRFC822TextItem();
+        Assertions.assertEquals(ItemDataType.TYPE_TIME, postedDateItem.getType(), "PostedDate is time after conversion");
+        final OffsetDateTime postedDate = postedDateItem.get(OffsetDateTime.class, null);
+        Assertions.assertNotNull(postedDate, "PostedDate not null");
+      }
+
+      {
+        final Item item = doc.getFirstItem("SendTo").orElse(null);
+        Assertions.assertNotNull(item, "SendTo should exist");
+        Assertions.assertEquals(ItemDataType.TYPE_RFC822_TEXT, item.getType(), "SendTo should be RFC822");
+        item.convertRFC822TextItem();
+        Assertions.assertEquals(ItemDataType.TYPE_TEXT_LIST, item.getType(), "SendTo is text after conversion");
+        final List<String> read = item.getAsList(String.class, Collections.emptyList());
+        Assertions.assertEquals("\"Mr. Receiver\" <mr.receiver@acme.com>", read.get(0), "SendTo ok");
+        Assertions.assertEquals("\"Mr. Receiver 2\" <mr.receiver2@acme.com>", read.get(1), "SendTo ok");
       }
 
       {
