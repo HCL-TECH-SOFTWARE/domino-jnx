@@ -4205,6 +4205,15 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 	
 	@Override
+	public void convertRFC822Items() {
+	  short result = LockUtil.lockHandle(getAllocations().getNoteHandle(), (hNoteByVal) -> {
+	    boolean isCanonical = (getFlags() & NotesConstants.NOTE_FLAG_CANONICAL) == NotesConstants.NOTE_FLAG_CANONICAL;
+      return NotesCAPI.get().MIMEConvertRFC822TextItems(hNoteByVal, isCanonical);
+    });
+    NotesErrorUtils.checkResult(result);
+	}
+	
+	@Override
 	public boolean convertRichTextItem(String itemName, Document targetNote,
 			String targetItemName, IRichTextConversion... conversions) {
 		checkDisposed();

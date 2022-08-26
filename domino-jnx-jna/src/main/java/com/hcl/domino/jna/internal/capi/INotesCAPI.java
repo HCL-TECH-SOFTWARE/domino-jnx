@@ -1110,6 +1110,10 @@ public interface INotesCAPI extends Library {
 			boolean bIsMIME,
 			Pointer hCC);
 	
+	short MIMEConvertRFC822TextItems(
+	    DHANDLE.ByValue hNote,
+	    boolean bCanonical);
+	
 	short MIMEConvertRFC822TextItemByBLOCKID(
 			DHANDLE.ByValue hNote,
 			NotesBlockIdStruct.ByValue bhItem,

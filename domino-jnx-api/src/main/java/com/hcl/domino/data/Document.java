@@ -394,6 +394,13 @@ public interface Document extends TypedAccess, IAdaptable {
    *         returned {@link IRichTextConversion#isMatch(List)} as false
    */
   boolean convertRichTextItem(String itemName, IRichTextConversion... conversions);
+  
+  /**
+   * Converts any RFC 822 (MIME text) items to their traditional Domino equivalents.
+   * 
+   * @since 1.12.0
+   */
+  void convertRFC822Items();
 
   /**
    * This function copies and encrypts (seals) the encryption enabled fields in a

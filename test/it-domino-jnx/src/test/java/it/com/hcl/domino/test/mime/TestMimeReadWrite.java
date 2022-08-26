@@ -443,4 +443,42 @@ public class TestMimeReadWrite extends AbstractNotesRuntimeTest {
       Assertions.assertIterableEquals(addresses, sendTo);
     });
   }
+  
+  @Test
+  public void testDocConvertRFC822() throws Exception {
+    final Session session = Session.getDefaultInstance(new Properties(), null);
+    MimeMessage email = new MimeMessage(session);
+    List<String> addresses = Arrays.asList("mr.receiver@acme.com", "mr.receiver2@acme.com");
+    Address[] convertedAddresses = addresses.stream()
+      .map(a -> {
+        try {
+          InternetAddress ia = new InternetAddress(a);
+          ia.validate();
+          return ia;
+        } catch (AddressException e) {
+          throw new RuntimeException(e);
+        }
+      })
+      .toArray(Address[]::new);
+    email.setRecipients(Message.RecipientType.TO, convertedAddresses);
+    email.setFrom("foo@foo.com");
+    email.setSubject("Test subject");
+    email.setContent("hello.", "text/plain");
+    
+    this.withTempDb(dbMail -> {
+      final Document doc = dbMail.createDocument();
+      doc.replaceItemValue("Form", "Memo");
+
+      final MimeWriter mimeWriter = dbMail.getParentDominoClient().getMimeWriter();
+      try {
+        mimeWriter.writeMime(doc, null, email, EnumSet.of(WriteMimeDataType.HEADERS, WriteMimeDataType.BODY));
+      } catch (final MessagingException e) {
+        throw e;
+      }
+      
+      doc.convertRFC822Items();
+      List<String> sendTo = doc.getAsList("SendTo", String.class, Collections.emptyList());
+      Assertions.assertIterableEquals(addresses, sendTo);
+    });
+  }
 }
