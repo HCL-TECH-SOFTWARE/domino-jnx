@@ -288,6 +288,7 @@ public interface Document extends TypedAccess, IAdaptable {
    * Attaches a X.509 certificate to the document.
    * 
    * @param certificate the certificate to attach
+   * @throws NullPointerException if {@code certificate} is {@code null}
    * @since 1.12.0
    */
   void attachCertificate(X509Certificate certificate);
@@ -523,6 +524,7 @@ public interface Document extends TypedAccess, IAdaptable {
    * processed or the consumer calls {@link Loop#stop()}.
    *
    * @param consumer a {@link BiConsumer} to process the attachments
+   * @throws NullPointerException if {@code consumer} is {@code null}
    * @return this document
    */
   Document forEachAttachment(BiConsumer<Attachment, Loop> consumer);

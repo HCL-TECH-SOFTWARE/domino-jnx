@@ -3,6 +3,7 @@ package it.com.hcl.domino.test.certs;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Date;
@@ -18,7 +19,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestNabCerts extends AbstractNotesRuntimeTest {
-
+  
   @Test
   public void testEnumerateAnyCert() {
     DominoClient client = getClient();
@@ -41,6 +42,16 @@ public class TestNabCerts extends AbstractNotesRuntimeTest {
     });
     
     assertTrue(found[0]);
+  }
+  
+
+  @Test
+  public void testEnumerateNullConsumer() throws Exception {
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      
+      assertThrows(NullPointerException.class, () -> doc.forEachCertificate(null));
+    });
   }
 
   @Test

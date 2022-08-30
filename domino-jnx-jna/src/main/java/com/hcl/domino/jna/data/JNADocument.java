@@ -1103,6 +1103,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	
 	@Override
 	public Document forEachCertificate(BiConsumer<X509Certificate, Loop> consumer) {
+	  Objects.requireNonNull(consumer, "consumer must not be null");
 	  
 	  CertificateFactory cf;
 	  try {
@@ -1157,6 +1158,25 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	
 	@Override
 	public Document removeCertificate(X509Certificate certificate) {
+	  if(certificate == null) {
+	    return this;
+	  }
+	  
+	  NotesErrorUtils.checkResult(LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> {
+      try {
+        byte[] certData = certificate.getEncoded();
+        DisposableMemory mem = new DisposableMemory(certData.length);
+        try {
+          mem.write(0, certData, 0, certData.length);
+          return NotesCAPI.get().SECNABRemoveCertificate(noteHandleByVal, mem, certData.length, 0, null);
+        } finally {
+          mem.dispose();
+        }
+      } catch (CertificateEncodingException e) {
+        throw new RuntimeException(e);
+      }
+    }));
+	  
 	  return this;
 	}
 
