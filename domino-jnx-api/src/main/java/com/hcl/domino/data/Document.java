@@ -18,6 +18,7 @@ package com.hcl.domino.data;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.security.cert.X509Certificate;
 import java.time.temporal.TemporalAccessor;
 import java.util.Collection;
 import java.util.List;
@@ -517,7 +518,17 @@ public interface Document extends TypedAccess, IAdaptable {
    * @return this document
    */
   Document forEachAttachment(BiConsumer<Attachment, Loop> consumer);
-
+  
+  /**
+   * Iterates over each certificate stored in the document, until all attachments
+   * have been processed or the consumer calls {@link Loop#stop()}.
+   * 
+   * @param consumer a {@link BiConsumer} to process the certificates
+   * @return this document
+   * @since 1.12.0
+   */
+  Document forEachCertificate(BiConsumer<X509Certificate, Loop> consumer);
+  
   /**
    * Iterates over all document items
    *

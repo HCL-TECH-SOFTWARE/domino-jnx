@@ -1625,6 +1625,8 @@ public interface INotesCAPI extends Library {
 	
 	short SECKFMSwitchToIDFile(Memory pIDFileName, Memory pPassword, Memory pUserName,
 			short  MaxUserNameLength, int Flags, Pointer pReserved);
+	
+	
 
 	short NSFDbMarkInService(Memory dbPath);
 	short NSFDbMarkOutOfService(Memory dbPath);
@@ -1684,6 +1686,14 @@ public interface INotesCAPI extends Library {
 			short wDownloadCount, int ReservedFlags, Pointer pReserved);
 
 	short SECKFMChangePassword(Memory pIDFile, Memory pOldPassword, Memory pNewPassword);
+	
+	short SECNABEnumerateCertificates(
+	    DHANDLE.ByValue hNote,
+	    NotesCallbacks.SECNABENUMPROC CallBack,
+	    Pointer pCallCtx,
+	    int ReservedFlags,
+	    Pointer pReserved
+	);
 
 	short REGGetIDInfo(
 			Memory IDFileName,

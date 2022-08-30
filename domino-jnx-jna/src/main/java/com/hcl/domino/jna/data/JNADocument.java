@@ -21,8 +21,12 @@ import static java.text.MessageFormat.format;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.lang.ref.ReferenceQueue;
 import java.nio.ByteBuffer;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
@@ -1094,6 +1098,37 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		}
 		
 		return this;
+	}
+	
+	@Override
+	public Document forEachCertificate(BiConsumer<X509Certificate, Loop> consumer) {
+	  
+	  CertificateFactory cf;
+	  try {
+      cf = CertificateFactory.getInstance("X.509"); //$NON-NLS-1$
+    } catch (CertificateException e) {
+      throw new RuntimeException(e);
+    }
+	  
+	  NotesErrorUtils.checkResult(LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> {
+	    LoopImpl loop = new LoopImpl();
+	    NotesCallbacks.SECNABENUMPROC proc = (pCallCtx, pCert, certSize, reserved1, reserved2) -> {
+	      byte[] certData = pCert.getByteArray(0, certSize);
+	      try(ByteArrayInputStream bais = new ByteArrayInputStream(certData)) {
+	        X509Certificate cert = (X509Certificate) cf.generateCertificate(bais);
+	        consumer.accept(cert, loop);
+	      } catch (IOException e) {
+          throw new UncheckedIOException(e);
+        } catch (CertificateException e) {
+          throw new RuntimeException("Encountered exception when parsing certificate data", e);
+        }
+	      
+	      return !loop.isStopped();
+	    };
+      return  NotesCAPI.get().SECNABEnumerateCertificates(noteHandleByVal, proc, null, 0, null);
+    }));
+	  
+	  return this;
 	}
 
 	@Override
