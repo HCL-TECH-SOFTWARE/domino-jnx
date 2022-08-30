@@ -1694,6 +1694,13 @@ public interface INotesCAPI extends Library {
 	    int ReservedFlags,
 	    Pointer pReserved
 	);
+	short SECNABAddCertificate(
+	    DHANDLE.ByValue hNote,
+	    Pointer pCertificate,
+	    int CertificateSize,
+	    int ReservedFlags,
+	    Pointer pReserved
+  );
 
 	short REGGetIDInfo(
 			Memory IDFileName,

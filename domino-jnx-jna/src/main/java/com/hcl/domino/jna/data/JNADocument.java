@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.lang.ref.ReferenceQueue;
 import java.nio.ByteBuffer;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -1113,6 +1114,10 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	  NotesErrorUtils.checkResult(LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> {
 	    LoopImpl loop = new LoopImpl();
 	    NotesCallbacks.SECNABENUMPROC proc = (pCallCtx, pCert, certSize, reserved1, reserved2) -> {
+	      if(certSize < 0) {
+	        // DWORD larger than INT_MAX
+	        throw new UnsupportedOperationException(MessageFormat.format("Unable to operate on certificate with size larger than {0} bytes", Integer.MAX_VALUE));
+	      }
 	      byte[] certData = pCert.getByteArray(0, certSize);
 	      try(ByteArrayInputStream bais = new ByteArrayInputStream(certData)) {
 	        X509Certificate cert = (X509Certificate) cf.generateCertificate(bais);
@@ -1125,9 +1130,33 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	      
 	      return !loop.isStopped();
 	    };
-      return  NotesCAPI.get().SECNABEnumerateCertificates(noteHandleByVal, proc, null, 0, null);
+      return NotesCAPI.get().SECNABEnumerateCertificates(noteHandleByVal, proc, null, 0, null);
     }));
 	  
+	  return this;
+	}
+	
+	@Override
+	public void attachCertificate(X509Certificate certificate) {
+	  Objects.requireNonNull(certificate, "certificate cannot be null");
+	  NotesErrorUtils.checkResult(LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> {
+	    try {
+        byte[] certData = certificate.getEncoded();
+        DisposableMemory mem = new DisposableMemory(certData.length);
+        try {
+          mem.write(0, certData, 0, certData.length);
+          return NotesCAPI.get().SECNABAddCertificate(noteHandleByVal, mem, certData.length, 0, null);
+        } finally {
+          mem.dispose();
+        }
+      } catch (CertificateEncodingException e) {
+        throw new RuntimeException(e);
+      }
+	  }));
+	}
+	
+	@Override
+	public Document removeCertificate(X509Certificate certificate) {
 	  return this;
 	}
 
