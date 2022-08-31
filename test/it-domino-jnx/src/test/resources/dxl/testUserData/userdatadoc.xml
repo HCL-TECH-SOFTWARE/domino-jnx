@@ -1,0 +1,12 @@
+<?xml version='1.0'?>
+<note class='document' xmlns='http://www.lotus.com/dxl'>
+	<item name='Form'>
+		<text>UserDataForm</text>
+	</item>
+	<item name='SomeUserDataItem'>
+		<rawitemdata type='e'>EUZvcm1hdCBGcm9tIEFnZW50ZGF0YSBmcm9tIGFnZW50</rawitemdata>
+	</item>
+	<item name='$TUA' summary='true'>
+		<rawitemdata type='4'>AQAi2AcesshID+FtTwCviCWF</rawitemdata>
+	</item>
+</note>

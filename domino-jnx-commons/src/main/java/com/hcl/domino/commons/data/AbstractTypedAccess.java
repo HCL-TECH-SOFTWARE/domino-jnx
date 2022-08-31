@@ -35,6 +35,7 @@ import com.hcl.domino.data.DominoTimeType;
 import com.hcl.domino.data.IndexedTypedAccess;
 import com.hcl.domino.data.PreV3Author;
 import com.hcl.domino.data.TypedAccess;
+import com.hcl.domino.data.UserData;
 import com.hcl.domino.design.DesignAgent;
 
 /**
@@ -106,6 +107,10 @@ public abstract class AbstractTypedAccess implements TypedAccess, IndexedTypedAc
       return (T) (val.isEmpty() ? null : val.get(0));
 		}
 		else if (DominoViewFormat.class == valueType) {
+		  List<?> val = getItemValue(itemName);
+      return (T) (val.isEmpty() ? null : val.get(0));
+		}
+		else if (UserData.class == valueType) {
 		  List<?> val = getItemValue(itemName);
       return (T) (val.isEmpty() ? null : val.get(0));
 		}

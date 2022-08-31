@@ -51,6 +51,7 @@ import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.ModificationTimePair;
+import com.hcl.domino.data.UserData;
 import com.hcl.domino.dbdirectory.DbDirectory;
 import com.hcl.domino.dxl.DxlExporter;
 import com.hcl.domino.dxl.DxlImporter;
@@ -561,6 +562,18 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    * @return Domino universal id
    */
   DominoUniversalNoteId createUNID(String unidStr);
+  
+  /**
+   * Creates a {@link UserData} object for the given format name and byte data
+   * that can be used in {@link Document#replaceItemValue(String, Object)}
+   * to create an item of type {@link ItemDataType#TYPE_USERDATA}.
+   * 
+   * @param formatName the programmer-visible format name for the data
+   * @param data the data as a byte array
+   * @return the newly-created {@link UserData} object
+   * @since 1.12.0
+   */
+  UserData createUserData(String formatName, byte[] data);
 
   /**
    * Deletes the database at the specified path.

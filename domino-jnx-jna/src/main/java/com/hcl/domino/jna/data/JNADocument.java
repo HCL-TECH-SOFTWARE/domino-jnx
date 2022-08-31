@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.lang.ref.ReferenceQueue;
 import java.nio.ByteBuffer;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -100,6 +101,7 @@ import com.hcl.domino.data.Item;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.PreV3Author;
+import com.hcl.domino.data.UserData;
 import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.exception.LotusScriptCompilationException;
@@ -136,6 +138,7 @@ import com.hcl.domino.jna.internal.structs.NotesRangeStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
+import com.hcl.domino.jna.misc.LMBCSCharsetProvider.LMBCSCharset;
 import com.hcl.domino.jna.richtext.JNARichtextWriter;
 import com.hcl.domino.jna.utils.JNADominoUtils;
 import com.hcl.domino.misc.DominoEnumUtil;
@@ -415,6 +418,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
     }
 		else if(dataTypeAsInt == ItemDataType.TYPE_USERID.getValue()) {
 		  supportedType = true;
+		} else if(dataTypeAsInt == ItemDataType.TYPE_USERDATA.getValue()) {
+		  supportedType = true;
 		}
 		
 		if (!supportedType) {
@@ -660,6 +665,10 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		}
 		else if (dataTypeAsInt == ItemDataType.TYPE_USERID.getValue()) {
 		  PreV3Author result = NotesItemDataUtil.parsePreV3Author(valueDataPtr.getByteBuffer(0, valueDataLength));
+		  return Arrays.asList((Object)result);
+		}
+		else if(dataTypeAsInt == ItemDataType.TYPE_USERDATA.getValue()) {
+		  UserData result = NotesItemDataUtil.parseUserData(valueDataPtr.getByteBuffer(0, valueDataLength));
 		  return Arrays.asList((Object)result);
 		}
 		else {
@@ -1102,6 +1111,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	
 	@Override
 	public Document forEachCertificate(BiConsumer<X509Certificate, Loop> consumer) {
+	  Objects.requireNonNull(consumer, "consumer must not be null");
 	  
 	  CertificateFactory cf;
 	  try {
@@ -1113,6 +1123,10 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	  NotesErrorUtils.checkResult(LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> {
 	    LoopImpl loop = new LoopImpl();
 	    NotesCallbacks.SECNABENUMPROC proc = (pCallCtx, pCert, certSize, reserved1, reserved2) -> {
+	      if(certSize < 0) {
+	        // DWORD larger than INT_MAX
+	        throw new UnsupportedOperationException(MessageFormat.format("Unable to operate on certificate with size larger than {0} bytes", Integer.MAX_VALUE));
+	      }
 	      byte[] certData = pCert.getByteArray(0, certSize);
 	      try(ByteArrayInputStream bais = new ByteArrayInputStream(certData)) {
 	        X509Certificate cert = (X509Certificate) cf.generateCertificate(bais);
@@ -1125,7 +1139,50 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	      
 	      return !loop.isStopped();
 	    };
-      return  NotesCAPI.get().SECNABEnumerateCertificates(noteHandleByVal, proc, null, 0, null);
+      return NotesCAPI.get().SECNABEnumerateCertificates(noteHandleByVal, proc, null, 0, null);
+    }));
+	  
+	  return this;
+	}
+	
+	@Override
+	public void attachCertificate(X509Certificate certificate) {
+	  Objects.requireNonNull(certificate, "certificate cannot be null");
+	  NotesErrorUtils.checkResult(LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> {
+	    try {
+        byte[] certData = certificate.getEncoded();
+        DisposableMemory mem = new DisposableMemory(certData.length);
+        try {
+          mem.write(0, certData, 0, certData.length);
+          return NotesCAPI.get().SECNABAddCertificate(noteHandleByVal, mem, certData.length, 0, null);
+        } finally {
+          mem.dispose();
+        }
+      } catch (CertificateEncodingException e) {
+        throw new RuntimeException(e);
+      }
+	  }));
+	}
+	
+	@Override
+	public Document removeCertificate(X509Certificate certificate) {
+	  if(certificate == null) {
+	    return this;
+	  }
+	  
+	  NotesErrorUtils.checkResult(LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> {
+      try {
+        byte[] certData = certificate.getEncoded();
+        DisposableMemory mem = new DisposableMemory(certData.length);
+        try {
+          mem.write(0, certData, 0, certData.length);
+          return NotesCAPI.get().SECNABRemoveCertificate(noteHandleByVal, mem, certData.length, 0, null);
+        } finally {
+          mem.dispose();
+        }
+      } catch (CertificateEncodingException e) {
+        throw new RuntimeException(e);
+      }
     }));
 	  
 	  return this;
@@ -1188,6 +1245,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
       return true;
     }
     else if (value instanceof DominoCollationInfo) {
+      return true;
+    }
+    else if (value instanceof UserData) {
       return true;
     }
 		return false;
@@ -2071,6 +2131,47 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
           Mem.OSUnlockObject(hItemByVal);
         }
       
+      });
+    }
+    else if(value instanceof UserData) {
+      byte[] formatNameLmbcs = ((UserData)value).getFormatName().getBytes(LMBCSCharset.INSTANCE);
+      if(formatNameLmbcs.length > 255) {
+        throw new IllegalArgumentException("User data format name must be less than 255 bytes when encoded as LMBCS");
+      }
+      byte[] data = ((UserData)value).getData();
+      if(data == null) {
+        data = new byte[0];
+      }
+      
+      //date type + byte Pascal length + name + data
+      int valueSize = 2 + 1 + formatNameLmbcs.length + data.length;
+      
+      DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
+      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
+      NotesErrorUtils.checkResult(result);
+      
+      byte[] fData = data;
+      return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
+        Pointer valuePtr = Mem.OSLockObject(hItemByVal);
+        
+        try {
+          valuePtr.setShort(0, ItemDataType.TYPE_USERDATA.getValue().shortValue());
+          valuePtr = valuePtr.share(2);
+          
+          // Pascal string format name
+          valuePtr.setByte(0, (byte)formatNameLmbcs.length);
+          valuePtr = valuePtr.share(1);
+          valuePtr.write(0, formatNameLmbcs, 0, formatNameLmbcs.length);
+          
+          // Data array
+          valuePtr = valuePtr.share(formatNameLmbcs.length);
+          valuePtr.write(0, fData, 0, fData.length);
+
+          return appendItemValue(itemName, flags, ItemDataType.TYPE_USERDATA.getValue(), hItemByVal, valueSize);
+        }
+        finally {
+          Mem.OSUnlockObject(hItemByVal);
+        }
       });
     }
 		else if (valueConverter!=null) {

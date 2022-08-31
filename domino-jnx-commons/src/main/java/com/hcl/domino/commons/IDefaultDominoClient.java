@@ -30,9 +30,11 @@ import javax.naming.NameNotFoundException;
 
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoProcess;
+import com.hcl.domino.commons.data.DefaultUserData;
 import com.hcl.domino.commons.server.DefaultServerInfo;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.DatabaseClass;
+import com.hcl.domino.data.UserData;
 import com.hcl.domino.misc.JNXServiceFinder;
 import com.hcl.domino.security.CredentialValidationTokenHandler;
 import com.hcl.domino.server.ServerInfo;
@@ -51,6 +53,11 @@ public interface IDefaultDominoClient extends DominoClient {
       final boolean initDesign,
       final Encryption encryption) {
     return this.createDatabase(paramServerName, filePath, forceCreation, initDesign, encryption, DatabaseClass.BY_EXTENSION);
+  }
+  
+  @Override
+  default UserData createUserData(String formatName, byte[] data) {
+    return new DefaultUserData(formatName, data);
   }
 
   @Override

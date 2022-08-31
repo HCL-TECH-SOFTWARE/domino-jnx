@@ -285,6 +285,15 @@ public interface Document extends TypedAccess, IAdaptable {
   Document appendToTextList(String itemName, String value, boolean allowDuplicates);
 
   /**
+   * Attaches a X.509 certificate to the document.
+   * 
+   * @param certificate the certificate to attach
+   * @throws NullPointerException if {@code certificate} is {@code null}
+   * @since 1.12.0
+   */
+  void attachCertificate(X509Certificate certificate);
+  
+  /**
    * Attaches a file to the document, not associated with a rich-text item.
    * <p>
    * Unlike
@@ -515,6 +524,7 @@ public interface Document extends TypedAccess, IAdaptable {
    * processed or the consumer calls {@link Loop#stop()}.
    *
    * @param consumer a {@link BiConsumer} to process the attachments
+   * @throws NullPointerException if {@code consumer} is {@code null}
    * @return this document
    */
   Document forEachAttachment(BiConsumer<Attachment, Loop> consumer);
@@ -1048,6 +1058,15 @@ public interface Document extends TypedAccess, IAdaptable {
    * @return this document
    */
   Document removeAttachment(String uniqueFileNameInDoc);
+  
+  /**
+   * Removes the provided certificate from the document.
+   * 
+   * @param certificate the certificate to remove from the document
+   * @return this document
+   * @since 1.12.0
+   */
+  Document removeCertificate(X509Certificate certificate);
 
   /**
    * Removes <b>all occurrences</b> of items with the provided name from the document.

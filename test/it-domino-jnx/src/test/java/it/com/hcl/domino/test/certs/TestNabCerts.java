@@ -3,6 +3,7 @@ package it.com.hcl.domino.test.certs;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Date;
@@ -14,26 +15,12 @@ import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.IDTable;
 
-import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
-
 @SuppressWarnings("nls")
-public class TestNabCerts extends AbstractNotesRuntimeTest {
-
+public class TestNabCerts extends AbstractCertificateTest {
+  
   @Test
   public void testEnumerateAnyCert() {
-    DominoClient client = getClient();
-    
-    String nabPath = client.openUserDirectory(null).getPrimaryDirectoryPath().get();
-    Database names = client.openDatabase(nabPath);
-    
-    // Find the first certificate in the view - doesn't matter what cert it is
-    Document firstCert = names.openCollection("$Certifiers")
-        .get()
-        .query()
-        .collectEntries(0, 1)
-        .get(0)
-        .openDocument()
-        .get();
+    Document firstCert = findFirstNabCertDoc();
     
     boolean[] found = new boolean[] { false };
     firstCert.forEachCertificate((cert, loop) -> {
@@ -41,6 +28,16 @@ public class TestNabCerts extends AbstractNotesRuntimeTest {
     });
     
     assertTrue(found[0]);
+  }
+  
+
+  @Test
+  public void testEnumerateNullConsumer() throws Exception {
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      
+      assertThrows(NullPointerException.class, () -> doc.forEachCertificate(null));
+    });
   }
 
   @Test
@@ -59,19 +56,7 @@ public class TestNabCerts extends AbstractNotesRuntimeTest {
 
   @Test
   public void testEnumerateParseCert() {
-    DominoClient client = getClient();
-    
-    String nabPath = client.openUserDirectory(null).getPrimaryDirectoryPath().get();
-    Database names = client.openDatabase(nabPath);
-    
-    // Find the first certificate in the view - doesn't matter what cert it is
-    Document firstCert = names.openCollection("$Certifiers")
-        .get()
-        .query()
-        .collectEntries(0, 1)
-        .get(0)
-        .openDocument()
-        .get();
+    Document firstCert = findFirstNabCertDoc();
     
     Throwable[] ex = new Throwable[] { null };
     firstCert.forEachCertificate((cert, loop) -> {
