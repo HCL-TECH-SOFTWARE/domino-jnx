@@ -101,6 +101,7 @@ import com.hcl.domino.data.Item;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.PreV3Author;
+import com.hcl.domino.data.UserData;
 import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.exception.LotusScriptCompilationException;
@@ -137,6 +138,7 @@ import com.hcl.domino.jna.internal.structs.NotesRangeStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
+import com.hcl.domino.jna.misc.LMBCSCharsetProvider.LMBCSCharset;
 import com.hcl.domino.jna.richtext.JNARichtextWriter;
 import com.hcl.domino.jna.utils.JNADominoUtils;
 import com.hcl.domino.misc.DominoEnumUtil;
@@ -416,6 +418,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
     }
 		else if(dataTypeAsInt == ItemDataType.TYPE_USERID.getValue()) {
 		  supportedType = true;
+		} else if(dataTypeAsInt == ItemDataType.TYPE_USERDATA.getValue()) {
+		  supportedType = true;
 		}
 		
 		if (!supportedType) {
@@ -661,6 +665,10 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		}
 		else if (dataTypeAsInt == ItemDataType.TYPE_USERID.getValue()) {
 		  PreV3Author result = NotesItemDataUtil.parsePreV3Author(valueDataPtr.getByteBuffer(0, valueDataLength));
+		  return Arrays.asList((Object)result);
+		}
+		else if(dataTypeAsInt == ItemDataType.TYPE_USERDATA.getValue()) {
+		  UserData result = NotesItemDataUtil.parseUserData(valueDataPtr.getByteBuffer(0, valueDataLength));
 		  return Arrays.asList((Object)result);
 		}
 		else {
@@ -1237,6 +1245,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
       return true;
     }
     else if (value instanceof DominoCollationInfo) {
+      return true;
+    }
+    else if (value instanceof UserData) {
       return true;
     }
 		return false;
@@ -2120,6 +2131,47 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
           Mem.OSUnlockObject(hItemByVal);
         }
       
+      });
+    }
+    else if(value instanceof UserData) {
+      byte[] formatNameLmbcs = ((UserData)value).getFormatName().getBytes(LMBCSCharset.INSTANCE);
+      if(formatNameLmbcs.length > 255) {
+        throw new IllegalArgumentException("User data format name must be less than 255 bytes when encoded as LMBCS");
+      }
+      byte[] data = ((UserData)value).getData();
+      if(data == null) {
+        data = new byte[0];
+      }
+      
+      //date type + byte Pascal length + name + data
+      int valueSize = 2 + 1 + formatNameLmbcs.length + data.length;
+      
+      DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
+      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
+      NotesErrorUtils.checkResult(result);
+      
+      byte[] fData = data;
+      return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
+        Pointer valuePtr = Mem.OSLockObject(hItemByVal);
+        
+        try {
+          valuePtr.setShort(0, ItemDataType.TYPE_USERDATA.getValue().shortValue());
+          valuePtr = valuePtr.share(2);
+          
+          // Pascal string format name
+          valuePtr.setByte(0, (byte)formatNameLmbcs.length);
+          valuePtr = valuePtr.share(1);
+          valuePtr.write(0, formatNameLmbcs, 0, formatNameLmbcs.length);
+          
+          // Data array
+          valuePtr = valuePtr.share(formatNameLmbcs.length);
+          valuePtr.write(0, fData, 0, fData.length);
+
+          return appendItemValue(itemName, flags, ItemDataType.TYPE_USERDATA.getValue(), hItemByVal, valueSize);
+        }
+        finally {
+          Mem.OSUnlockObject(hItemByVal);
+        }
       });
     }
 		else if (valueConverter!=null) {

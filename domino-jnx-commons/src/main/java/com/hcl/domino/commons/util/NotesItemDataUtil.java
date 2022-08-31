@@ -17,9 +17,11 @@
 package com.hcl.domino.commons.util;
 
 import com.hcl.domino.commons.data.DefaultPreV3Author;
+import com.hcl.domino.commons.data.DefaultUserData;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.data.PreV3Author;
+import com.hcl.domino.data.UserData;
 import com.hcl.domino.richtext.structures.LicenseID;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 
@@ -49,6 +51,26 @@ public enum NotesItemDataUtil {
     LicenseID license = MemoryStructureUtil.forStructure(LicenseID.class, () -> licenseBuf);
     
     return new DefaultPreV3Author(name, license);
+  }
+  
+  /**
+   * Parses item data of TYPE_USERDATA into a {@link UserData} representation.
+   * 
+   * @param buf the containing data buffer
+   * @return a {@link UserData} instance from the item data
+   * @since 1.12.0
+   */
+  public static UserData parseUserData(ByteBuffer buf) {
+    // The format is a byte-length Pascal string for the format name,
+    //   followed by binary data
+    int formatNameLen = Byte.toUnsignedInt(buf.get());
+    byte[] lmbcs = new byte[formatNameLen];
+    buf.get(lmbcs);
+    String formatName = new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
+    byte[] data = new byte[buf.remaining()];
+    buf.get(data);
+    
+    return new DefaultUserData(formatName, data);
   }
 
   /**
