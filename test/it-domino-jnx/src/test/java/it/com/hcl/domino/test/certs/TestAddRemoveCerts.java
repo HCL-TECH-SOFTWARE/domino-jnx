@@ -3,38 +3,24 @@ package it.com.hcl.domino.test.certs;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.InputStream;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.hcl.domino.DominoClient;
-import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 
-import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
-
 @SuppressWarnings("nls")
-public class TestAddRemoveCerts extends AbstractNotesRuntimeTest {
+public class TestAddRemoveCerts extends AbstractCertificateTest {
 
   @Test
   public void testAddCertFromNab() throws Exception {
-    // Find the first cert from the NAB certificates list
-    DominoClient client = getClient();
-    String nabPath = client.openUserDirectory(null).getPrimaryDirectoryPath().get();
-    Database names = client.openDatabase(nabPath);
-    
-    // Find the first certificate in the view - doesn't matter what cert it is
-    Document firstCert = names.openCollection("$Certifiers")
-        .get()
-        .query()
-        .collectEntries(0, 1)
-        .get(0)
-        .openDocument()
-        .get();
+    Document firstCert = findFirstNabCertDoc();
     
     X509Certificate[] found = new X509Certificate[] { null };
     firstCert.forEachCertificate((cert, loop) -> {
@@ -59,14 +45,7 @@ public class TestAddRemoveCerts extends AbstractNotesRuntimeTest {
   
   @Test
   public void testAddLocalCert() throws Exception {
-    CertificateFactory cf = CertificateFactory.getInstance("X.509");
-    X509Certificate cert;
-    try(InputStream is = getClass().getResourceAsStream("/text/testAddRemoveCerts/certificate.crt")) {
-      cert = (X509Certificate)cf.generateCertificate(is);
-    }
-    assertNotNull(cert);
-    String dn = "EMAILADDRESS=foo@somecompany.com, CN=foo.somecompany.com, OU=IT, O=Some Co., L=Villetown, ST=Test State, C=US";
-    assertEquals(dn, cert.getSubjectDN().getName());
+    X509Certificate cert = loadLocalCert();
     
     X509Certificate[] fetchedCert = new X509Certificate[1];
     withTempDb(database -> {
@@ -91,14 +70,7 @@ public class TestAddRemoveCerts extends AbstractNotesRuntimeTest {
   
   @Test
   public void testAddRemoveLocalCert() throws Exception {
-    CertificateFactory cf = CertificateFactory.getInstance("X.509");
-    X509Certificate cert;
-    try(InputStream is = getClass().getResourceAsStream("/text/testAddRemoveCerts/certificate.crt")) {
-      cert = (X509Certificate)cf.generateCertificate(is);
-    }
-    assertNotNull(cert);
-    String dn = "EMAILADDRESS=foo@somecompany.com, CN=foo.somecompany.com, OU=IT, O=Some Co., L=Villetown, ST=Test State, C=US";
-    assertEquals(dn, cert.getSubjectDN().getName());
+    X509Certificate cert = loadLocalCert();
     
     X509Certificate[] fetchedCert = new X509Certificate[1];
     withTempDb(database -> {
@@ -119,6 +91,85 @@ public class TestAddRemoveCerts extends AbstractNotesRuntimeTest {
         found[0] = true;
       });
       assertFalse(found[0], "Document should have no certificates");
+    });
+    
+  }
+  
+
+  @Test
+  public void testAddMultiRemoveCert1() throws Exception {
+    Document firstCert = findFirstNabCertDoc();
+    
+    X509Certificate[] found = new X509Certificate[] { null, loadLocalCert() };
+    firstCert.forEachCertificate((cert, loop) -> {
+      found[0] = cert;
+      loop.stop();
+    });
+    
+    assertNotNull(found[0]);
+    
+    // Now try adding both to a new doc and then removing one
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      doc.attachCertificate(found[0]);
+      doc.attachCertificate(found[1]);
+
+      List<X509Certificate> fetchedCert = new ArrayList<>();
+      doc.forEachCertificate((c, loop) -> {
+        fetchedCert.add(c);
+        loop.stop();
+      });
+      
+      assertIterableEquals(Arrays.asList(found), fetchedCert);
+      
+      doc.removeCertificate(found[0]);
+      
+      fetchedCert.clear();
+      doc.forEachCertificate((c, loop) -> {
+        fetchedCert.add(c);
+        loop.stop();
+      });
+      
+      assertIterableEquals(Arrays.asList(found[1]), fetchedCert);
+    });
+    
+  }
+  
+  @Test
+  public void testAddMultiRemoveCert2() throws Exception {
+    Document firstCert = findFirstNabCertDoc();
+    
+    X509Certificate[] found = new X509Certificate[] { null, loadLocalCert() };
+    firstCert.forEachCertificate((cert, loop) -> {
+      found[0] = cert;
+      loop.stop();
+    });
+    
+    assertNotNull(found[0]);
+    
+    // Now try adding both to a new doc and then removing one
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      doc.attachCertificate(found[0]);
+      doc.attachCertificate(found[1]);
+
+      List<X509Certificate> fetchedCert = new ArrayList<>();
+      doc.forEachCertificate((c, loop) -> {
+        fetchedCert.add(c);
+        loop.stop();
+      });
+      
+      assertIterableEquals(Arrays.asList(found), fetchedCert);
+      
+      doc.removeCertificate(found[1]);
+      
+      fetchedCert.clear();
+      doc.forEachCertificate((c, loop) -> {
+        fetchedCert.add(c);
+        loop.stop();
+      });
+      
+      assertIterableEquals(Arrays.asList(found[0]), fetchedCert);
     });
     
   }
