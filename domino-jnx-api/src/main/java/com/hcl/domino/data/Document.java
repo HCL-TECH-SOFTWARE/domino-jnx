@@ -605,6 +605,15 @@ public interface Document extends TypedAccess, IAdaptable {
   }
   
   /**
+   * Retrieves all of the certificates embedded in this document.
+   * 
+   * @return a {@link List} of {@link X509Certificate} certificates
+   *         embedded in this document
+   * @since 1.12.0
+   */
+  List<X509Certificate> getCertificates();
+  
+  /**
    * Retrieves the creation date of this document.
    * <p>
    * Note: by default, this value is derived from the document's UNID, but can be

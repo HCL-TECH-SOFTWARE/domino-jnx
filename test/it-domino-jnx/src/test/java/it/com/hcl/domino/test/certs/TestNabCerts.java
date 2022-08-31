@@ -6,7 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
@@ -55,6 +57,16 @@ public class TestNabCerts extends AbstractCertificateTest {
   }
 
   @Test
+  public void testListNoCertInNewNote() throws Exception {
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      
+      List<X509Certificate> certs = doc.getCertificates();
+      assertTrue(certs.isEmpty());
+    });
+  }
+
+  @Test
   public void testEnumerateParseCert() {
     Document firstCert = findFirstNabCertDoc();
     
@@ -71,6 +83,19 @@ public class TestNabCerts extends AbstractCertificateTest {
     });
     
     assertNull(ex[0]);
+  }
+
+  @Test
+  public void testListParseCert() {
+    Document firstCert = findFirstNabCertDoc();
+    
+    List<X509Certificate> certs = firstCert.getCertificates();
+    assertFalse(certs.isEmpty());
+    for(X509Certificate cert : certs) {
+      Date dt = cert.getNotAfter();
+      assertNotNull(dt);
+      assertTrue(dt.after(new Date(0)), () -> "Certificate not-after should be after epoch, but was " + dt);
+    }
   }
 
   @Test

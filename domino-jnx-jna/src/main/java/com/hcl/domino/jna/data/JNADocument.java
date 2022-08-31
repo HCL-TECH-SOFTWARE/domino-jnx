@@ -59,6 +59,7 @@ import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.commons.constants.UpdateNote;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
+import com.hcl.domino.commons.data.IDefaultDocument;
 import com.hcl.domino.commons.data.SignatureDataImpl;
 import com.hcl.domino.commons.design.FormFieldImpl;
 import com.hcl.domino.commons.design.view.CollationDecoder;
@@ -169,7 +170,7 @@ import com.sun.jna.ptr.ShortByReference;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetHeaders;
 
-public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implements Document, AutoCloseableDocument {
+public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implements IDefaultDocument, AutoCloseableDocument {
 	private Set<DocumentClass> m_documentClass;
 	private AbstractTypedAccess m_typedAccess;
 	private ThreadLocal<Set<Class<?>>> readingItemType = ThreadLocal.withInitial(HashSet::new);
