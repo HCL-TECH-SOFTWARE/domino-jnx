@@ -5,10 +5,17 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.KeySpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 
+import com.drew.lang.StreamUtil;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
@@ -45,6 +52,20 @@ public abstract class AbstractCertificateTest extends AbstractNotesRuntimeTest {
     assertEquals(dn, cert.getSubjectDN().getName());
     
     return cert;
+  }
+  
+  public PrivateKey loadLocalKey() throws NoSuchAlgorithmException, IOException, InvalidKeySpecException {
+    byte[] keyData;
+    try(InputStream is = getClass().getResourceAsStream("/text/testAddRemoveCerts/privateKey.der")) {
+      keyData = StreamUtil.readAllBytes(is);
+    }
+    return parsePrivateKey(keyData);
+  }
+  
+  public PrivateKey parsePrivateKey(byte[] keyData) throws InvalidKeySpecException, NoSuchAlgorithmException {
+    KeyFactory kr = KeyFactory.getInstance("RSA");
+    KeySpec keySpec = new PKCS8EncodedKeySpec(keyData);
+    return kr.generatePrivate(keySpec);
   }
 
 }

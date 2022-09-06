@@ -1,0 +1,154 @@
+<?xml version='1.0'?>
+<note class='document' xmlns='http://www.lotus.com/dxl' version='12.0' maintenanceversion='1.0'>
+<item name='ErrorMessage'><text/></item>
+<item name='CertMgrServer' names='true'><text>CN=Ceres/O=Frost</text></item>
+<item name='PrivateKey' sign='true'>
+<rawitemdata type='e'>
+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
+</rawitemdata></item>
+<item name='PublicKey' sign='true'><text>-----BEGIN PUBLIC KEY-----<break
+/>MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtNa4c+TaP5hz7tl8Fobw<break/>bkABE6ja0QFfjS7mHKzgdwfxy5fyYTeq/9OYXrmoyuHj2AIV4PY3/cIxut3T0td+<break
+/>L9V0PgBwtctl+2Phx0r421BXq8M4bJnHdQM32Cemi5OFo4dx8OWF0f4POtq/7Tnw<break/>7Q3175RxNkiE2VEcxUnNrlJWcX6rw01nI3H4sVmj0DhZJuKXiVZ4mrDSvhAEdueV<break
+/>nKHkf90iEdX2CwCwhiskEJutsMdyTiZ65Yg0X3yZfT24wEMpcK81GGpHYpmYx86n<break/>JXETeCl5CIH7dP1yricJPOgJavDrmEEVElWRX50dQUTP/mVc7Ek52wCUMEJ/sEuP<break
+/>NwIDAQAB<break/>-----END PUBLIC KEY-----<break/></text></item>
+<item name='PrivateKeyExportable' summary='false'><text>-----BEGIN ENCRYPTED PRIVATE KEY-----<break
+/>MIIFODBiBgkqhkiG9w0BBQ0wVTA0BgkqhkiG9w0BBQwwJwQQoX67cnuCah93oa/H<break/>gRu7NgICEAACASAwDAYIKoZIhvcNAgsFADAdBglghkgBZQMEASoEENYY3VCJslID<break
+/>zhuYaUr52QkEggTQQ0AGNB1hH6lKwZD1kRcniylI6f4mnEs+s0owbzCmKxvbkDny<break/>N6B477uCM48gXAgNFL8IpsZfm5EvftekLeXvYVMQuCZf+ySsqJE2dk0TvYhbZ+Uv<break
+/>N1Al5wjkQ4fAJnj3BH6Noa3X6FcAwP2QKxMPdj5qEFeCzYxXXlTG7XIk3jokjVJp<break/>KWtaEQpcYWgsTssSBc6juM0DKFGMtDlOBYmvsE0gSxhot0sHfdy8YctKfPnrSDZE<break
+/>VEqpfv8dUSSLY2etK5fAPaSmcD6/74MR93ZlxZ9rfg8hO+Q2O7pKv0k9M5p4EGSC<break/>D0hmC4bLJu7LOeF7LYqZbsY2/jXMELpoL1z8x15CvfpRYL7dknNT19UReu/5XAB2<break
+/>bas77Gbu9Rn3S92UDShvll3Ufo0n9qxoaWMfVqAX6UFo4AKaFZP1fJh5h7NykpQ8<break/>T9O33oFZn0omo/fEOdPhDh0ZzP8GMUm5rCihuRGJXpRaYXWzxsfNvyARuqMtnOoF<break
+/>pFgh3nG5fsApnkOF92+/QH/yyEYy+Odm63/4TadUxrm9sCcATiYaGTpL7eeujCrs<break/>SRDvZmBrRH/8NfJCvvTSa1WLC0a+1/KwCvPOZxHcKjANvg7AsGXYR/43YRb9FcEY<break
+/>JS9bcxV7EN7PT70kaZRQeQlQIJZMvNlSITSsdA1hy/IaHLgmh43HRTUR/gOaRqwi<break/>H3nMYleOcRBq7PrxUpOAkdqj8l9HCw+5Y/Ts3/uGeRqlq4+4iLzQy1Cy3+uc4pp5<break
+/>fdqU0WK51siKxBSuWIu43S0y9tCepkKQupLS7B36OkX3JTAzIYF6skm8Y+kuz71k<break/>4bFScWZ7WUl8lh52WdKj/silDsMNgw6doLum9T993JabcddmyboDAAxyf5wFdur+<break
+/>4/3VIGdt+mvbSjdzGV/L8wWJtT8UNw39Yjvd7BGYD5QaKYHiKa3fTkrH6aUlt6kc<break/>+RhUW8Hg+InYurGiQ++EBgf9usx516BRAm6Wx+Lb1hDCOv7s4niOaMfOV90UptTT<break
+/>V/vD3hJC5+lPV8gS7bhqcacjluxOsJWTIALKdkjgakDvHowiwa9vZEyoTgCr5P1l<break/>qAwfLWaYSpMSEKpuAxfldXiOqtv64aOh2bF5vGh4ThW6a7W6zU8gx8TXTr0q0zug<break
+/>S5Ly1aEHK24lIyACCn/KFMv6tY1KcwsLPnF0yOxNoNXg8xnyjd35RBhE9yxtfhtm<break/>j6TmC7uvmrLsDTNMx9yguMVCT/A6BxjHbEueh/69CL+MGDywkZzzjqVtyGEG9qvs<break
+/>jkpHFzZMVLsxeaW754eKmnIN7/oE4k2a3v5pT+NJFXcn9bQp+FzcFY1D0vdowZHs<break/>BngQz4L7aZcDRuACA0s3btAPRhNn5//4DdHxKdoOpXhHR6FRpHToj/XHUei1WjtL<break
+/>TtPlIKqTwO/zfjG4Wnbqt7FSo9w8+dj7ONawsa41p3Y4J2oATcPYp5C1irVP6BAH<break/>I1RzrARfvVSy/50KoPeCVSbQcEp/z7ABs33ribYesIxDO9nWo8rpSKVTV9M8N4kz<break
+/>mfAtMNv1DDZfGTyTZUM84bw6mxmFLHMpoSrEfI+ULxYuigBFoTaKOEXRot8A6lUS<break/>7E6rqE/nGcYd4nmTY5OIJGF45kZ9BRehvI3Nv5mG6M7jMZb7hT6nXpoMSaA=<break
+/>-----END ENCRYPTED PRIVATE KEY-----<break/></text></item>
+<item name='KeyAlg'><text>R</text></item>
+<item name='KeyCurve'><text/></item>
+<item name='KeyChain'><text>-----BEGIN CERTIFICATE-----<break/>MIIDrjCCApYCCQDcLzTYbscvMDANBgkqhkiG9w0BAQsFADCBmDELMAkGA1UEBhMC<break
+/>VVMxEzARBgNVBAgMClRlc3QgU3RhdGUxEjAQBgNVBAcMCVZpbGxldG93bjERMA8G<break/>A1UECgwIU29tZSBDby4xCzAJBgNVBAsMAklUMRwwGgYDVQQDDBNmb28uc29tZWNv<break
+/>bXBhbnkuY29tMSIwIAYJKoZIhvcNAQkBFhNmb29Ac29tZWNvbXBhbnkuY29tMB4X<break/>DTIyMDgzMDE1NTQyM1oXDTIzMDgzMDE1NTQyM1owgZgxCzAJBgNVBAYTAlVTMRMw<break
+/>EQYDVQQIDApUZXN0IFN0YXRlMRIwEAYDVQQHDAlWaWxsZXRvd24xETAPBgNVBAoM<break/>CFNvbWUgQ28uMQswCQYDVQQLDAJJVDEcMBoGA1UEAwwTZm9vLnNvbWVjb21wYW55<break
+/>LmNvbTEiMCAGCSqGSIb3DQEJARYTZm9vQHNvbWVjb21wYW55LmNvbTCCASIwDQYJ<break/>KoZIhvcNAQEBBQADggEPADCCAQoCggEBALTWuHPk2j+Yc+7ZfBaG8G5AAROo2tEB<break
+/>X40u5hys4HcH8cuX8mE3qv/TmF65qMrh49gCFeD2N/3CMbrd09LXfi/VdD4AcLXL<break/>Zftj4cdK+NtQV6vDOGyZx3UDN9gnpouThaOHcfDlhdH+Dzrav+058O0N9e+UcTZI<break
+/>hNlRHMVJza5SVnF+q8NNZyNx+LFZo9A4WSbil4lWeJqw0r4QBHbnlZyh5H/dIhHV<break/>9gsAsIYrJBCbrbDHck4meuWINF98mX09uMBDKXCvNRhqR2KZmMfOpyVxE3gpeQiB<break
+/>+3T9cq4nCTzoCWrw65hBFRJVkV+dHUFEz/5lXOxJOdsAlDBCf7BLjzcCAwEAATAN<break/>BgkqhkiG9w0BAQsFAAOCAQEAMuqbqaZhA70jtA+Q6jnFezD66CSmfCUHn2W2WR75<break
+/>kOdlsib4GtNVTZ4h/mpmtudr27LEIkNZFHxVguOKPOF/Yn9SvjkZwiXb9HVYWHs5<break/>x6zP2F4et/oTcc3X41Q9CBANqxJqZkwsNGbzOUEYEMx+Lgw6jOILvmvim0xlRpY5<break
+/>m5wpYcd24iT243OdH6xEYVhDGoSrbcCYBIAQUGWxdYTR0lW0NIwyjHzGQKDfUEkt<break/>xiI88D+Mdxak4vXKWspKVUabp+qFDd33VLPMEFa+jEZ0Ni4XszdTTuqZ1r2ONMlx<break
+/>VyUBMKzGh9uvfyKhnS6K5wHPKCzzY84xOAAMPP3ms9nOmg==<break/>-----END CERTIFICATE-----<break
+/><break/></text></item>
+<item name='UserCertificate' summary='false'><text>0900F803 G0015B9B E66101G0 2A03G002<break
+/>B203G001 B2033082 03AE3082 02960209<break/>00DC2F34 D86EC72F 30300D06 092A8648<break
+/>86F70D01 010B0500 30819831 0B300906<break/>03550406 13025553 31133011 06035504<break
+/>080C0A54 65737420 53746174 65311230<break/>10060355 04070C09 56696C6C 65746F77<break
+/>6E311130 0F060355 040A0C08 536F6D65<break/>20436F2E 310B3009 06035504 0B0C0249<break
+/>54311C30 1A060355 04030C13 666F6F2E<break/>736F6D65 636F6D70 616E792E 636F6D31<break
+/>22302006 092A8648 86F70D01 09011613<break/>666F6F40 736F6D65 636F6D70 616E792E<break
+/>636F6D30 1E170D32 32303833 30313535<break/>3432335A 170D3233 30383330 31353534<break
+/>32335A30 8198310B 30090603 55040613<break/>02555331 13301106 03550408 0C0A5465<break
+/>73742053 74617465 31123010 06035504<break/>070C0956 696C6C65 746F776E 3111300F<break
+/>06035504 0A0C0853 6F6D6520 436F2E31<break/>0B300906 0355040B 0C024954 311C301A<break
+/>06035504 030C1366 6F6F2E73 6F6D6563<break/>6F6D7061 6E792E63 6F6D3122 30200609<break
+/>2A864886 F70D0109 01161366 6F6F4073<break/>6F6D6563 6F6D7061 6E792E63 6F6D3082<break
+/>0122300D 06092A86 4886F70D 01010105<break/>00038201 0F003082 010A0282 010100B4<break
+/>D6B873E4 DA3F9873 EED97C16 86F06E40<break/>0113A8DA D1015F8D 2EE61CAC E07707F1<break
+/>CB97F261 37AAFFD3 985EB9A8 CAE1E3D8<break/>0215E0F6 37FDC231 BADDD3D2 D77E2FD5<break
+/>743E0070 B5CB65FB 63E1C74A F8DB5057<break/>ABC3386C 99C77503 37D827A6 8B9385A3<break
+/>8771F0E5 85D1FE0F 3ADABFED 39F0ED0D<break/>F5EF9471 364884D9 511CC549 CDAE5256<break
+/>717EABC3 4D672371 F8B159A3 D0385926<break/>E2978956 789AB0D2 BE100476 E7959CA1<break
+/>E47FDD22 11D5F60B 00B0862B 24109BAD<break/>B0C7724E 267AE588 345F7C99 7D3DB8C0<break
+/>432970AF 35186A47 629998C7 CEA72571<break/>13782979 0881FB74 FD72AE27 093CE809<break
+/>6AF0EB98 41151255 915F9D1D 4144CFFE<break/>655CEC49 39DB0094 30427FB0 4B8F3702<break
+/>03010001 300D0609 2A864886 F70D0101<break/>0B050003 82010100 32EA9BA9 A66103BD<break
+/>23B40F90 EA39C57B 30FAE824 A67C2507<break/>9F65B659 1EF990E7 65B226F8 1AD3554D<break
+/>9E21FE6A 66B6E76B DBB2C422 4359147C<break/>5582E38A 3CE17F62 7F52BE39 19C225DB<break
+/>F4755858 7B39C7AC CFD85E1E B7FA1371<break/>CDD7E354 3D08100D AB126A66 4C2C3466<break
+/>F3394118 10CC7E2E 0C3A8CE2 0BBE6BE2<break/>9B4C6546 96399B9C 2961C776 E224F6E3<break
+/>739D1FAC 44615843 1A84AB6D C0980480<break/>105065B1 7584D1D2 55B4348C 328C7CC6<break
+/>40A0DF50 492DC622 3CF03F8C 7716A4E2<break/>F5CA5ACA 4A55469B A7EA850D DDF754B3<break
+/>CC1056BE 8C467436 2E17B337 534EEA99<break/>D6BD8E34 C9715725 0130ACC6 87DBAF7F<break
+/>22A19D2E 8AE701CF 282CF363 CE313800<break/>0C3CFDE6 B3D9CE9A</text></item>
+<item name='StatusKeyfile'><text>1</text></item>
+<item name='StatusCertificate'><text>1</text></item>
+<item name='StatusChain'><text>1</text></item>
+<item name='StatusKeyPair'><text>1</text></item>
+<item name='$Fonts'>
+<rawitemdata type='1'>
+i/8oAAEABQZIZWx2ZXRpY2EgTmV1ZQAAAAAAAAAAAAAAAAAAAAAAAA==
+</rawitemdata></item>
+<item name='AutoGenerate'><text/></item>
+<item name='Form'><text>KeyFile</text></item>
+<item name='Status'><text>I</text></item>
+<item name='HostnameIDN' sign='true'><text/></item>
+<item name='CertNextRenewTimedate'><datetime>20230731T155423,00+00</datetime></item>
+<item name='CertificateAuthority' sign='true'><text/></item>
+<item name='ReqKeySize'><text>2048</text></item>
+<item name='ReqKeyCurve'><text/></item>
+<item name='ReqRenewalDays'><number>30</number></item>
+<item name='AcmeAlternateChainSuffix' sign='true'><text/></item>
+<item name='HealthCheckOptions'><text/></item>
+<item name='LocalAdmin' names='true'><text>CN=Jesse Gallagher/O=IKSG</text></item>
+<item name='CertIssuedTo'><text>EMAIL=foo@somecompany.com/CN=foo.somecompany.com/OU=IT/O=Some Co./L=Villetown/ST=Test State/C=US</text></item>
+<item name='CertIssuedBy'><text>EMAIL=foo@somecompany.com/CN=foo.somecompany.com/OU=IT/O=Some Co./L=Villetown/ST=Test State/C=US</text></item>
+<item name='CertActivated'><datetime>20220830T155423,00+00</datetime></item>
+<item name='KeyCreated'><datetime dst='true'>20220831T113855,71-04</datetime></item>
+<item name='KeySize'><number>2048</number></item>
+<item name='KeyUsage'><text/></item>
+<item name='KeyIdentifier'><text>5F2E 269B 0B26 AEA4 48DC B863 4F2F A6EA 42FB 66B5</text></item>
+<item name='TrustedRoots'><text/></item>
+<item name='PastedPEM'><text/></item>
+<item name='CSR'><text/></item>
+<item name='Comments'>
+<rawitemdata type='1'>
+gv9aAAEAAAAAAAAAAACVBsA8lQYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAACGAQAAAABUhwAAAAAAAAAAAAAAAAEAAAAEAAAAgwQBAIX/CAAFAAAJ
+</rawitemdata></item>
+<item name='AdminAccess' authors='true' names='true' protected='true'><text
+>[Administrator]</text></item>
+<item name='CertType' sign='true'><text/></item>
+<item name='HostName' sign='true'><text>foo.somecompany.com</text></item>
+<item name='Servers' names='true'><text/></item>
+<item name='Provider' sign='true'><text>M</text></item>
+<item name='AcmeAccount' sign='true'><text/></item>
+<item name='ReqKeyAlg'><text>R</text></item>
+<item name='ReqKeyRollover'><text/></item>
+<item name='KeyFileName'><text>somecompany.com.kyr</text></item>
+<item name='ReqCommonName' sign='true'><text>foo.somecompany.com</text></item>
+<item name='ReqOrganization' sign='true'><text>Some Co.</text></item>
+<item name='ReqCountry' sign='true'><text>US</text></item>
+<item name='ReqLocality' sign='true'><text>Villetown</text></item>
+<item name='ReqState' sign='true'><text>Test State</text></item>
+<item name='ReqOrgUnit' sign='true'><text>IT</text></item>
+<item name='HealthCheckURL'><text/></item>
+<item name='CertExpires'><datetime>20230830T155423,00+00</datetime></item></note>
