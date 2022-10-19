@@ -42,6 +42,7 @@ import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
+import com.hcl.domino.jna.internal.NotesNamingUtils.Privileges;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNAAgentAllocations;
@@ -184,13 +185,13 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 			throw new ObjectDisposedException(doc);
 		}
 		
-		int ctxFlags = 0;
-		int runFlags = 0;
+    //always reopen the DB so that the agent runs in a consistent state; otherwise
+    //we would have Session.EffectiveUsername set to the signer and Evaluate("@Username")
+    //return the user specified via AgentSetUserName
+    int runFlags = NotesConstants.AGENT_REOPEN_DB;
 		
-		boolean reopenDbAsSigner = runCtx.isReopenDbAsSigner();
-		if (reopenDbAsSigner) {
-			runFlags = NotesConstants.AGENT_REOPEN_DB;
-		}
+    int ctxFlags = 0;
+
 		boolean checkSecurity = runCtx.isCheckSecurity();
 		if (checkSecurity) {
 			ctxFlags = NotesConstants.AGENT_SECURITY_ON;
@@ -203,8 +204,6 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 		int timeoutSeconds = runCtx.getTimeoutSeconds();
 		int paramDocId = runCtx.getParamDocId();
 		
-		String effectiveUserName = StringUtil.isEmpty(runCtx.getUsername()) ? getParentDominoClient().getEffectiveUserName() : runCtx.getUsername();
-
 		LockUtil.lockHandle(getAllocations().getAgentHandle(), (hAgentByVal) -> {
 			DHANDLE.ByReference rethContext = DHANDLE.newInstanceByReference();
 			
@@ -241,8 +240,25 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 						NotesCAPI.get().SetParamNoteID(hContextByVal, paramDocId);
 					}
 					
-
+					String effectiveUserName;
+					
+					if (isRunAsWebUser()) {
+					  //inherit username from Domino Client if not specified
+					  effectiveUserName = StringUtil.isEmpty(runCtx.getUsername()) ? getParentDominoClient().getEffectiveUserName() : runCtx.getUsername();
+					}
+					else {
+					  //run as signer
+					  effectiveUserName = getSigner();
+					}
+					
 					namesListToFree = NotesNamingUtils.buildNamesList(JNAAgent.this, effectiveUserName);
+          
+          if (getParentDatabase().hasFullAccess()) {
+            NotesNamingUtils.setPrivileges(namesListToFree, EnumSet.of(Privileges.Authenticated, Privileges.FullAdminAccess));
+          }
+          else {
+            NotesNamingUtils.setPrivileges(namesListToFree, EnumSet.of(Privileges.Authenticated));
+          }
 					JNAUserNamesListAllocations namesListAllocations = (JNAUserNamesListAllocations) namesListToFree.getAdapter(APIObjectAllocations.class);
 					
 					LockUtil.lockHandle(namesListAllocations.getHandle(), (hNamesListByVal) -> {
@@ -350,4 +366,10 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 			return db.getDocumentByUNID(unid);
 		}
 	}
+	
+	@Override
+  public String getSigner() {
+    return getAgentDoc().getSigner();
+  }
+
 }
