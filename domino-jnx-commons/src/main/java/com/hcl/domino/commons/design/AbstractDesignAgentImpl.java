@@ -314,7 +314,8 @@ public abstract class AbstractDesignAgentImpl<T extends DesignAgent> extends Abs
 
   @Override
   public boolean isRunAsWebUser() {
-    return getAssistFlags().contains(DesignConstants.ASSIST_FLAG_AGENT_RUNASWEBUSER);
+    return getAssistFlags().contains(DesignConstants.ASSIST_FLAG_AGENT_RUNASWEBUSER) ||
+        getFlags().contains(NotesConstants.DESIGN_FLAG_AGENT_RUNASWEBUSER);
   }
 
   @Override
@@ -322,10 +323,12 @@ public abstract class AbstractDesignAgentImpl<T extends DesignAgent> extends Abs
     if (b) {
      setAssistFlag(DesignConstants.ASSIST_FLAG_AGENT_RUNASWEBUSER, true);
      setAssistFlag(DesignConstants.ASSIST_FLAG_AGENT_RUNASSIGNER, false);
+     setFlag(NotesConstants.DESIGN_FLAG_AGENT_RUNASWEBUSER, true);
     }
     else {
       setAssistFlag(DesignConstants.ASSIST_FLAG_AGENT_RUNASWEBUSER, false);
       setAssistFlag(DesignConstants.ASSIST_FLAG_AGENT_RUNASSIGNER, true);
+      setFlag(NotesConstants.DESIGN_FLAG_AGENT_RUNASWEBUSER, false);
     }
     return this;
   }
@@ -482,6 +485,13 @@ public abstract class AbstractDesignAgentImpl<T extends DesignAgent> extends Abs
   public DesignAgent setTarget(AgentTarget target) {
     AssistStruct assistInfo = getAssistInfo().orElseGet(this::createAssistInfoWithDefaults);
     assistInfo.setSearch(target);
+    setAssistInfo(assistInfo);
+    return this;
+  }
+  
+  public DesignAgent setTrigger(AgentTrigger trigger) {
+    AssistStruct assistInfo = getAssistInfo().orElseGet(this::createAssistInfoWithDefaults);
+    assistInfo.setTrigger(trigger);
     setAssistInfo(assistInfo);
     return this;
   }
