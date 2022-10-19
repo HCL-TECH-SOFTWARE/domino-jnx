@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -38,6 +39,7 @@ import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.OpenDocumentMode;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.IAdaptable;
+import com.hcl.domino.exception.AgentTimeoutException;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.internal.Mem;
@@ -167,7 +169,7 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 		boolean isRunAsWebUser = LockUtil.lockHandle(getAllocations().getAgentHandle(), (hAgentByVal) -> {
 			return NotesCAPI.get().IsRunAsWebUser(hAgentByVal);
 		});
-		
+
 		return isRunAsWebUser;
 	}
 
@@ -198,7 +200,6 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 		}
 
 		final int fCtxFlags = ctxFlags;
-		final int fRunFlags = runFlags;
 		
 		Optional<Writer> stdOut = runCtx.getOutputWriter();
 		int timeoutSeconds = runCtx.getTimeoutSeconds();
@@ -223,7 +224,8 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 					}
 
 					if (timeoutSeconds!=0) {
-						NotesCAPI.get().AgentSetTimeExecutionLimit(hContextByVal, timeoutSeconds);
+						short timeOutResult = NotesCAPI.get().AgentSetTimeExecutionLimit(hContextByVal, timeoutSeconds);
+						NotesErrorUtils.checkResult(timeOutResult);
 					}
 
 					if (doc!=null) {
@@ -268,8 +270,22 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 						return 0;
 					});
 				
-					short localResult = NotesCAPI.get().AgentRun(hAgentByVal, hContextByVal, null, fRunFlags);
-					NotesErrorUtils.checkResult(localResult);
+					short runResult = NotesCAPI.get().AgentRun(hAgentByVal, hContextByVal, null, runFlags);
+			    final short runResultMasked = (short) (runResult & NotesConstants.ERR_MASK);
+
+					if (runResultMasked==INotesErrorConstants.ERR_ASSISTANT_TIMEOUT) {
+					  //fill placeholders for agent, database and signer in timeout error
+					  //Execution time limit exceeded by Agent '%s' in database '%p'. Agent signer '%a'.
+            //e.g.
+					  //Execution time limit exceeded by Agent 'testagent' in database 'Server1/TestOrg test\db.nsf'. Agent signer 'Karsten Lehmann/Mindoo'.
+					  String errMsg = NotesErrorUtils.errToString(INotesErrorConstants.ERR_ASSISTANT_TIMEOUT);
+					  
+					  errMsg = errMsg.replace("%s", getName()); //$NON-NLS-1$
+					  errMsg = errMsg.replace("%p", NotesNamingUtils.toAbbreviatedName(getParentDatabase().getServer())+" "+getParentDatabase().getRelativeFilePath()); //$NON-NLS-1$
+					  errMsg = errMsg.replace("%a", getSigner()); //$NON-NLS-1$
+					  throw new AgentTimeoutException(runResult, errMsg);
+					}
+					NotesErrorUtils.checkResult(runResult);
 					
 					if (stdOut.isPresent()) {
 						DHANDLE.ByReference retBufHandle = DHANDLE.newInstanceByReference();
