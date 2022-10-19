@@ -318,10 +318,19 @@ public class JNADxlImporter extends AbstractDxlProcessor<JNADxlImporterAllocatio
 					for(int i = 0; i < errorNodes.getLength(); i++) {
 						Element errorNode = (Element)errorNodes.item(i);
 						DxlImporterLogImpl.DxlErrorImpl error = new DxlImporterLogImpl.DxlErrorImpl();
-						error.setColumn(Integer.parseInt(errorNode.getAttribute("column"))); //$NON-NLS-1$
-						error.setLine(Integer.parseInt(errorNode.getAttribute("line"))); //$NON-NLS-1$
+						String col = errorNode.getAttribute("column"); //$NON-NLS-1$
+						if(col != null && !col.isEmpty()) {
+						  error.setColumn(Integer.parseInt(col));
+						}
+						String line = errorNode.getAttribute("line"); //$NON-NLS-1$
+						if(line != null && !line.isEmpty()) {
+						  error.setLine(Integer.parseInt(line));
+						}
 						error.setSource(errorNode.getAttribute("source")); //$NON-NLS-1$
-						error.setId(Integer.parseInt(errorNode.getAttribute("id"))); //$NON-NLS-1$
+						String id = errorNode.getAttribute("id"); //$NON-NLS-1$
+						if(id != null && !id.isEmpty()) {
+						  error.setId(Integer.parseInt(id));
+						}
 						error.setText(errorNode.getTextContent());
 						errors.add(error);
 					}
@@ -332,8 +341,14 @@ public class JNADxlImporter extends AbstractDxlProcessor<JNADxlImporterAllocatio
 					for(int i = 0; i < errorNodes.getLength(); i++) {
 						Element errorNode = (Element)errorNodes.item(i);
 						DxlImporterLogImpl.DxlFatalErrorImpl error = new DxlImporterLogImpl.DxlFatalErrorImpl();
-						error.setColumn(Integer.parseInt(errorNode.getAttribute("column"))); //$NON-NLS-1$
-						error.setLine(Integer.parseInt(errorNode.getAttribute("line"))); //$NON-NLS-1$
+						String col = errorNode.getAttribute("column"); //$NON-NLS-1$
+            if(col != null && !col.isEmpty()) {
+              error.setColumn(Integer.parseInt(col));
+            }
+            String line = errorNode.getAttribute("line"); //$NON-NLS-1$
+            if(line != null && !line.isEmpty()) {
+              error.setLine(Integer.parseInt(line));
+            }
 						error.setSource(errorNode.getAttribute("source")); //$NON-NLS-1$
 						error.setText(errorNode.getTextContent());
 						fatalErrors.add(error);

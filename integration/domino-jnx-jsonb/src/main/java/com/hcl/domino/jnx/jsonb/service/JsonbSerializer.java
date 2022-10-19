@@ -30,7 +30,7 @@ public class JsonbSerializer extends AbstractJsonSerializer {
   @Override
   public Object toJson(final Document doc) {
     final Jsonb jsonb = buildSerializer();
-    return jsonb.toJson(doc);
+    return jsonb.toJson(doc, Document.class);
   }
   
   @Override
@@ -55,6 +55,7 @@ public class JsonbSerializer extends AbstractJsonSerializer {
                       .dateRangeFormat(this.dateRangeFormat)
                       .richTextHtmlOptions(this.htmlConvertOptions)
                       .customProcessors(this.customProcessors)
+                      .metaOnly(this.metaOnly)
                       .build(),
                   DominoDateTimeSerializer.INSTANCE,
                   DominoDateRangeSerializer.INSTANCE

@@ -18,6 +18,7 @@ package com.hcl.domino.data;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.security.cert.X509Certificate;
 import java.time.temporal.TemporalAccessor;
 import java.util.Collection;
 import java.util.List;
@@ -284,6 +285,15 @@ public interface Document extends TypedAccess, IAdaptable {
   Document appendToTextList(String itemName, String value, boolean allowDuplicates);
 
   /**
+   * Attaches a X.509 certificate to the document.
+   * 
+   * @param certificate the certificate to attach
+   * @throws NullPointerException if {@code certificate} is {@code null}
+   * @since 1.12.0
+   */
+  void attachCertificate(X509Certificate certificate);
+  
+  /**
    * Attaches a file to the document, not associated with a rich-text item.
    * <p>
    * Unlike
@@ -394,6 +404,13 @@ public interface Document extends TypedAccess, IAdaptable {
    *         returned {@link IRichTextConversion#isMatch(List)} as false
    */
   boolean convertRichTextItem(String itemName, IRichTextConversion... conversions);
+  
+  /**
+   * Converts any RFC 822 (MIME text) items to their traditional Domino equivalents.
+   * 
+   * @since 1.12.0
+   */
+  void convertRFC822Items();
 
   /**
    * This function copies and encrypts (seals) the encryption enabled fields in a
@@ -507,10 +524,21 @@ public interface Document extends TypedAccess, IAdaptable {
    * processed or the consumer calls {@link Loop#stop()}.
    *
    * @param consumer a {@link BiConsumer} to process the attachments
+   * @throws NullPointerException if {@code consumer} is {@code null}
    * @return this document
    */
   Document forEachAttachment(BiConsumer<Attachment, Loop> consumer);
-
+  
+  /**
+   * Iterates over each certificate stored in the document, until all attachments
+   * have been processed or the consumer calls {@link Loop#stop()}.
+   * 
+   * @param consumer a {@link BiConsumer} to process the certificates
+   * @return this document
+   * @since 1.12.0
+   */
+  Document forEachCertificate(BiConsumer<X509Certificate, Loop> consumer);
+  
   /**
    * Iterates over all document items
    *
@@ -575,6 +603,15 @@ public interface Document extends TypedAccess, IAdaptable {
     });
     return attachmentNames;
   }
+  
+  /**
+   * Retrieves all of the certificates embedded in this document.
+   * 
+   * @return a {@link List} of {@link X509Certificate} certificates
+   *         embedded in this document
+   * @since 1.12.0
+   */
+  List<X509Certificate> getCertificates();
   
   /**
    * Retrieves the creation date of this document.
@@ -805,6 +842,18 @@ public interface Document extends TypedAccess, IAdaptable {
    * @return signer or empty string if not signed
    */
   String getSigner();
+  
+  /**
+   * Retrieves the thread ID of this document, if present.
+   * <p>
+   * This is equivalent to calling {@code get("$TUA", String.class, "")}.
+   * </p>
+   *
+   * @return an {@link Optional} describing the the document's thread ID,
+   *         or an empty one if the document has no stored thread
+   * @since 1.11.0
+   */
+  Optional<String> getThreadID();
 
   /**
    * Retrieves the universal ID of the document, which is unique across replicas.
@@ -1018,6 +1067,15 @@ public interface Document extends TypedAccess, IAdaptable {
    * @return this document
    */
   Document removeAttachment(String uniqueFileNameInDoc);
+  
+  /**
+   * Removes the provided certificate from the document.
+   * 
+   * @param certificate the certificate to remove from the document
+   * @return this document
+   * @since 1.12.0
+   */
+  Document removeCertificate(X509Certificate certificate);
 
   /**
    * Removes <b>all occurrences</b> of items with the provided name from the document.

@@ -15,7 +15,7 @@
 # ==========================================================================
 #
 
-FROM maven:3.6.3-adoptopenjdk-8
+FROM maven:3.8.6-eclipse-temurin-8
 USER root
 
 RUN apt update && apt install unzip
@@ -35,13 +35,8 @@ COPY docker/settings.xml /root/.m2/
 RUN mkdir -p /root
 
 # Bring in the Domino runtime
-COPY --from=domino-docker:V1101_03212020prod /opt/hcl/domino/notes/11000100/linux /opt/hcl/domino/notes/latest/linux
+COPY --from=hclcom/domino:latest /opt/hcl/domino/notes/latest/linux /opt/hcl/domino/notes/latest/linux
 RUN mkdir -p /local/notesdata
-# TODO check if there's a way to do this in a single ADD
-COPY --from=domino-docker:V1101_03212020prod /tmp/notesdata.tbz2 /local/notesdata/
-RUN cd /local/notesdata && \
-    tar xjf notesdata.tbz2 && \
-    rm notesdata.tbz2
 
 # Copy in our stock Notes ID and configuration files
 COPY docker/notesdata/* /local/notesdata/
@@ -55,8 +50,8 @@ RUN cd /local/notesdata && \
 RUN chmod -R 777 /local/notesdata
 
 # Bring in the dependencies to the local Maven repo
-RUN mkdir /build/
-COPY pom.xml /build/
+RUN mkdir /tmpbuild/
+COPY pom.xml /tmpbuild/
 COPY domino-jnx-api/pom.xml /tmpbuild/domino-jnx-api/
 COPY domino-jnx-commons/pom.xml /tmpbuild/domino-jnx-commons/
 COPY domino-jnx-console/pom.xml /tmpbuild/domino-jnx-console/
@@ -64,6 +59,7 @@ COPY domino-jnx-jna/pom.xml /tmpbuild/domino-jnx-jna/
 COPY integration/domino-jnx-jakarta-security/pom.xml /tmpbuild/integration/domino-jnx-jakarta-security/
 COPY integration/domino-jnx-jsonb/pom.xml /tmpbuild/integration/domino-jnx-jsonb/
 COPY integration/domino-jnx-vertx-json/pom.xml /tmpbuild/integration/domino-jnx-vertx-json/
+COPY integration/domino-jnx-rawdoc-json/pom.xml /tmpbuild/integration/domino-jnx-rawdoc-json/
 COPY integration/domino-jnx-lsxbeshim/pom.xml /tmpbuild/integration/domino-jnx-lsxbeshim/
 COPY example/jnx-example-swt/pom.xml /tmpbuild/example/jnx-example-swt/
 COPY example/jnx-example-webapp/pom.xml /tmpbuild/example/jnx-example-webapp/
@@ -71,8 +67,8 @@ COPY example/jnx-example-runjava/pom.xml /tmpbuild/example/jnx-example-runjava/
 COPY example/jnx-example-domino-webapp-admin/pom.xml /tmpbuild/example/jnx-example-domino-webapp-admin/
 COPY example/jnx-example-graalvm-native/pom.xml /tmpbuild/example/jnx-example-graalvm-native/
 COPY test/it-domino-jnx/pom.xml /tmpbuild/test/it-domino-jnx/
-RUN chmod -R 777 /build/
-RUN mvn -f /build/pom.xml de.qaware.maven:go-offline-maven-plugin:1.2.5:resolve-dependencies
+RUN chmod -R 777 /tmpbuild/
+RUN mvn -f /tmpbuild/pom.xml de.qaware.maven:go-offline-maven-plugin:1.2.5:resolve-dependencies
 
 COPY . /build/
 RUN chmod -R 777 /build/

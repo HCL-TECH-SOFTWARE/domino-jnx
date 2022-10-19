@@ -278,5 +278,9 @@ public interface NotesCallbacks {
 	interface NSFFORMCMDSPROC extends Callback {
 	  short invoke(Pointer ptr, short code, IntByReference stopFlag);
 	}
+	
+	interface SECNABENUMPROC extends Callback {
+	  boolean invoke(Pointer pCallCtx, Pointer pCert, int certSize, short reserved1, short reserved2);
+	}
 
 }
