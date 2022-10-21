@@ -21,8 +21,13 @@ import static java.text.MessageFormat.format;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.lang.ref.ReferenceQueue;
 import java.nio.ByteBuffer;
+import java.security.cert.CertificateEncodingException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
@@ -54,6 +59,7 @@ import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.commons.constants.UpdateNote;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
+import com.hcl.domino.commons.data.IDefaultDocument;
 import com.hcl.domino.commons.data.SignatureDataImpl;
 import com.hcl.domino.commons.design.FormFieldImpl;
 import com.hcl.domino.commons.design.view.CollationDecoder;
@@ -96,6 +102,7 @@ import com.hcl.domino.data.Item;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.PreV3Author;
+import com.hcl.domino.data.UserData;
 import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.exception.LotusScriptCompilationException;
@@ -132,6 +139,7 @@ import com.hcl.domino.jna.internal.structs.NotesRangeStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
+import com.hcl.domino.jna.misc.LMBCSCharsetProvider.LMBCSCharset;
 import com.hcl.domino.jna.richtext.JNARichtextWriter;
 import com.hcl.domino.jna.utils.JNADominoUtils;
 import com.hcl.domino.misc.DominoEnumUtil;
@@ -162,7 +170,7 @@ import com.sun.jna.ptr.ShortByReference;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetHeaders;
 
-public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implements Document, AutoCloseableDocument {
+public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implements IDefaultDocument, AutoCloseableDocument {
 	private Set<DocumentClass> m_documentClass;
 	private AbstractTypedAccess m_typedAccess;
 	private ThreadLocal<Set<Class<?>>> readingItemType = ThreadLocal.withInitial(HashSet::new);
@@ -411,6 +419,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
     }
 		else if(dataTypeAsInt == ItemDataType.TYPE_USERID.getValue()) {
 		  supportedType = true;
+		} else if(dataTypeAsInt == ItemDataType.TYPE_USERDATA.getValue()) {
+		  supportedType = true;
 		}
 		
 		if (!supportedType) {
@@ -658,6 +668,10 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		  PreV3Author result = NotesItemDataUtil.parsePreV3Author(valueDataPtr.getByteBuffer(0, valueDataLength));
 		  return Arrays.asList((Object)result);
 		}
+		else if(dataTypeAsInt == ItemDataType.TYPE_USERDATA.getValue()) {
+		  UserData result = NotesItemDataUtil.parseUserData(valueDataPtr.getByteBuffer(0, valueDataLength));
+		  return Arrays.asList((Object)result);
+		}
 		else {
 			throw new DominoException(format("Data type for value of item {0} is currently unsupported: {1}", itemName, dataTypeAsInt));
 		}
@@ -680,6 +694,16 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		finally {
 			retNoteId.dispose();
 		}
+	}
+	
+	@Override
+	public Optional<String> getThreadID() {
+	  String id = get(NotesConstants.ITEM_THREAD_ID, String.class, ""); //$NON-NLS-1$
+	  if(id != null && !id.isEmpty()) {
+	    return Optional.of(id);
+	  } else {
+	    return Optional.empty();
+	  }
 	}
 
 	@Override
@@ -1085,6 +1109,85 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		
 		return this;
 	}
+	
+	@Override
+	public Document forEachCertificate(BiConsumer<X509Certificate, Loop> consumer) {
+	  Objects.requireNonNull(consumer, "consumer must not be null");
+	  
+	  CertificateFactory cf;
+	  try {
+      cf = CertificateFactory.getInstance("X.509"); //$NON-NLS-1$
+    } catch (CertificateException e) {
+      throw new RuntimeException(e);
+    }
+	  
+	  NotesErrorUtils.checkResult(LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> {
+	    LoopImpl loop = new LoopImpl();
+	    NotesCallbacks.SECNABENUMPROC proc = (pCallCtx, pCert, certSize, reserved1, reserved2) -> {
+	      if(certSize < 0) {
+	        // DWORD larger than INT_MAX
+	        throw new UnsupportedOperationException(MessageFormat.format("Unable to operate on certificate with size larger than {0} bytes", Integer.MAX_VALUE));
+	      }
+	      byte[] certData = pCert.getByteArray(0, certSize);
+	      try(ByteArrayInputStream bais = new ByteArrayInputStream(certData)) {
+	        X509Certificate cert = (X509Certificate) cf.generateCertificate(bais);
+	        consumer.accept(cert, loop);
+	      } catch (IOException e) {
+          throw new UncheckedIOException(e);
+        } catch (CertificateException e) {
+          throw new RuntimeException("Encountered exception when parsing certificate data", e);
+        }
+	      
+	      return !loop.isStopped();
+	    };
+      return NotesCAPI.get().SECNABEnumerateCertificates(noteHandleByVal, proc, null, 0, null);
+    }));
+	  
+	  return this;
+	}
+	
+	@Override
+	public void attachCertificate(X509Certificate certificate) {
+	  Objects.requireNonNull(certificate, "certificate cannot be null");
+	  NotesErrorUtils.checkResult(LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> {
+	    try {
+        byte[] certData = certificate.getEncoded();
+        DisposableMemory mem = new DisposableMemory(certData.length);
+        try {
+          mem.write(0, certData, 0, certData.length);
+          return NotesCAPI.get().SECNABAddCertificate(noteHandleByVal, mem, certData.length, 0, null);
+        } finally {
+          mem.dispose();
+        }
+      } catch (CertificateEncodingException e) {
+        throw new RuntimeException(e);
+      }
+	  }));
+	}
+	
+	@Override
+	public Document removeCertificate(X509Certificate certificate) {
+	  if(certificate == null) {
+	    return this;
+	  }
+	  
+	  NotesErrorUtils.checkResult(LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> {
+      try {
+        byte[] certData = certificate.getEncoded();
+        DisposableMemory mem = new DisposableMemory(certData.length);
+        try {
+          mem.write(0, certData, 0, certData.length);
+          return NotesCAPI.get().SECNABRemoveCertificate(noteHandleByVal, mem, certData.length, 0, null);
+        } finally {
+          mem.dispose();
+        }
+      } catch (CertificateEncodingException e) {
+        throw new RuntimeException(e);
+      }
+    }));
+	  
+	  return this;
+	}
 
 	@Override
 	public Document replaceItemValue(String itemName, Object value) {
@@ -1143,6 +1246,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
       return true;
     }
     else if (value instanceof DominoCollationInfo) {
+      return true;
+    }
+    else if (value instanceof UserData) {
       return true;
     }
 		return false;
@@ -2026,6 +2132,47 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
           Mem.OSUnlockObject(hItemByVal);
         }
       
+      });
+    }
+    else if(value instanceof UserData) {
+      byte[] formatNameLmbcs = ((UserData)value).getFormatName().getBytes(LMBCSCharset.INSTANCE);
+      if(formatNameLmbcs.length > 255) {
+        throw new IllegalArgumentException("User data format name must be less than 255 bytes when encoded as LMBCS");
+      }
+      byte[] data = ((UserData)value).getData();
+      if(data == null) {
+        data = new byte[0];
+      }
+      
+      //date type + byte Pascal length + name + data
+      int valueSize = 2 + 1 + formatNameLmbcs.length + data.length;
+      
+      DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
+      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
+      NotesErrorUtils.checkResult(result);
+      
+      byte[] fData = data;
+      return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
+        Pointer valuePtr = Mem.OSLockObject(hItemByVal);
+        
+        try {
+          valuePtr.setShort(0, ItemDataType.TYPE_USERDATA.getValue().shortValue());
+          valuePtr = valuePtr.share(2);
+          
+          // Pascal string format name
+          valuePtr.setByte(0, (byte)formatNameLmbcs.length);
+          valuePtr = valuePtr.share(1);
+          valuePtr.write(0, formatNameLmbcs, 0, formatNameLmbcs.length);
+          
+          // Data array
+          valuePtr = valuePtr.share(formatNameLmbcs.length);
+          valuePtr.write(0, fData, 0, fData.length);
+
+          return appendItemValue(itemName, flags, ItemDataType.TYPE_USERDATA.getValue(), hItemByVal, valueSize);
+        }
+        finally {
+          Mem.OSUnlockObject(hItemByVal);
+        }
       });
     }
 		else if (valueConverter!=null) {
@@ -4192,6 +4339,15 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	@Override
 	public boolean convertRichTextItem(String itemName, IRichTextConversion... conversions) {
 		return convertRichTextItem(itemName, this, itemName, conversions);
+	}
+	
+	@Override
+	public void convertRFC822Items() {
+	  short result = LockUtil.lockHandle(getAllocations().getNoteHandle(), (hNoteByVal) -> {
+	    boolean isCanonical = (getFlags() & NotesConstants.NOTE_FLAG_CANONICAL) == NotesConstants.NOTE_FLAG_CANONICAL;
+      return NotesCAPI.get().MIMEConvertRFC822TextItems(hNoteByVal, isCanonical);
+    });
+    NotesErrorUtils.checkResult(result);
 	}
 	
 	@Override

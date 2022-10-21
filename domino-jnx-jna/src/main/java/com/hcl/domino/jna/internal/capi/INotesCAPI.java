@@ -1110,6 +1110,10 @@ public interface INotesCAPI extends Library {
 			boolean bIsMIME,
 			Pointer hCC);
 	
+	short MIMEConvertRFC822TextItems(
+	    DHANDLE.ByValue hNote,
+	    boolean bCanonical);
+	
 	short MIMEConvertRFC822TextItemByBLOCKID(
 			DHANDLE.ByValue hNote,
 			NotesBlockIdStruct.ByValue bhItem,
@@ -1621,6 +1625,8 @@ public interface INotesCAPI extends Library {
 	
 	short SECKFMSwitchToIDFile(Memory pIDFileName, Memory pPassword, Memory pUserName,
 			short  MaxUserNameLength, int Flags, Pointer pReserved);
+	
+	
 
 	short NSFDbMarkInService(Memory dbPath);
 	short NSFDbMarkOutOfService(Memory dbPath);
@@ -1680,6 +1686,28 @@ public interface INotesCAPI extends Library {
 			short wDownloadCount, int ReservedFlags, Pointer pReserved);
 
 	short SECKFMChangePassword(Memory pIDFile, Memory pOldPassword, Memory pNewPassword);
+	
+	short SECNABEnumerateCertificates(
+	    DHANDLE.ByValue hNote,
+	    NotesCallbacks.SECNABENUMPROC CallBack,
+	    Pointer pCallCtx,
+	    int ReservedFlags,
+	    Pointer pReserved
+	);
+	short SECNABAddCertificate(
+	    DHANDLE.ByValue hNote,
+	    Pointer pCertificate,
+	    int CertificateSize,
+	    int ReservedFlags,
+	    Pointer pReserved
+  );
+  short SECNABRemoveCertificate(
+      DHANDLE.ByValue hNote,
+      Pointer pCertificate,
+      int CertificateSize,
+      int ReservedFlags,
+      Pointer pReserved
+  );
 
 	short REGGetIDInfo(
 			Memory IDFileName,

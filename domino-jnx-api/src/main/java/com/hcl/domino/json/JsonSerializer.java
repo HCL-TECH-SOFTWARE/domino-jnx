@@ -57,6 +57,22 @@ public interface JsonSerializer {
   String PROP_META_NOTECLASS = "noteclass"; //$NON-NLS-1$
   String PROP_META_SEQUENCENUMBER = "seq"; //$NON-NLS-1$
   String PROP_META_SEQUENCETIME = "seqtime"; //$NON-NLS-1$
+  /**
+   * @since 1.11.0
+   */
+  String PROP_META_PARENTUNID = "parentunid"; //$NON-NLS-1$
+  /**
+   * @since 1.11.0
+   */
+  String PROP_META_UNREAD = "unread"; //$NON-NLS-1$
+  /**
+   * @since 1.11.0
+   */
+  String PROP_META_THREADID = "threadid"; //$NON-NLS-1$
+  /**
+   * @since 1.11.0
+   */
+  String PROP_META_REVISION = "revision"; //$NON-NLS-1$
 
   String PROP_RANGE_FROM = "from"; //$NON-NLS-1$
   String PROP_RANGE_TO = "to"; //$NON-NLS-1$
@@ -218,6 +234,17 @@ public interface JsonSerializer {
    * @since 1.0.27
    */
   JsonSerializer richTextConvertOption(HtmlConvertOption option, String value);
+  
+  /**
+   * Sets whether or not the serializer will emit only the {@link #PROP_METADATA} object
+   * and its attributes, as opposed to also including the full document contents.
+   * 
+   * @param metaOnly {@code true} to emit only metadata; {@code false} (the default)
+   *                 to emit both meta and document data
+   * @return this serializer
+   * @since 1.11.0
+   */
+  JsonSerializer metaOnly(boolean metaOnly);
 
   /**
    * Serializes the provided document as a JSON object using the implementation's

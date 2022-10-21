@@ -41,6 +41,7 @@ public abstract class AbstractJsonSerializer implements JsonSerializer {
 
   protected boolean lowercaseProperties;
   protected boolean includeMetadata;
+  protected boolean metaOnly;
 
   protected Collection<String> booleanItemNames = Collections.emptySet();
 
@@ -142,6 +143,12 @@ public abstract class AbstractJsonSerializer implements JsonSerializer {
     this.htmlConvertOptions.put(option, value);
     return this;
   }
+  
+  @Override
+  public JsonSerializer metaOnly(boolean metaOnly) {
+    this.metaOnly = metaOnly;
+    return this;
+  }
 
   // *******************************************************************************
   // * Internal utility methods
@@ -155,7 +162,7 @@ public abstract class AbstractJsonSerializer implements JsonSerializer {
    * @return whether the item should be excluded from export
    */
   public static boolean isExcludedField(final String itemName) {
-    if (itemName == null || itemName.isEmpty() || itemName.toLowerCase().endsWith("_storedform") || itemName.toLowerCase().endsWith("_storedsubform")) { //$NON-NLS-1$
+    if (itemName == null || itemName.isEmpty() || itemName.toLowerCase().endsWith("_storedform") || itemName.toLowerCase().endsWith("_storedsubform")) { //$NON-NLS-1$ //$NON-NLS-2$
       return true;
     }
     return false;

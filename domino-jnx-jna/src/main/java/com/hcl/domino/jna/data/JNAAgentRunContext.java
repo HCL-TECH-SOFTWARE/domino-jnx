@@ -24,7 +24,6 @@ import com.hcl.domino.data.Document;
 
 public class JNAAgentRunContext implements AgentRunContext {
 	private boolean m_checkSecurity;
-	private boolean m_reopenDbAsSigner;
 	private Writer m_stdOut;
 	private int m_timeoutSeconds;
 	private Document m_documentContext;
@@ -39,17 +38,6 @@ public class JNAAgentRunContext implements AgentRunContext {
 	@Override
 	public AgentRunContext setCheckSecurity(boolean checkSecurity) {
 		this.m_checkSecurity = checkSecurity;
-		return this;
-	}
-
-	@Override
-	public boolean isReopenDbAsSigner() {
-		return m_reopenDbAsSigner;
-	}
-
-	@Override
-	public AgentRunContext setReopenDbAsSigner(boolean reopenAsSigner) {
-		this.m_reopenDbAsSigner = reopenAsSigner;
 		return this;
 	}
 

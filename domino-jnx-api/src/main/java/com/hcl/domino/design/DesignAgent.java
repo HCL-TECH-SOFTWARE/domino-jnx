@@ -447,4 +447,6 @@ public interface DesignAgent extends NamedDesignElement, DesignElement.ReadersRe
    */
   DesignAgent setTarget(AgentTarget target);
   
+  DesignAgent setTrigger(AgentTrigger trigger);
+  
 }

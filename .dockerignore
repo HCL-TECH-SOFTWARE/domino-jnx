@@ -1,8 +1,34 @@
-**/target
-docs
-.git
+/docs
+/.git
 
-**/*.trc
+**/target
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+# Exclude Eclipse stuff
+.classpath
+.settings
+.project
+.factorypath
+.vertx
+.metadata
+.DS_Store
 **/*.dmp
+**/*.trc
 **/javacore.*
+bin/
 **/core
+*.swp
+
+# IntelliJ
+*.iml
+.idea/
+
+# Auto-generated MANIFEST.MF from maven-bundle-plugin
+/*/META-INF/MANIFEST.MF
