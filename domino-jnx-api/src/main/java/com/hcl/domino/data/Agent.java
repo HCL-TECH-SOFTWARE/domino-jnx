@@ -74,13 +74,6 @@ public interface Agent {
     boolean isCheckSecurity();
 
     /**
-     * Returns whether the DB should be reopened as agent signer
-     *
-     * @return true to reopen
-     */
-    boolean isReopenDbAsSigner();
-
-    /**
      * Use this method to set the AGENT_SECURITY_ON flag:<br>
      * <br>
      * AGENT_SECURITY_ON:<br>
@@ -132,20 +125,6 @@ public interface Agent {
     AgentRunContext setParamDocId(int paramDocId);
 
     /**
-     * Use this method to set the AGENT_REOPEN_DB flag:<br>
-     * <br>
-     * AGENT_REOPEN_DB:<br>
-     * If AGENT_REOPEN_DB is set, the AgentRun call will reopen the agent's database
-     * with the privileges of the signer of the agent. If the flag is not set, the
-     * agent's "context" database will be open with the privileges of the current
-     * user (the current Notes id or the current Domino web user).
-     *
-     * @param reopenAsSigner true to reopen database, false by default
-     * @return this context object (for chained calls)
-     */
-    AgentRunContext setReopenDbAsSigner(boolean reopenAsSigner);
-
-    /**
      * Sets an execution timeout in seconds
      *
      * @param timeoutSeconds timeout in seconds, 0 by default
@@ -154,14 +133,12 @@ public interface Agent {
     AgentRunContext setTimeoutSeconds(int timeoutSeconds);
 
     /**
-     * Sets the Notes username e.g. to be used for evaluating @UserNamesList.
-     * Unfortunately, this does not cover Session.EffectiveUserName. We still need
-     * to find a way to change this (when calling WebQueryOpen/Save agents
-     * manually), if there is any.
+     * Sets the Notes username for the agent execution, e.g. returned by
+     * <code>Session.EffectiveUserName</code>.
      *
      * @param sessionEffectiveName either in canonical or abbreviated format, null
-     *                             by default, which means Session.EffectiveUserName
-     *                             will be the agent signer
+     *                             by default, which means Session.EffectiveUserName will be the
+     *                             DB opener (for "run as web user"==true) or the agent signer
      * @return this context object (for chained calls)
      */
     AgentRunContext setUsername(String sessionEffectiveName);
@@ -272,4 +249,12 @@ public interface Agent {
    *                               agent code to the server console
    */
   void runOnServer(int noteIdParamDoc, boolean suppressPrintToConsole);
+  
+  /**
+   * Returns the signer of the agent
+   * 
+   * @return signer
+   */
+  String getSigner();
+  
 }

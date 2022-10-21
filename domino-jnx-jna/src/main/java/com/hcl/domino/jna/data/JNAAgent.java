@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -38,10 +39,12 @@ import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.OpenDocumentMode;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.IAdaptable;
+import com.hcl.domino.exception.AgentTimeoutException;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
+import com.hcl.domino.jna.internal.NotesNamingUtils.Privileges;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNAAgentAllocations;
@@ -166,7 +169,7 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 		boolean isRunAsWebUser = LockUtil.lockHandle(getAllocations().getAgentHandle(), (hAgentByVal) -> {
 			return NotesCAPI.get().IsRunAsWebUser(hAgentByVal);
 		});
-		
+
 		return isRunAsWebUser;
 	}
 
@@ -184,27 +187,24 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 			throw new ObjectDisposedException(doc);
 		}
 		
-		int ctxFlags = 0;
-		int runFlags = 0;
+    //always reopen the DB so that the agent runs in a consistent state; otherwise
+    //we would have Session.EffectiveUsername set to the signer and Evaluate("@Username")
+    //return the user specified via AgentSetUserName
+    int runFlags = NotesConstants.AGENT_REOPEN_DB;
 		
-		boolean reopenDbAsSigner = runCtx.isReopenDbAsSigner();
-		if (reopenDbAsSigner) {
-			runFlags = NotesConstants.AGENT_REOPEN_DB;
-		}
+    int ctxFlags = 0;
+
 		boolean checkSecurity = runCtx.isCheckSecurity();
 		if (checkSecurity) {
 			ctxFlags = NotesConstants.AGENT_SECURITY_ON;
 		}
 
 		final int fCtxFlags = ctxFlags;
-		final int fRunFlags = runFlags;
 		
 		Optional<Writer> stdOut = runCtx.getOutputWriter();
 		int timeoutSeconds = runCtx.getTimeoutSeconds();
 		int paramDocId = runCtx.getParamDocId();
 		
-		String effectiveUserName = StringUtil.isEmpty(runCtx.getUsername()) ? getParentDominoClient().getEffectiveUserName() : runCtx.getUsername();
-
 		LockUtil.lockHandle(getAllocations().getAgentHandle(), (hAgentByVal) -> {
 			DHANDLE.ByReference rethContext = DHANDLE.newInstanceByReference();
 			
@@ -224,7 +224,8 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 					}
 
 					if (timeoutSeconds!=0) {
-						NotesCAPI.get().AgentSetTimeExecutionLimit(hContextByVal, timeoutSeconds);
+						short timeOutResult = NotesCAPI.get().AgentSetTimeExecutionLimit(hContextByVal, timeoutSeconds);
+						NotesErrorUtils.checkResult(timeOutResult);
 					}
 
 					if (doc!=null) {
@@ -241,8 +242,25 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 						NotesCAPI.get().SetParamNoteID(hContextByVal, paramDocId);
 					}
 					
-
+					String effectiveUserName;
+					
+					if (isRunAsWebUser()) {
+					  //inherit username from Domino Client if not specified
+					  effectiveUserName = StringUtil.isEmpty(runCtx.getUsername()) ? getParentDominoClient().getEffectiveUserName() : runCtx.getUsername();
+					}
+					else {
+					  //run as signer
+					  effectiveUserName = getSigner();
+					}
+					
 					namesListToFree = NotesNamingUtils.buildNamesList(JNAAgent.this, effectiveUserName);
+          
+          if (getParentDatabase().hasFullAccess()) {
+            NotesNamingUtils.setPrivileges(namesListToFree, EnumSet.of(Privileges.Authenticated, Privileges.FullAdminAccess));
+          }
+          else {
+            NotesNamingUtils.setPrivileges(namesListToFree, EnumSet.of(Privileges.Authenticated));
+          }
 					JNAUserNamesListAllocations namesListAllocations = (JNAUserNamesListAllocations) namesListToFree.getAdapter(APIObjectAllocations.class);
 					
 					LockUtil.lockHandle(namesListAllocations.getHandle(), (hNamesListByVal) -> {
@@ -252,8 +270,22 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 						return 0;
 					});
 				
-					short localResult = NotesCAPI.get().AgentRun(hAgentByVal, hContextByVal, null, fRunFlags);
-					NotesErrorUtils.checkResult(localResult);
+					short runResult = NotesCAPI.get().AgentRun(hAgentByVal, hContextByVal, null, runFlags);
+			    final short runResultMasked = (short) (runResult & NotesConstants.ERR_MASK);
+
+					if (runResultMasked==INotesErrorConstants.ERR_ASSISTANT_TIMEOUT) {
+					  //fill placeholders for agent, database and signer in timeout error
+					  //Execution time limit exceeded by Agent '%s' in database '%p'. Agent signer '%a'.
+            //e.g.
+					  //Execution time limit exceeded by Agent 'testagent' in database 'Server1/TestOrg test\db.nsf'. Agent signer 'Karsten Lehmann/Mindoo'.
+					  String errMsg = NotesErrorUtils.errToString(INotesErrorConstants.ERR_ASSISTANT_TIMEOUT);
+					  
+					  errMsg = errMsg.replace("%s", getName()); //$NON-NLS-1$
+					  errMsg = errMsg.replace("%p", NotesNamingUtils.toAbbreviatedName(getParentDatabase().getServer())+" "+getParentDatabase().getRelativeFilePath()); //$NON-NLS-1$
+					  errMsg = errMsg.replace("%a", getSigner()); //$NON-NLS-1$
+					  throw new AgentTimeoutException(runResult, errMsg);
+					}
+					NotesErrorUtils.checkResult(runResult);
 					
 					if (stdOut.isPresent()) {
 						DHANDLE.ByReference retBufHandle = DHANDLE.newInstanceByReference();
@@ -350,4 +382,10 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 			return db.getDocumentByUNID(unid);
 		}
 	}
+	
+	@Override
+  public String getSigner() {
+    return getAgentDoc().getSigner();
+  }
+
 }
