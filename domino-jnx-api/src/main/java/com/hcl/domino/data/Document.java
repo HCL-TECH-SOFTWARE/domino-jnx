@@ -1358,4 +1358,18 @@ public interface Document extends TypedAccess, IAdaptable {
    */
   SignatureData verifySignature();
 
+  /**
+   * Returns the name of a named document
+   * 
+   * @return name or empty string
+   */
+  String getNameOfDoc();
+  
+  /**
+   * Returns the username of a named document
+   * 
+   * @return username or empty string
+   */
+  String getUserNameOfDoc();
+  
 }

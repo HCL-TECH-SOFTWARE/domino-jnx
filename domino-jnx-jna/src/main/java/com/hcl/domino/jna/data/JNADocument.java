@@ -1762,40 +1762,40 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				throw new IllegalArgumentException(format("String list size must fit in a WORD ({0}>65535)", strList.size()));
 			}
 			
-			DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
-			ShortByReference retListSize = new ShortByReference();
-			Memory retpList = new Memory(Native.POINTER_SIZE);
+	      DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
+	      ShortByReference retListSize = new ShortByReference();
+	      Memory retpList = new Memory(Native.POINTER_SIZE);
 
-			short result = NotesCAPI.get().ListAllocate((short) 0, 
-					(short) 0,
-					1, rethList, retpList, retListSize);
-			
-			NotesErrorUtils.checkResult(result);
+	      short result = NotesCAPI.get().ListAllocate((short) 0, 
+	          (short) 0,
+	          1, rethList, retpList, retListSize);
+	      
+	      NotesErrorUtils.checkResult(result);
 
-			return LockUtil.lockHandle(rethList, (hListByVal) -> {
-				Mem.OSUnlockObject(hListByVal);
-				
-				int i = 0;
-				for(String currStr : strList) {
-					Memory currStrMem = NotesStringUtils.toLMBCS(currStr, false);
+	      return LockUtil.lockHandle(rethList, (hListByVal) -> {
+	        Mem.OSUnlockObject(hListByVal);
+	        
+	        int i = 0;
+	        for(String currStr : strList) {
+	          Memory currStrMem = NotesStringUtils.toLMBCS(currStr, false);
 
-					short localResult = NotesCAPI.get().ListAddEntry(hListByVal, 1, retListSize, (short) (i & 0xffff), currStrMem,
-							(short) (currStrMem==null ? 0 : (currStrMem.size() & 0xffff)));
-					NotesErrorUtils.checkResult(localResult);
-					i++;
-				}
-				
-				int listSize = retListSize.getValue() & 0xffff;
-				
-				@SuppressWarnings("unused")
-				Pointer valuePtr = Mem.OSLockObject(hListByVal);
-				try {
-					return appendItemValue(itemName, flags, ItemDataType.TYPE_TEXT_LIST.getValue(), hListByVal, listSize);
-				}
-				finally {
-					Mem.OSUnlockObject(hListByVal);
-				}
-			});
+	          short localResult = NotesCAPI.get().ListAddEntry(hListByVal, 1, retListSize, (short) (i & 0xffff), currStrMem,
+	              (short) (currStrMem==null ? 0 : (currStrMem.size() & 0xffff)));
+	          NotesErrorUtils.checkResult(localResult);
+	          i++;
+	        }
+	        
+	        int listSize = retListSize.getValue() & 0xffff;
+	        
+	        @SuppressWarnings("unused")
+	        Pointer valuePtr = Mem.OSLockObject(hListByVal);
+	        try {
+	          return appendItemValue(itemName, flags, ItemDataType.TYPE_TEXT_LIST.getValue(), hListByVal, listSize);
+	        }
+	        finally {
+	          Mem.OSUnlockObject(hListByVal);
+	        }
+	      });
 		}
 		else if (value instanceof Iterable && isNumberOrNumberArrayList((Iterable<?>) value)) {
 		  List<?> numberOrNumberArrList = toNumberOrNumberArrayList((Iterable<?>) value);
@@ -4507,4 +4507,22 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		NotesErrorUtils.checkResult(result);
 		return this;
 	}
+	
+	@Override
+	public String getNameOfDoc() {
+	  String rawName = get("$name", String.class, ""); //$NON-NLS-1$ //$NON-NLS-2$
+	  return JNADatabase
+	      .parseLegacyAPINamedNoteName(rawName)
+	      .map((v) -> { return v[0]; })
+	      .orElse(""); //$NON-NLS-1$
+	}
+  
+  public String getUserNameOfDoc() {
+    String rawName = get("$name", String.class, ""); //$NON-NLS-1$ //$NON-NLS-2$
+    return JNADatabase
+        .parseLegacyAPINamedNoteName(rawName)
+        .map((v) -> { return v[1]; })
+        .orElse(""); //$NON-NLS-1$
+  }
+  
 }
