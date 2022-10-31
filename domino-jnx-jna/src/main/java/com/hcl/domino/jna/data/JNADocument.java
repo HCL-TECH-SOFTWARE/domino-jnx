@@ -1754,48 +1754,48 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			});
 		}
 		else if (value instanceof Iterable && (!((Iterable<?>)value).iterator().hasNext() || isStringList((Iterable<?>) value))) {
-			@SuppressWarnings("unchecked")
-			List<String> strList = StreamSupport.stream(((Iterable<String>) value).spliterator(), false)
-			  .collect(Collectors.toList());
-			
-			if (strList.size()> 65535) {
-				throw new IllegalArgumentException(format("String list size must fit in a WORD ({0}>65535)", strList.size()));
-			}
-			
-	      DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
-	      ShortByReference retListSize = new ShortByReference();
-	      Memory retpList = new Memory(Native.POINTER_SIZE);
+		  @SuppressWarnings("unchecked")
+		  List<String> strList = StreamSupport.stream(((Iterable<String>) value).spliterator(), false)
+		  .collect(Collectors.toList());
 
-	      short result = NotesCAPI.get().ListAllocate((short) 0, 
-	          (short) 0,
-	          1, rethList, retpList, retListSize);
-	      
-	      NotesErrorUtils.checkResult(result);
+		  if (strList.size()> 65535) {
+		    throw new IllegalArgumentException(format("String list size must fit in a WORD ({0}>65535)", strList.size()));
+		  }
 
-	      return LockUtil.lockHandle(rethList, (hListByVal) -> {
-	        Mem.OSUnlockObject(hListByVal);
-	        
-	        int i = 0;
-	        for(String currStr : strList) {
-	          Memory currStrMem = NotesStringUtils.toLMBCS(currStr, false);
+		  DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
+		  ShortByReference retListSize = new ShortByReference();
+		  Memory retpList = new Memory(Native.POINTER_SIZE);
 
-	          short localResult = NotesCAPI.get().ListAddEntry(hListByVal, 1, retListSize, (short) (i & 0xffff), currStrMem,
-	              (short) (currStrMem==null ? 0 : (currStrMem.size() & 0xffff)));
-	          NotesErrorUtils.checkResult(localResult);
-	          i++;
-	        }
-	        
-	        int listSize = retListSize.getValue() & 0xffff;
-	        
-	        @SuppressWarnings("unused")
-	        Pointer valuePtr = Mem.OSLockObject(hListByVal);
-	        try {
-	          return appendItemValue(itemName, flags, ItemDataType.TYPE_TEXT_LIST.getValue(), hListByVal, listSize);
-	        }
-	        finally {
-	          Mem.OSUnlockObject(hListByVal);
-	        }
-	      });
+		  short result = NotesCAPI.get().ListAllocate((short) 0, 
+		      (short) 0,
+		      1, rethList, retpList, retListSize);
+
+		  NotesErrorUtils.checkResult(result);
+
+		  return LockUtil.lockHandle(rethList, (hListByVal) -> {
+		    Mem.OSUnlockObject(hListByVal);
+
+		    int i = 0;
+		    for(String currStr : strList) {
+		      Memory currStrMem = NotesStringUtils.toLMBCS(currStr, false);
+
+		      short localResult = NotesCAPI.get().ListAddEntry(hListByVal, 1, retListSize, (short) (i & 0xffff), currStrMem,
+		          (short) (currStrMem==null ? 0 : (currStrMem.size() & 0xffff)));
+		      NotesErrorUtils.checkResult(localResult);
+		      i++;
+		    }
+
+		    int listSize = retListSize.getValue() & 0xffff;
+
+		    @SuppressWarnings("unused")
+		    Pointer valuePtr = Mem.OSLockObject(hListByVal);
+		    try {
+		      return appendItemValue(itemName, flags, ItemDataType.TYPE_TEXT_LIST.getValue(), hListByVal, listSize);
+		    }
+		    finally {
+		      Mem.OSUnlockObject(hListByVal);
+		    }
+		  });
 		}
 		else if (value instanceof Iterable && isNumberOrNumberArrayList((Iterable<?>) value)) {
 		  List<?> numberOrNumberArrList = toNumberOrNumberArrayList((Iterable<?>) value);
