@@ -1753,7 +1753,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				}
 			});
 		}
-		else if (value instanceof Iterable && (!((Iterable<?>)value).iterator().hasNext() || isStringList((Iterable<?>) value))) {
+    else if (value instanceof Iterable && (!((Iterable<?>)value).iterator().hasNext() || isStringList((Iterable<?>) value))) {
       @SuppressWarnings("unchecked")
       List<String> strList = StreamSupport.stream(((Iterable<String>) value).spliterator(), false)
         .collect(Collectors.toList());
@@ -1796,7 +1796,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
           Mem.OSUnlockObject(hListByVal);
         }
       });
-		}
+    }
 		else if (value instanceof Iterable && isNumberOrNumberArrayList((Iterable<?>) value)) {
 		  List<?> numberOrNumberArrList = toNumberOrNumberArrayList((Iterable<?>) value);
 			
