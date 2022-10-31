@@ -19,7 +19,6 @@ package com.hcl.domino.jna.internal.callbacks;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.structs.NIFFindByKeyContextStruct;
 import com.hcl.domino.jna.internal.structs.NotesLSCompileErrorInfo;
-import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
 import com.sun.jna.Callback;
 import com.sun.jna.Memory;
@@ -226,14 +225,6 @@ public interface NotesCallbacks {
 	interface NSFPROFILEENUMPROC extends Callback {
 		short invoke(int hDB, Pointer ctx, Pointer profileName, short profileNameLength,
 				Pointer username, short usernameLength, int noteId);
-	}
-
-	interface b64_NSFDbNamedObjectEnumPROC extends Callback {
-		short invoke(long hDB, Pointer param, short nameSpace, Pointer name, short nameLength, IntByReference objectID, NotesTimeDateStruct entryTime);
-	}
-
-	interface b32_NSFDbNamedObjectEnumPROC extends Callback {
-		short invoke(int hDB, Pointer param, short nameSpace, Pointer name, short nameLength, IntByReference objectID, NotesTimeDateStruct entryTime);
 	}
 
 	interface FPMailNoteJitEx2CallBack extends Callback {

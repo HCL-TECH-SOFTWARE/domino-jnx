@@ -23,6 +23,7 @@ import com.sun.jna.Library;
 import com.sun.jna.Memory;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.ShortByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * C API methods introduced in R12.0.1
@@ -54,5 +55,32 @@ public interface INotesCAPI1201 extends Library {
       int dwQRPEntriesLimit,  
       int dwQRPTimeCheckInterval);  
 
+
+  @UndocumentedAPI
+  short ListAllocate2Ext (short ListEntries,
+      int TextSize,
+      boolean fPrefixDataType,
+      DHANDLE.ByReference rethList,
+      PointerByReference retpList,
+      IntByReference retListSize,
+      boolean bAllowLarge);
+
+  @UndocumentedAPI
+  short ListAddEntry2Ext(DHANDLE.ByValue mhList,
+      int fPrefixDataType,
+      IntByReference pListSize,
+      short EntryNumber,
+      Memory Text,
+      short TextSize,
+      int bAllowLarge);
+
+  @UndocumentedAPI
+  short ListRemoveEntry2 (int hList,
+            boolean fPrefixDataType,
+            IntByReference pListSize,
+            short EntryNumber);
+
+  
+  short NSFItemAppendTextList (long hNote, Memory ItemName, Memory Text, short TextLength, boolean fAllowDuplicates);
   
 }
