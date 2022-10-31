@@ -21,7 +21,6 @@ import com.hcl.domino.jna.internal.callbacks.NotesCallbacks.NSFFORMFUNCPROC;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE.ByValue;
 import com.hcl.domino.jna.internal.structs.NIFFindByKeyContextStruct;
 import com.hcl.domino.jna.internal.structs.NotesLSCompileErrorInfo;
-import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
@@ -167,12 +166,6 @@ public interface Win32NotesCallbacks {
 		@Override
 		short invoke(int hDB, Pointer ctx, Pointer profileName, short profileNameLength, Pointer username,
 				short usernameLength, int noteId);
-	};
-
-	interface NSFDbNamedObjectEnumPROCWin32 extends NotesCallbacks.b32_NSFDbNamedObjectEnumPROC,  StdCallCallback {
-		@Override
-		short invoke(int hDB, Pointer param, short nameSpace, Pointer name, short nameLength,
-				IntByReference objectID, NotesTimeDateStruct entryTime);
 	};
 
 	interface FPMailNoteJitEx2CallBackWin32 extends NotesCallbacks.FPMailNoteJitEx2CallBack, StdCallCallback {

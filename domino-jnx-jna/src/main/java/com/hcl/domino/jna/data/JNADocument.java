@@ -4507,4 +4507,22 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		NotesErrorUtils.checkResult(result);
 		return this;
 	}
+	
+  @Override
+  public String getNameOfDoc() {
+    String rawName = get("$name", String.class, ""); //$NON-NLS-1$ //$NON-NLS-2$
+    return JNADatabase
+        .parseLegacyAPINamedNoteName(rawName)
+        .map((v) -> { return v[0]; })
+        .orElse(""); //$NON-NLS-1$
+  }
+
+  public String getUserNameOfDoc() {
+    String rawName = get("$name", String.class, ""); //$NON-NLS-1$ //$NON-NLS-2$
+    return JNADatabase
+        .parseLegacyAPINamedNoteName(rawName)
+        .map((v) -> { return v[1]; })
+        .orElse(""); //$NON-NLS-1$
+  }
+	
 }
