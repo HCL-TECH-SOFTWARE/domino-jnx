@@ -22,6 +22,7 @@ public class NamedObjectEntryStruct extends Structure {
 	public NamedObjectEntryStruct() {
 		super();
 	}
+	@Override
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("NameOffset", "NameLength", "NameSpace", "NoteID");
 	}

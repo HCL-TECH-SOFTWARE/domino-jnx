@@ -2268,7 +2268,6 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	 * 
 	 * @param itemName item name
 	 * @param flags item flags
-	 * @param itemType item type
 	 * @param hItemValue handle to memory block with item value beginning with data type short
 	 * @param valueLength length of binary item value (without data type short)
 	 * @return this document
@@ -4619,6 +4618,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
         .orElse(""); //$NON-NLS-1$
   }
 
+  @Override
   public String getUserNameOfDoc() {
     String rawName = get("$name", String.class, ""); //$NON-NLS-1$ //$NON-NLS-2$
     return JNADatabase

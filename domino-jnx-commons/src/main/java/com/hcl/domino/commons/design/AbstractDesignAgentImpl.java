@@ -488,7 +488,8 @@ public abstract class AbstractDesignAgentImpl<T extends DesignAgent> extends Abs
     setAssistInfo(assistInfo);
     return this;
   }
-  
+
+  @Override
   public DesignAgent setTrigger(AgentTrigger trigger) {
     AssistStruct assistInfo = getAssistInfo().orElseGet(this::createAssistInfoWithDefaults);
     assistInfo.setTrigger(trigger);
