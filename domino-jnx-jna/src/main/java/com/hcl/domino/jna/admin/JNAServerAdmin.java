@@ -617,8 +617,11 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations> 
 
 	@Override
 	public void logMessage(String messageText) {
-    Memory lmbcs = NotesStringUtils.toLMBCSNoCache(messageText, true, LineBreakConversion.ORIGINAL);
-		NotesCAPI.get().AddInLogMessageText(lmbcs, (short)0, new Object[0]);
+    String[] lines = messageText.split("\\r?\\n", -1); //$NON-NLS-1$
+    for (String line : lines) {
+      Memory lmbcs = NotesStringUtils.toLMBCS(line, true);
+      NotesCAPI.get().AddInLogMessageText(lmbcs, (short)0, new Object[0]);
+    }
 	}
 	
 	@Override
