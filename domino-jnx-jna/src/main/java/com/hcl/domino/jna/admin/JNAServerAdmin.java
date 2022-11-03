@@ -59,6 +59,7 @@ import com.hcl.domino.jna.internal.Mem.LockedMemory;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.NotesNamingUtils.Privileges;
 import com.hcl.domino.jna.internal.NotesStringUtils;
+import com.hcl.domino.jna.internal.NotesStringUtils.LineBreakConversion;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
 import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -616,7 +617,7 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations> 
 
 	@Override
 	public void logMessage(String messageText) {
-		Memory lmbcs = NotesStringUtils.toLMBCS(messageText, true);
+    Memory lmbcs = NotesStringUtils.toLMBCSNoCache(messageText, true, LineBreakConversion.ORIGINAL);
 		NotesCAPI.get().AddInLogMessageText(lmbcs, (short)0, new Object[0]);
 	}
 	
