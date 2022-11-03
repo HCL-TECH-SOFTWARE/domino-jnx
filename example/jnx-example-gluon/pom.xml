@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
-		<version>1.15.0-SNAPSHOT</version>
+		<version>1.15.1-SNAPSHOT</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>jnx-example-gluon</artifactId>
@@ -21,7 +21,7 @@
 			<artifactId>domino-jnx-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!-- Implementation dependency must be present here and not in a profile, 
+		<!-- Implementation dependency must be present here and not in a profile,
 			or it won't be included in the native image -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
