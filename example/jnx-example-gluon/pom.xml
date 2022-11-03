@@ -4,14 +4,14 @@
 	<parent>
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
-		<version>1.11.0</version>
+		<version>1.15.1</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>jnx-example-gluon</artifactId>
 	<name>HCL Domino API Example Gluon Native App</name>
 
 	<properties>
-		<graal.version>21.3.0</graal.version>
+		<graal.version>22.3.0</graal.version>
 		<main.class>com.hcl.domino.example.gluon.Main</main.class>
 	</properties>
 
@@ -21,7 +21,7 @@
 			<artifactId>domino-jnx-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<!-- Implementation dependency must be present here and not in a profile, 
+		<!-- Implementation dependency must be present here and not in a profile,
 			or it won't be included in the native image -->
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -32,7 +32,7 @@
 		<dependency>
 			<groupId>org.openjfx</groupId>
 			<artifactId>javafx-controls</artifactId>
-			<version>19-ea+8</version>
+			<version>20-ea+4</version>
 		</dependency>
 	</dependencies>
 

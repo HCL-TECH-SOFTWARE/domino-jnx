@@ -1790,4 +1790,52 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
    */
   RichTextBuilder getRichTextBuilder();
 
+  /**
+   * Returns a named document for the specified name
+   * 
+   * @param name name
+   * @return named document, not null (new doc if it does not exist yet)
+   */
+  default Document getNamedDocument(String name) {
+    return getNamedDocument(name, ""); //$NON-NLS-1$
+  }
+
+  /**
+   * Returns a named document for the specified name and username
+   * 
+   * @param name name
+   * @param username username
+   * @return named document, not null (new doc if it does not exist yet)
+   */
+  Document getNamedDocument(String name, String username);
+
+  /**
+   * Returns infos about all named documents in the database
+   * 
+   * @return named document infos
+   */
+  default Collection<NamedObjectInfo> getNamedDocumentInfos() {
+    return getNamedDocumentInfos(""); //$NON-NLS-1$
+  }
+  
+  /**
+   * Returns infos about named documents in the database
+   * 
+   * @param name name of named document or empty/null to return infos about all named documents
+   * @return named document infos
+   */
+  Collection<NamedObjectInfo> getNamedDocumentInfos(String name);
+
+  /**
+   * Named document info
+   */
+  public static interface NamedObjectInfo {
+    
+    int getNoteID();
+    
+    String getNameOfDocument();
+    
+    String getUserNameOfDocument();
+    
+  }
 }

@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
-		<version>1.11.0</version>
+		<version>1.15.1</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>domino-jnx-jakarta-security</artifactId>
@@ -16,6 +16,8 @@
 			<artifactId>domino-jnx-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		
+		<!-- NB Jakarta Security 3.0 and CDI 4.0 require Java 11 -->
 		<dependency>
 			<groupId>jakarta.security.enterprise</groupId>
 			<artifactId>jakarta.security.enterprise-api</artifactId>

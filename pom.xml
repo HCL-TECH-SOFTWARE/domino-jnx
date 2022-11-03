@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.hcl.domino</groupId>
 	<artifactId>domino-jnx</artifactId>
-	<version>1.11.0</version>
+	<version>1.15.1</version>
 	<packaging>pom</packaging>
 
 	<name>HCL Domino API Parent Project</name>
@@ -120,13 +120,13 @@
 		<guava.version>31.0.1-jre</guava.version>
 		<ibm.commons.version>9.0.0</ibm.commons.version>
 		<icu4j.version>65.1</icu4j.version>
-		<jackson.version>2.13.3</jackson.version>
-		<jackson.databind.version>2.13.3</jackson.databind.version>
+		<jackson.version>2.14.0-rc3</jackson.version>
+		<jackson.databind.version>2.14.0-rc3</jackson.databind.version>
 		<jakarta.json.version>2.1.0</jakarta.json.version>
 		<java.version>1.8</java.version>
 		<javasimon.version>4.2.0</javasimon.version>
 		<joda.version>2.10</joda.version>
-		<junit.jupiter.version>5.9.0-RC1</junit.jupiter.version>
+		<junit.jupiter.version>5.9.1</junit.jupiter.version>
 		<junit.platform.version>1.7.0</junit.platform.version>
 		<junit.version>4.12</junit.version>
 		<log4j.version>2.17.1</log4j.version>
@@ -138,13 +138,13 @@
 		<netty.ssl.version>2.0.46.Final</netty.ssl.version>
 		<!-- 2022-07-07: JNA 5.12.0 and 5.12.1 hard crash on macOS -->
 		<net.java.dev.jna-version>5.11.0</net.java.dev.jna-version>
-		<pmd.version>6.47.0</pmd.version>
+		<pmd.version>6.51.0</pmd.version>
 		<powermock.version>2.0.9</powermock.version>
 		<saxon.version>10.6</saxon.version>
-		<spotbugs.version>4.7.1</spotbugs.version>
+		<spotbugs.version>4.7.3</spotbugs.version>
 		<spotless.version>2.4.1</spotless.version>
 		<testcontainers.version>1.15.2</testcontainers.version>
-		<vertx.version>4.3.2</vertx.version>
+		<vertx.version>4.3.4</vertx.version>
 		<yaml.version>1.25</yaml.version>
 
 

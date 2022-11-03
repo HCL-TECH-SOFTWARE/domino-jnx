@@ -30,7 +30,6 @@ import java.util.Formatter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -39,8 +38,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.hcl.domino.BuildVersionInfo;
@@ -122,6 +121,7 @@ import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.search.NotesSearch;
 import com.hcl.domino.jna.internal.search.NotesSearch.JNASearchMatch;
+import com.hcl.domino.jna.internal.structs.NamedObjectEntryStruct;
 import com.hcl.domino.jna.internal.structs.NotesBuildVersionStruct;
 import com.hcl.domino.jna.internal.structs.NotesFTIndexStatsStruct;
 import com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableExt;
@@ -141,7 +141,6 @@ import com.hcl.domino.security.AclFlag;
 import com.hcl.domino.security.AclLevel;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
-import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.ShortByReference;
@@ -172,6 +171,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	private String[] m_paths;
 	private DbMode m_dbMode;
 	private JNAAcl m_acl;
+	private Boolean m_hasLargeItemSupport;
 	
 	public JNADatabase(IGCDominoClient<?> parent, String server, String filePath, Set<OpenDatabase> options) {
 		this(parent, server, filePath, options, (JNAUserNamesList) null);
@@ -2237,7 +2237,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	@Override
 	public Optional<Document> getDocumentByPrimaryKey(String category, String objectId) {
 		String fullNodeName = getApplicationNoteName(category, objectId);
-		int rrv = getNamedObjectRRV(fullNodeName);
+		int rrv = getNamedObjectRRV(fullNodeName, NotesConstants.NONS_NAMED_NOTE);
 		try {
 			return rrv==0 ? Optional.empty() : getDocumentById(rrv);
 		} catch(DocumentDeletedException e) {
@@ -2293,201 +2293,6 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		return new String[] {category, objectKey};
 	}
-	
-	private final String propEnforceLocalNamedObjectSearch = JNADatabase.class.getName()+".namedobjects.enforcelocal"; //$NON-NLS-1$
-	private final String propEnforceRemoteNamedObjectSearch = JNADatabase.class.getName()+".namedobjects.enforceremote"; //$NON-NLS-1$
-
-	/**
-	 * Enumerates all named objects in the database. As of Notes/Domino R10/R11, this
-	 * method only returns data in a local database
-	 * 
-	 * @param callback enumeration callback
-	 */
-	private void getNamedObjects(NamedObjectEnumCallback callback) {
-		boolean useLocalSearch;
-		
-		if (isRemote()) {
-			//NSFDbNamedObjectEnum cannot be used in remote databases as of R11
-			useLocalSearch = false;
-
-			//enforce flag can be used to override this behavior if R12 supports remote searches
-			if (Boolean.TRUE.equals(getParentDominoClient().getCustomValue(propEnforceLocalNamedObjectSearch))) {
-				useLocalSearch = true;
-			}
-		}
-		else {
-			useLocalSearch = true;
-			
-			//enforce flag can be used to select an NSFSearchExtended3 based locally
-			//(mostly to compare both ways for testcases)
-			if (Boolean.TRUE.equals(getParentDominoClient().getCustomValue(propEnforceRemoteNamedObjectSearch))) {
-				useLocalSearch = false;
-			}
-		}
-		
-		if (useLocalSearch) {
-			_getNamedObjectInfosLocal(callback);
-		}
-		else {
-			_getNamedObjectInfosRemote(callback);
-		}
-	}
-	
-	/**
-	 * Enumerates all named objects in the database. As of Notes/Domino R10/R11, this
-	 * method only returns data in a local database
-	 * 
-	 * @param callback enumeration callback
-	 */
-	private void _getNamedObjectInfosLocal(NamedObjectEnumCallback callback) {
-		checkDisposed();
-		
-		if (isRemote()) {
-			throw new IllegalStateException("This method cannot yet be called on remote databases");
-		}
-		
-		Objects.requireNonNull(callback, "Callback cannot be null");
-		
-		Exception[] ex = new Exception[1];
-		
-		if (PlatformUtils.is64Bit()) {
-			NotesCallbacks.b64_NSFDbNamedObjectEnumPROC cCallback = (hDB, param, nameSpaceShort, nameMem, nameLength,
-					rrv, entryTimeStruct) -> {
-
-				if (rrv == null) {
-					// skip some entries in the named object table because they are used internally
-					// as duplicate lookup keys and cannot be queried via NSFDbGetNamedObjectID
-					return 0;
-				}
-				if (nameSpaceShort != NotesConstants.NONS_NAMED_NOTE) {
-					// skip internal NSF structures
-					return 0;
-				}
-// Check if the note was deleted - the RRV does not signal this
-// TODO look for a more-efficient method
-				try {
-					getDocumentById(rrv.getValue());
-				} catch (DocumentDeletedException e1) {
-					// Skip
-					return 0;
-				}
-
-				String name = NotesStringUtils.fromLMBCS(nameMem, nameLength & 0xffff);
-				DominoDateTime entryTimeDate = entryTimeStruct == null ? null
-						: new JNADominoDateTime(entryTimeStruct.Innards);
-
-				try {
-					Action action = callback.objectFound(name, rrv == null ? 0 : rrv.getValue(), entryTimeDate);
-					if (action == Action.Stop) {
-						return INotesErrorConstants.ERR_CANCEL;
-					} else {
-						return 0;
-					}
-				} catch (Exception e2) {
-					ex[0] = e2;
-					return INotesErrorConstants.ERR_CANCEL;
-				}
-			};
-
-			short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
-				return NotesCAPI.get().NSFDbNamedObjectEnum(dbHandleByVal, cCallback, null);
-			});
-			if (result == INotesErrorConstants.ERR_CANCEL) {
-				if (ex[0] != null) {
-					throw new DominoException("Error enumerating named objects", ex[0]);
-				}
-				return;
-			}
-			NotesErrorUtils.checkResult(result);
-		}
-		else {
-			NotesCallbacks.b32_NSFDbNamedObjectEnumPROC cCallback;
-
-			if (Platform.isWindows()) {
-				cCallback = (Win32NotesCallbacks.NSFDbNamedObjectEnumPROCWin32)(hDB, param, nameSpaceShort, nameMem, nameLength, rrv, entryTimeStruct) -> {
-
-					if (rrv == null) {
-						// skip some entries in the named object table because they are used internally
-						// as duplicate lookup keys and cannot be queried via NSFDbGetNamedObjectID
-						return 0;
-					}
-
-					if (nameSpaceShort != NotesConstants.NONS_NAMED_NOTE) {
-						// skip internal NSF structures
-						return 0;
-					}
-					// Check if the note was deleted - the RRV does not signal this
-					// TODO look for a more-efficient method
-					try {
-						getDocumentById(rrv.getValue());
-					} catch (DocumentDeletedException e1) {
-						// Skip
-						return 0;
-					}
-
-					String name = NotesStringUtils.fromLMBCS(nameMem, nameLength & 0xffff);
-					DominoDateTime entryTimeDate = entryTimeStruct == null ? null
-							: new JNADominoDateTime(entryTimeStruct.Innards);
-
-					try {
-						Action action = callback.objectFound(name, rrv == null ? 0 : rrv.getValue(), entryTimeDate);
-						if (action == Action.Stop) {
-							return INotesErrorConstants.ERR_CANCEL;
-						} else {
-							return 0;
-						}
-					} catch (Exception e2) {
-						ex[0] = e2;
-						return INotesErrorConstants.ERR_CANCEL;
-					}
-
-				};
-			}
-			else {
-				cCallback = (hDB, param, nameSpaceShort, nameMem, nameLength, rrv, entryTimeStruct) -> {
-
-					if (rrv == null) {
-						// skip some entries in the named object table because they are used internally
-						// as duplicate lookup keys and cannot be queried via NSFDbGetNamedObjectID
-						return 0;
-					}
-
-					if (nameSpaceShort != NotesConstants.NONS_NAMED_NOTE) {
-						// skip internal NSF structures
-						return 0;
-					}
-
-					String name = NotesStringUtils.fromLMBCS(nameMem, nameLength & 0xffff);
-					DominoDateTime entryTimeDate = entryTimeStruct == null ? null
-							: new JNADominoDateTime(entryTimeStruct.Innards);
-
-					try {
-						Action action = callback.objectFound(name, rrv == null ? 0 : rrv.getValue(), entryTimeDate);
-						if (action == Action.Stop) {
-							return INotesErrorConstants.ERR_CANCEL;
-						} else {
-							return 0;
-						}
-					} catch (Exception e) {
-						ex[0] = e;
-						return INotesErrorConstants.ERR_CANCEL;
-					}
-
-				};
-			}
-			
-			short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
-				return NotesCAPI.get().NSFDbNamedObjectEnum(dbHandleByVal, cCallback, null);
-			});
-			if (result == INotesErrorConstants.ERR_CANCEL) {
-				if (ex[0] != null) {
-					throw new DominoException("Error enumerating named objects", ex[0]);
-				}
-				return;
-			}
-			NotesErrorUtils.checkResult(result);
-		}
-	}
 
 	/**
 	 * Returns the RRV of a named object in the database
@@ -2495,215 +2300,61 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	 * @param name name to look for
 	 * @return rrv or 0 if not found
 	 */
-	private int getNamedObjectRRV(String name) {
+	private int getNamedObjectRRV(String name, short namespace) {
 		checkDisposed();
 		
 		if (StringUtil.isEmpty(name)) {
 			throw new IllegalArgumentException("Name cannot be empty");
 		}
 
-		boolean useLocalSearch;
-		
-		if (isRemote()) {
-			//NSFDbNamedObjectEnum cannot be used in remote databases as of R11
-			useLocalSearch = false;
+    Memory nameMem = NotesStringUtils.toLMBCS(name, false);
+    
+    IntByReference rtnObjectID = new IntByReference();
+    
+    short nsWithNoAssignBit = (short) (namespace | NotesConstants.NONS_NOASSIGN); //prevent assigning a new RRV if not found
+    
+    short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
+      return NotesCAPI.get().NSFDbGetNamedObjectID(dbHandleByVal, nsWithNoAssignBit, nameMem,
+          (short) (nameMem.size() & 0xffff), rtnObjectID);
+    });
+    if ((result & NotesConstants.ERR_MASK)==578) { //special database object cannot be located
+      return 0;
+    }
+    NotesErrorUtils.checkResult(result);
 
-			//enforce flag can be used to override this behavior if R12 supports remote searches
-			if (Boolean.TRUE.equals(getParentDominoClient().getCustomValue(propEnforceLocalNamedObjectSearch))) {
-				useLocalSearch = true;
-			}
-		}
-		else {
-			useLocalSearch = true;
-			
-			//enforce flag can be used to select an NSFSearchExtended3 based locally
-			//(mostly to compare both ways for testcases)
-			if (Boolean.TRUE.equals(getParentDominoClient().getCustomValue(propEnforceRemoteNamedObjectSearch))) {
-				useLocalSearch = false;
-			}
-		}
-		
-		if (useLocalSearch) {
-			Memory nameMem = NotesStringUtils.toLMBCS(name, false);
-			
-			IntByReference rtnObjectID = new IntByReference();
-			
-			short nsAsShort = NotesConstants.NONS_NAMED_NOTE | NotesConstants.NONS_NOASSIGN;
-			
-			short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
-				return NotesCAPI.get().NSFDbGetNamedObjectID(dbHandleByVal, nsAsShort, nameMem,
-						(short) (nameMem.size() & 0xffff), rtnObjectID);
-			});
-			if ((result & NotesConstants.ERR_MASK)==578) {
-				return 0;
-			}
-			NotesErrorUtils.checkResult(result);
-
-			return rtnObjectID.getValue();
-		}
-		else {
-			AtomicInteger result = new AtomicInteger();
-
-			//use NSF search based approach for remote database, because
-			//NSFDbGetNamedObjectID only works locally and there no exported
-			//function for remote databases in nnotes.dll yet
-			_getNamedObjectInfosRemote((currName, currObjectId, currEntryTime) -> {
-				if (name.equalsIgnoreCase(currName)) {
-					result.set(currObjectId);
-					return Action.Stop;
-				} else {
-					return Action.Continue;
-				}
-			});
-			
-			return result.get();
-		}
+    return rtnObjectID.getValue();
 	}
 
-	/**
-	 * Cache object for named object table entries
-	 */
-	private static class NamedObjectCacheEntry {
-		private String name;
-		private int noteId;
-		private DominoDateTime sequenceTime;
-		
-		public String getName() {
-			return name;
-		}
-		
-		public void setName(String name) {
-			this.name = name;
-		}
-		
-		public int getNoteId() {
-			return noteId;
-		}
-		
-		public void setNoteId(int noteId) {
-			this.noteId = noteId;
-		}
-
-		public DominoDateTime getSequenceTime() {
-			return sequenceTime;
-		}
-
-		public void setSequenceTime(DominoDateTime sequenceTime) {
-			this.sequenceTime = sequenceTime;
-		}
-	}
-	
-	private Map<Integer,NamedObjectCacheEntry> remoteDbNamedObjectLookupCache = new HashMap<>();
-	private DominoDateTime remoteNamedObjectLookupCutOffDate_DataNotes = null;
-
-	/**
-	 * Callback interface to receive the named objects in a database
-	 */
-	public interface NamedObjectEnumCallback {
-		/**
-		 * Method is called for every named object in the database
-		 * 
-		 * @param name name of named object
-		 * @param rrv RRV to be used with {@link Database#getDocumentById(int)}
-		 * @param entryTime sequence time of the note or null if not provided
-		 * @return action, either {@link com.hcl.domino.data.Database.Action#Continue Continue} to continue scanning
-		 * 		and {@link com.hcl.domino.data.Database.Action#Stop Stop} to stop the search
-		 */
-		Action objectFound(String name, int rrv, DominoDateTime entryTime);
-	}
-
-	/**
-	 * Enumerates all named objects in the database, implementation for remote database
-	 * where NSFDbNamedObjectEnum is not yet available.
-	 * 
-	 * @param callback enumeration callback
-	 */
-	private void _getNamedObjectInfosRemote(NamedObjectEnumCallback callback) {
-		LinkedHashMap<String, String> items = new LinkedHashMap<>();
-		items.put("$name", ""); //$NON-NLS-1$ //$NON-NLS-2$
-
-		//use incremental NSFSearch to improve performance on the second call
-		NotesSearch.SearchCallback searchCallback = new NotesSearch.SearchCallback() {
-
-			@Override
-			public Action noteFound(JNADatabase parentDb, JNASearchMatch searchMatch,
-					IItemTableData summaryBufferData) {
-
-				int noteId = searchMatch.getNoteID();
-				DominoDateTime entryTime = searchMatch.getSequenceTime();
-				String name = summaryBufferData.get("$name", String.class, ""); //$NON-NLS-1$ //$NON-NLS-2$
-
-				NamedObjectCacheEntry info = new NamedObjectCacheEntry();
-				info.setName(name);
-				info.setNoteId(noteId);
-				info.setSequenceTime(entryTime);
-
-				Set<DocumentClass> noteClass = searchMatch.getDocumentClass();
-
-				if (noteClass.contains(DocumentClass.DATA)) {
-					remoteDbNamedObjectLookupCache.put(noteId, info);
-				}
-				
-				return Action.Continue;
-			}
-
-			@Override
-			public Action deletionStubFound(JNADatabase parentDb, JNASearchMatch searchMatch,
-					IItemTableData summaryBufferData) {
-
-				remoteDbNamedObjectLookupCache.remove(searchMatch.getNoteID());
-				return Action.Continue;
-			}
-
-			@Override
-			public Action noteFoundNotMatchingFormula(JNADatabase parentDb, JNASearchMatch searchMatch,
-					IItemTableData summaryBufferData) {
-
-				remoteDbNamedObjectLookupCache.remove(searchMatch.getNoteID());
-				return Action.Continue;
-			}
-
-		};
-
-		//although this search is very fast, using a local database is really recommended to make use of the named object table C methods
-		remoteNamedObjectLookupCutOffDate_DataNotes = NotesSearch.search(this, null, "@IsAvailable($name)", items, "-", //$NON-NLS-1$ //$NON-NLS-2$
-				EnumSet.of(SearchFlag.NAMED_GHOSTS, SearchFlag.SELECT_NAMED_GHOSTS), EnumSet.of(DocumentClass.DATA),
-				(JNADominoDateTime) remoteNamedObjectLookupCutOffDate_DataNotes, searchCallback);
-		
-		for (NamedObjectCacheEntry currInfo : remoteDbNamedObjectLookupCache.values()) {
-			Action action = callback.objectFound(currInfo.getName(), currInfo.getNoteId(), currInfo.getSequenceTime());
-			if (action == Action.Stop) {
-				break;
-			}
-		}
-	}
-	
 	@Override
 	public Map<String,Map<String,Integer>> getAllDocumentsByPrimaryKey() {
 		Map<String,Map<String,Integer>> result = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 		
-		getNamedObjects((name, objectId, entryTime) -> {
-			//only read entries starting with $app_ , that way we skip internal NSF stuff
-			if (objectId!=0 && StringUtil.startsWithIgnoreCase(name, NAMEDNOTES_APPLICATION_PREFIX)) {
-				String[] parsedNamedNoteInfos = parseApplicationNamedNoteName(name);
-				if (parsedNamedNoteInfos!=null) {
-					String category = parsedNamedNoteInfos[0];
-					String objectKey = parsedNamedNoteInfos[1];
-					
-					Map<String,Integer> entriesForCategory = result.get(category);
-					if (entriesForCategory==null) {
-						entriesForCategory = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-						result.put(category, entriesForCategory);
-					}
-					
-					entriesForCategory.put(objectKey, objectId);
-				}
-			}
-			
-			return Action.Continue;
-		});
-		
-		return result;
+    getNamedObjects(NotesConstants.NONS_NAMED_NOTE)
+    .forEach((entry) -> {
+      int noteId = entry.getNoteID();
+      
+      if (noteId!=0) {
+        String currName = entry.getNameOfDocument();
+        if (StringUtil.startsWithIgnoreCase(currName, NAMEDNOTES_APPLICATION_PREFIX)) {
+          String[] parsedNamedNoteInfos = parseApplicationNamedNoteName(currName);
+          if (parsedNamedNoteInfos!=null) {
+            String category = parsedNamedNoteInfos[0];
+            String objectKey = parsedNamedNoteInfos[1];
+            
+            Map<String,Integer> entriesForCategory = result.get(category);
+            if (entriesForCategory==null) {
+              entriesForCategory = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+              result.put(category, entriesForCategory);
+            }
+            
+            entriesForCategory.put(objectKey, noteId);
+          }
+        }
+      }
+      
+    });
+    
+    return result;
 	}
 	
 	@Override
@@ -2715,16 +2366,21 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		Map<String,Integer> result = new HashMap<>();
 		
-		getNamedObjects((name, rrv, entryTime) -> {
-			if (rrv!=0 && StringUtil.startsWithIgnoreCase(name, prefix)) {
-				String objectKey = name.substring(prefix.length()).toLowerCase(Locale.ENGLISH);
-				result.put(objectKey, rrv);
-			}
-			
-			return Action.Continue;
-		});
-		
-		return result;
+    getNamedObjects(NotesConstants.NONS_NAMED_NOTE)
+    .forEach((entry) -> {
+      int noteId = entry.getNoteID();
+      
+      if (noteId!=0) {
+        String currName = entry.getNameOfDocument();
+        if (StringUtil.startsWithIgnoreCase(currName, prefix)) {
+          String objectKey = currName.substring(prefix.length()).toLowerCase(Locale.ENGLISH);
+          result.put(objectKey, noteId);
+        }
+      }
+      
+    });
+    
+    return result;
 	}
 
 	@Override
@@ -4430,4 +4086,236 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	 return new JNARichTextBuilder(this);
   }
 
+  /**
+   * Computes the $name value for ghost notes as they are written since 12.0.1 by the Java/LS API ("named documents")
+   * 
+   * @param name name
+   * @param username username
+   * @return $name value
+   */
+  private String computeNamedNoteValue(String name, String username) {
+    if (name==null) {
+      throw new IllegalArgumentException("Name parameter cannot be null");
+    }
+    else if (StringUtil.isEmpty(name)) {
+      throw new IllegalArgumentException("Name parameter cannot be empty");
+    }
+    else if (name.contains("*")) { //$NON-NLS-1$
+      throw new IllegalArgumentException(MessageFormat.format("Invalid character '*' in name parameter: {0}", name));
+    }
+
+    String usernameNotNull = username==null ? "" : username; //$NON-NLS-1$
+    if (usernameNotNull.contains("*")) { //$NON-NLS-1$
+      throw new IllegalArgumentException(MessageFormat.format("Invalid character '*' in username parameter: {0}", usernameNotNull));
+    }
+
+    return "$DGHST_" + name + "*" + usernameNotNull; //$NON-NLS-1$ //$NON-NLS-2$
+  }
+
+  /**
+   * Parses a string like "$DGHST_nameddoc*user" into
+   * name/username
+   * 
+   * @param name name
+   * @return array of [name,username] if provided name format is supported
+   */
+  static Optional<String[]> parseLegacyAPINamedNoteName(String name) {
+    if (!name.startsWith("$DGHST_")) { //$NON-NLS-1$
+      return Optional.empty();
+    }
+    
+    String remainder = name.substring(7); //"$DGHST_".length()
+    
+    int iPos = remainder.indexOf("*"); //$NON-NLS-1$
+    if (iPos==-1) {
+      return Optional.empty();
+    }
+    
+    String namePart = remainder.substring(0, iPos);
+    String userNamePart = remainder.substring(iPos+1);
+    return Optional.of(new String[] {namePart, userNamePart});
+  }
+
+  @Override
+  public Document getNamedDocument(final String name, final String username) {
+    if (name==null) {
+      throw new IllegalArgumentException("Name parameter cannot be null");
+    }
+    else if (name.contains("*")) { //$NON-NLS-1$
+      throw new IllegalArgumentException(MessageFormat.format("Invalid character '*' in name parameter: {0}", name));
+    }
+    
+    String usernameNotNull = username==null ? "" : username; //$NON-NLS-1$
+    if (usernameNotNull.contains("*")) { //$NON-NLS-1$
+      throw new IllegalArgumentException(MessageFormat.format("Invalid character '*' in username parameter: {0}", usernameNotNull));
+    }
+    
+    String nameAndUser = "$DGHST_" + name + "*" + usernameNotNull; //$NON-NLS-1$ //$NON-NLS-2$
+    int rrv = getNamedObjectRRV(nameAndUser, NotesConstants.NONS_NAMED_NOTE);
+    if (rrv!=0) {
+      Document doc = getDocumentById(rrv).orElse(null);
+      if (doc!=null) {
+        return doc;
+      }
+    }
+    
+    Document newDoc = createDocument(EnumSet.of(CreateFlags.HIDE_FROM_VIEWS));
+    newDoc.replaceItemValue("$name", nameAndUser); //$NON-NLS-1$
+    return newDoc;
+  }
+  
+  /**
+   * Reads infos about named notes. Implementation is private, because there's currently no
+   * usage for other namespaces than NONS_NAMED_NOTE and the risk is high to break internal NSF stuff
+   * 
+   * @param namespace namespace
+   * @return named object infos
+   */
+  private List<NamedObjectInfoImpl> getNamedObjects(short namespace) {
+    checkDisposed();
+    
+    IntByReference rethBuffer = new IntByReference();
+    IntByReference retBufferLength = new IntByReference();
+    
+    short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
+      return NotesCAPI.get().NSFGetNamedObjects(hDbByVal, namespace, rethBuffer, retBufferLength);
+    });
+
+    NotesErrorUtils.checkResult(result);
+    
+    int hBuffer = rethBuffer.getValue();
+    if (hBuffer==0) {
+      return Collections.emptyList();
+    }
+
+    try (LockedMemory lockedMem = Mem.OSMemoryLock(rethBuffer.getValue(), true);) {
+      Pointer ptr = lockedMem.getPointer();
+      
+      int numEntries = Short.toUnsignedInt(ptr.getShort(0));
+      if (numEntries==0) {
+        return Collections.emptyList();
+      }
+      
+      ptr = ptr.share(2);
+      
+      NamedObjectInfoImpl[] objInfos = new NamedObjectInfoImpl[numEntries];
+      
+      for (int i=0; i<numEntries; i++) {
+        NamedObjectInfoImpl objInfo = new NamedObjectInfoImpl();
+        objInfos[i] = objInfo;
+        
+        NamedObjectEntryStruct namedObjStruct = NamedObjectEntryStruct.newInstance(ptr);
+        namedObjStruct.read();
+        int structSize = namedObjStruct.size();
+        
+        int nameLength = Short.toUnsignedInt(namedObjStruct.NameLength);
+        objInfo.setNameLength(nameLength);
+        
+        short currNamespace = namedObjStruct.NameSpace;
+        objInfo.setNamespace(currNamespace);
+        
+        int noteId = namedObjStruct.NoteID;
+        objInfo.setNoteId(noteId);
+        
+        ptr = ptr.share(structSize);
+      }
+      
+      for (int i=0; i<numEntries; i++) {
+        NamedObjectInfoImpl objInfo = objInfos[i];
+        int nameLength = objInfo.getNameLength();
+        String name = NotesStringUtils.fromLMBCS(ptr, nameLength);
+        objInfo.setRawName(name);
+        ptr = ptr.share(nameLength);
+      }
+      
+      return Arrays.asList(objInfos);
+    }
+  }
+  
+  private static class NamedObjectInfoImpl implements NamedObjectInfo {
+    private String rawName;
+    private Optional<String[]> parsedName;
+    private int nameLength;
+    private short namespace;
+    private int noteId;
+    
+    public String getRawName() {
+      return rawName;
+    }
+    
+    private void setRawName(String name) {
+      this.rawName = name;
+    }
+    
+    @Override
+    public int getNoteID() {
+      return noteId;
+    }
+    
+    private void setNoteId(int noteId) {
+      this.noteId = noteId;
+    }
+
+    public short getNamespace() {
+      return namespace;
+    }
+
+    private void setNamespace(short namespace) {
+      this.namespace = namespace;
+    }
+
+    private int getNameLength() {
+      return nameLength;
+    }
+
+    private void setNameLength(int nameLength) {
+      this.nameLength = nameLength;
+    }
+
+    @Override
+    public String getNameOfDocument() {
+      if (parsedName==null) {
+        parsedName = parseLegacyAPINamedNoteName(getRawName());
+      }
+      return parsedName.map((v) -> { return v[0]; }).orElse(""); //$NON-NLS-1$
+    }
+    
+    @Override
+    public String getUserNameOfDocument() {
+      if (parsedName==null) {
+        parsedName = parseLegacyAPINamedNoteName(getRawName());
+      }
+      return parsedName.map((v) -> { return v[1]; }).orElse(""); //$NON-NLS-1$
+    }
+    
+    @Override
+    public String toString() {
+      return MessageFormat.format("NamedObjectInfo [name={0}, username={1}, noteId={2}]", getNameOfDocument(), getUserNameOfDocument(), getNoteID());
+    }
+    
+  }
+
+  @Override
+  public Collection<NamedObjectInfo> getNamedDocumentInfos(String name) {
+    String prefix = StringUtil.isEmpty(name) ? "$DGHST_": computeNamedNoteValue(name, ""); //$NON-NLS-1$ //$NON-NLS-2$
+    
+    return getNamedObjects(NotesConstants.NONS_NAMED_NOTE)
+        .stream()
+        .filter((entry) -> {
+          return StringUtil.startsWithIgnoreCase(entry.getRawName(), prefix);
+        })
+        .collect(Collectors.toList());
+  }
+
+  /**
+   * Caches the database option LARGE_ITEMS_ENABLED internally to improve performance
+   * 
+   * @return true if large items are supported
+   */
+  boolean hasLargeItemSupport() {
+    if (m_hasLargeItemSupport==null) {
+      m_hasLargeItemSupport = getOption(DatabaseOption.LARGE_ITEMS_ENABLED);
+    }
+    return m_hasLargeItemSupport;
+  }
 }

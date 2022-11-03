@@ -14,9 +14,19 @@ If your ID file has a password, in general the best way to handle that is to lau
 
 Your active JVM must match the bitness of your Notes runtime. In almost all cases - all Domino servers and the macOS Notes client - that should be 64-bit. However, as of V12, the Notes client on Windows is 32-bit, and so you should use a 32-bit JVM.
 
-### JVM Type
+### JVM Type and Version
 
-As of V12, Notes on macOS must be loaded with an OpenJ9-based JVM, ideally an old Java 8 release from AdoptOpenJDK or IBM's [Semeru builds](https://developer.ibm.com/languages/java/semeru-runtimes/), which are the newer location for them. Loading the runtime with a HotSpot-based JVM will lead to a non-fatal NSD at launch and then a likely fatal crash later.
+As of V12, Notes on macOS must be loaded with an OpenJ9-based JVM, namely IBM's [Semeru builds](https://developer.ibm.com/languages/java/semeru-runtimes/). Loading the runtime with a HotSpot-based JVM will lead to a non-fatal NSD at launch and then a likely fatal crash later.
+
+When running on JVMs newer than 8, some operations fail due to module restrictions. This can be avoided for now by using JVM arguments like these:
+
+```
+--add-exports=java.base/sun.nio.ch=ALL-UNNAMED
+--add-opens=java.base/java.lang=ALL-UNNAMED
+--add-opens=java.base/java.lang.reflect=ALL-UNNAMED
+--add-opens=java.base/java.io=ALL-UNNAMED
+--add-exports=jdk.unsupported/sun.misc=ALL-UNNAMED
+```
 
 ### Java Library Path
 

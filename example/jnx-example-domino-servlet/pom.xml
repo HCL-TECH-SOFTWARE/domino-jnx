@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
-		<version>1.11.0</version>
+		<version>1.15.1</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>jnx-example-domino-servlet</artifactId>
@@ -52,12 +52,12 @@
 							com.ibm.domino.napi,
 							com.ibm.commons,
 							com.ibm.commons.xml
-						</Require-Bundle>
+</Require-Bundle>
 						<Import-Package>
 							javax.servlet,
 							javax.servlet.http,
 							lotus.domino
-						</Import-Package>
+</Import-Package>
 						<Embed-Dependency>*;scope=compile</Embed-Dependency>
 						<Embed-Transitive>true</Embed-Transitive>
 						<Embed-Directory>WebContent/WEB-INF/lib</Embed-Directory>

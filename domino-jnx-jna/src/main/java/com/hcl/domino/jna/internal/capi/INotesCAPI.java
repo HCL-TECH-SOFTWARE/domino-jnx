@@ -593,6 +593,15 @@ public interface INotesCAPI extends Library {
 			int value_len,
 			NotesBlockIdStruct item_bid_ptr);
 
+	short NSFItemAppend(
+	    DHANDLE.ByValue note_handle,
+	    short item_flags,
+	    Memory item_name,
+	    short name_len,
+	    short item_type,
+	    Pointer item_value,
+	    int value_len);
+
 	short NSFItemInfo(
 			DHANDLE.ByValue note_handle,
 			Memory item_name,
@@ -1110,6 +1119,10 @@ public interface INotesCAPI extends Library {
 			boolean bIsMIME,
 			Pointer hCC);
 	
+	short MIMEConvertRFC822TextItems(
+	    DHANDLE.ByValue hNote,
+	    boolean bCanonical);
+	
 	short MIMEConvertRFC822TextItemByBLOCKID(
 			DHANDLE.ByValue hNote,
 			NotesBlockIdStruct.ByValue bhItem,
@@ -1202,14 +1215,12 @@ public interface INotesCAPI extends Library {
 	short FTDeleteIndex(HANDLE.ByValue hDB);
 
 	@UndocumentedAPI
-	short NSFDbNamedObjectEnum(HANDLE.ByValue hDB, NotesCallbacks.b64_NSFDbNamedObjectEnumPROC callback, Pointer param);
-	@UndocumentedAPI
-	short NSFDbNamedObjectEnum(HANDLE.ByValue hDB, NotesCallbacks.b32_NSFDbNamedObjectEnumPROC callback, Pointer param);
-
-	@UndocumentedAPI
 	short NSFDbGetNamedObjectID(HANDLE.ByValue hDB, short NameSpace,
             Memory Name, short NameLength,
             IntByReference rtnObjectID);
+
+  @UndocumentedAPI
+  short NSFGetNamedObjects(HANDLE.ByValue hDb, short Namespace, IntByReference rethBuffer, IntByReference retBufferLength);
 
 	short NSFNoteAttachFile(
 			DHANDLE.ByValue note_handle,
@@ -1621,6 +1632,8 @@ public interface INotesCAPI extends Library {
 	
 	short SECKFMSwitchToIDFile(Memory pIDFileName, Memory pPassword, Memory pUserName,
 			short  MaxUserNameLength, int Flags, Pointer pReserved);
+	
+	
 
 	short NSFDbMarkInService(Memory dbPath);
 	short NSFDbMarkOutOfService(Memory dbPath);
@@ -1680,6 +1693,28 @@ public interface INotesCAPI extends Library {
 			short wDownloadCount, int ReservedFlags, Pointer pReserved);
 
 	short SECKFMChangePassword(Memory pIDFile, Memory pOldPassword, Memory pNewPassword);
+	
+	short SECNABEnumerateCertificates(
+	    DHANDLE.ByValue hNote,
+	    NotesCallbacks.SECNABENUMPROC CallBack,
+	    Pointer pCallCtx,
+	    int ReservedFlags,
+	    Pointer pReserved
+	);
+	short SECNABAddCertificate(
+	    DHANDLE.ByValue hNote,
+	    Pointer pCertificate,
+	    int CertificateSize,
+	    int ReservedFlags,
+	    Pointer pReserved
+  );
+  short SECNABRemoveCertificate(
+      DHANDLE.ByValue hNote,
+      Pointer pCertificate,
+      int CertificateSize,
+      int ReservedFlags,
+      Pointer pReserved
+  );
 
 	short REGGetIDInfo(
 			Memory IDFileName,

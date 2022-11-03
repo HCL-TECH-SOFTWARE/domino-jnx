@@ -16,11 +16,23 @@
  */
 package it.com.hcl.domino.test.data;
 
+import java.util.Date;
+import java.util.Optional;
+
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import com.hcl.domino.data.Agent;
+import com.hcl.domino.data.Agent.AgentRunContext;
 import com.hcl.domino.data.Database;
+import com.hcl.domino.data.Document;
+import com.hcl.domino.design.DbDesign;
+import com.hcl.domino.design.DesignAgent.SecurityLevel;
+import com.hcl.domino.design.agent.AgentTarget;
+import com.hcl.domino.design.agent.AgentTrigger;
+import com.hcl.domino.design.agent.DesignLotusScriptAgent;
+import com.hcl.domino.exception.AgentTimeoutException;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
@@ -39,4 +51,54 @@ public class TestAgent extends AbstractNotesRuntimeTest {
     final Agent agent = database.getAgent(serverAgentName).get();
     agent.runOnServer(false);
   }
+  
+  @Test
+  public void testExecutionTimeoutOfNewAgent() throws Exception {
+    withTempDb((db) -> {
+      DbDesign design = db.getDesign();
+      
+      String agentName = "testagent"; //$NON-NLS-1$
+      
+      DesignLotusScriptAgent newAgent = design.createAgent(DesignLotusScriptAgent.class, agentName);
+      String script = "Option Public\n"
+          + "Option Declare\n"
+          + "\n"
+          + "Sub Initialize\n"
+          + "  Dim session As New NotesSession\n"
+          + "  Dim docCtx as NotesDocument\n"
+          + "  Set docCtx = session.DocumentContext\n"
+          + "  docCtx.EffectiveUsername = session.EffectiveUserName\n"
+          + "  docCtx.AtUsername = Evaluate(|@Username|)\n"
+          + "  docCtx.AtUserNamesList = Evaluate(|@UserNamesList|)\n"
+          + "  docCtx.save true, false\n"
+          + "  sleep 3\n"
+          + "End Sub";
+
+      newAgent.setScript(script);
+      newAgent.setRunAsWebUser(true);
+      newAgent.setSecurityLevel(SecurityLevel.RESTRICTED);
+      
+      newAgent.setTrigger(AgentTrigger.MANUAL);
+      newAgent.setTarget(AgentTarget.UI);
+      
+      newAgent.sign();
+      newAgent.save();
+
+      Optional<Agent> optRunnableAgent = db.getAgent(agentName);
+      Assertions.assertTrue(optRunnableAgent.isPresent());
+      Agent runnableAgent = optRunnableAgent.get();
+      
+      Document tmpDoc = db.createDocument();
+      
+      AgentRunContext runCtx = runnableAgent.createAgentContext()
+          .setDocumentContext(tmpDoc)
+          .setTimeoutSeconds(1);
+      
+      Assertions.assertThrows(AgentTimeoutException.class, () -> {
+        runnableAgent.run(runCtx);
+      });
+
+    });
+  }
+  
 }

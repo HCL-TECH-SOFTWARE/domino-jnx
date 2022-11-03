@@ -30,7 +30,7 @@ public class JsonbSerializer extends AbstractJsonSerializer {
   @Override
   public Object toJson(final Document doc) {
     final Jsonb jsonb = buildSerializer();
-    return jsonb.toJson(doc);
+    return jsonb.toJson(doc, Document.class);
   }
   
   @Override
