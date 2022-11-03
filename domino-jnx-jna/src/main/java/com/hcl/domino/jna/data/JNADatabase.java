@@ -171,6 +171,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	private String[] m_paths;
 	private DbMode m_dbMode;
 	private JNAAcl m_acl;
+	private Boolean m_hasLargeItemSupport;
 	
 	public JNADatabase(IGCDominoClient<?> parent, String server, String filePath, Set<OpenDatabase> options) {
 		this(parent, server, filePath, options, (JNAUserNamesList) null);
@@ -4304,5 +4305,17 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
           return StringUtil.startsWithIgnoreCase(entry.getRawName(), prefix);
         })
         .collect(Collectors.toList());
+  }
+
+  /**
+   * Caches the database option LARGE_ITEMS_ENABLED internally to improve performance
+   * 
+   * @return true if large items are supported
+   */
+  boolean hasLargeItemSupport() {
+    if (m_hasLargeItemSupport==null) {
+      m_hasLargeItemSupport = getOption(DatabaseOption.LARGE_ITEMS_ENABLED);
+    }
+    return m_hasLargeItemSupport;
   }
 }

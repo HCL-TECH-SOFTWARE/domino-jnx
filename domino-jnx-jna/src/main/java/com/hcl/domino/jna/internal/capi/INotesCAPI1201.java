@@ -60,27 +60,18 @@ public interface INotesCAPI1201 extends Library {
   short ListAllocate2Ext (short ListEntries,
       int TextSize,
       boolean fPrefixDataType,
-      DHANDLE.ByReference rethList,
+      IntByReference rethList,
       PointerByReference retpList,
       IntByReference retListSize,
       boolean bAllowLarge);
 
   @UndocumentedAPI
-  short ListAddEntry2Ext(DHANDLE.ByValue mhList,
-      int fPrefixDataType,
+  short ListAddEntry2Ext(int mhList,
+      boolean fPrefixDataType,
       IntByReference pListSize,
       short EntryNumber,
       Memory Text,
       short TextSize,
-      int bAllowLarge);
-
-  @UndocumentedAPI
-  short ListRemoveEntry2 (int hList,
-            boolean fPrefixDataType,
-            IntByReference pListSize,
-            short EntryNumber);
-
-  
-  short NSFItemAppendTextList (long hNote, Memory ItemName, Memory Text, short TextLength, boolean fAllowDuplicates);
+      boolean bAllowLarge);
   
 }

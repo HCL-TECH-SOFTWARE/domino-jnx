@@ -455,4 +455,67 @@ public class TestLargeSummarySupport extends AbstractNotesRuntimeTest {
       c.accept(database);
     });
   }
+  
+
+  /**
+   * Writes large items lists in a doc of an R12 database, reads them and compare both
+   * values.
+   * 
+   * @throws Exception in case of errors
+   */
+  @Test
+  @EnabledIfEnvironmentVariable(named = TestLargeSummarySupport.LARGEITEMFIX_INSTALLED, matches = "true", disabledReason = "LARGEITEMFIX_INSTALLED not set to true")
+  public void testLargeItemListSupport() throws Exception {
+    // Check if we're running on V12 in the abstract first.
+    // This should avoid test trouble on at least V11 macOS
+    {
+      final BuildVersionInfo buildVersion = this.getClient().getBuildVersion("");
+      if (buildVersion.getMajorVersion() < 12) {
+        // large item storage not supported by this API version
+        return;
+      }
+    }
+
+    this.withLargeDataEnabledTempDb(LargeDataLevel.R12, db -> {
+      //ODS 55+
+      Assertions.assertTrue(db.getNSFVersionInfo().getMajorVersion()>=55);
+      
+      // check if NSF has R12 format
+      final NSFVersionInfo version = db.getNSFVersionInfo();
+      Assertions.assertTrue(version.getMajorVersion() >= 54);
+
+      // and check if large summary and item support are enabled
+      Assertions.assertEquals(true, db.getOption(DatabaseOption.LARGE_ITEMS_ENABLED));
+      Assertions.assertEquals(true, db.getOption(DatabaseOption.LARGE_BUCKETS_ENABLED));
+      
+      Document docLarge = db.createDocument();
+
+      final StringWriter summaryTextWriter = new StringWriter();
+      this.produceTestData(32767, summaryTextWriter);
+      final String summaryText = summaryTextWriter.toString();
+
+      List<String> largeList = new ArrayList<>();
+      for (int i = 0; i < 1000; i++) {
+        largeList.add(summaryText);
+      }
+      
+      //non-summary item:
+      docLarge.replaceItemValue("textlistitem", EnumSet.noneOf(ItemFlag.class), largeList);
+      docLarge.save();
+      
+      final int noteId = docLarge.getNoteID();
+      docLarge.autoClosable().close();
+      docLarge = db.getDocumentById(noteId).get();
+      
+      List<String> testLargeList = docLarge.getAsList("textlistitem", String.class, null);
+      Assertions.assertNotNull(testLargeList);
+      Assertions.assertEquals(largeList.size(), testLargeList.size());
+      
+      for (int i = 0; i < largeList.size(); i++) {
+        Assertions.assertEquals(largeList.get(i), testLargeList.get(i));
+      }
+
+    });
+  }
+
 }

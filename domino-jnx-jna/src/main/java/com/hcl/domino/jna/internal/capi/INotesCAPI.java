@@ -593,6 +593,15 @@ public interface INotesCAPI extends Library {
 			int value_len,
 			NotesBlockIdStruct item_bid_ptr);
 
+	short NSFItemAppend(
+	    DHANDLE.ByValue note_handle,
+	    short item_flags,
+	    Memory item_name,
+	    short name_len,
+	    short item_type,
+	    Pointer item_value,
+	    int value_len);
+
 	short NSFItemInfo(
 			DHANDLE.ByValue note_handle,
 			Memory item_name,
