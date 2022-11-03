@@ -70,7 +70,7 @@
 		<dependency>
 			<groupId>org.apache.bcel</groupId>
 			<artifactId>bcel</artifactId>
-			<version>6.5.0</version>
+			<version>6.6.1</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -102,13 +102,13 @@
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcprov-jdk18on</artifactId>
-			<version>1.71.1</version>
+			<version>1.72</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
 			<artifactId>bcpkix-jdk18on</artifactId>
-			<version>1.71.1</version>
+			<version>1.72</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -121,7 +121,7 @@
 		<dependency>
 			<groupId>org.jboss.xnio</groupId>
 			<artifactId>xnio-nio</artifactId>
-			<version>3.8.5.Final</version>
+			<version>3.8.8.Final</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -193,7 +193,7 @@
 				<dependency>
 					<groupId>org.junit.platform</groupId>
 					<artifactId>junit-platform-console-standalone</artifactId>
-					<version>1.8.2</version>
+					<version>1.9.1</version>
 					<scope>test</scope>
 				</dependency>
 			</dependencies>

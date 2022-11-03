@@ -16,6 +16,8 @@
 			<artifactId>domino-jnx-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		
+		<!-- NB Jakarta Security 3.0 and CDI 4.0 require Java 11 -->
 		<dependency>
 			<groupId>jakarta.security.enterprise</groupId>
 			<artifactId>jakarta.security.enterprise-api</artifactId>
