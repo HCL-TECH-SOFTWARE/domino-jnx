@@ -11,7 +11,7 @@
 	<name>HCL Domino API Example GraalVM Native App</name>
 
 	<properties>
-		<graal.version>22.1.0.1</graal.version>
+		<graal.version>22.3.0</graal.version>
 	</properties>
 
 	<dependencies>
