@@ -104,7 +104,7 @@ public class ByteBufferDocumentValueConverter implements DocumentValueConverter 
         
         valuePtr.write(0, valueData, 0, valueData.length);
 
-        jnaDoc.appendItemValue(itemName, itemFlags, dataTypeShort, hItemByVal, valueSize);
+        jnaDoc.appendItemValue(itemName, itemFlags, hItemByVal, valueSize);
         return null;
       }
       finally {
