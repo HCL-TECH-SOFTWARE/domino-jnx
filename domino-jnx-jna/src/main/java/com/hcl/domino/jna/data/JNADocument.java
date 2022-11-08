@@ -275,7 +275,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	public void close() {
 		JNADocumentAllocations allocations = getAllocations();
 		
-		if (allocations.isDisposed()) {
+		if (!allocations.isDisposed()) {
 			allocations.dispose();
 		}
 	}
