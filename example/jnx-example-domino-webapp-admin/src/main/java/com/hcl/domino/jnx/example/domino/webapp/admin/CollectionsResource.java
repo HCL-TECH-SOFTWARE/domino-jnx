@@ -50,6 +50,7 @@ public class CollectionsResource {
               result.put("aliases", c.getAliases()); //$NON-NLS-1$
               result.put("isfolder", c.isFolder()); //$NON-NLS-1$
               result.put("noteid", c.getNoteID()); //$NON-NLS-1$
+              result.put("unid", c.getUNID()); //$NON-NLS-1$
               return result;
             })
             .collect(Collectors.toList());

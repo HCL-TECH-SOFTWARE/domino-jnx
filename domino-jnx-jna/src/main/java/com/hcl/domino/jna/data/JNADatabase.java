@@ -70,6 +70,7 @@ import com.hcl.domino.commons.views.IItemTableData;
 import com.hcl.domino.commons.views.OpenCollection;
 import com.hcl.domino.crypt.DatabaseEncryptionState;
 import com.hcl.domino.data.Agent;
+import com.hcl.domino.data.AutoCloseableDocument;
 import com.hcl.domino.data.DBQuery;
 import com.hcl.domino.data.DQLQueryResult;
 import com.hcl.domino.data.Database;
@@ -2430,22 +2431,25 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			}
 		});
 		return noteIds.stream()
-			.map(noteId -> {
-				Document designNote = getDocumentById(noteId).get();
-				JNADominoCollectionInfo info = new JNADominoCollectionInfo(this);
-				List<String> titles = designNote.getAsList(NotesConstants.FIELD_TITLE, String.class, Collections.emptyList());
-				titles = DesignUtil.toTitlesList(titles);
-				String title = titles.isEmpty() ? "" : titles.get(0); //$NON-NLS-1$
-				info.setTitle(title);
-				List<String> aliases = titles.size() < 2 ? Collections.emptyList() : titles.subList(1, titles.size());
-				info.setAliases(aliases);
-				info.setComment(designNote.getAsText(NotesConstants.FILTER_COMMENT_ITEM, ' '));
-				info.setFlags(designNote.getAsText(NotesConstants.DESIGN_FLAGS, ' '));
-				info.setLanguage(designNote.getAsText(NotesConstants.FIELD_LANGUAGE, ' '));
-				info.setNoteID(noteId);
-				
-				return info;
-			});
+		    .map((id) -> { return getDocumentById(id).orElse(null); } )
+		    .filter(Objects::nonNull)
+		    .map((doc) -> {
+		      try (AutoCloseableDocument closeableDoc = doc.autoClosable()) {
+		        JNADominoCollectionInfo info = new JNADominoCollectionInfo(this);
+		        List<String> titles = closeableDoc.getAsList(NotesConstants.FIELD_TITLE, String.class, Collections.emptyList());
+		        titles = DesignUtil.toTitlesList(titles);
+		        String title = titles.isEmpty() ? "" : titles.get(0); //$NON-NLS-1$
+		        info.setTitle(title);
+		        List<String> aliases = titles.size() < 2 ? Collections.emptyList() : titles.subList(1, titles.size());
+		        info.setAliases(aliases);
+		        info.setComment(closeableDoc.getAsText(NotesConstants.FILTER_COMMENT_ITEM, ' '));
+		        info.setFlags(closeableDoc.getAsText(NotesConstants.DESIGN_FLAGS, ' '));
+		        info.setLanguage(closeableDoc.getAsText(NotesConstants.FIELD_LANGUAGE, ' '));
+		        info.setNoteID(closeableDoc.getNoteID());
+		        info.setUNID(closeableDoc.getUNID());
+		        return info;
+		      }
+		    });
 	}
 
 	@Override

@@ -28,6 +28,8 @@ public interface DominoCollectionInfo extends IAdaptable {
 
   int getNoteID();
 
+  String getUNID();
+  
   Database getParent();
 
   String getTitle();
