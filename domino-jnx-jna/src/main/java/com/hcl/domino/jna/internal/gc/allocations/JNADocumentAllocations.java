@@ -61,13 +61,11 @@ public class JNADocumentAllocations extends APIObjectAllocations<JNADocument> {
 			return;
 		}
 
-		if (m_noteHandle!=null) {
+		if (m_noteHandle!=null && !m_noteHandle.isDisposed()) {
 			LockUtil.lockHandle(m_noteHandle, (handleByVal) -> {
 				if (!m_noRecycle) {
 					short result = NotesCAPI.get().NSFNoteClose(handleByVal);
 					NotesErrorUtils.checkResult(result);
-					//mark as disposed while lock is active
-					m_noteHandle.setDisposed();
 				}
 				m_noteHandle = null;
 				return 0;
