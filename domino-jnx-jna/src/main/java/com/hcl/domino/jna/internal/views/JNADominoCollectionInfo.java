@@ -43,6 +43,7 @@ public class JNADominoCollectionInfo implements DominoCollectionInfo {
 	private String m_flags;
 	private JNADatabase m_parentDb;
 	private int m_noteId;
+	private String m_unid;
 	private String m_comment;
 	private String m_language;
 	
@@ -64,6 +65,7 @@ public class JNADominoCollectionInfo implements DominoCollectionInfo {
 		
 		m_flags = entry.get(NotesConstants.DESIGN_FLAGS, String.class, ""); //$NON-NLS-1$
 		m_noteId = entry.getNoteID();
+		m_unid = entry.getUNID();
 		m_comment = entry.get("$comment", String.class, ""); //$NON-NLS-1$ //$NON-NLS-2$
 		m_language = entry.get("$language", String.class, ""); //$NON-NLS-1$ //$NON-NLS-2$
 	}
@@ -112,6 +114,14 @@ public class JNADominoCollectionInfo implements DominoCollectionInfo {
 		return m_noteId;
 	}
 	
+	public void setUNID(String unid) {
+	  m_unid = unid;
+	}
+
+	public String getUNID() {
+	  return m_unid;
+	}
+	
 	public void setComment(String comment) {
 		m_comment = comment;
 	}
@@ -147,8 +157,8 @@ public class JNADominoCollectionInfo implements DominoCollectionInfo {
 	@Override
 	public String toString() {
 		return MessageFormat.format(
-			"JNACollectionSummary [title={0}, aliases={1}, isfolder={2}, noteid={3}]",
-			getTitle(), getAliases(), isFolder(), getNoteID()
+			"JNACollectionSummary [title={0}, aliases={1}, isfolder={2}, noteid={3}, unid={4}]",
+			getTitle(), getAliases(), isFolder(), getNoteID(), getUNID()
 		);
 	}
 }

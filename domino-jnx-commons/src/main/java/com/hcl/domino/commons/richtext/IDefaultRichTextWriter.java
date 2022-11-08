@@ -26,11 +26,13 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.design.view.DominoCollationInfo;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoCollection;
+import com.hcl.domino.data.DominoCollectionInfo;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.TextStyle;
@@ -83,11 +85,7 @@ public interface IDefaultRichTextWriter extends RichTextWriter {
     } else {
       final Optional<String> anyCollectionUnid = parentDb
           .getAllCollections()
-          .map(colInfo -> {
-            final String unid = parentDb.toUNID(colInfo.getNoteID());
-            return unid;
-          })
-          .filter(unid -> !(unid == null || unid.isEmpty()))
+          .map(DominoCollectionInfo::getUNID)
           .findFirst();
 
       if (anyCollectionUnid.isPresent()) {
