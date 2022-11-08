@@ -489,7 +489,7 @@ public interface DbDesign {
   Stream<View> getViews();
   
   /**
-   * Retrieves the named Outl;ine.
+   * Retrieves the named Outline.
    *
    * @param name the element name to restrict to
    * @return an {@link Optional} describing the {@link Outline}, or an empty one if
