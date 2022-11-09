@@ -28,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -50,6 +51,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import com.devskiller.jfairy.Fairy;
 import com.devskiller.jfairy.producer.person.Person;
+import com.devskiller.jfairy.producer.person.Person.Sex;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClient.Encryption;
 import com.hcl.domino.DominoClientBuilder;
@@ -110,6 +112,9 @@ public abstract class AbstractNotesRuntimeTest {
       final Person person = fairy.person();
 
       final Document doc = db.createDocument();
+      
+      LocalDate birthDay = person.getDateOfBirth();
+
       doc
           .replaceItemValue("Form", "Person")
           .replaceItemValue("Type", "Person")
@@ -122,12 +127,18 @@ public abstract class AbstractNotesRuntimeTest {
           .replaceItemValue("CompanyName", person.getCompany().getName())
           .replaceItemValue("MailAddress", person.getEmail())
           .replaceItemValue("OfficePhoneNumber", person.getTelephoneNumber())
-          .replaceItemValue("Birthday", person.getDateOfBirth())
+          .replaceItemValue("Birthday", birthDay)
+          .replaceItemValue("Birthday_Year", birthDay.getYear())
+          .replaceItemValue("Birthday_Month", birthDay.getMonthValue())
+          .replaceItemValue("Birthday_Day", birthDay.getDayOfMonth())
           .replaceItemValue("WebSite", person.getCompany().getUrl())
-          .replaceItemValue("Country", person.getNationality().getCode());
+          .replaceItemValue("Country", person.getNationality().getCode())
+          .replaceItemValue("Gender", person.getSex().name())
+          .replaceItemValue("Gender_Ordinal", person.getSex().ordinal()); //for number comparisons
 
       doc.save();
       unidsAndNoteIds.add(new Pair<>(doc.getUNID(), doc.getNoteID()));
+      doc.autoClosable().close();
 
       // System.out.println("created doc with unid "+doc.getUNID()+" note id
       // "+doc.getNoteID()+
