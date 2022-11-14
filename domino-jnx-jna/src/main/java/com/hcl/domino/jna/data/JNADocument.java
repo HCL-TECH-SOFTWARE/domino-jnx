@@ -1766,7 +1766,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			}
 			
 			boolean useLarge = ((JNADatabase)getParentDatabase()).hasLargeItemSupport();
-
+			
 			if (!useLarge) {
 			  DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
 			  ShortByReference retListSize = new ShortByReference();
@@ -1802,7 +1802,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			  INotesCAPI1201 capi1201 = NotesCAPI1201.get();
 
 			  IntByReference rethList = new IntByReference();
-			  PointerByReference retpList = new PointerByReference();
+        PointerByReference retpList = null;
 			  IntByReference retListSize = new IntByReference();
 
 			  short result = capi1201.ListAllocate2Ext((short) 0,
@@ -1821,14 +1821,11 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			  }
 
 			  try {
-			    Mem.OSMemoryUnlock(hList);
-
 			    int i=0;
 			    for (String currStr : strList) {
 			      Memory currStrMem = NotesStringUtils.toLMBCS(currStr, false);
-			      if (currStrMem.size() > 32767) {
-			        //according to core dev, the max length of one entry should be 0xffff bytes; needs clarification
-			        throw new DominoException(MessageFormat.format("List item at position {0} exceeds max lengths of 32767 bytes", i));
+			      if (currStrMem.size() > 65535) {
+			        throw new DominoException(MessageFormat.format("List item at position {0} exceeds max lengths of 65535 bytes", i));
 			      }
 
             short textSize = (short) (currStrMem==null ? 0 : (currStrMem.size() & 0xffff));

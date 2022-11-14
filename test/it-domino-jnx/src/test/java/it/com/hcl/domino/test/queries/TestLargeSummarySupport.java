@@ -491,7 +491,7 @@ public class TestLargeSummarySupport extends AbstractNotesRuntimeTest {
       Document docLarge = db.createDocument();
 
       final StringWriter summaryTextWriter = new StringWriter();
-      this.produceTestData(32767, summaryTextWriter);
+      this.produceTestData(60000, summaryTextWriter);
       final String summaryText = summaryTextWriter.toString();
 
       List<String> largeList = new ArrayList<>();
