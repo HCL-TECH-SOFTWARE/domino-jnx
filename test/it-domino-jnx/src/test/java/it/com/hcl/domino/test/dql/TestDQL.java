@@ -225,7 +225,7 @@ public class TestDQL extends AbstractNotesRuntimeTest {
         });
     }
 
-    @Test
+//    @Test
     public void testDQLContainsRemote() throws Exception {
       Database db = getClient().openDatabase("Galatea-VCC/IKSG", "cms60/cmsodir.nsf");
       DQL.DQLTerm dqlContains = DQL.item("CompanyName").contains("201 W.");
@@ -905,4 +905,27 @@ public class TestDQL extends AbstractNotesRuntimeTest {
             Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
         });
     }
+    
+    @Test
+    public void testFormulaEscape() throws Exception {
+      this.withTempDb(db -> {
+        Document someDoc = db.createDocument();
+        String val = "Fo'le";
+        someDoc.appendItemValue("firstname", val);
+        someDoc.save();
+        Formula formula = db.getParentDominoClient().createFormula("@Begins(FirstName; \"" + val + "\")");
+        DQLTerm dql = DQL.formula(formula);
+        System.out.println("DQL:\n"+dql);
+        
+        assertEquals("@formula('@Begins(FirstName; \"" + val.replace("'", "\\'") + "\")')", dql.toString());
+        DQLQueryResult result = db.queryDQL(dql, EnumSet.of(DBQuery.EXPLAIN));
+        showResult(result);
+        String explainText = result.getExplainText();
+        Assertions.assertNotNull(result.getExplainText());
+        Assertions.assertTrue(explainText.length() > 0);
+        final IDTable resultsTable = result.getNoteIds().get();
+        Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
+      });
+    }
+
 }
