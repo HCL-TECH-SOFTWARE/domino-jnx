@@ -147,7 +147,15 @@ public interface DbQueryResult<CHAINTYPE extends DbQueryResult<?>> {
   /**
    * Sorts/filters the note ids of the search result like the specified
    * {@link DominoCollection}.
-   * Note ids that are not part of the collection will be ignored.
+   * Note ids that are not part of the collection will be ignored.<br>
+   * <br>
+   * For maximum performance, please make sure to <b>disable</b> these settings in the view:<br>
+   * <ul>
+   * <li>show response documents in a hierarchy</li>
+   * <li>for the sort column: show multiple values as separate entries</li>
+   * </ul>
+   * Depending on the size/structure of the view, disabling these settings can result
+   * in a performance improvement from 7000ms down to 10ms.
    *
    * @param collection collection
    * @return this search query
