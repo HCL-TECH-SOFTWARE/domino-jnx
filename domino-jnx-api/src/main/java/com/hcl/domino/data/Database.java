@@ -1813,7 +1813,7 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
    * visible view with the same name.<br>
    * For example, if "myview" and "(myview)" exist, "myview" deletes only "myview.".<br>
    * But if only "(myview)" exists, "myview" deletes "(myview)".<br>
-   * Naming your index views differently than the other views in the database is recommended.<br>>
+   * Naming your index views differently than the other views in the database is recommended.<br>
    * <br>
    * If no view could be found, the method does nothing.
    * 
