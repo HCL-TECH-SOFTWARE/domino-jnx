@@ -4722,4 +4722,36 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
 
   /** Non-documented item containing the thread ID for the document when thread tracking is enabled. */
   String ITEM_THREAD_ID = "$TUA"; //$NON-NLS-1$
+
+  /* Design command types */
+  
+  enum DESIGN_COMMAND_TYPE {
+    CREATE_INDEX (0),
+    RENAME_INDEX (1),
+    DELETE_INDEX (2),
+    LIST_INDEXES (3),
+    DESIGN_CATALOG_REFRESH (4),
+    NO_DESIGN_COMMAND (5);
+
+    private final int m_value;
+
+    DESIGN_COMMAND_TYPE(final int value) {
+      this.m_value = value;
+    }
+
+    public int getValue() {
+      return this.m_value;
+    }
+
+  };
+
+  /* for Flags in NSFDesignCommand */
+  
+  /** Create a visible, not a hidden view */
+  int CREATE_INDEX_NOHIDE = 0x00000001;
+  /** After view is created, do NOT build it */
+  int CREATE_INDEX_NOBUILD = 0x00000002;
+  /** Create an inline updated view */
+  int CREATE_INDEX_UPD_INLINE = 0x00000004;
+
 }

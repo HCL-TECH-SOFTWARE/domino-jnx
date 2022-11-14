@@ -17,6 +17,7 @@
 package com.hcl.domino.data;
 
 import java.time.temporal.TemporalAccessor;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -1757,6 +1758,76 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
    */
   void updateDQLDesignCatalog(boolean rebuild);
 
+  /**
+   * Creates an index (Domino view) that is optimized for DQL query terms.<br>
+   * If a view with the specified name already exists, the method does nothing (does not check compatibility of columns).
+   * 
+   * @param name The name of the index to create. Use a name that doesn't conflict with the name of an existing view. Note: Each index name should be easy to identity as a view created via this call and unique within the database. If you create a hidden index (IsVisible is default or false), then the provided view name and that name in parentheses (that is, both "viewname" and "(viewname)") are reserved in the database and you cannot create another view or index with that name.
+   * @param field the name of the fields to be indexed
+   */
+  default void createIndex(String name, String field) {
+    createIndex(name, Arrays.asList(field), false, false);
+  }
+  
+  /**
+   * Creates an index (Domino view) that is optimized for DQL query terms.<br>
+   * If a view with the specified name already exists, the method does nothing (does not check compatibility of columns).
+   * 
+   * @param name The name of the index to create. Use a name that doesn't conflict with the name of an existing view. Note: Each index name should be easy to identity as a view created via this call and unique within the database. If you create a hidden index (IsVisible is default or false), then the provided view name and that name in parentheses (that is, both "viewname" and "(viewname)") are reserved in the database and you cannot create another view or index with that name.
+   * @param field the name of the fields to be indexed
+   * @param isvisible Makes the view visible. If not specified, a hidden view is created using parentheses. For example, "myindex" becomes "(myindex)". If set to true, all users see the view created by the call when they open the database.
+   * @param nobuild Doesn't build the view, allowing for normal view processing to do so. All views created by createIndex are created with refresh options set to "Automatic". If not specified, the view created is built as part of the createIndex operation.
+   */
+  default void createIndex(String name, String field, boolean isvisible, boolean nobuild) {
+    createIndex(name, Arrays.asList(field), isvisible, nobuild);
+  }
+  
+  /**
+   * Creates an index (Domino view) that is optimized for DQL query terms.<br>
+   * If a view with the specified name already exists, the method does nothing (does not check compatibility of columns).
+   * 
+   * @param name The name of the index to create. Use a name that doesn't conflict with the name of an existing view. Note: Each index name should be easy to identity as a view created via this call and unique within the database. If you create a hidden index (IsVisible is default or false), then the provided view name and that name in parentheses (that is, both "viewname" and "(viewname)") are reserved in the database and you cannot create another view or index with that name.
+   * @param fields the names of the fields to be indexed
+   */
+  default void createIndex(String name, Collection<String> fields) {
+    createIndex(name, fields, false, false);
+  }
+  
+  /**
+   * Creates an index (Domino view) that is optimized for DQL query terms.<br>
+   * If a view with the specified name already exists, the method does nothing (does not check compatibility of columns).
+   * 
+   * @param name The name of the index to create. Use a name that doesn't conflict with the name of an existing view. Note: Each index name should be easy to identity as a view created via this call and unique within the database. If you create a hidden index (IsVisible is default or false), then the provided view name and that name in parentheses (that is, both "viewname" and "(viewname)") are reserved in the database and you cannot create another view or index with that name.
+   * @param fields the names of the fields to be indexed
+   * @param isvisible Makes the view visible. If not specified, a hidden view is created using parentheses. For example, "myindex" becomes "(myindex)". If set to true, all users see the view created by the call when they open the database.
+   * @param nobuild Doesn't build the view, allowing for normal view processing to do so. All views created by createIndex are created with refresh options set to "Automatic". If not specified, the view created is built as part of the createIndex operation.
+   */
+  void createIndex(String name, Collection<String> fields, boolean isvisible, boolean nobuild);
+  
+  /**
+   * Removes an index (Domino view) that is optimized for DQL query terms.<br>
+   * removeIndex is very powerful and can remove production views.<br>
+   * Take care in choosing what indexes (views) to remove.<br>
+   * <br>
+   * Removes a hidden view if you omit the parentheses in the index name and there is no
+   * visible view with the same name.<br>
+   * For example, if "myview" and "(myview)" exist, "myview" deletes only "myview.".<br>
+   * But if only "(myview)" exists, "myview" deletes "(myview)".<br>
+   * Naming your index views differently than the other views in the database is recommended.<br>>
+   * <br>
+   * If no view could be found, the method does nothing.
+   * 
+   * @param name the name of the index to remove
+   */
+  void removeIndex(String name);
+  
+  /**
+   * Lists the indexes that are optimized for Domino DQL query terms.
+   * 
+   * @return string in JSON format
+   */
+  String listIndexes();
+  
   /**
    * Method to apply changes to the unread document table
    *
