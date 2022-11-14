@@ -114,6 +114,7 @@ import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
 import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.INotesCAPI;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
+import com.hcl.domino.jna.internal.capi.NotesCAPI1201;
 import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNAIDTableAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNAUserNamesListAllocations;
@@ -4322,4 +4323,182 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     }
     return m_hasLargeItemSupport;
   }
+
+  @Override
+  public void createIndex(String name, Collection<String> fields, boolean isvisible, boolean nobuild) {
+    checkDisposed();
+    
+    if (StringUtil.isEmpty(name)) {
+      throw new IllegalArgumentException("Index name cannot be empty");
+    }
+    
+    List<Memory> fieldsMem = new ArrayList<>();
+    
+    for (String currField : fields) {
+      if (StringUtil.isEmpty(currField)) {
+        throw new IllegalArgumentException(MessageFormat.format("Method does not support empty field names: {0}", fields));
+      }
+      
+      Memory currFieldMem = NotesStringUtils.toLMBCS(currField, true);
+      if (currFieldMem.size() > (NotesConstants.DESIGN_NAME_MAX-1)) {
+        throw new IllegalArgumentException(MessageFormat.format("Field exceeds max length of {0}: {1}", NotesConstants.DESIGN_NAME_MAX-1, currField));
+      }
+      fieldsMem.add(currFieldMem);
+    }
+
+    IntByReference hdsgncmd = new IntByReference();
+    
+    int v0 = hdsgncmd.getValue();
+    
+    for (Memory currFieldMem : fieldsMem) {
+      short result = NotesCAPI1201.get().NSFDesignCommandAddComponent(currFieldMem,
+          NotesConstants.DESIGN_COMPONENT_ATTR.VALS_ASCENDING.getValue(),
+          hdsgncmd);
+      
+      int v1 = hdsgncmd.getValue();
+      
+      NotesErrorUtils.checkResult(result);
+    }
+
+    Memory nameMem = NotesStringUtils.toLMBCS(name, true);
+    
+    IntByReference hretval = new IntByReference();
+    IntByReference hreterror = new IntByReference();
+    
+    int dwFlags = 0;
+    if (isvisible) {
+      dwFlags |= NotesConstants.CREATE_INDEX_NOHIDE;
+    }
+    
+    if (nobuild) {
+      dwFlags |= NotesConstants.CREATE_INDEX_NOBUILD;
+    }
+    
+    int dwFlagsFinal = dwFlags;
+    
+    short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
+      return NotesCAPI1201.get().NSFDesignCommand(hDbByVal,
+          NotesConstants.DESIGN_COMMAND_TYPE.CREATE_INDEX.getValue(),
+          dwFlagsFinal, nameMem,
+          hretval, hreterror, hdsgncmd.getValue());
+  
+    });
+    
+    String errorTxt = ""; //$NON-NLS-1$
+    if (hreterror.getValue()!=0) {
+      try (LockedMemory m = Mem.OSMemoryLock(hreterror.getValue())) {
+        errorTxt = NotesStringUtils.fromLMBCS(m.getPointer(), -1);
+      }
+      finally {
+        Mem.OSMemoryFree(hreterror.getValue());
+      }
+    }
+
+    if (result!=0) {
+      if (!StringUtil.isEmpty(errorTxt)) {
+        throw new DominoException(result, errorTxt, NotesErrorUtils.toNotesError(result).orElse(null));
+      }
+      else {
+        NotesErrorUtils.checkResult(result);
+      }
+    }
+    
+  }
+
+  @Override
+  public void removeIndex(String name) {
+    checkDisposed();
+    
+    if (StringUtil.isEmpty(name)) {
+      throw new IllegalArgumentException("Index name cannot be empty");
+    }
+
+    Memory nameMem = NotesStringUtils.toLMBCS(name, true);
+    
+    IntByReference hidx = new IntByReference();
+    IntByReference hreterror = new IntByReference();
+
+    short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
+      return NotesCAPI1201.get().NSFDesignCommand(hDbByVal,
+          NotesConstants.DESIGN_COMMAND_TYPE.DELETE_INDEX.getValue(), 0, nameMem,
+          hidx, hreterror, 0);
+    });
+    
+    if (hidx.getValue()!=0) {
+      Mem.OSMemoryFree(hidx.getValue());
+    }
+    
+    if ((result & NotesConstants.ERR_MASK)==1028) { //index view not found
+      if (hreterror.getValue()!=0) {
+        Mem.OSMemoryFree(hreterror.getValue());
+      }
+      return;
+    }
+
+    String errorTxt = ""; //$NON-NLS-1$
+    if (hreterror.getValue()!=0) {
+      try (LockedMemory m = Mem.OSMemoryLock(hreterror.getValue())) {
+        errorTxt = NotesStringUtils.fromLMBCS(m.getPointer(), -1);
+      }
+      finally {
+        Mem.OSMemoryFree(hreterror.getValue());
+      }
+    }
+
+    if (result!=0) {
+      if (!StringUtil.isEmpty(errorTxt)) {
+        throw new DominoException(result, errorTxt, NotesErrorUtils.toNotesError(result).orElse(null));
+      }
+      else {
+        NotesErrorUtils.checkResult(result);
+      }
+    }
+  }
+
+  @Override
+  public String listIndexes() {
+    checkDisposed();
+    
+    IntByReference hret = new IntByReference();
+    IntByReference hreterror = new IntByReference();
+
+    short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
+      return NotesCAPI1201.get().NSFDesignCommand(hDbByVal,
+          NotesConstants.DESIGN_COMMAND_TYPE.LIST_INDEXES.getValue(), 0, null,
+          hret, hreterror, 0);
+    });
+    
+    String errorTxt = ""; //$NON-NLS-1$
+    if (hreterror.getValue()!=0) {
+      try (LockedMemory m = Mem.OSMemoryLock(hreterror.getValue())) {
+        errorTxt = NotesStringUtils.fromLMBCS(m.getPointer(), -1);
+      }
+      finally {
+        Mem.OSMemoryFree(hreterror.getValue());
+      }
+    }
+    
+    if (result!=0) {
+      if (!StringUtil.isEmpty(errorTxt)) {
+        throw new DominoException(result, errorTxt, NotesErrorUtils.toNotesError(result).orElse(null));
+      }
+      else {
+        NotesErrorUtils.checkResult(result);
+      }
+    }
+    
+    String retTxt = ""; //$NON-NLS-1$
+    if (hret.getValue()!=0) {
+      try (LockedMemory m = Mem.OSMemoryLock(hret.getValue())) {
+        retTxt = NotesStringUtils.fromLMBCS(m.getPointer(), -1);
+      }
+      finally {
+        Mem.OSMemoryFree(hret.getValue());
+      }
+    }
+    
+    return retTxt;
+  }
+  
+  
 }
