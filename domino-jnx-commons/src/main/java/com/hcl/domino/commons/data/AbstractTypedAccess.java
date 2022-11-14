@@ -269,13 +269,15 @@ public abstract class AbstractTypedAccess implements TypedAccess, IndexedTypedAc
 	}
 
 	private String getAsString(List<?> docValues, String defaultValue) {
-		List<String> strList = getAsStringList(docValues, null);
-		if (strList!=null && !strList.isEmpty()) {
-			return strList.get(0);
-		}
-		else {
-			return defaultValue;
-		}
+	  if (docValues != null) {
+      for (int i = 0; i < docValues.size(); i++) {
+        String currStr = StringUtil.toString(docValues.get(i));
+        if (!"".equals(currStr)) { //$NON-NLS-1$
+          return currStr;
+        }
+      }
+    }
+    return defaultValue;
 	}
 
 	private List<String> getAsStringList(List<?> docValues, List<String> defaultValue) {
