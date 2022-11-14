@@ -20,6 +20,9 @@ import java.lang.reflect.Field;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.List;
+import java.util.WeakHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.sun.jna.Pointer;
@@ -33,8 +36,13 @@ import com.sun.jna.TypeMapper;
  * @author Karsten Lehmann
  */
 public abstract class BaseStructure extends Structure {
-	
-	protected BaseStructure() {
+	private static final WeakHashMap<Class<?>, List<Field>> fieldListCache = new WeakHashMap<>();
+	private static final ReadWriteLock fieldListCacheLock = new ReentrantReadWriteLock();
+
+	private static final WeakHashMap<Class<?>, List<Field>> sortedFieldListCache = new WeakHashMap<>();
+	private static final ReadWriteLock sortedFieldListCacheLock = new ReentrantReadWriteLock();
+
+  protected BaseStructure() {
 		super(NotesCAPI.getPlatformAlignment());
 		int overrideAlignment = getOverrideAlignment();
 		if (overrideAlignment!=-1) {
@@ -78,10 +86,62 @@ public abstract class BaseStructure extends Structure {
 	protected int getOverrideAlignment() {
 		return -1;
 	}
-	
+
 	@Override
 	protected List<Field> getFieldList() {
-		return AccessController.doPrivileged((PrivilegedAction<List<Field>>) () -> BaseStructure.super.getFieldList());
+	  fieldListCacheLock.readLock().lock();
+	  try {
+	    List<Field> fields = fieldListCache.get(getClass());
+	    if (fields!=null) {
+	      return fields;
+	    }
+	  }
+	  finally {
+	    fieldListCacheLock.readLock().unlock();
+	  }
+	  
+	  fieldListCacheLock.writeLock().lock();
+	  try {
+	    List<Field> fields = AccessController.doPrivileged(
+	        (PrivilegedAction<List<Field>>) () -> BaseStructure.super.getFieldList());
+	    fieldListCache.put(getClass(), fields);
+	    return fields;
+	  }
+	  finally {
+	    fieldListCacheLock.writeLock().unlock();
+	  }
+	}
+  
+	protected List<Field> getFields(boolean force) {
+	  //the lists stored in fieldListCache and sortedFieldListCache are actually the same,
+	  //because getFields(force) internally calls getFieldList and sorts the (cached) returned list
+	  //but getFields(force) calls private functions that we don't want to duplicate in case
+	  //they change in a later JNA version
+	  //see https://github.com/java-native-access/jna/issues/1478#issuecomment-1312182291 for a discussion about this topic
+	  sortedFieldListCacheLock.readLock().lock();
+    try {
+      List<Field> fields = sortedFieldListCache.get(getClass());
+      if (fields!=null) {
+        return fields;
+      }
+    }
+    finally {
+      sortedFieldListCacheLock.readLock().unlock();
+    }
+    
+    sortedFieldListCacheLock.writeLock().lock();
+    try {
+      List<Field> fields = AccessController.doPrivileged(
+          (PrivilegedAction<List<Field>>) () -> BaseStructure.super.getFields(force));
+      if (fields==null) {
+        return null;
+      }
+      sortedFieldListCache.put(getClass(), fields);
+      return fields;
+    }
+    finally {
+      sortedFieldListCacheLock.writeLock().unlock();
+    }
 	}
 	
 	@Override
