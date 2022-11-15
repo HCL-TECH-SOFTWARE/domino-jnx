@@ -57,6 +57,15 @@ public interface DominoCollection extends IAdaptable, DominoClientDescendant {
    */
   Set<Integer> getAllIds(boolean withDocuments, boolean withCategories);
 
+  /**
+   * Very fast way to get all note ids in a view. For <code>checkRights=false</code>
+   * and "show response documents in hierarchy" turned off, it is very likely that the
+   * method produces the result in no time, because it just copies an already existing internal
+   * IDTable.
+   * 
+   * @param checkRights true to check access rights
+   * @return IDTable with note ids
+   */
   IDTable getAllIdsAsIDTable(boolean checkRights);
 
   /**
