@@ -36,11 +36,11 @@ public class TestDocSize extends AbstractNotesRuntimeTest {
     this.withTempDb(database -> {
       final Document doc = database.createDocument();
       doc.replaceItemValue("item1", "itemvalue1");
-      final int size1 = doc.size();
+      final long size1 = doc.size();
       Assertions.assertTrue(size1 > 0);
 
       doc.replaceItemValue("item2", "itemvalue2");
-      final int size2 = doc.size();
+      final long size2 = doc.size();
       Assertions.assertTrue(size2 > size1);
 
       doc.attachFile("myfilename1",
@@ -58,7 +58,7 @@ public class TestDocSize extends AbstractNotesRuntimeTest {
 
           });
 
-      final int size3 = doc.size();
+      final long size3 = doc.size();
       Assertions.assertTrue(size3 > size2);
     });
 
