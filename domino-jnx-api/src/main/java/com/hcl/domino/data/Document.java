@@ -1320,7 +1320,7 @@ public interface Document extends TypedAccess, IAdaptable {
    *
    * @return size
    */
-  int size();
+  long size();
 
   /**
    * Undeletes a soft deleted document

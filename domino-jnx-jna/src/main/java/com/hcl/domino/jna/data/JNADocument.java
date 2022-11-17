@@ -4564,10 +4564,10 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 
 	@Override
-	public int size() {
+	public long size() {
 		checkDisposed();
 		
-		int[] totalSize = new int[1];
+		long[] totalSize = new long[1];
 		
 		getItems(null, (item) -> {
 			totalSize[0] += item.getValueLength();
