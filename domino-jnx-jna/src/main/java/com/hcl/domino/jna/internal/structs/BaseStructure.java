@@ -112,6 +112,7 @@ public abstract class BaseStructure extends Structure {
 	  }
 	}
   
+	@Override
 	protected List<Field> getFields(boolean force) {
 	  //the lists stored in fieldListCache and sortedFieldListCache are actually the same,
 	  //because getFields(force) internally calls getFieldList and sorts the (cached) returned list

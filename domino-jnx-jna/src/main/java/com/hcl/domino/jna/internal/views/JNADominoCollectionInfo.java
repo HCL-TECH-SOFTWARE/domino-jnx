@@ -118,6 +118,7 @@ public class JNADominoCollectionInfo implements DominoCollectionInfo {
 	  m_unid = unid;
 	}
 
+	@Override
 	public String getUNID() {
 	  return m_unid;
 	}
