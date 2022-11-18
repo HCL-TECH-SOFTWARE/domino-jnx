@@ -553,10 +553,6 @@ public class NotesSearch {
 
 		};
 	
-
-		if (PlatformUtils.isWin32()) {}
-		else {}
-		
 		DHANDLE.ByReference hFormula = DHANDLE.newInstanceByReference();
 		
 		if (!StringUtil.isEmpty(formula)) {
