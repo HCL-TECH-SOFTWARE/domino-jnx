@@ -21,9 +21,10 @@ import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.sun.jna.Library;
 import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.ShortByReference;
 import com.sun.jna.ptr.PointerByReference;
+import com.sun.jna.ptr.ShortByReference;
 
 /**
  * C API methods introduced in R12.0.1
@@ -71,7 +72,7 @@ public interface INotesCAPI1201 extends Library {
       IntByReference pListSize,
       short EntryNumber,
       Memory Text,
-      short TextSize,
+      char TextSize,
       boolean bAllowLarge);
   
   @UndocumentedAPI

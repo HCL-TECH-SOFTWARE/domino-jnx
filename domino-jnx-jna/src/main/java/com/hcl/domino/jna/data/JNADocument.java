@@ -1804,7 +1804,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			  IntByReference rethList = new IntByReference();
         PointerByReference retpList = null;
 			  IntByReference retListSize = new IntByReference();
-
+			  
 			  short result = capi1201.ListAllocate2Ext((short) 0,
 			      0,
 			      false,
@@ -1827,8 +1827,10 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			      if (currStrMem.size() > 65535) {
 			        throw new DominoException(MessageFormat.format("List item at position {0} exceeds max lengths of 65535 bytes", i));
 			      }
-
-            short textSize = (short) (currStrMem==null ? 0 : (currStrMem.size() & 0xffff));
+			      
+            //somehow these two lines produce different results for the ListAddEntry2Ext call with text lengths >32767 bytes
+			      //short textSize = (short) (currStrMem==null ? 0 : (currStrMem.size() & 0xffff));
+			      char textSize = (char) currStrMem.size();
 			      
 			      short addResult = capi1201.ListAddEntry2Ext(hList,
 			          false,
