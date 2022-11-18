@@ -19,6 +19,7 @@ package com.hcl.domino.jna.data;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -127,6 +128,10 @@ public class JNANativeItemCoder implements NativeItemCoder {
 	
 	@Override
 	public List<RichTextRecord<?>> readMemoryRecords(ByteBuffer data, Area area) {
+	  if(data.remaining() < 1) {
+	    return Collections.emptyList();
+	  }
+	  
 	  byte[] val = new byte[data.remaining()];
 	  data.get(val);
 	  return RichTextUtil.readMemoryRecords(val, area);

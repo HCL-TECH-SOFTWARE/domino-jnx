@@ -39,6 +39,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
@@ -105,8 +106,10 @@ import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.NotesBitmap;
 import com.hcl.domino.richtext.RichTextRecordList;
+import com.hcl.domino.richtext.records.CDActionFolder;
 import com.hcl.domino.richtext.records.CDActionHeader;
 import com.hcl.domino.richtext.records.CDActionModifyField;
+import com.hcl.domino.richtext.records.CDActionSendMail;
 import com.hcl.domino.richtext.records.CDAnchor;
 import com.hcl.domino.richtext.records.CDBegin;
 import com.hcl.domino.richtext.records.CDBlobPart;
@@ -1793,6 +1796,38 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(CDEventEntry.ActionType.JAVASCRIPT, entry.getActionType());
       assertEquals(EventId.ONFOCUS, entry.getHtmlEventId().get());
     }
+  }
+  
+  /**
+   * Tests reading the forms from sample.nsf to ensure that the early-exit loop
+   * in RichTextUtil allows for still reading expected actions
+   */
+  @Test
+  public void testSampleDbForms() throws Exception {
+    withResourceDb("/nsf/sample.nsf", database -> {
+      Form form = database.getDesign().getForm("FamilyInformation").get();
+      List<CDHotspotBegin> buttons = form.getBody().stream()
+        .filter(CDHotspotBegin.class::isInstance)
+        .map(CDHotspotBegin.class::cast)
+        .filter(hotspot -> hotspot.getFlags().contains(CDHotspotBegin.Flag.ACTION))
+        .collect(Collectors.toList());
+      
+      {
+        CDHotspotBegin button = buttons.get(0);
+        List<RichTextRecord<?>> actions = button.getActions().get();
+        assertEquals(2, actions.size());
+        assertInstanceOf(CDActionHeader.class, actions.get(0));
+        assertInstanceOf(CDActionFolder.class, actions.get(1));
+      }
+      {
+        CDHotspotBegin button = buttons.get(1);
+        List<RichTextRecord<?>> actions = button.getActions().get();
+        assertEquals(2, actions.size());
+        assertInstanceOf(CDActionHeader.class, actions.get(0));
+        assertInstanceOf(CDActionSendMail.class, actions.get(1));
+      }
+      
+    });
   }
   
   // *******************************************************************************

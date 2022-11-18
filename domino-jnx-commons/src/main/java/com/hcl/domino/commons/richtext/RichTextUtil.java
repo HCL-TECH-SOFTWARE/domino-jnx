@@ -331,6 +331,10 @@ public enum RichTextUtil {
       if((byte2 & 0xFF) == 0xFF) {
         // Then it's a WSIG, two WORD values
         constant = (short)(byte1 | 0xFF00);
+        if(recordData.remaining() < 2) {
+          // The data is corrupt - finish the loop
+          break;
+        }
         length = Short.toUnsignedInt(recordData.getShort(2));
         genericProvider = GenericWSIGRecord::new;
       } else if(byte2 == 0) {
@@ -339,6 +343,10 @@ public enum RichTextUtil {
         // Length is a DWORD following the initial WORD
         ByteBuffer sliced = recordData.slice().order(ByteOrder.LITTLE_ENDIAN);
         sliced.position(2);
+        if(recordData.remaining() < 4) {
+          // The data is corrupt - finish the loop
+          break;
+        }
         length = sliced.getInt();
         genericProvider = GenericLSIGRecord::new;
       } else {

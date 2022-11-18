@@ -194,4 +194,16 @@ public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
       assertTrue(json.contains("\"test folder\""));
     });
   }
+  
+  @Test
+  public void testSampleDbFormSerialization() throws Exception {
+    VertxJsonSerializer serializer = new VertxJsonSerializer();
+    
+    withResourceDb("/nsf/sample.nsf", database -> {
+      database.getDesign()
+        .getForms()
+        .peek(f -> System.out.println("looking at form " + f.getTitle()))
+        .forEach(serializer::toJson);
+    });
+  }
 }
