@@ -31,6 +31,7 @@ import java.util.Objects;
 
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.Formula;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * Utility class to programmatically compose syntactically correct
@@ -1016,4 +1017,23 @@ public class DQL {
     return new FormulaTerm(formula.getFormula());
   }
 
+  /**
+   * Constructors for a {@link DQLTerm} in case you already have a prepared DQL query
+   * 
+   * @param dql DQL
+   * @return dql term
+   */
+  public static DQLTerm rawQuery(String dql) {
+    if (JNXStringUtil.isEmpty(dql)) {
+      throw new IllegalArgumentException("DQL query cannot be null");
+    }
+    return new DQLTerm() {
+
+      @Override
+      public String toString() {
+        return dql;
+      }
+      
+    };
+  }
 }
