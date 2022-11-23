@@ -21,7 +21,6 @@ import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.sun.jna.Library;
 import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.ptr.ShortByReference;
@@ -70,7 +69,7 @@ public interface INotesCAPI1201 extends Library {
   short ListAddEntry2Ext(int mhList,
       boolean fPrefixDataType,
       IntByReference pListSize,
-      short EntryNumber,
+      char EntryNumber,
       Memory Text,
       char TextSize,
       boolean bAllowLarge);

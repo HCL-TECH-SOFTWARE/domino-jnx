@@ -18,11 +18,13 @@ package com.hcl.domino.jna.data;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.NativeItemCoder;
@@ -69,15 +71,9 @@ public class JNANativeItemCoder implements NativeItemCoder {
 		if(values == null || values.isEmpty()) {
 			return new byte[] { 0, 0 };
 		}
-		
-		List<Memory> lmbcs = values.stream()
-			.map(s -> NotesStringUtils.toLMBCS(s, false))
-			.collect(Collectors.toList());
-		int totalSize = (int)lmbcs.stream()
-			.mapToLong(Memory::size)
-			.sum();
-		
-		short result;
+		else if (values.size()>65535) {
+      throw new DominoException(MessageFormat.format("List size exceeds max value of 65535 entries: {0}", values.size()));
+    }
 		
 		DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
 		ShortByReference retListSize = new ShortByReference();
@@ -93,10 +89,16 @@ public class JNANativeItemCoder implements NativeItemCoder {
 				String currStr = values.get(i);
 				Memory currStrMem = NotesStringUtils.toLMBCS(currStr, false);
 				
-				NotesErrorUtils.checkResult(
-					NotesCAPI.get().ListAddEntry(handleByVal, 0, retListSize, (short)i, currStrMem,
-						(short) (currStrMem==null ? 0 : (currStrMem.size() & 0xffff))
-				));
+	      if (currStrMem!=null && currStrMem.size() > 65535) {
+	        throw new DominoException(MessageFormat.format("List item at position {0} exceeds max lengths of 65535 bytes", i));
+	      }
+
+	      char textSize = currStrMem==null ? 0 : (char) currStrMem.size();
+
+	      NotesErrorUtils.checkResult(
+	          NotesCAPI.get().ListAddEntry(handleByVal, 0, retListSize,
+	              (char)i, currStrMem, textSize)
+	          );
 			}
 
 			

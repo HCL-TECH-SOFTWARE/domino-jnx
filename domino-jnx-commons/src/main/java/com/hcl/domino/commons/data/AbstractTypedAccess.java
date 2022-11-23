@@ -284,10 +284,7 @@ public abstract class AbstractTypedAccess implements TypedAccess, IndexedTypedAc
 		if (docValues != null) {
 			List<String> strList = new ArrayList<>(docValues.size());
 			for (int i = 0; i < docValues.size(); i++) {
-				String currStr = StringUtil.toString(docValues.get(i));
-				if (!"".equals(currStr)) { //$NON-NLS-1$
-					strList.add(currStr);
-				}
+        strList.add(StringUtil.toString(docValues.get(i)));
 			}
 			if (!strList.isEmpty()) {
 				return strList;

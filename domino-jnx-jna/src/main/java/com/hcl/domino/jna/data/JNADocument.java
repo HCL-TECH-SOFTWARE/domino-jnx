@@ -1784,12 +1784,14 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			    int i = 0;
 			    for(String currStr : strList) {
 			      Memory currStrMem = NotesStringUtils.toLMBCS(currStr, false);
-            if (currStrMem.size() > 65535) {
+            if (currStrMem!=null && currStrMem.size() > 65535) {
               throw new DominoException(MessageFormat.format("List item at position {0} exceeds max lengths of 0xffff bytes", i));
             }
 
-			      short localResult = NotesCAPI.get().ListAddEntry(hListByVal, 1, retListSize, (short) (i & 0xffff), currStrMem,
-			          (short) (currStrMem==null ? 0 : (currStrMem.size() & 0xffff)));
+            char textSize = currStrMem==null ? 0 : (char) currStrMem.size();
+
+			      short localResult = NotesCAPI.get().ListAddEntry(hListByVal, 1, retListSize, (char) (i & 0xffff), currStrMem,
+			          textSize);
 			      NotesErrorUtils.checkResult(localResult);
 			      i++;
 			    }
@@ -1824,18 +1826,18 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			    int i=0;
 			    for (String currStr : strList) {
 			      Memory currStrMem = NotesStringUtils.toLMBCS(currStr, false);
-			      if (currStrMem.size() > 65535) {
+			      if (currStrMem!=null && currStrMem.size() > 65535) {
 			        throw new DominoException(MessageFormat.format("List item at position {0} exceeds max lengths of 65535 bytes", i));
 			      }
 			      
             //somehow these two lines produce different results for the ListAddEntry2Ext call with text lengths >32767 bytes
 			      //short textSize = (short) (currStrMem==null ? 0 : (currStrMem.size() & 0xffff));
-			      char textSize = (char) currStrMem.size();
+            char textSize = currStrMem==null ? 0 : (char) currStrMem.size();
 			      
 			      short addResult = capi1201.ListAddEntry2Ext(hList,
 			          false,
 			          retListSize,
-			          (short) (i & 0xffff),
+			          (char) i,
 			          currStrMem,
 			          textSize,
 			          true);

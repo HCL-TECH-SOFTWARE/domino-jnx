@@ -76,8 +76,8 @@ public class ItemDecoder {
 		Memory retTextPointer = new Memory(Native.POINTER_SIZE);
 		ShortByReference retTextLength = new ShortByReference();
 		
-		for (short l=0; l<listCountAsInt; l++) {
-			short result = NotesCAPI.get().ListGetText(ptr, false, l, retTextPointer, retTextLength);
+		for (int i=0; i<listCountAsInt; i++) {
+			short result = NotesCAPI.get().ListGetText(ptr, false, (char) i, retTextPointer, retTextLength);
 			NotesErrorUtils.checkResult(result);
 			
 			//retTextPointer[0] points to the list entry text

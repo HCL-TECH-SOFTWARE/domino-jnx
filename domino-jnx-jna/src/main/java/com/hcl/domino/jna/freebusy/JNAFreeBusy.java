@@ -24,11 +24,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
+import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.NotesErrorUtils;
+import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.DominoDateRange;
 import com.hcl.domino.freebusy.FreeBusy;
 import com.hcl.domino.freebusy.ScheduleOptions;
@@ -89,10 +92,15 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 			throw new IllegalArgumentException(MessageFormat.format("Duration can only have a short value ({0}>65535)", duration));
 		}
 		
-		List<String> namesCanonical = new ArrayList<>();
-		for (String currName : names) {
-			namesCanonical.add(NotesNamingUtils.toCanonicalName(currName));
-		}
+    List<String> namesCanonical = names
+        .stream()
+        .filter(StringUtil::isNotEmpty)
+        .map(NotesNamingUtils::toCanonicalName)
+        .collect(Collectors.toList());
+
+    if (namesCanonical.isEmpty()) {
+      throw new IllegalArgumentException("No usernames specified to retrieve schedules.");
+    }
 		
 		short result;
 				
@@ -113,8 +121,14 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 					String currName = namesCanonical.get(i);
 					Memory currNameMem = NotesStringUtils.toLMBCS(currName, false);
 	
-					short res = NotesCAPI.get().ListAddEntry(hListByVal, 0, retListSize, (short) (i & 0xffff), currNameMem,
-							(short) (currNameMem==null ? 0 : (currNameMem.size() & 0xffff)));
+	        if (currNameMem!=null && currNameMem.size() > 65535) {
+	          throw new DominoException(MessageFormat.format("List item at position {0} exceeds max lengths of 65535 bytes", i));
+	        }
+
+	        char textSize = currNameMem==null ? 0 : (char) currNameMem.size();
+
+					short res = NotesCAPI.get().ListAddEntry(hListByVal, 0, retListSize, (char) i, currNameMem,
+					    textSize);
 					
 					NotesErrorUtils.checkResult(res);
 				}
@@ -165,9 +179,14 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 		intervalPair.Upper = NotesTimeDateStruct.newInstance(jnaUntil.getInnards());
 		intervalPair.write();
 
-		List<String> namesCanonical = new ArrayList<>();
-		for (String currName : names) {
-			namesCanonical.add(NotesNamingUtils.toCanonicalName(currName));
+		List<String> namesCanonical = names
+		    .stream()
+		    .filter(StringUtil::isNotEmpty)
+		    .map(NotesNamingUtils::toCanonicalName)
+		    .collect(Collectors.toList());
+		
+		if (namesCanonical.isEmpty()) {
+		  throw new IllegalArgumentException("No usernames specified to retrieve schedules.");
 		}
 		
 		//make sure we always get the extended schedule container
@@ -194,8 +213,14 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 					String currName = namesCanonical.get(i);
 					Memory currNameMem = NotesStringUtils.toLMBCS(currName, false);
 	
-					short res = NotesCAPI.get().ListAddEntry(hListByVal, 0, retListSize, (short) (i & 0xffff), currNameMem,
-							(short) (currNameMem==null ? 0 : (currNameMem.size() & 0xffff)));
+	         if (currNameMem!=null && currNameMem.size() > 65535) {
+	            throw new DominoException(MessageFormat.format("List item at position {0} exceeds max lengths of 65535 bytes", i));
+	          }
+
+	          char textSize = currNameMem==null ? 0 : (char) currNameMem.size();
+
+					short res = NotesCAPI.get().ListAddEntry(hListByVal, 0, retListSize, (char) i, currNameMem,
+					    textSize);
 					
 					NotesErrorUtils.checkResult(res);
 				}

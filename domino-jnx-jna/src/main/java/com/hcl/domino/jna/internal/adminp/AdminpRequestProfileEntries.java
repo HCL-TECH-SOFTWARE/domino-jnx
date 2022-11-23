@@ -16,12 +16,14 @@
  */
 package com.hcl.domino.jna.internal.adminp;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Item;
@@ -142,8 +144,14 @@ public class AdminpRequestProfileEntries {
 						String currStr = strValues.get(l);
 						Memory currStrMem = NotesStringUtils.toLMBCS(currStr, false);
 
-						short localResult = NotesCAPI.get().ListAddEntry(hListByVal, 1, retListSize, (short) (l & 0xffff), currStrMem,
-								(short) (currStrMem==null ? 0 : (currStrMem.size() & 0xffff)));
+		        if (currStrMem!=null && currStrMem.size() > 65535) {
+		          throw new DominoException(MessageFormat.format("List item at position {0} exceeds max lengths of 65535 bytes", l));
+		        }
+
+		        char textSize = currStrMem==null ? 0 : (char) currStrMem.size();
+
+						short localResult = NotesCAPI.get().ListAddEntry(hListByVal, 1, retListSize, (char) l, currStrMem,
+						    textSize);
 						NotesErrorUtils.checkResult(localResult);
 					}
 					

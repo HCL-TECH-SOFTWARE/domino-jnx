@@ -16,12 +16,15 @@
  */
 package com.hcl.domino.jna.dxl;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
+import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.Mem.LockedMemory;
@@ -122,10 +125,13 @@ abstract class AbstractDxlProcessor<AT extends APIObjectAllocations, PROP extend
 			try {
 				int length = Short.toUnsignedInt(NotesCAPI.get().ListGetNumEntries(mem, 0));
 				List<String> result = new ArrayList<>(length);
-				for(short i = 0; i < length; i++) {
+				for(int i = 0; i < length; i++) {
 					Memory retTextPointer = new Memory(Native.POINTER_SIZE);
 					ShortByReference retTextLength = new ShortByReference();
-					NotesCAPI.get().ListGetText(mem, false, i, retTextPointer, retTextLength);
+					
+					NotesErrorUtils.checkResult(
+					    NotesCAPI.get().ListGetText(mem, false, (char) i, retTextPointer, retTextLength)
+					    );
 					result.add(NotesStringUtils.fromLMBCS(retTextPointer.getPointer(0), Short.toUnsignedInt(retTextLength.getValue())));
 				}
 				return result;
@@ -144,25 +150,36 @@ abstract class AbstractDxlProcessor<AT extends APIObjectAllocations, PROP extend
 		checkDisposed();
 		int hDXLExport = getHandle();
 		List<String> value = valueParam == null ? Collections.emptyList() : valueParam;
-		
+
+    if (value.size()>65535) {
+      throw new DominoException(MessageFormat.format("List size exceeds max value of 65535 entries: {0}", value.size()));
+    }
+
 		DHANDLE.ByReference hList = DHANDLE.newInstanceByReference();
 		Memory retpList = new Memory(Native.POINTER_SIZE);
 		ShortByReference retListSize = new ShortByReference();
 		NotesCAPI.get().ListAllocate((short)0, (short)0, 0, hList, retpList, retListSize);
 		try {
-			for(short i = 0; i < value.size(); i++) {
-				Memory lmbcs = NotesStringUtils.toLMBCS(String.valueOf(value.get(i)), true);
-				int strLen = NotesStringUtils.getNullTerminatedLength(lmbcs);
-				NotesCAPI.get().ListAddEntry(
-					DHANDLE.newInstanceByValue(hList),
-					0,
-					retListSize,
-					i,
-					lmbcs,
-					(short)strLen
-				);
+			for(int i = 0; i < value.size(); i++) {
+				Memory lmbcs = NotesStringUtils.toLMBCS(String.valueOf(value.get(i)), false);
+				
+        if (lmbcs!=null && lmbcs.size() > 65535) {
+          throw new DominoException(MessageFormat.format("List item at position {0} exceeds max lengths of 65535 bytes", i));
+        }
+
+        char textSize = lmbcs==null ? 0 : (char) lmbcs.size();
+
+        NotesErrorUtils.checkResult(
+            NotesCAPI.get().ListAddEntry(
+                DHANDLE.newInstanceByValue(hList),
+                0,
+                retListSize,
+                (char) i,
+                lmbcs,
+                textSize
+                ));
 			}
-			
+
 			setProperty(hDXLExport, prop, hList.getAdapter(Pointer.class));
 		} finally {
 			Mem.OSMemFree(DHANDLE.newInstanceByValue(hList));
