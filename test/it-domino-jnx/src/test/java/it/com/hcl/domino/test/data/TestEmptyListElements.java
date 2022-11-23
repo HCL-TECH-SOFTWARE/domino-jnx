@@ -18,10 +18,16 @@ public class TestEmptyListElements extends AbstractNotesRuntimeTest {
   public void testEmptyStringsInList() throws Exception {
     withTempDb((db) -> {
       Document doc = db.createDocument();
-      String testTxt = new String(produceTestData(60000), StandardCharsets.US_ASCII);
+      String testTxt = new String(produceTestData(30000), StandardCharsets.US_ASCII);
       List<String> values = Arrays.asList(testTxt, "val1", "", "val2", "val3");
       doc.replaceItemValue("field", values);
       
+      doc.save();
+      
+      final int noteId = doc.getNoteID();
+      doc.autoClosable().close();
+      doc = db.getDocumentById(noteId).get();
+
       List<String> checkValues = doc.getAsList("field", String.class, null);
       Assertions.assertNotNull(checkValues);
       Assertions.assertEquals(values, checkValues);
@@ -35,6 +41,12 @@ public class TestEmptyListElements extends AbstractNotesRuntimeTest {
       List<String> values = Arrays.asList("");
       doc.replaceItemValue("field", values);
       
+      doc.save();
+      
+      final int noteId = doc.getNoteID();
+      doc.autoClosable().close();
+      doc = db.getDocumentById(noteId).get();
+
       List<String> checkValues = doc.getAsList("field", String.class, null);
       Assertions.assertNotNull(checkValues);
       Assertions.assertEquals(values, checkValues);
