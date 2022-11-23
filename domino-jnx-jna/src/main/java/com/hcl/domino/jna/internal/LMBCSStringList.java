@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -168,10 +169,18 @@ public class LMBCSStringList extends BaseJNAAPIObject<LMBCSStringListAllocations
 				String currStr = newValues.get(i);
 				Memory currStrMem = NotesStringUtils.toLMBCS(currStr, false);
 
-				short entryNo = (short) (m_values.size() & 0xffff);
-				
-				short result = NotesCAPI.get().ListAddEntry(handleByVal, m_prefixDataType ? 1 : 0, retListSize, entryNo, currStrMem,
-						(short) (currStrMem==null ? 0 : (currStrMem.size() & 0xffff)));
+        if (currStrMem!=null && currStrMem.size() > 65535) {
+          throw new DominoException(MessageFormat.format("List item at position {0} exceeds max lengths of 65535 bytes", i));
+        }
+
+        char textSize = currStrMem==null ? 0 : (char) currStrMem.size();
+
+				short result = NotesCAPI.get().ListAddEntry(handleByVal,
+				    m_prefixDataType ? 1 : 0,
+				        retListSize,
+				        (char) i,
+				        currStrMem,
+				        textSize);
 				NotesErrorUtils.checkResult(result);
 			}
 			return 0;

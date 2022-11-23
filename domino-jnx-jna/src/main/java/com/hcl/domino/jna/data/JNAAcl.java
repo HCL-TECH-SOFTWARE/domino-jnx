@@ -895,12 +895,12 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 					ShortByReference retTextLength = new ShortByReference();
 					Memory retTextPointer = new Memory(Native.POINTER_SIZE);
 					
-					int numEntriesAsInt = NotesCAPI.get().ListGetNumEntries(pPrivNames, 0) & 0xffff;
+					int numEntriesAsInt = Short.toUnsignedInt(NotesCAPI.get().ListGetNumEntries(pPrivNames, 0));
 					
 					ArrayList<String> allRoles = new ArrayList<>(numEntriesAsInt);
 					short localResult;
 					for (int i=0; i<numEntriesAsInt; i++) {
-						localResult = NotesCAPI.get().ListGetText(pPrivNames, false, (short) (i & 0xffff), retTextPointer, retTextLength);
+						localResult = NotesCAPI.get().ListGetText(pPrivNames, false, (char) i, retTextPointer, retTextLength);
 						checkResult(localResult);
 						
 						String currRole = NotesStringUtils.fromLMBCS(retTextPointer.getPointer(0), retTextLength.getValue() & 0xffff);

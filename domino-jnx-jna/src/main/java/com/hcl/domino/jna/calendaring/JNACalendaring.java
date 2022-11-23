@@ -112,7 +112,7 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 				}
 			}
 		}
-		return "";
+		return ""; //$NON-NLS-1$
 	}
 
 	@Override
@@ -355,9 +355,9 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 							ShortByReference retTextLength = new ShortByReference();
 							Memory retTextPointer = new Memory(Native.POINTER_SIZE);
 							
-							int numEntriesAsInt = NotesCAPI.get().ListGetNumEntries(pUIDData, 0) & 0xffff;
+							int numEntriesAsInt = Short.toUnsignedInt(NotesCAPI.get().ListGetNumEntries(pUIDData, 0));
 							for (int i=0; i<numEntriesAsInt; i++) {
-								short res = NotesCAPI.get().ListGetText(pUIDData, false, (short) (i & 0xffff), retTextPointer, retTextLength);
+								short res = NotesCAPI.get().ListGetText(pUIDData, false, (char) i, retTextPointer, retTextLength);
 								NotesErrorUtils.checkResult(res);
 								
 								String currUID = NotesStringUtils.fromLMBCS(retTextPointer.getPointer(0), retTextLength.getValue() & 0xffff);

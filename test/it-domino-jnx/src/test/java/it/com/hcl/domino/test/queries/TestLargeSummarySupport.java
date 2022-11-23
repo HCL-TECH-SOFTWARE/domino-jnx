@@ -479,10 +479,6 @@ public class TestLargeSummarySupport extends AbstractNotesRuntimeTest {
     this.withLargeDataEnabledTempDb(LargeDataLevel.R12, db -> {
       //ODS 55+
       Assertions.assertTrue(db.getNSFVersionInfo().getMajorVersion()>=55);
-      
-      // check if NSF has R12 format
-      final NSFVersionInfo version = db.getNSFVersionInfo();
-      Assertions.assertTrue(version.getMajorVersion() >= 54);
 
       // and check if large summary and item support are enabled
       Assertions.assertEquals(true, db.getOption(DatabaseOption.LARGE_ITEMS_ENABLED));
@@ -515,6 +511,88 @@ public class TestLargeSummarySupport extends AbstractNotesRuntimeTest {
         Assertions.assertEquals(largeList.get(i), testLargeList.get(i));
       }
 
+    });
+  }
+
+  //produces an error "Document has invalid structure" on save with more than 32767 items; waiting for feedback from core dev
+  @Test
+  @EnabledIfEnvironmentVariable(named = TestLargeSummarySupport.LARGEITEMFIX_INSTALLED, matches = "true", disabledReason = "LARGEITEMFIX_INSTALLED not set to true")
+  public void testLargeTextListWithManyItems() throws Exception {
+    this.withLargeDataEnabledTempDb(LargeDataLevel.R12, db -> {
+      // Check if we're running on V12 in the abstract first.
+      // This should avoid test trouble on at least V11 macOS
+      {
+        final BuildVersionInfo buildVersion = this.getClient().getBuildVersion("");
+        if (buildVersion.getMajorVersion() < 12) {
+          // large item storage not supported by this API version
+          return;
+        }
+      }
+
+      //ODS 55+
+      Assertions.assertTrue(db.getNSFVersionInfo().getMajorVersion()>=55);
+
+      // and check if large summary and item support are enabled
+      Assertions.assertEquals(true, db.getOption(DatabaseOption.LARGE_ITEMS_ENABLED));
+      Assertions.assertEquals(true, db.getOption(DatabaseOption.LARGE_BUCKETS_ENABLED));
+
+      Document docLarge = db.createDocument();
+      List<String> values = new ArrayList<>();
+      for (int i=0; i<32767; i++) {
+        values.add("abc");
+      }
+      docLarge.replaceItemValue("field", values);
+      docLarge.save();
+      
+      final int noteId = docLarge.getNoteID();
+      docLarge.autoClosable().close();
+      docLarge = db.getDocumentById(noteId).get();
+
+      
+      List<String> checkValues = docLarge.getAsList("field", String.class, null);
+      Assertions.assertNotNull(checkValues);
+      Assertions.assertEquals(values, checkValues);
+    });
+  }
+
+  @Test
+  @EnabledIfEnvironmentVariable(named = TestLargeSummarySupport.LARGEITEMFIX_INSTALLED, matches = "true", disabledReason = "LARGEITEMFIX_INSTALLED not set to true")
+  public void testLargeNumberListWithManyItems() throws Exception {
+    this.withLargeDataEnabledTempDb(LargeDataLevel.R12, db -> {
+      // Check if we're running on V12 in the abstract first.
+      // This should avoid test trouble on at least V11 macOS
+      {
+        final BuildVersionInfo buildVersion = this.getClient().getBuildVersion("");
+        if (buildVersion.getMajorVersion() < 12) {
+          // large item storage not supported by this API version
+          return;
+        }
+      }
+
+      //ODS 55+
+      Assertions.assertTrue(db.getNSFVersionInfo().getMajorVersion()>=55);
+
+      // and check if large summary and item support are enabled
+      Assertions.assertEquals(true, db.getOption(DatabaseOption.LARGE_ITEMS_ENABLED));
+      Assertions.assertEquals(true, db.getOption(DatabaseOption.LARGE_BUCKETS_ENABLED));
+
+      Document docLarge = db.createDocument();
+      List<Integer> values = new ArrayList<>();
+      //exceeds to 32k summary size:
+      for (int i=0; i<33000; i++) {
+        values.add(i);
+      }
+      docLarge.replaceItemValue("field", values);
+      
+      docLarge.save();
+      
+      final int noteId = docLarge.getNoteID();
+      docLarge.autoClosable().close();
+      docLarge = db.getDocumentById(noteId).get();
+      
+      List<Integer> checkValues = docLarge.getAsList("field", Integer.class, null);
+      Assertions.assertNotNull(checkValues);
+      Assertions.assertEquals(values, checkValues);
     });
   }
 

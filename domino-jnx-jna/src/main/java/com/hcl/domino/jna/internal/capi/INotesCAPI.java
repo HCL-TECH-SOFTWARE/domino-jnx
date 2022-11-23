@@ -268,9 +268,9 @@ public interface INotesCAPI extends Library {
 			DHANDLE.ByValue hList,
 			int fPrefixDataType,
 			ShortByReference pListSize,
-			short EntryNumber,
+			char EntryNumber,
 			Memory Text,
-			short TextSize);
+			char TextSize);
 
 	short SECKFMGetUserName(Memory retUserName);
 
@@ -493,7 +493,7 @@ public interface INotesCAPI extends Library {
 
 	short ListGetText (Pointer pList,
 			boolean fPrefixDataType,
-			short entryNumber,
+			char entryNumber,
 			Memory retTextPointer,
 			ShortByReference retTextLength);
 
