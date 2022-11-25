@@ -120,9 +120,9 @@
 		<guava.version>31.0.1-jre</guava.version>
 		<ibm.commons.version>9.0.0</ibm.commons.version>
 		<icu4j.version>65.1</icu4j.version>
-		<jackson.version>2.14.0-rc3</jackson.version>
-		<jackson.databind.version>2.14.0-rc3</jackson.databind.version>
-		<jakarta.json.version>2.1.0</jakarta.json.version>
+		<jackson.version>2.14.1</jackson.version>
+		<jackson.databind.version>2.14.1</jackson.databind.version>
+		<jakarta.json.version>2.1.1</jakarta.json.version>
 		<java.version>1.8</java.version>
 		<javasimon.version>4.2.0</javasimon.version>
 		<joda.version>2.10</joda.version>
@@ -144,7 +144,7 @@
 		<spotbugs.version>4.7.3</spotbugs.version>
 		<spotless.version>2.4.1</spotless.version>
 		<testcontainers.version>1.15.2</testcontainers.version>
-		<vertx.version>4.3.4</vertx.version>
+		<vertx.version>4.3.5</vertx.version>
 		<yaml.version>1.25</yaml.version>
 
 
