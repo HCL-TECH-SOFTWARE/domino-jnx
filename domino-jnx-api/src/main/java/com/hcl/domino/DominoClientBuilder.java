@@ -20,8 +20,6 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
-import com.hcl.domino.misc.JNXServiceFinder;
-
 /**
  * Builder for creating and configuring a DominoClient
  *
@@ -30,6 +28,9 @@ import com.hcl.domino.misc.JNXServiceFinder;
  * @since 0.5.0
  */
 public abstract class DominoClientBuilder {
+
+  static DominoCommonFactory factory = DominoCommonFactory.getCommonFactory();
+
   /**
    * Constructor for generating a DominoClient
    *
@@ -38,7 +39,7 @@ public abstract class DominoClientBuilder {
    *                               {@link DominoClientBuilder} available
    */
   public static DominoClientBuilder newDominoClient() {
-    return JNXServiceFinder.findRequiredService(DominoClientBuilder.class, DominoClientBuilder.class.getClassLoader());
+    return factory.createDominoClientBuilder();
   }
 
   private Path m_idFilePath;

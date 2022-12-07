@@ -17,15 +17,16 @@
 package com.hcl.domino.naming;
 
 import com.hcl.domino.DominoClient;
+import com.hcl.domino.DominoCommonFactory;
 import com.hcl.domino.Name;
 import com.hcl.domino.UserNamesList;
-import com.hcl.domino.misc.JNXServiceFinder;
 
 /**
  * Utility interface for performing common naming operations with the active API
  * implementation.
  */
 public interface Names {
+   static DominoCommonFactory factory = DominoCommonFactory.getCommonFactory();
 
   /**
    * Generates a names list for the provided name based on the current
@@ -37,13 +38,13 @@ public interface Names {
    * @since 1.0.28
    */
   static UserNamesList buildNamesList(final DominoClient client, final String name) {
-    final Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
+    final Names names = factory.createNames();
 
     return names._buildNamesList(client, name);
   }
 
   static Name createName(final String name) {
-    final Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
+    final Names names = factory.createNames();
 
     return names._createName(name);
   }
@@ -56,25 +57,25 @@ public interface Names {
    * @return true if abbreviated names of both are equal, ignoring case
    */
   static boolean equalNames(final String name1, final String name2) {
-    final Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
+    final Names names =  factory.createNames();
 
     return names._equalNames(name1, name2);
   }
 
   static String toAbbreviated(final String name) {
-    final Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
+    final Names names =  factory.createNames();
 
     return names._toAbbreviated(name);
   }
 
   static String toCanonical(final String name) {
-    final Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
+    final Names names = factory.createNames();
 
     return names._toCanonical(name);
   }
 
   static String toCommon(final String name) {
-    final Names names = JNXServiceFinder.findRequiredService(Names.class, Names.class.getClassLoader());
+    final Names names =  factory.createNames();
 
     return names._toCommon(name);
   }

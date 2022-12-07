@@ -19,9 +19,9 @@ package com.hcl.domino.formula;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.hcl.domino.DominoCommonFactory;
 import com.hcl.domino.data.FormulaAnalyzeResult;
 import com.hcl.domino.exception.FormulaCompilationException;
-import com.hcl.domino.misc.JNXServiceFinder;
 
 /**
  * This interface represents a service capable of compiling and decompiling
@@ -32,37 +32,45 @@ import com.hcl.domino.misc.JNXServiceFinder;
  * @since 1.0.15
  */
 public interface FormulaCompiler {
+  static DominoCommonFactory factory = DominoCommonFactory.getCommonFactory();
+
   static FormulaCompiler get() {
-    return JNXServiceFinder.findRequiredService(FormulaCompiler.class, FormulaCompiler.class.getClassLoader());
+    return factory.createFormulaCompiler();
   }
 
   byte[] compile(String formula) throws FormulaCompilationException;
 
   /**
-   * Method to generate the data for the $FORMULA item of a view definition by combining
-   * the view's selection formula with the programmatic names and formulas of the columns
+   * Method to generate the data for the $FORMULA item of a view definition by
+   * combining
+   * the view's selection formula with the programmatic names and formulas of the
+   * columns
    * 
-   * @param selectionFormula selection formula
-   * @param columnItemNamesAndFormulas map with programmatic column names as keys and their formula as values, will be processed in key order; if null, we simply compile the selection formula
+   * @param selectionFormula           selection formula
+   * @param columnItemNamesAndFormulas map with programmatic column names as keys
+   *                                   and their formula as values, will be
+   *                                   processed in key order; if null, we simply
+   *                                   compile the selection formula
    * @return data of combined formula
    */
-  byte[] compile(String selectionFormula, LinkedHashMap<String,String> columnItemNamesAndFormulas);
+  byte[] compile(String selectionFormula, LinkedHashMap<String, String> columnItemNamesAndFormulas);
 
   default String decompile(byte[] compiledFormula) {
     return decompile(compiledFormula, false);
   }
+
   String decompile(byte[] compiledFormula, boolean isSelectionFormula);
-  
+
   int getSize(byte[] formula);
-  
+
   List<String> decompileMulti(byte[] compiledFormulas);
 
   public List<String> getAllFormulaFunctions();
-  
+
   public List<String> getAllFormulaCommands();
-  
+
   public List<String> getFunctionParameters(String atFunctionName);
-  
+
   public FormulaAnalyzeResult analyzeFormula(String formula);
-  
+
 }

@@ -25,6 +25,6 @@ import com.hcl.domino.DominoClientBuilder;
 public class TestDominoClientBuilder {
 	@Test
 	public void testLackOfClientBuilder() {
-		assertThrows(IllegalStateException.class, () -> DominoClientBuilder.newDominoClient().build());
+		assertThrows(ExceptionInInitializerError.class, () -> DominoClientBuilder.newDominoClient().build());
 	}
 }

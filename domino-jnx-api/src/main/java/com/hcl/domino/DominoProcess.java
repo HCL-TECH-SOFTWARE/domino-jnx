@@ -19,7 +19,6 @@ package com.hcl.domino;
 import java.nio.file.Path;
 
 import com.hcl.domino.exception.DominoInitException;
-import com.hcl.domino.misc.JNXServiceFinder;
 
 /**
  * This service interface allows access to initialization and termination of
@@ -31,6 +30,8 @@ import com.hcl.domino.misc.JNXServiceFinder;
  * @author Jesse Gallagher
  */
 public interface DominoProcess {
+  static DominoCommonFactory factory = DominoCommonFactory.getCommonFactory();
+
   public interface DominoThreadContext extends AutoCloseable {
 
     /**
@@ -50,7 +51,7 @@ public interface DominoProcess {
    *                               provide one
    */
   static DominoProcess get() {
-    return JNXServiceFinder.findRequiredService(DominoProcess.class, DominoProcess.class.getClassLoader());
+	 return factory.createDominoProcess();
   }
 
   /**

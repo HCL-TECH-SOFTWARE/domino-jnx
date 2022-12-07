@@ -18,8 +18,8 @@ package com.hcl.domino.richtext.structures;
 
 import java.nio.ByteBuffer;
 
+import com.hcl.domino.DominoCommonFactory;
 import com.hcl.domino.misc.INumberEnum;
-import com.hcl.domino.misc.JNXServiceFinder;
 
 /**
  * This interface represents a service capable of wrapping {@link ByteBuffer}s
@@ -30,9 +30,11 @@ import com.hcl.domino.misc.JNXServiceFinder;
  * @since 1.0.15
  */
 public interface MemoryStructureWrapperService {
+
+  static DominoCommonFactory factory = DominoCommonFactory.getCommonFactory();
+
   static MemoryStructureWrapperService get() {
-    return JNXServiceFinder.findRequiredService(MemoryStructureWrapperService.class,
-        MemoryStructureWrapperService.class.getClassLoader());
+    return factory.createMemoryStructureWrapperService();
   }
 
   /**

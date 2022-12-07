@@ -19,10 +19,10 @@ package com.hcl.domino.design;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import com.hcl.domino.DominoCommonFactory;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.Item;
 import com.hcl.domino.data.ItemDataType;
-import com.hcl.domino.misc.JNXServiceFinder;
 import com.hcl.domino.misc.Pair;
 
 /**
@@ -33,8 +33,10 @@ import com.hcl.domino.misc.Pair;
  * @since 1.0.43
  */
 public interface NativeDesignSupport {
+	static DominoCommonFactory factory = DominoCommonFactory.getCommonFactory();
+
   static NativeDesignSupport get() {
-    return JNXServiceFinder.findRequiredService(NativeDesignSupport.class, NativeDesignSupport.class.getClassLoader());
+    return factory.createNativeDesignSupport();
   }
 
   /**

@@ -20,7 +20,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.List;
 
-import com.hcl.domino.misc.JNXServiceFinder;
+import com.hcl.domino.DominoCommonFactory;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
@@ -32,8 +32,11 @@ import com.hcl.domino.richtext.records.RichTextRecord;
  * @since 1.0.24
  */
 public interface NativeItemCoder {
+
+  static DominoCommonFactory factory = DominoCommonFactory.getCommonFactory();
+
   static NativeItemCoder get() {
-    return JNXServiceFinder.findRequiredService(NativeItemCoder.class, NativeItemCoder.class.getClassLoader());
+    return factory.createNativeItemCoder();
   }
   
   /**
