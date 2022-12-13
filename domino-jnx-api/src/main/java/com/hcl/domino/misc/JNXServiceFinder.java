@@ -18,8 +18,12 @@ package com.hcl.domino.misc;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.text.MessageFormat;
+import java.util.Collection;
+import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -31,50 +35,55 @@ import java.util.stream.StreamSupport;
  */
 public enum JNXServiceFinder {
   ;
+  
+  private static final Map<Class<?>, Collection<?>> SERVICE_CACHE = new ConcurrentHashMap<>();
+  private static final Map<Class<?>, Object> REQUIRED_SERVICE_CACHE = new ConcurrentHashMap<>();
 
   /**
    * Finds a single implementation of the provided service class using the
-   * provided classloader,
-   * throwing an exception if none can be found.
+   * provided classloader, throwing an exception if none can be found.
+   * 
+   * <p>The {@link ClassLoader} parameter is intended for signaling the
+   * expected loader for a service and is not intended for multi-classloader
+   * environments. This method will store retrieved instances in an internal
+   * cache and will not look them up again, regardless of {@code cl}
+   * parameter.</p>
+   * 
+   * <p>Service implementations looked up by this method are expected to
+   * be stateless.</p>
    *
    * @param <T>          the type of service to load
    * @param serviceClass a {@link Class} object representing {@code <T>}
    * @param cl           the {@link ClassLoader} to use to load services
    * @return an instance of the provided service class
-   * @throws IllegalStateException if no implementation can be found
+   * @throws NoSuchElementException if no implementation can be found
    */
+  @SuppressWarnings("unchecked")
   public static <T> T findRequiredService(final Class<T> serviceClass, final ClassLoader cl) {
-    return JNXServiceFinder.findServices(serviceClass, cl)
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException(MessageFormat.format("No implementation for {0} found", serviceClass)));
+    return (T)REQUIRED_SERVICE_CACHE.computeIfAbsent(serviceClass, c -> {
+      final Iterable<?> services = AccessController
+          .doPrivileged((PrivilegedAction<Iterable<?>>) () -> ServiceLoader.load(c, cl));
+      return services.iterator().next();
+    });
   }
 
   /**
    * Finds services implementing the provided service class using the context
    * classloader.
+   * 
+   * <p>Service implementations looked up by this method are expected to
+   * be stateless.</p>
    *
    * @param <T>          the type of service to load
    * @param serviceClass a {@link Class} object representing {@code <T>}
    * @return a {@link Stream} of service implementations
    */
+  @SuppressWarnings("unchecked")
   public static <T> Stream<T> findServices(final Class<T> serviceClass) {
-    final Iterable<T> services = AccessController
-        .doPrivileged((PrivilegedAction<Iterable<T>>) () -> ServiceLoader.load(serviceClass));
-    return StreamSupport.stream(services.spliterator(), false);
-  }
-
-  /**
-   * Finds services implementing the provided service class using the provided
-   * classloader.
-   *
-   * @param <T>          the type of service to load
-   * @param serviceClass a {@link Class} object representing {@code <T>}
-   * @param cl           the {@link ClassLoader} to use to load services
-   * @return a {@link Stream} of service implementations
-   */
-  public static <T> Stream<T> findServices(final Class<T> serviceClass, final ClassLoader cl) {
-    final Iterable<T> services = AccessController
-        .doPrivileged((PrivilegedAction<Iterable<T>>) () -> ServiceLoader.load(serviceClass, cl));
-    return StreamSupport.stream(services.spliterator(), false);
+    return (Stream<T>)SERVICE_CACHE.computeIfAbsent(serviceClass, c -> {
+      final Iterable<T> services = AccessController
+          .doPrivileged((PrivilegedAction<Iterable<T>>) () -> ServiceLoader.load(serviceClass));
+      return StreamSupport.stream(services.spliterator(), false).collect(Collectors.toList());
+    }).stream();
   }
 }
