@@ -67,7 +67,7 @@ import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.IItemTableData;
-import com.hcl.domino.commons.views.OpenCollection;
+import com.hcl.domino.constants.OpenCollection;
 import com.hcl.domino.crypt.DatabaseEncryptionState;
 import com.hcl.domino.data.Agent;
 import com.hcl.domino.data.AutoCloseableDocument;
@@ -651,13 +651,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		if (noteId==0) {
 			return Optional.empty();
 		}
-		DominoCollection col = openCollection(noteId, (EnumSet<OpenCollection> ) null);
-		return Optional.of(col);
-	}
-	
-	@Override
-	public Optional<DominoCollection> openCollection(String collectionName) {
-		return openCollection(collectionName, (EnumSet<OpenCollection>) null);
+		return openCollection(noteId, (EnumSet<OpenCollection> ) null);
 	}
 	
 	@Override
@@ -665,45 +659,39 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		return openCollectionByUNID(unid, (EnumSet<OpenCollection>) null);
 	}
 
-	public Optional<DominoCollection> openCollectionByUNID(String unid, EnumSet<OpenCollection> openFlagSet) {
+	public Optional<DominoCollection> openCollectionByUNID(String unid, Set<OpenCollection> openFlagSet) {
 		int viewNoteId = toNoteId(unid);
 		if (viewNoteId==0) {
 			return Optional.empty();
 		}
-		return Optional.ofNullable(openCollection(viewNoteId, openFlagSet));
+		return openCollection(viewNoteId, openFlagSet);
 	}
 
-	private Optional<DominoCollection> openCollection(String collectionName, EnumSet<OpenCollection> openFlagSet) {
+	@Override
+	public Optional<DominoCollection> openCollection(String collectionName, Set<OpenCollection> openFlagSet) {
 		checkDisposed();
 		
 		int viewNoteId = findCollectionId(collectionName, CollectionType.Both);
 		if (viewNoteId==0) {
 			return Optional.empty();
 		}
-		return Optional.ofNullable(openCollection(viewNoteId, openFlagSet));
+		return openCollection(viewNoteId, openFlagSet);
 	}
 
-	@Override
-  public Optional<DominoCollection> openCollection(int viewNoteId) {
-	  checkDisposed();
-	  
-	  return Optional.ofNullable(openCollection(viewNoteId, (EnumSet<OpenCollection>) null));
-	}
-
-	public DominoCollection openCollection(int viewNoteId, EnumSet<OpenCollection> openFlagSet) {
+	public Optional<DominoCollection> openCollection(int viewNoteId, Set<OpenCollection> openFlagSet) {
 	  return openCollection(viewNoteId, openFlagSet, this);
 	}
 
   @Override
   public Optional<DominoCollection> openCollection(int viewNoteId, Database dbData) {
-    return Optional.ofNullable(openCollection(viewNoteId, (EnumSet<OpenCollection> ) null, dbData));
+    return openCollection(viewNoteId, (EnumSet<OpenCollection> ) null, dbData);
   }
 
-	private DominoCollection openCollection(int viewNoteId, EnumSet<OpenCollection> openFlagSet, Database dbData) {
+	private Optional<DominoCollection> openCollection(int viewNoteId, Set<OpenCollection> openFlagSet, Database dbData) {
 		checkDisposed();
 		
 		if (viewNoteId==0) {
-		  return null;
+		  return Optional.empty();
 		}
 		
 		if (dbData!=null && dbData instanceof JNADatabase==false) {
@@ -720,14 +708,12 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		DisposableMemory retViewUNID = new DisposableMemory(16);
 		JNAIDTable unreadTable = new JNAIDTable(getParentDominoClient());
 		
-		//always enforce reopening; funny things can happen on a Domino server
-		//without this flag like sharing collections between users resulting in
-		//users seeing the wrong data *sometimes*...
-		EnumSet<OpenCollection> openFlagSetClone = openFlagSet==null ? EnumSet.noneOf(OpenCollection.class) : openFlagSet.clone();
-		openFlagSetClone.add(OpenCollection.OPEN_REOPEN_COLLECTION);
+		short openFlags = DominoEnumUtil.toBitField(OpenCollection.class, openFlagSet);
+    //always enforce reopening; funny things can happen on a Domino server
+    //without this flag like sharing collections between users resulting in
+    //users seeing the wrong data *sometimes*...
+		openFlags |= (short) NotesConstants.OPEN_REOPEN_COLLECTION;
 		
-		short openFlags = DominoEnumUtil.toBitField(OpenCollection.class, openFlagSetClone);
-
 		JNAUserNamesList namesList = dbViewAllocations.getNamesList();
 		
 		if (namesList.isDisposed()) {
@@ -744,6 +730,8 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		JNAUserNamesListAllocations namesListAllocations = (JNAUserNamesListAllocations) namesList.getAdapter(APIObjectAllocations.class);
 		JNAIDTableAllocations unreadTableAllocations = (JNAIDTableAllocations) unreadTable.getAdapter(APIObjectAllocations.class);
 		
+		short fOpenFlags = openFlags;
+		
 		short result = LockUtil.lockHandles(
 				namesListAllocations.getHandle(),
 				unreadTableAllocations.getIdTableHandle(),
@@ -753,7 +741,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				(namesListHandleByVal, unreadTableHandleByVal, dbViewHandleByVal, dbDataHandleByVal) -> {
 					short localResult = NotesCAPI.get().NIFOpenCollectionWithUserNameList(dbViewHandleByVal,
 							dbDataHandleByVal,
-							viewNoteId, openFlags, unreadTableHandleByVal,
+							viewNoteId, fOpenFlags, unreadTableHandleByVal,
 							rethCollection, null, retViewUNID, rethCollapsedList,
 							rethSelectedList, namesListHandleByVal);
 					
@@ -768,9 +756,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		JNAIDTable collapsedList = new JNAIDTable(getParentDominoClient(), rethCollapsedList, true);
 		JNAIDTable selectedList = new JNAIDTable(getParentDominoClient(), rethSelectedList, true);
 		
-		return new JNADominoCollection(this, jnaDbData, rethCollection, viewNoteId,
+		return Optional.of(new JNADominoCollection(this, jnaDbData, rethCollection, viewNoteId,
 				sViewUNID, collapsedList,
-				selectedList, unreadTable);
+				selectedList, unreadTable));
 	}
 	
 	/**
@@ -2390,7 +2378,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		checkDisposed();
 		
 		try {
-			DominoCollection col = openCollection(NotesConstants.NOTE_ID_SPECIAL | NotesConstants.NOTE_CLASS_DESIGN, (EnumSet<OpenCollection>) null);
+			DominoCollection col = openCollection(NotesConstants.NOTE_ID_SPECIAL | NotesConstants.NOTE_CLASS_DESIGN, (EnumSet<OpenCollection>) null).get();
 			return col;
 		}
 		catch (DominoException e) {
@@ -2413,7 +2401,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		NotesErrorUtils.checkResult(result);
 		
 		//try again:
-		DominoCollection col = openCollection(NotesConstants.NOTE_ID_SPECIAL | NotesConstants.NOTE_CLASS_DESIGN, (EnumSet<OpenCollection> ) null);
+		DominoCollection col = openCollection(NotesConstants.NOTE_ID_SPECIAL | NotesConstants.NOTE_CLASS_DESIGN, (EnumSet<OpenCollection> ) null).get();
 		return col;
 	}
 	

@@ -83,6 +83,43 @@ public interface CollectionSearchQuery extends SearchQuery {
       return this;
     }
 
+    /**
+     * Expands collection entries via key lookup
+     *
+     * @param key   lookup key
+     * @param exact true for exact match, false for prefix search
+     * @return this instance
+     */
+    public AllCollapsedEntries expandByKey(final List<Object> key, final boolean exact) {
+      this.getLookupKeysMultiCol().add(new MultiColumnLookupKey(key, exact));
+
+      return this;
+    }
+
+    /**
+     * Expands collection entries via key lookup
+     *
+     * @param key   lookup key
+     * @param exact true for exact match, false for prefix search
+     * @return this instance
+     */
+    public AllCollapsedEntries expandByKey(final String key, final boolean exact) {
+      this.getLookupKeysSingleCol().add(new SingleColumnLookupKey(key, exact));
+
+      return this;
+    }
+
+    /**
+     * Expands a category by name
+     * 
+     * @param category category name
+     * @return this instance
+     */
+    public AllCollapsedEntries expandCategory(String category) {
+      this.getCategories().add(category);
+      
+      return this;
+    }
   }
 
   public static class AllDeselectedEntries extends SelectedEntries {
@@ -138,7 +175,7 @@ public interface CollectionSearchQuery extends SearchQuery {
      *
      * @param key   lookup key
      * @param exact true for exact match, false for prefix search
-     * @return this search query
+     * @return this instance
      */
     public AllDeselectedEntries selectByKey(final List<Object> key, final boolean exact) {
       this.getLookupKeysMultiCol().add(new MultiColumnLookupKey(key, exact));
@@ -151,7 +188,7 @@ public interface CollectionSearchQuery extends SearchQuery {
      *
      * @param key   lookup key
      * @param exact true for exact match, false for prefix search
-     * @return this search query
+     * @return this instance
      */
     public AllDeselectedEntries selectByKey(final String key, final boolean exact) {
       this.getLookupKeysSingleCol().add(new SingleColumnLookupKey(key, exact));
@@ -351,16 +388,21 @@ public interface CollectionSearchQuery extends SearchQuery {
 
     private final ExpandMode m_mode;
     private final Set<Integer> m_noteIds;
-
     private final List<DQLTerm> m_dqlQueries;
-
     private final List<String> m_ftQueries;
 
+    private final List<SingleColumnLookupKey> m_lookupKeysSingleCol;
+    private final List<MultiColumnLookupKey> m_lookupKeysMultiCol;
+    private final Set<String> m_expandedCategories;
+    
     private ExpandedEntries(final ExpandMode mode) {
       this.m_mode = mode;
       this.m_noteIds = new HashSet<>();
       this.m_dqlQueries = new ArrayList<>();
       this.m_ftQueries = new ArrayList<>();
+      this.m_lookupKeysSingleCol = new ArrayList<>();
+      this.m_lookupKeysMultiCol = new ArrayList<>();
+      this.m_expandedCategories = new LinkedHashSet<>();
     }
 
     public List<DQLTerm> getDQLQueries() {
@@ -371,6 +413,18 @@ public interface CollectionSearchQuery extends SearchQuery {
       return this.m_ftQueries;
     }
 
+    public List<MultiColumnLookupKey> getLookupKeysMultiCol() {
+      return this.m_lookupKeysMultiCol;
+    }
+
+    public List<SingleColumnLookupKey> getLookupKeysSingleCol() {
+      return this.m_lookupKeysSingleCol;
+    }
+
+    public Set<String> getCategories() {
+      return this.m_expandedCategories;
+    }
+    
     public ExpandMode getMode() {
       return this.m_mode;
     }
@@ -418,7 +472,6 @@ public interface CollectionSearchQuery extends SearchQuery {
     private final List<String> m_ftQueries;
 
     private final List<SingleColumnLookupKey> m_lookupKeysSingleCol;
-
     private final List<MultiColumnLookupKey> m_lookupKeysMultiCol;
 
     private SelectedEntries(final SelectMode mode) {
@@ -722,7 +775,7 @@ public interface CollectionSearchQuery extends SearchQuery {
    *                       and {@link TemporalAccessor} objects
    * @return this search query
    */
-  CollectionSearchQuery startAtCategory(List<Object> categoryLevels);
+  CollectionSearchQuery restrictToCategory(List<Object> categoryLevels);
 
   /**
    * Restrict search result to a single category
@@ -730,7 +783,7 @@ public interface CollectionSearchQuery extends SearchQuery {
    * @param category category, use "\" for multiple category levels
    * @return this search query
    */
-  CollectionSearchQuery startAtCategory(String category);
+  CollectionSearchQuery restrictToCategory(String category);
 
   /**
    * Start reading view data at an entry with the specified note id

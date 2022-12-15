@@ -19,6 +19,8 @@ package com.hcl.domino.data;
 import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
@@ -34,6 +36,7 @@ import com.hcl.domino.DominoClient.IBreakHandler;
 import com.hcl.domino.DominoClient.NotesReplicationStats;
 import com.hcl.domino.DominoClient.ReplicationStateListener;
 import com.hcl.domino.UserNamesList;
+import com.hcl.domino.constants.OpenCollection;
 import com.hcl.domino.crypt.DatabaseEncryptionState;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.design.DbDesign;
@@ -1360,8 +1363,27 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
    */
   void moveFolder(String folderName, String newParentFolderName);
 
-  Optional<DominoCollection> openCollection(String collectionName);
+  /**
+   * Opens a {@link DominoCollection}
+   * 
+   * @param collectionName collection name
+   * @return an {@link Optional} describing the requested collection, or an empty
+   *         one if the note does not exist
+   */
+  default Optional<DominoCollection> openCollection(String collectionName) {
+    return openCollection(collectionName, (Set<OpenCollection>) null);
+  }
 
+  /**
+   * Opens a {@link DominoCollection}
+   * 
+   * @param collectionName collection name
+   * @param openFlags flags to control open behavior
+   * @return an {@link Optional} describing the requested collection, or an empty
+   *         one if the note does not exist
+   */
+  Optional<DominoCollection> openCollection(String collectionName, Set<OpenCollection> openFlags);
+  
   /**
    * Opens a {@link DominoCollection}
    * 
@@ -1378,8 +1400,20 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
    * @return an {@link Optional} describing the requested collection, or an empty
    *         one if the note does not exist
    */
-  Optional<DominoCollection> openCollection(int viewNoteId);
-  
+  default Optional<DominoCollection> openCollection(int viewNoteId) {
+    return openCollection(viewNoteId, (Set<OpenCollection>) null);
+  }
+
+  /**
+   * Opens a {@link DominoCollection}
+   * 
+   * @param viewNoteId note id of a view or folder note to open
+   * @param openFlags flags to control open behavior
+   * @return an {@link Optional} describing the requested collection, or an empty
+   *         one if the note does not exist
+   */
+  Optional<DominoCollection> openCollection(int viewNoteId, Set<OpenCollection> openFlags);
+
   /**
    * Opens a {@link DominoCollection}, telling NIF to pull the view's content
    * from a separate database (acting like a private view in the Notes Client).<br>

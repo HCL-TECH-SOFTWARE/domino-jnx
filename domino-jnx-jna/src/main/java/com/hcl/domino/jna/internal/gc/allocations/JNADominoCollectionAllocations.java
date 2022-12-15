@@ -17,16 +17,20 @@
 package com.hcl.domino.jna.internal.gc.allocations;
 
 import java.lang.ref.ReferenceQueue;
+import java.util.Arrays;
+import java.util.Collection;
 
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.NotesErrorUtils;
+import com.hcl.domino.data.IDTable;
 import com.hcl.domino.jna.data.JNADominoCollection;
 import com.hcl.domino.jna.data.JNAIDTable;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
+import com.hcl.domino.misc.NotesConstants;
 
 public class JNADominoCollectionAllocations extends APIObjectAllocations<JNADominoCollection> {
 	private boolean m_disposed;
@@ -104,4 +108,26 @@ public class JNADominoCollectionAllocations extends APIObjectAllocations<JNADomi
 	public JNAIDTable getUnreadTable() {
 		return m_unreadTable;
 	}
+
+	public void select(int noteId, boolean clear) {
+	  select(Arrays.asList(noteId), clear);
+	}
+
+	public void select(Collection<Integer> noteIds, boolean clear) {
+	  checkDisposed();
+
+	  IDTable selectedList = getSelectedList();
+	  if (clear) {
+	    selectedList.clear();
+	  }
+
+	  selectedList.addAll(noteIds);
+
+	  short result = LockUtil.lockHandle(m_collectionHandle, (hdlByVal) -> {
+	    return NotesCAPI.get().NIFUpdateFilters(hdlByVal, NotesConstants.FILTER_SELECTED);
+
+	  });
+	  NotesErrorUtils.checkResult(result);
+	}
+
 }

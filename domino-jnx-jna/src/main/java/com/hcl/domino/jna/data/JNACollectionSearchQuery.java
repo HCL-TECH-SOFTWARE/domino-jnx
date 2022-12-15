@@ -42,7 +42,9 @@ import com.hcl.domino.data.CollectionEntry.SpecialValue;
 import com.hcl.domino.data.CollectionSearchQuery;
 import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.FTQuery;
+import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.Navigate;
 import com.hcl.domino.dql.DQL.DQLTerm;
 import com.hcl.domino.exception.ObjectDisposedException;
@@ -60,8 +62,8 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 	//where to start reading view data:
 	private boolean m_startAtLastEntry;
 	private int m_startAtEntryId;
-	private String m_startAtCategory;
-	private List<Object> m_startAtCategoryLevels;
+	private String m_restrictToCategory;
+	private List<Object> m_restrictToCategoryLevels;
 	private String m_startAtPosition;
 
 	//IDTables to control what is expanded/selected
@@ -154,8 +156,8 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 		//reset all
 		m_startAtEntryId = 0;
 		m_startAtLastEntry = false;
-		m_startAtCategory = null;
-		m_startAtCategoryLevels = null;
+		m_restrictToCategory = null;
+		m_restrictToCategoryLevels = null;
 		m_startAtPosition = null;
 		
 		m_total = null;
@@ -166,8 +168,8 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 	public CollectionSearchQuery startAtEntryId(int noteId) {
 		m_startAtEntryId = noteId;
 		m_startAtLastEntry = false;
-		m_startAtCategory = null;
-		m_startAtCategoryLevels = null;
+		m_restrictToCategory = null;
+		m_restrictToCategoryLevels = null;
 		m_startAtPosition = null;
 		
 		m_total = null;
@@ -179,8 +181,8 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 		m_startAtLastEntry = true;
 		
 		m_startAtEntryId = 0;
-		m_startAtCategory = null;
-		m_startAtCategoryLevels = null;
+		m_restrictToCategory = null;
+		m_restrictToCategoryLevels = null;
 		m_startAtPosition = null;
 		
 		m_total = null;
@@ -188,12 +190,12 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 	}
 
 	@Override
-	public CollectionSearchQuery startAtCategory(String category) {
-		m_startAtCategory = category;
+	public CollectionSearchQuery restrictToCategory(String category) {
+		m_restrictToCategory = category;
 		
 		m_startAtEntryId = 0;
 		m_startAtLastEntry = false;
-		m_startAtCategoryLevels = null;
+		m_restrictToCategoryLevels = null;
 		m_startAtPosition = null;
 		
 		m_total = null;
@@ -201,12 +203,12 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 	}
 
 	@Override
-	public CollectionSearchQuery startAtCategory(List<Object> categoryLevels) {
-		m_startAtCategoryLevels = categoryLevels==null ? null : new ArrayList<>(categoryLevels);
+	public CollectionSearchQuery restrictToCategory(List<Object> categoryLevels) {
+		m_restrictToCategoryLevels = categoryLevels==null ? null : new ArrayList<>(categoryLevels);
 		
 		m_startAtEntryId = 0;
 		m_startAtLastEntry = false;
-		m_startAtCategory = null;
+		m_restrictToCategory = null;
 		m_startAtPosition = null;
 		
 		m_total = null;
@@ -219,8 +221,8 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 		
 		m_startAtEntryId = 0;
 		m_startAtLastEntry = false;
-		m_startAtCategory = null;
-		m_startAtCategoryLevels = null;
+		m_restrictToCategory = null;
+		m_restrictToCategoryLevels = null;
 		
 		m_total = null;
 		return this;
@@ -343,7 +345,10 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 		if (nav == Navigate.NEXT_SELECTED || /* m_direction == Navigate.NEXT_SELECTED_HIT || */
 				nav == Navigate.NEXT_SELECTED_ON_TOPLEVEL ||
 				nav == Navigate.PREV_SELECTED || /* m_direction == Navigate.PREV_SELECTED_HIT || */
-				nav == Navigate.PREV_SELECTED_ON_TOPLEVEL) {
+				nav == Navigate.PREV_SELECTED_ON_TOPLEVEL ||
+				nav == Navigate.NEXT_EXPANDED_SELECTED ||
+				nav == Navigate.PREV_EXPANDED_SELECTED
+				) {
 			return true;
 		}
 		else {
@@ -362,9 +367,413 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 			return false;
 		}
 	}
+
+	private Optional<JNACollectionEntry> findCategoryPosition(JNADominoCollection collection, Object[] categoryLevelsAsArr, boolean readDescendantCount,
+	    boolean readChildCount) {
+	  
+	  while (true) {
+	    //find current position of category entry
+	    NotesViewLookupResultData catLkResult = collection.findByKeyExtended2(EnumSet.of(FindFlag.MATCH_CATEGORYORLEAF,
+	        FindFlag.REFRESH_FIRST, FindFlag.RETURN_DWORD, FindFlag.AND_READ_MATCHES, FindFlag.CASE_INSENSITIVE),
+	        EnumSet.of(ReadMask.NOTEID, ReadMask.SUMMARY), categoryLevelsAsArr);
+	    
+	    List<JNACollectionEntry> catEntries = catLkResult.getEntries();
+	    
+	    String categoryPosStr = catLkResult.getPosition();
+	    if (StringUtil.isEmpty(categoryPosStr) || catEntries.isEmpty()) {
+	      return Optional.empty();
+	    }
+	    
+	    JNACollectionEntry categoryEntry = catEntries.get(0);
+	    JNADominoCollectionPosition pos = new JNADominoCollectionPosition(categoryPosStr);
+	    categoryEntry.setPosition(pos.toTumblerArray());
+	    
+	    if (!readDescendantCount && !readChildCount) {
+	      return Optional.of(categoryEntry);
+	    }
+	    
+	    //we need to read more values than findByKeyExtended2 supports
+	    EnumSet<ReadMask> readMask = EnumSet.of(ReadMask.NOTEID);
+	    if (readDescendantCount) {
+	      readMask.add(ReadMask.INDEXDESCENDANTS);
+	    }
+	    if (readChildCount) {
+	      readMask.add(ReadMask.INDEXCHILDREN); 
+	    }
+	    
+	    NotesViewLookupResultData lkResult =
+          collection.readEntriesExt(new JNADominoCollectionPosition(categoryPosStr),
+              Navigate.CURRENT,
+                  true,
+              0, Navigate.CURRENT,
+              1, readMask,
+              (DominoDateTime) null,
+              (JNAIDTable) null,
+              (Integer) null);
+	    
+	    List<JNACollectionEntry> entriesAtPos = lkResult.getEntries();
+	    if (entriesAtPos.isEmpty()) {
+	      //category is gone
+	      return Optional.empty();
+	    }
+	    
+	    JNACollectionEntry entryAtPos = entriesAtPos.get(0);
+	    if (entryAtPos.getNoteID() != categoryEntry.getNoteID()) {
+	      //something has moved; refresh view & retry
+	      collection.refresh();
+	      continue;
+	    }
+	    
+	    if (readDescendantCount) {
+	      categoryEntry.setDescendantCount(entryAtPos.getSpecialValue(SpecialValue.DESCENDANTCOUNT, Integer.class, 0));
+	    }
+	    if (readChildCount) {
+	      categoryEntry.setChildCount(entryAtPos.getSpecialValue(SpecialValue.CHILDCOUNT, Integer.class, 0));
+	    }
+	    
+	    return Optional.of(categoryEntry);
+	  }
+	}
 	
 	@Override
 	public <T> T build(int skip, int count, CollectionEntryProcessor<T> processor) {
+    JNADominoCollection collection = (JNADominoCollection) getParent();
+    JNADominoCollectionAllocations collectionAllocations = (JNADominoCollectionAllocations) collection.getAdapter(APIObjectAllocations.class);
+	  
+    ShortByReference updateFiltersFlags = new ShortByReference();
+    Navigate directionToUse = prepareCollectionReadRestrictions(collectionAllocations, updateFiltersFlags);
+
+    EnumSet<ReadMask> readMaskToUse = EnumSet.copyOf(m_readMask);
+    
+    Navigate skipNav = directionToUse;
+    Navigate returnNav = directionToUse;
+    
+    if (skipNav == Navigate.FIRST_ON_SAME_LEVEL) {
+      //just return first element
+      returnNav = Navigate.CURRENT;
+    }
+    else if (skipNav == Navigate.LAST_ON_SAME_LEVEL) {
+      //just return last element
+      returnNav = Navigate.CURRENT;
+    }
+    
+    if (returnNav == Navigate.CURRENT && count>1) {
+      //prevent reading too many entries if navigation is set to just read the current entry
+      count = 1;
+    }
+
+    final short fUpdateFiltersFlagsVal = updateFiltersFlags.getValue();
+
+    int fCount = count;
+    final Navigate fSkipNav = skipNav;
+    final Navigate fReturnNav = returnNav;
+    
+    JNADominoCollection.JNACollectionEntryProcessor<T> jnaProcessor = new JNADominoCollection.JNACollectionEntryProcessor<T>() {
+      int entriesRead = 0;
+
+      @Override
+      public T start() {
+        entriesRead = 0;
+        return processor.start();
+      }
+
+      @Override
+      public Action entryRead(T result, CollectionEntry entry) {
+        Action action = processor.entryRead(result, entry);
+        entriesRead++;
+
+        if (entriesRead>=fCount) {
+          return Action.Stop;
+        }
+        else {
+          return action;
+        }
+      }
+
+      @Override
+      public T end(T result) {
+        return processor.end(result);
+      }
+
+      @Override
+      public String getNameForSingleColumnRead() {
+        if (processor instanceof JNADominoCollection.JNACollectionEntryProcessor) {
+          return ((JNADominoCollection.JNACollectionEntryProcessor)processor).getNameForSingleColumnRead();
+        }
+        return super.getNameForSingleColumnRead();
+      }
+      
+      @Override
+      public Action retryingReadBecauseViewIndexChanged(int nrOfRetries, long durationSinceStart) {
+        if (processor instanceof JNADominoCollection.JNACollectionEntryProcessor) {
+          return ((JNADominoCollection.JNACollectionEntryProcessor)processor).retryingReadBecauseViewIndexChanged(nrOfRetries, durationSinceStart);
+        }
+        return Action.Continue;
+      }
+    };
+    
+    String singleColumnName = jnaProcessor.getNameForSingleColumnRead();
+    Integer singleColumnIndex = StringUtil.isEmpty(singleColumnName) ? null : collection.getColumnValuesIndex(singleColumnName);
+    
+    return LockUtil.lockHandle(collectionAllocations.getCollectionHandle(), (collectionHandleByVal) -> {
+      if (fUpdateFiltersFlagsVal != 0) {
+        //the method prepareCollectionReadRestrictions has modified the selected list; for remote databases, push IDTable changes via NRPC
+
+        short result = NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, fUpdateFiltersFlagsVal);
+        NotesErrorUtils.checkResult(result);
+      }
+      
+      if (m_restrictToCategory!=null || m_restrictToCategoryLevels!=null) {
+        //read descendants of a category
+        
+        Object[] categoryLevelsAsArr;
+        if (m_restrictToCategory!=null) {
+          categoryLevelsAsArr = new Object[] {m_restrictToCategory};
+        }
+        else {
+          categoryLevelsAsArr = m_restrictToCategoryLevels.toArray(new Object[m_restrictToCategoryLevels.size()]);
+        }
+        
+        T result = jnaProcessor.start();
+
+        //add INDEXPOSITION to be able to check if we're still below the category
+        readMaskToUse.add(ReadMask.INDEXPOSITION);
+        
+        int currOffset = skip;
+
+        String categoryPosStr = null;
+        JNADominoCollectionPosition categoryPos = null;
+        Integer descendantCount = null;
+        int entriesRead = 0;
+        
+        while (true) {
+          if (categoryPosStr==null) {
+            JNACollectionEntry categoryEntry = findCategoryPosition(collection, categoryLevelsAsArr,
+                descendantCount==null, false).orElse(null);
+            
+            if (categoryEntry==null) {
+              //category not found or gone, return what we have
+              result = jnaProcessor.end(result);
+              return result;
+            }
+            
+            categoryPosStr = categoryEntry.getSpecialValue(SpecialValue.INDEXPOSITION, String.class, "");
+                        
+            if (StringUtil.isEmpty(categoryPosStr)) {
+              //category not found or gone, return what we have
+              result = jnaProcessor.end(result);
+              return result;
+            }
+            
+            categoryPos = new JNADominoCollectionPosition(categoryPosStr);
+            if (descendantCount==null) {
+              //find an upper limit for the NIFReadEntries call to not read too many entries
+              descendantCount = categoryEntry.getSpecialValue(SpecialValue.DESCENDANTCOUNT, Integer.class, 0);
+            }
+          }
+          
+          JNADominoCollectionPosition readEntriesTopPos;
+          
+          Navigate skipNavToUse = fSkipNav;
+          Navigate returnNavToUse = fReturnNav;
+          
+          if (skipNavToUse == Navigate.CHILD_ENTRY) {
+            //for CHILD_ENTRY, we first return the first child of the category node, then its own first child etc.
+            readEntriesTopPos = new JNADominoCollectionPosition(categoryPosStr);
+          }
+          else {
+            String firstChildPosStr = categoryPosStr + ".0"; //$NON-NLS-1$
+            readEntriesTopPos = new JNADominoCollectionPosition(firstChildPosStr);
+          }
+          
+          readEntriesTopPos.setMinLevel(categoryPos.getLevel()+1);
+
+          int maxEntriesToRead = Math.max(descendantCount - currOffset, 1);
+          
+          NotesViewLookupResultData lkResult =
+              collection.readEntriesExt(readEntriesTopPos,
+                  skipNavToUse,
+                  true,
+                  1 + currOffset, returnNavToUse,
+                  maxEntriesToRead, readMaskToUse,
+                  (DominoDateTime) null,
+                  (JNAIDTable) null,
+                  singleColumnIndex);
+
+          if (lkResult.hasAnyNonDataConflicts()) {
+            //view index has changed, update the view
+            collection.refresh();
+            
+            //check if our category position is still correct; if yes, we can use the lookup result
+            JNACollectionEntry newCategoryEntry = findCategoryPosition(collection, categoryLevelsAsArr,
+                true, false).orElse(null);
+            
+            if (newCategoryEntry==null) {
+              //category disappeared, return what we have read; since we cannot be sure that "lkResult" contains
+              //data of the right category, we throw it away
+              result = jnaProcessor.end(result);
+              return result;
+            }
+            
+            String newCategoryPosStr = newCategoryEntry.getSpecialValue(SpecialValue.INDEXPOSITION,
+                String.class, ""); //$NON-NLS-1$
+            
+            if (StringUtil.isEmpty(newCategoryPosStr)) {
+              //category disappeared, return what we have read; since we cannot be sure that "lkResult" contains
+              //data of the right category, we throw it away
+              result = jnaProcessor.end(result);
+              return result;
+            }
+            
+            if (!newCategoryPosStr.equals(categoryPosStr)) {
+              //the category has changed position, so it's possible that our data comes from a different category;
+              //it's better to rerun this iteration at the current offset
+              categoryPosStr = newCategoryPosStr;
+              categoryPos = new JNADominoCollectionPosition(newCategoryPosStr);
+              descendantCount = newCategoryEntry.getSpecialValue(SpecialValue.DESCENDANTCOUNT, Integer.class, 0);
+              continue;
+            }
+          }
+          
+          List<JNACollectionEntry> entries = lkResult.getEntries();
+          if (entries.isEmpty()) {
+            break;
+          }
+          
+          boolean outOfScope = false;
+          boolean aborted = false;
+          int entriesReported = 0;
+          
+          String positionPrefixInScope = categoryPosStr + "."; //$NON-NLS-1$
+          
+          for (JNACollectionEntry currEntry : entries) {
+            String currEntryPos = currEntry.getSpecialValue(SpecialValue.INDEXPOSITION,
+                String.class, ""); //$NON-NLS-1$
+            
+            if (!currEntryPos.startsWith(positionPrefixInScope)) {
+              //we left the category; we don't expect this to happen, because we set a minlevel
+              outOfScope = true;
+              break;
+            }
+            
+            entriesRead++;
+            entriesReported++;
+            
+            Action action = jnaProcessor.entryRead(null, currEntry);
+            if (action==Action.Stop) {
+              aborted = true;
+              break;
+            }
+          }
+          
+          if (aborted || outOfScope || entriesReported==0 || !lkResult.hasMoreToDo()) {
+            break;
+          }
+          
+          if (entriesRead>=descendantCount) {
+            //we read all descendants => we stopped at the last descendant of the category
+            break;
+          }
+          
+          currOffset+=entries.size();
+        }
+
+        result = jnaProcessor.end(result);
+        return result;
+      }
+
+      String startPosStr;
+      int additionalSkip;
+      
+      if (m_startAtLastEntry) {
+        //skip over the whole view to find the last entry
+        NotesViewLookupResultData lastEntryLkResult =
+            collection.readEntriesExt(new JNADominoCollectionPosition("0"), //$NON-NLS-1$
+            Navigate.NEXT_ENTRY, true,
+            Integer.MAX_VALUE, Navigate.CURRENT,
+            1, EnumSet.of(ReadMask.INDEXPOSITION), (DominoDateTime) null,
+            (JNAIDTable) null,
+            (Integer) singleColumnIndex);
+        
+        String lastEntryPosStr = ""; //$NON-NLS-1$
+        
+        if (!lastEntryLkResult.getEntries().isEmpty()) {
+          lastEntryPosStr = lastEntryLkResult
+              .getEntries()
+              .get(0)
+              .getSpecialValue(SpecialValue.INDEXPOSITION, String.class, ""); //$NON-NLS-1$
+          additionalSkip = 0;
+        }
+        
+        if (StringUtil.isEmpty(lastEntryPosStr)) {
+          T obj = jnaProcessor.start();
+          obj = jnaProcessor.end(obj);
+          return obj;
+        }
+        
+        startPosStr = lastEntryPosStr;
+        additionalSkip = 0;
+      }
+      else if (m_startAtPosition!=null) {
+        startPosStr = m_startAtPosition;
+        additionalSkip = 0;
+      }
+      else if (m_startAtEntryId!=0) {
+        startPosStr = Integer.toString(m_startAtEntryId);
+        readMaskToUse.add(ReadMask.INIT_POS_NOTEID);
+        additionalSkip = 0;
+      }
+      else {
+        //default: start at first entry
+        startPosStr = "0"; //$NON-NLS-1$
+        additionalSkip = 1;
+      }
+      
+      JNADominoCollectionPosition currPos = new JNADominoCollectionPosition(startPosStr);
+
+      boolean firstLoop = true;
+      
+      T obj = jnaProcessor.start();
+      
+      while (true) {
+        NotesViewLookupResultData lkResult =
+            collection.readEntriesExt(currPos,
+                fSkipNav,
+                    true,
+                firstLoop ? (skip+additionalSkip) : 1, fReturnNav,
+                    fCount, readMaskToUse, (DominoDateTime) null,
+                (JNAIDTable) null,
+                singleColumnIndex);
+
+        firstLoop = false;
+        
+        List<JNACollectionEntry> entries = lkResult.getEntries();
+        for (JNACollectionEntry currEntry : entries) {
+          Action action = jnaProcessor.entryRead(obj, currEntry);
+          if (action==Action.Stop) {
+            obj = jnaProcessor.end(obj);
+            return obj;
+          }
+        }
+        
+        if (!lkResult.hasMoreToDo()) {
+          break;
+        }
+        
+        if (readMaskToUse.contains(ReadMask.INIT_POS_NOTEID)) {
+          //make sure to only use this flag on the first lookup call
+          readMaskToUse.remove(ReadMask.INIT_POS_NOTEID);
+        }
+
+      }
+
+      obj = jnaProcessor.end(obj);
+      
+      return obj;
+    });
+	}
+
+	public <T> T build_old(int skip, int count, CollectionEntryProcessor<T> processor) {
 		JNADominoCollection collection = (JNADominoCollection) getParent();
 		JNADominoCollectionAllocations collectionAllocations = (JNADominoCollectionAllocations) collection.getAdapter(APIObjectAllocations.class);
 
@@ -381,133 +790,134 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 		final Navigate fDirectionToUse = directionToUse;
 		
 		return LockUtil.lockHandle(collectionAllocations.getCollectionHandle(), (collectionHandleByVal) -> {
+      if (fUpdateFiltersFlagsVal != 0) {
+        //the method prepareCollectionReadRestrictions has modified the selected list; for remote databases, push IDTable changes via NRPC
+
+        short result = NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, fUpdateFiltersFlagsVal);
+        NotesErrorUtils.checkResult(result);
+      }
+
+      JNADominoCollection.JNACollectionEntryProcessor<T> jnaProcessor = new JNADominoCollection.JNACollectionEntryProcessor<T>() {
+        int entriesRead = 0;
+
+        @Override
+        public T start() {
+          entriesRead = 0;
+          return processor.start();
+        }
+
+        @Override
+        public Action entryRead(T result, CollectionEntry entry) {
+          Action action = processor.entryRead(result, entry);
+          entriesRead++;
+
+          if (entriesRead>=fCount) {
+            return Action.Stop;
+          }
+          else {
+            return action;
+          }
+        }
+
+        @Override
+        public T end(T result) {
+          return processor.end(result);
+        }
+
+      };
+      
 			while (true) {
-				if (fUpdateFiltersFlagsVal != 0) {
-					//for remote databases, push IDTable changes via NRPC
+				if (m_restrictToCategory!=null || m_restrictToCategoryLevels!=null) {
+          Object[] categoryLevelsAsArr;
+          if (m_restrictToCategory!=null) {
+            categoryLevelsAsArr = new Object[] {m_restrictToCategory};
+          }
+          else {
+            categoryLevelsAsArr = m_restrictToCategoryLevels.toArray(new Object[m_restrictToCategoryLevels.size()]);
+          }
 
-					short result = NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, fUpdateFiltersFlagsVal);
-					NotesErrorUtils.checkResult(result);
-				}
+          T result = collection.getAllEntriesInCategory(categoryLevelsAsArr, skip, fDirectionToUse, null, null,
+              fCount, m_readMask, jnaProcessor);
+          return result;
+        }
 				
-				JNADominoCollection.JNACollectionEntryProcessor<T> jnaProcessor = new JNADominoCollection.JNACollectionEntryProcessor<T>() {
-					int entriesRead = 0;
-
-					@Override
-					public T start() {
-						entriesRead = 0;
-						return processor.start();
-					}
-
-					@Override
-					public Action entryRead(T result, CollectionEntry entry) {
-						Action action = processor.entryRead(result, entry);
-						entriesRead++;
-
-						if (entriesRead>=fCount) {
-							return Action.Stop;
-						}
-						else {
-							return action;
-						}
-					}
-
-					@Override
-					public T end(T result) {
-						return processor.end(result);
-					}
-
-				};
-
 				int indexModStart = collection.getIndexModifiedSequenceNo();
 
-				if (m_startAtCategory!=null || m_startAtCategoryLevels!=null) {
-					Object[] categoryLevelsAsArr;
-					if (m_startAtCategory!=null) {
-						categoryLevelsAsArr = new Object[] {m_startAtCategory};
-					}
-					else {
-						categoryLevelsAsArr = m_startAtCategoryLevels.toArray(new Object[m_startAtCategoryLevels.size()]);
-					}
+        //find first entry to read
 
-					T result = collection.getAllEntriesInCategory(categoryLevelsAsArr, skip, fDirectionToUse, null, null,
-							fCount, m_readMask, jnaProcessor);
-					return result;
-				}
-				else {
-					//find first entry to read
+        String startPos;
+        int additionalSkip;
 
-					String startPos;
-					int additionalSkip;
+        if (m_startAtLastEntry) {
+          startPos = "last"; //$NON-NLS-1$
+          additionalSkip = 0;
+        }
+        else if (m_startAtPosition!=null) {
+          startPos = m_startAtPosition;
+          additionalSkip = 0;
+        }
+        else if (m_startAtEntryId!=0) {
+          JNAIDTable selectedList = collectionAllocations.getSelectedList();
+          JNAIDTable clonedSelectedList = (JNAIDTable) selectedList.clone();
+          
+          selectedList.setInverted(false);
+          selectedList.clear();
+          selectedList.add(m_startAtEntryId);
+          
+          //for remote databases, push IDTable changes via NRPC
+          short resultUpdateFilter = NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, NotesConstants.FILTER_SELECTED);
+          NotesErrorUtils.checkResult(resultUpdateFilter);
+          
+          List<CollectionEntry> selectedEntries = collection.getAllEntries("0", 1, Navigate.NEXT_SELECTED, Integer.MAX_VALUE, //$NON-NLS-1$
+              EnumSet.of(ReadMask.INDEXPOSITION, ReadMask.NOTEID),
+              new JNADominoCollection.EntriesAsListCallback(Integer.MAX_VALUE));
+          
+          //reset selection IDTable
+          selectedList.clear();
+          selectedList.addAll(clonedSelectedList);
+          selectedList.setInverted(clonedSelectedList.isInverted());
+          clonedSelectedList.dispose();
+          
+          resultUpdateFilter = NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, NotesConstants.FILTER_SELECTED);
+          NotesErrorUtils.checkResult(resultUpdateFilter);
 
-					if (m_startAtLastEntry) {
-						startPos = "last"; //$NON-NLS-1$
-						additionalSkip = 0;
-					}
-					else if (m_startAtPosition!=null) {
-						startPos = m_startAtPosition;
-						additionalSkip = 0;
-					}
-					else if (m_startAtEntryId!=0) {
-						JNAIDTable selectedList = collectionAllocations.getSelectedList();
-						JNAIDTable clonedSelectedList = (JNAIDTable) selectedList.clone();
-						
-						selectedList.setInverted(false);
-						selectedList.clear();
-						selectedList.add(m_startAtEntryId);
-						
-						//for remote databases, push IDTable changes via NRPC
-						short resultUpdateFilter = NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, NotesConstants.FILTER_SELECTED);
-						NotesErrorUtils.checkResult(resultUpdateFilter);
-						
-						List<CollectionEntry> selectedEntries = collection.getAllEntries("0", 1, Navigate.NEXT_SELECTED, Integer.MAX_VALUE, //$NON-NLS-1$
-								EnumSet.of(ReadMask.INDEXPOSITION, ReadMask.NOTEID),
-								new JNADominoCollection.EntriesAsListCallback(Integer.MAX_VALUE));
-						
-						//reset selection IDTable
-						selectedList.clear();
-						selectedList.addAll(clonedSelectedList);
-						selectedList.setInverted(clonedSelectedList.isInverted());
-						clonedSelectedList.dispose();
-						
-						resultUpdateFilter = NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, NotesConstants.FILTER_SELECTED);
-						NotesErrorUtils.checkResult(resultUpdateFilter);
+          if (selectedEntries.isEmpty()) {
+            //start entry not found
+            T result = processor.start();
+            result = processor.end(result);
+            return result;
+          }
+          
+          String entryPos = selectedEntries.get(0).getSpecialValue(SpecialValue.INDEXPOSITION, String.class, ""); //$NON-NLS-1$
+          if (StringUtil.isEmpty(entryPos)) {
+            //start entry not found
+            T result = processor.start();
+            result = processor.end(result);
+            return result;
+          }
 
-						if (selectedEntries.isEmpty()) {
-							//start entry not found
-							T result = processor.start();
-							result = processor.end(result);
-							return result;
-						}
-						
-						String entryPos = selectedEntries.get(0).getSpecialValue(SpecialValue.INDEXPOSITION, String.class, ""); //$NON-NLS-1$
-						if (StringUtil.isEmpty(entryPos)) {
-							//start entry not found
-							T result = processor.start();
-							result = processor.end(result);
-							return result;
-						}
+          startPos = entryPos;
+          additionalSkip = 0;
+        }
+        else {
+          //default: start at first entry
+          startPos = "0"; //$NON-NLS-1$
+          additionalSkip = 1;
+        }
 
-						startPos = entryPos;
-						additionalSkip = 0;
-					}
-					else {
-						//default: start at first entry
-						startPos = "0"; //$NON-NLS-1$
-						additionalSkip = 1;
-					}
+        T result = collection.getAllEntries(startPos, additionalSkip + skip,
+            fDirectionToUse, fCount, m_readMask, jnaProcessor);
 
-					T result = collection.getAllEntries(startPos, additionalSkip + skip,
-							fDirectionToUse, fCount, m_readMask, jnaProcessor);
-
-					int indexModEnd = collection.getIndexModifiedSequenceNo();
-					
-					if (indexModStart != indexModEnd) {
-						//restart lookup, index changed
-						collection.refresh();
-						continue;
-					}
-					return result;
-				}
+        int indexModEnd = collection.getIndexModifiedSequenceNo();
+        
+        if (indexModStart != indexModEnd) {
+          //restart lookup, index changed
+          collection.refresh();
+          continue;
+        }
+        return result;
+      
+        
 			}
 		});
 	}
@@ -700,13 +1110,13 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 					NotesErrorUtils.checkResult(result);
 				}
 				
-				if (m_startAtCategory!=null || m_startAtCategoryLevels!=null) {
+				if (m_restrictToCategory!=null || m_restrictToCategoryLevels!=null) {
 					Object[] categoryLevelsAsArr;
-					if (m_startAtCategory!=null) {
-						categoryLevelsAsArr = new Object[] {m_startAtCategory};
+					if (m_restrictToCategory!=null) {
+						categoryLevelsAsArr = new Object[] {m_restrictToCategory};
 					}
 					else {
-						categoryLevelsAsArr = m_startAtCategoryLevels.toArray(new Object[m_startAtCategoryLevels.size()]);
+						categoryLevelsAsArr = m_restrictToCategoryLevels.toArray(new Object[m_restrictToCategoryLevels.size()]);
 					}
 
 					if (JNADominoCollection.isDescendingNav(fDirectionToUse)) {
@@ -818,8 +1228,47 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 
 		if (isDirectionWithSelection(directionToUse)) {
 			//resolve and set the selected entries idtable
-			JNAIDTable selectedList = collectionAllocations.getSelectedList();
 			JNAIDTable resolvedSelectedList = resolveSelectedEntries(m_selectedEntries);
+			
+	    JNADominoCollection collection = (JNADominoCollection) getParent();
+	    if (collection.isHierarchical()) {
+	      //Views with response hierarchy can have issues when working with NAVIGATE_NEXT_SELECTED.
+	      //We found out that as soon as the first response doc appears in the view index,
+	      //NIFReadEntries returns the wrong COLLECTIONPOSITION when reading view data via
+	      //selected list with less than 5000 note ids. In that case NIFReadEntries internally
+	      //creates a temp collection and messes things up, e.g. we get
+	      //
+	      //noteid=3662, pos=8.1
+	      //noteid=3662, pos=8.1
+	      //
+	      //although this would be correct:
+	      //
+        //noteid=3662, pos=8.1
+        //noteid=3662, pos=19.1
+	      //
+	      //which is very bad for our classic NIFReadEntries loop because it might run forever;
+	      //that's why we fill up the selected list with fake note ids so that it contains 5000 note ids.
+	      //for >=5000 note ids, NIF does not create a temp collection, but scans the collection index,
+	      //which is slower but correct. It should be avoided to set the flag "show response documents in hierarchy".
+	      int resolvedSelectedListSize = resolvedSelectedList.size();
+	      if (resolvedSelectedListSize<5000) {
+          IDTable allIDsInView = collection.getAllIdsAsIDTable(false);
+
+          int fakeNoteIdsToInsert = 5000 - resolvedSelectedListSize;
+          int maxFakeNoteId = 2147483644;
+
+          for (int i=0; i<fakeNoteIdsToInsert; i++) {
+            int currNoteId = maxFakeNoteId - i*4;
+
+            // make sure the ID we add does not exist in the view
+            if (!allIDsInView.contains(currNoteId)) {
+              resolvedSelectedList.add(currNoteId);
+            }
+          }
+	      }
+	    }
+	    
+      JNAIDTable selectedList = collectionAllocations.getSelectedList();
 			selectedList.clear();
 			selectedList.addAll(resolvedSelectedList);
 			selectedList.setInverted(resolvedSelectedList.isInverted());
@@ -922,6 +1371,8 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 			idTable.clear();
 			
 			if (expandedEntries!=null) {
+			  JNADominoCollection collection = (JNADominoCollection) getParent();
+
 				if (expandedEntries.getMode() == ExpandMode.AllExpanded) {
 					idTable.setInverted(false);
 				}
@@ -932,6 +1383,48 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 				Set<Integer> noteIds = expandedEntries.getNoteIds();
 				idTable.addAll(noteIds);
 
+        List<SingleColumnLookupKey> singleColLookups = expandedEntries.getLookupKeysSingleCol();
+        List<MultiColumnLookupKey> multiColLookups = expandedEntries.getLookupKeysMultiCol();
+        Set<String> categories = expandedEntries.getCategories();
+        
+        if (!singleColLookups.isEmpty() || !multiColLookups.isEmpty()) {
+          
+          for (SingleColumnLookupKey currKey : singleColLookups) {
+            Set<FindFlag> findFlags = EnumSet.of(FindFlag.EQUAL, FindFlag.RANGE_OVERLAP, FindFlag.CASE_INSENSITIVE);
+            if (!currKey.isExact()) {
+              findFlags.add(FindFlag.PARTIAL);
+            }
+            LinkedHashSet<Integer> idsForKey = collection.getAllEntriesByKey(findFlags, EnumSet.of(ReadMask.NOTEID),
+                new JNADominoCollection.NoteIdsAsOrderedSetCallback(Integer.MAX_VALUE), currKey.getKey());
+            
+            idTable.addAll(idsForKey);
+          }
+          
+          for (MultiColumnLookupKey currKey : multiColLookups) {
+            Set<FindFlag> findFlags = EnumSet.of(FindFlag.EQUAL, FindFlag.RANGE_OVERLAP, FindFlag.CASE_INSENSITIVE);
+            if (!currKey.isExact()) {
+              findFlags.add(FindFlag.PARTIAL);
+            }
+            LinkedHashSet<Integer> idsForKey = collection.getAllEntriesByKey(findFlags, EnumSet.of(ReadMask.NOTEID),
+                new JNADominoCollection.NoteIdsAsOrderedSetCallback(Integer.MAX_VALUE), currKey.getKey().toArray(new Object[currKey.getKey().size()]));
+            
+            idTable.addAll(idsForKey);
+          }
+          
+          for (String currCategory : categories) {
+            //find category entry
+            NotesViewLookupResultData catLkResult = collection.findByKeyExtended2(EnumSet.of(FindFlag.MATCH_CATEGORYORLEAF,
+                FindFlag.REFRESH_FIRST, FindFlag.RETURN_DWORD, FindFlag.AND_READ_MATCHES, FindFlag.CASE_INSENSITIVE),
+                EnumSet.of(ReadMask.NOTEID, ReadMask.SUMMARY), currCategory);
+            
+            if (catLkResult.getReturnCount()>0 && !catLkResult.getEntries().isEmpty()) {
+              int noteId = catLkResult.getEntries().get(0).getNoteID();
+              idTable.add(noteId);
+            }
+            
+          }
+        }
+        
 				JNADatabase db = (JNADatabase) ((JNADominoCollection)getParent()).getParentDatabase();
 
 				List<DQLTerm> dqlQueries = expandedEntries.getDQLQueries();

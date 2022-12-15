@@ -17,6 +17,7 @@
 package com.hcl.domino.jna.data;
 
 import java.lang.ref.ReferenceQueue;
+import java.nio.ByteBuffer;
 import java.text.Collator;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
+import com.hcl.domino.commons.util.DumpUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringTokenizerExt;
@@ -64,8 +66,10 @@ import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.Find;
 import com.hcl.domino.data.IDTable;
+import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.Navigate;
 import com.hcl.domino.design.DesignConstants;
+import com.hcl.domino.design.format.ViewTableFormat;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.JNADominoClient;
@@ -85,6 +89,7 @@ import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.views.NotesLookupResultBufferDecoder;
 import com.hcl.domino.jna.internal.views.NotesSearchKeyEncoder;
 import com.hcl.domino.jna.internal.views.NotesViewLookupResultData;
+import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.Loop;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Memory;
@@ -596,7 +601,10 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		boolean readCollations = false;
 		
 		while (viewNote.hasItem("$Collation"+(colNo==0 ? "" : colNo))) { //$NON-NLS-1$ //$NON-NLS-2$
+	    long t0=System.currentTimeMillis();
 			List<?> collationInfoList = viewNote.getItemValue("$Collation"+(colNo==0 ? "" : colNo)); //$NON-NLS-1$ //$NON-NLS-2$
+      long t1=System.currentTimeMillis();
+			System.out.println("Decoding collation "+colNo+" took "+(t1-t0)+"ms");
 			if (collationInfoList!=null && !collationInfoList.isEmpty()) {
 				readCollations = true;
 				
@@ -622,7 +630,10 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		}
 		
 		//read view columns
+    long t0=System.currentTimeMillis();
 		List<?> viewFormatList = viewNote.getItemValue("$VIEWFORMAT"); //$NON-NLS-1$
+    long t1=System.currentTimeMillis();
+    System.out.println("Decoding $VIEWFORMAT took "+(t1-t0)+"ms");
 		if (viewFormatList!=null && !viewFormatList.isEmpty()) {
 			DominoViewFormat format = (DominoViewFormat) viewFormatList.get(0);
 			m_viewFormat = format;
@@ -761,15 +772,65 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		return new FindResult(firstMatchPos, nMatchesFound, canFindExactNumberOfMatches(findFlags));
 	}
 	
+	private Boolean isHierarchical = null;
+	
 	/**
 	 * Returns true if response document hierarchy is displayed in the view.
 	 * 
 	 * @return true for response hierarchy, false for flat view
 	 */
 	public boolean isHierarchical() {
-		return getViewFormat().isHierarchical();
+    if (m_viewFormat!=null) {
+      //view columns already decoded, so it's cheap to read the following property:
+      return m_viewFormat.isHierarchical();
+    }
+    
+	  if (isHierarchical==null) {
+	      //since loading the view columns takes some time and we need the isHierarchical
+	      //method when doing view lookups with NAVIGATE_NEXT_SELECTED to prevent infinite NIFReadEntries loops,
+	      //we added this faster way to read this property via offset in the $ViewFormat item value:
+	      JNADocument viewNote = getViewNote();
+	      
+	      ByteBuffer buf = viewNote.get("$ViewFormat", ByteBuffer.class, null); //$NON-NLS-1$
+	      
+	      if (buf!=null) {
+	        short type = buf.getShort(0);
+	        if (type == ItemDataType.TYPE_VIEW_FORMAT.getValue()) {
+	          
+//	        typedef struct {
+//	        VIEW_FORMAT_HEADER Header;
+//	        WORD Columns;            /* Number of columns */
+//	        WORD ItemSequenceNumber; /* Seq. number for unique item names */
+//	        WORD Flags;              /* (see VIEW_TABLE_xxx) */
+//	        WORD Flags2;             /* Flags */
+//	     } VIEW_TABLE_FORMAT;
+
+//	      typedef struct {
+//	        BYTE Version;   /* Version number */
+//	        BYTE ViewStyle; /* View Style - Table,Calendar */
+//	     } VIEW_FORMAT_HEADER;
+
+	          int flagsOffset = 2 + 1 + 1 + 2 + 2;
+	          short flags = buf.getShort(flagsOffset);
+	          
+	          if ((flags & NotesConstants.VIEW_TABLE_FLAG_FLATINDEX) == 0) {
+	            isHierarchical = Boolean.TRUE;
+	          }
+	          else {
+	            isHierarchical = Boolean.FALSE;
+	          }
+	        }
+	    }
+
+	    if (isHierarchical==null) {
+	      //fallback code if something goes wrong with reading $ViewFormat as ByteBuffer
+	      isHierarchical = getViewFormat().isHierarchical();
+	    }
+	  }
+	  
+	  return isHierarchical;
 	}
-	
+
 	/**
 	 * Returns true if conflict documents are displayed in the view
 	 * 
@@ -1219,8 +1280,18 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		ShortByReference retBufferLength = new ShortByReference();
 
 		short skipNavBitMask = skipNavigatorContinue ? (short) ((skipNavigator.getValue() | NotesConstants.NAVIGATE_CONTINUE) & 0xffff) : skipNavigator.getValue();
-		
 		short returnNavBitMask = returnNavigator.getValue();
+		
+    if (startPos.getMinLevel()>0) {
+      skipNavBitMask |= NotesConstants.NAVIGATE_MINLEVEL;
+      returnNavBitMask |= NotesConstants.NAVIGATE_MINLEVEL;
+    }
+    
+    if (startPos.getMaxLevel()>0) {
+      skipNavBitMask |= NotesConstants.NAVIGATE_MAXLEVEL;
+      returnNavBitMask |= NotesConstants.NAVIGATE_MAXLEVEL;
+    }
+
 		int readMaskBitMask = ReadMask.toBitMask(returnMask);
 		NotesCollectionPositionStruct startPosStruct = startPos==null ? null : startPos.getAdapter(NotesCollectionPositionStruct.class);
 		
@@ -1244,14 +1315,18 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
 		DHANDLE idTableHandle = diffIDTable!=null ? ((JNAIDTableAllocations)diffIDTable.getAdapter(APIObjectAllocations.class)).getIdTableHandle() : null;
 
+		short fSkipNavBitMask = skipNavBitMask;
+		short fReturnNavBitMask = returnNavBitMask;
+		
+		System.out.println("NIFReadEntriesExt: startPos="+startPos+", skipCount="+skipCount+", returnCount="+returnCount);
 		result = LockUtil.lockHandles(
 				allocations.getCollectionHandle(),
 				idTableHandle,
 				(hCollectionByVal, hDiffIdTableByVal) -> {
 
 					return NotesCAPI.get().NIFReadEntriesExt(hCollectionByVal, startPosStruct,
-							skipNavBitMask,
-							skipCount, returnNavBitMask, returnCount, readMaskBitMask,
+					    fSkipNavBitMask,
+							skipCount, fReturnNavBitMask, returnCount, readMaskBitMask,
 							diffTimeStruct, hDiffIdTableByVal,
 							columnNumber==null ? NotesConstants.MAXDWORD : columnNumber, flags, retBuffer, retBufferLength,
 									retNumEntriesSkipped, retNumEntriesReturned, retSignalFlags,

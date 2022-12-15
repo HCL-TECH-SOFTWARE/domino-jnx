@@ -129,7 +129,7 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
           .direction(Navigate.CURRENT)
           .readColumnValues()
           .readSpecialValues(SpecialValue.INDEXPOSITION)
-          .startAtCategory(category)
+          .restrictToCategory(category)
           .firstEntry()
           .orElse(null);
       Assertions.assertNotNull(categoryEntry);
@@ -324,7 +324,7 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
               .direction(Navigate.NEXT_DOCUMENT)
               .readColumnValues()
               .readSpecialValues(specialValues)
-              .startAtCategory(categories)
+              .restrictToCategory(categories)
               .collectEntries(0, 4000, categoryEntries);
       Assertions.assertNotEquals(Collections.emptyList(), categoryEntries, "category entry should not be empty");
       Assertions.assertEquals(4, categoryEntries.size());
@@ -351,7 +351,7 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
           .direction(Navigate.CURRENT)
           .readColumnValues()
           .readSpecialValues(SpecialValue.INDEXPOSITION)
-          .startAtCategory(category)
+          .restrictToCategory(category)
           .firstEntry()
           .orElse(null);
       Assertions.assertNotEquals(null, categoryEntry, "category entry should not be null");

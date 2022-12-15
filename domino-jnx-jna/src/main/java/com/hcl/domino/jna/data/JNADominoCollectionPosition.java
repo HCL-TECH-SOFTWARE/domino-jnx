@@ -197,6 +197,27 @@ public class JNADominoCollectionPosition implements IAdaptable {
 		}
 	}
 	
+	/**
+	 * Checks if this COLLECTIONPOSITION is a descendant of <code>otherPos</code>, e.g. "1.2.3" is a descendant of "1.2" and "1".
+	 * 
+	 * @param otherPos other position
+	 * @return true if descendant
+	 */
+	public boolean isDescendantOf(JNADominoCollectionPosition otherPos) {
+	  int ourLevel = getLevel();
+	  int otherLevel = otherPos.getLevel();
+	  
+	  if (ourLevel > otherLevel) {
+	    for (int i=0; i<otherLevel; i++) {
+	      if (this.getTumbler(i) != otherPos.getTumbler(i)) {
+	        return false;
+	      }
+	    }
+	    return true;
+	  }
+	  return false;
+	}
+	
 	@Override
 	@SuppressWarnings("unchecked")
 	public <T> T getAdapter(Class<T> clazz) {
@@ -257,6 +278,7 @@ public class JNADominoCollectionPosition implements IAdaptable {
 			this.struct.MinLevel = (byte) (level & 0xff);
 			this.struct.write();
 		}
+    this.toString=null;
 	}
 	
 	/**
@@ -285,6 +307,7 @@ public class JNADominoCollectionPosition implements IAdaptable {
 			this.struct.MaxLevel = (byte) (level & 0xff);
 			this.struct.write();
 		}
+		this.toString=null;
 	}
 	
 	/**
@@ -301,6 +324,22 @@ public class JNADominoCollectionPosition implements IAdaptable {
 		return this.tumbler[level];
 	}
 
+	/**
+	 * Returns the tumbler array
+	 * 
+	 * @return array, length == level
+	 */
+	public int[] toTumblerArray() {
+	  if (this.struct!=null) {
+      //get current struct value, is changed by NIFReadEntries
+      this.tumbler = this.struct.Tumbler;
+    }
+	  int level = getLevel();
+	  int[] arr = new int[level+1];
+	  System.arraycopy(this.tumbler, 0, arr, 0, level+1);
+	  return arr;
+	}
+	
 	/**
 	 * Converts the position object to a position string like "1.2.3".<br>
 	 * <br>

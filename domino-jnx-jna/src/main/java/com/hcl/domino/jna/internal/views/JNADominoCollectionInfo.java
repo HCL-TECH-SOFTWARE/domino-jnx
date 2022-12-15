@@ -23,7 +23,7 @@ import java.util.EnumSet;
 import java.util.List;
 
 import com.hcl.domino.commons.util.StringTokenizerExt;
-import com.hcl.domino.commons.views.OpenCollection;
+import com.hcl.domino.constants.OpenCollection;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoCollectionInfo;
@@ -150,7 +150,7 @@ public class JNADominoCollectionInfo implements DominoCollectionInfo {
 	public DominoCollection openCollection() {
 		if (m_collection==null || m_collection.isDisposed()) {
 			JNADatabase db = (JNADatabase) getParent();
-			m_collection = (JNADominoCollection) db.openCollection(getNoteID(), (EnumSet<OpenCollection>) null);
+			m_collection = (JNADominoCollection) db.openCollection(getNoteID(), (EnumSet<OpenCollection>) null).orElse(null);
 		}
 		return m_collection;
 	}

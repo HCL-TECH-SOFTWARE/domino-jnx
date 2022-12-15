@@ -2388,54 +2388,96 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   short NAVIGATE_PARENT = 3; /* Up 1 level */
   short NAVIGATE_CHILD = 4; /* Down 1 level to first child */
 
-  short NAVIGATE_NEXT_PEER = 5; /* Next node at our level */
-  short NAVIGATE_PREV_PEER = 6; /* Prev node at our level */
-  short NAVIGATE_FIRST_PEER = 7; /* First node at our level */
-  short NAVIGATE_LAST_PEER = 8; /* Last node at our level */
-  short NAVIGATE_CURRENT_MAIN = 11; /* Highest level non-category entry */
-  short NAVIGATE_NEXT_MAIN = 12; /* CURRENT_MAIN, then NEXT_PEER */
-  short NAVIGATE_PREV_MAIN = 13; /* CURRENT_MAIN, then PREV_PEER only if already there */
-  short NAVIGATE_NEXT_PARENT = 19; /* PARENT, then NEXT_PEER */
-  short NAVIGATE_PREV_PARENT = 20; /* PARENT, then PREV_PEER */
-  short NAVIGATE_NEXT = 1; /* Next entry over entire tree */
-  /* (parent first, then children,...) */
-  short NAVIGATE_PREV = 9; /* Previous entry over entire tree */
-  /* (opposite order of PREORDER) */
-  short NAVIGATE_ALL_DESCENDANTS = 17; /* NEXT, but only descendants */
-  /* below NIFReadEntries StartPos */
-  short NAVIGATE_NEXT_UNREAD = 10; /* NEXT, but only "unread" entries */
-  short NAVIGATE_NEXT_UNREAD_MAIN = 18; /* NEXT_UNREAD, but stop at main note also */
-  short NAVIGATE_PREV_UNREAD_MAIN = 34; /* Previous unread main. */
-  short NAVIGATE_PREV_UNREAD = 21; /* PREV, but only "unread" entries */
-  short NAVIGATE_NEXT_SELECTED = 14; /* NEXT, but only "selected" entries */
-  short NAVIGATE_PREV_SELECTED = 22; /* PREV, but only "selected" entries */
-  short NAVIGATE_NEXT_SELECTED_MAIN = 32; /* Next selected main. (Next unread */
-  /* main can be found above.) */
-  short NAVIGATE_PREV_SELECTED_MAIN = 33; /* Previous selected main. */
-  short NAVIGATE_NEXT_EXPANDED = 15; /* NEXT, but only "expanded" entries */
-  short NAVIGATE_PREV_EXPANDED = 16; /* PREV, but only "expanded" entries */
-  short NAVIGATE_NEXT_EXPANDED_UNREAD = 23; /* NEXT, but only "expanded" AND "unread" entries */
-  short NAVIGATE_PREV_EXPANDED_UNREAD = 24; /* PREV, but only "expanded" AND "unread" entries */
-  short NAVIGATE_NEXT_EXPANDED_SELECTED = 25; /* NEXT, but only "expanded" AND "selected" entries */
-  short NAVIGATE_PREV_EXPANDED_SELECTED = 26; /* PREV, but only "expanded" AND "selected" entries */
-  short NAVIGATE_NEXT_EXPANDED_CATEGORY = 27; /* NEXT, but only "expanded" AND "category" entries */
-  short NAVIGATE_PREV_EXPANDED_CATEGORY = 28; /* PREV, but only "expanded" AND "category" entries */
-  short NAVIGATE_NEXT_EXP_NONCATEGORY = 39; /* NEXT, but only "expanded" "non-category" entries */
-  short NAVIGATE_PREV_EXP_NONCATEGORY = 40; /* PREV, but only "expanded" "non-category" entries */
-  short NAVIGATE_NEXT_HIT = 29; /* NEXT, but only FTSearch "hit" entries */
-  /* (in the SAME ORDER as the hit's relevance ranking) */
-  short NAVIGATE_PREV_HIT = 30; /* PREV, but only FTSearch "hit" entries */
-
-  /* (in the SAME ORDER as the hit's relevance ranking) */
-  short NAVIGATE_CURRENT_HIT = 31; /* Remain at current position in hit's relevance rank array */
-  /* (in the order of the hit's relevance ranking) */
-  short NAVIGATE_NEXT_SELECTED_HIT = 35; /* NEXT, but only "selected" and FTSearch "hit" entries */
-
-  /* (in the SAME ORDER as the hit's relevance ranking) */
-  short NAVIGATE_PREV_SELECTED_HIT = 36; /* PREV, but only "selected" and FTSearch "hit" entries */
-
-  /* (in the SAME ORDER as the hit's relevance ranking) */
-  short NAVIGATE_NEXT_UNREAD_HIT = 37; /* NEXT, but only "unread" and FTSearch "hit" entries */
+  /** Next entry over entire tree (parent first, then children,...) */
+  short NAVIGATE_NEXT = 1;
+  /** Next node at our level */
+  short NAVIGATE_NEXT_PEER = 5;
+  /** Prev node at our level */
+  short NAVIGATE_PREV_PEER = 6;
+  /** First node at our level */
+  short NAVIGATE_FIRST_PEER = 7;
+  /** Last node at our level */
+  short NAVIGATE_LAST_PEER = 8;
+  /** Previous entry over entire tree (opposite order of PREORDER) */
+  short NAVIGATE_PREV = 9;
+  /** NEXT, but only "unread" entries */
+  short NAVIGATE_NEXT_UNREAD = 10;
+  /** Highest level non-category entry */
+  short NAVIGATE_CURRENT_MAIN = 11;
+  /** CURRENT_MAIN, then NEXT_PEER */
+  short NAVIGATE_NEXT_MAIN = 12;
+  /** CURRENT_MAIN, then PREV_PEER only if already there */
+  short NAVIGATE_PREV_MAIN = 13;
+  /** NEXT, but only "selected" entries */
+  short NAVIGATE_NEXT_SELECTED = 14;
+  /** NEXT, but only "expanded" entries */
+  short NAVIGATE_NEXT_EXPANDED = 15;
+  /** PREV, but only "expanded" entries */
+  short NAVIGATE_PREV_EXPANDED = 16;
+  /** NEXT, but only descendants below NIFReadEntries StartPos */
+  short NAVIGATE_ALL_DESCENDANTS = 17;
+  /** NEXT_UNREAD, but stop at main note also */
+  short NAVIGATE_NEXT_UNREAD_MAIN = 18;
+  /** PARENT, then NEXT_PEER */
+  short NAVIGATE_NEXT_PARENT = 19;
+  /** PARENT, then PREV_PEER */
+  short NAVIGATE_PREV_PARENT = 20;
+  /** PREV, but only "unread" entries */
+  short NAVIGATE_PREV_UNREAD = 21;
+  /** PREV, but only "selected" entries */
+  short NAVIGATE_PREV_SELECTED = 22;
+  /** NEXT, but only "expanded" AND "unread" entries */
+  short NAVIGATE_NEXT_EXPANDED_UNREAD = 23;
+  /** PREV, but only "expanded" AND "unread" entries */
+  short NAVIGATE_PREV_EXPANDED_UNREAD = 24;
+  /** NEXT, but only "expanded" AND "selected" entries */
+  short NAVIGATE_NEXT_EXPANDED_SELECTED = 25;
+  /** PREV, but only "expanded" AND "selected" entries */
+  short NAVIGATE_PREV_EXPANDED_SELECTED = 26;
+  /** NEXT, but only "expanded" AND "category" entries */
+  short NAVIGATE_NEXT_EXPANDED_CATEGORY = 27;
+  /** PREV, but only "expanded" AND "category" entries */
+  short NAVIGATE_PREV_EXPANDED_CATEGORY = 28;
+  /** NEXT, but only FTSearch "hit" entries (in the SAME ORDER as the hit's relevance ranking) */
+  short NAVIGATE_NEXT_HIT = 29;
+  /** PREV, but only FTSearch "hit" entries (in the SAME ORDER as the hit's relevance ranking) */
+  short NAVIGATE_PREV_HIT = 30;
+  /** Remain at current position in hit's relevance rank array (in the order of the hit's relevance ranking) */
+  short NAVIGATE_CURRENT_HIT = 31;
+  /** Previous unread main. */
+  short NAVIGATE_PREV_UNREAD_MAIN = 34;
+  /** Next selected main. (Next unread main can be found above.) */
+  short NAVIGATE_NEXT_SELECTED_MAIN = 32;
+  /** Previous selected main. */
+  short NAVIGATE_PREV_SELECTED_MAIN = 33;
+  /** NEXT, but only "selected" and FTSearch "hit" entries (in the SAME ORDER as the hit's relevance ranking) */
+  short NAVIGATE_NEXT_SELECTED_HIT = 35;
+  /** PREV, but only "selected" and FTSearch "hit" entries (in the SAME ORDER as the hit's relevance ranking) */
+  short NAVIGATE_PREV_SELECTED_HIT = 36;
+  /** NEXT, but only "unread" and FTSearch "hit" entries (in the SAME ORDER as the hit's relevance ranking) */
+  short NAVIGATE_NEXT_UNREAD_HIT = 37;
+  /** PREV, but only "unread" and FTSearch "hit" entries (in the SAME ORDER as the hit's relevance ranking) */
+  short NAVIGATE_PREV_UNREAD_HIT = 38;
+  /** NEXT, but only "expanded" "non-category" entries */
+  short NAVIGATE_NEXT_EXP_NONCATEGORY = 39;
+  /** PREV, but only "expanded" "non-category" entries */
+  short NAVIGATE_PREV_EXP_NONCATEGORY = 40;
+  /** NEXT, but only "category" entries */
+  short NAVIGATE_NEXT_CATEGORY = 41;
+  /** PREV, but only "category" entries */
+  short NAVIGATE_PREV_CATEGORY = 42;
+  /** NEXT, but only "non-category" entries */
+  short NAVIGATE_NEXT_NONCATEGORY = 43;
+  /** PREV, but only "non-category" entries */
+  short NAVIGATE_PREV_NONCATEGORY = 44;
+  /** CURRENT_MAIN, then PREV_PEER regardless if already there */
+  short NAVIGATE_PREV_MAIN_ALWAYS = 45;
+  /** Same as NEXT_NONCATEGORY but skip responses also */
+  short NAVIGATE_NEXT_NONCATEGORY_NONRESP = 46;
+  /** Same as NAVIGATE_ALL_DESCENDANTS but navigate/check for one or more children this user has access,
+   * with proper reader access checking etc.<br>
+   * Note: This will over ride the Maxlevel Navigation setting for access checking. */
+  short NAVIGATE_ALL_DESCENDANTS_ACCESS = 47;
 
   /*	Flag which can be used with ALL navigators which causes the navigation
   	to be limited to entries at a specific level (specified by the
@@ -2449,17 +2491,16 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   	This feature was added in Version 4 of Notes, so it cannot be used
   	with earlier Notes Servers. */
 
-  /* (in the SAME ORDER as the hit's relevance ranking) */
-  short NAVIGATE_PREV_UNREAD_HIT = 38; /* PREV, but only "unread" and FTSearch "hit" entries */
-  /* (in the SAME ORDER as the hit's relevance ranking) */
-  short NAVIGATE_NEXT_CATEGORY = 41; /* NEXT, but only "category" entries */
+  /** Honor "Minlevel" field in position */
+  short NAVIGATE_MINLEVEL = 0x0100;
+  /** Honor "Maxlevel" field in position */
+  short NAVIGATE_MAXLEVEL = 0x0200;
+  /** When parents are in the select list, autoexpand immediate children */
+  short NAVIGATE_AUTOEXPAND_SELECTED = 0x0400;
 
-  short NAVIGATE_PREV_CATEGORY = 42; /* PREV, but only "category" entries */
-
-  /* Flag that can be combined with a navigation directive to cause
+  /** Flag that can be combined with a navigation directive to cause
    * the search to be limited based on the top level tumbler position. */
-
-  short NAVIGATE_NEXT_NONCATEGORY = 43; /* NEXT, but only "non-category" entries */
+  short NAVIGATE_WITHIN_MAIN = 0x4000; /* Don't navigate to next/prev main */
 
   /*  This flag can be combined with any navigation directive to
   	prevent having a navigation (Skip) failure abort the (ReadEntries) operation.
@@ -2474,24 +2515,14 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   	setting the ReturnNavigator to NAVIGATE_PREV_EXPANDED, and setting the ReturnCount
   	to N (N must be greater than 0). */
 
-  short NAVIGATE_PREV_NONCATEGORY = 44; /* PREV, but only "non-category" entries */
-
-  /*	Define search results data structure */
-
-  short NAVIGATE_PREV_MAIN_ALWAYS = 45; /* CURRENT_MAIN, then PREV_PEER regardless if already there */
-  short NAVIGATE_NEXT_NONCATEGORY_NONRESP = 46; /* Same as NEXT_NONCATEGORY but skip responses also */
-  short NAVIGATE_ALL_DESCENDANTS_ACCESS = 47; /* Same as NAVIGATE_ALL_DESCENDANTS but navigate/check
-                                              /* for one or more children this user has access, */
-  /* with proper reader access checking etc. */
-  /* Note: This will over ride the Maxlevel Navigation setting for access checking. */
-
-  short NAVIGATE_MASK = 0x007F; /* Navigator code (see above) */
-  short NAVIGATE_MINLEVEL = 0x0100; /* Honor "Minlevel" field in position */
-  short NAVIGATE_MAXLEVEL = 0x0200; /* Honor "Maxlevel" field in position */
-  /* When parents are in the select list, autoexpand immediate children */
-  short NAVIGATE_AUTOEXPAND_SELECTED = 0x0400;
-  short NAVIGATE_WITHIN_MAIN = 0x4000; /* Don't navigate to next/prev main */
-  short NAVIGATE_CONTINUE = (short) (0x8000 & 0xffff); /* "Return" even if "Skip" error */
+  /** "Return" even if "Skip" error */
+  short NAVIGATE_CONTINUE = (short) (0x8000 & 0xffff);
+  
+  /* Navigator code (see above) */
+  short NAVIGATE_MASK = 0x007F;
+  
+  /*  Define search results data structure */
+  
   /** Array of scores follows */
   short FT_RESULTS_SCORES = 0x0001;
   /** Search results are series of FT_SEARCH_RESULT_ENTRY structures */
@@ -4753,5 +4784,10 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   int CREATE_INDEX_NOBUILD = 0x00000002;
   /** Create an inline updated view */
   int CREATE_INDEX_UPD_INLINE = 0x00000004;
+
+  /** Force re-open of collection and thus, re-read of view note.<br>
+   * Also implicitly prevents sharing of collection handle, and thus
+  /* prevents any sharing of associated structures such as unread lists, etc */
+  short OPEN_REOPEN_COLLECTION = 0x0020;
 
 }
