@@ -77,10 +77,6 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   private ViewColumnFormat6 format6;
   private String sharedColumnName;
   private String hiddenTitle;
-
-  // cached expensive fields
-  private String cachedFormula;
-  private String cachedItemName;
   
   public DominoCollectionColumn(DominoViewFormat parentViewFormat) {
     this.parentViewFormat = parentViewFormat;
@@ -184,15 +180,12 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   
   @Override
   public String getFormula() {
-    if (this.cachedFormula == null)
-        this.cachedFormula = this.getFormat1().getFormula();
-    return this.cachedFormula;
+    return this.getFormat1().getFormula();
   }
 
   @Override
   public CollectionColumn setFormula(String formula) {
     this.getFormat1().setFormula(formula);
-    this.cachedFormula = formula;
     markViewFormatDirty();
     return this;
   }
@@ -213,16 +206,12 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
 
   @Override
   public String getItemName() {
-	if (this.cachedItemName == null) {
-		this.cachedItemName = this.getFormat1().getItemName();
-	}
-	return this.cachedItemName;
+    return this.getFormat1().getItemName();
   }
 
   @Override
   public CollectionColumn setItemName(String itemName) {
     this.getFormat1().setItemName(itemName);
-    this.cachedItemName = itemName;
     markViewFormatDirty();
     return this;
   }
