@@ -145,6 +145,7 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
               .map(DocumentClass::name)
               .collect(Collectors.toList()));
       meta.put(JsonSerializer.PROP_META_UNREAD, doc.isUnread());
+      meta.put(JsonSerializer.PROP_META_EDITABLE, doc.isEditable());
       {
         DominoOriginatorId oid = doc.getOID();
         int[] seqTime = oid.getSequenceTime().getAdapter(int[].class);
