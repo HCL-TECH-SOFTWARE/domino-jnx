@@ -73,6 +73,10 @@ public interface JsonSerializer {
    * @since 1.11.0
    */
   String PROP_META_REVISION = "revision"; //$NON-NLS-1$
+  /**
+   * @since 1.19.1
+   */
+  String PROP_META_EDITABLE = "editable"; //$NON-NLS-1$
 
   String PROP_RANGE_FROM = "from"; //$NON-NLS-1$
   String PROP_RANGE_TO = "to"; //$NON-NLS-1$

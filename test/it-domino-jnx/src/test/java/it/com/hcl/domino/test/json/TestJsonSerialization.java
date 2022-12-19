@@ -540,6 +540,8 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
       assertEquals(doc.getAddedToFile().toOffsetDateTime(), OffsetDateTime.from(added));
       assertFalse(meta.containsKey(JsonSerializer.PROP_META_THREADID));
       assertFalse(meta.containsKey(JsonSerializer.PROP_META_PARENTUNID));
+      assertTrue(meta.containsKey(JsonSerializer.PROP_META_EDITABLE));
+      assertTrue(meta.getBoolean(JsonSerializer.PROP_META_EDITABLE));
 
       final JsonArray docClassArray = meta.getJsonArray(JsonSerializer.PROP_META_NOTECLASS);
       final Collection<DocumentClass> docClass = docClassArray.stream()
