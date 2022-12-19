@@ -202,7 +202,6 @@ public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
     withResourceDb("/nsf/sample.nsf", database -> {
       database.getDesign()
         .getForms()
-        .peek(f -> System.out.println("looking at form " + f.getTitle()))
         .forEach(serializer::toJson);
     });
   }
