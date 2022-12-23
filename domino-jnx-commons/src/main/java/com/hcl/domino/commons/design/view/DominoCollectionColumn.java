@@ -185,7 +185,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   @Override
   public String getFormula() {
     if (this.cachedFormula == null)
-        this.cachedFormula = this.getFormat1().getFormula();
+      this.cachedFormula = this.getFormat1().getFormula();
     return this.cachedFormula;
   }
 
@@ -213,10 +213,10 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
 
   @Override
   public String getItemName() {
-	if (this.cachedItemName == null) {
-		this.cachedItemName = this.getFormat1().getItemName();
-	}
-	return this.cachedItemName;
+    if (this.cachedItemName == null) {
+      this.cachedItemName = this.getFormat1().getItemName();
+    }
+  	return this.cachedItemName;
   }
 
   @Override
