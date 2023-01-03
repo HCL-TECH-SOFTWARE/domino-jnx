@@ -18,6 +18,8 @@ package com.hcl.domino.test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.NoSuchElementException;
+
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClientBuilder;
@@ -25,6 +27,6 @@ import com.hcl.domino.DominoClientBuilder;
 public class TestDominoClientBuilder {
 	@Test
 	public void testLackOfClientBuilder() {
-		assertThrows(IllegalStateException.class, () -> DominoClientBuilder.newDominoClient().build());
+		assertThrows(NoSuchElementException.class, () -> DominoClientBuilder.newDominoClient().build());
 	}
 }

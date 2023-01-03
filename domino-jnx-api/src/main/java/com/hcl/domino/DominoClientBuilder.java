@@ -18,6 +18,7 @@ package com.hcl.domino;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
 import com.hcl.domino.misc.DominoClientBuilderFactory;
@@ -35,7 +36,7 @@ public abstract class DominoClientBuilder {
    * Constructor for generating a DominoClient
    *
    * @return new DominoClientBuilder
-   * @throws IllegalStateException if there is no implementation of
+   * @throws NoSuchElementException if there is no implementation of
    *                               {@link DominoClientBuilder} available
    */
   public static DominoClientBuilder newDominoClient() {
