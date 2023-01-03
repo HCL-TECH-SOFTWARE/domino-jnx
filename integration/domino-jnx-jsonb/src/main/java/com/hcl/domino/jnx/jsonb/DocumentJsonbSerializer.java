@@ -329,6 +329,7 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
       generator.writeEnd();
       
       generator.write(JsonSerializer.PROP_META_UNREAD, obj.isUnread());
+      generator.write(JsonSerializer.PROP_META_EDITABLE, obj.isEditable());
       
       {
         DominoOriginatorId oid = obj.getOID();
