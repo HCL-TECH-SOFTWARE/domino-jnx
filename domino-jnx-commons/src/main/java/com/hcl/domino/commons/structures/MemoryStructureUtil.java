@@ -79,27 +79,31 @@ public enum MemoryStructureUtil {
       final Class<?> numberClass = MemoryStructureUtil.getNumberType(type);
       return MemoryStructureUtil.sizeOf(numberClass);
     }
-    return sizeMap.computeIfAbsent(type, t -> {
+    Integer cachedSize = sizeMap.get(type);
+    if (cachedSize == null) {
       int size = 0;
-      if (MemoryStructure.class.isAssignableFrom(t)) {
+      if (MemoryStructure.class.isAssignableFrom(type)) {
         @SuppressWarnings("unchecked")
-        final StructureMap struct = getStructureMap((Class<? extends MemoryStructure>) t);
+        final StructureMap struct = getStructureMap((Class<? extends MemoryStructure>) type);
         size = struct.size();
-      } else if (byte.class.equals(t) || Byte.class.equals(t)) {
+      } else if (byte.class.equals(type) || Byte.class.equals(type)) {
         size = 1;
-      } else if (short.class.equals(t) || Short.class.equals(t)) {
+      } else if (short.class.equals(type) || Short.class.equals(type)) {
         size = 2;
-      } else if (int.class.equals(t) || Integer.class.equals(t)) {
+      } else if (int.class.equals(type) || Integer.class.equals(type)) {
         size = 4;
-      } else if (long.class.equals(t) || Long.class.equals(t)) {
+      } else if (long.class.equals(type) || Long.class.equals(type)) {
         size = 8;
-      } else if (double.class.equals(t) || Double.class.equals(t)) {
+      } else if (double.class.equals(type) || Double.class.equals(type)) {
         size = 8;
       } else {
-        throw new IllegalArgumentException("Cannot handle struct member type: " + t.getName());
+        throw new IllegalArgumentException("Cannot handle struct member type: " + type.getName());
       }
+      sizeMap.put(type, size);
       return size;
-    });
+    } else {
+      return cachedSize;
+    }
   }
   
   /**
