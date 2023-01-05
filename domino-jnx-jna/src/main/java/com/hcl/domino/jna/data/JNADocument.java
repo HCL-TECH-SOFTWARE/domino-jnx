@@ -105,6 +105,7 @@ import com.hcl.domino.data.PreV3Author;
 import com.hcl.domino.data.UserData;
 import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.DesignConstants;
+import com.hcl.domino.design.Form;
 import com.hcl.domino.exception.LotusScriptCompilationException;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
@@ -4262,10 +4263,17 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 	
 	@Override
-	public Document computeWithForm(boolean continueOnError, final ComputeWithFormCallback callback) {
+	public Document computeWithForm(boolean continueOnError, Form form, final ComputeWithFormCallback callback) {
 		checkDisposed();
 
 		int dwFlags = continueOnError ? NotesConstants.CWF_CONTINUE_ON_ERROR : 0;
+		
+		DHANDLE hFormNote;
+		if(form != null) {
+		  hFormNote = form.getDocument().getAdapter(DHANDLE.class);
+		} else {
+		  hFormNote = null;
+		}
 
 		if (PlatformUtils.is64Bit()) {
 			NotesCallbacks.b64_CWFErrorProc errorProc = (pCDField, phase, error, hErrorText, wErrorTextSize, ctx) -> {
@@ -4303,8 +4311,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				return action == null ? ComputeWithFormAction.ABORT.getShortVal() : action.getShortVal();
 			};
 
-			short result = LockUtil.lockHandle(getAllocations().getNoteHandle(), (hNoteByVal) -> {
-				return NotesCAPI.get().NSFNoteComputeWithForm(hNoteByVal, null, dwFlags, errorProc, null);
+			short result = LockUtil.lockHandles(getAllocations().getNoteHandle(), hFormNote, (hNoteByVal, hFormNoteByVal) -> {
+				return NotesCAPI.get().NSFNoteComputeWithForm(hNoteByVal, hFormNoteByVal, dwFlags, errorProc, null);
 			});
 			NotesErrorUtils.checkResult(result);
 		} else {
@@ -4382,8 +4390,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				};
 			}
 
-			short result = LockUtil.lockHandle(getAllocations().getNoteHandle(), (hNoteByVal) -> {
-				return NotesCAPI.get().NSFNoteComputeWithForm(hNoteByVal, null, dwFlags, errorProc, null);
+			short result = LockUtil.lockHandles(getAllocations().getNoteHandle(), hFormNote, (hNoteByVal, hFormNoteByVal) -> {
+				return NotesCAPI.get().NSFNoteComputeWithForm(hNoteByVal, hFormNoteByVal, dwFlags, errorProc, null);
 			});
 			NotesErrorUtils.checkResult(result);
 		}

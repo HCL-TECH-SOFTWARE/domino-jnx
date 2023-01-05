@@ -35,6 +35,7 @@ import com.hcl.domino.data.Attachment.Compression;
 import com.hcl.domino.data.Database.CreateFlags;
 import com.hcl.domino.data.Database.OpenDocumentMode;
 import com.hcl.domino.data.Item.ItemFlag;
+import com.hcl.domino.design.Form;
 import com.hcl.domino.exception.LotusScriptCompilationException;
 import com.hcl.domino.misc.Loop;
 import com.hcl.domino.richtext.FormField;
@@ -378,6 +379,36 @@ public interface Document extends TypedAccess, IAdaptable {
    * @return this document
    */
   Document computeWithForm(boolean continueOnError, final ComputeWithFormCallback callback);
+  
+  /**
+   * For each form field associated with this document, this function will:<br>
+   * <br>
+   * <ol>
+   * <li>Validate fields with Default Value formulas,</li>
+   * <li>Validate fields with Translation formulas,</li>
+   * <li>Validate fields with Validation formulas,</li>
+   * <li>Calculate values for Computed fields.</li>
+   * </ol>
+   * <br>
+   * If no error callback routine is supplied and the flag {@code continueOnError}
+   * is not set, if one of the validation formulas fails, an error is
+   * returned.<br>
+   * If the {@code continueOnError} flag is set, the error is not returned.<br>
+   * <br>
+   * If a callback routine is supplied and one of the validation formulas fails,
+   * the error callback routine is called.<br>
+   * If the {@code continueOnError} flag is set, error processing for the field is
+   * skipped;<br>
+   * if a callback function is supplied, the callback function will be ignored.
+   *
+   * @param continueOnError Ignore error processing for fields
+   * @param form            A {@link Form} to use instead of looking up the form
+   *                        based on the document
+   * @param callback        error callback routine
+   * @return this document
+   * @since 1.21.0
+   */
+  Document computeWithForm(boolean continueOnError, Form form, ComputeWithFormCallback callback);
 
   /**
    * Applies one of multiple conversions to a rich text item, writing the new

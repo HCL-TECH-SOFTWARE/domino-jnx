@@ -39,6 +39,7 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.Document.ComputeWithFormAction;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
+import com.hcl.domino.design.Form;
 import com.hcl.domino.dxl.DxlExporter;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
@@ -82,9 +83,8 @@ public class TestComputeWithForm extends AbstractNotesRuntimeTest {
   @Test
   public void testCWF() throws Exception {
     // we import a form with three fields, "firstname", "lastname" (both with
-    // validation formula
-    // that checks if the field is empty) and "defaulttest" that computes a default
-    // value
+    // validation formula that checks if the field is empty) and "defaulttest"
+    // that computes a default value
     this.withResourceDxl("/dxl/testComputeWithForm", database -> {
       final Document doc = database.createDocument();
       doc.replaceItemValue("Form", "Person");
@@ -132,6 +132,72 @@ public class TestComputeWithForm extends AbstractNotesRuntimeTest {
         final Set<String> errorFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
 
         doc.computeWithForm(false, (fieldInfo, phase, errorTxt, status) -> {
+      errorFields.add(fieldInfo.getName());
+
+      return ComputeWithFormAction.NEXT_FIELD;
+     });
+
+        Assertions.assertEquals(0, errorFields.size());
+      }
+    });
+  }
+  
+  @Test
+  public void testCWFExplicitForm() throws Exception {
+    // we import a form with three fields, "firstname", "lastname" (both with
+    // validation formula that checks if the field is empty) and "defaulttest"
+    // that computes a default value.
+    // In this variant, we pass an explicit form rather than setting the
+    // Form field
+    this.withResourceDxl("/dxl/testComputeWithForm", database -> {
+      final Form form = database.getDesign().getForm("Person").get();
+      
+      final Document doc = database.createDocument();
+      
+
+      {
+        final List<String> expectedErrorTexts = Arrays.asList(
+            "Firstname is missing",
+            "Lastname is missing");
+
+        final Set<String> errorFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+
+        doc.computeWithForm(false, form, (fieldInfo, phase, errorTxt, status) -> {
+
+      errorFields.add(fieldInfo.getName());
+
+      Assertions.assertTrue(expectedErrorTexts.contains(errorTxt));
+      return ComputeWithFormAction.NEXT_FIELD;
+     });
+
+        Assertions.assertEquals(2, errorFields.size());
+        Assertions.assertTrue(errorFields.contains("firstname"));
+        Assertions.assertTrue(errorFields.contains("lastname"));
+        Assertions.assertNotEquals("", doc.get("defaulttest", String.class, ""));
+      }
+
+      doc.replaceItemValue("firstname", "John");
+
+      {
+        final Set<String> errorFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+
+        doc.computeWithForm(false, form, (fieldInfo, phase, errorTxt, status) -> {
+
+      errorFields.add(fieldInfo.getName());
+
+      return ComputeWithFormAction.NEXT_FIELD;
+     });
+
+        Assertions.assertEquals(1, errorFields.size());
+        Assertions.assertTrue(errorFields.contains("lastname"));
+      }
+
+      doc.replaceItemValue("lastname", "Doe");
+
+      {
+        final Set<String> errorFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+
+        doc.computeWithForm(false, form, (fieldInfo, phase, errorTxt, status) -> {
       errorFields.add(fieldInfo.getName());
 
       return ComputeWithFormAction.NEXT_FIELD;

@@ -19,4 +19,9 @@ public interface IDefaultDocument extends Document {
     forEachCertificate((cert, loop) -> result.add(cert));
     return result;
   }
+  
+  @Override
+  default Document computeWithForm(boolean continueOnError, ComputeWithFormCallback callback) {
+    return computeWithForm(continueOnError, null, callback);
+  }
 }
