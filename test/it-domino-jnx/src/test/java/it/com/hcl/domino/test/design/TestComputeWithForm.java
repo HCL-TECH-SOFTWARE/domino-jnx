@@ -34,6 +34,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
+import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.Document.ComputeWithFormAction;
@@ -204,6 +205,76 @@ public class TestComputeWithForm extends AbstractNotesRuntimeTest {
      });
 
         Assertions.assertEquals(0, errorFields.size());
+      }
+    });
+  }
+  
+  @Test
+  public void testCWFExplicitFormAlternateClient() throws Exception {
+    // we import a form with three fields, "firstname", "lastname" (both with
+    // validation formula that checks if the field is empty) and "defaulttest"
+    // that computes a default value.
+    // In this variant, we pass an explicit form rather than setting the
+    // Form field
+    this.withResourceDxl("/dxl/testComputeWithForm", database -> {
+      String userName = database.getParentDominoClient().getEffectiveUserName();
+      try(DominoClient altClient = DominoClientBuilder.newDominoClient().asUser(userName).build()) {
+        Database altDatabase = altClient.openDatabase(database.getAbsoluteFilePath());
+        final Form form = altDatabase.getDesign().getForm("Person").get();
+        
+        final Document doc = database.createDocument();
+        
+
+        {
+          final List<String> expectedErrorTexts = Arrays.asList(
+              "Firstname is missing",
+              "Lastname is missing");
+
+          final Set<String> errorFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+
+          doc.computeWithForm(false, form, (fieldInfo, phase, errorTxt, status) -> {
+
+        errorFields.add(fieldInfo.getName());
+
+        Assertions.assertTrue(expectedErrorTexts.contains(errorTxt));
+        return ComputeWithFormAction.NEXT_FIELD;
+       });
+
+          Assertions.assertEquals(2, errorFields.size());
+          Assertions.assertTrue(errorFields.contains("firstname"));
+          Assertions.assertTrue(errorFields.contains("lastname"));
+          Assertions.assertNotEquals("", doc.get("defaulttest", String.class, ""));
+        }
+
+        doc.replaceItemValue("firstname", "John");
+
+        {
+          final Set<String> errorFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+
+          doc.computeWithForm(false, form, (fieldInfo, phase, errorTxt, status) -> {
+
+        errorFields.add(fieldInfo.getName());
+
+        return ComputeWithFormAction.NEXT_FIELD;
+       });
+
+          Assertions.assertEquals(1, errorFields.size());
+          Assertions.assertTrue(errorFields.contains("lastname"));
+        }
+
+        doc.replaceItemValue("lastname", "Doe");
+
+        {
+          final Set<String> errorFields = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+
+          doc.computeWithForm(false, form, (fieldInfo, phase, errorTxt, status) -> {
+        errorFields.add(fieldInfo.getName());
+
+        return ComputeWithFormAction.NEXT_FIELD;
+       });
+
+          Assertions.assertEquals(0, errorFields.size());
+        }
       }
     });
   }
