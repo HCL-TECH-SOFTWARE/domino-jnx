@@ -9,6 +9,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.util.NotesErrorUtils;
@@ -19,6 +20,8 @@ import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.CollectionEntry.SpecialValue;
 import com.hcl.domino.data.CollectionSearchQuery.ExpandedEntries;
 import com.hcl.domino.data.CollectionSearchQuery.SelectedEntries;
+import com.hcl.domino.data.Database.Action;
+import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.Navigate;
@@ -30,7 +33,7 @@ import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.ptr.ShortByReference;
 
 public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
-  private CollectionEntryIteratorBuilder builder;
+  private CollectionEntries builder;
   private JNADominoCollection collection;
   private Navigate direction = Navigate.NEXT_ENTRY;
   private Set<ReadMask> readMask = EnumSet.of(ReadMask.NOTEID);
@@ -43,7 +46,12 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
   private boolean m_startAtFirstEntry;
   private String m_startAtPosition;
   private int m_startAtEntryId;
-  
+
+  private String nameOfSingleColumnToRead;
+  private Integer indexOfSingleColumnToRead;
+
+  private Function<DominoCollection, Action> viewIndexChangedHandler;
+
   //IDTables to control what is expanded/selected
   private ExpandedEntries m_expandedEntries;
   private JNAIDTable m_expandedEntriesResolved;
@@ -52,8 +60,6 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
   private SelectedEntries m_selectedEntries;
   private JNAIDTable m_selectedEntriesResolved;
   private boolean m_hasSelectionSet;
-  
-  private String m_nameOfSingleColumnToRead;
   
   // computed values during traversal
   
@@ -66,7 +72,6 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
   private Consumer<CollectionEntry> categoryConsumer;
   private Navigate skipNav;
   private Navigate returnNav;
-  private Integer singleColumnIndex;
   private JNADominoCollectionPosition currPosForTotalComputation;
   private JNADominoCollectionPosition currPos;
   private int minLevel;
@@ -78,7 +83,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
   private boolean isDone;
   
 
-  public JNACollectionEntryIterator(CollectionEntryIteratorBuilder builder) {
+  public JNACollectionEntryIterator(CollectionEntries builder) {
     this.builder = builder;
     this.collection = builder.getCollection();
   }
@@ -127,10 +132,20 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
   }
   
   public JNACollectionEntryIterator setNameOfSingleColumnToRead(String nameOfSingleColumnToRead) {
-    m_nameOfSingleColumnToRead = nameOfSingleColumnToRead;
+    this.nameOfSingleColumnToRead = nameOfSingleColumnToRead;
     return this;
   }
 
+  public JNACollectionEntryIterator setIndexOfSingleColumnToRead(int indexOfSingleColumnToRead) {
+    this.indexOfSingleColumnToRead = indexOfSingleColumnToRead;
+    return this;
+  }
+
+  public JNACollectionEntryIterator setViewIndexChangedHandler(Function<DominoCollection, Action> handler) {
+    this.viewIndexChangedHandler = handler;
+    return this;
+  }
+  
   public JNACollectionEntryIterator setStartAtFirstEntry() {
     this.m_startAtFirstEntry = true;
     this.m_startAtLastEntry = false;
@@ -307,7 +322,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
             Integer.MAX_VALUE, Navigate.CURRENT,
             0, readMask, (DominoDateTime) null,
             (JNAIDTable) null,
-            (Integer) singleColumnIndex);
+            (Integer) indexOfSingleColumnToRead);
         
         total = skipAllLkResult.getSkipCount();
         if (initialSkip == 0) {
@@ -356,7 +371,9 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
     
     pageSize = Math.min(pageSize, count);
 
-    this.singleColumnIndex = StringUtil.isEmpty(m_nameOfSingleColumnToRead) ? null : collection.getColumnValuesIndex(m_nameOfSingleColumnToRead);
+    if (this.indexOfSingleColumnToRead==null && this.nameOfSingleColumnToRead!=null) {
+      this.indexOfSingleColumnToRead = collection.getColumnValuesIndex(nameOfSingleColumnToRead);
+    }
 
     final short updateFiltersFlagsVal = updateFiltersFlags.getValue();
     if (updateFiltersFlagsVal != 0) {
@@ -434,7 +451,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
             Integer.MAX_VALUE, Navigate.CURRENT,
             1, EnumSet.of(ReadMask.INDEXPOSITION), (DominoDateTime) null,
             (JNAIDTable) null,
-            (Integer) singleColumnIndex);
+            (Integer) indexOfSingleColumnToRead);
         
         if (isUpwardDirection(skipNav)) {
           //if our direction is upwards, we already counted the total entries to traverse
@@ -491,7 +508,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
             Integer.MAX_VALUE, Navigate.CURRENT,
             1, EnumSet.of(ReadMask.INDEXPOSITION), (DominoDateTime) null,
             (JNAIDTable) null,
-            (Integer) singleColumnIndex);
+            (Integer) indexOfSingleColumnToRead);
         
         if (isUpwardDirection(skipNav)) {
           //if our direction is upwards, we already counted the total entries to traverse
@@ -546,18 +563,12 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
       nextPage = new LinkedList<>();
     }
     
-    System.out.println("currPos: "+currPos);
-    
     if (wasFirstRun && totalConsumer!=null) {
       int total = getTotal();
       totalConsumer.accept(total);
     }
  
-    System.out.println("currPos: "+currPos);
-
     JNADominoCollectionAllocations collectionAllocations = (JNADominoCollectionAllocations) collection.getAdapter(APIObjectAllocations.class);
-    
-    Integer singleColumnIndex = StringUtil.isEmpty(m_nameOfSingleColumnToRead) ? null : collection.getColumnValuesIndex(m_nameOfSingleColumnToRead);
 
     LockUtil.lockHandle(collectionAllocations.getCollectionHandle(), (collectionHandleByVal) -> {
 
@@ -567,7 +578,6 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
         //because in this case we cannot be sure that the data we read are valid
         while (true) {
           //save a copy of the current position in case we detect index changes
-          System.out.println("currPos: "+currPos);
           JNADominoCollectionPosition currPosCopy = (JNADominoCollectionPosition) currPos.clone();
           
           NotesViewLookupResultData lkResult =
@@ -580,11 +590,18 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
                   readMask,
                   (DominoDateTime) null,
                   (JNAIDTable) null,
-                  singleColumnIndex);
+                  indexOfSingleColumnToRead);
           
           if (lkResult.hasAnyNonDataConflicts()) {
             //view index has changed, update the view
             if (!lkResult.isViewTimeRelative()) {
+              if (viewIndexChangedHandler!=null) {
+                Action action = viewIndexChangedHandler.apply(collection);
+                if (action==Action.Stop) {
+                  isDone = true;
+                  return null;
+                }
+              }
               collection.refresh();
             }
 
@@ -664,9 +681,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
           }
           
           break;
-
         }
-       
       }
       else {
         //no top category
@@ -680,7 +695,20 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
                   readMask,
                   (DominoDateTime) null,
                 (JNAIDTable) null,
-                singleColumnIndex);
+                indexOfSingleColumnToRead);
+        
+        if (lkResult.hasAnyNonDataConflicts()) {
+          if (!lkResult.isViewTimeRelative()) {
+            if (viewIndexChangedHandler!=null) {
+              Action action = viewIndexChangedHandler.apply(collection);
+              if (action==Action.Stop) {
+                isDone = true;
+                return null;
+              }
+            }
+          }
+        }
+        
         List<JNACollectionEntry> entries = lkResult.getEntries();
         System.out.println("post-readEntriesExt: currPos="+currPos+", entries.size="+entries.size());
 
