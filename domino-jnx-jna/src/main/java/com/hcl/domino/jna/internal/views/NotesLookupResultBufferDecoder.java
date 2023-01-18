@@ -59,6 +59,7 @@ import com.hcl.domino.jna.internal.search.ItemTableDataDocAdapter;
 import com.hcl.domino.jna.internal.structs.NotesCollectionStatsStruct;
 import com.hcl.domino.jna.internal.structs.NotesItemTableLargeStruct;
 import com.hcl.domino.jna.internal.structs.NotesItemTableStruct;
+import com.hcl.domino.jna.utils.PointerWithBounds;
 import com.sun.jna.Pointer;
 
 /**
@@ -443,7 +444,9 @@ public class NotesLookupResultBufferDecoder {
 		data.m_itemsCount = itemsCount;
 
 		Pointer itemValuePtr = bufferPtr.share(bufferPos);
-		populateItemValueTableData(itemValuePtr, itemsCount, itemNameLengths, itemValueLengths, data,
+    PointerWithBounds itemValuePtrWithBounds = new PointerWithBounds(itemValuePtr, data.m_totalBufferLength);
+    
+		populateItemValueTableData(itemValuePtrWithBounds, itemsCount, itemNameLengths, itemValueLengths, data,
 				convertStringsLazily, convertJNADominoDateTimeToCalendar, decodeAllValues);
 
 		return data;
@@ -476,7 +479,7 @@ public class NotesLookupResultBufferDecoder {
 				itemNames[j] = NotesStringUtils.fromLMBCS(bufferPtr.share(bufferPos), itemNameLengths[j]);
 				bufferPos += itemNameLengths[j];
 			}
-			
+
 			//read data type
 			if (itemValueLengths[j] == 0) {
 				/* If an item has zero length it indicates an "empty" item in the
@@ -750,7 +753,9 @@ public class NotesLookupResultBufferDecoder {
 		data.m_itemsCount = itemsCount;
 		
 		Pointer itemValuePtr = bufferPtr.share(bufferPos);
-		populateItemValueTableData(itemValuePtr, itemsCount, itemNameLengths, itemValueLengths,
+		PointerWithBounds itemValuePtrWithBounds = new PointerWithBounds(itemValuePtr, data.m_totalBufferLength);
+		
+		populateItemValueTableData(itemValuePtrWithBounds, itemsCount, itemNameLengths, itemValueLengths,
 				data, convertStringsLazily, convertJNADominoDateTimeToCalendar, decodeAllValues);
 		
 		return data;

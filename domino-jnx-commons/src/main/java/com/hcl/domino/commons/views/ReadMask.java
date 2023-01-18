@@ -120,8 +120,6 @@ public enum ReadMask {
   NO_INTERNAL_ENTRIES(0x10000000),
   /** Compute subtotals */
   COMPUTE_SUBTOTALS(0x20000000),
-  /** add WORD (bool) set to 1=ghost entry, 0=true entry */
-  IS_GHOST_ENTRY(0x40000000),
   /** unknown */
   ALL(0xE7FF);
 

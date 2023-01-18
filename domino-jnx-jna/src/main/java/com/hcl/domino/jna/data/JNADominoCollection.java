@@ -1334,7 +1334,9 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 				}
 				);
 
-
+		//NIFReadEntriesExt changes the COLLECTIONPOSITION structure value, so make sure to reset the cached startPos.toString() value
+		startPos.resetToStringVal();
+		
 		if ((result & NotesConstants.ERR_MASK)!=1028) {
 			NotesErrorUtils.checkResult(result);
 		}
@@ -2449,15 +2451,27 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 	}
 	
 	/**
-	 * Locates a note in the collection
+   * When a collection is modified (for example, when another user adds or deletes a document), the
+   * collection position for a note may no longer be valid.<br>
+   * This method will locate the specified note ID in the collection, and return the updated
+   * collection position if it can be located (using the old position as a reference).
 	 * 
+   * @param oldPosStr old collection position, e.g. "1"; should not be empty, because the method only returns a position in views with multiple note occurrences when there's a known old position
 	 * @param noteId note id
 	 * @return collection position or empty string if not found
 	 */
-	public String locateNote(int noteId) {
+	public String locateNote(String oldPosStr, int noteId) {
 		checkDisposed();
 
-		NotesCollectionPositionStruct foundPos = NotesCollectionPositionStruct.newInstance();
+    NotesCollectionPositionStruct foundPos;
+    if (StringUtil.isEmpty(oldPosStr)) {
+      foundPos = NotesCollectionPositionStruct.newInstance();
+    }
+    else {
+      JNADominoCollectionPosition oldPos = new JNADominoCollectionPosition(oldPosStr);
+      foundPos = oldPos.getAdapter(NotesCollectionPositionStruct.class);
+    }
+
 		short result = LockUtil.lockHandle(getAllocations().getCollectionHandle(), (hColByVal) -> {
 			return NotesCAPI.get().NIFLocateNote(hColByVal, foundPos, noteId);
 		});

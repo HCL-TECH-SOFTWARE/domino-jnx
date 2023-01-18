@@ -57,7 +57,7 @@ import com.sun.jna.Structure;
  * 
  * @author Karsten Lehmann
  */
-public class JNADominoCollectionPosition implements IAdaptable {
+public class JNADominoCollectionPosition implements IAdaptable, Comparable<JNADominoCollectionPosition> {
 	/** # levels -1 in tumbler */
 	private int level;
 
@@ -118,6 +118,12 @@ public class JNADominoCollectionPosition implements IAdaptable {
 		this(computeLevel(tumbler), 0, 0, tumbler);
 	}
 	
+	/**
+	 * Computes the level of a tumbler array
+	 * 
+	 * @param tumbler tumbler array
+	 * @return level, e.g. 1 for [1,0,0, ... 0], 2 for [1,3,0, ... 0] and 3 for [1,3,5, ... 0]
+	 */
 	private static int computeLevel(int[] tumbler) {
 		if (tumbler[0]==0) {
 			return 0;
@@ -340,6 +346,10 @@ public class JNADominoCollectionPosition implements IAdaptable {
 	  return arr;
 	}
 	
+	void resetToStringVal() {
+	  toString=null;
+	}
+	
 	/**
 	 * Converts the position object to a position string like "1.2.3".<br>
 	 * <br>
@@ -390,4 +400,59 @@ public class JNADominoCollectionPosition implements IAdaptable {
 		return toString;
 	}
 
+  @Override
+  public int compareTo(JNADominoCollectionPosition o) {
+    int[] ourTumbler = tumbler;
+    int[] otherTumbler = o.tumbler;
+    int level = Math.min(ourTumbler.length, otherTumbler.length);
+    
+    for (int i=0; i<level; i++) {
+      if (ourTumbler[i] < otherTumbler[i]) {
+        return -1;
+      }
+      else if (ourTumbler[i] > otherTumbler[i]) {
+        return 1;
+      }
+    }
+    
+    if (minLevel < o.minLevel) {
+      return -1;
+    }
+    else if (minLevel > o.minLevel) {
+      return 1;
+    }
+    
+    if (maxLevel < o.maxLevel) {
+      return -1;
+    }
+    else if (maxLevel > o.maxLevel) {
+      return 1;
+    }
+    
+    return 0;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o instanceof JNADominoCollectionPosition) {
+      int[] ourTumbler = tumbler;
+      int[] otherTumbler = ((JNADominoCollectionPosition)o).tumbler;
+      int otherMinLevel = ((JNADominoCollectionPosition)o).minLevel;
+      int otherMaxLevel = ((JNADominoCollectionPosition)o).maxLevel;
+      
+      return Arrays.equals(ourTumbler, otherTumbler) &&
+          minLevel==otherMinLevel &&
+          maxLevel==otherMaxLevel;
+    }
+    return false;
+  }
+
+  @Override
+  protected Object clone() {
+    JNADominoCollectionPosition clonedPos = new JNADominoCollectionPosition(tumbler.clone());
+    clonedPos.minLevel = minLevel;
+    clonedPos.maxLevel = maxLevel;
+    return clonedPos;
+  }
+  
 }

@@ -357,7 +357,7 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 	}
 	
 	private boolean isDirectionWithExpandCollapse(Navigate nav) {
-		if (nav == Navigate.NEXT_EXPANDED || m_direction == Navigate.NEXT_EXPANDED_CATEGORY ||
+		if (nav == Navigate.NEXT_EXPANDED || nav == Navigate.NEXT_EXPANDED_CATEGORY ||
 				nav == Navigate.NEXT_EXPANDED_DOCUMENT ||
 				nav == Navigate.NEXT_EXPANDED_SELECTED ||
 				nav == Navigate.NEXT_EXPANDED_UNREAD) {
@@ -557,7 +557,7 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
               return result;
             }
             
-            categoryPosStr = categoryEntry.getSpecialValue(SpecialValue.INDEXPOSITION, String.class, "");
+            categoryPosStr = categoryEntry.getSpecialValue(SpecialValue.INDEXPOSITION, String.class, ""); //$NON-NLS-1$
                         
             if (StringUtil.isEmpty(categoryPosStr)) {
               //category not found or gone, return what we have
@@ -1174,7 +1174,7 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 						startPos = entries.get(0).getSpecialValue(SpecialValue.INDEXPOSITION, String.class, ""); //$NON-NLS-1$
 					}
 					else if (m_startAtEntryId!=0) {
-						String entryPos = collection.locateNote(m_startAtEntryId);
+						String entryPos = collection.locateNote("1", m_startAtEntryId); //$NON-NLS-1$
 						if (StringUtil.isEmpty(entryPos)) {
 							//start entry not found
 							return 0;
