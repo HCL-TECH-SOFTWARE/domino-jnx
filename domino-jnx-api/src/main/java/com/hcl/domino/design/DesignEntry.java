@@ -56,6 +56,7 @@ public interface DesignEntry<T extends DesignElement> {
    * 
    * <p>The actual return type will depend on the type of design element.</p>
    * 
+   * @param database the database to load the design element from
    * @return the design element as an implementation class of {@link DesignElement}
    */
   T toDesignElement(final Database database);
