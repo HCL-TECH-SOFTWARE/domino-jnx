@@ -223,6 +223,22 @@ public interface DbDesign {
    * @return a {@link Stream} of matching {@link DesignElement}s
    */
   <T extends DesignElement> Stream<T> getDesignElements(Class<T> type);
+  
+  /**
+   * Retrieves summary information about all design elements in the database of
+   * the provided type.
+   * 
+   * <p>Unlike {@link #getDesignElements(Class)}, this method does not actually
+   * load the underlying design-element notes, and can be used to more-efficiently
+   * retrieve information about large numbers of design elements at a time.
+   * 
+   * @param <T> the type of design element to retrieve
+   * @param type a {@link Class} object representing {@code <T>}
+   * @return a {@link Stream} of {@link DesignEntry} objects matching the
+   *         element type
+   * @since 1.21.0
+   */
+  <T extends DesignElement> Stream<DesignEntry<T>> getDesignEntries(Class<T> type);
 
   /**
    * Retrieves all design elements in the database of the provided type matching
