@@ -55,6 +55,7 @@ import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DbProperties;
 import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.DesignElement;
+import com.hcl.domino.design.DesignEntry;
 import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
@@ -94,47 +95,6 @@ public abstract class AbstractDbDesign implements DbDesign {
     NotesConstants.DFLAGPAT_SCRIPTLIB_SERVER_JS,
     NotesConstants.DFLAGPAT_SCRIPTLIB_JS
   ));
-
-  public static class DesignEntry {
-    private final int noteId;
-    private final DocumentClass noteClass;
-    private final CollectionEntry entry;
-
-    public DesignEntry(final int noteId, final DocumentClass noteClass, final CollectionEntry entry) {
-      this.noteId = noteId;
-      this.noteClass = noteClass;
-      this.entry = entry;
-    }
-
-    public String getComment() {
-      return this.entry.get(7, String.class, ""); //$NON-NLS-1$
-    }
-
-    public String getFlags() {
-      return this.entry.get(4, String.class, ""); //$NON-NLS-1$
-    }
-
-    public String getLanguage() {
-      return this.entry.get(14, String.class, ""); //$NON-NLS-1$
-    }
-
-    public int getNoteId() {
-      return this.noteId;
-    }
-
-    public List<String> getTitles() {
-      return DesignUtil.toTitlesList(this.entry.getAsList(0, String.class, Collections.emptyList()));
-    }
-
-    public DesignElement toDesignElement(final Database database) {
-      return DesignUtil.createDesignElement(database, this.noteId, this.noteClass, this.getFlags(), Optional.empty());
-    }
-
-    @Override
-    public String toString() {
-      return String.format("DesignEntry [noteId=%s, noteClass=%s, entry=%s]", this.noteId, this.noteClass, this.entry); //$NON-NLS-1$
-    }
-  }
 
   private final Database database;
 
@@ -313,14 +273,17 @@ public abstract class AbstractDbDesign implements DbDesign {
     }
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public <T extends DesignElement> Stream<T> getDesignElements(final Class<T> type) {
+    return (Stream<T>) getDesignEntries(type)
+        .map(entry -> entry.toDesignElement(this.database));
+  }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends DesignElement> Stream<DesignEntry<T>> getDesignEntries(Class<T> type) {
     final DesignMapping<T, ?> mapping = DesignUtil.getDesignMapping(type);
-    return (Stream<T>) this.findDesignNotes(mapping.getNoteClass(), mapping.getFlagsPattern())
-        .map(entry -> this.database.getDocumentById(entry.noteId))
-        .map(Optional::get)
-        .map(mapping.getConstructor());
+    return (Stream<DesignEntry<T>>)(Stream<?>)this.findDesignNotes(mapping.getNoteClass(), mapping.getFlagsPattern());
   }
 
   @SuppressWarnings("unchecked")
@@ -329,9 +292,7 @@ public abstract class AbstractDbDesign implements DbDesign {
     final DesignMapping<T, ?> mapping = DesignUtil.getDesignMapping(type);
     return (Stream<T>) this.findDesignNotes(mapping.getNoteClass(), mapping.getFlagsPattern())
         .filter(entry -> DesignUtil.matchesTitleValues(name, entry.getTitles()))
-        .map(entry -> this.database.getDocumentById(entry.noteId))
-        .map(Optional::get)
-        .map(mapping.getConstructor());
+        .map(entry -> entry.toDesignElement(this.database));
   }
 
   @Override
@@ -373,7 +334,7 @@ public abstract class AbstractDbDesign implements DbDesign {
     // By default, FileResource is mapped to the Designer list only
     if(includeXsp) {
       return this.findDesignNotes(DocumentClass.FORM, NotesConstants.DFLAGPAT_FILE)
-        .map(entry -> this.database.getDocumentById(entry.noteId))
+        .map(entry -> this.database.getDocumentById(entry.getNoteId()))
         .map(Optional::get)
         .map(FileResourceImpl::new);
     } else {
@@ -510,11 +471,8 @@ public abstract class AbstractDbDesign implements DbDesign {
     DesignMapping<SharedField, ?> mapping = DesignUtil.getDesignMapping(SharedField.class);
     return this.findDesignNotes(mapping.getNoteClass(), mapping.getFlagsPattern())
       .filter(entry -> DesignUtil.matchesTitleValues(name, entry.getTitles()))
-      .map(entry -> this.database.getDocumentById(entry.noteId))
-      .findFirst()
-      .map(Optional::get)
-      .map(mapping.getConstructor()::apply)
-      .map(SharedField.class::cast);
+      .map(entry -> (SharedField)entry.toDesignElement(this.database))
+      .findFirst();
   }
 
   @Override
@@ -712,7 +670,7 @@ public abstract class AbstractDbDesign implements DbDesign {
   // * Internal utility methods
   // *******************************************************************************
 
-  public Stream<DesignEntry> findDesignNotes(final DocumentClass noteClass, final String pattern) {
+  public Stream<DesignEntry<DesignElement>> findDesignNotes(final DocumentClass noteClass, final String pattern) {
     return findDesignNotes(Collections.singleton(noteClass), Collections.singleton(pattern));
   }
   
@@ -735,10 +693,8 @@ public abstract class AbstractDbDesign implements DbDesign {
     String path = cleanFilePath(filePath);
     return this.findDesignNotes(EnumSet.of(DocumentClass.FORM, DocumentClass.FILTER), FILERES_PATTERNS)
       .filter(entry -> DesignUtil.matchesTitleValues(path, entry.getTitles()))
-      .map(entry -> this.database.getDocumentById(entry.noteId))
-      .findFirst()
-      .map(Optional::get)
-      .map(DesignUtil::createDesignElement);
+      .map(entry -> entry.toDesignElement(this.database))
+      .findFirst();
   }
   
   /**
@@ -746,10 +702,10 @@ public abstract class AbstractDbDesign implements DbDesign {
    *  
    * @param noteClasses the {@link DocumentClass}es of the design notes to find
    * @param patterns zero or more flags pattern strings
-   * @return a {@link Stream} of {@link DesignEntry} objects for matching design elements
+   * @return a {@link Stream} of {@link DesignEntryImpl} objects for matching design elements
    * @since 1.0.38
    */
-  public Stream<DesignEntry> findDesignNotes(final Collection<DocumentClass> noteClasses, final Collection<String> patterns) {
+  public Stream<DesignEntry<DesignElement>> findDesignNotes(final Collection<DocumentClass> noteClasses, final Collection<String> patterns) {
     /*
      * Design collection columns:
      *  - $TITLE (string)
@@ -790,30 +746,30 @@ public abstract class AbstractDbDesign implements DbDesign {
       }
     }
 
-    return query.build(0, Integer.MAX_VALUE, new CollectionSearchQuery.CollectionEntryProcessor<List<DesignEntry>>() {
+    return query.build(0, Integer.MAX_VALUE, new CollectionSearchQuery.CollectionEntryProcessor<List<DesignEntry<DesignElement>>>() {
         @Override
-        public List<DesignEntry> end(final List<DesignEntry> result) {
+        public List<DesignEntry<DesignElement>> end(final List<DesignEntry<DesignElement>> result) {
           return result;
         }
   
         @Override
-        public Action entryRead(final List<DesignEntry> result, final CollectionEntry entry) {
+        public Action entryRead(final List<DesignEntry<DesignElement>> result, final CollectionEntry entry) {
           final DocumentClass entryClass = entry.getDocumentClass().orElse(null);
           if (noteClasses.contains(entryClass)) {
             if (hasPattern) {
               final String flags = entry.get(4, String.class, ""); //$NON-NLS-1$
               if(patterns.stream().anyMatch(pattern -> DesignUtil.matchesFlagsPattern(flags, pattern))) {
-                result.add(new DesignEntry(entry.getNoteID(), entryClass, entry));
+                result.add(new DesignEntryImpl<DesignElement>(entry.getNoteID(), entryClass, entry));
               }
             } else {
-              result.add(new DesignEntry(entry.getNoteID(), entryClass, entry));
+              result.add(new DesignEntryImpl<DesignElement>(entry.getNoteID(), entryClass, entry));
             }
           }
           return Action.Continue;
         }
   
         @Override
-        public List<DesignEntry> start() {
+        public List<DesignEntry<DesignElement>> start() {
           return new LinkedList<>();
         }
       })
