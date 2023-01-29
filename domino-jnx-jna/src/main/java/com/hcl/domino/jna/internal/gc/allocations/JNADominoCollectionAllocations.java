@@ -38,6 +38,7 @@ public class JNADominoCollectionAllocations extends APIObjectAllocations<JNADomi
 	private JNAIDTable m_collapsedList;
 	private JNAIDTable m_selectedList;
 	private JNAIDTable m_unreadTable;
+	private DHANDLE.ByReference m_activeFTSearchHandle;
 	
 	@SuppressWarnings("rawtypes")
 	public JNADominoCollectionAllocations(IGCDominoClient parentDominoClient,
@@ -63,7 +64,7 @@ public class JNADominoCollectionAllocations extends APIObjectAllocations<JNADomi
 		}
 		
 		//clear search handle here in case we add FT view search
-		
+		clearSearch();
 		
 		if (m_collectionHandle!=null) {
 			short result = LockUtil.lockHandle(m_collectionHandle, (hdlByVal) -> {
@@ -130,4 +131,35 @@ public class JNADominoCollectionAllocations extends APIObjectAllocations<JNADomi
 	  NotesErrorUtils.checkResult(result);
 	}
 
+	public DHANDLE getActiveFTSearchHandle() {
+	  return m_activeFTSearchHandle;
+	}
+	
+	public DHANDLE.ByReference openSearch() {
+	  checkDisposed();
+	  
+	  clearSearch();
+	  
+    DHANDLE.ByReference rethSearch = DHANDLE.newInstanceByReference();
+    
+    short result = NotesCAPI.get().FTOpenSearch(rethSearch);
+    NotesErrorUtils.checkResult(result);
+    
+    m_activeFTSearchHandle = rethSearch;
+    return rethSearch;
+	}
+	
+	public void clearSearch() {
+	  checkDisposed();
+	  
+	  if (m_activeFTSearchHandle!=null && !m_activeFTSearchHandle.isNull() && !m_activeFTSearchHandle.isDisposed()) {
+	    short result = LockUtil.lockHandle(m_activeFTSearchHandle, (activeFTSearchHandleByVal) -> {
+	      return NotesCAPI.get().FTCloseSearch(activeFTSearchHandleByVal);
+	    });
+      NotesErrorUtils.checkResult(result);
+
+      m_activeFTSearchHandle.setDisposed();
+      m_activeFTSearchHandle = null;
+	  }
+	}
 }

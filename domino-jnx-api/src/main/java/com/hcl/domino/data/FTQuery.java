@@ -26,8 +26,6 @@ import com.hcl.domino.misc.INumberEnum;
  * @author Karsten Lehmann
  */
 public enum FTQuery implements INumberEnum<Integer> {
-  // /** Store search results in NIF collections; Don't return them to caller */
-  // SET_COLL(0x00000001),
   /** Return # hits only; not the documents */
   NUMDOCS_ONLY(0x00000002),
   /** Refine the query using the {@link IDTable} */
@@ -58,14 +56,6 @@ public enum FTQuery implements INumberEnum<Integer> {
   NOINDEX(0x00000800),
   /** set if fuzzy search wanted */
   FUZZY(0x00004000),
-  // /** Return url-based results (FTSearchExt only) */
-  // EXT_RET_URL(0x00008000),
-  // /** this is a domain search */
-  // EXT_DOMAIN(0x00040000),
-  // /** search the filesystem index (Domain Search only) */
-  // EXT_FILESYSTEM(0x00100000),
-  // /** search the database index (Domain Search only) */
-  // EXT_DATABASE(0x00200000),
   /** return highlight strings */
   RETURN_HIGHLIGHT_STRINGS(0x00080000),
 

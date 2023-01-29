@@ -162,7 +162,7 @@ public interface CollectionSearchQuery extends SearchQuery {
       return this;
     }
 
-    public AllDeselectedEntries select(final String ftQuery) {
+    public AllDeselectedEntries selectWithFTQuery(final String ftQuery) {
       if (this.getMode() == SelectMode.AllDeselected) {
         this.getFTQueries().add(ftQuery);
       }

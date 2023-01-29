@@ -35,7 +35,6 @@ import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
-import com.hcl.domino.commons.views.FindFlag;
 import com.hcl.domino.commons.views.ReadMask;
 import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.CollectionEntry.SpecialValue;
@@ -44,6 +43,7 @@ import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.FTQuery;
+import com.hcl.domino.data.Find;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.Navigate;
 import com.hcl.domino.dql.DQL.DQLTerm;
@@ -373,8 +373,8 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 	  
 	  while (true) {
 	    //find current position of category entry
-	    NotesViewLookupResultData catLkResult = collection.findByKeyExtended2(EnumSet.of(FindFlag.MATCH_CATEGORYORLEAF,
-	        FindFlag.REFRESH_FIRST, FindFlag.RETURN_DWORD, FindFlag.AND_READ_MATCHES, FindFlag.CASE_INSENSITIVE),
+	    NotesViewLookupResultData catLkResult = collection.findByKeyExtended2(EnumSet.of(Find.MATCH_CATEGORYORLEAF,
+	        Find.REFRESH_FIRST, Find.CASE_INSENSITIVE),
 	        EnumSet.of(ReadMask.NOTEID, ReadMask.SUMMARY), categoryLevelsAsArr);
 	    
 	    List<JNACollectionEntry> catEntries = catLkResult.getEntries();
@@ -1127,8 +1127,8 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 						int indexModStart = collection.getIndexModifiedSequenceNo();
 
 						//find category entry
-						NotesViewLookupResultData catLkResult = collection.findByKeyExtended2(EnumSet.of(FindFlag.MATCH_CATEGORYORLEAF,
-								FindFlag.REFRESH_FIRST, FindFlag.RETURN_DWORD, FindFlag.AND_READ_MATCHES, FindFlag.CASE_INSENSITIVE),
+						NotesViewLookupResultData catLkResult = collection.findByKeyExtended2(EnumSet.of(Find.MATCH_CATEGORYORLEAF,
+								Find.REFRESH_FIRST, Find.CASE_INSENSITIVE),
 								EnumSet.of(ReadMask.NOTEID, ReadMask.SUMMARY), categoryLevelsAsArr);
 
 						if (catLkResult.getReturnCount()==0) {
@@ -1390,9 +1390,9 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
         if (!singleColLookups.isEmpty() || !multiColLookups.isEmpty()) {
           
           for (SingleColumnLookupKey currKey : singleColLookups) {
-            Set<FindFlag> findFlags = EnumSet.of(FindFlag.EQUAL, FindFlag.RANGE_OVERLAP, FindFlag.CASE_INSENSITIVE);
+            Set<Find> findFlags = EnumSet.of(Find.EQUAL, Find.RANGE_OVERLAP, Find.CASE_INSENSITIVE);
             if (!currKey.isExact()) {
-              findFlags.add(FindFlag.PARTIAL);
+              findFlags.add(Find.PARTIAL);
             }
             LinkedHashSet<Integer> idsForKey = collection.getAllEntriesByKey(findFlags, EnumSet.of(ReadMask.NOTEID),
                 new JNADominoCollection.NoteIdsAsOrderedSetCallback(Integer.MAX_VALUE), currKey.getKey());
@@ -1401,9 +1401,9 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
           }
           
           for (MultiColumnLookupKey currKey : multiColLookups) {
-            Set<FindFlag> findFlags = EnumSet.of(FindFlag.EQUAL, FindFlag.RANGE_OVERLAP, FindFlag.CASE_INSENSITIVE);
+            Set<Find> findFlags = EnumSet.of(Find.EQUAL, Find.RANGE_OVERLAP, Find.CASE_INSENSITIVE);
             if (!currKey.isExact()) {
-              findFlags.add(FindFlag.PARTIAL);
+              findFlags.add(Find.PARTIAL);
             }
             LinkedHashSet<Integer> idsForKey = collection.getAllEntriesByKey(findFlags, EnumSet.of(ReadMask.NOTEID),
                 new JNADominoCollection.NoteIdsAsOrderedSetCallback(Integer.MAX_VALUE), currKey.getKey().toArray(new Object[currKey.getKey().size()]));
@@ -1413,8 +1413,8 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
           
           for (String currCategory : categories) {
             //find category entry
-            NotesViewLookupResultData catLkResult = collection.findByKeyExtended2(EnumSet.of(FindFlag.MATCH_CATEGORYORLEAF,
-                FindFlag.REFRESH_FIRST, FindFlag.RETURN_DWORD, FindFlag.AND_READ_MATCHES, FindFlag.CASE_INSENSITIVE),
+            NotesViewLookupResultData catLkResult = collection.findByKeyExtended2(EnumSet.of(Find.MATCH_CATEGORYORLEAF,
+                Find.REFRESH_FIRST, Find.CASE_INSENSITIVE),
                 EnumSet.of(ReadMask.NOTEID, ReadMask.SUMMARY), currCategory);
             
             if (catLkResult.getReturnCount()>0 && !catLkResult.getEntries().isEmpty()) {
@@ -1487,9 +1487,9 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 				if (!singleColLookups.isEmpty() || !multiColLookups.isEmpty()) {
 					
 					for (SingleColumnLookupKey currKey : singleColLookups) {
-						Set<FindFlag> findFlags = EnumSet.of(FindFlag.EQUAL, FindFlag.RANGE_OVERLAP, FindFlag.CASE_INSENSITIVE);
+						Set<Find> findFlags = EnumSet.of(Find.EQUAL, Find.RANGE_OVERLAP, Find.CASE_INSENSITIVE);
 						if (!currKey.isExact()) {
-							findFlags.add(FindFlag.PARTIAL);
+							findFlags.add(Find.PARTIAL);
 						}
 						LinkedHashSet<Integer> idsForKey = collection.getAllEntriesByKey(findFlags, EnumSet.of(ReadMask.NOTEID),
 								new JNADominoCollection.NoteIdsAsOrderedSetCallback(Integer.MAX_VALUE), currKey.getKey());
@@ -1503,9 +1503,9 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 					}
 					
 					for (MultiColumnLookupKey currKey : multiColLookups) {
-						Set<FindFlag> findFlags = EnumSet.of(FindFlag.EQUAL, FindFlag.RANGE_OVERLAP, FindFlag.CASE_INSENSITIVE);
+						Set<Find> findFlags = EnumSet.of(Find.EQUAL, Find.RANGE_OVERLAP, Find.CASE_INSENSITIVE);
 						if (!currKey.isExact()) {
-							findFlags.add(FindFlag.PARTIAL);
+							findFlags.add(Find.PARTIAL);
 						}
 						LinkedHashSet<Integer> idsForKey = collection.getAllEntriesByKey(findFlags, EnumSet.of(ReadMask.NOTEID),
 								new JNADominoCollection.NoteIdsAsOrderedSetCallback(Integer.MAX_VALUE), currKey.getKey().toArray(new Object[currKey.getKey().size()]));

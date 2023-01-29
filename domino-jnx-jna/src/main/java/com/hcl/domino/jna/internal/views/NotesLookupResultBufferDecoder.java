@@ -188,13 +188,13 @@ public class NotesLookupResultBufferDecoder {
 
 					bufferPos+=4;
 				}
-				if (returnMask.contains(ReadMask.INDEXCHILDREN)) {
+				if (returnMask.contains(ReadMask.INDEXCHILDREN) || returnMask.contains(ReadMask.INDEXCHILDREN_NOCATS)) {
 					int childCount = bufferPtr.getInt(bufferPos);
 					newData.setChildCount(childCount);
 
 					bufferPos+=4;
 				}
-				if (returnMask.contains(ReadMask.INDEXDESCENDANTS)) {
+				if (returnMask.contains(ReadMask.INDEXDESCENDANTS) || returnMask.contains(ReadMask.INDEXDESCENDANTS_NOCATS)) {
 					int descendantCount = bufferPtr.getInt(bufferPos);
 					newData.setDescendantCount(descendantCount);
 
@@ -266,7 +266,7 @@ public class NotesLookupResultBufferDecoder {
 					//add some statistical information to the data object to be able to see which columns "pollute" the summary buffer
 					newData.setColumnValueSizesInBytes(itemTableData.getItemValueLengthsInBytes());
 				}
-				if (returnMask.contains(ReadMask.SUMMARY)) {
+				if (returnMask.contains(ReadMask.SUMMARY) || returnMask.contains(ReadMask.SUMMARY_PERMUTED)) {
 					int startBufferPosOfSummaryValues = bufferPos;
 
 					Pointer itemTablePtr = bufferPtr.share(bufferPos);

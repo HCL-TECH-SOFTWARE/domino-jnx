@@ -10,11 +10,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import com.hcl.domino.DominoClient;
+import com.hcl.domino.UserNamesList;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
-import com.hcl.domino.commons.views.FindFlag;
 import com.hcl.domino.commons.views.ReadMask;
 import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.CollectionEntry.SpecialValue;
@@ -23,12 +25,20 @@ import com.hcl.domino.data.CollectionSearchQuery.SelectedEntries;
 import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.FTQuery;
+import com.hcl.domino.data.Find;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.Navigate;
+import com.hcl.domino.jna.JNADominoClient;
+import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
+import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNADominoCollectionAllocations;
+import com.hcl.domino.jna.internal.gc.allocations.JNAUserNamesListAllocations;
+import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.views.NotesViewLookupResultData;
+import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.ptr.ShortByReference;
 
@@ -43,7 +53,6 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
   
   private Object[] categoryLevelsAsArr;
   private boolean m_startAtLastEntry;
-  private boolean m_startAtFirstEntry;
   private String m_startAtPosition;
   private int m_startAtEntryId;
 
@@ -60,7 +69,10 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
   private SelectedEntries m_selectedEntries;
   private JNAIDTable m_selectedEntriesResolved;
   private boolean m_hasSelectionSet;
-  
+  private String ftQuery;
+  private int ftMaxDocs;
+  private Set<FTQuery> ftFlags;
+
   // computed values during traversal
   
   private JNADominoCollectionPosition categoryEntryPos;
@@ -79,7 +91,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
   
   private boolean initialized;
   private LinkedList<CollectionEntry> nextPage;
-  private int pageSize = 20;
+  private int maxBufferEntries = Integer.MAX_VALUE;
   private boolean isDone;
   
 
@@ -88,11 +100,11 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
     this.collection = builder.getCollection();
   }
   
-  public JNACollectionEntryIterator setPageSize(int pageSize) {
-    if (pageSize < 1) {
-      throw new IllegalArgumentException(MessageFormat.format("Page size must be 1 or higher: {0}", pageSize));
+  public JNACollectionEntryIterator setMaxBufferEntries(int maxBufferEntries) {
+    if (maxBufferEntries < 1) {
+      throw new IllegalArgumentException(MessageFormat.format("Max buffer size must be 1 or higher: {0}", maxBufferEntries));
     }
-    this.pageSize = pageSize;
+    this.maxBufferEntries = maxBufferEntries;
     return this;
   }
   
@@ -147,7 +159,6 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
   }
   
   public JNACollectionEntryIterator setStartAtFirstEntry() {
-    this.m_startAtFirstEntry = true;
     this.m_startAtLastEntry = false;
     this.m_startAtPosition = null;
     this.m_startAtEntryId = 0;
@@ -156,7 +167,6 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
 
   public JNACollectionEntryIterator setStartAtLastEntry() {
     this.m_startAtLastEntry = true;
-    this.m_startAtFirstEntry = false;
     this.m_startAtPosition = null;
     this.m_startAtEntryId = 0;
     return this;
@@ -164,7 +174,6 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
   
   public JNACollectionEntryIterator setStartAtPosition(String pos) {
     this.m_startAtPosition = pos;
-    this.m_startAtFirstEntry = false;
     this.m_startAtLastEntry = false;
     this.m_startAtEntryId = 0;
     return this;
@@ -172,9 +181,15 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
 
   public JNACollectionEntryIterator setStartAtEntryId(int noteId) {
     this.m_startAtEntryId = noteId;
-    this.m_startAtFirstEntry = false;
     this.m_startAtLastEntry = false;
     this.m_startAtPosition = null;
+    return this;
+  }
+
+  public JNACollectionEntryIterator setRestrictionToFTResults(String ftQuery, int ftMaxDocs, Set<FTQuery> ftFlags) {
+    this.ftQuery = ftQuery;
+    this.ftMaxDocs = ftMaxDocs;
+    this.ftFlags = ftFlags;
     return this;
   }
 
@@ -312,8 +327,6 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
       init();
       
       if (total==null) { // init() might set total
-        System.out.println("getTotal - currPos before: "+currPosForTotalComputation);
-        
         JNADominoCollectionPosition tmpPos = (JNADominoCollectionPosition) currPosForTotalComputation.clone();
         
         NotesViewLookupResultData skipAllLkResult =
@@ -369,7 +382,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
       count = Integer.MAX_VALUE;
     }
     
-    pageSize = Math.min(pageSize, count);
+    maxBufferEntries = Math.min(maxBufferEntries, count);
 
     if (this.indexOfSingleColumnToRead==null && this.nameOfSingleColumnToRead!=null) {
       this.indexOfSingleColumnToRead = collection.getColumnValuesIndex(nameOfSingleColumnToRead);
@@ -586,7 +599,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
                   false,
                   wasFirstRun ? (initialSkip + skip) : 1,
                   returnNav,
-                  pageSize,
+                  maxBufferEntries,
                   readMask,
                   (DominoDateTime) null,
                   (JNAIDTable) null,
@@ -659,7 +672,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
             isDone = true;
           }
           else {
-            if (entries.size() < pageSize && !lkResult.hasMoreToDo()) {
+            if (entries.size() < maxBufferEntries && !lkResult.hasMoreToDo()) {
               //less data received than requested and there's not more in the view
               isDone = true;
             }
@@ -691,7 +704,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
                   false,
                   wasFirstRun ? (initialSkip + skip) : 1,
                   returnNav,
-                  pageSize,
+                  maxBufferEntries,
                   readMask,
                   (DominoDateTime) null,
                 (JNAIDTable) null,
@@ -763,6 +776,14 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
       //resolve and set the selected entries idtable
       JNAIDTable resolvedSelectedList = m_selectedEntriesResolved!=null ? (JNAIDTable) m_selectedEntriesResolved.clone() : new JNAIDTable(collection.getParentDominoClient());
       
+      if (ftQuery!=null) {
+        //pass cloned selected list to refine FT search; not the one that we might fill up with fake note ids below
+        collection.ftSearch(ftQuery, ftMaxDocs, ftFlags, (JNAIDTable) resolvedSelectedList.clone());
+        
+        directionToUse = addFTSearchNavigation(directionToUse);
+      }
+      
+
       if (collection.isHierarchical()) {
         //Views with response hierarchy can have issues when working with NAVIGATE_NEXT_SELECTED.
         //We found out that as soon as the first response doc appears in the view index,
@@ -807,7 +828,14 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
       
       updateFiltersFlagsVal |= NotesConstants.FILTER_SELECTED;
     }
-    
+    else {
+      if (ftQuery!=null) {
+        collection.ftSearch(ftQuery, ftMaxDocs, ftFlags, null);
+        
+        directionToUse = addFTSearchNavigation(directionToUse);
+      }
+    }
+
     if (isDirectionWithExpandCollapse(directionToUse)) {
       //resolve and set the expanded entries idtable
       JNAIDTable resolvedCollapsedList = m_expandedEntriesResolved!=null ? (JNAIDTable) m_expandedEntriesResolved.clone() : new JNAIDTable(collection.getParentDominoClient());
@@ -926,8 +954,8 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
    */
   private Optional<JNACollectionEntry> findCategoryPosition(JNADominoCollection collection, Object[] categoryLevelsAsArr) {
     //find current position of category entry, atomically reads its note id and summary data
-    NotesViewLookupResultData catLkResult = collection.findByKeyExtended2(EnumSet.of(FindFlag.MATCH_CATEGORYORLEAF,
-        FindFlag.REFRESH_FIRST, FindFlag.RETURN_DWORD, FindFlag.AND_READ_MATCHES, FindFlag.CASE_INSENSITIVE),
+    NotesViewLookupResultData catLkResult = collection.findByKeyExtended2(EnumSet.of(Find.MATCH_CATEGORYORLEAF,
+        Find.REFRESH_FIRST, Find.CASE_INSENSITIVE),
         EnumSet.of(ReadMask.NOTEID, ReadMask.SUMMARY), categoryLevelsAsArr);
     
     List<JNACollectionEntry> catEntries = catLkResult.getEntries();
@@ -1009,6 +1037,34 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
     }
   }
 
+  private Navigate addFTSearchNavigation(Navigate nav) {
+    switch (nav) {
+    case NEXT_ENTRY:
+    case NEXT_DOCUMENT:
+      return Navigate.NEXT_HIT;
+    case PREV_ENTRY:
+    case PREV_DOCUMENT:
+      return Navigate.PREV_HIT;
+    case NEXT_UNREAD_ENTRY:
+      return Navigate.NEXT_UNREAD_HIT;
+    case PREV_UNREAD_ENTRY:
+      return Navigate.PREV_UNREAD_HIT;
+    case NEXT_SELECTED:
+      return Navigate.NEXT_SELECTED_HIT;
+    case PREV_SELECTED:
+      return Navigate.PREV_SELECTED_HIT;
+    case NEXT_HIT:
+    case NEXT_SELECTED_HIT:
+    case NEXT_UNREAD_HIT:
+    case PREV_HIT:
+    case PREV_SELECTED_HIT:
+    case PREV_UNREAD_HIT:
+      return nav;
+    default:
+        throw new IllegalArgumentException(MessageFormat.format("Unable to apply FT search hit navigation to current navigation strategy: {0}", nav));
+    }
+  }
+  
   /**
    * Makes sure that the navigation rule respects expanded entries
    * 
@@ -1100,5 +1156,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
       return false;
     }
   }
+
+
 
 }

@@ -104,6 +104,9 @@ public enum Find {
   /** Use the case and accent sensitivity flags specified in the view */
   VIEW_SENSITIVE(0x00010000),
 
+  /** Find first category match */
+  CATEGORY_MATCH(0x00020000),
+
   /** Limit number of matches returned */
   LIMIT_MATCHES(0x00040000),
 

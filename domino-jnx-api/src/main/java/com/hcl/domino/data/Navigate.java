@@ -53,12 +53,12 @@ public enum Navigate {
   NEXT_EXPANDED_CATEGORY(27),
   /** next expanded document */
   NEXT_EXPANDED_DOCUMENT(39),
-  // /** next search hit */
-  // NEXT_HIT(29),
-  // /** next selected search hit */
-  // NEXT_SELECTED_HIT(35),
-  // /** next unread search hit */
-  // NEXT_UNREAD_HIT(37),
+  /** next search hit */
+  NEXT_HIT(29),
+  /** next selected search hit */
+  NEXT_SELECTED_HIT(35),
+  /** next unread search hit */
+  NEXT_UNREAD_HIT(37),
   /** next category */
   NEXT_CATEGORY(41),
   /** next document */
@@ -89,13 +89,13 @@ public enum Navigate {
   PREV_EXPANDED_CATEGORY(28),
   /** previous expanded document */
   PREV_EXPANDED_DOCUMENT(40),
-  // /** previous search hit */
-  // PREV_HIT(30),
-  // /** previous selected search hit */
-  // PREV_SELECTED_HIT(36),
-  // /** PREV, but only "unread" and FTSearch "hit" entries (in the SAME ORDER as
-  // the hit's relevance ranking) */
-  // PREV_UNREAD_HIT(38),
+  /** previous search hit */
+  PREV_HIT(30),
+  /** previous selected search hit */
+  PREV_SELECTED_HIT(36),
+  /** PREV, but only "unread" and FTSearch "hit" entries (in the SAME ORDER as
+   the hit's relevance ranking) */
+  PREV_UNREAD_HIT(38),
   /** previous category entry */
   PREV_CATEGORY(42),
   /** previous document */

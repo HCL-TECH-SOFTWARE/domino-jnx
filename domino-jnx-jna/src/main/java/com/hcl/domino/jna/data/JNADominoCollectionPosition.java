@@ -452,6 +452,7 @@ public class JNADominoCollectionPosition implements IAdaptable, Comparable<JNADo
     JNADominoCollectionPosition clonedPos = new JNADominoCollectionPosition(tumbler.clone());
     clonedPos.minLevel = minLevel;
     clonedPos.maxLevel = maxLevel;
+    clonedPos.level = level;
     return clonedPos;
   }
   

@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import com.hcl.domino.commons.views.FindFlag;
 import com.hcl.domino.commons.views.ReadMask;
 import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.CollectionSearchQuery.AllDeselectedEntries;
@@ -22,9 +21,12 @@ import com.hcl.domino.data.CollectionSearchQuery.SelectedEntries;
 import com.hcl.domino.data.CollectionSearchQuery.SingleColumnLookupKey;
 import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.data.DominoCollection;
+import com.hcl.domino.data.DominoCollection.Direction;
 import com.hcl.domino.data.FTQuery;
+import com.hcl.domino.data.Find;
 import com.hcl.domino.data.Navigate;
 import com.hcl.domino.dql.DQL.DQLTerm;
+import com.hcl.domino.jna.data.JNADominoCollection.FindResult;
 import com.hcl.domino.jna.internal.views.NotesViewLookupResultData;
 import com.hcl.domino.misc.NotesConstants;
 
@@ -58,7 +60,7 @@ import com.hcl.domino.misc.NotesConstants;
  * (searches above and below the old position in an alternating way).<br>
  * <br>
  * This may lead to performance issues / timeouts, when <code>NIFLocateNote</code> takes a very long time for search (in some
- * cases without success when the note id has disappeared, preventing view index during search with a view lock).
+ * cases without success when the note id has disappeared, preventing view index updates during search with a view lock).
  * Since category note ids are not stable between view index changes, this strategy only works for documents
  * (=&gt; under heavy load a ViewNavigator throws errors when the last read entry was a category and recovery is
  * not possible) and it's still possible that the same entries are returned multiple times when a row gets moved
@@ -104,6 +106,10 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
   private String nameOfSingleColumnToRead;
   private Integer indexOfSingleColumnToRead;
   private Function<DominoCollection, Action> viewIndexChangedHandler;
+  private Integer maxBufferEntries;
+  private String ftQuery;
+  private int ftMaxDocs;
+  private Set<FTQuery> ftFlags;
   
   //computed note ids of selected / expanded entries
   private JNAIDTable m_selectedEntriesResolved;
@@ -167,10 +173,6 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
     return this;
   }
 
-  ExpandedEntries getExpandedEntries() {
-    return expandedEntries;
-  }
-  
   /**
    * Defines selected collection rows to filter the output, e.g. via key lookup
    * 
@@ -343,6 +345,34 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
     this.indexOfSingleColumnToRead = idx;
     return this;
   }
+
+  /**
+   * Method to change the size of the internal buffer. By default, we use
+   * the <code>limit</code> value if configured or {@link Integer#MAX_VALUE}.
+   * 
+   * @param entries max buffer entries
+   * @return this builder instance
+   */
+  public CollectionEntries withMaxBufferEntries(int entries) {
+    this.maxBufferEntries = entries;
+    return this;
+  }
+  
+  /**
+   * Applies a fulltext search on the view, changing the order of entries, e.g. to "by relevance" or
+   * {@link FTQuery#SORT_DATE_CREATED}
+   * 
+   * @param ftQuery fulltext query
+   * @param ftMaxDocs max results, 0 for all
+   * @param ftFlags FT search flags
+   * @return this builder instance
+   */
+  public CollectionEntries withRestrictionToFTResults(String ftQuery, int ftMaxDocs, Set<FTQuery> ftFlags) {
+    this.ftQuery = ftQuery;
+    this.ftMaxDocs = ftMaxDocs;
+    this.ftFlags = ftFlags;
+    return this;
+  }
   
   /**
    * Sets up the {@link Iterator} that returns {@link CollectionEntry} objects
@@ -366,7 +396,7 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
     }
     
     if (expandedEntries!=null) {
-      JNAIDTable idTable = getResolveExpandedEntries();
+      JNAIDTable idTable = getExpandedEntries();
       it.expand(expandedEntries, idTable);
     }
     
@@ -415,6 +445,14 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
       it.setViewIndexChangedHandler(viewIndexChangedHandler);
     }
     
+    if (maxBufferEntries!=null) {
+      it.setMaxBufferEntries(maxBufferEntries);
+    }
+    
+    if (ftQuery!=null) {
+      it.setRestrictionToFTResults(ftQuery, ftMaxDocs, ftFlags);
+    }
+    
     return it;
   }
   
@@ -456,12 +494,11 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
         if (!singleColLookups.isEmpty() || !multiColLookups.isEmpty()) {
           
           for (SingleColumnLookupKey currKey : singleColLookups) {
-            Set<FindFlag> findFlags = EnumSet.of(FindFlag.EQUAL, FindFlag.RANGE_OVERLAP, FindFlag.CASE_INSENSITIVE);
+            Set<Find> findFlags = EnumSet.of(Find.EQUAL, Find.RANGE_OVERLAP, Find.CASE_INSENSITIVE);
             if (!currKey.isExact()) {
-              findFlags.add(FindFlag.PARTIAL);
+              findFlags.add(Find.PARTIAL);
             }
-            LinkedHashSet<Integer> idsForKey = collection.getAllEntriesByKey(findFlags, EnumSet.of(ReadMask.NOTEID),
-                new JNADominoCollection.NoteIdsAsOrderedSetCallback(Integer.MAX_VALUE), currKey.getKey());
+            LinkedHashSet<Integer> idsForKey = getAllIdsByKey(findFlags, currKey.getKey());
             
             if (subtractMode) {
               idTable.removeAll(idsForKey);
@@ -472,12 +509,11 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
           }
           
           for (MultiColumnLookupKey currKey : multiColLookups) {
-            Set<FindFlag> findFlags = EnumSet.of(FindFlag.EQUAL, FindFlag.RANGE_OVERLAP, FindFlag.CASE_INSENSITIVE);
+            Set<Find> findFlags = EnumSet.of(Find.EQUAL, Find.RANGE_OVERLAP, Find.CASE_INSENSITIVE);
             if (!currKey.isExact()) {
-              findFlags.add(FindFlag.PARTIAL);
+              findFlags.add(Find.PARTIAL);
             }
-            LinkedHashSet<Integer> idsForKey = collection.getAllEntriesByKey(findFlags, EnumSet.of(ReadMask.NOTEID),
-                new JNADominoCollection.NoteIdsAsOrderedSetCallback(Integer.MAX_VALUE), currKey.getKey().toArray(new Object[currKey.getKey().size()]));
+            LinkedHashSet<Integer> idsForKey = getAllIdsByKey(findFlags, currKey.getKey().toArray(new Object[currKey.getKey().size()]));
             
             if (subtractMode) {
               idTable.removeAll(idsForKey);
@@ -527,7 +563,7 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
    * 
    * @param retIdTable IDTable to clear and write new note ids
    */
-  JNAIDTable getResolveExpandedEntries() {
+  JNAIDTable getExpandedEntries() {
     if (m_expandedEntriesResolved==null || m_expandedEntriesResolved.isDisposed()) {
       JNAIDTable idTable = new JNAIDTable(collection.getParentDominoClient());
       
@@ -549,31 +585,29 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
         if (!singleColLookups.isEmpty() || !multiColLookups.isEmpty()) {
           
           for (SingleColumnLookupKey currKey : singleColLookups) {
-            Set<FindFlag> findFlags = EnumSet.of(FindFlag.EQUAL, FindFlag.RANGE_OVERLAP, FindFlag.CASE_INSENSITIVE);
+            Set<Find> findFlags = EnumSet.of(Find.EQUAL, Find.RANGE_OVERLAP, Find.CASE_INSENSITIVE);
             if (!currKey.isExact()) {
-              findFlags.add(FindFlag.PARTIAL);
+              findFlags.add(Find.PARTIAL);
             }
-            LinkedHashSet<Integer> idsForKey = collection.getAllEntriesByKey(findFlags, EnumSet.of(ReadMask.NOTEID),
-                new JNADominoCollection.NoteIdsAsOrderedSetCallback(Integer.MAX_VALUE), currKey.getKey());
+            LinkedHashSet<Integer> idsForKey = getAllIdsByKey(findFlags, currKey.getKey());
             
             idTable.addAll(idsForKey);
           }
           
           for (MultiColumnLookupKey currKey : multiColLookups) {
-            Set<FindFlag> findFlags = EnumSet.of(FindFlag.EQUAL, FindFlag.RANGE_OVERLAP, FindFlag.CASE_INSENSITIVE);
+            Set<Find> findFlags = EnumSet.of(Find.EQUAL, Find.RANGE_OVERLAP, Find.CASE_INSENSITIVE);
             if (!currKey.isExact()) {
-              findFlags.add(FindFlag.PARTIAL);
+              findFlags.add(Find.PARTIAL);
             }
-            LinkedHashSet<Integer> idsForKey = collection.getAllEntriesByKey(findFlags, EnumSet.of(ReadMask.NOTEID),
-                new JNADominoCollection.NoteIdsAsOrderedSetCallback(Integer.MAX_VALUE), currKey.getKey().toArray(new Object[currKey.getKey().size()]));
+            LinkedHashSet<Integer> idsForKey = getAllIdsByKey(findFlags, currKey.getKey().toArray(new Object[currKey.getKey().size()]));
             
             idTable.addAll(idsForKey);
           }
           
           for (String currCategory : categories) {
             //find category entry
-            NotesViewLookupResultData catLkResult = collection.findByKeyExtended2(EnumSet.of(FindFlag.MATCH_CATEGORYORLEAF,
-                FindFlag.REFRESH_FIRST, FindFlag.RETURN_DWORD, FindFlag.AND_READ_MATCHES, FindFlag.CASE_INSENSITIVE),
+            NotesViewLookupResultData catLkResult = collection.findByKeyExtended2(EnumSet.of(Find.MATCH_CATEGORYORLEAF,
+                Find.REFRESH_FIRST, Find.CASE_INSENSITIVE),
                 EnumSet.of(ReadMask.NOTEID, ReadMask.SUMMARY), currCategory);
             
             if (catLkResult.getReturnCount()>0 && !catLkResult.getEntries().isEmpty()) {
@@ -603,6 +637,211 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
       m_expandedEntriesResolved = idTable;
     }
     return m_expandedEntriesResolved;
+  }
+  
+  public LinkedHashSet<Integer> getAllIdsByKey(Set<Find> findFlags, Object... keys) {
+    return toNoteIds(getAllEntriesByKey(findFlags, EnumSet.of(ReadMask.NOTEID), keys));
+  }
+  
+  public List<JNACollectionEntry> getAllEntriesByKey(Set<Find> findFlags,Set<ReadMask> readMask, Object... keys) {
+    //do the first lookup and read operation atomically; uses a large buffer for local calls
+    
+    while (true) {
+      List<JNACollectionEntry> allEntries = new ArrayList<>();
+
+      int remainingEntries;
+      String firstMatchPosStr;
+      int entriesToSkipOnFirstLoopRun = 0;
+
+      int initialIndexMod = 0;
+      
+      if (canUseOptimizedLookupForKeyLookup(findFlags, readMask, keys)) {
+        //use atomic find method that also reads the first 64k matches
+        NotesViewLookupResultData data = collection.findByKeyExtended2(findFlags, readMask, keys);
+        initialIndexMod = data.getIndexModifiedSequenceNo();
+        
+        int numEntriesFound = data.getReturnCount();
+        if (numEntriesFound==-1) {
+          data = collection.findByKeyExtended2(findFlags, EnumSet.noneOf(ReadMask.class), keys);
+          
+          numEntriesFound = data.getReturnCount();
+        }
+        
+        firstMatchPosStr = data.getPosition();
+
+        if (numEntriesFound!=-1) {
+          List<JNACollectionEntry> entries = data.getEntries();
+          //copy the data we have read
+          allEntries.addAll(entries);
+
+          if (!data.hasMoreToDo() && entries.size()>=numEntriesFound) {
+            //we are done; return what we have, even if we get a index change signal,
+            //because the data has been read with index r/w lock
+            return allEntries;
+          }
+
+          if (data.hasAnyNonDataConflicts()) {
+            if (!data.isViewTimeRelative()) {
+              collection.refresh();
+              continue;
+            }
+          }
+
+          entriesToSkipOnFirstLoopRun = entries.size();
+
+          //compute what we have left
+          remainingEntries = numEntriesFound - entries.size();
+        }
+        else {
+          initialIndexMod = collection.getIndexModifiedSequenceNo();
+          
+          //workaround for the case where the method NIFFindByKeyExtended2 returns -1 as numEntriesFound
+          //and no buffer data (result exceeds 64k)
+          //
+          //fallback to classic lookup
+          FindResult findResult = collection.findByKey(findFlags, keys);
+          remainingEntries = findResult.getEntriesFound();
+
+          firstMatchPosStr = findResult.getPosition();
+        }
+      }
+      else {
+        initialIndexMod = collection.getIndexModifiedSequenceNo();
+        
+        //first find the start position to read data
+        FindResult findResult = collection.findByKey(findFlags, keys);
+        remainingEntries = findResult.getEntriesFound();
+        if (remainingEntries==0) {
+          return allEntries;
+        }
+        firstMatchPosStr = findResult.getPosition();
+      }
+
+      if (remainingEntries==0) {
+        return allEntries;
+      }
+
+      if (!canFindExactNumberOfMatches(findFlags)) {
+        Direction currSortDirection = collection.getCurrentSortDirection().orElse(null);
+        if (currSortDirection!=null) {
+          //handle special case for inquality search where column sort order matches the find flag,
+          //so we can read all view entries after findResult.getPosition()
+          
+          if (currSortDirection==Direction.Ascending && findFlags.contains(Find.GREATER_THAN)) {
+            //read all entries after findResult.getPosition()
+            remainingEntries = Integer.MAX_VALUE;
+          }
+          else if (currSortDirection==Direction.Descending && findFlags.contains(Find.LESS_THAN)) {
+            //read all entries after findResult.getPosition()
+            remainingEntries = Integer.MAX_VALUE;
+          }
+        }
+      }
+
+      if (firstMatchPosStr!=null) {
+        //position of the first match; we skip (entries.size()) to read the remaining entries
+        boolean isFirstLookup = true;
+        
+        JNADominoCollectionPosition currLookupPos = new JNADominoCollectionPosition(firstMatchPosStr);
+        
+        boolean viewIndexChanged = false;
+        
+        while (remainingEntries>0) {
+          int maxBufferEntries = remainingEntries;
+          
+          //on first lookup, start at "posStr" and skip the amount of already read entries
+          NotesViewLookupResultData data2 = collection.readEntriesExt(currLookupPos,
+              Navigate.NEXT_DOCUMENT,
+              false,
+              isFirstLookup ? entriesToSkipOnFirstLoopRun : 1,
+              Navigate.NEXT_DOCUMENT,
+              maxBufferEntries,
+              readMask,
+              null,
+              null,
+              indexOfSingleColumnToRead);
+          
+          int indexMod2 = collection.getIndexModifiedSequenceNo();
+          if (initialIndexMod==0) {
+            initialIndexMod = indexMod2;
+          }
+          else if (!data2.isViewTimeRelative()) {
+            if (initialIndexMod!=indexMod2 || data2.hasAnyNonDataConflicts()) {
+              viewIndexChanged=true;
+              break;
+            }
+          }
+          
+          isFirstLookup=false;
+          
+          List<JNACollectionEntry> entries = data2.getEntries();
+          
+          if (entries.isEmpty()) {
+            //looks like we don't have any more data in the view
+            break;
+          }
+          
+          allEntries.addAll(entries);
+          
+          remainingEntries = remainingEntries - entries.size();
+        }
+        
+        if (viewIndexChanged) {
+          //refresh view and redo the whole lookup
+          collection.refresh();
+          continue;
+        }
+        
+      }
+      
+      return allEntries;
+    }
+  }
+  
+  /**
+   * If the specified find flag uses an inequality search like {@link FindFlag#LESS_THAN}
+   * or {@link FindFlag#GREATER_THAN}, this method returns true, meaning that
+   * the Notes API cannot return an exact number of matches.
+   * 
+   * @param findFlags find flags
+   * @return true if exact number of matches can be returned
+   */
+  private boolean canFindExactNumberOfMatches(Set<Find> findFlags) {
+    if (findFlags.contains(Find.LESS_THAN)) {
+      return false;
+    }
+    else if (findFlags.contains(Find.GREATER_THAN)) {
+      return false;
+    }
+    else {
+      return true;
+    }
+  }
+  
+  /**
+   * Method to check whether an optimized view lookup method can be used for
+   * a set of find/return flags and the current Domino version
+   * 
+   * @param findFlags find flags
+   * @param returnMask return flags
+   * @param keys lookup keys
+   * @return true if method can be used
+   */
+  private boolean canUseOptimizedLookupForKeyLookup(Set<Find> findFlags, Object... keys) {
+    if (findFlags.contains(Find.GREATER_THAN) || findFlags.contains(Find.LESS_THAN)) {
+      //TODO check this with IBM dev; we had crashes like "[0A0F:0002-21A00] PANIC: LookupHandle: null handle" using NIFFindByKeyExtended2
+      return false;
+    }
+    
+    return true;
+  }
+  
+  private LinkedHashSet<Integer> toNoteIds(List<JNACollectionEntry> entries) {
+    LinkedHashSet<Integer> ids = new LinkedHashSet<>();
+    entries.forEach((entry) -> {
+      ids.add(entry.getNoteID());
+    });
+    return ids;
   }
   
 }

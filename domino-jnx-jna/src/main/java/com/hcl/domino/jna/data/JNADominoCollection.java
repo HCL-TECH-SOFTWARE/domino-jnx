@@ -26,7 +26,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
@@ -37,9 +36,11 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.BuildVersionInfo;
 import com.hcl.domino.DominoException;
+import com.hcl.domino.UserNamesList;
 import com.hcl.domino.commons.design.view.DominoCollationInfo;
 import com.hcl.domino.commons.design.view.DominoCollationInfo.DominoCollateColumn;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
@@ -47,12 +48,10 @@ import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.DumpUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.commons.util.StringUtil;
-import com.hcl.domino.commons.views.FindFlag;
 import com.hcl.domino.commons.views.ReadMask;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.CollectionEntry;
@@ -64,22 +63,30 @@ import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.FTQuery;
+import com.hcl.domino.data.FTQueryResult;
 import com.hcl.domino.data.Find;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.Navigate;
+import com.hcl.domino.data.NoteIdWithScore;
 import com.hcl.domino.design.DesignConstants;
-import com.hcl.domino.design.format.ViewTableFormat;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.data.CollectionDataCache.CacheState;
 import com.hcl.domino.jna.data.JNACollectionEntry.CacheableViewEntryData;
+import com.hcl.domino.jna.internal.FTSearchResultsDecoder;
+import com.hcl.domino.jna.internal.Mem;
+import com.hcl.domino.jna.internal.NotesNamingUtils;
+import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
 import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
+import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNADominoCollectionAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNAIDTableAllocations;
+import com.hcl.domino.jna.internal.gc.allocations.JNAUserNamesListAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE.ByReference;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
@@ -721,7 +728,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		}
 	}
 	
-	public FindResult findByKey(Set<FindFlag> findFlags, Object... keys) {
+	public FindResult findByKey(Set<Find> findFlags, Object... keys) {
 		checkDisposed();
 		
 		if (keys==null || keys.length==0) {
@@ -730,7 +737,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		
 		IntByReference retNumMatches = new IntByReference();
 		NotesCollectionPositionStruct retIndexPos = NotesCollectionPositionStruct.newInstance();
-		short findFlagsBitMask = FindFlag.toBitMask(findFlags);
+		short findFlagsBitMask = Find.toBitMask(findFlags);
 		short result;
 		
 		
@@ -924,7 +931,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		return getColumn(columnIndex).getTitle();
 	}
 
-	public NotesViewLookupResultData findByKeyExtended2(Set<FindFlag> findFlags, Set<ReadMask> returnMask, Object... keys) {
+	public NotesViewLookupResultData findByKeyExtended2(Set<Find> findFlags, Set<ReadMask> returnMask, Object... keys) {
 		checkDisposed();
 		
 		if (keys==null || keys.length==0) {
@@ -933,7 +940,11 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		
 		IntByReference retNumMatches = new IntByReference();
 		NotesCollectionPositionStruct retIndexPos = NotesCollectionPositionStruct.newInstance();
-		int findFlagsBitMask = FindFlag.toBitMaskInt(findFlags);
+		int findFlagsBitMask = Find.toBitMaskInt(findFlags);
+		findFlagsBitMask |= NotesConstants.FIND_RETURN_DWORD;
+		if (!returnMask.isEmpty()) {
+		  findFlagsBitMask |= NotesConstants.FIND_AND_READ_MATCHES;
+		}
 		short result;
 		int returnMaskBitMask = ReadMask.toBitMask(returnMask);
 		
@@ -951,8 +962,10 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		
 		JNADominoCollectionAllocations allocations = getAllocations();
 		
+		int fFindFlagsBitMask = findFlagsBitMask;
+		
 		result = LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) -> {
-			short localResult = NotesCAPI.get().NIFFindByKeyExtended2(handleByVal, keyBuffer, findFlagsBitMask, 
+			short localResult = NotesCAPI.get().NIFFindByKeyExtended2(handleByVal, keyBuffer, fFindFlagsBitMask, 
 					returnMaskBitMask, retIndexPos, retNumMatches, retSignalFlags, retBuffer, retSequence);
 			return localResult;
 		});
@@ -990,11 +1003,11 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 	 * @param findFlags find flags
 	 * @return true if exact number of matches can be returned
 	 */
-	private boolean canFindExactNumberOfMatches(Set<FindFlag> findFlags) {
-		if (findFlags.contains(FindFlag.LESS_THAN)) {
+	private boolean canFindExactNumberOfMatches(Set<Find> findFlags) {
+		if (findFlags.contains(Find.LESS_THAN)) {
 			return false;
 		}
-		else if (findFlags.contains(FindFlag.GREATER_THAN)) {
+		else if (findFlags.contains(Find.GREATER_THAN)) {
 			return false;
 		}
 		else {
@@ -1318,7 +1331,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		short fSkipNavBitMask = skipNavBitMask;
 		short fReturnNavBitMask = returnNavBitMask;
 		
-		System.out.println("NIFReadEntriesExt: startPos="+startPos+", skipCount="+skipCount+", returnCount="+returnCount);
+		System.out.println("NIFReadEntriesExt: startPos="+startPos+", skip="+skipCount+", limit="+returnCount);
 		result = LockUtil.lockHandles(
 				allocations.getCollectionHandle(),
 				idTableHandle,
@@ -1333,6 +1346,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 									retDiffTimeStruct, retModifiedTimeStruct, retSequence);
 				}
 				);
+    System.out.println("NIFReadEntriesExt: returnedCount="+retNumEntriesReturned.getValue());
 
 		//NIFReadEntriesExt changes the COLLECTIONPOSITION structure value, so make sure to reset the cached startPos.toString() value
 		startPos.resetToStringVal();
@@ -1687,8 +1701,8 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 	 * @param keys lookup keys
 	 * @return true if method can be used
 	 */
-	private boolean canUseOptimizedLookupForKeyLookup(Set<FindFlag> findFlags, Set<ReadMask> returnMask, Object... keys) {
-		if (findFlags.contains(FindFlag.GREATER_THAN) || findFlags.contains(FindFlag.LESS_THAN)) {
+	private boolean canUseOptimizedLookupForKeyLookup(Set<Find> findFlags, Set<ReadMask> returnMask, Object... keys) {
+		if (findFlags.contains(Find.GREATER_THAN) || findFlags.contains(Find.LESS_THAN)) {
 			//TODO check this with IBM dev; we had crashes like "[0A0F:0002-21A00] PANIC: LookupHandle: null handle" using NIFFindByKeyExtended2
 			return false;
 		}
@@ -1732,7 +1746,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 	 * @param keys lookup keys
 	 * @return true if supported
 	 */
-	private boolean canUseOptimizedLocalKeyLookup(Set<FindFlag> findFlags, Set<ReadMask> returnMask, Object... keys) {
+	private boolean canUseOptimizedLocalKeyLookup(Set<Find> findFlags, Set<ReadMask> returnMask, Object... keys) {
 		JNADominoClient client = (JNADominoClient)getParentDominoClient();
 		if (Boolean.TRUE.equals(client.getCustomValue("collection_optimizedlookup"))) { // disabled by default //$NON-NLS-1$
 			JNADatabase db = (JNADatabase) getParent();
@@ -1851,41 +1865,11 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		}
 		
 		Object[] keysArr = key.toArray(new Object[key.size()]);
-		Set<FindFlag> jnaFindFlags = toJNAFind(findFlags);
 		
-		return getAllEntriesByKey(jnaFindFlags, EnumSet.of(ReadMask.NOTEID),
+		return getAllEntriesByKey(findFlags, EnumSet.of(ReadMask.NOTEID),
 				new NoteIdsAsOrderedSetCallback(Integer.MAX_VALUE), keysArr);
 	}
-	
-	/**
-	 * Maps publicly available find flags to the full list
-	 * 
-	 * @param findFlags find flags
-	 * @return internal find flags
-	 */
-	private Set<FindFlag> toJNAFind(Set<Find> findFlags) {
-		Set<FindFlag> jnaFindFlags = new HashSet<>();
-		for (Find currFind : findFlags) {
-			jnaFindFlags.add(toJNAFind(currFind));
-		}
-		return jnaFindFlags;
-	}
-	
-	/**
-	 * Maps a publicly available find flag to an internal find flag
-	 * 
-	 * @param findFlag find flag
-	 * @return internal fing flag
-	 */
-	private FindFlag toJNAFind(Find findFlag) {
-		int val = findFlag.getValue();
-		for (FindFlag currJNAFind : FindFlag.values()) {
-			if (val == currJNAFind.getValue()) {
-				return currJNAFind;
-			}
-		}
-		throw new IllegalArgumentException(MessageFormat.format("Unknown find flag: {0}", findFlag));
-	}
+
 	
 	/**
 	 * Returns all view entries matching the specified search key(s) in the collection.
@@ -1900,7 +1884,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 	 * 
 	 * @param <T> type of lookup result object
 	 */
-	public <T> T getAllEntriesByKey(Set<FindFlag> findFlags, Set<ReadMask> returnMask, JNACollectionEntryProcessor<T> callback, Object... keys) {
+	public <T> T getAllEntriesByKey(Set<Find> findFlags, Set<ReadMask> returnMask, JNACollectionEntryProcessor<T> callback, Object... keys) {
 		checkDisposed();
 		
 		//for local databases, we can use an optimized lookup that locks the view during the lookup against index updates so that
@@ -1945,11 +1929,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
 			if (canUseOptimizedLookupForKeyLookup(findFlags, returnMask, keys)) {
 				//do the first lookup and read operation atomically; uses a large buffer for local calls
-				EnumSet<FindFlag> findFlagsWithExtraBits = EnumSet.copyOf(findFlags);
-				findFlagsWithExtraBits.add(FindFlag.AND_READ_MATCHES);
-				findFlagsWithExtraBits.add(FindFlag.RETURN_DWORD);
-				
-				data = findByKeyExtended2(findFlagsWithExtraBits, returnMask, keys);
+				data = findByKeyExtended2(findFlags, returnMask, keys);
 				
 				int numEntriesFound = data.getReturnCount();
 				if (numEntriesFound!=-1) {
@@ -2017,11 +1997,11 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 					//handle special case for inquality search where column sort order matches the find flag,
 					//so we can read all view entries after findResult.getPosition()
 					
-					if (currSortDirection==Direction.Ascending && findFlags.contains(FindFlag.GREATER_THAN)) {
+					if (currSortDirection==Direction.Ascending && findFlags.contains(Find.GREATER_THAN)) {
 						//read all entries after findResult.getPosition()
 						remainingEntries = Integer.MAX_VALUE;
 					}
-					else if (currSortDirection==Direction.Descending && findFlags.contains(FindFlag.LESS_THAN)) {
+					else if (currSortDirection==Direction.Descending && findFlags.contains(Find.LESS_THAN)) {
 						//read all entries after findResult.getPosition()
 						remainingEntries = Integer.MAX_VALUE;
 					}
@@ -2097,7 +2077,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 	 * 
 	 * @param <T> type of lookup result object
 	 */
-	private <T> T getAllEntriesByKeyLocally(Set<FindFlag> findFlags, Set<ReadMask> returnMask, final JNACollectionEntryProcessor<T> callback, Object... keys) {
+	private <T> T getAllEntriesByKeyLocally(Set<Find> findFlags, Set<ReadMask> returnMask, final JNACollectionEntryProcessor<T> callback, Object... keys) {
 		final NIFFindByKeyContextStruct ctx = NIFFindByKeyContextStruct.newInstance();
 
 		final boolean convertStringsLazily = true;
@@ -2217,7 +2197,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		final ShortByReference retSignalFlags = new ShortByReference();
 		final IntByReference retSequence = new IntByReference();
 		
-		final int findFlagsAsInt = FindFlag.toBitMaskInt(findFlags) | 0x2000; // => AND_READ_MATCHES
+		final int findFlagsAsInt = Find.toBitMaskInt(findFlags) | 0x2000; // => AND_READ_MATCHES
 
 		final DHANDLE.ByReference rethBuffer = DHANDLE.newInstanceByReference();
 		
@@ -2283,19 +2263,13 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		checkDisposed();
 
 		Navigate useReturnNav = returnNav;
-//		if (useReturnNav == Navigate.ALL_DESCENDANTS) {
-//			//replace with NEXT to get proper results when the data to be read does not
-//			//fit into the buffer and we need a second NIFReadEntries call; we make
-//			//sure not to leave the category in our own code
-//			useReturnNav = Navigate.NEXT_ENTRY;
-//		}
 
 		while (true) {
 			int initialIndexMod = getIndexModifiedSequenceNo();
 			
 			//find category entry
-			NotesViewLookupResultData catLkResult = findByKeyExtended2(EnumSet.of(FindFlag.MATCH_CATEGORYORLEAF,
-					FindFlag.REFRESH_FIRST, FindFlag.RETURN_DWORD, FindFlag.AND_READ_MATCHES, FindFlag.CASE_INSENSITIVE),
+			NotesViewLookupResultData catLkResult = findByKeyExtended2(EnumSet.of(Find.MATCH_CATEGORYORLEAF,
+			    Find.REFRESH_FIRST, Find.CASE_INSENSITIVE),
 					EnumSet.of(ReadMask.NOTEID, ReadMask.SUMMARY), categoryLevels);
 			
 			if (catLkResult.getReturnCount()==0) {
@@ -2807,6 +2781,209 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		}
 	}
 
+	/**
+   * Performs a fulltext search in the collection, storing the search result in the collection,
+   * which means that navigating via {@link Navigate#NEXT_HIT} jumps from one search hit to the next
+   * (setting {@link FTSearch#SET_COLL} option manually is not required).
+   * 
+   * @param query fulltext query
+   * @param maxResults max entries to return or 0 to get all
+   * @param options FTSearch flags
+   * @param filterIDTable optional ID table to refine the search
+   * @return search result
+   */
+  public FTQueryResult ftSearch(String query, int maxResults, Set<FTQuery> options, JNAIDTable filterIDTable) {
+    checkDisposed();
+
+    if (maxResults<0 || maxResults>65535) {
+      throw new IllegalArgumentException("MaxResults must be between 0 and 65535");
+    }
+
+    int start = 0;
+    int count = 0;
+
+    Set<FTQuery> searchOptionsToUse = options
+        .stream()
+        .filter((flag) -> {
+          switch (flag) {
+          case SCORES:
+          case RETURN_IDTABLE:
+          case TOP_SCORES:
+          case STEM_WORDS:
+          case THESAURUS_WORDS:
+          case NOINDEX:
+          case FUZZY:
+          case RETURN_HIGHLIGHT_STRINGS:
+          case SORT_DATE_MODIFIED:
+          case SORT_DATE_CREATED:
+          case SORT_ASCENDING:
+            return true;
+          default:
+            return false;
+          }
+        })
+        .collect(Collectors.toSet());
+    
+    if (filterIDTable!=null) {
+      //automatically set refine option if id table is not null
+      searchOptionsToUse.add(FTQuery.REFINE);
+    }
+    int searchOptionsBitMask = DominoEnumUtil.toBitField(FTQuery.class, searchOptionsToUse);
+    searchOptionsBitMask |= 0x00000001; //SET_COLL
+    
+    final int fSearchOptionsBitMask = searchOptionsBitMask;
+        
+    short limitAsShort = (short) (maxResults & 0xffff); 
+    
+    DHANDLE filterIDTableHandle = filterIDTable==null ? null : filterIDTable.getAdapter(DHANDLE.class);
+    
+    List<String> builderNames = ((JNADominoClient)getParentDominoClient()).getBuilderNamesList();
+
+    DHANDLE hNamesList = null;
+    UserNamesList namesList = getAdapter(UserNamesList.class);
+    if (namesList!=null) {
+      boolean openAsIdUser;
+      
+      if (builderNames.isEmpty()) {
+        openAsIdUser = NotesNamingUtils.equalNames(namesList.getPrimaryName(), getParentDominoClient().getIDUserName());
+      }
+      else {
+        openAsIdUser = false;
+      }
+
+      if (openAsIdUser) {
+        hNamesList = null;
+      }
+      else {
+        JNAUserNamesListAllocations namesListAllocations = (JNAUserNamesListAllocations) namesList.getAdapter(APIObjectAllocations.class);
+        hNamesList = namesListAllocations.getHandle();
+      }
+    }
+    else {
+      hNamesList = null;
+    }
+
+    JNADatabase parentDb = (JNADatabase) getParentDatabase();
+    JNADatabaseAllocations parentDbAllocations = (JNADatabaseAllocations) parentDb.getAdapter(APIObjectAllocations.class);
+    
+    JNADominoCollectionAllocations collectionAllocations = getAllocations();
+    
+    DHANDLE.ByReference rethSearch = collectionAllocations.openSearch();
+    
+    return LockUtil.lockHandles(parentDbAllocations.getDBHandle(), filterIDTableHandle, hNamesList,
+        (hDbByVal,
+        filterIDTableHandleByVal, hNamesListByVal) -> {
+      long t0=System.currentTimeMillis();
+      
+      Memory queryLMBCS = NotesStringUtils.toLMBCS(query, true);
+      IntByReference retNumDocs = new IntByReference();
+      DHANDLE.ByReference rethResults = DHANDLE.newInstanceByReference();
+      
+      DHANDLE.ByReference rethStrings = DHANDLE.newInstanceByReference();
+      IntByReference retNumHits = new IntByReference();
+      short arg = 0;
+      
+      DHANDLE.ByValue hColl = DHANDLE.newInstanceByValue(collectionAllocations.getCollectionHandle());
+
+      short countAsShort = (short) count;
+      
+      short searchResult = NotesCAPI.get().FTSearchExt(hDbByVal, 
+          rethSearch, hColl,
+          queryLMBCS, fSearchOptionsBitMask,
+          limitAsShort,
+          filterIDTableHandleByVal,
+              retNumDocs, rethStrings, rethResults, retNumHits, start, countAsShort, arg, hNamesListByVal);
+      
+      long t1=System.currentTimeMillis();
+
+      if (searchResult==3874) { //no documents found
+        return new JNAFTQueryResult(parentDb, new JNAIDTable(parentDb.getParentDominoClient()), 0, 0, null, null, t1-t0);
+      }
+      NotesErrorUtils.checkResult(searchResult);
+
+      List<String> highlightStrings = null;
+
+
+      if (searchOptionsToUse.contains(FTQuery.RETURN_HIGHLIGHT_STRINGS)) {
+        //decode highlights
+        if (!rethStrings.isNull()) {
+          highlightStrings = LockUtil.lockHandle(rethStrings, (rethStringsByVal) -> {
+            if (rethStringsByVal!=null) {
+              Pointer ptr = Mem.OSLockObject(rethStringsByVal);
+              try {
+                short varLength = ptr.getShort(0);
+                ptr = ptr.share(2);
+                short flags = ptr.getShort(0);
+                ptr = ptr.share(2);
+
+                String strHighlights = NotesStringUtils.fromLMBCS(ptr, varLength & 0xffff);
+
+                List<String> strings = new ArrayList<>();
+                
+                StringTokenizerExt st = new StringTokenizerExt(strHighlights, "\n"); //$NON-NLS-1$
+                while (st.hasMoreTokens()) {
+                  String currToken = st.nextToken();
+                  if (!StringUtil.isEmpty(currToken)) {
+                    strings.add(currToken);
+                  }
+                }
+                
+                return strings;
+              }
+              finally {
+                Mem.OSUnlockObject(rethStringsByVal);
+                Mem.OSMemFree(rethStringsByVal);
+              }
+            }
+            return null;
+          });
+        }
+      }
+      
+      JNAIDTable resultsIdTable = null;
+      List<NoteIdWithScore> matchesWithScore = null;
+      
+      if (searchOptionsToUse.contains(FTQuery.RETURN_IDTABLE)) {
+        if (!rethResults.isNull()) {
+          resultsIdTable = LockUtil.lockHandle(rethResults, (rethResultsByVal) -> {
+            return new JNAIDTable(parentDb.getParentDominoClient(), rethResultsByVal, false);
+          });
+        }
+        else {
+          resultsIdTable = new JNAIDTable(parentDb.getParentDominoClient());
+        }
+      }
+      else {
+        if (!rethResults.isNull()) {
+          matchesWithScore = LockUtil.lockHandle(rethResults, (rethResultsByVal) -> {
+            Pointer ptr = Mem.OSLockObject(rethResultsByVal);
+            try {
+              return FTSearchResultsDecoder.decodeNoteIdsWithStoreSearchResult(ptr, searchOptionsToUse);
+            }
+            finally {
+              Mem.OSUnlockObject(rethResultsByVal);
+              Mem.OSMemFree(rethResultsByVal);
+            }
+          });
+        }
+      }
+      
+      return new JNAFTQueryResult(parentDb, resultsIdTable, retNumDocs.getValue(), retNumHits.getValue(), highlightStrings,
+          matchesWithScore, t1-t0);
+    });
+    
+  }
+  
+  /**
+   * Resets an active filtering cause by a FT search
+   */
+  public void clearSearch() {
+    checkDisposed();
+    
+    JNADominoCollectionAllocations collectionAllocations = getAllocations();
+    collectionAllocations.clearSearch();
+  }
+  
 	@Override
 	public String toStringLocal() {
 		if (isDisposed()) {

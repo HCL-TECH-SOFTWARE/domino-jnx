@@ -19,6 +19,7 @@ package com.hcl.domino.jna.internal;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import com.hcl.domino.data.FTQuery;
 import com.hcl.domino.data.NoteIdWithScore;
@@ -28,7 +29,7 @@ import com.sun.jna.Pointer;
 public class FTSearchResultsDecoder {
 
 	public static List<NoteIdWithScore> decodeNoteIdsWithStoreSearchResult(Pointer ptr, 
-			EnumSet<FTQuery> searchOptions) {
+			Set<FTQuery> searchOptions) {
 		
 		int numHits = ptr.getInt(0);
 		ptr = ptr.share(4);

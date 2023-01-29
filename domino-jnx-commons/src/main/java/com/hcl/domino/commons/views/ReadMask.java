@@ -61,8 +61,6 @@ public enum ReadMask {
   SCORE(0x00000200),
   /** TRUE if this entry is unread, FALSE otherwise */
   INDEXUNREAD(0x00000400),
-  /** unknown */
-  SERETFLAGS(0x800),
   /** Collection statistics (as a {@link NotesCollectionStats} object) */
   COLLECTIONSTATS(0x00000100),
   /**
@@ -72,8 +70,6 @@ public enum ReadMask {
   RETURN_DWORD(0x00001000),
   /** Return the position of an entry in the collection */
   INDEXPOSITION(0x00004000),
-  /** Return "short" (build 110 or earlier) COLLECTIONPOSITIONS */
-  SHORT_COLPOS(0x00010000),
   /**
    * IndexPos.Tumbler[0] is a NOTEID for initial position
    * (looks like this only works with document note ids, categories return err
@@ -88,8 +84,6 @@ public enum ReadMask {
   SUMMARY_PERMUTED(0x00040000),
   /** Don't return subtotals */
   NO_SUBTOTALS(0x00080000),
-  /** In single-column read mode, don't return entries with column value empty */
-  NO_EMPTY_VALUES(0x00100000),
   /**
    * Do DbColumn logic - if categories have non-empty values for
    * single-column reading mode, just read the categories
@@ -119,9 +113,7 @@ public enum ReadMask {
   /** Exclude internal entries - readers list field, $REF, $CONFLICT */
   NO_INTERNAL_ENTRIES(0x10000000),
   /** Compute subtotals */
-  COMPUTE_SUBTOTALS(0x20000000),
-  /** unknown */
-  ALL(0xE7FF);
+  COMPUTE_SUBTOTALS(0x20000000);
 
   public static int toBitMask(final Set<ReadMask> readMaskSet) {
     int result = 0;

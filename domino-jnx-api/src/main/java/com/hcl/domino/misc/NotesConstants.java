@@ -4790,4 +4790,10 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   /* prevents any sharing of associated structures such as unread lists, etc */
   short OPEN_REOPEN_COLLECTION = 0x0020;
 
+  /** Input/Output is DWORD COLLECTIONPOSITION */
+  short FIND_RETURN_DWORD = 0x0004;
+
+  /** Read and buffer matches NIFFindByKeyExtended2 only */
+  short FIND_AND_READ_MATCHES = 0x2000;
+  
 }
