@@ -40,7 +40,15 @@ public interface DesignEntry<T extends DesignElement> {
    * 
    * @return the design-element note ID
    */
-  int getNoteId();
+  int getNoteID();
+  
+  /**
+   * Retrieves the universal ID of the underlying note for the design
+   * element.
+   * 
+   * @return the design-element UNID
+   */
+  String getUNID();
   
   /**
    * Retrieves the title and any aliases of the design element.

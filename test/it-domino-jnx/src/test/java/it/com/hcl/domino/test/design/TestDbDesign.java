@@ -649,6 +649,8 @@ public class TestDbDesign extends AbstractDesignTest {
     assertEquals(4, pageEntries.size());
     assertTrue(pageEntries.stream().anyMatch(p -> p.getTitles().contains("Navigation Header")));
     assertTrue(pageEntries.stream().anyMatch(p -> p.getTitles().contains("Test Page")));
+    
+    assertTrue(pageEntries.stream().noneMatch(p -> p.getUNID() == null || p.getUNID().isEmpty()));
   }
   
   @Test

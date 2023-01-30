@@ -37,8 +37,13 @@ public class DesignEntryImpl<T extends DesignElement> implements DesignEntry<T> 
   }
 
   @Override
-  public int getNoteId() {
+  public int getNoteID() {
     return this.noteId;
+  }
+  
+  @Override
+  public String getUNID() {
+    return this.entry.getUNID();
   }
 
   @Override

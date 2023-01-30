@@ -334,7 +334,7 @@ public abstract class AbstractDbDesign implements DbDesign {
     // By default, FileResource is mapped to the Designer list only
     if(includeXsp) {
       return this.findDesignNotes(DocumentClass.FORM, NotesConstants.DFLAGPAT_FILE)
-        .map(entry -> this.database.getDocumentById(entry.getNoteId()))
+        .map(entry -> this.database.getDocumentById(entry.getNoteID()))
         .map(Optional::get)
         .map(FileResourceImpl::new);
     } else {
@@ -733,6 +733,7 @@ public abstract class AbstractDbDesign implements DbDesign {
 
     final DominoCollection designColl = this.database.openDesignCollection();
     final CollectionSearchQuery query = designColl.query()
+        .readUNID()
         .readDocumentClass()
         .readColumnValues();
     boolean hasPattern;
