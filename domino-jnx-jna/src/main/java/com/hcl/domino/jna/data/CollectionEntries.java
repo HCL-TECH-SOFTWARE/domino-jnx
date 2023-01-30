@@ -359,7 +359,7 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
   }
   
   /**
-   * Applies a fulltext search on the view, changing the order of entries, e.g. to "by relevance" or
+   * Applies a fulltext search on the view, changing the order of entries, e.g. to "by descending relevance" (default) or
    * {@link FTQuery#SORT_DATE_CREATED}
    * 
    * @param ftQuery fulltext query
@@ -382,7 +382,7 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
    */
   @Override
   public Iterator<CollectionEntry> iterator() {
-    JNACollectionEntryIterator it = new JNACollectionEntryIterator(this);
+    JNACollectionEntryIterator it = new JNACollectionEntryIterator(collection);
     
     it.setSkip(skip);
     it.setCount(limit);

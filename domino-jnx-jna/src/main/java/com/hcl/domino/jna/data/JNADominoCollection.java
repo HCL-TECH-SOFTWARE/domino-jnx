@@ -2789,10 +2789,10 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
    * @param query fulltext query
    * @param maxResults max entries to return or 0 to get all
    * @param options FTSearch flags
-   * @param filterIDTable optional ID table to refine the search
+   * @param filterIDs optional IDs to refine the search
    * @return search result
    */
-  public FTQueryResult ftSearch(String query, int maxResults, Set<FTQuery> options, JNAIDTable filterIDTable) {
+  public FTQueryResult ftSearch(String query, int maxResults, Set<FTQuery> options, Set<Integer> filterIDs) {
     checkDisposed();
 
     if (maxResults<0 || maxResults>65535) {
@@ -2808,7 +2808,6 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
           switch (flag) {
           case SCORES:
           case RETURN_IDTABLE:
-          case TOP_SCORES:
           case STEM_WORDS:
           case THESAURUS_WORDS:
           case NOINDEX:
@@ -2824,7 +2823,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
         })
         .collect(Collectors.toSet());
     
-    if (filterIDTable!=null) {
+    if (filterIDs!=null) {
       //automatically set refine option if id table is not null
       searchOptionsToUse.add(FTQuery.REFINE);
     }
@@ -2834,6 +2833,14 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     final int fSearchOptionsBitMask = searchOptionsBitMask;
         
     short limitAsShort = (short) (maxResults & 0xffff); 
+    
+    JNAIDTable filterIDTable = null;
+    if (filterIDs instanceof JNAIDTable) {
+      filterIDTable = (JNAIDTable) ((JNAIDTable)filterIDs).clone();
+    }
+    else if (filterIDs!=null) {
+      filterIDTable = new JNAIDTable(getParentDominoClient(), filterIDs);
+    }
     
     DHANDLE filterIDTableHandle = filterIDTable==null ? null : filterIDTable.getAdapter(DHANDLE.class);
     

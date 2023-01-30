@@ -2,6 +2,7 @@ package com.hcl.domino.jna.data;
 
 import java.text.MessageFormat;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,10 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import com.hcl.domino.DominoClient;
-import com.hcl.domino.UserNamesList;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
@@ -26,178 +24,123 @@ import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.FTQuery;
+import com.hcl.domino.data.FTQueryResult;
 import com.hcl.domino.data.Find;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.Navigate;
-import com.hcl.domino.jna.JNADominoClient;
-import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
-import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNADominoCollectionAllocations;
-import com.hcl.domino.jna.internal.gc.allocations.JNAUserNamesListAllocations;
-import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.views.NotesViewLookupResultData;
-import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.ptr.ShortByReference;
 
 public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
-  private CollectionEntries builder;
-  private JNADominoCollection collection;
-  private Navigate direction = Navigate.NEXT_ENTRY;
-  private Set<ReadMask> readMask = EnumSet.of(ReadMask.NOTEID);
-  
-  private int skip;
-  private int count = -1;
-  
-  private Object[] categoryLevelsAsArr;
-  private boolean m_startAtLastEntry;
-  private String m_startAtPosition;
-  private int m_startAtEntryId;
+  private CollectionTraversalContext m_defaultCtx;
 
-  private String nameOfSingleColumnToRead;
-  private Integer indexOfSingleColumnToRead;
-
-  private Function<DominoCollection, Action> viewIndexChangedHandler;
-
-  //IDTables to control what is expanded/selected
-  private ExpandedEntries m_expandedEntries;
-  private JNAIDTable m_expandedEntriesResolved;
-  private boolean m_hasExpandedEntries;
-  
-  private SelectedEntries m_selectedEntries;
-  private JNAIDTable m_selectedEntriesResolved;
-  private boolean m_hasSelectionSet;
-  private String ftQuery;
-  private int ftMaxDocs;
-  private Set<FTQuery> ftFlags;
-
-  // computed values during traversal
-  
-  private JNADominoCollectionPosition categoryEntryPos;
-  
-  private boolean firstRun;
-  private int initialSkip;
-  private Integer total;
-  private Consumer<Integer> totalConsumer;
-  private Consumer<CollectionEntry> categoryConsumer;
-  private Navigate skipNav;
-  private Navigate returnNav;
-  private JNADominoCollectionPosition currPosForTotalComputation;
-  private JNADominoCollectionPosition currPos;
-  private int minLevel;
-  private int entriesReturned;
-  
-  private boolean initialized;
-  private LinkedList<CollectionEntry> nextPage;
-  private int maxBufferEntries = Integer.MAX_VALUE;
-  private boolean isDone;
-  
-
-  public JNACollectionEntryIterator(CollectionEntries builder) {
-    this.builder = builder;
-    this.collection = builder.getCollection();
+  public JNACollectionEntryIterator(JNADominoCollection collection) {
+    this.m_defaultCtx = new CollectionTraversalContext();
+    m_defaultCtx.m_collection = collection;
   }
   
   public JNACollectionEntryIterator setMaxBufferEntries(int maxBufferEntries) {
     if (maxBufferEntries < 1) {
       throw new IllegalArgumentException(MessageFormat.format("Max buffer size must be 1 or higher: {0}", maxBufferEntries));
     }
-    this.maxBufferEntries = maxBufferEntries;
+    m_defaultCtx.m_maxBufferEntries = maxBufferEntries;
     return this;
   }
   
   public JNACollectionEntryIterator setSkip(int skip) {
-    this.skip = skip;
+    m_defaultCtx.m_skip = skip;
     return this;
   }
   
   public JNACollectionEntryIterator setCount(int count) {
-    this.count = count;
+    m_defaultCtx.m_count = count;
     return this;
   }
   
   public JNACollectionEntryIterator setTotalReceiver(Consumer<Integer> totalConsumer) {
-    this.totalConsumer = totalConsumer;
+    m_defaultCtx.m_totalConsumer = totalConsumer;
     return this;
   }
   
   public JNACollectionEntryIterator setCategoryReceiver(Consumer<CollectionEntry> categoryConsumer) {
-    this.categoryConsumer = categoryConsumer;
+    m_defaultCtx.m_categoryConsumer = categoryConsumer;
     return this;
   }
   
   public JNACollectionEntryIterator setDirection(Navigate direction) {
-    this.direction = direction;
+    m_defaultCtx.m_direction = direction;
     return this;
   }
   
   public JNACollectionEntryIterator setReadMask(Set<ReadMask> readMask) {
-    this.readMask = EnumSet.copyOf(readMask);
+    m_defaultCtx.m_readMask = EnumSet.copyOf(readMask);
     return this;
   }
   
   public JNACollectionEntryIterator setRestrictToCategory(List<Object> categoryLevels) {
-    categoryLevelsAsArr = categoryLevels==null ? null : categoryLevels.toArray(new Object[categoryLevels.size()]);
+    m_defaultCtx.m_categoryLevelsAsArr = categoryLevels==null ? null : categoryLevels.toArray(new Object[categoryLevels.size()]);
     return this;
   }
   
   public JNACollectionEntryIterator setNameOfSingleColumnToRead(String nameOfSingleColumnToRead) {
-    this.nameOfSingleColumnToRead = nameOfSingleColumnToRead;
+    m_defaultCtx.m_nameOfSingleColumnToRead = nameOfSingleColumnToRead;
     return this;
   }
 
   public JNACollectionEntryIterator setIndexOfSingleColumnToRead(int indexOfSingleColumnToRead) {
-    this.indexOfSingleColumnToRead = indexOfSingleColumnToRead;
+    m_defaultCtx.m_indexOfSingleColumnToRead = indexOfSingleColumnToRead;
     return this;
   }
 
   public JNACollectionEntryIterator setViewIndexChangedHandler(Function<DominoCollection, Action> handler) {
-    this.viewIndexChangedHandler = handler;
+    m_defaultCtx.m_viewIndexChangedHandler = handler;
     return this;
   }
   
   public JNACollectionEntryIterator setStartAtFirstEntry() {
-    this.m_startAtLastEntry = false;
-    this.m_startAtPosition = null;
-    this.m_startAtEntryId = 0;
+    m_defaultCtx.m_startAtLastEntry = false;
+    m_defaultCtx.m_startAtPosition = null;
+    m_defaultCtx.m_startAtEntryId = 0;
     return this;
   }
 
   public JNACollectionEntryIterator setStartAtLastEntry() {
-    this.m_startAtLastEntry = true;
-    this.m_startAtPosition = null;
-    this.m_startAtEntryId = 0;
+    m_defaultCtx.m_startAtLastEntry = true;
+    m_defaultCtx.m_startAtPosition = null;
+    m_defaultCtx.m_startAtEntryId = 0;
     return this;
   }
   
   public JNACollectionEntryIterator setStartAtPosition(String pos) {
-    this.m_startAtPosition = pos;
-    this.m_startAtLastEntry = false;
-    this.m_startAtEntryId = 0;
+    m_defaultCtx.m_startAtPosition = pos;
+    m_defaultCtx.m_startAtLastEntry = false;
+    m_defaultCtx.m_startAtEntryId = 0;
     return this;
   }
 
   public JNACollectionEntryIterator setStartAtEntryId(int noteId) {
-    this.m_startAtEntryId = noteId;
-    this.m_startAtLastEntry = false;
-    this.m_startAtPosition = null;
+    m_defaultCtx.m_startAtEntryId = noteId;
+    m_defaultCtx.m_startAtLastEntry = false;
+    m_defaultCtx.m_startAtPosition = null;
     return this;
   }
 
   public JNACollectionEntryIterator setRestrictionToFTResults(String ftQuery, int ftMaxDocs, Set<FTQuery> ftFlags) {
-    this.ftQuery = ftQuery;
-    this.ftMaxDocs = ftMaxDocs;
-    this.ftFlags = ftFlags;
+    m_defaultCtx.m_ftQuery = ftQuery;
+    m_defaultCtx.m_ftMaxDocs = ftMaxDocs;
+    m_defaultCtx.m_ftFlags = ftFlags;
     return this;
   }
 
-  private boolean isUpwardDirection(Navigate nav) {
+  private static boolean isUpwardDirection(Navigate nav) {
     return !isDownwardDirection(nav);
   }
   
-  private boolean isDownwardDirection(Navigate nav) {
+  private static boolean isDownwardDirection(Navigate nav) {
     switch (nav) {
     case CHILD_ENTRY:
     case NEXT_CATEGORY:
@@ -223,28 +166,28 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
   }
   
   public JNACollectionEntryIterator select(SelectedEntries selectedEntries, JNAIDTable idTable) {
-    m_selectedEntries = selectedEntries;
-    m_selectedEntriesResolved = idTable;
-    m_hasSelectionSet = true;
+    m_defaultCtx.m_selectedEntries = selectedEntries;
+    m_defaultCtx.m_selectedEntriesResolved = idTable;
+    m_defaultCtx.m_hasSelectionSet = true;
     
-    if (!isDirectionWithSelection(direction)) {
+    if (!isDirectionWithSelection(m_defaultCtx.m_direction)) {
       //automatically select a traversal strategy that makes use of
       //selection / expanded info
       
-      if (isDownwardDirection(direction)) {
-        if (isDirectionWithExpandCollapse(direction)) {
-          this.direction = Navigate.NEXT_EXPANDED_SELECTED;
+      if (isDownwardDirection(m_defaultCtx.m_direction)) {
+        if (isDirectionWithExpandCollapse(m_defaultCtx.m_direction)) {
+          m_defaultCtx.m_direction = Navigate.NEXT_EXPANDED_SELECTED;
         }
         else {
-          this.direction = Navigate.NEXT_SELECTED;
+          m_defaultCtx.m_direction = Navigate.NEXT_SELECTED;
         }
       }
       else {
-        if (isDirectionWithExpandCollapse(direction)) {
-          this.direction = Navigate.PREV_EXPANDED_SELECTED;
+        if (isDirectionWithExpandCollapse(m_defaultCtx.m_direction)) {
+          m_defaultCtx.m_direction = Navigate.PREV_EXPANDED_SELECTED;
         }
         else {
-          this.direction = Navigate.PREV_SELECTED;
+          m_defaultCtx.m_direction = Navigate.PREV_SELECTED;
         }
       }
     }
@@ -252,146 +195,154 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
   }
 
   public JNACollectionEntryIterator expand(ExpandedEntries expandedEntries, JNAIDTable idTable) {
-    m_expandedEntries = expandedEntries;
-    m_expandedEntriesResolved = idTable;
-    m_hasExpandedEntries = true;
+    m_defaultCtx.m_expandedEntries = expandedEntries;
+    m_defaultCtx.m_expandedEntriesResolved = idTable;
+    m_defaultCtx.m_hasExpandedEntries = true;
     
-    if (!isDirectionWithExpandCollapse(direction)) {
+    if (!isDirectionWithExpandCollapse(m_defaultCtx.m_direction)) {
       //automatically select a traversal strategy that makes use of
       //selection / expanded info
       
-      if (isDownwardDirection(direction)) {
-        if (isDirectionWithSelection(direction)) {
-          this.direction = Navigate.NEXT_EXPANDED_SELECTED;
+      if (isDownwardDirection(m_defaultCtx.m_direction)) {
+        if (isDirectionWithSelection(m_defaultCtx.m_direction)) {
+          m_defaultCtx.m_direction = Navigate.NEXT_EXPANDED_SELECTED;
         }
         else {
-          this.direction = Navigate.NEXT_EXPANDED;
+          m_defaultCtx.m_direction = Navigate.NEXT_EXPANDED;
         }
       }
       else {
-        if (isDirectionWithSelection(direction)) {
-          this.direction = Navigate.PREV_EXPANDED_SELECTED;
+        if (isDirectionWithSelection(m_defaultCtx.m_direction)) {
+          m_defaultCtx.m_direction = Navigate.PREV_EXPANDED_SELECTED;
         }
         else {
-          this.direction = Navigate.PREV_EXPANDED;
+          m_defaultCtx.m_direction = Navigate.PREV_EXPANDED;
         }
       }
     }
     return this;
   }
-  
-  @Override
-  public boolean hasNext() {
-    init();
+
+  private static boolean hasNext(CollectionTraversalContext ctx) {
+    init(ctx);
     
-    if (count==0 || entriesReturned>=count) {
+    if (ctx.m_count==0 || ctx.m_entriesReturned>=ctx.m_count) {
       return false;
     }
-    else if (nextPage==null) {
+    else if (ctx.m_nextPage==null) {
       //first call
-      fetchNextPage();
+      fetchNextPage(ctx);
     }
-    else if (nextPage.isEmpty()) {
+    else if (ctx.m_nextPage.isEmpty()) {
       //we need to fetch more entries
-      if (isDone) {
+      if (ctx.m_isDone) {
         //but we have reached the end of the view
         return false;
       }
       else {
-        fetchNextPage();
+        fetchNextPage(ctx);
       }
     }
     
-    return !nextPage.isEmpty();
+    return !ctx.m_nextPage.isEmpty();
   }
 
   @Override
-  public CollectionEntry next() {
-    if (!hasNext()) {
+  public boolean hasNext() {
+    return hasNext(m_defaultCtx);
+  }
+
+  private static CollectionEntry next(CollectionTraversalContext ctx) {
+    if (!hasNext(ctx)) {
       throw new NoSuchElementException();
     }
     
-    CollectionEntry entry = nextPage.removeFirst();
-    entriesReturned++;
+    CollectionEntry entry = ctx.m_nextPage.removeFirst();
+    ctx.m_entriesReturned++;
     return entry;
   }
+  
+  @Override
+  public CollectionEntry next() {
+    return next(m_defaultCtx);
+  }
 
-  private void markNoData() {
-    currPos = null;
-    nextPage = new LinkedList<>();
-    isDone = true;
+  private static void markNoData(CollectionTraversalContext ctx) {
+    ctx.m_currPos = null;
+    ctx.m_nextPage = new LinkedList<>();
+    ctx.m_isDone = true;
   }
   
-  public int getTotal() {
-    if (total==null) {
-      init();
+  private static int getTotal(CollectionTraversalContext ctx) {
+    if (ctx.m_total==null) {
+      init(ctx);
       
-      if (total==null) { // init() might set total
-        JNADominoCollectionPosition tmpPos = (JNADominoCollectionPosition) currPosForTotalComputation.clone();
+      if (ctx.m_total==null) { // init() might set total
+        JNADominoCollectionPosition tmpPos = (JNADominoCollectionPosition) ctx.m_currPosForTotalComputation.clone();
         
         NotesViewLookupResultData skipAllLkResult =
-            collection.readEntriesExt(tmpPos,
-            skipNav, true,
+            ctx.m_collection.readEntriesExt(tmpPos,
+                ctx.m_skipNav, true,
             Integer.MAX_VALUE, Navigate.CURRENT,
-            0, readMask, (DominoDateTime) null,
+            0, ctx.m_readMask, (DominoDateTime) null,
             (JNAIDTable) null,
-            (Integer) indexOfSingleColumnToRead);
+            (Integer) ctx.m_indexOfSingleColumnToRead);
         
-        total = skipAllLkResult.getSkipCount();
-        if (initialSkip == 0) {
+        ctx.m_total = skipAllLkResult.getSkipCount();
+        if (ctx.m_initialSkip == 0) {
           //add the first position to the count
-          total++;
+          ctx.m_total++;
         }
       }
     }
-    return total;
+    return ctx.m_total;
   }
   
-  private void init() {
-    if (initialized) {
+  private static void init(CollectionTraversalContext ctx) {
+    if (ctx.m_initialized) {
       return;
     }
     
-    initialized = true;
-    firstRun = true;
+    ctx.m_initialized = true;
+    ctx.m_firstRun = true;
     
-    JNADominoCollectionAllocations collectionAllocations = (JNADominoCollectionAllocations) collection.getAdapter(APIObjectAllocations.class);
+    JNADominoCollectionAllocations collectionAllocations = (JNADominoCollectionAllocations) ctx.m_collection.getAdapter(APIObjectAllocations.class);
     
     ShortByReference updateFiltersFlags = new ShortByReference();
     //init selected / expanded IDTables and returns the direction to read entries
-    Navigate directionToUse = prepareCollectionReadRestrictions(collectionAllocations, updateFiltersFlags);
+    Navigate directionToUse = prepareCollectionReadRestrictions(ctx, collectionAllocations, updateFiltersFlags);
     
-    this.skipNav = directionToUse;
-    this.returnNav = directionToUse;
+    ctx.m_skipNav = directionToUse;
+    ctx.m_returnNav = directionToUse;
     
-    if (skipNav == Navigate.FIRST_ON_SAME_LEVEL) {
+    if (ctx.m_skipNav == Navigate.FIRST_ON_SAME_LEVEL) {
       //just return first element
-      returnNav = Navigate.CURRENT;
+      ctx.m_returnNav = Navigate.CURRENT;
     }
-    else if (skipNav == Navigate.LAST_ON_SAME_LEVEL) {
+    else if (ctx.m_skipNav == Navigate.LAST_ON_SAME_LEVEL) {
       //just return last element
-      returnNav = Navigate.CURRENT;
+      ctx.m_returnNav = Navigate.CURRENT;
     }
     
-    if (returnNav == Navigate.CURRENT && count>1) {
+    if (ctx.m_returnNav == Navigate.CURRENT && ctx.m_count>1) {
       //prevent reading too many entries if navigation is set to just read the current entry
-      count = 1;
+      ctx.m_count = 1;
     }
     
-    if (count < 0) {
-      count = Integer.MAX_VALUE;
+    if (ctx.m_count < 0) {
+      ctx.m_count = Integer.MAX_VALUE;
     }
     
-    maxBufferEntries = Math.min(maxBufferEntries, count);
+    ctx.m_maxBufferEntries = Math.min(ctx.m_maxBufferEntries, ctx.m_count);
 
-    if (this.indexOfSingleColumnToRead==null && this.nameOfSingleColumnToRead!=null) {
-      this.indexOfSingleColumnToRead = collection.getColumnValuesIndex(nameOfSingleColumnToRead);
+    if (ctx.m_indexOfSingleColumnToRead==null && ctx.m_nameOfSingleColumnToRead!=null) {
+      ctx.m_indexOfSingleColumnToRead = ctx.m_collection.getColumnValuesIndex(ctx.m_nameOfSingleColumnToRead);
     }
 
     final short updateFiltersFlagsVal = updateFiltersFlags.getValue();
     if (updateFiltersFlagsVal != 0) {
       LockUtil.lockHandle(collectionAllocations.getCollectionHandle(), (collectionHandleByVal) -> {
-        if (!collection.isDisposed()) {
+        if (!ctx.m_collection.isDisposed()) {
           
           //the method prepareCollectionReadRestrictions has modified the selected list; for remote databases, push IDTable changes via NRPC
 
@@ -405,242 +356,309 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
     
     //compute where to start reading
     
-    if (categoryLevelsAsArr!=null) {
+    if (ctx.m_categoryLevelsAsArr!=null) {
       //we should only read a subset of the view
       
       //add INDEXPOSITION to be able to check if we're still below the category
-      readMask.add(ReadMask.INDEXPOSITION);
+      ctx.m_readMask.add(ReadMask.INDEXPOSITION);
 
       //find category entry position
 
-      JNACollectionEntry categoryEntry = findCategoryPosition(collection, categoryLevelsAsArr).orElse(null);
+      JNACollectionEntry categoryEntry = findCategoryPosition(ctx.m_collection, ctx.m_categoryLevelsAsArr).orElse(null);
       
       if (categoryEntry==null) {
         //category not found or gone
-        markNoData();
+        markNoData(ctx);
         return;
       }
 
-      if (categoryConsumer!=null) {
-        categoryConsumer.accept(categoryEntry);
+      if (ctx.m_categoryConsumer!=null) {
+        ctx.m_categoryConsumer.accept(categoryEntry);
       }
       
-      String categoryPosStr = categoryEntry.getSpecialValue(SpecialValue.INDEXPOSITION, String.class, ""); //$NON-NLS-1$
-      categoryEntryPos = new JNADominoCollectionPosition(categoryPosStr);
-      minLevel = categoryEntryPos.getLevel()+1;
+      String categoryPosStr = getIndexPositionAsString(categoryEntry);
+      ctx.m_categoryEntryPos = new JNADominoCollectionPosition(categoryPosStr);
+      ctx.m_minLevel = ctx.m_categoryEntryPos.getLevel()+1;
 
-      if (m_startAtPosition!=null) {
+      if (ctx.m_startAtPosition!=null) {
         //check if start position is within our subset
         
-        if (!m_startAtPosition.startsWith(categoryPosStr+".")) { //$NON-NLS-1$
+        if (!ctx.m_startAtPosition.startsWith(categoryPosStr+".")) { //$NON-NLS-1$
           //start position is out of scope
-          markNoData();
+          markNoData(ctx);
           return;
         }
         
-        currPos = new JNADominoCollectionPosition(m_startAtPosition);
+        ctx.m_currPos = new JNADominoCollectionPosition(ctx.m_startAtPosition);
       }
-      else if (m_startAtEntryId!=0) {
-        String entryPos = collection.locateNote(categoryPosStr, m_startAtEntryId);
+      else if (ctx.m_startAtEntryId!=0) {
+        String entryPos = ctx.m_collection.locateNote(categoryPosStr, ctx.m_startAtEntryId);
         if (StringUtil.isEmpty(entryPos)) {
           //entry not found
-          markNoData();
+          markNoData(ctx);
           return;
         }
         
-        currPos = new JNADominoCollectionPosition(entryPos);
+        ctx.m_currPos = new JNADominoCollectionPosition(entryPos);
       }
-      else if (m_startAtLastEntry) {
+      else if (ctx.m_startAtLastEntry) {
         //skip over the whole view subtree to find the last entry based on the selection / expanded entries
         JNADominoCollectionPosition lastEntrySearchStartPos = new JNADominoCollectionPosition(categoryPosStr);
-        lastEntrySearchStartPos.setMinLevel(minLevel);
+        lastEntrySearchStartPos.setMinLevel(ctx.m_minLevel);
         
         //make sure we navigate downwards
-        Navigate skipNavDownwards = toDownwardsDirection(skipNav);
+        Navigate skipNavDownwards = toDownwardsDirection(ctx.m_skipNav);
         
         NotesViewLookupResultData lastEntryLkResult =
-            collection.readEntriesExt(lastEntrySearchStartPos,
+            ctx.m_collection.readEntriesExt(lastEntrySearchStartPos,
             skipNavDownwards, true,
             Integer.MAX_VALUE, Navigate.CURRENT,
             1, EnumSet.of(ReadMask.INDEXPOSITION), (DominoDateTime) null,
             (JNAIDTable) null,
-            (Integer) indexOfSingleColumnToRead);
+            (Integer) ctx.m_indexOfSingleColumnToRead);
         
-        if (isUpwardDirection(skipNav)) {
+        if (isUpwardDirection(ctx.m_skipNav)) {
           //if our direction is upwards, we already counted the total entries to traverse
-          total = lastEntryLkResult.getSkipCount();
+          ctx.m_total = lastEntryLkResult.getSkipCount();
         }
         
         String lastEntryPosStr = ""; //$NON-NLS-1$
         
         if (!lastEntryLkResult.getEntries().isEmpty()) {
-          lastEntryPosStr = lastEntryLkResult
+          lastEntryPosStr = getIndexPositionAsString(
+              lastEntryLkResult
               .getEntries()
-              .get(0)
-              .getSpecialValue(SpecialValue.INDEXPOSITION, String.class, ""); //$NON-NLS-1$
+              .get(0));
         }
         
         if (StringUtil.isEmpty(lastEntryPosStr)) {
           //view is empty
-          markNoData();
+          markNoData(ctx);
           return;
         }
         else if (!lastEntryPosStr.startsWith(categoryPosStr+".")) { //$NON-NLS-1$
           //somehow our found last position is out of scope
-          markNoData();
+          markNoData(ctx);
           return;
         }
         else {
-          currPos = new JNADominoCollectionPosition(lastEntryPosStr);
+          ctx.m_currPos = new JNADominoCollectionPosition(lastEntryPosStr);
         }
       }
       else {
-        currPos = new JNADominoCollectionPosition(categoryPosStr+".0"); //$NON-NLS-1$
-        initialSkip = 1;
+        ctx.m_currPos = new JNADominoCollectionPosition(categoryPosStr+".0"); //$NON-NLS-1$
+        ctx.m_initialSkip = 1;
       }
       
-      currPos.setMinLevel(minLevel);
-      currPosForTotalComputation = (JNADominoCollectionPosition) currPos.clone();
+      ctx.m_currPos.setMinLevel(ctx.m_minLevel);
+      ctx.m_currPosForTotalComputation = (JNADominoCollectionPosition) ctx.m_currPos.clone();
     }
     else {
       //no top level category
       
-      categoryEntryPos = null;
-      minLevel = 0;
+      ctx.m_categoryEntryPos = null;
+      ctx.m_minLevel = 0;
       
-      if (m_startAtLastEntry) {
+      if (ctx.m_startAtLastEntry) {
       //skip over the whole view subtree to find the last entry based on the selection / expanded entries
         JNADominoCollectionPosition lastEntrySearchStartPos = new JNADominoCollectionPosition("0"); //$NON-NLS-1$
         
         //make sure we navigate downwards
-        Navigate skipNavDownwards = toDownwardsDirection(skipNav);
+        Navigate skipNavDownwards = toDownwardsDirection(ctx.m_skipNav);
+
+        String lastEntryPosStr = ""; //$NON-NLS-1$
+
+        JNADominoCollectionPosition lastEntrySearchStartPosCopy = (JNADominoCollectionPosition) lastEntrySearchStartPos.clone();
         
         NotesViewLookupResultData lastEntryLkResult =
-            collection.readEntriesExt(lastEntrySearchStartPos,
+            ctx.m_collection.readEntriesExt(lastEntrySearchStartPosCopy,
             skipNavDownwards, true,
-            Integer.MAX_VALUE, Navigate.CURRENT,
+            Integer.MAX_VALUE, skipNavDownwards, // don't use Navigate.CURRENT here, returns no data for fulltext search results
             1, EnumSet.of(ReadMask.INDEXPOSITION), (DominoDateTime) null,
             (JNAIDTable) null,
-            (Integer) indexOfSingleColumnToRead);
+            (Integer) ctx.m_indexOfSingleColumnToRead);
         
-        if (isUpwardDirection(skipNav)) {
+        if (isUpwardDirection(ctx.m_skipNav)) {
           //if our direction is upwards, we already counted the total entries to traverse
-          total = lastEntryLkResult.getSkipCount();
+          ctx.m_total = lastEntryLkResult.getSkipCount();
         }
-        
-        String lastEntryPosStr = ""; //$NON-NLS-1$
-        
+
         if (!lastEntryLkResult.getEntries().isEmpty()) {
-          lastEntryPosStr = lastEntryLkResult
+          lastEntryPosStr = getIndexPositionAsString(lastEntryLkResult
               .getEntries()
-              .get(0)
-              .getSpecialValue(SpecialValue.INDEXPOSITION, String.class, ""); //$NON-NLS-1$
+              .get(0));
         }
         
         if (StringUtil.isEmpty(lastEntryPosStr)) {
           //view is empty
-          markNoData();
+          markNoData(ctx);
           return;
         }
         else {
-          currPos = new JNADominoCollectionPosition(lastEntryPosStr);
+          ctx.m_currPos = new JNADominoCollectionPosition(lastEntryPosStr);
         }
       }
-      else if (m_startAtEntryId!=0) {
-        readMask.add(ReadMask.INIT_POS_NOTEID);
-        currPos = new JNADominoCollectionPosition(Integer.toString(m_startAtEntryId));
+      else if (ctx.m_startAtEntryId!=0) {
+        ctx.m_readMask.add(ReadMask.INIT_POS_NOTEID);
+        ctx.m_currPos = new JNADominoCollectionPosition(Integer.toString(ctx.m_startAtEntryId));
       }
-      else if (m_startAtPosition!=null) {
-        currPos = new JNADominoCollectionPosition(m_startAtPosition);
+      else if (ctx.m_startAtPosition!=null) {
+        ctx.m_currPos = new JNADominoCollectionPosition(ctx.m_startAtPosition);
       }
       else {
-        currPos = new JNADominoCollectionPosition("0"); //$NON-NLS-1$
-        initialSkip = 1;
+        ctx.m_currPos = new JNADominoCollectionPosition("0"); //$NON-NLS-1$
+        ctx.m_initialSkip = 1;
       }
       
-      currPosForTotalComputation = (JNADominoCollectionPosition) currPos.clone();
+      ctx.m_currPosForTotalComputation = (JNADominoCollectionPosition) ctx.m_currPos.clone();
     }
   }
   
-  private void fetchNextPage() {
-    init();
+  private static String getIndexPositionAsString(CollectionEntry entry)  {
+    return entry.getSpecialValue(SpecialValue.INDEXPOSITION, String.class, ""); //$NON-NLS-1$
+  }
+
+  private static int[] getIndexPositionAsArray(CollectionEntry entry)  {
+    return entry.getSpecialValue(SpecialValue.INDEXPOSITION, int[].class, null); //$NON-NLS-1$
+  }
+
+  private static class CollectionTraversalContext {
+    private boolean m_initialized;
     
-    if (isDone || currPos==null) {
+    private JNADominoCollection m_collection;
+    private Set<ReadMask> m_readMask = EnumSet.of(ReadMask.NOTEID);
+    
+    private int m_maxBufferEntries = Integer.MAX_VALUE;
+    private Consumer<Integer> m_totalConsumer;
+    private Consumer<CollectionEntry> m_categoryConsumer;
+
+    
+    private JNADominoCollectionPosition m_categoryEntryPos;
+    private boolean m_firstRun;
+    private int m_initialSkip;
+    private Integer m_total;
+    private Navigate m_skipNav;
+    private Navigate m_returnNav;
+    private JNADominoCollectionPosition m_currPosForTotalComputation;
+    private JNADominoCollectionPosition m_currPos;
+    private int m_minLevel;
+    private int m_entriesReturned;
+    
+    private LinkedList<CollectionEntry> m_nextPage;
+    private boolean m_isDone;
+
+    private Navigate m_direction = Navigate.NEXT_ENTRY;
+    
+    private int m_skip;
+    private int m_count = -1;
+    
+    private Object[] m_categoryLevelsAsArr;
+    private boolean m_startAtLastEntry;
+    private String m_startAtPosition;
+    private int m_startAtEntryId;
+
+    private String m_nameOfSingleColumnToRead;
+    private Integer m_indexOfSingleColumnToRead;
+
+    private Function<DominoCollection, Action> m_viewIndexChangedHandler;
+
+    //IDTables to control what is expanded/selected
+    private ExpandedEntries m_expandedEntries;
+    private JNAIDTable m_expandedEntriesResolved;
+    private boolean m_hasExpandedEntries;
+    
+    private SelectedEntries m_selectedEntries;
+    private JNAIDTable m_selectedEntriesResolved;
+    private boolean m_hasSelectionSet;
+    private String m_ftQuery;
+    private int m_ftMaxDocs;
+    private Set<FTQuery> m_ftFlags;
+
+
+    
+    public CollectionTraversalContext() {
+    }
+
+  }
+
+  private static void fetchNextPage(CollectionTraversalContext ctx) {
+    init(ctx);
+    
+    if (ctx.m_isDone || ctx.m_currPos==null) {
       return;
     }
     
-    boolean wasFirstRun = firstRun;
-    firstRun = false;
+    boolean wasFirstRun = ctx.m_firstRun;
+    ctx.m_firstRun = false;
     
-    if (nextPage==null) {
-      nextPage = new LinkedList<>();
+    if (ctx.m_nextPage==null) {
+      ctx.m_nextPage = new LinkedList<>();
     }
     
-    if (wasFirstRun && totalConsumer!=null) {
-      int total = getTotal();
-      totalConsumer.accept(total);
+    if (wasFirstRun && ctx.m_totalConsumer!=null) {
+      int total = getTotal(ctx);
+      ctx.m_totalConsumer.accept(total);
     }
  
-    JNADominoCollectionAllocations collectionAllocations = (JNADominoCollectionAllocations) collection.getAdapter(APIObjectAllocations.class);
+    JNADominoCollectionAllocations collectionAllocations = (JNADominoCollectionAllocations) ctx.m_collection.getAdapter(APIObjectAllocations.class);
 
     LockUtil.lockHandle(collectionAllocations.getCollectionHandle(), (collectionHandleByVal) -> {
 
-      if (categoryLevelsAsArr!=null) {
+      if (ctx.m_categoryLevelsAsArr!=null) {
         //normally the following code should run in one loop;
         //we only rerun the lookup if an index change is detected AND the top category has moved,
         //because in this case we cannot be sure that the data we read are valid
         while (true) {
           //save a copy of the current position in case we detect index changes
-          JNADominoCollectionPosition currPosCopy = (JNADominoCollectionPosition) currPos.clone();
+          JNADominoCollectionPosition currPosCopy = (JNADominoCollectionPosition) ctx.m_currPos.clone();
           
           NotesViewLookupResultData lkResult =
-              collection.readEntriesExt(currPos,
-                  skipNav,
+              ctx.m_collection.readEntriesExt(ctx.m_currPos,
+                  ctx.m_skipNav,
                   false,
-                  wasFirstRun ? (initialSkip + skip) : 1,
-                  returnNav,
-                  maxBufferEntries,
-                  readMask,
+                  wasFirstRun ? (ctx.m_initialSkip + ctx.m_skip) : 1,
+                      ctx.m_returnNav,
+                      ctx.m_maxBufferEntries,
+                      ctx.m_readMask,
                   (DominoDateTime) null,
                   (JNAIDTable) null,
-                  indexOfSingleColumnToRead);
+                  ctx.m_indexOfSingleColumnToRead);
           
           if (lkResult.hasAnyNonDataConflicts()) {
             //view index has changed, update the view
             if (!lkResult.isViewTimeRelative()) {
-              if (viewIndexChangedHandler!=null) {
-                Action action = viewIndexChangedHandler.apply(collection);
+              if (ctx.m_viewIndexChangedHandler!=null) {
+                Action action = ctx.m_viewIndexChangedHandler.apply(ctx.m_collection);
                 if (action==Action.Stop) {
-                  isDone = true;
+                  ctx.m_isDone = true;
                   return null;
                 }
               }
-              collection.refresh();
+              ctx.m_collection.refresh();
             }
 
             //check if our category position is still correct; if yes, we can use the lookup result
-            JNACollectionEntry newCategoryEntry = findCategoryPosition(collection, categoryLevelsAsArr).orElse(null);
+            JNACollectionEntry newCategoryEntry = findCategoryPosition(ctx.m_collection, ctx.m_categoryLevelsAsArr).orElse(null);
             
             if (newCategoryEntry==null) {
               //category disappeared, return what we have read; since we cannot be sure that "lkResult" contains
               //data of the right category, we throw it away
-              markNoData();
+              markNoData(ctx);
               return null;
             }
             
-            String newCategoryPosStr = newCategoryEntry.getSpecialValue(SpecialValue.INDEXPOSITION,
-                String.class, ""); //$NON-NLS-1$
+            String newCategoryPosStr = getIndexPositionAsString(newCategoryEntry);
             
             if (StringUtil.isEmpty(newCategoryPosStr)) {
               //category disappeared, return what we have read; since we cannot be sure that "lkResult" contains
               //data of the right category, we throw it away
-              markNoData();
+              markNoData(ctx);
               return null;
             }
             
             JNADominoCollectionPosition newCategoryPos = new JNADominoCollectionPosition(newCategoryPosStr);
 
-            if (!newCategoryPos.equals(categoryEntryPos)) {
+            if (!newCategoryPos.equals(ctx.m_categoryEntryPos)) {
               //the category has changed position, so it's possible that our data comes from a different category;
               //it's better to rerun this iteration at the current offset
               
@@ -656,10 +674,10 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
               for (int i=newCategoryPosLevel; i<32; i++) {
                 newTransposedCurrTumbler[i] = currPosCopy.getTumbler(i);
               }
-              currPos = new JNADominoCollectionPosition(newTransposedCurrTumbler);
-              currPos.setMinLevel(minLevel);
+              ctx.m_currPos = new JNADominoCollectionPosition(newTransposedCurrTumbler);
+              ctx.m_currPos.setMinLevel(ctx.m_minLevel);
               //remember our new top category position
-              categoryEntryPos = newCategoryPos;
+              ctx.m_categoryEntryPos = newCategoryPos;
               
               continue;
             }
@@ -669,16 +687,17 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
           List<JNACollectionEntry> entries = lkResult.getEntries();
           if (entries.isEmpty()) {
             //no data received
-            isDone = true;
+            ctx.m_isDone = true;
           }
           else {
-            if (entries.size() < maxBufferEntries && !lkResult.hasMoreToDo()) {
+            if (entries.size() < ctx.m_maxBufferEntries && !lkResult.hasMoreToDo()) {
               //less data received than requested and there's not more in the view
-              isDone = true;
+              ctx.m_isDone = true;
             }
             
             for (JNACollectionEntry currEntry : entries) {
-              int[] currEntryPosArr = currEntry.getSpecialValue(SpecialValue.INDEXPOSITION, int[].class, null);
+              int[] currEntryPosArr = getIndexPositionAsArray(currEntry);
+              
               if (currEntryPosArr==null) {
                 throw new IllegalStateException(
                     MessageFormat.format("Expected INDEXPOSITION attribute is missing in returned collection entry: {0}",
@@ -686,9 +705,9 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
               }
               JNADominoCollectionPosition currEntryPos = new JNADominoCollectionPosition(currEntryPosArr);
               
-              if (currEntryPos.isDescendantOf(categoryEntryPos)) {
+              if (currEntryPos.isDescendantOf(ctx.m_categoryEntryPos)) {
                 //make sure we are in the right category
-                nextPage.add(currEntry);
+                ctx.m_nextPage.add(currEntry);
               }
             }
           }
@@ -698,24 +717,24 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
       }
       else {
         //no top category
-        System.out.println("pre-readEntriesExt: currPos="+currPos+", skipNav="+skipNav+", returnNav="+returnNav);
-        NotesViewLookupResultData lkResult = collection.readEntriesExt(currPos,
-                skipNav,
+        System.out.println("pre-readEntriesExt: currPos="+ctx.m_currPos+", skipNav="+ctx.m_skipNav+", returnNav="+ctx.m_returnNav);
+        NotesViewLookupResultData lkResult = ctx.m_collection.readEntriesExt(ctx.m_currPos,
+            ctx.m_skipNav,
                   false,
-                  wasFirstRun ? (initialSkip + skip) : 1,
-                  returnNav,
-                  maxBufferEntries,
-                  readMask,
+                  wasFirstRun ? (ctx.m_initialSkip + ctx.m_skip) : 1,
+                      ctx.m_returnNav,
+                      ctx.m_maxBufferEntries,
+                      ctx.m_readMask,
                   (DominoDateTime) null,
                 (JNAIDTable) null,
-                indexOfSingleColumnToRead);
+                ctx.m_indexOfSingleColumnToRead);
         
         if (lkResult.hasAnyNonDataConflicts()) {
           if (!lkResult.isViewTimeRelative()) {
-            if (viewIndexChangedHandler!=null) {
-              Action action = viewIndexChangedHandler.apply(collection);
+            if (ctx.m_viewIndexChangedHandler!=null) {
+              Action action = ctx.m_viewIndexChangedHandler.apply(ctx.m_collection);
               if (action==Action.Stop) {
-                isDone = true;
+                ctx.m_isDone = true;
                 return null;
               }
             }
@@ -723,20 +742,25 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
         }
         
         List<JNACollectionEntry> entries = lkResult.getEntries();
-        System.out.println("post-readEntriesExt: currPos="+currPos+", entries.size="+entries.size());
+        System.out.println("post-readEntriesExt: currPos="+ctx.m_currPos+", entries.size="+entries.size());
 
         if (entries.isEmpty()) {
-          isDone = true;
+          ctx.m_isDone = true;
         }
         else {
+          if (entries.size() < ctx.m_maxBufferEntries && !lkResult.hasMoreToDo()) {
+            //less data received than requested and there's not more in the view
+            ctx.m_isDone = true;
+          }
+
           for (JNACollectionEntry currEntry : entries) {
-            nextPage.add(currEntry);
+            ctx.m_nextPage.add(currEntry);
           }
         }
         
-        if (readMask.contains(ReadMask.INIT_POS_NOTEID)) {
+        if (ctx.m_readMask.contains(ReadMask.INIT_POS_NOTEID)) {
           //make sure to only use this flag on the first lookup call
-          readMask.remove(ReadMask.INIT_POS_NOTEID);
+          ctx.m_readMask.remove(ReadMask.INIT_POS_NOTEID);
         }
       }
       
@@ -747,44 +771,61 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
   
   /**
    * 
+   * @param ctx traversal context
    * @param collectionAllocations
    * @param updateFiltersFlags
    * @return navigate direction for the collection lookup (using m_direction
    */
-  private Navigate prepareCollectionReadRestrictions(JNADominoCollectionAllocations collectionAllocations,
+  private static Navigate prepareCollectionReadRestrictions(CollectionTraversalContext ctx, JNADominoCollectionAllocations collectionAllocations,
       ShortByReference updateFiltersFlags) {
     
+    //clear any active FT search mode
+    ctx.m_collection.clearSearch();
+
     short updateFiltersFlagsVal = updateFiltersFlags.getValue();
     
-    Navigate directionToUse = direction;
+    Navigate directionToUse = ctx.m_direction;
     if (directionToUse==null) {
       //read all entries by default
       directionToUse = Navigate.NEXT_ENTRY;
     }
 
-    if (m_hasSelectionSet) {
+    if (ctx.m_hasSelectionSet) {
       //make sure that the navigation direction respects the selection; noop if already the case
       directionToUse = addSelectionNavigation(directionToUse);
     }
 
-    if (m_hasExpandedEntries) {
+    if (ctx.m_hasExpandedEntries) {
       //make sure that the navigation direction respects expanded entries; noop if already the case
       directionToUse = addExpandNavigation(directionToUse);
     }
 
+    if (!StringUtil.isEmpty(ctx.m_ftQuery)) {
+      //view index is reduced to just return the FT search matches
+      directionToUse = addFTSearchNavigation(directionToUse);
+    }
+    
     if (isDirectionWithSelection(directionToUse)) {
       //resolve and set the selected entries idtable
-      JNAIDTable resolvedSelectedList = m_selectedEntriesResolved!=null ? (JNAIDTable) m_selectedEntriesResolved.clone() : new JNAIDTable(collection.getParentDominoClient());
+      JNAIDTable resolvedSelectedList = ctx.m_selectedEntriesResolved!=null ? (JNAIDTable) ctx.m_selectedEntriesResolved.clone() : new JNAIDTable(ctx.m_collection.getParentDominoClient());
       
-      if (ftQuery!=null) {
-        //pass cloned selected list to refine FT search; not the one that we might fill up with fake note ids below
-        collection.ftSearch(ftQuery, ftMaxDocs, ftFlags, (JNAIDTable) resolvedSelectedList.clone());
+      if (!StringUtil.isEmpty(ctx.m_ftQuery)) {
+        if (ctx.m_categoryLevelsAsArr!=null) {
+          //FT search should be used to reduce/reorder the view index to FT matches (e.g. sort by relevance);
+          //only return documents in a top level category
+          Set<Integer> allNoteIdsInCategoryFilter = getAllDocNoteIdsInCategory(ctx.m_collection, ctx.m_categoryLevelsAsArr);
+          
+          //restrict the selected list to the note ids in the category
+          resolvedSelectedList.retainAll(allNoteIdsInCategoryFilter);
+        }
         
-        directionToUse = addFTSearchNavigation(directionToUse);
+        //pass cloned selected list to refine FT search; not the one that we might fill up with fake note ids below
+        FTQueryResult ftResult = ctx.m_collection.ftSearch(ctx.m_ftQuery, ctx.m_ftMaxDocs, ctx.m_ftFlags,
+            (JNAIDTable) resolvedSelectedList.clone());
+        System.out.println(ftResult);
       }
-      
 
-      if (collection.isHierarchical()) {
+      if (ctx.m_collection.isHierarchical()) {
         //Views with response hierarchy can have issues when working with NAVIGATE_NEXT_SELECTED.
         //We found out that as soon as the first response doc appears in the view index,
         //NIFReadEntries returns the wrong COLLECTIONPOSITION when reading view data via
@@ -805,7 +846,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
         //which is slower but correct. It should be avoided to set the flag "show response documents in hierarchy".
         int resolvedSelectedListSize = resolvedSelectedList.size();
         if (resolvedSelectedListSize<5000) {
-          IDTable allIDsInView = collection.getAllIdsAsIDTable(false);
+          IDTable allIDsInView = ctx.m_collection.getAllIdsAsIDTable(false);
 
           int fakeNoteIdsToInsert = 5000 - resolvedSelectedListSize;
           int maxFakeNoteId = 2147483644;
@@ -829,16 +870,24 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
       updateFiltersFlagsVal |= NotesConstants.FILTER_SELECTED;
     }
     else {
-      if (ftQuery!=null) {
-        collection.ftSearch(ftQuery, ftMaxDocs, ftFlags, null);
+      if (!StringUtil.isEmpty(ctx.m_ftQuery)) {
+        //view index is reduced to just return the FT search matches;#
+        Set<Integer> allNoteIdsInCategoryFilter = null;
         
-        directionToUse = addFTSearchNavigation(directionToUse);
+        if (ctx.m_categoryLevelsAsArr!=null) {
+          //FT search should only return documents in a top level category
+          allNoteIdsInCategoryFilter = getAllDocNoteIdsInCategory(ctx.m_collection, ctx.m_categoryLevelsAsArr);
+        }
+        
+        //pass cloned selected list to refine FT search; not the one that we might fill up with fake note ids below
+        FTQueryResult ftResult = ctx.m_collection.ftSearch(ctx.m_ftQuery, ctx.m_ftMaxDocs, ctx.m_ftFlags, allNoteIdsInCategoryFilter);
+        System.out.println(ftResult);
       }
     }
 
     if (isDirectionWithExpandCollapse(directionToUse)) {
       //resolve and set the expanded entries idtable
-      JNAIDTable resolvedCollapsedList = m_expandedEntriesResolved!=null ? (JNAIDTable) m_expandedEntriesResolved.clone() : new JNAIDTable(collection.getParentDominoClient());
+      JNAIDTable resolvedCollapsedList = ctx.m_expandedEntriesResolved!=null ? (JNAIDTable) ctx.m_expandedEntriesResolved.clone() : new JNAIDTable(ctx.m_collection.getParentDominoClient());
       boolean listContainsCollapsedEntries = !resolvedCollapsedList.isInverted();
       
       if (resolvedCollapsedList.isEmpty() && listContainsCollapsedEntries) {
@@ -894,7 +943,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
     return directionToUse;
   }
 
-  private boolean isDirectionWithExpandCollapse(Navigate nav) {
+  private static boolean isDirectionWithExpandCollapse(Navigate nav) {
     if (nav == Navigate.NEXT_EXPANDED || nav == Navigate.NEXT_EXPANDED_CATEGORY ||
         nav == Navigate.NEXT_EXPANDED_DOCUMENT ||
         nav == Navigate.NEXT_EXPANDED_SELECTED ||
@@ -906,7 +955,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
     }
   }
 
-  private Navigate toDownwardsDirection(Navigate nav) {
+  private static Navigate toDownwardsDirection(Navigate nav) {
     switch (nav) {
     case PREV_CATEGORY:
       return Navigate.NEXT_CATEGORY;
@@ -938,6 +987,12 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
       return Navigate.NEXT_UNREAD_ENTRY;
     case PREV_UNREAD_TOPLEVEL_ENTRY:
       return Navigate.NEXT_UNREAD_TOPLEVEL_ENTRY;
+    case PREV_HIT:
+      return Navigate.NEXT_HIT;
+    case PREV_SELECTED_HIT:
+      return Navigate.NEXT_SELECTED_HIT;
+    case PREV_UNREAD_HIT:
+      return Navigate.NEXT_UNREAD_HIT;
     default:
       return nav;
     }
@@ -952,7 +1007,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
    * @param readChildCount
    * @return
    */
-  private Optional<JNACollectionEntry> findCategoryPosition(JNADominoCollection collection, Object[] categoryLevelsAsArr) {
+  private static Optional<JNACollectionEntry> findCategoryPosition(JNADominoCollection collection, Object[] categoryLevelsAsArr) {
     //find current position of category entry, atomically reads its note id and summary data
     NotesViewLookupResultData catLkResult = collection.findByKeyExtended2(EnumSet.of(Find.MATCH_CATEGORYORLEAF,
         Find.REFRESH_FIRST, Find.CASE_INSENSITIVE),
@@ -979,7 +1034,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
    * @return navigation direction respecting selection
    * @throws UnsupportedOperationException in case the given navigation direction cannot be combined with a selection
    */
-  private Navigate addSelectionNavigation(Navigate nav) {
+  private static Navigate addSelectionNavigation(Navigate nav) {
     switch (nav) {
     //these already respect the selection
     case NEXT_SELECTED:
@@ -1037,7 +1092,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
     }
   }
 
-  private Navigate addFTSearchNavigation(Navigate nav) {
+  private static Navigate addFTSearchNavigation(Navigate nav) {
     switch (nav) {
     case NEXT_ENTRY:
     case NEXT_DOCUMENT:
@@ -1072,7 +1127,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
    * @return navigation direction respecting selection
    * @throws UnsupportedOperationException in case the given navigation direction cannot be combined with expanded entries
    */
-  private Navigate addExpandNavigation(Navigate nav) {
+  private static Navigate addExpandNavigation(Navigate nav) {
     if (isDirectionWithExpandCollapse(nav)) {
       //nothing to do
       return nav;
@@ -1142,7 +1197,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
     }
   }
   
-  private boolean isDirectionWithSelection(Navigate nav) {
+  private static boolean isDirectionWithSelection(Navigate nav) {
     if (nav == Navigate.NEXT_SELECTED || /* m_direction == Navigate.NEXT_SELECTED_HIT || */
         nav == Navigate.NEXT_SELECTED_ON_TOPLEVEL ||
         nav == Navigate.PREV_SELECTED || /* m_direction == Navigate.PREV_SELECTED_HIT || */
@@ -1157,6 +1212,24 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
     }
   }
 
-
+  private static Set<Integer> getAllDocNoteIdsInCategory(JNADominoCollection collection, Object[] categoryLevelsAsArr) {
+    //reuse our traversal methods to collect all note ids in a top level category
+    CollectionTraversalContext ctx = new CollectionTraversalContext();
+    ctx.m_collection = collection;
+    ctx.m_readMask = EnumSet.of(ReadMask.NOTEID);
+    ctx.m_categoryLevelsAsArr = categoryLevelsAsArr;
+    ctx.m_direction = Navigate.NEXT_DOCUMENT;
+    
+    init(ctx);
+    
+    HashSet<Integer> retNoteIds = new HashSet<>();
+    
+    while (hasNext(ctx)) {
+      CollectionEntry entry = next(ctx);
+      retNoteIds.add(entry.getNoteID());
+    }
+    
+    return retNoteIds;
+  }
 
 }
