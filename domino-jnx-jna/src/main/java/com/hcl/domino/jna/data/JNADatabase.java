@@ -2640,7 +2640,11 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			throw new IllegalArgumentException("MaxResults must be between 0 and 65535");
 		}
 
-		if (count>65535) {
+		if (count==Integer.MAX_VALUE) {
+		  //autocorrect this value
+		  count = 0;
+		}
+		else if (count>65535) {
 			throw new IllegalArgumentException("Count must be between 0 and 65535");
 		}
 
@@ -2694,6 +2698,8 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			hNamesList = null;
 		}
 
+		final short countAsShort = (short) (count & 0xffff);
+		
 		return LockUtil.lockHandles(getAllocations().getDBHandle(), filterIDTableHandle, hNamesList, (hDbByVal,
 				filterIDTableHandleByVal, hNamesListByVal) -> {
 			long t0=System.currentTimeMillis();
@@ -2712,8 +2718,6 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			short arg = 0;
 			DHANDLE.ByValue hColl = null;
 
-			short countAsShort = (short) count;
-			
 			result = NotesCAPI.get().FTSearchExt(hDbByVal, 
 					rethSearch, hColl,
 					queryLMBCS, searchOptionsBitMask,
