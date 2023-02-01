@@ -16,6 +16,10 @@
  */
 package com.hcl.domino.data;
 
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.Set;
+
 import com.hcl.domino.misc.INumberEnum;
 
 /**
@@ -94,4 +98,11 @@ public enum FTQuery implements INumberEnum<Integer> {
     return this.m_val;
   }
 
+  /**
+   * Contains an unmodifiable Set of FT flags that are related to the text search algorithm (e.g. no sorting or refinement flags).<br>
+   * <br>
+   * Set of {@link FTQuery#STEM_WORDS}, {@link FTQuery#THESAURUS_WORDS}, {@link FTQuery#FUZZY}
+   */
+  public static final Set<FTQuery> allSearchContentFlags = Collections.unmodifiableSet(EnumSet.of(STEM_WORDS, THESAURUS_WORDS, FUZZY));
+  
 }

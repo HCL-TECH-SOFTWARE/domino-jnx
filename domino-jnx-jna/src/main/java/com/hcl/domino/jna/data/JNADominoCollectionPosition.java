@@ -349,7 +349,23 @@ public class JNADominoCollectionPosition implements IAdaptable, Comparable<JNADo
 	void resetToStringVal() {
 	  toString=null;
 	}
-	
+
+	 /**
+   * Converts the position object to a position string like "1.2.3".<br>
+   * <br>
+   * Please note that we also support an advanced syntax in contrast to IBM's API in order
+   * to specify the min/max level parameters: "1.2.3|0-2" for minlevel=0, maxlevel=2. These
+   * levels can be used to limit reading entries in a categorized view to specified depths.<br>
+   * <br>
+   * This method will returns a string with the advanced syntax if MinLevel or MaxLevel is not 0.
+   * 
+   * @return position string
+   */
+  @Override
+  public String toString() {
+    return toString(false);
+  }
+  
 	/**
 	 * Converts the position object to a position string like "1.2.3".<br>
 	 * <br>
@@ -359,10 +375,10 @@ public class JNADominoCollectionPosition implements IAdaptable, Comparable<JNADo
 	 * <br>
 	 * This method will returns a string with the advanced syntax if MinLevel or MaxLevel is not 0.
 	 * 
+	 * @param noMinMaxLevel true to only return the position, e.g. "1.2.3", no min/max level range
 	 * @return position string
 	 */
-	@Override
-	public String toString() {
+	public String toString(boolean noMinMaxLevel) {
 		boolean recalc;
 		//cache if cached value needs to be recalculated
 		if (this.toString==null) {
@@ -392,7 +408,7 @@ public class JNADominoCollectionPosition implements IAdaptable, Comparable<JNADo
 				sb.append(this.getTumbler(i));
 			}
 			
-			if (minLevel!=0 || maxLevel!=0) {
+			if (!noMinMaxLevel && (minLevel!=0 || maxLevel!=0)) {
 				sb.append("|").append(minLevel).append("-").append(maxLevel); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			toString = sb.toString();

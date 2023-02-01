@@ -1,9 +1,27 @@
+/*
+ * ==========================================================================
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
+ *                            All rights reserved.
+ * ==========================================================================
+ * Licensed under the  Apache License, Version 2.0  (the "License").  You may
+ * not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+ *
+ * Unless  required  by applicable  law or  agreed  to  in writing,  software
+ * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the  specific language  governing permissions  and limitations
+ * under the License.
+ * ==========================================================================
+ */
 package com.hcl.domino.jna.data;
 
 import java.text.MessageFormat;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -11,8 +29,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.gc.APIObjectAllocations;
+import com.hcl.domino.commons.util.ListUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.ReadMask;
@@ -28,6 +48,7 @@ import com.hcl.domino.data.FTQueryResult;
 import com.hcl.domino.data.Find;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.Navigate;
+import com.hcl.domino.jna.data.JNADominoCollection.FindResult;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNADominoCollectionAllocations;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
@@ -56,8 +77,8 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
     return this;
   }
   
-  public JNACollectionEntryIterator setCount(int count) {
-    m_defaultCtx.m_count = count;
+  public JNACollectionEntryIterator setLimit(int limit) {
+    m_defaultCtx.m_limit = limit;
     return this;
   }
   
@@ -83,6 +104,12 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
   
   public JNACollectionEntryIterator setRestrictToCategory(List<Object> categoryLevels) {
     m_defaultCtx.m_categoryLevelsAsArr = categoryLevels==null ? null : categoryLevels.toArray(new Object[categoryLevels.size()]);
+    return this;
+  }
+  
+  public JNACollectionEntryIterator setRestrictToLookupKey(List<Object> lookupKey, boolean exact) {
+    m_defaultCtx.m_lookupKeysAsArr = lookupKey==null ? null : lookupKey.toArray(new Object[lookupKey.size()]);
+    m_defaultCtx.m_lookupKeysExact = exact;
     return this;
   }
   
@@ -226,7 +253,15 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
   private static boolean hasNext(CollectionTraversalContext ctx) {
     init(ctx);
     
-    if (ctx.m_count==0 || ctx.m_entriesReturned>=ctx.m_count) {
+    if (ctx.m_limit==0 && !ctx.m_totalReported && ctx.m_totalConsumer!=null) {
+      //handle special case where we just want to get the total, but don't want to read any entries (limit=0)
+      int total = getTotal(ctx);
+      ctx.m_totalReported = true;
+      ctx.m_totalConsumer.accept(total);
+      return false;
+    }
+
+    if (ctx.m_entriesReturned>=ctx.m_limit) {
       return false;
     }
     else if (ctx.m_nextPage==null) {
@@ -271,6 +306,11 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
     ctx.m_currPos = null;
     ctx.m_nextPage = new LinkedList<>();
     ctx.m_isDone = true;
+    
+    if (ctx.m_totalConsumer!=null && !ctx.m_totalReported) {
+      ctx.m_totalReported = true;
+      ctx.m_totalConsumer.accept(0);
+    }
   }
   
   private static int getTotal(CollectionTraversalContext ctx) {
@@ -324,17 +364,15 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
       ctx.m_returnNav = Navigate.CURRENT;
     }
     
-    if (ctx.m_returnNav == Navigate.CURRENT && ctx.m_count>1) {
+    if (ctx.m_returnNav == Navigate.CURRENT && ctx.m_limit>1) {
       //prevent reading too many entries if navigation is set to just read the current entry
-      ctx.m_count = 1;
+      ctx.m_limit = 1;
     }
     
-    if (ctx.m_count < 0) {
-      ctx.m_count = Integer.MAX_VALUE;
+    if (ctx.m_limit < 0) {
+      ctx.m_limit = Integer.MAX_VALUE;
     }
     
-    ctx.m_maxBufferEntries = Math.min(ctx.m_maxBufferEntries, ctx.m_count);
-
     if (ctx.m_indexOfSingleColumnToRead==null && ctx.m_nameOfSingleColumnToRead!=null) {
       ctx.m_indexOfSingleColumnToRead = ctx.m_collection.getColumnValuesIndex(ctx.m_nameOfSingleColumnToRead);
     }
@@ -354,6 +392,127 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
       });
     }
     
+    if (ctx.m_lookupKeysAsArr!=null) {
+      ctx.m_readMask.add(ReadMask.NOTEID);
+      
+      Set<Find> findEqualFlags = EnumSet.of(Find.EQUAL);
+      if (!ctx.m_lookupKeysExact) {
+        findEqualFlags.add(Find.PARTIAL);
+      }
+      
+      ctx.m_lookupKeyResolvedMatchingIds = CollectionEntries.getAllIdsByKey(ctx.m_collection, ctx.m_indexOfSingleColumnToRead,
+          findEqualFlags, ctx.m_lookupKeysAsArr);
+
+//      if (ctx.m_readMask.size()==1 && ctx.m_readMask.contains(ReadMask.NOTEID) && ctx.m_categoryLevelsAsArr==null) {
+//        
+//        if (ctx.m_nextPage==null) {
+//          ctx.m_nextPage = new LinkedList<>();
+//        }
+//        ctx.m_lookupKeyResolvedMatchingIds
+//            .stream()
+//            .map((id) -> {
+//              JNACollectionEntry newEntry = new JNACollectionEntry(ctx.m_collection);
+//              newEntry.setNoteID(id);
+//              return newEntry;
+//            })
+//            .forEach(ctx.m_nextPage::add);
+//        
+//        if (ctx.m_skip!=0 || ctx.m_limit!=Integer.MAX_VALUE) {
+//          ctx.m_nextPage = new LinkedList<>(ListUtil.subListChecked(ctx.m_nextPage, ctx.m_skip, ctx.m_limit));
+//        }
+//        ctx.m_isDone = true;
+//        return;
+//      }
+      
+      if (ctx.m_lookupKeyResolvedMatchingIds.isEmpty()) {
+        markNoData(ctx);
+        return;
+      }
+      
+      Set<Find> findFirstFlags = EnumSet.of(Find.FIRST_EQUAL);
+      if (!ctx.m_lookupKeysExact) {
+        findFirstFlags.add(Find.PARTIAL);
+      }
+      
+      FindResult findFirstResult = ctx.m_collection.findByKey(findFirstFlags, ctx.m_lookupKeysAsArr);
+      
+      if (StringUtil.isEmpty(findFirstResult.getPosition())) {
+        //key not found
+        ctx.m_lookupKeyResolvedMatchingIds = new LinkedHashSet<>();
+        markNoData(ctx);
+        return;
+      }
+
+      ctx.m_lookupKeyResolvedStartPos = new JNADominoCollectionPosition(findFirstResult.getPosition());
+
+      Set<Find> findLastFlags = EnumSet.of(Find.LAST_EQUAL);
+      if (!ctx.m_lookupKeysExact) {
+        findLastFlags.add(Find.PARTIAL);
+      }
+      
+      FindResult findLastResult = ctx.m_collection.findByKey(findLastFlags, ctx.m_lookupKeysAsArr);
+      
+      if (StringUtil.isEmpty(findLastResult.getPosition())) {
+        //key not found
+        ctx.m_lookupKeyResolvedMatchingIds = new LinkedHashSet<>();
+        markNoData(ctx);
+        return;
+      }
+
+      ctx.m_lookupKeyResolvedEndPos = new JNADominoCollectionPosition(findLastResult.getPosition());
+
+      //don't plan to buffer and return more entries than the number of note ids we found
+      ctx.m_limit = Math.min(ctx.m_limit, ctx.m_lookupKeyResolvedMatchingIds.size());
+      ctx.m_total = ctx.m_lookupKeyResolvedMatchingIds.size();
+      
+      if (ctx.m_startAtEntryId!=0) {
+        //find position of start note id:
+        ctx.m_startAtPosition = ctx.m_collection.locateNote(ctx.m_lookupKeyResolvedStartPos.toString(true), ctx.m_startAtEntryId);
+        if (StringUtil.isEmpty(ctx.m_startAtPosition)) {
+          //entry not found
+          markNoData(ctx);
+          return;
+        }
+        ctx.m_startAtLastEntry = false;
+        ctx.m_startAtEntryId = 0;
+        //found position will be compared to our key matches block in the following if block
+      }
+      
+      if (ctx.m_startAtLastEntry) {
+        ctx.m_startAtLastEntry = false;
+        ctx.m_startAtPosition = ctx.m_lookupKeyResolvedEndPos.toString(true);
+        ctx.m_startAtEntryId = 0;
+      }
+      else if (!StringUtil.isEmpty(ctx.m_startAtPosition)) {
+        //check if we should correct the specified start position to start at the key matches block (to not skip too many irrelevant rows)
+        JNADominoCollectionPosition startAtPos = new JNADominoCollectionPosition(ctx.m_startAtPosition);
+        JNADominoCollectionPosition keyStartPos = new JNADominoCollectionPosition(ctx.m_lookupKeyResolvedStartPos);
+        if (startAtPos.compareTo(keyStartPos)<0) {
+          //move start pos to start of key matches
+          ctx.m_startAtPosition = ctx.m_lookupKeyResolvedStartPos.toString(true);
+        }
+
+        JNADominoCollectionPosition keyEndPos = new JNADominoCollectionPosition(ctx.m_lookupKeyResolvedEndPos);
+        if (startAtPos.compareTo(keyEndPos)<0) {
+          //we should start reading after the key matches block, so no data to read
+          markNoData(ctx);
+          return;
+        }
+      }
+      else {
+        ctx.m_startAtPosition = ctx.m_lookupKeyResolvedStartPos.toString(true);
+        ctx.m_startAtLastEntry = false;
+        ctx.m_startAtEntryId = 0;
+      }
+
+      
+      
+      
+      //TODO add shortcut code if we should only do a key lookup and return NOTEID only
+      
+      ctx.m_readMask.add(ReadMask.INDEXPOSITION);
+    }
+
     //compute where to start reading
     
     if (ctx.m_categoryLevelsAsArr!=null) {
@@ -393,7 +552,8 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
       }
       else if (ctx.m_startAtEntryId!=0) {
         String entryPos = ctx.m_collection.locateNote(categoryPosStr, ctx.m_startAtEntryId);
-        if (StringUtil.isEmpty(entryPos)) {
+        if (StringUtil.isEmpty(entryPos) || // note id not found
+            !entryPos.startsWith(categoryPosStr+".")) { // or not in the category //$NON-NLS-1$
           //entry not found
           markNoData(ctx);
           return;
@@ -512,6 +672,9 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
       
       ctx.m_currPosForTotalComputation = (JNADominoCollectionPosition) ctx.m_currPos.clone();
     }
+    
+    
+    ctx.m_maxBufferEntries = Math.min(ctx.m_maxBufferEntries, ctx.m_limit);
   }
   
   private static String getIndexPositionAsString(CollectionEntry entry)  {
@@ -530,6 +693,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
     
     private int m_maxBufferEntries = Integer.MAX_VALUE;
     private Consumer<Integer> m_totalConsumer;
+    private boolean m_totalReported;
     private Consumer<CollectionEntry> m_categoryConsumer;
 
     
@@ -550,9 +714,13 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
     private Navigate m_direction = Navigate.NEXT_ENTRY;
     
     private int m_skip;
-    private int m_count = -1;
+    private int m_limit = -1;
     
     private Object[] m_categoryLevelsAsArr;
+    
+    private Object[] m_lookupKeysAsArr;
+    private boolean m_lookupKeysExact;
+    
     private boolean m_startAtLastEntry;
     private String m_startAtPosition;
     private int m_startAtEntryId;
@@ -573,9 +741,11 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
     private String m_ftQuery;
     private int m_ftMaxDocs;
     private Set<FTQuery> m_ftFlags;
-
-
     
+    private JNADominoCollectionPosition m_lookupKeyResolvedStartPos;
+    private JNADominoCollectionPosition m_lookupKeyResolvedEndPos;
+    private LinkedHashSet<Integer> m_lookupKeyResolvedMatchingIds;
+
     public CollectionTraversalContext() {
     }
 
@@ -595,8 +765,9 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
       ctx.m_nextPage = new LinkedList<>();
     }
     
-    if (wasFirstRun && ctx.m_totalConsumer!=null) {
+    if (wasFirstRun && !ctx.m_totalReported && ctx.m_totalConsumer!=null) {
       int total = getTotal(ctx);
+      ctx.m_totalReported = true;
       ctx.m_totalConsumer.accept(total);
     }
  
@@ -705,9 +876,41 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
               }
               JNADominoCollectionPosition currEntryPos = new JNADominoCollectionPosition(currEntryPosArr);
               
+              //make sure we are in the right category
               if (currEntryPos.isDescendantOf(ctx.m_categoryEntryPos)) {
-                //make sure we are in the right category
-                ctx.m_nextPage.add(currEntry);
+
+                if (ctx.m_lookupKeyResolvedMatchingIds!=null) {
+                  boolean isAccepted = true;
+                  
+                  int currNoteId = currEntry.getNoteID();
+                  if (currNoteId==0 || !ctx.m_lookupKeyResolvedMatchingIds.contains(currNoteId)) {
+                    //not in lookup key matches IDTable, ignore this entry and go on with the next
+                    isAccepted = false;
+                  }
+                  
+                  if (isAccepted) {
+                    ctx.m_nextPage.add(currEntry);
+                  }
+                  
+                  if (isDownwardDirection(ctx.m_skipNav)) {
+                    //check if we have left the key matches block
+                    if (currEntryPos.compareTo(ctx.m_lookupKeyResolvedEndPos) >=0) {
+                      ctx.m_isDone = true;
+                      break;
+                    }
+                  }
+                  else {
+                    if (currEntryPos.compareTo(ctx.m_lookupKeyResolvedStartPos) <=0) {
+                      ctx.m_isDone = true;
+                      break;
+                    }
+                  }
+                  
+                }
+                else {
+                  ctx.m_nextPage.add(currEntry);
+                }
+
               }
             }
           }
@@ -754,7 +957,44 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
           }
 
           for (JNACollectionEntry currEntry : entries) {
-            ctx.m_nextPage.add(currEntry);
+            if (ctx.m_lookupKeyResolvedMatchingIds!=null) {
+              boolean isAccepted = true;
+              
+              int currNoteId = currEntry.getNoteID();
+              if (currNoteId==0 || !ctx.m_lookupKeyResolvedMatchingIds.contains(currNoteId)) {
+                //not in lookup key matches IDTable, ignore this entry and go on with the next
+                isAccepted = false;
+              }
+              
+              if (isAccepted) {
+                ctx.m_nextPage.add(currEntry);
+              }
+              
+              int[] currEntryPosArr = getIndexPositionAsArray(currEntry);
+              if (currEntryPosArr!=null) {
+                JNADominoCollectionPosition currEntryPos = new JNADominoCollectionPosition(currEntryPosArr);
+                
+                if (isDownwardDirection(ctx.m_skipNav)) {
+                  //check if we have left the key matches block
+                  if (currEntryPos.compareTo(ctx.m_lookupKeyResolvedEndPos)>=0) {
+                    ctx.m_isDone = true;
+                    break;
+                  }
+                }
+                else {
+                  if (currEntryPos.compareTo(ctx.m_lookupKeyResolvedStartPos)<=0) {
+                    ctx.m_isDone = true;
+                    break;
+                  }
+                }
+                
+              }
+              
+            }
+            else {
+              ctx.m_nextPage.add(currEntry);
+            }
+            
           }
         }
         
@@ -825,7 +1065,12 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
         System.out.println(ftResult);
       }
 
-      if (ctx.m_collection.isHierarchical()) {
+      long t0_hier=System.currentTimeMillis();
+      boolean isHierarchical = ctx.m_collection.isHierarchical();
+      long t1_hier=System.currentTimeMillis();
+      System.out.println("isHierarchical check took "+(t1_hier-t0_hier)+"ms");
+      
+      if (isHierarchical) {
         //Views with response hierarchy can have issues when working with NAVIGATE_NEXT_SELECTED.
         //We found out that as soon as the first response doc appears in the view index,
         //NIFReadEntries returns the wrong COLLECTIONPOSITION when reading view data via
@@ -846,8 +1091,12 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
         //which is slower but correct. It should be avoided to set the flag "show response documents in hierarchy".
         int resolvedSelectedListSize = resolvedSelectedList.size();
         if (resolvedSelectedListSize<5000) {
+          long t0_allids = System.currentTimeMillis();
           IDTable allIDsInView = ctx.m_collection.getAllIdsAsIDTable(false);
-
+          long t1_allids = System.currentTimeMillis();
+          System.out.println("Reading all view ids took "+(t1_allids-t0_allids)+"ms");
+          
+          long t0_addids = System.currentTimeMillis();
           int fakeNoteIdsToInsert = 5000 - resolvedSelectedListSize;
           int maxFakeNoteId = 2147483644;
 
@@ -859,6 +1108,8 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
               resolvedSelectedList.add(currNoteId);
             }
           }
+          long t1_addids = System.currentTimeMillis();
+          System.out.println("Adding "+(t1_addids-t0_addids)+"ms");
         }
       }
       
@@ -1012,19 +1263,20 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
     NotesViewLookupResultData catLkResult = collection.findByKeyExtended2(EnumSet.of(Find.MATCH_CATEGORYORLEAF,
         Find.REFRESH_FIRST, Find.CASE_INSENSITIVE),
         EnumSet.of(ReadMask.NOTEID, ReadMask.SUMMARY), categoryLevelsAsArr);
-    
+        
     List<JNACollectionEntry> catEntries = catLkResult.getEntries();
     
-    String categoryPosStr = catLkResult.getPosition();
-    if (StringUtil.isEmpty(categoryPosStr) || catEntries.isEmpty()) {
-      return Optional.empty();
+    if (!catEntries.isEmpty()) {
+      String categoryPosStr = catLkResult.getPosition();
+      if (!StringUtil.isEmpty(categoryPosStr)) {
+        JNACollectionEntry categoryEntry = catEntries.get(0);
+        JNADominoCollectionPosition pos = new JNADominoCollectionPosition(categoryPosStr);
+        categoryEntry.setPosition(pos.toTumblerArray());
+        return Optional.of(categoryEntry);
+      }
     }
     
-    JNACollectionEntry categoryEntry = catEntries.get(0);
-    JNADominoCollectionPosition pos = new JNADominoCollectionPosition(categoryPosStr);
-    categoryEntry.setPosition(pos.toTumblerArray());
-    
-    return Optional.of(categoryEntry);
+    return Optional.empty();
   }
   
   /**

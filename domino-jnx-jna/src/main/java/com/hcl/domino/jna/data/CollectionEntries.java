@@ -1,15 +1,41 @@
+/*
+ * ==========================================================================
+ * Copyright (C) 2019-2022 HCL America, Inc. ( http://www.hcl.com/ )
+ *                            All rights reserved.
+ * ==========================================================================
+ * Licensed under the  Apache License, Version 2.0  (the "License").  You may
+ * not use this file except in compliance with the License.  You may obtain a
+ * copy of the License at <http://www.apache.org/licenses/LICENSE-2.0>.
+ *
+ * Unless  required  by applicable  law or  agreed  to  in writing,  software
+ * distributed under the License is distributed on an  "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR  CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the  specific language  governing permissions  and limitations
+ * under the License.
+ * ==========================================================================
+ */
 package com.hcl.domino.jna.data;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
+import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.ReadMask;
 import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.CollectionSearchQuery.AllDeselectedEntries;
@@ -29,6 +55,7 @@ import com.hcl.domino.dql.DQL.DQLTerm;
 import com.hcl.domino.jna.data.JNADominoCollection.FindResult;
 import com.hcl.domino.jna.internal.views.NotesViewLookupResultData;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.misc.Pair;
 
 /**
  * Builder to create an {@link Iterator} of Domino collection entries that returns
@@ -95,6 +122,10 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
   private ExpandedEntries expandedEntries;
   private SelectedEntries selectedEntries;
   private List<Object> categoryLevels;
+  
+  private List<Object> lookupKeyLevels;
+  private boolean lookupKeyExact;  
+  
   private boolean startAtFirstEntry;
   private boolean startAtLastEntry;
   private String startAtPosition;
@@ -116,14 +147,18 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
   private JNAIDTable m_expandedEntriesResolved;
 
   /**
-   * Creates a new builder for the specified {@link JNADominoCollection}
+   * Creates a new builder for the specified {@link DominoCollection}
    * 
    * @param collection collection to read entries from
    * @return new builder, call {@link #iterator()} to start reading collection entries or use a for-loop
    */
-  public static CollectionEntries of(JNADominoCollection collection) {
+  public static CollectionEntries of(DominoCollection collection) {
+    if (collection instanceof JNADominoCollection==false) {
+      throw new IllegalArgumentException("This implementation only supports collections of type JNADominoCollection");
+    }
+    
     CollectionEntries builder = new CollectionEntries();
-    builder.collection = collection;
+    builder.collection = (JNADominoCollection) collection;
     return builder;
   }
   
@@ -206,6 +241,31 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
     return this;
   }
 
+  /**
+   * Sets a lookup key to only return entries matching the key
+   * 
+   * @param lookupKey one column value of lookup key
+   * @param isExact true if lookup key is exact
+   * @return this builder instance
+   */
+  public CollectionEntries withRestrictionToLookupKey(Object lookupKey, boolean isExact) {
+    return withRestrictionToLookupKey(Arrays.asList(lookupKey), isExact);
+  }
+  
+  /**
+   * Sets a lookup key to only return entries matching the key
+   * 
+   * @param lookupKeyLevels one or multiple column values of lookup key
+   * @param isExact true if lookup key is exact
+   * @return this builder instance
+   */
+  public CollectionEntries withRestrictionToLookupKey(List<Object> lookupKeyLevels, boolean isExact) {
+    this.lookupKeyLevels = lookupKeyLevels;
+    this.lookupKeyExact = isExact;
+    
+    return this;
+  }
+  
   /**
    * Sets the start entry for reading to a specific view index position
    * 
@@ -370,8 +430,17 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
   public CollectionEntries withRestrictionToFTResults(String ftQuery, int ftMaxDocs, Set<FTQuery> ftFlags) {
     this.ftQuery = ftQuery;
     this.ftMaxDocs = ftMaxDocs;
-    this.ftFlags = ftFlags;
+    this.ftFlags = ftFlags==null ? EnumSet.noneOf(FTQuery.class) : ftFlags;
     return this;
+  }
+  
+  /**
+   * Returns a {@link Stream} of {@link CollectionEntry} objects
+   * 
+   * @return stream
+   */
+  public Stream<CollectionEntry> stream() {
+    return StreamSupport.stream(spliterator(), false);
   }
   
   /**
@@ -385,7 +454,7 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
     JNACollectionEntryIterator it = new JNACollectionEntryIterator(collection);
     
     it.setSkip(skip);
-    it.setCount(limit);
+    it.setLimit(limit);
     
     if (readMask!=null) {
       it.setReadMask(readMask);
@@ -409,6 +478,10 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
       it.setRestrictToCategory(categoryLevels);
     }
 
+    if (lookupKeyLevels!=null) {
+      it.setRestrictToLookupKey(lookupKeyLevels, lookupKeyExact);
+    }
+    
     if (startAtFirstEntry) {
       it.setStartAtFirstEntry();
     }
@@ -498,7 +571,7 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
             if (!currKey.isExact()) {
               findFlags.add(Find.PARTIAL);
             }
-            LinkedHashSet<Integer> idsForKey = getAllIdsByKey(findFlags, currKey.getKey());
+            LinkedHashSet<Integer> idsForKey = getAllIdsByKey(collection, indexOfSingleColumnToRead, findFlags, currKey.getKey());
             
             if (subtractMode) {
               idTable.removeAll(idsForKey);
@@ -513,7 +586,7 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
             if (!currKey.isExact()) {
               findFlags.add(Find.PARTIAL);
             }
-            LinkedHashSet<Integer> idsForKey = getAllIdsByKey(findFlags, currKey.getKey().toArray(new Object[currKey.getKey().size()]));
+            LinkedHashSet<Integer> idsForKey = getAllIdsByKey(collection, indexOfSingleColumnToRead, findFlags, currKey.getKey().toArray(new Object[currKey.getKey().size()]));
             
             if (subtractMode) {
               idTable.removeAll(idsForKey);
@@ -539,16 +612,25 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
           }
         }
         
-        List<String> ftQueries = selectedEntries.getFTQueries();
-        for (String currFTQuery : ftQueries) {
+        List<Pair<String,Set<FTQuery>>> ftQueriesWithFlags = selectedEntries.getFTQueries();
+
+        for (Pair<String,Set<FTQuery>> currFTQueryWithFlags : ftQueriesWithFlags) {
+          String currFTQuery = currFTQueryWithFlags.getValue1();
+          //ignore FT flags that do not make sense here
+          Set<FTQuery> currFTFlags = currFTQueryWithFlags.getValue2()
+              .stream()
+              .filter(FTQuery.allSearchContentFlags::contains)
+              .collect(Collectors.toSet());
+          currFTFlags.add(FTQuery.RETURN_IDTABLE);
+          
           if (subtractMode) {
             JNAIDTable tableOfFTResult = new JNAIDTable(collection.getParentDominoClient());
-            db.queryFTIndex(currFTQuery, 0, EnumSet.of(FTQuery.RETURN_IDTABLE), null, 0, 0).collectIds(0, Integer.MAX_VALUE, tableOfFTResult);
+            db.queryFTIndex(currFTQuery, 0, currFTFlags, null, 0, 0).collectIds(0, Integer.MAX_VALUE, tableOfFTResult);
             idTable.removeAll(tableOfFTResult);
             tableOfFTResult.dispose();
           }
           else {
-            db.queryFTIndex(currFTQuery, 0, EnumSet.of(FTQuery.RETURN_IDTABLE), null, 0, 0).collectIds(0, Integer.MAX_VALUE, idTable);
+            db.queryFTIndex(currFTQuery, 0, currFTFlags, null, 0, 0).collectIds(0, Integer.MAX_VALUE, idTable);
           }
         }
       }
@@ -589,7 +671,7 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
             if (!currKey.isExact()) {
               findFlags.add(Find.PARTIAL);
             }
-            LinkedHashSet<Integer> idsForKey = getAllIdsByKey(findFlags, currKey.getKey());
+            LinkedHashSet<Integer> idsForKey = getAllIdsByKey(collection, indexOfSingleColumnToRead, findFlags, currKey.getKey());
             
             idTable.addAll(idsForKey);
           }
@@ -599,7 +681,7 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
             if (!currKey.isExact()) {
               findFlags.add(Find.PARTIAL);
             }
-            LinkedHashSet<Integer> idsForKey = getAllIdsByKey(findFlags, currKey.getKey().toArray(new Object[currKey.getKey().size()]));
+            LinkedHashSet<Integer> idsForKey = getAllIdsByKey(collection, indexOfSingleColumnToRead, findFlags, currKey.getKey().toArray(new Object[currKey.getKey().size()]));
             
             idTable.addAll(idsForKey);
           }
@@ -625,10 +707,20 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
           db.queryDQL(currDQLQuery).collectIds(0, Integer.MAX_VALUE, idTable);
         }
 
-        List<String> ftQueries = expandedEntries.getFTQueries();
-        for (String currFTQuery : ftQueries) {
+        List<Pair<String,Set<FTQuery>>> ftQueriesWithFlags = expandedEntries.getFTQueries();
+
+        for (Pair<String,Set<FTQuery>> currFTQueryWithFlags : ftQueriesWithFlags) {
+          String currFTQuery = currFTQueryWithFlags.getValue1();
+          //ignore FT flags that do not make sense here
+          Set<FTQuery> currFTFlags = currFTQueryWithFlags.getValue2()
+              .stream()
+              .filter(FTQuery.allSearchContentFlags::contains)
+              .collect(Collectors.toSet());
+          currFTFlags.add(FTQuery.RETURN_IDTABLE);
+          
           db.queryFTIndex(currFTQuery, 0, EnumSet.of(FTQuery.RETURN_IDTABLE), null, 0, 0).collectIds(0, Integer.MAX_VALUE, idTable);
         }
+
       }
       else {
         idTable.setInverted(false);
@@ -639,11 +731,13 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
     return m_expandedEntriesResolved;
   }
   
-  public LinkedHashSet<Integer> getAllIdsByKey(Set<Find> findFlags, Object... keys) {
-    return toNoteIds(getAllEntriesByKey(findFlags, EnumSet.of(ReadMask.NOTEID), keys));
+  public static LinkedHashSet<Integer> getAllIdsByKey(JNADominoCollection collection, Integer indexOfSingleColumnToRead,
+      Set<Find> findFlags, Object... keys) {
+    return toNoteIds(getAllEntriesByKey(collection, indexOfSingleColumnToRead, findFlags, EnumSet.of(ReadMask.NOTEID), keys));
   }
   
-  public List<JNACollectionEntry> getAllEntriesByKey(Set<Find> findFlags,Set<ReadMask> readMask, Object... keys) {
+  public static List<JNACollectionEntry> getAllEntriesByKey(JNADominoCollection collection, Integer indexOfSingleColumnToRead,
+      Set<Find> findFlags, Set<ReadMask> readMask, Object... keys) {
     //do the first lookup and read operation atomically; uses a large buffer for local calls
     
     while (true) {
@@ -806,7 +900,7 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
    * @param findFlags find flags
    * @return true if exact number of matches can be returned
    */
-  private boolean canFindExactNumberOfMatches(Set<Find> findFlags) {
+  private static boolean canFindExactNumberOfMatches(Set<Find> findFlags) {
     if (findFlags.contains(Find.LESS_THAN)) {
       return false;
     }
@@ -827,21 +921,92 @@ public class CollectionEntries implements Iterable<CollectionEntry> {
    * @param keys lookup keys
    * @return true if method can be used
    */
-  private boolean canUseOptimizedLookupForKeyLookup(Set<Find> findFlags, Object... keys) {
+  private static boolean canUseOptimizedLookupForKeyLookup(Set<Find> findFlags, Set<ReadMask> returnMask, Object... keys) {
     if (findFlags.contains(Find.GREATER_THAN) || findFlags.contains(Find.LESS_THAN)) {
       //TODO check this with IBM dev; we had crashes like "[0A0F:0002-21A00] PANIC: LookupHandle: null handle" using NIFFindByKeyExtended2
       return false;
     }
+
+    {
+      //we had "ERR 774: Unsupported return flag(s)" errors when using the optimized lookup
+      //method with other return values other than note id
+      boolean unsupportedValuesFound = false;
+      for (ReadMask currReadMaskValues: returnMask) {
+        //commented out ReadMask.SUMMARY because we found truncated ITEM_VALUE_TABLE's returned by NIFFindByKeyExtended2/3
+        if ((currReadMaskValues != ReadMask.NOTEID) /* && (currReadMaskValues != ReadMask.SUMMARY) */) {
+          unsupportedValuesFound = true;
+          break;
+        }
+      }
+
+      if (unsupportedValuesFound) {
+        return false;
+      }
+    }
+    
     
     return true;
   }
   
-  private LinkedHashSet<Integer> toNoteIds(List<JNACollectionEntry> entries) {
+  private static LinkedHashSet<Integer> toNoteIds(List<JNACollectionEntry> entries) {
     LinkedHashSet<Integer> ids = new LinkedHashSet<>();
     entries.forEach((entry) -> {
       ids.add(entry.getNoteID());
     });
     return ids;
   }
-  
+
+  /**
+   * Returns a {@link Collector} to collect note ids from a {@link Stream} of {@CollectionEntry} objects
+   * 
+   * @param ordered true to keep the order the note ids appear in the stream
+   * @return collector
+   */
+  public static Collector<CollectionEntry, Set<Integer>, Set<Integer>> collectNoteIds(boolean ordered) {
+    return new CollectionEntryCollector(ordered);
+  }
+
+  private static class CollectionEntryCollector implements Collector<CollectionEntry, Set<Integer>, Set<Integer>> {
+    private boolean isOrdered;
+    
+    public CollectionEntryCollector(boolean ordered) {
+      this.isOrdered = ordered;
+    }
+    
+    @Override
+    public Supplier<Set<Integer>> supplier() {
+      return isOrdered ? () -> new LinkedHashSet<>() :() -> new HashSet<>();
+    }
+
+    @Override
+    public BiConsumer<Set<Integer>, CollectionEntry> accumulator() {
+      return (set, entry) -> {
+        int noteId = entry.getNoteID();
+        if (noteId!=0) {
+          set.add(noteId);
+        }
+      };
+    }
+
+    @Override
+    public BinaryOperator<Set<Integer>> combiner() {
+      return (set1, set2) -> {
+        set1.addAll(set2);
+        return set1;
+      };
+    }
+
+    @Override
+    public Function<Set<Integer>, Set<Integer>> finisher() {
+      return Function.identity();
+    }
+
+    @Override
+    public Set<Characteristics> characteristics() {
+      Set<Characteristics> characteristics = new HashSet<>();
+      characteristics.add(Characteristics.IDENTITY_FINISH);
+      characteristics.add(Characteristics.UNORDERED);
+      return characteristics;
+    }
+  }
 }

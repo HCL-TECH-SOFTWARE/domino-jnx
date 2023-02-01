@@ -19,6 +19,7 @@ package com.hcl.domino.data;
 import java.time.temporal.TemporalAccessor;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -30,6 +31,7 @@ import com.hcl.domino.data.CollectionEntry.SpecialValue;
 import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.dql.DQL.DQLTerm;
 import com.hcl.domino.misc.Loop;
+import com.hcl.domino.misc.Pair;
 
 public interface CollectionSearchQuery extends SearchQuery {
 
@@ -76,8 +78,12 @@ public interface CollectionSearchQuery extends SearchQuery {
     }
 
     public AllCollapsedEntries expand(final String ftQuery) {
+      return expand(ftQuery, null);
+    }
+    
+    public AllCollapsedEntries expand(final String ftQuery, Set<FTQuery> ftFlags) {
       if (this.getMode() == ExpandMode.AllCollapsed) {
-        this.getFTQueries().add(ftQuery);
+        this.getFTQueries().add(new Pair<>(ftQuery, ftFlags==null ? EnumSet.noneOf(FTQuery.class) : ftFlags));
       }
 
       return this;
@@ -163,8 +169,12 @@ public interface CollectionSearchQuery extends SearchQuery {
     }
 
     public AllDeselectedEntries selectWithFTQuery(final String ftQuery) {
+      return selectWithFTQuery(ftQuery, null);
+    }
+    
+    public AllDeselectedEntries selectWithFTQuery(final String ftQuery, Set<FTQuery> ftFlags) {
       if (this.getMode() == SelectMode.AllDeselected) {
-        this.getFTQueries().add(ftQuery);
+        this.getFTQueries().add(new Pair<>(ftQuery, ftFlags==null ? EnumSet.noneOf(FTQuery.class) : ftFlags));
       }
 
       return this;
@@ -238,8 +248,12 @@ public interface CollectionSearchQuery extends SearchQuery {
     }
 
     public AllExpandedEntries unselect(final String ftQuery) {
+      return unselect(ftQuery, null);
+    }
+    
+    public AllExpandedEntries unselect(final String ftQuery, Set<FTQuery> ftFlags) {
       if (this.getMode() == ExpandMode.AllExpanded) {
-        this.getFTQueries().add(ftQuery);
+        this.getFTQueries().add(new Pair<>(ftQuery, ftFlags==null ? EnumSet.noneOf(FTQuery.class) : ftFlags));
       }
 
       return this;
@@ -287,9 +301,9 @@ public interface CollectionSearchQuery extends SearchQuery {
       return this;
     }
 
-    public AllSelectedEntries deselect(final String ftQuery) {
+    public AllSelectedEntries deselect(final String ftQuery, Set<FTQuery> ftFlags) {
       if (this.getMode() == SelectMode.AllSelected) {
-        this.getFTQueries().add(ftQuery);
+        this.getFTQueries().add(new Pair<>(ftQuery, ftFlags));
       }
 
       return this;
@@ -389,7 +403,7 @@ public interface CollectionSearchQuery extends SearchQuery {
     private final ExpandMode m_mode;
     private final Set<Integer> m_noteIds;
     private final List<DQLTerm> m_dqlQueries;
-    private final List<String> m_ftQueries;
+    private final List<Pair<String,Set<FTQuery>>> m_ftQueries;
 
     private final List<SingleColumnLookupKey> m_lookupKeysSingleCol;
     private final List<MultiColumnLookupKey> m_lookupKeysMultiCol;
@@ -409,7 +423,7 @@ public interface CollectionSearchQuery extends SearchQuery {
       return this.m_dqlQueries;
     }
 
-    public List<String> getFTQueries() {
+    public List<Pair<String,Set<FTQuery>>> getFTQueries() {
       return this.m_ftQueries;
     }
 
@@ -469,7 +483,7 @@ public interface CollectionSearchQuery extends SearchQuery {
     private final SelectMode m_mode;
     private final Set<Integer> m_noteIds;
     private final List<DQLTerm> m_dqlQueries;
-    private final List<String> m_ftQueries;
+    private final List<Pair<String,Set<FTQuery>>> m_ftQueries;
 
     private final List<SingleColumnLookupKey> m_lookupKeysSingleCol;
     private final List<MultiColumnLookupKey> m_lookupKeysMultiCol;
@@ -487,7 +501,7 @@ public interface CollectionSearchQuery extends SearchQuery {
       return this.m_dqlQueries;
     }
 
-    public List<String> getFTQueries() {
+    public List<Pair<String,Set<FTQuery>>> getFTQueries() {
       return this.m_ftQueries;
     }
 
