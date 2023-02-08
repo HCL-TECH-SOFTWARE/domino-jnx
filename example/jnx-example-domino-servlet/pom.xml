@@ -22,6 +22,11 @@
 			<artifactId>domino-jnx-jna</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>jakarta.mail</groupId>
+			<artifactId>jakarta.mail-api</artifactId>
+		</dependency>
 
 		<!-- Domino-compatible implementations -->
 		<dependency>
