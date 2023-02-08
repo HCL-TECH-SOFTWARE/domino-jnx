@@ -290,8 +290,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 //			}
 //		}
 		
-		DisposableMemory retFullNetPath = JNADominoUtils.constructNetPath(getParentDominoClient(), server, filePath);
-		try {
+		try(DisposableMemory retFullNetPath = JNADominoUtils.constructNetPath(getParentDominoClient(), server, filePath)) {
 			short openOptions = DominoEnumUtil.toBitField(OpenDatabase.class, options);
 
 			JNAUserNamesList namesList = namesListOverride!=null ? namesListOverride : (JNAUserNamesList) getParentDominoClient().getEffectiveUserNamesList(server);
@@ -378,9 +377,6 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			});
 			
 		}
-		finally {
-			retFullNetPath.dispose();
-		}
 	}
 	
 	@Override
@@ -410,9 +406,8 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			checkDisposed();
 			JNADatabaseAllocations allocations = getAllocations();
 
-			DisposableMemory retCanonicalPathName = new DisposableMemory(NotesConstants.MAXPATH);
-			DisposableMemory retExpandedPathName = new DisposableMemory(NotesConstants.MAXPATH);
-			try {
+			try(DisposableMemory retCanonicalPathName = new DisposableMemory(NotesConstants.MAXPATH);
+      DisposableMemory retExpandedPathName = new DisposableMemory(NotesConstants.MAXPATH)) {
 				short result = LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
 					return NotesCAPI.get().NSFDbPathGet(handleByVal, retCanonicalPathName, retExpandedPathName);
 				});
@@ -441,10 +436,6 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 					absDbPath = expandedPathName.substring(iPos+2);
 				}
 				m_paths = new String[] {relDbPath, absDbPath};
-			}
-			finally {
-				retCanonicalPathName.dispose();
-				retExpandedPathName.dispose();
 			}
 		}
 	}
@@ -521,16 +512,11 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	@Override
 	public String getTitle() {
 		checkDisposed();
-		DisposableMemory infoBuf = getDbInfoBuffer();
-		DisposableMemory titleMem = new DisposableMemory(NotesConstants.NSF_INFO_SIZE - 1);
 
-		try {
+		try(DisposableMemory infoBuf = getDbInfoBuffer();
+		    DisposableMemory titleMem = new DisposableMemory(NotesConstants.NSF_INFO_SIZE - 1)) {
 			NotesCAPI.get().NSFDbInfoParse(infoBuf, NotesConstants.INFOPARSE_TITLE, titleMem, (short) (titleMem.size() & 0xffff));
 			return NotesStringUtils.fromLMBCS(titleMem, -1);
-		}
-		finally {
-			titleMem.dispose();
-			infoBuf.dispose();
 		}
 	}
 
@@ -597,16 +583,12 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	@Override
 	public void setTitle(String title) {
 		checkDisposed();
-		DisposableMemory infoBuf = getDbInfoBuffer();
-		try {
+		try(DisposableMemory infoBuf = getDbInfoBuffer()) {
 			Memory newTitleMem = NotesStringUtils.toLMBCS(title, true);
 
 			NotesCAPI.get().NSFDbInfoModify(infoBuf, NotesConstants.INFOPARSE_TITLE, newTitleMem);
 
 			writeDbInfoBuffer(infoBuf);
-		}
-		finally {
-			infoBuf.dispose();
 		}
 	}
 
@@ -717,60 +699,60 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		JNADatabaseAllocations dbViewAllocations = getAllocations();
     JNADatabaseAllocations dbDataAllocations = jnaDbData.getAllocations();
 
-		DisposableMemory retViewUNID = new DisposableMemory(16);
-		JNAIDTable unreadTable = new JNAIDTable(getParentDominoClient());
-		
-		//always enforce reopening; funny things can happen on a Domino server
-		//without this flag like sharing collections between users resulting in
-		//users seeing the wrong data *sometimes*...
-		EnumSet<OpenCollection> openFlagSetClone = openFlagSet==null ? EnumSet.noneOf(OpenCollection.class) : openFlagSet.clone();
-		openFlagSetClone.add(OpenCollection.OPEN_REOPEN_COLLECTION);
-		
-		short openFlags = DominoEnumUtil.toBitField(OpenCollection.class, openFlagSetClone);
-
-		JNAUserNamesList namesList = dbViewAllocations.getNamesList();
-		
-		if (namesList.isDisposed()) {
-			throw new ObjectDisposedException(namesList);
+		try(DisposableMemory retViewUNID = new DisposableMemory(16)) {
+  		JNAIDTable unreadTable = new JNAIDTable(getParentDominoClient());
+  		
+  		//always enforce reopening; funny things can happen on a Domino server
+  		//without this flag like sharing collections between users resulting in
+  		//users seeing the wrong data *sometimes*...
+  		EnumSet<OpenCollection> openFlagSetClone = openFlagSet==null ? EnumSet.noneOf(OpenCollection.class) : openFlagSet.clone();
+  		openFlagSetClone.add(OpenCollection.OPEN_REOPEN_COLLECTION);
+  		
+  		short openFlags = DominoEnumUtil.toBitField(OpenCollection.class, openFlagSetClone);
+  
+  		JNAUserNamesList namesList = dbViewAllocations.getNamesList();
+  		
+  		if (namesList.isDisposed()) {
+  			throw new ObjectDisposedException(namesList);
+  		}
+  		
+  		DHANDLE.ByReference rethCollection = DHANDLE.newInstanceByReference();
+  		rethCollection.clear();
+  		DHANDLE.ByReference rethCollapsedList = DHANDLE.newInstanceByReference();
+  		rethCollapsedList.clear();
+  		DHANDLE.ByReference rethSelectedList = DHANDLE.newInstanceByReference();
+  		rethSelectedList.clear();
+  		
+  		JNAUserNamesListAllocations namesListAllocations = (JNAUserNamesListAllocations) namesList.getAdapter(APIObjectAllocations.class);
+  		JNAIDTableAllocations unreadTableAllocations = (JNAIDTableAllocations) unreadTable.getAdapter(APIObjectAllocations.class);
+  		
+  		short result = LockUtil.lockHandles(
+  				namesListAllocations.getHandle(),
+  				unreadTableAllocations.getIdTableHandle(),
+  				dbViewAllocations.getDBHandle(),
+  				dbDataAllocations.getDBHandle(),
+  				
+  				(namesListHandleByVal, unreadTableHandleByVal, dbViewHandleByVal, dbDataHandleByVal) -> {
+  					short localResult = NotesCAPI.get().NIFOpenCollectionWithUserNameList(dbViewHandleByVal,
+  							dbDataHandleByVal,
+  							viewNoteId, openFlags, unreadTableHandleByVal,
+  							rethCollection, null, retViewUNID, rethCollapsedList,
+  							rethSelectedList, namesListHandleByVal);
+  					
+  					return localResult;
+  				});
+  		
+  		NotesErrorUtils.checkResult(result);
+  		
+  		String sViewUNID = toUNID(retViewUNID);
+      
+      JNAIDTable collapsedList = new JNAIDTable(getParentDominoClient(), rethCollapsedList, true);
+      JNAIDTable selectedList = new JNAIDTable(getParentDominoClient(), rethSelectedList, true);
+      
+      return new JNADominoCollection(this, jnaDbData, rethCollection, viewNoteId,
+          sViewUNID, collapsedList,
+          selectedList, unreadTable);
 		}
-		
-		DHANDLE.ByReference rethCollection = DHANDLE.newInstanceByReference();
-		rethCollection.clear();
-		DHANDLE.ByReference rethCollapsedList = DHANDLE.newInstanceByReference();
-		rethCollapsedList.clear();
-		DHANDLE.ByReference rethSelectedList = DHANDLE.newInstanceByReference();
-		rethSelectedList.clear();
-		
-		JNAUserNamesListAllocations namesListAllocations = (JNAUserNamesListAllocations) namesList.getAdapter(APIObjectAllocations.class);
-		JNAIDTableAllocations unreadTableAllocations = (JNAIDTableAllocations) unreadTable.getAdapter(APIObjectAllocations.class);
-		
-		short result = LockUtil.lockHandles(
-				namesListAllocations.getHandle(),
-				unreadTableAllocations.getIdTableHandle(),
-				dbViewAllocations.getDBHandle(),
-				dbDataAllocations.getDBHandle(),
-				
-				(namesListHandleByVal, unreadTableHandleByVal, dbViewHandleByVal, dbDataHandleByVal) -> {
-					short localResult = NotesCAPI.get().NIFOpenCollectionWithUserNameList(dbViewHandleByVal,
-							dbDataHandleByVal,
-							viewNoteId, openFlags, unreadTableHandleByVal,
-							rethCollection, null, retViewUNID, rethCollapsedList,
-							rethSelectedList, namesListHandleByVal);
-					
-					return localResult;
-				});
-		
-		NotesErrorUtils.checkResult(result);
-		
-		String sViewUNID = toUNID(retViewUNID);
-		retViewUNID.dispose();
-		
-		JNAIDTable collapsedList = new JNAIDTable(getParentDominoClient(), rethCollapsedList, true);
-		JNAIDTable selectedList = new JNAIDTable(getParentDominoClient(), rethSelectedList, true);
-		
-		return new JNADominoCollection(this, jnaDbData, rethCollection, viewNoteId,
-				sViewUNID, collapsedList,
-				selectedList, unreadTable);
 	}
 	
 	/**
@@ -1299,8 +1281,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	public Set<DatabaseOption> getOptions() {
 		checkDisposed();
 		
-		DisposableMemory retDbOptions = new DisposableMemory(4 * 4); //DWORD[4]
-		try {
+		try(DisposableMemory retDbOptions = new DisposableMemory(4 * 4)) { //DWORD[4]
 			short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
 				return NotesCAPI.get().NSFDbGetOptionsExt(hDbByVal, retDbOptions);
 			});
@@ -1323,9 +1304,6 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			}
 			
 			return dbOptions;
-		}
-		finally {
-			retDbOptions.dispose();
 		}
 	}
 
@@ -3896,11 +3874,11 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 						//128 byte buffer is never used, instead the NSFItemDefExtGetEntry
 						//call redirects the pointer stored in retItemNamePtr to
 						//the item name in memory
-						DisposableMemory retItemName = new DisposableMemory(128);
-						DisposableMemory retItemNamePtr = new DisposableMemory(Native.POINTER_SIZE);
-						retItemNamePtr.setPointer(0, retItemName);
 						
-						try {
+						
+						try(DisposableMemory retItemName = new DisposableMemory(128);
+						    DisposableMemory retItemNamePtr = new DisposableMemory(Native.POINTER_SIZE)) {
+	            retItemNamePtr.setPointer(0, retItemName);
 							for (int i=0; i<iNumEntries; i++) {
 								retItemName.clear();
 								
@@ -3921,10 +3899,6 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 									.orElse(ItemDataType.TYPE_UNAVAILABLE);
 								table.put(currItemName, itemType);
 							}
-						}
-						finally {
-							retItemName.dispose();
-							retItemNamePtr.dispose();
 						}
 					}
 					finally {

@@ -244,8 +244,7 @@ public class JNAMimeWriter extends JNAMimeBase implements MimeWriter {
 			byte[] buffer = new byte[60000];
 			int len;
 
-			DisposableMemory bufferMem = new DisposableMemory(buffer.length);
-			try {
+			try(DisposableMemory bufferMem = new DisposableMemory(buffer.length)) {
 				while ((len=in.read(buffer))>0) {
 					bufferMem.write(0, buffer,0, len);
 
@@ -259,9 +258,6 @@ public class JNAMimeWriter extends JNAMimeBase implements MimeWriter {
 			catch (IOException e) {
 				ioEx[0] = e;
 				return;
-			}
-			finally {
-				bufferMem.dispose();
 			}
 		}, dataType);
 
@@ -290,15 +286,11 @@ public class JNAMimeWriter extends JNAMimeBase implements MimeWriter {
 		LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
 			short noteFlags;
 			
-			DisposableMemory retFlags = new DisposableMemory(2);
-			try {
+			try(DisposableMemory retFlags = new DisposableMemory(2)) {
 				retFlags.clear();
 
 				NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, NotesConstants._NOTE_FLAGS, retFlags);
 				noteFlags = retFlags.getShort(0);
-			}
-			finally {
-				retFlags.dispose();
 			}
 			
 			boolean isCanonical = (noteFlags & NotesConstants.NOTE_FLAG_CANONICAL) == NotesConstants.NOTE_FLAG_CANONICAL;

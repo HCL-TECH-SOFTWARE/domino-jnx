@@ -34,11 +34,6 @@ public class DisposableMemory extends Memory implements AutoCloseable {
 		super(size);
 		clear();
 	}
-
-	@Override
-	public synchronized void dispose() {
-		super.dispose();
-	}
 	
 	/**
 	 * Checks if this memory is already disposed
@@ -47,11 +42,6 @@ public class DisposableMemory extends Memory implements AutoCloseable {
 	 */
 	public boolean isDisposed() {
 		return peer == 0;
-	}
-	
-	@Override
-	public void close() {
-		dispose();
 	}
 	
 }

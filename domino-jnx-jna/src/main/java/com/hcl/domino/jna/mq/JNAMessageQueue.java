@@ -125,7 +125,7 @@ public class JNAMessageQueue extends BaseJNAAPIObject<JNAMessageQueueAllocations
 		}
 		finally {
 			if (outMem!=null) {
-				outMem.dispose();
+				outMem.close();
 			}
 		}
 	}
@@ -237,16 +237,11 @@ public class JNAMessageQueue extends BaseJNAAPIObject<JNAMessageQueueAllocations
 		}
 
 		// TODO eventually a cache could be introduced to allocate commonly used memory-buffers
-		DisposableMemory mem = new DisposableMemory(length);
-
-		try {
+		try(DisposableMemory mem = new DisposableMemory(length)) {
 			// note: bounds-check should be performed by Memory-class
 			mem.write(0, buffer, offset, length);
 
 			put(mem, priority);
-		}
-		finally {
-			mem.dispose();
 		}
 	}
 

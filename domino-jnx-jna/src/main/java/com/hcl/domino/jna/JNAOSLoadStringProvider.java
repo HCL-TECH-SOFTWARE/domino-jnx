@@ -29,18 +29,15 @@ public class JNAOSLoadStringProvider implements OSLoadStringProvider {
 
 	@Override
 	public String loadString(int module, short status) {
-		DisposableMemory retBuffer = new DisposableMemory(256);
-		retBuffer.clear();
-		try {
+		
+		try(DisposableMemory retBuffer = new DisposableMemory(256)) {
+	    retBuffer.clear();
 			short outStrLength = NotesCAPI.get().OSLoadString(0, status, retBuffer, (short) 255);
 			if (outStrLength==0) {
 				return ""; //$NON-NLS-1$
 			}
 
 			return NotesStringUtils.fromLMBCS(retBuffer, outStrLength);
-		}
-		finally {
-			retBuffer.dispose();
 		}
 	}
 

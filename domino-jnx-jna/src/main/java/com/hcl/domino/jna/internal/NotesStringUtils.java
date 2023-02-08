@@ -294,8 +294,7 @@ public class NotesStringUtils {
 					
 					int worstCaseLengthOfConvertedData = 3*lengthOfLineDataToConvert;
 					
-					DisposableMemory inDataMem = new DisposableMemory(lengthOfLineDataToConvert);
-					try {
+					try(DisposableMemory inDataMem = new DisposableMemory(lengthOfLineDataToConvert)) {
 						inDataMem.write(0, data, startOffset, lengthOfLineDataToConvert);
 						
 						do {
@@ -317,7 +316,7 @@ public class NotesStringUtils {
 								// our worst case computation)
 								long oldOutBufSize = outBufUTF8.size();
 								long newOutBufSize = (long) (((double) oldOutBufSize)*2);
-								outBufUTF8.dispose();
+								outBufUTF8.close();
 								outBufUTF8 = new DisposableMemory(newOutBufSize);
 								
 								continue;
@@ -343,9 +342,6 @@ public class NotesStringUtils {
 						}
 						while (true);
 					}
-					finally {
-						inDataMem.dispose();
-					}
 				}
 			}
 
@@ -354,8 +350,7 @@ public class NotesStringUtils {
 				int lengthOfLineDataToConvert = data.length-startOffset;
 				int worstCaseLengthOfConvertedData = 3*lengthOfLineDataToConvert;
 
-				DisposableMemory inDataMem = new DisposableMemory(lengthOfLineDataToConvert);
-				try {
+				try(DisposableMemory inDataMem = new DisposableMemory(lengthOfLineDataToConvert)) {
 					inDataMem.write(0, data, startOffset, lengthOfLineDataToConvert);
 					
 					do {
@@ -377,7 +372,7 @@ public class NotesStringUtils {
 							// our worst case computation)
 							long oldOutBufSize = outBufUTF8.size();
 							long newOutBufSize = (long) (((double) oldOutBufSize)*2);
-							outBufUTF8.dispose();
+							outBufUTF8.close();
 							outBufUTF8 = new DisposableMemory(newOutBufSize);
 							
 							continue;
@@ -397,14 +392,11 @@ public class NotesStringUtils {
 					}
 					while (true);
 				}
-				finally {
-					inDataMem.dispose();
-				}
 			}
 		}
 		finally {
 			if (outBufUTF8!=null) {
-				outBufUTF8.dispose();
+				outBufUTF8.close();
 			}
 		}
 		boolean useOSLineBreak = isUseOSLineDelimiter();
@@ -665,7 +657,7 @@ public class NotesStringUtils {
 					int worstCaseLMBCSLength = 3 * lines[i].length();
 					
 					if (inputBufUTF8!=null && inputBufUTF8.size() < lineDataAsUTF8.length) {
-						inputBufUTF8.dispose();
+						inputBufUTF8.close();
 						inputBufUTF8 = null;
 					}
 					
@@ -675,7 +667,7 @@ public class NotesStringUtils {
 					inputBufUTF8.write(0, lineDataAsUTF8, 0, lineDataAsUTF8.length);
 					
 					if (outputBufLMBCS!=null && outputBufLMBCS.size() < worstCaseLMBCSLength) {
-						outputBufLMBCS.dispose();
+						outputBufLMBCS.close();
 						outputBufLMBCS = null;
 					}
 					
@@ -694,7 +686,7 @@ public class NotesStringUtils {
 							// our worst case computation)
 							long oldOutBufSize = outputBufLMBCS.size();
 							long newOutBufSize = (long) (((double) oldOutBufSize)*2);
-							outputBufLMBCS.dispose();
+							outputBufLMBCS.close();
 							outputBufLMBCS = new DisposableMemory(newOutBufSize);
 
 							continue;
@@ -716,11 +708,11 @@ public class NotesStringUtils {
 		}
 		finally {
 			if (inputBufUTF8!=null) {
-				inputBufUTF8.dispose();
+				inputBufUTF8.close();
 			}
 			
 			if (outputBufLMBCS!=null) {
-				outputBufLMBCS.dispose();
+				outputBufLMBCS.close();
 			}
 		}
 		
@@ -884,13 +876,11 @@ public class NotesStringUtils {
 		Memory serverNameMem = toLMBCS(serverName, true);
 		Memory fileNameMem = toLMBCS(fileName, true);
 		
-		DisposableMemory retPathMem = new DisposableMemory(NotesConstants.MAXPATH);
-		
-		short result = NotesCAPI.get().OSPathNetConstruct(portNameMem, serverNameMem, fileNameMem, retPathMem);
-		NotesErrorUtils.checkResult(result);
-		String retPath = fromLMBCS(retPathMem, getNullTerminatedLength(retPathMem));
-		retPathMem.dispose();
-		return retPath;
+		try(DisposableMemory retPathMem = new DisposableMemory(NotesConstants.MAXPATH)) {
+		  short result = NotesCAPI.get().OSPathNetConstruct(portNameMem, serverNameMem, fileNameMem, retPathMem);
+  		NotesErrorUtils.checkResult(result);
+  		return fromLMBCS(retPathMem, getNullTerminatedLength(retPathMem));
+		}
 	}
 
 	/**
@@ -912,23 +902,20 @@ public class NotesStringUtils {
 	 * @return String array of portname, servername, filename
 	 */
 	public static String[] osPathNetParse(String pathName) {
-		DisposableMemory retPortNameMem = new DisposableMemory(NotesConstants.MAXPATH);
-		DisposableMemory retServerNameMem = new DisposableMemory(NotesConstants.MAXPATH);
-		DisposableMemory retFileNameMem = new DisposableMemory(NotesConstants.MAXPATH);
+		try(DisposableMemory retPortNameMem = new DisposableMemory(NotesConstants.MAXPATH);
+  		DisposableMemory retServerNameMem = new DisposableMemory(NotesConstants.MAXPATH);
+  		DisposableMemory retFileNameMem = new DisposableMemory(NotesConstants.MAXPATH)) {
 		
-		Memory pathNameMem = toLMBCS(pathName, true);
-		short result = NotesCAPI.get().OSPathNetParse(pathNameMem, retPortNameMem, retServerNameMem, retFileNameMem);
-		NotesErrorUtils.checkResult(result);
-		
-		String portName = fromLMBCS(retPortNameMem, getNullTerminatedLength(retPortNameMem));
-		String serverName = fromLMBCS(retServerNameMem, getNullTerminatedLength(retServerNameMem));
-		String fileName = fromLMBCS(retFileNameMem, getNullTerminatedLength(retFileNameMem));
-		
-		retPortNameMem.dispose();
-		retServerNameMem.dispose();
-		retFileNameMem.dispose();
-		
-		return new String[] {portName, serverName, fileName};
+  		Memory pathNameMem = toLMBCS(pathName, true);
+  		short result = NotesCAPI.get().OSPathNetParse(pathNameMem, retPortNameMem, retServerNameMem, retFileNameMem);
+  		NotesErrorUtils.checkResult(result);
+  		
+  		String portName = fromLMBCS(retPortNameMem, getNullTerminatedLength(retPortNameMem));
+  		String serverName = fromLMBCS(retServerNameMem, getNullTerminatedLength(retServerNameMem));
+  		String fileName = fromLMBCS(retFileNameMem, getNullTerminatedLength(retFileNameMem));
+  		
+  		return new String[] {portName, serverName, fileName};
+		}
 	}
 
 	/**

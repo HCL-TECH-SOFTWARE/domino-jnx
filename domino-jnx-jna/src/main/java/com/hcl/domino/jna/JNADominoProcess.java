@@ -170,8 +170,7 @@ public class JNADominoProcess implements DominoProcess {
 
 	private String getPropertyString(String propertyName) {
 		Memory variableNameMem = NotesStringUtils.toLMBCS(propertyName, true);
-		DisposableMemory rethValueBuffer = new DisposableMemory(NotesConstants.MAXENVVALUE);
-		try {
+		try(DisposableMemory rethValueBuffer = new DisposableMemory(NotesConstants.MAXENVVALUE)) {
 			short result = NotesCAPI.get().OSGetEnvironmentString(variableNameMem, rethValueBuffer, NotesConstants.MAXENVVALUE);
 			if (result==1) {
 				String str = NotesStringUtils.fromLMBCS(rethValueBuffer, -1);
@@ -180,9 +179,6 @@ public class JNADominoProcess implements DominoProcess {
 			else {
 				return ""; //$NON-NLS-1$
 			}
-		}
-		finally {
-			rethValueBuffer.dispose();
 		}
 	}
 
