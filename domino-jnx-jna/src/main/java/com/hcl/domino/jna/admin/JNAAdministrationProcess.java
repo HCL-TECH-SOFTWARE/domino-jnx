@@ -221,15 +221,13 @@ public class JNAAdministrationProcess extends BaseJNAAPIObject<JNAAdministration
 		short result = LockUtil.lockHandle(dbProxyAllocations.getDBHandle(), (hdbProxyByVal) -> {
 			Memory adminpAddGroupMem = NotesStringUtils.toLMBCS(NotesConstants.AdminpAddGroup, true);
 			short wItem = (short) (arp.size() & 0xffff);
-			DisposableMemory arpMem = arp.toStruct();
-			try {
+			try(DisposableMemory arpMem = arp.toStruct()) {
 				return NotesCAPI.get().AdminpCreateRequest(hdbProxyByVal, adminpAddGroupMem,
 						wItem, arpMem, EProvidingAuthor.AuthorIsProvided.getValue(),
 						EUsePABsAdminServer.UsePABsAdminServer.getValue(), null, (short) 0);
 			}
 			finally {
 				arp.dispose();
-				arpMem.dispose();
 			}
 		});
 		NotesErrorUtils.checkResult(result);
@@ -499,46 +497,39 @@ public class JNAAdministrationProcess extends BaseJNAAPIObject<JNAAdministration
 				}
 
 				//load dir entry id
-				{
-					DisposableMemory retDirEntryIDMem = new DisposableMemory(NotesConstants.MAXDIRENTRYID);
+				try(DisposableMemory retDirEntryIDMem = new DisposableMemory(NotesConstants.MAXDIRENTRYID)) {
 					retDirEntryIDMem.clear();
-					try {
-						/* pthn7s7mm9: 
-					   for below methods only, lookup must be aware of Directory Assistance, and Extended Directory Configuration.
-					   we will use a customized version of the oooapi method hijacked from misc/oooapi.c.
-					   The reason this function is needed is that iNotes users may not be stored in the primary
-					   directory, we need to obtain information from extended directory */
-						if (op == AdminPOperation.CONFIGUREMAILAGENT ||
-								op == AdminPOperation.CONFIGUREMAILAGENTEXT) {
-							result = NotesCAPI.get().LookupUserDirID(canonEntryNameMem, serverNameMem,
-									null, retDirEntryIDMem);
-						}
-						else {
-							result = LockUtil.lockHandle(hDirCtx, (hDirCtxByVal) -> {
-								return NotesCAPI.get().REGSearchByFullnameOrInternetAddress(hDirCtxByVal,
-										canonEntryNameMem,
-										true, retDirEntryIDMem);
-							});
-						}
-						NotesErrorUtils.checkResult(result);
-
-						/* Get the handle to the DirEntryID */
-
+					/* pthn7s7mm9: 
+				   for below methods only, lookup must be aware of Directory Assistance, and Extended Directory Configuration.
+				   we will use a customized version of the oooapi method hijacked from misc/oooapi.c.
+				   The reason this function is needed is that iNotes users may not be stored in the primary
+				   directory, we need to obtain information from extended directory */
+					if (op == AdminPOperation.CONFIGUREMAILAGENT ||
+							op == AdminPOperation.CONFIGUREMAILAGENTEXT) {
+						result = NotesCAPI.get().LookupUserDirID(canonEntryNameMem, serverNameMem,
+								null, retDirEntryIDMem);
+					}
+					else {
 						result = LockUtil.lockHandle(hDirCtx, (hDirCtxByVal) -> {
-							DisposableMemory itemNamesMem = NotesStringUtils.toLMBCSNoCache(
-									NotesConstants.DIR_ITEMS_ALL_DOMINO + "\nObjectGUID", // \n will be converted to \0 //$NON-NLS-1$
-									true, LineBreakConversion.NULL);
-
-							short resultGetEntry = NotesCAPI.get().DirCtxGetEntryByID(hDirCtxByVal, retDirEntryIDMem,
-									itemNamesMem, (short) 2, rethDirEntry);
-							itemNamesMem.dispose();
-							return resultGetEntry;
+							return NotesCAPI.get().REGSearchByFullnameOrInternetAddress(hDirCtxByVal,
+									canonEntryNameMem,
+									true, retDirEntryIDMem);
 						});
-						NotesErrorUtils.checkResult(result);
 					}
-					finally {
-						retDirEntryIDMem.dispose();
-					}
+					NotesErrorUtils.checkResult(result);
+
+					/* Get the handle to the DirEntryID */
+
+					result = LockUtil.lockHandle(hDirCtx, (hDirCtxByVal) -> {
+						try(DisposableMemory itemNamesMem = NotesStringUtils.toLMBCSNoCache(
+								NotesConstants.DIR_ITEMS_ALL_DOMINO + "\nObjectGUID", // \n will be converted to \0 //$NON-NLS-1$
+								true, LineBreakConversion.NULL)) {
+
+						  return NotesCAPI.get().DirCtxGetEntryByID(hDirCtxByVal, retDirEntryIDMem,
+						      itemNamesMem, (short) 2, rethDirEntry);
+						}
+					});
+					NotesErrorUtils.checkResult(result);
 				}
 
 				if (rethDirEntry.getValue() == 0) {
@@ -617,8 +608,7 @@ public class JNAAdministrationProcess extends BaseJNAAPIObject<JNAAdministration
 		DHANDLE.ByReference hGUID = DHANDLE.newInstanceByReference();
 		short result;
 
-		DisposableMemory netUserNameBuffer = new DisposableMemory(NotesConstants.MAXUSERNAME);
-		try {
+		try(DisposableMemory netUserNameBuffer = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
 			Memory itmNameNetUserName = NotesStringUtils.toLMBCS(NotesConstants.MAIL_NETUSERNAME_ITEM, true);
 
 			/* if the person entry does not have a NetUserName field */
@@ -679,7 +669,6 @@ public class JNAAdministrationProcess extends BaseJNAAPIObject<JNAAdministration
 				});
 				NotesErrorUtils.checkResult(result);
 			}
-			netUserNameBuffer.dispose();
 		}
 	}
 

@@ -656,8 +656,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
         NotesTimeDateStruct replicaIdStruct = NotesTimeDateStruct.newInstance(innards);
 
-        DisposableMemory retPathNameMem = new DisposableMemory(NotesConstants.MAXPATH);
-        try {
+        try(DisposableMemory retPathNameMem = new DisposableMemory(NotesConstants.MAXPATH)) {
           JNADatabaseAllocations dbAllocations =
               (JNADatabaseAllocations) dir.getAdapter(APIObjectAllocations.class);
           short result = LockUtil.lockHandle(dbAllocations.getDBHandle(), (hDirByVal) -> {
@@ -680,8 +679,6 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
             return new JNADatabase(this, serverName, retPathName, options);
           }
 
-        } finally {
-          retPathNameMem.dispose();
         }
       }
     } else {
@@ -1008,7 +1005,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     retStatsStruct.read();
 
     if (fileListMem != null) {
-      fileListMem.dispose();
+      fileListMem.close();
     }
 
     NotesReplicationStats retStats = new JNANotesReplicationStats(retStatsStruct);
@@ -1140,8 +1137,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
           Memory variableUserNameMem = NotesStringUtils.toLMBCS(userName, true);
           Memory variablePasswordMem = NotesStringUtils.toLMBCS(password, true);
-          DisposableMemory rethValueBuffer = new DisposableMemory(NotesConstants.MAXUSERNAME);
-          try {
+          try(DisposableMemory rethValueBuffer = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
             short result = capi1201.NABLookupBasicAuthentication(variableUserNameMem,
                 variablePasswordMem, NotesConstants.BASIC_AUTH_NO_AMBIGUOUS_NAMES,
                 NotesConstants.MAXUSERNAME,
@@ -1151,8 +1147,6 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
             } else {
               throw new AuthenticationException("Invalid user name or password");
             }
-          } finally {
-            rethValueBuffer.dispose();
           }
 
           return StringUtil.isEmpty(fullName) ? userName : fullName;

@@ -106,25 +106,17 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations> 
 
 	@Override
 	public void markInService(String server, String filePath) {
-		DisposableMemory dbPathMem = JNADominoUtils.constructNetPath(getParentDominoClient(), server, filePath);
-		try {
+		try(DisposableMemory dbPathMem = JNADominoUtils.constructNetPath(getParentDominoClient(), server, filePath)) {
 			short result = NotesCAPI.get().NSFDbMarkInService(dbPathMem);
 			NotesErrorUtils.checkResult(result);
-		}
-		finally {
-			dbPathMem.dispose();
 		}
 	}
 
 	@Override
 	public void markOutOfService(String server, String filePath) {
-		DisposableMemory dbPathMem = JNADominoUtils.constructNetPath(getParentDominoClient(), server, filePath);
-		try {
+		try(DisposableMemory dbPathMem = JNADominoUtils.constructNetPath(getParentDominoClient(), server, filePath)) {
 			short result = NotesCAPI.get().NSFDbMarkOutOfService(dbPathMem);
 			NotesErrorUtils.checkResult(result);
-		}
-		finally {
-			dbPathMem.dispose();
 		}
 	}
 

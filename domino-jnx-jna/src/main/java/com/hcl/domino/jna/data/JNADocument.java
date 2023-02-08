@@ -686,17 +686,13 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		checkDisposed();
 		JNADocumentAllocations allocations = getAllocations();
 		
-		DisposableMemory retNoteId = new DisposableMemory(4);
-		try {
+		try(DisposableMemory retNoteId = new DisposableMemory(4)) {
 			retNoteId.clear();
 
 			return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
 				NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_ID, retNoteId);
 				return retNoteId.getInt(0);
 			});
-		}
-		finally {
-			retNoteId.dispose();
 		}
 	}
 	
@@ -776,8 +772,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		checkDisposed();
 		JNADocumentAllocations allocations = getAllocations();
 		
-		DisposableMemory retTimeDate = new DisposableMemory(JNANotesConstants.timeDateSize);
-		try {
+		try(DisposableMemory retTimeDate = new DisposableMemory(JNANotesConstants.timeDateSize)) {
 			retTimeDate.clear();
 
 			return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
@@ -788,9 +783,6 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 
 			});
 		}
-		finally {
-			retTimeDate.dispose();
-		}
 	}
 
 	@Override
@@ -798,8 +790,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		checkDisposed();
 		JNADocumentAllocations allocations = getAllocations();
 		
-		DisposableMemory retTimeDate = new DisposableMemory(JNANotesConstants.timeDateSize);
-		try {
+		try(DisposableMemory retTimeDate = new DisposableMemory(JNANotesConstants.timeDateSize)) {
 			retTimeDate.clear();
 
 			return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
@@ -810,9 +801,6 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 
 			});
 		}
-		finally {
-			retTimeDate.dispose();
-		}
 	}
 
 	@Override
@@ -820,8 +808,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		checkDisposed();
 		JNADocumentAllocations allocations = getAllocations();
 		
-		DisposableMemory retTimeDate = new DisposableMemory(JNANotesConstants.timeDateSize);
-		try {
+		try(DisposableMemory retTimeDate = new DisposableMemory(JNANotesConstants.timeDateSize)) {
 			retTimeDate.clear();
 
 			return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
@@ -830,9 +817,6 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				td.read();
 				return new JNADominoDateTime(td.Innards);
 			});
-		}
-		finally {
-			retTimeDate.dispose();
 		}
 	}
 	
@@ -1156,12 +1140,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	  NotesErrorUtils.checkResult(LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> {
 	    try {
         byte[] certData = certificate.getEncoded();
-        DisposableMemory mem = new DisposableMemory(certData.length);
-        try {
+        try(DisposableMemory mem = new DisposableMemory(certData.length)) {
           mem.write(0, certData, 0, certData.length);
           return NotesCAPI.get().SECNABAddCertificate(noteHandleByVal, mem, certData.length, 0, null);
-        } finally {
-          mem.dispose();
         }
       } catch (CertificateEncodingException e) {
         throw new RuntimeException(e);
@@ -1178,12 +1159,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	  NotesErrorUtils.checkResult(LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> {
       try {
         byte[] certData = certificate.getEncoded();
-        DisposableMemory mem = new DisposableMemory(certData.length);
-        try {
+        try(DisposableMemory mem = new DisposableMemory(certData.length)) {
           mem.write(0, certData, 0, certData.length);
           return NotesCAPI.get().SECNABRemoveCertificate(noteHandleByVal, mem, certData.length, 0, null);
-        } finally {
-          mem.dispose();
         }
       } catch (CertificateEncodingException e) {
         throw new RuntimeException(e);
@@ -2655,8 +2633,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		checkDisposed();
 		JNADocumentAllocations allocations = getAllocations();
 		
-		DisposableMemory retOid = new DisposableMemory(JNANotesConstants.oidSize);
-		try {
+		try(DisposableMemory retOid = new DisposableMemory(JNANotesConstants.oidSize)) {
 			retOid.clear();
 
 			LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
@@ -2670,9 +2647,6 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				
 				return null;
 			});
-		}
-		finally {
-			retOid.dispose();
 		}
 		return this;
 	}
@@ -3135,17 +3109,13 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	private void setFlags(short flags) {
 		checkDisposed();
 
-		DisposableMemory flagsMem = new DisposableMemory(2);
-		try {
+		try(DisposableMemory flagsMem = new DisposableMemory(2)) {
 			flagsMem.setShort(0, flags);
 
 			LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> {
 				NotesCAPI.get().NSFNoteSetInfo(noteHandleByVal, NotesConstants._NOTE_FLAGS, flagsMem);
 				return 0;
 			});
-		}
-		finally {
-			flagsMem.dispose();
 		}
 	}
 	
@@ -3269,17 +3239,13 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		
 		JNADocumentAllocations allocations = getAllocations();
 		
-		DisposableMemory retResponseCount = new DisposableMemory(4);
-		try {
+		try(DisposableMemory retResponseCount = new DisposableMemory(4)) {
 			retResponseCount.clear();
 
 			return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
 				NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_RESPONSE_COUNT, retResponseCount);
 				return retResponseCount.getInt(0);
 			});
-		}
-		finally {
-			retResponseCount.dispose();
 		}
 	}
 	
@@ -4556,8 +4522,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	public String getAsText(String itemName, char separator) {
 		checkDisposed();
 
-		DisposableMemory returnBuf = new DisposableMemory(60 * 1024);
-		try {
+		try(DisposableMemory returnBuf = new DisposableMemory(60 * 1024)) {
 			short txtLengthAsShort = LockUtil.lockHandle(getAllocations().getNoteHandle(), (hNoteByVal) -> {
 				Memory itemNameLmbcs = NotesStringUtils.toLMBCS(itemName, true);
 				return NotesCAPI.get().NSFItemConvertToText(hNoteByVal, itemNameLmbcs, returnBuf, (short)(60 * 1024), separator);
@@ -4570,8 +4535,6 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 				return NotesStringUtils.fromLMBCS(returnBuf, txtLength);
 			}
 			
-		} finally {
-			returnBuf.dispose();
 		}
 	}
 

@@ -63,8 +63,7 @@ public enum JNADominoUtils {
 
 		Memory dbServerLMBCS = NotesStringUtils.toLMBCS(server, true);
 		Memory dbFilePathLMBCS = NotesStringUtils.toLMBCS(filePath, true);
-		DisposableMemory retFullNetPath = new DisposableMemory(NotesConstants.MAXPATH);
-		try {
+		try(DisposableMemory retFullNetPath = new DisposableMemory(NotesConstants.MAXPATH)) {
 			short result = NotesCAPI.get().OSPathNetConstruct(null, dbServerLMBCS, dbFilePathLMBCS, retFullNetPath);
 			NotesErrorUtils.checkResult(result);
 
@@ -83,8 +82,6 @@ public enum JNADominoUtils {
 			reducedFullNetPathMem.write(0, retFullNetPathArr, 0, retFullNetPathArr.length);
 			reducedFullNetPathMem.setByte(newLength, (byte) 0);
 			return reducedFullNetPathMem;
-		} finally {
-			retFullNetPath.dispose();
 		}
 	}
 

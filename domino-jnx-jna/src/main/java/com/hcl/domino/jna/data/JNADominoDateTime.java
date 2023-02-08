@@ -282,30 +282,33 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
 		String txt;
 		int outBufLength = 40;
 		DisposableMemory retTextBuffer = new DisposableMemory(outBufLength);
-		while (true) {
-			ShortByReference retTextLength = new ShortByReference();
-			short result = NotesCAPI.get().ConvertTIMEDATEToText(intlStruct, tfmtStruct.getPointer(), struct, retTextBuffer, (short) retTextBuffer.size(), retTextLength);
-			if (result==1037) { // "Invalid Time or Date Encountered", return empty string like Notes UI does
-				return ""; //$NON-NLS-1$
-			}
-			if (result!=1033) { // "Output Buffer Overflow"
-				NotesErrorUtils.checkResult(result);
-			}
-
-			if (result==1033 || (retTextLength.getValue() >= retTextBuffer.size())) {
-				retTextBuffer.dispose();
-				outBufLength = outBufLength * 2;
-				retTextBuffer = new DisposableMemory(outBufLength);
-
-				continue;
-			}
-			else {
-				txt = NotesStringUtils.fromLMBCS(retTextBuffer, retTextLength.getValue());
-				break;
-			}
+		try {
+  		while (true) {
+  			ShortByReference retTextLength = new ShortByReference();
+  			short result = NotesCAPI.get().ConvertTIMEDATEToText(intlStruct, tfmtStruct.getPointer(), struct, retTextBuffer, (short) retTextBuffer.size(), retTextLength);
+  			if (result==1037) { // "Invalid Time or Date Encountered", return empty string like Notes UI does
+  				return ""; //$NON-NLS-1$
+  			}
+  			if (result!=1033) { // "Output Buffer Overflow"
+  				NotesErrorUtils.checkResult(result);
+  			}
+  
+  			if (result==1033 || (retTextLength.getValue() >= retTextBuffer.size())) {
+  				retTextBuffer.close();
+  				outBufLength = outBufLength * 2;
+  				retTextBuffer = new DisposableMemory(outBufLength);
+  
+  				continue;
+  			}
+  			else {
+  				txt = NotesStringUtils.fromLMBCS(retTextBuffer, retTextLength.getValue());
+  				break;
+  			}
+  		}
+		} finally {
+		  retTextBuffer.close();
 		}
-
-		retTextBuffer.dispose();
+		
 		return txt;
 	}
 	
@@ -334,15 +337,15 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
 		
 		IntlFormatStruct intlStruct = intl==null ? null : intl.getAdapter(IntlFormatStruct.class);
 		
-		DisposableMemory retTimeDateMem = new DisposableMemory(JNANotesConstants.timeDateSize);
-		NotesTimeDateStruct retTimeDate = NotesTimeDateStruct.newInstance(retTimeDateMem);
-		
-		short result = NotesCAPI.get().ConvertTextToTIMEDATE(intlStruct, null, dateTimeStrLMBCSPtr, NotesConstants.MAXALPHATIMEDATE, retTimeDate);
-		NotesErrorUtils.checkResult(result);
-		retTimeDate.read();
-		int[] innards = retTimeDate.Innards;
-		JNADominoDateTime td = new JNADominoDateTime(innards);
-		retTimeDateMem.dispose();
-		return td;
+		try(DisposableMemory retTimeDateMem = new DisposableMemory(JNANotesConstants.timeDateSize)) {
+  		NotesTimeDateStruct retTimeDate = NotesTimeDateStruct.newInstance(retTimeDateMem);
+  		
+  		short result = NotesCAPI.get().ConvertTextToTIMEDATE(intlStruct, null, dateTimeStrLMBCSPtr, NotesConstants.MAXALPHATIMEDATE, retTimeDate);
+  		NotesErrorUtils.checkResult(result);
+  		retTimeDate.read();
+  		int[] innards = retTimeDate.Innards;
+  		JNADominoDateTime td = new JNADominoDateTime(innards);
+  		return td;
+		}
 	}
 }

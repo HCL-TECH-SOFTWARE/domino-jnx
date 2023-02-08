@@ -434,17 +434,13 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 	  itemBlockIdByVal.block = m_itemBlockId.block;
 
 	  int itemFlags = getFlagsAsInt();
-	  DisposableMemory itemValue = getValueRaw(false);
-	  try {
+	  try(DisposableMemory itemValue = getValueRaw(false)) {
 	    short result = LockUtil.lockHandle(docAllocations.getNoteHandle(), (docHandleByVal) -> {
 	      return NotesCAPI.get().NSFItemModifyValue(docHandleByVal, itemBlockIdByVal, 
 	          (short) (itemFlags & 0xffff), newType.getValue(), 
 	          itemValue, (int) itemValue.size());
 	    });
 	    NotesErrorUtils.checkResult(result);
-	  }
-	  finally {
-	    itemValue.dispose();
 	  }
 	}
 	
@@ -816,11 +812,11 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
       return (T) valMem.getByteBuffer(0, valMem.size());
 	  }
 	  else if (clazz == byte[].class) {
-	    DisposableMemory valMem = getValueRaw(true);
-	    byte[] valArr = new byte[(int) valMem.size()];
-	    valMem.read(0, valArr,0, valArr.length);
-	    valMem.dispose();
-	    return (T) valArr;
+	    try(DisposableMemory valMem = getValueRaw(true)) {
+  	    byte[] valArr = new byte[(int) valMem.size()];
+  	    valMem.read(0, valArr,0, valArr.length);
+  	    return (T) valArr;
+	    }
 	  }
 	  else {
 	    return super.getAdapterLocal(clazz);

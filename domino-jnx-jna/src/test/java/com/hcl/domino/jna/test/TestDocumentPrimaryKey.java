@@ -63,7 +63,7 @@ public class TestDocumentPrimaryKey extends AbstractJNARuntimeTest {
       }
       {
         final Map<String, Map<String, Integer>> notesByCategoryAndPK = dbFakenames.getAllDocumentsByPrimaryKey();
-        Assertions.assertTrue(notesByCategoryAndPK.containsKey(pkCategory), "object id in map");
+        Assertions.assertTrue(notesByCategoryAndPK.containsKey(pkCategory), "object id \"" + pkCategory + "\" in map keys " + notesByCategoryAndPK.keySet());
 
         final Map<String, Integer> notesByPK = notesByCategoryAndPK.get(pkCategory);
         Assertions.assertTrue(notesByPK.containsKey(pkObjectId), "object id in map");
