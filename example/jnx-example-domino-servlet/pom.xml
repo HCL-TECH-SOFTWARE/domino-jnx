@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
-		<version>1.20.0</version>
+		<version>1.21.0</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>jnx-example-domino-servlet</artifactId>
@@ -21,6 +21,11 @@
 			<groupId>${project.groupId}</groupId>
 			<artifactId>domino-jnx-jna</artifactId>
 			<version>${project.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>jakarta.mail</groupId>
+			<artifactId>jakarta.mail-api</artifactId>
 		</dependency>
 
 		<!-- Domino-compatible implementations -->

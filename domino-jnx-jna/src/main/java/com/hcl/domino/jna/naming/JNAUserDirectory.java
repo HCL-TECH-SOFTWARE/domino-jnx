@@ -72,8 +72,7 @@ public class JNAUserDirectory implements UserDirectory {
     final DHANDLE.ByReference hReturn = DHANDLE.newInstanceByReference();
     
     try {
-      final DisposableMemory chPrimaryNamePtr = new DisposableMemory(NotesConstants.MAXPATH + 1);
-      try {
+      try(DisposableMemory chPrimaryNamePtr = new DisposableMemory(NotesConstants.MAXPATH + 1)) {
         final Memory serverNameMem = NotesStringUtils.toLMBCS(serverName, true);
         final short status = capi.NAMEGetAddressBooks(serverNameMem, NotesConstants.NAME_GET_AB_FIRSTONLY, wCount, wEntryLen, hReturn);
         NotesErrorUtils.checkResult(status);
@@ -120,8 +119,6 @@ public class JNAUserDirectory implements UserDirectory {
         }
 
         return Optional.empty();
-      } finally {
-        chPrimaryNamePtr.dispose();
       }
     } finally {
       if (!hReturn.isNull()) {

@@ -147,8 +147,7 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		
 		JNADatabaseAllocations dbAllocations = getMailDBAllocations(dbMail);
 		
-		DisposableMemory retUID = new DisposableMemory(NotesConstants.MAXPATH);
-		try {
+		try(DisposableMemory retUID = new DisposableMemory(NotesConstants.MAXPATH)) {
 			short result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
 					(hDBMail) -> {
 				return NotesCAPI.get().CalGetUIDfromNOTEID(hDBMail, noteId, retUID, (short) (NotesConstants.MAXPATH & 0xffff),
@@ -158,9 +157,6 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 			NotesErrorUtils.checkResult(result);
 			
 			return NotesStringUtils.fromLMBCS(retUID, -1);
-		}
-		finally {
-			retUID.dispose();
 		}
 	}
 
@@ -173,8 +169,7 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		NotesUniversalNoteIdStruct.ByValue unidObj = NotesUniversalNoteIdStruct.ByValue.newInstance();
 		unidObj.setUnid(unid);
 		
-		DisposableMemory retUID = new DisposableMemory(NotesConstants.MAXPATH);
-		try {
+		try(DisposableMemory retUID = new DisposableMemory(NotesConstants.MAXPATH)) {
 			short result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
 					(hDBMail) -> {
 				return NotesCAPI.get().CalGetUIDfromUNID(hDBMail, unidObj, retUID,
@@ -186,25 +181,18 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 			String uid = NotesStringUtils.fromLMBCS(retUID, -1);
 			return uid;
 		}
-		finally {
-			retUID.dispose();
-		}
 	}
 
 	@Override
 	public String getApptUnidFromUID(String uid) {
 		Memory uidMem = NotesStringUtils.toLMBCS(uid, true);
-		DisposableMemory retApptUnidMem = new DisposableMemory(NotesConstants.MAXPATH);
 		
-		try {
+		try(DisposableMemory retApptUnidMem = new DisposableMemory(NotesConstants.MAXPATH)) {
 			short result = NotesCAPI.get().CalGetApptunidFromUID(uidMem, retApptUnidMem, 0, null);
 			NotesErrorUtils.checkResult(result);
 			
 			String apptUnid = NotesStringUtils.fromLMBCS(retApptUnidMem, -1);
 			return apptUnid;
-		}
-		finally {
-			retApptUnidMem.dispose();
 		}
 	}
 
@@ -396,16 +384,12 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 	@Override
 	public String getRecurrenceID(TemporalAccessor td) {
 		NotesTimeDateStruct.ByValue tdByVal = NotesTimeDateStruct.ByValue.newInstance(JNADominoDateTime.from(td).getInnards());
-		DisposableMemory retRecurId = new DisposableMemory(NotesConstants.MAXPATH);
-		try {
+		try(DisposableMemory retRecurId = new DisposableMemory(NotesConstants.MAXPATH)) {
 			short result = NotesCAPI.get().CalGetRecurrenceID(tdByVal, retRecurId, (short) ((retRecurId.size()-1) & 0xffff));
 			NotesErrorUtils.checkResult(result);
 			
 			String recurId = NotesStringUtils.fromLMBCS(retRecurId, -1);
 			return recurId;
-		}
-		finally {
-			retRecurId.dispose();
 		}
 	}
 

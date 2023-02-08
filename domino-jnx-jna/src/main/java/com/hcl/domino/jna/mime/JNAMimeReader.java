@@ -92,8 +92,7 @@ public class JNAMimeReader extends JNAMimeBase implements MimeReader {
 		Pointer mimeStreamPtr = createMimeStream(jnaDoc, itemNameMem, dwOpenFlags);
 		try {
 			int MAX_BUFFER_SIZE = 60000;
-			DisposableMemory pchData = new DisposableMemory(MAX_BUFFER_SIZE);
-			try {
+			try(DisposableMemory pchData = new DisposableMemory(MAX_BUFFER_SIZE)) {
 				IntByReference puiDataLen = new IntByReference();
 
 				while (true) {
@@ -117,9 +116,6 @@ public class JNAMimeReader extends JNAMimeBase implements MimeReader {
 						break;
 					}
 				}
-			}
-			finally {
-				pchData.dispose();
 			}
 		}
 		finally {
@@ -319,8 +315,7 @@ public class JNAMimeReader extends JNAMimeBase implements MimeReader {
 			init();
 
 			int maxBufferSize = buffer.length;
-			DisposableMemory pchData = new DisposableMemory(maxBufferSize);
-			try {
+			try(DisposableMemory pchData = new DisposableMemory(maxBufferSize)) {
 				IntByReference puiDataLen = new IntByReference();
 				puiDataLen.setValue(0);
 				
@@ -339,9 +334,6 @@ public class JNAMimeReader extends JNAMimeBase implements MimeReader {
 				else {
 					return -1;
 				}
-			}
-			finally {
-				pchData.dispose();
 			}
 		}
 		

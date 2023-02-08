@@ -144,9 +144,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		DHANDLE hAcl=allocations.getAclHandle();
 		hAcl.checkDisposed();
 
-		DisposableMemory retPrivName = new DisposableMemory(NotesConstants.ACL_PRIVSTRINGMAX);
-		
-		try {
+		try(DisposableMemory retPrivName = new DisposableMemory(NotesConstants.ACL_PRIVSTRINGMAX)) {
 			LockUtil.lockHandle(hAcl, (hAclByVal)-> {
 				short result;
 				
@@ -168,9 +166,6 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 				}
 				return 0;
 			});
-		}
-		finally {
-			retPrivName.dispose();
 		}
 
 		return roles;
@@ -292,17 +287,12 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 					
 					Memory currNameMem = NotesStringUtils.toLMBCS(currName, true);
 					
-					DisposableMemory newPrivilegesMem = new DisposableMemory(newPrivileges.length);
-					newPrivilegesMem.write(0, newPrivileges, 0, newPrivileges.length);
-					
-					try {
+					try(DisposableMemory newPrivilegesMem = new DisposableMemory(newPrivileges.length)) {
+	          newPrivilegesMem.write(0, newPrivileges, 0, newPrivileges.length);
 						updateResult = NotesCAPI.get().ACLUpdateEntry(hAclByVal, currNameMem, NotesConstants.ACL_UPDATE_PRIVILEGES, null, (short) 0,
 									newPrivilegesMem, (short) 0);
 
 						checkResult(updateResult);
-					}
-					finally {
-						newPrivilegesMem.dispose();
 					}
 				}
 			}
@@ -551,17 +541,13 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 
 		short accessFlagsAsShort = DominoEnumUtil.toBitField(AclFlag.class, accessFlags);
 		
-		DisposableMemory privilegesMem = new DisposableMemory(privilegesArr.length);
-		try {
+		try(DisposableMemory privilegesMem = new DisposableMemory(privilegesArr.length)) {
 			privilegesMem.write(0, privilegesArr, 0, privilegesArr.length);
 			
 			short result=LockUtil.lockHandle(hAcl, (hAclByValue)-> {
 				return NotesCAPI.get().ACLAddEntry(hAclByValue, nameCanonicalMem, (short) (accessLevel.getValue() & 0xffff), privilegesMem, accessFlagsAsShort);
 			});
 			checkResult(result);
-		}
-		finally {
-			privilegesMem.dispose();
 		}
 	}
 
@@ -713,7 +699,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		}
 		finally {
 			if (newPrivilegesMem!=null) {
-				newPrivilegesMem.dispose();
+				newPrivilegesMem.close();
 			}
 		}
 	}
@@ -725,19 +711,14 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		DHANDLE hAcl=getAllocations().getAclHandle();
 		hAcl.checkDisposed();
 		
-		final DisposableMemory retSrvName = new DisposableMemory(NotesConstants.MAXPATH);
-		retSrvName.clear();
-		
-		try {
+		try(final DisposableMemory retSrvName = new DisposableMemory(NotesConstants.MAXPATH)) {
+	    retSrvName.clear();
 			short result=LockUtil.lockHandle(hAcl, (hAclByValue)-> {
 				return NotesCAPI.get().ACLGetAdminServer(hAclByValue, retSrvName);
 			});
 			checkResult(result);
 			
 			return NotesStringUtils.fromLMBCS(retSrvName, -1);
-		}
-		finally {
-			retSrvName.dispose();
 		}
 		
 	}

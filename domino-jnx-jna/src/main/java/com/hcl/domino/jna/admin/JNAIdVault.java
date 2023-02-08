@@ -474,21 +474,17 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 			throw new IllegalArgumentException("User id must be a JNAUserID");
 		}
 		
-		DisposableMemory idFlagsMem = new DisposableMemory(4);
-		idFlagsMem.clear();
-		DisposableMemory idFlags1Mem = new DisposableMemory(4);
-		idFlags1Mem.clear();
-		
-		short idFlags;
-		short idFlags1;
-		try {
+		try(DisposableMemory idFlagsMem = new DisposableMemory(4);
+		    DisposableMemory idFlags1Mem = new DisposableMemory(4)) {
+	    idFlagsMem.clear();
+	    idFlags1Mem.clear();
 			short result = NotesCAPI.get().SECKFMAccess(NotesConstants.KFM_access_GetIDFHFlags, userId==null ? null : userId.getAdapter(Pointer.class), idFlagsMem, idFlags1Mem);
 			NotesErrorUtils.checkResult(result);
 			
 			Set<IdFlag> retFlags = new HashSet<>();
 			
-			idFlags = idFlagsMem.getShort(0);
-			idFlags1 = idFlags1Mem.getShort(0);
+			short idFlags = idFlagsMem.getShort(0);
+			short idFlags1 = idFlags1Mem.getShort(0);
 
 			for (IdFlag currFlag : IdFlag.values()) {
 				int currFlagVal = currFlag.getValue();
@@ -510,10 +506,6 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 			}
 			
 			return retFlags;
-		}
-		finally {
-			idFlagsMem.dispose();
-			idFlags1Mem.dispose();
 		}
 	}
 	

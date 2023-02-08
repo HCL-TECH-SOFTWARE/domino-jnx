@@ -46,8 +46,7 @@ public class JNADominoRuntime implements DominoRuntime {
 	
 	@Override
 	public Optional<Path> getDataDirectory() {
-		DisposableMemory retPathName = new DisposableMemory(NotesConstants.MAXPATH);
-		try {
+		try(DisposableMemory retPathName = new DisposableMemory(NotesConstants.MAXPATH)) {
 			NotesCAPI.get().OSGetDataDirectory(retPathName);
 			NotesCAPI.get().OSPathAddTrailingPathSep(retPathName);
 			String pathAsStr = NotesStringUtils.fromLMBCS(retPathName, -1);
@@ -57,15 +56,11 @@ public class JNADominoRuntime implements DominoRuntime {
 				return Optional.empty();
 			}
 		}
-		finally {
-			retPathName.dispose();
-		}
 	}
 
 	@Override
 	public Optional<Path> getProgramDirectory() {
-		DisposableMemory retPathName = new DisposableMemory(NotesConstants.MAXPATH);
-		try {
+		try(DisposableMemory retPathName = new DisposableMemory(NotesConstants.MAXPATH)) {
 			NotesCAPI.get().OSGetExecutableDirectory(retPathName);
 			String pathAsStr = NotesStringUtils.fromLMBCS(retPathName, -1);
 			if(StringUtil.isNotEmpty(pathAsStr)) {
@@ -74,15 +69,11 @@ public class JNADominoRuntime implements DominoRuntime {
 				return Optional.empty();
 			}
 		}
-		finally {
-			retPathName.dispose();
-		}
 	}
 
 	@Override
 	public Optional<Path> getTempDirectory() {
-		DisposableMemory retPathName = new DisposableMemory(NotesConstants.MAXPATH);
-		try {
+		try(DisposableMemory retPathName = new DisposableMemory(NotesConstants.MAXPATH)) {
 			NotesCAPI.get().OSGetSystemTempDirectory(retPathName, NotesConstants.MAXPATH);
 			String pathAsStr = NotesStringUtils.fromLMBCS(retPathName, -1);
 			if(StringUtil.isNotEmpty(pathAsStr)) {
@@ -91,16 +82,12 @@ public class JNADominoRuntime implements DominoRuntime {
 				return Optional.empty();
 			}
 		}
-		finally {
-			retPathName.dispose();
-		}
 	}
 
 	@Override
 	public Optional<Path> getViewRebuildDirectory() {
-		DisposableMemory retPathName = new DisposableMemory(NotesConstants.MAXPATH);
-		retPathName.setByte(0, (byte)0);
-		try {
+		try(DisposableMemory retPathName = new DisposableMemory(NotesConstants.MAXPATH)) {
+	    retPathName.setByte(0, (byte)0);
 			NotesCAPI.get().NIFGetViewRebuildDir(retPathName, NotesConstants.MAXPATH);
 			String pathAsStr = NotesStringUtils.fromLMBCS(retPathName, -1);
 			if(StringUtil.isNotEmpty(pathAsStr)) {
@@ -109,15 +96,11 @@ public class JNADominoRuntime implements DominoRuntime {
 				return Optional.empty();
 			}
 		}
-		finally {
-			retPathName.dispose();
-		}
 	}
 	
 	@Override
 	public Optional<Path> getSharedDataDirectory() {
-	  DisposableMemory retPathName = new DisposableMemory(NotesConstants.MAXPATH);
-    try {
+    try(DisposableMemory retPathName = new DisposableMemory(NotesConstants.MAXPATH)) {
       NotesCAPI.get().OSGetSharedDataDirectory(retPathName);
       NotesCAPI.get().OSPathAddTrailingPathSep(retPathName);
       String pathAsStr = NotesStringUtils.fromLMBCS(retPathName, -1);
@@ -126,9 +109,6 @@ public class JNADominoRuntime implements DominoRuntime {
       } else {
         return Optional.empty();
       }
-    }
-    finally {
-      retPathName.dispose();
     }
 	}
 
@@ -150,8 +130,7 @@ public class JNADominoRuntime implements DominoRuntime {
 	@Override
 	public String getPropertyString(String propertyName) {
 		Memory variableNameMem = NotesStringUtils.toLMBCS(propertyName, true);
-		DisposableMemory rethValueBuffer = new DisposableMemory(NotesConstants.MAXENVVALUE);
-		try {
+		try(DisposableMemory rethValueBuffer = new DisposableMemory(NotesConstants.MAXENVVALUE)) {
 			short result = NotesCAPI.get().OSGetEnvironmentString(variableNameMem, rethValueBuffer, NotesConstants.MAXENVVALUE);
 			if (result==1) {
 				String str = NotesStringUtils.fromLMBCS(rethValueBuffer, -1);
@@ -160,9 +139,6 @@ public class JNADominoRuntime implements DominoRuntime {
 			else {
 				return ""; //$NON-NLS-1$
 			}
-		}
-		finally {
-			rethValueBuffer.dispose();
 		}
 	}
 

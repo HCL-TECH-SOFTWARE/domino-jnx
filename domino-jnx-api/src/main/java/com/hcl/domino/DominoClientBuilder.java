@@ -18,8 +18,10 @@ package com.hcl.domino;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 
+import com.hcl.domino.misc.DominoClientBuilderFactory;
 import com.hcl.domino.misc.JNXServiceFinder;
 
 /**
@@ -34,11 +36,12 @@ public abstract class DominoClientBuilder {
    * Constructor for generating a DominoClient
    *
    * @return new DominoClientBuilder
-   * @throws IllegalStateException if there is no implementation of
+   * @throws NoSuchElementException if there is no implementation of
    *                               {@link DominoClientBuilder} available
    */
   public static DominoClientBuilder newDominoClient() {
-    return JNXServiceFinder.findRequiredService(DominoClientBuilder.class, DominoClientBuilder.class.getClassLoader());
+    return JNXServiceFinder.findRequiredService(DominoClientBuilderFactory.class, DominoClientBuilderFactory.class.getClassLoader())
+        .get();
   }
 
   private Path m_idFilePath;

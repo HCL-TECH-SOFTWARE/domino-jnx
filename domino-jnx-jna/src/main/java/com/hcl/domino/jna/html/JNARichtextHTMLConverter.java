@@ -273,8 +273,7 @@ public class JNARichtextHTMLConverter implements RichTextHTMLConverter, DominoCl
 			
 			ByteArrayOutputStream htmlTextLMBCSOut = new ByteArrayOutputStream();
 			
-			DisposableMemory textMem = new DisposableMemory(bufSize+1);
-			try {
+			try(DisposableMemory textMem = new DisposableMemory(bufSize+1)) {
 				while (result==0 && iLen>0 && startOffset<totalLen) {
 					len.setValue(bufSize);
 					textMem.setByte(0, (byte) 0);
@@ -291,9 +290,6 @@ public class JNARichtextHTMLConverter implements RichTextHTMLConverter, DominoCl
 						startOffset += iLen;
 					}
 				}
-			}
-			finally {
-				textMem.dispose();
 			}
 
 			String htmlText = NotesStringUtils.fromLMBCS(htmlTextLMBCSOut.toByteArray());

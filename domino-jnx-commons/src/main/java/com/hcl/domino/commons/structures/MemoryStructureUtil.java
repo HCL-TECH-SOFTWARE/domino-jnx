@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.richtext.records.GenericBSIGRecord;
@@ -60,6 +61,8 @@ public enum MemoryStructureUtil {
   
   private static final Map<Class<? extends MemoryStructure>, StructureMap> structureMap = Collections
       .synchronizedMap(new HashMap<>());
+  
+  private static final Map<Class<?>, Integer> sizeMap = new ConcurrentHashMap<>();
 
   /**
    * Retrieves the expected size of the provided number or enum type in the
@@ -76,24 +79,30 @@ public enum MemoryStructureUtil {
       final Class<?> numberClass = MemoryStructureUtil.getNumberType(type);
       return MemoryStructureUtil.sizeOf(numberClass);
     }
-    if (MemoryStructure.class.isAssignableFrom(type)) {
-      @SuppressWarnings("unchecked")
-      final StructureMap struct = getStructureMap((Class<? extends MemoryStructure>) type);
-      return struct.size();
-    }
-  
-    if (byte.class.equals(type) || Byte.class.equals(type)) {
-      return 1;
-    } else if (short.class.equals(type) || Short.class.equals(type)) {
-      return 2;
-    } else if (int.class.equals(type) || Integer.class.equals(type)) {
-      return 4;
-    } else if (long.class.equals(type) || Long.class.equals(type)) {
-      return 8;
-    } else if (double.class.equals(type) || Double.class.equals(type)) {
-      return 8;
+    Integer cachedSize = sizeMap.get(type);
+    if (cachedSize == null) {
+      int size = 0;
+      if (MemoryStructure.class.isAssignableFrom(type)) {
+        @SuppressWarnings("unchecked")
+        final StructureMap struct = getStructureMap((Class<? extends MemoryStructure>) type);
+        size = struct.size();
+      } else if (byte.class.equals(type) || Byte.class.equals(type)) {
+        size = 1;
+      } else if (short.class.equals(type) || Short.class.equals(type)) {
+        size = 2;
+      } else if (int.class.equals(type) || Integer.class.equals(type)) {
+        size = 4;
+      } else if (long.class.equals(type) || Long.class.equals(type)) {
+        size = 8;
+      } else if (double.class.equals(type) || Double.class.equals(type)) {
+        size = 8;
+      } else {
+        throw new IllegalArgumentException("Cannot handle struct member type: " + type.getName());
+      }
+      sizeMap.put(type, size);
+      return size;
     } else {
-      throw new IllegalArgumentException("Cannot handle struct member type: " + type.getName());
+      return cachedSize;
     }
   }
   

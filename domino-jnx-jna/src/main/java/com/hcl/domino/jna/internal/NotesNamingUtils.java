@@ -145,18 +145,18 @@ public class NotesNamingUtils {
 
 		Memory templateNameMem = templateName==null ? null : NotesStringUtils.toLMBCS(templateName, true); //used when abbrName is only a common name
 		Memory inNameMem = NotesStringUtils.toLMBCS(name, true);
-		DisposableMemory outNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME);
-		ShortByReference outLength = new ShortByReference();
-		
-		short result = NotesCAPI.get().DNCanonicalize(0, templateNameMem, inNameMem, outNameMem, NotesConstants.MAXUSERNAME, outLength);
-		NotesErrorUtils.checkResult(result);
-		
-		String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue() & 0xffff);
-		outNameMem.dispose();
-		
-		m_nameCanonicalCache.put(cacheKey, sOutName);
-		
-		return sOutName;
+		try(DisposableMemory outNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
+  		ShortByReference outLength = new ShortByReference();
+  		
+  		short result = NotesCAPI.get().DNCanonicalize(0, templateNameMem, inNameMem, outNameMem, NotesConstants.MAXUSERNAME, outLength);
+  		NotesErrorUtils.checkResult(result);
+  		
+  		String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue() & 0xffff);
+      
+      m_nameCanonicalCache.put(cacheKey, sOutName);
+      
+      return sOutName;
+		}
 	}
 	
 	/**
@@ -346,18 +346,18 @@ public class NotesNamingUtils {
 		
 		Memory templateNameMem = templateName==null || templateName.length()==0 ? null : NotesStringUtils.toLMBCS(templateName, true); //used when abbrName is only a common name
 		Memory inNameMem = NotesStringUtils.toLMBCS(name, true);
-		DisposableMemory outNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME);
-		ShortByReference outLength = new ShortByReference();
-		
-		short result = NotesCAPI.get().DNAbbreviate(0, templateNameMem, inNameMem, outNameMem, NotesConstants.MAXUSERNAME, outLength);
-		NotesErrorUtils.checkResult(result);
-		
-		String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue() & 0xffff);
-		outNameMem.dispose();
-		
-		m_nameAbbrCache.put(cacheKey, sOutName);
-		
-		return sOutName;
+		try(DisposableMemory outNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
+  		ShortByReference outLength = new ShortByReference();
+  		
+  		short result = NotesCAPI.get().DNAbbreviate(0, templateNameMem, inNameMem, outNameMem, NotesConstants.MAXUSERNAME, outLength);
+  		NotesErrorUtils.checkResult(result);
+  		
+  		String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue() & 0xffff);
+  		
+  		m_nameAbbrCache.put(cacheKey, sOutName);
+  		
+  		return sOutName;
+		}
 	}
 
 	/**

@@ -459,9 +459,9 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations> 
 								folderSinceTimeStruct, cFolderAddCallback);
 			});
 			
-			arrNoteIdsMem.dispose();
-			arrNoteOpenFlagsMem.dispose();
-			arrSinceSeqNumMem.dispose();
+			arrNoteIdsMem.close();
+			arrNoteOpenFlagsMem.close();
+			arrSinceSeqNumMem.close();
 
 			if (exception[0]!=null) {
 				throw new DominoException("Error reading documents", exception[0]);
@@ -674,9 +674,9 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations> 
 								folderSinceTimeStruct, cFolderAddCallback);
 			});
 			
-			arrNoteIdsMem.dispose();
-			arrNoteOpenFlagsMem.dispose();
-			arrSinceSeqNumMem.dispose();
+			arrNoteIdsMem.close();
+			arrNoteOpenFlagsMem.close();
+			arrSinceSeqNumMem.close();
 
 			if (exception[0]!=null) {
 				throw new DominoException("Error reading documents", exception[0]);

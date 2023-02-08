@@ -26,7 +26,12 @@ public class NamedObjectEntryStruct extends Structure {
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("NameOffset", "NameLength", "NameSpace", "NoteID");
 	}
-	/** @param NoteID C type : NOTEID */
+	/**
+	 * @param NameOffset the offset of the name value
+	 * @param NameLength the length of the name value
+	 * @param NameSpace the namespace
+	 * @param NoteID C type : NOTEID
+	 */
 	public NamedObjectEntryStruct(short NameOffset, short NameLength, short NameSpace, int NoteID) {
 		super();
 		this.NameOffset = NameOffset;

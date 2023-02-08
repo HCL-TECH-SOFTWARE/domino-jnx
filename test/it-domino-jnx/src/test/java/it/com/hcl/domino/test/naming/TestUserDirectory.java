@@ -178,4 +178,24 @@ public class TestUserDirectory extends AbstractNotesRuntimeTest {
     Assertions.assertNotNull(result);
     Assertions.assertTrue(result.isEmpty(), "result should be empty");
   }
+  
+  @Test
+  public void testLookupKnownGroup() {
+    final UserDirectory dir = this.getClient().openUserDirectory(null);
+    Assertions.assertNotNull(dir);
+    
+    final List<List<Map<String, List<Object>>>> result = dir.query()
+        .namespaces("Groups")
+        .names("LocalDomainServers")
+        .items("ListName", "GroupType")
+        .stream()
+        .collect(Collectors.toList());
+    Assertions.assertNotNull(result);
+    Assertions.assertEquals(1, result.size(), "result should have one entry");
+    Assertions.assertEquals(1, result.get(0).size(), "result first entry should have one entry");
+    
+    Map<String, List<Object>> entry = result.get(0).get(0);
+    Assertions.assertIterableEquals(Collections.singletonList("LocalDomainServers"), entry.get("ListName"));
+    Assertions.assertIterableEquals(Collections.singletonList("0"), entry.get("GroupType"));
+  }
 }

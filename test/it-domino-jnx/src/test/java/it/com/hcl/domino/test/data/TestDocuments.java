@@ -33,21 +33,30 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.DominoClient;
+import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.OpenDocumentMode;
+import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.exception.LotusScriptCompilationException;
+import com.hcl.domino.exception.NotAuthorizedException;
+import com.hcl.domino.security.Acl;
+import com.hcl.domino.security.AclLevel;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
@@ -462,5 +471,103 @@ public class TestDocuments extends AbstractNotesRuntimeTest {
     public Iterator<T> iterator() {
       return list.iterator();
     }
+  }
+  
+  @Test
+  public void testAccessReaderFieldDocument() throws Exception {
+    withTempDb(database -> {
+      String otherUser = "CN=Some User/O=SomeOrg";
+      Acl acl = database.getACL();
+      acl.addEntry(otherUser, AclLevel.EDITOR, null, null);
+      acl.save();
+      
+      Document doc = database.createDocument();
+      String userName = database.getParentDominoClient().getEffectiveUserName();
+      doc.replaceItemValue("Readers", EnumSet.of(ItemFlag.READERS), userName);
+      String expected = "hello" + System.nanoTime();
+      doc.replaceItemValue("TextField", expected);
+      doc.save();
+      
+      int id = doc.getNoteID();
+      String dbPath = database.getAbsoluteFilePath();
+      
+      try(DominoClient sameUserClient = DominoClientBuilder.newDominoClient().asUser(userName).build()) {
+        Database sameUserDb = sameUserClient.openDatabase(dbPath);
+        Document sameUserDoc = sameUserDb.getDocumentById(id).get();
+        Assertions.assertEquals(expected, sameUserDoc.get("TextField", String.class, null));
+      }
+      
+      try(DominoClient otherUserClient = DominoClientBuilder.newDominoClient().asUser(otherUser).build()) {
+        Database otherUserDb = otherUserClient.openDatabase(dbPath);
+        Assertions.assertThrows(NotAuthorizedException.class, () -> otherUserDb.getDocumentById(id));
+      }
+    });
+  }
+  
+  @Test
+  public void testAccessReaderFieldDocumentThreads() throws Exception {
+    withTempDb(database -> {
+      String otherUser = "CN=Some User/O=SomeOrg";
+      Acl acl = database.getACL();
+      acl.addEntry(otherUser, AclLevel.EDITOR, null, null);
+      acl.save();
+      
+      Document doc = database.createDocument();
+      String userName = database.getParentDominoClient().getEffectiveUserName();
+      doc.replaceItemValue("Readers", EnumSet.of(ItemFlag.READERS), userName);
+      String expected = "hello" + System.nanoTime();
+      doc.replaceItemValue("TextField", expected);
+      doc.save();
+      
+      int id = doc.getNoteID();
+      String dbPath = database.getAbsoluteFilePath();
+      
+      try(DominoClient sameUserClient = DominoClientBuilder.newDominoClient().asUser(userName).build()) {
+        Database sameUserDb = sameUserClient.openDatabase(dbPath);
+        Document sameUserDoc = sameUserDb.getDocumentById(id).get();
+        Assertions.assertEquals(expected, sameUserDoc.get("TextField", String.class, null));
+      }
+
+      int runCount = 200;
+      ExecutorService exec = Executors.newFixedThreadPool(runCount, database.getParentDominoClient().getThreadFactory());
+
+      AtomicInteger throwCount = new AtomicInteger(0);
+      
+      for(int i = 0; i < runCount; i++) {
+        exec.submit(() -> {
+          try(DominoClient sameUserClient = DominoClientBuilder.newDominoClient().asUser(userName).build()) {
+            Database sameUserDb = sameUserClient.openDatabase(dbPath);
+            try {
+              sameUserDb.getDocumentById(id);
+            } catch(NotAuthorizedException e) {
+              throwCount.incrementAndGet();
+            }
+          }
+        });
+      }
+
+      exec.shutdown();
+      exec.awaitTermination(2, TimeUnit.MINUTES);
+      
+      assertEquals(0, throwCount.get());
+      
+      exec = Executors.newFixedThreadPool(runCount, database.getParentDominoClient().getThreadFactory());
+      for(int i = 0; i < runCount; i++) {
+        exec.submit(() -> {
+          try(DominoClient otherUserClient = DominoClientBuilder.newDominoClient().asUser(otherUser).build()) {
+            Database otherUserDb = otherUserClient.openDatabase(dbPath);
+            try {
+              otherUserDb.getDocumentById(id);
+            } catch(NotAuthorizedException e) {
+              throwCount.incrementAndGet();
+            }
+          }
+        });
+      }
+      
+      exec.shutdown();
+      exec.awaitTermination(2, TimeUnit.MINUTES);
+      assertEquals(runCount, throwCount.get());
+    });
   }
 }

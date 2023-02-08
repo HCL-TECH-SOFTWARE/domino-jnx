@@ -172,8 +172,7 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 	public String getGeneralSubject() {
 		checkDisposed();
 		
-		DisposableMemory retSubject = new DisposableMemory(NotesConstants.OOOPROF_MAX_BODY_SIZE);
-		try {
+		try(DisposableMemory retSubject = new DisposableMemory(NotesConstants.OOOPROF_MAX_BODY_SIZE)) {
 			JNAOOOContextAllocations allocations = getAllocations();
 			synchronized (allocations) {
 				short result = NotesCAPI.get().OOOGetGeneralSubject(allocations.getOOOPointer(), retSubject);
@@ -182,9 +181,6 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 			
 			String subject = NotesStringUtils.fromLMBCS(retSubject, -1);
 			return subject;
-		}
-		finally {
-			retSubject.dispose();
 		}
 	}
 
@@ -205,15 +201,11 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 				return ""; //$NON-NLS-1$
 			}
 			
-			DisposableMemory retMessage = new DisposableMemory(iGeneralMessageLen + 1);
-			try {
+			try(DisposableMemory retMessage = new DisposableMemory(iGeneralMessageLen + 1)) {
 				result = NotesCAPI.get().OOOGetGeneralMessage(allocations.getOOOPointer(), retMessage, retGeneralMessageLen);
 				NotesErrorUtils.checkResult(result);
 				String msg = NotesStringUtils.fromLMBCS(retMessage, retGeneralMessageLen.getValue());
 				return msg;
-			}
-			finally {
-				retMessage.dispose();
 			}
 		}
 	}

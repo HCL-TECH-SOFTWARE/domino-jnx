@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
-		<version>1.20.0</version>
+		<version>1.21.0</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>jnx-example-runjava</artifactId>
@@ -50,8 +50,9 @@
 							</filters>
 							<transformers>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>JNXRUnJava</mainClass>
+									<mainClass>JNXRunJava</mainClass>
 								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
 							</transformers>
 							<outputFile>${project.build.directory}/jnx-example-runjava.jar</outputFile>
 						</configuration>

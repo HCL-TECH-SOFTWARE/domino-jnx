@@ -46,13 +46,9 @@ public class FormulaDecompiler {
 	 * @return formula
 	 */
 	public static String decompileFormula(byte[] compiledFormula, boolean isSelectionFormula) {
-		DisposableMemory mem = new DisposableMemory(compiledFormula.length);
-		try {
+		try(DisposableMemory mem = new DisposableMemory(compiledFormula.length)) {
 			mem.write(0, compiledFormula, 0, compiledFormula.length);
 			return decompileFormula(mem, isSelectionFormula);
-		}
-		finally {
-			mem.dispose();
 		}
 	}
 	

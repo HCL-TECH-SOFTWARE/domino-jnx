@@ -68,6 +68,7 @@ import com.hcl.domino.design.CompositeComponent;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DbProperties;
 import com.hcl.domino.design.DesignElement;
+import com.hcl.domino.design.DesignEntry;
 import com.hcl.domino.design.FileResource;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
@@ -638,6 +639,18 @@ public class TestDbDesign extends AbstractDesignTest {
     String unid = pages.stream().filter(p -> "Test Page".equals(p.getTitle())).findFirst().map(p -> p.getDocument().getUNID()).get();
     Optional<Page> testPage = design.getDesignElementByUNID(unid);
     assertEquals("Test Page", testPage.get().getTitle());
+  }
+  
+  @Test
+  public void testPageEntries() {
+    DbDesign design = database.getDesign();
+    
+    List<DesignEntry<Page>> pageEntries = design.getDesignEntries(Page.class).collect(Collectors.toList());
+    assertEquals(4, pageEntries.size());
+    assertTrue(pageEntries.stream().anyMatch(p -> p.getTitles().contains("Navigation Header")));
+    assertTrue(pageEntries.stream().anyMatch(p -> p.getTitles().contains("Test Page")));
+    
+    assertTrue(pageEntries.stream().noneMatch(p -> p.getUNID() == null || p.getUNID().isEmpty()));
   }
   
   @Test

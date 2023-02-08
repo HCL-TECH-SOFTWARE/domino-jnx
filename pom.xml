@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.hcl.domino</groupId>
 	<artifactId>domino-jnx</artifactId>
-	<version>1.20.0</version>
+	<version>1.21.0</version>
 	<packaging>pom</packaging>
 
 	<name>HCL Domino API Parent Project</name>
@@ -137,7 +137,7 @@
 		<mustache.version>0.9.10</mustache.version>
 		<netty.ssl.version>2.0.46.Final</netty.ssl.version>
 		<!-- 2022-07-07: JNA 5.12.0 and 5.12.1 hard crash on macOS -->
-		<net.java.dev.jna-version>5.11.0</net.java.dev.jna-version>
+		<net.java.dev.jna-version>5.13.0</net.java.dev.jna-version>
 		<pmd.version>6.51.0</pmd.version>
 		<powermock.version>2.0.9</powermock.version>
 		<saxon.version>10.6</saxon.version>
