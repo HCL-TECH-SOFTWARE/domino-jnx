@@ -16,6 +16,7 @@
  */
 package it.com.hcl.domino.test.vertx.json;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -37,6 +38,7 @@ import com.hcl.domino.jnx.vertx.json.service.VertxJsonSerializer;
 
 import io.vertx.core.json.JsonObject;
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
+import it.com.hcl.domino.test.json.TestJsonSerialization.SerializerProvider;
 
 /**
  * @author Jesse Gallagher
@@ -203,6 +205,15 @@ public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
       database.getDesign()
         .getForms()
         .forEach(serializer::toJson);
+    });
+  }
+
+  @Test
+  public void testSerializeCustomerForm() throws Exception {
+    VertxJsonSerializer serializer = new VertxJsonSerializer();
+    withResourceDxl("/dxl/testJsonSerialization", database -> {
+      Form customer = database.getDesign().getForm("xmlcustomer").get();
+      assertDoesNotThrow(() -> serializer.toJson(customer));
     });
   }
 }

@@ -1,0 +1,48 @@
+<?xml version='1.0' encoding='utf-8'?>
+<form name='xmlcustomer' xmlns='http://www.lotus.com/dxl'>
+<actionbar bgcolor='#f0f0f0' bordercolor='black'>
+<actionbuttonstyle bgcolor='#f0f0f0'/><font size='9pt' color='system'/><border
+ style='solid' width='0px 0px 1px'/>
+<action title='save'><code event='onClick' for='web'><javascript>var doc = database.createDocument();
+doc.save()</javascript></code><code event='onClick' for='client'><javascript
+>@Command([FileSave]);</javascript></code></action></actionbar>
+<body><richtext>
+<pardef id='1'><parstyle name='Basic' incyclekey='true' alldocuments='true'
+ username='whomever'><font size='10pt' color='purple' name='sans-serif'/></parstyle></pardef>
+<par def='1'><run><font size='14pt' style='bold' color='#c200ff'/>Stuff from Salesforce</run></par>
+<par def='1'/>
+<par def='1'><field type='text' kind='editable' name='first_name'><code event='defaultvalue'><formula
+>Body</formula></code></field><compositedata type='98' prevtype='65418' nexttype='222'
+ afterparcount='5' containertype='65418' aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAEAAAA=
+</compositedata></par>
+<par def='1'><field type='text' kind='editable' name='Color'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par>
+<par def='1'><field type='text' kind='editable' name='Email'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par>
+<par def='1'><field type='text' kind='editable' name='gender'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par>
+<par def='1'><field type='richtext' kind='editable' name='body'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAEAAAA=
+</compositedata></par>
+<pardef id='2'/>
+<par def='2'/></richtext></body>
+<item name='id' summary='false' sign='true'><number>0</number></item>
+<item name='number_list' summary='false' sign='true'><number>0</number></item>
+<item name='date_list' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>Customer</text></item></form>
+
