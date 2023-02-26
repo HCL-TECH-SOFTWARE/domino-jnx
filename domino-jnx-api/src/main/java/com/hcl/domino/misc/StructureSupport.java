@@ -99,7 +99,9 @@ public enum StructureSupport {
       return ""; //$NON-NLS-1$
     }
     buf.position((int) Math.max(0, preLen));
-    final byte[] lmbcs = new byte[(int) len];
+    // Account for cases where the logical length is incorrect
+    final int resolvedLen = Math.min((int)len, buf.remaining());
+    final byte[] lmbcs = new byte[resolvedLen];
     buf.get(lmbcs);
     return new String(lmbcs, NativeItemCoder.get().getLmbcsCharset());
   }
