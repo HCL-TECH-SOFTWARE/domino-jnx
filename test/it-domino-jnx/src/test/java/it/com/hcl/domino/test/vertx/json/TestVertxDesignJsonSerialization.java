@@ -19,26 +19,26 @@ package it.com.hcl.domino.test.vertx.json;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
+import java.util.EnumSet;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
-
 import com.hcl.domino.data.Database;
+import com.hcl.domino.data.Document;
 import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.Folder;
 import com.hcl.domino.design.Form;
 import com.hcl.domino.design.Page;
 import com.hcl.domino.jnx.vertx.json.service.VertxJsonSerializer;
-
+import com.hcl.domino.richtext.RichTextWriter;
+import com.hcl.domino.richtext.records.CDHotspotBegin;
+import com.hcl.domino.richtext.records.CDHotspotEnd;
 import io.vertx.core.json.JsonObject;
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
-import it.com.hcl.domino.test.json.TestJsonSerialization.SerializerProvider;
 
 /**
  * @author Jesse Gallagher
@@ -214,6 +214,25 @@ public class TestVertxDesignJsonSerialization extends AbstractNotesRuntimeTest {
     withResourceDxl("/dxl/testJsonSerialization", database -> {
       Form customer = database.getDesign().getForm("xmlcustomer").get();
       assertDoesNotThrow(() -> serializer.toJson(customer));
+    });
+  }
+  
+  @Test
+  public void testHotspot23() throws Exception {
+    VertxJsonSerializer serializer = new VertxJsonSerializer();
+    
+    withTempDb(database -> {
+      Form form = database.getDesign().createForm("Hotspot29");
+      Document doc = form.getDocument();
+      try(RichTextWriter w = doc.createRichTextItem("$Body")) {
+        w.addRichTextRecord(CDHotspotBegin.class, begin -> {
+          begin.setHotspotTypeRaw((short)29);
+          begin.setFlags(EnumSet.of(CDHotspotBegin.Flag.BEGIN));
+        });
+        w.addRichTextRecord(CDHotspotEnd.class, end -> {});
+      }
+
+      assertDoesNotThrow(() -> serializer.toJson(form));
     });
   }
 }

@@ -160,7 +160,7 @@ public class RemoveAttachmentIconConversion implements IRichTextConversion {
             record = iter.next();
             // check what is next
             if (record instanceof CDHotspotBegin) {
-              if (((CDHotspotBegin) record).getHotspotType() == HotspotType.FILE) {
+              if (((CDHotspotBegin) record).getHotspotType().orElse(null) == HotspotType.FILE) {
                 final String uniqueFileName = ((CDHotspotBegin) record).getUniqueFileName().get();
                 if (uniqueFileName.equalsIgnoreCase(this.m_attachmentFileName)) {
                   return iter.previousIndex();
