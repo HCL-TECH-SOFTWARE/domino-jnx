@@ -44,4 +44,9 @@ public class DisposableMemory extends Memory implements AutoCloseable {
 		return peer == 0;
 	}
 	
+	@Override
+	public void close() {
+		dispose();
+	}
+	
 }

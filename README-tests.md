@@ -10,9 +10,13 @@ On all platforms, libnotes (in its platform-specific variant) must be available 
 
 On macOS, the following additional environment variables must be set:
 
-- `DYLD_LIBRARY_PATH` must contain the Notes executable directory
+- `DYLD_LIBRARY_PATH` must contain the Notes executable directory, e.g. "/Applications/HCL Notes.app/Contents/MacOS"
 - `LD_LIBRARY_PATH` must contain the Notes executable directory
 - `Notes_ExecDirectory` must contain the Notes executable directory
+
+Additionally, the test suite should be run with `-Djava.library.path=...` set to the Notes executable directory.
+
+When running on Apple Silicon, it can help to use an OpenJ9 JVM and set `-Djava.compiler=NONE` in the argument line.
 
 Note: on macOS, passing environment variables into the Maven environment is exceedingly difficult. The most-reliable way to run tests is via Eclipse's JUnit runner with these variables set in the "Environment" tab.
 
