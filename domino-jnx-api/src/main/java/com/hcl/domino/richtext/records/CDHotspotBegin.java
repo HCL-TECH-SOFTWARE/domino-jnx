@@ -107,7 +107,16 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
   WSIG getHeader();
 
   @StructureGetter("Type")
-  HotspotType getHotspotType();
+  Optional<HotspotType> getHotspotType();
+  
+  /**
+   * Gets the raw value of the {@code Type} component of this structure.
+   * 
+   * @return the {@code Type} component as a {@code short}
+   * @since 1.23.0
+   */
+  @StructureGetter("Type")
+  short getHotspotTypeRaw();
 
   /**
    * Retrieves the subform name or formula for a {@link HotspotType#SUBFORM SUBFORM}-type
@@ -118,7 +127,8 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
    * @throws IllegalStateException if the type is not {@link HotspotType#SUBFORM}
    */
   default Optional<String> getSubformValue() {
-    if (this.getHotspotType() != HotspotType.SUBFORM) {
+    Optional<HotspotType> type = this.getHotspotType();
+    if (!type.isPresent() || type.get() != HotspotType.SUBFORM) {
       return Optional.empty();
     }
     if (this.getFlags().contains(Flag.FORMULA)) {
@@ -147,7 +157,8 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
    *         one if this is not applicable
    */
   default Optional<String> getDisplayFileName() {
-    if(getHotspotType() != HotspotType.FILE) {
+    Optional<HotspotType> type = this.getHotspotType();
+    if(!type.isPresent() || type.get() != HotspotType.FILE) {
       return Optional.empty();
     }
     
@@ -190,7 +201,8 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
    *         one if this is not applicable
    */
   default Optional<String> getUniqueFileName() {
-    if(getHotspotType() != HotspotType.FILE) {
+    Optional<HotspotType> type = this.getHotspotType();
+    if(!type.isPresent() || type.get() != HotspotType.FILE) {
       return Optional.empty();
     }
     
@@ -340,6 +352,16 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
   CDHotspotBegin setHotspotType(HotspotType type);
   
   /**
+   * Sets the raw value of the {@code Type} component of this structure.
+   * 
+   * @param type the new {@code Type} component as a {@code short}
+   * @return this structure
+   * @since 1.23.0
+   */
+  @StructureSetter("Type")
+  CDHotspotBegin setHotspotTypeRaw(short type);
+  
+  /**
    * Retrieves the {@link ActiveObject} associated with this hotspot, if its
    * type is {@link HotspotType#ACTIVEOBJECT}.
    * 
@@ -348,7 +370,8 @@ public interface CDHotspotBegin extends RichTextRecord<WSIG> {
    * @since 1.0.44
    */
   default Optional<ActiveObject> getActiveObject() {
-    if(getHotspotType() != HotspotType.ACTIVEOBJECT) {
+    Optional<HotspotType> type = this.getHotspotType();
+    if(!type.isPresent() || type.get() != HotspotType.ACTIVEOBJECT) {
       return Optional.empty();
     }
     

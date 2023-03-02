@@ -1425,7 +1425,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
     CDHotspotBegin hotspotBegin = hotspot.stream()
       .filter(CDHotspotBegin.class::isInstance)
       .map(CDHotspotBegin.class::cast)
-      .filter(h -> h.getHotspotType().equals(HotspotType.ACTIVEOBJECT))
+      .filter(h -> h.getHotspotType().get().equals(HotspotType.ACTIVEOBJECT))
       .findFirst()
       .get();
     
@@ -1610,12 +1610,12 @@ public class TestDbDesignForms extends AbstractDesignTest {
     
     {
       CDHotspotBegin button = extract(body, 0, CDHotspotBegin.class);
-      assertEquals(HotspotType.BUTTON, button.getHotspotType());
+      assertEquals(HotspotType.BUTTON, button.getHotspotType().get());
       assertEquals("@StatusBar(\"I am button output\")", button.getFormula().get());
     }
     {
       CDHotspotBegin button = extract(body, 1, CDHotspotBegin.class);
-      assertEquals(HotspotType.BUTTON, button.getHotspotType());
+      assertEquals(HotspotType.BUTTON, button.getHotspotType().get());
       assertEquals("'++LotusScript Development Environment:2:5:(Options):0:66\n"
           + "\n"
           + "'++LotusScript Development Environment:2:5:(Forward):0:1\n"
@@ -1638,7 +1638,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
     }
     {
       CDHotspotBegin button = extract(body, 2, CDHotspotBegin.class);
-      assertEquals(HotspotType.BUTTON, button.getHotspotType());
+      assertEquals(HotspotType.BUTTON, button.getHotspotType().get());
       
       List<RichTextRecord<?>> actions = button.getActions().get();
       assertInstanceOf(CDActionHeader.class, actions.get(0));
