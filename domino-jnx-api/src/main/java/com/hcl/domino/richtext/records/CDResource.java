@@ -39,7 +39,6 @@ import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.NOTELINK;
 import com.hcl.domino.richtext.structures.OpaqueTimeDate;
 import com.hcl.domino.richtext.structures.WSIG;
-import com.hcl.domino.util.JNXDumpUtil;
 import com.hcl.domino.util.JNXStringUtil;
 
 /**
