@@ -64,6 +64,15 @@ public interface CDDataFlags extends RichTextRecord<BSIG> {
   @StructureGetter("elemType")
   Optional<ElementType> getElementType();
 
+  /**
+   * Retrieves the element type as a raw {@code short}.
+   * 
+   * @return the element type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("elemType")
+  short getElementTypeRaw();
+
   @StructureGetter("nFlags")
   int getFlagCount();
 
@@ -86,6 +95,16 @@ public interface CDDataFlags extends RichTextRecord<BSIG> {
 
   @StructureSetter("elemType")
   CDDataFlags setElementType(ElementType type);
+
+  /**
+   * Sets the element type as a raw {@code short}.
+   * 
+   * @param type the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("elemType")
+  CDDataFlags setElementTypeRaw(short type);
 
   @StructureSetter("nFlags")
   CDDataFlags setFlagCount(int count);

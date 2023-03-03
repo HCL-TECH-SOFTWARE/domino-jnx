@@ -76,7 +76,7 @@ public interface FontStyle extends MemoryStructure {
   short getPointSize();
   
   @StructureSetter("PointSize")
-  FontStyle setPointSize(int size);
+  Optional<FontStyle> setPointSize(int size);
   
   // ...
 }
@@ -114,9 +114,9 @@ In general, it's good to name getters in ways that fit Java style when the struc
 
 #### Enum Optionals
 
-Getters for `INumberEnum` types can return an `Optional` of that type, to handle cases where the underlying value doesn't line up with any of the known values. This can be useful in general, but is particularly useful when none of the enum values are `0`: this allows for the getter method to avoid an exception when called with uninitialized data.
+Getters for non-bitfield `INumberEnum` types must return an `Optional` of that type, to handle cases where the underlying value doesn't line up with any of the known values. This can be useful in general, but is particularly useful when none of the enum values are `0`: this allows for the getter method to avoid an exception when called with uninitialized data.
 
-It is good to pair such getters with "raw" variants. For example:
+These methods must also be paired with "raw" variants. For example:
 
 ```java
 @StructureGetter("Color")

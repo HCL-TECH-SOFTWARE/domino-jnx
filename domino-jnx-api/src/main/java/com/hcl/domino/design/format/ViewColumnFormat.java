@@ -18,6 +18,7 @@ package com.hcl.domino.design.format;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -287,7 +288,16 @@ public interface ViewColumnFormat extends ResizableMemoryStructure {
   int getConstantValueLength();
 
   @StructureGetter("FormatDataType")
-  DataType getDataType();
+  Optional<DataType> getDataType();
+  
+  /**
+   * Retrieves the data type value as a raw {@code short}.
+   * 
+   * @return the data type value as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("FormatDataType")
+  short getDataTypeRaw();
 
   @StructureGetter("DisplayWidth")
   int getDisplayWidth();
@@ -341,7 +351,16 @@ public interface ViewColumnFormat extends ResizableMemoryStructure {
   int getItemNameLength();
 
   @StructureGetter("ListSep")
-  ListDelimiter getListDelimiter();
+  Optional<ListDelimiter> getListDelimiter();
+
+  /**
+   * Retrieves the list delimiter value as a raw {@code short}.
+   * 
+   * @return the list delimiter value as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("ListSep")
+  short getListDelimiterRaw();
 
   @StructureGetter("NumberFormat")
   NFMT getNumberFormat();
@@ -388,6 +407,16 @@ public interface ViewColumnFormat extends ResizableMemoryStructure {
 
   @StructureSetter("FormatDataType")
   ViewColumnFormat setDataType(DataType type);
+
+  /**
+   * Sets the data type as a raw {@code short}.
+   * 
+   * @param type the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("FormatDataType")
+  ViewColumnFormat setDataTypeRaw(short type);
 
   @StructureSetter("DisplayWidth")
   ViewColumnFormat setDisplayWidth(int len);
@@ -500,6 +529,16 @@ public interface ViewColumnFormat extends ResizableMemoryStructure {
 
   @StructureSetter("ListSep")
   ViewColumnFormat setListDelimiter(ListDelimiter delim);
+
+  /**
+   * Sets the list delimiter as a raw {@code short}.
+   * 
+   * @param delim the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("ListSep")
+  ViewColumnFormat setListDelimiterRaw(short delim);
 
   default ViewColumnFormat setReadingOrder(final ReadingOrder type) {
     final byte val = type == null ? 0 : type.getValue();

@@ -17,6 +17,7 @@
 package com.hcl.domino.richtext.records;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.design.format.ActionBarControlType;
@@ -78,10 +79,29 @@ public interface CDActionExt extends RichTextRecord<WSIG> {
   CDActionExt setFlags(Collection<Flag> flags);
   
   @StructureGetter("wControlType")
-  ActionBarControlType getControlType();
+  Optional<ActionBarControlType> getControlType();
+
+  /**
+   * Retrieves the control type as a raw {@code short}.
+   * 
+   * @return the control type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("wControlType")
+  short getControlTypeRaw();
   
   @StructureSetter("wControlType")
   CDActionExt setControlType(ActionBarControlType type);
+  
+  /**
+   * Sets the control type as a raw {@code short}.
+   * 
+   * @param type the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("wControlType")
+  CDActionExt setControlTypeRaw(short type);
   
   @StructureGetter("wControlFormulaLen")
   int getControlFormulaLen();

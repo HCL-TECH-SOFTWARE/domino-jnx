@@ -18,6 +18,7 @@ package com.hcl.domino.design.format;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -95,10 +96,29 @@ public interface CollateDescriptor extends ResizableMemoryStructure {
   CollateDescriptor setSignature(byte sig);
 
   @StructureGetter("keytype")
-  CollateType getKeyType();
+  Optional<CollateType> getKeyType();
+
+  /**
+   * Retrieves the key type as a raw {@code byte}.
+   * 
+   * @return the key type as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("keytype")
+  byte getKeyTypeRaw();
   
   @StructureSetter("keytype")
   CollateDescriptor setKeyType(CollateType type);
+  
+  /**
+   * Sets the key type as a raw {@code byte}.
+   * 
+   * @param type the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("keytype")
+  CollateDescriptor setKeyTypeRaw(byte type);
   
   @StructureGetter("NameOffset")
   int getNameOffset();

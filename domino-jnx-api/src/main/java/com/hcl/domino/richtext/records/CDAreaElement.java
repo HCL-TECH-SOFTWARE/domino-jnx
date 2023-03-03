@@ -79,7 +79,7 @@ public interface CDAreaElement extends RichTextRecord<WSIG> {
   CDAreaElement setFlags(int flags);
   
   @StructureGetter("Shape")
-  Shape getShape();
+  Optional<Shape> getShape();
   
   @StructureSetter("Shape")
   CDAreaElement setShape(Shape shape);
@@ -103,7 +103,7 @@ public interface CDAreaElement extends RichTextRecord<WSIG> {
   CDAreaElement setAccessKey(int accessKey);
   
   default  Optional<CDRect> getRectangle() {
-    if (getShape() == Shape.RECTANGLE) {
+    if (getShape().orElse(null) == Shape.RECTANGLE) {
       final MemoryStructureWrapperService wrapper = MemoryStructureWrapperService.get();
       
       return Optional.of(wrapper.wrapStructure(CDRect.class, this.getVariableData()));
@@ -113,7 +113,7 @@ public interface CDAreaElement extends RichTextRecord<WSIG> {
   }
   
   default  Optional<CDRect> getCircle() {
-    if (getShape() == Shape.CIRCLE) {
+    if (getShape().orElse(null) == Shape.CIRCLE) {
       final MemoryStructureWrapperService wrapper = MemoryStructureWrapperService.get();
       
       return Optional.of(wrapper.wrapStructure(CDRect.class, this.getVariableData()));
@@ -123,7 +123,7 @@ public interface CDAreaElement extends RichTextRecord<WSIG> {
   }
   
   default  Optional<List<CDPoint>> getPolygon() {
-    if (getShape() == Shape.POLYGON) {
+    if (getShape().orElse(null) == Shape.POLYGON) {
       final MemoryStructureWrapperService wrapper = MemoryStructureWrapperService.get();
       
       ByteBuffer buf = this.getVariableData();

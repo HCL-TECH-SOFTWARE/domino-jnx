@@ -17,6 +17,7 @@
 package com.hcl.domino.richtext.records;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.design.action.EventId;
@@ -88,10 +89,28 @@ public interface CDEvent extends RichTextRecord<WSIG> {
   long getActionLength();
 
   @StructureGetter("ActionType")
-  ActionType getActionType();
+  Optional<ActionType> getActionType();
+
+  /**
+   * Retrieves the action type as a raw {@code short}.
+   * 
+   * @return the action type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("ActionType")
+  short getActionTypeRaw();
 
   @StructureGetter("EventType")
-  EventId getEventType();
+  Optional<EventId> getEventType();
+
+  /**
+   * Retrieves the event type as a raw {@code short}.
+   * 
+   * @return the event type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("EventType")
+  short getEventTypeRaw();
 
   @StructureGetter("Flags")
   Set<EventFlag> getFlags();
@@ -109,8 +128,28 @@ public interface CDEvent extends RichTextRecord<WSIG> {
   @StructureSetter("ActionType")
   CDEvent setActionType(ActionType actionType);
 
+  /**
+   * Sets the action type as a raw {@code short}.
+   * 
+   * @param actionType the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("ActionType")
+  CDEvent setActionTypeRaw(short actionType);
+
   @StructureSetter("EventType")
   CDEvent setEventType(EventId eventType);
+
+  /**
+   * Sets the event type as a raw {@code short}.
+   * 
+   * @param eventType the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("EventType")
+  CDEvent setEventTypeRaw(short eventType);
 
   @StructureSetter("Flags")
   CDEvent setFlags(Collection<EventFlag> flags);

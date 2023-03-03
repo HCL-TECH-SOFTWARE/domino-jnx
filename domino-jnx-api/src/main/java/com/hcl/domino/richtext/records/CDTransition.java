@@ -71,6 +71,25 @@ public interface CDTransition extends RichTextRecord<WSIG> {
   @StructureGetter("Type")
   Optional<Type> getTransitionType();
 
+  /**
+   * Gets the transition type as a raw {@code short}.
+   * 
+   * @return the transition type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("Type")
+  short getTransitionTypeRaw();
+
   @StructureSetter("Type")
   CDTransition setTransitionType(Type type);
+
+  /**
+   * Sets the transition type as a raw {@code short}.
+   * 
+   * @param type the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Type")
+  CDTransition setTransitionTypeRaw(short type);
 }

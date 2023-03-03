@@ -99,7 +99,7 @@ public class TestDbDesignRichText extends AbstractDesignTest {
         .stream()
         .filter(CDAreaElement.class::isInstance)
         .map(CDAreaElement.class::cast)
-        .filter(val -> val.getShape() == CDAreaElement.Shape.CIRCLE)
+        .filter(val -> val.getShape().orElse(null) == CDAreaElement.Shape.CIRCLE)
         .findFirst()
         .get();
     
@@ -124,7 +124,7 @@ public class TestDbDesignRichText extends AbstractDesignTest {
         .stream()
         .filter(CDAreaElement.class::isInstance)
         .map(CDAreaElement.class::cast)
-        .filter(val -> val.getShape() == CDAreaElement.Shape.RECTANGLE)
+        .filter(val -> val.getShape().orElse(null) == CDAreaElement.Shape.RECTANGLE)
         .findFirst()
         .get();
     
@@ -149,7 +149,7 @@ public class TestDbDesignRichText extends AbstractDesignTest {
         .stream()
         .filter(CDAreaElement.class::isInstance)
         .map(CDAreaElement.class::cast)
-        .filter(val -> val.getShape() == CDAreaElement.Shape.POLYGON)
+        .filter(val -> val.getShape().orElse(null) == CDAreaElement.Shape.POLYGON)
         .findFirst()
         .get();
     
@@ -176,7 +176,7 @@ public class TestDbDesignRichText extends AbstractDesignTest {
         .stream()
         .filter(CDAreaElement.class::isInstance)
         .map(CDAreaElement.class::cast)
-        .filter(val -> val.getShape() == CDAreaElement.Shape.DEFAULT)
+        .filter(val -> val.getShape().orElse(null) == CDAreaElement.Shape.DEFAULT)
         .findFirst()
         .get();
     

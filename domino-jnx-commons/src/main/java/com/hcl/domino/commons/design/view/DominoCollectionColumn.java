@@ -229,7 +229,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
 
   @Override
   public ViewColumnFormat.ListDelimiter getListDisplayDelimiter() {
-    return this.getFormat1().getListDelimiter();
+    return this.getFormat1().getListDelimiter().orElse(ViewColumnFormat.ListDelimiter.NONE);
   }
 
   @Override

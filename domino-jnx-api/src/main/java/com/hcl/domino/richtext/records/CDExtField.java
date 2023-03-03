@@ -19,6 +19,7 @@ package com.hcl.domino.richtext.records;
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.formula.FormulaCompiler;
@@ -189,7 +190,16 @@ public interface CDExtField extends RichTextRecord<WSIG> {
   WSIG getHeader();
 
   @StructureGetter("EntryHelper")
-  HelperType getHelperType();
+  Optional<HelperType> getHelperType();
+  
+  /**
+   * Retrieves the helper type as its raw {@code short} value.
+   * 
+   * @return the helper type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("EntryHelper")
+  short getHelperTypeRaw();
 
   @StructureSetter("EntryColumnNumber")
   CDExtField setEntryColumnNumber(int columnNumber);
@@ -209,6 +219,15 @@ public interface CDExtField extends RichTextRecord<WSIG> {
   @StructureSetter("EntryHelper")
   CDExtField setHelperType(HelperType type);
 
+  /**
+   * Sets the helper type as a raw {@code short} value.
+   * 
+   * @param type the raw value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("EntryHelper")
+  CDExtField setHelperTypeRaw(short type);
 
   default String getEntryDBName() {
     return StructureSupport.extractStringValue(

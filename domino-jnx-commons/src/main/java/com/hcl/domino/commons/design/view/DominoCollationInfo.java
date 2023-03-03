@@ -173,7 +173,7 @@ public class DominoCollationInfo implements IAdaptable {
     }
     
     public CollateType getType() {
-      return this.collateDescriptor.getKeyType();
+      return this.collateDescriptor.getKeyType().orElse(CollateType.KEY);
     }
     
     public DominoCollateColumn setType(CollateType type) {

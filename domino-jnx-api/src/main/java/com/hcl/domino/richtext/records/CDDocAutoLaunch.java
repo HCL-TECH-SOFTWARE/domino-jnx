@@ -17,6 +17,7 @@
 package com.hcl.domino.richtext.records;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.design.DesignConstants;
@@ -102,10 +103,29 @@ public interface CDDocAutoLaunch extends RichTextRecord<WSIG> {
   WSIG getHeader();
   
   @StructureGetter("ObjectType")
-  AutoLaunchType getObjectType();
+  Optional<AutoLaunchType> getObjectType();
+  
+  /**
+   * Retrieves the object type as a raw {@code int}.
+   * 
+   * @return the object type as an {@code int}
+   * @since 1.24.0
+   */
+  @StructureGetter("ObjectType")
+  int getObjectTypeRaw();
   
   @StructureSetter("ObjectType")
   CDDocAutoLaunch setObjectType(AutoLaunchType type);
+  
+  /**
+   * Sets the object type as a raw {@code int}.
+   * 
+   * @param type the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("ObjectType")
+  CDDocAutoLaunch setObjectTypeRaw(int type);
   
   @StructureGetter("HideWhenFlags")
   Set<AutoLaunchHideWhen> getHideWhenFlags();

@@ -1009,6 +1009,30 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
   }
 
   @Test
+  public void testWriteEnumArrayRaw() throws Exception {
+    this.withTempDb(database -> {
+      final short[] array = new short[] {
+        CDEmbeddedOutline.Repeat.SIZE_TO_FIT.getValue(), CDEmbeddedOutline.Repeat.ONCE.getValue(),
+        CDEmbeddedOutline.Repeat.SIZE_TO_FIT.getValue(), CDEmbeddedOutline.Repeat.HORIZONTAL.getValue()
+      };
+      final Document doc = database.createDocument();
+      try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+        rtWriter.addRichTextRecord(CDEmbeddedOutline.class, outline -> {
+          outline.setBackgroundRepeatModesRaw(array);
+        });
+      }
+
+      final List<RichTextRecord<?>> body = doc.getRichTextItem("Body");
+      assertEquals(1, body.size());
+
+      {
+        assertTrue(body.get(0) instanceof CDEmbeddedOutline);
+        assertArrayEquals(array, ((CDEmbeddedOutline) body.get(0)).getBackgroundRepeatModesRaw());
+      }
+    });
+  }
+
+  @Test
   public void testPreserveUnknownFlags() throws Exception {
     int fakeFlag = 0x00100000; // Not represented by a flag in the API
     this.withTempDb(database -> {

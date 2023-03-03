@@ -72,8 +72,27 @@ public interface ElementHeader extends MemoryStructure {
   @StructureGetter("byBackColor")
   Optional<StandardColors> getPreV5BackgroundColor();
   
+  /**
+   * Gets the pre-V5 background color as a raw {@code byte}.
+   * 
+   * @return the pre-V5 background color as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("byBackColor")
+  byte getPreV5BackgroundColorRaw();
+  
   @StructureSetter("byBackColor")
   ElementHeader setPreV5BackgroundColor(StandardColors color);
+  
+  /**
+   * Sets the pre-V5 background color as a raw {@code byte}.
+   * 
+   * @param color the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("byBackColor")
+  ElementHeader setPreV5BackgroundColorRaw(byte color);
   
   @StructureGetter("BackgroundColor")
   ColorValue getBackgroundColor();

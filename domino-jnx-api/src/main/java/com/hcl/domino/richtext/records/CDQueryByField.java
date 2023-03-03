@@ -17,6 +17,7 @@
 package com.hcl.domino.richtext.records;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.data.DominoDateTime;
@@ -127,16 +128,54 @@ public interface CDQueryByField extends RichTextRecord<WSIG> {
   CDQueryByField setFlags(Collection<Flag> flags);
   
   @StructureGetter("wDataType")
-  ItemDataType getDataType();
+  Optional<ItemDataType> getDataType();
+  
+  /**
+   * Retrieves the data type as a raw {@code short}.
+   * 
+   * @return the data type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("wDataType")
+  short getDataTypeRaw();
   
   @StructureSetter("wDataType")
   CDQueryByField setDataType(ItemDataType type);
   
+  /**
+   * Sets the data type as a raw {@code short}.
+   * 
+   * @param type the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("wDataType")
+  CDQueryByField setDataTypeRaw(short type);
+  
   @StructureGetter("wOperator")
-  Operator getOperator();
+  Optional<Operator> getOperator();
+  
+  /**
+   * Retrieves the operator as a raw {@code short}.
+   * 
+   * @return the operator as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("wOperator")
+  short getOperatorRaw();
   
   @StructureSetter("wOperator")
   CDQueryByField setOperator(Operator operator);
+  
+  /**
+   * Sets the operator as a raw {@code short}
+   * 
+   * @param operator the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("wOperator")
+  CDQueryByField setOperatorRaw(short operator);
   
   @StructureGetter("Date1")
   DominoDateTime getDate1();

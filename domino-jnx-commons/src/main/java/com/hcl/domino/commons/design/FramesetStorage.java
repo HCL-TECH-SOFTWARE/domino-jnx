@@ -91,13 +91,13 @@ public enum FramesetStorage {
           FramesetLength currLength = lengths.get(count);
           //transfer initial size from lengths list
           frame.size = currLength.getValue();
-          if (currLength.getType()==FrameSizingType.PERCENTAGE) {
+          if (currLength.getType().orElse(null)==FrameSizingType.PERCENTAGE) {
             frame.sizeUnit = Optional.of(FrameSizeUnit.PERCENTAGE);
           }
-          else if (currLength.getType()==FrameSizingType.PIXELS) {
+          else if (currLength.getType().orElse(null)==FrameSizingType.PIXELS) {
             frame.sizeUnit = Optional.of(FrameSizeUnit.PIXELS);
           }
-          else if (currLength.getType()==FrameSizingType.RELATIVE) {
+          else if (currLength.getType().orElse(null)==FrameSizingType.RELATIVE) {
             frame.sizeUnit = Optional.of(FrameSizeUnit.RELATIVE);
           }
           else {
@@ -118,13 +118,13 @@ public enum FramesetStorage {
           FramesetLength currLength = lengths.get(count);
           //transfer initial size from lengths list
           subFrameset.size = currLength.getValue();
-          if (currLength.getType()==FrameSizingType.PERCENTAGE) {
+          if (currLength.getType().orElse(null)==FrameSizingType.PERCENTAGE) {
             subFrameset.sizeUnit = Optional.of(FrameSizeUnit.PERCENTAGE);
           }
-          else if (currLength.getType()==FrameSizingType.PIXELS) {
+          else if (currLength.getType().orElse(null)==FrameSizingType.PIXELS) {
             subFrameset.sizeUnit = Optional.of(FrameSizeUnit.PIXELS);
           }
-          else if (currLength.getType()==FrameSizingType.RELATIVE) {
+          else if (currLength.getType().orElse(null)==FrameSizingType.RELATIVE) {
             subFrameset.sizeUnit = Optional.of(FrameSizeUnit.RELATIVE);
           }
           else {
