@@ -69,7 +69,7 @@ public class DefaultActionBarAction implements ActionBarAction {
   
   @Override
   public ActionLanguage getActionLanguage() {
-    switch(getActionRecord().getActionType()) {
+    switch(getActionRecord().getActionType().orElse(CDAction.Type.RUN_AGENT)) {
       case RUN_FORMULA:
         return ActionLanguage.FORMULA;
       case RUN_JAVASCRIPT:

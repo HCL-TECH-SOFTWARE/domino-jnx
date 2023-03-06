@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.util.Optional;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
@@ -46,7 +47,16 @@ public interface CDImageHeader2 extends RichTextRecord<BSIG> {
   long getImageDataSize();
 
   @StructureGetter("ImageType")
-  CDImageHeader.ImageType getImageType();
+  Optional<CDImageHeader.ImageType> getImageType();
+
+  /**
+   * Retrieves the image type as a raw {@code short}.
+   * 
+   * @return the image type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("ImageType")
+  short getImageTypeRaw();
 
   @StructureGetter("Reserved")
   int getReserved();
@@ -62,6 +72,16 @@ public interface CDImageHeader2 extends RichTextRecord<BSIG> {
 
   @StructureSetter("ImageType")
   CDImageHeader2 setImageType(CDImageHeader.ImageType imageType);
+
+  /**
+   * Sets the image type as a raw {@code short}.
+   * 
+   * @param imageType the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("ImageType")
+  CDImageHeader2 setImageTypeRaw(short imageType);
 
   @StructureSetter("Reserved")
   CDImageHeader2 setReserved(int reserved);

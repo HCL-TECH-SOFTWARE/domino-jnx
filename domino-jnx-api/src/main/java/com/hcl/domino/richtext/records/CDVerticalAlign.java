@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.util.Optional;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -63,7 +64,7 @@ public interface CDVerticalAlign extends RichTextRecord<BSIG> {
    * @return Alignment
    */
   @StructureGetter("Alignment")
-  Alignment getAlignment();
+  Optional<Alignment> getAlignment();
   
   @StructureSetter("Alignment")
   CDVerticalAlign setAlignment(Alignment alignment);

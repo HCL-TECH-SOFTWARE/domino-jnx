@@ -177,7 +177,7 @@ public class DefaultActionBar implements ActionBar {
   @Override
   public BorderStyle getBorderStyle() {
     return getBorderInfo()
-      .map(CDBorderInfo::getBorderStyle)
+      .flatMap(CDBorderInfo::getBorderStyle)
       .orElse(BorderStyle.SOLID);
   }
 

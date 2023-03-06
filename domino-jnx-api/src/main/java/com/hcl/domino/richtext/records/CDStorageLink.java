@@ -97,13 +97,13 @@ public interface CDStorageLink extends RichTextRecord<WSIG> {
   int getStorageTypeRaw();
   
   @StructureGetter("StorageType")
-  StorageType getStorageType();
+  Optional<StorageType> getStorageType();
 
   @StructureGetter("LoadType")
   int getLoadTypeRaw();
   
   @StructureGetter("LoadType")
-  LoadType getLoadType();
+  Optional<LoadType> getLoadType();
 
   @StructureGetter("Flags")
   int getFlags();
@@ -131,8 +131,8 @@ public interface CDStorageLink extends RichTextRecord<WSIG> {
 
   default Optional<String> getUrl() {
     Optional<String> retVal = Optional.empty();
-    if (this.getStorageType() == StorageType.URL_CONVERTED ||
-        this.getStorageType() == StorageType.URL_MIME) {
+    if (this.getStorageType().orElse(null) == StorageType.URL_CONVERTED ||
+        this.getStorageType().orElse(null) == StorageType.URL_MIME) {
       retVal = Optional.of(StructureSupport.extractStringValue(
           this,
           0,
@@ -145,7 +145,7 @@ public interface CDStorageLink extends RichTextRecord<WSIG> {
   
   default Optional<String> getObject() {
     Optional<String> retVal = Optional.empty();
-    if (this.getStorageType() == StorageType.OBJECT) {
+    if (this.getStorageType().orElse(null) == StorageType.OBJECT) {
       retVal = Optional.of(StructureSupport.extractStringValue(
           this,
           0,
@@ -158,7 +158,7 @@ public interface CDStorageLink extends RichTextRecord<WSIG> {
   
   default Optional<byte[]> getNote() {
     Optional<byte[]> retVal = Optional.empty();
-    if (this.getStorageType() == StorageType.NOTE) {
+    if (this.getStorageType().orElse(null) == StorageType.NOTE) {
       retVal = Optional.of(StructureSupport.extractByteArray(
           this,
           0,
@@ -171,8 +171,8 @@ public interface CDStorageLink extends RichTextRecord<WSIG> {
   
   default Optional<String> getMime() {
     Optional<String> retVal = Optional.empty();
-    if (this.getStorageType() == StorageType.MIME_OBJECT ||
-        this.getStorageType() == StorageType.MIME_PART) {
+    if (this.getStorageType().orElse(null) == StorageType.MIME_OBJECT ||
+        this.getStorageType().orElse(null) == StorageType.MIME_PART) {
       retVal = Optional.of(StructureSupport.extractStringValue(
           this,
           0,

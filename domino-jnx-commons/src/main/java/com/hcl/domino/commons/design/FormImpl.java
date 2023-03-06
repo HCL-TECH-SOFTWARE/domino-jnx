@@ -779,7 +779,7 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
         return getRegionFrameset()
           .map(DominoFramesetFormat::getFrameRecords)
           .flatMap(Stream::findFirst)
-          .map(CDFrame::getScrollBarStyle);
+          .flatMap(CDFrame::getScrollBarStyle);
       } else {
         return Optional.empty();
       }

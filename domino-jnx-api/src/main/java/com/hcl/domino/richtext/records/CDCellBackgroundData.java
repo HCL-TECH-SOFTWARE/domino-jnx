@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.util.Optional;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -67,8 +68,27 @@ public interface CDCellBackgroundData extends RichTextRecord<WSIG> {
   WSIG getHeader();
   
   @StructureGetter("Repeat")
-  Repeat getRepeat();
+  Optional<Repeat> getRepeat();
+  
+  /**
+   * Retrieves the repeat value as a raw {@code byte}.
+   * 
+   * @return the repeat value as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("Repeat")
+  byte getRepeatRaw();
   
   @StructureSetter("Repeat")
   CDCellBackgroundData setRepeat(Repeat repeat);
+  
+  /**
+   * Sets the repeat value as a raw {@code byte}.
+   * 
+   * @param repeat the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Repeat")
+  CDCellBackgroundData setRepeatRaw(byte repeat);
 }

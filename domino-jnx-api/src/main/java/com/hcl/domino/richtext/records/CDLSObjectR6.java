@@ -16,6 +16,8 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.util.Collection;
+import java.util.Set;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -35,7 +37,7 @@ import com.hcl.domino.richtext.structures.WSIG;
   name = "CDLSOBJECT_R6", 
   members = { 
     @StructureMember(name = "Header", type = WSIG.class),                        
-    @StructureMember(name = "Flags", type = byte.class),                         
+    @StructureMember(name = "Flags", type = CDLSObjectR6.Flag.class, bitfield = true),                         
     @StructureMember(name = "Reserved", type = byte[].class, length = 7),        
 })
 public interface CDLSObjectR6 extends RichTextRecord<WSIG> {
@@ -67,12 +69,12 @@ public interface CDLSObjectR6 extends RichTextRecord<WSIG> {
   byte getFlagsRaw();
   
   @StructureGetter("Flags")
-  Flag getFlags();
+  Set<Flag> getFlags();
 
   @StructureSetter("Flags")
   CDLSObjectR6 setFlagsRaw(byte flags);
   
   @StructureSetter("Flags")
-  CDLSObjectR6 setFlags(Flag flags);
+  CDLSObjectR6 setFlags(Collection<Flag> flags);
 
 }

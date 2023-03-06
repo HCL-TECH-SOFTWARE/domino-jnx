@@ -705,13 +705,13 @@ public class FrameImpl implements Frame {
   @Override
   public Optional<FrameContentType> getContentType() {
     return getResourceRecord().flatMap((record) -> {
-      if (record.getResourceType() == Type.URL) {
+      if (record.getResourceType().orElse(null) == Type.URL) {
         return Optional.of(FrameContentType.URL);
       }
-      else if (record.getResourceType() == Type.NOTELINK) {
+      else if (record.getResourceType().orElse(null) == Type.NOTELINK) {
         return Optional.of(FrameContentType.Link);
       }
-      else if (record.getResourceType() == Type.NAMEDELEMENT) {
+      else if (record.getResourceType().orElse(null) == Type.NAMEDELEMENT) {
         return Optional.of(FrameContentType.NamedElement);
       }
       else {
@@ -789,7 +789,7 @@ public class FrameImpl implements Frame {
     return getFrameRecord().flatMap((record) -> {
       Set<Flag> flags = record.getFlags();
       if (flags.contains(Flag.Scrolling)) {
-        FrameScrollStyle scrollStyle = record.getScrollBarStyle();
+        FrameScrollStyle scrollStyle = record.getScrollBarStyle().orElse(FrameScrollStyle.ALWAYS);
         switch (scrollStyle) {
         case NEVER:
           return Optional.of(ScrollType.Off);

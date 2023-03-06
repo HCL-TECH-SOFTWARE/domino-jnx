@@ -85,10 +85,29 @@ public interface ViewmapRectRecord extends RichTextRecord<BSIG> {
   ViewmapRectRecord setFillBackgroundColor(StandardColors color);
   
   @StructureGetter("LineStyle")
-  NavigatorLineStyle getLineStyle();
+  Optional<NavigatorLineStyle> getLineStyle();
+  
+  /**
+   * Retrieves the line style as a raw {@code short}.
+   * 
+   * @return the line style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("LineStyle")
+  short getLineStyleRaw();
   
   @StructureSetter("LineStyle")
   ViewmapRectRecord setLineStyle(NavigatorLineStyle style);
+  
+  /**
+   * Sets the line style as a raw {@code short}.
+   * 
+   * @param style the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("LineStyle")
+  ViewmapRectRecord setLineStyleRaw(short style);
   
   @StructureGetter("LineWidth")
   int getLineWidth();
@@ -97,10 +116,29 @@ public interface ViewmapRectRecord extends RichTextRecord<BSIG> {
   ViewmapRectRecord setLineWidth(int width);
   
   @StructureGetter("FillStyle")
-  NavigatorFillStyle getFillStyle();
+  Optional<NavigatorFillStyle> getFillStyle();
+  
+  /**
+   * Retrieves the fill style as a raw {@code short}.
+   * 
+   * @return the fill style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("FillStyle")
+  short getFillStyleRaw();
   
   @StructureSetter("FillStyle")
   ViewmapRectRecord setFillStyle(NavigatorFillStyle style);
+  
+  /**
+   * Sets the fill style as a raw {@code short}.
+   * 
+   * @param style the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("FillStyle")
+  ViewmapRectRecord setFillStyleRaw(short style);
   
   default String getName() {
     return StructureSupport.extractStringValue(

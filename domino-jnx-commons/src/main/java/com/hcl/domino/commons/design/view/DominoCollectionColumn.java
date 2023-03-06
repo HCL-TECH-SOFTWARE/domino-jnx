@@ -864,7 +864,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     public NumberDisplayFormat getFormat() {
       return getFormat4(false)
         .map(format4 -> {
-          switch(format4.getNumberFormat().getFormat()) {
+          switch(format4.getNumberFormat().getFormat().orElse(NFMT.Format.GENERAL)) {
             case BYTES:
               // In practice, this is identified by attributes below
               return NumberDisplayFormat.BYTES;
@@ -970,7 +970,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     @Override
     public boolean isOverrideClientLocale() {
       return getFormat4(false)
-        .map(format4 -> format4.getNumberSymbolPreference() == NumberPref.FIELD)
+        .map(format4 -> format4.getNumberSymbolPreference().orElse(null) == NumberPref.FIELD)
         .orElse(false);
     }
 
@@ -1074,7 +1074,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     @Override
     public boolean isUseCustomCurrencySymbol() {
       return getFormat4(false)
-        .map(format4 -> format4.getCurrencyType() == CurrencyType.CUSTOM)
+        .map(format4 -> format4.getCurrencyType().orElse(null) == CurrencyType.CUSTOM)
         .orElse(false);
     }
 
@@ -1146,7 +1146,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     @Override
     public boolean isOverrideClientLocale() {
       return getFormat3(false)
-        .map(format3 -> format3.getDateTimePreference() == NumberPref.FIELD)
+        .map(format3 -> format3.getDateTimePreference().orElse(null) == NumberPref.FIELD)
         .orElse(false);
     }
 
@@ -1167,14 +1167,14 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     @Override
     public DateShowFormat getDateShowFormat() {
       return getFormat3(false)
-        .map(format3 -> format3.getDateShowFormat())
+        .flatMap(ViewColumnFormat3::getDateShowFormat)
         .orElse(DateShowFormat.MDY);
     }
 
     @Override
     public Set<DateShowSpecial> getDateShowBehavior() {
       return getFormat3(false)
-        .map(format3 -> format3.getDateShowSpecial())
+        .map(ViewColumnFormat3::getDateShowSpecial)
         .orElseGet(() -> EnumSet.of(DateShowSpecial.SHOW_21ST_4DIGIT));
     }
 
@@ -1220,28 +1220,28 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     @Override
     public DayFormat getDayFormat() {
       return getFormat3(false)
-        .map(ViewColumnFormat3::getDayFormat)
+        .flatMap(ViewColumnFormat3::getDayFormat)
         .orElse(DayFormat.DD);
     }
 
     @Override
     public MonthFormat getMonthFormat() {
       return getFormat3(false)
-        .map(ViewColumnFormat3::getMonthFormat)
+        .flatMap(ViewColumnFormat3::getMonthFormat)
         .orElse(MonthFormat.MM);
     }
 
     @Override
     public YearFormat getYearFormat() {
       return getFormat3(false)
-        .map(ViewColumnFormat3::getYearFormat)
+        .flatMap(ViewColumnFormat3::getYearFormat)
         .orElse(YearFormat.YYYY);
     }
 
     @Override
     public WeekFormat getWeekdayFormat() {
       return getFormat3(false)
-        .map(ViewColumnFormat3::getDayOfWeekFormat)
+        .flatMap(ViewColumnFormat3::getDayOfWeekFormat)
         .orElse(WeekFormat.WWW);
     }
 
@@ -1262,7 +1262,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     @Override
     public TimeZoneFormat getTimeZoneFormat() {
       return getFormat3(false)
-        .map(ViewColumnFormat3::getTimeZoneFormat)
+        .flatMap(ViewColumnFormat3::getTimeZoneFormat)
         .orElse(TimeZoneFormat.NEVER);
     }
 
@@ -1329,7 +1329,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     @Override
     public NarrowViewPosition getNarrowViewPosition() {
       return getFormat6(false)
-        .map(ViewColumnFormat6::getIfViewIsNarrowDo)
+        .flatMap(ViewColumnFormat6::getIfViewIsNarrowDo)
         .orElse(NarrowViewPosition.KEEP_ON_TOP);
     }
 
@@ -1351,7 +1351,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
     @Override
     public TileViewerPosition getTileViewerPosition() {
       return getFormat6(false)
-        .map(ViewColumnFormat6::getTileViewer)
+        .flatMap(ViewColumnFormat6::getTileViewer)
         .orElse(TileViewerPosition.TOP);
     }
 

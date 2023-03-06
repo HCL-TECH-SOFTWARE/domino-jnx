@@ -63,11 +63,40 @@ public interface ViewmapPolyLineRecord extends RichTextRecord<WSIG> {
   @StructureSetter("LineColor")
   ViewmapPolyLineRecord setLineColor(StandardColors color);
   
+  /**
+   * Sets the line color as a raw {@code short}.
+   * 
+   * @param color the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("LineColor")
+  ViewmapPolyLineRecord setLineColorRaw(short color);
+  
   @StructureGetter("LineStyle")
-  NavigatorLineStyle getLineStyle();
+  Optional<NavigatorLineStyle> getLineStyle();
+  
+  /**
+   * Retrieve the line style as a raw {@code short}.
+   * 
+   * @return the line style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("LineStyle")
+  short getLineStyleRaw();
   
   @StructureSetter("LineStyle")
   ViewmapPolyLineRecord setLineStyle(NavigatorLineStyle style);
+  
+  /**
+   * Sets the line style as a raw {@code short}.
+   * 
+   * @param style the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("LineStyle")
+  ViewmapPolyLineRecord setLineStyleRaw(short style);
   
   @StructureGetter("LineWidth")
   int getLineWidth();

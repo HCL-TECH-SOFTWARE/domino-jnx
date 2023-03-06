@@ -507,18 +507,25 @@ public class MemoryStructureProxy implements InvocationHandler {
           Object newVal = args[0];
           Class<?> numArrayType = MemoryStructureUtil.getNumberArrayType(member.type);
           Class<?> numType = numArrayType.getComponentType();
-          Object numArray = Array.newInstance(numType, member.length);
-          int count = Math.min(Array.getLength(newVal), member.length);
-          for(int i = 0; i < count; i++) {
-            INumberEnum<?> val = (INumberEnum<?>)Array.get(newVal, i);
-            if(byte.class.equals(numType)) {
-              Array.setByte(numArray, i, val.getValue().byteValue());
-            } else if(short.class.equals(numType)) {
-              Array.setShort(numArray, i, val.getValue().shortValue());
-            } else if(int.class.equals(numType)) {
-              Array.setInt(numArray, i, val.getValue().intValue());
-            } else {
-              Array.setLong(numArray, i, val.getValue().longValue());
+          Object numArray;
+          if(newVal.getClass().getComponentType().isPrimitive()) {
+            // If it's a primitive array, pass it through as-is
+            numArray = newVal;
+          } else {
+            // Otherwise, unwrap the enum values to their raw values
+            numArray = Array.newInstance(numType, member.length);
+            int count = Math.min(Array.getLength(newVal), member.length);
+            for(int i = 0; i < count; i++) {
+              INumberEnum<?> val = (INumberEnum<?>)Array.get(newVal, i);
+              if(byte.class.equals(numType)) {
+                Array.setByte(numArray, i, val.getValue().byteValue());
+              } else if(short.class.equals(numType)) {
+                Array.setShort(numArray, i, val.getValue().shortValue());
+              } else if(int.class.equals(numType)) {
+                Array.setInt(numArray, i, val.getValue().intValue());
+              } else {
+                Array.setLong(numArray, i, val.getValue().longValue());
+              }
             }
           }
           member.writer.accept(buf, member.offset, numArray);

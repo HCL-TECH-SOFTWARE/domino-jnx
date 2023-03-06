@@ -381,7 +381,7 @@ public interface CDEmbeddedOutline extends RichTextRecord<WSIG> {
   /**
    * Sets the background alignments an array of {@code short}.
    * 
-   * @since alignments the value to set
+   * @param alignments the value to set
    * @return this structure
    * @since 1.24.0
    */

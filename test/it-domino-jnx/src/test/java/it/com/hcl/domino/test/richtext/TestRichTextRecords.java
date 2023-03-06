@@ -29,6 +29,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
@@ -184,8 +185,8 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       final CDActionBar actionBar = (CDActionBar) body.get(0);
       assertEquals(1, actionBar.getBackgroundColor());
       assertEquals(2, actionBar.getLineColor());
-      assertEquals(CDActionBar.LineStyle.TRIPLE, actionBar.getLineStyle());
-      assertEquals(CDActionBar.BorderStyle.ABS, actionBar.getBorderStyle());
+      assertEquals(CDActionBar.LineStyle.TRIPLE, actionBar.getLineStyle().get());
+      assertEquals(CDActionBar.BorderStyle.ABS, actionBar.getBorderStyle().get());
       assertEquals(EnumSet.of(CDActionBar.Flag.ABSOLUTE_HEIGHT, CDActionBar.Flag.BTNBCK_IMGRSRC), actionBar.getFlags());
       assertEquals(17, actionBar.getShareId());
       assertEquals(3, actionBar.getButtonHeight());
@@ -196,16 +197,16 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       assertEquals(2, actionBarExt.getLineColor().getBlue());
       assertEquals(3, actionBarExt.getFontColor().getBlue());
       assertEquals(4, actionBarExt.getButtonColor().getBlue());
-      assertEquals(ButtonBorderDisplay.NOTES, actionBarExt.getBorderDisplay());
+      assertEquals(ButtonBorderDisplay.NOTES, actionBarExt.getBorderDisplay().get());
       assertEquals(30, actionBarExt.getAppletHeight());
       assertEquals(ActionBarBackgroundRepeat.REPEATHORIZ, actionBarExt.getBackgroundRepeat().get());
-      assertEquals(ActionWidthMode.BACKGROUND, actionBarExt.getWidthStyle());
-      assertEquals(ActionBarTextAlignment.RIGHT, actionBarExt.getTextJustify());
+      assertEquals(ActionWidthMode.BACKGROUND, actionBarExt.getWidthStyle().get());
+      assertEquals(ActionBarTextAlignment.RIGHT, actionBarExt.getTextJustify().get());
       assertEquals(31, actionBarExt.getButtonWidth());
       assertEquals(32, actionBarExt.getButtonInternalMargin());
       assertEquals(EnumSet.of(CDActionBarExt.Flag.WIDTH_STYLE_VALID), actionBarExt.getFlags());
       assertEquals(StandardFonts.UNICODE, actionBarExt.getFontStyle().getStandardFont().get());
-      assertEquals(LengthUnit.EMS, actionBarExt.getHeight().getUnit());
+      assertEquals(LengthUnit.EMS, actionBarExt.getHeight().getUnit().get());
       assertEquals(5.5, actionBarExt.getHeight().getLength());
     });
   }
@@ -241,7 +242,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDAction action = (CDAction) doc.getRichTextItem("Body").get(0);
-      assertEquals(CDAction.Type.RUN_FORMULA, action.getActionType());
+      assertEquals(CDAction.Type.RUN_FORMULA, action.getActionType().get());
       assertEquals(EnumSet.of(CDAction.Flag.ALIGN_ICON_RIGHT, CDAction.Flag.HIDE_FROM_MOBILE), action.getFlags());
       assertEquals("Hello there", action.getTitle());
       assertEquals("Index>1", action.getHideWhenFormula());
@@ -264,7 +265,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDAction action = (CDAction) doc.getRichTextItem("Body").get(0);
-      assertEquals(CDAction.Type.RUN_SCRIPT, action.getActionType());
+      assertEquals(CDAction.Type.RUN_SCRIPT, action.getActionType().get());
       assertEquals(EnumSet.of(CDAction.Flag.ALIGN_ICON_RIGHT, CDAction.Flag.HIDE_FROM_MOBILE), action.getFlags());
       assertEquals("Hello there from LotusScript", action.getTitle());
       assertEquals("Index>1", action.getHideWhenFormula());
@@ -280,13 +281,13 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
         final AssistFieldStruct assistField = rtWriter.createStructure(AssistFieldStruct.class, 0);
         assistField.setOperatorRaw((short) 2);
-        assertEquals(AssistFieldStruct.ActionByField.APPEND, assistField.getActionOperator());
-        assertEquals(AssistFieldStruct.QueryByField.LESS, assistField.getQueryOperator());
+        assertEquals(AssistFieldStruct.ActionByField.APPEND, assistField.getActionOperator().get());
+        assertEquals(AssistFieldStruct.QueryByField.LESS, assistField.getQueryOperator().get());
 
         assistField.setActionOperator(AssistFieldStruct.ActionByField.REMOVE);
-        assertEquals(AssistFieldStruct.ActionByField.REMOVE, assistField.getActionOperator());
+        assertEquals(AssistFieldStruct.ActionByField.REMOVE, assistField.getActionOperator().get());
         assistField.setQueryOperator(AssistFieldStruct.QueryByField.DOESNOTCONTAIN);
-        assertEquals(AssistFieldStruct.QueryByField.DOESNOTCONTAIN, assistField.getQueryOperator());
+        assertEquals(AssistFieldStruct.QueryByField.DOESNOTCONTAIN, assistField.getQueryOperator().get());
 
         assistField.setFieldName("foo");
         assertEquals("foo", assistField.getFieldName());
@@ -340,9 +341,9 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       assertNotNull(assistFields);
       assertEquals(2, assistFields.size());
       assertEquals("Foo", assistFields.get(0).getFieldName());
-      assertEquals(ActionByField.REPLACE, assistFields.get(0).getActionOperator());
+      assertEquals(ActionByField.REPLACE, assistFields.get(0).getActionOperator().get());
       assertEquals("Bar", assistFields.get(1).getFieldName());
-      assertEquals(ActionByField.APPEND, assistFields.get(1).getActionOperator());
+      assertEquals(ActionByField.APPEND, assistFields.get(1).getActionOperator().get());
     });
   }
 
@@ -400,13 +401,13 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDEmbeddedControl control = (CDEmbeddedControl) doc.getRichTextItem("Body").get(0);
-      assertEquals(CDEmbeddedControl.Type.COMBO, control.getControlType());
+      assertEquals(CDEmbeddedControl.Type.COMBO, control.getControlType().get());
       assertEquals(EnumSet.of(CDEmbeddedControl.Flag.DIALOGUNITS, CDEmbeddedControl.Flag.POSITION_HEIGHT),
           control.getFlags());
       assertEquals(480, control.getHeight());
       assertEquals(640, control.getWidth());
       assertTrue(control.getStyle().contains(CDEmbeddedControl.Style.EDITCOMBO));
-      assertEquals(CDEmbeddedControl.Version.VERSION1, control.getVersion());
+      assertEquals(CDEmbeddedControl.Version.VERSION1, control.getVersion().get());
       assertEquals(80, control.getPercentage());
       assertEquals(255, control.getMaxChars());
     });
@@ -463,8 +464,8 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       assertEquals(4, field.getMilliGroupSize());
       assertEquals((short) -3, field.getVerticalSpacing());
       assertEquals((short) -4, field.getHorizontalSpacing());
-      assertEquals(NumberPref.FIELD, field.getCurrencyPreference());
-      assertEquals(CurrencyType.CUSTOM, field.getCurrencyType());
+      assertEquals(NumberPref.FIELD, field.getCurrencyPreference().get());
+      assertEquals(CurrencyType.CUSTOM, field.getCurrencyType().get());
       assertEquals(EnumSet.of(CurrencyFlag.SYMFOLLOWS), field.getCurrencyFlags());
       assertEquals("$$", field.getCurrencySymbol());
       assertEquals(4, field.getISOCountry());
@@ -512,7 +513,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       // KEYWORD_FRAME_3D is 0x00000000 and so comes along for the ride
       assertEquals(EnumSet.of(CDExtField.Flag.KWHINKYMINKY, CDExtField.Flag.KEYWORD_FRAME_3D), extField.getFlags1());
       assertEquals(EnumSet.of(CDExtField.Flag2.CONTROL, CDExtField.Flag2.ALLOWTABBINGOUT), extField.getFlags2());
-      assertEquals(HelperType.VIEWDLG, extField.getHelperType());
+      assertEquals(HelperType.VIEWDLG, extField.getHelperType().get());
       assertEquals("foo.nsf", extField.getEntryDBName());
       assertEquals("Some view", extField.getEntryViewName());
       assertEquals(6, extField.getEntryColumnNumber());
@@ -577,7 +578,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDField field = (CDField) doc.getRichTextItem("Body").get(0);
-      assertEquals(ItemDataType.TYPE_TEXT, field.getFieldType());
+      assertEquals(ItemDataType.TYPE_TEXT, field.getFieldType().get());
       // KEYWORDS_UI_STANDARD is 0x0000 and thus always shows up
       assertEquals(EnumSet.of(CDField.Flag.COMPUTED, CDField.Flag.PROTECTED, CDField.Flag.KEYWORDS_UI_STANDARD),
           field.getFlags());
@@ -587,7 +588,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       final NFMT numberFormat = field.getNumberFormat();
       assertEquals(EnumSet.of(NFMT.Attribute.PARENS), numberFormat.getAttributes());
       assertEquals((short) 4, numberFormat.getDigits());
-      assertEquals(NFMT.Format.CURRENCY, numberFormat.getFormat());
+      assertEquals(NFMT.Format.CURRENCY, numberFormat.getFormat().get());
 
       final TFMT timeFormat = field.getTimeFormat();
       assertEquals(TFMT.DateFormat.CPARTIAL4, timeFormat.getDateFormat().get());
@@ -635,7 +636,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDField field = (CDField) doc.getRichTextItem("Body").get(0);
-      assertEquals(ItemDataType.TYPE_TEXT, field.getFieldType());
+      assertEquals(ItemDataType.TYPE_TEXT, field.getFieldType().get());
       // KEYWORDS_UI_STANDARD is 0x0000 and thus always shows up
       assertEquals(EnumSet.of(CDField.Flag.COMPUTED, CDField.Flag.PROTECTED, CDField.Flag.KEYWORDS_UI_STANDARD),
           field.getFlags());
@@ -645,7 +646,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       final NFMT numberFormat = field.getNumberFormat();
       assertEquals(EnumSet.of(NFMT.Attribute.PARENS), numberFormat.getAttributes());
       assertEquals((short) 4, numberFormat.getDigits());
-      assertEquals(NFMT.Format.CURRENCY, numberFormat.getFormat());
+      assertEquals(NFMT.Format.CURRENCY, numberFormat.getFormat().get());
 
       final TFMT timeFormat = field.getTimeFormat();
       assertEquals(TFMT.DateFormat.CPARTIAL4, timeFormat.getDateFormat().get());
@@ -694,7 +695,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDField field = (CDField) doc.getRichTextItem("Body").get(0);
-      assertEquals(ItemDataType.TYPE_TEXT, field.getFieldType());
+      assertEquals(ItemDataType.TYPE_TEXT, field.getFieldType().get());
       // KEYWORDS_UI_STANDARD is 0x0000 and thus always shows up
       assertEquals(EnumSet.of(CDField.Flag.COMPUTED, CDField.Flag.PROTECTED, CDField.Flag.KEYWORDS_UI_STANDARD),
           field.getFlags());
@@ -704,7 +705,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       final NFMT numberFormat = field.getNumberFormat();
       assertEquals(EnumSet.of(NFMT.Attribute.PARENS), numberFormat.getAttributes());
       assertEquals((short) 4, numberFormat.getDigits());
-      assertEquals(NFMT.Format.CURRENCY, numberFormat.getFormat());
+      assertEquals(NFMT.Format.CURRENCY, numberFormat.getFormat().get());
 
       final TFMT timeFormat = field.getTimeFormat();
       assertEquals(TFMT.DateFormat.CPARTIAL4, timeFormat.getDateFormat().get());
@@ -845,7 +846,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(600, header.getHeight());
         assertEquals(2048, header.getImageDataSize());
         assertEquals(2, header.getSegCount());
-        assertEquals(ImageType.PNG, header.getImageType());
+        assertEquals(ImageType.PNG, header.getImageType().get());
       }
     });
   }
@@ -1118,7 +1119,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
       }
 
       final CDVerticalAlign begin = (CDVerticalAlign) doc.getRichTextItem("Body").get(0);
-      CDVerticalAlign.Alignment alignment = begin.getAlignment();
+      CDVerticalAlign.Alignment alignment = begin.getAlignment().orElse(null);
       
       assertEquals(CDVerticalAlign.Alignment.CENTER, alignment);
     });
@@ -1464,7 +1465,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         }
 
         final CDPositioning begin = (CDPositioning) doc.getRichTextItem("Body").get(0);
-        assertEquals(CDPositioning.Scheme.ABSOLUTE, begin.getScheme());
+        assertEquals(CDPositioning.Scheme.ABSOLUTE, begin.getScheme().get());
         assertEquals(10, begin.getBrowserLeftOffset());
         assertEquals(20, begin.getBrowserRightOffset());
         assertEquals(30, begin.getZIndex());
@@ -1522,10 +1523,10 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
 
         final CDBoxSize begin = (CDBoxSize) doc.getRichTextItem("Body").get(0);
         assertEquals(10, begin.getHeight().getLength());
-        assertEquals(LengthUnit.PERCENT, begin.getHeight().getUnit());
+        assertEquals(LengthUnit.PERCENT, begin.getHeight().getUnit().get());
         assertEquals(EnumSet.of(LengthValue.Flag.AUTO), begin.getHeight().getFlags());
         assertEquals(20, begin.getWidth().getLength());
-        assertEquals(LengthUnit.PIXELS, begin.getWidth().getUnit());
+        assertEquals(LengthUnit.PIXELS, begin.getWidth().getUnit().get());
         assertEquals(EnumSet.of(LengthValue.Flag.AUTO), begin.getWidth().getFlags());
       });
     }
@@ -1714,9 +1715,9 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
             assertEquals(StandardColors.Caribbean, begin.getLineColor().get());
             assertEquals(StandardColors.Emerald, begin.getFillForegroundColor().get());
             assertEquals(StandardColors.DarkRed, begin.getFillBackgroundColor().get());
-            assertEquals(NavigatorLineStyle.NONE,begin.getLineStyle());
+            assertEquals(NavigatorLineStyle.NONE,begin.getLineStyle().get());
             assertEquals(1,begin.getLineWidth());
-            assertEquals(NavigatorFillStyle.SOLID,begin.getFillStyle());
+            assertEquals(NavigatorFillStyle.SOLID,begin.getFillStyle().get());
         }
         
       });
@@ -1772,12 +1773,12 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(ViewmapActionRecord.Action.GOTO_LINK, var.getClickAction().get());
         assertEquals(actionName.length(), var.getActionStringLen());
         assertEquals(7, var.getHighlightOutlineWidth());
-        assertEquals(NavigatorLineStyle.SOLID, var.getHighlightOutlineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, var.getHighlightOutlineStyle().get());
         assertEquals("B51DB3939AB413C585256D4F00399408", var.getLinkInfo().getDocUnid());
         assertEquals("0123456701234567", var.getLinkInfo().getReplicaId());
         assertEquals("B51DB3939AB413C585256D4F00399409", var.getLinkInfo().getViewUnid());
         assertEquals(9, var.getExtDataLen());
-        assertEquals(DesignType.PRIVATE, var.getActionDataDesignType());
+        assertEquals(DesignType.PRIVATE, var.getActionDataDesignType().get());
         assertEquals(actionName, var.getActionString().get());
       });
     }
@@ -1827,7 +1828,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
 
         final CDIgnore begin = (CDIgnore) doc.getRichTextItem("Body").get(0);
         assertEquals(EnumSet.of(CDIgnore.Flag.CDIGNORE_BEGIN), begin.getFlags());
-        assertEquals(CDIgnore.NotesVersion.NOTES_VERSION_6_0_0, begin.getNotesVersion());
+        assertEquals(CDIgnore.NotesVersion.NOTES_VERSION_6_0_0, begin.getNotesVersion().get());
       });
     }
     
@@ -1859,7 +1860,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         }
 
         final CDStorageLink begin = (CDStorageLink) doc.getRichTextItem("Body").get(0);
-        assertEquals(CDStorageLink.StorageType.OBJECT, begin.getStorageType());
+        assertEquals(CDStorageLink.StorageType.OBJECT, begin.getStorageType().get());
         assertEquals(doc.getUNID(), begin.getObject().get());
       });
     }
@@ -1871,7 +1872,7 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         final Document doc = database.createDocument();
         try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
           rtWriter.addRichTextRecord(CDLSObjectR6.class, begin -> {
-              begin.setFlags(CDLSObjectR6.Flag.LSOBJECT_R6_TYPE);
+              begin.setFlags(Collections.singleton(CDLSObjectR6.Flag.LSOBJECT_R6_TYPE));
           });
         }
 
@@ -1906,9 +1907,9 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           });
         }
         final ViewmapRegionRecord begin = (ViewmapRegionRecord) doc.getRichTextItem("Body", Area.TYPE_VIEWMAP).get(0);
-        assertEquals(NavigatorFillStyle.SOLID, begin.getFillStyle());
+        assertEquals(NavigatorFillStyle.SOLID, begin.getFillStyle().get());
         assertEquals(StandardColors.Aqua, begin.getLineColor().get());
-        assertEquals(NavigatorLineStyle.SOLID, begin.getLineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, begin.getLineStyle().get());
         assertEquals(1, begin.getLineWidth());
         assertEquals(0, begin.getDrawingObject().getAlignment());
         assertEquals(0, begin.getDrawingObject().getbWrap());
@@ -1961,10 +1962,10 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           viewmapLineDefaults.setLineStyle(NavigatorLineStyle.SOLID);
           assertEquals(StandardColors.Mustard, viewmapLineDefaults.getFillForegroundColor().get());
           assertEquals(StandardColors.DarkEmerald, viewmapLineDefaults.getLineColor().get());
-          assertEquals(NavigatorFillStyle.SOLID,viewmapLineDefaults.getFillStyle());
+          assertEquals(NavigatorFillStyle.SOLID,viewmapLineDefaults.getFillStyle().get());
           assertEquals(StandardColors.BlueGray, viewmapLineDefaults.getFillBackgroundColor().get());
           assertEquals(1,viewmapLineDefaults.getLineWidth());
-          assertEquals(NavigatorLineStyle.SOLID,viewmapLineDefaults.getLineStyle());
+          assertEquals(NavigatorLineStyle.SOLID,viewmapLineDefaults.getLineStyle().get());
         } 
       });
     }
@@ -1983,10 +1984,10 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           viewmapTextboxDefaults.setLineStyle(NavigatorLineStyle.NONE);
           assertEquals(StandardColors.DarkBlueGray, viewmapTextboxDefaults.getFillForegroundColor().get());
           assertEquals(StandardColors.LightOlive,viewmapTextboxDefaults.getLineColor().get());
-          assertEquals(NavigatorFillStyle.TRANSPARENT,viewmapTextboxDefaults.getFillStyle());
+          assertEquals(NavigatorFillStyle.TRANSPARENT,viewmapTextboxDefaults.getFillStyle().get());
           assertEquals(StandardColors.DarkYellow,viewmapTextboxDefaults.getFillBackgroundColor().get());
           assertEquals(1,viewmapTextboxDefaults.getLineWidth());
-          assertEquals(NavigatorLineStyle.NONE,viewmapTextboxDefaults.getLineStyle());
+          assertEquals(NavigatorLineStyle.NONE,viewmapTextboxDefaults.getLineStyle().get());
         } 
       });
     }
@@ -2004,10 +2005,10 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
           viewmapShapeDefaults.setLineStyle(NavigatorLineStyle.NONE);
           assertEquals(StandardColors.Cranberry, viewmapShapeDefaults.getFillForegroundColor().get());
           assertEquals(StandardColors.ArcticBlue,viewmapShapeDefaults.getLineColor().get());
-          assertEquals(NavigatorFillStyle.TRANSPARENT, viewmapShapeDefaults.getFillStyle());
+          assertEquals(NavigatorFillStyle.TRANSPARENT, viewmapShapeDefaults.getFillStyle().get());
           assertEquals(StandardColors.DeepPurple, viewmapShapeDefaults.getFillBackgroundColor().get());
           assertEquals(1,viewmapShapeDefaults.getLineWidth());
-          assertEquals(NavigatorLineStyle.NONE,viewmapShapeDefaults.getLineStyle());
+          assertEquals(NavigatorLineStyle.NONE,viewmapShapeDefaults.getLineStyle().get());
         } 
       });
     }
@@ -2050,9 +2051,9 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(StandardColors.Aubergine, begin.getLineColor().get());
         assertEquals(StandardColors.AztecBlue, begin.getFillForegroundColor().get());
         assertEquals(StandardColors.DarkOlive, begin.getFillBackgroundColor().get());
-        assertEquals(NavigatorLineStyle.SOLID, begin.getLineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, begin.getLineStyle().get());
         assertEquals(1, begin.getLineWidth());
-        assertEquals(NavigatorFillStyle.TRANSPARENT, begin.getFillStyle());
+        assertEquals(NavigatorFillStyle.TRANSPARENT, begin.getFillStyle().get());
         assertEquals(StandardColors.Blue, begin.getDrawingObject().getTextColor().get());
         assertEquals(0, begin.getDrawingObject().getAlignment());
         assertEquals(0, begin.getDrawingObject().getbWrap());
