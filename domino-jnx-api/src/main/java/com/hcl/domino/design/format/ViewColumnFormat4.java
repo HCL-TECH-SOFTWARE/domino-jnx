@@ -18,6 +18,7 @@ package com.hcl.domino.design.format;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -100,10 +101,29 @@ public interface ViewColumnFormat4 extends ResizableMemoryStructure {
   }
   
   @StructureGetter("CurrencyPref")
-  NumberPref getCurrencyPreference();
+  Optional<NumberPref> getCurrencyPreference();
+  
+  /**
+   * Retrieves the currency pref as a raw {@code byte}.
+   * 
+   * @return the currency pref as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("CurrencyPref")
+  byte getCurrencyPreferenceRaw();
 
   @StructureSetter("CurrencyPref")
   ViewColumnFormat4 setCurrencyPreference(NumberPref pref);
+
+  /**
+   * Sets the currency pref as a raw {@code byte}.
+   * 
+   * @param pref the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("CurrencyPref")
+  ViewColumnFormat4 setCurrencyPreferenceRaw(byte pref);
 
   @StructureGetter("CurrencySymLength")
   long getCurrencySymbolLength();
@@ -112,10 +132,29 @@ public interface ViewColumnFormat4 extends ResizableMemoryStructure {
   ViewColumnFormat4 setCurrencySymbolLength(long len);
 
   @StructureGetter("CurrencyType")
-  CurrencyType getCurrencyType();
+  Optional<CurrencyType> getCurrencyType();
+
+  /**
+   * Retrieves the currency type as a raw {@code byte}.
+   * 
+   * @return the currency type as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("CurrencyType")
+  byte getCurrencyTypeRaw();
 
   @StructureSetter("CurrencyType")
   ViewColumnFormat4 setCurrencyType(CurrencyType type);
+
+  /**
+   * Sets the currency type as a raw {@code byte}.
+   * 
+   * @param type the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("CurrencyType")
+  ViewColumnFormat4 setCurrencyTypeRaw(byte type);
 
   @StructureGetter("DecimalSymLength")
   long getDecimalSymbolLength();
@@ -157,10 +196,29 @@ public interface ViewColumnFormat4 extends ResizableMemoryStructure {
   byte getNumberSymbolFlags();
 
   @StructureGetter("NumSymPref")
-  NumberPref getNumberSymbolPreference();
+  Optional<NumberPref> getNumberSymbolPreference();
+
+  /**
+   * Retrieves the number symbol pref as a raw {@code byte}.
+   * 
+   * @return the number symbol pref as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("NumSymPref")
+  byte getNumberSymbolPreferenceRaw();
 
   @StructureSetter("NumSymPref")
   ViewColumnFormat4 setNumberSymbolPreference(NumberPref pref);
+
+  /**
+   * Sets the number symbol pref as a raw {@code byte}.
+   * 
+   * @param pref the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("NumSymPref")
+  ViewColumnFormat4 setNumberSymbolPreferenceRaw(byte pref);
 
   @StructureGetter("Signature")
   short getSignature();

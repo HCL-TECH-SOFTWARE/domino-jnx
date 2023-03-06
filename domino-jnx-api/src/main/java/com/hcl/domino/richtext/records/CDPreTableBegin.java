@@ -148,8 +148,27 @@ public interface CDPreTableBegin extends RichTextRecord<WSIG> {
   @StructureGetter("ViewerType")
   Optional<ViewerType> getViewerType();
   
+  /**
+   * Retrieves the viewer type as a raw {@code byte}.
+   * 
+   * @return the viewer type as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("ViewerType")
+  byte getViewerTypeRaw();
+  
   @StructureSetter("ViewerType")
   CDPreTableBegin setViewerType(ViewerType type);
+  
+  /**
+   * Sets the viewer type as a raw {@code byte}.
+   * 
+   * @param type the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("ViewerType")
+  CDPreTableBegin setViewerTypeRaw(byte type);
   
   @StructureGetter("MinRowHeight")
   int getMinRowHeight();

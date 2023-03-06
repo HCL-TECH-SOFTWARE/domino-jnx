@@ -115,7 +115,16 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   Set<CurrencyFlag> getCurrencyFlags();
 
   @StructureGetter("CurrencyPref")
-  NumberPref getCurrencyPreference();
+  Optional<NumberPref> getCurrencyPreference();
+
+  /**
+   * Retrieves the currency pref as a raw {@code byte}.
+   * 
+   * @return the currency pref as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("CurrencyPref")
+  byte getCurrencyPreferenceRaw();
 
   default String getCurrencySymbol() {
     final int len = (int) this.getCurrencySymbolLength();
@@ -136,7 +145,16 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   long getCurrencySymbolLength();
 
   @StructureGetter("CurrencyType")
-  CurrencyType getCurrencyType();
+  Optional<CurrencyType> getCurrencyType();
+
+  /**
+   * Retrieves the currency type as a raw {@code byte}.
+   * 
+   * @return the currency type as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("CurrencyType")
+  byte getCurrencyTypeRaw();
 
   default String getDateSeparator1() {
     final int len = this.getDateSeparator1Length();
@@ -201,6 +219,15 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   @StructureGetter("DTDShow")
   Optional<DateShowFormat> getDateShowFormat();
 
+  /**
+   * Retrieves the date-show format as a {@code byte}.
+   * 
+   * @return the date-show format as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("DTDShow")
+  byte getDateShowFormatRaw();
+
   @StructureGetter("DTDSpecial")
   Set<DateShowSpecial> getDateShowSpecial();
 
@@ -213,11 +240,38 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   @StructureGetter("DTPref")
   Optional<NumberPref> getDateTimePreference();
 
+  /**
+   * Retrieves the date-time pref as a raw {@code byte}.
+   * 
+   * @return the date-time pref as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("DTPref")
+  byte getDateTimePreferenceRaw();
+
   @StructureGetter("DTDayFmt")
   Optional<DayFormat> getDayFormat();
 
+  /**
+   * Retrieves the day format as a raw {@code byte}.
+   * 
+   * @return the day format as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("DTDayFmt")
+  byte getDayFormatRaw();
+
   @StructureGetter("DTDOWFmt")
   Optional<WeekFormat> getDayOfWeekFormat();
+
+  /**
+   * Retrieves the day-of-week format as a raw {@code byte}.
+   * 
+   * @return the day-of-week format as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("DTDOWFmt")
+  byte getDayOfWeekFormatRaw();
 
   default String getDecimalSymbol() {
     final int len = (int) this.getDecimalSymbolLength();
@@ -339,6 +393,15 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   @StructureGetter("DTMonthFmt")
   Optional<MonthFormat> getMonthFormat();
 
+  /**
+   * Retrieves the month format as a raw {@code byte}.
+   * 
+   * @return the month format as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("DTMonthFmt")
+  byte getMonthFormatRaw();
+
   default String getNegativeSymbol() {
     final int len = (int) this.getNegativeSymbolLength();
     if (len == 0) {
@@ -359,6 +422,15 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
 
   @StructureGetter("NumSymPref")
   Optional<NumberPref> getNumberSymbolPreference();
+
+  /**
+   * Retrieves the number-symbol pref as a {@code byte}.
+   * 
+   * @return the number-symbol pref as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("NumSymPref")
+  byte getNumberSymbolPreferenceRaw();
 
   @StructureGetter("wCharacters")
   int getProportionalWidthCharacters();
@@ -412,8 +484,20 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   @StructureGetter("DTTShow")
   Optional<TimeShowFormat> getTimeShowFormat();
 
+  @StructureGetter("DTTShow")
+  byte getTimeShowFormatRaw();
+
   @StructureGetter("DTTZone")
   Optional<TimeZoneFormat> getTimeZoneFormat();
+
+  /**
+   * Retrieves the time-zone format as a raw {@code byte}.
+   * 
+   * @return the time-zone format as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("DTTZone")
+  byte getTimeZoneFormatRaw();
 
   @StructureGetter("VerticalSpacing")
   short getVerticalSpacing();
@@ -421,11 +505,30 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   @StructureGetter("DTYearFmt")
   Optional<YearFormat> getYearFormat();
 
+  /**
+   * Retrieves the year format as a raw {@code byte}.
+   * 
+   * @return the year format as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("DTYearFmt")
+  byte getYearFormatRaw();
+
   @StructureSetter("CurrencyFlags")
   CDExt2Field setCurrencyFlags(Collection<CurrencyFlag> flags);
 
   @StructureSetter("CurrencyPref")
   CDExt2Field setCurrencyPreference(NumberPref pref);
+
+  /**
+   * Sets the currency pref as a raw {@code byte}.
+   * 
+   * @param pref the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("CurrencyPref")
+  CDExt2Field setCurrencyPreferenceRaw(byte pref);
 
   default CDExt2Field setCurrencySymbol(final String symbol) {
     final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength());
@@ -454,6 +557,16 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
 
   @StructureSetter("CurrencyType")
   CDExt2Field setCurrencyType(CurrencyType type);
+
+  /**
+   * Sets the currency type as a raw {@code byte}.
+   * 
+   * @param type the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("CurrencyType")
+  CDExt2Field setCurrencyTypeRaw(byte type);
 
   default CDExt2Field setDateSeparator1(final String sep) {
     final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength() + this.getNegativeSymbolLength()
@@ -539,6 +652,16 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   @StructureSetter("DTDShow")
   CDExt2Field setDateShowFormat(DateShowFormat format);
 
+  /**
+   * Sets the date-show format as a raw {@code byte}.
+   * 
+   * @param format the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("DTDShow")
+  CDExt2Field setDateShowFormatRaw(byte format);
+
   @StructureSetter("DTDSpecial")
   CDExt2Field setDateShowSpecial(Collection<DateShowSpecial> format);
 
@@ -551,11 +674,41 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   @StructureSetter("DTPref")
   CDExt2Field setDateTimePreference(NumberPref pref);
 
+  /**
+   * Sets the date-time pref as a raw {@code byte}.
+   * 
+   * @param pref the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("DTPref")
+  CDExt2Field setDateTimePreferenceRaw(byte pref);
+
   @StructureSetter("DTDayFmt")
   CDExt2Field setDayFormat(DayFormat format);
 
+  /**
+   * Sets the day format as a raw {@code byte}.
+   * 
+   * @param format the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("DTDayFmt")
+  CDExt2Field setDayFormatRaw(byte format);
+
   @StructureSetter("DTDOWFmt")
   CDExt2Field setDayOfWeekFormat(WeekFormat format);
+
+  /**
+   * Sets the day-of-week format as a raw {@code byte}.
+   * 
+   * @param format the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("DTDOWFmt")
+  CDExt2Field setDayOfWeekFormatRaw(byte format);
 
   default CDExt2Field setDecimalSymbol(final String symbol) {
     final int currentLen = (int) this.getDecimalSymbolLength();
@@ -712,6 +865,16 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   @StructureSetter("DTMonthFmt")
   CDExt2Field setMonthFormat(MonthFormat format);
 
+  /**
+   * Sets the month format as a raw {@code byte}.
+   * 
+   * @param format the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("DTMonthFmt")
+  CDExt2Field setMonthFormatRaw(byte format);
+
   default CDExt2Field setNegativeSymbol(final String symbol) {
     final int preLen = (int) (this.getDecimalSymbolLength() + this.getMilliSeparatorLength());
     final int currentLen = (int) this.getNegativeSymbolLength();
@@ -739,6 +902,16 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
 
   @StructureSetter("NumSymPref")
   CDExt2Field setNumberSymbolPreference(NumberPref pref);
+
+  /**
+   * Sets the number-symbol pref as a raw {@code byte}.
+   * 
+   * @param pref the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("NumSymPref")
+  CDExt2Field setNumberSymbolPreferenceRaw(byte pref);
 
   @StructureSetter("wCharacters")
   CDExt2Field setProportionalWidthCharacters(int characters);
@@ -806,12 +979,42 @@ public interface CDExt2Field extends RichTextRecord<WSIG> {
   @StructureSetter("DTTShow")
   CDExt2Field setTimeShowFormat(TimeShowFormat format);
 
+  /**
+   * Sets the time-show format as a raw {@code byte}.
+   * 
+   * @param format the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("DTTShow")
+  CDExt2Field setTimeShowFormatRaw(byte format);
+
   @StructureSetter("DTTZone")
   CDExt2Field setTimeZoneFormat(TimeZoneFormat format);
+
+  /**
+   * Sets the time-zone format as a raw {@code byte}.
+   * 
+   * @param format the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("DTTZone")
+  CDExt2Field setTimeZoneFormatRaw(byte format);
 
   @StructureSetter("VerticalSpacing")
   CDExt2Field setVerticalSpacing(short spacing);
 
   @StructureSetter("DTYearFmt")
   CDExt2Field setYearFormat(YearFormat format);
+
+  /**
+   * Sets the year format as a raw {@code byte}.
+   * 
+   * @param format the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("DTYearFmt")
+  CDExt2Field setYearFormatRaw(byte format);
 }

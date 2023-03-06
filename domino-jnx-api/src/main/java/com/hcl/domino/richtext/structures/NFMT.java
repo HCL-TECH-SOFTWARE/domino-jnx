@@ -18,6 +18,7 @@ package com.hcl.domino.richtext.structures;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -124,7 +125,16 @@ public interface NFMT extends MemoryStructure {
   short getDigits();
 
   @StructureGetter("Format")
-  Format getFormat();
+  Optional<Format> getFormat();
+
+  /**
+   * Retrieves the format as a raw {@code byte}.
+   * 
+   * @return the format as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("Format")
+  byte getFormatRaw();
 
   @StructureSetter("Attributes")
   NFMT setAttributes(Collection<Attribute> attributes);
@@ -155,4 +165,14 @@ public interface NFMT extends MemoryStructure {
 
   @StructureSetter("Format")
   NFMT setFormat(Format format);
+
+  /**
+   * Sets the format as a raw {@code byte}.
+   * 
+   * @param format the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Format")
+  NFMT setFormatRaw(byte format);
 }

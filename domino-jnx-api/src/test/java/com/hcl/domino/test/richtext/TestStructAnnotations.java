@@ -16,10 +16,10 @@
  */
 package com.hcl.domino.test.richtext;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -34,7 +34,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -43,7 +42,6 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;
-
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.misc.INumberEnum;
@@ -122,8 +120,25 @@ public class TestStructAnnotations {
 				
 				// Return type must match the expected value
 				Type returnType = method.getGenericReturnType();
+				
+				// Don't allow "bare" Optionals
+				if(returnType instanceof Class) {
+				  assertFalse(((Class<?>)returnType).isEnum(), method.getName() + ": Should return an Optional<" + ((Class<?>)returnType).getSimpleName() + ">");
+				}
+				
 				assertTrue(isCompatibleType(returnType, memberValues.get(name), false), method.getName() + ": Return type " + returnType + " incompatible with " + memberValues.get(name).type().getName());
 				assertFalse(method.isDefault(), method.getName() + ": Should not have both a @StructureGetter annotation and a default implementation");
+				
+				// Ensure that Optional<INumberEnum> methods have an equivalent "Raw" getter
+				if(returnType instanceof ParameterizedType) {
+		          ParameterizedType pType = (ParameterizedType)returnType;
+		          if(Optional.class.isAssignableFrom((Class<?>)pType.getRawType())) {
+		            Type paramType = pType.getActualTypeArguments()[0];
+		            if(paramType instanceof Class && INumberEnum.class.isAssignableFrom((Class<?>)paramType)) {
+		              assertDoesNotThrow(() -> c.getMethod(method.getName() +"Raw"), method.getName() + ": Missing " + method.getName() + "Raw() pair");
+		            }
+		          }
+		        }
 			}
 			
 			StructureSetter setter = method.getAnnotation(StructureSetter.class);
@@ -143,6 +158,20 @@ public class TestStructAnnotations {
 				Type paramType = method.getGenericParameterTypes()[0];
 				assertTrue(isCompatibleType(paramType, memberValues.get(name), true), method.getName() + ": Parameter type " + paramType + " incompatible with " + memberValues.get(name).type().getName());
 				
+				// INumberEnum setters must be paired with at least one "Raw" variant,
+				//   unless the member value is declared as a primitive (in which case
+				//   such setters will already have special handling)
+				if(INumberEnum.class.isAssignableFrom(method.getParameterTypes()[0]) && !memberValues.get(name).type().isPrimitive()) {
+				  assertTrue(Stream.of(byte.class, short.class, int.class, long.class)
+				    .anyMatch(prim -> {
+				      try {
+				        c.getMethod(method.getName() + "Raw", prim);
+				        return true;
+				      } catch(NoSuchMethodException e) {
+				        return false;
+				      }
+				    }), method.getName() + ": Missing primitive " + method.getName() + "Raw setter pair");
+				}
 				
 				// Return type must be the original class
 				Class<?> returnType = method.getReturnType();
@@ -190,8 +219,13 @@ public class TestStructAnnotations {
 		// Check for arrays of structures or INumberEnums
 		if(structType.isArray() && MemoryStructure.class.isAssignableFrom(structType.getComponentType()) && structType.equals(methodType)) {
 		  return true;
-		} else if(structType.isArray() && INumberEnum.class.isAssignableFrom(structType.getComponentType()) && structType.equals(methodType)) {
-		  return true;
+		} else if(structType.isArray() && INumberEnum.class.isAssignableFrom(structType.getComponentType())) {
+		  if(structType.equals(methodType)) {
+		    return true;
+		  } else if(methodType instanceof Class && ((Class<?>)methodType).isArray() && ((Class<?>)methodType).getComponentType().isPrimitive()) {
+		    // Also allow for arrays of primitives
+		    return true;
+		  }
 		}
 
 		if(bitfield) {

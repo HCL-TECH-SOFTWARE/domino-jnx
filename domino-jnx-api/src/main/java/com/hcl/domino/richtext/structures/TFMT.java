@@ -170,5 +170,5 @@ public interface TFMT extends MemoryStructure {
   TFMT setZoneFormat(TimeZoneFormat format);
   
   @StructureSetter("Zone")
-  TFMT setZomeFormatRaw(byte format);
+  TFMT setZoneFormatRaw(byte format);
 }

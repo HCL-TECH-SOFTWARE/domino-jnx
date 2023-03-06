@@ -112,7 +112,26 @@ public interface CDLayoutField extends RichTextRecord<BSIG> {
   
   @StructureGetter("bFieldType")
   Optional<Type> getFieldType();
+
+  /**
+   * Retrieves the field type as a raw {@code byte}.
+   * 
+   * @return the field type as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("bFieldType")
+  byte getFieldTypeRaw();
   
   @StructureSetter("bFieldType")
   CDLayoutField setFieldType(Type type);
+  
+  /**
+   * Sets the field type as a raw {@code type}.
+   * 
+   * @param type the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("bFieldType")
+  CDLayoutField setFieldTypeRaw(byte type);
 }

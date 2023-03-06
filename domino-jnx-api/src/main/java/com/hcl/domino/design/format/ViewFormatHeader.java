@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.design.format;
 
+import java.util.Optional;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.ViewFormatConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -73,14 +74,52 @@ public interface ViewFormatHeader extends MemoryStructure {
   }
 
   @StructureGetter("Version")
-  Version getVersion();
+  Optional<Version> getVersion();
+
+  /**
+   * Retrieves the version as a raw {@code byte}.
+   * 
+   * @return the version as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("Version")
+  byte getVersionRaw();
 
   @StructureGetter("ViewStyle")
-  ViewStyle getViewStyle();
+  Optional<ViewStyle> getViewStyle();
+
+  /**
+   * Retrieves the view style as a raw {@code byte}.
+   * 
+   * @return the view style as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("ViewStyle")
+  byte getViewStyleRaw();
 
   @StructureSetter("ViewStyle")
   ViewFormatHeader setStyle(ViewStyle style);
 
+  /**
+   * Sets the view style as a raw {@code byte}.
+   * 
+   * @param style the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("ViewStyle")
+  ViewFormatHeader setStyleRaw(byte style);
+
   @StructureSetter("Version")
   ViewFormatHeader setVersion(Version version);
+
+  /**
+   * Sets the version as a raw {@code byte}.
+   * 
+   * @param version the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Version")
+  ViewFormatHeader setVersionRaw(byte version);
 }

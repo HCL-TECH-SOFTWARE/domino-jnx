@@ -69,7 +69,7 @@ public class DefaultActionBarAction implements ActionBarAction {
   
   @Override
   public ActionLanguage getActionLanguage() {
-    switch(getActionRecord().getActionType()) {
+    switch(getActionRecord().getActionType().orElse(CDAction.Type.RUN_AGENT)) {
       case RUN_FORMULA:
         return ActionLanguage.FORMULA;
       case RUN_JAVASCRIPT:
@@ -77,7 +77,7 @@ public class DefaultActionBarAction implements ActionBarAction {
         return records.stream()
           .filter(CDEventEntry.class::isInstance)
           .map(CDEventEntry.class::cast)
-          .filter(entry -> entry.getActionType() == CDEventEntry.ActionType.JAVASCRIPT_COMMON)
+          .filter(entry -> entry.getActionType().orElse(null) == CDEventEntry.ActionType.JAVASCRIPT_COMMON)
           .findFirst()
           .map(entry -> ActionLanguage.COMMON_JAVASCRIPT)
           .orElse(ActionLanguage.JAVASCRIPT);
@@ -126,7 +126,7 @@ public class DefaultActionBarAction implements ActionBarAction {
   @Override
   public ActionBarControlType getDisplayType() {
     return getActionExtRecord()
-      .map(CDActionExt::getControlType)
+      .flatMap(CDActionExt::getControlType)
       .orElse(ActionBarControlType.BUTTON);
   }
 

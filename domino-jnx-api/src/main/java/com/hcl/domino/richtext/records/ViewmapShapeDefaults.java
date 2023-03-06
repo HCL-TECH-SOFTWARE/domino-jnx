@@ -79,10 +79,29 @@ public interface ViewmapShapeDefaults extends MemoryStructure {
   ViewmapShapeDefaults setFillBackgroundColor(StandardColors fillBGColor);
 
   @StructureGetter("LineStyle")
-  NavigatorLineStyle getLineStyle();
+  Optional<NavigatorLineStyle> getLineStyle();
+
+  /**
+   * Retrieves the line style as a raw {@code short}.
+   * 
+   * @return the line style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("LineStyle")
+  short getLineStyleRaw();
 
   @StructureSetter("LineStyle")
   ViewmapShapeDefaults setLineStyle(NavigatorLineStyle lineStyle);
+
+  /**
+   * Sets the line style as a raw {@code short}.
+   * 
+   * @param lineStyle the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("LineStyle")
+  ViewmapShapeDefaults setLineStyleRaw(short lineStyle);
 
   @StructureGetter("LineWidth")
   int getLineWidth();
@@ -91,10 +110,29 @@ public interface ViewmapShapeDefaults extends MemoryStructure {
   ViewmapShapeDefaults setLineWidth(int lineWidth);
 
   @StructureGetter("FillStyle")
-  NavigatorFillStyle getFillStyle();
+  Optional<NavigatorFillStyle> getFillStyle();
+
+  /**
+   * Retrieves the fill style as a raw {@code short}.
+   * 
+   * @return the fill style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("FillStyle")
+  short getFillStyleRaw();
 
   @StructureSetter("FillStyle")
   ViewmapShapeDefaults setFillStyle(NavigatorFillStyle fillStyle);
+
+  /**
+   * Sets the fill style as a raw {@code short}.
+   * 
+   * @param fillStyle the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("FillStyle")
+  ViewmapShapeDefaults setFillStyleRaw(short fillStyle);
 
   @StructureGetter("FontID")
   FontStyle getFontID();

@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.misc.INumberEnum;
@@ -160,7 +161,17 @@ public interface CDEmbeddedControl extends RichTextRecord<WSIG> {
   }
 
   @StructureGetter("CtlType")
-  Type getControlType();
+  Optional<Type> getControlType();
+  
+  /**
+   * Retrieves the type of this control as its raw
+   * {@code short} value.
+   * 
+   * @return the control type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("CtlType")
+  short getControlTypeRaw();
 
   @StructureGetter("Flags")
   Set<Flag> getFlags();
@@ -191,13 +202,33 @@ public interface CDEmbeddedControl extends RichTextRecord<WSIG> {
   Set<Style> getStyle();
 
   @StructureGetter("Version")
-  Version getVersion();
+  Optional<Version> getVersion();
+  
+  /**
+   * Retrieves the version value as its raw {@code short}
+   * value.
+   * 
+   * @return the version value as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("Version")
+  short getVersionRaw();
 
   @StructureGetter("Width")
   int getWidth();
 
   @StructureSetter("CtlType")
   CDEmbeddedControl setControlType(Type type);
+  
+  /**
+   * Sets the control type as a raw {@code short}.
+   * 
+   * @param type the type to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("CtlStyle")
+  CDEmbeddedControl setControlTypeRaw(short type);
 
   @StructureSetter("Flags")
   CDEmbeddedControl setFlags(Set<Flag> flags);
@@ -213,9 +244,29 @@ public interface CDEmbeddedControl extends RichTextRecord<WSIG> {
 
   @StructureSetter("CtlStyle")
   CDEmbeddedControl setStyle(Style style);
+  
+  /**
+   * Sets the control style as a raw {@code int}.
+   * 
+   * @param style the style to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("CtlStyle")
+  CDEmbeddedControl setStyleRaw(int style);
 
   @StructureSetter("Version")
   CDEmbeddedControl setVersion(Version version);
+  
+  /**
+   * Sets the control version as a raw {@code short}.
+   * 
+   * @param version the version to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("CtlStyle")
+  CDEmbeddedControl setVersionRaw(short version);
 
   @StructureSetter("Width")
   CDEmbeddedControl setWidth(int width);

@@ -62,12 +62,41 @@ public interface ViewmapRegionRecord extends RichTextRecord<BSIG> {
   
   @StructureSetter("LineColor")
   ViewmapRegionRecord setLineColor(StandardColors color);
+  
+  /**
+   * Sets the line color as a raw {@code int}.
+   * 
+   * @param color the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("LineColor")
+  ViewmapRegionRecord setLineColorRaw(int color);
 
   @StructureGetter("LineStyle")
-  NavigatorLineStyle getLineStyle();
+  Optional<NavigatorLineStyle> getLineStyle();
+
+  /**
+   * Retrieves the line style as a raw {@code short}.
+   * 
+   * @return the line style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("LineStyle")
+  short getLineStyleRaw();
   
   @StructureSetter("LineStyle")
   ViewmapRegionRecord setLineStyle(NavigatorLineStyle style);
+  
+  /**
+   * Sets the line style as a raw {@code short}.
+   * 
+   * @param style the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("LineStyle")
+  ViewmapRegionRecord setLineStyleRaw(short style);
 
   @StructureGetter("LineWidth")
   int getLineWidth();
@@ -76,10 +105,29 @@ public interface ViewmapRegionRecord extends RichTextRecord<BSIG> {
   ViewmapRegionRecord setLineWidth(int width);
   
   @StructureGetter("FillStyle")
-  NavigatorFillStyle getFillStyle();
+  Optional<NavigatorFillStyle> getFillStyle();
+  
+  /**
+   * Retrieves the fill style as a raw {@code short}.
+   * 
+   * @return the fill style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("FillStyle")
+  short getFillStyleRaw();
   
   @StructureSetter("FillStyle")
   ViewmapRegionRecord setFillStyle(NavigatorFillStyle style);
+  
+  /**
+   * Sets the fill style as a raw {@code short}.
+   * 
+   * @param style the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("FillStyle")
+  ViewmapRegionRecord setFillStyleRaw(short style);
   
   default String getName() {
     return StructureSupport.extractStringValue(

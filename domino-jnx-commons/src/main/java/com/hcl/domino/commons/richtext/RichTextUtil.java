@@ -397,7 +397,7 @@ public enum RichTextUtil {
           currentLength = 0;
         }
         
-        currentEvent = ((CDEvent)record).getEventType();
+        currentEvent = ((CDEvent)record).getEventType().orElse(EventId.ONCLICK);
         currentClient = ((CDEvent)record).getHeader().getSignature() == RichTextConstants.SIG_CD_CLIENT_EVENT;
         currentLength = ((CDEvent)record).getActionLength();
       }

@@ -66,6 +66,16 @@ public interface ViewmapPolygonRecord extends RichTextRecord<WSIG> {
   
   @StructureSetter("LineColor")
   ViewmapPolygonRecord setLineColor(StandardColors color);
+  
+  /**
+   * Sets the line color as a raw {@code short}.
+   * 
+   * @param color the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("LineColor")
+  ViewmapPolygonRecord setLineColorRaw(short color);
 
   @StructureGetter("FillFGColor")
   short getFillForegroundColorRaw();
@@ -75,6 +85,16 @@ public interface ViewmapPolygonRecord extends RichTextRecord<WSIG> {
   
   @StructureSetter("FillFGColor")
   ViewmapPolygonRecord setFillForegroundColor(StandardColors color);
+  
+  /**
+   * Sets the fill foreground color as a raw {@code short}.
+   * 
+   * @param color the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("FillFGColor")
+  ViewmapPolygonRecord setFillForegroundColor(short color);
 
   @StructureGetter("FillBGColor")
   short getFillBackgroundColorRaw();
@@ -86,10 +106,29 @@ public interface ViewmapPolygonRecord extends RichTextRecord<WSIG> {
   ViewmapPolygonRecord setFillBackgroundColor(StandardColors color);
   
   @StructureGetter("LineStyle")
-  NavigatorLineStyle getLineStyle();
+  Optional<NavigatorLineStyle> getLineStyle();
+  
+  /**
+   * Retrieves the line style as a raw {@code short}.
+   * 
+   * @return the line style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("LineStyle")
+  short getLineStyleRaw();
   
   @StructureSetter("LineStyle")
   ViewmapPolygonRecord setLineStyle(NavigatorLineStyle style);
+  
+  /**
+   * Sets the line style as a raw {@code short}.
+   * 
+   * @param style the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("LineStyle")
+  ViewmapPolygonRecord setLineStyleRaw(short style);
   
   @StructureGetter("LineWidth")
   int getLineWidth();
@@ -98,10 +137,29 @@ public interface ViewmapPolygonRecord extends RichTextRecord<WSIG> {
   ViewmapPolygonRecord setLineWidth(int width);
   
   @StructureGetter("FillStyle")
-  NavigatorFillStyle getFillStyle();
+  Optional<NavigatorFillStyle> getFillStyle();
+  
+  /**
+   * Retrieves the fill style as a raw {@code short}.
+   * 
+   * @return the fill style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("FillStyle")
+  short getFillStyleRaw();
   
   @StructureSetter("FillStyle")
   ViewmapPolygonRecord setFillStyle(NavigatorFillStyle style);
+  
+  /**
+   * Sets the file style as a raw {@code short}.
+   * 
+   * @param style the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("FillStyle")
+  ViewmapPolygonRecord setFillStyleRaw(short style);
   
   @StructureGetter("nPts")
   int getPointCount();

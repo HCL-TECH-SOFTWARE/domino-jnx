@@ -78,10 +78,29 @@ public interface ViewColumnFormat3 extends ResizableMemoryStructure {
   ViewColumnFormat3 setSignature(short signature);
 
   @StructureGetter("DTPref")
-  NumberPref getDateTimePreference();
+  Optional<NumberPref> getDateTimePreference();
+
+  /**
+   * Retrieves the date-time pref as a raw {@code byte}.
+   * 
+   * @return the date-time pref as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("DTPref")
+  byte getDateTimePreferenceRaw();
 
   @StructureSetter("DTPref")
   ViewColumnFormat3 setDateTimePreference(NumberPref pref);
+
+  /**
+   * Sets the date-time pref as a raw {@code byte}.
+   * 
+   * @param pref the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("DTPref")
+  ViewColumnFormat3 setDateTimePreferenceRaw(byte pref);
 
   @StructureGetter("DTFlags")
   int getDateTimeFlagsRaw();
@@ -96,28 +115,104 @@ public interface ViewColumnFormat3 extends ResizableMemoryStructure {
   ViewColumnFormat3 setDateTimeFlags2(Collection<DateTimeFlag2> flags);
 
   @StructureGetter("DTDOWFmt")
-  WeekFormat getDayOfWeekFormat();
+  Optional<WeekFormat> getDayOfWeekFormat();
+
+  /**
+   * Retrieves the day-of-week format as a raw {@code byte}.
+   * 
+   * @return the day-of-week format as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("DTDOWFmt")
+  byte getDayOfWeekFormatRaw();
 
   @StructureSetter("DTDOWFmt")
   ViewColumnFormat3 setDayOfWeekFormat(WeekFormat format);
 
+  /**
+   * Sets the day-of-week format as a raw {@code byte}.
+   * 
+   * @param format the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("DTDOWFmt")
+  ViewColumnFormat3 setDayOfWeekFormatRaw(byte format);
+
   @StructureGetter("DTYearFmt")
-  YearFormat getYearFormat();
+  Optional<YearFormat> getYearFormat();
+
+  /**
+   * Retrieves the year format as a raw {@code byte}.
+   * 
+   * @return the year format as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("DTYearFmt")
+  byte getYearFormatRaw();
 
   @StructureSetter("DTYearFmt")
   ViewColumnFormat3 setYearFormat(YearFormat format);
 
+  /**
+   * Sets the year format as a raw {@code byte}.
+   * 
+   * @param format the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("DTYearFmt")
+  ViewColumnFormat3 setYearFormatRaw(byte format);
+
   @StructureGetter("DTMonthFmt")
-  MonthFormat getMonthFormat();
+  Optional<MonthFormat> getMonthFormat();
+
+  /**
+   * Retrieves the month format as a raw {@code byte}.
+   * 
+   * @return the month format as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("DTMonthFmt")
+  byte getMonthFormatRaw();
 
   @StructureSetter("DTMonthFmt")
   ViewColumnFormat3 setMonthFormat(MonthFormat format);
 
+  /**
+   * Sets the month format as a raw {@code byte}.
+   * 
+   * @param format the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("DTMonthFmt")
+  ViewColumnFormat3 setMonthFormatRaw(byte format);
+
   @StructureGetter("DTDayFmt")
-  DayFormat getDayFormat();
+  Optional<DayFormat> getDayFormat();
+
+  /**
+   * Retrieves the day format as a raw {@code byte}.
+   * 
+   * @return the day format as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("DTDayFmt")
+  byte getDayFormatRaw();
 
   @StructureSetter("DTDayFmt")
   ViewColumnFormat3 setDayFormat(DayFormat format);
+
+  /**
+   * Sets the day format as a raw {@code byte}.
+   * 
+   * @param format the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("DTDayFmt")
+  ViewColumnFormat3 setDayFormatRaw(byte format);
   
   @StructureGetter("DTDsep1Len")
   short getDateSeparator1Length();
@@ -144,10 +239,29 @@ public interface ViewColumnFormat3 extends ResizableMemoryStructure {
   ViewColumnFormat3 setTimeSeparatorLength(short len);
 
   @StructureGetter("DTDShow")
-  DateShowFormat getDateShowFormat();
+  Optional<DateShowFormat> getDateShowFormat();
+
+  /**
+   * Retrieves the date-show format as a raw {@code byte}.
+   * 
+   * @return the date-show format as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("DTDShow")
+  byte getDateShowFormatRaw();
 
   @StructureSetter("DTDShow")
   ViewColumnFormat3 setDateShowFormat(DateShowFormat format);
+
+  /**
+   * Sets the date-show format as a raw {@code byte}.
+   * 
+   * @param format the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("DTDShow")
+  ViewColumnFormat3 setDateShowFormatRaw(byte format);
 
   @StructureGetter("DTDSpecial")
   Set<DateShowSpecial> getDateShowSpecial();
@@ -190,10 +304,29 @@ public interface ViewColumnFormat3 extends ResizableMemoryStructure {
   }
 
   @StructureGetter("DTTZone")
-  TimeZoneFormat getTimeZoneFormat();
+  Optional<TimeZoneFormat> getTimeZoneFormat();
+  
+  /**
+   * Retrieves the time-zone format as a raw {@code byte}.
+   * 
+   * @return the time-zone format as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("DTTZone")
+  byte getTimeZoneFormatRaw();
 
   @StructureSetter("DTTZone")
   ViewColumnFormat3 setTimeZoneFormat(TimeZoneFormat format);
+
+  /**
+   * Sets the time-zone format as a raw {@code byte}.
+   * 
+   * @param format the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("DTTZone")
+  ViewColumnFormat3 setTimeZoneFormatRaw(byte format);
   
   default Set<DateTimeFlag> getDateTimeFlags() {
     int bitfield = getDateTimeFlagsRaw();

@@ -115,7 +115,7 @@ public abstract class AbstractDesignAgentImpl<T extends DesignAgent> extends Abs
   @Override
   public AgentInterval getIntervalType() {
     return this.getAssistInfo()
-      .map(AssistStruct::getIntervalType)
+      .flatMap(AssistStruct::getIntervalType)
       .orElseGet(() -> {
         // Check for agent data
         if(getTrigger() == AgentTrigger.SCHEDULED) {
@@ -238,7 +238,7 @@ public abstract class AbstractDesignAgentImpl<T extends DesignAgent> extends Abs
   @Override
   public AgentTrigger getTrigger() {
     return this.getAssistInfo()
-      .map(AssistStruct::getTrigger)
+      .flatMap(AssistStruct::getTrigger)
       .orElseGet(() -> {
         // Check for ancient data
         String typeVal = getDocument().get(NotesConstants.FILTER_TYPE_ITEM, String.class, "0"); //$NON-NLS-1$
@@ -457,7 +457,7 @@ public abstract class AbstractDesignAgentImpl<T extends DesignAgent> extends Abs
   @Override
   public AgentTarget getTarget() {
     return getAssistInfo()
-      .map(AssistStruct::getSearch)
+      .flatMap(AssistStruct::getSearch)
       .orElseGet(() -> {
         // Could be ancient data
         String scanVal = getDocument().get(NotesConstants.FILTER_SCAN_ITEM, String.class, ""); //$NON-NLS-1$

@@ -17,6 +17,7 @@
 package com.hcl.domino.richtext.records;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.misc.INumberEnum;
@@ -214,10 +215,29 @@ public interface CDEmbeddedOutline extends RichTextRecord<WSIG> {
   CDEmbeddedOutline setLabelLength(int len);
   
   @StructureGetter("Style")
-  Style getStyle();
+  Optional<Style> getStyle();
+  
+  /**
+   * Retrieves the style as a raw {@code short}.
+   * 
+   * @return the style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("Style")
+  short getStyleRaw();
   
   @StructureSetter("Style")
   CDEmbeddedOutline setStyle(Style style);
+  
+  /**
+   * Sets the style as a raw {@code short}.
+   * 
+   * @param style the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Style")
+  CDEmbeddedOutline setStyleRaw(short style);
   
   @StructureGetter("Title_VOffset")
   int getTitleVerticalOffset();
@@ -320,15 +340,53 @@ public interface CDEmbeddedOutline extends RichTextRecord<WSIG> {
 
   @StructureGetter("Repeat")
   Repeat[] getBackgroundRepeatModes();
+
+  /**
+   * Retrieves the background repeat modes an array of {@code short}.
+   * 
+   * @return the background repeat modes as an array of {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("Repeat")
+  short[] getBackgroundRepeatModesRaw();
   
   @StructureSetter("Repeat")
   CDEmbeddedOutline setBackgroundRepeatModes(Repeat[] repeats);
+  
+  /**
+   * Sets the background repeat modes as an array of {@code short}.
+   * 
+   * @param repeats the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Repeat")
+  CDEmbeddedOutline setBackgroundRepeatModesRaw(short[] repeats);
 
   @StructureGetter("Background_Align")
   Alignment[] getBackgroundAlignments();
+
+  /**
+   * Retrieves the background alignments an array of {@code short}.
+   * 
+   * @return the background alignments as an array of {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("Background_Align")
+  short[] getBackgroundAlignmentsRaw();
   
   @StructureSetter("Background_Align")
   CDEmbeddedOutline setBackgroundAlignments(Alignment[] alignments);
+  
+  /**
+   * Sets the background alignments an array of {@code short}.
+   * 
+   * @param alignments the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Background_Align")
+  CDEmbeddedOutline setBackgroundAlignmentsRaw(short[] alignments);
   
   @StructureGetter("Background_VOffset")
   int[] getBackgroundVerticalOffsets();

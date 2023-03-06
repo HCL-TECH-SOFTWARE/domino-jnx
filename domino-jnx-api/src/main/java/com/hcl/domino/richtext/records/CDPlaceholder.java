@@ -122,8 +122,27 @@ public interface CDPlaceholder extends RichTextRecord<WSIG> {
   @StructureGetter("Type")
   Optional<HotspotType> getPlaceholderType();
   
+  /**
+   * Retrieves the placeholder type as a raw {@code short}.
+   * 
+   * @return the placeholder type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("Type")
+  short getPlaceholderTypeRaw();
+  
   @StructureSetter("Type")
   CDPlaceholder setPlaceholderType(HotspotType type);
+  
+  /**
+   * Sets the placeholder type as a raw {@code short}.
+   * 
+   * @param type the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Type")
+  CDPlaceholder setPlaceholderTypeRaw(short type);
   
   @StructureGetter("Flags")
   Set<Flag> getFlags();
@@ -159,10 +178,29 @@ public interface CDPlaceholder extends RichTextRecord<WSIG> {
   CDPlaceholder setSpaceBetween(int space);
   
   @StructureGetter("TextAlignment")
-  Alignment getAlignment();
+  Optional<Alignment> getAlignment();
+  
+  /**
+   * Retrieves the alignment as a raw {@code short}.
+   * 
+   * @return the alignment as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("TextAlignment")
+  short getAlignmentRaw();
   
   @StructureSetter("TextAlignment")
   CDPlaceholder setAlignment(Alignment alignment);
+  
+  /**
+   * Sets the alignment as a raw {@code short}.
+   * 
+   * @param alignment the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("TextAlignment")
+  CDPlaceholder setAlignmentRaw(short alignment);
   
   @StructureGetter("SubFontID1")
   FontStyle getSubFontID1();

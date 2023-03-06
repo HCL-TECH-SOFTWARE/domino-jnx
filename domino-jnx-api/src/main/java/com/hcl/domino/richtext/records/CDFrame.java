@@ -201,10 +201,29 @@ public interface CDFrame extends RichTextRecord<WSIG> {
   CDFrame setNoResize(byte noResize);
   
   @StructureGetter("ScrollBarStyle")
-  FrameScrollStyle getScrollBarStyle();
+  Optional<FrameScrollStyle> getScrollBarStyle();
+  
+  /**
+   * Retrieves the scroll-bar style as a raw {@code short}.
+   * 
+   * @return the scroll-bar style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("ScrollBarStyle")
+  short getScrollBarStyleRaw();
   
   @StructureSetter("ScrollBarStyle")
   CDFrame setScrollBarStyle(FrameScrollStyle style);
+  
+  /**
+   * Sets the scroll-bar style as a raw {@code short}.
+   * 
+   * @param style the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("ScrollBarStyle")
+  CDFrame setScrollBarStyleRaw(short style);
   
   @StructureGetter("MarginWidth")
   int getMarginWidth();

@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.richtext.structures;
 
+import java.util.Optional;
 import com.hcl.domino.design.frameset.FrameSizingType;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
@@ -35,10 +36,29 @@ import com.hcl.domino.richtext.annotation.StructureSetter;
 )
 public interface FramesetLength extends MemoryStructure {
   @StructureGetter("Type")
-  FrameSizingType getType();
+  Optional<FrameSizingType> getType();
+  
+  /**
+   * Retrieves the type value as a raw {@code short}.
+   * 
+   * @return the type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("Type")
+  short getTypeRaw();
   
   @StructureSetter("Type")
   FramesetLength setType(FrameSizingType type);
+  
+  /**
+   * Sets the type value as a raw {@code short}.
+   * 
+   * @param type the type to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Type")
+  FramesetLength setTypeRaw(short type);
   
   @StructureGetter("Value")
   int getValue();

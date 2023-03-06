@@ -152,14 +152,52 @@ public interface ActiveObject extends ResizableMemoryStructure {
   @StructureGetter("Version")
   Optional<Version> getVersion();
   
+  /**
+   * Retrieves the version as a raw {@code short}.
+   * 
+   * @return the version as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("Version")
+  short getVersionRaw();
+  
   @StructureSetter("Version")
   ActiveObject setVersion(Version version);
+  
+  /**
+   * Sets the version as a raw {@code short}.
+   * 
+   * @param version the version as a {@code short}
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Version")
+  ActiveObject setVersionRaw(short version);
   
   @StructureGetter("ObjectType")
   Optional<Type> getObjectType();
   
+  /**
+   * Retrieves the object type as a raw {@code short}.
+   * 
+   * @return the object type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("ObjectType")
+  short getObjectTypeRaw();
+  
   @StructureSetter("ObjectType")
   ActiveObject setObjectType(Type type);
+  
+  /**
+   * Sets the object type as a raw {@code short}.
+   * 
+   * @param type the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("ObjectType")
+  ActiveObject setObjectTypeRaw(short type);
   
   @StructureGetter("Flags")
   Set<Flag> getFlags();
@@ -170,14 +208,52 @@ public interface ActiveObject extends ResizableMemoryStructure {
   @StructureGetter("WidthUnitType")
   Optional<Unit> getWidthUnitType();
   
+  /**
+   * Retrieves the width unit as a raw {@code byte}.
+   * 
+   * @return the width unit as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("WidthUnitType")
+  byte getWidthUnitTypeRaw();
+  
   @StructureSetter("WidthUnitType")
   ActiveObject setWidthUnitType(Unit unit);
+  
+  /**
+   * Sets the width unit as a raw {@code byte}.
+   * 
+   * @param unit the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("WidthUnitType")
+  ActiveObject setWidthUnitTypeRaw(byte unit);
   
   @StructureGetter("HeightUnitType")
   Optional<Unit> getHeightUnitType();
   
+  /**
+   * Retrieves the height unit as a raw {@code byte}.
+   * 
+   * @return the height unity as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("HeightUnitType")
+  byte getHeightUnitTypeRaw();
+  
   @StructureSetter("HeightUnitType")
   ActiveObject setHeightUnitType(Unit unit);
+  
+  /**
+   * Sets the height unit as a raw {@code byte}.
+   * 
+   * @param unit the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("HeightUnitType")
+  ActiveObject setHeightUnitTypeRaw(byte unit);
   
   @StructureGetter("Width")
   long getWidth();

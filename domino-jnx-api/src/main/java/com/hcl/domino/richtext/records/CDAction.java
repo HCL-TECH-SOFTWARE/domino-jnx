@@ -18,6 +18,7 @@ package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.data.NativeItemCoder;
@@ -120,7 +121,16 @@ public interface CDAction extends RichTextRecord<LSIG> {
   }
 
   @StructureGetter("Type")
-  Type getActionType();
+  Optional<Type> getActionType();
+
+  /**
+   * Retrieves the action type as a raw {@code short}.
+   * 
+   * @return the action type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("Type")
+  short getActionTypeRaw();
 
   @StructureGetter("Flags")
   Set<Flag> getFlags();
@@ -153,6 +163,16 @@ public interface CDAction extends RichTextRecord<LSIG> {
    */
   @StructureSetter("Type")
   CDAction setActionType(Type type);
+
+  /**
+   * Sets the type as a raw {@code short}
+   *
+   * @param type the new type for the action
+   * @return this action
+   * @since 1.24.0
+   */
+  @StructureSetter("Type")
+  CDAction setActionTypeRaw(short type);
 
   @StructureSetter("Flags")
   CDAction setFlags(Collection<Flag> flags);
@@ -236,7 +256,7 @@ public interface CDAction extends RichTextRecord<LSIG> {
    *                                       {@link Type#RUN_FORMULA}
    */
   default String getActionFormula() {
-    if (this.getActionType() != Type.RUN_FORMULA) {
+    if (this.getActionType().orElse(null) != Type.RUN_FORMULA) {
       throw new UnsupportedOperationException("Unable to retrieve formula data for a non-formula action");
     }
     int titleLen = getTitleLength();
@@ -299,7 +319,7 @@ public interface CDAction extends RichTextRecord<LSIG> {
    *                                       {@link Type#RUN_SCRIPT}
    */
   default String getActionLotusScript() {
-    if (this.getActionType() != Type.RUN_SCRIPT) {
+    if (this.getActionType().orElse(null) != Type.RUN_SCRIPT) {
       throw new UnsupportedOperationException("Unable to retrieve script data for a non-LotusScript action");
     }
     int titleLen = getTitleLength();

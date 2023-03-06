@@ -17,6 +17,7 @@
 package com.hcl.domino.richtext.records;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.misc.INumberEnum;
@@ -139,7 +140,16 @@ public interface CDActionBar extends RichTextRecord<BSIG> {
   int getBackgroundColor();
 
   @StructureGetter("BorderStyle")
-  BorderStyle getBorderStyle();
+  Optional<BorderStyle> getBorderStyle();
+
+  /**
+   * Retrieves the border style as a raw {@code short}.
+   * 
+   * @return the border style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("BorderStyle")
+  short getBorderStyleRaw();
 
   @StructureGetter("BtnHeight")
   int getButtonHeight();
@@ -164,7 +174,16 @@ public interface CDActionBar extends RichTextRecord<BSIG> {
   int getLineColor();
 
   @StructureGetter("LineStyle")
-  LineStyle getLineStyle();
+  Optional<LineStyle> getLineStyle();
+
+  /**
+   * Retrieves the line style as a raw {@code short}.
+   * 
+   * @return the line style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("LineStyle")
+  short getLineStyleRaw();
 
   @StructureGetter("ShareID")
   int getShareId();
@@ -174,6 +193,16 @@ public interface CDActionBar extends RichTextRecord<BSIG> {
 
   @StructureSetter("BorderStyle")
   CDActionBar setBorderStyle(BorderStyle borderStyle);
+
+  /**
+   * Sets the border style as a raw {@code short}.
+   * 
+   * @param borderStyle the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("BorderStyle")
+  CDActionBar setBorderStyleRaw(short borderStyle);
 
   @StructureSetter("BtnHeight")
   CDActionBar setButtonHeight(int btnHeight);
@@ -192,6 +221,16 @@ public interface CDActionBar extends RichTextRecord<BSIG> {
 
   @StructureSetter("LineStyle")
   CDActionBar setLineStyle(LineStyle lineStyle);
+
+  /**
+   * Sets the line style as a raw {@code short}.
+   * 
+   * @param lineStyle the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("LineStyle")
+  CDActionBar setLineStyleRaw(short lineStyle);
 
   @StructureSetter("ShareID")
   CDActionBar setShareId(int shareId);

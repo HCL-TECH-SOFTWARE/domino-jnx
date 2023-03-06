@@ -18,10 +18,10 @@ package com.hcl.domino.design.format;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.hcl.domino.design.format.ViewColumnFormat.Flag;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.misc.StructureSupport;
@@ -132,10 +132,29 @@ public interface ViewColumnFormat6 extends ResizableMemoryStructure {
   ViewColumnFormat6 setSequenceNumber(int length);
 
   @StructureGetter("IfViewIsNarrowDo")
-  NarrowViewPosition getIfViewIsNarrowDo();
+  Optional<NarrowViewPosition> getIfViewIsNarrowDo();
+
+  /**
+   * Retrieves the if-narrow behavior as a raw {@code short}.
+   * 
+   * @return the if-narrow behavior as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("IfViewIsNarrowDo")
+  short getIfViewIsNarrowDoRaw();
 
   @StructureSetter("IfViewIsNarrowDo")
   ViewColumnFormat6 setIfViewIsNarrowDo(NarrowViewPosition ifDo);
+
+  /**
+   * Sets the if-narrow behavior as a raw {@code short}.
+   * 
+   * @param ifDo the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("IfViewIsNarrowDo")
+  ViewColumnFormat6 setIfViewIsNarrowDoRaw(short ifDo);
 
   @StructureGetter("wAttributesLength")
   int getAttributesLength();
@@ -156,10 +175,29 @@ public interface ViewColumnFormat6 extends ResizableMemoryStructure {
   ViewColumnFormat6 setLineNumber(int lineNo);
 
   @StructureGetter("TileViewer")
-  TileViewerPosition getTileViewer();
+  Optional<TileViewerPosition> getTileViewer();
+
+  /**
+   * Retrieves the tile-viewer behavior as a raw {@code short}.
+   * 
+   * @return the tile-viewer behavior as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("TileViewer")
+  short getTileViewerRaw();
 
   @StructureSetter("TileViewer")
   ViewColumnFormat6 setTileViewer(TileViewerPosition tileViewer);
+
+  /**
+   * Sets the tile-viewer behavior as a raw {@code short}.
+   * 
+   * @param tileViewer the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("TileViewer")
+  ViewColumnFormat6 setTileViewerRaw(short tileViewer);
 
   default String getAttributes() {
     return StructureSupport.extractStringValue(this,

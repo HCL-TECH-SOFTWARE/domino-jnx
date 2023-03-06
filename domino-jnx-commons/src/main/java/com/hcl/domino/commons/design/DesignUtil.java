@@ -61,6 +61,7 @@ import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.AboutDocument;
 import com.hcl.domino.design.CollectionDesignElement;
 import com.hcl.domino.design.CompositeApplication;
@@ -827,7 +828,7 @@ public enum DesignUtil {
           ByFieldTerm.TextRule textRule = ByFieldTerm.TextRule.CONTAINS;
           ByDateFieldTerm.DateRule dateRule = null;
           ByNumberFieldTerm.NumberRule numberRule = null;
-          switch(query.getOperator()) {
+          switch(query.getOperator().orElse(CDQueryByField.Operator.GREATER)) {
             case DOESNOTCONTAIN:
               textRule = ByFieldTerm.TextRule.DOES_NOT_CONTAIN;
               break;
@@ -878,7 +879,7 @@ public enum DesignUtil {
           String fieldName = query.getFieldName();
           String textValue = query.getValue();
           
-          switch(query.getDataType()) {
+          switch(query.getDataType().orElse(ItemDataType.TYPE_TEXT)) {
             case TYPE_NUMBER:
             case TYPE_NUMBER_RANGE: {
               switch(numberRule) {

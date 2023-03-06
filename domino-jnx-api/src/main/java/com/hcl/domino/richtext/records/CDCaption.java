@@ -17,7 +17,7 @@
 package com.hcl.domino.richtext.records;
 
 import java.nio.ByteBuffer;
-
+import java.util.Optional;
 import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -77,7 +77,16 @@ public interface CDCaption extends RichTextRecord<WSIG> {
   int getLength();
 
   @StructureGetter("Position")
-  Position getPosition();
+  Optional<Position> getPosition();
+
+  /**
+   * Retrieves the position as a raw {@code byte}.
+   * 
+   * @return the position as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("Position")
+  byte getPositionRaw();
 
   /**
    * Stores the text for this caption in the variable data portion of this record.
@@ -106,4 +115,14 @@ public interface CDCaption extends RichTextRecord<WSIG> {
 
   @StructureSetter("Position")
   CDCaption setPosition(Position position);
+
+  /**
+   * Sets the position as a raw {@code byte}.
+   * 
+   * @param position the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Position")
+  CDCaption setPositionRaw(byte position);
 }

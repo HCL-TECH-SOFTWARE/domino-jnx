@@ -20,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.design.ClassicThemeBehavior;
@@ -128,10 +129,29 @@ public interface CDFrameset extends RichTextRecord<WSIG> {
   ColorValue getFrameBorderColor();
   
   @StructureGetter("ThemeSetting")
-  ClassicThemeBehavior getThemeSetting();
+  Optional<ClassicThemeBehavior> getThemeSetting();
+  
+  /**
+   * Retrieves the theme setting as a raw {@code byte}.
+   * 
+   * @return the theme setting as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("ThemeSetting")
+  byte getThemeSettingRaw();
   
   @StructureSetter("ThemeSetting")
   CDFrameset setThemeSetting(ClassicThemeBehavior behavior);
+  
+  /**
+   * Sets the theme setting as a raw {@code byte}.
+   * 
+   * @param behavior the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("ThemeSetting")
+  CDFrameset setThemeSettingRaw(byte behavior);
   
   default List<FramesetLength> getLengths() {
     // C API doc says only one of these is != 0, but

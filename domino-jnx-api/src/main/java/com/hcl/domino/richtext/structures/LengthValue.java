@@ -17,6 +17,7 @@
 package com.hcl.domino.richtext.structures;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.design.format.LengthUnit;
@@ -65,7 +66,16 @@ public interface LengthValue extends MemoryStructure {
   double getLength();
 
   @StructureGetter("Units")
-  LengthUnit getUnit();
+  Optional<LengthUnit> getUnit();
+  
+  /**
+   * Retrieves the unit value as a raw {@code byte}.
+   * 
+   * @return the unit as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("Units")
+  byte getUnitRaw();
 
   @StructureSetter("Flags")
   LengthValue setFlags(Collection<Flag> flags);
@@ -75,4 +85,14 @@ public interface LengthValue extends MemoryStructure {
 
   @StructureSetter("Units")
   LengthValue setUnit(LengthUnit unit);
+  
+  /**
+   * Sets the type unit as a raw {@code byte}.
+   * 
+   * @param unit the unit to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Units")
+  LengthValue setUnitRaw(byte unit);
 }

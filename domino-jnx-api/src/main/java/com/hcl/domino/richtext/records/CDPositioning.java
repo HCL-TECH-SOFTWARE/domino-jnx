@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.util.Optional;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -68,7 +69,7 @@ public interface CDPositioning extends RichTextRecord<BSIG> {
   BSIG getHeader();
   
   @StructureGetter("Scheme")
-  Scheme getScheme();
+  Optional<Scheme> getScheme();
   
   @StructureSetter("Scheme")
   CDPositioning setScheme(Scheme scheme);

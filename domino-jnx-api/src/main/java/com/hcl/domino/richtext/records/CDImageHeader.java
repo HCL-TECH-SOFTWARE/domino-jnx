@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.richtext.records;
 
+import java.util.Optional;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -76,7 +77,16 @@ public interface CDImageHeader extends RichTextRecord<LSIG> {
   long getImageDataSize();
 
   @StructureGetter("ImageType")
-  ImageType getImageType();
+  Optional<ImageType> getImageType();
+
+  /**
+   * Retrieves the image type as a raw {@code short}.
+   * 
+   * @return the image type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("ImageType")
+  short getImageTypeRaw();
 
   @StructureGetter("Reserved")
   int getReserved();
@@ -98,6 +108,16 @@ public interface CDImageHeader extends RichTextRecord<LSIG> {
 
   @StructureSetter("ImageType")
   CDImageHeader setImageType(ImageType imageType);
+
+  /**
+   * Sets the image type as a raw {@code short}.
+   * 
+   * @param imageType the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("ImageType")
+  CDImageHeader setImageTypeRaw(short imageType);
 
   @StructureSetter("Reserved")
   CDImageHeader setReserved(int reserved);

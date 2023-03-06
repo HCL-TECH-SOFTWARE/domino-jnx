@@ -144,6 +144,16 @@ public interface CDOLEBegin extends RichTextRecord<WSIG> {
   @StructureSetter("Version")
   CDOLEBegin setVersion(Version version);
 
+  /**
+   * Sets the version as a raw {@code short}.
+   * 
+   * @param version the version to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Version")
+  CDOLEBegin setVersionRaw(short version);
+
   @StructureGetter("Flags")
   Set<Flag> getFlags();
 
@@ -153,8 +163,27 @@ public interface CDOLEBegin extends RichTextRecord<WSIG> {
   @StructureGetter("ClipFormat")
   Optional<ClipFormat> getClipFormat();
   
+  /**
+   * Retrieves the clip format as a raw {@code short}.
+   * 
+   * @return the clip format as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("ClipFormat")
+  short getClipFormatRaw();
+  
   @StructureSetter("ClipFormat")
   CDOLEBegin setClipFormat(ClipFormat format);
+
+  /**
+   * Sets the clip format as a raw {@code short}.
+   * 
+   * @param format the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("ClipFormat")
+  CDOLEBegin setClipFormatRaw(short format);
   
   @StructureGetter("AttachNameLength")
   int getAttachmentNameLength();

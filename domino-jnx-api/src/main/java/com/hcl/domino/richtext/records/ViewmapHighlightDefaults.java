@@ -64,6 +64,16 @@ public interface ViewmapHighlightDefaults extends MemoryStructure {
   @StructureSetter("HLOutlineColor")
   ViewmapHighlightDefaults setOutlineColor(StandardColors outlineColor);
 
+  /**
+   * Sets the outline color as a raw {@code int}.
+   * 
+   * @param outlineColor the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("HLOutlineColor")
+  ViewmapHighlightDefaults setOutlineColorRaw(int outlineColor);
+
   @StructureGetter("HLOutlineWidth")
   int getOutlineWidth();
 
@@ -71,10 +81,29 @@ public interface ViewmapHighlightDefaults extends MemoryStructure {
   ViewmapHighlightDefaults setOutlineWidth(int outlineWidth);
 
   @StructureGetter("HLOutlineStyle")
-  NavigatorLineStyle getOutlineStyle();
+  Optional<NavigatorLineStyle> getOutlineStyle();
+
+  /**
+   * Retrieves the outline style as a raw {@code short}.
+   * 
+   * @return the outline style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("HLOutlineStyle")
+  short getOutlineStyleRaw();
 
   @StructureSetter("HLOutlineStyle")
   ViewmapHighlightDefaults setOutlineStyle(NavigatorLineStyle outlineStyle);
+
+  /**
+   * Sets the outline style as a raw {@code short}.
+   * 
+   * @param outlineStyle the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("HLOutlineStyle")
+  ViewmapHighlightDefaults setOutlineStyleRaw(short outlineStyle);
 
   @StructureGetter("HLFillColor")
   int getFillColorRaw();
@@ -84,4 +113,14 @@ public interface ViewmapHighlightDefaults extends MemoryStructure {
 
   @StructureSetter("HLFillColor")
   ViewmapHighlightDefaults setFillColor(StandardColors fillColor);
+
+  /**
+   * Sets the fill color as a raw {@code int}.
+   * 
+   * @param fillColor the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("HLFillColor")
+  ViewmapHighlightDefaults setFillColorRaw(int fillColor);
 }

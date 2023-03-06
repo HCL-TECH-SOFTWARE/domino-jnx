@@ -81,6 +81,7 @@ import com.hcl.domino.util.JNXStringUtil;
  * @param <T> the {@link DesignElement} interface implemented by the class
  * @since 1.0.18
  */
+@SuppressWarnings("unchecked")
 public abstract class AbstractCollectionDesignElement<T extends CollectionDesignElement<?>> extends AbstractDesignElement<T>
     implements CollectionDesignElement<T>, IDefaultAutoFrameElement, IDefaultActionBarElement, IDefaultReadersRestrictedElement,
     IDefaultNamedDesignElement, IAdaptable {
@@ -123,14 +124,13 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     return (T) this;
   }
   
-  @SuppressWarnings("unchecked")
   @Override
-  public <T> T getAdapter(Class<T> clazz) {
+  public <AT> AT getAdapter(Class<AT> clazz) {
     if (DominoViewFormat.class.equals(clazz)) {
-      return (T) getViewFormat(false).orElse(null);
+      return (AT) getViewFormat(false).orElse(null);
     }
     else if (DominoCalendarFormat.class.equals(clazz)) {
-      return (T) getCalendarFormat(false).orElse(null);
+      return (AT) getCalendarFormat(false).orElse(null);
     }
 
     return null;
@@ -1161,7 +1161,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     @Override
     public ImageRepeatMode getBackgroundImageRepeatMode() {
       return getTableFormat4(false)
-        .map(ViewTableFormat4::getRepeatType)
+        .flatMap(ViewTableFormat4::getRepeatType)
         .orElse(ImageRepeatMode.ONCE);
     }
 
@@ -1347,7 +1347,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     @Override
     public ViewLineSpacing getLineSpacing() {
       return getTableFormat2(false)
-        .map(ViewTableFormat2::getSpacing)
+        .flatMap(ViewTableFormat2::getSpacing)
         .orElse(ViewLineSpacing.SINGLE_SPACE);
     }
 

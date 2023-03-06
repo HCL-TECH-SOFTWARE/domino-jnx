@@ -17,6 +17,7 @@
 package com.hcl.domino.richtext.records;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
@@ -89,7 +90,7 @@ public interface CDIgnore extends RichTextRecord<BSIG> {
   int getNotesVersionRaw();
   
   @StructureGetter("wNotesVersion")
-  NotesVersion getNotesVersion();
+  Optional<NotesVersion> getNotesVersion();
 
   @StructureGetter("dwFlags")
   int getFlagsRaw();

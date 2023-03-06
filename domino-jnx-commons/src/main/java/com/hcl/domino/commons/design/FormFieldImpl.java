@@ -48,7 +48,7 @@ public class FormFieldImpl implements FormField {
         .filter(s -> s instanceof CDField)
         .map(CDField.class::cast)
         .findFirst()
-        .map(CDField::getFieldType);
+        .flatMap(CDField::getFieldType);
   }
 
   @Override

@@ -132,6 +132,16 @@ public interface ViewmapDatasetRecord extends RichTextRecord<WSIG> {
   @StructureSetter("BGColor")
   ViewmapDatasetRecord setBackgroundColor(StandardColors color);
 
+  /**
+   * Sets the background color as a raw {@code int}.
+   * 
+   * @param color the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("BGColor")
+  ViewmapDatasetRecord setBackgroundColorRaw(int color);
+
   @StructureGetter("SeqNums")
   int[] getSeqNums();
   
@@ -148,10 +158,29 @@ public interface ViewmapDatasetRecord extends RichTextRecord<WSIG> {
   ViewmapDatasetRecord setNumPaletteEntries(int numPaletteEntries);
 
   @StructureGetter("ViewDesignType")
-  DesignType getViewDesignType();
+  Optional<DesignType> getViewDesignType();
+
+  /**
+   * Retrieves the view design type as a raw {@code short}.
+   * 
+   * @return the view design type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("ViewDesignType")
+  short getViewDesignTypeRaw();
 
   @StructureSetter("ViewDesignType")
   ViewmapDatasetRecord setViewDesignType(DesignType viewDesignType);
+
+  /**
+   * Sets the view design type as a raw {@code short}
+   * 
+   * @param viewDesignType the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("ViewDesignType")
+  ViewmapDatasetRecord setViewDesignTypeRaw(short viewDesignType);
 
   @StructureGetter("BGColorValue")
   ColorValue getBackgroundColorValue();

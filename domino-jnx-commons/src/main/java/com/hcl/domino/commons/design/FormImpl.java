@@ -582,7 +582,7 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
     @Override
     public AutoLaunchType getType() {
       return getAutoLaunchRecord()
-        .map(CDDocAutoLaunch::getObjectType)
+        .flatMap(CDDocAutoLaunch::getObjectType)
         .orElse(AutoLaunchType.NONE);
     }
 
@@ -590,7 +590,7 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
     public Optional<String> getOleType() {
       return getAutoLaunchRecord()
         .flatMap(rec -> {
-          if(rec.getObjectType() == AutoLaunchType.OLE_CLASS) {
+          if(rec.getObjectType().orElse(AutoLaunchType.NONE) == AutoLaunchType.OLE_CLASS) {
             return Optional.of(rec.getOleObjClass().toGuidString());
           } else {
             return Optional.empty();
@@ -751,7 +751,9 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
           .flatMap(DominoFramesetFormat::getFramesetRecord)
           .map(rec -> rec.getLengths().stream())
           .flatMap(Stream::findFirst)
-          .map(FramesetLength::getType);
+          .map(FramesetLength::getType)
+          .filter(Optional::isPresent)
+          .map(Optional::get);
       } else {
         return Optional.empty();
       }
@@ -777,7 +779,7 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
         return getRegionFrameset()
           .map(DominoFramesetFormat::getFrameRecords)
           .flatMap(Stream::findFirst)
-          .map(CDFrame::getScrollBarStyle);
+          .flatMap(CDFrame::getScrollBarStyle);
       } else {
         return Optional.empty();
       }

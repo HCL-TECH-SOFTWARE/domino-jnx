@@ -62,8 +62,27 @@ public interface ObjectDescriptor extends ResizableMemoryStructure {
   @StructureGetter("ObjectType")
   Optional<ObjectType> getObjectType();
   
+  /**
+   * Retrieves the object type as a raw {@code short}
+   * 
+   * @return the object type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("ObjectType")
+  short getObjectTypeRaw();
+  
   @StructureSetter("ObjectType")
   ObjectDescriptor setObjectType(ObjectType objectType);
+  
+  /**
+   * Sets the object type as a raw {@code short}
+   * 
+   * @param objectType the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("ObjectType")
+  ObjectDescriptor setObjectTypeRaw(short objectType);
   
   @StructureGetter("RRV")
   int getRRV();
