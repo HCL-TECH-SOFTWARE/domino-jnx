@@ -759,6 +759,13 @@ public class TestDbDesign extends AbstractDesignTest {
       },
       outline.getBackgroundRepeatModes()
     );
+    assertArrayEquals(
+      new short[] {
+        CDEmbeddedOutline.Repeat.SIZE_TO_FIT.getValue(), CDEmbeddedOutline.Repeat.ONCE.getValue(),
+        CDEmbeddedOutline.Repeat.SIZE_TO_FIT.getValue(), CDEmbeddedOutline.Repeat.HORIZONTAL.getValue()
+      },
+      outline.getBackgroundRepeatModesRaw()
+    );
     
     assertEquals("i am name", outline.getName());
     assertEquals("i am target", outline.getTargetFrame());

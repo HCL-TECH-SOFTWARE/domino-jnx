@@ -65,8 +65,27 @@ public interface CDFramesetHeader extends RichTextRecord<WSIG> {
   @StructureGetter("Version")
   Optional<Version> getVersion();
   
+  /**
+   * Retrieves the version as a raw {@code short}.
+   * 
+   * @return the value to set
+   * @since 1.24.0
+   */
+  @StructureGetter("Version")
+  short getVersionRaw();
+  
   @StructureSetter("Version")
   CDFramesetHeader setVersion(Version version);
+  
+  /**
+   * Sets the version as a raw {@code short}.
+   * 
+   * @param version the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Version")
+  CDFramesetHeader setVersionRaw(short version);
   
   @StructureGetter("RecCount")
   int getRecordCount();

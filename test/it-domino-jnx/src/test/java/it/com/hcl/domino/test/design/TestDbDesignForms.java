@@ -1681,119 +1681,119 @@ public class TestDbDesignForms extends AbstractDesignTest {
     }
     {
       CDEvent event = extract(field, 0, CDEvent.class);
-      assertEquals(EventId.ONBLUR, event.getEventType());
+      assertEquals(EventId.ONBLUR, event.getEventType().get());
       CDBlobPart blob = extract(field, 0, CDBlobPart.class);
       assertEquals("alert(\"I am web onBlur\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 1, CDEvent.class);
-      assertEquals(EventId.ONCHANGE, event.getEventType());
+      assertEquals(EventId.ONCHANGE, event.getEventType().get());
       CDBlobPart blob = extract(field, 1, CDBlobPart.class);
       assertEquals("alert(\"I am common onChange\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 2, CDEvent.class);
-      assertEquals(EventId.ONCLICK, event.getEventType());
+      assertEquals(EventId.ONCLICK, event.getEventType().get());
       CDBlobPart blob = extract(field, 2, CDBlobPart.class);
       assertEquals("alert(\"I am web onClick\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 3, CDEvent.class);
-      assertEquals(EventId.ONDBLCLICK, event.getEventType());
+      assertEquals(EventId.ONDBLCLICK, event.getEventType().get());
       CDBlobPart blob = extract(field, 3, CDBlobPart.class);
       assertEquals("alert(\"I am web onDblClick\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 4, CDEvent.class);
-      assertEquals(EventId.ONFOCUS, event.getEventType());
+      assertEquals(EventId.ONFOCUS, event.getEventType().get());
       CDBlobPart blob = extract(field, 4, CDBlobPart.class);
       assertEquals("alert(\"I am web onFocus\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 5, CDEvent.class);
-      assertEquals(EventId.ONKEYDOWN, event.getEventType());
+      assertEquals(EventId.ONKEYDOWN, event.getEventType().get());
       CDBlobPart blob = extract(field, 5, CDBlobPart.class);
       assertEquals("alert(\"I am web onKeyDown\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 6, CDEvent.class);
-      assertEquals(EventId.ONKEYPRESS, event.getEventType());
+      assertEquals(EventId.ONKEYPRESS, event.getEventType().get());
       CDBlobPart blob = extract(field, 6, CDBlobPart.class);
       assertEquals("alert(\"I am web onKeyPress\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 7, CDEvent.class);
-      assertEquals(EventId.ONKEYUP, event.getEventType());
+      assertEquals(EventId.ONKEYUP, event.getEventType().get());
       CDBlobPart blob = extract(field, 7, CDBlobPart.class);
       assertEquals("alert(\"I am web onKeyUp\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 8, CDEvent.class);
-      assertEquals(EventId.ONMOUSEDOWN, event.getEventType());
+      assertEquals(EventId.ONMOUSEDOWN, event.getEventType().get());
       CDBlobPart blob = extract(field, 8, CDBlobPart.class);
       assertEquals("alert(\"I am web onMouseDown\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 9, CDEvent.class);
-      assertEquals(EventId.ONMOUSEMOVE, event.getEventType());
+      assertEquals(EventId.ONMOUSEMOVE, event.getEventType().get());
       CDBlobPart blob = extract(field, 9, CDBlobPart.class);
       assertEquals("alert(\"I am web onMouseMove\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 10, CDEvent.class);
-      assertEquals(EventId.ONMOUSEOUT, event.getEventType());
+      assertEquals(EventId.ONMOUSEOUT, event.getEventType().get());
       CDBlobPart blob = extract(field, 10, CDBlobPart.class);
       assertEquals("alert(\"I am web onMouseOut\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 11, CDEvent.class);
-      assertEquals(EventId.ONMOUSEOVER, event.getEventType());
+      assertEquals(EventId.ONMOUSEOVER, event.getEventType().get());
       CDBlobPart blob = extract(field, 11, CDBlobPart.class);
       assertEquals("alert(\"I am web onMouseOver\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 12, CDEvent.class);
-      assertEquals(EventId.ONMOUSEUP, event.getEventType());
+      assertEquals(EventId.ONMOUSEUP, event.getEventType().get());
       CDBlobPart blob = extract(field, 12, CDBlobPart.class);
       assertEquals("alert(\"I am web onMouseUp\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 13, CDEvent.class);
-      assertEquals(EventId.ONSELECT, event.getEventType());
+      assertEquals(EventId.ONSELECT, event.getEventType().get());
       CDBlobPart blob = extract(field, 13, CDBlobPart.class);
       assertEquals("alert(\"I am web onSelect\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 14, CDEvent.class);
-      assertEquals(EventId.ONFOCUS, event.getEventType());
+      assertEquals(EventId.ONFOCUS, event.getEventType().get());
       CDBlobPart blob = extract(field, 14, CDBlobPart.class);
       assertEquals("alert(\"I am client onFocus\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEventEntry entry = extract(field, 0, CDEventEntry.class);
-      assertEquals(CDEventEntry.ActionType.LOTUS_SCRIPT, entry.getActionType());
+      assertEquals(CDEventEntry.ActionType.LOTUS_SCRIPT, entry.getActionType().get());
     }
     {
       CDEventEntry entry = extract(field, 1, CDEventEntry.class);
-      assertEquals(CDEventEntry.ActionType.JAVASCRIPT, entry.getActionType());
+      assertEquals(CDEventEntry.ActionType.JAVASCRIPT, entry.getActionType().get());
     }
     {
       CDEventEntry entry = extract(field, 2, CDEventEntry.class);
-      assertEquals(CDEventEntry.ActionType.LOTUS_SCRIPT, entry.getActionType());
+      assertEquals(CDEventEntry.ActionType.LOTUS_SCRIPT, entry.getActionType().get());
     }
     {
       CDEventEntry entry = extract(field, 3, CDEventEntry.class);
-      assertEquals(CDEventEntry.ActionType.JAVASCRIPT, entry.getActionType());
+      assertEquals(CDEventEntry.ActionType.JAVASCRIPT, entry.getActionType().get());
       assertEquals(EventId.ONBLUR, entry.getHtmlEventId().get());
     }
     {
       CDEventEntry entry = extract(field, 4, CDEventEntry.class);
       assertEquals(EventId.ONCHANGE, entry.getHtmlEventId().get());
-      assertEquals(CDEventEntry.ActionType.JAVASCRIPT, entry.getActionType());
+      assertEquals(CDEventEntry.ActionType.JAVASCRIPT, entry.getActionType().get());
     }
     {
       CDEventEntry entry = extract(field, 5, CDEventEntry.class);
-      assertEquals(CDEventEntry.ActionType.JAVASCRIPT, entry.getActionType());
+      assertEquals(CDEventEntry.ActionType.JAVASCRIPT, entry.getActionType().get());
       assertEquals(EventId.ONFOCUS, entry.getHtmlEventId().get());
     }
   }

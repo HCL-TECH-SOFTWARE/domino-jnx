@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
+import java.util.Optional;
 import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.StructureSupport;
@@ -103,7 +103,16 @@ public interface AssistFieldStruct extends ResizableMemoryStructure {
   }
 
   @StructureGetter("wOperator")
-  ActionByField getActionOperator();
+  Optional<ActionByField> getActionOperator();
+
+  /**
+   * Retrieves the action operator as a raw {@code short}.
+   * 
+   * @return the action operator as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("wOperator")
+  short getActionOperatorRaw();
 
   default String getFieldName() {
     return StructureSupport.extractStringValue(
@@ -120,7 +129,16 @@ public interface AssistFieldStruct extends ResizableMemoryStructure {
   short getOperatorRaw();
 
   @StructureGetter("wOperator")
-  QueryByField getQueryOperator();
+  Optional<QueryByField> getQueryOperator();
+
+  /**
+   * Gets the query operator as a raw {@code short}.
+   * 
+   * @return the query operator as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("wOperator")
+  short getQueryOperatorRaw();
 
   @StructureGetter("wTotalLen")
   int getTotalLength();
@@ -162,6 +180,16 @@ public interface AssistFieldStruct extends ResizableMemoryStructure {
   @StructureSetter("wOperator")
   AssistFieldStruct setActionOperator(ActionByField actionByField);
 
+  /**
+   * Sets the action operator as a raw {@code short}.
+   * 
+   * @param actionByField the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("wOperator")
+  AssistFieldStruct setActionOperatorRaw(short actionByField);
+
   default AssistFieldStruct setFieldName(final String name) {
     StructureSupport.writeStringValue(
       this,
@@ -184,6 +212,16 @@ public interface AssistFieldStruct extends ResizableMemoryStructure {
 
   @StructureSetter("wOperator")
   AssistFieldStruct setQueryOperator(QueryByField queryByField);
+
+  /**
+   * Sets the query operator as a raw {@code short}.
+   * 
+   * @param queryByField the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("wOperator")
+  AssistFieldStruct setQueryOperatorRaw(short queryByField);
 
   @StructureSetter("wTotalLen")
   AssistFieldStruct setTotalLength(int totalLength);

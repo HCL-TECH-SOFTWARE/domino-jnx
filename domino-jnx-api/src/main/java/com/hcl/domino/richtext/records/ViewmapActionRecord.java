@@ -101,6 +101,15 @@ public interface ViewmapActionRecord extends RichTextRecord<WSIG> {
   @StructureGetter("ClickAction")
   Optional<Action> getClickAction();
 
+  /**
+   * Retrieves the click action as a raw {@code short}.
+   * 
+   * @return the click action as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("ClickAction")
+  short getClickActionRaw();
+
   @StructureGetter("ActionStringLen")
   int getActionStringLen();
 
@@ -108,7 +117,16 @@ public interface ViewmapActionRecord extends RichTextRecord<WSIG> {
   int getHighlightOutlineWidth();
 
   @StructureGetter("HLOutlineStyle")
-  NavigatorLineStyle getHighlightOutlineStyle();
+  Optional<NavigatorLineStyle> getHighlightOutlineStyle();
+
+  /**
+   * Retrieves the highlight outline style as a raw {@code short}.
+   * 
+   * @return the highlight outline style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("HLOutlineStyle")
+  short getHighlightOutlineStyleRaw();
 
   @StructureGetter("LinkInfo")
   NOTELINK getLinkInfo();
@@ -117,7 +135,16 @@ public interface ViewmapActionRecord extends RichTextRecord<WSIG> {
   int getExtDataLen();
 
   @StructureGetter("ActionDataDesignType")
-  DesignType getActionDataDesignType();
+  Optional<DesignType> getActionDataDesignType();
+
+  /**
+   * Retrieves the action data type as a raw {@code short}.
+   * 
+   * @return the action data type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("ActionDataDesignType")
+  short getActionDataDesignTypeRaw();
 
   @StructureSetter("bHighlightTouch")
   ViewmapActionRecord setHighlightTouch(boolean highlightTouch);
@@ -140,6 +167,16 @@ public interface ViewmapActionRecord extends RichTextRecord<WSIG> {
   @StructureSetter("ClickAction")
   ViewmapActionRecord setClickAction(Action clickAction);
 
+  /**
+   * Sets the click action as a raw {@code short}.
+   * 
+   * @param clickAction the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("ClickAction")
+  ViewmapActionRecord setClickActionRaw(short clickAction);
+
   @StructureSetter("ActionStringLen")
   ViewmapActionRecord setActionStringLen(int actionStringLen);
 
@@ -149,11 +186,31 @@ public interface ViewmapActionRecord extends RichTextRecord<WSIG> {
   @StructureSetter("HLOutlineStyle")
   ViewmapActionRecord setHighlightOutlineStyle(NavigatorLineStyle hLOutlineStyle);
 
+  /**
+   * Sets the highlight outline style as a raw {@code short}.
+   * 
+   * @param hLOutlineStyle the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("HLOutlineStyle")
+  ViewmapActionRecord setHighlightOutlineStyleRaw(short hLOutlineStyle);
+
   @StructureSetter("ExtDataLen")
   ViewmapActionRecord setExtDataLen(int extDataLen);
 
   @StructureSetter("ActionDataDesignType")
   ViewmapActionRecord setActionDataDesignType(DesignType actionDataDesignType);
+
+  /**
+   * Sets the action data type as a raw {@code short}.
+   * 
+   * @param actionDataDesignType the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("ActionDataDesignType")
+  ViewmapActionRecord setActionDataDesignTypeRaw(short actionDataDesignType);
 
   /**
    * Retrieves the action string for this record. The meaning depends on the value

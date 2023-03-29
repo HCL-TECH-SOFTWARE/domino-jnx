@@ -229,8 +229,26 @@ public interface ViewCalendarFormat extends MemoryStructure {
   @StructureGetter("InitialFormat")
   Optional<CalendarLayout> getInitialFormat();
 
+  /**
+   * Retrieves the minor version as a raw {@code byte}.
+   * 
+   * @return the minor version as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("InitialFormat")
+  byte getInitialFormatRaw();
+
   @StructureGetter("MinorVersion")
-  MinorVersion getMinorVersion();
+  Optional<MinorVersion> getMinorVersion();
+  
+  /**
+   * Retrieves the minor version as a raw {@code byte}.
+   * 
+   * @return the minor version as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("MinorVersion")
+  byte getMinorVersionRaw();
 
   @StructureGetter("Formats")
   Set<CalendarLayout> getSupportedFormats();
@@ -258,7 +276,16 @@ public interface ViewCalendarFormat extends MemoryStructure {
   RawColorValue getToDoBackgroundColor();
 
   @StructureGetter("Version")
-  Version getVersion();
+  Optional<Version> getVersion();
+
+  /**
+   * Retrieves the version as a raw {@code byte}.
+   * 
+   * @return the version as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("Version")
+  byte getVersionRaw();
 
   @StructureGetter("WorkHoursColor")
   RawColorValue getWorkHoursColor();
@@ -296,8 +323,28 @@ public interface ViewCalendarFormat extends MemoryStructure {
   @StructureSetter("InitialFormat")
   ViewCalendarFormat setInitialFormat(CalendarLayout format);
 
+  /**
+   * Sets the calendar layout as a raw {@code byte}.
+   * 
+   * @param format the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("InitialFormat")
+  ViewCalendarFormat setInitialFormatRaw(byte format);
+
   @StructureSetter("MinorVersion")
   ViewCalendarFormat setMinorVersion(MinorVersion version);
+
+  /**
+   * Sets the minor version as a raw {@code byte}.
+   * 
+   * @param version the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("MinorVersion")
+  ViewCalendarFormat setMinorVersionRaw(byte version);
 
   @StructureSetter("Formats")
   ViewCalendarFormat setSupportedFormats(Collection<CalendarLayout> formats);
@@ -316,4 +363,14 @@ public interface ViewCalendarFormat extends MemoryStructure {
 
   @StructureSetter("Version")
   ViewCalendarFormat setVersion(Version version);
+
+  /**
+   * Sets the version as a raw {@code byte}.
+   * 
+   * @param version the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Version")
+  ViewCalendarFormat setVersionRaw(byte version);
 }

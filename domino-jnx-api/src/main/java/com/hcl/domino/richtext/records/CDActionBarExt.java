@@ -101,10 +101,29 @@ public interface CDActionBarExt extends RichTextRecord<WSIG> {
   ColorValue getButtonColor();
 
   @StructureGetter("BtnBorderDisplay")
-  ButtonBorderDisplay getBorderDisplay();
+  Optional<ButtonBorderDisplay> getBorderDisplay();
+
+  /**
+   * Retrieves the button border display as a {@code short}. 
+   * 
+   * @return the button border display as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("BtnBorderDisplay")
+  short getBorderDisplayRaw();
 
   @StructureSetter("BtnBorderDisplay")
   CDActionBarExt setBorderDisplay(ButtonBorderDisplay borderDisplay);
+
+  /**
+   * Sets the button border display as a raw {@code short}.
+   * 
+   * @param borderDisplay the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("BtnBorderDisplay")
+  CDActionBarExt setBorderDisplayRaw(short borderDisplay);
 
   @StructureGetter("wAppletHeight")
   int getAppletHeight();
@@ -125,16 +144,54 @@ public interface CDActionBarExt extends RichTextRecord<WSIG> {
   CDActionBarExt setBackgroundRepeat(ActionBarBackgroundRepeat repeat);
 
   @StructureGetter("BtnWidthStyle")
-  ActionWidthMode getWidthStyle();
+  Optional<ActionWidthMode> getWidthStyle();
+
+  /**
+   * Retrieves the button width style as a raw {@code byte}.
+   * 
+   * @return the button width style as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("BtnWidthStyle")
+  byte getWidthStyleRaw();
 
   @StructureSetter("BtnWidthStyle")
   CDActionBarExt setWidthStyle(ActionWidthMode widthStyle);
 
+  /**
+   * Sets the button width style as a raw {@code byte}.
+   * 
+   * @param widthStyle the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("BtnWidthStyle")
+  CDActionBarExt setWidthStyleRaw(byte widthStyle);
+
   @StructureGetter("BtnTextJustify")
-  ActionBarTextAlignment getTextJustify();
+  Optional<ActionBarTextAlignment> getTextJustify();
+
+  /**
+   * Retrieves the button text justification as a raw {@code byte}.
+   * 
+   * @return the button text justification as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("BtnTextJustify")
+  byte getTextJustifyRaw();
 
   @StructureSetter("BtnTextJustify")
   CDActionBarExt setTextJustify(ActionBarTextAlignment textJustify);
+
+  /**
+   * Sets the button text justification as a raw {@code byte}.
+   * 
+   * @param textJustify the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("BtnTextJustify")
+  CDActionBarExt setTextJustifyRaw(byte textJustify);
 
   @StructureGetter("wBtnWidthAbsolute")
   int getButtonWidth();
@@ -163,6 +220,25 @@ public interface CDActionBarExt extends RichTextRecord<WSIG> {
   @StructureGetter("wThemeSetting")
   Optional<ClassicThemeBehavior> getThemeSetting();
   
+  /**
+   * Retrieves the theme setting as a raw {@code byte}.
+   * 
+   * @return the theme setting as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("wThemeSetting")
+  byte getThemeSettingRaw();
+  
   @StructureSetter("wThemeSetting")
   CDActionBarExt setThemeSetting(ClassicThemeBehavior setting);
+
+  /**
+   * Sets the theme setting as a raw {@code byte}.
+   * 
+   * @param setting the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("wThemeSetting")
+  CDActionBarExt setThemeSettingRaw(byte setting);
 }

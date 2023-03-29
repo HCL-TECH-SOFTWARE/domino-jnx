@@ -36,6 +36,7 @@ import com.hcl.domino.design.format.ActionButtonHeightMode;
 import com.hcl.domino.design.format.ActionWidthMode;
 import com.hcl.domino.design.format.BorderStyle;
 import com.hcl.domino.design.format.ButtonBorderDisplay;
+import com.hcl.domino.design.format.LengthUnit;
 import com.hcl.domino.richtext.RichTextRecordList;
 import com.hcl.domino.richtext.records.CDAction;
 import com.hcl.domino.richtext.records.CDActionBar;
@@ -94,7 +95,7 @@ public class DefaultActionBar implements ActionBar {
   public ActionButtonHeightMode getHeightMode() {
     return getActionBarExtRecord()
       .map(ext -> {
-        switch(ext.getHeight().getUnit()) {
+        switch(ext.getHeight().getUnit().orElse(LengthUnit.UNKNOWN)) {
         case PIXELS:
           return ActionButtonHeightMode.FIXED;
         case EXS:
@@ -176,7 +177,7 @@ public class DefaultActionBar implements ActionBar {
   @Override
   public BorderStyle getBorderStyle() {
     return getBorderInfo()
-      .map(CDBorderInfo::getBorderStyle)
+      .flatMap(CDBorderInfo::getBorderStyle)
       .orElse(BorderStyle.SOLID);
   }
 
@@ -294,14 +295,14 @@ public class DefaultActionBar implements ActionBar {
   @Override
   public ButtonBorderDisplay getButtonBorderMode() {
     return getActionBarExtRecord()
-      .map(CDActionBarExt::getBorderDisplay)
+      .flatMap(CDActionBarExt::getBorderDisplay)
       .orElse(ButtonBorderDisplay.ALWAYS);
   }
 
   @Override
   public ActionBarTextAlignment getButtonTextAlignment() {
     return getActionBarExtRecord()
-      .map(CDActionBarExt::getTextJustify)
+      .flatMap(CDActionBarExt::getTextJustify)
       .orElse(ActionBarTextAlignment.LEFT);
   }
 

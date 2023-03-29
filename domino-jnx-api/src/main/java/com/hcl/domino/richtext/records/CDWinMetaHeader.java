@@ -78,6 +78,16 @@ public interface CDWinMetaHeader extends RichTextRecord<LSIG> {
   @StructureSetter("mm")
   CDWinMetaHeader setMappingMode(MappingMode mode);
   
+  /**
+   * Sets the mapping mode as a raw {@code short}.
+   * 
+   * @param mode the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("mm")
+  CDWinMetaHeader setMappingModeRaw(short mode);
+  
   @StructureGetter("xExt")
   short getXExtent();
   

@@ -87,10 +87,29 @@ public interface ViewmapPolygonRecordByte extends RichTextRecord<BSIG> {
   ViewmapPolygonRecordByte setFillBackgroundColor(StandardColors color);
   
   @StructureGetter("LineStyle")
-  NavigatorLineStyle getLineStyle();
+  Optional<NavigatorLineStyle> getLineStyle();
+  
+  /**
+   * Retrieves the line style as a raw {@code short}.
+   * 
+   * @return the line style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("LineStyle")
+  short getLineStyleRaw();
   
   @StructureSetter("LineStyle")
   ViewmapPolygonRecordByte setLineStyle(NavigatorLineStyle style);
+  
+  /**
+   * Sets the line style as a raw {@code short}.
+   * 
+   * @param style the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("LineStyle")
+  ViewmapPolygonRecordByte setLineStyleRaw(short style);
   
   @StructureGetter("LineWidth")
   int getLineWidth();
@@ -99,10 +118,29 @@ public interface ViewmapPolygonRecordByte extends RichTextRecord<BSIG> {
   ViewmapPolygonRecordByte setLineWidth(int width);
   
   @StructureGetter("FillStyle")
-  NavigatorFillStyle getFillStyle();
+  Optional<NavigatorFillStyle> getFillStyle();
+  
+  /**
+   * Retrieves the fill style as a raw {@code short}.
+   * 
+   * @return the fill style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("FillStyle")
+  short getFillStyleRaw();
   
   @StructureSetter("FillStyle")
   ViewmapPolygonRecordByte setFillStyle(NavigatorFillStyle style);
+
+  /**
+   * Sets the fill style as a raw {@code short}.
+   * 
+   * @param style the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("FillStyle")
+  ViewmapPolygonRecordByte setFillStyleRaw(short style);
   
   @StructureGetter("nPts")
   int getPointCount();

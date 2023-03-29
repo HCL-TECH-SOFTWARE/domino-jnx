@@ -39,7 +39,6 @@ import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.NOTELINK;
 import com.hcl.domino.richtext.structures.OpaqueTimeDate;
 import com.hcl.domino.richtext.structures.WSIG;
-import com.hcl.domino.util.JNXDumpUtil;
 import com.hcl.domino.util.JNXStringUtil;
 
 /**
@@ -324,16 +323,54 @@ public interface CDResource extends RichTextRecord<WSIG> {
   CDResource setFlags(Collection<Flag> flags);
   
   @StructureGetter("Type")
-  Type getResourceType();
+  Optional<Type> getResourceType();
+  
+  /**
+   * Retrieves the resource type as a raw {@code short}.
+   * 
+   * @return the resource type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("Type")
+  short getResourceTypeRaw();
 
   @StructureSetter("Type")
   CDResource setResourceType(Type type);
 
+  /**
+   * Sets the resource type as a raw {@code short}.
+   * 
+   * @param type the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Type")
+  CDResource setResourceTypeRaw(short type);
+
   @StructureGetter("ResourceClass")
   Optional<ResourceClass> getResourceClass();
 
+  /**
+   * Retrieves the resource class as a raw {@code short}.
+   * 
+   * @return the resource class as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("ResourceClass")
+  short getResourceClassRaw();
+
   @StructureSetter("ResourceClass")
   CDResource setResourceClass(ResourceClass resClass);
+
+  /**
+   * Sets the resource class as a raw {@code short}.
+   * 
+   * @param resClass the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("ResourceClass")
+  CDResource setResourceClassRaw(short resClass);
 
   @StructureGetter("Length1")
   int getLength1();
@@ -399,7 +436,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
    *         or an empty one if this is not a URL element
    */
   default Optional<String> getUrl() {
-    if (this.getResourceType() != Type.URL) {
+    if (this.getResourceType().orElse(null) != Type.URL) {
       return Optional.empty();
     }
     return Optional.of(
@@ -422,7 +459,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
    *         an empty one if this is not a note-link element
    */
   default Optional<String> getLinkAnchorName() {
-    if (this.getResourceType() != Type.NOTELINK) {
+    if (this.getResourceType().orElse(null) != Type.NOTELINK) {
       return Optional.empty();
     }
     int preLen = this.getServerHintLength() + this.getFileHintLength();
@@ -456,7 +493,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
    *         or an empty one if this is not a named element
    */
   default Optional<String> getNamedElement() {
-    if (this.getResourceType() != Type.NAMEDELEMENT) {
+    if (this.getResourceType().orElse(null) != Type.NAMEDELEMENT) {
       return Optional.empty();
     }
     if (this.getFlags().contains(Flag.FORMULA)) {
@@ -482,7 +519,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
    *         or an empty one if this is not a url
    */
   default Optional<String> getResourceUrl() {
-    if (this.getResourceType() != Type.URL) {
+    if (this.getResourceType().orElse(null) != Type.URL) {
       return Optional.empty();
     }
     if (this.getFlags().contains(Flag.FORMULA)) {
@@ -521,7 +558,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
       return Optional.empty();
     }
     int preLen = getServerHintLength() + getFileHintLength();
-    if(getResourceType() == Type.NAMEDELEMENT) {
+    if(getResourceType().orElse(null) == Type.NAMEDELEMENT) {
       // skip the replica ID
       preLen += 8;
     }
@@ -586,7 +623,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
    * @return replica id
    */
   default Optional<String> getNamedElementReplicaId() {
-    if (getResourceType() != Type.NAMEDELEMENT) {
+    if (getResourceType().orElse(null) != Type.NAMEDELEMENT) {
       return Optional.empty();
     }
     
@@ -665,7 +702,7 @@ public interface CDResource extends RichTextRecord<WSIG> {
   }
   
   default Optional<NOTELINK> getLink() {
-    if (getResourceType()!=Type.NOTELINK) {
+    if (getResourceType().orElse(null) != Type.NOTELINK) {
       return Optional.empty();
     }
     Set<Flag> flags = getFlags();

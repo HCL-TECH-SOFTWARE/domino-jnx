@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -96,17 +95,17 @@ public class TestDbDesignOutline extends AbstractDesignTest {
         .filter(val -> ((String)val.getTitle().get()).contains("Action Entry9"))
         .findAny();
 
-    CDResource resource = ((ArrayList<CDResource>)(outlineEntry.get()
+    CDResource resource = ((List<CDResource>)(outlineEntry.get()
         .getOnclickData().get())).get(0);
 
     assertEquals(Type.ACTION, 
-        resource.getResourceType());
+        resource.getResourceType().get());
     assertEquals(EnumSet.of(CDResource.Flag.FORMULA), 
         resource.getFlags());
     assertEquals("@Accessed", 
         resource.getNamedElementFormulas().get().get(0));
     assertEquals("1-17.gif", 
-        ((ArrayList<CDResource>)outlineEntry.get()
+        ((List<CDResource>)outlineEntry.get()
             .getImageData().get())
             .get(0).getNamedElement().get());
     assertEquals("Alias Entry9", ((String)outlineEntry.get()
@@ -119,13 +118,13 @@ public class TestDbDesignOutline extends AbstractDesignTest {
         .findAny();
 
     assertEquals(Type.NAMEDELEMENT, 
-        ((ArrayList<CDResource>)(outlineEntry.get().getOnclickData().get()))
-            .get(0).getResourceType());
+        ((List<CDResource>)(outlineEntry.get().getOnclickData().get()))
+            .get(0).getResourceType().get());
     assertEquals(ResourceClass.PAGE, 
-        ((ArrayList<CDResource>)(outlineEntry.get().getOnclickData().get()))
+        ((List<CDResource>)(outlineEntry.get().getOnclickData().get()))
             .get(0).getResourceClass().get());
     assertEquals("30-41.gif", 
-        ((ArrayList<CDResource>)outlineEntry.get().getImageData().get())
+        ((List<CDResource>)outlineEntry.get().getImageData().get())
             .get(0).getNamedElement().get());
     assertEquals("Alias Entry11", ((String)outlineEntry.get()
         .getAlias().get()).trim());
@@ -137,13 +136,13 @@ public class TestDbDesignOutline extends AbstractDesignTest {
         .findAny();
 
     assertEquals(Type.NAMEDELEMENT, 
-        ((ArrayList<CDResource>)(outlineEntry.get().getOnclickData().get()))
-            .get(0).getResourceType());
+        ((List<CDResource>)(outlineEntry.get().getOnclickData().get()))
+            .get(0).getResourceType().get());
     assertEquals(ResourceClass.FRAMESET, 
-        ((ArrayList<CDResource>)(outlineEntry.get().getOnclickData().get()))
+        ((List<CDResource>)(outlineEntry.get().getOnclickData().get()))
             .get(0).getResourceClass().get());
     assertEquals("all.gif", 
-        ((ArrayList<CDResource>)outlineEntry.get().getImageData().get())
+        ((List<CDResource>)outlineEntry.get().getImageData().get())
             .get(0).getNamedElement().get());
     assertEquals("target alias", ((String)outlineEntry.get()
         .getAlias().get()).trim());

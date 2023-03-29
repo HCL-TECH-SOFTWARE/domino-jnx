@@ -211,10 +211,29 @@ public interface CDPabDefinition extends RichTextRecord<WSIG> {
   CDPabDefinition setPabId(int id);
   
   @StructureGetter("JustifyMode")
-  Justify getJustifyMode();
+  Optional<Justify> getJustifyMode();
+  
+  /**
+   * Retrieves the justify mode as a raw {@code short}.
+   * 
+   * @return the justify mode as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("JustifyMode")
+  short getJustifyModeRaw();
   
   @StructureSetter("JustifyMode")
   CDPabDefinition setJustifyMode(Justify mode);
+  
+  /**
+   * Sets the justify mode as a raw {@code short}.
+   * 
+   * @param mode the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("JustifyMode")
+  CDPabDefinition setJustifyModeRaw(short mode);
   
   @StructureGetter("LineSpacing")
   int getLineSpacing();

@@ -17,6 +17,7 @@
 package com.hcl.domino.richtext.records;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.design.format.BorderStyle;
@@ -82,10 +83,29 @@ public interface CDBorderInfo extends RichTextRecord<WSIG> {
   WSIG getHeader();
   
   @StructureGetter("BorderStyle")
-  BorderStyle getBorderStyle();
+  Optional<BorderStyle> getBorderStyle();
+  
+  /**
+   * Retrieves the border style as a raw {@code short}.
+   * 
+   * @return the border style as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("BorderStyle")
+  short getBorderStyleRaw();
   
   @StructureSetter("BorderStyle")
   CDBorderInfo setBorderStyle(BorderStyle style);
+  
+  /**
+   * Sets the border style as a raw {@code short}.
+   * 
+   * @param style the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("BorderStyle")
+  CDBorderInfo setBorderStyleRaw(short style);
   
   @StructureGetter("BorderWidthTop")
   int getBorderWidthTop();

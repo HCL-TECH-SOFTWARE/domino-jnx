@@ -17,6 +17,7 @@
 package com.hcl.domino.richtext.records;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.misc.INumberEnum;
@@ -106,7 +107,16 @@ public interface CDGraphic extends RichTextRecord<LSIG> {
   short getResize();
 
   @StructureGetter("Version")
-  Version getVersion();
+  Optional<Version> getVersion();
+
+  /**
+   * Retrieves the version as a raw {@code byte}.
+   * 
+   * @return the version as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("Version")
+  byte getVersionRaw();
 
   @StructureSetter("bFlags")
   CDGraphic setFlags(Collection<Flag> flags);
@@ -116,4 +126,14 @@ public interface CDGraphic extends RichTextRecord<LSIG> {
 
   @StructureSetter("Version")
   CDGraphic setVersion(Version version);
+
+  /**
+   * Sets the version as a raw {@code byte}.
+   * 
+   * @param version the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Version")
+  CDGraphic setVersionRaw(short version);
 }

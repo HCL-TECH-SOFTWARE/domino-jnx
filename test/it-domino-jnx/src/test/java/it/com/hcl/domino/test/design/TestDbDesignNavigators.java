@@ -129,14 +129,14 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertFalse(shapes.getHighlight().isCurrent());
         assertEquals(StandardColors.Red, shapes.getHighlight().getOutlineColor().get());
         assertEquals(2, shapes.getHighlight().getOutlineWidth());
-        assertEquals(NavigatorLineStyle.SOLID, shapes.getHighlight().getOutlineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, shapes.getHighlight().getOutlineStyle().get());
         
         assertEquals(StandardColors.Black, shapes.getLineColor().get());
         assertEquals(StandardColors.Cyan, shapes.getFillForegroundColor().get());
         assertEquals(StandardColors.Cyan, shapes.getFillBackgroundColor().get());
-        assertEquals(NavigatorLineStyle.SOLID, shapes.getLineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, shapes.getLineStyle().get());
         assertEquals(1, shapes.getLineWidth());
-        assertEquals(NavigatorFillStyle.SOLID, shapes.getFillStyle());
+        assertEquals(NavigatorFillStyle.SOLID, shapes.getFillStyle().get());
       }
       {
         ViewmapLineDefaults lines = styles.getLines();
@@ -144,14 +144,14 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertFalse(lines.getHighlight().isCurrent());
         assertEquals(StandardColors.Red, lines.getHighlight().getOutlineColor().get());
         assertEquals(2, lines.getHighlight().getOutlineWidth());
-        assertEquals(NavigatorLineStyle.SOLID, lines.getHighlight().getOutlineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, lines.getHighlight().getOutlineStyle().get());
         
         assertEquals(StandardColors.Black, lines.getLineColor().get());
         assertEquals(StandardColors.Black, lines.getFillForegroundColor().get());
         assertEquals(StandardColors.Black, lines.getFillBackgroundColor().get());
-        assertEquals(NavigatorLineStyle.SOLID, lines.getLineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, lines.getLineStyle().get());
         assertEquals(1, lines.getLineWidth());
-        assertEquals(NavigatorFillStyle.TRANSPARENT, lines.getFillStyle());
+        assertEquals(NavigatorFillStyle.TRANSPARENT, lines.getFillStyle().get());
       }
       {
         ViewmapRegionDefaults regions = styles.getRegions();
@@ -159,7 +159,7 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertFalse(regions.getHighlight().isCurrent());
         assertEquals(StandardColors.Red, regions.getHighlight().getOutlineColor().get());
         assertEquals(2, regions.getHighlight().getOutlineWidth());
-        assertEquals(NavigatorLineStyle.SOLID, regions.getHighlight().getOutlineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, regions.getHighlight().getOutlineStyle().get());
       }
       {
         ViewmapButtonDefaults buttons = styles.getButtons();
@@ -167,14 +167,14 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertFalse(buttons.getHighlight().isCurrent());
         assertEquals(StandardColors.Red, buttons.getHighlight().getOutlineColor().get());
         assertEquals(2, buttons.getHighlight().getOutlineWidth());
-        assertEquals(NavigatorLineStyle.SOLID, buttons.getHighlight().getOutlineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, buttons.getHighlight().getOutlineStyle().get());
         
         assertEquals(StandardColors.Gray70, buttons.getLineColor().get());
         assertEquals(StandardColors.LightGray, buttons.getFillForegroundColor().get());
         assertEquals(StandardColors.LightGray, buttons.getFillBackgroundColor().get());
-        assertEquals(NavigatorLineStyle.SOLID, buttons.getLineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, buttons.getLineStyle().get());
         assertEquals(1, buttons.getLineWidth());
-        assertEquals(NavigatorFillStyle.SOLID, buttons.getFillStyle());
+        assertEquals(NavigatorFillStyle.SOLID, buttons.getFillStyle().get());
         
         assertEquals(StandardFonts.SWISS, buttons.getFontID().getStandardFont().get());
       }
@@ -184,7 +184,7 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertFalse(bitmaps.getHighlight().isCurrent());
         assertEquals(StandardColors.Red, bitmaps.getHighlight().getOutlineColor().get());
         assertEquals(2, bitmaps.getHighlight().getOutlineWidth());
-        assertEquals(NavigatorLineStyle.SOLID, bitmaps.getHighlight().getOutlineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, bitmaps.getHighlight().getOutlineStyle().get());
       }
       {
         ViewmapTextboxDefaults texts = styles.getTextBoxes();
@@ -192,20 +192,20 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertFalse(texts.getHighlight().isCurrent());
         assertEquals(StandardColors.Red, texts.getHighlight().getOutlineColor().get());
         assertEquals(2, texts.getHighlight().getOutlineWidth());
-        assertEquals(NavigatorLineStyle.SOLID, texts.getHighlight().getOutlineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, texts.getHighlight().getOutlineStyle().get());
         
         assertEquals(StandardColors.Black, texts.getLineColor().get());
         assertEquals(StandardColors.White, texts.getFillForegroundColor().get());
         assertEquals(StandardColors.White, texts.getFillBackgroundColor().get());
-        assertEquals(NavigatorLineStyle.NONE, texts.getLineStyle());
+        assertEquals(NavigatorLineStyle.NONE, texts.getLineStyle().get());
         assertEquals(1, texts.getLineWidth());
-        assertEquals(NavigatorFillStyle.TRANSPARENT, texts.getFillStyle());
+        assertEquals(NavigatorFillStyle.TRANSPARENT, texts.getFillStyle().get());
         
         assertEquals(StandardFonts.SWISS, texts.getFontID().getStandardFont().get());
       }
       
       assertEquals(0, data.getNumPaletteEntries());
-      assertEquals(DesignType.SHARED, data.getViewDesignType());
+      assertEquals(DesignType.SHARED, data.getViewDesignType().get());
       assertColorEquals(data.getBackgroundColorValue(), 255, 255, 255);
     }
     {
@@ -230,8 +230,8 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertEquals(StandardColors.RoyalPurple, rect.getLineColor().get());
         assertEquals(StandardColors.YellowGreen, rect.getFillForegroundColor().get());
         assertEquals(StandardColors.Cyan, rect.getFillBackgroundColor().get());
-        assertEquals(NavigatorLineStyle.SOLID, rect.getLineStyle());
-        assertEquals(NavigatorFillStyle.SOLID, rect.getFillStyle());
+        assertEquals(NavigatorLineStyle.SOLID, rect.getLineStyle().get());
+        assertEquals(NavigatorFillStyle.SOLID, rect.getFillStyle().get());
         
         assertEquals("NormalRect", rect.getName());
         assertEquals("I am a normal rectangle.", rect.getLabel());
@@ -240,9 +240,9 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         ViewmapActionRecord action = (ViewmapActionRecord)layout.get(2);
         assertEquals(StandardColors.DarkMagenta2, action.getHighlightOutlineColor().get());
         assertEquals(StandardColors.Heather, action.getHighlightFillColor().get());
-        assertEquals(NavigatorLineStyle.SOLID, action.getHighlightOutlineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, action.getHighlightOutlineStyle().get());
         assertEquals(ViewmapActionRecord.Action.NONE, action.getClickAction().get());
-        assertEquals(DesignType.SHARED, action.getActionDataDesignType());
+        assertEquals(DesignType.SHARED, action.getActionDataDesignType().get());
       }
       {
         ViewmapRectRecord button = (ViewmapRectRecord)layout.get(3);
@@ -258,9 +258,9 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertEquals(StandardColors.LightOlive, button.getLineColor().get());
         assertEquals(StandardColors.LightLavender, button.getFillForegroundColor().get());
         assertEquals(StandardColors.LightGray, button.getFillBackgroundColor().get());
-        assertEquals(NavigatorLineStyle.SOLID, button.getLineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, button.getLineStyle().get());
         assertEquals(3, button.getLineWidth());
-        assertEquals(NavigatorFillStyle.SOLID, button.getFillStyle());
+        assertEquals(NavigatorFillStyle.SOLID, button.getFillStyle().get());
         
         assertEquals("Button10", button.getName());
         assertEquals("I am a button.", button.getLabel());
@@ -270,10 +270,10 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         ViewmapActionRecord action = (ViewmapActionRecord)layout.get(4);
         assertEquals(StandardColors.Lemon, action.getHighlightOutlineColor().get());
         assertEquals(StandardColors.LilacMist, action.getHighlightFillColor().get());
-        assertEquals(NavigatorLineStyle.SOLID, action.getHighlightOutlineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, action.getHighlightOutlineStyle().get());
         assertEquals(8, action.getHighlightOutlineWidth());
         assertEquals(ViewmapActionRecord.Action.NONE, action.getClickAction().get());
-        assertEquals(DesignType.SHARED, action.getActionDataDesignType());
+        assertEquals(DesignType.SHARED, action.getActionDataDesignType().get());
       }
       {
         ViewmapTextRecord text = (ViewmapTextRecord)layout.get(5);
@@ -289,9 +289,9 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertEquals(StandardColors.Black, text.getLineColor().get());
         assertEquals(StandardColors.White, text.getFillForegroundColor().get());
         assertEquals(StandardColors.White, text.getFillBackgroundColor().get());
-        assertEquals(NavigatorLineStyle.NONE, text.getLineStyle());
+        assertEquals(NavigatorLineStyle.NONE, text.getLineStyle().get());
         assertEquals(1, text.getLineWidth());
-        assertEquals(NavigatorFillStyle.TRANSPARENT, text.getFillStyle());
+        assertEquals(NavigatorFillStyle.TRANSPARENT, text.getFillStyle().get());
         
         assertEquals("Text11", text.getName());
         assertEquals("I think I am a text box.", text.getLabel());
@@ -300,10 +300,10 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         ViewmapActionRecord action = (ViewmapActionRecord)layout.get(6);
         assertEquals(StandardColors.ManganeseBlue, action.getHighlightOutlineColor().get());
         assertFalse(action.getHighlightFillColor().isPresent());
-        assertEquals(NavigatorLineStyle.SOLID, action.getHighlightOutlineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, action.getHighlightOutlineStyle().get());
         assertEquals(2, action.getHighlightOutlineWidth());
         assertEquals(ViewmapActionRecord.Action.NONE, action.getClickAction().get());
-        assertEquals(DesignType.SHARED, action.getActionDataDesignType());
+        assertEquals(DesignType.SHARED, action.getActionDataDesignType().get());
       }
       {
         ViewmapRectRecord roundRect = (ViewmapRectRecord)layout.get(7);
@@ -319,9 +319,9 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertEquals(StandardColors.Black, roundRect.getLineColor().get());
         assertEquals(StandardColors.Cerulean, roundRect.getFillForegroundColor().get());
         assertEquals(StandardColors.Cyan, roundRect.getFillBackgroundColor().get());
-        assertEquals(NavigatorLineStyle.SOLID, roundRect.getLineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, roundRect.getLineStyle().get());
         assertEquals(1, roundRect.getLineWidth());
-        assertEquals(NavigatorFillStyle.SOLID, roundRect.getFillStyle());
+        assertEquals(NavigatorFillStyle.SOLID, roundRect.getFillStyle().get());
         
         assertEquals("RoundRect13", roundRect.getName());
         assertEquals("Round rects are everywhere", roundRect.getLabel());
@@ -340,9 +340,9 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertEquals(StandardColors.Black, ellipse.getLineColor().get());
         assertEquals(StandardColors.Cyan, ellipse.getFillForegroundColor().get());
         assertEquals(StandardColors.Cyan, ellipse.getFillBackgroundColor().get());
-        assertEquals(NavigatorLineStyle.SOLID, ellipse.getLineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, ellipse.getLineStyle().get());
         assertEquals(1, ellipse.getLineWidth());
-        assertEquals(NavigatorFillStyle.SOLID, ellipse.getFillStyle());
+        assertEquals(NavigatorFillStyle.SOLID, ellipse.getFillStyle().get());
         
         assertEquals("Ellipse13", ellipse.getName());
         assertEquals("I'm quite wide", ellipse.getLabel());
@@ -361,9 +361,9 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertEquals(StandardColors.Black, poly.getLineColor().get());
         assertEquals(StandardColors.DarkOrange, poly.getFillForegroundColor().get());
         assertEquals(StandardColors.Cyan, poly.getFillBackgroundColor().get());
-        assertEquals(NavigatorLineStyle.NONE, poly.getLineStyle());
+        assertEquals(NavigatorLineStyle.NONE, poly.getLineStyle().get());
         assertEquals(1, poly.getLineWidth());
-        assertEquals(NavigatorFillStyle.SOLID, poly.getFillStyle());
+        assertEquals(NavigatorFillStyle.SOLID, poly.getFillStyle().get());
         
         assertEquals("Polygon1", poly.getName());
         assertEquals("Weird poly", poly.getLabel());
@@ -382,7 +382,7 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertEquals(StandardFonts.SWISS, draw.getFontID().getStandardFont().get());
 
         assertEquals(StandardColors.Peach, line.getLineColor().get());
-        assertEquals(NavigatorLineStyle.SOLID, line.getLineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, line.getLineStyle().get());
         assertEquals(6, line.getLineWidth());
         
         assertEquals("Polyline1", line.getName());
@@ -402,9 +402,9 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertEquals(StandardFonts.SWISS, draw.getFontID().getStandardFont().get());
 
         assertEquals(StandardColors.Red, rect.getLineColor().get());
-        assertEquals(NavigatorLineStyle.SOLID, rect.getLineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, rect.getLineStyle().get());
         assertEquals(2, rect.getLineWidth());
-        assertEquals(NavigatorFillStyle.TRANSPARENT, rect.getFillStyle());
+        assertEquals(NavigatorFillStyle.TRANSPARENT, rect.getFillStyle().get());
         
         assertEquals("HotspotRectangle1", rect.getName());
         assertEquals("", rect.getLabel());
@@ -413,7 +413,7 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         ViewmapActionRecord action = (ViewmapActionRecord)layout.get(12);
         assertEquals(StandardColors.Red, action.getHighlightOutlineColor().get());
         assertEquals(StandardColors.Black, action.getHighlightFillColor().get());
-        assertEquals(NavigatorLineStyle.SOLID, action.getHighlightOutlineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, action.getHighlightOutlineStyle().get());
         assertEquals(ViewmapActionRecord.Action.RUNSCRIPT, action.getClickAction().get());
         assertTrue(action.getActionString().get().contains("I am a LotusScript rectangle"));
       }
@@ -429,9 +429,9 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         assertEquals(StandardFonts.SWISS, draw.getFontID().getStandardFont().get());
 
         assertEquals(StandardColors.Red, circle.getLineColor().get());
-        assertEquals(NavigatorLineStyle.SOLID, circle.getLineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, circle.getLineStyle().get());
         assertEquals(2, circle.getLineWidth());
-        assertEquals(NavigatorFillStyle.TRANSPARENT, circle.getFillStyle());
+        assertEquals(NavigatorFillStyle.TRANSPARENT, circle.getFillStyle().get());
         
         assertEquals("HotspotCircle1", circle.getName());
         assertEquals("", circle.getLabel());
@@ -440,7 +440,7 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         ViewmapActionRecord action = (ViewmapActionRecord)layout.get(14);
         assertEquals(StandardColors.Red, action.getHighlightOutlineColor().get());
         assertEquals(StandardColors.Black, action.getHighlightFillColor().get());
-        assertEquals(NavigatorLineStyle.SOLID, action.getHighlightOutlineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, action.getHighlightOutlineStyle().get());
         assertEquals(ViewmapActionRecord.Action.RUNFORMULA, action.getClickAction().get());
         assertTrue(action.getActionFormula().get().equals("@StatusBar(\"I am a formula circle.\")"));
       }
@@ -453,7 +453,7 @@ public class TestDbDesignNavigators extends AbstractDesignTest {
         ViewmapActionRecord action = (ViewmapActionRecord)layout.get(16);
         assertEquals(StandardColors.Red, action.getHighlightOutlineColor().get());
         assertEquals(StandardColors.Black, action.getHighlightFillColor().get());
-        assertEquals(NavigatorLineStyle.SOLID, action.getHighlightOutlineStyle());
+        assertEquals(NavigatorLineStyle.SOLID, action.getHighlightOutlineStyle().get());
         assertEquals(ViewmapActionRecord.Action.SWITCHVIEW, action.getClickAction().get());
         assertTrue(action.getActionString().get().equals("other alias"));
       }

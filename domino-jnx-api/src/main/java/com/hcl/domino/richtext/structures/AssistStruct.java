@@ -17,6 +17,7 @@
 package com.hcl.domino.richtext.structures;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.data.DominoDateTime;
@@ -87,10 +88,28 @@ public interface AssistStruct extends ResizableMemoryStructure {
   int getInterval();
 
   @StructureGetter("wIntervalType")
-  AgentInterval getIntervalType();
+  Optional<AgentInterval> getIntervalType();
+
+  /**
+   * Retrieves the interval type as a raw {@code short}.
+   * 
+   * @return the interval type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("wIntervalType")
+  short getIntervalTypeRaw();
 
   @StructureGetter("wSearchType")
-  AgentTarget getSearch();
+  Optional<AgentTarget> getSearch();
+
+  /**
+   * Retrieves the search type as a raw {@code short}.
+   * 
+   * @return the search type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("wSearchType")
+  short getSearchRaw();
 
   @StructureGetter("StartTime")
   DominoDateTime getStartDate();
@@ -102,7 +121,16 @@ public interface AssistStruct extends ResizableMemoryStructure {
   int getTime2();
 
   @StructureGetter("wTriggerType")
-  AgentTrigger getTrigger();
+  Optional<AgentTrigger> getTrigger();
+
+  /**
+   * Retrieves the trigger type as a raw {@code short}.
+   * 
+   * @return the trigger type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("wTriggerType")
+  short getTriggerRaw();
 
   @StructureGetter("wVersion")
   int getVersion();
@@ -119,8 +147,28 @@ public interface AssistStruct extends ResizableMemoryStructure {
   @StructureSetter("wIntervalType")
   AssistStruct setIntervalType(AgentInterval interval);
 
+  /**
+   * Sets the interval type as a raw {@code short}.
+   * 
+   * @param interval the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("wIntervalType")
+  AssistStruct setIntervalTypeRaw(short interval);
+
   @StructureSetter("wSearchType")
   AssistStruct setSearch(AgentTarget search);
+
+  /**
+   * Sets the search type as a raw {@code short}.
+   * 
+   * @param search the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("wSearchType")
+  AssistStruct setSearchRaw(short search);
 
   @StructureSetter("StartTime")
   AssistStruct setStartDate(DominoDateTime startDate);
@@ -133,6 +181,16 @@ public interface AssistStruct extends ResizableMemoryStructure {
 
   @StructureSetter("wTriggerType")
   AssistStruct setTrigger(AgentTrigger trigger);
+
+  /**
+   * Sets the trigger type as a raw {@code short}.
+   * 
+   * @param trigger the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("wTriggerType")
+  AssistStruct setTriggerRaw(short trigger);
 
   @StructureSetter("wVersion")
   AssistStruct setVersion(int version);

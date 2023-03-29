@@ -190,7 +190,7 @@ public class TestDbDesignV1Discuss extends AbstractDesignTest {
         .filter(f -> "Subject".equals(f.getName()))
         .findFirst()
         .get();
-      assertEquals(ItemDataType.TYPE_TEXT, field.getFieldType());
+      assertEquals(ItemDataType.TYPE_TEXT, field.getFieldType().get());
       assertEquals("Subject", field.getName());
       assertEquals("Required: a short description of the topic.", field.getDescription());
       assertEquals("@Trim(Subject)", field.getInputTranslationFormula());
@@ -204,7 +204,7 @@ public class TestDbDesignV1Discuss extends AbstractDesignTest {
         .filter(f -> "From".equals(f.getName()))
         .findFirst()
         .get();
-      assertEquals(ItemDataType.TYPE_USERID, field.getFieldType());
+      assertEquals(ItemDataType.TYPE_USERID, field.getFieldType().get());
       assertEquals("From", field.getName());
       assertTrue(field.getFlags().contains(CDFieldPre36.Flag.READWRITERS));
       assertTrue(field.getFlags().contains(CDFieldPre36.Flag.NAMES));
@@ -221,7 +221,7 @@ public class TestDbDesignV1Discuss extends AbstractDesignTest {
         .filter(f -> "Date".equals(f.getName()))
         .findFirst()
         .get();
-      assertEquals(ItemDataType.TYPE_TIME, field.getFieldType());
+      assertEquals(ItemDataType.TYPE_TIME, field.getFieldType().get());
       assertEquals("Date", field.getName());
       assertTrue(field.getFlags().contains(CDFieldPre36.Flag.COMPUTED));
       assertEquals("The date/time when the document was composed.", field.getDescription());
@@ -239,7 +239,7 @@ public class TestDbDesignV1Discuss extends AbstractDesignTest {
         .filter(f -> "Categories".equals(f.getName()))
         .findFirst()
         .get();
-      assertEquals(ItemDataType.TYPE_TEXT_LIST, field.getFieldType());
+      assertEquals(ItemDataType.TYPE_TEXT_LIST, field.getFieldType().get());
       assertEquals("Categories", field.getName());
       assertTrue(field.getFlags().contains(CDField.Flag.KEYWORDS));
       assertEquals("Enter a word or phrase that categorizes the topic.", field.getDescription());
@@ -254,7 +254,7 @@ public class TestDbDesignV1Discuss extends AbstractDesignTest {
         .filter(f -> "Body".equals(f.getName()))
         .findFirst()
         .get();
-      assertEquals(ItemDataType.TYPE_COMPOSITE, field.getFieldType());
+      assertEquals(ItemDataType.TYPE_COMPOSITE, field.getFieldType().get());
       assertEquals("Body", field.getName());
       assertEquals("Enter the text of your document.", field.getDescription());
       assertEquals("", field.getInputTranslationFormula());

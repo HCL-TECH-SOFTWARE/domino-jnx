@@ -148,14 +148,52 @@ public interface CDOLEObjectInfo extends RichTextRecord<WSIG> {
   @StructureGetter("StorageFormat")
   Optional<StorageFormat> getStorageFormat();
   
+  /**
+   * Retrieves the storage format as a raw {@code short}.
+   * 
+   * @return the storage format as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("StorageFormat")
+  short getStorageFormatRaw();
+  
   @StructureSetter("StorageFormat")
   CDOLEObjectInfo setStorageFormat(StorageFormat format);
+  
+  /**
+   * Sets the storage format as a raw {@code short}.
+   * 
+   * @param format the format to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("StorageFormat")
+  CDOLEObjectInfo setStorageFormatRaw(short format);
   
   @StructureGetter("DisplayFormat")
   Optional<DDEFormat> getDisplayFormat();
   
+  /**
+   * Retrieves the display format as a raw {@code short}.
+   * 
+   * @return the display format as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("DisplayFormat")
+  short getDisplayFormatRaw();
+  
   @StructureSetter("DisplayFormat")
   CDOLEObjectInfo setDisplayFormat(DDEFormat format);
+  
+  /**
+   * Sets the display format as a raw {@code short}.
+   * 
+   * @param format the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("DisplayFormat")
+  CDOLEObjectInfo setDisplayFormatRaw(short format);
   
   @StructureGetter("Flags")
   Set<Flag> getFlags();

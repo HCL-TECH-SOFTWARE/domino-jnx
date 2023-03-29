@@ -18,6 +18,7 @@ package com.hcl.domino.design.format;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -148,10 +149,28 @@ public interface ViewTableFormat2 extends MemoryStructure {
   short getLineCount();
 
   @StructureGetter("wSig")
-  FormatSignature getSignature();
+  Optional<FormatSignature> getSignature();
+
+  /**
+   * Retrieves the signature as a raw {@code short}.
+   * 
+   * @return the signature as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("wSig")
+  short getSignatureRaw();
 
   @StructureGetter("Spacing")
-  ViewLineSpacing getSpacing();
+  Optional<ViewLineSpacing> getSpacing();
+
+  /**
+   * Retrieves the spacing as a raw {@code byte}.
+   * 
+   * @return the spacing as a {@code byte}
+   * @since 1.24.0
+   */
+  @StructureGetter("Spacing")
+  byte getSpacingRaw();
 
   @StructureGetter("TitleFont")
   FontStyle getTitleFont();
@@ -213,8 +232,28 @@ public interface ViewTableFormat2 extends MemoryStructure {
   @StructureSetter("wSig")
   ViewTableFormat2 setSignature(FormatSignature sig);
 
+  /**
+   * Sets the signature as a raw {@code short}.
+   * 
+   * @param sig the signature to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("wSig")
+  ViewTableFormat2 setSignatureRaw(short sig);
+
   @StructureSetter("Spacing")
   ViewTableFormat2 setSpacing(ViewLineSpacing spacing);
+
+  /**
+   * Sets the spacing as a raw {@code byte}.
+   * 
+   * @param spacing the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("Spacing")
+  ViewTableFormat2 setSpacingRaw(byte spacing);
 
   @StructureSetter("V2BorderColor")
   ViewTableFormat2 setV2BorderColor(short color);

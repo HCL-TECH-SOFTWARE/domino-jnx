@@ -107,10 +107,29 @@ public interface CDEventEntry extends RichTextRecord<WSIG> {
   WSIG getHeader();
 
   @StructureGetter("wPlatform")
-  Platform getPlatform();
+  Optional<Platform> getPlatform();
+  
+  /**
+   * Retrieves the platform as a raw {@code short}.
+   * 
+   * @return the platform value as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("wPlatform")
+  short getPlatformRaw();
   
   @StructureSetter("wPlatform")
   CDEventEntry setPlatform(Platform platform);
+  
+  /**
+   * Sets the platform value as a raw {@code short}.
+   * 
+   * @param platform the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("wPlatform")
+  CDEventEntry setPlatformRaw(short platform);
   
   @StructureGetter("wEventId")
   short getEventId();
@@ -119,10 +138,29 @@ public interface CDEventEntry extends RichTextRecord<WSIG> {
   CDEventEntry setEventId(short eventId);
   
   @StructureGetter("wActionType")
-  ActionType getActionType();
+  Optional<ActionType> getActionType();
+  
+  /**
+   * Retrieves the action type as a raw {@code short}.
+   * 
+   * @return the action type value as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("wPlatform")
+  short getActionTypeRaw();
   
   @StructureSetter("wActionType")
   CDEventEntry setActionType(ActionType actionType);
+  
+  /**
+   * Sets the action type value as a raw {@code short}.
+   * 
+   * @param actionType the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("wActionType")
+  CDEventEntry setActionTypeRaw(short actionType);
   
   /**
    * Retrieves the HTML-type event for this action, if appropriate.

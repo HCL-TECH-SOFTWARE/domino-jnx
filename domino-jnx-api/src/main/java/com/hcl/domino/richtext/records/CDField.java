@@ -138,7 +138,16 @@ public interface CDField extends RichTextRecord<WSIG> {
   int getDescriptionLength();
 
   @StructureGetter("DataType")
-  ItemDataType getFieldType();
+  Optional<ItemDataType> getFieldType();
+
+  /**
+   * Retrieves the field type as a raw {@code short}.
+   * 
+   * @return the field type as a {@code short}
+   * @since 1.24.0
+   */
+  @StructureGetter("DataType")
+  short getFieldTypeRaw();
 
   @StructureGetter("Flags")
   Set<Flag> getFlags();
@@ -297,6 +306,16 @@ public interface CDField extends RichTextRecord<WSIG> {
 
   @StructureSetter("DataType")
   CDField setFieldType(ItemDataType fieldType);
+
+  /**
+   * Sets the field type as a raw {@code short}.
+   * 
+   * @param fieldType the value to set
+   * @return this structure
+   * @since 1.24.0
+   */
+  @StructureSetter("DataType")
+  CDField setFieldTypeRaw(short fieldType);
 
   @StructureSetter("Flags")
   CDField setFlags(Collection<Flag> flags);

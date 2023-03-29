@@ -99,11 +99,11 @@ public class TestDbDesignRichText extends AbstractDesignTest {
         .stream()
         .filter(CDAreaElement.class::isInstance)
         .map(CDAreaElement.class::cast)
-        .filter(val -> val.getShape() == CDAreaElement.Shape.CIRCLE)
+        .filter(val -> val.getShape().orElse(null) == CDAreaElement.Shape.CIRCLE)
         .findFirst()
         .get();
     
-    assertEquals(CDAreaElement.Shape.CIRCLE, circleArea.getShape());
+    assertEquals(CDAreaElement.Shape.CIRCLE, circleArea.getShape().get());
     assertEquals(0, circleArea.getTabIndex());
     
     //get circle data
@@ -124,11 +124,11 @@ public class TestDbDesignRichText extends AbstractDesignTest {
         .stream()
         .filter(CDAreaElement.class::isInstance)
         .map(CDAreaElement.class::cast)
-        .filter(val -> val.getShape() == CDAreaElement.Shape.RECTANGLE)
+        .filter(val -> val.getShape().orElse(null) == CDAreaElement.Shape.RECTANGLE)
         .findFirst()
         .get();
     
-    assertEquals(CDAreaElement.Shape.RECTANGLE, rectArea.getShape());
+    assertEquals(CDAreaElement.Shape.RECTANGLE, rectArea.getShape().get());
     assertEquals(1, rectArea.getTabIndex());
     
     //get rectangle data
@@ -149,11 +149,11 @@ public class TestDbDesignRichText extends AbstractDesignTest {
         .stream()
         .filter(CDAreaElement.class::isInstance)
         .map(CDAreaElement.class::cast)
-        .filter(val -> val.getShape() == CDAreaElement.Shape.POLYGON)
+        .filter(val -> val.getShape().orElse(null) == CDAreaElement.Shape.POLYGON)
         .findFirst()
         .get();
     
-    assertEquals(CDAreaElement.Shape.POLYGON, polygonArea.getShape());
+    assertEquals(CDAreaElement.Shape.POLYGON, polygonArea.getShape().get());
     assertEquals(2, polygonArea.getTabIndex());
     
     //get polygon data
@@ -176,11 +176,11 @@ public class TestDbDesignRichText extends AbstractDesignTest {
         .stream()
         .filter(CDAreaElement.class::isInstance)
         .map(CDAreaElement.class::cast)
-        .filter(val -> val.getShape() == CDAreaElement.Shape.DEFAULT)
+        .filter(val -> val.getShape().orElse(null) == CDAreaElement.Shape.DEFAULT)
         .findFirst()
         .get();
     
-    assertEquals(CDAreaElement.Shape.DEFAULT, defaultArea.getShape());
+    assertEquals(CDAreaElement.Shape.DEFAULT, defaultArea.getShape().get());
     assertEquals(3, defaultArea.getTabIndex());
   }
   
@@ -309,6 +309,6 @@ public class TestDbDesignRichText extends AbstractDesignTest {
         .findFirst()
         .get();
     
-    assertEquals(CDVerticalAlign.Alignment.BOTTOM, verticalAlign.getAlignment());
+    assertEquals(CDVerticalAlign.Alignment.BOTTOM, verticalAlign.getAlignment().get());
   }
 }
