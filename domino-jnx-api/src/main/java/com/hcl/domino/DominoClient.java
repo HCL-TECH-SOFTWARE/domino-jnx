@@ -31,7 +31,6 @@ import javax.naming.AuthenticationException;
 import javax.naming.AuthenticationNotSupportedException;
 import javax.naming.NameNotFoundException;
 
-import com.hcl.domino.admin.AdministrationProcess;
 import com.hcl.domino.admin.ServerAdmin;
 import com.hcl.domino.admin.idvault.IdVault;
 import com.hcl.domino.admin.replication.Replication;
@@ -583,21 +582,6 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    * @param filePath   path of the database relative to Domino's data directory
    */
   void deleteDatabase(String serverName, String filePath);
-
-  /**
-   * Creates a new AdministrationProcess object
-   *
-   * @param serverName The name of the server containing the Administration
-   *                   Requests database
-   *                   (ADMIN4.NSF). An empty string means the local computer. The
-   *                   server must contain a
-   *                   replica of the Certification Log. You must have access
-   *                   privileges to the Domino
-   *                   Directory on the server for Administration Process requests
-   *                   that use it
-   * @return The newly created Administration Process object
-   */
-  AdministrationProcess getAdministrationProcess(String serverName);
 
   /**
    * This function returns a {@link BuildVersionInfo} object which contains all
