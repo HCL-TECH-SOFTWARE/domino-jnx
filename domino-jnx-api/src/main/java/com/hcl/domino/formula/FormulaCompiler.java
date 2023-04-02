@@ -44,9 +44,11 @@ public interface FormulaCompiler {
    * 
    * @param selectionFormula selection formula
    * @param columnItemNamesAndFormulas map with programmatic column names as keys and their formula as values, will be processed in key order; if null, we simply compile the selection formula
+   * @param addConflict true to add special column for $Conflict at the end of the compiled formula (required for $Formula item of views)
+   * @param addRef true to add the special column $REF at the end of the compiled formula (required for $Formula item of views)
    * @return data of combined formula
    */
-  byte[] compile(String selectionFormula, LinkedHashMap<String,String> columnItemNamesAndFormulas);
+  byte[] compile(String selectionFormula, LinkedHashMap<String,String> columnItemNamesAndFormulas, boolean addConflict, boolean addRef);
 
   default String decompile(byte[] compiledFormula) {
     return decompile(compiledFormula, false);

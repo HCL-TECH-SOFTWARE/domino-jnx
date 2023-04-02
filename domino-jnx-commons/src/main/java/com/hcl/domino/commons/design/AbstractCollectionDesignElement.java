@@ -66,6 +66,7 @@ import com.hcl.domino.design.format.ViewTableFormat;
 import com.hcl.domino.design.format.ViewTableFormat2;
 import com.hcl.domino.design.format.ViewTableFormat3;
 import com.hcl.domino.design.format.ViewTableFormat4;
+import com.hcl.domino.design.format.ViewTableFormat.Flag;
 import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
@@ -892,7 +893,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
         }
         
         //remove old collations
-        doc.removeItem(DesignConstants.VIEW_COLLATION_ITEM); //$NON-NLS-1$
+        doc.removeItem(DesignConstants.VIEW_COLLATION_ITEM);
         int idx = 1;
         while (doc.hasItem(DesignConstants.VIEW_COLLATION_ITEM+Integer.toString(idx))) {
           doc.removeItem(DesignConstants.VIEW_COLLATION_ITEM+Integer.toString(idx));
@@ -924,7 +925,14 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
           if (StringUtil.isEmpty(selectionFormula)) {
             selectionFormula = "SELECT @All"; //$NON-NLS-1$
           }
-          byte[] formulaItemData = FormulaCompiler.get().compile(selectionFormula, columnItemNamesAndFormulas);
+          
+          //add additional columns for $Conflict and $REF if required for the collection
+          
+          //TODO find out why this is not working (Document has invalid structure)
+          boolean addConflict = false; //this.format.getFormat1().getFlags().contains(Flag.CONFLICT);
+          boolean isShowResponseHierarchy = false; // isShowResponseDocumentsInHierarchy();
+          
+          byte[] formulaItemData = FormulaCompiler.get().compile(selectionFormula, columnItemNamesAndFormulas, addConflict, isShowResponseHierarchy);
           ByteBuffer formulaItemDataBuf = ByteBuffer.allocate(formulaItemData.length + 2).order(ByteOrder.nativeOrder());
           formulaItemDataBuf.putShort(ItemDataType.TYPE_FORMULA.getValue());
           formulaItemDataBuf.put(formulaItemData);
@@ -1401,6 +1409,24 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
           setIndexDispositionOptions(newOptions);
         }
       }
+      return this;
+    }
+    
+    @Override
+    public boolean isShowConflicts() {
+      return getTableFormat1(false)
+          .map(ViewTableFormat::getFlags)
+          .map(flags -> flags.contains(ViewTableFormat.Flag.CONFLICT))
+          .orElse(false);
+    }
+
+    @Override
+    public DisplaySettings setShowConflicts(boolean b) {
+      getTableFormat1(true)
+      .ifPresent((fmt1) -> {
+        fmt1.setFlag(ViewTableFormat.Flag.CONFLICT, b);
+        setViewFormatDirty(true);
+      });
       return this;
     }
     

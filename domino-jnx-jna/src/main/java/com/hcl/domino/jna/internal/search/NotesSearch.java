@@ -556,7 +556,7 @@ public class NotesSearch {
 		DHANDLE.ByReference hFormula = DHANDLE.newInstanceByReference();
 		
 		if (!StringUtil.isEmpty(formula)) {
-			hFormula = ViewFormulaCompiler.compile(formula, columnFormulasFixedOrder);
+			hFormula = ViewFormulaCompiler.compile(formula, columnFormulasFixedOrder, false, false);
 		}
 
 		JNAIDTable tableWithHighOrderBit = null;

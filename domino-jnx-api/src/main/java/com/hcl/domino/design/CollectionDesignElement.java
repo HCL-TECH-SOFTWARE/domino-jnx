@@ -704,6 +704,10 @@ public interface CollectionDesignElement<T extends CollectionDesignElement<?>> e
     ColorValue getMarginColor();
     
     DisplaySettings setMarginColor(ColorValue color);
+
+    boolean isShowConflicts();
+    
+    DisplaySettings setShowConflicts(boolean b);
     
   }
   

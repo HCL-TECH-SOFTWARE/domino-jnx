@@ -47,9 +47,13 @@ public class ViewFormulaCompiler {
 	 * 
 	 * @param selectionFormula selection formula
 	 * @param columnItemNamesAndFormulas map with programmatic column names as keys and their formula as values, will be processed in key order; if null, we simply compile the selection formula
+   * @param addConflict true to add special column for $Conflict at the end of the compiled formula (required for $Formula item of views)
+   * @param addRef true to add the special column $REF at the end of the compiled formula (required for $Formula item of views)
 	 * @return handle to combined formula
 	 */
-	public static DHANDLE.ByReference compile(String selectionFormula, LinkedHashMap<String,String> columnItemNamesAndFormulas) {
+	public static DHANDLE.ByReference compile(String selectionFormula, LinkedHashMap<String,String> columnItemNamesAndFormulas,
+	    boolean addConflict, boolean addRef) {
+	  
 		Memory formulaName = null;
 		short formulaNameLength = 0;
 		Memory selectionFormulaMem = NotesStringUtils.toLMBCS(selectionFormula, false);
@@ -169,6 +173,29 @@ public class ViewFormulaCompiler {
 						NotesErrorUtils.checkResult(result);
 					}
 				}
+				
+				//add special columns required for view selection formulas
+        
+        if (addConflict) {
+          Memory columnItemNameMem = NotesStringUtils.toLMBCS("$CONFLICT", false); //$NON-NLS-1$
+          short columnItemNameLength = (short) (columnItemNameMem.size() & 0xffff);
+
+          result = LockUtil.lockHandle(rethViewFormula, (viewFormulaHandleByValue) -> {
+            return NotesCAPI.get().NSFFormulaSummaryItem(viewFormulaHandleByValue, columnItemNameMem, columnItemNameLength);
+          });
+          NotesErrorUtils.checkResult(result);
+        }
+        
+        if (addRef) {
+          Memory columnItemNameMem = NotesStringUtils.toLMBCS("$REF", false); //$NON-NLS-1$
+          short columnItemNameLength = (short) (columnItemNameMem.size() & 0xffff);
+
+          result = LockUtil.lockHandle(rethViewFormula, (viewFormulaHandleByValue) -> {
+            return NotesCAPI.get().NSFFormulaSummaryItem(viewFormulaHandleByValue, columnItemNameMem, columnItemNameLength);
+          });
+          NotesErrorUtils.checkResult(result);
+        }
+        
 				//all ok!
 				errorCompilingColumns = false;
 			}

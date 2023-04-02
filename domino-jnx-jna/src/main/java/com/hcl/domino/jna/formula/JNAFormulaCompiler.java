@@ -123,10 +123,10 @@ public class JNAFormulaCompiler implements FormulaCompiler {
 	}
 
 	@Override
-	public byte[] compile(String selectionFormula, LinkedHashMap<String,String> columnItemNamesAndFormulas) {
+	public byte[] compile(String selectionFormula, LinkedHashMap<String,String> columnItemNamesAndFormulas, boolean addConflict, boolean addRef) {
 	  DHANDLE.ByReference hFormula = null;
 	  try {
-	    hFormula = ViewFormulaCompiler.compile(selectionFormula, columnItemNamesAndFormulas);
+	    hFormula = ViewFormulaCompiler.compile(selectionFormula, columnItemNamesAndFormulas, addConflict, addRef);
 	    
 	    return LockUtil.lockHandle(hFormula, (hFormulaByVal) -> {
 	       IntByReference retSize = new IntByReference();
