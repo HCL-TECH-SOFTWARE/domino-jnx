@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.hcl.domino.commons.gc.APIObjectAllocations;
@@ -56,6 +57,7 @@ import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.views.NotesViewLookupResultData;
 import com.hcl.domino.misc.Loop;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.misc.Pair;
 import com.sun.jna.ptr.ShortByReference;
 
 public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSearchQueryAllocations> implements CollectionSearchQuery {
@@ -1432,10 +1434,19 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 					db.queryDQL(currDQLQuery).collectIds(0, Integer.MAX_VALUE, idTable);
 				}
 
-				List<String> ftQueries = expandedEntries.getFTQueries();
-				for (String currFTQuery : ftQueries) {
-					db.queryFTIndex(currFTQuery, 0, EnumSet.of(FTQuery.RETURN_IDTABLE), null, 0, 0).collectIds(0, Integer.MAX_VALUE, idTable);
-				}
+        List<Pair<String, Set<FTQuery>>> ftQueriesWithFlags = expandedEntries.getFTQueries();
+        
+        for (Pair<String,Set<FTQuery>> currFTQueryWithFlags : ftQueriesWithFlags) {
+          String currFTQuery = currFTQueryWithFlags.getValue1();
+          //ignore FT flags that do not make sense here
+          Set<FTQuery> currFTFlags = currFTQueryWithFlags.getValue2()
+              .stream()
+              .filter(FTQuery.allSearchContentFlags::contains)
+              .collect(Collectors.toSet());
+          currFTFlags.add(FTQuery.RETURN_IDTABLE);
+          
+          db.queryFTIndex(currFTQuery, 0, EnumSet.of(FTQuery.RETURN_IDTABLE), null, 0, 0).collectIds(0, Integer.MAX_VALUE, idTable);
+        }
 			}
 			else {
 				idTable.setInverted(false);
@@ -1534,18 +1545,27 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 					}
 				}
 				
-				List<String> ftQueries = selectedEntries.getFTQueries();
-				for (String currFTQuery : ftQueries) {
-					if (subtractMode) {
-						JNAIDTable tableOfFTResult = new JNAIDTable(getParentDominoClient());
-						db.queryFTIndex(currFTQuery, 0, EnumSet.of(FTQuery.RETURN_IDTABLE), null, 0, 0).collectIds(0, Integer.MAX_VALUE, tableOfFTResult);
-						idTable.removeAll(tableOfFTResult);
-						tableOfFTResult.dispose();
-					}
-					else {
-						db.queryFTIndex(currFTQuery, 0, EnumSet.of(FTQuery.RETURN_IDTABLE), null, 0, 0).collectIds(0, Integer.MAX_VALUE, idTable);
-					}
-				}
+        List<Pair<String,Set<FTQuery>>> ftQueriesWithFlags = selectedEntries.getFTQueries();
+
+        for (Pair<String,Set<FTQuery>> currFTQueryWithFlags : ftQueriesWithFlags) {
+          String currFTQuery = currFTQueryWithFlags.getValue1();
+          //ignore FT flags that do not make sense here
+          Set<FTQuery> currFTFlags = currFTQueryWithFlags.getValue2()
+              .stream()
+              .filter(FTQuery.allSearchContentFlags::contains)
+              .collect(Collectors.toSet());
+          currFTFlags.add(FTQuery.RETURN_IDTABLE);
+          
+          if (subtractMode) {
+            JNAIDTable tableOfFTResult = new JNAIDTable(collection.getParentDominoClient());
+            db.queryFTIndex(currFTQuery, 0, currFTFlags, null, 0, 0).collectIds(0, Integer.MAX_VALUE, tableOfFTResult);
+            idTable.removeAll(tableOfFTResult);
+            tableOfFTResult.dispose();
+          }
+          else {
+            db.queryFTIndex(currFTQuery, 0, currFTFlags, null, 0, 0).collectIds(0, Integer.MAX_VALUE, idTable);
+          }
+        }
 			}
 			
 			m_selectedEntriesResolved = idTable;
