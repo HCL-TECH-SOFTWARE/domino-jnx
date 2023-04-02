@@ -50,7 +50,6 @@ import javax.naming.NameNotFoundException;
 import com.hcl.domino.BuildVersionInfo;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.UserNamesList;
-import com.hcl.domino.admin.AdministrationProcess;
 import com.hcl.domino.admin.ServerAdmin;
 import com.hcl.domino.admin.idvault.IdVault;
 import com.hcl.domino.admin.replication.Replication;
@@ -87,7 +86,6 @@ import com.hcl.domino.dxl.DxlImporter.DXLImportOption;
 import com.hcl.domino.exception.BadPasswordException;
 import com.hcl.domino.freebusy.FreeBusy;
 import com.hcl.domino.html.RichTextHTMLConverter;
-import com.hcl.domino.jna.admin.JNAAdministrationProcess;
 import com.hcl.domino.jna.admin.JNAIdVault;
 import com.hcl.domino.jna.admin.JNAServerAdmin;
 import com.hcl.domino.jna.admin.replication.JNAReplication;
@@ -1278,12 +1276,6 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   public boolean isRegisteredForGC() {
     return m_registeredForGC;
   }
-
-  @Override
-  public AdministrationProcess getAdministrationProcess(String serverName) {
-    return new JNAAdministrationProcess(this, serverName);
-  }
-
 
   @Override
   public Pair<Double,Double> compact(String pathname, Set<CompactMode> mode) {
