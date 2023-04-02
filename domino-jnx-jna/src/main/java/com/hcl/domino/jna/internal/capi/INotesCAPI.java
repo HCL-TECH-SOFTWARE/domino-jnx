@@ -976,8 +976,6 @@ public interface INotesCAPI extends Library {
 	
 	void SetParamNoteID(DHANDLE.ByValue hAgentCtx, int noteId);
 	
-	@UndocumentedAPI
-	short AgentSetUserName(DHANDLE.ByValue hAgentCtx, DHANDLE.ByValue hNameList);
 	short AgentRedirectStdout(DHANDLE.ByValue hAgentCtx, short redirType);
 	void AgentQueryStdoutBuffer(DHANDLE.ByValue hAgentCtx, DHANDLE.ByReference retHdl, IntByReference retSize);
 	void AgentDestroyRunContext (DHANDLE.ByValue hAgentCtx);
