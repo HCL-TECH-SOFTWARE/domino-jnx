@@ -50,6 +50,8 @@ public class ViewImpl extends AbstractCollectionDesignElement<View> implements V
 
   @Override
   public View setSelectionFormula(final String selectionFormula) {
+    //formula will be overwritten on View.save() with a $Formula item that also contains column names / formulas;
+    //we just write the formula so that it can be combined with columns later
     Formula formula = getDocument().getParentDatabase().getParentDominoClient().createFormula(selectionFormula);
     getDocument().replaceItemValue(DesignConstants.VIEW_FORMULA_ITEM, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), formula);
     return this;
