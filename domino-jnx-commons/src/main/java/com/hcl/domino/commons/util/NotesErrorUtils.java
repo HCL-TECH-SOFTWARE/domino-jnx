@@ -59,6 +59,7 @@ import com.hcl.domino.exception.FixupInProgressException;
 import com.hcl.domino.exception.FixupNeededException;
 import com.hcl.domino.exception.ImplicitScheduleFailedException;
 import com.hcl.domino.exception.InvalidDocumentException;
+import com.hcl.domino.exception.InvalidRemotePathnameException;
 import com.hcl.domino.exception.ItemNotFoundException;
 import com.hcl.domino.exception.ItemNotPresentException;
 import com.hcl.domino.exception.MimePartNotFoundException;
@@ -318,6 +319,8 @@ public class NotesErrorUtils {
         return Optional.of(new CompactionRequiredException(s, message));
       case IBsafeErr.ERR_BSAFE_NO_CROSS_CERT:
         return Optional.of(new NoCrossCertificateException(s, message));
+      case INsfErr.ERR_INVALID_NAME:
+        return Optional.of(new InvalidRemotePathnameException(s, message));
       default:
         return Optional.of(new DominoException(s, message));
     }
