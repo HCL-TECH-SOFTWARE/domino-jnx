@@ -25,13 +25,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
+import com.hcl.domino.commons.mime.MimePartOptions;
+import com.hcl.domino.commons.mime.NotesMIMEPart;
 import com.hcl.domino.commons.richtext.DefaultRichTextList;
+import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.data.Document;
@@ -791,6 +793,24 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 		Action recordVisited(short signature, Pointer cdRecordPtr, int cdRecordLength);
 
 	}
+	
+    @Override
+    public Optional<String> getMimeFileName() {
+      if(getType() == ItemDataType.TYPE_MIME_PART) {
+        List<Object> val = getValue();
+        if(!val.isEmpty() && val.get(0) instanceof NotesMIMEPart) {
+          NotesMIMEPart part = (NotesMIMEPart)val.get(0);
+          if(part.getOptions().contains(MimePartOptions.BODY_IN_DBOBJECT)) {
+            byte[] nameData = part.getContentRaw();
+            if(nameData.length > 0) {
+              String fileName = new String(nameData, RichTextUtil.LMBCS);
+              return Optional.of(fileName);
+            }
+          }
+        }
+      }
+      return Optional.empty();
+    }
 	
 	@SuppressWarnings("unchecked")
   @Override
