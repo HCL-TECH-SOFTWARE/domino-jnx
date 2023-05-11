@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -81,6 +82,7 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 	private Navigate m_direction;
 	private Integer m_total;
 	private boolean m_hasExpandedEntries;
+  private Consumer<Integer> m_totalReceiver;
 	
 	JNACollectionSearchQuery(JNADominoCollection parentCollection) {
 		super(parentCollection);
@@ -439,6 +441,10 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 	
 	@Override
 	public <T> T build(int skip, int count, CollectionEntryProcessor<T> processor) {
+	  if (m_totalReceiver!=null) {
+	    m_totalReceiver.accept(computeTotal());
+	  }
+	  
     JNADominoCollection collection = (JNADominoCollection) getParent();
     JNADominoCollectionAllocations collectionAllocations = (JNADominoCollectionAllocations) collection.getAdapter(APIObjectAllocations.class);
 	  
@@ -1093,7 +1099,12 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 	}
 
 	@Override
-	public int size() {
+  public CollectionSearchQuery withTotalReceiver(Consumer<Integer> totalReceiver) {
+	  m_totalReceiver = totalReceiver;
+	  return this;
+	}
+	
+	private int computeTotal() {
 		if (m_total==null) {
 			JNADominoCollection collection = (JNADominoCollection) getParent();
 			JNADominoCollectionAllocations collectionAllocations = (JNADominoCollectionAllocations) collection.getAdapter(APIObjectAllocations.class);

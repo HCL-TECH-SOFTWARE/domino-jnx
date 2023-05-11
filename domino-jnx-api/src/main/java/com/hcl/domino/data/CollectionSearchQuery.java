@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 import com.hcl.domino.data.CollectionEntry.SpecialValue;
 import com.hcl.domino.data.Database.Action;
@@ -776,11 +777,13 @@ public interface CollectionSearchQuery extends SearchQuery {
   CollectionSearchQuery selectByKey(String key, boolean exact);
 
   /**
-   * Slow method to compute the total number of collection entries
+   * Slow method to compute the total number of collection entries and
+   * report it at the specified {@link Consumer}
    *
-   * @return total
+   * @param totalReceiver receiver for total count
+   * @return this search query
    */
-  int size();
+  CollectionSearchQuery withTotalReceiver(Consumer<Integer> totalReceiver);
 
   /**
    * Restricts search result to a single category
