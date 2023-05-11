@@ -1679,9 +1679,6 @@ public interface INotesCAPI extends Library {
 			PointerByReference phKFC, Memory pServerName, int dwReservedFlags, short wReservedType,
 			Pointer pReserved, IntByReference retdwFlags);
 
-	@UndocumentedAPI
-	short SECKFMAccess(short param1, Pointer hKFC, Pointer retUsername, Pointer param4);
-
 	short SECKFMOpen(PointerByReference phKFC, Memory pIDFileName, Memory pPassword,
 			int Flags, int Reserved, Pointer pReserved);
 

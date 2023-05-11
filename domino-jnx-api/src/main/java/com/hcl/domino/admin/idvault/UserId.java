@@ -23,13 +23,6 @@ import com.hcl.domino.data.IAdaptable;
 public interface UserId extends IAdaptable {
 
   /**
-   * Returns the Domino username of the ID
-   *
-   * @return username
-   */
-  String getUsername();
-
-  /**
    * Writes a safe copy of the ID to disk
    *
    * @param targetFilePath filepath to write the safe.id

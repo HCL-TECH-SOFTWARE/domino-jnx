@@ -20,8 +20,6 @@ import java.lang.ref.ReferenceQueue;
 import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
 
 import com.hcl.domino.DominoClient.OpenDatabase;
 import com.hcl.domino.DominoException;
@@ -36,7 +34,6 @@ import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.exception.IncompatibleImplementationException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.data.JNADatabase;
-import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -460,53 +457,4 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 		String data = NotesStringUtils.fromLMBCS(retMem, (retActualLen.getValue() & 0xffff)-1);
 		return data;
 	}
-	
-	@Override
-	public Set<IdFlag> getIdFlags() {
-		return getIDFlags(null);
-	}
-
-	@Override
-	public Set<IdFlag> getIDFlags(UserId userId) {
-		checkDisposed();
-		
-		if (userId!=null && !(userId instanceof JNAUserId)) {
-			throw new IllegalArgumentException("User id must be a JNAUserID");
-		}
-		
-		try(DisposableMemory idFlagsMem = new DisposableMemory(4);
-		    DisposableMemory idFlags1Mem = new DisposableMemory(4)) {
-	    idFlagsMem.clear();
-	    idFlags1Mem.clear();
-			short result = NotesCAPI.get().SECKFMAccess(NotesConstants.KFM_access_GetIDFHFlags, userId==null ? null : userId.getAdapter(Pointer.class), idFlagsMem, idFlags1Mem);
-			NotesErrorUtils.checkResult(result);
-			
-			Set<IdFlag> retFlags = new HashSet<>();
-			
-			short idFlags = idFlagsMem.getShort(0);
-			short idFlags1 = idFlags1Mem.getShort(0);
-
-			for (IdFlag currFlag : IdFlag.values()) {
-				int currFlagVal = currFlag.getValue();
-				
-				if ((currFlagVal & 0x8000000) == 0x8000000) {
-					short currFlag1ValShort = (short) (currFlagVal & 0xffff);
-					
-					if ((idFlags1 & currFlag1ValShort) == currFlag1ValShort) {
-						retFlags.add(currFlag);
-					}
-				}
-				else {
-					short currFlagValShort = (short) (currFlagVal & 0xffff);
-					
-					if ((idFlags & currFlagValShort) == currFlagValShort) {
-						retFlags.add(currFlag);
-					}
-				}
-			}
-			
-			return retFlags;
-		}
-	}
-	
 }
