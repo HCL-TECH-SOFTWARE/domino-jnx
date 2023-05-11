@@ -532,6 +532,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
       }
 
       if (ctx.m_categoryConsumer!=null) {
+        //send the category entry to the registered consumer
         ctx.m_categoryConsumer.accept(categoryEntry);
       }
       
@@ -551,6 +552,7 @@ public class JNACollectionEntryIterator implements Iterator<CollectionEntry> {
         ctx.m_currPos = new JNADominoCollectionPosition(ctx.m_startAtPosition);
       }
       else if (ctx.m_startAtEntryId!=0) {
+        //search for an entry with the start note id nearby the category entry
         String entryPos = ctx.m_collection.locateNote(categoryPosStr, ctx.m_startAtEntryId);
         if (StringUtil.isEmpty(entryPos) || // note id not found
             !entryPos.startsWith(categoryPosStr+".")) { // or not in the category //$NON-NLS-1$
