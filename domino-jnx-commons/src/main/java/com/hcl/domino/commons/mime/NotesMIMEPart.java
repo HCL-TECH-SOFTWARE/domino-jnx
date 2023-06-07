@@ -144,6 +144,21 @@ public class NotesMIMEPart {
       return new String(this.m_data, RichTextUtil.LMBCS);
     }
   }
+  
+  /**
+   * Retrieves the part content as a raw byte array. Unlike
+   * {@link #getContentAsText} and {@link #getContentAsBytes}, this method
+   * does not dereference data stored in file attachments, and thus
+   * will return the file attachment name in that case.
+   * 
+   * @return the raw part content as a {@code byte[]}
+   * @since 1.26.0
+   */
+  public byte[] getContentRaw() {
+    byte[] copy = new byte[m_data.length];
+    System.arraycopy(m_data, 0, copy, 0, m_data.length);
+    return copy;
+  }
 
   public String getEncoding() {
     final String encoding = this.getHeaders().get("Content-Transfer-Encoding"); //$NON-NLS-1$

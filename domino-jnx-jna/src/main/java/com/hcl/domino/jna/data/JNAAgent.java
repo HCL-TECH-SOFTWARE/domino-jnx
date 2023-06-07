@@ -44,13 +44,11 @@ import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
-import com.hcl.domino.jna.internal.NotesNamingUtils.Privileges;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNAAgentAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNADocumentAllocations;
-import com.hcl.domino.jna.internal.gc.allocations.JNAUserNamesListAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
@@ -213,8 +211,6 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 			
 			LockUtil.lockHandle(rethContext, (hContextByVal) -> {
 				
-				JNAUserNamesList namesListToFree = null;
-				
 				try {
 					if (stdOut.isPresent()) {
 						//redirect stdout to in memory buffer
@@ -242,34 +238,6 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 						NotesCAPI.get().SetParamNoteID(hContextByVal, paramDocId);
 					}
 					
-					String effectiveUserName;
-					
-					if (isRunAsWebUser()) {
-					  //inherit username from Domino Client if not specified
-					  effectiveUserName = StringUtil.isEmpty(runCtx.getUsername()) ? getParentDominoClient().getEffectiveUserName() : runCtx.getUsername();
-					}
-					else {
-					  //run as signer
-					  effectiveUserName = getSigner();
-					}
-					
-					namesListToFree = NotesNamingUtils.buildNamesList(JNAAgent.this, effectiveUserName);
-          
-          if (getParentDatabase().hasFullAccess()) {
-            NotesNamingUtils.setPrivileges(namesListToFree, EnumSet.of(Privileges.Authenticated, Privileges.FullAdminAccess));
-          }
-          else {
-            NotesNamingUtils.setPrivileges(namesListToFree, EnumSet.of(Privileges.Authenticated));
-          }
-					JNAUserNamesListAllocations namesListAllocations = (JNAUserNamesListAllocations) namesListToFree.getAdapter(APIObjectAllocations.class);
-					
-					LockUtil.lockHandle(namesListAllocations.getHandle(), (hNamesListByVal) -> {
-						short localResult = NotesCAPI.get().AgentSetUserName(hContextByVal, hNamesListByVal);
-						NotesErrorUtils.checkResult(localResult);
-						
-						return 0;
-					});
-				
 					short runResult = NotesCAPI.get().AgentRun(hAgentByVal, hContextByVal, null, runFlags);
 			    final short runResultMasked = (short) (runResult & NotesConstants.ERR_MASK);
 
@@ -316,10 +284,6 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 				}
 				finally {
 					NotesCAPI.get().AgentDestroyRunContext(hContextByVal);
-					
-					if (namesListToFree!=null) {
-						namesListToFree.dispose();
-					}
 				}
 				return 0;
 			});

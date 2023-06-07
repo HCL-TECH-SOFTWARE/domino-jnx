@@ -46,7 +46,6 @@ import com.hcl.domino.jna.internal.structs.NotesFTIndexStatsStruct;
 import com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableExt;
 import com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableLock;
 import com.hcl.domino.jna.internal.structs.NotesOriginatorIdStruct;
-import com.hcl.domino.jna.internal.structs.NotesStringDescStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
@@ -976,8 +975,6 @@ public interface INotesCAPI extends Library {
 	
 	void SetParamNoteID(DHANDLE.ByValue hAgentCtx, int noteId);
 	
-	@UndocumentedAPI
-	short AgentSetUserName(DHANDLE.ByValue hAgentCtx, DHANDLE.ByValue hNameList);
 	short AgentRedirectStdout(DHANDLE.ByValue hAgentCtx, short redirType);
 	void AgentQueryStdoutBuffer(DHANDLE.ByValue hAgentCtx, DHANDLE.ByReference retHdl, IntByReference retSize);
 	void AgentDestroyRunContext (DHANDLE.ByValue hAgentCtx);
@@ -2238,20 +2235,6 @@ public interface INotesCAPI extends Library {
 
   @UndocumentedAPI
 	short Cstrlen(Pointer ptr);
-  @UndocumentedAPI
-	short SECOpenAddressBookOnServer(Memory serverName, HANDLE.ByReference rethDb);
-  @UndocumentedAPI
-	short AdminpProxyDbOpen(Memory serverName, HANDLE.ByReference rethDb);
-  @UndocumentedAPI
-	short AdminpCreateRequest(
-			HANDLE.ByValue hProxyDb,
-			Memory chRequestIdentifierPtr,
-			short wRequestSpecificItemsNumber,
-			Pointer arppRequestSpecificProfilePtr,
-			int eIsAuthorProvided,
-			int eUseAdminServerOfPAB,
-			Memory chErrorObjectBufferPtr,
-			short wErrorObjectBufferLen);
 	
   @UndocumentedAPI
 	short NSFDbLocalSecInfoGetLocal(HANDLE.ByValue hDb, IntByReference state, IntByReference strength);
@@ -2268,25 +2251,13 @@ public interface INotesCAPI extends Library {
 	short NSFDbCompactExtendedExt2(Memory pathname, int options, int options2, DoubleByReference originalSize, DoubleByReference compactedSize);
 
 	@UndocumentedAPI
-	short SECMakeProxyEntry (short fct, DHANDLE.ByValue hNABEntry,Memory pProxyDBServer,
-			NotesStringDescStruct pName ,NotesStringDescStruct pExtraItem,
-			NotesStringDescStruct pHAC_ABPI ,NotesStringDescStruct pHAC_Change,
-			NotesStringDescStruct pHAC_ChangeSig ,Pointer pFctSpecific ,IntByReference retNoteID);
-
-	@UndocumentedAPI
 	short DirEntryIDTrim(Pointer entryID, int parts);
-	@UndocumentedAPI
-	int DirEntryIDGetType(Pointer entryId);
-	@UndocumentedAPI
-	short DirDomainGetInfo(Memory serverName, Memory domainName, int infoType, Pointer pInfo);
 	@UndocumentedAPI
 	void OSLocalizePath(Pointer ptr);
 	@UndocumentedAPI
 	short OSPathFileType(Pointer ptr, ShortByReference retValue);
 	@UndocumentedAPI
 	Pointer Cstrncat(Pointer to, Pointer from, int tosize);
-	@UndocumentedAPI
-	boolean IntlTextEqualCaseInsensitive(Pointer str1, Pointer str2, short length, boolean unused);
 
 	short NSFItemAppendTextList(
 			DHANDLE.ByValue note_handle,
@@ -2294,56 +2265,12 @@ public interface INotesCAPI extends Library {
 			Memory entry_text,
 			short text_len,
 			boolean duplicate_flag);
-	@UndocumentedAPI
-	boolean NetIsVirtualizedDirectory();
-
-	short DirCtxAlloc2(Memory serverName, Memory domainName, DHANDLE.ByReference rethCtx);
-
-	short DirCtxSetFlags(DHANDLE.ByValue hCtx, int flags);
-	
-	@UndocumentedAPI
-	short LookupUserDirID (Memory pUserName,	   
-					Memory pServerName,
-					HANDLE.ByValue hUserMailFile,
-					Memory pszDirEntryID);
-	@UndocumentedAPI
-	short REGSearchByFullnameOrInternetAddress (DHANDLE.ByValue hDirCtx,
-			Memory Name,
-			boolean fMatchOnFirstFullNameEntryOnly,
-			Memory retDirEntryID);
-
-	short DirCtxGetEntryByID(DHANDLE.ByValue hCtx, Memory entryId, Memory items, short numItems, IntByReference hEntry);
-
-	@UndocumentedAPI
-	short DirEntryGetType(int hEntry, IntByReference pwType);
-	@UndocumentedAPI
-	short DirEntryNoteGet(int hEntry, DHANDLE.ByReference hNote);
-	@UndocumentedAPI
-	short REGFindAddressBookEntryExtended(
-			HANDLE.ByValue hAddressBook, 
-			Memory NameSpace,
-			Memory Name, 
-			boolean fMatchOnFirstFullNameEntryOnly,
-			IntByReference EntryNoteID,
-			boolean fVirtDirLookup);
-
-	void DirCtxFree(DHANDLE.ByValue hCtx);
-
-	void DirEntryFree(int hEntry);
 
 	short NSFItemGetText(
 			DHANDLE.ByValue note_handle,
 			Memory item_name,
 			Memory item_text,
 			short text_len);
-	
-	short DirEntryGetItemByName(int hDirEntry, Memory itemName, ShortByReference pItemDataType,
-			DHANDLE.ByReference phItemValue, IntByReference pItemValLen);
-
-	@UndocumentedAPI
-	short NetOpenLocDB(HANDLE.ByReference rethDB);
-	@UndocumentedAPI
-	short NetGetCurrentLocNoteID(IntByReference retLocNoteID);
 	
 	short NSFDbGetNamesList(HANDLE.ByValue hDB, int Flags, DHANDLE.ByReference rethNamesList);
 	

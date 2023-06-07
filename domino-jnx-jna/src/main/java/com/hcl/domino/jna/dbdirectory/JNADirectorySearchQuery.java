@@ -43,6 +43,8 @@ import com.hcl.domino.dbdirectory.DirEntry;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery;
 import com.hcl.domino.dbdirectory.FileType;
 import com.hcl.domino.dbdirectory.FolderData;
+import com.hcl.domino.exception.FileDoesNotExistException;
+import com.hcl.domino.exception.InvalidRemotePathnameException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.data.JNADatabase;
 import com.hcl.domino.jna.data.JNADominoDateTime;
@@ -124,8 +126,14 @@ public class JNADirectorySearchQuery extends BaseJNAAPIObject<JNADirectorySearch
   @Override
   public void forEach(int skip, int limit, BiConsumer<DirEntry, Loop> consumer)
       throws DominoException {
-    JNADatabase dir = (JNADatabase) getParentDominoClient().openDatabase(m_server,
-        (m_directory == null) ? "" : m_directory); //$NON-NLS-1$
+    JNADatabase dir;
+    try {
+      dir = (JNADatabase) getParentDominoClient().openDatabase(m_server,
+          (m_directory == null) ? "" : m_directory); //$NON-NLS-1$
+    } catch(FileDoesNotExistException | InvalidRemotePathnameException e) {
+      // This can occur with dotfile directories - consider it empty
+      return;
+    }
 
     try {
     	//make sure to enable directory mode and

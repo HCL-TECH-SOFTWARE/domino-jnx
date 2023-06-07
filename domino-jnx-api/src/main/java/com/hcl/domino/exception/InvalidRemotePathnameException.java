@@ -14,37 +14,33 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.jna.internal.gc.allocations;
+package com.hcl.domino.exception;
 
-import java.lang.ref.ReferenceQueue;
+import com.hcl.domino.DominoException;
 
-import com.hcl.domino.commons.gc.APIObjectAllocations;
-import com.hcl.domino.commons.gc.IAPIObject;
-import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.jna.admin.JNAAdministrationProcess;
+/**
+ * Represents error code 0x22f, "Remote pathnames must be relative to the Data directory"
+ *
+ * @author Jesse Gallagher
+ * @since 1.26.0
+ */
+public class InvalidRemotePathnameException extends DominoException {
+  private static final long serialVersionUID = 1L;
 
-public class JNAAdministrationProcessAllocations extends APIObjectAllocations<JNAAdministrationProcess> {
-	private boolean m_disposed;
-	
-	@SuppressWarnings("rawtypes")
-  public JNAAdministrationProcessAllocations(IGCDominoClient parentDominoClient,
-			APIObjectAllocations parentAllocations, JNAAdministrationProcess referent,
-			ReferenceQueue<? super IAPIObject> queue) {
-		super(parentDominoClient, parentAllocations, referent, queue);
-	}
+  public InvalidRemotePathnameException(final int id, final String message) {
+    super(id, message);
+  }
 
-	@Override
-	public boolean isDisposed() {
-		return m_disposed;
-	}
+  public InvalidRemotePathnameException(final int id, final String message, final Throwable cause) {
+    super(id, message, cause);
+  }
 
-	@Override
-	public void dispose() {
-		if (isDisposed()) {
-			return;
-		}
-		
-		m_disposed = true;
-	}
+  public InvalidRemotePathnameException(final String msg) {
+    super(msg);
+  }
+
+  public InvalidRemotePathnameException(final String msg, final Throwable cause) {
+    super(msg, cause);
+  }
 
 }

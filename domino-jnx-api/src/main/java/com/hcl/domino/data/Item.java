@@ -172,6 +172,19 @@ public interface Item extends IAdaptable {
    * @return field flags applied, e.g. {SUMMARY,READERS}
    */
   Set<ItemFlag> getFlags();
+  
+  /**
+   * Retrieves the name of the file containing the item's content, if
+   * the item is a MIME part and stores its content in a separate
+   * file item. 
+   * 
+   * @return an {@link Optional} describing the file attachment name
+   *         containing the item value if the item is a MIME part and
+   *         stores its content in a separate file item, or an empty
+   *         one otherwise
+   * @since 1.26.0
+   */
+  Optional<String> getMimeFileName();
 
   /**
    * Retrieves the item content as a MIME entity, if this is a MIME item.
