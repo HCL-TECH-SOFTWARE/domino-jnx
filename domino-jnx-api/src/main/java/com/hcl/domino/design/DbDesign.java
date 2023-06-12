@@ -153,6 +153,15 @@ public interface DbDesign {
   SharedColumn createSharedColumn(String columnName);
   
   /**
+   * Creates a new, unsaved shared field design element
+   * 
+   * @param fieldName the name of the shared field to create
+   * @return the newly-created in-memory {@link SharedField}
+   * @since 1.27.0
+   */
+  SharedField createSharedField(String fieldName);
+  
+  /**
    * Creates a new, unsaved frameset design element.
    * 
    * @param framesetName the name of the frameset to create
