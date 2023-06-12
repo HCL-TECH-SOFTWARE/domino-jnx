@@ -1162,6 +1162,16 @@ public interface Document extends TypedAccess, IAdaptable {
    * @return this document
    */
   Document replaceItemValue(String itemName, Set<ItemFlag> flags, Object value, boolean allowDataTypeChanges);
+  
+  /**
+   * Sets the named item to a special "placeholder"-type item, as used in forms,
+   * replacing any other items of the same name.
+   * 
+   * @param itemName the name of the item to store
+   * @return this document
+   * @since 1.27.0
+   */
+  Document replaceItemValuePlaceholder(String itemName);
 
   /**
    * Writes in-memory changes to a document to the database.

@@ -108,7 +108,6 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
   public void initializeNewDesignNote() {
     setComment(""); //$NON-NLS-1$
     Document doc = getDocument();
-    doc.replaceItemValue(NotesConstants.DESIGNER_VERSION, "8.5.3"); //$NON-NLS-1$
     setFlags(""); //$NON-NLS-1$
     
     //write initial $body content
@@ -157,21 +156,7 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
         record.setPabId(1);
       });
       
-      writer.addRichTextRecord(RecordType.TEXT, (Consumer<CDText>) (record) -> {
-        record.getStyle()
-        .setEmboss(false)
-        .setSub(false)
-        .setColor(StandardColors.Black)
-        .setShadow(false)
-        .setSuper(false)
-        .setExtrude(false)
-        .setUnderline(false)
-        .setStandardFont(StandardFonts.SWISS)
-        .setItalic(false)
-        .setBold(false)
-        .setStrikeout(false)
-        .setPointSize(10);
-      });
+      DesignUtil.addEmptyText(writer);
     }
     
     doc.forEachItem(NotesConstants.ITEM_NAME_TEMPLATE, (item, loop) -> {
@@ -179,42 +164,7 @@ public class FormImpl extends AbstractFormOrSubform<Form> implements Form, IDefa
       item.setEncrypted(false);
     });
     
-    try (RichTextWriter writer = doc.createRichTextItem("$HTMLCode")) { //$NON-NLS-1$
-      writer.addRichTextRecord(RecordType.EVENT_LANGUAGE_ENTRY, (Consumer<CDEventEntry>) (record) -> {
-        record.setPlatform(Platform.WEB)
-        .setHtmlEventId(EventId.HEADER)
-        .setActionType(ActionType.JAVASCRIPT);
-      });
-    }
-    
-    doc.forEachItem("$HTMLCode", (item, loop) -> { //$NON-NLS-1$
-      item.setSigned(true);
-      item.setEncrypted(false);
-    });
-
-    try (RichTextWriter writer = doc.createRichTextItem("$Info")) { //$NON-NLS-1$
-      writer.addRichTextRecord(RecordType.DOCUMENT, (Consumer<CDDocument>) (record) -> {
-        record.setPaperColor(StandardColors.White)
-        .setFlags(EnumSet.of(CDDocument.Flag.SPARESOK))
-        .setFlags2(EnumSet.of(CDDocument.Flag2.UPDATE_SIBLING))
-        .setPaperColorRaw(1)
-        .setFlags3(EnumSet.of(CDDocument.Flag3.RENDERPASSTHROUGH));
-        
-        record
-        .getPaperColorValue()
-        .setFlags(EnumSet.of(ColorValue.Flag.ISRGB))
-        .setRed((short) (255 & 0xffff))
-        .setGreen((short) (255 & 0xffff))
-        .setBlue((short) (255 & 0xffff))
-        .setComponent4((short) 0);
-        
-      });
-    }
-    
-    doc.forEachItem("$Info", (item, loop) -> { //$NON-NLS-1$
-      item.setSigned(true);
-      item.setEncrypted(false);
-    });
+    DesignUtil.initFormBasics(doc);
 
   }
 

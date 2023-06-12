@@ -1412,6 +1412,25 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			return this;
 		}
 	}
+	
+	@Override
+	public Document replaceItemValuePlaceholder(String itemName) {
+	  while (hasItem(itemName)) {
+          removeItem(itemName);
+      }
+	  
+	  short flagsShort = ItemFlag.PLACEHOLDER.getValue().shortValue();
+	  Memory itemNameMem = NotesStringUtils.toLMBCS(itemName, false);
+    
+      short result = LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> {
+        return NotesCAPI.get().NSFItemAppend(noteHandleByVal, flagsShort, itemNameMem,
+                (short) (itemNameMem==null ? 0 : itemNameMem.size()), ItemDataType.TYPE_INVALID_OR_UNKNOWN.getValue(),
+                null, 0);
+      });
+      NotesErrorUtils.checkResult(result);
+      
+      return this;
+    }
 
 	private List<?> toNumberOrNumberArrayList(Iterable<?> list) {
 		boolean allNumbers = StreamSupport.stream(list.spliterator(), false)

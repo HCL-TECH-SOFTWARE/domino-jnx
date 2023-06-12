@@ -828,6 +828,38 @@ public class TestDbDesign extends AbstractDesignTest {
   }
   
   @Test
+  public void testCreateSharedField() throws Exception {
+    withTempDb(database -> {
+      DbDesign design = database.getDesign();
+      
+      design.createSharedField("Foo").save();
+      
+      SharedField field = design.getSharedField("Foo").get();
+      {
+        assertEquals("Foo", field.getTitle());
+        
+        CDField rtField = field.getFieldBody().stream()
+          .filter(CDField.class::isInstance)
+          .map(CDField.class::cast)
+          .findFirst()
+          .get();
+        assertEquals("Foo", rtField.getName());
+      }
+      field.setTitle("Bar");
+      {
+        assertEquals("Bar", field.getTitle());
+        
+        CDField rtField = field.getFieldBody().stream()
+          .filter(CDField.class::isInstance)
+          .map(CDField.class::cast)
+          .findFirst()
+          .get();
+        assertEquals("Bar", rtField.getName());
+      }
+    });
+  }
+  
+  @Test
   public void testSharedActions() {
     DbDesign design = database.getDesign();
     
