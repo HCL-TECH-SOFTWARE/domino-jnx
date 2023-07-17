@@ -4,9 +4,18 @@ on:
   workflow_dispatch:
 
 jobs:
-    name: Delete Package Versions
-    uses: actions/delete-package-versions@v4.1.1
-    with: 
-      package-name: 'projectkeep-r12'
-      package-type: 'container'
-      min-versions-to-keep: 10
+  house-keeping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Keeep production to 5
+        uses: actions/delete-package-versions@v4.1.1
+        with: 
+          package-name: 'projectkeep-r12'
+          package-type: 'container'
+          min-versions-to-keep: 5
+      - name: Keeep debug to 1
+        uses: actions/delete-package-versions@v4.1.1
+        with: 
+          package-name: 'projectkeep-r12-dfebug'
+          package-type: 'container'
+          min-versions-to-keep: 1
