@@ -10,6 +10,6 @@ jobs:
       - name: Keeep production to 5
         uses: actions/delete-package-versions@v4.1.1
         with: 
-          package-name: 'ghcr.io/hcl-tech-software/projectkeep-r12'
+          package-name: 'hcl-tech-software/projectkeep-r12'
           package-type: 'container'
           min-versions-to-keep: 5
