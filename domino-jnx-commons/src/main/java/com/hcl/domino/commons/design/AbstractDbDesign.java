@@ -214,6 +214,11 @@ public abstract class AbstractDbDesign implements DbDesign {
   public SharedColumn createSharedColumn(String columnName) {
     return this.createDesignNote(SharedColumn.class, columnName);
   }
+
+  @Override
+  public SharedField createSharedField(String fieldName) {
+    return this.createDesignNote(SharedField.class, fieldName);
+  }
   
   @Override
   public Frameset createFrameset(String framesetName) {
@@ -660,7 +665,10 @@ public abstract class AbstractDbDesign implements DbDesign {
       .flatMap(c -> this.findDesignNotes(EnumSet.of(c), Collections.emptySet()))
       .map(entry -> entry.toDesignElement(this.database))
       .forEach(element -> {
-        if (callback.shouldSign(element, id.getUsername())) {
+        Document doc = element.getDocument();
+        String currentSigner = doc==null ? "" : doc.getSigner(); //$NON-NLS-1$
+        
+        if (callback.shouldSign(element, currentSigner)) {
           element.sign(id);
         }
       });

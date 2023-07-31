@@ -103,6 +103,7 @@ import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.misc.StructureSupport;
+import com.hcl.domino.richtext.FormField;
 import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.NotesBitmap;
 import com.hcl.domino.richtext.RichTextRecordList;
@@ -1830,11 +1831,126 @@ public class TestDbDesignForms extends AbstractDesignTest {
     });
   }
   
+  @Test
+  public void testDbDesignComputedFields() throws Exception {
+    withResourceDxl("/dxl/testDbDesignForms", database -> {
+      Form form = database.getDesign().getForm("Computed When Composed").get();
+      
+      List<FormField> fields = form.getFields();
+      
+      {
+        FormField field = getField(fields, "NormalField");
+        assertEquals(FormField.Kind.EDITABLE, field.getKind());
+      }
+      {
+        FormField field = getField(fields, "ComputedWhenComposed");
+        assertEquals(FormField.Kind.COMPUTEDWHENCOMPOSED, field.getKind());
+      }
+      {
+        FormField field = getField(fields, "ComputedForDisplay");
+        assertEquals(FormField.Kind.COMPUTEDFORDISPLAY, field.getKind());
+      }
+      {
+        FormField field = getField(fields, "Computed");
+        assertEquals(FormField.Kind.COMPUTED, field.getKind());
+      }
+    });
+  }
+  
+  @Test
+  public void testFieldTypes() throws Exception {
+    withResourceDxl("/dxl/testDbDesignForms", database -> {
+      Form form = database.getDesign().getForm("Field Types Form").get();
+      
+      List<FormField> fields = form.getFields();
+      
+      {
+        FormField field = getField(fields, "Text");
+        assertEquals(FormField.Type.TEXT, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "DateTime");
+        assertEquals(FormField.Type.DATETIME, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "Number");
+        assertEquals(FormField.Type.NUMBER, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "DialogList");
+        assertEquals(FormField.Type.DIALOGLIST, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "Checkbox");
+        assertEquals(FormField.Type.CHECKBOX, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "RadioButton");
+        assertEquals(FormField.Type.RADIOBUTTON, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "ListBox");
+        assertEquals(FormField.Type.LISTBOX, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "ComboBox");
+        assertEquals(FormField.Type.COMBOBOX, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "RichText");
+        assertEquals(FormField.Type.RICHTEXT, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "Authors");
+        assertEquals(FormField.Type.AUTHORS, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "AuthorsMulti");
+        assertEquals(FormField.Type.AUTHORS, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "Names");
+        assertEquals(FormField.Type.NAMES, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "Readers");
+        assertEquals(FormField.Type.READERS, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "Password");
+        assertEquals(FormField.Type.PASSWORD, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "Formula");
+        assertEquals(FormField.Type.FORMULA, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "TimeZone");
+        assertEquals(FormField.Type.TIMEZONE, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "RichTextLite");
+        assertEquals(FormField.Type.RICHTEXTLITE, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "Color");
+        assertEquals(FormField.Type.COLOR, field.getDisplayType());
+      }
+    });
+  }
+  
   // *******************************************************************************
   // * Internal utility methods
   // *******************************************************************************
   
   private List<?> extractOle(List<?> body, int index) {
     return extract(body, index, CDOLEBegin.class, CDOLEEnd.class);
+  }
+  
+  private FormField getField(List<FormField> fields, String fieldName) {
+    return fields.stream()
+        .filter(f -> fieldName.equals(f.getName()))
+        .findFirst()
+        .get();
   }
 }

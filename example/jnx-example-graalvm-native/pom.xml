@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.hcl.domino</groupId>
 		<artifactId>domino-jnx</artifactId>
-		<version>1.26.0</version>
+		<version>1.27.0</version>
 		<relativePath>../..</relativePath>
 	</parent>
 	<artifactId>jnx-example-graalvm-native</artifactId>

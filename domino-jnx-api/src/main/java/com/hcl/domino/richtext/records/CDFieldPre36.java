@@ -29,7 +29,6 @@ import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.design.format.FieldListDelimiter;
 import com.hcl.domino.design.format.FieldListDisplayDelimiter;
 import com.hcl.domino.formula.FormulaCompiler;
-import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.StructureSupport;
 import com.hcl.domino.richtext.RichTextConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -64,62 +63,9 @@ import com.hcl.domino.richtext.structures.WSIG;
     @StructureMember(name = "DescLength", type = short.class, unsigned = true)
   }
 )
-public interface CDFieldPre36 extends RichTextRecord<WSIG> {
-  enum Flag implements INumberEnum<Short> {
-    /** Field contains read/writers */
-    READWRITERS(RichTextConstants.FREADWRITERS),
-    /** Field is editable, not read only */
-    EDITABLE(RichTextConstants.FEDITABLE),
-    /** Field contains distinguished names */
-    NAMES(RichTextConstants.FNAMES),
-    /** Store DV, even if not spec'ed by user */
-    STOREDV(RichTextConstants.FSTOREDV),
-    /** Field contains document readers */
-    READERS(RichTextConstants.FREADERS),
-    /** Field contains a section */
-    SECTION(RichTextConstants.FSECTION),
-    /** can be assumed to be clear in memory, V3 &amp; later */
-    SPARE3(RichTextConstants.FSPARE3),
-    /** IF CLEAR, CLEAR AS ABOVE */
-    V3FAB(RichTextConstants.FV3FAB),
-    /** Field is a computed field */
-    COMPUTED(RichTextConstants.FCOMPUTED),
-    /** Field is a keywords field */
-    KEYWORDS(RichTextConstants.FKEYWORDS),
-    /** Field is protected */
-    PROTECTED(RichTextConstants.FPROTECTED),
-    /** Field name is simply a reference to a shared field note */
-    REFERENCE(RichTextConstants.FREFERENCE),
-    /** sign field */
-    SIGN(RichTextConstants.FSIGN),
-    /** seal field */
-    SEAL(RichTextConstants.FSEAL),
-    /** standard UI */
-    KEYWORDS_UI_STANDARD(RichTextConstants.FKEYWORDS_UI_STANDARD),
-    /** checkbox UI */
-    KEYWORDS_UI_CHECKBOX(RichTextConstants.FKEYWORDS_UI_CHECKBOX),
-    /** radiobutton UI */
-    KEYWORDS_UI_RADIOBUTTON(RichTextConstants.FKEYWORDS_UI_RADIOBUTTON),
-    /** allow doc editor to add new values */
-    KEYWORDS_UI_ALLOW_NEW(RichTextConstants.FKEYWORDS_UI_ALLOW_NEW);
+public interface CDFieldPre36 extends RichTextRecord<WSIG>, ICDField {
 
-    private final short value;
-
-    Flag(final short value) {
-      this.value = value;
-    }
-
-    @Override
-    public long getLongValue() {
-      return this.value;
-    }
-
-    @Override
-    public Short getValue() {
-      return this.value;
-    }
-  }
-
+  @Override
   default String getDefaultValueFormula() {
     return StructureSupport.extractCompiledFormula(
         this,
@@ -130,6 +76,7 @@ public interface CDFieldPre36 extends RichTextRecord<WSIG> {
   @StructureGetter("DVLength")
   int getDefaultValueLength();
 
+  @Override
   default String getDescription() {
     return StructureSupport.extractStringValue(
         this,
@@ -141,6 +88,7 @@ public interface CDFieldPre36 extends RichTextRecord<WSIG> {
   int getDescriptionLength();
 
   @StructureGetter("DataType")
+  @Override
   Optional<ItemDataType> getFieldType();
 
   /**
@@ -153,6 +101,7 @@ public interface CDFieldPre36 extends RichTextRecord<WSIG> {
   short getFieldTypeRaw();
 
   @StructureGetter("Flags")
+  @Override
   Set<Flag> getFlags();
 
   @StructureGetter("FontID")
@@ -162,6 +111,7 @@ public interface CDFieldPre36 extends RichTextRecord<WSIG> {
   @Override
   WSIG getHeader();
 
+  @Override
   default String getInputTranslationFormula() {
     return StructureSupport.extractCompiledFormula(
         this,
@@ -172,6 +122,7 @@ public interface CDFieldPre36 extends RichTextRecord<WSIG> {
   @StructureGetter("ITLength")
   int getInputTranslationLength();
 
+  @Override
   default String getInputValidationFormula() {
     return StructureSupport.extractCompiledFormula(
         this,
@@ -186,8 +137,10 @@ public interface CDFieldPre36 extends RichTextRecord<WSIG> {
   short getListDelimiterRaw();
 
   @StructureGetter("ListDelim")
+  @Override
   Set<FieldListDelimiter> getListDelimiters();
 
+  @Override
   default FieldListDisplayDelimiter getListDisplayDelimiter() {
     // The default mechanism doesn't pick up this single value, since the storage is
     // masked with
@@ -201,6 +154,7 @@ public interface CDFieldPre36 extends RichTextRecord<WSIG> {
     return null;
   }
 
+  @Override
   default String getName() {
     return StructureSupport.extractStringValue(
         this,
@@ -214,10 +168,7 @@ public interface CDFieldPre36 extends RichTextRecord<WSIG> {
   @StructureGetter("NumberFormat")
   NFMT getNumberFormat();
 
-  /**
-   * @return an {@link Optional} describing the value formula for field choices,
-   *         or an empty one if the values are defined by a an explicit text list
-   */
+  @Override
   default Optional<String> getTextValueFormula() {
     final int len = this.getTextValueLength();
     if (len == 0) {
@@ -245,11 +196,7 @@ public interface CDFieldPre36 extends RichTextRecord<WSIG> {
       - getNameLength() - getDescriptionLength();
   }
 
-  /**
-   * @return an {@link Optional} describing the explicit text value options for
-   *         this field,
-   *         or an empty one if the values are defined by a formula
-   */
+  @Override
   default Optional<List<String>> getTextValues() {
     final int len = this.getTextValueLength();
     if (len == 0) {

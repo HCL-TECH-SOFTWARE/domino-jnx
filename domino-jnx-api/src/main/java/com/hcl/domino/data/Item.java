@@ -26,6 +26,7 @@ import java.util.Set;
 
 import com.hcl.domino.mime.MimeEntity;
 import com.hcl.domino.misc.INumberEnum;
+import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.RichTextRecordList;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
@@ -42,13 +43,17 @@ public interface Item extends IAdaptable {
    * Enum for the field flags for an Item
    */
   public enum ItemFlag implements INumberEnum<Integer> {
-    SUMMARY(0x0004),
-    NAMES(0x0040),
-    READERS(0x0400),
-    READWRITERS(0x0020),
-    PROTECTED(0x0200),
+    SUMMARY(NotesConstants.ITEM_SUMMARY),
+    NAMES(NotesConstants.ITEM_NAMES),
+    READERS(NotesConstants.ITEM_READERS),
+    READWRITERS(NotesConstants.ITEM_READWRITERS),
+    PROTECTED(NotesConstants.ITEM_PROTECTED),
     ENCRYPTED(0x0002),
-    SIGNED(0x0001),
+    SIGNED(NotesConstants.ITEM_SIGN),
+    /** @since 1.27.0 */
+    SEALED(NotesConstants.ITEM_SEAL),
+    /** @since 1.27.0 */
+    PLACEHOLDER(NotesConstants.ITEM_PLACEHOLDER),
     /**
      * Special flag to keep \n in string item values instead of replacing them with
      * \0
@@ -60,6 +65,9 @@ public interface Item extends IAdaptable {
 
     ItemFlag(final Integer val) {
       this.m_val = val;
+    }
+    ItemFlag(final short val) {
+      this.m_val = Short.toUnsignedInt(val);
     }
 
     @Override

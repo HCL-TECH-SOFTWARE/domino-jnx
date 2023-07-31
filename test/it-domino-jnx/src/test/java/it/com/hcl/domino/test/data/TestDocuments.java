@@ -52,9 +52,12 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.IDTable;
+import com.hcl.domino.data.Item;
+import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.exception.LotusScriptCompilationException;
 import com.hcl.domino.exception.NotAuthorizedException;
+import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclLevel;
 
@@ -568,6 +571,17 @@ public class TestDocuments extends AbstractNotesRuntimeTest {
       exec.shutdown();
       exec.awaitTermination(2, TimeUnit.MINUTES);
       assertEquals(runCount, throwCount.get());
+    });
+  }
+  
+  @Test
+  public void testPlaceholder() throws Exception {
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      doc.replaceItemValuePlaceholder("Foo");
+      Item item = doc.getFirstItem("Foo").get();
+      assertEquals(ItemDataType.TYPE_INVALID_OR_UNKNOWN, item.getType());
+      assertIterableEquals(EnumSet.of(ItemFlag.PLACEHOLDER), item.getFlags());
     });
   }
 }

@@ -17,7 +17,6 @@
 package com.hcl.domino.admin.idvault;
 
 import java.nio.file.Path;
-import java.util.Set;
 
 import com.hcl.domino.DominoException;
 import com.hcl.domino.data.Document;
@@ -44,53 +43,6 @@ public interface IdVault {
      */
     T accessId(UserId id);
 
-  }
-
-  /**
-   * Flags of a User ID
-   */
-  public enum IdFlag {
-
-    /** File is password protected */
-    PASSWORD(0x0001),
-
-    /** File password is required. */
-    PASSWORD_REQUIRED(0x0002),
-
-    /** Password may be shared by all processes */
-    PASSWORD_SHAREABLE(0x0008),
-
-    /**
-     * ID file has an extra that describes special password features (eg, 128 bit
-     * key)
-     */
-    PASSWORD_EXTRA(0x0200),
-
-    /** Must prompt user before automatically accepting a name change */
-    CHANGE_NAME_PROMPT(0x0400),
-
-    /**
-     * For mailed in requests to certifier usually using a "safe-copy".<br>
-     * This flags says that the requestor does not need a response via Mail --
-     * usually because the response
-     * will be detected during authentication with a server whose Address Book has
-     * been
-     * updated with a new certificate for the requestor.
-     */
-    DONT_REPLY_VIA_MAIL(0x80000000 | 0x0001),
-
-    /** Admin has locked down the value of this field. See fIDFH_PWShareable */
-    PASSWORD_SHAREABLE_LOCKDOWN(0x8000000 | 0x0004);
-
-    private final int m_val;
-
-    IdFlag(final int val) {
-      this.m_val = val;
-    }
-
-    public int getValue() {
-      return this.m_val;
-    }
   }
 
   public interface SyncResult {
@@ -153,22 +105,6 @@ public interface IdVault {
    * @throws DominoException in case of problems, e.g. ERR 22792 Wrong Password
    */
   String extractUserIdFromVault(String userName, String password, Path idPath, String serverName);
-
-  /**
-   * Returns flags for the ID that is active for the current process
-   *
-   * @return flags
-   */
-  Set<IdFlag> getIdFlags();
-
-  /**
-   * Returns flags for the specified ID file
-   *
-   * @param userId user id, use null for the ID that is active for the current
-   *               process
-   * @return flags
-   */
-  Set<IdFlag> getIDFlags(UserId userId);
 
   /**
    * Will contact the server and locate a vault for <code>userName</code>.<br>

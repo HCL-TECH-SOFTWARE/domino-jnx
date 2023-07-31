@@ -28,7 +28,6 @@ import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.jna.BaseJNAAPIObject;
-import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNAUserIDAllocations;
@@ -67,24 +66,6 @@ public class JNAUserId extends BaseJNAAPIObject<JNAUserIDAllocations> implements
 	protected JNAUserIDAllocations createAllocations(IGCDominoClient<?> parentDominoClient,
 			APIObjectAllocations parentAllocations, ReferenceQueue<? super IAPIObject> queue) {
 		return new JNAUserIDAllocations(parentDominoClient, parentAllocations, this, queue);
-	}
-
-	@Override
-	public String getUsername() {
-		checkDisposed();
-
-		PointerByReference phKFC = getAllocations().getIDHandle();
-		
-		DisposableMemory retUsernameMem = new DisposableMemory(NotesConstants.MAXUSERNAME);
-
-		short result;
-		synchronized (phKFC) {
-			result = NotesCAPI.get().SECKFMAccess((short) 32, phKFC.getValue(), retUsernameMem, null);
-		}
-		NotesErrorUtils.checkResult(result);
-
-		String username = NotesStringUtils.fromLMBCS(retUsernameMem, -1);
-		return username;
 	}
 
 	/**

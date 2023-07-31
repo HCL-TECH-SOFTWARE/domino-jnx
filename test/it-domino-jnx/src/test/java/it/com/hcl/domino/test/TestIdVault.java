@@ -19,7 +19,6 @@ package it.com.hcl.domino.test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.EnumSet;
-import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -27,11 +26,9 @@ import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.admin.idvault.IdVault;
-import com.hcl.domino.admin.idvault.IdVault.IdFlag;
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.Document.EncryptionMode;
-import com.ibm.commons.util.StringUtil;
 
 @SuppressWarnings("nls")
 public class TestIdVault extends AbstractNotesRuntimeTest {
@@ -50,14 +47,6 @@ public class TestIdVault extends AbstractNotesRuntimeTest {
 
     // load local ID file
     vault.openUserIdFile(idFilePath, idFilePassword, id -> {
-      final Set<IdFlag> flags = vault.getIDFlags(id);
-      Assertions.assertNotNull(flags);
-
-      // System.out.println(flags);
-
-      final String idUsername = id.getUsername();
-      Assertions.assertTrue(!StringUtil.isEmpty(idUsername));
-
       return null;
     });
   }
@@ -112,16 +101,10 @@ public class TestIdVault extends AbstractNotesRuntimeTest {
     // fetch id from vault
     final UserId userId = vault.getUserIdFromVault(idVaultUserName, idVaultPassword, idVaultServer);
 
-    Assertions.assertTrue(!StringUtil.isEmpty(userId.getUsername()));
-    // System.out.println("Id user: "+userId.getUsername());
-
     this.withTempDb(database -> {
       final Document doc = database.createDocument();
       doc.sign(userId, true);
       Assertions.assertTrue(doc.isSigned());
-
-      final String signer = doc.getSigner();
-      Assertions.assertEquals(userId.getUsername(), signer);
 
       final Document docEncrypted = doc.copyAndEncrypt(userId, EnumSet.of(EncryptionMode.ENCRYPT_WITH_USER_PUBLIC_KEY));
       Assertions.assertTrue(docEncrypted.isEncrypted());

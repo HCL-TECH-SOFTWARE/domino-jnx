@@ -30,6 +30,15 @@ import com.hcl.domino.design.format.FieldListDisplayDelimiter;
  * @author Karsten Lehmann
  */
 public interface FormField {
+  public enum Kind {
+    COMPUTED, COMPUTEDFORDISPLAY, COMPUTEDWHENCOMPOSED, EDITABLE
+  }
+  
+  public enum Type {
+    TEXT, DATETIME, NUMBER, DIALOGLIST, CHECKBOX, RADIOBUTTON, LISTBOX, COMBOBOX,
+    RICHTEXT, AUTHORS, NAMES, READERS, PASSWORD, FORMULA, TIMEZONE, RICHTEXTLITE,
+    COLOR
+  }
 
   /**
    * Returns the field data type
@@ -145,8 +154,23 @@ public interface FormField {
    * If the field is a static textlist, this method returns the text list values
    *
    * @return an {@link Optional} describing the text list values, or an empty one
-   *         if that
-   *         does not apply
+   *         if that does not apply
    */
   Optional<List<String>> getTextListValues();
+  
+  /**
+   * Determines the editability/computed kind of the field
+   * 
+   * @return a {@link Kind} value for the field
+   * @since 1.27.0
+   */
+  Kind getKind();
+  
+  /**
+   * Determines the display type of the field.
+   * 
+   * @return a {@link Type} value for the field
+   * @since 1.27.0
+   */
+  Type getDisplayType();
 }
