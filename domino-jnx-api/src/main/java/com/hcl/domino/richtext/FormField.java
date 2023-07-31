@@ -33,6 +33,12 @@ public interface FormField {
   public enum Kind {
     COMPUTED, COMPUTEDFORDISPLAY, COMPUTEDWHENCOMPOSED, EDITABLE
   }
+  
+  public enum Type {
+    TEXT, DATETIME, NUMBER, DIALOGLIST, CHECKBOX, RADIOBUTTON, LISTBOX, COMBOBOX,
+    RICHTEXT, AUTHORS, NAMES, READERS, PASSWORD, FORMULA, TIMEZONE, RICHTEXTLITE,
+    COLOR
+  }
 
   /**
    * Returns the field data type
@@ -159,4 +165,12 @@ public interface FormField {
    * @since 1.27.0
    */
   Kind getKind();
+  
+  /**
+   * Determines the display type of the field.
+   * 
+   * @return a {@link Type} value for the field
+   * @since 1.27.0
+   */
+  Type getDisplayType();
 }

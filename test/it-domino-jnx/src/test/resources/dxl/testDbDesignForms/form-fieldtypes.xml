@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='utf-8'?>
+<form name='Field Types Form' xmlns='http://www.lotus.com/dxl' version='12.0'
+ publicaccess='false' designerversion='8.5.3' renderpassthrough='true'>
+<body><richtext>
+<pardef id='1'/>
+<par def='1'><field type='text' kind='editable' name='Text'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par>
+<par def='1'><field type='datetime' kind='editable' name='DateTime'><datetimeformat
+ show='date' date='yearmonthday' fourdigityearfor21stcentury='true' zone='never'
+ dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/></field></par>
+<par def='1'><field type='number' kind='editable' name='Number'><numberformat
+ format='general' digits='2' punctuated='false' parens='false' percent='false'
+ bytes='false'/></field></par>
+<par def='1'><field type='keyword' kind='editable' name='DialogList'><keywords
+ ui='dialoglist'/></field></par>
+<par def='1'><field borderstyle='inset' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' allowmultivalues='true' kind='editable' name='Checkbox' listinputseparators='comma'
+ listdisplayseparator='comma'><keywords helperbutton='false' columns='1' ui='checkbox'/></field></par>
+<par def='1'><field borderstyle='inset' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='RadioButton'><keywords helperbutton='false'
+ columns='1' ui='radiobutton'/></field></par>
+<par def='1'><field usenotesstyle='false' height='0.2500in' width='1in' multiline='true'
+ borderstyle='single' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='ListBox'><keywords helperbutton='false'
+ columns='1' ui='listbox'/></field></par>
+<par def='1'><field usenotesstyle='false' height='0.2500in' width='1in' multiline='true'
+ borderstyle='inset' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='ComboBox'><keywords helperbutton='false'
+ columns='1' ui='combobox'/></field></par>
+<par def='1'><field type='richtext' kind='editable' name='RichText'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAEAAAA=
+</compositedata></par>
+<par def='1'><field type='authors' kind='editable' name='Authors'/></par>
+<par def='1'><field type='authors' allowmultivalues='true' kind='editable'
+ name='AuthorsMulti' listinputseparators='comma' listdisplayseparator='comma'/></par>
+<par def='1'><field type='names' kind='editable' name='Names'/></par>
+<par def='1'><field type='readers' kind='editable' name='Readers'/></par>
+<par def='1'><field type='password' kind='editable' seal='true' name='Password'/></par>
+<par def='1'><field literalize='true' type='formula' name='Formula' listdisplayseparator='semicolon'><code
+ event='defaultvalue'><formula>""</formula></code></field></par>
+<par def='1'><field type='timezone' usenotesstyle='false' height='0.2500in'
+ width='1in' multiline='true' borderstyle='single' kind='editable' name='TimeZone'/></par>
+<par def='1'><field type='richtextlite' kind='editable' name='RichTextLite'
+ onlyallow='picture sharedimage attachment graphicsignature view datepicker sharedapplet text object calendar inbox help clear graphic link'
+ firstdisplay='text'/><compositedata type='98' prevtype='65418' nexttype='98'
+ afterparcount='7' containertype='65418' aftercontainercount='1' afterbegincount='4'>
+Yg4BAIQAAAAAAAEAAAA=
+</compositedata></par>
+<par def='1'><field type='color' usenotesstyle='false' height='0.2500in' width='1in'
+ multiline='true' borderstyle='single' kind='editable' name='Color'/></par></richtext></body>
+<item name='$$ScriptName' summary='false' sign='true'><text>Field Types Form</text></item>
+<item name='Number' summary='false'><number>0</number></item></form>

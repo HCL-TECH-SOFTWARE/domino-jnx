@@ -181,9 +181,15 @@ public interface CDExtField extends RichTextRecord<WSIG> {
 
   @StructureGetter("Flags1")
   Set<Flag> getFlags1();
+  
+  @StructureGetter("Flags1")
+  int getFlags1Raw();
 
   @StructureGetter("Flags2")
   Set<Flag2> getFlags2();
+  
+  @StructureGetter("Flags2")
+  int getFlags2Raw();
 
   @StructureGetter("Header")
   @Override

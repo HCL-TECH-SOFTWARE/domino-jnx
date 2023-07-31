@@ -96,7 +96,7 @@ public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> e
         } else if (record instanceof CDIDName) {
           fieldStructs.add(record);
         } else if (record instanceof CDColor) {
-          // Don't close fields on COLOR
+          fieldStructs.add(record);
         } else if (record instanceof CDDataFlags) {
           if (foundFieldBegin.get()) {
             fieldStructs.add(record);
