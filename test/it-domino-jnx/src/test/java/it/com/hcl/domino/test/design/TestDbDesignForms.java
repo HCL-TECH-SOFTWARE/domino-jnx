@@ -103,6 +103,7 @@ import com.hcl.domino.design.simpleaction.SendDocumentAction;
 import com.hcl.domino.design.simpleaction.SimpleAction;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.misc.StructureSupport;
+import com.hcl.domino.richtext.FormField;
 import com.hcl.domino.richtext.HotspotType;
 import com.hcl.domino.richtext.NotesBitmap;
 import com.hcl.domino.richtext.RichTextRecordList;
@@ -1827,6 +1828,44 @@ public class TestDbDesignForms extends AbstractDesignTest {
         assertInstanceOf(CDActionSendMail.class, actions.get(1));
       }
       
+    });
+  }
+  
+  @Test
+  public void testDbDesignComputedFields() throws Exception {
+    withResourceDxl("/dxl/testDbDesignForms", database -> {
+      Form form = database.getDesign().getForm("Computed When Composed").get();
+      
+      List<FormField> fields = form.getFields();
+      
+      {
+        FormField field = fields.stream()
+            .filter(f -> "NormalField".equals(f.getName()))
+            .findFirst()
+            .get();
+        assertEquals(FormField.Kind.EDITABLE, field.getKind());
+      }
+      {
+        FormField field = fields.stream()
+            .filter(f -> "ComputedWhenComposed".equals(f.getName()))
+            .findFirst()
+            .get();
+        assertEquals(FormField.Kind.COMPUTEDWHENCOMPOSED, field.getKind());
+      }
+      {
+        FormField field = fields.stream()
+            .filter(f -> "ComputedForDisplay".equals(f.getName()))
+            .findFirst()
+            .get();
+        assertEquals(FormField.Kind.COMPUTEDFORDISPLAY, field.getKind());
+      }
+      {
+        FormField field = fields.stream()
+            .filter(f -> "Computed".equals(f.getName()))
+            .findFirst()
+            .get();
+        assertEquals(FormField.Kind.COMPUTED, field.getKind());
+      }
     });
   }
   
