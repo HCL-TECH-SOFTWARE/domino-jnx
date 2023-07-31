@@ -145,7 +145,7 @@
 		<spotbugs.version>4.7.3</spotbugs.version>
 		<spotless.version>2.4.1</spotless.version>
 		<testcontainers.version>1.15.2</testcontainers.version>
-		<vertx.version>4.3.5</vertx.version>
+		<vertx.version>4.4.4</vertx.version>
 		<yaml.version>1.25</yaml.version>
 
 
