@@ -108,7 +108,7 @@ public class NotesErrorUtils {
     }
 
     final Optional<DominoException> ex = NotesErrorUtils.toNotesError(result, staticTextsOnly);
-    if (!ex.isPresent()) {
+    if (ex != null && !ex.isPresent()) {
       return;
     } else {
       // Remove the stack trace elements for this and toNotesError
