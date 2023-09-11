@@ -173,6 +173,23 @@ public interface Item extends IAdaptable {
    * @throws IllegalArgumentException if the specified value type is unsupported
    */
   <T> List<T> getAsList(Class<T> valueType, List<T> defaultValue);
+  
+  /**
+   * Retrieves the item value as text.
+   * <p>
+   * This differs from calling {@link #get} with `String.class` as the type in
+   * that it uses an internal Domino routine to convert values to text.
+   * </p>
+   * 
+   * <p>It also differs from {@link Document#getAsText(String, char)} in that
+   * it can be used on individual items with duplicate names within a
+   * document.</p>
+   *
+   * @param separator a separator character to use when the item is multi-value
+   * @return the item value as a string
+   * @since 1.28.0
+   */
+  String getAsText(char separator);
 
   /**
    * Gets all the field flags corresponding to the Item
