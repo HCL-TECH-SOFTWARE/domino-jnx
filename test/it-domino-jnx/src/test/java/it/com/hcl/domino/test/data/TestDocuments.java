@@ -584,4 +584,41 @@ public class TestDocuments extends AbstractNotesRuntimeTest {
       assertIterableEquals(EnumSet.of(ItemFlag.PLACEHOLDER), item.getFlags());
     });
   }
+  
+  @Test
+  public void testItemGetAsText() throws Exception {
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      doc.replaceItemValue("Foo", "Bar");
+      Item item = doc.getFirstItem("Foo").get();
+      assertEquals("Bar", item.getAsText(' '));
+    });
+  }
+  
+  @Test
+  public void testItemGetAsTextNumberList() throws Exception {
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      doc.replaceItemValue("Foo", Arrays.asList(1, 2, 3));
+      Item item = doc.getFirstItem("Foo").get();
+      assertEquals("1 2 3", item.getAsText(' '));
+    });
+  }
+  
+  @Test
+  public void testItemGetAsTextNumberMultiItem() throws Exception {
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      doc.replaceItemValue("Foo", Arrays.asList(1, 2, 3));
+      doc.appendItemValue("Foo", Arrays.asList(4, 5, 6));
+      int[] i = new int[1];
+      doc.forEachItem("Foo", (item, loop) -> {
+        if(i[0]++ == 0) {
+          assertEquals("1 2 3", item.getAsText(' '));
+        } else {
+          assertEquals("4 5 6", item.getAsText(' '));
+        }
+      });
+    });
+  }
 }
