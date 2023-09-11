@@ -293,6 +293,27 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 		return typedAccess.getAsList(getName(), valueType, defaultValue);
 	}
 	
+    @Override
+    public String getAsText(char separator) {
+      checkDisposed();
+
+      try (DisposableMemory returnBuf = new DisposableMemory(60 * 1024)) {
+        NotesBlockIdStruct.ByValue blockId = NotesBlockIdStruct.ByValue.newInstance();
+        blockId.block = m_valueBlockId.block;
+        blockId.pool = m_valueBlockId.pool;
+        blockId.write();
+        short txtLengthAsShort = NotesCAPI.get().NSFItemConvertValueToText((short) getTypeValue(),
+            blockId, getValueLength(), returnBuf, (short) (60 * 1024), separator);
+        int txtLength = txtLengthAsShort & 0xffff;
+        if (txtLength == 0) {
+          return ""; //$NON-NLS-1$
+        } else {
+          return NotesStringUtils.fromLMBCS(returnBuf, txtLength);
+        }
+
+      }
+    }
+	
 	@Override
 	public void copyToDocument(Document doc, boolean overwrite) {
 		JNADocumentAllocations parentDocAllocations = (JNADocumentAllocations) m_parentDoc.getAdapter(APIObjectAllocations.class);

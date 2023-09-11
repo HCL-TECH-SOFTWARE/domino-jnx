@@ -49,6 +49,7 @@ import com.hcl.domino.data.Document.IAttachmentProducer;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.FormulaQueryResult;
+import com.hcl.domino.data.Item;
 import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.TextStyle.Justify;
@@ -232,6 +233,19 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
         Assertions.assertEquals(EnumSet.of(FontAttribute.BOLD, FontAttribute.ITALIC), style.getAttributes(),
             "Text should be bold and italic");
       }
+    });
+  }
+  
+  @Test
+  public void testReadCDTextAsText() throws Exception {
+    this.withResourceDxl("/dxl/testRichTextNavigator", database -> {
+      final FormulaQueryResult result = database.queryFormula("$$TITLE='CD Record test'", null, Collections.emptySet(), null,
+          EnumSet.of(DocumentClass.DOCUMENT));
+      final Document doc = result.getDocuments().findFirst()
+          .orElseThrow(() -> new RuntimeException("Couldn't find 'CD Record test' post note"));
+      
+      final Item item = doc.getFirstItem("Body").get();
+      Assertions.assertEquals("This is normal text.\r\n\r\nThis is monospace text\r\n\r\nThis is serif italic bold text", item.getAsText(' '));
     });
   }
 
