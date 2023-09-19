@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.naming.AuthenticationException;
@@ -17,6 +18,8 @@ import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.INotesCAPI1400;
 import com.hcl.domino.jna.internal.capi.NotesCAPI1400;
+import com.hcl.domino.jna.internal.structs.JwtValidateOptionalParamsStruct;
+import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.security.CredentialValidationTokenHandler;
 import com.hcl.domino.security.DominoOIDCTokenValidation;
@@ -53,19 +56,40 @@ public class JNAOIDCTokenHandler implements CredentialValidationTokenHandler<Dom
     Memory memJwt = NotesStringUtils.toLMBCS(token.getToken(), true);
     Memory memProvider = NotesStringUtils.toLMBCS(token.getProviderUrl(), true);
     Memory memScope = NotesStringUtils.toLMBCS(token.getRequiredScope(), true);
-    Memory memResource = NotesStringUtils.toLMBCS(token.getResourceUrl(), true);
+    Memory memAud = NotesStringUtils.toLMBCS(token.getAud(), true);
+    int dwFlags = DominoEnumUtil.toBitField(DominoOIDCTokenValidation.Flag.class, token.getFlags());
     
-    try(DisposableMemory memEmail = new DisposableMemory(256)) {
+    // Check optional parameters to adjust flags and fill in a structure
+    JwtValidateOptionalParamsStruct params = JwtValidateOptionalParamsStruct.newInstance();
+    String customClaim = token.getCustomClaimName();
+    if(customClaim != null && !customClaim.isEmpty()) {
+      dwFlags |= NotesConstants.fJWT_validate_UseCustomEmailClaim;
+      System.out.println("applying custom claim name " + customClaim);
+      params.pszCustomClaimName = NotesStringUtils.toLMBCS(customClaim, true);
+    }
+    Predicate<String> resourceValidator = token.getResourceValidator();
+    if(resourceValidator != null) {
+      dwFlags |= NotesConstants.fJWT_validate_AllowAlternateAud;
+      params.allowedResource = pszAudience -> resourceValidator.test(NotesStringUtils.fromLMBCS(pszAudience, -1));
+    }
+    Predicate<String> clientIdValidator = token.getClientIdValidator();
+    if(clientIdValidator != null) {
+      dwFlags |= NotesConstants.fJWT_validate_EnforceAllowedClients;
+      params.allowedClientID = pAzp -> clientIdValidator.test(NotesStringUtils.fromLMBCS(pAzp, -1));
+    }
+    params.write();
+    
+    try(DisposableMemory memEmail = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
       LongByReference duration = new LongByReference();
       
       Optional<DominoException> e = NotesErrorUtils.toNotesError(api.SECValidateAccessToken(
           memJwt,
           memProvider,
           memScope,
-          memResource,
-          0,
-          null,
-          256,
+          memAud,
+          dwFlags,
+          params.getPointer(),
+          NotesConstants.MAXUSERNAME,
           memEmail,
           duration
       ));

@@ -14,38 +14,24 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.jna.internal.capi;
-
-import com.sun.jna.Callback;
-import com.sun.jna.Library;
-import com.sun.jna.Memory;
-import com.sun.jna.Pointer;
-import com.sun.jna.ptr.LongByReference;
+package com.hcl.domino.constants;
 
 /**
- * C API methods introduced in R14
+ * Represents constants originally from the {@code bsafe.h} header file.
  * 
+ * @author Jesse Gallagher
  * @since 1.29.0
  */
-public interface INotesCAPI1400 extends Library {
-  
-  short SECValidateAccessToken(
-      Memory pszAccessToken,
-      Memory pszProviderURL,
-      Memory pszRequiredScope,
-      Memory pszResourceURL,
-      int dwFlags,
-      Pointer vpOptionalParams,
-      int dwMaxEmailSize,
-      Memory retszEmail,
-      LongByReference retqwDurationSec
-  );
-  
-  interface ResourceCallback extends Callback {
-    boolean invoke(Pointer pszAudience);
-  }
-  interface ClientCallback extends Callback {
-    boolean invoke(Pointer pAzp);
-  }
-  
+public interface Bsafe {
+  /** @since Notes/Domino 14.0 */
+  int fJWT_validate_AllowExpired = 0x00000001;
+  /** @since Notes/Domino 14.0 */
+  int fJWT_validate_AllowMSWorkarounds = 0x00000002;
+  /** @since Notes/Domino 14.0 */
+  int fJWT_validate_UseCustomEmailClaim = 0x00000010;
+  /** @since Notes/Domino 14.0 */
+  int fJWT_validate_AllowAlternateAud = 0x00000020;
+  /** @since Notes/Domino 14.0 */
+  int fJWT_validate_EnforceAllowedClients = 0x00000040;
+
 }
