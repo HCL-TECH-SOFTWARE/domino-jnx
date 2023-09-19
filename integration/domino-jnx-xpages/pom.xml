@@ -62,7 +62,6 @@
                         <DynamicImport-Package>sun.misc</DynamicImport-Package>
                         <Export-Package>com.hcl.domino.*</Export-Package>
                         <Require-Bundle>com.ibm.xsp.core</Require-Bundle>
-                        >
                     </instructions>
                 </configuration>
             </plugin>
