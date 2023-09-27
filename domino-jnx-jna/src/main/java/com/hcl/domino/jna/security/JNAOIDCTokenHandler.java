@@ -64,7 +64,6 @@ public class JNAOIDCTokenHandler implements CredentialValidationTokenHandler<Dom
     String customClaim = token.getCustomClaimName();
     if(customClaim != null && !customClaim.isEmpty()) {
       dwFlags |= NotesConstants.fJWT_validate_UseCustomEmailClaim;
-      System.out.println("applying custom claim name " + customClaim);
       params.pszCustomClaimName = NotesStringUtils.toLMBCS(customClaim, true);
     }
     Predicate<String> resourceValidator = token.getResourceValidator();
