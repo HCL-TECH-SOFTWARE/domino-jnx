@@ -18,7 +18,7 @@ package it.com.hcl.domino.test.richtext;
 
 import static it.com.hcl.domino.test.util.ITUtil.toCr;
 import static it.com.hcl.domino.test.util.ITUtil.toLf;
-
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -44,8 +44,10 @@ import org.junit.jupiter.api.Test;
 
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.data.Attachment;
+import com.hcl.domino.data.Attachment.Compression;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.Document.IAttachmentProducer;
+import com.hcl.domino.html.RichTextHTMLConverter;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.FormulaQueryResult;
@@ -53,6 +55,7 @@ import com.hcl.domino.data.Item;
 import com.hcl.domino.data.StandardFonts;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.TextStyle.Justify;
+import com.hcl.domino.richtext.conversion.AppendFileHotspotConversion;
 import com.hcl.domino.richtext.conversion.RemoveAttachmentIconConversion;
 import com.hcl.domino.richtext.process.ExtractFileResourceProcessor;
 import com.hcl.domino.richtext.process.ExtractImageResourceProcessor;
@@ -680,6 +683,55 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
 
       final String txtOut = doc.getRichTextItem("Body").extractText();
       Assertions.assertEquals(txtIn, txtOut);
+    });
+  }
+  
+  /**
+   * Tests for correct behavior when attaching multiple files to a
+   * document and then adding references to them in the same RT field
+   */
+  @Test
+  public void testMultipleAttachmentsInBody() throws Exception {
+    withTempDb(database -> {
+      Path tempA = Files.createTempFile("tempA", ".txt");
+      Path tempB = Files.createTempFile("tempB", ".txt");
+      Path tempC = Files.createTempFile("tempC", ".txt");
+      try {
+        Files.write(tempA, Collections.singleton("hello A"));
+        Files.write(tempB, Collections.singleton("hello B"));
+        Files.write(tempC, Collections.singleton("hello C"));
+        
+        Document doc = database.createDocument();
+        
+        // Attach each, saving after each one as upstream does
+        {
+          Attachment att = doc.attachFile(tempA.toString(), tempA.getFileName().toString(), Compression.NONE);
+          final RichTextWriter rtWriter = doc.createRichTextItem("Body");
+          rtWriter.addAttachmentIcon(att, tempA.getFileName().toString());
+          doc.save();
+        }
+        {
+          Attachment att = doc.attachFile(tempB.toString(), tempB.getFileName().toString(), Compression.NONE);
+          doc.convertRichTextItem("Body", new AppendFileHotspotConversion(att, tempB.getFileName().toString()));
+          doc.save();
+        }
+        {
+          Attachment att = doc.attachFile(tempC.toString(), tempC.getFileName().toString(), Compression.NONE);
+          doc.convertRichTextItem("Body", new AppendFileHotspotConversion(att, tempC.getFileName().toString()));
+          doc.save();
+        }
+        
+        // Convert the Body field to HTML
+        RichTextHTMLConverter conv = database.getParentDominoClient().getRichTextHtmlConverter();
+        String html = conv.renderItem(doc, "Body").convert().getHtml();
+        assertTrue(html.contains(tempA.getFileName().toString()), () -> "Body is missing tempA");
+        assertTrue(html.contains(tempB.getFileName().toString()), () -> "Body is missing tempB");
+        assertTrue(html.contains(tempC.getFileName().toString()), () -> "Body is missing tempC");
+      } finally {
+        Files.deleteIfExists(tempA);
+        Files.deleteIfExists(tempB);
+        Files.deleteIfExists(tempC);
+      }
     });
   }
 }
