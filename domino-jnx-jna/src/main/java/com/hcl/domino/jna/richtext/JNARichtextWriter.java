@@ -61,7 +61,6 @@ import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
-import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.ItemDataType;
@@ -495,56 +494,7 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 	}
 	
 	@Override
-	public RichTextWriter addAttachmentIcon(String attachmentProgrammaticName, String captionTxt) {
-		InputStream in = getClass().getResourceAsStream("file-icon.gif"); //$NON-NLS-1$
-		if (in==null) {
-			throw new IllegalStateException("Default icon file not found");
-		}
-		
-		try {
-			return addAttachmentIcon(attachmentProgrammaticName, captionTxt, captionTxt, createFontStyle(),
-					CaptionPosition.BELOWCENTER, 0, 0, 0, -1, -1, null, in);
-			
-		} catch (IOException e) {
-			throw new DominoException(format("Could not add attachment icon for {0}", attachmentProgrammaticName), e);
-		}
-		finally {
-			try {
-				in.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	@Override
-	public RichTextWriter addAttachmentIcon(Attachment att, String filenameToDisplay, String captionText, FontStyle captionStyle,
-			CaptionPosition captionPos, int captionColorRed, int captionColorGreen, int captionColorBlue,
-			int resizeToWidth, int resizeToHeight, Path imagePath) {
-		
-		try {
-			return addAttachmentIcon(att.getFileName(), filenameToDisplay, captionText, captionStyle,
-					captionPos, captionColorRed, captionColorGreen, captionColorBlue, resizeToWidth,
-					resizeToHeight, imagePath, null);
-		} catch (IOException e) {
-			throw new DominoException(format("Could not add attachment icon for {0}", att.getFileName()), e);
-		}
-	}
-
-	@Override
 	public RichTextWriter addAttachmentIcon(String attachmentProgrammaticName, String filenameToDisplay, String captionText,
-			FontStyle captionStyle,
-			CaptionPosition captionPos, int captionColorRed, int captionColorGreen, int captionColorBlue,
-			int resizeToWidth, int resizeToHeight, InputStream imageData) throws IOException {
-		
-		return addAttachmentIcon(attachmentProgrammaticName, filenameToDisplay, captionText,
-			captionStyle,
-			captionPos, captionColorRed, captionColorGreen, captionColorBlue,
-			resizeToWidth, resizeToHeight, null, imageData);
-		
-	}
-	
-	private RichTextWriter addAttachmentIcon(String attachmentProgrammaticName, String filenameToDisplay, String captionText,
 			FontStyle captionStyle,
 			CaptionPosition captionPos, int captionColorRed, int captionColorGreen, int captionColorBlue,
 			int resizeToWidth, int resizeToHeight, Path imagePath, InputStream imageData) throws IOException {
@@ -567,6 +517,7 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 		m_hasData=true;
 
 		addRichTextRecord(CDHotspotBegin.class, hotspotBegin -> {
+		    hotspotBegin.getHeader().setSignature(RecordType.HOTSPOTBEGIN.getConstant());
 			hotspotBegin.setHotspotType(HotspotType.FILE);
 			hotspotBegin.setFlags(EnumSet.of(CDHotspotBegin.Flag.NOBORDER));
 			
@@ -596,7 +547,9 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 			caption.setCaptionText(captionText);
 		});
 		
-		addRichTextRecord(CDHotspotEnd.class, hotspotEnd -> { });
+		addRichTextRecord(CDHotspotEnd.class, hotspotEnd -> {
+		    hotspotEnd.getHeader().setSignature((byte)RecordType.HOTSPOTEND.getConstant());
+		});
 		addRichTextRecord(CDEnd.class, end -> {
 			end.setVersion(0);
 			end.setSignature(RecordType.V4HOTSPOTEND.getConstant());
