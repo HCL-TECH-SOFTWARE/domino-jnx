@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.commons.richtext;
 
+import static java.text.MessageFormat.format;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -26,7 +27,6 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 import com.hcl.domino.DominoException;
-import com.hcl.domino.commons.design.view.DominoCollationInfo;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Database;
@@ -297,6 +297,61 @@ public interface IDefaultRichTextWriter extends RichTextWriter {
   default RichTextWriter addText(final String txt, final TextStyle textStyle, final FontStyle fontStyle) {
     return this.addText(txt, textStyle, fontStyle, true);
   }
+  
+  @Override
+  default RichTextWriter addAttachmentIcon(String attachmentProgrammaticName, String captionTxt) {
+      InputStream in = getClass().getResourceAsStream("file-icon.gif"); //$NON-NLS-1$
+      if (in==null) {
+          throw new IllegalStateException("Default icon file not found");
+      }
+      
+      try {
+          return addAttachmentIcon(attachmentProgrammaticName, captionTxt, captionTxt, createFontStyle(),
+                  CaptionPosition.BELOWCENTER, 0, 0, 0, -1, -1, null, in);
+          
+      } catch (IOException e) {
+          throw new DominoException(format("Could not add attachment icon for {0}", attachmentProgrammaticName), e);
+      }
+      finally {
+          try {
+              in.close();
+          } catch (IOException e) {
+              e.printStackTrace();
+          }
+      }
+  }
+
+  @Override
+  default RichTextWriter addAttachmentIcon(Attachment att, String filenameToDisplay, String captionText, FontStyle captionStyle,
+          CaptionPosition captionPos, int captionColorRed, int captionColorGreen, int captionColorBlue,
+          int resizeToWidth, int resizeToHeight, Path imagePath) {
+      
+      try {
+          return addAttachmentIcon(att.getFileName(), filenameToDisplay, captionText, captionStyle,
+                  captionPos, captionColorRed, captionColorGreen, captionColorBlue, resizeToWidth,
+                  resizeToHeight, imagePath, null);
+      } catch (IOException e) {
+          throw new DominoException(format("Could not add attachment icon for {0}", att.getFileName()), e);
+      }
+  }
+
+  @Override
+  default RichTextWriter addAttachmentIcon(String attachmentProgrammaticName, String filenameToDisplay, String captionText,
+          FontStyle captionStyle,
+          CaptionPosition captionPos, int captionColorRed, int captionColorGreen, int captionColorBlue,
+          int resizeToWidth, int resizeToHeight, InputStream imageData) throws IOException {
+      
+      return addAttachmentIcon(attachmentProgrammaticName, filenameToDisplay, captionText,
+          captionStyle,
+          captionPos, captionColorRed, captionColorGreen, captionColorBlue,
+          resizeToWidth, resizeToHeight, null, imageData);
+      
+  }
+  
+  RichTextWriter addAttachmentIcon(String attachmentProgrammaticName, String filenameToDisplay, String captionText,
+      FontStyle captionStyle,
+      CaptionPosition captionPos, int captionColorRed, int captionColorGreen, int captionColorBlue,
+      int resizeToWidth, int resizeToHeight, Path imagePath, InputStream imageData) throws IOException;
 
   @Override
   default FontStyle createFontStyle() {
