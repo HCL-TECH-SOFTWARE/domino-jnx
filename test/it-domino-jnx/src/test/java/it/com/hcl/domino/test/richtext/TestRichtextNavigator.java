@@ -45,6 +45,7 @@ import org.junit.jupiter.api.Test;
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Attachment.Compression;
+import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.Document.IAttachmentProducer;
 import com.hcl.domino.html.RichTextHTMLConverter;
@@ -727,6 +728,65 @@ public class TestRichtextNavigator extends AbstractNotesRuntimeTest {
         assertTrue(html.contains(tempA.getFileName().toString()), () -> "Body is missing tempA");
         assertTrue(html.contains(tempB.getFileName().toString()), () -> "Body is missing tempB");
         assertTrue(html.contains(tempC.getFileName().toString()), () -> "Body is missing tempC");
+      } finally {
+        Files.deleteIfExists(tempA);
+        Files.deleteIfExists(tempB);
+        Files.deleteIfExists(tempC);
+      }
+    });
+  }
+  
+  /**
+   * Tests for correct behavior when attaching multiple files to a
+   * document and then adding references to them in the same RT field
+   */
+  @Test
+  public void testMultipleAttachmentsInBodyReopen() throws Exception {
+    withTempDb(database -> {
+      Path tempA = Files.createTempFile("tempA", ".txt");
+      Path tempB = Files.createTempFile("tempB", ".txt");
+      Path tempC = Files.createTempFile("tempC", ".txt");
+      try {
+        Files.write(tempA, Collections.singleton("hello A"));
+        Files.write(tempB, Collections.singleton("hello B"));
+        Files.write(tempC, Collections.singleton("hello C"));
+        
+        Document doc = database.createDocument();
+        String unid;
+        
+        // Attach each, saving after each one as upstream does
+        {
+          Attachment att = doc.attachFile(tempA.toString(), tempA.getFileName().toString(), Compression.NONE);
+          final RichTextWriter rtWriter = doc.createRichTextItem("Body");
+          rtWriter.addAttachmentIcon(att, tempA.getFileName().toString());
+          doc.save();
+          unid = doc.getUNID();
+        }
+        {
+          Database db = database.reopen();
+          doc = db.getDocumentByUNID(unid).get();
+          Attachment att = doc.attachFile(tempB.toString(), tempB.getFileName().toString(), Compression.NONE);
+          doc.convertRichTextItem("Body", new AppendFileHotspotConversion(att, tempB.getFileName().toString()));
+          doc.save();
+        }
+        {
+          Database db = database.reopen();
+          doc = db.getDocumentByUNID(unid).get();
+          Attachment att = doc.attachFile(tempC.toString(), tempC.getFileName().toString(), Compression.NONE);
+          doc.convertRichTextItem("Body", new AppendFileHotspotConversion(att, tempC.getFileName().toString()));
+          doc.save();
+        }
+        
+        // Convert the Body field to HTML
+        {
+          Database db = database.reopen();
+          doc = db.getDocumentByUNID(unid).get();
+          RichTextHTMLConverter conv = database.getParentDominoClient().getRichTextHtmlConverter();
+          String html = conv.renderItem(doc, "Body").convert().getHtml();
+          assertTrue(html.contains(tempA.getFileName().toString()), () -> "Body is missing tempA");
+          assertTrue(html.contains(tempB.getFileName().toString()), () -> "Body is missing tempB");
+          assertTrue(html.contains(tempC.getFileName().toString()), () -> "Body is missing tempC");
+        }
       } finally {
         Files.deleteIfExists(tempA);
         Files.deleteIfExists(tempB);
