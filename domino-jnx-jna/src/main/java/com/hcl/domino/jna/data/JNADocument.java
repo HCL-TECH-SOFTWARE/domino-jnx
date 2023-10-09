@@ -4538,6 +4538,16 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 	
 	@Override
+	public int getAsInt(String itemName, int defaultValue) {
+	  checkDisposed();
+	  
+	  return LockUtil.lockHandle(getAllocations().getNoteHandle(), (hNoteByVal) -> {
+          Memory itemNameLmbcs = NotesStringUtils.toLMBCS(itemName, true);
+          return NotesCAPI.get().NSFItemGetLong(hNoteByVal, itemNameLmbcs, defaultValue);
+      });
+	}
+	
+	@Override
 	public String getAsText(String itemName, char separator) {
 		checkDisposed();
 

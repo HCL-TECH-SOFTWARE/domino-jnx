@@ -595,6 +595,17 @@ public interface Document extends TypedAccess, IAdaptable {
    * @return the timestamp of when the document was added to the file
    */
   DominoDateTime getAddedToFile();
+  
+  /**
+   * Retrieves the item value as an integer ({@code LONG} in the API).
+   * 
+   * @param itemName the name of the item to retrieve
+   * @param defaultValue the value to return when the item is not
+   *        present
+   * @return the item value as an {@code int}
+   * @since 1.31.0
+   */
+  int getAsInt(String itemName, int defaultValue);
 
   /**
    * Retrieves the item value as text.

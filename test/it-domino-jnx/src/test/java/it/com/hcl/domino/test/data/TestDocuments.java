@@ -621,4 +621,18 @@ public class TestDocuments extends AbstractNotesRuntimeTest {
       });
     });
   }
+  
+  @Test
+  public void testItemGetAsInt() throws Exception {
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      doc.replaceItemValue("Foo", "dsf");
+      assertEquals(21, doc.getAsInt("Foo", 21));
+      doc.replaceItemValue("Bar", 43);
+      assertEquals(43, doc.getAsInt("Bar", 0));
+      doc.replaceItemValue("Baz", 82.1);
+      assertEquals(82, doc.getAsInt("Baz", 1));
+      assertEquals(-2, doc.getAsInt("Fake", -2));
+    });
+  }
 }
