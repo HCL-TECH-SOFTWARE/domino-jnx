@@ -2269,6 +2269,15 @@ public interface INotesCAPI extends Library {
 			Memory item_text,
 			short text_len);
 	
+	/**
+	 * @since 1.31.0
+	 */
+	int NSFItemGetLong(
+        DHANDLE.ByValue note_handle,
+        Memory item_name,
+        int number_item_default
+	);
+	
 	short NSFDbGetNamesList(HANDLE.ByValue hDB, int Flags, DHANDLE.ByReference rethNamesList);
 	
 	@UndocumentedAPI
