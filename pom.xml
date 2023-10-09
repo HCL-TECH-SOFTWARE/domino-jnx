@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.hcl.domino</groupId>
 	<artifactId>domino-jnx</artifactId>
-	<version>1.30.1-SNAPSHOT</version>
+	<version>1.30.1</version>
 	<packaging>pom</packaging>
 
 	<name>HCL Domino API Parent Project</name>
@@ -145,7 +145,7 @@
 		<spotbugs.version>4.7.3</spotbugs.version>
 		<spotless.version>2.4.1</spotless.version>
 		<testcontainers.version>1.15.2</testcontainers.version>
-		<vertx.version>4.4.4</vertx.version>
+		<vertx.version>4.4.5</vertx.version>
 		<yaml.version>1.25</yaml.version>
 
 
