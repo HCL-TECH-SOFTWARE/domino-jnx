@@ -16,7 +16,12 @@
  */
 package com.hcl.domino.jna;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,7 +36,8 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.DominoProcess;
 import com.hcl.domino.commons.util.DominoUtils;
@@ -57,31 +63,70 @@ public class JNADominoProcess implements DominoProcess {
 	
 	private static final Method notesThreadInit;
 	private static final Method notesThreadTerm;
+	private static URLClassLoader notesThreadCl;
 	
-	static {
-		// If Notes.jar is available and we're on Java 8, prefer those thread init/term methods to account for
-		//   in-runtime JNI hooks.
-	  // We currently have to exclude Java 9+ due to incompatibilities in the internal JVM locator in
-	  //   lsxbe
-		Method initMethod;
-		Method termMethod;
-    if("1.8".equals(DominoUtils.getJavaProperty("java.specification.version", ""))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-  		try {
-  			Class<?> notesThread = Class.forName("lotus.domino.NotesThread"); //$NON-NLS-1$
-  			initMethod = notesThread.getDeclaredMethod("sinitThread"); //$NON-NLS-1$
-  			termMethod = notesThread.getDeclaredMethod("stermThread"); //$NON-NLS-1$
-  		} catch(Throwable t) {
-  			// Then Notes.jar is not present
-  			initMethod = null;
-  			termMethod = null;
-  		}
-  	} else {
-  	  initMethod = null;
-  	  termMethod = null;
-  	}
-		notesThreadInit = initMethod;
-		notesThreadTerm = termMethod;
-	}
+	private static final Logger log = Logger.getLogger(JNADominoProcess.class.getPackage().getName());
+	
+    static {
+      // If Notes.jar is available and we're on Java 8, prefer those thread init/term methods to
+      // account for in-runtime JNI hooks.
+      // We currently have to exclude Java 9+ due to incompatibilities in the internal JVM locator
+      // in lsxbe
+      Method initMethod = null;
+      Method termMethod = null;
+      Class<?> notesThread = null;
+      if ("1.8".equals(DominoUtils.getJavaProperty("java.specification.version", ""))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+        try {
+          notesThread = Class.forName("lotus.domino.NotesThread"); //$NON-NLS-1$
+        } catch (Throwable t) {
+          // Then Notes.jar is not present
+        }
+      } else {
+        // Then try to find Notes.jar from our contextual path
+        String dominoPath = DominoUtils.getJavaProperty("java.library.path", "");
+        if(StringUtil.isNotEmpty(dominoPath)) {
+          Path dominoDir = Paths.get(dominoPath);
+          Path ndext = dominoDir.resolve("ndext");
+          if(Files.isDirectory(ndext)) {
+            if(log.isLoggable(Level.FINER)) {
+              log.finer(MessageFormat.format("Initializing NotesThread class from ndext directory {0}", ndext));
+            }
+            try {
+              URL[] urls = Files.list(ndext)
+                  .filter(Files::isRegularFile)
+                  .filter(f -> f.getFileName().toString().toLowerCase().endsWith(".jar"))
+                  .map(f -> {
+                    try {
+                      return f.toUri().toURL();
+                    } catch (MalformedURLException e) {
+                      throw new UncheckedIOException(e);
+                    }
+                  })
+                  .toArray(URL[]::new);
+              notesThreadCl = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
+              notesThread = Class.forName("lotus.domino.NotesThread", true, notesThreadCl);
+            } catch (Throwable t) {
+              // Unlikely to happen
+              if(log.isLoggable(Level.SEVERE)) {
+                log.log(Level.SEVERE, "Encountered exception loading NotesThread", t);
+              }
+            }
+          }
+        }
+      }
+      if(notesThread != null) {
+        try {
+          initMethod = notesThread.getDeclaredMethod("sinitThread"); //$NON-NLS-1$
+          termMethod = notesThread.getDeclaredMethod("stermThread"); //$NON-NLS-1$
+        } catch(Throwable t) {
+          if(log.isLoggable(Level.SEVERE)) {
+            log.log(Level.SEVERE, "Encountered exception locating static init methods in NotesThread", t);
+          }
+        }
+      }
+      notesThreadInit = initMethod;
+      notesThreadTerm = termMethod;
+    }
 	
 	public static void ensureProcessInitialized() {
 		synchronized (pacemakerThreadlock) {
@@ -275,6 +320,13 @@ public class JNADominoProcess implements DominoProcess {
 				throw new DominoException("Thread has been interrupted", e);
 			}
 			processInitialized = false;
+            if (notesThreadCl != null) {
+              try {
+                notesThreadCl.close();
+              } catch (IOException e) {
+                // Ignore
+              }
+            }
 		}
 	}
 	
@@ -291,6 +343,7 @@ public class JNADominoProcess implements DominoProcess {
 							return null;
 						});
 					} catch (IllegalArgumentException | PrivilegedActionException e) {
+					  log.log(Level.SEVERE, "Exception initializing NotesThread", e);
 						throw new RuntimeException(e);
 					}
 				} else {
