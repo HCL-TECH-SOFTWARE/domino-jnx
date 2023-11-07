@@ -17,10 +17,7 @@
 package com.hcl.domino.jna;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,7 +48,6 @@ import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Memory;
 import com.sun.jna.StringArray;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class JNADominoProcess implements DominoProcess {
@@ -68,50 +64,17 @@ public class JNADominoProcess implements DominoProcess {
 	private static final Logger log = Logger.getLogger(JNADominoProcess.class.getPackage().getName());
 	
     static {
-      // If Notes.jar is available and we're on Java 8, prefer those thread init/term methods to
+      // If Notes.jar is available, prefer those thread init/term methods to
       // account for in-runtime JNI hooks.
-      // We currently have to exclude Java 9+ due to incompatibilities in the internal JVM locator
-      // in lsxbe
       Method initMethod = null;
       Method termMethod = null;
       Class<?> notesThread = null;
-      if ("1.8".equals(DominoUtils.getJavaProperty("java.specification.version", ""))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-        try {
-          notesThread = Class.forName("lotus.domino.NotesThread"); //$NON-NLS-1$
-        } catch (Throwable t) {
-          // Then Notes.jar is not present
-        }
-      } else {
-        // Then try to find Notes.jar from our contextual path
-        String dominoPath = DominoUtils.getJavaProperty("java.library.path", "");
-        if(StringUtil.isNotEmpty(dominoPath)) {
-          Path dominoDir = Paths.get(dominoPath);
-          Path ndext = dominoDir.resolve("ndext");
-          if(Files.isDirectory(ndext)) {
-            if(log.isLoggable(Level.FINER)) {
-              log.finer(MessageFormat.format("Initializing NotesThread class from ndext directory {0}", ndext));
-            }
-            try {
-              URL[] urls = Files.list(ndext)
-                  .filter(Files::isRegularFile)
-                  .filter(f -> f.getFileName().toString().toLowerCase().endsWith(".jar"))
-                  .map(f -> {
-                    try {
-                      return f.toUri().toURL();
-                    } catch (MalformedURLException e) {
-                      throw new UncheckedIOException(e);
-                    }
-                  })
-                  .toArray(URL[]::new);
-              notesThreadCl = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
-              notesThread = Class.forName("lotus.domino.NotesThread", true, notesThreadCl);
-            } catch (Throwable t) {
-              // Unlikely to happen
-              if(log.isLoggable(Level.SEVERE)) {
-                log.log(Level.SEVERE, "Encountered exception loading NotesThread", t);
-              }
-            }
-          }
+      try {
+        notesThread = Class.forName("lotus.domino.NotesThread"); //$NON-NLS-1$
+      } catch (Throwable t) {
+        // Then Notes.jar is not present
+        if(log.isLoggable(Level.WARNING)) {
+          log.log(Level.WARNING, "Unable to find lotus.domino.NotesThread in the context ClassLoader - skipping full JNI initialization", t);
         }
       }
       if(notesThread != null) {
