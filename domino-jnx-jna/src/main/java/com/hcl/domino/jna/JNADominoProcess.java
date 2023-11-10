@@ -69,12 +69,14 @@ public class JNADominoProcess implements DominoProcess {
       Method initMethod = null;
       Method termMethod = null;
       Class<?> notesThread = null;
-      try {
-        notesThread = Class.forName("lotus.domino.NotesThread"); //$NON-NLS-1$
-      } catch (Throwable t) {
-        // Then Notes.jar is not present
-        if(log.isLoggable(Level.WARNING)) {
-          log.log(Level.WARNING, "Unable to find lotus.domino.NotesThread in the context ClassLoader - skipping full JNI initialization", t);
+      if(!DominoUtils.isSkipNotesThreadInit()) {
+        try {
+          notesThread = Class.forName("lotus.domino.NotesThread"); //$NON-NLS-1$
+        } catch (Throwable t) {
+          // Then Notes.jar is not present
+          if(log.isLoggable(Level.WARNING)) {
+            log.log(Level.WARNING, "Unable to find lotus.domino.NotesThread in the context ClassLoader - skipping full JNI initialization", t);
+          }
         }
       }
       if(notesThread != null) {

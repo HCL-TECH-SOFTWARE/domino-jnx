@@ -176,6 +176,18 @@ public enum DominoUtils {
   public static boolean isSkipThreadWarning() {
     return DominoUtils.checkBooleanProperty("jnx.skipthreadwarning", null); //$NON-NLS-1$
   }
+  
+  /**
+   * Determines whether the DominoProcess implementation should skip using
+   * lotus.domino.NotesThread for thread init/term even when present.
+   * 
+   * @return {@code true} if the attempt to use NotesThread should be skipped,
+   *         {@code false} otherwise
+   * @since 1.32.0
+   */
+  public static boolean isSkipNotesThreadInit() {
+    return DominoUtils.checkBooleanProperty("jnx.skipNotesThread", null);
+  }
 
   /**
    * Calls {@link System#setProperty} wrapped in an {@link AccessController} call
