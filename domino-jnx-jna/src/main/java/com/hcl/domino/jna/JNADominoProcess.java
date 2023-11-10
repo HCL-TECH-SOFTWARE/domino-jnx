@@ -16,7 +16,9 @@
  */
 package com.hcl.domino.jna;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,7 +33,8 @@ import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.DominoProcess;
 import com.hcl.domino.commons.util.DominoUtils;
@@ -45,7 +48,6 @@ import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Memory;
 import com.sun.jna.StringArray;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class JNADominoProcess implements DominoProcess {
@@ -57,31 +59,39 @@ public class JNADominoProcess implements DominoProcess {
 	
 	private static final Method notesThreadInit;
 	private static final Method notesThreadTerm;
+	private static URLClassLoader notesThreadCl;
 	
-	static {
-		// If Notes.jar is available and we're on Java 8, prefer those thread init/term methods to account for
-		//   in-runtime JNI hooks.
-	  // We currently have to exclude Java 9+ due to incompatibilities in the internal JVM locator in
-	  //   lsxbe
-		Method initMethod;
-		Method termMethod;
-    if("1.8".equals(DominoUtils.getJavaProperty("java.specification.version", ""))) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-  		try {
-  			Class<?> notesThread = Class.forName("lotus.domino.NotesThread"); //$NON-NLS-1$
-  			initMethod = notesThread.getDeclaredMethod("sinitThread"); //$NON-NLS-1$
-  			termMethod = notesThread.getDeclaredMethod("stermThread"); //$NON-NLS-1$
-  		} catch(Throwable t) {
-  			// Then Notes.jar is not present
-  			initMethod = null;
-  			termMethod = null;
-  		}
-  	} else {
-  	  initMethod = null;
-  	  termMethod = null;
-  	}
-		notesThreadInit = initMethod;
-		notesThreadTerm = termMethod;
-	}
+	private static final Logger log = Logger.getLogger(JNADominoProcess.class.getPackage().getName());
+	
+    static {
+      // If Notes.jar is available, prefer those thread init/term methods to
+      // account for in-runtime JNI hooks.
+      Method initMethod = null;
+      Method termMethod = null;
+      Class<?> notesThread = null;
+      if(!DominoUtils.isSkipNotesThreadInit()) {
+        try {
+          notesThread = Class.forName("lotus.domino.NotesThread"); //$NON-NLS-1$
+        } catch (Throwable t) {
+          // Then Notes.jar is not present
+          if(log.isLoggable(Level.WARNING)) {
+            log.log(Level.WARNING, "Unable to find lotus.domino.NotesThread in the context ClassLoader - skipping full JNI initialization", t);
+          }
+        }
+      }
+      if(notesThread != null) {
+        try {
+          initMethod = notesThread.getDeclaredMethod("sinitThread"); //$NON-NLS-1$
+          termMethod = notesThread.getDeclaredMethod("stermThread"); //$NON-NLS-1$
+        } catch(Throwable t) {
+          if(log.isLoggable(Level.SEVERE)) {
+            log.log(Level.SEVERE, "Encountered exception locating static init methods in NotesThread", t);
+          }
+        }
+      }
+      notesThreadInit = initMethod;
+      notesThreadTerm = termMethod;
+    }
 	
 	public static void ensureProcessInitialized() {
 		synchronized (pacemakerThreadlock) {
@@ -275,6 +285,13 @@ public class JNADominoProcess implements DominoProcess {
 				throw new DominoException("Thread has been interrupted", e);
 			}
 			processInitialized = false;
+            if (notesThreadCl != null) {
+              try {
+                notesThreadCl.close();
+              } catch (IOException e) {
+                // Ignore
+              }
+            }
 		}
 	}
 	
@@ -291,6 +308,7 @@ public class JNADominoProcess implements DominoProcess {
 							return null;
 						});
 					} catch (IllegalArgumentException | PrivilegedActionException e) {
+					  log.log(Level.SEVERE, "Exception initializing NotesThread", e);
 						throw new RuntimeException(e);
 					}
 				} else {
