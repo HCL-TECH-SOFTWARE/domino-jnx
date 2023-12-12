@@ -3,42 +3,53 @@ layout: default
 title: Overview
 nav_order: 001
 ---
-# Domino Java API Next
+# Domino JNX
 
-Modern Java API for Domino based on JNA to Domino's C API
+Domino JNX ("Domino Java NeXt") is a modern Java API for Domino based on using JNA to access Domino's C API, without using the Notes.jar classes. Its primary use is to support the Domino REST API, but it can also be used standalone as a general API for Notes and Domino.
 
-## Design Goals
+Being a new implementation, this provides it with several advantages over the lotus.domino API:
 
-Goals and decisions around the design of the API
+- JNX heavily uses more-modern Java capabilities, such as streams, lambdas, better collections, and newer APIs like java.time
+- Using the C API, JNX provides access to capabilities and efficiencies that are not present in lotus.domino, such as highly-detailed view traversal, ECLs, message queues that work with the Collections framework, and task progress monitors
+- Java enums instead of integer-based flags
+- [Detailed access to rich-text records](rich_text.md)
+- Distribution through Maven Central, including source and Javadoc
+- No concept of `recycle()`, as resources are closed automatically. Some objects have manual `close()` methods that can be used with try-with-resources, but this is meant for cases where strict efficiency is required
 
-- Runs on Java8 or later, take advantage of Java8++ capabilities
-- Methods return the object where appropriate to enable use of lambdas, plus builder and build methods where appropriate (settings for DominoClient, updating multiple ACL entries in one call etc)
-- Run on Server, basic & standard client
-- Feel like real Java API to database and application server
-- No dependencies on Eclipse plugins or Notes.jar
-- Use of `com.hcl.domino` namespace
-- Higher level functions for workflow applications
-- no `recycle` operations
-- Interface -> Classes -> In-memory extensions to facilitate mocking and tests without needing a Domino server. Mock classes can still perform transactions, but they write as plain text JSON to local text file - it's intended for testing and getting familiar, it's not intended for sensitive data or performance verification!
-- Appropriate parameter names. Anyone using arg0, arg1 buys the team a drink ;-)
-- JavaDoc comments throughout, as meaningful as possible, and including good example code. **NOTE** How can we best use progressive display to make comments work for non-Domino developers but also support existing Domino developers coming from traditional APIs? Do we just need separate documentation for "so you're used to Views, what are the differences?", "so you're used to Documents, what are the differences?", "where's the DateTime class?"
-- Build for extensibility, so avoided _protected_ modifier where possible
-- Enums not ints
-- Abstract 32-bit / 64-bit methods from Domino JNA
+See [differences_from_previous_apis.md](differences_from_previous_apis.md) for some more details.
 
+## Usage
 
-## Non-Goals
+JNX is provided as a Maven dependency, with the implementation available at:
 
-- backward compatibility to existing Java API
-- Android compatibility
-- migration path for existing code (existing Java code is typically not written for re-use in new contexts)
-- presumably we're also excluding UI classes, this is backend code only
+[https://search.maven.org/artifact/com.hcl.domino/domino-jnx-jna](https://search.maven.org/artifact/com.hcl.domino/domino-jnx-jna)
 
-## For further discussion
+This dependency will include the main `domino-jnx-api` module as well as its various third-party dependencies.
 
-- Cursors, see separate document
-- Do we want something like "watch for", "observable" to register to be notified if something changes, using RxJava or something else?
-- Encryption of specific fields, with encryption key stored against (external) application?
-- Domino encrypted fields? The implementation external to Domino will have to perform the decryption and the external application will have access, because it needs to send the data to the user interface. So is this really relevant outside an HCL client framework (Notes or XPages)? There will always be a "man-in-the-middle" risk, so the security is weakened. Or do we say the application needs the encryption keys as well as the user, and require an intersection of access.
-- Transactional access - is this managed by a TransactionalDominoClient, or even made the default and you need to use a NonTransactionalDominoClient (DominoClient is by default transactional). Alternatively a Session property?
-- Do we want / need to add anything for logging / monitoring? I'm not sure if Karsten's getNSFDatabase logs a session opened in log.nsf.
+### Usage Outside Notes and Domino
+
+When running JNX code from a context outside of a running Notes/Domino process, it is important to initialize the Notes environment. See [notes_environment.md](notes_environment.md) for more details.
+
+### XPages Usage
+
+The `domino-jnx-xpages` distribution, available from [https://github.com/HCL-TECH-SOFTWARE/domino-jnx/releases](https://github.com/HCL-TECH-SOFTWARE/domino-jnx/releases), provides access to JNX inside an XPages application. It is basic in what it does: it makes the API classes available in the NSF, but does not change the behavior of existing data access or provide implicit "session" or database variables.
+
+### Expected Dependencies
+
+In addition to the `domino-jnx-jna` implementation module, runtimes using this API must either implicitly provide
+or otherwise include the following dependencies:
+
+* The Jakarta XML Bind 3.0 API and an implementation, such as `com.sun.xml.bind:jaxb-impl:3.0.0`
+* The Jakarta Activation 2.0 API and an implementation, such as `com.sun.activation:jakarta.activaton:2.0.0`
+* The Jakarta Mail 2.0 API and an implementation, such as `com.sun.mail:jakarta.mail:2.0.0`
+
+Additionally, the `domino-jnx-jsonb` adapter module expects that you have the Jakarta JSON 2.0 API and
+an implementation, such as `org.eclipse:yasson:2.0.1`.
+
+### OSGi Use
+
+The JNX modules include OSGi metadata and can run in an environment such as Domino's HTTP stack. In addition to the core `domino-jnx-api`, `domino-jnx-commons`, and the `domino-jnx-jna` implementation, you should include the dependencies above, as well as the Glassfish OSGi resource locator, `org.glassfish.hk2:osgi-resource-locator:2.4.0`.
+
+## Examples
+
+The `example` directory in the main repository contains examples of using JNX in several contexts, including Domino-deployed OSGi components, traditional WAR-based webapps, and desktop SWT and GraalVM apps. These projects are not generally featureful examples, though some - such as `jnx-example-domino-webapp-admin` contain some features that could be useful in non-production cases, such as the live server console.
