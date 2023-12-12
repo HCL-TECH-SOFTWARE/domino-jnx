@@ -19,3 +19,49 @@ remote_theme: pmarsceill/just-the-docs
 title: Domino Java Next
 description: Modern Domino Java API based on JNA access to Domino's C API
 show_downloads: true
+
+logo: "/assets/images/svg/Domino.svg"
+favicon_ico: "/assets/images/favicon.ico"
+
+# External navigation links
+nav_external_links:
+  - title: Report an issue
+    url: https://github.com/HCL-TECH-SOFTWARE/domino-jnx/issues
+    hide_icon: false
+
+search_enabled: true
+search:
+  # Split pages into sections that can be searched individually
+  # Supports 1 - 6, default: 2
+  heading_level: 2
+  # Maximum amount of previews per search result
+  # Default: 3
+  previews: 5
+  # Maximum amount of words to display before a matched word in the preview
+  # Default: 5
+  preview_words_before: 10
+  # Maximum amount of words to display after a matched word in the preview
+  # Default: 10
+  preview_words_after: 10
+  # Set the search token separator
+  # Default: /[\s\-/]+/
+  # Example: enable support for hyphenated search words
+  tokenizer_separator: /[\s/]+/
+  # Display the relative url in search results
+  # Supports true (default) or false
+  rel_url: true
+  # Enable or disable the search button that appears in the bottom right corner of every page
+  # Supports true or false (default)
+  button: false
+
+# Enable or disable heading anchors
+heading_anchors: true
+
+
+aux_links:
+  View on GitHub:
+    - https://github.com/HCL-TECH-SOFTWARE/domino-jnx/
+
+# Back to top link
+back_to_top: true
+back_to_top_text: "Back to top"
