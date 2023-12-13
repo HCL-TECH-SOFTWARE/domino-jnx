@@ -1,3 +1,9 @@
+---
+layout: default
+title: User Directory API
+nav_order: 006
+parent: Overview
+---
 # User Directory API
 
 The Domino directory API is accessible by calling `openUserDirectory(...)` on a `DominoClient` instance. The parameter is the server to target, or `null` for the current runtime.

@@ -1,3 +1,9 @@
+---
+layout: default
+title: ID Vault Token Handlers
+nav_order: 006
+parent: Contributors
+---
 # ID Vault Token Handlers
 
 The `IDVault#getUserIdWithToken(Object token, String serverName)` method provides a generic way for an extension implementation to retrieve a `UserId` from an ID Vault in an implementation-specific way.

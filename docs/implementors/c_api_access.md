@@ -1,3 +1,9 @@
+---
+layout: default
+title: C API Access
+nav_order: 002
+parent: Contributors
+---
 # C API Access
 
 Notes C API access in the current implementation is performed using [JNA](https://github.com/java-native-access/jna), which allows access to native functions without writing a custom JNI library. JNA handles access to native memory (via its `Pointer` and `Memory` classes), structures (via `Structure` subclasses), and translating primitive data types in functions to their same-sized C equivalents.

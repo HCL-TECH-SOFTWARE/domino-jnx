@@ -1,3 +1,9 @@
+---
+layout: default
+title: Working With Rich Text
+nav_order: 005
+parent: Overview
+---
 # Rich Text
 
 In JNX, rich text is dealt with by working with the underlying Composite Data representation. The `Document` class contains the method `getRichTextItem`, which returns an unmodifiable `List<RichTextRecord>`.

@@ -1,3 +1,9 @@
+---
+layout: default
+title: LMBCS Charset
+nav_order: 003
+parent: Overview
+---
 # LMBCS Charset
 
 The JNA implementation (as should future implementations) provides a Java NIO `Charset` to encode and decode LMBCS. This can be retrieved using the `getLmbcsCharset` method on `NativeItemCoder`:

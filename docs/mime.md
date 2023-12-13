@@ -1,3 +1,9 @@
+---
+layout: default
+title: Working With MIME
+nav_order: 004
+parent: Overview
+---
 # Working With MIME
 
 There are two primary objects used to work with MIME: the `MimeReader` and `MimeWriter` both created via `getMime*` methods on `DominoClient`.

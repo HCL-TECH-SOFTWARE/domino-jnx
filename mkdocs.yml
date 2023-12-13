@@ -1,0 +1,57 @@
+#Project Information
+site_name: Domino JNX
+
+# Theme Configuration
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.tabs
+    - navigation.indexes
+    - navigation.top
+    - navigation.instant
+    - search.highlight
+    - search.share
+    - search.suggest
+  #custom_dir: theme_overrides/
+  icon:
+    repo: fontawesome/brands/github
+  font:
+    text: Roboto
+    code: Roboto Mono
+  favicon: favicon.ico
+
+  # Static files
+  static_templates:
+    - 404.html
+
+# Markdown Extensions
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - attr_list
+  - pymdownx.tabbed:
+      alternate_style: true
+
+# Copyright
+copyright: >-
+  Copyright &copy; 2023, HCL Technologies Limited
+
+extra:
+  productversion: 1.0.0
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/HCL-TECH-SOFTWARE
+  version:
+
+# Repository
+repo_url: https://github.com/HCL-TECH-SOFTWARE/domino-jnx/
+repo_name: Domino JNX
+edit_uri: edit/main/docs
+
+
+plugins:
+  - awesome-pages
+  - search
+  - tags
