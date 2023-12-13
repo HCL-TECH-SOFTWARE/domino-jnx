@@ -1,3 +1,9 @@
+---
+layout: default
+title: Color Values
+nav_order: 003
+parent: Contributors
+---
 # Color Values
 
 Notes represents color values in several ways, and JNX represents them via enums and `MemoryStructure` instances.

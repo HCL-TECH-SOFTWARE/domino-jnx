@@ -1,3 +1,9 @@
+---
+layout: default
+title: Notes Environment Setup
+nav_order: 999
+parent: Overview
+---
 # Notes Environment Setup
 
 Though not specific to Domino JNX, it's handy to know the requirements for having an active Notes environment to execute native Notes calls. How to do this and what the restrictions are depend on your OS of choice and the ID file in use.

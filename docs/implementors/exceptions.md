@@ -1,3 +1,9 @@
+---
+layout: default
+title: Exceptions
+nav_order: 004
+parent: Contributors
+---
 # Exceptions
 
 The core API uses the class `DominoException` as its main lower-level-API error representation, though it's rare that you will instantiate this class directly. It is a subclass of `RuntimeException` and so should not be declared in the `throws` portion of a method signature - this allows JNX code to work more smoothly in modern Java conventions like streams.

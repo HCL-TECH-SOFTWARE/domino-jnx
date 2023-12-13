@@ -1,4 +1,10 @@
-# JNX Testing and Development
+---
+layout: default
+title: Test Suites and Coverage
+nav_order: 999
+parent: Contributors
+---
+# JNX Test Suites and Coverage
 
 Though JNX isn't based on Test-Driven Development by that capitalized name, it uses tests heavily for existing and new features. There are several sets of tests with different purposes, with the last being the most important and the location of most feature tests.
 

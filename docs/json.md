@@ -1,3 +1,9 @@
+---
+layout: default
+title: JSON Handling
+nav_order: 002
+parent: Overview
+---
 # JSON Handling
 
 JNX provides the `com.hcl.domino.json.JsonSerializer` type to allow serializing `Document` objects to JSON.

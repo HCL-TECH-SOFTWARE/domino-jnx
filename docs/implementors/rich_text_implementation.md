@@ -1,3 +1,9 @@
+---
+layout: default
+title: Rich Text Internal Implementation
+nav_order: 009
+parent: Contributors
+---
 # Rich Text Internal Implementation
 
 The rich text public API is based on exposing the CD records to the user in a way that is not tied to JNA specifically.

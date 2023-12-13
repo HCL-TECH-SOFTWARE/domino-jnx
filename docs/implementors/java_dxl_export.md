@@ -1,3 +1,9 @@
+---
+layout: default
+title: Java DXL Export
+nav_order: 008
+parent: Contributors
+---
 # DXL Export of Java Agents
 
 Exporting of Java agents and similar design elements (such as web services and script libraries) is made complicated by the way the Notes internals do this specific type of export when not configured to use raw note format. Specifically, Notes calls back out to the running JVM to do the actual reading and exporting of the `%%source%%.jar` file.

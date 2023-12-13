@@ -1,3 +1,9 @@
+---
+layout: default
+title: Rich Text Record Types
+nav_order: 010
+parent: Contributors
+---
 # Rich Text Record Types
 
 In the C API, rich text (composite data) records are primarily identified by `SIG_CD_xxx` flags, and the general equivalent to this in JNX is the `RecordType` enum. This enum maps those `SIG_CD_xxx` values to named enum values, as "areas" in which they might be found in a DB, and to interface representations in Java.

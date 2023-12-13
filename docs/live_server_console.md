@@ -1,12 +1,12 @@
+---
+layout: default
+title: Server Console API
+nav_order: 008
+parent: Overview
+---
 # Live Server Console Access
 
 The `#openServerConsole` method in `ServerAdmin` allows for live access to server console streams, similar to Administrator. There are some caveats involved, though:
-
-## Non-Server Only
-
-This function only properly works when running outside of an active Domino server environment, regardless of whether you're connecting locally or remotely. Running on the same machine as the server is fine - it just won't work when called from a server process or otherwise using the active server's data directory.
-
-Note: this will potentially change in V12b3 with the addition of the `DEBUG_ALLOW_REMOTE_CON_SERVER=1` ini option.
 
 ## False XML
 

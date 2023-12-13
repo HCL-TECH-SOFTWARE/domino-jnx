@@ -1,3 +1,9 @@
+---
+layout: default
+title: Differences From Previous APIs
+nav_order: 001
+parent: Overview
+---
 # Differences From Previous APIs
 
 Though JNX largely hews to the same overall concept of an NSF as the LSXBE and related APIs like ODA, there are some important conceptual differences.

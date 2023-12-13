@@ -1,3 +1,9 @@
+---
+layout: default
+title: Implementing Design Elements
+nav_order: 007
+parent: Contributors
+---
 # Implementing Design Elements
 
 The entrypoint for accessing the database design is the `DbDesign` interface in the `domino-jnx-api` module, and the bulk of the implementation for that is in `AbstractDbDesign` inside the `domino-jnx-commons` moduke. Though there is a `JNADbDesign` class in the `domino-jnx-jna` module, that is just to provide a hook for an efficient C call to find elements - the bulk of the work should take place in `domino-jnx-commons` to allow for future portability.
