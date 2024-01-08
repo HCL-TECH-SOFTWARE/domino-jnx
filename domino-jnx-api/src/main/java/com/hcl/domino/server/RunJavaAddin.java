@@ -19,7 +19,7 @@ package com.hcl.domino.server;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.DominoProcess;
-import com.hcl.domino.misc.JNXThread;
+import com.hcl.domino.DominoProcess.DominoThreadContext;
 import com.hcl.domino.mq.MessageQueue;
 
 /**
@@ -29,7 +29,7 @@ import com.hcl.domino.mq.MessageQueue;
  * @author Jesse Gallagher
  * @since 1.0.11
  */
-public abstract class RunJavaAddin extends JNXThread {
+public abstract class RunJavaAddin extends Thread {
 
   private final String addinName;
   private final String queueName;
@@ -63,29 +63,29 @@ public abstract class RunJavaAddin extends JNXThread {
   }
 
   @Override
-  protected final void doRun() {
+  public final void run() {
     DominoProcess.get().initializeProcess(new String[0]);
-    try {
+    try (DominoThreadContext ctx = DominoProcess.get().initializeThread()) {
       try (DominoClient client = DominoClientBuilder.newDominoClient().build()) {
         try (ServerStatusLine line = client.getServerAdmin().createServerStatusLine(this.addinName)) {
           line.setLine("Running");
-          try (MessageQueue queue = client.getMessageQueues().createAndOpen("MQ$" + this.queueName.toUpperCase(), 0)) { //$NON-NLS-1$
+          try (MessageQueue queue = client.getMessageQueues().open("MQ$" + this.queueName.toUpperCase(), true)) { //$NON-NLS-1$
             this.runAddin(client, line, queue);
+            System.gc();
           } catch (final Exception e) {
             e.printStackTrace();
+          } finally {
+            System.gc();
           }
         }
       }
     } finally {
+      System.gc();
       DominoProcess.get().terminateProcess();
     }
 
   }
 
   protected abstract void runAddin(DominoClient client, ServerStatusLine statusLine, MessageQueue queue);
-
-  public void stopAddin() {
-
-  }
 
 }
