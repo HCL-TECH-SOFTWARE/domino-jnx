@@ -143,18 +143,20 @@ public class JNACDFileRichTextNavigator extends BaseJNAAPIObject<JNACDFileRichTe
 
 		switch (highOrderByte) {
 		case RichTextConstants.LONGRECORDLENGTH:      /* LSIG */
-			Memory intLengthMem = new Memory(4);
-			ByteBuffer intLengthBuf = intLengthMem.getByteBuffer(0, intLengthMem.size());
-			fileChannel.read(intLengthBuf);
-			dwLength = intLengthMem.getInt(0);
+		    try(DisposableMemory intLengthMem = new DisposableMemory(4)) {
+    			ByteBuffer intLengthBuf = intLengthMem.getByteBuffer(0, intLengthMem.size());
+    			fileChannel.read(intLengthBuf);
+    			dwLength = intLengthMem.getInt(0);
+		    }
 
 			break;
 
 		case RichTextConstants.WORDRECORDLENGTH:      /* WSIG */
-			Memory shortLengthMem = new Memory(2);
-			ByteBuffer shortLengthBuf = shortLengthMem.getByteBuffer(0, shortLengthMem.size());
-			fileChannel.read(shortLengthBuf);
-			dwLength = shortLengthMem.getShort(0) & 0xffff;
+		    try(DisposableMemory shortLengthMem = new DisposableMemory(2)) {
+    			ByteBuffer shortLengthBuf = shortLengthMem.getByteBuffer(0, shortLengthMem.size());
+    			fileChannel.read(shortLengthBuf);
+    			dwLength = shortLengthMem.getShort(0) & 0xffff;
+		    }
 
 			break;
 
@@ -166,7 +168,8 @@ public class JNACDFileRichTextNavigator extends BaseJNAAPIObject<JNACDFileRichTe
 		//file channel position points to the start of data, so reset it to the CD record start
 		fileChannel.position(m_position);
 		int cdRecordTotalLength = dwLength;
-		DisposableMemory cdRecordMem = new DisposableMemory(cdRecordTotalLength);
+		@SuppressWarnings("resource")  // Held by the RT record object
+        DisposableMemory cdRecordMem = new DisposableMemory(cdRecordTotalLength);
 		int bytesRead = fileChannel.read(cdRecordMem.getByteBuffer(0, cdRecordMem.size()));
 		if (bytesRead != cdRecordTotalLength) {
 			throw new IllegalStateException(

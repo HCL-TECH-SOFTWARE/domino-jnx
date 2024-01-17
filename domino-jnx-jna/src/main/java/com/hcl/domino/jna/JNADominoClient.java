@@ -314,21 +314,20 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
   @Override
   public String getIDUserName() {
-    Memory retUserNameMem = new Memory(NotesConstants.MAXUSERNAME + 1);
+    try(DisposableMemory retUserNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME + 1)) {
 
-    short result = NotesCAPI.get().SECKFMGetUserName(retUserNameMem);
-    checkResult(result);
-
-    int userNameLength = 0;
-    for (int i = 0; i < retUserNameMem.size(); i++) {
-      userNameLength = i;
-      if (retUserNameMem.getByte(i) == 0) {
-        break;
+      checkResult(NotesCAPI.get().SECKFMGetUserName(retUserNameMem));
+  
+      int userNameLength = 0;
+      for (int i = 0; i < retUserNameMem.size(); i++) {
+        userNameLength = i;
+        if (retUserNameMem.getByte(i) == 0) {
+          break;
+        }
       }
+  
+      return NotesStringUtils.fromLMBCS(retUserNameMem, userNameLength);
     }
-
-    String userName = NotesStringUtils.fromLMBCS(retUserNameMem, userNameLength);
-    return userName;
   }
 
   @Override

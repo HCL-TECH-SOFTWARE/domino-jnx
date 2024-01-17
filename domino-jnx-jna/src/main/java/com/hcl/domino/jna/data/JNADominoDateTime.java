@@ -332,20 +332,21 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
 	public static JNADominoDateTime fromString(DominoIntlFormat intl, String dateTimeStr) {
 		Memory dateTimeStrLMBCS = NotesStringUtils.toLMBCS(dateTimeStr, true);
 		//convert method expects a pointer to the date string in memory
-		Memory dateTimeStrLMBCSPtr = new Memory(Native.POINTER_SIZE);
-		dateTimeStrLMBCSPtr.setPointer(0, dateTimeStrLMBCS);
-		
-		IntlFormatStruct intlStruct = intl==null ? null : intl.getAdapter(IntlFormatStruct.class);
-		
-		try(DisposableMemory retTimeDateMem = new DisposableMemory(JNANotesConstants.timeDateSize)) {
-  		NotesTimeDateStruct retTimeDate = NotesTimeDateStruct.newInstance(retTimeDateMem);
-  		
-  		short result = NotesCAPI.get().ConvertTextToTIMEDATE(intlStruct, null, dateTimeStrLMBCSPtr, NotesConstants.MAXALPHATIMEDATE, retTimeDate);
-  		NotesErrorUtils.checkResult(result);
-  		retTimeDate.read();
-  		int[] innards = retTimeDate.Innards;
-  		JNADominoDateTime td = new JNADominoDateTime(innards);
-  		return td;
+		try(
+		    DisposableMemory dateTimeStrLMBCSPtr = new DisposableMemory(Native.POINTER_SIZE);
+		    DisposableMemory retTimeDateMem = new DisposableMemory(JNANotesConstants.timeDateSize);
+		) {
+	        dateTimeStrLMBCSPtr.setPointer(0, dateTimeStrLMBCS);
+	        
+	        IntlFormatStruct intlStruct = intl==null ? null : intl.getAdapter(IntlFormatStruct.class);
+    		NotesTimeDateStruct retTimeDate = NotesTimeDateStruct.newInstance(retTimeDateMem);
+    		
+    		short result = NotesCAPI.get().ConvertTextToTIMEDATE(intlStruct, null, dateTimeStrLMBCSPtr, NotesConstants.MAXALPHATIMEDATE, retTimeDate);
+    		NotesErrorUtils.checkResult(result);
+    		retTimeDate.read();
+    		int[] innards = retTimeDate.Innards;
+    		JNADominoDateTime td = new JNADominoDateTime(innards);
+    		return td;
 		}
 	}
 }

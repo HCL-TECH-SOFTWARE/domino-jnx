@@ -37,7 +37,6 @@ import com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.richtext.records.RecordType;
-import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ShortByReference;
@@ -73,33 +72,34 @@ public class ItemDecoder {
 		
 		List<Object> listValues = new ArrayList<>(listCountAsInt);
 		
-		Memory retTextPointer = new Memory(Native.POINTER_SIZE);
-		ShortByReference retTextLength = new ShortByReference();
-		
-		for (int i=0; i<listCountAsInt; i++) {
-			short result = NotesCAPI.get().ListGetText(ptr, false, (char) i, retTextPointer, retTextLength);
-			NotesErrorUtils.checkResult(result);
-			
-			//retTextPointer[0] points to the list entry text
-			Pointer pointerToTextInMem = retTextPointer.getPointer(0);
-			int retTextLengthAsInt = retTextLength.getValue() & 0xffff;
-			
-			if (retTextLengthAsInt==0) {
-				listValues.add(""); //$NON-NLS-1$
-			}
-			else {
-				if (convertStringsLazily) {
-					byte[] stringDataArr = new byte[retTextLengthAsInt];
-					pointerToTextInMem.read(0, stringDataArr, 0, retTextLengthAsInt);
-
-					LMBCSString lmbcsString = new LMBCSString(stringDataArr);
-					listValues.add(lmbcsString);
-				}
-				else {
-					String currListEntry = NotesStringUtils.fromLMBCS(pointerToTextInMem, retTextLengthAsInt);
-					listValues.add(currListEntry);
-				}
-			}
+		try(DisposableMemory retTextPointer = new DisposableMemory(Native.POINTER_SIZE)) {
+    		ShortByReference retTextLength = new ShortByReference();
+    		
+    		for (int i=0; i<listCountAsInt; i++) {
+    			short result = NotesCAPI.get().ListGetText(ptr, false, (char) i, retTextPointer, retTextLength);
+    			NotesErrorUtils.checkResult(result);
+    			
+    			//retTextPointer[0] points to the list entry text
+    			Pointer pointerToTextInMem = retTextPointer.getPointer(0);
+    			int retTextLengthAsInt = retTextLength.getValue() & 0xffff;
+    			
+    			if (retTextLengthAsInt==0) {
+    				listValues.add(""); //$NON-NLS-1$
+    			}
+    			else {
+    				if (convertStringsLazily) {
+    					byte[] stringDataArr = new byte[retTextLengthAsInt];
+    					pointerToTextInMem.read(0, stringDataArr, 0, retTextLengthAsInt);
+    
+    					LMBCSString lmbcsString = new LMBCSString(stringDataArr);
+    					listValues.add(lmbcsString);
+    				}
+    				else {
+    					String currListEntry = NotesStringUtils.fromLMBCS(pointerToTextInMem, retTextLengthAsInt);
+    					listValues.add(currListEntry);
+    				}
+    			}
+    		}
 		}
 		
 		return listValues;

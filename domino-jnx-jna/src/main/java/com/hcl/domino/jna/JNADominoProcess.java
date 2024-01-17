@@ -203,22 +203,21 @@ public class JNADominoProcess implements DominoProcess {
 		}
 		Memory idPathMem = NotesStringUtils.toLMBCS(idPath.toString(), true);
 		Memory passwordMem = NotesStringUtils.toLMBCS(password, true);
-		Memory retUserNameMem = new Memory(NotesConstants.MAXUSERNAME+1);
-		
-		short result = NotesCAPI.get().SECKFMSwitchToIDFile(idPathMem, passwordMem, retUserNameMem,
-				NotesConstants.MAXUSERNAME, dontSetEnvVar ? NotesConstants.fKFM_switchid_DontSetEnvVar : 0, null);
-		NotesErrorUtils.checkResult(result);
-		
-		int userNameLength = 0;
-		for (int i=0; i<retUserNameMem.size(); i++) {
-			userNameLength = i;
-			if (retUserNameMem.getByte(i) == 0) {
-				break;
-			}
+		try(DisposableMemory retUserNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME+1)) {
+    		short result = NotesCAPI.get().SECKFMSwitchToIDFile(idPathMem, passwordMem, retUserNameMem,
+    				NotesConstants.MAXUSERNAME, dontSetEnvVar ? NotesConstants.fKFM_switchid_DontSetEnvVar : 0, null);
+    		NotesErrorUtils.checkResult(result);
+    		
+    		int userNameLength = 0;
+    		for (int i=0; i<retUserNameMem.size(); i++) {
+    			userNameLength = i;
+    			if (retUserNameMem.getByte(i) == 0) {
+    				break;
+    			}
+    		}
+    		
+    		return NotesStringUtils.fromLMBCS(retUserNameMem, userNameLength);
 		}
-		
-		String userName = NotesStringUtils.fromLMBCS(retUserNameMem, userNameLength);
-		return userName;
 	}
 	
 	private static boolean isWritePacemakerDebugMessages() {

@@ -28,6 +28,7 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.NativeItemCoder;
+import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.ItemDecoder;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -50,20 +51,22 @@ public class JNANativeItemCoder implements NativeItemCoder {
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<String> decodeStringList(byte[] buf) {
-		Memory mem = new Memory(buf.length);
-		ByteBuffer dest = mem.getByteBuffer(0, mem.size());
-		dest.put(buf);
-		return (List<String>)(List<?>)ItemDecoder.decodeTextListValue(mem, false);
+	    try(DisposableMemory mem = new DisposableMemory(buf.length)) {
+    		ByteBuffer dest = mem.getByteBuffer(0, mem.size());
+    		dest.put(buf);
+    		return (List<String>)(List<?>)ItemDecoder.decodeTextListValue(mem, false);
+	    }
 	}
 	
 	@SuppressWarnings("unchecked")
   @Override
 	public List<Object> decodeItemValue(byte[] buf, RecordType.Area area) {
-	  Memory mem = new Memory(buf.length);
-    ByteBuffer dest = mem.getByteBuffer(0, mem.size());
-    dest.put(buf);
-    Object val = ItemDecoder.readItemValue(mem.share(2), mem.getShort(0), buf.length-2, area);
-    return val instanceof List ? (List<Object>)val : Arrays.asList(val);
+	  try(DisposableMemory mem = new DisposableMemory(buf.length)) {
+        ByteBuffer dest = mem.getByteBuffer(0, mem.size());
+        dest.put(buf);
+        Object val = ItemDecoder.readItemValue(mem.share(2), mem.getShort(0), buf.length-2, area);
+        return val instanceof List ? (List<Object>)val : Arrays.asList(val);
+	  }
 	}
 
 	@Override

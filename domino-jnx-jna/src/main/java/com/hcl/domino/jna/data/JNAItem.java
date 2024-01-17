@@ -162,32 +162,33 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 		ByteByReference retSeqByte = new ByteByReference();
 		ByteByReference retDupItemID = new ByteByReference();
 
-		Memory item_name = new Memory(NotesConstants.MAXUSERNAME);
-		ShortByReference retName_len = new ShortByReference();
-		ShortByReference retItem_flags = new ShortByReference();
-		ShortByReference retDataType = new ShortByReference();
-		IntByReference retValueLen = new IntByReference();
-
-		NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
-		itemBlockIdByVal.pool = m_itemBlockId.pool;
-		itemBlockIdByVal.block = m_itemBlockId.block;
-
-		NotesBlockIdStruct retValueBid = NotesBlockIdStruct.newInstance();
-		
-		LockUtil.lockHandle(docAllocations.getNoteHandle(), (noteHandleByVal) -> {
-			NotesCAPI.get().NSFItemQueryEx(noteHandleByVal, itemBlockIdByVal, item_name, (short) (item_name.size() & 0xffff),
-					retName_len, retItem_flags, retDataType, retValueBid, retValueLen, retSeqByte, retDupItemID);
-			
-			return 0;
-		});
-		
-		m_dataType = retDataType.getValue();
-		m_seq = retSeqByte.getValue();
-		m_dupItemId = retDupItemID.getValue();
-		m_itemFlags = retItem_flags.getValue() & 0xffff;
-		m_itemName = NotesStringUtils.fromLMBCS(item_name, retName_len.getValue() & 0xffff);
-		m_valueLength = retValueLen.getValue();
-		m_itemFlagsLoaded = true;
+		try(DisposableMemory item_name = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
+    		ShortByReference retName_len = new ShortByReference();
+    		ShortByReference retItem_flags = new ShortByReference();
+    		ShortByReference retDataType = new ShortByReference();
+    		IntByReference retValueLen = new IntByReference();
+    
+    		NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
+    		itemBlockIdByVal.pool = m_itemBlockId.pool;
+    		itemBlockIdByVal.block = m_itemBlockId.block;
+    
+    		NotesBlockIdStruct retValueBid = NotesBlockIdStruct.newInstance();
+    		
+    		LockUtil.lockHandle(docAllocations.getNoteHandle(), (noteHandleByVal) -> {
+    			NotesCAPI.get().NSFItemQueryEx(noteHandleByVal, itemBlockIdByVal, item_name, (short) (item_name.size() & 0xffff),
+    					retName_len, retItem_flags, retDataType, retValueBid, retValueLen, retSeqByte, retDupItemID);
+    			
+    			return 0;
+    		});
+    		
+    		m_dataType = retDataType.getValue();
+    		m_seq = retSeqByte.getValue();
+    		m_dupItemId = retDupItemID.getValue();
+    		m_itemFlags = retItem_flags.getValue() & 0xffff;
+    		m_itemName = NotesStringUtils.fromLMBCS(item_name, retName_len.getValue() & 0xffff);
+    		m_valueLength = retValueLen.getValue();
+    		m_itemFlagsLoaded = true;
+		}
 	}
 
 	@Override

@@ -565,29 +565,30 @@ public class NotesNamingUtils {
 	public static JNAUserNamesList createNamesListFromNames(IAPIObject<?> parent, String server, String[] names) {
 		server = toCanonicalName(server);
 		
-		Memory ptrArrMem = new Memory(Native.POINTER_SIZE * names.length);
-		Memory[] namesMem = new Memory[names.length];
-		
-		for (int i=0; i<names.length; i++) {
-			namesMem[i] = NotesStringUtils.toLMBCS(names[i], true);
-			ptrArrMem.setPointer(i, namesMem[i]);
+		try(DisposableMemory ptrArrMem = new DisposableMemory(Native.POINTER_SIZE * names.length)) {
+    		Memory[] namesMem = new Memory[names.length];
+    		
+    		for (int i=0; i<names.length; i++) {
+    			namesMem[i] = NotesStringUtils.toLMBCS(names[i], true);
+    			ptrArrMem.setPointer(i, namesMem[i]);
+    		}
+    		
+    		Memory serverNameLMBCS = NotesStringUtils.toLMBCS(server, true);
+    		
+    		PointerByReference ptrRef = new PointerByReference();
+    		ptrRef.setValue(ptrArrMem);
+    		
+    		LMBCSStringArray sArr = new LMBCSStringArray(names);
+    		
+    		DHANDLE.ByReference rethNamesList = DHANDLE.newInstanceByReference();
+    		synchronized(BUILDNAMESLIST_LOCK) {
+    			short result = NotesCAPI.get().CreateNamesListFromNamesExtend(serverNameLMBCS, (short) (names.length & 0xffff), sArr, rethNamesList);
+    			NotesErrorUtils.checkResult(result);
+    		}
+    		
+    		JNAUserNamesList newList =  new JNAUserNamesList(parent, rethNamesList);
+    		return newList;
 		}
-		
-		Memory serverNameLMBCS = NotesStringUtils.toLMBCS(server, true);
-		
-		PointerByReference ptrRef = new PointerByReference();
-		ptrRef.setValue(ptrArrMem);
-		
-		LMBCSStringArray sArr = new LMBCSStringArray(names);
-		
-		DHANDLE.ByReference rethNamesList = DHANDLE.newInstanceByReference();
-		synchronized(BUILDNAMESLIST_LOCK) {
-			short result = NotesCAPI.get().CreateNamesListFromNamesExtend(serverNameLMBCS, (short) (names.length & 0xffff), sArr, rethNamesList);
-			NotesErrorUtils.checkResult(result);
-		}
-		
-		JNAUserNamesList newList =  new JNAUserNamesList(parent, rethNamesList);
-		return newList;
 	}
 	
 	/**

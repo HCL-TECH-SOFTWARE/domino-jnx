@@ -33,6 +33,7 @@ import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.jna.BaseJNAAPIObject;
+import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.LinuxNotesNamesListHeader64Struct;
 import com.hcl.domino.jna.internal.MacNotesNamesListHeader64Struct;
 import com.hcl.domino.jna.internal.Mem;
@@ -45,7 +46,6 @@ import com.hcl.domino.jna.internal.WinNotesNamesListHeader64Struct;
 import com.hcl.domino.jna.internal.gc.allocations.JNAUserNamesListAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
-import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 
 /**
@@ -193,10 +193,11 @@ public class JNAUserNamesList extends BaseJNAAPIObject<JNAUserNamesListAllocatio
 			byte b = namesListBufferPtr.getByte(offset);
 
 			if (b == 0) {
-				Memory mem = new Memory(bOut.size());
-				mem.write(0, bOut.toByteArray(), 0, bOut.size());
-				String currUserName = NotesStringUtils.fromLMBCS(mem, bOut.size());
-				names.add(currUserName);
+			    try(DisposableMemory mem = new DisposableMemory(bOut.size())) {
+    				mem.write(0, bOut.toByteArray(), 0, bOut.size());
+    				String currUserName = NotesStringUtils.fromLMBCS(mem, bOut.size());
+    				names.add(currUserName);
+			    }
 				bOut.reset();
 			}
 			else {
