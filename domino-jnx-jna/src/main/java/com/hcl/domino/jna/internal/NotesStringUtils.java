@@ -534,6 +534,8 @@ public class NotesStringUtils {
 	 * @param lineBreakConversion how to convert linebreaks in the string
 	 * @param noCache true to not write the result to an internal cache; in this cache, the method returns a {@link DisposableMemory} object
 	 * @return encoded string in memory, might be a shared copy if the string could be find in the cache
+	 * @implNote if {@code inStr.length()} is {@code 0} or {@code noCache} is {@code true}, then
+	 *           the return value will be {@link DisposableMemory}
 	 */
 	public static Memory toLMBCS(String inStr, boolean addNull, LineBreakConversion lineBreakConversion, boolean noCache) {
 		if (inStr==null) {
@@ -542,7 +544,7 @@ public class NotesStringUtils {
 		
 		if (inStr.length()==0) {
 			if (addNull) {
-				Memory m = new Memory(1);
+			    DisposableMemory m = new DisposableMemory(1);
 				m.setByte(0, (byte) 0);
 				return m;				
 			}

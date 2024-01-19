@@ -26,6 +26,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 import com.hcl.domino.DominoClient;
@@ -87,6 +88,8 @@ public class TestDxlExporter extends AbstractNotesRuntimeTest {
   // Java agents
   @Test
   @EnabledIfEnvironmentVariable(named = TestValidateCredentials.VALIDATE_CREDENTIALS_SERVER, matches = ".+")
+  // Crashes on ARM macOS
+  @DisabledIfEnvironmentVariable(named = "SkipJavaDXL", matches = ".+")
   public void testExportNamesNsf() throws IOException {
     final String namesServer = System.getenv(TestValidateCredentials.VALIDATE_CREDENTIALS_SERVER);
 

@@ -326,7 +326,7 @@ public class JNAMessageQueue extends BaseJNAAPIObject<JNAMessageQueueAllocations
 
 	@Override
 	public void close() {
-		getAllocations().dispose();
+	  getAllocations().dispose();
 	}
 	
 	@Override

@@ -18,7 +18,7 @@ package lotus.domino;
 
 import com.hcl.domino.commons.util.PlatformUtils;
 
-public class NotesThread {
+public class NotesThread extends Thread {
 	static {
 		String libName;
 		if(PlatformUtils.isWindows()) {
@@ -38,5 +38,9 @@ public class NotesThread {
 	}
 	public static void stermThread() {
 		NnotesTermThread();
+	}
+	
+	public void runNotes() throws NotesException {
+	  
 	}
 }

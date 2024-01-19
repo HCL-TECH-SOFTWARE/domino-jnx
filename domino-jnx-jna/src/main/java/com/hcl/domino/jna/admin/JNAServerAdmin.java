@@ -612,7 +612,7 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations> 
     String[] lines = messageText.split("\\r?\\n", -1); //$NON-NLS-1$
     for (String line : lines) {
       Memory lmbcs = NotesStringUtils.toLMBCS(line, true);
-      NotesCAPI.get().AddInLogMessageText(lmbcs, (short)0, new Object[0]);
+      NotesCAPI.get().AddInLogMessageText(lmbcs, (short)0);
     }
 	}
 	

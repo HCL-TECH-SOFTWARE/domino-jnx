@@ -26,6 +26,7 @@ import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.BaseJNAAPIObject;
+import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.Mem.LockedMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -126,13 +127,14 @@ abstract class AbstractDxlProcessor<AT extends APIObjectAllocations, PROP extend
 				int length = Short.toUnsignedInt(NotesCAPI.get().ListGetNumEntries(mem, 0));
 				List<String> result = new ArrayList<>(length);
 				for(int i = 0; i < length; i++) {
-					Memory retTextPointer = new Memory(Native.POINTER_SIZE);
-					ShortByReference retTextLength = new ShortByReference();
-					
-					NotesErrorUtils.checkResult(
-					    NotesCAPI.get().ListGetText(mem, false, (char) i, retTextPointer, retTextLength)
-					    );
-					result.add(NotesStringUtils.fromLMBCS(retTextPointer.getPointer(0), Short.toUnsignedInt(retTextLength.getValue())));
+					try(DisposableMemory retTextPointer = new DisposableMemory(Native.POINTER_SIZE)) {
+    					ShortByReference retTextLength = new ShortByReference();
+    					
+    					NotesErrorUtils.checkResult(
+    					    NotesCAPI.get().ListGetText(mem, false, (char) i, retTextPointer, retTextLength)
+    					    );
+    					result.add(NotesStringUtils.fromLMBCS(retTextPointer.getPointer(0), Short.toUnsignedInt(retTextLength.getValue())));
+					}
 				}
 				return result;
 			} finally {

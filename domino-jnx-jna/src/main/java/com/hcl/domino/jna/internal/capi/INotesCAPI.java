@@ -2195,7 +2195,7 @@ public interface INotesCAPI extends Library {
 	
 	boolean AddInIdleDelay(int Delay);
 	void AddInLogErrorText(Memory string, short AdditionalErrorCode, Memory Arg);
-	void AddInLogMessageText(Memory string, short AdditionalErrorCode, Object... args);
+	void AddInLogMessageText(Pointer string, short AdditionalErrorCode);
 	boolean AddInSecondsHaveElapsed(int Seconds);
 	default boolean AddInMinutesHaveElapsed(int Minutes) {
 		return AddInSecondsHaveElapsed(Minutes*60);

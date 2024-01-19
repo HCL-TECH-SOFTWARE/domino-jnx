@@ -2592,11 +2592,13 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			
 			//verify signature
 			NotesTimeDateStruct retWhenSigned = NotesTimeDateStruct.newInstance();
-			Memory retSigner = new Memory(NotesConstants.MAXUSERNAME);
-			Memory retCertifier = new Memory(NotesConstants.MAXUSERNAME);
-
-			result = NotesCAPI.get().NSFNoteVerifySignature (hNoteByVal, null, retWhenSigned, retSigner, retCertifier);
-			NotesErrorUtils.checkResult(result);
+			try(
+			    DisposableMemory retSigner = new DisposableMemory(NotesConstants.MAXUSERNAME);
+			    DisposableMemory retCertifier = new DisposableMemory(NotesConstants.MAXUSERNAME);
+			) {
+    			result = NotesCAPI.get().NSFNoteVerifySignature (hNoteByVal, null, retWhenSigned, retSigner, retCertifier);
+    			NotesErrorUtils.checkResult(result);
+			}
 			
 			return 0;
 		});
@@ -2940,31 +2942,32 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		if (m_documentClass==null) {
 			checkDisposed();
 			
-			Memory retNoteClass = new Memory(2);
-			retNoteClass.clear();
-			
-			JNADocumentAllocations allocations = getAllocations();
-			m_documentClass = LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
-				NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, NotesConstants._NOTE_CLASS, retNoteClass);
-				int noteClassMask = retNoteClass.getShort(0);
-
-				Set<DocumentClass> docClass = EnumSet.noneOf(DocumentClass.class);
-				
-				if (noteClassMask==0) {
-					docClass.add(DocumentClass.NONE);
-				}
-				else {
-					for (DocumentClass currClass : DocumentClass.values()) {
-						if (currClass.getValue()!=0) {
-							if ((noteClassMask & currClass.getValue()) == currClass.getValue()) {
-								docClass.add(currClass);
-							}
-						}
-					}
-				}
-				
-				return docClass;
-			});
+			try(DisposableMemory retNoteClass = new DisposableMemory(2)) {
+    			retNoteClass.clear();
+    			
+    			JNADocumentAllocations allocations = getAllocations();
+    			m_documentClass = LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
+    				NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, NotesConstants._NOTE_CLASS, retNoteClass);
+    				int noteClassMask = retNoteClass.getShort(0);
+    
+    				Set<DocumentClass> docClass = EnumSet.noneOf(DocumentClass.class);
+    				
+    				if (noteClassMask==0) {
+    					docClass.add(DocumentClass.NONE);
+    				}
+    				else {
+    					for (DocumentClass currClass : DocumentClass.values()) {
+    						if (currClass.getValue()!=0) {
+    							if ((noteClassMask & currClass.getValue()) == currClass.getValue()) {
+    								docClass.add(currClass);
+    							}
+    						}
+    					}
+    				}
+    				
+    				return docClass;
+    			});
+			}
 		}
 		return m_documentClass;
 	}
@@ -3097,12 +3100,13 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		
 		JNADocumentAllocations allocations = getAllocations();
 		return LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
-			Memory retFlags = new Memory(2);
-			retFlags.clear();
-			
-			NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, NotesConstants._NOTE_FLAGS, retFlags);
-			short flags = retFlags.getShort(0);
-			return flags;
+		    try(DisposableMemory retFlags = new DisposableMemory(2)) {
+    			retFlags.clear();
+    			
+    			NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, NotesConstants._NOTE_FLAGS, retFlags);
+    			short flags = retFlags.getShort(0);
+    			return flags;
+		    }
 		});
 	}
 	
@@ -3116,12 +3120,13 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		
 		JNADocumentAllocations allocations = getAllocations();
 		return LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
-			Memory retFlags = new Memory(2);
-			retFlags.clear();
-			
-			NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, NotesConstants._NOTE_FLAGS2, retFlags);
-			short flags = retFlags.getShort(0);
-			return flags;
+		    try(DisposableMemory retFlags = new DisposableMemory(2)) {
+    			retFlags.clear();
+    			
+    			NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, NotesConstants._NOTE_FLAGS2, retFlags);
+    			short flags = retFlags.getShort(0);
+    			return flags;
+		    }
 		});
 	}
 	
@@ -3182,72 +3187,73 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		ByteByReference retSeqByte = new ByteByReference();
 		ByteByReference retDupItemID = new ByteByReference();
 
-		Memory item_name = new Memory(NotesConstants.MAXUSERNAME);
-		ShortByReference retName_len = new ShortByReference();
-		ShortByReference retItem_flags = new ShortByReference();
-		ShortByReference retDataType = new ShortByReference();
-		IntByReference retValueLen = new IntByReference();
-
-		NotesBlockIdStruct retValueBid = NotesBlockIdStruct.newInstance();
-		
-		LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
-
-			NotesCAPI.get().NSFItemQueryEx(noteHandleByVal,
-					itemBlockIdByVal, item_name, (short) (item_name.size() & 0xffff), retName_len,
-					retItem_flags, retDataType, retValueBid, retValueLen, retSeqByte, retDupItemID);
-	
-			NotesBlockIdStruct itemBlockIdForItemCreation = NotesBlockIdStruct.newInstance();
-			itemBlockIdForItemCreation.pool = itemBlockIdByVal.pool;
-			itemBlockIdForItemCreation.block = itemBlockIdByVal.block;
-			itemBlockIdForItemCreation.write();
-			
-			if ((retItem_flags.getValue() & NotesConstants.ITEM_READERS) == NotesConstants.ITEM_READERS) {
-				JNAItem firstItem = new JNAItem(this, itemBlockIdForItemCreation, retDataType.getValue() & 0xffff,
-						retValueBid);
-				readerFields.add(firstItem);
-			}
-	
-			short result;
-
-			//now search for more items with readers flag
-			while (true) {
-				IntByReference retNextValueLen = new IntByReference();
-				
-				NotesBlockIdStruct retItemBlockId = NotesBlockIdStruct.newInstance();
-				
-				result = NotesCAPI.get().NSFItemInfoNext(noteHandleByVal, itemBlockIdByVal,
-						null, (short) 0, retItemBlockId, retDataType,
-						retValueBid, retNextValueLen);
-				
-				if (result == INotesErrorConstants.ERR_ITEM_NOT_FOUND) {
-					return readerFields;
-				}
-	
-				NotesErrorUtils.checkResult(result);
-	
-				itemBlockIdForItemCreation = NotesBlockIdStruct.newInstance();
-				itemBlockIdForItemCreation.pool = retItemBlockId.pool;
-				itemBlockIdForItemCreation.block = retItemBlockId.block;
-				itemBlockIdForItemCreation.write();
-				
-				NotesBlockIdStruct valueBlockIdClone = NotesBlockIdStruct.newInstance();
-				valueBlockIdClone.pool = retValueBid.pool;
-				valueBlockIdClone.block = retValueBid.block;
-				valueBlockIdClone.write();
-				
-				short dataType = retDataType.getValue();
-	
-				JNAItem newItem = new JNAItem(this, itemBlockIdForItemCreation, dataType,
-						valueBlockIdClone);
-				if (newItem.isReaders()) {
-					readerFields.add(newItem);
-				}
-				
-				itemBlockIdByVal.pool = retItemBlockId.pool;
-				itemBlockIdByVal.block = retItemBlockId.block;
-				itemBlockIdByVal.write();
-			}
-		});
+		try(DisposableMemory item_name = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
+    		ShortByReference retName_len = new ShortByReference();
+    		ShortByReference retItem_flags = new ShortByReference();
+    		ShortByReference retDataType = new ShortByReference();
+    		IntByReference retValueLen = new IntByReference();
+    
+    		NotesBlockIdStruct retValueBid = NotesBlockIdStruct.newInstance();
+    		
+    		LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
+    
+    			NotesCAPI.get().NSFItemQueryEx(noteHandleByVal,
+    					itemBlockIdByVal, item_name, (short) (item_name.size() & 0xffff), retName_len,
+    					retItem_flags, retDataType, retValueBid, retValueLen, retSeqByte, retDupItemID);
+    	
+    			NotesBlockIdStruct itemBlockIdForItemCreation = NotesBlockIdStruct.newInstance();
+    			itemBlockIdForItemCreation.pool = itemBlockIdByVal.pool;
+    			itemBlockIdForItemCreation.block = itemBlockIdByVal.block;
+    			itemBlockIdForItemCreation.write();
+    			
+    			if ((retItem_flags.getValue() & NotesConstants.ITEM_READERS) == NotesConstants.ITEM_READERS) {
+    				JNAItem firstItem = new JNAItem(this, itemBlockIdForItemCreation, retDataType.getValue() & 0xffff,
+    						retValueBid);
+    				readerFields.add(firstItem);
+    			}
+    	
+    			short result;
+    
+    			//now search for more items with readers flag
+    			while (true) {
+    				IntByReference retNextValueLen = new IntByReference();
+    				
+    				NotesBlockIdStruct retItemBlockId = NotesBlockIdStruct.newInstance();
+    				
+    				result = NotesCAPI.get().NSFItemInfoNext(noteHandleByVal, itemBlockIdByVal,
+    						null, (short) 0, retItemBlockId, retDataType,
+    						retValueBid, retNextValueLen);
+    				
+    				if (result == INotesErrorConstants.ERR_ITEM_NOT_FOUND) {
+    					return readerFields;
+    				}
+    	
+    				NotesErrorUtils.checkResult(result);
+    	
+    				itemBlockIdForItemCreation = NotesBlockIdStruct.newInstance();
+    				itemBlockIdForItemCreation.pool = retItemBlockId.pool;
+    				itemBlockIdForItemCreation.block = retItemBlockId.block;
+    				itemBlockIdForItemCreation.write();
+    				
+    				NotesBlockIdStruct valueBlockIdClone = NotesBlockIdStruct.newInstance();
+    				valueBlockIdClone.pool = retValueBid.pool;
+    				valueBlockIdClone.block = retValueBid.block;
+    				valueBlockIdClone.write();
+    				
+    				short dataType = retDataType.getValue();
+    	
+    				JNAItem newItem = new JNAItem(this, itemBlockIdForItemCreation, dataType,
+    						valueBlockIdClone);
+    				if (newItem.isReaders()) {
+    					readerFields.add(newItem);
+    				}
+    				
+    				itemBlockIdByVal.pool = retItemBlockId.pool;
+    				itemBlockIdByVal.block = retItemBlockId.block;
+    				itemBlockIdByVal.write();
+    			}
+    		});
+		}
 		
 		return readerFields;
 	}
@@ -3375,27 +3381,29 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		checkDisposed();
 		
 		NotesTimeDateStruct retWhenSigned = NotesTimeDateStruct.newInstance();
-		Memory retSigner = new Memory(NotesConstants.MAXUSERNAME);
-		Memory retCertifier = new Memory(NotesConstants.MAXUSERNAME);
-		
-		JNADocumentAllocations allocations = getAllocations();
-		LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
-			short result = NotesCAPI.get().NSFNoteExpand(noteHandleByVal);
-			NotesErrorUtils.checkResult(result);
-
-			result = NotesCAPI.get().NSFNoteVerifySignature (noteHandleByVal, null, retWhenSigned, retSigner, retCertifier);
-			NotesErrorUtils.checkResult(result);
-			
-			result = NotesCAPI.get().NSFNoteContract(noteHandleByVal);
-			NotesErrorUtils.checkResult(result);
-			
-			return 0;
-		});
-
-		String signer = NotesStringUtils.fromLMBCS(retSigner, NotesStringUtils.getNullTerminatedLength(retSigner));
-		String certifier = NotesStringUtils.fromLMBCS(retCertifier, NotesStringUtils.getNullTerminatedLength(retCertifier));
-		SignatureData data = new SignatureDataImpl(new JNADominoDateTime(retWhenSigned.Innards), signer, certifier);
-		return data;
+		try(
+		    DisposableMemory retSigner = new DisposableMemory(NotesConstants.MAXUSERNAME);
+		    DisposableMemory retCertifier = new DisposableMemory(NotesConstants.MAXUSERNAME);
+		) {
+    		JNADocumentAllocations allocations = getAllocations();
+    		LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
+    			short result = NotesCAPI.get().NSFNoteExpand(noteHandleByVal);
+    			NotesErrorUtils.checkResult(result);
+    
+    			result = NotesCAPI.get().NSFNoteVerifySignature (noteHandleByVal, null, retWhenSigned, retSigner, retCertifier);
+    			NotesErrorUtils.checkResult(result);
+    			
+    			result = NotesCAPI.get().NSFNoteContract(noteHandleByVal);
+    			NotesErrorUtils.checkResult(result);
+    			
+    			return 0;
+    		});
+    
+    		String signer = NotesStringUtils.fromLMBCS(retSigner, NotesStringUtils.getNullTerminatedLength(retSigner));
+    		String certifier = NotesStringUtils.fromLMBCS(retCertifier, NotesStringUtils.getNullTerminatedLength(retCertifier));
+    		SignatureData data = new SignatureDataImpl(new JNADominoDateTime(retWhenSigned.Innards), signer, certifier);
+    		return data;
+		}
 	}
 	
 	@Override
