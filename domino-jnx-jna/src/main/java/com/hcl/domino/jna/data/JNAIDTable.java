@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -397,8 +398,16 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
 		
 		return addAll(c, addToEnd);
 	}
-	
-	@SuppressWarnings("unchecked")
+
+	private final Comparator<Integer> unsignedIntComparator = new Comparator<Integer>() {
+	  @Override
+	  public int compare(Integer o1, Integer o2) {
+	    long l1 = o1.longValue() & 0xFFFFFFFFL;
+	    long l2 = o2.longValue() & 0xFFFFFFFFL;
+	    return Long.compare(l1, l2);
+	  }
+	};
+
 	private boolean addAll(Collection<? extends Integer> c, boolean addToEnd) {
 		checkDisposed();
 		JNAIDTableAllocations allocations = getAllocations();
@@ -424,33 +433,11 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
 			NotesErrorUtils.checkResult(result);
 		}
 		else {
-			//check if Set is already sorted
-			boolean isSorted = true;
-			if (c instanceof SortedSet && ((SortedSet<Integer>)c).comparator()==null) {
-				//set is already sorted by natural ordering, we can skip the following loop to verify ordering
-			}
-			else {
-				Integer lastVal = null;
-				Iterator<? extends Integer> idsIt = c.iterator();
-				while (idsIt.hasNext()) {
-					Integer currVal = idsIt.next();
-					if (lastVal!=null && currVal!=null) {
-						if (lastVal.intValue() > currVal.intValue()) {
-							isSorted = false;
-							break;
-						}
-
-					}
-					lastVal = currVal;
-				}
-			}
+		  Integer[] noteIdsArr = c.toArray(new Integer[c.size()]);
+		  //sorts category note ids to the end of the list (with NOTEID_CATEGORY bit set)
+		  Arrays.sort(noteIdsArr, unsignedIntComparator);
 			
-			Integer[] noteIdsArr = c.toArray(new Integer[c.size()]);
-			if (!isSorted) {
-				Arrays.sort(noteIdsArr);
-			}
-			
-			LinkedList<Integer> currIdRange = new LinkedList<>();
+	    LinkedList<Long> currIdRange = new LinkedList<>();
 			
 			LockUtil.lockHandle(
 					allocations.getIdTableHandle(),
@@ -458,35 +445,58 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
 						//find consecutive id ranges to reduce number of insert operations (insert ranges)
 						for (int i=0; i<noteIdsArr.length; i++) {
 							int currNoteId = noteIdsArr[i];
+							long currNoteIdUnsigned = Integer.toUnsignedLong(currNoteId);
+
 							if (currIdRange.isEmpty()) {
-								currIdRange.add(currNoteId);
+								currIdRange.add(currNoteIdUnsigned);
 							}
 							else {
-								Integer highestRangeId = currIdRange.getLast();
-								if (currNoteId == (highestRangeId.intValue() + 4)) {
-									currIdRange.add(currNoteId);
+								Long highestRangeId = currIdRange.getLast();
+								if (currNoteIdUnsigned == (highestRangeId.intValue() + 4)) {
+									currIdRange.add(currNoteIdUnsigned);
 								}
 								else {
+	                long first = currIdRange.getFirst();
+	                //convert to signed int
+	                int firstAsInt = (int) first;
+								  
 									if (currIdRange.size()==1) {
-										add(currIdRange.getFirst());
+										add(firstAsInt);
 									}
 									else {
-										short result = NotesCAPI.get().IDInsertRange(ourIDTableHandleByVal, currIdRange.getFirst(), currIdRange.getLast(), addToEnd);
+									  long last = currIdRange.getLast();
+				            //convert to signed int
+				            int lastAsInt = (int) last;
+
+										short result = NotesCAPI.get().IDInsertRange(ourIDTableHandleByVal,
+										    firstAsInt,
+										    lastAsInt, addToEnd);
 										NotesErrorUtils.checkResult(result);
 									}
 									//flush range list
 									currIdRange.clear();
-									currIdRange.add(currNoteId);
+									currIdRange.add(currNoteIdUnsigned);
 								}
 							}
 						}
 						
 						if (!currIdRange.isEmpty()) {
+				      long first = currIdRange.getFirst();
+				      //convert to signed int
+				      int firstAsInt = (int) first;
+				      
 							if (currIdRange.size()==1) {
-								add(currIdRange.getFirst());
+								add(firstAsInt);
 							}
 							else {
-								short result = NotesCAPI.get().IDInsertRange(ourIDTableHandleByVal, currIdRange.getFirst(), currIdRange.getLast(), addToEnd);
+							  long last = currIdRange.getLast();
+
+							  //convert to signed int
+				        int lastAsInt = (int) last;
+
+								short result = NotesCAPI.get().IDInsertRange(ourIDTableHandleByVal,
+								    firstAsInt,
+								    lastAsInt, addToEnd);
 								NotesErrorUtils.checkResult(result);
 							}
 						}
