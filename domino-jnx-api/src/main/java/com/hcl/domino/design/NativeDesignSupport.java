@@ -53,13 +53,13 @@ public interface NativeDesignSupport {
    * <br>
    * <table border="1">
    * <caption>Values for nameOfContextClass</caption>
-   * <tr valign="top"><th>If the LotusScript was contained in:</th><th>Specify the following text as <code>nameOfContextClass</code>:</th></tr>
-   * <tr valign="top"><td>Agent<br>Webservice<br>Script libraries<br>Globals</td><td><i>Empty string</i></td></tr>
-   * <tr valign="top"><td>Form<br>Page<br>Subform</td><td>NOTESUIDOCUMENT</td></tr>
-   * <tr valign="top"><td>View<br>Folder</td><td>NOTESUIVIEW</td></tr>
-   * <tr valign="top"><td>Button<br>Action hotspot<br>Action<br>Area</td><td>BUTTON</td></tr>
-   * <tr valign="top"><td>Database script</td><td>NOTESUIDATABASE</td></tr>
-   * <tr valign="top"><td>Field</td><td>FIELD</td></tr>
+   * <tr><th>If the LotusScript was contained in:</th><th>Specify the following text as <code>nameOfContextClass</code>:</th></tr>
+   * <tr><td>Agent<br>Webservice<br>Script libraries<br>Globals</td><td><i>Empty string</i></td></tr>
+   * <tr><td>Form<br>Page<br>Subform</td><td>NOTESUIDOCUMENT</td></tr>
+   * <tr><td>View<br>Folder</td><td>NOTESUIVIEW</td></tr>
+   * <tr><td>Button<br>Action hotspot<br>Action<br>Area</td><td>BUTTON</td></tr>
+   * <tr><td>Database script</td><td>NOTESUIDATABASE</td></tr>
+   * <tr><td>Field</td><td>FIELD</td></tr>
    * </table>
    * 
    * @param code code to format
