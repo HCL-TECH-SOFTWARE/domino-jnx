@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -46,6 +47,7 @@ import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.internal.DisposableMemory;
+import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
 import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -308,6 +310,33 @@ public class JNAMessageQueue extends BaseJNAAPIObject<JNAMessageQueueAllocations
 
 		return retMsgLength.getValue();
 	}
+	
+    @Override
+    public Optional<String> get(long timeout, TimeUnit unit) throws InterruptedException {
+      checkDisposed();
+      
+      try(DisposableMemory buffer = new DisposableMemory(NotesConstants.MQ_MAX_MSGSIZE)) {
+        ShortByReference retMsgLength = new ShortByReference();
+
+        long millis = unit.toMillis(timeout);
+        if(millis > Integer.MAX_VALUE) {
+          throw new IllegalArgumentException(MessageFormat.format("Timeout value {0} is larger than Integer.MAX_VALUE", Long.toString(millis)));
+        }
+        short result = NotesCAPI.get().MQGet(getAllocations().getMessageQueueHandle(), buffer, (short) (NotesConstants.MQ_MAX_MSGSIZE & 0xffff),
+                NotesConstants.MQ_WAIT_FOR_MSG,
+                        (int)millis, retMsgLength);
+        if(result == INotesErrorConstants.ERR_MQ_EMPTY) {
+          return Optional.empty();
+        } else if(result == INotesErrorConstants.ERR_MQ_TIMEOUT) {
+          return Optional.empty();
+        } else if(result == INotesErrorConstants.ERR_MQ_QUITTING) {
+          throw new InterruptedException("Received ERR_MQ_QUITTING");
+        }
+        NotesErrorUtils.checkResult(result);
+        
+        return Optional.of(NotesStringUtils.fromLMBCS(buffer, Short.toUnsignedInt(retMsgLength.getValue())));
+      }
+    }
 
 	@Override
 	public void putQuitMsg() {

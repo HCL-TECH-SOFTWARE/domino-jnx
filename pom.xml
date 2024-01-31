@@ -349,6 +349,15 @@
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<tags>
+						<tag>
+							<name>implSpec</name>
+							<placement>a</placement>
+							<head>Implementation Requirements:</head>
+						</tag>
+					</tags>
+				</configuration>
 			</plugin>
 
 			<plugin>
