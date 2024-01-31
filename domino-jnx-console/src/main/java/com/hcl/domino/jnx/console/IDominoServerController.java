@@ -75,28 +75,28 @@ public interface IDominoServerController {
    * <table>
    * <caption>This table describes access levels required for commands.</caption>
    * <tr>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><b><span style='font-size:14.0pt'>Access control
    * field</span></b></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><b><span style='font-size:14.0pt'>Domino server commands
    * allowed</span></b></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><b><span style='font-size:14.0pt'>Server Controller commands
    * allowed</span></b></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><b><span style='font-size:14.0pt'>Shell commands
@@ -105,25 +105,25 @@ public interface IDominoServerController {
    * </td>
    * </tr>
    * <tr>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>Full Access Administrators</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>All</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>All</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>All</span></span>
@@ -131,25 +131,25 @@ public interface IDominoServerController {
    * </td>
    * </tr>
    * <tr>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>Administrators</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>All</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>All</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>None</span></span>
@@ -157,26 +157,26 @@ public interface IDominoServerController {
    * </td>
    * </tr>
    * <tr>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>Full Remote Console
    * Administrators</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>All</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>All</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>None</span></span>
@@ -184,27 +184,27 @@ public interface IDominoServerController {
    * </td>
    * </tr>
    * <tr>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>View-only Administrators</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>Commands that show status info only; for
    * example Show Tasks but not Load HTTP</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>All Controller commands except Quit,
    * Enable User, Disable User</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>None</span></span>
@@ -212,26 +212,26 @@ public interface IDominoServerController {
    * </td>
    * </tr>
    * <tr>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>System Administrators</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>None</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>All Controller commands except Quit,
    * Enable User, Disable User</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>All</span></span>
@@ -239,27 +239,27 @@ public interface IDominoServerController {
    * </td>
    * </tr>
    * <tr>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>Restricted System
    * Administrators</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>None</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>All Controller commands except Quit,
    * Enable User, Disable User</span></span>
    * </p>
    * </td>
-   * <td valign=top style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
+   * <td style='width:25.0%;padding:5.25pt 5.25pt 5.25pt
    * 5.25pt'>
    * <p>
    * <span><span style='font-size:14.0pt'>Only shell commands listed in

@@ -18,7 +18,9 @@ package com.hcl.domino.mq;
 
 import java.io.Closeable;
 import java.nio.ByteBuffer;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -152,4 +154,22 @@ public interface MessageQueue extends BlockingQueue<String>, Closeable {
    *         <code>callback</code> has been set to null)
    */
   int scan(byte[] buffer, final IMQCallback callback);
+  
+  /**
+   * Retrieves and removes the head of this queue, waiting up to the
+   * specified wait time if necessary for an element to become available.
+   *
+   * @param timeout how long to wait before giving up, in units of
+   *        {@code unit}
+   * @param unit a {@code TimeUnit} determining how to interpret the
+   *        {@code timeout} parameter
+   * @return an {@link Optional} describing the head of this queue, or
+   *         an empty one if the specified waiting time elapses before
+   *         an element is available
+   * @throws InterruptedException if interrupted while waiting
+   * @since 1.34.0
+   * @implSpec this method is expected to use the {@code MQGet} method,
+   *           if available
+   */
+  Optional<String> get(long timeout, TimeUnit unit) throws InterruptedException;
 }
