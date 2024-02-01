@@ -133,7 +133,7 @@
 		<junit.version>4.12</junit.version>
 		<log4j.version>2.17.1</log4j.version>
 		<lorem.version>2.1</lorem.version>
-		<metadata-extractor-version>2.18.0</metadata-extractor-version>
+		<metadata-extractor-version>2.19.0</metadata-extractor-version>
 		<micrometer.version>1.8.1</micrometer.version>
 		<mockito.version>4.1.0</mockito.version>
 		<mustache.version>0.9.10</mustache.version>
@@ -144,7 +144,7 @@
 		<pmd.version>6.51.0</pmd.version>
 		<powermock.version>2.0.9</powermock.version>
 		<saxon.version>10.6</saxon.version>
-		<spotbugs.version>4.7.3</spotbugs.version>
+		<spotbugs.version>4.8.3</spotbugs.version>
 		<spotless.version>2.4.1</spotless.version>
 		<testcontainers.version>1.15.2</testcontainers.version>
 		<vertx.version>4.5.2</vertx.version>
