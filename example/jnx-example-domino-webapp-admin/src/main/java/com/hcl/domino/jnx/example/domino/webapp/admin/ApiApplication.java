@@ -47,7 +47,8 @@ public class ApiApplication extends Application {
       new LiveConsoleResource(),
       new KnownServersResource(),
       new JsonbMessageBodyWriter(),
-      new GenericExceptionMapper())
+      new GenericExceptionMapper(),
+      new StatisticsResource())
     );
   }
 }

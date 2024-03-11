@@ -51,6 +51,7 @@ import com.hcl.domino.BuildVersionInfo;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.UserNamesList;
 import com.hcl.domino.admin.ServerAdmin;
+import com.hcl.domino.admin.ServerStatistics;
 import com.hcl.domino.admin.idvault.IdVault;
 import com.hcl.domino.admin.replication.Replication;
 import com.hcl.domino.calendar.Calendaring;
@@ -88,6 +89,7 @@ import com.hcl.domino.freebusy.FreeBusy;
 import com.hcl.domino.html.RichTextHTMLConverter;
 import com.hcl.domino.jna.admin.JNAIdVault;
 import com.hcl.domino.jna.admin.JNAServerAdmin;
+import com.hcl.domino.jna.admin.JNAServerStatistics;
 import com.hcl.domino.jna.admin.replication.JNAReplication;
 import com.hcl.domino.jna.calendaring.JNACalendaring;
 import com.hcl.domino.jna.data.JNADatabase;
@@ -1022,6 +1024,11 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   @Override
   public ServerAdmin getServerAdmin() {
     return new JNAServerAdmin(this);
+  }
+  
+  @Override
+  public ServerStatistics getServerStatistics() {
+    return new JNAServerStatistics();
   }
 
   @Override
