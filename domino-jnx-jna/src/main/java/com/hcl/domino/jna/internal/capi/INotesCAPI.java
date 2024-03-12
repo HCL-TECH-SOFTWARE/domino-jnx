@@ -2296,4 +2296,53 @@ public interface INotesCAPI extends Library {
       short itemFlags, short dataType, 
       Pointer value, int valueLength);
 
+	/**
+	 * Deletes all occurrences of a statistic.
+	 * 
+	 * @param Facility Name of facility.  See Symbolic Value, STATPKG_xxx for a list of existing Domino facilities
+	 * @param StatName Name of statistic
+	 */
+	void StatDelete(Memory Facility, Memory StatName);
+	
+    /**
+     * This function will set the value of a numeric-additive statistic (a statistic of type VT_LONG or
+     * VT_NUMBER and is additive) to 0.  This function performs the same operation as the Set Stat Domino
+     * Server console command.  For more information on this operation, refer to the Administering the
+     * Domino System documentation.
+     * 
+     * @param Facility Null-terminated string containing the name of the facility.
+     * @param StatName Null-terminated string containing the name of the statistic.
+     * @return Return status from this call:
+     * <ul>
+     *  <li>NOERROR - Success</li>
+     *  <li>ERR_STAT_NOT_SET - Unable to set the specified statistic to 0.</li>
+     *  <li>ERR_STAT_NOT_FOUND - Statistic is not in the Lotus Domino Server's statistic table.</li>
+     *  <li>ERR_xxx - Errors returned by lower level Notes functions: (memory management, file operations,
+     *      network errors, etc.).  There are so many possible causes, that it is best to use the code in
+     *      a call to OSLoadString and display/log the error for the user as your default error handling.</li>
+     * </ul>
+     */
+    short StatReset(Memory Facility, Memory StatName);
+    
+    /**
+     * This function updates the value of a statistic for the current server session.  For information
+     * regarding the Lotus Domino server statistics see the Administering the Domino System documentation.
+     * 
+     * @param Facility Name of facility.  See Symbolic Value, STATPKG_xxx for a list of existing Domino
+     *                 facilities.  If the facility is not an existing facility monitored by Domino, a
+     *                 new facility with the  accompanying statistic will be created for the current
+     *                 server session.  
+     * @param StatName Name of statistic.  If the facility and statistic combination is not one that
+     *                 exists and is monitored by Domino, a new statistic will be created for the current
+     *                 server session.
+     * @param Flags Flags that modify the behavior of StatUpdate. Specify 0 for default behavior.
+     *              Specify ST_UNIQUE if only one instance of statistic should be allowed.
+     *              Specify ~ST_UNIQUE if you want to append another instance of this statistic.
+     *              Specify ST_ADDITIVE if the value type of the statistic is VT_LONG or VT_NUMBER and
+     *              you want the new value added to the current value of the statistic.
+     * @param ValueType Value type of the statistic:  VT_LONG, VT_TEXT, VT_TIMEDATE, or VT_NUMBER.
+     * @param Value Value of the statistic.
+     * @return Return status from this call -- indicates either success (NOERROR) or what the error is.
+     */
+    short StatUpdate(Memory Facility, Memory StatName, short Flags, short ValueType, Pointer Value);
 }
