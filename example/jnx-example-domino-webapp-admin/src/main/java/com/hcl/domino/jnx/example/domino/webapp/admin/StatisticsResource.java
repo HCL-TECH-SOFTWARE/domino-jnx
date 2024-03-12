@@ -1,6 +1,7 @@
 package com.hcl.domino.jnx.example.domino.webapp.admin;
 
 import java.text.MessageFormat;
+import java.time.OffsetDateTime;
 import java.util.EnumSet;
 import java.util.concurrent.ExecutionException;
 import javax.ws.rs.GET;
@@ -18,6 +19,7 @@ public class StatisticsResource {
   public static final String REQUEST_NAME = "RequestCount";
   public static final String STRING_NAME = "String";
   public static final String DOUBLE_NAME = "Double";
+  public static final String TIME_NAME = "Time";
 
   @GET
   @Produces(MediaType.TEXT_PLAIN)
@@ -50,6 +52,18 @@ public class StatisticsResource {
         client.getServerStatistics().updateStatistic(FACILITY, DOUBLE_NAME, EnumSet.of(ServerStatistics.Flag.UNIQUE), newValue);
       }
       return MessageFormat.format("Set {0}.{1}", FACILITY, DOUBLE_NAME);
+    }).get();
+  }
+  
+  @Path("now")
+  @GET
+  @Produces(MediaType.TEXT_PLAIN)
+  public String updateNow() throws InterruptedException, ExecutionException {
+    return RestEasyServlet.instance.executor.submit(() -> {
+      try(DominoClient client = DominoClientBuilder.newDominoClient().build()) {
+        client.getServerStatistics().updateStatistic(FACILITY, TIME_NAME, EnumSet.of(ServerStatistics.Flag.UNIQUE), OffsetDateTime.now());
+      }
+      return MessageFormat.format("Set {0}.{1}", FACILITY, TIME_NAME);
     }).get();
   }
 }

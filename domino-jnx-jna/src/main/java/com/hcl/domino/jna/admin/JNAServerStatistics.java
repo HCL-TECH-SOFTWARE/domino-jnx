@@ -1,7 +1,9 @@
 package com.hcl.domino.jna.admin;
 
+import java.time.temporal.TemporalAccessor;
 import java.util.Collection;
 import com.hcl.domino.admin.ServerStatistics;
+import com.hcl.domino.jna.data.JNADominoDateTime;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -46,6 +48,21 @@ public class JNAServerStatistics implements ServerStatistics {
     try(DisposableMemory valueMem = new DisposableMemory(8)) {
       valueMem.setDouble(0, value);
       NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, NotesConstants.VT_NUMBER, valueMem);
+    }
+  }
+
+  @Override
+  public void updateStatistic(String facility, String statName, Collection<Flag> flags,
+      TemporalAccessor value) {
+    Memory facilityMem = NotesStringUtils.toLMBCS(facility, true);
+    Memory statNameMem = NotesStringUtils.toLMBCS(statName, true);
+    short flagsVal = DominoEnumUtil.toBitField(Flag.class, flags);
+    try(DisposableMemory valueMem = new DisposableMemory(8)) {
+      JNADominoDateTime dt = JNADominoDateTime.from(value);
+      int[] innards = dt.getInnards();
+      valueMem.setInt(0, innards[0]);
+      valueMem.setInt(4, innards[1]);
+      NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, NotesConstants.VT_TIMEDATE, valueMem);
     }
   }
 

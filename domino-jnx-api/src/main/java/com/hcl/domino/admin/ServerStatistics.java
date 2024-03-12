@@ -1,5 +1,6 @@
 package com.hcl.domino.admin;
 
+import java.time.temporal.TemporalAccessor;
 import java.util.Collection;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.misc.NotesConstants;
@@ -35,7 +36,7 @@ public interface ServerStatistics {
   void updateStatistic(String facility, String statName, Collection<Flag> flags, int value);
   
   /**
-   * Updates or creates a statistic with an {@code String} value.
+   * Updates or creates a statistic with a {@code String} value.
    * 
    * @param facility the name of the facility housing the statistic
    * @param statName the name of the statistic
@@ -45,7 +46,7 @@ public interface ServerStatistics {
   void updateStatistic(String facility, String statName, Collection<Flag> flags, String value);
   
   /**
-   * Updates or creates a statistic with an {@code double} value.
+   * Updates or creates a statistic with a {@code double} value.
    * 
    * @param facility the name of the facility housing the statistic
    * @param statName the name of the statistic
@@ -53,6 +54,16 @@ public interface ServerStatistics {
    * @param value the new value for the statistic
    */
   void updateStatistic(String facility, String statName, Collection<Flag> flags, double value);
+  
+  /**
+   * Updates or creates a statistic with a {@code TemporalAccessor} value.
+   * 
+   * @param facility the name of the facility housing the statistic
+   * @param statName the name of the statistic
+   * @param flags {@link Flag}s to apply to the statistic
+   * @param value the new value for the statistic
+   */
+  void updateStatistic(String facility, String statName, Collection<Flag> flags, TemporalAccessor value);
   
   /**
    * Resets an existing statistic that was created with {@link Flag#RESETABLE}.
