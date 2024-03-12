@@ -32,6 +32,7 @@ import javax.naming.AuthenticationNotSupportedException;
 import javax.naming.NameNotFoundException;
 
 import com.hcl.domino.admin.ServerAdmin;
+import com.hcl.domino.admin.ServerStatistics;
 import com.hcl.domino.admin.idvault.IdVault;
 import com.hcl.domino.admin.replication.Replication;
 import com.hcl.domino.calendar.Calendaring;
@@ -767,6 +768,14 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    * @throws IllegalArgumentException if {@code serverName} is empty
    */
   ServerInfo getServerInfo(String directoryServer, final String serverName);
+  
+  /**
+   * Returns a utility class with server-statistic-manipulation features
+   * 
+   * @return statistic utils
+   * @since 1.37.0
+   */
+  ServerStatistics getServerStatistics();
 
   /**
    * Obtains a {@link ThreadFactory} implementation that produces
