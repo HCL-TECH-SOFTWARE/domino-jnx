@@ -71,6 +71,8 @@ public interface StdNames {
   
   /** Text Properties table */
   String ITEM_NAME_TEXTPROPERTIES = "$TextProperties"; //$NON-NLS-1$
+  String ITEM_NAME_NOTE_SEALNAMES = "SecretEncryptionKeys"; //$NON-NLS-1$
+  String ITEM_NAME_NOTE_SEALUSERS = "PublicEncryptionKeys"; //$NON-NLS-1$
   
   /* ViewMap note item names */
 
