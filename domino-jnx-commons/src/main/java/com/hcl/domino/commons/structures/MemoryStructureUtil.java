@@ -259,7 +259,7 @@ public enum MemoryStructureUtil {
   @SuppressWarnings("unchecked")
   public static final <I extends MemoryStructure> I forStructure(final Class<I> subtype, final MemoryStructure structure) {
     if (structure instanceof ResizableMemoryStructure) {
-      return (I) java.lang.reflect.Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+      return (I) java.lang.reflect.Proxy.newProxyInstance(subtype.getClassLoader(),
           new Class<?>[] { subtype }, new MemoryStructureProxy(structure, subtype, null));
     } else {
       // Always wrap in a resizable structure to account for variable data
@@ -281,7 +281,7 @@ public enum MemoryStructureUtil {
    */
   @SuppressWarnings("unchecked")
   public static final <I extends RichTextRecord<?>> I forRichTextStructure(Class<I> subtype, RecordType recordType, MemoryStructure structure) {
-    return (I) java.lang.reflect.Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
+    return (I) java.lang.reflect.Proxy.newProxyInstance(subtype.getClassLoader(),
         new Class<?>[] { subtype }, new MemoryStructureProxy(structure, subtype, recordType));
   }
 
