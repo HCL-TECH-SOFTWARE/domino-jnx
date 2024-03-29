@@ -308,6 +308,7 @@ public interface INotesCAPI extends Library {
 	short NSFDbDelete(
 			Memory PathName
 			);
+	short NSFDbIDGet(HANDLE.ByValue hDB, NotesTimeDateStruct retDbID);
 	
 	short NSFItemSetText(
 			DHANDLE.ByValue hNote,
