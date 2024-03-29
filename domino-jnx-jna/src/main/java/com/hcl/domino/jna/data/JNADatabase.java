@@ -1510,6 +1510,17 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		NotesCAPI.get().NSFDbInfoParse(infoBuf, NotesConstants.INFOPARSE_CATEGORIES, categoriesMem, (short) (categoriesMem.size() & 0xffff));
 		return NotesStringUtils.fromLMBCS(categoriesMem, -1);
 	}
+	
+    @Override
+    public DominoDateTime getCreated() {
+      checkDisposed();
+      
+      return LockUtil.lockHandle(getAllocations().getDBHandle(), hDb -> {
+        NotesTimeDateStruct dbid = NotesTimeDateStruct.newInstance();
+        NotesCAPI.get().NSFDbIDGet(hDb, dbid);
+        return new JNADominoDateTime(dbid);
+      });
+    }
 
 	@Override
 	public void setCategories(String categories) {

@@ -842,6 +842,16 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
   BuildVersionInfo getBuildVersionInfo();
 
   String getCategories();
+  
+  /**
+   * Retrieves the creation time of the database, which also serves as
+   * the database's ID (DBID).
+   * 
+   * @return a {@link DominoDateTime} representing the database's creation
+   *         time
+   * @since 1.38.0
+   */
+  DominoDateTime getCreated();
 
   DbDesign getDesign();
 

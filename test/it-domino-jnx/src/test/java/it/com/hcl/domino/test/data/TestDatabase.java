@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
@@ -395,5 +397,15 @@ public class TestDatabase extends AbstractNotesRuntimeTest {
     names.getModifiedTime(retDataModified, retNonDataModified);
     Assertions.assertNotNull(retDataModified.get());
     Assertions.assertNotNull(retNonDataModified.get());
+  }
+  
+  @Test
+  public void testCreated() throws Exception {
+    withTempDb(database -> {
+      DominoDateTime created = database.getCreated();
+      Assertions.assertNotNull(created);
+      // Make sure it seems reasonable enough
+      Assertions.assertTrue(Instant.from(created).isAfter(Instant.now().minus(10, ChronoUnit.SECONDS)));
+    });
   }
 }

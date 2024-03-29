@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.hcl.domino</groupId>
 	<artifactId>domino-jnx</artifactId>
-	<version>1.37.0</version>
+	<version>1.38.0</version>
 	<packaging>pom</packaging>
 
 	<name>HCL Domino API Parent Project</name>
