@@ -17,6 +17,7 @@
 package it.com.hcl.domino.test.data;
 
 import java.time.DateTimeException;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
@@ -375,6 +376,19 @@ public class TestDocumentValueConversion extends AbstractNotesRuntimeTest {
       doc.replaceItemValue("Foo", expected);
       final TemporalAccessor date = doc.get("Foo", TemporalAccessor.class, null);
       Assertions.assertEquals(LocalTime.from(expected), LocalTime.from(date));
+    });
+  }
+  
+  @Test
+  public void testInstantRoundTrip() throws Exception {
+    final Instant expected = Instant.ofEpochSecond(System.currentTimeMillis() / 1000);
+    
+    withTempDb(database -> {
+      final Document doc = database.createDocument();
+
+      doc.replaceItemValue("Foo", expected);
+      final Instant date = doc.get("Foo", Instant.class, null);
+      Assertions.assertEquals(Instant.from(expected), Instant.from(date));
     });
   }
 }

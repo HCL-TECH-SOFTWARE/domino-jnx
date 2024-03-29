@@ -19,13 +19,14 @@ package com.hcl.domino.misc;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * Utility class to coordinate service loading for JNX.
@@ -81,9 +82,19 @@ public enum JNXServiceFinder {
   @SuppressWarnings("unchecked")
   public static <T> Stream<T> findServices(final Class<T> serviceClass) {
     return (Stream<T>)SERVICE_CACHE.computeIfAbsent(serviceClass, c -> {
-      final Iterable<T> services = AccessController
+      Set<T> converters = new TreeSet<>(Comparator.comparing(o -> o.getClass().getName()));
+      
+      // Check the context (app) ClassLoader
+      Iterable<T> services = AccessController
           .doPrivileged((PrivilegedAction<Iterable<T>>) () -> ServiceLoader.load(serviceClass));
-      return StreamSupport.stream(services.spliterator(), false).collect(Collectors.toList());
+      services.forEach(converters::add);
+      
+      // Also check the service's own ClassLoader, as it may be distinct
+      services = AccessController
+          .doPrivileged((PrivilegedAction<Iterable<T>>) () -> ServiceLoader.load(serviceClass, serviceClass.getClassLoader()));
+      services.forEach(converters::add);
+      
+      return converters;
     }).stream();
   }
 }
