@@ -18,6 +18,7 @@ package com.hcl.domino.commons.design;
 
 import com.hcl.domino.data.Document;
 import com.hcl.domino.design.FileResource;
+import com.hcl.domino.misc.NotesConstants;
 
 /**
  * @author Jesse Gallagher
@@ -32,6 +33,16 @@ public class FileResourceImpl extends AbstractNamedFileElement<FileResource> imp
   @Override
   public void initializeNewDesignNote() {
     setFlags("345CgQ"); //$NON-NLS-1$
+  }
+  
+  @Override
+  public boolean isWebContentFile() {
+    return this.getFlagsExt().contains(NotesConstants.DESIGN_FLAGEXT_WEBCONTENTFILE);
+  }
+  
+  @Override
+  public void setWebContentFile(boolean webContentFile) {
+    this.setFlagExt(NotesConstants.DESIGN_FLAGEXT_WEBCONTENTFILE, webContentFile);
   }
 
 }

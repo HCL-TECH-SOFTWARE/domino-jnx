@@ -242,5 +242,54 @@ public interface DesignElement {
    *         {@code false} otherwise
    */
   boolean isAllowPublicAccess();
-
+  
+  /**
+   * Determines whether the design element should be hidden from normal
+   * design lists.
+   * 
+   * @return {@code true} if the element should be hidden from design
+   *         lists; {@code false} otherwise
+   * @since 1.39.0
+   */
+  boolean isHideFromDesignList();
+  
+  /**
+   * Sets whether the design element should be hidden from normal
+   * design lists.
+   * 
+   * @param hideFromDesignList {@code true} to mark the element as hidden
+   *         from design lists; {@code false} otherwise
+   * @since 1.39.0
+   */
+  void setHideFromDesignList(boolean hideFromDesignList);
+  
+  /**
+   * Determines whether the design element should be hidden from the specified
+   * major version of Notes.
+   * 
+   * <p>Note: currently only versions 3 through 9 have applicable flags.</p>
+   * 
+   * @param version the version to query
+   * @return {@code true} if the element is hidden from the specified version;
+   *         {@code false} otherwise
+   * @throws IllegalArgumentException if {@code version} is not within 3 through
+   *         9
+   * @since 1.39.0
+   */
+  boolean isHideFromNotesVersion(int version);
+  
+  /**
+   * Sets whether the design element should be hidden from the specified major
+   * version of Notes.
+   * 
+   * <p>Note: currently only versions 3 through 9 have applicable flags.</p>
+   * 
+   * @param version the version to set the flag for
+   * @param hide {@code true} if the element should be hidden from the specified
+   *        version; {@code false} otherwise
+   * @throws IllegalArgumentException if {@code version} is not within 3 through
+   *         9
+   * @since 1.39.0
+   */
+  void setHideFromNotesVersion(int version, boolean hide);
 }
