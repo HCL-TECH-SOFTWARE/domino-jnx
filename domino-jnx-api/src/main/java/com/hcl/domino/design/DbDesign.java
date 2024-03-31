@@ -18,6 +18,7 @@ package com.hcl.domino.design;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -239,7 +240,7 @@ public interface DbDesign {
    * 
    * <p>Unlike {@link #getDesignElements(Class)}, this method does not actually
    * load the underlying design-element notes, and can be used to more-efficiently
-   * retrieve information about large numbers of design elements at a time.
+   * retrieve information about large numbers of design elements at a time.</p>
    * 
    * @param <T> the type of design element to retrieve
    * @param type a {@link Class} object representing {@code <T>}
@@ -248,6 +249,26 @@ public interface DbDesign {
    * @since 1.21.0
    */
   <T extends DesignElement> Stream<DesignEntry<T>> getDesignEntries(Class<T> type);
+
+  /**
+   * Retrieves summary information about all design elements in the database
+   * matching a {@code $FLAGS} pattern.
+   * 
+   * <p>Unlike {@link #getDesignElements(Class)}, this method does not actually
+   * load the underlying design-element notes, and can be used to more-efficiently
+   * retrieve information about large numbers of design elements at a time.</p>
+   * 
+   * <p>If your patterns matche several design element types, it is safest to use
+   * {@link DesignElement} directly as the return component type.</p>
+   * 
+   * @param <T> the type of design element to retrieve
+   * @param noteClasses the {@link DocumentClass}es of the elements to limit to
+   * @param patterns the flags patterns to match to the elements
+   * @return a {@link Stream} of {@link DesignEntry} objects matching the
+   *         flags pattern
+   * @since 1.39.0
+   */
+  <T extends DesignElement> Stream<DesignEntry<T>> getDesignEntries(Collection<DocumentClass> noteClasses, Collection<String> patterns);
 
   /**
    * Retrieves all design elements in the database of the provided type matching
