@@ -27,6 +27,8 @@ public interface StdNames {
   String DFLAGPAT_SHARED_COLS = "(+-*^"; //$NON-NLS-1$
   /** xsp pages */
   String DFLAGPAT_XSPPAGE = "*gK"; //$NON-NLS-1$
+  /** list of web only files */
+  String DFLAGPAT_FILE_WEB = "(+g-K[];w`,*";
   /** display only stylekits */
   String DFLAGPAT_STYLEKIT = "(+-*g`"; //$NON-NLS-1$
   /** display only widgets */
@@ -73,6 +75,7 @@ public interface StdNames {
   String ITEM_NAME_TEXTPROPERTIES = "$TextProperties"; //$NON-NLS-1$
   String ITEM_NAME_NOTE_SEALNAMES = "SecretEncryptionKeys"; //$NON-NLS-1$
   String ITEM_NAME_NOTE_SEALUSERS = "PublicEncryptionKeys"; //$NON-NLS-1$
+  String ITEM_META_TITLE = "$$TITLE"; //$NON-NLS-1$
   
   /* ViewMap note item names */
 

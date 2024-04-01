@@ -153,6 +153,34 @@ public abstract class AbstractDesignElement<T extends DesignElement> implements 
   public void sign(final UserId id) {
     this.doc.sign(id, true);
   }
+  
+  @Override
+  public boolean isHideFromDesignList() {
+    return this.getFlags().contains(NotesConstants.DESIGN_FLAG_HIDEFROMDESIGNLIST);
+  }
+  
+  @Override
+  public void setHideFromDesignList(boolean hideFromDesignList) {
+    this.setFlag(NotesConstants.DESIGN_FLAG_HIDEFROMDESIGNLIST, hideFromDesignList);
+  }
+  
+  @Override
+  public boolean isHideFromNotesVersion(int version) {
+    if(version < 3 || version > 9) {
+      throw new IllegalArgumentException("version must be between 3 and 9");
+    }
+    // All of these flags are just the version number as a character
+    return this.getFlags().contains(String.valueOf(version));
+  }
+  
+  @Override
+  public void setHideFromNotesVersion(int version, boolean hide) {
+    if(version < 3 || version > 9) {
+      throw new IllegalArgumentException("version must be between 3 and 9");
+    }
+    // All of these flags are just the version number as a character
+    this.setFlag(String.valueOf(version), hide);
+  }
 
   // *******************************************************************************
   // * Implementation utility methods

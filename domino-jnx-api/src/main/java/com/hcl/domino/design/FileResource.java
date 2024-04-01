@@ -23,4 +23,22 @@ package com.hcl.domino.design;
  * @since 1.0.24
  */
 public interface FileResource extends NamedFileElement<FileResource> {
+  /**
+   * Determines whether this resource shows up in the "WebContent" virtual
+   * directory
+   * 
+   * @return {@code true} if this is a WebContent file; {@code false} otherwise
+   * @since 1.39.0
+   */
+  boolean isWebContentFile();
+  
+  /**
+   * Sets whether this resource should show up in the "WebContent" virtual
+   * directory
+   * 
+   * @param webContentFile {@code true} if this should be marked as a
+   *        WebContent file; {@code false} otherwise
+   * @since 1.39.0
+   */
+  void setWebContentFile(boolean webContentFile);
 }

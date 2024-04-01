@@ -3,6 +3,8 @@ package com.hcl.domino.design;
 import java.util.List;
 
 import com.hcl.domino.data.Database;
+import com.hcl.domino.data.DocumentClass;
+import com.hcl.domino.data.DominoDateTime;
 
 /**
  * Represents summary information about a design element in a
@@ -21,6 +23,22 @@ public interface DesignEntry<T extends DesignElement> {
   String getComment();
   
   /**
+   * Retrieves the document class of the design entry.
+   * 
+   * @return the entry document class
+   * @since 1.39.0
+   */
+  DocumentClass getDocumentClass();
+  
+  /**
+   * Retrieves the file size for the note, if applicable.
+   * 
+   * @return the file size for the note as a {@code long}
+   * @since 1.39.0
+   */
+  long getFileSize();
+  
+  /**
    * Retrieves the set of element flags.
    * 
    * @return the design-element flags as a string
@@ -28,11 +46,35 @@ public interface DesignEntry<T extends DesignElement> {
   String getFlags();
   
   /**
+   * Retrieves the set of extended element flags.
+   * 
+   * @return the design-element extended flags as a string
+   * @since 1.39.0
+   */
+  String getFlagsExt();
+  
+  /**
    * Retrieves the language of the design element, if applicable.
    * 
    * @return the design-element language as a string
    */
   String getLanguage();
+  
+  /**
+   * Retrieves the MIME type of the file-type design element, if applicable.
+   * 
+   * @return the design-element MIME type as a string
+   * @since 1.39.0
+   */
+  String getMimeType();
+  
+  /**
+   * Retrieves the last-modified time of the entry.
+   * 
+   * @return the last-modified time of the entry as a {@link DominoDateTime}
+   * @since 1.39.0
+   */
+  DominoDateTime getModified();
   
   /**
    * Retrieves the note ID of the underlying note for the design
@@ -49,6 +91,22 @@ public interface DesignEntry<T extends DesignElement> {
    * @return the design-element UNID
    */
   String getUNID();
+  
+  /**
+   * Retrieves the name of the last user to modify the note.
+   * 
+   * @return the last modification user
+   * @since 1.39.0
+   */
+  String getUpdatedBy();
+  
+  /**
+   * Retrieves the primary title of the design element.
+   * 
+   * @return the primary title of the design element as a string
+   * @since 1.39.0
+   */
+  String getTitle();
   
   /**
    * Retrieves the title and any aliases of the design element.

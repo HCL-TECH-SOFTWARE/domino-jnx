@@ -290,6 +290,13 @@ public abstract class AbstractDbDesign implements DbDesign {
     final DesignMapping<T, ?> mapping = DesignUtil.getDesignMapping(type);
     return (Stream<DesignEntry<T>>)(Stream<?>)this.findDesignNotes(mapping.getNoteClass(), mapping.getFlagsPattern());
   }
+  
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends DesignElement> Stream<DesignEntry<T>> getDesignEntries(
+      Collection<DocumentClass> noteClasses, Collection<String> patterns) {
+    return (Stream<DesignEntry<T>>)(Stream<?>)this.findDesignNotes(noteClasses, patterns);
+  }
 
   @SuppressWarnings("unchecked")
   @Override
