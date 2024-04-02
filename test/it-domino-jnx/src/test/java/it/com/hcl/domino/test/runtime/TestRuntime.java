@@ -26,9 +26,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import com.hcl.domino.runtime.DominoRuntime;
 import com.ibm.commons.util.StringUtil;
 
@@ -51,7 +51,7 @@ public class TestRuntime extends AbstractNotesRuntimeTest {
   }
 
   @Test
-  @Disabled("Causes segfaults on macOS somehow")
+  @DisabledOnOs(value=OS.MAC, disabledReason="Causes segfaults on macOS somehow")
   public void testFerryConvertible() {
     final String prop = this.getClass().getSimpleName() + "_conv";
     final int val = Math.abs((int) System.currentTimeMillis() % 1000);
@@ -64,7 +64,7 @@ public class TestRuntime extends AbstractNotesRuntimeTest {
   }
 
   @Test
-  @Disabled("Causes segfaults on macOS somehow")
+  @DisabledOnOs(value=OS.MAC, disabledReason="Causes segfaults on macOS somehow")
   public void testFerryInt() {
     final String prop = this.getClass().getSimpleName() + "_int";
     final int val = Math.abs((int) System.currentTimeMillis() % 1000);
@@ -77,7 +77,7 @@ public class TestRuntime extends AbstractNotesRuntimeTest {
   }
 
   @Test
-  @Disabled("Causes segfaults on macOS somehow")
+  @DisabledOnOs(value=OS.MAC, disabledReason="Causes segfaults on macOS somehow")
   public void testFerryString() {
     final String prop = this.getClass().getSimpleName() + "_string";
     final String val = String.valueOf("time is " + System.currentTimeMillis());

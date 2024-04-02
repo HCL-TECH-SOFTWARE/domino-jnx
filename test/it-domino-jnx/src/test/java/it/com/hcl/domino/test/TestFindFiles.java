@@ -26,7 +26,8 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClient.Encryption;
 import com.hcl.domino.DominoException;
@@ -85,6 +86,7 @@ public class TestFindFiles extends AbstractNotesRuntimeTest {
   }
 
   @Test
+  @DisabledOnOs(value=OS.MAC, disabledReason="Listing a fake folder leads to an empty listing and not an exception in the macOS client")
   public void testFindFilesInFolder() throws IOException {
     final DominoClient client = this.getClient();
 
