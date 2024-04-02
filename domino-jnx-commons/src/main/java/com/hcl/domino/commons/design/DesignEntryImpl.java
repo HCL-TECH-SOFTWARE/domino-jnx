@@ -87,6 +87,11 @@ public class DesignEntryImpl<T extends DesignElement> implements DesignEntry<T> 
   public String getUpdatedBy() {
     return this.entry.get(12, String.class, "");
   }
+  
+  @Override
+  public boolean matchesTitleValue(String title) {
+    return DesignUtil.matchesTitleValues(title, getTitles());
+  }
 
   @SuppressWarnings("unchecked")
   @Override
