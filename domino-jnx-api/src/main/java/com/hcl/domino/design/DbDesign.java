@@ -177,8 +177,6 @@ public interface DbDesign {
    * 
    * @param <T>          the type of design element to find
    * @param type         a {@link Class} object representing {@code <T>}
-   * @param pattern      the note flag pattern to query (see
-   *                     <code>DFLAGPAT_*</code> in {@link NotesConstants})
    * @param name         the name or alias of the design note
    * @param partialMatch whether partial matches are allowed
    * @return an {@link OptionalInt} describing the note ID of the specified
