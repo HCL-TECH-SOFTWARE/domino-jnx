@@ -20,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -28,6 +29,7 @@ import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.design.agent.DesignLotusScriptAgent;
+import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.data.DocumentClass;
 
 /**
@@ -169,6 +171,40 @@ public interface DbDesign {
    * @return the newly-created in-memory {@link Frameset}
    */
   Frameset createFrameset(String framesetName);
+  
+  /**
+   * Queries the design collection for a single design note.
+   * 
+   * @param <T>          the type of design element to find
+   * @param type         a {@link Class} object representing {@code <T>}
+   * @param pattern      the note flag pattern to query (see
+   *                     <code>DFLAGPAT_*</code> in {@link NotesConstants})
+   * @param name         the name or alias of the design note
+   * @param partialMatch whether partial matches are allowed
+   * @return an {@link OptionalInt} describing the note ID of the specified
+   *         design note, or an empty one if the note was not found
+   * @implNote It is expected that implementations will use {@code NIFFindDesignNoteExt}
+   *           if available
+   * @since 1.40.0
+   */
+  <T extends DesignElement> OptionalInt findDesignNote(Class<T> type, String name, boolean partialMatch);
+  
+  /**
+   * Queries the design collection for a single design note.
+   * 
+   * @param noteClass    the class of note to query (see <code>NOTE_CLASS_*</code>
+   *                     in {@link NotesConstants})
+   * @param pattern      the note flag pattern to query (see
+   *                     <code>DFLAGPAT_*</code> in {@link NotesConstants})
+   * @param name         the name or alias of the design note
+   * @param partialMatch whether partial matches are allowed
+   * @return an {@link OptionalInt} describing the note ID of the specified
+   *         design note, or an empty one if the note was not found
+   * @implNote It is expected that implementations will use {@code NIFFindDesignNoteExt}
+   *           if available
+   * @since 1.40.0
+   */
+  OptionalInt findDesignNote(DocumentClass noteClass, String pattern, String name, boolean partialMatch);
   
   /**
    * Retrieves the named agent.

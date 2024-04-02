@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.design;
 
+import java.util.OptionalInt;
 import com.hcl.domino.commons.design.AbstractDbDesign;
 import com.hcl.domino.commons.errors.errorcodes.IMiscErr;
 import com.hcl.domino.commons.util.NotesErrorUtils;
@@ -35,7 +36,7 @@ public class JNADbDesign extends AbstractDbDesign {
 	}
 	
 	@Override
-	protected int findDesignNote(DocumentClass noteClass, String pattern, String name, boolean partialMatch) {
+	public OptionalInt findDesignNote(DocumentClass noteClass, String pattern, String name, boolean partialMatch) {
 		Memory nameLMBCS = NotesStringUtils.toLMBCS(name, true);
 
 		IntByReference retAgentNoteID = new IntByReference();
@@ -50,12 +51,13 @@ public class JNADbDesign extends AbstractDbDesign {
 		});
 		
 		if ((result & NotesConstants.ERR_MASK)==IMiscErr.ERR_NOT_FOUND) {
-			return 0;
+			return OptionalInt.empty();
 		}
 		
 		//throws an error if agent cannot be found:
 		NotesErrorUtils.checkResult(result);
 		
-		return retAgentNoteID.getValue();
+		int noteId = retAgentNoteID.getValue();
+		return noteId == 0 ? OptionalInt.empty() : OptionalInt.of(noteId);
 	}
 }
