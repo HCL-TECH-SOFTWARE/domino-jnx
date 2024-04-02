@@ -183,7 +183,7 @@ public interface DbDesign {
    * @param partialMatch whether partial matches are allowed
    * @return an {@link OptionalInt} describing the note ID of the specified
    *         design note, or an empty one if the note was not found
-   * @implNote It is expected that implementations will use {@code NIFFindDesignNoteExt}
+   * @implSpec It is expected that implementations will use {@code NIFFindDesignNoteExt}
    *           if available
    * @since 1.40.0
    */
@@ -200,7 +200,7 @@ public interface DbDesign {
    * @param partialMatch whether partial matches are allowed
    * @return an {@link OptionalInt} describing the note ID of the specified
    *         design note, or an empty one if the note was not found
-   * @implNote It is expected that implementations will use {@code NIFFindDesignNoteExt}
+   * @implSpec It is expected that implementations will use {@code NIFFindDesignNoteExt}
    *           if available
    * @since 1.40.0
    */
