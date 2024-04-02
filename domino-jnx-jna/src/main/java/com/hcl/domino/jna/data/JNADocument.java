@@ -269,15 +269,19 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	@Override
 	public boolean isClosed() {
 		JNADocumentAllocations allocations = getAllocations();
-		return allocations.isDisposed();
+		synchronized(allocations) {
+		  return allocations.isDisposed();
+		}
 	}
 	
 	@Override
 	public void close() {
 		JNADocumentAllocations allocations = getAllocations();
 		
-		if (!allocations.isDisposed()) {
-			allocations.dispose();
+		synchronized(allocations) {
+    		if (!allocations.isDisposed()) {
+    			allocations.dispose();
+    		}
 		}
 	}
 	
@@ -2743,7 +2747,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		}
 		
 		checkDisposed();
-		((JNADatabase)getParent()).deleteDocument(getNoteID());
+		int noteId = getNoteID();
+		close();
+		((JNADatabase)getParent()).deleteDocument(noteId);
 	}
 
 	@Override
@@ -2752,7 +2758,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			return;
 		}
 
-		((JNADatabase)getParent()).deleteDocument(getNoteID(), EnumSet.of(UpdateNote.NOSTUB));
+        int noteId = getNoteID();
+        close();
+		((JNADatabase)getParent()).deleteDocument(noteId, noStub ? EnumSet.of(UpdateNote.NOSTUB) : EnumSet.noneOf(UpdateNote.class));
 	}
 	
 	@Override

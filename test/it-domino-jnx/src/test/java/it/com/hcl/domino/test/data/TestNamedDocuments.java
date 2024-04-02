@@ -3,7 +3,6 @@ package it.com.hcl.domino.test.data;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Assertions;
@@ -109,11 +108,12 @@ public class TestNamedDocuments extends AbstractNotesRuntimeTest {
       Assertions.assertEquals(doc1.getNoteID(), doc1Check.getNoteID());
       Assertions.assertFalse(doc1Check.isNew());
       
+      int doc2Id = doc2.getNoteID();
       doc2.delete();
       
       Document doc2Check = db.getNamedDocument("testcategory", "ausername"); //$NON-NLS-1$ //$NON-NLS-2$
       Assertions.assertNotNull(doc2Check);
-      Assertions.assertNotEquals(doc2.getNoteID(), doc2Check.getNoteID());
+      Assertions.assertNotEquals(doc2Id, doc2Check.getNoteID());
       Assertions.assertTrue(doc2Check.isNew());
       
     });

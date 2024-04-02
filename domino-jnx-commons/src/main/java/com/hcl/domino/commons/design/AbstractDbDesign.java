@@ -723,27 +723,29 @@ public abstract class AbstractDbDesign implements DbDesign {
   public Stream<DesignEntry<DesignElement>> findDesignNotes(final Collection<DocumentClass> noteClasses, final Collection<String> patterns) {
     /*
      * Design collection columns:
-     *  - $TITLE (string)
-     *  - $FormPrivs
-     *  - $FormUsers
-     *  - $Body
-     *  - $Flags (string)
-     *  - $Class
-     *  - $Modified (TIMEDATE)
-     *  - $Comment (string)
-     *  - $AssistTrigger
-     *  - $AssistType
-     *  - $AssistFlags
-     *  - $AssistFlags2
-     *  - $UpdatedBy (string)
-     *  - $$FormScript_0
-     *  - $LANGUAGE
-     *  - $Writers
-     *  - $PWriters
-     *  - $FlagsExt
-     *  - $FileSize (number)
-     *  - $MimeType
-     *  - $DesignerVersion (string)
+     *  0  - $TITLE (string)
+     *  1  - $FormPrivs
+     *  2  - $FormUsers
+     *  3  - $Body
+     *  4  - $Flags (string)
+     *  5  - $Class
+     *  6  - $Modified (TIMEDATE)
+     *  7  - $Comment (string)
+     *  8  - $AssistTrigger
+     *  9  - $AssistType
+     *  10 - $AssistFlags
+     *  11 - $AssistFlags2
+     *  12 - $UpdatedBy (string)
+     *  13 - $$FormScript_0
+     *  14 - $LANGUAGE
+     *  15 - $Writers
+     *  16 - $PWriters
+     *  17 - $FlagsExt
+     *  18 - $FileSize (number)
+     *  19 - $MimeType
+     *  20 - $DesignerVersion (string)
+     *  21 - $XPageAlt
+     *  22 - $ClassIndexItem
      */
 
     final DominoCollection designColl = this.database.openDesignCollection();
