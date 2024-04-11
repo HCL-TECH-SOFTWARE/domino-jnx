@@ -52,6 +52,7 @@ import com.hcl.domino.exception.BadPasswordException;
 import com.hcl.domino.exception.CancelException;
 import com.hcl.domino.exception.CompactInProgressException;
 import com.hcl.domino.exception.CompactionRequiredException;
+import com.hcl.domino.exception.CorruptIDFileException;
 import com.hcl.domino.exception.DocumentDeletedException;
 import com.hcl.domino.exception.EntryNotFoundInIndexException;
 import com.hcl.domino.exception.FileDoesNotExistException;
@@ -64,6 +65,8 @@ import com.hcl.domino.exception.ItemNotFoundException;
 import com.hcl.domino.exception.ItemNotPresentException;
 import com.hcl.domino.exception.MimePartNotFoundException;
 import com.hcl.domino.exception.NoCrossCertificateException;
+import com.hcl.domino.exception.NoEncryptionKeysException;
+import com.hcl.domino.exception.MissingEncryptionKeyException;
 import com.hcl.domino.exception.NotAuthorizedException;
 import com.hcl.domino.exception.QuitPendingException;
 import com.hcl.domino.exception.SecurityItemDoesNotExistException;
@@ -322,8 +325,14 @@ public class NotesErrorUtils {
         return Optional.of(new NoCrossCertificateException(s, message));
       case INsfErr.ERR_INVALID_NAME:
         return Optional.of(new InvalidRemotePathnameException(s, message));
+      case INsfErr.ERR_NO_NAMED_KEY:
+        return Optional.of(new MissingEncryptionKeyException(s, message));
       case IBsafeErr.ERR_BSAFE_NON_EXISTENT:
         return Optional.of(new SecurityItemDoesNotExistException(s, message));
+      case IBsafeErr.ERR_BSAFE_NO_KEYS:
+        return Optional.of(new NoEncryptionKeysException(s, message));
+      case IBsafeErr.ERR_BSAFE_ID_TRUNC:
+        return Optional.of(new CorruptIDFileException(s, message));
       default:
         return Optional.of(new DominoException(s, message));
     }

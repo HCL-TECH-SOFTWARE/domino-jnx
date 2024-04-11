@@ -176,7 +176,10 @@ public class DefaultDominoDateTime implements DominoDateTime {
   @Override
   public long getLong(final TemporalField field) {
     // TODO modify to check without conversion for compatible types
-    return this.toTemporal().get().getLong(field);
+    return this.toTemporal()
+        // Fall back to the epoch for invalid values
+        .orElse(Instant.EPOCH)
+        .getLong(field);
   }
 
   @Override

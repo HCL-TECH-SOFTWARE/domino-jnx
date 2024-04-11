@@ -117,6 +117,17 @@ public interface DesignEntry<T extends DesignElement> {
   List<String> getTitles();
   
   /**
+   * Determines whether any of the element's titles match the provided
+   * title value. This ignores parentheses and accounts for aliases.
+   * 
+   * @param title the title to check
+   * @return {@code true} if any of the element's titles are a match;
+   *         {@code false} otherwise
+   * @since 1.40.0
+   */
+  boolean matchesTitleValue(String title);
+  
+  /**
    * Attempts to load the design element from the specified database, which
    * should be the database that was originally queried.
    * 

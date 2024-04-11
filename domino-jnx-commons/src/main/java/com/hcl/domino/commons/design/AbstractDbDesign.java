@@ -30,6 +30,7 @@ import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -270,17 +271,26 @@ public abstract class AbstractDbDesign implements DbDesign {
   @Override
   public <T extends DesignElement> Optional<T> getDesignElementByName(final Class<T> type, final String name) {
     final DesignMapping<T, ?> mapping = DesignUtil.getDesignMapping(type);
-    final int noteId = this.findDesignNote(mapping.getNoteClass(), mapping.getFlagsPattern(), name, false);
-    if (noteId == 0) {
+    final OptionalInt noteId = this.findDesignNote(mapping.getNoteClass(), mapping.getFlagsPattern(), name, false);
+    if (!noteId.isPresent()) {
       return Optional.empty();
     } else {
-      return Optional.of((T) mapping.getConstructor().apply(this.database.getDocumentById(noteId).get()));
+      return Optional.of((T) mapping.getConstructor().apply(this.database.getDocumentById(noteId.getAsInt()).get()));
     }
   }
 
   @Override
   public <T extends DesignElement> Stream<T> getDesignElements(final Class<T> type) {
     return (Stream<T>) getDesignEntries(type)
+        .map(entry -> entry.toDesignElement(this.database));
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends DesignElement> Stream<T> getDesignElementsByName(final Class<T> type, final String name) {
+    final DesignMapping<T, ?> mapping = DesignUtil.getDesignMapping(type);
+    return (Stream<T>) this.findDesignNotes(mapping.getNoteClass(), mapping.getFlagsPattern())
+        .filter(entry -> entry.matchesTitleValue(name))
         .map(entry -> entry.toDesignElement(this.database));
   }
   
@@ -296,15 +306,6 @@ public abstract class AbstractDbDesign implements DbDesign {
   public <T extends DesignElement> Stream<DesignEntry<T>> getDesignEntries(
       Collection<DocumentClass> noteClasses, Collection<String> patterns) {
     return (Stream<DesignEntry<T>>)(Stream<?>)this.findDesignNotes(noteClasses, patterns);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  public <T extends DesignElement> Stream<T> getDesignElementsByName(final Class<T> type, final String name) {
-    final DesignMapping<T, ?> mapping = DesignUtil.getDesignMapping(type);
-    return (Stream<T>) this.findDesignNotes(mapping.getNoteClass(), mapping.getFlagsPattern())
-        .filter(entry -> DesignUtil.matchesTitleValues(name, entry.getTitles()))
-        .map(entry -> entry.toDesignElement(this.database));
   }
 
   @Override
@@ -330,11 +331,11 @@ public abstract class AbstractDbDesign implements DbDesign {
   public Optional<FileResource> getFileResource(final String name, boolean includeXsp) {
     // By default, FileResource is mapped to the Designer list only
     if(includeXsp) {
-      final int noteId = this.findDesignNote(DocumentClass.FORM, NotesConstants.DFLAGPAT_FILE, name, false);
-      if (noteId == 0) {
+      final OptionalInt noteId = this.findDesignNote(DocumentClass.FORM, NotesConstants.DFLAGPAT_FILE, name, false);
+      if (!noteId.isPresent()) {
         return Optional.empty();
       } else {
-        return Optional.of(new FileResourceImpl(this.database.getDocumentById(noteId).get()));
+        return Optional.of(new FileResourceImpl(this.database.getDocumentById(noteId.getAsInt()).get()));
       }
     } else {
       return this.getDesignElementByName(FileResource.class, name);
@@ -482,7 +483,7 @@ public abstract class AbstractDbDesign implements DbDesign {
     //     so query from the design collection here
     DesignMapping<SharedField, ?> mapping = DesignUtil.getDesignMapping(SharedField.class);
     return this.findDesignNotes(mapping.getNoteClass(), mapping.getFlagsPattern())
-      .filter(entry -> DesignUtil.matchesTitleValues(name, entry.getTitles()))
+      .filter(entry -> entry.matchesTitleValue(name))
       .map(entry -> (SharedField)entry.toDesignElement(this.database))
       .findFirst();
   }
@@ -605,7 +606,7 @@ public abstract class AbstractDbDesign implements DbDesign {
     return this.findFileElement(filePath)
       .map(element -> {
         if(element instanceof NamedFileElement) {
-          return ((NamedFileElement) element).getFileData();
+          return ((NamedFileElement<?>) element).getFileData();
         } else if(element instanceof ServerJavaScriptLibrary) {
           String script = ((ServerJavaScriptLibrary)element).getScript();
           return new ByteArrayInputStream(script.getBytes());
@@ -631,14 +632,14 @@ public abstract class AbstractDbDesign implements DbDesign {
     
     if(element instanceof NamedFileElement) {
       return new BufferingCallbackOutputStream(bytes -> {
-        try(OutputStream os = ((NamedFileElement) element).newOutputStream()) {
+        try(OutputStream os = ((NamedFileElement<?>) element).newOutputStream()) {
           os.write(bytes);
         } catch (IOException e) {
           throw new UncheckedIOException(e);
         }
         element.save();
         if(callback != null) {
-          callback.accept((NamedFileElement)element);
+          callback.accept((NamedFileElement<?>)element);
         }
       });
     } else if(element instanceof ServerJavaScriptLibrary) {
@@ -680,6 +681,13 @@ public abstract class AbstractDbDesign implements DbDesign {
         }
       });
   }
+  
+  @Override
+  public <T extends DesignElement> OptionalInt findDesignNote(Class<T> type, String name,
+      boolean partialMatch) {
+    final DesignMapping<T, ?> mapping = DesignUtil.getDesignMapping(type);
+    return findDesignNote(mapping.getNoteClass(), mapping.getFlagsPattern(), name, partialMatch);
+  }
 
   // *******************************************************************************
   // * Internal utility methods
@@ -707,7 +715,7 @@ public abstract class AbstractDbDesign implements DbDesign {
   public Optional<DesignElement> findFileElement(String filePath) {
     String path = cleanFilePath(filePath);
     return this.findDesignNotes(EnumSet.of(DocumentClass.FORM, DocumentClass.FILTER), FILERES_PATTERNS)
-      .filter(entry -> DesignUtil.matchesTitleValues(path, entry.getTitles()))
+      .filter(entry -> entry.matchesTitleValue(path))
       .map(entry -> entry.toDesignElement(this.database))
       .findFirst();
   }
@@ -793,20 +801,6 @@ public abstract class AbstractDbDesign implements DbDesign {
       })
       .stream();
   }
-
-  /**
-   * Queries the design collection for a single design note.
-   * 
-   * @param noteClass    the class of note to query (see <code>NOTE_CLASS_*</code>
-   *                     in {@link NotesConstants})
-   * @param pattern      the note flag pattern to query (see
-   *                     <code>DFLAGPAT_*</code> in {@link NotesConstants})
-   * @param name         the name or alias of the design note
-   * @param partialMatch whether partial matches are allowed
-   * @return the note ID of the specified design note, or <code>0</code> if the
-   *         note was not found
-   */
-  protected abstract int findDesignNote(DocumentClass noteClass, String pattern, String name, boolean partialMatch);
   
   protected String cleanFilePath(String filePath) {
     String path = StringUtil.toString(filePath);
