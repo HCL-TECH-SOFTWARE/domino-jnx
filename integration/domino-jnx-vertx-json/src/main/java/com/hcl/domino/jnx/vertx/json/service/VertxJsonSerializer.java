@@ -165,6 +165,18 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
       if(threadId.isPresent()) {
         meta.put(JsonSerializer.PROP_META_THREADID, threadId.get());
       }
+
+      
+      if(doc.isSigned()) {
+        String signer;
+        try {
+          signer = doc.getSigner();
+        } catch(DominoException e) {
+          // Likely in many cases - no cross cert, mismatched pub key, etc.
+          signer = e.getLocalizedMessage();
+        }
+        meta.put(JsonSerializer.PROP_META_SIGNER, signer);
+      }
     }
 
     if(!this.metaOnly) {

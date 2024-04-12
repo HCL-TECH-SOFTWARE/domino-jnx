@@ -351,6 +351,17 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
         generator.write(JsonSerializer.PROP_META_THREADID, threadId.get());
       }
       
+      if(obj.isSigned()) {
+        String signer;
+        try {
+          signer = obj.getSigner();
+        } catch(DominoException e) {
+          // Likely in many cases - no cross cert, mismatched pub key, etc.
+          signer = e.getLocalizedMessage();
+        }
+        generator.write(JsonSerializer.PROP_META_SIGNER, signer);
+      }
+      
       generator.writeEnd();
     }
 
