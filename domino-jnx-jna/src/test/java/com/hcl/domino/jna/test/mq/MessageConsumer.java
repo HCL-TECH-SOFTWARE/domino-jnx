@@ -24,12 +24,13 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import com.hcl.domino.DominoClient;
+import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.mq.MessageQueue;
 
 public class MessageConsumer extends AbstractMessageQueueRunner {
 
   public static void main(final String[] args) {
-    System.setProperty("jnx.noterm", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+    DominoUtils.setNoTerm(true);
 
     final String queueName = args[0];
     final int messageCount = Integer.parseInt(args[1]);

@@ -33,6 +33,7 @@ import org.jboss.resteasy.plugins.server.servlet.HttpServletDispatcher;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.DominoProcess;
+import com.hcl.domino.commons.util.DominoUtils;
 
 public class RestEasyServlet extends HttpServletDispatcher {
   private static final long serialVersionUID = 1L;
@@ -55,10 +56,10 @@ public class RestEasyServlet extends HttpServletDispatcher {
   public void init(final ServletConfig servletConfig) throws ServletException {
     RestEasyServlet.instance = this;
 
+    DominoUtils.setNoInit(true);
+    DominoUtils.setNoTerm(true);
     final ClassLoader cl = Thread.currentThread().getContextClassLoader();
     AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-      System.setProperty("jnx.noinit", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-      System.setProperty("jnx.noterm", "true"); //$NON-NLS-1$ //$NON-NLS-2$
       Thread.currentThread().setContextClassLoader(RestEasyServlet.class.getClassLoader());
       return null;
     });

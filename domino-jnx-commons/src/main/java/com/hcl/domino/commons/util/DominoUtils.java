@@ -104,6 +104,18 @@ public enum DominoUtils {
   public static boolean isNoInit() {
     return DominoUtils.checkBooleanProperty("jnx.noinit", "JNX_NOINIT"); //$NON-NLS-1$ //$NON-NLS-2$
   }
+  
+  /**
+   * Sets whether calls to {@code NotesInitExtended} should be skipped even
+   * when otherwise valid.
+   * 
+   * @param noInit {@code true} if {@code NotesInitExtended} calls should be skipped,
+   *         {@code false} otherwise
+   * @since 1.41.0
+   */
+  public static void setNoInit(boolean noInit) {
+    setJavaProperty("jnx.noinit", Boolean.toString(noInit));
+  }
 
   /**
    * Determines whether calls to {@code NotesInitThread} and
@@ -117,6 +129,19 @@ public enum DominoUtils {
   public static boolean isNoInitTermThread() {
     return DominoUtils.checkBooleanProperty("jnx.noinittermthread", "JNX_NOINITTERMTHREAD"); //$NON-NLS-1$ //$NON-NLS-2$
   }
+  
+  /**
+   * Sets whether calls to {@code NotesInitThread} and
+   * {@code NotesTermThread} should be skipped even when
+   * otherwise valid.
+   * 
+   * @return noInitTermThread {@code true} if {@code NotesInitThread}
+   *         calls should be skipped, {@code false} otherwise
+   * @since 1.41.0
+   */
+  public static void setNoInitTermThread(boolean noInitTermThread) {
+    setJavaProperty("jnx.noinittermthread", Boolean.toString(noInitTermThread));
+  }
 
   /**
    * Determines whether calls to {@code NotesTerm} should be skipped even when
@@ -128,6 +153,18 @@ public enum DominoUtils {
    */
   public static boolean isNoTerm() {
     return DominoUtils.checkBooleanProperty("jnx.noterm", "JNX_NOTERM"); //$NON-NLS-1$ //$NON-NLS-2$
+  }
+  
+  /**
+   * Sets whether calls to {@code NotesTerm} should be skipped even when
+   * otherwise valid.
+   * 
+   * @param noTerm {@code true} if {@code NotesTerm} calls should be skipped,
+   *         {@code false} otherwise
+   * @since 1.41.0
+   */
+  public static void setNoTerm(boolean noTerm) {
+    setJavaProperty("jnx.noterm", Boolean.toString(noTerm));
   }
 
   /**
