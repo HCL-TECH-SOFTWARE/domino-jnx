@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -46,10 +47,13 @@ import com.hcl.domino.UserNamesList;
 import com.hcl.domino.crypt.DatabaseEncryptionState;
 import com.hcl.domino.data.CompactMode;
 import com.hcl.domino.data.Database;
+import com.hcl.domino.data.Document;
+import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.Database.EncryptionInfo;
 import com.hcl.domino.exception.CompactionRequiredException;
 import com.hcl.domino.data.DominoCollectionInfo;
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.IDTable;
 import com.hcl.domino.html.HtmlConversionResult;
 import com.hcl.domino.html.HtmlConvertOption;
 import com.hcl.domino.mime.MimeWriter;
@@ -406,6 +410,24 @@ public class TestDatabase extends AbstractNotesRuntimeTest {
       Assertions.assertNotNull(created);
       // Make sure it seems reasonable enough
       Assertions.assertTrue(Instant.from(created).isAfter(Instant.now().minus(10, ChronoUnit.SECONDS)));
+    });
+  }
+  
+  @Test
+  public void testGetAllUnidsRepeatedly() throws Exception {
+    withTempDb(database -> {
+      Set<String> expected = new HashSet<>();
+      for(int i = 0; i < 10; i++) {
+        Document doc = database.createDocument();
+        doc.save();
+        expected.add(doc.getUNID());
+      }
+      
+      for(int i = 0; i < 100; i++) {
+        IDTable ids = database.getModifiedNoteIds(EnumSet.of(DocumentClass.DATA), null, true);
+        Set<String> unids = ids.stream().map(database::toUNID).collect(Collectors.toCollection(HashSet::new));
+        assertEquals(expected, unids);
+      }
     });
   }
 }
