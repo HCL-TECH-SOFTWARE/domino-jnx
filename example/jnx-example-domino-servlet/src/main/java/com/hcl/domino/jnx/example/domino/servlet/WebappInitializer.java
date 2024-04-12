@@ -130,9 +130,4 @@ public class WebappInitializer extends HttpService {
     // NOP
   }
 
-  @Override
-  public void refreshSettings() {
-    super.refreshSettings();
-  }
-
 }
