@@ -64,6 +64,7 @@ import com.hcl.domino.exception.InvalidRemotePathnameException;
 import com.hcl.domino.exception.ItemNotFoundException;
 import com.hcl.domino.exception.ItemNotPresentException;
 import com.hcl.domino.exception.MimePartNotFoundException;
+import com.hcl.domino.exception.MismatchedPublicKeyException;
 import com.hcl.domino.exception.NoCrossCertificateException;
 import com.hcl.domino.exception.NoEncryptionKeysException;
 import com.hcl.domino.exception.MissingEncryptionKeyException;
@@ -333,6 +334,8 @@ public class NotesErrorUtils {
         return Optional.of(new NoEncryptionKeysException(s, message));
       case IBsafeErr.ERR_BSAFE_ID_TRUNC:
         return Optional.of(new CorruptIDFileException(s, message));
+      case IBsafeErr.ERR_BSAFE_WRONG_SUBJECT_KEY_X:
+        return Optional.of(new MismatchedPublicKeyException(s, message));
       default:
         return Optional.of(new DominoException(s, message));
     }
