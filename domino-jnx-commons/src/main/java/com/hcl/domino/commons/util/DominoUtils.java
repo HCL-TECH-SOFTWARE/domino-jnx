@@ -135,7 +135,7 @@ public enum DominoUtils {
    * {@code NotesTermThread} should be skipped even when
    * otherwise valid.
    * 
-   * @return noInitTermThread {@code true} if {@code NotesInitThread}
+   * @param noInitTermThread {@code true} if {@code NotesInitThread}
    *         calls should be skipped, {@code false} otherwise
    * @since 1.41.0
    */
