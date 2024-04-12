@@ -838,6 +838,25 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
     assertEquals(expected1, actual1);
     assertEquals(expected2, actual2);
   }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
+  public void testSerializeSignerMeta(final JsonSerializer serializer) throws Exception {
+    this.withTempDb(database -> {
+      Document doc = database.createDocument();
+      doc.replaceItemValue("Form", "Foo");
+      doc.sign();
+      assertTrue(doc.isSigned());
+      
+      serializer.includeMetadata(true);
+      String jsonString = serializer.toJsonString(doc);
+      JsonObject jsonObj = Json.createReader(new StringReader(jsonString)).readObject();
+      JsonObject meta = jsonObj.getJsonObject(JsonSerializer.PROP_METADATA);
+      String signer = meta.getString(JsonSerializer.PROP_META_SIGNER, null);
+      assertNotNull(signer);
+      assertEquals(database.getParentDominoClient().getIDUserName(), signer);
+    });
+  }
   
   public static class DateTimeExample {
     private final DominoDateTime time;

@@ -77,6 +77,10 @@ public interface JsonSerializer {
    * @since 1.20.0
    */
   String PROP_META_EDITABLE = "editable"; //$NON-NLS-1$
+  /**
+   * @since 1.41.0
+   */
+  String PROP_META_SIGNER = "signer"; //$NON-NLS-1$
 
   String PROP_RANGE_FROM = "from"; //$NON-NLS-1$
   String PROP_RANGE_TO = "to"; //$NON-NLS-1$
