@@ -21,12 +21,13 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import com.hcl.domino.DominoClient;
+import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.mq.MessageQueue;
 
 public class MessageProducer extends AbstractMessageQueueRunner {
 
   public static void main(final String[] args) {
-    System.setProperty("jnx.noterm", "true"); //$NON-NLS-1$ //$NON-NLS-2$
+    DominoUtils.setNoTerm(true);
 
     final String queueName = args[0];
     final String msgFormat = args[1];

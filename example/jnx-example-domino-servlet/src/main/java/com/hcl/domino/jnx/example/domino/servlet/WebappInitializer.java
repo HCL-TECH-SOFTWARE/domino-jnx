@@ -17,8 +17,6 @@
 package com.hcl.domino.jnx.example.domino.servlet;
 
 import java.io.IOException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,6 +27,7 @@ import javax.servlet.ServletException;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.DominoProcess;
+import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.mq.MessageQueue;
 import com.hcl.domino.server.ServerStatusLine;
@@ -52,11 +51,8 @@ public class WebappInitializer extends HttpService {
     super(env);
 
     try {
-      AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-        System.setProperty("jnx.noinit", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-        System.setProperty("jnx.noterm", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-        return null;
-      });
+      DominoUtils.setNoInit(true);
+      DominoUtils.setNoTerm(true);
 
       DominoProcess.get().initializeProcess(new String[0]);
       this.client = DominoClientBuilder.newDominoClient().build();

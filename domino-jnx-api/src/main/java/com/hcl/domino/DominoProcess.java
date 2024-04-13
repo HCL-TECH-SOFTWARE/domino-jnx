@@ -65,6 +65,25 @@ public interface DominoProcess {
    * @throws DominoInitException if initialization fails
    */
   void initializeProcess(String[] initArgs) throws DominoInitException;
+  
+  /**
+   * Initializes the Domino runtime for the process.
+   * <p>
+   * In implementations that require it, this method should be called once per
+   * process,
+   * before any other API operations.
+   * </p>
+   *
+   * @param initArgs the arguments to pass to the initialization call
+   * @param nativeProcessInit whether to call the native NotesInitExtended
+   *        and NotesTerm functions if available
+   * @param nativeThreadInit whether to call the native NotesInitThread
+   *        and NotesTermThread functions for the pacemaker thread if
+   *        available
+   * @throws DominoInitException if initialization fails
+   * @since 1.41.0
+   */
+  void initializeProcess(String[] initArgs, boolean nativeProcessInit, boolean nativeThreadInit) throws DominoInitException;
 
   /**
    * Initializes the current thread for Domino API use.
@@ -77,6 +96,23 @@ public interface DominoProcess {
    *         {@link #terminateThread()}
    */
   DominoThreadContext initializeThread();
+  
+  /**
+   * Initializes the current thread for Domino API use.
+   * <p>
+   * Note: it is preferable to use threads spawned by
+   * {@link DominoClient#getThreadFactory()}.
+   * </p>
+   *
+   * @param nativeInit whether to call the native NotesInitThread
+   *        function if available
+   * @param nativeTerm whether to call the native NotesTermThread
+   *        function if available
+   * @return AutoCloseable to terminate thread, same as calling
+   *         {@link #terminateThread()}
+   * @since 1.41.0
+   */
+  DominoThreadContext initializeThread(boolean nativeInit, boolean nativeTerm);
 
   /**
    * This function switches to the specified ID file and returns the user name
@@ -115,4 +151,16 @@ public interface DominoProcess {
    * </p>
    */
   void terminateThread();
+  
+  /**
+   * Terminates the current thread for Domino API use.
+   * <p>
+   * Note: it is preferable to use threads spawned by
+   * {@link DominoClient#getThreadFactory()}.
+   * </p>
+   * 
+   * @param nativeTerm whether to call the native NotesTerm function if available
+   * @since 1.41.0
+   */
+  void terminateThread(boolean nativeTerm);
 }
