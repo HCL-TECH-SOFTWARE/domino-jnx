@@ -66,7 +66,7 @@ public abstract class RunJavaAddin extends Thread {
   public final void run() {
     DominoProcess.get().initializeProcess(new String[0]);
     try (DominoThreadContext ctx = DominoProcess.get().initializeThread()) {
-      try (DominoClient client = DominoClientBuilder.newDominoClient().build()) {
+      try (DominoClient client = DominoClientBuilder.newDominoClient().asIDUser().withFullAccess().build()) {
         try (ServerStatusLine line = client.getServerAdmin().createServerStatusLine(this.addinName)) {
           line.setLine("Running");
           try (MessageQueue queue = client.getMessageQueues().open("MQ$" + this.queueName.toUpperCase(), true)) { //$NON-NLS-1$
@@ -74,8 +74,6 @@ public abstract class RunJavaAddin extends Thread {
             System.gc();
           } catch (final Exception e) {
             e.printStackTrace();
-          } finally {
-            System.gc();
           }
         }
       }
