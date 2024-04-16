@@ -40,28 +40,30 @@
 		</developer>
 	</developers>
 
-	<modules>
-		<module>domino-jnx-api</module>
-		<module>domino-jnx-commons</module>
-		<module>domino-jnx-console</module>
-		<module>domino-jnx-jna</module>
+  <modules>
+    <module>domino-jnx-api</module>
+    <module>domino-jnx-commons</module>
+    <module>domino-jnx-console</module>
+    <module>domino-jnx-jna</module>
 
-		<module>integration/domino-jnx-jsonb</module>
-		<module>integration/domino-jnx-jakarta-security</module>
-		<module>integration/domino-jnx-vertx-json</module>
-		<module>integration/domino-jnx-lsxbeshim</module>
-		<module>integration/domino-jnx-rawdoc-json</module>
+    <module>integration/domino-jnx-jsonb</module>
+    <module>integration/domino-jnx-jakarta-security</module>
+    <module>integration/domino-jnx-vertx-json</module>
+    <module>integration/domino-jnx-lsxbeshim</module>
+    <module>integration/domino-jnx-rawdoc-json</module>
+    <module>integration/domino-jnx-xpages</module>
 
-		<module>test/it-domino-jnx</module>
+    <module>test/it-domino-jnx</module>
 
-		<!-- Example projects -->
-		<module>example/jnx-example-webapp</module>
-		<module>example/jnx-example-runjava</module>
-		<module>example/jnx-example-domino-webapp-admin</module>
-		<module>example/jnx-example-graalvm-native</module>
-	</modules>
+    <!-- Example projects -->
+    <module>example/jnx-example-domino-servlet</module>
+    <module>example/jnx-example-webapp</module>
+    <module>example/jnx-example-runjava</module>
+    <module>example/jnx-example-domino-webapp-admin</module>
+    <module>example/jnx-example-graalvm-native</module>
+  </modules>
 
-	<!-- OpenNTF Repository for Domino access -->
+  <!-- OpenNTF Repository for Domino access -->
 	<repositories>
 		<repository>
 			<id>artifactory.openntf.org</id>
@@ -103,10 +105,10 @@
 
 	<properties>
 
-		<!-- The docker repository -->
+    <!-- The docker repository -->
 		<docker.repository>hub.docker.com</docker.repository>
 
-		<!-- Dependency Versions -->
+    <!-- Dependency Versions -->
 		<commons.io.version>2.15.1</commons.io.version>
 		<com.googlecode.concurrent.version>1.4.2</com.googlecode.concurrent.version>
 		<com.ibm.commons-version>9.0.0</com.ibm.commons-version>
@@ -138,8 +140,8 @@
 		<mockito.version>4.1.0</mockito.version>
 		<mustache.version>0.9.10</mustache.version>
 		<netty.ssl.version>2.0.46.Final</netty.ssl.version>
-		<!-- 2022-07-07: JNA 5.12.0 and 5.12.1 hard crash on macOS -->
-		<!-- 2023-02-14: JNA 5.13.0 seems to lead to a rare hard crash on Windows -->
+    <!-- 2022-07-07: JNA 5.12.0 and 5.12.1 hard crash on macOS -->
+    <!-- 2023-02-14: JNA 5.13.0 seems to lead to a rare hard crash on Windows -->
 		<net.java.dev.jna-version>5.11.0</net.java.dev.jna-version>
 		<pmd.version>6.51.0</pmd.version>
 		<powermock.version>2.0.9</powermock.version>
@@ -152,7 +154,7 @@
 		<yaml.version>1.25</yaml.version>
 
 
-		<!--
+    <!--
             NB 2022-05-12: Eclipse Angus is the jakarta.mail 2.1.0+ API and implementation,
                 but Activation 2.1.0 appears to contain a bug or interaction that breaks
                 in our use
@@ -161,14 +163,14 @@
 		<jakarta.sun.mail.version>2.0.1</jakarta.sun.mail.version>
 		<jakarta.activation.version>2.0.1</jakarta.activation.version>
 
-		<!-- NB: JSON-B 3.0 requires Java 11 -->
+    <!-- NB: JSON-B 3.0 requires Java 11 -->
 		<jakarta.json.bind.version>2.0.0</jakarta.json.bind.version>
 		<org.eclipse.yasson.version>2.0.4</org.eclipse.yasson.version>
 
-		<!-- Maven Versions -->
+    <!-- Maven Versions -->
 		<maven.version>[3.8,)</maven.version>
 
-		<!-- Plugin Versions -->
+    <!-- Plugin Versions -->
 		<eclipse.plugin.version>2.10</eclipse.plugin.version>
 		<googleformatter.plugin.version>1.7.5</googleformatter.plugin.version>
 		<maven.checkstyle.version>3.1.1</maven.checkstyle.version>
@@ -195,7 +197,7 @@
 		<shade.version>3.2.4</shade.version>
 		<versions.maven.plugin.version>2.7</versions.maven.plugin.version>
 
-		<!-- Miscellaneous settings -->
+    <!-- Miscellaneous settings -->
 		<project.autorelease>true</project.autorelease>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -203,7 +205,7 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<finalName>${project.artifactId}-${project.version}</finalName>
 
-		<!-- OSGi/Eclipse PDE support -->
+    <!-- OSGi/Eclipse PDE support -->
 		<manifest-location>META-INF</manifest-location>
 		<maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
 		<osgi.qualifier>${maven.build.timestamp}</osgi.qualifier>
@@ -212,7 +214,7 @@
 	<dependencyManagement>
 		<dependencies>
 
-			<!-- Standard specs -->
+      <!-- Standard specs -->
 			<dependency>
 				<groupId>jakarta.activation</groupId>
 				<artifactId>jakarta.activation-api</artifactId>
@@ -239,7 +241,7 @@
 				<version>${jakarta.json.bind.version}</version>
 			</dependency>
 
-			<!-- jackson -->
+      <!-- jackson -->
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-core</artifactId>
@@ -266,21 +268,21 @@
 				<version>${jackson.version}</version>
 			</dependency>
 
-			<!-- Vert.x integration -->
+      <!-- Vert.x integration -->
 			<dependency>
 				<groupId>io.vertx</groupId>
 				<artifactId>vertx-core</artifactId>
 				<version>${vertx.version}</version>
 			</dependency>
 
-			<!-- Common tools -->
+      <!-- Common tools -->
 			<dependency>
 				<groupId>commons-io</groupId>
 				<artifactId>commons-io</artifactId>
 				<version>${commons.io.version}</version>
 			</dependency>
 
-			<!-- Testing -->
+      <!-- Testing -->
 			<dependency>
 				<groupId>org.junit.jupiter</groupId>
 				<artifactId>junit-jupiter-engine</artifactId>
@@ -368,7 +370,7 @@
 				<configuration>
 					<formats>
 						<format>
-							<!-- Markdown, JSON and gitignore -->
+              <!-- Markdown, JSON and gitignore -->
 							<includes>
 								<include>*.md</include>
 								<include>*.json</include>
@@ -382,7 +384,7 @@
 							</indent>
 						</format>
 					</formats>
-					<!-- ECLIPSE Java format -->
+          <!-- ECLIPSE Java format -->
 					<java>
 						<toggleOffOn />
 						<importOrder>
@@ -612,7 +614,7 @@
 					<executions>
 						<execution>
 							<id>show-profiles</id>
-							<!-- <phase>process-resources</phase> -->
+              <!-- <phase>process-resources</phase> -->
 							<goals>
 								<goal>active-profiles</goal>
 							</goals>
@@ -689,12 +691,12 @@
 				<module>example/jnx-example-swt</module>
 			</modules>
 		</profile>
-		<!-- Deployment profile (required so these plugins are only used when deploying) -->
+    <!-- Deployment profile (required so these plugins are only used when deploying) -->
 		<profile>
 			<id>deploy</id>
 			<build>
 				<plugins>
-					<!-- Source plugin -->
+          <!-- Source plugin -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-source-plugin</artifactId>
@@ -708,7 +710,7 @@
 						</executions>
 					</plugin>
 
-					<!-- GPG plugin -->
+          <!-- GPG plugin -->
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
@@ -721,7 +723,7 @@
 									<goal>sign</goal>
 								</goals>
 								<configuration>
-									<!-- Prevent `gpg` from using pinentry programs -->
+                  <!-- Prevent `gpg` from using pinentry programs -->
 									<gpgArguments>
 										<arg>--pinentry-mode</arg>
 										<arg>loopback</arg>
