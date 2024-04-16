@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.hcl.domino</groupId>
 	<artifactId>domino-jnx</artifactId>
-	<version>1.40.0</version>
+	<version>1.41.0</version>
 	<packaging>pom</packaging>
 
 	<name>HCL Domino API Parent Project</name>
@@ -148,6 +148,7 @@
 		<spotless.version>2.4.1</spotless.version>
 		<testcontainers.version>1.15.2</testcontainers.version>
 		<vertx.version>4.5.2</vertx.version>
+		<xpages.stubs.version>1.0.0</xpages.stubs.version>
 		<yaml.version>1.25</yaml.version>
 
 
@@ -641,19 +642,6 @@
 					</plugins>
 				</pluginManagement>
 			</build>
-		</profile>
-		<profile>
-			<id>notes-platform-repository</id>
-			<activation>
-				<property>
-					<name>notes-platform</name>
-				</property>
-			</activation>
-
-			<modules>
-				<module>example/jnx-example-domino-servlet</module>
-				<module>integration/domino-jnx-xpages</module>
-			</modules>
 		</profile>
 
 		<profile>

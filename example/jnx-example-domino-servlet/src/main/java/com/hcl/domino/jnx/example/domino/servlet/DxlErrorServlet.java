@@ -18,8 +18,6 @@ package com.hcl.domino.jnx.example.domino.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -30,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.DominoProcess;
+import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.dxl.DxlImporter;
 
@@ -72,11 +71,8 @@ public class DxlErrorServlet extends HttpServlet {
   public void init(final ServletConfig config) throws ServletException {
     super.init(config);
 
-    AccessController.doPrivileged((PrivilegedAction<Void>) () -> {
-      System.setProperty("jnx.noinit", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-      System.setProperty("jnx.noterm", "true"); //$NON-NLS-1$ //$NON-NLS-2$
-      return null;
-    });
+    DominoUtils.setNoInit(true);
+    DominoUtils.setNoTerm(true);
 
     this.client = DominoClientBuilder.newDominoClient().build();
   }

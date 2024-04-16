@@ -23,6 +23,9 @@ public class JavaServerAddin extends NotesThread {
     return false;
   }
   
+  public synchronized void stopAddin() {
+  }
+  
   protected native void AddInSetStatusLine(int statusLine, String text);
   
   protected native void OSPreemptOccasionally();

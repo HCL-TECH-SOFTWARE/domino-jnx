@@ -17,8 +17,9 @@
 package it.com.hcl.domino.test.data;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
-
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
@@ -38,29 +39,27 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.OpenDocumentMode;
-import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.Item;
+import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.exception.LotusScriptCompilationException;
+import com.hcl.domino.exception.MismatchedPublicKeyException;
+import com.hcl.domino.exception.NoCrossCertificateException;
 import com.hcl.domino.exception.NotAuthorizedException;
-import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclLevel;
-
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
@@ -633,6 +632,23 @@ public class TestDocuments extends AbstractNotesRuntimeTest {
       doc.replaceItemValue("Baz", 82.1);
       assertEquals(82, doc.getAsInt("Baz", 1));
       assertEquals(-2, doc.getAsInt("Fake", -2));
+    });
+  }
+  
+  @Test
+  public void testReadForeignSigner() throws Exception {
+    withResourceDb("/nsf/signeddoc.nsf", database -> {
+      int noteId = database.openDefaultCollection().get().getAllIds(true, false).iterator().next();
+      Document doc = database.getDocumentById(noteId).get();
+      try {
+        String signer = doc.getSigner();
+        assertNotNull(signer);
+        assertFalse(signer.isEmpty());
+      } catch(NoCrossCertificateException e) {
+        // Presumably legit signature that we don't know - fine
+      } catch(MismatchedPublicKeyException e) {
+        // Presumably legit signature from a dev environment that changed - fine
+      }
     });
   }
 }

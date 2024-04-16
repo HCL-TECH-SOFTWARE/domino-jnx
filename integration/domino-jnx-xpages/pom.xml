@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.hcl.domino</groupId>
         <artifactId>domino-jnx</artifactId>
-        <version>1.40.0</version>
+        <version>1.41.0-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
     <artifactId>domino-jnx-xpages</artifactId>
@@ -31,6 +31,12 @@
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>jakarta.mail</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openntf.xsp.stubs</groupId>
+            <artifactId>com.ibm.xsp.core</artifactId>
+            <version>${xpages.stubs.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -120,51 +126,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>notes-platform-repository</id>
-            <activation>
-                <property>
-                    <name>notes-platform</name>
-                </property>
-            </activation>
-
-            <pluginRepositories>
-                <pluginRepository>
-                    <id>artifactory.openntf.org</id>
-                    <name>artifactory.openntf.org</name>
-                    <url>https://artifactory.openntf.org/openntf</url>
-                </pluginRepository>
-            </pluginRepositories>
-
-            <repositories>
-                <repository>
-                    <id>com.hcl.xsp.p2</id>
-                    <url>${notes-platform}</url>
-                    <layout>p2</layout>
-                </repository>
-            </repositories>
-
-            <dependencies>
-                <dependency>
-                    <groupId>com.hcl.xsp.p2</groupId>
-                    <artifactId>com.ibm.xsp.core</artifactId>
-                    <version>[9.0.1,)</version>
-                    <scope>provided</scope>
-                </dependency>
-            </dependencies>
-
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.openntf.maven</groupId>
-                        <artifactId>p2-layout-resolver</artifactId>
-                        <version>1.4.0</version>
-                        <extensions>true</extensions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
