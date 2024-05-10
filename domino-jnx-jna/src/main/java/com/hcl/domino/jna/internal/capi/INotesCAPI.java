@@ -611,6 +611,15 @@ public interface INotesCAPI extends Library {
 			NotesBlockIdStruct retbhValue,
 			IntByReference retValueLength);
 
+    short NSFItemInfo(
+            DHANDLE.ByValue note_handle,
+            Memory item_name,
+            short  name_len,
+            Pointer retbhItem,
+            ShortByReference retDataType,
+            Pointer retbhValue,
+            IntByReference retValueLength);
+
 	short NSFItemInfoNext(
 			DHANDLE.ByValue note_handle,
 			NotesBlockIdStruct.ByValue NextItem,
@@ -1415,10 +1424,13 @@ public interface INotesCAPI extends Library {
 			DHANDLE.ByReference hTable);
 
 	short NSFNoteSign(DHANDLE.ByValue hNote);
+    short NSFNoteSignExt(DHANDLE.ByValue hNote,
+        Memory SignatureItemName,
+        short ItemCount, DHANDLE.ByValue hItemIDs);
 	short NSFNoteSignExt3(DHANDLE.ByValue hNote, 
 			Pointer hKFC,
 			Memory SignatureItemName,
-			short ItemCount, DHANDLE.ByReference hItemIDs, 
+			short ItemCount, DHANDLE.ByValue hItemIDs, 
 			int Flags, int Reserved,
 			Pointer pReserved);
 

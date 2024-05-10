@@ -78,6 +78,7 @@ import com.hcl.domino.commons.mime.NotesMIMEPart;
 import com.hcl.domino.commons.mime.NotesMIMEPart.PartType;
 import com.hcl.domino.commons.richtext.DefaultRichTextList;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
+import com.hcl.domino.commons.util.DumpUtil;
 import com.hcl.domino.commons.util.ListUtil;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.commons.util.NotesErrorUtils;
@@ -2569,27 +2570,75 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	}
 
 	@Override
-	public Document sign(UserId id, boolean signNotesIfMimePresent) {
+	public Document sign(UserId id, boolean signNotesIfMimePresent, String signatureItemName, Collection<String> itemNames) {
 		checkDisposed();
+		if(itemNames != null) {
+          if(itemNames.size() > Short.toUnsignedInt(NotesConstants.MAXWORD)) {
+            throw new IllegalArgumentException(MessageFormat.format("items collection cannot contain more than {0} items", NotesConstants.MAXWORD));
+          }
+		}
+		
+		Memory itemName = NotesStringUtils.toLMBCS(signatureItemName, true);
 		
 		LockUtil.lockHandle(getAllocations().getNoteHandle(), (hNoteByVal) -> {
 			short result = NotesCAPI.get().NSFNoteExpand(hNoteByVal);
 			NotesErrorUtils.checkResult(result);
+			
+			short itemCount;
+			DHANDLE.ByReference hItemIds;
+			if(itemNames == null || itemNames.isEmpty()) {
+			  itemCount = NotesConstants.MAXWORD;
+			  hItemIds = null;
+			} else {
+			  itemCount = (short)itemNames.size();
+			  hItemIds = buildItemIdArray(hNoteByVal, itemNames);
+			}
 
-			short signResult;
-			if (id==null) {
-				signResult = NotesCAPI.get().NSFNoteSignExt3(hNoteByVal, (Pointer) null, null,
-						NotesConstants.MAXWORD, (DHANDLE.ByReference) null,
-						signNotesIfMimePresent ? NotesConstants.SIGN_NOTES_IF_MIME_PRESENT : 0, 0, (Pointer) null);
+			try {
+    			short signResult;
+    			if (id==null) {
+                  if (hItemIds == null) {
+                    signResult = NotesCAPI.get().NSFNoteSignExt3(hNoteByVal, (Pointer) null,
+                        itemName, itemCount, null,
+                        signNotesIfMimePresent ? NotesConstants.SIGN_NOTES_IF_MIME_PRESENT : 0, 0,
+                        (Pointer) null);
+                  } else {
+                    System.out.println("about to sign");
+                    signResult = LockUtil.lockHandle(hItemIds, hItemIdsByVal ->
+                      NotesCAPI.get().NSFNoteSignExt3(hNoteByVal, (Pointer) null,
+                          itemName, itemCount, hItemIdsByVal,
+                          signNotesIfMimePresent ? NotesConstants.SIGN_NOTES_IF_MIME_PRESENT : 0, 0,
+                              (Pointer) null)
+                    );
+                    System.out.println("done signing");
+                  }
+    			}
+    			else {
+    			  signResult = JNADominoUtils.accessKFC(id, phKFC -> {
+                    if (hItemIds == null) {
+                      return NotesCAPI.get().NSFNoteSignExt3(hNoteByVal, phKFC.getValue(),
+                            itemName, itemCount, null,
+                            signNotesIfMimePresent ? NotesConstants.SIGN_NOTES_IF_MIME_PRESENT : 0, 0,
+                            (Pointer) null);
+                    } else {
+                      return LockUtil.lockHandle(hItemIds, hItemIdsByVal ->
+                        NotesCAPI.get().NSFNoteSignExt3(hNoteByVal, phKFC.getValue(),
+                            itemName, itemCount, hItemIdsByVal,
+                            signNotesIfMimePresent ? NotesConstants.SIGN_NOTES_IF_MIME_PRESENT : 0, 0,
+                            (Pointer) null)
+                      );
+                    }
+    			  });
+    			}
+    			NotesErrorUtils.checkResult(signResult);
+			} finally {
+			  if(hItemIds != null) {
+			    LockUtil.lockHandle(hItemIds, hItemIdsByVal -> {
+			      Mem.OSMemFree(hItemIdsByVal);
+			      return null;
+			    });
+			  }
 			}
-			else {
-				signResult = JNADominoUtils.accessKFC(id, phKFC ->
-					NotesCAPI.get().NSFNoteSignExt3(hNoteByVal, phKFC.getValue(), null,
-						NotesConstants.MAXWORD, (DHANDLE.ByReference) null,
-						signNotesIfMimePresent ? NotesConstants.SIGN_NOTES_IF_MIME_PRESENT : 0, 0, (Pointer) null)
-				);
-			}
-			NotesErrorUtils.checkResult(signResult);
 
 			result = NotesCAPI.get().NSFNoteContract(hNoteByVal);
 			NotesErrorUtils.checkResult(result);
@@ -3343,7 +3392,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		short result = LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
 			short name_len = itemNameMem == null ? 0 : (short)(itemNameMem.size() & 0xffff);
 			return NotesCAPI.get().NSFItemInfo(noteHandleByVal, itemNameMem, name_len,
-					null, null, null, null);
+					(NotesBlockIdStruct)null, null, (NotesBlockIdStruct)null, null);
 			
 		});
 		return result == 0;	
@@ -4643,5 +4692,56 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
         .map((v) -> { return v[1]; })
         .orElse(""); //$NON-NLS-1$
   }
-	
+
+  private DHANDLE.ByReference buildItemIdArray(DHANDLE.ByValue hNoteByVal, Collection<String> itemNames) {
+    // This involves allocating memory for an array of BLOCKID structs, which can vary in
+    //   size based on bitness, since the first member is a DHANDLE
+    int sizeOfDhandle = PlatformUtils.is64Bit() ? 8 : 4;
+    int sizeOfBlockId = sizeOfDhandle + 2;
+    
+    // First, get a count of total BLOCKIDs we'll end up having
+    Collection<String> insensitiveItemNames = new TreeSet<>(String.CASE_INSENSITIVE_ORDER);
+    insensitiveItemNames.addAll(itemNames);
+    
+    // Allocate memory to fit
+    DHANDLE.ByReference result = DHANDLE.newInstanceByReference();
+    NotesErrorUtils.checkResult(Mem.OSMemAlloc((short) 0, (int) (sizeOfBlockId * insensitiveItemNames.size()), result));
+    LockUtil.lockHandle(result, hItemIds -> {
+      try {
+        Mem.OSLockObject(hItemIds, p -> {
+          try (
+              DisposableMemory itemBlockId = new DisposableMemory(sizeOfBlockId);
+              DisposableMemory valueBlockId = new DisposableMemory(sizeOfBlockId)) {
+            int i = 0;
+            for (String itemName : insensitiveItemNames) {
+              Memory itemNameMem = NotesStringUtils.toLMBCS(itemName, false);
+              ShortByReference wType = new ShortByReference();
+              IntByReference dwLength = new IntByReference();
+              NotesErrorUtils.checkResult(NotesCAPI.get().NSFItemInfo(hNoteByVal, itemNameMem,
+                  (short) itemNameMem.size(), itemBlockId, wType, valueBlockId, dwLength));
+//              if(Platform.is64Bit()) {
+//                p.setLong((i*sizeOfBlockId)+0, itemBlockId.getLong(0));
+//              } else {
+//                p.setInt((i*sizeOfBlockId)+0, itemBlockId.getInt(0));
+//              }
+//              p.setShort((i*sizeOfBlockId)+sizeOfDhandle, itemBlockId.getShort(sizeOfDhandle));
+              p.write((i*sizeOfBlockId), itemBlockId.getByteArray(0, sizeOfBlockId), 0, sizeOfBlockId);
+              i++;
+            }
+            
+            System.out.println("=======");
+            System.out.println("Final:\n" + p.dump(0, insensitiveItemNames.size()*sizeOfBlockId));
+          }
+
+          return null;
+        });
+      } catch (Exception e) {
+        Mem.OSMemFree(hItemIds);
+        throw e;
+      }
+      return null;
+    });
+    
+    return result;
+  }
 }

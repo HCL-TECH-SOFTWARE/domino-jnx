@@ -860,7 +860,10 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
   	    return (T) valArr;
 	    }
 	  }
-	  else {
+	else if(clazz == NotesBlockIdStruct.class) {
+	  return (T) m_itemBlockId;
+	}
+	else {
 	    return super.getAdapterLocal(clazz);
 	  }
 	}

@@ -3,7 +3,7 @@ package com.hcl.domino.commons.data;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
-
+import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.data.Document;
 
 /**
@@ -23,5 +23,10 @@ public interface IDefaultDocument extends Document {
   @Override
   default Document computeWithForm(boolean continueOnError, ComputeWithFormCallback callback) {
     return computeWithForm(continueOnError, null, callback);
+  }
+  
+  @Override
+  default Document sign(UserId id, boolean signNotesIfMimePresent) {
+    return sign(id, signNotesIfMimePresent, null, null);
   }
 }

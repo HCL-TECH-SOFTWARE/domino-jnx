@@ -20,12 +20,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
@@ -45,6 +47,7 @@ import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.OpenDocumentMode;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.Document.SignatureData;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.IDTable;
@@ -649,6 +652,35 @@ public class TestDocuments extends AbstractNotesRuntimeTest {
       } catch(MismatchedPublicKeyException e) {
         // Presumably legit signature from a dev environment that changed - fine
       }
+    });
+  }
+  
+  @Test
+  public void testBasicSigning() throws Exception {
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      doc.sign();
+      SignatureData sigData = doc.verifySignature();
+      assertNotNull(sigData);
+      assertEquals(database.getParentDominoClient().getIDUserName(), sigData.getSigner());
+    });
+  }
+  
+  @Test
+  public void testSpecificItemSigning() throws Exception {
+    withTempDb(database -> {
+      Document doc = database.createDocument();
+      doc.replaceItemValue("Form", "SomeForm");
+      doc.replaceItemValue("FirstName", "Foo");
+      doc.replaceItemValue("LastName", "Bar");
+      Collection<String> items = Arrays.asList("FirstName", "LastName");
+      doc.sign(null, true, "$Sig_Foo", items);
+      SignatureData sigData = doc.verifySignature();
+      assertNotNull(sigData);
+      assertEquals(database.getParentDominoClient().getIDUserName(), sigData.getSigner());
+      assertFalse(doc.getFirstItem("Form").get().getFlags().contains(ItemFlag.SIGNED));
+      assertTrue(doc.getFirstItem("FirstName").get().getFlags().contains(ItemFlag.SIGNED));
+      assertTrue(doc.getFirstItem("LastName").get().getFlags().contains(ItemFlag.SIGNED));
     });
   }
 }

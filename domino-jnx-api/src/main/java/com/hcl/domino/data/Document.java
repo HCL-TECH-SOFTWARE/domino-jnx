@@ -1366,6 +1366,33 @@ public interface Document extends TypedAccess, IAdaptable {
    * @return this document
    */
   Document sign(UserId id, boolean signNotesIfMimePresent);
+  
+  /**
+   * Function to sign some or all items in the document.<br>
+   * It allows you to pass a flag to determine how MIME parts will be signed.<br>
+   * If the note has MIME parts then it will be SMIME signed.
+   * If not, or the <code>signNotesIfMimePresent</code> parameter is set
+   * to allow Notes signature on MIME parts, then it will be Notes signed.
+   * If the document to be signed is encrypted, this function will attempt to
+   * decrypt the document in order to generate a valid signature.<br>
+   * <br>
+   * If you want the document to be signed and encrypted, you must sign the
+   * document before using {@link #copyAndEncrypt(UserId, Collection)}.
+   *
+   * @param id                     id to sign, null for active ID
+   * @param signNotesIfMimePresent If the note has MIME parts and this flag is
+   *                               true it will be SMIME signed, if not set it
+   *                               will be Notes signed.
+   * @param signatureItemName      the item name to store the signature. Specify
+   *                               {@code null} or an empty string to use the
+   *                               default
+   * @param itemNames              the names of specific items to sign. Specify
+   *                               {@code null} or an empty collection to sign
+   *                               all items        
+   * @return this document
+   * @since 1.42.0
+   */
+  Document sign(UserId id, boolean signNotesIfMimePresent, String signatureItemName, Collection<String> itemNames);
 
   /**
    * Returns the total size of the document
