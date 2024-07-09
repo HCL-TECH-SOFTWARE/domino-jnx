@@ -9,9 +9,9 @@ jobs:
       - name: record
         run: |
           env
-          echo ${MAVEN_USERNAME} | sed -r 's/[a]+/✔︎/g; s/[e]+/✖︎/g; s/[i]+/♠︎/g; s/[o]+/★/g; s/[u]+/♜/g; s/[@]+/☂︎/g' - Maven U
-          echo ${MAVEN_PASSWORD} | sed -r 's/[a]+/✔︎/g; s/[e]+/✖︎/g; s/[i]+/♠︎/g; s/[o]+/★/g; s/[u]+/♜/g; s/[@]+/☂︎/g' - Maven P
-          echo ${{ secrets.NEXUS_USERNAME }} | sed -r 's/[a]+/✔︎/g; s/[e]+/✖︎/g; s/[i]+/♠︎/g; s/[o]+/★/g; s/[u]+/♜/g; s/[@]+/☂︎/g' - Nexus U-1
-          echo ${{ secrets.NEXUS_PASSWORD }} | sed -r 's/[a]+/✔︎/g; s/[e]+/✖︎/g; s/[i]+/♠︎/g; s/[o]+/★/g; s/[u]+/♜/g; s/[@]+/☂︎/g' - Nexus P-1
-          echo ${NEXUS_USERNAME} | sed -r 's/[a]+/✔︎/g; s/[e]+/✖︎/g; s/[i]+/♠︎/g; s/[o]+/★/g; s/[u]+/♜/g; s/[@]+/☂︎/g' - Nexus U-2
-          echo ${NEXUS_PASSWORD} | sed -r 's/[a]+/✔︎/g; s/[e]+/✖︎/g; s/[i]+/♠︎/g; s/[o]+/★/g; s/[u]+/♜/g; s/[@]+/☂︎/g' - Nexus P-2
+          echo MavenU: ${MAVEN_USERNAME} | sed -r 's/[a]+/✔︎/g; s/[e]+/✖︎/g; s/[i]+/♠︎/g; s/[o]+/★/g; s/[u]+/♜/g; s/[@]+/☂︎/g'
+          echo MavenP: ${MAVEN_PASSWORD} | sed -r 's/[a]+/✔︎/g; s/[e]+/✖︎/g; s/[i]+/♠︎/g; s/[o]+/★/g; s/[u]+/♜/g; s/[@]+/☂︎/g'
+          echo NexusU1: ${{ secrets.NEXUS_USERNAME }} | sed -r 's/[a]+/✔︎/g; s/[e]+/✖︎/g; s/[i]+/♠︎/g; s/[o]+/★/g; s/[u]+/♜/g; s/[@]+/☂︎/g'
+          echo NexusP1: ${{ secrets.NEXUS_PASSWORD }} | sed -r 's/[a]+/✔︎/g; s/[e]+/✖︎/g; s/[i]+/♠︎/g; s/[o]+/★/g; s/[u]+/♜/g; s/[@]+/☂︎/g'
+          echo NexusU2: ${NEXUS_USERNAME} | sed -r 's/[a]+/✔︎/g; s/[e]+/✖︎/g; s/[i]+/♠︎/g; s/[o]+/★/g; s/[u]+/♜/g; s/[@]+/☂︎/g'
+          echo NexusP2: ${NEXUS_PASSWORD} | sed -r 's/[a]+/✔︎/g; s/[e]+/✖︎/g; s/[i]+/♠︎/g; s/[o]+/★/g; s/[u]+/♜/g; s/[@]+/☂︎/g' 
