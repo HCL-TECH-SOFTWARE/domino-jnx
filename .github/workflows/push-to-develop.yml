@@ -17,8 +17,8 @@ jobs:
       - name: Install Java and Maven
         uses: actions/setup-java@v4
         with:
-          java-version: "8"
-          distribution: "adopt"
+          java-version: '17'
+          distribution: 'adopt'
           cache: 'maven'
           server-id: ossrh
           server-username: MAVEN_USERNAME
@@ -26,11 +26,11 @@ jobs:
 
       - name: Extract Project version
         id: project
-        run: echo ::set-output name=version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+        run: echo projectversion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout) >> $GITHUB_ENV
 
       - name: Release Maven package
         # Only publish on develop when the version does end on -SNAPSHOT
-        if: ${{ endsWith(steps.project.outputs.version, '-SNAPSHOT') }}
+        if: ${{ endsWith(env.projectversion, '-SNAPSHOT') }}
         run: mvn --batch-mode deploy
         env:
           MAVEN_USERNAME: ${{ secrets.NEXUS_USERNAME }}

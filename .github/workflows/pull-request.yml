@@ -1,27 +1,63 @@
 name: Validate on pull request
 
 on:
+  workflow_dispatch:
   pull_request:
 
 jobs:
-  build:
+  buildR12:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Set up JDK 8
-        uses: actions/setup-java@v2
+      - name: Set up Java and Maven
+        uses: actions/setup-java@v4
         with:
-          java-version: "8"
-          distribution: "adopt"
+          java-version: '17'
+          distribution: 'adopt'
+          cache: 'maven'
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
 
-      - name: Cache Maven packages
-        uses: actions/cache@v2
+      - name: Build for r12 with Maven
+        run: mvn --batch-mode --update-snapshots -PR12 clean verify javadoc:javadoc
+
+  buildR14:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java and Maven
+        uses: actions/setup-java@v4
         with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+          java-version: '17'
+          distribution: 'adopt'
+          cache: 'maven'
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
 
-      - name: Build with Maven
-        run: mvn --batch-mode --update-snapshots clean verify javadoc:javadoc
+      - name: Build for r14 with Maven
+        run: mvn --batch-mode --update-snapshots -PR14 clean verify javadoc:javadoc
+
+  buildR145:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java and Maven
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'adopt'
+          cache: 'maven'
+          server-id: ossrh
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
+
+      - name: Build for r14.5 with Maven
+        run: mvn --batch-mode --update-snapshots -PR145 clean verify javadoc:javadoc

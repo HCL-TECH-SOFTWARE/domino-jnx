@@ -5,12 +5,13 @@
 		}
 	],
 	"settings": {
-		"java.configuration.updateBuildConfiguration": "interactive",
+		"java.configuration.updateBuildConfiguration": "automatic",
 		"java.format.settings.url": "/eclipse-java-keep-style.xml",
 		"java.format.settings.profile": "KeepStyle",
 		"plantuml.diagramsRoot": "dos/flows",
 		"plantuml.exportFormat": "png",
 		"plantuml.exportOutDir": "docs/flows",
-		"plantuml.exportSubFolder": false
+		"plantuml.exportSubFolder": false,
+		"java.compile.nullAnalysis.mode": "automatic"
 	}
 }
