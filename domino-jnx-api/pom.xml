@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.hcl.domino</groupId>
@@ -35,6 +37,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>${jar.finalName}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.felix</groupId>
@@ -58,7 +61,8 @@
 				</executions>
 			</plugin>
 
-			<!-- Tests in this module are expected to be runnable without a platform-specific environment -->
+			<!-- Tests in this module are expected to be runnable without a platform-specific
+			environment -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -68,4 +72,24 @@
 			</plugin>
 		</plugins>
 	</build>
+	<profiles>
+		<profile>
+			<id>R12</id>
+			<properties>
+				<jar.finalName>${artifactId}-${version}</jar.finalName>
+			</properties>
+		</profile>
+		<profile>
+			<id>R14</id>
+			<properties>
+				<jar.finalName>${artifactId}-R14-${version}</jar.finalName>
+			</properties>
+		</profile>
+		<profile>
+			<id>R145</id>
+			<properties>
+				<jar.finalName>${artifactId}-R145-${version}</jar.finalName>
+			</properties>
+		</profile>
+	</profiles>
 </project>

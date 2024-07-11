@@ -109,7 +109,7 @@
 		<docker.repository>hub.docker.com</docker.repository>
 
 		<!-- Final JAR name -->
-		<jar.finalName>${project.name}</jar.finalName>
+		<jar.finalName>${artifactId}-${version}</jar.finalName>
 
 		<!-- Dependency Versions -->
 		<commons.io.version>2.16.1</commons.io.version>
@@ -742,7 +742,6 @@
 			<properties>
 				<domino.version>12.0.1</domino.version>
 				<java.version>1.8</java.version>
-				<jar.finalName>${project.name}</jar.finalName>
 			</properties>
 		</profile>
 		<profile>
@@ -750,7 +749,6 @@
 			<properties>
 				<domino.version>14.0.0</domino.version>
 				<java.version>17</java.version>
-				<jar.finalName>${project.name}-R14</jar.finalName>
 			</properties>
 		</profile>
 		<profile>
@@ -758,7 +756,6 @@
 			<properties>
 				<domino.version>14.5.0</domino.version>
 				<java.version>21</java.version>
-				<jar.finalName>${project.name}-R145</jar.finalName>
 			</properties>
 		</profile>
 	</profiles>
