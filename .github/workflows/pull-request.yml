@@ -39,7 +39,13 @@ jobs:
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
-
+      - name: Compile the POM manipulator
+        run: |
+          cd multi-version-tool
+          mvn --batch-mode clean install
+          java -jar target/multi-version-tool-jar-with-dependencies.jar ../ R14
+          cd ..
+          cat pom.xml
       - name: Build for r14 with Maven
         run: mvn --batch-mode --update-snapshots -PR14 clean verify javadoc:javadoc
 
@@ -58,6 +64,12 @@ jobs:
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
-
+      - name: Compile the POM manipulator
+        run: |
+          cd multi-version-tool
+          mvn --batch-mode clean install
+          java -jar target/multi-version-tool-jar-with-dependencies.jar ../ R145
+          cd ..
+          cat pom.xml
       - name: Build for r14.5 with Maven
         run: mvn --batch-mode --update-snapshots -PR145 clean verify javadoc:javadoc

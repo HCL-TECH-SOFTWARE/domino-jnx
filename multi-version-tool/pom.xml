@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.hcl.domino</groupId>
   <artifactId>multi-version-tool</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <name>HCL Maven POM Manipulation</name>
   <properties>
-    <maven.compiler.target>21</maven.compiler.target>
-    <maven.compiler.source>21</maven.compiler.source>
-    <jar.finalName>${artifactId}-${version}</jar.finalName>
+    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.source>17</maven.compiler.source>
     <original.artifact.id>multi-version-tool</original.artifact.id>
   </properties>
   <dependencies>
@@ -30,7 +31,7 @@
     </dependency>
   </dependencies>
   <build>
-    <finalName>${jar.finalName}</finalName>
+    <finalName>${original.artifact.id}</finalName>
     <plugins>
       <plugin>
         <artifactId>maven-surefire-plugin</artifactId>
@@ -38,26 +39,30 @@
           <skip>false</skip>
         </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <archive>
+                <manifest>
+                  <mainClass>
+                    com.hcl.maven.PomManipulator
+                  </mainClass>
+                </manifest>
+              </archive>
+              <descriptorRefs>
+                <descriptorRef>jar-with-dependencies</descriptorRef>
+              </descriptorRefs>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
-  <profiles>
-    <profile>
-      <id>R12</id>
-      <properties>
-        <jar.finalName>${artifactId}-${version}</jar.finalName>
-      </properties>
-    </profile>
-    <profile>
-      <id>R14</id>
-      <properties>
-        <jar.finalName>${artifactId}-R14-${version}</jar.finalName>
-      </properties>
-    </profile>
-    <profile>
-      <id>R145</id>
-      <properties>
-        <jar.finalName>${artifactId}-R145-${version}</jar.finalName>
-      </properties>
-    </profile>
-  </profiles>
 </project>
