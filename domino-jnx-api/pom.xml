@@ -10,6 +10,7 @@
   <artifactId>domino-jnx-api</artifactId>
   <name>HCL Domino API</name>
   <properties>
+    <jar.finalName>${artifactId}-${version}</jar.finalName>
     <original.artifact.id>domino-jnx-api</original.artifact.id>
   </properties>
   <dependencies>

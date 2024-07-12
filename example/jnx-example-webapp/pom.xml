@@ -14,6 +14,7 @@
   <properties>
     <liberty.env.DYLD_LIBRARY_PATH>${notes-program}</liberty.env.DYLD_LIBRARY_PATH>
     <liberty.env.LD_LIBRARY_PATH>${notes-program}</liberty.env.LD_LIBRARY_PATH>
+    <jar.finalName>${artifactId}-${version}</jar.finalName>
     <liberty.env.Notes_ExecDirectory>${notes-program}</liberty.env.Notes_ExecDirectory>
     <original.artifact.id>jnx-example-webapp</original.artifact.id>
   </properties>
@@ -49,7 +50,7 @@
     </dependency>
   </dependencies>
   <build>
-    <finalName>${project.artifactId}</finalName>
+    <finalName>${jar.finalName}</finalName>
     <plugins>
       <plugin>
         <groupId>io.openliberty.tools</groupId>
@@ -98,6 +99,24 @@
           <version>${project.version}</version>
         </dependency>
       </dependencies>
+    </profile>
+    <profile>
+      <id>R12</id>
+      <properties>
+        <jar.finalName>${artifactId}-${version}</jar.finalName>
+      </properties>
+    </profile>
+    <profile>
+      <id>R14</id>
+      <properties>
+        <jar.finalName>${artifactId}-R14-${version}</jar.finalName>
+      </properties>
+    </profile>
+    <profile>
+      <id>R145</id>
+      <properties>
+        <jar.finalName>${artifactId}-R145-${version}</jar.finalName>
+      </properties>
     </profile>
   </profiles>
 </project>

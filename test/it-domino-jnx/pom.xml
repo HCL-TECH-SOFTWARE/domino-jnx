@@ -11,6 +11,7 @@
   <artifactId>it-domino-jnx</artifactId>
   <name>HCL Domino API Integration Tests</name>
   <properties>
+    <jar.finalName>${artifactId}-${version}</jar.finalName>
     <original.artifact.id>it-domino-jnx</original.artifact.id>
   </properties>
   <dependencies>
@@ -126,6 +127,7 @@
     </dependency>
   </dependencies>
   <build>
+    <finalName>${jar.finalName}</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.felix</groupId>
@@ -201,6 +203,24 @@
           <scope>test</scope>
         </dependency>
       </dependencies>
+    </profile>
+    <profile>
+      <id>R12</id>
+      <properties>
+        <jar.finalName>${artifactId}-${version}</jar.finalName>
+      </properties>
+    </profile>
+    <profile>
+      <id>R14</id>
+      <properties>
+        <jar.finalName>${artifactId}-R14-${version}</jar.finalName>
+      </properties>
+    </profile>
+    <profile>
+      <id>R145</id>
+      <properties>
+        <jar.finalName>${artifactId}-R145-${version}</jar.finalName>
+      </properties>
     </profile>
   </profiles>
 </project>

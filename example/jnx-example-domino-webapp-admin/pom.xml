@@ -13,6 +13,7 @@
   <name>HCL Domino API Example Domino Admin Webapp</name>
   <properties>
     <resteasy-version>3.11.2.Final</resteasy-version>
+    <jar.finalName>${artifactId}-${version}</jar.finalName>
     <original.artifact.id>jnx-example-domino-webapp-admin</original.artifact.id>
   </properties>
   <dependencies>
@@ -59,7 +60,7 @@
     </dependency>
   </dependencies>
   <build>
-    <finalName>${project.artifactId}</finalName>
+    <finalName>${jar.finalName}</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.felix</groupId>
@@ -135,4 +136,24 @@
       </plugin>
     </plugins>
   </build>
+  <profiles>
+    <profile>
+      <id>R12</id>
+      <properties>
+        <jar.finalName>${artifactId}-${version}</jar.finalName>
+      </properties>
+    </profile>
+    <profile>
+      <id>R14</id>
+      <properties>
+        <jar.finalName>${artifactId}-R14-${version}</jar.finalName>
+      </properties>
+    </profile>
+    <profile>
+      <id>R145</id>
+      <properties>
+        <jar.finalName>${artifactId}-R145-${version}</jar.finalName>
+      </properties>
+    </profile>
+  </profiles>
 </project>

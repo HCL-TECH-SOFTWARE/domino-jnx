@@ -12,6 +12,7 @@
   <name>HCL Domino API Example GraalVM Native App</name>
   <properties>
     <graal.version>22.3.0</graal.version>
+    <jar.finalName>${artifactId}-${version}</jar.finalName>
     <original.artifact.id>jnx-example-graalvm-native</original.artifact.id>
   </properties>
   <dependencies>
@@ -33,6 +34,7 @@
     </dependency>
   </dependencies>
   <build>
+    <finalName>${jar.finalName}</finalName>
     <plugins>
       <plugin>
         <groupId>org.apache.felix</groupId>
@@ -85,6 +87,24 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+    <profile>
+      <id>R12</id>
+      <properties>
+        <jar.finalName>${artifactId}-${version}</jar.finalName>
+      </properties>
+    </profile>
+    <profile>
+      <id>R14</id>
+      <properties>
+        <jar.finalName>${artifactId}-R14-${version}</jar.finalName>
+      </properties>
+    </profile>
+    <profile>
+      <id>R145</id>
+      <properties>
+        <jar.finalName>${artifactId}-R145-${version}</jar.finalName>
+      </properties>
     </profile>
   </profiles>
 </project>
