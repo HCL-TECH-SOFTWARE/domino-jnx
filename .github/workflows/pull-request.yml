@@ -43,7 +43,7 @@ jobs:
         run: |
           cd multi-version-tool
           mvn --batch-mode clean install
-          java -jar target/multi-version-tool-jar-with-dependencies.jar ../ R14
+          java -jar target/multi-version-tool-jar-with-dependencies.jar ../ r14
           cd ..
           cat pom.xml
       - name: Build for r14 with Maven
@@ -68,7 +68,7 @@ jobs:
         run: |
           cd multi-version-tool
           mvn --batch-mode clean install
-          java -jar target/multi-version-tool-jar-with-dependencies.jar ../ R145
+          java -jar target/multi-version-tool-jar-with-dependencies.jar ../ r145
           cd ..
           cat pom.xml
       - name: Build for r14.5 with Maven

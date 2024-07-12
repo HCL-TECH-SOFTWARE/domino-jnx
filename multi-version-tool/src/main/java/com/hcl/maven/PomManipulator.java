@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
@@ -108,6 +109,16 @@ public class PomManipulator {
         model.getProfiles().stream()
                 .flatMap(p -> p.getDependencies().stream())
                 .forEach(this::updateDependency);
+        model.setModules(model.getModules().stream()
+                .map(module -> module + "_" + this.versionSuffix)
+                .collect(Collectors.toList()));
+
+        model.getProfiles().stream()
+                .forEach(profile -> {
+                    profile.setModules(profile.getModules().stream()
+                            .map(module -> module + "_" + this.versionSuffix)
+                            .collect(Collectors.toList()));
+                });
     }
 
     void updateDependency(Dependency dependency) {
@@ -141,7 +152,7 @@ public class PomManipulator {
                 return;
             }
 
-            String newArtifactId = originalArtifactId + this.versionSuffix;
+            String newArtifactId = originalArtifactId + "-" + this.versionSuffix;
             model.setArtifactId(newArtifactId);
             System.out.println(
                     "Updated artifactId from " + originalArtifactId + " to " + newArtifactId);
