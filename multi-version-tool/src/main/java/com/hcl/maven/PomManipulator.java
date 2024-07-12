@@ -110,15 +110,14 @@ public class PomManipulator {
                 .flatMap(p -> p.getDependencies().stream())
                 .forEach(this::updateDependency);
         model.setModules(model.getModules().stream()
-                .map(module -> module + "_" + this.versionSuffix)
+                .map(module -> module + "-" + this.versionSuffix)
                 .collect(Collectors.toList()));
 
         model.getProfiles().stream()
-                .forEach(profile -> {
+                .forEach(profile ->
                     profile.setModules(profile.getModules().stream()
-                            .map(module -> module + "_" + this.versionSuffix)
-                            .collect(Collectors.toList()));
-                });
+                            .map(module -> module + "-" + this.versionSuffix)
+                            .collect(Collectors.toList())));
     }
 
     void updateDependency(Dependency dependency) {
