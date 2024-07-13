@@ -343,6 +343,7 @@
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>${maven.javadoc.plugin.version}</version>
           <configuration>
+            <quiet>true</quiet>
             <useStandardDocletOptions>false</useStandardDocletOptions>
             <failOnError>true</failOnError>
             <failOnWarnings>false</failOnWarnings>
