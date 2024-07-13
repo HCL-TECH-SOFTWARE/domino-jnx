@@ -272,7 +272,7 @@ public class PomManipulator {
 
     void addJarNameToProperties(Properties properties, String id) {
         String suffix = "R12".equals(id) ? "" : "-" + id;
-        String jarName = "${artifactId}" + suffix + "-${version}";
+        String jarName = "${project.artifactId}" + suffix + "-${project.version}";
         properties.setProperty("jar.finalName", jarName);
     }
 

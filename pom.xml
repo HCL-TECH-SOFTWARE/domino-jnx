@@ -90,7 +90,7 @@
     <jakarta.json.version>2.1.3</jakarta.json.version>
     <jakarta.mail.version>2.0.1</jakarta.mail.version>
     <jakarta.sun.mail.version>2.0.1</jakarta.sun.mail.version>
-    <jar.finalName>${artifactId}-${version}</jar.finalName>
+    <jar.finalName>${project.artifactId}-${project.version}</jar.finalName>
     <java.version>1.8</java.version>
     <javasimon.version>4.2.0</javasimon.version>
     <joda.version>2.10</joda.version>
@@ -343,12 +343,15 @@
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>${maven.javadoc.plugin.version}</version>
           <configuration>
+            <useStandardDocletOptions>false</useStandardDocletOptions>
             <failOnError>true</failOnError>
             <failOnWarnings>false</failOnWarnings>
+            <!-- Do not change this from 8 - JavaDoc will fail -->
             <source>8</source>
+            <doclint>none</doclint>
             <tags>
               <tag>
-                <name>implSpec</name>
+                <name>impl.Spec</name>
                 <placement>a</placement>
                 <head>Implementation Requirements:</head>
               </tag>
@@ -486,6 +489,7 @@
       </plugin>
       <plugin>
         <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven.javadoc.plugin.version}</version>
         <executions>
           <execution>
             <id>attach-javadocs</id>
@@ -536,6 +540,24 @@
       </plugin>
     </plugins>
   </build>
+
+  <reporting>
+    <excludeDefaults>true</excludeDefaults>
+    <plugins>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven.javadoc.plugin.version}</version>
+        <reportSets>
+          <reportSet>
+            <reports>
+              <report>aggregate-no-fork</report>
+              <report>test-aggregate-no-fork</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
   <profiles>
     <profile>
       <id>run-tests</id>
@@ -578,6 +600,7 @@
             <artifactId>maven-javadoc-plugin</artifactId>
             <configuration>
               <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
+              <version>8</version>
             </configuration>
           </plugin>
         </plugins>

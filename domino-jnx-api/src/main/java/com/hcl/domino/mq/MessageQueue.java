@@ -71,7 +71,7 @@ public interface MessageQueue extends BlockingQueue<String>, Closeable {
     /**
      * Implement this method to read
      *
-     * @param buffer   read only byte buffer with message data
+     * @param buffer read only byte buffer with message data
      * @param priority priority
      * @return what to do next
      */
@@ -115,11 +115,11 @@ public interface MessageQueue extends BlockingQueue<String>, Closeable {
    * queue, and
    * the function will return an appropriate error code.
    *
-   * @param buffer   buffer containing the message. Maximum buffer length is 65326
-   *                 bytes
+   * @param buffer buffer containing the message. Maximum buffer length is 65326
+   *        bytes
    * @param priority priority
-   * @param offset   offset in the buffer where the message starts
-   * @param length   lengths of the message in the buffer
+   * @param offset offset in the buffer where the message starts
+   * @param length lengths of the message in the buffer
    */
   void put(byte[] buffer, int priority, int offset, int length);
 
@@ -147,14 +147,14 @@ public interface MessageQueue extends BlockingQueue<String>, Closeable {
    * Note: MQScan locks out all other message queue function calls until it
    * completes.
    *
-   * @param buffer   buffer to be used to read messages, max size is 65326 bytes
+   * @param buffer buffer to be used to read messages, max size is 65326 bytes
    * @param callback callback to be called for each message; if null, we dequeue
-   *                 the a message and return it in the specified buffer
+   *        the a message and return it in the specified buffer
    * @return The number of bytes written to the buffer (important if
    *         <code>callback</code> has been set to null)
    */
   int scan(byte[] buffer, final IMQCallback callback);
-  
+
   /**
    * Retrieves and removes the head of this queue, waiting up to the
    * specified wait time if necessary for an element to become available.
@@ -168,8 +168,8 @@ public interface MessageQueue extends BlockingQueue<String>, Closeable {
    *         an element is available
    * @throws InterruptedException if interrupted while waiting
    * @since 1.34.0
-   * @implSpec this method is expected to use the {@code MQGet} method,
-   *           if available
+   * @impl.Spec this method is expected to use the {@code MQGet} method,
+   *            if available
    */
   Optional<String> get(long timeout, TimeUnit unit) throws InterruptedException;
 }

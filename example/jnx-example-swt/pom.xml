@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<project
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.hcl.domino</groupId>
@@ -15,7 +17,7 @@
     <java.version>11</java.version>
     <maven.compiler.source>11</maven.compiler.source>
     <swt.version>3.121.0</swt.version>
-    <jar.finalName>${artifactId}-${version}</jar.finalName>
+    <jar.finalName>${project.artifactId}-${project.version}</jar.finalName>
     <original.artifact.id>jnx-example-swt</original.artifact.id>
   </properties>
   <dependencies>
@@ -182,19 +184,19 @@
     <profile>
       <id>R12</id>
       <properties>
-        <jar.finalName>${artifactId}-${version}</jar.finalName>
+        <jar.finalName>${project.artifactId}-${project.version}</jar.finalName>
       </properties>
     </profile>
     <profile>
       <id>R14</id>
       <properties>
-        <jar.finalName>${artifactId}-R14-${version}</jar.finalName>
+        <jar.finalName>${project.artifactId}-R14-${project.version}</jar.finalName>
       </properties>
     </profile>
     <profile>
       <id>R145</id>
       <properties>
-        <jar.finalName>${artifactId}-R145-${version}</jar.finalName>
+        <jar.finalName>${project.artifactId}-R145-${project.version}</jar.finalName>
       </properties>
     </profile>
   </profiles>
