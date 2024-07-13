@@ -18,7 +18,7 @@
             "projectName": "multi-version-tool",
             "args": [
                 "../",
-                "r14",
+                "R14",
                 "test"
             ]
         }

@@ -16,6 +16,7 @@
  */
 package com.hcl.maven;
 
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -49,7 +50,7 @@ public class PomManipulator {
         }
 
         final String startDir = args[0];
-        final String versionSuffix = args[1];
+        final String versionSuffix = args[1].toLowerCase();
 
         boolean testflight = args.length > 2;
 
@@ -64,6 +65,7 @@ public class PomManipulator {
     private final boolean testflight;
     private final Map<String, DependencyInfo> dependencyInfoMap = new HashMap<>();
     private final Map<Path, Model> modelMap = new HashMap<>();
+    private final Map<String, String> moduleMap = new HashMap<>();
     private final Set<String> groupIds = new HashSet<>();
 
     public PomManipulator(String startDir, String versionSuffix, boolean testflight) {
@@ -82,14 +84,32 @@ public class PomManipulator {
             modelMap.values().stream()
                     .forEach(this::updateDependencies);
             // Save the updated POMs
-            if (!this.testflight) {
+            if (this.testflight) {
+                modelMap.keySet()
+                        .forEach(key -> System.out.printf("TestFlight, saving pom %s%n", key));
+                moduleMap.forEach(
+                        (k, v) -> System.out.printf("Testflight, rename dir %s to %s%n", k, v));
+            } else {
                 modelMap.entrySet().forEach(this::saveOnePom);
+                moduleMap.entrySet().forEach(this::renameModuleDir);
             }
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
         return true;
+    }
+
+    void renameModuleDir(Map.Entry<String, String> entry) {
+        String sourceName = this.startDir + File.separator + entry.getKey();
+        String targetName = this.startDir + File.separator + entry.getValue();
+        System.out.printf("Rename module %s to %s - ", sourceName, targetName);
+
+        File source = new File(sourceName);
+        File target = new File(targetName);
+
+        boolean result = source.renameTo(target);
+        System.out.println(result ? "success" : "failure");
     }
 
     void saveOnePom(Map.Entry<Path, Model> entry) {
@@ -110,14 +130,20 @@ public class PomManipulator {
                 .flatMap(p -> p.getDependencies().stream())
                 .forEach(this::updateDependency);
         model.setModules(model.getModules().stream()
-                .map(module -> module + "-" + this.versionSuffix)
+                .map(this::updateModuleName)
                 .collect(Collectors.toList()));
 
         model.getProfiles().stream()
-                .forEach(profile ->
-                    profile.setModules(profile.getModules().stream()
-                            .map(module -> module + "-" + this.versionSuffix)
-                            .collect(Collectors.toList())));
+                .forEach(profile -> profile.setModules(profile.getModules().stream()
+                        .map(this::updateModuleName)
+                        .collect(Collectors.toList())));
+    }
+
+    String updateModuleName(String moduleName) {
+        String newName = moduleName + "-" + this.versionSuffix;
+        System.out.printf("Rename module %s to %s%n", moduleName, newName);
+        this.moduleMap.put(moduleName, newName);
+        return newName;
     }
 
     void updateDependency(Dependency dependency) {
