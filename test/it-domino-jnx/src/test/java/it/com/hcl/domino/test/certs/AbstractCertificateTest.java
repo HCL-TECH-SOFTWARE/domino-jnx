@@ -13,7 +13,7 @@ import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
-import com.drew.lang.StreamUtil;
+import org.apache.commons.io.IOUtils;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
@@ -58,7 +58,7 @@ public abstract class AbstractCertificateTest extends AbstractNotesRuntimeTest {
     byte[] keyData;
     try (InputStream is =
         getClass().getResourceAsStream("/text/testAddRemoveCerts/privateKey.der")) {
-      keyData = StreamUtil.readAllBytes(is);
+      keyData = IOUtils.toByteArray(is);
     }
     return parsePrivateKey(keyData);
   }
