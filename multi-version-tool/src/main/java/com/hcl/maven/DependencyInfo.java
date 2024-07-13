@@ -34,8 +34,7 @@ public class DependencyInfo {
     }
 
     public boolean updateDependency(Dependency dependency) {
-        if (dependency.getGroupId().equals(groupId)
-                && dependency.getArtifactId().equals(artifactId)) {
+        if (dependency.getArtifactId().equals(artifactId)) {
             dependency.setArtifactId(updatedArtifactId);
             return true;
         }

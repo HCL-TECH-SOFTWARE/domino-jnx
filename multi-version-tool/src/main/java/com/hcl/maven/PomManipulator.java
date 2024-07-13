@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.maven.model.Dependency;
 import org.apache.maven.model.Model;
+import org.apache.maven.model.Parent;
 import org.apache.maven.model.Profile;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
 import org.apache.maven.model.io.xpp3.MavenXpp3Writer;
@@ -124,15 +125,27 @@ public class PomManipulator {
     }
 
     void updateDependencies(Model model) {
+        // Fix the project parent
+        Parent parent = model.getParent();
+        if (parent != null) {
+            this.fixParent(parent);
+        }
+
+        // Fix the dependencies
         model.getDependencies().stream()
                 .forEach(this::updateDependency);
+
+        // fix dependencies in profiles
         model.getProfiles().stream()
                 .flatMap(p -> p.getDependencies().stream())
                 .forEach(this::updateDependency);
+
+        // Fix module names
         model.setModules(model.getModules().stream()
                 .map(this::updateModuleName)
                 .collect(Collectors.toList()));
 
+        // fix module names in profiles
         model.getProfiles().stream()
                 .forEach(profile -> profile.setModules(profile.getModules().stream()
                         .map(this::updateModuleName)
@@ -144,6 +157,19 @@ public class PomManipulator {
         System.out.printf("Rename module %s to %s%n", moduleName, newName);
         this.moduleMap.put(moduleName, newName);
         return newName;
+    }
+
+    void fixParent(Parent parent) {
+        String groupId = parent.getGroupId();
+        String keyPrefix = "${project.groupId}".equals(groupId)
+                ? this.groupIds.iterator().next()
+                : groupId;
+        String key = keyPrefix + ":" + parent.getArtifactId();
+        DependencyInfo dependencyInfo = this.dependencyInfoMap.get(key);
+        if (dependencyInfo != null) {
+            System.out.println("Updating parent " + dependencyInfo.toString());
+            parent.setArtifactId(dependencyInfo.updatedArtifactId);
+        }
     }
 
     void updateDependency(Dependency dependency) {
