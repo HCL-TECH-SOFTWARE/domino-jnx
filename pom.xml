@@ -41,7 +41,7 @@
     <module>integration/domino-jnx-lsxbeshim</module>
     <module>integration/domino-jnx-rawdoc-json</module>
     <module>integration/domino-jnx-xpages</module>
-    <!-- module>test/it-domino-jnx</module -->
+    <module>test/it-domino-jnx</module>
     <module>example/jnx-example-domino-servlet</module>
     <module>example/jnx-example-webapp</module>
     <module>example/jnx-example-runjava</module>
