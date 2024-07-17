@@ -16,9 +16,8 @@
  */
 package it.com.hcl.domino.test;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -29,14 +28,11 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 import org.junit.jupiter.api.function.Executable;
-
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.DominoException;
@@ -45,10 +41,7 @@ import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.ModificationTimePair;
-import com.hcl.domino.exception.DominoInitException;
 import com.hcl.domino.exception.ServerNotFoundException;
-import com.hcl.domino.jna.internal.DisposableMemory;
-import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.server.ServerPingInfo;
 import com.ibm.commons.util.StringUtil;
 
@@ -168,7 +161,8 @@ public class TestClientBasics extends AbstractNotesRuntimeTest {
       Assertions.assertTrue(info.getClusterMembers().isPresent());
     }
     {
-      Assertions.assertThrows(ServerNotFoundException.class, () -> client.pingServer("dfsffsfdfd", false, false));
+      Assertions.assertThrows(ServerNotFoundException.class,
+          () -> client.pingServer("dfsffsfdfd", false, false));
     }
   }
 
@@ -240,7 +234,8 @@ public class TestClientBasics extends AbstractNotesRuntimeTest {
     final Database db = client.openDatabase("names.nsf");
     client.close();
 
-    Assertions.assertThrows(DominoException.class, (Executable) () -> db.getOptions(), "Did not throw exception when using database methods of closed DominoClient");
+    Assertions.assertThrows(DominoException.class, (Executable) () -> db.getOptions(),
+        "Did not throw exception when using database methods of closed DominoClient");
   }
 
   @Test
@@ -249,12 +244,13 @@ public class TestClientBasics extends AbstractNotesRuntimeTest {
     final Database db = client.openDatabase("names.nsf");
     client.close();
 
-    Assertions.assertThrows(DominoException.class, (Executable) () -> db.getACL(), "Did not throw exception when using database of closed DominoClient");
+    Assertions.assertThrows(DominoException.class, (Executable) () -> db.getACL(),
+        "Did not throw exception when using database of closed DominoClient");
   }
-  
+
   @Test
   public void testDbModificationTimes() throws IOException {
-    try(DominoClient client = DominoClientBuilder.newDominoClient().build()) {
+    try (DominoClient client = DominoClientBuilder.newDominoClient().build()) {
       ModificationTimePair pair = client.getDatabaseModificationTimes("names.nsf");
       assertNotNull(pair);
       assertNotNull(pair.getDataModified());
@@ -263,56 +259,21 @@ public class TestClientBasics extends AbstractNotesRuntimeTest {
       assertTrue(pair.getNonDataModified().isValid());
     }
   }
-  
 
-  @Test
-  public void testMissingThreadInit() throws Exception {
-    withTempDb((db) -> {
-      Object lock = new Object();
-      
-      AtomicReference<Exception> ex = new AtomicReference<>();
-      
-      synchronized (lock) {
-        //try to access C API in a non-initialized thread
-        Thread t = new Thread(() -> {
-          synchronized (lock) {
-            try {
-              DisposableMemory mem = new DisposableMemory(20);
-              
-              NotesCAPI.get().Cstrlen(mem);
-            }
-            catch (Exception e) {
-              ex.set(e);
-            }
-            finally {
-              lock.notify();
-            }
-            
-          }
-        });
-        t.start();
-        
-        lock.wait();
-      }
-      
-      Assertions.assertNotNull(ex.get());
-      Assertions.assertInstanceOf(DominoInitException.class, ex.get());
-    });
-  }
-  
   @Test
   public void testDominoClientMultiThreading() throws Exception {
     final DominoClient client = this.getClient();
 
     final ExecutorService executor = Executors.newCachedThreadPool(client.getThreadFactory());
     try {
-      //run a heavily multi threaded operation on a shared DominoClient which results in all kinds of issues
-      //when the CAPIGarbageCollector is not synchronized property
+      // run a heavily multi threaded operation on a shared DominoClient which results in all kinds
+      // of issues
+      // when the CAPIGarbageCollector is not synchronized property
       final int nrOfThread = 40;
       final int result = IntStream.range(0, nrOfThread)
           .parallel()
           .mapToObj(i -> (Callable<Integer>) () -> {
-            for (int x=0; x<10; x++) {
+            for (int x = 0; x < 10; x++) {
               Database db = client.openDatabase("names.nsf"); //$NON-NLS-1$
 
               long docCount = db.getAllNoteIds(EnumSet.of(DocumentClass.DATA), false)
@@ -322,14 +283,14 @@ public class TestClientBasics extends AbstractNotesRuntimeTest {
                   .filter(Objects::nonNull)
                   .count();
 
-              Assertions.assertTrue(docCount>0);
+              Assertions.assertTrue(docCount > 0);
 
               long viewCount = db.getAllCollections().count();
-              
-              Assertions.assertTrue(viewCount>0);
-              
+
+              Assertions.assertTrue(viewCount > 0);
+
               Thread.sleep(50);
-              
+
               db.close();
             }
             return 1;
@@ -350,5 +311,5 @@ public class TestClientBasics extends AbstractNotesRuntimeTest {
       executor.awaitTermination(30, TimeUnit.SECONDS);
     }
   }
-  
+
 }

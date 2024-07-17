@@ -1,17 +1,14 @@
 package it.com.hcl.domino.test.certs;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
-
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
@@ -19,25 +16,25 @@ import com.hcl.domino.data.IDTable;
 
 @SuppressWarnings("nls")
 public class TestNabCerts extends AbstractCertificateTest {
-  
+
   @Test
   public void testEnumerateAnyCert() {
     Document firstCert = findFirstNabCertDoc();
-    
-    boolean[] found = new boolean[] { false };
+
+    boolean[] found = new boolean[] {false};
     firstCert.forEachCertificate((cert, loop) -> {
       found[0] = true;
     });
-    
+
     assertTrue(found[0]);
   }
-  
+
 
   @Test
   public void testEnumerateNullConsumer() throws Exception {
     withTempDb(database -> {
       Document doc = database.createDocument();
-      
+
       assertThrows(NullPointerException.class, () -> doc.forEachCertificate(null));
     });
   }
@@ -46,12 +43,12 @@ public class TestNabCerts extends AbstractCertificateTest {
   public void testEnumerateNoCertInNewNote() throws Exception {
     withTempDb(database -> {
       Document doc = database.createDocument();
-      
-      boolean[] found = new boolean[] { false };
+
+      boolean[] found = new boolean[] {false};
       doc.forEachCertificate((cert, loop) -> {
         found[0] = true;
       });
-      
+
       assertFalse(found[0]);
     });
   }
@@ -60,7 +57,7 @@ public class TestNabCerts extends AbstractCertificateTest {
   public void testListNoCertInNewNote() throws Exception {
     withTempDb(database -> {
       Document doc = database.createDocument();
-      
+
       List<X509Certificate> certs = doc.getCertificates();
       assertTrue(certs.isEmpty());
     });
@@ -69,60 +66,63 @@ public class TestNabCerts extends AbstractCertificateTest {
   @Test
   public void testEnumerateParseCert() {
     Document firstCert = findFirstNabCertDoc();
-    
-    Throwable[] ex = new Throwable[] { null };
+
+    Throwable[] ex = new Throwable[] {null};
     firstCert.forEachCertificate((cert, loop) -> {
       try {
         Date dt = cert.getNotAfter();
         assertNotNull(dt);
-        assertTrue(dt.after(new Date(0)), () -> "Certificate not-after should be after epoch, but was " + dt);
-      } catch(Throwable t) {
+        assertTrue(dt.after(new Date(0)),
+            () -> "Certificate not-after should be after epoch, but was " + dt);
+      } catch (Throwable t) {
         t.printStackTrace();
         ex[0] = t;
       }
     });
-    
+
     assertNull(ex[0]);
   }
 
   @Test
   public void testListParseCert() {
     Document firstCert = findFirstNabCertDoc();
-    
+
     List<X509Certificate> certs = firstCert.getCertificates();
     assertFalse(certs.isEmpty());
-    for(X509Certificate cert : certs) {
+    for (X509Certificate cert : certs) {
       Date dt = cert.getNotAfter();
       assertNotNull(dt);
-      assertTrue(dt.after(new Date(0)), () -> "Certificate not-after should be after epoch, but was " + dt);
+      assertTrue(dt.after(new Date(0)),
+          () -> "Certificate not-after should be after epoch, but was " + dt);
     }
   }
 
   @Test
   public void testEnumerateAllNabCert() {
     DominoClient client = getClient();
-    
+
     String nabPath = client.openUserDirectory(null).getPrimaryDirectoryPath().get();
     Database names = client.openDatabase(nabPath);
-    
+
     IDTable ids = names.openCollection("$Certifiers")
         .get()
         .getAllIdsAsIDTable(false);
-    
-    for(int id : ids) {
+
+    for (int id : ids) {
       Document doc = names.getDocumentById(id).get();
-      Throwable[] ex = new Throwable[] { null };
+      Throwable[] ex = new Throwable[] {null};
       doc.forEachCertificate((cert, loop) -> {
         try {
           Date dt = cert.getNotAfter();
           assertNotNull(dt);
-          assertTrue(dt.after(new Date(0)), () -> "Certificate not-after should be after epoch, but was " + dt);
-        } catch(Throwable t) {
+          assertTrue(dt.after(new Date(0)),
+              () -> "Certificate not-after should be after epoch, but was " + dt);
+        } catch (Throwable t) {
           t.printStackTrace();
           ex[0] = t;
         }
       });
-      
+
       assertNull(ex[0]);
     }
   }

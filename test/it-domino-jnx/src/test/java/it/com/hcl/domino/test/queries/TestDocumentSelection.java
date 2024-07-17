@@ -16,6 +16,7 @@
  */
 package it.com.hcl.domino.test.queries;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +25,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.data.*;
-import com.hcl.domino.jna.data.JNADominoDateTime;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -394,13 +394,13 @@ public class TestDocumentSelection extends AbstractNotesRuntimeTest {
   public void testSinceTime1() throws Exception {
     this.withTempDb(db -> {
 
-      long timeMs = System.currentTimeMillis();
+      Instant timeMs = Instant.now();
       TimeUnit.MILLISECONDS.sleep(10); // Make sure we wait at least one Domino tic
       final Document doc = db.createDocument();
       doc.setDocumentClass(DocumentClass.DOCUMENT);
       doc.save();
 
-      JNADominoDateTime expectedDateTime = new JNADominoDateTime(timeMs);
+      DominoDateTime expectedDateTime = doc.getParentDatabase().getParentDominoClient().createDateTime(timeMs);
       DocumentSelection documentSelection = db
               .createDocumentSelection()
               .selectAllDocuments()
