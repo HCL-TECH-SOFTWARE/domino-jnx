@@ -1,0 +1,18 @@
+{
+   "title": "DominoJNX",
+   "motivation": "Modern take on the HCL Domino Java API interacting with C/C++ using JNA",
+   "contribution": [
+      "Bugfixes",
+      "Features",
+      "Enhancement",
+      "Infrastructure"
+   ],
+   "skills": [
+      "Java",
+      "C",
+      "C++"
+   ],
+   "owner_Id": "jason.gary@hcl-software.com",
+   "docs": "https://opensource.hcltechsw.com/domino-jnx/",
+   "language": "Java"
+}
