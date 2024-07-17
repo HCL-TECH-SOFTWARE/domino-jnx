@@ -15,6 +15,7 @@
   <properties>
     <jar.finalName>${project.artifactId}-${project.version}</jar.finalName>
     <original.artifact.id>jnx-example-runjava</original.artifact.id>
+    <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
   </properties>
   <dependencies>
     <dependency>

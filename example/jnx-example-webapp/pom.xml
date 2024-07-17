@@ -19,6 +19,7 @@
     <jar.finalName>${project.artifactId}-${project.version}</jar.finalName>
     <liberty.env.Notes_ExecDirectory>${notes-program}</liberty.env.Notes_ExecDirectory>
     <original.artifact.id>jnx-example-webapp</original.artifact.id>
+    <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
   </properties>
   <dependencies>
     <dependency>

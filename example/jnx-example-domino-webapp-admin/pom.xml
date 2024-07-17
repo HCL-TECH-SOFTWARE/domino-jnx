@@ -17,6 +17,7 @@
     <resteasy-version>3.11.2.Final</resteasy-version>
     <jar.finalName>${project.artifactId}-${project.version}</jar.finalName>
     <original.artifact.id>jnx-example-domino-webapp-admin</original.artifact.id>
+    <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
   </properties>
   <dependencies>
     <dependency>

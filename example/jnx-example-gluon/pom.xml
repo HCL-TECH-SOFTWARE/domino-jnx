@@ -18,6 +18,7 @@
     <javafx.version>19-ea+8</javafx.version>
     <jar.finalName>${project.artifactId}-${project.version}</jar.finalName>
     <original.artifact.id>jnx-example-gluon</original.artifact.id>
+    <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
   </properties>
   <dependencies>
     <dependency>

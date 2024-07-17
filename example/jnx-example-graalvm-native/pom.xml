@@ -16,6 +16,7 @@
     <graal.version>22.3.0</graal.version>
     <jar.finalName>${project.artifactId}-${project.version}</jar.finalName>
     <original.artifact.id>jnx-example-graalvm-native</original.artifact.id>
+    <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
   </properties>
   <dependencies>
     <dependency>
