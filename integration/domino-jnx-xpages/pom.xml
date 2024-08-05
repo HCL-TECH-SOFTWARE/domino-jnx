@@ -100,7 +100,10 @@
                       <transitive>false</transitive>
                     </artifact>
                     <artifact>
-                      <id>com.sun.mail:jakarta.mail:${jakarta.sun.mail.version}</id>
+                      <id>jakarta.mail:jakarta.mail-api:${jakarta.mail.version}</id>
+                    </artifact>
+                    <artifact>
+                      <id>org.eclipse.angus:angus-mail:${jakarta.sun.mail.version}</id>
                     </artifact>
                   </artifacts>
                 </feature>
