@@ -17,12 +17,11 @@
 package it.com.hcl.domino.test.design;
 
 import static it.com.hcl.domino.test.util.ITUtil.toLf;
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -41,7 +40,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -53,7 +51,6 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.ArgumentsProvider;
 import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.junit.jupiter.params.provider.ValueSource;
-
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.commons.richtext.records.GenericBSIGRecord;
 import com.hcl.domino.commons.richtext.records.GenericLSIGRecord;
@@ -78,8 +75,8 @@ import com.hcl.domino.design.ImageRepeatMode;
 import com.hcl.domino.design.Subform;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionContent;
-import com.hcl.domino.design.action.FormulaActionContent;
 import com.hcl.domino.design.action.EventId;
+import com.hcl.domino.design.action.FormulaActionContent;
 import com.hcl.domino.design.action.JavaScriptActionContent;
 import com.hcl.domino.design.action.LotusScriptActionContent;
 import com.hcl.domino.design.action.ScriptEvent;
@@ -160,13 +157,12 @@ import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclEntry;
 import com.hcl.domino.security.AclFlag;
 import com.hcl.domino.security.AclLevel;
-
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignForms extends AbstractDesignTest {
   public static final String ENV_DBDESIGN_FOLDER = "DBDESIGN_FORMFOLDER";
-  
+
   public static final int EXPECTED_IMPORT_FORMS = 12;
   public static final int EXPECTED_IMPORT_SUBFORMS = 2;
 
@@ -180,16 +176,18 @@ public class TestDbDesignForms extends AbstractDesignTest {
       final DominoClient client = this.getClient();
       if (dbPath == null) {
         this.database = AbstractNotesRuntimeTest.createTempDb(client);
-        
+
         Acl acl = this.database.getACL();
         Optional<AclEntry> entry = acl.getEntry(client.getEffectiveUserName());
-        if(entry.isPresent()) {
-          acl.updateEntry(client.getEffectiveUserName(), null, null, Arrays.asList("[Admin]"), null);
+        if (entry.isPresent()) {
+          acl.updateEntry(client.getEffectiveUserName(), null, null, Arrays.asList("[Admin]"),
+              null);
         } else {
-          acl.addEntry(client.getEffectiveUserName(), AclLevel.MANAGER, Arrays.asList("[Admin]"), EnumSet.allOf(AclFlag.class));
+          acl.addEntry(client.getEffectiveUserName(), AclLevel.MANAGER, Arrays.asList("[Admin]"),
+              EnumSet.allOf(AclFlag.class));
         }
         acl.save();
-        
+
         dbPath = this.database.getAbsoluteFilePath();
         AbstractNotesRuntimeTest.populateResourceDxl("/dxl/testDbDesignForms", this.database);
       } else {
@@ -197,7 +195,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
       }
     }
   }
-  
+
   @AfterAll
   public static void termDesignDb() {
     try {
@@ -206,24 +204,24 @@ public class TestDbDesignForms extends AbstractDesignTest {
       System.err.println("Unable to delete database " + dbPath + ": " + t);
     }
   }
-  
+
   @Test
   public void testActionForm() throws IOException {
     DbDesign design = this.database.getDesign();
     Form form = design.getForm("Action Form").get();
-    
+
     ActionBar actions = form.getActionBar();
-    
+
     assertEquals(ActionBar.Alignment.RIGHT, actions.getAlignment());
     assertTrue(actions.isUseJavaApplet());
-    
+
     assertEquals(ActionButtonHeightMode.FIXED, actions.getHeightMode());
     assertEquals(33, actions.getHeightSpec());
-    
+
     assertColorEquals(actions.getBackgroundColor(), 82, 145, 239);
     assertFalse(actions.getBackgroundImage().isPresent());
     assertEquals(ClassicThemeBehavior.INHERIT_FROM_OS, actions.getClassicThemeBehavior());
-    
+
     assertEquals(BorderStyle.INSET, actions.getBorderStyle());
     assertColorEquals(actions.getBorderColor(), 127, 255, 255);
     assertFalse(actions.isUseDropShadow());
@@ -248,17 +246,17 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(0, outside.getRight());
       assertEquals(0, outside.getBottom());
     }
-    
+
     assertEquals(ButtonHeightMode.DEFAULT, actions.getButtonHeightMode());
     assertEquals(ActionWidthMode.DEFAULT, actions.getButtonWidthMode());
     assertFalse(actions.isFixedSizeButtonMargin());
     assertEquals(ButtonBorderDisplay.ALWAYS, actions.getButtonBorderMode());
     assertEquals(ActionBarTextAlignment.LEFT, actions.getButtonTextAlignment());
     assertEquals(1, actions.getButtonInternalMarginSize());
-    
+
     assertColorEquals(actions.getButtonBackgroundColor(), 224, 224, 116);
     assertFalse(actions.getButtonBackgroundImage().isPresent());
-    
+
     {
       NotesFont font = actions.getFont();
       assertFalse(font.getFontName().isPresent());
@@ -267,7 +265,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(EnumSet.noneOf(FontAttribute.class), font.getAttributes());
     }
     assertTrue(actions.getFontColor().getFlags().contains(ColorValue.Flag.SYSTEMCOLOR));
-    
+
     List<ActionBarAction> actionList = actions.getActions();
     assertEquals(16, actionList.size());
     {
@@ -296,20 +294,22 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(ActionBarAction.IconType.NOTES, action.getIconType());
       assertEquals(68, action.getNotesIconIndex());
       assertTrue(action.isDisplayIconOnRight());
-      
-      assertEquals(EnumSet.of(HideFromDevice.WEB, HideFromDevice.MOBILE), action.getHideFromDevices());
+
+      assertEquals(EnumSet.of(HideFromDevice.WEB, HideFromDevice.MOBILE),
+          action.getHideFromDevices());
       assertTrue(action.isUseHideWhenFormula());
       assertEquals("@False", action.getHideWhenFormula().get());
-      
+
       assertFalse(action.isPublishWithOle());
       assertFalse(action.isCloseOleWhenChosen());
       assertFalse(action.isBringDocumentToFrontInOle());
       assertEquals("testAction", action.getCompositeActionName().get());
       assertEquals("some program use", action.getProgrammaticUseText());
-      
+
       ActionContent content = action.getActionContent();
       assertInstanceOf(FormulaActionContent.class, content);
-      assertEquals("@StatusBar(\"I am formula action\")", ((FormulaActionContent)content).getFormula());
+      assertEquals("@StatusBar(\"I am formula action\")",
+          ((FormulaActionContent) content).getFormula());
     }
     {
       ActionBarAction action = actionList.get(3);
@@ -317,10 +317,10 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(ActionBarAction.ActionLanguage.FORMULA, action.getActionLanguage());
       assertTrue(action.isIncludeInMobileSwipeLeft());
       assertFalse(action.isIncludeInMobileSwipeRight());
-      
+
       ActionContent content = action.getActionContent();
       assertInstanceOf(FormulaActionContent.class, content);
-      assertEquals("@StatusBar(\"hi\")", ((FormulaActionContent)content).getFormula());
+      assertEquals("@StatusBar(\"hi\")", ((FormulaActionContent) content).getFormula());
     }
     {
       ActionBarAction action = actionList.get(4);
@@ -328,10 +328,10 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(ActionBarAction.ActionLanguage.FORMULA, action.getActionLanguage());
       assertFalse(action.isIncludeInMobileSwipeLeft());
       assertTrue(action.isIncludeInMobileSwipeRight());
-      
+
       ActionContent content = action.getActionContent();
       assertInstanceOf(FormulaActionContent.class, content);
-      assertEquals("@StatusBar(\"hi\")", ((FormulaActionContent)content).getFormula());
+      assertEquals("@StatusBar(\"hi\")", ((FormulaActionContent) content).getFormula());
     }
     {
       ActionBarAction action = actionList.get(5);
@@ -349,20 +349,20 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(4, action.getNotesIconIndex());
       assertFalse(action.isDisplayIconOnRight());
       assertTrue(action.isDisplayAsSplitButton());
-      
+
       assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
       assertFalse(action.isUseHideWhenFormula());
       assertFalse(action.getHideWhenFormula().isPresent());
-      
+
       assertFalse(action.isPublishWithOle());
       assertFalse(action.isCloseOleWhenChosen());
       assertFalse(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
-      
+
       ActionContent content = action.getActionContent();
       assertInstanceOf(FormulaActionContent.class, content);
-      assertEquals("@SetField(\"SomeField\"; 0)", ((FormulaActionContent)content).getFormula());
+      assertEquals("@SetField(\"SomeField\"; 0)", ((FormulaActionContent) content).getFormula());
     }
     {
       ActionBarAction action = actionList.get(6);
@@ -373,11 +373,11 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertTrue(action.isIncludeInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInContextMenu());
-      
+
       assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
       assertFalse(action.isUseHideWhenFormula());
       assertFalse(action.getHideWhenFormula().isPresent());
-      
+
       assertFalse(action.isPublishWithOle());
       assertFalse(action.isCloseOleWhenChosen());
       assertFalse(action.isBringDocumentToFrontInOle());
@@ -394,20 +394,20 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertTrue(action.isIncludeInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInContextMenu());
-      
+
       assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
       assertFalse(action.isUseHideWhenFormula());
       assertFalse(action.getHideWhenFormula().isPresent());
-      
+
       assertFalse(action.isPublishWithOle());
       assertFalse(action.isCloseOleWhenChosen());
       assertFalse(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
-      
+
       ActionContent content = action.getActionContent();
       assertInstanceOf(SimpleActionActionContent.class, content);
-      List<SimpleAction> simpleActions = ((SimpleActionActionContent)content).getActions();
+      List<SimpleAction> simpleActions = ((SimpleActionActionContent) content).getActions();
       assertEquals(3, simpleActions.size());
       {
         SimpleAction action0 = simpleActions.get(0);
@@ -416,13 +416,13 @@ public class TestDbDesignForms extends AbstractDesignTest {
       {
         SimpleAction action1 = simpleActions.get(1);
         assertInstanceOf(ModifyFieldAction.class, action1);
-        assertEquals("Body", ((ModifyFieldAction)action1).getFieldName());
-        assertEquals("hey", ((ModifyFieldAction)action1).getValue());
+        assertEquals("Body", ((ModifyFieldAction) action1).getFieldName());
+        assertEquals("hey", ((ModifyFieldAction) action1).getValue());
       }
       {
         SimpleAction action2 = simpleActions.get(2);
         assertInstanceOf(ReadMarksAction.class, action2);
-        assertEquals(ReadMarksAction.Type.MARK_READ, ((ReadMarksAction)action2).getType());
+        assertEquals(ReadMarksAction.Type.MARK_READ, ((ReadMarksAction) action2).getType());
       }
     }
     {
@@ -439,20 +439,20 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertFalse(action.isIncludeInMobileSwipeRight());
       assertTrue(action.isIncludeInContextMenu());
       assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
-      
+
       assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
       assertFalse(action.isUseHideWhenFormula());
       assertFalse(action.getHideWhenFormula().isPresent());
-      
+
       assertFalse(action.isPublishWithOle());
       assertTrue(action.isCloseOleWhenChosen());
       assertFalse(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
-      
+
       ActionContent content = action.getActionContent();
       assertInstanceOf(SimpleActionActionContent.class, content);
-      List<SimpleAction> simpleActions = ((SimpleActionActionContent)content).getActions();
+      List<SimpleAction> simpleActions = ((SimpleActionActionContent) content).getActions();
       assertEquals(1, simpleActions.size());
       {
         SimpleAction action0 = simpleActions.get(0);
@@ -473,20 +473,21 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertTrue(action.isIncludeInMobileSwipeRight());
       assertFalse(action.isIncludeInContextMenu());
       assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
-      
+
       assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
       assertFalse(action.isUseHideWhenFormula());
       assertEquals("dsfd", action.getHideWhenFormula().get());
-      
+
       assertFalse(action.isPublishWithOle());
       assertFalse(action.isCloseOleWhenChosen());
       assertFalse(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
-      
+
       ActionContent content = action.getActionContent();
       assertInstanceOf(FormulaActionContent.class, content);
-      assertEquals("@StatusBar(\"Mobile status bar?\")", ((FormulaActionContent)content).getFormula());
+      assertEquals("@StatusBar(\"Mobile status bar?\")",
+          ((FormulaActionContent) content).getFormula());
     }
     {
       ActionBarAction action = actionList.get(10);
@@ -500,25 +501,26 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertTrue(action.isOppositeAlignedInActionBar());
       assertFalse(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInMobileActions());
-//      assertFalse(action.isIncludeInMobileSwipeLeft());
-//      assertTrue(action.isIncludeInMobileSwipeRight());
+      // assertFalse(action.isIncludeInMobileSwipeLeft());
+      // assertTrue(action.isIncludeInMobileSwipeRight());
       assertFalse(action.isIncludeInContextMenu());
       assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
-      
+
       assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
       assertFalse(action.isUseHideWhenFormula());
       assertFalse(action.getHideWhenFormula().isPresent());
-      
+
       assertTrue(action.isPublishWithOle());
       assertFalse(action.isCloseOleWhenChosen());
       assertTrue(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
-      
+
       ActionContent content = action.getActionContent();
       assertInstanceOf(LotusScriptActionContent.class, content);
-      String expected = IOUtils.resourceToString("/text/testDbDesignCollections/shortls.txt", StandardCharsets.UTF_8);
-      assertEquals(toLf(expected), toLf(((LotusScriptActionContent)content).getScript()));
+      String expected = IOUtils.resourceToString("/text/testDbDesignCollections/shortls.txt",
+          StandardCharsets.UTF_8);
+      assertEquals(toLf(expected), toLf(((LotusScriptActionContent) content).getScript()));
     }
     {
       ActionBarAction action = actionList.get(11);
@@ -532,69 +534,68 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertFalse(action.isOppositeAlignedInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInMobileActions());
-//      assertFalse(action.isIncludeInMobileSwipeLeft());
-//      assertFalse(action.isIncludeInMobileSwipeRight());
+      // assertFalse(action.isIncludeInMobileSwipeLeft());
+      // assertFalse(action.isIncludeInMobileSwipeRight());
       assertFalse(action.isIncludeInContextMenu());
       assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
-      
+
       assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
       assertFalse(action.isUseHideWhenFormula());
       assertFalse(action.getHideWhenFormula().isPresent());
-      
+
       assertFalse(action.isPublishWithOle());
       assertFalse(action.isCloseOleWhenChosen());
       assertFalse(action.isBringDocumentToFrontInOle());
       assertFalse(action.getCompositeActionName().isPresent());
       assertEquals("", action.getProgrammaticUseText());
-      
+
       {
         ActionContent content = action.getActionContent();
         assertInstanceOf(JavaScriptActionContent.class, content);
-        Collection<ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
+        Collection<ScriptEvent> events = ((JavaScriptActionContent) content).getEvents();
         assertTrue(
-          events.stream().anyMatch(event -> {
-            if(event.getEventId() == EventId.ONCLICK) {
-              if(event.isClient()) {
-                if("window.alert(\"you poor soul, using JavaScript actions in a view\")\n".equals(toLf(event.getScript()))) {
+            events.stream().anyMatch(event -> {
+              if (event.getEventId() == EventId.ONCLICK) {
+                if (event.isClient()) {
+                  if ("window.alert(\"you poor soul, using JavaScript actions in a view\")\n"
+                      .equals(toLf(event.getScript()))) {
+                    return true;
+                  }
+                }
+              }
+              return false;
+            }));
+        assertTrue(
+            events.stream().anyMatch(event -> {
+              if (event.getEventId() == EventId.ONCLICK) {
+                if (!event.isClient()) {
+                  if ("alert(\"I'm on the web\")\n".equals(toLf(event.getScript()))) {
+                    return true;
+                  }
+                }
+              }
+              return false;
+            }));
+        assertTrue(
+            events.stream().anyMatch(event -> {
+              if (event.getEventId() == EventId.ONMOUSEDOWN) {
+                if ("console.log(\"is there a console in Notes JS actions?\")\n"
+                    .equals(toLf(event.getScript()))) {
                   return true;
                 }
               }
-            }
-            return false;
-          })
-        );
+              return false;
+            }));
         assertTrue(
-          events.stream().anyMatch(event -> {
-            if(event.getEventId() == EventId.ONCLICK) {
-              if(!event.isClient()) {
-                if("alert(\"I'm on the web\")\n".equals(toLf(event.getScript()))) {
+            events.stream().anyMatch(event -> {
+              if (event.getEventId() == EventId.ONMOUSEOVER) {
+                if ("alert(\"wait, do onMouseOver actions work? No; this is web-only\")\n"
+                    .equals(toLf(event.getScript()))) {
                   return true;
                 }
               }
-            }
-            return false;
-          })
-        );
-        assertTrue(
-          events.stream().anyMatch(event -> {
-            if(event.getEventId() == EventId.ONMOUSEDOWN) {
-              if("console.log(\"is there a console in Notes JS actions?\")\n".equals(toLf(event.getScript()))) {
-                return true;
-              }
-            }
-            return false;
-          })
-        );
-        assertTrue(
-          events.stream().anyMatch(event -> {
-            if(event.getEventId() == EventId.ONMOUSEOVER) {
-              if("alert(\"wait, do onMouseOver actions work? No; this is web-only\")\n".equals(toLf(event.getScript()))) {
-                return true;
-              }
-            }
-            return false;
-          })
-        );
+              return false;
+            }));
       }
     }
     {
@@ -609,15 +610,15 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertFalse(action.isOppositeAlignedInActionBar());
       assertTrue(action.isIncludeInActionMenu());
       assertFalse(action.isIncludeInMobileActions());
-//      assertFalse(action.isIncludeInMobileSwipeLeft());
-//      assertFalse(action.isIncludeInMobileSwipeRight());
+      // assertFalse(action.isIncludeInMobileSwipeLeft());
+      // assertFalse(action.isIncludeInMobileSwipeRight());
       assertFalse(action.isIncludeInContextMenu());
       assertEquals(ActionBarAction.IconType.NONE, action.getIconType());
-      
+
       assertEquals(EnumSet.noneOf(HideFromDevice.class), action.getHideFromDevices());
       assertFalse(action.isUseHideWhenFormula());
       assertFalse(action.getHideWhenFormula().isPresent());
-      
+
       assertFalse(action.isPublishWithOle());
       assertFalse(action.isCloseOleWhenChosen());
       assertFalse(action.isBringDocumentToFrontInOle());
@@ -627,60 +628,61 @@ public class TestDbDesignForms extends AbstractDesignTest {
       {
         ActionContent content = action.getActionContent();
         assertInstanceOf(JavaScriptActionContent.class, content);
-        Collection<ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
+        Collection<ScriptEvent> events = ((JavaScriptActionContent) content).getEvents();
         assertTrue(
-          events.stream().anyMatch(event -> {
-            if(event.getEventId() == EventId.ONCLICK) {
-              if(event.isClient()) {
-                if("window.alert(\"this is the common part\")\n".equals(toLf(event.getScript()))) {
+            events.stream().anyMatch(event -> {
+              if (event.getEventId() == EventId.ONCLICK) {
+                if (event.isClient()) {
+                  if ("window.alert(\"this is the common part\")\n"
+                      .equals(toLf(event.getScript()))) {
+                    return true;
+                  }
+                }
+              }
+              return false;
+            }));
+        assertTrue(
+            events.stream().anyMatch(event -> {
+              if (event.getEventId() == EventId.ONCLICK) {
+                if (!event.isClient()) {
+                  if ("window.alert(\"this is the common part\")\n"
+                      .equals(toLf(event.getScript()))) {
+                    return true;
+                  }
+                }
+              }
+              return false;
+            }));
+        assertTrue(
+            events.stream().anyMatch(event -> {
+              if (event.getEventId() == EventId.ONMOUSEDOWN) {
+                if ("console.log(\"is there a console in Notes JS actions?\")\n"
+                    .equals(toLf(event.getScript()))) {
                   return true;
                 }
               }
-            }
-            return false;
-          })
-        );
+              return false;
+            }));
         assertTrue(
-          events.stream().anyMatch(event -> {
-            if(event.getEventId() == EventId.ONCLICK) {
-              if(!event.isClient()) {
-                if("window.alert(\"this is the common part\")\n".equals(toLf(event.getScript()))) {
+            events.stream().anyMatch(event -> {
+              if (event.getEventId() == EventId.ONMOUSEOVER) {
+                if ("alert(\"wait, do onMouseOver actions work?\")\n"
+                    .equals(toLf(event.getScript()))) {
                   return true;
                 }
               }
-            }
-            return false;
-          })
-        );
-        assertTrue(
-          events.stream().anyMatch(event -> {
-            if(event.getEventId() == EventId.ONMOUSEDOWN) {
-              if("console.log(\"is there a console in Notes JS actions?\")\n".equals(toLf(event.getScript()))) {
-                return true;
-              }
-            }
-            return false;
-          })
-        );
-        assertTrue(
-          events.stream().anyMatch(event -> {
-            if(event.getEventId() == EventId.ONMOUSEOVER) {
-              if("alert(\"wait, do onMouseOver actions work?\")\n".equals(toLf(event.getScript()))) {
-                return true;
-              }
-            }
-            return false;
-          })
-        );
+              return false;
+            }));
       }
     }
     {
       ActionBarAction action = actionList.get(13);
       assertEquals(ActionBarAction.ActionLanguage.SYSTEM_COMMAND, action.getActionLanguage());
-      
+
       ActionContent content = action.getActionContent();
       assertInstanceOf(SystemActionContent.class, content);
-      assertEquals(SystemActionContent.SystemAction.CATEGORIZE, ((SystemActionContent)content).getAction());
+      assertEquals(SystemActionContent.SystemAction.CATEGORIZE,
+          ((SystemActionContent) content).getAction());
     }
     {
       ActionBarAction action = actionList.get(14);
@@ -688,8 +690,9 @@ public class TestDbDesignForms extends AbstractDesignTest {
 
       ActionContent content = action.getActionContent();
       assertInstanceOf(LotusScriptActionContent.class, content);
-      String expected = IOUtils.resourceToString("/text/testDbDesignCollections/longls.txt", StandardCharsets.UTF_8);
-      assertEquals(toLf(expected), toLf(((LotusScriptActionContent)content).getScript()));
+      String expected = IOUtils.resourceToString("/text/testDbDesignCollections/longls.txt",
+          StandardCharsets.UTF_8);
+      assertEquals(toLf(expected), toLf(((LotusScriptActionContent) content).getScript()));
     }
     {
       ActionBarAction action = actionList.get(15);
@@ -697,13 +700,14 @@ public class TestDbDesignForms extends AbstractDesignTest {
 
       ActionContent content = action.getActionContent();
       assertInstanceOf(JavaScriptActionContent.class, content);
-      Collection<ScriptEvent> events = ((JavaScriptActionContent)content).getEvents();
+      Collection<ScriptEvent> events = ((JavaScriptActionContent) content).getEvents();
       assertEquals(1, events.size());
       ScriptEvent event = events.stream().findFirst().get();
-      String expected = toLf(IOUtils.resourceToString("/text/testDbDesignCollections/longjs.js", StandardCharsets.UTF_8)).replace('\n', '\r');
+      String expected = toLf(IOUtils.resourceToString("/text/testDbDesignCollections/longjs.js",
+          StandardCharsets.UTF_8)).replace('\n', '\r');
       String actual = toLf(event.getScript());
       // Chomp the last line-ending character for consistency
-      actual = actual.substring(0, actual.length()-1);
+      actual = actual.substring(0, actual.length() - 1);
       assertEquals(expected, actual);
     }
 
@@ -715,15 +719,15 @@ public class TestDbDesignForms extends AbstractDesignTest {
   public void testLsForm() throws IOException {
     DbDesign design = this.database.getDesign();
     Form form = design.getForm("Test LS Form").get();
-    
+
     assertEquals(Form.Type.RESPONSE_TO_RESPONSE, form.getType());
     assertEquals(Form.MenuInclusion.NONE, form.getMenuInclusionMode());
     assertFalse(form.isIncludeInSearchBuilder());
     assertTrue(form.isIncludeInPrint());
-    
+
     assertEquals(Form.VersioningBehavior.NEW_AS_RESPONSES, form.getVersioningBehavior());
     assertFalse(form.isVersionCreationAutomatic());
-    
+
     assertFalse(form.isDefaultForm());
     assertTrue(form.isStoreFormInDocument());
     assertFalse(form.isAllowFieldExchange());
@@ -735,20 +739,20 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertFalse(form.isRenderPassThroughHtmlInClient());
     assertFalse(form.isIncludeFieldsInIndex());
     assertTrue(form.isAllowAutosave());
-    
+
     assertEquals(Form.ConflictBehavior.MERGE_CONFLICTS, form.getConflictBehavior());
-    
-    
+
+
     assertTrue(form.isInheritSelectedDocumentValues());
     Form.InheritanceSettings inheritance = form.getSelectedDocumentInheritanceBehavior().get();
     assertEquals("TargetBody", inheritance.getTargetField());
     assertEquals(Form.InheritanceFieldType.COLLAPSIBLE_RICH_TEXT, inheritance.getType());
-    
+
     assertTrue(form.isAutomaticallyEnableEditMode());
     assertEquals(Form.ContextPaneBehavior.PARENT, form.getContextPaneBehavior());
-    
+
     assertTrue(form.isShowMailDialogOnClose());
-    
+
     Form.WebRenderingSettings web = form.getWebRenderingSettings();
     assertFalse(web.isRenderRichContentOnWeb());
     assertEquals("", web.getWebMimeType().get());
@@ -756,10 +760,10 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertColorEquals(web.getActiveLinkColor(), 0, 96, 160);
     assertColorEquals(web.getUnvisitedLinkColor(), 255, 192, 182);
     assertColorEquals(web.getVisitedLinkColor(), 159, 159, 224);
-    
+
     assertEquals("testconn", form.getDefaultDataConnectionName().get());
     assertEquals("foo", form.getDefaultDataConnectionObject().get());
-    
+
 
     Form.AutoLaunchSettings auto = form.getAutoLaunchSettings();
     assertEquals(AutoLaunchType.OLE_CLASS, auto.getType());
@@ -768,10 +772,11 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertTrue(auto.isPresentDocumentAsModal());
     assertTrue(auto.isCreateObjectInFirstRichTextField());
     assertEquals(EnumSet.of(AutoLaunchWhen.CREATE, AutoLaunchWhen.READ), auto.getLaunchWhen());
-    assertEquals(EnumSet.of(AutoLaunchHideWhen.OPEN_READ, AutoLaunchHideWhen.CLOSE_READ), auto.getHideWhen());
+    assertEquals(EnumSet.of(AutoLaunchHideWhen.OPEN_READ, AutoLaunchHideWhen.CLOSE_READ),
+        auto.getHideWhen());
     assertEquals("Outer Frame", form.getAutoFrameFrameset().get());
     assertEquals("Nav", form.getAutoFrameTarget().get());
-    
+
     Form.BackgroundSettings background = form.getBackgroundSettings();
     assertEquals(StandardColors.DustyViolet, background.getStandardBackgroundColor().get());
     assertColorEquals(background.getBackgroundColor(), 224, 129, 255);
@@ -787,7 +792,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertFalse(background.isUserCustomizable());
     assertEquals(ImageRepeatMode.HORIZONTAL, background.getBackgroundImageRepeatMode());
     assertEquals(ClassicThemeBehavior.INHERIT_FROM_OS, form.getClassicThemeBehavior());
-    
+
     {
       Form.HeaderFrameSettings headerFrame = form.getHeaderFrameSettings();
       assertTrue(headerFrame.isUseHeader());
@@ -799,17 +804,17 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertColorEquals(headerFrame.getBorderColor().get(), 97, 129, 255);
       assertTrue(headerFrame.isUse3DShading());
     }
-    
+
     {
       Form.PrintSettings print = form.getPrintSettings();
       assertFalse(print.isPrintHeaderAndFooterOnFirstPage());
-      
+
       CDHeader header = print.getPrintHeader().get();
       assertEquals("Courier New", header.getFontName());
       assertEquals(36, header.getFontStyle().getPointSize());
       assertEquals(EnumSet.of(FontAttribute.UNDERLINE), header.getFontStyle().getAttributes());
       assertEquals("I am header text", header.getText());
-      
+
       CDHeader footer = print.getPrintFooter().get();
       assertEquals("Default Monospace", footer.getFontName());
       assertEquals(StandardFonts.ROMAN, footer.getFontStyle().getStandardFont().get());
@@ -817,9 +822,10 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(EnumSet.of(FontAttribute.ITALIC), footer.getFontStyle().getAttributes());
       assertEquals("I am footer text", footer.getText());
     }
-    
+
     // Test global script
-    String lsGlobalsExpected = IOUtils.resourceToString("/text/testDbDesignForms/form-testls-globals.txt", StandardCharsets.UTF_8);
+    String lsGlobalsExpected = IOUtils.resourceToString(
+        "/text/testDbDesignForms/form-testls-globals.txt", StandardCharsets.UTF_8);
     assertEquals(toLf(lsGlobalsExpected), toLf(form.getLotusScriptGlobals()));
   }
 
@@ -827,7 +833,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
   public void testLsForm2() throws IOException {
     DbDesign design = this.database.getDesign();
     Form form = design.getForm("Test LS Form 2").get();
-    
+
     Form.AutoLaunchSettings auto = form.getAutoLaunchSettings();
     assertEquals(AutoLaunchType.OLEOBJ, auto.getType());
     assertEquals("RTItem", auto.getTargetRichTextField().get());
@@ -837,17 +843,17 @@ public class TestDbDesignForms extends AbstractDesignTest {
   public void testDefaultForm() throws IOException {
     DbDesign design = this.database.getDesign();
     Form form = design.getForm("Default Form").get();
-    
+
     assertTrue(form.isDefaultForm());
 
     Form.WebRenderingSettings web = form.getWebRenderingSettings();
     assertTrue(web.isRenderRichContentOnWeb());
     assertFalse(web.getWebMimeType().isPresent());
     assertFalse(web.getWebCharset().isPresent());
-    
+
     assertFalse(form.getDefaultDataConnectionName().isPresent());
     assertFalse(form.getDefaultDataConnectionObject().isPresent());
-    
+
     Form.AutoLaunchSettings auto = form.getAutoLaunchSettings();
     assertEquals(AutoLaunchType.DOCLINK, auto.getType());
 
@@ -862,18 +868,18 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertColorEquals(headerFrame.getBorderColor().get(), 0, 0, 0);
       assertFalse(headerFrame.isUse3DShading());
     }
-    
+
     {
       Form.PrintSettings print = form.getPrintSettings();
       assertTrue(print.isPrintHeaderAndFooterOnFirstPage());
-      
+
       CDHeader header = print.getPrintHeader().get();
       assertEquals("default form header print", header.getText());
       assertEquals("Default Sans Serif", header.getFontName());
       assertEquals(StandardFonts.SWISS, header.getFontStyle().getStandardFont().get());
       assertEquals(9, header.getFontStyle().getPointSize());
       assertEquals(EnumSet.noneOf(FontAttribute.class), header.getFontStyle().getAttributes());
-      
+
       assertFalse(print.getPrintFooter().isPresent());
     }
   }
@@ -887,10 +893,10 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertFalse(web.isRenderRichContentOnWeb());
     assertEquals("text/css", web.getWebMimeType().get());
     assertFalse(web.getWebCharset().isPresent());
-    
+
     Form.AutoLaunchSettings auto = form.getAutoLaunchSettings();
     assertEquals(AutoLaunchType.URL, auto.getType());
-    
+
     Form.BackgroundSettings background = form.getBackgroundSettings();
     assertEquals(StandardColors.White, background.getStandardBackgroundColor().get());
     assertColorEquals(background.getBackgroundColor(), 255, 255, 255);
@@ -918,14 +924,14 @@ public class TestDbDesignForms extends AbstractDesignTest {
   public void testFooterSubform() throws IOException {
     DbDesign design = this.database.getDesign();
     Subform subform = design.getSubform("Footer").get();
-    
+
     assertTrue(subform.isIncludeInInsertSubformDialog());
     assertFalse(subform.isIncludeInNewFormDialog());
     assertTrue(subform.isRenderPassThroughHtmlInClient());
     assertTrue(subform.isIncludeFieldsInIndex());
-    
+
     assertTrue(subform.isAllowPublicAccess());
-    
+
     ActionBar actions = subform.getActionBar();
     List<ActionBarAction> actionList = actions.getActions();
     assertEquals(1, actionList.size());
@@ -934,18 +940,19 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals("Footer Action", action.getName());
       ActionContent content = action.getActionContent();
       assertInstanceOf(FormulaActionContent.class, content);
-      assertEquals("@StatusBar(\"hello.\")", ((FormulaActionContent)content).getFormula());
+      assertEquals("@StatusBar(\"hello.\")", ((FormulaActionContent) content).getFormula());
     }
-    
+
     Collection<ScriptEvent> events = subform.getJavaScriptEvents();
     assertEquals(1, events.size());
     ScriptEvent evt = events.iterator().next();
     assertEquals(EventId.ONHELP, evt.getEventId());
     assertFalse(evt.isClient());
     assertEquals("/* I'm subform help */\n", toLf(evt.getScript()));
-    
+
     // Test global script
-    String lsGlobalsExpected = IOUtils.resourceToString("/text/testDbDesignForms/globals-blank.txt", StandardCharsets.UTF_8);
+    String lsGlobalsExpected = IOUtils.resourceToString("/text/testDbDesignForms/globals-blank.txt",
+        StandardCharsets.UTF_8);
     assertEquals(toLf(lsGlobalsExpected), toLf(subform.getLotusScriptGlobals()));
   }
 
@@ -953,7 +960,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
   public void testComputedTargetSubform() throws IOException {
     DbDesign design = this.database.getDesign();
     Subform subform = design.getSubform("Computed Target").get();
-    
+
     assertFalse(subform.isIncludeInInsertSubformDialog());
     assertTrue(subform.isIncludeInNewFormDialog());
     assertFalse(subform.isRenderPassThroughHtmlInClient());
@@ -964,12 +971,13 @@ public class TestDbDesignForms extends AbstractDesignTest {
   public void testInherForm() throws IOException {
     DbDesign design = this.database.getDesign();
     Form form = design.getForm("Test Inher").get();
-    
+
     Map<String, String> ls = form.getFieldLotusScript();
     assertEquals(Collections.singleton("SomeField"), ls.keySet());
-    String expected = IOUtils.resourceToString("/text/testDbDesignForms/inherSomeField.txt", StandardCharsets.UTF_8);
+    String expected = IOUtils.resourceToString("/text/testDbDesignForms/inherSomeField.txt",
+        StandardCharsets.UTF_8);
     assertEquals(toLf(expected), toLf(ls.get("SomeField")));
-    
+
     {
       List<CDResource> stylesheets = form.getIncludedStyleSheets();
       assertEquals(1, stylesheets.size());
@@ -981,11 +989,12 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertEquals("@StatusBar(\"I am webqueryopen\")", form.getWebQueryOpenFormula().get());
     assertEquals("@StatusBar(\"I am webquerysave\")", form.getWebQuerySaveFormula().get());
     assertEquals("\"I am target frame\"", form.getTargetFrameFormula().get());
-    
+
     Map<EventId, String> formulas = form.getFormulaEvents();
     assertEquals("@StatusBar(\"I am queryopen\")", formulas.get(EventId.CLIENT_FORM_QUERYOPEN));
     assertEquals("@StatusBar(\"I am postopen\")", formulas.get(EventId.CLIENT_FORM_POSTOPEN));
-    assertEquals("@StatusBar(\"I am querymodechange\")", formulas.get(EventId.CLIENT_FORM_QUERYMODE));
+    assertEquals("@StatusBar(\"I am querymodechange\")",
+        formulas.get(EventId.CLIENT_FORM_QUERYMODE));
     assertEquals("@StatusBar(\"I am postmodechange\")", formulas.get(EventId.CLIENT_FORM_POSTMODE));
     assertEquals("@StatusBar(\"I am queryrecalc\")", formulas.get(EventId.CLIENT_FORM_QUERYRECALC));
     assertEquals("@StatusBar(\"I am postrecalc\")", formulas.get(EventId.CLIENT_FORM_POSTRECALC));
@@ -996,93 +1005,97 @@ public class TestDbDesignForms extends AbstractDesignTest {
     assertEquals("@StatusBar(\"I am queryclose\")", formulas.get(EventId.CLIENT_FORM_QUERYCLOSE));
     assertEquals("@StatusBar(\"I am onsize\")", formulas.get(EventId.CLIENT_FORM_ONSIZE));
   }
-  
+
   @ParameterizedTest
   @ValueSource(strings = {
-    "pernames.ntf",
-    "bookmark.ntf",
-    "log.ntf",
-    "mailbox.ntf",
-    "roamingdata.ntf",
-    "autosave.ntf",
-    "doclbs7.ntf",
-    "headline.ntf",
-    "busytime.ntf"
+      "pernames.ntf",
+      "bookmark.ntf",
+      "log.ntf",
+      "mailbox.ntf",
+      "roamingdata.ntf",
+      "autosave.ntf",
+      "doclbs7.ntf",
+      "headline.ntf",
+      "busytime.ntf"
   })
   public void testStockFormUnknownRecords(String dbName) {
     Set<RecordType> types = new HashSet<>();
     Database names = getClient().openDatabase(dbName);
     names.getDesign()
-      .getForms()
-      .map(Form::getBody)
-      .flatMap(List::stream)
-      .forEach(rec -> {
-        short type = 0;
-        if(rec instanceof GenericBSIGRecord) {
-          type = ((RichTextRecord<?>)rec).getTypeValue();
-        } else if(rec instanceof GenericWSIGRecord) {
-          type = ((RichTextRecord<?>)rec).getTypeValue();
-        } else if(rec instanceof GenericLSIGRecord) {
-          type = ((RichTextRecord<?>)rec).getTypeValue();
-        }
-        if(type != 0) {
-          RecordType rtype = null;
-          rtype = RecordType.getRecordTypeForConstant(type, Area.TYPE_COMPOSITE);
-          if(rtype != null) {
-            types.add(rtype);
-          } else {
-            System.out.println("Unable to locate rich text RecordType value for " + type + "; candidates are " + RecordType.getRecordTypesForConstant(type));
+        .getForms()
+        .map(Form::getBody)
+        .flatMap(List::stream)
+        .forEach(rec -> {
+          short type = 0;
+          if (rec instanceof GenericBSIGRecord) {
+            type = ((RichTextRecord<?>) rec).getTypeValue();
+          } else if (rec instanceof GenericWSIGRecord) {
+            type = ((RichTextRecord<?>) rec).getTypeValue();
+          } else if (rec instanceof GenericLSIGRecord) {
+            type = ((RichTextRecord<?>) rec).getTypeValue();
           }
-        }
-      });
-    
-    if(!types.isEmpty()) {
+          if (type != 0) {
+            RecordType rtype = null;
+            rtype = RecordType.getRecordTypeForConstant(type, Area.TYPE_COMPOSITE);
+            if (rtype != null) {
+              types.add(rtype);
+            } else {
+              System.out.println("Unable to locate rich text RecordType value for " + type
+                  + "; candidates are " + RecordType.getRecordTypesForConstant(type));
+            }
+          }
+        });
+
+    if (!types.isEmpty()) {
       System.out.println("Encountered unimplemented CD record types: " + types);
     }
   }
-  
+
   @Test
   public void testImportedFormsUnknownRecords() {
     Set<RecordType> types = new HashSet<>();
     database.getDesign()
-      .getForms()
-      .map(Form::getBody)
-      .flatMap(List::stream)
-      .forEach(rec -> {
-        short type = 0;
-        if(rec instanceof GenericBSIGRecord) {
-          type = ((RichTextRecord<?>)rec).getTypeValue();
-        } else if(rec instanceof GenericWSIGRecord) {
-          type = ((RichTextRecord<?>)rec).getTypeValue();
-        } else if(rec instanceof GenericLSIGRecord) {
-          type = ((RichTextRecord<?>)rec).getTypeValue();
-        }
-        if(type != 0) {
-          RecordType rtype = null;
-          rtype = RecordType.getRecordTypeForConstant(type, Area.TYPE_COMPOSITE);
-          if(rtype != null) {
-            types.add(rtype);
-          } else {
-            System.out.println("Unable to locate rich text RecordType value for " + type + "; candidates are " + RecordType.getRecordTypesForConstant(type));
+        .getForms()
+        .map(Form::getBody)
+        .flatMap(List::stream)
+        .forEach(rec -> {
+          short type = 0;
+          if (rec instanceof GenericBSIGRecord) {
+            type = ((RichTextRecord<?>) rec).getTypeValue();
+          } else if (rec instanceof GenericWSIGRecord) {
+            type = ((RichTextRecord<?>) rec).getTypeValue();
+          } else if (rec instanceof GenericLSIGRecord) {
+            type = ((RichTextRecord<?>) rec).getTypeValue();
           }
-        }
-      });
-    
-    if(!types.isEmpty()) {
+          if (type != 0) {
+            RecordType rtype = null;
+            rtype = RecordType.getRecordTypeForConstant(type, Area.TYPE_COMPOSITE);
+            if (rtype != null) {
+              types.add(rtype);
+            } else {
+              System.out.println("Unable to locate rich text RecordType value for " + type
+                  + "; candidates are " + RecordType.getRecordTypesForConstant(type));
+            }
+          }
+        });
+
+    if (!types.isEmpty()) {
       System.out.println("Encountered unimplemented CD record types: " + types);
     }
   }
-  
+
   public static class FolderNSFsArgumentsProvider implements ArgumentsProvider {
     @Override
     public Stream<? extends Arguments> provideArguments(ExtensionContext context) throws Exception {
       String formFolder = System.getenv(ENV_DBDESIGN_FOLDER);
       Path dir = Paths.get(formFolder);
-      return Files.find(dir, Integer.MAX_VALUE, (path, attr) -> path.getFileName().toString().toLowerCase().endsWith(".nsf"))
-        .map(Arguments::of);
+      return Files
+          .find(dir, Integer.MAX_VALUE,
+              (path, attr) -> path.getFileName().toString().toLowerCase().endsWith(".nsf"))
+          .map(Arguments::of);
     }
   }
-  
+
   @ParameterizedTest
   @EnabledIfEnvironmentVariable(named = ENV_DBDESIGN_FOLDER, matches = ".+")
   @ArgumentsSource(FolderNSFsArgumentsProvider.class)
@@ -1090,139 +1103,144 @@ public class TestDbDesignForms extends AbstractDesignTest {
     Set<RecordType> types = new HashSet<>();
     Database db = getClient().openDatabase("", nsfPath.toString());
     db.getDesign()
-      .getForms()
-      .map(Form::getBody)
-      .flatMap(List::stream)
-      .forEach(rec -> {
-        short type = 0;
-        if(rec instanceof GenericBSIGRecord) {
-          type = ((RichTextRecord<?>)rec).getTypeValue();
-        } else if(rec instanceof GenericWSIGRecord) {
-          type = ((RichTextRecord<?>)rec).getTypeValue();
-        } else if(rec instanceof GenericLSIGRecord) {
-          type = ((RichTextRecord<?>)rec).getTypeValue();
-        }
-        if(type != 0) {
-          RecordType rtype = null;
-          rtype = RecordType.getRecordTypeForConstant(type, Area.TYPE_COMPOSITE);
-          if(rtype != null) {
-            types.add(rtype);
-          } else {
-            System.out.println("Unable to locate rich text RecordType value for " + type + "; candidates are " + RecordType.getRecordTypesForConstant(type));
+        .getForms()
+        .map(Form::getBody)
+        .flatMap(List::stream)
+        .forEach(rec -> {
+          short type = 0;
+          if (rec instanceof GenericBSIGRecord) {
+            type = ((RichTextRecord<?>) rec).getTypeValue();
+          } else if (rec instanceof GenericWSIGRecord) {
+            type = ((RichTextRecord<?>) rec).getTypeValue();
+          } else if (rec instanceof GenericLSIGRecord) {
+            type = ((RichTextRecord<?>) rec).getTypeValue();
           }
-        }
-      });
-    
-    if(!types.isEmpty()) {
-      System.out.println("Encountered unimplemented CD record types: " + types + " (" + nsfPath + ")");
+          if (type != 0) {
+            RecordType rtype = null;
+            rtype = RecordType.getRecordTypeForConstant(type, Area.TYPE_COMPOSITE);
+            if (rtype != null) {
+              types.add(rtype);
+            } else {
+              System.out.println("Unable to locate rich text RecordType value for " + type
+                  + "; candidates are " + RecordType.getRecordTypesForConstant(type));
+            }
+          }
+        });
+
+    if (!types.isEmpty()) {
+      System.out
+          .println("Encountered unimplemented CD record types: " + types + " (" + nsfPath + ")");
     }
   }
-  
+
   @ParameterizedTest
   @EnabledIfEnvironmentVariable(named = ENV_DBDESIGN_FOLDER, matches = ".+")
   @ArgumentsSource(FolderNSFsArgumentsProvider.class)
   public void testConfiguredDirectoryDocsUnknownRecords(Path nsfPath) {
     Set<RecordType> types = new HashSet<>();
     Database db = getClient().openDatabase("", nsfPath.toString());
-    db.queryFormula("@All", null, EnumSet.noneOf(SearchFlag.class), null, EnumSet.of(DocumentClass.DOCUMENT))
-      .getDocuments()
-      .forEach(doc -> {
-        doc.allItems()
-          .filter(item -> item.getType() == ItemDataType.TYPE_COMPOSITE)
-          .map(item -> item.getValueRichText())
-          .flatMap(List::stream)
-          .forEach(rec -> {
-            short type = 0;
-            if(rec instanceof GenericBSIGRecord) {
-              type = ((RichTextRecord<?>)rec).getTypeValue();
-            } else if(rec instanceof GenericWSIGRecord) {
-              type = ((RichTextRecord<?>)rec).getTypeValue();
-            } else if(rec instanceof GenericLSIGRecord) {
-              type = ((RichTextRecord<?>)rec).getTypeValue();
-            }
-            if(type != 0) {
-              RecordType rtype = null;
-              rtype = RecordType.getRecordTypeForConstant(type, Area.TYPE_COMPOSITE);
-              if(rtype != null) {
-                types.add(rtype);
-              } else {
-                System.out.println("Unable to locate rich text RecordType value for " + type + "; candidates are " + RecordType.getRecordTypesForConstant(type));
-              }
-            }
-          });
-      });
-    
-    if(!types.isEmpty()) {
-      System.out.println("Encountered unimplemented CD record types: " + types + " (" + nsfPath + ")");
+    db.queryFormula("@All", null, EnumSet.noneOf(SearchFlag.class), null,
+        EnumSet.of(DocumentClass.DOCUMENT))
+        .getDocuments()
+        .forEach(doc -> {
+          doc.allItems()
+              .filter(item -> item.getType() == ItemDataType.TYPE_COMPOSITE)
+              .map(item -> item.getValueRichText())
+              .flatMap(List::stream)
+              .forEach(rec -> {
+                short type = 0;
+                if (rec instanceof GenericBSIGRecord) {
+                  type = ((RichTextRecord<?>) rec).getTypeValue();
+                } else if (rec instanceof GenericWSIGRecord) {
+                  type = ((RichTextRecord<?>) rec).getTypeValue();
+                } else if (rec instanceof GenericLSIGRecord) {
+                  type = ((RichTextRecord<?>) rec).getTypeValue();
+                }
+                if (type != 0) {
+                  RecordType rtype = null;
+                  rtype = RecordType.getRecordTypeForConstant(type, Area.TYPE_COMPOSITE);
+                  if (rtype != null) {
+                    types.add(rtype);
+                  } else {
+                    System.out.println("Unable to locate rich text RecordType value for " + type
+                        + "; candidates are " + RecordType.getRecordTypesForConstant(type));
+                  }
+                }
+              });
+        });
+
+    if (!types.isEmpty()) {
+      System.out
+          .println("Encountered unimplemented CD record types: " + types + " (" + nsfPath + ")");
     }
   }
-  
+
   @Test
   public void testActivityReport() {
     DbDesign design = database.getDesign();
-    
+
     Form form = design.getForm("Activity Report").get();
-    
+
     List<?> body = form.getBody();
-    
+
     CDMacMetaHeader header = extract(body, 0, CDMacMetaHeader.class);
     assertEquals(640, header.getOriginalDisplaySize().getWidth());
     assertEquals(640, header.getOriginalDisplaySize().getHeight());
     assertEquals(2324, header.getMetafileSize());
     assertEquals(1, header.getSegCount());
-    
+
     CDMacMetaSegment seg = extract(body, 0, CDMacMetaSegment.class);
     assertEquals(2324, seg.getDataSize());
     assertEquals(2324, seg.getSegSize());
   }
-  
+
   @Test
   public void testLotusComponentsForm() {
     DbDesign design = database.getDesign();
-    
+
     Form form = design.getForm("Lotus Components Form").get();
-    
+
     List<?> body = form.getBody();
-    
+
     // The form contains several embedded Lotus Components objects,
-    //   the first of which has a single Win-meta header/segment pair
+    // the first of which has a single Win-meta header/segment pair
     {
       List<?> seg = extractOle(body, 0);
-      
+
       CDOLEBegin begin = seg.stream()
-        .filter(CDOLEBegin.class::isInstance)
-        .map(CDOLEBegin.class::cast)
-        .findFirst()
-        .get();
+          .filter(CDOLEBegin.class::isInstance)
+          .map(CDOLEBegin.class::cast)
+          .findFirst()
+          .get();
       assertEquals(CDOLEBegin.Version.VERSION2, begin.getVersion().get());
       assertEquals(EnumSet.of(CDOLEBegin.Flag.OBJECT), begin.getFlags());
       assertEquals(CDOLEBegin.ClipFormat.METAFILE, begin.getClipFormat().get());
       assertEquals("EXT25566", begin.getAttachmentName());
       assertEquals("Lotus.Draw.1", begin.getClassName());
       assertEquals("", begin.getTemplateName());
-      
+
       CDWinMetaHeader header = seg.stream()
-        .filter(CDWinMetaHeader.class::isInstance)
-        .map(CDWinMetaHeader.class::cast)
-        .findFirst()
-        .get();
+          .filter(CDWinMetaHeader.class::isInstance)
+          .map(CDWinMetaHeader.class::cast)
+          .findFirst()
+          .get();
       assertEquals(CDWinMetaHeader.MappingMode.ANISOTROPIC, header.getMappingMode().get());
-      assertEquals((short)10583, header.getXExtent());
-      assertEquals((short)7938, header.getYExtent());
+      assertEquals((short) 10583, header.getXExtent());
+      assertEquals((short) 7938, header.getYExtent());
       assertEquals(6000, header.getOriginalDisplaySize().getWidth());
       assertEquals(4500, header.getOriginalDisplaySize().getHeight());
       assertEquals(3548, header.getMetafileSize());
       assertEquals(1, header.getSegCount());
-      
+
       CDWinMetaSegment segment = seg.stream()
-        .filter(CDWinMetaSegment.class::isInstance)
-        .map(CDWinMetaSegment.class::cast)
-        .findFirst()
-        .get();
+          .filter(CDWinMetaSegment.class::isInstance)
+          .map(CDWinMetaSegment.class::cast)
+          .findFirst()
+          .get();
       assertEquals(3548, segment.getDataSize());
       assertEquals(3548, segment.getSegSize());
     }
-    
+
     // The file viewer has some Notes/FX bindings
     {
       List<?> seg = extractOle(body, 2);
@@ -1231,209 +1249,233 @@ public class TestDbDesignForms extends AbstractDesignTest {
           .map(CDOLEBegin.class::cast)
           .findFirst()
           .get();
-        assertEquals(CDOLEBegin.Version.VERSION2, begin.getVersion().get());
-        assertEquals(EnumSet.of(CDOLEBegin.Flag.OBJECT), begin.getFlags());
-        assertEquals(CDOLEBegin.ClipFormat.METAFILE, begin.getClipFormat().get());
-        assertEquals("EXT05342", begin.getAttachmentName());
-        assertEquals("Lotus.FileViewer.1", begin.getClassName());
-        assertEquals("", begin.getTemplateName());
+      assertEquals(CDOLEBegin.Version.VERSION2, begin.getVersion().get());
+      assertEquals(EnumSet.of(CDOLEBegin.Flag.OBJECT), begin.getFlags());
+      assertEquals(CDOLEBegin.ClipFormat.METAFILE, begin.getClipFormat().get());
+      assertEquals("EXT05342", begin.getAttachmentName());
+      assertEquals("Lotus.FileViewer.1", begin.getClassName());
+      assertEquals("", begin.getTemplateName());
     }
-    
+
     // There are four $OLEOBJINFO fields
     AtomicInteger index = new AtomicInteger(0);
     form.getDocument().forEachItem(DesignConstants.OLE_OBJECT_ITEM, (item, loop) -> {
-      switch(index.get()) {
-      case 0: {
-        CDOLEObjectInfo info = (CDOLEObjectInfo)item.getValueRichText().get(0);
-        assertEquals(CDOLEObjectInfo.StorageFormat.STRUCT_STORAGE, info.getStorageFormat().get());
-        assertEquals(DDEFormat.METAFILE, info.getDisplayFormat().get());
-        assertEquals(EnumSet.of(CDOLEObjectInfo.Flag.CONTROL, CDOLEObjectInfo.Flag.UPDATEFROMDOCUMENT), info.getFlags());
-        assertEquals((short)0, info.getStorageFormatAppearedIn());
-        assertEquals("EXT25566", info.getFileObjectName());
-        assertEquals("Lotus Draw/Diagram Component", info.getDescription());
-        assertEquals("$Body", info.getFieldName());
-        assertEquals("", info.getTextIndexObjectName());
-        assertEquals("", info.getHtmlData());
-        assertArrayEquals(new byte[0], info.getAssociatedFileData());
-        break;
-      }
-      case 1: {
-        CDOLEObjectInfo info = (CDOLEObjectInfo)item.getValueRichText().get(0);
-        assertEquals(CDOLEObjectInfo.StorageFormat.STRUCT_STORAGE, info.getStorageFormat().get());
-        assertEquals(DDEFormat.METAFILE, info.getDisplayFormat().get());
-        assertEquals(EnumSet.of(CDOLEObjectInfo.Flag.CONTROL, CDOLEObjectInfo.Flag.UPDATEFROMDOCUMENT), info.getFlags());
-        assertEquals((short)0, info.getStorageFormatAppearedIn());
-        assertEquals("EXT36062", info.getFileObjectName());
-        assertEquals("Lotus Comment Component", info.getDescription());
-        assertEquals("$Body", info.getFieldName());
-        assertEquals("", info.getTextIndexObjectName());
-        assertEquals("", info.getHtmlData());
-        assertArrayEquals(new byte[0], info.getAssociatedFileData());
-        break;
-      }
-      case 2: {
-        CDOLEObjectInfo info = (CDOLEObjectInfo)item.getValueRichText().get(0);
-        assertEquals(CDOLEObjectInfo.StorageFormat.STRUCT_STORAGE, info.getStorageFormat().get());
-        assertEquals(DDEFormat.METAFILE, info.getDisplayFormat().get());
-        assertEquals(EnumSet.of(CDOLEObjectInfo.Flag.CONTROL, CDOLEObjectInfo.Flag.UPDATEFROMDOCUMENT), info.getFlags());
-        assertEquals((short)0, info.getStorageFormatAppearedIn());
-        assertEquals("EXT05342", info.getFileObjectName());
-        assertEquals("Lotus File Viewer Component", info.getDescription());
-        assertEquals("$Body", info.getFieldName());
-        assertEquals("", info.getTextIndexObjectName());
-        assertEquals("", info.getHtmlData());
-        assertArrayEquals(new byte[0], info.getAssociatedFileData());
-        break;
-      }
-      case 3: {
-        CDOLEObjectInfo info = (CDOLEObjectInfo)item.getValueRichText().get(0);
-        assertEquals(CDOLEObjectInfo.StorageFormat.STRUCT_STORAGE, info.getStorageFormat().get());
-        assertEquals(DDEFormat.METAFILE, info.getDisplayFormat().get());
-        assertEquals(EnumSet.of(CDOLEObjectInfo.Flag.CONTROL, CDOLEObjectInfo.Flag.UPDATEFROMDOCUMENT), info.getFlags());
-        assertEquals((short)0, info.getStorageFormatAppearedIn());
-        assertEquals("EXT60758", info.getFileObjectName());
-        assertEquals("Lotus Spreadsheet Component", info.getDescription());
-        assertEquals("$Body", info.getFieldName());
-        assertEquals("", info.getTextIndexObjectName());
-        assertEquals("", info.getHtmlData());
-        assertArrayEquals(new byte[0], info.getAssociatedFileData());
-        break;
-      }
-      default:
-        throw new IllegalStateException("Encounted unexpected OLE item index " + index.get());
+      switch (index.get()) {
+        case 0: {
+          CDOLEObjectInfo info = (CDOLEObjectInfo) item.getValueRichText().get(0);
+          assertEquals(CDOLEObjectInfo.StorageFormat.STRUCT_STORAGE, info.getStorageFormat().get());
+          assertEquals(DDEFormat.METAFILE, info.getDisplayFormat().get());
+          assertEquals(
+              EnumSet.of(CDOLEObjectInfo.Flag.CONTROL, CDOLEObjectInfo.Flag.UPDATEFROMDOCUMENT),
+              info.getFlags());
+          assertEquals((short) 0, info.getStorageFormatAppearedIn());
+          assertEquals("EXT25566", info.getFileObjectName());
+          assertEquals("Lotus Draw/Diagram Component", info.getDescription());
+          assertEquals("$Body", info.getFieldName());
+          assertEquals("", info.getTextIndexObjectName());
+          assertEquals("", info.getHtmlData());
+          assertArrayEquals(new byte[0], info.getAssociatedFileData());
+          break;
+        }
+        case 1: {
+          CDOLEObjectInfo info = (CDOLEObjectInfo) item.getValueRichText().get(0);
+          assertEquals(CDOLEObjectInfo.StorageFormat.STRUCT_STORAGE, info.getStorageFormat().get());
+          assertEquals(DDEFormat.METAFILE, info.getDisplayFormat().get());
+          assertEquals(
+              EnumSet.of(CDOLEObjectInfo.Flag.CONTROL, CDOLEObjectInfo.Flag.UPDATEFROMDOCUMENT),
+              info.getFlags());
+          assertEquals((short) 0, info.getStorageFormatAppearedIn());
+          assertEquals("EXT36062", info.getFileObjectName());
+          assertEquals("Lotus Comment Component", info.getDescription());
+          assertEquals("$Body", info.getFieldName());
+          assertEquals("", info.getTextIndexObjectName());
+          assertEquals("", info.getHtmlData());
+          assertArrayEquals(new byte[0], info.getAssociatedFileData());
+          break;
+        }
+        case 2: {
+          CDOLEObjectInfo info = (CDOLEObjectInfo) item.getValueRichText().get(0);
+          assertEquals(CDOLEObjectInfo.StorageFormat.STRUCT_STORAGE, info.getStorageFormat().get());
+          assertEquals(DDEFormat.METAFILE, info.getDisplayFormat().get());
+          assertEquals(
+              EnumSet.of(CDOLEObjectInfo.Flag.CONTROL, CDOLEObjectInfo.Flag.UPDATEFROMDOCUMENT),
+              info.getFlags());
+          assertEquals((short) 0, info.getStorageFormatAppearedIn());
+          assertEquals("EXT05342", info.getFileObjectName());
+          assertEquals("Lotus File Viewer Component", info.getDescription());
+          assertEquals("$Body", info.getFieldName());
+          assertEquals("", info.getTextIndexObjectName());
+          assertEquals("", info.getHtmlData());
+          assertArrayEquals(new byte[0], info.getAssociatedFileData());
+          break;
+        }
+        case 3: {
+          CDOLEObjectInfo info = (CDOLEObjectInfo) item.getValueRichText().get(0);
+          assertEquals(CDOLEObjectInfo.StorageFormat.STRUCT_STORAGE, info.getStorageFormat().get());
+          assertEquals(DDEFormat.METAFILE, info.getDisplayFormat().get());
+          assertEquals(
+              EnumSet.of(CDOLEObjectInfo.Flag.CONTROL, CDOLEObjectInfo.Flag.UPDATEFROMDOCUMENT),
+              info.getFlags());
+          assertEquals((short) 0, info.getStorageFormatAppearedIn());
+          assertEquals("EXT60758", info.getFileObjectName());
+          assertEquals("Lotus Spreadsheet Component", info.getDescription());
+          assertEquals("$Body", info.getFieldName());
+          assertEquals("", info.getTextIndexObjectName());
+          assertEquals("", info.getHtmlData());
+          assertArrayEquals(new byte[0], info.getAssociatedFileData());
+          break;
+        }
+        default:
+          throw new IllegalStateException("Encounted unexpected OLE item index " + index.get());
       }
       index.incrementAndGet();
     });
   }
-  
+
   @Test
   public void testTimerTable() {
     DbDesign design = database.getDesign();
-    
+
     // This test re-uses the same form as above
     Form form = design.getForm("Test LS Form").get();
-    
+
     List<?> pretable = extract(
-      form.getBody(),
-      0,
-      r -> r instanceof CDBegin && RecordType.PRETABLEBEGIN.getConstant() == ((CDBegin)r).getSignature(),
-      r -> r instanceof CDEnd && RecordType.PRETABLEBEGIN.getConstant() == ((CDEnd)r).getSignature()
-    );
+        form.getBody(),
+        0,
+        r -> r instanceof CDBegin
+            && RecordType.PRETABLEBEGIN.getConstant() == ((CDBegin) r).getSignature(),
+        r -> r instanceof CDEnd
+            && RecordType.PRETABLEBEGIN.getConstant() == ((CDEnd) r).getSignature());
     assertTrue(pretable.stream().anyMatch(CDTableDataExtension.class::isInstance));
-    
+
     List<?> table = extract(form.getBody(), 0, CDTableBegin.class, CDTableEnd.class);
     assertInstanceOf(CDTableBegin.class, table.get(0));
-    assertInstanceOf(CDTableEnd.class, table.get(table.size()-1));
-    
+    assertInstanceOf(CDTableEnd.class, table.get(table.size() - 1));
+
     // Make sure we can find out text bits
-    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("I")));
-    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("am")));
-    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("an")));
-    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("animated table")));
-    
+    assertTrue(
+        table.stream().anyMatch(r -> r instanceof CDText && ((CDText) r).getText().equals("I")));
+    assertTrue(
+        table.stream().anyMatch(r -> r instanceof CDText && ((CDText) r).getText().equals("am")));
+    assertTrue(
+        table.stream().anyMatch(r -> r instanceof CDText && ((CDText) r).getText().equals("an")));
+    assertTrue(table.stream()
+        .anyMatch(r -> r instanceof CDText && ((CDText) r).getText().equals("animated table")));
+
     CDTimerInfo timer = table.stream()
-      .filter(CDTimerInfo.class::isInstance)
-      .map(CDTimerInfo.class::cast)
-      .findFirst()
-      .get();
+        .filter(CDTimerInfo.class::isInstance)
+        .map(CDTimerInfo.class::cast)
+        .findFirst()
+        .get();
     assertEquals(2500l, timer.getInterval());
-    
+
     CDTransition trans = table.stream()
-      .filter(CDTransition.class::isInstance)
-      .map(CDTransition.class::cast)
-      .findFirst()
-      .get();
+        .filter(CDTransition.class::isInstance)
+        .map(CDTransition.class::cast)
+        .findFirst()
+        .get();
     assertEquals(CDTransition.Type.TOPTOBOTTOM_ROW, trans.getTransitionType().get());
   }
-  
+
   @Test
   public void testTabbedTable() {
     DbDesign design = database.getDesign();
-    
+
     // This test re-uses the same form as above
     Form form = design.getForm("Test LS Form").get();
-    
+
     List<?> pretable = extract(
-      form.getBody(),
-      1,
-      r -> r instanceof CDBegin && RecordType.PRETABLEBEGIN.getConstant() == ((CDBegin)r).getSignature(),
-      r -> r instanceof CDEnd && RecordType.PRETABLEBEGIN.getConstant() == ((CDEnd)r).getSignature()
-    );
+        form.getBody(),
+        1,
+        r -> r instanceof CDBegin
+            && RecordType.PRETABLEBEGIN.getConstant() == ((CDBegin) r).getSignature(),
+        r -> r instanceof CDEnd
+            && RecordType.PRETABLEBEGIN.getConstant() == ((CDEnd) r).getSignature());
     assertTrue(pretable.stream().anyMatch(CDTableDataExtension.class::isInstance));
     CDPreTableBegin pre = pretable.stream()
-      .filter(CDPreTableBegin.class::isInstance)
-      .map(CDPreTableBegin.class::cast)
-      .findFirst()
-      .get();
+        .filter(CDPreTableBegin.class::isInstance)
+        .map(CDPreTableBegin.class::cast)
+        .findFirst()
+        .get();
     assertEquals(EnumSet.of(CDPreTableBegin.Flag.SHOWTABSONLEFT), pre.getFlags());
-    
+
     List<?> table = extract(form.getBody(), 1, CDTableBegin.class, CDTableEnd.class);
     assertInstanceOf(CDTableBegin.class, table.get(0));
-    assertInstanceOf(CDTableEnd.class, table.get(table.size()-1));
-    
+    assertInstanceOf(CDTableEnd.class, table.get(table.size() - 1));
+
     // Make sure we can find out text bits
-    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("I")));
-    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("am")));
-    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("a")));
-    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("tabbed table")));
+    assertTrue(
+        table.stream().anyMatch(r -> r instanceof CDText && ((CDText) r).getText().equals("I")));
+    assertTrue(
+        table.stream().anyMatch(r -> r instanceof CDText && ((CDText) r).getText().equals("am")));
+    assertTrue(
+        table.stream().anyMatch(r -> r instanceof CDText && ((CDText) r).getText().equals("a")));
+    assertTrue(table.stream()
+        .anyMatch(r -> r instanceof CDText && ((CDText) r).getText().equals("tabbed table")));
   }
-  
+
   @Test
   public void testCaptionTable() {
     DbDesign design = database.getDesign();
-    
+
     // This test re-uses the same form as above
     Form form = design.getForm("Test LS Form").get();
-    
+
     List<?> pretable = extract(
-      form.getBody(),
-      2,
-      r -> r instanceof CDBegin && RecordType.PRETABLEBEGIN.getConstant() == ((CDBegin)r).getSignature(),
-      r -> r instanceof CDEnd && RecordType.PRETABLEBEGIN.getConstant() == ((CDEnd)r).getSignature()
-    );
+        form.getBody(),
+        2,
+        r -> r instanceof CDBegin
+            && RecordType.PRETABLEBEGIN.getConstant() == ((CDBegin) r).getSignature(),
+        r -> r instanceof CDEnd
+            && RecordType.PRETABLEBEGIN.getConstant() == ((CDEnd) r).getSignature());
     assertTrue(pretable.stream().anyMatch(CDTableDataExtension.class::isInstance));
-    
+
     List<?> table = extract(form.getBody(), 2, CDTableBegin.class, CDTableEnd.class);
     assertInstanceOf(CDTableBegin.class, table.get(0));
-    assertInstanceOf(CDTableEnd.class, table.get(table.size()-1));
-    
+    assertInstanceOf(CDTableEnd.class, table.get(table.size() - 1));
+
     // Make sure we can find out text bits
-    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("i")));
-    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("am")));
-    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("a")));
-    assertTrue(table.stream().anyMatch(r -> r instanceof CDText && ((CDText)r).getText().equals("caption table")));
+    assertTrue(
+        table.stream().anyMatch(r -> r instanceof CDText && ((CDText) r).getText().equals("i")));
+    assertTrue(
+        table.stream().anyMatch(r -> r instanceof CDText && ((CDText) r).getText().equals("am")));
+    assertTrue(
+        table.stream().anyMatch(r -> r instanceof CDText && ((CDText) r).getText().equals("a")));
+    assertTrue(table.stream()
+        .anyMatch(r -> r instanceof CDText && ((CDText) r).getText().equals("caption table")));
     CDTableLabel label = table.stream()
-      .filter(CDTableLabel.class::isInstance)
-      .map(CDTableLabel.class::cast)
-      .findFirst()
-      .get();
+        .filter(CDTableLabel.class::isInstance)
+        .map(CDTableLabel.class::cast)
+        .findFirst()
+        .get();
     assertEquals("i am caption", label.getLabel());
   }
-  
+
   @Test
   public void testJavaApplet() {
     DbDesign design = database.getDesign();
-    
+
     // This test re-uses the same form as above
     Form form = design.getForm("Test LS Form").get();
-    
+
     List<?> hotspot = extract(
-      form.getBody(),
-      0,
-      r -> r instanceof CDBegin && ((CDBegin)r).getSignature() == RecordType.V4HOTSPOTBEGIN.getConstant(),
-      r -> r instanceof CDEnd
-    );
+        form.getBody(),
+        0,
+        r -> r instanceof CDBegin
+            && ((CDBegin) r).getSignature() == RecordType.V4HOTSPOTBEGIN.getConstant(),
+        r -> r instanceof CDEnd);
     CDHotspotBegin hotspotBegin = hotspot.stream()
-      .filter(CDHotspotBegin.class::isInstance)
-      .map(CDHotspotBegin.class::cast)
-      .filter(h -> h.getHotspotType().get().equals(HotspotType.ACTIVEOBJECT))
-      .findFirst()
-      .get();
-    
+        .filter(CDHotspotBegin.class::isInstance)
+        .map(CDHotspotBegin.class::cast)
+        .filter(h -> h.getHotspotType().get().equals(HotspotType.ACTIVEOBJECT))
+        .findFirst()
+        .get();
+
     ActiveObject obj = hotspotBegin.getActiveObject().get();
     assertEquals(ActiveObject.Version.VERSION1, obj.getVersion().get());
     assertEquals(ActiveObject.Type.JAVA, obj.getObjectType().get());
-    assertEquals(EnumSet.of(ActiveObject.Flag.CORBA_APPLET, ActiveObject.Flag.NOCORBADOWNLOAD), obj.getFlags());
+    assertEquals(EnumSet.of(ActiveObject.Flag.CORBA_APPLET, ActiveObject.Flag.NOCORBADOWNLOAD),
+        obj.getFlags());
     assertEquals(ActiveObject.Unit.PIXELS, obj.getWidthUnitType().get());
     assertEquals(ActiveObject.Unit.PIXELS, obj.getHeightUnitType().get());
     assertEquals(200, obj.getWidth());
@@ -1462,42 +1504,45 @@ public class TestDbDesignForms extends AbstractDesignTest {
         assertEquals("somejar.jar", link.getLink());
       }
     }
-    
+
     {
-      CDHtmlFormula formula = (CDHtmlFormula)extract(hotspot, 0, CDHtmlFormula.class, CDHtmlFormula.class).get(0);
+      CDHtmlFormula formula =
+          (CDHtmlFormula) extract(hotspot, 0, CDHtmlFormula.class, CDHtmlFormula.class).get(0);
       assertEquals(EnumSet.of(CDHtmlFormula.Flag.ALT), formula.getFlags());
       assertEquals("\"i am alt html\"", formula.getFormula());
     }
     {
-      CDHtmlFormula formula = (CDHtmlFormula)extract(hotspot, 1, CDHtmlFormula.class, CDHtmlFormula.class).get(0);
+      CDHtmlFormula formula =
+          (CDHtmlFormula) extract(hotspot, 1, CDHtmlFormula.class, CDHtmlFormula.class).get(0);
       assertEquals(EnumSet.of(CDHtmlFormula.Flag.ATTR), formula.getFlags());
       assertEquals("\"i am html attrs\"", formula.getFormula());
     }
   }
-  
+
   @Test
   public void testLayoutRegion() {
     DbDesign design = database.getDesign();
     Form form = design.getForm("Layout Form").get();
-    
+
     List<?> body = form.getBody();
-    
+
     List<?> layout = extract(body, 0, CDLayout.class, CDLayoutEnd.class);
-    
+
     {
-      CDLayout begin = (CDLayout)layout.get(0);
+      CDLayout begin = (CDLayout) layout.get(0);
       assertEquals(1440, begin.getLeft());
       assertEquals(10681, begin.getWidth());
       assertEquals(4501, begin.getHeight());
-      assertEquals(EnumSet.of(CDLayout.Flag.SHOWBORDER, CDLayout.Flag.SHOWGRID, CDLayout.Flag.STYLE3D, CDLayout.Flag.DONTWRAP), begin.getFlags());
+      assertEquals(EnumSet.of(CDLayout.Flag.SHOWBORDER, CDLayout.Flag.SHOWGRID,
+          CDLayout.Flag.STYLE3D, CDLayout.Flag.DONTWRAP), begin.getFlags());
       assertEquals(144, begin.getGridSize());
     }
     {
       CDLayoutGraphic graphic = layout.stream()
-        .filter(CDLayoutGraphic.class::isInstance)
-        .map(CDLayoutGraphic.class::cast)
-        .findFirst()
-        .get();
+          .filter(CDLayoutGraphic.class::isInstance)
+          .map(CDLayoutGraphic.class::cast)
+          .findFirst()
+          .get();
       assertEquals(EnumSet.noneOf(CDLayoutGraphic.Flag.class), graphic.getFlags());
       ElementHeader header = graphic.getElementHeader();
       assertEquals(5820, header.getLeft());
@@ -1509,11 +1554,12 @@ public class TestDbDesignForms extends AbstractDesignTest {
     }
     {
       CDLayoutField field = layout.stream()
-        .filter(CDLayoutField.class::isInstance)
-        .map(CDLayoutField.class::cast)
-        .findFirst()
-        .get();
-      assertEquals(EnumSet.of(CDLayoutField.Flag.VSCROLL, CDLayoutField.Flag.LEFT), field.getFlags());
+          .filter(CDLayoutField.class::isInstance)
+          .map(CDLayoutField.class::cast)
+          .findFirst()
+          .get();
+      assertEquals(EnumSet.of(CDLayoutField.Flag.VSCROLL, CDLayoutField.Flag.LEFT),
+          field.getFlags());
       assertEquals(CDLayoutField.Type.TEXT, field.getFieldType().get());
       ElementHeader header = field.getElementHeader();
       assertEquals(7740, header.getLeft());
@@ -1523,11 +1569,11 @@ public class TestDbDesignForms extends AbstractDesignTest {
     }
     {
       CDLayoutButton field = layout.stream()
-        .filter(CDLayoutButton.class::isInstance)
-        .map(CDLayoutButton.class::cast)
-        .findFirst()
-        .get();
-      
+          .filter(CDLayoutButton.class::isInstance)
+          .map(CDLayoutButton.class::cast)
+          .findFirst()
+          .get();
+
       ElementHeader header = field.getElementHeader();
       assertEquals(2580, header.getLeft());
       assertEquals(2661, header.getTop());
@@ -1536,79 +1582,84 @@ public class TestDbDesignForms extends AbstractDesignTest {
     }
     {
       @SuppressWarnings("unused")
-      CDLayoutEnd end = (CDLayoutEnd)layout.get(layout.size()-1);
+      CDLayoutEnd end = (CDLayoutEnd) layout.get(layout.size() - 1);
     }
   }
-  
+
   @Test
   public void testSpanDocument() {
-    Document doc = database.queryFormula("Form='bar'", null, EnumSet.noneOf(SearchFlag.class), null, EnumSet.of(DocumentClass.DOCUMENT))
-      .getDocuments()
-      .findFirst()
-      .get();
+    Document doc = database
+        .queryFormula("Form='bar'", null, EnumSet.noneOf(SearchFlag.class), null,
+            EnumSet.of(DocumentClass.DOCUMENT))
+        .getDocuments()
+        .findFirst()
+        .get();
     RichTextRecordList body = doc.getRichTextItem("Body");
-    
+
     List<?> span = extract(
-      body,
-      0,
-      rec -> rec instanceof CDSpanRecord && ((CDSpanRecord)rec).getType().contains(RecordType.SPAN_BEGIN),
-      rec -> rec instanceof CDSpanRecord && ((CDSpanRecord)rec).getType().contains(RecordType.SPAN_END)
-    );
+        body,
+        0,
+        rec -> rec instanceof CDSpanRecord
+            && ((CDSpanRecord) rec).getType().contains(RecordType.SPAN_BEGIN),
+        rec -> rec instanceof CDSpanRecord
+            && ((CDSpanRecord) rec).getType().contains(RecordType.SPAN_END));
     {
-      CDSpanRecord begin = (CDSpanRecord)span.get(0);
+      CDSpanRecord begin = (CDSpanRecord) span.get(0);
       assertEquals(0, begin.getPropId());
     }
     {
-      CDSpanRecord end = (CDSpanRecord)span.get(span.size()-1);
+      CDSpanRecord end = (CDSpanRecord) span.get(span.size() - 1);
       assertEquals(0, end.getPropId());
     }
 
     span = extract(
-      body,
-      1,
-      rec -> rec instanceof CDSpanRecord && ((CDSpanRecord)rec).getType().contains(RecordType.SPAN_BEGIN),
-      rec -> rec instanceof CDSpanRecord && ((CDSpanRecord)rec).getType().contains(RecordType.SPAN_END)
-    );
+        body,
+        1,
+        rec -> rec instanceof CDSpanRecord
+            && ((CDSpanRecord) rec).getType().contains(RecordType.SPAN_BEGIN),
+        rec -> rec instanceof CDSpanRecord
+            && ((CDSpanRecord) rec).getType().contains(RecordType.SPAN_END));
     {
-      CDSpanRecord begin = (CDSpanRecord)span.get(0);
+      CDSpanRecord begin = (CDSpanRecord) span.get(0);
       assertEquals(1, begin.getPropId());
     }
     {
-      CDSpanRecord end = (CDSpanRecord)span.get(span.size()-1);
+      CDSpanRecord end = (CDSpanRecord) span.get(span.size() - 1);
       assertEquals(1, end.getPropId());
     }
-    
+
     // Check for the text anchor
     CDAnchor anchor = extract(body, 0, CDAnchor.class);
     assertEquals("dsfdf", anchor.getAnchorText());
-    
-    
+
+
     // Now read the text properties info
     {
-      RichTextRecordList textProperties = doc.getRichTextItem(NotesConstants.ITEM_NAME_TEXTPROPERTIES);
-      
-      CDTextPropertiesTable table = (CDTextPropertiesTable)textProperties.get(0);
+      RichTextRecordList textProperties =
+          doc.getRichTextItem(NotesConstants.ITEM_NAME_TEXTPROPERTIES);
+
+      CDTextPropertiesTable table = (CDTextPropertiesTable) textProperties.get(0);
       assertEquals(2, table.getNumberOfEntries());
-      
+
       {
-        CDTextProperty prop = (CDTextProperty)textProperties.get(1);
+        CDTextProperty prop = (CDTextProperty) textProperties.get(1);
         assertEquals(0, prop.getPropId());
         assertEquals("EN-US", prop.getLangName());
       }
       {
-        CDTextProperty prop = (CDTextProperty)textProperties.get(2);
+        CDTextProperty prop = (CDTextProperty) textProperties.get(2);
         assertEquals(1, prop.getPropId());
         assertEquals("FR-FR", prop.getLangName());
       }
     }
   }
-  
+
   @Test
   public void testOnPageButton() {
     DbDesign design = database.getDesign();
     Form form = design.getForm("Button Form").get();
     List<?> body = form.getBody();
-    
+
     {
       CDHotspotBegin button = extract(body, 0, CDHotspotBegin.class);
       assertEquals(HotspotType.BUTTON, button.getHotspotType().get());
@@ -1640,22 +1691,22 @@ public class TestDbDesignForms extends AbstractDesignTest {
     {
       CDHotspotBegin button = extract(body, 2, CDHotspotBegin.class);
       assertEquals(HotspotType.BUTTON, button.getHotspotType().get());
-      
+
       List<RichTextRecord<?>> actions = button.getActions().get();
       assertInstanceOf(CDActionHeader.class, actions.get(0));
-      CDActionModifyField field = (CDActionModifyField)actions.get(1);
+      CDActionModifyField field = (CDActionModifyField) actions.get(1);
       assertTrue(field.getFlags().contains(CDActionModifyField.Flag.REPLACE));
       assertEquals("DateComposed", field.getFieldName());
       assertEquals("1/1/2022", field.getValue());
     }
   }
-  
+
   @Test
   public void testFieldEvents() {
     DbDesign design = database.getDesign();
     Form form = design.getForm("Field Events Form").get();
     List<?> body = form.getBody();
-    
+
     List<?> field = extract(body, 0, CDBegin.class, CDEnd.class);
     {
       CDExt2Field ext2Field = extract(field, 0, CDExt2Field.class);
@@ -1667,7 +1718,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals("", extField.getEntryDBName());
       assertEquals("Action View", extField.getEntryViewName());
       assertEquals("\"I am HTML attributes\"", extField.getHtmlAttributesFormula());
-      
+
       extField.setHtmlAttributesFormula("\"I am new HTML attributes\"");
       assertEquals("", extField.getEntryDBName());
       assertEquals("Action View", extField.getEntryViewName());
@@ -1684,91 +1735,106 @@ public class TestDbDesignForms extends AbstractDesignTest {
       CDEvent event = extract(field, 0, CDEvent.class);
       assertEquals(EventId.ONBLUR, event.getEventType().get());
       CDBlobPart blob = extract(field, 0, CDBlobPart.class);
-      assertEquals("alert(\"I am web onBlur\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+      assertEquals("alert(\"I am web onBlur\")",
+          StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 1, CDEvent.class);
       assertEquals(EventId.ONCHANGE, event.getEventType().get());
       CDBlobPart blob = extract(field, 1, CDBlobPart.class);
-      assertEquals("alert(\"I am common onChange\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+      assertEquals("alert(\"I am common onChange\")",
+          StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 2, CDEvent.class);
       assertEquals(EventId.ONCLICK, event.getEventType().get());
       CDBlobPart blob = extract(field, 2, CDBlobPart.class);
-      assertEquals("alert(\"I am web onClick\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+      assertEquals("alert(\"I am web onClick\")",
+          StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 3, CDEvent.class);
       assertEquals(EventId.ONDBLCLICK, event.getEventType().get());
       CDBlobPart blob = extract(field, 3, CDBlobPart.class);
-      assertEquals("alert(\"I am web onDblClick\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+      assertEquals("alert(\"I am web onDblClick\")",
+          StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 4, CDEvent.class);
       assertEquals(EventId.ONFOCUS, event.getEventType().get());
       CDBlobPart blob = extract(field, 4, CDBlobPart.class);
-      assertEquals("alert(\"I am web onFocus\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+      assertEquals("alert(\"I am web onFocus\")",
+          StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 5, CDEvent.class);
       assertEquals(EventId.ONKEYDOWN, event.getEventType().get());
       CDBlobPart blob = extract(field, 5, CDBlobPart.class);
-      assertEquals("alert(\"I am web onKeyDown\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+      assertEquals("alert(\"I am web onKeyDown\")",
+          StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 6, CDEvent.class);
       assertEquals(EventId.ONKEYPRESS, event.getEventType().get());
       CDBlobPart blob = extract(field, 6, CDBlobPart.class);
-      assertEquals("alert(\"I am web onKeyPress\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+      assertEquals("alert(\"I am web onKeyPress\")",
+          StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 7, CDEvent.class);
       assertEquals(EventId.ONKEYUP, event.getEventType().get());
       CDBlobPart blob = extract(field, 7, CDBlobPart.class);
-      assertEquals("alert(\"I am web onKeyUp\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+      assertEquals("alert(\"I am web onKeyUp\")",
+          StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 8, CDEvent.class);
       assertEquals(EventId.ONMOUSEDOWN, event.getEventType().get());
       CDBlobPart blob = extract(field, 8, CDBlobPart.class);
-      assertEquals("alert(\"I am web onMouseDown\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+      assertEquals("alert(\"I am web onMouseDown\")",
+          StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 9, CDEvent.class);
       assertEquals(EventId.ONMOUSEMOVE, event.getEventType().get());
       CDBlobPart blob = extract(field, 9, CDBlobPart.class);
-      assertEquals("alert(\"I am web onMouseMove\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+      assertEquals("alert(\"I am web onMouseMove\")",
+          StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 10, CDEvent.class);
       assertEquals(EventId.ONMOUSEOUT, event.getEventType().get());
       CDBlobPart blob = extract(field, 10, CDBlobPart.class);
-      assertEquals("alert(\"I am web onMouseOut\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+      assertEquals("alert(\"I am web onMouseOut\")",
+          StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 11, CDEvent.class);
       assertEquals(EventId.ONMOUSEOVER, event.getEventType().get());
       CDBlobPart blob = extract(field, 11, CDBlobPart.class);
-      assertEquals("alert(\"I am web onMouseOver\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+      assertEquals("alert(\"I am web onMouseOver\")",
+          StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 12, CDEvent.class);
       assertEquals(EventId.ONMOUSEUP, event.getEventType().get());
       CDBlobPart blob = extract(field, 12, CDBlobPart.class);
-      assertEquals("alert(\"I am web onMouseUp\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+      assertEquals("alert(\"I am web onMouseUp\")",
+          StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 13, CDEvent.class);
       assertEquals(EventId.ONSELECT, event.getEventType().get());
       CDBlobPart blob = extract(field, 13, CDBlobPart.class);
-      assertEquals("alert(\"I am web onSelect\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+      assertEquals("alert(\"I am web onSelect\")",
+          StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEvent event = extract(field, 14, CDEvent.class);
       assertEquals(EventId.ONFOCUS, event.getEventType().get());
       CDBlobPart blob = extract(field, 14, CDBlobPart.class);
-      assertEquals("alert(\"I am client onFocus\")", StructureSupport.readLmbcsValue(blob.getBlobPartData()));
+      assertEquals("alert(\"I am client onFocus\")",
+          StructureSupport.readLmbcsValue(blob.getBlobPartData()));
     }
     {
       CDEventEntry entry = extract(field, 0, CDEventEntry.class);
@@ -1798,7 +1864,7 @@ public class TestDbDesignForms extends AbstractDesignTest {
       assertEquals(EventId.ONFOCUS, entry.getHtmlEventId().get());
     }
   }
-  
+
   /**
    * Tests reading the forms from sample.nsf to ensure that the early-exit loop
    * in RichTextUtil allows for still reading expected actions
@@ -1808,11 +1874,11 @@ public class TestDbDesignForms extends AbstractDesignTest {
     withResourceDb("/nsf/sample.nsf", database -> {
       Form form = database.getDesign().getForm("FamilyInformation").get();
       List<CDHotspotBegin> buttons = form.getBody().stream()
-        .filter(CDHotspotBegin.class::isInstance)
-        .map(CDHotspotBegin.class::cast)
-        .filter(hotspot -> hotspot.getFlags().contains(CDHotspotBegin.Flag.ACTION))
-        .collect(Collectors.toList());
-      
+          .filter(CDHotspotBegin.class::isInstance)
+          .map(CDHotspotBegin.class::cast)
+          .filter(hotspot -> hotspot.getFlags().contains(CDHotspotBegin.Flag.ACTION))
+          .collect(Collectors.toList());
+
       {
         CDHotspotBegin button = buttons.get(0);
         List<RichTextRecord<?>> actions = button.getActions().get();
@@ -1827,17 +1893,17 @@ public class TestDbDesignForms extends AbstractDesignTest {
         assertInstanceOf(CDActionHeader.class, actions.get(0));
         assertInstanceOf(CDActionSendMail.class, actions.get(1));
       }
-      
+
     });
   }
-  
+
   @Test
   public void testDbDesignComputedFields() throws Exception {
     withResourceDxl("/dxl/testDbDesignForms", database -> {
       Form form = database.getDesign().getForm("Computed When Composed").get();
-      
+
       List<FormField> fields = form.getFields();
-      
+
       {
         FormField field = getField(fields, "NormalField");
         assertEquals(FormField.Kind.EDITABLE, field.getKind());
@@ -1856,14 +1922,14 @@ public class TestDbDesignForms extends AbstractDesignTest {
       }
     });
   }
-  
+
   @Test
   public void testFieldTypes() throws Exception {
     withResourceDxl("/dxl/testDbDesignForms", database -> {
       Form form = database.getDesign().getForm("Field Types Form").get();
-      
+
       List<FormField> fields = form.getFields();
-      
+
       {
         FormField field = getField(fields, "Text");
         assertEquals(FormField.Type.TEXT, field.getDisplayType());
@@ -1938,15 +2004,15 @@ public class TestDbDesignForms extends AbstractDesignTest {
       }
     });
   }
-  
+
   // *******************************************************************************
   // * Internal utility methods
   // *******************************************************************************
-  
+
   private List<?> extractOle(List<?> body, int index) {
     return extract(body, index, CDOLEBegin.class, CDOLEEnd.class);
   }
-  
+
   private FormField getField(List<FormField> fields, String fieldName) {
     return fields.stream()
         .filter(f -> fieldName.equals(f.getName()))

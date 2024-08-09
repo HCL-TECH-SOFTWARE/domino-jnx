@@ -1,51 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>com.hcl.domino</groupId>
-		<artifactId>domino-jnx</artifactId>
-		<version>1.41.0</version>
-	</parent>
-	<artifactId>domino-jnx-console</artifactId>
-	<name>HCL Domino API Server Controller Connector</name>
-
-	<dependencies>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>domino-jnx-api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-
-				<configuration>
-					<instructions>
-						<Bundle-SymbolicName>com.hcl.domino.jnx.console</Bundle-SymbolicName>
-						<Automatic-Module-Name>com.hcl.domino.jnx.console</Automatic-Module-Name>
-					</instructions>
-				</configuration>
-
-				<executions>
-					<execution>
-						<id>bundle-manifest</id>
-						<phase>process-classes</phase>
-						<goals>
-							<goal>manifest</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-	</build>
+<project
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"
+  xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.hcl.domino</groupId>
+    <artifactId>domino-jnx</artifactId>
+    <version>1.42.0</version>
+  </parent>
+  <artifactId>domino-jnx-console</artifactId>
+  <name>HCL Domino API Server Controller Connector</name>
+  <properties>
+    <jar.finalName>${project.artifactId}-${project.version}</jar.finalName>
+    <original.artifact.id>domino-jnx-console</original.artifact.id>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>domino-jnx-api</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <build>
+    <finalName>${jar.finalName}</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.felix</groupId>
+        <artifactId>maven-bundle-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>bundle-manifest</id>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>manifest</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <instructions>
+            <Bundle-SymbolicName>com.hcl.domino.jnx.console</Bundle-SymbolicName>
+            <Automatic-Module-Name>com.hcl.domino.jnx.console</Automatic-Module-Name>
+          </instructions>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+  <profiles>
+    <profile>
+      <id>R12</id>
+      <properties>
+        <jar.finalName>${project.artifactId}-${project.version}</jar.finalName>
+      </properties>
+    </profile>
+    <profile>
+      <id>R14</id>
+      <properties>
+        <jar.finalName>${project.artifactId}-R14-${project.version}</jar.finalName>
+      </properties>
+    </profile>
+    <profile>
+      <id>R145</id>
+      <properties>
+        <jar.finalName>${project.artifactId}-R145-${project.version}</jar.finalName>
+      </properties>
+    </profile>
+  </profiles>
 </project>

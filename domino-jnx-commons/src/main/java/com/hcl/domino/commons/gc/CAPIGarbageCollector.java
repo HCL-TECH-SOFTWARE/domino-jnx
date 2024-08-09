@@ -19,6 +19,7 @@ package com.hcl.domino.commons.gc;
 import java.lang.ref.ReferenceQueue;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -525,5 +526,9 @@ public class CAPIGarbageCollector {
     finally {
       gcLock.writeLock().unlock();
     }
+  }
+  
+  public static Collection<IGCDominoClient> getAllClients() {
+    return new ArrayList<>(referenceQueues.keySet());
   }
 }

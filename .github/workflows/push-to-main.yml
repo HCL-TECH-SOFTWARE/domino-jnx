@@ -8,31 +8,71 @@ on:
       - main
 
 jobs:
-  release:
+  build-multi-version-tool:
     runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java and Maven
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'adopt'
+          cache: 'maven'
+
+      - name: Build the POM manipulator
+        run: |
+          cd multi-version-tool
+          mvn --batch-mode clean install
+          cd ..
+      - name: Save the POM manipulator
+        uses: actions/upload-artifact@v4
+        with:
+          name: multi-version-tool
+          path: multi-version-tool/target/multi-version-tool-jar-with-dependencies.jar
+          retention-days: 1
+
+  JNX-release:
+    runs-on: ubuntu-latest
+    needs: build-multi-version-tool
+    strategy:
+      matrix:
+        options:
+          - jdk: 17
+            domino: R12
+          - jdk: 17
+            domino: R14
+          - jdk: 21
+            domino: R145
+
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Install Java and Maven
-        uses: actions/setup-java@v2
+      - name: Install Java ${{ matrix.options.jdk }} and Maven
+        uses: actions/setup-java@v4
         with:
-          java-version: "8"
-          distribution: "adopt"
+          java-version: ${{ matrix.options.jdk }}
+          distribution: 'adopt'
+          cache: 'maven'
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
 
-      - name: Cache Maven packages
-        uses: actions/cache@v2
+      - name: retrieve the POM manipulator
+        uses: actions/download-artifact@v4
         with:
-          path: ~/.m2
-          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-          restore-keys: ${{ runner.os }}-m2
+          name: multi-version-tool
 
-      - name: Extract Project version
+      - name: Apply the POM manipulator for ${{ matrix.options.domino }}
+        run: |
+          java -jar ./multi-version-tool-jar-with-dependencies.jar . ${{ matrix.options.domino }}
+          pwd
+          cat pom.xml
+      - name: Extract Project version for ${{ matrix.options.domino }}
         id: project
-        run: echo ::set-output name=version::$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+        run: echo projectversion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout) >> $GITHUB_ENV
 
       - name: Install gpg secret key
         id: install-secret-key
@@ -40,14 +80,14 @@ jobs:
           cat <(echo -e "${{ secrets.GPG_PRIVATE_KEY }}") | gpg --batch --import
           gpg --list-secret-keys --keyid-format LONG
 
-      - name: Release Maven package to Central
+      - name: Release ${{ matrix.options.domino }} Maven package to Central
         id: publish-to-central
-        # Only publish on develop when the version does end on -SNAPSHOT
-        if: ${{ !endsWith(steps.project.outputs.version, '-SNAPSHOT') }}
+        # Only publish on main when the version does NOT end on -SNAPSHOT
+        if: ${{ !endsWith(env.projectversion, '-SNAPSHOT') }}
         env:
           MAVEN_USERNAME: ${{ secrets.NEXUS_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
         run: |
-          mvn --batch-mode -P deploy \
+          mvn --batch-mode -P${{ matrix.options.domino }} deploy \
             -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} \
             clean deploy

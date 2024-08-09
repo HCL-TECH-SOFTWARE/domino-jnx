@@ -24,13 +24,12 @@ import java.util.OptionalInt;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
-
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.Action;
+import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.design.agent.DesignLotusScriptAgent;
 import com.hcl.domino.misc.NotesConstants;
-import com.hcl.domino.data.DocumentClass;
 
 /**
  * Provides access to a database's design elements, allowing querying,
@@ -80,31 +79,31 @@ public interface DbDesign {
 
   /**
    * Creates a new, unsaved script library design element.
-   * 
+   *
    * @param <T> library subtype
    * @param libraryType type of library, e.g. {@link LotusScriptLibrary}
    * @param libName the name of the library to create
    * @return the newly-created in-memory {@link ScriptLibrary}
    */
   <T extends ScriptLibrary> T createScriptLibrary(Class<T> libraryType, String libName);
-  
+
   /**
    * Create a new unsaved database script library if it does not exist yet or the
    * one already available in the database
-   * 
+   *
    * @return database script library
    */
   DatabaseScriptLibrary createDatabaseScriptLibrary();
-  
+
   /**
    * Creates a new, unsaved File Resource design element.
-   * 
+   *
    * @param filePath the name of the file resource element
    * @return the newly-created in-memory {@link FileResource}
    * @since 1.1.2
    */
   FileResource createFileResource(String filePath);
-  
+
   /**
    * Creates a new, unsaved folder design element.
    *
@@ -131,13 +130,13 @@ public interface DbDesign {
 
   /**
    * Creates a new, unsaved page design element
-   * 
+   *
    * @param pageName the name of the page to create
    * @return the newly-created in-memory {@link Page}
    * @since 1.7.8
    */
   Page createPage(String pageName);
-  
+
   /**
    * Creates a new, unsaved view design element.
    *
@@ -145,65 +144,67 @@ public interface DbDesign {
    * @return the newly-created in-memory {@link View}
    */
   View createView(String viewName);
-  
+
   /**
    * Creates a new, unsaved shared column design element
-   * 
+   *
    * @param columnName the name of the shared column to create
    * @return the newly-created in-memory {@link SharedColumn}
    * @since 1.5.7
    */
   SharedColumn createSharedColumn(String columnName);
-  
+
   /**
    * Creates a new, unsaved shared field design element
-   * 
+   *
    * @param fieldName the name of the shared field to create
    * @return the newly-created in-memory {@link SharedField}
    * @since 1.27.0
    */
   SharedField createSharedField(String fieldName);
-  
+
   /**
    * Creates a new, unsaved frameset design element.
-   * 
+   *
    * @param framesetName the name of the frameset to create
    * @return the newly-created in-memory {@link Frameset}
    */
   Frameset createFrameset(String framesetName);
-  
+
   /**
    * Queries the design collection for a single design note.
-   * 
-   * @param <T>          the type of design element to find
-   * @param type         a {@link Class} object representing {@code <T>}
-   * @param name         the name or alias of the design note
+   *
+   * @param <T> the type of design element to find
+   * @param type a {@link Class} object representing {@code <T>}
+   * @param name the name or alias of the design note
    * @param partialMatch whether partial matches are allowed
    * @return an {@link OptionalInt} describing the note ID of the specified
    *         design note, or an empty one if the note was not found
-   * @implSpec It is expected that implementations will use {@code NIFFindDesignNoteExt}
-   *           if available
+   * @impl.Spec It is expected that implementations will use {@code NIFFindDesignNoteExt}
+   *            if available
    * @since 1.40.0
    */
-  <T extends DesignElement> OptionalInt findDesignNote(Class<T> type, String name, boolean partialMatch);
-  
+  <T extends DesignElement> OptionalInt findDesignNote(Class<T> type, String name,
+      boolean partialMatch);
+
   /**
    * Queries the design collection for a single design note.
-   * 
-   * @param noteClass    the class of note to query (see <code>NOTE_CLASS_*</code>
-   *                     in {@link NotesConstants})
-   * @param pattern      the note flag pattern to query (see
-   *                     <code>DFLAGPAT_*</code> in {@link NotesConstants})
-   * @param name         the name or alias of the design note
+   *
+   * @param noteClass the class of note to query (see <code>NOTE_CLASS_*</code>
+   *        in {@link NotesConstants})
+   * @param pattern the note flag pattern to query (see
+   *        <code>DFLAGPAT_*</code> in {@link NotesConstants})
+   * @param name the name or alias of the design note
    * @param partialMatch whether partial matches are allowed
    * @return an {@link OptionalInt} describing the note ID of the specified
    *         design note, or an empty one if the note was not found
-   * @implSpec It is expected that implementations will use {@code NIFFindDesignNoteExt}
-   *           if available
+   * @impl.Spec It is expected that implementations will use {@code NIFFindDesignNoteExt}
+   *            if available
    * @since 1.40.0
    */
-  OptionalInt findDesignNote(DocumentClass noteClass, String pattern, String name, boolean partialMatch);
-  
+  OptionalInt findDesignNote(DocumentClass noteClass, String pattern, String name,
+      boolean partialMatch);
+
   /**
    * Retrieves the named agent.
    *
@@ -228,7 +229,8 @@ public interface DbDesign {
    *         or an empty {@code Optional} if no such element exists
    * @param <T> collection type
    */
-  <T extends CollectionDesignElement<?>> Optional<CollectionDesignElement<T>> getCollection(String name);
+  <T extends CollectionDesignElement<?>> Optional<CollectionDesignElement<T>> getCollection(
+      String name);
 
   /**
    * Retrieves all folders and views in the database.
@@ -251,7 +253,7 @@ public interface DbDesign {
    * matching the provided
    * title.
    *
-   * @param <T>  the type of design element to retrieve
+   * @param <T> the type of design element to retrieve
    * @param type a {@link Class} object representing {@code <T>}
    * @param name the element name to restrict to
    * @return an {@link Optional} describing the requested design element,
@@ -262,20 +264,21 @@ public interface DbDesign {
   /**
    * Retrieves all design elements in the database of the provided type.
    *
-   * @param <T>  the type of design element to retrieve
+   * @param <T> the type of design element to retrieve
    * @param type a {@link Class} object representing {@code <T>}
    * @return a {@link Stream} of matching {@link DesignElement}s
    */
   <T extends DesignElement> Stream<T> getDesignElements(Class<T> type);
-  
+
   /**
    * Retrieves summary information about all design elements in the database of
    * the provided type.
-   * 
-   * <p>Unlike {@link #getDesignElements(Class)}, this method does not actually
+   * <p>
+   * Unlike {@link #getDesignElements(Class)}, this method does not actually
    * load the underlying design-element notes, and can be used to more-efficiently
-   * retrieve information about large numbers of design elements at a time.</p>
-   * 
+   * retrieve information about large numbers of design elements at a time.
+   * </p>
+   *
    * @param <T> the type of design element to retrieve
    * @param type a {@link Class} object representing {@code <T>}
    * @return a {@link Stream} of {@link DesignEntry} objects matching the
@@ -287,14 +290,16 @@ public interface DbDesign {
   /**
    * Retrieves summary information about all design elements in the database
    * matching a {@code $FLAGS} pattern.
-   * 
-   * <p>Unlike {@link #getDesignElements(Class)}, this method does not actually
+   * <p>
+   * Unlike {@link #getDesignElements(Class)}, this method does not actually
    * load the underlying design-element notes, and can be used to more-efficiently
-   * retrieve information about large numbers of design elements at a time.</p>
-   * 
-   * <p>If your patterns matche several design element types, it is safest to use
-   * {@link DesignElement} directly as the return component type.</p>
-   * 
+   * retrieve information about large numbers of design elements at a time.
+   * </p>
+   * <p>
+   * If your patterns matche several design element types, it is safest to use
+   * {@link DesignElement} directly as the return component type.
+   * </p>
+   *
    * @param <T> the type of design element to retrieve
    * @param noteClasses the {@link DocumentClass}es of the elements to limit to
    * @param patterns the flags patterns to match to the elements
@@ -302,14 +307,15 @@ public interface DbDesign {
    *         flags pattern
    * @since 1.39.0
    */
-  <T extends DesignElement> Stream<DesignEntry<T>> getDesignEntries(Collection<DocumentClass> noteClasses, Collection<String> patterns);
+  <T extends DesignElement> Stream<DesignEntry<T>> getDesignEntries(
+      Collection<DocumentClass> noteClasses, Collection<String> patterns);
 
   /**
    * Retrieves all design elements in the database of the provided type matching
    * the provided
    * title.
    *
-   * @param <T>  the type of design element to retrieve
+   * @param <T> the type of design element to retrieve
    * @param type a {@link Class} object representing {@code <T>}
    * @param name the element name to restrict to
    * @return a {@link Stream} of matching {@link DesignElement}s
@@ -323,10 +329,11 @@ public interface DbDesign {
    * not the "$FileNames" of the file resource. These may diverge, such as when a
    * file resource has an alias assigned to it.
    * </p>
-   * 
-   * <p>Moreover, this method finds only elements listed in the "File Resources"
+   * <p>
+   * Moreover, this method finds only elements listed in the "File Resources"
    * list in Designer, not elements like "loose" resources in the WebContent
-   * directory.</p>
+   * directory.
+   * </p>
    *
    * @param name the name of the resource to restrict to
    * @return an {@link Optional} describing the {@link FileResource}, or an empty
@@ -336,11 +343,10 @@ public interface DbDesign {
   default Optional<FileResource> getFileResource(String name) {
     return getFileResource(name, false);
   }
-  
+
   /**
    * Retrieves the named file resource, optionally including the pool of "XPages-side"
    * resources, such as files placed in the "WebContent" directory.
-   * 
    * <p>
    * Note: this method uses the value of the "$TITLE" field of the design element,
    * not the "$FileNames" of the file resource. These may diverge, such as when a
@@ -357,10 +363,11 @@ public interface DbDesign {
 
   /**
    * Retrieves all file resource design elements in the database.
-   * 
-   * <p>This method finds only elements listed in the "File Resources"
+   * <p>
+   * This method finds only elements listed in the "File Resources"
    * list in Designer, not elements like "loose" resources in the WebContent
-   * directory.</p>
+   * directory.
+   * </p>
    *
    * @return a {@link Stream} of {@link FileResource}s
    * @since 1.0.24
@@ -368,7 +375,7 @@ public interface DbDesign {
   default Stream<FileResource> getFileResources() {
     return getFileResources(false);
   }
-  
+
   /**
    * Retrieves all file resource design elements in the database, optionally
    * including the pool of "XPages-side" resources, such as files placed in the
@@ -410,12 +417,13 @@ public interface DbDesign {
 
   /**
    * @param formSubformType the type of element to select
-   * @param name            the name of the design element to select
+   * @param name the name of the design element to select
    * @return the form or subform element, or {@code null} if no element exists
    * @deprecated use {@link #getForm(String)} or {@link #getSubform(String)}
    */
   @Deprecated
-  default GenericFormOrSubform<?> getFormOrSubform(final FormOrSubform formSubformType, final String name) {
+  default GenericFormOrSubform<?> getFormOrSubform(final FormOrSubform formSubformType,
+      final String name) {
     switch (formSubformType) {
       case FORM:
         return this.getForm(name).orElse(null);
@@ -476,20 +484,20 @@ public interface DbDesign {
    * @since 1.0.24
    */
   Stream<ImageResource> getImageResources();
-  
+
   /**
    * Retrieves a named navigator
-   * 
+   *
    * @param name the name of the navigator to restrict to
    * @return an {@link Optional} describing the {@link Navigator}, or an empty
    *         one if no such element exists
    * @since 1.1.1
    */
   Optional<Navigator> getNavigator(String name);
-  
+
   /**
    * Retrieves all navigator design elements in the database.
-   * 
+   *
    * @return a {@link Stream} of {@link Navigator} elements
    * @since 1.1.1
    */
@@ -527,12 +535,13 @@ public interface DbDesign {
 
   /**
    * Retrives the database script library.
-   * 
-   * @return an {@link Optional} describing the {@link DatabaseScriptLibrary}, or an empty one if no such element exists
+   *
+   * @return an {@link Optional} describing the {@link DatabaseScriptLibrary}, or an empty one if no
+   *         such element exists
    * @since 1.0.48
    */
   Optional<DatabaseScriptLibrary> getDatabaseScriptLibrary();
-  
+
   /**
    * Retrieves the named subform.
    *
@@ -567,7 +576,7 @@ public interface DbDesign {
    * @since 1.0.27
    */
   Stream<View> getViews();
-  
+
   /**
    * Retrieves the named Outline.
    *
@@ -589,16 +598,16 @@ public interface DbDesign {
 
   /**
    * Retrieves the "About Application" document for the database, if it exists.
-   * 
+   *
    * @return an {@link Optional} describing the {@link AboutDocument} for the database,
    *         or an empty one if none has been created
    * @since 1.0.34
    */
   Optional<AboutDocument> getAboutDocument();
-  
+
   /**
    * Retrieves the "Using" document for the database, if it exists.
-   * 
+   *
    * @return an {@link Optional} describing the {@link UsingDocument} for the database,
    *         or an empty one if none has been created
    * @since 1.0.34
@@ -622,10 +631,10 @@ public interface DbDesign {
    * @since 1.0.34
    */
   Stream<SharedField> getSharedFields();
-  
+
   /**
    * Retrieves the shared-actions note, if it exists in the database.
-   * 
+   *
    * @return an {@link Optional} describing the {@link SharedActions} for the database, or
    *         an empty one if there is no shared-actions note
    * @since 1.0.37
@@ -757,74 +766,78 @@ public interface DbDesign {
    * @since 1.0.38
    */
   Stream<XPage> getXPages();
-  
+
   /**
    * Retrieves a design element by its UNID.
-   * 
+   *
    * @param <T> the expected type of the design element
    * @param unid the UNID of the design element to retrieve
    * @return an {@link Optional} describing the design element, or an empty one if no
    *         note by that UNID exists
    * @throws ClassCastException if the design element represented by {@code unid} is not of the
-   *                            type represented by {@code <T>}
+   *         type represented by {@code <T>}
    * @throws IllegalArgumentException if the note represented by {@code unid} is not a design
-   *                                  element
+   *         element
    * @since 1.0.37
    */
   <T extends DesignElement> Optional<T> getDesignElementByUNID(String unid);
-  
+
   /**
    * Retrieves the named file, image, or stylesheet resource as a stream of bytes.
-   * 
+   *
    * @param filePath the path to the file-type resource
    * @return an {@link Optional} describing an {@link InputStream} of the file's bytes,
    *         or an empty one if no such file exists
    * @since 1.0.38
    */
   Optional<InputStream> getResourceAsStream(String filePath);
-  
+
   /**
    * Opens a new stream to the named file-type resource (file resource, image, or stylesheet).
    * This method uses the same mechanism as {@link #getResourceAsStream(String)} to locate
    * existing resources.
-   * 
-   * <p>If the named resource doesn't exist, then this method will create a new resource with
+   * <p>
+   * If the named resource doesn't exist, then this method will create a new resource with
    * this name on closing the stream. This resource will be a normal file resource that will
-   * show up in {@link #getFileResources()}.</p>
-   * 
-   * <p>Note: it is not guaranteed that any changes made to the resource are written to the NSF
-   * until {@link OutputStream#close()} is called.</p>
-   * 
+   * show up in {@link #getFileResources()}.
+   * </p>
+   * <p>
+   * Note: it is not guaranteed that any changes made to the resource are written to the NSF
+   * until {@link OutputStream#close()} is called.
+   * </p>
+   *
    * @param filePath the path of the file to write
    * @return a new {@link OutputStream}
    * @since 1.0.39
    */
   OutputStream newResourceOutputStream(String filePath);
-  
+
   /**
    * Opens a new stream to the named file-type resource (file resource, image, or stylesheet).
    * This method uses the same mechanism as {@link #getResourceAsStream(String)} to locate
    * existing resources.
-   * 
-   * <p>If the named resource doesn't exist, then this method will create a new resource with
+   * <p>
+   * If the named resource doesn't exist, then this method will create a new resource with
    * this name on closing the stream. This resource will be a normal file resource that will
-   * show up in {@link #getFileResources()}.</p>
-   * 
-   * <p>When {@link OutputStream#close()} is called, then the provided {@code callback} will
-   * be executed with the contextual {@link DesignElement}. This object will be one of:</p>
-   * 
+   * show up in {@link #getFileResources()}.
+   * </p>
+   * <p>
+   * When {@link OutputStream#close()} is called, then the provided {@code callback} will
+   * be executed with the contextual {@link DesignElement}. This object will be one of:
+   * </p>
    * <ul>
-   *   <li>{@link NamedFileElement}</li>
-   *   <li>{@link ServerJavaScriptLibrary}</li>
-   *   <li>{@link JavaScriptLibrary}</li>
+   * <li>{@link NamedFileElement}</li>
+   * <li>{@link ServerJavaScriptLibrary}</li>
+   * <li>{@link JavaScriptLibrary}</li>
    * </ul>
-   * 
-   * <p>Note: it is not guaranteed that any changes made to the resource are written to the NSF
-   * until {@link OutputStream#close()} is called.</p>
-   * 
+   * <p>
+   * Note: it is not guaranteed that any changes made to the resource are written to the NSF
+   * until {@link OutputStream#close()} is called.
+   * </p>
+   *
    * @param filePath the path of the file to write
    * @param callback a {@link Consumer} that will be provided with the {@link DesignElement}
-   *                 that is written to upon close. May be {@code null}
+   *        that is written to upon close. May be {@code null}
    * @return a new {@link OutputStream}
    * @since 1.1.2
    */
@@ -835,12 +848,13 @@ public interface DbDesign {
    * restricted
    * to the provided type.
    *
-   * @param <T>     the type of design element to query
-   * @param type    a {@link Class} object representing {@code <T>}
+   * @param <T> the type of design element to query
+   * @param type a {@link Class} object representing {@code <T>}
    * @param formula the formula query to execute
    * @return a {@link Stream} of matching {@link DesignElement}s
    */
-  <T extends DesignElement> Stream<T> queryDesignElements(final Class<T> type, final String formula);
+  <T extends DesignElement> Stream<T> queryDesignElements(final Class<T> type,
+      final String formula);
 
   /**
    * Queries all design elements in the database by the provided formula.
@@ -854,14 +868,14 @@ public interface DbDesign {
    * Signs all design documents of the specified types
    *
    * @param docClass doc classes to sign
-   * @param id       id to sign or null for active Notes ID
+   * @param id id to sign or null for active Notes ID
    * @param callback optional sign callback to control with document to sign
    */
   void signAll(Set<DocumentClass> docClass, UserId id, SignCallback callback);
 
   /**
    * Returns the parent database of the design
-   * 
+   *
    * @return database
    */
   Database getDatabase();
@@ -873,7 +887,7 @@ public interface DbDesign {
    * @since 1.0.42
    */
   Stream<Frameset> getFramesets();
-  
+
   /**
    * Retrieves the named frameset.
    *
@@ -883,5 +897,5 @@ public interface DbDesign {
    * @since 1.0.42
    */
   Optional<Frameset> getFrameset(String name);
-  
+
 }
