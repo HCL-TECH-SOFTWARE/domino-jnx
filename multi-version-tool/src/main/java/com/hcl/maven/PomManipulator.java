@@ -53,11 +53,14 @@ public class PomManipulator {
         final String startDir = args[0];
         final String versionSuffix = args[1].toLowerCase();
 
-        boolean testflight = args.length > 2;
+        boolean testflight =
+                args.length > 2 && String.valueOf(args[2]).toLowerCase().startsWith("test");
+        boolean includeSamples =
+                args.length > 3 && String.valueOf(args[3]).toLowerCase().startsWith("samples");
 
         final PomManipulator pomManipulator =
                 new PomManipulator(startDir, versionSuffix, testflight);
-        boolean result = pomManipulator.manipulatePoms();
+        boolean result = pomManipulator.manipulatePoms(includeSamples);
         System.exit(result ? 0 : 1);
     }
 
@@ -75,7 +78,7 @@ public class PomManipulator {
         this.testflight = testflight;
     }
 
-    public boolean manipulatePoms() {
+    public boolean manipulatePoms(boolean includeSamples) {
 
         try (Stream<Path> allFiles = Files.walk(Paths.get(this.startDir))) {
             // Load all POMs and update artefactIds
@@ -100,21 +103,24 @@ public class PomManipulator {
         }
 
         // Filter out example and test modules
-        Path pomFile = Paths.get(this.startDir, "pom.xml");
-        try (FileReader reader = new FileReader(pomFile.toFile())) {
-            MavenXpp3Reader xpp3Reader = new MavenXpp3Reader();
-            Model model = xpp3Reader.read(reader);
-            model.setModules(model.getModules().stream()
-                    .filter(module -> !module.startsWith("example") && !module.startsWith("test"))
-                    .collect(Collectors.toList()));
-                    if (!this.testflight) {
-                        this.saveOnePom(Map.entry(pomFile, model));
-                    } else {
-                        System.out.printf("TestFlight, reduced modules %s%n", + model.getModules());
-                    }
-        } catch (IOException | XmlPullParserException e) {
-            e.printStackTrace();
-            return false;
+        if (!includeSamples) {
+            Path pomFile = Paths.get(this.startDir, "pom.xml");
+            try (FileReader reader = new FileReader(pomFile.toFile())) {
+                MavenXpp3Reader xpp3Reader = new MavenXpp3Reader();
+                Model model = xpp3Reader.read(reader);
+                model.setModules(model.getModules().stream()
+                        .filter(module -> !module.startsWith("example")
+                                && !module.startsWith("test"))
+                        .collect(Collectors.toList()));
+                if (!this.testflight) {
+                    this.saveOnePom(Map.entry(pomFile, model));
+                } else {
+                    System.out.printf("TestFlight, reduced modules %s%n", model.getModules());
+                }
+            } catch (IOException | XmlPullParserException e) {
+                e.printStackTrace();
+                return false;
+            }
         }
 
         return true;

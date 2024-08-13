@@ -64,7 +64,7 @@ jobs:
 
       - name: Apply the POM manipulator for ${{ matrix.options.domino }}
         run: |
-          java -jar ./multi-version-tool-jar-with-dependencies.jar . ${{ matrix.options.domino }}
+          java -jar ./multi-version-tool-jar-with-dependencies.jar . ${{ matrix.options.domino }} actual samples
           pwd
           cat pom.xml
       - name: Build for ${{ matrix.options.domino }} with Maven
