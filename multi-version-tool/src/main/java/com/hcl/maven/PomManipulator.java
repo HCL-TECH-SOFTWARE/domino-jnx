@@ -98,6 +98,25 @@ public class PomManipulator {
             e.printStackTrace();
             return false;
         }
+
+        // Filter out example and test modules
+        Path pomFile = Paths.get(this.startDir, "pom.xml");
+        try (FileReader reader = new FileReader(pomFile.toFile())) {
+            MavenXpp3Reader xpp3Reader = new MavenXpp3Reader();
+            Model model = xpp3Reader.read(reader);
+            model.setModules(model.getModules().stream()
+                    .filter(module -> !module.startsWith("example") && !module.startsWith("test"))
+                    .collect(Collectors.toList()));
+                    if (!this.testflight) {
+                        this.saveOnePom(Map.entry(pomFile, model));
+                    } else {
+                        System.out.printf("TestFlight, reduced modules %s%n", + model.getModules());
+                    }
+        } catch (IOException | XmlPullParserException e) {
+            e.printStackTrace();
+            return false;
+        }
+
         return true;
     }
 
