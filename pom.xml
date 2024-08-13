@@ -486,6 +486,8 @@
           <serverId>ossrh</serverId>
           <nexusUrl>https://oss.sonatype.org/</nexusUrl>
           <autoReleaseAfterClose>${project.autorelease}</autoReleaseAfterClose>
+          <username>${nexus.username}</username>
+          <password>${nexus.password}</password>
         </configuration>
       </plugin>
       <plugin>
