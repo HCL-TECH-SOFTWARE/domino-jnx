@@ -112,11 +112,11 @@ public class PomManipulator {
                         .filter(module -> !module.startsWith("example")
                                 && !module.startsWith("test"))
                         .collect(Collectors.toList()));
-                        model.getProfiles().stream()
+                model.getProfiles().stream()
                         .forEach(profile -> profile.setModules(profile.getModules().stream()
                                 .filter(module -> !module.startsWith("example")
                                         && !module.startsWith("test"))
-                                .collect(Collectors.toList()));
+                                .collect(Collectors.toList())));
                 if (!this.testflight) {
                     this.saveOnePom(Map.entry(pomFile, model));
                 } else {
