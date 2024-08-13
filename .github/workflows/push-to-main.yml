@@ -89,6 +89,7 @@ jobs:
           MAVEN_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
         run: |
           mvn --batch-mode -P${{ matrix.options.domino }} \
+            -Pdeploy \
             -Dnexus.username=${{ secrets.NEXUS_USERNAME }} \
             -Dnexus.password=${{ secrets.NEXUS_PASSWORD }} \
             -Dgpg.passphrase=${{ secrets.GPG_PASSPHRASE }} \
