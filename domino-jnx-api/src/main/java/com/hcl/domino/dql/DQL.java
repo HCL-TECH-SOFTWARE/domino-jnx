@@ -126,6 +126,11 @@ public class DQL {
      */
     @Override
     public abstract String toString();
+    
+    @Override
+    public boolean equals(Object obj) {
+      return obj != null && getClass().equals(obj.getClass()) && toString().equals(obj.toString());
+    }
   }
 
   public static class InViewsOrFoldersTerm extends DQLTerm {

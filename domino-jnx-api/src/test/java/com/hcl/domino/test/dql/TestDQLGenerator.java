@@ -107,4 +107,9 @@ public class TestDQLGenerator {
     assertEquals("Bar = 'Baz' and @formula('Foo=''Hello''')", DQL.and(DQL.item("Bar").isEqualTo("Baz"), DQL.formula("Foo='Hello'")).toString());
   }
   
+  @Test
+  public void testTermEquivalence() {
+    assertEquals(DQL.item("Foo").isEqualTo("Bar"), DQL.item("Foo").isEqualTo("Bar"));
+  }
+  
 }
