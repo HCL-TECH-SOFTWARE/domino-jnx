@@ -1143,7 +1143,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
           Memory variablePasswordMem = NotesStringUtils.toLMBCS(password, true);
           try(DisposableMemory rethValueBuffer = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
             short result = capi1201.NABLookupBasicAuthentication(variableUserNameMem,
-                variablePasswordMem, NotesConstants.BASIC_AUTH_NO_AMBIGUOUS_NAMES,
+                variablePasswordMem, NotesConstants.BASIC_AUTH_ALLOW_AMBIGUOUS_NAMES,
                 NotesConstants.MAXUSERNAME,
                 rethValueBuffer);
             if (result == 1) {
