@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.hcl.domino</groupId>
     <artifactId>domino-jnx</artifactId>
-    <version>1.42.3</version>
+    <version>1.43.0</version>
   </parent>
   <artifactId>domino-jnx-jna</artifactId>
   <name>HCL Domino API, JNA Implementation</name>
@@ -90,6 +90,7 @@
             <Automatic-Module-Name>com.hcl.domino.jnx.jna</Automatic-Module-Name>
             <Fragment-Host>com.hcl.domino.jnx</Fragment-Host>
             <Export-Package>*</Export-Package>
+            <Import-Package>lotus.domino;resolution:=optional,*</Import-Package>
           </instructions>
         </configuration>
       </plugin>

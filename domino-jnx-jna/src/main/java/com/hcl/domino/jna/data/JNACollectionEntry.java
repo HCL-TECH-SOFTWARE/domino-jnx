@@ -506,7 +506,7 @@ public class JNACollectionEntry extends AbstractCollectionEntry {
 	 */
 	@SuppressWarnings("unchecked")
 	private <T> T getSiblingCount(Class<T> clazz, T defaultValue) {
-		if (Integer.class == clazz) {
+		if (Integer.class == clazz || int.class.equals(clazz)) {
 			if (m_siblingCount!=null) {
 				return (T) m_siblingCount;
 			}
