@@ -90,6 +90,7 @@
             <Automatic-Module-Name>com.hcl.domino.jnx.jna</Automatic-Module-Name>
             <Fragment-Host>com.hcl.domino.jnx</Fragment-Host>
             <Export-Package>*</Export-Package>
+            <Import-Package>lotus.domino;resolution:=optional,*</Import-Package>
           </instructions>
         </configuration>
       </plugin>
