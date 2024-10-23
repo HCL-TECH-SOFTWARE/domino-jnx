@@ -21,7 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.BiConsumer;
-
+import com.hcl.domino.data.structures.CollectionData;
 import com.hcl.domino.misc.DominoClientDescendant;
 import com.hcl.domino.misc.Loop;
 
@@ -95,6 +95,17 @@ public interface DominoCollection extends IAdaptable, DominoClientDescendant {
    * @return sorted set of note ids
    */
   Set<Integer> getAllIdsByKey(Set<Find> findFlags, Object key);
+  
+  /**
+   * Retrieve detailed information about the collection itself, such
+   * as the number of documents in the collection and the total size
+   * of the document entries in the collection.
+   * 
+   * @return a {@link CollectionData} instance representing information
+   *         about the collection
+   * @since 1.44.0
+   */
+  CollectionData getCollectionData();
 
   List<CollectionColumn> getColumns();
 
