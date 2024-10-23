@@ -18,13 +18,14 @@ package com.hcl.domino.misc;
 
 import com.hcl.domino.constants.Bsafe;
 import com.hcl.domino.constants.EditOds;
+import com.hcl.domino.constants.Nif;
 import com.hcl.domino.constants.OleOds;
 import com.hcl.domino.constants.QueryOds;
 import com.hcl.domino.constants.Stats;
 import com.hcl.domino.constants.StdNames;
 import com.hcl.domino.constants.VmOds;
 
-public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds, EditOds, OleOds, VmOds, Bsafe, Stats {
+public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds, EditOds, OleOds, VmOds, Bsafe, Stats, Nif {
 
   public enum AgentCheck {
     CheckRights(0),

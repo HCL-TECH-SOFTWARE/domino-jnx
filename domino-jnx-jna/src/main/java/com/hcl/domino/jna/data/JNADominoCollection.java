@@ -17,6 +17,7 @@
 package com.hcl.domino.jna.data;
 
 import java.lang.ref.ReferenceQueue;
+import java.nio.ByteBuffer;
 import java.text.Collator;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -46,6 +47,7 @@ import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringTokenizerExt;
@@ -59,6 +61,7 @@ import com.hcl.domino.data.CollectionSearchQuery;
 import com.hcl.domino.data.CollectionSearchQuery.CollectionEntryProcessor;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.Action;
+import com.hcl.domino.data.structures.CollectionData;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoDateTime;
@@ -71,6 +74,7 @@ import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.data.CollectionDataCache.CacheState;
 import com.hcl.domino.jna.data.JNACollectionEntry.CacheableViewEntryData;
+import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
 import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -1733,6 +1737,33 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		NotesErrorUtils.checkResult(result);
 		return retCollationNum.getValue();
 	}
+	
+    @Override
+    public CollectionData getCollectionData() {
+      checkDisposed();
+      
+      final DHANDLE.ByReference rethCollData = DHANDLE.newInstanceByReference();
+      
+      LockUtil.lockHandle(getAllocations().getCollectionHandle(), hCollectionByVal ->
+        NotesCAPI.get().NIFGetCollectionData(hCollectionByVal, rethCollData)
+      );
+      
+      return LockUtil.lockHandle(rethCollData, hCollData -> {
+        CollectionData result = Mem.OSLockObject(hCollData, ptr -> {
+          int len = MemoryStructureUtil.sizeOf(CollectionData.class);
+          byte[] data = new byte[len];
+          ptr.read(0, data, 0, len);
+          
+          ByteBuffer buf = ByteBuffer.wrap(data);
+          
+          return MemoryStructureUtil.forStructure(CollectionData.class, () -> buf);
+        });
+        
+        Mem.OSMemFree(hCollData);
+        
+        return result;
+      });
+    }
 	
 	@Override
 	public LinkedHashSet<Integer> getAllIds(boolean withDocuments, boolean withCategories) {

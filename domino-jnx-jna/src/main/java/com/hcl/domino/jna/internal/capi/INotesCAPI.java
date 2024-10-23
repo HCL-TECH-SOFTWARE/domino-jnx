@@ -687,6 +687,14 @@ public interface INotesCAPI extends Library {
 
 	short NIFGetCollation(DHANDLE.ByValue hCollection, ShortByReference retCollationNum);
 	short NIFSetCollation(DHANDLE.ByValue hCollection, short CollationNum);
+	/**
+	 * Retrieve detailed information about the collection itself, such as the number of documents
+	 * in the collection and the total size of the document entries in the collection.
+	 * 
+	 * @since Notes/Domino 4.0
+	 * @since 1.44.0
+	 */
+	short NIFGetCollectionData(DHANDLE.ByValue hCollection, DHANDLE.ByReference rethCollData);
 	short NIFUpdateCollection(DHANDLE.ByValue hCollection);
 
 	@UndocumentedAPI
