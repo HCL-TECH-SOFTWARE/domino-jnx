@@ -55,5 +55,14 @@ public class JNAServerStatusLine extends BaseJNAAPIObject<JNAServerStatusLineAll
 		Memory string = NotesStringUtils.toLMBCS(line, true);
 		NotesCAPI.get().AddInSetStatusLine(hDesc, string);
 	}
+	
+    @SuppressWarnings("unchecked")
+    @Override
+    protected <T> T getAdapterLocal(Class<T> clazz) {
+      if(long.class.equals(clazz) || Long.class.equals(clazz)) {
+        return (T)Long.valueOf(getAllocations().getLineHandle());
+      }
+      return super.getAdapterLocal(clazz);
+    }
 
 }

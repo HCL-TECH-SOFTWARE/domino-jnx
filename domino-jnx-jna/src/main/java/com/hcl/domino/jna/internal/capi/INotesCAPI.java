@@ -2213,6 +2213,8 @@ public interface INotesCAPI extends Library {
 	boolean AddInShouldTerminate();
 	long AddInCreateStatusLine(Memory TaskName);
 	void AddInDeleteStatusLine(long hDesc);
+	void AddInQueryDefaults(LongByReference rethModule, LongByReference rethDesc);
+	void AddInSetDefaults(long hNewModule, long hDesc);
 	void AddInSetStatusLine(long hDesc, Memory string);
 	void OSPreemptOccasionally();
 	
