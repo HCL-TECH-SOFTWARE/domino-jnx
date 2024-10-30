@@ -469,4 +469,22 @@ public interface ServerAdmin {
    */
   String sendConsoleCommand(String server, String command);
 
+  
+  /**
+   * Retrieves the current addin's default status line.
+   * 
+   * @return a {@link ServerStatusLine} for the current addin's default
+   * @since 1.44.0
+   */
+  ServerStatusLine getDefaultServerStatusLine();
+  
+  /**
+   * Sets the provided status line as the default for the current addin.
+   * 
+   * @param statusLine a {@link ServerStatusLine} to make the default,
+   *        must be non-null
+   * @since 1.44.0
+   */
+  void setDefaultServerStatusLine(ServerStatusLine statusLine);
+
 }

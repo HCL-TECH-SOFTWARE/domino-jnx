@@ -23,6 +23,7 @@ import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.hcl.domino.DominoClient;
@@ -83,6 +84,7 @@ import com.hcl.domino.server.ServerStatusLine;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.LongByReference;
 import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.ptr.ShortByReference;
 
@@ -490,6 +492,29 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations> 
 		long hDesc = NotesCAPI.get().AddInCreateStatusLine(NotesStringUtils.toLMBCS(taskName, true));
 		return new JNAServerStatusLine(getParentDominoClient(), hDesc);
 	}
+	
+    @Override
+    public ServerStatusLine getDefaultServerStatusLine() {
+      LongByReference rethModule = new LongByReference();
+      LongByReference rethDesc = new LongByReference();
+      NotesCAPI.get().AddInQueryDefaults(rethModule, rethDesc);
+      return new JNAServerStatusLine(getParentDominoClient(), rethDesc.getValue());
+    }
+    
+    @Override
+    public void setDefaultServerStatusLine(ServerStatusLine statusLine) {
+      Objects.requireNonNull(statusLine, "statusLine cannot be null");
+      if(!(statusLine instanceof JNAServerStatusLine)) {
+        throw new IllegalArgumentException(MessageFormat.format("Unable to handle ServerStatusLine of type {0}", statusLine.getClass().getName()));
+      }
+      JNAServerStatusLine jnaLine = (JNAServerStatusLine)statusLine;
+      
+      LongByReference rethModule = new LongByReference();
+      LongByReference rethDesc = new LongByReference();
+      NotesCAPI.get().AddInQueryDefaults(rethModule, rethDesc);
+      rethDesc.setValue(jnaLine.getAdapter(long.class));
+      NotesCAPI.get().AddInSetDefaults(rethModule.getValue(), rethDesc.getValue());
+    }
 
 	@Override
 	public void openServerConsole(String serverName, ConsoleHandler handler) {
