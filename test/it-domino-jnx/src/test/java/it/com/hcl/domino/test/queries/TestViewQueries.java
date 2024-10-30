@@ -51,6 +51,7 @@ import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoCollection.Direction;
 import com.hcl.domino.data.Navigate;
+import com.hcl.domino.data.structures.CollectionData;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.dql.DQL;
 import com.hcl.domino.dql.DQL.DQLTerm;
