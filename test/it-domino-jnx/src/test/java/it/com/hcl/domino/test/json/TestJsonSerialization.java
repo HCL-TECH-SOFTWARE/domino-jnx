@@ -553,7 +553,7 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
 
     });
   }
-  
+
   @ParameterizedTest
   @ArgumentsSource(SerializerProvider.class)
   public void testMetadataOnly(final JsonSerializer serializerParam) throws Exception {
@@ -609,6 +609,48 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
 
   @ParameterizedTest
   @ArgumentsSource(SerializerProvider.class)
+  public void testFlattenBlankList(final JsonSerializer serializerParam) throws Exception {
+    this.withTempDb(database -> {
+      final Document doc = database.createDocument();
+      doc.replaceItemValue("foo", Collections.singletonList(""));
+      doc.replaceItemValue("bar", Collections.emptyList());
+
+      assertEquals(ItemDataType.TYPE_TEXT_LIST, doc.getFirstItem("foo").get().getType());
+      assertEquals(ItemDataType.TYPE_TEXT_LIST, doc.getFirstItem("bar").get().getType());
+
+      // foo ==> [] (but  Notes value will still be [""])
+      assertEquals(1, doc.get("foo", List.class, null).size());
+
+      // emptyList2 ==> [] (only possible through API)
+      assertEquals(0, doc.get("bar", List.class, null).size());
+
+      final JsonSerializer serializer = serializerParam;
+
+      // Serialization with normal behaviour
+      final String jsonStringStd = serializer.toJsonString(doc);
+      final JsonObject jsonStd = Json.createReader(new StringReader(jsonStringStd)).readObject();
+
+
+      // Serialization with flattening behaviour
+      serializer.flattenBlankStringList(true);
+      final String jsonStringFlattened = serializer.toJsonString(doc);
+      final JsonObject jsonFlattened = Json.createReader(new StringReader(jsonStringFlattened))
+          .readObject();
+
+      // Standard JSON be [""]
+      assertEquals(1, jsonStd.getJsonArray("foo").size());
+
+      // Flattened JSON be []
+      assertEquals(0, jsonFlattened.getJsonArray("foo").size());
+
+      // emptyList2 will always []
+      assertEquals(0, jsonStd.getJsonArray("bar").size());
+      assertEquals(0, jsonFlattened.getJsonArray("bar").size());
+    });
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(SerializerProvider.class)
   public void testMetadataResponseDoc(final JsonSerializer serializerParam) throws Exception {
     this.withTempDb(database -> {
       database.setOption(DatabaseOption.SUPPORT_RESP_THREADS, true);
@@ -618,10 +660,10 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
         doc.replaceItemValue("Foo", "bar");
         doc.replaceItemValue("Bar", "baz");
         doc.save();
-        
+
         parentUnid = doc.getUNID();
       }
-      
+
       Document response = database.createDocument();
       response.replaceItemValue("Foo", "bar2");
       response.replaceItemValue("Bar", "baz2");
@@ -665,7 +707,7 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
           .map(DocumentClass::valueOf)
           .collect(Collectors.toSet());
       assertEquals(response.getDocumentClass(), docClass);
-      
+
       assertEquals(parentUnid, meta.getString(JsonSerializer.PROP_META_PARENTUNID));
       String revision = meta.getString(JsonSerializer.PROP_META_REVISION);
       assertNotNull(revision);
@@ -810,11 +852,11 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
     LocalDate expected = LocalDate.of(2021, 4, 5);
     DominoDateTime now = getClient().createDateTime(expected);
     DateTimeExample obj = new DateTimeExample(now);
-    
+
     String jsonString = serializer.toJson(obj).toString();
     JsonObject jsonObj = Json.createReader(new StringReader(jsonString)).readObject();
     String time = jsonObj.getString("time");
-    
+
     LocalDate actual = LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(time));
     assertEquals(expected, actual);
   }
@@ -826,13 +868,13 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
     LocalDate expected2 = LocalDate.of(2021, 10, 21);
     DominoDateRange now = getClient().createDateRange(expected1, expected2);
     DateRangeExample obj = new DateRangeExample(now);
-    
+
     String jsonString = serializer.toJson(obj).toString();
     JsonObject jsonObj = Json.createReader(new StringReader(jsonString)).readObject();
     String time = jsonObj.getString("time");
-    
+
     String[] parts = StringUtil.splitString(time, '/');
-    
+
     LocalDate actual1 = LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(parts[0]));
     LocalDate actual2 = LocalDate.from(DateTimeFormatter.ISO_LOCAL_DATE.parse(parts[1]));
     assertEquals(expected1, actual1);
@@ -847,7 +889,7 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
       doc.replaceItemValue("Form", "Foo");
       doc.sign();
       assertTrue(doc.isSigned());
-      
+
       serializer.includeMetadata(true);
       String jsonString = serializer.toJsonString(doc);
       JsonObject jsonObj = Json.createReader(new StringReader(jsonString)).readObject();
@@ -857,26 +899,26 @@ public class TestJsonSerialization extends AbstractNotesRuntimeTest {
       assertEquals(database.getParentDominoClient().getIDUserName(), signer);
     });
   }
-  
+
   public static class DateTimeExample {
     private final DominoDateTime time;
-    
+
     public DateTimeExample(DominoDateTime time) {
       this.time = time;
     }
-    
+
     public DominoDateTime getTime() {
       return time;
     }
   }
-  
+
   public static class DateRangeExample {
     private final DominoDateRange time;
-    
+
     public DateRangeExample(DominoDateRange time) {
       this.time = time;
     }
-    
+
     public DominoDateRange getTime() {
       return time;
     }
