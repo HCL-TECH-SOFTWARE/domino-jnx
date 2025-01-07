@@ -252,7 +252,13 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
                   result.put(propName, false);
                 }
               } else {
-                result.put(propName, vals);
+                boolean flatten = vals.size() == 1 && vals.get(0).isEmpty() && this.flattenBlankStringList;
+
+                if (flatten) {
+                  result.put(propName, Collections.emptyList());
+                } else {
+                  result.put(propName, vals);
+                }
               }
               break;
             }

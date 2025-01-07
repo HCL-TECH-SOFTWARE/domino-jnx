@@ -73,6 +73,7 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
     private Map<HtmlConvertOption, String> htmlConvertOptions;
     protected Map<String, BiFunction<Document, String, Object>> customProcessors = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private boolean metaOnly;
+    private boolean flattenBlankStringList;
 
     private Builder() {
     }
@@ -136,6 +137,7 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
       result.htmlConvertOptions = this.htmlConvertOptions;
       result.customProcessors = this.customProcessors;
       result.metaOnly = metaOnly;
+      result.flattenBlankStringList = flattenBlankStringList;
 
       return result;
     }
@@ -265,6 +267,23 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
       this.metaOnly = metaOnly;
       return this;
     }
+
+    /**
+     * Sets whether or not the serializer will flatten lists that contain only one blank string ([""]).
+     * <p>
+     * When {@code flattenBlankStringList} is set to {@code true}, a list with one blank string
+     * is transformed into an empty JSON array ([]). If set to {@code false} (the default),
+     * the output remains a JSON array containing a single blank string ([""]).
+     *
+     * @param flattenBlankStringList {@code true} to treat a single blank string list as an empty array,
+     *                               {@code false} to preserve it as [""].
+     * @return this serializer
+     * @since 1.45.0
+     */
+    public Builder flattenBlankStringList(boolean flattenBlankStringList) {
+      this.flattenBlankStringList = flattenBlankStringList;
+      return this;
+    }
   }
 
   /**
@@ -296,6 +315,7 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
   Map<HtmlConvertOption, String> htmlConvertOptions;
   Map<String, BiFunction<Document, String, Object>> customProcessors;
   private boolean metaOnly;
+  private boolean flattenBlankStringList;
 
   private DocumentJsonbSerializer() {
   }
@@ -443,9 +463,12 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
                   generator.write(propName, false);
                 }
               } else {
+                boolean flatten = vals.size() == 1 && vals.get(0).isEmpty() && this.flattenBlankStringList;
                 generator.writeStartArray(propName);
-                for (final String val : vals) {
-                  generator.write(val);
+                if(!flatten) {
+                  for (final String val : vals) {
+                    generator.write(val);
+                  }
                 }
                 generator.writeEnd();
               }

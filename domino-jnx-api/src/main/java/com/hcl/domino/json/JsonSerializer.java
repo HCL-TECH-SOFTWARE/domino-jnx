@@ -255,6 +255,20 @@ public interface JsonSerializer {
   JsonSerializer metaOnly(boolean metaOnly);
 
   /**
+   * Sets whether or not the serializer will flatten lists that contain only one blank string ([""]).
+   * <p>
+   * When {@code flattenBlankStringList} is set to {@code true}, a list with one blank string
+   * is transformed into an empty JSON array ([]). If set to {@code false} (the default),
+   * the output remains a JSON array containing a single blank string ([""]).
+   *
+   * @param flattenBlankStringList {@code true} to treat a single blank string list as an empty array,
+   *                               {@code false} to preserve it as [""].
+   * @return this serializer
+   * @since 1.45.0
+   */
+  JsonSerializer flattenBlankStringList(boolean flattenBlankStringList);
+
+  /**
    * Serializes the provided document as a JSON object using the implementation's
    * native JSON type.
    *
