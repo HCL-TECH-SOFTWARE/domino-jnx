@@ -16,6 +16,9 @@
  */
 package it.com.hcl.domino.test.queries;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -50,8 +53,8 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoCollection.Direction;
+import com.hcl.domino.data.Find;
 import com.hcl.domino.data.Navigate;
-import com.hcl.domino.data.structures.CollectionData;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.dql.DQL;
 import com.hcl.domino.dql.DQL.DQLTerm;
@@ -227,6 +230,7 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
       final DominoCollection view = database.openCollection("Lastname Firstname Flat").get();
       view.resortView("lastname", Direction.Descending);
       CollectionSearchQuery query = view.query();
+      
 
       Optional<CollectionEntry> firstEntry = query.firstEntry();
       Optional<Integer> firstId = query
@@ -445,5 +449,20 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
         c.accept(db);
       });
     }
+  }
+  
+  @Test
+  public void testFindPosition() throws Exception {
+    this.withViewQueryTestDb(database -> {
+      final DominoCollection view = database.openCollection("Lastname Birthyear Categorized").get();
+      
+      Optional<String> pos = view.getPositionByKey(EnumSet.of(Find.GREATER_THAN, Find.EQUAL), "aaaaaaaaa");
+      if(!pos.isPresent()) {
+        fail("Should have found a matching position");
+      } else {
+        assertFalse(pos.get() == null || pos.get().isEmpty());
+        assertNotEquals("1", pos.get());
+      }
+    });
   }
 }
