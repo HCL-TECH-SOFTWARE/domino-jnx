@@ -18,8 +18,10 @@ package com.hcl.domino.misc;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.ServiceLoader;
@@ -64,7 +66,13 @@ public enum JNXServiceFinder {
     return (T)REQUIRED_SERVICE_CACHE.computeIfAbsent(serviceClass, c -> {
       final Iterable<?> services = AccessController
           .doPrivileged((PrivilegedAction<Iterable<?>>) () -> ServiceLoader.load(c, cl));
-      return services.iterator().next();
+      @SuppressWarnings("rawtypes")
+      Iterator iter = services.iterator();
+      if(iter.hasNext()) {
+        return iter.next();
+      } else {
+        throw new NoSuchElementException(MessageFormat.format("Unable to find implementation for service type {0}", serviceClass.getName()));
+      }
     });
   }
 
