@@ -16,7 +16,7 @@
  */
 package it.com.hcl.domino.test.queries;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 import java.io.IOException;
