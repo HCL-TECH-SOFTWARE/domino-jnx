@@ -158,7 +158,7 @@ public class JNAUserDirectory implements UserDirectory {
 						result.add(path);
 					}
 					
-					strPtr = strPtr.share(strlen);
+					strPtr = strPtr.share(strlen+1);
 				}
 				
 				return null;

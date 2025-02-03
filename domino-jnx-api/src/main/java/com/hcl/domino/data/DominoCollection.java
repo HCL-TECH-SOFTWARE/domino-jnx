@@ -19,6 +19,7 @@ package com.hcl.domino.data;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import com.hcl.domino.data.structures.CollectionData;
@@ -130,6 +131,28 @@ public interface DominoCollection extends IAdaptable, DominoClientDescendant {
   int getNoteId();
 
   Database getParentDatabase();
+
+  /**
+   * Returns the first position matching the provided key based on
+   * the find flags.
+   *
+   * @param findFlags flags to configure the lookup operation
+   * @param key       lookup key (list of String, Number, DominoDateRange)
+   * @return optional "."-delimited position
+   * @since 1.45.0
+   */
+  Optional<String> getPositionByKey(Set<Find> findFlags, Collection<Object> key);
+
+  /**
+   * Returns the first position matching the provided key based on
+   * the find flags.
+   *
+   * @param findFlags flags to configure the lookup operation
+   * @param key       lookup key (String, Number, DominoDateRange)
+   * @return optional "."-delimited position
+   * @since 1.45.0
+   */
+  Optional<String> getPositionByKey(Set<Find> findFlags, Object key);
 
   String getSelectionFormula();
 

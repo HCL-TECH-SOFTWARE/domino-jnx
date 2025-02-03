@@ -42,6 +42,7 @@ public abstract class AbstractJsonSerializer implements JsonSerializer {
   protected boolean lowercaseProperties;
   protected boolean includeMetadata;
   protected boolean metaOnly;
+  protected boolean flattenBlankStringList;
 
   protected Collection<String> booleanItemNames = Collections.emptySet();
 
@@ -147,6 +148,12 @@ public abstract class AbstractJsonSerializer implements JsonSerializer {
   @Override
   public JsonSerializer metaOnly(boolean metaOnly) {
     this.metaOnly = metaOnly;
+    return this;
+  }
+
+  @Override
+  public JsonSerializer flattenBlankStringList(boolean flattenBlankStringList) {
+    this.flattenBlankStringList = flattenBlankStringList;
     return this;
   }
 

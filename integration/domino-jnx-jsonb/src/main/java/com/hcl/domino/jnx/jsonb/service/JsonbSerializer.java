@@ -56,6 +56,7 @@ public class JsonbSerializer extends AbstractJsonSerializer {
                       .richTextHtmlOptions(this.htmlConvertOptions)
                       .customProcessors(this.customProcessors)
                       .metaOnly(this.metaOnly)
+                      .flattenBlankStringList(this.flattenBlankStringList)
                       .build(),
                   DominoDateTimeSerializer.INSTANCE,
                   DominoDateRangeSerializer.INSTANCE
