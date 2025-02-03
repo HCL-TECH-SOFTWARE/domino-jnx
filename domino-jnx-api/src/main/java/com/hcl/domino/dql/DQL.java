@@ -485,6 +485,65 @@ public class DQL {
       return new ValueComparisonTerm(this, TermRelation.IN, strValues);
     }
 
+    /** @since 1.45.0 */
+    public <T> ValueComparisonTerm inAll(final Collection<T> values, final Class<T> clazz) {
+      if (Integer.class == clazz) {
+        final int[] valuesArr = new int[values.size()];
+        int idx = 0;
+        for (final T currVal : values) {
+          valuesArr[idx++] = ((Number) currVal).intValue();
+        }
+        return this.inAll(valuesArr);
+      } else if (Double.class == clazz) {
+        final double[] valuesArr = new double[values.size()];
+        int idx = 0;
+        for (final T currVal : values) {
+          valuesArr[idx++] = ((Number) currVal).doubleValue();
+        }
+        return this.inAll(valuesArr);
+      } else if (String.class == clazz) {
+        final String[] valuesArr = new String[values.size()];
+        int idx = 0;
+        for (final T currVal : values) {
+          valuesArr[idx++] = (String) currVal;
+        }
+        return this.inAll(valuesArr);
+      } else {
+        throw new IllegalArgumentException(
+            MessageFormat.format("Unsupported class type: {0}. Try Integer, Double or String.", clazz.getName()));
+      }
+    }
+
+    /** @since 1.45.0 */
+    public ValueComparisonTerm inAll(final double... dblValues) {
+      Objects.requireNonNull(dblValues, "Values list cannot be null");
+      if (dblValues.length == 0) {
+        throw new IllegalArgumentException("Values list cannot be empty");
+      }
+
+      return new ValueComparisonTerm(this, TermRelation.INALL, dblValues);
+    }
+
+    /** @since 1.45.0 */
+    public ValueComparisonTerm inAll(final int... intValues) {
+      Objects.requireNonNull(intValues, "Values list cannot be null");
+      if (intValues.length == 0) {
+        throw new IllegalArgumentException("Values list cannot be empty");
+      }
+
+      return new ValueComparisonTerm(this, TermRelation.INALL, intValues);
+    }
+
+    /** @since 1.45.0 */
+    public ValueComparisonTerm inAll(final String... strValues) {
+      Objects.requireNonNull(strValues, "Values list cannot be null");
+      if (strValues.length == 0) {
+        throw new IllegalArgumentException("Values list cannot be empty");
+      }
+
+      return new ValueComparisonTerm(this, TermRelation.INALL, strValues);
+    }
+
     public ValueComparisonTerm isEqualTo(final Date dtVal) {
       return new ValueComparisonTerm(this, TermRelation.EQUAL, dtVal);
     }
@@ -593,14 +652,23 @@ public class DQL {
     LESSTHANOREQUAL("<="), //$NON-NLS-1$
     GREATERTHAN(">"), //$NON-NLS-1$
     GREATERTHANOREQUAL(">="), //$NON-NLS-1$
-    IN("in"), //$NON-NLS-1$
-    INALL("in all"), //$NON-NLS-1$
+    IN("in", true), //$NON-NLS-1$
+    INALL("in all", true), //$NON-NLS-1$
     CONTAINS("contains"); //$NON-NLS-1$
 
     private final String m_val;
+    private final boolean m_multiMatch;
 
     TermRelation(final String val) {
+      this(val, false);
+    }
+    TermRelation(final String val, final boolean multiMatch) {
       this.m_val = val;
+      this.m_multiMatch = multiMatch;
+    }
+    
+    public boolean isMultiMatch() {
+      return m_multiMatch;
     }
 
     public String getValue() {
@@ -632,7 +700,7 @@ public class DQL {
         sb.append(this.m_relation.getValue());
         sb.append(" "); //$NON-NLS-1$
 
-        if (this.m_relation == TermRelation.IN) {
+        if (this.m_relation.isMultiMatch()) {
           sb.append("("); //$NON-NLS-1$
         }
 
@@ -702,7 +770,7 @@ public class DQL {
               this.m_value == null ? "null" : this.m_value.getClass().getName())); //$NON-NLS-1$
         }
 
-        if (this.m_relation == TermRelation.IN) {
+        if (this.m_relation.isMultiMatch()) {
           sb.append(")"); //$NON-NLS-1$
         }
 
