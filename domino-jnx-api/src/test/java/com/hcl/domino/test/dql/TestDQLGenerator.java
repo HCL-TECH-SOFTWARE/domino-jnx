@@ -112,4 +112,11 @@ public class TestDQLGenerator {
     assertEquals(DQL.item("Foo").isEqualTo("Bar"), DQL.item("Foo").isEqualTo("Bar"));
   }
   
+  @Test
+  public void testInAll() {
+    assertEquals("part_no in all (389, 27883, 388388, 587992)", DQL.item("part_no").inAll(389, 27883, 388388, 587992).toString());
+    assertEquals("part_no in all (389.1, 27883.1, 388388.1, 587992.1)", DQL.item("part_no").inAll(389.1, 27883.1, 388388.1, 587992.1).toString());
+    assertEquals("part_no in all ('foo', 'bar')", DQL.item("part_no").inAll("foo", "bar").toString());
+  }
+  
 }
