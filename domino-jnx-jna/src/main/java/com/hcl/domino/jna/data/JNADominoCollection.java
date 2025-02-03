@@ -1810,6 +1810,48 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 		return getAllEntriesByKey(jnaFindFlags, EnumSet.of(ReadMask.NOTEID),
 				new NoteIdsAsOrderedSetCallback(Integer.MAX_VALUE), keysArr);
 	}
+
+    @Override
+    public Optional<String> getPositionByKey(Set<Find> findFlags, Object key) {
+      Objects.requireNonNull(key, "Key cannot be null");
+      return getPositionByKey(findFlags, Collections.singleton(key));
+    }
+	
+    @Override
+    public Optional<String> getPositionByKey(Set<Find> findFlags, Collection<Object> key) {
+      Objects.requireNonNull(key, "Key cannot be null");
+      if (key.isEmpty()) {
+          throw new IllegalArgumentException("Key cannot be empty");
+      }
+      
+      Object[] keysArr = key.toArray(new Object[key.size()]);
+      Set<FindFlag> jnaFindFlags = toJNAFind(findFlags);
+      
+      JNACollectionEntryProcessor<Optional<String>> proc =
+          new JNACollectionEntryProcessor<Optional<String>>() {
+            private String position;
+
+            @Override
+            public Optional<String> start() {
+              return Optional.empty();
+            }
+
+            @Override
+            public Action entryRead(Optional<String> result, CollectionEntry entry) {
+              position = entry.getSpecialValue(SpecialValue.INDEXPOSITION, String.class, null);
+              return Action.Stop;
+            }
+
+            @Override
+            public Optional<String> end(Optional<String> result) {
+              return Optional.ofNullable(position);
+            }
+
+          };
+      
+      return getAllEntriesByKey(jnaFindFlags, EnumSet.of(ReadMask.INDEXPOSITION),
+              proc, keysArr);
+    }
 	
 	/**
 	 * Maps publicly available find flags to the full list
