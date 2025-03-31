@@ -4036,7 +4036,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		}
 		
 		if (tmpDoc.hasItem(NotesConstants.MAIL_BLINDCOPYTO_ITEM)) {
-			List<String> blindCopyToNames = tmpDoc.getAsList(NotesConstants.MAIL_COPYTO_ITEM, String.class, Collections.emptyList());
+			List<String> blindCopyToNames = tmpDoc.getAsList(NotesConstants.MAIL_BLINDCOPYTO_ITEM, String.class, Collections.emptyList());
 			blindCopyToNames = NotesNamingUtils.toCanonicalNames(blindCopyToNames);
 			tmpDoc.replaceItemValue(NotesConstants.MAIL_BLINDCOPYTO_ITEM, blindCopyToNames);
 		}
