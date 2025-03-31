@@ -7,7 +7,7 @@
   <parent>
     <groupId>com.hcl.domino</groupId>
     <artifactId>domino-jnx</artifactId>
-    <version>1.45.0</version>
+    <version>1.46.0</version>
     <relativePath>../..</relativePath>
   </parent>
   <artifactId>domino-jnx-vertx-json</artifactId>
