@@ -237,7 +237,7 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
      * other
      * servers in the cluster, then this flag will have no effect.
      */
-    CLUSTER_FAILOVER((short) 0x0008),
+    CLUSTER_FAILOVER((short) 0x0080),
 
     /**
      * Force a database fixup, even if the file was properly closed previously. This
