@@ -38,6 +38,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -634,6 +635,33 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 		
 		return this;
 	}
+	
+    @Override
+    public RichTextWriter appendRecordBuffer(ByteBuffer recordData) {
+      checkDisposed();
+      Objects.requireNonNull(recordData, "recordData cannot be null");
+
+      if (!recordData.hasRemaining()) {
+        return this;
+      }
+
+      short result = LockUtil.lockHandle(getAllocations().getCompoundTextHandle(), (hCompoundTextByVal) -> {
+        int len = recordData.remaining();
+        Pointer recordMem;
+        try {
+          recordMem = Native.getDirectBufferPointer(recordData);
+        } catch (IllegalArgumentException e) {
+          recordMem = new Memory(len);
+          recordMem.write(0, recordData.array(), 0, len);
+        }
+        return NotesCAPI.get().CompoundTextAddCDRecords(hCompoundTextByVal, recordMem, len);
+      });
+
+      NotesErrorUtils.checkResult(result);
+      m_hasData = true;
+
+      return this;
+    }
 
 	@Override
 	public void close() {

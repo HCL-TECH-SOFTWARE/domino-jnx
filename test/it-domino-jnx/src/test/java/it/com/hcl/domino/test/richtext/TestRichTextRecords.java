@@ -19,15 +19,18 @@ package it.com.hcl.domino.test.richtext;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -2072,6 +2075,79 @@ public class TestRichTextRecords extends AbstractNotesRuntimeTest {
         assertEquals(true, begin.getDrawingObject().getFontID().isSub());
         assertEquals(true, begin.getDrawingObject().getFontID().isSuper());
         assertEquals(true, begin.getDrawingObject().getFontID().isUnderline());
+      });
+    }
+    
+    @Test
+    public void testRecordBuffer() throws Exception {
+      ByteBuffer recordsB64 = ByteBuffer.wrap("gQKF/xMAAQAACkhlbGxvIHRoZXJl".getBytes());
+      ByteBuffer recordsBuf = Base64.getDecoder().decode(recordsB64);
+      
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.appendRecordBuffer(recordsBuf);
+        }
+        
+        RichTextRecordList records = doc.getRichTextItem("Body");
+        assertEquals(2, records.size());
+        assertInstanceOf(CDParagraph.class, records.get(0));
+        CDText text = assertInstanceOf(CDText.class, records.get(1));
+        assertEquals("Hello there", text.getText());
+      });
+    }
+    
+    @Test
+    public void testRecordBufferRoundTrip() throws Exception {
+      this.withTempDb(database -> {
+        final Document doc = database.createDocument();
+        
+        // Create some RT we know about
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body")) {
+          rtWriter.addText("hey hey");
+          rtWriter.addRichTextRecord(CDActionBarExt.class, action -> {
+            action.setBackgroundRepeatRaw((short)12);
+            action.setBackgroundRepeat(ActionBarBackgroundRepeat.REPEATHORIZ);
+          });
+        }
+        
+        // Read the values into a B64 buffer (to emulate downstream use)
+        byte[] content;
+        RichTextRecordList records = doc.getRichTextItem("Body");
+        try (
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            OutputStream os = Base64.getEncoder().wrap(baos);) {
+          for (RichTextRecord<?> rec : records) {
+            ByteBuffer buf = rec.getData();
+            if (buf.hasArray()) {
+              os.write(buf.array());
+            } else {
+              byte[] bytes = new byte[buf.remaining()];
+              buf.get(bytes);
+              os.write(bytes);
+            }
+          }
+          os.flush();
+          content = baos.toByteArray();
+        }
+
+        ByteBuffer recordsB64 = ByteBuffer.wrap(content);
+        ByteBuffer recordsBuf = Base64.getDecoder().decode(recordsB64);
+        
+        // Write it into a new item
+        try (RichTextWriter rtWriter = doc.createRichTextItem("Body2")) {
+          rtWriter.appendRecordBuffer(recordsBuf);
+        }
+        
+        // Read that body back and make sure the records match
+        RichTextRecordList body2 = doc.getRichTextItem("Body2");
+        assertEquals(3, body2.size());
+        assertInstanceOf(CDParagraph.class, records.get(0));
+        CDText text = assertInstanceOf(CDText.class, records.get(1));
+        assertEquals("hey hey", text.getText());
+        CDActionBarExt action = assertInstanceOf(CDActionBarExt.class, records.get(2));
+        assertEquals(ActionBarBackgroundRepeat.REPEATHORIZ, action.getBackgroundRepeat().get());
+        assertEquals(ActionBarBackgroundRepeat.REPEATHORIZ.getValue(), action.getBackgroundRepeatRaw());
       });
     }
 }

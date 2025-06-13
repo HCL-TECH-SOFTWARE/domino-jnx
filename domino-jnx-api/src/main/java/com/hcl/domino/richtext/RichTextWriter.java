@@ -18,6 +18,7 @@ package com.hcl.domino.richtext;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.Consumer;
@@ -365,6 +366,16 @@ public interface RichTextWriter extends AutoCloseable {
    * @return this writer
    */
   RichTextWriter addText(String txt, TextStyle textStyle, FontStyle fontStyle, boolean createParagraphOnLinebreak);
+  
+  /**
+   * Appends the contents of the provided buffer of rich text records to the
+   * current value.
+   * 
+   * @param recordData the buffer to append; must not be {@code null}
+   * @return this writer
+   * @since 1.47.0
+   */
+  RichTextWriter appendRecordBuffer(ByteBuffer recordData);
 
   /**
    * Closes this resource, relinquishing any underlying resources.
