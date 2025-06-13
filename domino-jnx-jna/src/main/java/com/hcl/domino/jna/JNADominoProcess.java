@@ -26,6 +26,7 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -172,13 +173,18 @@ public class JNADominoProcess implements DominoProcess {
           }
         }
       }
-      StringArray strArr = new StringArray(initArgs);
+      
+      String[] cleanInitArgs = Arrays.stream(initArgs)
+        .map(a -> a == null ? "" : a)
+        .toArray(String[]::new);
+      
+      StringArray strArr = new StringArray(cleanInitArgs);
 
       // make sure we have at least one running thread accessing Domino APIs,
       // otherwise the API automatically unloads the native libs when
       // no thread has an active initThread ref count
       pacemakerThread =
-          new DominoPacemakerThread(initArgs.length, strArr, nativeProcessInit, nativeThreadInit);
+          new DominoPacemakerThread(cleanInitArgs.length, strArr, nativeProcessInit, nativeThreadInit);
       pacemakerThread.start();
       try {
         pacemakerThread.waitUntilStarted();
