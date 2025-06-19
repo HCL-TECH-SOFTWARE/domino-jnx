@@ -21,3 +21,10 @@ jobs:
           package-type: 'container'
           min-versions-to-keep: 5
           token: ${{ secrets.NUKE_TOKEN }}
+      - name: Keep R14.5 production to 5
+        uses: actions/delete-package-versions@v5.0.0
+        with: 
+          package-name: 'projectkeep-r145'
+          package-type: 'container'
+          min-versions-to-keep: 5
+          token: ${{ secrets.NUKE_TOKEN }}
