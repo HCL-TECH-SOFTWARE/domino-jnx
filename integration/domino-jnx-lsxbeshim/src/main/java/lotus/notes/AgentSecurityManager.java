@@ -20,9 +20,7 @@ public class AgentSecurityManager extends SecurityManager {
     super.checkAccess(g);
   }
   
-  @Override
   public void checkAwtEventQueueAccess() {
-    super.checkAwtEventQueueAccess();
   }
   
   @Override
@@ -65,9 +63,7 @@ public class AgentSecurityManager extends SecurityManager {
     super.checkListen(port);
   }
   
-  @Override
   public void checkMemberAccess(Class<?> clazz, int which) {
-    super.checkMemberAccess(clazz, which);
   }
   
   @Override
@@ -75,9 +71,7 @@ public class AgentSecurityManager extends SecurityManager {
     super.checkMulticast(maddr);
   }
   
-  @Override
   public void checkMulticast(InetAddress maddr, byte ttl) {
-    super.checkMulticast(maddr, ttl);
   }
   
   @Override
@@ -135,14 +129,11 @@ public class AgentSecurityManager extends SecurityManager {
     super.checkSetFactory();
   }
   
-  @Override
   public void checkSystemClipboardAccess() {
-    super.checkSystemClipboardAccess();
   }
   
-  @Override
   public boolean checkTopLevelWindow(Object window) {
-    return super.checkTopLevelWindow(window);
+    return false;
   }
   
   @Override
