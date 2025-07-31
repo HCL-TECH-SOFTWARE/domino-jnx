@@ -17,5 +17,35 @@
 package lotus.notes;
 
 public class AgentSecurityContext {
-
+  public AgentSecurityContext(ThreadGroup paramThreadGroup, boolean paramBoolean) {
+    
+  }
+  
+  public final boolean classLoaderAllowed() {
+    return false;
+  }
+  
+  public final boolean execAllowed() {
+    return false;
+  }
+  
+  public final boolean linkAllowed() {
+    return false;
+  }
+  
+  public final boolean netAllowed() {
+    return false;
+  }
+  
+  public final boolean propAllowed() {
+    return false;
+  }
+  
+  public final boolean readAllowed() {
+    return false;
+  }
+  
+  public final boolean writeAllowed() {
+    return false;
+  }
 }
