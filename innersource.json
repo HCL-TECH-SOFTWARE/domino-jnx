@@ -1,6 +1,6 @@
 {
    "title": "DominoJNX",
-   "project_logo": "https://github.com/HCL-TECH-SOFTWARE/domino-jnx/logo.png",
+   "project_logo": "https://raw.githubusercontent.com/HCL-TECH-SOFTWARE/domino-jnx/refs/heads/main/logo.png",
    "motivation": "Modern take on the HCL Domino Java API interacting with C/C++ using JNA",
    "contributions": [
       "Bugfixes",
