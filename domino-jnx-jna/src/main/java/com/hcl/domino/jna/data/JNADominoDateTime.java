@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.data;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
@@ -361,7 +362,8 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
         td.setInt(0, m_innards0);
         td.setInt(4, m_innards1);
         NotesErrorUtils.checkResult(NotesCAPI12.get().ConvertTIMEDATEtoRFC3339Date(td, mem, (short)256));
-        String isoTime = NotesStringUtils.fromLMBCS(mem, -1);
+        // ISO times are ASCII-safe, so no need to do an LMBCS conversion
+        String isoTime = mem.getString(0, StandardCharsets.US_ASCII.name());
         if(isoTime.endsWith("-1Z")) {
           // Then it's date-only
           // e.g. 2023-04-05T-1:-1:-1.-1Z
