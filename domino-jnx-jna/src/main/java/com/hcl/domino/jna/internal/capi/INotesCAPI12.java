@@ -47,4 +47,5 @@ public interface INotesCAPI12 extends Library {
 			Pointer pInEntry, Pointer phEntryList,
 			IntByReference phErrorText);
 
+//  short ConvertTIMEDATEtoRFC3339Date(Notes
 }
