@@ -17,7 +17,6 @@
 package com.hcl.domino.jna.internal;
 
 import static java.text.MessageFormat.format;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -27,9 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Formatter;
 import java.util.List;
-
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
@@ -811,13 +808,21 @@ public class NotesStringUtils {
 	 * @return unid
 	 */
 	public static String toUNID(long innardsFile, long innardsNote) {
-		Formatter formatter = new Formatter();
-		
-		formatter.format("%016x", innardsFile); //$NON-NLS-1$
-		formatter.format("%016x", innardsNote); //$NON-NLS-1$
-		String unid = formatter.toString().toUpperCase();
-		formatter.close();
-		return unid;
+	  StringBuilder result = new StringBuilder();
+	  
+	  String file = Long.toHexString(innardsFile).toUpperCase();
+	  for(int i = 0; i < 16 - file.length(); i++) {
+	    result.append('0');
+	  }
+	  result.append(file);
+	  
+	  String note = Long.toHexString(innardsNote).toUpperCase();
+	  for(int i = 0; i < 16 - note.length(); i++) {
+	    result.append('0');
+	  }
+	  result.append(note);
+	  
+	  return result.toString();
 	}
 
 	/**
@@ -827,13 +832,8 @@ public class NotesStringUtils {
 	 * @return UNID as string
 	 */
 	public static String pointerToUnid(Pointer ptr) {
-		Formatter formatter = new Formatter();
-		ByteBuffer data = ptr.getByteBuffer(0, 16).order(ByteOrder.LITTLE_ENDIAN);
-		formatter.format("%016x", data.getLong()); //$NON-NLS-1$
-		formatter.format("%016x", data.getLong()); //$NON-NLS-1$
-		String unidStr = formatter.toString().toUpperCase();
-		formatter.close();
-		return unidStr;
+	  ByteBuffer data = ptr.getByteBuffer(0, 16).order(ByteOrder.LITTLE_ENDIAN);
+	  return toUNID(data.getLong(), data.getLong());
 	}
 	
 	/**

@@ -21,7 +21,8 @@ import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.test.AbstractJNARuntimeTest;
 import com.sun.jna.Memory;
@@ -35,6 +36,15 @@ public class TestNotesStringUtils extends AbstractJNARuntimeTest {
     final Memory mem = NotesStringUtils.toLMBCS(strings);
     final List<String> out = NotesStringUtils.fromLMBCSStringList(mem, strings.size());
     Assertions.assertEquals(strings, out);
+  }
+  
+  @ParameterizedTest
+  @CsvSource(delimiterString = " - ", value = {
+    "00000000000000000000000000000000 - 0 - 0",
+    "00000000000000010000000000000001 - 1 - 1"
+  })
+  public void testToUnid(String expected, long innardsFile, long innardsNote) {
+    Assertions.assertEquals(expected, NotesStringUtils.toUNID(innardsFile, innardsNote));
   }
 
 }
