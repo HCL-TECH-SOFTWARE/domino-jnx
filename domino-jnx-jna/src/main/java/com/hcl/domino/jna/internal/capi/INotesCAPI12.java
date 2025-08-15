@@ -19,6 +19,7 @@ package com.hcl.domino.jna.internal.capi;
 import com.hcl.domino.jna.internal.capi.INotesCAPI.UndocumentedAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
+import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.sun.jna.Library;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
@@ -47,5 +48,17 @@ public interface INotesCAPI12 extends Library {
 			Pointer pInEntry, Pointer phEntryList,
 			IntByReference phErrorText);
 
-//  short ConvertTIMEDATEtoRFC3339Date(Notes
+  /**
+   * 
+   * @param ptdTimeDate A pointer to a Notes time/date value
+   * @param wTextBufSize Big enough to include the trailing null char
+   * @param pachText A pointer to string buffer for ASCII string
+   * @return On invalid syntax, ERR_TDI_CONV error is returned, on
+   *         successful conversion returns NOERROR
+   * @since JNX 1.48.0
+   * @since Domino 12.0.2
+   */
+  short ConvertTIMEDATEtoRFC3339Date(Pointer ptdTimeDate,
+      Pointer pachText,
+      short wTextBufSize);
 }

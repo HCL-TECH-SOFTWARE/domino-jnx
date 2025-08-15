@@ -33,6 +33,7 @@ import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.JNANotesConstants;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
+import com.hcl.domino.jna.internal.capi.NotesCAPI12;
 import com.hcl.domino.jna.internal.structs.IntlFormatStruct;
 import com.hcl.domino.jna.internal.structs.NotesTFMTStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
@@ -349,4 +350,31 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
     		return td;
 		}
 	}
+	
+    @Override
+    public String toISOString() {
+      try(
+          DisposableMemory td = new DisposableMemory(8);
+          DisposableMemory mem = new DisposableMemory(256)
+      ) {
+        mem.setByte(0, (byte)0);
+        td.setInt(0, m_innards0);
+        td.setInt(4, m_innards1);
+        NotesErrorUtils.checkResult(NotesCAPI12.get().ConvertTIMEDATEtoRFC3339Date(td, mem, (short)256));
+        String isoTime = NotesStringUtils.fromLMBCS(mem, -1);
+        if(isoTime.endsWith("-1Z")) {
+          // Then it's date-only
+          // e.g. 2023-04-05T-1:-1:-1.-1Z
+          int tIndex = isoTime.indexOf('T');
+          return isoTime.substring(0, tIndex);
+        } else if(isoTime.startsWith("00-")) {
+          // Then it's time-only
+          // e.g. 00-1--1--1T09:26:43.75Z
+          int tIndex = isoTime.indexOf('T');
+          return isoTime.substring(tIndex+1, isoTime.length()-1);
+        } else {
+          return isoTime;
+        }
+      }
+    }
 }

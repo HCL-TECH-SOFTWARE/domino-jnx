@@ -337,11 +337,11 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
       generator.writeStartObject(JsonSerializer.PROP_METADATA);
       generator.write(JsonSerializer.PROP_META_NOTEID, obj.getNoteID());
       generator.write(JsonSerializer.PROP_META_UNID, obj.getUNID());
-      generator.write(JsonSerializer.PROP_META_CREATED, JsonUtil.toIsoString(obj.getCreated()));
-      generator.write(JsonSerializer.PROP_META_LASTMODIFIED, JsonUtil.toIsoString(obj.getLastModified()));
-      generator.write(JsonSerializer.PROP_META_LASTACCESSED, JsonUtil.toIsoString(obj.getLastAccessed()));
-      generator.write(JsonSerializer.PROP_META_LASTMODIFIEDINFILE, JsonUtil.toIsoString(obj.getModifiedInThisFile()));
-      generator.write(JsonSerializer.PROP_META_ADDEDTOFILE, JsonUtil.toIsoString(obj.getAddedToFile()));
+      generator.write(JsonSerializer.PROP_META_CREATED, obj.getCreated().toISOString());
+      generator.write(JsonSerializer.PROP_META_LASTMODIFIED, obj.getLastModified().toISOString());
+      generator.write(JsonSerializer.PROP_META_LASTACCESSED, obj.getLastAccessed().toISOString());
+      generator.write(JsonSerializer.PROP_META_LASTMODIFIEDINFILE, obj.getModifiedInThisFile().toISOString());
+      generator.write(JsonSerializer.PROP_META_ADDEDTOFILE, obj.getAddedToFile().toISOString());
       generator.writeStartArray(JsonSerializer.PROP_META_NOTECLASS);
       for (final DocumentClass c : obj.getDocumentClass()) {
         generator.write(c.name());
@@ -490,15 +490,15 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
                     generator.writeNull();
                   } else {
                     if (val instanceof DominoDateTime) {
-                      generator.write(JsonUtil.toIsoString((DominoDateTime) val));
+                      generator.write(((DominoDateTime) val).toISOString());
                     } else {
                       switch (this.dateRangeFormat) {
                         case OBJECT:
                           generator.writeStartObject();
                           generator.write(JsonSerializer.PROP_RANGE_FROM,
-                              JsonUtil.toIsoString(((DominoDateRange) val).getStartDateTime()));
+                              ((DominoDateRange) val).getStartDateTime().toISOString());
                           generator.write(JsonSerializer.PROP_RANGE_TO,
-                              JsonUtil.toIsoString(((DominoDateRange) val).getEndDateTime()));
+                              ((DominoDateRange) val).getEndDateTime().toISOString());
                           generator.writeEnd();
                           break;
                         case ISO:
@@ -670,13 +670,13 @@ public class DocumentJsonbSerializer implements JsonbSerializer<Document> {
       generator.writeNull(propName);
     } else {
       if (val instanceof DominoDateTime) {
-        generator.write(propName, JsonUtil.toIsoString((DominoDateTime) val));
+        generator.write(propName, ((DominoDateTime) val).toISOString());
       } else {
         switch (this.dateRangeFormat) {
           case OBJECT:
             generator.writeStartObject(propName);
-            generator.write(JsonSerializer.PROP_RANGE_FROM, JsonUtil.toIsoString(((DominoDateRange) val).getStartDateTime()));
-            generator.write(JsonSerializer.PROP_RANGE_TO, JsonUtil.toIsoString(((DominoDateRange) val).getEndDateTime()));
+            generator.write(JsonSerializer.PROP_RANGE_FROM, ((DominoDateRange) val).getStartDateTime().toISOString());
+            generator.write(JsonSerializer.PROP_RANGE_TO, ((DominoDateRange) val).getEndDateTime().toISOString());
             generator.writeEnd();
             break;
           case ISO:

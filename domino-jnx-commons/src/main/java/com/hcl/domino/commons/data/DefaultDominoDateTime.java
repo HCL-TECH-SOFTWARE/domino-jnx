@@ -24,6 +24,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
@@ -302,6 +303,19 @@ public class DefaultDominoDateTime implements DominoDateTime {
   public Optional<Temporal> toTemporal() {
     final int[] innards = this.getInnards();
     return Optional.ofNullable(InnardsConverter.decodeInnards(innards));
+  }
+  
+  @Override
+  public String toISOString() {
+    if (hasDate() && hasTime()) {
+      return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(this);
+    } else if (hasDate()) {
+      return DateTimeFormatter.ISO_LOCAL_DATE.format(this);
+    } else if (hasTime()) {
+      return DateTimeFormatter.ISO_LOCAL_TIME.format(this);
+    } else {
+      return ""; //$NON-NLS-1$
+    }
   }
 
   @Override
