@@ -1359,7 +1359,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 	@Override
 	public boolean isFTIndex() {
-		return getLastFTIndexTime() != null;
+		return getOption(DatabaseOption.FT_INDEX) && getLastFTIndexTime() != null;
 	}
 
 	@Override
