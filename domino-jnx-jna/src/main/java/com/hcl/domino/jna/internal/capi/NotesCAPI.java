@@ -46,6 +46,7 @@ public class NotesCAPI {
 	private static Class<Native> m_nativeClazz;
 	private static DominoException m_initError;
 	private static int m_platformAlignment;
+	private static boolean m_callstackLogging;
 
 	static {
 		if (PlatformUtils.isWindows()) {
@@ -70,11 +71,30 @@ public class NotesCAPI {
 		else {
 			m_platformAlignment = -1;
 		}
+		
+		m_callstackLogging = DominoUtils.checkBooleanProperty("jnx.callstacklog", "JNX_CALLSTACKLOG"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	public static int getPlatformAlignment() {
 		return m_platformAlignment;
 	}
+	
+	/**
+	 * @return whether API calls should have callstack logging
+     * @since 1.48.0
+	 */
+	public static boolean isCallstackLogging() {
+      return m_callstackLogging;
+    }
+	
+	/**
+	 * 
+	 * @param callstackLogging whether API calls should have callstack logging
+	 * @since 1.48.0
+	 */
+	public static void setCallstackLogging(boolean callstackLogging) {
+      m_callstackLogging = callstackLogging;
+    }
 
 	 /**
    * Loads the Domino shared library and returns a Java Proxy object to map C functions to Java methods.
@@ -111,9 +131,7 @@ public class NotesCAPI {
 	    JNADominoProcess.checkThreadEnabledForDomino();
 		}
 		
-		boolean useCallstackLogging = DominoUtils.checkBooleanProperty("jnx.callstacklog", "JNX_CALLSTACKLOG"); //$NON-NLS-1$ //$NON-NLS-2$
-		
-		if (useCallstackLogging) {
+		if (m_callstackLogging) {
 			if (m_instanceWithStackLogging==null) {
 				m_instanceWithStackLogging = wrapWithCrashStackLogging(INotesCAPI.class, m_instance);
 			}
