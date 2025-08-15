@@ -20,7 +20,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.hcl.domino.DominoException;
-import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.jna.JNADominoProcess;
 import com.hcl.domino.jna.internal.capi.NotesCAPI.FunctionNameAnnotationMapper;
@@ -50,7 +49,7 @@ public class NotesCAPI1201 {
 		
     JNADominoProcess.checkThreadEnabledForDomino();
 
-		boolean useCallstackLogging = DominoUtils.checkBooleanProperty("jnx.callstacklog", "JNX_CALLSTACKLOG"); //$NON-NLS-1$ //$NON-NLS-2$
+		boolean useCallstackLogging = NotesCAPI.isCallstackLogging();
 		
 		if (useCallstackLogging) {
 			if (m_instanceWithStackLogging==null) {
