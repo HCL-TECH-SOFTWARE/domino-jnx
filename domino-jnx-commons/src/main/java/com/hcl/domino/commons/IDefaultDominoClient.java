@@ -17,7 +17,9 @@
 package com.hcl.domino.commons;
 
 import java.text.MessageFormat;
+import java.time.temporal.TemporalAccessor;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -31,9 +33,11 @@ import javax.naming.NameNotFoundException;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoProcess;
 import com.hcl.domino.commons.data.DefaultUserData;
+import com.hcl.domino.commons.json.JsonUtil;
 import com.hcl.domino.commons.server.DefaultServerInfo;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.DatabaseClass;
+import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.UserData;
 import com.hcl.domino.misc.JNXServiceFinder;
 import com.hcl.domino.security.CredentialValidationTokenHandler;
@@ -145,5 +149,15 @@ public interface IDefaultDominoClient extends DominoClient {
       }
       throw e;
     }
+  }
+  
+  @Override
+  default DominoDateTime createDateTime(String isoTime) {
+    Objects.requireNonNull(isoTime, "isoTime cannot be null");
+    TemporalAccessor time = JsonUtil.tryDateTime(isoTime);
+    if(time == null) {
+      throw new IllegalArgumentException(MessageFormat.format("Unable to convert ISO string value: {0}", isoTime));
+    }
+    return createDateTime(time);
   }
 }

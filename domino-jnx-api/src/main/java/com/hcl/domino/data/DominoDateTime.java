@@ -111,5 +111,14 @@ public interface DominoDateTime extends IAdaptable, Temporal, Cloneable, DominoT
    *         invalid
    */
   Optional<Temporal> toTemporal();
+  
+  /**
+   * Converts the value to an ISO 8601 string of a type based on the internal
+   * value.
+   * 
+   * @return an ISO 8601 representation of the date/time value
+   * @since 1.48.0
+   */
+  String toISOString();
 
 }

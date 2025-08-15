@@ -135,11 +135,11 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
       result.put(JsonSerializer.PROP_METADATA, meta);
       meta.put(JsonSerializer.PROP_META_NOTEID, doc.getNoteID());
       meta.put(JsonSerializer.PROP_META_UNID, doc.getUNID());
-      meta.put(JsonSerializer.PROP_META_CREATED, JsonUtil.toIsoString(doc.getCreated()));
-      meta.put(JsonSerializer.PROP_META_LASTMODIFIED, JsonUtil.toIsoString(doc.getLastModified()));
-      meta.put(JsonSerializer.PROP_META_LASTACCESSED, JsonUtil.toIsoString(doc.getLastAccessed()));
-      meta.put(JsonSerializer.PROP_META_LASTMODIFIEDINFILE, JsonUtil.toIsoString(doc.getModifiedInThisFile()));
-      meta.put(JsonSerializer.PROP_META_ADDEDTOFILE, JsonUtil.toIsoString(doc.getAddedToFile()));
+      meta.put(JsonSerializer.PROP_META_CREATED, doc.getCreated().toISOString());
+      meta.put(JsonSerializer.PROP_META_LASTMODIFIED, doc.getLastModified().toISOString());
+      meta.put(JsonSerializer.PROP_META_LASTACCESSED, doc.getLastAccessed().toISOString());
+      meta.put(JsonSerializer.PROP_META_LASTMODIFIEDINFILE, doc.getModifiedInThisFile().toISOString());
+      meta.put(JsonSerializer.PROP_META_ADDEDTOFILE, doc.getAddedToFile().toISOString());
       meta.put(JsonSerializer.PROP_META_NOTECLASS,
           doc.getDocumentClass().stream()
               .map(DocumentClass::name)
@@ -276,7 +276,7 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
                     vals.stream()
                         .map(dt -> {
                           if (dt instanceof DominoDateTime) {
-                            return JsonUtil.toIsoString((DominoDateTime) dt);
+                            return ((DominoDateTime) dt).toISOString();
                           } else {
                             switch (this.dateRangeFormat) {
                               case OBJECT:
@@ -392,13 +392,13 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
       result.putNull(propName);
     } else {
       if (val instanceof DominoDateTime) {
-        result.put(propName, JsonUtil.toIsoString((DominoDateTime) val));
+        result.put(propName, ((DominoDateTime) val).toISOString());
       } else {
         switch (this.dateRangeFormat) {
           case OBJECT:
             final JsonObject inner = new JsonObject();
-            inner.put(JsonSerializer.PROP_RANGE_FROM, JsonUtil.toIsoString(((DominoDateRange) val).getStartDateTime()));
-            inner.put(JsonSerializer.PROP_RANGE_TO, JsonUtil.toIsoString(((DominoDateRange) val).getEndDateTime()));
+            inner.put(JsonSerializer.PROP_RANGE_FROM, ((DominoDateRange) val).getStartDateTime().toISOString());
+            inner.put(JsonSerializer.PROP_RANGE_TO, ((DominoDateRange) val).getEndDateTime().toISOString());
             result.put(propName, inner);
             break;
           case ISO:
