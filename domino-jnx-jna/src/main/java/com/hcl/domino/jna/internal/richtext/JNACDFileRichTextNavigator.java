@@ -56,7 +56,7 @@ public class JNACDFileRichTextNavigator extends BaseJNAAPIObject<JNACDFileRichTe
 	private int m_lastElementIndex = -1;
 	
 	@SuppressWarnings("rawtypes")
-  public JNACDFileRichTextNavigator(IGCDominoClient client, String filePath, InputStream cdFileStream,
+    public JNACDFileRichTextNavigator(IGCDominoClient client, String filePath, InputStream cdFileStream,
 			long fileSize,
 			boolean autoDelete) throws IOException {
 		super(client);
@@ -439,6 +439,11 @@ public class JNACDFileRichTextNavigator extends BaseJNAAPIObject<JNACDFileRichTe
 			getAllocations().getFilePath(), getAllocations().getFileSize()
 		);
 	}
+	
+    @Override
+    public RichtextNavigator clone() throws CloneNotSupportedException {
+      throw new CloneNotSupportedException();
+    }
 	
 	private static class CDFileRichTextPosition implements RichtextPosition {
 		private RichtextNavigator m_parentNav;

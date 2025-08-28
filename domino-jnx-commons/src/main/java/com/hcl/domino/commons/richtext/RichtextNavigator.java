@@ -150,5 +150,16 @@ public interface RichtextNavigator extends IAdaptable {
    * @param pos new position
    */
   void restorePosition(RichtextPosition pos);
+  
+  /**
+   * Clones the current navigator if the underlying implementation
+   * supports it. Check the instance for the {@link Cloneable} interface.
+   * 
+   * @return a clone of this navigator that can be operated
+   *         independently
+   * @throws CloneNotSupportedException if the underlying implementation
+   *         does not support cloning
+   */
+  RichtextNavigator clone() throws CloneNotSupportedException;
 
 }

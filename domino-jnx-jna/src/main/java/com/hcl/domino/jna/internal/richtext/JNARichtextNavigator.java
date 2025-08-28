@@ -37,7 +37,7 @@ import com.hcl.domino.jna.internal.gc.allocations.JNARichtextNavigatorAllocation
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
-public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorAllocations> implements RichtextNavigator {
+public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorAllocations> implements RichtextNavigator, Cloneable {
 	private String m_richTextItemName;
 	
 	private LinkedList<JNAItem> m_items;
@@ -69,16 +69,16 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 	 * @param item the item containing composite data
 	 * @since 1.0.43
 	 */
-	public JNARichtextNavigator(JNADocument doc, JNAItem item) {
-	  super(doc);
-    
-    m_richTextItemName = item.getName();
-    //read items
-    m_items = new LinkedList<>();
-    m_items.add(item);
+    public JNARichtextNavigator(JNADocument doc, JNAItem item) {
+      super(doc);
 
-    setInitialized();
-	}
+      m_richTextItemName = item.getName();
+      // read items
+      m_items = new LinkedList<>();
+      m_items.add(item);
+
+      setInitialized();
+    }
 
 	@Override
 	public Document getParentDocument() {
@@ -139,6 +139,11 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 			m_currentItemRecords = readCDRecords(currItem);
 		}
 	}
+	
+    @Override
+    public RichtextNavigator clone() {
+      return new JNARichtextNavigator((JNADocument)this.getParentDocument(), m_richTextItemName);
+    }
 	
 	@Override
 	public boolean isEmpty() {
