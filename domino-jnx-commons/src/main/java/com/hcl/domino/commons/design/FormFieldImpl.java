@@ -33,6 +33,7 @@ import com.hcl.domino.richtext.records.CDExtField;
 import com.hcl.domino.richtext.records.CDIDName;
 import com.hcl.domino.richtext.records.ICDField;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.structures.TFMT;
 
 /**
  * @author Jesse Gallagher
@@ -313,5 +314,15 @@ public class FormFieldImpl implements FormField {
     }
     
     return Type.TEXT;
+  }
+  
+  @Override
+  public TFMT getTimeFormat() {
+    return this.structs.stream()
+      .filter(s -> s instanceof ICDField)
+      .map(ICDField.class::cast)
+      .findFirst()
+      .map(ICDField::getTimeFormat)
+      .orElseThrow(() -> new IllegalStateException("Unable to find field description in field structs"));
   }
 }

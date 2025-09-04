@@ -455,6 +455,7 @@ public class TestDbDesign extends AbstractDesignTest {
         assertEquals("host=\"attr\"", hostField.getHtmlExtraAttr());
         assertEquals("Name", hostField.getHtmlTitle());
         assertEquals(ItemDataType.TYPE_TEXT_LIST, hostField.getDataType().get());
+        assertNotNull(hostField.getTimeFormat());
       }
 
       // Check for its two subforms

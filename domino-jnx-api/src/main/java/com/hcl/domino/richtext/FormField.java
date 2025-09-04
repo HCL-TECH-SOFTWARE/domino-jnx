@@ -23,6 +23,7 @@ import java.util.Set;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.format.FieldListDelimiter;
 import com.hcl.domino.design.format.FieldListDisplayDelimiter;
+import com.hcl.domino.richtext.structures.TFMT;
 
 /**
  * Information read for a field in the database design
@@ -173,4 +174,11 @@ public interface FormField {
    * @since 1.27.0
    */
   Type getDisplayType();
+
+  /**
+   * @return a {@link TFMT} structure describing time formatting
+   *         for the field when applicable
+   * @since 1.48.0
+   */
+  TFMT getTimeFormat();
 }
