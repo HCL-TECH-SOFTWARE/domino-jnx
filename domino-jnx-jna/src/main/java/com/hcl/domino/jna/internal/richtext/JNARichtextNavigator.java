@@ -19,8 +19,9 @@ package com.hcl.domino.jna.internal.richtext;
 import java.lang.ref.ReferenceQueue;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.LinkedList;
-
+import java.util.List;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -50,10 +51,10 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
   
   private String m_richTextItemName;
 
-  private LinkedList<ItemHolder> m_items;
+  private List<ItemHolder> m_items;
   private int m_currentItemIndex = -1;
 
-  private LinkedList<RichTextRecord<?>> m_currentItemRecords;
+  private List<RichTextRecord<?>> m_currentItemRecords;
   private int m_currentItemRecordsIndex = -1;
 
   public JNARichtextNavigator(JNADocument doc, String richTextItemName) {
@@ -163,7 +164,7 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 			return true;
 		}
 		else {
-			return !m_items.getFirst().hasRecords;
+			return !m_items.get(0).hasRecords;
 		}
 	}
 	
@@ -179,7 +180,7 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 		}
 		else if (m_currentItemRecords==null || m_currentItemIndex!=0) {
 			//move to first item
-			JNAItem firstItem = m_items.getFirst().item;
+			JNAItem firstItem = m_items.get(0).item;
 			m_currentItemRecords = readCDRecords(firstItem);
 			m_currentItemIndex = 0;
 		}
@@ -212,13 +213,13 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 	 * @param item item
 	 * @return list with CD record data
 	 */
-	private LinkedList<RichTextRecord<?>> readCDRecords(JNAItem item) {
-		final LinkedList<RichTextRecord<?>> itemRecords = new LinkedList<>();
+	private List<RichTextRecord<?>> readCDRecords(JNAItem item) {
+		final List<RichTextRecord<?>> itemRecords = new ArrayList<>(500);
 
 		item.enumerateCDRecords((signature, cdRecordPtr, cdRecordLength) -> {
 			byte[] cdRecordDataArr = cdRecordPtr.getByteArray(0, cdRecordLength);
 			@SuppressWarnings("resource")
-      DisposableMemory cdRecordDataMem = new DisposableMemory(cdRecordLength);
+            DisposableMemory cdRecordDataMem = new DisposableMemory(cdRecordLength);
 			cdRecordDataMem.write(0, cdRecordDataArr, 0, cdRecordLength);
 			ByteBuffer data = cdRecordDataMem.getByteBuffer(0, cdRecordLength).order(ByteOrder.nativeOrder());
 
@@ -242,7 +243,7 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 		}
 		else if (m_currentItemIndex!=(m_items.size()-1)) {
 			//move to last item
-			JNAItem lastItem = m_items.getLast().item;
+			JNAItem lastItem = m_items.get(0).item;
 			m_currentItemRecords = readCDRecords(lastItem);
 			m_currentItemIndex = m_items.size()-1;
 		}

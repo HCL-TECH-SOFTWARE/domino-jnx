@@ -135,7 +135,7 @@ public class DefaultRichTextList extends AbstractList<RichTextRecord<?>> impleme
   }
 
   private final RichtextNavigator nav;
-  private final List<RichtextPosition> cache = new ArrayList<>();
+  private final List<RichtextPosition> cache = new ArrayList<>(500);
   private int size = -1;
   private final RecordType.Area area;
 
