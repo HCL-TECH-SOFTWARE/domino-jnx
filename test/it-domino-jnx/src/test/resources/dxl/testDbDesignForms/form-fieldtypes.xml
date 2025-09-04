@@ -1,6 +1,15 @@
 <?xml version='1.0' encoding='utf-8'?>
-<form name='Field Types Form' xmlns='http://www.lotus.com/dxl' version='12.0'
- publicaccess='false' designerversion='8.5.3' renderpassthrough='true'>
+<form name='Field Types Form' xmlns='http://www.lotus.com/dxl' version='14.5'
+ replicaid='85258CFB005445E7' publicaccess='false' designerversion='8.5.3'
+ renderpassthrough='true'>
+<noteinfo noteid='18e' unid='E67AAB2006CAAA9D85258CFB00560F6C' sequence='4'>
+<created><datetime dst='true'>20250904T114000,44-04</datetime></created>
+<modified><datetime dst='true'>20250904T123808,49-04</datetime></modified>
+<revised><datetime dst='true'>20250904T123808,48-04</datetime></revised>
+<lastaccessed><datetime dst='true'>20250904T123808,48-04</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20250904T114000,44-04</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<wassignedby><name>CN=Jesse Gallagher/O=IKSG</name></wassignedby>
 <body><richtext>
 <pardef id='1'/>
 <par def='1'><field type='text' kind='editable' name='Text'/><compositedata
@@ -54,6 +63,33 @@ Yg4BAIQAAAAAAAEAAAA=
 Yg4BAIQAAAAAAAEAAAA=
 </compositedata></par>
 <par def='1'><field type='color' usenotesstyle='false' height='0.2500in' width='1in'
- multiline='true' borderstyle='single' kind='editable' name='Color'/></par></richtext></body>
+ multiline='true' borderstyle='single' kind='editable' name='Color'/></par>
+<par def='1'><run><font color='#a4ffff'/><field type='color' usenotesstyle='false'
+ height='0.2500in' width='1in' multiline='true' borderstyle='single' kind='editable'
+ name='ColorWithColor'/></run></par>
+<par def='1'><field type='color' usenotesstyle='false' height='0.2500in' width='1in'
+ multiline='true' borderstyle='single' kind='computed' name='ColorComputed'><code
+ event='defaultvalue'><formula>"aaaaaa"</formula></code></field></par>
+<pardef id='2' leftmargin='1in' hide='notes web'/>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='green'/>Series Link Number		: </run><run><font size='8pt'
+ color='green' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='computed' name='SeriesLinkNumber'><code event='defaultvalue'><formula
+>SeriesLinkNumber</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='10' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='green'/>Series Link Number		: </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='green'/><field
+ type='color' usenotesstyle='false' height='0.2500in' width='1in' multiline='true'
+ borderstyle='single' name='SeriesLinkNumberColor'><code event='defaultvalue'><formula
+>SeriesLinkNumber</formula></code></field></run></par>
+<par def='2'><run><font color='#ff9fff'/><field usenotesstyle='false' height='0.2500in'
+ width='1in' multiline='true' borderstyle='single' type='text' kind='editable'
+ name='TextControlWithColor'/></run></par></richtext></body>
+<item name='$DesignerBuild'><text>Build V1450_06062025</text></item>
 <item name='$$ScriptName' summary='false' sign='true'><text>Field Types Form</text></item>
 <item name='Number' summary='false'><number>0</number></item></form>
+

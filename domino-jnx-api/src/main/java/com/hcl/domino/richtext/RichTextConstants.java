@@ -573,6 +573,8 @@ public interface RichTextConstants extends EditOds, Ods {
   int FEXT_PROPORTIONALHEIGHT = 0x00004000;
   /** TRUE if field has proportional width */
   int FEXT_PROPORTIONALWIDTH = 0x00008000;
+  /** Assumed based on presence in Color fields */
+  int FEXT_COLOR = 0x100000;
   /** TRUE if a names type field displays im online status */
   int FEXT_SHOWIMSTATUS = 0x02000000;
   /** TRUE if we should use a JS Control in the browser */

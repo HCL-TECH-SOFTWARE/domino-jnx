@@ -27,7 +27,6 @@ import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.format.FieldListDelimiter;
 import com.hcl.domino.design.format.FieldListDisplayDelimiter;
 import com.hcl.domino.richtext.FormField;
-import com.hcl.domino.richtext.records.CDColor;
 import com.hcl.domino.richtext.records.CDDataFlags;
 import com.hcl.domino.richtext.records.CDExtField;
 import com.hcl.domino.richtext.records.CDIDName;
@@ -306,11 +305,9 @@ public class FormFieldImpl implements FormField {
         return Type.PASSWORD;
       } else if(extFlags2.contains(CDExtField.Flag2.TIMEZONE)) {
         return Type.TIMEZONE;
+      } else if(extFlags2.contains(CDExtField.Flag2.COLOR)) {
+        return Type.COLOR;
       }
-    }
-    
-    if(this.structs.stream().anyMatch(CDColor.class::isInstance)) {
-      return Type.COLOR;
     }
     
     return Type.TEXT;

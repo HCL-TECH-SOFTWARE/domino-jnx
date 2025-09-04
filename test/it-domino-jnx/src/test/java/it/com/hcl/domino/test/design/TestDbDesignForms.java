@@ -2002,6 +2002,23 @@ public class TestDbDesignForms extends AbstractDesignTest {
         FormField field = getField(fields, "Color");
         assertEquals(FormField.Type.COLOR, field.getDisplayType());
       }
+      {
+        FormField field = getField(fields, "ColorWithColor");
+        assertEquals(FormField.Type.COLOR, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "ColorComputed");
+        assertEquals(FormField.Kind.COMPUTED, field.getKind());
+        assertEquals(FormField.Type.COLOR, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "SeriesLinkNumber");
+        assertEquals(FormField.Type.TEXT, field.getDisplayType());
+      }
+      {
+        FormField field = getField(fields, "TextControlWithColor");
+        assertEquals(FormField.Type.TEXT, field.getDisplayType());
+      }
     });
   }
 
