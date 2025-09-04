@@ -101,7 +101,7 @@ public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> e
           if (foundFieldBegin.get()) {
             fieldStructs.add(record);
           } else if (!fieldStructs.isEmpty() && !foundFieldBegin.get()) {
-            this.flushField(fieldStructs, result);
+            flushField(fieldStructs, result);
           }
         } else if (record instanceof CDKeyword) {
           fieldStructs.add(record);
@@ -111,13 +111,13 @@ public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> e
           // Check to see if it's ending an open field
           final CDEnd end = (CDEnd) record;
           if (end.getSignature() == RichTextConstants.SIG_CD_FIELD || end.getSignature() == RichTextConstants.SIG_CD_EMBEDDEDCTL) {
-            this.flushField(fieldStructs, result);
+            flushField(fieldStructs, result);
             foundFieldBegin.set(false);
           }
         } else if (record instanceof CDHotspotBegin) {
           // First, flush any queued field structs, in the case of pre-R5 fields
           if (!fieldStructs.isEmpty() && !foundFieldBegin.get()) {
-            this.flushField(fieldStructs, result);
+            flushField(fieldStructs, result);
           }
 
           final CDHotspotBegin hotspot = (CDHotspotBegin) record;
@@ -132,14 +132,14 @@ public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> e
         } else if (record instanceof CDHotspotEnd) {
           // First, flush any queued field structs, in the case of pre-R5 fields
           if (!fieldStructs.isEmpty() && !foundFieldBegin.get()) {
-            this.flushField(fieldStructs, result);
+            flushField(fieldStructs, result);
           }
 
           // TODO add code if we want to handle sections here
         } else {
           // First, flush any queued field structs, in the case of pre-R5 fields
           if (!fieldStructs.isEmpty() && !foundFieldBegin.get()) {
-            this.flushField(fieldStructs, result);
+            flushField(fieldStructs, result);
           }
 
           // Ignore other record types
@@ -147,7 +147,7 @@ public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> e
       });
 
       if (!fieldStructs.isEmpty()) {
-        this.flushField(fieldStructs, result);
+        flushField(fieldStructs, result);
       }
     }
 
@@ -212,7 +212,7 @@ public abstract class AbstractFormOrSubform<T extends GenericFormOrSubform<T>> e
   // * Implementation utilities
   // *******************************************************************************
 
-  private void flushField(final Deque<RichTextRecord<?>> structs, final List<FormField> result) {
+  private static void flushField(final Deque<RichTextRecord<?>> structs, final List<FormField> result) {
     if (structs != null && !structs.isEmpty()) {
       // Make sure there's a CDField
       final boolean foundField = structs.stream().anyMatch(s -> s instanceof CDField);
