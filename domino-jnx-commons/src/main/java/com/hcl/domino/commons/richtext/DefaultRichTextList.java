@@ -25,7 +25,6 @@ import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.stream.Stream;
 
 import com.hcl.domino.commons.richtext.RichtextNavigator.RichtextPosition;
 import com.hcl.domino.commons.richtext.records.AbstractCDRecord;
@@ -216,11 +215,11 @@ public class DefaultRichTextList extends AbstractList<RichTextRecord<?>> impleme
   
   private RichTextRecord<?> wrap(RichTextRecord<?> record) {
     if (this.area != null && record instanceof AbstractCDRecord) {
-      final RecordType type = Stream.of(this.area, RecordType.Area.RESERVED_INTERNAL)
-          .map(a -> RecordType.getRecordTypeForConstant(record.getTypeValue(), a))
-          .filter(Objects::nonNull)
-          .findFirst()
-          .orElse(null);
+      short typeValue = record.getTypeValue();
+      RecordType type = RecordType.getRecordTypeForConstant(typeValue, this.area);
+      if(type == null) {
+        type = RecordType.getRecordTypeForConstant(typeValue, RecordType.Area.RESERVED_INTERNAL);
+      }
       if (type != null) {
         final Class<? extends RichTextRecord<?>> encapsulation = type.getEncapsulation();
         if (encapsulation != null) {
