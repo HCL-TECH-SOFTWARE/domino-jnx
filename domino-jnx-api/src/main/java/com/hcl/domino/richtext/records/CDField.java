@@ -220,6 +220,7 @@ public interface CDField extends RichTextRecord<WSIG>, ICDField {
   }
 
   @StructureGetter("TimeFormat")
+  @Override
   TFMT getTimeFormat();
 
   default CDField setDefaultValueFormula(final String formula) {

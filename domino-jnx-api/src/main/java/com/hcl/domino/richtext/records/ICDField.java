@@ -8,6 +8,7 @@ import com.hcl.domino.design.format.FieldListDelimiter;
 import com.hcl.domino.design.format.FieldListDisplayDelimiter;
 import com.hcl.domino.misc.INumberEnum;
 import com.hcl.domino.richtext.RichTextConstants;
+import com.hcl.domino.richtext.structures.TFMT;
 
 /**
  * Represents common behavior among old and new CDField types
@@ -99,4 +100,11 @@ public interface ICDField {
   Optional<List<String>> getTextValues();
   
   Set<Flag> getFlags();
+  
+  /**
+   * @return a {@link TFMT} structure describing time formatting
+   *         for the field when applicable
+   * @since 1.48.0
+   */
+  TFMT getTimeFormat();
 }
