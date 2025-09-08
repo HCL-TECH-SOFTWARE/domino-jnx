@@ -508,7 +508,7 @@ public interface INotesCAPI extends Library {
 			ShortByReference name_len_ptr,
 			ShortByReference item_flags_ptr,
 			ShortByReference value_datatype_ptr,
-			NotesBlockIdStruct value_bid_ptr,
+			Pointer value_bid_ptr,
 			IntByReference value_len_ptr,
 			ByteByReference retSeqByte,
 			ByteByReference retDupItemID);
@@ -605,9 +605,9 @@ public interface INotesCAPI extends Library {
 			DHANDLE.ByValue note_handle,
 			Memory item_name,
 			short  name_len,
-			NotesBlockIdStruct retbhItem,
+			Pointer retbhItem,
 			ShortByReference retDataType,
-			NotesBlockIdStruct retbhValue,
+			Pointer retbhValue,
 			IntByReference retValueLength);
 
 	short NSFItemInfoNext(
@@ -615,9 +615,9 @@ public interface INotesCAPI extends Library {
 			NotesBlockIdStruct.ByValue NextItem,
 			Memory item_name,
 			short  name_len,
-			NotesBlockIdStruct retbhItem,
+			Pointer retbhItem,
 			ShortByReference retDataType,
-			NotesBlockIdStruct retbhValue,
+			Pointer retbhValue,
 			IntByReference retValueLength);
 
 	short NSFItemInfoPrev(

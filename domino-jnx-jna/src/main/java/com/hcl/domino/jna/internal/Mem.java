@@ -28,7 +28,7 @@ import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE32;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE64;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
-import com.hcl.domino.jna.internal.structs.NotesBlockIdStruct;
+import com.hcl.domino.richtext.structures.BlockID;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
@@ -67,14 +67,14 @@ public class Mem {
 		return result;
 	}
 
-	public static Pointer OSLockObject(NotesBlockIdStruct blockId) {
+	public static Pointer OSLockObject(BlockID blockId) {
 		DHANDLE.ByValue hdlByVal = DHANDLE.newInstanceByValue();
 		
 		if (PlatformUtils.is64Bit()) {
-			((DHANDLE64.ByValue)hdlByVal).hdl = blockId.pool;
+			((DHANDLE64.ByValue)hdlByVal).hdl = blockId.getPool();
 		}
 		else {
-			((DHANDLE32.ByValue)hdlByVal).hdl = blockId.pool;
+			((DHANDLE32.ByValue)hdlByVal).hdl = blockId.getPool();
 		}
 		
 		if (hdlByVal.isNull()) {
@@ -83,19 +83,19 @@ public class Mem {
 		
 		Pointer poolPtr = NotesCAPI.get().OSLockObject(hdlByVal);
 
-		int block = blockId.block & 0xffff;
+		int block = Short.toUnsignedInt(blockId.getBlock());
 		long poolPtrLong = Pointer.nativeValue(poolPtr) + block;
 		return new Pointer(poolPtrLong);
 	}
 
-	public static boolean OSUnlockObject(NotesBlockIdStruct blockId) {
+	public static boolean OSUnlockObject(BlockID blockId) {
 		DHANDLE.ByValue hdlByVal = DHANDLE.newInstanceByValue();
 		
 		if (PlatformUtils.is64Bit()) {
-			((DHANDLE64.ByValue)hdlByVal).hdl = blockId.pool;
+			((DHANDLE64.ByValue)hdlByVal).hdl = blockId.getPool();
 		}
 		else {
-			((DHANDLE32.ByValue)hdlByVal).hdl = blockId.pool;
+			((DHANDLE32.ByValue)hdlByVal).hdl = blockId.getPool();
 		}
 		
 		if (hdlByVal.isNull()) {

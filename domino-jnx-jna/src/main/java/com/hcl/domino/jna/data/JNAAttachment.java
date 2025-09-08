@@ -39,7 +39,6 @@ import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Attachment;
-import com.hcl.domino.data.Attachment.IDataCallback;
 import com.hcl.domino.data.Attachment.IDataCallback.Action;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoDateTime;
@@ -53,6 +52,7 @@ import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.structs.NotesBlockIdStruct;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.richtext.structures.BlockID;
 import com.sun.jna.Pointer;
 
 /**
@@ -68,12 +68,12 @@ public class JNAAttachment implements Attachment {
 	private DominoDateTime m_fileCreated;
 	private DominoDateTime m_fileModified;
 	private JNADocument m_parentDoc;
-	private NotesBlockIdStruct m_itemBlockId;
+	private BlockID m_itemBlockId;
 	private int m_rrv;
 	
 	JNAAttachment(String fileName, Compression compression, short fileFlags, long fileSize,
 			DominoDateTime fileCreated, DominoDateTime fileModified, JNADocument parentNote,
-			NotesBlockIdStruct itemBlockId, int rrv) {
+			BlockID itemBlockId, int rrv) {
 		m_fileName = StringUtil.toString(fileName);
 		m_compression = Objects.requireNonNull(compression, "compression cannot be null");
 		m_fileFlags = fileFlags;
@@ -200,8 +200,8 @@ public class JNAAttachment implements Attachment {
 		dbAllocations.checkDisposed();
 		
 		final NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
-		itemBlockIdByVal.pool = m_itemBlockId.pool;
-		itemBlockIdByVal.block = m_itemBlockId.block;
+		itemBlockIdByVal.pool = m_itemBlockId.getPool();
+		itemBlockIdByVal.block = m_itemBlockId.getBlock();
 		
 		final int extractFlags = 0;
 		final int hDecryptionCipher = 0;
@@ -284,8 +284,8 @@ public class JNAAttachment implements Attachment {
 		docAllocations.checkDisposed();
 		
 		NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
-		itemBlockIdByVal.pool = m_itemBlockId.pool;
-		itemBlockIdByVal.block = m_itemBlockId.block;
+		itemBlockIdByVal.pool = m_itemBlockId.getPool();
+		itemBlockIdByVal.block = m_itemBlockId.getBlock();
 
 		short result = LockUtil.lockHandle(docAllocations.getNoteHandle(), (handleByVal) -> {
 			return NotesCAPI.get().NSFNoteDetachFile(handleByVal, itemBlockIdByVal);

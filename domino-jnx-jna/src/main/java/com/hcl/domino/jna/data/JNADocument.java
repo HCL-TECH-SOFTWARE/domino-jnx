@@ -158,6 +158,7 @@ import com.hcl.domino.richtext.conversion.IRichTextConversion;
 import com.hcl.domino.richtext.records.CDField;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.structures.BlockID;
 import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.ObjectDescriptor;
 import com.hcl.domino.richtext.structures.OriginatorID;
@@ -329,7 +330,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		int valueLength = item.getValueLength();
 		
 		//lock and decode value
-		NotesBlockIdStruct valueBlockId = item.getValueBlockId();
+		BlockID valueBlockId = item.getValueBlockId();
 		
 		Pointer valuePtr = Mem.OSLockObject(valueBlockId);
 		try {
@@ -349,7 +350,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	 * @param valueLength item value length plus 2 bytes for the data type WORD
 	 * @return item value as list
 	 */
-	List<Object> getItemValue(String itemName, NotesBlockIdStruct itemBlockId, NotesBlockIdStruct valueBlockId, int valueLength) {
+	List<Object> getItemValue(String itemName, BlockID itemBlockId, BlockID valueBlockId, int valueLength) {
 		Pointer valuePtr = Mem.OSLockObject(valueBlockId);
 		try {
 			List<Object> values = getItemValue(itemName, itemBlockId, valueBlockId, valuePtr, valueLength);
@@ -371,7 +372,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	 * @param valueLength item value length plus 2 bytes for the data type WORD
 	 * @return item value as list
 	 */
-	List<Object> getItemValue(String itemName, NotesBlockIdStruct itemBlockId, NotesBlockIdStruct valueBlockId,
+	List<Object> getItemValue(String itemName, BlockID itemBlockId, BlockID valueBlockId,
 			Pointer valuePtr, int valueLength) {
 		
 		short dataType = valuePtr.getShort(0);
@@ -949,90 +950,79 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	 * @param searchForItemName item name to search for or null to scan through all items
 	 * @param callback callback is called for each scan result
 	 */
-	private void getItems(final String searchForItemName, final IItemCallback callback) {
-		checkDisposed();
-		
-		Memory itemNameMem = StringUtil.isEmpty(searchForItemName) ? null : NotesStringUtils.toLMBCS(searchForItemName, false);
-		
-		NotesBlockIdStruct.ByReference itemBlockId = NotesBlockIdStruct.ByReference.newInstance();
-		NotesBlockIdStruct.ByReference valueBlockId = NotesBlockIdStruct.ByReference.newInstance();
-		ShortByReference retDataType = new ShortByReference();
-		IntByReference retValueLen = new IntByReference();
-		
-		JNADocumentAllocations allocations = getAllocations();
-		short result = LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
-			return NotesCAPI.get().NSFItemInfo(noteHandleByVal, itemNameMem,
-					itemNameMem==null ? 0 : (short) (itemNameMem.size() & 0xffff),
-					itemBlockId, retDataType, valueBlockId, retValueLen);
-		});
-		
-		if (result == INotesErrorConstants.ERR_ITEM_NOT_FOUND) {
-			callback.itemNotFound();
-			return;
-		}
+    private void getItems(final String searchForItemName, final IItemCallback callback) {
+      checkDisposed();
 
-		NotesErrorUtils.checkResult(result);
-		
-		NotesBlockIdStruct itemBlockIdClone = NotesBlockIdStruct.newInstance();
-		itemBlockIdClone.pool = itemBlockId.pool;
-		itemBlockIdClone.block = itemBlockId.block;
-		itemBlockIdClone.write();
-		
-		NotesBlockIdStruct valueBlockIdClone = NotesBlockIdStruct.newInstance();
-		valueBlockIdClone.pool = valueBlockId.pool;
-		valueBlockIdClone.block = valueBlockId.block;
-		valueBlockIdClone.write();
-		
-		int dataType = retDataType.getValue();
-		
-		Item itemInfo = new JNAItem(this, itemBlockIdClone, dataType,
-				valueBlockIdClone);
-		
-		IItemCallback.Action action = callback.itemFound(itemInfo);
-		if (action != IItemCallback.Action.Continue) {
-			return;
-		}
-		
-		while (true) {
-			IntByReference retNextValueLen = new IntByReference();
-			
-			NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
-			itemBlockIdByVal.pool = itemBlockId.pool;
-			itemBlockIdByVal.block = itemBlockId.block;
-			
-			result = LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
-				return  NotesCAPI.get().NSFItemInfoNext(noteHandleByVal, itemBlockIdByVal,
-						itemNameMem, itemNameMem==null ? 0 : (short) (itemNameMem.size() & 0xffff), itemBlockId, retDataType,
-						valueBlockId, retNextValueLen);
-			});
-			
-			if (result == INotesErrorConstants.ERR_ITEM_NOT_FOUND) {
-				return;
-			}
+      Memory itemNameMem = StringUtil.isEmpty(searchForItemName) ? null
+          : NotesStringUtils.toLMBCS(searchForItemName, false);
 
-			NotesErrorUtils.checkResult(result);
+      int sizeOfBlockId = MemoryStructureUtil.sizeOf(BlockID.class);
+      try (DisposableMemory itemBlockIdMem = new DisposableMemory(sizeOfBlockId);
+          DisposableMemory valueBlockIdMem = new DisposableMemory(sizeOfBlockId);
+      ) {
+        ShortByReference retDataType = new ShortByReference();
+        IntByReference retValueLen = new IntByReference();
 
-			itemBlockIdClone = NotesBlockIdStruct.newInstance();
-			itemBlockIdClone.pool = itemBlockId.pool;
-			itemBlockIdClone.block = itemBlockId.block;
-			itemBlockIdClone.write();
-			
-			valueBlockIdClone = NotesBlockIdStruct.newInstance();
-			valueBlockIdClone.pool = valueBlockId.pool;
-			valueBlockIdClone.block = valueBlockId.block;
-			valueBlockIdClone.write();
-			
-			dataType = retDataType.getValue();
+        JNADocumentAllocations allocations = getAllocations();
+        short result = LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
+          return NotesCAPI.get().NSFItemInfo(noteHandleByVal, itemNameMem,
+              itemNameMem == null ? 0 : (short) (itemNameMem.size() & 0xffff),
+                  itemBlockIdMem, retDataType, valueBlockIdMem, retValueLen);
+        });
 
-			itemInfo = new JNAItem(this, itemBlockIdClone, dataType,
-					valueBlockIdClone);
-			
-			action = callback.itemFound(itemInfo);
-			if (action != IItemCallback.Action.Continue) {
-				return;
-			}
-		}
-	}
+        if (result == INotesErrorConstants.ERR_ITEM_NOT_FOUND) {
+          callback.itemNotFound();
+          return;
+        }
+
+        NotesErrorUtils.checkResult(result);
+        
+        BlockID itemBlockId = MemoryStructureUtil.forStructure(BlockID.class, itemBlockIdMem.getByteBuffer(0, sizeOfBlockId));
+        BlockID valueBlockId = MemoryStructureUtil.forStructure(BlockID.class, valueBlockIdMem.getByteBuffer(0, sizeOfBlockId));
+
+        int dataType = retDataType.getValue();
+
+        Item itemInfo = new JNAItem(this, itemBlockId, dataType, valueBlockId);
+
+        IItemCallback.Action action = callback.itemFound(itemInfo);
+        if (action != IItemCallback.Action.Continue) {
+          return;
+        }
+  
+        while (true) {
+          IntByReference retNextValueLen = new IntByReference();
+  
+          NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
+          itemBlockIdByVal.pool = itemBlockId.getPool();
+          itemBlockIdByVal.block = itemBlockId.getBlock();
+  
+          result = LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
+            return NotesCAPI.get().NSFItemInfoNext(noteHandleByVal, itemBlockIdByVal,
+                itemNameMem, itemNameMem == null ? 0 : (short) (itemNameMem.size() & 0xffff),
+                itemBlockIdMem, retDataType,
+                valueBlockIdMem, retNextValueLen);
+          });
+  
+          if (result == INotesErrorConstants.ERR_ITEM_NOT_FOUND) {
+            return;
+          }
+  
+          NotesErrorUtils.checkResult(result);
+
+          itemBlockId = MemoryStructureUtil.forStructure(BlockID.class, itemBlockIdMem.getByteBuffer(0, sizeOfBlockId));
+          valueBlockId = MemoryStructureUtil.forStructure(BlockID.class, valueBlockIdMem.getByteBuffer(0, sizeOfBlockId));
+  
+          dataType = retDataType.getValue();
+  
+          itemInfo = new JNAItem(this, itemBlockId, dataType, valueBlockId);
+  
+          action = callback.itemFound(itemInfo);
+          if (action != IItemCallback.Action.Continue) {
+            return;
+          }
+        }
+      }
+    }
 	
 	@Override
 	public Optional<Attachment> getAttachment(String fileName) {
@@ -3195,24 +3185,27 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		ByteByReference retSeqByte = new ByteByReference();
 		ByteByReference retDupItemID = new ByteByReference();
 
-		try(DisposableMemory item_name = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
+		int sizeOfBlockId = MemoryStructureUtil.sizeOf(BlockID.class);
+		try(
+		    DisposableMemory item_name = new DisposableMemory(NotesConstants.MAXUSERNAME);
+		    DisposableMemory retValueBidMem = new DisposableMemory(sizeOfBlockId);
+		) {
     		ShortByReference retName_len = new ShortByReference();
     		ShortByReference retItem_flags = new ShortByReference();
     		ShortByReference retDataType = new ShortByReference();
     		IntByReference retValueLen = new IntByReference();
-    
-    		NotesBlockIdStruct retValueBid = NotesBlockIdStruct.newInstance();
     		
     		LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
     
     			NotesCAPI.get().NSFItemQueryEx(noteHandleByVal,
     					itemBlockIdByVal, item_name, (short) (item_name.size() & 0xffff), retName_len,
-    					retItem_flags, retDataType, retValueBid, retValueLen, retSeqByte, retDupItemID);
-    	
-    			NotesBlockIdStruct itemBlockIdForItemCreation = NotesBlockIdStruct.newInstance();
-    			itemBlockIdForItemCreation.pool = itemBlockIdByVal.pool;
-    			itemBlockIdForItemCreation.block = itemBlockIdByVal.block;
-    			itemBlockIdForItemCreation.write();
+    					retItem_flags, retDataType, retValueBidMem, retValueLen, retSeqByte, retDupItemID);
+
+                BlockID itemBlockIdForItemCreation = MemoryStructureUtil.newStructure(BlockID.class, 0);
+                itemBlockIdForItemCreation.setPool(itemBlockIdByVal.pool);
+                itemBlockIdForItemCreation.setBlock(itemBlockIdByVal.block);
+
+                BlockID retValueBid = MemoryStructureUtil.forStructure(BlockID.class, retValueBidMem.getByteBuffer(0, sizeOfBlockId));
     			
     			if ((retItem_flags.getValue() & NotesConstants.ITEM_READERS) == NotesConstants.ITEM_READERS) {
     				JNAItem firstItem = new JNAItem(this, itemBlockIdForItemCreation, retDataType.getValue() & 0xffff,
@@ -3226,38 +3219,34 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
     			while (true) {
     				IntByReference retNextValueLen = new IntByReference();
     				
-    				NotesBlockIdStruct retItemBlockId = NotesBlockIdStruct.newInstance();
-    				
-    				result = NotesCAPI.get().NSFItemInfoNext(noteHandleByVal, itemBlockIdByVal,
-    						null, (short) 0, retItemBlockId, retDataType,
-    						retValueBid, retNextValueLen);
-    				
-    				if (result == INotesErrorConstants.ERR_ITEM_NOT_FOUND) {
-    					return readerFields;
+    				BlockID retItemBlockId;
+    				try(DisposableMemory retItemBlockIdMem = new DisposableMemory(sizeOfBlockId)) {
+        				result = NotesCAPI.get().NSFItemInfoNext(noteHandleByVal, itemBlockIdByVal,
+        						null, (short) 0, retItemBlockIdMem, retDataType,
+        						retValueBidMem, retNextValueLen);
+                        
+                        if (result == INotesErrorConstants.ERR_ITEM_NOT_FOUND) {
+                            return readerFields;
+                        }
+                        
+                        retItemBlockId = MemoryStructureUtil.forStructure(BlockID.class, retItemBlockIdMem.getByteBuffer(0, sizeOfBlockId));
     				}
+    				
+    				retValueBid = MemoryStructureUtil.forStructure(BlockID.class, retValueBidMem.getByteBuffer(0, sizeOfBlockId));
     	
     				NotesErrorUtils.checkResult(result);
-    	
-    				itemBlockIdForItemCreation = NotesBlockIdStruct.newInstance();
-    				itemBlockIdForItemCreation.pool = retItemBlockId.pool;
-    				itemBlockIdForItemCreation.block = retItemBlockId.block;
-    				itemBlockIdForItemCreation.write();
     				
-    				NotesBlockIdStruct valueBlockIdClone = NotesBlockIdStruct.newInstance();
-    				valueBlockIdClone.pool = retValueBid.pool;
-    				valueBlockIdClone.block = retValueBid.block;
-    				valueBlockIdClone.write();
+    				BlockID valueBlockIdClone = MemoryStructureUtil.forStructure(BlockID.class, retValueBid.getData());
     				
     				short dataType = retDataType.getValue();
     	
-    				JNAItem newItem = new JNAItem(this, itemBlockIdForItemCreation, dataType,
-    						valueBlockIdClone);
+    				JNAItem newItem = new JNAItem(this, retItemBlockId, dataType, valueBlockIdClone);
     				if (newItem.isReaders()) {
     					readerFields.add(newItem);
     				}
     				
-    				itemBlockIdByVal.pool = retItemBlockId.pool;
-    				itemBlockIdByVal.block = retItemBlockId.block;
+    				itemBlockIdByVal.pool = retItemBlockId.getPool();
+    				itemBlockIdByVal.block = retItemBlockId.getBlock();
     				itemBlockIdByVal.write();
     			}
     		});
