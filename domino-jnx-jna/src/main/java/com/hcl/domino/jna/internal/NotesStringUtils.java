@@ -263,6 +263,18 @@ public class NotesStringUtils {
 			return ""; //$NON-NLS-1$
 		}
 		
+		// If it's compatible ASCII, return without the native call
+		boolean isPureAscii = true;
+        for (byte c : data) {
+            if (c <= 0x1f || c >= 0x80) {
+                isPureAscii = false;
+                break;
+            }
+        }
+        if(isPureAscii) {
+          return new String(data, StandardCharsets.UTF_8);
+        }
+		
 		int startOffset = 0;
 		
 		List<String> lines = new ArrayList<>();
