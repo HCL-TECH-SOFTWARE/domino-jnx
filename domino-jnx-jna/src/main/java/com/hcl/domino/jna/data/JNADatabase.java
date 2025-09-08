@@ -54,6 +54,7 @@ import com.hcl.domino.admin.replication.ReplicaInfo;
 import com.hcl.domino.commons.constants.UpdateNote;
 import com.hcl.domino.commons.data.AccessInfoImpl;
 import com.hcl.domino.commons.data.BuildVersionInfoImpl;
+import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.commons.data.EncryptionInfoImpl;
 import com.hcl.domino.commons.data.NSFVersionInfoImpl;
 import com.hcl.domino.commons.design.DesignUtil;
@@ -62,6 +63,7 @@ import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.CAPIGarbageCollector;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringTokenizerExt;
@@ -128,7 +130,6 @@ import com.hcl.domino.jna.internal.structs.NotesBuildVersionStruct;
 import com.hcl.domino.jna.internal.structs.NotesFTIndexStatsStruct;
 import com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableExt;
 import com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableLock;
-import com.hcl.domino.jna.internal.structs.NotesOriginatorIdStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
 import com.hcl.domino.jna.internal.views.JNADominoCollectionInfo;
@@ -138,6 +139,7 @@ import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.Loop;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.misc.Ref;
+import com.hcl.domino.richtext.structures.OriginatorID;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclFlag;
 import com.hcl.domino.security.AclLevel;
@@ -1982,45 +1984,47 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		}
 	}
 	
-	@Override
-	public DocInfoExt getDocumentInfo(int noteId) {
-		checkDisposed();
+    @Override
+    public DocInfoExt getDocumentInfo(int noteId) {
+      checkDisposed();
 
-		JNADatabaseAllocations allocations = getAllocations();
-		
-		return LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
-			NotesOriginatorIdStruct retNoteOID = NotesOriginatorIdStruct.newInstance();
-			NotesTimeDateStruct retModified = NotesTimeDateStruct.newInstance();
-			ShortByReference retNoteClass = new ShortByReference();
-			NotesTimeDateStruct retAddedToFile = NotesTimeDateStruct.newInstance();
-			ShortByReference retResponseCount = new ShortByReference();
-			IntByReference retParentNoteID = new IntByReference();
-			boolean isDeleted = false;
-			//not sure if we can check this via error code:
-			boolean notPresent = false;
-			
-			short result = NotesCAPI.get().NSFDbGetNoteInfoExt(dbHandleByVal, noteId, retNoteOID, retModified, retNoteClass, retAddedToFile, retResponseCount, retParentNoteID);
-			if (result==INotesErrorConstants.ERR_NOTE_DELETED) {
-				isDeleted = true;
-			}
-			else if (result==INotesErrorConstants.ERR_INVALID_NOTE) {
-				notPresent = true;
-			}
-			else {
-				NotesErrorUtils.checkResult(result);
-			}
-			
-			String unid = retNoteOID.getUNIDAsString();
-			DominoDateTime sequenceTime = new JNADominoDateTime(retNoteOID.SequenceTime.Innards);
-			int sequence = retNoteOID.Sequence;
-			
-			DocInfoExt info = new DocInfoExtImpl(noteId, unid, sequenceTime, sequence,
-					isDeleted, notPresent, retModified,
-					retNoteClass.getValue(), retAddedToFile, retResponseCount.getValue(), retParentNoteID.getValue());
-			
-			return info;
-		});
-	}
+      JNADatabaseAllocations allocations = getAllocations();
+
+      return LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
+        try (DisposableMemory retNoteOID = new DisposableMemory(JNANotesConstants.oidSize)) {
+          NotesTimeDateStruct retModified = NotesTimeDateStruct.newInstance();
+          ShortByReference retNoteClass = new ShortByReference();
+          NotesTimeDateStruct retAddedToFile = NotesTimeDateStruct.newInstance();
+          ShortByReference retResponseCount = new ShortByReference();
+          IntByReference retParentNoteID = new IntByReference();
+          boolean isDeleted = false;
+          // not sure if we can check this via error code:
+          boolean notPresent = false;
+
+          short result = NotesCAPI.get().NSFDbGetNoteInfoExt(dbHandleByVal, noteId, retNoteOID,
+              retModified, retNoteClass, retAddedToFile, retResponseCount, retParentNoteID);
+          if (result == INotesErrorConstants.ERR_NOTE_DELETED) {
+            isDeleted = true;
+          } else if (result == INotesErrorConstants.ERR_INVALID_NOTE) {
+            notPresent = true;
+          } else {
+            NotesErrorUtils.checkResult(result);
+          }
+
+          OriginatorID oid = MemoryStructureUtil.forStructure(OriginatorID.class, retNoteOID.getByteBuffer(0, JNANotesConstants.oidSize));
+          String unid = oid.getUNID();
+          DominoDateTime sequenceTime = new DefaultDominoDateTime(oid.getSequenceTime().getInnards());
+          int sequence = oid.getSequence();
+
+          DocInfoExt info = new DocInfoExtImpl(noteId, unid, sequenceTime, sequence,
+              isDeleted, notPresent, retModified,
+              retNoteClass.getValue(), retAddedToFile, retResponseCount.getValue(),
+              retParentNoteID.getValue());
+
+          return info;
+        }
+      });
+    }
 
 	@Override
 	public Optional<Agent> getAgent(String agentName) {
@@ -2112,24 +2116,23 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 	@Override
 	public DominoOriginatorId generateOID() {
-		NotesOriginatorIdStruct oidStruct = generateOIDStruct();
+	    OriginatorID oidStruct = generateOIDStruct();
 		return new JNADominoOriginatorId(oidStruct);
 	}
 	
-	NotesOriginatorIdStruct generateOIDStruct() {
+	OriginatorID generateOIDStruct() {
 		checkDisposed();
 		JNADatabaseAllocations allocations = getAllocations();
-
-		NotesOriginatorIdStruct retOIDStruct = NotesOriginatorIdStruct.newInstance();
+		
+        Memory retOid = new Memory(JNANotesConstants.oidSize);
+        retOid.clear();
 		
 		short result = LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
-			return NotesCAPI.get().NSFDbGenerateOID(handleByVal, retOIDStruct);
+			return NotesCAPI.get().NSFDbGenerateOID(handleByVal, retOid);
 		});
 		NotesErrorUtils.checkResult(result);
 
-		retOIDStruct.read();
-
-		return retOIDStruct;
+		return MemoryStructureUtil.forStructure(OriginatorID.class, () -> retOid.getByteBuffer(0, JNANotesConstants.oidSize));
 	}
 	
 	public enum DbMode {

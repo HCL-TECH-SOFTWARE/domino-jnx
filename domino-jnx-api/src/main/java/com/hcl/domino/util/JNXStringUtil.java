@@ -412,4 +412,30 @@ public class JNXStringUtil {
 
 	  return currTxt;
   }
+
+  /**
+   * Converts bytes in memory to a UNID
+   * 
+   * @param innardsFile innards of file part
+   * @param innardsNote innards of note part
+   * @return unid
+   * @since 1.48.0
+   */
+  public static String toUNID(long innardsFile, long innardsNote) {
+    StringBuilder result = new StringBuilder();
+    
+    String file = Long.toHexString(innardsFile).toUpperCase();
+    for(int i = 0; i < 16 - file.length(); i++) {
+      result.append('0');
+    }
+    result.append(file);
+    
+    String note = Long.toHexString(innardsNote).toUpperCase();
+    for(int i = 0; i < 16 - note.length(); i++) {
+      result.append('0');
+    }
+    result.append(note);
+    
+    return result.toString();
+  }
 }

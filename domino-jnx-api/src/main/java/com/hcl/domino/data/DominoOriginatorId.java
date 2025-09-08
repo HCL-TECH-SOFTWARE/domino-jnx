@@ -80,7 +80,7 @@ package com.hcl.domino.data;
  * indicates when
  * the document was last edited and saved.
  */
-public interface DominoOriginatorId extends IAdaptable {
+public interface DominoOriginatorId {
 
   /**
    * Returns the File part of the universal id
@@ -116,12 +116,5 @@ public interface DominoOriginatorId extends IAdaptable {
    * @return UNID string
    */
   String getUNID();
-
-  /**
-   * Extracts the {@link DominoUniversalNoteId} part from the OID data
-   *
-   * @return UNID
-   */
-  DominoUniversalNoteId getUNIDAsObj();
 
 }

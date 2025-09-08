@@ -17,7 +17,6 @@
 package com.hcl.domino.jna.internal;
 
 import com.hcl.domino.jna.data.JNADominoOriginatorId;
-import com.hcl.domino.jna.internal.structs.NotesOriginatorIdStruct;
 
 /**
  * Data container for the {@link NotesOriginatorIdStruct} fields used

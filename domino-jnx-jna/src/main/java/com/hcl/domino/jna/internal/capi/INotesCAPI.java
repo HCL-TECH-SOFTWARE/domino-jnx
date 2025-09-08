@@ -45,7 +45,6 @@ import com.hcl.domino.jna.internal.structs.NotesDbReplicaInfoStruct;
 import com.hcl.domino.jna.internal.structs.NotesFTIndexStatsStruct;
 import com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableExt;
 import com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableLock;
-import com.hcl.domino.jna.internal.structs.NotesOriginatorIdStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
@@ -391,7 +390,7 @@ public interface INotesCAPI extends Library {
 	short NSFNoteCopy(
 			DHANDLE.ByValue note_handle_src,
 			DHANDLE.ByReference note_handle_dst_ptr);
-	short NSFDbGenerateOID(HANDLE.ByValue hDB, NotesOriginatorIdStruct retOID);
+	short NSFDbGenerateOID(HANDLE.ByValue hDB, Pointer retOID);
 
 	void OSGetExecutableDirectory(Memory retPathName);
 	void OSGetDataDirectory(Memory retPathName);
@@ -1200,7 +1199,7 @@ public interface INotesCAPI extends Library {
 	short NSFDbGetNoteInfoExt(
 			HANDLE.ByValue hDB,
 			int  NoteID,
-			NotesOriginatorIdStruct retNoteOID,
+			Pointer retNoteOID,
 			NotesTimeDateStruct retModified,
 			ShortByReference retNoteClass,
 			NotesTimeDateStruct retAddedToFile,

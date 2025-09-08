@@ -59,6 +59,7 @@ import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.commons.constants.UpdateNote;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
+import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.commons.data.IDefaultDocument;
 import com.hcl.domino.commons.data.SignatureDataImpl;
 import com.hcl.domino.commons.design.FormFieldImpl;
@@ -138,7 +139,6 @@ import com.hcl.domino.jna.internal.structs.NotesFileObjectStruct;
 import com.hcl.domino.jna.internal.structs.NotesMIMEPartStruct;
 import com.hcl.domino.jna.internal.structs.NotesNumberPairStruct;
 import com.hcl.domino.jna.internal.structs.NotesObjectDescriptorStruct;
-import com.hcl.domino.jna.internal.structs.NotesOriginatorIdStruct;
 import com.hcl.domino.jna.internal.structs.NotesRangeStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
@@ -160,6 +160,7 @@ import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.ObjectDescriptor;
+import com.hcl.domino.richtext.structures.OriginatorID;
 import com.hcl.domino.richtext.structures.RFC822ItemDesc;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
@@ -712,14 +713,13 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 
 	@Override
 	public String getUNID() {
-		NotesOriginatorIdStruct oid = getOIDStruct();
-		String unid = oid.getUNIDAsString();
-		return unid;
+		OriginatorID oid = getOIDStruct();
+		return oid.getUNID();
 	}
 
 	@Override
 	public int getSequenceNumber() {
-		return getOIDStruct().Sequence;
+		return getOIDStruct().getSequence();
 	}
 
 	/**
@@ -728,25 +728,26 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 	 * 
 	 * @return oid structure
 	 */
-	private NotesOriginatorIdStruct getOIDStruct() {
+	private OriginatorID getOIDStruct() {
 		checkDisposed();
 		JNADocumentAllocations allocations = getAllocations();
 
 		return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-			Memory retOid = new Memory(JNANotesConstants.oidSize);
-			retOid.clear();
+			byte[] data;
+			try(DisposableMemory mem = new DisposableMemory(JNANotesConstants.oidSize)) {
+    			NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_OID, mem);
+    			
+    			data = mem.getByteArray(0, JNANotesConstants.oidSize);
+			}
 			
-			NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_OID, retOid);
-			
-			NotesOriginatorIdStruct oidStruct = NotesOriginatorIdStruct.newInstance(retOid);
-			oidStruct.read();
-			return oidStruct;
+			ByteBuffer buf = ByteBuffer.wrap(data);
+			return MemoryStructureUtil.forStructure(OriginatorID.class, () -> buf);
 		});
 	}
 
 	@Override
 	public DominoOriginatorId getOID() {
-		NotesOriginatorIdStruct oidStruct = getOIDStruct();
+	    OriginatorID oidStruct = getOIDStruct();
 		JNADominoOriginatorId oid = new JNADominoOriginatorId(oidStruct);
 		return oid;
 	}
@@ -760,9 +761,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			return creationDate;
 		}
 		
-		NotesOriginatorIdStruct oidStruct = getOIDStruct();
-		NotesTimeDateStruct creationDateStruct = oidStruct.Note;
-		return new JNADominoDateTime(creationDateStruct.Innards);
+		OriginatorID oidStruct = getOIDStruct();
+		return new DefaultDominoDateTime(oidStruct.getNote().getInnards());
 	}
 
 	@Override
@@ -781,9 +781,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 
 			return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
 				NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_MODIFIED, retTimeDate);
-				NotesTimeDateStruct td = NotesTimeDateStruct.newInstance(retTimeDate);
-				td.read();
-				return new JNADominoDateTime(td.Innards);
+                int[] innards = new int[] { retTimeDate.getInt(0), retTimeDate.getInt(4) };
+                return new DefaultDominoDateTime(innards);
 
 			});
 		}
@@ -799,10 +798,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 
 			return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
 				NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_ACCESSED, retTimeDate);
-				NotesTimeDateStruct td = NotesTimeDateStruct.newInstance(retTimeDate);
-				td.read();
-				return new JNADominoDateTime(td.Innards);
-
+				int[] innards = new int[] { retTimeDate.getInt(0), retTimeDate.getInt(4) };
+				return new DefaultDominoDateTime(innards);
 			});
 		}
 	}
@@ -817,9 +814,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 
 			return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
 				NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_ADDED_TO_FILE, retTimeDate);
-				NotesTimeDateStruct td = NotesTimeDateStruct.newInstance(retTimeDate);
-				td.read();
-				return new JNADominoDateTime(td.Innards);
+                int[] innards = new int[] { retTimeDate.getInt(0), retTimeDate.getInt(4) };
+                return new DefaultDominoDateTime(innards);
 			});
 		}
 	}
@@ -2664,8 +2660,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 			LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
 				NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_OID, retOid);
 				
-				NotesOriginatorIdStruct oidStruct = NotesOriginatorIdStruct.newInstance(retOid);
-				oidStruct.read();
+				OriginatorID oidStruct = MemoryStructureUtil.forStructure(OriginatorID.class, () -> retOid.getByteBuffer(0, JNANotesConstants.oidSize));
 				oidStruct.setUNID(newUNID);
 				
 				NotesCAPI.get().NSFNoteSetInfo(handleByVal, NotesConstants._NOTE_OID, retOid);
@@ -2695,14 +2690,19 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations> implem
 		});
 		NotesErrorUtils.checkResult(result);
 		
-		NotesOriginatorIdStruct newOID = otherJNADb.generateOIDStruct();
+		OriginatorID newOID = otherJNADb.generateOIDStruct();
 		
 		LockUtil.lockHandles(
 				otherJNADbAllocations.getDBHandle(),
 				newNoteHandle, (otherDbHandleByVal, newNoteHandleByVal) -> {
 					NotesCAPI.get().NSFNoteSetInfo(newNoteHandleByVal, NotesConstants._NOTE_ID, null);
 					
-					NotesCAPI.get().NSFNoteSetInfo(newNoteHandleByVal, NotesConstants._NOTE_OID, newOID.getPointer());
+					try(DisposableMemory mem = new DisposableMemory(JNANotesConstants.oidSize)) {
+					  byte[] data = new byte[JNANotesConstants.oidSize];
+					  newOID.getData().get(data);
+					  mem.write(0, data, 0, JNANotesConstants.oidSize);
+					  NotesCAPI.get().NSFNoteSetInfo(newNoteHandleByVal, NotesConstants._NOTE_OID, mem);
+					}
 
 					HANDLE.ByReference targetDbHdlByReference = HANDLE.newInstanceByReference(otherDbHandleByVal);
 					

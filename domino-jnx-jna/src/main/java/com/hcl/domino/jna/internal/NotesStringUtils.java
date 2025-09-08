@@ -34,6 +34,7 @@ import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.jna.internal.capi.INotesCAPI;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -807,22 +808,9 @@ public class NotesStringUtils {
 	 * @param innardsNote innards of note part
 	 * @return unid
 	 */
+	@Deprecated
 	public static String toUNID(long innardsFile, long innardsNote) {
-	  StringBuilder result = new StringBuilder();
-	  
-	  String file = Long.toHexString(innardsFile).toUpperCase();
-	  for(int i = 0; i < 16 - file.length(); i++) {
-	    result.append('0');
-	  }
-	  result.append(file);
-	  
-	  String note = Long.toHexString(innardsNote).toUpperCase();
-	  for(int i = 0; i < 16 - note.length(); i++) {
-	    result.append('0');
-	  }
-	  result.append(note);
-	  
-	  return result.toString();
+	  return JNXStringUtil.toUNID(innardsFile, innardsNote);
 	}
 
 	/**

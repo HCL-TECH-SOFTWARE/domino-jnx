@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.internal;
 
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.jna.internal.structs.HtmlApi_UrlArgStruct;
 import com.hcl.domino.jna.internal.structs.HtmlApi_UrlTargetComponentStruct;
 import com.hcl.domino.jna.internal.structs.IntlFormatStruct;
@@ -29,7 +30,6 @@ import com.hcl.domino.jna.internal.structs.NotesItemValueTableLargeStruct;
 import com.hcl.domino.jna.internal.structs.NotesItemValueTableStruct;
 import com.hcl.domino.jna.internal.structs.NotesMIMEPartStruct;
 import com.hcl.domino.jna.internal.structs.NotesNumberPairStruct;
-import com.hcl.domino.jna.internal.structs.NotesOriginatorIdStruct;
 import com.hcl.domino.jna.internal.structs.NotesRangeStruct;
 import com.hcl.domino.jna.internal.structs.NotesReplicationHistorySummaryStruct;
 import com.hcl.domino.jna.internal.structs.NotesSchedEntryExtStruct;
@@ -53,6 +53,7 @@ import com.hcl.domino.jna.internal.structs.NotesViewTableFormat5Struct;
 import com.hcl.domino.jna.internal.structs.NotesViewTableFormatStruct;
 import com.hcl.domino.jna.internal.structs.StringListStruct;
 import com.hcl.domino.jna.internal.structs.ValueUnion;
+import com.hcl.domino.richtext.structures.OriginatorID;
 import com.sun.jna.Pointer;
 
 public interface JNANotesConstants {
@@ -65,7 +66,7 @@ public interface JNANotesConstants {
 	int linuxNamesListHeaderSize64 = LinuxNotesNamesListHeader64Struct.newInstance().size();
 	int macNamesListHeaderSize64 = MacNotesNamesListHeader64Struct.newInstance().size();
 	int intlFormatSize = IntlFormatStruct.newInstance().size();
-	int oidSize = NotesOriginatorIdStruct.newInstance().size();
+	int oidSize = MemoryStructureUtil.sizeOf(OriginatorID.class);
 	int notesViewTableFormatSize = NotesViewTableFormatStruct.newInstance().size();
 	int notesViewTableFormat2Size = NotesViewTableFormat2Struct.newInstance().size();
 	int notesViewTableFormat4Size = NotesViewTableFormat4Struct.newInstance().size();
