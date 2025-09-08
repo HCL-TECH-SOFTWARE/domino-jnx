@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.commons.structures;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.MethodType;
@@ -31,6 +32,8 @@ import java.security.PrivilegedAction;
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
@@ -70,6 +73,8 @@ public class MemoryStructureProxy implements InvocationHandler {
         .doPrivileged((PrivilegedAction<String>) () -> System.getProperty("java.version", "")); //$NON-NLS-1$ //$NON-NLS-2$
     JAVA_8 = javaVersion.startsWith("1.8.0"); //$NON-NLS-1$
   }
+
+  private static final Map<Method, MethodHandle> DEFAULT_METHOD_HANDLES = new HashMap<>();
 
   /**
    * Generates a reading {@link BiFunction} that reads the provided number or enum
@@ -598,17 +603,20 @@ public class MemoryStructureProxy implements InvocationHandler {
           .bindTo(self)
           .invokeWithArguments(args);
     } else {
-      return MethodHandles.lookup()
-          .findSpecial(
-              this.encapsulated,
-              thisMethod.getName(),
-              MethodType.methodType(
-                  thisMethod.getReturnType(),
-                  thisMethod.getParameterTypes()
-              ),
-              this.encapsulated)
-          .bindTo(self)
-          .invokeWithArguments(args);
+      MethodHandle handle = DEFAULT_METHOD_HANDLES.get(thisMethod);
+      if(handle == null) {
+        handle = MethodHandles.lookup()
+            .findSpecial(
+                this.encapsulated,
+                thisMethod.getName(),
+                MethodType.methodType(
+                    thisMethod.getReturnType(),
+                    thisMethod.getParameterTypes()
+                ),
+                this.encapsulated);
+        DEFAULT_METHOD_HANDLES.put(thisMethod, handle);
+      }
+      return handle.bindTo(self).invokeWithArguments(args);
     }
   }
 
