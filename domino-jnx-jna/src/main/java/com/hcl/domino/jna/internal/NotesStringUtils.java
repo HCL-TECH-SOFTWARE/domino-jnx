@@ -21,7 +21,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,8 +63,6 @@ public class NotesStringUtils {
 	private static LRUStringLMBCSCache m_string2LMBCSCache_NullTerminated_OriginalLinebreaks = new LRUStringLMBCSCache(MAX_STRING2LMBCS_SIZE_BYTES);
 	private static LRUStringLMBCSCache m_string2LMBCSCache_NotNullTerminated_OriginalLinebreaks = new LRUStringLMBCSCache(MAX_STRING2LMBCS_SIZE_BYTES);
 	
-	private static final Charset charsetUTF8 = StandardCharsets.UTF_8;
-
 	public static void flushCache() {
 		m_string2LMBCSCache_NullTerminated_LinefeedLinebreaks.clear();
 		m_string2LMBCSCache_NotNullTerminated_LinefeedLinebreaks.clear();
@@ -327,7 +324,7 @@ public class NotesStringUtils {
 							}
 							else {
 								//success
-								String lineAsStr = new String(outBufUTF8.getByteArray(0, retOutBufLength), 0, retOutBufLength, charsetUTF8);
+								String lineAsStr = new String(outBufUTF8.getByteArray(0, retOutBufLength), 0, retOutBufLength, StandardCharsets.UTF_8);
 								lines.add(lineAsStr);
 								startOffset = i+1;
 								
@@ -382,7 +379,7 @@ public class NotesStringUtils {
 						}
 						else {
 							//success
-							String lineAsStr = new String(outBufUTF8.getByteArray(0, retOutBufLength), 0, retOutBufLength, charsetUTF8);
+							String lineAsStr = new String(outBufUTF8.getByteArray(0, retOutBufLength), 0, retOutBufLength, StandardCharsets.UTF_8);
 							lines.add(lineAsStr);
 							
 							break;
@@ -644,7 +641,7 @@ public class NotesStringUtils {
 					}
 				}
 				
-				byte[] lineDataAsUTF8 = lines[i].getBytes(charsetUTF8);
+				byte[] lineDataAsUTF8 = lines[i].getBytes(StandardCharsets.UTF_8);
 				
 				if (isPureAscii) {
 					try {
@@ -802,18 +799,6 @@ public class NotesStringUtils {
 	}
 
 	/**
-	 * Converts bytes in memory to a UNID
-	 * 
-	 * @param innardsFile innards of file part
-	 * @param innardsNote innards of note part
-	 * @return unid
-	 */
-	@Deprecated
-	public static String toUNID(long innardsFile, long innardsNote) {
-	  return JNXStringUtil.toUNID(innardsFile, innardsNote);
-	}
-
-	/**
 	 * Reads a UNID from memory
 	 * 
 	 * @param ptr memory
@@ -821,7 +806,7 @@ public class NotesStringUtils {
 	 */
 	public static String pointerToUnid(Pointer ptr) {
 	  ByteBuffer data = ptr.getByteBuffer(0, 16).order(ByteOrder.LITTLE_ENDIAN);
-	  return toUNID(data.getLong(), data.getLong());
+	  return JNXStringUtil.toUNID(data.getLong(), data.getLong());
 	}
 	
 	/**
