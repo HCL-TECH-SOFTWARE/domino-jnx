@@ -17,13 +17,10 @@
 package com.hcl.domino.jna.internal;
 
 import java.util.function.Function;
-
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
-import com.hcl.domino.jna.internal.gc.handles.DHANDLE64;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
-import com.hcl.domino.jna.internal.gc.handles.HANDLE64;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.richtext.structures.BlockID;
 import com.sun.jna.Pointer;
@@ -48,9 +45,7 @@ public class Mem {
 			throw new IllegalArgumentException("Null handle cannot be freed");
 		}
 		
-		DHANDLE.ByValue hdlByVal = DHANDLE.newInstanceByValue();
-		
-		((DHANDLE64.ByValue)hdlByVal).hdl = ((HANDLE64.ByValue)hdl).hdl;
+		DHANDLE.ByValue hdlByVal = DHANDLE.newInstanceByValue(hdl.getValue());
 		
 		short result = NotesCAPI.get().OSMemFree(hdlByVal);
 		if (result==0) {
@@ -60,9 +55,7 @@ public class Mem {
 	}
 
 	public static Pointer OSLockObject(BlockID blockId) {
-		DHANDLE.ByValue hdlByVal = DHANDLE.newInstanceByValue();
-		
-		((DHANDLE64.ByValue)hdlByVal).hdl = blockId.getPool();
+		DHANDLE.ByValue hdlByVal = DHANDLE.newInstanceByValue(blockId.getPool());
 		
 		if (hdlByVal.isNull()) {
 			throw new IllegalArgumentException("Null handle cannot be unlocked");
@@ -76,9 +69,7 @@ public class Mem {
 	}
 
 	public static boolean OSUnlockObject(BlockID blockId) {
-		DHANDLE.ByValue hdlByVal = DHANDLE.newInstanceByValue();
-		
-		((DHANDLE64.ByValue)hdlByVal).hdl = blockId.getPool();
+		DHANDLE.ByValue hdlByVal = DHANDLE.newInstanceByValue(blockId.getPool());
 		
 		if (hdlByVal.isNull()) {
 			throw new IllegalArgumentException("Null handle cannot be unlocked");
@@ -97,9 +88,7 @@ public class Mem {
 
 	public static Pointer OSLockObject(HANDLE.ByValue hdl) {
 		return LockUtil.lockHandle(hdl, (hdlByVal) -> {
-			DHANDLE.ByValue dhdlByVal = DHANDLE.newInstanceByValue();
-			
-			((DHANDLE64.ByValue)dhdlByVal).hdl = ((HANDLE64.ByValue)hdlByVal).hdl;
+			DHANDLE.ByValue dhdlByVal = DHANDLE.newInstanceByValue(hdlByVal.getValue());
 			
 			if (dhdlByVal.isNull()) {
 				throw new IllegalArgumentException("Null handle cannot be unlocked");
@@ -121,9 +110,7 @@ public class Mem {
 
 	public static boolean OSUnlockObject(HANDLE.ByValue hdl) {
 		return LockUtil.lockHandle(hdl, (hdlByVal) -> {
-			DHANDLE.ByValue dhdlByVal = DHANDLE.newInstanceByValue();
-			
-			((DHANDLE64.ByValue)dhdlByVal).hdl = ((HANDLE64.ByValue)hdlByVal).hdl;
+			DHANDLE.ByValue dhdlByVal = DHANDLE.newInstanceByValue(hdlByVal.getValue());
 			
 			if (dhdlByVal.isNull()) {
 				throw new IllegalArgumentException("Null handle cannot be unlocked");
@@ -267,7 +254,7 @@ public class Mem {
 	public static LockedMemory OSMemoryLock(DHANDLE.ByReference hdl, boolean freeAfterClose) {
 		return LockUtil.lockHandle(hdl, (hdlByVal) -> {
 			if (!hdlByVal.isNull()) {
-			  return OSMemoryLock(((DHANDLE64.ByValue)hdlByVal).hdl, freeAfterClose);
+			  return OSMemoryLock(hdlByVal.getValue(), freeAfterClose);
 			}
 			else {
 				return new NullLockedMemory();

@@ -88,6 +88,11 @@ public class HANDLE64 extends BaseStructure implements HANDLE {
 	protected List<String> getFieldOrder() {
 		return Arrays.asList("hdl"); //$NON-NLS-1$
 	}
+	
+    @Override
+    public long getValue() {
+      return hdl;
+    }
 
 	/**
 	 * Creates a new instance

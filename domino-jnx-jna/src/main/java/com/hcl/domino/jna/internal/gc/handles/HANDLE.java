@@ -46,6 +46,12 @@ public interface HANDLE extends IAdaptable, IHANDLEBase<HANDLE,HANDLE.ByValue> {
 	 * Fill handle with a null value
 	 */
 	void clear();
+	
+	/**
+	 * @return the handle value
+	 * @since 1.48.0
+	 */
+	long getValue();
 
 	/**
 	 * Throws a {@link DominoException} if the handle is marked as disposed

@@ -177,6 +177,7 @@ public class NotesCAPI {
 		Map<String,Object> libraryOptions = new HashMap<>();
 		libraryOptions.put(Library.OPTION_CLASSLOADER, NotesCAPI.class.getClassLoader());
 		libraryOptions.put(Library.OPTION_FUNCTION_MAPPER, new FunctionNameAnnotationMapper());
+		libraryOptions.put(Library.OPTION_TYPE_MAPPER, JnxJnaTypeMapper.INSTANCE);
 
 		INotesCAPI api;
 		if (PlatformUtils.isWindows()) {

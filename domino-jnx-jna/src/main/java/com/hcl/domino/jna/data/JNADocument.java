@@ -125,7 +125,6 @@ import com.hcl.domino.jna.internal.capi.NotesCAPI1201;
 import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNADocumentAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
-import com.hcl.domino.jna.internal.gc.handles.DHANDLE64;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.richtext.JNARichtextNavigator;
@@ -2224,7 +2223,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     short flagsShort = (short) (DominoEnumUtil.toBitField(ItemFlag.class, flags) & 0xffff);
 
     NotesBlockIdStruct.ByValue valueBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
-    valueBlockIdByVal.pool = (int) ((DHANDLE64.ByValue) hItemValue).hdl;
+    valueBlockIdByVal.pool = (int) hItemValue.getValue();
     valueBlockIdByVal.block = 0;
     valueBlockIdByVal.write();
 
@@ -2442,7 +2441,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
                 }
 
                 NotesBlockIdStruct.ByValue bhValue = NotesBlockIdStruct.ByValue.newInstance();
-                bhValue.pool = (int) ((DHANDLE64) retFileObjectWithFileNameHandleByVal).hdl;
+                bhValue.pool = (int) retFileObjectWithFileNameHandleByVal.getValue();
 
                 int fDealloc = 1;
                 // transfers ownership of the item value buffer to the note
@@ -3257,11 +3256,10 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     JNADocumentAllocations allocations = getAllocations();
 
     DHANDLE dhandle = LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-      DHANDLE ret = DHANDLE.newInstanceByValue();
-      NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_RESPONSES,
-          ret.getAdapter(Pointer.class));
-      ret.getAdapter(Structure.class).read();
-      return ret;
+      try(DisposableMemory ret = new DisposableMemory(8)) {
+        NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_RESPONSES, ret);
+        return DHANDLE.newInstanceByValue(ret.getLong(0));
+      }
     });
 
     if (dhandle.isNull()) {
@@ -4285,8 +4283,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
     NotesCallbacks.b64_CWFErrorProc errorProc =
         (pCDField, phase, error, hErrorText, wErrorTextSize, ctx) -> {
-          @SuppressWarnings("deprecation")
-          DHANDLE hErrorTextObj = new DHANDLE64(hErrorText);
+          DHANDLE hErrorTextObj = DHANDLE.newInstanceByValue(hErrorText);
 
           String errorTxt;
           if (hErrorTextObj.isNull()) {

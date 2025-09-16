@@ -182,7 +182,7 @@ abstract class AbstractDxlProcessor<AT extends APIObjectAllocations, PROP extend
                 ));
 			}
 
-			setProperty(hDXLExport, prop, hList.getAdapter(Pointer.class));
+			setProperty(hDXLExport, prop, hList.getPointer());
 		} finally {
 			Mem.OSMemFree(DHANDLE.newInstanceByValue(hList));
 		}
@@ -211,9 +211,8 @@ abstract class AbstractDxlProcessor<AT extends APIObjectAllocations, PROP extend
 		checkDisposed();
 		int hDXLExport = getHandle();
 		
-		DHANDLE.ByReference result = DHANDLE.newInstanceByReference();
-		getProperty(hDXLExport, prop, result.getAdapter(Pointer.class));
-		result.getAdapter(Structure.class).read();
-		return result;
+		Memory result = new Memory(8);
+		getProperty(hDXLExport, prop, result);
+		return DHANDLE.newInstanceByValue(result.getLong(0));
 	}
 }
