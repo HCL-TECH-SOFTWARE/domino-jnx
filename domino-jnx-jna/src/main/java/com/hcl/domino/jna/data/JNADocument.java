@@ -125,7 +125,6 @@ import com.hcl.domino.jna.internal.capi.NotesCAPI1201;
 import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNADocumentAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
-import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.richtext.JNARichtextNavigator;
 import com.hcl.domino.jna.internal.structs.NotesBlockIdStruct;
@@ -161,7 +160,6 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
-import com.sun.jna.Structure;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
@@ -2659,11 +2657,11 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
             NotesCAPI.get().NSFNoteSetInfo(newNoteHandleByVal, NotesConstants._NOTE_OID, mem);
           }
 
-          HANDLE.ByReference targetDbHdlByReference =
-              HANDLE.newInstanceByReference(otherDbHandleByVal);
-
-          NotesCAPI.get().NSFNoteSetInfo(newNoteHandleByVal, NotesConstants._NOTE_DB,
-              ((Structure) targetDbHdlByReference).getPointer());
+          try(DisposableMemory targetDbHdlByReference = new DisposableMemory(8)) {
+            targetDbHdlByReference.setLong(0, otherDbHandleByVal.getValue());
+            NotesCAPI.get().NSFNoteSetInfo(newNoteHandleByVal, NotesConstants._NOTE_DB,
+                targetDbHdlByReference);
+          }
 
           return null;
         });

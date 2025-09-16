@@ -37,7 +37,6 @@ import com.hcl.domino.misc.INumberEnum;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
-import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.ShortByReference;
 
@@ -117,10 +116,9 @@ abstract class AbstractDxlProcessor<AT extends APIObjectAllocations, PROP extend
 		checkDisposed();
 		int hDXLExport = getHandle();
 	
-		
-		HANDLE.ByValue hList = HANDLE.newInstanceByValue();
-		getProperty(hDXLExport, prop, hList.getAdapter(Pointer.class));
-		hList.getAdapter(Structure.class).read();
+		HANDLE.ByReference phList = HANDLE.newInstanceByReference();
+		getProperty(hDXLExport, prop, phList.getPointer());
+		HANDLE.ByValue hList = HANDLE.newInstanceByValue(phList);
 		try {
 			Pointer mem = Mem.OSLockObject(hList);
 			try {

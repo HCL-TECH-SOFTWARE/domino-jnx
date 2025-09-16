@@ -19,170 +19,151 @@ package com.hcl.domino.jna.internal.gc.handles;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.locks.Lock;
-
 import com.hcl.domino.jna.internal.gc.JNAGCUtil;
-import com.hcl.domino.jna.internal.structs.BaseStructure;
+import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import com.sun.jna.Structure;
 
 /**
  * HANDLE on 64 bit systems
  * 
  * @author Karsten Lehmann
  */
-public class HANDLE64 extends BaseStructure implements HANDLE {
-	public long hdl;
-	private boolean disposed;
+public abstract class HANDLE64 implements HANDLE {
+  private boolean disposed;
 
-	/**
-	 * @deprecated only public to be used by JNA; use static newInstance method instead to run in AccessController.doPrivileged block
-	 */
-	@Deprecated
-	public HANDLE64() {
-		super();
-		//set ALIGN to NONE, because the NAMES_LIST structure is directly followed by the usernames and wildcards in memory
-		setAlignType(ALIGN_DEFAULT);
-	}
+  public static HANDLE64 newInstance(long hdl) {
+    return AccessController.doPrivileged((PrivilegedAction<HANDLE64>) () -> new ByValue(hdl));
+  }
 
-	public static HANDLE64 newInstance(long hdl) {
-		return AccessController.doPrivileged((PrivilegedAction<HANDLE64>) () -> new HANDLE64(hdl));
-	}
+  @Override
+  public <R> R _lockHandleAccess(HandleAccess<HANDLE.ByValue, R> handleAccess) {
+    return AccessController.doPrivileged((PrivilegedAction<R>) () -> {
+      Lock lock = JNAGCUtil.getHandleLock(HANDLE64.this);
+      lock.lock();
+      try {
+        checkDisposed();
 
-	@Override
-	public void clear() {
-		hdl = 0;
-	}
+        HANDLE64.ByValue newHdl = new HANDLE64.ByValue(this.getValue());
+        return handleAccess.accessLockedHandle(newHdl);
+      } finally {
+        lock.unlock();
+      }
+    });
+  }
 
-	@Override
-	public <R> R _lockHandleAccess(HandleAccess<HANDLE.ByValue,R> handleAccess) {
-		return AccessController.doPrivileged((PrivilegedAction<R>) () -> {
-			Lock lock = JNAGCUtil.getHandleLock(HANDLE64.this);
-			lock.lock();
-			try {
-				checkDisposed();
-				
-				HANDLE64.ByValue newHdl = new HANDLE64.ByValue();
-				newHdl.hdl = HANDLE64.this.hdl;
-				return handleAccess.accessLockedHandle(newHdl);
-			}
-			finally {
-				lock.unlock();
-			}
-		});
-	}
-	
-	@Override
-	public boolean isDisposed() {
-		return disposed;
-	}
+  @Override
+  public boolean isDisposed() {
+    return disposed;
+  }
 
-	@Override
-	public void setDisposed() {
-		disposed = true;
-	}
+  @Override
+  public void setDisposed() {
+    disposed = true;
+  }
 
-	@Override
-	protected List<String> getFieldOrder() {
-		return Arrays.asList("hdl"); //$NON-NLS-1$
-	}
-	
-    @Override
-    public long getValue() {
-      return hdl;
+  @Override
+  public int size() {
+    return 8;
+  }
+
+  public static HANDLE64 newInstance(final Pointer peer) {
+    return AccessController.doPrivileged((PrivilegedAction<HANDLE64>) () -> new ByReference(peer));
+  }
+
+  public static class ByReference extends HANDLE64 implements HANDLE.ByReference {
+    Pointer value;
+
+    /**
+     * @deprecated only public to be used by JNA; use static newInstance method instead to run in
+     *             AccessController.doPrivileged block
+     */
+    @Deprecated
+    public ByReference() {
+      this.value = new Memory(8);
+      clear();
     }
 
-	/**
-	 * Creates a new instance
-	 * 
-	 * @param hdl handle value
-	 * @deprecated only public to be used by JNA; use static newInstance method instead to run in AccessController.doPrivileged block
-	 */
-	@Deprecated
-	public HANDLE64(long hdl) {
-		super();
-		setAlignType(ALIGN_DEFAULT);
-		this.hdl = hdl;
-	}
+    /**
+     * @param peer memory pointer
+     * @deprecated only public to be used by JNA; use static newInstance method instead to run in
+     *             AccessController.doPrivileged block
+     */
+    @Deprecated
+    public ByReference(Pointer peer) {
+      this.value = peer;
+    }
 
-	/**
-	 * @deprecated only public to be used by JNA; use static newInstance method instead to run in AccessController.doPrivileged block
-	 * 
-	 * @param peer pointer
-	 */
-	@Deprecated
-	public HANDLE64(Pointer peer) {
-		super(peer);
-		setAlignType(ALIGN_DEFAULT);
-	}
+    @Override
+    public void clear() {
+      this.value.setLong(0, 0);
+    }
 
-	public static HANDLE64 newInstance(final Pointer peer) {
-		return AccessController.doPrivileged((PrivilegedAction<HANDLE64>) () -> new HANDLE64(peer));
-	}
+    @Override
+    public long getValue() {
+      return this.value.getLong(0);
+    }
 
-	public static class ByReference extends HANDLE64 implements Structure.ByReference, HANDLE.ByReference {
-		/**
-		 * @deprecated only public to be used by JNA; use static newInstance method instead to run in AccessController.doPrivileged block
-		 */
-		@Deprecated
-		public ByReference() {
-			super();
-		}
-		
-		/**
-		 * @param peer memory pointer
-		 * @deprecated only public to be used by JNA; use static newInstance method instead to run in AccessController.doPrivileged block
-		 */
-		@Deprecated
-		public ByReference(Pointer peer) {
-			super(peer);
-		}
-	};
-	public static class ByValue extends HANDLE64 implements Structure.ByValue, HANDLE.ByValue {
-		/**
-		 * @deprecated only public to be used by JNA; use static newInstance method instead to run in AccessController.doPrivileged block
-		 */
-		@Deprecated
-		public ByValue() {
-			super();
-		}
-		
-		/**
-		 * @param peer memory pointer
-		 * @deprecated only public to be used by JNA; use static newInstance method instead to run in AccessController.doPrivileged block
-		 */
-		@Deprecated
-		public ByValue(Pointer peer) {
-			super(peer);
-		}
-	};
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T getAdapter(Class<T> clazz) {
-		if (clazz == HANDLE.class || clazz == HANDLE64.class) {
-			return (T) this;
-		}
-		else if(clazz == Structure.class) {
-			return (T)this;
-		}
-		else if(clazz == Pointer.class) {
-			return (T)getPointer();
-		}
-		
-		return null;
-	}
-	
-	@Override
-	public boolean isNull() {
-		return hdl==0;
-	}
+    @Override
+    public Pointer getPointer() {
+      return this.value;
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T> T getAdapter(Class<T> clazz) {
+      if(Pointer.class.isAssignableFrom(clazz)) {
+        return (T)getPointer();
+      }
+      return super.getAdapter(clazz);
+    }
+  };
+  public static class ByValue extends HANDLE64 implements HANDLE.ByValue {
+    long value;
 
-	@Override
-	public String toString() {
-		return MessageFormat.format("HANDLE64 [handle={0}]", hdl); //$NON-NLS-1$
-	}
+    /**
+     * @deprecated only public to be used by JNA; use static newInstance method instead to run in
+     *             AccessController.doPrivileged block
+     */
+    @Deprecated
+    public ByValue() {
+      this.value = 0;
+    }
+
+    @Deprecated
+    public ByValue(long value) {
+      this.value = value;
+    }
+
+    @Override
+    public void clear() {
+      this.value = 0;
+    }
+
+    @Override
+    public long getValue() {
+      return this.value;
+    }
+  };
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T> T getAdapter(Class<T> clazz) {
+    if (clazz == HANDLE.class || clazz == HANDLE64.class) {
+      return (T) this;
+    }
+
+    return null;
+  }
+
+  @Override
+  public boolean isNull() {
+    return getValue() == 0;
+  }
+
+  @Override
+  public String toString() {
+    return MessageFormat.format("HANDLE64 [handle={0}]", getValue()); //$NON-NLS-1$
+  }
 
 }
