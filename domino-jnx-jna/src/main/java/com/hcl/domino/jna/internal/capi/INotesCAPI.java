@@ -1849,13 +1849,6 @@ public interface INotesCAPI extends Library {
 			NotesCallbacks.b64_CWFErrorProc ErrorRoutine,
 			Pointer CallersContext);
 
-	short NSFNoteComputeWithForm(
-			DHANDLE.ByValue hNote,
-			DHANDLE.ByValue hFormNote,
-			int dwFlags,
-			NotesCallbacks.b32_CWFErrorProc ErrorRoutine,
-			Pointer CallersContext);
-
 	short DesignRefresh(
 			Memory Server,
 			HANDLE.ByValue hDB,
@@ -1944,22 +1937,6 @@ public interface INotesCAPI extends Library {
 			NotesCallbacks.b64_NSFNoteOpenCallback NoteOpenCallback,
 			NotesCallbacks.b64_NSFObjectAllocCallback ObjectAllocCallback,
 			NotesCallbacks.b64_NSFObjectWriteCallback ObjectWriteCallback,
-			NotesTimeDateStruct FolderSinceTime,
-			NotesCallbacks.NSFFolderAddCallback FolderAddCallback);
-
-	short NSFDbGetNotes(
-			HANDLE.ByValue hDB,
-			int NumNotes,
-			Memory NoteID, //NOTEID array
-			Memory NoteOpenFlags, // DWORD array
-			Memory SinceSeqNum, // DWORD array
-			int ControlFlags,
-			HANDLE.ByValue hObjectDB,
-			Pointer CallbackParam,
-			NotesCallbacks.NSFGetNotesCallback  GetNotesCallback,
-			NotesCallbacks.b32_NSFNoteOpenCallback NoteOpenCallback,
-			NotesCallbacks.b32_NSFObjectAllocCallback ObjectAllocCallback,
-			NotesCallbacks.b32_NSFObjectWriteCallback ObjectWriteCallback,
 			NotesTimeDateStruct FolderSinceTime,
 			NotesCallbacks.NSFFolderAddCallback FolderAddCallback);
 

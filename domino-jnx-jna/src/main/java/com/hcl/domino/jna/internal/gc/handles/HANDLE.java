@@ -20,7 +20,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import com.hcl.domino.DominoException;
-import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.sun.jna.Pointer;
@@ -61,101 +60,52 @@ public interface HANDLE extends IAdaptable, IHANDLEBase<HANDLE,HANDLE.ByValue> {
 	@SuppressWarnings("deprecation")
 	static HANDLE newInstance(Pointer peer) {
 		return AccessController.doPrivileged((PrivilegedAction<HANDLE>) () -> {
-			if (PlatformUtils.is64Bit()) {
-				return new HANDLE64(peer);
-				
-			}
-			else {
-				return new HANDLE32(peer);
-				
-			}
+		  return new HANDLE64(peer);
 		});
 	}
 	
 	@SuppressWarnings("deprecation")
 	static HANDLE newInstance() {
 		return AccessController.doPrivileged((PrivilegedAction<HANDLE>) () -> {
-			if (PlatformUtils.is64Bit()) {
-				return new HANDLE64();
-				
-			}
-			else {
-				return new HANDLE32();
-				
-			}
+		  return new HANDLE64();
 		});
 	}
 	
 	@SuppressWarnings("deprecation")
 	static HANDLE.ByReference newInstanceByReference(Pointer peer) {
 		return AccessController.doPrivileged((PrivilegedAction<ByReference>) () -> {
-			if (PlatformUtils.is64Bit()) {
-				return new HANDLE64.ByReference(peer);
-				
-			}
-			else {
-				return new HANDLE32.ByReference(peer);
-				
-			}
+		  return new HANDLE64.ByReference(peer);
 		});
 	}
 	
 	@SuppressWarnings("deprecation")
 	static HANDLE.ByReference newInstanceByReference() {
 		return AccessController.doPrivileged((PrivilegedAction<ByReference>) () -> {
-			if (PlatformUtils.is64Bit()) {
-				return new HANDLE64.ByReference();
-				
-			}
-			else {
-				return new HANDLE32.ByReference();
-			}
+		  return new HANDLE64.ByReference();
 		});
 	}
 	
 	@SuppressWarnings("deprecation")
 	static HANDLE.ByReference newInstanceByReference(HANDLE hdlToCopy) {
 		return AccessController.doPrivileged((PrivilegedAction<ByReference>) () -> {
-			if (PlatformUtils.is64Bit()) {
-				HANDLE64.ByReference newHdl = new HANDLE64.ByReference();
-				newHdl.hdl = ((HANDLE64)hdlToCopy).hdl;
-				newHdl.write();
-				return newHdl;
-			}
-			else {
-				HANDLE32.ByReference newHdl = new HANDLE32.ByReference();
-				newHdl.hdl = ((HANDLE32)hdlToCopy).hdl;
-				newHdl.write();
-				return newHdl;
-			}
+		  HANDLE64.ByReference newHdl = new HANDLE64.ByReference();
+          newHdl.hdl = ((HANDLE64)hdlToCopy).hdl;
+          newHdl.write();
+          return newHdl;
 		});
 	}
 	
 	@SuppressWarnings("deprecation")
 	static ByValue newInstanceByValue() {
 		return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> {
-			if (PlatformUtils.is64Bit()) {
-				return new HANDLE64.ByValue();
-				
-			}
-			else {
-				return new HANDLE32.ByValue();
-				
-			}
+		  return new HANDLE64.ByValue();
 		});
 	}
 	
 	@SuppressWarnings("deprecation")
 	static ByValue newInstanceByValue(Pointer peer) {
 		return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> {
-			if (PlatformUtils.is64Bit()) {
-				return new HANDLE64.ByValue(peer);
-				
-			}
-			else {
-				return new HANDLE32.ByValue(peer);
-				
-			}
+		  return new HANDLE64.ByValue(peer);
 		});
 	}
 	

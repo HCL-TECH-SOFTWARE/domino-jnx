@@ -52,7 +52,6 @@ import com.hcl.domino.jna.internal.gc.allocations.JNAIDTableAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNANotesQueryResultsProcessorAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.LMBCSStringListAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
-import com.hcl.domino.jna.internal.gc.handles.DHANDLE32;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE64;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.structs.NotesFieldFormulaStruct;
@@ -123,12 +122,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 		JNAIDTable idTableCopy = idTable==null ? new JNAIDTable(getParentDominoClient()) : new JNAIDTable(getParentDominoClient(), idTable);
 		JNAIDTableAllocations idTableCopyAllocations = (JNAIDTableAllocations) idTableCopy.getAdapter(APIObjectAllocations.class);
 		DHANDLE idTableCopyHandle = idTableCopyAllocations.getIdTableHandle();
-		if (idTableCopyHandle instanceof DHANDLE64) {
-			ri.hResults = (int) (((DHANDLE64)idTableCopyHandle).hdl & 0xffffffff);
-		}
-		else if (idTableCopyHandle instanceof DHANDLE32) {
-			ri.hResults = ((DHANDLE32)idTableCopyHandle).hdl;
-		}
+		ri.hResults = (int) (((DHANDLE64)idTableCopyHandle).hdl & 0xffffffff);
 		
 		ri.write();
 		

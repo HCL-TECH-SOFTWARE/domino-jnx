@@ -42,15 +42,6 @@ public class PlatformUtils {
   }
 
   /**
-   * Checks if the current JVM is running in 32 bit mode
-   * 
-   * @return true if 32 bit
-   */
-  public static boolean is32Bit() {
-    return !PlatformUtils.m_is64Bit;
-  }
-
-  /**
    * Checks if the current JVM is running in 64 bit mode
    * 
    * @return true if 64 bit
@@ -75,15 +66,6 @@ public class PlatformUtils {
    */
   public static boolean isMac() {
     return PlatformUtils.m_isMac;
-  }
-
-  /**
-   * Checks if we are running in a Windows 32 bit environment
-   * 
-   * @return true if win32
-   */
-  public static boolean isWin32() {
-    return PlatformUtils.isWindows() && PlatformUtils.is32Bit();
   }
 
   /**
