@@ -74,9 +74,10 @@ jobs:
         run: echo projectversion=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout) >> $GITHUB_ENV
 
       - name: Release ${{ matrix.options.domino }} Maven snapshot package
+        uses: WasiqB/maven-publish-action@v2.12.0
         # Only publish on develop when the version does end on -SNAPSHOT
         if: ${{ endsWith(env.projectversion, '-SNAPSHOT') }}
-        run: mvn --batch-mode -P${{ matrix.options.domino }} clean deploy
         env:
-          MAVEN_USERNAME: ${{ secrets.NEXUS_USERNAME }}
-          MAVEN_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+          nexus_username: ${{ secrets.NEXUS_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
+          MAVEN_ARGS: -P${{ matrix.options.domino }}
