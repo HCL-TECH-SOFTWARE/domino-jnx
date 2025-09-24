@@ -53,16 +53,6 @@
     <developerConnection>scm:git:git@github.com:HCL-TECH-SOFTWARE/domino-jnx.git</developerConnection>
     <url>https://github.com/HCL-TECH-SOFTWARE/domino-jnx.git</url>
   </scm>
-  <distributionManagement>
-    <repository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-    </repository>
-    <snapshotRepository>
-      <id>ossrh</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-    </snapshotRepository>
-  </distributionManagement>
   <properties>
     <com.googlecode.concurrent.version>1.4.2</com.googlecode.concurrent.version>
     <com.ibm.commons-version>9.0.0</com.ibm.commons-version>
@@ -478,16 +468,14 @@
         </executions>
       </plugin>
       <plugin>
-        <groupId>org.sonatype.plugins</groupId>
-        <artifactId>nexus-staging-maven-plugin</artifactId>
-        <version>1.7.0</version>
+        <groupId>org.sonatype.central</groupId>
+        <artifactId>central-publishing-maven-plugin</artifactId>
+        <version>0.9.0</version>
         <extensions>true</extensions>
         <configuration>
-          <serverId>ossrh</serverId>
-          <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-          <autoReleaseAfterClose>${project.autorelease}</autoReleaseAfterClose>
-          <username>${nexus.username}</username>
-          <password>${nexus.password}</password>
+          <publishingServerId>central</publishingServerId>
+          <autoPublish>true</autoPublish>
+          <waitUntil>published</waitUntil>
         </configuration>
       </plugin>
       <plugin>
