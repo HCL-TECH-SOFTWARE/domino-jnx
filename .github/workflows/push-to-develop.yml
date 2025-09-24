@@ -78,6 +78,6 @@ jobs:
         # Only publish on develop when the version does end on -SNAPSHOT
         if: ${{ endsWith(env.projectversion, '-SNAPSHOT') }}
         env:
-          server_username: ${{ secrets.NEXUS_USERNAME }}
-          server_password: ${{ secrets.NEXUS_PASSWORD }}
+          nexus_username: ${{ secrets.NEXUS_USERNAME }}
+          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
           MAVEN_ARGS: -P${{ matrix.options.domino }}
