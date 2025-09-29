@@ -235,8 +235,16 @@ public class TestDxlExporter extends AbstractNotesRuntimeTest {
     final DxlExporter exporter = this.getClient().createDxlExporter();
     Assertions.assertNotNull(exporter);
 
-    final List<String> itemNames = Arrays.asList("foo", "bar");
-    exporter.setRestrictToItemNames(itemNames);
-    Assertions.assertEquals(itemNames, exporter.getRestrictToItemNames());
+    {
+      final List<String> itemNames = Arrays.asList("foo", "bar");
+      exporter.setRestrictToItemNames(itemNames);
+      Assertions.assertEquals(itemNames, exporter.getRestrictToItemNames());
+    }
+
+    {
+      final List<String> itemNames = Arrays.asList("foo2", "bar2");
+      exporter.setOmitItemNames(itemNames);
+      Assertions.assertEquals(itemNames, exporter.getOmitItemNames());
+    }
   }
 }

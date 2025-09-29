@@ -224,6 +224,7 @@ public interface CDFieldPre36 extends RichTextRecord<WSIG>, ICDField {
   }
 
   @StructureGetter("TimeFormat")
+  @Override
   TFMT getTimeFormat();
 
   default CDFieldPre36 setDefaultValueFormula(final String formula) {

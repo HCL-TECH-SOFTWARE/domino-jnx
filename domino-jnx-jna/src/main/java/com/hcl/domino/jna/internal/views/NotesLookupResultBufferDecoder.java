@@ -43,6 +43,7 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.data.ItemDataTypeConstants;
 import com.hcl.domino.data.TypedAccess;
 import com.hcl.domino.jna.data.JNACollectionEntry;
 import com.hcl.domino.jna.data.JNADocument;
@@ -129,6 +130,7 @@ public class NotesLookupResultBufferDecoder {
 			boolean convertStringsLazily, boolean convertDominoDateTimeToCalendar, String singleColumnLookupName) {
 
 		int bufferPos = 0;
+		
 		
 		NotesCollectionStats collectionStats = null;
 
@@ -502,42 +504,43 @@ public class NotesLookupResultBufferDecoder {
 				if (decodeAllValues) {
 					int itemValueBufferSizeAsInt = (int) (itemValueBufferSizes[j] & 0xffffffff);
 
-					if (itemDataTypes[j] == ItemDataType.TYPE_TEXT.getValue()) {
-						Object strVal = ItemDecoder.decodeTextValue(itemValueBufferPointers[j], itemValueBufferSizeAsInt, convertStringsLazily);
-						decodedItemValues[j] = strVal;
-					}
-					else if (itemDataTypes[j] == ItemDataType.TYPE_TEXT_LIST.getValue()) {
-						//read a text list item value
-						List<Object> listValues = itemValueBufferSizeAsInt==0 ? Collections.emptyList() : ItemDecoder.decodeTextListValue(itemValueBufferPointers[j], convertStringsLazily);
-						decodedItemValues[j]  = listValues;
-					}
-					else if (itemDataTypes[j] == ItemDataType.TYPE_NUMBER.getValue()) {
-						double numVal = ItemDecoder.decodeNumber(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
-						decodedItemValues[j] = numVal;
-					}
-					else if (itemDataTypes[j] == ItemDataType.TYPE_TIME.getValue()) {
-						if (convertJNADominoDateTimeToCalendar) {
-							Calendar cal = ItemDecoder.decodeTimeDate(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
-							decodedItemValues[j]  = cal;
-						}
-						else {
-							DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
-							decodedItemValues[j]  = td;
-						}
-					}
-					else if (itemDataTypes[j] == ItemDataType.TYPE_NUMBER_RANGE.getValue()) {
-						List<Object> numberList = ItemDecoder.decodeNumberList(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
-						decodedItemValues[j]  = numberList;
-					}
-					else if (itemDataTypes[j] == ItemDataType.TYPE_TIME_RANGE.getValue()) {
-						List<Object> calendarValues;
-						if (convertJNADominoDateTimeToCalendar) {
-							calendarValues = ItemDecoder.decodeTimeDateList(itemValueBufferPointers[j]);
-						}
-						else {
-							calendarValues = ItemDecoder.decodeTimeDateListAsNotesTimeDate(itemValueBufferPointers[j]);
-						}
-						decodedItemValues[j] = calendarValues;
+					switch(itemDataTypes[j]) {
+					  case ItemDataTypeConstants.TYPE_TEXT:
+					    Object strVal = ItemDecoder.decodeTextValue(itemValueBufferPointers[j], itemValueBufferSizeAsInt, convertStringsLazily);
+                        decodedItemValues[j] = strVal;
+                        break;
+					  case ItemDataTypeConstants.TYPE_TEXT_LIST:
+                        //read a text list item value
+                        List<Object> listValues = itemValueBufferSizeAsInt==0 ? Collections.emptyList() : ItemDecoder.decodeTextListValue(itemValueBufferPointers[j], convertStringsLazily);
+                        decodedItemValues[j]  = listValues;
+					    break;
+					  case ItemDataTypeConstants.TYPE_NUMBER:
+                        double numVal = ItemDecoder.decodeNumber(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
+                        decodedItemValues[j] = numVal;
+					    break;
+					  case ItemDataTypeConstants.TYPE_TIME:
+                        if (convertJNADominoDateTimeToCalendar) {
+                          Calendar cal = ItemDecoder.decodeTimeDate(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
+                          decodedItemValues[j] = cal;
+                        } else {
+                          DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
+                          decodedItemValues[j] = td;
+                        }
+					    break;
+					  case ItemDataTypeConstants.TYPE_NUMBER_RANGE:
+					    List<Object> numberList = ItemDecoder.decodeNumberList(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
+                        decodedItemValues[j]  = numberList;
+					    break;
+					  case ItemDataTypeConstants.TYPE_TIME_RANGE:
+					    List<Object> calendarValues;
+                        if (convertJNADominoDateTimeToCalendar) {
+                            calendarValues = ItemDecoder.decodeTimeDateList(itemValueBufferPointers[j]);
+                        }
+                        else {
+                            calendarValues = ItemDecoder.decodeTimeDateListAsNotesTimeDate(itemValueBufferPointers[j]);
+                        }
+                        decodedItemValues[j] = calendarValues;
+					    break;
 					}
 				}
 			}
@@ -610,42 +613,43 @@ public class NotesLookupResultBufferDecoder {
 					}
 					int itemValueBufferSizeAsInt = (int) (itemValueBufferSizes[j] & 0xffffffff);
 					
-					if (itemDataTypes[j] == ItemDataType.TYPE_TEXT.getValue()) {
-						Object strVal = ItemDecoder.decodeTextValue(itemValueBufferPointers[j], itemValueBufferSizeAsInt, convertStringsLazily);
-						decodedItemValues[j] = strVal;
-					}
-					else if (itemDataTypes[j] == ItemDataType.TYPE_TEXT_LIST.getValue()) {
-						//read a text list item value
-						List<Object> listValues = itemValueBufferSizeAsInt==0 ? Collections.emptyList() : ItemDecoder.decodeTextListValue(itemValueBufferPointers[j], convertStringsLazily);
-						decodedItemValues[j]  = listValues;
-					}
-					else if (itemDataTypes[j] == ItemDataType.TYPE_NUMBER.getValue()) {
-						double numVal = ItemDecoder.decodeNumber(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
-						decodedItemValues[j] = numVal;
-					}
-					else if (itemDataTypes[j] == ItemDataType.TYPE_TIME.getValue()) {
-						if (convertJNADominoDateTimeToCalendar) {
-							Calendar cal = ItemDecoder.decodeTimeDate(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
-							decodedItemValues[j]  = cal;
-						}
-						else {
-							DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
-							decodedItemValues[j]  = td;
-						}
-					}
-					else if (itemDataTypes[j] == ItemDataType.TYPE_NUMBER_RANGE.getValue()) {
-						List<Object> numberList = ItemDecoder.decodeNumberList(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
-						decodedItemValues[j]  = numberList;
-					}
-					else if (itemDataTypes[j] == ItemDataType.TYPE_TIME_RANGE.getValue()) {
-						List<Object> calendarValues;
-						if (convertJNADominoDateTimeToCalendar) {
-							calendarValues = ItemDecoder.decodeTimeDateList(itemValueBufferPointers[j]);
-						}
-						else {
-							calendarValues = ItemDecoder.decodeTimeDateListAsNotesTimeDate(itemValueBufferPointers[j]);
-						}
-						decodedItemValues[j] = calendarValues;
+					switch(itemDataTypes[j]) {
+					  case ItemDataTypeConstants.TYPE_TEXT:
+					    Object strVal = ItemDecoder.decodeTextValue(itemValueBufferPointers[j], itemValueBufferSizeAsInt, convertStringsLazily);
+                        decodedItemValues[j] = strVal;
+                        break;
+					  case ItemDataTypeConstants.TYPE_TEXT_LIST:
+					    //read a text list item value
+                        List<Object> listValues = itemValueBufferSizeAsInt==0 ? Collections.emptyList() : ItemDecoder.decodeTextListValue(itemValueBufferPointers[j], convertStringsLazily);
+                        decodedItemValues[j]  = listValues;
+					    break;
+					  case ItemDataTypeConstants.TYPE_NUMBER:
+					    double numVal = ItemDecoder.decodeNumber(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
+                        decodedItemValues[j] = numVal;
+					    break;
+					  case ItemDataTypeConstants.TYPE_TIME:
+                        if (convertJNADominoDateTimeToCalendar) {
+                          Calendar cal = ItemDecoder.decodeTimeDate(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
+                          decodedItemValues[j] = cal;
+                        } else {
+                          DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
+                          decodedItemValues[j] = td;
+                        }
+					    break;
+					  case ItemDataTypeConstants.TYPE_NUMBER_RANGE:
+					    List<Object> numberList = ItemDecoder.decodeNumberList(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
+                        decodedItemValues[j]  = numberList;
+					    break;
+					  case ItemDataTypeConstants.TYPE_TIME_RANGE:
+					    List<Object> calendarValues;
+                        if (convertJNADominoDateTimeToCalendar) {
+                            calendarValues = ItemDecoder.decodeTimeDateList(itemValueBufferPointers[j]);
+                        }
+                        else {
+                            calendarValues = ItemDecoder.decodeTimeDateListAsNotesTimeDate(itemValueBufferPointers[j]);
+                        }
+                        decodedItemValues[j] = calendarValues;
+					    break;
 					}
 				}
 			}
@@ -806,30 +810,32 @@ public class NotesLookupResultBufferDecoder {
 				
 				int itemValueBufferSizeAsInt = (int) (m_itemValueBufferSizes[index] & 0xffffffff);
 
-				if (type == ItemDataType.TYPE_TEXT.getValue()) {
-					m_itemValues[index] = ItemDecoder.decodeTextValue(m_itemValueBufferPointers[index], itemValueBufferSizeAsInt, m_convertStringsLazily);
-				}
-				else if (type == ItemDataType.TYPE_TEXT_LIST.getValue()) {
-					//read a text list item value
-					m_itemValues[index] = itemValueBufferSizeAsInt==0 ? Collections.emptyList() : ItemDecoder.decodeTextListValue(m_itemValueBufferPointers[index], m_convertStringsLazily);
-				}
-				else if (type == ItemDataType.TYPE_NUMBER.getValue()) {
-					m_itemValues[index] = ItemDecoder.decodeNumber(m_itemValueBufferPointers[index], itemValueBufferSizeAsInt);
-				}
-				else if (type == ItemDataType.TYPE_TIME.getValue()) {
-					//we always store JNADominoDateTime and convert to Calendar if requested by caller
-					m_itemValues[index] = ItemDecoder.decodeTimeDateAsNotesTimeDate(m_itemValueBufferPointers[index], itemValueBufferSizeAsInt);
-				}
-				else if (type == ItemDataType.TYPE_NUMBER_RANGE.getValue()) {
-					m_itemValues[index] = ItemDecoder.decodeNumberList(m_itemValueBufferPointers[index], itemValueBufferSizeAsInt);
-				}
-				else if (type == ItemDataType.TYPE_TIME_RANGE.getValue()) {
-					//we always store a List of JNADominoDateTime and convert to Calendar if requested by caller
-					m_itemValues[index] = ItemDecoder.decodeTimeDateListAsNotesTimeDate(m_itemValueBufferPointers[index]);
+				switch(type) {
+				  case ItemDataTypeConstants.TYPE_TEXT:
+				    m_itemValues[index] = ItemDecoder.decodeTextValue(m_itemValueBufferPointers[index], itemValueBufferSizeAsInt, m_convertStringsLazily);
+				    break;
+				  case ItemDataTypeConstants.TYPE_TEXT_LIST:
+				    //read a text list item value
+                    m_itemValues[index] = itemValueBufferSizeAsInt==0 ? Collections.emptyList() : ItemDecoder.decodeTextListValue(m_itemValueBufferPointers[index], m_convertStringsLazily);
+				    break;
+				  case ItemDataTypeConstants.TYPE_NUMBER:
+				    m_itemValues[index] = ItemDecoder.decodeNumber(m_itemValueBufferPointers[index], itemValueBufferSizeAsInt);
+				    break;
+				  case ItemDataTypeConstants.TYPE_TIME:
+				    //we always store JNADominoDateTime and convert to Calendar if requested by caller
+                    m_itemValues[index] = ItemDecoder.decodeTimeDateAsNotesTimeDate(m_itemValueBufferPointers[index], itemValueBufferSizeAsInt);
+				    break;
+				  case ItemDataTypeConstants.TYPE_NUMBER_RANGE:
+				    m_itemValues[index] = ItemDecoder.decodeNumberList(m_itemValueBufferPointers[index], itemValueBufferSizeAsInt);
+				    break;
+				  case ItemDataTypeConstants.TYPE_TIME_RANGE:
+				    //we always store a List of JNADominoDateTime and convert to Calendar if requested by caller
+                    m_itemValues[index] = ItemDecoder.decodeTimeDateListAsNotesTimeDate(m_itemValueBufferPointers[index]);
+				    break;
 				}
 			}
 			
-			if (type == ItemDataType.TYPE_TIME.getValue() && !isPreferNotesTimeDates()) {
+			if (type == ItemDataTypeConstants.TYPE_TIME && !isPreferNotesTimeDates()) {
 				if (m_itemValues[index] instanceof JNADominoDateTime) {
 					return NotesDateTimeUtils.timeDateToCalendar((JNADominoDateTime)m_itemValues[index]);
 				}
@@ -843,7 +849,7 @@ public class NotesLookupResultBufferDecoder {
 					return m_itemValues[index];
 				}
 			}
-			else if (type == ItemDataType.TYPE_TIME_RANGE.getValue() && m_itemValues[index] instanceof List && !isPreferNotesTimeDates()) {
+			else if (type == ItemDataTypeConstants.TYPE_TIME_RANGE && m_itemValues[index] instanceof List && !isPreferNotesTimeDates()) {
 				@SuppressWarnings("unchecked")
 				List<Object> tdList = (List<Object>) m_itemValues[index];
 				
@@ -1086,7 +1092,7 @@ public class NotesLookupResultBufferDecoder {
 				if (m_itemNames[i].equalsIgnoreCase(itemName)) {
 					Object val = null;
 					
-					if (getItemDataType(i) == ItemDataType.TYPE_ERROR.getValue()) {
+					if (getItemDataType(i) == ItemDataTypeConstants.TYPE_ERROR) {
 						//TODO workaround for missing large item values in R12; fallback to document
 						ItemTableDataDocAdapter docAdapter = getTableDocAdapter();
 						if (docAdapter!=null) {

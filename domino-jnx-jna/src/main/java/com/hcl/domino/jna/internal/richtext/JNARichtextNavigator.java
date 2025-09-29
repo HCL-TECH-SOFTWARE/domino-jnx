@@ -19,8 +19,9 @@ package com.hcl.domino.jna.internal.richtext;
 import java.lang.ref.ReferenceQueue;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.LinkedList;
-
+import java.util.List;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -37,30 +38,40 @@ import com.hcl.domino.jna.internal.gc.allocations.JNARichtextNavigatorAllocation
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.RichTextRecord;
 
-public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorAllocations> implements RichtextNavigator {
-	private String m_richTextItemName;
-	
-	private LinkedList<JNAItem> m_items;
-	private int m_currentItemIndex = -1;
-	
-	private LinkedList<RichTextRecord<?>> m_currentItemRecords;
-	private int m_currentItemRecordsIndex = -1;
+public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorAllocations> implements RichtextNavigator, Cloneable {
+  private static class ItemHolder {
+    public JNAItem item;
+    public boolean hasRecords;
+    
+    public ItemHolder(JNAItem item) {
+      this.item = item;
+      this.hasRecords = hasCDRecords(item);
+    }
+  }
+  
+  private String m_richTextItemName;
 
-	public JNARichtextNavigator(JNADocument doc, String richTextItemName) {
-		super(doc);
-		
-		m_richTextItemName = richTextItemName;
-		//read items
-		m_items = new LinkedList<>();
+  private List<ItemHolder> m_items;
+  private int m_currentItemIndex = -1;
 
-		doc.forEachItem(richTextItemName, (item, loop) -> {
-			if (JNAItem.CD_TYPES.contains(item.getType()) && item instanceof JNAItem) {
-				m_items.add((JNAItem) item);
-			}
-		});
+  private List<RichTextRecord<?>> m_currentItemRecords;
+  private int m_currentItemRecordsIndex = -1;
 
-		setInitialized();
-	}
+  public JNARichtextNavigator(JNADocument doc, String richTextItemName) {
+    super(doc);
+
+    m_richTextItemName = richTextItemName;
+    // read items
+    m_items = new LinkedList<>();
+
+    doc.forEachItem(richTextItemName, (item, loop) -> {
+      if (JNAItem.CD_TYPES.contains(item.getType()) && item instanceof JNAItem) {
+        m_items.add(new ItemHolder((JNAItem)item));
+      }
+    });
+
+    setInitialized();
+  }
 	
 	/**
 	 * Constructs a new rich-text navigator for the specific item within a document.
@@ -69,16 +80,16 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 	 * @param item the item containing composite data
 	 * @since 1.0.43
 	 */
-	public JNARichtextNavigator(JNADocument doc, JNAItem item) {
-	  super(doc);
-    
-    m_richTextItemName = item.getName();
-    //read items
-    m_items = new LinkedList<>();
-    m_items.add(item);
+    public JNARichtextNavigator(JNADocument doc, JNAItem item) {
+      super(doc);
 
-    setInitialized();
-	}
+      m_richTextItemName = item.getName();
+      // read items
+      m_items = new LinkedList<>();
+      m_items.add(new ItemHolder(item));
+
+      setInitialized();
+    }
 
 	@Override
 	public Document getParentDocument() {
@@ -135,10 +146,15 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 		}
 		else if (oldItemIndex!=posImpl.m_itemIndex) {
 			//current item changed, so we need to reload the records
-			JNAItem currItem = m_items.get(m_currentItemIndex);
+			JNAItem currItem = m_items.get(m_currentItemIndex).item;
 			m_currentItemRecords = readCDRecords(currItem);
 		}
 	}
+	
+    @Override
+    public RichtextNavigator clone() {
+      return new JNARichtextNavigator((JNADocument)this.getParentDocument(), m_richTextItemName);
+    }
 	
 	@Override
 	public boolean isEmpty() {
@@ -148,8 +164,7 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 			return true;
 		}
 		else {
-			boolean hasRecords = hasCDRecords(m_items.getFirst());
-			return !hasRecords;
+			return !m_items.get(0).hasRecords;
 		}
 	}
 	
@@ -165,7 +180,7 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 		}
 		else if (m_currentItemRecords==null || m_currentItemIndex!=0) {
 			//move to first item
-			JNAItem firstItem = m_items.getFirst();
+			JNAItem firstItem = m_items.get(0).item;
 			m_currentItemRecords = readCDRecords(firstItem);
 			m_currentItemIndex = 0;
 		}
@@ -181,7 +196,7 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 		}
 	}
 	
-	private boolean hasCDRecords(JNAItem item) {
+	private static boolean hasCDRecords(JNAItem item) {
 		final boolean[] hasRecords = new boolean[1];
 		
 		item.enumerateCDRecords((signature, cdRecordPtr, cdRecordLength) -> {
@@ -198,13 +213,13 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 	 * @param item item
 	 * @return list with CD record data
 	 */
-	private LinkedList<RichTextRecord<?>> readCDRecords(JNAItem item) {
-		final LinkedList<RichTextRecord<?>> itemRecords = new LinkedList<>();
+	private List<RichTextRecord<?>> readCDRecords(JNAItem item) {
+		final List<RichTextRecord<?>> itemRecords = new ArrayList<>(500);
 
 		item.enumerateCDRecords((signature, cdRecordPtr, cdRecordLength) -> {
 			byte[] cdRecordDataArr = cdRecordPtr.getByteArray(0, cdRecordLength);
 			@SuppressWarnings("resource")
-      DisposableMemory cdRecordDataMem = new DisposableMemory(cdRecordLength);
+            DisposableMemory cdRecordDataMem = new DisposableMemory(cdRecordLength);
 			cdRecordDataMem.write(0, cdRecordDataArr, 0, cdRecordLength);
 			ByteBuffer data = cdRecordDataMem.getByteBuffer(0, cdRecordLength).order(ByteOrder.nativeOrder());
 
@@ -228,7 +243,7 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 		}
 		else if (m_currentItemIndex!=(m_items.size()-1)) {
 			//move to last item
-			JNAItem lastItem = m_items.getLast();
+			JNAItem lastItem = m_items.get(0).item;
 			m_currentItemRecords = readCDRecords(lastItem);
 			m_currentItemIndex = m_items.size()-1;
 		}
@@ -274,7 +289,7 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 				else if (m_currentItemIndex<(m_items.size()-1)) {
 					//move items available
 					m_currentItemIndex++;
-					JNAItem currItem = m_items.get(m_currentItemIndex);
+					JNAItem currItem = m_items.get(m_currentItemIndex).item;
 					m_currentItemRecords = readCDRecords(currItem);
 					if (m_currentItemRecords.isEmpty()) {
 						m_currentItemRecordsIndex = -1;
@@ -324,7 +339,7 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 				else if (m_currentItemIndex>0) {
 					//move items available
 					m_currentItemIndex--;
-					JNAItem currItem = m_items.get(m_currentItemIndex);
+					JNAItem currItem = m_items.get(m_currentItemIndex).item;
 					m_currentItemRecords = readCDRecords(currItem);
 					if (m_currentItemRecords.isEmpty()) {
 						m_currentItemRecordsIndex = -1;
@@ -367,7 +382,7 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 				}
 				else if (m_currentItemIndex<(m_items.size()-1)) {
 					//more items available
-					JNAItem currItem = m_items.get(m_currentItemIndex+1);
+					JNAItem currItem = m_items.get(m_currentItemIndex+1).item;
 					boolean hasRecords = hasCDRecords(currItem);
 					return hasRecords;
 				}
@@ -404,7 +419,7 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 				}
 				else if (m_currentItemIndex>0) {
 					//move items available
-					JNAItem currItem = m_items.get(m_currentItemIndex-1);
+					JNAItem currItem = m_items.get(m_currentItemIndex-1).item;
 					boolean hasRecords = hasCDRecords(currItem);
 					return hasRecords;
 				}

@@ -25,7 +25,6 @@ import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Spliterator;
 import java.util.Spliterators;
-import java.util.stream.Stream;
 
 import com.hcl.domino.commons.richtext.RichtextNavigator.RichtextPosition;
 import com.hcl.domino.commons.richtext.records.AbstractCDRecord;
@@ -95,9 +94,48 @@ public class DefaultRichTextList extends AbstractList<RichTextRecord<?>> impleme
     }
 
   }
+  
+  private class RichTextNavIterator implements Iterator<RichTextRecord<?>> {
+    private RichtextNavigator nav;
+    private RichTextRecord<?> next;
+    private int index;
+
+    public RichTextNavIterator(RichtextNavigator nav) {
+      this.nav = nav;
+      this.index = -1;
+      if(nav.gotoFirst()) {
+        this.next = nav.getCurrentRecord();
+      } else {
+        this.next = null;
+      }
+    }
+
+    @Override
+    public boolean hasNext() {
+      return next != null;
+    }
+
+    @Override
+    public RichTextRecord<?> next() {
+      final RichTextRecord<?> r = next;
+      if(nav.gotoNext()) {
+        next = nav.getCurrentRecord();
+      } else {
+        next = null;
+      }
+      this.index++;
+      return wrap(r);
+    }
+
+    @Override
+    public void remove() {
+      DefaultRichTextList.this.remove(this.index);
+    }
+
+  }
 
   private final RichtextNavigator nav;
-  private final List<RichtextPosition> cache = new ArrayList<>();
+  private final List<RichtextPosition> cache = new ArrayList<>(500);
   private int size = -1;
   private final RecordType.Area area;
 
@@ -132,21 +170,7 @@ public class DefaultRichTextList extends AbstractList<RichTextRecord<?>> impleme
     final RichtextPosition cur = this.nav.getCurrentPosition();
     try {
       this.nav.restorePosition(this.cache.get(index));
-      final RichTextRecord<?> record = this.nav.getCurrentRecord();
-      if (this.area != null && record instanceof AbstractCDRecord) {
-        final RecordType type = Stream.of(this.area, RecordType.Area.RESERVED_INTERNAL)
-            .map(a -> RecordType.getRecordTypeForConstant(record.getTypeValue(), a))
-            .filter(Objects::nonNull)
-            .findFirst()
-            .orElse(null);
-        if (type != null) {
-          final Class<? extends RichTextRecord<?>> encapsulation = type.getEncapsulation();
-          if (encapsulation != null) {
-            return RichTextUtil.reencapsulateRecord(type, (AbstractCDRecord<?>) record, encapsulation);
-          }
-        }
-      }
-      return record;
+      return wrap(this.nav.getCurrentRecord());
     } finally {
       this.nav.restorePosition(cur);
     }
@@ -160,6 +184,13 @@ public class DefaultRichTextList extends AbstractList<RichTextRecord<?>> impleme
 
   @Override
   public Iterator<RichTextRecord<?>> iterator() {
+    if(nav instanceof Cloneable) {
+      try {
+        return new RichTextNavIterator(nav.clone());
+      } catch (CloneNotSupportedException e) {
+        throw new RuntimeException(e);
+      }
+    }
     return this.listIterator(0);
   }
 
@@ -180,5 +211,22 @@ public class DefaultRichTextList extends AbstractList<RichTextRecord<?>> impleme
   @Override
   public Spliterator<RichTextRecord<?>> spliterator() {
     return Spliterators.spliteratorUnknownSize(this.iterator(), Spliterator.ORDERED);
+  }
+  
+  private RichTextRecord<?> wrap(RichTextRecord<?> record) {
+    if (this.area != null && record instanceof AbstractCDRecord) {
+      short typeValue = record.getTypeValue();
+      RecordType type = RecordType.getRecordTypeForConstant(typeValue, this.area);
+      if(type == null) {
+        type = RecordType.getRecordTypeForConstant(typeValue, RecordType.Area.RESERVED_INTERNAL);
+      }
+      if (type != null) {
+        final Class<? extends RichTextRecord<?>> encapsulation = type.getEncapsulation();
+        if (encapsulation != null) {
+          return RichTextUtil.reencapsulateRecord(type, (AbstractCDRecord<?>) record, encapsulation);
+        }
+      }
+    }
+    return record;
   }
 }

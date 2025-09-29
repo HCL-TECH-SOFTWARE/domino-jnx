@@ -48,10 +48,10 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.jna.internal.LMBCSString;
-import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.JNXServiceFinder;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * Data object that contains all data read from collection entries
@@ -450,7 +450,7 @@ public class JNACollectionEntry extends AbstractCollectionEntry {
 	public String getUNID() {
 		if (m_unid==null) {
 			if (m_unidAsLongs!=null) {
-				m_unid = NotesStringUtils.toUNID(m_unidAsLongs[0], m_unidAsLongs[1]);
+				m_unid = JNXStringUtil.toUNID(m_unidAsLongs[0], m_unidAsLongs[1]);
 			}
 		}
 		return m_unid;

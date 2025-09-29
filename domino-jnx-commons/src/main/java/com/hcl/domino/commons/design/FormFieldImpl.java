@@ -27,12 +27,12 @@ import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.format.FieldListDelimiter;
 import com.hcl.domino.design.format.FieldListDisplayDelimiter;
 import com.hcl.domino.richtext.FormField;
-import com.hcl.domino.richtext.records.CDColor;
 import com.hcl.domino.richtext.records.CDDataFlags;
 import com.hcl.domino.richtext.records.CDExtField;
 import com.hcl.domino.richtext.records.CDIDName;
 import com.hcl.domino.richtext.records.ICDField;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.richtext.structures.TFMT;
 
 /**
  * @author Jesse Gallagher
@@ -40,37 +40,30 @@ import com.hcl.domino.richtext.records.RichTextRecord;
  */
 public class FormFieldImpl implements FormField {
   private final Collection<RichTextRecord<?>> structs;
+  private final ICDField cdField;
 
   public FormFieldImpl(final Collection<RichTextRecord<?>> structs) {
     this.structs = new ArrayList<>(Objects.requireNonNull(structs, "structs cannot be null"));
+    this.cdField = this.structs.stream()
+        .filter(s -> s instanceof ICDField)
+        .map(ICDField.class::cast)
+        .findFirst()
+        .orElseThrow(() -> new IllegalStateException("Unable to find field description in field structs"));
   }
 
   @Override
   public Optional<ItemDataType> getDataType() {
-    return this.structs.stream()
-        .filter(s -> s instanceof ICDField)
-        .map(ICDField.class::cast)
-        .findFirst()
-        .flatMap(ICDField::getFieldType);
+    return this.cdField.getFieldType();
   }
 
   @Override
   public Optional<String> getDefaultValueFormula() {
-    return this.structs.stream()
-        .filter(s -> s instanceof ICDField)
-        .map(ICDField.class::cast)
-        .findFirst()
-        .map(ICDField::getDefaultValueFormula);
+    return Optional.ofNullable(this.cdField.getDefaultValueFormula());
   }
 
   @Override
   public String getDescription() {
-    return this.structs.stream()
-        .filter(s -> s instanceof ICDField)
-        .map(ICDField.class::cast)
-        .findFirst()
-        .map(ICDField::getDescription)
-        .orElseThrow(() -> new IllegalStateException("Unable to find field description in field structs"));
+    return this.cdField.getDescription();
   }
 
   @Override
@@ -135,96 +128,56 @@ public class FormFieldImpl implements FormField {
 
   @Override
   public Optional<String> getInputTranslationFormula() {
-    return this.structs.stream()
-        .filter(s -> s instanceof ICDField)
-        .map(ICDField.class::cast)
-        .findFirst()
-        .map(ICDField::getInputTranslationFormula);
+    return Optional.ofNullable(this.cdField.getInputTranslationFormula());
   }
 
   @Override
   public Optional<String> getInputValidityCheckFormula() {
-    return this.structs.stream()
-        .filter(s -> s instanceof ICDField)
-        .map(ICDField.class::cast)
-        .findFirst()
-        .map(ICDField::getInputValidationFormula);
+    return Optional.ofNullable(this.cdField.getInputValidationFormula());
   }
 
   @Override
   public Optional<String> getKeywordFormula() {
-    return this.structs.stream()
-        .filter(s -> s instanceof ICDField)
-        .map(ICDField.class::cast)
-        .findFirst()
-        .map(ICDField::getTextValueFormula)
-        .orElseThrow(() -> new IllegalStateException("Unable to find field values in field structs"));
+    return this.cdField.getTextValueFormula();
   }
 
   @Override
   public FieldListDisplayDelimiter getListDispayDelimiter() {
-    return this.structs.stream()
-        .filter(s -> s instanceof ICDField)
-        .map(ICDField.class::cast)
-        .findFirst()
-        .map(ICDField::getListDisplayDelimiter)
-        .orElseThrow(() -> new IllegalStateException("Unable to find field values in field structs"));
+    return this.cdField.getListDisplayDelimiter();
   }
 
   @Override
   public Set<FieldListDelimiter> getListInputDelimiters() {
-    return this.structs.stream()
-        .filter(s -> s instanceof ICDField)
-        .map(ICDField.class::cast)
-        .findFirst()
-        .map(ICDField::getListDelimiters)
-        .orElseThrow(() -> new IllegalStateException("Unable to find field delimiters in field structs"));
+    return this.cdField.getListDelimiters();
   }
 
   @Override
   public String getName() {
-    return this.structs.stream()
-        .filter(s -> s instanceof ICDField)
-        .map(ICDField.class::cast)
-        .findFirst()
-        .map(ICDField::getName)
-        .orElseThrow(() -> new IllegalStateException("Unable to find field name in field structs"));
+    return this.cdField.getName();
   }
 
   @Override
   public Optional<List<String>> getTextListValues() {
-    return this.structs.stream()
-        .filter(s -> s instanceof ICDField)
-        .map(ICDField.class::cast)
-        .findFirst()
-        .map(ICDField::getTextValues)
-        .orElseThrow(() -> new IllegalStateException("Unable to find field values in field structs"));
+    return this.cdField.getTextValues();
   }
   
   @Override
   public Kind getKind() {
-    return this.structs.stream()
-        .filter(s -> s instanceof ICDField)
-        .map(ICDField.class::cast)
-        .findFirst()
-        .map(ICDField::getFlags)
-        .map(flags -> {
-          if(flags.contains(ICDField.Flag.EDITABLE)) {
-            return Kind.EDITABLE;
-          }
-          
-          if(flags.contains(ICDField.Flag.V3FAB)) {
-            if(flags.contains(ICDField.Flag.COMPUTED)) {
-              if(flags.contains(ICDField.Flag.STOREDV)) {
-                return Kind.COMPUTED;
-              }
-              return Kind.COMPUTEDFORDISPLAY;
-            }
-            return Kind.COMPUTEDWHENCOMPOSED;
-          }
-          return Kind.EDITABLE;
-        })
-        .orElseThrow(() -> new IllegalStateException("Unable to find kind in field structs"));
+    Set<ICDField.Flag> flags = this.cdField.getFlags();
+    if(flags.contains(ICDField.Flag.EDITABLE)) {
+      return Kind.EDITABLE;
+    }
+    
+    if(flags.contains(ICDField.Flag.V3FAB)) {
+      if(flags.contains(ICDField.Flag.COMPUTED)) {
+        if(flags.contains(ICDField.Flag.STOREDV)) {
+          return Kind.COMPUTED;
+        }
+        return Kind.COMPUTEDFORDISPLAY;
+      }
+      return Kind.COMPUTEDWHENCOMPOSED;
+    }
+    return Kind.EDITABLE;
   }
   
   @Override
@@ -261,12 +214,7 @@ public class FormFieldImpl implements FormField {
       }
     }
     
-    Set<ICDField.Flag> flags = this.structs.stream()
-        .filter(s -> s instanceof ICDField)
-        .map(ICDField.class::cast)
-        .findFirst()
-        .map(ICDField::getFlags)
-        .orElseThrow(() -> new IllegalStateException("Unable to find flags in field structs"));
+    Set<ICDField.Flag> flags = this.cdField.getFlags();
     Optional<CDExtField> extField = this.structs.stream()
       .filter(s -> s instanceof CDExtField)
       .findFirst()
@@ -305,13 +253,16 @@ public class FormFieldImpl implements FormField {
         return Type.PASSWORD;
       } else if(extFlags2.contains(CDExtField.Flag2.TIMEZONE)) {
         return Type.TIMEZONE;
+      } else if(extFlags2.contains(CDExtField.Flag2.COLOR)) {
+        return Type.COLOR;
       }
     }
     
-    if(this.structs.stream().anyMatch(CDColor.class::isInstance)) {
-      return Type.COLOR;
-    }
-    
     return Type.TEXT;
+  }
+  
+  @Override
+  public TFMT getTimeFormat() {
+    return this.cdField.getTimeFormat();
   }
 }

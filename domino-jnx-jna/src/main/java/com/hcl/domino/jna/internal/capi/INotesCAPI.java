@@ -45,7 +45,6 @@ import com.hcl.domino.jna.internal.structs.NotesDbReplicaInfoStruct;
 import com.hcl.domino.jna.internal.structs.NotesFTIndexStatsStruct;
 import com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableExt;
 import com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableLock;
-import com.hcl.domino.jna.internal.structs.NotesOriginatorIdStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
@@ -391,7 +390,7 @@ public interface INotesCAPI extends Library {
 	short NSFNoteCopy(
 			DHANDLE.ByValue note_handle_src,
 			DHANDLE.ByReference note_handle_dst_ptr);
-	short NSFDbGenerateOID(HANDLE.ByValue hDB, NotesOriginatorIdStruct retOID);
+	short NSFDbGenerateOID(HANDLE.ByValue hDB, Pointer retOID);
 
 	void OSGetExecutableDirectory(Memory retPathName);
 	void OSGetDataDirectory(Memory retPathName);
@@ -509,7 +508,7 @@ public interface INotesCAPI extends Library {
 			ShortByReference name_len_ptr,
 			ShortByReference item_flags_ptr,
 			ShortByReference value_datatype_ptr,
-			NotesBlockIdStruct value_bid_ptr,
+			Pointer value_bid_ptr,
 			IntByReference value_len_ptr,
 			ByteByReference retSeqByte,
 			ByteByReference retDupItemID);
@@ -606,9 +605,9 @@ public interface INotesCAPI extends Library {
 			DHANDLE.ByValue note_handle,
 			Memory item_name,
 			short  name_len,
-			NotesBlockIdStruct retbhItem,
+			Pointer retbhItem,
 			ShortByReference retDataType,
-			NotesBlockIdStruct retbhValue,
+			Pointer retbhValue,
 			IntByReference retValueLength);
 
 	short NSFItemInfoNext(
@@ -616,9 +615,9 @@ public interface INotesCAPI extends Library {
 			NotesBlockIdStruct.ByValue NextItem,
 			Memory item_name,
 			short  name_len,
-			NotesBlockIdStruct retbhItem,
+			Pointer retbhItem,
 			ShortByReference retDataType,
-			NotesBlockIdStruct retbhValue,
+			Pointer retbhValue,
 			IntByReference retValueLength);
 
 	short NSFItemInfoPrev(
@@ -1200,7 +1199,7 @@ public interface INotesCAPI extends Library {
 	short NSFDbGetNoteInfoExt(
 			HANDLE.ByValue hDB,
 			int  NoteID,
-			NotesOriginatorIdStruct retNoteOID,
+			Pointer retNoteOID,
 			NotesTimeDateStruct retModified,
 			ShortByReference retNoteClass,
 			NotesTimeDateStruct retAddedToFile,
@@ -1850,13 +1849,6 @@ public interface INotesCAPI extends Library {
 			NotesCallbacks.b64_CWFErrorProc ErrorRoutine,
 			Pointer CallersContext);
 
-	short NSFNoteComputeWithForm(
-			DHANDLE.ByValue hNote,
-			DHANDLE.ByValue hFormNote,
-			int dwFlags,
-			NotesCallbacks.b32_CWFErrorProc ErrorRoutine,
-			Pointer CallersContext);
-
 	short DesignRefresh(
 			Memory Server,
 			HANDLE.ByValue hDB,
@@ -1945,22 +1937,6 @@ public interface INotesCAPI extends Library {
 			NotesCallbacks.b64_NSFNoteOpenCallback NoteOpenCallback,
 			NotesCallbacks.b64_NSFObjectAllocCallback ObjectAllocCallback,
 			NotesCallbacks.b64_NSFObjectWriteCallback ObjectWriteCallback,
-			NotesTimeDateStruct FolderSinceTime,
-			NotesCallbacks.NSFFolderAddCallback FolderAddCallback);
-
-	short NSFDbGetNotes(
-			HANDLE.ByValue hDB,
-			int NumNotes,
-			Memory NoteID, //NOTEID array
-			Memory NoteOpenFlags, // DWORD array
-			Memory SinceSeqNum, // DWORD array
-			int ControlFlags,
-			HANDLE.ByValue hObjectDB,
-			Pointer CallbackParam,
-			NotesCallbacks.NSFGetNotesCallback  GetNotesCallback,
-			NotesCallbacks.b32_NSFNoteOpenCallback NoteOpenCallback,
-			NotesCallbacks.b32_NSFObjectAllocCallback ObjectAllocCallback,
-			NotesCallbacks.b32_NSFObjectWriteCallback ObjectWriteCallback,
 			NotesTimeDateStruct FolderSinceTime,
 			NotesCallbacks.NSFFolderAddCallback FolderAddCallback);
 

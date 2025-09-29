@@ -41,7 +41,6 @@ import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import com.hcl.domino.BuildVersionInfo;
 import com.hcl.domino.DominoClient.Encryption;
 import com.hcl.domino.DominoClient.IBreakHandler;
@@ -54,6 +53,7 @@ import com.hcl.domino.admin.replication.ReplicaInfo;
 import com.hcl.domino.commons.constants.UpdateNote;
 import com.hcl.domino.commons.data.AccessInfoImpl;
 import com.hcl.domino.commons.data.BuildVersionInfoImpl;
+import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.commons.data.EncryptionInfoImpl;
 import com.hcl.domino.commons.data.NSFVersionInfoImpl;
 import com.hcl.domino.commons.design.DesignUtil;
@@ -62,8 +62,8 @@ import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.CAPIGarbageCollector;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
+import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
-import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.IItemTableData;
@@ -111,7 +111,6 @@ import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.NotesNamingUtils.Privileges;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
-import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.INotesCAPI;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.capi.NotesCAPI1201;
@@ -128,7 +127,6 @@ import com.hcl.domino.jna.internal.structs.NotesBuildVersionStruct;
 import com.hcl.domino.jna.internal.structs.NotesFTIndexStatsStruct;
 import com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableExt;
 import com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableLock;
-import com.hcl.domino.jna.internal.structs.NotesOriginatorIdStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
 import com.hcl.domino.jna.internal.views.JNADominoCollectionInfo;
@@ -138,6 +136,7 @@ import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.Loop;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.misc.Ref;
+import com.hcl.domino.richtext.structures.OriginatorID;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclFlag;
 import com.hcl.domino.security.AclLevel;
@@ -387,7 +386,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		}
 		else if(HANDLE.class.isAssignableFrom(clazz)) {
 			return (T)getAllocations().getDBHandle();
-		}
+		} else if (clazz == long.class || clazz == Long.class) {
+	      return (T) (Long)getAllocations().getDBHandle().getValue();
+	    }
 		
 		return null;
 	}
@@ -1063,53 +1064,42 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	 * @param profileName Name of the profile. To enumerate all profile documents within a database, use null
 	 * @return list of  profile note infos
 	 */
-	private List<ProfileNoteInfo> getProfileNoteInfos(String profileName) {
-		checkDisposed();
+    private List<ProfileNoteInfo> getProfileNoteInfos(String profileName) {
+      checkDisposed();
 
-		List<ProfileNoteInfo> retNoteInfos = new ArrayList<>();
+      List<ProfileNoteInfo> retNoteInfos = new ArrayList<>();
 
-		Memory profileNameMem = StringUtil.isEmpty(profileName) ? null : NotesStringUtils.toLMBCS(profileName, false);
+      Memory profileNameMem =
+          StringUtil.isEmpty(profileName) ? null : NotesStringUtils.toLMBCS(profileName, false);
 
-		NotesCallbacks.NSFPROFILEENUMPROC callback;
+      NotesCallbacks.NSFPROFILEENUMPROC callback;
 
-		if (PlatformUtils.isWin32()) {
-			callback = (Win32NotesCallbacks.NSFPROFILEENUMPROCWin32) (hDB, ctx, profileNameMem1, profileNameLength, usernameMem, usernameLength, noteId) -> {
-				String profileName1 = ""; //$NON-NLS-1$
-				if (profileName1 != null) {
-					profileName1 = NotesStringUtils.fromLMBCS(profileNameMem1, ((profileNameLength & 0xffff)));
-				}
-				String userName = ""; //$NON-NLS-1$
-				if (usernameMem != null) {
-					userName = NotesStringUtils.fromLMBCS(usernameMem, ((profileNameLength & 0xffff)));
-				}
 
-				retNoteInfos.add(new ProfileNoteInfo(profileName1, userName, noteId));
-				return 0;
-			};
-		} else {
-			callback = (hDB, ctx, profileNameMem1, profileNameLength, usernameMem, usernameLength, noteId) -> {
-				String profileName1 = ""; //$NON-NLS-1$
-				if (profileName1 != null) {
-					profileName1 = NotesStringUtils.fromLMBCS(profileNameMem1, ((profileNameLength & 0xffff)));
-				}
-				String userName = ""; //$NON-NLS-1$
-				if (usernameMem != null) {
-					userName = NotesStringUtils.fromLMBCS(usernameMem, ((usernameLength & 0xffff)));
-				}
+      callback =
+          (hDB, ctx, profileNameMem1, profileNameLength, usernameMem, usernameLength, noteId) -> {
+            String profileName1 = ""; //$NON-NLS-1$
+            if (profileName1 != null) {
+              profileName1 =
+                  NotesStringUtils.fromLMBCS(profileNameMem1, ((profileNameLength & 0xffff)));
+            }
+            String userName = ""; //$NON-NLS-1$
+            if (usernameMem != null) {
+              userName = NotesStringUtils.fromLMBCS(usernameMem, ((usernameLength & 0xffff)));
+            }
 
-				retNoteInfos.add(new ProfileNoteInfo(profileName1, userName, noteId));
-				return 0;
-			};
-		}
+            retNoteInfos.add(new ProfileNoteInfo(profileName1, userName, noteId));
+            return 0;
+          };
 
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
-			return NotesCAPI.get().NSFProfileEnum(dbHandleByVal, profileNameMem,
-					profileNameMem == null ? (short) 0 : (short) (profileNameMem.size() & 0xffff), callback, null, 0);
-		});
-		NotesErrorUtils.checkResult(result);
+      short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
+        return NotesCAPI.get().NSFProfileEnum(dbHandleByVal, profileNameMem,
+            profileNameMem == null ? (short) 0 : (short) (profileNameMem.size() & 0xffff), callback,
+            null, 0);
+      });
+      NotesErrorUtils.checkResult(result);
 
-		return retNoteInfos;
-	}
+      return retNoteInfos;
+    }
 	
 	@Override
 	public void forEachProfileDocument(BiConsumer<Document, Loop> consumer) {
@@ -1359,7 +1349,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 	@Override
 	public boolean isFTIndex() {
-		return getLastFTIndexTime() != null;
+		return getOption(DatabaseOption.FT_INDEX) && getLastFTIndexTime() != null;
 	}
 
 	@Override
@@ -1982,45 +1972,47 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		}
 	}
 	
-	@Override
-	public DocInfoExt getDocumentInfo(int noteId) {
-		checkDisposed();
+    @Override
+    public DocInfoExt getDocumentInfo(int noteId) {
+      checkDisposed();
 
-		JNADatabaseAllocations allocations = getAllocations();
-		
-		return LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
-			NotesOriginatorIdStruct retNoteOID = NotesOriginatorIdStruct.newInstance();
-			NotesTimeDateStruct retModified = NotesTimeDateStruct.newInstance();
-			ShortByReference retNoteClass = new ShortByReference();
-			NotesTimeDateStruct retAddedToFile = NotesTimeDateStruct.newInstance();
-			ShortByReference retResponseCount = new ShortByReference();
-			IntByReference retParentNoteID = new IntByReference();
-			boolean isDeleted = false;
-			//not sure if we can check this via error code:
-			boolean notPresent = false;
-			
-			short result = NotesCAPI.get().NSFDbGetNoteInfoExt(dbHandleByVal, noteId, retNoteOID, retModified, retNoteClass, retAddedToFile, retResponseCount, retParentNoteID);
-			if (result==INotesErrorConstants.ERR_NOTE_DELETED) {
-				isDeleted = true;
-			}
-			else if (result==INotesErrorConstants.ERR_INVALID_NOTE) {
-				notPresent = true;
-			}
-			else {
-				NotesErrorUtils.checkResult(result);
-			}
-			
-			String unid = retNoteOID.getUNIDAsString();
-			DominoDateTime sequenceTime = new JNADominoDateTime(retNoteOID.SequenceTime.Innards);
-			int sequence = retNoteOID.Sequence;
-			
-			DocInfoExt info = new DocInfoExtImpl(noteId, unid, sequenceTime, sequence,
-					isDeleted, notPresent, retModified,
-					retNoteClass.getValue(), retAddedToFile, retResponseCount.getValue(), retParentNoteID.getValue());
-			
-			return info;
-		});
-	}
+      JNADatabaseAllocations allocations = getAllocations();
+
+      return LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
+        try (DisposableMemory retNoteOID = new DisposableMemory(JNANotesConstants.oidSize)) {
+          NotesTimeDateStruct retModified = NotesTimeDateStruct.newInstance();
+          ShortByReference retNoteClass = new ShortByReference();
+          NotesTimeDateStruct retAddedToFile = NotesTimeDateStruct.newInstance();
+          ShortByReference retResponseCount = new ShortByReference();
+          IntByReference retParentNoteID = new IntByReference();
+          boolean isDeleted = false;
+          // not sure if we can check this via error code:
+          boolean notPresent = false;
+
+          short result = NotesCAPI.get().NSFDbGetNoteInfoExt(dbHandleByVal, noteId, retNoteOID,
+              retModified, retNoteClass, retAddedToFile, retResponseCount, retParentNoteID);
+          if (result == INotesErrorConstants.ERR_NOTE_DELETED) {
+            isDeleted = true;
+          } else if (result == INotesErrorConstants.ERR_INVALID_NOTE) {
+            notPresent = true;
+          } else {
+            NotesErrorUtils.checkResult(result);
+          }
+
+          OriginatorID oid = MemoryStructureUtil.forStructure(OriginatorID.class, retNoteOID.getByteBuffer(0, JNANotesConstants.oidSize));
+          String unid = oid.getUNID();
+          DominoDateTime sequenceTime = new DefaultDominoDateTime(oid.getSequenceTime().getInnards());
+          int sequence = oid.getSequence();
+
+          DocInfoExt info = new DocInfoExtImpl(noteId, unid, sequenceTime, sequence,
+              isDeleted, notPresent, retModified,
+              retNoteClass.getValue(), retAddedToFile, retResponseCount.getValue(),
+              retParentNoteID.getValue());
+
+          return info;
+        }
+      });
+    }
 
 	@Override
 	public Optional<Agent> getAgent(String agentName) {
@@ -2112,24 +2104,23 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 	@Override
 	public DominoOriginatorId generateOID() {
-		NotesOriginatorIdStruct oidStruct = generateOIDStruct();
+	    OriginatorID oidStruct = generateOIDStruct();
 		return new JNADominoOriginatorId(oidStruct);
 	}
 	
-	NotesOriginatorIdStruct generateOIDStruct() {
+	OriginatorID generateOIDStruct() {
 		checkDisposed();
 		JNADatabaseAllocations allocations = getAllocations();
-
-		NotesOriginatorIdStruct retOIDStruct = NotesOriginatorIdStruct.newInstance();
+		
+        Memory retOid = new Memory(JNANotesConstants.oidSize);
+        retOid.clear();
 		
 		short result = LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
-			return NotesCAPI.get().NSFDbGenerateOID(handleByVal, retOIDStruct);
+			return NotesCAPI.get().NSFDbGenerateOID(handleByVal, retOid);
 		});
 		NotesErrorUtils.checkResult(result);
 
-		retOIDStruct.read();
-
-		return retOIDStruct;
+		return MemoryStructureUtil.forStructure(OriginatorID.class, () -> retOid.getByteBuffer(0, JNANotesConstants.oidSize));
 	}
 	
 	public enum DbMode {
@@ -3757,51 +3748,41 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	}
 	
 	
-	@Override
-	public void refreshDesign(String server, boolean force, boolean errIfTemplateNotFound, 
-			final IBreakHandler abortHandler) {
-		checkDisposed();
-		
-		Memory serverMem = NotesStringUtils.toLMBCS(server, true);
-		
-		NotesCallbacks.ABORTCHECKPROC abortProc;
-		if (abortHandler!=null) {
-			if (PlatformUtils.isWin32()) {
-				abortProc = (Win32NotesCallbacks.ABORTCHECKPROCWin32) () -> {
-					if (abortHandler.shouldInterrupt()==Action.Stop) {
-						return INotesErrorConstants.ERR_CANCEL;
-					}
-					return 0;
-				};
-			}
-			else {
-				abortProc = () -> {
-					if (abortHandler.shouldInterrupt()==Action.Stop) {
-						return INotesErrorConstants.ERR_CANCEL;
-					}
-					return 0;
-				};
-			}
-		}
-		else {
-			abortProc = null;
-		}
-		
-		int dwFlags = 0;
-		if (force) {
-			dwFlags |= NotesConstants.DESIGN_FORCE;
-		}
-		if (errIfTemplateNotFound) {
-			dwFlags |= NotesConstants.DESIGN_ERR_TMPL_NOT_FOUND;
-		}
-		
-		int fDwFlags = dwFlags;
-		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().DesignRefresh(serverMem, hDbByVal, fDwFlags, abortProc, null);
-		});
-		NotesErrorUtils.checkResult(result);
-	}
+    @Override
+    public void refreshDesign(String server, boolean force, boolean errIfTemplateNotFound,
+        final IBreakHandler abortHandler) {
+      checkDisposed();
+
+      Memory serverMem = NotesStringUtils.toLMBCS(server, true);
+
+      NotesCallbacks.ABORTCHECKPROC abortProc;
+      if (abortHandler != null) {
+
+        abortProc = () -> {
+          if (abortHandler.shouldInterrupt() == Action.Stop) {
+            return INotesErrorConstants.ERR_CANCEL;
+          }
+          return 0;
+        };
+      } else {
+        abortProc = null;
+      }
+
+      int dwFlags = 0;
+      if (force) {
+        dwFlags |= NotesConstants.DESIGN_FORCE;
+      }
+      if (errIfTemplateNotFound) {
+        dwFlags |= NotesConstants.DESIGN_ERR_TMPL_NOT_FOUND;
+      }
+
+      int fDwFlags = dwFlags;
+
+      short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
+        return NotesCAPI.get().DesignRefresh(serverMem, hDbByVal, fDwFlags, abortProc, null);
+      });
+      NotesErrorUtils.checkResult(result);
+    }
 	
 	@Override
 	public void hardDeleteDocument(int softDelNoteId) {

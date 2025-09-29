@@ -17,11 +17,11 @@
 package com.hcl.domino.richtext.structures;
 
 import java.nio.ByteBuffer;
-import java.util.Formatter;
 
 import com.hcl.domino.richtext.annotation.StructureDefinition;
 import com.hcl.domino.richtext.annotation.StructureGetter;
 import com.hcl.domino.richtext.annotation.StructureMember;
+import com.hcl.domino.util.JNXStringUtil;
 
 @StructureDefinition(name = "UNIVERSALNOTEID", members = {
     @StructureMember(name = "File", type = OpaqueTimeDate.class),
@@ -80,12 +80,7 @@ public interface UNID extends MemoryStructure {
    * @return UNID
    */
   default String toUnidString() {
-    final Formatter formatter = new Formatter();
     final ByteBuffer data = this.getData();
-    formatter.format("%016x", data.getLong()); //$NON-NLS-1$
-    formatter.format("%016x", data.getLong()); //$NON-NLS-1$
-    final String unidStr = formatter.toString().toUpperCase();
-    formatter.close();
-    return unidStr;
+    return JNXStringUtil.toUNID(data.getLong(), data.getLong());
   }
 }

@@ -123,27 +123,9 @@ public enum JsonUtil {
    * @return the range converted to an ISO string
    */
   public static String toIsoString(final DominoDateRange range) {
-    final String start = JsonUtil.toIsoString(range.getStartDateTime());
-    final String end = JsonUtil.toIsoString(range.getEndDateTime());
+    final String start = range.getStartDateTime().toISOString();
+    final String end = range.getEndDateTime().toISOString();
     return start + '/' + end;
-  }
-
-  /**
-   * Converts the provided {@link DominoDateTime} instance to an ISO 8601 string.
-   * 
-   * @param dt the date/time to convert
-   * @return an ISO string representation
-   */
-  public static String toIsoString(final DominoDateTime dt) {
-    if (dt.hasDate() && dt.hasTime()) {
-      return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(dt);
-    } else if (dt.hasDate()) {
-      return DateTimeFormatter.ISO_LOCAL_DATE.format(dt);
-    } else if (dt.hasTime()) {
-      return DateTimeFormatter.ISO_LOCAL_TIME.format(dt);
-    } else {
-      return ""; //$NON-NLS-1$
-    }
   }
 
   /**

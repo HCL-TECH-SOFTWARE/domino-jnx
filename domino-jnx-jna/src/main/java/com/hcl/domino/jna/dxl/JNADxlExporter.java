@@ -41,7 +41,6 @@ import static com.hcl.domino.commons.dxl.DxlExportProperty.OutputXmlDecl;
 import static com.hcl.domino.commons.dxl.DxlExportProperty.PictureOmittedText;
 import static com.hcl.domino.commons.dxl.DxlExportProperty.RestrictToItemNames;
 import static com.hcl.domino.commons.dxl.DxlExportProperty.UncompressAttachments;
-
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.ref.ReferenceQueue;
@@ -54,20 +53,16 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
 import com.hcl.domino.commons.dxl.DxlExportProperty;
 import com.hcl.domino.commons.dxl.DxlExporterLogImpl;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.NotesErrorUtils;
-import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.IDTable;
@@ -76,7 +71,6 @@ import com.hcl.domino.dxl.DxlExporterLog;
 import com.hcl.domino.exception.DxlExportException;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
-import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNADxlExporterAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
@@ -87,506 +81,457 @@ import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.sun.jna.Pointer;
 
-public class JNADxlExporter extends AbstractDxlProcessor<JNADxlExporterAllocations, DxlExportProperty> implements DxlExporter {
+public class JNADxlExporter extends
+    AbstractDxlProcessor<JNADxlExporterAllocations, DxlExportProperty> implements DxlExporter {
 
-	public JNADxlExporter(JNADominoClient parent, int hDxlExporter) {
-		super(parent);
-		
-		getAllocations().setDxlExporterHandle(hDxlExporter);
-		
-		setInitialized();
-	}
+  public JNADxlExporter(JNADominoClient parent, int hDxlExporter) {
+    super(parent);
 
-	@Override
-	public void exportDocument(Document doc, Writer out) throws IOException {
-		Objects.requireNonNull(doc, "Document cannot be null");
-		Objects.requireNonNull(out, "Writer cannot be null");
-		
-		checkDisposed();
-		
-		LockUtil.lockHandle(doc.getAdapter(DHANDLE.class), handle -> {
-			NotesCallbacks.XML_WRITE_FUNCTION func;
-			
-			if (PlatformUtils.isWin32()) {
-				func = (Win32NotesCallbacks.XML_WRITE_FUNCTIONWin32)(pBuffer, length, pAction) -> {
-					byte[] bytes = pBuffer.getByteArray(0, length);
-					String chunk = new String(bytes, getJDKExportCharset().get());
-					try {
-						out.write(chunk);
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				}; 
-			}
-			else {
-				func = (pBuffer, length, pAction) -> {
-					byte[] bytes = pBuffer.getByteArray(0, length);
-					String chunk = new String(bytes, getJDKExportCharset().get());
-					try {
-						out.write(chunk);
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}	
-				};
-			}
+    getAllocations().setDxlExporterHandle(hDxlExporter);
 
-			int exporterHandler = getAllocations().getDxlExporterHandle();
-			short result = AccessController.doPrivileged((PrivilegedAction<Short>) ()-> {
-				return NotesCAPI.get().DXLExportNote(exporterHandler, func, handle, (Pointer) null);
-			});
+    setInitialized();
+  }
 
-			NotesErrorUtils.checkResult(result);
-			checkError();
-			
-			return null;
-		});
+  @Override
+  public void exportDocument(Document doc, Writer out) throws IOException {
+    Objects.requireNonNull(doc, "Document cannot be null");
+    Objects.requireNonNull(out, "Writer cannot be null");
 
-	}
+    checkDisposed();
 
-	@Override
-	public void exportIDs(Database db, Collection<Integer> ids, Writer out) throws IOException {
-		Objects.requireNonNull(ids, "Ids cannot be null");
-		Objects.requireNonNull(out, "Writer cannot be null");
+    LockUtil.lockHandle(doc.getAdapter(DHANDLE.class), handle -> {
+      NotesCallbacks.XML_WRITE_FUNCTION func;
 
-		checkDisposed();
-		
-		IDTable idTable;
-		if(ids instanceof IDTable) {
-			idTable = (IDTable)ids;
-		} else {
-			idTable = db.getParentDominoClient().createIDTable();
-			idTable.addAll(ids);
-		}
-		
-		LockUtil.lockHandles(db.getAdapter(HANDLE.class), idTable.getAdapter(DHANDLE.class), (hDB, hTable) -> {
-			NotesCallbacks.XML_WRITE_FUNCTION func;
-			
-			if (PlatformUtils.isWin32()) {
-				func = (Win32NotesCallbacks.XML_WRITE_FUNCTIONWin32) (pBuffer, length, pAction) -> {
-					byte[] bytes = pBuffer.getByteArray(0, length);
-					String chunk = new String(bytes, getJDKExportCharset().get());
-					try {
-						out.write(chunk);
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				};
-			}
-			else {
-				func = (pBuffer, length, pAction) -> {
-					byte[] bytes = pBuffer.getByteArray(0, length);
-					String chunk = new String(bytes, getJDKExportCharset().get());
-					try {
-						out.write(chunk);
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				};
-			}
-			
-			short result = NotesCAPI.get().DXLExportIDTable(getAllocations().getDxlExporterHandle(), func, hDB, hTable, null);
-			NotesErrorUtils.checkResult(result);
-			checkError();
-			
-			return null;
-		});
-	}
+      func = (pBuffer, length, pAction) -> {
+        byte[] bytes = pBuffer.getByteArray(0, length);
+        String chunk = new String(bytes, getJDKExportCharset().get());
+        try {
+          out.write(chunk);
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      };
 
-	@Override
-	public void exportDatabase(Database db, Writer out) throws IOException {
-		Objects.requireNonNull(db, "Database cannot be null");
-		Objects.requireNonNull(out, "Writer cannot be null");
+      int exporterHandler = getAllocations().getDxlExporterHandle();
+      short result = AccessController.doPrivileged((PrivilegedAction<Short>) () -> {
+        return NotesCAPI.get().DXLExportNote(exporterHandler, func, handle, (Pointer) null);
+      });
 
-		checkDisposed();
-		LockUtil.lockHandle(db.getAdapter(HANDLE.class), handle -> {
-			NotesCallbacks.XML_WRITE_FUNCTION func;
-			
-			if (PlatformUtils.isWin32()) {
-				func = (Win32NotesCallbacks.XML_WRITE_FUNCTIONWin32) (pBuffer, length, pAction) -> {
-					byte[] bytes = pBuffer.getByteArray(0, length);
-					String chunk = new String(bytes, getJDKExportCharset().get());
-					try {
-						out.write(chunk);
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				};
-			}
-			else {
-				func = (pBuffer, length, pAction) -> {
-					byte[] bytes = pBuffer.getByteArray(0, length);
-					String chunk = new String(bytes, getJDKExportCharset().get());
-					try {
-						out.write(chunk);
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				};
-			}
-			
-			short result = NotesCAPI.get().DXLExportDatabase(getAllocations().getDxlExporterHandle(), func, handle, null);
-			NotesErrorUtils.checkResult(result);
-			checkError();
-			
-			return null;
-		});
-	}
+      NotesErrorUtils.checkResult(result);
+      checkError();
 
-	@Override
-	public void exportACL(Database db, Writer out) throws IOException {
-		Objects.requireNonNull(db, "Database cannot be null");
-		Objects.requireNonNull(out, "Writer cannot be null");
+      return null;
+    });
 
-		checkDisposed();
-		LockUtil.lockHandle(db.getAdapter(HANDLE.class), handle -> {
-			NotesCallbacks.XML_WRITE_FUNCTION func;
-			
-			if (PlatformUtils.isWin32()) {
-				func = (Win32NotesCallbacks.XML_WRITE_FUNCTIONWin32)(pBuffer, length, pAction) -> {
-					byte[] bytes = pBuffer.getByteArray(0, length);
-					String chunk = new String(bytes, getJDKExportCharset().get());
-					try {
-						out.write(chunk);
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				};
-			}
-			else {
-				func = (pBuffer, length, pAction) -> {
-					byte[] bytes = pBuffer.getByteArray(0, length);
-					String chunk = new String(bytes, getJDKExportCharset().get());
-					try {
-						out.write(chunk);
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				};
-			}
-			
-			short result = NotesCAPI.get().DXLExportACL(getAllocations().getDxlExporterHandle(), func, handle, null);
-			NotesErrorUtils.checkResult(result);
-			checkError();
-			return null;
-		});
-	}
+  }
 
-	@Override
-	public boolean exportErrorWasLogged() {
-		checkDisposed();
-		
-		return NotesCAPI.get().DXLExportWasErrorLogged(getAllocations().getDxlExporterHandle());
-	}
+  @Override
+  public void exportIDs(Database db, Collection<Integer> ids, Writer out) throws IOException {
+    Objects.requireNonNull(ids, "Ids cannot be null");
+    Objects.requireNonNull(out, "Writer cannot be null");
 
-	@Override
-	public boolean isOutputXmlDecl() {
-		return isProp(OutputXmlDecl);
-	}
+    checkDisposed();
 
-	@Override
-	public void setOutputXmlDecl(boolean b) {
-		setProp(OutputXmlDecl, b);
-	}
+    IDTable idTable;
+    if (ids instanceof IDTable) {
+      idTable = (IDTable) ids;
+    } else {
+      idTable = db.getParentDominoClient().createIDTable();
+      idTable.addAll(ids);
+    }
 
-	@Override
-	public boolean isOutputDoctype() {
-		return isProp(OutputDOCTYPE);
-	}
+    LockUtil.lockHandles(db.getAdapter(HANDLE.class), idTable.getAdapter(DHANDLE.class),
+        (hDB, hTable) -> {
+          NotesCallbacks.XML_WRITE_FUNCTION func = (pBuffer, length, pAction) -> {
+            byte[] bytes = pBuffer.getByteArray(0, length);
+            String chunk = new String(bytes, getJDKExportCharset().get());
+            try {
+              out.write(chunk);
+            } catch (IOException e) {
+              throw new RuntimeException(e);
+            }
+          };
 
-	@Override
-	public void setOutputDoctype(boolean b) {
-		setProp(OutputDOCTYPE, b);
-	}
+          short result = NotesCAPI.get().DXLExportIDTable(getAllocations().getDxlExporterHandle(),
+              func, hDB, hTable, null);
+          NotesErrorUtils.checkResult(result);
+          checkError();
 
-	@Override
-	public boolean isConvertNotesbitmapsToGIF() {
-		return isProp(ConvertNotesbitmapsToGIF);
-	}
+          return null;
+        });
+  }
 
-	@Override
-	public void setConvertNotesbitmapsToGIF(boolean b) {
-		setProp(ConvertNotesbitmapsToGIF, b);
-	}
+  @Override
+  public void exportDatabase(Database db, Writer out) throws IOException {
+    Objects.requireNonNull(db, "Database cannot be null");
+    Objects.requireNonNull(out, "Writer cannot be null");
 
-	@Override
-	public boolean isOmitRichTextAttachments() {
-		return isProp(OmitRichtextAttachments);
-	}
+    checkDisposed();
+    LockUtil.lockHandle(db.getAdapter(HANDLE.class), handle -> {
+      NotesCallbacks.XML_WRITE_FUNCTION func = (pBuffer, length, pAction) -> {
+        byte[] bytes = pBuffer.getByteArray(0, length);
+        String chunk = new String(bytes, getJDKExportCharset().get());
+        try {
+          out.write(chunk);
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      };
 
-	@Override
-	public void setOmitRichTextAttachments(boolean b) {
-		setProp(OmitRichtextAttachments, b);
-	}
+      short result = NotesCAPI.get().DXLExportDatabase(getAllocations().getDxlExporterHandle(),
+          func, handle, null);
+      NotesErrorUtils.checkResult(result);
+      checkError();
 
-	@Override
-	public boolean isOmitOLEObjects() {
-		return isProp(OmitOLEObjects);
-	}
+      return null;
+    });
+  }
 
-	@Override
-	public void setOmitOLEObjects(boolean b) {
-		setProp(OmitOLEObjects, b);
-	}
+  @Override
+  public void exportACL(Database db, Writer out) throws IOException {
+    Objects.requireNonNull(db, "Database cannot be null");
+    Objects.requireNonNull(out, "Writer cannot be null");
 
-	@Override
-	public boolean isOmitMiscFileObjects() {
-		return isProp(OmitMiscFileObjects);
-	}
+    checkDisposed();
+    LockUtil.lockHandle(db.getAdapter(HANDLE.class), handle -> {
+      NotesCallbacks.XML_WRITE_FUNCTION func = (pBuffer, length, pAction) -> {
+        byte[] bytes = pBuffer.getByteArray(0, length);
+        String chunk = new String(bytes, getJDKExportCharset().get());
+        try {
+          out.write(chunk);
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      };
 
-	@Override
-	public void setOmitMiscFileObjects(boolean b) {
-		setProp(OmitMiscFileObjects, b);
-	}
+      short result =
+          NotesCAPI.get().DXLExportACL(getAllocations().getDxlExporterHandle(), func, handle, null);
+      NotesErrorUtils.checkResult(result);
+      checkError();
+      return null;
+    });
+  }
 
-	@Override
-	public boolean isOmitPictures() {
-		return isProp(OmitPictures);
-	}
+  @Override
+  public boolean exportErrorWasLogged() {
+    checkDisposed();
 
-	@Override
-	public void setOmitPictures(boolean b) {
-		setProp(OmitPictures, b);
-	}
+    return NotesCAPI.get().DXLExportWasErrorLogged(getAllocations().getDxlExporterHandle());
+  }
 
-	@Override
-	public boolean isUncompressAttachments() {
-		return isProp(UncompressAttachments);
-	}
+  @Override
+  public boolean isOutputXmlDecl() {
+    return isProp(OutputXmlDecl);
+  }
 
-	@Override
-	public void setUncompressAttachments(boolean b) {
-		setProp(UncompressAttachments, b);
-	}
+  @Override
+  public void setOutputXmlDecl(boolean b) {
+    setProp(OutputXmlDecl, b);
+  }
 
-	@Override
-	public String getDxlExportResultLog() {
-		return getPropString(DxlExportResultLog);
-	}
+  @Override
+  public boolean isOutputDoctype() {
+    return isProp(OutputDOCTYPE);
+  }
 
-	@Override
-	public String getDefaultDoctypeSYSTEM() {
-		return getPropString(DefaultDoctypeSYSTEM);
-	}
+  @Override
+  public void setOutputDoctype(boolean b) {
+    setProp(OutputDOCTYPE, b);
+  }
 
-	@Override
-	public String getDoctypeSYSTEM() {
-		return getPropString(DoctypeSYSTEM);
-	}
+  @Override
+  public boolean isConvertNotesbitmapsToGIF() {
+    return isProp(ConvertNotesbitmapsToGIF);
+  }
 
-	@Override
-	public void setDoctypeSYSTEM(String docType) {
-		setProp(DoctypeSYSTEM, docType);
-	}
+  @Override
+  public void setConvertNotesbitmapsToGIF(boolean b) {
+    setProp(ConvertNotesbitmapsToGIF, b);
+  }
 
-	@Override
-	public String getDXLBannerComments() {
-		return getPropString(DXLBannerComments);
-	}
+  @Override
+  public boolean isOmitRichTextAttachments() {
+    return isProp(OmitRichtextAttachments);
+  }
 
-	@Override
-	public void setDXLBannerComments(String comments) {
-		setProp(DXLBannerComments, comments);
-	}
+  @Override
+  public void setOmitRichTextAttachments(boolean b) {
+    setProp(OmitRichtextAttachments, b);
+  }
 
-	@Override
-	public String getDxlExportResultLogComment() {
-		return getPropString(DxlExportResultLogComment);
-	}
+  @Override
+  public boolean isOmitOLEObjects() {
+    return isProp(OmitOLEObjects);
+  }
 
-	@Override
-	public void setDxlExportResultLogComment(String comment) {
-		setProp(DxlExportResultLogComment, comment);
-	}
+  @Override
+  public void setOmitOLEObjects(boolean b) {
+    setProp(OmitOLEObjects, b);
+  }
 
-	@Override
-	public String getDxlDefaultSchemaLocation() {
-		return getPropString(DxlDefaultSchemaLocation);
-	}
+  @Override
+  public boolean isOmitMiscFileObjects() {
+    return isProp(OmitMiscFileObjects);
+  }
 
-	@Override
-	public String getDxlSchemaLocation() {
-		return getPropString(DxlSchemaLocation);
-	}
+  @Override
+  public void setOmitMiscFileObjects(boolean b) {
+    setProp(OmitMiscFileObjects, b);
+  }
 
-	@Override
-	public void setDxlSchemaLocation(String loc) {
-		setProp(DxlSchemaLocation, loc);
-	}
+  @Override
+  public boolean isOmitPictures() {
+    return isProp(OmitPictures);
+  }
 
-	@Override
-	public String getAttachmentOmittedText() {
-		return getPropString(AttachmentOmittedText);
-	}
+  @Override
+  public void setOmitPictures(boolean b) {
+    setProp(OmitPictures, b);
+  }
 
-	@Override
-	public void setAttachmentOmittedText(String txt) {
-		setProp(AttachmentOmittedText, txt);
-	}
+  @Override
+  public boolean isUncompressAttachments() {
+    return isProp(UncompressAttachments);
+  }
 
-	@Override
-	public String getOLEObjectOmittedText() {
-		return getPropString(OLEObjectOmittedText);
-	}
+  @Override
+  public void setUncompressAttachments(boolean b) {
+    setProp(UncompressAttachments, b);
+  }
 
-	@Override
-	public void setOLEObjectOmittedText(String txt) {
-		setProp(OLEObjectOmittedText, txt);
-	}
+  @Override
+  public String getDxlExportResultLog() {
+    return getPropString(DxlExportResultLog);
+  }
 
-	@Override
-	public String getPictureOmittedText() {
-		return getPropString(PictureOmittedText);
-	}
+  @Override
+  public String getDefaultDoctypeSYSTEM() {
+    return getPropString(DefaultDoctypeSYSTEM);
+  }
 
-	@Override
-	public void setPictureOmittedText(String txt) {
-		setProp(PictureOmittedText, txt);
-	}
+  @Override
+  public String getDoctypeSYSTEM() {
+    return getPropString(DoctypeSYSTEM);
+  }
 
-	@Override
-	public List<String> getOmitItemNames() {
-		return getPropStringList(OmitItemNames);
-	}
+  @Override
+  public void setDoctypeSYSTEM(String docType) {
+    setProp(DoctypeSYSTEM, docType);
+  }
 
-	@Override
-	public void setOmitItemNames(List<String> itemNames) {
-		setProp(OmitItemNames, itemNames);
-	}
+  @Override
+  public String getDXLBannerComments() {
+    return getPropString(DXLBannerComments);
+  }
 
-	@Override
-	public List<String> getRestrictToItemNames() {
-		return getPropStringList(RestrictToItemNames);
-	}
+  @Override
+  public void setDXLBannerComments(String comments) {
+    setProp(DXLBannerComments, comments);
+  }
 
-	@Override
-	public void setRestrictToItemNames(List<String> itemNames) {
-		setProp(RestrictToItemNames, itemNames);
-	}
+  @Override
+  public String getDxlExportResultLogComment() {
+    return getPropString(DxlExportResultLogComment);
+  }
 
-	@Override
-	public DXLExportCharset getExportCharset() {
-		int value = getPropInt(DxlExportCharset);
-		return DominoEnumUtil.valueOf(DXLExportCharset.class, value)
-			.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Cannot identify charset for {0}", value)));
-	}
+  @Override
+  public void setDxlExportResultLogComment(String comment) {
+    setProp(DxlExportResultLogComment, comment);
+  }
 
-	@Override
-	public Optional<Charset> getJDKExportCharset() {
-		DXLExportCharset charset = getExportCharset();
-		if(charset == null) {
-			return Optional.empty();
-		}
-		switch(charset) {
-		case UTF16:
-			return Optional.of(StandardCharsets.UTF_16);
-		case UTF8:
-			return Optional.of(StandardCharsets.UTF_8);
-		default:
-			return Optional.empty();
-		}
-	}
+  @Override
+  public String getDxlDefaultSchemaLocation() {
+    return getPropString(DxlDefaultSchemaLocation);
+  }
 
-	@Override
-	public void setExportCharset(DXLExportCharset charset) {
-		setProp(DxlExportCharset, charset.getValue());
-	}
+  @Override
+  public String getDxlSchemaLocation() {
+    return getPropString(DxlSchemaLocation);
+  }
 
-	@Override
-	public DXLRichTextOption getRichTextOption() {
-		int value = getPropInt(DxlRichtextOption);
-		return DominoEnumUtil.valueOf(DXLRichTextOption.class, value)
-			.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Cannot identify rich text option for {0}", value)));
-	}
+  @Override
+  public void setDxlSchemaLocation(String loc) {
+    setProp(DxlSchemaLocation, loc);
+  }
 
-	@Override
-	public void setRichTextOption(DXLRichTextOption option) {
-		setProp(DxlRichtextOption, option.getValue());
-	}
+  @Override
+  public String getAttachmentOmittedText() {
+    return getPropString(AttachmentOmittedText);
+  }
 
-	@Override
-	public DXLValidationStyle getValidationStyle() {
-		int value = getPropInt(DxlValidationStyle);
-		return DominoEnumUtil.valueOf(DXLValidationStyle.class, value)
-			.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Cannot identify validation style for {0}", value)));
-	}
+  @Override
+  public void setAttachmentOmittedText(String txt) {
+    setProp(AttachmentOmittedText, txt);
+  }
 
-	@Override
-	public void setValidationStyle(DXLValidationStyle style) {
-		setProp(DxlValidationStyle, style.getValue());
-	}
+  @Override
+  public String getOLEObjectOmittedText() {
+    return getPropString(OLEObjectOmittedText);
+  }
 
-	@Override
-	public DXLMIMEOption getMIMEOption() {
-		int value = getPropInt(DxlMimeOption);
-		return DominoEnumUtil.valueOf(DXLMIMEOption.class, value)
-			.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Cannot identify MIME option for {0}", value)));
-	}
+  @Override
+  public void setOLEObjectOmittedText(String txt) {
+    setProp(OLEObjectOmittedText, txt);
+  }
 
-	@Override
-	public void setMIMEOption(DXLMIMEOption option) {
-		setProp(DxlMimeOption, option.getValue());
-	}
-	
-	@Override
-	public boolean isForceNoteFormat() {
-		return isProp(ForceNoteFormat);
-	}
-	
-	@Override
-	public void setForceNoteFormat(boolean forceNoteFormat) {
-		setProp(ForceNoteFormat, forceNoteFormat);
-	}
+  @Override
+  public String getPictureOmittedText() {
+    return getPropString(PictureOmittedText);
+  }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	protected JNADxlExporterAllocations createAllocations(IGCDominoClient<?> parentDominoClient,
-			APIObjectAllocations parentAllocations, ReferenceQueue<? super IAPIObject> queue) {
-		return new JNADxlExporterAllocations(parentDominoClient, parentAllocations, this, queue);
-	}
+  @Override
+  public void setPictureOmittedText(String txt) {
+    setProp(PictureOmittedText, txt);
+  }
 
-	// *******************************************************************************
-	// * Internal utility methods
-	// *******************************************************************************
-	
-	@Override
-	protected void setProperty(int hDxl, INumberEnum<Integer> prop, Pointer propValue) {
-		NotesCAPI.get().DXLSetExporterProperty(hDxl, prop.getValue(), propValue);
-	}
-	
-	@Override
-	protected void getProperty(int hDxl, INumberEnum<Integer> prop, Pointer retPropValue) {
-		NotesCAPI.get().DXLGetExporterProperty(hDxl, prop.getValue(), retPropValue);
-	}
-	
-	@Override
-	protected int getHandle() {
-		return getAllocations().getDxlExporterHandle();
-	}
-	
-	@Override
-	protected void checkError() {
-		if(exportErrorWasLogged()) {
-			String xml = getDxlExportResultLog();
-			try {
-				org.w3c.dom.Document xmlDoc = JNADominoUtils.parseXml(xml);
-				DxlExporterLogImpl.DXLErrorImpl error;
-				{
-					NodeList errorNodes = xmlDoc.getElementsByTagName("error"); //$NON-NLS-1$
-					if(errorNodes.getLength() == 0) {
-						error = null;
-					} else {
-						Element errorNode = (Element)errorNodes.item(0);
-						error = new DxlExporterLogImpl.DXLErrorImpl();
-						error.setId(Integer.parseInt(errorNode.getAttribute("id"))); //$NON-NLS-1$
-						error.setText(errorNode.getTextContent());
-					}
-				}
-				
-				DxlExporterLog log = new DxlExporterLogImpl(error);
-				throw new DxlExportException(log.getError().getText(), log.getError().getId(), log);
-			} catch (ParserConfigurationException | SAXException e) {
-				throw new RuntimeException("Encountered exception parsing DXL log", e);
-			}
-		}
-	}
+  @Override
+  public List<String> getOmitItemNames() {
+    return getPropStringList(OmitItemNames);
+  }
+
+  @Override
+  public void setOmitItemNames(List<String> itemNames) {
+    setProp(OmitItemNames, itemNames);
+  }
+
+  @Override
+  public List<String> getRestrictToItemNames() {
+    return getPropStringList(RestrictToItemNames);
+  }
+
+  @Override
+  public void setRestrictToItemNames(List<String> itemNames) {
+    setProp(RestrictToItemNames, itemNames);
+  }
+
+  @Override
+  public DXLExportCharset getExportCharset() {
+    int value = getPropInt(DxlExportCharset);
+    return DominoEnumUtil.valueOf(DXLExportCharset.class, value)
+        .orElseThrow(() -> new IllegalStateException(
+            MessageFormat.format("Cannot identify charset for {0}", value)));
+  }
+
+  @Override
+  public Optional<Charset> getJDKExportCharset() {
+    DXLExportCharset charset = getExportCharset();
+    if (charset == null) {
+      return Optional.empty();
+    }
+    switch (charset) {
+      case UTF16:
+        return Optional.of(StandardCharsets.UTF_16);
+      case UTF8:
+        return Optional.of(StandardCharsets.UTF_8);
+      default:
+        return Optional.empty();
+    }
+  }
+
+  @Override
+  public void setExportCharset(DXLExportCharset charset) {
+    setProp(DxlExportCharset, charset.getValue());
+  }
+
+  @Override
+  public DXLRichTextOption getRichTextOption() {
+    int value = getPropInt(DxlRichtextOption);
+    return DominoEnumUtil.valueOf(DXLRichTextOption.class, value)
+        .orElseThrow(() -> new IllegalStateException(
+            MessageFormat.format("Cannot identify rich text option for {0}", value)));
+  }
+
+  @Override
+  public void setRichTextOption(DXLRichTextOption option) {
+    setProp(DxlRichtextOption, option.getValue());
+  }
+
+  @Override
+  public DXLValidationStyle getValidationStyle() {
+    int value = getPropInt(DxlValidationStyle);
+    return DominoEnumUtil.valueOf(DXLValidationStyle.class, value)
+        .orElseThrow(() -> new IllegalStateException(
+            MessageFormat.format("Cannot identify validation style for {0}", value)));
+  }
+
+  @Override
+  public void setValidationStyle(DXLValidationStyle style) {
+    setProp(DxlValidationStyle, style.getValue());
+  }
+
+  @Override
+  public DXLMIMEOption getMIMEOption() {
+    int value = getPropInt(DxlMimeOption);
+    return DominoEnumUtil.valueOf(DXLMIMEOption.class, value)
+        .orElseThrow(() -> new IllegalStateException(
+            MessageFormat.format("Cannot identify MIME option for {0}", value)));
+  }
+
+  @Override
+  public void setMIMEOption(DXLMIMEOption option) {
+    setProp(DxlMimeOption, option.getValue());
+  }
+
+  @Override
+  public boolean isForceNoteFormat() {
+    return isProp(ForceNoteFormat);
+  }
+
+  @Override
+  public void setForceNoteFormat(boolean forceNoteFormat) {
+    setProp(ForceNoteFormat, forceNoteFormat);
+  }
+
+  @SuppressWarnings("rawtypes")
+  @Override
+  protected JNADxlExporterAllocations createAllocations(IGCDominoClient<?> parentDominoClient,
+      APIObjectAllocations parentAllocations, ReferenceQueue<? super IAPIObject> queue) {
+    return new JNADxlExporterAllocations(parentDominoClient, parentAllocations, this, queue);
+  }
+
+  // *******************************************************************************
+  // * Internal utility methods
+  // *******************************************************************************
+
+  @Override
+  protected void setProperty(int hDxl, INumberEnum<Integer> prop, Pointer propValue) {
+    NotesCAPI.get().DXLSetExporterProperty(hDxl, prop.getValue(), propValue);
+  }
+
+  @Override
+  protected void getProperty(int hDxl, INumberEnum<Integer> prop, Pointer retPropValue) {
+    NotesCAPI.get().DXLGetExporterProperty(hDxl, prop.getValue(), retPropValue);
+  }
+
+  @Override
+  protected int getHandle() {
+    return getAllocations().getDxlExporterHandle();
+  }
+
+  @Override
+  protected void checkError() {
+    if (exportErrorWasLogged()) {
+      String xml = getDxlExportResultLog();
+      try {
+        org.w3c.dom.Document xmlDoc = JNADominoUtils.parseXml(xml);
+        DxlExporterLogImpl.DXLErrorImpl error;
+        {
+          NodeList errorNodes = xmlDoc.getElementsByTagName("error"); //$NON-NLS-1$
+          if (errorNodes.getLength() == 0) {
+            error = null;
+          } else {
+            Element errorNode = (Element) errorNodes.item(0);
+            error = new DxlExporterLogImpl.DXLErrorImpl();
+            error.setId(Integer.parseInt(errorNode.getAttribute("id"))); //$NON-NLS-1$
+            error.setText(errorNode.getTextContent());
+          }
+        }
+
+        DxlExporterLog log = new DxlExporterLogImpl(error);
+        throw new DxlExportException(log.getError().getText(), log.getError().getId(), log);
+      } catch (ParserConfigurationException | SAXException e) {
+        throw new RuntimeException("Encountered exception parsing DXL log", e);
+      }
+    }
+  }
 }

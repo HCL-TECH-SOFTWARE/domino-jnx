@@ -17,19 +17,15 @@
 package com.hcl.domino.jna.internal;
 
 import static java.text.MessageFormat.format;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Formatter;
 import java.util.List;
-
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
@@ -37,6 +33,7 @@ import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.jna.internal.capi.INotesCAPI;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -66,8 +63,6 @@ public class NotesStringUtils {
 	private static LRUStringLMBCSCache m_string2LMBCSCache_NullTerminated_OriginalLinebreaks = new LRUStringLMBCSCache(MAX_STRING2LMBCS_SIZE_BYTES);
 	private static LRUStringLMBCSCache m_string2LMBCSCache_NotNullTerminated_OriginalLinebreaks = new LRUStringLMBCSCache(MAX_STRING2LMBCS_SIZE_BYTES);
 	
-	private static final Charset charsetUTF8 = StandardCharsets.UTF_8;
-
 	public static void flushCache() {
 		m_string2LMBCSCache_NullTerminated_LinefeedLinebreaks.clear();
 		m_string2LMBCSCache_NotNullTerminated_LinefeedLinebreaks.clear();
@@ -268,6 +263,18 @@ public class NotesStringUtils {
 			return ""; //$NON-NLS-1$
 		}
 		
+		// If it's compatible ASCII, return without the native call
+		boolean isPureAscii = true;
+        for (byte c : data) {
+            if (c <= 0x1f || c >= 0x80) {
+                isPureAscii = false;
+                break;
+            }
+        }
+        if(isPureAscii) {
+          return new String(data, StandardCharsets.UTF_8);
+        }
+		
 		int startOffset = 0;
 		
 		List<String> lines = new ArrayList<>();
@@ -329,7 +336,7 @@ public class NotesStringUtils {
 							}
 							else {
 								//success
-								String lineAsStr = new String(outBufUTF8.getByteArray(0, retOutBufLength), 0, retOutBufLength, charsetUTF8);
+								String lineAsStr = new String(outBufUTF8.getByteArray(0, retOutBufLength), 0, retOutBufLength, StandardCharsets.UTF_8);
 								lines.add(lineAsStr);
 								startOffset = i+1;
 								
@@ -384,7 +391,7 @@ public class NotesStringUtils {
 						}
 						else {
 							//success
-							String lineAsStr = new String(outBufUTF8.getByteArray(0, retOutBufLength), 0, retOutBufLength, charsetUTF8);
+							String lineAsStr = new String(outBufUTF8.getByteArray(0, retOutBufLength), 0, retOutBufLength, StandardCharsets.UTF_8);
 							lines.add(lineAsStr);
 							
 							break;
@@ -646,7 +653,7 @@ public class NotesStringUtils {
 					}
 				}
 				
-				byte[] lineDataAsUTF8 = lines[i].getBytes(charsetUTF8);
+				byte[] lineDataAsUTF8 = lines[i].getBytes(StandardCharsets.UTF_8);
 				
 				if (isPureAscii) {
 					try {
@@ -804,36 +811,14 @@ public class NotesStringUtils {
 	}
 
 	/**
-	 * Converts bytes in memory to a UNID
-	 * 
-	 * @param innardsFile innards of file part
-	 * @param innardsNote innards of note part
-	 * @return unid
-	 */
-	public static String toUNID(long innardsFile, long innardsNote) {
-		Formatter formatter = new Formatter();
-		
-		formatter.format("%016x", innardsFile); //$NON-NLS-1$
-		formatter.format("%016x", innardsNote); //$NON-NLS-1$
-		String unid = formatter.toString().toUpperCase();
-		formatter.close();
-		return unid;
-	}
-
-	/**
 	 * Reads a UNID from memory
 	 * 
 	 * @param ptr memory
 	 * @return UNID as string
 	 */
 	public static String pointerToUnid(Pointer ptr) {
-		Formatter formatter = new Formatter();
-		ByteBuffer data = ptr.getByteBuffer(0, 16).order(ByteOrder.LITTLE_ENDIAN);
-		formatter.format("%016x", data.getLong()); //$NON-NLS-1$
-		formatter.format("%016x", data.getLong()); //$NON-NLS-1$
-		String unidStr = formatter.toString().toUpperCase();
-		formatter.close();
-		return unidStr;
+	  ByteBuffer data = ptr.getByteBuffer(0, 16).order(ByteOrder.LITTLE_ENDIAN);
+	  return JNXStringUtil.toUNID(data.getLong(), data.getLong());
 	}
 	
 	/**

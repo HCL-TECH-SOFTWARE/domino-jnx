@@ -33,7 +33,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.hcl.domino.commons.json.AbstractJsonSerializer;
-import com.hcl.domino.commons.json.JsonUtil;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Attachment.IDataCallback;
@@ -111,12 +110,12 @@ public class RawDocSerializer extends AbstractJsonSerializer {
             
             DominoDateTime dtCreated = att.getFileCreated();
             if (dtCreated!=null) {
-              String createdIsoStr = JsonUtil.toIsoString(dtCreated);
+              String createdIsoStr = dtCreated.toISOString();
               itemNode.put(PROP_FILE_CREATED, createdIsoStr);
             }
             DominoDateTime dtLastModified = att.getFileModified();
             if (dtLastModified!=null) {
-              String modifiedIsoStr = JsonUtil.toIsoString(dtLastModified);
+              String modifiedIsoStr = dtLastModified.toISOString();
               itemNode.put(PROP_FILE_LASTMODIFIED, modifiedIsoStr);
             }
             
@@ -179,30 +178,30 @@ public class RawDocSerializer extends AbstractJsonSerializer {
       metaNode.put(PROP_META_SEQUENCENUMBER, docOID.getSequence());
       
       DominoDateTime seqTime = docOID.getSequenceTime();
-      String seqTimeIsoStr = JsonUtil.toIsoString(seqTime);
+      String seqTimeIsoStr = seqTime.toISOString();
       metaNode.put(PROP_META_SEQUENCETIME, seqTimeIsoStr);
       
       DominoDateTime created = doc.getCreated();
       if (created!=null) {
-        String createdIsoStr = JsonUtil.toIsoString(created);
+        String createdIsoStr = created.toISOString();
         metaNode.put(PROP_META_CREATED, createdIsoStr);
       }
       
       DominoDateTime lastModified = doc.getLastModified();
       if (lastModified!=null) {
-        String lastModifiedIsoStr = JsonUtil.toIsoString(lastModified);
+        String lastModifiedIsoStr = lastModified.toISOString();
         metaNode.put(PROP_META_LASTMODIFIED, lastModifiedIsoStr);
       }
       
       DominoDateTime lastAccessed = doc.getLastAccessed();
       if (lastAccessed!=null) {
-        String lastAccessedIsoStr = JsonUtil.toIsoString(lastAccessed);
+        String lastAccessedIsoStr = lastAccessed.toISOString();
         metaNode.put(PROP_META_LASTACCESSED, lastAccessedIsoStr);
       }
 
       DominoDateTime addedToFile = doc.getAddedToFile();
       if (addedToFile!=null) {
-        String addedToFileIsoStr = JsonUtil.toIsoString(addedToFile);
+        String addedToFileIsoStr = addedToFile.toISOString();
         metaNode.put(PROP_META_ADDEDTOFILE, addedToFileIsoStr);
       }
 

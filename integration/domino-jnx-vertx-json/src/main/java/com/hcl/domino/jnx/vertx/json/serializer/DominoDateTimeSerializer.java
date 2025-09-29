@@ -21,7 +21,6 @@ import java.io.IOException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.hcl.domino.commons.json.JsonUtil;
 import com.hcl.domino.data.DominoDateTime;
 
 public class DominoDateTimeSerializer extends StdSerializer<DominoDateTime> {
@@ -33,7 +32,7 @@ public class DominoDateTimeSerializer extends StdSerializer<DominoDateTime> {
 
   @Override
   public void serialize(DominoDateTime value, JsonGenerator gen, SerializerProvider provider) throws IOException {
-    gen.writeString(JsonUtil.toIsoString(value));
+    gen.writeString(value.toISOString());
   }
 
 

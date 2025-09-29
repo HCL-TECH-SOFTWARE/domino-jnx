@@ -520,11 +520,19 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    *         {@code temporal}
    * @throws NullPointerException     if {@code temporal} is {@code null}
    * @throws IllegalArgumentException if {@code temporal} contains a time zone
-   *                                  that cannot be
-   *                                  expressed
-   *                                  in 15-minute increments
+   *                                  that cannot be expressed in 15-minute increments
    */
   DominoDateTime createDateTime(TemporalAccessor temporal);
+  
+  /**
+   * 
+   * @param isoTime an ISO-format string representing a temporal value
+   * @return a {@link DominoDateTime} instance that represents the value
+   *         of the ISO string
+   * @throws NullPointerException     if {@code temporal} is {@code null}
+   * @since 1.48.0
+   */
+  DominoDateTime createDateTime(String isoTime);
 
   /**
    * @return a newly-created DXL exporter

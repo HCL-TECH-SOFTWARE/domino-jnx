@@ -16,7 +16,6 @@
  */
 package com.hcl.domino.jnx.jsonb;
 
-import com.hcl.domino.commons.json.JsonUtil;
 import com.hcl.domino.data.DominoDateTime;
 
 import jakarta.json.bind.serializer.JsonbSerializer;
@@ -28,7 +27,7 @@ public class DominoDateTimeSerializer implements JsonbSerializer<DominoDateTime>
   
   @Override
   public void serialize(DominoDateTime obj, JsonGenerator generator, SerializationContext ctx) {
-    generator.write(JsonUtil.toIsoString(obj));
+    generator.write(obj.toISOString());
   }
 
 }

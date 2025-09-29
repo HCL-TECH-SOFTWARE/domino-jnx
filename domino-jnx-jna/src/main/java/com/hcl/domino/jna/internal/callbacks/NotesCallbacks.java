@@ -133,38 +133,6 @@ public interface NotesCallbacks {
 	/**
 	 * Callback used by NSFDbGetNotes
 	 */
-	interface b32_NSFNoteOpenCallback extends Callback {
-		short invoke(Pointer param, int hNote, int noteId, short status);
-	}
-
-	/**
-	 * Callback used by NSFDbGetNotes
-	 */
-	interface b32_NSFObjectAllocCallback extends Callback {
-		short invoke(Pointer param, int hNote, int oldRRV, short status, int objectSize);
-	}
-
-	/**
-	 * Callback used by NSFDbGetNotes
-	 */
-	interface b32_NSFObjectWriteCallback extends Callback {
-		short invoke(Pointer param, int hNote, int oldRRV, short status, Pointer buffer, int bufferSize);
-	}
-
-	/**
-	 * Callback used by NSFNoteComputeWithForm
-	 */
-	interface b32_CWFErrorProc extends Callback {
-		short invoke(Pointer pCDField, short phase, short error, int hErrorText, short wErrorTextSize, Pointer ctx);
-	}
-
-	interface b32_NSFGetAllFolderChangesCallback extends Callback {
-		short invoke(Pointer param, NotesUniversalNoteIdStruct noteUnid, int hAddedNoteTable, int removedNoteTable);
-	}
-
-	/**
-	 * Callback used by NSFDbGetNotes
-	 */
 	interface b64_NSFNoteOpenCallback extends Callback {
 		short invoke(Pointer param, long hNote, int noteId, short status);
 	}
@@ -251,11 +219,6 @@ public interface NotesCallbacks {
 		short invoke(Pointer routineParameter, long hDB, int NoteID, 
 				NotesUniversalNoteIdStruct NoteUNID, short NoteClass, Pointer summary, int designType);
 		
-	}
-	
-	interface b32_DESIGNENUMPROC extends Callback {
-		short invoke(Pointer routineParameter, int hDB, int NoteID, 
-				NotesUniversalNoteIdStruct NoteUNID, short NoteClass, Pointer summary, int designType);
 	}
 
 	interface ASYNCNOTIFYPROC extends Callback {

@@ -128,6 +128,8 @@ public interface CDExtField extends RichTextRecord<WSIG> {
     SHOWIMSTATUS(RichTextConstants.FEXT_SHOWIMSTATUS),
     /** TRUE if we should use a JS Control in the browser */
     USEJSCTLINBROWSER(RichTextConstants.FEXT_USEJSCTLINBROWSER),
+    /** Assumed value based on presence in Color fields */
+    COLOR(RichTextConstants.FEXT_COLOR)
     ;
 
     private final int value;

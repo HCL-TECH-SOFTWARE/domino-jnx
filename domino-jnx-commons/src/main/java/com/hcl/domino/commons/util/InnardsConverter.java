@@ -389,7 +389,7 @@ public class InnardsConverter {
 
     final long julianDay = dateInnard & 0x7FFFFF;
 
-    final LocalDate utcDate = LocalDate.now().with(JulianFields.JULIAN_DAY, julianDay);
+    final LocalDate utcDate = LocalDate.MIN.with(JulianFields.JULIAN_DAY, julianDay);
     if (hasTime) {
       final OffsetDateTime utc = OffsetDateTime.of(utcDate, utcTime, ZoneOffset.UTC);
 

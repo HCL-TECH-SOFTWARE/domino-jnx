@@ -269,6 +269,26 @@ public enum MemoryStructureUtil {
   }
   
   /**
+   * Generates a new proxy object backed by a copy of the remaining available
+   * memory referenced by the provided ByteBuffer.
+   * 
+   * <p>This method calls a relative {@code get} method to retrieve data, and
+   * so the internal position of the buffer will change.</p>
+   * 
+   * @param <I>       the {@link MemoryStructure} sub-interface to proxy
+   * @param subtype   a class representing {@code I}
+   * @param structure the memory containing the structure
+   * @return a new proxy object
+   * @since 1.48.0
+   */
+  public static final <I extends MemoryStructure> I forStructure(final Class<I> subtype, final ByteBuffer structure) {
+    byte[] data = new byte[structure.remaining()];
+    structure.get(data);
+    ByteBuffer buf = ByteBuffer.wrap(data);
+    return forStructure(subtype, () -> buf);
+  }
+  
+  /**
    * Generates a new rich-text proxy object backed by the provided {@link MemoryStructure}
    * implementation.
    * 
