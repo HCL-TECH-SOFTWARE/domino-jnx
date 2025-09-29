@@ -20,160 +20,120 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import com.hcl.domino.DominoException;
-import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.sun.jna.Pointer;
-import com.sun.jna.Structure;
 
-public interface DHANDLE extends IAdaptable, IHANDLEBase<DHANDLE,DHANDLE.ByValue> {
+public interface DHANDLE extends IAdaptable, IHANDLEBase<DHANDLE, DHANDLE.ByValue> {
 
-	@Override
-	<R> R _lockHandleAccess(HandleAccess<DHANDLE.ByValue,R> handleAccess);
+  @Override
+  <R> R _lockHandleAccess(HandleAccess<DHANDLE.ByValue, R> handleAccess);
 
-	/**
-	 * Returns whether the handle is disposed
-	 * 
-	 * @return true if disposed
-	 */
-	boolean isDisposed();
-	
-	/**
-	 * Marks the handle as disposed
-	 */
-	void setDisposed();
-	
-	/**
-	 * Fill handle with a null value
-	 */
-	void clear();
-	
-	/**
-	 * Returns the handle size in memory
-	 * 
-	 * @return size
-	 */
-	int size();
-	
-	/**
-	 * Throws a {@link DominoException} if the handle is marked as disposed
-	 */
-	@Override
-	default void checkDisposed() {
-		if (isDisposed()) {
-			throw new ObjectDisposedException(this);
-		}
-	}
-	
-	@SuppressWarnings("deprecation")
-	static DHANDLE newInstance(Pointer peer) {
-		return AccessController.doPrivileged((PrivilegedAction<DHANDLE>) () -> {
-			if (PlatformUtils.is64Bit()) {
-				return new DHANDLE64(peer);
-				
-			}
-			else {
-				return new DHANDLE32(peer);
-				
-			}
-		});
-	}
-	
-	@SuppressWarnings("deprecation")
-	static DHANDLE newInstance() {
-		return AccessController.doPrivileged((PrivilegedAction<DHANDLE>) () -> {
-			if (PlatformUtils.is64Bit()) {
-				return new DHANDLE64();
-				
-			}
-			else {
-				return new DHANDLE32();
-				
-			}
-		});
-	}
-	
-	@SuppressWarnings("deprecation")
-	static DHANDLE.ByReference newInstanceByReference(Pointer peer) {
-		return AccessController.doPrivileged((PrivilegedAction<ByReference>) () -> {
-			if (PlatformUtils.is64Bit()) {
-				return new DHANDLE64.ByReference(peer);
-				
-			}
-			else {
-				return new DHANDLE32.ByReference(peer);
-				
-			}
-		});
-	}
-	
-	@SuppressWarnings("deprecation")
-	static DHANDLE.ByReference newInstanceByReference() {
-		return AccessController.doPrivileged((PrivilegedAction<ByReference>) () -> {
-			if (PlatformUtils.is64Bit()) {
-				return new DHANDLE64.ByReference();
-				
-			}
-			else {
-				return new DHANDLE32.ByReference();
-			}
-		});
-	}
-	
-	@SuppressWarnings("deprecation")
-	static ByValue newInstanceByValue() {
-		return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> {
-			if (PlatformUtils.is64Bit()) {
-				return new DHANDLE64.ByValue();
-				
-			}
-			else {
-				return new DHANDLE32.ByValue();
-				
-			}
-		});
-	}
-	
-	@SuppressWarnings("deprecation")
-	static ByValue newInstanceByValue(DHANDLE copyHandleValueFrom) {
-		return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> {
-			if (PlatformUtils.is64Bit()) {
-				DHANDLE64.ByValue newHdl1 = new DHANDLE64.ByValue();
-				newHdl1.hdl = ((DHANDLE64)copyHandleValueFrom).hdl;
-				return newHdl1;
-			}
-			else {
-				DHANDLE32.ByValue newHdl2 = new DHANDLE32.ByValue();
-				newHdl2.hdl = ((DHANDLE32)copyHandleValueFrom).hdl;
-				return newHdl2;
-			}
-		});
-	}
-	
-	@SuppressWarnings("deprecation")
-	static ByValue newInstanceByValue(Pointer peer) {
-		return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> {
-			if (PlatformUtils.is64Bit()) {
-				return new DHANDLE64.ByValue(peer);
-				
-			}
-			else {
-				return new DHANDLE32.ByValue(peer);
-				
-			}
-		});
-	}
-	
-	public interface ByReference extends DHANDLE, Structure.ByReference {
-		
-	}
+  /**
+   * Returns whether the handle is disposed
+   * 
+   * @return true if disposed
+   */
+  boolean isDisposed();
 
-	public interface ByValue extends DHANDLE, Structure.ByValue {
-		
-	}
+  /**
+   * Marks the handle as disposed
+   */
+  void setDisposed();
 
-	@Override boolean isNull();
-	
-	public Pointer getPointer();
-	
+  /**
+   * Fill handle with a null value
+   */
+  void clear();
+
+  /**
+   * Returns the handle size in memory
+   * 
+   * @return size
+   */
+  int size();
+
+  /**
+   * @return the handle value
+   * @since 1.48.0
+   */
+  long getValue();
+
+  /**
+   * Throws a {@link DominoException} if the handle is marked as disposed
+   */
+  @Override
+  default void checkDisposed() {
+    if (isDisposed()) {
+      throw new ObjectDisposedException(this);
+    }
+  }
+
+  @SuppressWarnings("deprecation")
+  static DHANDLE newInstance(Pointer peer) {
+    return AccessController.doPrivileged((PrivilegedAction<DHANDLE>) () -> {
+      return new DHANDLE64.ByReference(peer);
+    });
+  }
+
+  @SuppressWarnings("deprecation")
+  static DHANDLE newInstance() {
+    return AccessController.doPrivileged((PrivilegedAction<DHANDLE>) () -> {
+      return new DHANDLE64.ByValue(0);
+    });
+  }
+
+  @SuppressWarnings("deprecation")
+  static DHANDLE.ByReference newInstanceByReference(Pointer peer) {
+    return AccessController.doPrivileged((PrivilegedAction<ByReference>) () -> {
+      return new DHANDLE64.ByReference(peer);
+    });
+  }
+
+  @SuppressWarnings("deprecation")
+  static DHANDLE.ByReference newInstanceByReference() {
+    return AccessController.doPrivileged((PrivilegedAction<ByReference>) () -> {
+      return new DHANDLE64.ByReference();
+    });
+  }
+
+  @SuppressWarnings("deprecation")
+  static ByValue newInstanceByValue() {
+    return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> {
+      return new DHANDLE64.ByValue();
+    });
+  }
+
+  @SuppressWarnings("deprecation")
+  static ByValue newInstanceByValue(DHANDLE copyHandleValueFrom) {
+    return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> {
+      return new DHANDLE64.ByValue(copyHandleValueFrom.getValue());
+    });
+  }
+
+  @SuppressWarnings("deprecation")
+  static ByValue newInstanceByValue(long copyHandleValueFrom) {
+    return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> {
+      return new DHANDLE64.ByValue(copyHandleValueFrom);
+    });
+  }
+
+  @SuppressWarnings("deprecation")
+  static ByValue newInstanceByValue(Pointer peer) {
+    return AccessController.doPrivileged((PrivilegedAction<ByValue>) () -> {
+      return new DHANDLE64.ByValue(peer.getLong(0));
+    });
+  }
+
+  public interface ByReference extends DHANDLE {
+    public Pointer getPointer();
+  }
+
+  public interface ByValue extends DHANDLE {
+
+  }
+
+  @Override
+  boolean isNull();
+
 }

@@ -31,12 +31,10 @@ import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.util.NotesErrorUtils;
-import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Attachment.IDataCallback.Action;
@@ -44,7 +42,6 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
-import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNADocumentAllocations;
@@ -191,92 +188,70 @@ public class JNAAttachment implements Attachment {
 		}
 	}
 	
-	@Override
-	public void readData(final IDataCallback callback) {
-		JNADocumentAllocations docAllocations = (JNADocumentAllocations) m_parentDoc.getAdapter(APIObjectAllocations.class);
-		docAllocations.checkDisposed();
+    @Override
+    public void readData(final IDataCallback callback) {
+      JNADocumentAllocations docAllocations =
+          (JNADocumentAllocations) m_parentDoc.getAdapter(APIObjectAllocations.class);
+      docAllocations.checkDisposed();
 
-		JNADatabaseAllocations dbAllocations = (JNADatabaseAllocations) m_parentDoc.getParent().getAdapter(APIObjectAllocations.class);
-		dbAllocations.checkDisposed();
-		
-		final NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
-		itemBlockIdByVal.pool = m_itemBlockId.getPool();
-		itemBlockIdByVal.block = m_itemBlockId.getBlock();
-		
-		final int extractFlags = 0;
-		final int hDecryptionCipher = 0;
-		
-		final NotesCallbacks.NoteExtractCallback extractCallback;
-		final Throwable[] extractError = new Throwable[1];
-		
-		if (PlatformUtils.isWin32()) {
-			extractCallback = (Win32NotesCallbacks.NoteExtractCallbackWin32) (data, length, param) -> {
-				if (length==0) {
-					return 0;
-				}
-				
-				try {
-					byte[] dataArr = data.getByteArray(0, length);
-					IDataCallback.Action action = callback.read(dataArr);
-					if (action==IDataCallback.Action.Continue) {
-						return 0;
-					}
-					else {
-						return INotesErrorConstants.ERR_NSF_INTERRUPT;
-					}
-				}
-				catch (Throwable t) {
-					extractError[0] = t;
-					return INotesErrorConstants.ERR_NSF_INTERRUPT;
-				}
-			};
-		}
-		else {
-			extractCallback = (data, length, param) -> {
-				if (length==0) {
-					return 0;
-				}
-				
-				try {
-					byte[] dataArr = data.getByteArray(0, length);
-					IDataCallback.Action action = callback.read(dataArr);
-					if (action==IDataCallback.Action.Continue) {
-						return 0;
-					}
-					else {
-						return INotesErrorConstants.ERR_NSF_INTERRUPT;
-					}
-				}
-				catch (Throwable t) {
-					extractError[0] = t;
-					return INotesErrorConstants.ERR_NSF_INTERRUPT;
-				}
-			};
-		}
-		
-		short result;
-		try {
-			result = AccessController.doPrivileged((PrivilegedExceptionAction<Short>) () -> LockUtil.lockHandle(docAllocations.getNoteHandle(), (noteHandleByVal) -> {
-				return NotesCAPI.get().NSFNoteCipherExtractWithCallback(noteHandleByVal,
-						itemBlockIdByVal, extractFlags, hDecryptionCipher,
-						extractCallback, null, 0, null);
-			}));
-		} catch (PrivilegedActionException e) {
-			if (e.getCause() instanceof RuntimeException) {
-				throw (RuntimeException) e.getCause();
-			} else {
-				throw new DominoException("Error extracting attachment", e);
-			}
-		}
-		
-		if (extractError[0] != null) {
-			throw new DominoException("Extraction interrupted", extractError[0]);
-		}
-		
-		if (result != INotesErrorConstants.ERR_NSF_INTERRUPT) {
-			NotesErrorUtils.checkResult(result);
-		}
-	}
+      JNADatabaseAllocations dbAllocations =
+          (JNADatabaseAllocations) m_parentDoc.getParent().getAdapter(APIObjectAllocations.class);
+      dbAllocations.checkDisposed();
+
+      final NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
+      itemBlockIdByVal.pool = m_itemBlockId.getPool();
+      itemBlockIdByVal.block = m_itemBlockId.getBlock();
+
+      final int extractFlags = 0;
+      final int hDecryptionCipher = 0;
+
+      final NotesCallbacks.NoteExtractCallback extractCallback;
+      final Throwable[] extractError = new Throwable[1];
+
+
+      extractCallback = (data, length, param) -> {
+        if (length == 0) {
+          return 0;
+        }
+
+        try {
+          byte[] dataArr = data.getByteArray(0, length);
+          IDataCallback.Action action = callback.read(dataArr);
+          if (action == IDataCallback.Action.Continue) {
+            return 0;
+          } else {
+            return INotesErrorConstants.ERR_NSF_INTERRUPT;
+          }
+        } catch (Throwable t) {
+          extractError[0] = t;
+          return INotesErrorConstants.ERR_NSF_INTERRUPT;
+        }
+      };
+
+      short result;
+      try {
+        result = AccessController.doPrivileged((PrivilegedExceptionAction<Short>) () -> LockUtil
+            .lockHandle(docAllocations.getNoteHandle(), (noteHandleByVal) -> {
+              return NotesCAPI.get().NSFNoteCipherExtractWithCallback(noteHandleByVal,
+                  itemBlockIdByVal, extractFlags, hDecryptionCipher,
+                  extractCallback, null, 0, null);
+            }));
+      } catch (PrivilegedActionException e) {
+        if (e.getCause() instanceof RuntimeException) {
+          throw (RuntimeException) e.getCause();
+        } else {
+          throw new DominoException("Error extracting attachment", e);
+        }
+      }
+
+      if (extractError[0] != null) {
+        throw new DominoException("Extraction interrupted", extractError[0]);
+      }
+
+      if (result != INotesErrorConstants.ERR_NSF_INTERRUPT) {
+        NotesErrorUtils.checkResult(result);
+      }
+    }
 	
 	@Override
 	public void deleteFromDocument() {

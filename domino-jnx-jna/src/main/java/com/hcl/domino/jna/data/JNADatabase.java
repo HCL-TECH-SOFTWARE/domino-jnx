@@ -41,7 +41,6 @@ import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import com.hcl.domino.BuildVersionInfo;
 import com.hcl.domino.DominoClient.Encryption;
 import com.hcl.domino.DominoClient.IBreakHandler;
@@ -65,7 +64,6 @@ import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
-import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.IItemTableData;
@@ -113,7 +111,6 @@ import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.NotesNamingUtils.Privileges;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
-import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.INotesCAPI;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.capi.NotesCAPI1201;
@@ -389,7 +386,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		}
 		else if(HANDLE.class.isAssignableFrom(clazz)) {
 			return (T)getAllocations().getDBHandle();
-		}
+		} else if (clazz == long.class || clazz == Long.class) {
+	      return (T) (Long)getAllocations().getDBHandle().getValue();
+	    }
 		
 		return null;
 	}
@@ -1065,53 +1064,42 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	 * @param profileName Name of the profile. To enumerate all profile documents within a database, use null
 	 * @return list of  profile note infos
 	 */
-	private List<ProfileNoteInfo> getProfileNoteInfos(String profileName) {
-		checkDisposed();
+    private List<ProfileNoteInfo> getProfileNoteInfos(String profileName) {
+      checkDisposed();
 
-		List<ProfileNoteInfo> retNoteInfos = new ArrayList<>();
+      List<ProfileNoteInfo> retNoteInfos = new ArrayList<>();
 
-		Memory profileNameMem = StringUtil.isEmpty(profileName) ? null : NotesStringUtils.toLMBCS(profileName, false);
+      Memory profileNameMem =
+          StringUtil.isEmpty(profileName) ? null : NotesStringUtils.toLMBCS(profileName, false);
 
-		NotesCallbacks.NSFPROFILEENUMPROC callback;
+      NotesCallbacks.NSFPROFILEENUMPROC callback;
 
-		if (PlatformUtils.isWin32()) {
-			callback = (Win32NotesCallbacks.NSFPROFILEENUMPROCWin32) (hDB, ctx, profileNameMem1, profileNameLength, usernameMem, usernameLength, noteId) -> {
-				String profileName1 = ""; //$NON-NLS-1$
-				if (profileName1 != null) {
-					profileName1 = NotesStringUtils.fromLMBCS(profileNameMem1, ((profileNameLength & 0xffff)));
-				}
-				String userName = ""; //$NON-NLS-1$
-				if (usernameMem != null) {
-					userName = NotesStringUtils.fromLMBCS(usernameMem, ((profileNameLength & 0xffff)));
-				}
 
-				retNoteInfos.add(new ProfileNoteInfo(profileName1, userName, noteId));
-				return 0;
-			};
-		} else {
-			callback = (hDB, ctx, profileNameMem1, profileNameLength, usernameMem, usernameLength, noteId) -> {
-				String profileName1 = ""; //$NON-NLS-1$
-				if (profileName1 != null) {
-					profileName1 = NotesStringUtils.fromLMBCS(profileNameMem1, ((profileNameLength & 0xffff)));
-				}
-				String userName = ""; //$NON-NLS-1$
-				if (usernameMem != null) {
-					userName = NotesStringUtils.fromLMBCS(usernameMem, ((usernameLength & 0xffff)));
-				}
+      callback =
+          (hDB, ctx, profileNameMem1, profileNameLength, usernameMem, usernameLength, noteId) -> {
+            String profileName1 = ""; //$NON-NLS-1$
+            if (profileName1 != null) {
+              profileName1 =
+                  NotesStringUtils.fromLMBCS(profileNameMem1, ((profileNameLength & 0xffff)));
+            }
+            String userName = ""; //$NON-NLS-1$
+            if (usernameMem != null) {
+              userName = NotesStringUtils.fromLMBCS(usernameMem, ((usernameLength & 0xffff)));
+            }
 
-				retNoteInfos.add(new ProfileNoteInfo(profileName1, userName, noteId));
-				return 0;
-			};
-		}
+            retNoteInfos.add(new ProfileNoteInfo(profileName1, userName, noteId));
+            return 0;
+          };
 
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
-			return NotesCAPI.get().NSFProfileEnum(dbHandleByVal, profileNameMem,
-					profileNameMem == null ? (short) 0 : (short) (profileNameMem.size() & 0xffff), callback, null, 0);
-		});
-		NotesErrorUtils.checkResult(result);
+      short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
+        return NotesCAPI.get().NSFProfileEnum(dbHandleByVal, profileNameMem,
+            profileNameMem == null ? (short) 0 : (short) (profileNameMem.size() & 0xffff), callback,
+            null, 0);
+      });
+      NotesErrorUtils.checkResult(result);
 
-		return retNoteInfos;
-	}
+      return retNoteInfos;
+    }
 	
 	@Override
 	public void forEachProfileDocument(BiConsumer<Document, Loop> consumer) {
@@ -3760,51 +3748,41 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	}
 	
 	
-	@Override
-	public void refreshDesign(String server, boolean force, boolean errIfTemplateNotFound, 
-			final IBreakHandler abortHandler) {
-		checkDisposed();
-		
-		Memory serverMem = NotesStringUtils.toLMBCS(server, true);
-		
-		NotesCallbacks.ABORTCHECKPROC abortProc;
-		if (abortHandler!=null) {
-			if (PlatformUtils.isWin32()) {
-				abortProc = (Win32NotesCallbacks.ABORTCHECKPROCWin32) () -> {
-					if (abortHandler.shouldInterrupt()==Action.Stop) {
-						return INotesErrorConstants.ERR_CANCEL;
-					}
-					return 0;
-				};
-			}
-			else {
-				abortProc = () -> {
-					if (abortHandler.shouldInterrupt()==Action.Stop) {
-						return INotesErrorConstants.ERR_CANCEL;
-					}
-					return 0;
-				};
-			}
-		}
-		else {
-			abortProc = null;
-		}
-		
-		int dwFlags = 0;
-		if (force) {
-			dwFlags |= NotesConstants.DESIGN_FORCE;
-		}
-		if (errIfTemplateNotFound) {
-			dwFlags |= NotesConstants.DESIGN_ERR_TMPL_NOT_FOUND;
-		}
-		
-		int fDwFlags = dwFlags;
-		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().DesignRefresh(serverMem, hDbByVal, fDwFlags, abortProc, null);
-		});
-		NotesErrorUtils.checkResult(result);
-	}
+    @Override
+    public void refreshDesign(String server, boolean force, boolean errIfTemplateNotFound,
+        final IBreakHandler abortHandler) {
+      checkDisposed();
+
+      Memory serverMem = NotesStringUtils.toLMBCS(server, true);
+
+      NotesCallbacks.ABORTCHECKPROC abortProc;
+      if (abortHandler != null) {
+
+        abortProc = () -> {
+          if (abortHandler.shouldInterrupt() == Action.Stop) {
+            return INotesErrorConstants.ERR_CANCEL;
+          }
+          return 0;
+        };
+      } else {
+        abortProc = null;
+      }
+
+      int dwFlags = 0;
+      if (force) {
+        dwFlags |= NotesConstants.DESIGN_FORCE;
+      }
+      if (errIfTemplateNotFound) {
+        dwFlags |= NotesConstants.DESIGN_ERR_TMPL_NOT_FOUND;
+      }
+
+      int fDwFlags = dwFlags;
+
+      short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
+        return NotesCAPI.get().DesignRefresh(serverMem, hDbByVal, fDwFlags, abortProc, null);
+      });
+      NotesErrorUtils.checkResult(result);
+    }
 	
 	@Override
 	public void hardDeleteDocument(int softDelNoteId) {

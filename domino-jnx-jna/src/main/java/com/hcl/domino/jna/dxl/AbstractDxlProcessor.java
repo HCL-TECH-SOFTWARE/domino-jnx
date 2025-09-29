@@ -37,7 +37,6 @@ import com.hcl.domino.misc.INumberEnum;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
-import com.sun.jna.Structure;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.ShortByReference;
 
@@ -117,10 +116,9 @@ abstract class AbstractDxlProcessor<AT extends APIObjectAllocations, PROP extend
 		checkDisposed();
 		int hDXLExport = getHandle();
 	
-		
-		HANDLE.ByValue hList = HANDLE.newInstanceByValue();
-		getProperty(hDXLExport, prop, hList.getAdapter(Pointer.class));
-		hList.getAdapter(Structure.class).read();
+		HANDLE.ByReference phList = HANDLE.newInstanceByReference();
+		getProperty(hDXLExport, prop, phList.getPointer());
+		HANDLE.ByValue hList = HANDLE.newInstanceByValue(phList);
 		try {
 			Pointer mem = Mem.OSLockObject(hList);
 			try {
@@ -182,7 +180,7 @@ abstract class AbstractDxlProcessor<AT extends APIObjectAllocations, PROP extend
                 ));
 			}
 
-			setProperty(hDXLExport, prop, hList.getAdapter(Pointer.class));
+			setProperty(hDXLExport, prop, hList.getPointer());
 		} finally {
 			Mem.OSMemFree(DHANDLE.newInstanceByValue(hList));
 		}
@@ -211,9 +209,8 @@ abstract class AbstractDxlProcessor<AT extends APIObjectAllocations, PROP extend
 		checkDisposed();
 		int hDXLExport = getHandle();
 		
-		DHANDLE.ByReference result = DHANDLE.newInstanceByReference();
-		getProperty(hDXLExport, prop, result.getAdapter(Pointer.class));
-		result.getAdapter(Structure.class).read();
-		return result;
+		Memory result = new Memory(8);
+		getProperty(hDXLExport, prop, result);
+		return DHANDLE.newInstanceByValue(result.getLong(0));
 	}
 }

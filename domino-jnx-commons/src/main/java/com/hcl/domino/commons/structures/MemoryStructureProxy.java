@@ -68,10 +68,31 @@ import com.hcl.domino.richtext.structures.OpaqueTimeDate;
  */
 public class MemoryStructureProxy implements InvocationHandler {
   private static final boolean JAVA_8;
+  private static final Method INVOKE_DEFAULT;
   static {
     final String javaVersion = AccessController
         .doPrivileged((PrivilegedAction<String>) () -> System.getProperty("java.version", "")); //$NON-NLS-1$ //$NON-NLS-2$
     JAVA_8 = javaVersion.startsWith("1.8.0"); //$NON-NLS-1$
+
+    int dotIndex = javaVersion.indexOf('.');
+    if(dotIndex > -1) {
+      int majorVersion = Integer.parseInt(javaVersion.substring(0, dotIndex));
+      if(majorVersion >= 16) {
+        // InvocationHandler gained `static Object invokeDefault(Object proxy, Method method, Object... args)`
+        INVOKE_DEFAULT = AccessController.doPrivileged((PrivilegedAction<Method>)() -> {
+          try {
+            return InvocationHandler.class.getDeclaredMethod("invokeDefault", Object.class, Method.class, Object[].class);
+          } catch (NoSuchMethodException | SecurityException e) {
+            throw new RuntimeException(e);
+          }
+        });
+      } else {
+        INVOKE_DEFAULT = null;
+      }
+    } else {
+      INVOKE_DEFAULT = null;
+    }
+    
   }
 
   private static final Map<Method, MethodHandle> DEFAULT_METHOD_HANDLES = new HashMap<>();
@@ -561,7 +582,7 @@ public class MemoryStructureProxy implements InvocationHandler {
 
     if (MemoryStructureUtil.isInLineage(thisMethod, this.encapsulated)) {
       if (thisMethod.isDefault()) {
-        return this.invokeDefault(self, thisMethod, args);
+        return this.invokeDefaultLocal(self, thisMethod, args);
       }
     }
 
@@ -593,7 +614,12 @@ public class MemoryStructureProxy implements InvocationHandler {
    * @return the result of the method invocation
    * @throws Throwable if there is an exception invoking the method
    */
-  private Object invokeDefault(final Object self, final Method thisMethod, final Object[] args) throws Throwable {
+  private Object invokeDefaultLocal(final Object self, final Method thisMethod, final Object[] args) throws Throwable {
+    // Java 16+
+    if(INVOKE_DEFAULT != null) {
+      return INVOKE_DEFAULT.invoke(null, self, thisMethod, args);
+    }
+    
     if (MemoryStructureProxy.JAVA_8) {
       final Constructor<Lookup> constructor = Lookup.class.getDeclaredConstructor(Class.class);
       constructor.setAccessible(true);

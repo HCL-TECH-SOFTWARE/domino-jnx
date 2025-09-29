@@ -23,7 +23,6 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.jna.JNADominoProcess;
 import com.hcl.domino.jna.internal.capi.NotesCAPI.FunctionNameAnnotationMapper;
-import com.sun.jna.Function;
 import com.sun.jna.Library;
 import com.sun.jna.Native;
 
@@ -67,10 +66,7 @@ public class NotesCAPI1400 {
 		Map<String,Object> libraryOptions = new HashMap<>();
 		libraryOptions.put(Library.OPTION_CLASSLOADER, NotesCAPI.class.getClassLoader());
 		libraryOptions.put(Library.OPTION_FUNCTION_MAPPER, new FunctionNameAnnotationMapper());
-
-		if (PlatformUtils.isWin32()) {
-			libraryOptions.put(Library.OPTION_CALLING_CONVENTION, Function.ALT_CONVENTION); // set w32 stdcall convention
-		}
+		libraryOptions.put(Library.OPTION_TYPE_MAPPER, JnxJnaTypeMapper.INSTANCE);
 
 		INotesCAPI1400 api;
 		if (PlatformUtils.isWindows()) {

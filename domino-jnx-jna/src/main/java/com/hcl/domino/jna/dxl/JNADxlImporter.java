@@ -28,31 +28,26 @@ import static com.hcl.domino.commons.dxl.DxlImportProperty.ReplicaRequiredForRep
 import static com.hcl.domino.commons.dxl.DxlImportProperty.ResultLog;
 import static com.hcl.domino.commons.dxl.DxlImportProperty.ResultLogComment;
 import static com.hcl.domino.commons.dxl.DxlImportProperty.UnknownTokenLogOption;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.ref.ReferenceQueue;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.ArrayList;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import javax.xml.parsers.ParserConfigurationException;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
 import com.hcl.domino.commons.dxl.DxlImportProperty;
 import com.hcl.domino.commons.dxl.DxlImporterLogImpl;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.NotesErrorUtils;
-import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.dxl.DxlImporter;
@@ -60,7 +55,6 @@ import com.hcl.domino.dxl.DxlImporterLog;
 import com.hcl.domino.exception.DxlImportException;
 import com.hcl.domino.jna.data.JNAIDTable;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
-import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNADxlImporterAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
@@ -74,301 +68,283 @@ import com.sun.jna.Pointer;
 /**
  * @author Jesse Gallagher
  */
-public class JNADxlImporter extends AbstractDxlProcessor<JNADxlImporterAllocations, DxlImportProperty> implements DxlImporter {
+public class JNADxlImporter extends
+    AbstractDxlProcessor<JNADxlImporterAllocations, DxlImportProperty> implements DxlImporter {
 
-	public JNADxlImporter(IAPIObject<?> parent, int hDxlImporter) {
-		super(parent);
-		
-		getAllocations().setDxlImporterHandle(hDxlImporter);
-		
-		setInitialized();
-	}
+  public JNADxlImporter(IAPIObject<?> parent, int hDxlImporter) {
+    super(parent);
 
-	@Override
-	public boolean importErrorWasLogged() {
-		checkDisposed();
-		
-		return NotesCAPI.get().DXLImportWasErrorLogged(getAllocations().getDxlImporterHandle());
-	}
+    getAllocations().setDxlImporterHandle(hDxlImporter);
 
-	@Override
-	public DXLImportOption getACLImportOption() {
-		int value = getPropInt(ACLImportOption);
-		return DominoEnumUtil.valueOf(DXLImportOption.class, value)
-			.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Cannot identify import option for {0}", value)));
-	}
+    setInitialized();
+  }
 
-	@Override
-	public void setACLImportOption(DXLImportOption option) {
-		setProp(ACLImportOption, option.getValue());
-	}
+  @Override
+  public boolean importErrorWasLogged() {
+    checkDisposed();
 
-	@Override
-	public DXLImportOption getDesignImportOption() {
-		int value = getPropInt(DesignImportOption);
-		return DominoEnumUtil.valueOf(DXLImportOption.class, value)
-			.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Cannot identify import option for {0}", value)));
-	}
+    return NotesCAPI.get().DXLImportWasErrorLogged(getAllocations().getDxlImporterHandle());
+  }
 
-	@Override
-	public void setDesignImportOption(DXLImportOption option) {
-		setProp(DesignImportOption, option.getValue());
-	}
+  @Override
+  public DXLImportOption getACLImportOption() {
+    int value = getPropInt(ACLImportOption);
+    return DominoEnumUtil.valueOf(DXLImportOption.class, value)
+        .orElseThrow(() -> new IllegalStateException(
+            MessageFormat.format("Cannot identify import option for {0}", value)));
+  }
 
-	@Override
-	public DXLImportOption getDocumentsImportOption() {
-		int value = getPropInt(DocumentsImportOption);
-		return DominoEnumUtil.valueOf(DXLImportOption.class, value)
-			.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Cannot identify import option for {0}", value)));
-	}
+  @Override
+  public void setACLImportOption(DXLImportOption option) {
+    setProp(ACLImportOption, option.getValue());
+  }
 
-	@Override
-	public void setDocumentsImportOption(DXLImportOption option) {
-		setProp(DocumentsImportOption, option.getValue());
-	}
+  @Override
+  public DXLImportOption getDesignImportOption() {
+    int value = getPropInt(DesignImportOption);
+    return DominoEnumUtil.valueOf(DXLImportOption.class, value)
+        .orElseThrow(() -> new IllegalStateException(
+            MessageFormat.format("Cannot identify import option for {0}", value)));
+  }
 
-	@Override
-	public boolean isCreateFullTextIndex() {
-		return isProp(CreateFullTextIndex);
-	}
+  @Override
+  public void setDesignImportOption(DXLImportOption option) {
+    setProp(DesignImportOption, option.getValue());
+  }
 
-	@Override
-	public void setCreateFullTextIndex(boolean b) {
-		setProp(CreateFullTextIndex, b);
-	}
+  @Override
+  public DXLImportOption getDocumentsImportOption() {
+    int value = getPropInt(DocumentsImportOption);
+    return DominoEnumUtil.valueOf(DXLImportOption.class, value)
+        .orElseThrow(() -> new IllegalStateException(
+            MessageFormat.format("Cannot identify import option for {0}", value)));
+  }
 
-	@Override
-	public boolean isReplaceDbProperties() {
-		return isProp(ReplaceDbProperties);
-	}
+  @Override
+  public void setDocumentsImportOption(DXLImportOption option) {
+    setProp(DocumentsImportOption, option.getValue());
+  }
 
-	@Override
-	public void setReplaceDbProperties(boolean b) {
-		setProp(ReplaceDbProperties, b);
-	}
+  @Override
+  public boolean isCreateFullTextIndex() {
+    return isProp(CreateFullTextIndex);
+  }
 
-	@Override
-	public XMLValidationOption getInputValidationOption() {
-		int value = getPropInt(InputValidationOption);
-		return DominoEnumUtil.valueOf(XMLValidationOption.class, value)
-			.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Cannot identify validation option for {0}", value)));
-	}
+  @Override
+  public void setCreateFullTextIndex(boolean b) {
+    setProp(CreateFullTextIndex, b);
+  }
 
-	@Override
-	public void setInputValidationOption(XMLValidationOption option) {
-		setProp(InputValidationOption, option.getValue());
-	}
+  @Override
+  public boolean isReplaceDbProperties() {
+    return isProp(ReplaceDbProperties);
+  }
 
-	@Override
-	public boolean isReplicaRequiredForReplaceOrUpdate() {
-		return isProp(ReplicaRequiredForReplaceOrUpdate);
-	}
+  @Override
+  public void setReplaceDbProperties(boolean b) {
+    setProp(ReplaceDbProperties, b);
+  }
 
-	@Override
-	public void setReplicaRequiredForReplaceOrUpdate(boolean b) {
-		setProp(ReplicaRequiredForReplaceOrUpdate, b);
-	}
+  @Override
+  public XMLValidationOption getInputValidationOption() {
+    int value = getPropInt(InputValidationOption);
+    return DominoEnumUtil.valueOf(XMLValidationOption.class, value)
+        .orElseThrow(() -> new IllegalStateException(
+            MessageFormat.format("Cannot identify validation option for {0}", value)));
+  }
 
-	@Override
-	public boolean isExitOnFirstFatalError() {
-		return isProp(ExitOnFirstFatalError);
-	}
+  @Override
+  public void setInputValidationOption(XMLValidationOption option) {
+    setProp(InputValidationOption, option.getValue());
+  }
 
-	@Override
-	public void setExitOnFirstFatalError(boolean b) {
-		setProp(ExitOnFirstFatalError, b);
-	}
+  @Override
+  public boolean isReplicaRequiredForReplaceOrUpdate() {
+    return isProp(ReplicaRequiredForReplaceOrUpdate);
+  }
 
-	@Override
-	public DXLLogOption getUnknownTokenLogOption() {
-		int value = getPropInt(UnknownTokenLogOption);
-		return DominoEnumUtil.valueOf(DXLLogOption.class, value)
-			.orElseThrow(() -> new IllegalStateException(MessageFormat.format("Cannot identify log option for {0}", value)));
-	}
+  @Override
+  public void setReplicaRequiredForReplaceOrUpdate(boolean b) {
+    setProp(ReplicaRequiredForReplaceOrUpdate, b);
+  }
 
-	@Override
-	public void setUnknownTokenLogOption(DXLLogOption option) {
-		setProp(UnknownTokenLogOption, option.getValue());
-	}
+  @Override
+  public boolean isExitOnFirstFatalError() {
+    return isProp(ExitOnFirstFatalError);
+  }
 
-	@Override
-	public String getResultLogComment() {
-		return getPropString(ResultLogComment);
-	}
+  @Override
+  public void setExitOnFirstFatalError(boolean b) {
+    setProp(ExitOnFirstFatalError, b);
+  }
 
-	@Override
-	public void setResultLogComment(String comment) {
-		setProp(ResultLogComment, comment);
-	}
+  @Override
+  public DXLLogOption getUnknownTokenLogOption() {
+    int value = getPropInt(UnknownTokenLogOption);
+    return DominoEnumUtil.valueOf(DXLLogOption.class, value)
+        .orElseThrow(() -> new IllegalStateException(
+            MessageFormat.format("Cannot identify log option for {0}", value)));
+  }
 
-	@Override
-	public String getResultLog() {
-		return getPropString(ResultLog);
-	}
+  @Override
+  public void setUnknownTokenLogOption(DXLLogOption option) {
+    setProp(UnknownTokenLogOption, option.getValue());
+  }
 
-	@Override
-	public Optional<IDTable> getImportedNoteIds() {
-		DHANDLE hTable = getPropDHANDLE(ImportedNoteList);
-		if(!hTable.isNull()) {
-			return Optional.of(new JNAIDTable(getParentDominoClient(), hTable, false));
-		} else {
-			return Optional.empty();
-		}
-	}
-	
-	@Override
-	public void importDxl(InputStream in, Database db) throws IOException {
-		Objects.requireNonNull(in, "InputStream cannot be null");
-		Objects.requireNonNull(db, "Database cannot be null");
+  @Override
+  public String getResultLogComment() {
+    return getPropString(ResultLogComment);
+  }
 
-		checkDisposed();
-		
-		LockUtil.lockHandle(db.getAdapter(HANDLE.class), handle -> {
-			NotesCallbacks.XML_READ_FUNCTION func;
-			if (PlatformUtils.isWin32()) {
-				func = (Win32NotesCallbacks.XML_READ_FUNCTIONWin32) (pBuffer, length, pAction) -> {
-					try {
-						int remaining = in.available();
-						if(remaining < 1) {
-							return 0;
-						}
-						
-						byte[] block;
-						if(remaining > length) {
-							block = new byte[length];
-						} else {
-							block = new byte[remaining];
-						}
-						in.read(block);
-						pBuffer.write(0, block, 0, block.length);
-						return block.length;
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				};
-			}
-			else {
-				func = (pBuffer, length, pAction) -> {
-					try {
-						int remaining = in.available();
-						if(remaining < 1) {
-							return 0;
-						}
-						
-						byte[] block;
-						if(remaining > length) {
-							block = new byte[length];
-						} else {
-							block = new byte[remaining];
-						}
-						in.read(block);
-						pBuffer.write(0, block, 0, block.length);
-						return block.length;
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				};
-			}
-			
-			short result = AccessController.doPrivileged((PrivilegedAction<Short>) ()-> {
-				return NotesCAPI.get().DXLImport(getAllocations().getDxlImporterHandle(), func, handle, null);
-			});
+  @Override
+  public void setResultLogComment(String comment) {
+    setProp(ResultLogComment, comment);
+  }
 
-			NotesErrorUtils.checkResult(result);
-			
-			checkError();
-			return null;
-		});
-	}
+  @Override
+  public String getResultLog() {
+    return getPropString(ResultLog);
+  }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-	protected JNADxlImporterAllocations createAllocations(IGCDominoClient<?> parentDominoClient,
-			APIObjectAllocations parentAllocations, ReferenceQueue<? super IAPIObject> queue) {
-		return new JNADxlImporterAllocations(parentDominoClient, parentAllocations, this, queue);
-	}
+  @Override
+  public Optional<IDTable> getImportedNoteIds() {
+    DHANDLE hTable = getPropDHANDLE(ImportedNoteList);
+    if (!hTable.isNull()) {
+      return Optional.of(new JNAIDTable(getParentDominoClient(), hTable, false));
+    } else {
+      return Optional.empty();
+    }
+  }
 
-	// *******************************************************************************
-	// * Internal implementation methods
-	// *******************************************************************************
-	
-	@Override
-	protected void setProperty(int hDxl, INumberEnum<Integer> prop, Pointer propValue) {
-		checkDisposed();
-		NotesCAPI.get().DXLSetImporterProperty(hDxl, prop.getValue(), propValue);
-	}
-	
-	@Override
-	protected void getProperty(int hDxl, INumberEnum<Integer> prop, Pointer retPropValue) {
-		checkDisposed();
-		NotesCAPI.get().DXLGetImporterProperty(hDxl, prop.getValue(), retPropValue);
-	}
-	
-	@Override
-	protected void checkError() {
-		if(importErrorWasLogged()) {
-			String xml = getResultLog();
-			try {
-				org.w3c.dom.Document xmlDoc = JNADominoUtils.parseXml(xml);
-				List<DxlImporterLog.DxlError> errors;
-				List<DxlImporterLog.DxlFatalError> fatalErrors;
-				{
-					NodeList errorNodes = xmlDoc.getElementsByTagName("error"); //$NON-NLS-1$
-					errors = new ArrayList<>(errorNodes.getLength());
-					for(int i = 0; i < errorNodes.getLength(); i++) {
-						Element errorNode = (Element)errorNodes.item(i);
-						DxlImporterLogImpl.DxlErrorImpl error = new DxlImporterLogImpl.DxlErrorImpl();
-						String col = errorNode.getAttribute("column"); //$NON-NLS-1$
-						if(col != null && !col.isEmpty()) {
-						  error.setColumn(Integer.parseInt(col));
-						}
-						String line = errorNode.getAttribute("line"); //$NON-NLS-1$
-						if(line != null && !line.isEmpty()) {
-						  error.setLine(Integer.parseInt(line));
-						}
-						error.setSource(errorNode.getAttribute("source")); //$NON-NLS-1$
-						String id = errorNode.getAttribute("id"); //$NON-NLS-1$
-						if(id != null && !id.isEmpty()) {
-						  error.setId(Integer.parseInt(id));
-						}
-						error.setText(errorNode.getTextContent());
-						errors.add(error);
-					}
-				}
-				{
-					NodeList errorNodes = xmlDoc.getElementsByTagName("fatalerror"); //$NON-NLS-1$
-					fatalErrors = new ArrayList<>(errorNodes.getLength());
-					for(int i = 0; i < errorNodes.getLength(); i++) {
-						Element errorNode = (Element)errorNodes.item(i);
-						DxlImporterLogImpl.DxlFatalErrorImpl error = new DxlImporterLogImpl.DxlFatalErrorImpl();
-						String col = errorNode.getAttribute("column"); //$NON-NLS-1$
-            if(col != null && !col.isEmpty()) {
+  @Override
+  public void importDxl(InputStream in, Database db) throws IOException {
+    Objects.requireNonNull(in, "InputStream cannot be null");
+    Objects.requireNonNull(db, "Database cannot be null");
+
+    checkDisposed();
+
+    LockUtil.lockHandle(db.getAdapter(HANDLE.class), handle -> {
+      NotesCallbacks.XML_READ_FUNCTION func = (pBuffer, length, pAction) -> {
+        try {
+          int remaining = in.available();
+          if (remaining < 1) {
+            return 0;
+          }
+
+          byte[] block;
+          if (remaining > length) {
+            block = new byte[length];
+          } else {
+            block = new byte[remaining];
+          }
+          in.read(block);
+          pBuffer.write(0, block, 0, block.length);
+          return block.length;
+        } catch (IOException e) {
+          throw new RuntimeException(e);
+        }
+      };
+
+      short result = AccessController.doPrivileged((PrivilegedAction<Short>) () -> {
+        return NotesCAPI.get().DXLImport(getAllocations().getDxlImporterHandle(), func, handle,
+            null);
+      });
+
+      NotesErrorUtils.checkResult(result);
+
+      checkError();
+      return null;
+    });
+  }
+
+  @SuppressWarnings("rawtypes")
+  @Override
+  protected JNADxlImporterAllocations createAllocations(IGCDominoClient<?> parentDominoClient,
+      APIObjectAllocations parentAllocations, ReferenceQueue<? super IAPIObject> queue) {
+    return new JNADxlImporterAllocations(parentDominoClient, parentAllocations, this, queue);
+  }
+
+  // *******************************************************************************
+  // * Internal implementation methods
+  // *******************************************************************************
+
+  @Override
+  protected void setProperty(int hDxl, INumberEnum<Integer> prop, Pointer propValue) {
+    checkDisposed();
+    NotesCAPI.get().DXLSetImporterProperty(hDxl, prop.getValue(), propValue);
+  }
+
+  @Override
+  protected void getProperty(int hDxl, INumberEnum<Integer> prop, Pointer retPropValue) {
+    checkDisposed();
+    NotesCAPI.get().DXLGetImporterProperty(hDxl, prop.getValue(), retPropValue);
+  }
+
+  @Override
+  protected void checkError() {
+    if (importErrorWasLogged()) {
+      String xml = getResultLog();
+      try {
+        org.w3c.dom.Document xmlDoc = JNADominoUtils.parseXml(xml);
+        List<DxlImporterLog.DxlError> errors;
+        List<DxlImporterLog.DxlFatalError> fatalErrors;
+        {
+          NodeList errorNodes = xmlDoc.getElementsByTagName("error"); //$NON-NLS-1$
+          errors = new ArrayList<>(errorNodes.getLength());
+          for (int i = 0; i < errorNodes.getLength(); i++) {
+            Element errorNode = (Element) errorNodes.item(i);
+            DxlImporterLogImpl.DxlErrorImpl error = new DxlImporterLogImpl.DxlErrorImpl();
+            String col = errorNode.getAttribute("column"); //$NON-NLS-1$
+            if (col != null && !col.isEmpty()) {
               error.setColumn(Integer.parseInt(col));
             }
             String line = errorNode.getAttribute("line"); //$NON-NLS-1$
-            if(line != null && !line.isEmpty()) {
+            if (line != null && !line.isEmpty()) {
               error.setLine(Integer.parseInt(line));
             }
-						error.setSource(errorNode.getAttribute("source")); //$NON-NLS-1$
-						error.setText(errorNode.getTextContent());
-						fatalErrors.add(error);
-					}
-				}
-				
-				DxlImporterLog log = new DxlImporterLogImpl(errors, fatalErrors);
-				if(log.getFatalErrors().isEmpty()) {
-					throw new DxlImportException(String.valueOf(log.getErrors()), log);
-				} else {
-					throw new DxlImportException(String.valueOf(log.getFatalErrors()), log);
-				}
-			} catch (ParserConfigurationException | SAXException e) {
-				throw new RuntimeException("Encountered exception parsing DXL log", e);
-			}
-		}
-	}
-	
-	@Override
-	protected int getHandle() {
-		return getAllocations().getDxlImporterHandle();
-	}
+            error.setSource(errorNode.getAttribute("source")); //$NON-NLS-1$
+            String id = errorNode.getAttribute("id"); //$NON-NLS-1$
+            if (id != null && !id.isEmpty()) {
+              error.setId(Integer.parseInt(id));
+            }
+            error.setText(errorNode.getTextContent());
+            errors.add(error);
+          }
+        }
+        {
+          NodeList errorNodes = xmlDoc.getElementsByTagName("fatalerror"); //$NON-NLS-1$
+          fatalErrors = new ArrayList<>(errorNodes.getLength());
+          for (int i = 0; i < errorNodes.getLength(); i++) {
+            Element errorNode = (Element) errorNodes.item(i);
+            DxlImporterLogImpl.DxlFatalErrorImpl error = new DxlImporterLogImpl.DxlFatalErrorImpl();
+            String col = errorNode.getAttribute("column"); //$NON-NLS-1$
+            if (col != null && !col.isEmpty()) {
+              error.setColumn(Integer.parseInt(col));
+            }
+            String line = errorNode.getAttribute("line"); //$NON-NLS-1$
+            if (line != null && !line.isEmpty()) {
+              error.setLine(Integer.parseInt(line));
+            }
+            error.setSource(errorNode.getAttribute("source")); //$NON-NLS-1$
+            error.setText(errorNode.getTextContent());
+            fatalErrors.add(error);
+          }
+        }
+
+        DxlImporterLog log = new DxlImporterLogImpl(errors, fatalErrors);
+        if (log.getFatalErrors().isEmpty()) {
+          throw new DxlImportException(String.valueOf(log.getErrors()), log);
+        } else {
+          throw new DxlImportException(String.valueOf(log.getFatalErrors()), log);
+        }
+      } catch (ParserConfigurationException | SAXException e) {
+        throw new RuntimeException("Encountered exception parsing DXL log", e);
+      }
+    }
+  }
+
+  @Override
+  protected int getHandle() {
+    return getAllocations().getDxlImporterHandle();
+  }
 }

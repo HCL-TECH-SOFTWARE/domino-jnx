@@ -18,7 +18,6 @@ package com.hcl.domino.jna.data;
 
 import static com.hcl.domino.commons.util.NotesErrorUtils.checkResult;
 import static java.text.MessageFormat.format;
-
 import java.lang.ref.ReferenceQueue;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -31,7 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.UserNamesList;
@@ -40,7 +38,6 @@ import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.ListUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
-import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
@@ -49,7 +46,6 @@ import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
-import com.hcl.domino.jna.internal.callbacks.Win32NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNAAclAllocations;
 import com.hcl.domino.jna.internal.gc.allocations.JNADatabaseAllocations;
@@ -427,21 +423,9 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 			aclAccessInfoByName.put(name, access);
 		};
 		
-		short result;
-		if (PlatformUtils.isWin32()) {
-			//make sure to call the C function with a StdCallCallback implementation on Win32
-			Win32NotesCallbacks.ACLENTRYENUMFUNCWin32 callbackWin32 = (enumFuncParam, nameMem, accessLevelShort, privileges, accessFlag) -> {
-				callback.invoke(enumFuncParam, nameMem, accessLevelShort, privileges, accessFlag);
-			};
-			result = LockUtil.lockHandle(hAcl, (hAclByValue) -> {
-				return NotesCAPI.get().ACLEnumEntries(hAclByValue, callbackWin32, null);
-			});
-		}
-		else {
-			result = LockUtil.lockHandle(hAcl, (hAclByValue) -> {
-				return NotesCAPI.get().ACLEnumEntries(hAclByValue, callback, null);
-			});
-		}
+        short result = LockUtil.lockHandle(hAcl, (hAclByValue) -> {
+          return NotesCAPI.get().ACLEnumEntries(hAclByValue, callback, null);
+        });
 		
 		checkResult(result);
 		
