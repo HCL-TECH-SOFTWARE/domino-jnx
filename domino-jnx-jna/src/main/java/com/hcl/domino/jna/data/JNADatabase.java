@@ -386,7 +386,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		}
 		else if(HANDLE.class.isAssignableFrom(clazz)) {
 			return (T)getAllocations().getDBHandle();
-		}
+		} else if (clazz == long.class || clazz == Long.class) {
+	      return (T) (Long)getAllocations().getDBHandle().getValue();
+	    }
 		
 		return null;
 	}

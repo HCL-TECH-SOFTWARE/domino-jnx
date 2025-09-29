@@ -299,6 +299,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       return (T) getAllocations().getNoteHandle();
     } else if (clazz == AutoCloseableDocument.class) {
       return (T) autoClosable();
+    } else if (clazz == long.class || clazz == Long.class) {
+      return (T) (Long)getAllocations().getNoteHandle().getValue();
     }
 
     return null;
