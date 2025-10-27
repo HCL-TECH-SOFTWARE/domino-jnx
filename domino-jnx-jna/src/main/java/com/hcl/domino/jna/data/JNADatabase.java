@@ -3253,43 +3253,40 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		return createFolder(formatDb, formatNoteId, newFolderName);
 	}
 
-	@Override
-	public int createFolder(Database formatDb, int formatFolderNoteId, String newFolderName) {
-		checkDisposed();
-		
-		if (formatDb!=null) {
-			if (!(formatDb instanceof JNADatabase)) {
-				throw new IncompatibleImplementationException(formatDb, JNADatabase.class);
-			}
-			
-			JNADatabase jnaFormatDb = (JNADatabase) formatDb;
-			if (jnaFormatDb.isDisposed()) {
-				throw new ObjectDisposedException(jnaFormatDb);
-			}
-		}
-		
-		Memory newFolderNameMem = NotesStringUtils.toLMBCS(newFolderName, false);
-		if (newFolderNameMem.size() > NotesConstants.DESIGN_FOLDER_MAX_NAME) {
-			throw new IllegalArgumentException(MessageFormat.format("Folder name too long (max {0} bytes, found {1} bytes)", NotesConstants.DESIGN_FOLDER_MAX_NAME, newFolderNameMem.size()));
-		}
+    @Override
+    public int createFolder(Database formatDb, int formatFolderNoteId, String newFolderName) {
+      checkDisposed();
 
-		short newFolderNameLength = (short) (newFolderNameMem.size() & 0xffff);
-		
-		IntByReference retNoteId = new IntByReference();
-		
-		HANDLE formatDbHandle = formatDb==null ? null : formatDb.getAdapter(HANDLE.class);
-		
-		short result = LockUtil.lockHandles(getAllocations().getDBHandle(),
-				formatDbHandle, (hDbByVal, hFormatDbByVal) -> {
-					
-			return NotesCAPI.get().FolderCreate(hDbByVal, hDbByVal, formatFolderNoteId,
-					hFormatDbByVal, newFolderNameMem, newFolderNameLength,
-							NotesConstants.DESIGN_TYPE_SHARED, 0, retNoteId);
-		});
-		NotesErrorUtils.checkResult(result);
+      if (formatDb != null) {
+        if (!(formatDb instanceof JNADatabase)) {
+          throw new IncompatibleImplementationException(formatDb, JNADatabase.class);
+        }
 
-		return retNoteId.getValue();
-	}
+        JNADatabase jnaFormatDb = (JNADatabase) formatDb;
+        if (jnaFormatDb.isDisposed()) {
+          throw new ObjectDisposedException(jnaFormatDb);
+        }
+      }
+
+      Memory newFolderNameMem = NotesStringUtils.toLMBCS(newFolderName, false);
+
+      short newFolderNameLength = newFolderNameMem == null ? 0 : (short) (newFolderNameMem.size() & 0xffff);
+
+      IntByReference retNoteId = new IntByReference();
+
+      HANDLE formatDbHandle = formatDb == null ? null : formatDb.getAdapter(HANDLE.class);
+
+      short result = LockUtil.lockHandles(getAllocations().getDBHandle(),
+          formatDbHandle, (hDbByVal, hFormatDbByVal) -> {
+
+            return NotesCAPI.get().FolderCreate(hDbByVal, hDbByVal, formatFolderNoteId,
+                hFormatDbByVal, newFolderNameMem, newFolderNameLength,
+                NotesConstants.DESIGN_TYPE_SHARED, 0, retNoteId);
+          });
+      NotesErrorUtils.checkResult(result);
+
+      return retNoteId.getValue();
+    }
 
 	@Override
 	public void deleteFolder(String folderName) {

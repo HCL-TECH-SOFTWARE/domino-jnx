@@ -68,6 +68,7 @@ import com.hcl.domino.exception.MismatchedPublicKeyException;
 import com.hcl.domino.exception.NoCrossCertificateException;
 import com.hcl.domino.exception.NoEncryptionKeysException;
 import com.hcl.domino.exception.MissingEncryptionKeyException;
+import com.hcl.domino.exception.NameTooLongException;
 import com.hcl.domino.exception.NotAuthorizedException;
 import com.hcl.domino.exception.QuitPendingException;
 import com.hcl.domino.exception.SecurityItemDoesNotExistException;
@@ -336,6 +337,8 @@ public class NotesErrorUtils {
         return Optional.of(new CorruptIDFileException(s, message));
       case IBsafeErr.ERR_BSAFE_WRONG_SUBJECT_KEY_X:
         return Optional.of(new MismatchedPublicKeyException(s, message));
+      case IMiscErr.ERR_NAME_LENGTH:
+        return Optional.of(new NameTooLongException(s, message));
       default:
         return Optional.of(new DominoException(s, message));
     }
