@@ -16,6 +16,7 @@
  */
 package it.com.hcl.domino.test.data;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -39,7 +40,8 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
-
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClient.Encryption;
 import com.hcl.domino.DominoException;
@@ -51,6 +53,7 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.Database.EncryptionInfo;
 import com.hcl.domino.exception.CompactionRequiredException;
+import com.hcl.domino.exception.NameTooLongException;
 import com.hcl.domino.data.DominoCollectionInfo;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.IDTable;
@@ -428,6 +431,28 @@ public class TestDatabase extends AbstractNotesRuntimeTest {
         Set<String> unids = ids.stream().map(database::toUNID).collect(Collectors.toCollection(HashSet::new));
         assertEquals(expected, unids);
       }
+    });
+  }
+  
+  @ParameterizedTest
+  @ValueSource(strings = {
+      "i am under 64 bytes",
+      "i am over 64 bytes, but this is legal because there is a\\character in the name"
+  })
+  public void testValidFolderNames(String folderName) throws Exception {
+    withTempDb(database -> {
+      assertDoesNotThrow(() -> database.createFolder(folderName));
+    });
+  }
+  
+  @ParameterizedTest
+  @ValueSource(strings = {
+      "i am over 64 bytes, but this is not legal because there is no slash character in the name",
+      "i am over 64 bytes, but this is not legal because, though there is a\\character in the name, this extends much further beyond the allowed character count even taking that into consideration"
+  })
+  public void testInalidFolderNames(String folderName) throws Exception {
+    withTempDb(database -> {
+      assertThrows(NameTooLongException.class, () -> database.createFolder(folderName));
     });
   }
 }
