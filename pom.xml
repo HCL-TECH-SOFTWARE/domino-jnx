@@ -674,5 +674,18 @@
         <domino.version>14.5.0</domino.version>
       </properties>
     </profile>
+    <profile>
+      <id>RFuture</id>
+      <modules>
+        <module>domino-jnx-jep454</module>
+      </modules>
+      <properties>
+        <java.version>25</java.version>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+        <maven.compiler.release>25</maven.compiler.release>
+        <domino.version>14.0.0</domino.version>
+      </properties>
+    </profile>
   </profiles>
 </project>
