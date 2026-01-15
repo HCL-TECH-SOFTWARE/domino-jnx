@@ -72,6 +72,7 @@ import com.hcl.domino.exception.NameTooLongException;
 import com.hcl.domino.exception.NotAuthorizedException;
 import com.hcl.domino.exception.QuitPendingException;
 import com.hcl.domino.exception.SecurityItemDoesNotExistException;
+import com.hcl.domino.exception.SecurityNullParameterException;
 import com.hcl.domino.exception.ServerNotFoundException;
 import com.hcl.domino.exception.ServerRestrictedException;
 import com.hcl.domino.exception.ServerUnavailableException;
@@ -339,6 +340,8 @@ public class NotesErrorUtils {
         return Optional.of(new MismatchedPublicKeyException(s, message));
       case IMiscErr.ERR_NAME_LENGTH:
         return Optional.of(new NameTooLongException(s, message));
+      case (short)0x1725: // Illegal null parameter passed to security function
+        return Optional.of(new SecurityNullParameterException(s, message));
       default:
         return Optional.of(new DominoException(s, message));
     }
