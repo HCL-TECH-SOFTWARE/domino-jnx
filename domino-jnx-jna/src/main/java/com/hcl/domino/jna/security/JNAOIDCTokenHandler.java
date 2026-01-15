@@ -14,6 +14,7 @@ import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.util.NotesErrorUtils;
+import com.hcl.domino.exception.SecurityNullParameterException;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.INotesCAPI1400;
@@ -93,8 +94,11 @@ public class JNAOIDCTokenHandler implements CredentialValidationTokenHandler<Dom
           duration
       ));
       if(e.isPresent()) {
-        if(log.isLoggable(Level.INFO)) {
-          log.log(Level.INFO, "Encountered exception validating OIDC token", e.get());
+        DominoException de = e.get();
+        if(de instanceof SecurityNullParameterException) {
+          log.log(Level.FINE, "Encountered exception validating OIDC token", de);
+        } else {
+          log.log(Level.INFO, "Encountered exception validating OIDC token", de);
         }
         
         return Optional.empty();
