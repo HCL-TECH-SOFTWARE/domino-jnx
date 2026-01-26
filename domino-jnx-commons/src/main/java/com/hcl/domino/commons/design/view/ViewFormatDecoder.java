@@ -116,7 +116,9 @@ public class ViewFormatDecoder {
     result.read(format2);
 
     // In case VIEW_TABLE_FORMAT2.Length ever disagrees, increment further
-    data.position(data.position() + Math.max(0, format2.getLength() - vtf2size));
+    if(!move(data, format2.getLength() - vtf2size)) {
+      return result;
+    }
 
     for (int i = 0; i < format1.getColumnCount(); i++) {
       ViewColumnFormat2 col =
@@ -138,7 +140,9 @@ public class ViewFormatDecoder {
     result.read(format3);
 
     // In case VIEW_TABLE_FORMAT3.Length ever disagrees, increment further
-    data.position(data.position() + Math.max(0, format3.getLength() - vtf3size));
+    if(!move(data, format3.getLength() - vtf3size)) {
+      return result;
+    }
 
     // Followed by variable data defined by VIEW_COLUMN_FORMAT2
     for (int i = 0; i < format1.getColumnCount(); i++) {
@@ -178,7 +182,9 @@ public class ViewFormatDecoder {
     ViewTableFormat4 format4 = readMemory(data, (short) -1, ViewTableFormat4.class);
     result.read(format4);
     // In case VIEW_TABLE_FORMAT4.Length ever disagrees, increment further
-    data.position(data.position() + Math.max(0, format4len - vtf4size));
+    if(!move(data, format4len - vtf4size)) {
+      return result;
+    }
 
     // Background resource link
     int cdresLen = MemoryStructureUtil.sizeOf(CDResource.class);
@@ -342,7 +348,9 @@ public class ViewFormatDecoder {
       if (data.remaining() < ghostSharedColLen) {
         return result;
       }
-      data.position(data.position() + ghostSharedColLen);
+      if(!move(data, ghostSharedColLen)) {
+        return result;
+      }
     }
 
     if (data.remaining() < 2) {
@@ -396,5 +404,33 @@ public class ViewFormatDecoder {
     }
 
     return result;
+  }
+  
+  /**
+   * Attempts to move the position of {@code data} forward by {@code amount}
+   * bytes, checking the bounds to see if that will be legal.
+   * 
+   * <p>If {@code amount} is less than zero, this does not move the position
+   * but does return {@code true}.</p>
+   * 
+   * @param data the buffer to manipulate
+   * @param amount the amount to move forward
+   * @return {@code true} if the position was moved; {@code false} if
+   *         {@code amount} if there is not enough space remaining to
+   *         move
+   */
+  private static boolean move(ByteBuffer data, int amount) {
+    if(amount < 0) {
+      return true;
+    }
+    if(amount == 0) {
+      return true;
+    }
+    
+    if(data.position() + amount > data.limit()) {
+      return false;
+    }
+    data.position(data.position()+amount);
+    return true;
   }
 }
