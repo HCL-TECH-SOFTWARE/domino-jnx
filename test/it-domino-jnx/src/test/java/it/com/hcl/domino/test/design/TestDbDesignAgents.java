@@ -92,7 +92,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")
 public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
-  public static final int EXPECTED_IMPORT_AGENTS = 26;
+  public static final int EXPECTED_IMPORT_AGENTS = 27;
   private static String dbPath;
 
   @AfterAll
@@ -861,5 +861,14 @@ public class TestDbDesignAgents extends AbstractNotesRuntimeTest {
     assertFalse(agent.isCompileDebug());
     
     assertEquals("test.OtherMainClass.class", agent.getMainClassName());
+  }
+  
+  /**
+   * @see <a href="https://github.com/HCL-TECH-SOFTWARE/domino-jnx/issues/488">Issue #488</a>
+   */
+  @Test
+  public void testJavaAgentAltType() {
+    DbDesign design = database.getDesign();
+    design.getAgent("aaaaa").get();
   }
 }

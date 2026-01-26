@@ -42,6 +42,7 @@ import com.hcl.domino.commons.design.agent.DesignImportedJavaAgentImpl;
 import com.hcl.domino.commons.design.agent.DesignJavaAgentImpl;
 import com.hcl.domino.commons.design.agent.DesignLotusScriptAgentImpl;
 import com.hcl.domino.commons.design.agent.DesignSimpleActionAgentImpl;
+import com.hcl.domino.commons.design.agent.UnknownAgentImpl;
 import com.hcl.domino.commons.design.simpleaction.DefaultCopyToDatabaseAction;
 import com.hcl.domino.commons.design.simpleaction.DefaultDeleteDocumentAction;
 import com.hcl.domino.commons.design.simpleaction.DefaultFolderBasedAction;
@@ -331,9 +332,12 @@ public enum DesignUtil {
                       doc);
                   return result;
                 }
-                default:
-                  throw new UnsupportedOperationException(
-                      MessageFormat.format("Unable to find implementation for language value {0} and flags value \"{1}\"", lang, flags));
+                // We observed SIG_ACTION_JAVA as the type for an agent that has no actual
+                //   Java information, so treat it as generic
+                case RichTextConstants.SIG_ACTION_JAVA:
+                default: {
+                  return new UnknownAgentImpl(doc);
+                }
               }
             }));
     
