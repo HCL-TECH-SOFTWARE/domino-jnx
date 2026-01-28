@@ -97,3 +97,9 @@ The `TestServerInfo` tests look for server and admin info in two environemnt var
 
 - `SERVER_INFO_SERVER` should contain the name of a server to query
 - `SERVER_INFO_ADMINISTRATOR` should contain a name that is expected to exist in the Administrators field of that server's doc
+
+### TestAcl
+
+The `testLookupAccessServer` test case looks for a server name in an environment variable. 
+
+- `ACL_SERVER` should contain the name of a server which must be a member of `LocalDomainServers` in the domain directory.
