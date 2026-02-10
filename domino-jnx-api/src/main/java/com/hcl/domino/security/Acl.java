@@ -40,6 +40,8 @@ public interface Acl {
    * @param accessFlags Access level modifier flags ({@link AclFlag}), e.g.:
    *                    unable to delete documents, unable to create documents, of
    *                    the entry to be added
+   *
+   * @throws DominoException if an entry with the given name already exists
    */
   void addEntry(String name, AclLevel accessLevel, List<String> roles, Collection<AclFlag> accessFlags);
 
