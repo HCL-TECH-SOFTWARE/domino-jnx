@@ -803,8 +803,14 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 	@Override
 	public AclAccess lookupAccess(final String userName) {
 		checkDisposed();
-		
-		UserNamesList namesList=NotesNamingUtils.buildNamesList(getParent(), userName);
+
+		String server = null;
+
+		if (getParent() instanceof JNADatabase) {
+			server = ((JNADatabase)getParent()).getServer();
+		}
+
+		UserNamesList namesList=NotesNamingUtils.buildNamesList(getParent(), server, userName);
 		try {
 			return lookupAccess(namesList);
 		}

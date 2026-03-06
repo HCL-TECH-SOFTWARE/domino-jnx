@@ -42,9 +42,12 @@ import com.hcl.domino.security.AclFlag;
 import com.hcl.domino.security.AclLevel;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
+import org.junit.jupiter.api.condition.EnabledIfEnvironmentVariable;
 
 @SuppressWarnings("nls")
 public class TestAcl extends AbstractNotesRuntimeTest {
+
+  public static final String ENV_SERVER = "ACL_SERVER";
 
   private boolean containsAll(final List<String> expected, final List<String> actual) {
     if (expected.size() > actual.size()) {
@@ -62,7 +65,7 @@ public class TestAcl extends AbstractNotesRuntimeTest {
   }
 
   @Test
-  public void testLookupAccess() throws Exception {
+  public void testLookupAccessLocal() throws Exception {
     this.withTempDb(database -> {
       final DominoClient client = this.getClient();
 
@@ -74,6 +77,20 @@ public class TestAcl extends AbstractNotesRuntimeTest {
 
       Assertions.assertNotNull(entry, "Access level could not be determined");
     });
+  }
+
+  @Test
+  @EnabledIfEnvironmentVariable(named = TestAcl.ENV_SERVER, matches = ".*")
+  public void testLookupAccessServer() throws Exception {
+    final DominoClient dominoClient = this.getClient();
+    final String server = System.getenv(TestAcl.ENV_SERVER);
+
+    // NTF files do not have server names set in their ACLs.
+    // We'll check for the server name. It should match to the LocalDomainServers
+    Database mailBoxDb = dominoClient.openDatabase(server, "mailbox.ntf");
+    Acl acl = mailBoxDb.getACL();
+
+    Assertions.assertEquals(AclLevel.MANAGER, acl.lookupAccess(server).getAclLevel(), "ACL access lookup only works locally.");
   }
 
   @Test

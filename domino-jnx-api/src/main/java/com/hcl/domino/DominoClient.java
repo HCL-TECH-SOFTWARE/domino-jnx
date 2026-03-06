@@ -16,6 +16,8 @@
  */
 package com.hcl.domino;
 
+import com.hcl.domino.exception.FileDoesNotExistException;
+import com.hcl.domino.exception.NotAuthorizedException;
 import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.Collection;
@@ -533,6 +535,16 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    * @since 1.48.0
    */
   DominoDateTime createDateTime(String isoTime);
+  
+  /**
+   * Creates a {@link DominoDateTime} value for the specified special constant.
+   * 
+   * @param constantValue the special time value to create
+   * @return a newly-created {@link DominoDateTime} for the constant value
+   * @throws NullPointerException if {@code constantValue} is {@code null}
+   * @since 1.42.2
+   */
+  DominoDateTime createDateTime(DominoDateTime.ConstantValue constantValue);
 
   /**
    * @return a newly-created DXL exporter
@@ -838,6 +850,9 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    *
    * @param path a path of the database
    * @return database object for data access
+   * @throws NotAuthorizedException if the current user is not authorized to open the database
+   * @throws FileDoesNotExistException if the database does not exist
+   * @throws ServerNotFoundException    if the specified server cannot be found
    */
   Database openDatabase(String path);
 
@@ -861,6 +876,9 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    * @param path    a path of the database
    * @param options set of options for if the database is not accessible
    * @return Database database object for data access
+   * @throws NotAuthorizedException if the current user is not authorized to open the database
+   * @throws FileDoesNotExistException if the database does not exist
+   * @throws ServerNotFoundException    if the specified server cannot be found
    */
   Database openDatabase(String path, Set<OpenDatabase> options);
 
@@ -873,6 +891,9 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    *                   a replica
    *                   ID
    * @return Database database object for data access
+   * @throws NotAuthorizedException if the current user is not authorized to open the database
+   * @throws FileDoesNotExistException if the database does not exist
+   * @throws ServerNotFoundException    if the specified server cannot be found
    */
   Database openDatabase(String serverName, String filePath);
 
@@ -887,6 +908,9 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    *                   ID
    * @param options    set of options for if the database is not accessible
    * @return Database database object for data access
+   * @throws NotAuthorizedException if the current user is not authorized to open the database
+   * @throws FileDoesNotExistException if the database does not exist
+   * @throws ServerNotFoundException    if the specified server cannot be found
    */
   Database openDatabase(String serverName, String filePath, Set<OpenDatabase> options);
 

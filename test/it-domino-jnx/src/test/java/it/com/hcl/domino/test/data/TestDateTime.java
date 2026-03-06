@@ -16,6 +16,9 @@
  */
 package it.com.hcl.domino.test.data;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -49,7 +52,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoDateTime;
-
+import com.hcl.domino.data.DominoDateTime.ConstantValue;
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 public class TestDateTime extends AbstractNotesRuntimeTest {
@@ -381,5 +384,33 @@ public class TestDateTime extends AbstractNotesRuntimeTest {
     Assertions.assertEquals(zonedDt.toInstant(), dt.toOffsetDateTime().toInstant());
     Assertions.assertEquals(zonedDt.toOffsetDateTime().getOffset(), dt.toOffsetDateTime().getOffset());
     Assertions.assertEquals(zonedDt.getOffset().getTotalSeconds(), dt.toOffsetDateTime().getOffset().getTotalSeconds());
+  }
+  
+  @Test
+  public void testDateTimeConstants() {
+    final DominoClient client = this.getClient();
+    
+    {
+      assertThrows(NullPointerException.class, () -> client.createDateTime((ConstantValue)null));
+    }
+    
+    {
+      DominoDateTime max = client.createDateTime(ConstantValue.MAXIMUM);
+      assertNotNull(max);
+      // +18255-02-15T00:00Z
+      OffsetDateTime dt = max.toOffsetDateTime();
+      assertEquals(18255, dt.get(ChronoField.YEAR));
+    }
+    {
+      DominoDateTime min = client.createDateTime(ConstantValue.MINIMUM);
+      assertNotNull(min);
+      // NB: This creates a value that can't readily be converted to OffsetDateTime
+    }
+    {
+      DominoDateTime wild = client.createDateTime(ConstantValue.WILDCARD);
+      assertNotNull(wild);
+      assertThrows(DateTimeException.class, wild::toLocalDate);
+      assertThrows(DateTimeException.class, wild::toLocalTime);
+    }
   }
 }

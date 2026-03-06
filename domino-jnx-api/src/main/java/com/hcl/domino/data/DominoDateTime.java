@@ -22,6 +22,8 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.temporal.Temporal;
 import java.util.Optional;
+import com.hcl.domino.misc.INumberEnum;
+import com.hcl.domino.misc.NotesConstants;
 
 /**
  * Represents a Domino date/time value. As a {@link Temporal} representation,
@@ -43,6 +45,32 @@ import java.util.Optional;
  * @author Jesse Gallagher
  */
 public interface DominoDateTime extends IAdaptable, Temporal, Cloneable, DominoTimeType, Comparable<DominoDateTime> {
+  /**
+   * Values of special date/time values built in to Domino.
+   * 
+   * @since 1.42.2
+   */
+  enum ConstantValue implements INumberEnum<Short> {
+    MAXIMUM(NotesConstants.TIMEDATE_MAXIMUM),
+    MINIMUM(NotesConstants.TIMEDATE_MINIMUM),
+    WILDCARD(NotesConstants.TIMEDATE_WILDCARD);
+    
+    private final short value;
+    
+    private ConstantValue(short value) {
+      this.value = value;
+    }
+
+    @Override
+    public long getLongValue() {
+      return value;
+    }
+
+    @Override
+    public Short getValue() {
+      return value;
+    }
+  }
 
   DominoDateTime clone();
 
