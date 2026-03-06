@@ -258,8 +258,10 @@ public class DefaultDominoDateTime implements DominoDateTime {
       return ((ZonedDateTime) temporal).toLocalDate();
     } else if (temporal instanceof LocalDate) {
       return (LocalDate) temporal;
+    } else if (temporal == null) {
+      throw new DateTimeException("Cannot create a LocalDate from the underlying value");
     } else {
-      throw new DateTimeException(MessageFormat.format("Cannot create an LocalDate from a {0}", temporal.getClass().getName()));
+      throw new DateTimeException(MessageFormat.format("Cannot create a LocalDate from a {0}", temporal.getClass().getName()));
     }
   }
 
@@ -272,8 +274,10 @@ public class DefaultDominoDateTime implements DominoDateTime {
       return ((ZonedDateTime) temporal).toLocalTime();
     } else if (temporal instanceof LocalTime) {
       return (LocalTime) temporal;
+    } else if (temporal == null) {
+      throw new DateTimeException("Cannot create a LocalTime from the underlying value");
     } else {
-      throw new DateTimeException(MessageFormat.format("Cannot create an LocalTime from a {0}", temporal.getClass().getName()));
+      throw new DateTimeException(MessageFormat.format("Cannot create a LocalTime from a {0}", temporal.getClass().getName()));
     }
   }
 

@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -71,6 +72,7 @@ import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CompactMode;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.ReplicateOption;
+import com.hcl.domino.data.DominoDateTime.ConstantValue;
 import com.hcl.domino.data.DatabaseChangePathList;
 import com.hcl.domino.data.DatabaseClass;
 import com.hcl.domino.data.DocumentClass;
@@ -848,6 +850,21 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     DominoDateTime endDT = createDateTime(end);
 
     return new DefaultDominoDateRange(startDT, endDT);
+  }
+  
+  @Override
+  public DominoDateTime createDateTime(ConstantValue constantValue) {
+    Objects.requireNonNull(constantValue, "constantValue cannot be null");
+    switch(constantValue) {
+      case MAXIMUM:
+        return JNADominoDateTime.createMaximumDateTime();
+      case MINIMUM:
+        return JNADominoDateTime.createMinimumDateTime();
+      case WILDCARD:
+        return JNADominoDateTime.createWildcardDateTime();
+      default:
+        return null;
+    }
   }
 
   @Override

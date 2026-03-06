@@ -535,6 +535,16 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
    * @since 1.48.0
    */
   DominoDateTime createDateTime(String isoTime);
+  
+  /**
+   * Creates a {@link DominoDateTime} value for the specified special constant.
+   * 
+   * @param constantValue the special time value to create
+   * @return a newly-created {@link DominoDateTime} for the constant value
+   * @throws NullPointerException if {@code constantValue} is {@code null}
+   * @since 1.42.2
+   */
+  DominoDateTime createDateTime(DominoDateTime.ConstantValue constantValue);
 
   /**
    * @return a newly-created DXL exporter
