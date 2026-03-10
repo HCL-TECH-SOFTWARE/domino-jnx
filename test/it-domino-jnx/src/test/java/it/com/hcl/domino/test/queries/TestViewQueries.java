@@ -16,6 +16,7 @@
  */
 package it.com.hcl.domino.test.queries;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -54,6 +55,7 @@ import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoCollection.Direction;
 import com.hcl.domino.data.Find;
+import com.hcl.domino.data.FindFlag;
 import com.hcl.domino.data.Navigate;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.dql.DQL;
@@ -464,5 +466,162 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
         assertNotEquals("1", pos.get());
       }
     });
+  }
+  
+  @Test
+  public void testMultiCatKey() throws Exception {
+    this.withResourceDxl("/dxl/testMultiCatView", database -> {
+      createCategoryDocs(database);
+      
+      DominoCollection dc = database.openCollection("MultipleValuesAsSeparateEntries").get();
+      
+      Set<Integer> noteIds = new HashSet<>();
+      // Make sure two query variants end up with the same count
+      {
+        CollectionSearchQuery searchQuery =
+            dc.query().readUNID()
+              .readColumnValues()
+              .readSpecialValues(SpecialValue.INDEXPOSITION);
+        List<CollectionEntry> entries = searchQuery.collectEntriesByKey(0, 2000, Arrays.asList("CatA"), EnumSet.noneOf(FindFlag.class));
+        assertEquals(39, entries.size());
+        entries.forEach(entry -> noteIds.add(entry.getNoteID()));
+      }
+      {
+        CollectionSearchQuery searchQuery =
+            dc.query().readUNID()
+              .readColumnValues()
+              .readSpecialValues(SpecialValue.INDEXPOSITION);
+        List<CollectionEntry> entries = searchQuery.collectEntriesByKey(0, Integer.MAX_VALUE, Arrays.asList("CatA"), EnumSet.noneOf(FindFlag.class));
+        assertEquals(39, entries.size());
+      }
+      
+      // Make sure CatB has the same docs
+      {
+        CollectionSearchQuery searchQuery =
+            dc.query().readUNID()
+              .readColumnValues()
+              .readSpecialValues(SpecialValue.INDEXPOSITION);
+        List<CollectionEntry> entries = searchQuery.collectEntriesByKey(0, 2000, Arrays.asList("CatB"), EnumSet.noneOf(FindFlag.class));
+        assertEquals(39, entries.size());
+        Set<Integer> noteIds2 = new HashSet<>();
+        entries.forEach(entry -> noteIds2.add(entry.getNoteID()));
+        assertEquals(noteIds, noteIds2);
+      }
+      
+      // Make one more document
+      Document doc = database.createDocument();
+      doc.replaceItemValue("Form", "ViewCatTest");
+      doc.replaceItemValue("Category1", "Dessert");
+      doc.replaceItemValue("Category2", "Water-thin mint");
+      doc.save();
+      
+      // Make sure the two queries have the same count still
+      {
+        CollectionSearchQuery searchQuery =
+            dc.query().readUNID()
+              .direction(Navigate.NEXT_SELECTED)
+              .readColumnValues()
+              .readSpecialValues(SpecialValue.INDEXPOSITION);
+        List<CollectionEntry> entries = searchQuery.collectEntriesByKey(0, 2000, Arrays.asList("CatA"), EnumSet.noneOf(FindFlag.class));
+        assertEquals(39, entries.size());
+      }
+      {
+        CollectionSearchQuery searchQuery =
+            dc.query().readUNID()
+              .direction(Navigate.NEXT_SELECTED)
+              .readColumnValues()
+              .readSpecialValues(SpecialValue.INDEXPOSITION);
+        List<CollectionEntry> entries = searchQuery.collectEntriesByKey(0, Integer.MAX_VALUE, Arrays.asList("CatA"), EnumSet.noneOf(FindFlag.class));
+        assertEquals(39, entries.size());
+      }
+    });
+  }
+  
+  @Test
+  public void testMultiCatKeyManyDocs() throws Exception {
+    this.withResourceDxl("/dxl/testMultiCatView", database -> {
+      // Create a bunch of docs so that the category returns a good deal of data
+      for(int i = 0; i < 100; i++) {
+        createCategoryDocs(database);
+      }
+      
+      DominoCollection dc = database.openCollection("MultipleValuesAsSeparateEntries").get();
+      
+      Set<Integer> noteIds = new HashSet<>();
+      // Make sure two query variants end up with the same count
+      {
+        CollectionSearchQuery searchQuery =
+            dc.query().readUNID()
+              .readColumnValues()
+              .readSpecialValues(SpecialValue.INDEXPOSITION);
+        List<CollectionEntry> entries = searchQuery.collectEntriesByKey(0, 2000, Arrays.asList("CatA"), EnumSet.noneOf(FindFlag.class));
+        assertEquals(2000, entries.size());
+        entries.forEach(entry -> noteIds.add(entry.getNoteID()));
+      }
+      {
+        CollectionSearchQuery searchQuery =
+            dc.query().readUNID()
+              .readColumnValues()
+              .readSpecialValues(SpecialValue.INDEXPOSITION);
+        List<CollectionEntry> entries = searchQuery.collectEntriesByKey(0, Integer.MAX_VALUE, Arrays.asList("CatA"), EnumSet.noneOf(FindFlag.class));
+        assertEquals(3900, entries.size());
+      }
+      
+      // Make sure CatB has the same docs
+      {
+        CollectionSearchQuery searchQuery =
+            dc.query().readUNID()
+              .readColumnValues()
+              .readSpecialValues(SpecialValue.INDEXPOSITION);
+        List<CollectionEntry> entries = searchQuery.collectEntriesByKey(0, 2000, Arrays.asList("CatB"), EnumSet.noneOf(FindFlag.class));
+        assertEquals(2000, entries.size());
+        Set<Integer> noteIds2 = new HashSet<>();
+        entries.forEach(entry -> noteIds2.add(entry.getNoteID()));
+        assertEquals(noteIds, noteIds2);
+      }
+      
+      // Make one more document
+      Document doc = database.createDocument();
+      doc.replaceItemValue("Form", "ViewCatTest");
+      doc.replaceItemValue("Category1", "Dessert");
+      doc.replaceItemValue("Category2", "Water-thin mint");
+      doc.save();
+      
+      // Make sure the two queries have the same count still
+      {
+        CollectionSearchQuery searchQuery =
+            dc.query().readUNID()
+              .direction(Navigate.NEXT_SELECTED)
+              .readColumnValues()
+              .readSpecialValues(SpecialValue.INDEXPOSITION);
+        List<CollectionEntry> entries = searchQuery.collectEntriesByKey(0, 2000, Arrays.asList("CatA"), EnumSet.noneOf(FindFlag.class));
+        assertEquals(2000, entries.size());
+      }
+      {
+        CollectionSearchQuery searchQuery =
+            dc.query().readUNID()
+              .direction(Navigate.NEXT_SELECTED)
+              .readColumnValues()
+              .readSpecialValues(SpecialValue.INDEXPOSITION);
+        List<CollectionEntry> entries = searchQuery.collectEntriesByKey(0, Integer.MAX_VALUE, Arrays.asList("CatA"), EnumSet.noneOf(FindFlag.class));
+        assertEquals(3900, entries.size());
+      }
+    });
+  }
+  
+  private void createCategoryDocs(Database database) {
+    int total = 0;
+    for(char i = 'A'; i <= 'Z'; i +=2) {
+      for(int j = 1; j < 40; j++) {
+        Document doc = database.createDocument();
+        doc.replaceItemValue("Form", "ViewCatTest");
+        doc.replaceItemValue("Category1", "Cat" + i);
+        doc.replaceItemValue("Category2", "Cat"+ (char)(i+1));
+        doc.save();
+        if(++total > 500) {
+          return;
+        }
+      }
+    }
   }
 }

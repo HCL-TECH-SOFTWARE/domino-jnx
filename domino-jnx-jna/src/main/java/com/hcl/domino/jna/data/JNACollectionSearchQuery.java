@@ -35,7 +35,6 @@ import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
-import com.hcl.domino.commons.views.FindFlag;
 import com.hcl.domino.commons.views.ReadMask;
 import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.CollectionEntry.SpecialValue;
@@ -43,6 +42,7 @@ import com.hcl.domino.data.CollectionSearchQuery;
 import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.FTQuery;
+import com.hcl.domino.data.FindFlag;
 import com.hcl.domino.data.Navigate;
 import com.hcl.domino.dql.DQL.DQLTerm;
 import com.hcl.domino.exception.ObjectDisposedException;
@@ -511,6 +511,82 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 			}
 		});
 	}
+	
+    @Override
+    public <T> T buildByKey(int skip, int count, List<Object> key, Collection<FindFlag> findFlags,
+        CollectionEntryProcessor<T> processor) {
+      JNADominoCollection collection = (JNADominoCollection) getParent();
+      JNADominoCollectionAllocations collectionAllocations =
+          (JNADominoCollectionAllocations) collection.getAdapter(APIObjectAllocations.class);
+
+      ShortByReference updateFiltersFlags = new ShortByReference();
+      Navigate directionToUse =
+          prepareCollectionReadRestrictions(collectionAllocations, updateFiltersFlags);
+
+      if (directionToUse == Navigate.CURRENT && count > 1) {
+        // prevent reading too many entries if navigation is set to just read the current entry
+        count = 1;
+      }
+
+      final short fUpdateFiltersFlagsVal = updateFiltersFlags.getValue();
+      final int fCount = count;
+
+      return LockUtil.lockHandle(collectionAllocations.getCollectionHandle(),
+          (collectionHandleByVal) -> {
+            while (true) {
+              if (fUpdateFiltersFlagsVal != 0) {
+                // for remote databases, push IDTable changes via NRPC
+
+                short result =
+                    NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, fUpdateFiltersFlagsVal);
+                NotesErrorUtils.checkResult(result);
+              }
+
+              JNADominoCollection.JNACollectionEntryProcessor<T> jnaProcessor =
+                  new JNADominoCollection.JNACollectionEntryProcessor<T>() {
+                    int entriesRead = 0;
+
+                    @Override
+                    public T start() {
+                      entriesRead = 0;
+                      return processor.start();
+                    }
+
+                    @Override
+                    public Action entryRead(T result, CollectionEntry entry) {
+                      Action action = processor.entryRead(result, entry);
+                      entriesRead++;
+
+                      if (entriesRead >= fCount) {
+                        return Action.Stop;
+                      } else {
+                        return action;
+                      }
+                    }
+
+                    @Override
+                    public T end(T result) {
+                      return processor.end(result);
+                    }
+
+                  };
+
+              int indexModStart = collection.getIndexModifiedSequenceNo();
+
+              
+              T result = collection.getAllEntriesByKey(findFlags, m_readMask, jnaProcessor, key.toArray());
+
+              int indexModEnd = collection.getIndexModifiedSequenceNo();
+
+              if (indexModStart != indexModEnd) {
+                // restart lookup, index changed
+                collection.refresh();
+                continue;
+              }
+              return result;
+            }
+          });
+    }
 
 	/**
 	 * Makes sure that the navigation rule respects expanded entries
@@ -679,6 +755,29 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 			}
 		});
 	}
+	
+    @Override
+    public List<CollectionEntry> collectEntriesByKey(int skip, int count, List<Object> key,
+        Collection<FindFlag> findFlags) {
+      return buildByKey(skip, count, key, findFlags, new CollectionEntryProcessor<List<CollectionEntry>>() {
+
+        @Override
+        public List<CollectionEntry> start() {
+          return new ArrayList<>();
+        }
+
+        @Override
+        public Action entryRead(List<CollectionEntry> result, CollectionEntry entry) {
+          result.add(entry);
+          return Action.Continue;
+        }
+
+        @Override
+        public List<CollectionEntry> end(List<CollectionEntry> result) {
+          return result;
+        }
+      });
+    }
 
 	@Override
 	public int size() {
