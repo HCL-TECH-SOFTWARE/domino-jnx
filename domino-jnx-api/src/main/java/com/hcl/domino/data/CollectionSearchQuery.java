@@ -490,6 +490,26 @@ public interface CollectionSearchQuery extends SearchQuery {
    * @return result
    */
   <T> T build(int skip, int count, CollectionEntryProcessor<T> processor);
+  
+  /**
+   * Build a result out of the entries matching a given key.
+   * 
+   * <p>This method is incompatible with several other query parameters, in
+   * particular the {@code selectBy*} and {@code startAt*} methods.</p>
+   * 
+   * @param <T> the final result type of {@code processor}
+   * @param skip      paging offset
+   * @param count     paging count
+   * @param key the key values to query by
+   * @param findFlags a collection of {@link FindFlag} values to control key matching
+   * @param processor a processor called for each entry
+   * @return the final result of {@code processor}
+   * @implNote It is likely that this method will use a different path from other building
+   *           methods. Specifically, it is likely that this will use {@code NIFFindByKey*}
+   *           functions instead of {@code NIFReadEntries*}.
+   * @since 1.52.0
+   */
+  <T> T buildByKey(int skip, int count, List<Object> key, Collection<FindFlag> findFlags, CollectionEntryProcessor<T> processor);
 
   /**
    * Collect all {@link CollectionEntry} objects as list
@@ -508,6 +528,26 @@ public interface CollectionSearchQuery extends SearchQuery {
    * @param collection collection to add entries
    */
   void collectEntries(int skip, int count, Collection<CollectionEntry> collection);
+  
+  /**
+   * Build a result out of the entries matching a given key.
+   * 
+   * <p>This method is incompatible with several other query parameters, in
+   * particular the {@code selectBy*} and {@code startAt*} methods.</p>
+   * 
+   * @param <T> the final result type of {@code processor}
+   * @param skip      paging offset
+   * @param count     paging count
+   * @param key the key values to query by
+   * @param findFlags a collection of {@link FindFlag} values to control key matching
+   * @param processor a processor called for each entry
+   * @return the final result of {@code processor}
+   * @implNote It is likely that this method will use a different path from other building
+   *           methods. Specifically, it is likely that this will use {@code NIFFindByKey*}
+   *           functions instead of {@code NIFReadEntries*}.
+   * @since 1.52.0
+   */
+  List<CollectionEntry> collectEntriesByKey(int skip, int count, List<Object> key, Collection<FindFlag> findFlags);
 
   // methods to control reading expanded entries in categorized views
 

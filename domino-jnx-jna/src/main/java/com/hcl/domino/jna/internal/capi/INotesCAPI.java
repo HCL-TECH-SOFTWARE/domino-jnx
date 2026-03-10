@@ -716,6 +716,15 @@ public interface INotesCAPI extends Library {
 			IntByReference retNumMatches, ShortByReference retSignalFlags,
 			DHANDLE.ByReference rethBuffer, IntByReference retSequence,
 			NotesCallbacks.NIFFindByKeyProc NIFFindByKeyCallback, NIFFindByKeyContextStruct Ctx);
+
+    short NIFFindByKeyExtended4 (DHANDLE.ByValue hCollection,
+            Memory keyBuffer, int findFlags,
+            int returnFlags,
+            Memory pReserved,
+            NotesCollectionPositionStruct retIndexPos,
+            IntByReference retNumMatches, ShortByReference retSignalFlags,
+            DHANDLE.ByReference rethBuffer, IntByReference retSequence,
+            NotesCallbacks.NIFFindByKeyProc NIFFindByKeyCallback, NIFFindByKeyContextStruct Ctx, int dwTimeOutSec);
 	
 	short NIFFindByKey(DHANDLE.ByValue hCollection, Memory keyBuffer, short findFlags,
 			NotesCollectionPositionStruct retIndexPos, IntByReference retNumMatches);

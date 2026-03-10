@@ -14,9 +14,9 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.commons.views;
+package com.hcl.domino.data;
 
-import java.util.Set;
+import java.util.Collection;
 
 /**
  * These flags are used by {@code JNADominoCollection#findByKey(Set, Object...)}
@@ -187,7 +187,7 @@ public enum FindFlag {
   /** Bitmask of the comparison flags defined above */
   public static short FIND_COMPARE_MASK = 0x08C0;
 
-  public static short toBitMask(final Set<FindFlag> findSet) {
+  public static short toBitMask(final Collection<FindFlag> findSet) {
     int result = 0;
     if (findSet != null) {
       for (final FindFlag currFind : FindFlag.values()) {
@@ -199,7 +199,7 @@ public enum FindFlag {
     return (short) (result & 0xffff);
   }
 
-  public static int toBitMaskInt(final Set<FindFlag> findSet) {
+  public static int toBitMaskInt(final Collection<FindFlag> findSet) {
     int result = 0;
     if (findSet != null) {
       for (final FindFlag currFind : FindFlag.values()) {

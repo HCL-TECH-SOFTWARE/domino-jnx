@@ -51,7 +51,6 @@ import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.commons.util.StringUtil;
-import com.hcl.domino.commons.views.FindFlag;
 import com.hcl.domino.commons.views.ReadMask;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.CollectionEntry;
@@ -65,6 +64,7 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.Find;
+import com.hcl.domino.data.FindFlag;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.Navigate;
 import com.hcl.domino.design.DesignConstants;
@@ -724,7 +724,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     }
   }
 
-  public FindResult findByKey(Set<FindFlag> findFlags, Object... keys) {
+  public FindResult findByKey(Collection<FindFlag> findFlags, Object... keys) {
     checkDisposed();
 
     if (keys == null || keys.length == 0) {
@@ -949,7 +949,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
    * @param findFlags find flags
    * @return true if exact number of matches can be returned
    */
-  private boolean canFindExactNumberOfMatches(Set<FindFlag> findFlags) {
+  private boolean canFindExactNumberOfMatches(Collection<FindFlag> findFlags) {
     if (findFlags.contains(FindFlag.LESS_THAN)) {
       return false;
     } else if (findFlags.contains(FindFlag.GREATER_THAN)) {
@@ -1673,7 +1673,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
    * @param keys lookup keys
    * @return true if method can be used
    */
-  private boolean canUseOptimizedLookupForKeyLookup(Set<FindFlag> findFlags,
+  private boolean canUseOptimizedLookupForKeyLookup(Collection<FindFlag> findFlags,
       Set<ReadMask> returnMask, Object... keys) {
     if (findFlags.contains(FindFlag.GREATER_THAN) || findFlags.contains(FindFlag.LESS_THAN)) {
       // TODO check this with IBM dev; we had crashes like "[0A0F:0002-21A00] PANIC: LookupHandle:
@@ -1724,7 +1724,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
    * @param keys lookup keys
    * @return true if supported
    */
-  private boolean canUseOptimizedLocalKeyLookup(Set<FindFlag> findFlags, Set<ReadMask> returnMask,
+  private boolean canUseOptimizedLocalKeyLookup(Collection<FindFlag> findFlags, Set<ReadMask> returnMask,
       Object... keys) {
     JNADominoClient client = (JNADominoClient) getParentDominoClient();
     if (Boolean.TRUE.equals(client.getCustomValue("collection_optimizedlookup"))) { // disabled //$NON-NLS-1$
@@ -1968,7 +1968,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
    * @return lookup result
    * @param <T> type of lookup result object
    */
-  public <T> T getAllEntriesByKey(Set<FindFlag> findFlags, Set<ReadMask> returnMask,
+  public <T> T getAllEntriesByKey(Collection<FindFlag> findFlags, Set<ReadMask> returnMask,
       JNACollectionEntryProcessor<T> callback, Object... keys) {
     checkDisposed();
 
@@ -2177,7 +2177,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
    * @return lookup result
    * @param <T> type of lookup result object
    */
-  private <T> T getAllEntriesByKeyLocally(Set<FindFlag> findFlags, Set<ReadMask> returnMask,
+  private <T> T getAllEntriesByKeyLocally(Collection<FindFlag> findFlags, Set<ReadMask> returnMask,
       final JNACollectionEntryProcessor<T> callback, Object... keys) {
     final NIFFindByKeyContextStruct ctx = NIFFindByKeyContextStruct.newInstance();
 
