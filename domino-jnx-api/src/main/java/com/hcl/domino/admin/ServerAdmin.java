@@ -486,5 +486,13 @@ public interface ServerAdmin {
    * @since 1.44.0
    */
   void setDefaultServerStatusLine(ServerStatusLine statusLine);
+  
+  /**
+   * Signal to the surrounding runtime to allow pre-emption of compute-bound
+   * tasks in a running addin.
+   * 
+   * @since 1.53.0
+   */
+  void preemptOccasionally();
 
 }
