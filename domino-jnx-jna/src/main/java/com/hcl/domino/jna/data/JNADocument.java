@@ -969,10 +969,11 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
         return;
       }
 
+      NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
+      
       while (true) {
         IntByReference retNextValueLen = new IntByReference();
 
-        NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
         itemBlockIdByVal.pool = itemBlockId.getPool();
         itemBlockIdByVal.block = itemBlockId.getBlock();
 

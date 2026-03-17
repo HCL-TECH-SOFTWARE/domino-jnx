@@ -65,6 +65,10 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.ShortByReference;
 
 public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Item {
+  // Stash per-thread NotesBlockIdStruct instances to cut down on JNA Structure
+  //   overhead in intense loops
+  private static final ThreadLocal<NotesBlockIdStruct.ByValue> THREAD_BLOCKID = ThreadLocal.withInitial(NotesBlockIdStruct.ByValue::newInstance);
+  
 	private JNADocument m_parentDoc;
 	private boolean m_itemFlagsLoaded;
 	private int m_itemFlags;
@@ -171,7 +175,7 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
         ShortByReference retDataType = new ShortByReference();
         IntByReference retValueLen = new IntByReference();
 
-        NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
+        NotesBlockIdStruct.ByValue itemBlockIdByVal = THREAD_BLOCKID.get();
         itemBlockIdByVal.pool = m_itemBlockId.getPool();
         itemBlockIdByVal.block = m_itemBlockId.getBlock();
 
@@ -305,12 +309,16 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
       checkDisposed();
 
       try (DisposableMemory returnBuf = new DisposableMemory(60 * 1024)) {
-        NotesBlockIdStruct.ByValue blockId = NotesBlockIdStruct.ByValue.newInstance();
+        // Preload these, as they may use THREAD_BLOCKID
+        short typeValue = (short)getTypeValue();
+        int valueLength = getValueLength();
+        
+        NotesBlockIdStruct.ByValue blockId = THREAD_BLOCKID.get();
         blockId.block = m_valueBlockId.getBlock();
         blockId.pool = m_valueBlockId.getPool();
         blockId.write();
-        short txtLengthAsShort = NotesCAPI.get().NSFItemConvertValueToText((short) getTypeValue(),
-            blockId, getValueLength(), returnBuf, (short) (60 * 1024), separator);
+        short txtLengthAsShort = NotesCAPI.get().NSFItemConvertValueToText(typeValue,
+            blockId, valueLength, returnBuf, (short) (60 * 1024), separator);
         int txtLength = txtLengthAsShort & 0xffff;
         if (txtLength == 0) {
           return ""; //$NON-NLS-1$
@@ -335,7 +343,7 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 				doc.removeItem(itemName);
 			}
 		}
-		NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
+		NotesBlockIdStruct.ByValue itemBlockIdByVal = THREAD_BLOCKID.get();
 		itemBlockIdByVal.pool = m_itemBlockId.getPool();
 		itemBlockIdByVal.block = m_itemBlockId.getBlock();
 
@@ -362,7 +370,7 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 		
 		Memory newItemNameMem = NotesStringUtils.toLMBCS(newItemName, true);
 
-		NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
+		NotesBlockIdStruct.ByValue itemBlockIdByVal = THREAD_BLOCKID.get();
 		itemBlockIdByVal.pool = m_itemBlockId.getPool();
 		itemBlockIdByVal.block = m_itemBlockId.getBlock();
 
@@ -459,7 +467,7 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 
 	  loadItemNameAndFlags();
 
-	  NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
+	  NotesBlockIdStruct.ByValue itemBlockIdByVal = THREAD_BLOCKID.get();
 	  itemBlockIdByVal.pool = m_itemBlockId.getPool();
 	  itemBlockIdByVal.block = m_itemBlockId.getBlock();
 
@@ -480,7 +488,7 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 
 		loadItemNameAndFlags();
 
-		NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
+		NotesBlockIdStruct.ByValue itemBlockIdByVal = THREAD_BLOCKID.get();
 		itemBlockIdByVal.pool = m_itemBlockId.getPool();
 		itemBlockIdByVal.block = m_itemBlockId.getBlock();
 
@@ -648,7 +656,7 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 	public Item convertRFC822TextItem() {
 		checkDisposed();
 
-		NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
+		NotesBlockIdStruct.ByValue itemBlockIdByVal = THREAD_BLOCKID.get();
 		itemBlockIdByVal.pool = m_itemBlockId.getPool();
 		itemBlockIdByVal.block = m_itemBlockId.getBlock();
 
@@ -678,7 +686,7 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 	public void remove() {
 		checkDisposed();
 
-		NotesBlockIdStruct.ByValue itemBlockIdByVal = NotesBlockIdStruct.ByValue.newInstance();
+		NotesBlockIdStruct.ByValue itemBlockIdByVal = THREAD_BLOCKID.get();
 		itemBlockIdByVal.pool = m_itemBlockId.getPool();
 		itemBlockIdByVal.block = m_itemBlockId.getBlock();
 
