@@ -170,15 +170,15 @@ public class MimeUtil {
    * @since 1.53.0
    */
   public static Session getMailSession() {
-    Session set = mailSession;
-    if(set != null) {
+    synchronized (mailLock) {
+      Session set = mailSession;
+      if (set != null) {
+        return set;
+      }
+
+      set = mailSession = Session.getInstance(System.getProperties(), null);
       return set;
     }
-    
-    synchronized(mailLock) {
-      set = mailSession = Session.getInstance(System.getProperties(), null);
-    }
-    return set;
   }
   
   /**
