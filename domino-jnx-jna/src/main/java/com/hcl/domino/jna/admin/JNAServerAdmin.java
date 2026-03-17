@@ -647,6 +647,11 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
     }
     return new JNADirectoryAssistance(serverName, dirAssistDBName);
   }
+  
+  @Override
+  public void preemptOccasionally() {
+    NotesCAPI.get().OSPreemptOccasionally();
+  }
 
 
 }

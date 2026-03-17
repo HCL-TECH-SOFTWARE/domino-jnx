@@ -32,7 +32,7 @@ import com.hcl.domino.commons.mime.MimeBodyPartAttachment;
 import com.hcl.domino.commons.org.apache.commons.mail.EmailAttachment;
 import com.hcl.domino.commons.org.apache.commons.mail.EmailException;
 import com.hcl.domino.commons.org.apache.commons.mail.HtmlEmail;
-import com.hcl.domino.commons.util.MimeTypes;
+import com.hcl.domino.commons.util.MimeUtil;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
@@ -277,7 +277,7 @@ public class MimeDataDocumentValueConverter implements DocumentValueConverter {
 				if (StringUtil.isEmpty(contentType)) {
 					String fileName = getName();
 					if (!StringUtil.isEmpty(fileName)) {
-						contentType = MimeTypes.getMimeType(fileName);
+						contentType = MimeUtil.getMimeType(fileName);
 					}
 				}
 				
