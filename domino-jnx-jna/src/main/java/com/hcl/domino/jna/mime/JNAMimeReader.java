@@ -34,6 +34,7 @@ import java.util.Set;
 
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.gc.IAPIObject;
+import com.hcl.domino.commons.util.MimeUtil;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.exception.IncompatibleImplementationException;
@@ -154,8 +155,7 @@ public class JNAMimeReader extends JNAMimeBase implements MimeReader {
 				try (InputStream fIn = Files.newInputStream(tmpFile);
 						BufferedInputStream bufIn = new BufferedInputStream(fIn)) {
 					
-					Properties props = System.getProperties(); 
-					jakarta.mail.Session mailSession = jakarta.mail.Session.getInstance(props, null);
+					jakarta.mail.Session mailSession = MimeUtil.getMailSession();
 					MimeMessage message = new MimeMessage(mailSession, bufIn);
 					return message;
 				}

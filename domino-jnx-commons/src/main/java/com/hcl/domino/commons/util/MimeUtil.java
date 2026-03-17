@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jakarta.mail.Session;
 
 /**
  * Helper class to 'guess' a mime type by a file extension
@@ -40,6 +41,9 @@ public class MimeUtil {
   private static Map<String, String> m_extensionForMimeType;
   private static volatile boolean m_initialized;
   private static final String mimeTypeFileName = "mime.types"; //$NON-NLS-1$
+  
+  private static Session mailSession;
+  private static final Object mailLock = new Object();
 
   /**
    * The method tries to find an extension for the specified mimetype
@@ -154,5 +158,37 @@ public class MimeUtil {
         }
       }
     }
+  }
+  
+  /**
+   * Retrieves a shared Jakarta Mail {@link Session} object
+   * used for MIME operations, creating a new one based on the
+   * system properties and a null authenticator if not yet
+   * configured.
+   * 
+   * @return a shared default {@link Session}
+   * @since 1.53.0
+   */
+  public static Session getMailSession() {
+    Session set = mailSession;
+    if(set != null) {
+      return set;
+    }
+    
+    synchronized(mailLock) {
+      set = mailSession = Session.getInstance(System.getProperties(), null);
+    }
+    return set;
+  }
+  
+  /**
+   * Sets the Jakarta Mail {@link Session} to use for MIME operations.
+   * 
+   * @param session the Jakarta {@link Session} to use, or {@code null}
+   *        to un-set an existing value
+   * @since 1.53.0
+   */
+  public static void setMailSession(Session session) {
+    mailSession = session;
   }
 }
