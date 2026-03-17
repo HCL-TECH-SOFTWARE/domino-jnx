@@ -33,8 +33,8 @@ import java.util.logging.Logger;
  *
  * @author Karsten Lehmann
  */
-public class MimeTypes {
-  private static final Logger log = Logger.getLogger(MimeTypes.class.getPackage().getName());
+public class MimeUtil {
+  private static final Logger log = Logger.getLogger(MimeUtil.class.getPackage().getName());
 
   private static Map<String, String> m_mimeTypesForExtension;
   private static Map<String, String> m_extensionForMimeType;
@@ -48,23 +48,23 @@ public class MimeTypes {
    * @return extension or <code>null</code> if unknown mimetype
    */
   public static String getExtension(final String mimeType) {
-    MimeTypes.hashMimeTypes();
+    MimeUtil.hashMimeTypes();
 
-    String extension = MimeTypes.m_extensionForMimeType.get(mimeType);
+    String extension = MimeUtil.m_extensionForMimeType.get(mimeType);
     if (extension != null) {
       return extension;
     } else {
       // handle something like text/html
       int iPos = mimeType.indexOf(" "); //$NON-NLS-1$
       if (iPos > -1) {
-        extension = MimeTypes.m_extensionForMimeType.get(mimeType.substring(0, iPos).trim());
+        extension = MimeUtil.m_extensionForMimeType.get(mimeType.substring(0, iPos).trim());
         if (extension != null) {
           return extension;
         }
       }
       iPos = mimeType.indexOf(";"); //$NON-NLS-1$
       if (iPos > -1) {
-        extension = MimeTypes.m_extensionForMimeType.get(mimeType.substring(0, iPos).trim());
+        extension = MimeUtil.m_extensionForMimeType.get(mimeType.substring(0, iPos).trim());
         if (extension != null) {
           return extension;
         }
@@ -81,16 +81,16 @@ public class MimeTypes {
    * @return mimetype, if unknown we return "application/octet-stream"
    */
   public static String getMimeType(final String fileUrl) {
-    MimeTypes.hashMimeTypes();
+    MimeUtil.hashMimeTypes();
 
     final int iPos = fileUrl.lastIndexOf("."); //$NON-NLS-1$
     if (iPos > -1) {
-      final String mimeType = MimeTypes.m_mimeTypesForExtension.get(fileUrl.substring(iPos + 1));
+      final String mimeType = MimeUtil.m_mimeTypesForExtension.get(fileUrl.substring(iPos + 1));
       if (mimeType != null) {
         return mimeType;
       }
     }
-    final String mimeType = MimeTypes.m_mimeTypesForExtension.get(fileUrl.substring(iPos + 1));
+    final String mimeType = MimeUtil.m_mimeTypesForExtension.get(fileUrl.substring(iPos + 1));
     if (mimeType != null) {
       return mimeType;
     }
@@ -103,15 +103,15 @@ public class MimeTypes {
   }
 
   private static void hashMimeTypes() {
-    if (!MimeTypes.m_initialized) {
-      synchronized (MimeTypes.class) {
-        if (!MimeTypes.m_initialized) {
-          MimeTypes.m_mimeTypesForExtension = new HashMap<>();
-          MimeTypes.m_extensionForMimeType = new HashMap<>();
+    if (!MimeUtil.m_initialized) {
+      synchronized (MimeUtil.class) {
+        if (!MimeUtil.m_initialized) {
+          MimeUtil.m_mimeTypesForExtension = new HashMap<>();
+          MimeUtil.m_extensionForMimeType = new HashMap<>();
 
           BufferedReader bReader = null;
           try {
-            final InputStream in = MimeTypes.class.getResourceAsStream(MimeTypes.mimeTypeFileName);
+            final InputStream in = MimeUtil.class.getResourceAsStream(MimeUtil.mimeTypeFileName);
             if (in == null) {
               throw new IllegalStateException("Resource mime.types not found");
             }
@@ -130,18 +130,18 @@ public class MimeTypes {
                     final String[] currExtensionParts = currExtensions.split(" "); //$NON-NLS-1$
 
                     // use first extension as primary one
-                    MimeTypes.m_extensionForMimeType.put(currMimeType, currExtensionParts[0]);
+                    MimeUtil.m_extensionForMimeType.put(currMimeType, currExtensionParts[0]);
 
                     for (final String currExt : currExtensionParts) {
-                      MimeTypes.m_mimeTypesForExtension.put(currExt, currMimeType);
+                      MimeUtil.m_mimeTypesForExtension.put(currExt, currMimeType);
                     }
                   }
                 }
               }
             }
           } catch (final IOException e) {
-            MimeTypes.log.log(Level.SEVERE,
-                MessageFormat.format("Could not read mime types from file {0}", MimeTypes.mimeTypeFileName), e);
+            MimeUtil.log.log(Level.SEVERE,
+                MessageFormat.format("Could not read mime types from file {0}", MimeUtil.mimeTypeFileName), e);
           } finally {
             if (bReader != null) {
               try {
@@ -150,7 +150,7 @@ public class MimeTypes {
               }
             }
           }
-          MimeTypes.m_initialized = true;
+          MimeUtil.m_initialized = true;
         }
       }
     }
