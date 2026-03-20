@@ -39,6 +39,7 @@ import com.hcl.domino.commons.design.DefaultActionBar;
 import com.hcl.domino.commons.design.action.DefaultActionBarAction;
 import com.hcl.domino.commons.json.AbstractJsonSerializer;
 import com.hcl.domino.commons.json.JsonUtil;
+import com.hcl.domino.data.AutoCloseableDocument;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoDateRange;
@@ -325,20 +326,25 @@ public class VertxJsonSerializer extends AbstractJsonSerializer {
             case TYPE_MIME_PART:
               // TODO read inline?
               // TODO rationalize multiple body types
-              final MimeMessage mime = doc.getParentDatabase()
-                  .getParentDominoClient()
-                  .getMimeReader()
-                  .readMIME(doc, propName, EnumSet.of(ReadMimeDataType.MIMEHEADERS));
-              String content;
-              try (InputStream is = mime.getInputStream()) {
-                content = IOUtils.toString(is, StandardCharsets.UTF_8);
-              } catch (IOException | MessagingException e) {
-                throw new RuntimeException(e);
-              }
-              if (content == null) {
-                result.putNull(propName);
-              } else {
-                result.put(propName, content.toString());
+              
+              // Re-open the doc to avoid trouble we've seen with crashing in
+              //   item iteration in some cases
+              try(AutoCloseableDocument doc2 = doc.getParentDatabase().getDocumentById(doc.getNoteID()).get().autoClosable()) {
+                final MimeMessage mime = doc.getParentDatabase()
+                    .getParentDominoClient()
+                    .getMimeReader()
+                    .readMIME(doc2, propName, EnumSet.of(ReadMimeDataType.MIMEHEADERS));
+                String content;
+                try (InputStream is = mime.getInputStream()) {
+                  content = IOUtils.toString(is, StandardCharsets.UTF_8);
+                } catch (IOException | MessagingException e) {
+                  throw new RuntimeException(e);
+                }
+                if (content == null) {
+                  result.putNull(propName);
+                } else {
+                  result.put(propName, content.toString());
+                }
               }
               break;
             case TYPE_HTML:
