@@ -494,5 +494,16 @@ public interface ServerAdmin {
    * @since 1.53.0
    */
   void preemptOccasionally();
+  
+  /**
+   * Signals to the runtime that the current addin should be idle for a set
+   * amount of time, also determining whether the addin should terminate.
+   * 
+   * @param millis time, in milliseconds, to delay processing, giving other
+   *               tasks a chance to process
+   * @return {@code true} if the addin should terminate; {@code false} otherwise
+   * @since 1.53.4
+   */
+  boolean addinIdleDelay(int millis);
 
 }

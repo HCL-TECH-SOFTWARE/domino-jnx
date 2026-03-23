@@ -653,5 +653,9 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
     NotesCAPI.get().OSPreemptOccasionally();
   }
 
+  @Override
+  public boolean addinIdleDelay(int millis) {
+    return NotesCAPI.get().AddInIdleDelay(millis);
+  }
 
 }
