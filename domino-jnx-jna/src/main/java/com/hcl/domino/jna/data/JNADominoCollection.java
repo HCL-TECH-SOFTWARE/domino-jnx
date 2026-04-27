@@ -2245,11 +2245,12 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
     short result =
         LockUtil.lockHandle(getAllocations().getCollectionHandle(), (hCollectionByVal) -> {
-          return NotesCAPI.get().NIFFindByKeyExtended3(hCollectionByVal,
+          return NotesCAPI.get().NIFFindByKeyExtended4(hCollectionByVal,
               keyBuffer, findFlagsAsInt,
-              returnMaskToUseAsInt, retIndexPos, retNumMatches, retSignalFlags,
+              returnMaskToUseAsInt, null,
+              retIndexPos, retNumMatches, retSignalFlags,
               rethBuffer,
-              retSequence, nifCallback, ctx);
+              retSequence, nifCallback, ctx, 0);
         });
 
     if (invocationEx[0] != null) {

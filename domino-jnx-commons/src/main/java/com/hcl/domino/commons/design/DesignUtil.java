@@ -256,7 +256,7 @@ public enum DesignUtil {
             },
             doc -> {
               final String flags = doc.getAsText(NotesConstants.DESIGN_FLAGS, ' ');
-              short lang = doc.get(NotesConstants.ASSIST_TYPE_ITEM, short.class, (short) 0);
+              short lang = (short)doc.getAsInt(NotesConstants.ASSIST_TYPE_ITEM, 0);
 
               if (lang == RichTextConstants.SIG_ACTION_FORMULAONLY) {
                 lang = RichTextConstants.SIG_ACTION_FORMULA;
