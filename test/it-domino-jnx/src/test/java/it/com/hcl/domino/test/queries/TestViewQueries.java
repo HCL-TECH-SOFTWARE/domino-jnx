@@ -54,6 +54,8 @@ import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoCollection.Direction;
+import com.hcl.domino.data.FTIndex;
+import com.hcl.domino.data.FTQuery;
 import com.hcl.domino.data.Find;
 import com.hcl.domino.data.FindFlag;
 import com.hcl.domino.data.Navigate;
@@ -417,6 +419,40 @@ public class TestViewQueries extends AbstractNotesRuntimeTest {
               .collectEntries(0, 4000);
 
       Assertions.assertEquals(25, entries.size());
+    });
+  }
+
+  @Test
+  public void testLookupFtSearch() throws Exception {
+    this.withViewQueryTestDb(database -> {
+      
+      for(int i = 0; i < 10; i++) {
+        Document doc = database.createDocument();
+        doc.replaceItemValue("Lastname", "TestLastName" + i);
+        doc.save();
+      }
+      
+      final DominoCollection view = database.openCollection("Lastname Firstname Flat").get();
+      
+      database.ftIndex(EnumSet.noneOf(FTIndex.class));
+      
+      // Make sure all 10 entries show up
+      {
+        List<CollectionEntry> entries = view.query()
+          .selectByKey(Collections.singletonList("TestLastName"), false)
+          .collectEntries(0, Integer.MAX_VALUE);
+        assertEquals(10, entries.size());
+      }
+      
+      // Now FT search for one and ensure it's found
+      {
+        view.ftSearch("TestLastName3", EnumSet.noneOf(FTQuery.class));
+        List<CollectionEntry> entries = view.query()
+            .selectByKey(Collections.singletonList("TestLastName"), false)
+            .collectEntries(0, Integer.MAX_VALUE);
+          assertEquals(1, entries.size());
+      }
+      
     });
   }
 

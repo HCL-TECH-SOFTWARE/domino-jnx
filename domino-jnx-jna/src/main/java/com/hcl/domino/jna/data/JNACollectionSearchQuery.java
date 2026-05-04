@@ -940,6 +940,10 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 		//return update flags to push the changed idtables to remote DBs
 		updateFiltersFlags.setValue(updateFiltersFlagsVal);
 		
+		if(((JNADominoCollection)this.getParent()).isFtSearched()) {
+          directionToUse = Navigate.NEXT_HIT;
+		}
+		
 		//return the direction that is used for the actual lookup
 		return directionToUse;
 	}

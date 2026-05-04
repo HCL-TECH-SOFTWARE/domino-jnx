@@ -63,6 +63,7 @@ import com.hcl.domino.data.structures.CollectionData;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.FTQuery;
 import com.hcl.domino.data.Find;
 import com.hcl.domino.data.FindFlag;
 import com.hcl.domino.data.IDTable;
@@ -2516,6 +2517,22 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     }
     NotesErrorUtils.checkResult(result);
     return foundPos.toPosString();
+  }
+  
+  private boolean ftSearched = false;
+  
+  public boolean isFtSearched() {
+    return ftSearched;
+  }
+  
+  @Override
+  public void ftSearch(String ftSearch, Collection<FTQuery> options) {
+    LockUtil.lockHandle(getAllocations().getCollectionHandle(), (hColByVal) -> {
+      JNADatabase database = (JNADatabase)this.getParentDatabase();
+      database.queryFTIndex(ftSearch, 65535, options, null, 0, 65535, hColByVal);
+      ftSearched = true;
+      return null;
+    });
   }
 
 

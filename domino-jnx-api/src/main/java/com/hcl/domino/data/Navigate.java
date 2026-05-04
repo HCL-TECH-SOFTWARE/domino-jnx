@@ -54,11 +54,11 @@ public enum Navigate {
   /** next expanded document */
   NEXT_EXPANDED_DOCUMENT(39),
   // /** next search hit */
-  // NEXT_HIT(29),
+  NEXT_HIT(29),
   // /** next selected search hit */
-  // NEXT_SELECTED_HIT(35),
+  NEXT_SELECTED_HIT(35),
   // /** next unread search hit */
-  // NEXT_UNREAD_HIT(37),
+  NEXT_UNREAD_HIT(37),
   /** next category */
   NEXT_CATEGORY(41),
   /** next document */

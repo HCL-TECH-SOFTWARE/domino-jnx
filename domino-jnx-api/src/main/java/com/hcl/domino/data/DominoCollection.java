@@ -169,4 +169,13 @@ public interface DominoCollection extends IAdaptable, DominoClientDescendant {
   void resetViewSortingToDefault();
 
   void resortView(String progColumnName, Direction direction);
+  
+  /**
+   * Performs a full-text search on the collection contents.
+   * 
+   * @param ftSearch the full-text search query to evaluate
+   * @param options search options
+   * @since 1.54.0
+   */
+  void ftSearch(String ftSearch, Collection<FTQuery> options);
 }
