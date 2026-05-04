@@ -2621,10 +2621,14 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		return new JNADQLQueryResult(this, query, idTable, explainTxt, t1-t0);
 	}
+    @Override
+    public FTQueryResult queryFTIndex(String query, int maxResults, Set<FTQuery> options,
+            Set<Integer> filterIds, int start, int count) {
+      return queryFTIndex(query, maxResults, options, filterIds, start, count, null);
+    }
 	
-	@Override
-	public FTQueryResult queryFTIndex(String query, int maxResults, Set<FTQuery> options,
-			Set<Integer> filterIds, int start, int count) {
+	public FTQueryResult queryFTIndex(String query, int maxResults, Collection<FTQuery> options,
+	    Collection<Integer> filterIds, int start, int count, DHANDLE.ByValue hColl) {
 		
 		checkDisposed();
 
@@ -2644,6 +2648,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			searchOptionsToUse.add(FTQuery.REFINE);
 		}
 		int searchOptionsBitMask = DominoEnumUtil.toBitField(FTQuery.class, searchOptionsToUse);
+		if(hColl != null) {
+		  searchOptionsBitMask |= 0x00000001; // FT_SEARCH_SET_COLL;
+		}
 		
 		short limitAsShort = (short) (maxResults & 0xffff); 
 		
@@ -2686,6 +2693,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			hNamesList = null;
 		}
 
+		int fSearchOptionsBitMask = searchOptionsBitMask;
 		return LockUtil.lockHandles(getAllocations().getDBHandle(), filterIDTableHandle, hNamesList, (hDbByVal,
 				filterIDTableHandleByVal, hNamesListByVal) -> {
 			long t0=System.currentTimeMillis();
@@ -2702,13 +2710,12 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			DHANDLE.ByReference rethStrings = DHANDLE.newInstanceByReference();
 			IntByReference retNumHits = new IntByReference();
 			short arg = 0;
-			DHANDLE.ByValue hColl = null;
 
 			short countAsShort = (short) count;
 			
 			result = NotesCAPI.get().FTSearchExt(hDbByVal, 
 					rethSearch, hColl,
-					queryLMBCS, searchOptionsBitMask,
+					queryLMBCS, fSearchOptionsBitMask,
 					limitAsShort,
 					filterIDTableHandleByVal,
 							retNumDocs, rethStrings, rethResults, retNumHits, start, countAsShort, arg, hNamesListByVal);
