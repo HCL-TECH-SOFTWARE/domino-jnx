@@ -34,7 +34,9 @@
     <finalName>${original.artifact.id}</finalName>
     <plugins>
       <plugin>
+      	<groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.5.5</version>
         <configuration>
           <skip>false</skip>
         </configuration>
@@ -42,6 +44,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.8.0</version>
         <executions>
           <execution>
             <phase>package</phase>
