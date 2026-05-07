@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Java and Maven
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'adopt'
@@ -27,7 +27,7 @@ jobs:
           mvn --batch-mode clean install
           cd ..
       - name: Save the POM manipulator
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: multi-version-tool
           path: multi-version-tool/target/multi-version-tool-jar-with-dependencies.jar
@@ -47,10 +47,10 @@ jobs:
             domino: R145
     steps:
       - name: Check out Git repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install Java ${{ matrix.options.jdk }} and Maven
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.options.jdk }}
           distribution: 'adopt'
@@ -60,7 +60,7 @@ jobs:
           server-password: MAVEN_PASSWORD
 
       - name: retrieve the POM manipulator
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: multi-version-tool
 
