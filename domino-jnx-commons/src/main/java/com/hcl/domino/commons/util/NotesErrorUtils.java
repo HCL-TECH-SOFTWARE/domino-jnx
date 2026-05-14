@@ -50,6 +50,7 @@ import com.hcl.domino.commons.errors.errorcodes.ISrvErr;
 import com.hcl.domino.commons.errors.errorcodes.IXmlErr;
 import com.hcl.domino.exception.BadPasswordException;
 import com.hcl.domino.exception.CancelException;
+import com.hcl.domino.exception.CollectionAlreadyExistsException;
 import com.hcl.domino.exception.CompactInProgressException;
 import com.hcl.domino.exception.CompactionRequiredException;
 import com.hcl.domino.exception.CorruptIDFileException;
@@ -342,6 +343,8 @@ public class NotesErrorUtils {
         return Optional.of(new NameTooLongException(s, message));
       case (short)0x1725: // Illegal null parameter passed to security function
         return Optional.of(new SecurityNullParameterException(s, message));
+      case IMiscErr.ERR_FOLD_NAME_DUPLICATE:
+        return Optional.of(new CollectionAlreadyExistsException(s, message));
       default:
         return Optional.of(new DominoException(s, message));
     }
