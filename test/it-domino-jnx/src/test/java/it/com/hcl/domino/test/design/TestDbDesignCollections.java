@@ -22,7 +22,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -41,12 +40,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.CollectionColumn.TotalType;
@@ -71,8 +68,8 @@ import com.hcl.domino.design.SharedColumn;
 import com.hcl.domino.design.View;
 import com.hcl.domino.design.action.ActionBarAction;
 import com.hcl.domino.design.action.ActionContent;
-import com.hcl.domino.design.action.FormulaActionContent;
 import com.hcl.domino.design.action.EventId;
+import com.hcl.domino.design.action.FormulaActionContent;
 import com.hcl.domino.design.action.JavaScriptActionContent;
 import com.hcl.domino.design.action.LotusScriptActionContent;
 import com.hcl.domino.design.action.ScriptEvent;
@@ -116,7 +113,6 @@ import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclEntry;
 import com.hcl.domino.security.AclFlag;
 import com.hcl.domino.security.AclLevel;
-
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 @SuppressWarnings("nls")

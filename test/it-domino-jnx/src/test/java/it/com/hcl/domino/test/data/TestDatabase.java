@@ -52,6 +52,7 @@ import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.Database.EncryptionInfo;
+import com.hcl.domino.exception.CollectionAlreadyExistsException;
 import com.hcl.domino.exception.CompactionRequiredException;
 import com.hcl.domino.exception.NameTooLongException;
 import com.hcl.domino.data.DominoCollectionInfo;
@@ -453,6 +454,14 @@ public class TestDatabase extends AbstractNotesRuntimeTest {
   public void testInalidFolderNames(String folderName) throws Exception {
     withTempDb(database -> {
       assertThrows(NameTooLongException.class, () -> database.createFolder(folderName));
+    });
+  }
+  
+  @Test
+  public void testDuplicateFolderName() throws Exception {
+    withTempDb(database -> {
+      database.createFolder("SomeFolder");
+      assertThrows(CollectionAlreadyExistsException.class, () -> database.createFolder("SomeFolder"));
     });
   }
 }
