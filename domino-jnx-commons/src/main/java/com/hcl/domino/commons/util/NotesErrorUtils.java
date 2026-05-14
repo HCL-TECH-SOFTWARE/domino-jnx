@@ -245,8 +245,14 @@ public class NotesErrorUtils {
     }
 
     final int s = Short.toUnsignedInt(status);
+    String pattern;
+    if(s == result) {
+      pattern = "{0} (error code: 0x{1})";
+    } else {
+      pattern = "{0} (error code: 0x{1}, raw error with all flags: 0x{2})";
+    }
     final String msg = MessageFormat.format(
-        "{0} (error code: 0x{1}, raw error with all flags: 0x{2})",
+        pattern,
         message,
         Integer.toHexString(s) + (isRemoteError ? ", remote server error" : ""), //$NON-NLS-2$
         Integer.toHexString(result));
