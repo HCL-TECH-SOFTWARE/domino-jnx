@@ -38,6 +38,12 @@ public class ServerJavaScriptLibraryImpl extends AbstractScriptLibrary<ServerJav
     // There appears to always be a trailing null
     final byte[] data = GetJavaScriptDataProcessor.instance
         .apply(this.getDocument().getRichTextItem(NotesConstants.SERVER_JAVASCRIPTLIBRARY_CODE));
+
+    // Empty library returns an empty array #508
+    if(data.length == 0) {
+      return ""; //$NON-NLS-1$
+    }
+
     return new String(data, 0, data.length - 1, NativeItemCoder.get().getLmbcsCharset());
   }
   
