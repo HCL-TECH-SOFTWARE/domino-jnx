@@ -103,6 +103,7 @@ public class TestDatabase extends AbstractNotesRuntimeTest {
     final Database database = client.createDatabaseFromTemplate(sourceServerName, sourceFilePath,
         null, tempDest.toString(), Encryption.None);
     Assertions.assertNotNull(database);
+    Assertions.assertFalse(database.isLocallyEncrypted());
 
     try {
       Assertions.assertNotEquals(templateDbReplicaId, database.getReplicaID());
@@ -122,6 +123,51 @@ public class TestDatabase extends AbstractNotesRuntimeTest {
     } finally {
       database.close();
       client.deleteDatabase(null, tempDest.toString());
+    }
+  }
+
+  @Test
+  public void testCreateDbFromTemplateDesignOnly() throws IOException {
+    final DominoClient client = this.getClient();
+
+    final Path fullCopyDbPath = Files.createTempFile("fullCopy", ".nsf");
+    Files.delete(fullCopyDbPath);
+
+    final Path designOnlyDbPath = Files.createTempFile("designOnly", ".nsf");
+    Files.delete(designOnlyDbPath);
+
+    final Database namesDb = client.openDatabase("", "names.nsf");
+
+    Database fullCopyDb = null;
+    Database designOnlyDb = null;
+
+    try {
+      long docCount = namesDb.queryDocuments().getDocuments().count();
+
+      namesDb.close();
+
+      fullCopyDb = client.createDatabaseFromTemplate("", "names.nsf",
+          "", fullCopyDbPath.toString(), Encryption.Medium, false);
+
+      Assertions.assertEquals(Encryption.Medium, fullCopyDb.getLocalEncryptionInfo().getStrength().orElse(null));
+      Assertions.assertEquals(docCount, fullCopyDb.queryDocuments().getDocuments().count());
+
+      designOnlyDb = client.createDatabaseFromTemplate("", "names.nsf",
+          "", designOnlyDbPath.toString(), Encryption.Strong, true);
+
+      Assertions.assertEquals(Encryption.Strong, designOnlyDb.getLocalEncryptionInfo().getStrength().orElse(null));
+      Assertions.assertEquals(0, designOnlyDb.queryDocuments().getDocuments().count());
+
+    } finally {
+      if(fullCopyDb!=null) {
+        fullCopyDb.close();
+        client.deleteDatabase(null, fullCopyDbPath.toString());
+      }
+
+      if(designOnlyDb!=null) {
+        designOnlyDb.close();
+        client.deleteDatabase(null, designOnlyDbPath.toString());
+      }
     }
   }
 
