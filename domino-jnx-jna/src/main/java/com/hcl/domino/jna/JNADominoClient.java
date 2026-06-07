@@ -500,6 +500,14 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   public Database createDatabaseFromTemplate(String sourceServerName, String sourceFilePath,
       String targetServerName, String targetFilePath,
       Encryption encryption) {
+    return createDatabaseFromTemplate(sourceServerName, sourceFilePath, targetServerName,
+        targetFilePath, encryption, false);
+  }
+
+  @Override
+  public Database createDatabaseFromTemplate(String sourceServerName, String sourceFilePath,
+      String targetServerName, String targetFilePath,
+      Encryption encryption, boolean designOnly) {
 
     EnumSet<CopyDatabase> copyFlags = EnumSet.noneOf(CopyDatabase.class);
     if (encryption == Encryption.Simple) {
@@ -510,10 +518,15 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
       copyFlags.add(CopyDatabase.ENCRYPT_STRONG);
     }
 
-    Database newDb = createAndCopyDatabase(sourceServerName, sourceFilePath, targetServerName,
-        targetFilePath, null, 0,
-        (Set<CopyDatabase>) null, null);
-    return newDb;
+    Set<DocumentClass> docClassesToCopy = null; // By default, all document classes.
+
+    if(designOnly) {
+      // Only non-data ones
+      docClassesToCopy = EnumSet.of(DocumentClass.ALLNONDATA);
+    }
+
+    return createAndCopyDatabase(sourceServerName, sourceFilePath, targetServerName,
+        targetFilePath, docClassesToCopy, 0, copyFlags, null);
   }
 
   @Override
