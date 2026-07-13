@@ -59,6 +59,8 @@ import com.hcl.domino.util.JNXStringUtil;
  * @author Karsten Lehmann
  */
 public class JNACollectionEntry extends AbstractCollectionEntry {
+  private static final ThreadLocal<Boolean> readingItemType = new ThreadLocal<>();
+  
 	private JNADominoCollection m_parentCollection;
 	private int[] m_pos;
 	private String m_posStr;
@@ -79,7 +81,6 @@ public class JNACollectionEntry extends AbstractCollectionEntry {
 	private SoftReference<Map<String, Object>> m_convertedDataRef;
 	private String m_singleColumnLookupName;
 	private AbstractTypedAccess m_typedAccess;
-	private ThreadLocal<Boolean> readingItemType = new ThreadLocal<>();
 	
 	private Integer m_sequenceNumber;
 	private DominoDateTime m_sequenceTime;
@@ -92,94 +93,7 @@ public class JNACollectionEntry extends AbstractCollectionEntry {
 	public JNACollectionEntry(JNADominoCollection parentCollection) {
 		m_parentCollection = parentCollection;
 		
-		m_typedAccess = new AbstractTypedAccess() {
-			
-			@Override
-			public boolean hasItem(String itemName) {
-				return JNACollectionEntry.this.hasItem(itemName);
-			}
-
-			@Override
-			public List<String> getItemNames() {
-				return JNACollectionEntry.this.getItemNames();
-			}
-			
-			@Override
-			protected List<?> getItemValue(String itemName) {
-				return JNACollectionEntry.this.getItemValue(itemName);
-			}
-			
-			@Override
-			public int getIndexedValueCount() {
-				return m_columnValues == null ? 0 : m_columnValues.length;
-			}
-			
-			@Override
-			protected <T> T getViaValueConverter(String itemName, Class<T> valueType, T defaultValue) {
-				return tryWithConverters(itemName, valueType, defaultValue,
-					converter -> converter.getValue(JNACollectionEntry.this, itemName, valueType, defaultValue)
-				);
-			}
-			
-			@Override
-			protected <T> List<T> getAsListViaValueConverter(String itemName, Class<T> valueType, List<T> defaultValue) {
-				return tryWithConverters(itemName, valueType, defaultValue,
-					converter -> converter.getValueAsList(JNACollectionEntry.this, itemName, valueType, defaultValue)
-				);
-			}
-			
-			@Override
-			protected List<?> getItemValue(int index) {
-				if(m_columnValues == null) {
-					return null;
-				} else {
-					return cleanValue(m_columnValues[index]);
-				}
-			}
-			
-			@Override
-			protected <T> T getViaValueConverter(int index, Class<T> valueType, T defaultValue) {
-				return tryWithConverters(index, valueType, defaultValue,
-					converter -> converter.getValue(JNACollectionEntry.this, index, valueType, defaultValue)
-				);
-			}
-			
-			@Override
-			protected <T> List<T> getAsListViaValueConverter(int index, Class<T> valueType, List<T> defaultValue) {
-				return tryWithConverters(index, valueType, defaultValue,
-					converter -> converter.getValueAsList(JNACollectionEntry.this, index, valueType, defaultValue)
-				);
-			}
-			
-			private <IDENT, TYPE, RESULT> RESULT tryWithConverters(IDENT itemIdentifier, Class<TYPE> valueType, RESULT defaultValue, Function<CollectionEntryValueConverter, RESULT> supplier) {
-				CollectionEntryValueConverter converter = JNXServiceFinder.findServices(CollectionEntryValueConverter.class)
-					.filter(c -> c.supportsRead(valueType))
-					.sorted(Comparator.comparing(CollectionEntryValueConverter::getPriority).reversed())
-					.findFirst()
-					.orElse(null);
-
-				if (converter!=null) {
-					if (Boolean.TRUE.equals(readingItemType.get())) {
-						throw new IllegalStateException(
-							MessageFormat.format(
-								"Infinite loop detected reading the value of item {0} as type {1}",
-								itemIdentifier, valueType.getName()
-							)
-						);
-					}
-					readingItemType.set(Boolean.TRUE);
-					try {
-						return supplier.apply(converter);
-					}
-					finally {
-						readingItemType.set(null);
-					}
-				}
-				else {
-					throw new IllegalArgumentException(MessageFormat.format("Unsupported return value type: {0}", valueType.getName()));
-				}
-			}
-		};
+		m_typedAccess = new CollectionEntryTypedAccess(this);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -1286,5 +1200,99 @@ public class JNACollectionEntry extends AbstractCollectionEntry {
 	@Override
 	public <T> Optional<List<T>> getAsListOptional(String itemName, Class<T> valueType) {
 	  return m_typedAccess.getAsListOptional(itemName, valueType);
+	}
+	
+	private static class CollectionEntryTypedAccess extends AbstractTypedAccess {
+	  private final JNACollectionEntry entry;
+	  
+	  public CollectionEntryTypedAccess(JNACollectionEntry entry) {
+	    this.entry = entry;
+	  }
+	  
+	  @Override
+      public boolean hasItem(String itemName) {
+          return entry.hasItem(itemName);
+      }
+
+      @Override
+      public List<String> getItemNames() {
+          return entry.getItemNames();
+      }
+      
+      @Override
+      protected List<?> getItemValue(String itemName) {
+          return entry.getItemValue(itemName);
+      }
+      
+      @Override
+      public int getIndexedValueCount() {
+          return entry.m_columnValues == null ? 0 : entry.m_columnValues.length;
+      }
+      
+      @Override
+      protected <T> T getViaValueConverter(String itemName, Class<T> valueType, T defaultValue) {
+          return tryWithConverters(itemName, valueType, defaultValue,
+              converter -> converter.getValue(entry, itemName, valueType, defaultValue)
+          );
+      }
+      
+      @Override
+      protected <T> List<T> getAsListViaValueConverter(String itemName, Class<T> valueType, List<T> defaultValue) {
+          return tryWithConverters(itemName, valueType, defaultValue,
+              converter -> converter.getValueAsList(entry, itemName, valueType, defaultValue)
+          );
+      }
+      
+      @Override
+      protected List<?> getItemValue(int index) {
+          if(entry.m_columnValues == null) {
+              return null;
+          } else {
+              return cleanValue(entry.m_columnValues[index]);
+          }
+      }
+      
+      @Override
+      protected <T> T getViaValueConverter(int index, Class<T> valueType, T defaultValue) {
+          return tryWithConverters(index, valueType, defaultValue,
+              converter -> converter.getValue(entry, index, valueType, defaultValue)
+          );
+      }
+      
+      @Override
+      protected <T> List<T> getAsListViaValueConverter(int index, Class<T> valueType, List<T> defaultValue) {
+          return tryWithConverters(index, valueType, defaultValue,
+              converter -> converter.getValueAsList(entry, index, valueType, defaultValue)
+          );
+      }
+      
+      private <IDENT, TYPE, RESULT> RESULT tryWithConverters(IDENT itemIdentifier, Class<TYPE> valueType, RESULT defaultValue, Function<CollectionEntryValueConverter, RESULT> supplier) {
+          CollectionEntryValueConverter converter = JNXServiceFinder.findServices(CollectionEntryValueConverter.class)
+              .filter(c -> c.supportsRead(valueType))
+              .sorted(Comparator.comparing(CollectionEntryValueConverter::getPriority).reversed())
+              .findFirst()
+              .orElse(null);
+
+          if (converter!=null) {
+              if (Boolean.TRUE.equals(readingItemType.get())) {
+                  throw new IllegalStateException(
+                      MessageFormat.format(
+                          "Infinite loop detected reading the value of item {0} as type {1}",
+                          itemIdentifier, valueType.getName()
+                      )
+                  );
+              }
+              readingItemType.set(Boolean.TRUE);
+              try {
+                  return supplier.apply(converter);
+              }
+              finally {
+                  readingItemType.set(null);
+              }
+          }
+          else {
+              throw new IllegalArgumentException(MessageFormat.format("Unsupported return value type: {0}", valueType.getName()));
+          }
+      }
 	}
 }
