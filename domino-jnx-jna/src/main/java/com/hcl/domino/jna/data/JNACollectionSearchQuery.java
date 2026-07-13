@@ -82,8 +82,7 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 		super(parentCollection);
 		
 		m_direction = Navigate.NEXT_ENTRY;
-		m_readMask = new HashSet<>();
-		m_readMask.add(ReadMask.NOTEID);
+		m_readMask = EnumSet.of(ReadMask.NOTEID);
 		
 		setInitialized();
 	}
