@@ -42,7 +42,6 @@ import com.hcl.domino.data.Database.OpenDocumentMode;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoDateTime;
-import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.ItemDataTypeConstants;
 import com.hcl.domino.data.TypedAccess;
 import com.hcl.domino.jna.data.JNACollectionEntry;
