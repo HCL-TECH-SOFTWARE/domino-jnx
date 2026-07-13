@@ -352,37 +352,38 @@ public class JNACollectionEntry extends AbstractCollectionEntry {
 	 * @param defaultValue default value is returned if index position has not been read or class is unsupported
 	 * @return position or default value
 	 */
-	@SuppressWarnings("unchecked")
-	private <T> T getPosition(Class<T> clazz, T defaultValue) {
-		if (int[].class == clazz) {
-			if (m_pos!=null) {
-				return (T) m_pos;
-			}
-			else {
-				return defaultValue;
-			}
-		}
-		else if (String.class == clazz) {
-			if (m_pos!=null && m_pos.length>0) {
-				if (m_posStr==null) {
-					StringBuilder sb = new StringBuilder();
-					for (int i=0; i<m_pos.length; i++) {
-						if (i>0) {
-							sb.append('.');
-						}
-						sb.append(m_pos[i]);
-					}
-					m_posStr = sb.toString();
-				}
-				return (T) m_posStr;
-			}
-			else {
-				return defaultValue;
-			}
-		}
-		
-		return null;
-	}
+    @SuppressWarnings("unchecked")
+    private <T> T getPosition(Class<T> clazz, T defaultValue) {
+      if (int[].class == clazz) {
+        if (m_pos != null) {
+          return (T) m_pos;
+        } else {
+          return defaultValue;
+        }
+      } else if (String.class == clazz) {
+        if (m_pos != null && m_pos.length > 0) {
+          if (m_posStr == null) {
+            if(m_pos.length == 1) {
+              m_posStr = Integer.toString(m_pos[0]);
+            } else {
+              StringBuilder sb = new StringBuilder();
+              for (int i = 0; i < m_pos.length; i++) {
+                if (i > 0) {
+                  sb.append('.');
+                }
+                sb.append(m_pos[i]);
+              }
+              m_posStr = sb.toString();
+            }
+          }
+          return (T) m_posStr;
+        } else {
+          return defaultValue;
+        }
+      }
+
+      return null;
+    }
 	
 	/**
 	 * Sets the position
