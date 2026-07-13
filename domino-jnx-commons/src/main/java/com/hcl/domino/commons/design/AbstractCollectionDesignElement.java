@@ -141,7 +141,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     DominoViewFormat viewFormat = getViewFormat(true)
     .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
 
-    DominoCollectionColumn newCol = (DominoCollectionColumn) viewFormat.addColumn(pos);
+    DominoCollectionColumn newCol = (DominoCollectionColumn) viewFormat.addColumn(pos, true);
     newCol.setTitle(title);
     newCol.setItemName(itemName);
     
@@ -165,7 +165,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
     DominoViewFormat viewFormat = getViewFormat(true)
     .orElseThrow(() -> new IllegalStateException("Unable to read $ViewFormat data"));
     
-    DominoCollectionColumn newCol = (DominoCollectionColumn) viewFormat.addColumn(pos);
+    DominoCollectionColumn newCol = (DominoCollectionColumn) viewFormat.addColumn(pos, false);
     newCol.copyColumnFormatFrom(dominoTemplateCol);
     
     if (consumer!=null) {

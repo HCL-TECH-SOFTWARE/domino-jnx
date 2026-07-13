@@ -94,7 +94,7 @@ public class ViewFormatDecoder {
         pPackedData.get(varData);
         fullColData.put(varData);
 
-        DominoCollectionColumn viewCol = (DominoCollectionColumn) result.addColumn(-1);
+        DominoCollectionColumn viewCol = (DominoCollectionColumn) result.addColumn(-1, false);
         viewCol.read(fullCol);
         columns.add(viewCol);
       }
