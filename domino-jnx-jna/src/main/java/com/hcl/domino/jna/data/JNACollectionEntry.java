@@ -903,7 +903,7 @@ public class JNACollectionEntry extends AbstractCollectionEntry {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Object> cleanValue(Object val) {
+	private static List<Object> cleanValue(Object val) {
 		if (val instanceof List) {
 			List<Object> valAsList = (List<Object>) val;
 			for (int i=0; i<valAsList.size(); i++) {

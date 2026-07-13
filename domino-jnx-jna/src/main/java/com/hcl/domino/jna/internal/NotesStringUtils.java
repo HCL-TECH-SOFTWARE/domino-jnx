@@ -251,6 +251,17 @@ public class NotesStringUtils {
 		}
 		return stringList;
 	}
+	
+	public static boolean isPureAscii(byte[] data) {
+	  boolean isPureAscii = true;
+      for (byte c : data) {
+          if (c <= 0x1f || c >= 0x80) {
+              isPureAscii = false;
+              break;
+          }
+      }
+      return isPureAscii;
+	}
 
 	/**
 	 * Converts an LMBCS string to a Java String
@@ -264,14 +275,7 @@ public class NotesStringUtils {
 		}
 		
 		// If it's compatible ASCII, return without the native call
-		boolean isPureAscii = true;
-        for (byte c : data) {
-            if (c <= 0x1f || c >= 0x80) {
-                isPureAscii = false;
-                break;
-            }
-        }
-        if(isPureAscii) {
+        if(isPureAscii(data)) {
           return new String(data, StandardCharsets.UTF_8);
         }
 		
