@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.internal;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
@@ -78,12 +79,23 @@ public class LMBCSString {
 	 * 
 	 * @return value
 	 */
-	public String getValue() {
-		if (m_strValue==null) {
-			m_strValue = LMBCSStringConversionCache.get(this);
-		}
-		return m_strValue;
-	}
+    public String getValue() {
+      if (m_strValue == null) {
+        // Cheat a bit for short ASCII-compatible values.
+        // This saves some overhead in the Concurrent map for inner loops.
+        // 33 is chosen here to avoid long loops for big strings but to cover
+        // the case of UNID strings
+        if(m_data.length < 33 && NotesStringUtils.isPureAscii(m_data)) {
+          m_strValue = new String(m_data, StandardCharsets.US_ASCII);
+        }
+        
+        // If it wasn't short ASCII, send it to the pure converter
+        if(m_strValue == null) {
+          m_strValue = LMBCSStringConversionCache.get(this);
+        }
+      }
+      return m_strValue;
+    }
 
 	@Override
 	public String toString() {

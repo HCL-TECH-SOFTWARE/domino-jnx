@@ -27,8 +27,6 @@ import java.util.Set;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.IAdaptable;
-import com.hcl.domino.design.CollectionDesignElement;
-import com.hcl.domino.design.SharedColumn;
 import com.hcl.domino.design.format.ViewColumnFormat;
 import com.hcl.domino.design.format.ViewColumnFormat2;
 import com.hcl.domino.design.format.ViewColumnFormat3;
@@ -68,11 +66,12 @@ public class DominoViewFormat implements IAdaptable {
    * Adds a new empty column format object at the specified position
    * 
    * @param index insertion index, use -1 to append at the end
+   * @param initialize whether the column should be initialized with default values
    * @return column format
    */
-  public CollectionColumn addColumn(int index) {
+  public CollectionColumn addColumn(int index, boolean initialize) {
     final ViewTableFormat format1 = Objects.requireNonNull(this.format1, "VIEW_TABLE_FORMAT not read");
-    final DominoCollectionColumn col = new DominoCollectionColumn(this);
+    final DominoCollectionColumn col = new DominoCollectionColumn(this, initialize);
     
     if (index==-1) {
       this.columns.add(col);

@@ -82,10 +82,15 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   private String cachedFormula;
   private String cachedItemName;
   
-  public DominoCollectionColumn(DominoViewFormat parentViewFormat) {
+  public DominoCollectionColumn(DominoViewFormat parentViewFormat, boolean initialize) {
     this.parentViewFormat = parentViewFormat;
-    this.format1 = ViewColumnFormat.newInstanceWithDefaults();
-    this.format2 = ViewColumnFormat2.newInstanceWithDefaults();
+    if(initialize) {
+      this.format1 = ViewColumnFormat.newInstanceWithDefaults();
+      this.format2 = ViewColumnFormat2.newInstanceWithDefaults();
+    } else {
+      this.format1 = MemoryStructureUtil.newStructure(ViewColumnFormat.class, 0);
+      this.format2 = MemoryStructureUtil.newStructure(ViewColumnFormat2.class, 0);
+    }
   }
 
   @Override

@@ -424,17 +424,63 @@ public class JNXStringUtil {
   public static String toUNID(long innardsFile, long innardsNote) {
     StringBuilder result = new StringBuilder();
     
-    String file = Long.toHexString(innardsFile).toUpperCase();
+    String file = Long.toHexString(innardsFile);
     for(int i = 0; i < 16 - file.length(); i++) {
       result.append('0');
     }
-    result.append(file);
+    for(char c : file.toCharArray()) {
+      switch(c) {
+        case 'a':
+          result.append('A');
+          break;
+        case 'b':
+          result.append('B');
+          break;
+        case 'c':
+          result.append('C');
+          break;
+        case 'd':
+          result.append('D');
+          break;
+        case 'e':
+          result.append('E');
+          break;
+        case 'f':
+          result.append('F');
+          break;
+        default:
+          result.append(c);
+      }
+    }
     
-    String note = Long.toHexString(innardsNote).toUpperCase();
+    String note = Long.toHexString(innardsNote);
     for(int i = 0; i < 16 - note.length(); i++) {
       result.append('0');
     }
-    result.append(note);
+    for(char c : note.toCharArray()) {
+      switch(c) {
+        case 'a':
+          result.append('A');
+          break;
+        case 'b':
+          result.append('B');
+          break;
+        case 'c':
+          result.append('C');
+          break;
+        case 'd':
+          result.append('D');
+          break;
+        case 'e':
+          result.append('E');
+          break;
+        case 'f':
+          result.append('F');
+          break;
+        default:
+          result.append(c);
+      }
+    }
     
     return result.toString();
   }

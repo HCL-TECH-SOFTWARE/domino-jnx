@@ -42,7 +42,6 @@ import com.hcl.domino.data.Database.OpenDocumentMode;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoDateTime;
-import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.ItemDataTypeConstants;
 import com.hcl.domino.data.TypedAccess;
 import com.hcl.domino.jna.data.JNACollectionEntry;
@@ -57,7 +56,6 @@ import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.search.ItemTableDataDocAdapter;
-import com.hcl.domino.jna.internal.structs.NotesCollectionStatsStruct;
 import com.hcl.domino.jna.internal.structs.NotesItemTableLargeStruct;
 import com.hcl.domino.jna.internal.structs.NotesItemTableStruct;
 import com.sun.jna.Pointer;
@@ -135,12 +133,12 @@ public class NotesLookupResultBufferDecoder {
 		NotesCollectionStats collectionStats = null;
 
 		if (returnMask.contains(ReadMask.COLLECTIONSTATS)) {
-			NotesCollectionStatsStruct tmpStats = NotesCollectionStatsStruct.newInstance(bufferPtr);
-			tmpStats.read();
+		  // COLLECTIONSTATIS is DWORD[2]
+		  int[] tmpStats = bufferPtr.getIntArray(0, 2);
 			
-			collectionStats = new NotesCollectionStats(tmpStats.TopLevelEntries, tmpStats.LastModifiedTime);
+			collectionStats = new NotesCollectionStats(tmpStats[0], tmpStats[1]);
 					
-			bufferPos += tmpStats.size();
+			bufferPos += 8;
 		}
 
 		List<JNACollectionEntry> viewEntries = new ArrayList<>();

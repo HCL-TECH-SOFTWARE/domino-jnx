@@ -389,15 +389,15 @@ public abstract class AbstractTypedAccess implements TypedAccess, IndexedTypedAc
 	 * @param defaultValue the default value to return when the item is empty
 	 * @return the item value as an instance of {@code <T>}
 	 */
-	private <T> T filterToScalar(List<?> docValues, Class<T> clazz, T defaultValue) {
-		List<T> dtList = filterToList(docValues, clazz, null);
-		if (dtList!=null && !dtList.isEmpty()) {
-			return dtList.get(0);
-		}
-		else {
-			return defaultValue;
-		}
-	}
+    @SuppressWarnings("unchecked")
+    private <T> T filterToScalar(List<?> docValues, Class<T> clazz, T defaultValue) {
+      for (Object val : docValues) {
+        if (clazz.isInstance(val)) {
+          return (T) val;
+        }
+      }
+      return defaultValue;
+    }
 	
 	/**
 	 * Retrieves the named item value as a list filtered to the provided Domino-friendly type.
@@ -411,18 +411,22 @@ public abstract class AbstractTypedAccess implements TypedAccess, IndexedTypedAc
 	 * @param defaultValue the default value to return when the item is empty
 	 * @return the item value as a {@link List} of {@code <T>}
 	 */
-	private <T> List<T> filterToList(List<?> docValues, Class<T> clazz, List<T> defaultValue) {
-		if (docValues!=null && docValues.size()==1 && "".equals(docValues.get(0))) { //$NON-NLS-1$
-			return defaultValue;
-		}
-		if(docValues != null) {
-			return docValues.stream()
-				.filter(clazz::isInstance)
-				.map(clazz::cast)
-				.collect(Collectors.toList());
-		}
-		return defaultValue;
-	}
+    @SuppressWarnings("unchecked")
+    private <T> List<T> filterToList(List<?> docValues, Class<T> clazz, List<T> defaultValue) {
+      if (docValues != null && docValues.size() == 1 && "".equals(docValues.get(0))) { //$NON-NLS-1$
+        return defaultValue;
+      }
+      if (docValues != null) {
+        List<T> result = new ArrayList<>(docValues.size());
+        for (Object val : docValues) {
+          if (clazz.isInstance(val)) {
+            result.add((T) val);
+          }
+        }
+        return result;
+      }
+      return defaultValue;
+    }
 
 	private OffsetDateTime getAsJavaDateTime(List<?> docValues, OffsetDateTime defaultValue) {
 		DominoDateTime dt = filterToScalar(docValues, DominoDateTime.class, null);

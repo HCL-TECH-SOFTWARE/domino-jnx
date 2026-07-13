@@ -413,7 +413,7 @@ public class InnardsConverter {
       if (offsetSeconds != 0) {
         // Then just make a generic offset
         final ZoneOffset offset = ZoneOffset.ofTotalSeconds(offsetSeconds);
-        return OffsetDateTime.ofInstant(utc.toInstant(), offset);
+        return utc.withOffsetSameInstant(offset);
       } else {
         return utc;
       }

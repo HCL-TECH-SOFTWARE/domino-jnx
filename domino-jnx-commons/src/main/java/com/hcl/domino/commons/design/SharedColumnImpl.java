@@ -63,7 +63,7 @@ public class SharedColumnImpl extends AbstractDesignElement<SharedColumn> implem
     doc.replaceItemValue(DesignConstants.VIEW_CLASSES_ITEM, EnumSet.of(ItemFlag.SIGNED, ItemFlag.SUMMARY), "1");
     
     this.format = new DominoViewFormat(doc);
-    CollectionColumn col = this.format.addColumn(-1);
+    CollectionColumn col = this.format.addColumn(-1, true);
     
     col.setTitle("#"); //$NON-NLS-1$
     col.setItemName("$0"); //$NON-NLS-1$

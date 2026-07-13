@@ -39,8 +39,10 @@ class StructureMap {
   }
 
   int size() {
-    return this.members.stream()
-        .mapToInt(m -> MemoryStructureUtil.sizeOf(m.type) * m.length)
-        .sum();
+    int result = 0;
+    for(StructMember member : this.members) {
+      result += MemoryStructureUtil.sizeOf(member.type) * member.length;
+    }
+    return result;
   }
 }
