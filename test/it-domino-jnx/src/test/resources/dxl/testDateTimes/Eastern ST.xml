@@ -1,0 +1,12 @@
+<?xml version='1.0'?>
+<note class='document' xmlns='http://www.lotus.com/dxl' version='14.5' maintenanceversion='1.0'>
+<item name='Form'><textlist><text>DateTime Doc</text></textlist></item>
+<item name='$$Title'><textlist><text>Eastern ST</text></textlist></item>
+<item name='TimeZone'><textlist><text>Z=5$DO=1$DL=3 2 1 11 1 1$ZX=40$ZN=Eastern</text></textlist></item>
+<item name='Date'><datetimelist><datetime>20260120</datetime></datetimelist></item>
+<item name='Time'><datetimelist><datetime>T120000,00</datetime></datetimelist></item>
+<item name='DateTime'><datetimelist><datetime>20260120T120000,00-05</datetime></datetimelist></item>
+<item name='$EncryptionStatus'><textlist><text>0</text></textlist></item>
+<item name='$SignatureStatus'><textlist><text>0</text></textlist></item>
+<item name='SaveOptions'><textlist><text>0</text></textlist></item>
+<item name='DXL'><textlist><text/></textlist></item></note>

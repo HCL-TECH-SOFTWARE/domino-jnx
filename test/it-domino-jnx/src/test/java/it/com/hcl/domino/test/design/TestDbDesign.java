@@ -359,7 +359,7 @@ public class TestDbDesign extends AbstractDesignTest {
     
 
     // 20210619T150226,17-04
-    final OffsetDateTime expected = OffsetDateTime.of(2021, 6, 19, 14, 2, 26, 17 * 1000 * 1000 * 10, ZoneOffset.ofHours(-5));
+    final OffsetDateTime expected = OffsetDateTime.of(2021, 6, 19, 15, 2, 26, 17 * 1000 * 1000 * 10, ZoneOffset.ofHours(-4));
     assertEquals(expected, res.getFileModified().toOffsetDateTime());
 
     {
