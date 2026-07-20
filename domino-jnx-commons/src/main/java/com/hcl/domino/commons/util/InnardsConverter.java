@@ -25,13 +25,14 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.time.temporal.JulianFields;
 import java.time.temporal.Temporal;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
-
+import java.util.concurrent.TimeUnit;
 import com.hcl.domino.misc.NotesConstants;
 
 /**
@@ -329,8 +330,8 @@ public class InnardsConverter {
     // defined in misc.h. This structure is subject to change; the description here
     // is provided for debugging purposes.
 
-    final boolean hasTime = innards[0] != NotesConstants.ALLDAY;
-    final boolean hasDate = innards[1] != NotesConstants.ANYDAY;
+    final boolean hasTime = !isAnyTime(innards);
+    final boolean hasDate = !isAnyDate(innards);
 
     if (!hasDate && !hasTime) {
       return null;
@@ -350,13 +351,15 @@ public class InnardsConverter {
       milliSecondsSinceMidnight = 0;
     }
 
-    LocalTime utcTime;
-    try {
-      utcTime = LocalTime.ofNanoOfDay(milliSecondsSinceMidnight * 1000 * 1000);
-    } catch (final DateTimeException e) {
-      // Observed when the stored data is not representable (e.g. from a randomly-set
-      // UNID)
-      return null;
+    LocalTime utcTime = null;
+    if(hasTime) {
+      try {
+        utcTime = LocalTime.ofNanoOfDay(milliSecondsSinceMidnight * 1000 * 1000);
+      } catch (final DateTimeException e) {
+        // Observed when the stored data is not representable (e.g. from a randomly-set
+        // UNID)
+        return null;
+      }
     }
     if (!hasDate) {
       return utcTime;
@@ -403,13 +406,11 @@ public class InnardsConverter {
       final int hourOffset = (dateInnard & 0xF000000) >> 24;            // bits 27-24
       final int intervalCount = (dateInnard & 0x30000000) >> 28;        // bits 29-28
 
-      final int offsetSeconds = (eastOfGmt ? 1 : -1) * (hourOffset * 60 * 60 + intervalCount * 15 * 60);
-
-      // Since time zone information is stored only as "normal offset" + "do they do
-      // daylight savings at all?",
-      // we it's unsafe to try to map to a real time zone. Instead, just return an
-      // OffsetDateTime that matches
-      // how it was stored
+      int offsetSeconds = (eastOfGmt ? 1 : -1) * (hourOffset * 60 * 60 + intervalCount * 15 * 60);
+      if(dst) {
+        offsetSeconds += 60*60;
+      }
+      
       if (offsetSeconds != 0) {
         // Then just make a generic offset
         final ZoneOffset offset = ZoneOffset.ofTotalSeconds(offsetSeconds);
@@ -456,7 +457,13 @@ public class InnardsConverter {
     // Figure out the offset during non-summer time
     int tzOffsetSeconds;
     if (zoneId != null) {
+      Instant inst = offsetDateTime.toInstant();
+      boolean isDst = zoneId.getRules().isDaylightSavings(inst);
       tzOffsetSeconds = zoneId.getRules().getOffset(offsetDateTime.toInstant()).getTotalSeconds();
+      if(isDst) {
+        zoneMask |= 0x80000000;
+        tzOffsetSeconds -= 60 * 60;
+      }
     } else {
       tzOffsetSeconds = offsetDateTime.getOffset().getTotalSeconds();
     }
@@ -503,11 +510,9 @@ public class InnardsConverter {
     int[] innards;
     // The high-order bit, bit 31 (0x80000000), is set if Daylight Savings Time is
     // ever observed in the zone
-    if (InnardsConverter.hasDst(zonedDateTime.getZone(), zonedDateTime.toInstant())) {
-      innards = InnardsConverter.encodeInnards(zonedDateTime.toOffsetDateTime(), zonedDateTime.getZone());
+    innards = InnardsConverter.encodeInnards(zonedDateTime.toOffsetDateTime(), zonedDateTime.getZone());
+    if (zonedDateTime.getZone().getRules().isDaylightSavings(zonedDateTime.toInstant())) {
       innards[1] |= 0x80000000;
-    } else {
-      innards = InnardsConverter.encodeInnards(zonedDateTime.toOffsetDateTime(), null);
     }
 
     return innards;
@@ -535,10 +540,6 @@ public class InnardsConverter {
     final int hours = dateInnard >> 24 & 15;
     final int intervals15min = dateInnard >> 28 & 3;
     return factor * (hours * 60 + intervals15min * 15);
-  }
-
-  private static boolean hasDst(final ZoneId zone, final Instant instant) {
-    return zone.getRules().nextTransition(instant) != null && zone.getRules().previousTransition(instant) != null;
   }
 
   public static boolean isAnyDate(final int[] innards) {
