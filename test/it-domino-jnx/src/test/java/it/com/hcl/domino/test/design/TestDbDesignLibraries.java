@@ -149,6 +149,25 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
   }
 
   @Test
+  public void testEmptySsjs() throws IOException {
+    final DbDesign design = this.database.getDesign();
+    final ScriptLibrary scriptLibrary = design.getScriptLibrary("ssjs lib - empty").get();
+    assertInstanceOf(ServerJavaScriptLibrary.class, scriptLibrary);
+
+    final ServerJavaScriptLibrary lib = (ServerJavaScriptLibrary) scriptLibrary;
+    assertEquals(0, lib.getScript().length());
+
+    // Read as a file resource
+    {
+      String script;
+      try(InputStream is = design.getResourceAsStream("ssjs lib - empty").get()) {
+        script = StreamUtil.readString(is);
+      }
+      assertEquals("", script);
+    }
+  }
+
+  @Test
   public void testLs() throws IOException {
     final DbDesign design = this.database.getDesign();
     final ScriptLibrary scriptLibrary = design.getScriptLibrary("Test LS").get();
@@ -163,7 +182,7 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
   public void testScriptLibraries() {
     final DbDesign dbDesign = this.database.getDesign();
     final List<ScriptLibrary> libraries = dbDesign.getScriptLibraries().collect(Collectors.toList());
-    assertEquals(10, libraries.size());
+    assertEquals(12, libraries.size());
   }
 
   @Test
@@ -266,7 +285,26 @@ public class TestDbDesignLibraries extends AbstractNotesRuntimeTest {
       assertEquals("alert(\"Hi, I'm JS\")", script.replace("\r\n", "\n"));
     }
   }
-  
+
+  @Test
+  public void testEmptyJs() throws IOException {
+    final DbDesign design = this.database.getDesign();
+    final ScriptLibrary scriptLibrary = design.getScriptLibrary("js lib - empty").get();
+    assertInstanceOf(JavaScriptLibrary.class, scriptLibrary);
+
+    final JavaScriptLibrary lib = (JavaScriptLibrary) scriptLibrary;
+    assertEquals(0, lib.getScript().length());
+
+    // Read as a file resource
+    {
+      String script;
+      try(InputStream is = design.getResourceAsStream("ssjs lib - empty").get()) {
+        script = StreamUtil.readString(is);
+      }
+      assertEquals("", script);
+    }
+  }
+
   @Test
   public void testMultiFileJava() throws IOException {
     final DbDesign design = this.database.getDesign();
