@@ -1,0 +1,37 @@
+<?xml version='1.0'?>
+<note class='document' xmlns='http://www.lotus.com/dxl' version='14.5' maintenanceversion='1.0'
+ replicaid='48258AAC00628475'>
+<noteinfo noteid='92e' unid='A0286FBD3BDC1D5BC12587D5006AC837' sequence='7'>
+<created><datetime>20220125T202620,71+01</datetime></created>
+<modified><datetime>20240123T015634,72+08</datetime></modified>
+<revised><datetime dst='true'>20221102T210726,24+02</datetime></revised>
+<lastaccessed><datetime dst='true'>20260720T142052,60-04</datetime></lastaccessed>
+<addedtofile><datetime>20240123T015634,71+08</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Test User1/O=ProjectKeep</name><name>CN=John McCarthy/OU=USA/O=PNPHCL</name><name
+>CN=John Lennon/O=ProjectKeep</name></updatedby>
+<revisions><datetime>20220125T202620,72+01</datetime><datetime dst='true'>20220912T194449,05+02</datetime><datetime
+ dst='true'>20221102T190329,49+02</datetime><datetime dst='true'>20221102T201022,77+02</datetime><datetime
+ dst='true'>20221102T203326,43+02</datetime><datetime dst='true'>20221102T205639,30+02</datetime></revisions>
+<item name='Form'><textlist><text>Recipe</text></textlist></item>
+<item name='Authors' authors='true' names='true'><textlist><text>the authors 2</text></textlist></item>
+<item name='Details'><richtext>
+<pardef id='1' keepwithnext='true' keeptogether='true'/>
+<par def='1'>Deep Fry until done</par></richtext></item>
+<item name='DateTime'><datetimelist><datetime>20220125T202620,00+01</datetime></datetimelist></item>
+<item name='Links'><richtext>
+<pardef id='2'/>
+<par def='2'>the links 2</par></richtext></item>
+<item name='Photo'><richtext>
+<pardef id='3'/>
+<par def='3'>the photo 2</par></richtext></item>
+<item name='$SMTPNotFromNotes'><textlist><text>1</text></textlist></item>
+<item name='Attributes'><textlist><text/></textlist></item>
+<item name='Ingredients'><textlist><text>Potatoes, Hot Oil, Salt</text></textlist></item>
+<item name='$$TITLE'><textlist><text>French Fries</text></textlist></item>
+<item name='Servings'><numberlist><number>2</number></numberlist></item>
+<item name='Source'><textlist><text>France</text></textlist></item>
+<item name='$EncryptionStatus'><textlist><text>0</text></textlist></item>
+<item name='$SignatureStatus'><textlist><text>0</text></textlist></item>
+<item name='SaveOptions'><textlist><text>0</text></textlist></item>
+<item name='DXL'><textlist><text/></textlist></item></note>
+

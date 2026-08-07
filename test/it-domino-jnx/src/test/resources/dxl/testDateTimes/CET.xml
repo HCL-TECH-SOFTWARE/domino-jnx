@@ -1,0 +1,20 @@
+<?xml version='1.0'?>
+<note class='document' xmlns='http://www.lotus.com/dxl' version='14.5' maintenanceversion='1.0'
+ replicaid='85258E3A00508D17'>
+<noteinfo noteid='912' unid='12DE8A6B90A871D085258E3A0065D6DF' sequence='1'>
+<created><datetime dst='true'>20260720T143221,43-04</datetime></created>
+<modified><datetime dst='true'>20260720T143312,72-04</datetime></modified>
+<revised><datetime dst='true'>20260720T143312,71-04</datetime></revised>
+<lastaccessed><datetime dst='true'>20260720T143312,71-04</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20260720T143312,71-04</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Jesse Gallagher/O=IKSG</name></updatedby>
+<item name='Form'><textlist><text>DateTime Doc</text></textlist></item>
+<item name='$$Title'><textlist><text>CET</text></textlist></item>
+<item name='TimeZone'><textlist><text>Z=-1$DO=1$DL=3 -1 1 10 -1 1$ZX=90$ZN=Romance</text></textlist></item>
+<item name='Date'><datetimelist><datetime>20220125</datetime></datetimelist></item>
+<item name='Time'><datetimelist><datetime>T202600,00</datetime></datetimelist></item>
+<item name='DateTime'><datetimelist><datetime>20220125T202600,00+01</datetime></datetimelist></item>
+<item name='$EncryptionStatus'><textlist><text>0</text></textlist></item>
+<item name='$SignatureStatus'><textlist><text>0</text></textlist></item>
+<item name='SaveOptions'><textlist><text>0</text></textlist></item>
+<item name='DXL'><textlist><text/></textlist></item></note>

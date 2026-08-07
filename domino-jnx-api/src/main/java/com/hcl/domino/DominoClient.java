@@ -471,6 +471,30 @@ public interface DominoClient extends IAdaptable, AutoCloseable {
       Encryption encryption);
 
   /**
+   * Creates a new database from the specified template DB. Handles copying all
+   * design/data
+   * documents,
+   * setting the inherited template name and creating a ACL based on ACL entries
+   * of the template,
+   * e.g. a "[Group1]" entry of the template becomes a "Group1" entry in the
+   * created DB.
+   *
+   * @param sourceServerName server name of template database
+   * @param sourceFilePath   filepath of template database
+   * @param targetServerName Domino server name to connect to, or an empty string
+   *                         for the current
+   *                         server
+   * @param targetFilePath   the file path of the destination database
+   * @param encryption       encryption level for new database
+   * @param designOnly       if true, only design documents will be copied from
+   *                         the template; if false, both
+   * @return a database object for the newly-created database
+   */
+  Database createDatabaseFromTemplate(String sourceServerName, String sourceFilePath,
+      String targetServerName, String targetFilePath,
+      Encryption encryption, boolean designOnly);
+
+  /**
    * Creates a new database replica, which is a new database with copied
    * design/data documents
    * and the same replica ID as the specified DB.

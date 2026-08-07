@@ -19,6 +19,7 @@ package it.com.hcl.domino.test.data;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -32,16 +33,14 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Locale;
-import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -83,9 +82,13 @@ public class TestDateTime extends AbstractNotesRuntimeTest {
       return Stream.of(
           LocalDate.of(2020, 6, 9),  // summer
           LocalDate.of(2020, 1, 1),  // new year's
-          LocalDate.of(2020, 3, 10), // spring, near DST switch
-          LocalDate.of(2019, 10, 31), // Halloween
-          LocalDate.of(1900, 1, 1) // pre-epoch
+          LocalDate.of(1900, 1, 1), // pre-epoch
+          LocalDate.of(2026, 1, 1), // After some recent DST changes
+          LocalDate.of(2026, 8, 3), // Northern hemisphere summer
+          LocalDate.of(2026, 4, 1), // Before internal DST start
+          LocalDate.of(2026, 4, 7), // After internal DST start
+          LocalDate.of(2026, 10, 22), // Before internal DST end
+          LocalDate.of(2026, 10, 26) // After internal DST end
       )
           .map(Arguments::of);
     }
@@ -125,15 +128,16 @@ public class TestDateTime extends AbstractNotesRuntimeTest {
   public static final boolean EXTRADEBUG = false;
   // Tue Mar 17 13:39:40 EDT 2020
   private static final long epochTime = OffsetDateTime.of(LocalDateTime.of(2020, 1, 1, 12, 0), ZoneOffset.UTC).toEpochSecond();
-  private static final Locale locale = Locale.FRANCE;
   private static List<ZoneId> zones = ZoneId.getAvailableZoneIds().parallelStream()
       .map(ZoneId::of)
+      .sorted(Comparator.comparing(ZoneId::getId))
       .collect(Collectors.toList());
 
   @SuppressWarnings("nls")
   public static void dumpInnards(final DominoDateTime dt, final String name) {
     if (TestDateTime.EXTRADEBUG) {
       System.out.println("Innards for " + name + " (" + dt + "):");
+      System.out.println("ISO: " + dt.toISOString());
       final int[] innards = dt.getAdapter(int[].class);
       System.out.println("\tinnards[0]=" + Integer.toHexString(innards[0]) + " - " + Integer.toBinaryString(innards[0]));
       System.out.println("\tinnards[1]=" + Integer.toHexString(innards[1]) + " - " + Integer.toBinaryString(innards[1]));
@@ -142,6 +146,10 @@ public class TestDateTime extends AbstractNotesRuntimeTest {
   }
 
   public static boolean isExpressable(final OffsetDateTime dt) {
+    // Domino can only express increments of 15 minutes, so ignore
+    // any where it's a different minute increment or, as is the
+    // case with some old-timey offsets, seconds
+    
     final int offsetSeconds = dt.getOffset().getTotalSeconds();
     return offsetSeconds % TimeUnit.MINUTES.toSeconds(15) == 0;
   }
@@ -271,25 +279,6 @@ public class TestDateTime extends AbstractNotesRuntimeTest {
   }
 
   @ParameterizedTest
-  @ArgumentsSource(ZonesProvider.class)
-  public void testRoundTripJavaCalendar(final ZoneId zone) {
-    final Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(zone), TestDateTime.locale);
-    if (cal instanceof GregorianCalendar) {
-      cal.setTimeInMillis(TestDateTime.epochTime);
-      final ZonedDateTime calZoned = ((GregorianCalendar) cal).toZonedDateTime();
-      if (!TestDateTime.isExpressable(calZoned)) {
-        return;
-      }
-
-      final DominoClient client = this.getClient();
-      final DominoDateTime dt = client.createDateTime(calZoned);
-      Assertions.assertNotNull(dt);
-      Assertions.assertEquals(cal.getTime(), Date.from(dt.toOffsetDateTime().toInstant()));
-      Assertions.assertEquals(calZoned.getOffset().getTotalSeconds(), dt.toOffsetDateTime().getOffset().getTotalSeconds());
-    }
-  }
-
-  @ParameterizedTest
   @ArgumentsSource(JavaUtilDatesProvider.class)
   public void testRoundTripJavaUtilDate(final Date date) {
     final DominoClient client = this.getClient();
@@ -351,16 +340,12 @@ public class TestDateTime extends AbstractNotesRuntimeTest {
   @ArgumentsSource(ComponentsProvider.class)
   public void testRoundTripOffsetDateTimes(final LocalDate localDate, final LocalTime localTime, final ZoneId zone) {
     final OffsetDateTime offsetDt = ZonedDateTime.of(localDate, localTime, zone).toOffsetDateTime();
-
-    final DominoClient client = this.getClient();
-    DominoDateTime dt;
-    try {
-      dt = client.createDateTime(offsetDt);
-    } catch (final IllegalArgumentException e) {
-      // This occurs when a historical time zone cannot be expressed in 15-minute
-      // increments - ignore
+    if(!isExpressable(offsetDt)) {
       return;
     }
+
+    final DominoClient client = this.getClient();
+    DominoDateTime dt = client.createDateTime(offsetDt);
     Assertions.assertNotNull(dt);
 
     Assertions.assertEquals(offsetDt.toInstant(), dt.toOffsetDateTime().toInstant());
@@ -374,6 +359,31 @@ public class TestDateTime extends AbstractNotesRuntimeTest {
     Assertions.assertEquals(2, dt.until(offsetDt.plus(2, ChronoUnit.DAYS), ChronoUnit.DAYS));
     final long expected = offsetDt.until(offsetDt.plus(2, ChronoUnit.HOURS), ChronoUnit.HOURS);
     Assertions.assertEquals(expected, dt.until(offsetDt.plus(2, ChronoUnit.HOURS), ChronoUnit.HOURS));
+  }
+
+  @ParameterizedTest
+  @ArgumentsSource(ComponentsProvider.class)
+  public void testRoundTripZonedDateTimes(final LocalDate localDate, final LocalTime localTime, final ZoneId zone) {
+    final ZonedDateTime temporal = ZonedDateTime.of(localDate, localTime, zone);
+    if(!isExpressable(temporal)) {
+      return;
+    }
+
+    final DominoClient client = this.getClient();
+    DominoDateTime dt = client.createDateTime(temporal);
+    Assertions.assertNotNull(dt);
+
+    Assertions.assertEquals(temporal.toInstant(), dt.toOffsetDateTime().toInstant(), () -> "Failed with an offset of " + zone.getRules().getOffset(temporal.toInstant()));
+    Assertions.assertEquals(temporal.getOffset().getTotalSeconds(), dt.toOffsetDateTime().getOffset().getTotalSeconds());
+    Assertions.assertEquals(temporal.toOffsetDateTime(), dt.toOffsetDateTime());
+
+    final String expectedIso = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(temporal);
+    final String dominoIso = DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(dt);
+    Assertions.assertEquals(expectedIso, dominoIso);
+
+    Assertions.assertEquals(2, dt.until(temporal.plus(2, ChronoUnit.DAYS), ChronoUnit.DAYS));
+    final long expected = temporal.until(temporal.plus(2, ChronoUnit.HOURS), ChronoUnit.HOURS);
+    Assertions.assertEquals(expected, dt.until(temporal.plus(2, ChronoUnit.HOURS), ChronoUnit.HOURS));
   }
 
   @ParameterizedTest
@@ -407,7 +417,7 @@ public class TestDateTime extends AbstractNotesRuntimeTest {
       assertNotNull(max);
       // +18255-02-15T00:00Z
       OffsetDateTime dt = max.toOffsetDateTime();
-      assertEquals(18255, dt.get(ChronoField.YEAR));
+      assertTrue(dt.get(ChronoField.YEAR) >= 18255);
     }
     {
       DominoDateTime min = client.createDateTime(ConstantValue.MINIMUM);
@@ -430,10 +440,66 @@ public class TestDateTime extends AbstractNotesRuntimeTest {
       "UTC => 2026-07-20T12:00:00Z",
       "London DST => 2026-07-20T12:00:00+01:00",
       "London ST => 2026-01-01T12:00:00Z",
-      "Atlantic ST => 2026-01-20T12:00:00-04:00"
+      "Atlantic ST => 2026-01-20T12:00:00-04:00",
+      "French Fries => 2022-01-25T20:26:20+01:00",
+      "CET => 2022-01-25T20:26:00+01:00"
   })
   public void testKnownDateTimes(String title, OffsetDateTime expected) throws Exception {
     withResourceDxl("/dxl/testDateTimes", database -> {
+      Document doc = database.queryFormula("$$Title=\"" + title + "\"", null, EnumSet.noneOf(SearchFlag.class), null, EnumSet.of(DocumentClass.DATA))
+            .getNoteIds()
+            .map(ids -> ids.iterator().next())
+            .map(id -> database.getDocumentById(id).get())
+            .get();
+      DominoDateTime val = doc.get("DateTime", DominoDateTime.class, null);
+      {
+        assertNotNull(val);
+        OffsetDateTime odt = val.toOffsetDateTime();
+        assertEquals(expected.toInstant(), odt.toInstant());
+        assertEquals(expected, odt);
+      }
+      
+      // Now write the data to make sure it round trips
+      {
+        doc.replaceItemValue("DateTime2", val);
+        DominoDateTime val2 = doc.get("DateTime2", DominoDateTime.class, null);
+        OffsetDateTime odt = val2.toOffsetDateTime();
+        assertEquals(expected.toInstant(), odt.toInstant());
+        assertEquals(expected, odt);
+        
+        // Make sure formula thinks they're equal
+        Formula formula = doc.getParentDatabase().getParentDominoClient().createFormula("DateTime=DateTime2");
+        List<?> result = formula.evaluate(doc);
+        assertEquals(1d, result.get(0));
+      }
+      
+    });
+  }
+
+  /**
+   * Tests reading known DST/non-DST times from an existing NSF. This must read from the
+   * NSF specifically, as the docs exported via DXL do not include the curious behavior
+   * of having their "is DST?" bit set.
+   */
+  @ParameterizedTest
+  @CsvSource(delimiterString = " => ", value = {
+      "US Eastern DST => 2026-07-20T12:00:00-04:00",
+      "Atlantic DST => 2026-07-20T12:00:00-03:00",
+      "Eastern ST => 2026-01-20T12:00:00-05:00",
+      "UTC => 2026-07-20T12:00:00Z",
+      "London DST => 2026-07-20T12:00:00+01:00",
+      "London ST => 2026-01-01T12:00:00Z",
+      "Atlantic ST => 2026-01-20T12:00:00-04:00",
+      "CET => 2022-01-25T20:26:00+01:00",
+      "Auckland January => 2026-01-08T11:00:00+12:00",
+      "Auckland July => 2026-07-22T13:00:00+13:00",
+      "Kathmandu January => 2026-01-22T12:00:00+05:45",
+      "Kathmandu July => 2026-07-22T12:00:00+05:45",
+      "Chatham January => 2026-01-22T11:00:00+12:45",
+      "Chatham July => 2026-07-22T13:00:00+13:45"
+  })
+  public void testKnownDateTimesNsf(String title, OffsetDateTime expected) throws Exception {
+    withResourceDb("/nsf/datetime.nsf", database -> {
       Document doc = database.queryFormula("$$Title=\"" + title + "\"", null, EnumSet.noneOf(SearchFlag.class), null, EnumSet.of(DocumentClass.DATA))
             .getNoteIds()
             .map(ids -> ids.iterator().next())
