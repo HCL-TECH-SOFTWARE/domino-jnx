@@ -17,7 +17,7 @@
 <item name='Details'><richtext>
 <pardef id='1' keepwithnext='true' keeptogether='true'/>
 <par def='1'>Deep Fry until done</par></richtext></item>
-<item name='mydate'><datetimelist><datetime>20220125T202620,71+01</datetime></datetimelist></item>
+<item name='DateTime'><datetimelist><datetime>20220125T202620,00+01</datetime></datetimelist></item>
 <item name='Links'><richtext>
 <pardef id='2'/>
 <par def='2'>the links 2</par></richtext></item>
@@ -27,17 +27,7 @@
 <item name='$SMTPNotFromNotes'><textlist><text>1</text></textlist></item>
 <item name='Attributes'><textlist><text/></textlist></item>
 <item name='Ingredients'><textlist><text>Potatoes, Hot Oil, Salt</text></textlist></item>
-<item name='Name'><textlist><text>French Fries</text></textlist></item>
-<item name='$MIMETrack' summary='false'><textlist><text>Itemize by java on frascati.projectkeep.io/ProjectKeep at 11/02/2022 18:03:29</text><text
->Serialize by java on frascati.projectkeep.io/ProjectKeep at 11/02/2022 19:09:31</text><text
->Serialize complete at 11/02/2022 19:09:31</text><text>Itemize by java on frascati.projectkeep.io/ProjectKeep at 11/02/2022 19:10:22</text><text
->Serialize by java on frascati.projectkeep.io/ProjectKeep at 11/02/2022 19:31:35</text><text
->Serialize complete at 11/02/2022 19:31:35</text><text>Itemize by java on frascati.projectkeep.io/ProjectKeep at 11/02/2022 19:33:26</text><text
->Serialize by java on frascati.projectkeep.io/ProjectKeep at 11/02/2022 19:54:47</text><text
->Serialize complete at 11/02/2022 19:54:47</text><text>Itemize by java on frascati.projectkeep.io/ProjectKeep at 11/02/2022 19:56:39</text><text
->Serialize by java on frascati.projectkeep.io/ProjectKeep at 11/02/2022 20:06:27</text><text
->Serialize complete at 11/02/2022 20:06:27</text><text>Itemize by java on frascati.projectkeep.io/ProjectKeep at 11/02/2022 20:07:26</text></textlist></item>
-<item name='MIME_Version'><textlist><text>1.0</text></textlist></item>
+<item name='$$TITLE'><textlist><text>French Fries</text></textlist></item>
 <item name='Servings'><numberlist><number>2</number></numberlist></item>
 <item name='Source'><textlist><text>France</text></textlist></item>
 <item name='$EncryptionStatus'><textlist><text>0</text></textlist></item>
