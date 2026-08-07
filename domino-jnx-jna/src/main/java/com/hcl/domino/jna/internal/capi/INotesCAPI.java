@@ -47,6 +47,7 @@ import com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableExt;
 import com.hcl.domino.jna.internal.structs.NotesItemDefinitionTableLock;
 import com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
+import com.hcl.domino.jna.internal.structs.NotesTimeStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
 import com.hcl.domino.jna.internal.structs.ReplExtensionsStruct;
 import com.hcl.domino.jna.internal.structs.ReplServStatsStruct;
@@ -2148,6 +2149,9 @@ public interface INotesCAPI extends Library {
 	void OSCurrentTIMEDATE(NotesTimeDateStruct retTimeDate);
 	@UndocumentedAPI
 	short TIMEDATEtoRFC3339Date(NotesTimeDateStruct ptdTimeDate, Memory pachText, short wTextLen);
+	
+	boolean TimeGMToLocal(NotesTimeStruct time);
+	boolean TimeLocalToGM(NotesTimeStruct time);
 
 	short NSFDbItemDefTableExt(
 			HANDLE.ByValue hDB,

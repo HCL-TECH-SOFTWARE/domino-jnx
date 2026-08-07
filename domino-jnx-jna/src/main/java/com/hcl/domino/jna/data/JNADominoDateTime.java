@@ -17,17 +17,27 @@
 package com.hcl.domino.jna.data;
 
 import java.nio.charset.StandardCharsets;
+import java.time.DayOfWeek;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
-
+import java.time.zone.ZoneRules;
+import java.util.Optional;
 import com.hcl.domino.commons.data.DateFormat;
 import com.hcl.domino.commons.data.DateTimeStructure;
 import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.commons.data.TimeFormat;
 import com.hcl.domino.commons.data.ZoneFormat;
+import com.hcl.domino.commons.util.InnardsConverter;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.jna.internal.DisposableMemory;
@@ -38,6 +48,7 @@ import com.hcl.domino.jna.internal.capi.NotesCAPI12;
 import com.hcl.domino.jna.internal.structs.IntlFormatStruct;
 import com.hcl.domino.jna.internal.structs.NotesTFMTStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
+import com.hcl.domino.jna.internal.structs.NotesTimeStruct;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
@@ -134,7 +145,7 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
 	 * @param dt zoned date/time value
 	 */
 	public JNADominoDateTime(TemporalAccessor dt) {
-		super(dt);
+      super(toInnards(dt));
 	}
 
 	/**
@@ -378,5 +389,174 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
           return isoTime;
         }
       }
+    }
+    
+    @Override
+    public int[] getInnards() {
+      return lazilyCreateStruct().Innards;
+    }
+    
+    @Override
+    public Optional<Temporal> toTemporal() {
+      NotesTimeStruct time = NotesTimeStruct.newInstance();
+      time.GM = lazilyCreateStruct();
+      time.write();
+      if(NotesCAPI.get().TimeGMToLocal(time)) {
+        return Optional.empty();
+      }
+      time.read();
+      
+      LocalDate localDate = null;
+      LocalTime localTime = null;
+      
+      if(!InnardsConverter.isAnyDate(time.GM.Innards)) {
+        localDate = LocalDate.of(time.year, time.month, time.day);
+      }
+      if(!InnardsConverter.isAnyTime(time.GM.Innards)) {
+        localTime = LocalTime.of(time.hour, time.minute, time.second, time.hundredth * 10 * 1000 * 1000);
+      }
+      
+      if(localDate == null && localTime == null) {
+        return Optional.empty();
+      } else if(localDate == null) {
+        return Optional.of(localTime);
+      } else if(localTime == null) {
+        return Optional.of(localDate);
+      } else {
+        // Then compose them based on the offset.
+        // Offset is the base offset of the zone regardless of DST, in the opposite
+        // direction that Java expects.
+        // Non-integer zones are expressed as minutes * 100 + hours, e.g. "3002"
+        int offsetMinutes = -time.zone / 100;
+        int offsetHours = -(time.zone % 100 - (time.dst == 0 ? 0 : 1));
+        ZoneOffset offset = ZoneOffset.ofHoursMinutes(offsetHours, offsetMinutes);
+        OffsetDateTime odt = OffsetDateTime.of(localDate, localTime, offset);
+        return Optional.of(odt);
+      }
+    }
+    
+    private static int[] toInnards(TemporalAccessor dt) {
+      int[] innards;
+      if (dt instanceof ZonedDateTime) {
+        ZonedDateTime zdt = (ZonedDateTime)dt;
+        ZoneRules rules = zdt.getZone().getRules();
+        Instant inst = zdt.toInstant();
+        
+        int dstOffsetSeconds = 0;
+        Duration dstOffset = rules.getDaylightSavings(inst);
+        boolean isDst = !dstOffset.isZero();
+        if(isDst) {
+          // Notes makes some assumptions about what is and is not a valid
+          // DST moment based on the current runtime's context. In particular,
+          // it will mangle DST times from the opposite hemisphere of the
+          // running machine. In these cases, we want to just treat it
+          // as a zone-less offset.
+          // To determine this, we'll find out whether it falls within
+          // the first Sunday in April and the last Sunday in October. This is
+          // the internal assumption of start -> end DST.
+          ZonedDateTime aprilSunday = zdt.withMonth(4).withDayOfMonth(1);
+          DayOfWeek aprilSundayDay = aprilSunday.getDayOfWeek();
+          aprilSunday = aprilSunday.plus(7-aprilSundayDay.getValue(), ChronoUnit.DAYS);
+          
+          ZonedDateTime octoberSunday = zdt.withMonth(10).withDayOfMonth(31);
+          DayOfWeek octoberSundayDay = octoberSunday.getDayOfWeek();
+          octoberSunday = octoberSunday.minus(7-octoberSundayDay.getValue(), ChronoUnit.DAYS);
+          
+          boolean lotusDst = (zdt.equals(aprilSunday) || zdt.isAfter(aprilSunday))
+              && (zdt.equals(octoberSunday) || zdt.isBefore(octoberSunday));
+          
+          // With this in hand, find out whether a mid-range day in the current system's zone
+          // would have that
+          ZonedDateTime midNorthernSummer = ZonedDateTime.of(zdt.getYear(), 7, 1, 0, 0, 0, 0, ZoneId.systemDefault());
+          boolean midNorthernDst = midNorthernSummer.getZone().getRules().isDaylightSavings(midNorthernSummer.toInstant());
+          if(midNorthernDst != lotusDst) {
+            return toInnards(zdt.toOffsetDateTime());
+          }
+
+          // Otherwise, continue on to determine the offset
+          dstOffsetSeconds = (int)dstOffset.get(ChronoUnit.SECONDS);
+          
+          if(dstOffsetSeconds != 0 && dstOffsetSeconds != 3600) {
+            // Notes assumes a positive DST movement. For a negative movement,
+            // it punts, alters the time, and skips the DST flag.
+            // Moreover, it assumes DST is one hour. If it's not, it ignores
+            // the DST state
+            return toInnards(((ZonedDateTime)dt).toOffsetDateTime());
+          }
+        }
+        
+        NotesTimeStruct time = NotesTimeStruct.newInstance();
+        time.year = dt.get(ChronoField.YEAR);
+        time.month = dt.get(ChronoField.MONTH_OF_YEAR);
+        time.day = dt.get(ChronoField.DAY_OF_MONTH);
+        int weekday = dt.get(ChronoField.DAY_OF_WEEK) + 1;
+        time.weekday = weekday == 8 ? 1 : weekday;
+        time.hour = dt.get(ChronoField.HOUR_OF_DAY);
+        time.minute = dt.get(ChronoField.MINUTE_OF_HOUR);
+        time.second = ((ZonedDateTime)dt).getSecond();
+        time.hundredth = ((ZonedDateTime)dt).getNano() / 10_000_000;
+        
+        time.dst = dstOffsetSeconds != 0 ? 1 : 0;
+        int offsetSeconds = dt.get(ChronoField.OFFSET_SECONDS) - dstOffsetSeconds;
+        int offsetMinutes = (offsetSeconds / 60) % 60;
+        if(offsetMinutes % 15 != 0) {
+          throw new IllegalArgumentException("Unable to express offsets not in 15-minute increments");
+        }
+        
+        int offsetHours = offsetSeconds / 60 / 60;
+        time.zone = -((offsetMinutes * 100) + offsetHours);
+        
+        time.write();
+        if(NotesCAPI.get().TimeLocalToGM(time)) {
+          throw new RuntimeException("Unable to create TIMEDATE");
+        }
+        time.read();
+        time.GM.read();
+        return time.GM.Innards;
+      } else if (dt instanceof OffsetDateTime) {
+        NotesTimeStruct time = NotesTimeStruct.newInstance();
+        time.write();
+
+        int offsetSeconds = dt.get(ChronoField.OFFSET_SECONDS);
+        int offsetMinutes = (offsetSeconds / 60) % 60;
+        if(offsetMinutes % 15 != 0) {
+          throw new IllegalArgumentException("Unable to express offsets not in 15-minute increments");
+        }
+        int offsetHours = offsetSeconds / 60 / 60;
+        
+        time.year = dt.get(ChronoField.YEAR);
+        time.month = dt.get(ChronoField.MONTH_OF_YEAR);
+        time.day = dt.get(ChronoField.DAY_OF_MONTH);
+        int weekday = dt.get(ChronoField.DAY_OF_WEEK) + 1;
+        time.weekday = weekday == 8 ? 1 : weekday;
+        time.hour = dt.get(ChronoField.HOUR_OF_DAY);
+        time.minute = dt.get(ChronoField.MINUTE_OF_HOUR);
+        time.second = ((OffsetDateTime)dt).getSecond();
+        time.hundredth = ((OffsetDateTime)dt).getNano() / 10_000_000;
+        time.dst = 0;
+        
+        time.zone = -((offsetMinutes * 100) + offsetHours);
+        time.write();
+        if(NotesCAPI.get().TimeLocalToGM(time)) {
+          throw new RuntimeException("Unable to create TIMEDATE");
+        }
+        time.read();
+        time.GM.read();
+        return time.GM.Innards;
+      } else if (dt instanceof LocalDate) {
+        innards = InnardsConverter.encodeInnards((LocalDate) dt);
+      } else if (dt instanceof LocalTime) {
+        innards = InnardsConverter.encodeInnards((LocalTime) dt);
+      } else if (dt instanceof Instant) {
+        innards = InnardsConverter
+            .encodeInnards(OffsetDateTime.ofInstant((Instant) dt, ZoneId.of("UTC")), null); //$NON-NLS-1$
+      } else if (dt instanceof DefaultDominoDateTime) {
+        innards = ((DefaultDominoDateTime) dt).getInnards();
+      } else {
+        final Instant instant = Instant.from(dt);
+        innards = InnardsConverter
+            .encodeInnards(OffsetDateTime.ofInstant(instant, ZoneId.of("UTC")), null); //$NON-NLS-1$
+      }
+      return innards;
     }
 }
