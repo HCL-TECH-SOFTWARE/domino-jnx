@@ -63,6 +63,22 @@ import com.sun.jna.ptr.ShortByReference;
  * @author Karsten Lehmann
  */
 public class JNADominoDateTime extends DefaultDominoDateTime {
+  private static boolean USE_NATIVE_FUNCTIONS = true;
+  
+  /**
+   * Sets whether to the TimeLocalToGM/etc. functions for date/time
+   * conversions.
+   * 
+   * @param useNativeFunctions whether to use native functions
+   * @deprecated Will be removed when native functionality is fully
+   *             vetted
+   * @since 1.55.2
+   */
+  @Deprecated
+  public static void setUseNativeFunctions(boolean useNativeFunctions) {
+    USE_NATIVE_FUNCTIONS = useNativeFunctions;
+  }
+  
 	private NotesTimeDateStruct m_structReused;
 	
 	/**
@@ -398,6 +414,9 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
     
     @Override
     public Optional<Temporal> toTemporal() {
+      if(!USE_NATIVE_FUNCTIONS) {
+        return super.toTemporal();
+      }
       NotesTimeStruct time = NotesTimeStruct.newInstance();
       time.GM = lazilyCreateStruct();
       time.write();
@@ -436,6 +455,27 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
     }
     
     private static int[] toInnards(TemporalAccessor dt) {
+      if(!USE_NATIVE_FUNCTIONS) {
+        int[] innards;
+        if (dt instanceof ZonedDateTime) {
+          innards = InnardsConverter.encodeInnards((ZonedDateTime) dt);
+        } else if (dt instanceof OffsetDateTime) {
+          innards = InnardsConverter.encodeInnards((OffsetDateTime) dt, null);
+        } else if (dt instanceof LocalDate) {
+          innards = InnardsConverter.encodeInnards((LocalDate) dt);
+        } else if (dt instanceof LocalTime) {
+          innards = InnardsConverter.encodeInnards((LocalTime) dt);
+        } else if (dt instanceof Instant) {
+          innards = InnardsConverter.encodeInnards(OffsetDateTime.ofInstant((Instant) dt, ZoneId.of("UTC")), null); //$NON-NLS-1$
+        } else if (dt instanceof DefaultDominoDateTime) {
+          innards = ((DefaultDominoDateTime) dt).getInnards();
+        } else {
+          final Instant instant = Instant.from(dt);
+          innards = InnardsConverter.encodeInnards(OffsetDateTime.ofInstant(instant, ZoneId.of("UTC")), null); //$NON-NLS-1$
+        }
+        return innards;
+      }
+      
       int[] innards;
       if (dt instanceof ZonedDateTime) {
         ZonedDateTime zdt = (ZonedDateTime)dt;
