@@ -1519,6 +1519,22 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
       int maxDocsScanned, int maxEntriesScanned, int maxMsecs);
 
   /**
+   * Runs a DQL query against the documents in the database.<br>
+   *
+   * @param query             Domino query (DQL) as a single string (max 64K in
+   *                          length)
+   * @param flags             controlling execution, see {@link DBQuery}
+   * @param maxDocsScanned    maximum number of document scans allowed
+   * @param maxEntriesScanned maximum number of view entries processed allows
+   * @param maxMsecs          max milliseconds of execution allow
+   * @param namedArguments    a map of named substitution values for the query
+   * @return query result
+   */
+  DQLQueryResult queryDQL(String query, Set<DBQuery> flags,
+      int maxDocsScanned, int maxEntriesScanned, int maxMsecs,
+      Map<String, Object> namedArguments);
+
+  /**
    * Evaluates a formula on a set of documents or the whole database
    *
    * @param selectionFormula selection formula

@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.richtext;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -23,6 +24,7 @@ import java.util.Set;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.format.FieldListDelimiter;
 import com.hcl.domino.design.format.FieldListDisplayDelimiter;
+import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.TFMT;
 
 /**
@@ -181,4 +183,14 @@ public interface FormField {
    * @since 1.48.0
    */
   TFMT getTimeFormat();
+  
+  /**
+   * Retrieves the underlying collection of composite-data structures
+   * that make up the logical field.
+   * 
+   * @return a collection of {@link RichTextRecord} instances for the
+   *         field
+   * @since 1.55.2
+   */
+  Collection<RichTextRecord<?>> getStructs();
 }

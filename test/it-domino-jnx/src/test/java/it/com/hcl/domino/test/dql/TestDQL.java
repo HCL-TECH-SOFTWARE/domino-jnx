@@ -27,8 +27,10 @@ import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -915,7 +917,6 @@ public class TestDQL extends AbstractNotesRuntimeTest {
         someDoc.save();
         Formula formula = db.getParentDominoClient().createFormula("@Begins(FirstName; \"" + val + "\")");
         DQLTerm dql = DQL.formula(formula);
-        System.out.println("DQL:\n"+dql);
         
         assertEquals("@formula('@Begins(FirstName; \"" + val.replace("'", "\\'") + "\")')", dql.toString());
         DQLQueryResult result = db.queryDQL(dql, EnumSet.of(DBQuery.EXPLAIN));
@@ -925,6 +926,53 @@ public class TestDQL extends AbstractNotesRuntimeTest {
         Assertions.assertTrue(explainText.length() > 0);
         final IDTable resultsTable = result.getNoteIds().get();
         Assertions.assertTrue(resultsTable.size()==1 && resultsTable.iterator().next()==someDoc.getNoteID());
+      });
+    }
+    
+    @Test
+    public void testNamedParameter() throws Exception {
+      this.withTempDb(db -> {
+        Document someDoc = db.createDocument();
+        String val = "Fo'lee";
+        someDoc.appendItemValue("FirstName", val);
+        someDoc.save();
+        String dql = "FirstName = ?first_name";
+        
+        Map<String, Object> param = new HashMap<>();
+        param.put("first_name", val);
+        DQLQueryResult result = db.queryDQL(dql, EnumSet.of(DBQuery.EXPLAIN), 0, 0, 0, param);
+        showResult(result);
+        String explainText = result.getExplainText();
+        Assertions.assertNotNull(result.getExplainText());
+        Assertions.assertTrue(explainText.length() > 0);
+        final IDTable resultsTable = result.getNoteIds().get();
+        Assertions.assertEquals(1, resultsTable.size());
+        Assertions.assertEquals(someDoc.getNoteID(), resultsTable.iterator().next());
+      });
+    }
+    
+    @Test
+    public void testNamedParameters() throws Exception {
+      this.withTempDb(db -> {
+        Document someDoc = db.createDocument();
+        String val = "Fo'lee";
+        String lname = "boo";
+        someDoc.appendItemValue("FirstName", val);
+        someDoc.appendItemValue("LastName", lname);
+        someDoc.save();
+        String dql = "FirstName = ?first_name and LastName = ?last_name";
+        
+        Map<String, Object> param = new HashMap<>();
+        param.put("first_name", val);
+        param.put("last_name", lname);
+        DQLQueryResult result = db.queryDQL(dql, EnumSet.of(DBQuery.EXPLAIN), 0, 0, 0, param);
+        showResult(result);
+        String explainText = result.getExplainText();
+        Assertions.assertNotNull(result.getExplainText());
+        Assertions.assertTrue(explainText.length() > 0);
+        final IDTable resultsTable = result.getNoteIds().get();
+        Assertions.assertEquals(1, resultsTable.size());
+        Assertions.assertEquals(someDoc.getNoteID(), resultsTable.iterator().next());
       });
     }
 
