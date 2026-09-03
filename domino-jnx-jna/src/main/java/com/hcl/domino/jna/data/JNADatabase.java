@@ -92,6 +92,7 @@ import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.NoteIdWithScore;
+import com.hcl.domino.data.structures.QuepArgVal;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.design.RichTextBuilder;
 import com.hcl.domino.dql.DQL.DQLTerm;
@@ -2560,67 +2561,112 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	@Override
 	public DQLQueryResult queryDQL(String query, Set<DBQuery> flags,
 			int maxDocsScanned, int maxEntriesScanned, int maxMsecs) {
-		
-		checkDisposed();
-		
-		Memory queryMem = NotesStringUtils.toLMBCS(query, true);
-		int flagsAsInt = flags==null ? 0 : DominoEnumUtil.toBitField(DBQuery.class, flags);
-		
-		JNAIDTable idTable = null;
-		String errorTxt = ""; //$NON-NLS-1$
-		String explainTxt = ""; //$NON-NLS-1$
-		
-		IntByReference retError = new IntByReference();
-		retError.setValue(0);
-		IntByReference retExplain = new IntByReference();
-		retExplain.setValue(0);
-		
-		long t0=System.currentTimeMillis();
-
-		DHANDLE.ByReference retResults = DHANDLE.newInstanceByReference();
-		retResults.clear();
-		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hdbByVal) -> {
-			return NotesCAPI.get().NSFQueryDB(hdbByVal, queryMem,
-					flagsAsInt, maxDocsScanned, maxEntriesScanned, maxMsecs, retResults, 
-					retError, retExplain);
-		});
-		
-		if (retError.getValue()!=0) {
-			try (LockedMemory m = Mem.OSMemoryLock(retError.getValue())) {
-				errorTxt = NotesStringUtils.fromLMBCS(m.getPointer(), -1);
-			}
-			finally {
-				Mem.OSMemoryFree(retError.getValue());
-			}
-		}
-
-		if (result!=0) {
-			if (!StringUtil.isEmpty(errorTxt)) {
-				throw new DominoException(result, errorTxt, NotesErrorUtils.toNotesError(result).orElse(null));
-			}
-			else {
-				NotesErrorUtils.checkResult(result);
-			}
-		}
-		
-		if (!retResults.isNull()) {
-			idTable = new JNAIDTable(getParentDominoClient(), retResults, false);
-		}
-		
-		if (retExplain.getValue()!=0) {
-			try (LockedMemory m = Mem.OSMemoryLock(retExplain.getValue())) {
-				explainTxt = NotesStringUtils.fromLMBCS(m.getPointer(), -1);
-			}
-			finally {
-				Mem.OSMemoryFree(retExplain.getValue());
-			}
-		}
-	
-		long t1=System.currentTimeMillis();
-		
-		return new JNADQLQueryResult(this, query, idTable, explainTxt, t1-t0);
+	  return queryDQL(query, flags, maxDocsScanned, maxEntriesScanned, maxMsecs, null);
 	}
+	
+    @Override
+    public DQLQueryResult queryDQL(String query, Set<DBQuery> flags, int maxDocsScanned,
+        int maxEntriesScanned, int maxMsecs, Map<String, Object> namedArguments) {
+      
+      checkDisposed();
+      
+      Memory queryMem = NotesStringUtils.toLMBCS(query, true);
+      int flagsAsInt = flags==null ? 0 : DominoEnumUtil.toBitField(DBQuery.class, flags);
+      
+      JNAIDTable idTable = null;
+      String errorTxt = ""; //$NON-NLS-1$
+      String explainTxt = ""; //$NON-NLS-1$
+      
+      IntByReference retError = new IntByReference();
+      retError.setValue(0);
+      IntByReference retExplain = new IntByReference();
+      retExplain.setValue(0);
+      
+      long t0=System.currentTimeMillis();
+
+      DHANDLE.ByReference retResults = DHANDLE.newInstanceByReference();
+      retResults.clear();
+      
+      int hQArgList = 0;
+      if(namedArguments != null && !namedArguments.isEmpty()) {
+        IntByReference phQArgList = new IntByReference(0);
+        
+        namedArguments.forEach((key, value) -> {
+          // TODO support NUMBER and TIME
+          // TODO throw on null
+          
+          int size = MemoryStructureUtil.sizeOf(QuepArgVal.class);
+          QuepArgVal argVal = MemoryStructureUtil.newStructure(QuepArgVal.class, 0);
+          argVal.setType(ItemDataType.TYPE_TEXT);
+          byte[] valMem = new byte[256];
+          String termVal = String.valueOf(value);
+          NotesStringUtils.toLMBCS(termVal, true, valMem);
+          int len;
+          for(len = 0; len < valMem.length && valMem[len] != '\0'; len++) {}
+          argVal.setLength(len);
+          argVal.setOrdinal(0);
+          argVal.setBinaryForm(false);
+          byte[] argName = new byte[16];
+          NotesStringUtils.toLMBCS(key, true, argName);
+          argVal.setArgName(argName);
+          argVal.setValue(valMem);
+
+          try(DisposableMemory mem = new DisposableMemory(size)) {
+            mem.write(0, argVal.getData().array(), 0, size);
+            
+            NotesErrorUtils.checkResult(NotesCAPI.get().NSFQueryDBAddArgs(mem, phQArgList));
+          }
+        });
+        
+        hQArgList = phQArgList.getValue();
+      }
+      
+      int fhQArgList = hQArgList;
+      short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hdbByVal) -> {
+          return NotesCAPI.get().NSFQueryDBExt2(hdbByVal, queryMem,
+                  (int)queryMem.size()-1, flagsAsInt, maxDocsScanned, maxEntriesScanned, maxMsecs, retResults, 
+                  retError, retExplain, fhQArgList);
+      });
+      if(hQArgList != 0) {
+        Mem.OSMemoryFree(hQArgList);
+      }
+      
+      if (retError.getValue()!=0) {
+          try (LockedMemory m = Mem.OSMemoryLock(retError.getValue())) {
+              errorTxt = NotesStringUtils.fromLMBCS(m.getPointer(), -1);
+          }
+          finally {
+              Mem.OSMemoryFree(retError.getValue());
+          }
+      }
+
+      if (result!=0) {
+          if (!StringUtil.isEmpty(errorTxt)) {
+              throw new DominoException(result, errorTxt, NotesErrorUtils.toNotesError(result).orElse(null));
+          }
+          else {
+              NotesErrorUtils.checkResult(result);
+          }
+      }
+      
+      if (!retResults.isNull()) {
+          idTable = new JNAIDTable(getParentDominoClient(), retResults, false);
+      }
+      
+      if (retExplain.getValue()!=0) {
+          try (LockedMemory m = Mem.OSMemoryLock(retExplain.getValue())) {
+              explainTxt = NotesStringUtils.fromLMBCS(m.getPointer(), -1);
+          }
+          finally {
+              Mem.OSMemoryFree(retExplain.getValue());
+          }
+      }
+  
+      long t1=System.currentTimeMillis();
+      
+      return new JNADQLQueryResult(this, query, idTable, explainTxt, t1-t0);
+    }
+
     @Override
     public FTQueryResult queryFTIndex(String query, int maxResults, Set<FTQuery> options,
             Set<Integer> filterIds, int start, int count) {

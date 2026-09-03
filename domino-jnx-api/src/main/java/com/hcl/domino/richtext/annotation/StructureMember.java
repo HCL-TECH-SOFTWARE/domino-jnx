@@ -32,8 +32,7 @@ public @interface StructureMember {
 
   /**
    * Specifies the length of the embedded structure array, when {@link #type()} is
-   * an
-   * array type.
+   * an array type.
    *
    * @return the length of the structure array
    */
@@ -48,23 +47,22 @@ public @interface StructureMember {
    * Defines the Java type of the structure member. This may be one of:
    * <ul>
    * <li>A primitive number type</li>
+   * <li>An array of a primitive number type</li>
    * <li>An {@code enum} that implements {@link INumberEnum}</li>
    * <li>A direct sub-interface of {@link MemoryStructure}</li>
    * </ul>
    * <p>
+   * This type should match the physical size of the C struct member. For
+   * example, {@code WORD} is {@code short} and {@code DWORD} is {@code int}.
    * If the value is unsigned in C, then {@link #unsigned()} should be
-   * {@code true}
-   * and this type should be one primitive number size higher than the byte size
-   * of
-   * the storage type. For example, an unsigned {@code WORD} is represented by
-   * {@code int}.
+   * {@code true} and getters and setters for this member should use a type
+   * one size higher. For example, {@code type=int.class, unsigned=true} should
+   * be retrieved and set as {@code long}.
    * </p>
    * <p>
    * If the value is a bit field in C, such as a "Flags" field, then
-   * {@link #bitfield}
-   * should be {@code true} and this type should be the type of a single flag, and
-   * not a
-   * collection type.
+   * {@link #bitfield} should be {@code true} and this type should be the
+   * type of a single flag, and not a collection type.
    * </p>
    *
    * @return the Java type of the member

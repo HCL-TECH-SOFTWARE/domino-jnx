@@ -1283,10 +1283,20 @@ public interface INotesCAPI extends Library {
 			NotesTimeDateStruct retDataModified,
 			NotesTimeDateStruct retNonDataModified);
 
-  @UndocumentedAPI
-	short NSFQueryDB(HANDLE.ByValue hDb, Memory query, int flags,
+	short NSFQueryDBExt2(HANDLE.ByValue hDb, Memory query, int qlen, int flags,
 			int maxDocsScanned, int maxEntriesScanned, int maxMsecs,
-			DHANDLE.ByReference retResults, IntByReference retError, IntByReference retExplain);
+			DHANDLE.ByReference retResults, IntByReference retError, IntByReference retExplain,
+			int hQArgList);
+	
+	/**
+	 * Build a list of values to input into a Domino Query Language (DQL) query
+	 * 
+	 * @param pArg QUEP_ARGVAL* - A value, ordinal, or name for the argument to build
+	 * @param phQargList MEMHANDLE*  Set of QUEP_ARGVALs that were built
+	 * @return NOERROR - On success. ERR_MISC_INVALID_ARGS - Invalid arguments.
+	 *         ERR_MEMORY - Memory failure
+	 */
+	short NSFQueryDBAddArgs(/* QUEP_ARGVAL* */ Pointer pArg, IntByReference phQargList);
 
 	short FTOpenSearch(DHANDLE.ByReference rethSearch);
 
