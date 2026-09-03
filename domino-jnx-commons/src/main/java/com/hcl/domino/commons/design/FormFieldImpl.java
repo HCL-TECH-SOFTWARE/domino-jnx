@@ -18,6 +18,7 @@ package com.hcl.domino.commons.design;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -264,5 +265,10 @@ public class FormFieldImpl implements FormField {
   @Override
   public TFMT getTimeFormat() {
     return this.cdField.getTimeFormat();
+  }
+  
+  @Override
+  public Collection<RichTextRecord<?>> getStructs() {
+    return Collections.unmodifiableCollection(this.structs);
   }
 }
