@@ -17,6 +17,7 @@
 package it.com.hcl.domino.test.design;
 
 import static it.com.hcl.domino.test.util.ITUtil.toLf;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -1907,6 +1908,9 @@ public class TestDbDesignForms extends AbstractDesignTest {
       {
         FormField field = getField(fields, "NormalField");
         assertEquals(FormField.Kind.EDITABLE, field.getKind());
+        Collection<RichTextRecord<?>> structs = field.getStructs();
+        assertNotNull(structs);
+        assertFalse(structs.isEmpty());
       }
       {
         FormField field = getField(fields, "ComputedWhenComposed");
