@@ -4756,5 +4756,9 @@ public interface NotesConstants extends ViewFormatConstants, StdNames, QueryOds,
   int CREATE_INDEX_NOBUILD = 0x00000002;
   /** Create an inline updated view */
   int CREATE_INDEX_UPD_INLINE = 0x00000004;
+  
+  /* dbmiscods.h */
+  int MAXQARGNAMELEN = 16;
+  int MAXTEXTARGVAL = NotesConstants.MAXSPRINTF;
 
 }
