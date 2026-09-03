@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.data.structures;
 
+import java.util.Optional;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.annotation.StructureDefinition;
@@ -43,7 +44,7 @@ import com.hcl.domino.richtext.structures.MemoryStructure;
   )
 public interface QuepArgVal extends MemoryStructure {
   @StructureGetter("type")
-  ItemDataType getType();
+  Optional<ItemDataType> getType();
   
   /**
    * Sets the expected type of {@code Value}.
@@ -53,6 +54,12 @@ public interface QuepArgVal extends MemoryStructure {
    */
   @StructureSetter("type")
   QuepArgVal setType(ItemDataType type);
+  
+  @StructureGetter("type")
+  short getTypeRaw();
+  
+  @StructureSetter("type")
+  QuepArgVal setTypeRaw(short type);
   
   @StructureGetter("length")
   long getLength();
