@@ -111,6 +111,20 @@ import com.hcl.domino.misc.NotesConstants;
  * @author Karsten Lehmann
  */
 public class InnardsConverter {
+  private static boolean HONOR_DST_OFFSET = true;
+  
+  /**
+   * Sets whether to honor and set the DST flag in innards
+   * 
+   * @param honorDstOffset whether to honor DST flags
+   * @deprecated Will be removed when DST functionality is fully
+   *             vetted
+   * @since 1.55.3
+   */
+  @Deprecated
+  public static void setHonorDstOffset(boolean honorDstOffset) {
+    HONOR_DST_OFFSET = honorDstOffset;
+  }
 
   /**
    * Container for all values read from an innards array
@@ -405,7 +419,7 @@ public class InnardsConverter {
       final int intervalCount = (dateInnard & 0x30000000) >> 28;        // bits 29-28
 
       int offsetSeconds = (eastOfGmt ? 1 : -1) * (hourOffset * 60 * 60 + intervalCount * 15 * 60);
-      if(dst) {
+      if(HONOR_DST_OFFSET && dst) {
         offsetSeconds += 60*60;
       }
       
@@ -457,8 +471,8 @@ public class InnardsConverter {
     if (zoneId != null) {
       Instant inst = offsetDateTime.toInstant();
       boolean isDst = zoneId.getRules().isDaylightSavings(inst);
-      tzOffsetSeconds = zoneId.getRules().getOffset(offsetDateTime.toInstant()).getTotalSeconds();
-      if(isDst) {
+      tzOffsetSeconds = zoneId.getRules().getOffset(inst).getTotalSeconds();
+      if(HONOR_DST_OFFSET && isDst) {
         zoneMask |= 0x80000000;
         tzOffsetSeconds -= 60 * 60;
       }
@@ -508,9 +522,19 @@ public class InnardsConverter {
     int[] innards;
     // The high-order bit, bit 31 (0x80000000), is set if Daylight Savings Time is
     // ever observed in the zone
-    innards = InnardsConverter.encodeInnards(zonedDateTime.toOffsetDateTime(), zonedDateTime.getZone());
-    if (zonedDateTime.getZone().getRules().isDaylightSavings(zonedDateTime.toInstant())) {
-      innards[1] |= 0x80000000;
+    if(HONOR_DST_OFFSET) {
+      innards = InnardsConverter.encodeInnards(zonedDateTime.toOffsetDateTime(), zonedDateTime.getZone());
+      if (zonedDateTime.getZone().getRules().isDaylightSavings(zonedDateTime.toInstant())) {
+        innards[1] |= 0x80000000;
+      }
+    } else {
+      ZoneId zone = zonedDateTime.getZone();
+      Instant instant = zonedDateTime.toInstant();
+      if(zone.getRules().nextTransition(instant) != null && zone.getRules().previousTransition(instant) != null) {
+        innards = InnardsConverter.encodeInnards(zonedDateTime.toOffsetDateTime(), zonedDateTime.getZone());
+      } else {
+        innards = InnardsConverter.encodeInnards(zonedDateTime.toOffsetDateTime(), null);
+      }
     }
 
     return innards;
