@@ -6,6 +6,8 @@ import com.hcl.domino.jna.internal.gc.handles.DHandleByValueMapper;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HandleByReferenceMapper;
 import com.hcl.domino.jna.internal.gc.handles.HandleByValueMapper;
+import com.hcl.domino.jna.internal.structs.MemoryStructureMapper;
+import com.hcl.domino.richtext.structures.MemoryStructure;
 import com.sun.jna.FromNativeConverter;
 import com.sun.jna.ToNativeConverter;
 import com.sun.jna.TypeMapper;
@@ -36,6 +38,8 @@ public enum JnxJnaTypeMapper implements TypeMapper {
       return (T)HandleByReferenceMapper.INSTANCE;
     } else if(HANDLE.ByValue.class.isAssignableFrom(javaType)) {
       return (T)HandleByValueMapper.INSTANCE;
+    } else if(MemoryStructure.class.isAssignableFrom(javaType)) {
+      return (T)MemoryStructureMapper.INSTANCE;
     }
     return null;
   }
