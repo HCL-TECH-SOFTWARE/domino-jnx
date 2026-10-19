@@ -47,6 +47,7 @@ public class DominoOIDCTokenValidation {
   private final String customClaimName;
   private final Predicate<String> resourceValidator;
   private final Predicate<String> clientIdValidator;
+  private final int flagsExt;
   
   /**
    * Constructs a new token validation request using the required parameters.
@@ -82,6 +83,32 @@ public class DominoOIDCTokenValidation {
    *                          claim; may be {@code null}
    */
   public DominoOIDCTokenValidation(String token, String providerUrl, String requiredScope, String aud, Collection<Flag> flags, String customClaimName, Predicate<String> resourceValidator, Predicate<String> clientIdValidator) {
+    this(token, providerUrl, requiredScope, aud, flags, customClaimName, resourceValidator, clientIdValidator, 0);
+  }
+  
+  /**
+   * Constructs a new token validation request using the required parameters as well as
+   * extended parameters for validation flags and handling of audience and client IDs.
+   * 
+   * @param token the token to validate, without any leading "Bearer " from a header
+   * @param providerUrl the expected provider URL, which must match the Base URL field
+   *                    from idpcat.nsf
+   * @param requiredScope scope required to be in the token to validate, such as
+   *                      {@code "Domino.user.all"}
+   * @param aud the expected audience claim, such as {@code "https://www.example.com"}
+   * @param flags a {@link Collection} of {@link Flag} values to control validation;
+   *              may be {@code null}
+   * @param customClaimName the name of the expected claim in the JWT containing the
+   *                        email address; defaults to {@code "email"} when blank
+   * @param resourceValidator a callback to validate additional {@code "aud"} claim
+   *                          values, called once per audience; may be {@code null}
+   * @param clientIdValidator a callback to validate the contents of the {@code "azp"}
+   *                          claim; may be {@code null}
+   * @param flagsExt an additional integer value to be OR'd in with the enumerated values
+   *                 of {@code flags}
+   * @since 1.56.3
+   */
+  public DominoOIDCTokenValidation(String token, String providerUrl, String requiredScope, String aud, Collection<Flag> flags, String customClaimName, Predicate<String> resourceValidator, Predicate<String> clientIdValidator, int flagsExt) {
     if(token == null || token.isEmpty()) {
       throw new IllegalArgumentException("token cannot be empty");
     }
@@ -103,6 +130,7 @@ public class DominoOIDCTokenValidation {
     this.customClaimName = customClaimName;
     this.resourceValidator = resourceValidator;
     this.clientIdValidator = clientIdValidator;
+    this.flagsExt = flagsExt;
   }
   
   public String getToken() {
@@ -129,12 +157,15 @@ public class DominoOIDCTokenValidation {
   public Predicate<String> getResourceValidator() {
     return resourceValidator;
   }
+  public int getFlagsExt() {
+    return flagsExt;
+  }
 
   @Override
   public String toString() {
     return String.format(
-        "DominoOIDCTokenValidation [token=%s, providerUrl=%s, requiredScope=%s, aud=%s, flags=%s]",
-        token, providerUrl, requiredScope, aud, flags
+        "DominoOIDCTokenValidation [token=%s, providerUrl=%s, requiredScope=%s, aud=%s, flags=%s, flagsExt=%s]",
+        token, providerUrl, requiredScope, aud, flags, flagsExt
     );
   }
 }
