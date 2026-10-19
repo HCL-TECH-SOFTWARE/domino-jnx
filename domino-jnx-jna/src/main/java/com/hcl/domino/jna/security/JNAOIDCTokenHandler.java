@@ -59,6 +59,7 @@ public class JNAOIDCTokenHandler implements CredentialValidationTokenHandler<Dom
     Memory memScope = NotesStringUtils.toLMBCS(token.getRequiredScope(), true);
     Memory memAud = NotesStringUtils.toLMBCS(token.getAud(), true);
     int dwFlags = DominoEnumUtil.toBitField(DominoOIDCTokenValidation.Flag.class, token.getFlags());
+    dwFlags |= token.getFlagsExt();
     
     // Check optional parameters to adjust flags and fill in a structure
     JwtValidateOptionalParamsStruct params = JwtValidateOptionalParamsStruct.newInstance();
