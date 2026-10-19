@@ -20,7 +20,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-
+import com.hcl.domino.data.structures.QuepArgVal;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.Mem.LockedMemory;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
@@ -1296,7 +1296,7 @@ public interface INotesCAPI extends Library {
 	 * @return NOERROR - On success. ERR_MISC_INVALID_ARGS - Invalid arguments.
 	 *         ERR_MEMORY - Memory failure
 	 */
-	short NSFQueryDBAddArgs(/* QUEP_ARGVAL* */ Pointer pArg, IntByReference phQargList);
+	short NSFQueryDBAddArgs(QuepArgVal pArg, IntByReference phQargList);
 
 	short FTOpenSearch(DHANDLE.ByReference rethSearch);
 

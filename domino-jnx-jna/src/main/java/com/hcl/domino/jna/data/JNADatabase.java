@@ -1350,7 +1350,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 	@Override
 	public boolean isFTIndex() {
-		return getOption(DatabaseOption.FT_INDEX) && getLastFTIndexTime() != null;
+		return getOption(DatabaseOption.FT_INDEX) && getLastFTIndexTime().isPresent();
 	}
 
 	@Override
@@ -2610,12 +2610,8 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
           NotesStringUtils.toLMBCS(key, true, argName);
           argVal.setArgName(argName);
           argVal.setValue(valMem);
-
-          try(DisposableMemory mem = new DisposableMemory(size)) {
-            mem.write(0, argVal.getData().array(), 0, size);
-            
-            NotesErrorUtils.checkResult(NotesCAPI.get().NSFQueryDBAddArgs(mem, phQArgList));
-          }
+          
+          NotesErrorUtils.checkResult(NotesCAPI.get().NSFQueryDBAddArgs(argVal, phQArgList));
         });
         
         hQArgList = phQArgList.getValue();
