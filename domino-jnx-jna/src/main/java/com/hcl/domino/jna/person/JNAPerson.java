@@ -24,7 +24,6 @@ import com.hcl.domino.UserNamesList;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.IAdaptable;
@@ -91,8 +90,7 @@ public class JNAPerson extends BaseJNAAPIObject<JNAPersonAllocations> implements
 		Memory mailOwnerNameMem = NotesStringUtils.toLMBCS(m_usernameCanonical, true);
 		Memory homeMailServerMem = NotesStringUtils.toLMBCS(NotesNamingUtils.toCanonicalName(homeMailServer), true);
 
-		short result = NotesCAPI.get().OOOInit();
-		NotesErrorUtils.checkResult(result);
+		NotesCAPI.get().OOOInit().orElseThrow();
 
 		try {
 			IntByReference hOOOContext = new IntByReference();
@@ -101,12 +99,11 @@ public class JNAPerson extends BaseJNAAPIObject<JNAPersonAllocations> implements
 			JNADatabaseAllocations dbMailAllocations = (JNADatabaseAllocations) (dbMail==null ? null : dbMail.getAdapter(APIObjectAllocations.class));
 			HANDLE dbHandle = dbMailAllocations==null ? null : dbMailAllocations.getDBHandle();
 
-			result = LockUtil.lockHandle(dbHandle, (hDbByVal) -> {
-				return NotesCAPI.get().OOOStartOperation(mailOwnerNameMem,
+			LockUtil.lockHandle(dbHandle, (hDbByVal) ->
+				NotesCAPI.get().OOOStartOperation(mailOwnerNameMem,
 						homeMailServerMem, isHomeMailServer ? 1 : 0, hDbByVal, hOOOContext,
-								pOOOOContext);
-			});
-			NotesErrorUtils.checkResult(result);
+								pOOOOContext)
+			).orElseThrow();
 
 			JNAOutOfOffice ctx = new JNAOutOfOffice(this, new IAdaptable() {
 				@SuppressWarnings("unchecked")
@@ -127,8 +124,7 @@ public class JNAPerson extends BaseJNAAPIObject<JNAPersonAllocations> implements
 			return ctx;
 		}
 		catch (Exception e) {
-			short termResult = NotesCAPI.get().OOOTerm();
-			NotesErrorUtils.checkResult(termResult);
+			NotesCAPI.get().OOOTerm().orElseThrow();
 
 			if (e instanceof RuntimeException) {
 				throw (RuntimeException) e;

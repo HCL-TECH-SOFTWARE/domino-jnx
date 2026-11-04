@@ -27,6 +27,7 @@ import java.util.Optional;
 
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.OSLoadStringProvider;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.errors.ErrorText;
 import com.hcl.domino.commons.errors.errorcodes.IAgntsErr;
 import com.hcl.domino.commons.errors.errorcodes.IBsafeErr;
@@ -48,7 +49,6 @@ import com.hcl.domino.commons.errors.errorcodes.IRouteErr;
 import com.hcl.domino.commons.errors.errorcodes.ISecErr;
 import com.hcl.domino.commons.errors.errorcodes.ISrvErr;
 import com.hcl.domino.commons.errors.errorcodes.IXmlErr;
-import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.BadPasswordException;
 import com.hcl.domino.exception.CancelException;
 import com.hcl.domino.exception.CollectionAlreadyExistsException;
@@ -97,13 +97,8 @@ public class NotesErrorUtils {
    * @param result code
    * @throws DominoException if the result is not 0
    */
-  @Deprecated
   public static void checkResult(final short result) {
     NotesErrorUtils.checkResult(result, false);
-  }
-  
-  public static void checkResult(final STATUS result) {
-    NotesErrorUtils.checkResult(result.getValue(), false);
   }
 
   /**
@@ -296,7 +291,7 @@ public class NotesErrorUtils {
       case INsfErr.ERR_ITEM_NOT_FOUND:
         return Optional.of(new ItemNotFoundException(s, message));
       case IMiscErr.ERR_NOT_FOUND:
-        return Optional.of(new EntryNotFoundInIndexException(s, message));
+        return Optional.of(new EntryNotFoundInIndexException(StatusImpl.of((short)s), message));
       case INifErr.ERR_NO_SUCH_ITEM:
         return Optional.of(new ItemNotPresentException(s, message));
       case ISecErr.ERR_SECURE_BADPASSWORD:
@@ -366,6 +361,7 @@ public class NotesErrorUtils {
     StackTraceElement[] stack = new Throwable().getStackTrace();
     return Arrays.stream(stack)
       .filter(el -> !NotesErrorUtils.class.getName().equals(el.getClassName()))
+      .filter(el -> !StatusImpl.class.getName().equals(el.getClassName()))
       .findFirst()
       .map(el -> el.getClassName() + "#" + el.getMethodName() + ":" + el.getLineNumber()) //$NON-NLS-1$ //$NON-NLS-2$
       .orElse(""); //$NON-NLS-1$

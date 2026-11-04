@@ -25,7 +25,7 @@ public class JNAServerStatistics implements ServerStatistics {
     short flagsVal = DominoEnumUtil.toBitField(Flag.class, flags);
     try(DisposableMemory valueMem = new DisposableMemory(4)) {
       valueMem.setInt(0, value);
-      NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, NotesConstants.VT_LONG, valueMem);
+      NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, NotesConstants.VT_LONG, valueMem).orElseThrow();
     }
   }
 
@@ -36,7 +36,7 @@ public class JNAServerStatistics implements ServerStatistics {
     Memory statNameMem = NotesStringUtils.toLMBCS(statName, true);
     short flagsVal = DominoEnumUtil.toBitField(Flag.class, flags);
     Memory valueMem = NotesStringUtils.toLMBCS(value, true);
-    NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, NotesConstants.VT_TEXT, valueMem);
+    NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, NotesConstants.VT_TEXT, valueMem).orElseThrow();
   }
 
   @Override
@@ -47,7 +47,7 @@ public class JNAServerStatistics implements ServerStatistics {
     short flagsVal = DominoEnumUtil.toBitField(Flag.class, flags);
     try(DisposableMemory valueMem = new DisposableMemory(8)) {
       valueMem.setDouble(0, value);
-      NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, NotesConstants.VT_NUMBER, valueMem);
+      NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, NotesConstants.VT_NUMBER, valueMem).orElseThrow();
     }
   }
 
@@ -62,7 +62,7 @@ public class JNAServerStatistics implements ServerStatistics {
       int[] innards = dt.getInnards();
       valueMem.setInt(0, innards[0]);
       valueMem.setInt(4, innards[1]);
-      NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, NotesConstants.VT_TIMEDATE, valueMem);
+      NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, NotesConstants.VT_TIMEDATE, valueMem).orElseThrow();
     }
   }
 
@@ -70,7 +70,7 @@ public class JNAServerStatistics implements ServerStatistics {
   public void resetStatistic(String facility, String statName) {
     Memory facilityMem = NotesStringUtils.toLMBCS(facility, true);
     Memory statNameMem = NotesStringUtils.toLMBCS(statName, true);
-    NotesCAPI.get().StatReset(facilityMem, statNameMem);
+    NotesCAPI.get().StatReset(facilityMem, statNameMem).orElseThrow();
   }
 
   @Override

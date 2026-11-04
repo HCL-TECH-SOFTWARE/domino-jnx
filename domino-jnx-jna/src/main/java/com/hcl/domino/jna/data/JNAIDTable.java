@@ -39,9 +39,9 @@ import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.IDTable;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.internal.Mem;
@@ -106,8 +106,7 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
     DHANDLE.ByReference retHandle = DHANDLE.newInstanceByReference();
     short noteIdLength = NotesCAPI.get().ODSLength((short) 1); // _NOTEID
 
-    short result = NotesCAPI.get().IDCreateTable(noteIdLength, retHandle);
-    NotesErrorUtils.checkResult(result);
+    NotesCAPI.get().IDCreateTable(noteIdLength, retHandle).orElseThrow();
 
     if (retHandle.isNull()) {
       throw new DominoException(0, "Null handle received for id table");
@@ -204,12 +203,12 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
     try {
       // AccessController call required to prevent SecurityException when running in XPages
       AccessController.doPrivileged((PrivilegedExceptionAction<Object>) () -> {
-        short result = LockUtil.lockHandle(allocations.getIdTableHandle(), (handleByVal) -> {
+        STATUS result = LockUtil.lockHandle(allocations.getIdTableHandle(), (handleByVal) -> {
           return NotesCAPI.get().IDEnumerate(handleByVal, proc, null);
         });
 
-        if (result != INotesErrorConstants.ERR_CANCEL) {
-          NotesErrorUtils.checkResult(result);
+        if (result.getValue() != INotesErrorConstants.ERR_CANCEL) {
+          result.orElseThrow();
         }
         return null;
       });
@@ -290,11 +289,9 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
     JNAIDTableAllocations allocations = getAllocations();
 
     IntByReference retInserted = new IntByReference();
-    short result = LockUtil.lockHandle(allocations.getIdTableHandle(), (handleByVal) -> {
-      return NotesCAPI.get().IDInsert(handleByVal, noteId, retInserted);
+    LockUtil.lockHandle(allocations.getIdTableHandle(), (handleByVal) -> {
+      return NotesCAPI.get().IDInsert(handleByVal, noteId, retInserted).orElseThrow();
     });
-
-    NotesErrorUtils.checkResult(result);
     int retInsertedAsInt = retInserted.getValue();
     return retInsertedAsInt != 0;
   }
@@ -306,10 +303,9 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
       JNAIDTableAllocations allocations = getAllocations();
 
       IntByReference retDeleted = new IntByReference();
-      short result = LockUtil.lockHandle(allocations.getIdTableHandle(), (handleByVal) -> {
-        return NotesCAPI.get().IDDelete(handleByVal, (Integer) noteId, retDeleted);
+      LockUtil.lockHandle(allocations.getIdTableHandle(), (handleByVal) -> {
+        return NotesCAPI.get().IDDelete(handleByVal, (Integer) noteId, retDeleted).orElseThrow();
       });
-      NotesErrorUtils.checkResult(result);
 
       int retDeletedAsInt = retDeleted.getValue();
       return retDeletedAsInt != 0;
@@ -350,9 +346,7 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
           (ourHandleByVal, otherHandleByVal) -> {
             DHANDLE.ByReference rethDstTable = DHANDLE.newInstanceByReference();
 
-            short result =
-                NotesCAPI.get().IDTableIntersect(ourHandleByVal, otherHandleByVal, rethDstTable);
-            NotesErrorUtils.checkResult(result);
+            NotesCAPI.get().IDTableIntersect(ourHandleByVal, otherHandleByVal, rethDstTable).orElseThrow();
 
             int intersectedEntries = LockUtil.lockHandle(rethDstTable, (rethDstTableByVal) -> {
               int numEntries = NotesCAPI.get().IDEntries(rethDstTableByVal);
@@ -403,15 +397,13 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
       if (otherIDTableAllocations == null) {
         throw new DominoException(0, "Unable to read handle of other IDTable");
       }
-      short result = LockUtil.lockHandles(
+      LockUtil.lockHandles(
           allocations.getIdTableHandle(),
           otherIDTableAllocations.getIdTableHandle(),
           (ourIDTableHandleByVal, otherIDTableHandleByVal) -> {
 
-            return NotesCAPI.get().IDInsertTable(ourIDTableHandleByVal, otherIDTableHandleByVal);
+            return NotesCAPI.get().IDInsertTable(ourIDTableHandleByVal, otherIDTableHandleByVal).orElseThrow();
           });
-
-      NotesErrorUtils.checkResult(result);
     } else {
       Integer[] noteIdsArr = c.toArray(new Integer[c.size()]);
       // sorts category note ids to the end of the list (with NOTEID_CATEGORY bit set)
@@ -445,10 +437,9 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
                     // convert to signed int
                     int lastAsInt = (int) last;
 
-                    short result = NotesCAPI.get().IDInsertRange(ourIDTableHandleByVal,
+                    NotesCAPI.get().IDInsertRange(ourIDTableHandleByVal,
                         firstAsInt,
-                        lastAsInt, addToEnd);
-                    NotesErrorUtils.checkResult(result);
+                        lastAsInt, addToEnd).orElseThrow();
                   }
                   // flush range list
                   currIdRange.clear();
@@ -470,10 +461,9 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
                 // convert to signed int
                 int lastAsInt = (int) last;
 
-                short result = NotesCAPI.get().IDInsertRange(ourIDTableHandleByVal,
+                NotesCAPI.get().IDInsertRange(ourIDTableHandleByVal,
                     firstAsInt,
-                    lastAsInt, addToEnd);
-                NotesErrorUtils.checkResult(result);
+                    lastAsInt, addToEnd).orElseThrow();
               }
             }
 
@@ -574,13 +564,11 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
     int oldSize = size();
 
     try {
-      short result = LockUtil.lockHandles(
+      LockUtil.lockHandles(
           ourAllocations.getIdTableHandle(),
           otherAllocations.getIdTableHandle(), (handleByVal, otherAllocationsHandleByVal) -> {
-            return NotesCAPI.get().IDDeleteTable(handleByVal, otherAllocationsHandleByVal);
+            return NotesCAPI.get().IDDeleteTable(handleByVal, otherAllocationsHandleByVal).orElseThrow();
           });
-
-      NotesErrorUtils.checkResult(result);
 
       return oldSize != size();
     } finally {
@@ -595,10 +583,9 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
     checkDisposed();
     JNAIDTableAllocations allocations = getAllocations();
 
-    short result = LockUtil.lockHandle(allocations.getIdTableHandle(), (handleByVal) -> {
-      return NotesCAPI.get().IDDeleteAll(handleByVal);
+    LockUtil.lockHandle(allocations.getIdTableHandle(), (handleByVal) -> {
+      return NotesCAPI.get().IDDeleteAll(handleByVal).orElseThrow();
     });
-    NotesErrorUtils.checkResult(result);
   }
 
   @Override
@@ -627,16 +614,14 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
     try {
       DHANDLE.ByReference retTableHandle = DHANDLE.newInstanceByReference();
 
-      short result = LockUtil.lockHandles(
+      LockUtil.lockHandles(
           ourAllocations.getIdTableHandle(),
           otherAllocations.getIdTableHandle(),
           (handleByVal, otherAllocationsIDTableHandleByVal) -> {
 
             return NotesCAPI.get().IDTableIntersect(handleByVal,
-                otherAllocationsIDTableHandleByVal, retTableHandle);
+                otherAllocationsIDTableHandleByVal, retTableHandle).orElseThrow();
           });
-
-      NotesErrorUtils.checkResult(result);
 
       JNAIDTable retTable = new JNAIDTable((JNADominoClient) getParent(), retTableHandle, false);
       return retTable;
@@ -923,8 +908,7 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
     return LockUtil.lockHandle(allocations.getIdTableHandle(), (handleByVal) -> {
       DHANDLE.ByReference rethTable = DHANDLE.newInstanceByReference();
 
-      short result = NotesCAPI.get().IDTableCopy(handleByVal, rethTable);
-      NotesErrorUtils.checkResult(result);
+      NotesCAPI.get().IDTableCopy(handleByVal, rethTable).orElseThrow();
       return new JNAIDTable(getParentDominoClient(), rethTable, false);
     });
   }

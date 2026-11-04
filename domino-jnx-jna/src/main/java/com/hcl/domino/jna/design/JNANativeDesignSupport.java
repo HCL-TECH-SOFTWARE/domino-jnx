@@ -17,7 +17,6 @@
 package com.hcl.domino.jna.design;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -25,7 +24,6 @@ import java.util.List;
 
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
@@ -114,10 +112,9 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
         DHANDLE.ByReference hErrs = DHANDLE.newInstanceByReference();
         int dwFlags = 0;
         
-        short resultFormat = NotesCAPI.get().AgentLSTextFormat(hSrcByVal, hDest,
-            hErrs, dwFlags, phDataByRef);
+        NotesCAPI.get().AgentLSTextFormat(hSrcByVal, hDest,
+            hErrs, dwFlags, phDataByRef).orElseThrow();
         //AgentLSTextFormat only returns NOERROR or ERR_MEMORY in case it runs out of memory
-        NotesErrorUtils.checkResult(resultFormat);
         
         String formattedCode = lockAndReadText(hDest, true);
         String errorTxt = lockAndReadText(hErrs, true);
@@ -217,10 +214,9 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
 
           IntByReference rtnRRV = new IntByReference();
 
-          short allocObjResult = NotesCAPI.get().NSFDbAllocObjectExtended2(hDbByVal,
+          NotesCAPI.get().NSFDbAllocObjectExtended2(hDbByVal,
               runInfoDataWithSpace.length,
-              noteClass, privs, objectType.getValue(), rtnRRV);
-          NotesErrorUtils.checkResult(allocObjResult);
+              noteClass, privs, objectType.getValue(), rtnRRV).orElseThrow();
 
           //copy buffer array data into memory buffer
           Pointer ptrBuffer = Mem.OSLockObject(hCopyBufferByVal);
@@ -231,13 +227,12 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
             Mem.OSUnlockObject(hCopyBufferByVal);
           }
 
-          short writeObjResult = NotesCAPI.get().NSFDbWriteObject(
+          NotesCAPI.get().NSFDbWriteObject(
               hDbByVal,
               rtnRRV.getValue(),
               hCopyBufferByVal,
               0,
-              runInfoDataWithSpace.length);
-          NotesErrorUtils.checkResult(writeObjResult);
+              runInfoDataWithSpace.length).orElseThrow();
 
           Mem.OSMemFree(hCopyBufferByVal);
 

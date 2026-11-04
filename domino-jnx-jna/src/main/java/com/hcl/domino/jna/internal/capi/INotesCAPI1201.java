@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.internal.capi;
 
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.jna.internal.capi.INotesCAPI.UndocumentedAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
@@ -38,7 +39,7 @@ public interface INotesCAPI1201 extends Library {
       Memory fullUserName);
 
   @UndocumentedAPI
-  short NSFProcessResultsExt(HANDLE.ByValue hDb,
+  STATUS NSFProcessResultsExt(HANDLE.ByValue hDb,
       Memory resultsname,
       int dwFlags,
       int hInResults,
@@ -57,7 +58,7 @@ public interface INotesCAPI1201 extends Library {
 
 
   @UndocumentedAPI
-  short ListAllocate2Ext (short ListEntries,
+  STATUS ListAllocate2Ext (short ListEntries,
       int TextSize,
       boolean fPrefixDataType,
       IntByReference rethList,
@@ -66,7 +67,7 @@ public interface INotesCAPI1201 extends Library {
       boolean bAllowLarge);
 
   @UndocumentedAPI
-  short ListAddEntry2Ext(int mhList,
+  STATUS ListAddEntry2Ext(int mhList,
       boolean fPrefixDataType,
       IntByReference pListSize,
       char EntryNumber,
@@ -76,12 +77,12 @@ public interface INotesCAPI1201 extends Library {
   
   @UndocumentedAPI
   /* to issue  design command */
-  short NSFDesignCommand(HANDLE.ByValue hDb, int cmd, int dwFlags, 
+  STATUS NSFDesignCommand(HANDLE.ByValue hDb, int cmd, int dwFlags, 
     Memory pObjectName, IntByReference phReturnVal, IntByReference phErrorText, int hDsgnCmd);
 
   @UndocumentedAPI
   /* to prep for design command - add fields for create index */
-  short NSFDesignCommandAddComponent(Memory name, int attr,
+  STATUS NSFDesignCommandAddComponent(Memory name, int attr,
     IntByReference phDsgnCmd);
 
 }

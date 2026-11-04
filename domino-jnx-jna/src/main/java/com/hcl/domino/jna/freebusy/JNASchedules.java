@@ -24,12 +24,13 @@ import java.util.Iterator;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.freebusy.Schedule;
 import com.hcl.domino.freebusy.ScheduleOptions;
@@ -127,7 +128,7 @@ public class JNASchedules extends BaseJNAAPIObject<JNASchedulesAllocations> impl
 	 */
 	private JNASchedule getFirstSchedule() {
 		if (this.isDisposed()) {
-			throw new DominoException(0, "Schedule collection has been disposed");
+			throw new DominoException(StatusImpl.NOERROR, "Schedule collection has been disposed");
 		}
 
 		DHANDLE hSchedules = getAllocations().getSchedulesHandle();
@@ -136,11 +137,11 @@ public class JNASchedules extends BaseJNAAPIObject<JNASchedulesAllocations> impl
 			IntByReference rethObj = new IntByReference();
 			Memory schedulePtrMem = new Memory(Native.POINTER_SIZE);
 
-			short result = NotesCAPI.get().SchContainer_GetFirstSchedule(hSchedulesByVal, rethObj, schedulePtrMem);
-			if (result == INotesErrorConstants.ERR_SCHOBJ_NOTEXIST) {
+			STATUS result = NotesCAPI.get().SchContainer_GetFirstSchedule(hSchedulesByVal, rethObj, schedulePtrMem);
+			if (result.getMaskedValue() == INotesErrorConstants.ERR_SCHOBJ_NOTEXIST) {
 				return null;
 			}
-			NotesErrorUtils.checkResult(result);
+			result.orElseThrow();
 			
 			if (rethObj.getValue()==0) {
 				return null;
@@ -197,12 +198,12 @@ public class JNASchedules extends BaseJNAAPIObject<JNASchedulesAllocations> impl
 			IntByReference rethNextSchedule = new IntByReference();
 	
 			Memory schedulePtrMem = new Memory(Native.POINTER_SIZE);
-			short result = NotesCAPI.get().SchContainer_GetNextSchedule(hSchedulesByVal, hCurrSchedule, rethNextSchedule,
+			STATUS result = NotesCAPI.get().SchContainer_GetNextSchedule(hSchedulesByVal, hCurrSchedule, rethNextSchedule,
 					schedulePtrMem);
-			if (result==INotesErrorConstants.ERR_SCHOBJ_NOTEXIST) {
+			if (result.getMaskedValue()==INotesErrorConstants.ERR_SCHOBJ_NOTEXIST) {
 				return null;
 			}
-			NotesErrorUtils.checkResult(result);
+			result.orElseThrow();
 	
 			long peer = schedulePtrMem.getLong(0);
 			if (peer==0) {

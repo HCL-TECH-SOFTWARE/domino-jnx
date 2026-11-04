@@ -35,7 +35,6 @@ import com.hcl.domino.commons.mime.NotesMIMEPart;
 import com.hcl.domino.commons.richtext.DefaultRichTextList;
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentProperties;
@@ -347,10 +346,9 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 		itemBlockIdByVal.pool = m_itemBlockId.getPool();
 		itemBlockIdByVal.block = m_itemBlockId.getBlock();
 
-		short result = LockUtil.lockHandle(targetDocAllocations.getNoteHandle(), (targetDocHandleByVal) -> {
-			return NotesCAPI.get().NSFItemCopy(targetDocHandleByVal, itemBlockIdByVal);
+		LockUtil.lockHandle(targetDocAllocations.getNoteHandle(), (targetDocHandleByVal) -> {
+			return NotesCAPI.get().NSFItemCopy(targetDocHandleByVal, itemBlockIdByVal).orElseThrow();
 		});
-		NotesErrorUtils.checkResult(result);
 	}
 
 	@Override
@@ -374,10 +372,9 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 		itemBlockIdByVal.pool = m_itemBlockId.getPool();
 		itemBlockIdByVal.block = m_itemBlockId.getBlock();
 
-		short result = LockUtil.lockHandle(targetDocAllocations.getNoteHandle(), (targetDocHandleByVal) -> {
-			return NotesCAPI.get().NSFItemCopyAndRename(targetDocHandleByVal, itemBlockIdByVal, newItemNameMem);
+		LockUtil.lockHandle(targetDocAllocations.getNoteHandle(), (targetDocHandleByVal) -> {
+			return NotesCAPI.get().NSFItemCopyAndRename(targetDocHandleByVal, itemBlockIdByVal, newItemNameMem).orElseThrow();
 		});
-		NotesErrorUtils.checkResult(result);
 	}
 
 	@Override
@@ -473,12 +470,11 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 
 	  int itemFlags = getFlagsAsInt();
 	  try(DisposableMemory itemValue = getValueRaw(false)) {
-	    short result = LockUtil.lockHandle(docAllocations.getNoteHandle(), (docHandleByVal) -> {
+	    LockUtil.lockHandle(docAllocations.getNoteHandle(), (docHandleByVal) -> {
 	      return NotesCAPI.get().NSFItemModifyValue(docHandleByVal, itemBlockIdByVal, 
 	          (short) (itemFlags & 0xffff), newType.getValue(), 
-	          itemValue, (int) itemValue.size());
+	          itemValue, (int) itemValue.size()).orElseThrow();
 	    });
-	    NotesErrorUtils.checkResult(result);
 	  }
 	}
 	
@@ -668,9 +664,8 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 		docAllocations.checkDisposed();
 
 		LockUtil.lockHandle(docAllocations.getNoteHandle(), (noteHdlByVal) -> {
-			short result = NotesCAPI.get().MIMEConvertRFC822TextItemByBLOCKID(noteHdlByVal, itemBlockIdByVal,
-					valueBlockIdByVal);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().MIMEConvertRFC822TextItemByBLOCKID(noteHdlByVal, itemBlockIdByVal,
+					valueBlockIdByVal).orElseThrow();
 
 			//force datatype and seq number reload
 			m_itemFlagsLoaded = false;
@@ -693,10 +688,9 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 		JNADocumentAllocations docAllocations = (JNADocumentAllocations) m_parentDoc.getAdapter(APIObjectAllocations.class);
 		docAllocations.checkDisposed();
 
-		short result = LockUtil.lockHandle(docAllocations.getNoteHandle(), (hNoteByVal) -> {
-			return NotesCAPI.get().NSFItemDeleteByBLOCKID(hNoteByVal, itemBlockIdByVal);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(docAllocations.getNoteHandle(), (hNoteByVal) ->
+			NotesCAPI.get().NSFItemDeleteByBLOCKID(hNoteByVal, itemBlockIdByVal)
+		).orElseThrow();
 		
 		dispose();
 	}

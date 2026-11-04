@@ -38,11 +38,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -188,20 +189,21 @@ public class JNAMessageQueue extends BaseJNAAPIObject<JNAMessageQueueAllocations
     };
 
     final ShortByReference retMsgLength = new ShortByReference();
-    short result;
+    STATUS result;
     try {
       // AccessController call required to prevent SecurityException when running in XPages
-      result = AccessController.doPrivileged((PrivilegedExceptionAction<Short>) () -> NotesCAPI
-          .get().MQScan(getAllocations().getMessageQueueHandle(), buffer, (short) (length & 0xffff),
-              0, cCallback, null, retMsgLength));
+      result = AccessController.doPrivileged((PrivilegedExceptionAction<STATUS>) () ->
+        NotesCAPI.get().MQScan(getAllocations().getMessageQueueHandle(), buffer, (short) (length & 0xffff),
+              0, cCallback, null, retMsgLength)
+      );
     } catch (PrivilegedActionException e) {
       if (e.getCause() instanceof RuntimeException) {
         throw (RuntimeException) e.getCause();
       } else {
-        throw new DominoException(0, "Error scanning message queue", e);
+        throw new DominoException(StatusImpl.NOERROR, "Error scanning message queue", e);
       }
     }
-    NotesErrorUtils.checkResult(result);
+    result.orElseThrow();
 
     return retMsgLength.getValue() & 0xffff;
   }
@@ -250,9 +252,9 @@ public class JNAMessageQueue extends BaseJNAAPIObject<JNAMessageQueueAllocations
           NotesConstants.MQ_MAX_MSGSIZE, length));
     }
 
-    short result = NotesCAPI.get().MQPut(getAllocations().getMessageQueueHandle(),
-        (short) (priority & 0xffff), buffer, (short) (length & 0xffff), 0);
-    NotesErrorUtils.checkResult(result);
+    NotesCAPI.get().MQPut(getAllocations().getMessageQueueHandle(),
+        (short) (priority & 0xffff), buffer, (short) (length & 0xffff), 0)
+      .orElseThrow();
   }
 
   /**
@@ -289,11 +291,10 @@ public class JNAMessageQueue extends BaseJNAAPIObject<JNAMessageQueueAllocations
 
     ShortByReference retMsgLength = new ShortByReference();
 
-    short result = NotesCAPI.get().MQGet(getAllocations().getMessageQueueHandle(), buffer,
+    NotesCAPI.get().MQGet(getAllocations().getMessageQueueHandle(), buffer,
         (short) (length & 0xffff),
         waitForMessage ? NotesConstants.MQ_WAIT_FOR_MSG : 0,
-        timeoutMillis, retMsgLength);
-    NotesErrorUtils.checkResult(result);
+        timeoutMillis, retMsgLength).orElseThrow();
 
     return retMsgLength.getValue();
   }
@@ -310,18 +311,18 @@ public class JNAMessageQueue extends BaseJNAAPIObject<JNAMessageQueueAllocations
         throw new IllegalArgumentException(MessageFormat
             .format("Timeout value {0} is larger than Integer.MAX_VALUE", Long.toString(millis)));
       }
-      short result = NotesCAPI.get().MQGet(getAllocations().getMessageQueueHandle(), buffer,
+      STATUS result = NotesCAPI.get().MQGet(getAllocations().getMessageQueueHandle(), buffer,
           (short) (NotesConstants.MQ_MAX_MSGSIZE & 0xffff),
           NotesConstants.MQ_WAIT_FOR_MSG,
           (int) millis, retMsgLength);
-      if (result == INotesErrorConstants.ERR_MQ_EMPTY) {
+      if (result.getMaskedValue()== INotesErrorConstants.ERR_MQ_EMPTY) {
         return Optional.empty();
-      } else if (result == INotesErrorConstants.ERR_MQ_TIMEOUT) {
+      } else if (result.getMaskedValue() == INotesErrorConstants.ERR_MQ_TIMEOUT) {
         return Optional.empty();
-      } else if (result == INotesErrorConstants.ERR_MQ_QUITTING) {
+      } else if (result.getMaskedValue() == INotesErrorConstants.ERR_MQ_QUITTING) {
         throw new InterruptedException("Received ERR_MQ_QUITTING");
       }
-      NotesErrorUtils.checkResult(result);
+      result.orElseThrow();
 
       return Optional
           .of(NotesStringUtils.fromLMBCS(buffer, Short.toUnsignedInt(retMsgLength.getValue())));

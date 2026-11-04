@@ -24,7 +24,6 @@ import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.DominoDateRange;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.IAdaptable;
@@ -85,9 +84,8 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 		
 		JNAOOOContextAllocations allocations = getAllocations();
 		synchronized (allocations) {
-			short result = NotesCAPI.get().OOOGetAwayPeriod(allocations.getOOOPointer(), tdStartAwayStruct, tdEndAwayStruct);
-			NotesErrorUtils.checkResult(result);
-			
+			NotesCAPI.get().OOOGetAwayPeriod(allocations.getOOOPointer(), tdStartAwayStruct, tdEndAwayStruct)
+			  .orElseThrow();
 		}
 		
 		DominoDateTime tdStartAway = new JNADominoDateTime(tdStartAwayStruct);
@@ -104,8 +102,8 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 		
 		JNAOOOContextAllocations allocations = getAllocations();
 		synchronized (allocations) {
-			short result = NotesCAPI.get().OOOGetExcludeInternet(allocations.getOOOPointer(), bExcludeInternet);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().OOOGetExcludeInternet(allocations.getOOOPointer(), bExcludeInternet)
+			  .orElseThrow();
 		}
 		
 		return bExcludeInternet.getValue()==1;
@@ -117,8 +115,8 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 		
 		JNAOOOContextAllocations allocations = getAllocations();
 		synchronized (allocations) {
-			short result = NotesCAPI.get().OOOSetExcludeInternet(allocations.getOOOPointer(), exclude ? 1 : 0);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().OOOSetExcludeInternet(allocations.getOOOPointer(), exclude ? 1 : 0)
+			  .orElseThrow();
 		}
 	}
 
@@ -145,8 +143,8 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 
 		JNAOOOContextAllocations allocations = getAllocations();
 		synchronized (allocations) {
-			short result = NotesCAPI.get().OOOGetState(allocations.getOOOPointer(), retVersion, retState);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().OOOGetState(allocations.getOOOPointer(), retVersion, retState)
+			  .orElseThrow();
 		}
 
 		if (retType!=null) {
@@ -175,8 +173,8 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 		try(DisposableMemory retSubject = new DisposableMemory(NotesConstants.OOOPROF_MAX_BODY_SIZE)) {
 			JNAOOOContextAllocations allocations = getAllocations();
 			synchronized (allocations) {
-				short result = NotesCAPI.get().OOOGetGeneralSubject(allocations.getOOOPointer(), retSubject);
-				NotesErrorUtils.checkResult(result);
+				NotesCAPI.get().OOOGetGeneralSubject(allocations.getOOOPointer(), retSubject)
+				  .orElseThrow();
 			}
 			
 			String subject = NotesStringUtils.fromLMBCS(retSubject, -1);
@@ -193,8 +191,8 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 			//first get the length
 			ShortByReference retGeneralMessageLen = new ShortByReference();
 			
-			short result = NotesCAPI.get().OOOGetGeneralMessage(allocations.getOOOPointer(), null, retGeneralMessageLen);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().OOOGetGeneralMessage(allocations.getOOOPointer(), null, retGeneralMessageLen)
+			  .orElseThrow();
 			
 			int iGeneralMessageLen = retGeneralMessageLen.getValue() & 0xffff;
 			if (iGeneralMessageLen==0) {
@@ -202,8 +200,8 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 			}
 			
 			try(DisposableMemory retMessage = new DisposableMemory(iGeneralMessageLen + 1)) {
-				result = NotesCAPI.get().OOOGetGeneralMessage(allocations.getOOOPointer(), retMessage, retGeneralMessageLen);
-				NotesErrorUtils.checkResult(result);
+				NotesCAPI.get().OOOGetGeneralMessage(allocations.getOOOPointer(), retMessage, retGeneralMessageLen)
+				  .orElseThrow();
 				String msg = NotesStringUtils.fromLMBCS(retMessage, retGeneralMessageLen.getValue());
 				return msg;
 			}
@@ -219,8 +217,8 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 			NotesTimeDateStruct.ByValue tdStartWayByVal = NotesTimeDateStruct.ByValue.newInstance(JNADominoDateTime.from(tdStartAway).getInnards());
 			NotesTimeDateStruct.ByValue tdEndWayByVal = NotesTimeDateStruct.ByValue.newInstance(JNADominoDateTime.from(tdEndAway).getInnards());
 			
-			short result = NotesCAPI.get().OOOSetAwayPeriod(allocations.getOOOPointer(), tdStartWayByVal, tdEndWayByVal);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().OOOSetAwayPeriod(allocations.getOOOPointer(), tdStartWayByVal, tdEndWayByVal)
+			  .orElseThrow();
 		}
 	}
 
@@ -230,8 +228,8 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 		
 		JNAOOOContextAllocations allocations = getAllocations();
 		synchronized (allocations) {
-			short result = NotesCAPI.get().OOOEnable(allocations.getOOOPointer(), enabled ? 1 : 0);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().OOOEnable(allocations.getOOOPointer(), enabled ? 1 : 0)
+			  .orElseThrow();
 		}
 	}
 
@@ -243,8 +241,8 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 		
 		JNAOOOContextAllocations allocations = getAllocations();
 		synchronized (allocations) {
-			short result = NotesCAPI.get().OOOSetGeneralSubject(allocations.getOOOPointer(), subjectMem, displayReturnDate ? 1 : 0);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().OOOSetGeneralSubject(allocations.getOOOPointer(), subjectMem, displayReturnDate ? 1 : 0)
+			  .orElseThrow();
 		}
 	}
 
@@ -259,8 +257,8 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 		
 		JNAOOOContextAllocations allocations = getAllocations();
 		synchronized (allocations) {
-			short result = NotesCAPI.get().OOOSetGeneralMessage(allocations.getOOOPointer(), msgMem, (short) (msgMem.size() & 0xffff));
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().OOOSetGeneralMessage(allocations.getOOOPointer(), msgMem, (short) (msgMem.size() & 0xffff))
+			  .orElseThrow();
 		}
 	}
 

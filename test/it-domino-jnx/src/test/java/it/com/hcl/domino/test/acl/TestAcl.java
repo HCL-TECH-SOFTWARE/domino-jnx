@@ -186,7 +186,7 @@ public class TestAcl extends AbstractNotesRuntimeTest {
           acl.save();
         } catch(NotAuthorizedException e) {
           // Should have method information tacked on
-          assertTrue(e.getMessage().contains("#save"));
+          assertTrue(e.getMessage().contains("#save"), () -> "Unexpected message: " + e.getMessage());
         }
         assertThrows(NotAuthorizedException.class, () -> acl.save());
       }

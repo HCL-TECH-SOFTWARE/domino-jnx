@@ -52,7 +52,7 @@ public class JNARichtextMimeConversionSettingsAllocations extends APIObjectAlloc
 		
 		lockAndGetSettingsPointer((ptr) -> {
 			if (ptr!=null) {
-				NotesCAPI.get().MMDestroyConvControls(ptr);
+				NotesCAPI.get().MMDestroyConvControls(ptr).orElseThrow();
 				m_convControls = null;
 			}
 			return null;

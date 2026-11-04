@@ -33,6 +33,7 @@ import com.hcl.domino.admin.replication.Replication;
 import com.hcl.domino.admin.replication.ReplicationHistorySummary;
 import com.hcl.domino.admin.replication.ReplicationHistorySummary.ReplicationDirection;
 import com.hcl.domino.commons.constants.UpdateNote;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -42,6 +43,7 @@ import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.OpenDocumentMode;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.IncompatibleImplementationException;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
@@ -102,10 +104,9 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations>
     JNADatabaseAllocations dbAllocations =
         (JNADatabaseAllocations) jnaDb.getAdapter(APIObjectAllocations.class);
 
-    short result = LockUtil.lockHandle(dbAllocations.getDBHandle(), (hDbByVal) -> {
-      return NotesCAPI.get().NSFDbClearReplHistory(hDbByVal, 0);
-    });
-    NotesErrorUtils.checkResult(result);
+    LockUtil.lockHandle(dbAllocations.getDBHandle(), (hDbByVal) ->
+      NotesCAPI.get().NSFDbClearReplHistory(hDbByVal, 0)
+    ).orElseThrow();
   }
 
   @Override
@@ -131,10 +132,9 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations>
         (JNADatabaseAllocations) jnaDb.getAdapter(APIObjectAllocations.class);
 
     NotesDbReplicaInfoStruct retReplicationInfo = NotesDbReplicaInfoStruct.newInstance();
-    short result = LockUtil.lockHandle(dbAllocations.getDBHandle(), (handleByVal) -> {
-      return NotesCAPI.get().NSFDbReplicaInfoGet(handleByVal, retReplicationInfo);
+    LockUtil.lockHandle(dbAllocations.getDBHandle(), (handleByVal) -> {
+      return NotesCAPI.get().NSFDbReplicaInfoGet(handleByVal, retReplicationInfo).orElseThrow();
     });
-    NotesErrorUtils.checkResult(result);
     return new JNAReplicaInfo(jnaDb, retReplicationInfo);
   }
 
@@ -154,11 +154,10 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations>
     JNADatabaseAllocations dbAllocations =
         (JNADatabaseAllocations) jnaDb.getAdapter(APIObjectAllocations.class);
 
-    short result = LockUtil.lockHandle(dbAllocations.getDBHandle(), (hDbByVal) -> {
+    LockUtil.lockHandle(dbAllocations.getDBHandle(), (hDbByVal) -> {
       return NotesCAPI.get().NSFDbReplicaInfoSet(hDbByVal,
-          jnaReplicaInfo.getAdapter(NotesDbReplicaInfoStruct.class));
+          jnaReplicaInfo.getAdapter(NotesDbReplicaInfoStruct.class)).orElseThrow();
     });
-    NotesErrorUtils.checkResult(result);
 
     // reset cached replicaId
     jnaDb._resetCachedReplicaId();
@@ -193,10 +192,9 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations>
 
     docAllocations.closeAllRichtextWriters();
 
-    short result = LockUtil.lockHandle(docAllocations.getNoteHandle(), (hNoteByVal) -> {
-      return NotesCAPI.get().NSFNoteUpdateExtended(hNoteByVal, fUpdateFlagsBitmask);
+    LockUtil.lockHandle(docAllocations.getNoteHandle(), (hNoteByVal) -> {
+      return NotesCAPI.get().NSFNoteUpdateExtended(hNoteByVal, fUpdateFlagsBitmask).orElseThrow();
     });
-    NotesErrorUtils.checkResult(result);
   }
 
 
@@ -236,13 +234,13 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations>
     }
 
     if (noteIds.length != docOpenFlags.length) {
-      throw new DominoException(0,
+      throw new DominoException(StatusImpl.NOERROR,
           MessageFormat.format(
               "Size of document open flags array does not match note ids array ({0}!={1})",
               docOpenFlags.length, noteIds.length));
     }
     if (noteIds.length != sinceSeqNum.length) {
-      throw new DominoException(0,
+      throw new DominoException(StatusImpl.NOERROR,
           MessageFormat.format(
               "Size of sinceSeqNum array does not match note ids array ({0}!={1})",
               sinceSeqNum.length,
@@ -403,7 +401,7 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations>
       cObjectWriteCallback = null;
     }
 
-    short result = LockUtil.lockHandles(dbAllocations.getDBHandle(),
+    STATUS result = LockUtil.lockHandles(dbAllocations.getDBHandle(),
         (jnaObjectDbAllocations == null ? null : jnaObjectDbAllocations.getDBHandle()),
         (hDbByVal, hObjectDbByVal) -> {
           return NotesCAPI.get().NSFDbGetNotes(hDbByVal, noteIds.length, arrNoteIdsMem,
@@ -422,10 +420,8 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations>
       throw new DominoException("Error reading documents", exception[0]);
     }
     if (!Boolean.TRUE.equals(stopped.get())) {
-      NotesErrorUtils.checkResult(result);
+      result.orElseThrow();
     }
-
-
   }
 
 
@@ -446,11 +442,10 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations>
 
     int dwFlags = DominoEnumUtil.toBitField(ReplicationHistoryFlags.class, flags);
 
-    short result = LockUtil.lockHandle(dbAllocations.getDBHandle(), (hDbByVal) -> {
-      return NotesCAPI.get().NSFDbGetReplHistorySummary(hDbByVal, dwFlags, rethSummary,
-          retNumEntries);
-    });
-    NotesErrorUtils.checkResult(result);
+    LockUtil.lockHandle(dbAllocations.getDBHandle(), (hDbByVal) ->
+      NotesCAPI.get().NSFDbGetReplHistorySummary(hDbByVal, dwFlags, rethSummary,
+          retNumEntries)
+    ).orElseThrow();
 
     return LockUtil.lockHandle(rethSummary, (rethSummaryByVal) -> {
       List<ReplicationHistorySummary> history = new ArrayList<>();

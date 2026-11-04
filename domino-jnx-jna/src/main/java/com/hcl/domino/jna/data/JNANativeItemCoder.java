@@ -22,11 +22,9 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.richtext.RichTextUtil;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.ItemDecoder;
@@ -69,52 +67,49 @@ public class JNANativeItemCoder implements NativeItemCoder {
 	  }
 	}
 
-	@Override
-	public byte[] encodeStringList(List<String> values) {
-		if(values == null || values.isEmpty()) {
-			return new byte[] { 0, 0 };
-		}
-		else if (values.size()>65535) {
-      throw new DominoException(MessageFormat.format("List size exceeds max value of 65535 entries: {0}", values.size()));
+    @Override
+    public byte[] encodeStringList(List<String> values) {
+      if (values == null || values.isEmpty()) {
+        return new byte[] {0, 0};
+      } else if (values.size() > 65535) {
+        throw new DominoException(MessageFormat
+            .format("List size exceeds max value of 65535 entries: {0}", values.size()));
+      }
+
+      DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
+      ShortByReference retListSize = new ShortByReference();
+
+      NotesCAPI.get().ListAllocate((short) 0,
+          (short) 0,
+          0, rethList, null, retListSize).orElseThrow();
+
+      return LockUtil.lockHandle(rethList, (handleByVal) -> {
+        for (int i = 0; i < values.size(); i++) {
+          String currStr = values.get(i);
+          Memory currStrMem = NotesStringUtils.toLMBCS(currStr, false);
+
+          if (currStrMem != null && currStrMem.size() > 65535) {
+            throw new DominoException(MessageFormat
+                .format("List item at position {0} exceeds max lengths of 65535 bytes", i));
+          }
+
+          char textSize = currStrMem == null ? 0 : (char) currStrMem.size();
+
+          NotesCAPI.get().ListAddEntry(handleByVal, 0, retListSize,
+              (char) i, currStrMem, textSize).orElseThrow();
+        }
+
+
+        int size = Short.toUnsignedInt(retListSize.getValue());
+        try {
+          return Mem.OSLockObject(handleByVal, ptr -> {
+            return ptr.getByteArray(0, size);
+          });
+        } finally {
+          Mem.OSMemFree(handleByVal);
+        }
+      });
     }
-		
-		DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
-		ShortByReference retListSize = new ShortByReference();
-
-		NotesErrorUtils.checkResult(
-			NotesCAPI.get().ListAllocate((short) 0, 
-				(short) 0,
-				0, rethList, null, retListSize)
-		);
-
-		return LockUtil.lockHandle(rethList, (handleByVal) -> {
-			for (int i=0; i < values.size(); i++) {
-				String currStr = values.get(i);
-				Memory currStrMem = NotesStringUtils.toLMBCS(currStr, false);
-				
-	      if (currStrMem!=null && currStrMem.size() > 65535) {
-	        throw new DominoException(MessageFormat.format("List item at position {0} exceeds max lengths of 65535 bytes", i));
-	      }
-
-	      char textSize = currStrMem==null ? 0 : (char) currStrMem.size();
-
-	      NotesErrorUtils.checkResult(
-	          NotesCAPI.get().ListAddEntry(handleByVal, 0, retListSize,
-	              (char)i, currStrMem, textSize)
-	          );
-			}
-
-			
-			int size = Short.toUnsignedInt(retListSize.getValue());
-			try {
-				return Mem.OSLockObject(handleByVal, ptr -> {
-					return ptr.getByteArray(0, size);
-				});
-			} finally {
-				Mem.OSMemFree(handleByVal);
-			}
-		});
-	}
 	
 	@Override
 	public Charset getLmbcsCharset(LmbcsVariant variant) {

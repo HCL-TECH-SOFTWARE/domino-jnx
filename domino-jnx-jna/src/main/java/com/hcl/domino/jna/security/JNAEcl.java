@@ -28,7 +28,6 @@ import com.hcl.domino.DominoClient.ECLType;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.UserNamesList;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.exception.ObjectDisposedException;
@@ -112,7 +111,7 @@ public class JNAEcl extends BaseJNAAPIObject<JNAEclAllocations> implements Ecl {
 		}
 		JNAUserNamesListAllocations namesListAllocations = (JNAUserNamesListAllocations) m_namesList.getAdapter(APIObjectAllocations.class);
 		
-		short result = LockUtil.lockHandle(namesListAllocations.getHandle(), (hNamesListByVal) -> {
+		LockUtil.lockHandle(namesListAllocations.getHandle(), (hNamesListByVal) -> {
 			Pointer pNamesList = Mem.OSLockObject(hNamesListByVal);
 			try {
 				return NotesCAPI.get().ECLGetListCapabilities(pNamesList,
@@ -121,8 +120,7 @@ public class JNAEcl extends BaseJNAAPIObject<JNAEclAllocations> implements Ecl {
 			finally {
 				Mem.OSUnlockObject(hNamesListByVal);
 			}
-		});
-		NotesErrorUtils.checkResult(result);
+		}).orElseThrow();
 		
 		int retwCapabilitiesAsInt = retwCapabilities.getValue() & 0xffff;
 		int retwCapabilities2AsInt = retwCapabilities2.getValue() & 0xffff;
@@ -212,28 +210,25 @@ public class JNAEcl extends BaseJNAAPIObject<JNAEclAllocations> implements Ecl {
 		short wCapabilities = toBitMaskNotExtendedFlags(capabilities);
 		short wCapabilities2 = toBitMaskExtendedFlags(capabilities);
 		
-		short result;
-		
 		boolean freeCtx;
 		IntByReference rethCESCTX = new IntByReference();
 		if (doc!=null) {
 			JNADocumentAllocations docAllocations = (JNADocumentAllocations) doc.getAdapter(APIObjectAllocations.class);
 			
-			result = LockUtil.lockHandle(docAllocations.getNoteHandle(), (hNoteByVal) -> {
-				return NotesCAPI.get().CESCreateCTXFromNote(hNoteByVal, rethCESCTX);
-			});
+			LockUtil.lockHandle(docAllocations.getNoteHandle(), (hNoteByVal) ->
+				NotesCAPI.get().CESCreateCTXFromNote(hNoteByVal, rethCESCTX)
+			).orElseThrow();
 			freeCtx = true;
 		}
 		else {
-			result = NotesCAPI.get().CESGetNoSigCTX(rethCESCTX);
+			NotesCAPI.get().CESGetNoSigCTX(rethCESCTX).orElseThrow();
 			freeCtx = false;
-		}
-		NotesErrorUtils.checkResult(result);				
+		}				
 
 		try {
-			result = NotesCAPI.get().ECLUserTrustSigner(rethCESCTX.getValue(), type.getTypeAsShort(),
-					(short) (sessionOnly ? 1 : 0), wCapabilities, wCapabilities2, retwCapabilities, retwCapabilities2);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().ECLUserTrustSigner(rethCESCTX.getValue(), type.getTypeAsShort(),
+					(short) (sessionOnly ? 1 : 0), wCapabilities, wCapabilities2, retwCapabilities, retwCapabilities2)
+			  .orElseThrow();
 
 			
 			int retwCapabilitiesAsInt = retwCapabilities.getValue() & 0xffff;

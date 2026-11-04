@@ -259,10 +259,9 @@ public class JNAFormula extends BaseJNAAPIObject<JNAFormulaAllocations> implemen
 
 		      //NSFComputeEvaluateExt supports more than the usual 64K of formula result data
 		      final int retDWordResultLength = 1;
-		      short result = NotesCAPI.get().NSFComputeEvaluateExt(computeHdlByVal, optDocHandle, rethResult, retResultLength, retDWordResultLength,
+		      NotesCAPI.get().NSFComputeEvaluateExt(computeHdlByVal, optDocHandle, rethResult, retResultLength, retDWordResultLength,
 		          retNoteMatchesFormula, retNoteShouldBeDeleted, retNoteModified
-		          );
-					NotesErrorUtils.checkResult(result);
+		          ).orElseThrow();
 
 					return LockUtil.lockHandle(rethResult, (resultHdlByVal) -> {
 						if (resultHdlByVal==null || resultHdlByVal.isNull()) {
@@ -383,10 +382,9 @@ public class JNAFormula extends BaseJNAAPIObject<JNAFormulaAllocations> implemen
 	    IntByReference retAttributes = new IntByReference();
 	    ShortByReference retSummaryNamesOffset = new ShortByReference();
 	    
-	    short result = NotesCAPI.get().NSFFormulaAnalyze(hFormulaByVal,
+	    NotesCAPI.get().NSFFormulaAnalyze(hFormulaByVal,
 	        retAttributes,
-	        retSummaryNamesOffset);
-	    NotesErrorUtils.checkResult(result);
+	        retSummaryNamesOffset).orElseThrow();
 	    
 	    Set<FormulaAttributes> attributes = DominoEnumUtil.valuesOf(FormulaAttributes.class, retAttributes.getValue());
 	    

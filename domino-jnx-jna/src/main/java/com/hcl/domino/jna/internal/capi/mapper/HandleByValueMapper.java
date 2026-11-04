@@ -1,7 +1,6 @@
 package com.hcl.domino.jna.internal.capi.mapper;
 
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
-import com.hcl.domino.jna.internal.gc.handles.HANDLE.ByValue;
 import com.sun.jna.FromNativeContext;
 import com.sun.jna.FromNativeConverter;
 import com.sun.jna.ToNativeContext;

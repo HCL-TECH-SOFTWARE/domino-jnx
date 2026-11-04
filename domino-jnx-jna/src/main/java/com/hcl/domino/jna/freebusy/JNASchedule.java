@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -142,12 +143,12 @@ public class JNASchedule extends BaseJNAAPIObject<JNAScheduleAllocations> implem
 		
 		DHANDLE hSchedules = getSchedulesHandle();
 		if (hSchedules==null) {
-			throw new DominoException(0, "Schedules handle is null");
+			throw new DominoException(StatusImpl.NOERROR, "Schedules handle is null");
 		}
 
 		Integer hSchedule = getAllocations().getScheduleHandle();
 		if (hSchedule==null) {
-			throw new DominoException(0, "Schedule handle is null");
+			throw new DominoException(StatusImpl.NOERROR, "Schedule handle is null");
 		}
 	}
 	
@@ -174,11 +175,9 @@ public class JNASchedule extends BaseJNAAPIObject<JNAScheduleAllocations> implem
 			DHANDLE.ByReference rethRange = DHANDLE.newInstanceByReference();
 			
 			// read first part of busy time
-			short res = NotesCAPI.get().Schedule_ExtractBusyTimeRange(hSchedulesByVal, getScheduleHandle(),
+			NotesCAPI.get().Schedule_ExtractBusyTimeRange(hSchedulesByVal, getScheduleHandle(),
 				unidStruct, intervalPair,
-				retdwSize, rethRange, rethMoreCtx);
-			
-			NotesErrorUtils.checkResult(res);
+				retdwSize, rethRange, rethMoreCtx).orElseThrow();
 			
 			List<DominoDateRange> allRanges = new ArrayList<>();
 			
@@ -191,11 +190,9 @@ public class JNASchedule extends BaseJNAAPIObject<JNAScheduleAllocations> implem
 				//read more data
 				rethRange = DHANDLE.newInstanceByReference();
 				
-				res = NotesCAPI.get().Schedule_ExtractMoreBusyTimeRange(hSchedulesByVal, rethMoreCtx.getValue(), unidStruct,
+				NotesCAPI.get().Schedule_ExtractMoreBusyTimeRange(hSchedulesByVal, rethMoreCtx.getValue(), unidStruct,
 						intervalPair,
-						retdwSize, rethRange, rethMoreCtx);
-				
-				NotesErrorUtils.checkResult(res);
+						retdwSize, rethRange, rethMoreCtx).orElseThrow();
 				
 				allRanges.addAll(
 					ReadUtil.readDateRange(rethRange, true)
@@ -230,17 +227,14 @@ public class JNASchedule extends BaseJNAAPIObject<JNAScheduleAllocations> implem
 			throw new IllegalArgumentException(MessageFormat.format("Duration can only have a short value ({0}>65535)", duration));
 		}
 
-		return LockUtil.lockHandle(getSchedulesHandle(), (hSchedulesByVal) -> {
-			DHANDLE.ByReference rethRange = DHANDLE.newInstanceByReference();
-			IntByReference retdwSize = new IntByReference();
-			
-			short result = NotesCAPI.get().Schedule_ExtractFreeTimeRange(hSchedulesByVal, getScheduleHandle(),
+        DHANDLE.ByReference rethRange = DHANDLE.newInstanceByReference();
+        IntByReference retdwSize = new IntByReference();
+		LockUtil.lockHandle(getSchedulesHandle(), (hSchedulesByVal) ->
+			NotesCAPI.get().Schedule_ExtractFreeTimeRange(hSchedulesByVal, getScheduleHandle(),
 					unidStruct, (short) (findFirstFit ? 1 : 0), (short) (duration & 0xffff),
-					intervalPair, retdwSize, rethRange);
-			NotesErrorUtils.checkResult(result);
-			
-			return ReadUtil.readDateRange(rethRange, true);
-		});
+					intervalPair, retdwSize, rethRange).orElseThrow()
+		);
+        return ReadUtil.readDateRange(rethRange, true);
 	}
 	
 	/**
@@ -311,10 +305,8 @@ public class JNASchedule extends BaseJNAAPIObject<JNAScheduleAllocations> implem
 			IntByReference rethMore = new IntByReference();
 			
 			//read first part of schedule list
-			short result = NotesCAPI.get().Schedule_ExtractSchedList(hSchedulesByVal, getScheduleHandle(),
-					intervalPair, retdwSize, rethSchedList, rethMore);
-			
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().Schedule_ExtractSchedList(hSchedulesByVal, getScheduleHandle(),
+					intervalPair, retdwSize, rethSchedList, rethMore).orElseThrow();
 			
 			List<ScheduleEntry> allSchedEntries = new ArrayList<>();
 			
@@ -337,9 +329,8 @@ public class JNASchedule extends BaseJNAAPIObject<JNAScheduleAllocations> implem
 			while (hasMoreData) {
 				//read more data
 				rethSchedList = DHANDLE.newInstanceByReference();
-				result = NotesCAPI.get().Schedule_ExtractMoreSchedList(hSchedulesByVal, rethMore.getValue(),
-						intervalPair, retdwSize, rethSchedList, rethMore);
-				NotesErrorUtils.checkResult(result);
+				NotesCAPI.get().Schedule_ExtractMoreSchedList(hSchedulesByVal, rethMore.getValue(),
+						intervalPair, retdwSize, rethSchedList, rethMore).orElseThrow();
 				
 				allSchedEntries.addAll(
 					ReadUtil.accessMemory(rethSchedList, true, new ReadUtil.MemoryAccess<List<ScheduleEntry>>() {

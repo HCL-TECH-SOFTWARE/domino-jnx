@@ -25,6 +25,7 @@ import java.util.Map.Entry;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.FormulaCompilationException;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -71,13 +72,13 @@ public class ViewFormulaCompiler {
 		DHANDLE.ByReference rethViewFormula = DHANDLE.newInstanceByReference();
 		rethViewFormula.clear();
 		
-		short result = NotesCAPI.get().NSFFormulaCompile(formulaName, formulaNameLength, selectionFormulaMem, selectionFormulaLength,
+		STATUS result = NotesCAPI.get().NSFFormulaCompile(formulaName, formulaNameLength, selectionFormulaMem, selectionFormulaLength,
 				rethViewFormula,
 				retFormulaLength, retCompileError, retCompileErrorLine, retCompileErrorColumn, retCompileErrorOffset,
 				retCompileErrorLength);
 		
-		if (result == INotesErrorConstants.ERR_FORMULA_COMPILATION) {
-			String errMsg = NotesErrorUtils.errToString(result); // "Formula Error"
+		if (result.getMaskedValue() == INotesErrorConstants.ERR_FORMULA_COMPILATION) {
+			String errMsg = result.toErrorString(); // "Formula Error"
 			String compileErrorReason = NotesErrorUtils.errToString(retCompileError.getValue());
 
 			throw new FormulaCompilationException(result, errMsg, selectionFormula,
@@ -88,7 +89,7 @@ public class ViewFormulaCompiler {
 					retCompileErrorOffset.getValue(),
 					retCompileErrorLength.getValue());
 		}
-		NotesErrorUtils.checkResult(result);
+		result.orElseThrow();
 		
 		if (columnItemNamesAndFormulas!=null) {
 			boolean errorCompilingColumns = true;
@@ -105,10 +106,9 @@ public class ViewFormulaCompiler {
 					short columnItemNameLength = (short) (columnItemNameMem.size() & 0xffff);
 
 					//add summary item definition for column
-					result = LockUtil.lockHandle(rethViewFormula, (viewFormulaHandleByValue) -> {
-						return NotesCAPI.get().NSFFormulaSummaryItem(viewFormulaHandleByValue, columnItemNameMem, columnItemNameLength);
+					LockUtil.lockHandle(rethViewFormula, (viewFormulaHandleByValue) -> {
+						return NotesCAPI.get().NSFFormulaSummaryItem(viewFormulaHandleByValue, columnItemNameMem, columnItemNameLength).orElseThrow();
 					});
-					NotesErrorUtils.checkResult(result);
 
 					String columnFormula = currEntry.getValue().trim();
 					
@@ -136,8 +136,8 @@ public class ViewFormulaCompiler {
 								columnFormulaLength, rethColumnFormula, retColumnFormulaLength, retColumnCompileError, retColumnCompileErrorLine,
 								retColumnCompileErrorColumn, retColumnCompileErrorOffset, retColumnCompileErrorOffset);
 						
-						if (result == INotesErrorConstants.ERR_FORMULA_COMPILATION) {
-							String errMsg = NotesErrorUtils.errToString(result); // "Formula Error"
+						if (result.getMaskedValue() == INotesErrorConstants.ERR_FORMULA_COMPILATION) {
+							String errMsg = result.toErrorString(); // "Formula Error"
 							String compileErrorReason = NotesErrorUtils.errToString(retCompileError.getValue());
 
 							throw new FormulaCompilationException(result, errMsg, columnFormula,
@@ -148,7 +148,7 @@ public class ViewFormulaCompiler {
 									retColumnCompileErrorOffset.getValue(),
 									retColumnCompileErrorLength.getValue());
 						}
-						NotesErrorUtils.checkResult(result);
+						result.orElseThrow();
 
 						if (rethColumnFormula.isNull()) {
 							throw new IllegalStateException(MessageFormat.format("Column formula handle is 0 for formula: {0}", columnFormula));
@@ -157,16 +157,16 @@ public class ViewFormulaCompiler {
 						columnFormulaHandlesToDisposeOnError.add(rethColumnFormula);
 						
 						//merge formulas
-						result = LockUtil.lockHandles(
+						LockUtil.lockHandles(
 								rethColumnFormula,
 								rethViewFormula,
 								
 								(hColumnFormulaByVal, hViewFormulaByVal) -> {
-									return NotesCAPI.get().NSFFormulaMerge(hColumnFormulaByVal, hViewFormulaByVal);
+									return NotesCAPI.get().NSFFormulaMerge(hColumnFormulaByVal, hViewFormulaByVal)
+									      .orElseThrow();
 									
 								}
 								);
-						NotesErrorUtils.checkResult(result);
 					}
 				}
 				//all ok!

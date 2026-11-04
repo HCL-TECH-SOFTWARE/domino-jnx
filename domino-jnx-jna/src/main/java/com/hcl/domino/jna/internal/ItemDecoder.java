@@ -26,7 +26,6 @@ import java.util.TimeZone;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.jna.data.JNADominoDateTime;
@@ -76,8 +75,7 @@ public class ItemDecoder {
     		ShortByReference retTextLength = new ShortByReference();
     		
     		for (int i=0; i<listCountAsInt; i++) {
-    			short result = NotesCAPI.get().ListGetText(ptr, false, (char) i, retTextPointer, retTextLength);
-    			NotesErrorUtils.checkResult(result);
+    			NotesCAPI.get().ListGetText(ptr, false, (char) i, retTextPointer, retTextLength).orElseThrow();
     			
     			//retTextPointer[0] points to the list entry text
     			Pointer pointerToTextInMem = retTextPointer.getPointer(0);

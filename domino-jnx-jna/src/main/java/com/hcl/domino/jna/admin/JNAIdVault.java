@@ -29,8 +29,8 @@ import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.IAdaptable;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.IncompatibleImplementationException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.data.JNADatabase;
@@ -145,16 +145,16 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 		PointerByReference phKFC = new PointerByReference();
 		IntByReference retdwFlags = new IntByReference();
 		
-		short result = NotesCAPI.get().SECKFMOpen (phKFC, idPathMem, passwordMem, NotesConstants.SECKFM_open_All, 0, null);
-		NotesErrorUtils.checkResult(result);
+		NotesCAPI.get().SECKFMOpen (phKFC, idPathMem, passwordMem, NotesConstants.SECKFM_open_All, 0, null)
+		  .orElseThrow();
 		
 		try {
-			result = NotesCAPI.get().SECidfSync(userNameCanonicalMem, passwordMem, idPathMem, phKFC, serverNameMem, 0, (short) 0, null, retdwFlags);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().SECidfSync(userNameCanonicalMem, passwordMem, idPathMem, phKFC, serverNameMem, 0, (short) 0, null, retdwFlags)
+			  .orElseThrow();
 		}
 		finally {
-			result = NotesCAPI.get().SECKFMClose(phKFC, NotesConstants.SECKFM_close_WriteIdFile, 0, null);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().SECKFMClose(phKFC, NotesConstants.SECKFM_close_WriteIdFile, 0, null)
+			  .orElseThrow();
 		}
 		
 		int vaultServerNameLength = 0;
@@ -180,8 +180,8 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 		Memory passwordMem = NotesStringUtils.toLMBCS(password, true);
 		Memory serverNameMem = NotesStringUtils.toLMBCS(server, true);
 
-		short result = NotesCAPI.get().SECidvResetUserPassword(serverNameMem, userNameCanonicalMem, passwordMem, (short) (downloadCount & 0xffff), 0, null); 
-		NotesErrorUtils.checkResult(result);
+		NotesCAPI.get().SECidvResetUserPassword(serverNameMem, userNameCanonicalMem, passwordMem, (short) (downloadCount & 0xffff), 0, null)
+		  .orElseThrow();
 	}
 
 	@Override
@@ -192,8 +192,8 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 		Memory oldPasswordMem = NotesStringUtils.toLMBCS(oldPassword, true);
 		Memory newPasswordMem = NotesStringUtils.toLMBCS(newPassword, true);
 
-		short result = NotesCAPI.get().SECKFMChangePassword(idPathMem, oldPasswordMem, newPasswordMem);
-		NotesErrorUtils.checkResult(result);
+		NotesCAPI.get().SECKFMChangePassword(idPathMem, oldPasswordMem, newPasswordMem)
+		  .orElseThrow();
 	}
 
 	@Override
@@ -202,15 +202,13 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 		
 		Memory idPathMem = idPath==null ? null : NotesStringUtils.toLMBCS(idPath.toString(), true);
 		Memory passwordMem = NotesStringUtils.toLMBCS(password, true);
-		
-		short result;
 
 		PointerByReference phKFC = new PointerByReference();
-		result = NotesCAPI.get().SECKFMOpen(phKFC, idPathMem, passwordMem, 0, 0, null);
-		NotesErrorUtils.checkResult(result);
+		NotesCAPI.get().SECKFMOpen(phKFC, idPathMem, passwordMem, 0, 0, null)
+		  .orElseThrow();
 
-		result = NotesCAPI.get().SECKFMClose(phKFC, 0, 0, null);
-		NotesErrorUtils.checkResult(result);
+		NotesCAPI.get().SECKFMClose(phKFC, 0, 0, null)
+		  .orElseThrow();
 	}
 
 	@Override
@@ -233,8 +231,8 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 		//open the id file
 		PointerByReference phKFC = new PointerByReference();
 		
-		short result = NotesCAPI.get().SECKFMOpen (phKFC, idPathMem, passwordMem, NotesConstants.SECKFM_open_All, 0, null);
-		NotesErrorUtils.checkResult(result);
+		NotesCAPI.get().SECKFMOpen (phKFC, idPathMem, passwordMem, NotesConstants.SECKFM_open_All, 0, null)
+		  .orElseThrow();
 		
 		JNAUserId id = null;
 		try {
@@ -272,13 +270,13 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 		Memory serverCanonicalMem = NotesStringUtils.toLMBCS(serverCanonical, true);
 		Memory usernameCanonicalMem = NotesStringUtils.toLMBCS(usernameCanonical, true);
 		
-		short result = NotesCAPI.get().SECidvIsIDInVault(serverCanonicalMem, usernameCanonicalMem);
-		if ((result & NotesConstants.ERR_MASK) == 16372) {
+		STATUS result = NotesCAPI.get().SECidvIsIDInVault(serverCanonicalMem, usernameCanonicalMem);
+		if (result.getMaskedValue() == 16372) {
 			return false;
 		}
-		NotesErrorUtils.checkResult(result);
+		result.orElseThrow();
 
-		return result == 0;
+		return true;
 	}
 
 	/**
@@ -314,9 +312,9 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 			}
 		}
 		
-		short result = NotesCAPI.get().SECidfGet(userNameCanonicalMem, passwordMem, idPathMem, rethKFC,
-				serverNameMem, 0, (short) 0, null);
-		NotesErrorUtils.checkResult(result);
+		NotesCAPI.get().SECidfGet(userNameCanonicalMem, passwordMem, idPathMem, rethKFC,
+				serverNameMem, 0, (short) 0, null)
+		  .orElseThrow();
 		
 		int vaultServerNameLength = 0;
 		for (int i=0; i<serverNameMem.size(); i++) {
@@ -369,18 +367,18 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 				}
 			}
 			
-			short result = NotesCAPI.get().SECKFMOpen (phKFC, idPathMem, passwordMem,
-					NotesConstants.SECKFM_open_All, 0, null);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().SECKFMOpen (phKFC, idPathMem, passwordMem,
+					NotesConstants.SECKFM_open_All, 0, null)
+			  .orElseThrow();
 			
 			try {
-				result = NotesCAPI.get().SECidfPut(userNameCanonicalMem, passwordMem, idPathMem, phKFC,
-						serverNameMem, 0, (short) 0, null);
-				NotesErrorUtils.checkResult(result);
+				NotesCAPI.get().SECidfPut(userNameCanonicalMem, passwordMem, idPathMem, phKFC,
+						serverNameMem, 0, (short) 0, null)
+				  .orElseThrow();
 			}
 			finally {
-				result = NotesCAPI.get().SECKFMClose(phKFC, NotesConstants.SECKFM_close_WriteIdFile, 0, null);
-				NotesErrorUtils.checkResult(result);
+				NotesCAPI.get().SECKFMClose(phKFC, NotesConstants.SECKFM_close_WriteIdFile, 0, null)
+				  .orElseThrow();
 			}
 					
 			int vaultServerNameLength = 0;
@@ -446,14 +444,14 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 		Memory retMem = new Memory(initialBufferSize);
 		ShortByReference retActualLen = new ShortByReference();
 		
-		short result = NotesCAPI.get().REGGetIDInfo(idPathMem, infoType, retMem, (short) retMem.size(), retActualLen);
-		if (result == INotesErrorConstants.ERR_VALUE_LENGTH) {
+		STATUS result = NotesCAPI.get().REGGetIDInfo(idPathMem, infoType, retMem, (short) retMem.size(), retActualLen);
+		if (result.getMaskedValue() == INotesErrorConstants.ERR_VALUE_LENGTH) {
 			int requiredLen = retActualLen.getValue() & 0xffff;
 			retMem = new Memory(requiredLen);
 			result = NotesCAPI.get().REGGetIDInfo(idPathMem, infoType, retMem, (short) retMem.size(), retActualLen);
 		}
 		
-		NotesErrorUtils.checkResult(result);
+		result.orElseThrow();
 		String data = NotesStringUtils.fromLMBCS(retMem, (retActualLen.getValue() & 0xffff)-1);
 		return data;
 	}

@@ -62,10 +62,10 @@ import com.hcl.domino.commons.dxl.DxlExporterLogImpl;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.IDTable;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.dxl.DxlExporter;
 import com.hcl.domino.dxl.DxlExporterLog;
 import com.hcl.domino.exception.DxlExportException;
@@ -113,11 +113,10 @@ public class JNADxlExporter extends
       };
 
       int exporterHandler = getAllocations().getDxlExporterHandle();
-      short result = AccessController.doPrivileged((PrivilegedAction<Short>) () -> {
+      AccessController.doPrivileged((PrivilegedAction<STATUS>) () -> {
         return NotesCAPI.get().DXLExportNote(exporterHandler, func, handle, (Pointer) null);
-      });
+      }).orElseThrow();
 
-      NotesErrorUtils.checkResult(result);
       checkError();
 
       return null;
@@ -152,9 +151,8 @@ public class JNADxlExporter extends
             }
           };
 
-          short result = NotesCAPI.get().DXLExportIDTable(getAllocations().getDxlExporterHandle(),
-              func, hDB, hTable, null);
-          NotesErrorUtils.checkResult(result);
+          NotesCAPI.get().DXLExportIDTable(getAllocations().getDxlExporterHandle(),
+              func, hDB, hTable, null).orElseThrow();
           checkError();
 
           return null;
@@ -178,9 +176,8 @@ public class JNADxlExporter extends
         }
       };
 
-      short result = NotesCAPI.get().DXLExportDatabase(getAllocations().getDxlExporterHandle(),
-          func, handle, null);
-      NotesErrorUtils.checkResult(result);
+      NotesCAPI.get().DXLExportDatabase(getAllocations().getDxlExporterHandle(),
+          func, handle, null).orElseThrow();
       checkError();
 
       return null;
@@ -204,9 +201,8 @@ public class JNADxlExporter extends
         }
       };
 
-      short result =
-          NotesCAPI.get().DXLExportACL(getAllocations().getDxlExporterHandle(), func, handle, null);
-      NotesErrorUtils.checkResult(result);
+      NotesCAPI.get().DXLExportACL(getAllocations().getDxlExporterHandle(), func, handle, null)
+        .orElseThrow();
       checkError();
       return null;
     });

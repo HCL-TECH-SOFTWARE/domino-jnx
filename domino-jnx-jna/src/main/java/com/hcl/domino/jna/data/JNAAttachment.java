@@ -34,12 +34,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Attachment.IDataCallback.Action;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -162,11 +162,10 @@ public class JNAAttachment implements Attachment {
 			
 			DHANDLE.ByReference rethBuffer = DHANDLE.newInstanceByReference();
 			
-			short result = LockUtil.lockHandle(dbAllocations.getDBHandle(), (dbHandleByVal) -> {
+			LockUtil.lockHandle(dbAllocations.getDBHandle(), (dbHandleByVal) -> {
 				return NotesCAPI.get().NSFDbReadObject(dbHandleByVal, m_rrv, (int) (currOffset.get() & 0xffffffff), 
-						(int) (bytesToRead & 0xffffffff), rethBuffer);
+						(int) (bytesToRead & 0xffffffff), rethBuffer).orElseThrow();
 			});
-			NotesErrorUtils.checkResult(result);
 			
 			LockUtil.lockHandle(rethBuffer, (hBufferByVal) -> {
 				Pointer ptr = Mem.OSLockObject(hBufferByVal);
@@ -228,9 +227,9 @@ public class JNAAttachment implements Attachment {
         }
       };
 
-      short result;
+      STATUS result;
       try {
-        result = AccessController.doPrivileged((PrivilegedExceptionAction<Short>) () -> LockUtil
+        result = AccessController.doPrivileged((PrivilegedExceptionAction<STATUS>) () -> LockUtil
             .lockHandle(docAllocations.getNoteHandle(), (noteHandleByVal) -> {
               return NotesCAPI.get().NSFNoteCipherExtractWithCallback(noteHandleByVal,
                   itemBlockIdByVal, extractFlags, hDecryptionCipher,
@@ -248,9 +247,7 @@ public class JNAAttachment implements Attachment {
         throw new DominoException("Extraction interrupted", extractError[0]);
       }
 
-      if (result != INotesErrorConstants.ERR_NSF_INTERRUPT) {
-        NotesErrorUtils.checkResult(result);
-      }
+      result.throwIfNot(INotesErrorConstants.ERR_NSF_INTERRUPT);
     }
 	
 	@Override
@@ -262,10 +259,9 @@ public class JNAAttachment implements Attachment {
 		itemBlockIdByVal.pool = m_itemBlockId.getPool();
 		itemBlockIdByVal.block = m_itemBlockId.getBlock();
 
-		short result = LockUtil.lockHandle(docAllocations.getNoteHandle(), (handleByVal) -> {
-			return NotesCAPI.get().NSFNoteDetachFile(handleByVal, itemBlockIdByVal);
+		LockUtil.lockHandle(docAllocations.getNoteHandle(), (handleByVal) -> {
+			return NotesCAPI.get().NSFNoteDetachFile(handleByVal, itemBlockIdByVal).orElseThrow();
 		});
-		NotesErrorUtils.checkResult(result);
 	}
 
 	@Override

@@ -19,6 +19,7 @@ package com.hcl.domino.exception;
 import java.text.MessageFormat;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.data.types.STATUS;
 
 /**
  * Subclass of {@link DominoException} that is thrown when formula compilation
@@ -83,7 +84,7 @@ public class FormulaCompilationException extends DominoException {
    * @param compileErrorOffset offset
    * @param compileErrorLength length of error
    */
-  public FormulaCompilationException(final int id, final String msg,
+  public FormulaCompilationException(final STATUS id, final String msg,
       final String formula,
       final String compileErrorReason,
       final short compileErrorStatus,

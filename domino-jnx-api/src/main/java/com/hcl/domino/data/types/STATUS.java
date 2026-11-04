@@ -16,11 +16,13 @@
  */
 package com.hcl.domino.data.types;
 
+import java.util.Optional;
+import com.hcl.domino.DominoException;
 import com.hcl.domino.misc.NotesConstants;
 
 /**
  * Utility interface to represent a Notes API STATUS, which is a
- * 16-bit unsigned integer, typically represented as an {@code short}.
+ * 16-bit unsigned integer, typically represented as a {@code short}.
  * 
  * @since 1.57.0
  */
@@ -67,4 +69,32 @@ public interface STATUS {
    * @throws DominoException if the status represents an error code
    */
   STATUS orElseThrow();
+  
+  /**
+   * Converts the status value to an error string from the Notes runtime.
+   * 
+   * @return a string describing the error
+   */
+  String toErrorString();
+  
+  /**
+   * Checks whether the status value is an error other than one of the
+   * allowed errors and throws an appropriate exception if so
+   * 
+   * @param allowedErrors status codes other than 0 that should be treated
+   *        as non-errors
+   * @return this value
+   * @throws DominoException if the status represents an error code other than
+   *         the allowed
+   */
+  STATUS throwIfNot(short... allowedErrors);
+  
+  /**
+   * Converts the status to a corresponding {@link DominoException} type, returning
+   * an empty optional if the status is not an error.
+   * 
+   * @return an {@link Optional} describing a {@link DominoException} or subclass, or
+   *         an empty one if this status is not an error
+   */
+  Optional<DominoException> toDominoException();
 }

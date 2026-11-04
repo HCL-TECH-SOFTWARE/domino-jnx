@@ -21,7 +21,6 @@ import java.lang.ref.ReferenceQueue;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.data.JNADominoCollection;
 import com.hcl.domino.jna.data.JNAIDTable;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -62,11 +61,9 @@ public class JNADominoCollectionAllocations extends APIObjectAllocations<JNADomi
 		
 		
 		if (m_collectionHandle!=null) {
-			short result = LockUtil.lockHandle(m_collectionHandle, (hdlByVal) -> {
-				return NotesCAPI.get().NIFCloseCollection(hdlByVal);
-				
-			});
-			NotesErrorUtils.checkResult(result);
+			LockUtil.lockHandle(m_collectionHandle, (hdlByVal) ->
+				NotesCAPI.get().NIFCloseCollection(hdlByVal)
+			).orElseThrow();
 			m_collectionHandle = null;
 		}
 		

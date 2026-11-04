@@ -21,7 +21,6 @@ import java.lang.ref.ReferenceQueue;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.data.JNADatabase;
 import com.hcl.domino.jna.data.JNAUserNamesList;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -53,8 +52,7 @@ public class JNADatabaseAllocations extends APIObjectAllocations<JNADatabase> {
 
 		if (m_hDB!=null) {
 			LockUtil.lockHandle(m_hDB, (handleByVal) -> {
-				short result = NotesCAPI.get().NSFDbClose(handleByVal);
-				NotesErrorUtils.checkResult(result);
+				NotesCAPI.get().NSFDbClose(handleByVal).orElseThrow();
 				//mark as disposed while lock is active
 				m_hDB.setDisposed();
 				m_hDB=null;

@@ -231,10 +231,10 @@ public class JNADominoProcess implements DominoProcess {
     Memory idPathMem = NotesStringUtils.toLMBCS(idPath.toString(), true);
     Memory passwordMem = NotesStringUtils.toLMBCS(password, true);
     try (DisposableMemory retUserNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME + 1)) {
-      short result = NotesCAPI.get().SECKFMSwitchToIDFile(idPathMem, passwordMem, retUserNameMem,
+      NotesCAPI.get().SECKFMSwitchToIDFile(idPathMem, passwordMem, retUserNameMem,
           NotesConstants.MAXUSERNAME,
-          dontSetEnvVar ? NotesConstants.fKFM_switchid_DontSetEnvVar : 0, null);
-      NotesErrorUtils.checkResult(result);
+          dontSetEnvVar ? NotesConstants.fKFM_switchid_DontSetEnvVar : 0, null)
+        .orElseThrow();
 
       int userNameLength = 0;
       for (int i = 0; i < retUserNameMem.size(); i++) {

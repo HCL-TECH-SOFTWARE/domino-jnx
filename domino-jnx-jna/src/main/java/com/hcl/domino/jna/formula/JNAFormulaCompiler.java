@@ -25,6 +25,7 @@ import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.FormulaAnalyzeResult;
 import com.hcl.domino.data.FormulaAnalyzeResult.FormulaAttributes;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.FormulaCompilationException;
 import com.hcl.domino.formula.FormulaCompiler;
 import com.hcl.domino.jna.internal.DisposableMemory;
@@ -60,13 +61,13 @@ public class JNAFormulaCompiler implements FormulaCompiler {
     ShortByReference retCompileErrorOffset = new ShortByReference();
     ShortByReference retCompileErrorLength = new ShortByReference();
 
-    short result = NotesCAPI.get().NSFFormulaCompile(formulaName, formulaNameLength,
+    STATUS result = NotesCAPI.get().NSFFormulaCompile(formulaName, formulaNameLength,
         formulaText, formulaTextLength, rethFormula, retFormulaLength,
         retCompileError, retCompileErrorLine, retCompileErrorColumn,
         retCompileErrorOffset, retCompileErrorLength);
 
-    if (result == INotesErrorConstants.ERR_FORMULA_COMPILATION) {
-      String errMsg = NotesErrorUtils.errToString(result); // "Formula Error"
+    if (result.getMaskedValue() == INotesErrorConstants.ERR_FORMULA_COMPILATION) {
+      String errMsg = result.toErrorString(); // "Formula Error"
       String compileErrorReason = NotesErrorUtils.errToString(retCompileError.getValue());
 
       throw new FormulaCompilationException(result, errMsg, formula,
@@ -77,7 +78,7 @@ public class JNAFormulaCompiler implements FormulaCompiler {
           retCompileErrorOffset.getValue(),
           retCompileErrorLength.getValue());
     }
-    NotesErrorUtils.checkResult(result);
+    result.orElseThrow();
 
     int compiledFormulaLength = retFormulaLength.getValue() & 0xffff;
 
@@ -102,8 +103,7 @@ public class JNAFormulaCompiler implements FormulaCompiler {
       mem.write(0, formula, 0, formula.length);
 
       ShortByReference retFormulaLength = new ShortByReference();
-      short result = NotesCAPI.get().NSFFormulaGetSizeP(mem, retFormulaLength);
-      NotesErrorUtils.checkResult(result);
+      NotesCAPI.get().NSFFormulaGetSizeP(mem, retFormulaLength).orElseThrow();
 
       return (int) (retFormulaLength.getValue() & 0xffff);
     }
@@ -127,7 +127,7 @@ public class JNAFormulaCompiler implements FormulaCompiler {
 
       return LockUtil.lockHandle(hFormula, (hFormulaByVal) -> {
         IntByReference retSize = new IntByReference();
-        NotesErrorUtils.checkResult(Mem.OSMemGetSize(hFormulaByVal, retSize));
+        Mem.OSMemGetSize(hFormulaByVal, retSize).orElseThrow();
 
         Pointer ptrCompiledFormula = Mem.OSLockObject(hFormulaByVal);
         try {
@@ -141,7 +141,7 @@ public class JNAFormulaCompiler implements FormulaCompiler {
     } finally {
       if (hFormula != null && !hFormula.isNull()) {
         LockUtil.lockHandle(hFormula, (hFormulaByVal) -> {
-          NotesErrorUtils.checkResult(Mem.OSMemFree(hFormulaByVal));
+          Mem.OSMemFree(hFormulaByVal).orElseThrow();
           return null;
         });
       }
@@ -152,18 +152,12 @@ public class JNAFormulaCompiler implements FormulaCompiler {
   public List<String> getAllFormulaCommands() {
     List<String> retNames = new ArrayList<>();
 
-    NSFFORMCMDSPROC callback = new NSFFORMCMDSPROC() {
-
-      @Override
-      public short invoke(Pointer ptr, short code, IntByReference stopFlag) {
-        String name = NotesStringUtils.fromLMBCS(ptr, -1);
-        retNames.add(name);
-        return 0;
-      }
-
+    NSFFORMCMDSPROC callback = (ptr, code, stopFlag) -> {
+      String name = NotesStringUtils.fromLMBCS(ptr, -1);
+      retNames.add(name);
+      return 0;
     };
-    short result = NotesCAPI.get().NSFFormulaCommands(callback);
-    NotesErrorUtils.checkResult(result);
+    NotesCAPI.get().NSFFormulaCommands(callback).orElseThrow();
 
     return retNames;
   }
@@ -172,18 +166,12 @@ public class JNAFormulaCompiler implements FormulaCompiler {
   public List<String> getAllFormulaFunctions() {
     List<String> retNames = new ArrayList<>();
 
-    NSFFORMFUNCPROC callback = new NSFFORMFUNCPROC() {
-
-      @Override
-      public short invoke(Pointer ptr) {
-        String name = NotesStringUtils.fromLMBCS(ptr, -1);
-        retNames.add(name);
-        return 0;
-      }
-
+    NSFFORMFUNCPROC callback = ptr -> {
+      String name = NotesStringUtils.fromLMBCS(ptr, -1);
+      retNames.add(name);
+      return 0;
     };
-    short result = NotesCAPI.get().NSFFormulaFunctions(callback);
-    NotesErrorUtils.checkResult(result);
+    NotesCAPI.get().NSFFormulaFunctions(callback).orElseThrow();
 
     return retNames;
   }
@@ -231,13 +219,13 @@ public class JNAFormulaCompiler implements FormulaCompiler {
     ShortByReference retCompileErrorOffset = new ShortByReference();
     ShortByReference retCompileErrorLength = new ShortByReference();
 
-    short result = NotesCAPI.get().NSFFormulaCompile(formulaName, formulaNameLength,
+    STATUS result = NotesCAPI.get().NSFFormulaCompile(formulaName, formulaNameLength,
         formulaText, formulaTextLength, rethFormula, retFormulaLength,
         retCompileError, retCompileErrorLine, retCompileErrorColumn,
         retCompileErrorOffset, retCompileErrorLength);
 
-    if (result == INotesErrorConstants.ERR_FORMULA_COMPILATION) {
-      String errMsg = NotesErrorUtils.errToString(result); // "Formula Error"
+    if (result.getMaskedValue() == INotesErrorConstants.ERR_FORMULA_COMPILATION) {
+      String errMsg = result.toErrorString(); // "Formula Error"
       String compileErrorReason = NotesErrorUtils.errToString(retCompileError.getValue());
 
       throw new FormulaCompilationException(result, errMsg, formula,
@@ -248,29 +236,21 @@ public class JNAFormulaCompiler implements FormulaCompiler {
           retCompileErrorOffset.getValue(),
           retCompileErrorLength.getValue());
     }
-    NotesErrorUtils.checkResult(result);
+    result.orElseThrow();
 
     return LockUtil.lockHandle(rethFormula, (handleByVal) -> {
       IntByReference retAttributes = new IntByReference();
       ShortByReference retSummaryNamesOffset = new ShortByReference();
 
-      short resultAnalyze = NotesCAPI.get().NSFFormulaAnalyze(handleByVal,
+      NotesCAPI.get().NSFFormulaAnalyze(handleByVal,
           retAttributes,
-          retSummaryNamesOffset);
-      NotesErrorUtils.checkResult(resultAnalyze);
+          retSummaryNamesOffset).orElseThrow();
 
       Set<FormulaAttributes> attributes =
           DominoEnumUtil.valuesOf(FormulaAttributes.class, retAttributes.getValue());
 
       Mem.OSMemFree(handleByVal);
-      return new FormulaAnalyzeResult() {
-
-        @Override
-        public Set<FormulaAttributes> getAttributes() {
-          return attributes;
-        }
-
-      };
+      return (FormulaAnalyzeResult) () -> attributes;
     });
 
   }

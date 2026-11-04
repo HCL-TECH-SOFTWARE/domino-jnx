@@ -28,15 +28,16 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import com.hcl.domino.BuildVersionInfo;
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.data.NativeItemCoder.LmbcsVariant;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.dql.QueryResultsProcessor;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.internal.LMBCSStringList;
@@ -130,12 +131,12 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 
     IntByReference hretError = new IntByReference();
     
-		short result = NotesCAPI12.get().NSFQueryAddToResultsList(NotesConstants.QUEP_LISTTYPE.INPUT_RESULTS_LST.getValue(),
+    STATUS result = NotesCAPI12.get().NSFQueryAddToResultsList(NotesConstants.QUEP_LISTTYPE.INPUT_RESULTS_LST.getValue(),
 				ri.getPointer(), queryResultsHandlesPtr /* &hInResults */, hretError);
 		
-    if (result!=0 && hretError.getValue()!=0) {
+    if (result.isError() && hretError.getValue()!=0) {
       if (hretError.getValue()!=0) {
-        String errorMessage = NotesErrorUtils.errToString(result);
+        String errorMessage = result.toErrorString();
         
         String errorDetails;
         try (LockedMemory memErr = Mem.OSMemoryLock(hretError.getValue(), true)) {
@@ -145,7 +146,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
         throw new DominoException(result, errorMessage + " - " + errorDetails); //$NON-NLS-1$
       }
       else {
-        NotesErrorUtils.checkResult(result);
+        result.orElseThrow();
       }
     }
     
@@ -192,7 +193,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 	      byte[] formulaStringArr = formula.getBytes(charset);
 
 	      
-	      NotesErrorUtils.checkResult(Mem.OSMemoryAllocate(NotesConstants.BLK_MEM_ALLOC, formulaStringArr.length, rethFormulaStr));
+	      Mem.OSMemoryAllocate(NotesConstants.BLK_MEM_ALLOC, formulaStringArr.length, rethFormulaStr).orElseThrow();
 	      
 	      if (rethFormulaStr.getValue()==0) {
           throw new DominoException("Memory allocation for formula failed");
@@ -217,12 +218,12 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 	    
 	    IntByReference hretError = new IntByReference();
 	    
-	    short result = NotesCAPI12.get().NSFQueryAddToResultsList(NotesConstants.QUEP_LISTTYPE.SORT_COL_LST.getValue(),
+	    STATUS result = NotesCAPI12.get().NSFQueryAddToResultsList(NotesConstants.QUEP_LISTTYPE.SORT_COL_LST.getValue(),
 	        rsc.getPointer(), hOutFieldsPtr, hretError);
 
-	    if (result!=0 && hretError.getValue()!=0) {
+	    if (result.isError() && hretError.getValue()!=0) {
 	      if (hretError.getValue()!=0) {
-	        String errorMessage = NotesErrorUtils.errToString(result);
+	        String errorMessage = result.toErrorString();
 	        
 	        String errorDetails;
 	        try (LockedMemory memErr = Mem.OSMemoryLock(hretError.getValue(), true)) {
@@ -232,7 +233,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 	        throw new DominoException(result, errorMessage + " - " + errorDetails); //$NON-NLS-1$
 	      }
 	      else {
-	        NotesErrorUtils.checkResult(result);
+	        result.orElseThrow();
 	      }
 	    }
 	    
@@ -282,7 +283,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
     //write formula string
     {
       IntByReference rethFormula = new IntByReference();
-      NotesErrorUtils.checkResult(Mem.OSMemoryAllocate(NotesConstants.BLK_MEM_ALLOC, formulaStringArr.length, rethFormula));
+      Mem.OSMemoryAllocate(NotesConstants.BLK_MEM_ALLOC, formulaStringArr.length, rethFormula).orElseThrow();
       
       if (rethFormula.getValue()==0) {
         throw new DominoException("Memory allocation for formula failed");
@@ -308,12 +309,12 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 		
 		IntByReference hretError = new IntByReference();
 		
-		short result = NotesCAPI12.get().NSFQueryAddToResultsList(NotesConstants.QUEP_LISTTYPE.FIELD_FORMULA_LST.getValue(),
+		STATUS result = NotesCAPI12.get().NSFQueryAddToResultsList(NotesConstants.QUEP_LISTTYPE.FIELD_FORMULA_LST.getValue(),
 		    ptrFF, hFieldRulesPtr, hretError);
 		
-    if (result!=0 && hretError.getValue()!=0) {
+    if (result.isError() && hretError.getValue()!=0) {
       if (hretError.getValue()!=0) {
-        String errorMessage = NotesErrorUtils.errToString(result);
+        String errorMessage = result.toErrorString();
         
         String errorDetails;
         try (LockedMemory memErr = Mem.OSMemoryLock(hretError.getValue(), true)) {
@@ -323,7 +324,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
         throw new DominoException(result, errorMessage + " - " + errorDetails); //$NON-NLS-1$
       }
       else {
-        NotesErrorUtils.checkResult(result);
+        result.orElseThrow();
       }
     }
     
@@ -344,7 +345,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
       try {
         appendable.append(" {\"StreamResults\" :[]} "); //$NON-NLS-1$
       } catch (IOException e) {
-        throw new DominoException(0, "Error writing data to Appendable", e);
+        throw new DominoException(StatusImpl.NOERROR, "Error writing data to Appendable", e);
       }
     }
 
@@ -374,21 +375,21 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 		}
 		final int fDwFlags = dwFlags;
 
-		short result = LockUtil.lockHandle(dbAllocations.getDBHandle(), (dbHandleByVal) -> {
-			return NotesCAPI12.get().NSFProcessResults(dbHandleByVal, viewNameMem,
+		STATUS result = LockUtil.lockHandle(dbAllocations.getDBHandle(), (dbHandleByVal) ->
+			NotesCAPI12.get().NSFProcessResults(dbHandleByVal, viewNameMem,
 					fDwFlags, handles.hInResults, handles.hOutFields,
-					handles.hFieldRules, handles.hCombineRules, hErrorText, hqueue);
-		});
+					handles.hFieldRules, handles.hCombineRules, hErrorText, hqueue)
+		);
 		
-		if (result == 0) {
+		if (!result.isError()) {
 			AtomicReference<DHANDLE.ByReference> hHoldQueueEntry = new AtomicReference<>();
 			DHANDLE.ByReference hQueueEntry = DHANDLE.newInstanceByReference();
 
 			try {
 				result = LockUtil.lockHandle(hqueue, (hqueueByVal) -> {
-					short loopError = 0;
+				  STATUS loopError = StatusImpl.NOERROR;
 	
-					while (loopError == 0) {
+					while (loopError.isError()) {
 						loopError = NotesCAPI.get().QueueGet(hqueueByVal, hQueueEntry);
 	
 						/* hqueueentry is reused for each segment. last time it is NULLHANDLE,
@@ -397,7 +398,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 							hHoldQueueEntry.set(hQueueEntry);
 						}
 						
-						if (loopError == 0 & !hQueueEntry.isNull()) {
+						if (!loopError.isError() & !hQueueEntry.isNull()) {
 							LockUtil.lockHandle(hQueueEntry, (hqueueentryByVal) -> {
 								Pointer pinbuf = Mem.OSLockObject(hqueueentryByVal);
 								try {
@@ -418,8 +419,8 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 						}
 	
 						/* not an error condition */
-						if (loopError == INotesErrorConstants.ERR_QUEUE_EMPTY) {
-							loopError = 0;
+						if (loopError.getMaskedValue() == INotesErrorConstants.ERR_QUEUE_EMPTY) {
+							loopError = StatusImpl.NOERROR;
 							break;
 						}
 					}
@@ -429,10 +430,9 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 			}
 			finally {
 				if (hqueue!=null && !hqueue.isNull()) {
-					short resultQueueDelete = LockUtil.lockHandle(hqueue, (hqueueByVal)-> {
-						return NotesCAPI.get().QueueDelete(hqueueByVal);
-					});
-					NotesErrorUtils.checkResult(resultQueueDelete);
+					LockUtil.lockHandle(hqueue, (hqueueByVal)->
+						NotesCAPI.get().QueueDelete(hqueueByVal)
+					).orElseThrow();
 				}
 				
 				if (hHoldQueueEntry.get()!=null && !hHoldQueueEntry.get().isNull()) {
@@ -444,16 +444,16 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 			}
 		}
 		
-		if (result!=0) {
+		if (result.isError()) {
 			if (hErrorText.getValue()!=0) {
 				try (LockedMemory errMsgMem = Mem.OSMemoryLock(hErrorText.getValue(), true);) {
-					String errorMessage = NotesErrorUtils.errToString(result);
+					String errorMessage = result.toErrorString();
 				  String errorDetails = NotesStringUtils.fromLMBCS(errMsgMem.getPointer(), -1);
 					throw new DominoException(result, errorMessage + " - " + errorDetails); //$NON-NLS-1$
 				}
 			}
 			else {
-				NotesErrorUtils.checkResult(result);
+				result.orElseThrow();
 			}
 		}
 	
@@ -495,23 +495,23 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 		}
 		final int fDwFlags = dwFlags;
 		
-		short result = LockUtil.lockHandle(dbAllocations.getDBHandle(), (dbHandleByVal) -> {
+		STATUS result = LockUtil.lockHandle(dbAllocations.getDBHandle(), (dbHandleByVal) -> {
 		  //NSFProcessResults exists in the 12.0.0 C API:
 			return NotesCAPI12.get().NSFProcessResults(dbHandleByVal, viewNameMem,
 					fDwFlags, handles.hInResults, handles.hOutFields,
 					handles.hFieldRules, handles.hCombineRules, hErrorText, hqueue);
 		});
 		
-		if (result!=0) {
+		if (result.isError()) {
 			if (hErrorText.getValue()!=0) {
 				try (LockedMemory errMsgMem = Mem.OSMemoryLock(hErrorText.getValue(), true);) {
-          String errorMessage = NotesErrorUtils.errToString(result);
+          String errorMessage = result.toErrorString();
           String errorDetails = NotesStringUtils.fromLMBCS(errMsgMem.getPointer(), -1);
           throw new DominoException(result, errorMessage + " - " + errorDetails); //$NON-NLS-1$
 				}
 			}
 			else {
-				NotesErrorUtils.checkResult(result);
+				result.orElseThrow();
 			}
 		}
 
@@ -557,10 +557,9 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 			}
 			
 			if (m_hqueue!=null && !m_hqueue.isNull()) {
-				short resultQueueDelete = LockUtil.lockHandle(m_hqueue, (hqueueByVal)-> {
-					return NotesCAPI.get().QueueDelete(hqueueByVal);
-				});
-				NotesErrorUtils.checkResult(resultQueueDelete);
+				LockUtil.lockHandle(m_hqueue, (hqueueByVal) ->
+					NotesCAPI.get().QueueDelete(hqueueByVal)
+				).orElseThrow();
 				m_hqueue.clear();
 			}
 			
@@ -636,7 +635,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 			return LockUtil.lockHandle(m_hqueue, (m_hqueueByVal) -> {
 				DHANDLE.ByReference hQueueEntry = DHANDLE.newInstanceByReference();
 				
-				short readQueueError = NotesCAPI.get().QueueGet(m_hqueueByVal, hQueueEntry);
+				STATUS readQueueError = NotesCAPI.get().QueueGet(m_hqueueByVal, hQueueEntry);
 				
 				/* hqueueentry is reused for each segment. last time it is NULLHANDLE,
 				so remember the handle for release */
@@ -645,7 +644,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 				}
 
 				String dataStr = "";
-				if (readQueueError == 0 & !hQueueEntry.isNull()) {
+				if (!readQueueError.isError() & !hQueueEntry.isNull()) {
 					dataStr = LockUtil.lockHandle(hQueueEntry, (hqueueentryByVal) -> {
 						Pointer pinbuf = Mem.OSLockObject(hqueueentryByVal);
 						try {
@@ -663,11 +662,11 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 				}
 				
 				/* not an error condition */
-				if (readQueueError == INotesErrorConstants.ERR_QUEUE_EMPTY) {
-					readQueueError = 0;
+				if (readQueueError.getMaskedValue() == INotesErrorConstants.ERR_QUEUE_EMPTY) {
+					readQueueError = StatusImpl.NOERROR;
 				}
 				
-				if (readQueueError!=0) {
+				if (readQueueError.isError()) {
 					if (m_hErrorText.getValue()!=0) {
 						try (LockedMemory errMsgMem = Mem.OSMemoryLock(m_hErrorText.getValue(), true);) {
 							Pointer errMsgPtr = errMsgMem.getPointer();
@@ -676,7 +675,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 						}
 					}
 					else {
-						NotesErrorUtils.checkResult(readQueueError);
+						readQueueError.orElseThrow();
 					}
 				}
 				
@@ -720,9 +719,9 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 	  ShortByReference hviewcoll = new ShortByReference();
 	  IntByReference viewnid = new IntByReference();
 
-	  short result = LockUtil.lockHandles(dbAllocations.getDBHandle(), readersListAllocations.getListHandle() , (dbHandleByVal, hListByVal) -> {
+	  STATUS result = LockUtil.lockHandles(dbAllocations.getDBHandle(), readersListAllocations.getListHandle() , (dbHandleByVal, hListByVal) ->
       //NSFProcessResultsExt got introduced in the 12.0.1 C API:
-	    return NotesCAPI1201.get().NSFProcessResultsExt(
+	    NotesCAPI1201.get().NSFProcessResultsExt(
 	        dbHandleByVal,
 	        viewNameMem,
 	        NotesConstants.PROCRES_CREATE_VIEW,
@@ -739,22 +738,22 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 	        timeoutsec*1000,
 	        maxEntries,
 	        0
-	        );
-	  });
+	        )
+	  );
 
-	  if (result==0) {
+	  if (!result.isError()) {
 	    return viewnid.getValue();
 	  }
 	  else {
 	    if (hErrorText.getValue()!=0) {
 	      try (LockedMemory errMsgMem = Mem.OSMemoryLock(hErrorText.getValue(), true);) {
-          String errorMessage = NotesErrorUtils.errToString(result);
+          String errorMessage = result.toErrorString();
           String errorDetails = NotesStringUtils.fromLMBCS(errMsgMem.getPointer(), -1);
           throw new DominoException(result, errorMessage + " - " + errorDetails); //$NON-NLS-1$
 	      }
 	    }
 	    else {
-	      NotesErrorUtils.checkResult(result);
+	      result.orElseThrow();
 	      //unreachable
 	      return 0;
 	    }

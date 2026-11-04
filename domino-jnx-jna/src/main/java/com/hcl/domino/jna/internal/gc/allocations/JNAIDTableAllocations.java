@@ -21,7 +21,6 @@ import java.lang.ref.ReferenceQueue;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.data.JNAIDTable;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
@@ -56,8 +55,7 @@ public class JNAIDTableAllocations extends APIObjectAllocations<JNAIDTable> {
 
 		if (m_idTableHandle!=null) {
 			LockUtil.lockHandle(m_idTableHandle, (handleByVal) -> {
-				short result = NotesCAPI.get().IDDestroyTable(handleByVal);
-				NotesErrorUtils.checkResult(result);
+				NotesCAPI.get().IDDestroyTable(handleByVal).orElseThrow();
 				//mark as disposed while lock is active
 				m_idTableHandle.setDisposed();
 				m_idTableHandle = null;

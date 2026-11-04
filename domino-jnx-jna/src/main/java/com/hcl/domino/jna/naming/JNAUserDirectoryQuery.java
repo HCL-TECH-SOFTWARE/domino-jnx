@@ -16,8 +16,6 @@
  */
 package com.hcl.domino.jna.naming;
 
-import static com.hcl.domino.commons.util.NotesErrorUtils.checkResult;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -116,7 +114,7 @@ public class JNAUserDirectoryQuery implements UserDirectoryQuery {
 		Memory items = NotesStringUtils.toLMBCS(this.items);
 		
 		DHANDLE.ByReference rethBuffer = DHANDLE.newInstanceByReference();
-		checkResult(NotesCAPI.get().NAMELookup2(
+		NotesCAPI.get().NAMELookup2(
 			serverName,
 			flags,
 			(short)(namespacesLocal.size() & 0xffff),
@@ -126,7 +124,7 @@ public class JNAUserDirectoryQuery implements UserDirectoryQuery {
 			(short)(this.items == null ? 0 : (this.items.size() & 0xffff)),
 			items,
 			rethBuffer
-		));
+		).orElseThrow();
 		
 		JNAUserDirectoryQueryIterator iter = new JNAUserDirectoryQueryIterator(client, rethBuffer, this.items);
 		Spliterator<List<Map<String, List<Object>>>> spliterator = Spliterators.spliterator(iter, nameCount+namespacesLocal.size(), 0);

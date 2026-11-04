@@ -21,7 +21,6 @@ import java.lang.ref.ReferenceQueue;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.admin.JNAUserId;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.sun.jna.ptr.PointerByReference;
@@ -58,8 +57,7 @@ public class JNAUserIDAllocations extends APIObjectAllocations<JNAUserId> {
 		
 		if (!m_noDispose) {
 			if (m_phKFC!=null) {
-				short result = NotesCAPI.get().SECKFMClose(m_phKFC, 0, 0, null);
-				NotesErrorUtils.checkResult(result);
+				NotesCAPI.get().SECKFMClose(m_phKFC, 0, 0, null).orElseThrow();
 				m_phKFC = null;
 			}
 		}

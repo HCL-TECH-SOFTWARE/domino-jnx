@@ -24,7 +24,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.DominoException;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Item;
 import com.hcl.domino.data.Item.ItemFlag;
@@ -129,11 +128,10 @@ public class AdminpRequestProfileEntries {
 				ShortByReference retListSize = new ShortByReference();
 				Memory retpList = new Memory(Native.POINTER_SIZE);
 				
-				short result = NotesCAPI.get().ListAllocate((short) 0, 
+				NotesCAPI.get().ListAllocate((short) 0, 
 						(short) 0,
-						1, rethList, retpList, retListSize);
-
-				NotesErrorUtils.checkResult(result);
+						1, rethList, retpList, retListSize)
+				  .orElseThrow();
 
 				List<String> strValues = m_adminReqProfileDoc.getAsList(currItemName, String.class, Collections.emptyList());
 				
@@ -150,9 +148,8 @@ public class AdminpRequestProfileEntries {
 
 		        char textSize = currStrMem==null ? 0 : (char) currStrMem.size();
 
-						short localResult = NotesCAPI.get().ListAddEntry(hListByVal, 1, retListSize, (char) l, currStrMem,
-						    textSize);
-						NotesErrorUtils.checkResult(localResult);
+						NotesCAPI.get().ListAddEntry(hListByVal, 1, retListSize, (char) l, currStrMem,
+						    textSize).orElseThrow();
 					}
 					
 					byte[] lmbcsListHandleAsArray = rethList.getPointer().getByteArray(0, rethList.size());

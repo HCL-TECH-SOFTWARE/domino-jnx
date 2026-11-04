@@ -13,7 +13,6 @@ import javax.naming.NameNotFoundException;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClientBuilder;
 import com.hcl.domino.DominoException;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.exception.SecurityNullParameterException;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -83,7 +82,7 @@ public class JNAOIDCTokenHandler implements CredentialValidationTokenHandler<Dom
     try(DisposableMemory memEmail = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
       LongByReference duration = new LongByReference();
       
-      Optional<DominoException> e = NotesErrorUtils.toNotesError(api.SECValidateAccessToken(
+      Optional<DominoException> e = api.SECValidateAccessToken(
           memJwt,
           memProvider,
           memScope,
@@ -93,7 +92,7 @@ public class JNAOIDCTokenHandler implements CredentialValidationTokenHandler<Dom
           NotesConstants.MAXUSERNAME,
           memEmail,
           duration
-      ));
+      ).toDominoException();
       if(e.isPresent()) {
         DominoException de = e.get();
         if(de instanceof SecurityNullParameterException) {

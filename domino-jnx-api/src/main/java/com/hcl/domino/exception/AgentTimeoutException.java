@@ -17,6 +17,7 @@
 package com.hcl.domino.exception;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.data.types.STATUS;
 
 /**
  * Represents error code 11867, "Execution time limit exceeded by Agent '%s' in database '%p'. Agent signer '%a'."
@@ -26,11 +27,11 @@ import com.hcl.domino.DominoException;
 public class AgentTimeoutException extends DominoException {
   private static final long serialVersionUID = 1L;
 
-  public AgentTimeoutException(final int id, final String message) {
+  public AgentTimeoutException(final STATUS id, final String message) {
     super(id, message);
   }
 
-  public AgentTimeoutException(final int id, final String message, final Throwable cause) {
+  public AgentTimeoutException(final STATUS id, final String message, final Throwable cause) {
     super(id, message, cause);
   }
 

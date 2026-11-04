@@ -31,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
@@ -40,7 +39,6 @@ import com.hcl.domino.commons.html.IHtmlApiReference;
 import com.hcl.domino.commons.html.IHtmlApiUrlTargetComponent;
 import com.hcl.domino.commons.html.ReferenceType;
 import com.hcl.domino.commons.html.TargetType;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Database;
@@ -225,16 +223,15 @@ public class JNARichtextHTMLConverter implements RichTextHTMLConverter, DominoCl
 		IntByReference phHTML = new IntByReference();
 		phHTML.setValue(0);
 		
-		short result = NotesCAPI.get().HTMLCreateConverter(phHTML);
-		NotesErrorUtils.checkResult(result);
+		NotesCAPI.get().HTMLCreateConverter(phHTML).orElseThrow();
 		
 		int hHTML = phHTML.getValue();
 		
 		try {
 			Collection<String> options = config.options;
 			if (options != null && !options.isEmpty()) {
-				result = NotesCAPI.get().HTMLSetHTMLOptions(hHTML, new StringArray(options.toArray(new String[options.size()])));
-				NotesErrorUtils.checkResult(result);
+				NotesCAPI.get().HTMLSetHTMLOptions(hHTML, new StringArray(options.toArray(new String[options.size()])))
+				  .orElseThrow();
 			}
 			String userAgent = config.userAgent;
 			if(StringUtil.isNotEmpty(userAgent)) {
@@ -248,18 +245,18 @@ public class JNARichtextHTMLConverter implements RichTextHTMLConverter, DominoCl
 			int totalLen = LockUtil.lockHandles(jnaDbAllocations.getDBHandle(), noteHandle,
 					(hDbByVal, hNoteByVal) -> {
 						
-				short convertResult;
 				if (itemName==null) {
-					convertResult = NotesCAPI.get().HTMLConvertNote(hHTML, hDbByVal, hNoteByVal, 0, null);
+					NotesCAPI.get().HTMLConvertNote(hHTML, hDbByVal, hNoteByVal, 0, null)
+					  .orElseThrow();
 				}
 				else {
-					convertResult = NotesCAPI.get().HTMLConvertItem(hHTML, hDbByVal, hNoteByVal, itemNameMem);
+					NotesCAPI.get().HTMLConvertItem(hHTML, hDbByVal, hNoteByVal, itemNameMem)
+					  .orElseThrow();
 				}
-				NotesErrorUtils.checkResult(convertResult);
 				
 				try(DisposableMemory tLenMem = new DisposableMemory(4)) {
-    				short getPropResult = NotesCAPI.get().HTMLGetProperty(hHTML, NotesConstants.HTMLAPI_PROP_TEXTLENGTH, tLenMem);
-    				NotesErrorUtils.checkResult(getPropResult);
+    				NotesCAPI.get().HTMLGetProperty(hHTML, NotesConstants.HTMLAPI_PROP_TEXTLENGTH, tLenMem)
+    				  .orElseThrow();
     				
     				return tLenMem.getInt(0);
 				}
@@ -275,16 +272,16 @@ public class JNARichtextHTMLConverter implements RichTextHTMLConverter, DominoCl
 			ByteArrayOutputStream htmlTextLMBCSOut = new ByteArrayOutputStream();
 			
 			try(DisposableMemory textMem = new DisposableMemory(bufSize+1)) {
-				while (result==0 && iLen>0 && startOffset<totalLen) {
+				while (iLen>0 && startOffset<totalLen) {
 					len.setValue(bufSize);
 					textMem.setByte(0, (byte) 0);
 
-					result = NotesCAPI.get().HTMLGetText(hHTML, startOffset, len, textMem);
-					NotesErrorUtils.checkResult(result);
+					NotesCAPI.get().HTMLGetText(hHTML, startOffset, len, textMem)
+					      .orElseThrow();
 
 					iLen = len.getValue();
 
-					if (result==0 && iLen > 0) {
+					if (iLen > 0) {
 						textMem.read(0, bufArr, 0, iLen);
 						htmlTextLMBCSOut.write(bufArr, 0, iLen);
 
@@ -298,8 +295,8 @@ public class JNARichtextHTMLConverter implements RichTextHTMLConverter, DominoCl
 			
 			int iRefCount;
             try(DisposableMemory refCount = new DisposableMemory(4)) {
-              result=NotesCAPI.get().HTMLGetProperty(hHTML, NotesConstants.HTMLAPI_PROP_NUMREFS, refCount);
-              NotesErrorUtils.checkResult(result);
+              NotesCAPI.get().HTMLGetProperty(hHTML, NotesConstants.HTMLAPI_PROP_NUMREFS, refCount)
+                .orElseThrow();
               iRefCount = refCount.getInt(0);
             }
 
@@ -309,14 +306,14 @@ public class JNARichtextHTMLConverter implements RichTextHTMLConverter, DominoCl
 				IntByReference phRef = new IntByReference();
 				phRef.setValue(0);
 				
-				result = NotesCAPI.get().HTMLGetReference(hHTML, i, phRef);
-				NotesErrorUtils.checkResult(result);
+				NotesCAPI.get().HTMLGetReference(hHTML, i, phRef)
+				  .orElseThrow();
 				
 				try(DisposableMemory ppRef = new DisposableMemory(Native.POINTER_SIZE)) {
     				int hRef = phRef.getValue();
     				
-    				result = NotesCAPI.get().HTMLLockAndFixupReference(hRef, ppRef);
-    				NotesErrorUtils.checkResult(result);
+    				NotesCAPI.get().HTMLLockAndFixupReference(hRef, ppRef)
+    				  .orElseThrow();
     				
     				try {
     					int iRefType;
@@ -424,9 +421,8 @@ public class JNARichtextHTMLConverter implements RichTextHTMLConverter, DominoCl
 		}
 		finally {
 			if (hHTML!=0) {
-				result = NotesCAPI.get().HTMLDestroyConverter(hHTML);
+				NotesCAPI.get().HTMLDestroyConverter(hHTML).orElseThrow();
 			}
-			NotesErrorUtils.checkResult(result);
 		}
 	}
 
@@ -743,27 +739,27 @@ public class JNARichtextHTMLConverter implements RichTextHTMLConverter, DominoCl
 		
 		IntByReference phHTML = new IntByReference();
 		
-		short result = NotesCAPI.get().HTMLCreateConverter(phHTML);
-		NotesErrorUtils.checkResult(result);
+		NotesCAPI.get().HTMLCreateConverter(phHTML)
+		  .orElseThrow();
 		
 		int hHTML = phHTML.getValue();
 		
 		try {
 			if (options != null && !options.isEmpty()) {
-				result = NotesCAPI.get().HTMLSetHTMLOptions(hHTML, new StringArray(options.toArray(new String[options.size()])));
-				NotesErrorUtils.checkResult(result);
+				NotesCAPI.get().HTMLSetHTMLOptions(hHTML, new StringArray(options.toArray(new String[options.size()])))
+				  .orElseThrow();
 			}
 
 			Memory itemNameMem = NotesStringUtils.toLMBCS(itemName, true);
 
 			
 			int totalLen = LockUtil.lockHandles(jnaDbAllocations.getDBHandle(), jnaDocAllocations.getNoteHandle(), (hDbByVal, hNoteByVal) -> {
-				short convertResult = NotesCAPI.get().HTMLConvertElement(hHTML, hDbByVal, hNoteByVal, itemNameMem, itemIndex, itemOffset);
-				NotesErrorUtils.checkResult(convertResult);
+				NotesCAPI.get().HTMLConvertElement(hHTML, hDbByVal, hNoteByVal, itemNameMem, itemIndex, itemOffset)
+				  .orElseThrow();
 				
 				try(DisposableMemory tLenMem = new DisposableMemory(4)) {
-    				short getPropResult = NotesCAPI.get().HTMLGetProperty(hHTML, NotesConstants.HTMLAPI_PROP_TEXTLENGTH, tLenMem);
-    				NotesErrorUtils.checkResult(getPropResult);
+    				NotesCAPI.get().HTMLGetProperty(hHTML, NotesConstants.HTMLAPI_PROP_TEXTLENGTH, tLenMem)
+    				  .orElseThrow();
     				
     				return tLenMem.getInt(0);
 				}
@@ -779,11 +775,11 @@ public class JNARichtextHTMLConverter implements RichTextHTMLConverter, DominoCl
 			len.setValue(NotesConstants.MAXPATH);
 			int startOffset=skip;
 			try(DisposableMemory bufMem = new DisposableMemory(NotesConstants.MAXPATH+1)) {
-    			while (result==0 && len.getValue()>0 && startOffset<totalLen) {
+    			while (len.getValue()>0 && startOffset<totalLen) {
     				len.setValue(NotesConstants.MAXPATH);
     				
-    				result = NotesCAPI.get().HTMLGetText(hHTML, startOffset, len, bufMem);
-    				NotesErrorUtils.checkResult(result);
+    				NotesCAPI.get().HTMLGetText(hHTML, startOffset, len, bufMem)
+    				  .orElseThrow();
     				
     				byte[] data = bufMem.getByteArray(0, len.getValue());
     				Action action = callback.read(data);
@@ -796,8 +792,7 @@ public class JNARichtextHTMLConverter implements RichTextHTMLConverter, DominoCl
 			}
 		}
 		finally {
-			result = NotesCAPI.get().HTMLDestroyConverter(hHTML);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().HTMLDestroyConverter(hHTML).orElseThrow();
 		}
 	}
 

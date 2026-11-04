@@ -16,10 +16,10 @@
  */
 package com.hcl.domino.jna.internal.capi;
 
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.jna.internal.capi.INotesCAPI.UndocumentedAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
-import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.sun.jna.Library;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
@@ -33,20 +33,20 @@ import com.sun.jna.ptr.IntByReference;
 public interface INotesCAPI12 extends Library {
 
   @UndocumentedAPI
-	public short NSFProcessResults(HANDLE.ByValue hDb,
-			Memory viewname,
-			int dwFlags,
-			int hInResults,
-			int hOutFields,
-			int hFieldRules,
-			int hCombineRules,
-			IntByReference hErrorText,
-			DHANDLE.ByReference phStreamedhQueue);  
+  public STATUS NSFProcessResults(HANDLE.ByValue hDb,
+      Memory viewname,
+      int dwFlags,
+      int hInResults,
+      int hOutFields,
+      int hFieldRules,
+      int hCombineRules,
+      IntByReference hErrorText,
+      DHANDLE.ByReference phStreamedhQueue); 
 
   @UndocumentedAPI
-	short NSFQueryAddToResultsList(int /* QUEP_LISTTYPE */ type,
-			Pointer pInEntry, Pointer phEntryList,
-			IntByReference phErrorText);
+  STATUS NSFQueryAddToResultsList(int /* QUEP_LISTTYPE */ type,
+      Pointer pInEntry, Pointer phEntryList,
+      IntByReference phErrorText);
 
   /**
    * 
@@ -58,7 +58,7 @@ public interface INotesCAPI12 extends Library {
    * @since JNX 1.48.0
    * @since Domino 12.0.2
    */
-  short ConvertTIMEDATEtoRFC3339Date(Pointer ptdTimeDate,
+  STATUS ConvertTIMEDATEtoRFC3339Date(Pointer ptdTimeDate,
       Pointer pachText,
       short wTextBufSize);
 }

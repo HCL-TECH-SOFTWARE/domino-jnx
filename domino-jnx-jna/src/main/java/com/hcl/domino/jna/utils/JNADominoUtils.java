@@ -30,7 +30,6 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.admin.idvault.UserId;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -64,8 +63,8 @@ public enum JNADominoUtils {
 		Memory dbServerLMBCS = NotesStringUtils.toLMBCS(server, true);
 		Memory dbFilePathLMBCS = NotesStringUtils.toLMBCS(filePath, true);
 		try(DisposableMemory retFullNetPath = new DisposableMemory(NotesConstants.MAXPATH)) {
-			short result = NotesCAPI.get().OSPathNetConstruct(null, dbServerLMBCS, dbFilePathLMBCS, retFullNetPath);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().OSPathNetConstruct(null, dbServerLMBCS, dbFilePathLMBCS, retFullNetPath)
+			  .orElseThrow();
 
 			// reduce length of retDbPathName
 			int newLength = 0;

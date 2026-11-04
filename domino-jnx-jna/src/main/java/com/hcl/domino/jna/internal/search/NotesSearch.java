@@ -26,7 +26,6 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.UserNamesList;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.IItemTableData;
 import com.hcl.domino.commons.views.Search;
@@ -36,6 +35,7 @@ import com.hcl.domino.data.Database.OpenDocumentMode;
 import com.hcl.domino.data.Database.SearchMatch;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.dbdirectory.FileType;
 import com.hcl.domino.exception.FormulaCompilationException;
@@ -717,7 +717,7 @@ public class NotesSearch {
       JNADatabaseAllocations dbAllocations =
           (JNADatabaseAllocations) db.getAdapter(APIObjectAllocations.class);
 
-      short result;
+      STATUS result;
       try {
         result = LockUtil.lockHandles(
             dbAllocations.getDBHandle(),
@@ -749,8 +749,8 @@ public class NotesSearch {
         throw new DominoException(0, "Error searching database", invocationEx[0]);
       }
 
-      if (result != INotesErrorConstants.ERR_CANCEL) {
-        NotesErrorUtils.checkResult(result);
+      if (result.getMaskedValue() != INotesErrorConstants.ERR_CANCEL) {
+        result.orElseThrow();
       } else {
         return null;
       }

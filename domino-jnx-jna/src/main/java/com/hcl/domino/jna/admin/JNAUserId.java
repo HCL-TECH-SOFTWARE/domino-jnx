@@ -25,7 +25,6 @@ import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -101,8 +100,8 @@ public class JNAUserId extends BaseJNAAPIObject<JNAUserIDAllocations> implements
 			String targetFilePathStr = targetFilePath.toString();
 			Memory targetFilePathMem = NotesStringUtils.toLMBCS(targetFilePathStr, true);
 			
-			NotesErrorUtils.checkResult(NotesCAPI.get().SECKFMMakeSafeCopy(phKFC.getValue(),
-					NotesConstants.KFM_safecopy_Standard, (short) 0, targetFilePathMem));
+			NotesCAPI.get().SECKFMMakeSafeCopy(phKFC.getValue(),
+					NotesConstants.KFM_safecopy_Standard, (short) 0, targetFilePathMem).orElseThrow();
 
 		}
 	}

@@ -35,13 +35,14 @@ import com.hcl.domino.calendar.CalendarRead;
 import com.hcl.domino.calendar.CalendarReadRange;
 import com.hcl.domino.calendar.CalendarWrite;
 import com.hcl.domino.calendar.Calendaring;
+import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.IncompatibleImplementationException;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
@@ -97,11 +98,10 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		
 		DHANDLE.ByReference hRetUID = DHANDLE.newInstanceByReference();
 		
-		short result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
-			(hDBMail) -> {
-				return NotesCAPI.get().CalCreateEntry(hDBMail, icalMem, dwFlags, hRetUID, null);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(dbAllocations.getDBHandle(),
+			(hDBMail) ->
+				NotesCAPI.get().CalCreateEntry(hDBMail, icalMem, dwFlags, hRetUID, null)
+		).orElseThrow();
 
 		if (hRetUID!=null) {
 			try (LockedMemory m = Mem.OSMemoryLock(hRetUID, true)) {
@@ -129,11 +129,10 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		
 		int dwFlags = flags==null ? 0 : CalendarWrite.toBitMask(flags);
 		
-		short result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
-				(hDBMail) -> {
-			return NotesCAPI.get().CalUpdateEntry(hDBMail, icalMem, uidMem, recurIdMem, commentsMem, dwFlags, null);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(dbAllocations.getDBHandle(),
+				(hDBMail) ->
+			NotesCAPI.get().CalUpdateEntry(hDBMail, icalMem, uidMem, recurIdMem, commentsMem, dwFlags, null)
+		).orElseThrow();
 	}
 
 	@Override
@@ -148,13 +147,11 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		JNADatabaseAllocations dbAllocations = getMailDBAllocations(dbMail);
 		
 		try(DisposableMemory retUID = new DisposableMemory(NotesConstants.MAXPATH)) {
-			short result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
-					(hDBMail) -> {
-				return NotesCAPI.get().CalGetUIDfromNOTEID(hDBMail, noteId, retUID, (short) (NotesConstants.MAXPATH & 0xffff),
-						null, 0, null);
-			});
-			
-			NotesErrorUtils.checkResult(result);
+			LockUtil.lockHandle(dbAllocations.getDBHandle(),
+					(hDBMail) ->
+				NotesCAPI.get().CalGetUIDfromNOTEID(hDBMail, noteId, retUID, (short) (NotesConstants.MAXPATH & 0xffff),
+						null, 0, null)
+			).orElseThrow();
 			
 			return NotesStringUtils.fromLMBCS(retUID, -1);
 		}
@@ -170,16 +167,13 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		unidObj.setUnid(unid);
 		
 		try(DisposableMemory retUID = new DisposableMemory(NotesConstants.MAXPATH)) {
-			short result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
-					(hDBMail) -> {
-				return NotesCAPI.get().CalGetUIDfromUNID(hDBMail, unidObj, retUID,
-						(short) (NotesConstants.MAXPATH & 0xffff), null, 0, null);
-			});
+			LockUtil.lockHandle(dbAllocations.getDBHandle(),
+					(hDBMail) ->
+				NotesCAPI.get().CalGetUIDfromUNID(hDBMail, unidObj, retUID,
+						(short) (NotesConstants.MAXPATH & 0xffff), null, 0, null)
+			).orElseThrow();
 			
-			NotesErrorUtils.checkResult(result);
-			
-			String uid = NotesStringUtils.fromLMBCS(retUID, -1);
-			return uid;
+			return NotesStringUtils.fromLMBCS(retUID, -1);
 		}
 	}
 
@@ -188,11 +182,10 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		Memory uidMem = NotesStringUtils.toLMBCS(uid, true);
 		
 		try(DisposableMemory retApptUnidMem = new DisposableMemory(NotesConstants.MAXPATH)) {
-			short result = NotesCAPI.get().CalGetApptunidFromUID(uidMem, retApptUnidMem, 0, null);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().CalGetApptunidFromUID(uidMem, retApptUnidMem, 0, null)
+			  .orElseThrow();
 			
-			String apptUnid = NotesStringUtils.fromLMBCS(retApptUnidMem, -1);
-			return apptUnid;
+			return NotesStringUtils.fromLMBCS(retApptUnidMem, -1);
 		}
 	}
 
@@ -210,11 +203,10 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		
 		DHANDLE.ByReference rethNote = DHANDLE.newInstanceByReference();
 
-		short result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
-				(hDBMail) -> {
-			return NotesCAPI.get().CalOpenNoteHandle(hDBMail, uidMem, recurIdMem, rethNote, dwFlags, null);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(dbAllocations.getDBHandle(),
+				(hDBMail) ->
+			NotesCAPI.get().CalOpenNoteHandle(hDBMail, uidMem, recurIdMem, rethNote, dwFlags, null)
+		).orElseThrow();
 		
 		return new JNADocument(toJNADatabase(dbMail), rethNote);
 	}
@@ -234,11 +226,10 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		
 		DHANDLE.ByReference hRetCalData = DHANDLE.newInstanceByReference();
 		
-		short result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
-				(hDBMail) -> {
-			return NotesCAPI.get().CalReadEntry(hDBMail, uidMem, recurIdMem, hRetCalData, null, dwFlags, null);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(dbAllocations.getDBHandle(),
+				(hDBMail) ->
+			NotesCAPI.get().CalReadEntry(hDBMail, uidMem, recurIdMem, hRetCalData, null, dwFlags, null)
+		).orElseThrow();
 		
 		try (LockedMemory m = Mem.OSMemoryLock(hRetCalData, true)) {
 			Pointer retUIDPtr=m.getPointer();
@@ -283,7 +274,6 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		while (true) {
 			AtomicInteger currSkipCount = new AtomicInteger(skipCount);
 			AtomicInteger remainingToRead = new AtomicInteger(maxRead);
-			short result;
 			boolean hasMoreToDo;
 			boolean hasConflict;
 			
@@ -303,17 +293,17 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 				ShortByReference retSignalFlags = new ShortByReference();
 				IntByReference retNumEntriesProcessed = new IntByReference();
 				
-				result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
+				STATUS result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
 						(hDBMail) -> {
 					return NotesCAPI.get().CalReadRange(hDBMail, startStruct, endStruct, currSkipCount.get(),
 							remainingToRead.get(), dwReturnMask, dwReturnMaskExt, null, hRetCalData,
 							retCalBufferLength, hRetUIDData, retNumEntriesProcessed, retSignalFlags, 0, null);
 				});
 				
-				if ((result & NotesConstants.ERR_MASK)==1028) { //no data found
+				if (result.getMaskedValue()==INotesErrorConstants.ERR_NOT_FOUND) { //no data found
 					return;
 				}
-				NotesErrorUtils.checkResult(result);
+				result.orElseThrow();
 				
 				int numEntriesProcessed = retNumEntriesProcessed.getValue();
 				currSkipCount.addAndGet(numEntriesProcessed);
@@ -345,8 +335,7 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 							
 							int numEntriesAsInt = Short.toUnsignedInt(NotesCAPI.get().ListGetNumEntries(pUIDData, 0));
 							for (int i=0; i<numEntriesAsInt; i++) {
-								short res = NotesCAPI.get().ListGetText(pUIDData, false, (char) i, retTextPointer, retTextLength);
-								NotesErrorUtils.checkResult(res);
+								NotesCAPI.get().ListGetText(pUIDData, false, (char) i, retTextPointer, retTextLength).orElseThrow();
 								
 								String currUID = NotesStringUtils.fromLMBCS(retTextPointer.getPointer(0), retTextLength.getValue() & 0xffff);
 								uidAllData.add(currUID);
@@ -385,8 +374,8 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 	public String getRecurrenceID(TemporalAccessor td) {
 		NotesTimeDateStruct.ByValue tdByVal = NotesTimeDateStruct.ByValue.newInstance(JNADominoDateTime.from(td).getInnards());
 		try(DisposableMemory retRecurId = new DisposableMemory(NotesConstants.MAXPATH)) {
-			short result = NotesCAPI.get().CalGetRecurrenceID(tdByVal, retRecurId, (short) ((retRecurId.size()-1) & 0xffff));
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().CalGetRecurrenceID(tdByVal, retRecurId, (short) ((retRecurId.size()-1) & 0xffff))
+			  .orElseThrow();
 			
 			String recurId = NotesStringUtils.fromLMBCS(retRecurId, -1);
 			return recurId;
@@ -406,12 +395,11 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		DHANDLE.ByReference phRetNOTEIDs = retNoteIds==null ? null : DHANDLE.newInstanceByReference();
 		DHANDLE.ByReference phRetUNIDs = retUNIDs==null ? null : DHANDLE.newInstanceByReference();
 		
-		short result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
-				(hDBMail) -> {
-			return NotesCAPI.get().CalGetUnappliedNotices(hDBMail, uidMem,
-				retNumNotices, phRetNOTEIDs, phRetUNIDs, null, 0, null);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(dbAllocations.getDBHandle(),
+				(hDBMail) ->
+			NotesCAPI.get().CalGetUnappliedNotices(hDBMail, uidMem,
+				retNumNotices, phRetNOTEIDs, phRetUNIDs, null, 0, null)
+		).orElseThrow();
 		
 		int numNotices = retNumNotices.getValue() & 0xffff;
 		if (numNotices>0) {
@@ -464,13 +452,12 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		DHANDLE.ByReference phRetNOTEIDs = retNoteIds==null ? null : DHANDLE.newInstanceByReference();
 		DHANDLE.ByReference phRetUNIDs = retUNIDs==null ? null : DHANDLE.newInstanceByReference();
 		
-		short result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
-				(hDBMail) -> {
-			return NotesCAPI.get().CalGetNewInvitations(hDBMail, tdStartStruct,
+		LockUtil.lockHandle(dbAllocations.getDBHandle(),
+				(hDBMail) ->
+			NotesCAPI.get().CalGetNewInvitations(hDBMail, tdStartStruct,
 					uidMem, tdSinceStruct,
-					retTdUntilStruct, retNumInvites, phRetNOTEIDs, phRetUNIDs, null, 0, null);
-		});
-		NotesErrorUtils.checkResult(result);
+					retTdUntilStruct, retNumInvites, phRetNOTEIDs, phRetUNIDs, null, 0, null)
+		).orElseThrow();
 		
 		if (retUntil!=null && retUntil.get()!=null) {
 			retTdUntilStruct.read();
@@ -521,11 +508,10 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		
 		DHANDLE.ByReference hRetCalData = DHANDLE.newInstanceByReference();
 		
-		short result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
-				(hDBMail) -> {
-			return NotesCAPI.get().CalReadNotice(hDBMail, noteId, hRetCalData, null, dwFlags, null);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(dbAllocations.getDBHandle(),
+				(hDBMail) ->
+			NotesCAPI.get().CalReadNotice(hDBMail, noteId, hRetCalData, null, dwFlags, null)
+		).orElseThrow();
 		
 		try (LockedMemory m = Mem.OSMemoryLock(hRetCalData, true)) {
             Pointer retUIDPtr=m.getPointer();
@@ -553,11 +539,10 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		
 		DHANDLE.ByReference hRetCalData = DHANDLE.newInstanceByReference();
 		
-		short result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
-				(hDBMail) -> {
-			return NotesCAPI.get().CalReadNoticeUNID(hDBMail, unidObj, hRetCalData, null, dwFlags, null);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(dbAllocations.getDBHandle(),
+				(hDBMail) ->
+			NotesCAPI.get().CalReadNoticeUNID(hDBMail, unidObj, hRetCalData, null, dwFlags, null)
+		).orElseThrow();
 		
 		try (LockedMemory m = Mem.OSMemoryLock(hRetCalData, true)) {
             Pointer retUIDPtr=m.getPointer();
@@ -586,12 +571,11 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		int dwRange = scope.getValue();
 		Memory commentMem = NotesStringUtils.toLMBCS(comment, true);
 		
-		short result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
-				(hDBMail) -> {
-			return  NotesCAPI.get().CalEntryAction(hDBMail, uidMem, recurIdMem,
-					dwAction, dwRange, commentMem, dataStruct, dwFlags, null);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(dbAllocations.getDBHandle(),
+				(hDBMail) ->
+			NotesCAPI.get().CalEntryAction(hDBMail, uidMem, recurIdMem,
+					dwAction, dwRange, commentMem, dataStruct, dwFlags, null)
+		).orElseThrow();
 	}
 
 	@Override
@@ -607,12 +591,11 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		int dwAction = CalendarProcess.toBitMask(action);
 		Memory commentMem = NotesStringUtils.toLMBCS(comment, true);
 		
-		short result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
-				(hDBMail) -> {
-			return  NotesCAPI.get().CalNoticeAction(hDBMail, noteId, dwAction,
-					commentMem, dataStruct, dwFlags, null);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(dbAllocations.getDBHandle(),
+				(hDBMail) ->
+			NotesCAPI.get().CalNoticeAction(hDBMail, noteId, dwAction,
+					commentMem, dataStruct, dwFlags, null)
+		).orElseThrow();
 	}
 
 	@Override
@@ -631,12 +614,11 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		int dwAction = CalendarProcess.toBitMask(action);
 		Memory commentMem = NotesStringUtils.toLMBCS(comment, true);
 		
-		short result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
-				(hDBMail) -> {
-			return  NotesCAPI.get().CalNoticeActionUNID(hDBMail, unidObj, dwAction,
-					commentMem, dataStruct, dwFlags, null);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(dbAllocations.getDBHandle(),
+				(hDBMail) ->
+			NotesCAPI.get().CalNoticeActionUNID(hDBMail, unidObj, dwAction,
+					commentMem, dataStruct, dwFlags, null)
+		).orElseThrow();
 	}
 	
 	@Override
