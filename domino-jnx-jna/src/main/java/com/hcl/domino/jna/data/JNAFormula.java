@@ -279,8 +279,7 @@ public class JNAFormula extends BaseJNAAPIObject<JNAFormulaAllocations> implemen
 						}
 						finally {
 							Mem.OSUnlockObject(resultHdlByVal);
-							short localResult = Mem.OSMemFree(resultHdlByVal);
-							NotesErrorUtils.checkResult(localResult);
+							Mem.OSMemFree(resultHdlByVal);
 						}
 					});
 

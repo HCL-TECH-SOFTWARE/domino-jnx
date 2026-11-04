@@ -759,10 +759,9 @@ public class NotesSearch {
     } finally {
       // free handle of formula
       if (hFormula != null && !hFormula.isNull()) {
-        short result = LockUtil.lockHandle(hFormula, (hFormulaByVal) -> {
-          return Mem.OSMemFree(hFormulaByVal);
+        LockUtil.lockHandle(hFormula, (hFormulaByVal) -> {
+          return Mem.OSMemFree(hFormulaByVal).orElseThrow();
         });
-        NotesErrorUtils.checkResult(result);
       }
       if (tableWithHighOrderBit != null && tableWithHighOrderBitCanBeRecycled) {
         tableWithHighOrderBit.dispose();

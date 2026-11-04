@@ -108,8 +108,7 @@ public class JNADatabaseObjectProducer {
 
 		//allocate memory buffer used to transfer written data to the NSF binary object
 		final DHANDLE.ByReference retCopyBufferHandle = DHANDLE.newInstanceByReference();
-		short result = Mem.OSMemAlloc((short) 0, copyBufferSize, retCopyBufferHandle);
-		NotesErrorUtils.checkResult(result);
+		Mem.OSMemAlloc((short) 0, copyBufferSize, retCopyBufferHandle);
 
 		return LockUtil.lockHandles(dbAllocations.getDBHandle(), retCopyBufferHandle,
 				(dbHandleByVal, retBufferHandleByVal) -> {

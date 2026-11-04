@@ -176,8 +176,7 @@ public class ViewFormulaCompiler {
 				//in any case free the compiled column memory
 				for (DHANDLE currColumnFormulaHandle : columnFormulaHandlesToDisposeOnError) {
 					LockUtil.lockHandle(currColumnFormulaHandle, (currColumnFormulaHandleByVal) -> {
-						short localResult = Mem.OSMemFree(currColumnFormulaHandleByVal);
-						NotesErrorUtils.checkResult(localResult);
+						Mem.OSMemFree(currColumnFormulaHandleByVal).orElseThrow();
 						return 0;
 					});
 				}
@@ -185,8 +184,7 @@ public class ViewFormulaCompiler {
 				//and if errors occurred compiling the columns, free the view formula memory as well
 				if (errorCompilingColumns) {
 					LockUtil.lockHandle(rethViewFormula, (hViewFormulaByVal) -> {
-						short localResult = Mem.OSMemFree(hViewFormulaByVal);
-						NotesErrorUtils.checkResult(localResult);
+						Mem.OSMemFree(hViewFormulaByVal).orElseThrow();
 						return 0;
 					});
 				}

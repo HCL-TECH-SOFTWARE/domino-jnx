@@ -192,8 +192,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 	      byte[] formulaStringArr = formula.getBytes(charset);
 
 	      
-	      short result = Mem.OSMemoryAllocate(NotesConstants.BLK_MEM_ALLOC, formulaStringArr.length, rethFormulaStr);
-	      NotesErrorUtils.checkResult(result);
+	      NotesErrorUtils.checkResult(Mem.OSMemoryAllocate(NotesConstants.BLK_MEM_ALLOC, formulaStringArr.length, rethFormulaStr));
 	      
 	      if (rethFormulaStr.getValue()==0) {
           throw new DominoException("Memory allocation for formula failed");
@@ -283,8 +282,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
     //write formula string
     {
       IntByReference rethFormula = new IntByReference();
-      short result = Mem.OSMemoryAllocate(NotesConstants.BLK_MEM_ALLOC, formulaStringArr.length, rethFormula);
-      NotesErrorUtils.checkResult(result);
+      NotesErrorUtils.checkResult(Mem.OSMemoryAllocate(NotesConstants.BLK_MEM_ALLOC, formulaStringArr.length, rethFormula));
       
       if (rethFormula.getValue()==0) {
         throw new DominoException("Memory allocation for formula failed");
@@ -438,10 +436,10 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 				}
 				
 				if (hHoldQueueEntry.get()!=null && !hHoldQueueEntry.get().isNull()) {
-					short resultMemFree = LockUtil.lockHandle(hHoldQueueEntry.get(), (hholdqueueentryByVal) -> {
-						return Mem.OSMemFree(hholdqueueentryByVal);
+					LockUtil.lockHandle(hHoldQueueEntry.get(), (hholdqueueentryByVal) -> {
+						Mem.OSMemFree(hholdqueueentryByVal).orElseThrow();
+						return null;
 					});
-					NotesErrorUtils.checkResult(resultMemFree);
 				}
 			}
 		}
@@ -567,10 +565,9 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 			}
 			
 			if (m_hHoldQueueEntry!=null && !m_hHoldQueueEntry.isNull()) {
-				short resultMemFree = LockUtil.lockHandle(m_hHoldQueueEntry, (hholdqueueentryByVal) -> {
-					return Mem.OSMemFree(hholdqueueentryByVal);
+				LockUtil.lockHandle(m_hHoldQueueEntry, (hholdqueueentryByVal) -> {
+					return Mem.OSMemFree(hholdqueueentryByVal).orElseThrow();
 				});
-				NotesErrorUtils.checkResult(resultMemFree);
 				m_hHoldQueueEntry.clear();
 			}
 

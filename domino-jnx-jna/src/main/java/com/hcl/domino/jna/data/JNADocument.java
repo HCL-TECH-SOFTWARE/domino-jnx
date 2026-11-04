@@ -563,8 +563,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
           return Arrays.asList((Object) formula);
         } finally {
           Mem.OSUnlockObject(hFormulaTextByVal);
-          short localResult = Mem.OSMemFree(hFormulaTextByVal);
-          NotesErrorUtils.checkResult(localResult);
+          NotesErrorUtils.checkResult(Mem.OSMemFree(hFormulaTextByVal));
         }
       });
     } else if (dataTypeAsInt == ItemDataType.TYPE_UNAVAILABLE.getValue()) {
@@ -1621,8 +1620,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       int valueSize = (int) (2 + (strValueMem == null ? 0 : strValueMem.size()));
 
       DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
-      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
-      NotesErrorUtils.checkResult(result);
+      Mem.OSMemAlloc((short) 0, valueSize, rethItem);
 
       return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
         Pointer valuePtr = Mem.OSLockObject(hItemByVal);
@@ -1644,8 +1642,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       int valueSize = 2 + 8;
 
       DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
-      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
-      NotesErrorUtils.checkResult(result);
+      Mem.OSMemAlloc((short) 0, valueSize, rethItem);
 
       return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
         Pointer valuePtr = Mem.OSLockObject(hItemByVal);
@@ -1680,8 +1677,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       int valueSize = 2 + 8;
 
       DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
-      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
-      NotesErrorUtils.checkResult(result);
+      Mem.OSMemAlloc((short) 0, valueSize, rethItem);
 
       return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
         Pointer valuePtr = Mem.OSLockObject(hItemByVal);
@@ -1841,8 +1837,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
 
       DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
-      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
-      NotesErrorUtils.checkResult(result);
+      Mem.OSMemAlloc((short) 0, valueSize, rethItem);
 
       return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
         Pointer valuePtr = Mem.OSLockObject(hItemByVal);
@@ -1925,8 +1920,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
 
       DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
-      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
-      NotesErrorUtils.checkResult(result);
+      Mem.OSMemAlloc((short) 0, valueSize, rethItem);
 
       return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
         Pointer valuePtr = Mem.OSLockObject(hItemByVal);
@@ -2003,8 +1997,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
 
       DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
-      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
-      NotesErrorUtils.checkResult(result);
+      Mem.OSMemAlloc((short) 0, valueSize, rethItem);
 
       return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
         Pointer valuePtr = Mem.OSLockObject(hItemByVal);
@@ -2039,8 +2032,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       int valueSize = 2 + compiledFormula.length;
 
       DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
-      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
-      NotesErrorUtils.checkResult(result);
+      Mem.OSMemAlloc((short) 0, valueSize, rethItem);
 
       return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
         Pointer valuePtr = Mem.OSLockObject(hItemByVal);
@@ -2067,8 +2059,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       int valueSize = 2 + viewFormatDataArr.length;
 
       DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
-      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
-      NotesErrorUtils.checkResult(result);
+      Mem.OSMemAlloc((short) 0, valueSize, rethItem);
 
       return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
         Pointer valuePtr = Mem.OSLockObject(hItemByVal);
@@ -2096,8 +2087,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       int valueSize = 2 + calendarFormatDataArr.length;
 
       DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
-      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
-      NotesErrorUtils.checkResult(result);
+      Mem.OSMemAlloc((short) 0, valueSize, rethItem);
 
       return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
         Pointer valuePtr = Mem.OSLockObject(hItemByVal);
@@ -2124,8 +2114,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       int valueSize = 2 + collationDataArr.length;
 
       DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
-      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
-      NotesErrorUtils.checkResult(result);
+      Mem.OSMemAlloc((short) 0, valueSize, rethItem);
 
       return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
         Pointer valuePtr = Mem.OSLockObject(hItemByVal);
@@ -2157,8 +2146,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       int valueSize = 2 + 1 + formatNameLmbcs.length + data.length;
 
       DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
-      short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
-      NotesErrorUtils.checkResult(result);
+      Mem.OSMemAlloc((short) 0, valueSize, rethItem);
 
       byte[] fData = data;
       return LockUtil.lockHandle(rethItem, (hItemByVal) -> {
@@ -2400,9 +2388,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
           int sizeOfFileObjectWithFileName =
               (int) (2 + JNANotesConstants.fileObjectSize + reallyUniqueFileNameMem.size());
           DHANDLE.ByReference retFileObjectWithFileNameHandle = DHANDLE.newInstanceByReference();;
-          short result = Mem.OSMemAlloc((short) 0, sizeOfFileObjectWithFileName,
+          Mem.OSMemAlloc((short) 0, sizeOfFileObjectWithFileName,
               retFileObjectWithFileNameHandle);
-          NotesErrorUtils.checkResult(result);
 
           // produce FILEOBJECT data structure
           LockUtil.lockHandle(retFileObjectWithFileNameHandle,

@@ -111,12 +111,12 @@ public interface INotesCAPI extends Library {
 			Pointer retServerName,
 			Pointer retFileName);
 
-	short DNCanonicalize(int Flags, Memory TemplateName, Memory InName, Memory OutName, short OutSize, ShortByReference OutLength);
-	short DNAbbreviate(int Flags, Memory TemplateName, Memory InName, Memory OutName, short OutSize, ShortByReference OutLength);	
+	STATUS DNCanonicalize(int Flags, Memory TemplateName, Memory InName, Memory OutName, short OutSize, ShortByReference OutLength);
+	STATUS DNAbbreviate(int Flags, Memory TemplateName, Memory InName, Memory OutName, short OutSize, ShortByReference OutLength);	
 
-	short NSFBuildNamesList(Memory UserName, int dwFlags, DHANDLE.ByReference rethNamesList);
+	STATUS NSFBuildNamesList(Memory UserName, int dwFlags, DHANDLE.ByReference rethNamesList);
 	
-	short NSFGetChangedDBs(
+	STATUS NSFGetChangedDBs(
 			Memory ServerName,
 			NotesTimeDateStruct.ByReference SinceTime,
 			LongByReference ChangesSize,
@@ -142,7 +142,7 @@ public interface INotesCAPI extends Library {
 	 * @return the result status
 	 * @deprecated use {@link Mem#OSMemFree(DHANDLE.ByValue)} instead
 	 */
-	@Deprecated short OSMemFree(DHANDLE.ByValue handle);
+	@Deprecated STATUS OSMemFree(DHANDLE.ByValue handle);
 
 	/**
 	 * @param handle the handle for which to get the size
@@ -150,7 +150,7 @@ public interface INotesCAPI extends Library {
 	 * @return the result status
 	 * @deprecated use {@link Mem#OSMemGetSize(DHANDLE.ByValue, IntByReference)} instead
 	 */
-	@Deprecated short OSMemGetSize(DHANDLE.ByValue handle, IntByReference retSize);
+	@Deprecated STATUS OSMemGetSize(DHANDLE.ByValue handle, IntByReference retSize);
 
 	/**
 	 * @param BlkType the type of memory block to allocate
@@ -159,7 +159,7 @@ public interface INotesCAPI extends Library {
 	 * @return the result status
 	 * @deprecated use {@link Mem#OSMemAlloc(short, int, com.hcl.domino.jna.internal.gc.handles.DHANDLE.ByReference)} instead
 	 */
-	@Deprecated short OSMemAlloc(
+	@Deprecated STATUS OSMemAlloc(
 			short  BlkType,
 			int  dwSize,
 			DHANDLE.ByReference retHandle);
@@ -172,7 +172,7 @@ public interface INotesCAPI extends Library {
 	 * @param rethandle returned MEMHANDLE
 	 * @return status
 	 */
-	short OSMemoryAllocate (int dwtype, int size, IntByReference rethandle);
+	STATUS OSMemoryAllocate (int dwtype, int size, IntByReference rethandle);
 
 	/**
 	 * @param handle the handle to lock
@@ -239,7 +239,7 @@ public interface INotesCAPI extends Library {
 	 * @return status
 	 * @deprecated use {@link Mem#OSMemRealloc(com.hcl.domino.jna.internal.gc.handles.DHANDLE.ByValue, int)} instead
 	 */
-	@Deprecated short OSMemRealloc(
+	@Deprecated STATUS OSMemRealloc(
 			DHANDLE.ByValue handle,
 			int newSize);
 	

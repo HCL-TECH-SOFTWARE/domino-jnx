@@ -1580,8 +1580,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		}
 		
 		DHANDLE.ByReference retHandle = DHANDLE.newInstanceByReference();
-		short result = Mem.OSMemAlloc((short) 0, noteIds.length * 4, retHandle);
-		NotesErrorUtils.checkResult(result);
+		Mem.OSMemAlloc((short) 0, noteIds.length * 4, retHandle);
 
 		JNADatabaseAllocations allocations = getAllocations();
 		
@@ -1635,8 +1634,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 					}
 					finally {
 						Mem.OSUnlockObject(rethOutBufByVal);
-						short resultLocal1 = Mem.OSMemFree(rethOutBufByVal);
-						NotesErrorUtils.checkResult(resultLocal1);
+						NotesErrorUtils.checkResult(Mem.OSMemFree(rethOutBufByVal));
 					}
 				});
 			}
@@ -1644,8 +1642,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				if (inMemHandleLocked) {
 					Mem.OSUnlockObject(retHandleByVal);
 				}
-				short resultMemFree = Mem.OSMemFree(retHandleByVal);
-				NotesErrorUtils.checkResult(resultMemFree);
+				NotesErrorUtils.checkResult(Mem.OSMemFree(retHandleByVal));
 			}
 		});
 	}
@@ -1704,8 +1701,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		}
 		
 		DHANDLE.ByReference retHandle = DHANDLE.newInstanceByReference();
-		short result = Mem.OSMemAlloc((short) 0, unids.length * 16, retHandle);
-		NotesErrorUtils.checkResult(result);
+		Mem.OSMemAlloc((short) 0, unids.length * 16, retHandle);
 
 		JNADatabaseAllocations allocations = getAllocations();
 		
@@ -1758,8 +1754,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 					}
 					finally {
 						Mem.OSUnlockObject(rethOutBufByVal);
-						short resultMemFree = Mem.OSMemFree(rethOutBufByVal);
-						NotesErrorUtils.checkResult(resultMemFree);
+						NotesErrorUtils.checkResult(Mem.OSMemFree(rethOutBufByVal));
 					}
 				});
 				
@@ -1769,8 +1764,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				if (inMemHandleLocked) {
 					Mem.OSUnlockObject(retHandleByVal);
 				}
-				short resultMemFree = Mem.OSMemFree(retHandleByVal);
-				NotesErrorUtils.checkResult(resultMemFree);
+				NotesErrorUtils.checkResult(Mem.OSMemFree(retHandleByVal));
 			}
 		});
 		

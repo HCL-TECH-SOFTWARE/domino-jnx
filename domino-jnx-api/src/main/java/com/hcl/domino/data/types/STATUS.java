@@ -58,4 +58,13 @@ public interface STATUS {
   default boolean isRemoteError() {
     return (getValue() & NotesConstants.STS_REMOTE) == NotesConstants.STS_REMOTE;
   }
+  
+  /**
+   * Checks whether the status value is an error and throws an appropriate
+   * exception if so.
+   * 
+   * @return this value
+   * @throws DominoException if the status represents an error code
+   */
+  STATUS orElseThrow();
 }

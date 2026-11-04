@@ -167,8 +167,7 @@ public class JNAFormulaAllocations extends APIObjectAllocations<JNAFormula> {
 				
 				Mem.OSUnlockObject(handleByVal);
 				
-				short result = Mem.OSMemFree(handleByVal);
-				NotesErrorUtils.checkResult(result);
+				NotesErrorUtils.checkResult(Mem.OSMemFree(handleByVal));
 				
 				m_hFormula.setDisposed();
 				m_hFormula = null;

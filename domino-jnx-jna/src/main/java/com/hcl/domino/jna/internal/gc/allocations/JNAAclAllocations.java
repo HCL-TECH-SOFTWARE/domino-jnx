@@ -50,11 +50,11 @@ public class JNAAclAllocations extends APIObjectAllocations<JNAAcl> {
 		}
 
 		if (m_hAcl!=null) {
-			short result=LockUtil.lockHandle(m_hAcl, (handleByVal) -> {
-				return Mem.OSMemFree(handleByVal);
+			LockUtil.lockHandle(m_hAcl, (handleByVal) -> {
+				Mem.OSMemFree(handleByVal).orElseThrow();
+				return null;
 			});
 			
-			NotesErrorUtils.checkResult(result);
 		}
 		
 		m_disposed = true;

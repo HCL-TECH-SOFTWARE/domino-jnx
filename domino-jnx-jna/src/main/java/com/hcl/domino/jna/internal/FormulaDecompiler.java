@@ -84,8 +84,7 @@ public class FormulaDecompiler {
 			}
 			finally {
 				Mem.OSUnlockObject(rethFormulaTextByVal);
-				short freeResult = Mem.OSMemFree(rethFormulaTextByVal);
-				NotesErrorUtils.checkResult(freeResult);
+				NotesErrorUtils.checkResult(Mem.OSMemFree(rethFormulaTextByVal));
 			}
 		});
 	}

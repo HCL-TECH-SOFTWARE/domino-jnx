@@ -152,13 +152,11 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 			return decodedRangesList;
 		}
 		finally {
-			result = LockUtil.lockHandle(rethList, (hListByVal) -> {
+			LockUtil.lockHandle(rethList, (hListByVal) -> {
 				Mem.OSUnlockObject(hListByVal);
 				
-				return Mem.OSMemFree(hListByVal);
+				return Mem.OSMemFree(hListByVal).orElseThrow();
 			});
-			
-			NotesErrorUtils.checkResult(result);
 		}
 	}
 	
@@ -240,13 +238,11 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 			});
 		}
 		finally {
-			result = LockUtil.lockHandle(rethList, (hListByVal) -> {
+			LockUtil.lockHandle(rethList, (hListByVal) -> {
 				Mem.OSUnlockObject(hListByVal);
 				
-				return Mem.OSMemFree(hListByVal);
+				return Mem.OSMemFree(hListByVal).orElseThrow();
 			});
-			
-			NotesErrorUtils.checkResult(result);
 		}
 	}
 }

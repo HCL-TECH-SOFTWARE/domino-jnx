@@ -66,8 +66,7 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
     byte[] codeLMBCS = new byte[(int) codeMem.size()];
     codeMem.read(0, codeLMBCS, 0, codeLMBCS.length);
     DHANDLE.ByReference hSrcByRef = DHANDLE.newInstanceByReference();
-    short result = Mem.OSMemAlloc((short) 0, codeLMBCS.length, hSrcByRef);
-    NotesErrorUtils.checkResult(result);
+    Mem.OSMemAlloc((short) 0, codeLMBCS.length, hSrcByRef);
 
     byte[] nameOfContextClassLMBCS;
     DHANDLE.ByReference phDataByRef = DHANDLE.newInstanceByReference();
@@ -85,8 +84,7 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
       //   char  szNameOfContextClass[MAXIMUM_ID_NAME_LENGTH + 1];
       // }SCRIPTCONTEXTDESCR;
 
-      result = Mem.OSMemAlloc((short) 0, 4 + NotesConstants.MAXIMUM_ID_NAME_LENGTH +1, phDataByRef);
-      NotesErrorUtils.checkResult(result);
+      Mem.OSMemAlloc((short) 0, 4 + NotesConstants.MAXIMUM_ID_NAME_LENGTH +1, phDataByRef);
     }
     else {
       nameOfContextClassLMBCS = null;
@@ -212,8 +210,7 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
     ObjectType objectType = ObjectType.ASSIST_RUNDATA;
     
     final DHANDLE.ByReference retCopyBufferHandle = DHANDLE.newInstanceByReference();
-    short result = Mem.OSMemAlloc((short) 0, runInfoDataWithSpace.length, retCopyBufferHandle);
-    NotesErrorUtils.checkResult(result);
+    Mem.OSMemAlloc((short) 0, runInfoDataWithSpace.length, retCopyBufferHandle);
 
     int rrv = LockUtil.lockHandles(dbAllocations.getDBHandle(), docAllocations.getNoteHandle(), retCopyBufferHandle,
         (hDbByVal, hNoteByVal, hCopyBufferByVal) -> {

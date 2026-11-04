@@ -17,6 +17,8 @@
 package com.hcl.domino.jna.internal;
 
 import java.util.function.Function;
+import com.hcl.domino.commons.util.NotesErrorUtils;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
@@ -29,26 +31,26 @@ import com.sun.jna.ptr.IntByReference;
 @SuppressWarnings("deprecation")
 public class Mem {
 
-	public static short OSMemFree(DHANDLE.ByValue hdl) {
+	public static STATUS OSMemFree(DHANDLE.ByValue hdl) {
 		if (hdl==null || hdl.isNull()) {
 			throw new IllegalArgumentException("Null handle cannot be freed");
 		}
-		short result = NotesCAPI.get().OSMemFree(hdl);
-		if (result==0) {
+		STATUS result = NotesCAPI.get().OSMemFree(hdl);
+		if (!result.isError()) {
 			hdl.setDisposed();
 		}
 		return result;
 	}
 
-	public static short OSMemFree(HANDLE.ByValue hdl) {
+	public static STATUS OSMemFree(HANDLE.ByValue hdl) {
 		if (hdl==null || hdl.isNull()) {
 			throw new IllegalArgumentException("Null handle cannot be freed");
 		}
 		
 		DHANDLE.ByValue hdlByVal = DHANDLE.newInstanceByValue(hdl.getValue());
 		
-		short result = NotesCAPI.get().OSMemFree(hdlByVal);
-		if (result==0) {
+		STATUS result = NotesCAPI.get().OSMemFree(hdlByVal);
+		if (!result.isError()) {
 			hdlByVal.setDisposed();
 		}
 		return result;
@@ -127,7 +129,7 @@ public class Mem {
 		return NotesCAPI.get().OSUnlockObject(hdl);
 	}
 	
-	public static short OSMemGetSize(DHANDLE.ByValue hdl, IntByReference retSize) {
+	public static STATUS OSMemGetSize(DHANDLE.ByValue hdl, IntByReference retSize) {
 		if (hdl==null || hdl.isNull()) {
 			throw new IllegalArgumentException("Null handle cannot be accessed");
 		}
@@ -137,11 +139,19 @@ public class Mem {
 		return NotesCAPI.get().OSMemGetSize(hdl, retSize);
 	}
 	
-	public static short OSMemAlloc(
+	/**
+	 * Allocates native Notes memory.
+	 * 
+	 * @param BlkType the block type to allocate
+	 * @param dwSize the size of the memory in bytes
+	 * @param retHandle the result handle
+	 * @throws DominoException if there is an error allocating memory
+	 */
+	public static void OSMemAlloc(
 			short  BlkType,
 			int  dwSize,
 			DHANDLE.ByReference retHandle) {
-		return NotesCAPI.get().OSMemAlloc(BlkType, dwSize, retHandle);
+		NotesErrorUtils.checkResult(NotesCAPI.get().OSMemAlloc(BlkType, dwSize, retHandle));
 	}
 	
 	public interface LockedMemory extends AutoCloseable {
@@ -270,7 +280,7 @@ public class Mem {
 		return NotesCAPI.get().OSMemoryUnlock(handle);
 	}
 
-	public static short OSMemoryAllocate(int dwtype, int size, IntByReference rethandle) {
+	public static STATUS OSMemoryAllocate(int dwtype, int size, IntByReference rethandle) {
 	  return NotesCAPI.get().OSMemoryAllocate(dwtype, size, rethandle);
 	}
 
@@ -290,7 +300,7 @@ public class Mem {
 		return NotesCAPI.get().OSMemoryGetSize(handle);
 	}
 
-	public static short OSMemRealloc(DHANDLE.ByValue handle, int newSize) {
+	public static STATUS OSMemRealloc(DHANDLE.ByValue handle, int newSize) {
 		return NotesCAPI.get().OSMemRealloc(handle, newSize);
 	}
 

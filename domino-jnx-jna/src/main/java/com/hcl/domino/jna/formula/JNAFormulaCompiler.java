@@ -127,8 +127,7 @@ public class JNAFormulaCompiler implements FormulaCompiler {
 
       return LockUtil.lockHandle(hFormula, (hFormulaByVal) -> {
         IntByReference retSize = new IntByReference();
-        short resultGetSize = Mem.OSMemGetSize(hFormulaByVal, retSize);
-        NotesErrorUtils.checkResult(resultGetSize);
+        NotesErrorUtils.checkResult(Mem.OSMemGetSize(hFormulaByVal, retSize));
 
         Pointer ptrCompiledFormula = Mem.OSLockObject(hFormulaByVal);
         try {
@@ -141,10 +140,10 @@ public class JNAFormulaCompiler implements FormulaCompiler {
       });
     } finally {
       if (hFormula != null && !hFormula.isNull()) {
-        short result = LockUtil.lockHandle(hFormula, (hFormulaByVal) -> {
-          return Mem.OSMemFree(hFormulaByVal);
+        LockUtil.lockHandle(hFormula, (hFormulaByVal) -> {
+          NotesErrorUtils.checkResult(Mem.OSMemFree(hFormulaByVal));
+          return null;
         });
-        NotesErrorUtils.checkResult(result);
       }
     }
   }

@@ -122,10 +122,9 @@ public class JNAUserDirectory implements UserDirectory {
       }
     } finally {
       if (!hReturn.isNull()) {
-        final short result = LockUtil.lockHandle(hReturn, (hReturnByVal) -> {
-          return Mem.OSMemFree(hReturnByVal);
+        LockUtil.lockHandle(hReturn, (hReturnByVal) -> {
+          return Mem.OSMemFree(hReturnByVal).orElseThrow();
         });
-        NotesErrorUtils.checkResult(result);
       }
     }
 	}

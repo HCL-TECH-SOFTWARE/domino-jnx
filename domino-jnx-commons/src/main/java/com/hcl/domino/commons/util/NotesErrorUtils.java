@@ -48,6 +48,7 @@ import com.hcl.domino.commons.errors.errorcodes.IRouteErr;
 import com.hcl.domino.commons.errors.errorcodes.ISecErr;
 import com.hcl.domino.commons.errors.errorcodes.ISrvErr;
 import com.hcl.domino.commons.errors.errorcodes.IXmlErr;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.BadPasswordException;
 import com.hcl.domino.exception.CancelException;
 import com.hcl.domino.exception.CollectionAlreadyExistsException;
@@ -96,8 +97,13 @@ public class NotesErrorUtils {
    * @param result code
    * @throws DominoException if the result is not 0
    */
+  @Deprecated
   public static void checkResult(final short result) {
     NotesErrorUtils.checkResult(result, false);
+  }
+  
+  public static void checkResult(final STATUS result) {
+    NotesErrorUtils.checkResult(result.getValue(), false);
   }
 
   /**

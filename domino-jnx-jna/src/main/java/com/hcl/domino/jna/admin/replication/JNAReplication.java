@@ -505,8 +505,7 @@ public class JNAReplication extends BaseJNAAPIObject<JNAReplicationAllocations>
           }
         } finally {
           Mem.OSUnlockObject(rethSummaryByVal);
-          short resultFree = Mem.OSMemFree(rethSummaryByVal);
-          NotesErrorUtils.checkResult(resultFree);
+          Mem.OSMemFree(rethSummaryByVal).orElseThrow();
         }
       }
 

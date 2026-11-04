@@ -29,7 +29,6 @@ import java.util.logging.Logger;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
@@ -64,10 +63,9 @@ public class JNACompoundTextStandaloneBufferAllocations extends APIObjectAllocat
 			return;
 		}
 		
-		short result = LockUtil.lockHandle(m_compoundTextHandle, (hCompoundTextHandleByVal) -> {
-			return Mem.OSMemFree(hCompoundTextHandleByVal);
+		LockUtil.lockHandle(m_compoundTextHandle, (hCompoundTextHandleByVal) -> {
+			return Mem.OSMemFree(hCompoundTextHandleByVal).orElseThrow();
 		});
-		NotesErrorUtils.checkResult(result);
 		
 		m_compoundTextHandle = null;
 		
