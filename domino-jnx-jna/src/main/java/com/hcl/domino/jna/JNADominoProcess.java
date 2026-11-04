@@ -41,6 +41,7 @@ import com.hcl.domino.DominoProcess;
 import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.DominoInitException;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -483,12 +484,12 @@ public class JNADominoProcess implements DominoProcess {
       }
     }
 
-    private DominoInitException toDominoInitException(short result) {
-      int resultAsInt = Short.toUnsignedInt(result);
+    private DominoInitException toDominoInitException(STATUS result) {
+      int resultAsInt = Short.toUnsignedInt(result.getValue());
 
       // resolve C API init error code without using OSLoadString (using built-in constants) to
       // prevent a crash
-      final short statusCode = (short) (result & NotesConstants.ERR_MASK);
+      final short statusCode = result.getMaskedValue();
       String statusMessage;
       try {
         statusMessage = NotesErrorUtils.errToString(statusCode, true);
@@ -496,14 +497,13 @@ public class JNADominoProcess implements DominoProcess {
         statusMessage = MessageFormat.format("Error initializing Notes runtime, ERR 0x{0}",
             Integer.toHexString(resultAsInt));
       }
-      final boolean isRemoteError =
-          (result & NotesConstants.STS_REMOTE) == NotesConstants.STS_REMOTE;
+      final boolean isRemoteError = result.isRemoteError();
 
       final String msg = MessageFormat.format(
           "{0} (error code: 0x{1}, raw error with all flags: 0x{2})",
           statusMessage,
-          Integer.toHexString(resultAsInt) + (isRemoteError ? ", remote server error" : ""),
-          Integer.toHexString(result));
+          Integer.toHexString(Short.toUnsignedInt(statusCode)) + (isRemoteError ? ", remote server error" : ""),
+          Integer.toHexString(resultAsInt));
 
       return new DominoInitException(result, msg);
     }
@@ -511,7 +511,7 @@ public class JNADominoProcess implements DominoProcess {
     @Override
     public void run() {
       boolean debug = isWritePacemakerDebugMessages();
-      short result;
+      STATUS result;
 
       INotesCAPI capi;
       try {
@@ -542,10 +542,10 @@ public class JNADominoProcess implements DominoProcess {
           result = capi.NotesInitExtended(this.argsCount, this.args);
         }
 
-        if (result != 0) {
+        if (result.isError()) {
           // in this case we need to abort and report the exception
 
-          int resultAsInt = Short.toUnsignedInt(result);
+          int resultAsInt = Short.toUnsignedInt(result.getValue());
 
           if (debug) {
             System.out.println(
@@ -566,12 +566,12 @@ public class JNADominoProcess implements DominoProcess {
 
       if (nativeThreadInit) {
         result = capi.NotesInitThread();
-        if (result != 0) {
+        if (result.isError()) {
           // here we can also abort only and report the exception
           if (debug) {
             System.out.println(
                 MessageFormat.format("Domino API could not initialize pacemaker thread. ERR 0x{0}",
-                    Integer.toHexString(result)));
+                    Integer.toHexString(result.getValue())));
           }
 
           this.initException = toDominoInitException(result);

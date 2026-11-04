@@ -17,6 +17,7 @@
 package com.hcl.domino.exception;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.data.types.STATUS;
 
 /**
  * Error is thrown when the Domino C API cannot be accessed.
@@ -27,12 +28,12 @@ import com.hcl.domino.DominoException;
 public class DominoInitException extends DominoException {
   private static final long serialVersionUID = 1L;
 
-  public DominoInitException(final int id, final String message) {
-    super(id, message);
+  public DominoInitException(final STATUS id, final String message) {
+    super(id.getValue(), message);
   }
 
-  public DominoInitException(final int id, final String message, final Throwable cause) {
-    super(id, message, cause);
+  public DominoInitException(final STATUS id, final String message, final Throwable cause) {
+    super(id.getValue(), message, cause);
   }
 
   public DominoInitException(final String msg) {

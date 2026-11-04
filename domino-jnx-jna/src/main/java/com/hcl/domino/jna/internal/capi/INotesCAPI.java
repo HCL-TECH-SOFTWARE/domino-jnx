@@ -21,6 +21,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import com.hcl.domino.data.structures.QuepArgVal;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.Mem.LockedMemory;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
@@ -87,11 +88,11 @@ public interface INotesCAPI extends Library {
 	public @interface UndocumentedAPI {
 	}
 	
-	short NotesInit();
-	short NotesInitExtended(int argc, Memory argvPtr);
+	STATUS NotesInit();
+	STATUS NotesInitExtended(int argc, Memory argvPtr);
 	void NotesTerm();
 
-	short NotesInitThread();
+	STATUS NotesInitThread();
 	void NotesTermThread();
 
 	short OSTranslate(short translateMode, Memory in, short inLength, Memory out, short outLength);

@@ -1,11 +1,13 @@
 package com.hcl.domino.jna.internal.capi;
 
+import com.hcl.domino.data.types.STATUS;
+import com.hcl.domino.jna.internal.capi.mapper.DHandleByReferenceMapper;
+import com.hcl.domino.jna.internal.capi.mapper.DHandleByValueMapper;
+import com.hcl.domino.jna.internal.capi.mapper.HandleByReferenceMapper;
+import com.hcl.domino.jna.internal.capi.mapper.HandleByValueMapper;
+import com.hcl.domino.jna.internal.capi.mapper.StatusMapper;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
-import com.hcl.domino.jna.internal.gc.handles.DHandleByReferenceMapper;
-import com.hcl.domino.jna.internal.gc.handles.DHandleByValueMapper;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
-import com.hcl.domino.jna.internal.gc.handles.HandleByReferenceMapper;
-import com.hcl.domino.jna.internal.gc.handles.HandleByValueMapper;
 import com.hcl.domino.jna.internal.structs.MemoryStructureMapper;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 import com.sun.jna.FromNativeConverter;
@@ -40,6 +42,8 @@ public enum JnxJnaTypeMapper implements TypeMapper {
       return (T)HandleByValueMapper.INSTANCE;
     } else if(MemoryStructure.class.isAssignableFrom(javaType)) {
       return (T)MemoryStructureMapper.INSTANCE;
+    } else if(STATUS.class.isAssignableFrom(javaType)) {
+      return (T)StatusMapper.INSTANCE;
     }
     return null;
   }
