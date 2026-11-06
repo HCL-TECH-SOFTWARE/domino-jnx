@@ -1439,13 +1439,6 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   }
 
   private List<?> toDateTimeOrDateTimeRangeList(Iterable<?> list) {
-    boolean allDateTime = StreamSupport.stream(list.spliterator(), false)
-        .allMatch(i -> i instanceof DominoDateTime[] || i instanceof DominoDateTime);
-
-    if (allDateTime) {
-      return StreamSupport.stream(list.spliterator(), false).collect(Collectors.toList());
-    }
-
     List<Object> convertedList = new ArrayList<>();
     for (Object obj : list) {
       if (obj instanceof GregorianCalendar) {
