@@ -53,7 +53,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.commons.constants.UpdateNote;
@@ -1520,7 +1519,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     return appendItemValue(itemName, flags, value, converter, true);
   }
 
-  @SuppressWarnings("deprecation")
+  @SuppressWarnings({"deprecation", "unchecked"})
   private Document appendItemValue(String itemName, Set<ItemFlag> flagsOrig,
       Object value, DocumentValueConverter valueConverter, boolean allowDataTypeChanges) {
 
@@ -1628,9 +1627,10 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       });
     } else if (value instanceof Iterable
         && (!((Iterable<?>) value).iterator().hasNext() || isStringList((Iterable<?>) value))) {
-      @SuppressWarnings("unchecked")
-      List<String> strList = StreamSupport.stream(((Iterable<String>) value).spliterator(), false)
-          .collect(Collectors.toList());
+      List<String> strList = new ArrayList<>();
+      for(String s : (Iterable<String>)value) {
+        strList.add(s);
+      }
 
       if (strList.size() > 65535) {
         throw new IllegalArgumentException(
