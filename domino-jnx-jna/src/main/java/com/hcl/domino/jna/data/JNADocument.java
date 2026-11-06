@@ -259,12 +259,15 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       @Override
       protected <T> List<T> getAsListViaValueConverter(String itemName, Class<T> valueType,
           List<T> defaultValue) {
-        DocumentValueConverter converter =
-            JNXServiceFinder.findServices(DocumentValueConverter.class)
+        Optional<DocumentValueConverter> optConverter = CONVERTER_CACHE.get(valueType);
+        if(optConverter == null) {
+          optConverter = JNXServiceFinder.findServices(DocumentValueConverter.class)
                 .filter(c -> c.supportsRead(valueType))
                 .sorted(Comparator.comparing(DocumentValueConverter::getPriority).reversed())
-                .findFirst()
-                .orElse(null);
+                .findFirst();
+            CONVERTER_CACHE.put(valueType, optConverter);
+        }
+        DocumentValueConverter converter = optConverter.get();
 
         if (converter != null) {
           if (readingItemType.get().contains(converter.getClass())) {
