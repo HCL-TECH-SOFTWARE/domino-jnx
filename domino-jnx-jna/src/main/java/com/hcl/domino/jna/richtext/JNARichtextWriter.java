@@ -17,7 +17,6 @@
 package com.hcl.domino.jna.richtext;
 
 import static java.text.MessageFormat.format;
-
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,15 +32,13 @@ import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import com.drew.imaging.FileType;
 import com.drew.imaging.FileTypeDetector;
 import com.drew.imaging.ImageMetadataReader;
@@ -56,8 +53,8 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.richtext.IDefaultRichTextWriter;
 import com.hcl.domino.commons.richtext.DefaultRichTextList;
+import com.hcl.domino.commons.richtext.IDefaultRichTextWriter;
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.StringUtil;
@@ -144,7 +141,7 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 			
 			return 0;
 		});
-		m_definedStyleId = Collections.synchronizedMap(new HashMap<Integer, Integer>());
+		m_definedStyleId = new ConcurrentHashMap<>();
 		
 		setInitialized();
 	}
@@ -164,7 +161,7 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 		JNARichtextWriterAllocations writerAllocations = getAllocations();
 		writerAllocations.setCompoundTextHandle(rethCompound, true);
 		
-		m_definedStyleId = Collections.synchronizedMap(new HashMap<Integer, Integer>());
+		m_definedStyleId = new ConcurrentHashMap<>();
 		
 		setInitialized();
 	}
