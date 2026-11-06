@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
+import java.util.concurrent.ConcurrentHashMap;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.OSLoadStringProvider;
 import com.hcl.domino.commons.data.types.StatusImpl;
@@ -87,6 +87,8 @@ import com.hcl.domino.misc.NotesConstants;
  * @author Karsten Lehmann
  */
 public class NotesErrorUtils {
+  public static final Map<Short, StatusImpl> STATUS_CACHE = new ConcurrentHashMap<>();
+  
   private static volatile Map<Short, String> staticTexts;
 
   /**

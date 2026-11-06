@@ -18,7 +18,6 @@ package com.hcl.domino.data.types;
 
 import java.util.Optional;
 import com.hcl.domino.DominoException;
-import com.hcl.domino.misc.NotesConstants;
 
 /**
  * Utility interface to represent a Notes API STATUS, which is a
@@ -48,18 +47,14 @@ public interface STATUS {
    * 
    * @return the underlying status code without flag bits
    */
-  default short getMaskedValue() {
-    return (short)(getValue() & NotesConstants.ERR_MASK);
-  }
+  short getMaskedValue();
   
   /**
    * Determines whether the status represents a remote-based error.
    * 
    * @return {@code true} if the status is a remote error
    */
-  default boolean isRemoteError() {
-    return (getValue() & NotesConstants.STS_REMOTE) == NotesConstants.STS_REMOTE;
-  }
+  boolean isRemoteError();
   
   /**
    * Checks whether the status value is an error and throws an appropriate
