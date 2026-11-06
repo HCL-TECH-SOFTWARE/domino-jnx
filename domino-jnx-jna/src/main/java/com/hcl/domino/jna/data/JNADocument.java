@@ -1303,9 +1303,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       }
     }
 
-    while (hasItem(itemName)) {
-      removeItem(itemName);
-    }
+    removeItem(itemName);
 
     if (value != null) {
       return appendItemValue(itemName, flags, value, converter, allowDataTypeChanges);
@@ -1316,9 +1314,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
   @Override
   public Document replaceItemValuePlaceholder(String itemName) {
-    while (hasItem(itemName)) {
-      removeItem(itemName);
-    }
+    removeItem(itemName);
 
     short flagsShort = ItemFlag.PLACEHOLDER.getValue().shortValue();
     Memory itemNameMem = NotesStringUtils.toLMBCS(itemName, false);
