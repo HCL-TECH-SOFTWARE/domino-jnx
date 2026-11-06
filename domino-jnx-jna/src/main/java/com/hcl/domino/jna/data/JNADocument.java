@@ -375,7 +375,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       Pointer valuePtr, int valueLength) {
 
     short dataType = valuePtr.getShort(0);
-    int dataTypeAsInt = dataType & 0xffff;
+    int dataTypeAsInt = Short.toUnsignedInt(dataType);
 
     boolean supportedType = false;
     if (dataTypeAsInt == ItemDataType.TYPE_TEXT.getValue()) {
@@ -422,16 +422,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
               dataTypeAsInt));
     }
 
-    int checkDataType = valuePtr.getShort(0) & 0xffff;
     Pointer valueDataPtr = valuePtr.share(2);
     int valueDataLength = valueLength - 2;
 
-    if (checkDataType != dataTypeAsInt) {
-      throw new IllegalStateException(
-          format("Value data type does not meet expected date type: found {0}, expected {1}",
-              checkDataType,
-              dataTypeAsInt));
-    }
     if (dataTypeAsInt == ItemDataType.TYPE_TEXT.getValue()) {
       String txtVal = (String) ItemDecoder.decodeTextValue(valueDataPtr, valueDataLength, false);
       return txtVal == null ? Collections.emptyList() : Arrays.asList((Object) txtVal);
