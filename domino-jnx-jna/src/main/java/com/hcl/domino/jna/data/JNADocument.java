@@ -1334,13 +1334,6 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   }
 
   private List<?> toNumberOrNumberArrayList(Iterable<?> list) {
-    boolean allNumbers = StreamSupport.stream(list.spliterator(), false)
-        .allMatch(i -> i instanceof double[] || i instanceof Double);
-
-    if (allNumbers) {
-      return StreamSupport.stream(list.spliterator(), false).collect(Collectors.toList());
-    }
-
     List<Object> convertedList = new ArrayList<>();
     for (Object obj : list) {
       if (obj instanceof Number) {
