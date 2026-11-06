@@ -179,7 +179,6 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   private static final Set<Class<?>> CONCRETE_SUPPORTED_JAVA_TYPES = Stream.of(
     JNAFormula.class,
     Date.class,
-    JNAFormula.class,
     String.class,
     DominoViewFormat.class,
     DominoCalendarFormat.class,
