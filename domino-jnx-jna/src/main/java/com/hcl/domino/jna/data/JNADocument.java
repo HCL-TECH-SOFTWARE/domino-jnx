@@ -292,9 +292,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   @Override
   public boolean isClosed() {
     JNADocumentAllocations allocations = getAllocations();
-    synchronized (allocations) {
-      return allocations.isDisposed();
-    }
+    return allocations.isDisposed();
   }
 
   @Override
