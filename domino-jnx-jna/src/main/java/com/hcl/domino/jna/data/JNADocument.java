@@ -42,10 +42,12 @@ import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
@@ -187,6 +189,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     JNADominoDateTime.class,
     DefaultUserData.class
   ).collect(Collectors.toSet());
+  private static final Map<Class<?>, Optional<DocumentValueConverter>> CONVERTER_CACHE = new ConcurrentHashMap<>();
   
   private Set<DocumentClass> m_documentClass;
   private AbstractTypedAccess m_typedAccess;
@@ -225,12 +228,15 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
       @Override
       protected <T> T getViaValueConverter(String itemName, Class<T> valueType, T defaultValue) {
-        DocumentValueConverter converter =
-            JNXServiceFinder.findServices(DocumentValueConverter.class)
+        Optional<DocumentValueConverter> optConverter = CONVERTER_CACHE.get(valueType);
+        if(optConverter == null) {
+          optConverter = JNXServiceFinder.findServices(DocumentValueConverter.class)
                 .filter(c -> c.supportsRead(valueType))
                 .sorted(Comparator.comparing(DocumentValueConverter::getPriority).reversed())
-                .findFirst()
-                .orElse(null);
+                .findFirst();
+            CONVERTER_CACHE.put(valueType, optConverter);
+        }
+        DocumentValueConverter converter = optConverter.get();
 
         if (converter != null) {
           if (readingItemType.get().contains(converter.getClass())) {
@@ -1210,11 +1216,13 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   }
 
   private boolean isStringList(Iterable<?> list) {
-    if (list == null || !list.iterator().hasNext()) {
+    if (list == null) {
       return false;
     }
-    if (!StreamSupport.stream(list.spliterator(), false).allMatch(String.class::isInstance)) {
-      return false;
+    for(Object obj : list) {
+      if(!(obj instanceof String)) {
+        return false;
+      }
     }
     return true;
   }
