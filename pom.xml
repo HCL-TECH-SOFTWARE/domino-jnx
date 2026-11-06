@@ -118,7 +118,7 @@
     <netty.ssl.version>2.0.46.Final</netty.ssl.version>
     <org.eclipse.yasson.version>2.0.4</org.eclipse.yasson.version>
     <original.artifact.id>domino-jnx</original.artifact.id>
-    <os.maven.plugin.version>1.6.2</os.maven.plugin.version>
+    <os.maven.plugin.version>1.7.1</os.maven.plugin.version>
     <osgi.qualifier>${maven.build.timestamp}</osgi.qualifier>
     <plantuml.plugin.version>1.5.1</plantuml.plugin.version>
     <pmd.plugin.version>3.13.0</pmd.plugin.version>
