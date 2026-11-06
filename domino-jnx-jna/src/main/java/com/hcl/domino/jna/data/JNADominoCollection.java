@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.data;
 
+import static com.hcl.domino.commons.errors.errorcodes.IMiscErr.ERR_NOT_FOUND;
 import java.lang.ref.ReferenceQueue;
 import java.nio.ByteBuffer;
 import java.text.Collator;
@@ -48,7 +49,6 @@ import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.ReadMask;
@@ -60,6 +60,7 @@ import com.hcl.domino.data.CollectionSearchQuery.CollectionEntryProcessor;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.data.structures.CollectionData;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoDateTime;
@@ -451,17 +452,13 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
     JNADominoCollectionAllocations allocations = getAllocations();
 
-    short result = LockUtil.lockHandles(allocations.getCollectionHandle(),
+    LockUtil.lockHandles(allocations.getCollectionHandle(),
         idTableAllocations.getIdTableHandle(),
-        (hCollectionByVal, idTableHandleByVal) -> {
-
-          return NotesCAPI.get().NIFGetIDTableExtended(hCollectionByVal,
+        (hCollectionByVal, idTableHandleByVal) ->
+           NotesCAPI.get().NIFGetIDTableExtended(hCollectionByVal,
               Navigate.NEXT_ENTRY.getValue(),
-              (short) (checkRights ? 0 : 1), idTableHandleByVal);
-
-        });
-
-    NotesErrorUtils.checkResult(result);
+              (short) (checkRights ? 0 : 1), idTableHandleByVal)
+        ).orElseThrow();
 
     return idTable;
   }
@@ -486,10 +483,9 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     checkDisposed();
 
     JNADominoCollectionAllocations allocations = getAllocations();
-    short result = LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) -> {
-      return NotesCAPI.get().NIFUpdateCollection(handleByVal);
-    });
-    NotesErrorUtils.checkResult(result);
+    LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) ->
+      NotesCAPI.get().NIFUpdateCollection(handleByVal)
+    ).orElseThrow();
   }
 
   @Override
@@ -507,10 +503,9 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
     IntByReference retDocCount = new IntByReference();
 
-    short result = LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) -> {
-      return NotesCAPI.get().NIFGetCollectionDocCountLW(handleByVal, retDocCount);
-    });
-    NotesErrorUtils.checkResult(result);
+    LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) ->
+      NotesCAPI.get().NIFGetCollectionDocCountLW(handleByVal, retDocCount)
+    ).orElseThrow();
 
     return retDocCount.getValue();
   }
@@ -529,10 +524,9 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     checkDisposed();
 
     JNADominoCollectionAllocations allocations = getAllocations();
-    short result = LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) -> {
-      return NotesCAPI.get().NIFSetCollation(handleByVal, collation);
-    });
-    NotesErrorUtils.checkResult(result);
+    LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) ->
+      NotesCAPI.get().NIFSetCollation(handleByVal, collation)
+    ).orElseThrow();
   }
 
   @Override
@@ -735,7 +729,6 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     IntByReference retNumMatches = new IntByReference();
     NotesCollectionPositionStruct retIndexPos = NotesCollectionPositionStruct.newInstance();
     short findFlagsBitMask = FindFlag.toBitMask(findFlags);
-    short result;
 
 
     Memory keyBuffer;
@@ -746,18 +739,15 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     }
 
     JNADominoCollectionAllocations allocations = getAllocations();
-    result = LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) -> {
+    STATUS result = LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) ->
+      NotesCAPI.get().NIFFindByKey(handleByVal, keyBuffer, findFlagsBitMask,
+          retIndexPos, retNumMatches)
+    );
 
-      return NotesCAPI.get().NIFFindByKey(handleByVal, keyBuffer, findFlagsBitMask,
-          retIndexPos, retNumMatches);
-
-    });
-
-    if ((result & NotesConstants.ERR_MASK) == 1028) {
+    if (result.getMaskedValue() == ERR_NOT_FOUND) {
       return new FindResult("", 0, canFindExactNumberOfMatches(findFlags)); //$NON-NLS-1$
     }
-
-    NotesErrorUtils.checkResult(result);
+    result.orElseThrow();
 
     int nMatchesFound = retNumMatches.getValue();
 
@@ -889,7 +879,6 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     IntByReference retNumMatches = new IntByReference();
     NotesCollectionPositionStruct retIndexPos = NotesCollectionPositionStruct.newInstance();
     int findFlagsBitMask = FindFlag.toBitMaskInt(findFlags);
-    short result;
     int returnMaskBitMask = ReadMask.toBitMask(returnMask);
 
     ShortByReference retSignalFlags = new ShortByReference();
@@ -907,18 +896,17 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
     JNADominoCollectionAllocations allocations = getAllocations();
 
-    result = LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) -> {
-      short localResult = NotesCAPI.get().NIFFindByKeyExtended2(handleByVal, keyBuffer,
+    STATUS result = LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) ->
+      NotesCAPI.get().NIFFindByKeyExtended2(handleByVal, keyBuffer,
           findFlagsBitMask,
-          returnMaskBitMask, retIndexPos, retNumMatches, retSignalFlags, retBuffer, retSequence);
-      return localResult;
-    });
+          returnMaskBitMask, retIndexPos, retNumMatches, retSignalFlags, retBuffer, retSequence)
+    );
 
-    if ((result & NotesConstants.ERR_MASK) == 1028) {
+    if (result.getMaskedValue() == ERR_NOT_FOUND) {
       return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0), 0, 0,
           retSignalFlags.getValue(), null, retSequence.getValue(), null);
     }
-    NotesErrorUtils.checkResult(result);
+    result.orElseThrow();
 
     if (retNumMatches.getValue() == 0) {
       return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0), 0, 0,
@@ -1160,14 +1148,12 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     NotesCollectionPositionStruct startPosStruct =
         startPos == null ? null : startPos.getAdapter(NotesCollectionPositionStruct.class);
 
-    short result;
-
     JNADominoCollectionAllocations allocations = getAllocations();
 
     DHANDLE.ByReference retBuffer = DHANDLE.newInstanceByReference();
 
-    result = LockUtil.lockHandle(allocations.getCollectionHandle(), (hCollectionByVal) -> {
-      return NotesCAPI.get().NIFReadEntries(hCollectionByVal, // hCollection
+    STATUS result = LockUtil.lockHandle(allocations.getCollectionHandle(), (hCollectionByVal) ->
+      NotesCAPI.get().NIFReadEntries(hCollectionByVal, // hCollection
           startPosStruct, // IndexPos
           skipNavBitMask, // SkipNavigator
           skipCount, // SkipCount
@@ -1179,12 +1165,8 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
           retNumEntriesSkipped, // retNumEntriesSkipped
           retNumEntriesReturned, // retNumEntriesReturned
           retSignalFlags // retSignalFlags
-      );
-    });
-
-    if ((result & NotesConstants.ERR_MASK) != 1028) {
-      NotesErrorUtils.checkResult(result);
-    }
+      )
+    ).throwIfNot(ERR_NOT_FOUND);
 
     int indexModifiedSequenceNo = getIndexModifiedSequenceNo();
 
@@ -1276,8 +1258,6 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     NotesTimeDateStruct diffTimeStruct = diffTime == null ? null
         : NotesTimeDateStruct.newInstance(((JNADominoDateTime) diffTime).getInnards());
 
-    short result;
-
     DHANDLE.ByReference retBuffer = DHANDLE.newInstanceByReference();
 
     if (diffIDTable != null && diffIDTable.isDisposed()) {
@@ -1289,7 +1269,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
             .getIdTableHandle()
         : null;
 
-    result = LockUtil.lockHandles(
+    STATUS result = LockUtil.lockHandles(
         allocations.getCollectionHandle(),
         idTableHandle,
         (hCollectionByVal, hDiffIdTableByVal) -> {
@@ -1303,18 +1283,14 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
               retNumEntriesSkipped, retNumEntriesReturned, retSignalFlags,
               retDiffTimeStruct, retModifiedTimeStruct, retSequence);
         });
-
-
-    if ((result & NotesConstants.ERR_MASK) != 1028) {
-      NotesErrorUtils.checkResult(result);
-    }
+    result.throwIfNot(ERR_NOT_FOUND);
 
     int indexModifiedSequenceNo = retModifiedTimeStruct.Innards[0]; // getIndexModifiedSequenceNo();
 
     DominoDateTime retDiffTimeWrap = new JNADominoDateTime(retDiffTimeStruct);
 
     int iBufLength = retBufferLength.getValue() & 0xffff;
-    if (iBufLength == 0 || ((result & NotesConstants.ERR_MASK) == 1028)) {
+    if (iBufLength == 0 || result.getMaskedValue() == ERR_NOT_FOUND) {
       return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0),
           retNumEntriesSkipped.getValue(), retNumEntriesReturned.getValue(),
           retSignalFlags.getValue(), null, indexModifiedSequenceNo,
@@ -1803,12 +1779,10 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
     ShortByReference retCollationNum = new ShortByReference();
 
-    short result =
-        LockUtil.lockHandle(getAllocations().getCollectionHandle(), (hCollectionByVal) -> {
-          return NotesCAPI.get().NIFGetCollation(hCollectionByVal, retCollationNum);
-        });
+    LockUtil.lockHandle(getAllocations().getCollectionHandle(),
+        (hCollectionByVal) -> NotesCAPI.get().NIFGetCollation(hCollectionByVal, retCollationNum)
+    ).orElseThrow();
 
-    NotesErrorUtils.checkResult(result);
     return retCollationNum.getValue();
   }
 
@@ -2244,15 +2218,15 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
     final DHANDLE.ByReference rethBuffer = DHANDLE.newInstanceByReference();
 
-    short result =
-        LockUtil.lockHandle(getAllocations().getCollectionHandle(), (hCollectionByVal) -> {
-          return NotesCAPI.get().NIFFindByKeyExtended4(hCollectionByVal,
+    STATUS result =
+        LockUtil.lockHandle(getAllocations().getCollectionHandle(), (hCollectionByVal) ->
+          NotesCAPI.get().NIFFindByKeyExtended4(hCollectionByVal,
               keyBuffer, findFlagsAsInt,
               returnMaskToUseAsInt, null,
               retIndexPos, retNumMatches, retSignalFlags,
               rethBuffer,
-              retSequence, nifCallback, ctx, 0);
-        });
+              retSequence, nifCallback, ctx, 0)
+        );
 
     if (invocationEx[0] != null) {
       // special case for JUnit testcases
@@ -2262,10 +2236,8 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
       throw new DominoException(0, "Error in view lookup", invocationEx[0]);
     }
 
-    if (result != INotesErrorConstants.ERR_CANCEL) {
-      if ((result & NotesConstants.ERR_MASK) != 1028) { // no data found
-        NotesErrorUtils.checkResult(result);
-      }
+    if (result.getMaskedValue() != INotesErrorConstants.ERR_CANCEL) {
+      result.throwIfNot(ERR_NOT_FOUND);
     } else {
       return null;
     }
@@ -2509,13 +2481,13 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     checkDisposed();
 
     NotesCollectionPositionStruct foundPos = NotesCollectionPositionStruct.newInstance();
-    short result = LockUtil.lockHandle(getAllocations().getCollectionHandle(), (hColByVal) -> {
+    STATUS result = LockUtil.lockHandle(getAllocations().getCollectionHandle(), (hColByVal) -> {
       return NotesCAPI.get().NIFLocateNote(hColByVal, foundPos, noteId);
     });
-    if ((result & NotesConstants.ERR_MASK) == 1028) {
+    if (result.getMaskedValue() == ERR_NOT_FOUND) {
       return ""; //$NON-NLS-1$
     }
-    NotesErrorUtils.checkResult(result);
+    result.orElseThrow();
     return foundPos.toPosString();
   }
   

@@ -21,7 +21,6 @@ import java.lang.ref.ReferenceQueue;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.data.JNAAcl;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
@@ -50,11 +49,11 @@ public class JNAAclAllocations extends APIObjectAllocations<JNAAcl> {
 		}
 
 		if (m_hAcl!=null) {
-			short result=LockUtil.lockHandle(m_hAcl, (handleByVal) -> {
-				return Mem.OSMemFree(handleByVal);
+			LockUtil.lockHandle(m_hAcl, (handleByVal) -> {
+				Mem.OSMemFree(handleByVal).orElseThrow();
+				return null;
 			});
 			
-			NotesErrorUtils.checkResult(result);
 		}
 		
 		m_disposed = true;

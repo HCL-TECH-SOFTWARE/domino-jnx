@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.Document.IAttachmentProducer;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -108,8 +107,7 @@ public class JNADatabaseObjectProducer {
 
 		//allocate memory buffer used to transfer written data to the NSF binary object
 		final DHANDLE.ByReference retCopyBufferHandle = DHANDLE.newInstanceByReference();
-		short result = Mem.OSMemAlloc((short) 0, copyBufferSize, retCopyBufferHandle);
-		NotesErrorUtils.checkResult(result);
+		Mem.OSMemAlloc((short) 0, copyBufferSize, retCopyBufferHandle);
 
 		return LockUtil.lockHandles(dbAllocations.getDBHandle(), retCopyBufferHandle,
 				(dbHandleByVal, retBufferHandleByVal) -> {
@@ -119,10 +117,9 @@ public class JNADatabaseObjectProducer {
 						//allocate binary object with initial size
 						short privs = 0;
 						
-						short allocObjResult = NotesCAPI.get().NSFDbAllocObjectExtended2(dbHandleByVal,
+						NotesCAPI.get().NSFDbAllocObjectExtended2(dbHandleByVal,
 								(int) (initialObjectSize & 0xffffffff),
-								noteClass, privs, objectType, rtnRRV);
-						NotesErrorUtils.checkResult(allocObjResult);
+								noteClass, privs, objectType, rtnRRV).orElseThrow();
 
 						try {
 							try (OutputStream nsfObjectOutputStream = new OutputStream() {
@@ -144,8 +141,7 @@ public class JNADatabaseObjectProducer {
 											
 											if (newRRV != rtnRRV.getValue()) {
 												//remove current object
-												short freeObjResult = NotesCAPI.get().NSFDbFreeObject(dbHandleByVal, rtnRRV.getValue());
-												NotesErrorUtils.checkResult(freeObjResult);
+												NotesCAPI.get().NSFDbFreeObject(dbHandleByVal, rtnRRV.getValue()).orElseThrow();
 
 												rtnRRV.setValue(newRRV);
 											}
@@ -161,13 +157,12 @@ public class JNADatabaseObjectProducer {
 										}
 
 										//write memory buffer to NSF object
-										short result = NotesCAPI.get().NSFDbWriteObject(
+										NotesCAPI.get().NSFDbWriteObject(
 												dbHandleByVal,
 												rtnRRV.getValue(),
 												retBufferHandleByVal,
 												(int) (currFileSize.get() & 0xffffffff),
-												copyBufferSize);
-										NotesErrorUtils.checkResult(result);
+												copyBufferSize).orElseThrow();
 
 										//increment NSF object offset by bufferSize
 										currFileSize.addAndGet(copyBufferSize);
@@ -200,8 +195,7 @@ public class JNADatabaseObjectProducer {
 
 								if (newRRV != rtnRRV.getValue()) {
 									//remove current object
-									short freeObjResult = NotesCAPI.get().NSFDbFreeObject(dbHandleByVal, rtnRRV.getValue());
-									NotesErrorUtils.checkResult(freeObjResult);
+									NotesCAPI.get().NSFDbFreeObject(dbHandleByVal, rtnRRV.getValue()).orElseThrow();
 
 									rtnRRV.setValue(newRRV);
 								}
@@ -216,13 +210,12 @@ public class JNADatabaseObjectProducer {
 								}
 								
 								//write memory buffer to NSF object
-								short writeObjResult = NotesCAPI.get().NSFDbWriteObject(
+								NotesCAPI.get().NSFDbWriteObject(
 										dbHandleByVal,
 										rtnRRV.getValue(),
 										retBufferHandleByVal,
 										(int) (currFileSize.get() & 0xffffffff),
-										iCurrBufferOffset);
-								NotesErrorUtils.checkResult(writeObjResult);
+										iCurrBufferOffset).orElseThrow();
 
 								currFileSize.set(finalFileSize);
 							}
@@ -236,8 +229,7 @@ public class JNADatabaseObjectProducer {
 
 								if (newRRV != rtnRRV.getValue()) {
 									//remove current object
-									short freeObjResult = NotesCAPI.get().NSFDbFreeObject(dbHandleByVal, rtnRRV.getValue());
-									NotesErrorUtils.checkResult(freeObjResult);
+									NotesCAPI.get().NSFDbFreeObject(dbHandleByVal, rtnRRV.getValue()).orElseThrow();
 
 									rtnRRV.setValue(newRRV);
 								}
@@ -254,8 +246,7 @@ public class JNADatabaseObjectProducer {
 						}
 						catch (Exception e) {
 							//delete the object in case of errors
-							short freeObjResult = NotesCAPI.get().NSFDbFreeObject(dbHandleByVal, rtnRRV.getValue());
-							NotesErrorUtils.checkResult(freeObjResult);
+							NotesCAPI.get().NSFDbFreeObject(dbHandleByVal, rtnRRV.getValue()).orElseThrow();
 							throw new DominoException(0, "Error creating binary NSF DB object", e);
 						}
 
@@ -291,9 +282,8 @@ public class JNADatabaseObjectProducer {
 		ShortByReference retPrivileges = new ShortByReference();
 		
 		//read current size of database object
-		short result = NotesCAPI.get().NSFDbGetObjectSize(dbHandleByVal, objectId, objectType, retSize, retClass,
-				retPrivileges);
-		NotesErrorUtils.checkResult(result);
+		NotesCAPI.get().NSFDbGetObjectSize(dbHandleByVal, objectId, objectType, retSize, retClass,
+				retPrivileges).orElseThrow();
 		
 		long currentSize = Integer.toUnsignedLong(retSize.getValue());
 		
@@ -303,17 +293,15 @@ public class JNADatabaseObjectProducer {
 		}
 		else if (currentSize > newSize) {
 			//shrink object (keeps data)
-			result = NotesCAPI.get().NSFDbReallocObject(dbHandleByVal, objectId, 
-					(int) (newSize & 0xffffffff));
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().NSFDbReallocObject(dbHandleByVal, objectId, 
+					(int) (newSize & 0xffffffff)).orElseThrow();
 			return objectId;
 		}
 		else {
 			//create a new object and copy the data
 			IntByReference rtnNewRRV = new IntByReference();
-			result = NotesCAPI.get().NSFDbAllocObjectExtended2(dbHandleByVal,
-					(int) (newSize & 0xffffffff), noteClass, privs, objectType, rtnNewRRV);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().NSFDbAllocObjectExtended2(dbHandleByVal,
+					(int) (newSize & 0xffffffff), noteClass, privs, objectType, rtnNewRRV).orElseThrow();
 			
 			try {
 				final int copyBufferSize = 20000000;
@@ -327,23 +315,21 @@ public class JNADatabaseObjectProducer {
 						//handle to receive object data
 						DHANDLE.ByReference retCopyBufferHandle = DHANDLE.newInstanceByReference();
 						
-						short readResult = NotesCAPI.get().NSFDbReadObject(
+						NotesCAPI.get().NSFDbReadObject(
 								dbHandleByVal,
 								objectId,
 								(int) (currOffset.get() & 0xffffffff),
 								(int) (bytesToCopy & 0xffffffff),
-								retCopyBufferHandle);
-						NotesErrorUtils.checkResult(readResult);
+								retCopyBufferHandle).orElseThrow();
 						
 						LockUtil.lockHandle(retCopyBufferHandle, (retCopyBufferHandleByVal) -> {
 							try {
-								short writeResult = NotesCAPI.get().NSFDbWriteObject(
+								NotesCAPI.get().NSFDbWriteObject(
 										dbHandleByVal,
 										rtnNewRRV.getValue(),
 										retCopyBufferHandleByVal,
 										(int) (currOffset.get() & 0xffffffff),
-										(int) (bytesToCopy  &0xffffffff));
-								NotesErrorUtils.checkResult(writeResult);
+										(int) (bytesToCopy  &0xffffffff)).orElseThrow();
 							}
 							finally {
 								Mem.OSMemFree(retCopyBufferHandleByVal);
@@ -357,8 +343,7 @@ public class JNADatabaseObjectProducer {
 			}
 			catch (Exception e) {
 				//delete the object in case of errors
-				short freeObjResult = NotesCAPI.get().NSFDbFreeObject(dbHandleByVal, rtnNewRRV.getValue());
-				NotesErrorUtils.checkResult(freeObjResult);
+				NotesCAPI.get().NSFDbFreeObject(dbHandleByVal, rtnNewRRV.getValue()).orElseThrow();
 				throw new DominoException(0, "Error creating binary NSF DB object", e);
 			}
 			

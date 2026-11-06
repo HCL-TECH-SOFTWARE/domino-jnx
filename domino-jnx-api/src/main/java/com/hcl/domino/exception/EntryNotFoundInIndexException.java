@@ -17,6 +17,7 @@
 package com.hcl.domino.exception;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.data.types.STATUS;
 
 /**
  * Represents error code 1028, "Entry not found in index"
@@ -26,11 +27,11 @@ import com.hcl.domino.DominoException;
 public class EntryNotFoundInIndexException extends DominoException {
   private static final long serialVersionUID = 1L;
 
-  public EntryNotFoundInIndexException(final int id, final String message) {
+  public EntryNotFoundInIndexException(final STATUS id, final String message) {
     super(id, message);
   }
 
-  public EntryNotFoundInIndexException(final int id, final String message, final Throwable cause) {
+  public EntryNotFoundInIndexException(final STATUS id, final String message, final Throwable cause) {
     super(id, message, cause);
   }
 

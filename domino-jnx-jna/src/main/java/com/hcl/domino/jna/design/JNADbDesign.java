@@ -19,8 +19,8 @@ package com.hcl.domino.jna.design;
 import java.util.OptionalInt;
 import com.hcl.domino.commons.design.AbstractDbDesign;
 import com.hcl.domino.commons.errors.errorcodes.IMiscErr;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.DocumentClass;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.jna.data.JNADatabase;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -42,7 +42,7 @@ public class JNADbDesign extends AbstractDbDesign {
 		IntByReference retAgentNoteID = new IntByReference();
 		retAgentNoteID.setValue(0);
 		
-		short result = LockUtil.lockHandle(getDatabase().getAdapter(HANDLE.class), (hDbByVal)-> {
+		STATUS result = LockUtil.lockHandle(getDatabase().getAdapter(HANDLE.class), (hDbByVal)-> {
 			return NotesCAPI.get().NIFFindDesignNoteExt(hDbByVal, nameLMBCS,
 					noteClass.getValue(),
 					NotesStringUtils.toLMBCS(pattern, true),
@@ -50,12 +50,12 @@ public class JNADbDesign extends AbstractDbDesign {
 					NotesConstants.DGN_STRIPUNDERS);
 		});
 		
-		if ((result & NotesConstants.ERR_MASK)==IMiscErr.ERR_NOT_FOUND) {
+		if (result.getMaskedValue()==IMiscErr.ERR_NOT_FOUND) {
 			return OptionalInt.empty();
 		}
 		
 		//throws an error if agent cannot be found:
-		NotesErrorUtils.checkResult(result);
+		result.orElseThrow();
 		
 		int noteId = retAgentNoteID.getValue();
 		return noteId == 0 ? OptionalInt.empty() : OptionalInt.of(noteId);

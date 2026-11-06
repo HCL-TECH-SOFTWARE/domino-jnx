@@ -20,7 +20,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.DominoDateRange;
 import com.hcl.domino.jna.internal.ItemDecoder;
 import com.hcl.domino.jna.internal.Mem;
@@ -43,26 +42,24 @@ public class ReadUtil {
 	 * @param callback		the callback to read the data
 	 * @return			the data as created by the callback
 	 */
-	public static <R> R accessMemory(DHANDLE handle, boolean autoFree, final MemoryAccess<R> callback) {
-		return LockUtil.lockHandle(handle, (hMemoryByVal) -> {
-			if (!hMemoryByVal.isNull()) {
-				Pointer ptr = Mem.OSLockObject(hMemoryByVal);
-				try {
-					return callback.access(ptr);
-				}
-				finally {
-					Mem.OSUnlockObject(hMemoryByVal);
-					
-					if (autoFree) {
-						NotesErrorUtils.checkResult(
-							Mem.OSMemFree(hMemoryByVal)
-						);
-					}
-				}
-			}
-			return callback.handleIsNull();
-		});
-	}
+    public static <R> R accessMemory(DHANDLE handle, boolean autoFree,
+        final MemoryAccess<R> callback) {
+      return LockUtil.lockHandle(handle, (hMemoryByVal) -> {
+        if (!hMemoryByVal.isNull()) {
+          Pointer ptr = Mem.OSLockObject(hMemoryByVal);
+          try {
+            return callback.access(ptr);
+          } finally {
+            Mem.OSUnlockObject(hMemoryByVal);
+
+            if (autoFree) {
+              Mem.OSMemFree(hMemoryByVal).orElseThrow();
+            }
+          }
+        }
+        return callback.handleIsNull();
+      });
+    }
 	
 	/**
 	 * Callback interface to ensure exclusive handle access across threads.

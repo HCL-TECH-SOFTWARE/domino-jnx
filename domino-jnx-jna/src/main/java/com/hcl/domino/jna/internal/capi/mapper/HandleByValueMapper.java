@@ -1,37 +1,37 @@
-package com.hcl.domino.jna.internal.gc.handles;
+package com.hcl.domino.jna.internal.capi.mapper;
 
+import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.sun.jna.FromNativeContext;
 import com.sun.jna.FromNativeConverter;
-import com.sun.jna.Pointer;
 import com.sun.jna.ToNativeContext;
 import com.sun.jna.ToNativeConverter;
 
-public enum HandleByReferenceMapper implements FromNativeConverter, ToNativeConverter {
+public enum HandleByValueMapper implements FromNativeConverter, ToNativeConverter {
   INSTANCE;
   
   @Override
   public Object toNative(Object value, ToNativeContext context) {
     if(value == null) {
-      return null;
+      return 0;
     }
     
-    HANDLE.ByReference ref = (HANDLE.ByReference)value;
-    return ref.getPointer();
+    HANDLE.ByValue val = (HANDLE.ByValue)value;
+    return val.getValue();
   }
 
   @Override
   public Object fromNative(Object nativeValue, FromNativeContext context) {
     if(nativeValue == null) {
-      return null;
+      return HANDLE.newInstanceByValue(0);
     }
     
-    Pointer p = (Pointer)nativeValue;
-    return HANDLE.newInstance(p);
+    Long val = (Long)nativeValue;;
+    return HANDLE.newInstanceByValue(val);
   }
 
   @Override
   public Class<?> nativeType() {
-    return Pointer.class;
+    return long.class;
   }
   
 }

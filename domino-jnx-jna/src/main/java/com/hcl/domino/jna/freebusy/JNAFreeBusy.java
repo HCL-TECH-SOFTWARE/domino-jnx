@@ -19,7 +19,6 @@ package com.hcl.domino.jna.freebusy;
 import java.lang.ref.ReferenceQueue;
 import java.text.MessageFormat;
 import java.time.temporal.TemporalAccessor;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -30,7 +29,6 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.DominoDateRange;
 import com.hcl.domino.freebusy.FreeBusy;
@@ -92,26 +90,22 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 			throw new IllegalArgumentException(MessageFormat.format("Duration can only have a short value ({0}>65535)", duration));
 		}
 		
-    List<String> namesCanonical = names
-        .stream()
-        .filter(StringUtil::isNotEmpty)
-        .map(NotesNamingUtils::toCanonicalName)
-        .collect(Collectors.toList());
+        List<String> namesCanonical = names
+            .stream()
+            .filter(StringUtil::isNotEmpty)
+            .map(NotesNamingUtils::toCanonicalName)
+            .collect(Collectors.toList());
 
-    if (namesCanonical.isEmpty()) {
-      throw new IllegalArgumentException("No usernames specified to retrieve schedules.");
-    }
-		
-		short result;
+        if (namesCanonical.isEmpty()) {
+          throw new IllegalArgumentException("No usernames specified to retrieve schedules.");
+        }
 				
 		DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
 		ShortByReference retListSize = new ShortByReference();
 
-		result = NotesCAPI.get().ListAllocate((short) 0, 
+		NotesCAPI.get().ListAllocate((short) 0, 
 				(short) 0,
-				0, rethList, null, retListSize);
-		
-		NotesErrorUtils.checkResult(result);
+				0, rethList, null, retListSize).orElseThrow();
 
 		try {
 			List<DominoDateRange> decodedRangesList = LockUtil.lockHandle(rethList, (hListByVal) -> {
@@ -127,20 +121,15 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 
 	        char textSize = currNameMem==null ? 0 : (char) currNameMem.size();
 
-					short res = NotesCAPI.get().ListAddEntry(hListByVal, 0, retListSize, (char) i, currNameMem,
-					    textSize);
-					
-					NotesErrorUtils.checkResult(res);
+					NotesCAPI.get().ListAddEntry(hListByVal, 0, retListSize, (char) i, currNameMem,
+					    textSize).orElseThrow();
 				}
 	
 				Pointer valuePtr = Mem.OSLockObject(hListByVal);
 				DHANDLE.ByReference rethRange = DHANDLE.newInstanceByReference();
-				short res;
 				
-				res = NotesCAPI.get().SchFreeTimeSearch(unidStruct, apptOrigDateStruct, (short) (findFirstFit ? 1 : 0), 0, intervalPair,
-						(short) (duration & 0xffff), valuePtr, rethRange);
-
-				NotesErrorUtils.checkResult(res);
+				NotesCAPI.get().SchFreeTimeSearch(unidStruct, apptOrigDateStruct, (short) (findFirstFit ? 1 : 0), 0, intervalPair,
+						(short) (duration & 0xffff), valuePtr, rethRange).orElseThrow();
 			
 				return ReadUtil.readDateRange(rethRange, true);
 			});
@@ -152,13 +141,11 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 			return decodedRangesList;
 		}
 		finally {
-			result = LockUtil.lockHandle(rethList, (hListByVal) -> {
+			LockUtil.lockHandle(rethList, (hListByVal) -> {
 				Mem.OSUnlockObject(hListByVal);
 				
-				return Mem.OSMemFree(hListByVal);
+				return Mem.OSMemFree(hListByVal).orElseThrow();
 			});
-			
-			NotesErrorUtils.checkResult(result);
 		}
 	}
 	
@@ -191,19 +178,15 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 		
 		//make sure we always get the extended schedule container
 		final int SCHRQST_EXTFORMAT = 0x0020;
-		
-		short result;
 
 		int optionsAsInt = ScheduleOptions.toBitMaskInt(options) | SCHRQST_EXTFORMAT;
 
 		DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
 		ShortByReference retListSize = new ShortByReference();
 
-		result = NotesCAPI.get().ListAllocate((short) 0, 
+		NotesCAPI.get().ListAllocate((short) 0, 
 				(short) 0,
-				0, rethList, null, retListSize);
-		
-		NotesErrorUtils.checkResult(result);
+				0, rethList, null, retListSize).orElseThrow();
 		
 		try {
 			return LockUtil.lockHandle(rethList, (hListByVal) -> {
@@ -219,20 +202,15 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 
 	          char textSize = currNameMem==null ? 0 : (char) currNameMem.size();
 
-					short res = NotesCAPI.get().ListAddEntry(hListByVal, 0, retListSize, (char) i, currNameMem,
-					    textSize);
-					
-					NotesErrorUtils.checkResult(res);
+					NotesCAPI.get().ListAddEntry(hListByVal, 0, retListSize, (char) i, currNameMem,
+					    textSize).orElseThrow();
 				}
 				
 				Pointer valuePtr = Mem.OSLockObject(hListByVal);
 				DHANDLE.ByReference rethCntnr = DHANDLE.newInstanceByReference();
-				short res;
 				
-				res = NotesCAPI.get().SchRetrieve(unidStruct, null, optionsAsInt, intervalPair, valuePtr, rethCntnr,
-						null, null,null);
-				
-				NotesErrorUtils.checkResult(res);
+				NotesCAPI.get().SchRetrieve(unidStruct, null, optionsAsInt, intervalPair, valuePtr, rethCntnr,
+						null, null,null).orElseThrow();
 				
 				return new JNASchedules(getParent(), rethCntnr,
 						apptUnid, options,
@@ -240,13 +218,11 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 			});
 		}
 		finally {
-			result = LockUtil.lockHandle(rethList, (hListByVal) -> {
+			LockUtil.lockHandle(rethList, (hListByVal) -> {
 				Mem.OSUnlockObject(hListByVal);
 				
-				return Mem.OSMemFree(hListByVal);
+				return Mem.OSMemFree(hListByVal).orElseThrow();
 			});
-			
-			NotesErrorUtils.checkResult(result);
 		}
 	}
 }

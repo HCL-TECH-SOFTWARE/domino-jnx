@@ -21,7 +21,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -33,7 +32,6 @@ import java.util.stream.Stream;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.ReadMask;
 import com.hcl.domino.data.CollectionEntry;
@@ -384,8 +382,8 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 				if (fUpdateFiltersFlagsVal != 0) {
 					//for remote databases, push IDTable changes via NRPC
 
-					short result = NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, fUpdateFiltersFlagsVal);
-					NotesErrorUtils.checkResult(result);
+					NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, fUpdateFiltersFlagsVal)
+					  .orElseThrow();
 				}
 				
 				JNADominoCollection.JNACollectionEntryProcessor<T> jnaProcessor = new JNADominoCollection.JNACollectionEntryProcessor<T>() {
@@ -455,8 +453,8 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 						selectedList.add(m_startAtEntryId);
 						
 						//for remote databases, push IDTable changes via NRPC
-						short resultUpdateFilter = NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, NotesConstants.FILTER_SELECTED);
-						NotesErrorUtils.checkResult(resultUpdateFilter);
+						NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, NotesConstants.FILTER_SELECTED)
+						  .orElseThrow();
 						
 						List<CollectionEntry> selectedEntries = collection.getAllEntries("0", 1, Navigate.NEXT_SELECTED, Integer.MAX_VALUE, //$NON-NLS-1$
 								EnumSet.of(ReadMask.INDEXPOSITION, ReadMask.NOTEID),
@@ -468,8 +466,8 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 						selectedList.setInverted(clonedSelectedList.isInverted());
 						clonedSelectedList.dispose();
 						
-						resultUpdateFilter = NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, NotesConstants.FILTER_SELECTED);
-						NotesErrorUtils.checkResult(resultUpdateFilter);
+						NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, NotesConstants.FILTER_SELECTED)
+						  .orElseThrow();
 
 						if (selectedEntries.isEmpty()) {
 							//start entry not found
@@ -536,9 +534,8 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
               if (fUpdateFiltersFlagsVal != 0) {
                 // for remote databases, push IDTable changes via NRPC
 
-                short result =
-                    NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, fUpdateFiltersFlagsVal);
-                NotesErrorUtils.checkResult(result);
+                NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, fUpdateFiltersFlagsVal)
+                  .orElseThrow();
               }
 
               JNADominoCollection.JNACollectionEntryProcessor<T> jnaProcessor =
@@ -794,8 +791,8 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 				if (fUpdateFiltersFlagsVal != 0) {
 					//for remote databases, push IDTable changes via NRPC
 
-					short result = NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, fUpdateFiltersFlagsVal);
-					NotesErrorUtils.checkResult(result);
+					NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, fUpdateFiltersFlagsVal)
+					  .orElseThrow();
 				}
 				
 				if (m_startAtCategory!=null || m_startAtCategoryLevels!=null) {

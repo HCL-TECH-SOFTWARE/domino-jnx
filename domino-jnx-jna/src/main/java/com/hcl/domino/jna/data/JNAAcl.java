@@ -16,7 +16,6 @@
  */
 package com.hcl.domino.jna.data;
 
-import static com.hcl.domino.commons.util.NotesErrorUtils.checkResult;
 import static java.text.MessageFormat.format;
 import java.lang.ref.ReferenceQueue;
 import java.text.MessageFormat;
@@ -37,8 +36,8 @@ import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.ListUtil;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.internal.DisposableMemory;
@@ -99,8 +98,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		return LockUtil.lockHandle(aclHandle, (hAclByVal) -> {
 			DHANDLE.ByReference retNewHandle = DHANDLE.newInstanceByReference();
 			
-			short result = NotesCAPI.get().ACLCopy(hAclByVal, retNewHandle);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().ACLCopy(hAclByVal, retNewHandle).orElseThrow();
 			
 			return new JNAAcl(getParentDominoClient(), retNewHandle);
 		});
@@ -130,42 +128,44 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 	 * 
 	 * @return roles
 	 */
-	private Map<Integer,String> getRolesByIndex() {
-		checkDisposed();
-		
-		Map<Integer,String> roles = new HashMap<>();
+    private Map<Integer, String> getRolesByIndex() {
+      checkDisposed();
 
-		JNAAclAllocations allocations=getAllocations();
-		
-		DHANDLE hAcl=allocations.getAclHandle();
-		hAcl.checkDisposed();
+      Map<Integer, String> roles = new HashMap<>();
 
-		try(DisposableMemory retPrivName = new DisposableMemory(NotesConstants.ACL_PRIVSTRINGMAX)) {
-			LockUtil.lockHandle(hAcl, (hAclByVal)-> {
-				short result;
-				
-				// Privilege names associated with privilege numbers 0 through 4 are privilege levels compatible with versions of Notes prior to Release 3
-				for (int i=5; i<NotesConstants.ACL_PRIVCOUNT; i++) {
-					retPrivName.clear();
-					
-					result = NotesCAPI.get().ACLGetPrivName(hAclByVal, (short) (i & 0xffff), retPrivName);
-					if ((result & NotesConstants.ERR_MASK)==1060)  { //Error "The name is not in the list" => no more entries
-						break;
-					}
-	
-					checkResult(result);
-	
-					String role = NotesStringUtils.fromLMBCS(retPrivName, -1);
-					if (!StringUtil.isEmpty(role)) {
-						roles.put(i, role);
-					}
-				}
-				return 0;
-			});
-		}
+      JNAAclAllocations allocations = getAllocations();
 
-		return roles;
-	}
+      DHANDLE hAcl = allocations.getAclHandle();
+      hAcl.checkDisposed();
+
+      try (DisposableMemory retPrivName = new DisposableMemory(NotesConstants.ACL_PRIVSTRINGMAX)) {
+        LockUtil.lockHandle(hAcl, (hAclByVal) -> {
+          STATUS result;
+
+          // Privilege names associated with privilege numbers 0 through 4 are privilege levels
+          // compatible with versions of Notes prior to Release 3
+          for (int i = 5; i < NotesConstants.ACL_PRIVCOUNT; i++) {
+            retPrivName.clear();
+
+            result = NotesCAPI.get().ACLGetPrivName(hAclByVal, (short) (i & 0xffff), retPrivName);
+            if (result.getMaskedValue() == 1060) { // Error "The name is not in the list" => no more
+                                                   // entries
+              break;
+            }
+
+            result.orElseThrow();
+
+            String role = NotesStringUtils.fromLMBCS(retPrivName, -1);
+            if (!StringUtil.isEmpty(role)) {
+              roles.put(i, role);
+            }
+          }
+          return 0;
+        });
+      }
+
+      return roles;
+    }
 	
 	@Override
 	public void addRole(String role) {
@@ -223,83 +223,78 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		
 		final int fFreeIndex = freeIndex;
 		
-		short result=LockUtil.lockHandle(hAcl, (hAclByVal)-> {
-			return NotesCAPI.get().ACLSetPrivName(hAclByVal, (short) (fFreeIndex & 0xffff), roleStrippedMem);
-		});
-		
-		checkResult(result);
+		LockUtil.lockHandle(hAcl, (hAclByVal) ->
+			NotesCAPI.get().ACLSetPrivName(hAclByVal, (short) (fFreeIndex & 0xffff), roleStrippedMem)
+		).orElseThrow();
 	}
 	
-	@Override
-	public void removeRole(String role) {
-		if (role==null || role.length()==0) {
-			throw new IllegalArgumentException("Cannot remove role with empty name");
-		}
-		
-		checkDisposed();
-		
-		if (!role.startsWith("[")) { //$NON-NLS-1$
-			role = "[" + role; //$NON-NLS-1$
-		}
-		if (!role.endsWith("]")) { //$NON-NLS-1$
-			role = role + "]"; //$NON-NLS-1$
-		}
+    @Override
+    public void removeRole(String role) {
+      if (role == null || role.length() == 0) {
+        throw new IllegalArgumentException("Cannot remove role with empty name");
+      }
 
-		Map<Integer,String> rolesByIndex = getRolesByIndex();
-		int roleIndex = -1;
-		
-		for (int i=5; i<NotesConstants.ACL_PRIVCOUNT; i++) {
-			if (role.equals(rolesByIndex.get(i))) {
-				roleIndex = i;
-				break;
-			}
-		}
+      checkDisposed();
 
-		if (roleIndex==-1) {
-			//nothing to do
-			return;
-		}
-		
-		JNAAclAllocations allocations=getAllocations();
-		
-		DHANDLE hAcl=allocations.getAclHandle();
-		hAcl.checkDisposed();
-		
-		int byteOffsetWithBit = roleIndex / 8;
-		int bitToCheck = (int) Math.pow(2, roleIndex % 8);
+      if (!role.startsWith("[")) { //$NON-NLS-1$
+        role = "[" + role; //$NON-NLS-1$
+      }
+      if (!role.endsWith("]")) { //$NON-NLS-1$
+        role = role + "]"; //$NON-NLS-1$
+      }
 
-		int removedRoleIndex = roleIndex;
-		
-		short result=LockUtil.lockHandle(hAcl, (hAclByVal)-> {
-			short updateResult;
-			
-			for (JNAAclEntry currAclEntry : getNotesEntriesByName().values()) {
-				String currName = currAclEntry.getName();
-			
-				byte[] currPrivileges = currAclEntry.getPrivilegesArray();
-				if ((currPrivileges[byteOffsetWithBit] & bitToCheck) == bitToCheck) {
-					byte[] newPrivileges = currPrivileges.clone();
-					newPrivileges[byteOffsetWithBit] = (byte) ((newPrivileges[byteOffsetWithBit] - bitToCheck & 0xff));
-					
-					Memory currNameMem = NotesStringUtils.toLMBCS(currName, true);
-					
-					try(DisposableMemory newPrivilegesMem = new DisposableMemory(newPrivileges.length)) {
-	          newPrivilegesMem.write(0, newPrivileges, 0, newPrivileges.length);
-						updateResult = NotesCAPI.get().ACLUpdateEntry(hAclByVal, currNameMem, NotesConstants.ACL_UPDATE_PRIVILEGES, null, (short) 0,
-									newPrivilegesMem, (short) 0);
+      Map<Integer, String> rolesByIndex = getRolesByIndex();
+      int roleIndex = -1;
 
-						checkResult(updateResult);
-					}
-				}
-			}
-			
-			Memory emptyStrMem = NotesStringUtils.toLMBCS("", true); //$NON-NLS-1$
-			
-			return NotesCAPI.get().ACLSetPrivName(hAclByVal, (short) (removedRoleIndex & 0xffff), emptyStrMem);
-		});
-		
-		checkResult(result);
-	}
+      for (int i = 5; i < NotesConstants.ACL_PRIVCOUNT; i++) {
+        if (role.equals(rolesByIndex.get(i))) {
+          roleIndex = i;
+          break;
+        }
+      }
+
+      if (roleIndex == -1) {
+        // nothing to do
+        return;
+      }
+
+      JNAAclAllocations allocations = getAllocations();
+
+      DHANDLE hAcl = allocations.getAclHandle();
+      hAcl.checkDisposed();
+
+      int byteOffsetWithBit = roleIndex / 8;
+      int bitToCheck = (int) Math.pow(2, roleIndex % 8);
+
+      int removedRoleIndex = roleIndex;
+
+      LockUtil.lockHandle(hAcl, (hAclByVal) -> {
+        for (JNAAclEntry currAclEntry : getNotesEntriesByName().values()) {
+          String currName = currAclEntry.getName();
+
+          byte[] currPrivileges = currAclEntry.getPrivilegesArray();
+          if ((currPrivileges[byteOffsetWithBit] & bitToCheck) == bitToCheck) {
+            byte[] newPrivileges = currPrivileges.clone();
+            newPrivileges[byteOffsetWithBit] =
+                (byte) ((newPrivileges[byteOffsetWithBit] - bitToCheck & 0xff));
+
+            Memory currNameMem = NotesStringUtils.toLMBCS(currName, true);
+
+            try (DisposableMemory newPrivilegesMem = new DisposableMemory(newPrivileges.length)) {
+              newPrivilegesMem.write(0, newPrivileges, 0, newPrivileges.length);
+              NotesCAPI.get().ACLUpdateEntry(hAclByVal, currNameMem,
+                  NotesConstants.ACL_UPDATE_PRIVILEGES, null, (short) 0,
+                  newPrivilegesMem, (short) 0).orElseThrow();
+            }
+          }
+        }
+
+        Memory emptyStrMem = NotesStringUtils.toLMBCS("", true); //$NON-NLS-1$
+
+        return NotesCAPI.get().ACLSetPrivName(hAclByVal, (short) (removedRoleIndex & 0xffff),
+            emptyStrMem);
+      }).orElseThrow();
+    }
 	
 	@Override
 	public void renameRole(String oldName, String newName) {
@@ -369,10 +364,9 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		Memory newNameStrippedMem = NotesStringUtils.toLMBCS(newNameStripped, true);
 		
 		final int fRenameIdx=roleIndex;
-		short result=LockUtil.lockHandle(hAcl, (hAclByValue) -> {
-			return NotesCAPI.get().ACLSetPrivName(hAclByValue, (short) (fRenameIdx & 0xffff), newNameStrippedMem);
-		});
-		checkResult(result);
+		LockUtil.lockHandle(hAcl, (hAclByValue) ->
+			NotesCAPI.get().ACLSetPrivName(hAclByValue, (short) (fRenameIdx & 0xffff), newNameStrippedMem)
+		).orElseThrow();
 	}
 	
 	private Map<String, JNAAclEntry> getNotesEntriesByName() {
@@ -423,11 +417,9 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 			aclAccessInfoByName.put(name, access);
 		};
 		
-        short result = LockUtil.lockHandle(hAcl, (hAclByValue) -> {
-          return NotesCAPI.get().ACLEnumEntries(hAclByValue, callback, null);
-        });
-		
-		checkResult(result);
+        LockUtil.lockHandle(hAcl, (hAclByValue) ->
+          NotesCAPI.get().ACLEnumEntries(hAclByValue, callback, null)
+        ).orElseThrow();
 		
 		return aclAccessInfoByName;
 	}
@@ -528,10 +520,9 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		try(DisposableMemory privilegesMem = new DisposableMemory(privilegesArr.length)) {
 			privilegesMem.write(0, privilegesArr, 0, privilegesArr.length);
 			
-			short result=LockUtil.lockHandle(hAcl, (hAclByValue)-> {
-				return NotesCAPI.get().ACLAddEntry(hAclByValue, nameCanonicalMem, (short) (accessLevel.getValue() & 0xffff), privilegesMem, accessFlagsAsShort);
-			});
-			checkResult(result);
+			LockUtil.lockHandle(hAcl, (hAclByValue) ->
+				NotesCAPI.get().ACLAddEntry(hAclByValue, nameCanonicalMem, (short) (accessLevel.getValue() & 0xffff), privilegesMem, accessFlagsAsShort)
+			).orElseThrow();
 		}
 	}
 
@@ -545,15 +536,13 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		
 		DHANDLE hAcl=getAllocations().getAclHandle();
 		hAcl.checkDisposed();
-		
-		short result=LockUtil.lockHandle(hAcl, (hAclByValue)-> {
-			String nameCanonical = NotesNamingUtils.toCanonicalName(name);
-			Memory nameCanonicalMem = NotesStringUtils.toLMBCS(nameCanonical, true);
 
-			return NotesCAPI.get().ACLDeleteEntry(hAclByValue, nameCanonicalMem);
-		});
-		
-		checkResult(result);
+        String nameCanonical = NotesNamingUtils.toCanonicalName(name);
+        Memory nameCanonicalMem = NotesStringUtils.toLMBCS(nameCanonical, true);
+
+		LockUtil.lockHandle(hAcl, (hAclByValue) ->
+			NotesCAPI.get().ACLDeleteEntry(hAclByValue, nameCanonicalMem)
+		).orElseThrow();
 	}
 	
 	@Override
@@ -675,11 +664,11 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 			final Memory fNewPrivilegesMem=newPrivilegesMem;
 			final short fNewFlagsAsShort=newFlagsAsShort;
 			
-			checkResult(LockUtil.lockHandle(hAcl, (hAclByValue) -> {
-				return NotesCAPI.get().ACLUpdateEntry(hAclByValue, oldAclEntryNameMem, (short) (fUpdateFlags & 0xffff),
+			LockUtil.lockHandle(hAcl, (hAclByValue) ->
+				NotesCAPI.get().ACLUpdateEntry(hAclByValue, oldAclEntryNameMem, (short) (fUpdateFlags & 0xffff),
 						fNewNameMem, (short) (fiNewAccessLevel & 0xffff),
-						fNewPrivilegesMem, fNewFlagsAsShort);
-			}));
+						fNewPrivilegesMem, fNewFlagsAsShort)
+			).orElseThrow();
 		}
 		finally {
 			if (newPrivilegesMem!=null) {
@@ -688,91 +677,83 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		}
 	}
 
-	@Override
-	public String getAdminServer() {
-		checkDisposed();
-		
-		DHANDLE hAcl=getAllocations().getAclHandle();
-		hAcl.checkDisposed();
-		
-		try(final DisposableMemory retSrvName = new DisposableMemory(NotesConstants.MAXPATH)) {
-	    retSrvName.clear();
-			short result=LockUtil.lockHandle(hAcl, (hAclByValue)-> {
-				return NotesCAPI.get().ACLGetAdminServer(hAclByValue, retSrvName);
-			});
-			checkResult(result);
-			
-			return NotesStringUtils.fromLMBCS(retSrvName, -1);
-		}
-		
-	}
-	
-	@Override
-	public void setAdminServer(final String server) {
-		checkDisposed();
-		
-		DHANDLE hAcl=getAllocations().getAclHandle();
-		hAcl.checkDisposed();
-		
-		short result=LockUtil.lockHandle(hAcl, (hAclByValue)-> {
-			Memory serverCanonicalMem = NotesStringUtils.toLMBCS(NotesNamingUtils.toCanonicalName(server), true);
+    @Override
+    public String getAdminServer() {
+      checkDisposed();
 
-			return NotesCAPI.get().ACLSetAdminServer(hAclByValue, serverCanonicalMem);
-		});
-		
-		checkResult(result);
-	}
+      DHANDLE hAcl = getAllocations().getAclHandle();
+      hAcl.checkDisposed();
+
+      try (final DisposableMemory retSrvName = new DisposableMemory(NotesConstants.MAXPATH)) {
+        retSrvName.clear();
+        LockUtil.lockHandle(hAcl, (hAclByValue) ->
+          NotesCAPI.get().ACLGetAdminServer(hAclByValue, retSrvName)
+        ).orElseThrow();
+
+        return NotesStringUtils.fromLMBCS(retSrvName, -1);
+      }
+
+    }
 	
-	private int getAclFlags() {
-		checkDisposed();
-		
-		DHANDLE hAcl=getAllocations().getAclHandle();
-		hAcl.checkDisposed();
-		
-		IntByReference retFlags = new IntByReference();
-		
-		short result=LockUtil.lockHandle(hAcl, (hAclByValue)-> {
-			return NotesCAPI.get().ACLGetFlags(hAclByValue, retFlags);
-		});
-		
-		checkResult(result);
-		
-		return retFlags.getValue();
-	}
+    @Override
+    public void setAdminServer(final String server) {
+      checkDisposed();
+
+      DHANDLE hAcl = getAllocations().getAclHandle();
+      hAcl.checkDisposed();
+
+      Memory serverCanonicalMem =  NotesStringUtils.toLMBCS(NotesNamingUtils.toCanonicalName(server), true);
+
+      LockUtil.lockHandle(hAcl, (hAclByValue) ->
+        NotesCAPI.get().ACLSetAdminServer(hAclByValue, serverCanonicalMem)
+      ).orElseThrow();
+    }
+	
+    private int getAclFlags() {
+      checkDisposed();
+
+      DHANDLE hAcl = getAllocations().getAclHandle();
+      hAcl.checkDisposed();
+
+      IntByReference retFlags = new IntByReference();
+
+      LockUtil.lockHandle(hAcl, (hAclByValue) ->
+        NotesCAPI.get().ACLGetFlags(hAclByValue, retFlags)
+      ).orElseThrow();
+
+      return retFlags.getValue();
+    }
 
 	@Override
 	public boolean isUniformAccess() {
 		return (getAclFlags() & NotesConstants.ACL_UNIFORM_ACCESS) == NotesConstants.ACL_UNIFORM_ACCESS;
 	}
 
-	@Override
-	public void setUniformAccess(boolean uniformAccess) {
-		int aclFlags=getAclFlags();
-		
-		boolean isSet = (aclFlags & NotesConstants.ACL_UNIFORM_ACCESS) == NotesConstants.ACL_UNIFORM_ACCESS;
-		if (uniformAccess == isSet) {
-			return;
-		}
-		
-		int newFlags = aclFlags;
-		if (uniformAccess) {
-			newFlags = newFlags | NotesConstants.ACL_UNIFORM_ACCESS;
-		}
-		else {
-			newFlags -= NotesConstants.ACL_UNIFORM_ACCESS;
-		}
-		
-		DHANDLE hAcl=getAllocations().getAclHandle();
-		hAcl.checkDisposed();
-		
-		final int fNewFlags=newFlags;
-		
-		short result=LockUtil.lockHandle(hAcl, (hAclByValue)-> {
-			return NotesCAPI.get().ACLSetFlags(hAclByValue, fNewFlags);
-		});
+    @Override
+    public void setUniformAccess(boolean uniformAccess) {
+      int aclFlags = getAclFlags();
 
-		checkResult(result);
-	}
+      boolean isSet = (aclFlags & NotesConstants.ACL_UNIFORM_ACCESS) == NotesConstants.ACL_UNIFORM_ACCESS;
+      if (uniformAccess == isSet) {
+        return;
+      }
+
+      int newFlags = aclFlags;
+      if (uniformAccess) {
+        newFlags = newFlags | NotesConstants.ACL_UNIFORM_ACCESS;
+      } else {
+        newFlags -= NotesConstants.ACL_UNIFORM_ACCESS;
+      }
+
+      DHANDLE hAcl = getAllocations().getAclHandle();
+      hAcl.checkDisposed();
+
+      final int fNewFlags = newFlags;
+
+      LockUtil.lockHandle(hAcl, (hAclByValue) ->
+        NotesCAPI.get().ACLSetFlags(hAclByValue, fNewFlags)
+      ).orElseThrow();
+    }
 
 	@Override
 	public void save() {
@@ -793,11 +774,9 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		DHANDLE hAcl=allocations.getAclHandle();
 		hAcl.checkDisposed();
 		
-		short result=LockUtil.lockHandles(dbHandle,hAcl, (dbHandleByValue, hAclByValue) -> {
-			return NotesCAPI.get().NSFDbStoreACL(dbHandleByValue, hAclByValue, 0, (short) 0);
-		});
-
-		checkResult(result);
+		LockUtil.lockHandles(dbHandle,hAcl, (dbHandleByValue, hAclByValue) ->
+			NotesCAPI.get().NSFDbStoreACL(dbHandleByValue, hAclByValue, 0, (short) 0)
+		).orElseThrow();
 	}
 	
 	@Override
@@ -846,13 +825,12 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		final ShortByReference retAccessFlags = new ShortByReference();
 		final DHANDLE.ByReference rethPrivNames = DHANDLE.newInstanceByReference();
 
-		checkResult(LockUtil.lockHandles(hAcl, hNamesList, (hAclByValue, hNamesListByValue) -> {
-			return Mem.OSLockObject(hNamesListByValue, pNamesList -> {
-				return NotesCAPI.get().ACLLookupAccess(hAclByValue, pNamesList, retAccessLevel, 
-						retPrivileges, retAccessFlags, rethPrivNames);
-			}
-					);
-		}));
+        LockUtil.lockHandles(hAcl, hNamesList, (hAclByValue, hNamesListByValue) ->
+          Mem.OSLockObject(hNamesListByValue, pNamesList ->
+            NotesCAPI.get().ACLLookupAccess(hAclByValue, pNamesList,
+                    retAccessLevel, retPrivileges, retAccessFlags, rethPrivNames)
+          )
+        ).orElseThrow();
 
 		List<String> roles;
 		if (rethPrivNames.isNull()) {
@@ -869,10 +847,8 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 					int numEntriesAsInt = Short.toUnsignedInt(NotesCAPI.get().ListGetNumEntries(pPrivNames, 0));
 					
 					ArrayList<String> allRoles = new ArrayList<>(numEntriesAsInt);
-					short localResult;
 					for (int i=0; i<numEntriesAsInt; i++) {
-						localResult = NotesCAPI.get().ListGetText(pPrivNames, false, (char) i, retTextPointer, retTextLength);
-						checkResult(localResult);
+						NotesCAPI.get().ListGetText(pPrivNames, false, (char) i, retTextPointer, retTextLength).orElseThrow();
 						
 						String currRole = NotesStringUtils.fromLMBCS(retTextPointer.getPointer(0), retTextLength.getValue() & 0xffff);
 						allRoles.add(currRole);

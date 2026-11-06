@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.data;
 
+import static com.hcl.domino.commons.errors.errorcodes.IMiscErr.ERR_NOT_FOUND;
 import java.lang.ref.ReferenceQueue;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -56,6 +57,7 @@ import com.hcl.domino.commons.data.BuildVersionInfoImpl;
 import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.commons.data.EncryptionInfoImpl;
 import com.hcl.domino.commons.data.NSFVersionInfoImpl;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.design.DesignUtil;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
@@ -93,11 +95,13 @@ import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.NoteIdWithScore;
 import com.hcl.domino.data.structures.QuepArgVal;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.design.RichTextBuilder;
 import com.hcl.domino.dql.DQL.DQLTerm;
 import com.hcl.domino.dql.QueryResultsProcessor;
 import com.hcl.domino.exception.DocumentDeletedException;
+import com.hcl.domino.exception.EntryNotFoundInIndexException;
 import com.hcl.domino.exception.IncompatibleImplementationException;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
@@ -204,10 +208,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			//try to retrieve the NAMES_LIST from the DB handle
 			DHANDLE.ByReference rethNamesList = DHANDLE.newInstanceByReference();
 			
-			short result = LockUtil.lockHandle(hdl, (hDbByVal) -> {
-				return NotesCAPI.get().NSFDbGetNamesList(hDbByVal, 0, rethNamesList);
+			LockUtil.lockHandle(hdl, (hDbByVal) -> {
+				return NotesCAPI.get().NSFDbGetNamesList(hDbByVal, 0, rethNamesList).orElseThrow();
 			});
-			NotesErrorUtils.checkResult(result);
 			
 			if (!rethNamesList.isNull()) {
 				namesList = new JNAUserNamesList(this, rethNamesList);
@@ -328,7 +331,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				NotesTimeDateStruct retNonDataModified = NotesTimeDateStruct.newInstance();
 				
 				// TODO support ModifiedTime
-				short localResult;
+				STATUS localResult;
 				if (m_openAsIdUser && (m_namesListPrivileges==null || !m_namesListPrivileges.contains(Privileges.FullAdminAccess))) {
 					localResult = NotesCAPI.get().NSFDbOpenExtended(retFullNetPath, openOptions, null,
 							null, retHDB, retDataModified, retNonDataModified);
@@ -338,13 +341,13 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 							null, retHDB, retDataModified, retNonDataModified);
 				}
 
-				if ((localResult & NotesConstants.ERR_MASK)==582 &&
+				if ((localResult.getValue() & NotesConstants.ERR_MASK)==582 &&
 						StringUtil.isEmpty(m_server) && !parentClient.isOnServer() && m_openAsIdUser) {
 					localResult = NotesCAPI.get().NSFDbOpenExtended(retFullNetPath, openOptions, (DHANDLE.ByValue) null,
 							null, retHDB, retDataModified, retNonDataModified);
 				}
 				
-				if ((localResult & NotesConstants.ERR_MASK) == 259) { // File does not exist
+				if ((localResult.getValue() & NotesConstants.ERR_MASK) == 259) { // File does not exist
 					
 					//try to find this database in the folder configured via SharedDataDirectory
 					//in the Notes.ini
@@ -364,11 +367,11 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 					}
 				}
 				
-				if ((localResult & NotesConstants.ERR_MASK) == INotesErrorConstants.ERR_NOEXIST) {
+				if ((localResult.getValue() & NotesConstants.ERR_MASK) == INotesErrorConstants.ERR_NOEXIST) {
 					throw NotesErrorUtils.toNotesError(INotesErrorConstants.ERR_NOEXIST, MessageFormat.format("No database found on server ''{0}'' with filepath {1}", m_server, m_filePath)).get();
 				}
 				
-				NotesErrorUtils.checkResult(localResult);
+				localResult.orElseThrow();
 				
 				getAllocations().setDBHandle(retHDB);
 				
@@ -410,10 +413,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 			try(DisposableMemory retCanonicalPathName = new DisposableMemory(NotesConstants.MAXPATH);
       DisposableMemory retExpandedPathName = new DisposableMemory(NotesConstants.MAXPATH)) {
-				short result = LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
-					return NotesCAPI.get().NSFDbPathGet(handleByVal, retCanonicalPathName, retExpandedPathName);
+				LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
+					return NotesCAPI.get().NSFDbPathGet(handleByVal, retCanonicalPathName, retExpandedPathName).orElseThrow();
 				});
-				NotesErrorUtils.checkResult(result);
 				
 				String canonicalPathName = NotesStringUtils.fromLMBCS(retCanonicalPathName, NotesStringUtils.getNullTerminatedLength(retCanonicalPathName));
 				String expandedPathName = NotesStringUtils.fromLMBCS(retExpandedPathName, NotesStringUtils.getNullTerminatedLength(retExpandedPathName));
@@ -503,10 +505,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		JNADatabaseAllocations allocations = getAllocations();
 		
 		DisposableMemory infoBuf = new DisposableMemory(NotesConstants.NSF_INFO_SIZE);
-		short result = LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
-			return NotesCAPI.get().NSFDbInfoGet(handleByVal, infoBuf);
+		LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
+			return NotesCAPI.get().NSFDbInfoGet(handleByVal, infoBuf).orElseThrow();
 		});
-		NotesErrorUtils.checkResult(result);
 		
 		return infoBuf;
 	}
@@ -532,14 +533,14 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		JNADatabaseAllocations allocations = getAllocations();
 
 		IntByReference retNoteID = new IntByReference();
-		short result = LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
+		STATUS result = LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
 			return NotesCAPI.get().NSFDbGetSpecialNoteID(handleByVal, (short) ((NotesConstants.SPECIAL_ID_NOTE | NotesConstants.NOTE_CLASS_ICON) & 0xffff), retNoteID);
 		});
 		
-		if ((result & NotesConstants.ERR_MASK)==1028) { //not found
+		if (result.getMaskedValue()==ERR_NOT_FOUND) {
 			return Optional.empty();
 		}
-		NotesErrorUtils.checkResult(result);
+		result.orElseThrow();
 		int noteId = retNoteID.getValue();
 		if (noteId==0) {
 			return Optional.empty();
@@ -556,20 +557,18 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		checkDisposed();
 		JNADatabaseAllocations allocations = getAllocations();
 		
-		short result = LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
-			return NotesCAPI.get().NSFDbInfoSet(handleByVal, infoBuf);
+		LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
+			return NotesCAPI.get().NSFDbInfoSet(handleByVal, infoBuf).orElseThrow();
 		});
-		NotesErrorUtils.checkResult(result);
 		
 		//as documented in NSFDbInfoSet, we need to update the icon document as well
 		try {
 			JNADocument iconDoc = (JNADocument) openIconDocument().get();
 			if (iconDoc.hasItem("$TITLE")) { //$NON-NLS-1$
 				DHANDLE iconNoteHandle = iconDoc.getAdapter(DHANDLE.class);
-				result = LockUtil.lockHandle(iconNoteHandle, (iconNoteHandleByVal) -> {
-					return NotesCAPI.get().NSFItemSetText(iconNoteHandleByVal, NotesStringUtils.toLMBCS("$TITLE",  true), infoBuf, NotesConstants.MAXWORD); //$NON-NLS-1$
+				LockUtil.lockHandle(iconNoteHandle, (iconNoteHandleByVal) -> {
+					return NotesCAPI.get().NSFItemSetText(iconNoteHandleByVal, NotesStringUtils.toLMBCS("$TITLE",  true), infoBuf, NotesConstants.MAXWORD).orElseThrow(); //$NON-NLS-1$
 				});
-				NotesErrorUtils.checkResult(result);
 
 				iconDoc.save();
 			}
@@ -603,11 +602,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				JNADatabaseAllocations allocations = getAllocations();
 				DHANDLE.ByReference rethACL=DHANDLE.newInstanceByReference();
 				
-				short result = LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
-					return NotesCAPI.get().NSFDbReadACL(handleByVal, rethACL);
-				});
-				
-				NotesErrorUtils.checkResult(result);
+				LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) ->
+					NotesCAPI.get().NSFDbReadACL(handleByVal, rethACL)
+				).orElseThrow();
 				
 				m_acl=new JNAAcl(this, rethACL);
 			}
@@ -619,18 +616,18 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	public Optional<DominoCollection> openDefaultCollection() {
 		checkDisposed();
 		
-		short result;
+		STATUS result;
 		IntByReference retNoteID = new IntByReference();
 		
 		result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
 			return NotesCAPI.get().NSFDbGetSpecialNoteID(hDbByVal, (short) ((NotesConstants.SPECIAL_ID_NOTE | NotesConstants.NOTE_CLASS_VIEW) & 0xffff), retNoteID);
 		});
 		
-		if ((result & NotesConstants.ERR_MASK)==1028) { //not found
+		if (result.getMaskedValue()==ERR_NOT_FOUND) {
 			return Optional.empty();
 		}
 		
-		NotesErrorUtils.checkResult(result);
+		result.orElseThrow();
 		int noteId = retNoteID.getValue();
 		if (noteId==0) {
 			return Optional.empty();
@@ -683,79 +680,80 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     return Optional.ofNullable(openCollection(viewNoteId, (EnumSet<OpenCollection> ) null, dbData));
   }
 
-	private DominoCollection openCollection(int viewNoteId, EnumSet<OpenCollection> openFlagSet, Database dbData) {
-		checkDisposed();
-		
-		if (viewNoteId==0) {
-		  return null;
-		}
-		
-		if (dbData!=null && dbData instanceof JNADatabase==false) {
-		  throw new IllegalArgumentException("Database to read data must be of type JNADatabase");
-		}
-		
-		JNADatabase jnaDbData = dbData==null ? this : (JNADatabase) dbData;
-		
-		jnaDbData.checkDisposed();
-		
-		JNADatabaseAllocations dbViewAllocations = getAllocations();
+  private DominoCollection openCollection(int viewNoteId, EnumSet<OpenCollection> openFlagSet,
+      Database dbData) {
+    checkDisposed();
+
+    if (viewNoteId == 0) {
+      return null;
+    }
+
+    if (dbData != null && dbData instanceof JNADatabase == false) {
+      throw new IllegalArgumentException("Database to read data must be of type JNADatabase");
+    }
+
+    JNADatabase jnaDbData = dbData == null ? this : (JNADatabase) dbData;
+
+    jnaDbData.checkDisposed();
+
+    JNADatabaseAllocations dbViewAllocations = getAllocations();
     JNADatabaseAllocations dbDataAllocations = jnaDbData.getAllocations();
 
-		try(DisposableMemory retViewUNID = new DisposableMemory(16)) {
-  		JNAIDTable unreadTable = new JNAIDTable(getParentDominoClient());
-  		
-  		//always enforce reopening; funny things can happen on a Domino server
-  		//without this flag like sharing collections between users resulting in
-  		//users seeing the wrong data *sometimes*...
-  		EnumSet<OpenCollection> openFlagSetClone = openFlagSet==null ? EnumSet.noneOf(OpenCollection.class) : openFlagSet.clone();
-  		openFlagSetClone.add(OpenCollection.OPEN_REOPEN_COLLECTION);
-  		
-  		short openFlags = DominoEnumUtil.toBitField(OpenCollection.class, openFlagSetClone);
-  
-  		JNAUserNamesList namesList = dbViewAllocations.getNamesList();
-  		
-  		if (namesList.isDisposed()) {
-  			throw new ObjectDisposedException(namesList);
-  		}
-  		
-  		DHANDLE.ByReference rethCollection = DHANDLE.newInstanceByReference();
-  		rethCollection.clear();
-  		DHANDLE.ByReference rethCollapsedList = DHANDLE.newInstanceByReference();
-  		rethCollapsedList.clear();
-  		DHANDLE.ByReference rethSelectedList = DHANDLE.newInstanceByReference();
-  		rethSelectedList.clear();
-  		
-  		JNAUserNamesListAllocations namesListAllocations = (JNAUserNamesListAllocations) namesList.getAdapter(APIObjectAllocations.class);
-  		JNAIDTableAllocations unreadTableAllocations = (JNAIDTableAllocations) unreadTable.getAdapter(APIObjectAllocations.class);
-  		
-  		short result = LockUtil.lockHandles(
-  				namesListAllocations.getHandle(),
-  				unreadTableAllocations.getIdTableHandle(),
-  				dbViewAllocations.getDBHandle(),
-  				dbDataAllocations.getDBHandle(),
-  				
-  				(namesListHandleByVal, unreadTableHandleByVal, dbViewHandleByVal, dbDataHandleByVal) -> {
-  					short localResult = NotesCAPI.get().NIFOpenCollectionWithUserNameList(dbViewHandleByVal,
-  							dbDataHandleByVal,
-  							viewNoteId, openFlags, unreadTableHandleByVal,
-  							rethCollection, null, retViewUNID, rethCollapsedList,
-  							rethSelectedList, namesListHandleByVal);
-  					
-  					return localResult;
-  				});
-  		
-  		NotesErrorUtils.checkResult(result);
-  		
-  		String sViewUNID = toUNID(retViewUNID);
-      
+    try (DisposableMemory retViewUNID = new DisposableMemory(16)) {
+      JNAIDTable unreadTable = new JNAIDTable(getParentDominoClient());
+
+      // always enforce reopening; funny things can happen on a Domino server
+      // without this flag like sharing collections between users resulting in
+      // users seeing the wrong data *sometimes*...
+      EnumSet<OpenCollection> openFlagSetClone =
+          openFlagSet == null ? EnumSet.noneOf(OpenCollection.class) : openFlagSet.clone();
+      openFlagSetClone.add(OpenCollection.OPEN_REOPEN_COLLECTION);
+
+      short openFlags = DominoEnumUtil.toBitField(OpenCollection.class, openFlagSetClone);
+
+      JNAUserNamesList namesList = dbViewAllocations.getNamesList();
+
+      if (namesList.isDisposed()) {
+        throw new ObjectDisposedException(namesList);
+      }
+
+      DHANDLE.ByReference rethCollection = DHANDLE.newInstanceByReference();
+      rethCollection.clear();
+      DHANDLE.ByReference rethCollapsedList = DHANDLE.newInstanceByReference();
+      rethCollapsedList.clear();
+      DHANDLE.ByReference rethSelectedList = DHANDLE.newInstanceByReference();
+      rethSelectedList.clear();
+
+      JNAUserNamesListAllocations namesListAllocations =
+          (JNAUserNamesListAllocations) namesList.getAdapter(APIObjectAllocations.class);
+      JNAIDTableAllocations unreadTableAllocations =
+          (JNAIDTableAllocations) unreadTable.getAdapter(APIObjectAllocations.class);
+
+      LockUtil.lockHandles(
+          namesListAllocations.getHandle(),
+          unreadTableAllocations.getIdTableHandle(),
+          dbViewAllocations.getDBHandle(),
+          dbDataAllocations.getDBHandle(),
+
+          (namesListHandleByVal, unreadTableHandleByVal, dbViewHandleByVal,
+              dbDataHandleByVal) -> NotesCAPI.get().NIFOpenCollectionWithUserNameList(
+                  dbViewHandleByVal,
+                  dbDataHandleByVal,
+                  viewNoteId, openFlags, unreadTableHandleByVal,
+                  rethCollection, null, retViewUNID, rethCollapsedList,
+                  rethSelectedList, namesListHandleByVal))
+          .orElseThrow();
+
+      String sViewUNID = toUNID(retViewUNID);
+
       JNAIDTable collapsedList = new JNAIDTable(getParentDominoClient(), rethCollapsedList, true);
       JNAIDTable selectedList = new JNAIDTable(getParentDominoClient(), rethSelectedList, true);
-      
+
       return new JNADominoCollection(this, jnaDbData, rethCollection, viewNoteId,
           sViewUNID, collapsedList,
           selectedList, unreadTable);
-		}
-	}
+    }
+  }
 	
 	/**
 	 * Converts bytes in memory to a UNID
@@ -830,14 +828,14 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		DHANDLE.ByReference rethNote = DHANDLE.newInstanceByReference();
 		
-		short result = LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
+		STATUS result = LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
 			return NotesCAPI.get().NSFNoteOpenExt(dbHandleByVal, noteId, openOptions, rethNote);
 		});
 		
-		if ((result & NotesConstants.ERR_MASK)==INotesErrorConstants.ERR_NOT_FOUND) {
+		if (result.getMaskedValue()==ERR_NOT_FOUND) {
 			return Optional.empty();
 		}
-		NotesErrorUtils.checkResult(result);
+		result.orElseThrow();
 		
 		return Optional.of(new JNADocument(this, rethNote));
 	}
@@ -849,14 +847,14 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 		DHANDLE.ByReference rethNote = DHANDLE.newInstanceByReference();
 		
-		short result = LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
+		STATUS result = LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
 			return NotesCAPI.get().NSFNoteOpenSoftDelete(dbHandleByVal, noteId, 0, rethNote);
 		});
 		
-		if ((result & NotesConstants.ERR_MASK)==1028) {
+		if (result.getMaskedValue()==ERR_NOT_FOUND) {
 			return Optional.empty();
 		}
-		NotesErrorUtils.checkResult(result);
+		result.orElseThrow();
 		
 		return Optional.of(new JNADocument(this, rethNote));
 	}
@@ -884,13 +882,13 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		NotesUniversalNoteIdStruct unidObj = NotesUniversalNoteIdStruct.fromString(unid);
 		
 		DHANDLE.ByReference rethNote = DHANDLE.newInstanceByReference();
-		short result = LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
+		STATUS result = LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
 			return NotesCAPI.get().NSFNoteOpenByUNIDExtended(dbHandleByVal, unidObj, openOptions, rethNote);
 		});
-		if ((result & NotesConstants.ERR_MASK)==1028) {
+		if (result.getMaskedValue()==ERR_NOT_FOUND) {
 			return Optional.empty();
 		}
-		NotesErrorUtils.checkResult(result);
+		result.orElseThrow();
 		
 		return Optional.of(new JNADocument(this, rethNote));
 	}
@@ -910,10 +908,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		int flagsAsInt = DominoEnumUtil.toBitField(UpdateNote.class, flags);
 		
-		short result = LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
-			return NotesCAPI.get().NSFNoteDeleteExtended(dbHandleByVal, noteId, flagsAsInt);
+		LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
+			return NotesCAPI.get().NSFNoteDeleteExtended(dbHandleByVal, noteId, flagsAsInt).orElseThrow();
 		});
-		NotesErrorUtils.checkResult(result);
 	}
 	
 	@Override
@@ -948,15 +945,13 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		try {
 			DHANDLE idTableHandle = idTable.getAdapter(DHANDLE.class);
 			
-			short result = LockUtil.lockHandles(
+			LockUtil.lockHandles(
 					allocations.getDBHandle(),
 					idTableHandle,
 					(dbHandleByVal, idTableHandleByVal) -> {
 
-						return NotesCAPI.get().NSFDbDeleteNotes(dbHandleByVal, idTableHandleByVal, null);
+						return NotesCAPI.get().NSFDbDeleteNotes(dbHandleByVal, idTableHandleByVal, null).orElseThrow();
 					});
-
-			NotesErrorUtils.checkResult(result);
 		}
 		finally {
 			if (disposeIDTable) {
@@ -985,10 +980,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		JNADatabaseAllocations allocations = getAllocations();
 		
 		DHANDLE.ByReference retNoteHandle = DHANDLE.newInstanceByReference();
-		short result = LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
-			return NotesCAPI.get().NSFNoteCreate(dbHandleByVal, retNoteHandle);
+		LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
+			return NotesCAPI.get().NSFNoteCreate(dbHandleByVal, retNoteHandle).orElseThrow();
 		});
-		NotesErrorUtils.checkResult(result);
 		
 		JNADocument doc = new JNADocument(this, retNoteHandle);
 		if (flags!=null && flags.contains(CreateFlags.HIDE_FROM_VIEWS)) {
@@ -1012,16 +1006,16 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		DHANDLE.ByReference rethProfileNote = DHANDLE.newInstanceByReference();
 
-		short result = LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
-			return NotesCAPI.get().NSFProfileOpen(dbHandleByVal, profileNameMem,
+		STATUS result = LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) ->
+			NotesCAPI.get().NSFProfileOpen(dbHandleByVal, profileNameMem,
 					(short) (profileNameMem.size() & 0xffff), userNameMem,
-					(short) (userNameMem==null ? 0 : (userNameMem.size() & 0xffff)), (short) 1, rethProfileNote);
-		});
+					(short) (userNameMem==null ? 0 : (userNameMem.size() & 0xffff)), (short) 1, rethProfileNote)
+		);
 		
-		if ((result & NotesConstants.ERR_MASK)==1028) {
+		if (result.getMaskedValue()==ERR_NOT_FOUND) {
 			return Optional.empty();
 		}
-		NotesErrorUtils.checkResult(result);
+		result.orElseThrow();
 		
 		return Optional.of(new JNADocument(this, rethProfileNote));
 	}
@@ -1092,12 +1086,11 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
             return 0;
           };
 
-      short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
-        return NotesCAPI.get().NSFProfileEnum(dbHandleByVal, profileNameMem,
+      LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) ->
+        NotesCAPI.get().NSFProfileEnum(dbHandleByVal, profileNameMem,
             profileNameMem == null ? (short) 0 : (short) (profileNameMem.size() & 0xffff), callback,
-            null, 0);
-      });
-      NotesErrorUtils.checkResult(result);
+            null, 0)
+      ).orElseThrow();
 
       return retNoteInfos;
     }
@@ -1128,13 +1121,13 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			
 			DHANDLE.ByReference rethNote = DHANDLE.newInstanceByReference();
 			
-			short result = LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
+			STATUS result = LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
 				return NotesCAPI.get().NSFNoteOpenExt(dbHandleByVal, profileInfo.getNoteId(), openOptions, rethNote);
 			});
-			if ((result & NotesConstants.ERR_MASK)==1028) {
+			if (result.getMaskedValue()==ERR_NOT_FOUND) {
 				return null;
 			}
-			NotesErrorUtils.checkResult(result);
+			result.orElseThrow();
 			
 			Document doc = new JNADocument(this, rethNote);
 			return doc;
@@ -1273,10 +1266,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		checkDisposed();
 		
 		try(DisposableMemory retDbOptions = new DisposableMemory(4 * 4)) { //DWORD[4]
-			short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-				return NotesCAPI.get().NSFDbGetOptionsExt(hDbByVal, retDbOptions);
-			});
-			NotesErrorUtils.checkResult(result);
+			LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+				NotesCAPI.get().NSFDbGetOptionsExt(hDbByVal, retDbOptions)
+			).orElseThrow();
 			
 			byte[] dbOptionsArr = retDbOptions.getByteArray(0, 4 * 4);
 
@@ -1304,10 +1296,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		Memory retDbOptions = new Memory(4 * 4); //DWORD[4]
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
-			return NotesCAPI.get().NSFDbGetOptionsExt(dbHandleByVal, retDbOptions);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) ->
+			NotesCAPI.get().NSFDbGetOptionsExt(dbHandleByVal, retDbOptions)
+		).orElseThrow();
 		
 		byte[] dbOptionsArr = retDbOptions.getByteArray(0, 4 * 4);
 
@@ -1334,7 +1325,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		Memory dbOptionsWithBitSetMem = new Memory(4 * 4);
 		dbOptionsWithBitSetMem.write(0, optionsWithBitSetArr, 0, 4*4);
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
 			if (flag) {
 				//use dbOptionsMem both for the new value and for the bitmask, since the new value is 1
 				return NotesCAPI.get().NSFDbSetOptionsExt(dbHandleByVal, dbOptionsWithBitSetMem, dbOptionsWithBitSetMem);
@@ -1344,8 +1335,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				nullBytesMem.clear();
 				return NotesCAPI.get().NSFDbSetOptionsExt(dbHandleByVal, nullBytesMem, dbOptionsWithBitSetMem);
 			}
-		});
-		NotesErrorUtils.checkResult(result);
+		}).orElseThrow();
 	}
 
 	@Override
@@ -1360,11 +1350,11 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		return LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
 			NotesTimeDateStruct retTime = NotesTimeDateStruct.newInstance();
 			
-			short result = NotesCAPI.get().FTGetLastIndexTime(dbHandleByVal, retTime);
-			if (result == INotesErrorConstants.ERR_FT_NOT_INDEXED) {
+			STATUS result = NotesCAPI.get().FTGetLastIndexTime(dbHandleByVal, retTime);
+			if (result.getMaskedValue() == INotesErrorConstants.ERR_FT_NOT_INDEXED) {
 				return Optional.empty();
 			}
-			NotesErrorUtils.checkResult(result);
+			result.orElseThrow();
 			retTime.read();
 			
 			DominoDateTime retTimeWrap = new JNADominoDateTime(retTime);
@@ -1376,10 +1366,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	public void deleteFTIndex() {
 		checkDisposed();
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
-			return NotesCAPI.get().FTDeleteIndex(dbHandleByVal);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) ->
+			NotesCAPI.get().FTDeleteIndex(dbHandleByVal)
+		).orElseThrow();
 		
 		setOption(DatabaseOption.FT_INDEX, false);
 	}
@@ -1392,10 +1381,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		NotesFTIndexStatsStruct retStats = NotesFTIndexStatsStruct.newInstance();
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().FTIndex(hDbByVal, optionsBitMask, null, retStats);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().FTIndex(hDbByVal, optionsBitMask, null, retStats)
+		).orElseThrow();
 		retStats.read();
 		
 		return new JNAFTIndexStats(getServer(), getRelativeFilePath(),
@@ -1466,10 +1454,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	public void ftIndexRequest() {
 		checkDisposed();
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().ClientFTIndexRequest(hDbByVal);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().ClientFTIndexRequest(hDbByVal)
+		).orElseThrow();
 	}
 	
 	@Override
@@ -1478,10 +1465,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		IntByReference retVal = new IntByReference();
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
 			return NotesCAPI.get().NSFDbIsLocallyEncrypted(dbHandleByVal, retVal);
-		});
-		NotesErrorUtils.checkResult(result);
+		}).orElseThrow();
 
 		return retVal.getValue() == 1;
 	}
@@ -1580,8 +1566,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		}
 		
 		DHANDLE.ByReference retHandle = DHANDLE.newInstanceByReference();
-		short result = Mem.OSMemAlloc((short) 0, noteIds.length * 4, retHandle);
-		NotesErrorUtils.checkResult(result);
+		Mem.OSMemAlloc((short) 0, noteIds.length * 4, retHandle);
 
 		JNADatabaseAllocations allocations = getAllocations();
 		
@@ -1608,8 +1593,8 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				DHANDLE.ByReference rethOutBuf = DHANDLE.newInstanceByReference();
 				short options = NotesConstants.fINFO_OID | NotesConstants.fINFO_ALLOW_HUGE | NotesConstants.fINFO_NOTEID;
 				
-				short resultGetInfo = NotesCAPI.get().NSFDbGetMultNoteInfo(dbHandleByVal, (short) (noteIds.length & 0xffff), options, retHandleByVal, retSize, rethOutBuf);
-				NotesErrorUtils.checkResult(resultGetInfo);
+				NotesCAPI.get().NSFDbGetMultNoteInfo(dbHandleByVal, (short) (noteIds.length & 0xffff), options, retHandleByVal, retSize, rethOutBuf)
+				  .orElseThrow();
 
 				if (rethOutBuf.isNull()) {
 					throw new IllegalStateException("Returned result handle is 0");
@@ -1635,8 +1620,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 					}
 					finally {
 						Mem.OSUnlockObject(rethOutBufByVal);
-						short resultLocal1 = Mem.OSMemFree(rethOutBufByVal);
-						NotesErrorUtils.checkResult(resultLocal1);
+						Mem.OSMemFree(rethOutBufByVal).orElseThrow();
 					}
 				});
 			}
@@ -1644,8 +1628,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				if (inMemHandleLocked) {
 					Mem.OSUnlockObject(retHandleByVal);
 				}
-				short resultMemFree = Mem.OSMemFree(retHandleByVal);
-				NotesErrorUtils.checkResult(resultMemFree);
+				Mem.OSMemFree(retHandleByVal).orElseThrow();
 			}
 		});
 	}
@@ -1704,8 +1687,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		}
 		
 		DHANDLE.ByReference retHandle = DHANDLE.newInstanceByReference();
-		short result = Mem.OSMemAlloc((short) 0, unids.length * 16, retHandle);
-		NotesErrorUtils.checkResult(result);
+		Mem.OSMemAlloc((short) 0, unids.length * 16, retHandle);
 
 		JNADatabaseAllocations allocations = getAllocations();
 		
@@ -1734,10 +1716,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				
 				short options = NotesConstants.fINFO_OID | NotesConstants.fINFO_ALLOW_HUGE | NotesConstants.fINFO_NOTEID;
 				
-				short resultGetInfo = NotesCAPI.get().NSFDbGetMultNoteInfoByUNID(dbHandleByVal, (short) (unids.length & 0xffff),
-						options, retHandleByVal, retSize, rethOutBuf);
-
-				NotesErrorUtils.checkResult(resultGetInfo);
+				NotesCAPI.get().NSFDbGetMultNoteInfoByUNID(dbHandleByVal, (short) (unids.length & 0xffff),
+						options, retHandleByVal, retSize, rethOutBuf)
+				  .orElseThrow();
 				
 				DocInfo[] infos = LockUtil.lockHandle(rethOutBuf, (rethOutBufByVal) -> {
 					//decode return buffer
@@ -1758,8 +1739,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 					}
 					finally {
 						Mem.OSUnlockObject(rethOutBufByVal);
-						short resultMemFree = Mem.OSMemFree(rethOutBufByVal);
-						NotesErrorUtils.checkResult(resultMemFree);
+						Mem.OSMemFree(rethOutBufByVal).orElseThrow();
 					}
 				});
 				
@@ -1769,8 +1749,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				if (inMemHandleLocked) {
 					Mem.OSUnlockObject(retHandleByVal);
 				}
-				short resultMemFree = Mem.OSMemFree(retHandleByVal);
-				NotesErrorUtils.checkResult(resultMemFree);
+				Mem.OSMemFree(retHandleByVal).orElseThrow();
 			}
 		});
 		
@@ -1990,14 +1969,14 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
           // not sure if we can check this via error code:
           boolean notPresent = false;
 
-          short result = NotesCAPI.get().NSFDbGetNoteInfoExt(dbHandleByVal, noteId, retNoteOID,
+          STATUS result = NotesCAPI.get().NSFDbGetNoteInfoExt(dbHandleByVal, noteId, retNoteOID,
               retModified, retNoteClass, retAddedToFile, retResponseCount, retParentNoteID);
-          if (result == INotesErrorConstants.ERR_NOTE_DELETED) {
+          if (result.getMaskedValue() == INotesErrorConstants.ERR_NOTE_DELETED) {
             isDeleted = true;
-          } else if (result == INotesErrorConstants.ERR_INVALID_NOTE) {
+          } else if (result.getMaskedValue() == INotesErrorConstants.ERR_INVALID_NOTE) {
             notPresent = true;
           } else {
-            NotesErrorUtils.checkResult(result);
+            result.orElseThrow();
           }
 
           OriginatorID oid = MemoryStructureUtil.forStructure(OriginatorID.class, retNoteOID.getByteBuffer(0, JNANotesConstants.oidSize));
@@ -2024,21 +2003,21 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		IntByReference retAgentNoteID = new IntByReference();
 		retAgentNoteID.setValue(0);
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal)-> {
-			return NotesCAPI.get().NIFFindDesignNoteExt(hDbByVal, agentNameLMBCS,
-					NotesConstants.NOTE_CLASS_FILTER,
-					NotesStringUtils.toLMBCS(NotesConstants.DFLAGPAT_AGENTSLIST, true),
-					retAgentNoteID,
-					NotesConstants.DGN_STRIPUNDERS);
-		});
+		STATUS result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal)->
+		  NotesCAPI.get().NIFFindDesignNoteExt(hDbByVal, agentNameLMBCS,
+    		NotesConstants.NOTE_CLASS_FILTER,
+    		NotesStringUtils.toLMBCS(NotesConstants.DFLAGPAT_AGENTSLIST, true),
+    		retAgentNoteID,
+    		NotesConstants.DGN_STRIPUNDERS)
+		);
 		
-		if ((result & NotesConstants.ERR_MASK)==1028) {
+		if (result.getMaskedValue()==ERR_NOT_FOUND) {
 			//Entry not found in index
 			return Optional.empty();
 		}
 		
 		//throws an error if agent cannot be found:
-		NotesErrorUtils.checkResult(result);
+		result.orElseThrow();
 		
 		int agentNoteId = retAgentNoteID.getValue();
 		if (agentNoteId==0) {
@@ -2047,11 +2026,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		DHANDLE.ByReference rethAgent = DHANDLE.newInstanceByReference();
 		
-		result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal)-> {
-			return NotesCAPI.get().AgentOpen(hDbByVal, agentNoteId, rethAgent);
-		});
-		
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+		  NotesCAPI.get().AgentOpen(hDbByVal, agentNoteId, rethAgent)
+		).orElseThrow();
 		
 		JNAAgent agent = new JNAAgent(this, agentNoteId, rethAgent);
 		
@@ -2067,20 +2044,20 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		IntByReference retAgentNoteID = new IntByReference();
 		retAgentNoteID.setValue(0);
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal)-> {
-			return NotesCAPI.get().NIFFindDesignNoteExt(hDbByVal, agentNameLMBCS,
+		STATUS result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().NIFFindDesignNoteExt(hDbByVal, agentNameLMBCS,
 					NotesConstants.NOTE_CLASS_FILTER,
 					NotesStringUtils.toLMBCS(NotesConstants.DFLAGPAT_AGENTSLIST, true),
-					retAgentNoteID, NotesConstants.DGN_STRIPUNDERS);
-		});
+					retAgentNoteID, NotesConstants.DGN_STRIPUNDERS)
+		);
 		
-		if ((result & NotesConstants.ERR_MASK)==1028) {
+		if (result.getMaskedValue()==ERR_NOT_FOUND) {
 			//Entry not found in index
 			return Optional.empty();
 		}
 		
 		//throws an error if agent cannot be found:
-		NotesErrorUtils.checkResult(result);
+		result.orElseThrow();
 		
 		int agentNoteId = retAgentNoteID.getValue();
 		if (agentNoteId==0) {
@@ -2089,10 +2066,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 		NotesUniversalNoteIdStruct.ByReference retUNID = NotesUniversalNoteIdStruct.newInstanceByReference();
 		
-		result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().AssistantGetLSDataNote(hDbByVal, agentNoteId, retUNID);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().AssistantGetLSDataNote(hDbByVal, agentNoteId, retUNID)
+		).orElseThrow();
 		
 		String unid = retUNID.toString();
 		if (StringUtil.isEmpty(unid) || "00000000000000000000000000000000".equals(unid)) { //$NON-NLS-1$
@@ -2116,10 +2092,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
         Memory retOid = new Memory(JNANotesConstants.oidSize);
         retOid.clear();
 		
-		short result = LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
-			return NotesCAPI.get().NSFDbGenerateOID(handleByVal, retOid);
+		LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
+			return NotesCAPI.get().NSFDbGenerateOID(handleByVal, retOid).orElseThrow();
 		});
-		NotesErrorUtils.checkResult(result);
 
 		return MemoryStructureUtil.forStructure(OriginatorID.class, () -> retOid.getByteBuffer(0, JNANotesConstants.oidSize));
 	}
@@ -2142,14 +2117,11 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			checkDisposed();
 
 			ShortByReference retMode = new ShortByReference();
-			short result;
 
 			JNADatabaseAllocations allocations = getAllocations();
-			result = LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
-				return NotesCAPI.get().NSFDbModeGet(handleByVal, retMode);
-			});
-
-			NotesErrorUtils.checkResult(result);
+			LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) ->
+				NotesCAPI.get().NSFDbModeGet(handleByVal, retMode)
+			).orElseThrow();
 
 			if (retMode.getValue() == NotesConstants.DB_LOADED) {
 				m_dbMode = DbMode.DATABASE;
@@ -2193,10 +2165,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		checkDisposed();
 		
 		HANDLE.ByReference rethNewDb = HANDLE.newInstanceByReference();
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().NSFDbReopen(hDbByVal, rethNewDb);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().NSFDbReopen(hDbByVal, rethNewDb)
+		).orElseThrow();
 		
 		JNAUserNamesList userNamesList = NotesNamingUtils.writeNewNamesList(getParent(), m_namesStringList);
 		return new JNADatabase(getParentDominoClient(), new IAdaptable() {
@@ -2296,14 +2267,14 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     
     short nsWithNoAssignBit = (short) (namespace | NotesConstants.NONS_NOASSIGN); //prevent assigning a new RRV if not found
     
-    short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
+    STATUS result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
       return NotesCAPI.get().NSFDbGetNamedObjectID(dbHandleByVal, nsWithNoAssignBit, nameMem,
           (short) (nameMem.size() & 0xffff), rtnObjectID);
     });
-    if ((result & NotesConstants.ERR_MASK)==578) { //special database object cannot be located
+    if (result.getMaskedValue()==578) { //special database object cannot be located
       return 0;
     }
-    NotesErrorUtils.checkResult(result);
+    result.orElseThrow();
 
     return rtnObjectID.getValue();
 	}
@@ -2378,20 +2349,19 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			//ignore, we call DesignOpenCollection next which creates the design collection
 		}
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			DHANDLE.ByReference rethCollection = DHANDLE.newInstanceByReference();
-			IntByReference retCollectionNoteID = new IntByReference();
-			
-			short openResult = NotesCAPI.get().DesignOpenCollection(hDbByVal, false, (short) 0, rethCollection, retCollectionNoteID);
-			if (openResult==0) {
-				LockUtil.lockHandle(rethCollection, (hDesignColByVal) -> {
-					NotesErrorUtils.checkResult(NotesCAPI.get().NIFCloseCollection(hDesignColByVal));
-					return 0;
-				});
-			}
-			return openResult;
-		});
-		NotesErrorUtils.checkResult(result);
+        LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
+          DHANDLE.ByReference rethCollection = DHANDLE.newInstanceByReference();
+          IntByReference retCollectionNoteID = new IntByReference();
+
+          NotesCAPI.get()
+              .DesignOpenCollection(hDbByVal, false, (short) 0, rethCollection, retCollectionNoteID)
+              .orElseThrow();
+
+          return LockUtil.lockHandle(rethCollection, (hDesignColByVal) -> {
+            NotesCAPI.get().NIFCloseCollection(hDesignColByVal).orElseThrow();
+            return 0;
+          });
+        });
 		
 		//try again:
 		DominoCollection col = openCollection(NotesConstants.NOTE_ID_SPECIAL | NotesConstants.NOTE_CLASS_DESIGN, (EnumSet<OpenCollection> ) null);
@@ -2523,10 +2493,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	public void updateDQLDesignCatalog(boolean rebuild) {
 		checkDisposed();
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().NSFDesignHarvest(hDbByVal, rebuild);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().NSFDesignHarvest(hDbByVal, rebuild)
+		).orElseThrow();
 	}
 	
 	@Override
@@ -2611,14 +2580,14 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
           argVal.setArgName(argName);
           argVal.setValue(valMem);
           
-          NotesErrorUtils.checkResult(NotesCAPI.get().NSFQueryDBAddArgs(argVal, phQArgList));
+          NotesCAPI.get().NSFQueryDBAddArgs(argVal, phQArgList).orElseThrow();
         });
         
         hQArgList = phQArgList.getValue();
       }
       
       int fhQArgList = hQArgList;
-      short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hdbByVal) -> {
+      STATUS result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hdbByVal) -> {
           return NotesCAPI.get().NSFQueryDBExt2(hdbByVal, queryMem,
                   (int)queryMem.size()-1, flagsAsInt, maxDocsScanned, maxEntriesScanned, maxMsecs, retResults, 
                   retError, retExplain, fhQArgList);
@@ -2636,12 +2605,12 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
           }
       }
 
-      if (result!=0) {
+      if (result.isError()) {
           if (!StringUtil.isEmpty(errorTxt)) {
-              throw new DominoException(result, errorTxt, NotesErrorUtils.toNotesError(result).orElse(null));
+              throw new DominoException(result, errorTxt, result.toDominoException().orElse(null));
           }
           else {
-              NotesErrorUtils.checkResult(result);
+              result.orElseThrow();
           }
       }
       
@@ -2742,8 +2711,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 			DHANDLE.ByReference rethSearch = DHANDLE.newInstanceByReference();
 			
-			short result = NotesCAPI.get().FTOpenSearch(rethSearch);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().FTOpenSearch(rethSearch).orElseThrow();
 			
 			Memory queryLMBCS = NotesStringUtils.toLMBCS(query, true);
 			IntByReference retNumDocs = new IntByReference();
@@ -2755,7 +2723,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 			short countAsShort = (short) count;
 			
-			result = NotesCAPI.get().FTSearchExt(hDbByVal, 
+			STATUS result = NotesCAPI.get().FTSearchExt(hDbByVal, 
 					rethSearch, hColl,
 					queryLMBCS, fSearchOptionsBitMask,
 					limitAsShort,
@@ -2764,14 +2732,13 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			
 			long t1=System.currentTimeMillis();
 
-			if (result==3874) { //no documents found
+			if (result.getMaskedValue()==3874) { //no documents found
 				return LockUtil.lockHandle(rethSearch, (rethSearchByVal) -> {
-					short closeResult = NotesCAPI.get().FTCloseSearch(rethSearchByVal);
-					NotesErrorUtils.checkResult(closeResult);
+					NotesCAPI.get().FTCloseSearch(rethSearchByVal).orElseThrow();
 					return new JNAFTQueryResult(JNADatabase.this, new JNAIDTable(JNADatabase.this.getParentDominoClient()), 0, 0, null, null, t1-t0);
 				});
 			}
-			NotesErrorUtils.checkResult(result);
+			result.orElseThrow();
 
 			List<String> highlightStrings = null;
 
@@ -2840,10 +2807,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				}
 			}
 			
-			result = LockUtil.lockHandle(rethSearch, (rethSearchByVal) -> {
+			LockUtil.lockHandle(rethSearch, (rethSearchByVal) -> {
 				return NotesCAPI.get().FTCloseSearch(rethSearchByVal);
-			});
-			NotesErrorUtils.checkResult(result);
+			}).orElseThrow();
 			
 			return new JNAFTQueryResult(JNADatabase.this, resultsIdTable, retNumDocs.getValue(), retNumHits.getValue(), highlightStrings,
 					matchesWithScore, t1-t0);
@@ -2954,11 +2920,10 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 		int fInfoRequestedMask = infoRequestedMask;
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().NSFDbGetModifiedNotesInfo(hDbByVal, docClassMask, fInfoRequestedMask,
-					sinceStructByVal, retArrayCount, retUntilStruct, retmhArray);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().NSFDbGetModifiedNotesInfo(hDbByVal, docClassMask, fInfoRequestedMask,
+					sinceStructByVal, retArrayCount, retUntilStruct, retmhArray)
+		).orElseThrow();
 		
 		try (LockedMemory mem = Mem.OSMemoryLock(retmhArray.getValue());) {
 			Pointer ptr = mem.getPointer();
@@ -3074,14 +3039,14 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			DHANDLE.ByReference rethTable = DHANDLE.newInstanceByReference();
 			rethTable.clear();
 			
-			short result = NotesCAPI.get().NSFDbGetModifiedNoteTable(hDbByVal, docClassMask, sinceStructByVal, 
+			STATUS result = NotesCAPI.get().NSFDbGetModifiedNoteTable(hDbByVal, docClassMask, sinceStructByVal, 
 					retUntilStruct, rethTable);
 			
-			if (result == INotesErrorConstants.ERR_NO_MODIFIED_NOTES) {
+			if (result.getMaskedValue() == INotesErrorConstants.ERR_NO_MODIFIED_NOTES) {
 				return new JNAIDTable(JNADatabase.this.getParentDominoClient());
 			}
 			else {
-				NotesErrorUtils.checkResult(result);
+				result.orElseThrow();
 			}
 
 			retUntilStruct.read();
@@ -3256,16 +3221,16 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		collectionNoteID.setValue(0);
 		JNADatabaseAllocations allocations = getAllocations();
 		
-		short result = LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
+		STATUS result = LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
 			return NotesCAPI.get().NIFFindDesignNoteExt(handleByVal, viewNameLMBCS, NotesConstants.NOTE_CLASS_VIEW, NotesStringUtils.toLMBCS(findFlags, true), collectionNoteID, 0);
 		});
 		
-		if ((result & NotesConstants.ERR_MASK)==1028) { //view not found
+		if (result.getMaskedValue()==ERR_NOT_FOUND) { //view not found
 			return 0;
 		}
 		
 		//throws an error if view cannot be found:
-		NotesErrorUtils.checkResult(result);
+		result.orElseThrow();
 
 		return collectionNoteID.getValue();
 	}
@@ -3296,7 +3261,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			formatNoteId = formatDb==null ? findCollectionId(formatFolderName, CollectionType.View) : formatDb.findCollectionId(formatFolderName, CollectionType.View);
 		}
 		if (formatNoteId==0) {
-			throw new DominoException(1028, MessageFormat.format("No format view/folder found with name {0}", formatFolderName));
+			throw new EntryNotFoundInIndexException(StatusImpl.NOT_FOUND, MessageFormat.format("No format view/folder found with name {0}", formatFolderName));
 		}
 		
 		return createFolder(formatDb, formatNoteId, newFolderName);
@@ -3325,14 +3290,12 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
       HANDLE formatDbHandle = formatDb == null ? null : formatDb.getAdapter(HANDLE.class);
 
-      short result = LockUtil.lockHandles(getAllocations().getDBHandle(),
-          formatDbHandle, (hDbByVal, hFormatDbByVal) -> {
-
-            return NotesCAPI.get().FolderCreate(hDbByVal, hDbByVal, formatFolderNoteId,
+      LockUtil.lockHandles(getAllocations().getDBHandle(),
+          formatDbHandle, (hDbByVal, hFormatDbByVal) ->
+            NotesCAPI.get().FolderCreate(hDbByVal, hDbByVal, formatFolderNoteId,
                 hFormatDbByVal, newFolderNameMem, newFolderNameLength,
-                NotesConstants.DESIGN_TYPE_SHARED, 0, retNoteId);
-          });
-      NotesErrorUtils.checkResult(result);
+                NotesConstants.DESIGN_TYPE_SHARED, 0, retNoteId)
+      ).orElseThrow();
 
       return retNoteId.getValue();
     }
@@ -3341,7 +3304,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	public void deleteFolder(String folderName) {
 		int folderNoteId = findCollectionId(folderName, CollectionType.Folder);
 		if (folderNoteId==0) {
-			throw new DominoException(1028, MessageFormat.format("No source folder found with name {0}", folderName));
+			throw new EntryNotFoundInIndexException(StatusImpl.NOT_FOUND, MessageFormat.format("No source folder found with name {0}", folderName));
 		}
 		deleteFolder(folderNoteId);
 	}
@@ -3354,22 +3317,21 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		checkDisposed();
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().FolderDelete(hDbByVal, hDbByVal, folderNoteId, 0);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().FolderDelete(hDbByVal, hDbByVal, folderNoteId, 0)
+		).orElseThrow();
 	}
 
 	@Override
 	public void moveFolder(String folderName, String newParentFolderName) {
 		int folderNoteId = findCollectionId(folderName, CollectionType.Folder);
 		if (folderNoteId==0) {
-			throw new DominoException(1028, MessageFormat.format("No folder found with name {0}", folderName));
+			throw new EntryNotFoundInIndexException(StatusImpl.NOT_FOUND, MessageFormat.format("No folder found with name {0}", folderName));
 		}
 
 		int newParentFolderNoteId = findCollectionId(newParentFolderName, CollectionType.Folder);
 		if (newParentFolderNoteId==0) {
-			throw new DominoException(1028, MessageFormat.format("No folder found with name {0}", newParentFolderName));
+			throw new EntryNotFoundInIndexException(StatusImpl.NOT_FOUND, MessageFormat.format("No folder found with name {0}", newParentFolderName));
 		}
 
 		moveFolder(folderNoteId, newParentFolderNoteId);
@@ -3386,18 +3348,17 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 		checkDisposed();
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().FolderMove(hDbByVal, null, folderNoteId, null,
-					newParentFolderNoteId, 0);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().FolderMove(hDbByVal, null, folderNoteId, null,
+					newParentFolderNoteId, 0)
+		).orElseThrow();
 	}
 
 	@Override
 	public void renameFolder(String oldFolderName, String newFolderName) {
 		int folderNoteId = findCollectionId(oldFolderName, CollectionType.Folder);
 		if (folderNoteId==0) {
-			throw new DominoException(1028, MessageFormat.format("No folder found with name {0}", oldFolderName));
+			throw new EntryNotFoundInIndexException(StatusImpl.NOT_FOUND, MessageFormat.format("No folder found with name {0}", oldFolderName));
 		}
 		
 		renameFolder(folderNoteId, newFolderName);
@@ -3416,17 +3377,16 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			throw new IllegalArgumentException(MessageFormat.format("Folder name too long (max {0} bytes, found {1} bytes)", NotesConstants.DESIGN_FOLDER_MAX_NAME, pszName.size()));
 		}
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().FolderRename(hDbByVal, null, oldFolderNoteId, pszName, (short) pszName.size(), 0);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().FolderRename(hDbByVal, null, oldFolderNoteId, pszName, (short) pszName.size(), 0)
+		).orElseThrow();
 	}
 
 	@Override
 	public int copyFolder(String sourceFolderName, String newFolderName) {
 		int sourceFolderNoteId = findCollectionId(sourceFolderName, CollectionType.Folder);
 		if (sourceFolderNoteId==0) {
-			throw new DominoException(1028, MessageFormat.format("No source folder found with name {0}", sourceFolderName));
+			throw new EntryNotFoundInIndexException(StatusImpl.NOT_FOUND, MessageFormat.format("No source folder found with name {0}", sourceFolderName));
 		}
 		return copyFolder(sourceFolderNoteId, newFolderName);
 	}
@@ -3448,11 +3408,10 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 		IntByReference retNewNoteId = new IntByReference();
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().FolderCopy(hDbByVal, hDbByVal, sourceFolderNoteId,
-					newFolderNameMem, newFolderNameLength, 0, retNewNoteId);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().FolderCopy(hDbByVal, hDbByVal, sourceFolderNoteId,
+					newFolderNameMem, newFolderNameLength, 0, retNewNoteId)
+		).orElseThrow();
 		
 		return retNewNoteId.getValue();
 	}
@@ -3463,7 +3422,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		int folderNoteId = findCollectionId(folderName, CollectionType.Folder);
 		if (folderNoteId==0) {
-			throw new DominoException(1028, MessageFormat.format("No folder found with name {0}", folderName));
+			throw new EntryNotFoundInIndexException(StatusImpl.NOT_FOUND, MessageFormat.format("No folder found with name {0}", folderName));
 		}
 
 		addToFolder(folderNoteId, noteIds);
@@ -3490,15 +3449,12 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		JNAIDTableAllocations idTableAllocations = (JNAIDTableAllocations) idTable.getAdapter(APIObjectAllocations.class);
 
-		short result = LockUtil.lockHandles(
+		LockUtil.lockHandles(
 				getAllocations().getDBHandle(), idTableAllocations.getIdTableHandle(),
-				(hDbByVal, hIdTableByVal) -> {
-					return NotesCAPI.get().FolderDocAdd(hDbByVal, (HANDLE.ByValue) null, folderNoteId,
-							hIdTableByVal, 0);
-				}
-				);
-
-		NotesErrorUtils.checkResult(result);
+				(hDbByVal, hIdTableByVal) ->
+					NotesCAPI.get().FolderDocAdd(hDbByVal, (HANDLE.ByValue) null, folderNoteId,
+							hIdTableByVal, 0)
+				).orElseThrow();
 		
 		if (disposeTable) {
 			idTable.dispose();
@@ -3511,7 +3467,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		int folderNoteId = findCollectionId(folderName, CollectionType.Folder);
 		if (folderNoteId==0) {
-			throw new DominoException(1028, MessageFormat.format("No folder found with name {0}", folderName));
+			throw new EntryNotFoundInIndexException(StatusImpl.NOT_FOUND, MessageFormat.format("No folder found with name {0}", folderName));
 		}
 		removeFromFolder(folderNoteId, idTable);
 	}
@@ -3537,15 +3493,11 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 		JNAIDTableAllocations idTableAllocations = (JNAIDTableAllocations) idTable.getAdapter(APIObjectAllocations.class);
 
-		short result = LockUtil.lockHandles(
+		LockUtil.lockHandles(
 				getAllocations().getDBHandle(), idTableAllocations.getIdTableHandle(),
-				(hDbByVal, hIdTableByVal) -> {
-
-					return NotesCAPI.get().FolderDocRemove(hDbByVal, null, folderNoteId, hIdTableByVal, 0);
-				}
-				);
-
-		NotesErrorUtils.checkResult(result);
+				(hDbByVal, hIdTableByVal) ->
+					NotesCAPI.get().FolderDocRemove(hDbByVal, null, folderNoteId, hIdTableByVal, 0)
+				).orElseThrow();
 
 		if (disposeTable) {
 			idTable.dispose();
@@ -3556,10 +3508,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	public void removeAllFromFolder(int folderNoteId) {
 		checkDisposed();
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().FolderDocRemoveAll(hDbByVal, null, folderNoteId, 0);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().FolderDocRemoveAll(hDbByVal, null, folderNoteId, 0)
+		).orElseThrow();
 	}
 
 	@Override
@@ -3568,7 +3519,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		int folderNoteId = findCollectionId(folderName, CollectionType.Folder);
 		if (folderNoteId==0) {
-			throw new DominoException(1028, MessageFormat.format("No folder found with name {0}", folderName));
+			throw new EntryNotFoundInIndexException(StatusImpl.NOT_FOUND, MessageFormat.format("No folder found with name {0}", folderName));
 		}
 		removeAllFromFolder(folderNoteId);
 	}
@@ -3579,7 +3530,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		int folderNoteId = findCollectionId(folderName, CollectionType.Folder);
 		if (folderNoteId==0) {
-			throw new DominoException(1028, MessageFormat.format("No folder found with name {0}", folderName));
+			throw new EntryNotFoundInIndexException(StatusImpl.NOT_FOUND, MessageFormat.format("No folder found with name {0}", folderName));
 		}
 		return getFolderDocCount(folderNoteId);
 	}
@@ -3590,11 +3541,10 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		IntByReference pdwNumDocs = new IntByReference();
 
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().FolderDocCount(hDbByVal, null, folderNoteId, 0, pdwNumDocs);
-		});
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().FolderDocCount(hDbByVal, null, folderNoteId, 0, pdwNumDocs)
+		).orElseThrow();
 		
-		NotesErrorUtils.checkResult(result);
 		return pdwNumDocs.getValue();
 	}
 
@@ -3604,7 +3554,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		int folderNoteId = findCollectionId(folderName, CollectionType.Folder);
 		if (folderNoteId==0) {
-			throw new DominoException(1028, MessageFormat.format("No folder found with name {0}", folderName));
+			throw new EntryNotFoundInIndexException(StatusImpl.NOT_FOUND, MessageFormat.format("No folder found with name {0}", folderName));
 		}
 
 		return getIDTableForFolder(folderNoteId, validateIds);
@@ -3616,10 +3566,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 		DHANDLE.ByReference rethTable = DHANDLE.newInstanceByReference();
 
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().NSFFolderGetIDTable(hDbByVal, hDbByVal, folderNoteId, validateIds ? NotesConstants.DB_GETIDTABLE_VALIDATE : 0, rethTable);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().NSFFolderGetIDTable(hDbByVal, hDbByVal, folderNoteId, validateIds ? NotesConstants.DB_GETIDTABLE_VALIDATE : 0, rethTable)
+		).orElseThrow();
 		
 		return new JNAIDTable(getParentDominoClient(), rethTable, false); 
 	}
@@ -3672,23 +3621,20 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		DHANDLE.ByReference rethUnreadList = DHANDLE.newInstanceByReference();
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().NSFDbGetUnreadNoteTable2(hDbByVal, userNameCanonicalMem, userNameLength,
-					createIfNotAvailable, updateUnread, rethUnreadList);
-			
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().NSFDbGetUnreadNoteTable2(hDbByVal, userNameCanonicalMem, userNameLength,
+					createIfNotAvailable, updateUnread, rethUnreadList)	
+		).orElseThrow();
 		
 		if (rethUnreadList.isNull()) {
 			return Optional.empty();
 		}
 		else {
 			//make the cached ID table reflect the latest DB changes
-			result = LockUtil.lockHandles(getAllocations().getDBHandle(), rethUnreadList,
-					(hDbByVal, rethUnreadListByVal) -> {
-				return NotesCAPI.get().NSFDbUpdateUnread(hDbByVal, rethUnreadListByVal);
-			});
-			NotesErrorUtils.checkResult(result);
+			LockUtil.lockHandles(getAllocations().getDBHandle(), rethUnreadList,
+					(hDbByVal, rethUnreadListByVal) ->
+				NotesCAPI.get().NSFDbUpdateUnread(hDbByVal, rethUnreadListByVal)
+			).orElseThrow();
 			
 			return Optional.of(new JNAIDTable(getParentDominoClient(), rethUnreadList, false));
 		}
@@ -3719,11 +3665,10 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			unreadTableAllocations.checkDisposed();
 
 			//make the cached ID table reflect the latest DB changes
-			short result = LockUtil.lockHandles(getAllocations().getDBHandle(), unreadTableAllocations.getIdTableHandle(),
-					(hDbByVal, hUnreadTableByVal) -> {
-				return NotesCAPI.get().NSFDbUpdateUnread(hDbByVal, hUnreadTableByVal);
-			});
-			NotesErrorUtils.checkResult(result);
+			LockUtil.lockHandles(getAllocations().getDBHandle(), unreadTableAllocations.getIdTableHandle(),
+					(hDbByVal, hUnreadTableByVal) ->
+				NotesCAPI.get().NSFDbUpdateUnread(hDbByVal, hUnreadTableByVal)
+			).orElseThrow();
 					
 			unreadTableOrig = (JNAIDTable) unreadTable.clone();
 		}
@@ -3747,15 +3692,14 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		JNAIDTableAllocations unreadOrigTableAllocations = (JNAIDTableAllocations) unreadTableOrig.getAdapter(APIObjectAllocations.class);
 		unreadOrigTableAllocations.checkDisposed();
 		
-		short result = LockUtil.lockHandles(
+		LockUtil.lockHandles(
 				getAllocations().getDBHandle(), unreadOrigTableAllocations.getIdTableHandle(), unreadTableAllocations.getIdTableHandle(),
-				(hDbByVal, hUnreadTableOrigByVal, hUnreadTableByVal) -> {
+				(hDbByVal, hUnreadTableOrigByVal, hUnreadTableByVal) ->
 					
-			return NotesCAPI.get().NSFDbSetUnreadNoteTable(hDbByVal, userNameCanonicalMem, userNameLength,
-					true, hUnreadTableOrigByVal, hUnreadTableByVal);
+			NotesCAPI.get().NSFDbSetUnreadNoteTable(hDbByVal, userNameCanonicalMem, userNameLength,
+					true, hUnreadTableOrigByVal, hUnreadTableByVal)
 			
-		});
-		NotesErrorUtils.checkResult(result);
+		).orElseThrow();
 		
 		unreadTable.dispose();
 		unreadTableOrig.dispose();
@@ -3824,20 +3768,18 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
       int fDwFlags = dwFlags;
 
-      short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-        return NotesCAPI.get().DesignRefresh(serverMem, hDbByVal, fDwFlags, abortProc, null);
-      });
-      NotesErrorUtils.checkResult(result);
+      LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+        NotesCAPI.get().DesignRefresh(serverMem, hDbByVal, fDwFlags, abortProc, null)
+      ).orElseThrow();
     }
 	
 	@Override
 	public void hardDeleteDocument(int softDelNoteId) {
 		checkDisposed();
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().NSFNoteHardDelete(hDbByVal, softDelNoteId, 0);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().NSFNoteHardDelete(hDbByVal, softDelNoteId, 0)
+		).orElseThrow();
 	}
 	
 	@Override
@@ -3847,10 +3789,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		NotesTimeDateStruct.ByReference retDataModifiedStruct = NotesTimeDateStruct.newInstanceByReference();
 		NotesTimeDateStruct.ByReference retNonDataModifiedStruct = NotesTimeDateStruct.newInstanceByReference();
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().NSFDbModifiedTime(hDbByVal, retDataModifiedStruct, retNonDataModifiedStruct);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().NSFDbModifiedTime(hDbByVal, retDataModifiedStruct, retNonDataModifiedStruct)
+		).orElseThrow();
 		
 		if (retDataModified!=null) {
 			retDataModified.set(new JNADominoDateTime(retDataModifiedStruct.Innards));
@@ -3883,8 +3824,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			INotesCAPI api = NotesCAPI.get();
 			
 			HANDLE.ByReference retItemNameTable = HANDLE.newInstanceByReference();
-			short openTableResult = api.NSFDbItemDefTableExt(hDbByVal, retItemNameTable);
-			NotesErrorUtils.checkResult(openTableResult);
+			api.NSFDbItemDefTableExt(hDbByVal, retItemNameTable).orElseThrow();
 			
 			return LockUtil.lockHandle(retItemNameTable, (hItemNameTableByVal) -> {
 				NavigableMap<String,ItemDataType> table = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -3896,12 +3836,10 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 					
 					NotesItemDefinitionTableLock itemDefTableLock = NotesItemDefinitionTableLock.newInstance();
 					
-					short lockTableResult = api.NSFItemDefExtLock(pItemDefExt, itemDefTableLock);
-					NotesErrorUtils.checkResult(lockTableResult);
+					api.NSFItemDefExtLock(pItemDefExt, itemDefTableLock).orElseThrow();
 					try {
 						IntByReference retNumEntries = new IntByReference();
-						short accessTableDataResult = api.NSFItemDefExtEntries(itemDefTableLock, retNumEntries);
-						NotesErrorUtils.checkResult(accessTableDataResult);
+						api.NSFItemDefExtEntries(itemDefTableLock, retNumEntries).orElseThrow();
 						
 						int iNumEntries = retNumEntries.getValue();
 						
@@ -3920,9 +3858,8 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 							for (int i=0; i<iNumEntries; i++) {
 								retItemName.clear();
 								
-								accessTableDataResult = api.NSFItemDefExtGetEntry(itemDefTableLock, i, retItemType,
-										retItemNameLength, retItemNamePtr);
-								NotesErrorUtils.checkResult(accessTableDataResult);
+								api.NSFItemDefExtGetEntry(itemDefTableLock, i, retItemType,
+										retItemNameLength, retItemNamePtr).orElseThrow();
 								
 								//grab the current pointer stored in retItemNamePtr;
 								//using retItemName here did not work, because the
@@ -3940,8 +3877,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 						}
 					}
 					finally {
-						short unlockResult = api.NSFItemDefExtUnlock(itemDefTableExt, itemDefTableLock);
-						NotesErrorUtils.checkResult(unlockResult);
+						api.NSFItemDefExtUnlock(itemDefTableExt, itemDefTableLock).orElseThrow();
 					}
 				}
 				finally {
@@ -3970,9 +3906,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		IntByReference state = new IntByReference();
 		IntByReference strength = new IntByReference();
-		NotesErrorUtils.checkResult(LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
-			return NotesCAPI.get().NSFDbLocalSecInfoGetLocal(dbHandleByVal, state, strength);
-		}));
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) ->
+			NotesCAPI.get().NSFDbLocalSecInfoGetLocal(dbHandleByVal, state, strength)
+		).orElseThrow();
 		
 		return new EncryptionInfoImpl(
 			DominoEnumUtil.valueOf(DatabaseEncryptionState.class, state.getValue()),
@@ -3980,32 +3916,31 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		);
 	}
 
-	@Override
-  public void setLocalEncryptionInfo(Encryption encryption, String userName) {
-    checkDisposed();
-    
-    HANDLE hDb = getAllocations().getDBHandle();
-    
-    if (userName==null) {
-      userName = ""; //$NON-NLS-1$
-    }
-    String userNameCanonical = NotesNamingUtils.toCanonicalName(userName);
-    Memory userNameCanonicalMem = NotesStringUtils.toLMBCS(userNameCanonical, true);
+    @Override
+    public void setLocalEncryptionInfo(Encryption encryption, String userName) {
+      checkDisposed();
 
-    short option = NotesConstants.LSECINFOSET_MODIFY;
-    if (encryption == Encryption.None) {
-      option = NotesConstants.LSECINFOSET_CLEAR;
+      HANDLE hDb = getAllocations().getDBHandle();
+
+      if (userName == null) {
+        userName = ""; //$NON-NLS-1$
+      }
+      String userNameCanonical = NotesNamingUtils.toCanonicalName(userName);
+      Memory userNameCanonicalMem = NotesStringUtils.toLMBCS(userNameCanonical, true);
+
+      short option = NotesConstants.LSECINFOSET_MODIFY;
+      if (encryption == Encryption.None) {
+        option = NotesConstants.LSECINFOSET_CLEAR;
+      }
+
+      byte strengthAsByte = (byte) (encryption.getValue() & 0xff);
+
+      short fOption = option;
+
+      LockUtil.lockHandle(hDb, (hDbByVal) ->
+        NotesCAPI.get().NSFDbLocalSecInfoSet(hDbByVal, fOption, strengthAsByte, userNameCanonicalMem)
+      ).orElseThrow();
     }
-    
-    byte strengthAsByte = (byte) (encryption.getValue() & 0xff);
-    
-    short fOption = option;
-    
-    short result = LockUtil.lockHandle(hDb, (hDbByVal) -> {
-      return NotesCAPI.get().NSFDbLocalSecInfoSet(hDbByVal, fOption, strengthAsByte, userNameCanonicalMem);
-    });
-    NotesErrorUtils.checkResult(result);
-  }
   
 	@Override
 	public AccessInfo getEffectiveAccessInfo() {
@@ -4032,39 +3967,37 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		ShortByReference retMajorVersion = new ShortByReference();
 		ShortByReference retMinorVersion = new ShortByReference();
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
-			return NotesCAPI.get().NSFDbMajorMinorVersionGet(dbHandleByVal, retMajorVersion, retMinorVersion);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) ->
+			NotesCAPI.get().NSFDbMajorMinorVersionGet(dbHandleByVal, retMajorVersion, retMinorVersion)
+		).orElseThrow();
 		
 		return new NSFVersionInfoImpl((int) (retMajorVersion.getValue() & 0xffff),
 				(int) (retMinorVersion.getValue() & 0xffff));
 	}
 	
-	@Override
-	public BuildVersionInfo getBuildVersionInfo() {
-		checkDisposed();
+    @Override
+    public BuildVersionInfo getBuildVersionInfo() {
+      checkDisposed();
 
-		NotesBuildVersionStruct retVersion = NotesBuildVersionStruct.newInstance();
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
-			return NotesCAPI.get().NSFDbGetMajMinVersion(dbHandleByVal, retVersion);
-		});
-		NotesErrorUtils.checkResult(result);
-		
-    ShortByReference retBuildNumber = new ShortByReference();
-    
-    result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-      return NotesCAPI.get().NSFDbGetBuildVersion(hDbByVal, retBuildNumber);
-    });
-    NotesErrorUtils.checkResult(result);
-    
-		retVersion.read();
-		
-		return new BuildVersionInfoImpl(retVersion.MajorVersion,
-				retVersion.MinorVersion, retVersion.QMRNumber, retVersion.QMUNumber,
-				retVersion.HotfixNumber, retVersion.Flags, retVersion.FixpackNumber,
-				retBuildNumber.getValue() & 0xffff);
-	}
+      NotesBuildVersionStruct retVersion = NotesBuildVersionStruct.newInstance();
+      LockUtil
+          .lockHandle(getAllocations().getDBHandle(),
+              (dbHandleByVal) -> NotesCAPI.get().NSFDbGetMajMinVersion(dbHandleByVal, retVersion))
+          .orElseThrow();
+
+      ShortByReference retBuildNumber = new ShortByReference();
+
+      LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+        NotesCAPI.get().NSFDbGetBuildVersion(hDbByVal, retBuildNumber)
+      ).orElseThrow();
+
+      retVersion.read();
+
+      return new BuildVersionInfoImpl(retVersion.MajorVersion,
+          retVersion.MinorVersion, retVersion.QMRNumber, retVersion.QMUNumber,
+          retVersion.HotfixNumber, retVersion.Flags, retVersion.FixpackNumber,
+          retBuildNumber.getValue() & 0xffff);
+    }
 	
 	@Override
 	public Optional<UserNamesList> getNamesList() {
@@ -4072,10 +4005,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		DHANDLE.ByReference rethNamesList = DHANDLE.newInstanceByReference();
 		
-		short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().NSFDbGetNamesList(hDbByVal, 0, rethNamesList);
+		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
+			return NotesCAPI.get().NSFDbGetNamesList(hDbByVal, 0, rethNamesList).orElseThrow();
 		});
-		NotesErrorUtils.checkResult(result);
 		
 		if (rethNamesList.isNull()) {
 			return Optional.empty();
@@ -4091,10 +4023,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     Objects.requireNonNull(documentClass, "documentClass cannot be null");
     
     IntByReference retNoteID = new IntByReference();
-    short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-      return NotesCAPI.get().NSFDbGetSpecialNoteID(hDbByVal, (short)(NotesConstants.SPECIAL_ID_NOTE | documentClass.getValue()), retNoteID);
+    LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
+      return NotesCAPI.get().NSFDbGetSpecialNoteID(hDbByVal, (short)(NotesConstants.SPECIAL_ID_NOTE | documentClass.getValue()), retNoteID).orElseThrow();
     });
-    NotesErrorUtils.checkResult(result);
     return retNoteID.getValue();
   }
 	
@@ -4194,11 +4125,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     IntByReference rethBuffer = new IntByReference();
     IntByReference retBufferLength = new IntByReference();
     
-    short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-      return NotesCAPI.get().NSFGetNamedObjects(hDbByVal, namespace, rethBuffer, retBufferLength);
-    });
-
-    NotesErrorUtils.checkResult(result);
+    LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+      NotesCAPI.get().NSFGetNamedObjects(hDbByVal, namespace, rethBuffer, retBufferLength)
+    ).orElseThrow();
     
     int hBuffer = rethBuffer.getValue();
     if (hBuffer==0) {
@@ -4363,13 +4292,12 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     int v0 = hdsgncmd.getValue();
     
     for (Memory currFieldMem : fieldsMem) {
-      short result = NotesCAPI1201.get().NSFDesignCommandAddComponent(currFieldMem,
+      NotesCAPI1201.get().NSFDesignCommandAddComponent(currFieldMem,
           NotesConstants.DESIGN_COMPONENT_ATTR.VALS_ASCENDING.getValue(),
-          hdsgncmd);
+          hdsgncmd)
+          .orElseThrow();
       
       int v1 = hdsgncmd.getValue();
-      
-      NotesErrorUtils.checkResult(result);
     }
 
     Memory nameMem = NotesStringUtils.toLMBCS(name, true);
@@ -4388,13 +4316,12 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     
     int dwFlagsFinal = dwFlags;
     
-    short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-      return NotesCAPI1201.get().NSFDesignCommand(hDbByVal,
+    STATUS result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+      NotesCAPI1201.get().NSFDesignCommand(hDbByVal,
           NotesConstants.DESIGN_COMMAND_TYPE.CREATE_INDEX.getValue(),
           dwFlagsFinal, nameMem,
-          hretval, hreterror, hdsgncmd.getValue());
-  
-    });
+          hretval, hreterror, hdsgncmd.getValue())
+    );
     
     String errorTxt = ""; //$NON-NLS-1$
     if (hreterror.getValue()!=0) {
@@ -4406,12 +4333,12 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
       }
     }
 
-    if (result!=0) {
+    if (result.isError()) {
       if (!StringUtil.isEmpty(errorTxt)) {
-        throw new DominoException(result, errorTxt, NotesErrorUtils.toNotesError(result).orElse(null));
+        throw new DominoException(result, errorTxt, result.toDominoException().orElse(null));
       }
       else {
-        NotesErrorUtils.checkResult(result);
+        result.orElseThrow();
       }
     }
     
@@ -4430,7 +4357,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     IntByReference hidx = new IntByReference();
     IntByReference hreterror = new IntByReference();
 
-    short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
+    STATUS result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
       return NotesCAPI1201.get().NSFDesignCommand(hDbByVal,
           NotesConstants.DESIGN_COMMAND_TYPE.DELETE_INDEX.getValue(), 0, nameMem,
           hidx, hreterror, 0);
@@ -4440,7 +4367,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
       Mem.OSMemoryFree(hidx.getValue());
     }
     
-    if ((result & NotesConstants.ERR_MASK)==1028) { //index view not found
+    if (result.getMaskedValue()==INotesErrorConstants.ERR_NOT_FOUND) { //index view not found
       if (hreterror.getValue()!=0) {
         Mem.OSMemoryFree(hreterror.getValue());
       }
@@ -4457,12 +4384,12 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
       }
     }
 
-    if (result!=0) {
+    if (result.isError()) {
       if (!StringUtil.isEmpty(errorTxt)) {
-        throw new DominoException(result, errorTxt, NotesErrorUtils.toNotesError(result).orElse(null));
+        throw new DominoException(result, errorTxt, result.toDominoException().orElse(null));
       }
       else {
-        NotesErrorUtils.checkResult(result);
+        result.orElseThrow();
       }
     }
   }
@@ -4474,11 +4401,11 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     IntByReference hret = new IntByReference();
     IntByReference hreterror = new IntByReference();
 
-    short result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-      return NotesCAPI1201.get().NSFDesignCommand(hDbByVal,
+    STATUS result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
+      NotesCAPI1201.get().NSFDesignCommand(hDbByVal,
           NotesConstants.DESIGN_COMMAND_TYPE.LIST_INDEXES.getValue(), 0, null,
-          hret, hreterror, 0);
-    });
+          hret, hreterror, 0)
+    );
     
     String errorTxt = ""; //$NON-NLS-1$
     if (hreterror.getValue()!=0) {
@@ -4490,12 +4417,12 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
       }
     }
     
-    if (result!=0) {
+    if (result.isError()) {
       if (!StringUtil.isEmpty(errorTxt)) {
-        throw new DominoException(result, errorTxt, NotesErrorUtils.toNotesError(result).orElse(null));
+        throw new DominoException(result, errorTxt, result.toDominoException().orElse(null));
       }
       else {
-        NotesErrorUtils.checkResult(result);
+        result.orElseThrow();
       }
     }
     

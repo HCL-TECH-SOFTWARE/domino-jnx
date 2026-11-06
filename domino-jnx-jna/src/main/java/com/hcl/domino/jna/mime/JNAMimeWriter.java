@@ -25,7 +25,6 @@ import java.util.function.Consumer;
 
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.exception.IncompatibleImplementationException;
@@ -305,14 +304,14 @@ public class JNAMimeWriter extends JNAMimeBase implements MimeWriter {
 				JNARichtextMimeConversionSettingsAllocations jnaConvertSettingsAllocations = (JNARichtextMimeConversionSettingsAllocations) jnaConvertSettings.getAdapter(APIObjectAllocations.class);
 				
 				jnaConvertSettingsAllocations.lockAndGetSettingsPointer((settingsPtr) -> {
-					short result = NotesCAPI.get().MIMEConvertCDParts(noteHandleByVal, isCanonical, isMime, settingsPtr);
-					NotesErrorUtils.checkResult(result);
+					NotesCAPI.get().MIMEConvertCDParts(noteHandleByVal, isCanonical, isMime, settingsPtr)
+					  .orElseThrow();
 					return null;
 				});
 			}
 			else {
-				short result = NotesCAPI.get().MIMEConvertCDParts(noteHandleByVal, isCanonical, isMime, null);
-				NotesErrorUtils.checkResult(result);
+				NotesCAPI.get().MIMEConvertCDParts(noteHandleByVal, isCanonical, isMime, null)
+				  .orElseThrow();
 			}
 			
 			return null;

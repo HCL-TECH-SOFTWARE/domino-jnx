@@ -40,10 +40,10 @@ import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.structs.ISSOTokenStruct;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.dbdirectory.DatabaseData;
 import com.hcl.domino.dbdirectory.FileType;
 import com.hcl.domino.jna.BaseJNAAPIObject;
@@ -108,8 +108,7 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
   public void markInService(String server, String filePath) {
     try (DisposableMemory dbPathMem =
         JNADominoUtils.constructNetPath(getParentDominoClient(), server, filePath)) {
-      short result = NotesCAPI.get().NSFDbMarkInService(dbPathMem);
-      NotesErrorUtils.checkResult(result);
+      NotesCAPI.get().NSFDbMarkInService(dbPathMem).orElseThrow();
     }
   }
 
@@ -117,8 +116,7 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
   public void markOutOfService(String server, String filePath) {
     try (DisposableMemory dbPathMem =
         JNADominoUtils.constructNetPath(getParentDominoClient(), server, filePath)) {
-      short result = NotesCAPI.get().NSFDbMarkOutOfService(dbPathMem);
-      NotesErrorUtils.checkResult(result);
+      NotesCAPI.get().NSFDbMarkOutOfService(dbPathMem).orElseThrow();
     }
   }
 
@@ -133,8 +131,8 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
 
     DHANDLE.ByReference hResponseText = DHANDLE.newInstanceByReference();
 
-    short result = NotesCAPI.get().NSFRemoteConsole(serverMem, commandMem, hResponseText);
-    NotesErrorUtils.checkResult(result);
+    NotesCAPI.get().NSFRemoteConsole(serverMem, commandMem, hResponseText)
+      .orElseThrow();
 
     if (hResponseText.isNull()) {
       return ""; //$NON-NLS-1$
@@ -172,12 +170,11 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
     IntByReference retmhToken = new IntByReference();
     retmhToken.setValue(0);
 
-    short result =
-        NotesCAPI.get().SECTokenGenerate(null, orgNameMem, configNameMem, userNameCanonicalMem,
-            creationDateStruct, expirationDateStruct,
-            retmhToken, enableRenewal ? NotesConstants.fSECToken_EnableRenewal : 0,
-            renewalDate == null ? null : renewalDate.getPointer());
-    NotesErrorUtils.checkResult(result);
+    NotesCAPI.get().SECTokenGenerate(null, orgNameMem, configNameMem, userNameCanonicalMem,
+        creationDateStruct, expirationDateStruct,
+        retmhToken, enableRenewal ? NotesConstants.fSECToken_EnableRenewal : 0,
+        renewalDate == null ? null : renewalDate.getPointer())
+      .orElseThrow();
 
     if (renewalDate != null) {
       renewalDate.read();
@@ -266,13 +263,13 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
 
     DHANDLE.ByReference phList = DHANDLE.newInstanceByReference();
 
-    short result = NotesCAPI.get().NSGetServerClusterMates(serverNameCanonical,
+    STATUS result = NotesCAPI.get().NSGetServerClusterMates(serverNameCanonical,
         lookupMode == null ? 0 : lookupMode.getValue(), phList);
 
-    if (result == 2078) {
+    if (result.getMaskedValue() == 2078) {
       return Collections.emptyList();
     }
-    NotesErrorUtils.checkResult(result);
+    result.orElseThrow();
 
     if (phList.isNull()) {
       return Collections.emptyList();
@@ -447,10 +444,9 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
     String regServerCanonical = NotesNamingUtils.toCanonicalName(regServer);
     Memory regServerCanonicalMem = NotesStringUtils.toLMBCS(regServerCanonical, true);
 
-    short result = NotesCAPI.get().SECKFMGetCertifierCtx(certFilePathMem, kfmPwd, certLogPathMem,
+    NotesCAPI.get().SECKFMGetCertifierCtx(certFilePathMem, kfmPwd, certLogPathMem,
         tdStructByRef, retCertNameMem,
-        rethKfmCertCtx, retfIsHierarchical, retwFileVersion);
-    NotesErrorUtils.checkResult(result);
+        rethKfmCertCtx, retfIsHierarchical, retwFileVersion).orElseThrow();
     try {
       Memory locationMem = null;
       Memory forwardAddressMem = null;
@@ -466,15 +462,13 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
       Memory errorPathNameMem = new Memory(NotesConstants.MAXPATH);
       Memory commentMem = NotesStringUtils.toLMBCS(comment, true);
 
-      result = LockUtil.lockHandle(rethKfmCertCtx, (rethKfmCertCtxByVal) -> {
-        return NotesCAPI.get().REGCrossCertifyID(rethKfmCertCtxByVal, (short) 0,
+      LockUtil.lockHandle(rethKfmCertCtx, (rethKfmCertCtxByVal) ->
+        NotesCAPI.get().REGCrossCertifyID(rethKfmCertCtxByVal, (short) 0,
             regServerCanonicalMem,
             idFilePathMem,
             locationMem, commentMem, forwardAddressMem, (short) 0, statusCallback,
-            errorPathNameMem);
-
-      });
-      NotesErrorUtils.checkResult(result);
+            errorPathNameMem)
+      ).orElseThrow();
     } finally {
       if (!rethKfmCertCtx.isNull()) {
         LockUtil.lockHandle(rethKfmCertCtx, (rethKfmCertCtxByVal) -> {
@@ -532,8 +526,8 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
       // data structure is quite complex
       DHANDLE.ByReference hResponseText = DHANDLE.newInstanceByReference();
 
-      short result = NotesCAPI.get().NSFRemoteConsole(serverNameCanonicalMem, null, hResponseText);
-      NotesErrorUtils.checkResult(result);
+      NotesCAPI.get().NSFRemoteConsole(serverNameCanonicalMem, null, hResponseText)
+        .orElseThrow();
 
       if (!hResponseText.isNull()) {
         LockUtil.lockHandle(hResponseText, (hResponseTextByVal) -> {
@@ -554,8 +548,7 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
     ShortByReference wSignals = new ShortByReference();
     IntByReference dwConsoleBuffID = new IntByReference();
 
-    short result = NotesCAPI.get().QueueCreate(hAsyncQueue);
-    NotesErrorUtils.checkResult(result);
+    NotesCAPI.get().QueueCreate(hAsyncQueue).orElseThrow();
 
     boolean asyncIOInitDone = false;
 
@@ -563,13 +556,12 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
       NotesCallbacks.ASYNCNOTIFYPROC callback = (p1, p2) -> {
       };
 
-      result = LockUtil.lockHandle(hAsyncQueue, (hAsyncQueueByVal) -> {
-        return NotesCAPI.get().NSFRemoteConsoleAsync(serverNameCanonicalMem, cmdMem,
+      LockUtil.lockHandle(hAsyncQueue, (hAsyncQueueByVal) ->
+        NotesCAPI.get().NSFRemoteConsoleAsync(serverNameCanonicalMem, cmdMem,
             NotesConstants.REMCON_GET_CONSOLE | NotesConstants.REMCON_GET_CONSOLE_META,
             hAsyncBuffer,
-            null, null, wSignals, dwConsoleBuffID, hAsyncQueueByVal, callback, null, pAsyncCtx);
-      });
-      NotesErrorUtils.checkResult(result);
+            null, null, wSignals, dwConsoleBuffID, hAsyncQueueByVal, callback, null, pAsyncCtx)
+      ).orElseThrow();
 
       while (!Thread.currentThread().isInterrupted()) {
         if (handler.shouldStop()) {
@@ -580,11 +572,11 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
         NotesCAPI.get().NSFUpdateAsyncIOStatus(pAsyncCtx.getValue());
         asyncIOInitDone = true;
 
-        short hasData = LockUtil.lockHandle(hAsyncQueue, (hAsyncQueueByVal) -> {
+        STATUS hasData = LockUtil.lockHandle(hAsyncQueue, (hAsyncQueueByVal) -> {
           return NotesCAPI.get().QueueGet(hAsyncQueueByVal, hAsyncBuffer);
         });
 
-        if (hasData == 0) {
+        if (!hasData.isError()) {
           LockUtil.lockHandle(hAsyncBuffer, (hAsyncBufferByVal) -> {
             Pointer ptr = Mem.OSLockObject(hAsyncBufferByVal);
             try {
@@ -604,14 +596,14 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
             }
             return null;
           });
-        } else if (hasData == INotesErrorConstants.ERR_QUEUE_EMPTY) {
+        } else if (hasData.getMaskedValue() == INotesErrorConstants.ERR_QUEUE_EMPTY) {
           try {
             Thread.sleep(100);
           } catch (InterruptedException e) {
             break;
           }
         } else {
-          NotesErrorUtils.checkResult(hasData);
+          hasData.orElseThrow();
         }
       }
     } finally {

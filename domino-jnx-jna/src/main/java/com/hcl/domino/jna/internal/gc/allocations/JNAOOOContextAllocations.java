@@ -21,7 +21,6 @@ import java.lang.ref.ReferenceQueue;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.person.JNAOutOfOffice;
 import com.sun.jna.Pointer;
@@ -49,14 +48,12 @@ public class JNAOOOContextAllocations extends APIObjectAllocations<JNAOutOfOffic
 		}
 		
 		if (m_hOOOContext!=0 && m_pOOOContext!=null) {
-			short result = NotesCAPI.get().OOOEndOperation(m_hOOOContext, m_pOOOContext);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().OOOEndOperation(m_hOOOContext, m_pOOOContext).orElseThrow();
 			
 			m_hOOOContext = 0;
 			m_pOOOContext = null;
 
-			result = NotesCAPI.get().OOOTerm();
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().OOOTerm().orElseThrow();
 		}
 		
 		m_disposed = true;

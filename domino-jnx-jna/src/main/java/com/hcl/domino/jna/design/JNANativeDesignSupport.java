@@ -17,7 +17,6 @@
 package com.hcl.domino.jna.design;
 
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -25,7 +24,6 @@ import java.util.List;
 
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
@@ -66,8 +64,7 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
     byte[] codeLMBCS = new byte[(int) codeMem.size()];
     codeMem.read(0, codeLMBCS, 0, codeLMBCS.length);
     DHANDLE.ByReference hSrcByRef = DHANDLE.newInstanceByReference();
-    short result = Mem.OSMemAlloc((short) 0, codeLMBCS.length, hSrcByRef);
-    NotesErrorUtils.checkResult(result);
+    Mem.OSMemAlloc((short) 0, codeLMBCS.length, hSrcByRef);
 
     byte[] nameOfContextClassLMBCS;
     DHANDLE.ByReference phDataByRef = DHANDLE.newInstanceByReference();
@@ -85,8 +82,7 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
       //   char  szNameOfContextClass[MAXIMUM_ID_NAME_LENGTH + 1];
       // }SCRIPTCONTEXTDESCR;
 
-      result = Mem.OSMemAlloc((short) 0, 4 + NotesConstants.MAXIMUM_ID_NAME_LENGTH +1, phDataByRef);
-      NotesErrorUtils.checkResult(result);
+      Mem.OSMemAlloc((short) 0, 4 + NotesConstants.MAXIMUM_ID_NAME_LENGTH +1, phDataByRef);
     }
     else {
       nameOfContextClassLMBCS = null;
@@ -116,10 +112,9 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
         DHANDLE.ByReference hErrs = DHANDLE.newInstanceByReference();
         int dwFlags = 0;
         
-        short resultFormat = NotesCAPI.get().AgentLSTextFormat(hSrcByVal, hDest,
-            hErrs, dwFlags, phDataByRef);
+        NotesCAPI.get().AgentLSTextFormat(hSrcByVal, hDest,
+            hErrs, dwFlags, phDataByRef).orElseThrow();
         //AgentLSTextFormat only returns NOERROR or ERR_MEMORY in case it runs out of memory
-        NotesErrorUtils.checkResult(resultFormat);
         
         String formattedCode = lockAndReadText(hDest, true);
         String errorTxt = lockAndReadText(hErrs, true);
@@ -212,18 +207,16 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
     ObjectType objectType = ObjectType.ASSIST_RUNDATA;
     
     final DHANDLE.ByReference retCopyBufferHandle = DHANDLE.newInstanceByReference();
-    short result = Mem.OSMemAlloc((short) 0, runInfoDataWithSpace.length, retCopyBufferHandle);
-    NotesErrorUtils.checkResult(result);
+    Mem.OSMemAlloc((short) 0, runInfoDataWithSpace.length, retCopyBufferHandle);
 
     int rrv = LockUtil.lockHandles(dbAllocations.getDBHandle(), docAllocations.getNoteHandle(), retCopyBufferHandle,
         (hDbByVal, hNoteByVal, hCopyBufferByVal) -> {
 
           IntByReference rtnRRV = new IntByReference();
 
-          short allocObjResult = NotesCAPI.get().NSFDbAllocObjectExtended2(hDbByVal,
+          NotesCAPI.get().NSFDbAllocObjectExtended2(hDbByVal,
               runInfoDataWithSpace.length,
-              noteClass, privs, objectType.getValue(), rtnRRV);
-          NotesErrorUtils.checkResult(allocObjResult);
+              noteClass, privs, objectType.getValue(), rtnRRV).orElseThrow();
 
           //copy buffer array data into memory buffer
           Pointer ptrBuffer = Mem.OSLockObject(hCopyBufferByVal);
@@ -234,13 +227,12 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
             Mem.OSUnlockObject(hCopyBufferByVal);
           }
 
-          short writeObjResult = NotesCAPI.get().NSFDbWriteObject(
+          NotesCAPI.get().NSFDbWriteObject(
               hDbByVal,
               rtnRRV.getValue(),
               hCopyBufferByVal,
               0,
-              runInfoDataWithSpace.length);
-          NotesErrorUtils.checkResult(writeObjResult);
+              runInfoDataWithSpace.length).orElseThrow();
 
           Mem.OSMemFree(hCopyBufferByVal);
 

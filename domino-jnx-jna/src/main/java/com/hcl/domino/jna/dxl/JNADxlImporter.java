@@ -47,9 +47,9 @@ import com.hcl.domino.commons.dxl.DxlImporterLogImpl;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.IDTable;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.dxl.DxlImporter;
 import com.hcl.domino.dxl.DxlImporterLog;
 import com.hcl.domino.exception.DxlImportException;
@@ -245,12 +245,10 @@ public class JNADxlImporter extends
         }
       };
 
-      short result = AccessController.doPrivileged((PrivilegedAction<Short>) () -> {
+      AccessController.doPrivileged((PrivilegedAction<STATUS>) () -> {
         return NotesCAPI.get().DXLImport(getAllocations().getDxlImporterHandle(), func, handle,
             null);
-      });
-
-      NotesErrorUtils.checkResult(result);
+      }).orElseThrow();
 
       checkError();
       return null;

@@ -21,7 +21,6 @@ import java.lang.ref.ReferenceQueue;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -115,8 +114,8 @@ public class JNARichtextWriterAllocations extends APIObjectAllocations<JNARichte
 				return 0;
 			}
 			
-			short result = NotesCAPI.get().CompoundTextClose(hCompoundTextByVal, null, null, null, (short) 0);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().CompoundTextClose(hCompoundTextByVal, null, null, null, (short) 0)
+			  .orElseThrow();
 			
 			m_disposed = true;
 			m_closed = true;
@@ -156,9 +155,9 @@ public class JNARichtextWriterAllocations extends APIObjectAllocations<JNARichte
 				return 0;
 			}
 
-			short result = NotesCAPI.get().CompoundTextClose(hCompoundTextByVal, rethBuffer, retBufSize,
-					returnFileMem, (short) (NotesConstants.MAXPATH & 0xffff));
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().CompoundTextClose(hCompoundTextByVal, rethBuffer, retBufSize,
+					returnFileMem, (short) (NotesConstants.MAXPATH & 0xffff))
+			  .orElseThrow();
 			
 			m_disposed = true;
 			m_closed = true;

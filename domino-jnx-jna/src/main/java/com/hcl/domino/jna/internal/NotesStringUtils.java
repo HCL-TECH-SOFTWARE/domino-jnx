@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import com.hcl.domino.DominoException;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.jna.internal.capi.INotesCAPI;
@@ -862,17 +861,17 @@ public class NotesStringUtils {
 	 * @param fileName filename of the Domino database you with to access, relative to the data directory
 	 * @return fully qualified network path
 	 */
-	public static String osPathNetConstruct(String portName, String serverName, String fileName) {
-		Memory portNameMem = toLMBCS(portName, true);
-		Memory serverNameMem = toLMBCS(serverName, true);
-		Memory fileNameMem = toLMBCS(fileName, true);
-		
-		try(DisposableMemory retPathMem = new DisposableMemory(NotesConstants.MAXPATH)) {
-		  short result = NotesCAPI.get().OSPathNetConstruct(portNameMem, serverNameMem, fileNameMem, retPathMem);
-  		NotesErrorUtils.checkResult(result);
-  		return fromLMBCS(retPathMem, getNullTerminatedLength(retPathMem));
-		}
-	}
+    public static String osPathNetConstruct(String portName, String serverName, String fileName) {
+      Memory portNameMem = toLMBCS(portName, true);
+      Memory serverNameMem = toLMBCS(serverName, true);
+      Memory fileNameMem = toLMBCS(fileName, true);
+
+      try (DisposableMemory retPathMem = new DisposableMemory(NotesConstants.MAXPATH)) {
+        NotesCAPI.get().OSPathNetConstruct(portNameMem, serverNameMem, fileNameMem, retPathMem)
+            .orElseThrow();
+        return fromLMBCS(retPathMem, getNullTerminatedLength(retPathMem));
+      }
+    }
 
 	/**
 	 * Given a fully-qualified network path to a Domino database file, this function breaks it
@@ -898,8 +897,8 @@ public class NotesStringUtils {
   		DisposableMemory retFileNameMem = new DisposableMemory(NotesConstants.MAXPATH)) {
 		
   		Memory pathNameMem = toLMBCS(pathName, true);
-  		short result = NotesCAPI.get().OSPathNetParse(pathNameMem, retPortNameMem, retServerNameMem, retFileNameMem);
-  		NotesErrorUtils.checkResult(result);
+  		NotesCAPI.get().OSPathNetParse(pathNameMem, retPortNameMem, retServerNameMem, retFileNameMem)
+  		  .orElseThrow();
   		
   		String portName = fromLMBCS(retPortNameMem, getNullTerminatedLength(retPortNameMem));
   		String serverName = fromLMBCS(retServerNameMem, getNullTerminatedLength(retServerNameMem));

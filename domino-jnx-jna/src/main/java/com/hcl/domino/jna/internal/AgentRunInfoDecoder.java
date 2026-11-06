@@ -16,8 +16,6 @@
  */
 package com.hcl.domino.jna.internal;
 
-import static com.hcl.domino.commons.util.NotesErrorUtils.checkResult;
-
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -66,7 +64,7 @@ public enum AgentRunInfoDecoder {
     
     HANDLE.ByReference hDb = database.getAdapter(HANDLE.ByReference.class);
     IntByReference objectSize = new IntByReference();
-    checkResult(LockUtil.lockHandle(hDb, dbHandleByVal ->
+    LockUtil.lockHandle(hDb, dbHandleByVal ->
       NotesCAPI.get().NSFDbGetObjectSize(
           dbHandleByVal,
         objDescriptor.getRRV(),
@@ -74,8 +72,8 @@ public enum AgentRunInfoDecoder {
         objectSize,
         null,
         null
-      )
-    ));
+      ).orElseThrow()
+    );
     if(objectSize.getValue() == 0) {
       return Optional.empty();
     }
@@ -87,15 +85,15 @@ public enum AgentRunInfoDecoder {
 
     // Get a handle to the header object and read it into a structure
     int headerLen = NotesCAPI.get().ODSLength(ODSTypes._ODS_ASSISTRUNOBJECTHEADER);
-    checkResult(LockUtil.lockHandle(hDb, (dbHandleByVal) ->
+    LockUtil.lockHandle(hDb, (dbHandleByVal) ->
       NotesCAPI.get().NSFDbReadObject(
         dbHandleByVal,
         objDescriptor.getRRV(),
         offset[0], 
         headerLen,
         rethBuffer
-      )
-    ));
+      ).orElseThrow()
+    );
     AssistRunObjectHeader header = LockUtil.lockHandle(rethBuffer, hBuffer -> {
       try {
         return Mem.OSLockObject(hBuffer, pObject -> {
@@ -115,15 +113,15 @@ public enum AgentRunInfoDecoder {
     int entryLen = NotesCAPI.get().ODSLength(ODSTypes._ODS_ASSISTRUNOBJECTENTRY);
     
     // Read all entry objects into our handle
-    checkResult(LockUtil.lockHandle(hDb, (dbHandleByVal) ->
+    LockUtil.lockHandle(hDb, (dbHandleByVal) ->
       NotesCAPI.get().NSFDbReadObject(
         dbHandleByVal,
         objDescriptor.getRRV(),
         offset[0], 
         entryLen * header.getEntries(),
         rethBuffer
-      )
-    ));
+      ).orElseThrow()
+    );
     
     AssistRunObjectEntry[] entries = new AssistRunObjectEntry[entryCount];
     boolean shouldContinue = LockUtil.lockHandle(rethBuffer, hBuffer ->
@@ -162,15 +160,15 @@ public enum AgentRunInfoDecoder {
     // Next up is the run info struct
     int runInfoLen = NotesCAPI.get().ODSLength(ODSTypes._ODS_ASSISTRUNINFO);
     
-    checkResult(LockUtil.lockHandle(hDb, (dbHandleByVal) ->
+    LockUtil.lockHandle(hDb, (dbHandleByVal) ->
       NotesCAPI.get().NSFDbReadObject(
         dbHandleByVal,
         objDescriptor.getRRV(),
         offset[0], 
         runInfoLen,
         rethBuffer
-      )
-    ));
+      ).orElseThrow()
+    );
     
     AssistRunInfo info = LockUtil.lockHandle(rethBuffer, hBuffer -> {
       try {
@@ -191,15 +189,15 @@ public enum AgentRunInfoDecoder {
       if(thisEntryLen == 0) {
         varData[i] = new byte[0];
       } else {
-        checkResult(LockUtil.lockHandle(hDb, (dbHandleByVal) ->
+        LockUtil.lockHandle(hDb, (dbHandleByVal) ->
           NotesCAPI.get().NSFDbReadObject(
             dbHandleByVal,
             objDescriptor.getRRV(),
             offset[0], 
             (int)thisEntryLen,
             rethBuffer
-          )
-        ));
+          ).orElseThrow()
+        );
         
         varData[i] = LockUtil.lockHandle(rethBuffer, hBuffer -> {
           try {

@@ -16,14 +16,11 @@
  */
 package com.hcl.domino.jna.naming;
 
-import static com.hcl.domino.commons.util.NotesErrorUtils.checkResult;
-
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.commons.errors.INotesErrorConstants;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.internal.DisposableMemory;
@@ -74,23 +71,20 @@ public class JNAUserDirectory implements UserDirectory {
     try {
       try(DisposableMemory chPrimaryNamePtr = new DisposableMemory(NotesConstants.MAXPATH + 1)) {
         final Memory serverNameMem = NotesStringUtils.toLMBCS(serverName, true);
-        final short status = capi.NAMEGetAddressBooks(serverNameMem, NotesConstants.NAME_GET_AB_FIRSTONLY, wCount, wEntryLen, hReturn);
-        NotesErrorUtils.checkResult(status);
+        capi.NAMEGetAddressBooks(serverNameMem, NotesConstants.NAME_GET_AB_FIRSTONLY, wCount, wEntryLen, hReturn)
+          .orElseThrow();
 
         if (wCount.getValue() != 0) {
           LockUtil.lockHandle(hReturn, (hReturnByVal) -> {
             return Mem.OSLockObject(hReturnByVal, (pszReturn) -> {
-              short status2 = capi.OSPathNetParse(pszReturn, null,
-                  null, chPrimaryNamePtr);
-              NotesErrorUtils.checkResult(status2);
+              capi.OSPathNetParse(pszReturn, null,
+                  null, chPrimaryNamePtr).orElseThrow();
 
               final short wNameLen = capi.Cstrlen(chPrimaryNamePtr);
               final ShortByReference wTypePos = new ShortByReference();
               wTypePos.setValue(wNameLen);
 
-              status2 =
-                  capi.OSPathFileType(chPrimaryNamePtr, wTypePos);
-              NotesErrorUtils.checkResult(status2);
+              capi.OSPathFileType(chPrimaryNamePtr, wTypePos).orElseThrow();
 
               if (wNameLen == wTypePos.getValue()) {
                 /* no file type specified */
@@ -122,10 +116,9 @@ public class JNAUserDirectory implements UserDirectory {
       }
     } finally {
       if (!hReturn.isNull()) {
-        final short result = LockUtil.lockHandle(hReturn, (hReturnByVal) -> {
-          return Mem.OSMemFree(hReturnByVal);
+        LockUtil.lockHandle(hReturn, (hReturnByVal) -> {
+          return Mem.OSMemFree(hReturnByVal).orElseThrow();
         });
-        NotesErrorUtils.checkResult(result);
       }
     }
 	}
@@ -137,13 +130,13 @@ public class JNAUserDirectory implements UserDirectory {
 		ShortByReference returnLength = new ShortByReference();
 		
 		DHANDLE.ByReference hReturn = DHANDLE.newInstanceByReference();
-		checkResult(NotesCAPI.get().NAMEGetAddressBooks(
+		NotesCAPI.get().NAMEGetAddressBooks(
 			server,
 			(short)0,
 			returnCount,
 			returnLength,
 			hReturn
-		));
+		);
 		
 		return LockUtil.lockHandle(hReturn, hReturnByVal -> {
       int count = returnCount.getValue();

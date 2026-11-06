@@ -21,7 +21,6 @@ import java.lang.ref.ReferenceQueue;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.mq.JNAMessageQueue;
 
@@ -44,8 +43,7 @@ public class JNAMessageQueueAllocations extends APIObjectAllocations<JNAMessageQ
 	@Override
 	public void dispose() {
 		if (!isDisposed()) {
-			short result = NotesCAPI.get().MQClose(m_queueHandle, 0);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().MQClose(m_queueHandle, 0).orElseThrow();
 			
 			m_disposed = true;
 		}

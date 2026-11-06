@@ -16,8 +16,6 @@
  */
 package com.hcl.domino.jna;
 
-import static com.hcl.domino.commons.util.NotesErrorUtils.checkResult;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -60,6 +58,7 @@ import com.hcl.domino.commons.NotYetImplementedException;
 import com.hcl.domino.commons.constants.CopyDatabase;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.data.DefaultModificationTimePair;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.CAPIGarbageCollector;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -82,6 +81,7 @@ import com.hcl.domino.data.DominoUniversalNoteId;
 import com.hcl.domino.data.Formula;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.data.ModificationTimePair;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.dbdirectory.DbDirectory;
 import com.hcl.domino.dxl.DxlExporter;
 import com.hcl.domino.dxl.DxlImporter;
@@ -320,7 +320,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   public String getIDUserName() {
     try(DisposableMemory retUserNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME + 1)) {
 
-      checkResult(NotesCAPI.get().SECKFMGetUserName(retUserNameMem));
+      NotesCAPI.get().SECKFMGetUserName(retUserNameMem).orElseThrow();
   
       int userNameLength = 0;
       for (int i = 0; i < retUserNameMem.size(); i++) {
@@ -406,30 +406,30 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
     DbOptionsStruct.ByValue defaultDbOptionsByVal = DbOptionsStruct.newInstanceByVal();
 
-    checkResult(LockUtil.lockHandle(
+    LockUtil.lockHandle(
         namesListAllocations == null ? null : namesListAllocations.getHandle(), (hNamesList) -> {
           return NotesCAPI.get().NSFDbCreateExtended4(path, dbClassShort, forceCreation,
               fOptionsShort,
               options2, encryptStrengthByte, 0, (Memory) null, (Memory) null,
               (short) 0, (short) 0, defaultDbOptionsByVal, hNamesList, (DHANDLE.ByValue) null);
-        }));
+        }).orElseThrow();
 
     // create ACL
     HANDLE.ByReference rethDb = HANDLE.newInstanceByReference();
-    checkResult(NotesCAPI.get().NSFDbOpen(path, rethDb));
+    NotesCAPI.get().NSFDbOpen(path, rethDb).orElseThrow();
 
     LockUtil.lockHandle(rethDb, (rethDbByVal) -> {
       try {
         DHANDLE.ByReference rethACL = DHANDLE.newInstanceByReference();
-        checkResult(NotesCAPI.get().ACLCreate(rethACL));
+        NotesCAPI.get().ACLCreate(rethACL).orElseThrow();
 
-        checkResult(LockUtil.lockHandle(rethACL, (rethACLByVal) -> {
-          return NotesCAPI.get().NSFDbStoreACL(rethDbByVal, rethACLByVal, 0, (short) 1);
-        }));
+        LockUtil.lockHandle(rethACL, (rethACLByVal) ->
+          NotesCAPI.get().NSFDbStoreACL(rethDbByVal, rethACLByVal, 0, (short) 1)
+        ).orElseThrow();
 
         return 0;
       } finally {
-        checkResult(NotesCAPI.get().NSFDbClose(rethDbByVal));
+        NotesCAPI.get().NSFDbClose(rethDbByVal).orElseThrow();
       }
     });
 
@@ -609,8 +609,6 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     int createCopyFlags = CopyDatabase.toBitMask(copyFlags);
     createCopyFlags |= NotesConstants.DBCOPY_DEST_IS_NSF;
 
-    short result;
-
     JNAUserNamesList namesListForDbCreate;
     if (namesList == null) {
       namesListForDbCreate = (JNAUserNamesList) getEffectiveUserNamesList(targetServerName);
@@ -623,9 +621,9 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
     HANDLE.ByReference rethNewDb = HANDLE.newInstanceByReference();
 
-    result = NotesCAPI.get().NSFDbCreateAndCopyExtended(fullPathSourceMem, fullPathTargetMem,
-        noteClassToCopy, maxFileSizeInMB, createCopyFlags, null, rethNewDb);
-    checkResult(result);
+    NotesCAPI.get().NSFDbCreateAndCopyExtended(fullPathSourceMem, fullPathTargetMem,
+        noteClassToCopy, maxFileSizeInMB, createCopyFlags, null, rethNewDb)
+      .orElseThrow();
 
     return new JNADatabase(this, new IAdaptable() {
 
@@ -647,7 +645,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   public Database openDatabase(String path, Set<OpenDatabase> options) {
     String[] resolvedServerAndPath = resolveDbPath(path);
     if (StringUtil.isEmpty(resolvedServerAndPath[1])) {
-      throw new DominoException(0,
+      throw new DominoException(StatusImpl.NOERROR,
           MessageFormat.format("Unable to find database for path {0}", path));
     }
 
@@ -673,17 +671,17 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
         try(DisposableMemory retPathNameMem = new DisposableMemory(NotesConstants.MAXPATH)) {
           JNADatabaseAllocations dbAllocations =
               (JNADatabaseAllocations) dir.getAdapter(APIObjectAllocations.class);
-          short result = LockUtil.lockHandle(dbAllocations.getDBHandle(), (hDirByVal) -> {
-            return NotesCAPI.get().NSFDbLocateByReplicaID(hDirByVal, replicaIdStruct,
-                retPathNameMem, (short) (NotesConstants.MAXPATH & 0xffff));
-          });
+          STATUS result = LockUtil.lockHandle(dbAllocations.getDBHandle(), (hDirByVal) ->
+            NotesCAPI.get().NSFDbLocateByReplicaID(hDirByVal, replicaIdStruct,
+                retPathNameMem, (short) (NotesConstants.MAXPATH & 0xffff))
+          );
 
-          if (result == 259) {
+          if (result.getMaskedValue() == 259) {
             throw new DominoException(result, MessageFormat.format(
                 "No database found on server ''{0}'' for replica id {1}", serverName, filePath));
           }
 
-          checkResult(result);
+          result.orElseThrow();
 
           String retPathName = NotesStringUtils.fromLMBCS(retPathNameMem, -1);
           if (retPathName == null || retPathName.length() == 0) {
@@ -743,7 +741,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     serverName = NotesNamingUtils.toCanonicalName(serverName);
 
     DisposableMemory path = JNADominoUtils.constructNetPath(this, serverName, filePath);
-    checkResult(NotesCAPI.get().NSFDbDelete(path));
+    NotesCAPI.get().NSFDbDelete(path).orElseThrow();
   }
 
   @Override
@@ -950,7 +948,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     ldap.bVerifyRemoteSrvCert = verifyRemoteServerCert;
     ldap.wPort = port;
     ldap.write();
-    NotesErrorUtils.checkResult(NotesCAPI.get().VerifyLDAPConnection(ldap));
+    NotesCAPI.get().VerifyLDAPConnection(ldap).orElseThrow();
   }
 
   @Override
@@ -997,7 +995,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
           try {
             bOut.write(currFileNameMem.getByteArray(0, (int) currFileNameMem.size()));
           } catch (IOException e) {
-            throw new DominoException(0, "Error writing file list to memory", e);
+            throw new DominoException(StatusImpl.NOERROR, "Error writing file list to memory", e);
           }
         }
       }
@@ -1008,27 +1006,24 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
     int optionsInt = DominoEnumUtil.toBitField(ReplicateOption.class, options);
 
-    short result;
     if (progressListener != null) {
       final int fNumFiles = numFiles;
       final DisposableMemory fFileListMem = fileListMem;
 
       try {
         JNASignalHandlerUtil.runWithReplicationStateTracking(() -> {
-          short result1 = NotesCAPI.get().ReplicateWithServerExt(null, serverNameMem, optionsInt,
+          NotesCAPI.get().ReplicateWithServerExt(null, serverNameMem, optionsInt,
               (short) (fNumFiles & 0xffff),
-              fFileListMem, extendedOptions, retStatsStruct);
-          checkResult(result1);
+              fFileListMem, extendedOptions, retStatsStruct).orElseThrow();
           return null;
         }, progressListener);
       } catch (Exception e) {
         throw new DominoException("Error replicating with state tracking", e);
       }
     } else {
-      result = NotesCAPI.get().ReplicateWithServerExt(null, serverNameMem, optionsInt,
+      NotesCAPI.get().ReplicateWithServerExt(null, serverNameMem, optionsInt,
           (short) (numFiles & 0xffff),
-          fileListMem, extendedOptions, retStatsStruct);
-      checkResult(result);
+          fileListMem, extendedOptions, retStatsStruct).orElseThrow();
     }
 
     retStatsStruct.read();
@@ -1066,7 +1061,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     Memory pPortName = NotesStringUtils.toLMBCS(portName, true);
     DHANDLE.ByReference hServerTextList = DHANDLE.newInstanceByReference();
 
-    checkResult(NotesCAPI.get().NSGetServerList(pPortName, hServerTextList));
+    NotesCAPI.get().NSGetServerList(pPortName, hServerTextList).orElseThrow();
     if (hServerTextList.isNull()) {
       return Collections.emptyList();
     }
@@ -1105,8 +1100,8 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     DHANDLE.ByReference hChanges = DHANDLE.newInstanceByReference();
     NotesTimeDateStruct.ByReference nextSinceTime = NotesTimeDateStruct.newInstanceByReference();
 
-    checkResult(NotesCAPI.get().NSFGetChangedDBs(pServerName, sinceStruct, changesSize, hChanges,
-        nextSinceTime));
+    NotesCAPI.get().NSFGetChangedDBs(pServerName, sinceStruct, changesSize, hChanges,
+        nextSinceTime).orElseThrow();
     nextSinceTime.read();
 
     return LockUtil.lockHandle(hChanges, hChangesVal -> {
@@ -1219,13 +1214,13 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     Memory passwordPtr = NotesStringUtils.toLMBCS(password, false);
     Memory digestPtr = NotesStringUtils.toLMBCS(httpPassword, false);
     try {
-      checkResult(NotesCAPI.get().SECVerifyPassword(
+      NotesCAPI.get().SECVerifyPassword(
           (short) passwordPtr.size(),
           passwordPtr,
           (short) digestPtr.size(),
           digestPtr,
           0,
-          null));
+          null).orElseThrow();
     } catch (BadPasswordException e) {
       throw new AuthenticationException("Passwords do not match");
     }
@@ -1337,9 +1332,8 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     DoubleByReference retOriginalSize = new DoubleByReference();
     DoubleByReference retCompactedSize = new DoubleByReference();
 
-    short result = NotesCAPI.get().NSFDbCompactExtendedExt2(pathnameMem, options1,
-        options2, retOriginalSize, retCompactedSize);
-    checkResult(result);
+    NotesCAPI.get().NSFDbCompactExtendedExt2(pathnameMem, options1,
+        options2, retOriginalSize, retCompactedSize).orElseThrow();
     
     return new Pair<>(retOriginalSize.getValue(), retCompactedSize.getValue());
   }
@@ -1355,7 +1349,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     IntByReference pLoadIndex = retrieveLoadIndex ? new IntByReference() : null;
     DHANDLE.ByReference phList = retrieveClusterInfo ? DHANDLE.newInstanceByReference() : null;
 
-    checkResult(NotesCAPI.get().NSPingServer(serverNameLmbcs, pLoadIndex, phList));
+    NotesCAPI.get().NSPingServer(serverNameLmbcs, pLoadIndex, phList).orElseThrow();
 
     Optional<Integer> loadIndex =
         retrieveLoadIndex ? Optional.of(pLoadIndex.getValue()) : Optional.empty();
@@ -1425,7 +1419,8 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     NotesTimeDateStruct.ByReference retDataModifiedStruct = NotesTimeDateStruct.newInstanceByReference();
     NotesTimeDateStruct.ByReference retNonDataModifiedStruct = NotesTimeDateStruct.newInstanceByReference();
     
-    checkResult(NotesCAPI.get().NSFDbModifiedTimeByName(pDbPath, retDataModifiedStruct, retNonDataModifiedStruct));
+    NotesCAPI.get().NSFDbModifiedTimeByName(pDbPath, retDataModifiedStruct, retNonDataModifiedStruct)
+      .orElseThrow();
     
     DominoDateTime dataModified = new JNADominoDateTime(retDataModifiedStruct.Innards);
     DominoDateTime nonDataModified = new JNADominoDateTime(retNonDataModifiedStruct.Innards);

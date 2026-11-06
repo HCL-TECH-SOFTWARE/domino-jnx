@@ -38,8 +38,8 @@ import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.commons.data.TimeFormat;
 import com.hcl.domino.commons.data.ZoneFormat;
 import com.hcl.domino.commons.util.InnardsConverter;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.JNANotesConstants;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -314,15 +314,15 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
 		try {
   		while (true) {
   			ShortByReference retTextLength = new ShortByReference();
-  			short result = NotesCAPI.get().ConvertTIMEDATEToText(intlStruct, tfmtStruct.getPointer(), struct, retTextBuffer, (short) retTextBuffer.size(), retTextLength);
-  			if (result==1037) { // "Invalid Time or Date Encountered", return empty string like Notes UI does
+  			STATUS result = NotesCAPI.get().ConvertTIMEDATEToText(intlStruct, tfmtStruct.getPointer(), struct, retTextBuffer, (short) retTextBuffer.size(), retTextLength);
+  			if (result.getValue()==1037) { // "Invalid Time or Date Encountered", return empty string like Notes UI does
   				return ""; //$NON-NLS-1$
   			}
-  			if (result!=1033) { // "Output Buffer Overflow"
-  				NotesErrorUtils.checkResult(result);
+  			if (result.getValue()!=1033) { // "Output Buffer Overflow"
+  				result.orElseThrow();
   			}
   
-  			if (result==1033 || (retTextLength.getValue() >= retTextBuffer.size())) {
+  			if (result.getValue()==1033 || (retTextLength.getValue() >= retTextBuffer.size())) {
   				retTextBuffer.close();
   				outBufLength = outBufLength * 2;
   				retTextBuffer = new DisposableMemory(outBufLength);
@@ -370,8 +370,7 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
 	        IntlFormatStruct intlStruct = intl==null ? null : intl.getAdapter(IntlFormatStruct.class);
     		NotesTimeDateStruct retTimeDate = NotesTimeDateStruct.newInstance(retTimeDateMem);
     		
-    		short result = NotesCAPI.get().ConvertTextToTIMEDATE(intlStruct, null, dateTimeStrLMBCSPtr, NotesConstants.MAXALPHATIMEDATE, retTimeDate);
-    		NotesErrorUtils.checkResult(result);
+    		NotesCAPI.get().ConvertTextToTIMEDATE(intlStruct, null, dateTimeStrLMBCSPtr, NotesConstants.MAXALPHATIMEDATE, retTimeDate).orElseThrow();
     		retTimeDate.read();
     		int[] innards = retTimeDate.Innards;
     		JNADominoDateTime td = new JNADominoDateTime(innards);
@@ -388,7 +387,7 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
         mem.setByte(0, (byte)0);
         td.setInt(0, m_innards0);
         td.setInt(4, m_innards1);
-        NotesErrorUtils.checkResult(NotesCAPI12.get().ConvertTIMEDATEtoRFC3339Date(td, mem, (short)256));
+        NotesCAPI12.get().ConvertTIMEDATEtoRFC3339Date(td, mem, (short)256).orElseThrow();
         // ISO times are ASCII-safe, so no need to do an LMBCS conversion
         String isoTime = mem.getString(0, StandardCharsets.US_ASCII.name());
         if(isoTime.endsWith("-1Z")) {

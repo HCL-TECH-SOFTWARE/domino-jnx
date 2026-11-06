@@ -17,7 +17,7 @@
 package com.hcl.domino.jna.mq;
 
 import com.hcl.domino.commons.errors.INotesErrorConstants;
-import com.hcl.domino.commons.util.NotesErrorUtils;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -39,8 +39,8 @@ public class JNAMessageQueues implements MessageQueues {
 		Memory queueNameMem = NotesStringUtils.toLMBCS(queueName, true);
 
 		IntByReference retQueue = new IntByReference();
-		short result = NotesCAPI.get().MQOpen(queueNameMem, createOnFail ? NotesConstants.MQ_OPEN_CREATE : 0, retQueue);
-		NotesErrorUtils.checkResult(result);
+		NotesCAPI.get().MQOpen(queueNameMem, createOnFail ? NotesConstants.MQ_OPEN_CREATE : 0, retQueue)
+		  .orElseThrow();
 
 		return new JNAMessageQueue(this.m_client, queueName, retQueue.getValue());
 	}
@@ -51,17 +51,16 @@ public class JNAMessageQueues implements MessageQueues {
 
 		IntByReference retQueue = new IntByReference();
 		
-		short result = NotesCAPI.get().MQOpen(queueNameMem, 0, retQueue);
-		if (result==INotesErrorConstants.ERR_NO_SUCH_MQ) {
+		STATUS result = NotesCAPI.get().MQOpen(queueNameMem, 0, retQueue);
+		if (result.getMaskedValue()==INotesErrorConstants.ERR_NO_SUCH_MQ) {
 			return false;
 		}
-		else if (result==0) {
-			result = NotesCAPI.get().MQClose(retQueue.getValue(), 0);
-			NotesErrorUtils.checkResult(result);
+		else if (!result.isError()) {
+			NotesCAPI.get().MQClose(retQueue.getValue(), 0).orElseThrow();
 			return true;
 		}
 		else {
-			NotesErrorUtils.checkResult(result);
+			result.orElseThrow();
 			return false;
 		}
 	}
@@ -70,12 +69,10 @@ public class JNAMessageQueues implements MessageQueues {
 	public MessageQueue createAndOpen(String queueName, int quota) {
 		Memory queueNameMem = NotesStringUtils.toLMBCS(queueName, true);
 
-		short result = NotesCAPI.get().MQCreate(queueNameMem, (short) (quota & 0xffff), 0);
-		NotesErrorUtils.checkResult(result);
+		NotesCAPI.get().MQCreate(queueNameMem, (short) (quota & 0xffff), 0).orElseThrow();
 
 		IntByReference retQueue = new IntByReference();
-		result = NotesCAPI.get().MQOpen(queueNameMem, 0, retQueue);
-		NotesErrorUtils.checkResult(result);
+		NotesCAPI.get().MQOpen(queueNameMem, 0, retQueue).orElseThrow();
 
 		return new JNAMessageQueue(this.m_client, queueName, retQueue.getValue());
 	}

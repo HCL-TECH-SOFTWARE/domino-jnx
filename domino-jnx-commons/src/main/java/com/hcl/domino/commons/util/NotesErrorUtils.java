@@ -24,9 +24,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
+import java.util.concurrent.ConcurrentHashMap;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.OSLoadStringProvider;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.errors.ErrorText;
 import com.hcl.domino.commons.errors.errorcodes.IAgntsErr;
 import com.hcl.domino.commons.errors.errorcodes.IBsafeErr;
@@ -86,6 +87,8 @@ import com.hcl.domino.misc.NotesConstants;
  * @author Karsten Lehmann
  */
 public class NotesErrorUtils {
+  public static final Map<Short, StatusImpl> STATUS_CACHE = new ConcurrentHashMap<>();
+  
   private static volatile Map<Short, String> staticTexts;
 
   /**
@@ -290,7 +293,7 @@ public class NotesErrorUtils {
       case INsfErr.ERR_ITEM_NOT_FOUND:
         return Optional.of(new ItemNotFoundException(s, message));
       case IMiscErr.ERR_NOT_FOUND:
-        return Optional.of(new EntryNotFoundInIndexException(s, message));
+        return Optional.of(new EntryNotFoundInIndexException(StatusImpl.of((short)s), message));
       case INifErr.ERR_NO_SUCH_ITEM:
         return Optional.of(new ItemNotPresentException(s, message));
       case ISecErr.ERR_SECURE_BADPASSWORD:
@@ -360,6 +363,7 @@ public class NotesErrorUtils {
     StackTraceElement[] stack = new Throwable().getStackTrace();
     return Arrays.stream(stack)
       .filter(el -> !NotesErrorUtils.class.getName().equals(el.getClassName()))
+      .filter(el -> !StatusImpl.class.getName().equals(el.getClassName()))
       .findFirst()
       .map(el -> el.getClassName() + "#" + el.getMethodName() + ":" + el.getLineNumber()) //$NON-NLS-1$ //$NON-NLS-2$
       .orElse(""); //$NON-NLS-1$

@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.internal.capi;
 
+import com.hcl.domino.data.types.STATUS;
 import com.sun.jna.Callback;
 import com.sun.jna.Library;
 import com.sun.jna.Memory;
@@ -29,7 +30,7 @@ import com.sun.jna.ptr.LongByReference;
  */
 public interface INotesCAPI1400 extends Library {
   
-  short SECValidateAccessToken(
+  STATUS SECValidateAccessToken(
       Memory pszAccessToken,
       Memory pszProviderURL,
       Memory pszRequiredScope,

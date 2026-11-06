@@ -24,6 +24,7 @@ import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.NotesErrorUtils;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.FormulaCompilationException;
 import com.hcl.domino.jna.data.JNAFormula;
 import com.hcl.domino.jna.internal.Mem;
@@ -90,13 +91,13 @@ public class JNAFormulaAllocations extends APIObjectAllocations<JNAFormula> {
 		ShortByReference retCompileErrorOffset = new ShortByReference();
 		ShortByReference retCompileErrorLength = new ShortByReference();
 		
-		short result = NotesCAPI.get().NSFFormulaCompile(formulaName, formulaNameLength,
+		STATUS result = NotesCAPI.get().NSFFormulaCompile(formulaName, formulaNameLength,
 				formulaText, formulaTextLength, rethFormula, retFormulaLength,
 				retCompileError, retCompileErrorLine, retCompileErrorColumn,
 				retCompileErrorOffset, retCompileErrorLength);
 
-		if (result == INotesErrorConstants.ERR_FORMULA_COMPILATION) {
-			String errMsg = NotesErrorUtils.errToString(result); // "Formula Error"
+		if (result.getMaskedValue() == INotesErrorConstants.ERR_FORMULA_COMPILATION) {
+			String errMsg = result.toErrorString(); // "Formula Error"
 			String compileErrorReason = NotesErrorUtils.errToString(retCompileError.getValue());
 
 			throw new FormulaCompilationException(result, errMsg, formula,
@@ -107,7 +108,7 @@ public class JNAFormulaAllocations extends APIObjectAllocations<JNAFormula> {
 					retCompileErrorOffset.getValue(),
 					retCompileErrorLength.getValue());
 		}
-		NotesErrorUtils.checkResult(result);
+		result.orElseThrow();
 		m_hFormula = rethFormula;
 		m_compiledFormulaLength = retFormulaLength.getValue() & 0xffff;
 		
@@ -117,8 +118,7 @@ public class JNAFormulaAllocations extends APIObjectAllocations<JNAFormula> {
 			return Mem.OSLockObject(handleByVal);
 		});
 		
-		result = NotesCAPI.get().NSFComputeStart(computeFlags, m_ptrCompiledFormula, rethCompute);
-		NotesErrorUtils.checkResult(result);
+		NotesCAPI.get().NSFComputeStart(computeFlags, m_ptrCompiledFormula, rethCompute).orElseThrow();
 		
 		m_hCompute = rethCompute;
 	}
@@ -150,8 +150,7 @@ public class JNAFormulaAllocations extends APIObjectAllocations<JNAFormula> {
 					return 0;
 				}
 				
-				short result = NotesCAPI.get().NSFComputeStop(handleByVal);
-				NotesErrorUtils.checkResult(result);
+				NotesCAPI.get().NSFComputeStop(handleByVal).orElseThrow();
 				m_hCompute.setDisposed();
 				m_hCompute = null;
 				
@@ -167,8 +166,7 @@ public class JNAFormulaAllocations extends APIObjectAllocations<JNAFormula> {
 				
 				Mem.OSUnlockObject(handleByVal);
 				
-				short result = Mem.OSMemFree(handleByVal);
-				NotesErrorUtils.checkResult(result);
+				Mem.OSMemFree(handleByVal).orElseThrow();
 				
 				m_hFormula.setDisposed();
 				m_hFormula = null;

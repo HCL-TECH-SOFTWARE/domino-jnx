@@ -28,7 +28,6 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.JNADominoProcess;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -92,16 +91,12 @@ public class LMBCSStringList extends BaseJNAAPIObject<LMBCSStringListAllocations
 	private void allocate() {
 		JNADominoProcess.checkThreadEnabledForDomino();
 		
-		short result;
-		
 		DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
 		ShortByReference retListSize = new ShortByReference();
 
-		result = NotesCAPI.get().ListAllocate((short) 0, 
+		NotesCAPI.get().ListAllocate((short) 0, 
 				(short) 0,
-				m_prefixDataType ? 1 : 0, rethList, null, retListSize);
-		
-		NotesErrorUtils.checkResult(result);
+				m_prefixDataType ? 1 : 0, rethList, null, retListSize).orElseThrow();
 
 		LMBCSStringListAllocations allocations = getAllocations();
 		allocations.setListHandle(rethList);
@@ -126,10 +121,9 @@ public class LMBCSStringList extends BaseJNAAPIObject<LMBCSStringListAllocations
 		
 		ShortByReference retListSize = new ShortByReference();
 		
-		short result = LockUtil.lockHandle(allocations.getListHandle(), (handleByVal) -> {
-			return NotesCAPI.get().ListRemoveAllEntries(handleByVal, m_prefixDataType ? 1 : 0, retListSize);
+		LockUtil.lockHandle(allocations.getListHandle(), (handleByVal) -> {
+			return NotesCAPI.get().ListRemoveAllEntries(handleByVal, m_prefixDataType ? 1 : 0, retListSize).orElseThrow();
 		});
-		NotesErrorUtils.checkResult(result);
 		
 		m_listSizeBytes = retListSize.getValue() & 0xffff;
 		m_values.clear();
@@ -175,13 +169,12 @@ public class LMBCSStringList extends BaseJNAAPIObject<LMBCSStringListAllocations
 
         char textSize = currStrMem==null ? 0 : (char) currStrMem.size();
 
-				short result = NotesCAPI.get().ListAddEntry(handleByVal,
+				NotesCAPI.get().ListAddEntry(handleByVal,
 				    m_prefixDataType ? 1 : 0,
 				        retListSize,
 				        (char) i,
 				        currStrMem,
-				        textSize);
-				NotesErrorUtils.checkResult(result);
+				        textSize).orElseThrow();
 			}
 			return 0;
 		});

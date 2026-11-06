@@ -27,7 +27,6 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.data.JNADocument;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
@@ -64,8 +63,7 @@ public class JNADocumentAllocations extends APIObjectAllocations<JNADocument> {
 		if (m_noteHandle!=null && !m_noteHandle.isDisposed()) {
 			LockUtil.lockHandle(m_noteHandle, (handleByVal) -> {
 				if (!m_noRecycle) {
-					short result = NotesCAPI.get().NSFNoteClose(handleByVal);
-					NotesErrorUtils.checkResult(result);
+					NotesCAPI.get().NSFNoteClose(handleByVal).orElseThrow();
 				}
 				m_noteHandle = null;
 				return 0;

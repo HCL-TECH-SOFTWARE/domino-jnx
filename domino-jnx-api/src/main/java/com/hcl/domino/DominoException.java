@@ -16,6 +16,8 @@
  */
 package com.hcl.domino;
 
+import com.hcl.domino.data.types.STATUS;
+
 /**
  * Exception class for Notes C API errors
  *
@@ -30,9 +32,36 @@ public class DominoException extends RuntimeException {
    *
    * @param id      error code received from Domino
    * @param message error message
+   * @deprecated Use the STATUS variant
    */
+  @Deprecated
   public DominoException(final int id, final String message) {
     super(message);
+    this.m_id = id;
+  }
+
+  /**
+   * Creates a new instance
+   *
+   * @param id      error code received from Domino
+   * @param message error message
+   */
+  public DominoException(final STATUS id, final String message) {
+    super(message);
+    this.m_id = id.getValue();
+  }
+
+  /**
+   * Created a new instance
+   *
+   * @param id      error code received from Domino
+   * @param message error message
+   * @param cause   exception cause
+   * @deprecated Use the STATUS variant
+   */
+  @Deprecated
+  public DominoException(final int id, final String message, final Throwable cause) {
+    super(message, cause);
     this.m_id = id;
   }
 
@@ -43,9 +72,9 @@ public class DominoException extends RuntimeException {
    * @param message error message
    * @param cause   exception cause
    */
-  public DominoException(final int id, final String message, final Throwable cause) {
+  public DominoException(final STATUS id, final String message, final Throwable cause) {
     super(message, cause);
-    this.m_id = id;
+    this.m_id = id.getValue();
   }
 
   /**

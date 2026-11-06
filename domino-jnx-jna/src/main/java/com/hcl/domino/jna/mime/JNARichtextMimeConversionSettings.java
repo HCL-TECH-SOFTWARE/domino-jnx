@@ -56,7 +56,7 @@ public class JNARichtextMimeConversionSettings extends BaseJNAAPIObject<JNARicht
 		super(parent);
 		
 		PointerByReference retConvControls = new PointerByReference();
-		NotesCAPI.get().MMCreateConvControls(retConvControls);
+		NotesCAPI.get().MMCreateConvControls(retConvControls).orElseThrow();
 		Pointer convControls = retConvControls.getValue();
 		
 		getAllocations().setSettingsPointer(convControls);

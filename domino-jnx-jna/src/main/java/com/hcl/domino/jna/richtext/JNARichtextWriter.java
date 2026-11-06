@@ -60,7 +60,6 @@ import com.hcl.domino.commons.richtext.IDefaultRichTextWriter;
 import com.hcl.domino.commons.richtext.DefaultRichTextList;
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.FontAttribute;
@@ -138,8 +137,7 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 		LockUtil.lockHandle(docAllocations.getNoteHandle(), (hNoteByVal) -> {
 			DHANDLE.ByReference rethCompound = DHANDLE.newInstanceByReference();
 			
-			short result = NotesCAPI.get().CompoundTextCreate(hNoteByVal, itemNameMem, rethCompound);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().CompoundTextCreate(hNoteByVal, itemNameMem, rethCompound).orElseThrow();
 			
 			JNARichtextWriterAllocations writerAllocations = getAllocations();
 			writerAllocations.setCompoundTextHandle(rethCompound, false);
@@ -161,8 +159,7 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 		
 		DHANDLE.ByReference rethCompound = DHANDLE.newInstanceByReference();
 		
-		short result = NotesCAPI.get().CompoundTextCreate(null, null, rethCompound);
-		NotesErrorUtils.checkResult(result);
+		NotesCAPI.get().CompoundTextCreate(null, null, rethCompound).orElseThrow();
 		
 		JNARichtextWriterAllocations writerAllocations = getAllocations();
 		writerAllocations.setCompoundTextHandle(rethCompound, true);
@@ -239,10 +236,9 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 			Memory styleNameMem = NotesStringUtils.toLMBCS(style.getName(), true);
 
 			JNARichtextWriterAllocations allocations = getAllocations();
-			short result = LockUtil.lockHandle(allocations.getCompoundTextHandle(), (hCompoundTextByVal) -> {
-				return NotesCAPI.get().CompoundTextDefineStyle(hCompoundTextByVal, styleNameMem, styleStruct, retStyleId);
-			});
-			NotesErrorUtils.checkResult(result);
+			LockUtil.lockHandle(allocations.getCompoundTextHandle(), (hCompoundTextByVal) ->
+				NotesCAPI.get().CompoundTextDefineStyle(hCompoundTextByVal, styleNameMem, styleStruct, retStyleId)
+			).orElseThrow();
 			
 			styleId = retStyleId.getValue();
 
@@ -273,7 +269,6 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 		int dwStyleID = textStyle==null ? NotesConstants.STYLE_ID_SAMEASPREV : getStyleId(textStyle);
 
 		Pointer nlsInfoPtr = NotesCAPI.get().OSGetLMBCSCLS();
-		short result;
 		int dwFlags = NotesConstants.COMP_PRESERVE_LINES | NotesConstants.COMP_PARA_BLANK_LINE;
 		if (createParagraphOnLinebreak) {
 			dwFlags = dwFlags | NotesConstants.COMP_PARA_LINE;
@@ -283,12 +278,11 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 		JNARichtextWriterAllocations allocations = getAllocations();
 		
 		
-		result = LockUtil.lockHandle(allocations.getCompoundTextHandle(), (hCompoundTextByVal) -> {
-			return  NotesCAPI.get().CompoundTextAddTextExt(hCompoundTextByVal, dwStyleID, fontId, txtMem,
+		LockUtil.lockHandle(allocations.getCompoundTextHandle(), (hCompoundTextByVal) ->
+			NotesCAPI.get().CompoundTextAddTextExt(hCompoundTextByVal, dwStyleID, fontId, txtMem,
 					txtMem==null ? 0 : (int) txtMem.size(),
-					lineDelimMem, fDWFlags, nlsInfoPtr);
-		});
-		NotesErrorUtils.checkResult(result);
+					lineDelimMem, fDWFlags, nlsInfoPtr)
+		).orElseThrow();
 		
 		m_hasData=true;
 		
@@ -483,10 +477,9 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 			//prevent NSD when passing a null value for the comment
 			Memory commentMem = NotesStringUtils.toLMBCS(comment==null ? "" : comment, true);
 			
-			short result = LockUtil.lockHandle(getAllocations().getCompoundTextHandle(), (hCompoundTextByVal) -> {
-				return NotesCAPI.get().CompoundTextAddDocLink(hCompoundTextByVal, dbReplicaIdStructByVal, viewUNIDStructByVal, noteUNIDStructByVal, commentMem, 0);
-			});
-			NotesErrorUtils.checkResult(result);
+			LockUtil.lockHandle(getAllocations().getCompoundTextHandle(), (hCompoundTextByVal) ->
+				NotesCAPI.get().CompoundTextAddDocLink(hCompoundTextByVal, dbReplicaIdStructByVal, viewUNIDStructByVal, noteUNIDStructByVal, commentMem, 0)
+			).orElseThrow();
 			
 			m_hasData=true;
 		}
@@ -577,12 +570,11 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 
 		JNADocumentAllocations docAllocations = (JNADocumentAllocations) jnaDoc.getAdapter(APIObjectAllocations.class);
 		
-		short result = LockUtil.lockHandles(getAllocations().getCompoundTextHandle(), docAllocations.getNoteHandle(),
-				(hCompoundTextByVal, hNoteByVal) -> {
-			return NotesCAPI.get().CompoundTextAssimilateItem(hCompoundTextByVal, hNoteByVal, itemNameMem, 0);
-		});
+		LockUtil.lockHandles(getAllocations().getCompoundTextHandle(), docAllocations.getNoteHandle(),
+				(hCompoundTextByVal, hNoteByVal) ->
+			NotesCAPI.get().CompoundTextAssimilateItem(hCompoundTextByVal, hNoteByVal, itemNameMem, 0)
+		).orElseThrow();
 		
-		NotesErrorUtils.checkResult(result);
 		m_hasData=true;
 		
 		return this;
@@ -620,7 +612,7 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 		ByteBuffer recordData = record.getData();
 		int len = record.getCDRecordLength();
 		
-		short result = LockUtil.lockHandle(getAllocations().getCompoundTextHandle(), (hCompoundTextByVal) -> {
+		LockUtil.lockHandle(getAllocations().getCompoundTextHandle(), (hCompoundTextByVal) -> {
 			Pointer recordMem;
 			try {
 				recordMem = Native.getDirectBufferPointer(recordData);
@@ -629,8 +621,7 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 				recordMem.write(0, recordData.array(), 0, len);
 			}
 			return NotesCAPI.get().CompoundTextAddCDRecords(hCompoundTextByVal, recordMem, len);
-		});
-		NotesErrorUtils.checkResult(result);
+		}).orElseThrow();
 		m_hasData=true;
 		
 		return this;
@@ -645,7 +636,7 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
         return this;
       }
 
-      short result = LockUtil.lockHandle(getAllocations().getCompoundTextHandle(), (hCompoundTextByVal) -> {
+      LockUtil.lockHandle(getAllocations().getCompoundTextHandle(), (hCompoundTextByVal) -> {
         int len = recordData.remaining();
         Pointer recordMem;
         try {
@@ -655,9 +646,8 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
           recordMem.write(0, recordData.array(), 0, len);
         }
         return NotesCAPI.get().CompoundTextAddCDRecords(hCompoundTextByVal, recordMem, len);
-      });
+      }).orElseThrow();
 
-      NotesErrorUtils.checkResult(result);
       m_hasData = true;
 
       return this;
@@ -831,11 +821,10 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 		
 		Memory filePathMem = NotesStringUtils.toLMBCS(filePath, true);
 		
-		short result = LockUtil.lockHandle(getAllocations().getCompoundTextHandle(), (hCompoundTextByVal) -> {
-			return NotesCAPI.get().CompoundTextAssimilateFile(hCompoundTextByVal, filePathMem, 0);
-		});
+		LockUtil.lockHandle(getAllocations().getCompoundTextHandle(), (hCompoundTextByVal) ->
+			NotesCAPI.get().CompoundTextAssimilateFile(hCompoundTextByVal, filePathMem, 0)
+		).orElseThrow();
 
-		NotesErrorUtils.checkResult(result);
 		m_hasData=true;
 	}
 }

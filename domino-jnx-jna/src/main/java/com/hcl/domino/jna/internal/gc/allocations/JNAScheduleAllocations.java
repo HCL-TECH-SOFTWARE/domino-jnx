@@ -21,7 +21,6 @@ import java.lang.ref.ReferenceQueue;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.freebusy.JNASchedule;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
@@ -51,11 +50,9 @@ public class JNAScheduleAllocations extends APIObjectAllocations<JNASchedule> {
 		if (m_hSchedule!=null) {
 			JNASchedulesAllocations parentAllocations = (JNASchedulesAllocations)getParentAllocations();
 			
-			short result=LockUtil.lockHandle(parentAllocations.getSchedulesHandle(), (handleByVal) -> {
-				return NotesCAPI.get().Schedule_Free(handleByVal, m_hSchedule);
-			});
-			
-			NotesErrorUtils.checkResult(result);
+			LockUtil.lockHandle(parentAllocations.getSchedulesHandle(), (handleByVal) ->
+				NotesCAPI.get().Schedule_Free(handleByVal, m_hSchedule)
+			).orElseThrow();
 			
 			m_hSchedule = null;
 		}

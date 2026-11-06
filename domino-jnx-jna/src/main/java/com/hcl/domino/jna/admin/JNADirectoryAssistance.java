@@ -17,7 +17,6 @@
 package com.hcl.domino.jna.admin;
 
 import com.hcl.domino.admin.DirectoryAssistance;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.structs.CreateDAConfigStruct;
@@ -65,7 +64,7 @@ public class JNADirectoryAssistance implements DirectoryAssistance {
     daConfig.bUpdateServerDoc = updateServerDoc;
     daConfig.daStruct = daConfigStruct;
     daConfig.write();
-    NotesErrorUtils.checkResult(NotesCAPI.get().CreateDAConfiguration(daConfig));
+    NotesCAPI.get().CreateDAConfiguration(daConfig).orElseThrow();
   }
 
   @Override
@@ -79,7 +78,7 @@ public class JNADirectoryAssistance implements DirectoryAssistance {
     daConfig.bEnableDomain = enableDomain;
 
     daConfig.write();
-    NotesErrorUtils.checkResult(NotesCAPI.get().EnableDisableDADomain(daConfig));
+    NotesCAPI.get().EnableDisableDADomain(daConfig).orElseThrow();
   }
 
   @Override
@@ -114,7 +113,7 @@ public class JNADirectoryAssistance implements DirectoryAssistance {
     daConfig.daStruct = daConfigStruct;
     NotesStringUtils.toLMBCS(docUnid, true, daConfig.szDocUNID);
     daConfig.write();
-    NotesErrorUtils.checkResult(NotesCAPI.get().UpdateDAConfiguration(daConfig));
+    NotesCAPI.get().UpdateDAConfiguration(daConfig).orElseThrow();
   }
 
 }

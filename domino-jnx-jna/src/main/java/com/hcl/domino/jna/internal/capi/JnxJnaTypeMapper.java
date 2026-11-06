@@ -1,11 +1,18 @@
 package com.hcl.domino.jna.internal.capi;
 
+import java.util.HashMap;
+import java.util.Map;
+import com.hcl.domino.commons.data.types.StatusImpl;
+import com.hcl.domino.data.types.STATUS;
+import com.hcl.domino.jna.internal.capi.mapper.DHandleByReferenceMapper;
+import com.hcl.domino.jna.internal.capi.mapper.DHandleByValueMapper;
+import com.hcl.domino.jna.internal.capi.mapper.HandleByReferenceMapper;
+import com.hcl.domino.jna.internal.capi.mapper.HandleByValueMapper;
+import com.hcl.domino.jna.internal.capi.mapper.StatusMapper;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
-import com.hcl.domino.jna.internal.gc.handles.DHandleByReferenceMapper;
-import com.hcl.domino.jna.internal.gc.handles.DHandleByValueMapper;
+import com.hcl.domino.jna.internal.gc.handles.DHANDLE64;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
-import com.hcl.domino.jna.internal.gc.handles.HandleByReferenceMapper;
-import com.hcl.domino.jna.internal.gc.handles.HandleByValueMapper;
+import com.hcl.domino.jna.internal.gc.handles.HANDLE64;
 import com.hcl.domino.jna.internal.structs.MemoryStructureMapper;
 import com.hcl.domino.richtext.structures.MemoryStructure;
 import com.sun.jna.FromNativeConverter;
@@ -17,6 +24,21 @@ import com.sun.jna.TypeMapper;
  */
 public enum JnxJnaTypeMapper implements TypeMapper {
   INSTANCE;
+  
+  private final Map<Class<?>, Object> cache = new HashMap<>();
+  
+  private JnxJnaTypeMapper() {
+    cache.put(DHANDLE.ByReference.class, DHandleByReferenceMapper.INSTANCE);
+    cache.put(DHANDLE64.ByReference.class, DHandleByReferenceMapper.INSTANCE);
+    cache.put(DHANDLE.ByValue.class, DHandleByValueMapper.INSTANCE);
+    cache.put(DHANDLE64.ByValue.class, DHandleByValueMapper.INSTANCE);
+    cache.put(HANDLE.ByReference.class, HandleByReferenceMapper.INSTANCE);
+    cache.put(HANDLE64.ByReference.class, HandleByReferenceMapper.INSTANCE);
+    cache.put(HANDLE.ByValue.class, HandleByValueMapper.INSTANCE);
+    cache.put(HANDLE64.ByValue.class, HandleByValueMapper.INSTANCE);
+    cache.put(STATUS.class, StatusMapper.INSTANCE);
+    cache.put(StatusImpl.class, StatusMapper.INSTANCE);
+  }
 
   @Override
   public FromNativeConverter getFromNativeConverter(Class<?> javaType) {
@@ -30,14 +52,9 @@ public enum JnxJnaTypeMapper implements TypeMapper {
 
   @SuppressWarnings("unchecked")
   private <T extends FromNativeConverter & ToNativeConverter> T getMapper(Class<?> javaType) {
-    if(DHANDLE.ByReference.class.isAssignableFrom(javaType)) {
-      return (T)DHandleByReferenceMapper.INSTANCE;
-    } else if(DHANDLE.ByValue.class.isAssignableFrom(javaType)) {
-      return (T)DHandleByValueMapper.INSTANCE;
-    } else if(HANDLE.ByReference.class.isAssignableFrom(javaType)) {
-      return (T)HandleByReferenceMapper.INSTANCE;
-    } else if(HANDLE.ByValue.class.isAssignableFrom(javaType)) {
-      return (T)HandleByValueMapper.INSTANCE;
+    Object known = cache.get(javaType);
+    if(known != null) {
+      return (T)known;
     } else if(MemoryStructure.class.isAssignableFrom(javaType)) {
       return (T)MemoryStructureMapper.INSTANCE;
     }

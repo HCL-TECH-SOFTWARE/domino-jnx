@@ -19,7 +19,6 @@ package com.hcl.domino.jna.internal;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
@@ -72,8 +71,8 @@ public class FormulaDecompiler {
 	public static String decompileFormula(Pointer ptr, boolean isSelectionFormula) {
 		DHANDLE.ByReference rethFormulaText = DHANDLE.newInstanceByReference();
 		ShortByReference retFormulaTextLength = new ShortByReference();
-		short result = NotesCAPI.get().NSFFormulaDecompile(ptr, isSelectionFormula, rethFormulaText, retFormulaTextLength);
-		NotesErrorUtils.checkResult(result);
+		NotesCAPI.get().NSFFormulaDecompile(ptr, isSelectionFormula, rethFormulaText, retFormulaTextLength)
+		  .orElseThrow();
 
 		return LockUtil.lockHandle(rethFormulaText, (rethFormulaTextByVal) -> {
 			Pointer formulaPtr = Mem.OSLockObject(rethFormulaTextByVal);
@@ -84,8 +83,7 @@ public class FormulaDecompiler {
 			}
 			finally {
 				Mem.OSUnlockObject(rethFormulaTextByVal);
-				short freeResult = Mem.OSMemFree(rethFormulaTextByVal);
-				NotesErrorUtils.checkResult(freeResult);
+				Mem.OSMemFree(rethFormulaTextByVal).orElseThrow();
 			}
 		});
 	}
@@ -98,8 +96,7 @@ public class FormulaDecompiler {
 	 */
   public static int getSize(Pointer ptr) {
     ShortByReference retFormulaLength = new ShortByReference();
-    short result = NotesCAPI.get().NSFFormulaGetSizeP(ptr, retFormulaLength);
-    NotesErrorUtils.checkResult(result);
+    NotesCAPI.get().NSFFormulaGetSizeP(ptr, retFormulaLength).orElseThrow();
     
     return (int) (retFormulaLength.getValue() & 0xffff);
   }

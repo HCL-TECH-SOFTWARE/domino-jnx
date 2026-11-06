@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -39,6 +40,7 @@ import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.OpenDocumentMode;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.IAdaptable;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.AgentTimeoutException;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
@@ -69,7 +71,7 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 		
 		DHANDLE handle = adaptable.getAdapter(DHANDLE.class);
 		if (handle==null) {
-			throw new DominoException(0, "Missing expected agent handle");
+			throw new DominoException(StatusImpl.NOERROR, "Missing expected agent handle");
 		}
 		getAllocations().setAgentHandle(handle);
 
@@ -206,8 +208,8 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 		LockUtil.lockHandle(getAllocations().getAgentHandle(), (hAgentByVal) -> {
 			DHANDLE.ByReference rethContext = DHANDLE.newInstanceByReference();
 			
-			short result = NotesCAPI.get().AgentCreateRunContextExt(hAgentByVal, null, 0, fCtxFlags, rethContext);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().AgentCreateRunContextExt(hAgentByVal, null, 0, fCtxFlags, rethContext)
+			  .orElseThrow();
 			
 			LockUtil.lockHandle(rethContext, (hContextByVal) -> {
 				
@@ -215,13 +217,12 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 					if (stdOut.isPresent()) {
 						//redirect stdout to in memory buffer
 						short redirType = NotesConstants.AGENT_REDIR_MEMORY;
-						short resultSetOut = NotesCAPI.get().AgentRedirectStdout(hContextByVal, redirType);
-						NotesErrorUtils.checkResult(resultSetOut);
+						NotesCAPI.get().AgentRedirectStdout(hContextByVal, redirType).orElseThrow();
 					}
 
 					if (timeoutSeconds!=0) {
-						short timeOutResult = NotesCAPI.get().AgentSetTimeExecutionLimit(hContextByVal, timeoutSeconds);
-						NotesErrorUtils.checkResult(timeOutResult);
+						NotesCAPI.get().AgentSetTimeExecutionLimit(hContextByVal, timeoutSeconds)
+						.orElseThrow();
 					}
 
 					if (doc!=null) {
@@ -238,8 +239,8 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 						NotesCAPI.get().SetParamNoteID(hContextByVal, paramDocId);
 					}
 					
-					short runResult = NotesCAPI.get().AgentRun(hAgentByVal, hContextByVal, null, runFlags);
-			    final short runResultMasked = (short) (runResult & NotesConstants.ERR_MASK);
+					STATUS runResult = NotesCAPI.get().AgentRun(hAgentByVal, hContextByVal, null, runFlags);
+			        final short runResultMasked = runResult.getMaskedValue();
 
 					if (runResultMasked==INotesErrorConstants.ERR_ASSISTANT_TIMEOUT) {
 					  //fill placeholders for agent, database and signer in timeout error
@@ -253,7 +254,7 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 					  errMsg = errMsg.replace("%a", getSigner()); //$NON-NLS-1$
 					  throw new AgentTimeoutException(runResult, errMsg);
 					}
-					NotesErrorUtils.checkResult(runResult);
+					runResult.orElseThrow();
 					
 					if (stdOut.isPresent()) {
 						DHANDLE.ByReference retBufHandle = DHANDLE.newInstanceByReference();
@@ -305,14 +306,12 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 		
 		JNADatabaseAllocations dbAllocations = (JNADatabaseAllocations) getParentDatabase().getAdapter(APIObjectAllocations.class);
 		
-		short result = LockUtil.lockHandles(dbAllocations.getDBHandle(), getAllocations().getAgentHandle(),
-				(hDbByVal, hAgentByVal) -> {
+		LockUtil.lockHandles(dbAllocations.getDBHandle(), getAllocations().getAgentHandle(),
+				(hDbByVal, hAgentByVal) ->
 					
-			return NotesCAPI.get().ClientRunServerAgent(hDbByVal,
-					m_agentNoteId, noteIdParamDoc, bForeignServer ? 1 : 0, suppressPrintToConsole ? 1 : 0);
-		});
-		
-		NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().ClientRunServerAgent(hDbByVal,
+					m_agentNoteId, noteIdParamDoc, bForeignServer ? 1 : 0, suppressPrintToConsole ? 1 : 0)
+		).orElseThrow();
 	}
 
 	@Override
@@ -333,10 +332,9 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 		
 		NotesUniversalNoteIdStruct.ByReference retUNID = NotesUniversalNoteIdStruct.newInstanceByReference();
 		
-		short result = LockUtil.lockHandle(dbAllocations.getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().AssistantGetLSDataNote(hDbByVal, m_agentNoteId, retUNID);
-		});
-		NotesErrorUtils.checkResult(result);
+		LockUtil.lockHandle(dbAllocations.getDBHandle(), (hDbByVal) ->
+			NotesCAPI.get().AssistantGetLSDataNote(hDbByVal, m_agentNoteId, retUNID)
+		).orElseThrow();
 		
 		String unid = retUNID.toString();
 		if (StringUtil.isEmpty(unid) || "00000000000000000000000000000000".equals(unid)) { //$NON-NLS-1$

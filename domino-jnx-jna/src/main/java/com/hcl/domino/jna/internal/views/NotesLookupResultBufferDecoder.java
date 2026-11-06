@@ -32,7 +32,6 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.views.IItemTableData;
 import com.hcl.domino.commons.views.IItemValueTableData;
 import com.hcl.domino.commons.views.NotesCollectionStats;
@@ -99,8 +98,7 @@ public class NotesLookupResultBufferDecoder {
 			}
 			finally {
 				Mem.OSUnlockObject(handleByVal);
-				short result = Mem.OSMemFree(handleByVal);
-				NotesErrorUtils.checkResult(result);
+				Mem.OSMemFree(handleByVal).orElseThrow();
 			}
 		});
 	}

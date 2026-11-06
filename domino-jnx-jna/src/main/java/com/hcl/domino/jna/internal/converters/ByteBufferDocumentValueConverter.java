@@ -20,7 +20,6 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Set;
 
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentValueConverter;
 import com.hcl.domino.data.Item.ItemFlag;
@@ -92,8 +91,7 @@ public class ByteBufferDocumentValueConverter implements DocumentValueConverter 
 	  buf.get(valueData);
 	  
     DHANDLE.ByReference rethItem = DHANDLE.newInstanceByReference();
-    short result = Mem.OSMemAlloc((short) 0, valueSize, rethItem);
-    NotesErrorUtils.checkResult(result);
+    Mem.OSMemAlloc((short) 0, valueSize, rethItem);
     
     LockUtil.lockHandle(rethItem, (hItemByVal) -> {
       Pointer valuePtr = Mem.OSLockObject(hItemByVal);

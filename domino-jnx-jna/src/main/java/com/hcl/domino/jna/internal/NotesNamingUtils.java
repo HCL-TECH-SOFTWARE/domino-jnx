@@ -30,7 +30,6 @@ import java.util.Objects;
 
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.gc.IAPIObject;
-import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.ReverseStringTokenizer;
 import com.hcl.domino.commons.util.StringTokenizerExt;
@@ -148,8 +147,7 @@ public class NotesNamingUtils {
 		try(DisposableMemory outNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
   		ShortByReference outLength = new ShortByReference();
   		
-  		short result = NotesCAPI.get().DNCanonicalize(0, templateNameMem, inNameMem, outNameMem, NotesConstants.MAXUSERNAME, outLength);
-  		NotesErrorUtils.checkResult(result);
+  		NotesCAPI.get().DNCanonicalize(0, templateNameMem, inNameMem, outNameMem, NotesConstants.MAXUSERNAME, outLength).orElseThrow();
   		
   		String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue() & 0xffff);
       
@@ -349,8 +347,7 @@ public class NotesNamingUtils {
 		try(DisposableMemory outNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
   		ShortByReference outLength = new ShortByReference();
   		
-  		short result = NotesCAPI.get().DNAbbreviate(0, templateNameMem, inNameMem, outNameMem, NotesConstants.MAXUSERNAME, outLength);
-  		NotesErrorUtils.checkResult(result);
+  		NotesCAPI.get().DNAbbreviate(0, templateNameMem, inNameMem, outNameMem, NotesConstants.MAXUSERNAME, outLength).orElseThrow();
   		
   		String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue() & 0xffff);
   		
@@ -415,8 +412,7 @@ public class NotesNamingUtils {
 		}
 		
 		DHANDLE.ByReference retHandle = DHANDLE.newInstanceByReference();
-		short result = Mem.OSMemAlloc((short) 0, JNANotesConstants.namesListHeaderSize32 + bOut.size(), retHandle);
-		NotesErrorUtils.checkResult(result);
+		Mem.OSMemAlloc((short) 0, JNANotesConstants.namesListHeaderSize32 + bOut.size(), retHandle);
 		
 		//write the data
 		LockUtil.lockHandle(retHandle, (handleByVal) -> {
@@ -473,8 +469,7 @@ public class NotesNamingUtils {
 		}
 
 		DHANDLE.ByReference retHandle = DHANDLE.newInstanceByReference();
-		short result = Mem.OSMemAlloc((short) 0, (int) namesListMem.size() + bOut.size(), retHandle);
-		NotesErrorUtils.checkResult(result);
+		Mem.OSMemAlloc((short) 0, (int) namesListMem.size() + bOut.size(), retHandle);
 		
 		//write the data
 		LockUtil.lockHandle(retHandle, (handleByVal) -> {
@@ -544,9 +539,8 @@ public class NotesNamingUtils {
 
 		DHANDLE.ByReference rethNamesList = DHANDLE.newInstanceByReference();
 		synchronized(BUILDNAMESLIST_LOCK) {
-			short result = NotesCAPI.get().CreateNamesListFromSingleName(serverNameLMBCS,
-					fDontLookupAlternateNames, pLookupFlags, userNameLMBCS, rethNamesList);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().CreateNamesListFromSingleName(serverNameLMBCS,
+					fDontLookupAlternateNames, pLookupFlags, userNameLMBCS, rethNamesList).orElseThrow();
 		}
 		
 		JNAUserNamesList newList =  new JNAUserNamesList(parent, rethNamesList);
@@ -582,8 +576,7 @@ public class NotesNamingUtils {
     		
     		DHANDLE.ByReference rethNamesList = DHANDLE.newInstanceByReference();
     		synchronized(BUILDNAMESLIST_LOCK) {
-    			short result = NotesCAPI.get().CreateNamesListFromNamesExtend(serverNameLMBCS, (short) (names.length & 0xffff), sArr, rethNamesList);
-    			NotesErrorUtils.checkResult(result);
+    			NotesCAPI.get().CreateNamesListFromNamesExtend(serverNameLMBCS, (short) (names.length & 0xffff), sArr, rethNamesList).orElseThrow();
     		}
     		
     		JNAUserNamesList newList =  new JNAUserNamesList(parent, rethNamesList);
@@ -608,8 +601,7 @@ public class NotesNamingUtils {
 		
 		DHANDLE.ByReference rethNamesList = DHANDLE.newInstanceByReference();
 		synchronized(BUILDNAMESLIST_LOCK) {
-			short result = NotesCAPI.get().CreateNamesListFromGroupNameExtend(serverNameLMBCS, groupLMBCS, rethNamesList);
-			NotesErrorUtils.checkResult(result);
+			NotesCAPI.get().CreateNamesListFromGroupNameExtend(serverNameLMBCS, groupLMBCS, rethNamesList).orElseThrow();
 		}
 		
 		JNAUserNamesList newList =  new JNAUserNamesList(parent, rethNamesList);
@@ -636,10 +628,9 @@ public class NotesNamingUtils {
 		
 		//synchronizing the NSFBuildNamesList call because we had reproducible multithreading issues
 		//under heavy application load
-		synchronized (BUILDNAMESLIST_LOCK) {
-			short result = NotesCAPI.get().NSFBuildNamesList(userNameLMBCS, 0, rethNamesList);
-			NotesErrorUtils.checkResult(result);
-		}
+        synchronized (BUILDNAMESLIST_LOCK) {
+          NotesCAPI.get().NSFBuildNamesList(userNameLMBCS, 0, rethNamesList).orElseThrow();
+        }
 		
 		JNAUserNamesList newList =  new JNAUserNamesList(parent, rethNamesList);
 		return newList;
