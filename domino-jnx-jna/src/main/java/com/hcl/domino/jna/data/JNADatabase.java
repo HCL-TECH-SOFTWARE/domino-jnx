@@ -1278,7 +1278,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				int optionBit = currOpt.getValue();
 				int byteOffsetWithBit = optionBit / 8;
 				byte byteValueWithBit = dbOptionsArr[byteOffsetWithBit];
-				int bitToCheck = (int) Math.pow(2, optionBit % 8);
+				int bitToCheck = 1 << (optionBit % 8);
 				
 				boolean enabled = (byteValueWithBit & bitToCheck) == bitToCheck;
 				if (enabled) {
@@ -1305,7 +1305,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		int optionBit = option.getValue();
 		int byteOffsetWithBit = optionBit / 8;
 		byte byteValueWithBit = dbOptionsArr[byteOffsetWithBit];
-		int bitToCheck = (int) Math.pow(2, optionBit % 8);
+		int bitToCheck = 1 << (optionBit % 8);
 		
 		boolean enabled = (byteValueWithBit & bitToCheck) == bitToCheck;
 		return enabled;
@@ -1317,7 +1317,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		int optionBit = option.getValue();
 		int byteOffsetWithBit = optionBit / 8;
-		int bitToCheck = (int) Math.pow(2, optionBit % 8);
+		int bitToCheck = 1 << (optionBit % 8);
 
 		byte[] optionsWithBitSetArr = new byte[4*4];
 		optionsWithBitSetArr[byteOffsetWithBit] = (byte) (bitToCheck & 0xff);

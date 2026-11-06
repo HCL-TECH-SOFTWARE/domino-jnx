@@ -264,7 +264,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
       hAcl.checkDisposed();
 
       int byteOffsetWithBit = roleIndex / 8;
-      int bitToCheck = (int) Math.pow(2, roleIndex % 8);
+      int bitToCheck = 1 << (roleIndex % 8);
 
       int removedRoleIndex = roleIndex;
 
@@ -404,7 +404,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 				// convert position to byte/bit position of byte[10]
 				int byteOffsetWithBit = i / 8;
 				byte byteValueWithBit = privilegesArr[byteOffsetWithBit];
-				int bitToCheck = (int) Math.pow(2, i % 8);
+				int bitToCheck = 1 << (i % 8);
 
 				boolean enabled = (byteValueWithBit & bitToCheck) == bitToCheck;
 				if (enabled) {
@@ -503,7 +503,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 			if (currRole!=null) {
 				if (ListUtil.containsIgnoreCase(rolesFormatted, currRole)) {
 					int byteOffsetWithBit = i / 8;
-					int bitToCheck = (int) Math.pow(2, i % 8);
+					int bitToCheck = 1 << (i % 8);
 					
 					privilegesArr[byteOffsetWithBit] = (byte) ((privilegesArr[byteOffsetWithBit] | bitToCheck) & 0xff);
 				}
@@ -636,7 +636,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 				if (currRole!=null) {
 					if (ListUtil.containsIgnoreCase(newRolesFormatted, currRole)) {
 						int byteOffsetWithBit = i / 8;
-						int bitToCheck = (int) Math.pow(2, i % 8);
+						int bitToCheck = 1 << (i % 8);
 						
 						newPrivilegesArr[byteOffsetWithBit] = (byte) ((newPrivilegesArr[byteOffsetWithBit] | bitToCheck) & 0xff);
 					}
