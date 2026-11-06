@@ -1163,20 +1163,17 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
         if (valArr.length == 2) {
           isAccepted = true;
         }
-      }
-      if (currObj instanceof int[]) {
+      } else if (currObj instanceof int[]) {
         int[] valArr = (int[]) currObj;
         if (valArr.length == 2) {
           isAccepted = true;
         }
-      }
-      if (currObj instanceof long[]) {
+      } else if (currObj instanceof long[]) {
         long[] valArr = (long[]) currObj;
         if (valArr.length == 2) {
           isAccepted = true;
         }
-      }
-      if (currObj instanceof float[]) {
+      } else if (currObj instanceof float[]) {
         float[] valArr = (float[]) currObj;
         if (valArr.length == 2) {
           isAccepted = true;
