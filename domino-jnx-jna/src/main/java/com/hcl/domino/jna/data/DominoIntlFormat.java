@@ -338,12 +338,7 @@ public class DominoIntlFormat implements IAdaptable {
 	 */
 	public String getAMString() {
 		byte[] arr = m_struct.AMString;
-		
-		int length = Math.min(NotesStringUtils.getNullTerminatedLength(arr), arr.length-1);
-		try(DisposableMemory mem = new DisposableMemory(length)) {
-  		mem.write(0, arr, 0, length);
-  		return NotesStringUtils.fromLMBCS(mem, length);
-		}
+		return NotesStringUtils.fromLMBCS(arr);
 	}
 
 	public void setAMString(String str) {
@@ -357,12 +352,7 @@ public class DominoIntlFormat implements IAdaptable {
 	 */
 	public String getPMString() {
 		byte[] arr = m_struct.PMString;
-		
-		int length = Math.min(NotesStringUtils.getNullTerminatedLength(arr), arr.length-1);
-		try(DisposableMemory mem = new DisposableMemory(length)) {
-  		mem.write(0, arr, 0, length);
-  		return NotesStringUtils.fromLMBCS(mem, length);
-		}
+        return NotesStringUtils.fromLMBCS(arr);
 	}
 
 	public void setPMString(String str) {
@@ -376,12 +366,7 @@ public class DominoIntlFormat implements IAdaptable {
 	 */
 	public String getCurrencySymbol() {
 		byte[] arr = m_struct.CurrencyString;
-		
-		int length = Math.min(NotesStringUtils.getNullTerminatedLength(arr), arr.length-1);
-		try(DisposableMemory mem = new DisposableMemory(length)) {
-  		mem.write(0, arr, 0, length);
-  		return NotesStringUtils.fromLMBCS(mem, length);
-		}
+        return NotesStringUtils.fromLMBCS(arr);
 	}
 
 	public void setCurrencySymbol(String str) {
@@ -395,12 +380,7 @@ public class DominoIntlFormat implements IAdaptable {
 	 */
 	public String getThousandString() {
 		byte[] arr = m_struct.ThousandString;
-		
-		int length = Math.min(NotesStringUtils.getNullTerminatedLength(arr), arr.length-1);
-		try(DisposableMemory mem = new DisposableMemory(length)) {
-  		mem.write(0, arr, 0, length);
-  		return NotesStringUtils.fromLMBCS(mem, length);
-		}
+        return NotesStringUtils.fromLMBCS(arr);
 	}
 
 	public void setThousandString(String str) {
@@ -414,12 +394,7 @@ public class DominoIntlFormat implements IAdaptable {
 	 */
 	public String getDecimalString() {
 		byte[] arr = m_struct.DecimalString;
-		
-		int length = Math.min(NotesStringUtils.getNullTerminatedLength(arr), arr.length-1);
-		try(DisposableMemory mem = new DisposableMemory(length)) {
-  		mem.write(0, arr, 0, length);
-  		return NotesStringUtils.fromLMBCS(mem, length);
-		}
+        return NotesStringUtils.fromLMBCS(arr);
 	}
 
 	public void setDecimalString(String str) {
@@ -433,12 +408,7 @@ public class DominoIntlFormat implements IAdaptable {
 	 */
 	public String getDateSep() {
 		byte[] arr = m_struct.DateString;
-		
-		int length = Math.min(NotesStringUtils.getNullTerminatedLength(arr), arr.length-1);
-		try(DisposableMemory mem = new DisposableMemory(length)) {
-  		mem.write(0, arr, 0, length);
-  		return NotesStringUtils.fromLMBCS(mem, length);
-		}
+        return NotesStringUtils.fromLMBCS(arr);
 	}
 
 	public void setDateSep(String str) {
@@ -452,12 +422,7 @@ public class DominoIntlFormat implements IAdaptable {
 	 */
 	public String getTimeSep() {
 		byte[] arr = m_struct.TimeString;
-		
-		int length = Math.min(NotesStringUtils.getNullTerminatedLength(arr), arr.length-1);
-		try(DisposableMemory mem = new DisposableMemory(length)) {
-  		mem.write(0, arr, 0, length);
-  		return NotesStringUtils.fromLMBCS(mem, length);
-		}
+        return NotesStringUtils.fromLMBCS(arr);
 	}
 
 	public void setTimeSep(String str) {
@@ -471,12 +436,7 @@ public class DominoIntlFormat implements IAdaptable {
 	 */
 	public String getYesterdayString() {
 		byte[] arr = m_struct.YesterdayString;
-		
-		int length = Math.min(NotesStringUtils.getNullTerminatedLength(arr), arr.length-1);
-		try(DisposableMemory mem = new DisposableMemory(length)) {
-  		mem.write(0, arr, 0, length);
-  		return NotesStringUtils.fromLMBCS(mem, length);
-		}
+        return NotesStringUtils.fromLMBCS(arr);
 	}
 
 	public void setYesterdayString(String str) {
@@ -490,12 +450,7 @@ public class DominoIntlFormat implements IAdaptable {
 	 */
 	public String getTodayString() {
 		byte[] arr = m_struct.TodayString;
-		
-		int length = Math.min(NotesStringUtils.getNullTerminatedLength(arr), arr.length-1);
-		try(DisposableMemory mem = new DisposableMemory(length)) {
-  		mem.write(0, arr, 0, length);
-  		return NotesStringUtils.fromLMBCS(mem, length);
-		}
+        return NotesStringUtils.fromLMBCS(arr);
 	}
 
 	public void setTodayString(String str) {
@@ -509,12 +464,7 @@ public class DominoIntlFormat implements IAdaptable {
 	 */
 	public String getTomorrowString() {
 		byte[] arr = m_struct.TomorrowString;
-		
-		int length = Math.min(NotesStringUtils.getNullTerminatedLength(arr), arr.length-1);
-		try(DisposableMemory mem = new DisposableMemory(length)) {
-  		mem.write(0, arr, 0, length);
-  		return NotesStringUtils.fromLMBCS(mem, length);
-		}
+        return NotesStringUtils.fromLMBCS(arr);
 	}
 
 	public void setTomorrowString(String str) {
