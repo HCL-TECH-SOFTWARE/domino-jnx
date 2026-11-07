@@ -418,7 +418,7 @@ public class JNADominoProcess implements DominoProcess {
   }
 
   private static class DominoPacemakerThread extends Thread {
-    private LinkedBlockingQueue<Object> m_quitSignalQueue = new LinkedBlockingQueue<>();
+    private final LinkedBlockingQueue<Object> m_quitSignalQueue = new LinkedBlockingQueue<>();
     private InterruptedException m_interruptedEx;
     private LinkedBlockingQueue<Object> m_waitStartedQueue = new LinkedBlockingQueue<>();
     private int argsCount;
