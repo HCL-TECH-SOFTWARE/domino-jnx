@@ -26,12 +26,12 @@ import java.util.Objects;
 import java.util.TreeMap;
 import java.util.function.BiFunction;
 
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.html.HtmlConvertOption;
 import com.hcl.domino.json.DateRangeFormat;
 import com.hcl.domino.json.JsonSerializer;
+import com.hcl.domino.util.JNXStringUtil;
 
 public abstract class AbstractJsonSerializer implements JsonSerializer {
 
@@ -84,7 +84,7 @@ public abstract class AbstractJsonSerializer implements JsonSerializer {
   public JsonSerializer customProcessor(final String propName, final BiFunction<Document, String, Object> processor) {
     Objects.requireNonNull(propName, "propName cannot be null");
     Objects.requireNonNull(processor, "processor cannot be null");
-    if (StringUtil.isEmpty(propName)) {
+    if (JNXStringUtil.isEmpty(propName)) {
       throw new IllegalArgumentException("propName cannot be null");
     }
     this.customProcessors.put(propName, processor);

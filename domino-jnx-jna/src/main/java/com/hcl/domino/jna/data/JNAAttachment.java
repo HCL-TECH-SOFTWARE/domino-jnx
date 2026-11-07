@@ -34,7 +34,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Attachment.IDataCallback.Action;
 import com.hcl.domino.data.Document;
@@ -50,6 +49,7 @@ import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.structs.NotesBlockIdStruct;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.richtext.structures.BlockID;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Pointer;
 
 /**
@@ -71,7 +71,7 @@ public class JNAAttachment implements Attachment {
 	JNAAttachment(String fileName, Compression compression, short fileFlags, long fileSize,
 			DominoDateTime fileCreated, DominoDateTime fileModified, JNADocument parentNote,
 			BlockID itemBlockId, int rrv) {
-		m_fileName = StringUtil.toString(fileName);
+		m_fileName = JNXStringUtil.toString(fileName);
 		m_compression = Objects.requireNonNull(compression, "compression cannot be null");
 		m_fileFlags = fileFlags;
 		m_fileSize = fileSize;

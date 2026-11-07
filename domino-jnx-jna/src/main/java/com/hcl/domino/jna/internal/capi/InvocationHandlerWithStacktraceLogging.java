@@ -34,7 +34,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.hcl.domino.commons.util.DominoUtils;
-import com.hcl.domino.commons.util.StringUtil;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * {@link InvocationHandler} that dumps the current callback to disk before
@@ -83,11 +83,11 @@ public class InvocationHandlerWithStacktraceLogging implements InvocationHandler
 		return AccessController.doPrivileged((PrivilegedAction<Path>) () -> {
 			String outDirPath = DominoUtils.getJavaProperty("jnx.callstacklogdir", null); //$NON-NLS-1$
 			
-			if (StringUtil.isEmpty(outDirPath)) {
+			if (JNXStringUtil.isEmpty(outDirPath)) {
 				outDirPath = DominoUtils.getenv("JNX_CALLSTACKLOGDIR"); //$NON-NLS-1$
 			}
 			
-			if (StringUtil.isEmpty(outDirPath)) {
+			if (JNXStringUtil.isEmpty(outDirPath)) {
 				outDirPath = DominoUtils.getJavaProperty("java.io.tmpdir", null); //$NON-NLS-1$
 			}
 			

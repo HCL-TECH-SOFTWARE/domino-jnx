@@ -34,7 +34,6 @@ import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringTokenizerExt;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Agent;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.OpenDocumentMode;
@@ -55,6 +54,7 @@ import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 
@@ -126,7 +126,7 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 		StringTokenizerExt st = new StringTokenizerExt(m_agentNameAndAliases.substring(iPos+1), "|"); //$NON-NLS-1$
 		while (st.hasMoreTokens()) {
 			String currToken = st.nextToken().trim();
-			if (!StringUtil.isEmpty(currToken)) {
+			if (!JNXStringUtil.isEmpty(currToken)) {
 				aliases.add(currToken);
 			}
 		}
@@ -337,7 +337,7 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 		).orElseThrow();
 		
 		String unid = retUNID.toString();
-		if (StringUtil.isEmpty(unid) || "00000000000000000000000000000000".equals(unid)) { //$NON-NLS-1$
+		if (JNXStringUtil.isEmpty(unid) || "00000000000000000000000000000000".equals(unid)) { //$NON-NLS-1$
 			return Optional.empty();
 		}
 		else {

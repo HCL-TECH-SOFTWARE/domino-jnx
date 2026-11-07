@@ -8,10 +8,9 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Database.NamedObjectInfo;
 import com.hcl.domino.data.Document;
-
+import com.hcl.domino.util.JNXStringUtil;
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 public class TestNamedDocuments extends AbstractNotesRuntimeTest {
@@ -87,11 +86,11 @@ public class TestNamedDocuments extends AbstractNotesRuntimeTest {
       int doc4NoteId = doc4.getNoteID();
       
       allInfos.forEach((entry) -> {
-        Assertions.assertTrue(StringUtil.isNotEmpty(entry.getNameOfDocument()));
+        Assertions.assertTrue(JNXStringUtil.isNotEmpty(entry.getNameOfDocument()));
         Assertions.assertTrue(entry.getNoteID()>0);
         
         if (entry.getNoteID() == doc2NoteId || entry.getNoteID() == doc3NoteId || entry.getNoteID() == doc4NoteId) {
-          Assertions.assertTrue(StringUtil.isNotEmpty(entry.getUserNameOfDocument()));
+          Assertions.assertTrue(JNXStringUtil.isNotEmpty(entry.getUserNameOfDocument()));
         }
       });
       

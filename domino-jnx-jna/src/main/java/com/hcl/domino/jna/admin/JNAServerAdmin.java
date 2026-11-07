@@ -41,7 +41,6 @@ import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.structs.ISSOTokenStruct;
 import com.hcl.domino.commons.util.PlatformUtils;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.dbdirectory.DatabaseData;
@@ -78,6 +77,7 @@ import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.misc.Pair;
 import com.hcl.domino.security.AclAccess;
 import com.hcl.domino.server.ServerStatusLine;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
@@ -122,7 +122,7 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
 
   @Override
   public String sendConsoleCommand(String server, String command) {
-    if (StringUtil.isEmpty(server)) {
+    if (JNXStringUtil.isEmpty(server)) {
       // NSFRemoteConsole returns an error if server is empty
       server = getParentDominoClient().getIDUserName();
     }
@@ -514,7 +514,7 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
   @Override
   public void openServerConsole(String serverName, ConsoleHandler handler) {
     String serverNameCanonical =
-        StringUtil.isEmpty(serverName) ? getParentDominoClient().getIDUserName()
+        JNXStringUtil.isEmpty(serverName) ? getParentDominoClient().getIDUserName()
             : NotesNamingUtils.toCanonicalName(serverName);
     Memory serverNameCanonicalMem = NotesStringUtils.toLMBCS(serverNameCanonical, true);
 
@@ -539,7 +539,7 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
     }
 
     String cmd = null; // "sh ta";
-    Memory cmdMem = StringUtil.isEmpty(cmd) ? null : NotesStringUtils.toLMBCS(cmd, true);
+    Memory cmdMem = JNXStringUtil.isEmpty(cmd) ? null : NotesStringUtils.toLMBCS(cmd, true);
 
     PointerByReference pAsyncCtx = new PointerByReference();
     DHANDLE.ByReference hAsyncQueue = DHANDLE.newInstanceByReference();
@@ -631,10 +631,10 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
 
   @Override
   public DirectoryAssistance getDirectoryAssistance(String serverName, String dirAssistDBName) {
-    if (StringUtil.isEmpty(serverName)) {
+    if (JNXStringUtil.isEmpty(serverName)) {
       throw new IllegalArgumentException("serverName cannot be empty");
     }
-    if (StringUtil.isEmpty(dirAssistDBName)) {
+    if (JNXStringUtil.isEmpty(dirAssistDBName)) {
       throw new IllegalArgumentException("dirAssistDBName cannot be empty");
     }
     return new JNADirectoryAssistance(serverName, dirAssistDBName);

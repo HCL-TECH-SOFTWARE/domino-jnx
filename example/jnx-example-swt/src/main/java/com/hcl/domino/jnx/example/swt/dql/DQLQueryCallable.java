@@ -25,11 +25,11 @@ import java.util.concurrent.Callable;
 
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClientBuilder;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.DQLQueryResult;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.dql.QueryResultsProcessor;
 import com.hcl.domino.dql.QueryResultsProcessor.QRPOptions;
+import com.hcl.domino.util.JNXStringUtil;
 
 public class DQLQueryCallable implements Callable<String> {
 
@@ -45,7 +45,7 @@ public class DQLQueryCallable implements Callable<String> {
 
   @Override
   public String call() throws Exception {
-    if(StringUtil.isNotEmpty(sourceDb)) {
+    if(JNXStringUtil.isNotEmpty(sourceDb)) {
       try(DominoClient client = DominoClientBuilder.newDominoClient().build()) {
         Database database = client.openDatabase(sourceDb);
         if(database == null) {

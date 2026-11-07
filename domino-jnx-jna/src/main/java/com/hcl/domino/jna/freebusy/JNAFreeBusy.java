@@ -29,7 +29,6 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.DominoDateRange;
 import com.hcl.domino.freebusy.FreeBusy;
 import com.hcl.domino.freebusy.ScheduleOptions;
@@ -47,6 +46,7 @@ import com.hcl.domino.jna.internal.gc.handles.ReadUtil;
 import com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ShortByReference;
@@ -92,7 +92,7 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 		
         List<String> namesCanonical = names
             .stream()
-            .filter(StringUtil::isNotEmpty)
+            .filter(JNXStringUtil::isNotEmpty)
             .map(NotesNamingUtils::toCanonicalName)
             .collect(Collectors.toList());
 
@@ -168,7 +168,7 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 
 		List<String> namesCanonical = names
 		    .stream()
-		    .filter(StringUtil::isNotEmpty)
+		    .filter(JNXStringUtil::isNotEmpty)
 		    .map(NotesNamingUtils::toCanonicalName)
 		    .collect(Collectors.toList());
 		

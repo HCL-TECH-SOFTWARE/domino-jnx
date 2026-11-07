@@ -27,7 +27,6 @@ import java.util.OptionalInt;
 import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.InnardsConverter;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.Item.ItemFlag;
@@ -46,6 +45,7 @@ import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.CDQueryHeader;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.structures.AssistStruct;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * @since 1.0.18
@@ -81,7 +81,7 @@ public abstract class AbstractDesignAgentImpl<T extends DesignAgent> extends Abs
     Optional<AssistStruct> assistInfo = getAssistInfo();
     if(!assistInfo.isPresent()) {
       String periodVal = getDocument().get(NotesConstants.FILTER_PERIOD_ITEM, String.class, ""); //$NON-NLS-1$
-      if(StringUtil.isEmpty(periodVal)) {
+      if(JNXStringUtil.isEmpty(periodVal)) {
         return OptionalInt.empty();
       }
       switch(Integer.parseInt(periodVal)) {
@@ -120,7 +120,7 @@ public abstract class AbstractDesignAgentImpl<T extends DesignAgent> extends Abs
         // Check for agent data
         if(getTrigger() == AgentTrigger.SCHEDULED) {
           String periodVal = getDocument().get(NotesConstants.FILTER_PERIOD_ITEM, String.class, ""); //$NON-NLS-1$
-          if(StringUtil.isEmpty(periodVal)) {
+          if(JNXStringUtil.isEmpty(periodVal)) {
             return AgentInterval.NONE;
           }
           switch(Integer.parseInt(periodVal)) {
@@ -340,7 +340,7 @@ public abstract class AbstractDesignAgentImpl<T extends DesignAgent> extends Abs
 
   @Override
   public void setOnBehalfOfUser(String user) {
-    if (StringUtil.isEmpty(user)) {
+    if (JNXStringUtil.isEmpty(user)) {
       getDocument().removeItem(NotesConstants.ASSIST_ONBEHALFOF);
     }
     else {

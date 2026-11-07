@@ -38,7 +38,6 @@ import java.util.stream.Stream;
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.commons.design.DesignUtil.DesignMapping;
 import com.hcl.domino.commons.util.BufferingCallbackOutputStream;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.CollectionSearchQuery;
 import com.hcl.domino.data.Database;
@@ -81,6 +80,7 @@ import com.hcl.domino.design.WiringProperties;
 import com.hcl.domino.design.XPage;
 import com.hcl.domino.exception.SpecialObjectCannotBeLocatedException;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.util.JNXStringUtil;
 
 public abstract class AbstractDbDesign implements DbDesign {
   /**
@@ -765,7 +765,7 @@ public abstract class AbstractDbDesign implements DbDesign {
     if(patterns == null || patterns.isEmpty()) {
       hasPattern = false;
     } else {
-      if(patterns.size() == 1 && StringUtil.isEmpty(patterns.iterator().next())) {
+      if(patterns.size() == 1 && JNXStringUtil.isEmpty(patterns.iterator().next())) {
         hasPattern = false;
       } else {
         hasPattern = true;
@@ -803,11 +803,11 @@ public abstract class AbstractDbDesign implements DbDesign {
   }
   
   protected String cleanFilePath(String filePath) {
-    String path = StringUtil.toString(filePath);
+    String path = JNXStringUtil.toString(filePath);
     if(path.startsWith("/")) { //$NON-NLS-1$
       path = path.substring(1);
     }
-    if(StringUtil.isEmpty(path)) {
+    if(JNXStringUtil.isEmpty(path)) {
       throw new IllegalArgumentException("Unable to load empty path");
     }
     return path;

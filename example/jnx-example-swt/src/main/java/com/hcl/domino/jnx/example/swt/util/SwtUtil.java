@@ -24,8 +24,8 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Text;
 
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.jnx.example.swt.App;
+import com.hcl.domino.util.JNXStringUtil;
 
 public enum SwtUtil {
   ;
@@ -68,9 +68,9 @@ public enum SwtUtil {
 
   public static boolean isMacx86() {
     try {
-      String os = StringUtil.toString(System.getProperty("os.name")); //$NON-NLS-1$
+      String os = JNXStringUtil.toString(System.getProperty("os.name")); //$NON-NLS-1$
       if(os.contains("Mac OS X")) { //$NON-NLS-1$
-        String arch = StringUtil.toString(System.getProperty("os.arch")); //$NON-NLS-1$
+        String arch = JNXStringUtil.toString(System.getProperty("os.arch")); //$NON-NLS-1$
         if(arch.contains("x86") && !arch.contains("x86_64")) { //$NON-NLS-1$ //$NON-NLS-2$
           return true;
         }
@@ -83,9 +83,9 @@ public enum SwtUtil {
 
   public static boolean isMacx64() {
     try {
-      String os = StringUtil.toString(System.getProperty("os.name")); //$NON-NLS-1$
+      String os = JNXStringUtil.toString(System.getProperty("os.name")); //$NON-NLS-1$
       if(os.contains("Mac OS X")) { //$NON-NLS-1$
-        String arch = StringUtil.toString(System.getProperty("os.arch")); //$NON-NLS-1$
+        String arch = JNXStringUtil.toString(System.getProperty("os.arch")); //$NON-NLS-1$
         if(arch.contains("x86_64")) { //$NON-NLS-1$
           return true;
         }

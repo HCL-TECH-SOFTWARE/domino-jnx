@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.hcl.domino.util.JNXStringUtil;
 import jakarta.mail.Session;
 
 /**
@@ -103,7 +104,7 @@ public class MimeUtil {
     final FileNameMap fileNameMap = URLConnection.getFileNameMap();
     final String type = fileNameMap.getContentTypeFor(fileUrl);
 
-    return StringUtil.isEmpty(type) ? "application/octet-stream" : type; //$NON-NLS-1$
+    return JNXStringUtil.isEmpty(type) ? "application/octet-stream" : type; //$NON-NLS-1$
   }
 
   private static void hashMimeTypes() {
@@ -130,7 +131,7 @@ public class MimeUtil {
                   final String currMimeType = line.substring(0, iPos).trim();
                   final String currExtensions = line.substring(iPos).trim();
 
-                  if (!StringUtil.isEmpty(currMimeType) && !StringUtil.isEmpty(currExtensions)) {
+                  if (!JNXStringUtil.isEmpty(currMimeType) && !JNXStringUtil.isEmpty(currExtensions)) {
                     final String[] currExtensionParts = currExtensions.split(" "); //$NON-NLS-1$
 
                     // use first extension as primary one

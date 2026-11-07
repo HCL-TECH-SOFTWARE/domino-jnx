@@ -84,7 +84,6 @@ import com.hcl.domino.commons.util.ListUtil;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.NotesItemDataUtil;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Attachment.Compression;
 import com.hcl.domino.data.AutoCloseableDocument;
@@ -161,6 +160,7 @@ import com.hcl.domino.richtext.structures.MemoryStructureWrapperService;
 import com.hcl.domino.richtext.structures.ObjectDescriptor;
 import com.hcl.domino.richtext.structures.OriginatorID;
 import com.hcl.domino.richtext.structures.RFC822ItemDesc;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
@@ -887,7 +887,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   private void getItems(final String searchForItemName, final IItemCallback callback) {
     checkDisposed();
 
-    Memory itemNameMem = StringUtil.isEmpty(searchForItemName) ? null
+    Memory itemNameMem = JNXStringUtil.isEmpty(searchForItemName) ? null
         : NotesStringUtils.toLMBCS(searchForItemName, false);
 
     int sizeOfBlockId = MemoryStructureUtil.sizeOf(BlockID.class);
@@ -2649,7 +2649,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     String profileUsername = profileNameAndUsername[1];
 
     Memory profileNameMem = NotesStringUtils.toLMBCS(profileName, false);
-    Memory profileUsernameMem = StringUtil.isEmpty(profileUsername) ? null
+    Memory profileUsernameMem = JNXStringUtil.isEmpty(profileUsername) ? null
         : NotesStringUtils.toLMBCS(profileUsername, false);
 
     JNADatabase parentDb = (JNADatabase) getParentDatabase();
@@ -2731,7 +2731,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     parseProfileAndUserName();
 
     Memory profileNameMem = NotesStringUtils.toLMBCS(profileName, false);
-    Memory userNameMem = StringUtil.isEmpty(profileUsername) ? null
+    Memory userNameMem = JNXStringUtil.isEmpty(profileUsername) ? null
         : NotesStringUtils.toLMBCS(profileUsername, false);
 
     JNADocumentAllocations allocations = getAllocations();
@@ -2777,7 +2777,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
             try {
               String retLockHoldersConc =
                   NotesStringUtils.fromLMBCS(retLockersPtr, retLength.getValue());
-              if (StringUtil.isEmpty(retLockHoldersConc)) {
+              if (JNXStringUtil.isEmpty(retLockHoldersConc)) {
                 return Collections.emptyList();
               }
 
@@ -2872,7 +2872,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
     int fLockFlags = lockFlags;
 
-    String lockHoldersConc = StringUtil.join(lockHolders, ";"); //$NON-NLS-1$
+    String lockHoldersConc = JNXStringUtil.join(lockHolders, ";"); //$NON-NLS-1$
     Memory lockHoldersMem = NotesStringUtils.toLMBCS(lockHoldersConc, true);
 
     JNADatabaseAllocations dbAllocations =
@@ -3341,7 +3341,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
   private String[] parseProfileAndUserName() {
     String name = get("$name", String.class, ""); // $profile_015calendarprofile_<username> //$NON-NLS-1$ //$NON-NLS-2$
-    if (StringUtil.isEmpty(name) || !name.startsWith("$profile_")) { //$NON-NLS-1$
+    if (JNXStringUtil.isEmpty(name) || !name.startsWith("$profile_")) { //$NON-NLS-1$
       return null;
     }
 
@@ -3409,7 +3409,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   @Override
   public String getPrimaryKeyCategory() {
     String name = get("$name", String.class, ""); //$NON-NLS-1$ //$NON-NLS-2$
-    if (!StringUtil.isEmpty(name)) {
+    if (!JNXStringUtil.isEmpty(name)) {
       String[] parsedParts = JNADatabase.parseApplicationNamedNoteName(name);
       if (parsedParts != null) {
         return parsedParts[0];
@@ -3427,7 +3427,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   @Override
   public String getPrimaryKeyObjectId() {
     String name = get("$name", String.class, ""); //$NON-NLS-1$ //$NON-NLS-2$
-    if (!StringUtil.isEmpty(name)) {
+    if (!JNXStringUtil.isEmpty(name)) {
       String[] parsedParts = JNADatabase.parseApplicationNamedNoteName(name);
       if (parsedParts != null) {
         return parsedParts[1];
@@ -3928,7 +3928,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
          */
         itmForm.remove();
 
-        if (!StringUtil.isEmpty(formnameStr)) {
+        if (!JNXStringUtil.isEmpty(formnameStr)) {
           Memory formnameStrMem = NotesStringUtils.toLMBCS(formnameStr, true);
           PointerByReference pName = new PointerByReference();
           ShortByReference wNameLen = new ShortByReference();
@@ -4061,7 +4061,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
                                                                                             // the
                                                                                             // client
       String effUserName = parentClient.getEffectiveUserName();
-      if (!StringUtil.isEmpty(effUserName)) {
+      if (!JNXStringUtil.isEmpty(effUserName)) {
         effUserName = NotesNamingUtils.toCanonicalName(effUserName);
 
         tmpDoc.replaceItemValue(NotesConstants.MAIL_FROM_ITEM, effUserName);

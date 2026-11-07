@@ -28,13 +28,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.naming.UserDirectoryQuery;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 
 /**
@@ -101,7 +101,7 @@ public class JNAUserDirectoryQuery implements UserDirectoryQuery {
 			flags |= NotesConstants.NAME_LOOKUP_ALL;
 			namesLocal = Arrays.asList(""); //$NON-NLS-1$
 		} else {
-			namesLocal = this.names.stream().map(StringUtil::toString).collect(Collectors.toList());
+			namesLocal = this.names.stream().map(JNXStringUtil::toString).collect(Collectors.toList());
 		}
 		if(this.forceUpdate) {
 			flags |= NotesConstants.NAME_LOOKUP_UPDATE;

@@ -27,7 +27,6 @@ import java.util.TreeMap;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.IItemTableData;
 import com.hcl.domino.data.Formula;
 import com.hcl.domino.data.Item;
@@ -36,6 +35,7 @@ import com.hcl.domino.data.TypedAccess;
 import com.hcl.domino.jna.data.JNADocument;
 import com.hcl.domino.jna.data.JNADominoDateTime;
 import com.hcl.domino.jna.internal.LMBCSString;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * Adapter that maps the {@link IItemTableData} interface onto a docunent
@@ -89,7 +89,7 @@ public class ItemTableDataDocAdapter implements IItemTableData {
 				if (m_columnValues!=null) {
 					String formulaStr = m_columnValues.get(itemName);
 
-					if (StringUtil.isEmpty(formulaStr)) {
+					if (JNXStringUtil.isEmpty(formulaStr)) {
 						return m_doc.getItemValue(itemName);
 					}
 					else {
@@ -136,7 +136,7 @@ public class ItemTableDataDocAdapter implements IItemTableData {
 		
 		if (m_columnValues!=null) {
 			String formulaStr = m_columnValues.get(itemName);
-			if (StringUtil.isEmpty(formulaStr)) {
+			if (JNXStringUtil.isEmpty(formulaStr)) {
 				return m_doc.getFirstItem(itemName)
 					.map(Item::getTypeValue)
 					.orElse(0);

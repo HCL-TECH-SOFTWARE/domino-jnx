@@ -40,7 +40,6 @@ import com.hcl.domino.commons.html.IHtmlApiUrlTargetComponent;
 import com.hcl.domino.commons.html.ReferenceType;
 import com.hcl.domino.commons.html.TargetType;
 import com.hcl.domino.commons.util.PlatformUtils;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.data.Document;
@@ -69,6 +68,7 @@ import com.hcl.domino.jna.internal.structs.NoteIdStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
 import com.hcl.domino.misc.DominoClientDescendant;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -96,7 +96,7 @@ public class JNARichtextHTMLConverter implements RichTextHTMLConverter, DominoCl
 	@Override
 	public Builder renderItem(Document doc, String itemName) {
 		
-		if (StringUtil.isEmpty(itemName)) {
+		if (JNXStringUtil.isEmpty(itemName)) {
 			throw new NullPointerException("Item name cannot be empty");
 		}
 		
@@ -145,7 +145,7 @@ public class JNARichtextHTMLConverter implements RichTextHTMLConverter, DominoCl
 			if(option.isEmpty()) {
 				throw new IllegalArgumentException("option cannot be empty");
 			}
-			options.add(option + "=" + StringUtil.toString(value)); //$NON-NLS-1$
+			options.add(option + "=" + JNXStringUtil.toString(value)); //$NON-NLS-1$
 			return this;
 		}
 
@@ -234,7 +234,7 @@ public class JNARichtextHTMLConverter implements RichTextHTMLConverter, DominoCl
 				  .orElseThrow();
 			}
 			String userAgent = config.userAgent;
-			if(StringUtil.isNotEmpty(userAgent)) {
+			if(JNXStringUtil.isNotEmpty(userAgent)) {
 				Memory userAgentMem = NotesStringUtils.toLMBCS(userAgent, true);
 				NotesCAPI.get().HTMLSetProperty(hHTML, 4, userAgentMem); // TODO add enumeration for the properties
 			}

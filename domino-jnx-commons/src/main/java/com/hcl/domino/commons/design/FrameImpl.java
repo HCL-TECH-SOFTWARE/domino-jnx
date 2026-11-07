@@ -28,7 +28,6 @@ import java.util.function.Consumer;
 
 import com.hcl.domino.commons.design.FramesetStorage.IFramesetRecordAccess;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.design.DesignColorsAndFonts;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.Folder;
@@ -56,6 +55,7 @@ import com.hcl.domino.richtext.structures.CDFrameVariableData;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.NOTELINK;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * Implementation for {@link Frame}
@@ -330,14 +330,14 @@ public class FrameImpl implements Frame {
   @Override
   public Frame setContentLink(String replicaId, String viewUnid, String docUnid, String linkAnchorName) {
     withResourceRecord((record) -> {
-      if (!StringUtil.isEmpty(replicaId)) {
+      if (!JNXStringUtil.isEmpty(replicaId)) {
         NOTELINK link = MemoryStructureUtil.newStructure(NOTELINK.class, 0);
         link.setReplicaId(replicaId);
         
-        if (!StringUtil.isEmpty(viewUnid)) {
+        if (!JNXStringUtil.isEmpty(viewUnid)) {
           link.setViewUnid(viewUnid);
           
-          if (!StringUtil.isEmpty(docUnid)) {
+          if (!JNXStringUtil.isEmpty(docUnid)) {
             //create doc link
             link.setDocUnid(docUnid);
           }

@@ -32,7 +32,6 @@ import java.util.stream.Stream;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.ReadMask;
 import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.CollectionEntry.SpecialValue;
@@ -52,6 +51,7 @@ import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.views.NotesViewLookupResultData;
 import com.hcl.domino.misc.Loop;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.ptr.ShortByReference;
 
 public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSearchQueryAllocations> implements CollectionSearchQuery {
@@ -477,7 +477,7 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 						}
 						
 						String entryPos = selectedEntries.get(0).getSpecialValue(SpecialValue.INDEXPOSITION, String.class, ""); //$NON-NLS-1$
-						if (StringUtil.isEmpty(entryPos)) {
+						if (JNXStringUtil.isEmpty(entryPos)) {
 							//start entry not found
 							T result = processor.start();
 							result = processor.end(result);
@@ -822,7 +822,7 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 						}
 
 						final String catPosStr = catLkResult.getPosition();
-						if (StringUtil.isEmpty(catPosStr)) {
+						if (JNXStringUtil.isEmpty(catPosStr)) {
 							//category not found
 							return 0;
 						}
@@ -860,7 +860,7 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 					}
 					else if (m_startAtEntryId!=0) {
 						String entryPos = collection.locateNote(m_startAtEntryId);
-						if (StringUtil.isEmpty(entryPos)) {
+						if (JNXStringUtil.isEmpty(entryPos)) {
 							//start entry not found
 							return 0;
 						}

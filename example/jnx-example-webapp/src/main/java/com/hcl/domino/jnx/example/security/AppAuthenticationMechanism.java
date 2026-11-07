@@ -19,9 +19,8 @@ package com.hcl.domino.jnx.example.security;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.jnx.jakarta.security.NotesDirectoryIdentityStore;
-
+import com.hcl.domino.util.JNXStringUtil;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.AuthenticationException;
@@ -47,7 +46,7 @@ public class AppAuthenticationMechanism implements HttpAuthenticationMechanism {
 
     // Check Basic auth first
     final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-    if (StringUtil.isNotEmpty(authHeader)) {
+    if (JNXStringUtil.isNotEmpty(authHeader)) {
       if (authHeader.startsWith("Basic ")) { //$NON-NLS-1$
         final String pair = new String(Base64.getUrlDecoder().decode(authHeader.substring("Basic ".length())), //$NON-NLS-1$
             StandardCharsets.UTF_8);

@@ -33,7 +33,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.hcl.domino.commons.json.AbstractJsonSerializer;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Attachment.IDataCallback;
 import com.hcl.domino.data.Document;
@@ -43,6 +42,7 @@ import com.hcl.domino.data.DominoOriginatorId;
 import com.hcl.domino.data.Item;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * JSON serializer for {@link Document} that provides full fidelity
@@ -207,7 +207,7 @@ public class RawDocSerializer extends AbstractJsonSerializer {
 
       if (doc.isSigned()) {
         String signer = doc.getSigner();
-        if (!StringUtil.isEmpty(signer)) {
+        if (!JNXStringUtil.isEmpty(signer)) {
           metaNode.put( PROP_META_SIGNER, doc.getSigner());
         }
       }

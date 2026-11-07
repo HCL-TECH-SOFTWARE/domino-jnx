@@ -34,7 +34,6 @@ import java.util.jar.Manifest;
 
 import org.junit.jupiter.api.Test;
 
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.JavaLibrary;
@@ -42,7 +41,7 @@ import com.hcl.domino.design.JavaScriptLibrary;
 import com.hcl.domino.design.LotusScriptLibrary;
 import com.hcl.domino.design.ScriptLibrary;
 import com.hcl.domino.design.ServerJavaScriptLibrary;
-
+import com.hcl.domino.util.JNXStringUtil;
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 public class TestLibraryCreation extends AbstractNotesRuntimeTest {
@@ -187,7 +186,7 @@ public class TestLibraryCreation extends AbstractNotesRuntimeTest {
         }
 
         lib.setResourceAttachment(new ByteArrayInputStream(jarOut.toByteArray()));
-        assertTrue(StringUtil.isNotEmpty(lib.getResourcesAttachmentName().get()));
+        assertTrue(JNXStringUtil.isNotEmpty(lib.getResourcesAttachmentName().get()));
 
         assertEqualStreams(new ByteArrayInputStream(jarOut.toByteArray()), lib.getResourcesAttachment().get(),
             "Resource attachment mismatch");

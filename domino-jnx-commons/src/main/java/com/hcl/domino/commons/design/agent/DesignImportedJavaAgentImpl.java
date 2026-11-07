@@ -32,7 +32,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.design.AbstractDesignAgentImpl;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.Document.IAttachmentProducer;
@@ -81,7 +80,7 @@ public class DesignImportedJavaAgentImpl extends AbstractDesignAgentImpl<DesignI
     }
     else {
       return Arrays.stream(action.get().getFileList().split("(\r)?\n")) //$NON-NLS-1$
-          .filter(StringUtil::isNotEmpty)
+          .filter(JNXStringUtil::isNotEmpty)
           .collect(Collectors.toList());
     }
   }

@@ -80,6 +80,7 @@ import com.hcl.domino.exception.ServerRestrictedException;
 import com.hcl.domino.exception.ServerUnavailableException;
 import com.hcl.domino.exception.SpecialObjectCannotBeLocatedException;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * Utility class to work with errors coming out of C API method calls
@@ -153,10 +154,10 @@ public class NotesErrorUtils {
     }
 
     final String message = staticTextsOnly ? "" : OSLoadStringProvider.get().loadString(0, err); //$NON-NLS-1$
-    if (StringUtil.isEmpty(message)) {
+    if (JNXStringUtil.isEmpty(message)) {
       final Map<Short, String> texts = NotesErrorUtils.getStaticTexts();
       final String errText = texts.get(err);
-      return StringUtil.toString(errText);
+      return JNXStringUtil.toString(errText);
     }
     return message;
   }

@@ -24,7 +24,6 @@ import java.util.Map.Entry;
 
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.util.NotesErrorUtils;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.FormulaCompilationException;
 import com.hcl.domino.jna.internal.Mem;
@@ -32,6 +31,7 @@ import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.ptr.ShortByReference;
 
@@ -112,7 +112,7 @@ public class ViewFormulaCompiler {
 
 					String columnFormula = currEntry.getValue().trim();
 					
-					if (!StringUtil.isEmpty(columnFormula)) {
+					if (!JNXStringUtil.isEmpty(columnFormula)) {
 						//if we have a column formula, compile it and add it to the view formula
 						Memory columnFormulaMem = NotesStringUtils.toLMBCS(columnFormula, false);
 						short columnFormulaLength = (short) (columnFormulaMem.size() & 0xffff);

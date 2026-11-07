@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.IItemTableData;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.Action;
@@ -40,6 +39,7 @@ import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.search.NotesSearch;
 import com.hcl.domino.jna.internal.search.NotesSearch.JNASearchMatch;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 
 public class JNADocumentSelection extends JNAIDTable implements DocumentSelection {
@@ -190,7 +190,7 @@ public class JNADocumentSelection extends JNAIDTable implements DocumentSelectio
 
 	@Override
 	public String getSelectionFormula() {
-		return StringUtil.toString(m_formula);
+		return JNXStringUtil.toString(m_formula);
 	}
 
 	@Override
@@ -299,7 +299,7 @@ public class JNADocumentSelection extends JNAIDTable implements DocumentSelectio
 		clear();
 		
 		m_untilTime = NotesSearch.search(m_db, m_preselectedNoteIds,
-				StringUtil.isEmpty(m_formula) ? "@All" : m_formula, //$NON-NLS-1$
+		    JNXStringUtil.isEmpty(m_formula) ? "@All" : m_formula, //$NON-NLS-1$
 				columnFormulas,
 				"-", searchFlags, docClass, m_sinceTime, new NotesSearch.SearchCallback() { //$NON-NLS-1$
 					

@@ -30,7 +30,6 @@ import org.eclipse.swt.widgets.Display;
 
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoClientBuilder;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
@@ -38,6 +37,7 @@ import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.dxl.DxlExporter;
 import com.hcl.domino.dxl.DxlExporter.DXLRichTextOption;
 import com.hcl.domino.exception.InvalidDocumentException;
+import com.hcl.domino.util.JNXStringUtil;
 
 public class DumpDBCallable implements Callable<String> {
 
@@ -53,7 +53,7 @@ public class DumpDBCallable implements Callable<String> {
 
   @Override
   public String call() throws Exception {
-    if(StringUtil.isNotEmpty(sourceDb)) {
+    if(JNXStringUtil.isNotEmpty(sourceDb)) {
       try(DominoClient client = DominoClientBuilder.newDominoClient().build()) {
         Database database = client.openDatabase(sourceDb);
         if(database == null) {

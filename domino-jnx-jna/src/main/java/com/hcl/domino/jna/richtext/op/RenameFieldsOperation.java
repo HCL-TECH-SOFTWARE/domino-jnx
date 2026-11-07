@@ -27,7 +27,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.Formula;
 import com.hcl.domino.data.Item;
@@ -40,6 +39,7 @@ import com.hcl.domino.richtext.records.CDField;
 import com.hcl.domino.richtext.records.CDIDName;
 import com.hcl.domino.richtext.records.CDPabHide;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * RichText builder operation that renames fields in design richtext and takes
@@ -113,7 +113,7 @@ public class RenameFieldsOperation implements RichTextBuilderOperation {
 						CDField fieldRecord = (CDField) record;
 						String fieldName = fieldRecord.getName();
 
-						String newFieldName = StringUtil.replaceAllMatches(fieldName, replacements);
+						String newFieldName = JNXStringUtil.replaceAllMatches(fieldName, replacements);
 
 						if (newFieldName!=null && !newFieldName.equalsIgnoreCase(fieldName)) {
 							fieldRecord.setName(newFieldName);
@@ -122,9 +122,9 @@ public class RenameFieldsOperation implements RichTextBuilderOperation {
 							
 							String oldLSCode = doc.get("$$"+fieldName, String.class, "");
 							
-							if (!StringUtil.isEmpty(oldLSCode)) {
+							if (!JNXStringUtil.isEmpty(oldLSCode)) {
 								//and replace all field name occurrences in the LS code (if code for one field references another one)
-								String newLSCode = StringUtil.replaceAllMatches(oldLSCode, replacements);
+								String newLSCode = JNXStringUtil.replaceAllMatches(oldLSCode, replacements);
 								doc.replaceItemValue("$$"+newFieldName, EnumSet.of(ItemFlag.SIGNED, ItemFlag.KEEPLINEBREAKS), newLSCode);
 								doc.removeItem("$$"+fieldName);
 								//now we remove the old compiled LS object code for the old field name, e.g. $textfield_O
@@ -144,22 +144,22 @@ public class RenameFieldsOperation implements RichTextBuilderOperation {
 						String inputValidationFormulaOld = fieldRecord.getInputValidationFormula();
 						String inputTranslationFormulaOld = fieldRecord.getInputTranslationFormula();
 
-						if (!StringUtil.isEmpty(defaultValueFormulaOld)) {
-							String defaultValueFormulaNew = StringUtil.replaceAllMatches(defaultValueFormulaOld, replacements);
+						if (!JNXStringUtil.isEmpty(defaultValueFormulaOld)) {
+							String defaultValueFormulaNew = JNXStringUtil.replaceAllMatches(defaultValueFormulaOld, replacements);
 							if (!defaultValueFormulaNew.equals(defaultValueFormulaOld)) {
 								fieldRecord.setDefaultValueFormula(defaultValueFormulaNew);
 							}
 						}
 
-						if (!StringUtil.isEmpty(inputValidationFormulaOld)) {
-							String inputValidationFormulaNew = StringUtil.replaceAllMatches(inputValidationFormulaOld, replacements);
+						if (!JNXStringUtil.isEmpty(inputValidationFormulaOld)) {
+							String inputValidationFormulaNew = JNXStringUtil.replaceAllMatches(inputValidationFormulaOld, replacements);
 							if (!inputValidationFormulaNew.equals(inputValidationFormulaOld)) {
 								fieldRecord.setInputValidationFormula(inputValidationFormulaNew);
 							}
 						}
 
-						if (!StringUtil.isEmpty(inputTranslationFormulaOld)) {
-							String inputTranslationFormulaNew = StringUtil.replaceAllMatches(inputTranslationFormulaOld, replacements);
+						if (!JNXStringUtil.isEmpty(inputTranslationFormulaOld)) {
+							String inputTranslationFormulaNew = JNXStringUtil.replaceAllMatches(inputTranslationFormulaOld, replacements);
 							if (!inputTranslationFormulaNew.equals(inputTranslationFormulaOld)) {
 								fieldRecord.setInputTranslationFormula(inputTranslationFormulaNew);
 							}
@@ -170,37 +170,37 @@ public class RenameFieldsOperation implements RichTextBuilderOperation {
 						CDIDName htmlAttrRecord = (CDIDName) record;
 						
 						String className = htmlAttrRecord.getClassName();
-						String newClassName = StringUtil.replaceAllMatches(className, replacements);
+						String newClassName = JNXStringUtil.replaceAllMatches(className, replacements);
 						if (!newClassName.equals(className)) {
 							htmlAttrRecord.setClassName(newClassName);
 						}
 						
 						String htmlAttr = htmlAttrRecord.getHTMLAttributes();
-						String newHtmlAttr = StringUtil.replaceAllMatches(htmlAttr, replacements);
+						String newHtmlAttr = JNXStringUtil.replaceAllMatches(htmlAttr, replacements);
 						if (!newHtmlAttr.equals(htmlAttr)) {
 							htmlAttrRecord.setHTMLAttributes(newHtmlAttr);
 						}
 						
 						String id = htmlAttrRecord.getID();
-						String newId = StringUtil.replaceAllMatches(htmlAttr, replacements);
+						String newId = JNXStringUtil.replaceAllMatches(htmlAttr, replacements);
 						if (!newId.equals(id)) {
 							htmlAttrRecord.setID(newId);
 						}
 						
 						String name = htmlAttrRecord.getName();
-						String newName = StringUtil.replaceAllMatches(name, replacements);
+						String newName = JNXStringUtil.replaceAllMatches(name, replacements);
 						if (!newName.equals(name)) {
 							htmlAttrRecord.setName(newName);
 						}
 						
 						String style = htmlAttrRecord.getStyle();
-						String newStyle = StringUtil.replaceAllMatches(style, replacements);
+						String newStyle = JNXStringUtil.replaceAllMatches(style, replacements);
 						if (!newStyle.equals(style)) {
 							htmlAttrRecord.setStyle(newStyle);
 						}
 						
 						String title = htmlAttrRecord.getTitle();
-						String newTitle = StringUtil.replaceAllMatches(title, replacements);
+						String newTitle = JNXStringUtil.replaceAllMatches(title, replacements);
 						if (!newTitle.equals(title)) {
 							htmlAttrRecord.setTitle(newTitle);
 						}
@@ -210,7 +210,7 @@ public class RenameFieldsOperation implements RichTextBuilderOperation {
 						CDPabHide hideWhenRecord = (CDPabHide) record;
 						
 						String formula = hideWhenRecord.getFormula();
-						String newFormula = StringUtil.replaceAllMatches(formula, replacements);
+						String newFormula = JNXStringUtil.replaceAllMatches(formula, replacements);
 						if (!newFormula.equals(formula)) {
 							hideWhenRecord.setFormula(newFormula);
 						}
@@ -243,8 +243,8 @@ public class RenameFieldsOperation implements RichTextBuilderOperation {
 		if (doc.hasItem("$WindowTitle")) {
 			String windowFormula = doc.get("$WindowTitle", String.class, "");
 			
-			if (!StringUtil.isEmpty(windowFormula)) {
-				String newWindowFormula = StringUtil.replaceAllMatches(windowFormula, replacements);
+			if (!JNXStringUtil.isEmpty(windowFormula)) {
+				String newWindowFormula = JNXStringUtil.replaceAllMatches(windowFormula, replacements);
 				if (!newWindowFormula.equals(windowFormula)) {
 					Formula compiledWindowFormula = doc.getParentDatabase().getParentDominoClient().createFormula(newWindowFormula);
 					doc.replaceItemValue("$WindowTitle", compiledWindowFormula);

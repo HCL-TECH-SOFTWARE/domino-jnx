@@ -25,7 +25,6 @@ import java.util.function.Consumer;
 
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.exception.IncompatibleImplementationException;
 import com.hcl.domino.exception.ObjectDisposedException;
@@ -39,6 +38,7 @@ import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.mime.MimeWriter;
 import com.hcl.domino.mime.RichTextMimeConversionSettings;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 
@@ -159,7 +159,7 @@ public class JNAMimeWriter extends JNAMimeBase implements MimeWriter {
 				}
 				
 				//remove old items from target note
-				String iname = StringUtil.isEmpty(itemName) ? "Body" : itemName; //$NON-NLS-1$
+				String iname = JNXStringUtil.isEmpty(itemName) ? "Body" : itemName; //$NON-NLS-1$
 				while (doc.hasItem(iname)) {
 					doc.removeItem(iname);
 				}

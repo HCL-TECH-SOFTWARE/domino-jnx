@@ -26,8 +26,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.design.NativeDesignSupport;
+import com.hcl.domino.util.JNXStringUtil;
 
 @SuppressWarnings("nls")
 public class TestLmbcsCharset extends AbstractNotesRuntimeTest {
@@ -125,7 +125,7 @@ public class TestLmbcsCharset extends AbstractNotesRuntimeTest {
     //Indian character Ai: [20, 9, 16]
     final String indianChar = String.valueOf('\u0910');
     
-    String testString = StringUtil.repeat(dottedI + thaiChar + hebrewChar + indianChar, 40);
+    String testString = JNXStringUtil.repeat(dottedI + thaiChar + hebrewChar + indianChar, 40);
     
     int[] i = new int[1];
     for (i[0] = 5; i[0]<(testString.length()+30); i[0]++) {
