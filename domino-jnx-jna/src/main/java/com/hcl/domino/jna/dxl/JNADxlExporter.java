@@ -62,6 +62,7 @@ import com.hcl.domino.commons.dxl.DxlExporterLogImpl;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
+import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.IDTable;
@@ -76,7 +77,6 @@ import com.hcl.domino.jna.internal.gc.allocations.JNADxlExporterAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
-import com.hcl.domino.jna.utils.JNADominoUtils;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.sun.jna.Pointer;
@@ -509,7 +509,7 @@ public class JNADxlExporter extends
     if (exportErrorWasLogged()) {
       String xml = getDxlExportResultLog();
       try {
-        org.w3c.dom.Document xmlDoc = JNADominoUtils.parseXml(xml);
+        org.w3c.dom.Document xmlDoc = DominoUtils.parseXml(xml);
         DxlExporterLogImpl.DXLErrorImpl error;
         {
           NodeList errorNodes = xmlDoc.getElementsByTagName("error"); //$NON-NLS-1$

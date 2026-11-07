@@ -16,18 +16,9 @@
  */
 package com.hcl.domino.jna.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.function.Function;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -37,8 +28,6 @@ import com.hcl.domino.naming.Names;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
-
-import org.xml.sax.SAXException;
 
 public enum JNADominoUtils {
   ;
@@ -108,27 +97,5 @@ public enum JNADominoUtils {
     throw new IllegalArgumentException(
         MessageFormat.format("Unable to retrieve pointer from ID of type {0}",
             userId.getClass().getName()));
-  }
-
-  /**
-   * Parses the provided XML string into a DOM Document object.
-   * 
-   * @param xml the string representing the XML document
-   * @return a {@link org.w3c.dom.Document Document} parsed from the string
-   * @throws ParserConfigurationException if there is a problem creating the DOM
-   *         parser
-   * @throws SAXException if there is a problem parsing the
-   *         provided string
-   * @since 1.0.24
-   */
-  public static org.w3c.dom.Document parseXml(String xml)
-      throws ParserConfigurationException, SAXException {
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    DocumentBuilder builder = factory.newDocumentBuilder();
-    try (InputStream is = new ByteArrayInputStream(xml.getBytes())) {
-      return builder.parse(is);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
   }
 }

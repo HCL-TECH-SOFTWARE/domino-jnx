@@ -16,11 +16,19 @@
  */
 package com.hcl.domino.commons.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.Objects;
-
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.CAPIGarbageCollector;
 import com.hcl.domino.util.JNXStringUtil;
@@ -257,5 +265,27 @@ public enum DominoUtils {
     int copyLen = Math.min(source.length, dest.length);
     System.arraycopy(source, 0, dest, 0, copyLen);
     Arrays.fill(dest, copyLen, dest.length, (byte)0);
+  }
+
+  /**
+   * Parses the provided XML string into a DOM Document object.
+   * 
+   * @param xml the string representing the XML document
+   * @return a {@link org.w3c.dom.Document Document} parsed from the string
+   * @throws ParserConfigurationException if there is a problem creating the DOM
+   *         parser
+   * @throws SAXException if there is a problem parsing the
+   *         provided string
+   * @since 1.0.24
+   */
+  public static org.w3c.dom.Document parseXml(String xml)
+      throws ParserConfigurationException, SAXException {
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder builder = factory.newDocumentBuilder();
+    try (InputStream is = new ByteArrayInputStream(xml.getBytes())) {
+      return builder.parse(is);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
   }
 }
