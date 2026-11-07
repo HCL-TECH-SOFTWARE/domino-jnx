@@ -21,7 +21,6 @@ import java.nio.ByteOrder;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
-import java.util.Formatter;
 import java.util.List;
 
 import com.hcl.domino.data.IAdaptable;
@@ -143,13 +142,8 @@ public class NotesUniversalNoteIdStruct extends BaseStructure implements IAdapta
 		write();
 		Pointer oidPtr = getPointer();
 		
-		Formatter formatter = new Formatter();
 		ByteBuffer data = oidPtr.getByteBuffer(0, 16).order(ByteOrder.LITTLE_ENDIAN);
-		formatter.format("%016x", data.getLong()); //$NON-NLS-1$
-		formatter.format("%016x", data.getLong()); //$NON-NLS-1$
-		String unidStr = formatter.toString().toUpperCase();
-		formatter.close();
-		return unidStr;
+		return JNXStringUtil.toUNID(data.getLong(), data.getLong());
 	}
 	
 	/**
