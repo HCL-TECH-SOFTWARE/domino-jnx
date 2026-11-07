@@ -29,10 +29,10 @@ import java.nio.file.Path;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.text.MessageFormat;
-import java.util.Properties;
 import java.util.Set;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.util.MimeUtil;
 import com.hcl.domino.data.Database;
@@ -184,7 +184,7 @@ public class JNAMimeReader extends JNAMimeBase implements MimeReader {
 			}
 			
 			Database parentDb = doc.getParentDatabase();
-			throw new DominoException(errId, MessageFormat.format(
+			throw new DominoException(StatusImpl.of((short)errId), MessageFormat.format(
 					"Error parsing the MIME content of document with UNID {0} and item name {1} in database {2}!!{3}",
 					doc.getUNID(), itemName, parentDb.getServer(), parentDb.getRelativeFilePath()), ex[0]);
 		}
