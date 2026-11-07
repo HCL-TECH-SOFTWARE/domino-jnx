@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.jna.internal.capi.INotesCAPI;
@@ -662,7 +663,7 @@ public class NotesStringUtils {
 					try {
 						bOut.write(lineDataAsUTF8);
 					} catch (IOException e) {
-						throw new DominoException(0, "Error writing to temporary byte stream", e);
+						throw new DominoException(StatusImpl.NOERROR, "Error writing to temporary byte stream", e);
 					}
 				}
 				else {
@@ -709,7 +710,7 @@ public class NotesStringUtils {
 							try {
 								bOut.write(data);
 							} catch (IOException e) {
-								throw new DominoException(0, "Error writing to temporary byte stream", e);
+								throw new DominoException(StatusImpl.NOERROR, "Error writing to temporary byte stream", e);
 							}
 							break;
 						}
@@ -832,11 +833,11 @@ public class NotesStringUtils {
 	 */
 	public static void unidToPointer(String unidStr, Pointer target) {
 		try {
-			int fileInnards1 = (int) (Long.parseLong(unidStr.substring(0,8), 16) & 0xffffffff);
-			int fileInnards0 = (int) (Long.parseLong(unidStr.substring(8,16), 16) & 0xffffffff);
+	        int fileInnards1 = (int)JNXStringUtil.parseHex(unidStr, 0, 8);
+	        int fileInnards0 = (int)JNXStringUtil.parseHex(unidStr, 8, 16);
 
-			int noteInnards1 = (int) (Long.parseLong(unidStr.substring(16,24), 16) & 0xffffffff);
-			int noteInnards0 = (int) (Long.parseLong(unidStr.substring(24,32), 16) & 0xffffffff);
+	        int noteInnards1 = (int)JNXStringUtil.parseHex(unidStr, 16, 24);
+	        int noteInnards0 = (int)JNXStringUtil.parseHex(unidStr, 24, 32);
 
 			target.setInt(0, fileInnards0);
 			target.share(4).setInt(0, fileInnards1);
@@ -844,7 +845,7 @@ public class NotesStringUtils {
 			target.share(12).setInt(0, noteInnards1);
 		}
 		catch (Exception e) {
-			throw new DominoException(0, format("Could not convert UNID to memory: {0}", unidStr), e);
+			throw new DominoException(StatusImpl.NOERROR, format("Could not convert UNID to memory: {0}", unidStr), e);
 		}
 	}
 	
@@ -935,8 +936,8 @@ public class NotesStringUtils {
 		}
 		
 		int[] innards = new int[2];
-		innards[1] = (int) (Long.parseLong(replicaId.substring(0,8), 16) & 0xffffffff);
-		innards[0] = (int) (Long.parseLong(replicaId.substring(8), 16) & 0xffffffff);
+		innards[1] = (int)JNXStringUtil.parseHex(replicaId, 0, 8);
+		innards[0] = (int)JNXStringUtil.parseHex(replicaId, 8, 16);
 		
 		return innards;
 	}

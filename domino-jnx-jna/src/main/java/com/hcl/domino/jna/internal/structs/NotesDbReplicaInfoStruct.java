@@ -23,6 +23,7 @@ import java.util.List;
 
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.jna.internal.NotesStringUtils;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
@@ -158,8 +159,8 @@ public class NotesDbReplicaInfoStruct extends BaseStructure implements IAdaptabl
 			throw new IllegalArgumentException("Replica ID is expected to have 16 characters");
 		}
 		
-		this.ID.Innards[1] = Integer.parseInt(replicaId.substring(0,8), 16);
-		this.ID.Innards[0] = Integer.parseInt(replicaId.substring(8), 16);
+		this.ID.Innards[1] = (int)JNXStringUtil.parseHex(replicaId, 0, 8);
+		this.ID.Innards[0] = (int)JNXStringUtil.parseHex(replicaId, 8, 16);
 		write();
 	}
 }

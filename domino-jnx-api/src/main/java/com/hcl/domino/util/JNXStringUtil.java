@@ -484,4 +484,15 @@ public class JNXStringUtil {
     
     return result.toString();
   }
+  
+  public static long parseHex(String s, int start, int end) {
+    long result = 0;
+    for (int i = start; i < end; i++) {
+        char c = s.charAt(i);
+        result = (result << 4) | (c >= '0' && c <= '9' ? c - '0'
+                       : c >= 'A' && c <= 'F' ? c - 'A' + 10
+                       : c >= 'a' && c <= 'f' ? c - 'a' + 10 : 0);
+    }
+    return result;
+  }
 }

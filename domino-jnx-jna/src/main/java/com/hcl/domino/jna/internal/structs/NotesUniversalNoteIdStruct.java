@@ -25,6 +25,7 @@ import java.util.Formatter;
 import java.util.List;
 
 import com.hcl.domino.data.IAdaptable;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 /**
@@ -161,11 +162,11 @@ public class NotesUniversalNoteIdStruct extends BaseStructure implements IAdapta
 			throw new IllegalArgumentException("UNID is expected to have 32 characters");
 		}
 		
-		int fileInnards1 = (int) (Long.parseLong(unidStr.substring(0,8), 16) & 0xffffffff);
-		int fileInnards0 = (int) (Long.parseLong(unidStr.substring(8,16), 16) & 0xffffffff);
+		int fileInnards1 = (int)JNXStringUtil.parseHex(unidStr, 0, 8);
+		int fileInnards0 = (int)JNXStringUtil.parseHex(unidStr, 8, 16);
 
-		int noteInnards1 = (int) (Long.parseLong(unidStr.substring(16,24), 16) & 0xffffffff);
-		int noteInnards0 = (int) (Long.parseLong(unidStr.substring(24,32), 16) & 0xffffffff);
+		int noteInnards1 = (int)JNXStringUtil.parseHex(unidStr, 16, 24);
+		int noteInnards0 = (int)JNXStringUtil.parseHex(unidStr, 24, 32);
 
 		NotesTimeDateStruct file = NotesTimeDateStruct.newInstance(new int[] {fileInnards0, fileInnards1});
 		NotesTimeDateStruct note = NotesTimeDateStruct.newInstance(new int[] {noteInnards0, noteInnards1});
