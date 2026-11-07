@@ -180,10 +180,11 @@ public class NotesStringUtils {
 		}
 		
 		int textLen = (int) in.size();
+		byte[] buf = in.getByteArray(0, textLen);
 		
 		//search for terminating null character
 		for (int i=0; i<textLen; i++) {
-			byte b = in.getByte(i);
+			byte b = buf[i];
 			if (b==0) {
 				textLen = i;
 				break;
@@ -840,9 +841,9 @@ public class NotesStringUtils {
 	        int noteInnards0 = (int)JNXStringUtil.parseHex(unidStr, 24, 32);
 
 			target.setInt(0, fileInnards0);
-			target.share(4).setInt(0, fileInnards1);
-			target.share(8).setInt(0, noteInnards0);
-			target.share(12).setInt(0, noteInnards1);
+			target.setInt(4, fileInnards1);
+            target.setInt(8, noteInnards0);
+            target.setInt(12, noteInnards1);
 		}
 		catch (Exception e) {
 			throw new DominoException(StatusImpl.NOERROR, format("Could not convert UNID to memory: {0}", unidStr), e);
