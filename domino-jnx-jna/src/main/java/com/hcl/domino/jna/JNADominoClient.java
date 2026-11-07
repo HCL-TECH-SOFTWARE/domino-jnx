@@ -396,8 +396,6 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     }
     final short fOptionsShort = optionsShort;
 
-    DisposableMemory path = JNADominoUtils.constructNetPath(serverName, filePath);
-
     JNAUserNamesListAllocations namesListAllocations = userNamesList != null
         ? (JNAUserNamesListAllocations) userNamesList.getAdapter(APIObjectAllocations.class)
         : null;
@@ -406,17 +404,20 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
     DbOptionsStruct.ByValue defaultDbOptionsByVal = DbOptionsStruct.newInstanceByVal();
 
-    LockUtil.lockHandle(
-        namesListAllocations == null ? null : namesListAllocations.getHandle(), (hNamesList) -> {
-          return NotesCAPI.get().NSFDbCreateExtended4(path, dbClassShort, forceCreation,
-              fOptionsShort,
-              options2, encryptStrengthByte, 0, (Memory) null, (Memory) null,
-              (short) 0, (short) 0, defaultDbOptionsByVal, hNamesList, (DHANDLE.ByValue) null);
-        }).orElseThrow();
-
-    // create ACL
-    HANDLE.ByReference rethDb = HANDLE.newInstanceByReference();
-    NotesCAPI.get().NSFDbOpen(path, rethDb).orElseThrow();
+    HANDLE.ByReference rethDb;
+    try(DisposableMemory path = JNADominoUtils.constructNetPath(serverName, filePath)) {
+      LockUtil.lockHandle(
+          namesListAllocations == null ? null : namesListAllocations.getHandle(), (hNamesList) -> {
+            return NotesCAPI.get().NSFDbCreateExtended4(path, dbClassShort, forceCreation,
+                fOptionsShort,
+                options2, encryptStrengthByte, 0, (Memory) null, (Memory) null,
+                (short) 0, (short) 0, defaultDbOptionsByVal, hNamesList, (DHANDLE.ByValue) null);
+          }).orElseThrow();
+  
+      // create ACL
+      rethDb = HANDLE.newInstanceByReference();
+      NotesCAPI.get().NSFDbOpen(path, rethDb).orElseThrow();
+    }
 
     LockUtil.lockHandle(rethDb, (rethDbByVal) -> {
       try {
@@ -741,8 +742,9 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     }
     serverName = NotesNamingUtils.toCanonicalName(serverName);
 
-    DisposableMemory path = JNADominoUtils.constructNetPath(serverName, filePath);
-    NotesCAPI.get().NSFDbDelete(path).orElseThrow();
+    try(DisposableMemory path = JNADominoUtils.constructNetPath(serverName, filePath)) {
+      NotesCAPI.get().NSFDbDelete(path).orElseThrow();
+    }
   }
 
   @Override
