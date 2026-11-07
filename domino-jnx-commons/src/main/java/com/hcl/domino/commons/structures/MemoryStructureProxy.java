@@ -169,7 +169,7 @@ public class MemoryStructureProxy implements InvocationHandler {
         return (buf, offset) -> {
           final long[] result = new long[length];
           for (int i = 0; i < length; i++) {
-            result[i] = Integer.toUnsignedLong(buf.getShort(offset + i * 4));
+            result[i] = Integer.toUnsignedLong(buf.getInt(offset + i * 4));
           }
           return result;
         };
@@ -324,7 +324,7 @@ public class MemoryStructureProxy implements InvocationHandler {
         };
       }
     } else if (long.class.equals(type) || Long.class.equals(type)) {
-      return (buf, offset, newVal) -> buf.putInt(offset, ((Number) newVal).intValue());
+      return (buf, offset, newVal) -> buf.putLong(offset, ((Number) newVal).longValue());
     } else if (long[].class.equals(type)) {
       if (unsigned) {
         throw new NotYetImplementedException("Unsigned long values not yet implemented");
