@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.ReverseStringTokenizer;
@@ -377,7 +378,7 @@ public class NotesNamingUtils {
 			try {
 				bOut.write(currNameLMBCS.getByteArray(0, (int) currNameLMBCS.size()));
 			} catch (IOException e) {
-				throw new DominoException(0, "Error writing to ByteArrayOutputStream");
+				throw new DominoException(StatusImpl.NOERROR, "Error writing to ByteArrayOutputStream");
 			}
 		}
 	}
@@ -731,7 +732,7 @@ public class NotesNamingUtils {
 		
 		DHANDLE handle = namesList.getAdapter(DHANDLE.class);
 		if (handle==null || handle.isNull()) {
-			throw new DominoException(0, MessageFormat.format("Missing DHANDLE value in names list: {0}", handle));
+			throw new DominoException(StatusImpl.NOERROR, MessageFormat.format("Missing DHANDLE value in names list: {0}", handle));
 		}
 		
 		final int fBitMask = bitMask;
@@ -828,7 +829,7 @@ public class NotesNamingUtils {
 		
 		DHANDLE handle = namesList.getAdapter(DHANDLE.class);
 		if (handle==null || handle.isNull()) {
-			throw new DominoException(0, MessageFormat.format("Missing DHANDLE value in names list: {0}", handle));
+			throw new DominoException(StatusImpl.NOERROR, MessageFormat.format("Missing DHANDLE value in names list: {0}", handle));
 		}
 
 		if (PlatformUtils.is64Bit()) {
