@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.UserData;
 import com.hcl.domino.dql.DQL;
-import com.hcl.domino.dql.DQL.DQLTerm;
 
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
