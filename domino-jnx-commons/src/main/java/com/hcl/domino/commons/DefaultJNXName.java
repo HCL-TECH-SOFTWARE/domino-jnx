@@ -23,8 +23,8 @@ import java.util.List;
 import com.hcl.domino.Name;
 import com.hcl.domino.commons.util.ReverseStringTokenizer;
 import com.hcl.domino.commons.util.StringTokenizerExt;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.naming.Names;
+import com.hcl.domino.util.JNXStringUtil;
 
 public class DefaultJNXName implements Name {
   private final String m_nameCanonical;
@@ -53,7 +53,7 @@ public class DefaultJNXName implements Name {
     final StringTokenizerExt st = new StringTokenizerExt(this.m_nameCanonical, "/"); //$NON-NLS-1$
     while (st.hasMoreTokens()) {
       final String currToken = st.nextToken();
-      if (StringUtil.startsWithIgnoreCase(currToken, "c=")) { //$NON-NLS-1$
+      if (JNXStringUtil.startsWithIgnoreCase(currToken, "c=")) { //$NON-NLS-1$
         return currToken.substring(2);
       }
     }
@@ -65,7 +65,7 @@ public class DefaultJNXName implements Name {
     final StringTokenizerExt st = new StringTokenizerExt(this.m_nameCanonical, "/"); //$NON-NLS-1$
     while (st.hasMoreTokens()) {
       final String currToken = st.nextToken();
-      if (StringUtil.startsWithIgnoreCase(currToken, "o=")) { //$NON-NLS-1$
+      if (JNXStringUtil.startsWithIgnoreCase(currToken, "o=")) { //$NON-NLS-1$
         return currToken.substring(2);
       }
     }
@@ -77,7 +77,7 @@ public class DefaultJNXName implements Name {
     int currIdx = 0;
     while (st.hasMoreTokens()) {
       final String currToken = st.nextToken();
-      if (StringUtil.startsWithIgnoreCase(currToken, "ou=")) { //$NON-NLS-1$
+      if (JNXStringUtil.startsWithIgnoreCase(currToken, "ou=")) { //$NON-NLS-1$
         currIdx++;
         if (currIdx == idx) {
           return currToken.substring(3);
@@ -115,7 +115,7 @@ public class DefaultJNXName implements Name {
 
     while (st.hasMoreTokens()) {
       final String currToken = st.nextToken();
-      if (StringUtil.startsWithIgnoreCase(currToken, "ou=")) { //$NON-NLS-1$
+      if (JNXStringUtil.startsWithIgnoreCase(currToken, "ou=")) { //$NON-NLS-1$
         orgUnits.add(currToken.substring(3));
       }
     }

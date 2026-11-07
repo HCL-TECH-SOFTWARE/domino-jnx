@@ -33,7 +33,6 @@ import com.hcl.domino.commons.org.apache.commons.mail.EmailAttachment;
 import com.hcl.domino.commons.org.apache.commons.mail.EmailException;
 import com.hcl.domino.commons.org.apache.commons.mail.HtmlEmail;
 import com.hcl.domino.commons.util.MimeUtil;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentValueConverter;
@@ -43,7 +42,7 @@ import com.hcl.domino.mime.MimeReader;
 import com.hcl.domino.mime.MimeReader.ReadMimeDataType;
 import com.hcl.domino.mime.MimeWriter.WriteMimeDataType;
 import com.hcl.domino.mime.attachments.IMimeAttachment;
-
+import com.hcl.domino.util.JNXStringUtil;
 import jakarta.activation.DataSource;
 import jakarta.mail.BodyPart;
 import jakarta.mail.MessagingException;
@@ -126,7 +125,7 @@ public class MimeDataDocumentValueConverter implements DocumentValueConverter {
 			String disposition = part.getDisposition();
 			
 			if (part.isMimeType("text/html") //$NON-NLS-1$
-					&& (StringUtil.isEmpty(disposition) || "inline".equals(disposition))) { //$NON-NLS-1$
+					&& (JNXStringUtil.isEmpty(disposition) || "inline".equals(disposition))) { //$NON-NLS-1$
 				Object htmlContent = part.getContent();
 				if (htmlContent instanceof String) {
 					retMimeData.setHtml((String) htmlContent);
@@ -134,7 +133,7 @@ public class MimeDataDocumentValueConverter implements DocumentValueConverter {
 				return;
 			}
 			else if (part.isMimeType("text/plain") //$NON-NLS-1$
-					&& (StringUtil.isEmpty(disposition) || "inline".equals(disposition))) { //$NON-NLS-1$
+					&& (JNXStringUtil.isEmpty(disposition) || "inline".equals(disposition))) { //$NON-NLS-1$
 				Object textContent = part.getContent();
 				if (textContent instanceof String) {
 					retMimeData.setPlainText((String) textContent);
@@ -151,7 +150,7 @@ public class MimeDataDocumentValueConverter implements DocumentValueConverter {
 				String[] currContentIdArr = part.getHeader("Content-ID"); //$NON-NLS-1$
 				String currContentId = currContentIdArr!=null && currContentIdArr.length>0 ? currContentIdArr[0] : null;
 
-				if (StringUtil.isEmpty(currContentId)) {
+				if (JNXStringUtil.isEmpty(currContentId)) {
 					retMimeData.attach(mimeAtt);
 				}
 				else {
@@ -222,7 +221,7 @@ public class MimeDataDocumentValueConverter implements DocumentValueConverter {
 				mail.attach(dataSource, currAtt.getFileName(), null, EmailAttachment.ATTACHMENT);
 			}
 
-			if (!StringUtil.isEmpty(text)) {
+			if (!JNXStringUtil.isEmpty(text)) {
 				mail.setTextMsg(text);
 			}
 			mail.setHtmlMsg(html);
@@ -274,14 +273,14 @@ public class MimeDataDocumentValueConverter implements DocumentValueConverter {
 			try {
 				String contentType = m_att.getContentType();
 				
-				if (StringUtil.isEmpty(contentType)) {
+				if (JNXStringUtil.isEmpty(contentType)) {
 					String fileName = getName();
-					if (!StringUtil.isEmpty(fileName)) {
+					if (!JNXStringUtil.isEmpty(fileName)) {
 						contentType = MimeUtil.getMimeType(fileName);
 					}
 				}
 				
-				if (StringUtil.isEmpty(contentType)) {
+				if (JNXStringUtil.isEmpty(contentType)) {
 					contentType = "application/octet-stream"; //$NON-NLS-1$
 				}
 				

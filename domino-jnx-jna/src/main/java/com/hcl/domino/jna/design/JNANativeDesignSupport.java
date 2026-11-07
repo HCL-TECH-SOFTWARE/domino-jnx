@@ -24,7 +24,6 @@ import java.util.List;
 
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.Item;
@@ -47,6 +46,7 @@ import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.misc.Pair;
 import com.hcl.domino.richtext.structures.ObjectDescriptor;
 import com.hcl.domino.richtext.structures.ObjectDescriptor.ObjectType;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
@@ -68,7 +68,7 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
 
     byte[] nameOfContextClassLMBCS;
     DHANDLE.ByReference phDataByRef = DHANDLE.newInstanceByReference();
-    if (!StringUtil.isEmpty(nameOfContextClass)) {
+    if (!JNXStringUtil.isEmpty(nameOfContextClass)) {
       nameOfContextClassLMBCS = nameOfContextClass.getBytes(NativeItemCoder.get().getLmbcsCharset(LmbcsVariant.NULLTERM));
       if (nameOfContextClassLMBCS.length > (NotesConstants.MAXIMUM_ID_NAME_LENGTH+1)) {
         throw new IllegalArgumentException(MessageFormat.format("Name of context class exceeds max length of {0} bytes", NotesConstants.MAXIMUM_ID_NAME_LENGTH));
@@ -97,7 +97,7 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
           return null;
         });
         
-        if (!StringUtil.isEmpty(nameOfContextClass) && !phDataByVal.isNull()) {
+        if (!JNXStringUtil.isEmpty(nameOfContextClass) && !phDataByVal.isNull()) {
           //write name of context class to memory block if set
           Mem.OSLockObject(phDataByVal, (ptr) -> {
             ptr.setInt(0, 4 + NotesConstants.MAXIMUM_ID_NAME_LENGTH +1); //sizeof(SCRIPTCONTEXTDESCR)

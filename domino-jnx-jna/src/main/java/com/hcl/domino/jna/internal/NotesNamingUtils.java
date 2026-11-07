@@ -33,12 +33,12 @@ import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.ReverseStringTokenizer;
 import com.hcl.domino.commons.util.StringTokenizerExt;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.jna.data.JNAUserNamesList;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -250,7 +250,7 @@ public class NotesNamingUtils {
 	public static String toCommonName(String name) {
 		int iPos = name.indexOf('/');
 		String firstPart = iPos==-1 ? name : name.substring(0, iPos);
-		if (StringUtil.startsWithIgnoreCase(firstPart, "cn=")) { //$NON-NLS-1$
+		if (JNXStringUtil.startsWithIgnoreCase(firstPart, "cn=")) { //$NON-NLS-1$
 			return firstPart.substring(3);
 		}
 		else {

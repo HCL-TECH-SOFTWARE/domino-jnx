@@ -37,7 +37,6 @@ import org.junit.jupiter.api.Test;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.commons.json.AbstractJsonSerializer;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.Document.IAttachmentProducer;
@@ -55,7 +54,7 @@ import com.hcl.domino.richtext.TextStyle;
 import com.hcl.domino.richtext.TextStyle.Justify;
 import com.hcl.domino.richtext.records.CDQueryHeader;
 import com.hcl.domino.richtext.structures.FontStyle;
-
+import com.hcl.domino.util.JNXStringUtil;
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 /**
@@ -142,7 +141,7 @@ public class TestRawDocSerializer extends AbstractNotesRuntimeTest {
       RawDocSerializer serializer = new RawDocSerializer();
       serializer.includeMetadata(true);
       String json = serializer.toJson(docOrig).toString();
-      assertTrue(StringUtil.isNotEmpty(json) && json.startsWith("{") && json.endsWith("}"));  //$NON-NLS-1$//$NON-NLS-2$
+      assertTrue(JNXStringUtil.isNotEmpty(json) && json.startsWith("{") && json.endsWith("}"));  //$NON-NLS-1$//$NON-NLS-2$
       
       RawDocDeserializer deserializer = new RawDocDeserializer();
       deserializer.target(db);

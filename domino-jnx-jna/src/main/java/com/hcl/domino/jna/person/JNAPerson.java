@@ -24,7 +24,6 @@ import com.hcl.domino.UserNamesList;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.jna.BaseJNAAPIObject;
@@ -38,6 +37,7 @@ import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.person.OutOfOffice;
 import com.hcl.domino.person.Person;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
@@ -83,7 +83,7 @@ public class JNAPerson extends BaseJNAAPIObject<JNAPersonAllocations> implements
 			throw new DominoException(MessageFormat.format("Database must be a JNADatabase: {0}", dbMail.getClass().getName()));
 		}
 
-		if (isHomeMailServer && StringUtil.isEmpty(homeMailServer)) {
+		if (isHomeMailServer && JNXStringUtil.isEmpty(homeMailServer)) {
 			throw new IllegalArgumentException("Home mail server cannot be empty if isHomeMailServer is set to true");
 		}
 		

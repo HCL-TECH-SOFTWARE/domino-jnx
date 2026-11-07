@@ -28,7 +28,6 @@ import java.util.function.Consumer;
 
 import com.hcl.domino.commons.design.AbstractDesignAgentImpl;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.design.NativeDesignSupport;
@@ -41,6 +40,7 @@ import com.hcl.domino.richtext.records.CDActionJavaAgent;
 import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.hcl.domino.richtext.records.RichTextRecord;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * Implementation of {@link DesignFormulaAgent}
@@ -96,7 +96,7 @@ public class DesignFormulaAgentImpl extends AbstractDesignAgentImpl<DesignFormul
     } else {
       DocumentAction docAction;
       String action = doc.get(NotesConstants.FILTER_OPERATION_ITEM, String.class, "0"); //$NON-NLS-1$
-      if(StringUtil.isEmpty(action)) {
+      if(JNXStringUtil.isEmpty(action)) {
         docAction = DocumentAction.MODIFY;
       } else {
         switch(Integer.parseInt(action)) {

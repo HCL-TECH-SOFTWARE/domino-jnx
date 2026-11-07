@@ -22,10 +22,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.json.JsonDeserializer;
+import com.hcl.domino.util.JNXStringUtil;
 
 public abstract class AbstractJsonDeserializer implements JsonDeserializer {
   protected Document targetDocument;
@@ -51,7 +51,7 @@ public abstract class AbstractJsonDeserializer implements JsonDeserializer {
   public JsonDeserializer customProcessor(final String propName, final CustomProcessor processor) {
     Objects.requireNonNull(propName, "propName cannot be null");
     Objects.requireNonNull(processor, "processor cannot be null");
-    if (StringUtil.isEmpty(propName)) {
+    if (JNXStringUtil.isEmpty(propName)) {
       throw new IllegalArgumentException("propName cannot be null");
     }
     this.customProcessors.put(propName, processor);

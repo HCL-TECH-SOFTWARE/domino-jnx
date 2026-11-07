@@ -23,9 +23,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
-
-import com.hcl.domino.commons.util.StringUtil;
-
+import com.hcl.domino.util.JNXStringUtil;
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObjectBuilder;
@@ -41,7 +39,7 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
     for (cmssiteIndex = stackTrace.length - 1; cmssiteIndex >= 0; cmssiteIndex--) {
       final StackTraceElement el = stackTrace[cmssiteIndex];
       final String className = el.getClassName();
-      if (StringUtil.isNotEmpty(className) && className.startsWith("com.hcl") //$NON-NLS-1$
+      if (JNXStringUtil.isNotEmpty(className) && className.startsWith("com.hcl") //$NON-NLS-1$
           && !GenericExceptionMapper.IGNORED_STACK_CLASSES.contains(className)) {
         break;
       }

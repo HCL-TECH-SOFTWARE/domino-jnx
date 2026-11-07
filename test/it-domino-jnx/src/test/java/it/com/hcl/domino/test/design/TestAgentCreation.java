@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -34,16 +33,11 @@ import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
-
 import org.junit.jupiter.api.Test;
-
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.design.DbDesign;
 import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.DesignAgent.SecurityLevel;
 import com.hcl.domino.design.DesignElement;
-import com.hcl.domino.design.JavaScriptLibrary;
-import com.hcl.domino.design.ScriptLibrary;
 import com.hcl.domino.design.agent.DesignFormulaAgent;
 import com.hcl.domino.design.agent.DesignImportedJavaAgent;
 import com.hcl.domino.design.agent.DesignJavaAgent;
@@ -51,7 +45,7 @@ import com.hcl.domino.design.agent.DesignLotusScriptAgent;
 import com.hcl.domino.design.agent.DesignSimpleActionAgent;
 import com.hcl.domino.design.agent.JavaLanguageAgent;
 import com.hcl.domino.design.simpleaction.RunFormulaAction.DocumentAction;
-
+import com.hcl.domino.util.JNXStringUtil;
 import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 public class TestAgentCreation extends AbstractNotesRuntimeTest {
@@ -204,7 +198,7 @@ public class TestAgentCreation extends AbstractNotesRuntimeTest {
         }
         
         agent.setResourceAttachment(new ByteArrayInputStream(jarOut.toByteArray()));
-        assertTrue(StringUtil.isNotEmpty(agent.getResourcesAttachmentName().get()));
+        assertTrue(JNXStringUtil.isNotEmpty(agent.getResourcesAttachmentName().get()));
         
         assertEqualStreams(new ByteArrayInputStream(jarOut.toByteArray()), agent.getResourcesAttachment().get(),
             "Resource attachment mismatch");

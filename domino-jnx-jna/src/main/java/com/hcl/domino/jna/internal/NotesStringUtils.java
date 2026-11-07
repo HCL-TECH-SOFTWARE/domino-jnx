@@ -29,7 +29,6 @@ import java.util.List;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.util.PlatformUtils;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.jna.internal.capi.INotesCAPI;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.misc.NotesConstants;
@@ -413,10 +412,10 @@ public class NotesStringUtils {
 		}
 		boolean useOSLineBreak = isUseOSLineDelimiter();
 		if (PlatformUtils.isWindows() && useOSLineBreak) {
-			return StringUtil.join(lines, "\r\n"); //$NON-NLS-1$
+			return JNXStringUtil.join(lines, "\r\n"); //$NON-NLS-1$
 		}
 		else {
-			return StringUtil.join(lines, "\n"); //$NON-NLS-1$
+			return JNXStringUtil.join(lines, "\n"); //$NON-NLS-1$
 		}
 	}
 	
@@ -917,8 +916,8 @@ public class NotesStringUtils {
 	 * @return replica id (16 character hex string)
 	 */
 	public static String innardsToReplicaId(int[] innards) {
-		return StringUtil.pad(Integer.toHexString(innards[1]).toUpperCase(), 8, '0', false) +
-				StringUtil.pad(Integer.toHexString(innards[0]).toUpperCase(), 8, '0', false);
+		return JNXStringUtil.pad(Integer.toHexString(innards[1]).toUpperCase(), 8, '0', false) +
+		    JNXStringUtil.pad(Integer.toHexString(innards[0]).toUpperCase(), 8, '0', false);
 	}
 
 	/**

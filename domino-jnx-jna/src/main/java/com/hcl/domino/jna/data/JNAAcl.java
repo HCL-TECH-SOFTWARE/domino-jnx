@@ -36,7 +36,6 @@ import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.ListUtil;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
@@ -58,6 +57,7 @@ import com.hcl.domino.security.AclAccess;
 import com.hcl.domino.security.AclEntry;
 import com.hcl.domino.security.AclFlag;
 import com.hcl.domino.security.AclLevel;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -156,7 +156,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
             result.orElseThrow();
 
             String role = NotesStringUtils.fromLMBCS(retPrivName, -1);
-            if (!StringUtil.isEmpty(role)) {
+            if (!JNXStringUtil.isEmpty(role)) {
               roles.put(i, role);
             }
           }

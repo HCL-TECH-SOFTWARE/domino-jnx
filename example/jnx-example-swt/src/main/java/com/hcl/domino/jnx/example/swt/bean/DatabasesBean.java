@@ -23,10 +23,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.DominoClient;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.dbdirectory.DbDirectory;
 import com.hcl.domino.dbdirectory.DirEntry;
 import com.hcl.domino.dbdirectory.FileType;
+import com.hcl.domino.util.JNXStringUtil;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -44,7 +44,7 @@ public class DatabasesBean {
   public Collection<String> getDatabasePaths(final String serverName) {
     try {
       return this.executor.submit(() -> {
-        if(StringUtil.isEmpty(serverName)) {
+        if(JNXStringUtil.isEmpty(serverName)) {
           // Special handling for local, as this will be on a client - getDatabasePath is
           //   unreliable there
           DbDirectory dir = client.openDbDirectory();

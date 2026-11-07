@@ -24,7 +24,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.IAdaptable;
@@ -62,6 +61,7 @@ import com.hcl.domino.richtext.structures.FontStyle;
 import com.hcl.domino.richtext.structures.NFMT;
 import com.hcl.domino.richtext.structures.NFMT.Attribute;
 import com.hcl.domino.richtext.structures.NFMT.Format;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * @author Jesse Gallagher
@@ -257,7 +257,7 @@ public class DominoCollectionColumn implements IAdaptable, CollectionColumn {
   @Override
   public String getTitle() {
     if(this.isHideTitle()) {
-      return StringUtil.toString(this.hiddenTitle);
+      return JNXStringUtil.toString(this.hiddenTitle);
     } else {
       return this.getFormat1().getTitle();
     }

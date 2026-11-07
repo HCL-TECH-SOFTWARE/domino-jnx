@@ -22,7 +22,6 @@ import java.util.Collection;
 import java.util.Optional;
 
 import com.hcl.domino.commons.util.NotesErrorUtils;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -31,6 +30,7 @@ import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.runtime.DominoRuntime;
 import com.hcl.domino.runtime.NSDMode;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 
 public class JNADominoRuntime implements DominoRuntime {
@@ -50,7 +50,7 @@ public class JNADominoRuntime implements DominoRuntime {
 			NotesCAPI.get().OSGetDataDirectory(retPathName);
 			NotesCAPI.get().OSPathAddTrailingPathSep(retPathName);
 			String pathAsStr = NotesStringUtils.fromLMBCS(retPathName, -1);
-			if(StringUtil.isNotEmpty(pathAsStr)) {
+			if(JNXStringUtil.isNotEmpty(pathAsStr)) {
 				return Optional.of(Paths.get(pathAsStr));
 			} else {
 				return Optional.empty();
@@ -63,7 +63,7 @@ public class JNADominoRuntime implements DominoRuntime {
 		try(DisposableMemory retPathName = new DisposableMemory(NotesConstants.MAXPATH)) {
 			NotesCAPI.get().OSGetExecutableDirectory(retPathName);
 			String pathAsStr = NotesStringUtils.fromLMBCS(retPathName, -1);
-			if(StringUtil.isNotEmpty(pathAsStr)) {
+			if(JNXStringUtil.isNotEmpty(pathAsStr)) {
 				return Optional.of(Paths.get(pathAsStr));
 			} else {
 				return Optional.empty();
@@ -76,7 +76,7 @@ public class JNADominoRuntime implements DominoRuntime {
 		try(DisposableMemory retPathName = new DisposableMemory(NotesConstants.MAXPATH)) {
 			NotesCAPI.get().OSGetSystemTempDirectory(retPathName, NotesConstants.MAXPATH);
 			String pathAsStr = NotesStringUtils.fromLMBCS(retPathName, -1);
-			if(StringUtil.isNotEmpty(pathAsStr)) {
+			if(JNXStringUtil.isNotEmpty(pathAsStr)) {
 				return Optional.of(Paths.get(pathAsStr));
 			} else {
 				return Optional.empty();
@@ -90,7 +90,7 @@ public class JNADominoRuntime implements DominoRuntime {
 	    retPathName.setByte(0, (byte)0);
 			NotesCAPI.get().NIFGetViewRebuildDir(retPathName, NotesConstants.MAXPATH);
 			String pathAsStr = NotesStringUtils.fromLMBCS(retPathName, -1);
-			if(StringUtil.isNotEmpty(pathAsStr)) {
+			if(JNXStringUtil.isNotEmpty(pathAsStr)) {
 				return Optional.of(Paths.get(pathAsStr));
 			} else {
 				return Optional.empty();
@@ -104,7 +104,7 @@ public class JNADominoRuntime implements DominoRuntime {
       NotesCAPI.get().OSGetSharedDataDirectory(retPathName);
       NotesCAPI.get().OSPathAddTrailingPathSep(retPathName);
       String pathAsStr = NotesStringUtils.fromLMBCS(retPathName, -1);
-      if(StringUtil.isNotEmpty(pathAsStr)) {
+      if(JNXStringUtil.isNotEmpty(pathAsStr)) {
         return Optional.of(Paths.get(pathAsStr));
       } else {
         return Optional.empty();
@@ -145,7 +145,7 @@ public class JNADominoRuntime implements DominoRuntime {
 	@Override
 	public int getPropertyInt(String propertyName) {
 		String value = getPropertyString(propertyName);
-		if (StringUtil.isEmpty(value)) {
+		if (JNXStringUtil.isEmpty(value)) {
 			return 0;
 		}
 		

@@ -26,7 +26,6 @@ import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.StringTokenizerExt;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -34,6 +33,7 @@ import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNARichtextMimeConversionSettingsAllocations;
 import com.hcl.domino.mime.RichTextMimeConversionSettings;
 import com.hcl.domino.misc.DominoEnumUtil;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
@@ -117,7 +117,7 @@ public class JNARichtextMimeConversionSettings extends BaseJNAAPIObject<JNARicht
 			StringTokenizerExt st = new StringTokenizerExt(itemNamesConc, ","); //$NON-NLS-1$
 			while (st.hasMoreTokens()) {
 				String currToken = st.nextToken();
-				if (!StringUtil.isEmpty(currToken)) {
+				if (!JNXStringUtil.isEmpty(currToken)) {
 					itemNames.add(currToken);
 				}
 			}
@@ -218,7 +218,7 @@ public class JNARichtextMimeConversionSettings extends BaseJNAAPIObject<JNARicht
 			StringTokenizerExt st = new StringTokenizerExt(itemNamesConc, ","); //$NON-NLS-1$
 			while (st.hasMoreTokens()) {
 				String currToken = st.nextToken();
-				if (!StringUtil.isEmpty(currToken)) {
+				if (!JNXStringUtil.isEmpty(currToken)) {
 					itemNames.add(currToken);
 				}
 			}

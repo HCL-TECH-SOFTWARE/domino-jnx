@@ -57,7 +57,6 @@ import com.hcl.domino.commons.richtext.DefaultRichTextList;
 import com.hcl.domino.commons.richtext.IDefaultRichTextWriter;
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.FontAttribute;
 import com.hcl.domino.data.ItemDataType;
@@ -98,6 +97,7 @@ import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.structures.ColorValue;
 import com.hcl.domino.richtext.structures.FontStyle;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -450,7 +450,7 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 	public RichTextWriter addDocLink(String dbReplicaId, String viewUnid, String docUNID, String comment) {
 		checkDisposed();
 
-		if (!StringUtil.isEmpty(dbReplicaId)) {
+		if (!JNXStringUtil.isEmpty(dbReplicaId)) {
 			int[] dbReplicaIdInnards = NotesStringUtils.replicaIdToInnards(dbReplicaId);
 			NotesTimeDateStruct.ByValue dbReplicaIdStructByVal = NotesTimeDateStruct.ByValue.newInstance();
 			dbReplicaIdStructByVal.Innards[0] = dbReplicaIdInnards[0];
@@ -459,12 +459,12 @@ public class JNARichtextWriter extends BaseJNAAPIObject<JNARichtextWriterAllocat
 			NotesUniversalNoteIdStruct.ByValue viewUNIDStructByVal = NotesUniversalNoteIdStruct.ByValue.newInstance();;
 			NotesUniversalNoteIdStruct.ByValue noteUNIDStructByVal = NotesUniversalNoteIdStruct.ByValue.newInstance();
 			
-			if (!StringUtil.isEmpty(viewUnid)) {
+			if (!JNXStringUtil.isEmpty(viewUnid)) {
 				NotesUniversalNoteIdStruct viewUNIDStruct = NotesUniversalNoteIdStruct.fromString(viewUnid);
 				viewUNIDStructByVal.File = viewUNIDStruct.File;
 				viewUNIDStructByVal.Note = viewUNIDStruct.Note;
 				
-				if (!StringUtil.isEmpty(docUNID)) {
+				if (!JNXStringUtil.isEmpty(docUNID)) {
 					NotesUniversalNoteIdStruct noteUNIDStruct = NotesUniversalNoteIdStruct.fromString(docUNID);
 					noteUNIDStructByVal.File = noteUNIDStruct.File;
 					noteUNIDStructByVal.Note = noteUNIDStruct.Note;

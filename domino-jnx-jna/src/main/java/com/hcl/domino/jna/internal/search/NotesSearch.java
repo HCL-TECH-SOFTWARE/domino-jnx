@@ -26,7 +26,6 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.UserNamesList;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.IItemTableData;
 import com.hcl.domino.commons.views.Search;
 import com.hcl.domino.data.Database.Action;
@@ -61,6 +60,7 @@ import com.hcl.domino.jna.internal.views.NotesLookupResultBufferDecoder;
 import com.hcl.domino.jna.internal.views.ViewFormulaCompiler;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 
@@ -385,7 +385,7 @@ public class NotesSearch {
       if (client.getBuildVersion("").getMajorVersion() >= 12) { //$NON-NLS-1$
         String str = System.getProperty(PROP_USELARGEDATA);
 
-        if (StringUtil.isEmpty(str)) {
+        if (JNXStringUtil.isEmpty(str)) {
           str = System.getenv(ENV_USELARGEDATA);
         }
 
@@ -488,7 +488,7 @@ public class NotesSearch {
         // hard coded innards to work around a date conversion issue for dates in the past
         since = new JNADominoDateTime(new int[] {-360000, -1054549587});
       }
-      if (StringUtil.isEmpty(viewTitle)) {
+      if (JNXStringUtil.isEmpty(viewTitle)) {
         // in R9, view title cannot be empty if filtering with IDTable
         viewTitle = "-"; //$NON-NLS-1$
       }
@@ -622,7 +622,7 @@ public class NotesSearch {
 
     DHANDLE.ByReference hFormula = DHANDLE.newInstanceByReference();
 
-    if (!StringUtil.isEmpty(formula)) {
+    if (!JNXStringUtil.isEmpty(formula)) {
       hFormula = ViewFormulaCompiler.compile(formula, columnFormulasFixedOrder);
     }
 

@@ -33,7 +33,6 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.design.AbstractDesignElement;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.Document.IAttachmentProducer;
@@ -157,7 +156,7 @@ public class JavaAgentAndLibrarySupport {
     }
     
     if (changed) {
-      if (StringUtil.isEmpty(getCodeFilesystemPath())) {
+      if (JNXStringUtil.isEmpty(getCodeFilesystemPath())) {
         String newCodeFilesystemPath = getDocument().getParentDatabase().getParentDominoClient().getDominoRuntime().getPropertyString("Directory");
         setCodeFilesystemPath(newCodeFilesystemPath);
       }

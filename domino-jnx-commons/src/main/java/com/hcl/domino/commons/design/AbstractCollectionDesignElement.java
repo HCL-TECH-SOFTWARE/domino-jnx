@@ -43,7 +43,6 @@ import com.hcl.domino.commons.design.view.DominoCalendarFormat;
 import com.hcl.domino.commons.design.view.DominoCollationInfo;
 import com.hcl.domino.commons.design.view.DominoCollectionColumn;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DocumentClass;
@@ -636,7 +635,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   @Override
   public Optional<String> getColumnProfileDocName() {
     String name = getDocument().getAsText(DesignConstants.VIEW_COLUMN_PROFILE_DOC, ' ');
-    if(StringUtil.isEmpty(name)) {
+    if(JNXStringUtil.isEmpty(name)) {
       return Optional.empty();
     } else {
       return Optional.of(name);
@@ -713,7 +712,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public T setFormFormula(String formulaStr) {
-    if (StringUtil.isEmpty(formulaStr)) {
+    if (JNXStringUtil.isEmpty(formulaStr)) {
       getDocument().removeItem(NotesConstants.VIEW_FORM_FORMULA_ITEM);
     }
     else {
@@ -735,7 +734,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
   
   @Override
   public T setHelpRequestFormula(String formulaStr) {
-    if (StringUtil.isEmpty(formulaStr)) {
+    if (JNXStringUtil.isEmpty(formulaStr)) {
       getDocument().removeItem(DesignConstants.ITEM_NAME_APPHELPFORMULA);
     }
     else {
@@ -921,7 +920,7 @@ public abstract class AbstractCollectionDesignElement<T extends CollectionDesign
           }
 
           String selectionFormula = getSelectionFormula();
-          if (StringUtil.isEmpty(selectionFormula)) {
+          if (JNXStringUtil.isEmpty(selectionFormula)) {
             selectionFormula = "SELECT @All"; //$NON-NLS-1$
           }
           byte[] formulaItemData = FormulaCompiler.get().compile(selectionFormula, columnItemNamesAndFormulas);

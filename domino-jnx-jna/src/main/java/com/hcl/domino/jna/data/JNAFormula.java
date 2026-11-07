@@ -31,7 +31,6 @@ import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.NotesErrorUtils;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.Formula;
@@ -51,6 +50,7 @@ import com.hcl.domino.jna.internal.gc.allocations.JNAFormulaAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.misc.DominoEnumUtil;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.ShortByReference;
@@ -356,7 +356,7 @@ public class JNAFormula extends BaseJNAAPIObject<JNAFormulaAllocations> implemen
 			return ""; //$NON-NLS-1$
 		}
 		else {
-			return StringUtil.toString(result.get(0));
+			return JNXStringUtil.toString(result.get(0));
 		}
 	}
 

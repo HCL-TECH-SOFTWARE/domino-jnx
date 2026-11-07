@@ -20,10 +20,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.DesignElement;
 import com.hcl.domino.design.DesignElement.AutoFrameElement;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * This mixin interface adds default behavior to implement {@link AutoFrameElement}.
@@ -35,7 +35,7 @@ public interface IDefaultAutoFrameElement extends DesignElement, AutoFrameElemen
   @Override
   default Optional<String> getAutoFrameFrameset() {
     List<String> frameInfo = getDocument().getAsList(DesignConstants.ITEM_NAME_FRAMEINFO, String.class, Collections.emptyList());
-    if(frameInfo.isEmpty() || StringUtil.isEmpty(frameInfo.get(0))) {
+    if(frameInfo.isEmpty() || JNXStringUtil.isEmpty(frameInfo.get(0))) {
       return Optional.empty();
     } else {
       return Optional.of(frameInfo.get(0));
@@ -45,7 +45,7 @@ public interface IDefaultAutoFrameElement extends DesignElement, AutoFrameElemen
   @Override
   default Optional<String> getAutoFrameTarget() {
     List<String> frameInfo = getDocument().getAsList(DesignConstants.ITEM_NAME_FRAMEINFO, String.class, Collections.emptyList());
-    if(frameInfo.size() < 2 || StringUtil.isEmpty(frameInfo.get(1))) {
+    if(frameInfo.size() < 2 || JNXStringUtil.isEmpty(frameInfo.get(1))) {
       return Optional.empty();
     } else {
       return Optional.of(frameInfo.get(1));

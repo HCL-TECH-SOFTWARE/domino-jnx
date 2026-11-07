@@ -67,7 +67,6 @@ import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.server.DefaultServerPingInfo;
 import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.commons.util.NotesErrorUtils;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.CompactMode;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.ReplicateOption;
@@ -152,6 +151,7 @@ import com.hcl.domino.security.AclFlag;
 import com.hcl.domino.security.AclLevel;
 import com.hcl.domino.security.Ecl;
 import com.hcl.domino.server.ServerPingInfo;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.DoubleByReference;
@@ -198,11 +198,11 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     Integer queueFlushThreshold = AccessController.doPrivileged((PrivilegedAction<Integer>) () -> {
       String str = System.getProperty(PROP_DEFAULTQUEUEFLUSH);
 
-      if (StringUtil.isEmpty(str)) {
+      if (JNXStringUtil.isEmpty(str)) {
         str = System.getenv(ENV_DEFAULTQUEUEFLUSH);
       }
 
-      if (!StringUtil.isEmpty(str)) {
+      if (!JNXStringUtil.isEmpty(str)) {
         try {
           return Integer.valueOf(str);
         } catch (NumberFormatException e) {
@@ -223,7 +223,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
         CAPIGarbageCollector.getReferenceQueueForClient(this));
 
     String credUser = builder.getCredUser();
-    if (StringUtil.isNotEmpty(credUser)) {
+    if (JNXStringUtil.isNotEmpty(credUser)) {
       try {
         m_effectiveUserName = validateCredentials(builder.getCredServer(), builder.getCredUser(),
             builder.getCredPassword());
@@ -259,7 +259,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     if (m_effectiveUserName == null) {
       if (m_builderIsAsId) {
         m_effectiveUserName = getIDUserName();
-      } else if (!StringUtil.isEmpty(m_builderUserName)) {
+      } else if (!JNXStringUtil.isEmpty(m_builderUserName)) {
         m_effectiveUserName = NotesNamingUtils.toCanonicalName(m_builderUserName);
       } else if (!m_builderNamesList.isEmpty()) {
         m_effectiveUserName =
@@ -359,7 +359,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
       boolean initDesign,
       Encryption encryption, DatabaseClass dbClass) {
 
-    if (StringUtil.isEmpty(filePath)) {
+    if (JNXStringUtil.isEmpty(filePath)) {
       throw new IllegalArgumentException("filePath cannot be empty");
     }
     String serverName = paramServerName;
@@ -644,7 +644,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   @Override
   public Database openDatabase(String path, Set<OpenDatabase> options) {
     String[] resolvedServerAndPath = resolveDbPath(path);
-    if (StringUtil.isEmpty(resolvedServerAndPath[1])) {
+    if (JNXStringUtil.isEmpty(resolvedServerAndPath[1])) {
       throw new DominoException(StatusImpl.NOERROR,
           MessageFormat.format("Unable to find database for path {0}", path));
     }
@@ -722,7 +722,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
       mailFileFormula.dispose();
     }
 
-    if (StringUtil.isEmpty(mailFile)) {
+    if (JNXStringUtil.isEmpty(mailFile)) {
       return Optional.empty();
     }
 
@@ -731,7 +731,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
   @Override
   public void deleteDatabase(final String paramServerName, final String filePath) {
-    if (StringUtil.isEmpty(filePath)) {
+    if (JNXStringUtil.isEmpty(filePath)) {
       throw new IllegalArgumentException("filePath cannot be empty");
     }
     String serverName = paramServerName;
@@ -1152,13 +1152,13 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   public String validateCredentials(String serverName, String userName, String password)
       throws NameNotFoundException, AuthenticationNotSupportedException, AuthenticationException {
 
-    if (StringUtil.isEmpty(userName)) {
+    if (JNXStringUtil.isEmpty(userName)) {
       throw new IllegalArgumentException("userName cannot be empty");
     }
 
     String fullName;
     
-    if (StringUtil.isEmpty(serverName) || Names.equalNames(getIDUserName(), serverName)) {
+    if (JNXStringUtil.isEmpty(serverName) || Names.equalNames(getIDUserName(), serverName)) {
       if (!isSkipNewNABCredentialCheck()) {
         //use credential check function added in 12.0.1 GA if possible
         try {
@@ -1178,7 +1178,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
             }
           }
 
-          return StringUtil.isEmpty(fullName) ? userName : fullName;
+          return JNXStringUtil.isEmpty(fullName) ? userName : fullName;
         }
         catch (UnsatisfiedLinkError e) {
           //may be thrown if C function is not yet available
@@ -1203,10 +1203,10 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     }
 
     fullName =
-        StringUtil.getFirstString(result.get(0).get(NotesConstants.MAIL_FULLNAME_ITEM));
+        JNXStringUtil.getFirstString(result.get(0).get(NotesConstants.MAIL_FULLNAME_ITEM));
     String httpPassword =
-        StringUtil.getFirstString(result.get(0).get(NotesConstants.MAIL_HTTPPASSWORD_ITEM));
-    if (StringUtil.isEmpty(httpPassword)) {
+        JNXStringUtil.getFirstString(result.get(0).get(NotesConstants.MAIL_HTTPPASSWORD_ITEM));
+    if (JNXStringUtil.isEmpty(httpPassword)) {
       throw new AuthenticationNotSupportedException(
           MessageFormat.format("User \"{0}\" has no specified password", userName));
     }
@@ -1225,7 +1225,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
       throw new AuthenticationException("Passwords do not match");
     }
 
-    return StringUtil.isEmpty(fullName) ? userName : fullName;
+    return JNXStringUtil.isEmpty(fullName) ? userName : fullName;
   }
 
   @Override
@@ -1310,7 +1310,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
   @Override
   public Pair<Double,Double> compact(String pathname, Set<CompactMode> mode) {
-    if (StringUtil.isEmpty(pathname)) {
+    if (JNXStringUtil.isEmpty(pathname)) {
       throw new IllegalArgumentException("Pathname cannot be empty");
     }
 
@@ -1341,7 +1341,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
   @Override
   public ServerPingInfo pingServer(String serverName, boolean retrieveLoadIndex,
       boolean retrieveClusterInfo) {
-    if (StringUtil.isEmpty(serverName)) {
+    if (JNXStringUtil.isEmpty(serverName)) {
       throw new IllegalArgumentException("serverName cannot be empty");
     }
 
@@ -1379,7 +1379,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
   @Override
   public BuildVersionInfo getBuildVersion(String server) {
-    if (StringUtil.isEmpty(server) && localBuildVersionInfo != null) {
+    if (JNXStringUtil.isEmpty(server) && localBuildVersionInfo != null) {
       // use cached local api version
       return localBuildVersionInfo;
     }
@@ -1390,7 +1390,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
       buildVersionInfo = db.getBuildVersionInfo();
     }
 
-    if (StringUtil.isEmpty(server)) {
+    if (JNXStringUtil.isEmpty(server)) {
       localBuildVersionInfo = buildVersionInfo;
     }
 

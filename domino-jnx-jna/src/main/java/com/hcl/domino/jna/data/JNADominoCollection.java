@@ -50,7 +50,6 @@ import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.StringTokenizerExt;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.ReadMask;
 import com.hcl.domino.data.CollectionColumn;
 import com.hcl.domino.data.CollectionEntry;
@@ -91,6 +90,7 @@ import com.hcl.domino.jna.internal.views.NotesSearchKeyEncoder;
 import com.hcl.domino.jna.internal.views.NotesViewLookupResultData;
 import com.hcl.domino.misc.Loop;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
@@ -1423,7 +1423,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
       int initialIndexModified = getIndexModifiedSequenceNo();
 
       String startPosStr = startPosRetriever.getStartPosition();
-      if (StringUtil.isEmpty(startPosStr)) {
+      if (JNXStringUtil.isEmpty(startPosStr)) {
         T result = callback.start();
         result = callback.end(result);
         return result;
@@ -2314,7 +2314,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
       }
 
       final String catPos = catLkResult.getPosition();
-      if (StringUtil.isEmpty(catPos)) {
+      if (JNXStringUtil.isEmpty(catPos)) {
         // category not found
         T result = callback.start();
         result = callback.end(result);
@@ -2701,7 +2701,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     public Action entryRead(Set<String> result,
         CollectionEntry entryData) {
       String colValue = entryData.get(m_columnName, String.class, ""); //$NON-NLS-1$
-      if (!StringUtil.isEmpty(colValue)) {
+      if (!JNXStringUtil.isEmpty(colValue)) {
         result.add(colValue);
       }
       return Action.Continue;

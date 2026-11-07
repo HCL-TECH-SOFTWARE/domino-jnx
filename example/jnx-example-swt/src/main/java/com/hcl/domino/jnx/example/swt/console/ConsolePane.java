@@ -30,8 +30,8 @@ import org.eclipse.swt.widgets.Text;
 
 import com.hcl.domino.admin.IConsoleLine;
 import com.hcl.domino.admin.ServerAdmin.ConsoleHandler;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.jnx.example.swt.bean.DominoContextBean;
+import com.hcl.domino.util.JNXStringUtil;
 
 public class ConsolePane extends Composite {
 
@@ -93,7 +93,7 @@ public class ConsolePane extends Composite {
         
         DominoContextBean.submit(client -> {
           String reply = client.getServerAdmin().sendConsoleCommand(serverName, command);
-          if(StringUtil.isNotEmpty(reply)) {
+          if(JNXStringUtil.isNotEmpty(reply)) {
             getDisplay().asyncExec(() -> output.append(reply));
           }
         });
@@ -103,7 +103,7 @@ public class ConsolePane extends Composite {
   
   private void connectToServer() {
     String serverName = serverNameInput.getText();
-    if(StringUtil.isNotEmpty(serverName)) {
+    if(JNXStringUtil.isNotEmpty(serverName)) {
       DominoContextBean.submit(client -> {
         if(this.handler != null) {
           handler.stop();
@@ -127,7 +127,7 @@ public class ConsolePane extends Composite {
 
     @Override
     public void messageReceived(IConsoleLine line) {
-      String dataLine = StringUtil.toString(line.getData());
+      String dataLine = JNXStringUtil.toString(line.getData());
       // Chop off the trailing \n
       dataLine = dataLine.substring(0, dataLine.length()-1);
       if(dataLine.startsWith("<ct") && !dataBuf.isEmpty()) { //$NON-NLS-1$

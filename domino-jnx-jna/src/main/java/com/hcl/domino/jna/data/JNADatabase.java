@@ -67,7 +67,6 @@ import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.StringTokenizerExt;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.IItemTableData;
 import com.hcl.domino.commons.views.OpenCollection;
 import com.hcl.domino.crypt.DatabaseEncryptionState;
@@ -145,6 +144,7 @@ import com.hcl.domino.richtext.structures.OriginatorID;
 import com.hcl.domino.security.Acl;
 import com.hcl.domino.security.AclFlag;
 import com.hcl.domino.security.AclLevel;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
@@ -342,7 +342,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				}
 
 				if ((localResult.getValue() & NotesConstants.ERR_MASK)==582 &&
-						StringUtil.isEmpty(m_server) && !parentClient.isOnServer() && m_openAsIdUser) {
+				    JNXStringUtil.isEmpty(m_server) && !parentClient.isOnServer() && m_openAsIdUser) {
 					localResult = NotesCAPI.get().NSFDbOpenExtended(retFullNetPath, openOptions, (DHANDLE.ByValue) null,
 							null, retHDB, retDataModified, retNonDataModified);
 				}
@@ -351,7 +351,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 					
 					//try to find this database in the folder configured via SharedDataDirectory
 					//in the Notes.ini
-					boolean hasShared = StringUtil.isNotEmpty(getParentDominoClient().getDominoRuntime().getPropertyString("SharedDataDirectory")); //$NON-NLS-1$
+					boolean hasShared = JNXStringUtil.isNotEmpty(getParentDominoClient().getDominoRuntime().getPropertyString("SharedDataDirectory")); //$NON-NLS-1$
 					
 					if(hasShared) {
 						if (m_openAsIdUser && (m_namesListPrivileges==null || !m_namesListPrivileges.contains(Privileges.FullAdminAccess))) {
@@ -1002,7 +1002,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		JNADatabaseAllocations allocations = getAllocations();
 		
 		Memory profileNameMem = NotesStringUtils.toLMBCS(profileName, false);
-		Memory userNameMem = StringUtil.isEmpty(userName) ? null : NotesStringUtils.toLMBCS(userName, false);
+		Memory userNameMem = JNXStringUtil.isEmpty(userName) ? null : NotesStringUtils.toLMBCS(userName, false);
 		
 		DHANDLE.ByReference rethProfileNote = DHANDLE.newInstanceByReference();
 
@@ -1065,7 +1065,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
       List<ProfileNoteInfo> retNoteInfos = new ArrayList<>();
 
       Memory profileNameMem =
-          StringUtil.isEmpty(profileName) ? null : NotesStringUtils.toLMBCS(profileName, false);
+          JNXStringUtil.isEmpty(profileName) ? null : NotesStringUtils.toLMBCS(profileName, false);
 
       NotesCallbacks.NSFPROFILEENUMPROC callback;
 
@@ -1110,7 +1110,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		Stream<Document> docs = getProfileNoteInfos(profileName)
 		.stream()
 		.filter((profileInfo) -> {
-			boolean result = StringUtil.isEmpty(userName) || NotesNamingUtils.equalNames(profileInfo.getUserName(), userName);
+			boolean result = JNXStringUtil.isEmpty(userName) || NotesNamingUtils.equalNames(profileInfo.getUserName(), userName);
 			return result;
 		})
 		.map((profileInfo) -> {
@@ -1169,7 +1169,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		String dbPathWithServer;
 		
 		String server = getServer();
-		if (!StringUtil.isEmpty(server)) {
+		if (!JNXStringUtil.isEmpty(server)) {
 			dbPathWithServer = server + "!!" + getRelativeFilePath(); //$NON-NLS-1$
 		}
 		else {
@@ -1862,7 +1862,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		 */
 		@Override
 		public String getUnid() {
-			return StringUtil.toString(m_unid);
+			return JNXStringUtil.toString(m_unid);
 		}
 		
 		/**
@@ -2071,7 +2071,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		).orElseThrow();
 		
 		String unid = retUNID.toString();
-		if (StringUtil.isEmpty(unid) || "00000000000000000000000000000000".equals(unid)) { //$NON-NLS-1$
+		if (JNXStringUtil.isEmpty(unid) || "00000000000000000000000000000000".equals(unid)) { //$NON-NLS-1$
 			return Optional.empty();
 		}
 		else {
@@ -2211,7 +2211,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		// use a format similar to profile docs $name value,
 		// e.g. "$app_015calcolorprofile_" or "$app_015calcolorprofile_myobjectname"
 		String fullNodeName = (NAMEDNOTES_APPLICATION_PREFIX +
-				StringUtil.pad(Integer.toString(category.length()), 3, '0', false) + category + "_" + //$NON-NLS-1$
+		    JNXStringUtil.pad(Integer.toString(category.length()), 3, '0', false) + category + "_" + //$NON-NLS-1$
 				objectKey)
 				.toLowerCase(Locale.ENGLISH);
 		
@@ -2257,7 +2257,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	private int getNamedObjectRRV(String name, short namespace) {
 		checkDisposed();
 		
-		if (StringUtil.isEmpty(name)) {
+		if (JNXStringUtil.isEmpty(name)) {
 			throw new IllegalArgumentException("Name cannot be empty");
 		}
 
@@ -2289,7 +2289,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
       
       if (noteId!=0) {
         String currName = entry.getNameOfDocument();
-        if (StringUtil.startsWithIgnoreCase(currName, NAMEDNOTES_APPLICATION_PREFIX)) {
+        if (JNXStringUtil.startsWithIgnoreCase(currName, NAMEDNOTES_APPLICATION_PREFIX)) {
           String[] parsedNamedNoteInfos = parseApplicationNamedNoteName(currName);
           if (parsedNamedNoteInfos!=null) {
             String category = parsedNamedNoteInfos[0];
@@ -2313,7 +2313,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	
 	@Override
 	public Map<String,Integer> getAllDocumentsByPrimaryKey(String category) {
-		if (StringUtil.isEmpty(category)) {
+		if (JNXStringUtil.isEmpty(category)) {
 			throw new IllegalArgumentException("Category cannot be empty");
 		}
 		String prefix = getApplicationNoteName(category, ""); //$NON-NLS-1$
@@ -2326,7 +2326,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
       
       if (noteId!=0) {
         String currName = entry.getNameOfDocument();
-        if (StringUtil.startsWithIgnoreCase(currName, prefix)) {
+        if (JNXStringUtil.startsWithIgnoreCase(currName, prefix)) {
           String objectKey = currName.substring(prefix.length()).toLowerCase(Locale.ENGLISH);
           result.put(objectKey, noteId);
         }
@@ -2606,7 +2606,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
       }
 
       if (result.isError()) {
-          if (!StringUtil.isEmpty(errorTxt)) {
+          if (!JNXStringUtil.isEmpty(errorTxt)) {
               throw new DominoException(result, errorTxt, result.toDominoException().orElse(null));
           }
           else {
@@ -2762,7 +2762,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 								StringTokenizerExt st = new StringTokenizerExt(strHighlights, "\n"); //$NON-NLS-1$
 								while (st.hasMoreTokens()) {
 									String currToken = st.nextToken();
-									if (!StringUtil.isEmpty(currToken)) {
+									if (!JNXStringUtil.isEmpty(currToken)) {
 										strings.add(currToken);
 									}
 								}
@@ -3252,7 +3252,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 	@Override
 	public int createFolder(Database formatDb, String formatFolderName, String newFolderName) {
-		if (StringUtil.isEmpty(formatFolderName)) {
+		if (JNXStringUtil.isEmpty(formatFolderName)) {
 			return createFolder(formatDb, 0, newFolderName);
 		}
 		
@@ -3585,11 +3585,11 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	
 	@Override
 	public boolean isDocumentUnread(String userNameParam, int noteId) {
-		String userName = StringUtil.isEmpty(userNameParam) ? getParentDominoClient().getEffectiveUserName() : userNameParam;
+		String userName = JNXStringUtil.isEmpty(userNameParam) ? getParentDominoClient().getEffectiveUserName() : userNameParam;
 		String userNameCanonical = NotesNamingUtils.toCanonicalName(userName);
 		
 		if (
-				StringUtil.isEmpty(m_cachedUnreadTableUsernameCanonical) ||
+		    JNXStringUtil.isEmpty(m_cachedUnreadTableUsernameCanonical) ||
 				m_cachedUnreadTable==null ||
 				m_cachedUnreadTable.isDisposed() ||
 				!NotesNamingUtils.equalNames(userNameCanonical, m_cachedUnreadTableUsernameCanonical)) {
@@ -3610,7 +3610,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	public Optional<IDTable> getUnreadDocumentTable(String userNameParam, boolean createIfNotAvailable, boolean updateUnread) {
 		checkDisposed();
 		
-		String userName = StringUtil.isEmpty(userNameParam) ? getParentDominoClient().getEffectiveUserName() : userNameParam;
+		String userName = JNXStringUtil.isEmpty(userNameParam) ? getParentDominoClient().getEffectiveUserName() : userNameParam;
 		String userNameCanonical = NotesNamingUtils.toCanonicalName(userName);
 		
 		Memory userNameCanonicalMem = NotesStringUtils.toLMBCS(userNameCanonical, false);
@@ -3646,7 +3646,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		checkDisposed();
 		
-		String userName = StringUtil.isEmpty(userNameParam) ? getParentDominoClient().getEffectiveUserName() : userNameParam;
+		String userName = JNXStringUtil.isEmpty(userNameParam) ? getParentDominoClient().getEffectiveUserName() : userNameParam;
 		String userNameCanonical = NotesNamingUtils.toCanonicalName(userName);
 
 		Memory userNameCanonicalMem = NotesStringUtils.toLMBCS(userNameCanonical, false);
@@ -4045,7 +4045,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     if (name==null) {
       throw new IllegalArgumentException("Name parameter cannot be null");
     }
-    else if (StringUtil.isEmpty(name)) {
+    else if (JNXStringUtil.isEmpty(name)) {
       throw new IllegalArgumentException("Name parameter cannot be empty");
     }
     else if (name.contains("*")) { //$NON-NLS-1$
@@ -4243,12 +4243,12 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
   @Override
   public Collection<NamedObjectInfo> getNamedDocumentInfos(String name) {
-    String prefix = StringUtil.isEmpty(name) ? "$DGHST_": computeNamedNoteValue(name, ""); //$NON-NLS-1$ //$NON-NLS-2$
+    String prefix = JNXStringUtil.isEmpty(name) ? "$DGHST_": computeNamedNoteValue(name, ""); //$NON-NLS-1$ //$NON-NLS-2$
     
     return getNamedObjects(NotesConstants.NONS_NAMED_NOTE)
         .stream()
         .filter((entry) -> {
-          return StringUtil.startsWithIgnoreCase(entry.getRawName(), prefix);
+          return JNXStringUtil.startsWithIgnoreCase(entry.getRawName(), prefix);
         })
         .collect(Collectors.toList());
   }
@@ -4269,14 +4269,14 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
   public void createIndex(String name, Collection<String> fields, boolean isvisible, boolean nobuild) {
     checkDisposed();
     
-    if (StringUtil.isEmpty(name)) {
+    if (JNXStringUtil.isEmpty(name)) {
       throw new IllegalArgumentException("Index name cannot be empty");
     }
     
     List<Memory> fieldsMem = new ArrayList<>();
     
     for (String currField : fields) {
-      if (StringUtil.isEmpty(currField)) {
+      if (JNXStringUtil.isEmpty(currField)) {
         throw new IllegalArgumentException(MessageFormat.format("Method does not support empty field names: {0}", fields));
       }
       
@@ -4334,7 +4334,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     }
 
     if (result.isError()) {
-      if (!StringUtil.isEmpty(errorTxt)) {
+      if (!JNXStringUtil.isEmpty(errorTxt)) {
         throw new DominoException(result, errorTxt, result.toDominoException().orElse(null));
       }
       else {
@@ -4348,7 +4348,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
   public void removeIndex(String name) {
     checkDisposed();
     
-    if (StringUtil.isEmpty(name)) {
+    if (JNXStringUtil.isEmpty(name)) {
       throw new IllegalArgumentException("Index name cannot be empty");
     }
 
@@ -4385,7 +4385,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     }
 
     if (result.isError()) {
-      if (!StringUtil.isEmpty(errorTxt)) {
+      if (!JNXStringUtil.isEmpty(errorTxt)) {
         throw new DominoException(result, errorTxt, result.toDominoException().orElse(null));
       }
       else {
@@ -4418,7 +4418,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     }
     
     if (result.isError()) {
-      if (!StringUtil.isEmpty(errorTxt)) {
+      if (!JNXStringUtil.isEmpty(errorTxt)) {
         throw new DominoException(result, errorTxt, result.toDominoException().orElse(null));
       }
       else {

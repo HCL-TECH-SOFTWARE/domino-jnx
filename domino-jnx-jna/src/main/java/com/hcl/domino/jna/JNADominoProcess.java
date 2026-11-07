@@ -39,7 +39,6 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.DominoProcess;
 import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.commons.util.NotesErrorUtils;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.DominoInitException;
 import com.hcl.domino.jna.internal.DisposableMemory;
@@ -47,6 +46,7 @@ import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.INotesCAPI;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.StringArray;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -137,7 +137,7 @@ public class JNADominoProcess implements DominoProcess {
         initArgs = new String[0];
       } else {
         if (initArgs.length > 0) {
-          if (StringUtil.isNotEmpty(initArgs[0])) {
+          if (JNXStringUtil.isNotEmpty(initArgs[0])) {
             String dominoProgramDirPathStr = initArgs[0];
             Path dominoProgramDirPath = Paths.get(dominoProgramDirPathStr);
 

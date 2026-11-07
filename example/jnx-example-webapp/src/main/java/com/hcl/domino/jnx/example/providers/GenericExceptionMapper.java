@@ -19,8 +19,7 @@ package com.hcl.domino.jnx.example.providers;
 import java.util.Arrays;
 import java.util.Collection;
 
-import com.hcl.domino.commons.util.StringUtil;
-
+import com.hcl.domino.util.JNXStringUtil;
 import jakarta.json.Json;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObjectBuilder;
@@ -42,7 +41,7 @@ public class GenericExceptionMapper implements ExceptionMapper<Throwable> {
     for (cmssiteIndex = stackTrace.length - 1; cmssiteIndex >= 0; cmssiteIndex--) {
       final StackTraceElement el = stackTrace[cmssiteIndex];
       final String className = el.getClassName();
-      if (StringUtil.isNotEmpty(className) && className.startsWith("com.hcl") //$NON-NLS-1$
+      if (JNXStringUtil.isNotEmpty(className) && className.startsWith("com.hcl") //$NON-NLS-1$
           && !GenericExceptionMapper.IGNORED_STACK_CLASSES.contains(className)) {
         break;
       }

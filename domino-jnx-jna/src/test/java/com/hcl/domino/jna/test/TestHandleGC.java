@@ -31,12 +31,12 @@ import com.hcl.domino.commons.gc.CAPIGarbageCollector.CAPIGarbageCollectorListen
 import com.hcl.domino.commons.gc.CAPIGarbageCollector.ICAPIGarbageCollectorListener;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCControl;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.data.JNADatabase;
 import com.hcl.domino.jna.data.JNADocument;
+import com.hcl.domino.util.JNXStringUtil;
 
 @SuppressWarnings({ "nls", "unused", "rawtypes" })
 public class TestHandleGC extends AbstractJNARuntimeTest {
@@ -81,7 +81,7 @@ public class TestHandleGC extends AbstractJNARuntimeTest {
 
         @Override
         public void endDispose(final DominoClient client, final APIObjectAllocations apiObjectAllocations, final int depth) {
-          System.out.println(StringUtil.repeat(' ', depth) + " End disposing " + apiObjectAllocations);
+          System.out.println(JNXStringUtil.repeat(' ', depth) + " End disposing " + apiObjectAllocations);
           disposedObjects.incrementAndGet();
         }
 
@@ -98,7 +98,7 @@ public class TestHandleGC extends AbstractJNARuntimeTest {
 
         @Override
         public void startDispose(final DominoClient client, final APIObjectAllocations apiObjectAllocations, final int depth) {
-          System.out.println(StringUtil.repeat(' ', depth) + " Start disposing " + apiObjectAllocations);
+          System.out.println(JNXStringUtil.repeat(' ', depth) + " Start disposing " + apiObjectAllocations);
         }
 
         @Override

@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.commons.errors.INotesErrorConstants;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.Mem;
@@ -33,6 +32,7 @@ import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.naming.UserDirectory;
 import com.hcl.domino.naming.UserDirectoryQuery;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ShortByReference;
@@ -54,7 +54,7 @@ public class JNAUserDirectory implements UserDirectory {
 
 	@Override
 	public Optional<String> getPrimaryDirectoryPath() {
-	  if (StringUtil.isEmpty(serverName)) {
+	  if (JNXStringUtil.isEmpty(serverName)) {
 	    synchronized (JNAUserDirectory.class) {
 	      if (localEnvPrimaryDirectoryPath!=null) {
 	        //return cached path for local environment if possible
@@ -101,8 +101,8 @@ public class JNAUserDirectory implements UserDirectory {
           final int strlen = NotesStringUtils.getNullTerminatedLength(chPrimaryNamePtr);
           String path = NotesStringUtils.fromLMBCS(chPrimaryNamePtr, strlen);
           
-          if (!StringUtil.isEmpty(path)) {
-            if (StringUtil.isEmpty(serverName)) {
+          if (!JNXStringUtil.isEmpty(path)) {
+            if (JNXStringUtil.isEmpty(serverName)) {
               //cache path for local environment
               synchronized (JNAUserDirectory.class) {
                 localEnvPrimaryDirectoryPath = path;
@@ -147,7 +147,7 @@ public class JNAUserDirectory implements UserDirectory {
 				for(int i = 0; i < count; i++) {
 					int strlen = NotesStringUtils.getNullTerminatedLength(strPtr);
 					String path = NotesStringUtils.fromLMBCS(strPtr, strlen);
-					if(StringUtil.isNotEmpty(path)) {
+					if(JNXStringUtil.isNotEmpty(path)) {
 						result.add(path);
 					}
 					

@@ -28,7 +28,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.design.view.DominoViewFormat;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.DominoDateRange;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.DominoTimeType;
@@ -37,6 +36,7 @@ import com.hcl.domino.data.PreV3Author;
 import com.hcl.domino.data.TypedAccess;
 import com.hcl.domino.data.UserData;
 import com.hcl.domino.design.DesignAgent;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * Utility class to convert data of an object to different value types
@@ -271,7 +271,7 @@ public abstract class AbstractTypedAccess implements TypedAccess, IndexedTypedAc
 	private String getAsString(List<?> docValues, String defaultValue) {
 	  if (docValues != null) {
       for (int i = 0; i < docValues.size(); i++) {
-        String currStr = StringUtil.toString(docValues.get(i));
+        String currStr = JNXStringUtil.toString(docValues.get(i));
         if (!"".equals(currStr)) { //$NON-NLS-1$
           return currStr;
         }
@@ -284,7 +284,7 @@ public abstract class AbstractTypedAccess implements TypedAccess, IndexedTypedAc
 		if (docValues != null) {
 			List<String> strList = new ArrayList<>(docValues.size());
 			for (int i = 0; i < docValues.size(); i++) {
-        strList.add(StringUtil.toString(docValues.get(i)));
+        strList.add(JNXStringUtil.toString(docValues.get(i)));
 			}
 			if (!strList.isEmpty()) {
 				return strList;

@@ -23,6 +23,7 @@ import java.util.Objects;
 
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.CAPIGarbageCollector;
+import com.hcl.domino.util.JNXStringUtil;
 
 public enum DominoUtils {
   ;
@@ -39,14 +40,14 @@ public enum DominoUtils {
    * @since 1.0.18
    */
   public static boolean checkBooleanProperty(final String propertyName, final String envVarName) {
-    if (StringUtil.isNotEmpty(propertyName)) {
+    if (JNXStringUtil.isNotEmpty(propertyName)) {
       final String propValString = AccessController.doPrivileged((PrivilegedAction<String>) () -> System.getProperty(propertyName));
       final boolean propVal = "true".equalsIgnoreCase(propValString) || "1".equalsIgnoreCase(propValString); //$NON-NLS-1$ //$NON-NLS-2$
       if (propVal) {
         return true;
       }
     }
-    if (StringUtil.isNotEmpty(envVarName)) {
+    if (JNXStringUtil.isNotEmpty(envVarName)) {
       final String envValString = AccessController.doPrivileged((PrivilegedAction<String>) () -> System.getenv(envVarName));
       final boolean envVal = "true".equalsIgnoreCase(envValString) || "1".equalsIgnoreCase(envValString); //$NON-NLS-1$ //$NON-NLS-2$
       if (envVal) {

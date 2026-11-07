@@ -39,7 +39,6 @@ import java.util.stream.Collectors;
 
 import com.hcl.domino.commons.data.AbstractCollectionEntry;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.commons.views.ReadMask;
 import com.hcl.domino.data.CollectionEntryValueConverter;
 import com.hcl.domino.data.Database;
@@ -1102,7 +1101,7 @@ public class JNACollectionEntry extends AbstractCollectionEntry {
 			return ((Database) getParent().getParent()).getDocumentById(noteId);
 		}
 		String unid = getUNID();
-		if (!StringUtil.isEmpty(unid)) {
+		if (!JNXStringUtil.isEmpty(unid)) {
 			return ((Database) getParent().getParent()).getDocumentByUNID(unid);
 		}
 		return Optional.empty();

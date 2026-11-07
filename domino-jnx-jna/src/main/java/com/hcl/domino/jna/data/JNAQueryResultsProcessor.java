@@ -33,7 +33,6 @@ import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
-import com.hcl.domino.commons.util.StringUtil;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.data.NativeItemCoder.LmbcsVariant;
@@ -59,6 +58,7 @@ import com.hcl.domino.jna.internal.structs.NotesQueryResultsHandles;
 import com.hcl.domino.jna.internal.structs.NotesResultsInfoStruct;
 import com.hcl.domino.jna.internal.structs.NotesResultsSortColumnStruct;
 import com.hcl.domino.misc.NotesConstants;
+import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
@@ -100,7 +100,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 		NotesResultsInfoStruct ri = NotesResultsInfoStruct.newInstance();
 		
 		String dbServer = NotesNamingUtils.toCommonName(parentDb.getServer());
-		String dbPath = StringUtil.isEmpty(dbServer) ? parentDb.getRelativeFilePath() : (dbServer + "!!" + parentDb.getRelativeFilePath()); //$NON-NLS-1$
+		String dbPath = JNXStringUtil.isEmpty(dbServer) ? parentDb.getRelativeFilePath() : (dbServer + "!!" + parentDb.getRelativeFilePath()); //$NON-NLS-1$
 		Memory dbPathMem = NotesStringUtils.toLMBCS(dbPath, true);
 		byte[] dbPathArr = dbPathMem.getByteArray(0, (int) dbPathMem.size());
 		
@@ -160,7 +160,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 	    NotesResultsSortColumnStruct rsc = NotesResultsSortColumnStruct.newInstance();
 	    rsc.write();
 	    
-	    if (StringUtil.isEmpty(colname)) {
+	    if (JNXStringUtil.isEmpty(colname)) {
 	      throw new IllegalArgumentException("Column name cannot be empty");
 	    }
 	    
@@ -176,7 +176,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 	    }
 	    System.arraycopy(colnameArr, 0, rsc.name, 0, colnameArr.length);
 	    
-	    if (!StringUtil.isEmpty(title)) {
+	    if (!JNXStringUtil.isEmpty(title)) {
 	      Memory titleMem = NotesStringUtils.toLMBCS(title, true);
 	      byte[] titleArr = titleMem.getByteArray(0, (int) titleMem.size());
 	      if (titleArr.length > NotesConstants.MAX_CMD_VALLEN) {
@@ -188,7 +188,7 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
       IntByReference rethFormulaStr = new IntByReference();
       JNANotesQueryResultsProcessorAllocations allocations = getAllocations();
       
-	    if (!StringUtil.isEmpty(formula)) {
+	    if (!JNXStringUtil.isEmpty(formula)) {
 	      Charset charset = NativeItemCoder.get().getLmbcsCharset(LmbcsVariant.NULLTERM_KEEPNEWLINES);
 	      byte[] formulaStringArr = formula.getBytes(charset);
 
@@ -244,15 +244,15 @@ public class JNAQueryResultsProcessor extends BaseJNAAPIObject<JNANotesQueryResu
 	public QueryResultsProcessor addFormula(String formula, String columnname, String resultsname) {
 		checkDisposed();
 
-		if (StringUtil.isEmpty(formula)) {
+		if (JNXStringUtil.isEmpty(formula)) {
 			throw new IllegalArgumentException("Formula cannot be empty");
 		}
 		
-		if (StringUtil.isEmpty(columnname)) {
+		if (JNXStringUtil.isEmpty(columnname)) {
 			throw new IllegalArgumentException("Column name cannot be empty");
 		}
 
-		if (StringUtil.isEmpty(resultsname)) {
+		if (JNXStringUtil.isEmpty(resultsname)) {
 			throw new IllegalArgumentException("Results name cannot be empty");
 		}
 		
