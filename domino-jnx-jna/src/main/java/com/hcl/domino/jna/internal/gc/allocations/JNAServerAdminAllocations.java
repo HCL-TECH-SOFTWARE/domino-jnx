@@ -24,12 +24,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Consumer;
-
 import com.hcl.domino.UserNamesList;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -44,9 +43,9 @@ import com.hcl.domino.security.AclAccess;
 public class JNAServerAdminAllocations extends APIObjectAllocations<JNAServerAdmin> {
 	private boolean m_disposed;
 	
-	private Map<String,Map<DatabaseData,JNAAcl>> m_aclCache = Collections.synchronizedMap(new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
-	private Map<String,ReadWriteLock> m_aclCacheRWLocksByServer = Collections.synchronizedMap(new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
-	private Set<String> m_aclCacheFilledForServer = Collections.synchronizedSet(new TreeSet<>(String.CASE_INSENSITIVE_ORDER));
+	private Map<String,Map<DatabaseData,JNAAcl>> m_aclCache = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
+	private Map<String,ReadWriteLock> m_aclCacheRWLocksByServer = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);;
+	private Set<String> m_aclCacheFilledForServer = new ConcurrentSkipListSet<>(String.CASE_INSENSITIVE_ORDER);
 	
 	@SuppressWarnings("rawtypes")
 	public JNAServerAdminAllocations(IGCDominoClient parentDominoClient, APIObjectAllocations parentAllocations,

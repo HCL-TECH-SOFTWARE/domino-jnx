@@ -42,22 +42,24 @@ import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.commons.constants.UpdateNote;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.data.DefaultDominoDateTime;
+import com.hcl.domino.commons.data.DefaultUserData;
 import com.hcl.domino.commons.data.IDefaultDocument;
 import com.hcl.domino.commons.data.SignatureDataImpl;
 import com.hcl.domino.commons.data.types.StatusImpl;
@@ -100,6 +102,7 @@ import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.Item;
 import com.hcl.domino.data.Item.ItemFlag;
 import com.hcl.domino.data.ItemDataType;
+import com.hcl.domino.data.ItemDataTypeConstants;
 import com.hcl.domino.data.PreV3Author;
 import com.hcl.domino.data.UserData;
 import com.hcl.domino.data.types.STATUS;
@@ -171,6 +174,21 @@ import jakarta.mail.internet.InternetHeaders;
 
 public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     implements IDefaultDocument, AutoCloseableDocument {
+
+  private static final Set<Class<?>> CONCRETE_SUPPORTED_JAVA_TYPES = Stream.of(
+    JNAFormula.class,
+    Date.class,
+    String.class,
+    DominoViewFormat.class,
+    DominoCalendarFormat.class,
+    DominoCollationInfo.class,
+    DefaultDominoDateRange.class,
+    DefaultDominoDateTime.class,
+    JNADominoDateTime.class,
+    DefaultUserData.class
+  ).collect(Collectors.toSet());
+  private static final Map<Class<?>, Optional<DocumentValueConverter>> CONVERTER_CACHE = new ConcurrentHashMap<>();
+  
   private Set<DocumentClass> m_documentClass;
   private AbstractTypedAccess m_typedAccess;
   private ThreadLocal<Set<Class<?>>> readingItemType = ThreadLocal.withInitial(HashSet::new);
@@ -208,12 +226,15 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
       @Override
       protected <T> T getViaValueConverter(String itemName, Class<T> valueType, T defaultValue) {
-        DocumentValueConverter converter =
-            JNXServiceFinder.findServices(DocumentValueConverter.class)
+        Optional<DocumentValueConverter> optConverter = CONVERTER_CACHE.get(valueType);
+        if(optConverter == null) {
+          optConverter = JNXServiceFinder.findServices(DocumentValueConverter.class)
                 .filter(c -> c.supportsRead(valueType))
                 .sorted(Comparator.comparing(DocumentValueConverter::getPriority).reversed())
-                .findFirst()
-                .orElse(null);
+                .findFirst();
+            CONVERTER_CACHE.put(valueType, optConverter);
+        }
+        DocumentValueConverter converter = optConverter.get();
 
         if (converter != null) {
           if (readingItemType.get().contains(converter.getClass())) {
@@ -236,12 +257,15 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       @Override
       protected <T> List<T> getAsListViaValueConverter(String itemName, Class<T> valueType,
           List<T> defaultValue) {
-        DocumentValueConverter converter =
-            JNXServiceFinder.findServices(DocumentValueConverter.class)
+        Optional<DocumentValueConverter> optConverter = CONVERTER_CACHE.get(valueType);
+        if(optConverter == null) {
+          optConverter = JNXServiceFinder.findServices(DocumentValueConverter.class)
                 .filter(c -> c.supportsRead(valueType))
                 .sorted(Comparator.comparing(DocumentValueConverter::getPriority).reversed())
-                .findFirst()
-                .orElse(null);
+                .findFirst();
+            CONVERTER_CACHE.put(valueType, optConverter);
+        }
+        DocumentValueConverter converter = optConverter.get();
 
         if (converter != null) {
           if (readingItemType.get().contains(converter.getClass())) {
@@ -268,9 +292,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   @Override
   public boolean isClosed() {
     JNADocumentAllocations allocations = getAllocations();
-    synchronized (allocations) {
-      return allocations.isDisposed();
-    }
+    return allocations.isDisposed();
   }
 
   @Override
@@ -375,293 +397,226 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       Pointer valuePtr, int valueLength) {
 
     short dataType = valuePtr.getShort(0);
-    int dataTypeAsInt = dataType & 0xffff;
 
-    boolean supportedType = false;
-    if (dataTypeAsInt == ItemDataType.TYPE_TEXT.getValue()) {
-      supportedType = true;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_TEXT_LIST.getValue()) {
-      supportedType = true;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_NUMBER.getValue()) {
-      supportedType = true;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_TIME.getValue()) {
-      supportedType = true;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_NUMBER_RANGE.getValue()) {
-      supportedType = true;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_TIME_RANGE.getValue()) {
-      supportedType = true;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_OBJECT.getValue()) {
-      supportedType = true;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_NOTEREF_LIST.getValue()) {
-      supportedType = true;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_COLLATION.getValue()) {
-      supportedType = true;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_VIEW_FORMAT.getValue()) {
-      supportedType = true;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_FORMULA.getValue()) {
-      supportedType = true;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_UNAVAILABLE.getValue()) {
-      supportedType = true;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_MIME_PART.getValue()) {
-      supportedType = true;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_RFC822_TEXT.getValue()) {
-      supportedType = true;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_COMPOSITE.getValue()) {
-      supportedType = true;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_CALENDAR_FORMAT.getValue()) {
-      supportedType = true;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_USERID.getValue()) {
-      supportedType = true;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_USERDATA.getValue()) {
-      supportedType = true;
-    }
-
-    if (!supportedType) {
-      throw new DominoException(
-          format("Data type for value of item {0} is currently unsupported: {1}", itemName,
-              dataTypeAsInt));
-    }
-
-    int checkDataType = valuePtr.getShort(0) & 0xffff;
     Pointer valueDataPtr = valuePtr.share(2);
     int valueDataLength = valueLength - 2;
 
-    if (checkDataType != dataTypeAsInt) {
-      throw new IllegalStateException(
-          format("Value data type does not meet expected date type: found {0}, expected {1}",
-              checkDataType,
-              dataTypeAsInt));
-    }
-    if (dataTypeAsInt == ItemDataType.TYPE_TEXT.getValue()) {
-      String txtVal = (String) ItemDecoder.decodeTextValue(valueDataPtr, valueDataLength, false);
-      return txtVal == null ? Collections.emptyList() : Arrays.asList((Object) txtVal);
-    } else if (dataTypeAsInt == ItemDataType.TYPE_TEXT_LIST.getValue()) {
-      List<Object> textList = valueDataLength == 0 ? Collections.emptyList()
-          : ItemDecoder.decodeTextListValue(valueDataPtr, false);
-      return textList == null ? Collections.emptyList() : textList;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_NUMBER.getValue()) {
-      double numVal = ItemDecoder.decodeNumber(valueDataPtr, valueDataLength);
-      return Arrays.asList((Object) Double.valueOf(numVal));
-    } else if (dataTypeAsInt == ItemDataType.TYPE_NUMBER_RANGE.getValue()) {
-      List<Object> numberList = ItemDecoder.decodeNumberList(valueDataPtr, valueDataLength);
-      return numberList == null ? Collections.emptyList() : numberList;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_TIME.getValue()) {
-      DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(valueDataPtr, valueDataLength);
-      return Arrays.asList((Object) td);
-    } else if (dataTypeAsInt == ItemDataType.TYPE_TIME_RANGE.getValue()) {
-      List<Object> tdValues = ItemDecoder.decodeTimeDateListAsNotesTimeDate(valueDataPtr);
-      return tdValues == null ? Collections.emptyList() : tdValues;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_OBJECT.getValue()) {
-      ObjectDescriptor objDescriptor =
-          JNAMemoryUtils.readStructure(ObjectDescriptor.class, valueDataPtr);
+    switch (dataType) {
+      case ItemDataTypeConstants.TYPE_TEXT:
+        String txtVal = (String) ItemDecoder.decodeTextValue(valueDataPtr, valueDataLength, false);
+        return txtVal == null ? Collections.emptyList() : Arrays.asList((Object) txtVal);
+      case ItemDataTypeConstants.TYPE_TEXT_LIST:
+        List<Object> textList = valueDataLength == 0 ? Collections.emptyList()
+            : ItemDecoder.decodeTextListValue(valueDataPtr, false);
+        return textList == null ? Collections.emptyList() : textList;
+      case ItemDataTypeConstants.TYPE_NUMBER:
+        double numVal = ItemDecoder.decodeNumber(valueDataPtr, valueDataLength);
+        return Arrays.asList((Object) Double.valueOf(numVal));
+      case ItemDataTypeConstants.TYPE_NUMBER_RANGE:
+        List<Object> numberList = ItemDecoder.decodeNumberList(valueDataPtr, valueDataLength);
+        return numberList == null ? Collections.emptyList() : numberList;
+      case ItemDataTypeConstants.TYPE_TIME:
+        DominoDateTime td = ItemDecoder.decodeTimeDateAsNotesTimeDate(valueDataPtr, valueDataLength);
+        return Arrays.asList((Object) td);
+      case ItemDataTypeConstants.TYPE_TIME_RANGE:
+        List<Object> tdValues = ItemDecoder.decodeTimeDateListAsNotesTimeDate(valueDataPtr);
+        return tdValues == null ? Collections.emptyList() : tdValues;
+      case ItemDataTypeConstants.TYPE_NOTEREF_LIST:
+        int numEntries = valueDataPtr.getShort(0) & 0xffff;
+        // skip LIST structure, clone data to prevent invalid memory access when buffer gets disposed
+        valueDataPtr = valueDataPtr.share(2);
+        List<Object> unids = new ArrayList<>();
+        for (int i = 0; i < numEntries; i++) {
+          byte[] unidBytes = valueDataPtr.getByteArray(0, JNANotesConstants.notesUniversalNoteIdSize);
+          Memory unidMem = new Memory(JNANotesConstants.notesUniversalNoteIdSize);
+          unidMem.write(0, unidBytes, 0, unidBytes.length);
+          NotesUniversalNoteIdStruct unidStruct = NotesUniversalNoteIdStruct.newInstance(unidMem);
+          unidStruct.read();
+          DominoUniversalNoteId unid = new JNADominoUniversalNoteId(unidStruct);
+          unids.add(unid);
 
-      int rrv = objDescriptor.getRRV();
-
-      ObjectDescriptor.ObjectType type =
-          objDescriptor.getObjectType().orElse(ObjectDescriptor.ObjectType.UNKNOWN);
-      switch (type) {
-        case FILE: {
-          Pointer fileObjectPtr = valueDataPtr;
-
-          NotesFileObjectStruct fileObject = NotesFileObjectStruct.newInstance(fileObjectPtr);
-          fileObject.read();
-
-          short compressionType = fileObject.CompressionType;
-          NotesTimeDateStruct fileCreated = Objects.requireNonNull(fileObject.FileCreated,
-              "Unexpected null value for fileObject.FileCreated");
-          NotesTimeDateStruct fileModified = Objects.requireNonNull(fileObject.FileModified,
-              "Unexpected null value for fileObject.FileModified");
-          DominoDateTime fileCreatedWrap = new JNADominoDateTime(fileCreated.Innards);
-          DominoDateTime fileModifiedWrap = new JNADominoDateTime(fileModified.Innards);
-
-          short fileNameLength = fileObject.FileNameLength;
-          long fileSize = Integer.toUnsignedLong(fileObject.FileSize);
-          short flags = fileObject.Flags;
-
-          Compression compression = null;
-          for (Compression currComp : Compression.values()) {
-            if (compressionType == currComp.getValue()) {
-              compression = currComp;
-              break;
-            }
+          valueDataPtr = valueDataPtr.share(JNANotesConstants.notesUniversalNoteIdSize);
+        }
+        return unids;
+      case ItemDataTypeConstants.TYPE_MIME_PART: {
+        NotesMIMEPartStruct mimePartStruct = NotesMIMEPartStruct.newInstance(valueDataPtr);
+        mimePartStruct.read();
+        int iByteCount = mimePartStruct.wByteCount & 0xffff;
+        int iBoundaryLen = mimePartStruct.wBoundaryLen & 0xffff;
+        int iHeadersLen = mimePartStruct.wHeadersLen & 0xffff;
+        Pointer mimeBoundaryStrPtr = valueDataPtr.share(JNANotesConstants.mimePartSize);
+        String boundaryStr = NotesStringUtils.fromLMBCS(mimeBoundaryStrPtr, iBoundaryLen);
+        while (boundaryStr.startsWith("\r\n")) { //$NON-NLS-1$
+          boundaryStr = boundaryStr.substring(2);
+        }
+        while (boundaryStr.endsWith("\r\n")) { //$NON-NLS-1$
+          boundaryStr = boundaryStr.substring(0, boundaryStr.length() - 2);
+        }
+        Pointer mimeHeadersPtr = mimeBoundaryStrPtr.share(mimePartStruct.wBoundaryLen & 0xffff);
+        String headers = NotesStringUtils.fromLMBCS(mimeHeadersPtr, iHeadersLen);
+        Pointer mimeDataPtr = mimeHeadersPtr.share(mimePartStruct.wHeadersLen & 0xffff);
+        byte[] data = mimeDataPtr.getByteArray(0, iByteCount - iBoundaryLen - iHeadersLen);
+        EnumSet<MimePartOptions> options = EnumSet.noneOf(MimePartOptions.class);
+        for (MimePartOptions currOpt : MimePartOptions.values()) {
+          if ((mimePartStruct.dwFlags & currOpt.getValue()) == currOpt.getValue()) {
+            options.add(currOpt);
           }
-
-          Pointer fileNamePtr = fileObjectPtr.share(JNANotesConstants.fileObjectSize);
-          String fileName = NotesStringUtils.fromLMBCS(fileNamePtr, fileNameLength);
-
-          JNAAttachment attInfo = new JNAAttachment(fileName, compression, flags, fileSize,
-              fileCreatedWrap, fileModifiedWrap, this,
-              itemBlockId, rrv);
-
-          return Arrays.asList((Object) attInfo);
         }
-        case ASSIST_RUNDATA: {
-          Optional<DesignAgent.LastRunInfo> info = AgentRunInfoDecoder
-              .decodeAgentRunInfo(getParentDatabase(), valueDataPtr, valueDataLength);
-          return info.isPresent() ? Arrays.asList(info) : Collections.emptyList();
+        byte cPartType = mimePartStruct.cPartType;
+        PartType partType;
+        if (cPartType == NotesConstants.MIME_PART_PROLOG) {
+          partType = PartType.PROLOG;
+        } else if (cPartType == NotesConstants.MIME_PART_BODY) {
+          partType = PartType.BODY;
+        } else if (cPartType == NotesConstants.MIME_PART_EPILOG) {
+          partType = PartType.EPILOG;
+        } else if (cPartType == NotesConstants.MIME_PART_RETRIEVE_INFO) {
+          partType = PartType.RETRIEVE_INFO;
+        } else if (cPartType == NotesConstants.MIME_PART_MESSAGE) {
+          partType = PartType.MESSAGE;
+        } else {
+          partType = null;
         }
-        default:
-          // TODO add support for other object types
-          break;
+        NotesMIMEPart mimePart =
+            new NotesMIMEPart(this, options, partType, boundaryStr, headers, data);
+        return Arrays.asList((Object) mimePart);
       }
-
-      // clone values because value data gets unlocked, preventing invalid memory access
-      NotesObjectDescriptorStruct clonedObjDescriptor = NotesObjectDescriptorStruct.newInstance();
-      clonedObjDescriptor.ObjectType =
-          objDescriptor.getObjectType().map(t -> t.getValue()).orElse((short) 0);
-      clonedObjDescriptor.RRV = objDescriptor.getRRV();
-      return Arrays.asList((Object) clonedObjDescriptor);
-    } else if (dataTypeAsInt == ItemDataType.TYPE_NOTEREF_LIST.getValue()) {
-      int numEntries = valueDataPtr.getShort(0) & 0xffff;
-
-      // skip LIST structure, clone data to prevent invalid memory access when buffer gets disposed
-      valueDataPtr = valueDataPtr.share(2);
-
-      List<Object> unids = new ArrayList<>();
-
-      for (int i = 0; i < numEntries; i++) {
-        byte[] unidBytes = valueDataPtr.getByteArray(0, JNANotesConstants.notesUniversalNoteIdSize);
-        Memory unidMem = new Memory(JNANotesConstants.notesUniversalNoteIdSize);
-        unidMem.write(0, unidBytes, 0, unidBytes.length);
-        NotesUniversalNoteIdStruct unidStruct = NotesUniversalNoteIdStruct.newInstance(unidMem);
-        unidStruct.read();
-        DominoUniversalNoteId unid = new JNADominoUniversalNoteId(unidStruct);
-        unids.add(unid);
-
-        valueDataPtr = valueDataPtr.share(JNANotesConstants.notesUniversalNoteIdSize);
-      }
-      return unids;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_COLLATION.getValue()) {
-      ByteBuffer data = valueDataPtr.getByteBuffer(0, valueDataLength);
-
-      DominoCollationInfo collateInfo = CollationDecoder.decodeCollation(data);
-      return Arrays.asList((Object) collateInfo);
-    } else if (dataTypeAsInt == ItemDataType.TYPE_VIEW_FORMAT.getValue()) {
-      ByteBuffer data = valueDataPtr.getByteBuffer(0, valueDataLength);
-
-      DominoViewFormat viewFormatInfo = ViewFormatDecoder.decodeViewFormat(this, data);
-      return Arrays.asList((Object) viewFormatInfo);
-    } else if (dataTypeAsInt == ItemDataType.TYPE_CALENDAR_FORMAT.getValue()) {
-      ByteBuffer data = valueDataPtr.getByteBuffer(0, valueDataLength);
-
-      DominoCalendarFormat calendarFormat = ViewFormatDecoder.decodeCalendarFormat(data);
-      return Arrays.asList((Object) calendarFormat);
-    } else if (dataTypeAsInt == ItemDataType.TYPE_FORMULA.getValue()) {
-      boolean isSelectionFormula = DesignConstants.VIEW_FORMULA_ITEM.equalsIgnoreCase(itemName)
-          && getDocumentClass().contains(DocumentClass.VIEW);
-
-      DHANDLE.ByReference rethFormulaText = DHANDLE.newInstanceByReference();
-      ShortByReference retFormulaTextLength = new ShortByReference();
-
-      NotesCAPI.get().NSFFormulaDecompile(valueDataPtr, isSelectionFormula,
-          rethFormulaText, retFormulaTextLength).orElseThrow();
-
-      return LockUtil.lockHandle(rethFormulaText, (hFormulaTextByVal) -> {
-        Pointer formulaPtr = Mem.OSLockObject(hFormulaTextByVal);
-        try {
-          int textLen = retFormulaTextLength.getValue() & 0xffff;
-          String formula = NotesStringUtils.fromLMBCS(formulaPtr, textLen);
-          return Arrays.asList((Object) formula);
-        } finally {
-          Mem.OSUnlockObject(hFormulaTextByVal);
-          Mem.OSMemFree(hFormulaTextByVal).orElseThrow();
+      case ItemDataTypeConstants.TYPE_RFC822_TEXT: {
+        // Read in the byte data and delegate to InternetHeaders
+        ByteBuffer buf = valueDataPtr.getByteBuffer(0, valueDataLength);
+        RFC822ItemDesc itemDesc = MemoryStructureUtil.forStructure(RFC822ItemDesc.class, () -> buf);
+        int bodyOffset = 14;
+        // Skip over NotesNative value
+        bodyOffset += itemDesc.getNotesNativeLength();
+        // Read the expected header name
+        String inetName =
+            NotesStringUtils.fromLMBCS(valueDataPtr.share(bodyOffset), itemDesc.getNameLength());
+        int dataLen =
+            itemDesc.getNameLength() + itemDesc.getDelimiterLength() + itemDesc.getBodyLength();
+        // Read in the item data
+        byte[] headerBytes = new byte[dataLen];
+        valueDataPtr.read(bodyOffset, headerBytes, 0, dataLen);
+        InternetHeaders headerHolder;
+        try (InputStream is = new ByteArrayInputStream(headerBytes)) {
+          headerHolder = new InternetHeaders(is);
+        } catch (MessagingException | IOException e) {
+          throw new DominoException("Exception while translating RFC 822 text", e);
         }
-      });
-    } else if (dataTypeAsInt == ItemDataType.TYPE_UNAVAILABLE.getValue()) {
-      return Collections.emptyList();
-    } else if (dataTypeAsInt == ItemDataType.TYPE_MIME_PART.getValue()) {
-      NotesMIMEPartStruct mimePartStruct = NotesMIMEPartStruct.newInstance(valueDataPtr);
-      mimePartStruct.read();
-
-      int iByteCount = mimePartStruct.wByteCount & 0xffff;
-      int iBoundaryLen = mimePartStruct.wBoundaryLen & 0xffff;
-      int iHeadersLen = mimePartStruct.wHeadersLen & 0xffff;
-
-      Pointer mimeBoundaryStrPtr = valueDataPtr.share(JNANotesConstants.mimePartSize);
-      String boundaryStr = NotesStringUtils.fromLMBCS(mimeBoundaryStrPtr, iBoundaryLen);
-      while (boundaryStr.startsWith("\r\n")) { //$NON-NLS-1$
-        boundaryStr = boundaryStr.substring(2);
+        String[] headers = headerHolder.getHeader(inetName);
+        return headers == null ? Collections.emptyList()
+            : Arrays.stream(headers).collect(Collectors.toList());
       }
-      while (boundaryStr.endsWith("\r\n")) { //$NON-NLS-1$
-        boundaryStr = boundaryStr.substring(0, boundaryStr.length() - 2);
+      case ItemDataTypeConstants.TYPE_COMPOSITE: {
+        @SuppressWarnings("unchecked")
+        List<Object> result = (List<Object>) (List<?>) getRichTextItem(itemName);
+        return result;
       }
+      case ItemDataTypeConstants.TYPE_OBJECT:
+        ObjectDescriptor objDescriptor =
+            JNAMemoryUtils.readStructure(ObjectDescriptor.class, valueDataPtr);
+        int rrv = objDescriptor.getRRV();
+        ObjectDescriptor.ObjectType type =
+            objDescriptor.getObjectType().orElse(ObjectDescriptor.ObjectType.UNKNOWN);
+        switch (type) {
+          case FILE: {
+            Pointer fileObjectPtr = valueDataPtr;
 
-      Pointer mimeHeadersPtr = mimeBoundaryStrPtr.share(mimePartStruct.wBoundaryLen & 0xffff);
-      String headers = NotesStringUtils.fromLMBCS(mimeHeadersPtr, iHeadersLen);
+            NotesFileObjectStruct fileObject = NotesFileObjectStruct.newInstance(fileObjectPtr);
+            fileObject.read();
 
-      Pointer mimeDataPtr = mimeHeadersPtr.share(mimePartStruct.wHeadersLen & 0xffff);
-      byte[] data = mimeDataPtr.getByteArray(0, iByteCount - iBoundaryLen - iHeadersLen);
+            short compressionType = fileObject.CompressionType;
+            NotesTimeDateStruct fileCreated = Objects.requireNonNull(fileObject.FileCreated,
+                "Unexpected null value for fileObject.FileCreated");
+            NotesTimeDateStruct fileModified = Objects.requireNonNull(fileObject.FileModified,
+                "Unexpected null value for fileObject.FileModified");
+            DominoDateTime fileCreatedWrap = new JNADominoDateTime(fileCreated.Innards);
+            DominoDateTime fileModifiedWrap = new JNADominoDateTime(fileModified.Innards);
 
-      EnumSet<MimePartOptions> options = EnumSet.noneOf(MimePartOptions.class);
+            short fileNameLength = fileObject.FileNameLength;
+            long fileSize = Integer.toUnsignedLong(fileObject.FileSize);
+            short flags = fileObject.Flags;
 
-      for (MimePartOptions currOpt : MimePartOptions.values()) {
-        if ((mimePartStruct.dwFlags & currOpt.getValue()) == currOpt.getValue()) {
-          options.add(currOpt);
+            Compression compression = null;
+            for (Compression currComp : Compression.values()) {
+              if (compressionType == currComp.getValue()) {
+                compression = currComp;
+                break;
+              }
+            }
+
+            Pointer fileNamePtr = fileObjectPtr.share(JNANotesConstants.fileObjectSize);
+            String fileName = NotesStringUtils.fromLMBCS(fileNamePtr, fileNameLength);
+
+            JNAAttachment attInfo = new JNAAttachment(fileName, compression, flags, fileSize,
+                fileCreatedWrap, fileModifiedWrap, this,
+                itemBlockId, rrv);
+
+            return Arrays.asList((Object) attInfo);
+          }
+          case ASSIST_RUNDATA: {
+            Optional<DesignAgent.LastRunInfo> info = AgentRunInfoDecoder
+                .decodeAgentRunInfo(getParentDatabase(), valueDataPtr, valueDataLength);
+            return info.isPresent() ? Arrays.asList(info) : Collections.emptyList();
+          }
+          default:
+            // TODO add support for other object types
+            break;
         }
+        // clone values because value data gets unlocked, preventing invalid memory access
+        NotesObjectDescriptorStruct clonedObjDescriptor = NotesObjectDescriptorStruct.newInstance();
+        clonedObjDescriptor.ObjectType =
+            objDescriptor.getObjectType().map(t -> t.getValue()).orElse((short) 0);
+        clonedObjDescriptor.RRV = objDescriptor.getRRV();
+        return Arrays.asList((Object) clonedObjDescriptor);
+      case ItemDataTypeConstants.TYPE_USERID: {
+        PreV3Author result =
+            NotesItemDataUtil.parsePreV3Author(valueDataPtr.getByteBuffer(0, valueDataLength));
+        return Arrays.asList((Object) result);
       }
-
-      byte cPartType = mimePartStruct.cPartType;
-      PartType partType;
-      if (cPartType == NotesConstants.MIME_PART_PROLOG) {
-        partType = PartType.PROLOG;
-      } else if (cPartType == NotesConstants.MIME_PART_BODY) {
-        partType = PartType.BODY;
-      } else if (cPartType == NotesConstants.MIME_PART_EPILOG) {
-        partType = PartType.EPILOG;
-      } else if (cPartType == NotesConstants.MIME_PART_RETRIEVE_INFO) {
-        partType = PartType.RETRIEVE_INFO;
-      } else if (cPartType == NotesConstants.MIME_PART_MESSAGE) {
-        partType = PartType.MESSAGE;
-      } else {
-        partType = null;
+      case ItemDataTypeConstants.TYPE_USERDATA: {
+        UserData result =
+            NotesItemDataUtil.parseUserData(valueDataPtr.getByteBuffer(0, valueDataLength));
+        return Arrays.asList((Object) result);
       }
-      NotesMIMEPart mimePart =
-          new NotesMIMEPart(this, options, partType, boundaryStr, headers, data);
-      return Arrays.asList((Object) mimePart);
-    } else if (dataTypeAsInt == ItemDataType.TYPE_RFC822_TEXT.getValue()) {
-      // Read in the byte data and delegate to InternetHeaders
-      ByteBuffer buf = valueDataPtr.getByteBuffer(0, valueDataLength);
-      RFC822ItemDesc itemDesc = MemoryStructureUtil.forStructure(RFC822ItemDesc.class, () -> buf);
-      int bodyOffset = 14;
-
-      // Skip over NotesNative value
-      bodyOffset += itemDesc.getNotesNativeLength();
-
-      // Read the expected header name
-      String inetName =
-          NotesStringUtils.fromLMBCS(valueDataPtr.share(bodyOffset), itemDesc.getNameLength());
-
-      int dataLen =
-          itemDesc.getNameLength() + itemDesc.getDelimiterLength() + itemDesc.getBodyLength();
-
-      // Read in the item data
-      byte[] headerBytes = new byte[dataLen];
-      valueDataPtr.read(bodyOffset, headerBytes, 0, dataLen);
-      InternetHeaders headerHolder;
-      try (InputStream is = new ByteArrayInputStream(headerBytes)) {
-        headerHolder = new InternetHeaders(is);
-      } catch (MessagingException | IOException e) {
-        throw new DominoException("Exception while translating RFC 822 text", e);
+      case ItemDataTypeConstants.TYPE_COLLATION: {
+        ByteBuffer data = valueDataPtr.getByteBuffer(0, valueDataLength);
+        DominoCollationInfo collateInfo = CollationDecoder.decodeCollation(data);
+        return Arrays.asList((Object) collateInfo);
       }
-      String[] headers = headerHolder.getHeader(inetName);
-      return headers == null ? Collections.emptyList()
-          : Arrays.stream(headers).collect(Collectors.toList());
-    } else if (dataTypeAsInt == ItemDataType.TYPE_COMPOSITE.getValue()) {
-      @SuppressWarnings("unchecked")
-      List<Object> result = (List<Object>) (List<?>) getRichTextItem(itemName);
-      return result;
-    } else if (dataTypeAsInt == ItemDataType.TYPE_USERID.getValue()) {
-      PreV3Author result =
-          NotesItemDataUtil.parsePreV3Author(valueDataPtr.getByteBuffer(0, valueDataLength));
-      return Arrays.asList((Object) result);
-    } else if (dataTypeAsInt == ItemDataType.TYPE_USERDATA.getValue()) {
-      UserData result =
-          NotesItemDataUtil.parseUserData(valueDataPtr.getByteBuffer(0, valueDataLength));
-      return Arrays.asList((Object) result);
-    } else {
-      throw new DominoException(
-          format("Data type for value of item {0} is currently unsupported: {1}", itemName,
-              dataTypeAsInt));
+      case ItemDataTypeConstants.TYPE_VIEW_FORMAT: {
+        ByteBuffer data = valueDataPtr.getByteBuffer(0, valueDataLength);
+        DominoViewFormat viewFormatInfo = ViewFormatDecoder.decodeViewFormat(this, data);
+        return Arrays.asList((Object) viewFormatInfo);
+      }
+      case ItemDataTypeConstants.TYPE_CALENDAR_FORMAT: {
+        ByteBuffer data = valueDataPtr.getByteBuffer(0, valueDataLength);
+        DominoCalendarFormat calendarFormat = ViewFormatDecoder.decodeCalendarFormat(data);
+        return Arrays.asList((Object) calendarFormat);
+      }
+      case ItemDataTypeConstants.TYPE_FORMULA:
+        boolean isSelectionFormula = DesignConstants.VIEW_FORMULA_ITEM.equalsIgnoreCase(itemName)
+            && getDocumentClass().contains(DocumentClass.VIEW);
+        DHANDLE.ByReference rethFormulaText = DHANDLE.newInstanceByReference();
+        ShortByReference retFormulaTextLength = new ShortByReference();
+        NotesCAPI.get().NSFFormulaDecompile(valueDataPtr, isSelectionFormula,
+            rethFormulaText, retFormulaTextLength).orElseThrow();
+        return LockUtil.lockHandle(rethFormulaText, (hFormulaTextByVal) -> {
+          Pointer formulaPtr = Mem.OSLockObject(hFormulaTextByVal);
+          try {
+            int textLen = retFormulaTextLength.getValue() & 0xffff;
+            String formula = NotesStringUtils.fromLMBCS(formulaPtr, textLen);
+            return Arrays.asList((Object) formula);
+          } finally {
+            Mem.OSUnlockObject(hFormulaTextByVal);
+            Mem.OSMemFree(hFormulaTextByVal).orElseThrow();
+          }
+        });
+      case ItemDataTypeConstants.TYPE_UNAVAILABLE:
+        return Collections.emptyList();
+      default:
+        throw new DominoException(
+            format("Data type for value of item {0} is currently unsupported: {1}", itemName,
+                dataType));
     }
   }
 
@@ -1167,11 +1122,11 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   private boolean hasSupportedItemObjectType(Object value) {
     if (value == null) {
       return true;
-    } else if (value instanceof String) {
+    } else if(CONCRETE_SUPPORTED_JAVA_TYPES.contains(value.getClass())) {
       return true;
     } else if (value instanceof Number) {
       return true;
-    } else if (value instanceof Calendar || value instanceof Date || value instanceof Temporal) {
+    } else if (value instanceof Calendar || value instanceof Temporal) {
       return true;
     } else if (value instanceof Iterable && !((Iterable) value).iterator().hasNext()) {
       return true;
@@ -1185,15 +1140,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       return true;
     } else if (value instanceof DominoUniversalNoteId) {
       return true;
-    } else if (value instanceof JNAFormula) {
-      return true;
-    } else if (value instanceof DominoViewFormat) {
-      return true;
-    } else if (value instanceof DominoCalendarFormat) {
-      return true;
-    } else if (value instanceof DominoCollationInfo) {
-      return true;
     } else if (value instanceof UserData) {
+      return true;
+    } else if (value instanceof CharSequence) {
       return true;
     }
     return false;
@@ -1211,20 +1160,17 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
         if (valArr.length == 2) {
           isAccepted = true;
         }
-      }
-      if (currObj instanceof int[]) {
+      } else if (currObj instanceof int[]) {
         int[] valArr = (int[]) currObj;
         if (valArr.length == 2) {
           isAccepted = true;
         }
-      }
-      if (currObj instanceof long[]) {
+      } else if (currObj instanceof long[]) {
         long[] valArr = (long[]) currObj;
         if (valArr.length == 2) {
           isAccepted = true;
         }
-      }
-      if (currObj instanceof float[]) {
+      } else if (currObj instanceof float[]) {
         float[] valArr = (float[]) currObj;
         if (valArr.length == 2) {
           isAccepted = true;
@@ -1266,11 +1212,13 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   }
 
   private boolean isStringList(Iterable<?> list) {
-    if (list == null || !list.iterator().hasNext()) {
+    if (list == null) {
       return false;
     }
-    if (!StreamSupport.stream(list.spliterator(), false).allMatch(String.class::isInstance)) {
-      return false;
+    for(Object obj : list) {
+      if(!(obj instanceof String)) {
+        return false;
+      }
     }
     return true;
   }
@@ -1352,9 +1300,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       }
     }
 
-    while (hasItem(itemName)) {
-      removeItem(itemName);
-    }
+    removeItem(itemName);
 
     if (value != null) {
       return appendItemValue(itemName, flags, value, converter, allowDataTypeChanges);
@@ -1365,9 +1311,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
   @Override
   public Document replaceItemValuePlaceholder(String itemName) {
-    while (hasItem(itemName)) {
-      removeItem(itemName);
-    }
+    removeItem(itemName);
 
     short flagsShort = ItemFlag.PLACEHOLDER.getValue().shortValue();
     Memory itemNameMem = NotesStringUtils.toLMBCS(itemName, false);
@@ -1383,13 +1327,6 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   }
 
   private List<?> toNumberOrNumberArrayList(Iterable<?> list) {
-    boolean allNumbers = StreamSupport.stream(list.spliterator(), false)
-        .allMatch(i -> i instanceof double[] || i instanceof Double);
-
-    if (allNumbers) {
-      return StreamSupport.stream(list.spliterator(), false).collect(Collectors.toList());
-    }
-
     List<Object> convertedList = new ArrayList<>();
     for (Object obj : list) {
       if (obj instanceof Number) {
@@ -1499,13 +1436,6 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   }
 
   private List<?> toDateTimeOrDateTimeRangeList(Iterable<?> list) {
-    boolean allDateTime = StreamSupport.stream(list.spliterator(), false)
-        .allMatch(i -> i instanceof DominoDateTime[] || i instanceof DominoDateTime);
-
-    if (allDateTime) {
-      return StreamSupport.stream(list.spliterator(), false).collect(Collectors.toList());
-    }
-
     List<Object> convertedList = new ArrayList<>();
     for (Object obj : list) {
       if (obj instanceof GregorianCalendar) {
@@ -1587,7 +1517,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     return appendItemValue(itemName, flags, value, converter, true);
   }
 
-  @SuppressWarnings("deprecation")
+  @SuppressWarnings({"deprecation", "unchecked"})
   private Document appendItemValue(String itemName, Set<ItemFlag> flagsOrig,
       Object value, DocumentValueConverter valueConverter, boolean allowDataTypeChanges) {
 
@@ -1695,9 +1625,10 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       });
     } else if (value instanceof Iterable
         && (!((Iterable<?>) value).iterator().hasNext() || isStringList((Iterable<?>) value))) {
-      @SuppressWarnings("unchecked")
-      List<String> strList = StreamSupport.stream(((Iterable<String>) value).spliterator(), false)
-          .collect(Collectors.toList());
+      List<String> strList = new ArrayList<>();
+      for(String s : (Iterable<String>)value) {
+        strList.add(s);
+      }
 
       if (strList.size() > 65535) {
         throw new IllegalArgumentException(
@@ -2640,8 +2571,6 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     short decryptFlags = NotesConstants.DECRYPT_ATTACHMENTS_IN_PLACE;
 
     LockUtil.lockHandle(getAllocations().getNoteHandle(), (hNoteByVal) -> {
-      short decryptResult;
-
       if (id != null) {
         JNADominoUtils.accessKFC(id,
             phKFC -> NotesCAPI.get().NSFNoteCipherDecrypt(hNoteByVal, phKFC.getValue(),

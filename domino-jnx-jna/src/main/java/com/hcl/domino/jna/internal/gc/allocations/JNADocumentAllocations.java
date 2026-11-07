@@ -18,11 +18,9 @@ package com.hcl.domino.jna.internal.gc.allocations;
 
 import java.lang.ref.ReferenceQueue;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-
+import java.util.concurrent.ConcurrentSkipListMap;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -46,7 +44,7 @@ public class JNADocumentAllocations extends APIObjectAllocations<JNADocument> {
 			JNADocument referent, ReferenceQueue<? super IAPIObject> q) {
 
 		super(parentDominoClient, parentAllocations, referent, q);
-		m_pendingRichtextWriter = Collections.synchronizedMap(new TreeMap<>(String.CASE_INSENSITIVE_ORDER));
+		m_pendingRichtextWriter = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
 	}
 
 	@Override

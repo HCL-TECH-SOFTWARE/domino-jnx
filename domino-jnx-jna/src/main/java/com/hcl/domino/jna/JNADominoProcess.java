@@ -27,10 +27,9 @@ import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
 import java.text.MessageFormat;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -56,8 +55,7 @@ public class JNADominoProcess implements DominoProcess {
   private static boolean processInitialized;
   private static DominoPacemakerThread pacemakerThread;
   private static boolean processTerminated;
-  private static Map<Thread, ThreadInfo> threadEnabledForDominoRefCount =
-      Collections.synchronizedMap(new HashMap<>());
+  private static Map<Thread, ThreadInfo> threadEnabledForDominoRefCount = new ConcurrentHashMap<>();
   private static final Object pacemakerThreadlock = new Object();
 
   private static final Method notesThreadInit;
