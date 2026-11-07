@@ -396,7 +396,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     }
     final short fOptionsShort = optionsShort;
 
-    DisposableMemory path = JNADominoUtils.constructNetPath(this, serverName, filePath);
+    DisposableMemory path = JNADominoUtils.constructNetPath(serverName, filePath);
 
     JNAUserNamesListAllocations namesListAllocations = userNamesList != null
         ? (JNAUserNamesListAllocations) userNamesList.getAdapter(APIObjectAllocations.class)
@@ -598,10 +598,6 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     // Open the source database to account for odd cases (e.g. shared data directories)
     Database sourceDb = getParentDominoClient().openDatabase(sourceServerName, sourceFilePath);
 
-    DisposableMemory fullPathTargetMem =
-        JNADominoUtils.constructNetPath(this, targetServerName, targetFilePath);
-    DisposableMemory fullPathSourceMem =
-        JNADominoUtils.constructNetPath(this, sourceDb.getServer(), sourceDb.getRelativeFilePath());
 
     short noteClassToCopy = docClassesToCopy == null ? NotesConstants.NOTE_CLASS_ALL
         : DominoEnumUtil.toBitField(DocumentClass.class, docClassesToCopy);
@@ -621,9 +617,14 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
     HANDLE.ByReference rethNewDb = HANDLE.newInstanceByReference();
 
-    NotesCAPI.get().NSFDbCreateAndCopyExtended(fullPathSourceMem, fullPathTargetMem,
-        noteClassToCopy, maxFileSizeInMB, createCopyFlags, null, rethNewDb)
-      .orElseThrow();
+    try (
+      DisposableMemory fullPathTargetMem = JNADominoUtils.constructNetPath(targetServerName, targetFilePath);
+      DisposableMemory fullPathSourceMem = JNADominoUtils.constructNetPath(sourceDb.getServer(), sourceDb.getRelativeFilePath())
+    ) {
+      NotesCAPI.get().NSFDbCreateAndCopyExtended(fullPathSourceMem, fullPathTargetMem,
+          noteClassToCopy, maxFileSizeInMB, createCopyFlags, null, rethNewDb)
+          .orElseThrow();
+    }
 
     return new JNADatabase(this, new IAdaptable() {
 
@@ -740,7 +741,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     }
     serverName = NotesNamingUtils.toCanonicalName(serverName);
 
-    DisposableMemory path = JNADominoUtils.constructNetPath(this, serverName, filePath);
+    DisposableMemory path = JNADominoUtils.constructNetPath(serverName, filePath);
     NotesCAPI.get().NSFDbDelete(path).orElseThrow();
   }
 
