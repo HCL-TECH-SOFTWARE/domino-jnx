@@ -27,7 +27,7 @@ import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
 import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 
-public class JNADominoUniversalNoteId implements DominoUniversalNoteId, IAdaptable {
+public class JNADominoUniversalNoteId implements DominoUniversalNoteId {
 	private NotesUniversalNoteIdStruct m_struct;
 	
 	public JNADominoUniversalNoteId(IAdaptable adaptable) {

@@ -89,7 +89,8 @@ public class Service implements javax.xml.rpc.Service, Serializable, Referenceab
 		return null;
 	}
 
-	@Override
+	@SuppressWarnings("rawtypes")
+  @Override
 	public Iterator getPorts() throws ServiceException {
 		// TODO Auto-generated method stub
 		return null;

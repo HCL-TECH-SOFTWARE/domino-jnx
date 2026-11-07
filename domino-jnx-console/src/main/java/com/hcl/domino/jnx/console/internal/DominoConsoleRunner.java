@@ -92,7 +92,6 @@ public abstract class DominoConsoleRunner {
   private String localHostName = null;
   private Vector<ServerMap> smap;
   private InetAddress localInetAddress = null;
-  private String localHostAddress = null;
   private Hashtable<String, ServerMap> serversByName;
   private Hashtable<String, GroupMap> grpsList;
   private Hashtable<String, ObjectStack> addOnDataMap;
@@ -288,18 +287,6 @@ public abstract class DominoConsoleRunner {
 
   Hashtable<String, GroupMap> getGrpsList() {
     return this.grpsList;
-  }
-
-  private String getLocalHostAddress() {
-    if (this.localHostAddress == null) {
-      final InetAddress localInetAddress = this.getLocalInetAddress();
-      if (localInetAddress != null) {
-        this.localHostAddress = localInetAddress.getHostAddress();
-      } else {
-        this.localHostAddress = null;
-      }
-    }
-    return this.localHostAddress;
   }
 
   InetAddress getLocalInetAddress() {

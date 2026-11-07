@@ -28,7 +28,7 @@ import com.hcl.domino.design.DesignAgent;
  * 
  * @since 1.0.47
  */
-public interface DesignImportedJavaAgent extends DesignAgent, JavaLanguageAgent {
+public interface DesignImportedJavaAgent extends JavaLanguageAgent {
   
   String getCodeFilesystemPath();
 
