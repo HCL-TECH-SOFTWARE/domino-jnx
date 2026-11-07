@@ -19,7 +19,6 @@ package com.hcl.domino.design;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -135,14 +134,7 @@ public interface RichTextBuilder {
 		 * @param label replacement
 		 * @return build context
 		 */
-		default RichTextBuilderContext<O> replace(String placeholder, String label) {
-			Map<Pattern,Function<Matcher, Object>> replacementsWithPattern = new HashMap<>();
-			Pattern pattern = Pattern.compile(Pattern.quote(placeholder), Pattern.CASE_INSENSITIVE);
-			replacementsWithPattern.put(pattern, (matcher) -> {
-				return label;
-			});
-			return replaceExt(replacementsWithPattern);
-		}
+		RichTextBuilderContext<O> replace(String placeholder, String label);
 
 		/**
 		 * Replaces multiple texts in the specified design element with strings or other design elements
@@ -150,17 +142,7 @@ public interface RichTextBuilder {
 		 * @param replacements mapping of placeholder / new text or design
 		 * @return build context
 		 */
-		default RichTextBuilderContext<O> replace(Map<String,Object> replacements) {
-			Map<Pattern,Function<Matcher, Object>> replacementsWithPattern = new HashMap<>();
-			for (Entry<String,Object> currEntry : replacements.entrySet()) {
-				Pattern currPattern = Pattern.compile(Pattern.quote(currEntry.getKey()), Pattern.CASE_INSENSITIVE);
-				replacementsWithPattern.put(currPattern, (matcher) -> {
-					return currEntry.getValue();
-				});
-			}
-			
-			return replaceExt(replacementsWithPattern);
-		}
+		RichTextBuilderContext<O> replace(Map<String,Object> replacements);
 
 		/**
 		 * Inserts placeholders for a label and formula/LotusScript code
