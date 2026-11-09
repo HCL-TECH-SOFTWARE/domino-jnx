@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.design;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.util.OptionalInt;
 import com.hcl.domino.commons.design.AbstractDbDesign;
 import com.hcl.domino.commons.errors.errorcodes.IMiscErr;
@@ -44,7 +45,7 @@ public class JNADbDesign extends AbstractDbDesign {
 		
 		STATUS result = LockUtil.lockHandle(getDatabase().getAdapter(HANDLE.class), (hDbByVal)-> {
 			return NotesCAPI.get().NIFFindDesignNoteExt(hDbByVal, nameLMBCS,
-					noteClass.getValue(),
+					word(noteClass.getValue()),
 					NotesStringUtils.toLMBCS(pattern, true),
 					retAgentNoteID,
 					NotesConstants.DGN_STRIPUNDERS);

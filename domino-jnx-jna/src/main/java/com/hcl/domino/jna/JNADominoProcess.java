@@ -37,6 +37,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.DominoProcess;
+import com.hcl.domino.commons.data.types.TypedConstants;
 import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.types.STATUS;
@@ -207,7 +208,7 @@ public class JNADominoProcess implements DominoProcess {
     Memory variableNameMem = NotesStringUtils.toLMBCS(propertyName, true);
     try (DisposableMemory rethValueBuffer = new DisposableMemory(NotesConstants.MAXENVVALUE)) {
       short result = NotesCAPI.get().OSGetEnvironmentString(variableNameMem, rethValueBuffer,
-          NotesConstants.MAXENVVALUE);
+          TypedConstants.MAXENVVALUE);
       if (result == 1) {
         String str = NotesStringUtils.fromLMBCS(rethValueBuffer, -1);
         return str;
@@ -230,7 +231,7 @@ public class JNADominoProcess implements DominoProcess {
     Memory passwordMem = NotesStringUtils.toLMBCS(password, true);
     try (DisposableMemory retUserNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME + 1)) {
       NotesCAPI.get().SECKFMSwitchToIDFile(idPathMem, passwordMem, retUserNameMem,
-          NotesConstants.MAXUSERNAME,
+          TypedConstants.MAXUSERNAME,
           dontSetEnvVar ? NotesConstants.fKFM_switchid_DontSetEnvVar : 0, null)
         .orElseThrow();
 

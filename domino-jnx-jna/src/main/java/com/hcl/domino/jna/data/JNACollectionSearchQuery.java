@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.data;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.lang.ref.ReferenceQueue;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.stream.Stream;
-
+import com.hcl.domino.commons.data.types.TypedConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -382,7 +383,7 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 				if (fUpdateFiltersFlagsVal != 0) {
 					//for remote databases, push IDTable changes via NRPC
 
-					NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, fUpdateFiltersFlagsVal)
+					NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, word(fUpdateFiltersFlagsVal))
 					  .orElseThrow();
 				}
 				
@@ -453,7 +454,7 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 						selectedList.add(m_startAtEntryId);
 						
 						//for remote databases, push IDTable changes via NRPC
-						NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, NotesConstants.FILTER_SELECTED)
+						NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, TypedConstants.FILTER_SELECTED)
 						  .orElseThrow();
 						
 						List<CollectionEntry> selectedEntries = collection.getAllEntries("0", 1, Navigate.NEXT_SELECTED, Integer.MAX_VALUE, //$NON-NLS-1$
@@ -466,7 +467,7 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 						selectedList.setInverted(clonedSelectedList.isInverted());
 						clonedSelectedList.dispose();
 						
-						NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, NotesConstants.FILTER_SELECTED)
+						NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, TypedConstants.FILTER_SELECTED)
 						  .orElseThrow();
 
 						if (selectedEntries.isEmpty()) {
@@ -534,7 +535,7 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
               if (fUpdateFiltersFlagsVal != 0) {
                 // for remote databases, push IDTable changes via NRPC
 
-                NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, fUpdateFiltersFlagsVal)
+                NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, word(fUpdateFiltersFlagsVal))
                   .orElseThrow();
               }
 
@@ -791,7 +792,7 @@ public class JNACollectionSearchQuery extends BaseJNAAPIObject<JNACollectionSear
 				if (fUpdateFiltersFlagsVal != 0) {
 					//for remote databases, push IDTable changes via NRPC
 
-					NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, fUpdateFiltersFlagsVal)
+					NotesCAPI.get().NIFUpdateFilters(collectionHandleByVal, word(fUpdateFiltersFlagsVal))
 					  .orElseThrow();
 				}
 				

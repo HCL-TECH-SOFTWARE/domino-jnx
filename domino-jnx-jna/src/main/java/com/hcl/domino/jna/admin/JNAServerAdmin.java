@@ -35,6 +35,7 @@ import com.hcl.domino.admin.ServerAdmin;
 import com.hcl.domino.commons.admin.ConsoleLine;
 import com.hcl.domino.commons.admin.DefaultDominoSSOToken;
 import com.hcl.domino.commons.admin.DefaultMultiDatabaseAccessInfo;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -461,10 +462,10 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
       Memory commentMem = NotesStringUtils.toLMBCS(comment, true);
 
       LockUtil.lockHandle(rethKfmCertCtx, (rethKfmCertCtxByVal) ->
-        NotesCAPI.get().REGCrossCertifyID(rethKfmCertCtxByVal, (short) 0,
+        NotesCAPI.get().REGCrossCertifyID(rethKfmCertCtxByVal, null,
             regServerCanonicalMem,
             idFilePathMem,
-            locationMem, commentMem, forwardAddressMem, (short) 0, statusCallback,
+            locationMem, commentMem, forwardAddressMem, null, statusCallback,
             errorPathNameMem)
       ).orElseThrow();
     } finally {
@@ -623,7 +624,7 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
     String[] lines = messageText.split("\\r?\\n", -1); //$NON-NLS-1$
     for (String line : lines) {
       Memory lmbcs = NotesStringUtils.toLMBCS(line, true);
-      NotesCAPI.get().AddInLogMessageText(lmbcs, (short) 0);
+      NotesCAPI.get().AddInLogMessageText(lmbcs, StatusImpl.NOERROR);
     }
   }
 

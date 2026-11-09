@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.data;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.lang.ref.ReferenceQueue;
 import java.lang.reflect.Array;
 import java.security.AccessController;
@@ -35,6 +36,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -104,12 +106,12 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
 
   private void init() {
     DHANDLE.ByReference retHandle = DHANDLE.newInstanceByReference();
-    short noteIdLength = NotesCAPI.get().ODSLength((short) 1); // _NOTEID
+    int noteIdLength = NotesCAPI.get().ODSLength(word(1)).getValue(); // _NOTEID
 
     NotesCAPI.get().IDCreateTable(noteIdLength, retHandle).orElseThrow();
 
     if (retHandle.isNull()) {
-      throw new DominoException(0, "Null handle received for id table");
+      throw new DominoException(StatusImpl.NOERROR, "Null handle received for id table");
     }
 
     JNAIDTableAllocations allocations = getAllocations();
@@ -663,7 +665,7 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
       Pointer ptr = Mem.OSLockObject(handleByVal);
 
       try {
-        NotesCAPI.get().IDTableSetFlags(ptr, newFlags);
+        NotesCAPI.get().IDTableSetFlags(ptr, word(newFlags));
       } finally {
         Mem.OSUnlockObject(handleByVal);
       }
@@ -704,7 +706,7 @@ public class JNAIDTable extends BaseJNAAPIObject<JNAIDTableAllocations> implemen
       Pointer ptr = Mem.OSLockObject(handleByVal);
 
       try {
-        NotesCAPI.get().IDTableSetFlags(ptr, newFlags);
+        NotesCAPI.get().IDTableSetFlags(ptr, word(newFlags));
       } finally {
         Mem.OSUnlockObject(handleByVal);
       }

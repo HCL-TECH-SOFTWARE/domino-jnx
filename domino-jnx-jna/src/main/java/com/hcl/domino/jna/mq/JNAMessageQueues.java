@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.mq;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.jna.JNADominoClient;
@@ -69,7 +70,7 @@ public class JNAMessageQueues implements MessageQueues {
 	public MessageQueue createAndOpen(String queueName, int quota) {
 		Memory queueNameMem = NotesStringUtils.toLMBCS(queueName, true);
 
-		NotesCAPI.get().MQCreate(queueNameMem, (short) (quota & 0xffff), 0).orElseThrow();
+		NotesCAPI.get().MQCreate(queueNameMem, word(quota), 0).orElseThrow();
 
 		IntByReference retQueue = new IntByReference();
 		NotesCAPI.get().MQOpen(queueNameMem, 0, retQueue).orElseThrow();

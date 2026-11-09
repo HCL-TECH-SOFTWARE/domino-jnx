@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.data;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import static com.hcl.domino.commons.errors.errorcodes.IMiscErr.ERR_NOT_FOUND;
 import java.lang.ref.ReferenceQueue;
 import java.nio.ByteBuffer;
@@ -456,8 +457,8 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
         idTableAllocations.getIdTableHandle(),
         (hCollectionByVal, idTableHandleByVal) ->
            NotesCAPI.get().NIFGetIDTableExtended(hCollectionByVal,
-              Navigate.NEXT_ENTRY.getValue(),
-              (short) (checkRights ? 0 : 1), idTableHandleByVal)
+              word(Navigate.NEXT_ENTRY.getValue()),
+              word(checkRights ? 0 : 1), idTableHandleByVal)
         ).orElseThrow();
 
     return idTable;
@@ -525,7 +526,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
     JNADominoCollectionAllocations allocations = getAllocations();
     LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) ->
-      NotesCAPI.get().NIFSetCollation(handleByVal, collation)
+      NotesCAPI.get().NIFSetCollation(handleByVal, word(collation))
     ).orElseThrow();
   }
 
@@ -740,7 +741,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
     JNADominoCollectionAllocations allocations = getAllocations();
     STATUS result = LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) ->
-      NotesCAPI.get().NIFFindByKey(handleByVal, keyBuffer, findFlagsBitMask,
+      NotesCAPI.get().NIFFindByKey(handleByVal, keyBuffer, word(findFlagsBitMask),
           retIndexPos, retNumMatches)
     );
 
@@ -1152,10 +1153,10 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
     DHANDLE.ByReference retBuffer = DHANDLE.newInstanceByReference();
 
-    STATUS result = LockUtil.lockHandle(allocations.getCollectionHandle(), (hCollectionByVal) ->
+    LockUtil.lockHandle(allocations.getCollectionHandle(), (hCollectionByVal) ->
       NotesCAPI.get().NIFReadEntries(hCollectionByVal, // hCollection
           startPosStruct, // IndexPos
-          skipNavBitMask, // SkipNavigator
+          word(skipNavBitMask), // SkipNavigator
           skipCount, // SkipCount
           returnNavBitMask, // ReturnNavigator
           returnCount, // ReturnCount
@@ -1275,8 +1276,8 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
         (hCollectionByVal, hDiffIdTableByVal) -> {
 
           return NotesCAPI.get().NIFReadEntriesExt(hCollectionByVal, startPosStruct,
-              skipNavBitMask,
-              skipCount, returnNavBitMask, returnCount, readMaskBitMask,
+              word(skipNavBitMask),
+              skipCount, word(returnNavBitMask), returnCount, readMaskBitMask,
               diffTimeStruct, hDiffIdTableByVal,
               columnNumber == null ? NotesConstants.MAXDWORD : columnNumber, flags, retBuffer,
               retBufferLength,

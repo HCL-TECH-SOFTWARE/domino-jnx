@@ -16,8 +16,9 @@
  */
 package com.hcl.domino.jna.internal.gc.allocations;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.lang.ref.ReferenceQueue;
-
+import com.hcl.domino.commons.data.types.TypedConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -114,7 +115,7 @@ public class JNARichtextWriterAllocations extends APIObjectAllocations<JNARichte
 				return 0;
 			}
 			
-			NotesCAPI.get().CompoundTextClose(hCompoundTextByVal, null, null, null, (short) 0)
+			NotesCAPI.get().CompoundTextClose(hCompoundTextByVal, null, null, null, word(0))
 			  .orElseThrow();
 			
 			m_disposed = true;
@@ -156,7 +157,7 @@ public class JNARichtextWriterAllocations extends APIObjectAllocations<JNARichte
 			}
 
 			NotesCAPI.get().CompoundTextClose(hCompoundTextByVal, rethBuffer, retBufSize,
-					returnFileMem, (short) (NotesConstants.MAXPATH & 0xffff))
+					returnFileMem, TypedConstants.MAXPATH)
 			  .orElseThrow();
 			
 			m_disposed = true;

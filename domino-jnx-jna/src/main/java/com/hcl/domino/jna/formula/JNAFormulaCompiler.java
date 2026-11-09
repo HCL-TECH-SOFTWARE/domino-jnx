@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.formula;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -61,8 +62,8 @@ public class JNAFormulaCompiler implements FormulaCompiler {
     ShortByReference retCompileErrorOffset = new ShortByReference();
     ShortByReference retCompileErrorLength = new ShortByReference();
 
-    STATUS result = NotesCAPI.get().NSFFormulaCompile(formulaName, formulaNameLength,
-        formulaText, formulaTextLength, rethFormula, retFormulaLength,
+    STATUS result = NotesCAPI.get().NSFFormulaCompile(formulaName, word(formulaNameLength),
+        formulaText, word(formulaTextLength), rethFormula, retFormulaLength,
         retCompileError, retCompileErrorLine, retCompileErrorColumn,
         retCompileErrorOffset, retCompileErrorLength);
 
@@ -219,8 +220,8 @@ public class JNAFormulaCompiler implements FormulaCompiler {
     ShortByReference retCompileErrorOffset = new ShortByReference();
     ShortByReference retCompileErrorLength = new ShortByReference();
 
-    STATUS result = NotesCAPI.get().NSFFormulaCompile(formulaName, formulaNameLength,
-        formulaText, formulaTextLength, rethFormula, retFormulaLength,
+    STATUS result = NotesCAPI.get().NSFFormulaCompile(formulaName, word(formulaNameLength),
+        formulaText, word(formulaTextLength), rethFormula, retFormulaLength,
         retCompileError, retCompileErrorLine, retCompileErrorColumn,
         retCompileErrorOffset, retCompileErrorLength);
 

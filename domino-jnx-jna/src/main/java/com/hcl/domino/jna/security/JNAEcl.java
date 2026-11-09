@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.security;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.lang.ref.ReferenceQueue;
 import java.text.MessageFormat;
 import java.util.Collection;
@@ -115,7 +116,7 @@ public class JNAEcl extends BaseJNAAPIObject<JNAEclAllocations> implements Ecl {
 			Pointer pNamesList = Mem.OSLockObject(hNamesListByVal);
 			try {
 				return NotesCAPI.get().ECLGetListCapabilities(pNamesList,
-						m_eclType.getTypeAsShort(), retwCapabilities2, retwCapabilities2, retfUserCanModifyECL);
+						word(m_eclType), retwCapabilities2, retwCapabilities2, retfUserCanModifyECL);
 			}
 			finally {
 				Mem.OSUnlockObject(hNamesListByVal);
@@ -226,8 +227,8 @@ public class JNAEcl extends BaseJNAAPIObject<JNAEclAllocations> implements Ecl {
 		}				
 
 		try {
-			NotesCAPI.get().ECLUserTrustSigner(rethCESCTX.getValue(), type.getTypeAsShort(),
-					(short) (sessionOnly ? 1 : 0), wCapabilities, wCapabilities2, retwCapabilities, retwCapabilities2)
+			NotesCAPI.get().ECLUserTrustSigner(rethCESCTX.getValue(), word(type),
+					word(sessionOnly), word(wCapabilities), word(wCapabilities2), retwCapabilities, retwCapabilities2)
 			  .orElseThrow();
 
 			

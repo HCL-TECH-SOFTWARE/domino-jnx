@@ -3,12 +3,15 @@ package com.hcl.domino.jna.internal.capi;
 import java.util.HashMap;
 import java.util.Map;
 import com.hcl.domino.commons.data.types.StatusImpl;
+import com.hcl.domino.commons.data.types.WordImpl;
 import com.hcl.domino.data.types.STATUS;
+import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.jna.internal.capi.mapper.DHandleByReferenceMapper;
 import com.hcl.domino.jna.internal.capi.mapper.DHandleByValueMapper;
 import com.hcl.domino.jna.internal.capi.mapper.HandleByReferenceMapper;
 import com.hcl.domino.jna.internal.capi.mapper.HandleByValueMapper;
 import com.hcl.domino.jna.internal.capi.mapper.StatusMapper;
+import com.hcl.domino.jna.internal.capi.mapper.WordMapper;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE64;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
@@ -38,6 +41,8 @@ public enum JnxJnaTypeMapper implements TypeMapper {
     cache.put(HANDLE64.ByValue.class, HandleByValueMapper.INSTANCE);
     cache.put(STATUS.class, StatusMapper.INSTANCE);
     cache.put(StatusImpl.class, StatusMapper.INSTANCE);
+    cache.put(WORD.class, WordMapper.INSTANCE);
+    cache.put(WordImpl.class, WordMapper.INSTANCE);
   }
 
   @Override

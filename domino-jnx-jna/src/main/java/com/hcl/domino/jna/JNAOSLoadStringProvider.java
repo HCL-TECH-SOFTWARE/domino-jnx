@@ -16,7 +16,10 @@
  */
 package com.hcl.domino.jna;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.status;
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import com.hcl.domino.commons.OSLoadStringProvider;
+import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -32,12 +35,12 @@ public class JNAOSLoadStringProvider implements OSLoadStringProvider {
 		
 		try(DisposableMemory retBuffer = new DisposableMemory(256)) {
 	    retBuffer.clear();
-			short outStrLength = NotesCAPI.get().OSLoadString(0, status, retBuffer, (short) 255);
-			if (outStrLength==0) {
+			WORD outStrLength = NotesCAPI.get().OSLoadString(0, status(status), retBuffer, word(255));
+			if (outStrLength.isZero()) {
 				return ""; //$NON-NLS-1$
 			}
 
-			return NotesStringUtils.fromLMBCS(retBuffer, outStrLength);
+			return NotesStringUtils.fromLMBCS(retBuffer, outStrLength.getValue());
 		}
 	}
 

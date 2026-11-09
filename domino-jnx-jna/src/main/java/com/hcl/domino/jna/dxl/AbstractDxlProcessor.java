@@ -16,12 +16,14 @@
  */
 package com.hcl.domino.jna.dxl;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.WordImpl;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.jna.BaseJNAAPIObject;
@@ -127,7 +129,7 @@ abstract class AbstractDxlProcessor<AT extends APIObjectAllocations, PROP extend
 					try(DisposableMemory retTextPointer = new DisposableMemory(Native.POINTER_SIZE)) {
     					ShortByReference retTextLength = new ShortByReference();
     					
-    					NotesCAPI.get().ListGetText(mem, false, (char) i, retTextPointer, retTextLength).orElseThrow();
+    					NotesCAPI.get().ListGetText(mem, false, word(i), retTextPointer, retTextLength).orElseThrow();
     					result.add(NotesStringUtils.fromLMBCS(retTextPointer.getPointer(0), Short.toUnsignedInt(retTextLength.getValue())));
 					}
 				}
@@ -156,7 +158,7 @@ abstract class AbstractDxlProcessor<AT extends APIObjectAllocations, PROP extend
       DHANDLE.ByReference hList = DHANDLE.newInstanceByReference();
       Memory retpList = new Memory(Native.POINTER_SIZE);
       ShortByReference retListSize = new ShortByReference();
-      NotesCAPI.get().ListAllocate((short) 0, (short) 0, 0, hList, retpList, retListSize);
+      NotesCAPI.get().ListAllocate(WordImpl.ZERO, WordImpl.ZERO, 0, hList, retpList, retListSize);
       try {
         for (int i = 0; i < value.size(); i++) {
           Memory lmbcs = NotesStringUtils.toLMBCS(String.valueOf(value.get(i)), false);
@@ -172,9 +174,9 @@ abstract class AbstractDxlProcessor<AT extends APIObjectAllocations, PROP extend
               DHANDLE.newInstanceByValue(hList),
               0,
               retListSize,
-              (char) i,
+              word(i),
               lmbcs,
-              textSize).orElseThrow();
+              word(textSize)).orElseThrow();
         }
 
         setProperty(hDXLExport, prop, hList.getPointer());

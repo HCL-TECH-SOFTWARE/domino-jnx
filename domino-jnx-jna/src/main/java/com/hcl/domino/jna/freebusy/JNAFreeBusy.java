@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.freebusy;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.lang.ref.ReferenceQueue;
 import java.text.MessageFormat;
 import java.time.temporal.TemporalAccessor;
@@ -26,6 +27,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.WordImpl;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -103,8 +105,8 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 		DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
 		ShortByReference retListSize = new ShortByReference();
 
-		NotesCAPI.get().ListAllocate((short) 0, 
-				(short) 0,
+		NotesCAPI.get().ListAllocate(WordImpl.ZERO, 
+		    WordImpl.ZERO,
 				0, rethList, null, retListSize).orElseThrow();
 
 		try {
@@ -121,15 +123,15 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 
 	        char textSize = currNameMem==null ? 0 : (char) currNameMem.size();
 
-					NotesCAPI.get().ListAddEntry(hListByVal, 0, retListSize, (char) i, currNameMem,
-					    textSize).orElseThrow();
+					NotesCAPI.get().ListAddEntry(hListByVal, 0, retListSize, word(i), currNameMem,
+					    word(textSize)).orElseThrow();
 				}
 	
 				Pointer valuePtr = Mem.OSLockObject(hListByVal);
 				DHANDLE.ByReference rethRange = DHANDLE.newInstanceByReference();
 				
-				NotesCAPI.get().SchFreeTimeSearch(unidStruct, apptOrigDateStruct, (short) (findFirstFit ? 1 : 0), 0, intervalPair,
-						(short) (duration & 0xffff), valuePtr, rethRange).orElseThrow();
+				NotesCAPI.get().SchFreeTimeSearch(unidStruct, apptOrigDateStruct, word(findFirstFit ? 1 : 0), 0, intervalPair,
+						word(duration), valuePtr, rethRange).orElseThrow();
 			
 				return ReadUtil.readDateRange(rethRange, true);
 			});
@@ -184,8 +186,8 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 		DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
 		ShortByReference retListSize = new ShortByReference();
 
-		NotesCAPI.get().ListAllocate((short) 0, 
-				(short) 0,
+		NotesCAPI.get().ListAllocate(WordImpl.ZERO, 
+		    WordImpl.ZERO,
 				0, rethList, null, retListSize).orElseThrow();
 		
 		try {
@@ -202,8 +204,8 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 
 	          char textSize = currNameMem==null ? 0 : (char) currNameMem.size();
 
-					NotesCAPI.get().ListAddEntry(hListByVal, 0, retListSize, (char) i, currNameMem,
-					    textSize).orElseThrow();
+					NotesCAPI.get().ListAddEntry(hListByVal, 0, retListSize, word(i), currNameMem,
+					    word(textSize)).orElseThrow();
 				}
 				
 				Pointer valuePtr = Mem.OSLockObject(hListByVal);

@@ -16,23 +16,23 @@
  */
 package com.hcl.domino.jna.mime;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.lang.ref.ReferenceQueue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.commons.util.StringTokenizerExt;
-import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNARichtextMimeConversionSettingsAllocations;
 import com.hcl.domino.mime.RichTextMimeConversionSettings;
 import com.hcl.domino.misc.DominoEnumUtil;
+import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
@@ -43,7 +43,7 @@ import com.sun.jna.ptr.PointerByReference;
  * 
  * @author Karsten Lehmann
  */
-public class JNARichtextMimeConversionSettings extends BaseJNAAPIObject<JNARichtextMimeConversionSettingsAllocations> implements RichTextMimeConversionSettings, IAdaptable {
+public class JNARichtextMimeConversionSettings extends BaseJNAAPIObject<JNARichtextMimeConversionSettingsAllocations> implements RichTextMimeConversionSettings {
 	
 	/**
 	 * Creates a Conversions Controls context for the reading and writing of various conversion
@@ -100,7 +100,7 @@ public class JNARichtextMimeConversionSettings extends BaseJNAAPIObject<JNARicht
 		short newVal = Objects.requireNonNull(encoding, "encoding cannot be null").getValue();
 		
 		return getAllocations().lockAndGetSettingsPointer((ptr) -> {
-			NotesCAPI.get().MMSetAttachEncoding(ptr, newVal);
+			NotesCAPI.get().MMSetAttachEncoding(ptr, word(newVal));
 			return this;
 		});
 	}
@@ -179,7 +179,7 @@ public class JNARichtextMimeConversionSettings extends BaseJNAAPIObject<JNARicht
 		checkDisposed();
 		
 		return getAllocations().lockAndGetSettingsPointer((ptr) -> {
-			NotesCAPI.get().MMSetPointSize(ptr, size> 65535 ? (short) 0xffff : (short) (size & 0xffff));
+			NotesCAPI.get().MMSetPointSize(ptr, word(size> 65535 ? NotesConstants.MAXWORD : size));
 			return this;
 		});
 	}
@@ -198,10 +198,10 @@ public class JNARichtextMimeConversionSettings extends BaseJNAAPIObject<JNARicht
 	@Override
 	public RichTextMimeConversionSettings setTypeface(Typeface tf) {
 		checkDisposed();
-		short tfAsShort = Objects.requireNonNull(tf, "typeface cannot be null").getValue();
+		Objects.requireNonNull(tf, "typeface cannot be null");
 		
 		return getAllocations().lockAndGetSettingsPointer((ptr) -> {
-			NotesCAPI.get().MMSetTypeFace(ptr, tfAsShort);
+			NotesCAPI.get().MMSetTypeFace(ptr, word(tf));
 			return this;
 		});
 	}
@@ -260,10 +260,10 @@ public class JNARichtextMimeConversionSettings extends BaseJNAAPIObject<JNARicht
 	@Override
 	public RichTextMimeConversionSettings setMessageContentEncoding(MessageContentEncoding enc) {
 		checkDisposed();
-		short encAsShort = Objects.requireNonNull(enc, "encoding cannot be null").getValue();
+		Objects.requireNonNull(enc, "encoding cannot be null");
 		
 		return getAllocations().lockAndGetSettingsPointer((ptr) -> {
-			NotesCAPI.get().MMSetMessageContentEncoding(ptr, encAsShort);
+			NotesCAPI.get().MMSetMessageContentEncoding(ptr, word(enc));
 			return this;
 		});
 	}
@@ -281,10 +281,10 @@ public class JNARichtextMimeConversionSettings extends BaseJNAAPIObject<JNARicht
 	@Override
 	public RichTextMimeConversionSettings setReadReceipt(ReadReceipt rc) {
 		checkDisposed();
-		short rcAsShort = Objects.requireNonNull(rc, "readReceipt cannot be null").getValue();
+		Objects.requireNonNull(rc, "readReceipt cannot be null");
 		
 		return getAllocations().lockAndGetSettingsPointer((ptr) -> {
-			NotesCAPI.get().MMSetReadReceipt(ptr, rcAsShort);
+			NotesCAPI.get().MMSetReadReceipt(ptr, word(rc));
 			return this;
 		});
 	}

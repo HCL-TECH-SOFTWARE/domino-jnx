@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.mq;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.ref.ReferenceQueue;
@@ -193,7 +194,7 @@ public class JNAMessageQueue extends BaseJNAAPIObject<JNAMessageQueueAllocations
     try {
       // AccessController call required to prevent SecurityException when running in XPages
       result = AccessController.doPrivileged((PrivilegedExceptionAction<STATUS>) () ->
-        NotesCAPI.get().MQScan(getAllocations().getMessageQueueHandle(), buffer, (short) (length & 0xffff),
+        NotesCAPI.get().MQScan(getAllocations().getMessageQueueHandle(), buffer, word(length),
               0, cCallback, null, retMsgLength)
       );
     } catch (PrivilegedActionException e) {
@@ -253,7 +254,7 @@ public class JNAMessageQueue extends BaseJNAAPIObject<JNAMessageQueueAllocations
     }
 
     NotesCAPI.get().MQPut(getAllocations().getMessageQueueHandle(),
-        (short) (priority & 0xffff), buffer, (short) (length & 0xffff), 0)
+        word(priority), buffer, word(length), 0)
       .orElseThrow();
   }
 
@@ -292,7 +293,7 @@ public class JNAMessageQueue extends BaseJNAAPIObject<JNAMessageQueueAllocations
     ShortByReference retMsgLength = new ShortByReference();
 
     NotesCAPI.get().MQGet(getAllocations().getMessageQueueHandle(), buffer,
-        (short) (length & 0xffff),
+        word(length),
         waitForMessage ? NotesConstants.MQ_WAIT_FOR_MSG : 0,
         timeoutMillis, retMsgLength).orElseThrow();
 
@@ -312,7 +313,7 @@ public class JNAMessageQueue extends BaseJNAAPIObject<JNAMessageQueueAllocations
             .format("Timeout value {0} is larger than Integer.MAX_VALUE", Long.toString(millis)));
       }
       STATUS result = NotesCAPI.get().MQGet(getAllocations().getMessageQueueHandle(), buffer,
-          (short) (NotesConstants.MQ_MAX_MSGSIZE & 0xffff),
+          word(NotesConstants.MQ_MAX_MSGSIZE),
           NotesConstants.MQ_WAIT_FOR_MSG,
           (int) millis, retMsgLength);
       if (result.getMaskedValue()== INotesErrorConstants.ERR_MQ_EMPTY) {

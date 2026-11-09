@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.calendaring;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.io.IOException;
 import java.lang.ref.ReferenceQueue;
 import java.time.temporal.TemporalAccessor;
@@ -35,6 +36,7 @@ import com.hcl.domino.calendar.CalendarRead;
 import com.hcl.domino.calendar.CalendarReadRange;
 import com.hcl.domino.calendar.CalendarWrite;
 import com.hcl.domino.calendar.Calendaring;
+import com.hcl.domino.commons.data.types.TypedConstants;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -149,7 +151,7 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		try(DisposableMemory retUID = new DisposableMemory(NotesConstants.MAXPATH)) {
 			LockUtil.lockHandle(dbAllocations.getDBHandle(),
 					(hDBMail) ->
-				NotesCAPI.get().CalGetUIDfromNOTEID(hDBMail, noteId, retUID, (short) (NotesConstants.MAXPATH & 0xffff),
+				NotesCAPI.get().CalGetUIDfromNOTEID(hDBMail, noteId, retUID, TypedConstants.MAXPATH,
 						null, 0, null)
 			).orElseThrow();
 			
@@ -170,7 +172,7 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 			LockUtil.lockHandle(dbAllocations.getDBHandle(),
 					(hDBMail) ->
 				NotesCAPI.get().CalGetUIDfromUNID(hDBMail, unidObj, retUID,
-						(short) (NotesConstants.MAXPATH & 0xffff), null, 0, null)
+						TypedConstants.MAXPATH, null, 0, null)
 			).orElseThrow();
 			
 			return NotesStringUtils.fromLMBCS(retUID, -1);
@@ -335,7 +337,7 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 							
 							int numEntriesAsInt = Short.toUnsignedInt(NotesCAPI.get().ListGetNumEntries(pUIDData, 0));
 							for (int i=0; i<numEntriesAsInt; i++) {
-								NotesCAPI.get().ListGetText(pUIDData, false, (char) i, retTextPointer, retTextLength).orElseThrow();
+								NotesCAPI.get().ListGetText(pUIDData, false, word(i), retTextPointer, retTextLength).orElseThrow();
 								
 								String currUID = NotesStringUtils.fromLMBCS(retTextPointer.getPointer(0), retTextLength.getValue() & 0xffff);
 								uidAllData.add(currUID);
@@ -374,7 +376,7 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 	public String getRecurrenceID(TemporalAccessor td) {
 		NotesTimeDateStruct.ByValue tdByVal = NotesTimeDateStruct.ByValue.newInstance(JNADominoDateTime.from(td).getInnards());
 		try(DisposableMemory retRecurId = new DisposableMemory(NotesConstants.MAXPATH)) {
-			NotesCAPI.get().CalGetRecurrenceID(tdByVal, retRecurId, (short) ((retRecurId.size()-1) & 0xffff))
+			NotesCAPI.get().CalGetRecurrenceID(tdByVal, retRecurId, word(retRecurId.size()-1))
 			  .orElseThrow();
 			
 			String recurId = NotesStringUtils.fromLMBCS(retRecurId, -1);

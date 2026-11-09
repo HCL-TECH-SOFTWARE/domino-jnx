@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.data;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.ref.ReferenceQueue;
@@ -217,7 +218,7 @@ public class JNAAgent extends BaseJNAAPIObject<JNAAgentAllocations> implements A
 					if (stdOut.isPresent()) {
 						//redirect stdout to in memory buffer
 						short redirType = NotesConstants.AGENT_REDIR_MEMORY;
-						NotesCAPI.get().AgentRedirectStdout(hContextByVal, redirType).orElseThrow();
+						NotesCAPI.get().AgentRedirectStdout(hContextByVal, word(redirType)).orElseThrow();
 					}
 
 					if (timeoutSeconds!=0) {

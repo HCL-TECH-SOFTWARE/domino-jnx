@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.data;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.time.temporal.Temporal;
 import java.util.Collection;
 import java.util.EnumSet;
@@ -24,7 +25,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
 import com.hcl.domino.commons.views.IItemTableData;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.Action;
@@ -32,6 +32,7 @@ import com.hcl.domino.data.DocumentClass;
 import com.hcl.domino.data.DocumentSelection;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.IDTable;
+import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -355,10 +356,10 @@ public class JNADocumentSelection extends JNAIDTable implements DocumentSelectio
 							}
 
 							Memory flagsMem = null;
-							short flagsLength = 0;
+							WORD flagsLength = word(0);
 							if (flags!=null) {
 								flagsMem = NotesStringUtils.toLMBCS(flags, true);
-								flagsLength = (short) ((flagsMem.size()-1) & 0xffff);
+								flagsLength = word(flagsMem.size()-1);
 							}
 
 							if (docClass.contains(DocumentClass.FORM)) {

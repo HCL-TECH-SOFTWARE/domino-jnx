@@ -16,9 +16,9 @@
  */
 package com.hcl.domino.jna.internal;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.util.Arrays;
 import java.util.Optional;
-
 import com.hcl.domino.commons.design.agent.DefaultAgentLastRunInfo;
 import com.hcl.domino.commons.misc.ODSTypes;
 import com.hcl.domino.data.Database;
@@ -68,7 +68,7 @@ public enum AgentRunInfoDecoder {
       NotesCAPI.get().NSFDbGetObjectSize(
           dbHandleByVal,
         objDescriptor.getRRV(),
-        objectType.get().getValue().shortValue(),
+        word(objectType.get().getValue().shortValue()),
         objectSize,
         null,
         null
@@ -84,7 +84,7 @@ public enum AgentRunInfoDecoder {
     DHANDLE.ByReference rethBuffer = DHANDLE.newInstanceByReference();
 
     // Get a handle to the header object and read it into a structure
-    int headerLen = NotesCAPI.get().ODSLength(ODSTypes._ODS_ASSISTRUNOBJECTHEADER);
+    int headerLen = NotesCAPI.get().ODSLength(word(ODSTypes._ODS_ASSISTRUNOBJECTHEADER)).getValue();
     LockUtil.lockHandle(hDb, (dbHandleByVal) ->
       NotesCAPI.get().NSFDbReadObject(
         dbHandleByVal,
@@ -110,7 +110,7 @@ public enum AgentRunInfoDecoder {
     if(entryCount == 0) {
       return Optional.empty();
     }
-    int entryLen = NotesCAPI.get().ODSLength(ODSTypes._ODS_ASSISTRUNOBJECTENTRY);
+    int entryLen = NotesCAPI.get().ODSLength(word(ODSTypes._ODS_ASSISTRUNOBJECTENTRY)).getValue();
     
     // Read all entry objects into our handle
     LockUtil.lockHandle(hDb, (dbHandleByVal) ->
@@ -158,7 +158,7 @@ public enum AgentRunInfoDecoder {
     
     
     // Next up is the run info struct
-    int runInfoLen = NotesCAPI.get().ODSLength(ODSTypes._ODS_ASSISTRUNINFO);
+    int runInfoLen = NotesCAPI.get().ODSLength(word(ODSTypes._ODS_ASSISTRUNINFO)).getValue();
     
     LockUtil.lockHandle(hDb, (dbHandleByVal) ->
       NotesCAPI.get().NSFDbReadObject(

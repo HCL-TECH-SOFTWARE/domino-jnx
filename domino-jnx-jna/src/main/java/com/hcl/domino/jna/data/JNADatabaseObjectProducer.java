@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.data;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.text.MessageFormat;
@@ -119,7 +120,7 @@ public class JNADatabaseObjectProducer {
 						
 						NotesCAPI.get().NSFDbAllocObjectExtended2(dbHandleByVal,
 								(int) (initialObjectSize & 0xffffffff),
-								noteClass, privs, objectType, rtnRRV).orElseThrow();
+								word(noteClass), word(privs), word(objectType), rtnRRV).orElseThrow();
 
 						try {
 							try (OutputStream nsfObjectOutputStream = new OutputStream() {
@@ -282,7 +283,7 @@ public class JNADatabaseObjectProducer {
 		ShortByReference retPrivileges = new ShortByReference();
 		
 		//read current size of database object
-		NotesCAPI.get().NSFDbGetObjectSize(dbHandleByVal, objectId, objectType, retSize, retClass,
+		NotesCAPI.get().NSFDbGetObjectSize(dbHandleByVal, objectId, word(objectType), retSize, retClass,
 				retPrivileges).orElseThrow();
 		
 		long currentSize = Integer.toUnsignedLong(retSize.getValue());
@@ -301,7 +302,7 @@ public class JNADatabaseObjectProducer {
 			//create a new object and copy the data
 			IntByReference rtnNewRRV = new IntByReference();
 			NotesCAPI.get().NSFDbAllocObjectExtended2(dbHandleByVal,
-					(int) (newSize & 0xffffffff), noteClass, privs, objectType, rtnNewRRV).orElseThrow();
+					(int) (newSize & 0xffffffff), word(noteClass), word(privs), word(objectType), rtnNewRRV).orElseThrow();
 			
 			try {
 				final int copyBufferSize = 20000000;

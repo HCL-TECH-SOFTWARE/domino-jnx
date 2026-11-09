@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.internal;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
@@ -30,6 +31,7 @@ import java.util.Objects;
 
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.data.types.StatusImpl;
+import com.hcl.domino.commons.data.types.TypedConstants;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.ReverseStringTokenizer;
@@ -148,7 +150,7 @@ public class NotesNamingUtils {
 		try(DisposableMemory outNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
   		ShortByReference outLength = new ShortByReference();
   		
-  		NotesCAPI.get().DNCanonicalize(0, templateNameMem, inNameMem, outNameMem, NotesConstants.MAXUSERNAME, outLength).orElseThrow();
+  		NotesCAPI.get().DNCanonicalize(0, templateNameMem, inNameMem, outNameMem, TypedConstants.MAXUSERNAME, outLength).orElseThrow();
   		
   		String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue() & 0xffff);
       
@@ -348,7 +350,7 @@ public class NotesNamingUtils {
 		try(DisposableMemory outNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
   		ShortByReference outLength = new ShortByReference();
   		
-  		NotesCAPI.get().DNAbbreviate(0, templateNameMem, inNameMem, outNameMem, NotesConstants.MAXUSERNAME, outLength).orElseThrow();
+  		NotesCAPI.get().DNAbbreviate(0, templateNameMem, inNameMem, outNameMem, TypedConstants.MAXUSERNAME, outLength).orElseThrow();
   		
   		String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue() & 0xffff);
   		
@@ -577,7 +579,7 @@ public class NotesNamingUtils {
     		
     		DHANDLE.ByReference rethNamesList = DHANDLE.newInstanceByReference();
     		synchronized(BUILDNAMESLIST_LOCK) {
-    			NotesCAPI.get().CreateNamesListFromNamesExtend(serverNameLMBCS, (short) (names.length & 0xffff), sArr, rethNamesList).orElseThrow();
+    			NotesCAPI.get().CreateNamesListFromNamesExtend(serverNameLMBCS, word(names.length), sArr, rethNamesList).orElseThrow();
     		}
     		
     		JNAUserNamesList newList =  new JNAUserNamesList(parent, rethNamesList);

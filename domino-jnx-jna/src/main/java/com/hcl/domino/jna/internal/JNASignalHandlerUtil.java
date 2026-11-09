@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.internal;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.security.AccessController;
 import java.security.PrivilegedActionException;
 import java.security.PrivilegedExceptionAction;
@@ -26,6 +27,7 @@ import com.hcl.domino.DominoClient.IBreakHandler;
 import com.hcl.domino.DominoClient.IProgressListener;
 import com.hcl.domino.DominoClient.ReplicationStateListener;
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.data.Database.Action;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
@@ -189,13 +191,13 @@ public class JNASignalHandlerUtil {
         prevBreakProc =
             AccessController.doPrivileged((PrivilegedExceptionAction<OSSIGBREAKPROC>) () -> {
               return (NotesCallbacks.OSSIGBREAKPROC) NotesCAPI.get()
-                  .OSSetBreakSignalHandler(NotesConstants.OS_SIGNAL_CHECK_BREAK, breakProc);
+                  .OSSetBreakSignalHandler(word(NotesConstants.OS_SIGNAL_CHECK_BREAK), breakProc);
             });
       } catch (PrivilegedActionException e) {
         if (e.getCause() instanceof RuntimeException) {
           throw (RuntimeException) e.getCause();
         } else {
-          throw new DominoException(0, "Error installing break handler", e);
+          throw new DominoException(StatusImpl.NOERROR, "Error installing break handler", e);
         }
       }
       m_breakProcInstalled = true;
@@ -215,13 +217,13 @@ public class JNASignalHandlerUtil {
         prevProgressProc =
             AccessController.doPrivileged((PrivilegedExceptionAction<OSSIGPROGRESSPROC>) () -> {
               return (NotesCallbacks.OSSIGPROGRESSPROC) NotesCAPI.get()
-                  .OSSetProgressSignalHandler(NotesConstants.OS_SIGNAL_PROGRESS, progressProc);
+                  .OSSetProgressSignalHandler(word(NotesConstants.OS_SIGNAL_PROGRESS), progressProc);
             });
       } catch (PrivilegedActionException e) {
         if (e.getCause() instanceof RuntimeException) {
           throw (RuntimeException) e.getCause();
         } else {
-          throw new DominoException(0, "Error installing progress listener", e);
+          throw new DominoException(StatusImpl.NOERROR, "Error installing progress listener", e);
         }
       }
       m_progressProcInstalled = true;
@@ -241,13 +243,13 @@ public class JNASignalHandlerUtil {
         prevReplProc =
             AccessController.doPrivileged((PrivilegedExceptionAction<OSSIGREPLPROC>) () -> {
               return (NotesCallbacks.OSSIGREPLPROC) NotesCAPI.get()
-                  .OSSetReplicationSignalHandler(NotesConstants.OS_SIGNAL_REPL, replProc);
+                  .OSSetReplicationSignalHandler(word(NotesConstants.OS_SIGNAL_REPL), replProc);
             });
       } catch (PrivilegedActionException e) {
         if (e.getCause() instanceof RuntimeException) {
           throw (RuntimeException) e.getCause();
         } else {
-          throw new DominoException(0, "Error installing replication state listener", e);
+          throw new DominoException(StatusImpl.NOERROR, "Error installing replication state listener", e);
         }
       }
       m_replProcInstalled = true;

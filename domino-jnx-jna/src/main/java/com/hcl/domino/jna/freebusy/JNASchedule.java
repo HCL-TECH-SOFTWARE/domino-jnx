@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.freebusy;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.lang.ref.ReferenceQueue;
 import java.text.MessageFormat;
 import java.time.temporal.TemporalAccessor;
@@ -231,7 +232,7 @@ public class JNASchedule extends BaseJNAAPIObject<JNAScheduleAllocations> implem
         IntByReference retdwSize = new IntByReference();
 		LockUtil.lockHandle(getSchedulesHandle(), (hSchedulesByVal) ->
 			NotesCAPI.get().Schedule_ExtractFreeTimeRange(hSchedulesByVal, getScheduleHandle(),
-					unidStruct, (short) (findFirstFit ? 1 : 0), (short) (duration & 0xffff),
+					unidStruct, word(findFirstFit), word(duration),
 					intervalPair, retdwSize, rethRange).orElseThrow()
 		);
         return ReadUtil.readDateRange(rethRange, true);

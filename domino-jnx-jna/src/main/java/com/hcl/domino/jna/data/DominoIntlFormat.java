@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.data;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.JNANotesConstants;
@@ -68,7 +69,7 @@ public class DominoIntlFormat implements IAdaptable {
 	 */
 	public DominoIntlFormat() {
 		m_struct = IntlFormatStruct.newInstance();
-		NotesCAPI.get().OSGetIntlSettings(m_struct, (short) (JNANotesConstants.intlFormatSize & 0xffff));
+		NotesCAPI.get().OSGetIntlSettings(m_struct, word(JNANotesConstants.intlFormatSize));
 		m_struct.read();
 	}
 	

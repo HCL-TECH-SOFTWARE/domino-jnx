@@ -16,12 +16,12 @@
  */
 package com.hcl.domino.jna.internal.views;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
-
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.types.STATUS;
@@ -72,7 +72,7 @@ public class ViewFormulaCompiler {
 		DHANDLE.ByReference rethViewFormula = DHANDLE.newInstanceByReference();
 		rethViewFormula.clear();
 		
-		STATUS result = NotesCAPI.get().NSFFormulaCompile(formulaName, formulaNameLength, selectionFormulaMem, selectionFormulaLength,
+		STATUS result = NotesCAPI.get().NSFFormulaCompile(formulaName, word(formulaNameLength), selectionFormulaMem, word(selectionFormulaLength),
 				rethViewFormula,
 				retFormulaLength, retCompileError, retCompileErrorLine, retCompileErrorColumn, retCompileErrorOffset,
 				retCompileErrorLength);
@@ -107,7 +107,7 @@ public class ViewFormulaCompiler {
 
 					//add summary item definition for column
 					LockUtil.lockHandle(rethViewFormula, (viewFormulaHandleByValue) -> {
-						return NotesCAPI.get().NSFFormulaSummaryItem(viewFormulaHandleByValue, columnItemNameMem, columnItemNameLength).orElseThrow();
+						return NotesCAPI.get().NSFFormulaSummaryItem(viewFormulaHandleByValue, columnItemNameMem, word(columnItemNameLength)).orElseThrow();
 					});
 
 					String columnFormula = currEntry.getValue().trim();
@@ -132,8 +132,8 @@ public class ViewFormulaCompiler {
 						
 						DHANDLE.ByReference rethColumnFormula = DHANDLE.newInstanceByReference();
 						
-						result = NotesCAPI.get().NSFFormulaCompile(columnItemNameMem, columnItemNameLength, columnFormulaMem,
-								columnFormulaLength, rethColumnFormula, retColumnFormulaLength, retColumnCompileError, retColumnCompileErrorLine,
+						result = NotesCAPI.get().NSFFormulaCompile(columnItemNameMem, word(columnItemNameLength), columnFormulaMem,
+								word(columnFormulaLength), rethColumnFormula, retColumnFormulaLength, retColumnCompileError, retColumnCompileErrorLine,
 								retColumnCompileErrorColumn, retColumnCompileErrorOffset, retColumnCompileErrorOffset);
 						
 						if (result.getMaskedValue() == INotesErrorConstants.ERR_FORMULA_COMPILATION) {

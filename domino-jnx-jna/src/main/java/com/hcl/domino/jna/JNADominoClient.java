@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,6 +60,7 @@ import com.hcl.domino.commons.constants.CopyDatabase;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.data.DefaultModificationTimePair;
 import com.hcl.domino.commons.data.types.StatusImpl;
+import com.hcl.domino.commons.data.types.TypedConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.CAPIGarbageCollector;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -81,6 +83,7 @@ import com.hcl.domino.data.Formula;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.data.ModificationTimePair;
 import com.hcl.domino.data.types.STATUS;
+import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.dbdirectory.DbDirectory;
 import com.hcl.domino.dxl.DxlExporter;
 import com.hcl.domino.dxl.DxlImporter;
@@ -388,7 +391,6 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
     byte encryptStrengthByte = (byte) (encryption.getValue() & 0xff);
 
-    short dbClassShort = dbClass.getValue();
     short optionsShort =
         NotesConstants.DBCREATE_FORM_BUCKET_OPT | NotesConstants.DBCREATE_LARGE_UNKTABLE;
     if (encryptStrengthByte != 0) {
@@ -408,10 +410,10 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     try(DisposableMemory path = JNADominoUtils.constructNetPath(serverName, filePath)) {
       LockUtil.lockHandle(
           namesListAllocations == null ? null : namesListAllocations.getHandle(), (hNamesList) -> {
-            return NotesCAPI.get().NSFDbCreateExtended4(path, dbClassShort, forceCreation,
-                fOptionsShort,
+            return NotesCAPI.get().NSFDbCreateExtended4(path, word(dbClass), forceCreation,
+                word(fOptionsShort),
                 options2, encryptStrengthByte, 0, (Memory) null, (Memory) null,
-                (short) 0, (short) 0, defaultDbOptionsByVal, hNamesList, (DHANDLE.ByValue) null);
+                word(0), word(0), defaultDbOptionsByVal, hNamesList, (DHANDLE.ByValue) null);
           }).orElseThrow();
   
       // create ACL
@@ -425,7 +427,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
         NotesCAPI.get().ACLCreate(rethACL).orElseThrow();
 
         LockUtil.lockHandle(rethACL, (rethACLByVal) ->
-          NotesCAPI.get().NSFDbStoreACL(rethDbByVal, rethACLByVal, 0, (short) 1)
+          NotesCAPI.get().NSFDbStoreACL(rethDbByVal, rethACLByVal, 0, word(1))
         ).orElseThrow();
 
         return 0;
@@ -614,7 +616,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     }
     JNAUserNamesList fNamesListForDbCreate = namesListForDbCreate;
 
-    short maxFileSizeInMB = (short) ((maxFileSize / (1024 * 1024)) & 0xffff);
+    WORD maxFileSizeInMB = word(maxFileSize / (1024 * 1024));
 
     HANDLE.ByReference rethNewDb = HANDLE.newInstanceByReference();
 
@@ -623,7 +625,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
       DisposableMemory fullPathSourceMem = JNADominoUtils.constructNetPath(sourceDb.getServer(), sourceDb.getRelativeFilePath())
     ) {
       NotesCAPI.get().NSFDbCreateAndCopyExtended(fullPathSourceMem, fullPathTargetMem,
-          noteClassToCopy, maxFileSizeInMB, createCopyFlags, null, rethNewDb)
+          word(noteClassToCopy), maxFileSizeInMB, createCopyFlags, null, rethNewDb)
           .orElseThrow();
     }
 
@@ -675,7 +677,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
               (JNADatabaseAllocations) dir.getAdapter(APIObjectAllocations.class);
           STATUS result = LockUtil.lockHandle(dbAllocations.getDBHandle(), (hDirByVal) ->
             NotesCAPI.get().NSFDbLocateByReplicaID(hDirByVal, replicaIdStruct,
-                retPathNameMem, (short) (NotesConstants.MAXPATH & 0xffff))
+                retPathNameMem, TypedConstants.MAXPATH)
           );
 
           if (result.getMaskedValue() == 259) {
@@ -1016,7 +1018,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
       try {
         JNASignalHandlerUtil.runWithReplicationStateTracking(() -> {
           NotesCAPI.get().ReplicateWithServerExt(null, serverNameMem, optionsInt,
-              (short) (fNumFiles & 0xffff),
+              word(fNumFiles),
               fFileListMem, extendedOptions, retStatsStruct).orElseThrow();
           return null;
         }, progressListener);
@@ -1025,7 +1027,7 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
       }
     } else {
       NotesCAPI.get().ReplicateWithServerExt(null, serverNameMem, optionsInt,
-          (short) (numFiles & 0xffff),
+          word(numFiles),
           fileListMem, extendedOptions, retStatsStruct).orElseThrow();
     }
 
@@ -1218,9 +1220,9 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     Memory digestPtr = NotesStringUtils.toLMBCS(httpPassword, false);
     try {
       NotesCAPI.get().SECVerifyPassword(
-          (short) passwordPtr.size(),
+          word(passwordPtr.size()),
           passwordPtr,
-          (short) digestPtr.size(),
+          word(digestPtr.size()),
           digestPtr,
           0,
           null).orElseThrow();

@@ -16,9 +16,9 @@
  */
 package com.hcl.domino.jna.internal.gc.allocations;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.lang.ref.ReferenceQueue;
 import java.text.MessageFormat;
-
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -91,8 +91,8 @@ public class JNAFormulaAllocations extends APIObjectAllocations<JNAFormula> {
 		ShortByReference retCompileErrorOffset = new ShortByReference();
 		ShortByReference retCompileErrorLength = new ShortByReference();
 		
-		STATUS result = NotesCAPI.get().NSFFormulaCompile(formulaName, formulaNameLength,
-				formulaText, formulaTextLength, rethFormula, retFormulaLength,
+		STATUS result = NotesCAPI.get().NSFFormulaCompile(formulaName, word(formulaNameLength),
+				formulaText, word(formulaTextLength), rethFormula, retFormulaLength,
 				retCompileError, retCompileErrorLine, retCompileErrorColumn,
 				retCompileErrorOffset, retCompileErrorLength);
 
@@ -118,7 +118,7 @@ public class JNAFormulaAllocations extends APIObjectAllocations<JNAFormula> {
 			return Mem.OSLockObject(handleByVal);
 		});
 		
-		NotesCAPI.get().NSFComputeStart(computeFlags, m_ptrCompiledFormula, rethCompute).orElseThrow();
+		NotesCAPI.get().NSFComputeStart(word(computeFlags), m_ptrCompiledFormula, rethCompute).orElseThrow();
 		
 		m_hCompute = rethCompute;
 	}

@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.admin;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.lang.ref.ReferenceQueue;
 import java.nio.file.Path;
 import java.text.MessageFormat;
@@ -149,7 +150,7 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 		  .orElseThrow();
 		
 		try {
-			NotesCAPI.get().SECidfSync(userNameCanonicalMem, passwordMem, idPathMem, phKFC, serverNameMem, 0, (short) 0, null, retdwFlags)
+			NotesCAPI.get().SECidfSync(userNameCanonicalMem, passwordMem, idPathMem, phKFC, serverNameMem, 0, word(0), null, retdwFlags)
 			  .orElseThrow();
 		}
 		finally {
@@ -180,7 +181,7 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 		Memory passwordMem = NotesStringUtils.toLMBCS(password, true);
 		Memory serverNameMem = NotesStringUtils.toLMBCS(server, true);
 
-		NotesCAPI.get().SECidvResetUserPassword(serverNameMem, userNameCanonicalMem, passwordMem, (short) (downloadCount & 0xffff), 0, null)
+		NotesCAPI.get().SECidvResetUserPassword(serverNameMem, userNameCanonicalMem, passwordMem, word(downloadCount), 0, null)
 		  .orElseThrow();
 	}
 
@@ -313,7 +314,7 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 		}
 		
 		NotesCAPI.get().SECidfGet(userNameCanonicalMem, passwordMem, idPathMem, rethKFC,
-				serverNameMem, 0, (short) 0, null)
+				serverNameMem, 0, word(0), null)
 		  .orElseThrow();
 		
 		int vaultServerNameLength = 0;
@@ -373,7 +374,7 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 			
 			try {
 				NotesCAPI.get().SECidfPut(userNameCanonicalMem, passwordMem, idPathMem, phKFC,
-						serverNameMem, 0, (short) 0, null)
+						serverNameMem, 0, word(0), null)
 				  .orElseThrow();
 			}
 			finally {
@@ -444,11 +445,11 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 		Memory retMem = new Memory(initialBufferSize);
 		ShortByReference retActualLen = new ShortByReference();
 		
-		STATUS result = NotesCAPI.get().REGGetIDInfo(idPathMem, infoType, retMem, (short) retMem.size(), retActualLen);
+		STATUS result = NotesCAPI.get().REGGetIDInfo(idPathMem, word(infoType), retMem, word(retMem.size()), retActualLen);
 		if (result.getMaskedValue() == INotesErrorConstants.ERR_VALUE_LENGTH) {
 			int requiredLen = retActualLen.getValue() & 0xffff;
 			retMem = new Memory(requiredLen);
-			result = NotesCAPI.get().REGGetIDInfo(idPathMem, infoType, retMem, (short) retMem.size(), retActualLen);
+			result = NotesCAPI.get().REGGetIDInfo(idPathMem, word(infoType), retMem, word(retMem.size()), retActualLen);
 		}
 		
 		result.orElseThrow();
