@@ -43,6 +43,7 @@ import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.ItemDataTypeConstants;
 import com.hcl.domino.data.TypedAccess;
+import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.jna.data.JNACollectionEntry;
 import com.hcl.domino.jna.data.JNADocument;
 import com.hcl.domino.jna.data.JNADominoCollection;
@@ -86,7 +87,7 @@ public class NotesLookupResultBufferDecoder {
 	 */
 	public static NotesViewLookupResultData decodeCollectionLookupResultBuffer(JNADominoCollection parentCollection,
 			DHANDLE bufferHandle, int numEntriesSkipped, int numEntriesReturned,
-			Set<ReadMask> returnMask, short signalFlags, String pos, int indexModifiedSequenceNo, DominoDateTime retDiffTime,
+			Set<ReadMask> returnMask, WORD signalFlags, String pos, int indexModifiedSequenceNo, DominoDateTime retDiffTime,
 			boolean convertStringsLazily, boolean convertDominoDateTimeToCalendar, String singleColumnLookupName) {
 		
 		return LockUtil.lockHandle(bufferHandle, (handleByVal) -> {
@@ -122,7 +123,7 @@ public class NotesLookupResultBufferDecoder {
 	 */
 	public static NotesViewLookupResultData decodeCollectionLookupResultBuffer(JNADominoCollection parentCollection,
 			Pointer bufferPtr, int numEntriesSkipped, int numEntriesReturned,
-			Set<ReadMask> returnMask, short signalFlags, String pos, int indexModifiedSequenceNo, DominoDateTime retDiffTime,
+			Set<ReadMask> returnMask, WORD signalFlags, String pos, int indexModifiedSequenceNo, DominoDateTime retDiffTime,
 			boolean convertStringsLazily, boolean convertDominoDateTimeToCalendar, String singleColumnLookupName) {
 
 		int bufferPos = 0;

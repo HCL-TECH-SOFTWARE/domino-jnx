@@ -84,7 +84,7 @@ public interface INotesCAPI extends Library {
   @Target({ElementType.METHOD, ElementType.FIELD})
 	@Retention(RetentionPolicy.RUNTIME)
 	/**
-	 * Annotation for methods that are not yet part of the public C API (but should be)
+	 * Annotation for methods that are not yet part of the public C API
 	 */
 	public @interface UndocumentedAPI {
 	}
@@ -110,8 +110,8 @@ public interface INotesCAPI extends Library {
 			Pointer retServerName,
 			Pointer retFileName);
 
-	STATUS DNCanonicalize(int Flags, Memory TemplateName, Memory InName, Memory OutName, WORD OutSize, ShortByReference OutLength);
-	STATUS DNAbbreviate(int Flags, Memory TemplateName, Memory InName, Memory OutName, WORD OutSize, ShortByReference OutLength);	
+	STATUS DNCanonicalize(int Flags, Memory TemplateName, Memory InName, Memory OutName, WORD OutSize, WORD.ByReference OutLength);
+	STATUS DNAbbreviate(int Flags, Memory TemplateName, Memory InName, Memory OutName, WORD OutSize, WORD.ByReference OutLength);	
 
 	STATUS NSFBuildNamesList(Memory UserName, int dwFlags, DHANDLE.ByReference rethNamesList);
 	
@@ -260,17 +260,17 @@ public interface INotesCAPI extends Library {
 			int fPrefixDataType,
 			DHANDLE.ByReference rethList,
 			Memory retpList,
-			ShortByReference retListSize);
+			WORD.ByReference retListSize);
 
 	STATUS ListRemoveAllEntries(
 			DHANDLE.ByValue hList,
 			int fPrefixDataType,
-			ShortByReference pListSize);
+			WORD.ByReference pListSize);
 
 	STATUS ListAddEntry(
 			DHANDLE.ByValue hList,
 			int fPrefixDataType,
-			ShortByReference pListSize,
+			WORD.ByReference pListSize,
 			WORD EntryNumber,
 			Memory Text,
 			WORD TextSize);
@@ -323,7 +323,7 @@ public interface INotesCAPI extends Library {
 			NotesTimeDateStruct inputTime,
 			Memory retTextBuffer,
 			WORD textBufferLength,
-			ShortByReference retTextLength);
+			WORD.ByReference retTextLength);
 	
 	STATUS ConvertTextToTIMEDATE(
 			IntlFormatStruct intlFormat,
@@ -426,18 +426,18 @@ public interface INotesCAPI extends Library {
 			Memory formulaText,
 			WORD  formulaTextLength,
 			DHANDLE.ByReference rethFormula,
-			ShortByReference retFormulaLength,
+			WORD.ByReference retFormulaLength,
 			ShortByReference retCompileError,
-			ShortByReference retCompileErrorLine,
-			ShortByReference retCompileErrorColumn,
-			ShortByReference retCompileErrorOffset,
-			ShortByReference retCompileErrorLength);
+			WORD.ByReference retCompileErrorLine,
+			WORD.ByReference retCompileErrorColumn,
+			WORD.ByReference retCompileErrorOffset,
+			WORD.ByReference retCompileErrorLength);
 	STATUS NSFFormulaDecompile(
 			Pointer pFormulaBuffer,
 			boolean fSelectionFormula,
 			DHANDLE.ByReference rethFormulaText,
-			ShortByReference retFormulaTextLength);
-	STATUS NSFFormulaGetSizeP(Pointer ptr, ShortByReference retFormulaLength);
+			WORD.ByReference retFormulaTextLength);
+	STATUS NSFFormulaGetSizeP(Pointer ptr, WORD.ByReference retFormulaLength);
 
 	STATUS NSFFormulaSummaryItem(DHANDLE.ByValue hFormula, Memory ItemName, WORD ItemNameLength);
 	STATUS NSFFormulaMerge(
@@ -448,14 +448,6 @@ public interface INotesCAPI extends Library {
         Pointer lpCompiledFormula,
         DHANDLE.ByReference rethCompute);
 	STATUS NSFComputeStop(DHANDLE.ByValue hCompute);
-	STATUS NSFComputeEvaluate(
-			DHANDLE.ByValue hCompute,
-			DHANDLE.ByValue hNote,
-			DHANDLE.ByReference rethResult,
-			ShortByReference retResultLength,
-			IntByReference retNoteMatchesFormula,
-			IntByReference retNoteShouldBeDeleted,
-			IntByReference retNoteModified);
 
     @UndocumentedAPI
     STATUS NSFComputeEvaluateExt(DHANDLE.ByValue hCompute,
@@ -473,7 +465,7 @@ public interface INotesCAPI extends Library {
     @UndocumentedAPI
     STATUS NSFFormulaAnalyze(DHANDLE.ByValue hFormula,
         IntByReference retAttributes,
-        ShortByReference retSummaryNamesOffset);
+        WORD.ByReference retSummaryNamesOffset);
 
     @UndocumentedAPI
     STATUS NSFFormulaFunctions(NSFFORMFUNCPROC callback);
@@ -493,7 +485,7 @@ public interface INotesCAPI extends Library {
 			boolean fPrefixDataType,
 			WORD entryNumber,
 			Memory retTextPointer,
-			ShortByReference retTextLength);
+			WORD.ByReference retTextLength);
 
 	short ListGetSize(
 			Pointer pList,
@@ -504,9 +496,9 @@ public interface INotesCAPI extends Library {
 			NotesBlockIdStruct.ByValue item_bid,
 			Memory item_name,
 			WORD  return_buf_len,
-			ShortByReference name_len_ptr,
-			ShortByReference item_flags_ptr,
-			ShortByReference value_datatype_ptr,
+			WORD.ByReference name_len_ptr,
+			WORD.ByReference item_flags_ptr,
+			WORD.ByReference value_datatype_ptr,
 			Pointer value_bid_ptr,
 			IntByReference value_len_ptr,
 			ByteByReference retSeqByte,
@@ -591,7 +583,7 @@ public interface INotesCAPI extends Library {
 			Memory item_name,
 			WORD  name_len,
 			Pointer retbhItem,
-			ShortByReference retDataType,
+			WORD.ByReference retDataType,
 			Pointer retbhValue,
 			IntByReference retValueLength);
 
@@ -601,7 +593,7 @@ public interface INotesCAPI extends Library {
 			Memory item_name,
 			WORD  name_len,
 			Pointer retbhItem,
-			ShortByReference retDataType,
+			WORD.ByReference retDataType,
 			Pointer retbhValue,
 			IntByReference retValueLength);
 
@@ -669,7 +661,7 @@ public interface INotesCAPI extends Library {
 
     @UndocumentedAPI
     void NIFGetNextDiscardTime(DHANDLE.ByValue hCollection, NotesTimeDateStruct retLastModifiedTime);
-    STATUS NIFGetCollation(DHANDLE.ByValue hCollection, ShortByReference retCollationNum);
+    STATUS NIFGetCollation(DHANDLE.ByValue hCollection, WORD.ByReference retCollationNum);
     STATUS NIFSetCollation(DHANDLE.ByValue hCollection, WORD CollationNum);
 	/**
 	 * Retrieve detailed information about the collection itself, such as the number of documents
@@ -689,7 +681,7 @@ public interface INotesCAPI extends Library {
 			int returnFlags,
 			NotesCollectionPositionStruct retIndexPos,
 			IntByReference retNumMatches,
-			ShortByReference retSignalFlags,
+			WORD.ByReference retSignalFlags,
 			DHANDLE.ByReference rethBuffer,
 			IntByReference retSequence);
 
@@ -698,7 +690,7 @@ public interface INotesCAPI extends Library {
             int returnFlags,
             Memory pReserved,
             NotesCollectionPositionStruct retIndexPos,
-            IntByReference retNumMatches, ShortByReference retSignalFlags,
+            IntByReference retNumMatches, WORD.ByReference retSignalFlags,
             DHANDLE.ByReference rethBuffer, IntByReference retSequence,
             NotesCallbacks.NIFFindByKeyProc NIFFindByKeyCallback, NIFFindByKeyContextStruct Ctx, int dwTimeOutSec);
 	
@@ -711,17 +703,17 @@ public interface INotesCAPI extends Library {
 
 	STATUS NIFReadEntries(DHANDLE.ByValue hCollection, NotesCollectionPositionStruct indexPos, WORD skipNavigator,
 			int skipCount, short returnNavigator, int returnCount, int returnMask, DHANDLE.ByReference rethBuffer,
-			ShortByReference retBufferLength, IntByReference retNumEntriesSkipped, IntByReference retNumEntriesReturned,
-			ShortByReference retSignalFlags);
+			WORD.ByReference retBufferLength, IntByReference retNumEntriesSkipped, IntByReference retNumEntriesReturned,
+			WORD.ByReference retSignalFlags);
 
 	STATUS NIFReadEntriesExt(DHANDLE.ByValue hCollection,
 			NotesCollectionPositionStruct collectionPos,
 			WORD skipNavigator, int skipCount,
 			WORD returnNavigator, int returnCount, int returnMask,
             NotesTimeDateStruct diffTime, DHANDLE.ByValue diffIDTable, int columnNumber, int flags,
-            DHANDLE.ByReference rethBuffer, ShortByReference retBufferLength,
+            DHANDLE.ByReference rethBuffer, WORD.ByReference retBufferLength,
             IntByReference retNumEntriesSkipped, IntByReference retNumEntriesReturned,
-            ShortByReference retSignalFlags, NotesTimeDateStruct retDiffTime,
+            WORD.ByReference retSignalFlags, NotesTimeDateStruct retDiffTime,
             NotesTimeDateStruct retModifiedTime, IntByReference retSequence);
 
     @UndocumentedAPI
@@ -746,7 +738,7 @@ public interface INotesCAPI extends Library {
 	
 	short NSFDbIsRemote(HANDLE.ByValue hDb);
 
-	STATUS NSFDbGetBuildVersion(HANDLE.ByValue hDB, ShortByReference retVersion);
+	STATUS NSFDbGetBuildVersion(HANDLE.ByValue hDB, WORD.ByReference retVersion);
 
 	STATUS NSFDbLocateByReplicaID(
 			HANDLE.ByValue hDB,
@@ -767,9 +759,9 @@ public interface INotesCAPI extends Library {
 	STATUS ACLLookupAccess(
 			DHANDLE.ByValue hACL,
 			Pointer pNamesList,
-			ShortByReference retAccessLevel,
+			WORD.ByReference retAccessLevel,
 			Memory retPrivileges,
-			ShortByReference retAccessFlags,
+			WORD.ByReference retAccessFlags,
 			DHANDLE.ByReference rethPrivNames);
 	
 	STATUS ACLSetAdminServer(
@@ -980,11 +972,11 @@ public interface INotesCAPI extends Library {
 	STATUS MQOpen(Memory queueName, int options, IntByReference retQueue);
 	STATUS MQClose(int queue, int options);
 	STATUS MQPut(int queue, WORD priority, Pointer buffer, WORD length, int options);
-	STATUS MQGet(int queue, Pointer buffer, WORD bufLength, int options, int timeout, ShortByReference retMsgLength);
+	STATUS MQGet(int queue, Pointer buffer, WORD bufLength, int options, int timeout, WORD.ByReference retMsgLength);
 	void MQPutQuitMsg(int queue);
 	boolean MQIsQuitPending(int queue);
 	STATUS MQScan(int queue, Pointer buffer, WORD bufLength, int options, NotesCallbacks.MQScanCallback actionRoutine,
-			Pointer ctx, ShortByReference retMsgLength);
+			Pointer ctx, WORD.ByReference retMsgLength);
 	
 	STATUS MMCreateConvControls(
 			PointerByReference phCC);
@@ -1174,9 +1166,9 @@ public interface INotesCAPI extends Library {
 			int  NoteID,
 			Pointer retNoteOID,
 			NotesTimeDateStruct retModified,
-			ShortByReference retNoteClass,
+			WORD.ByReference retNoteClass,
 			NotesTimeDateStruct retAddedToFile,
-			ShortByReference retResponseCount,
+			WORD.ByReference retResponseCount,
 			IntByReference retParentNoteID);
 
     @UndocumentedAPI
@@ -1552,7 +1544,7 @@ public interface INotesCAPI extends Library {
 	STATUS NSFNoteCreateClone (DHANDLE.ByValue hSrcNote, DHANDLE.ByReference rethDstNote);
 
 	@UndocumentedAPI
-	STATUS NSFNoteReplaceItems (DHANDLE.ByValue hSrcNote, DHANDLE.ByValue hDstNote, ShortByReference pwRetItemReplaceCount, boolean fAllowDuplicates);
+	STATUS NSFNoteReplaceItems (DHANDLE.ByValue hSrcNote, DHANDLE.ByValue hDstNote, WORD.ByReference pwRetItemReplaceCount, boolean fAllowDuplicates);
 
 	STATUS StoredFormAddItems (HANDLE.ByValue hSrcDbHandle, DHANDLE.ByValue hSrcNote, DHANDLE.ByValue hDstNote, boolean bDoSubforms, int dwFlags);
 
@@ -1583,7 +1575,7 @@ public interface INotesCAPI extends Library {
 	STATUS NSFItemDeleteByBLOCKID(DHANDLE.ByValue note_handle, NotesBlockIdStruct.ByValue item_blockid);
 
 	@UndocumentedAPI
-	void DesignGetNameAndAlias(Memory pString, PointerByReference ppName, ShortByReference pNameLen, PointerByReference ppAlias, ShortByReference pAliasLen);
+	void DesignGetNameAndAlias(Memory pString, PointerByReference ppName, WORD.ByReference pNameLen, PointerByReference ppAlias, WORD.ByReference pAliasLen);
 
 	@UndocumentedAPI
 	boolean StoredFormHasSubformToken(Memory pString);
@@ -1699,7 +1691,7 @@ public interface INotesCAPI extends Library {
 			WORD InfoType,
 			Memory OutBufr,
 			WORD OutBufrLen,
-			ShortByReference ActualLen);
+			WORD.ByReference ActualLen);
 
 	@UndocumentedAPI
 	STATUS SECidvIsIDInVault(Memory pServer, Memory pUserName);
@@ -1753,7 +1745,7 @@ public interface INotesCAPI extends Library {
 	STATUS OOOGetGeneralMessage(
 			Pointer pOOOContext,
 			Memory pGeneralMessage,
-			ShortByReference pGeneralMessageLen);
+			WORD.ByReference pGeneralMessageLen);
 	
 	STATUS OOOGetGeneralSubject(
 			Pointer pOOOContext,
@@ -1761,8 +1753,8 @@ public interface INotesCAPI extends Library {
 	
 	STATUS OOOGetState(
 			Pointer pOOOContext,
-			ShortByReference retVersion,
-			ShortByReference retState);
+			WORD.ByReference retVersion,
+			WORD.ByReference retState);
 
 	STATUS OOOSetAwayPeriod(
 			Pointer pOOOContext,
@@ -1795,8 +1787,8 @@ public interface INotesCAPI extends Library {
         WORD bSessionOnly,
         WORD wCapabilities,
         WORD wCapabilities2,
-        ShortByReference retwCurrentCapabilities,
-        ShortByReference retwCurrentCapabilities2);
+        WORD.ByReference retwCurrentCapabilities,
+        WORD.ByReference retwCurrentCapabilities2);
 
 	STATUS NSFDbGetUnreadNoteTable2(
 			HANDLE.ByValue hDB,
@@ -1871,21 +1863,21 @@ public interface INotesCAPI extends Library {
 	Pointer NAMELocateItem2(
 			Pointer pMatch,
 			WORD Item,
-			ShortByReference retDataType,
-			ShortByReference retSize
+			WORD.ByReference retDataType,
+			WORD.ByReference retSize
 	);
 	STATUS NAMEGetAddressBooks(
 			Memory pszServer,
 			WORD wOptions,
-			ShortByReference pwReturnCount,
-			ShortByReference pwReturnLength,
+			WORD.ByReference pwReturnCount,
+			WORD.ByReference pwReturnLength,
 			DHANDLE.ByReference phReturn
 	);
 	
     @UndocumentedAPI
     STATUS ECLGetListCapabilities(Pointer pNamesList, WORD ECLType,
-        ShortByReference retwCapabilities,
-        ShortByReference retwCapabilities2, IntByReference retfUserCanModifyECL);
+        WORD.ByReference retwCapabilities,
+        WORD.ByReference retwCapabilities2, IntByReference retfUserCanModifyECL);
 
     STATUS NSFDbModifiedTime(
 			HANDLE.ByValue hDB,
@@ -1970,10 +1962,10 @@ public interface INotesCAPI extends Library {
 			int dwReturnMaskExt,
 			Pointer pFilterInfo,
 			DHANDLE.ByReference hRetCalData,
-			ShortByReference retCalBufferLength,
+			WORD.ByReference retCalBufferLength,
 			DHANDLE.ByReference hRetUIDData,
 			IntByReference retNumEntriesProcessed,
-			ShortByReference retSignalFlags,
+			WORD.ByReference retSignalFlags,
 			int dwFlags,
 			Pointer pCtx);
 	
@@ -1992,7 +1984,7 @@ public interface INotesCAPI extends Library {
 	STATUS CalGetUnappliedNotices(
 			HANDLE.ByValue hDB,
 			Memory pszUID,
-			ShortByReference pwNumNotices,
+			WORD.ByReference pwNumNotices,
 			DHANDLE.ByReference phRetNOTEIDs,
 			DHANDLE.ByReference phRetUNIDs,
 			Pointer pReserved,
@@ -2005,7 +1997,7 @@ public interface INotesCAPI extends Library {
 			Memory pszUID,
 			NotesTimeDateStruct ptdSince,
 			NotesTimeDateStruct ptdretUntil,
-			ShortByReference pwNumInvites,
+			WORD.ByReference pwNumInvites,
 			DHANDLE.ByReference phRetNOTEIDs,
 			DHANDLE.ByReference phRetUNIDs,
 			Pointer pReserved,
@@ -2103,7 +2095,7 @@ public interface INotesCAPI extends Library {
 			Memory retCertName,
 			HANDLE.ByReference rethKfmCertCtx,
 			ShortByReference retfIsHierarchical,
-			ShortByReference retwFileVersion);
+			WORD.ByReference retwFileVersion);
 	
 	void SECKFMCreatePassword(
 			Memory pPassword,
@@ -2135,8 +2127,8 @@ public interface INotesCAPI extends Library {
 	STATUS NSFItemDefExtGetEntry(
 			NotesItemDefinitionTableLock itemDefTableLock,
 			int itemNum,
-			ShortByReference itemType,
-			ShortByReference itemLength,
+			WORD.ByReference itemType,
+			WORD.ByReference itemLength,
 			Pointer itemName);
 	
 	STATUS NSFItemDefExtUnlock(
@@ -2186,7 +2178,7 @@ public interface INotesCAPI extends Library {
         Memory serverName, Memory ConsoleCommand, int Flags,
         DHANDLE.ByReference phConsoleText, DHANDLE.ByReference phTasksText,
         DHANDLE.ByReference phUsersText,
-        ShortByReference pSignals, IntByReference pConsoleBufferID, DHANDLE.ByValue hQueue,
+        WORD.ByReference pSignals, IntByReference pConsoleBufferID, DHANDLE.ByValue hQueue,
         NotesCallbacks.ASYNCNOTIFYPROC Proc, Pointer param, PointerByReference retactx);
 
     @UndocumentedAPI
@@ -2198,10 +2190,10 @@ public interface INotesCAPI extends Library {
     @UndocumentedAPI
     STATUS NSFDbLocalSecInfoSet(HANDLE.ByValue hDB, WORD Option, byte EncryptStrength, Memory Username);
 
-	void NSFDbAccessGet(HANDLE.ByValue hDb, ShortByReference retAccessLevel, ShortByReference retAccessFlag);
+	void NSFDbAccessGet(HANDLE.ByValue hDb, WORD.ByReference retAccessLevel, WORD.ByReference retAccessFlag);
 
-	STATUS NSFDbMajorMinorVersionGet (HANDLE.ByValue hDB, ShortByReference retMajorVersion, 
-			ShortByReference retMinorVersion);
+	STATUS NSFDbMajorMinorVersionGet (HANDLE.ByValue hDB, WORD.ByReference retMajorVersion, 
+			WORD.ByReference retMinorVersion);
 
 	STATUS NSFDbGetMajMinVersion(HANDLE.ByValue hDb, NotesBuildVersionStruct retBuildVersion);
 
@@ -2210,7 +2202,7 @@ public interface INotesCAPI extends Library {
 	@UndocumentedAPI
 	void OSLocalizePath(Pointer ptr);
 	@UndocumentedAPI
-	STATUS OSPathFileType(Pointer ptr, ShortByReference retValue);
+	STATUS OSPathFileType(Pointer ptr, WORD.ByReference retValue);
 	@UndocumentedAPI
 	Pointer Cstrncat(Pointer to, Pointer from, int tosize);
 

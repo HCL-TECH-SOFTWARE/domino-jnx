@@ -47,11 +47,11 @@ public class FormulaCompilationException extends DominoException {
    */
   private static String toDetailedErrorMessage(final String msg, final String formula,
       final String compileErrorText,
-      final short compileErrorStatus,
-      final short compileErrorLine,
-      final short compileErrorColumn,
-      final short compileErrorOffset,
-      final short compileErrorLength) {
+      final int compileErrorStatus,
+      final int compileErrorLine,
+      final int compileErrorColumn,
+      final int compileErrorOffset,
+      final int compileErrorLength) {
 
     return MessageFormat.format(
         "{0}. errorcode={1}, errortext={2}, line={3}, column={4}, offset={5}, length={6}, formula={7}", //$NON-NLS-1$
@@ -62,11 +62,11 @@ public class FormulaCompilationException extends DominoException {
   private final short m_compileErrorReasonCode;
   private final String m_compileErrorReason;
   private final String m_formula;
-  private final short m_compileErrorLine;
-  private final short m_compileErrorColumn;
-  private final short m_compileErrorOffset;
+  private final int m_compileErrorLine;
+  private final int m_compileErrorColumn;
+  private final int m_compileErrorOffset;
 
-  private final short m_compileErrorLength;
+  private final int m_compileErrorLength;
 
   /**
    * Creates a new instance
@@ -88,10 +88,10 @@ public class FormulaCompilationException extends DominoException {
       final String formula,
       final String compileErrorReason,
       final short compileErrorStatus,
-      final short compileErrorLine,
-      final short compileErrorColumn,
-      final short compileErrorOffset,
-      final short compileErrorLength) {
+      final int compileErrorLine,
+      final int compileErrorColumn,
+      final int compileErrorOffset,
+      final int compileErrorLength) {
 
     super(id, FormulaCompilationException.toDetailedErrorMessage(msg, formula,
         compileErrorReason,

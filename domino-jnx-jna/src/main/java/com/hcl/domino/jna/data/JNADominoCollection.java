@@ -42,6 +42,7 @@ import java.util.function.BiConsumer;
 
 import com.hcl.domino.BuildVersionInfo;
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.TypedConstants;
 import com.hcl.domino.commons.design.view.DominoCollationInfo;
 import com.hcl.domino.commons.design.view.DominoCollationInfo.DominoCollateColumn;
 import com.hcl.domino.commons.design.view.DominoViewFormat;
@@ -75,6 +76,7 @@ import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.data.CollectionDataCache.CacheState;
 import com.hcl.domino.jna.data.JNACollectionEntry.CacheableViewEntryData;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -95,7 +97,6 @@ import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.ShortByReference;
 
 public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAllocations>
     implements DominoCollection {
@@ -736,7 +737,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     try {
       keyBuffer = NotesSearchKeyEncoder.encodeKeys(keys);
     } catch (Throwable e) {
-      throw new DominoException(0, "Could not encode search keys", e);
+      throw new DominoException(TypedConstants.NOERROR, "Could not encode search keys", e);
     }
 
     JNADominoCollectionAllocations allocations = getAllocations();
@@ -882,7 +883,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     int findFlagsBitMask = FindFlag.toBitMaskInt(findFlags);
     int returnMaskBitMask = ReadMask.toBitMask(returnMask);
 
-    ShortByReference retSignalFlags = new ShortByReference();
+    WordByReference retSignalFlags = new WordByReference();
 
     Memory keyBuffer;
     try {
@@ -905,17 +906,17 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
     if (result.getMaskedValue() == ERR_NOT_FOUND) {
       return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0), 0, 0,
-          retSignalFlags.getValue(), null, retSequence.getValue(), null);
+          retSignalFlags.getWord(), null, retSequence.getValue(), null);
     }
     result.orElseThrow();
 
     if (retNumMatches.getValue() == 0) {
       return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0), 0, 0,
-          retSignalFlags.getValue(), null, retSequence.getValue(), null);
+          retSignalFlags.getWord(), null, retSequence.getValue(), null);
     } else {
       if (retBuffer.isNull()) {
         return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0), 0,
-            retNumMatches.getValue(), retSignalFlags.getValue(), retIndexPos.toPosString(),
+            retNumMatches.getValue(), retSignalFlags.getWord(), retIndexPos.toPosString(),
             retSequence.getValue(), null);
       } else {
         boolean convertStringsLazily = true;
@@ -923,7 +924,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
         NotesViewLookupResultData viewData =
             NotesLookupResultBufferDecoder.decodeCollectionLookupResultBuffer(this, retBuffer,
-                0, retNumMatches.getValue(), returnMask, retSignalFlags.getValue(),
+                0, retNumMatches.getValue(), returnMask, retSignalFlags.getWord(),
                 retIndexPos.toPosString(), retSequence.getValue(), null,
                 convertStringsLazily, convertNotesTimeDateToCalendar, null);
         return viewData;
@@ -1136,8 +1137,8 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
     IntByReference retNumEntriesSkipped = new IntByReference();
     IntByReference retNumEntriesReturned = new IntByReference();
-    ShortByReference retSignalFlags = new ShortByReference();
-    ShortByReference retBufferLength = new ShortByReference();
+    WordByReference retSignalFlags = new WordByReference();
+    WordByReference retBufferLength = new WordByReference();
 
     short skipNavBitMask = skipNavigatorContinue
         ? (short) ((skipNavigator.getValue() | NotesConstants.NAVIGATE_CONTINUE) & 0xffff)
@@ -1175,7 +1176,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     if (iBufLength == 0) {
       return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0),
           retNumEntriesSkipped.getValue(), retNumEntriesReturned.getValue(),
-          retSignalFlags.getValue(), null, indexModifiedSequenceNo, null);
+          retSignalFlags.getWord(), null, indexModifiedSequenceNo, null);
     } else {
       boolean convertStringsLazily = true;
       boolean convertNotesTimeDateToCalendar = false;
@@ -1183,7 +1184,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
       NotesViewLookupResultData viewData =
           NotesLookupResultBufferDecoder.decodeCollectionLookupResultBuffer(this, retBuffer,
               retNumEntriesSkipped.getValue(), retNumEntriesReturned.getValue(), returnMask,
-              retSignalFlags.getValue(), null,
+              retSignalFlags.getWord(), null,
               indexModifiedSequenceNo, null, convertStringsLazily, convertNotesTimeDateToCalendar,
               null);
       return viewData;
@@ -1236,8 +1237,8 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
     IntByReference retNumEntriesSkipped = new IntByReference();
     IntByReference retNumEntriesReturned = new IntByReference();
-    ShortByReference retSignalFlags = new ShortByReference();
-    ShortByReference retBufferLength = new ShortByReference();
+    WordByReference retSignalFlags = new WordByReference();
+    WordByReference retBufferLength = new WordByReference();
 
     short skipNavBitMask = skipNavigatorContinue
         ? (short) ((skipNavigator.getValue() | NotesConstants.NAVIGATE_CONTINUE) & 0xffff)
@@ -1294,7 +1295,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     if (iBufLength == 0 || result.getMaskedValue() == ERR_NOT_FOUND) {
       return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0),
           retNumEntriesSkipped.getValue(), retNumEntriesReturned.getValue(),
-          retSignalFlags.getValue(), null, indexModifiedSequenceNo,
+          word(retSignalFlags.getValue()), null, indexModifiedSequenceNo,
           new JNADominoDateTime(retDiffTimeStruct));
     } else {
       boolean convertStringsLazily = true;
@@ -1303,7 +1304,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
       NotesViewLookupResultData viewData =
           NotesLookupResultBufferDecoder.decodeCollectionLookupResultBuffer(this, retBuffer,
               retNumEntriesSkipped.getValue(), retNumEntriesReturned.getValue(), returnMask,
-              retSignalFlags.getValue(), null,
+              retSignalFlags.getWord(), null,
               indexModifiedSequenceNo, retDiffTimeWrap, convertStringsLazily,
               convertNotesTimeDateToCalendar, singleColumnLookupName);
       return viewData;
@@ -1762,7 +1763,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
    *         one if it has not been resorted
    */
   public Optional<Direction> getCurrentSortDirection() {
-    short collation = getCollation();
+    int collation = getCollation();
     if (collation == 0) {
       return Optional.empty();
     }
@@ -1775,10 +1776,10 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
    * 
    * @return collation
    */
-  private short getCollation() {
+  private int getCollation() {
     checkDisposed();
 
-    ShortByReference retCollationNum = new ShortByReference();
+    WordByReference retCollationNum = new WordByReference();
 
     LockUtil.lockHandle(getAllocations().getCollectionHandle(),
         (hCollectionByVal) -> NotesCAPI.get().NIFGetCollation(hCollectionByVal, retCollationNum)
@@ -2182,7 +2183,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
           NotesViewLookupResultData viewData = NotesLookupResultBufferDecoder
               .decodeCollectionLookupResultBuffer(JNADominoCollection.this,
                   summaryBuffer,
-                  0, ctx1.EntriesThisChunk & 0xffff, returnMaskToUse, (short) 0, null,
+                  0, ctx1.EntriesThisChunk & 0xffff, returnMaskToUse, word(0), null,
                   0, null, convertStringsLazily, convertNotesTimeDateToCalendar, null);
 
           for (JNACollectionEntry currEntry : viewData.getEntries()) {
@@ -2204,7 +2205,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
     try {
       keyBuffer = NotesSearchKeyEncoder.encodeKeys(keys);
     } catch (Throwable e) {
-      throw new DominoException(0,
+      throw new DominoException(TypedConstants.NOERROR,
           MessageFormat.format("Could not encode search keys: {0}", Arrays.toString(keys)), e);
     }
 
@@ -2212,7 +2213,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
                                                                                                    // //
                                                                                                    // NotesCollectionPositionStruct.newInstance();
     final IntByReference retNumMatches = new IntByReference();
-    final ShortByReference retSignalFlags = new ShortByReference();
+    final WordByReference retSignalFlags = new WordByReference();
     final IntByReference retSequence = new IntByReference();
 
     final int findFlagsAsInt = FindFlag.toBitMaskInt(findFlags) | 0x2000; // => AND_READ_MATCHES
@@ -2234,7 +2235,7 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
       if (invocationEx[0] instanceof AssertionError) {
         throw (AssertionError) invocationEx[0];
       }
-      throw new DominoException(0, "Error in view lookup", invocationEx[0]);
+      throw new DominoException(TypedConstants.NOERROR, "Error in view lookup", invocationEx[0]);
     }
 
     if (result.getMaskedValue() != INotesErrorConstants.ERR_CANCEL) {

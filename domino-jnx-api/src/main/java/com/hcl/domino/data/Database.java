@@ -207,9 +207,17 @@ public interface Database extends IAdaptable, AutoCloseable, DominoClientDescend
      * Returns the number of responses
      *
      * @return response count
+     * @deprecated use {@link #getResponseCountInt()}
      */
+    @Deprecated
     short getResponseCount();
 
+    /**
+     * Returns the number of responses
+     * 
+     * @return response count
+     */
+    int getResponseCountInt();
   }
 
   /**

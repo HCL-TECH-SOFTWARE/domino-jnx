@@ -37,6 +37,7 @@ import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.ReverseStringTokenizer;
 import com.hcl.domino.commons.util.StringTokenizerExt;
 import com.hcl.domino.jna.data.JNAUserNamesList;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
@@ -46,7 +47,6 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
-import com.sun.jna.ptr.ShortByReference;
 
 /**
  * Notes name utilities to convert between various Name formats and evaluate
@@ -148,7 +148,7 @@ public class NotesNamingUtils {
 		Memory templateNameMem = templateName==null ? null : NotesStringUtils.toLMBCS(templateName, true); //used when abbrName is only a common name
 		Memory inNameMem = NotesStringUtils.toLMBCS(name, true);
 		try(DisposableMemory outNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
-  		ShortByReference outLength = new ShortByReference();
+  		WordByReference outLength = new WordByReference();
   		
   		NotesCAPI.get().DNCanonicalize(0, templateNameMem, inNameMem, outNameMem, TypedConstants.MAXUSERNAME, outLength).orElseThrow();
   		
@@ -348,7 +348,7 @@ public class NotesNamingUtils {
 		Memory templateNameMem = templateName==null || templateName.length()==0 ? null : NotesStringUtils.toLMBCS(templateName, true); //used when abbrName is only a common name
 		Memory inNameMem = NotesStringUtils.toLMBCS(name, true);
 		try(DisposableMemory outNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
-  		ShortByReference outLength = new ShortByReference();
+  		WordByReference outLength = new WordByReference();
   		
   		NotesCAPI.get().DNAbbreviate(0, templateNameMem, inNameMem, outNameMem, TypedConstants.MAXUSERNAME, outLength).orElseThrow();
   		

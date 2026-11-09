@@ -52,6 +52,7 @@ import com.hcl.domino.jna.data.JNAAcl;
 import com.hcl.domino.jna.data.JNADatabase;
 import com.hcl.domino.jna.data.JNADominoDateTime;
 import com.hcl.domino.jna.data.JNAUserNamesList;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.ItemDecoder;
 import com.hcl.domino.jna.internal.Mem;
@@ -438,7 +439,7 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
     Memory retCertNameMem = new Memory(NotesConstants.MAXUSERNAME);
     HANDLE.ByReference rethKfmCertCtx = HANDLE.newInstanceByReference();
     ShortByReference retfIsHierarchical = new ShortByReference();
-    ShortByReference retwFileVersion = new ShortByReference();
+    WordByReference retwFileVersion = new WordByReference();
 
     String regServerCanonical = NotesNamingUtils.toCanonicalName(regServer);
     Memory regServerCanonicalMem = NotesStringUtils.toLMBCS(regServerCanonical, true);
@@ -544,7 +545,7 @@ public class JNAServerAdmin extends BaseJNAAPIObject<JNAServerAdminAllocations>
     DHANDLE.ByReference hAsyncQueue = DHANDLE.newInstanceByReference();
     DHANDLE.ByReference hAsyncBuffer = DHANDLE.newInstanceByReference();
 
-    ShortByReference wSignals = new ShortByReference();
+    WordByReference wSignals = new WordByReference();
     IntByReference dwConsoleBuffID = new IntByReference();
 
     NotesCAPI.get().QueueCreate(hAsyncQueue).orElseThrow();

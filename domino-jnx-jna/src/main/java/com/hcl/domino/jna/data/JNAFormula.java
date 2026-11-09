@@ -41,6 +41,7 @@ import com.hcl.domino.exception.FormulaCompilationException;
 import com.hcl.domino.exception.IncompatibleImplementationException;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.ItemDecoder;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -52,7 +53,6 @@ import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.ShortByReference;
 
 /**
  * Utility class to execute a Domino formula on one or more {@link Document} objects.
@@ -379,7 +379,7 @@ public class JNAFormula extends BaseJNAAPIObject<JNAFormulaAllocations> implemen
 	  
 	  return LockUtil.lockHandle(allocations.getFormulaHandle(), (hFormulaByVal) -> {
 	    IntByReference retAttributes = new IntByReference();
-	    ShortByReference retSummaryNamesOffset = new ShortByReference();
+	    WordByReference retSummaryNamesOffset = new WordByReference();
 	    
 	    NotesCAPI.get().NSFFormulaAnalyze(hFormulaByVal,
 	        retAttributes,

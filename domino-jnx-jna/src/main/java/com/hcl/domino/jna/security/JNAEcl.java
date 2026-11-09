@@ -35,6 +35,7 @@ import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.data.JNADocument;
 import com.hcl.domino.jna.data.JNAUserNamesList;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -46,7 +47,6 @@ import com.hcl.domino.security.ECLCapability;
 import com.hcl.domino.security.Ecl;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.ShortByReference;
 
 /**
  * JNA implementation of {@link Ecl} to read and modify the execution control list.
@@ -103,8 +103,8 @@ public class JNAEcl extends BaseJNAAPIObject<JNAEclAllocations> implements Ecl {
 	}
 	
 	public void readCapabilities() {
-		ShortByReference retwCapabilities = new ShortByReference();
-		ShortByReference retwCapabilities2 = new ShortByReference();
+	  WordByReference retwCapabilities = new WordByReference();
+	  WordByReference retwCapabilities2 = new WordByReference();
 		IntByReference retfUserCanModifyECL = new IntByReference();
 		
 		if (m_namesList.isDisposed()) {
@@ -123,8 +123,8 @@ public class JNAEcl extends BaseJNAAPIObject<JNAEclAllocations> implements Ecl {
 			}
 		}).orElseThrow();
 		
-		int retwCapabilitiesAsInt = retwCapabilities.getValue() & 0xffff;
-		int retwCapabilities2AsInt = retwCapabilities2.getValue() & 0xffff;
+		int retwCapabilitiesAsInt = retwCapabilities.getValue();
+		int retwCapabilities2AsInt = retwCapabilities2.getValue();
 		
 		m_capabilities = toCapabilitySet(retwCapabilitiesAsInt, retwCapabilities2AsInt);
 		m_canModifyEcl = retfUserCanModifyECL.getValue()==1;
@@ -205,8 +205,8 @@ public class JNAEcl extends BaseJNAAPIObject<JNAEclAllocations> implements Ecl {
 			throw new ObjectDisposedException(doc);
 		}
 		
-		ShortByReference retwCapabilities = new ShortByReference();
-		ShortByReference retwCapabilities2 = new ShortByReference();
+		WordByReference retwCapabilities = new WordByReference();
+		WordByReference retwCapabilities2 = new WordByReference();
 
 		short wCapabilities = toBitMaskNotExtendedFlags(capabilities);
 		short wCapabilities2 = toBitMaskExtendedFlags(capabilities);
@@ -232,8 +232,8 @@ public class JNAEcl extends BaseJNAAPIObject<JNAEclAllocations> implements Ecl {
 			  .orElseThrow();
 
 			
-			int retwCapabilitiesAsInt = retwCapabilities.getValue() & 0xffff;
-			int retwCapabilities2AsInt = retwCapabilities2.getValue() & 0xffff;
+			int retwCapabilitiesAsInt = retwCapabilities.getValue();
+			int retwCapabilities2AsInt = retwCapabilities2.getValue();
 			
 			EnumSet<ECLCapability> set = toCapabilitySet(retwCapabilitiesAsInt, retwCapabilities2AsInt);
 

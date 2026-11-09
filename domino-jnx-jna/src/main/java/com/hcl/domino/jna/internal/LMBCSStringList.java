@@ -32,12 +32,12 @@ import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.JNADominoProcess;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.LMBCSStringListAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.sun.jna.Memory;
-import com.sun.jna.ptr.ShortByReference;
 
 /**
  * A textlist implementation that stores the values as LMBCS encoded strings
@@ -94,7 +94,7 @@ public class LMBCSStringList extends BaseJNAAPIObject<LMBCSStringListAllocations
 		JNADominoProcess.checkThreadEnabledForDomino();
 		
 		DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
-		ShortByReference retListSize = new ShortByReference();
+		WordByReference retListSize = new WordByReference();
 
 		NotesCAPI.get().ListAllocate(WordImpl.ZERO, 
 		    WordImpl.ZERO,
@@ -121,7 +121,7 @@ public class LMBCSStringList extends BaseJNAAPIObject<LMBCSStringListAllocations
 		LMBCSStringListAllocations allocations = getAllocations();
 		allocations.checkDisposed();
 		
-		ShortByReference retListSize = new ShortByReference();
+		WordByReference retListSize = new WordByReference();
 		
 		LockUtil.lockHandle(allocations.getListHandle(), (handleByVal) -> {
 			return NotesCAPI.get().ListRemoveAllEntries(handleByVal, m_prefixDataType ? 1 : 0, retListSize).orElseThrow();
@@ -157,8 +157,8 @@ public class LMBCSStringList extends BaseJNAAPIObject<LMBCSStringListAllocations
 			throw new IllegalArgumentException(MessageFormat.format("String list size must fit in a WORD ({0}>65535)", m_values.size()));
 		}
 		
-		ShortByReference retListSize = new ShortByReference();
-		retListSize.setValue((short) (m_listSizeBytes & 0xffff));
+		WordByReference retListSize = new WordByReference();
+		retListSize.setValue((char)m_listSizeBytes);
 
 		LockUtil.lockHandle(allocations.getListHandle(), (handleByVal) -> {
 			for (int i=0; i<newValues.size(); i++) {
