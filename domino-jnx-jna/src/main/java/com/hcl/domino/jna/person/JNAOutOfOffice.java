@@ -30,6 +30,7 @@ import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.data.JNADominoDateTime;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -42,7 +43,6 @@ import com.hcl.domino.person.Person;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.ShortByReference;
 
 public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> implements OutOfOffice {
 	
@@ -139,8 +139,8 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 	public void getState(Ref<OOOType> retType, Ref<Boolean> retIsEnabled) {
 		checkDisposed();
 
-		ShortByReference retVersion = new ShortByReference();
-		ShortByReference retState = new ShortByReference();
+		WordByReference retVersion = new WordByReference();
+		WordByReference retState = new WordByReference();
 
 		JNAOOOContextAllocations allocations = getAllocations();
 		synchronized (allocations) {
@@ -190,12 +190,12 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 		JNAOOOContextAllocations allocations = getAllocations();
 		synchronized (allocations) {
 			//first get the length
-			ShortByReference retGeneralMessageLen = new ShortByReference();
+			WordByReference retGeneralMessageLen = new WordByReference();
 			
 			NotesCAPI.get().OOOGetGeneralMessage(allocations.getOOOPointer(), null, retGeneralMessageLen)
 			  .orElseThrow();
 			
-			int iGeneralMessageLen = retGeneralMessageLen.getValue() & 0xffff;
+			int iGeneralMessageLen = retGeneralMessageLen.getValue();
 			if (iGeneralMessageLen==0) {
 				return ""; //$NON-NLS-1$
 			}
@@ -203,8 +203,7 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 			try(DisposableMemory retMessage = new DisposableMemory(iGeneralMessageLen + 1)) {
 				NotesCAPI.get().OOOGetGeneralMessage(allocations.getOOOPointer(), retMessage, retGeneralMessageLen)
 				  .orElseThrow();
-				String msg = NotesStringUtils.fromLMBCS(retMessage, retGeneralMessageLen.getValue());
-				return msg;
+				return NotesStringUtils.fromLMBCS(retMessage, retGeneralMessageLen.getValue());
 			}
 		}
 	}

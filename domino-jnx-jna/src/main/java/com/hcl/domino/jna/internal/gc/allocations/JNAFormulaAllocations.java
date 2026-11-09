@@ -27,6 +27,7 @@ import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.FormulaCompilationException;
 import com.hcl.domino.jna.data.JNAFormula;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -84,12 +85,12 @@ public class JNAFormulaAllocations extends APIObjectAllocations<JNAFormula> {
 		short computeFlags = 0;
 
 		DHANDLE.ByReference rethFormula = DHANDLE.newInstanceByReference();
-		ShortByReference retFormulaLength = new ShortByReference();
+		WordByReference retFormulaLength = new WordByReference();
 		ShortByReference retCompileError = new ShortByReference();
-		ShortByReference retCompileErrorLine = new ShortByReference();
-		ShortByReference retCompileErrorColumn = new ShortByReference();
-		ShortByReference retCompileErrorOffset = new ShortByReference();
-		ShortByReference retCompileErrorLength = new ShortByReference();
+		WordByReference retCompileErrorLine = new WordByReference();
+		WordByReference retCompileErrorColumn = new WordByReference();
+		WordByReference retCompileErrorOffset = new WordByReference();
+		WordByReference retCompileErrorLength = new WordByReference();
 		
 		STATUS result = NotesCAPI.get().NSFFormulaCompile(formulaName, word(formulaNameLength),
 				formulaText, word(formulaTextLength), rethFormula, retFormulaLength,
@@ -102,7 +103,7 @@ public class JNAFormulaAllocations extends APIObjectAllocations<JNAFormula> {
 
 			throw new FormulaCompilationException(result, errMsg, formula,
 					compileErrorReason,
-					retCompileError.getValue(),
+					(short)retCompileError.getValue(),
 					retCompileErrorLine.getValue(),
 					retCompileErrorColumn.getValue(),
 					retCompileErrorOffset.getValue(),

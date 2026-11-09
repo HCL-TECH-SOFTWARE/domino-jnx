@@ -1,10 +1,13 @@
 package com.hcl.domino.commons.data.types;
 
 import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.misc.NotesConstants;
 
 public interface TypedConstants {
+  STATUS NOERROR = StatusImpl.NOERROR;
+  
   WORD MAXWORD = word(NotesConstants.MAXWORD);
   WORD MAXPATH = word(NotesConstants.MAXPATH);
   WORD MAXUSERNAME = word(NotesConstants.MAXUSERNAME);

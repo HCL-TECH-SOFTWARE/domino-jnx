@@ -108,6 +108,7 @@ import com.hcl.domino.exception.IncompatibleImplementationException;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.JNADominoClient;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.design.JNADbDesign;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.FTSearchResultsDecoder;
@@ -1898,12 +1899,12 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		private NotesTimeDateStruct m_modified;
 		private short m_noteClass;
 		private NotesTimeDateStruct m_addedToFile;
-		private short m_responseCount;
+		private int m_responseCount;
 		private int m_parentNoteId;
 		
 		private DocInfoExtImpl(int noteId, String unid, DominoDateTime sequenceTime, int sequence,
 				boolean isDeleted, boolean notPresent,
-				NotesTimeDateStruct modified, short noteClass, NotesTimeDateStruct addedToFile, short responseCount,
+				NotesTimeDateStruct modified, short noteClass, NotesTimeDateStruct addedToFile, int responseCount,
 				int parentNoteId) {
 			
 			super(noteId, unid, sequenceTime, sequence, isDeleted, notPresent);
@@ -1946,12 +1947,17 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		@Override
 		public short getResponseCount() {
-			return m_responseCount;
+			return (short)m_responseCount;
 		}
 		
 		@Override
 		public int getParentNoteId() {
 			return m_parentNoteId;
+		}
+		
+		@Override
+		public int getResponseCountInt() {
+		  return m_responseCount;
 		}
 	}
 	
@@ -1964,9 +1970,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
       return LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) -> {
         try (DisposableMemory retNoteOID = new DisposableMemory(JNANotesConstants.oidSize)) {
           NotesTimeDateStruct retModified = NotesTimeDateStruct.newInstance();
-          ShortByReference retNoteClass = new ShortByReference();
+          WordByReference retNoteClass = new WordByReference();
           NotesTimeDateStruct retAddedToFile = NotesTimeDateStruct.newInstance();
-          ShortByReference retResponseCount = new ShortByReference();
+          WordByReference retResponseCount = new WordByReference();
           IntByReference retParentNoteID = new IntByReference();
           boolean isDeleted = false;
           // not sure if we can check this via error code:
@@ -1989,7 +1995,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
           DocInfoExt info = new DocInfoExtImpl(noteId, unid, sequenceTime, sequence,
               isDeleted, notPresent, retModified,
-              retNoteClass.getValue(), retAddedToFile, retResponseCount.getValue(),
+              (short)retNoteClass.getValue(), retAddedToFile, retResponseCount.getValue(),
               retParentNoteID.getValue());
 
           return info;
@@ -3842,8 +3848,8 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 						
 						int iNumEntries = retNumEntries.getValue();
 						
-						ShortByReference retItemType = new ShortByReference();
-						ShortByReference retItemNameLength = new ShortByReference();
+						WordByReference retItemType = new WordByReference();
+						WordByReference retItemNameLength = new WordByReference();
 						//implemented this like the sample code for NSFDbItemDefTableExt
 						//provided in the C API documentation, but it looks like the following
 						//128 byte buffer is never used, instead the NSFItemDefExtGetEntry
@@ -3866,9 +3872,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 								Pointer ptr = retItemNamePtr.getPointer(0);
 								String currItemName = NotesStringUtils.fromLMBCS(
 										ptr,
-										retItemNameLength.getValue() & 0xffff);
+										retItemNameLength.getValue());
 								
-								short itemTypeAsShort = (short) (retItemType.getValue() & 0xffff);
+								short itemTypeAsShort = (short)retItemType.getValue();
 								ItemDataType itemType = DominoEnumUtil.valueOf(ItemDataType.class, itemTypeAsShort)
 									.orElse(ItemDataType.TYPE_UNAVAILABLE);
 								table.put(currItemName, itemType);
@@ -3945,8 +3951,8 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	public AccessInfo getEffectiveAccessInfo() {
 		checkDisposed();
 		
-		ShortByReference retAccessLevel = new ShortByReference();
-		ShortByReference retAccessFlag = new ShortByReference();
+		WordByReference retAccessLevel = new WordByReference();
+		WordByReference retAccessFlag = new WordByReference();
 		LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
 			NotesCAPI.get().NSFDbAccessGet(dbHandleByVal, retAccessLevel, retAccessFlag);
 			return null;
@@ -3963,15 +3969,15 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	public NSFVersionInfo getNSFVersionInfo() {
 		checkDisposed();
 		
-		ShortByReference retMajorVersion = new ShortByReference();
-		ShortByReference retMinorVersion = new ShortByReference();
+		WordByReference retMajorVersion = new WordByReference();
+		WordByReference retMinorVersion = new WordByReference();
 		
 		LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) ->
 			NotesCAPI.get().NSFDbMajorMinorVersionGet(dbHandleByVal, retMajorVersion, retMinorVersion)
 		).orElseThrow();
 		
-		return new NSFVersionInfoImpl((int) (retMajorVersion.getValue() & 0xffff),
-				(int) (retMinorVersion.getValue() & 0xffff));
+		return new NSFVersionInfoImpl((int) retMajorVersion.getValue(),
+				(int) retMinorVersion.getValue());
 	}
 	
     @Override
@@ -3984,7 +3990,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
               (dbHandleByVal) -> NotesCAPI.get().NSFDbGetMajMinVersion(dbHandleByVal, retVersion))
           .orElseThrow();
 
-      ShortByReference retBuildNumber = new ShortByReference();
+      WordByReference retBuildNumber = new WordByReference();
 
       LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
         NotesCAPI.get().NSFDbGetBuildVersion(hDbByVal, retBuildNumber)
@@ -3995,7 +4001,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
       return new BuildVersionInfoImpl(retVersion.MajorVersion,
           retVersion.MinorVersion, retVersion.QMRNumber, retVersion.QMUNumber,
           retVersion.HotfixNumber, retVersion.Flags, retVersion.FixpackNumber,
-          retBuildNumber.getValue() & 0xffff);
+          retBuildNumber.getValue());
     }
 	
 	@Override

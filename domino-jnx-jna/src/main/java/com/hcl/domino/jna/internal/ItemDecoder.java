@@ -30,6 +30,7 @@ import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.jna.data.JNADominoDateTime;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.structs.NotesNumberPairStruct;
 import com.hcl.domino.jna.internal.structs.NotesRangeStruct;
@@ -39,7 +40,6 @@ import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.richtext.records.RecordType;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
-import com.sun.jna.ptr.ShortByReference;
 
 public class ItemDecoder {
 
@@ -73,14 +73,14 @@ public class ItemDecoder {
 		List<Object> listValues = new ArrayList<>(listCountAsInt);
 		
 		try(DisposableMemory retTextPointer = new DisposableMemory(Native.POINTER_SIZE)) {
-    		ShortByReference retTextLength = new ShortByReference();
+		  WordByReference retTextLength = new WordByReference();
     		
     		for (int i=0; i<listCountAsInt; i++) {
     			NotesCAPI.get().ListGetText(ptr, false, word(i), retTextPointer, retTextLength).orElseThrow();
     			
     			//retTextPointer[0] points to the list entry text
     			Pointer pointerToTextInMem = retTextPointer.getPointer(0);
-    			int retTextLengthAsInt = retTextLength.getValue() & 0xffff;
+    			int retTextLengthAsInt = retTextLength.getValue();
     			
     			if (retTextLengthAsInt==0) {
     				listValues.add(""); //$NON-NLS-1$

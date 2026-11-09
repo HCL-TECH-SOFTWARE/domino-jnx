@@ -30,6 +30,7 @@ import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.jna.BaseJNAAPIObject;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.ItemDecoder;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNAUserDirectoryQueryIteratorAllocations;
@@ -37,7 +38,6 @@ import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.richtext.records.RecordType;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.LongByReference;
-import com.sun.jna.ptr.ShortByReference;
 
 public class JNAUserDirectoryQueryIterator extends BaseJNAAPIObject<JNAUserDirectoryQueryIteratorAllocations> implements Iterator<List<Map<String, List<Object>>>> {
 	
@@ -97,16 +97,16 @@ public class JNAUserDirectoryQueryIterator extends BaseJNAAPIObject<JNAUserDirec
 			Map<String, List<Object>> values = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 			for(int itemIndex = 0; itemIndex < items.size(); itemIndex++) {
 				String key = items.get(itemIndex);
-				ShortByReference retDataType = new ShortByReference();
-				ShortByReference retSize = new ShortByReference();
+				WordByReference retDataType = new WordByReference();
+				WordByReference retSize = new WordByReference();
 				Pointer data = NotesCAPI.get().NAMELocateItem2(pMatch, word(itemIndex), retDataType, retSize);
 				if(data == null) {
 					values.put(key, null);
 				} else {
 					// Read the data based on its type
 					Pointer dataPtr = data.share(2); // Skip the data type word
-					int dataLen = Short.toUnsignedInt(retSize.getValue())-2;
-					Object val = ItemDecoder.readItemValue(dataPtr, retDataType.getValue(), dataLen, RecordType.Area.TYPE_COMPOSITE);
+					int dataLen = retSize.getValue()-2;
+					Object val = ItemDecoder.readItemValue(dataPtr, (short)retDataType.getValue(), dataLen, RecordType.Area.TYPE_COMPOSITE);
 					if(val instanceof Collection) {
 						values.put(key, new ArrayList<>((Collection<?>)val));
 					} else {

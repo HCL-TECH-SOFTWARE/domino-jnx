@@ -45,12 +45,14 @@ import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.types.STATUS;
+import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.exception.IncompatibleImplementationException;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.data.JNADatabase;
 import com.hcl.domino.jna.data.JNADocument;
 import com.hcl.domino.jna.data.JNADominoDateTime;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.JNANotesConstants;
 import com.hcl.domino.jna.internal.Mem;
@@ -69,7 +71,6 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.ShortByReference;
 
 /**
  * Class to access calendaring and scheduling information of Domino
@@ -291,8 +292,8 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 			do {
 				DHANDLE.ByReference hRetCalData = retICal==null ? null : DHANDLE.newInstanceByReference();
 				DHANDLE.ByReference hRetUIDData = retUIDs==null ? null : DHANDLE.newInstanceByReference();
-				ShortByReference retCalBufferLength = new ShortByReference();
-				ShortByReference retSignalFlags = new ShortByReference();
+				WordByReference retCalBufferLength = new WordByReference();
+				WordByReference retSignalFlags = new WordByReference();
 				IntByReference retNumEntriesProcessed = new IntByReference();
 				
 				STATUS result = LockUtil.lockHandle(dbAllocations.getDBHandle(),
@@ -313,7 +314,7 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 				
 				if (hRetCalData!=null && retICal!=null && sbIcalAllData!=null) {
 					//decode iCalendar
-					int iCalBufLength = retCalBufferLength.getValue() & 0xffff;
+					int iCalBufLength = retCalBufferLength.getValue();
 					if (iCalBufLength>0) {
 						try (LockedMemory m = Mem.OSMemoryLock(hRetCalData, true)) {
 							Pointer retUIDPtr=m.getPointer();
@@ -332,23 +333,23 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 						Pointer pUIDData=m.getPointer();
 						
 						if (pUIDData!=null) {
-							ShortByReference retTextLength = new ShortByReference();
+							WordByReference retTextLength = new WordByReference();
 							Memory retTextPointer = new Memory(Native.POINTER_SIZE);
 							
 							int numEntriesAsInt = Short.toUnsignedInt(NotesCAPI.get().ListGetNumEntries(pUIDData, 0));
 							for (int i=0; i<numEntriesAsInt; i++) {
 								NotesCAPI.get().ListGetText(pUIDData, false, word(i), retTextPointer, retTextLength).orElseThrow();
 								
-								String currUID = NotesStringUtils.fromLMBCS(retTextPointer.getPointer(0), retTextLength.getValue() & 0xffff);
+								String currUID = NotesStringUtils.fromLMBCS(retTextPointer.getPointer(0), retTextLength.getValue());
 								uidAllData.add(currUID);
 							}
 						}
 					}
 				}
 				
-				short signalFlags = retSignalFlags.getValue();
-				hasMoreToDo = (signalFlags & NotesConstants.SIGNAL_MORE_TO_DO) == NotesConstants.SIGNAL_MORE_TO_DO;
-				hasConflict = (signalFlags & NotesConstants.SIGNAL_ANY_CONFLICT) == NotesConstants.SIGNAL_ANY_CONFLICT;
+				WORD signalFlags = retSignalFlags.getWord();
+				hasMoreToDo = signalFlags.hasFlag(NotesConstants.SIGNAL_MORE_TO_DO);
+				hasConflict = signalFlags.hasFlag(NotesConstants.SIGNAL_ANY_CONFLICT);
 			
 			}
 			while (hasMoreToDo && remainingToRead.get()>0);
@@ -392,7 +393,7 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 
 		Memory uidMem = NotesStringUtils.toLMBCS(uid, true);
 		
-		ShortByReference retNumNotices = new ShortByReference();
+		WordByReference retNumNotices = new WordByReference();
 		
 		DHANDLE.ByReference phRetNOTEIDs = retNoteIds==null ? null : DHANDLE.newInstanceByReference();
 		DHANDLE.ByReference phRetUNIDs = retUNIDs==null ? null : DHANDLE.newInstanceByReference();
@@ -403,7 +404,7 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 				retNumNotices, phRetNOTEIDs, phRetUNIDs, null, 0, null)
 		).orElseThrow();
 		
-		int numNotices = retNumNotices.getValue() & 0xffff;
+		int numNotices = retNumNotices.getValue();
 		if (numNotices>0) {
 			if (retNoteIds!=null) {
 				try (LockedMemory m = Mem.OSMemoryLock(phRetNOTEIDs, true)) {
@@ -449,7 +450,7 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 		
 		NotesTimeDateStruct retTdUntilStruct = (retUntil==null || retUntil.get()==null) ? null : NotesTimeDateStruct.newInstance();
 		
-		ShortByReference retNumInvites = new ShortByReference();
+		WordByReference retNumInvites = new WordByReference();
 		
 		DHANDLE.ByReference phRetNOTEIDs = retNoteIds==null ? null : DHANDLE.newInstanceByReference();
 		DHANDLE.ByReference phRetUNIDs = retUNIDs==null ? null : DHANDLE.newInstanceByReference();
@@ -466,7 +467,7 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 			retUntil.set(new JNADominoDateTime(retTdUntilStruct.Innards));
 		}
 		
-		int numInvites = retNumInvites.getValue() & 0xffff;
+		int numInvites = retNumInvites.getValue();
 		if (numInvites>0) {
 			if (retNoteIds!=null) {
 				try (LockedMemory m = Mem.OSMemoryLock(phRetNOTEIDs, true)) {

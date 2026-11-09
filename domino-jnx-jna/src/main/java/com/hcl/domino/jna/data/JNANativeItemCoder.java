@@ -28,6 +28,7 @@ import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.data.types.WordImpl;
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.data.NativeItemCoder;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.ItemDecoder;
 import com.hcl.domino.jna.internal.Mem;
@@ -40,7 +41,6 @@ import com.hcl.domino.richtext.records.RecordType;
 import com.hcl.domino.richtext.records.RichTextRecord;
 import com.hcl.domino.richtext.records.RecordType.Area;
 import com.sun.jna.Memory;
-import com.sun.jna.ptr.ShortByReference;
 
 /**
  * @author Jesse Gallagher
@@ -79,7 +79,7 @@ public class JNANativeItemCoder implements NativeItemCoder {
       }
 
       DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
-      ShortByReference retListSize = new ShortByReference();
+      WordByReference retListSize = new WordByReference();
 
       NotesCAPI.get().ListAllocate(WordImpl.ZERO,
           WordImpl.ZERO,
@@ -102,7 +102,7 @@ public class JNANativeItemCoder implements NativeItemCoder {
         }
 
 
-        int size = Short.toUnsignedInt(retListSize.getValue());
+        int size = retListSize.getValue();
         try {
           return Mem.OSLockObject(handleByVal, ptr -> {
             return ptr.getByteArray(0, size);

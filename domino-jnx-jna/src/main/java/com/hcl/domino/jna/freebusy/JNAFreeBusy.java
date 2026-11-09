@@ -37,6 +37,7 @@ import com.hcl.domino.freebusy.ScheduleOptions;
 import com.hcl.domino.freebusy.Schedules;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.data.JNADominoDateTime;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -51,7 +52,6 @@ import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
 import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
-import com.sun.jna.ptr.ShortByReference;
 
 /**
  * Class to access the free-busy information collected by the Domino server
@@ -103,7 +103,7 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
         }
 				
 		DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
-		ShortByReference retListSize = new ShortByReference();
+		WordByReference retListSize = new WordByReference();
 
 		NotesCAPI.get().ListAllocate(WordImpl.ZERO, 
 		    WordImpl.ZERO,
@@ -184,7 +184,7 @@ public class JNAFreeBusy extends BaseJNAAPIObject<JNAFreeBusyAllocations> implem
 		int optionsAsInt = ScheduleOptions.toBitMaskInt(options) | SCHRQST_EXTFORMAT;
 
 		DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
-		ShortByReference retListSize = new ShortByReference();
+		WordByReference retListSize = new WordByReference();
 
 		NotesCAPI.get().ListAllocate(WordImpl.ZERO, 
 		    WordImpl.ZERO,

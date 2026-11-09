@@ -117,6 +117,7 @@ import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.data.JNADatabaseObjectProducer.ObjectInfo;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.AgentRunInfoDecoder;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.ItemDecoder;
@@ -601,13 +602,13 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
         boolean isSelectionFormula = DesignConstants.VIEW_FORMULA_ITEM.equalsIgnoreCase(itemName)
             && getDocumentClass().contains(DocumentClass.VIEW);
         DHANDLE.ByReference rethFormulaText = DHANDLE.newInstanceByReference();
-        ShortByReference retFormulaTextLength = new ShortByReference();
+        WordByReference retFormulaTextLength = new WordByReference();
         NotesCAPI.get().NSFFormulaDecompile(valueDataPtr, isSelectionFormula,
             rethFormulaText, retFormulaTextLength).orElseThrow();
         return LockUtil.lockHandle(rethFormulaText, (hFormulaTextByVal) -> {
           Pointer formulaPtr = Mem.OSLockObject(hFormulaTextByVal);
           try {
-            int textLen = retFormulaTextLength.getValue() & 0xffff;
+            int textLen = retFormulaTextLength.getValue();
             String formula = NotesStringUtils.fromLMBCS(formulaPtr, textLen);
             return Arrays.asList((Object) formula);
           } finally {
@@ -897,7 +898,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     int sizeOfBlockId = MemoryStructureUtil.sizeOf(BlockID.class);
     try (DisposableMemory itemBlockIdMem = new DisposableMemory(sizeOfBlockId);
         DisposableMemory valueBlockIdMem = new DisposableMemory(sizeOfBlockId);) {
-      ShortByReference retDataType = new ShortByReference();
+      WordByReference retDataType = new WordByReference();
       IntByReference retValueLen = new IntByReference();
 
       JNADocumentAllocations allocations = getAllocations();
@@ -1643,7 +1644,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
       if (!useLarge) {
         DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
-        ShortByReference retListSize = new ShortByReference();
+        WordByReference retListSize = new WordByReference();
         Memory retpList = new Memory(Native.POINTER_SIZE);
 
         NotesCAPI.get().ListAllocate(WordImpl.ZERO,
@@ -3047,9 +3048,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     try (
         DisposableMemory item_name = new DisposableMemory(NotesConstants.MAXUSERNAME);
         DisposableMemory retValueBidMem = new DisposableMemory(sizeOfBlockId);) {
-      ShortByReference retName_len = new ShortByReference();
-      ShortByReference retItem_flags = new ShortByReference();
-      ShortByReference retDataType = new ShortByReference();
+      WordByReference retName_len = new WordByReference();
+      WordByReference retItem_flags = new WordByReference();
+      WordByReference retDataType = new WordByReference();
       IntByReference retValueLen = new IntByReference();
 
       LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
@@ -3068,7 +3069,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
         if ((retItem_flags.getValue()
             & NotesConstants.ITEM_READERS) == NotesConstants.ITEM_READERS) {
           JNAItem firstItem =
-              new JNAItem(this, itemBlockIdForItemCreation, retDataType.getValue() & 0xffff,
+              new JNAItem(this, itemBlockIdForItemCreation, retDataType.getValue(),
                   retValueBid);
           readerFields.add(firstItem);
         }
@@ -3101,7 +3102,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
           BlockID valueBlockIdClone =
               MemoryStructureUtil.forStructure(BlockID.class, retValueBid.getData());
 
-          short dataType = retDataType.getValue();
+          short dataType = (short)retDataType.getValue();
 
           JNAItem newItem = new JNAItem(this, retItemBlockId, dataType, valueBlockIdClone);
           if (newItem.isReaders()) {
@@ -3704,17 +3705,17 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       }
 
       PointerByReference ppName = new PointerByReference();
-      ShortByReference pNameLen = new ShortByReference();
+      WordByReference pNameLen = new WordByReference();
       PointerByReference ppAlias = new PointerByReference();
-      ShortByReference pAliasLen = new ShortByReference();
+      WordByReference pAliasLen = new WordByReference();
 
       NotesCAPI.get().DesignGetNameAndAlias(subformnameMem,
           ppName, pNameLen, ppAlias, pAliasLen);
 
       Pointer subformaliasMem;
-      short subformaliasLen;
+      int subformaliasLen;
 
-      if (Short.toUnsignedInt(pAliasLen.getValue()) > 0) {
+      if (pAliasLen.getValue() > 0) {
         subformaliasMem = ppAlias.getValue();
         subformaliasLen = pAliasLen.getValue();
       } else {
@@ -3722,7 +3723,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
         subformaliasLen = pNameLen.getValue();
       }
       String subformalias =
-          NotesStringUtils.fromLMBCS(subformaliasMem, Short.toUnsignedInt(subformaliasLen));
+          NotesStringUtils.fromLMBCS(subformaliasMem, subformaliasLen);
 
       Memory designPatternMem =
           NotesStringUtils.toLMBCS(NotesConstants.DFLAGPAT_SUBFORM_ALL_VERSIONS, true);
@@ -3935,9 +3936,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
         if (!JNXStringUtil.isEmpty(formnameStr)) {
           Memory formnameStrMem = NotesStringUtils.toLMBCS(formnameStr, true);
           PointerByReference pName = new PointerByReference();
-          ShortByReference wNameLen = new ShortByReference();
+          WordByReference wNameLen = new WordByReference();
           PointerByReference pAlias = new PointerByReference();
-          ShortByReference wAliasLen = new ShortByReference();
+          WordByReference wAliasLen = new WordByReference();
 
           NotesCAPI.get().DesignGetNameAndAlias(formnameStrMem, pName, wNameLen, pAlias, wAliasLen);
 

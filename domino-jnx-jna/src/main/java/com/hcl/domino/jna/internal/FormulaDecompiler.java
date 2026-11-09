@@ -18,12 +18,11 @@ package com.hcl.domino.jna.internal;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.sun.jna.Pointer;
-import com.sun.jna.ptr.ShortByReference;
 
 public class FormulaDecompiler {
 
@@ -70,7 +69,7 @@ public class FormulaDecompiler {
 	 */
 	public static String decompileFormula(Pointer ptr, boolean isSelectionFormula) {
 		DHANDLE.ByReference rethFormulaText = DHANDLE.newInstanceByReference();
-		ShortByReference retFormulaTextLength = new ShortByReference();
+		WordByReference retFormulaTextLength = new WordByReference();
 		NotesCAPI.get().NSFFormulaDecompile(ptr, isSelectionFormula, rethFormulaText, retFormulaTextLength)
 		  .orElseThrow();
 
@@ -95,10 +94,10 @@ public class FormulaDecompiler {
 	 * @return size
 	 */
   public static int getSize(Pointer ptr) {
-    ShortByReference retFormulaLength = new ShortByReference();
+    WordByReference retFormulaLength = new WordByReference();
     NotesCAPI.get().NSFFormulaGetSizeP(ptr, retFormulaLength).orElseThrow();
     
-    return (int) (retFormulaLength.getValue() & 0xffff);
+    return retFormulaLength.getValue();
   }
 	
 	/**

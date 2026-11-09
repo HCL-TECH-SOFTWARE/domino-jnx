@@ -35,6 +35,7 @@ import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.IncompatibleImplementationException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.data.JNADatabase;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -44,7 +45,6 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
-import com.sun.jna.ptr.ShortByReference;
 
 public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implements IDefaultIdVault {
 
@@ -443,7 +443,7 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 	 */
 	private static String getIDInfoAsString(Memory idPathMem, short infoType, int initialBufferSize) {
 		Memory retMem = new Memory(initialBufferSize);
-		ShortByReference retActualLen = new ShortByReference();
+		WordByReference retActualLen = new WordByReference();
 		
 		STATUS result = NotesCAPI.get().REGGetIDInfo(idPathMem, word(infoType), retMem, word(retMem.size()), retActualLen);
 		if (result.getMaskedValue() == INotesErrorConstants.ERR_VALUE_LENGTH) {
@@ -453,7 +453,6 @@ public class JNAIdVault extends BaseJNAAPIObject<JNAIdVaultAllocations> implemen
 		}
 		
 		result.orElseThrow();
-		String data = NotesStringUtils.fromLMBCS(retMem, (retActualLen.getValue() & 0xffff)-1);
-		return data;
+		return NotesStringUtils.fromLMBCS(retMem, retActualLen.getValue() -1);
 	}
 }

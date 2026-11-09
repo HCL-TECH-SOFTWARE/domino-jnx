@@ -21,6 +21,7 @@ import java.util.List;
 import com.hcl.domino.commons.views.NotesCollectionStats;
 import com.hcl.domino.commons.views.ReadMask;
 import com.hcl.domino.data.DominoDateTime;
+import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.jna.data.JNACollectionEntry;
 import com.hcl.domino.jna.data.JNADominoCollection;
 import com.hcl.domino.misc.NotesConstants;
@@ -35,7 +36,7 @@ public class NotesViewLookupResultData {
 	private List<JNACollectionEntry> m_entries;
 	private int m_numEntriesReturned;
 	private int m_numEntriesSkipped;
-	private short m_signalFlags;
+	private WORD m_signalFlags;
 	private String m_pos;
 	private int m_indexModifiedSequenceNo;
 	private DominoDateTime m_retDiffTime;
@@ -52,7 +53,7 @@ public class NotesViewLookupResultData {
 	 * @param indexModifiedSequenceNo index modified sequence number
 	 * @param retDiffTime only set in {@link JNADominoCollection#readEntriesExt(com.hcl.domino.jna.data.JNADominoCollectionPosition, com.hcl.domino.data.Navigate, boolean, int, com.hcl.domino.data.Navigate, int, java.util.Set, DominoDateTime, com.hcl.domino.jna.data.JNAIDTable, Integer)}
 	 */
-	public NotesViewLookupResultData(NotesCollectionStats stats, List<JNACollectionEntry> entries, int numEntriesSkipped, int numEntriesReturned, short signalFlags, String pos, int indexModifiedSequenceNo, DominoDateTime retDiffTime) {
+	public NotesViewLookupResultData(NotesCollectionStats stats, List<JNACollectionEntry> entries, int numEntriesSkipped, int numEntriesReturned, WORD signalFlags, String pos, int indexModifiedSequenceNo, DominoDateTime retDiffTime) {
 		m_stats = stats;
 		m_entries = entries;
 		m_numEntriesSkipped = numEntriesSkipped;
@@ -142,7 +143,7 @@ public class NotesViewLookupResultData {
 	 * @return true if more to do
 	 */
 	public boolean hasMoreToDo() {
-		return (m_signalFlags & NotesConstants.SIGNAL_MORE_TO_DO) == NotesConstants.SIGNAL_MORE_TO_DO;
+		return m_signalFlags.hasFlag(NotesConstants.SIGNAL_MORE_TO_DO);
 	}
 	
 	/**
@@ -151,7 +152,7 @@ public class NotesViewLookupResultData {
 	 * @return true if database was modified
 	 */
 	public boolean isDatabaseModified() {
-		return (m_signalFlags & NotesConstants.SIGNAL_DATABASE_MODIFIED) == NotesConstants.SIGNAL_DATABASE_MODIFIED;
+		return m_signalFlags.hasFlag(NotesConstants.SIGNAL_DATABASE_MODIFIED);
 	}
 	
 	/**
@@ -165,7 +166,7 @@ public class NotesViewLookupResultData {
 	 * @return true if modified
 	 */
 	public boolean isViewDefiningItemModified() {
-		return (m_signalFlags & NotesConstants.SIGNAL_DEFN_ITEM_MODIFIED) == NotesConstants.SIGNAL_DEFN_ITEM_MODIFIED;
+		return m_signalFlags.hasFlag(NotesConstants.SIGNAL_DEFN_ITEM_MODIFIED);
 	}
 
 	/**
@@ -179,7 +180,7 @@ public class NotesViewLookupResultData {
 	 * @return true if modified
 	 */
 	public boolean isViewOtherItemModified() {
-		return (m_signalFlags & NotesConstants.SIGNAL_VIEW_ITEM_MODIFIED) == NotesConstants.SIGNAL_VIEW_ITEM_MODIFIED;
+		return m_signalFlags.hasFlag(NotesConstants.SIGNAL_VIEW_ITEM_MODIFIED);
 	}
 	
 	/**
@@ -190,7 +191,7 @@ public class NotesViewLookupResultData {
 	 * @return true if modified
 	 */
 	public boolean isViewIndexModified() {
-		return (m_signalFlags & NotesConstants.SIGNAL_INDEX_MODIFIED) == NotesConstants.SIGNAL_INDEX_MODIFIED;
+		return m_signalFlags.hasFlag(NotesConstants.SIGNAL_INDEX_MODIFIED);
 	}
 
 	/**
@@ -200,7 +201,7 @@ public class NotesViewLookupResultData {
 	 * @return true if time relative
 	 */
 	public boolean isViewTimeRelative() {
-		return (m_signalFlags & NotesConstants.SIGNAL_VIEW_TIME_RELATIVE) == NotesConstants.SIGNAL_VIEW_TIME_RELATIVE;
+		return m_signalFlags.hasFlag(NotesConstants.SIGNAL_VIEW_TIME_RELATIVE);
 	}
 	
 	/**
@@ -209,7 +210,7 @@ public class NotesViewLookupResultData {
 	 * @return true if reader fields
 	 */
 	public boolean hasDocsWithReaderFields() {
-		return (m_signalFlags & NotesConstants.SIGNAL_VIEW_HASPRIVS) == NotesConstants.SIGNAL_VIEW_HASPRIVS;
+		return m_signalFlags.hasFlag(NotesConstants.SIGNAL_VIEW_HASPRIVS);
 	}
 	
 	/**	
@@ -222,6 +223,6 @@ public class NotesViewLookupResultData {
 	 *  @return true if we have conflicts
 	 */
 	public boolean hasAnyNonDataConflicts() {
-		return (m_signalFlags & NotesConstants.SIGNAL_ANY_NONDATA_CONFLICT) != 0;
+		return (m_signalFlags.getValue() & NotesConstants.SIGNAL_ANY_NONDATA_CONFLICT) != 0;
 	}
 }

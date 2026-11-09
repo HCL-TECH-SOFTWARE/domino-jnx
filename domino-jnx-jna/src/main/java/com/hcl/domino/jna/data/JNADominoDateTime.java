@@ -41,6 +41,7 @@ import com.hcl.domino.commons.data.ZoneFormat;
 import com.hcl.domino.commons.util.InnardsConverter;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.types.STATUS;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.JNANotesConstants;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -53,7 +54,6 @@ import com.hcl.domino.jna.internal.structs.NotesTimeStruct;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
-import com.sun.jna.ptr.ShortByReference;
 
 /**
  * Wrapper class for the TIMEDATE C API data structure.
@@ -314,7 +314,7 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
 		DisposableMemory retTextBuffer = new DisposableMemory(outBufLength);
 		try {
   		while (true) {
-  			ShortByReference retTextLength = new ShortByReference();
+  			WordByReference retTextLength = new WordByReference();
   			STATUS result = NotesCAPI.get().ConvertTIMEDATEToText(intlStruct, tfmtStruct.getPointer(), struct, retTextBuffer, word(retTextBuffer.size()), retTextLength);
   			if (result.getValue()==1037) { // "Invalid Time or Date Encountered", return empty string like Notes UI does
   				return ""; //$NON-NLS-1$

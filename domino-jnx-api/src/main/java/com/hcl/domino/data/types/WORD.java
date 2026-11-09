@@ -24,7 +24,15 @@ package com.hcl.domino.data.types;
  */
 public interface WORD {
   /**
-   * Retrieves the internal {@code char} value for this STATUS.
+   * Variant of {@code WORD} that can be used for out parameters
+   * and other pointer-based operations.
+   */
+  interface ByReference extends WORD {
+    
+  }
+  
+  /**
+   * Retrieves the internal {@code char} value for this WORD.
    * 
    * @return a {@code char} representing the value
    */
@@ -32,5 +40,27 @@ public interface WORD {
   
   default boolean isZero() {
     return getValue() == 0;
+  }
+  
+  /**
+   * Treating this WORD as a bit field, checks whether the provided
+   * flag value matches.
+   * 
+   * @param flag the bitfield flag to check
+   * @return {@code true} if the value contains the flag
+   */
+  default boolean hasFlag(int flag) {
+    return ((int)getValue() & flag) == flag;
+  }
+
+  /**
+   * Treating this WORD as a bit field, checks whether the provided
+   * flag value matches.
+   * 
+   * @param flag the bitfield flag to check
+   * @return {@code true} if the value contains the flag
+   */
+  default boolean hasFlag(short flag) {
+    return hasFlag(flag);
   }
 }

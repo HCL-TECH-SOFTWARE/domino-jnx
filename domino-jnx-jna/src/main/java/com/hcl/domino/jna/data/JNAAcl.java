@@ -33,6 +33,7 @@ import java.util.Optional;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.UserNamesList;
+import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.data.types.TypedConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -41,6 +42,7 @@ import com.hcl.domino.commons.util.ListUtil;
 import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
@@ -64,7 +66,6 @@ import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.ShortByReference;
 
 /**
  * Container to access the ACL of a database
@@ -213,7 +214,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		}
 		
 		if (freeIndex==-1) {
-			throw new DominoException(0, "No more space available to add role");
+			throw new DominoException(StatusImpl.NOERROR, "No more space available to add role");
 		}
 		
 		JNAAclAllocations allocations=getAllocations();
@@ -354,10 +355,10 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		}
 		
 		if (roleIndex==-1) {
-			throw new DominoException(0, format("Role not found in ACL: {0}", oldName));
+			throw new DominoException(TypedConstants.NOERROR, format("Role not found in ACL: {0}", oldName));
 		}
 		if (newRoleIndex!=-1) {
-			throw new DominoException(0, format("Role already exists in ACL: {0}", newName));
+			throw new DominoException(TypedConstants.NOERROR, format("Role already exists in ACL: {0}", newName));
 		}
 		
 		DHANDLE hAcl=getAllocations().getAclHandle();
@@ -822,9 +823,9 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		DHANDLE hAcl=getAllocations().getAclHandle();
 		hAcl.checkDisposed();
 		
-		ShortByReference retAccessLevel = new ShortByReference();
+		WordByReference retAccessLevel = new WordByReference();
 		final Memory retPrivileges = new Memory(10);
-		final ShortByReference retAccessFlags = new ShortByReference();
+		final WordByReference retAccessFlags = new WordByReference();
 		final DHANDLE.ByReference rethPrivNames = DHANDLE.newInstanceByReference();
 
         LockUtil.lockHandles(hAcl, hNamesList, (hAclByValue, hNamesListByValue) ->
@@ -843,16 +844,16 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 				Pointer pPrivNames = Mem.OSLockObject(hPrivNamesByValue);
 				
 				try {
-					ShortByReference retTextLength = new ShortByReference();
+				  WordByReference retTextLength = new WordByReference();
 					Memory retTextPointer = new Memory(Native.POINTER_SIZE);
 					
 					int numEntriesAsInt = Short.toUnsignedInt(NotesCAPI.get().ListGetNumEntries(pPrivNames, 0));
 					
-					ArrayList<String> allRoles = new ArrayList<>(numEntriesAsInt);
+					List<String> allRoles = new ArrayList<>(numEntriesAsInt);
 					for (int i=0; i<numEntriesAsInt; i++) {
 						NotesCAPI.get().ListGetText(pPrivNames, false, word(i), retTextPointer, retTextLength).orElseThrow();
 						
-						String currRole = NotesStringUtils.fromLMBCS(retTextPointer.getPointer(0), retTextLength.getValue() & 0xffff);
+						String currRole = NotesStringUtils.fromLMBCS(retTextPointer.getPointer(0), retTextLength.getValue());
 						allRoles.add(currRole);
 					}
 					return allRoles;

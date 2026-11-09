@@ -23,6 +23,7 @@ import java.util.Set;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.jna.JNADominoClient;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -65,8 +66,8 @@ public class JNAUserDirectory implements UserDirectory {
 	  }
 	  
     final INotesCAPI capi = NotesCAPI.get();
-    final ShortByReference wEntryLen = new ShortByReference();
-    final ShortByReference wCount = new ShortByReference();
+    final WordByReference wEntryLen = new WordByReference();
+    final WordByReference wCount = new WordByReference();
     final DHANDLE.ByReference hReturn = DHANDLE.newInstanceByReference();
     
     try {
@@ -82,8 +83,8 @@ public class JNAUserDirectory implements UserDirectory {
                   null, chPrimaryNamePtr).orElseThrow();
 
               final WORD wNameLen = capi.Cstrlen(chPrimaryNamePtr);
-              final ShortByReference wTypePos = new ShortByReference();
-              wTypePos.setValue((short)wNameLen.getValue());
+              final WordByReference wTypePos = new WordByReference();
+              wTypePos.setValue(wNameLen.getValue());
 
               capi.OSPathFileType(chPrimaryNamePtr, wTypePos).orElseThrow();
 
@@ -127,8 +128,8 @@ public class JNAUserDirectory implements UserDirectory {
 	@Override
 	public Set<String> getDirectoryPaths() {
 		Memory server = NotesStringUtils.toLMBCS(serverName, true);
-		ShortByReference returnCount = new ShortByReference();
-		ShortByReference returnLength = new ShortByReference();
+		WordByReference returnCount = new WordByReference();
+		WordByReference returnLength = new WordByReference();
 		
 		DHANDLE.ByReference hReturn = DHANDLE.newInstanceByReference();
 		NotesCAPI.get().NAMEGetAddressBooks(

@@ -46,6 +46,7 @@ import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
 import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.jna.BaseJNAAPIObject;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.callbacks.NotesCallbacks;
@@ -56,7 +57,6 @@ import com.hcl.domino.mq.MessageQueue;
 import com.hcl.domino.mq.MessageQueue.IMQCallback.Action;
 import com.hcl.domino.mq.MessageQueues;
 import com.sun.jna.Memory;
-import com.sun.jna.ptr.ShortByReference;
 
 /**
  * Implementation of the Domino message-queue as a {@link BlockingQueue}.
@@ -189,7 +189,7 @@ public class JNAMessageQueue extends BaseJNAAPIObject<JNAMessageQueueAllocations
       return 0;
     };
 
-    final ShortByReference retMsgLength = new ShortByReference();
+    final WordByReference retMsgLength = new WordByReference();
     STATUS result;
     try {
       // AccessController call required to prevent SecurityException when running in XPages
@@ -290,7 +290,7 @@ public class JNAMessageQueue extends BaseJNAAPIObject<JNAMessageQueueAllocations
           NotesConstants.MQ_MAX_MSGSIZE, length));
     }
 
-    ShortByReference retMsgLength = new ShortByReference();
+    WordByReference retMsgLength = new WordByReference();
 
     NotesCAPI.get().MQGet(getAllocations().getMessageQueueHandle(), buffer,
         word(length),
@@ -305,7 +305,7 @@ public class JNAMessageQueue extends BaseJNAAPIObject<JNAMessageQueueAllocations
     checkDisposed();
 
     try (DisposableMemory buffer = new DisposableMemory(NotesConstants.MQ_MAX_MSGSIZE)) {
-      ShortByReference retMsgLength = new ShortByReference();
+      WordByReference retMsgLength = new WordByReference();
 
       long millis = unit.toMillis(timeout);
       if (millis > Integer.MAX_VALUE) {
@@ -326,7 +326,7 @@ public class JNAMessageQueue extends BaseJNAAPIObject<JNAMessageQueueAllocations
       result.orElseThrow();
 
       return Optional
-          .of(NotesStringUtils.fromLMBCS(buffer, Short.toUnsignedInt(retMsgLength.getValue())));
+          .of(NotesStringUtils.fromLMBCS(buffer, retMsgLength.getValue()));
     }
   }
 

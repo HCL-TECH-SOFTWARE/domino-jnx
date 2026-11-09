@@ -33,6 +33,7 @@ import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.jna.data.JNADatabase;
 import com.hcl.domino.jna.data.JNADocument;
 import com.hcl.domino.jna.data.JNAItem;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.JNANotesConstants;
 import com.hcl.domino.jna.internal.LMBCSStringList;
@@ -44,7 +45,6 @@ import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.structs.NotesAdminpRequestProfileStruct;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
-import com.sun.jna.ptr.ShortByReference;
 
 /**
  * Helper class for AdministrationProcess request creation
@@ -127,7 +127,7 @@ public class AdminpRequestProfileEntries {
 			if (currJNAItem.getType() == ItemDataType.TYPE_TEXT_LIST) {
 				//for lists, we create our own private copy that are not disposed with the together document
 				DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
-				ShortByReference retListSize = new ShortByReference();
+				WordByReference retListSize = new WordByReference();
 				Memory retpList = new Memory(Native.POINTER_SIZE);
 				
 				NotesCAPI.get().ListAllocate(WordImpl.ZERO, 

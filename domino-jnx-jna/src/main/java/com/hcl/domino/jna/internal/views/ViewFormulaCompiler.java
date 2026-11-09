@@ -26,6 +26,7 @@ import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.FormulaCompilationException;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -56,18 +57,12 @@ public class ViewFormulaCompiler {
 		Memory selectionFormulaMem = NotesStringUtils.toLMBCS(selectionFormula, false);
 		short selectionFormulaLength = (short) (selectionFormulaMem.size() & 0xffff);
 
-		ShortByReference retFormulaLength = new ShortByReference();
-		retFormulaLength.setValue((short) 0);
-		ShortByReference retCompileError = new ShortByReference();
-		retCompileError.setValue((short) 0);
-		ShortByReference retCompileErrorLine = new ShortByReference();
-		retCompileErrorLine.setValue((short) 0);
-		ShortByReference retCompileErrorColumn = new ShortByReference();
-		retCompileErrorColumn.setValue((short) 0);
-		ShortByReference retCompileErrorOffset = new ShortByReference();
-		retCompileErrorOffset.setValue((short) 0);
-		ShortByReference retCompileErrorLength = new ShortByReference();
-		retCompileErrorLength.setValue((short) 0);
+		WordByReference retFormulaLength = new WordByReference();
+		ShortByReference retCompileError = new ShortByReference((short)0);
+		WordByReference retCompileErrorLine = new WordByReference();
+		WordByReference retCompileErrorColumn = new WordByReference();
+		WordByReference retCompileErrorOffset = new WordByReference();
+		WordByReference retCompileErrorLength = new WordByReference();
 
 		DHANDLE.ByReference rethViewFormula = DHANDLE.newInstanceByReference();
 		rethViewFormula.clear();
@@ -117,18 +112,12 @@ public class ViewFormulaCompiler {
 						Memory columnFormulaMem = NotesStringUtils.toLMBCS(columnFormula, false);
 						short columnFormulaLength = (short) (columnFormulaMem.size() & 0xffff);
 						
-						ShortByReference retColumnFormulaLength = new ShortByReference();
-						retColumnFormulaLength.setValue((short) 0);
+						WordByReference retColumnFormulaLength = new WordByReference();
 						ShortByReference retColumnCompileError = new ShortByReference();
-						retColumnCompileError.setValue((short) 0);
-						ShortByReference retColumnCompileErrorLine = new ShortByReference();
-						retColumnCompileErrorLine.setValue((short) 0);
-						ShortByReference retColumnCompileErrorColumn = new ShortByReference();
-						retColumnCompileErrorColumn.setValue((short) 0);
-						ShortByReference retColumnCompileErrorOffset = new ShortByReference();
-						retColumnCompileErrorOffset.setValue((short) 0);
-						ShortByReference retColumnCompileErrorLength = new ShortByReference();
-						retColumnCompileErrorLength.setValue((short) 0);
+						WordByReference retColumnCompileErrorLine = new WordByReference();
+						WordByReference retColumnCompileErrorColumn = new WordByReference();
+						WordByReference retColumnCompileErrorOffset = new WordByReference();
+						WordByReference retColumnCompileErrorLength = new WordByReference();
 						
 						DHANDLE.ByReference rethColumnFormula = DHANDLE.newInstanceByReference();
 						

@@ -42,6 +42,7 @@ import com.hcl.domino.data.DocumentProperties;
 import com.hcl.domino.data.Item;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.jna.BaseJNAAPIObject;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -62,7 +63,6 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 import com.sun.jna.ptr.IntByReference;
-import com.sun.jna.ptr.ShortByReference;
 
 public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Item {
   // Stash per-thread NotesBlockIdStruct instances to cut down on JNA Structure
@@ -170,9 +170,9 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
       ByteByReference retDupItemID = new ByteByReference();
 
       try (DisposableMemory item_name = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
-        ShortByReference retName_len = new ShortByReference();
-        ShortByReference retItem_flags = new ShortByReference();
-        ShortByReference retDataType = new ShortByReference();
+        WordByReference retName_len = new WordByReference();
+        WordByReference retItem_flags = new WordByReference();
+        WordByReference retDataType = new WordByReference();
         IntByReference retValueLen = new IntByReference();
 
         NotesBlockIdStruct.ByValue itemBlockIdByVal = THREAD_BLOCKID.get();
@@ -194,8 +194,8 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
         m_dataType = retDataType.getValue();
         m_seq = retSeqByte.getValue();
         m_dupItemId = retDupItemID.getValue();
-        m_itemFlags = retItem_flags.getValue() & 0xffff;
-        m_itemName = NotesStringUtils.fromLMBCS(item_name, retName_len.getValue() & 0xffff);
+        m_itemFlags = retItem_flags.getValue();
+        m_itemName = NotesStringUtils.fromLMBCS(item_name, retName_len.getValue());
         m_valueLength = retValueLen.getValue();
         m_itemFlagsLoaded = true;
       }

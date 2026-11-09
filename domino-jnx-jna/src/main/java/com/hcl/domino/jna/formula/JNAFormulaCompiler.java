@@ -29,6 +29,7 @@ import com.hcl.domino.data.FormulaAnalyzeResult.FormulaAttributes;
 import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.FormulaCompilationException;
 import com.hcl.domino.formula.FormulaCompiler;
+import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.FormulaDecompiler;
 import com.hcl.domino.jna.internal.Mem;
@@ -55,12 +56,12 @@ public class JNAFormulaCompiler implements FormulaCompiler {
     short formulaTextLength = (short) formulaText.size();
 
     DHANDLE.ByReference rethFormula = DHANDLE.newInstanceByReference();
-    ShortByReference retFormulaLength = new ShortByReference();
+    WordByReference retFormulaLength = new WordByReference();
     ShortByReference retCompileError = new ShortByReference();
-    ShortByReference retCompileErrorLine = new ShortByReference();
-    ShortByReference retCompileErrorColumn = new ShortByReference();
-    ShortByReference retCompileErrorOffset = new ShortByReference();
-    ShortByReference retCompileErrorLength = new ShortByReference();
+    WordByReference retCompileErrorLine = new WordByReference();
+    WordByReference retCompileErrorColumn = new WordByReference();
+    WordByReference retCompileErrorOffset = new WordByReference();
+    WordByReference retCompileErrorLength = new WordByReference();
 
     STATUS result = NotesCAPI.get().NSFFormulaCompile(formulaName, word(formulaNameLength),
         formulaText, word(formulaTextLength), rethFormula, retFormulaLength,
@@ -103,10 +104,10 @@ public class JNAFormulaCompiler implements FormulaCompiler {
     try (DisposableMemory mem = new DisposableMemory(formula.length)) {
       mem.write(0, formula, 0, formula.length);
 
-      ShortByReference retFormulaLength = new ShortByReference();
+      WordByReference retFormulaLength = new WordByReference();
       NotesCAPI.get().NSFFormulaGetSizeP(mem, retFormulaLength).orElseThrow();
 
-      return (int) (retFormulaLength.getValue() & 0xffff);
+      return retFormulaLength.getValue();
     }
   }
 
@@ -213,12 +214,12 @@ public class JNAFormulaCompiler implements FormulaCompiler {
     short formulaTextLength = (short) formulaText.size();
 
     DHANDLE.ByReference rethFormula = DHANDLE.newInstanceByReference();
-    ShortByReference retFormulaLength = new ShortByReference();
+    WordByReference retFormulaLength = new WordByReference();
     ShortByReference retCompileError = new ShortByReference();
-    ShortByReference retCompileErrorLine = new ShortByReference();
-    ShortByReference retCompileErrorColumn = new ShortByReference();
-    ShortByReference retCompileErrorOffset = new ShortByReference();
-    ShortByReference retCompileErrorLength = new ShortByReference();
+    WordByReference retCompileErrorLine = new WordByReference();
+    WordByReference retCompileErrorColumn = new WordByReference();
+    WordByReference retCompileErrorOffset = new WordByReference();
+    WordByReference retCompileErrorLength = new WordByReference();
 
     STATUS result = NotesCAPI.get().NSFFormulaCompile(formulaName, word(formulaNameLength),
         formulaText, word(formulaTextLength), rethFormula, retFormulaLength,
@@ -241,7 +242,7 @@ public class JNAFormulaCompiler implements FormulaCompiler {
 
     return LockUtil.lockHandle(rethFormula, (handleByVal) -> {
       IntByReference retAttributes = new IntByReference();
-      ShortByReference retSummaryNamesOffset = new ShortByReference();
+      WordByReference retSummaryNamesOffset = new WordByReference();
 
       NotesCAPI.get().NSFFormulaAnalyze(handleByVal,
           retAttributes,
