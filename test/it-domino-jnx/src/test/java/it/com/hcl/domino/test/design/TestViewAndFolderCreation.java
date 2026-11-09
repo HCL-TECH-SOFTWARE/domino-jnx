@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 
-import com.hcl.domino.DominoClient;
 import com.hcl.domino.data.CollectionEntry;
 import com.hcl.domino.data.CollectionEntry.SpecialValue;
 import com.hcl.domino.data.CollectionSearchQuery.CollectionEntryProcessor;
@@ -28,6 +27,7 @@ import it.com.hcl.domino.test.AbstractNotesRuntimeTest;
 
 public class TestViewAndFolderCreation extends AbstractNotesRuntimeTest {
 
+  @SuppressWarnings("unused")
   private void dumpCollection(DominoCollection collection) {
     List<String> entryList = collection.query()
     .readUNID()
@@ -58,7 +58,6 @@ public class TestViewAndFolderCreation extends AbstractNotesRuntimeTest {
   @Test
   public void testCreateFlatView() throws Exception {
     withTempDb((db) -> {
-      DominoClient client = getClient();
       DbDesign design = db.getDesign();
       View viewPeople = design.createView("People");
       viewPeople.setSelectionFormula("Form=\"Person\"");
@@ -147,9 +146,8 @@ public class TestViewAndFolderCreation extends AbstractNotesRuntimeTest {
       }
 
       //create doc with different form to check if selection formula is working
-      String unid6;
       {
-        unid6 = db
+        db
             .createDocument()
             .replaceItemValue("Form", "OtherForm")
             .replaceItemValue("Lastname", "Diner")
@@ -203,7 +201,6 @@ public class TestViewAndFolderCreation extends AbstractNotesRuntimeTest {
   @Test
   public void testCreateCategorizedView() throws Exception {
     withTempDb((db) -> {
-      DominoClient client = getClient();
       DbDesign design = db.getDesign();
       View viewPeople = design.createView("People");
       viewPeople.setSelectionFormula("Form=\"Person\"");
@@ -360,7 +357,6 @@ public class TestViewAndFolderCreation extends AbstractNotesRuntimeTest {
   @Test
   public void testCreateFolder() throws Exception {
     withTempDb((db) -> {
-      DominoClient client = getClient();
       DbDesign design = db.getDesign();
       Folder folderPeople = design.createFolder("People");
       
@@ -411,9 +407,8 @@ public class TestViewAndFolderCreation extends AbstractNotesRuntimeTest {
       }
 
       //create doc with different form to check if folder only contains what has been added
-      int id3;
       {
-        id3 = db
+        db
             .createDocument()
             .replaceItemValue("Form", "OtherForm")
             .replaceItemValue("Lastname", "Diner")

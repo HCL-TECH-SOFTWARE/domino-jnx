@@ -43,9 +43,9 @@ import com.hcl.domino.security.AclAccess;
 public class JNAServerAdminAllocations extends APIObjectAllocations<JNAServerAdmin> {
 	private boolean m_disposed;
 	
-	private Map<String,Map<DatabaseData,JNAAcl>> m_aclCache = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
-	private Map<String,ReadWriteLock> m_aclCacheRWLocksByServer = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);;
-	private Set<String> m_aclCacheFilledForServer = new ConcurrentSkipListSet<>(String.CASE_INSENSITIVE_ORDER);
+	private final Map<String,Map<DatabaseData,JNAAcl>> m_aclCache = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);
+	private final Map<String,ReadWriteLock> m_aclCacheRWLocksByServer = new ConcurrentSkipListMap<>(String.CASE_INSENSITIVE_ORDER);;
+	private final Set<String> m_aclCacheFilledForServer = new ConcurrentSkipListSet<>(String.CASE_INSENSITIVE_ORDER);
 	
 	@SuppressWarnings("rawtypes")
 	public JNAServerAdminAllocations(IGCDominoClient parentDominoClient, APIObjectAllocations parentAllocations,

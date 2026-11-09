@@ -36,7 +36,6 @@ import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.Formula;
 import com.hcl.domino.data.FormulaAnalyzeResult;
 import com.hcl.domino.data.FormulaAnalyzeResult.FormulaAttributes;
-import com.hcl.domino.data.IAdaptable;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.exception.FormulaCompilationException;
 import com.hcl.domino.exception.IncompatibleImplementationException;
@@ -60,7 +59,7 @@ import com.sun.jna.ptr.ShortByReference;
  * 
  * @author Karsten Lehmann
  */
-public class JNAFormula extends BaseJNAAPIObject<JNAFormulaAllocations> implements IAdaptable, Formula {
+public class JNAFormula extends BaseJNAAPIObject<JNAFormulaAllocations> implements Formula {
 	private String m_formula;
 	private Set<Disallow> m_disallowedActions;
 	

@@ -16,19 +16,9 @@
  */
 package com.hcl.domino.jna.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.text.MessageFormat;
 import java.util.Objects;
 import java.util.function.Function;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import com.hcl.domino.DominoClient;
 import com.hcl.domino.admin.idvault.UserId;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
@@ -39,113 +29,73 @@ import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
 
-import org.xml.sax.SAXException;
-
 public enum JNADominoUtils {
-	;
+  ;
 
-	/**
-	 * Constructs a network path of a database (server!!path with proper encoding)
-	 * 
-	 * @param client   DominoClient
-	 * @param server   server or null
-	 * @param filePath filepath
-	 * @return LMBCS encoded path
-	 */
-	public static DisposableMemory constructNetPath(DominoClient client, String server, String filePath) {
-		if (server == null) {
-			server = ""; //$NON-NLS-1$
-		}
-		Objects.requireNonNull(filePath, "filePath is null");
+  /**
+   * Constructs a network path of a database (server!!path with proper encoding)
+   * 
+   * @param server server or null
+   * @param filePath filepath
+   * @return LMBCS encoded path
+   */
+  public static DisposableMemory constructNetPath(String server, String filePath) {
+    if (server == null) {
+      server = ""; //$NON-NLS-1$
+    }
+    Objects.requireNonNull(filePath, "filePath is null");
 
-		server = Names.toCanonical(server);
+    server = Names.toCanonical(server);
 
-		Memory dbServerLMBCS = NotesStringUtils.toLMBCS(server, true);
-		Memory dbFilePathLMBCS = NotesStringUtils.toLMBCS(filePath, true);
-		try(DisposableMemory retFullNetPath = new DisposableMemory(NotesConstants.MAXPATH)) {
-			NotesCAPI.get().OSPathNetConstruct(null, dbServerLMBCS, dbFilePathLMBCS, retFullNetPath)
-			  .orElseThrow();
+    Memory dbServerLMBCS = NotesStringUtils.toLMBCS(server, true);
+    Memory dbFilePathLMBCS = NotesStringUtils.toLMBCS(filePath, true);
+    DisposableMemory retFullNetPath = new DisposableMemory(NotesConstants.MAXPATH);
+    NotesCAPI.get().OSPathNetConstruct(null, dbServerLMBCS, dbFilePathLMBCS, retFullNetPath)
+        .orElseThrow();
+    return retFullNetPath;
+  }
 
-			// reduce length of retDbPathName
-			int newLength = 0;
-			for (int i = 0; i < retFullNetPath.size(); i++) {
-				byte b = retFullNetPath.getByte(i);
-				if (b == 0) {
-					newLength = i;
-					break;
-				}
-			}
-			byte[] retFullNetPathArr = retFullNetPath.getByteArray(0, newLength);
-
-			DisposableMemory reducedFullNetPathMem = new DisposableMemory(newLength + 1);
-			reducedFullNetPathMem.write(0, retFullNetPathArr, 0, retFullNetPathArr.length);
-			reducedFullNetPathMem.setByte(newLength, (byte) 0);
-			return reducedFullNetPathMem;
-		}
-	}
-
-	/**
-	 * Utility method to provide synchronized access to a {@link UserId}'s backing
-	 * pointer.
-	 * 
-	 * <p>
-	 * This method expects that the implementation will be able to provide either a
-	 * {@link PointerByReference} or a {@link Long} representing the
-	 * {@code KFHANDLE*} value (which is to say, a {@code void**}).
-	 * </p>
-	 * 
-	 * @param <T>      the type of value to return
-	 * @param userId   the user ID to access
-	 * @param consumer a {@link Function} processing the pointer from the ID
-	 * @return the value produced by {@code consumer}
-	 * @throws IllegalArgumentException if the {@link UserId} implementation cannot
-	 *                                  provide a {@link PointerByReference}
-	 */
-	public static <T> T accessKFC(UserId userId, Function<PointerByReference, T> consumer) {
-		{
-			// Check for a JNA-native PointerByReference first, since synchronization is
-			// better with it
-			PointerByReference phKFC = userId.getAdapter(PointerByReference.class);
-			if (phKFC != null) {
-				synchronized (phKFC) {
-					return consumer.apply(phKFC);
-				}
-			}
-		}
-		{
-			// Failing that, check for a generic native pointer-to-pointer value
-			Long longPhKFC = userId.getAdapter(Long.class);
-			if (longPhKFC != null) {
-				Pointer pphKFC = new Pointer(longPhKFC);
-				Pointer hKFC = pphKFC.getPointer(0);
-				PointerByReference phKFC = new PointerByReference(hKFC);
-				synchronized (userId) {
-					return consumer.apply(phKFC);
-				}
-			}
-		}
-		throw new IllegalArgumentException(
-				MessageFormat.format("Unable to retrieve pointer from ID of type {0}", userId.getClass().getName()));
-	}
-
-	/**
-	 * Parses the provided XML string into a DOM Document object.
-	 * 
-	 * @param xml the string representing the XML document
-	 * @return a {@link org.w3c.dom.Document Document} parsed from the string
-	 * @throws ParserConfigurationException if there is a problem creating the DOM
-	 *                                      parser
-	 * @throws SAXException                 if there is a problem parsing the
-	 *                                      provided string
-	 * @since 1.0.24
-	 */
-	public static org.w3c.dom.Document parseXml(String xml) throws ParserConfigurationException, SAXException {
-		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory.newDocumentBuilder();
-		try (InputStream is = new ByteArrayInputStream(xml.getBytes())) {
-			return builder.parse(is);
-		} catch (IOException e) {
-			throw new UncheckedIOException(e);
-		}
-	}
+  /**
+   * Utility method to provide synchronized access to a {@link UserId}'s backing
+   * pointer.
+   * <p>
+   * This method expects that the implementation will be able to provide either a
+   * {@link PointerByReference} or a {@link Long} representing the
+   * {@code KFHANDLE*} value (which is to say, a {@code void**}).
+   * </p>
+   * 
+   * @param <T> the type of value to return
+   * @param userId the user ID to access
+   * @param consumer a {@link Function} processing the pointer from the ID
+   * @return the value produced by {@code consumer}
+   * @throws IllegalArgumentException if the {@link UserId} implementation cannot
+   *         provide a {@link PointerByReference}
+   */
+  public static <T> T accessKFC(UserId userId, Function<PointerByReference, T> consumer) {
+    {
+      // Check for a JNA-native PointerByReference first, since synchronization is
+      // better with it
+      PointerByReference phKFC = userId.getAdapter(PointerByReference.class);
+      if (phKFC != null) {
+        synchronized (phKFC) {
+          return consumer.apply(phKFC);
+        }
+      }
+    }
+    {
+      // Failing that, check for a generic native pointer-to-pointer value
+      Long longPhKFC = userId.getAdapter(Long.class);
+      if (longPhKFC != null) {
+        Pointer pphKFC = new Pointer(longPhKFC);
+        Pointer hKFC = pphKFC.getPointer(0);
+        PointerByReference phKFC = new PointerByReference(hKFC);
+        synchronized (userId) {
+          return consumer.apply(phKFC);
+        }
+      }
+    }
+    throw new IllegalArgumentException(
+        MessageFormat.format("Unable to retrieve pointer from ID of type {0}",
+            userId.getClass().getName()));
+  }
 }

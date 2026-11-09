@@ -396,8 +396,6 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     }
     final short fOptionsShort = optionsShort;
 
-    DisposableMemory path = JNADominoUtils.constructNetPath(this, serverName, filePath);
-
     JNAUserNamesListAllocations namesListAllocations = userNamesList != null
         ? (JNAUserNamesListAllocations) userNamesList.getAdapter(APIObjectAllocations.class)
         : null;
@@ -406,17 +404,20 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
     DbOptionsStruct.ByValue defaultDbOptionsByVal = DbOptionsStruct.newInstanceByVal();
 
-    LockUtil.lockHandle(
-        namesListAllocations == null ? null : namesListAllocations.getHandle(), (hNamesList) -> {
-          return NotesCAPI.get().NSFDbCreateExtended4(path, dbClassShort, forceCreation,
-              fOptionsShort,
-              options2, encryptStrengthByte, 0, (Memory) null, (Memory) null,
-              (short) 0, (short) 0, defaultDbOptionsByVal, hNamesList, (DHANDLE.ByValue) null);
-        }).orElseThrow();
-
-    // create ACL
-    HANDLE.ByReference rethDb = HANDLE.newInstanceByReference();
-    NotesCAPI.get().NSFDbOpen(path, rethDb).orElseThrow();
+    HANDLE.ByReference rethDb;
+    try(DisposableMemory path = JNADominoUtils.constructNetPath(serverName, filePath)) {
+      LockUtil.lockHandle(
+          namesListAllocations == null ? null : namesListAllocations.getHandle(), (hNamesList) -> {
+            return NotesCAPI.get().NSFDbCreateExtended4(path, dbClassShort, forceCreation,
+                fOptionsShort,
+                options2, encryptStrengthByte, 0, (Memory) null, (Memory) null,
+                (short) 0, (short) 0, defaultDbOptionsByVal, hNamesList, (DHANDLE.ByValue) null);
+          }).orElseThrow();
+  
+      // create ACL
+      rethDb = HANDLE.newInstanceByReference();
+      NotesCAPI.get().NSFDbOpen(path, rethDb).orElseThrow();
+    }
 
     LockUtil.lockHandle(rethDb, (rethDbByVal) -> {
       try {
@@ -598,10 +599,6 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     // Open the source database to account for odd cases (e.g. shared data directories)
     Database sourceDb = getParentDominoClient().openDatabase(sourceServerName, sourceFilePath);
 
-    DisposableMemory fullPathTargetMem =
-        JNADominoUtils.constructNetPath(this, targetServerName, targetFilePath);
-    DisposableMemory fullPathSourceMem =
-        JNADominoUtils.constructNetPath(this, sourceDb.getServer(), sourceDb.getRelativeFilePath());
 
     short noteClassToCopy = docClassesToCopy == null ? NotesConstants.NOTE_CLASS_ALL
         : DominoEnumUtil.toBitField(DocumentClass.class, docClassesToCopy);
@@ -621,9 +618,14 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
 
     HANDLE.ByReference rethNewDb = HANDLE.newInstanceByReference();
 
-    NotesCAPI.get().NSFDbCreateAndCopyExtended(fullPathSourceMem, fullPathTargetMem,
-        noteClassToCopy, maxFileSizeInMB, createCopyFlags, null, rethNewDb)
-      .orElseThrow();
+    try (
+      DisposableMemory fullPathTargetMem = JNADominoUtils.constructNetPath(targetServerName, targetFilePath);
+      DisposableMemory fullPathSourceMem = JNADominoUtils.constructNetPath(sourceDb.getServer(), sourceDb.getRelativeFilePath())
+    ) {
+      NotesCAPI.get().NSFDbCreateAndCopyExtended(fullPathSourceMem, fullPathTargetMem,
+          noteClassToCopy, maxFileSizeInMB, createCopyFlags, null, rethNewDb)
+          .orElseThrow();
+    }
 
     return new JNADatabase(this, new IAdaptable() {
 
@@ -740,8 +742,9 @@ public class JNADominoClient implements IGCDominoClient<JNADominoClientAllocatio
     }
     serverName = NotesNamingUtils.toCanonicalName(serverName);
 
-    DisposableMemory path = JNADominoUtils.constructNetPath(this, serverName, filePath);
-    NotesCAPI.get().NSFDbDelete(path).orElseThrow();
+    try(DisposableMemory path = JNADominoUtils.constructNetPath(serverName, filePath)) {
+      NotesCAPI.get().NSFDbDelete(path).orElseThrow();
+    }
   }
 
   @Override

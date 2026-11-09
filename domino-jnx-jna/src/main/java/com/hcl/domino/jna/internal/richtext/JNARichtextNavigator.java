@@ -33,7 +33,6 @@ import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.data.JNADocument;
 import com.hcl.domino.jna.data.JNAItem;
-import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.gc.allocations.JNARichtextNavigatorAllocations;
 import com.hcl.domino.richtext.RichTextWriter;
 import com.hcl.domino.richtext.records.RichTextRecord;
@@ -218,10 +217,7 @@ public class JNARichtextNavigator extends BaseJNAAPIObject<JNARichtextNavigatorA
 
 		item.enumerateCDRecords((signature, cdRecordPtr, cdRecordLength) -> {
 			byte[] cdRecordDataArr = cdRecordPtr.getByteArray(0, cdRecordLength);
-			@SuppressWarnings("resource")
-            DisposableMemory cdRecordDataMem = new DisposableMemory(cdRecordLength);
-			cdRecordDataMem.write(0, cdRecordDataArr, 0, cdRecordLength);
-			ByteBuffer data = cdRecordDataMem.getByteBuffer(0, cdRecordLength).order(ByteOrder.nativeOrder());
+			ByteBuffer data = ByteBuffer.wrap(cdRecordDataArr).order(ByteOrder.nativeOrder());
 
 			RichTextRecord<?> record = RichTextUtil.encapsulateRecord(signature, data);
 			itemRecords.add(record);

@@ -1237,10 +1237,12 @@ public class TestDbDesignCollections extends AbstractDesignTest {
   @Test
   public void testFolders() {
     final DbDesign dbDesign = this.database.getDesign();
+    @SuppressWarnings("rawtypes")
     final Collection<CollectionDesignElement> collections = dbDesign.getFolders().collect(Collectors.toList());
     assertEquals(TestDbDesignCollections.EXPECTED_IMPORT_FOLDERS, collections.size());
 
     {
+      @SuppressWarnings("rawtypes")
       CollectionDesignElement view = collections.stream().filter(v -> "test folder".equals(v.getTitle())).findFirst().orElse(null);
       assertNotNull(view);
 
@@ -1254,11 +1256,13 @@ public class TestDbDesignCollections extends AbstractDesignTest {
   @Test
   public void testFoldersAndViews() {
     final DbDesign dbDesign = this.database.getDesign();
+    @SuppressWarnings("rawtypes")
     final Collection<CollectionDesignElement> collections = dbDesign.getCollections().collect(Collectors.toList());
     assertEquals(TestDbDesignCollections.EXPECTED_IMPORT_VIEWS + TestDbDesignCollections.EXPECTED_IMPORT_FOLDERS + 1,
         collections.size());
 
     {
+      @SuppressWarnings("rawtypes")
       CollectionDesignElement view = collections.stream().filter(v -> "test view".equals(v.getTitle())).findFirst().orElse(null);
       assertNotNull(view);
 
@@ -1268,6 +1272,7 @@ public class TestDbDesignCollections extends AbstractDesignTest {
       assertEquals("test view", view.getTitle());
     }
     {
+      @SuppressWarnings("rawtypes")
       CollectionDesignElement view = collections.stream().filter(v -> "test folder".equals(v.getTitle())).findFirst().orElse(null);
       assertNotNull(view);
 
@@ -1312,10 +1317,12 @@ public class TestDbDesignCollections extends AbstractDesignTest {
   @Test
   public void testViews() {
     final DbDesign dbDesign = this.database.getDesign();
+    @SuppressWarnings("rawtypes")
     final Collection<CollectionDesignElement> collections = dbDesign.getViews().collect(Collectors.toList());
     assertEquals(TestDbDesignCollections.EXPECTED_IMPORT_VIEWS + 1, collections.size());
 
     {
+      @SuppressWarnings("rawtypes")
       CollectionDesignElement view = collections.stream().filter(v -> "test view".equals(v.getTitle())).findFirst().orElse(null);
       assertNotNull(view);
 

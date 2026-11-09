@@ -27,8 +27,8 @@ import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 
 public enum JNAGCUtil {
 	;
-	private static Map<HANDLE, Lock> handleLocks = new WeakHashMap<>();
-	private static Map<DHANDLE, Lock> dhandleLocks = new WeakHashMap<>();
+	private static final Map<HANDLE, Lock> handleLocks = new WeakHashMap<>();
+	private static final Map<DHANDLE, Lock> dhandleLocks = new WeakHashMap<>();
 	/**
 	 * Returns an access lock to ensure exclusive handle access
 	 * across threads

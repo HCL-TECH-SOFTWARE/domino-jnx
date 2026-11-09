@@ -16,7 +16,6 @@
  */
 package it.com.hcl.domino.test.data;
 
-import java.util.Date;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Assertions;

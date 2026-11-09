@@ -293,7 +293,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 //			}
 //		}
 		
-		try(DisposableMemory retFullNetPath = JNADominoUtils.constructNetPath(getParentDominoClient(), server, filePath)) {
+		try(DisposableMemory retFullNetPath = JNADominoUtils.constructNetPath(server, filePath)) {
 			short openOptions = DominoEnumUtil.toBitField(OpenDatabase.class, options);
 
 			JNAUserNamesList namesList = namesListOverride!=null ? namesListOverride : (JNAUserNamesList) getParentDominoClient().getEffectiveUserNamesList(server);

@@ -24,6 +24,6 @@ import com.hcl.domino.design.JavaAgentOrLibrary;
  * 
  * @since 1.0.47
  */
-public interface DesignJavaAgent extends DesignAgent, JavaLanguageAgent, JavaAgentOrLibrary<DesignJavaAgent> {
+public interface DesignJavaAgent extends JavaLanguageAgent, JavaAgentOrLibrary<DesignJavaAgent> {
 
 }

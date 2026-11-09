@@ -47,6 +47,7 @@ import com.hcl.domino.commons.dxl.DxlImporterLogImpl;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
+import com.hcl.domino.commons.util.DominoUtils;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.types.STATUS;
@@ -60,7 +61,6 @@ import com.hcl.domino.jna.internal.gc.allocations.JNADxlImporterAllocations;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
-import com.hcl.domino.jna.utils.JNADominoUtils;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.misc.INumberEnum;
 import com.sun.jna.Pointer;
@@ -283,7 +283,7 @@ public class JNADxlImporter extends
     if (importErrorWasLogged()) {
       String xml = getResultLog();
       try {
-        org.w3c.dom.Document xmlDoc = JNADominoUtils.parseXml(xml);
+        org.w3c.dom.Document xmlDoc = DominoUtils.parseXml(xml);
         List<DxlImporterLog.DxlError> errors;
         List<DxlImporterLog.DxlFatalError> fatalErrors;
         {
