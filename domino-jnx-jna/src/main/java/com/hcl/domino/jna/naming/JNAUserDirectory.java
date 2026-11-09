@@ -16,11 +16,12 @@
  */
 package com.hcl.domino.jna.naming;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
-
 import com.hcl.domino.commons.errors.INotesErrorConstants;
+import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.Mem;
@@ -71,7 +72,7 @@ public class JNAUserDirectory implements UserDirectory {
     try {
       try(DisposableMemory chPrimaryNamePtr = new DisposableMemory(NotesConstants.MAXPATH + 1)) {
         final Memory serverNameMem = NotesStringUtils.toLMBCS(serverName, true);
-        capi.NAMEGetAddressBooks(serverNameMem, NotesConstants.NAME_GET_AB_FIRSTONLY, wCount, wEntryLen, hReturn)
+        capi.NAMEGetAddressBooks(serverNameMem, word(NotesConstants.NAME_GET_AB_FIRSTONLY), wCount, wEntryLen, hReturn)
           .orElseThrow();
 
         if (wCount.getValue() != 0) {
@@ -80,13 +81,13 @@ public class JNAUserDirectory implements UserDirectory {
               capi.OSPathNetParse(pszReturn, null,
                   null, chPrimaryNamePtr).orElseThrow();
 
-              final short wNameLen = capi.Cstrlen(chPrimaryNamePtr);
+              final WORD wNameLen = capi.Cstrlen(chPrimaryNamePtr);
               final ShortByReference wTypePos = new ShortByReference();
-              wTypePos.setValue(wNameLen);
+              wTypePos.setValue((short)wNameLen.getValue());
 
               capi.OSPathFileType(chPrimaryNamePtr, wTypePos).orElseThrow();
 
-              if (wNameLen == wTypePos.getValue()) {
+              if ((short)wNameLen.getValue() == wTypePos.getValue()) {
                 /* no file type specified */
                 Memory dbTypeMem = NotesStringUtils.toLMBCS(NotesConstants.DBTYPE, true);
                 capi.Cstrncat(chPrimaryNamePtr, dbTypeMem,
@@ -132,7 +133,7 @@ public class JNAUserDirectory implements UserDirectory {
 		DHANDLE.ByReference hReturn = DHANDLE.newInstanceByReference();
 		NotesCAPI.get().NAMEGetAddressBooks(
 			server,
-			(short)0,
+			word(0),
 			returnCount,
 			returnLength,
 			hReturn

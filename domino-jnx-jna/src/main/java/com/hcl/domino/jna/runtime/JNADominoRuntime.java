@@ -16,11 +16,12 @@
  */
 package com.hcl.domino.jna.runtime;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Optional;
-
+import com.hcl.domino.commons.data.types.TypedConstants;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.internal.DisposableMemory;
@@ -131,7 +132,7 @@ public class JNADominoRuntime implements DominoRuntime {
 	public String getPropertyString(String propertyName) {
 		Memory variableNameMem = NotesStringUtils.toLMBCS(propertyName, true);
 		try(DisposableMemory rethValueBuffer = new DisposableMemory(NotesConstants.MAXENVVALUE)) {
-			short result = NotesCAPI.get().OSGetEnvironmentString(variableNameMem, rethValueBuffer, NotesConstants.MAXENVVALUE);
+			short result = NotesCAPI.get().OSGetEnvironmentString(variableNameMem, rethValueBuffer, TypedConstants.MAXENVVALUE);
 			if (result==1) {
 				String str = NotesStringUtils.fromLMBCS(rethValueBuffer, -1);
 				return str;
@@ -164,7 +165,7 @@ public class JNADominoRuntime implements DominoRuntime {
 
 		Memory serverNameMem = NotesStringUtils.toLMBCS("", true); //$NON-NLS-1$
 		
-		short result = NotesCAPI.get().OSRunNSDExt(serverNameMem, modesBitmask);
+		short result = NotesCAPI.get().OSRunNSDExt(serverNameMem, word(modesBitmask));
 		NotesErrorUtils.checkResult(result);
 	}
 	

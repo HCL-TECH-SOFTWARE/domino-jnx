@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.internal;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -75,7 +76,7 @@ public class ItemDecoder {
     		ShortByReference retTextLength = new ShortByReference();
     		
     		for (int i=0; i<listCountAsInt; i++) {
-    			NotesCAPI.get().ListGetText(ptr, false, (char) i, retTextPointer, retTextLength).orElseThrow();
+    			NotesCAPI.get().ListGetText(ptr, false, word(i), retTextPointer, retTextLength).orElseThrow();
     			
     			//retTextPointer[0] points to the list entry text
     			Pointer pointerToTextInMem = retTextPointer.getPointer(0);

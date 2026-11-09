@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.internal;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.lang.ref.ReferenceQueue;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.WordImpl;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -94,8 +96,8 @@ public class LMBCSStringList extends BaseJNAAPIObject<LMBCSStringListAllocations
 		DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
 		ShortByReference retListSize = new ShortByReference();
 
-		NotesCAPI.get().ListAllocate((short) 0, 
-				(short) 0,
+		NotesCAPI.get().ListAllocate(WordImpl.ZERO, 
+		    WordImpl.ZERO,
 				m_prefixDataType ? 1 : 0, rethList, null, retListSize).orElseThrow();
 
 		LMBCSStringListAllocations allocations = getAllocations();
@@ -172,9 +174,9 @@ public class LMBCSStringList extends BaseJNAAPIObject<LMBCSStringListAllocations
 				NotesCAPI.get().ListAddEntry(handleByVal,
 				    m_prefixDataType ? 1 : 0,
 				        retListSize,
-				        (char) i,
+				        word(i),
 				        currStrMem,
-				        textSize).orElseThrow();
+				        word(textSize)).orElseThrow();
 			}
 			return 0;
 		});

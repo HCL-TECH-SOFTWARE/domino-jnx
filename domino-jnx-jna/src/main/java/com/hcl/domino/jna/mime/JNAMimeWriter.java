@@ -16,16 +16,18 @@
  */
 package com.hcl.domino.jna.mime;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.Set;
 import java.util.function.Consumer;
-
+import com.hcl.domino.commons.data.types.TypedConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.data.Document;
+import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.exception.IncompatibleImplementationException;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.data.JNADocument;
@@ -145,7 +147,7 @@ public class JNAMimeWriter extends JNAMimeBase implements MimeWriter {
 					
 					JNADocumentAllocations tmpDocAllocations = (JNADocumentAllocations) tmpDoc.getAdapter(APIObjectAllocations.class);
 					
-					short wItemNameLen = itemNameMem == null ? 0 : (short)(itemNameMem.size() & 0xffff);
+					WORD wItemNameLen = word(itemNameMem == null ? 0 : itemNameMem.size());
 					LockUtil.lockHandle(tmpDocAllocations.getNoteHandle(), (docHdlByVal) -> {
 						NotesCAPI.get().MIMEStreamItemize(docHdlByVal, itemNameMem,
 								wItemNameLen, dwItemizeFlags, mimeStreamPtr);
@@ -197,7 +199,7 @@ public class JNAMimeWriter extends JNAMimeBase implements MimeWriter {
 						dwItemizeFlags |= NotesConstants.MIME_STREAM_NO_DELETE_ATTACHMENTS;
 					}
 					
-					short wItemNameLen = itemNameMem == null ? 0 : (short)(itemNameMem.size() & 0xffff);
+					WORD wItemNameLen = word(itemNameMem == null ? 0 : itemNameMem.size());
 					NotesCAPI.get().MIMEStreamItemize(docHdlByVal, itemNameMem,
 							wItemNameLen, dwItemizeFlags, mimeStreamPtr);
 					
@@ -288,7 +290,7 @@ public class JNAMimeWriter extends JNAMimeBase implements MimeWriter {
 			try(DisposableMemory retFlags = new DisposableMemory(2)) {
 				retFlags.clear();
 
-				NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, NotesConstants._NOTE_FLAGS, retFlags);
+				NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, TypedConstants._NOTE_FLAGS, retFlags);
 				noteFlags = retFlags.getShort(0);
 			}
 			

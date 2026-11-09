@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.naming;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.lang.ref.ReferenceQueue;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
-
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -99,7 +99,7 @@ public class JNAUserDirectoryQueryIterator extends BaseJNAAPIObject<JNAUserDirec
 				String key = items.get(itemIndex);
 				ShortByReference retDataType = new ShortByReference();
 				ShortByReference retSize = new ShortByReference();
-				Pointer data = NotesCAPI.get().NAMELocateItem2(pMatch, (short)itemIndex, retDataType, retSize);
+				Pointer data = NotesCAPI.get().NAMELocateItem2(pMatch, word(itemIndex), retDataType, retSize);
 				if(data == null) {
 					values.put(key, null);
 				} else {

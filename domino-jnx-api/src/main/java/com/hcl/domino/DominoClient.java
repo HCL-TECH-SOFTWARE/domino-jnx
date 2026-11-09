@@ -85,13 +85,23 @@ import com.hcl.domino.server.ServerPingInfo;
  */
 public interface DominoClient extends IAdaptable, AutoCloseable {
   /** Types of ECL settings */
-  public enum ECLType {
+  public enum ECLType implements INumberEnum<Short> {
     Lotusscript((short) 0), JavaApplets((short) 1), Javascript((short) 2);
 
     private final short m_type;
 
     ECLType(final short type) {
       this.m_type = type;
+    }
+    
+    @Override
+    public long getLongValue() {
+      return getTypeAsShort();
+    }
+    
+    @Override
+    public Short getValue() {
+      return m_type;
     }
 
     public short getTypeAsShort() {

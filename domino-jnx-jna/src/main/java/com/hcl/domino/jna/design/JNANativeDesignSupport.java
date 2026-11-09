@@ -16,12 +16,12 @@
  */
 package com.hcl.domino.jna.design;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
-
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.data.Document;
@@ -216,7 +216,7 @@ public class JNANativeDesignSupport implements NativeDesignSupport {
 
           NotesCAPI.get().NSFDbAllocObjectExtended2(hDbByVal,
               runInfoDataWithSpace.length,
-              noteClass, privs, objectType.getValue(), rtnRRV).orElseThrow();
+              word(noteClass), word(privs), word(objectType.getValue()), rtnRRV).orElseThrow();
 
           //copy buffer array data into memory buffer
           Pointer ptrBuffer = Mem.OSLockObject(hCopyBufferByVal);

@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.data;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import static java.text.MessageFormat.format;
 import java.lang.ref.ReferenceQueue;
 import java.text.MessageFormat;
@@ -32,6 +33,7 @@ import java.util.Optional;
 import com.hcl.domino.DominoClient;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.UserNamesList;
+import com.hcl.domino.commons.data.types.TypedConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -147,7 +149,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
           for (int i = 5; i < NotesConstants.ACL_PRIVCOUNT; i++) {
             retPrivName.clear();
 
-            result = NotesCAPI.get().ACLGetPrivName(hAclByVal, (short) (i & 0xffff), retPrivName);
+            result = NotesCAPI.get().ACLGetPrivName(hAclByVal, word(i), retPrivName);
             if (result.getMaskedValue() == 1060) { // Error "The name is not in the list" => no more
                                                    // entries
               break;
@@ -224,7 +226,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		final int fFreeIndex = freeIndex;
 		
 		LockUtil.lockHandle(hAcl, (hAclByVal) ->
-			NotesCAPI.get().ACLSetPrivName(hAclByVal, (short) (fFreeIndex & 0xffff), roleStrippedMem)
+			NotesCAPI.get().ACLSetPrivName(hAclByVal, word(fFreeIndex), roleStrippedMem)
 		).orElseThrow();
 	}
 	
@@ -283,15 +285,15 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
             try (DisposableMemory newPrivilegesMem = new DisposableMemory(newPrivileges.length)) {
               newPrivilegesMem.write(0, newPrivileges, 0, newPrivileges.length);
               NotesCAPI.get().ACLUpdateEntry(hAclByVal, currNameMem,
-                  NotesConstants.ACL_UPDATE_PRIVILEGES, null, (short) 0,
-                  newPrivilegesMem, (short) 0).orElseThrow();
+                  TypedConstants.ACL_UPDATE_PRIVILEGES, null, word(0),
+                  newPrivilegesMem, word(0)).orElseThrow();
             }
           }
         }
 
         Memory emptyStrMem = NotesStringUtils.toLMBCS("", true); //$NON-NLS-1$
 
-        return NotesCAPI.get().ACLSetPrivName(hAclByVal, (short) (removedRoleIndex & 0xffff),
+        return NotesCAPI.get().ACLSetPrivName(hAclByVal, word(removedRoleIndex),
             emptyStrMem);
       }).orElseThrow();
     }
@@ -365,7 +367,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		
 		final int fRenameIdx=roleIndex;
 		LockUtil.lockHandle(hAcl, (hAclByValue) ->
-			NotesCAPI.get().ACLSetPrivName(hAclByValue, (short) (fRenameIdx & 0xffff), newNameStrippedMem)
+			NotesCAPI.get().ACLSetPrivName(hAclByValue, word(fRenameIdx), newNameStrippedMem)
 		).orElseThrow();
 	}
 	
@@ -521,7 +523,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 			privilegesMem.write(0, privilegesArr, 0, privilegesArr.length);
 			
 			LockUtil.lockHandle(hAcl, (hAclByValue) ->
-				NotesCAPI.get().ACLAddEntry(hAclByValue, nameCanonicalMem, (short) (accessLevel.getValue() & 0xffff), privilegesMem, accessFlagsAsShort)
+				NotesCAPI.get().ACLAddEntry(hAclByValue, nameCanonicalMem, word(accessLevel.getValue()), privilegesMem, word(accessFlagsAsShort))
 			).orElseThrow();
 		}
 	}
@@ -665,9 +667,9 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 			final short fNewFlagsAsShort=newFlagsAsShort;
 			
 			LockUtil.lockHandle(hAcl, (hAclByValue) ->
-				NotesCAPI.get().ACLUpdateEntry(hAclByValue, oldAclEntryNameMem, (short) (fUpdateFlags & 0xffff),
-						fNewNameMem, (short) (fiNewAccessLevel & 0xffff),
-						fNewPrivilegesMem, fNewFlagsAsShort)
+				NotesCAPI.get().ACLUpdateEntry(hAclByValue, oldAclEntryNameMem, word(fUpdateFlags),
+						fNewNameMem, word(fiNewAccessLevel),
+						fNewPrivilegesMem, word(fNewFlagsAsShort))
 			).orElseThrow();
 		}
 		finally {
@@ -775,7 +777,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 		hAcl.checkDisposed();
 		
 		LockUtil.lockHandles(dbHandle,hAcl, (dbHandleByValue, hAclByValue) ->
-			NotesCAPI.get().NSFDbStoreACL(dbHandleByValue, hAclByValue, 0, (short) 0)
+			NotesCAPI.get().NSFDbStoreACL(dbHandleByValue, hAclByValue, 0, word(0))
 		).orElseThrow();
 	}
 	
@@ -848,7 +850,7 @@ public class JNAAcl extends BaseJNAAPIObject<JNAAclAllocations> implements Acl {
 					
 					ArrayList<String> allRoles = new ArrayList<>(numEntriesAsInt);
 					for (int i=0; i<numEntriesAsInt; i++) {
-						NotesCAPI.get().ListGetText(pPrivNames, false, (char) i, retTextPointer, retTextLength).orElseThrow();
+						NotesCAPI.get().ListGetText(pPrivNames, false, word(i), retTextPointer, retTextLength).orElseThrow();
 						
 						String currRole = NotesStringUtils.fromLMBCS(retTextPointer.getPointer(0), retTextLength.getValue() & 0xffff);
 						allRoles.add(currRole);

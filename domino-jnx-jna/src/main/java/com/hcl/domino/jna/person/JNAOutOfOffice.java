@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.person;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.lang.ref.ReferenceQueue;
 import java.text.MessageFormat;
 import java.time.temporal.TemporalAccessor;
@@ -257,7 +258,7 @@ public class JNAOutOfOffice extends BaseJNAAPIObject<JNAOOOContextAllocations> i
 		
 		JNAOOOContextAllocations allocations = getAllocations();
 		synchronized (allocations) {
-			NotesCAPI.get().OOOSetGeneralMessage(allocations.getOOOPointer(), msgMem, (short) (msgMem.size() & 0xffff))
+			NotesCAPI.get().OOOSetGeneralMessage(allocations.getOOOPointer(), msgMem, word(msgMem.size()))
 			  .orElseThrow();
 		}
 	}

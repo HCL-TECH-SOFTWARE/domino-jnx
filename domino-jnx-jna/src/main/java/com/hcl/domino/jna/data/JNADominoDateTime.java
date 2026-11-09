@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.data;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.nio.charset.StandardCharsets;
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -88,7 +89,7 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
 	 */
 	public static DominoDateTime createWildcardDateTime() {
 		NotesTimeDateStruct struct = NotesTimeDateStruct.newInstance();
-		NotesCAPI.get().TimeConstant(NotesConstants.TIMEDATE_WILDCARD, struct);
+		NotesCAPI.get().TimeConstant(word(NotesConstants.TIMEDATE_WILDCARD), struct);
 		struct.read();
 		
 		return new JNADominoDateTime(struct);
@@ -101,7 +102,7 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
 	 */
 	public static DominoDateTime createMinimumDateTime() {
 		NotesTimeDateStruct struct = NotesTimeDateStruct.newInstance();
-		NotesCAPI.get().TimeConstant(NotesConstants.TIMEDATE_MINIMUM, struct);
+		NotesCAPI.get().TimeConstant(word(NotesConstants.TIMEDATE_MINIMUM), struct);
 		struct.read();
 		
 		return new JNADominoDateTime(struct);
@@ -114,7 +115,7 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
 	 */
 	public static DominoDateTime createMaximumDateTime() {
 		NotesTimeDateStruct struct = NotesTimeDateStruct.newInstance();
-		NotesCAPI.get().TimeConstant(NotesConstants.TIMEDATE_MAXIMUM, struct);
+		NotesCAPI.get().TimeConstant(word(NotesConstants.TIMEDATE_MAXIMUM), struct);
 		struct.read();
 		
 		return new JNADominoDateTime(struct);
@@ -314,7 +315,7 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
 		try {
   		while (true) {
   			ShortByReference retTextLength = new ShortByReference();
-  			STATUS result = NotesCAPI.get().ConvertTIMEDATEToText(intlStruct, tfmtStruct.getPointer(), struct, retTextBuffer, (short) retTextBuffer.size(), retTextLength);
+  			STATUS result = NotesCAPI.get().ConvertTIMEDATEToText(intlStruct, tfmtStruct.getPointer(), struct, retTextBuffer, word(retTextBuffer.size()), retTextLength);
   			if (result.getValue()==1037) { // "Invalid Time or Date Encountered", return empty string like Notes UI does
   				return ""; //$NON-NLS-1$
   			}
@@ -370,7 +371,7 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
 	        IntlFormatStruct intlStruct = intl==null ? null : intl.getAdapter(IntlFormatStruct.class);
     		NotesTimeDateStruct retTimeDate = NotesTimeDateStruct.newInstance(retTimeDateMem);
     		
-    		NotesCAPI.get().ConvertTextToTIMEDATE(intlStruct, null, dateTimeStrLMBCSPtr, NotesConstants.MAXALPHATIMEDATE, retTimeDate).orElseThrow();
+    		NotesCAPI.get().ConvertTextToTIMEDATE(intlStruct, null, dateTimeStrLMBCSPtr, word(NotesConstants.MAXALPHATIMEDATE), retTimeDate).orElseThrow();
     		retTimeDate.read();
     		int[] innards = retTimeDate.Innards;
     		JNADominoDateTime td = new JNADominoDateTime(innards);
@@ -387,7 +388,7 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
         mem.setByte(0, (byte)0);
         td.setInt(0, m_innards0);
         td.setInt(4, m_innards1);
-        NotesCAPI12.get().ConvertTIMEDATEtoRFC3339Date(td, mem, (short)256).orElseThrow();
+        NotesCAPI12.get().ConvertTIMEDATEtoRFC3339Date(td, mem, word(256)).orElseThrow();
         // ISO times are ASCII-safe, so no need to do an LMBCS conversion
         String isoTime = mem.getString(0, StandardCharsets.US_ASCII.name());
         if(isoTime.endsWith("-1Z")) {

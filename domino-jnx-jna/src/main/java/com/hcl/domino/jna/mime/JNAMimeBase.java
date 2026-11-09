@@ -16,11 +16,12 @@
  */
 package com.hcl.domino.jna.mime;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.lang.ref.ReferenceQueue;
-
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
+import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.data.JNADocument;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -73,7 +74,7 @@ public class JNAMimeBase extends BaseJNAAPIObject<JNAMimeBaseAllocations> {
 			PointerByReference rethMIMEStream = new PointerByReference();
 			rethMIMEStream.setValue(null);
 
-			short wItemNameLen = itemNameMem == null ? 0 : (short)(itemNameMem.size() & 0xffff);
+			WORD wItemNameLen = word(itemNameMem == null ? 0 : itemNameMem.size());
 			NotesCAPI.get().MIMEStreamOpen(hdlByVal,
 					itemNameMem, wItemNameLen, dwOpenFlags, rethMIMEStream).orElseThrow();
 			return rethMIMEStream.getValue();

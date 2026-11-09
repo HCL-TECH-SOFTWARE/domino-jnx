@@ -17,6 +17,7 @@
 package com.hcl.domino.jna.internal.capi;
 
 import com.hcl.domino.data.types.STATUS;
+import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.jna.internal.capi.INotesCAPI.UndocumentedAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
@@ -58,7 +59,7 @@ public interface INotesCAPI1201 extends Library {
 
 
   @UndocumentedAPI
-  STATUS ListAllocate2Ext (short ListEntries,
+  STATUS ListAllocate2Ext (WORD ListEntries,
       int TextSize,
       boolean fPrefixDataType,
       IntByReference rethList,
@@ -70,9 +71,9 @@ public interface INotesCAPI1201 extends Library {
   STATUS ListAddEntry2Ext(int mhList,
       boolean fPrefixDataType,
       IntByReference pListSize,
-      char EntryNumber,
+      WORD EntryNumber,
       Memory Text,
-      char TextSize,
+      WORD TextSize,
       boolean bAllowLarge);
   
   @UndocumentedAPI

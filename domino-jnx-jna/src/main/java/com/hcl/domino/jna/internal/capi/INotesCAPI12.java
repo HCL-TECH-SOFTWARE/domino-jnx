@@ -17,6 +17,7 @@
 package com.hcl.domino.jna.internal.capi;
 
 import com.hcl.domino.data.types.STATUS;
+import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.jna.internal.capi.INotesCAPI.UndocumentedAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
@@ -60,5 +61,5 @@ public interface INotesCAPI12 extends Library {
    */
   STATUS ConvertTIMEDATEtoRFC3339Date(Pointer ptdTimeDate,
       Pointer pachText,
-      short wTextBufSize);
+      WORD wTextBufSize);
 }

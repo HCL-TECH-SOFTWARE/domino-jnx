@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.data;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import static com.hcl.domino.commons.errors.errorcodes.IMiscErr.ERR_NOT_FOUND;
 import java.lang.ref.ReferenceQueue;
 import java.nio.ByteBuffer;
@@ -58,6 +59,7 @@ import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.commons.data.EncryptionInfoImpl;
 import com.hcl.domino.commons.data.NSFVersionInfoImpl;
 import com.hcl.domino.commons.data.types.StatusImpl;
+import com.hcl.domino.commons.data.types.TypedConstants;
 import com.hcl.domino.commons.design.DesignUtil;
 import com.hcl.domino.commons.errors.INotesErrorConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
@@ -95,6 +97,7 @@ import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.data.NoteIdWithScore;
 import com.hcl.domino.data.structures.QuepArgVal;
 import com.hcl.domino.data.types.STATUS;
+import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.dbdirectory.DirectorySearchQuery.SearchFlag;
 import com.hcl.domino.design.RichTextBuilder;
 import com.hcl.domino.dql.DQL.DQLTerm;
@@ -318,7 +321,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 			DHANDLE namesListHandle = namesList==null ? null : namesList.getAdapter(DHANDLE.class);
 			if (namesList!=null && (namesListHandle==null || namesListHandle.isNull())) {
-				throw new DominoException(0, "Could not read expected names list handle");
+				throw new DominoException(StatusImpl.NOERROR, "Could not read expected names list handle");
 			}
 			
 			LockUtil.lockHandle(namesListHandle, (namesListHandleByVal) -> {
@@ -333,17 +336,17 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				// TODO support ModifiedTime
 				STATUS localResult;
 				if (m_openAsIdUser && (m_namesListPrivileges==null || !m_namesListPrivileges.contains(Privileges.FullAdminAccess))) {
-					localResult = NotesCAPI.get().NSFDbOpenExtended(retFullNetPath, openOptions, null,
+					localResult = NotesCAPI.get().NSFDbOpenExtended(retFullNetPath, word(openOptions), null,
 							null, retHDB, retDataModified, retNonDataModified);
 				}
 				else {
-					localResult = NotesCAPI.get().NSFDbOpenExtended(retFullNetPath, openOptions, namesListHandleByVal,
+					localResult = NotesCAPI.get().NSFDbOpenExtended(retFullNetPath, word(openOptions), namesListHandleByVal,
 							null, retHDB, retDataModified, retNonDataModified);
 				}
 
 				if ((localResult.getValue() & NotesConstants.ERR_MASK)==582 &&
 				    JNXStringUtil.isEmpty(m_server) && !parentClient.isOnServer() && m_openAsIdUser) {
-					localResult = NotesCAPI.get().NSFDbOpenExtended(retFullNetPath, openOptions, (DHANDLE.ByValue) null,
+					localResult = NotesCAPI.get().NSFDbOpenExtended(retFullNetPath, word(openOptions), (DHANDLE.ByValue) null,
 							null, retHDB, retDataModified, retNonDataModified);
 				}
 				
@@ -355,12 +358,12 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 					
 					if(hasShared) {
 						if (m_openAsIdUser && (m_namesListPrivileges==null || !m_namesListPrivileges.contains(Privileges.FullAdminAccess))) {
-							localResult = NotesCAPI.get().NSFDbOpenTemplateExtended(retFullNetPath, openOptions,
+							localResult = NotesCAPI.get().NSFDbOpenTemplateExtended(retFullNetPath, word(openOptions),
 									null,
 									null, retHDB, retDataModified, retNonDataModified);
 						}
 						else {
-							localResult = NotesCAPI.get().NSFDbOpenTemplateExtended(retFullNetPath, openOptions,
+							localResult = NotesCAPI.get().NSFDbOpenTemplateExtended(retFullNetPath, word(openOptions),
 									namesListHandleByVal,
 									null, retHDB, retDataModified, retNonDataModified);
 						}
@@ -518,7 +521,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 		try(DisposableMemory infoBuf = getDbInfoBuffer();
 		    DisposableMemory titleMem = new DisposableMemory(NotesConstants.NSF_INFO_SIZE - 1)) {
-			NotesCAPI.get().NSFDbInfoParse(infoBuf, NotesConstants.INFOPARSE_TITLE, titleMem, (short) (titleMem.size() & 0xffff));
+			NotesCAPI.get().NSFDbInfoParse(infoBuf, TypedConstants.INFOPARSE_TITLE, titleMem, word(titleMem.size()));
 			return NotesStringUtils.fromLMBCS(titleMem, -1);
 		}
 	}
@@ -534,7 +537,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 		IntByReference retNoteID = new IntByReference();
 		STATUS result = LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
-			return NotesCAPI.get().NSFDbGetSpecialNoteID(handleByVal, (short) ((NotesConstants.SPECIAL_ID_NOTE | NotesConstants.NOTE_CLASS_ICON) & 0xffff), retNoteID);
+			return NotesCAPI.get().NSFDbGetSpecialNoteID(handleByVal, word(NotesConstants.SPECIAL_ID_NOTE | NotesConstants.NOTE_CLASS_ICON), retNoteID);
 		});
 		
 		if (result.getMaskedValue()==ERR_NOT_FOUND) {
@@ -567,7 +570,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			if (iconDoc.hasItem("$TITLE")) { //$NON-NLS-1$
 				DHANDLE iconNoteHandle = iconDoc.getAdapter(DHANDLE.class);
 				LockUtil.lockHandle(iconNoteHandle, (iconNoteHandleByVal) -> {
-					return NotesCAPI.get().NSFItemSetText(iconNoteHandleByVal, NotesStringUtils.toLMBCS("$TITLE",  true), infoBuf, NotesConstants.MAXWORD).orElseThrow(); //$NON-NLS-1$
+					return NotesCAPI.get().NSFItemSetText(iconNoteHandleByVal, NotesStringUtils.toLMBCS("$TITLE",  true), infoBuf, TypedConstants.MAXWORD).orElseThrow(); //$NON-NLS-1$
 				});
 
 				iconDoc.save();
@@ -587,7 +590,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		try(DisposableMemory infoBuf = getDbInfoBuffer()) {
 			Memory newTitleMem = NotesStringUtils.toLMBCS(title, true);
 
-			NotesCAPI.get().NSFDbInfoModify(infoBuf, NotesConstants.INFOPARSE_TITLE, newTitleMem);
+			NotesCAPI.get().NSFDbInfoModify(infoBuf, TypedConstants.INFOPARSE_TITLE, newTitleMem);
 
 			writeDbInfoBuffer(infoBuf);
 		}
@@ -620,7 +623,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		IntByReference retNoteID = new IntByReference();
 		
 		result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-			return NotesCAPI.get().NSFDbGetSpecialNoteID(hDbByVal, (short) ((NotesConstants.SPECIAL_ID_NOTE | NotesConstants.NOTE_CLASS_VIEW) & 0xffff), retNoteID);
+			return NotesCAPI.get().NSFDbGetSpecialNoteID(hDbByVal, word(NotesConstants.SPECIAL_ID_NOTE | NotesConstants.NOTE_CLASS_VIEW), retNoteID);
 		});
 		
 		if (result.getMaskedValue()==ERR_NOT_FOUND) {
@@ -739,7 +742,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
               dbDataHandleByVal) -> NotesCAPI.get().NIFOpenCollectionWithUserNameList(
                   dbViewHandleByVal,
                   dbDataHandleByVal,
-                  viewNoteId, openFlags, unreadTableHandleByVal,
+                  viewNoteId, word(openFlags), unreadTableHandleByVal,
                   rethCollection, null, retViewUNID, rethCollapsedList,
                   rethSelectedList, namesListHandleByVal))
           .orElseThrow();
@@ -1008,8 +1011,8 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
 		STATUS result = LockUtil.lockHandle(allocations.getDBHandle(), (dbHandleByVal) ->
 			NotesCAPI.get().NSFProfileOpen(dbHandleByVal, profileNameMem,
-					(short) (profileNameMem.size() & 0xffff), userNameMem,
-					(short) (userNameMem==null ? 0 : (userNameMem.size() & 0xffff)), (short) 1, rethProfileNote)
+					word(profileNameMem.size()), userNameMem,
+					word(userNameMem==null ? 0 : userNameMem.size()), word(1), rethProfileNote)
 		);
 		
 		if (result.getMaskedValue()==ERR_NOT_FOUND) {
@@ -1088,7 +1091,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
       LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) ->
         NotesCAPI.get().NSFProfileEnum(dbHandleByVal, profileNameMem,
-            profileNameMem == null ? (short) 0 : (short) (profileNameMem.size() & 0xffff), callback,
+            word(profileNameMem == null ? 0 : profileNameMem.size()), callback,
             null, 0)
       ).orElseThrow();
 
@@ -1382,7 +1385,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		NotesFTIndexStatsStruct retStats = NotesFTIndexStatsStruct.newInstance();
 		
 		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
-			NotesCAPI.get().FTIndex(hDbByVal, optionsBitMask, null, retStats)
+			NotesCAPI.get().FTIndex(hDbByVal, word(optionsBitMask), null, retStats)
 		).orElseThrow();
 		retStats.read();
 		
@@ -1484,7 +1487,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		Memory infoBuf = getDbInfoBuffer();
 		Memory categoriesMem = new Memory(NotesConstants.NSF_INFO_SIZE - 1);
 		
-		NotesCAPI.get().NSFDbInfoParse(infoBuf, NotesConstants.INFOPARSE_CATEGORIES, categoriesMem, (short) (categoriesMem.size() & 0xffff));
+		NotesCAPI.get().NSFDbInfoParse(infoBuf, TypedConstants.INFOPARSE_CATEGORIES, categoriesMem, word(categoriesMem.size() & 0xffff));
 		return NotesStringUtils.fromLMBCS(categoriesMem, -1);
 	}
 	
@@ -1506,7 +1509,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		Memory infoBuf = getDbInfoBuffer();
 		Memory newCategoriesMem = NotesStringUtils.toLMBCS(categories, true);
 		
-		NotesCAPI.get().NSFDbInfoModify(infoBuf, NotesConstants.INFOPARSE_CATEGORIES, newCategoriesMem);
+		NotesCAPI.get().NSFDbInfoModify(infoBuf, TypedConstants.INFOPARSE_CATEGORIES, newCategoriesMem);
 		
 		writeDbInfoBuffer(infoBuf);
 	}
@@ -1593,7 +1596,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				DHANDLE.ByReference rethOutBuf = DHANDLE.newInstanceByReference();
 				short options = NotesConstants.fINFO_OID | NotesConstants.fINFO_ALLOW_HUGE | NotesConstants.fINFO_NOTEID;
 				
-				NotesCAPI.get().NSFDbGetMultNoteInfo(dbHandleByVal, (short) (noteIds.length & 0xffff), options, retHandleByVal, retSize, rethOutBuf)
+				NotesCAPI.get().NSFDbGetMultNoteInfo(dbHandleByVal, word(noteIds.length), word(options), retHandleByVal, retSize, rethOutBuf)
 				  .orElseThrow();
 
 				if (rethOutBuf.isNull()) {
@@ -1714,9 +1717,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 				IntByReference retSize = new IntByReference();
 				DHANDLE.ByReference rethOutBuf = DHANDLE.newInstanceByReference();
 				
-				short options = NotesConstants.fINFO_OID | NotesConstants.fINFO_ALLOW_HUGE | NotesConstants.fINFO_NOTEID;
+				WORD options = word(NotesConstants.fINFO_OID | NotesConstants.fINFO_ALLOW_HUGE | NotesConstants.fINFO_NOTEID);
 				
-				NotesCAPI.get().NSFDbGetMultNoteInfoByUNID(dbHandleByVal, (short) (unids.length & 0xffff),
+				NotesCAPI.get().NSFDbGetMultNoteInfoByUNID(dbHandleByVal, word(unids.length),
 						options, retHandleByVal, retSize, rethOutBuf)
 				  .orElseThrow();
 				
@@ -2005,7 +2008,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		STATUS result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal)->
 		  NotesCAPI.get().NIFFindDesignNoteExt(hDbByVal, agentNameLMBCS,
-    		NotesConstants.NOTE_CLASS_FILTER,
+    		TypedConstants.NOTE_CLASS_FILTER,
     		NotesStringUtils.toLMBCS(NotesConstants.DFLAGPAT_AGENTSLIST, true),
     		retAgentNoteID,
     		NotesConstants.DGN_STRIPUNDERS)
@@ -2046,7 +2049,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		
 		STATUS result = LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
 			NotesCAPI.get().NIFFindDesignNoteExt(hDbByVal, agentNameLMBCS,
-					NotesConstants.NOTE_CLASS_FILTER,
+					TypedConstants.NOTE_CLASS_FILTER,
 					NotesStringUtils.toLMBCS(NotesConstants.DFLAGPAT_AGENTSLIST, true),
 					retAgentNoteID, NotesConstants.DGN_STRIPUNDERS)
 		);
@@ -2265,11 +2268,11 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     
     IntByReference rtnObjectID = new IntByReference();
     
-    short nsWithNoAssignBit = (short) (namespace | NotesConstants.NONS_NOASSIGN); //prevent assigning a new RRV if not found
+    WORD nsWithNoAssignBit = word(namespace | NotesConstants.NONS_NOASSIGN); //prevent assigning a new RRV if not found
     
     STATUS result = LockUtil.lockHandle(getAllocations().getDBHandle(), (dbHandleByVal) -> {
       return NotesCAPI.get().NSFDbGetNamedObjectID(dbHandleByVal, nsWithNoAssignBit, nameMem,
-          (short) (nameMem.size() & 0xffff), rtnObjectID);
+          word(nameMem.size()), rtnObjectID);
     });
     if (result.getMaskedValue()==578) { //special database object cannot be located
       return 0;
@@ -2354,7 +2357,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
           IntByReference retCollectionNoteID = new IntByReference();
 
           NotesCAPI.get()
-              .DesignOpenCollection(hDbByVal, false, (short) 0, rethCollection, retCollectionNoteID)
+              .DesignOpenCollection(hDbByVal, false, word(0), rethCollection, retCollectionNoteID)
               .orElseThrow();
 
           return LockUtil.lockHandle(rethCollection, (hDesignColByVal) -> {
@@ -2450,7 +2453,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		Memory infoBuf = getDbInfoBuffer();
 		Memory templateNameMem = new Memory(NotesConstants.NSF_INFO_SIZE - 1);
 		
-		NotesCAPI.get().NSFDbInfoParse(infoBuf, NotesConstants.INFOPARSE_CLASS, templateNameMem, (short) (templateNameMem.size() & 0xffff));
+		NotesCAPI.get().NSFDbInfoParse(infoBuf, TypedConstants.INFOPARSE_CLASS, templateNameMem, word(templateNameMem.size()));
 		return NotesStringUtils.fromLMBCS(templateNameMem, -1);
 	}
 	
@@ -2461,7 +2464,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		Memory infoBuf = getDbInfoBuffer();
 		Memory newTemplateNameMem = NotesStringUtils.toLMBCS(newTemplateName, true);
 		
-		NotesCAPI.get().NSFDbInfoModify(infoBuf, NotesConstants.INFOPARSE_CLASS, newTemplateNameMem);
+		NotesCAPI.get().NSFDbInfoModify(infoBuf, TypedConstants.INFOPARSE_CLASS, newTemplateNameMem);
 		
 		writeDbInfoBuffer(infoBuf);
 	}
@@ -2473,7 +2476,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		Memory infoBuf = getDbInfoBuffer();
 		Memory designTemplateNameMem = new Memory(NotesConstants.NSF_INFO_SIZE - 1);
 		
-		NotesCAPI.get().NSFDbInfoParse(infoBuf, NotesConstants.INFOPARSE_DESIGN_CLASS, designTemplateNameMem, (short) (designTemplateNameMem.size() & 0xffff));
+		NotesCAPI.get().NSFDbInfoParse(infoBuf, TypedConstants.INFOPARSE_DESIGN_CLASS, designTemplateNameMem, word(designTemplateNameMem.size()));
 		return NotesStringUtils.fromLMBCS(designTemplateNameMem, -1);
 	}
 	
@@ -2484,7 +2487,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		Memory infoBuf = getDbInfoBuffer();
 		Memory newDesignTemplateNameMem = NotesStringUtils.toLMBCS(newDesignTemplateName, true);
 		
-		NotesCAPI.get().NSFDbInfoModify(infoBuf, NotesConstants.INFOPARSE_DESIGN_CLASS, newDesignTemplateNameMem);
+		NotesCAPI.get().NSFDbInfoModify(infoBuf, TypedConstants.INFOPARSE_DESIGN_CLASS, newDesignTemplateNameMem);
 		
 		writeDbInfoBuffer(infoBuf);
 	}
@@ -2663,8 +2666,6 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		  searchOptionsBitMask |= 0x00000001; // FT_SEARCH_SET_COLL;
 		}
 		
-		short limitAsShort = (short) (maxResults & 0xffff); 
-		
 		JNAIDTable filterIDTable;
 		if (filterIds instanceof JNAIDTable) {
 			filterIDTable = (JNAIDTable) filterIds;
@@ -2720,15 +2721,13 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			DHANDLE.ByReference rethStrings = DHANDLE.newInstanceByReference();
 			IntByReference retNumHits = new IntByReference();
 			short arg = 0;
-
-			short countAsShort = (short) count;
 			
 			STATUS result = NotesCAPI.get().FTSearchExt(hDbByVal, 
 					rethSearch, hColl,
 					queryLMBCS, fSearchOptionsBitMask,
-					limitAsShort,
+					word(maxResults),
 					filterIDTableHandleByVal,
-							retNumDocs, rethStrings, rethResults, retNumHits, start, countAsShort, arg, hNamesListByVal);
+							retNumDocs, rethStrings, rethResults, retNumHits, start, word(count), word(arg), hNamesListByVal);
 			
 			long t1=System.currentTimeMillis();
 
@@ -2921,7 +2920,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		int fInfoRequestedMask = infoRequestedMask;
 		
 		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
-			NotesCAPI.get().NSFDbGetModifiedNotesInfo(hDbByVal, docClassMask, fInfoRequestedMask,
+			NotesCAPI.get().NSFDbGetModifiedNotesInfo(hDbByVal, word(docClassMask), fInfoRequestedMask,
 					sinceStructByVal, retArrayCount, retUntilStruct, retmhArray)
 		).orElseThrow();
 		
@@ -3039,7 +3038,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			DHANDLE.ByReference rethTable = DHANDLE.newInstanceByReference();
 			rethTable.clear();
 			
-			STATUS result = NotesCAPI.get().NSFDbGetModifiedNoteTable(hDbByVal, docClassMask, sinceStructByVal, 
+			STATUS result = NotesCAPI.get().NSFDbGetModifiedNoteTable(hDbByVal, word(docClassMask), sinceStructByVal, 
 					retUntilStruct, rethTable);
 			
 			if (result.getMaskedValue() == INotesErrorConstants.ERR_NO_MODIFIED_NOTES) {
@@ -3222,7 +3221,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		JNADatabaseAllocations allocations = getAllocations();
 		
 		STATUS result = LockUtil.lockHandle(allocations.getDBHandle(), (handleByVal) -> {
-			return NotesCAPI.get().NIFFindDesignNoteExt(handleByVal, viewNameLMBCS, NotesConstants.NOTE_CLASS_VIEW, NotesStringUtils.toLMBCS(findFlags, true), collectionNoteID, 0);
+			return NotesCAPI.get().NIFFindDesignNoteExt(handleByVal, viewNameLMBCS, TypedConstants.NOTE_CLASS_VIEW, NotesStringUtils.toLMBCS(findFlags, true), collectionNoteID, 0);
 		});
 		
 		if (result.getMaskedValue()==ERR_NOT_FOUND) { //view not found
@@ -3284,7 +3283,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 
       Memory newFolderNameMem = NotesStringUtils.toLMBCS(newFolderName, false);
 
-      short newFolderNameLength = newFolderNameMem == null ? 0 : (short) (newFolderNameMem.size() & 0xffff);
+      WORD newFolderNameLength = word(newFolderNameMem == null ? 0 : newFolderNameMem.size());
 
       IntByReference retNoteId = new IntByReference();
 
@@ -3378,7 +3377,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		}
 		
 		LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
-			NotesCAPI.get().FolderRename(hDbByVal, null, oldFolderNoteId, pszName, (short) pszName.size(), 0)
+			NotesCAPI.get().FolderRename(hDbByVal, null, oldFolderNoteId, pszName, word(pszName.size()), 0)
 		).orElseThrow();
 	}
 
@@ -3404,7 +3403,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 			throw new IllegalArgumentException(MessageFormat.format("Folder name too long (max {0} bytes, found {1} bytes)", NotesConstants.DESIGN_FOLDER_MAX_NAME, newFolderNameMem.size()));
 		}
 
-		short newFolderNameLength = (short) (newFolderNameMem.size() & 0xffff);
+		WORD newFolderNameLength = word(newFolderNameMem.size());
 
 		IntByReference retNewNoteId = new IntByReference();
 		
@@ -3617,7 +3616,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		if (userNameCanonicalMem.size() > 65535) {
 			throw new IllegalArgumentException("Username exceeds max length of 65535 bytes");
 		}
-		short userNameLength = (short) (userNameCanonicalMem.size() & 0xffff);
+		WORD userNameLength = word(userNameCanonicalMem.size());
 		
 		DHANDLE.ByReference rethUnreadList = DHANDLE.newInstanceByReference();
 		
@@ -3653,7 +3652,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 		if (userNameCanonicalMem.size() > 65535) {
 			throw new IllegalArgumentException("Username exceeds max length of 65535 bytes");
 		}
-		short userNameLength = (short) (userNameCanonicalMem.size() & 0xffff);
+		WORD userNameLength = word(userNameCanonicalMem.size());
 
 		JNAIDTable unreadTable = (JNAIDTable) getUnreadDocumentTable(userNameCanonical, true, true).orElse(null);
 		JNAIDTable unreadTableOrig;
@@ -3938,7 +3937,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
       short fOption = option;
 
       LockUtil.lockHandle(hDb, (hDbByVal) ->
-        NotesCAPI.get().NSFDbLocalSecInfoSet(hDbByVal, fOption, strengthAsByte, userNameCanonicalMem)
+        NotesCAPI.get().NSFDbLocalSecInfoSet(hDbByVal, word(fOption), strengthAsByte, userNameCanonicalMem)
       ).orElseThrow();
     }
   
@@ -4024,7 +4023,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     
     IntByReference retNoteID = new IntByReference();
     LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) -> {
-      return NotesCAPI.get().NSFDbGetSpecialNoteID(hDbByVal, (short)(NotesConstants.SPECIAL_ID_NOTE | documentClass.getValue()), retNoteID).orElseThrow();
+      return NotesCAPI.get().NSFDbGetSpecialNoteID(hDbByVal, word(NotesConstants.SPECIAL_ID_NOTE | documentClass.getValue()), retNoteID).orElseThrow();
     });
     return retNoteID.getValue();
   }
@@ -4126,7 +4125,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
     IntByReference retBufferLength = new IntByReference();
     
     LockUtil.lockHandle(getAllocations().getDBHandle(), (hDbByVal) ->
-      NotesCAPI.get().NSFGetNamedObjects(hDbByVal, namespace, rethBuffer, retBufferLength)
+      NotesCAPI.get().NSFGetNamedObjects(hDbByVal, word(namespace), rethBuffer, retBufferLength)
     ).orElseThrow();
     
     int hBuffer = rethBuffer.getValue();

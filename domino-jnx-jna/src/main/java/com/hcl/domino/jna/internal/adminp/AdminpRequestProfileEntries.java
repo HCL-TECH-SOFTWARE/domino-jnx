@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.internal.adminp;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -24,6 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.WordImpl;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Item;
 import com.hcl.domino.data.Item.ItemFlag;
@@ -128,8 +130,8 @@ public class AdminpRequestProfileEntries {
 				ShortByReference retListSize = new ShortByReference();
 				Memory retpList = new Memory(Native.POINTER_SIZE);
 				
-				NotesCAPI.get().ListAllocate((short) 0, 
-						(short) 0,
+				NotesCAPI.get().ListAllocate(WordImpl.ZERO, 
+				    WordImpl.ZERO,
 						1, rethList, retpList, retListSize)
 				  .orElseThrow();
 
@@ -148,8 +150,8 @@ public class AdminpRequestProfileEntries {
 
 		        char textSize = currStrMem==null ? 0 : (char) currStrMem.size();
 
-						NotesCAPI.get().ListAddEntry(hListByVal, 1, retListSize, (char) l, currStrMem,
-						    textSize).orElseThrow();
+						NotesCAPI.get().ListAddEntry(hListByVal, 1, retListSize, word(l), currStrMem,
+						    word(textSize)).orElseThrow();
 					}
 					
 					byte[] lmbcsListHandleAsArray = rethList.getPointer().getByteArray(0, rethList.size());

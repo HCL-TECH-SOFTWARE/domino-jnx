@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.data;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.lang.ref.ReferenceQueue;
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
@@ -182,7 +183,7 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
         try (DisposableMemory retValueBidMem = new DisposableMemory(sizeOfBlockId)) {
           LockUtil.lockHandle(docAllocations.getNoteHandle(), (noteHandleByVal) -> {
             NotesCAPI.get().NSFItemQueryEx(noteHandleByVal, itemBlockIdByVal, item_name,
-                (short) (item_name.size() & 0xffff),
+                word(item_name.size()),
                 retName_len, retItem_flags, retDataType, retValueBidMem, retValueLen, retSeqByte,
                 retDupItemID);
 
@@ -316,8 +317,8 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
         blockId.block = m_valueBlockId.getBlock();
         blockId.pool = m_valueBlockId.getPool();
         blockId.write();
-        short txtLengthAsShort = NotesCAPI.get().NSFItemConvertValueToText(typeValue,
-            blockId, valueLength, returnBuf, (short) (60 * 1024), separator);
+        short txtLengthAsShort = NotesCAPI.get().NSFItemConvertValueToText(word(typeValue),
+            blockId, valueLength, returnBuf, word(60 * 1024), separator);
         int txtLength = txtLengthAsShort & 0xffff;
         if (txtLength == 0) {
           return ""; //$NON-NLS-1$
@@ -472,7 +473,7 @@ public class JNAItem extends BaseJNAAPIObject<JNAItemAllocations> implements Ite
 	  try(DisposableMemory itemValue = getValueRaw(false)) {
 	    LockUtil.lockHandle(docAllocations.getNoteHandle(), (docHandleByVal) -> {
 	      return NotesCAPI.get().NSFItemModifyValue(docHandleByVal, itemBlockIdByVal, 
-	          (short) (itemFlags & 0xffff), newType.getValue(), 
+	          word(itemFlags), word(newType), 
 	          itemValue, (int) itemValue.size()).orElseThrow();
 	    });
 	  }

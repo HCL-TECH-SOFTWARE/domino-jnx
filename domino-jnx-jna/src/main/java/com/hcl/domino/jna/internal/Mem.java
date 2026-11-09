@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.internal;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.util.function.Function;
 import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.exception.ObjectDisposedException;
@@ -150,7 +151,7 @@ public class Mem {
 			short  BlkType,
 			int  dwSize,
 			DHANDLE.ByReference retHandle) {
-		NotesCAPI.get().OSMemAlloc(BlkType, dwSize, retHandle).orElseThrow();
+		NotesCAPI.get().OSMemAlloc(word(BlkType), dwSize, retHandle).orElseThrow();
 	}
 	
 	public interface LockedMemory extends AutoCloseable {

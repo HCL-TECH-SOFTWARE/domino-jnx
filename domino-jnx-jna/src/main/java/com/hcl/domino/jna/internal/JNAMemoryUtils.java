@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.internal;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.nio.ByteBuffer;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -70,7 +71,7 @@ public class JNAMemoryUtils {
     //    care has to be taken on "UNIX", which is everything else.
     //    Additionally, not all structures here have ODS numbers
     Memory mem = new Memory(MemoryStructureUtil.sizeOf(struct));
-    NotesCAPI.get().ODSReadMemory(ppData, odsType, mem, (short)1);
+    NotesCAPI.get().ODSReadMemory(ppData, word(odsType), mem, word(1));
     return MemoryStructureUtil.forStructure(struct, () -> mem.getByteBuffer(0, mem.size()));
 
   }

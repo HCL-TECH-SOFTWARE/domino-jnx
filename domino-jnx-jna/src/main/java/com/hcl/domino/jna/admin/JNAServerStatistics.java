@@ -1,14 +1,16 @@
 package com.hcl.domino.jna.admin;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.time.temporal.TemporalAccessor;
 import java.util.Collection;
 import com.hcl.domino.admin.ServerStatistics;
+import com.hcl.domino.commons.data.types.TypedConstants;
+import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.jna.data.JNADominoDateTime;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.misc.DominoEnumUtil;
-import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Memory;
 
 /**
@@ -22,10 +24,10 @@ public class JNAServerStatistics implements ServerStatistics {
   public void updateStatistic(String facility, String statName, Collection<Flag> flags, int value) {
     Memory facilityMem = NotesStringUtils.toLMBCS(facility, true);
     Memory statNameMem = NotesStringUtils.toLMBCS(statName, true);
-    short flagsVal = DominoEnumUtil.toBitField(Flag.class, flags);
+    WORD flagsVal = word(DominoEnumUtil.toBitField(Flag.class, flags));
     try(DisposableMemory valueMem = new DisposableMemory(4)) {
       valueMem.setInt(0, value);
-      NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, NotesConstants.VT_LONG, valueMem).orElseThrow();
+      NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, TypedConstants.VT_LONG, valueMem).orElseThrow();
     }
   }
 
@@ -34,9 +36,9 @@ public class JNAServerStatistics implements ServerStatistics {
       String value) {
     Memory facilityMem = NotesStringUtils.toLMBCS(facility, true);
     Memory statNameMem = NotesStringUtils.toLMBCS(statName, true);
-    short flagsVal = DominoEnumUtil.toBitField(Flag.class, flags);
+    WORD flagsVal = word(DominoEnumUtil.toBitField(Flag.class, flags));
     Memory valueMem = NotesStringUtils.toLMBCS(value, true);
-    NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, NotesConstants.VT_TEXT, valueMem).orElseThrow();
+    NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, TypedConstants.VT_TEXT, valueMem).orElseThrow();
   }
 
   @Override
@@ -44,10 +46,10 @@ public class JNAServerStatistics implements ServerStatistics {
       double value) {
     Memory facilityMem = NotesStringUtils.toLMBCS(facility, true);
     Memory statNameMem = NotesStringUtils.toLMBCS(statName, true);
-    short flagsVal = DominoEnumUtil.toBitField(Flag.class, flags);
+    WORD flagsVal = word(DominoEnumUtil.toBitField(Flag.class, flags));
     try(DisposableMemory valueMem = new DisposableMemory(8)) {
       valueMem.setDouble(0, value);
-      NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, NotesConstants.VT_NUMBER, valueMem).orElseThrow();
+      NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, TypedConstants.VT_NUMBER, valueMem).orElseThrow();
     }
   }
 
@@ -56,13 +58,13 @@ public class JNAServerStatistics implements ServerStatistics {
       TemporalAccessor value) {
     Memory facilityMem = NotesStringUtils.toLMBCS(facility, true);
     Memory statNameMem = NotesStringUtils.toLMBCS(statName, true);
-    short flagsVal = DominoEnumUtil.toBitField(Flag.class, flags);
+    WORD flagsVal = word(DominoEnumUtil.toBitField(Flag.class, flags));
     try(DisposableMemory valueMem = new DisposableMemory(8)) {
       JNADominoDateTime dt = JNADominoDateTime.from(value);
       int[] innards = dt.getInnards();
       valueMem.setInt(0, innards[0]);
       valueMem.setInt(4, innards[1]);
-      NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, NotesConstants.VT_TIMEDATE, valueMem).orElseThrow();
+      NotesCAPI.get().StatUpdate(facilityMem, statNameMem, flagsVal, TypedConstants.VT_TIMEDATE, valueMem).orElseThrow();
     }
   }
 

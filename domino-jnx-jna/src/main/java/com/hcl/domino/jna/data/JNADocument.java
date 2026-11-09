@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.data;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import static java.text.MessageFormat.format;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -63,6 +64,8 @@ import com.hcl.domino.commons.data.DefaultUserData;
 import com.hcl.domino.commons.data.IDefaultDocument;
 import com.hcl.domino.commons.data.SignatureDataImpl;
 import com.hcl.domino.commons.data.types.StatusImpl;
+import com.hcl.domino.commons.data.types.TypedConstants;
+import com.hcl.domino.commons.data.types.WordImpl;
 import com.hcl.domino.commons.design.FormFieldImpl;
 import com.hcl.domino.commons.design.view.CollationDecoder;
 import com.hcl.domino.commons.design.view.CollationEncoder;
@@ -105,6 +108,7 @@ import com.hcl.domino.data.ItemDataTypeConstants;
 import com.hcl.domino.data.PreV3Author;
 import com.hcl.domino.data.UserData;
 import com.hcl.domino.data.types.STATUS;
+import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.design.DesignAgent;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.design.Form;
@@ -629,7 +633,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       retNoteId.clear();
 
       return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-        NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_ID, retNoteId);
+        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_ID, retNoteId);
         return retNoteId.getInt(0);
       });
     }
@@ -669,7 +673,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
       byte[] data;
       try (DisposableMemory mem = new DisposableMemory(JNANotesConstants.oidSize)) {
-        NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_OID, mem);
+        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_OID, mem);
 
         data = mem.getByteArray(0, JNANotesConstants.oidSize);
       }
@@ -714,7 +718,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       retTimeDate.clear();
 
       return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-        NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_MODIFIED, retTimeDate);
+        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_MODIFIED, retTimeDate);
         int[] innards = new int[] {retTimeDate.getInt(0), retTimeDate.getInt(4)};
         return new DefaultDominoDateTime(innards);
 
@@ -731,7 +735,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       retTimeDate.clear();
 
       return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-        NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_ACCESSED, retTimeDate);
+        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_ACCESSED, retTimeDate);
         int[] innards = new int[] {retTimeDate.getInt(0), retTimeDate.getInt(4)};
         return new DefaultDominoDateTime(innards);
       });
@@ -747,7 +751,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       retTimeDate.clear();
 
       return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-        NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_ADDED_TO_FILE,
+        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_ADDED_TO_FILE,
             retTimeDate);
         int[] innards = new int[] {retTimeDate.getInt(0), retTimeDate.getInt(4)};
         return new DefaultDominoDateTime(innards);
@@ -899,7 +903,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       JNADocumentAllocations allocations = getAllocations();
       STATUS result = LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
         return NotesCAPI.get().NSFItemInfo(noteHandleByVal, itemNameMem,
-            itemNameMem == null ? 0 : (short) (itemNameMem.size() & 0xffff),
+            word(itemNameMem == null ? 0 : itemNameMem.size()),
             itemBlockIdMem, retDataType, valueBlockIdMem, retValueLen);
       });
 
@@ -934,7 +938,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
         result = LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
           return NotesCAPI.get().NSFItemInfoNext(noteHandleByVal, itemBlockIdByVal,
-              itemNameMem, itemNameMem == null ? 0 : (short) (itemNameMem.size() & 0xffff),
+              itemNameMem, word(itemNameMem == null ? 0 : itemNameMem.size()),
               itemBlockIdMem, retDataType,
               valueBlockIdMem, retNextValueLen);
         });
@@ -1317,9 +1321,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     Memory itemNameMem = NotesStringUtils.toLMBCS(itemName, false);
 
     LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> 
-      NotesCAPI.get().NSFItemAppend(noteHandleByVal, flagsShort, itemNameMem,
-          (short) (itemNameMem == null ? 0 : itemNameMem.size()),
-          ItemDataType.TYPE_INVALID_OR_UNKNOWN.getValue(),
+      NotesCAPI.get().NSFItemAppend(noteHandleByVal, word(flagsShort), itemNameMem,
+          word(itemNameMem == null ? 0 : itemNameMem.size()),
+          word(ItemDataType.TYPE_INVALID_OR_UNKNOWN.getValue()),
           null, 0)
     ).orElseThrow();
 
@@ -1642,8 +1646,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
         ShortByReference retListSize = new ShortByReference();
         Memory retpList = new Memory(Native.POINTER_SIZE);
 
-        NotesCAPI.get().ListAllocate((short) 0,
-            (short) 0,
+        NotesCAPI.get().ListAllocate(WordImpl.ZERO,
+            WordImpl.ZERO,
             1, rethList, retpList, retListSize).orElseThrow();
 
         return LockUtil.lockHandle(rethList, (hListByVal) -> {
@@ -1660,8 +1664,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
             char textSize = currStrMem == null ? 0 : (char) currStrMem.size();
 
             NotesCAPI.get().ListAddEntry(hListByVal, 1, retListSize,
-                (char) (i & 0xffff), currStrMem,
-                textSize).orElseThrow();
+                word(i), currStrMem,
+                word(textSize)).orElseThrow();
             i++;
           }
 
@@ -1675,7 +1679,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
         PointerByReference retpList = null;
         IntByReference retListSize = new IntByReference();
 
-        capi1201.ListAllocate2Ext((short) 0,
+        capi1201.ListAllocate2Ext(word(0),
             0,
             false,
             rethList,
@@ -1706,9 +1710,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
             capi1201.ListAddEntry2Ext(hList,
                 false,
                 retListSize,
-                (char) i,
+                word(i),
                 currStrMem,
-                textSize,
+                word(textSize),
                 true).orElseThrow();
 
             i++;
@@ -2146,8 +2150,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
     JNADocumentAllocations allocations = getAllocations();
     LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> 
-      NotesCAPI.get().NSFItemAppendByBLOCKID(noteHandleByVal, flagsShort, itemNameMem,
-          (short) (itemNameMem == null ? 0 : itemNameMem.size()), valueBlockIdByVal,
+      NotesCAPI.get().NSFItemAppendByBLOCKID(noteHandleByVal, word(flagsShort), itemNameMem,
+          word(itemNameMem == null ? 0 : itemNameMem.size()), valueBlockIdByVal,
           valueLength, retItemBlockId)
     ).orElseThrow();
 
@@ -2181,10 +2185,10 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandlyByVal) ->
       NotesCAPI.get().NSFItemAppend(
           noteHandlyByVal,
-          flagsShort,
+          word(flagsShort),
           itemNameMem,
-          (short) (itemNameMem == null ? 0 : itemNameMem.size()),
-          (short) (itemType & 0xffff),
+          word(itemNameMem == null ? 0 : itemNameMem.size()),
+          word(itemType),
           ptr,
           valueLength)
     ).orElseThrow();
@@ -2240,11 +2244,11 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     Memory $fileItemName = NotesStringUtils.toLMBCS("$FILE", true); //$NON-NLS-1$
     Memory filePathOnDiskMem = NotesStringUtils.toLMBCS(filePathOnDisk, true);
     Memory uniqueFileNameInNoteMem = NotesStringUtils.toLMBCS(reallyUniqueFileName, true);
-    short compressionAsShort = (short) (compression.getValue() & 0xffff);
+    WORD compressionAsShort = word(compression.getValue());
 
     LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) ->
       NotesCAPI.get().NSFNoteAttachFile(noteHandleByVal, $fileItemName,
-          (short) (($fileItemName.size() - 1) & 0xffff), filePathOnDiskMem, uniqueFileNameInNoteMem,
+          word($fileItemName.size() - 1), filePathOnDiskMem, uniqueFileNameInNoteMem,
           compressionAsShort)
     ).orElseThrow();
 
@@ -2354,9 +2358,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
                 int fDealloc = 1;
                 // transfers ownership of the item value buffer to the note
                 NotesCAPI.get().NSFItemAppendObject(noteHandleByVal,
-                    NotesConstants.ITEM_SUMMARY,
+                    TypedConstants.ITEM_SUMMARY,
                     fileItemNameMem,
-                    (short) (fileItemNameMem.size() & 0xffff),
+                    word(fileItemNameMem.size()),
                     bhValue,
                     sizeOfFileObjectWithFileName,
                     fDealloc).orElseThrow();
@@ -2430,13 +2434,13 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
       if (id == null) {
         NotesCAPI.get().NSFNoteSignExt3(hNoteByVal, (Pointer) null, null,
-            NotesConstants.MAXWORD, (DHANDLE.ByReference) null,
+            TypedConstants.MAXWORD, (DHANDLE.ByReference) null,
             signNotesIfMimePresent ? NotesConstants.SIGN_NOTES_IF_MIME_PRESENT : 0, 0,
             (Pointer) null).orElseThrow();
       } else {
         JNADominoUtils.accessKFC(id,
             phKFC -> NotesCAPI.get().NSFNoteSignExt3(hNoteByVal, phKFC.getValue(), null,
-                NotesConstants.MAXWORD, (DHANDLE.ByReference) null,
+                TypedConstants.MAXWORD, (DHANDLE.ByReference) null,
                 signNotesIfMimePresent ? NotesConstants.SIGN_NOTES_IF_MIME_PRESENT : 0, 0,
                 (Pointer) null)).orElseThrow();
       }
@@ -2477,7 +2481,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       flags = flags | currMode.getMode();
     }
 
-    short flagsShort = (short) (flags & 0xffff);
+    WORD flagsShort = word(flags);
 
     DHANDLE.ByReference rethDstNote = DHANDLE.newInstanceByReference();
 
@@ -2505,13 +2509,13 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       retOid.clear();
 
       LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-        NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_OID, retOid);
+        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_OID, retOid);
 
         OriginatorID oidStruct = MemoryStructureUtil.forStructure(OriginatorID.class,
             () -> retOid.getByteBuffer(0, JNANotesConstants.oidSize));
         oidStruct.setUNID(newUNID);
 
-        NotesCAPI.get().NSFNoteSetInfo(handleByVal, NotesConstants._NOTE_OID, retOid);
+        NotesCAPI.get().NSFNoteSetInfo(handleByVal, TypedConstants._NOTE_OID, retOid);
 
         return null;
       });
@@ -2543,18 +2547,18 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     LockUtil.lockHandles(
         otherJNADbAllocations.getDBHandle(),
         newNoteHandle, (otherDbHandleByVal, newNoteHandleByVal) -> {
-          NotesCAPI.get().NSFNoteSetInfo(newNoteHandleByVal, NotesConstants._NOTE_ID, null);
+          NotesCAPI.get().NSFNoteSetInfo(newNoteHandleByVal, TypedConstants._NOTE_ID, null);
 
           try (DisposableMemory mem = new DisposableMemory(JNANotesConstants.oidSize)) {
             byte[] data = new byte[JNANotesConstants.oidSize];
             newOID.getData().get(data);
             mem.write(0, data, 0, JNANotesConstants.oidSize);
-            NotesCAPI.get().NSFNoteSetInfo(newNoteHandleByVal, NotesConstants._NOTE_OID, mem);
+            NotesCAPI.get().NSFNoteSetInfo(newNoteHandleByVal, TypedConstants._NOTE_OID, mem);
           }
 
           try(DisposableMemory targetDbHdlByReference = new DisposableMemory(8)) {
             targetDbHdlByReference.setLong(0, otherDbHandleByVal.getValue());
-            NotesCAPI.get().NSFNoteSetInfo(newNoteHandleByVal, NotesConstants._NOTE_DB,
+            NotesCAPI.get().NSFNoteSetInfo(newNoteHandleByVal, TypedConstants._NOTE_DB,
                 targetDbHdlByReference);
           }
 
@@ -2666,8 +2670,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
         (dbHandleByVal, noteHandleByVal) ->
           // delete note and remove from profile cache
           NotesCAPI.get().NSFProfileDelete(dbHandleByVal,
-              profileNameMem, (short) (profileNameMem.size() & 0xffff), profileUsernameMem,
-              (short) ((profileUsernameMem == null ? 0 : profileUsernameMem.size()) & 0xffff))
+              profileNameMem, word(profileNameMem.size()), profileUsernameMem,
+              word(profileUsernameMem == null ? 0 : profileUsernameMem.size()))
         ).orElseThrow();
 
     return true;
@@ -2738,8 +2742,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
     LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) ->
       NotesCAPI.get().NSFProfileUpdate(noteHandleByVal,
-          profileNameMem, (short) (profileNameMem.size() & 0xffff), userNameMem,
-          (short) (userNameMem == null ? 0 : (userNameMem.size() & 0xffff)))
+          profileNameMem, word(profileNameMem.size()), userNameMem,
+          word(userNameMem == null ? 0 : userNameMem.size()))
     ).orElseThrow();
 
     return true;
@@ -2800,7 +2804,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
         JNADocumentAllocations allocations = getAllocations();
         m_documentClass = LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
-          NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, NotesConstants._NOTE_CLASS, retNoteClass);
+          NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, TypedConstants._NOTE_CLASS, retNoteClass);
           int noteClassMask = retNoteClass.getShort(0);
 
           Set<DocumentClass> docClass = EnumSet.noneOf(DocumentClass.class);
@@ -2840,7 +2844,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
       ShortByReference noteClassVal = new ShortByReference();
       noteClassVal.setValue(docClassVal.shortValue());
-      NotesCAPI.get().NSFNoteSetInfo(noteHandleByVal, NotesConstants._NOTE_CLASS,
+      NotesCAPI.get().NSFNoteSetInfo(noteHandleByVal, word(NotesConstants._NOTE_CLASS),
           noteClassVal.getPointer());
       return null;
     });
@@ -2955,7 +2959,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       try (DisposableMemory retFlags = new DisposableMemory(2)) {
         retFlags.clear();
 
-        NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, NotesConstants._NOTE_FLAGS, retFlags);
+        NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, TypedConstants._NOTE_FLAGS, retFlags);
         short flags = retFlags.getShort(0);
         return flags;
       }
@@ -2975,7 +2979,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       try (DisposableMemory retFlags = new DisposableMemory(2)) {
         retFlags.clear();
 
-        NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, NotesConstants._NOTE_FLAGS2, retFlags);
+        NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, TypedConstants._NOTE_FLAGS2, retFlags);
         short flags = retFlags.getShort(0);
         return flags;
       }
@@ -2989,7 +2993,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       flagsMem.setShort(0, flags);
 
       LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> {
-        NotesCAPI.get().NSFNoteSetInfo(noteHandleByVal, NotesConstants._NOTE_FLAGS, flagsMem);
+        NotesCAPI.get().NSFNoteSetInfo(noteHandleByVal, TypedConstants._NOTE_FLAGS, flagsMem);
         return 0;
       });
     }
@@ -3051,7 +3055,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
 
         NotesCAPI.get().NSFItemQueryEx(noteHandleByVal,
-            itemBlockIdByVal, item_name, (short) (item_name.size() & 0xffff), retName_len,
+            itemBlockIdByVal, item_name, word(item_name.size()), retName_len,
             retItem_flags, retDataType, retValueBidMem, retValueLen, retSeqByte, retDupItemID);
 
         BlockID itemBlockIdForItemCreation = MemoryStructureUtil.newStructure(BlockID.class, 0);
@@ -3078,7 +3082,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
           BlockID retItemBlockId;
           try (DisposableMemory retItemBlockIdMem = new DisposableMemory(sizeOfBlockId)) {
             result = NotesCAPI.get().NSFItemInfoNext(noteHandleByVal, itemBlockIdByVal,
-                null, (short) 0, retItemBlockIdMem, retDataType,
+                null, word(0), retItemBlockIdMem, retDataType,
                 retValueBidMem, retNextValueLen);
 
             if (result.getMaskedValue() == INotesErrorConstants.ERR_ITEM_NOT_FOUND) {
@@ -3124,7 +3128,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       retResponseCount.clear();
 
       return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-        NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_RESPONSE_COUNT,
+        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_RESPONSE_COUNT,
             retResponseCount);
         return retResponseCount.getInt(0);
       });
@@ -3139,7 +3143,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
     DHANDLE dhandle = LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
       try(DisposableMemory ret = new DisposableMemory(8)) {
-        NotesCAPI.get().NSFNoteGetInfo(handleByVal, NotesConstants._NOTE_RESPONSES, ret);
+        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_RESPONSES, ret);
         return DHANDLE.newInstanceByValue(ret.getLong(0));
       }
     });
@@ -3190,7 +3194,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
     JNADocumentAllocations allocations = getAllocations();
     STATUS result = LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
-      short name_len = itemNameMem == null ? 0 : (short) (itemNameMem.size() & 0xffff);
+      WORD name_len = word(itemNameMem == null ? 0 : itemNameMem.size());
       return NotesCAPI.get().NSFItemInfo(noteHandleByVal, itemNameMem, name_len,
           null, null, null, null);
 
@@ -3726,16 +3730,16 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       IntByReference fnid = new IntByReference();
 
       short lkSubformResult = LockUtil.lockHandle(parentDbAllocations.getDBHandle(), (hDbByVal) -> {
-        return NotesCAPI.get().DesignLookupNameFE(hDbByVal, NotesConstants.NOTE_CLASS_FORM,
-            designPatternMem, subformaliasMem, subformaliasLen, NotesConstants.DGN_ONLYSHARED,
+        return NotesCAPI.get().DesignLookupNameFE(hDbByVal, TypedConstants.NOTE_CLASS_FORM,
+            designPatternMem, subformaliasMem, word(subformaliasLen), NotesConstants.DGN_ONLYSHARED,
             fnid, null, null, null);
       });
 
       if (lkSubformResult != 0) {
         /* Try private. */
         lkSubformResult = LockUtil.lockHandle(parentDbAllocations.getDBHandle(), (hDbByVal) -> {
-          return NotesCAPI.get().DesignLookupNameFE(hDbByVal, NotesConstants.NOTE_CLASS_FORM,
-              designPatternMem, subformaliasMem, subformaliasLen, NotesConstants.DGN_ONLYPRIVATE,
+          return NotesCAPI.get().DesignLookupNameFE(hDbByVal, TypedConstants.NOTE_CLASS_FORM,
+              designPatternMem, subformaliasMem, word(subformaliasLen), NotesConstants.DGN_ONLYPRIVATE,
               fnid, null, null, null);
         });
       }
@@ -3957,8 +3961,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
           lkFormResult = LockUtil.lockHandle(dbAllocations.getDBHandle(), (hDbByVal) -> {
             return NotesCAPI.get().DesignLookupNameFE(hDbByVal,
-                NotesConstants.NOTE_CLASS_FORM, szFlagsPatternMem,
-                szBuffer, wAliasLen.getValue() > 0 ? wAliasLen.getValue() : wNameLen.getValue(),
+                TypedConstants.NOTE_CLASS_FORM, szFlagsPatternMem,
+                szBuffer, word(wAliasLen.getValue() > 0 ? wAliasLen.getValue() : wNameLen.getValue()),
                 NotesConstants.DGN_ONLYSHARED, retFormNoteId, (IntByReference) null,
                 (NotesCallbacks.DESIGN_COLL_OPENCLOSE_PROC) null, null);
           });
@@ -3967,8 +3971,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
             /* Try private. */
             lkFormResult = LockUtil.lockHandle(dbAllocations.getDBHandle(), (hDbByVal) -> {
               return NotesCAPI.get().DesignLookupNameFE(hDbByVal,
-                  NotesConstants.NOTE_CLASS_FORM, szFlagsPatternMem,
-                  szBuffer, wAliasLen.getValue() > 0 ? wAliasLen.getValue() : wNameLen.getValue(),
+                  TypedConstants.NOTE_CLASS_FORM, szFlagsPatternMem,
+                  szBuffer, word(wAliasLen.getValue() > 0 ? wAliasLen.getValue() : wNameLen.getValue()),
                   NotesConstants.DGN_ONLYPRIVATE, retFormNoteId, (IntByReference) null,
                   (NotesCallbacks.DESIGN_COLL_OPENCLOSE_PROC) null, null);
             });
@@ -4078,11 +4082,11 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
      * snis6z2taf et al. -- reinstate ability to MIME encrypt,
      * by flagging any MIME body for the mailer
      */
-    short fFlags = flags;
-    short fwMailNoteFlags = wMailNoteFlags;
+    WORD fFlags = word(flags);
+    WORD fwMailNoteFlags = word(wMailNoteFlags);
     LockUtil.lockHandle(tmpDocAllocations.getNoteHandle(), (hTmpNoteByVal) ->
       NotesCAPI.get().MailNoteJitEx2(null, hTmpNoteByVal, fFlags, null,
-          NotesConstants.MAIL_NO_JIT, fwMailNoteFlags, null, null)
+          word(NotesConstants.MAIL_NO_JIT), fwMailNoteFlags, null, null)
     ).orElseThrow();
 
     /*
@@ -4116,7 +4120,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       DisposableMemory messageId = new DisposableMemory(NotesConstants.MAXPATH + 1);
       LockUtil.lockHandle(docAllocations.getNoteHandle(), (hNoteByVal) ->
         NotesCAPI.get().MailSetSMTPMessageID(hNoteByVal, null, messageId,
-            (short) (NotesConstants.MAXPATH & 0xffff))
+            TypedConstants.MAXPATH)
       ).orElseThrow();
 
       String messageIdStr = NotesStringUtils.fromLMBCS(messageId, -1);
@@ -4359,7 +4363,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
           LockUtil.lockHandle(getAllocations().getNoteHandle(), (hNoteByVal) -> {
             Memory itemNameLmbcs = NotesStringUtils.toLMBCS(itemName, true);
             return NotesCAPI.get().NSFItemConvertToText(hNoteByVal, itemNameLmbcs, returnBuf,
-                (short) (60 * 1024), separator);
+                word(60 * 1024), separator);
           });
       int txtLength = txtLengthAsShort & 0xffff;
       if (txtLength == 0) {
@@ -4403,7 +4407,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     if (valueMem.size() > 0xffff) {
       throw new IllegalArgumentException("Value exceeds max size of 65535 bytes");
     }
-    short valueLen = (short) (valueMem.size() & 0xffff);
+    WORD valueLen = word(valueMem.size());
 
     short result = LockUtil.lockHandle(getAllocations().getNoteHandle(), (hNoteByVal) -> {
 

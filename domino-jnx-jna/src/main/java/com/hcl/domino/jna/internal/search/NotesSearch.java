@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.internal.search;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -732,7 +733,7 @@ public class NotesSearch {
                   viewTitleBuf, searchFlagsBitMaskFinal, searchFlags1Final, searchFlags2Final,
                   searchFlags3Final,
                   searchFlags4Final,
-                  (short) (noteClassMaskFinal & 0xffff), sinceStruct, apiCallback, null, retUntil,
+                  word(noteClassMaskFinal), sinceStruct, apiCallback, null, retUntil,
                   hNamesListByVal);
 
             });

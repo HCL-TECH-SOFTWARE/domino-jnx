@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.naming;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -27,7 +28,7 @@ import java.util.Spliterators;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
+import com.hcl.domino.data.types.WORD;
 import com.hcl.domino.jna.JNADominoClient;
 import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
@@ -109,7 +110,7 @@ public class JNAUserDirectoryQuery implements UserDirectoryQuery {
 		Memory serverName = NotesStringUtils.toLMBCS(this.serverName, true);
 		Collection<String> namespacesLocal = this.namespaces == null ? Arrays.asList("") : this.namespaces; //$NON-NLS-1$
 		Memory namespaces = NotesStringUtils.toLMBCS(namespacesLocal);
-		short nameCount = (short) (namesLocal.size() & 0xffff);
+		WORD nameCount = word(namesLocal.size());
 		Memory names = NotesStringUtils.toLMBCS(namesLocal);
 		Memory items = NotesStringUtils.toLMBCS(this.items);
 		
@@ -117,17 +118,17 @@ public class JNAUserDirectoryQuery implements UserDirectoryQuery {
 		NotesCAPI.get().NAMELookup2(
 			serverName,
 			flags,
-			(short)(namespacesLocal.size() & 0xffff),
+			word(namespacesLocal.size()),
 			namespaces,
 			nameCount,
 			names,
-			(short)(this.items == null ? 0 : (this.items.size() & 0xffff)),
+			word(this.items == null ? 0 : this.items.size()),
 			items,
 			rethBuffer
 		).orElseThrow();
 		
 		JNAUserDirectoryQueryIterator iter = new JNAUserDirectoryQueryIterator(client, rethBuffer, this.items);
-		Spliterator<List<Map<String, List<Object>>>> spliterator = Spliterators.spliterator(iter, nameCount+namespacesLocal.size(), 0);
+		Spliterator<List<Map<String, List<Object>>>> spliterator = Spliterators.spliterator(iter, nameCount.getValue()+namespacesLocal.size(), 0);
 		return StreamSupport.stream(spliterator, false);
 	}
 

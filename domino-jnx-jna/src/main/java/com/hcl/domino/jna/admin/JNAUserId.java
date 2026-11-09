@@ -16,12 +16,14 @@
  */
 package com.hcl.domino.jna.admin;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.lang.ref.ReferenceQueue;
 import java.nio.file.Path;
 import java.util.function.Function;
 
 import com.hcl.domino.DominoException;
 import com.hcl.domino.admin.idvault.UserId;
+import com.hcl.domino.commons.data.types.TypedConstants;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -31,7 +33,6 @@ import com.hcl.domino.jna.internal.NotesStringUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.allocations.JNAUserIDAllocations;
 import com.hcl.domino.jna.utils.JNADominoUtils;
-import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Memory;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
@@ -101,7 +102,7 @@ public class JNAUserId extends BaseJNAAPIObject<JNAUserIDAllocations> implements
 			Memory targetFilePathMem = NotesStringUtils.toLMBCS(targetFilePathStr, true);
 			
 			NotesCAPI.get().SECKFMMakeSafeCopy(phKFC.getValue(),
-					NotesConstants.KFM_safecopy_Standard, (short) 0, targetFilePathMem).orElseThrow();
+					TypedConstants.KFM_safecopy_Standard, word(0), targetFilePathMem).orElseThrow();
 
 		}
 	}

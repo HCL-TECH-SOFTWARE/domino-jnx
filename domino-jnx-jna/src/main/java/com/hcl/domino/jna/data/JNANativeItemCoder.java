@@ -16,6 +16,7 @@
  */
 package com.hcl.domino.jna.data;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.text.MessageFormat;
@@ -24,6 +25,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.WordImpl;
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.data.NativeItemCoder;
 import com.hcl.domino.jna.internal.DisposableMemory;
@@ -79,8 +81,8 @@ public class JNANativeItemCoder implements NativeItemCoder {
       DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
       ShortByReference retListSize = new ShortByReference();
 
-      NotesCAPI.get().ListAllocate((short) 0,
-          (short) 0,
+      NotesCAPI.get().ListAllocate(WordImpl.ZERO,
+          WordImpl.ZERO,
           0, rethList, null, retListSize).orElseThrow();
 
       return LockUtil.lockHandle(rethList, (handleByVal) -> {
@@ -96,7 +98,7 @@ public class JNANativeItemCoder implements NativeItemCoder {
           char textSize = currStrMem == null ? 0 : (char) currStrMem.size();
 
           NotesCAPI.get().ListAddEntry(handleByVal, 0, retListSize,
-              (char) i, currStrMem, textSize).orElseThrow();
+              word(i), currStrMem, word(textSize)).orElseThrow();
         }
 
 

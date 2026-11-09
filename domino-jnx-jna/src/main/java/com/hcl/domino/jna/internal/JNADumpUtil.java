@@ -16,8 +16,8 @@
  */
 package com.hcl.domino.jna.internal;
 
+import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.util.EnumSet;
-
 import com.hcl.domino.commons.util.DumpUtil;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.sun.jna.Memory;
@@ -150,7 +150,7 @@ public class JNADumpUtil extends DumpUtil {
 			typeAsInt = typeAsInt | currType.getType();
 		}
 		
-		NotesCAPI.get().DEBUGDumpHandleTable(typeAsInt, (short) (blkType & 0xffff));
+		NotesCAPI.get().DEBUGDumpHandleTable(typeAsInt, word(blkType));
 	}
 	
 	/**
