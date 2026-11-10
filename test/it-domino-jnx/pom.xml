@@ -66,15 +66,9 @@
     <dependency>
       <groupId>com.devskiller</groupId>
       <artifactId>jfairy</artifactId>
-      <version>0.10.0</version>
+      <version>0.6.4</version>
       <scope>test</scope>
     </dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-text</artifactId>
-			<version>1.15.0</version>
-			<scope>test</scope>
-		</dependency>
     <dependency>
       <groupId>org.apache.bcel</groupId>
       <artifactId>bcel</artifactId>
