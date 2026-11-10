@@ -16,6 +16,10 @@
  */
 package com.hcl.domino.jna.internal.views;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -27,10 +31,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
-
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.data.AbstractTypedAccess;
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
+import com.hcl.domino.commons.util.DumpUtil;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.commons.views.IItemTableData;
 import com.hcl.domino.commons.views.IItemValueTableData;
@@ -51,13 +55,10 @@ import com.hcl.domino.jna.data.JNADominoDateTime;
 import com.hcl.domino.jna.internal.ItemDecoder;
 import com.hcl.domino.jna.internal.JNANotesConstants;
 import com.hcl.domino.jna.internal.LMBCSString;
-import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesStringUtils;
-import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
-import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.search.ItemTableDataDocAdapter;
 import com.hcl.domino.jna.internal.structs.NotesItemTableLargeStruct;
-import com.hcl.domino.jna.internal.structs.NotesItemTableStruct;
+import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
 /**
@@ -67,43 +68,6 @@ import com.sun.jna.Pointer;
  * @author Karsten Lehmann
  */
 public class NotesLookupResultBufferDecoder {
-	
-	/**
-	 * Decodes the buffer
-	 * 
-	 * @param parentCollection parent collection
-	 * @param bufferHandle buffer handle
-	 * @param numEntriesSkipped entries skipped during collection scan
-	 * @param numEntriesReturned entries read during collection scan
-	 * @param returnMask bitmask used to fill the buffer with data
-	 * @param signalFlags signal flags returned by NIFReadEntries, e.g. whether we have more data to read
-	 * @param pos position to add to NotesViewLookupResultData object in case view data is read via {@link JNADominoCollection#findByKeyExtended2(Set, Set, Object...)}
-	 * @param indexModifiedSequenceNo index modified sequence no
-	 * @param retDiffTime only set in {@link JNADominoCollection#readEntriesExt(com.hcl.domino.jna.data.JNADominoCollectionPosition, com.hcl.domino.data.Navigate, boolean, int, com.hcl.domino.data.Navigate, int, Set, DominoDateTime, com.hcl.domino.jna.data.JNAIDTable, Integer)}
-	 * @param convertStringsLazily true to delay string conversion until the first use
-	 * @param convertDominoDateTimeToCalendar true to convert {@link JNADominoDateTime} values to {@link Calendar}
-	 * @param singleColumnLookupName for single column lookups, programmatic name of lookup column
-	 * @return collection data
-	 */
-	public static NotesViewLookupResultData decodeCollectionLookupResultBuffer(JNADominoCollection parentCollection,
-			DHANDLE bufferHandle, int numEntriesSkipped, int numEntriesReturned,
-			Set<ReadMask> returnMask, WORD signalFlags, String pos, int indexModifiedSequenceNo, DominoDateTime retDiffTime,
-			boolean convertStringsLazily, boolean convertDominoDateTimeToCalendar, String singleColumnLookupName) {
-		
-		return LockUtil.lockHandle(bufferHandle, (handleByVal) -> {
-			Pointer bufferPtr = Mem.OSLockObject(handleByVal);
-			try {
-				return decodeCollectionLookupResultBuffer(parentCollection, bufferPtr, numEntriesSkipped,
-						numEntriesReturned, returnMask, signalFlags, pos, indexModifiedSequenceNo, retDiffTime,
-						convertStringsLazily, convertDominoDateTimeToCalendar, singleColumnLookupName);
-			}
-			finally {
-				Mem.OSUnlockObject(handleByVal);
-				Mem.OSMemFree(handleByVal).orElseThrow();
-			}
-		});
-	}
-	
 	/**
 	 * Decodes the buffer
 	 * 
@@ -122,7 +86,7 @@ public class NotesLookupResultBufferDecoder {
 	 * @return collection data
 	 */
 	public static NotesViewLookupResultData decodeCollectionLookupResultBuffer(JNADominoCollection parentCollection,
-			Pointer bufferPtr, int numEntriesSkipped, int numEntriesReturned,
+			ByteBuffer bufferPtr, int numEntriesSkipped, int numEntriesReturned,
 			Set<ReadMask> returnMask, WORD signalFlags, String pos, int indexModifiedSequenceNo, DominoDateTime retDiffTime,
 			boolean convertStringsLazily, boolean convertDominoDateTimeToCalendar, String singleColumnLookupName) {
 
@@ -133,7 +97,9 @@ public class NotesLookupResultBufferDecoder {
 
 		if (returnMask.contains(ReadMask.COLLECTIONSTATS)) {
 		  // COLLECTIONSTATIS is DWORD[2]
-		  int[] tmpStats = bufferPtr.getIntArray(0, 2);
+		  int[] tmpStats = new int[2];
+		  tmpStats[0] = bufferPtr.getInt(0);
+		  tmpStats[1] = bufferPtr.getInt(1);
 			
 			collectionStats = new NotesCollectionStats(tmpStats[0], tmpStats[1]);
 					
@@ -144,10 +110,10 @@ public class NotesLookupResultBufferDecoder {
 		
 		final boolean decodeAllValues = true;
 
+        //special optimized case for reading only note ids
 		if (returnMask.size()==1 && returnMask.contains(ReadMask.NOTEID)) {
-			//special optimized case for reading only note ids
 			int[] noteIds = new int[numEntriesReturned];
-			bufferPtr.read(0, noteIds, 0, numEntriesReturned);
+			bufferPtr.asIntBuffer().get(noteIds);
 			
 			for (int i=0; i<noteIds.length; i++) {
 				JNACollectionEntry newData = new JNACollectionEntry(parentCollection);
@@ -157,81 +123,99 @@ public class NotesLookupResultBufferDecoder {
 			
 		}
 		else {
+		  boolean readNoteId = returnMask.contains(ReadMask.NOTEID);
+		  boolean readNoteUnid = returnMask.contains(ReadMask.NOTEUNID);
+		  boolean readNoteClass = returnMask.contains(ReadMask.NOTECLASS);
+		  boolean readSiblings = returnMask.contains(ReadMask.INDEXSIBLINGS);
+		  boolean readChildren = returnMask.contains(ReadMask.INDEXCHILDREN);
+		  boolean readDescendants = returnMask.contains(ReadMask.INDEXDESCENDANTS);
+		  boolean readAnyUnread = returnMask.contains(ReadMask.INDEXANYUNREAD);
+		  boolean readLevels = returnMask.contains(ReadMask.INDENTLEVELS);
+		  boolean readScore = returnMask.contains(ReadMask.SCORE);
+		  boolean readUnread = returnMask.contains(ReadMask.INDEXUNREAD);
+		  boolean readPosition = returnMask.contains(ReadMask.INDEXPOSITION);
+		  boolean readSummaryValues = returnMask.contains(ReadMask.SUMMARYVALUES);
+		  boolean readSummary = returnMask.contains(ReadMask.SUMMARY);
+		  
 			for (int i=0; i<numEntriesReturned; i++) {
 				JNACollectionEntry newData = new JNACollectionEntry(parentCollection);
 				viewEntries.add(newData);
 
-				if (returnMask.contains(ReadMask.NOTEID)) {
+				if (readNoteId) {
 					int entryNoteId = bufferPtr.getInt(bufferPos);
 					newData.setNoteID(entryNoteId);
 
 					bufferPos+=4;
 				}
 
-				if (returnMask.contains(ReadMask.NOTEUNID)) {
-					long[] unidLongs = bufferPtr.getLongArray(bufferPos, 2);
+				if (readNoteUnid) {
+				  long[] unidLongs = new long[2];
+				  unidLongs[0] = bufferPtr.getLong(bufferPos);
+				  unidLongs[1] = bufferPtr.getLong(bufferPos+8);
 					newData.setUNID(unidLongs);
 
 					bufferPos+=16;
 				}
-				if (returnMask.contains(ReadMask.NOTECLASS)) {
+				if (readNoteClass) {
 					short noteClass = bufferPtr.getShort(bufferPos);
 					newData.setNoteClass(noteClass);
 
 					bufferPos+=2;
 				}
-				if (returnMask.contains(ReadMask.INDEXSIBLINGS)) {
+				if (readSiblings) {
 					int siblingCount = bufferPtr.getInt(bufferPos);
 					newData.setSiblingCount(siblingCount);
 
 					bufferPos+=4;
 				}
-				if (returnMask.contains(ReadMask.INDEXCHILDREN)) {
+				if (readChildren) {
 					int childCount = bufferPtr.getInt(bufferPos);
 					newData.setChildCount(childCount);
 
 					bufferPos+=4;
 				}
-				if (returnMask.contains(ReadMask.INDEXDESCENDANTS)) {
+				if (readDescendants) {
 					int descendantCount = bufferPtr.getInt(bufferPos);
 					newData.setDescendantCount(descendantCount);
 
 					bufferPos+=4;
 				}
-				if (returnMask.contains(ReadMask.INDEXANYUNREAD)) {
+				if (readAnyUnread) {
 					boolean isAnyUnread = bufferPtr.getShort(bufferPos) == 1;
 					newData.setAnyUnread(isAnyUnread);
 
 					bufferPos+=2;
 				}
-				if (returnMask.contains(ReadMask.INDENTLEVELS)) {
+				if (readLevels) {
 					short indentLevels = bufferPtr.getShort(bufferPos);
 					newData.setIndentLevels(indentLevels);
 
 					bufferPos += 2;
 				}
-				if (returnMask.contains(ReadMask.SCORE)) {
+				if (readScore) {
 					short score = bufferPtr.getShort(bufferPos);
 					newData.setFTScore(score);
 
 					bufferPos += 2;
 				}
-				if (returnMask.contains(ReadMask.INDEXUNREAD)) {
+				if (readUnread) {
 					boolean isUnread = bufferPtr.getShort(bufferPos) == 1;
 					newData.setUnread(isUnread);
 
 					bufferPos+=2;
 				}
-				if (returnMask.contains(ReadMask.INDEXPOSITION)) {
-					short level = bufferPtr.getShort(bufferPos);
+				if (readPosition) {
+					int level = bufferPtr.getShort(bufferPos) & 0xFFFF;
 					int[] posArr = new int[level+1];
-					bufferPtr.read(bufferPos + 2 /* level */  + 2 /* MinLevel+MaxLevel */, posArr, 0, level+1);
+					IntBuffer intBuf = bufferPtr.asIntBuffer();
+					intBuf.position(bufferPos + 2 /* level */  + 2 /* MinLevel+MaxLevel */);
+					intBuf.get(posArr);
 
 					newData.setPosition(posArr);
 
 					bufferPos += 4 * (level + 2);
 				}
-				if (returnMask.contains(ReadMask.SUMMARYVALUES)) {
+				if (readSummaryValues) {
 					//				The information in a view summary of values is as follows:
 					//
 					//					ITEM_VALUE_TABLE containing header information (total length of summary, number of items in summary)
@@ -249,7 +233,7 @@ public class NotesLookupResultBufferDecoder {
 
 					int startBufferPosOfSummaryValues = bufferPos;
 
-					Pointer itemValueTablePtr = bufferPtr.share(bufferPos);
+					ByteBuffer itemValueTablePtr = share(bufferPtr, bufferPos);
 					ItemValueTableDataImpl itemTableData = (ItemValueTableDataImpl) decodeItemValueTable(itemValueTablePtr,
 							convertStringsLazily, convertDominoDateTimeToCalendar, decodeAllValues);
 
@@ -264,10 +248,10 @@ public class NotesLookupResultBufferDecoder {
 					//add some statistical information to the data object to be able to see which columns "pollute" the summary buffer
 					newData.setColumnValueSizesInBytes(itemTableData.getItemValueLengthsInBytes());
 				}
-				if (returnMask.contains(ReadMask.SUMMARY)) {
+				if (readSummary) {
 					int startBufferPosOfSummaryValues = bufferPos;
 
-					Pointer itemTablePtr = bufferPtr.share(bufferPos);
+					ByteBuffer itemTablePtr = share(bufferPtr, bufferPos);
 					ItemTableDataImpl itemTableData = (ItemTableDataImpl) decodeItemTable(itemTablePtr, convertStringsLazily,
 							convertDominoDateTimeToCalendar, decodeAllValues);
 
@@ -303,7 +287,7 @@ public class NotesLookupResultBufferDecoder {
 			Database db,
 			int noteId,
 			LinkedHashMap<String,String> columnFormulasFixedOrder,
-			Pointer bufferPtr, boolean convertStringsLazily, boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
+			ByteBuffer bufferPtr, boolean convertStringsLazily, boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
 		
 		ItemValueTableDataImpl valueTable = (ItemValueTableDataImpl) decodeItemValueTable(bufferPtr, convertStringsLazily, convertJNADominoDateTimeToCalendar, decodeAllValues);
 		IItemTableData itemTableData = new ItemTableDataImpl(db, noteId, columnFormulasFixedOrder, valueTable);
@@ -327,7 +311,7 @@ public class NotesLookupResultBufferDecoder {
 			Database db,
 			int noteId,
 			LinkedHashMap<String,String> columnFormulasFixedOrder,
-			Pointer bufferPtr, boolean convertStringsLazily, boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
+			ByteBuffer bufferPtr, boolean convertStringsLazily, boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
 
 		ItemValueTableDataImpl valueTable = (ItemValueTableDataImpl) decodeItemValueTableLarge(bufferPtr, convertStringsLazily, convertJNADominoDateTimeToCalendar, decodeAllValues);
 		IItemTableData itemTableData = new ItemTableDataImpl(db, noteId, columnFormulasFixedOrder, valueTable);
@@ -343,7 +327,7 @@ public class NotesLookupResultBufferDecoder {
 	 * @param decodeAllValues true to decode all values in the buffer
 	 * @return item value table data
 	 */
-	public static IItemValueTableData decodeItemValueTableLarge(Pointer bufferPtr,
+	public static IItemValueTableData decodeItemValueTableLarge(ByteBuffer bufferPtr,
 			boolean convertStringsLazily, boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
 		int bufferPos = 0;
 		
@@ -384,7 +368,7 @@ public class NotesLookupResultBufferDecoder {
 		data.m_totalBufferLength = totalBufferLength;
 		data.m_itemsCount = itemsCount;
 		
-		Pointer itemValuePtr = bufferPtr.share(bufferPos);
+		ByteBuffer itemValuePtr = share(bufferPtr, bufferPos);
 		populateItemValueTableLargeData(itemValuePtr, itemsCount, itemNameLengths, itemValueLengths, data,
 				convertStringsLazily, convertJNADominoDateTimeToCalendar, decodeAllValues);
 
@@ -400,7 +384,7 @@ public class NotesLookupResultBufferDecoder {
 	 * @param decodeAllValues true to decode all values in the buffer
 	 * @return item value table data
 	 */
-	public static IItemValueTableData decodeItemValueTable(Pointer bufferPtr,
+	public static IItemValueTableData decodeItemValueTable(ByteBuffer bufferPtr,
 			boolean convertStringsLazily, boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
 		int bufferPos = 0;
 		
@@ -441,7 +425,7 @@ public class NotesLookupResultBufferDecoder {
 		data.m_totalBufferLength = totalBufferLength;
 		data.m_itemsCount = itemsCount;
 
-		Pointer itemValuePtr = bufferPtr.share(bufferPos);
+		ByteBuffer itemValuePtr = share(bufferPtr, bufferPos);
 		populateItemValueTableData(itemValuePtr, itemsCount, itemNameLengths, itemValueLengths, data,
 				convertStringsLazily, convertJNADominoDateTimeToCalendar, decodeAllValues);
 
@@ -460,19 +444,20 @@ public class NotesLookupResultBufferDecoder {
 	 * @param decodeAllValues true to decode all values in the buffer
 	 */
 	@SuppressWarnings("deprecation")
-	private static void populateItemValueTableData(Pointer bufferPtr, int itemsCount,
+	private static void populateItemValueTableData(ByteBuffer bufferPtr, int itemsCount,
 			int[] itemNameLengths, int[] itemValueLengths, ItemValueTableDataImpl retData, boolean convertStringsLazily,
 			boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
 		int bufferPos = 0;
 		String[] itemNames = new String[itemsCount];
 		int[] itemDataTypes = new int[itemsCount];
-		Pointer[] itemValueBufferPointers = new Pointer[itemsCount];
+		ByteBuffer[] itemValueBufferPointers = new ByteBuffer[itemsCount];
 		int[] itemValueBufferSizes = new int[itemsCount];
 		Object[] decodedItemValues = new Object[itemsCount];
 		
 		for (int j=0; j<itemsCount; j++) {
 			if (itemNameLengths!=null && itemNameLengths[j]>0) {
-				itemNames[j] = NotesStringUtils.fromLMBCS(bufferPtr.share(bufferPos), itemNameLengths[j]);
+              Pointer textPtr = Native.getDirectBufferPointer(bufferPtr);
+              itemNames[j] = NotesStringUtils.fromLMBCS(textPtr.share(bufferPos), itemNameLengths[j]);
 				bufferPos += itemNameLengths[j];
 			}
 			
@@ -492,7 +477,7 @@ public class NotesLookupResultBufferDecoder {
 				bufferPos += 2;
 				
 				//read item values
-				itemValueBufferPointers[j] = bufferPtr.share(bufferPos);
+				itemValueBufferPointers[j] = share(bufferPtr, bufferPos);
 				itemValueBufferSizes[j] = itemValueLengths[j] - 2;
 				
 				//skip item value
@@ -565,20 +550,20 @@ public class NotesLookupResultBufferDecoder {
 	 * @param convertJNADominoDateTimeToCalendar true to convert {@link JNADominoDateTime} values to {@link Calendar}
 	 * @param decodeAllValues true to decode all values in the buffer
 	 */
-	@SuppressWarnings("deprecation")
-	private static void populateItemValueTableLargeData(Pointer bufferPtr, int itemsCount,
+	private static void populateItemValueTableLargeData(ByteBuffer bufferPtr, int itemsCount,
 			int[] itemNameLengths, int[] itemValueLengths, ItemValueTableDataImpl retData, boolean convertStringsLazily,
 			boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
 		int bufferPos = 0;
 		String[] itemNames = new String[itemsCount];
 		int[] itemDataTypes = new int[itemsCount];
-		Pointer[] itemValueBufferPointers = new Pointer[itemsCount];
+		ByteBuffer[] itemValueBufferPointers = new ByteBuffer[itemsCount];
 		int[] itemValueBufferSizes = new int[itemsCount];
 		Object[] decodedItemValues = new Object[itemsCount];
 		
 		for (int j=0; j<itemsCount; j++) {
 			if (itemNameLengths!=null && itemNameLengths[j]>0) {
-				itemNames[j] = NotesStringUtils.fromLMBCS(bufferPtr.share(bufferPos), itemNameLengths[j]);
+			  Pointer textPtr = Native.getDirectBufferPointer(bufferPtr);
+				itemNames[j] = NotesStringUtils.fromLMBCS(textPtr.share(bufferPos), itemNameLengths[j]);
 				bufferPos += itemNameLengths[j];
 			}
 			
@@ -598,7 +583,7 @@ public class NotesLookupResultBufferDecoder {
 				bufferPos += 2;
 				
 				//read item values
-				itemValueBufferPointers[j] = bufferPtr.share(bufferPos);
+				itemValueBufferPointers[j] = share(bufferPtr, bufferPos);
 				itemValueBufferSizes[j] = itemValueLengths[j] - 2;
 				
 				//skip item value
@@ -672,35 +657,37 @@ public class NotesLookupResultBufferDecoder {
 	 * @param decodeAllValues true to decode all values in the buffer
 	 * @return data
 	 */
-	public static IItemTableData decodeItemTableLarge(Pointer bufferPtr,
+	public static IItemTableData decodeItemTableLarge(ByteBuffer bufferPtr,
 			boolean convertStringsLazily, boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
 		int bufferPos = 0;
-		NotesItemTableLargeStruct itemTable = NotesItemTableLargeStruct.newInstance(bufferPtr);
-		itemTable.read();
+		// ULONG Length
+		// USHORT Items
+		// USHORT filler
 
-		//skip item table header
-		bufferPos += itemTable.size();
-
-		int itemsCount = itemTable.getItemsAsInt();
+		int itemsCount = Short.toUnsignedInt(bufferPtr.getShort(4));
 		int[] itemValueLengths = new int[itemsCount];
 		int[] itemNameLengths = new int[itemsCount];
 
-		//read  ITEM_LARGE structures for each item
+        //skip item table header
+        bufferPos += 8;
+
+		//read ITEM_LARGE structures for each item
+		// USHORT NameLength
+		// USHORT filler
+		// ULONG ValueLength
 		for (int j=0; j<itemsCount; j++) {
-			Pointer itemPtr = bufferPtr.share(bufferPos);
-			itemNameLengths[j] = itemPtr.getShort(0) & 0xffff;
-			//4 -> skip filler WORD
-			itemValueLengths[j] = itemPtr.share(4).getInt(0);
+			itemNameLengths[j] = Short.toUnsignedInt(bufferPtr.getShort(bufferPos));
+			itemValueLengths[j] = bufferPtr.getInt(bufferPos+4);
 			
 			bufferPos += JNANotesConstants.tableItemLargeSize;
 		}
 
 		ItemTableDataImpl data = new ItemTableDataImpl(convertStringsLazily);
 		data.setPreferNotesTimeDates(!convertJNADominoDateTimeToCalendar);
-		data.m_totalBufferLength = itemTable.getLengthAsInt();
+		data.m_totalBufferLength = bufferPtr.getInt(0);
 		data.m_itemsCount = itemsCount;
 		
-		Pointer itemValuePtr = bufferPtr.share(bufferPos);
+		ByteBuffer itemValuePtr = share(bufferPtr, bufferPos);
 		populateItemValueTableLargeData(itemValuePtr, itemsCount, itemNameLengths, itemValueLengths,
 				data, convertStringsLazily, convertJNADominoDateTimeToCalendar, decodeAllValues);
 		
@@ -716,14 +703,11 @@ public class NotesLookupResultBufferDecoder {
 	 * @param decodeAllValues true to decode all values in the buffer
 	 * @return data
 	 */
-	public static IItemTableData decodeItemTable(Pointer bufferPtr,
+	public static IItemTableData decodeItemTable(ByteBuffer bufferPtr,
 			boolean convertStringsLazily, boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
 		int bufferPos = 0;
-		NotesItemTableStruct itemTable = NotesItemTableStruct.newInstance(bufferPtr);
-		itemTable.read();
-		
 		//skip item table header
-		bufferPos += itemTable.size();
+		bufferPos += 4;
 
 //		typedef struct {
 //			   USHORT Length; /*  total length of this buffer */
@@ -732,25 +716,24 @@ public class NotesLookupResultBufferDecoder {
 //			/* now comes the packed text containing the item names. */
 //			} ITEM_TABLE;					
 		
-		int itemsCount = itemTable.getItemsAsInt();
+		int itemsCount = Short.toUnsignedInt(bufferPtr.getShort(2));
 		int[] itemValueLengths = new int[itemsCount];
 		int[] itemNameLengths = new int[itemsCount];
 		
 		//read ITEM structures for each item
 		for (int j=0; j<itemsCount; j++) {
-			Pointer itemPtr = bufferPtr.share(bufferPos);
-			itemNameLengths[j] = itemPtr.getShort(0) & 0xffff;
-			itemValueLengths[j] = itemPtr.share(2).getShort(0) & 0xffff;
+			itemNameLengths[j] = Short.toUnsignedInt(bufferPtr.getShort(bufferPos));
+			itemValueLengths[j] = Short.toUnsignedInt(bufferPtr.getShort(bufferPos+2));
 			
 			bufferPos += JNANotesConstants.tableItemSize;
 		}
 		
 		ItemTableDataImpl data = new ItemTableDataImpl(convertStringsLazily);
 		data.setPreferNotesTimeDates(!convertJNADominoDateTimeToCalendar);
-		data.m_totalBufferLength = itemTable.getLengthAsInt();
+		data.m_totalBufferLength = Short.toUnsignedInt(bufferPtr.getShort(0));
 		data.m_itemsCount = itemsCount;
 		
-		Pointer itemValuePtr = bufferPtr.share(bufferPos);
+		ByteBuffer itemValuePtr = share(bufferPtr, bufferPos);
 		populateItemValueTableData(itemValuePtr, itemsCount, itemNameLengths, itemValueLengths,
 				data, convertStringsLazily, convertJNADominoDateTimeToCalendar, decodeAllValues);
 		
@@ -763,7 +746,7 @@ public class NotesLookupResultBufferDecoder {
 	 * @author Karsten Lehmann
 	 */
 	private static class ItemValueTableDataImpl implements IItemValueTableData {
-		protected Pointer[] m_itemValueBufferPointers;
+		protected ByteBuffer[] m_itemValueBufferPointers;
 		protected int[] m_itemValueBufferSizes;
 		protected Object[] m_itemValues;
 		protected int[] m_itemDataTypes;
@@ -1197,4 +1180,9 @@ public class NotesLookupResultBufferDecoder {
 		}
 	}
 	
+	private static ByteBuffer share(ByteBuffer buf, int pos) {
+	  ByteBuffer buf2 = buf.slice();
+	  buf2.position(pos);
+	  return buf2.slice().order(ByteOrder.nativeOrder());
+	}
 }

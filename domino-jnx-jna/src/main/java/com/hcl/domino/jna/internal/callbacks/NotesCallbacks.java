@@ -75,7 +75,7 @@ public interface NotesCallbacks {
 	}
 
 	/**
-	 * Callback used by NIFFindByKeyExtended3
+	 * Callback used by NIFFindByKeyExtended4
 	 */
 	interface NIFFindByKeyProc extends Callback {
 		short invoke(NIFFindByKeyContextStruct ctx);
