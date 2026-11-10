@@ -62,7 +62,6 @@
     <dockerfile-maven-version>1.4.13</dockerfile-maven-version>
     <domino.jna.version>0.9.35</domino.jna.version>
     <domino.version>12.0.1</domino.version>
-    <eclipse.plugin.version>2.10</eclipse.plugin.version>
     <expiringmap.version>0.5.10</expiringmap.version>
     <finalName>${project.artifactId}-${project.version}</finalName>
     <flexmark.pegdown.version>0.21.0</flexmark.pegdown.version>
@@ -248,14 +247,6 @@
     </extensions>
     <pluginManagement>
       <plugins>
-        <plugin>
-          <artifactId>maven-eclipse-plugin</artifactId>
-          <version>${eclipse.plugin.version}</version>
-          <configuration>
-            <downloadSources>true</downloadSources>
-            <downloadJavadocs>true</downloadJavadocs>
-          </configuration>
-        </plugin>
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>versions-maven-plugin</artifactId>
