@@ -1,6 +1,6 @@
 package com.hcl.domino.jna.internal.capi;
 
-import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.data.types.WordImpl;
@@ -28,7 +28,7 @@ import com.sun.jna.TypeMapper;
 public enum JnxJnaTypeMapper implements TypeMapper {
   INSTANCE;
   
-  private final Map<Class<?>, Object> cache = new HashMap<>();
+  private final Map<Class<?>, Object> cache = new IdentityHashMap<>();
   
   private JnxJnaTypeMapper() {
     cache.put(DHANDLE.ByReference.class, DHandleByReferenceMapper.INSTANCE);
