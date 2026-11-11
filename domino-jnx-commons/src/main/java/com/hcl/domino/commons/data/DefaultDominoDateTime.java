@@ -252,12 +252,12 @@ public class DefaultDominoDateTime implements DominoDateTime {
   @Override
   public LocalDate toLocalDate() {
     final Temporal temporal = this.toTemporal().orElse(null);
-    if (temporal instanceof OffsetDateTime) {
+    if (temporal instanceof LocalDate) {
+      return (LocalDate) temporal;
+    } else if (temporal instanceof OffsetDateTime) {
       return ((OffsetDateTime) temporal).toLocalDate();
     } else if (temporal instanceof ZonedDateTime) {
       return ((ZonedDateTime) temporal).toLocalDate();
-    } else if (temporal instanceof LocalDate) {
-      return (LocalDate) temporal;
     } else if (temporal == null) {
       throw new DateTimeException("Cannot create a LocalDate from the underlying value");
     } else {
@@ -268,12 +268,12 @@ public class DefaultDominoDateTime implements DominoDateTime {
   @Override
   public LocalTime toLocalTime() {
     final Temporal temporal = this.toTemporal().orElse(null);
-    if (temporal instanceof OffsetDateTime) {
+    if (temporal instanceof LocalTime) {
+      return (LocalTime) temporal;
+    } else if (temporal instanceof OffsetDateTime) {
       return ((OffsetDateTime) temporal).toLocalTime();
     } else if (temporal instanceof ZonedDateTime) {
       return ((ZonedDateTime) temporal).toLocalTime();
-    } else if (temporal instanceof LocalTime) {
-      return (LocalTime) temporal;
     } else if (temporal == null) {
       throw new DateTimeException("Cannot create a LocalTime from the underlying value");
     } else {
@@ -311,12 +311,13 @@ public class DefaultDominoDateTime implements DominoDateTime {
   
   @Override
   public String toISOString() {
-    if (hasDate() && hasTime()) {
-      return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(this);
-    } else if (hasDate()) {
-      return DateTimeFormatter.ISO_LOCAL_DATE.format(this);
-    } else if (hasTime()) {
-      return DateTimeFormatter.ISO_LOCAL_TIME.format(this);
+    Temporal temporal = this.toTemporal().orElse(null);
+    if (temporal instanceof OffsetDateTime) {
+      return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(temporal);
+    } else if (temporal instanceof LocalDate) {
+      return DateTimeFormatter.ISO_LOCAL_DATE.format(temporal);
+    } else if (temporal instanceof LocalTime) {
+      return DateTimeFormatter.ISO_LOCAL_TIME.format(temporal);
     } else {
       return ""; //$NON-NLS-1$
     }
