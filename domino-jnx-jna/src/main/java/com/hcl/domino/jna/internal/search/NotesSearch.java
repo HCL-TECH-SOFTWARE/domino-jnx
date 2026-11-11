@@ -560,8 +560,9 @@ public class NotesSearch {
                 boolean convertStringsLazily = true;
                 boolean convertNotesTimeDateToCalendar = false;
 
-                ByteBuffer buf = summaryBufferPtr.getByteBuffer(0, searchMatch.getSummaryLength()).order(ByteOrder.nativeOrder());
                 if (useSearchFlags.contains(SearchFlag.NOITEMNAMES)) {
+                  // Pad out the amount we read a bit to account for extra data
+                  ByteBuffer buf = summaryBufferPtr.getByteBuffer(0, searchMatch.getSummaryLength()+256).order(ByteOrder.nativeOrder());
                   // flag to just return the column values is used; so the
                   // buffer contains an ITEM_VALUE_TABLE with column values
                   // in the column order instead of an ITEM_TABLE with columnname/columnvalue
@@ -580,6 +581,7 @@ public class NotesSearch {
                             convertStringsLazily, convertNotesTimeDateToCalendar, false);
                   }
                 } else {
+                  ByteBuffer buf = summaryBufferPtr.getByteBuffer(0, searchMatch.getSummaryLength()).order(ByteOrder.nativeOrder());
                   if (hasLargeSearchSupport) {
                     itemTableData =
                         NotesLookupResultBufferDecoder.decodeItemTableLarge(buf,
