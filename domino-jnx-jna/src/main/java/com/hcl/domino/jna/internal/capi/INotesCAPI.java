@@ -276,7 +276,7 @@ public interface INotesCAPI extends Library {
 			Memory Text,
 			WORD TextSize);
 
-	STATUS SECKFMGetUserName(Memory retUserName);
+	STATUS SECKFMGetUserName(ByteBuffer retUserName);
 
 	STATUS NSFDbOpen(Memory dbName, HANDLE.ByReference dbHandle);
 	STATUS NSFDbClose(HANDLE.ByValue dbHandle);
@@ -502,7 +502,7 @@ public interface INotesCAPI extends Library {
 	void NSFItemQueryEx(
 			DHANDLE.ByValue note_handle,
 			NotesBlockIdStruct.ByValue item_bid,
-			Memory item_name,
+			ByteBuffer item_name,
 			WORD  return_buf_len,
 			WORD.ByReference name_len_ptr,
 			WORD.ByReference item_flags_ptr,
@@ -620,18 +620,18 @@ public interface INotesCAPI extends Library {
 			Memory item_name,
 			short name_len);
 	
-    short NSFItemConvertToText(
+    WORD NSFItemConvertToText(
         DHANDLE.ByValue note_handle,
         Memory item_name_ptr,
-        Memory text_buf_ptr,
+        ByteBuffer text_buf_ptr,
         WORD text_buf_len,
         char separator);
 
-    short NSFItemConvertValueToText(
+    WORD NSFItemConvertValueToText(
         WORD value_type,
         NotesBlockIdStruct.ByValue value_bid,
         int value_len,
-        Memory text_buf_ptr,
+        ByteBuffer text_buf_ptr,
         WORD text_buf_len,
         char separator);
 

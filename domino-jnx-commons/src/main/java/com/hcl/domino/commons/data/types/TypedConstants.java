@@ -46,4 +46,7 @@ public interface TypedConstants {
   WORD _NOTE_RESPONSES = word(NotesConstants._NOTE_RESPONSES);
   
   WORD ITEM_SUMMARY = word(NotesConstants.ITEM_SUMMARY);
+  
+  /** Common size for expecting text buffers */
+  WORD SIXTY_KB = word(60 * 1024);
 }

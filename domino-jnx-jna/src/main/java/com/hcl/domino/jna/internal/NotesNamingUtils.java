@@ -38,11 +38,11 @@ import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.util.PlatformUtils;
 import com.hcl.domino.commons.util.ReverseStringTokenizer;
 import com.hcl.domino.commons.util.StringTokenizerExt;
+import com.hcl.domino.commons.util.ThreadBuffers;
 import com.hcl.domino.jna.data.JNAUserNamesList;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
-import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
@@ -63,8 +63,6 @@ public class NotesNamingUtils {
 	 * around each related C call.
 	 */
 	private static final Object BUILDNAMESLIST_LOCK = new Object();
-	
-	private static final ThreadLocal<ByteBuffer> NAME_BUFFER = ThreadLocal.withInitial(() -> ByteBuffer.allocateDirect(NotesConstants.MAXUSERNAME));
 	
 	private static Map<String, String> m_nameAbbrCache = Collections.synchronizedMap(new LinkedHashMap<String, String>(16,0.75f, true) {
 		private static final long serialVersionUID = -5818239831757810895L;
@@ -157,7 +155,7 @@ public class NotesNamingUtils {
       Memory inNameMem = NotesStringUtils.toLMBCS(name, true);
       WordByReference outLength = new WordByReference();
 
-      ByteBuffer outNameMem = NAME_BUFFER.get();
+      ByteBuffer outNameMem = ThreadBuffers.BUFFER_USERNAME.get();
       NotesCAPI.get().DNCanonicalize(0, templateNameMem, inNameMem, outNameMem, TypedConstants.MAXUSERNAME, outLength).orElseThrow();
 
       String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue());
@@ -358,7 +356,7 @@ public class NotesNamingUtils {
                                                           // name
       Memory inNameMem = NotesStringUtils.toLMBCS(name, true);
 
-      ByteBuffer outNameMem = NAME_BUFFER.get();
+      ByteBuffer outNameMem = ThreadBuffers.BUFFER_USERNAME.get();
       WordByReference outLength = new WordByReference();
 
       NotesCAPI.get().DNAbbreviate(0, templateNameMem, inNameMem, outNameMem, TypedConstants.MAXUSERNAME, outLength).orElseThrow();

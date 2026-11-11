@@ -91,6 +91,7 @@ import com.hcl.domino.commons.util.ListUtil;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.commons.util.NotesErrorUtils;
 import com.hcl.domino.commons.util.NotesItemDataUtil;
+import com.hcl.domino.commons.util.ThreadBuffers;
 import com.hcl.domino.data.Attachment;
 import com.hcl.domino.data.Attachment.Compression;
 import com.hcl.domino.data.AutoCloseableDocument;
@@ -631,15 +632,13 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   public int getNoteID() {
     checkDisposed();
     JNADocumentAllocations allocations = getAllocations();
-
-    try (DisposableMemory retNoteId = new DisposableMemory(4)) {
-      retNoteId.clear();
-
-      return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_ID, retNoteId);
-        return retNoteId.getInt(0);
-      });
-    }
+    
+    ByteBuffer retNoteId = ThreadBuffers.BUFFER_DWORD.get();
+    LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
+      NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_ID, retNoteId);
+      return null;
+    });
+    return retNoteId.getInt(0);
   }
 
   @Override
@@ -713,49 +712,41 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     checkDisposed();
     JNADocumentAllocations allocations = getAllocations();
 
-    try (DisposableMemory retTimeDate = new DisposableMemory(JNANotesConstants.timeDateSize)) {
-      retTimeDate.clear();
-
-      return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_MODIFIED, retTimeDate);
-        int[] innards = new int[] {retTimeDate.getInt(0), retTimeDate.getInt(4)};
-        return new DefaultDominoDateTime(innards);
-
-      });
-    }
+    ByteBuffer retTimeDate = ThreadBuffers.BUFFER_TIMEDATE.get();
+    LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
+      NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_MODIFIED, retTimeDate);
+      return null;
+    });
+    int[] innards = new int[] {retTimeDate.getInt(0), retTimeDate.getInt(4)};
+    return new DefaultDominoDateTime(innards);
   }
 
   @Override
   public DominoDateTime getLastAccessed() {
     checkDisposed();
     JNADocumentAllocations allocations = getAllocations();
-
-    try (DisposableMemory retTimeDate = new DisposableMemory(JNANotesConstants.timeDateSize)) {
-      retTimeDate.clear();
-
-      return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_ACCESSED, retTimeDate);
-        int[] innards = new int[] {retTimeDate.getInt(0), retTimeDate.getInt(4)};
-        return new DefaultDominoDateTime(innards);
-      });
-    }
+    
+    ByteBuffer retTimeDate = ThreadBuffers.BUFFER_TIMEDATE.get();
+    LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
+      NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_ACCESSED, retTimeDate);
+      return null;
+    });
+    int[] innards = new int[] {retTimeDate.getInt(0), retTimeDate.getInt(4)};
+    return new DefaultDominoDateTime(innards);
   }
 
   @Override
   public DominoDateTime getAddedToFile() {
     checkDisposed();
     JNADocumentAllocations allocations = getAllocations();
-
-    try (DisposableMemory retTimeDate = new DisposableMemory(JNANotesConstants.timeDateSize)) {
-      retTimeDate.clear();
-
-      return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_ADDED_TO_FILE,
-            retTimeDate);
-        int[] innards = new int[] {retTimeDate.getInt(0), retTimeDate.getInt(4)};
-        return new DefaultDominoDateTime(innards);
-      });
-    }
+    
+    ByteBuffer retTimeDate = ThreadBuffers.BUFFER_TIMEDATE.get();
+    LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
+      NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_ADDED_TO_FILE, retTimeDate);
+      return null;
+    });
+    int[] innards = new int[] {retTimeDate.getInt(0), retTimeDate.getInt(4)};
+    return new DefaultDominoDateTime(innards);
   }
 
   @Override
@@ -2797,32 +2788,31 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   public Set<DocumentClass> getDocumentClass() {
     if (m_documentClass == null) {
       checkDisposed();
+      
+      JNADocumentAllocations allocations = getAllocations();
 
-      try (DisposableMemory retNoteClass = new DisposableMemory(2)) {
-        retNoteClass.clear();
+      ByteBuffer retNoteClass = ThreadBuffers.BUFFER_WORD.get();
+      LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
+        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_CLASS, retNoteClass);
+        return null;
+      });
+      int noteClassMask = retNoteClass.getShort(0);
 
-        JNADocumentAllocations allocations = getAllocations();
-        m_documentClass = LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
-          NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, TypedConstants._NOTE_CLASS, retNoteClass);
-          int noteClassMask = retNoteClass.getShort(0);
+      Set<DocumentClass> docClass = EnumSet.noneOf(DocumentClass.class);
 
-          Set<DocumentClass> docClass = EnumSet.noneOf(DocumentClass.class);
-
-          if (noteClassMask == 0) {
-            docClass.add(DocumentClass.NONE);
-          } else {
-            for (DocumentClass currClass : DocumentClass.values()) {
-              if (currClass.getValue() != 0) {
-                if ((noteClassMask & currClass.getValue()) == currClass.getValue()) {
-                  docClass.add(currClass);
-                }
-              }
+      if (noteClassMask == 0) {
+        docClass.add(DocumentClass.NONE);
+      } else {
+        for (DocumentClass currClass : DocumentClass.values()) {
+          if (currClass.getValue() != 0) {
+            if ((noteClassMask & currClass.getValue()) == currClass.getValue()) {
+              docClass.add(currClass);
             }
           }
-
-          return docClass;
-        });
+        }
       }
+
+      m_documentClass = docClass;
     }
     return m_documentClass;
   }
@@ -2954,15 +2944,13 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     checkDisposed();
 
     JNADocumentAllocations allocations = getAllocations();
-    return LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
-      try (DisposableMemory retFlags = new DisposableMemory(2)) {
-        retFlags.clear();
 
-        NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, TypedConstants._NOTE_FLAGS, retFlags);
-        short flags = retFlags.getShort(0);
-        return flags;
-      }
+    ByteBuffer retFlags = ThreadBuffers.BUFFER_WORD.get();
+    LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
+      NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_FLAGS, retFlags);
+      return null;
     });
+    return retFlags.getShort(0);
   }
 
   /**
@@ -2974,15 +2962,13 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     checkDisposed();
 
     JNADocumentAllocations allocations = getAllocations();
-    return LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
-      try (DisposableMemory retFlags = new DisposableMemory(2)) {
-        retFlags.clear();
 
-        NotesCAPI.get().NSFNoteGetInfo(noteHandleByVal, TypedConstants._NOTE_FLAGS2, retFlags);
-        short flags = retFlags.getShort(0);
-        return flags;
-      }
+    ByteBuffer retFlags = ThreadBuffers.BUFFER_WORD.get();
+    LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
+      NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_FLAGS2, retFlags);
+      return null;
     });
+    return retFlags.getShort(0);
   }
 
   private void setFlags(short flags) {
@@ -3043,9 +3029,8 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     ByteByReference retDupItemID = new ByteByReference();
 
     int sizeOfBlockId = MemoryStructureUtil.sizeOf(BlockID.class);
-    try (
-        DisposableMemory item_name = new DisposableMemory(NotesConstants.MAXUSERNAME);
-        DisposableMemory retValueBidMem = new DisposableMemory(sizeOfBlockId);) {
+    try (DisposableMemory retValueBidMem = new DisposableMemory(sizeOfBlockId)) {
+      ByteBuffer item_name = ThreadBuffers.BUFFER_USERNAME.get();
       WordByReference retName_len = new WordByReference();
       WordByReference retItem_flags = new WordByReference();
       WordByReference retDataType = new WordByReference();
@@ -3054,7 +3039,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       LockUtil.lockHandle(allocations.getNoteHandle(), (noteHandleByVal) -> {
 
         NotesCAPI.get().NSFItemQueryEx(noteHandleByVal,
-            itemBlockIdByVal, item_name, word(item_name.size()), retName_len,
+            itemBlockIdByVal, item_name, TypedConstants.MAXUSERNAME, retName_len,
             retItem_flags, retDataType, retValueBidMem, retValueLen, retSeqByte, retDupItemID);
 
         BlockID itemBlockIdForItemCreation = MemoryStructureUtil.newStructure(BlockID.class, 0);
@@ -3123,15 +3108,12 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
 
     JNADocumentAllocations allocations = getAllocations();
 
-    try (DisposableMemory retResponseCount = new DisposableMemory(4)) {
-      retResponseCount.clear();
-
-      return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_RESPONSE_COUNT,
-            retResponseCount);
-        return retResponseCount.getInt(0);
-      });
-    }
+    ByteBuffer retNoteId = ThreadBuffers.BUFFER_DWORD.get();
+    LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
+      NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_RESPONSE_COUNT, retNoteId);
+      return null;
+    });
+    return retNoteId.getInt(0);
   }
 
   @Override
@@ -3141,10 +3123,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     JNADocumentAllocations allocations = getAllocations();
 
     DHANDLE dhandle = LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-      try(DisposableMemory ret = new DisposableMemory(8)) {
-        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_RESPONSES, ret);
-        return DHANDLE.newInstanceByValue(ret.getLong(0));
-      }
+      ByteBuffer ret = ThreadBuffers.BUFFER_DHANDLE.get();
+      NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_RESPONSES, ret);
+      return DHANDLE.newInstanceByValue(ret.getLong(0));
     });
 
     if (dhandle.isNull()) {
@@ -4357,21 +4338,14 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   public String getAsText(String itemName, char separator) {
     checkDisposed();
 
-    try (DisposableMemory returnBuf = new DisposableMemory(60 * 1024)) {
-      short txtLengthAsShort =
-          LockUtil.lockHandle(getAllocations().getNoteHandle(), (hNoteByVal) -> {
-            Memory itemNameLmbcs = NotesStringUtils.toLMBCS(itemName, true);
-            return NotesCAPI.get().NSFItemConvertToText(hNoteByVal, itemNameLmbcs, returnBuf,
-                word(60 * 1024), separator);
-          });
-      int txtLength = txtLengthAsShort & 0xffff;
-      if (txtLength == 0) {
-        return ""; //$NON-NLS-1$
-      } else {
-        return NotesStringUtils.fromLMBCS(returnBuf, txtLength);
-      }
-
-    }
+    ByteBuffer returnBuf = ThreadBuffers.BUFFER_SIXTY_DB.get();
+    Memory itemNameLmbcs = NotesStringUtils.toLMBCS(itemName, true);
+    int txtLength =
+        LockUtil.lockHandle(getAllocations().getNoteHandle(), (hNoteByVal) ->
+          NotesCAPI.get().NSFItemConvertToText(hNoteByVal, itemNameLmbcs, returnBuf,
+              TypedConstants.SIXTY_KB, separator)
+        ).getValue();
+    return NotesStringUtils.fromLMBCS(returnBuf, txtLength);
   }
 
   @Override
