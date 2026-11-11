@@ -38,7 +38,6 @@ import com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.misc.DominoEnumUtil;
 import com.hcl.domino.richtext.records.RecordType;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -136,7 +135,7 @@ public class ItemDecoder {
         PointerByReference retTextPointer = new PointerByReference();
           
           for (int i=0; i<listCountAsInt; i++) {
-              NotesCAPI.get().ListGetText(Native.getDirectBufferPointer(ptr), false, word(i), retTextPointer, retTextLength).orElseThrow();
+              NotesCAPI.get().ListGetText(ptr, false, word(i), retTextPointer, retTextLength).orElseThrow();
               
               //retTextPointer[0] points to the list entry text
               Pointer pointerToTextInMem = retTextPointer.getValue();

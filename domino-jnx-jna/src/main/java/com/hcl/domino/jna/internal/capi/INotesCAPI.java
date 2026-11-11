@@ -491,7 +491,7 @@ public interface INotesCAPI extends Library {
     STATUS ListGetText (ByteBuffer pList,
             boolean fPrefixDataType,
             WORD entryNumber,
-            ByteBuffer retTextPointer,
+            PointerByReference retTextPointer,
             WORD.ByReference retTextLength);
 
 	short ListGetSize(
