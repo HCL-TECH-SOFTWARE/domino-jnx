@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import com.hcl.domino.richtext.structures.OpaqueTimeDate;
 import com.hcl.domino.richtext.structures.OriginatorID;
+import com.hcl.domino.util.JNXStringUtil;
 
 /**
  * {@link OriginatorID} implementation that is useful for reading from
@@ -56,6 +57,11 @@ public class DefaultOriginatorID implements OriginatorID {
     value[0] = data.getInt(20);
     value[1] = data.getInt(24);
     return new DefaultOpaqueTimeDate(value);
+  }
+  
+  @Override
+  public String getUNID() {
+    return JNXStringUtil.toUNID(data.getLong(0), data.getLong(8));
   }
 
 }
