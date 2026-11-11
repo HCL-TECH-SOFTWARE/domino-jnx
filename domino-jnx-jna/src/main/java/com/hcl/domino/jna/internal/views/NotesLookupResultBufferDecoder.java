@@ -442,7 +442,6 @@ public class NotesLookupResultBufferDecoder {
 	 * @param convertJNADominoDateTimeToCalendar true to convert {@link JNADominoDateTime} values to {@link Calendar}
 	 * @param decodeAllValues true to decode all values in the buffer
 	 */
-	@SuppressWarnings("deprecation")
 	private static void populateItemValueTableData(ByteBuffer bufferPtr, int itemsCount,
 			int[] itemNameLengths, int[] itemValueLengths, ItemValueTableDataImpl retData, boolean convertStringsLazily,
 			boolean convertJNADominoDateTimeToCalendar, boolean decodeAllValues) {
