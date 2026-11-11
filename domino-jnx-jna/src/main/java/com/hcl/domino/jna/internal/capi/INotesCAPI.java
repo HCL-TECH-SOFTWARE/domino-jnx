@@ -385,6 +385,7 @@ public interface INotesCAPI extends Library {
 	void NSFNoteGetInfo(DHANDLE.ByValue hNote, WORD type, Pointer retValue);
     void NSFNoteGetInfo(DHANDLE.ByValue hNote, WORD type, ByteBuffer retValue);
 	void NSFNoteSetInfo(DHANDLE.ByValue hNote, WORD type, Pointer value);
+    void NSFNoteSetInfo(DHANDLE.ByValue hNote, WORD type, ByteBuffer value);
 	STATUS NSFNoteUpdateExtended(DHANDLE.ByValue hNote, int updateFlags);
 	STATUS NSFNoteDeleteExtended(DHANDLE.ByValue hDB, int NoteID, int UpdateFlags);
 	STATUS NSFNoteCopy(

@@ -201,6 +201,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   private static final Set<DocumentClass> DOCCLASS_DATA = Collections.unmodifiableSet(EnumSet.of(DocumentClass.DATA, DocumentClass.DOCUMENT));
   
   private Set<DocumentClass> m_documentClass;
+  private int noteId;
+  private Short flags;
+  private OriginatorID oidStruct;
   private AbstractTypedAccess m_typedAccess;
   private ThreadLocal<Set<Class<?>>> readingItemType = ThreadLocal.withInitial(HashSet::new);
   private boolean m_saveMessageOnSend;
@@ -634,14 +637,18 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   @Override
   public int getNoteID() {
     checkDisposed();
-    JNADocumentAllocations allocations = getAllocations();
     
-    ByteBuffer retNoteId = ThreadBuffers.BUFFER_DWORD.get();
-    LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-      NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_ID, retNoteId);
-      return null;
-    });
-    return retNoteId.getInt(0);
+    if(this.noteId == 0) {
+      JNADocumentAllocations allocations = getAllocations();
+      
+      ByteBuffer retNoteId = ThreadBuffers.BUFFER_DWORD.get();
+      LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
+        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_ID, retNoteId);
+        return null;
+      });
+      this.noteId = retNoteId.getInt(0);
+    }
+    return this.noteId;
   }
 
   @Override
@@ -673,15 +680,18 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
    */
   private OriginatorID getOIDStruct() {
     checkDisposed();
-    JNADocumentAllocations allocations = getAllocations();
-
-    ByteBuffer buf = ByteBuffer.allocateDirect(JNANotesConstants.oidSize).order(ByteOrder.nativeOrder());
-    LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-      NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_OID, buf);
-      return null;
-    });
-    
-    return new DefaultOriginatorID(buf);
+    if(this.oidStruct == null) {
+      JNADocumentAllocations allocations = getAllocations();
+  
+      ByteBuffer buf = ByteBuffer.allocateDirect(JNANotesConstants.oidSize).order(ByteOrder.nativeOrder());
+      LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
+        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_OID, buf);
+        return null;
+      });
+      
+      this.oidStruct = new DefaultOriginatorID(buf);
+    }
+    return this.oidStruct;
   }
 
   @Override
@@ -2509,6 +2519,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
         oidStruct.setUNID(newUNID);
 
         NotesCAPI.get().NSFNoteSetInfo(handleByVal, TypedConstants._NOTE_OID, retOid);
+        this.oidStruct = null;
 
         return null;
       });
@@ -2540,7 +2551,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     LockUtil.lockHandles(
         otherJNADbAllocations.getDBHandle(),
         newNoteHandle, (otherDbHandleByVal, newNoteHandleByVal) -> {
-          NotesCAPI.get().NSFNoteSetInfo(newNoteHandleByVal, TypedConstants._NOTE_ID, null);
+          NotesCAPI.get().NSFNoteSetInfo(newNoteHandleByVal, TypedConstants._NOTE_ID, (Pointer)null);
 
           try (DisposableMemory mem = new DisposableMemory(JNANotesConstants.oidSize)) {
             byte[] data = new byte[JNANotesConstants.oidSize];
@@ -2944,14 +2955,17 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   private short getFlags() {
     checkDisposed();
 
-    JNADocumentAllocations allocations = getAllocations();
-
-    ByteBuffer retFlags = ThreadBuffers.BUFFER_WORD.get();
-    LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-      NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_FLAGS, retFlags);
-      return null;
-    });
-    return retFlags.getShort(0);
+    if(this.flags == null) {
+      JNADocumentAllocations allocations = getAllocations();
+  
+      ByteBuffer retFlags = ThreadBuffers.BUFFER_WORD.get();
+      LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
+        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_FLAGS, retFlags);
+        return null;
+      });
+      this.flags = retFlags.getShort(0);
+    }
+    return this.flags;
   }
 
   /**
@@ -2975,14 +2989,14 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   private void setFlags(short flags) {
     checkDisposed();
 
-    try (DisposableMemory flagsMem = new DisposableMemory(2)) {
-      flagsMem.setShort(0, flags);
+    ByteBuffer flagsMem = ThreadBuffers.BUFFER_WORD.get();
+    flagsMem.putShort(0, flags);
 
-      LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> {
-        NotesCAPI.get().NSFNoteSetInfo(noteHandleByVal, TypedConstants._NOTE_FLAGS, flagsMem);
-        return 0;
-      });
-    }
+    LockUtil.lockHandle(getAllocations().getNoteHandle(), (noteHandleByVal) -> {
+      NotesCAPI.get().NSFNoteSetInfo(noteHandleByVal, TypedConstants._NOTE_FLAGS, flagsMem);
+      return 0;
+    });
+    this.flags = flags;
   }
 
   @Override
