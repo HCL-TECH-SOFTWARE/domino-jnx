@@ -68,9 +68,9 @@ import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesUniversalNoteIdStruct;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * Class to access calendaring and scheduling information of Domino
@@ -334,13 +334,13 @@ public class JNACalendaring extends BaseJNAAPIObject<JNACalendaringAllocations> 
 						
 						if (pUIDData!=null) {
 							WordByReference retTextLength = new WordByReference();
-							Memory retTextPointer = new Memory(Native.POINTER_SIZE);
+							PointerByReference retTextPointer = new PointerByReference();
 							
 							int numEntriesAsInt = Short.toUnsignedInt(NotesCAPI.get().ListGetNumEntries(pUIDData, 0));
 							for (int i=0; i<numEntriesAsInt; i++) {
 								NotesCAPI.get().ListGetText(pUIDData, false, word(i), retTextPointer, retTextLength).orElseThrow();
 								
-								String currUID = NotesStringUtils.fromLMBCS(retTextPointer.getPointer(0), retTextLength.getValue());
+								String currUID = NotesStringUtils.fromLMBCS(retTextPointer.getValue(), retTextLength.getValue());
 								uidAllData.add(currUID);
 							}
 						}

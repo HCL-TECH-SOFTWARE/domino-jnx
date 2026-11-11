@@ -20,6 +20,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.nio.ByteBuffer;
 import com.hcl.domino.data.structures.QuepArgVal;
 import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.data.types.WORD;
@@ -484,8 +485,14 @@ public interface INotesCAPI extends Library {
 	STATUS ListGetText (Pointer pList,
 			boolean fPrefixDataType,
 			WORD entryNumber,
-			Memory retTextPointer,
+			PointerByReference retTextPointer,
 			WORD.ByReference retTextLength);
+
+    STATUS ListGetText (ByteBuffer pList,
+            boolean fPrefixDataType,
+            WORD entryNumber,
+            ByteBuffer retTextPointer,
+            WORD.ByReference retTextLength);
 
 	short ListGetSize(
 			Pointer pList,

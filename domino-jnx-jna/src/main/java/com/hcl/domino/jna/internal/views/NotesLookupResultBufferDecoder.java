@@ -103,7 +103,7 @@ public class NotesLookupResultBufferDecoder {
 			bufferPos += 8;
 		}
 
-		List<JNACollectionEntry> viewEntries = new ArrayList<>();
+		JNACollectionEntry[] viewEntries = new JNACollectionEntry[numEntriesReturned];
 		
 		final boolean decodeAllValues = true;
 
@@ -114,7 +114,7 @@ public class NotesLookupResultBufferDecoder {
 			
 			for (int i=0; i<noteIds.length; i++) {
 				JNACollectionEntry newData = new JNACollectionEntry(parentCollection);
-				viewEntries.add(newData);
+				viewEntries[i] = newData;
 				newData.setNoteID(noteIds[i]);
 			}
 			
@@ -136,7 +136,7 @@ public class NotesLookupResultBufferDecoder {
 		  
 			for (int i=0; i<numEntriesReturned; i++) {
 				JNACollectionEntry newData = new JNACollectionEntry(parentCollection);
-				viewEntries.add(newData);
+				viewEntries[i] = newData;
 
 				if (readNoteId) {
 					int entryNoteId = bufferPtr.getInt(bufferPos);
@@ -263,7 +263,7 @@ public class NotesLookupResultBufferDecoder {
 			}
 		}
 		
-		return new NotesViewLookupResultData(collectionStats, viewEntries, numEntriesSkipped, numEntriesReturned, signalFlags, pos, indexModifiedSequenceNo, retDiffTime);
+		return new NotesViewLookupResultData(collectionStats, Arrays.asList(viewEntries), numEntriesSkipped, numEntriesReturned, signalFlags, pos, indexModifiedSequenceNo, retDiffTime);
 	}
 
 	/**
