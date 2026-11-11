@@ -111,8 +111,8 @@ public interface INotesCAPI extends Library {
 			Pointer retServerName,
 			Pointer retFileName);
 
-	STATUS DNCanonicalize(int Flags, Memory TemplateName, Memory InName, Memory OutName, WORD OutSize, WORD.ByReference OutLength);
-	STATUS DNAbbreviate(int Flags, Memory TemplateName, Memory InName, Memory OutName, WORD OutSize, WORD.ByReference OutLength);	
+	STATUS DNCanonicalize(int Flags, Memory TemplateName, Memory InName, ByteBuffer OutName, WORD OutSize, WORD.ByReference OutLength);
+	STATUS DNAbbreviate(int Flags, Memory TemplateName, Memory InName, ByteBuffer OutName, WORD OutSize, WORD.ByReference OutLength);	
 
 	STATUS NSFBuildNamesList(Memory UserName, int dwFlags, DHANDLE.ByReference rethNamesList);
 	

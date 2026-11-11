@@ -19,6 +19,7 @@ package com.hcl.domino.jna.internal;
 import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -62,6 +63,8 @@ public class NotesNamingUtils {
 	 * around each related C call.
 	 */
 	private static final Object BUILDNAMESLIST_LOCK = new Object();
+	
+	private static final ThreadLocal<ByteBuffer> NAME_BUFFER = ThreadLocal.withInitial(() -> ByteBuffer.allocateDirect(NotesConstants.MAXUSERNAME));
 	
 	private static Map<String, String> m_nameAbbrCache = Collections.synchronizedMap(new LinkedHashMap<String, String>(16,0.75f, true) {
 		private static final long serialVersionUID = -5818239831757810895L;
@@ -131,34 +134,38 @@ public class NotesNamingUtils {
 	 * @param templateName name to be used when the input name is in common name format
 	 * @return canonical name
 	 */
-	public static String toCanonicalName(String name, String templateName) {
-		if (name==null) {
-			return null;
-		}
-		if (name.length()==0) {
-			return name;
-		}
+    public static String toCanonicalName(String name, String templateName) {
+      if (name == null) {
+        return null;
+      }
+      if (name.length() == 0) {
+        return name;
+      }
 
-		String cacheKey = name + ((templateName!=null && templateName.length()>0) ? ("|" + templateName) : ""); //$NON-NLS-1$ //$NON-NLS-2$
-		String abbrName = m_nameCanonicalCache.get(cacheKey);
-		if (abbrName!=null) {
-			return abbrName;
-		}
+      String cacheKey =
+          name + ((templateName != null && templateName.length() > 0) ? ("|" + templateName) : ""); //$NON-NLS-1$ //$NON-NLS-2$
+      String abbrName = m_nameCanonicalCache.get(cacheKey);
+      if (abbrName != null) {
+        return abbrName;
+      }
 
-		Memory templateNameMem = templateName==null ? null : NotesStringUtils.toLMBCS(templateName, true); //used when abbrName is only a common name
-		Memory inNameMem = NotesStringUtils.toLMBCS(name, true);
-		try(DisposableMemory outNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
-  		WordByReference outLength = new WordByReference();
-  		
-  		NotesCAPI.get().DNCanonicalize(0, templateNameMem, inNameMem, outNameMem, TypedConstants.MAXUSERNAME, outLength).orElseThrow();
-  		
-  		String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue() & 0xffff);
-      
+      Memory templateNameMem =
+          templateName == null ? null : NotesStringUtils.toLMBCS(templateName, true); // used when
+                                                                                      // abbrName is
+                                                                                      // only a
+                                                                                      // common name
+      Memory inNameMem = NotesStringUtils.toLMBCS(name, true);
+      WordByReference outLength = new WordByReference();
+
+      ByteBuffer outNameMem = NAME_BUFFER.get();
+      NotesCAPI.get().DNCanonicalize(0, templateNameMem, inNameMem, outNameMem, TypedConstants.MAXUSERNAME, outLength).orElseThrow();
+
+      String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue());
+
       m_nameCanonicalCache.put(cacheKey, sOutName);
-      
+
       return sOutName;
-		}
-	}
+    }
 	
 	/**
 	 * This function converts a distinguished name in canonical format to abbreviated format.
@@ -331,34 +338,37 @@ public class NotesNamingUtils {
 	 * @param templateName name to be used when the input name is in common name format
 	 * @return abbreviated name
 	 */
-	public static String toAbbreviatedName(String name, String templateName) {
-		if (name==null) {
-			return null;
-		}
-		if (name.length()==0) {
-			return name;
-		}
-		
-		String cacheKey = name + ((templateName!=null && templateName.length()>0) ? ("|" + templateName) : ""); //$NON-NLS-1$ //$NON-NLS-2$
-		String abbrName = m_nameAbbrCache.get(cacheKey);
-		if (abbrName!=null) {
-			return abbrName;
-		}
-		
-		Memory templateNameMem = templateName==null || templateName.length()==0 ? null : NotesStringUtils.toLMBCS(templateName, true); //used when abbrName is only a common name
-		Memory inNameMem = NotesStringUtils.toLMBCS(name, true);
-		try(DisposableMemory outNameMem = new DisposableMemory(NotesConstants.MAXUSERNAME)) {
-  		WordByReference outLength = new WordByReference();
-  		
-  		NotesCAPI.get().DNAbbreviate(0, templateNameMem, inNameMem, outNameMem, TypedConstants.MAXUSERNAME, outLength).orElseThrow();
-  		
-  		String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue() & 0xffff);
-  		
-  		m_nameAbbrCache.put(cacheKey, sOutName);
-  		
-  		return sOutName;
-		}
-	}
+    public static String toAbbreviatedName(String name, String templateName) {
+      if (name == null) {
+        return null;
+      }
+      if (name.length() == 0) {
+        return name;
+      }
+
+      String cacheKey =
+          name + ((templateName != null && templateName.length() > 0) ? ("|" + templateName) : ""); //$NON-NLS-1$ //$NON-NLS-2$
+      String abbrName = m_nameAbbrCache.get(cacheKey);
+      if (abbrName != null) {
+        return abbrName;
+      }
+
+      Memory templateNameMem = templateName == null || templateName.length() == 0 ? null
+          : NotesStringUtils.toLMBCS(templateName, true); // used when abbrName is only a common
+                                                          // name
+      Memory inNameMem = NotesStringUtils.toLMBCS(name, true);
+
+      ByteBuffer outNameMem = NAME_BUFFER.get();
+      WordByReference outLength = new WordByReference();
+
+      NotesCAPI.get().DNAbbreviate(0, templateNameMem, inNameMem, outNameMem, TypedConstants.MAXUSERNAME, outLength).orElseThrow();
+
+      String sOutName = NotesStringUtils.fromLMBCS(outNameMem, outLength.getValue() & 0xffff);
+
+      m_nameAbbrCache.put(cacheKey, sOutName);
+
+      return sOutName;
+    }
 
 	/**
 	 * Writes the specified names list in null terminated LMBCS strings to a {@link ByteArrayOutputStream}
