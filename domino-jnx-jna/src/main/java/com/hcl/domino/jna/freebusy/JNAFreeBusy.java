@@ -27,6 +27,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.WordByReference;
 import com.hcl.domino.commons.data.types.WordImpl;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -37,7 +38,6 @@ import com.hcl.domino.freebusy.ScheduleOptions;
 import com.hcl.domino.freebusy.Schedules;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.data.JNADominoDateTime;
-import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.NotesStringUtils;

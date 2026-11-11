@@ -25,6 +25,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.WordByReference;
 import com.hcl.domino.commons.data.types.WordImpl;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Item;
@@ -33,7 +34,6 @@ import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.jna.data.JNADatabase;
 import com.hcl.domino.jna.data.JNADocument;
 import com.hcl.domino.jna.data.JNAItem;
-import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.DisposableMemory;
 import com.hcl.domino.jna.internal.JNANotesConstants;
 import com.hcl.domino.jna.internal.LMBCSStringList;

@@ -18,7 +18,7 @@ package com.hcl.domino.jna.internal;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.hcl.domino.jna.data.types.WordByReference;
+import com.hcl.domino.commons.data.types.WordByReference;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;

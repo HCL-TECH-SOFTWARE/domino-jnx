@@ -26,6 +26,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.hcl.domino.DominoClient.ECLType;
+import com.hcl.domino.commons.data.types.WordByReference;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
 import com.hcl.domino.commons.gc.IGCDominoClient;
@@ -35,7 +36,6 @@ import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
 import com.hcl.domino.jna.data.JNADocument;
 import com.hcl.domino.jna.data.JNAUserNamesList;
-import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.NotesNamingUtils;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;

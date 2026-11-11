@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.hcl.domino.DominoException;
+import com.hcl.domino.commons.data.types.WordByReference;
 import com.hcl.domino.commons.errors.UnsupportedItemValueError;
 import com.hcl.domino.commons.gc.APIObjectAllocations;
 import com.hcl.domino.commons.gc.IAPIObject;
@@ -41,7 +42,6 @@ import com.hcl.domino.exception.FormulaCompilationException;
 import com.hcl.domino.exception.IncompatibleImplementationException;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
-import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.ItemDecoder;
 import com.hcl.domino.jna.internal.Mem;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
