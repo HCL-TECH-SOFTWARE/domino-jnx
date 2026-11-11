@@ -202,10 +202,9 @@ public class NotesLookupResultBufferDecoder {
 					bufferPos+=2;
 				}
 				if (readPosition) {
-					int level = bufferPtr.getShort(bufferPos) & 0xFFFF;
+					int level = Short.toUnsignedInt(bufferPtr.getShort(bufferPos));
 					int[] posArr = new int[level+1];
-					IntBuffer intBuf = bufferPtr.asIntBuffer();
-					intBuf.position((bufferPos + 2 /* level */  + 2 /* MinLevel+MaxLevel */) / 4);
+					IntBuffer intBuf = share(bufferPtr, bufferPos + 2 /* level */  + 2 /* MinLevel+MaxLevel */).asIntBuffer();
 					intBuf.get(posArr);
 
 					newData.setPosition(posArr);
