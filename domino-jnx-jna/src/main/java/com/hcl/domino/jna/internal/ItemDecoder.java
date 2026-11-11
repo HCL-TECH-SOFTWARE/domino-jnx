@@ -18,18 +18,14 @@ package com.hcl.domino.jna.internal;
 
 import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.IntBuffer;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.TimeZone;
-
 import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.richtext.RichTextUtil;
-import com.hcl.domino.commons.util.DumpUtil;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.ItemDataType;
@@ -88,8 +84,7 @@ public class ItemDecoder {
             return lmbcsString;
         }
         else {
-            String txtVal = NotesStringUtils.fromLMBCS(ptr, valueLength);
-            return txtVal;
+            return NotesStringUtils.fromLMBCS(ptr, valueLength);
         }
     }
 	

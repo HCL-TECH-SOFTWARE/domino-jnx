@@ -445,17 +445,19 @@ public class NotesStringUtils {
 		}
 	}
 	
-	public static String fromLMBCS(ByteBuffer buf, int offset) {
-		// Check if it's a native pointer and use it directly
-		try {
-			Pointer ptr = Native.getDirectBufferPointer(buf);
-			return fromLMBCS(ptr.share(offset), buf.remaining()-offset);
-		} catch(IllegalArgumentException e) {
-			byte[] data = new byte[buf.remaining()-offset];
-			buf.get(data);
-			return fromLMBCS(data);
-		}
-	}
+    public static String fromLMBCS(ByteBuffer buf, int textLen) {
+      // Check if it's a native pointer and use it directly
+      if (buf.isDirect()) {
+        Pointer ptr = Native.getDirectBufferPointer(buf);
+        return fromLMBCS(ptr.share(0), textLen);
+      } else {
+        int pos = buf.position();
+        byte[] data = new byte[textLen];
+        buf.get(data);
+        buf.position(pos);
+        return fromLMBCS(data);
+      }
+    }
 	
 	/**
 	 * Converts a string to LMBCS format
