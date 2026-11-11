@@ -23,8 +23,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.Temporal;
@@ -34,7 +34,6 @@ import java.time.temporal.TemporalQuery;
 import java.time.temporal.TemporalUnit;
 import java.util.Arrays;
 import java.util.Optional;
-
 import com.hcl.domino.commons.util.InnardsConverter;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.misc.NotesConstants;
@@ -311,15 +310,79 @@ public class DefaultDominoDateTime implements DominoDateTime {
   
   @Override
   public String toISOString() {
-    Temporal temporal = this.toTemporal().orElse(null);
-    if (temporal instanceof OffsetDateTime) {
-      return DateTimeFormatter.ISO_OFFSET_DATE_TIME.format(temporal);
-    } else if (temporal instanceof LocalDate) {
-      return DateTimeFormatter.ISO_LOCAL_DATE.format(temporal);
-    } else if (temporal instanceof LocalTime) {
-      return DateTimeFormatter.ISO_LOCAL_TIME.format(temporal);
+    // This route uses string concatenation instead of DateTimeFormatter
+    // because this proved to be noticeably faster under testing, especially
+    // in cases like reading a lot of view entries
+    Temporal temporal = toTemporal().orElse(null);
+    if(temporal instanceof OffsetDateTime) {
+      final OffsetDateTime offsetDt = (OffsetDateTime) temporal;
+      final LocalDate localDate = offsetDt.toLocalDate();
+      final LocalTime localTime = offsetDt.toLocalTime();
+
+      final StringBuilder result = new StringBuilder(25);
+      writeLocalDate(result, localDate);
+      result.append('T');
+      writeLocalTime(result, localTime);
+      
+      // Milliseconds, as ignored by LocalTime
+      int millis = offsetDt.get(ChronoField.MILLI_OF_SECOND);
+      if(millis > 0) {
+        result.append('.');
+        if(millis < 10) {
+          result.append("00");
+          result.append(millis);
+        } else if(millis < 100) {
+          result.append('0');
+          if(millis % 10 == 0) {
+            result.append(millis / 10);
+          }
+        } else {
+          if(millis % 100 == 0) {
+            result.append(millis / 100);
+          } else if(millis % 10 == 0) {
+            result.append(millis / 10);
+          } else {
+            result.append(millis);
+          }
+        }
+      }
+      
+      // TZ offset
+      final ZoneOffset offset = offsetDt.getOffset();
+      final int sec = offset.getTotalSeconds();
+      if (sec == 0) {
+        result.append('Z');
+      } else {
+        if (sec < 0) {
+          result.append('-');
+        } else {
+          result.append('+');
+        }
+        int minutes = Math.abs(sec) / 60;
+        final int hours = minutes / 60;
+        minutes = minutes % 60;
+        if (hours < 10) {
+          result.append('0');
+        }
+        result.append(hours);
+        result.append(':');
+        if (minutes < 10) {
+          result.append('0');
+        }
+        result.append(minutes);
+      }
+      
+      return result.toString();
+    } else if(temporal instanceof LocalDate) {
+      StringBuilder result = new StringBuilder(10);
+      writeLocalDate(result, (LocalDate)temporal);
+      return result.toString();
+    } else if(temporal instanceof LocalTime) {
+      StringBuilder result = new StringBuilder(8);
+      writeLocalTime(result, (LocalTime)temporal);
+      return result.toString();
     } else {
-      return ""; //$NON-NLS-1$
+      return "";
     }
   }
 
@@ -334,5 +397,42 @@ public class DefaultDominoDateTime implements DominoDateTime {
     Temporal temporal = this.toTemporal().get();
     temporal = temporal.with(field, newValue);
     return new DefaultDominoDateTime(temporal);
+  }
+  
+  private static void writeLocalDate(final StringBuilder result, final LocalDate localDate) {
+    final int year = localDate.getYear();
+    final int month = localDate.getMonthValue();
+    final int day = localDate.getDayOfMonth();
+    result.append(year);
+    result.append('-');
+    if (month < 10) {
+      result.append('0');
+    }
+    result.append(month);
+    result.append('-');
+    if (day < 10) {
+      result.append('0');
+    }
+    result.append(day);
+  }
+
+  private static void writeLocalTime(final StringBuilder result, final LocalTime localTime) {
+    final int hour = localTime.getHour();
+    final int minute = localTime.getMinute();
+    final int second = localTime.getSecond();
+    if (hour < 10) {
+      result.append('0');
+    }
+    result.append(hour);
+    result.append(':');
+    if (minute < 10) {
+      result.append('0');
+    }
+    result.append(minute);
+    result.append(':');
+    if (second < 10) {
+      result.append('0');
+    }
+    result.append(second);
   }
 }
