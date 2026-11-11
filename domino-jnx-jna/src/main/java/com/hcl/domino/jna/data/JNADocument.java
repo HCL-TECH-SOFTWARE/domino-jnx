@@ -197,6 +197,9 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   ).collect(Collectors.toSet());
   private static final Map<Class<?>, Optional<DocumentValueConverter>> CONVERTER_CACHE = new ConcurrentHashMap<>();
   
+  private static final Set<DocumentClass> DOCCLASS_NONE = Collections.unmodifiableSet(EnumSet.of(DocumentClass.NONE));
+  private static final Set<DocumentClass> DOCCLASS_DATA = Collections.unmodifiableSet(EnumSet.of(DocumentClass.DATA, DocumentClass.DOCUMENT));
+  
   private Set<DocumentClass> m_documentClass;
   private AbstractTypedAccess m_typedAccess;
   private ThreadLocal<Set<Class<?>>> readingItemType = ThreadLocal.withInitial(HashSet::new);
@@ -2798,18 +2801,16 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       });
       int noteClassMask = retNoteClass.getShort(0);
 
-      Set<DocumentClass> docClass = EnumSet.noneOf(DocumentClass.class);
-
-      if (noteClassMask == 0) {
-        docClass.add(DocumentClass.NONE);
-      } else {
-        for (DocumentClass currClass : DocumentClass.values()) {
-          if (currClass.getValue() != 0) {
-            if ((noteClassMask & currClass.getValue()) == currClass.getValue()) {
-              docClass.add(currClass);
-            }
-          }
-        }
+      final Set<DocumentClass> docClass;
+      switch(noteClassMask) {
+        case 0:
+          docClass = DOCCLASS_NONE;
+          break;
+        case NotesConstants.NOTE_CLASS_DATA:
+          docClass = DOCCLASS_DATA;
+          break;
+        default:
+          docClass = DominoEnumUtil.valuesOf(DocumentClass.class, noteClassMask);
       }
 
       m_documentClass = docClass;
