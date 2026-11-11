@@ -359,6 +359,9 @@ public class NotesLookupResultBufferDecoder {
 		//read all item lengths
 		for (int j=0; j<itemsCount; j++) {
 			//convert USHORT to int without sign
+		  if(bufferPtr.capacity() < bufferPos+4) {
+		    throw new IllegalArgumentException("Unable to read a DWORD from buffer at pos " + bufferPos + "; capacity=" + bufferPtr.capacity());
+		  }
 			itemValueLengths[j] = (int) bufferPtr.getInt(bufferPos); // & 0xffff);
 			bufferPos += 4;
 		}
