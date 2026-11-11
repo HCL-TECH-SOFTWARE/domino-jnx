@@ -18,9 +18,6 @@ package com.hcl.domino.jna.data;
 
 import static com.hcl.domino.commons.data.types.JNXTypeUtil.word;
 import static com.hcl.domino.commons.errors.errorcodes.IMiscErr.ERR_NOT_FOUND;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.lang.ref.ReferenceQueue;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -43,7 +40,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
-
 import com.hcl.domino.BuildVersionInfo;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.data.types.TypedConstants;
@@ -64,8 +60,6 @@ import com.hcl.domino.data.CollectionSearchQuery;
 import com.hcl.domino.data.CollectionSearchQuery.CollectionEntryProcessor;
 import com.hcl.domino.data.Database;
 import com.hcl.domino.data.Database.Action;
-import com.hcl.domino.data.structures.CollectionData;
-import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.data.Document;
 import com.hcl.domino.data.DominoCollection;
 import com.hcl.domino.data.DominoDateTime;
@@ -74,6 +68,8 @@ import com.hcl.domino.data.Find;
 import com.hcl.domino.data.FindFlag;
 import com.hcl.domino.data.IDTable;
 import com.hcl.domino.data.Navigate;
+import com.hcl.domino.data.structures.CollectionData;
+import com.hcl.domino.data.types.STATUS;
 import com.hcl.domino.design.DesignConstants;
 import com.hcl.domino.exception.ObjectDisposedException;
 import com.hcl.domino.jna.BaseJNAAPIObject;
@@ -901,53 +897,44 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
 
     JNADominoCollectionAllocations allocations = getAllocations();
 
-    ByteBuffer buf;
-    try(ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-      NotesCallbacks.NIFFindByKeyProc proc = ctx -> {
-        ByteBuffer chunk = ctx.SummaryBuffer.getByteBuffer(0, ctx.wSizeOfChunk & 0xFFFF).order(ByteOrder.nativeOrder());
-        byte[] chunkBytes = new byte[ctx.wSizeOfChunk & 0xFFFF];
-        chunk.get(chunkBytes);
-        try {
-          baos.write(chunkBytes);
-        } catch (IOException e) {
-          throw new UncheckedIOException(e);
-        }
-        return INotesErrorConstants.NOERROR;
-      };
+    List<byte[]> chunks = new ArrayList<>();
+    int[] size = { 0 };
+    NotesCallbacks.NIFFindByKeyProc proc = ctx -> {
+      byte[] chunkBytes = ctx.SummaryBuffer.getByteArray(0, Short.toUnsignedInt(ctx.wSizeOfChunk));
+      chunks.add(chunkBytes);
+      size[0] += chunkBytes.length;
+      return INotesErrorConstants.NOERROR;
+    };
 
-      final DHANDLE.ByReference rethBuffer = DHANDLE.newInstanceByReference();
-      final NIFFindByKeyContextStruct ctx = NIFFindByKeyContextStruct.newInstance();
-      STATUS result = LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) ->
-        NotesCAPI.get().NIFFindByKeyExtended4(
-          handleByVal,
-          keyBuffer,
-          findFlagsBitMask,
-          returnMaskBitMask,
-          null,
-          retIndexPos,
-          retNumMatches,
-          retSignalFlags,
-          rethBuffer,
-          retSequence,
-          proc,
-          ctx,
-          0)
-      );
+    DHANDLE.ByReference retHBuffer = DHANDLE.newInstanceByReference();
+    final NIFFindByKeyContextStruct ctx = NIFFindByKeyContextStruct.newInstance();
+    STATUS result = LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) ->
+      NotesCAPI.get().NIFFindByKeyExtended4(
+        handleByVal,
+        keyBuffer,
+        findFlagsBitMask,
+        returnMaskBitMask,
+        null,
+        retIndexPos,
+        retNumMatches,
+        retSignalFlags,
+        retHBuffer,
+        retSequence,
+        proc,
+        ctx,
+        0)
+    );
 
-      if (result.getMaskedValue() == ERR_NOT_FOUND) {
-        return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0), 0, 0,
-            retSignalFlags.getWord(), null, retSequence.getValue(), null);
-      }
-      result.orElseThrow();
-      
-      // Write the data to a direct ByteBuffer to pass to the native API
-      byte[] data = baos.toByteArray();
-      buf = ByteBuffer.allocateDirect(data.length);
-      buf.put(data);
-      buf.position(0);
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
+    if (result.getMaskedValue() == ERR_NOT_FOUND) {
+      return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0), 0, 0,
+          retSignalFlags.getWord(), null, retSequence.getValue(), null);
     }
+    result.orElseThrow();
+    
+    // Write the data to a direct ByteBuffer to pass to the native API
+    ByteBuffer buf = ByteBuffer.allocateDirect(size[0]).order(ByteOrder.nativeOrder());
+    chunks.forEach(buf::put);
+    buf.position(0);
 
     if (retNumMatches.getValue() == 0 || !buf.hasRemaining()) {
       return new NotesViewLookupResultData(null, new ArrayList<JNACollectionEntry>(0), 0, 0,
