@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.lang.ref.ReferenceQueue;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -83,6 +84,7 @@ import com.hcl.domino.commons.mime.MimePartOptions;
 import com.hcl.domino.commons.mime.NotesMIMEPart;
 import com.hcl.domino.commons.mime.NotesMIMEPart.PartType;
 import com.hcl.domino.commons.richtext.DefaultRichTextList;
+import com.hcl.domino.commons.richtext.structures.DefaultOriginatorID;
 import com.hcl.domino.commons.structures.MemoryStructureUtil;
 import com.hcl.domino.commons.util.ListUtil;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
@@ -670,17 +672,13 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
     checkDisposed();
     JNADocumentAllocations allocations = getAllocations();
 
-    return LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
-      byte[] data;
-      try (DisposableMemory mem = new DisposableMemory(JNANotesConstants.oidSize)) {
-        NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_OID, mem);
-
-        data = mem.getByteArray(0, JNANotesConstants.oidSize);
-      }
-
-      ByteBuffer buf = ByteBuffer.wrap(data);
-      return MemoryStructureUtil.forStructure(OriginatorID.class, () -> buf);
+    ByteBuffer buf = ByteBuffer.allocateDirect(JNANotesConstants.oidSize).order(ByteOrder.nativeOrder());
+    LockUtil.lockHandle(allocations.getNoteHandle(), (handleByVal) -> {
+      NotesCAPI.get().NSFNoteGetInfo(handleByVal, TypedConstants._NOTE_OID, buf);
+      return null;
     });
+    
+    return new DefaultOriginatorID(buf);
   }
 
   @Override

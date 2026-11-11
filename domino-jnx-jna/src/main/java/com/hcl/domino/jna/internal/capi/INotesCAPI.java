@@ -383,6 +383,7 @@ public interface INotesCAPI extends Library {
 	STATUS NSFNoteOpenByUNIDExtended(HANDLE.ByValue hDB, NotesUniversalNoteIdStruct pUNID, int flags, DHANDLE.ByReference rtn); 
 	STATUS NSFNoteCreate(HANDLE.ByValue db_handle, DHANDLE.ByReference note_handle);
 	void NSFNoteGetInfo(DHANDLE.ByValue hNote, WORD type, Pointer retValue);
+    void NSFNoteGetInfo(DHANDLE.ByValue hNote, WORD type, ByteBuffer retValue);
 	void NSFNoteSetInfo(DHANDLE.ByValue hNote, WORD type, Pointer value);
 	STATUS NSFNoteUpdateExtended(DHANDLE.ByValue hNote, int updateFlags);
 	STATUS NSFNoteDeleteExtended(DHANDLE.ByValue hDB, int NoteID, int UpdateFlags);
