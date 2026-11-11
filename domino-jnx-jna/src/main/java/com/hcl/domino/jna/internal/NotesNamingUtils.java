@@ -58,7 +58,7 @@ public class NotesNamingUtils {
 	private static final int MAX_STRINGCACHE_SIZE = 500;
 	
 	/**
-	 * Names-list-building functions appear to be extrmely thread-sensitive, so this lock is used
+	 * Names-list-building functions appear to be extremely thread-sensitive, so this lock is used
 	 * around each related C call.
 	 */
 	private static final Object BUILDNAMESLIST_LOCK = new Object();
@@ -522,7 +522,7 @@ public class NotesNamingUtils {
 	 * @param userName username, either abbreviated or canonical
 	 * @return names list
 	 */
-	public static synchronized JNAUserNamesList buildNamesList(IAPIObject<?> parent, String server, String userName) {
+	public static JNAUserNamesList buildNamesList(IAPIObject<?> parent, String server, String userName) {
 		Objects.requireNonNull(userName, "Name cannot be null");
 		
 		if (server==null || "".equals(server)) { //$NON-NLS-1$
@@ -546,8 +546,7 @@ public class NotesNamingUtils {
 					fDontLookupAlternateNames, pLookupFlags, userNameLMBCS, rethNamesList).orElseThrow();
 		}
 		
-		JNAUserNamesList newList =  new JNAUserNamesList(parent, rethNamesList);
-		return newList;
+		return new JNAUserNamesList(parent, rethNamesList);
 	}
 	
 	/**
