@@ -350,7 +350,7 @@ public class NotesLookupResultBufferDecoder {
 //			....
 		
 		int totalBufferLength = bufferPtr.getInt(0);// & 0xffff;
-		int itemsCount = bufferPtr.getShort(4) & 0xffff;
+		int itemsCount = Short.toUnsignedInt(bufferPtr.getShort(4));
 		
 		int[] itemValueLengths = new int[itemsCount];
 		//we don't have any item names:
