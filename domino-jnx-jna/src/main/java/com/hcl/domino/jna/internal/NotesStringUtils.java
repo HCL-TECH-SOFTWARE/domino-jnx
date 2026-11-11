@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import com.hcl.domino.DominoException;
 import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.util.PlatformUtils;
@@ -61,6 +63,9 @@ public class NotesStringUtils {
 	private static LRUStringLMBCSCache m_string2LMBCSCache_NullTerminated_OriginalLinebreaks = new LRUStringLMBCSCache(MAX_STRING2LMBCS_SIZE_BYTES);
 	private static LRUStringLMBCSCache m_string2LMBCSCache_NotNullTerminated_OriginalLinebreaks = new LRUStringLMBCSCache(MAX_STRING2LMBCS_SIZE_BYTES);
 	
+	private static Map<Integer, Memory> TINY_CACHE = new ConcurrentHashMap<>();
+    private static Map<Integer, Memory> TINY_CACHE_NULL = new ConcurrentHashMap<>();
+	
 	public static void flushCache() {
 		m_string2LMBCSCache_NullTerminated_LinefeedLinebreaks.clear();
 		m_string2LMBCSCache_NotNullTerminated_LinefeedLinebreaks.clear();
@@ -68,6 +73,8 @@ public class NotesStringUtils {
 		m_string2LMBCSCache_NotNullTerminated_NullLinebreaks.clear();
 		m_string2LMBCSCache_NullTerminated_OriginalLinebreaks.clear();
 		m_string2LMBCSCache_NotNullTerminated_OriginalLinebreaks.clear();
+		TINY_CACHE.clear();
+        TINY_CACHE_NULL.clear();
 	}
 	
 	/**
@@ -445,10 +452,25 @@ public class NotesStringUtils {
 	}
 	
     public static String fromLMBCS(ByteBuffer buf, int textLen) {
+      if(textLen == 0) {
+        return "";
+      }
       int pos = buf.position();
-      byte[] data = new byte[textLen];
+      int len = textLen > -1 ? textLen : buf.remaining();
+      byte[] data = new byte[len];
       buf.get(data);
       buf.position(pos);
+      
+      // If -1 was requested, chop it down to the first null
+      if(textLen == -1) {
+        for(int i = 0; i < data.length; i++) {
+          if(data[i] == 0) {
+            data = Arrays.copyOf(data, i);
+            break;
+          }
+        }
+      }
+      
       return fromLMBCS(data);
     }
 	
@@ -557,6 +579,25 @@ public class NotesStringUtils {
 			else {
 				return null;
 			}
+		}
+		
+		// skip cache and native calls for tiny ASCII
+		if(inStr.length() < 64) {
+		  byte[] data = inStr.getBytes(StandardCharsets.UTF_8);
+		  if(isPureAscii(data)) {
+		    int cacheKey = Arrays.hashCode(data);
+		    Map<Integer, Memory> cache = addNull ? TINY_CACHE_NULL : TINY_CACHE;
+		    Memory mem = cache.get(cacheKey);
+		    if(mem == null) {
+		      mem = new Memory(data.length + (addNull ? 1 : 0));
+              mem.write(0, data, 0, data.length);
+              if (addNull) {
+                mem.setByte(data.length, (byte) 0);
+              }
+              cache.put(cacheKey, mem);
+		    }
+		    return mem;
+		  }
 		}
 		
 		LRUStringLMBCSCache cacheToUse;
