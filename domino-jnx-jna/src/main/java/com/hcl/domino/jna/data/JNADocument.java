@@ -167,7 +167,6 @@ import com.hcl.domino.richtext.structures.OriginatorID;
 import com.hcl.domino.richtext.structures.RFC822ItemDesc;
 import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.Platform;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
@@ -1645,7 +1644,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
       if (!useLarge) {
         DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
         WordByReference retListSize = new WordByReference();
-        Memory retpList = new Memory(Native.POINTER_SIZE);
+        PointerByReference retpList = new PointerByReference();
 
         NotesCAPI.get().ListAllocate(WordImpl.ZERO,
             WordImpl.ZERO,

@@ -70,10 +70,10 @@ import com.hcl.domino.misc.DominoClientDescendant;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.StringArray;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * Implementation of {@link RichTextHTMLConverter} to render a document
@@ -309,7 +309,7 @@ public class JNARichtextHTMLConverter implements RichTextHTMLConverter, DominoCl
 				NotesCAPI.get().HTMLGetReference(hHTML, i, phRef)
 				  .orElseThrow();
 				
-				try(DisposableMemory ppRef = new DisposableMemory(Native.POINTER_SIZE)) {
+				  PointerByReference ppRef = new PointerByReference();
     				int hRef = phRef.getValue();
     				
     				NotesCAPI.get().HTMLLockAndFixupReference(hRef, ppRef)
@@ -324,97 +324,96 @@ public class JNARichtextHTMLConverter implements RichTextHTMLConverter, DominoCl
     					Pointer pTargets;
     					
     					//use separate structs for 64/32, because RefType uses 8 bytes on 64 and 4 bytes on 32 bit
-    					if (PlatformUtils.is64Bit()) {
-    						HtmlAPIReference64Struct htmlApiRef = HtmlAPIReference64Struct.newInstance(ppRef.getPointer(0));
-    						htmlApiRef.read();
-    						iRefType = (int) htmlApiRef.RefType;
-    						pRefText = htmlApiRef.pRefText;
-    						pFragment = htmlApiRef.pFragment;
-    						iCmdId = (int) htmlApiRef.CommandId;
-    						nTargets = htmlApiRef.NumTargets;
-    						pTargets = htmlApiRef.pTargets;
-    					}
-    					else {
-    						HtmlAPIReference32Struct htmlApiRef = HtmlAPIReference32Struct.newInstance(ppRef.getPointer(0));
-    						htmlApiRef.read();
-    						iRefType = htmlApiRef.RefType;
-    						pRefText = htmlApiRef.pRefText;
-    						pFragment = htmlApiRef.pFragment;
-    						iCmdId = htmlApiRef.CommandId;
-    						nTargets = htmlApiRef.NumTargets;
-    						pTargets = htmlApiRef.pTargets;
-    					}
-    
-    					ReferenceType refType = ReferenceType.getType(iRefType);
-    					
-    					if (refTypeFilter==null || refTypeFilter.contains(refType)) {
-    						String refText = NotesStringUtils.fromLMBCS(pRefText, -1);
-    						String fragment = NotesStringUtils.fromLMBCS(pFragment, -1);
-    						
-    						CommandId cmdId = CommandId.getCommandId(iCmdId);
-    						
-    						List<IHtmlApiUrlTargetComponent<?>> targets = new ArrayList<>(nTargets);
-    						
-    						for (int t=0; t<nTargets; t++) {
-    							Pointer pCurrTarget = pTargets.share(t * JNANotesConstants.htmlApiUrlComponentSize);
-    							HtmlApi_UrlTargetComponentStruct currTarget = HtmlApi_UrlTargetComponentStruct.newInstance(pCurrTarget);
-    							currTarget.read();
-    							
-    							int iTargetType = currTarget.AddressableType;
-    							TargetType targetType = TargetType.getType(iTargetType);
-    							
-    							Set<TargetType> targetTypeFilterForRefType = targetTypeFilter==null ? null : targetTypeFilter.get(refType);
-    							
-    							if (targetTypeFilterForRefType==null || targetTypeFilterForRefType.contains(targetType)) {
-    								switch (currTarget.ReferenceType) {
-    								case NotesConstants.URT_Name:
-    									currTarget.Value.setType(Pointer.class);
-    									currTarget.Value.read();
-    									String name = NotesStringUtils.fromLMBCS(currTarget.Value.name, -1);
-    									targets.add(new HtmlApiUrlTargetComponent<>(targetType, String.class, name));
-    									break;
-    								case NotesConstants.URT_NoteId:
-    									currTarget.Value.setType(NoteIdStruct.class);
-    									currTarget.Value.read();
-    									NoteIdStruct noteIdStruct = currTarget.Value.nid;
-    									int iNoteId = noteIdStruct.nid;
-    									targets.add(new HtmlApiUrlTargetComponent<>(targetType, Integer.class, iNoteId));
-    									break;
-    								case NotesConstants.URT_Unid:
-    									currTarget.Value.setType(NotesUniversalNoteIdStruct.class);
-    									currTarget.Value.read();
-    									NotesUniversalNoteIdStruct unidStruct = currTarget.Value.unid;
-    									unidStruct.read();
-    									String unid = unidStruct.toString();
-    									targets.add(new HtmlApiUrlTargetComponent<>(targetType, String.class, unid));
-    									break;
-    								case NotesConstants.URT_None:
-    									targets.add(new HtmlApiUrlTargetComponent<>(targetType, Object.class, null));
-    									break;
-    								case NotesConstants.URT_RepId:
-    									//TODO find out how to decode this one
-    									break;
-    								case NotesConstants.URT_Special:
-    									//TODO find out how to decode this one
-    									break;
-    								default:
-    			                      //TODO: is there anything to do
-    								}
-    							}
-    						}
-    						
-    						IHtmlApiReference newRef = new HTMLApiReference(refType, refText, fragment,
-    								cmdId, targets);
-    						references.add(newRef);
-    					}
-    				}
-    				finally {
-    					if (hRef!=0) {
-    						Mem.OSMemoryUnlock(hRef);
-    						Mem.OSMemoryFree(hRef);
-    					}
-    				}
-				}
+  					if (PlatformUtils.is64Bit()) {
+  						HtmlAPIReference64Struct htmlApiRef = HtmlAPIReference64Struct.newInstance(ppRef.getValue());
+  						htmlApiRef.read();
+  						iRefType = (int) htmlApiRef.RefType;
+  						pRefText = htmlApiRef.pRefText;
+  						pFragment = htmlApiRef.pFragment;
+  						iCmdId = (int) htmlApiRef.CommandId;
+  						nTargets = htmlApiRef.NumTargets;
+  						pTargets = htmlApiRef.pTargets;
+  					}
+  					else {
+  						HtmlAPIReference32Struct htmlApiRef = HtmlAPIReference32Struct.newInstance(ppRef.getValue());
+  						htmlApiRef.read();
+  						iRefType = htmlApiRef.RefType;
+  						pRefText = htmlApiRef.pRefText;
+  						pFragment = htmlApiRef.pFragment;
+  						iCmdId = htmlApiRef.CommandId;
+  						nTargets = htmlApiRef.NumTargets;
+  						pTargets = htmlApiRef.pTargets;
+  					}
+  
+  					ReferenceType refType = ReferenceType.getType(iRefType);
+  					
+  					if (refTypeFilter==null || refTypeFilter.contains(refType)) {
+  						String refText = NotesStringUtils.fromLMBCS(pRefText, -1);
+  						String fragment = NotesStringUtils.fromLMBCS(pFragment, -1);
+  						
+  						CommandId cmdId = CommandId.getCommandId(iCmdId);
+  						
+  						List<IHtmlApiUrlTargetComponent<?>> targets = new ArrayList<>(nTargets);
+  						
+  						for (int t=0; t<nTargets; t++) {
+  							Pointer pCurrTarget = pTargets.share(t * JNANotesConstants.htmlApiUrlComponentSize);
+  							HtmlApi_UrlTargetComponentStruct currTarget = HtmlApi_UrlTargetComponentStruct.newInstance(pCurrTarget);
+  							currTarget.read();
+  							
+  							int iTargetType = currTarget.AddressableType;
+  							TargetType targetType = TargetType.getType(iTargetType);
+  							
+  							Set<TargetType> targetTypeFilterForRefType = targetTypeFilter==null ? null : targetTypeFilter.get(refType);
+  							
+  							if (targetTypeFilterForRefType==null || targetTypeFilterForRefType.contains(targetType)) {
+  								switch (currTarget.ReferenceType) {
+  								case NotesConstants.URT_Name:
+  									currTarget.Value.setType(Pointer.class);
+  									currTarget.Value.read();
+  									String name = NotesStringUtils.fromLMBCS(currTarget.Value.name, -1);
+  									targets.add(new HtmlApiUrlTargetComponent<>(targetType, String.class, name));
+  									break;
+  								case NotesConstants.URT_NoteId:
+  									currTarget.Value.setType(NoteIdStruct.class);
+  									currTarget.Value.read();
+  									NoteIdStruct noteIdStruct = currTarget.Value.nid;
+  									int iNoteId = noteIdStruct.nid;
+  									targets.add(new HtmlApiUrlTargetComponent<>(targetType, Integer.class, iNoteId));
+  									break;
+  								case NotesConstants.URT_Unid:
+  									currTarget.Value.setType(NotesUniversalNoteIdStruct.class);
+  									currTarget.Value.read();
+  									NotesUniversalNoteIdStruct unidStruct = currTarget.Value.unid;
+  									unidStruct.read();
+  									String unid = unidStruct.toString();
+  									targets.add(new HtmlApiUrlTargetComponent<>(targetType, String.class, unid));
+  									break;
+  								case NotesConstants.URT_None:
+  									targets.add(new HtmlApiUrlTargetComponent<>(targetType, Object.class, null));
+  									break;
+  								case NotesConstants.URT_RepId:
+  									//TODO find out how to decode this one
+  									break;
+  								case NotesConstants.URT_Special:
+  									//TODO find out how to decode this one
+  									break;
+  								default:
+  			                      //TODO: is there anything to do
+  								}
+  							}
+  						}
+  						
+  						IHtmlApiReference newRef = new HTMLApiReference(refType, refText, fragment,
+  								cmdId, targets);
+  						references.add(newRef);
+  					}
+  				}
+  				finally {
+  					if (hRef!=0) {
+  						Mem.OSMemoryUnlock(hRef);
+  						Mem.OSMemoryFree(hRef);
+  					}
+  				}
 			}
 			
 			return new JNAHtmlConversionResult(doc, htmlText, references, options);

@@ -36,7 +36,6 @@ import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.HANDLE;
 import com.hcl.domino.misc.INumberEnum;
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
@@ -154,7 +153,7 @@ abstract class AbstractDxlProcessor<AT extends APIObjectAllocations, PROP extend
       }
 
       DHANDLE.ByReference hList = DHANDLE.newInstanceByReference();
-      Memory retpList = new Memory(Native.POINTER_SIZE);
+      PointerByReference retpList = new PointerByReference();
       WordByReference retListSize = new WordByReference();
       NotesCAPI.get().ListAllocate(WordImpl.ZERO, WordImpl.ZERO, 0, hList, retpList, retListSize);
       try {

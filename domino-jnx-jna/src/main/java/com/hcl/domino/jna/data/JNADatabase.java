@@ -150,9 +150,9 @@ import com.hcl.domino.security.AclFlag;
 import com.hcl.domino.security.AclLevel;
 import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.ptr.PointerByReference;
 import com.sun.jna.ptr.ShortByReference;
 
 public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implements Database {
@@ -3857,9 +3857,9 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 						//the item name in memory
 						
 						
-						try(DisposableMemory retItemName = new DisposableMemory(128);
-						    DisposableMemory retItemNamePtr = new DisposableMemory(Native.POINTER_SIZE)) {
-	            retItemNamePtr.setPointer(0, retItemName);
+						try(DisposableMemory retItemName = new DisposableMemory(128)) {
+						  PointerByReference retItemNamePtr = new PointerByReference();
+	            retItemNamePtr.setValue(retItemName);
 							for (int i=0; i<iNumEntries; i++) {
 								retItemName.clear();
 								
@@ -3869,7 +3869,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 								//grab the current pointer stored in retItemNamePtr;
 								//using retItemName here did not work, because the
 								//value of retItemNamePtr got redirected
-								Pointer ptr = retItemNamePtr.getPointer(0);
+								Pointer ptr = retItemNamePtr.getValue();
 								String currItemName = NotesStringUtils.fromLMBCS(
 										ptr,
 										retItemNameLength.getValue());

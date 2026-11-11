@@ -260,7 +260,7 @@ public interface INotesCAPI extends Library {
 			WORD TextSize,
 			int fPrefixDataType,
 			DHANDLE.ByReference rethList,
-			Memory retpList,
+			PointerByReference retpList,
 			WORD.ByReference retListSize);
 
 	STATUS ListRemoveAllEntries(
@@ -329,7 +329,7 @@ public interface INotesCAPI extends Library {
 	STATUS ConvertTextToTIMEDATE(
 			IntlFormatStruct intlFormat,
 			Pointer textFormat,
-			Memory text,
+			PointerByReference text,
 			WORD maxLength,
 			NotesTimeDateStruct retTIMEDATE);
 
@@ -1463,13 +1463,13 @@ public interface INotesCAPI extends Library {
 	STATUS SchContainer_GetFirstSchedule(
 			DHANDLE.ByValue hCntnr,
 			IntByReference rethObj,
-			Memory retpSchedule);
+			PointerByReference retpSchedule);
 
 	STATUS SchContainer_GetNextSchedule(
 			DHANDLE.ByValue hCntnr,
 			int hCurSchedule,
 			IntByReference rethNextSchedule,
-			Memory retpNextSchedule);
+			PointerByReference retpNextSchedule);
 	
 	STATUS Schedule_ExtractSchedList(
 			DHANDLE.ByValue hCntnr,
@@ -1531,7 +1531,7 @@ public interface INotesCAPI extends Library {
 			IntByReference phRef);
 	STATUS HTMLLockAndFixupReference(
 			int hRef,
-			Memory ppRef);
+			PointerByReference ppRef);
 	STATUS HTMLConvertElement(
 			int hHTML,
 			HANDLE.ByValue hDB,
@@ -2136,7 +2136,7 @@ public interface INotesCAPI extends Library {
 			int itemNum,
 			WORD.ByReference itemType,
 			WORD.ByReference itemLength,
-			Pointer itemName);
+			PointerByReference itemName);
 	
 	STATUS NSFItemDefExtUnlock(
 			NotesItemDefinitionTableExt itemDefTable,

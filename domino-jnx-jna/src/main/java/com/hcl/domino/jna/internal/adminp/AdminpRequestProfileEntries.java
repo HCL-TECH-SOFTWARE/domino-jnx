@@ -44,7 +44,7 @@ import com.hcl.domino.jna.internal.gc.handles.DHANDLE;
 import com.hcl.domino.jna.internal.gc.handles.LockUtil;
 import com.hcl.domino.jna.internal.structs.NotesAdminpRequestProfileStruct;
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * Helper class for AdministrationProcess request creation
@@ -128,7 +128,7 @@ public class AdminpRequestProfileEntries {
 				//for lists, we create our own private copy that are not disposed with the together document
 				DHANDLE.ByReference rethList = DHANDLE.newInstanceByReference();
 				WordByReference retListSize = new WordByReference();
-				Memory retpList = new Memory(Native.POINTER_SIZE);
+				PointerByReference retpList = new PointerByReference();
 				
 				NotesCAPI.get().ListAllocate(WordImpl.ZERO, 
 				    WordImpl.ZERO,

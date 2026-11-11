@@ -53,7 +53,7 @@ import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeStruct;
 import com.hcl.domino.misc.NotesConstants;
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
+import com.sun.jna.ptr.PointerByReference;
 
 /**
  * Wrapper class for the TIMEDATE C API data structure.
@@ -362,11 +362,9 @@ public class JNADominoDateTime extends DefaultDominoDateTime {
 	public static JNADominoDateTime fromString(DominoIntlFormat intl, String dateTimeStr) {
 		Memory dateTimeStrLMBCS = NotesStringUtils.toLMBCS(dateTimeStr, true);
 		//convert method expects a pointer to the date string in memory
-		try(
-		    DisposableMemory dateTimeStrLMBCSPtr = new DisposableMemory(Native.POINTER_SIZE);
-		    DisposableMemory retTimeDateMem = new DisposableMemory(JNANotesConstants.timeDateSize);
-		) {
-	        dateTimeStrLMBCSPtr.setPointer(0, dateTimeStrLMBCS);
+		try(DisposableMemory retTimeDateMem = new DisposableMemory(JNANotesConstants.timeDateSize)) {
+		  PointerByReference dateTimeStrLMBCSPtr = new PointerByReference();
+	        dateTimeStrLMBCSPtr.setValue(dateTimeStrLMBCS);
 	        
 	        IntlFormatStruct intlStruct = intl==null ? null : intl.getAdapter(IntlFormatStruct.class);
     		NotesTimeDateStruct retTimeDate = NotesTimeDateStruct.newInstance(retTimeDateMem);
