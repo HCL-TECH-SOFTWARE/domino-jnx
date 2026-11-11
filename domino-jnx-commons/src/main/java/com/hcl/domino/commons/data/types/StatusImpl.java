@@ -87,4 +87,9 @@ public class StatusImpl implements STATUS {
     StatusImpl other = (StatusImpl) obj;
     return value == other.value;
   }
+  
+  @Override
+  public String toString() {
+    return "STATUS: 0x" + Integer.toHexString(value);
+  }
 }
