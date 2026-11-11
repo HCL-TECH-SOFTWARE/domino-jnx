@@ -63,6 +63,7 @@ import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.commons.data.DefaultUserData;
 import com.hcl.domino.commons.data.IDefaultDocument;
+import com.hcl.domino.commons.data.DefaultDominoOriginatorId;
 import com.hcl.domino.commons.data.SignatureDataImpl;
 import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.data.types.TypedConstants;
@@ -684,7 +685,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
   @Override
   public DominoOriginatorId getOID() {
     OriginatorID oidStruct = getOIDStruct();
-    JNADominoOriginatorId oid = new JNADominoOriginatorId(oidStruct);
+    DefaultDominoOriginatorId oid = new DefaultDominoOriginatorId(oidStruct);
     return oid;
   }
 

@@ -14,15 +14,14 @@
  * under the License.
  * ==========================================================================
  */
-package com.hcl.domino.jna.data;
+package com.hcl.domino.commons.data;
 
 import java.util.Formatter;
-import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.DominoOriginatorId;
 import com.hcl.domino.richtext.structures.OriginatorID;
 
-public class JNADominoOriginatorId implements DominoOriginatorId {
+public class DefaultDominoOriginatorId implements DominoOriginatorId {
   private String unid;
   private int sequence;
   /** C type : TIMEDATE */
@@ -31,7 +30,7 @@ public class JNADominoOriginatorId implements DominoOriginatorId {
   /** structure is lazily created */
   private OriginatorID m_struct;
 
-  public JNADominoOriginatorId(OriginatorID oid) {
+  public DefaultDominoOriginatorId(OriginatorID oid) {
     this.m_struct = oid;
   }
 

@@ -16,7 +16,7 @@
  */
 package com.hcl.domino.jna.internal;
 
-import com.hcl.domino.jna.data.JNADominoOriginatorId;
+import com.hcl.domino.commons.data.DefaultDominoOriginatorId;
 
 /**
  * Data container for the {@link NotesOriginatorIdStruct} fields used
@@ -36,7 +36,7 @@ public class NotesOriginatorIdData {
 		m_seqTimeInnards = seqTimeInnards;
 	}
 	
-	public NotesOriginatorIdData(JNADominoOriginatorId oid) {
+	public NotesOriginatorIdData(DefaultDominoOriginatorId oid) {
 		m_unid = oid.getUNID();
 		m_seq = oid.getSequence();
 		m_seqTimeInnards = oid.getSequenceTime().getAdapter(int[].class);

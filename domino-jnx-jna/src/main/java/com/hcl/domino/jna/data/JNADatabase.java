@@ -57,6 +57,7 @@ import com.hcl.domino.commons.data.AccessInfoImpl;
 import com.hcl.domino.commons.data.BuildVersionInfoImpl;
 import com.hcl.domino.commons.data.DefaultDominoDateTime;
 import com.hcl.domino.commons.data.EncryptionInfoImpl;
+import com.hcl.domino.commons.data.DefaultDominoOriginatorId;
 import com.hcl.domino.commons.data.NSFVersionInfoImpl;
 import com.hcl.domino.commons.data.types.StatusImpl;
 import com.hcl.domino.commons.data.types.TypedConstants;
@@ -2091,7 +2092,7 @@ public class JNADatabase extends BaseJNAAPIObject<JNADatabaseAllocations> implem
 	@Override
 	public DominoOriginatorId generateOID() {
 	    OriginatorID oidStruct = generateOIDStruct();
-		return new JNADominoOriginatorId(oidStruct);
+		return new DefaultDominoOriginatorId(oidStruct);
 	}
 	
 	OriginatorID generateOIDStruct() {
