@@ -275,7 +275,7 @@ public class NotesStringUtils {
 		
 		// If it's compatible ASCII, return without the native call
         if(isPureAscii(data)) {
-          return new String(data, StandardCharsets.UTF_8);
+          return new String(data, StandardCharsets.US_ASCII);
         }
 		
 		int startOffset = 0;
