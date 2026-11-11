@@ -34,7 +34,6 @@ import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.misc.NotesConstants;
 import com.hcl.domino.util.JNXStringUtil;
 import com.sun.jna.Memory;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
 
@@ -446,17 +445,11 @@ public class NotesStringUtils {
 	}
 	
     public static String fromLMBCS(ByteBuffer buf, int textLen) {
-      // Check if it's a native pointer and use it directly
-      if (buf.isDirect()) {
-        Pointer ptr = Native.getDirectBufferPointer(buf);
-        return fromLMBCS(ptr.share(0), textLen);
-      } else {
-        int pos = buf.position();
-        byte[] data = new byte[textLen];
-        buf.get(data);
-        buf.position(pos);
-        return fromLMBCS(data);
-      }
+      int pos = buf.position();
+      byte[] data = new byte[textLen];
+      buf.get(data);
+      buf.position(pos);
+      return fromLMBCS(data);
     }
 	
 	/**
