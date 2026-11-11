@@ -914,7 +914,9 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
         }
         return INotesErrorConstants.NOERROR;
       };
-      
+
+      final DHANDLE.ByReference rethBuffer = DHANDLE.newInstanceByReference();
+      final NIFFindByKeyContextStruct ctx = NIFFindByKeyContextStruct.newInstance();
       STATUS result = LockUtil.lockHandle(allocations.getCollectionHandle(), (handleByVal) ->
         NotesCAPI.get().NIFFindByKeyExtended4(
           handleByVal,
@@ -925,10 +927,10 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
           retIndexPos,
           retNumMatches,
           retSignalFlags,
-          null,
+          rethBuffer,
           retSequence,
           proc,
-          null,
+          ctx,
           0)
       );
 
@@ -938,8 +940,11 @@ public class JNADominoCollection extends BaseJNAAPIObject<JNADominoCollectionAll
       }
       result.orElseThrow();
       
+      // Write the data to a direct ByteBuffer to pass to the native API
       byte[] data = baos.toByteArray();
-      buf = ByteBuffer.wrap(data).order(ByteOrder.nativeOrder());
+      buf = ByteBuffer.allocateDirect(data.length);
+      buf.put(data);
+      buf.position(0);
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
