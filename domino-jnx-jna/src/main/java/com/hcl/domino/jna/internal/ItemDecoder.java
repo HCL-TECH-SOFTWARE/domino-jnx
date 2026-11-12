@@ -28,6 +28,7 @@ import com.hcl.domino.commons.data.DefaultDominoDateRange;
 import com.hcl.domino.commons.data.types.WordByReference;
 import com.hcl.domino.commons.richtext.RichTextUtil;
 import com.hcl.domino.commons.util.NotesDateTimeUtils;
+import com.hcl.domino.commons.util.ThreadBuffers;
 import com.hcl.domino.data.DominoDateTime;
 import com.hcl.domino.data.ItemDataType;
 import com.hcl.domino.jna.data.JNADominoDateTime;
@@ -42,6 +43,8 @@ import com.sun.jna.Pointer;
 import com.sun.jna.ptr.PointerByReference;
 
 public class ItemDecoder {
+  
+  private static final ThreadLocal<PointerByReference> POINTER_BY_REFERENCE = ThreadLocal.withInitial(PointerByReference::new);
 
 	public static double decodeNumber(Pointer ptr, int valueLength) {
 		double numVal = ptr.getDouble(0);
@@ -78,7 +81,9 @@ public class ItemDecoder {
         
         if (convertStringsLazily) {
             byte[] stringDataArr = new byte[valueLength];
-            ptr.slice().get(stringDataArr);
+            int pos = ptr.position();
+            ptr.get(stringDataArr);
+            ptr.position(pos);
 
             LMBCSString lmbcsString = new LMBCSString(stringDataArr);
             return lmbcsString;
@@ -126,40 +131,40 @@ public class ItemDecoder {
 	}
 
     public static List<Object> decodeTextListValue(ByteBuffer ptr, boolean convertStringsLazily) {
-        //read a text list item value
-        int listCountAsInt = Short.toUnsignedInt(ptr.getShort(0));
-        
-        List<Object> listValues = new ArrayList<>(listCountAsInt);
-        
-        WordByReference retTextLength = new WordByReference();
-        PointerByReference retTextPointer = new PointerByReference();
-          
-          for (int i=0; i<listCountAsInt; i++) {
-              NotesCAPI.get().ListGetText(ptr, false, word(i), retTextPointer, retTextLength).orElseThrow();
-              
-              //retTextPointer[0] points to the list entry text
-              Pointer pointerToTextInMem = retTextPointer.getValue();
-              int retTextLengthAsInt = retTextLength.getValue();
-              
-              if (retTextLengthAsInt==0) {
-                  listValues.add(""); //$NON-NLS-1$
-              }
-              else {
-                  if (convertStringsLazily) {
-                      byte[] stringDataArr = new byte[retTextLengthAsInt];
-                      pointerToTextInMem.read(0, stringDataArr, 0, retTextLengthAsInt);
-  
-                      LMBCSString lmbcsString = new LMBCSString(stringDataArr);
-                      listValues.add(lmbcsString);
-                  }
-                  else {
-                      String currListEntry = NotesStringUtils.fromLMBCS(pointerToTextInMem, retTextLengthAsInt);
-                      listValues.add(currListEntry);
-                  }
-              }
+      // read a text list item value
+      int listCountAsInt = Short.toUnsignedInt(ptr.getShort(0));
+
+      List<Object> listValues = new ArrayList<>(listCountAsInt);
+
+      WordByReference retTextLength = ThreadBuffers.WORD_BY_REFERENCE.get();
+      PointerByReference retTextPointer = POINTER_BY_REFERENCE.get();
+
+      for (int i = 0; i < listCountAsInt; i++) {
+        NotesCAPI.get().ListGetText(ptr, false, word(i), retTextPointer, retTextLength)
+            .orElseThrow();
+
+        // retTextPointer[0] points to the list entry text
+        Pointer pointerToTextInMem = retTextPointer.getValue();
+        int retTextLengthAsInt = retTextLength.getValue();
+
+        if (retTextLengthAsInt == 0) {
+          listValues.add(""); //$NON-NLS-1$
+        } else {
+          if (convertStringsLazily) {
+            byte[] stringDataArr = new byte[retTextLengthAsInt];
+            pointerToTextInMem.read(0, stringDataArr, 0, retTextLengthAsInt);
+
+            LMBCSString lmbcsString = new LMBCSString(stringDataArr);
+            listValues.add(lmbcsString);
+          } else {
+            String currListEntry =
+                NotesStringUtils.fromLMBCS(pointerToTextInMem, retTextLengthAsInt);
+            listValues.add(currListEntry);
           }
-        
-        return listValues;
+        }
+      }
+
+      return listValues;
     }
 	
 	public static DominoDateTime decodeTimeDateAsNotesTimeDate(final Pointer ptr, int valueLength) {
