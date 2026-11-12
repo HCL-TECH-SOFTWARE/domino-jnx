@@ -71,64 +71,8 @@ public class ItemDecoder {
 			return txtVal;
 		}
 	}
-
-    public static Object decodeTextValue(ByteBuffer ptr, int valueLength, boolean convertStringsLazily) {
-        if (valueLength<=0) {
-            return ""; //$NON-NLS-1$
-        }
-        
-        if (convertStringsLazily) {
-            byte[] stringDataArr = new byte[valueLength];
-            int pos = ptr.position();
-            ptr.get(stringDataArr);
-            ptr.position(pos);
-
-            LMBCSString lmbcsString = new LMBCSString(stringDataArr);
-            return lmbcsString;
-        }
-        else {
-            return NotesStringUtils.fromLMBCS(ptr, valueLength);
-        }
-    }
 	
     public static List<Object> decodeTextListValue(Pointer ptr, boolean convertStringsLazily) {
-      // read a text list item value
-      int listCountAsInt = Short.toUnsignedInt(ptr.getShort(0));
-
-      List<Object> listValues = new ArrayList<>(listCountAsInt);
-
-      WordByReference retTextLength = ThreadBuffers.WORD_BY_REFERENCE.get();
-      PointerByReference retTextPointer = ThreadBuffers.POINTER_BY_REFERENCE.get();
-
-      for (int i = 0; i < listCountAsInt; i++) {
-        NotesCAPI.get().ListGetText(ptr, false, word(i), retTextPointer, retTextLength)
-            .orElseThrow();
-
-        // retTextPointer[0] points to the list entry text
-        Pointer pointerToTextInMem = retTextPointer.getValue();
-        int retTextLengthAsInt = retTextLength.getValue();
-
-        if (retTextLengthAsInt == 0) {
-          listValues.add(""); //$NON-NLS-1$
-        } else {
-          if (convertStringsLazily) {
-            byte[] stringDataArr = new byte[retTextLengthAsInt];
-            pointerToTextInMem.read(0, stringDataArr, 0, retTextLengthAsInt);
-
-            LMBCSString lmbcsString = new LMBCSString(stringDataArr);
-            listValues.add(lmbcsString);
-          } else {
-            String currListEntry =
-                NotesStringUtils.fromLMBCS(pointerToTextInMem, retTextLengthAsInt);
-            listValues.add(currListEntry);
-          }
-        }
-      }
-
-      return listValues;
-    }
-
-    public static List<Object> decodeTextListValue(ByteBuffer ptr, boolean convertStringsLazily) {
       // read a text list item value
       int listCountAsInt = Short.toUnsignedInt(ptr.getShort(0));
 
@@ -170,13 +114,6 @@ public class ItemDecoder {
 		
 		return new JNADominoDateTime(innards);
 	}
-
-    public static DominoDateTime decodeTimeDateAsNotesTimeDate(final ByteBuffer ptr, int valueLength) {
-        int[] innards = new int[2];
-        ptr.asIntBuffer().get(innards);
-        
-        return new JNADominoDateTime(innards);
-    }
 	
 	public static Calendar decodeTimeDate(final Pointer ptr, int valueLength) {
 		int[] innards = ptr.getIntArray(0, 2);
