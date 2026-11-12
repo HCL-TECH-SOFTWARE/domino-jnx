@@ -424,7 +424,7 @@ public class JNADocument extends BaseJNAAPIObject<JNADocumentAllocations>
             : ItemDecoder.decodeTextListValue(valueDataPtr, false);
         return textList == null ? Collections.emptyList() : textList;
       case ItemDataTypeConstants.TYPE_NUMBER:
-        double numVal = ItemDecoder.decodeNumber(valueDataPtr, valueDataLength);
+        double numVal = valueDataPtr.getDouble(0);
         return Arrays.asList((Object) Double.valueOf(numVal));
       case ItemDataTypeConstants.TYPE_NUMBER_RANGE:
         List<Object> numberList = ItemDecoder.decodeNumberList(valueDataPtr, valueDataLength);

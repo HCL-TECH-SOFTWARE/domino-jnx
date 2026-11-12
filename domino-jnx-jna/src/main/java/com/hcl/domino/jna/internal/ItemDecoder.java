@@ -44,17 +44,7 @@ import com.sun.jna.ptr.PointerByReference;
 
 public class ItemDecoder {
   
-  public static double decodeNumber(Pointer ptr, int valueLength) {
-		double numVal = ptr.getDouble(0);
-		return numVal;
-	}
-
-    public static double decodeNumber(ByteBuffer ptr, int valueLength) {
-        double numVal = ptr.getDouble(0);
-        return numVal;
-    }
-	
-	public static Object decodeTextValue(Pointer ptr, int valueLength, boolean convertStringsLazily) {
+  public static Object decodeTextValue(Pointer ptr, int valueLength, boolean convertStringsLazily) {
 		if (valueLength<=0) {
 			return ""; //$NON-NLS-1$
 		}
@@ -371,7 +361,7 @@ public class ItemDecoder {
 		case TYPE_TEXT_LIST:
 			return length==0 ? Collections.emptyList() : decodeTextListValue(ptr, false);
 		case TYPE_NUMBER:
-			return decodeNumber(ptr, length);
+        return ptr.getDouble(0);
 		case TYPE_TIME:
 			return decodeTimeDateAsNotesTimeDate(ptr, length);
 		case TYPE_NUMBER_RANGE:

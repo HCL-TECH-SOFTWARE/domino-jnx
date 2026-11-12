@@ -497,7 +497,7 @@ public class NotesLookupResultBufferDecoder {
                         decodedItemValues[j]  = listValues;
 					    break;
 					  case ItemDataTypeConstants.TYPE_NUMBER:
-                        double numVal = ItemDecoder.decodeNumber(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
+                        double numVal = itemValueBufferPointers[j].getDouble(0);
                         decodedItemValues[j] = numVal;
 					    break;
 					  case ItemDataTypeConstants.TYPE_TIME:
@@ -605,7 +605,7 @@ public class NotesLookupResultBufferDecoder {
                         decodedItemValues[j]  = listValues;
 					    break;
 					  case ItemDataTypeConstants.TYPE_NUMBER:
-					    double numVal = ItemDecoder.decodeNumber(itemValueBufferPointers[j], itemValueBufferSizeAsInt);
+					    double numVal = itemValueBufferPointers[j].getDouble(0);
                         decodedItemValues[j] = numVal;
 					    break;
 					  case ItemDataTypeConstants.TYPE_TIME:
@@ -802,7 +802,7 @@ public class NotesLookupResultBufferDecoder {
                     m_itemValues[index] = itemValueBufferSizeAsInt==0 ? Collections.emptyList() : ItemDecoder.decodeTextListValue(m_itemValueBufferPointers[index], m_convertStringsLazily);
 				    break;
 				  case ItemDataTypeConstants.TYPE_NUMBER:
-				    m_itemValues[index] = ItemDecoder.decodeNumber(m_itemValueBufferPointers[index], itemValueBufferSizeAsInt);
+				    m_itemValues[index] = m_itemValueBufferPointers[index].getDouble(0);
 				    break;
 				  case ItemDataTypeConstants.TYPE_TIME:
 				    //we always store JNADominoDateTime and convert to Calendar if requested by caller
