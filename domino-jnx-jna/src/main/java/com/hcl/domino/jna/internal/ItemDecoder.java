@@ -339,7 +339,7 @@ public class ItemDecoder {
 	 * @return a {@link List} of {@link Calendar} and {@code Calendar[]} objects
 	 * 	representing the time/date values
 	 */
-	public static List<Object> decodeTimeDateList(ByteBuffer ptr) {
+	public static List<Object> decodeTimeDateList(Pointer ptr) {
 		//read number of list and range entries in range
 		int listEntriesAsInt = Short.toUnsignedInt(ptr.getShort(0));
 		int rangeEntriesAsInt = Short.toUnsignedInt(ptr.getShort(2));
