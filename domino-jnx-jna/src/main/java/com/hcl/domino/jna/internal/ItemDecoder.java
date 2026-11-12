@@ -33,7 +33,6 @@ import com.hcl.domino.jna.data.JNADominoDateTime;
 import com.hcl.domino.jna.data.types.WordByReference;
 import com.hcl.domino.jna.internal.capi.NotesCAPI;
 import com.hcl.domino.jna.internal.structs.NotesNumberPairStruct;
-import com.hcl.domino.jna.internal.structs.NotesRangeStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDatePairStruct;
 import com.hcl.domino.jna.internal.structs.NotesTimeDateStruct;
 import com.hcl.domino.jna.utils.ThreadBuffers;
@@ -122,12 +121,12 @@ public class ItemDecoder {
   }
 
 	public static List<Object> decodeNumberList(Pointer ptr, int valueLength) {
-		NotesRangeStruct range = NotesRangeStruct.newInstance(ptr);
-		range.read();
 		
 		//read number of list and range entries in range
-		int listEntriesAsInt = range.ListEntries & 0xffff;
-		int rangeEntriesAsInt = range.RangeEntries & 0xffff;
+	  // WORD ListEntries
+	  // WORD RangeEntries
+		int listEntriesAsInt = Short.toUnsignedInt(ptr.getShort(0));
+		int rangeEntriesAsInt = Short.toUnsignedInt(ptr.getShort(2));
 		
 		//skip range header
 		Pointer ptrAfterRange = ptr.share(JNANotesConstants.rangeSize);
@@ -182,12 +181,11 @@ public class ItemDecoder {
         return numberValues;
     }
 	public static List<Object> decodeTimeDateListAsNotesTimeDate(Pointer ptr) {
-		NotesRangeStruct range = NotesRangeStruct.newInstance(ptr);
-		range.read();
-		
 		//read number of list and range entries in range
-		int listEntriesAsInt = range.ListEntries & 0xffff;
-		int rangeEntriesAsInt = range.RangeEntries & 0xffff;
+		// WORD ListEntries
+		// WORD RangeEntries
+		int listEntriesAsInt = Short.toUnsignedInt(ptr.getShort(0));
+		int rangeEntriesAsInt = Short.toUnsignedInt(ptr.getShort(2));
 		
 		//skip range header
 		Pointer ptrAfterRange = ptr.share(JNANotesConstants.rangeSize);
@@ -226,8 +224,8 @@ public class ItemDecoder {
 
     public static List<Object> decodeTimeDateListAsNotesTimeDate(ByteBuffer ptr) {
         //read number of list and range entries in range
-        int listEntriesAsInt = ptr.getShort(0) & 0xffff;
-        int rangeEntriesAsInt = ptr.getShort(2) & 0xffff;
+        int listEntriesAsInt = Short.toUnsignedInt(ptr.getShort(0));
+        int rangeEntriesAsInt = Short.toUnsignedInt(ptr.getShort(2));
         
         //skip range header
         int bufferPos = JNANotesConstants.rangeSize;

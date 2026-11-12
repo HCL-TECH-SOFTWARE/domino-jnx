@@ -289,7 +289,7 @@ public class NotesStringUtils {
 		
 		List<String> lines = new ArrayList<>();
 		
-		INotesCAPI api = NotesCAPI.get();
+		INotesCAPI api = NotesCAPI.get(true);
 		
 		//output buffer shared across loop runs for each line
 		DisposableMemory outBufUTF8 = null;
