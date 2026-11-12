@@ -16,8 +16,6 @@
  */
 package com.hcl.domino.data;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 
 import com.hcl.domino.misc.INumberEnum;
@@ -90,13 +88,6 @@ public enum DocumentClass implements INumberEnum<Short> {
   /** Define symbol for those note classes that allow only one such in a file */
   SINGLE_INSTANCE(NotesConstants.NOTE_CLASS_SINGLE_INSTANCE);
 
-  private static Map<Short, DocumentClass> classesByValue = new HashMap<>();
-  static {
-    for (final DocumentClass currClass : DocumentClass.values()) {
-      DocumentClass.classesByValue.put(currClass.getValue(), currClass);
-    }
-  }
-
   public static boolean isDesignElement(final Set<DocumentClass> docClass) {
     return docClass.contains(DocumentClass.INFO) ||
         docClass.contains(DocumentClass.FORM) ||
@@ -110,7 +101,30 @@ public enum DocumentClass implements INumberEnum<Short> {
   }
 
   public static DocumentClass toNoteClass(final int val) {
-    return DocumentClass.classesByValue.get((short) val);
+    switch(val) {
+      case NotesConstants.NOTE_CLASS_DATA: return DOCUMENT;
+      case NotesConstants.NOTE_CLASS_INFO: return INFO;
+      case NotesConstants.NOTE_CLASS_FORM: return FORM;
+      case NotesConstants.NOTE_CLASS_VIEW: return VIEW;
+      case NotesConstants.NOTE_CLASS_ICON: return ICON;
+      case NotesConstants.NOTE_CLASS_DESIGN: return DESIGNCOLLECTION;
+      case NotesConstants.NOTE_CLASS_ACL: return ACL;
+      case NotesConstants.NOTE_CLASS_HELP_INDEX: return HELP_INDEX;
+      case NotesConstants.NOTE_CLASS_HELP: return HELP;
+      case NotesConstants.NOTE_CLASS_FILTER: return FILTER;
+      case NotesConstants.NOTE_CLASS_FIELD: return FIELD;
+      case NotesConstants.NOTE_CLASS_REPLFORMULA: return REPLFORMULA;
+
+      // This includes several "modifier" cases to account for potential
+      // abnormal legacy uses
+      case NotesConstants.NOTE_CLASS_PRIVATE: return PRIVATE;
+      case NotesConstants.NOTE_CLASS_NOTIFYDELETION: return NOTIFYDELETION;
+      case NotesConstants.NOTE_CLASS_ALL: return ALL;
+      case NotesConstants.NOTE_CLASS_ALLNONDATA: return ALLNONDATA;
+      case NotesConstants.NOTE_CLASS_NONE: return NONE;
+      case NotesConstants.NOTE_CLASS_SINGLE_INSTANCE: return SINGLE_INSTANCE;
+      default: return null;
+    }
   }
 
   private final short m_val;
