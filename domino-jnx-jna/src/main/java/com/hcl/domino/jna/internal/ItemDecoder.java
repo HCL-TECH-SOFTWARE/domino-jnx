@@ -72,7 +72,8 @@ public class ItemDecoder {
       PointerByReference retTextPointer = ThreadBuffers.POINTER_BY_REFERENCE.get();
 
       for (int i = 0; i < listCountAsInt; i++) {
-        NotesCAPI.get().ListGetText(ptr, false, word(i), retTextPointer, retTextLength)
+        // Skip the thread check, as this is only called by places that have already done the check
+        NotesCAPI.get(true).ListGetText(ptr, false, word(i), retTextPointer, retTextLength)
             .orElseThrow();
 
         // retTextPointer[0] points to the list entry text
